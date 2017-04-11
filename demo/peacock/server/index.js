@@ -10,9 +10,9 @@ class Storefront {
     return new Promise((resolve, reject) => {
       const child = childProcess.fork(gulpBin, ['build'], {
         cwd: storefrontPath,
-        env: {
+        env: Object.assign({}, process.env, {
           TARGET_CWD: process.cwd(),
-        },
+        }),
       });
 
       child.once('exit', (code) => {
@@ -25,8 +25,16 @@ class Storefront {
     });
   }
 
-  start() {
+  run() {
     require('./boot.js');
+  }
+
+  start() {
+    return this.build().then(() => {
+      this.run();
+    }, err => {
+      console.error('Oops, process exited with code', err);
+    });
   }
 }
 

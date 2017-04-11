@@ -61,6 +61,7 @@ module.exports = function(gulp, $, opts) {
     bundler.plugin(require('css-modulesify'), Object.assign({
       output: path.resolve('build/bundle.css'),
       use: plugins,
+      global: true,
       jsonOutput: 'build/css-modules.json',
     }));
 

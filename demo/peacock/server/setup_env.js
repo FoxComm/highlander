@@ -1,23 +1,11 @@
 
-const path = require('path');
-const _ = require('lodash');
-
 process.env.API_URL = process.env.API_URL || 'http://localhost';
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 process.env.STOREFRONT_LANGUAGE = process.env.STOREFRONT_LANGUAGE || 'en';
 process.env.URL_PREFIX = process.env.URL_PREFIX || '';
 process.env.STOREFRONT_CONTEXT = process.env.STOREFRONT_CONTEXT || 'default';
 
-const storefrontRoot = path.normalize(path.resolve(
-  path.join(__dirname, '..')
-));
-
-const libDir = path.join(storefrontRoot, 'lib');
-let additionalPaths = [libDir];
-if (process.cwd() != storefrontRoot) {
-  additionalPaths = [path.join(process.cwd(), 'lib'), ...additionalPaths];
-}
-process.env.NODE_PATH = _.compact([process.env.NODE_PATH, ...additionalPaths]).join(':');
+require('./setup_node_path');
 
 if (!process.env.GA_TRACKING_ID) {
   console.warn(

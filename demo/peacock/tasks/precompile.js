@@ -45,28 +45,70 @@ module.exports = function (gulp) {
       .pipe(gulp.dest('lib'));
   });
 
-  const projectPath = path.resolve(__dirname, '../src');
+  const projectPath = path.resolve(__dirname, '..');
+  const srcPath = path.join(projectPath, 'src');
 
-  const logSrcToLib = (filepath) => {
+  const getRelativePath = (filepath, basepath = projectPath) => {
     const fullPath = path.resolve(filepath);
-    const relative = path.relative(projectPath, fullPath);
+    return path.relative(basepath, fullPath);
+  };
 
-    console.info(`src/${relative} -> lib/${relative}`);
+  const logSrcToLib = (filepath, base = srcPath, overridden = false) => {
+    const relative = getRelativePath(filepath, base);
+    let message = `src/${relative} -> lib/${relative}`;
+    if (overridden) {
+      message += ' (overridden)';
+    }
+
+    console.info(message);
+  };
+
+  const targetCwd = process.env.TARGET_CWD;
+
+  const replaceByAlt = () => {
+    return through.obj((file, enc, cb) => {
+      let willBeAlt = Promise.resolve(false);
+      let altPath;
+      if (targetCwd) {
+        const relativePath = getRelativePath(file.path);
+        altPath = path.join(targetCwd, relativePath);
+        willBeAlt = fs.lstat(altPath);
+      }
+
+      willBeAlt.then(stat => {
+        file.path = altPath;
+        file.base = path.join(targetCwd, 'src');
+        file.cwd = targetCwd;
+        file.stat = stat;
+        file.isAlt = true;
+        cb(null, file);
+      }, () => {
+        cb(null, file);
+      });
+    });
+  };
+
+  const libPath = file => {
+    if (file.isAlt) {
+      return path.join(targetCwd, 'lib');
+    } else {
+      return 'lib';
+    }
   };
 
   gulp.task('precompile.source', function () {
-    const targetCwd = process.env.TARGET_CWD;
-
     return gulp.src('src/**/*.{jsx,js}', {read: false})
-      .pipe(changed('lib', {extension: '.js'}))
+      .pipe(replaceByAlt())
+      .pipe(changed(libPath, {extension: '.js'}))
       .pipe(through.obj((file, enc, cb) => {
-        const willBeAlt = targetCwd ? fs.exists()
-        logSrcToLib(file.path);
+        logSrcToLib(file.path, file.base || srcPath, file.isAlt);
         cb(null, file);
       }))
       .pipe(read())
-      .pipe(babel())
-      .pipe(gulp.dest('lib'));
+      .pipe(babel({
+        extends: path.resolve('.babelrc'),
+      }))
+      .pipe(gulp.dest(libPath));
   });
 
   gulp.task('precompile', ['precompile.static', 'precompile.source']);
