@@ -10,20 +10,11 @@ import utils.aliases._
 import utils.db._
 
 object AmazonOrderManager {
-  def findByAmazonOrderId(amazonOrderId: String)(implicit  ec: EC, db: DB, au: AU): DbResultT[AmazonOrderResponse.Root] =
+  def createAmazonOrder(payload: CreateAmazonOrderPayload)(
+      implicit ec: EC,
+      db: DB,
+      au: AU): DbResultT[AmazonOrderResponse.Root] =
     for {
-      amazonOrder <- * <~ AmazonOrders.mustFindOneOr404(amazonOrderId)
+      amazonOrder ← * <~ AmazonOrders.create(AmazonOrder.build(payload))
     } yield AmazonOrderResponse.build(amazonOrder)
-
-  def createAmazonOrder(payload: CreateAmazonOrderPayload)(implicit  ec: EC, db: DB, au: AU): DbResultT[AmazonOrderResponse.Root] =
-    for {
-      amazonOrder <- * <~ AmazonOrders.create(AmazonOrder.build(payload))
-    } AmazonOrderResponse.build(amazonOrder)
-
-  def listAmazonOrders()(implicit ec: EC, db: DB, ac: AC): DbResultT[ListAmazonOrdersAnswer] = {
-    for {
-      amazonOrders ← * <~ AmazonOrders.result
-    } yield amazonOrders.map(AmazonOrderInfo.fromAmazonOrder)
-  }
-
 }

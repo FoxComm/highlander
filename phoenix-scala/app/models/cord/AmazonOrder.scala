@@ -6,6 +6,7 @@ import shapeless._
 import utils.Money.Currency
 import utils.db.ExPostgresDriver.api._
 import utils.db._
+import utils.aliases._
 import failures._
 import payloads.AmazonOrderPayloads.CreateAmazonOrderPayload
 
@@ -25,7 +26,7 @@ object AmazonOrder {
   def build(payload: CreateAmazonOrderPayload): AmazonOrder =
     AmazonOrder(id = 0,
                 amazonOrderId = payload.amazonOrderId,
-                orderTotal = Option[payload.orderTotal],
+                orderTotal = payload.orderTotal,
                 paymentMethodDetail = payload.paymentMethodDetail,
                 orderType = payload.orderType,
                 currency = payload.currency,

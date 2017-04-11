@@ -6,8 +6,9 @@ import utils.http.JsonSupport._
 import models.account.User
 import org.json4s.native.JsonParser.StringVal
 import payloads.AmazonOrderPayloads._
-import services.AmazonOrderManager
+import services.AmazonOrderManager._
 import responses.cord.AmazonOrderResponse._
+import responses.cord.AmazonOrderResponse
 import services.Authenticator.AuthData
 import utils.aliases._
 import utils.http.CustomDirectives._
@@ -17,15 +18,16 @@ object AmazonOrderRoutes {
   def routes(implicit ec: EC, db: DB, auth: AU): Route = {
     activityContext(auth) { implicit ac ⇒
       pathPrefix("amazon_orders") {
-        (get & pathEnd) {
-          getOrFailures {
-            AmazonOrderManager.listAmazonOrders()
-          }
-        } ~
+//        (get & pathEnd) {
+//          getOrFailures {
+//            AmazonOrderManager.listAmazonOrders()
+//          }
+//        } ~
+
         pathPrefix(Segment) { amazonOrderId ⇒
-          (get & pathEnd) {
-            getOrFailures {
-              AmazonOrderManager.findByAmazonOrderId(amazonOrderId)
+          (post & pathEnd & entity(as[CreateAmazonOrderPayload])) { payload ⇒
+            mutateOrFailures {
+              createAmazonOrder(payload)
             }
           }
         }
