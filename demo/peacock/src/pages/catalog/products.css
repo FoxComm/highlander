@@ -79,7 +79,6 @@
   border-bottom: 1px solid var(--border-color);
   padding-left: 15px;
   padding-right: 15px;
-  margin-top: 50px; /*TODO: fix mobile webkit smooth touch*/
 }
 
 .sidebar-mobile-footer {

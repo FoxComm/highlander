@@ -13,10 +13,6 @@
   }
 }
 
-.content {
-  margin-top: 50px; /*TODO: fix mobile webkit smooth touch*/
-}
-
 .wrapper {
   display: flex;
   height: 100vh;
