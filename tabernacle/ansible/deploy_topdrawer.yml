@@ -8,8 +8,20 @@
     git_repo: "{{ lookup('env', 'GIT_REPO') | default('git@github.com:FoxComm/top-drawer.git', true) }}"
     git_tag: "{{ lookup('env', 'GIT_TAG') | default('master', true) }}"
     docker_tag: "{{ lookup('env', 'DOCKER_TAG') | default('dummy', true) }}"
-    docker_repo: "{{ lookup('env', 'DOCKER_REPO') | default('td-docker.foxcommerce.com:5000', true) }}"
+    docker_registry: "{{ lookup('env', 'DOCKER_REPO') | default('td-docker.foxcommerce.com:5000', true) }}"
     marathon_ip: "{{ lookup('env', 'MARATHON_IP') | default('10.0.0.19', true) }}"
     marathon_deploy: "{{ lookup('env', 'MARATHON_DEPLOY') | default(false, true) }}"
+    marathon_template_path: "{{ lookup('env', 'MARATHON_TEMPLATE_PATH') | default('ext/td/storefront/template/storefront-top-drawer.json', true) }}"
+    # Environment variables for Docker container
+    storefront_server_name: "{{ lookup('env', 'ENV_API_URL') }}"
+    contact_email: "{{ lookup('env', 'ENV_CONTACT_EMAIL') }}"
+    stripe_publishable_key: "{{ lookup('env', 'ENV_STRIPE_PUBLISHABLE_KEY') }}"
+    mailchimp_api_key: "{{ lookup('env', 'ENV_MAILCHIMP_API_KEY') }}"
+    ga_tracking_id: "{{ lookup('env', 'ENV_GA_TRACKING_ID') }}"
+    # Default overrides
+    docker_tags:
+        storefront_td: "{{docker_tag}}"
+        storefront_tpg: "{{docker_tag}}"
+    marathon_server: "{{marathon_ip}}:8080"
   roles:
     - { role: prod/storefront }

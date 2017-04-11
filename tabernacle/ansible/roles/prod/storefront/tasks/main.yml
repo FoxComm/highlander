@@ -1,14 +1,24 @@
 ---
 
+- name: Find out Playbook path
+  shell: "pwd"
+  register: playbook_path_out
+
+- name: Set Default Marathon Template Path
+  set_fact:
+    app_template_path: "{{playbook_path_out.stdout}}/roles/{{marathon_template_path}}"
+
 - name: Debug Parameters
   debug:
     msg:
         - "Git Repository: {{git_repo}}"
         - "Git Branch: {{git_tag}}"
-        - "Docker Repository: {{docker_repo}}"
+        - "Docker Registry: {{docker_registry}}"
         - "Docker Tag: {{docker_tag}}"
-        - "Marathon IP: {{marathon_ip}}"
+        - "Marathon App Name: {{marathon_app_name}}"
         - "Marathon Deploy: {{marathon_deploy}}"
+        - "Marathon IP: {{marathon_ip}}"
+        - "Marathon Template Path: {{app_template_path}}"
 
 - include: build.yml
 
