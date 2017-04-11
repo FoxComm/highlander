@@ -16,3 +16,11 @@
   systemd:
       name: consul_agent
       state: restarted
+
+- name: Add event subscribtion support for marathon
+  template: src=../../../base/mesos_master/templates/run_marathon.sh dest=/usr/local/bin mode="u+x,g+x,o+x"
+
+- name: Restart marathon
+  service: name={{item}} state=restarted
+  with_items:
+    - marathon
