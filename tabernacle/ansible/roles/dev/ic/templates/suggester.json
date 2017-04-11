@@ -42,7 +42,8 @@
   "labels": {
     "LAYER": "consumer",
     "LANG": "go",
-    "TAG": "master"
+    "TAG": "master",
+    "consul": "suggester"
   },
   "portDefinitions": [
     {
