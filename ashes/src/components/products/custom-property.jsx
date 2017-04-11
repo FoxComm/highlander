@@ -20,6 +20,7 @@ const propertyTypes = {
   date: 'Date',
   price: 'Price',
   bool: 'Yes/No',
+  color: 'Color',
 };
 
 type Props = {
@@ -48,6 +49,13 @@ class CustomProperty extends Component<void, Props, State> {
     const fieldLabelInput = this.refs.field;
     if (fieldLabelInput) {
       fieldLabelInput.focus();
+    }
+
+    if (this.props.property) {
+      this.setState({
+        fieldLabel: this.props.property.name,
+        propertyType: this.props.property.type,
+      })
     }
   }
 

@@ -78,7 +78,11 @@ function guessType(value: any): string {
 
 export default class ObjectFormInner extends Component {
   props: Props;
-  state: State = { isAddingProperty: false, errors: {} };
+  state: State = {
+    isAddingProperty: false,
+    isEditingProperty: false,
+    errors: {}
+  };
 
   get addCustomProperty() {
     if (this.props.canAddProperty) {
@@ -101,6 +105,22 @@ export default class ObjectFormInner extends Component {
           isVisible={true}
           onSave={this.handleCreateProperty}
           onCancel={() => this.setState({ isAddingProperty: false })}
+        />
+      );
+    }
+
+    if (this.state.isEditingProperty) {
+      const property = {
+        name: this.state.name,
+        type: this.state.type,
+      };
+
+      return (
+        <CustomProperty
+          property={property}
+          isVisible={true}
+          onSave={this.handleEditProperty}
+          onCancel={() => this.setState({ isEditingProperty: false })}
         />
       );
     }
@@ -127,12 +147,41 @@ export default class ObjectFormInner extends Component {
   }
 
   @autobind
+  handleEditProperty(property) {
+    const { attributes } = this.props;
+    const { name, value } = this.state;
+    const { fieldLabel, propertyType } = property;
+
+    const preparedObject = _.omit(attributes, name);
+    const newAttributes = {
+      ...preparedObject,
+      [fieldLabel]: {
+        t: propertyType,
+        v: value,
+      }
+    };
+
+    this.setState({
+      isEditingProperty: false,
+      name: '',
+      type: '',
+      value: ''
+    }, this.props.onChange(newAttributes));
+  }
+
+  @autobind
   handleDeleteProperty(name) {
     const newAttributes = _.omit(this.props.attributes, name);
+    this.setState({ isAddingProperty: false }, this.props.onChange(newAttributes));
+  }
 
-    this.props.onChange(newAttributes);
+  @autobind
+  onEdit(name, type, value) {
     this.setState({
-      isAddingProperty: false
+      isEditingProperty: true,
+      name,
+      type,
+      value
     });
   }
 
