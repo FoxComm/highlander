@@ -226,7 +226,7 @@ export default class ObjectFormInner extends Component {
     const onChange = () => this.handleChange(name, 'bool', !value);
     const sliderCheckbox = (
       <div>
-        {this.controlButtons(name, 'bool', value, options)}
+        {this.controlButtons(name, 'bool', value)}
         <SliderCheckbox
           id={name}
           checked={value}
@@ -251,7 +251,7 @@ export default class ObjectFormInner extends Component {
     const onChange = (v: Date) => this.handleChange(name, 'date', v.toISOString());
     const dateInput = (
       <div>
-        {this.controlButtons(name, 'string', value, options)}
+        {this.controlButtons(name, 'string', value)}
         <DatePicker date={dateValue} onChange={onChange} />
       </div>
     );
@@ -267,7 +267,7 @@ export default class ObjectFormInner extends Component {
     });
     const currencyInput = (
       <div>
-        {this.controlButtons(name, 'price', value, options)}
+        {this.controlButtons(name, 'price', value)}
         <CurrencyInput
           inputClass={inputClass}
           inputName={name}
@@ -290,7 +290,7 @@ export default class ObjectFormInner extends Component {
 
     return (
       <div className={classForContainer}>
-        {this.controlButtons(name, 'richText', value, options)}
+        {this.controlButtons(name, 'richText', value)}
         <RichTextEditor
           className={`fc-rich-text__name-${nameVal}`}
           label={options.label}
@@ -308,7 +308,7 @@ export default class ObjectFormInner extends Component {
     };
     const stringInput = (
       <div>
-        {this.controlButtons(name, 'string', value, options)}
+        {this.controlButtons(name, 'string', value)}
         <input
           className={inputClass}
           type="text"
@@ -380,7 +380,7 @@ export default class ObjectFormInner extends Component {
     const onChange = v => this.handleChange(name, 'color', v);
     const colorSwatch = (
       <div>
-        {this.controlButtons(name, 'color', value, options)}
+        {this.controlButtons(name, 'color', value)}
         <SwatchInput
           value={value}
           onChange={onChange}
@@ -391,11 +391,9 @@ export default class ObjectFormInner extends Component {
     return renderFormField(name, colorSwatch, options);
   }
 
-  controlButtons(name: string, type: string, value: any, options: AttrOptions) {
-    if (options.required) { return null; }
-
-    const reservedNames = ['description', 'metatitle', 'metadescription'];
-    if (reservedNames.includes(name.toLowerCase())) { return null; }
+  controlButtons(name: string, type: string, value: any) {
+    const defaultProperties = _.keys(_.get(this.props.schema, 'properties', {}));
+    if (defaultProperties.includes(name)) { return null; }
 
     return (
       <div className={s.controls}>
