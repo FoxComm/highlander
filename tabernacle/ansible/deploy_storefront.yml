@@ -22,6 +22,7 @@
     mailchimp_api_key: "{{ lookup('env', 'MAILCHIMP_API_KEY') }}"
     ga_tracking_id: "{{ lookup('env', 'GA_TRACKING_ID') }}"
     # Default overrides
+    app_name: storefront
     docker_tags:
         storefront_td: "{{docker_tag}}"
         storefront_tpg: "{{docker_tag}}"
