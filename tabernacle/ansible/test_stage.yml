@@ -38,6 +38,7 @@
     - { role: base/ssh_keys, when: first_run }
     - { role: hotfix/rsyslog }
     - { role: dev/seed_system, when: first_run }
+    - { role: dev/consul_agent }
     - { role: dev/marathon }
     - { role: dev/marathon_consumers }
     - { role: dev/ic }
