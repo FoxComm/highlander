@@ -27,7 +27,3 @@
 - name: Fail Fast
   fail: msg="ENV_MAILCHIMP_API_KEY not set"
   when: mailchimp_api_key == ""
-
-- name: Fail Fast
-  fail: msg="ENV_GA_TRACKING_ID not set"
-  when: ga_tracking_id == ""
