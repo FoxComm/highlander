@@ -376,6 +376,11 @@ google_oauth_frontend_client_id: ""
 google_oauth_frontend_secret: ""
 google_oauth_frontend_redirect_uri: ""
 
+# Twilio Credentials
+twilio_account_sid: ""
+twilio_auth_token: ""
+twilio_phone_number: ""
+
 # VM swap size
 swap_file: /swap
 swap_size_mb: 2000

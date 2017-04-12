@@ -24,7 +24,18 @@
     }
   },
   "env": {
-    "ANTHILL_HOST": "{{anthill_host}}"
+    "ANTHILL_HOST": "{{anthill_host}}",
+    "NEO4J_HOST": "{{neo4j_host}}",
+    "NEO4J_PORT": "{{neo4j_http_port}}",
+    "NEO4J_USER": "{{neo4j_user}}",
+    "NEO4J_PASS": "{{neo4j_pass}}",
+    "PHOENIX_URL": "http://{{phoenix_server}}",
+    "PHOENIX_USER": "{{phoenix_api_user}}",
+    "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
+    "ANTHILL_HOST": "{{anthill_host}}",
+    "TWILIO_ACCOUNT_SID": "{{twilio_account_sid}}",
+    "TWILIO_AUTH_TOKEN": "{{twilio_auth_token}}",
+    "TWILIO_PHONE_NUMBER": "{{twilio_phone_number}}",
   },
   "healthChecks": [
     {
