@@ -140,11 +140,16 @@ class LocalNav extends Component {
     // Index based keys aren't great, but in this case we don't have better
     // information and these won't get reordered - so it's fine.
     const key = `local-nav-item-${item.key ? item.key : index}`;
-    if (item.type !== NavDropdown) {
-      return <li ref={index} className={s.item} key={key}>{item}</li>;
-    }
 
-    console.log('renderItem');
+    if (item.type !== NavDropdown) {
+      const child = React.cloneElement(item, {
+        ref: index,
+        key,
+        activeClassName: s.lactive,
+      });
+
+      return <li ref={index} className={s.item} key={key}>{child}</li>;
+    }
 
     const isActive = this.hasActiveLink(item);
 
@@ -152,6 +157,7 @@ class LocalNav extends Component {
       ref: index,
       className: classNames(item.props.className, { [s.selected]: isActive }),
       key: key,
+      activeClassName: s.lactive,
     });
   }
 
@@ -163,8 +169,6 @@ class LocalNav extends Component {
       children = children.slice(0, collapseFrom);
     }
 
-    console.log('children', children);
-
     return children.map(this.renderItem);
   }
 
@@ -175,7 +179,10 @@ class LocalNav extends Component {
       return null;
     }
 
-    const children = React.Children.toArray(this.props.children).slice(collapseFrom);
+    const children = React.Children
+      .toArray(this.props.children)
+      .slice(collapseFrom)
+      .map(el => React.cloneElement(el, { activeClassName: s.lactive }));
 
     return (
       <NavDropdown ref={collapseFrom} title="More">

@@ -17,14 +17,13 @@ const SubNav = props => {
   const { order } = props;
   const params = {order: order.referenceNumber};
   const claims = getClaims();
-  const rest = { params, activeClassName: s.lactive };
 
   return (
     <LocalNav className={props.className}>
-      <IndexLink to="order-details" {...rest}>Details</IndexLink>
-      <Link to="order-shipments" expectedClaims={shippingClaims} actualClaims={claims} {...rest}>Shipments</Link>
-      <Link to="order-notes" expectedClaims={notesClaims} actualClaims={claims} {...rest}>Notes</Link>
-      <Link to="order-activity-trail" expectedClaims={activityClaims} actualClaims={claims} {...rest}>
+      <IndexLink to="order-details" params={params}>Details</IndexLink>
+      <Link to="order-shipments" expectedClaims={shippingClaims} actualClaims={claims} params={params}>Shipments</Link>
+      <Link to="order-notes" expectedClaims={notesClaims} actualClaims={claims} params={params}>Notes</Link>
+      <Link to="order-activity-trail" expectedClaims={activityClaims} actualClaims={claims} params={params}>
         Activity Trail
       </Link>
     </LocalNav>

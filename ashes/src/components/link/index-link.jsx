@@ -9,7 +9,6 @@ import type { LinkProps } from './link';
 type DefaultProps = {
   actualClaims: Claims,
   expectedClaims: Claims,
-  activeClassName: string,
 };
 
 export default class IndexLink extends Component {
@@ -18,7 +17,6 @@ export default class IndexLink extends Component {
   static defaultProps: DefaultProps = {
     actualClaims: {},
     expectedClaims: {},
-    activeClassName: 'is-active',
   };
 
   render() {
