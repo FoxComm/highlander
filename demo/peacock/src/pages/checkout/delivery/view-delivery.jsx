@@ -24,7 +24,9 @@ const ViewDelivery = (props: Props) => {
         There&#39;s no shipping to this address, please choose another one.
       </div>
     );
-  } else if (shippingAddressEmpty) {
+  }
+
+  if (shippingAddressEmpty) {
     return (
       <div styleName="helpful-hints">
         Choose shipping address first!
