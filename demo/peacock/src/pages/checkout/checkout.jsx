@@ -16,7 +16,6 @@ import Delivery from './delivery/delivery';
 import Billing from './billing/billing';
 import GuestAuth from './guest-auth/guest-auth';
 import Products from 'components/order-summary/product-table';
-import Header from 'components/header/header';
 import ErrorAlerts from 'ui/alerts/error-alerts';
 import Loader from 'ui/loader';
 import OrderTotals from 'components/order-summary/totals';
@@ -283,11 +282,6 @@ class Checkout extends Component {
 
     return (
       <section styleName="checkout">
-        <Header
-          path={props.location.pathname}
-          query={props.location.query}
-        />
-
         <div styleName="content">
           <ErrorAlerts
             sanitizeError={this.sanitizeError}
