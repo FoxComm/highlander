@@ -104,6 +104,9 @@ marathon_restart:
 # Should we use Intelligent Commerce
 with_ic: "{{ lookup('env', 'WITH_INTELLIGENT_COMMERCE') | default(true, true) | bool }}"
 
+# Should we do seeding for appliance
+with_appliance_seeding: "{{ lookup('env', 'WITH_APPLIANCE_SEEDING') | default(true, true) | bool }}"
+
 # Consul Service Discovery
 consul_data_dir: /var/consul
 consul_suffix: service.consul
