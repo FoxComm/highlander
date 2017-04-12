@@ -112,6 +112,11 @@
   .title-secondary {
     display: block;
   }
+
+  .container {
+    margin-left: var(--grid-margin);
+    margin-right: var(--grid-margin);
+  }
 }
 
 @media (--large) {
