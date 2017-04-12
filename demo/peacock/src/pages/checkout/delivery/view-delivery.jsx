@@ -8,8 +8,8 @@ import _ from 'lodash';
 import styles from './delivery.css';
 
 type Props = {
-  shippingMethod: ?Object,
-  shippingMethodCost: (cost: number) => $Element<*>,
+  shippingMethod: Object,
+  shippingMethodCost: (cost: number) => React$Element<*>,
   shippingMethodsEmpty: boolean,
   shippingAddressEmpty: boolean,
   loadingShippingMethods: boolean,
@@ -21,7 +21,7 @@ const ViewDelivery = (props: Props) => {
   if (shippingMethodsEmpty && !shippingAddressEmpty && !loadingShippingMethods) {
     return (
       <div styleName="helpful-hints">
-        There's no shipping to this address, please choose another one.
+        There&#39;s no shipping to this address, please choose another one.
       </div>
     );
   } else if (shippingAddressEmpty) {
@@ -30,7 +30,9 @@ const ViewDelivery = (props: Props) => {
         Choose shipping address first!
       </div>
     );
-  } else if (_.isEmpty(shippingMethod)) return null;
+  }
+
+  if (_.isEmpty(shippingMethod)) return null;
 
   return (
     <div styleName="delivery">
