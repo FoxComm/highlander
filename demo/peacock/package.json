@@ -12,6 +12,9 @@
     "watch-precompile": "babel src -d lib -w --skip-initial-build",
     "storybook": "start-storybook -p 9001 -s ./public -c .storybook"
   },
+  "bin": {
+    "fox": "cli/fox.js"
+  },
   "author": "FoxCommerce",
   "license": "ISC",
   "devDependencies": {
