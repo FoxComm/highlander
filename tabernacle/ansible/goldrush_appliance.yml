@@ -66,7 +66,7 @@
     - { role: hotfix/replace_mesos_consul, stop_mesos_consul: true }
     - { role: demo/balancer }
     # Seed
-    - { role: dev/seeder }
+    - { role: dev/seeder, when: with_appliance_seeding }
     # Finale
     - { role: dev/healthcheck }
     - { role: dev/appliance_dns }
