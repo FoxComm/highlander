@@ -18,12 +18,6 @@ object AmazonOrderRoutes {
   def routes(implicit ec: EC, db: DB, auth: AU): Route = {
     activityContext(auth) { implicit ac ⇒
       pathPrefix("amazon_orders") {
-//        (get & pathEnd) {
-//          getOrFailures {
-//            AmazonOrderManager.listAmazonOrders()
-//          }
-//        } ~
-
         (post & pathEnd & entity(as[CreateAmazonOrderPayload])) { payload ⇒
           mutateOrFailures {
             createAmazonOrder(payload)

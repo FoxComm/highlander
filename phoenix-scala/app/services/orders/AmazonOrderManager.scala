@@ -25,7 +25,4 @@ object AmazonOrderManager {
         AmazonOrderResponse.build(AmazonOrder.fromExistingAmazonOrder(existingOrder))
     }
   }
-//    for {
-//      amazonOrder ← * <~ AmazonOrders.create(AmazonOrder.build(payload))
-//    } yield AmazonOrderResponse.build(amazonOrder)
 }
