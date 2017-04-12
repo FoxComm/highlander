@@ -116,8 +116,8 @@ class SelectCustomerGroups extends Component {
   get pilledInput() {
     const { state, props } = this;
     const pills = props.selectedGroupIds.map((cg) => {
-      if (_.find(props.groups, { 'id': cg })) return _.find(props.groups, { 'id': cg }, {}).name
-      return "loading...";
+      if (_.find(props.groups, { 'id': cg })) return _.find(props.groups, { 'id': cg }, {}).name;
+      return 'loading...';
     });
 
     return (
