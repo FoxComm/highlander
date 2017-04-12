@@ -32,13 +32,16 @@ export const PAGE_SIZE = 20;
 const context = process.env.STOREFRONT_CONTEXT || 'default';
 export const GIFT_CARD_TAG = 'GIFT-CARD';
 
-function apiCall(
+type apiCallParams = {
   categoryNames: ?Array<string>,
   sorting: ?{ direction: number, field: string },
   selectedFacets: Object,
-  loaded: number,
-  { ignoreGiftCards = true } = {}): Promise<*> {
+  toLoad: number,
+};
+
+function apiCall(params: apiCallParams, { ignoreGiftCards = true } = {}): Promise<*> {
   let payload = defaultSearch(String(context));
+  const { categoryNames, sorting, selectedFacets, toLoad } = params;
 
   _.forEach(_.compact(categoryNames), (cat) => {
     if (cat !== 'ALL' && cat !== GIFT_CARD_TAG) {
@@ -67,7 +70,7 @@ function apiCall(
     }
   });
 
-  const promise = this.api.post(`/search/public/products_catalog_view/_search?size=${loaded}`, payload);
+  const promise = this.api.post(`/search/public/products_catalog_view/_search?size=${toLoad}`, payload);
 
   const chained = promise.then((response) => {
     return {

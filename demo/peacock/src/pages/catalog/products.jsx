@@ -93,8 +93,14 @@ class Products extends Component {
 
   componentWillMount() {
     const { categoryName, subCategory, leafCategory } = this.props.params;
+    const categoryNames = [categoryName, subCategory, leafCategory];
     const { sorting, selectedFacets, toLoad } = this.state;
-    this.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets, toLoad);
+    this.fetch({
+      categoryNames,
+      sorting,
+      selectedFacets,
+      toLoad,
+    });
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -110,12 +116,15 @@ class Products extends Component {
       (leafCategory !== nextLeafCategory);
 
     if (mustInvalidate) {
-      this.fetch(
-        [nextCategoryName, nextSubCategory, nextLeafCategory],
-        this.state.sorting,
-        this.state.selectedFacets,
-        this.state.toLoad
-      );
+      const categoryNames = [nextCategoryName, nextSubCategory, nextLeafCategory];
+      const {sorting, selectedFacets, toLoad} = this.state;
+
+      this.fetch({
+        categoryNames,
+        sorting,
+        selectedFacets,
+        toLoad,
+      });
     }
   }
 
@@ -134,7 +143,14 @@ class Products extends Component {
 
     this.setState({selectedFacets, sorting: newState, toLoad: PAGE_SIZE}, () => {
       const { categoryName, subCategory, leafCategory } = this.props.params;
-      this.fetch([categoryName, subCategory, leafCategory], newState, selectedFacets, PAGE_SIZE);
+      const categoryNames = [categoryName, subCategory, leafCategory];
+
+      this.fetch({
+        categoryNames,
+        sorting: newState,
+        selectedFacets,
+        toLoad: PAGE_SIZE,
+      });
     });
   }
 
@@ -145,7 +161,14 @@ class Products extends Component {
 
     const nextToLoad = toLoad + PAGE_SIZE;
     this.setState({ toLoad: nextToLoad }, () => {
-      this.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets, nextToLoad);
+      const categoryNames = [categoryName, subCategory, leafCategory];
+
+      this.fetch({
+        categoryNames,
+        sorting,
+        selectedFacets,
+        toLoad: nextToLoad,
+      });
     });
   }
 
@@ -175,10 +198,17 @@ class Products extends Component {
   @autobind
   onSelectFacet(facet: string, value: string, selected: boolean) {
     const newSelection = this.newFacetSelectState(facet, value, selected);
-
     this.setState({selectedFacets: newSelection, sorting: this.state.sorting, toLoad: PAGE_SIZE}, () => {
       const { categoryName, subCategory, leafCategory } = this.props.params;
-      this.fetch([categoryName, subCategory, leafCategory], this.state.sorting, newSelection, PAGE_SIZE);
+      const categoryNames = [categoryName, subCategory, leafCategory];
+      const { selectedFacets, sorting, toLoad } = this.state;
+
+      this.fetch({
+        categoryNames,
+        sorting,
+        selectedFacets,
+        toLoad,
+      });
     });
   }
 
@@ -204,8 +234,14 @@ class Products extends Component {
   applyMobileFilters() {
     this.showMenuBar();
     const { categoryName, subCategory, leafCategory } = this.props.params;
+    const categoryNames = [categoryName, subCategory, leafCategory];
     const { sorting, selectedFacets} = this.state;
-    this.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets, PAGE_SIZE);
+    this.fetch({
+      categoryNames,
+      sorting,
+      selectedFacets,
+      toLoad: PAGE_SIZE,
+    });
   }
 
   get navBar(): ?Element<*> {
