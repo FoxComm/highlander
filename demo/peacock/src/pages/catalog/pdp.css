@@ -116,6 +116,11 @@
   .container {
     margin-left: var(--grid-margin);
     margin-right: var(--grid-margin);
+    margin-top: 10px;
+  }
+
+  .short-description {
+    margin: 0 0 10px;
   }
 }
 
