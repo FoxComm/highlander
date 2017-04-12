@@ -222,6 +222,8 @@ class Checkout extends Component {
     const cartFetched = props.fetchCartState.finished;
 
     if (cartFetched) {
+      const shippingAddress = _.get(this.props.cart, 'shippingAddress', {});
+
       return (
         <div styleName="wrapper">
           <div styleName="main-container">
@@ -233,7 +235,7 @@ class Checkout extends Component {
                     onComplete={this.setShipping}
                     addresses={this.props.addresses}
                     fetchAddresses={this.props.fetchAddresses}
-                    shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
+                    shippingAddress={shippingAddress}
                     auth={this.props.auth}
                     isGuestMode={isGuestMode}
                   />
@@ -245,6 +247,7 @@ class Checkout extends Component {
                     shippingMethods={props.shippingMethods}
                     cart={this.props.cart}
                     fetchShippingMethods={props.fetchShippingMethods}
+                    shippingAddressEmpty={_.isEmpty(shippingAddress)}
                   />
                 </div>
               </div>

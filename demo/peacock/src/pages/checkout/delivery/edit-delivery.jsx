@@ -114,10 +114,11 @@ class EditDelivery extends Component {
       <CheckoutForm
         buttonLabel="Apply"
         submit={this.handleSubmit}
-        title="Delivery"
+        title="Shipping methods"
         error={props.saveDeliveryState.err}
         inProgress={props.saveDeliveryState.inProgress}
         action={action}
+        buttonDisabled={_.isEmpty(this.state.shippingMethod)}
       >
         <div className={styles['shipping-methods']}>
           {this.shippingMethods}
