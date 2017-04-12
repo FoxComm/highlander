@@ -134,7 +134,7 @@ class Products extends Component {
 
     this.setState({selectedFacets, sorting: newState, toLoad: PAGE_SIZE}, () => {
       const { categoryName, subCategory, leafCategory } = this.props.params;
-      this.props.fetch([categoryName, subCategory, leafCategory], newState, selectedFacets, PAGE_SIZE);
+      this.fetch([categoryName, subCategory, leafCategory], newState, selectedFacets, PAGE_SIZE);
     });
   }
 
@@ -145,7 +145,7 @@ class Products extends Component {
 
     const nextToLoad = toLoad + PAGE_SIZE;
     this.setState({ toLoad: nextToLoad }, () => {
-      this.props.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets, nextToLoad);
+      this.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets, nextToLoad);
     });
   }
 
