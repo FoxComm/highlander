@@ -2,3 +2,4 @@
 
 - name: reload consul
   shell: "consul reload || true"
+  

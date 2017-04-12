@@ -40,18 +40,12 @@
         storefront_server_name: "{{dns_record}}.{{foxcomm_domain}}"
         api_server: "{{dns_record}}.{{foxcomm_domain}}"
   roles:
-    # Core
-    - { role: dev/appliance }
-    - { role: dev/dashboard }
     # Services
-    - { role: dev/consul_agent }
     - { role: dev/zookeeper }
     - { role: dev/elasticsearch }
     - { role: hotfix/elasticsearch }
     - { role: hotfix/rsyslog }
-    - { role: hotfix/kibana }
     - { role: dev/db }
-    - { role: dev/db_ic, when: with_ic }
     # Marathon
     - { role: dev/seed_system }
     - { role: dev/marathon }

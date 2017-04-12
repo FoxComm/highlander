@@ -46,3 +46,7 @@
     - { role: base/kibana }
     # Nginx
     - { role: base/balancer }
+    # Compound from dev
+    - { role: base/appliance }
+    - { role: base/dashboard }
+    - { role: base/db_ic, when: with_ic }

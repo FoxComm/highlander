@@ -11,7 +11,7 @@
       default: "backend"
       private: no
   roles:
-    - { role: dev/db_ic}
+    - { role: base/db_ic}
 
 
 - name: Migrate Amigo
