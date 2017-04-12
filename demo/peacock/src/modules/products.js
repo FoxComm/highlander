@@ -457,12 +457,22 @@ function mapAggregationsToFacets(aggregations): Array<Facet> {
   });
 }
 
+type ColorValue = {
+  color: string,
+  value: string,
+};
+
+function isFacetValueSelected(facets: ?Array<string>, value: string | ColorValue) {
+  if (typeof value !== 'string') return _.includes(facets, value.value);
+  return _.includes(facets, value);
+}
+
 function markFacetValuesAsSelected(facets: Array<Facet>, selectedFacets: Object): Array<Facet> {
   return _.map(facets, facetItem => ({
     ...facetItem,
     values: _.map(facetItem.values, facetValueItem => ({
       ...facetValueItem,
-      selected: _.includes(selectedFacets[facetItem.key], facetValueItem.value),
+      selected: isFacetValueSelected(selectedFacets[facetItem.key], facetValueItem.value),
     })),
   }));
 }
