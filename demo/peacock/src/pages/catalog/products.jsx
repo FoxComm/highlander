@@ -46,15 +46,14 @@ type Props = {
   routerParams: Object,
   facets: Array<Facet>,
   total: number,
-};
-
-type State = {
-  sorting: {
-    direction: number,
-    field: string,
+  filters: {
+    sorting: {
+      direction: number,
+      field: string,
+    },
+    toLoad: number,
+    selectedFacets: {},
   },
-  toLoad: number,
-  selectedFacets: {},
 };
 
 // redux
@@ -72,14 +71,6 @@ const facetWhitelist = [
 
 class Products extends Component {
   props: Props;
-  state: State = {
-    sorting: {
-      direction: 1,
-      field: 'salePrice',
-    },
-    toLoad: PAGE_SIZE,
-    selectedFacets: {},
-  };
   lastFetch: ?AbortablePromise<*>;
 
   fetch(...args): void {
@@ -94,7 +85,7 @@ class Products extends Component {
   componentWillMount() {
     const { categoryName, subCategory, leafCategory } = this.props.params;
     const categoryNames = [categoryName, subCategory, leafCategory];
-    const { sorting, selectedFacets, toLoad } = this.state;
+    const { sorting, selectedFacets, toLoad } = this.props.filters;
     this.fetch({
       categoryNames,
       sorting,
@@ -117,7 +108,7 @@ class Products extends Component {
 
     if (mustInvalidate) {
       const categoryNames = [nextCategoryName, nextSubCategory, nextLeafCategory];
-      const {sorting, selectedFacets, toLoad} = this.state;
+      const {sorting, selectedFacets, toLoad} = this.props.filters;
 
       this.fetch({
         categoryNames,
@@ -131,7 +122,7 @@ class Products extends Component {
 
   @autobind
   changeSorting(field: string) {
-    const { sorting, selectedFacets } = this.state;
+    const { sorting, selectedFacets } = this.props.filters;
     const direction = sorting.field === field
       ? sorting.direction * (-1)
       : sorting.direction;
@@ -157,7 +148,7 @@ class Products extends Component {
   @autobind
   fetchMoreProducts() {
     const { categoryName, subCategory, leafCategory } = this.props.params;
-    const { sorting, selectedFacets, toLoad } = this.state;
+    const { sorting, selectedFacets, toLoad } = this.props.filters;
 
     const nextToLoad = toLoad + PAGE_SIZE;
     this.setState({ toLoad: nextToLoad }, () => {
@@ -179,7 +170,7 @@ class Products extends Component {
 
   @autobind
   newFacetSelectState(facet: string, value: string, selected: boolean) {
-    const newSelection = this.state.selectedFacets;
+    const newSelection = this.props.filters.selectedFacets;
     if (selected) {
       if (facet in newSelection) {
         newSelection[facet].push(value);
@@ -198,10 +189,10 @@ class Products extends Component {
   @autobind
   onSelectFacet(facet: string, value: string, selected: boolean) {
     const newSelection = this.newFacetSelectState(facet, value, selected);
-    this.setState({selectedFacets: newSelection, sorting: this.state.sorting, toLoad: PAGE_SIZE}, () => {
+    this.setState({selectedFacets: newSelection, sorting: this.props.filters.sorting, toLoad: PAGE_SIZE}, () => {
       const { categoryName, subCategory, leafCategory } = this.props.params;
       const categoryNames = [categoryName, subCategory, leafCategory];
-      const { selectedFacets, sorting, toLoad } = this.state;
+      const { selectedFacets, sorting, toLoad } = this.props.filters;
 
       this.fetch({
         categoryNames,
@@ -215,7 +206,7 @@ class Products extends Component {
   @autobind
   onSelectMobileFacet(facet, value, selected) {
     const newSelection = this.newFacetSelectState(facet, value, selected);
-    this.setState({selectedFacets: newSelection, sorting: this.state.sorting});
+    this.setState({selectedFacets: newSelection, sorting: this.props.filters.sorting});
   }
 
   @autobind
@@ -235,7 +226,7 @@ class Products extends Component {
     this.showMenuBar();
     const { categoryName, subCategory, leafCategory } = this.props.params;
     const categoryNames = [categoryName, subCategory, leafCategory];
-    const { sorting, selectedFacets} = this.state;
+    const { sorting, selectedFacets} = this.props.filters;
     this.fetch({
       categoryNames,
       sorting,
@@ -327,7 +318,7 @@ class Products extends Component {
     return (
       <div styleName="content">
         <ProductsList
-          sorting={this.state.sorting}
+          sorting={this.props.filters.sorting}
           changeSorting={this.changeSorting}
           list={this.props.list}
           isLoading={!finished}
@@ -355,7 +346,7 @@ class Products extends Component {
           {realCategoryName}
         </div>
         <ProductsList
-          sorting={this.state.sorting}
+          sorting={this.props.filters.sorting}
           changeSorting={this.changeSorting}
           list={this.props.list}
           isLoading={!finished}

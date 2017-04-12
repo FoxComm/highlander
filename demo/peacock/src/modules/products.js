@@ -99,6 +99,14 @@ const initialState = {
   list: [],
   facets: [],
   total: 0,
+  filters: {
+    sorting: {
+      direction: 1,
+      field: 'salePrice',
+    },
+    toLoad: PAGE_SIZE,
+    selectedFacets: {},
+  },
 };
 
 function determineFacetKind(f: string): string {
