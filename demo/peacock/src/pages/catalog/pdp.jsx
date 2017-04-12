@@ -25,9 +25,9 @@ import styles from './pdp.css';
 // components
 // import { SecondaryButton } from 'ui/buttons';
 import AddToCartBtn from 'ui/add-to-cart-btn';
+import Currency from 'ui/currency';
 import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
-import Breadcrumbs from 'components/breadcrumbs/breadcrumbs';
 import ErrorAlerts from 'ui/alerts/error-alerts';
 import ProductDetails from './product-details';
 
@@ -349,6 +349,41 @@ class Pdp extends Component {
     );
   }
 
+  get productPrice(): ?Element<any> {
+    if (this.isGiftCard()) return null;
+    const {
+      currency,
+      price,
+      skus,
+    } = this.productView;
+
+    const salePrice = _.get(skus[0], 'attributes.salePrice.v.value', 0);
+    const retailPrice = _.get(skus[0], 'attributes.retailPrice.v.value', 0);
+
+    if (retailPrice > salePrice) {
+      return (
+        <div styleName="price">
+          <Currency
+            styleName="retail-price"
+            value={retailPrice}
+            currency={currency}
+          />
+          <Currency
+            styleName="on-sale-price"
+            value={salePrice}
+            currency={currency}
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div styleName="price">
+        <Currency value={price} currency={currency} />
+      </div>
+    );
+  }
+
   render(): Element<any> {
     const {
       t,
@@ -372,28 +407,21 @@ class Pdp extends Component {
 
     return (
       <div styleName="container">
-        <div styleName="row">
-          <div styleName="column-left">
-            {this.renderGallery()}
-          </div>
-          <div styleName="column-right">
-            <Breadcrumbs
-              routes={this.props.routes}
-              params={this.props.params}
-              styleName="breadcrumbs"
+        <div styleName="body">
+          {this.renderGallery()}
+          <ErrorAlerts error={this.state.error} />
+          <h1 styleName="title">{title}</h1>
+          {this.productPrice}
+          {this.productForm}
+          <div styleName="cart-actions">
+            <AddToCartBtn
+              onClick={this.addToCart}
             />
-            <ErrorAlerts error={this.state.error} />
-            <h1 styleName="title">{title}</h1>
-            {this.productForm}
-            <div styleName="cart-actions">
-              <AddToCartBtn
-                onClick={this.addToCart}
-              />
-              {/* <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton> */}
-            </div>
-            {this.productShortDescription}
-            {this.productDetails}
+            {/* <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton> */}
           </div>
+          <h1 styleName="title-secondary">{title}</h1>
+          {this.productShortDescription}
+          {this.productDetails}
         </div>
         {this.relatedProductsList}
       </div>

@@ -2,25 +2,13 @@
 @import "variables.css";
 @import "media-queries.css";
 
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
+.body {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-content: center;
 }
 
-.column-left {
-  width: 100%;
-  height: auto;
-  flex: 0 0 100%;
-}
-
-.column-right {
-  flex: 0 0 100%;
-  height: auto;
-  padding: 12px var(--grid-margin);
-}
-
-.title {
+.title, .title-secondary {
   font-weight: 900;
   font-size: 24px;
   color: var(--text-color);
@@ -43,10 +31,6 @@
   line-height: 1.17;
   color: var(--text-color);
   margin-bottom: 11px;
-}
-
-.breadcrumbs {
-  margin-bottom: 10px;
 }
 
 .price {
@@ -112,30 +96,57 @@
   }
 }
 
+@media (--up-to-large) {
+  .title {
+    grid-row-start: 1;
+  }
+
+  .price {
+    grid-row-start: 2;
+  }
+
+  .body > :global(.image-gallery) {
+    margin-bottom: 12px;
+  }
+
+  .title-secondary {
+    display: block;
+  }
+}
+
 @media (--large) {
   .container {
     padding-top: 39px;
-  }
-
-  .row {
     lost-center: 1080px;
   }
 
-  .column-left {
+  .title-secondary {
+    display: none;
+  }
+
+  .body {
+    grid-template-columns: 569px 1fr;
+    /* grid-gap: 0 43px; grid-gap not supported in IE */
+  }
+
+  .body > * {
+    grid-column-start: 2;
+    margin-left: 43px !important; /* ugly replacement for grid-gap */
+
+    &:first-child {
+      /* image */
+      margin-left: 0 !important; /* ugly replacement for grid-gap */
+      grid-column-start: 1;
+      grid-row-end: span 100;
+    }
+  }
+
+  .container :global(.image-gallery) {
     width: 569px;
     flex: none;
   }
 
-  .column-right {
-    flex: 1;
-    padding: 0 0 0 45px;
-  }
-
-  .breadcrumbs {
-    margin-bottom: 26px;
-  }
-
-  .title {
+  .title, .title-secondary {
     font-size: 40px;
     margin-bottom: 10px;
   }
