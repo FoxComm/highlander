@@ -145,6 +145,12 @@ export default class ObjectFormInner extends Component {
   @autobind
   handleCreateProperty(property: { fieldLabel: string, propertyType: string }) {
     const { fieldLabel, propertyType } = property;
+
+    // TODO show error message, if fieldLabel is not unique
+    if (!this.isUnique(fieldLabel)) {
+      return null;
+    }
+
     const value = (() => {
       switch(propertyType) {
         case('date'): return new Date().toString();
@@ -162,6 +168,11 @@ export default class ObjectFormInner extends Component {
     const { attributes } = this.props;
     const { currentEdit: { name } } = this.state;
     const { fieldLabel, propertyType, fieldValue } = property;
+
+    // TODO show error message, if fieldLabel is not unique
+    if (!this.isUnique(fieldLabel)) {
+      return null;
+    }
 
     const preparedObject = _.omit(attributes, name);
     const newAttributes = {
@@ -221,6 +232,13 @@ export default class ObjectFormInner extends Component {
       }
     }
     this.props.onChange(newAttributes);
+  }
+
+  @autobind
+  isUnique(fieldLabel: string) {
+    const reservedNames = _.keys(_.get(this.props.schema, 'properties', {}));
+    const unique = !reservedNames.includes(fieldLabel);
+    return unique;
   }
 
   renderBoolean(name: string, value: boolean, options: AttrOptions) {
@@ -449,7 +467,7 @@ export default class ObjectFormInner extends Component {
       const content = React.cloneElement(this[renderName](name, attribute && attribute.v, attrOptions), { key: name });
       const controlButtons = this.controlButtons(name, attribute && attribute.t, attribute && attribute.v);
       return (
-        <div>
+        <div key={name}>
           {controlButtons}
           {content}
         </div>
