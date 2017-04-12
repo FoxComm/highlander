@@ -58,10 +58,6 @@
     padding: 15px 15px 15px;
   }
 
-  .shipping, .payment {
-    padding-bottom: 15px;
-  }
-
   .shipping, .delivery {
     max-height: 150px;
   }
