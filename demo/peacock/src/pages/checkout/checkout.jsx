@@ -16,7 +16,6 @@ import Delivery from './delivery/delivery';
 import Billing from './billing/billing';
 import GuestAuth from './guest-auth/guest-auth';
 import Products from 'components/order-summary/product-table';
-import Header from 'components/header/header';
 import ErrorAlerts from 'ui/alerts/error-alerts';
 import Loader from 'ui/loader';
 import OrderTotals from 'components/order-summary/totals';
@@ -222,6 +221,8 @@ class Checkout extends Component {
     const cartFetched = props.fetchCartState.finished;
 
     if (cartFetched) {
+      const shippingAddress = _.get(this.props.cart, 'shippingAddress', {});
+
       return (
         <div styleName="wrapper">
           <div styleName="main-container">
@@ -233,7 +234,7 @@ class Checkout extends Component {
                     onComplete={this.setShipping}
                     addresses={this.props.addresses}
                     fetchAddresses={this.props.fetchAddresses}
-                    shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
+                    shippingAddress={shippingAddress}
                     auth={this.props.auth}
                     isGuestMode={isGuestMode}
                   />
@@ -245,6 +246,7 @@ class Checkout extends Component {
                     shippingMethods={props.shippingMethods}
                     cart={this.props.cart}
                     fetchShippingMethods={props.fetchShippingMethods}
+                    shippingAddressEmpty={_.isEmpty(shippingAddress)}
                   />
                 </div>
               </div>
@@ -283,11 +285,6 @@ class Checkout extends Component {
 
     return (
       <section styleName="checkout">
-        <Header
-          path={props.location.pathname}
-          query={props.location.query}
-        />
-
         <div styleName="content">
           <ErrorAlerts
             sanitizeError={this.sanitizeError}
