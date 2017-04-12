@@ -1,13 +1,19 @@
 package utils
 
+import akka.NotUsed
+import akka.http.scaladsl.model.{ContentType, ContentTypes}
+import akka.stream.scaladsl.{Concat, Source}
+import akka.util.ByteString
 import cats.Show
 import org.json4s.JsonAST.JString
+import org.json4s.jackson.compactJson
 import org.json4s.jackson.Serialization.{write ⇒ jsonWrite}
 import org.json4s.{CustomKeySerializer, CustomSerializer, DefaultFormats, Formats, jackson}
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Strings._
+import utils.aliases.Json
 
 trait Read[F] { self ⇒
   def read(f: String): Option[F]
@@ -61,4 +67,30 @@ trait ADT[F] extends Read[F] with Show[F] { self ⇒
 }
 object ADT {
   @inline def apply[T](implicit adt: ADT[T]): ADT[T] = adt
+}
+
+trait Chunkable[T] {
+  def bytes(t: T): ByteString
+
+  def bytes(s: Source[T, NotUsed]): Source[ByteString, NotUsed] = s.map(bytes)
+
+  def contentType: ContentType
+}
+object Chunkable {
+  @inline def apply[T]()(implicit c: Chunkable[T]): Chunkable[T] = c
+
+  implicit val jsonChunkable: Chunkable[Json] = new Chunkable[Json] {
+    def bytes(t: Json): ByteString = ByteString(compactJson(t))
+
+    override def bytes(s: Source[Json, NotUsed]): Source[ByteString, NotUsed] = {
+      val sep            = ByteString(",")
+      val streamStart    = Source.single(ByteString("""{"result": ["""))
+      val streamElements = super.bytes(s).grouped(2).map(_.reduceLeft(_ ++ sep ++ _))
+      val streamEnd      = Source.single(ByteString("]}"))
+
+      Source.combine(streamStart, streamElements, streamEnd)(Concat(_))
+    }
+
+    def contentType: ContentType = ContentTypes.`application/json`
+  }
 }

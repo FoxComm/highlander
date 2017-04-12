@@ -1,12 +1,16 @@
 package utils.http
 
+import akka.NotUsed
 import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, ResponseEntity, StatusCode, StatusCodes}
+import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.headers.{ContentDispositionTypes, `Content-Disposition`}
+import akka.stream.scaladsl.Source
 import failures.{Failures, NotFoundFailure404}
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import org.json4s.{Formats, jackson}
 import responses.{BatchMetadata, TheResponse}
+import utils.Chunkable
 import utils.db.MetaResponse
 
 object Http {
@@ -70,6 +74,17 @@ object Http {
 
   def renderPlain(text: String): HttpResponse =
     HttpResponse(StatusCodes.OK, entity = HttpEntity(ContentTypes.`text/plain(UTF-8)`, text))
+
+  def renderChunked[T: Chunkable](headers: List[HttpHeader])(
+      source: Source[T, NotUsed]): HttpResponse = {
+    HttpResponse(StatusCodes.OK,
+                 headers = headers,
+                 entity =
+                   HttpEntity.Chunked.fromData(Chunkable().contentType, Chunkable().bytes(source)))
+  }
+
+  def renderAttachment[T: Chunkable](source: Source[T, NotUsed]): HttpResponse =
+    renderChunked(List(`Content-Disposition`(ContentDispositionTypes.attachment)))(source)
 
   def renderFailure(failures: Failures, statusCode: ClientError = BadRequest): HttpResponse = {
     val failuresList = failures.toList
