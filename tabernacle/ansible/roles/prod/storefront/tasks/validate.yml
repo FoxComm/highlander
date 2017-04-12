@@ -1,8 +1,12 @@
 ---
 
+- name: Obtain Current Date
+  debug: var=ansible_date_time
+
 - name: Debug Parameters
   debug:
     msg:
+        - "Current Date: {{ansible_date_time.iso8601_micro}}"
         - "Step Build: {{step_build}}"
         - "Step Deploy: {{step_deploy}}"
         - "Git Repository: {{git_repo}}"
