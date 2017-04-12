@@ -276,27 +276,6 @@ const categories = [
     showNameCatPage: true,
     children: groups,
   },
-  {
-    id: 3,
-    name: 'sports',
-    description: '',
-    showNameCatPage: true,
-    children: groups,
-  },
-  {
-    id: 4,
-    name: 'brands',
-    description: '',
-    showNameCatPage: true,
-    children: groups,
-  },
-  {
-    id: 5,
-    name: 'gift cards',
-    description: 'Gift cards will be here',
-    imageUrl: '',
-    showNameCatPage: true,
-  },
 ];
 
 const initialState = {

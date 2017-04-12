@@ -9,7 +9,6 @@ import _ from 'lodash';
 import TypeaheadItems from './items';
 import TypeaheadInput from './input';
 import { FormField } from 'components/forms';
-import Alert from 'components/alerts/alert';
 import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 
 // styles
@@ -26,7 +25,7 @@ export default class Typeahead extends React.Component {
     hideOnBlur: PropTypes.bool,
     isFetching: PropTypes.bool,
     isAsync: PropTypes.bool,
-    items: PropTypes.array, // Array of data for suggestion. Each element passed to `component`
+    items: PropTypes.array.isRequired, // Array of data for suggestion. Each element passed to `component`
     label: PropTypes.string, // title for input
     name: PropTypes.string, // name attr for default input
     placeholder: PropTypes.string, // placeholder attr for default input
@@ -43,9 +42,10 @@ export default class Typeahead extends React.Component {
   static defaultProps = {
     name: 'typeahead',
     fetchItems: _.noop,
+    items: [],
     onBlur: _.noop,
     hideOnBlur: false,
-    placeholder: 'Search',
+    placeholder: 'Start typing to search...',
     minQueryLength: 1,
     autoComplete: 'off',
     initialValue: '',
@@ -55,19 +55,11 @@ export default class Typeahead extends React.Component {
   state = {
     active: false,
     showMenu: false,
-    showAlert: false,
     query: this.props.initialValue,
+    searchedOnce: false,
   };
 
   componentWillReceiveProps(nextProps) {
-    if(this.props.isAsync){
-      if (this.props.isFetching && !nextProps.isFetching) {
-        this.toggleVisibility(true);
-      }
-    } else {
-      this.toggleVisibility(true);
-    }
-
     if (nextProps.initialValue !== this.props.initialValue) {
       this.setState({ query: nextProps.initialValue });
     }
@@ -102,7 +94,7 @@ export default class Typeahead extends React.Component {
   onBlur(event) {
     this.setState({ active: false });
 
-    if (this.props.hideOnBlur) {
+    if (this.props.hideOnBlur || !this.queryIsValid()) {
       this.toggleVisibility(false);
     }
     this.props.onBlur(event);
@@ -110,10 +102,14 @@ export default class Typeahead extends React.Component {
 
   @autobind
   onFocus() {
-    this.setState({ active: true });
+    const { items } = this.props;
+    const { searchedOnce } = this.state;
 
-    if (this.state.query.length >= this.props.minQueryLength) {
-      this.toggleVisibility(true);
+    this.setState({ active: true });
+    this.toggleVisibility(true);
+
+    if (!searchedOnce && !items.length) {
+      this.fetchItemsImmediately();
     }
   }
 
@@ -125,12 +121,26 @@ export default class Typeahead extends React.Component {
   }
 
   @debounce(400)
-  fetchItems(value) {
-    if (value.length < this.props.minQueryLength) {
-      return this.toggleAlert(true);
-    }
+  fetchItems(q: ?string) {
+    this.fetchItemsImmediately(q);
+  }
 
-    this._fetchRequest = this.props.fetchItems(value);
+  fetchItemsImmediately(q: ?string) {
+    const query = _.isString(q) ? q : this.state.query;
+
+    if (this.queryIsValid(query)) {
+      this._fetch = {
+        query,
+        request: this.props.fetchItems(query),
+      };
+      this.setState({ searchedOnce: true });
+    }
+  }
+
+  queryIsValid(q) {
+    const query = _.isString(q) ? q : this.state.query;
+
+    return query.length >= this.props.minQueryLength;
   }
 
   @autobind
@@ -139,22 +149,18 @@ export default class Typeahead extends React.Component {
 
     this.setState({
       query: value,
-      showAlert: false
     });
     if (this.props.onChange) {
       this.props.onChange(value);
     }
 
-    if (this._fetchRequest && this._fetchRequest.abort) {
-      this._fetchRequest.abort();
-    }
+    _.invoke(this, '_fetch.request.abort');
 
-    if (value.length === 0) {
-      return this.toggleVisibility(false);
+    if (!this.state.showMenu) {
+      this.toggleVisibility(true);
     }
 
     this.fetchItems(value);
-
   }
 
   toggleVisibility(show) {
@@ -163,42 +169,44 @@ export default class Typeahead extends React.Component {
     });
   }
 
-  toggleAlert(show) {
-    this.setState({
-      showAlert: show
-    });
-  }
+  // Because we have debounce on `fetchItems`, we have to check if fQuery matches query
+  get updating() {
+    const { isFetching } = this.props;
+    const { query } = this.state;
+    const fQuery = this._fetch && this._fetch.query;
 
-  renderAlert() {
-    return (
-      <Alert type={Alert.WARNING} className={s['need-more-characters']}>
-        Please enter at least {this.props.minQueryLength} characters.
-      </Alert>
-    );
+    return isFetching || (this.queryIsValid() && fQuery !== query);
   }
 
   get listContent() {
-    if (this.state.showAlert) return this.renderAlert();
-
-    const itemsElement = this.props.itemsElement;
+    const { items, isFetching, itemsElement, minQueryLength } = this.props;
+    const { searchedOnce } = this.state;
+    // const noResults = !items.length && searchedOnce && !isFetching;
 
     const ourProps = {
-      updating: this.props.isFetching,
+      updating: this.updating,
       toggleVisibility: show => this.toggleVisibility(show),
-    };
-
-    const clearState = {
       clearInputState: this.clearState,
     };
 
+    if (!this.queryIsValid() && !isFetching) {
+      let chars = minQueryLength === 1 ? 'character' : 'characters';
+
+      // @todo do we need custom `please` component?
+      return <div className={`${s.items} ${s.please}`}>{`Please enter at least ${minQueryLength} ${chars}.`}</div>;
+    }
+
     if (itemsElement) {
-      return React.cloneElement(itemsElement, { ...ourProps, ...clearState });
+      return React.cloneElement(itemsElement, ourProps);
     } else {
       return (
-        <TypeaheadItems {...ourProps}
+        <TypeaheadItems
+          {...ourProps}
           component={this.props.component}
           items={this.props.items}
-          onItemSelected={this.onItemSelected} />
+          onItemSelected={this.onItemSelected}
+          query={this.state.query}
+        />
       );
     }
   }

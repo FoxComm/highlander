@@ -2,7 +2,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { Element, Component } from 'react';
+import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import { searchProducts } from '../../../elastic/products';
 

@@ -41,7 +41,7 @@ class ReturnsSearchViewTest
 
   "Returns search view row must be found when" - {
     "a return was created" in new ReturnPaymentDefaults {
-      createReturnPayment(Map(PaymentMethod.CreditCard → 100), rma.referenceNumber)
+      createReturnPayments(Map(PaymentMethod.CreditCard → 100), rma.referenceNumber)
 
       returnsApi(rma.referenceNumber).paymentMethods
         .add(PaymentMethod.CreditCard, ReturnPaymentPayload(amount = 20))
@@ -54,7 +54,7 @@ class ReturnsSearchViewTest
 
         id must === (rma.id)
         referenceNumber must === (rma.referenceNumber)
-        orderRef must === (rma.cordRefNum)
+        orderRef must === (rma.orderRefNum)
         state must === (rma.state)
         messageToAccount must === (rma.messageToCustomer)
         returnType must === (rma.rmaType)

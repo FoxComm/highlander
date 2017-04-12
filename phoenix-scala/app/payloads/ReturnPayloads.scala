@@ -28,8 +28,6 @@ object ReturnPayloads {
 
   sealed trait ReturnLineItemPayload extends Validation[ReturnLineItemPayload] {
     def reasonId: Int
-
-    def validate: ValidatedNel[Failure, ReturnLineItemPayload] = this.valid
   }
   object ReturnLineItemPayload {
     def typeHints =
@@ -42,14 +40,13 @@ object ReturnPayloads {
 
   case class ReturnSkuLineItemPayload(sku: String, quantity: Int, reasonId: Int)
       extends ReturnLineItemPayload {
-
-    override def validate: ValidatedNel[Failure, ReturnLineItemPayload] =
+    def validate: ValidatedNel[Failure, ReturnLineItemPayload] =
       greaterThan(quantity, 0, "Quantity").map(_ ⇒ this)
   }
 
   case class ReturnShippingCostLineItemPayload(amount: Int, reasonId: Int)
       extends ReturnLineItemPayload {
-    override def validate: ValidatedNel[Failure, ReturnLineItemPayload] =
+    def validate: ValidatedNel[Failure, ReturnLineItemPayload] =
       greaterThan(amount, 0, "Amount").map(_ ⇒ this)
   }
 
@@ -93,9 +90,7 @@ object ReturnPayloads {
       val clue = "Reason name length"
       (greaterThan(name.length, 0, clue) |+| lesserThanOrEqual(name.length,
                                                                reasonNameMaxLength,
-                                                               clue)).map {
-        case _ ⇒ this
-      }
+                                                               clue)).map(_ ⇒ this)
     }
   }
 }

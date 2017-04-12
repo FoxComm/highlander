@@ -9,6 +9,7 @@ import { humanize } from 'paragons/categories';
 
 // components
 import { Link } from 'react-router';
+import Icon from 'ui/icon';
 
 import styles from './breadcrumbs.css';
 
@@ -17,7 +18,7 @@ import type { Route } from 'types';
 const Delimiter = (props: {idx: number}) => {
   return (
     <li styleName="delimiter" key={`${props.idx}-breadcrumbs-delimeter`}>
-      <i className="icon-chevron-right">&gt;</i>
+      <Icon styleName="delimiter-icon" name="fc-breadcrumbs-arrow" size="custom" />
     </li>
   );
 };

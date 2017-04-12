@@ -27,7 +27,7 @@
     flex-direction: column;
   }
 
-  .column-1 {
+  .column {
     margin-top: 15px;
     padding-left: 15px;
     padding-right: 15px;
@@ -58,7 +58,7 @@
     padding: 15px 15px 15px;
   }
 
-  .shipping {
+  .shipping, .payment {
     padding-bottom: 15px;
   }
 
@@ -86,12 +86,29 @@
     flex-wrap: wrap;
   }
 
-  .column-1 {
-    lost-column: 4/12;
+  .main-container {
+    lost-column: 7/11;
+  }
+
+  .side-container {
+    lost-column: 4/11;
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .column {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    margin-right: auto !important;
+    width: 48%;
+  }
+
+  .payment {
+    width: 48%;
   }
 
   .shipping, .delivery, .total-cost, .payment {
@@ -104,13 +121,8 @@
     margin-bottom: 15px;
   }
 
-  .total-cost, .payment {
-    lost-column: 4/12;
-  }
-
   .total-cost {
-    padding: 6px 20px 0;
-    margin-right: 0 !important;
+    padding: 7px 20px 0;
   }
 
   .totals-list {
@@ -128,7 +140,7 @@
   }
 
   .order-summary {
-    width: 65.5%;
+    margin-top: 40px;
   }
 
   .order-content {

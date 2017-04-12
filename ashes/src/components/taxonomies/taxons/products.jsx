@@ -3,7 +3,7 @@
 // libs
 import get from 'lodash/get';
 import { autobind } from 'core-decorators';
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
@@ -13,7 +13,6 @@ import { addProduct } from 'modules/taxons/details/taxon';
 
 // components
 import { SectionTitle } from 'components/section-title';
-import { AddButton } from 'components/common/buttons';
 import SelectableSearchList from 'components/list-page/selectable-search-list';
 import ProductRow from 'components/products/product-row';
 import { makeTotalCounter } from 'components/list-page';
@@ -84,7 +83,7 @@ export class TaxonProductsPage extends Component {
   handleAddProduct(product: Product) {
     const { actions, params: { taxonId, context } } = this.props;
 
-    actions.addProduct(taxonId, product.productId, context)
+    actions.addProduct(product.productId, context, taxonId)
       .then(this.props.actions.fetch);
   }
 

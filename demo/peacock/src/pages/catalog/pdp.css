@@ -2,22 +2,22 @@
 @import "variables.css";
 @import "media-queries.css";
 
-.container {
+.row {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
 }
 
-.gallery {
+.column-left {
   width: 100%;
   height: auto;
   flex: 0 0 100%;
 }
 
-.details {
+.column-right {
   flex: 0 0 100%;
   height: auto;
-  padding: 12px 16px;
+  padding: 12px var(--grid-margin);
 }
 
 .title {
@@ -25,8 +25,16 @@
   font-size: 24px;
   color: var(--text-color);
   position: relative;
-  line-height: 1.17;
+  line-height: 1.25;
   margin: 0 0 8px 0;
+}
+
+.short-description {
+  margin: 0 var(--grid-margin) var(--grid-margin);
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.25;
+  color: var(--black);
 }
 
 .secondary-title {
@@ -42,7 +50,6 @@
 }
 
 .price {
-  font-weight: 300;
   font-size: 14px;
   color: var(--text-color);
   margin-bottom: 24px;
@@ -62,13 +69,20 @@
 }
 
 .description {
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.63;
   color: var(--text-color);
   margin-bottom: 15px;
 }
 
 .description-list {
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.63;
+}
+
+.description-list  ul {
+  list-style: disc;
+  margin-left: 20px;
 }
 
 .one-click-checkout {
@@ -82,23 +96,6 @@
 @media (--medium) {
   .price {
     font-size: 22px;
-  }
-}
-
-@media (--large) {
-  .gallery {
-    width: 702px;
-    flex: none;
-  }
-
-  .details {
-    flex: 1;
-    padding: 12px 31px;
-  }
-
-  .title {
-    font-size: 41px;
-    letter-spacing: 2.7px;
   }
 }
 
@@ -117,25 +114,53 @@
 
 @media (--large) {
   .container {
-    lost-column: 6/8;
-    lost-offset: -1/8;
+    padding-top: 39px;
+  }
+
+  .row {
+    lost-center: 1080px;
+  }
+
+  .column-left {
+    width: 569px;
+    flex: none;
+  }
+
+  .column-right {
+    flex: 1;
+    padding: 0 0 0 45px;
   }
 
   .breadcrumbs {
-    margin-bottom: 24px;
+    margin-bottom: 26px;
   }
 
   .title {
-    margin: 0 0 12px 0;
+    font-size: 40px;
+    margin-bottom: 10px;
+  }
+
+  .price {
+    margin-bottom: 49px;
   }
 
   .cart-actions {
-    margin-bottom: 90px;
+    margin-bottom: 86px;
   }
 
+  .product-details {
+    padding-top: 50px;
+  }
+
+  .short-description {
+    margin: 50px 0 0;
+    font-size: 40px;
+    font-weight: 900;
+    line-height: 1.25;
+    color: var(--black);
+  }
 }
 
 .not-found {
   composes: not-found from '../../components/products-list/products-list.css';
 }
-

@@ -1,9 +1,7 @@
 /* @flow */
 
 // libs
-import _ from 'lodash';
-import React, { Component, PropTypes, Element } from 'react';
-import { autobind } from 'core-decorators';
+import React, { Element } from 'react';
 
 // styles
 import styles from './shipped-item.css';

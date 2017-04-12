@@ -156,7 +156,7 @@ class ProductAmazonMain extends Component {
     const { product } = this.props;
     const title = _.get(product, 'attributes.title.v', '');
 
-    this.props.actions.fetchSuggest(title, text);
+    return this.props.actions.fetchSuggest(title, text);
   }
 
   render() {
@@ -175,9 +175,16 @@ class ProductAmazonMain extends Component {
             fetchItems={this.handleFetch}
             component={CategoryItem}
             initialValue={categoryPath}
+            hideOnBlur
+            placeholder="Start typing to search category..."
           />
           <div className={s.approve}>
-            <span>You must be approved from Amazon to sell in the Clothing & Accesories category. </span>
+            <span>
+              <i className="icon icon-warning" />
+              {' '}
+              You must be approved from Amazon to sell in the Clothing & Accesories category.
+              {' '}
+            </span>
             <a className={s.approveLink} href={AMAZON_APPROVE_LINK} target="_blank">Apply to sell in this category</a>.
           </div>
         </div>

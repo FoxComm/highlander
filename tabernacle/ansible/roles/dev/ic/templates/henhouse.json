@@ -8,7 +8,8 @@
   "labels": {
     "LAYER": "backend",
     "LANG": "cpp",
-    "TAG": "{{docker_tags.henhouse}}"
+    "TAG": "{{docker_tags.henhouse}}",
+    "consul": "henhouse"
   },
   "container": {
     "type": "DOCKER",

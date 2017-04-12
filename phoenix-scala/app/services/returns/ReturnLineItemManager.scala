@@ -27,11 +27,33 @@ object ReturnLineItemManager {
       ac: AC,
       oc: OC): DbResultT[ReturnResponse.Root] =
     for {
-      rma ← * <~ Returns.mustFindActiveByRefNum404(refNum)
-      reason ← * <~ ReturnReasons
-                .filter(_.id === payload.reasonId)
-                .mustFindOneOr(ReturnReasonNotFoundFailure(payload.reasonId))
+      rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
+      reason   ← * <~ ReturnReasons.mustFindById400(payload.reasonId)
       _        ← * <~ processAddLineItem(rma, reason, payload)
+      updated  ← * <~ Returns.refresh(rma)
+      response ← * <~ ReturnResponse.fromRma(updated)
+    } yield response
+
+  def updateSkuLineItems(refNum: String, payload: List[ReturnSkuLineItemPayload])(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      oc: OC): DbResultT[ReturnResponse.Root] =
+    for {
+      rma ← * <~ Returns.mustFindActiveByRefNum404(refNum)
+      skusLiQuery = ReturnLineItems
+        .findByRmaId(rma.id)
+        .filter(_.originType === (ReturnLineItem.SkuItem: ReturnLineItem.OriginType))
+      skus ← * <~ skusLiQuery
+              .join(ReturnLineItemSkus)
+              .on(_.id === _.id)
+              .map { case (_, sku) ⇒ sku }
+              .to[List]
+              .result
+      _ ← * <~ skusLiQuery.deleteAll
+      _ ← * <~ doOrMeh(skus.nonEmpty, LogActivity().returnSkuLineItemsDropped(skus))
+      _ ← * <~ payload.map(p ⇒
+               ReturnReasons.mustFindById400(p.reasonId).flatMap(addSkuLineItem(rma, _, p)))
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response

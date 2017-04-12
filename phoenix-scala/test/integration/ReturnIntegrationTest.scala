@@ -8,9 +8,11 @@ import models.cord._
 import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
+import models.product.Mvp
 import models.returns.Return._
 import models.returns._
 import org.scalatest.prop.PropertyChecks
+import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.PaymentPayloads.CreateManualStoreCredit
 import payloads.ReturnPayloads._
 import responses.ReturnResponse.Root
@@ -18,6 +20,7 @@ import responses._
 import testutils._
 import testutils.fixtures.api.ApiFixtureHelpers
 import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
+import utils.seeds.Factories
 
 class ReturnIntegrationTest
     extends IntegrationTestBase
@@ -45,10 +48,7 @@ class ReturnIntegrationTest
 
     "should get rma" in new ReturnFixture with OrderDefaults {
       val expected = createReturn(order.referenceNumber)
-      returnsApi(expected.referenceNumber)
-        .get()
-        .as[ReturnResponse.Root]
-        .copy(totals = None) must === (expected)
+      returnsApi(expected.referenceNumber).get().as[ReturnResponse.Root] must === (expected)
     }
 
     "fails to creare Return for not shipped order" in new ReturnFixture with OrderDefaults {
@@ -143,11 +143,11 @@ class ReturnIntegrationTest
 
       "gift cards and store credits should be activated on complete state" in new ReturnLineItemDefaults
       with ReturnPaymentFixture {
-        val payments = createReturnPayment(Map(
-                                               PaymentMethod.GiftCard    → 100,
-                                               PaymentMethod.StoreCredit → 150
-                                           ),
-                                           refNum = rma.referenceNumber).payments
+        val payments = createReturnPayments(Map(
+                                                PaymentMethod.GiftCard    → 100,
+                                                PaymentMethod.StoreCredit → 150
+                                            ),
+                                            refNum = rma.referenceNumber).payments
         val gcApi = giftCardsApi(payments.giftCard.value.code)
         val scApi = storeCreditsApi(payments.storeCredit.value.id)
 
@@ -161,11 +161,11 @@ class ReturnIntegrationTest
 
       "gift cards and store credits should be canceled on canceled state" in new ReturnLineItemDefaults
       with ReturnPaymentFixture {
-        val payments = createReturnPayment(Map(
-                                               PaymentMethod.GiftCard    → 100,
-                                               PaymentMethod.StoreCredit → 150
-                                           ),
-                                           refNum = rma.referenceNumber).payments
+        val payments = createReturnPayments(Map(
+                                                PaymentMethod.GiftCard    → 100,
+                                                PaymentMethod.StoreCredit → 150
+                                            ),
+                                            refNum = rma.referenceNumber).payments
         val gcApi = giftCardsApi(payments.giftCard.value.code)
         val scApi = storeCreditsApi(payments.storeCredit.value.id)
 
@@ -327,6 +327,39 @@ class ReturnIntegrationTest
         second.lineItems.shippingCosts.value.amount must === (42)
       }
 
+      "overwrite all skus with bulk insert" in new ReturnLineItemFixture with ReturnFixture
+      with ReturnReasonDefaults with OrderDefaults {
+        val secondProduct = Mvp.insertProduct(ctx.id, Factories.products.tail.head).gimme
+        override val order = createDefaultOrder(
+            items = List(UpdateLineItemsPayload(sku = product.code, quantity = 1),
+                         UpdateLineItemsPayload(sku = secondProduct.code, quantity = 1)))
+        val rma = createReturn(orderRef = order.referenceNumber)
+
+        val api = returnsApi(rma.referenceNumber).lineItems
+
+        val payload =
+          ReturnSkuLineItemPayload(sku = product.code, quantity = 1, reasonId = returnReason.id)
+        api.add(payload).as[ReturnResponse.Root].lineItems.skus.onlyElement must have(
+            'sku (product.code),
+            'quantity (1)
+        )
+
+        createReturnLineItem(ReturnShippingCostLineItemPayload(amount = 300,
+                                                               reasonId = returnReason.id),
+                             rma.referenceNumber)
+
+        val payloads = List(
+            ReturnSkuLineItemPayload(sku = secondProduct.code,
+                                     quantity = 1,
+                                     reasonId = returnReason.id))
+        val response = api.addOrReplace(payloads).as[ReturnResponse.Root].lineItems
+        response.shippingCosts mustBe 'defined
+        response.skus.onlyElement must have(
+            'sku (secondProduct.code),
+            'quantity (1)
+        )
+      }
+
       "fails if refNum is not found" in {
         val payload = ReturnShippingCostLineItemPayload(amount = 666, reasonId = 666)
         returnsApi("ABC-666").lineItems
@@ -340,7 +373,7 @@ class ReturnIntegrationTest
 
         returnsApi(rma.referenceNumber).lineItems
           .add(payload)
-          .mustFailWith400(ReturnReasonNotFoundFailure(666))
+          .mustFailWith400(NotFoundFailure400(ReturnReason, 666))
       }
 
       "fails if quantity for sku is invalid" in new ReturnDefaults with ReturnReasonDefaults {
@@ -410,19 +443,17 @@ class ReturnIntegrationTest
 
     "DELETE /v1/returns/:refNum/line-items/:id" - {
       "successfully deletes shipping cost line item" in new ReturnLineItemDefaults {
-        returnsApi(rma.referenceNumber).lineItems
-          .remove(shippingCostItemId)
-          .as[ReturnResponse.Root]
-          .lineItems
-          .shippingCosts mustBe 'empty
+        val api = returnsApi(rma.referenceNumber)
+
+        api.lineItems.remove(shippingCostItemId).mustBeEmpty()
+        api.get().as[ReturnResponse.Root].lineItems.shippingCosts mustBe 'empty
       }
 
       "successfully deletes SKU line item" in new ReturnLineItemDefaults {
-        returnsApi(rma.referenceNumber).lineItems
-          .remove(skuItemId)
-          .as[ReturnResponse.Root]
-          .lineItems
-          .skus mustBe 'empty
+        val api = returnsApi(rma.referenceNumber)
+
+        api.lineItems.remove(skuItemId).mustBeEmpty()
+        api.get().as[ReturnResponse.Root].lineItems.skus mustBe 'empty
       }
 
       "fails if refNum is not found" in {
@@ -441,19 +472,6 @@ class ReturnIntegrationTest
 
   "Return payment methods" - {
     "POST /v1/returns/:ref/payment-methods" - {
-      "succeeds for bulk insert" in new ReturnPaymentDefaults {
-        val payload = ReturnPaymentsPayload(
-            Map(PaymentMethod.CreditCard → 100, PaymentMethod.StoreCredit → 120))
-        val payments = returnsApi(rma.referenceNumber).paymentMethods
-          .add(payload)
-          .as[ReturnResponse.Root]
-          .payments
-          .asMap
-
-        payments must have size 2
-        payments.mapValues(_.amount) must === (payload.payments)
-      }
-
       "succeeds for any supported payment" in new ReturnPaymentFixture with ReturnDefaults
       with ReturnReasonDefaults {
         forAll(paymentMethodTable) { paymentMethod ⇒
@@ -473,6 +491,43 @@ class ReturnIntegrationTest
           pm must === (paymentMethod)
           payment.amount must === (payload.amount)
         }
+      }
+
+      "bulk insert should override any existing payments, whilst single addition endpoint should append payment to existing ones" in
+      new ReturnPaymentDefaults {
+        val api = returnsApi(rma.referenceNumber).paymentMethods
+
+        api
+          .add(PaymentMethod.GiftCard, ReturnPaymentPayload(130))
+          .as[ReturnResponse.Root]
+          .payments
+          .asMap
+          .mapValues(_.amount) must === (
+            Map[PaymentMethod.Type, Int](PaymentMethod.GiftCard → 130))
+
+        val payload = ReturnPaymentsPayload(
+            Map(PaymentMethod.CreditCard → 100, PaymentMethod.StoreCredit → 120))
+        api
+          .addOrReplace(payload)
+          .as[ReturnResponse.Root]
+          .payments
+          .asMap
+          .mapValues(_.amount) must === (payload.payments)
+
+        api
+          .add(PaymentMethod.StoreCredit, ReturnPaymentPayload(50))
+          .as[ReturnResponse.Root]
+          .payments
+          .asMap
+          .mapValues(_.amount) must === (payload.payments + (PaymentMethod.StoreCredit → 50))
+
+        api
+          .add(PaymentMethod.GiftCard, ReturnPaymentPayload(80))
+          .as[ReturnResponse.Root]
+          .payments
+          .asMap
+          .mapValues(_.amount) must === (
+            payload.payments + (PaymentMethod.StoreCredit → 50) + (PaymentMethod.GiftCard → 80))
       }
 
       "fails if the amount is less than zero" in new ReturnPaymentFixture with OrderDefaults {
@@ -500,7 +555,7 @@ class ReturnIntegrationTest
             Map(PaymentMethod.CreditCard → 3000, PaymentMethod.StoreCredit → 1500))
 
         returnsApi(rma.referenceNumber).paymentMethods
-          .add(payload)
+          .addOrReplace(payload)
           .mustFailWith400(
               ReturnPaymentExceeded(rma.referenceNumber, amount = 4500, maxAmount = 3600))
       }
@@ -524,13 +579,13 @@ class ReturnIntegrationTest
         val otherOrderRef = createDefaultOrder().referenceNumber
         val otherRmaRef   = createReturn(otherOrderRef).referenceNumber
         createReturnLineItem(createPayload(amount = shippingMethod.price), refNum = otherRmaRef)
-        createReturnPayment(Map(PaymentMethod.CreditCard → maxCCAmount), refNum = otherRmaRef)
+        createReturnPayments(Map(PaymentMethod.CreditCard → maxCCAmount), refNum = otherRmaRef)
         completeReturn(refNum = otherRmaRef)
 
         // create some other return for the same order
         val previousRmaRef = createReturn(order.referenceNumber).referenceNumber
         createReturnLineItem(createPayload(amount = 25), refNum = previousRmaRef)
-        createReturnPayment(Map(PaymentMethod.CreditCard → 25), refNum = previousRmaRef)
+        createReturnPayments(Map(PaymentMethod.CreditCard → 25), refNum = previousRmaRef)
         completeReturn(refNum = previousRmaRef)
 
         val rma = createReturn(order.referenceNumber)
@@ -546,18 +601,17 @@ class ReturnIntegrationTest
 
     "DELETE /v1/returns/:ref/payment-methods/credit-cards" - {
       "successfully delete any supported payment method" in new ReturnPaymentDefaults {
-        val payments = createReturnPayment(Map(
-                                               PaymentMethod.GiftCard    → 100,
-                                               PaymentMethod.StoreCredit → 150
-                                           ),
-                                           refNum = rma.referenceNumber).payments
+        val payments = createReturnPayments(Map(
+                                                PaymentMethod.GiftCard    → 100,
+                                                PaymentMethod.StoreCredit → 150
+                                            ),
+                                            refNum = rma.referenceNumber).payments
 
         forAll(paymentMethodTable) { paymentMethod ⇒
-          val response = returnsApi(rma.referenceNumber).paymentMethods
-            .remove(paymentMethod)
-            .as[ReturnResponse.Root]
+          val api = returnsApi(rma.referenceNumber)
 
-          response.payments.asMap.get(paymentMethod) mustBe 'empty
+          api.paymentMethods.remove(paymentMethod).mustBeEmpty()
+          api.get().as[ReturnResponse.Root].payments.asMap.get(paymentMethod) mustBe 'empty
         }
       }
 

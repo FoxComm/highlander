@@ -8,6 +8,7 @@
   "labels": {
     "LAYER": "backend",
     "LANG": "cpp",
+    "consul": "isaac",
     "TAG": "{{docker_tags.isaac}}"
   },
   "container": {

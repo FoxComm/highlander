@@ -8,7 +8,8 @@
   "labels": {
     "LAYER": "backend",
     "LANG": "go",
-    "TAG": "{{docker_tags.eggcrate}}"
+    "TAG": "{{docker_tags.eggcrate}}",
+    "consul": "eggcrate"
   },
   "container": {
     "type": "DOCKER",

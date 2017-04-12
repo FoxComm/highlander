@@ -108,14 +108,17 @@ class ProductDetails extends Component {
       let kind = variantType;
       if (kind === 'color') kind = 'image';
       else if (kind === 'size') kind = 'circle';
+
+      const valuesLength = variant.values.length;
+
       const values = _.flatMap(variant.values, (value: VariantValue) => {
         const facetValue = {
           valueId: value.id,
           variantType,
         };
-
+        const selectedVariant = this.state.selectedVariantValues;
         const baseProps = {
-          selected: this.state.selectedVariantValues[variantType] == value.id,
+          selected: valuesLength === 1 ? true : selectedVariant[variantType] == value.id,
         };
 
         if (variantType == 'color') {

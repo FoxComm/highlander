@@ -6,17 +6,8 @@
   position: relative;
 }
 
-.loading-wrapper {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-}
-
 .loader {
-  position: fixed;
-  width: 100%;
-  top: 120px;
+  lost-column: 9/11;
 }
 
 .list {
@@ -50,12 +41,8 @@
 
 .sidebar-mobile-dofilter {
   font-family: Lato;
-  font-size: 14px;10px
-  font-weight: normal;
-  font-style: normal;
-  font-stretch: normal;
-  line-height: normal;
-  letter-spacing: normal;
+  font-size: 14px;
+  cursor: pointer;
   color: #0b7ddc;
   color: var(--water-blue);
 }
@@ -77,5 +64,9 @@
   .sorting {
     lost-column: 1;
     lost-offset: 0;
+  }
+
+  .loader {
+    lost-column: 11/11;
   }
 }

@@ -12,6 +12,8 @@ import TextInput from '../forms/text-input';
 
 import styles from './tags.css';
 
+import type { Value } from 'components/rounded-pill/rounded-pill';
+
 type Props = {
   attributes: Attributes,
   onChange: (attributes: Attributes) => void,
@@ -88,8 +90,8 @@ export default class Tags extends Component {
   }
 
   @autobind
-  handleRemoveTag(value: string) {
-    const tags = _.reject(this.tags, tag => tag === value);
+  handleRemoveTag(value: Value) {
+    const tags = _.reject(this.tags, tag => tag === String(value));
     this.updateTags(tags);
   }
 

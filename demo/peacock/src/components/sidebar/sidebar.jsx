@@ -135,7 +135,12 @@ class Sidebar extends React.Component {
           <div styleName="controls">
             { this.renderControlls }
             <div styleName={this.state.searchFocused ? 'controls-search-focused' : 'controls-search'}>
-              <Search onSearch={this.props.toggleSidebar} setFocus={this.setFocus} isActive />
+              <Search
+                onSearch={this.props.toggleSidebar}
+                onItemSelected={this.props.toggleSidebar}
+                setFocus={this.setFocus}
+                isActive
+              />
             </div>
             <div styleName="links-group" onClick={this.onLinkClick}>
               <div styleName="controls-categories">

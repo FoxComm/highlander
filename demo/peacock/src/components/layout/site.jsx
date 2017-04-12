@@ -18,10 +18,12 @@ import styles from './site.css';
 
 const mapState = state => ({
   isAuthBlockVisible: state.auth.isAuthBlockVisible,
+  isContentOverlayVisible: state.contentOverlay.isVisible,
 });
 
 type Props = RoutesParams & {
   children: Array<any>,
+  isContentOverlayVisible: boolean,
 };
 
 class Site extends Component {
@@ -46,6 +48,7 @@ class Site extends Component {
       child => React.cloneElement(child, {
         routes: this.props.routes,
         routerParams: this.props.params,
+        isContentOverlayVisible: this.props.isContentOverlayVisible,
       })
     );
 

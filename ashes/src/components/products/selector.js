@@ -7,6 +7,7 @@ export type SuggestItem = {
   path: string,
   prefix: string,
   text: string,
+  key: string,
 };
 
 function processItem(item): SuggestItem {
@@ -15,8 +16,9 @@ function processItem(item): SuggestItem {
   const prefix = parts.join(' » ');
   const id = item.node_id;
   const path = item.node_path;
+  const key = `${id}${item.node_path}`; // because id is not uniq :)
 
-  return { id, path, prefix, text };
+  return { id, path, prefix, text, key };
 }
 
 /**

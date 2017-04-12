@@ -1,7 +1,7 @@
 // @flow
 
 // lib
-import { compact, defer, get, isEmpty, values } from 'lodash';
+import { compact, get, isEmpty, values } from 'lodash';
 import { assoc, merge } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';

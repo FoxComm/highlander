@@ -76,10 +76,12 @@ type State = {
 const mapStateToProps = (state) => {
   const product = state.productDetails.product;
   const relatedProducts = state.crossSell.relatedProducts;
+  const relatedProductsOrder = state.crossSell.relatedProductsOrder;
 
   return {
     product,
     relatedProducts,
+    relatedProductsOrder,
     fetchError: _.get(state.asyncActions, 'pdp.err', null),
     notFound: !product && _.get(state.asyncActions, 'pdp.err.response.status') == 404,
     isLoading: _.get(state.asyncActions, ['pdp', 'inProgress'], true),
@@ -232,6 +234,16 @@ class Pdp extends Component {
     };
   }
 
+  get productShortDescription(): ?Element<*> {
+    const shortDescription = _.get(this.props.product, 'attributes.shortDescription.v');
+
+    if (!shortDescription) return null;
+
+    return (
+      <h2 styleName="short-description">{shortDescription}</h2>
+    );
+  }
+
   isGiftCardRoute(props = this.props) {
     return props.route.name === 'gift-cards';
   }
@@ -321,14 +333,28 @@ class Pdp extends Component {
     );
   }
 
+  get relatedProductsList(): ?Element<*> {
+    const { relatedProducts, isRelatedProductsLoading, relatedProductsOrder } = this.props;
+
+    if (_.isEmpty(relatedProducts) || relatedProducts.total < 1) return null;
+
+    return (
+      <RelatedProductsList
+        title="You might also like"
+        list={relatedProducts.result}
+        productsOrder={relatedProductsOrder}
+        isLoading={isRelatedProductsLoading}
+        loadingBehavior={LoadingBehaviors.ShowWrapper}
+      />
+    );
+  }
+
   render(): Element<any> {
     const {
       t,
       isLoading,
       notFound,
       fetchError,
-      isRelatedProductsLoading,
-      relatedProducts,
     } = this.props;
 
     if (isLoading) {
@@ -346,35 +372,36 @@ class Pdp extends Component {
 
     return (
       <div styleName="container">
-        <div styleName="gallery">
-          {this.renderGallery()}
-        </div>
-        <div styleName="details">
-          <Breadcrumbs
-            routes={this.props.routes}
-            params={this.props.params}
-            styleName="breadcrumbs"
-          />
-          <ErrorAlerts error={this.state.error} />
-          <h1 styleName="title">{title}</h1>
-          {this.productForm}
-          <div styleName="cart-actions">
-            <AddToCartBtn
-              onClick={this.addToCart}
-            />
-            {/* <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton> */}
+        <div styleName="row">
+          <div styleName="column-left">
+            {this.renderGallery()}
           </div>
-          {this.productDetails}
+          <div styleName="column-right">
+            <Breadcrumbs
+              routes={this.props.routes}
+              params={this.props.params}
+              styleName="breadcrumbs"
+            />
+            <ErrorAlerts error={this.state.error} />
+            <h1 styleName="title">{title}</h1>
+            {this.productForm}
+            <div styleName="cart-actions">
+              <AddToCartBtn
+                onClick={this.addToCart}
+              />
+              {/* <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton> */}
+            </div>
+          </div>
         </div>
-        {!_.isEmpty(relatedProducts) && relatedProducts.total ?
-          <RelatedProductsList
-            title="You might also like"
-            list={relatedProducts.result}
-            isLoading={isRelatedProductsLoading}
-            loadingBehavior={LoadingBehaviors.ShowWrapper}
-          />
-          : false
-        }
+        <div styleName="row">
+          <div styleName="column-left">
+            {this.productShortDescription}
+          </div>
+          <div styleName="column-right product-details">
+            {this.productDetails}
+          </div>
+        </div>
+        {this.relatedProductsList}
       </div>
     );
   }

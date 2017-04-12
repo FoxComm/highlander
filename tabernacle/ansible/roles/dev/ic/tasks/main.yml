@@ -42,3 +42,7 @@
 - name: Start River Rock
   include: app_river_rock.yml
   when: marathon_restart.river_rock
+
+- name: Start Suggester
+  include: app_suggester.yml
+  when: marathon_restart.suggester

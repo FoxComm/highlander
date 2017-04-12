@@ -2,10 +2,6 @@
 @import "colors.css";
 
 .header-base {
-  position: fixed;
-  top: 0;
-  z-index: 2;
-  width: 100%;
   height: 50px;
   font-size: 16px;
   background: var(--body-background);
@@ -15,6 +11,21 @@
 
 .header {
   composes: header-base;
+}
+
+.header-wrap {
+  position: fixed;
+  z-index: 2;
+  top: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+@supports (position: sticky) {
+  .header-wrap {
+    position: sticky;
+  }
 }
 
 .wrap {
