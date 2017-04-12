@@ -111,7 +111,7 @@ class SkuIntegrationTest
     }
   }
 
-  "DELETE v1/products/:context/:id" - {
+  "DELETE v1/skus/:context/:id" - {
     "Archives SKU successfully" in new Fixture {
       val result = skusApi(sku.code).archive().as[SkuResponse.Root]
 
@@ -121,12 +121,6 @@ class SkuIntegrationTest
     }
 
     "Successfully archives SKU which is linked to a product" in new FixtureWithProduct {
-      private val updateProductPayload: UpdateProductPayload =
-        UpdateProductPayload(attributes = Map(),
-                             skus = Some(List(makeSkuPayload(sku.code, Map()))),
-                             variants = None)
-      productsApi(product.formId).update(updateProductPayload).mustBeOk
-
       val result = skusApi(sku.code).archive().as[SkuResponse.Root]
 
       withClue(result.archivedAt.value → Instant.now) {

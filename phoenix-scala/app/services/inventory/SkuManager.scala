@@ -103,9 +103,15 @@ object SkuManager {
       productIds: Set[Int])(implicit ec: EC, db: DB, oc: OC): DbResultT[Unit] =
     for {
       products ← * <~ Products.findAllByIds(productIds).result
-      withNoLinks ← * <~ products.toList.filterA(p ⇒
-                         ProductSkuLinks.filter(_.leftId === p.id).size.result.dbresult.map(_ == 0))
-      _ ← * <~ withNoLinks.map(p ⇒ ProductManager.archiveByContextAndId(ProductId(p.id)))
+      withNoLinks ← * <~ products.toList.filterA(
+                       p ⇒
+                         ProductSkuLinks
+                           .filter(_.leftId === p.id)
+                           .size
+                           .result
+                           .map(_ == 0)
+                           .dbresult)
+      _ ← * <~ withNoLinks.map(p ⇒ ProductManager.archiveByContextAndId(ProductId(p.formId)))
     } yield ()
 
   def createSkuInner(
