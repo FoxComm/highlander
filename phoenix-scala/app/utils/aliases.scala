@@ -9,6 +9,7 @@ object aliases {
   type SF           = sourcecode.File
   type Mat          = akka.stream.Materializer
   type Json         = org.json4s.JsonAST.JValue
+  type CsvData      = Map[String, String] // map of column name -> value
   type ActivityType = String
   type AU           = services.Authenticator.AuthData[models.account.User]
 

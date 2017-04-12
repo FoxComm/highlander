@@ -13,7 +13,7 @@ import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Strings._
-import utils.aliases.Json
+import utils.aliases._
 
 trait Read[F] { self ⇒
   def read(f: String): Option[F]
@@ -83,9 +83,9 @@ object Chunkable {
     def bytes(t: Json): ByteString = ByteString(compactJson(t))
 
     override def bytes(s: Source[Json, NotUsed]): Source[ByteString, NotUsed] = {
-      val sep            = ByteString(",")
+      val elSep          = ByteString(",")
       val streamStart    = Source.single(ByteString("""{"result": ["""))
-      val streamElements = super.bytes(s).grouped(2).map(_.reduceLeft(_ ++ sep ++ _))
+      val streamElements = super.bytes(s).grouped(2).map(_.reduceLeft(_ ++ elSep ++ _))
       val streamEnd      = Source.single(ByteString("]}"))
 
       Source.combine(streamStart, streamElements, streamEnd)(Concat(_))
@@ -93,4 +93,20 @@ object Chunkable {
 
     def contentType: ContentType = ContentTypes.`application/json`
   }
+
+  def csvChunkable(fields: List[String], separator: String): Chunkable[CsvData] =
+    new Chunkable[CsvData] {
+      def bytes(t: CsvData): ByteString =
+        ByteString(fields.map(t.apply).mkString(separator))
+
+      override def bytes(s: Source[CsvData, NotUsed]): Source[ByteString, NotUsed] = {
+        val elSep          = ByteString("\n")
+        val streamStart    = Source.single(ByteString(fields.mkString(separator)) ++ elSep)
+        val streamElements = super.bytes(s).map(_ ++ elSep)
+
+        Source.combine(streamStart, streamElements)(Concat(_))
+      }
+
+      def contentType: ContentType = ContentTypes.`text/csv(UTF-8)`
+    }
 }

@@ -7,6 +7,8 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.IndexAndTypes
 import com.sksamuel.elastic4s.streams.ReactiveElastic._
 import org.elasticsearch.search.fetch.source.FetchSourceContext
+import org.json4s.DefaultReaders._
+import org.json4s.JsonAST.JNumber
 import org.json4s._
 import org.json4s.jackson.{compactJson, parseJson}
 import payloads.ExportEntity
@@ -15,7 +17,7 @@ import utils.apis.Apis
 
 /** Export entities from ElasticSearch with given fields using specified search type.
   *
-  * Note that, this implementation is quite stringly typed.
+  * Note that this implementation is quite stringly typed.
   * That shouldn't be that much problem,
   * as all those functions should just pass arguments to ElasticSearch and then result back to the client.
   */
