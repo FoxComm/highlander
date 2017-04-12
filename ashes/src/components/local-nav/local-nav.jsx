@@ -3,7 +3,6 @@ import _ from 'lodash';
 import React, { PropTypes, Component } from 'react';
 import ReactDOM from 'react-dom';
 import { autobind } from 'core-decorators';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 
 // helpers
@@ -115,7 +114,6 @@ class LocalNav extends Component {
   }
 
   hasActiveLink(item) {
-    debugger
     const { routes } = this.context.router;
     const linkList = this.compileLinks(item);
     const linkNames = _.map(linkList, ['props', 'to']);
