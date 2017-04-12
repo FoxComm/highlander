@@ -17,6 +17,7 @@ export type LinkProps = {
 type DefaultProps = {
   actualClaims: Claims,
   expectedClaims: Claims,
+  activeClassName: ?string,
 };
 
 export default class Link extends React.Component {
@@ -25,6 +26,7 @@ export default class Link extends React.Component {
   static defaultProps: DefaultProps = {
     actualClaims: {},
     expectedClaims: {},
+    activeClassName: '',
   };
 
   render() {
