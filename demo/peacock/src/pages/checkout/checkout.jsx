@@ -9,6 +9,7 @@ import { autobind } from 'core-decorators';
 import { browserHistory } from 'lib/history';
 import * as tracking from 'lib/analytics';
 import { emailIsSet, isGuest } from 'paragons/auth';
+import classNames from 'classnames';
 
 // components
 import Shipping from './shipping/shipping';
@@ -48,6 +49,7 @@ type Props = CheckoutState & CheckoutActions & {
   fetchCartState: AsyncStatus,
   checkoutState: AsyncStatus,
   clearCheckoutErrors: () => void,
+  isContentOverlayVisible: boolean,
 };
 
 type State = {
@@ -283,6 +285,10 @@ class Checkout extends Component {
   render() {
     const props = this.props;
 
+    const overlayClass = classNames(styles['content-container-overlay'], {
+      [styles['_with-overlay']]: props.isContentOverlayVisible,
+    });
+
     return (
       <section styleName="checkout">
         <div styleName="content">
@@ -292,6 +298,8 @@ class Checkout extends Component {
           />
           {this.content}
         </div>
+
+        <div className={overlayClass} />
       </section>
     );
   }
