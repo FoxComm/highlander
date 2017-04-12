@@ -83,7 +83,13 @@ function apiCall(params: apiCallParams, { ignoreGiftCards = true } = {}): Promis
 }
 
 export function searchGiftCards() {
-  return apiCall.call({ api }, [GIFT_CARD_TAG], null, {}, MAX_RESULTS, { ignoreGiftCards: false });
+  const params = {
+    categoryNames: [GIFT_CARD_TAG],
+    sorting: null,
+    selectedFacets: {},
+    toLoad: MAX_RESULTS,
+  };
+  return apiCall.call({ api }, params, { ignoreGiftCards: false });
 }
 
 const _fetchProducts = createAsyncActions('products', apiCall);
