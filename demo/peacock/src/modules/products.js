@@ -458,18 +458,18 @@ const reducer = createReducer({
     if (_.isEmpty(state.facets)) {
       facets = queryFacets;
     } else {
-      // Merge aggregations from quiries into existing state.
+      // Merge aggregations from queries into existing state.
       // Keep existinged selected facets and only change unselected ones..
-      // This avoids quiries that would return empty results.
+      // This avoids queries that would return empty results.
       // While also keeping the interface from changing too much.
-      const groupedQueyFacets = _.groupBy(queryFacets, 'key');
+      const groupedQueryFacets = _.groupBy(queryFacets, 'key');
 
       facets = _.compact(_.map(state.facets, (v) => {
         if (!_.isEmpty(selectedFacets[v.key])) {
           return v;
         }
 
-        return _.isArray(groupedQueyFacets[v.key]) ? groupedQueyFacets[v.key][0] : null;
+        return _.isArray(groupedQueryFacets[v.key]) ? groupedQueryFacets[v.key][0] : null;
       }));
     }
 
