@@ -26,7 +26,7 @@ const propertyTypes = {
 type Props = {
   onSave: (state: State) => void,
   onCancel: () => void,
-  property: {
+  currentEdit: {
     name: string,
     type: string,
     value: string | number,
@@ -58,11 +58,11 @@ class CustomProperty extends Component<void, Props, State> {
       fieldLabelInput.focus();
     }
 
-    if (this.props.property) {
+    if (this.props.currentEdit) {
       this.setState({
-        fieldLabel: this.props.property.name,
-        propertyType: this.props.property.type,
-        fieldValue: this.props.property.value,
+        fieldLabel: this.props.currentEdit.name,
+        propertyType: this.props.currentEdit.type,
+        fieldValue: this.props.currentEdit.value,
       });
     }
   }

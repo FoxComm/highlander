@@ -39,9 +39,11 @@ type State = {
   isAddingProperty: boolean,
   isEditingProperty: boolean,
   errors: {[id:string]: any},
-  name: string,
-  type: string,
-  value: string | number
+  currentEdit: {
+    name: string,
+    type: string,
+    value: string | number
+  },
 };
 
 type AttrOptions = {
@@ -91,9 +93,11 @@ export default class ObjectFormInner extends Component {
     isAddingProperty: false,
     isEditingProperty: false,
     errors: {},
-    name: '',
-    type: '',
-    value: '',
+    currentEdit: {
+      name: '',
+      type: '',
+      value: '',
+    },
   };
 
   get addCustomProperty() {
@@ -122,15 +126,9 @@ export default class ObjectFormInner extends Component {
     }
 
     if (this.state.isEditingProperty) {
-      const property = {
-        name: this.state.name,
-        type: this.state.type,
-        value: this.state.value
-      };
-
       return (
         <CustomProperty
-          property={property}
+          currentEdit={this.state.currentEdit}
           isVisible={true}
           onSave={this.handleEditProperty}
           onCancel={() => this.setState({ isEditingProperty: false })}
@@ -162,7 +160,7 @@ export default class ObjectFormInner extends Component {
   @autobind
   handleEditProperty(property: { fieldLabel: string, propertyType: string, fieldValue: string | number }) {
     const { attributes } = this.props;
-    const { name } = this.state;
+    const { currentEdit: { name } } = this.state;
     const { fieldLabel, propertyType, fieldValue } = property;
 
     const preparedObject = _.omit(attributes, name);
@@ -176,9 +174,11 @@ export default class ObjectFormInner extends Component {
 
     this.setState({
       isEditingProperty: false,
-      name: '',
-      type: '',
-      value: ''
+      currentEdit: {
+        name: '',
+        type: '',
+        value: ''
+      }
     }, this.props.onChange(newAttributes));
   }
 
@@ -192,9 +192,11 @@ export default class ObjectFormInner extends Component {
   onEdit(name: string, type: string, value: string | number) {
     this.setState({
       isEditingProperty: true,
-      name,
-      type,
-      value
+      currentEdit: {
+        name,
+        type,
+        value
+      },
     });
   }
 
