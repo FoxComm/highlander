@@ -29,7 +29,7 @@
     padding: 10px 11px 10px;
   }
 
-  .textInput::placeholder {
+  &::placeholder {
     color: var(--input-placeholder-color);
   }
 }
