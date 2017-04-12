@@ -32,7 +32,6 @@ import type { AsyncStatus } from 'types/async-actions';
 
 // actions
 import  * as actions from 'modules/checkout';
-import { checkApplePay } from 'modules/checkout';
 import { EditStages } from 'modules/checkout';
 import { fetch as fetchCart, hideCart } from 'modules/cart';
 import { fetchUser } from 'modules/auth';
@@ -73,6 +72,8 @@ class Checkout extends Component {
       const { cart } = this.props;
       tracking.checkoutStart(cart.lineItems);
     });
+
+    this.props.checkApplePay();
 
     if (!this.isEmailSetForCheckout()) {
       this.props.fetchUser();
@@ -182,12 +183,31 @@ class Checkout extends Component {
     return emailIsSet(user);
   }
 
+  @autobind beginApplePay() {
+    console.log('starting the apple pay inside the checkout.jsx');
+    const total = this.props.cart.totals.total;
+    console.log('the total from the cart -> ', total);
+    const amount = (parseFloat(total)/100).toFixed(2);
+    console.log('amount -> ', amount);
+    const paymentRequest = {
+      countryCode: 'US',
+      currencyCode: 'USD',
+      total: {
+        label: 'Stripe.com',
+        amount: amount.toString(),
+      },
+    };
+    console.log('payment request obj -> ', paymentRequest);
+    this.props.beginApplePay(paymentRequest);
+  }
+
   get applePayButton() {
-    if (!checkApplePay()) return null;
+    if (!this.props.applePayAvailable) return null;
 
     return (
       <Button
         styleName="apple-pay"
+        onClick={this.beginApplePay}
       />
     );
   }

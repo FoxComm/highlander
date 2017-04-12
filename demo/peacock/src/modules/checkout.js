@@ -32,8 +32,6 @@ export type CheckoutState = {
   billingAddress: ShippingAddress,
 };
 
-export const checkApplePay = () => foxApi.applePay.available();
-
 export const selectCreditCard = createAction('CHECKOUT_SET_CREDIT_CARD');
 export const setEditStage = createAction('CHECKOUT_SET_EDIT_STAGE');
 export const setBillingData = createAction('CHECKOUT_SET_BILLING_DATA', (key, value) => [key, value]);
@@ -43,6 +41,7 @@ export const setBillingAddress = createAction('CHECKOUT_SET_BILLING_ADDRESS');
 export const toggleShippingModal = createAction('TOGGLE_SHIPPING_MODAL');
 export const toggleDeliveryModal = createAction('TOGGLE_DELIVERY_MODAL');
 export const togglePaymentModal = createAction('TOGGLE_PAYMENT_MODAL');
+const applePayAvailable = createAction('APPLE_PAY_AVAILABLE');
 const markAddressAsDeleted = createAction('CHECKOUT_MARK_ADDRESS_AS_DELETED');
 const markAddressAsRestored = createAction(
   'CHECKOUT_MARK_ADDRESS_AS_RESTORED',
@@ -106,6 +105,36 @@ function addressToPayload(address) {
 
   return payload;
 }
+
+const _checkApplePay = createAsyncActions(
+  'checkApplePay',
+  function() {
+    const { dispatch } = this;
+
+    return foxApi.applePay.available()
+      .then((resp) => {
+        dispatch(applePayAvailable(resp));
+      });
+  }
+);
+
+export const checkApplePay = _checkApplePay.perform;
+
+const _beginApplePay = createAsyncActions(
+  'beginApplePay',
+  function(payment) {
+    return foxApi.applePay.beginApplePay(payment)
+      .then(() => {
+        console.log('payment is successfull, from checkout.js');
+      })
+      .catch((err) => {
+        console.log('error occurred in checkout.js, _beginApplePay');
+        throw new Error(err);
+      });
+  }
+);
+
+export const beginApplePay = _beginApplePay.perform;
 
 const _removeShippingMethod = createAsyncActions(
   'removeShippingMethod',
@@ -465,6 +494,7 @@ const initialState: CheckoutState = {
   shippingModalVisible: false,
   deliveryModalVisible: false,
   paymentModalVisible: false,
+  applePayAvailable: false,
 };
 
 function sortAddresses(addresses: Array<Address>): Array<Address> {
@@ -503,6 +533,12 @@ const reducer = createReducer({
     return {
       ...state,
       billingData,
+    };
+  },
+  [applePayAvailable]: (state, available) => {
+    return {
+      ...state,
+      applePayAvailable: available,
     };
   },
   [shippingMethodsActions.succeeded]: (state, list) => {
