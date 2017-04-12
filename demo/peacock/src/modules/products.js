@@ -1,6 +1,6 @@
 /* @flow */
 
-import { createReducer } from 'redux-act';
+import { createAction, createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 import {
   addTaxonomyFilter,
@@ -32,16 +32,9 @@ export const PAGE_SIZE = 20;
 const context = process.env.STOREFRONT_CONTEXT || 'default';
 export const GIFT_CARD_TAG = 'GIFT-CARD';
 
-type apiCallParams = {
-  categoryNames: ?Array<string>,
-  sorting: ?{ direction: number, field: string },
-  selectedFacets: Object,
-  toLoad: number,
-};
-
-function apiCall(params: apiCallParams, { ignoreGiftCards = true } = {}): Promise<*> {
+function apiCall(categoryNames: ?Array<string>, { ignoreGiftCards = true } = {}): Promise<*> {
   let payload = defaultSearch(String(context));
-  const { categoryNames, sorting, selectedFacets, toLoad } = params;
+  const { sorting, selectedFacets, toLoad } = this.getState().products.filters;
 
   _.forEach(_.compact(categoryNames), (cat) => {
     if (cat !== 'ALL' && cat !== GIFT_CARD_TAG) {
@@ -82,14 +75,15 @@ function apiCall(params: apiCallParams, { ignoreGiftCards = true } = {}): Promis
   return chained;
 }
 
+export const saveProductsFilters = createAction('SAVE_PRODUCTS_FILTERS');
+
 export function searchGiftCards() {
-  const params = {
-    categoryNames: [GIFT_CARD_TAG],
+  saveProductsFilters({
     sorting: null,
     selectedFacets: {},
     toLoad: MAX_RESULTS,
-  };
-  return apiCall.call({ api }, params, { ignoreGiftCards: false });
+  });
+  return apiCall.call({ api }, [GIFT_CARD_TAG], { ignoreGiftCards: false });
 }
 
 const _fetchProducts = createAsyncActions('products', apiCall);
@@ -478,13 +472,11 @@ function markFacetValuesAsSelected(facets: Array<Facet>, selectedFacets: Object)
 }
 
 const reducer = createReducer({
-  [_fetchProducts.started]: (state, action) => {
-    const { facets } = state;
-    const { selectedFacets } = action;
-
+  [saveProductsFilters]: (state, action) => {
     return {
       ...state,
-      facets: markFacetValuesAsSelected(facets, selectedFacets),
+      filters: action,
+      facets: markFacetValuesAsSelected(state.facets, action.selectedFacets),
     };
   },
   [_fetchProducts.succeeded]: (state, action) => {
