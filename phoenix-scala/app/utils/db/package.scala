@@ -13,6 +13,7 @@ import slick.profile.SqlAction
 import utils.aliases._
 import utils.time.JavaTimeSlickMapper
 
+/*_*/   // <- this little guy will disable IJ lint for the code below
 package object db {
 
   // ————————————————————————————— Foxy —————————————————————————————
