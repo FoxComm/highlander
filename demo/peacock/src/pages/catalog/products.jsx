@@ -56,6 +56,10 @@ type Props = {
   },
 };
 
+type State = {
+  selectedFacets: {},
+};
+
 // redux
 const mapStateToProps = (state) => {
   return {
@@ -71,6 +75,7 @@ const facetWhitelist = [
 
 class Products extends Component {
   props: Props;
+  state: State;
   lastFetch: ?AbortablePromise<*>;
 
   fetch(...args): void {
@@ -132,16 +137,14 @@ class Products extends Component {
       direction,
     };
 
-    this.setState({selectedFacets, sorting: newState, toLoad: PAGE_SIZE}, () => {
-      const { categoryName, subCategory, leafCategory } = this.props.params;
-      const categoryNames = [categoryName, subCategory, leafCategory];
+    const { categoryName, subCategory, leafCategory } = this.props.params;
+    const categoryNames = [categoryName, subCategory, leafCategory];
 
-      this.fetch({
-        categoryNames,
-        sorting: newState,
-        selectedFacets,
-        toLoad: PAGE_SIZE,
-      });
+    this.fetch({
+      categoryNames,
+      sorting: newState,
+      selectedFacets,
+      toLoad: PAGE_SIZE,
     });
   }
 
@@ -151,15 +154,13 @@ class Products extends Component {
     const { sorting, selectedFacets, toLoad } = this.props.filters;
 
     const nextToLoad = toLoad + PAGE_SIZE;
-    this.setState({ toLoad: nextToLoad }, () => {
-      const categoryNames = [categoryName, subCategory, leafCategory];
+    const categoryNames = [categoryName, subCategory, leafCategory];
 
-      this.fetch({
-        categoryNames,
-        sorting,
-        selectedFacets,
-        toLoad: nextToLoad,
-      });
+    this.fetch({
+      categoryNames,
+      sorting,
+      selectedFacets,
+      toLoad: nextToLoad,
     });
   }
 
@@ -188,25 +189,23 @@ class Products extends Component {
 
   @autobind
   onSelectFacet(facet: string, value: string, selected: boolean) {
-    const newSelection = this.newFacetSelectState(facet, value, selected);
-    this.setState({selectedFacets: newSelection, sorting: this.props.filters.sorting, toLoad: PAGE_SIZE}, () => {
-      const { categoryName, subCategory, leafCategory } = this.props.params;
-      const categoryNames = [categoryName, subCategory, leafCategory];
-      const { selectedFacets, sorting, toLoad } = this.props.filters;
+    const selectedFacets = this.newFacetSelectState(facet, value, selected);
+    const { categoryName, subCategory, leafCategory } = this.props.params;
+    const categoryNames = [categoryName, subCategory, leafCategory];
+    const { sorting, toLoad } = this.props.filters;
 
-      this.fetch({
-        categoryNames,
-        sorting,
-        selectedFacets,
-        toLoad,
-      });
+    this.fetch({
+      categoryNames,
+      sorting,
+      selectedFacets,
+      toLoad,
     });
   }
 
   @autobind
   onSelectMobileFacet(facet, value, selected) {
-    const newSelection = this.newFacetSelectState(facet, value, selected);
-    this.setState({selectedFacets: newSelection, sorting: this.props.filters.sorting});
+    const selectedFacets = this.newFacetSelectState(facet, value, selected);
+    this.setState({ selectedFacets });
   }
 
   @autobind
@@ -226,7 +225,8 @@ class Products extends Component {
     this.showMenuBar();
     const { categoryName, subCategory, leafCategory } = this.props.params;
     const categoryNames = [categoryName, subCategory, leafCategory];
-    const { sorting, selectedFacets} = this.props.filters;
+    const { sorting } = this.props.filters;
+    const { selectedFacets } = this.state;
     this.fetch({
       categoryNames,
       sorting,
