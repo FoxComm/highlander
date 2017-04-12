@@ -11,11 +11,13 @@ export type LinkProps = {
   expectedClaims: Claims,
   params: Object,
   to: string,
+  activeClassName: ?string,
 };
 
 type DefaultProps = {
   actualClaims: Claims,
   expectedClaims: Claims,
+  activeClassName: 'is-active',
 };
 
 export default class Link extends React.Component {
@@ -27,18 +29,18 @@ export default class Link extends React.Component {
   };
 
   render() {
-    let {to, params, children, actualClaims, expectedClaims, ...otherProps} = this.props;
+    let { to, params, children, actualClaims, expectedClaims, activeClassName, ...otherProps } = this.props;
     let location = {
       name: to,
       params,
     };
 
     if (!isPermitted(expectedClaims, actualClaims)) {
-      return <div></div>;
+      return <div />;
     }
 
     return (
-      <ReactRouterLink activeClassName="is-active" {...otherProps} to={location} >
+      <ReactRouterLink activeClassName={activeClassName} {...otherProps} to={location}>
         {children}
       </ReactRouterLink>
     );

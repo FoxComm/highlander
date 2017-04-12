@@ -6,21 +6,25 @@ import LocalNav from '../local-nav/local-nav';
 import { getClaims, isPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
 
+// styles
+import s from './order.css';
+
 const notesClaims = readAction(frn.note.order);
 const shippingClaims = readAction(frn.mdl.shipment);
 const activityClaims = readAction(frn.activity.order);
 
 const SubNav = props => {
-  const order = props.order;
+  const { order } = props;
   const params = {order: order.referenceNumber};
   const claims = getClaims();
+  const rest = { params, activeClassName: s.lactive };
 
   return (
     <LocalNav className={props.className}>
-      <IndexLink to="order-details" params={params}>Details</IndexLink>
-      <Link to="order-shipments" params={params} expectedClaims={shippingClaims} actualClaims={claims}>Shipments</Link>
-      <Link to="order-notes" expectedClaims={notesClaims} actualClaims={claims} params={params}>Notes</Link>
-      <Link to="order-activity-trail" expectedClaims={activityClaims} actualClaims={claims} params={params}>
+      <IndexLink to="order-details" {...rest}>Details</IndexLink>
+      <Link to="order-shipments" expectedClaims={shippingClaims} actualClaims={claims} {...rest}>Shipments</Link>
+      <Link to="order-notes" expectedClaims={notesClaims} actualClaims={claims} {...rest}>Notes</Link>
+      <Link to="order-activity-trail" expectedClaims={activityClaims} actualClaims={claims} {...rest}>
         Activity Trail
       </Link>
     </LocalNav>
