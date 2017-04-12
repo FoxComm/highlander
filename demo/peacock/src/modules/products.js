@@ -457,7 +457,26 @@ function mapAggregationsToFacets(aggregations): Array<Facet> {
   });
 }
 
+function markFacetValuesAsSelected(facets: Array<Facet>, selectedFacets: Object): Array<Facet> {
+  return _.map(facets, facetItem => ({
+    ...facetItem,
+    values: _.map(facetItem.values, facetValueItem => ({
+      ...facetValueItem,
+      selected: _.includes(selectedFacets[facetItem.key], facetValueItem.value),
+    })),
+  }));
+}
+
 const reducer = createReducer({
+  [_fetchProducts.started]: (state, action) => {
+    const { facets } = state;
+    const { selectedFacets } = action;
+
+    return {
+      ...state,
+      facets: markFacetValuesAsSelected(facets, selectedFacets),
+    };
+  },
   [_fetchProducts.succeeded]: (state, action) => {
     const {payload, selectedFacets} = action;
     const payloadResult = payload.result;
