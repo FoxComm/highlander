@@ -58,10 +58,6 @@
     padding: 15px 15px 15px;
   }
 
-  .shipping, .payment {
-    padding-bottom: 15px;
-  }
-
   .shipping, .delivery {
     max-height: 150px;
   }
@@ -114,7 +110,7 @@
   .shipping, .delivery, .total-cost, .payment {
     border: 1px solid var(--border-color);
     border-radius: 4px;
-    padding: 12px 15px;
+    padding: 12px 15px 0;
   }
 
   .shipping {
