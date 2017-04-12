@@ -17,7 +17,7 @@ final case class AmazonOrdersSearchView()(implicit ec: EC) extends AvroTransform
       field("currency", StringType).index("not_analyzed"),
       field("orderStatus", StringType).index("not_analyzed"),
       field("purchaseDate", DateType).format(dateFormat),
+      field("createdAt", DateType).format(dateFormat)
       field("updatedAt", DateType).format(dateFormat),
-      field("deletedAt", DateType).format(dateFormat)
   )
 }
