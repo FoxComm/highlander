@@ -1,4 +1,4 @@
-//libs
+// libs
 import _ from 'lodash';
 import React, { PropTypes, Component } from 'react';
 import ReactDOM from 'react-dom';
@@ -6,13 +6,16 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
-//helpers
+// helpers
 import { addResizeListener, removeResizeListener } from 'lib/resize';
 
-//components
+// components
 import { Link, IndexLink } from '../link';
-import InkBar from '../ink-bar/ink-bar';
+import InkBar from './ink-bar';
 import NavDropdown from './nav-dropdown';
+
+// styles
+import s from './local-nav.css';
 
 class LocalNav extends Component {
 
@@ -22,11 +25,6 @@ class LocalNav extends Component {
 
   static propTypes = {
     children: PropTypes.node,
-    gutter: PropTypes.bool,
-  };
-
-  static defaultProps = {
-    gutter: false
   };
 
   state = {
@@ -169,14 +167,14 @@ class LocalNav extends Component {
     // information and these won't get reordered - so it's fine.
     const key = `local-nav-item-${item.key ? item.key : index}`;
     if (item.type !== NavDropdown) {
-      return <li ref={index} className="fc-tabbed-nav-item" key={key}>{item}</li>;
+      return <li ref={index} className={s.item} key={key}>{item}</li>;
     }
 
     const isActive = this.hasActiveLink(item);
 
     return React.cloneElement(item, {
       ref: index,
-      className: classNames(item.props.className, { 'fc-tabbed-nav-selected': isActive }),
+      className: classNames(item.props.className, { [s.selected]: isActive }),
       key: key,
     });
   }
@@ -209,20 +207,15 @@ class LocalNav extends Component {
   }
 
   render() {
-    const { gutter } = this.props;
+    const { className } = this.props;
     const { inkLeft, inkWidth } = this.state;
-    const className = classNames('fc-grid', { 'fc-grid-gutter': gutter });
 
     return (
-      <div className={className}>
-        <div className="fc-col-md-1-1">
-          <ul className="fc-tabbed-nav">
-            {this.flatItems}
-            {this.collapsedItems}
-            <InkBar left={inkLeft} width={inkWidth}/>
-          </ul>
-        </div>
-      </div>
+      <ul className={classNames(s.block, className)}>
+        {this.flatItems}
+        {this.collapsedItems}
+        <InkBar left={inkLeft} width={inkWidth}/>
+      </ul>
     );
   }
 }

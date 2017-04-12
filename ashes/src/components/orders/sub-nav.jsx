@@ -16,7 +16,7 @@ const SubNav = props => {
   const claims = getClaims();
 
   return (
-    <LocalNav>
+    <LocalNav className={props.className}>
       <IndexLink to="order-details" params={params}>Details</IndexLink>
       <Link to="order-shipments" params={params} expectedClaims={shippingClaims} actualClaims={claims}>Shipments</Link>
       <Link to="order-notes" expectedClaims={notesClaims} actualClaims={claims} params={params}>Notes</Link>

@@ -1,0 +1,103 @@
+.block {
+  position: relative;
+  border-bottom: 2px solid #ced2d5;
+  margin: 0 1.85%; /* because of grid system :( */
+}
+
+.item {
+  font-size: 14px;
+  color: #333c49;
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 5px;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &:hover {
+    margin-bottom: -2px;
+    border-bottom: 2px solid #ced2d5;
+  }
+
+  & a,
+  & a:visited {
+    display: inline-block;
+    color: #333c49;
+    padding: 0px 20px;
+    padding-bottom: 10px;
+  }
+
+  & a:hover {
+    cursor: pointer;
+    color: #37bac2;
+  }
+}
+
+.bar {
+  display: block;
+  bottom: 0;
+  height: 2px;
+  margin-top: -2px;
+  position: relative;
+  transition: all 0.3s ease-out;
+  transition-timing-function: cubic-bezier(1, 0.01, 0, 1.22);
+  background-color: #3a4350;
+  bottom: -2px;
+}
+
+.selected {
+  margin-bottom: -2px;
+  border-bottom: 2px solid #3a4350;
+
+  &:hover {
+    border-bottom: 2px solid #3a4350;
+  }
+
+  & > a,
+  & > a:visited {
+    color: #ced2d5;
+  }
+}
+
+
+.parent {
+  position: relative;
+
+  & > a,
+  & > a:visited {
+    & i {
+      padding-left: 10px;
+    }
+  }
+}
+.parent:hover {
+  & ul {
+    display: block;
+  }
+}
+
+.dropdown {
+  z-index: 1;
+  display: none;
+  position: absolute;
+  min-width: 150px;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.50);
+  border-radius: 3px;
+  margin-top: 2px;
+}
+.dropdown .item {
+  color: #484848;
+  width: 100%;
+  height: 44px;
+}
+.dropdown .item:hover {
+  background: #f5f5f5;
+}
+.dropdown .item a:hover {
+  padding: 0 20px;
+  line-height: 44px;
+  color: #484848;
+}

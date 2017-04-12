@@ -24,3 +24,10 @@
   margin: 22px 10px;
   word-wrap: break-word;
 }
+
+@media (min-resolution: 120dpi) {
+  .item {
+    box-shadow: 0px 0px 0px 0.5px #9ba3a7 inset;
+    border: none;
+  }
+}

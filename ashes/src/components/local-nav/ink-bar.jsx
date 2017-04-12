@@ -1,4 +1,8 @@
+// libs
 import React, { PropTypes } from 'react';
+
+// styles
+import s from './local-nav.css';
 
 function getStyles(props) {
   return {
@@ -9,7 +13,7 @@ function getStyles(props) {
 
 const InkBar = props => {
   return (
-    <div className="fc-ink-bar" style={getStyles(props)}></div>
+    <div className={s.bar} style={getStyles(props)}></div>
   );
 };
 
