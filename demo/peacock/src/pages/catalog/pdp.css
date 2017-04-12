@@ -65,7 +65,7 @@
 }
 
 .cart-actions {
-  margin-bottom: 50px;
+  margin-bottom: 20px;
 }
 
 .description {
@@ -145,16 +145,12 @@
   }
 
   .cart-actions {
-    margin-bottom: 86px;
-  }
-
-  .product-details {
-    padding-top: 50px;
+    margin-bottom: 45px;
   }
 
   .short-description {
-    margin: 50px 0 0;
-    font-size: 40px;
+    margin: 0 0 20px;
+    font-size: 20px;
     font-weight: 900;
     line-height: 1.25;
     color: var(--black);

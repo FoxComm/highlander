@@ -391,13 +391,7 @@ class Pdp extends Component {
               />
               {/* <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton> */}
             </div>
-          </div>
-        </div>
-        <div styleName="row">
-          <div styleName="column-left">
             {this.productShortDescription}
-          </div>
-          <div styleName="column-right product-details">
             {this.productDetails}
           </div>
         </div>
