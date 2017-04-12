@@ -1,7 +1,6 @@
 import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
-
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.SkuIsPresentInCarts
@@ -18,6 +17,7 @@ import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.CartPayloads.CreateCart
 import payloads.ProductPayloads.UpdateProductPayload
 import payloads.SkuPayloads.SkuPayload
+import responses.ProductResponses.ProductResponse
 import responses.SkuResponses.SkuResponse
 import responses.cord.CartResponse
 import testutils._
@@ -152,6 +152,16 @@ class SkuIntegrationTest
         .mustBeOk()
 
       skusApi(sku.code).archive().mustFailWith400(SkuIsPresentInCarts(sku.code))
+    }
+
+    "Archives related products if they have no SKUs left" in new FixtureWithProduct {
+      val product1 = productsApi(product.formId).get.as[ProductResponse.Root]
+      product1.archivedAt mustBe 'empty
+
+      skusApi(sku.code).archive().mustBeOk()
+
+      val product2 = productsApi(product.formId).get.as[ProductResponse.Root]
+      product2.archivedAt mustBe 'defined
     }
   }
 
