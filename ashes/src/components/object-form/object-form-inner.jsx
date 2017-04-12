@@ -2,7 +2,6 @@
  * @flow
  */
 
-
 // libs
 import React, { Component } from 'react';
 import _ from 'lodash';
@@ -225,14 +224,11 @@ export default class ObjectFormInner extends Component {
   renderBoolean(name: string, value: boolean, options: AttrOptions) {
     const onChange = () => this.handleChange(name, 'bool', !value);
     const sliderCheckbox = (
-      <div>
-        {this.controlButtons(name, 'bool', value)}
-        <SliderCheckbox
-          id={name}
-          checked={value}
-          onChange={onChange}
-        />
-      </div>
+      <SliderCheckbox
+        id={name}
+        checked={value}
+        onChange={onChange}
+      />
     );
 
     return renderFormField(name, sliderCheckbox, options);
@@ -249,12 +245,7 @@ export default class ObjectFormInner extends Component {
   renderDate(name: string, value: string, options: AttrOptions) {
     const dateValue = new Date(value);
     const onChange = (v: Date) => this.handleChange(name, 'date', v.toISOString());
-    const dateInput = (
-      <div>
-        {this.controlButtons(name, 'string', value)}
-        <DatePicker date={dateValue} onChange={onChange} />
-      </div>
-    );
+    const dateInput = <DatePicker date={dateValue} onChange={onChange} />;
     return renderFormField(name, dateInput, options);
   }
 
@@ -266,15 +257,12 @@ export default class ObjectFormInner extends Component {
       value: Number(value)
     });
     const currencyInput = (
-      <div>
-        {this.controlButtons(name, 'price', value)}
-        <CurrencyInput
-          inputClass={inputClass}
-          inputName={name}
-          value={priceValue}
-          onChange={onChange}
-        />
-      </div>
+      <CurrencyInput
+        inputClass={inputClass}
+        inputName={name}
+        value={priceValue}
+        onChange={onChange}
+      />
     );
 
     return renderFormField(name, currencyInput, options);
@@ -290,7 +278,6 @@ export default class ObjectFormInner extends Component {
 
     return (
       <div className={classForContainer}>
-        {this.controlButtons(name, 'richText', value)}
         <RichTextEditor
           className={`fc-rich-text__name-${nameVal}`}
           label={options.label}
@@ -307,17 +294,14 @@ export default class ObjectFormInner extends Component {
       return this.handleChange(name, 'string', target.value);
     };
     const stringInput = (
-      <div>
-        {this.controlButtons(name, 'string', value)}
-        <input
-          className={inputClass}
-          type="text"
-          name={name}
-          value={value || ''}
-          onChange={onChange}
-          disabled={options.disabled}
-        />
-      </div>
+      <input
+        className={inputClass}
+        type="text"
+        name={name}
+        value={value || ''}
+        onChange={onChange}
+        disabled={options.disabled}
+      />
     );
 
     return renderFormField(name, stringInput, options);
@@ -379,13 +363,10 @@ export default class ObjectFormInner extends Component {
   renderColor(name: string, value: any, options: AttrOptions) {
     const onChange = v => this.handleChange(name, 'color', v);
     const colorSwatch = (
-      <div>
-        {this.controlButtons(name, 'color', value)}
-        <SwatchInput
-          value={value}
-          onChange={onChange}
-        />
-      </div>
+      <SwatchInput
+        value={value}
+        onChange={onChange}
+      />
     );
 
     return renderFormField(name, colorSwatch, options);
@@ -463,7 +444,14 @@ export default class ObjectFormInner extends Component {
       const renderName = this.guessRenderName(attrSchema, attribute);
       const attrOptions = this.getAttrOptions(name, attrSchema);
       // $FlowFixMe: guessRenderName is enough
-      return React.cloneElement(this[renderName](name, attribute && attribute.v, attrOptions), { key: name });
+      const content = React.cloneElement(this[renderName](name, attribute && attribute.v, attrOptions), { key: name });
+      const controlButtons = this.controlButtons(name, attribute && attribute.t, attribute && attribute.v);
+      return (
+        <div>
+          {controlButtons}
+          {content}
+        </div>
+      );
     });
 
     return (
