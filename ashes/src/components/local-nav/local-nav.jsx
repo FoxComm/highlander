@@ -11,7 +11,6 @@ import { addResizeListener, removeResizeListener } from 'lib/resize';
 
 // components
 import { Link, IndexLink } from '../link';
-import InkBar from './ink-bar';
 import NavDropdown from './nav-dropdown';
 
 // styles
@@ -30,13 +29,9 @@ class LocalNav extends Component {
   state = {
     //index of children, from with the automatic collapse starts
     collapseFrom: null,
-    inkLeft: 0,
-    inkWidth: 0,
   };
 
   componentDidMount() {
-    // this.setState(this.getInkState(this.props));
-
     addResizeListener(this.handleResize);
     this.handleResize();
   }
@@ -65,26 +60,6 @@ class LocalNav extends Component {
     } else if (!collapsing && this.isCollapsed) {
       this.expand();
     }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    // this.setState(this.getInkState(this.props));
-  }
-
-  getInkState(props) {
-    const children = React.Children.toArray(props.children);
-
-    const index = _.findIndex(children, link => this.isActiveLink(link));
-
-    if (index === -1) {
-      return { inkLeft: 0, inkWidth: 0 };
-    }
-
-    const ref = this.refs[index];
-    const inkLeft = ref.offsetLeft;
-    const inkWidth = ref.offsetWidth;
-
-    return { inkLeft, inkWidth };
   }
 
   get hasOverflow() {
@@ -127,7 +102,6 @@ class LocalNav extends Component {
     });
   }
 
-  @autobind
   compileLinks({ props }) {
     return _.flatMap(React.Children.toArray(props.children), child => {
       if (child.type === Link || child.type === IndexLink) {
@@ -140,8 +114,8 @@ class LocalNav extends Component {
     });
   }
 
-  @autobind
   hasActiveLink(item) {
+    debugger
     const { routes } = this.context.router;
     const linkList = this.compileLinks(item);
     const linkNames = _.map(linkList, ['props', 'to']);
@@ -170,6 +144,8 @@ class LocalNav extends Component {
       return <li ref={index} className={s.item} key={key}>{item}</li>;
     }
 
+    console.log('renderItem');
+
     const isActive = this.hasActiveLink(item);
 
     return React.cloneElement(item, {
@@ -186,6 +162,8 @@ class LocalNav extends Component {
     if (collapseFrom !== null) {
       children = children.slice(0, collapseFrom);
     }
+
+    console.log('children', children);
 
     return children.map(this.renderItem);
   }
@@ -208,13 +186,11 @@ class LocalNav extends Component {
 
   render() {
     const { className } = this.props;
-    const { inkLeft, inkWidth } = this.state;
 
     return (
       <ul className={classNames(s.block, className)}>
         {this.flatItems}
         {this.collapsedItems}
-        <InkBar left={inkLeft} width={inkWidth}/>
       </ul>
     );
   }
