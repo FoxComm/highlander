@@ -67,7 +67,7 @@ class Delivery extends Component {
 
     if (props.cartState.finished) {
       return (
-        <div>
+        <div styleName="content">
           <ViewDelivery
             shippingMethodCost={this.shippingMethodCost}
             shippingMethod={props.shippingMethod}
