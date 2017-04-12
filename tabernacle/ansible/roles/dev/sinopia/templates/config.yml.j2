@@ -8,7 +8,7 @@ web:
 auth:
     htpasswd:
         file: {{sinopia_htpasswd_file}}
-        max_users: {{sinopia_max_users}}
+        max_users: 100
 
 uplinks:
     yarnjs:
@@ -28,11 +28,11 @@ uplinks:
 packages:
     # scoped packages
     '@*/*':
-        access: $all
+        access: $authenticated
         publish: $authenticated
 
     '*':
-        access: $all
+        access: $authenticated
         publish: $authenticated
         proxy: yarnjs
 

@@ -63,6 +63,7 @@
 
   --input-text-color: var(--blackish);
   --input-active-border-color: var(--baby-blue);
+  --input-focus-border-color: var(--water-blue);
 
   /* Text colors */
   --text-color: var(--blackish);

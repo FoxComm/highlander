@@ -1,8 +1,7 @@
 /* @flow */
 
 // libs
-import _ from 'lodash';
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -18,7 +17,7 @@ import UnshippedItems from './unshipped-items';
 
 // types
 import type AsyncState from 'lib/async-action-creator';
-import type { TShipment, TShipmentLineItem, TUnshippedLineItem } from 'paragons/shipment';
+import type { TShipment, TUnshippedLineItem } from 'paragons/shipment';
 
 
 type Props = {
