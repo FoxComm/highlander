@@ -53,7 +53,7 @@
     - { role: dev/db }
     - { role: dev/db_ic, when: with_ic }
     # Marathon
-    - { role: dev/seed_system, when: with_appliance_seeding }
+    - { role: dev/seed_system }
     - { role: dev/marathon }
     - { role: hotfix/replace_mesos_consul }
     - { role: base/marathon_consul }
