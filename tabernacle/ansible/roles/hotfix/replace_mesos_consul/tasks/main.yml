@@ -17,6 +17,9 @@
       name: consul_agent
       state: restarted
 
+- name: Include vars from mesos
+  include_vars: "{{role_path}}/../../base/mesos_master/vars/main.yml"
+
 - name: Add event subscribtion support for marathon
   template: src=../../../base/mesos_master/templates/run_marathon.sh dest=/usr/local/bin mode="u+x,g+x,o+x"
 
