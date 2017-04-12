@@ -21,7 +21,7 @@ const criterions = [
     label: 'Name',
   },
   {
-    type: types.string,
+    type: types.stringNotAnalyzed,
     widget: {
       default: widgets.plain('text'),
       [ops.oneOf]: widgets.oneOf(widgets.plain('text')),
