@@ -6,7 +6,6 @@ import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 
-import Block from '../common/block';
 import OrderRow from './order-row';
 
 import * as actions from 'modules/orders';
@@ -72,9 +71,9 @@ class MyOrders extends Component {
 
   render() {
     return (
-      <Block title="My Orders">
+      <div>
         {this.content}
-      </Block>
+      </div>
     );
   }
 }
