@@ -1,3 +1,5 @@
+// @flow
+
 // libs
 import React, { Element } from 'react';
 import _ from 'lodash';
@@ -35,14 +37,12 @@ import type { StateToProps, DispatchToProps, Props, StateType, ReduxState, Order
 const shippingClaims = readAction(frn.mdl.shipment);
 const fraudClaims = readAction(frn.oms.fraud);
 
-const orderRefNum = props => {
-  return props.params.order;
-};
+const orderRefNum = props => props.params.order;
 
 const mapStateToProps = (state: ReduxState): StateToProps => {
   return {
     details: state.orders.details,
-    isFetching: _.get(state.asyncActions, 'getOrder.inProgress', null),
+    isFetching: _.get(state.asyncActions, 'getOrder.inProgress', false),
     fetchError: _.get(state.asyncActions, 'getOrder.err', null),
   };
 };
@@ -60,7 +60,7 @@ export default class Order extends React.Component {
 
   componentDidMount() {
     this.props.clearFetchErrors();
-    this.props.fetchOrder(this.orderRefNum);
+    this.props.fetchAmazonOrder(this.orderRefNum);
   }
 
   componentWillReceiveProps(nextProps: Props): void {
@@ -252,6 +252,7 @@ export default class Order extends React.Component {
 
   get contents(): Element<*> {
     const order = this.order;
+
     return (
       <div>
         <PageTitle title={`${order.title} ${this.orderRefNum}`}>

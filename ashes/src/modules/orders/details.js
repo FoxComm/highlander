@@ -18,6 +18,11 @@ const _getOrder = createAsyncActions(
   (refNum: string) => Api.get(`/orders/${refNum}`)
 );
 
+const _getAmazonOrder = createAsyncActions(
+  'getAmazonOrder',
+  (refNum: string) => Api.get(`/hyperion/orders/111-5296499-9653858/full`) // ${refNum}
+);
+
 const _updateOrder = createAsyncActions(
   'updateOrder',
   (id: number, data: Object) => Api.patch(`/orders/${id}`, data)
@@ -29,6 +34,7 @@ const _updateShipments = createAsyncActions(
 );
 
 export const fetchOrder = _getOrder.perform;
+export const fetchAmazonOrder = _getAmazonOrder.perform;
 export const updateOrder = _updateOrder.perform;
 export const updateShipments = _updateShipments.perform;
 export const clearFetchErrors =_getOrder.clearErrors;
@@ -47,6 +53,7 @@ export function increaseRemorsePeriod(refNum: string) {
 
 const reducer = createReducer({
   [_getOrder.succeeded]: orderSucceeded,
+  [_getAmazonOrder.succeeded]: orderSucceeded,
   [_updateOrder.succeeded]: orderSucceeded,
   [_updateShipments.succeeded]: (state) => state,
 }, initialState);
