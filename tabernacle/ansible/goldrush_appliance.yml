@@ -50,20 +50,19 @@
     - { role: hotfix/elasticsearch }
     - { role: hotfix/rsyslog }
     - { role: hotfix/kibana }
+    - { role: hotfix/replace_mesos_consul }
+    - { role: hotfix/marathon_consul }
     - { role: dev/db }
     - { role: dev/db_ic, when: with_ic }
     # Marathon
     - { role: dev/seed_system }
     - { role: dev/marathon }
-    - { role: hotfix/replace_mesos_consul }
-    - { role: hotfix/marathon_consul }
     - { role: dev/marathon_consumers }
     - { role: dev/ic }
     - { role: ext/td/storefront }
     - { role: ext/tpg/storefront }
     # Nginx
     - { role: dev/balancer }
-    - { role: hotfix/replace_mesos_consul, stop_mesos_consul: true }
     - { role: demo/balancer }
     # Seed
     - { role: dev/seeder, when: with_appliance_seeding }

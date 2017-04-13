@@ -1,21 +1,13 @@
 ---
 
 - name: Disable Mesos Consul
-  systemd:
-    state: stopped
-    enabled: no
-    daemon_reload: yes
-    name: mesos_consul
-  when: stop_mesos_consul is defined and stop_mesos_consul
+  systemd: state=stopped enabled=no daemon_reload=yes name=mesos_consul
 
 - name: Remove "marathon" tag in Consul for Marathon
   template: src=marathon.json dest=/etc/consul.d/marathon.json
 
 - name: Remove Mesos Consul service from Consul
   file: path=/etc/consul.d/mesos_consul.json state=absent
-
-- name: Restart Consul Agent
-  systemd: name=consul_agent state=restarted
 
 - name: Include vars from Mesos Master role
   include_vars: "{{role_path}}/../../base/mesos_master/vars/main.yml"
