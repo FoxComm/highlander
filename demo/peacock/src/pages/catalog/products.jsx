@@ -86,7 +86,9 @@ class Products extends Component {
   componentWillMount() {
     const { categoryName, subCategory, leafCategory } = this.props.params;
     const categoryNames = [categoryName, subCategory, leafCategory];
-    this.fetch(categoryNames);
+    const { sorting, selectedFacets, toLoad } = this.props.filters;
+
+    this.fetch(categoryNames, sorting, selectedFacets, toLoad);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -103,7 +105,7 @@ class Products extends Component {
 
     if (mustInvalidate) {
       const categoryNames = [nextCategoryName, nextSubCategory, nextLeafCategory];
-      const {sorting, selectedFacets, toLoad} = this.props.filters;
+      const { sorting, selectedFacets, toLoad } = this.props.filters;
 
       this.props.saveProductsFilters({
         sorting,
@@ -111,7 +113,7 @@ class Products extends Component {
         toLoad,
       });
 
-      this.fetch(categoryNames);
+      this.fetch(categoryNames, sorting, selectedFacets, toLoad);
     }
   }
 
@@ -137,7 +139,7 @@ class Products extends Component {
       toLoad: PAGE_SIZE,
     });
 
-    this.fetch(categoryNames);
+    this.fetch(categoryNames, newState, selectedFacets, PAGE_SIZE);
   }
 
   @autobind
@@ -154,7 +156,7 @@ class Products extends Component {
       toLoad: nextToLoad,
     });
 
-    this.fetch(categoryNames);
+    this.fetch(categoryNames, sorting, selectedFacets, nextToLoad);
   }
 
   @autobind
@@ -193,7 +195,7 @@ class Products extends Component {
       toLoad,
     });
 
-    this.fetch(categoryNames);
+    this.fetch(categoryNames, sorting, selectedFacets, toLoad);
   }
 
   @autobind
@@ -225,8 +227,9 @@ class Products extends Component {
     this.showMenuBar();
     const { categoryName, subCategory, leafCategory } = this.props.params;
     const categoryNames = [categoryName, subCategory, leafCategory];
+    const { sorting, selectedFacets, toLoad } = this.props.filters;
 
-    this.fetch(categoryNames);
+    this.fetch(categoryNames, sorting, selectedFacets, toLoad);
   }
 
   get navBar(): ?Element<*> {

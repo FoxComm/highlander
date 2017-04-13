@@ -32,9 +32,13 @@ export const PAGE_SIZE = 20;
 const context = process.env.STOREFRONT_CONTEXT || 'default';
 export const GIFT_CARD_TAG = 'GIFT-CARD';
 
-function apiCall(categoryNames: ?Array<string>, { ignoreGiftCards = true } = {}): Promise<*> {
+function apiCall(
+  categoryNames: ?Array<string>,
+  sorting: ?{ direction: number, field: string },
+  selectedFacets: Object,
+  toLoad: number,
+  { ignoreGiftCards = true } = {}): Promise<*> {
   let payload = defaultSearch(String(context));
-  const { sorting, selectedFacets, toLoad } = this.getState().products.filters;
 
   _.forEach(_.compact(categoryNames), (cat) => {
     if (cat !== 'ALL' && cat !== GIFT_CARD_TAG) {
@@ -68,7 +72,6 @@ function apiCall(categoryNames: ?Array<string>, { ignoreGiftCards = true } = {})
   const chained = promise.then((response) => {
     return {
       payload: response,
-      selectedFacets,
     };
   });
   chained.abort = promise.abort;
@@ -78,12 +81,13 @@ function apiCall(categoryNames: ?Array<string>, { ignoreGiftCards = true } = {})
 export const saveProductsFilters = createAction('SAVE_PRODUCTS_FILTERS');
 
 export function searchGiftCards() {
+  const [sorting, selectedFacets, toLoad] = [null, {}, MAX_RESULTS];
   saveProductsFilters({
-    sorting: null,
-    selectedFacets: {},
-    toLoad: MAX_RESULTS,
+    sorting,
+    selectedFacets,
+    toLoad,
   });
-  return apiCall.call({ api }, [GIFT_CARD_TAG], { ignoreGiftCards: false });
+  return apiCall.call({ api }, [GIFT_CARD_TAG], sorting, selectedFacets, toLoad, { ignoreGiftCards: false });
 }
 
 const _fetchProducts = createAsyncActions('products', apiCall);
@@ -480,7 +484,8 @@ const reducer = createReducer({
     };
   },
   [_fetchProducts.succeeded]: (state, action) => {
-    const {payload, selectedFacets} = action;
+    const {payload} = action;
+    const {selectedFacets} = state.filters;
     const payloadResult = payload.result;
     const aggregations = _.isNil(payload.aggregations)
       ? []
@@ -488,7 +493,7 @@ const reducer = createReducer({
     const list = _.isEmpty(payloadResult) ? [] : payloadResult;
     const total = _.get(payload, 'pagination.total', 0);
 
-    const queryFacets = mapAggregationsToFacets(aggregations);
+    const queryFacets = markFacetValuesAsSelected(mapAggregationsToFacets(aggregations), selectedFacets);
 
     let facets = [];
 
