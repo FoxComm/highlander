@@ -22,7 +22,9 @@ object ExportEntityPayloads {
     }
     case object Customers               extends ExportableEntity
     case object GiftCards               extends ExportableEntity
-    case object GiftCardTransactions    extends ExportableEntity
+    case object GiftCardTransactions    extends ExportableEntity {
+      override def searchView: String = s"${entity}_view"
+    }
     case object Inventory               extends ExportableEntity
     case object InventoryTransactions   extends ExportableEntity
     case object Notes                   extends ExportableEntity
