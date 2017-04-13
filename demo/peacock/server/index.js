@@ -5,10 +5,10 @@ const path = require('path');
 const storefrontPath = path.resolve(path.join(__dirname, '..'));
 
 class Storefront {
-  build() {
+  runGulp(tasks) {
     const gulpBin = path.join(storefrontPath, 'node_modules/.bin/gulp');
     return new Promise((resolve, reject) => {
-      const child = childProcess.fork(gulpBin, ['build'], {
+      let child = childProcess.fork(gulpBin, tasks, {
         cwd: storefrontPath,
         env: Object.assign({}, process.env, {
           TARGET_CWD: process.cwd(),
@@ -16,13 +16,32 @@ class Storefront {
       });
 
       child.once('exit', (code) => {
+        child = null;
         if (code == 0) {
           resolve();
         } else {
           reject(code);
         }
       });
+
+      const killChild = () => {
+        if (child) {
+          process.kill(-child.pid);
+          child = null;
+        }
+      };
+
+      process.on('SIGINT', killChild);
+      process.on('exit', killChild);
     });
+  }
+
+  build() {
+    return this.runGulp(['build']);
+  }
+
+  dev() {
+    return this.runGulp(['dev']);
   }
 
   run() {

@@ -4,15 +4,16 @@ const { spawn } = require('child_process');
 const watch = require('glob-watcher');
 const path = require('path');
 const fs = require('mz/fs');
+const rimraf = require('rimraf');
 
-function runScript(name, cb = () => {}) {
+function runScript(name, opts = {}, cb = () => {}) {
   let child = spawn('yarn',
     ['run', name],
-    {
+    Object.assign({
       shell: true,
       detached: true,
       stdio: 'inherit',
-    }
+    }, opts)
   ).on('close', (code) => {
     child = null;
     if (code != 0) {
@@ -96,14 +97,24 @@ module.exports = function (gulp) {
     }
   };
 
-  gulp.task('precompile.source', function () {
+  gulp.task('precompile.clean_target', function() {
+    if (targetCwd) {
+      rimraf.sync(path.join(targetCwd, 'lib'));
+    }
+  });
+
+  const srcToLibLogger = () => {
+    return through.obj((file, enc, cb) => {
+      logSrcToLib(file.path, file.base || srcPath, file.isAlt);
+      cb(null, file);
+    });
+  };
+
+  gulp.task('precompile.source', ['precompile.clean_target'], function () {
     return gulp.src('src/**/*.{jsx,js}', {read: false})
       .pipe(replaceByAlt())
       .pipe(changed(libPath, {extension: '.js'}))
-      .pipe(through.obj((file, enc, cb) => {
-        logSrcToLib(file.path, file.base || srcPath, file.isAlt);
-        cb(null, file);
-      }))
+      .pipe(srcToLibLogger())
       .pipe(read())
       .pipe(babel({
         extends: path.resolve('.babelrc'),
@@ -113,19 +124,53 @@ module.exports = function (gulp) {
 
   gulp.task('precompile', ['precompile.static', 'precompile.source']);
 
-  gulp.task('precompile.watch', function () {
+  const watchStaticts = cwd => {
     const handleChanged = (filepath) => {
-      logSrcToLib(filepath);
+      logSrcToLib(filepath, path.join(cwd, 'src'));
       gulp
-        .src(filepath, { base: 'src' })
-        .pipe(gulp.dest('./lib'));
+        .src(filepath, { base: path.join(cwd, 'src'), cwd })
+        .pipe(through.obj((file, enc, cb) => {
+          file.isAlt = targetCwd == cwd;
+          cb(null, file);
+        }))
+        .pipe(srcToLibLogger())
+        .pipe(gulp.dest('./lib', { cwd }));
     };
 
-    watch(statics)
+    watch(statics, {cwd})
       .on('change', handleChanged)
       .on('add', handleChanged);
+  };
 
+  const watchJs = cwd => {
+    const babelify = filepath => {
+      gulp
+        .src(filepath, { base: path.join(cwd, 'src'), cwd })
+        .pipe(through.obj((file, enc, cb) => {
+          file.isAlt = targetCwd == cwd;
+          cb(null, file);
+        }))
+        .pipe(srcToLibLogger())
+        .pipe(babel({
+          extends: path.resolve('.babelrc'),
+        }))
+        .pipe(gulp.dest('lib', { cwd }));
+    };
+
+    watch(`${cwd}/src/**/*.{jsx,js}`, {cwd})
+      .on('change', babelify)
+      .on('add', babelify);
+  };
+
+  gulp.task('precompile.watch', function () {
+    watchStaticts(process.cwd());
+    if (targetCwd) {
+      watchStaticts(targetCwd);
+    }
 
     runScript('watch-precompile');
+    if (targetCwd) {
+      watchJs(targetCwd);
+    }
   });
 };

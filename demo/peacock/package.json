@@ -128,6 +128,7 @@
     "redux-isomorphic-render": "^1.2.1",
     "redux-logger": "^2.7.4",
     "reselect": "^2.1.0",
+    "rimraf": "^2.6.1",
     "sprout-data": "^0.2.3",
     "use-named-routes": "^0.3.2",
     "zipcodes": "^2.0.0"
