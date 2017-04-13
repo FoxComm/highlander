@@ -484,6 +484,22 @@ function markFacetValuesAsSelected(facets: Array<Facet>, selectedFacets: Object)
 }
 
 const reducer = createReducer({
+  '@@router/UPDATE_LOCATION': (state, action) => {
+    const selectedFacets = _.reduce(action.query, (acc, cur, key) => {
+      return {
+        ...acc,
+        [key]: _.isString(cur) ? [cur] : cur,
+      };
+    }, {});
+
+    return {
+      ...state,
+      filters: {
+        ...state.filters,
+        selectedFacets,
+      },
+    };
+  },
   [saveProductsFilters]: (state, action) => {
     return {
       ...state,
