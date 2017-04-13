@@ -1,38 +1,28 @@
-// @flow
-import _ from 'lodash';
+/* @flow */
+
 import React, { Component } from 'react';
+
+// libs
+import _ from 'lodash';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import { browserHistory } from 'lib/history';
 import { clearErrorsFor } from '@foxcomm/wings';
 
-import { Link } from 'react-router';
-import Button from 'ui/buttons';
+// components
 import { TextInput } from 'ui/text-input';
-import { FormField, Form } from 'ui/forms';
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import { FormField } from 'ui/forms';
 import CheckoutForm from 'pages/checkout/checkout-form';
 
+// actions
 import * as actions from 'modules/profile';
 
+/// types
 import type { AsyncStatus } from 'types/async-actions';
+import type { AccountDetailsProps } from 'types/profile';
 
 import styles from './account-details.css';
 
-type Account = {
-  name: string,
-  email: string,
-  isGuest: boolean,
-  id: number,
-}
-
-type EmptyAccount = {
-  email: void,
-  name: void,
-}
-
-type EditNameProps = {
-  account: Account|EmptyAccount,
+type Props = AccountDetailsProps & {
   fetchAccount: () => Promise<*>,
   updateAccount: (payload: Object) => Promise<*>,
   updateState: AsyncStatus,
@@ -44,9 +34,8 @@ type State = {
 }
 
 class EditName extends Component {
-  static title = 'Edit first & last name';
+  props: Props;
 
-  props: EditNameProps;
   state: State = {
     name: this.props.account.name || '',
   };
