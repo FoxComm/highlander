@@ -1,8 +1,11 @@
 
-import { createReducer } from 'redux-act';
+import { createReducer, createAction } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
+import _ from 'lodash';
 
 import { updateUser } from './auth';
+
+export const toggleNameModal = createAction('TOGGLE_NAME_MODAL');
 
 const _fetchAccount = createAsyncActions(
   'fetchAccount',
@@ -34,6 +37,7 @@ export const changePassword = _changePassword.perform;
 
 const initialState = {
   account: {},
+  nameModalVisible: false,
 };
 
 function updateAccountInState(state, account) {
@@ -46,6 +50,13 @@ function updateAccountInState(state, account) {
 const reducer = createReducer({
   [_fetchAccount.succeeded]: updateAccountInState,
   [_updateAccount.succeeded]: updateAccountInState,
+  [toggleNameModal]: (state) => {
+    const current = _.get(state, 'nameModalVisible', false);
+    return {
+      ...state,
+      nameModalVisible: !current,
+    };
+  },
 }, initialState);
 
 export default reducer;

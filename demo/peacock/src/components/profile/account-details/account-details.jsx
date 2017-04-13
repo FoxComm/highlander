@@ -9,12 +9,6 @@ import * as actions from 'modules/profile';
 
 import styles from './account-details.css';
 
-function mapStateToProps(state) {
-  return {
-    account: state.profile.account,
-  };
-}
-
 type Account = {
   name: string,
   email: string,
@@ -31,6 +25,7 @@ type AccountDetailsProps = {
   account: Account|EmptyAccount,
   fetchAccount: () => Promise<*>,
   className?: string,
+  nameModalVisible: boolean,
 }
 
 class AccountDetails extends Component {
@@ -60,15 +55,24 @@ class AccountDetails extends Component {
       <Button styleName="link-button" onClick={this.handleChangePasswordClick}>CHANGE PASSWORD</Button>
     </div>
     */
-    const { account, className } = this.props;
+    const { props } = this;
     return (
-      <div className={className}>
+      <div className={props.className}>
         <Name
-          name={account.name}
+          name={props.account.name}
+          toggleModal={props.toggleNameModal}
+          modalVisible={props.nameModalVisible}
         />
       </div>
     );
   }
+}
+
+const mapStateToProps = (state) => {
+  return {
+    account: state.profile.account,
+    nameModalVisible: state.profile.nameModalVisible,
+  };
 }
 
 export default connect(mapStateToProps, actions)(AccountDetails);
