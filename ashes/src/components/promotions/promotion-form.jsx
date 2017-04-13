@@ -166,8 +166,8 @@ export default class PromotionForm extends ObjectDetails {
         <div styleName="sub-title" >Customers</div>
         <SelectCustomerGroups
           parent="Promotions"
-          selectedGroupIds={promotion.attributes.customerGroupIds.v}
-          qualifyAll={promotion.attributes.customerGroupIds.v == null}
+          selectedGroupIds={_.get(promotion, 'attributes.customerGroupIds.v', null)}
+          qualifyAll={_.get(promotion, 'attributes.customerGroupIds.v', null) == null}
           qualifyAllChange={this.handleQualifyAllChange}
           updateSelectedIds={this.handleQulifierGroupChange}
         />
