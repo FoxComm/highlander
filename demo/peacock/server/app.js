@@ -1,6 +1,5 @@
 
 require('../src/postcss.config').installHook();
-process.title = process.env.STOREFRONT_NAME || 'fox-storefront';
 
 const KoaApp = require('koa');
 const { makeApiProxy } = require('./routes/api');
@@ -22,6 +21,8 @@ const { renderReact } = require('../lib/server');
 
 const isProduction = process.env.NODE_ENV === 'production';
 const projectRoot = path.join(__dirname, '..');
+
+process.title = process.env.STOREFRONT_NAME || 'fox-storefront';
 
 function timestamp() {
   return moment().format('D MMM H:mm:ss');

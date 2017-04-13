@@ -6,8 +6,6 @@ require('./setup_env');
 
 const child = fork(path.join(__dirname, 'app.js'));
 
-console.log('started storefront', child.pid);
-
 function killChild() {
   try {
     process.kill(child.pid);

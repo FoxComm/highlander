@@ -76,7 +76,9 @@ module.exports = function (gulp) {
         willBeAlt = fs.lstat(altPath);
       }
 
-      willBeAlt.then(stat => {
+      /* eslint-disable no-param-reassign */
+
+      willBeAlt.then((stat) => {
         file.path = altPath;
         file.base = path.join(targetCwd, 'src');
         file.cwd = targetCwd;
@@ -89,12 +91,11 @@ module.exports = function (gulp) {
     });
   };
 
-  const libPath = file => {
+  const libPath = (file) => {
     if (file.isAlt) {
       return path.join(targetCwd, 'lib');
-    } else {
-      return 'lib';
     }
+    return 'lib';
   };
 
   gulp.task('precompile.clean_target', function() {
@@ -124,7 +125,7 @@ module.exports = function (gulp) {
 
   gulp.task('precompile', ['precompile.static', 'precompile.source']);
 
-  const watchStaticts = cwd => {
+  const watchStaticts = (cwd) => {
     const handleChanged = (filepath) => {
       logSrcToLib(filepath, path.join(cwd, 'src'));
       gulp
@@ -142,8 +143,8 @@ module.exports = function (gulp) {
       .on('add', handleChanged);
   };
 
-  const watchJs = cwd => {
-    const babelify = filepath => {
+  const watchJs = (cwd) => {
+    const babelify = (filepath) => {
       gulp
         .src(filepath, { base: path.join(cwd, 'src'), cwd })
         .pipe(through.obj((file, enc, cb) => {

@@ -57,7 +57,7 @@ class Storefront {
   start() {
     return this.build().then(() => {
       this.run();
-    }, err => {
+    }, (err) => {
       console.error('Oops, process exited with code', err);
     });
   }

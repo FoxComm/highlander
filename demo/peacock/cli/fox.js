@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 const { spawn } = require('child_process');
+const yargs = require('yargs');
 
-const argv = require('yargs')
+const argv = yargs
   .usage('$0 <cmd> [args]')
   .command('init', 'install node.js dependencies for storefront')
   .epilog('FoxCommerce team')
@@ -10,7 +11,7 @@ const argv = require('yargs')
 const command = argv._[0];
 
 const deps = [
-  'babel-runtime', 'react'
+  'babel-runtime', 'react',
 ];
 
 function runYarn(args, cb = () => {}) {
@@ -48,4 +49,6 @@ switch (command) {
   case 'init':
     init();
     break;
+  default:
+    yargs.showHelp('log');
 }
