@@ -17,7 +17,7 @@ import DiscountAttrs from './discount-attrs';
 import offers from './offers';
 import qualifiers from './qualifiers';
 import Discounts from './discounts';
-
+import ElasticQueryGenerator from 'components/query-builder/elastic-query-generator';
 
 import { setDiscountAttr } from 'paragons/promotion';
 const layout = require('./layout.json');
@@ -183,4 +183,48 @@ export default class PromotionForm extends ObjectDetails {
       </div>
     );
   }
+
+  renderDiscountsSection() {
+    let qualifier = _.get(this.props.object, 'discounts.0.attributes.qualifier1.v', {
+        discountType: 'order',
+        qualifierType: 'noQualifier',
+        widgetValue: 0,
+        exGiftCardQual: true
+    });
+    let offer = _.get(this.props.object, 'discounts.0.attributes.offer1.v', {
+        offerType: 'orderPercentOff',
+        exGiftCardOffer: true
+    });
+    return (<div>
+        <Discounts
+          onChangeQualifier={this.handleQualifierChange1}
+          onChangeOffer={this.handleOfferChange1}
+          discounts={{
+            qualifier: {
+              ...qualifier
+            },
+            offer: {
+              ...offer
+            }
+        }}/>
+      </div>);
+  }
+
+
+  @autobind
+  handleQualifierChange1(qualifier: Object) {
+    const newPromotion = setDiscountAttr(this.props.object,
+      'qualifier1', qualifier
+    );
+    this.props.onUpdateObject(newPromotion);
+  }
+  @autobind
+  handleOfferChange1(offer: Object) {
+    const newPromotion = setDiscountAttr(this.props.object,
+      'offer1', offer
+    );
+
+    this.props.onUpdateObject(newPromotion);
+  }
+
 }

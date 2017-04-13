@@ -9,10 +9,31 @@
     display: flex;
     align-items: flex-start;
     flex-wrap: nowrap;
-    margin-bottom: @critertion-margin;
+    padding-bottom: @critertion-margin;
+    position: relative;
   }
-
+  &__criterion:last-child &__prefix:after{
+    display: none;
+  }
   @criterion-width: 330px;
+  &__prefix {
+    border: solid 1px #ced2d5;
+    width: 60px;
+    min-width: 60px;
+    min-height: 40px;
+    text-align: center;
+    color: #888;
+    line-height: 38px;
+    &:after{
+      position: absolute;
+      content: "";
+      bottom: -1px;
+      width: 1px;
+      background: #ced2d5;
+      top: 40px;
+      left: 30px;
+    }
+  }
   &__field {
     width: @criterion-width;
     max-width: @criterion-width;
@@ -30,7 +51,6 @@
     display: inline-block;
     cursor: pointer;
     .font-spec(16px, 22px);
-    margin-top: 20px;
     > * {
       vertical-align: baseline;
     }
@@ -52,7 +72,7 @@
     }
   }
 
-  @value-width: 330px;
+  @value-width: 180px;
   @value-height: 40px;
   &__value {
     background: @color-white;
@@ -89,7 +109,7 @@
   }
 
   &__vertical-select {
-    @value-width: 278px;
+    @value-width: 180px;
     flex-direction: column;
     @line-width: 34px;
     @line-height: 28px;

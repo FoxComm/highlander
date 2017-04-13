@@ -6,6 +6,7 @@ import styles from './promotion-coupons.css';
 
 // components
 import Coupons from '../coupons/coupons';
+import SomeComponent from '../aaa/component';
 import { SectionTitle } from '../section-title';
 import { PrimaryButton } from '../../components/common/buttons';
 
@@ -26,6 +27,7 @@ export default class PromoCouponsPage extends Component {
         <SectionTitle title="Coupons">
           <PrimaryButton onClick={this.addAction} icon="add">Coupon</PrimaryButton>
         </SectionTitle>
+        <SomeComponent/>
         <Coupons promotionId={promotionId} />
         {children}
       </div>
