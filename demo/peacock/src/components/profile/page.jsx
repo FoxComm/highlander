@@ -10,7 +10,6 @@ type Props = {
 const Page = (props: Props) => {
   return (
     <div styleName="profile">
-      <h1 styleName="title">My Account</h1>
       <div styleName="content">
         {props.children}
       </div>
