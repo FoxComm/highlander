@@ -98,14 +98,21 @@ class Products extends Component {
       subCategory: nextSubCategory,
       leafCategory: nextLeafCategory,
     } = nextProps.params;
-
     const mustInvalidate = (categoryName !== nextCategoryName) ||
       (subCategory !== nextSubCategory) ||
       (leafCategory !== nextLeafCategory);
 
     if (mustInvalidate) {
       const categoryNames = [nextCategoryName, nextSubCategory, nextLeafCategory];
-      const { sorting, selectedFacets, toLoad } = this.props.filters;
+      const initialFilters = {
+        sorting: {
+          direction: 1,
+          field: 'salePrice',
+        },
+        selectedFacets: {},
+        toLoad: PAGE_SIZE,
+      };
+      const { sorting, selectedFacets, toLoad } = initialFilters;
 
       this.props.saveProductsFilters({
         sorting,
