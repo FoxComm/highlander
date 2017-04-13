@@ -12,12 +12,30 @@ def get_all_channels(client):
     client.stop()
     return out
 
+def get_popular_products(client):
+    """get_popular_products
+    get all products ordered by number of times purchased
+    """
+    client.start()
+    query = """MATCH (p:Product)
+        MATCH (c:Customer)-[:PURCHASED]->(p)
+        RETURN p.phoenix_id, count(*)
+        ORDER BY count(*) DESC"""
+    result = client.session.run(query)
+    out = {'products': [
+        {'id': record['p.phoenix_id'],
+         'score': record['count(*)']}
+        for record in result
+    ]}
+    return out
+
 def get_purchased_products(customer_id, channel_id, client):
     """get_purchased_products
     return a list of products which have been purchased
     by the customer over a specific channel
     """
     client.start()
+    client.session.run(merge_customer_node("c", customer_id))
     query = match_xyz(
         {"model": "Customer", "props": {"phoenix_id": customer_id}},
         {"model": "PURCHASED", "props": {"channel": channel_id}},
