@@ -9,6 +9,7 @@ import {
 } from 'lib/elastic';
 import _ from 'lodash';
 import { api } from 'lib/api';
+import { browserHistory } from 'lib/history';
 
 import type { Facet } from 'types/facets';
 
@@ -66,6 +67,13 @@ function apiCall(
       payload = addTaxonomyFilter(payload, facet, values);
     }
   });
+
+  if (browserHistory) {
+    browserHistory.push({
+      pathname: document.location.pathname,
+      query: selectedFacets,
+    });
+  }
 
   const promise = this.api.post(`/search/public/products_catalog_view/_search?size=${toLoad}`, payload);
 
