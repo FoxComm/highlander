@@ -14,16 +14,12 @@ import { isDefined } from 'lib/utils';
 import { FormField, FormFieldError } from '../forms';
 import { SliderCheckbox } from '../checkbox/checkbox';
 import CurrencyInput from '../forms/currency-input';
-import CustomProperty from '../products/custom-property';
 import DatePicker from '../datepicker/datepicker';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
 import { Dropdown } from '../dropdown';
 import SwatchInput from '../forms/swatch-input';
 
 import type { AttrSchema } from 'paragons/object';
-
-// style
-import s from './object-form-inner.css';
 
 type Props = {
   canAddProperty?: boolean,
@@ -36,14 +32,7 @@ type Props = {
 };
 
 type State = {
-  isAddingProperty: boolean,
-  isEditingProperty: boolean,
-  errors: {[id:string]: any},
-  currentEdit: {
-    name: string,
-    type: string,
-    value: string | number
-  },
+  errors: {[id:string]: any}
 };
 
 type AttrOptions = {
@@ -90,126 +79,8 @@ function guessType(value: any): string {
 export default class ObjectFormInner extends Component {
   props: Props;
   state: State = {
-    isAddingProperty: false,
-    isEditingProperty: false,
     errors: {},
-    currentEdit: {
-      name: '',
-      type: '',
-      value: '',
-    },
   };
-
-  get addCustomProperty() {
-    if (this.props.canAddProperty) {
-      return (
-        <div className="fc-object-form__add-custom-property">
-          Custom Property
-          <a id="fct-add-btn__custom-property" className="fc-object-form__add-custom-property-icon"
-             onClick={this.handleAddProperty}>
-            <i className="icon-add" />
-          </a>
-        </div>
-      );
-    }
-  }
-
-  get customPropertyForm() {
-    if (this.state.isAddingProperty) {
-      return (
-        <CustomProperty
-          isVisible={true}
-          onSave={this.handleCreateProperty}
-          onCancel={() => this.setState({ isAddingProperty: false })}
-        />
-      );
-    }
-
-    if (this.state.isEditingProperty) {
-      return (
-        <CustomProperty
-          currentEdit={this.state.currentEdit}
-          isVisible={true}
-          onSave={this.handleEditProperty}
-          onCancel={() => this.setState({ isEditingProperty: false })}
-        />
-      );
-    }
-  }
-
-  @autobind
-  handleAddProperty() {
-    this.setState({ isAddingProperty: true });
-  }
-
-  @autobind
-  handleCreateProperty(property: { fieldLabel: string, propertyType: string }) {
-    const { fieldLabel, propertyType } = property;
-
-    // TODO show error message, if fieldLabel is not unique
-    if (!this.isUnique(fieldLabel)) {
-      return null;
-    }
-
-    const value = (() => {
-      switch(propertyType) {
-        case('date'): return new Date().toString();
-        case('bool'): return false;
-        default: return '';
-      }
-    })();
-    this.setState({
-      isAddingProperty: false
-    }, () => this.handleChange(fieldLabel, propertyType, value));
-  }
-
-  @autobind
-  handleEditProperty(property: { fieldLabel: string, propertyType: string, fieldValue: string | number }) {
-    const { attributes } = this.props;
-    const { currentEdit: { name } } = this.state;
-    const { fieldLabel, propertyType, fieldValue } = property;
-
-    // TODO show error message, if fieldLabel is not unique
-    if (!this.isUnique(fieldLabel)) {
-      return null;
-    }
-
-    const preparedObject = _.omit(attributes, name);
-    const newAttributes = {
-      ...preparedObject,
-      [fieldLabel]: {
-        t: propertyType,
-        v: fieldValue,
-      }
-    };
-
-    this.setState({
-      isEditingProperty: false,
-      currentEdit: {
-        name: '',
-        type: '',
-        value: ''
-      }
-    }, this.props.onChange(newAttributes));
-  }
-
-  @autobind
-  handleDeleteProperty(name: string) {
-    const newAttributes = _.omit(this.props.attributes, name);
-    this.setState({ isAddingProperty: false }, this.props.onChange(newAttributes));
-  }
-
-  @autobind
-  onEdit(name: string, type: string, value: string | number) {
-    this.setState({
-      isEditingProperty: true,
-      currentEdit: {
-        name,
-        type,
-        value
-      },
-    });
-  }
 
   @autobind
   handleChange(name: string, type: string, value: any) {
@@ -232,13 +103,6 @@ export default class ObjectFormInner extends Component {
       }
     }
     this.props.onChange(newAttributes);
-  }
-
-  @autobind
-  isUnique(fieldLabel: string) {
-    const reservedNames = _.keys(_.get(this.props.schema, 'properties', {}));
-    const unique = !reservedNames.includes(fieldLabel);
-    return unique;
   }
 
   renderBoolean(name: string, value: boolean, options: AttrOptions) {
@@ -392,18 +256,6 @@ export default class ObjectFormInner extends Component {
     return renderFormField(name, colorSwatch, options);
   }
 
-  controlButtons(name: string, type: string, value: any) {
-    const defaultProperties = _.keys(_.get(this.props.schema, 'properties', {}));
-    if (defaultProperties.includes(name)) { return null; }
-
-    return (
-      <div className={s.controls}>
-        <i className="icon-edit" onClick={() => this.onEdit(name, type, value)}/>
-        <i className="icon-trash" onClick={() => this.handleDeleteProperty(name)}/>
-      </div>
-    );
-  }
-
   shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
     const attributesChanged = !_.eq(this.props.attributes, nextProps.attributes);
     const stateChanged = !_.eq(this.state, nextState);
@@ -465,20 +317,12 @@ export default class ObjectFormInner extends Component {
       const attrOptions = this.getAttrOptions(name, attrSchema);
       // $FlowFixMe: guessRenderName is enough
       const content = React.cloneElement(this[renderName](name, attribute && attribute.v, attrOptions), { key: name });
-      const controlButtons = this.controlButtons(name, attribute && attribute.t, attribute && attribute.v);
-      return (
-        <div key={name}>
-          {controlButtons}
-          {content}
-        </div>
-      );
+      return this.props.processAttr(content, name, attribute && attribute.t, attribute && attribute.v)
     });
 
     return (
       <div className={classNames('fc-object-form', className)}>
         {renderedAttributes}
-        {this.addCustomProperty}
-        {this.customPropertyForm}
       </div>
     );
   }

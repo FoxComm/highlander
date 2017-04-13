@@ -39,7 +39,7 @@ type State = {
   fieldValue: string | number,
 };
 
-class CustomProperty extends Component<void, Props, State> {
+class CustomPropertyModal extends Component<void, Props, State> {
   props: Props;
   state: State;
 
@@ -148,4 +148,4 @@ class CustomProperty extends Component<void, Props, State> {
   }
 }
 
-export default wrapModal(CustomProperty);
+export default wrapModal(CustomPropertyModal);
