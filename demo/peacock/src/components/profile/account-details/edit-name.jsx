@@ -16,7 +16,7 @@ import CheckoutForm from 'pages/checkout/checkout-form';
 // actions
 import * as actions from 'modules/profile';
 
-/// types
+// types
 import type { AsyncStatus } from 'types/async-actions';
 import type { AccountDetailsProps } from 'types/profile';
 
@@ -108,6 +108,9 @@ const mapStateToProps = (state) => {
     account: state.profile.account,
     updateState: _.get(state.asyncActions, 'updateAccount', {}),
   };
-}
+};
 
-export default connect(mapStateToProps, {...actions, clearErrorsFor})(EditName);
+export default connect(mapStateToProps, {
+  ...actions,
+  clearErrorsFor,
+})(EditName);
