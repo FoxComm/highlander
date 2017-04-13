@@ -83,7 +83,7 @@ class EditDelivery extends Component {
         [styles.chosen]: checked,
       });
       return (
-        <div key={shippingMethod.id} className={methodClasses}>
+        <div key={shippingMethod.id} className={methodClasses} onClick={() => this.setShippingMethod(shippingMethod)}>
           <RadioButton
             name="delivery"
             checked={checked || false}
