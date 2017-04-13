@@ -98,6 +98,7 @@ class Products extends Component {
       subCategory: nextSubCategory,
       leafCategory: nextLeafCategory,
     } = nextProps.params;
+
     const mustInvalidate = (categoryName !== nextCategoryName) ||
       (subCategory !== nextSubCategory) ||
       (leafCategory !== nextLeafCategory);
