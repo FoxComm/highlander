@@ -8,7 +8,6 @@ import { browserHistory } from 'lib/history';
 import { clearErrorsFor } from '@foxcomm/wings';
 
 import { Link } from 'react-router';
-import Block from '../common/block';
 import Button from 'ui/buttons';
 import { TextInput } from 'ui/text-input';
 import { FormField, Form } from 'ui/forms';
@@ -83,7 +82,7 @@ class EditName extends Component {
 
   render() {
     return (
-      <Block title={EditName.title}>
+      <div>
         <Form onSubmit={this.handleSave}>
           <div styleName="section">Use this form to update your first and last name.</div>
           <FormField error={!!this.props.updateState.err}>
@@ -106,7 +105,7 @@ class EditName extends Component {
             <Link styleName="link" to="/profile">Cancel</Link>
           </div>
         </Form>
-      </Block>
+      </div>
     );
   }
 }
