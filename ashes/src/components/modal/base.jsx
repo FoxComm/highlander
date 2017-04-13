@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Element, PropTypes } from 'react';
+import React, { Element } from 'react';
 import Transition from 'react-addons-css-transition-group';
 
 type Props = {

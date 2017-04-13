@@ -1,7 +1,7 @@
 /* @flow */
 
-//libs
-import React, { PropTypes } from 'react';
+// libs
+import React from 'react';
 import _ from 'lodash';
 
 // helpers

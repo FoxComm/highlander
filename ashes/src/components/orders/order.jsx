@@ -26,6 +26,9 @@ import { frn, readAction } from 'lib/frn';
 // redux
 import * as orderActions from 'modules/orders/details';
 
+// styles
+import s from './order.css';
+
 const shippingClaims = readAction(frn.mdl.shipment);
 const fraudClaims = readAction(frn.oms.fraud);
 
@@ -146,7 +149,7 @@ export default class Order extends React.Component {
   }
 
   get subNav() {
-    return <SubNav order={this.order} />;
+    return <SubNav order={this.order} className={s.nav} />;
   }
 
   @autobind
@@ -266,10 +269,8 @@ export default class Order extends React.Component {
           {this.remorseTimer}
         </PageTitle>
         {this.statusHeader}
-        <div>
-          {this.subNav}
-          {this.details}
-        </div>
+        {this.subNav}
+        {this.details}
         <ConfirmationDialog
           isVisible={this.state.newOrderState != null}
           header="Change Order State ?"
