@@ -1,0 +1,29 @@
+@import "colors.css";
+
+.name-block {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 12px 15px 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.content {
+  padding-bottom: 12px;
+  font-size: 12px;
+  line-height: 1.33;
+}
+
+.action-link {
+  composes: action-link from "ui/action-link/action-link.css";
+  font-size: 14px;
+}
