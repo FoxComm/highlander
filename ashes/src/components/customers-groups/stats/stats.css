@@ -4,6 +4,10 @@
 
 ._loading {
   composes: loading from '../../../css/animations.css';
+
+  & > * {
+    opacity: .8;
+  }
 }
 
 .periods {

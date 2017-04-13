@@ -6,15 +6,10 @@ import { isPermitted } from 'lib/claims';
 import type { Claims } from 'lib/claims';
 import type { LinkProps } from './link';
 
-type DefaultProps = {
-  actualClaims: Claims,
-  expectedClaims: Claims,
-};
-
 export default class IndexLink extends Component {
   props: LinkProps;
 
-  static defaultProps: DefaultProps = {
+  static defaultProps = {
     actualClaims: {},
     expectedClaims: {},
   };
@@ -26,6 +21,6 @@ export default class IndexLink extends Component {
       return <Link {...this.props} onlyActiveOnIndex={true}>{children}</Link>;
     }
 
-    return <div />;
+    return null;
   }
 }

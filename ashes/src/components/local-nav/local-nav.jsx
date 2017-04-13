@@ -143,7 +143,7 @@ class LocalNav extends Component {
       const child = React.cloneElement(item, {
         ref: index,
         key,
-        activeClassName: s.lactive,
+        activeClassName: s.activeLink,
       });
 
       return <li ref={index} className={s.item} key={key}>{child}</li>;
@@ -155,7 +155,7 @@ class LocalNav extends Component {
       ref: index,
       className: classNames(item.props.className, { [s.selected]: isActive }),
       key: key,
-      activeClassName: s.lactive,
+      activeClassName: s.activeLink,
     });
   }
 
@@ -180,7 +180,7 @@ class LocalNav extends Component {
     const children = React.Children
       .toArray(this.props.children)
       .slice(collapseFrom)
-      .map(el => React.cloneElement(el, { activeClassName: s.lactive }));
+      .map(el => React.cloneElement(el, { activeClassName: s.activeLink }));
 
     return (
       <NavDropdown ref={collapseFrom} title="More">
