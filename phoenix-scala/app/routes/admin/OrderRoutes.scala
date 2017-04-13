@@ -1,6 +1,5 @@
 package routes.admin
 
-import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import cats.implicits._
@@ -12,12 +11,11 @@ import payloads.CartPayloads._
 import payloads.LineItemPayloads._
 import payloads.OrderPayloads._
 import payloads.PaymentPayloads._
-import payloads.{ExportEntity, UpdateShippingMethod}
+import payloads.UpdateShippingMethod
 import services.Authenticator.AuthData
 import services.carts._
 import services.orders._
-import services.{Checkout, EntityExporter, LineItemUpdater}
-import utils.Chunkable
+import services.{Checkout, LineItemUpdater}
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
@@ -26,11 +24,7 @@ import utils.http.JsonSupport._
 
 object OrderRoutes {
 
-  def routes(implicit ec: EC,
-             db: DB,
-             auth: AuthData[User],
-             apis: Apis,
-             system: ActorSystem): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
 
     activityContext(auth) { implicit ac ⇒
       determineObjectContext(db, ec) { implicit ctx ⇒
@@ -44,11 +38,6 @@ object OrderRoutes {
           (patch & pathEnd & entity(as[BulkUpdateOrdersPayload])) { payload ⇒
             mutateOrFailures {
               OrderStateUpdater.updateStates(auth.model, payload.referenceNumbers, payload.state)
-            }
-          } ~
-          (post & path("export") & entity(as[ExportEntity])) { payload ⇒
-            complete {
-              EntityExporter.export(payload, searchType = "orders_search_view")
             }
           }
         } ~

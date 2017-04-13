@@ -22,7 +22,8 @@ import models.shipping.Shipment
 import models.{Assignment, Note, Reason}
 import org.json4s.JsonAST.JString
 import org.json4s.{CustomSerializer, JNull, TypeHints, jackson}
-import payloads.{AuthPayload, ExportEntity}
+import payloads.AuthPayload
+import payloads.ExportEntityPayloads._
 import payloads.ReturnPayloads.ReturnLineItemPayload
 import responses.PublicResponses.CountryWithRegions
 
@@ -86,7 +87,7 @@ object JsonFormatters {
       CustomerGroup.GroupType.jsonFormat +
       AuthPayload.JwtClaimsSerializer + LTreeFormat +
       ReturnLineItemPayload.typeHints + PaymentMethod.Type.jsonKeyFormat +
-      ExportEntity.Type.jsonFormat + ExportEntity.typeHints
+      ExportableEntity.jsonFormat + ExportEntity.Type.jsonFormat + ExportEntity.typeHints
 
   object LTreeFormat
       extends CustomSerializer[LTree](format ⇒

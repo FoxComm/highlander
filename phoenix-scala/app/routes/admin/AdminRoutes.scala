@@ -1,30 +1,40 @@
 package routes.admin
 
+import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
-import utils.http.JsonSupport._
+import akka.http.scaladsl.server.{PathMatcher, Route}
 import failures.SharedSearchFailures.SharedSearchInvalidQueryFailure
-import models.account.User
 import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku
+import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard
 import models.returns.Return
 import models.sharedsearch.SharedSearch
+import payloads.ExportEntityPayloads._
 import payloads.NotePayloads._
 import payloads.SharedSearchPayloads._
 import services.notes._
-import services.{SaveForLaterManager, SharedSearchService, ShippingManager}
-import services.Authenticator.AuthData
+import services.{EntityExporter, SaveForLaterManager, SharedSearchService}
 import utils.aliases._
+import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
+import utils.http.JsonSupport._
 
 object AdminRoutes {
+  val ExportableEntityMatcher = PathMatcher(ExportableEntity.typeMap)
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AU, apis: Apis, system: ActorSystem): Route = {
 
     activityContext(auth) { implicit ac ⇒
       StoreCreditRoutes.storeCreditRoutes ~
+      pathPrefix("export") {
+        (post & path(ExportableEntityMatcher) & entity(as[ExportEntity])) { (entity, payload) ⇒
+          complete {
+            EntityExporter.export(payload, entity)
+          }
+        }
+      } ~
       pathPrefix("notes") {
         pathPrefix("order" / cordRefNumRegex) { refNum ⇒
           (get & pathEnd) {

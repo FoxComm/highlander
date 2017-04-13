@@ -6,9 +6,9 @@ import akka.stream.scaladsl.{Concat, Source}
 import akka.util.ByteString
 import cats.Show
 import org.json4s.JsonAST.JString
-import org.json4s.jackson.compactJson
 import org.json4s.jackson.Serialization.{write ⇒ jsonWrite}
-import org.json4s.{CustomKeySerializer, CustomSerializer, DefaultFormats, Formats, jackson}
+import org.json4s.jackson.compactJson
+import org.json4s.{CustomKeySerializer, CustomSerializer, Formats}
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
