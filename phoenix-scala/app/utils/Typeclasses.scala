@@ -94,14 +94,18 @@ object Chunkable {
     def contentType: ContentType = ContentTypes.`application/json`
   }
 
-  def csvChunkable(fields: List[String], separator: String): Chunkable[CsvData] =
+  def csvChunkable(fields: List[String]): Chunkable[CsvData] =
     new Chunkable[CsvData] {
+      private[this] val fieldsSet = fields.toSet
+
       def bytes(t: CsvData): ByteString =
-        ByteString(fields.map(t.apply).mkString(separator))
+        ByteString(t.collect {
+          case (field, value) if fieldsSet.contains(field) ⇒ value
+        }.mkString(","))
 
       override def bytes(s: Source[CsvData, NotUsed]): Source[ByteString, NotUsed] = {
         val elSep          = ByteString("\n")
-        val streamStart    = Source.single(ByteString(fields.mkString(separator)) ++ elSep)
+        val streamStart    = Source.single(ByteString(fields.mkString(",")) ++ elSep)
         val streamElements = super.bytes(s).map(_ ++ elSep)
 
         Source.combine(streamStart, streamElements)(Concat(_))

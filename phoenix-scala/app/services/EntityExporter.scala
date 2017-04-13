@@ -2,18 +2,22 @@ package services
 
 import akka.NotUsed
 import akka.actor.ActorSystem
+import akka.http.scaladsl.model.HttpResponse
 import akka.stream.scaladsl._
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.IndexAndTypes
 import com.sksamuel.elastic4s.streams.ReactiveElastic._
+import java.time.{Instant, ZoneId}
+import java.time.format.DateTimeFormatter
 import org.elasticsearch.search.fetch.source.FetchSourceContext
-import org.json4s.DefaultReaders._
-import org.json4s.JsonAST.JNumber
+import org.json4s.JsonAST.{JNumber, JString}
 import org.json4s._
 import org.json4s.jackson.{compactJson, parseJson}
 import payloads.ExportEntity
+import utils.Chunkable
 import utils.aliases._
 import utils.apis.Apis
+import utils.http.Http
 
 /** Export entities from ElasticSearch with given fields using specified search type.
   *
@@ -22,32 +26,54 @@ import utils.apis.Apis
   * as all those functions should just pass arguments to ElasticSearch and then result back to the client.
   */
 object EntityExporter {
-  def export(payload: ExportEntity, searchType: String)(
-      implicit apis: Apis,
-      au: AU,
-      ec: EC,
-      system: ActorSystem): Source[Json, NotUsed] = {
+  private[this] val formatter = DateTimeFormatter.ISO_LOCAL_DATE.withZone(ZoneId.of("UTC"))
+
+  def export(payload: ExportEntity, searchType: String)(implicit apis: Apis,
+                                                        au: AU,
+                                                        ec: EC,
+                                                        system: ActorSystem): HttpResponse = {
+    implicit val chunkable = Chunkable.csvChunkable(payload.fields)
+
     val idx = s"admin_${au.token.scope}" / searchType
-    payload match {
-      case ExportEntity.UsingIDs(fields, ids) ⇒
+    val jsonSource = payload match {
+      case ExportEntity.UsingIDs(fields, _, ids) ⇒
         EntityExporter.export(
             searchIndex = idx,
             searchFields = fields,
             searchIds = ids
         )
-      case ExportEntity.UsingSearchQuery(fields, query) ⇒
+      case ExportEntity.UsingSearchQuery(fields, _, query) ⇒
         EntityExporter.export(
             searchIndex = idx,
             searchFields = fields,
             searchQuery = query
         )
     }
+    val csvSource = jsonSource.collect {
+      case obj: JObject ⇒
+        val objFields = obj.obj.toMap
+        payload.fields.flatMap(field ⇒
+              objFields.get(field).collect {
+            case jn: JNumber ⇒ field → s"${jn.values}"
+            case js: JString ⇒ field → s""""${js.values.replace("\"", "\"\"")}""""
+        })
+    }
+
+    Http.renderAttachment(fileName = setName(payload, searchType))(csvSource)
   }
 
-  def export(searchIndex: IndexAndTypes, searchFields: List[String], searchIds: List[Long])(
-      implicit apis: Apis,
-      au: AU,
-      ec: EC): Source[Json, NotUsed] = {
+  private def setName(payload: ExportEntity, searchType: String): String = {
+    val entity      = searchType.stripSuffix("_search_view")
+    val date        = formatter.format(Instant.now)
+    val description = payload.description.map(_.trim.replaceAll("\\s+", "-"))
+
+    (List(entity) ++ description ++ List(date)).mkString("-")
+  }
+
+  private def export(
+      searchIndex: IndexAndTypes,
+      searchFields: List[String],
+      searchIds: List[Long])(implicit apis: Apis, au: AU, ec: EC): Source[Json, NotUsed] = {
     import scala.collection.JavaConverters._
 
     // as of 2.3.x elastic4s's fetchSourceContext on single get item is ignored in multi get request
@@ -66,7 +92,7 @@ object EntityExporter {
       .flatMapConcat(identity)
   }
 
-  def export(searchIndex: IndexAndTypes, searchFields: List[String], searchQuery: Json)(
+  private def export(searchIndex: IndexAndTypes, searchFields: List[String], searchQuery: Json)(
       implicit apis: Apis,
       au: AU,
       system: ActorSystem): Source[Json, NotUsed] =

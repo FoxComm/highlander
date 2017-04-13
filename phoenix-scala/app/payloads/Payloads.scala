@@ -22,6 +22,8 @@ case class CreateNotification(sourceDimension: String,
 
 sealed trait ExportEntity {
   def fields: List[String]
+
+  def description: Option[String]
 }
 object ExportEntity {
   def typeHints =
@@ -39,6 +41,8 @@ object ExportEntity {
     def types: Set[Type] = sealerate.values[Type]
   }
 
-  case class UsingIDs(fields: List[String], ids: List[Long])     extends ExportEntity
-  case class UsingSearchQuery(fields: List[String], query: Json) extends ExportEntity
+  case class UsingIDs(fields: List[String], description: Option[String], ids: List[Long])
+      extends ExportEntity
+  case class UsingSearchQuery(fields: List[String], description: Option[String], query: Json)
+      extends ExportEntity
 }

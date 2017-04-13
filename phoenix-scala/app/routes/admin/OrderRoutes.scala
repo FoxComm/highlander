@@ -4,7 +4,6 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import cats.implicits._
-import models.ExportFormat
 import models.account.User
 import models.cord.Cord.cordRefNumRegex
 import models.payment.giftcard.GiftCard
@@ -18,6 +17,7 @@ import services.Authenticator.AuthData
 import services.carts._
 import services.orders._
 import services.{Checkout, EntityExporter, LineItemUpdater}
+import utils.Chunkable
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
@@ -47,13 +47,8 @@ object OrderRoutes {
             }
           } ~
           (post & path("export") & entity(as[ExportEntity])) { payload ⇒
-            parameters('format.as[ExportFormat](ExportFormat.unmarshaller) ? ExportFormat.CSV,
-                       'separator ? ",") { (format, separator) ⇒
-              complete {
-                format.chunkify(payload.fields, separator) {
-                  EntityExporter.export(payload, searchType = "orders_search_view")
-                }
-              }
+            complete {
+              EntityExporter.export(payload, searchType = "orders_search_view")
             }
           }
         } ~

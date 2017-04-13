@@ -85,8 +85,10 @@ object Http {
                    HttpEntity.Chunked.fromData(Chunkable().contentType, Chunkable().bytes(source)))
   }
 
-  def renderAttachment[T: Chunkable](source: Source[T, NotUsed]): HttpResponse =
-    renderChunked(List(`Content-Disposition`(ContentDispositionTypes.attachment)))(source)
+  def renderAttachment[T: Chunkable](fileName: String)(source: Source[T, NotUsed]): HttpResponse =
+    renderChunked(
+        List(`Content-Disposition`(ContentDispositionTypes.attachment,
+                                   Map("filename" → fileName))))(source)
 
   def renderFailure(failures: Failures, statusCode: ClientError = BadRequest): HttpResponse = {
     val failuresList = failures.toList
