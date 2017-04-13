@@ -21,7 +21,7 @@
 
 - name: Copy Consul Service File
   template: src=marathon-consul.json dest="/etc/consul.d/marathon-consul.json"
-  
+
 - name: Reload consul
   systemd:
     name: consul_agent
