@@ -49,7 +49,7 @@ object GroupManager {
                        group,
                        CustomerGroup
                          .fromPayloadAndAdmin(payloadWithCount, group.createdBy, scope)
-                         .copy(id = groupId, updatedAt = Instant.now))
+                         .copy(id = groupId, createdAt = group.createdAt, updatedAt = Instant.now))
       _ ← * <~ LogActivity().customerGroupUpdated(groupEdited, admin)
     } yield build(groupEdited)
 
