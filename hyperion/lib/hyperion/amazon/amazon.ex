@@ -110,7 +110,7 @@ defmodule Hyperion.Amazon do
       result: %{
         referenceNumber: order["AmazonOrderId"],
         paymentState: "Captured",
-        line_items: %{
+        lineItems: %{
           skus: get_sku_map(items, token),
         },
         lineItemAdjustments: [],
