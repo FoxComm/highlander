@@ -165,7 +165,7 @@ test('Can create a new customer group', async (t) => {
   const newCustomerGroup = await adminApi.customerGroups.create(payload);
   t.truthy(isNumber(newCustomerGroup.id));
   t.truthy(isDate(newCustomerGroup.createdAt));
-  t.is(newCustomerGroup.type, 'dynamic');
+  t.is(newCustomerGroup.groupType, 'dynamic');
   t.is(newCustomerGroup.name, payload.name);
   t.deepEqual(newCustomerGroup.clientState, payload.clientState);
   t.deepEqual(newCustomerGroup.elasticRequest, payload.elasticRequest);
