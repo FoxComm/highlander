@@ -27,3 +27,7 @@
   composes: action-link from "ui/action-link/action-link.css";
   font-size: 14px;
 }
+
+.name-field {
+  margin: 15px 10px 15px 15px;
+}
