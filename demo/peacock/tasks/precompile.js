@@ -68,7 +68,7 @@ module.exports = function (gulp) {
 
   const replaceByAlt = () => {
     return through.obj((file, enc, cb) => {
-      let willBeAlt = Promise.resolve(false);
+      let willBeAlt = Promise.reject();
       let altPath;
       if (targetCwd) {
         const relativePath = getRelativePath(file.path);

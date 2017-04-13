@@ -16,7 +16,6 @@ class Storefront {
       });
 
       child.once('exit', (code) => {
-        child = null;
         if (code == 0) {
           resolve();
         } else {
@@ -26,13 +25,20 @@ class Storefront {
 
       const killChild = () => {
         if (child) {
-          process.kill(-child.pid);
+          try {
+            process.kill(-child.pid);
+          } catch (e) {
+            if (e.code != 'ESRCH') throw e;
+          }
           child = null;
         }
       };
 
-      process.on('SIGINT', killChild);
+      process.on('SIGINT', () => {
+        killChild();
+      });
       process.on('exit', killChild);
+      process.on('uncaughtException', killChild);
     });
   }
 
