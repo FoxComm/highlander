@@ -49,6 +49,7 @@ export class TaxonProductsPage extends Component {
 
   state: State = {
     modalVisible: false,
+    deletedProductId: null,
   };
 
   componentDidMount() {
@@ -66,14 +67,14 @@ export class TaxonProductsPage extends Component {
       { field: 'title', text: 'Name' },
       { field: 'skus', text: 'SKUs' },
       { field: 'state', text: 'State' },
-      { render: this.unlinkButton },
+      { field: '', render: this.unlinkButton },
     ];
   }
 
   @autobind
   unlinkButton(children: any, row: Product) {
     const inProgress = this.props.deleteState.inProgress && this.state.deletedProductId === row.productId;
-    
+
     return (
       <Button
         onClick={this.handleUnlinkProduct.bind(this, row)}
