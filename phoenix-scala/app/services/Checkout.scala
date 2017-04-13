@@ -364,7 +364,7 @@ case class Checkout(
 
     if (authAmount > 0) { // todo move this check to the call site with doIf
       (for {
-        op ← OrderPayments.findAllApplePayChargeByCordRef(cart.refNum)
+        op ← OrderPayments.applePayByCordRef(cart.refNum)
         ap ← op.applePayment
       } yield (op, ap)).one.dbresult.flatMap {
         case Some((pmt, ap)) ⇒
