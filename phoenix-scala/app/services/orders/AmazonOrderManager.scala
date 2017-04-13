@@ -25,4 +25,13 @@ object AmazonOrderManager {
         AmazonOrderResponse.build(AmazonOrder.fromExistingAmazonOrder(existingOrder))
     }
   }
+  def updateAmazonOrder(amazonOrderId: String, payload: UpdateAmazonOrderPayload)(
+      implicit ec: EC,
+      db: DB,
+      au: AU): DbResultT[AmazonOrderResponse.Root] =
+    for {
+      amazonOrder ← * <~ AmazonOrders.mustFindOneOr404(amazonOrderId)
+      up ← * <~ AmazonOrders.update(amazonOrder,
+                                    amazonOrder.copy(orderStatus = payload.orderStatus))
+    } yield AmazonOrderResponse.build(up)
 }

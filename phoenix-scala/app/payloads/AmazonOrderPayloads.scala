@@ -11,4 +11,6 @@ object AmazonOrderPayloads {
                                       currency: Currency = Currency.USD,
                                       orderStatus: String = "",
                                       purchaseDate: Instant)
+
+  case class UpdateAmazonOrderPayload(orderStatus: String)
 }

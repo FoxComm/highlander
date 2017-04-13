@@ -27,6 +27,22 @@ create or replace function update_amazon_orders_view_insert_fn() returns trigger
   end;
 $$ language plpgsql;
 
+create or replace function update_amazon_orders_view_update_fn() returns trigger as $$
+  begin
+    update amazon_orders_search_view set
+      amazon_order_id = new.amazon_order_id,
+      order_total = new.order_total,
+      payment_method_detail = new.payment_method_detail,
+      order_type = new.order_type,
+      currency = new.currency,
+      order_status = new.order_status,
+      purchase_date = to_char(new.purchase_date, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+      created_at = to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+      updated_at = to_char(new.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+    where id = new.id;
+    return null;
+  end;
+$$ language plpgsql;
 
 -- delete amazon order function
 drop function if exists update_amazon_orders_view_delete_fn();
@@ -37,6 +53,13 @@ create trigger update_amazon_orders_view_insert_trigger
   after insert on amazon_orders
   for each row
   execute procedure update_amazon_orders_view_insert_fn();
+
+-- recreate update customer group trigger
+drop trigger if exists update_amazon_orders_view_update_fn on amazon_orders;
+create trigger update_amazon_orders_view_update_trigger
+  after update on amazon_orders
+  for each row
+  execute procedure update_amazon_orders_view_update_fn();
 
 -- recreate delete amazon order trigger
 drop trigger if exists update_amazon_orders_view_delete_trigger on amazon_orders;
