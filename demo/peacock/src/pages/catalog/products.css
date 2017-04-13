@@ -60,6 +60,10 @@
   padding-right: 15px;
 }
 
+.sidebar-mobile-facets {
+  padding-top: 30px;
+}
+
 .sidebar-mobile-checkbox {
   display: none;
 }

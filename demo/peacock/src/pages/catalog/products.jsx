@@ -298,6 +298,7 @@ class Products extends Component {
           </label>
         </div>
         <Facets
+          styleName="sidebar-mobile-facets"
           prefix={'mobile'}
           facets={this.props.facets}
           whitelist={facetWhitelist}
