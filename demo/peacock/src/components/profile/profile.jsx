@@ -2,18 +2,20 @@
 import React from 'react';
 import styles from './profile.css';
 
-import Details from './blocks/details';
-import MyOrders from './blocks/my-orders';
-import MyReviews from './blocks/my-reviews';
-import MyShippingAddresses from './blocks/shipping-addresses';
+import AccountDetails from './account-details/account-details';
+// import MyOrders from './blocks/my-orders';
+// import MyShippingAddresses from './blocks/shipping-addresses';
 
 const Profile = () => {
+  /* to be added later
+  <MyShippingAddresses />
+  <MyOrders />
+  */
   return (
     <div styleName="profile">
-      <Details />
-      <MyOrders />
-      <MyShippingAddresses />
-      <MyReviews />
+      <AccountDetails
+        styleName="account-details"
+      />
     </div>
   );
 };

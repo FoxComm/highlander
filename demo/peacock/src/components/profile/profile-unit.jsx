@@ -3,8 +3,6 @@
 import React, { Element } from 'react';
 import styles from './profile.css';
 
-import Breadcrumb from './breadcrumb';
-
 type Route = {
   component: {
     title: string,
@@ -25,7 +23,6 @@ const ProfileUnit = (props: Props) => {
   }
   return (
     <div styleName="profile">
-      <Breadcrumb title={title} />
       {props.children}
     </div>
   );
