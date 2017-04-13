@@ -34,9 +34,6 @@ class AccountDetails extends Component {
       </div>
       <div styleName="value">{account.email}</div>
     </div>
-    <div styleName="buttons-footer">
-      <Button styleName="link-button" onClick={this.handleChangePasswordClick}>CHANGE PASSWORD</Button>
-    </div>
     */
     const { props } = this;
     return (
@@ -56,6 +53,6 @@ const mapStateToProps = (state) => {
     account: state.profile.account,
     nameModalVisible: state.profile.nameModalVisible,
   };
-}
+};
 
 export default connect(mapStateToProps, actions)(AccountDetails);
