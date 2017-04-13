@@ -53,11 +53,15 @@ object EntityExporter {
     val csvSource = jsonSource.collect {
       case obj: JObject ⇒
         val objFields = obj.obj.toMap
-        payload.fields.flatMap(field ⇒
-              objFields.get(field).collect {
-            case jn: JNumber ⇒ field → s"${jn.values}"
-            case js: JString ⇒ field → s""""${js.values.replace("\"", "\"\"")}""""
-        })
+        payload.fields.map { field ⇒
+          objFields
+            .get(field)
+            .collect {
+              case jn: JNumber ⇒ field → s"${jn.values}"
+              case js: JString ⇒ field → s""""${js.values.replace("\"", "\"\"")}""""
+            }
+            .getOrElse(field → "")
+        }
     }
 
     Http.renderAttachment(fileName = setName(payload, entity))(csvSource)
