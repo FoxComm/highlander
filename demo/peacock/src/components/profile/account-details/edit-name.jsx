@@ -1,7 +1,6 @@
 // @flow
 import _ from 'lodash';
 import React, { Component } from 'react';
-import styles from '../profile.css';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'lib/history';
@@ -12,17 +11,13 @@ import Button from 'ui/buttons';
 import { TextInput } from 'ui/text-input';
 import { FormField, Form } from 'ui/forms';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import CheckoutForm from 'pages/checkout/checkout-form';
 
 import * as actions from 'modules/profile';
 
 import type { AsyncStatus } from 'types/async-actions';
 
-function mapStateToProps(state) {
-  return {
-    account: state.profile.account,
-    updateState: _.get(state.asyncActions, 'updateAccount', {}),
-  };
-}
+import styles from './account-details.css';
 
 type Account = {
   name: string,
@@ -76,38 +71,54 @@ class EditName extends Component {
     this.props.updateAccount({
       name: this.state.name,
     }).then(() => {
-      browserHistory.push('/profile');
+      this.props.toggleNameModal();
     });
   }
 
+  @autobind
+  handleCancel() {
+    const name = this.props.account.name;
+    this.setState({ name });
+    this.props.toggleNameModal();
+  }
+
   render() {
+    const action = {
+      title: 'Cancel',
+      handler: this.handleCancel,
+    };
     return (
-      <div>
-        <Form onSubmit={this.handleSave}>
-          <div styleName="section">Use this form to update your first and last name.</div>
-          <FormField error={!!this.props.updateState.err}>
-            <TextInput
-              required
-              value={this.state.name}
-              onChange={this.handleNameChange}
-            />
-          </FormField>
-          <ErrorAlerts
-            error={this.props.updateState.err}
+      <CheckoutForm
+        submit={this.handleSave}
+        buttonLabel="Apply"
+        title="Edit first and last name"
+        action={action}
+        error={this.props.updateState.err}
+        inProgress={this.props.updateState.inProgress}
+      >
+        <FormField
+          error={!!this.props.updateState.err}
+          styleName="name-field"
+        >
+          <TextInput
+            required
+            value={this.state.name}
+            onChange={this.handleNameChange}
+            placeholder="First and last name"
+            name="firstLastName"
           />
-          <div styleName="buttons-footer">
-            <Button
-              type="submit"
-              styleName="save-button"
-              isLoading={this.props.updateState.inProgress}
-              children="Save"
-            />
-            <Link styleName="link" to="/profile">Cancel</Link>
-          </div>
-        </Form>
-      </div>
+        </FormField>
+      </CheckoutForm>
     );
   }
+}
+
+
+const mapStateToProps = (state) => {
+  return {
+    account: state.profile.account,
+    updateState: _.get(state.asyncActions, 'updateAccount', {}),
+  };
 }
 
 export default connect(mapStateToProps, {...actions, clearErrorsFor})(EditName);
