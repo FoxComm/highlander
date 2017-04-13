@@ -33,6 +33,7 @@ type Props = ObjectPageChildProps<Taxon> & {
   actions: Object,
   list: Object,
   addState: AsyncState,
+  deleteState: AsyncState,
   params: TaxonomyParams & {
     taxonId: number,
   },
@@ -58,24 +59,23 @@ export class TaxonProductsPage extends Component {
   }
 
   get tableColumns(): Columns {
-     return [
+    return [
       { field: 'productId', text: 'ID' },
       { field: 'image', text: 'Image', type: 'image' },
       { field: 'title', text: 'Name' },
       { field: 'skus', text: 'SKUs' },
       { field: 'state', text: 'State' },
-      { field: '', render: this.unlinkButton }
+      { render: this.unlinkButton },
     ];
   }
 
   @autobind
   unlinkButton(children: any, row: Product) {
     return (
-      <Button onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.handleUnlinkProduct(row);
-      }}>
+      <Button
+        onClick={this.handleUnlinkProduct.bind(this, row)}
+        isLoading={this.props.deleteState.inProgress}
+      >
         Unlink
       </Button>
     );
@@ -106,7 +106,10 @@ export class TaxonProductsPage extends Component {
   }
 
   @autobind
-  handleUnlinkProduct(product: Product) {
+  handleUnlinkProduct(product: Product, e: MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+
     const { actions, params: { taxonId, context } } = this.props;
 
     actions.unlinkProduct(product.productId, context, taxonId)
@@ -143,10 +146,10 @@ export class TaxonProductsPage extends Component {
           addTitle="Product"
           onAddClick={this.openModal}
         />
-
         <SelectableSearchList
           entity="taxons.details.products"
           emptyMessage="No products found."
+          tableClassName={styles.productsTable}
           list={list}
           renderRow={this.renderRow}
           tableColumns={this.tableColumns}
@@ -170,6 +173,7 @@ export class TaxonProductsPage extends Component {
 const mapState = state => ({
   list: get(state, 'taxons.details.products'),
   addState: get(state.asyncActions, 'taxonAddProduct', {}),
+  deleteState: get(state.asyncActions, 'taxonDeleteProduct', {}),
 });
 
 const mapActions = dispatch => ({
