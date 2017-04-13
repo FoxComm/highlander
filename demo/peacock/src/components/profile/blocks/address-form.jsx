@@ -9,7 +9,6 @@ import { browserHistory } from 'lib/history';
 import sanitizeAddresses from 'sanitizers/addresses';
 
 import { Form } from 'ui/forms';
-import Block from '../common/block';
 import { Link } from 'react-router';
 import Button from 'ui/buttons';
 import EditAddress from 'ui/address/edit-address';
@@ -101,7 +100,7 @@ class AddressForm extends Component {
 
   render() {
     return (
-      <Block title={AddressForm.title}>
+      <div>
         <Form onSubmit={this.handleSave}>
           <EditAddress
             address={this.props.address}
@@ -122,7 +121,7 @@ class AddressForm extends Component {
             <Link styleName="link" to="/profile">Cancel</Link>
           </div>
         </Form>
-      </Block>
+      </div>
     );
   }
 }

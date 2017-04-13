@@ -8,7 +8,6 @@ import { browserHistory } from 'lib/history';
 import { clearErrorsFor } from '@foxcomm/wings';
 
 import { Link } from 'react-router';
-import Block from '../common/block';
 import Button from 'ui/buttons';
 import { TextInput } from 'ui/text-input';
 import { FormField, Form } from 'ui/forms';
@@ -84,7 +83,7 @@ class EditEmail extends Component {
 
   render() {
     return (
-      <Block title={EditEmail.title}>
+      <div>
         <Form onSubmit={this.handleSave}>
           <div styleName="section">Use this form to update your email address.</div>
           <FormField error={!!this.props.updateState.err} validator="email">
@@ -107,7 +106,7 @@ class EditEmail extends Component {
             <Link styleName="link" to="/profile">Cancel</Link>
           </div>
         </Form>
-      </Block>
+      </div>
     );
   }
 }

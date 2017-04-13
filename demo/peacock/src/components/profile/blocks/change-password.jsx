@@ -9,7 +9,6 @@ import { browserHistory } from 'lib/history';
 
 // components
 import { Link } from 'react-router';
-import Block from '../common/block';
 import Button from 'ui/buttons';
 import ShowHidePassword from 'ui/forms/show-hide-password';
 import { Form, FormField } from 'ui/forms';
@@ -98,7 +97,7 @@ class ChangePassword extends Component {
 
   render() {
     return (
-      <Block title={ChangePassword.title}>
+      <div>
         <div styleName="section">Use this form to change your password.</div>
         <Form onChange={this.handleFormChange} onSubmit={this.handleSave}>
           <FormField name="currentPassword" styleName="form-field" required>
@@ -139,7 +138,7 @@ class ChangePassword extends Component {
             <Link styleName="link" to="/profile">Cancel</Link>
           </div>
         </Form>
-      </Block>
+      </div>
     );
   }
 }

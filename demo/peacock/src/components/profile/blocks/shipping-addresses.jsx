@@ -13,7 +13,6 @@ import { Link } from 'react-router';
 import EditableBlock from 'ui/editable-block';
 import RadioButton from 'ui/radiobutton/radiobutton';
 import { AddressDetails } from 'ui/address';
-import Block from '../common/block';
 
 // styles
 import addressStyles from 'pages/checkout/shipping/address-list.css';
@@ -136,9 +135,9 @@ class MyShippingAddresses extends Component {
 
   render() {
     return (
-      <Block title="My Shipping Addresses">
+      <div>
         {this.renderAddresses()}
-      </Block>
+      </div>
     );
   }
 }
