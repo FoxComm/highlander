@@ -5,7 +5,6 @@ import styles from '../profile.css';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
-import Block from '../common/block';
 import OrderRow from './order-row';
 import Loader from 'ui/loader';
 import AddressDetails from 'ui/address/address-details';
@@ -105,7 +104,7 @@ class Order extends Component {
     }
 
     return (
-      <Block title={`Order ${order.referenceNumber}`}>
+      <div>
         <table styleName="simple-table">
           <thead>
             <tr>
@@ -150,7 +149,7 @@ class Order extends Component {
           {...order}
           skus={order.lineItems.skus}
         />
-      </Block>
+      </div>
     );
   }
 }
