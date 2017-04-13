@@ -10,7 +10,7 @@
   apt: name=marathon-consul state=latest force=yes
 
 - name: Install marathon consul config
-  template: src="config.json" dest={{marathon_consul_config_path}}
+  template: src=config.json dest={{marathon_consul_config_path}}
 
 - name: Start marathon-consul
   systemd:
@@ -21,11 +21,12 @@
 
 - name: Copy Consul Service File
   template: src=marathon-consul.json dest="/etc/consul.d/marathon-consul.json"
-  
-- name: Reload consul
-  systemd:
-    name: consul_agent
-    state: restarted
+
+- name: Restart Consul Agent
+  systemd: name=consul_agent state=restarted
+
+- name: Ensure Marathon is available
+  wait_for: host={{marathon_host}} port={{marathon_port}}
 
 - name: Wait before marathon-consul.service.consul will be registered
   shell: 'ping -c 1 marathon-consul.service.consul'

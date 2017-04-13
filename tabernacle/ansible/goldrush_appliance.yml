@@ -56,7 +56,7 @@
     - { role: dev/seed_system }
     - { role: dev/marathon }
     - { role: hotfix/replace_mesos_consul }
-    - { role: base/marathon_consul }
+    - { role: hotfix/marathon_consul }
     - { role: dev/marathon_consumers }
     - { role: dev/ic }
     - { role: ext/td/storefront }
