@@ -170,9 +170,10 @@ object ReturnPaymentManager {
                                                                                  db: DB,
                                                                                  au: AU) =
     DbResultT.pure(
-        ReturnPayment(paymentMethodId = payment.id,
-                      amount = amount,
-                      paymentMethodType = PaymentMethod.ApplePay)) // TODO implement AP returns @aafa
+        ReturnPayment(
+            paymentMethodId = payment.id,
+            amount = amount,
+            paymentMethodType = PaymentMethod.ApplePay)) // TODO implement AP returns @aafa
 
   private def addGiftCard(returnId: Int,
                           payment: OrderPayment,

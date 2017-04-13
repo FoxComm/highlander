@@ -108,7 +108,8 @@ object OrderPayments
       sc   ← StoreCredits if sc.id === pmts.paymentMethodId
     } yield (pmts, sc)
 
-  def findAllApplePayChargeByCordRef(cordRef: String) = filter(_.cordRef === cordRef).applePays
+  def applePayByCordRef(cordRef: String): QuerySeq =
+    filter(_.cordRef === cordRef).applePays
 
   def findAllCreditCardsForOrder(cordRef: Rep[String]): QuerySeq =
     filter(_.cordRef === cordRef).creditCards
