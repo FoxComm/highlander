@@ -8,22 +8,25 @@
     name: mesos_consul
   when: stop_mesos_consul is defined and stop_mesos_consul
 
-- name: Remove "marathon" tag in consul for marathon
+- name: Remove "marathon" tag in Consul for Marathon
   template: src=../../../base/mesos_master/templates/marathon.json dest=/etc/consul.d/marathon.json
   notify: reload consul
+
+- name: Remove Mesos Consul service from Consul
+  file: path=/etc/consul.d/mesos_consul.json state=absent
 
 - name: Restart consul_agent
   systemd:
       name: consul_agent
       state: restarted
 
-- name: Include vars from mesos
+- name: Include vars from Mesos
   include_vars: "{{role_path}}/../../base/mesos_master/vars/main.yml"
 
-- name: Add event subscribtion support for marathon
+- name: Add event subscription support for marathon
   template: src=../../../base/mesos_master/templates/run_marathon.sh dest=/usr/local/bin mode="u+x,g+x,o+x"
 
-- name: Restart marathon
+- name: Restart Marathon
   service: name={{item}} state=restarted
   with_items:
     - marathon
