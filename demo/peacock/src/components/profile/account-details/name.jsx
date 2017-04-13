@@ -3,11 +3,15 @@
 import React, { Component } from 'react';
 
 import ActionLink from 'ui/action-link/action-link';
+import Modal from 'ui/modal/modal';
+import EditName from './edit-name';
 
 import styles from './account-details.css';
 
 type Props = {
   name: string,
+  toggleModal: () => void,
+  modalVisible: boolean,
 };
 
 class Name extends Component {
@@ -16,7 +20,7 @@ class Name extends Component {
   get action() {
     return (
       <ActionLink
-        action={() => null}
+        action={this.props.toggleModal}
         title="Edit"
         styleName="action-link"
       />
@@ -24,10 +28,16 @@ class Name extends Component {
   }
 
   get content() {
-    const { name } = this.props;
+    const { name, toggleModal, modalVisible } = this.props;
     return (
       <div styleName="content">
         {name}
+        <Modal
+          show={modalVisible}
+          toggle={toggleModal}
+        >
+          <EditName />
+        </Modal>
       </div>
     );
   }
