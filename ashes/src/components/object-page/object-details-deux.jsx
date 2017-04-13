@@ -86,7 +86,9 @@ export default class ObjectDetailsDeux extends Component {
         fieldsToRender={fieldsToRender}
         attributes={this.attributes}
         schema={attrsSchema}
-      />
+      >
+        <ObjectFormInner/>
+      </CustomProperties>
     );
   }
 

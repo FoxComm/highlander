@@ -8,14 +8,12 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
 // components
-import ObjectFormInner from 'components/object-form/object-form-inner';
 import CustomPropertyModal from './custom-property-modal';
 
 // style
 import s from './custom-properties.css';
 
 export default class CustomProperties extends Component {
-
   props: Props;
   state: State = {
     isAddingProperty: false,
@@ -45,7 +43,7 @@ export default class CustomProperties extends Component {
           isVisible={true}
           currentEdit={this.state.currentEdit}
           onSave={this.handleEditProperty}
-          onCancel={() => this.setState({ isAddingProperty: false })}
+          onCancel={() => this.setState({ isEditingProperty: false })}
         />
       );
     }
@@ -90,11 +88,6 @@ export default class CustomProperties extends Component {
     const { attributes } = this.props;
     const { currentEdit: { name } } = this.state;
     const { fieldLabel, propertyType, fieldValue } = property;
-
-    // TODO show error message, if fieldLabel is not unique
-    if (!this.isUnique(fieldLabel)) {
-      return null;
-    }
 
     const preparedObject = _.omit(attributes, name);
     const newAttributes = {
@@ -183,20 +176,20 @@ export default class CustomProperties extends Component {
     }
   }
 
+  get children() {
+    return React.cloneElement((this.props.children), {
+      ...this.props,
+      processAttr: this.processAttr
+    });
+  }
+
   render() {
     return (
       <div>
-        <ObjectFormInner
-          canAddProperty={this.props.canAddProperty}
-          onChange={this.props.onChange}
-          fieldsToRender={this.props.fieldsToRender}
-          attributes={this.props.attributes}
-          schema={this.props.schema}
-          processAttr={this.processAttr}
-        />
+        {this.children}
         {this.addCustomProperty}
         {this.customPropertyForm}
       </div>
-    )
+    );
   }
 }

@@ -17,6 +17,7 @@ import ObjectScheduler from '../object-scheduler/object-scheduler';
 import { Form } from '../forms';
 import Tags from '../tags/tags';
 import ParticipantsPanel from '../participants';
+import CustomProperties from 'components/custom-properties/custom-properties';
 
 type Layout = {
   content: Array<Object>,
@@ -109,13 +110,15 @@ export default class ObjectDetails extends Component {
     const attrsSchema = this.schema.properties.attributes;
 
     return (
-      <ObjectFormInner
-        canAddProperty={fields.canAddProperty}
-        onChange={this.handleObjectChange}
-        fieldsToRender={fieldsToRender}
-        attributes={this.attributes}
-        schema={attrsSchema}
-      />
+    <CustomProperties
+      canAddProperty={fields.canAddProperty}
+      onChange={this.handleObjectChange}
+      fieldsToRender={fieldsToRender}
+      attributes={this.attributes}
+      schema={attrsSchema}
+    >
+      <ObjectFormInner/>
+    </CustomProperties>
     );
   }
 
