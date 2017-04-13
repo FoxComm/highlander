@@ -1,7 +1,8 @@
 package utils.seeds
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.time.Instant
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import models.account._
 import models.objects._
 import models.product.SimpleContext
@@ -38,15 +39,15 @@ trait PromotionSeeds {
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       results ← * <~ discounts.map { discount ⇒
-                 val payload = createPromotion(discount.title, Promotion.Coupon)
-                 insertPromotion(payload, discount, context)
+                 val payload = createPromotion(Promotion.Coupon)
+                 insertPromotion(payload, discount, context, discount.title)
                }
     } yield results
 
-  def insertPromotion(payload: CreatePromotion, discount: BaseDiscount, context: ObjectContext)(
-      implicit db: DB,
-      ac: AC,
-      au: AU): DbResultT[BasePromotion] =
+  def insertPromotion(payload: CreatePromotion,
+                      discount: BaseDiscount,
+                      context: ObjectContext,
+                      name: String)(implicit db: DB, ac: AC, au: AU): DbResultT[BasePromotion] =
     for {
       scope  ← * <~ Scope.resolveOverride(payload.scope)
       form   ← * <~ ObjectForm(kind = Promotion.kind, attributes = payload.form.attributes)
@@ -58,19 +59,20 @@ trait PromotionSeeds {
                                applyType = payload.applyType,
                                formId = ins.form.id,
                                shadowId = ins.shadow.id,
-                               commitId = ins.commit.id))
+                               commitId = ins.commit.id,
+                               name = name,
+                               activeFrom = Some(Instant.now),
+                               activeTo = None))
       link ← * <~ PromotionDiscountLinks.create(
                 PromotionDiscountLink(leftId = promotion.id, rightId = discount.discountId))
     } yield
       BasePromotion(promotion.id, ins.form.id, ins.shadow.id, payload.applyType, discount.title)
 
-  def createPromotion(name: String, applyType: Promotion.ApplyType): CreatePromotion = {
-    val promotionForm   = BasePromotionForm(name, applyType)
-    val promotionShadow = BasePromotionShadow(promotionForm)
-
+  def createPromotion(applyType: Promotion.ApplyType): CreatePromotion = {
     CreatePromotion(
         applyType = applyType,
-        form = CreatePromotionForm(attributes = promotionForm.form, discounts = Seq.empty),
-        shadow = CreatePromotionShadow(attributes = promotionShadow.shadow, discounts = Seq.empty))
+        form = CreatePromotionForm(attributes = BasePromotionForm.form, discounts = Seq.empty),
+        shadow =
+          CreatePromotionShadow(attributes = BasePromotionShadow.shadow, discounts = Seq.empty))
   }
 }

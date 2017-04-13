@@ -40,6 +40,9 @@ case class Promotion(id: Int = 0,
                      formId: Int,
                      commitId: Int,
                      applyType: Promotion.ApplyType = Promotion.Auto,
+                     name: String,
+                     activeFrom: Option[Instant],
+                     activeTo: Option[Instant],
                      updatedAt: Instant = Instant.now,
                      createdAt: Instant = Instant.now,
                      archivedAt: Option[Instant] = None)
@@ -53,10 +56,25 @@ case class Promotion(id: Int = 0,
 
 class Promotions(tag: Tag) extends ObjectHeads[Promotion](tag, "promotions") {
 
-  def applyType = column[Promotion.ApplyType]("apply_type")
+  def applyType  = column[Promotion.ApplyType]("apply_type")
+  def name       = column[String]("name")
+  def activeFrom = column[Option[Instant]]("active_from")
+  def activeTo   = column[Option[Instant]]("active_to")
 
   def * =
-    (id, scope, contextId, shadowId, formId, commitId, applyType, updatedAt, createdAt, archivedAt) <> ((Promotion.apply _).tupled, Promotion.unapply)
+    (id,
+     scope,
+     contextId,
+     shadowId,
+     formId,
+     commitId,
+     applyType,
+     name,
+     activeFrom,
+     activeTo,
+     updatedAt,
+     createdAt,
+     archivedAt) <> ((Promotion.apply _).tupled, Promotion.unapply)
 }
 
 object Promotions

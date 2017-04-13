@@ -34,9 +34,6 @@ insert into promotion_customer_group_links
 
 alter table promotions
     add column name text
-  , add column details text
-  , add column description text
-  , add column storefront_name text
   , add column active_from timestamp
   , add column active_to timestamp
   ;
@@ -44,18 +41,12 @@ alter table promotions
 update promotions
 set
     name = q.name
-  , details = q.details
-  , description = q.description
-  , storefront_name = q.storefront_name
   , active_from = q.active_from
   , active_to = q.active_to
 from
   (select
       promotions.id
     , illuminate_obj(object_forms, object_shadows, 'name') as name
-    , illuminate_obj(object_forms, object_shadows, 'details') as details
-    , illuminate_obj(object_forms, object_shadows, 'description') as description
-    , illuminate_obj(object_forms, object_shadows, 'storefrontName') as storefront_name
     , illuminate_text(object_forms, object_shadows, 'activeFrom') :: timestamp as active_from
     , illuminate_text(object_forms, object_shadows, 'activeTo') :: timestamp as active_to
   from
