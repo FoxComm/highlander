@@ -41,6 +41,7 @@ type Props = ObjectPageChildProps<Taxon> & {
 
 type State = {
   modalVisible: boolean,
+  deletedProductId: ?number,
 }
 
 export class TaxonProductsPage extends Component {
@@ -71,10 +72,12 @@ export class TaxonProductsPage extends Component {
 
   @autobind
   unlinkButton(children: any, row: Product) {
+    const inProgress = this.props.deleteState.inProgress && this.state.deletedProductId === row.productId;
+    
     return (
       <Button
         onClick={this.handleUnlinkProduct.bind(this, row)}
-        isLoading={this.props.deleteState.inProgress}
+        isLoading={inProgress}
       >
         Unlink
       </Button>
@@ -112,8 +115,12 @@ export class TaxonProductsPage extends Component {
 
     const { actions, params: { taxonId, context } } = this.props;
 
-    actions.unlinkProduct(product.productId, context, taxonId)
-      .then(this.props.actions.fetch);
+    this.setState({ deletedProductId: product.productId }, () => {
+      actions.unlinkProduct(product.productId, context, taxonId)
+        .then(this.props.actions.fetch);
+
+      return;
+    });
   }
 
   renderRow(row: Product, index: number, columns: Columns, params: Object) {
