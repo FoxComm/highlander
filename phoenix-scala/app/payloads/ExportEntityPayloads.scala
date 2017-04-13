@@ -20,9 +20,9 @@ object ExportEntityPayloads {
     case object CustomerItems extends ExportableEntity {
       override def searchView: String = s"${entity}_view"
     }
-    case object Customers               extends ExportableEntity
-    case object GiftCards               extends ExportableEntity
-    case object GiftCardTransactions    extends ExportableEntity {
+    case object Customers extends ExportableEntity
+    case object GiftCards extends ExportableEntity
+    case object GiftCardTransactions extends ExportableEntity {
       override def searchView: String = s"${entity}_view"
     }
     case object Inventory               extends ExportableEntity
@@ -50,21 +50,21 @@ object ExportEntityPayloads {
     def typeHints =
       ADTTypeHints(
           Map(
-              Type.Id    → classOf[UsingIDs],
-              Type.Query → classOf[UsingSearchQuery]
+              Type.Ids   → classOf[ByIDs],
+              Type.Query → classOf[BySearchQuery]
           ))
 
     sealed trait Type extends Product with Serializable
     implicit object Type extends ADT[Type] {
-      case object Id    extends Type
+      case object Ids   extends Type
       case object Query extends Type
 
       def types: Set[Type] = sealerate.values[Type]
     }
 
-    case class UsingIDs(description: Option[String], fields: List[String], ids: List[Long])
+    case class ByIDs(description: Option[String], fields: List[String], ids: List[Long])
         extends ExportEntity
-    case class UsingSearchQuery(description: Option[String], fields: List[String], query: Json)
+    case class BySearchQuery(description: Option[String], fields: List[String], query: Json)
         extends ExportEntity
   }
 }

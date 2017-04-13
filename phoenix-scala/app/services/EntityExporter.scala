@@ -37,13 +37,13 @@ object EntityExporter {
 
     val index = s"admin_${au.token.scope}" / entity.searchView
     val jsonSource = payload match {
-      case ExportEntity.UsingIDs(_, fields, ids) ⇒
+      case ExportEntity.ByIDs(_, fields, ids) ⇒
         EntityExporter.export(
             searchIndex = index,
             searchFields = fields,
             searchIds = ids
         )
-      case ExportEntity.UsingSearchQuery(_, fields, query) ⇒
+      case ExportEntity.BySearchQuery(_, fields, query) ⇒
         EntityExporter.export(
             searchIndex = index,
             searchFields = fields,
@@ -67,7 +67,7 @@ object EntityExporter {
     val date        = formatter.format(Instant.now)
     val description = payload.description.map(_.trim.replaceAll("\\s+", "-"))
 
-    (List(entity.entity) ++ description ++ List(date)).mkString("-")
+    (List(entity.entity) ++ description ++ List(date)).mkString("", "-", ".csv")
   }
 
   private def export(
