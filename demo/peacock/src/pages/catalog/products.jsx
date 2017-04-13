@@ -227,7 +227,7 @@ class Products extends Component {
   @autobind
   showMenuBar() {
     const header = document.getElementById('header');
-    if (header) header.style.display = 'inline';
+    if (header) header.style.display = 'block';
   }
 
   @autobind
