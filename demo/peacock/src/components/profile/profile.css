@@ -4,6 +4,7 @@
 
 .profile {
   lost-column: 7/11;
+  lost-offset: -1/11;
   margin-top: 20px;
   display: flex;
 }
@@ -121,7 +122,7 @@
 }
 
 .payment-icon {
-  composes: payment-icon from '../../pages/checkout/billing/view-billing.css';
+  /*composes: payment-icon from '../../pages/checkout/billing/view-billing.css';*/
 }
 
 .payment-method {
