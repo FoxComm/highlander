@@ -11,6 +11,9 @@ import { activeStatus, isArchived } from 'paragons/common';
 import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
 
+// styles
+import styles from './product-row.css';
+
 type Props = {
   product: Product,
   columns?: Array<Object>,
