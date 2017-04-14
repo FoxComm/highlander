@@ -9,6 +9,7 @@ import utils.db._
 import utils.aliases._
 import failures._
 import payloads.AmazonOrderPayloads.CreateAmazonOrderPayload
+import com.github.tminglei.slickpg.LTree
 
 case class AmazonOrder(id: Int = 0,
                        amazonOrderId: String = "",
@@ -18,6 +19,9 @@ case class AmazonOrder(id: Int = 0,
                        currency: Currency = Currency.USD,
                        orderStatus: String = "",
                        purchaseDate: Instant,
+                       scope: LTree,
+                       customerName: String,
+                       customerEmail: String,
                        createdAt: Instant = Instant.now,
                        updatedAt: Instant = Instant.now)
     extends FoxModel[AmazonOrder]
@@ -32,6 +36,9 @@ object AmazonOrder {
                 currency = payload.currency,
                 orderStatus = payload.orderStatus,
                 purchaseDate = payload.purchaseDate,
+                scope = payload.scope,
+                customerName = payload.customerName,
+                customerEmail = payload.customerEmail,
                 createdAt = Instant.now,
                 updatedAt = Instant.now)
 
@@ -44,6 +51,9 @@ object AmazonOrder {
                 currency = existingOrder.currency,
                 orderStatus = existingOrder.orderStatus,
                 purchaseDate = existingOrder.purchaseDate,
+                scope = existingOrder.scope,
+                customerName = existingOrder.customerName,
+                customerEmail = existingOrder.customerEmail,
                 createdAt = existingOrder.createdAt,
                 updatedAt = existingOrder.updatedAt)
 }
@@ -72,6 +82,9 @@ class AmazonOrders(tag: Tag) extends FoxTable[AmazonOrder](tag, "amazon_orders")
   def currency            = column[Currency]("currency")
   def orderStatus         = column[String]("order_status")
   def purchaseDate        = column[Instant]("purchase_date")
+  def scope               = column[LTree]("scope")
+  def customerName        = column[String]("customer_name")
+  def customerEmail       = column[String]("customer_email")
   def createdAt           = column[Instant]("created_at")
   def updatedAt           = column[Instant]("updated_at")
 
@@ -84,6 +97,9 @@ class AmazonOrders(tag: Tag) extends FoxTable[AmazonOrder](tag, "amazon_orders")
      currency,
      orderStatus,
      purchaseDate,
+     scope,
+     customerName,
+     customerEmail,
      createdAt,
      updatedAt) <> ((AmazonOrder.apply _).tupled, AmazonOrder.unapply)
 }
