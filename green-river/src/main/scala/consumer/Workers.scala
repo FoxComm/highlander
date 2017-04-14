@@ -189,7 +189,6 @@ object Workers {
       "store_credits_search_view"             → StoreCreditsSearchView(),
       "scoped_activity_trails"                → ActivityConnectionTransformer(connectionInfo),
       "taxonomies_search_view"                → TaxonomiesSearchView(),
-      "taxons_search_view"                    → TaxonsSearchView(),
-      "amazon_orders_search_view"             → AmazonOrdersSearchView()
+      "taxons_search_view"                    → TaxonsSearchView()
   )
 }
