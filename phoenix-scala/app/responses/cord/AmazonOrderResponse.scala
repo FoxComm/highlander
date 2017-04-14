@@ -4,6 +4,7 @@ import java.time.Instant
 import models.cord.AmazonOrder
 import utils.Money.Currency
 import responses._
+import com.github.tminglei.slickpg.LTree
 
 case class AmazonOrderResponse(id: Int,
                                amazonOrderId: String = "",
@@ -13,6 +14,9 @@ case class AmazonOrderResponse(id: Int,
                                currency: Currency = Currency.USD,
                                orderStatus: String = "",
                                purchaseDate: Instant,
+                               scope: LTree,
+                               customerName: String = "",
+                               customerEmail: String = "",
                                createdAt: Instant = Instant.now,
                                updatedAt: Instant = Instant.now)
     extends ResponseItem
@@ -26,7 +30,12 @@ object AmazonOrderResponse {
                   orderType: String,
                   currency: Currency,
                   orderStatus: String,
-                  purchaseDate: Instant)
+                  purchaseDate: Instant,
+                  scope: LTree,
+                  customerName: String = "",
+                  customerEmail: String = "",
+                  createdAt: Instant,
+                  updatedAt: Instant)
 
   def build(amazonOrder: AmazonOrder): Root =
     Root(id = amazonOrder.id,
@@ -36,5 +45,10 @@ object AmazonOrderResponse {
          orderType = amazonOrder.orderType,
          currency = amazonOrder.currency,
          orderStatus = amazonOrder.orderStatus,
-         purchaseDate = amazonOrder.purchaseDate)
+         purchaseDate = amazonOrder.purchaseDate,
+         scope = amazonOrder.scope,
+         customerName = amazonOrder.customerName,
+         customerEmail = amazonOrder.customerEmail,
+         createdAt = amazonOrder.createdAt,
+         updatedAt = amazonOrder.updatedAt)
 }
