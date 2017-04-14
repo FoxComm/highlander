@@ -1,9 +1,10 @@
 @import "colors.css";
 
-.name-block {
+.name-block, .email-block {
   border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 12px 15px 0;
+  margin-bottom: 10px;
 }
 
 .header {
