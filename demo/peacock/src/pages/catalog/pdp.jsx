@@ -417,8 +417,8 @@ class Pdp extends Component {
       <div ref={(containerNode) => (this.containerNode = containerNode)} styleName="container">
         <div styleName="body">
           {this.renderGallery()}
-          <ErrorAlerts error={this.state.error} />
           <h1 styleName="title">{title}</h1>
+          <ErrorAlerts error={this.state.error} />
           {this.productPrice}
           {this.productForm}
           <div styleName="cart-actions">
