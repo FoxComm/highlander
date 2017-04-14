@@ -27,7 +27,7 @@ def ping():
     """ping
     Returns pong
     """
-    return 'pong'
+    return jsonify({'ping': 'pong'})
 
 @APP.route('/public/prod-prod/<int:prod_id>', methods=['GET'])
 def rec_prod_prod(prod_id):

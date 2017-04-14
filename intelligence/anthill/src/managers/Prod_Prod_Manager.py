@@ -62,6 +62,9 @@ class Prod_Prod_Manager(object):
             raise InvalidUsage('Channel ID not found', status_code=400,
                                payload={'error_code': 101})
 
+    def is_valid_channel(self, channel_id):
+        return channel_id in self.recommenders.keys()
+
     def fallback_to_popular(self, response, source):
         """fallback_to_popular
         if response contains no products, instead use popular products
@@ -117,7 +120,8 @@ class Prod_Prod_Manager(object):
         take a product id
         get list of product ids from the recommender
         """
-        self.validate_channel(channel_id)
+        if not self.is_valid_channel(channel_id):
+            return self.fallback_to_popular(EMPTY, source='')
         rec = self.get_recommender(channel_id)
         if prod_id in rec.product_ids():
             resp = rec.recommend([prod_id])
@@ -143,7 +147,8 @@ class Prod_Prod_Manager(object):
         take a customer id
         get list of product ids from the recommender
         """
-        self.validate_channel(channel_id)
+        if not self.is_valid_channel(channel_id):
+            return self.fallback_to_popular(EMPTY, source='')
         prod_ids = get_purchased_products(cust_id, channel_id, self.neo4j_client)
         excludes = get_declined_products(cust_id, self.neo4j_client)
         resp = self.recommenders[channel_id].recommend(prod_ids, excludes)
