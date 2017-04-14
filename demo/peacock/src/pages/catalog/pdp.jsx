@@ -107,6 +107,7 @@ class Pdp extends Component {
   props: Props;
   productPromise: Promise<*>;
   _productDetails: ProductDetails;
+  containerNode: Element<*>;
 
   state: State = {
     currentSku: null,
@@ -143,6 +144,13 @@ class Pdp extends Component {
       this.props.actions.resetProduct();
       this.props.actions.clearRelatedProducts();
       this.fetchProduct(nextProps, nextId);
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.containerNode !== null) {
+      // $FlowFixMe
+      this.containerNode.scrollIntoView();
     }
   }
 
@@ -406,7 +414,7 @@ class Pdp extends Component {
     const title = this.isGiftCard() ? t('Gift Card') : this.productView.title;
 
     return (
-      <div styleName="container">
+      <div ref={(containerNode) => (this.containerNode = containerNode)} styleName="container">
         <div styleName="body">
           {this.renderGallery()}
           <ErrorAlerts error={this.state.error} />
