@@ -102,6 +102,8 @@ object PaymentPayloads {
 
   case class CreditCardPayment(creditCardId: Int)
 
+  case class CreateApplePayPayment(stripeToken: String, stripeCustomerId: String, cartRef: String)
+
   case class CreateManualStoreCredit(amount: Int,
                                      currency: Currency = Currency.USD,
                                      reasonId: Int,

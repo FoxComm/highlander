@@ -12,6 +12,7 @@ object PaymentMethod {
   case object CreditCard  extends Type
   case object GiftCard    extends Type
   case object StoreCredit extends Type
+  case object ApplePay    extends Type
 
   implicit object Type extends ADT[Type] {
     def types = sealerate.values[Type]

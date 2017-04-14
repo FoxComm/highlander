@@ -17,6 +17,7 @@ import models.coupon._
 import models.inventory.Skus
 import models.location.Addresses
 import models.objects._
+import models.payment.applepay.{ApplePayCharge, ApplePayCharges, ApplePayments}
 import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
@@ -319,8 +320,12 @@ case class Checkout(
       _ ← * <~ doOrMeh(gcTotal > 0,
                        LogActivity().gcFundsAuthorized(customer, cart, gcCodes, gcTotal))
 
+      // auth for Apple Pay payment
+      applePmtCharge ← * <~ authApplePay(cart.grandTotal, gcTotal + scTotal)
+
       // Authorize funds on credit card
-      ccs ← * <~ authCreditCard(cart.grandTotal, gcTotal + scTotal)
+      ccs ← * <~ authCreditCard(cart.grandTotal,
+                                gcTotal + scTotal + applePmtCharge.fold(0)(_.amount))
       mutatingResult = externalCalls.authPaymentsSuccess = true
     } yield {}
 
@@ -347,6 +352,32 @@ case class Checkout(
 
         case None ⇒
           DbResultT.failure(GeneralFailure("not enough payment"))
+      }
+    } else DbResultT.none
+  }
+
+  // todo unify with CC Auth @aafa
+  private def authApplePay(orderTotal: Int,
+                           internalPaymentTotal: Int): DbResultT[Option[ApplePayCharge]] = {
+
+    val authAmount = orderTotal - internalPaymentTotal
+
+    if (authAmount > 0) { // todo move this check to the call site with doIf
+      (for {
+        op ← OrderPayments.applePayByCordRef(cart.refNum)
+        ap ← op.applePayment
+      } yield (op, ap)).one.dbresult.flatMap {
+        case Some((pmt, ap)) ⇒
+          for {
+            stripeCharge ← * <~ apis.stripe.authorizeAmount(ap.stripeCustomerId,
+                                                            ap.stripeTokenId,
+                                                            authAmount,
+                                                            cart.currency)
+            ourCharge = ApplePayCharges.authFromStripe(ap, pmt, stripeCharge, cart.currency)
+            created ← * <~ ApplePayCharges.create(ourCharge)
+            // todo logs here
+          } yield created.some
+        case _ ⇒ DbResultT.none // do nothing if apple pay is not there
       }
     } else DbResultT.none
   }

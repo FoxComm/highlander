@@ -3,6 +3,8 @@ package models.cord
 import cats.data.ValidatedNel
 import failures.Failure
 import models.payment.PaymentMethod
+import models.payment.PaymentMethod.ApplePay
+import models.payment.applepay.{ApplePayCharge, ApplePayCharges, ApplePayment, ApplePayments}
 import models.payment.creditcard.{CreditCard, CreditCards}
 import models.payment.giftcard.{GiftCard, GiftCards}
 import models.payment.storecredit.{StoreCredit, StoreCredits}
@@ -26,13 +28,16 @@ case class OrderPayment(id: Int = 0,
   def isCreditCard: Boolean  = paymentMethodType == PaymentMethod.CreditCard
   def isGiftCard: Boolean    = paymentMethodType == PaymentMethod.GiftCard
   def isStoreCredit: Boolean = paymentMethodType == PaymentMethod.StoreCredit
+  def isApplePay: Boolean    = paymentMethodType == PaymentMethod.ApplePay
+
+  def isExternalFunds: Boolean = isCreditCard || isApplePay
 
   override def validate: ValidatedNel[Failure, OrderPayment] = {
     val amountOk = paymentMethodType match {
       case PaymentMethod.StoreCredit | PaymentMethod.GiftCard ⇒
         validExpr(amount.getOrElse(0) > 0, s"amount must be > 0 for $paymentMethodType")
-      case PaymentMethod.CreditCard ⇒
-        validExpr(amount.isEmpty, "amount must be empty for creditCard")
+      case PaymentMethod.CreditCard | PaymentMethod.ApplePay ⇒
+        validExpr(amount.isEmpty, "amount must be empty for ExternalFunds")
     }
 
     amountOk.map(_ ⇒ this)
@@ -57,6 +62,8 @@ object OrderPayment {
       OrderPayment(paymentMethodId = cc.id, paymentMethodType = PaymentMethod.CreditCard)
     case sc: StoreCredit ⇒
       OrderPayment(paymentMethodId = sc.id, paymentMethodType = PaymentMethod.StoreCredit)
+    case ap: ApplePayment ⇒
+      OrderPayment(paymentMethodId = ap.id, paymentMethodType = PaymentMethod.ApplePay)
   }
 }
 
@@ -73,8 +80,9 @@ class OrderPayments(tag: Tag) extends FoxTable[OrderPayment](tag, "order_payment
     (id, cordRef, amount, currency, paymentMethodId, paymentMethodType) <> ((OrderPayment.apply _).tupled,
         OrderPayment.unapply)
 
-  def order      = foreignKey(Carts.tableName, cordRef, Carts)(_.referenceNumber)
-  def creditCard = foreignKey(CreditCards.tableName, paymentMethodId, CreditCards)(_.id)
+  def order        = foreignKey(Carts.tableName, cordRef, Carts)(_.referenceNumber)
+  def creditCard   = foreignKey(CreditCards.tableName, paymentMethodId, CreditCards)(_.id)
+  def applePayment = foreignKey(ApplePayments.tableName, paymentMethodId, ApplePayments)(_.id)
 }
 
 object OrderPayments
@@ -101,6 +109,9 @@ object OrderPayments
       sc   ← StoreCredits if sc.id === pmts.paymentMethodId
     } yield (pmts, sc)
 
+  def applePayByCordRef(cordRef: String): QuerySeq =
+    filter(_.cordRef === cordRef).applePays
+
   def findAllCreditCardsForOrder(cordRef: Rep[String]): QuerySeq =
     filter(_.cordRef === cordRef).creditCards
 
@@ -109,6 +120,7 @@ object OrderPayments
       def giftCards: QuerySeq    = q.byType(PaymentMethod.GiftCard)
       def creditCards: QuerySeq  = q.byType(PaymentMethod.CreditCard)
       def storeCredits: QuerySeq = q.byType(PaymentMethod.StoreCredit)
+      def applePays: QuerySeq    = q.byType(PaymentMethod.ApplePay)
 
       def byType(pmt: PaymentMethod.Type): QuerySeq =
         q.filter(_.paymentMethodType === (pmt: PaymentMethod.Type))

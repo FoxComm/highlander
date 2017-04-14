@@ -3,6 +3,7 @@ package models.cord
 import cats.implicits._
 import com.pellucid.sealerate
 import models.payment.InStorePaymentStates
+import models.payment.applepay.ApplePayCharge
 import models.payment.creditcard.CreditCardCharge
 import utils.ADT
 
@@ -37,6 +38,15 @@ object CordPaymentState {
       case CC.FullCapture   ⇒ FullCapture
       case CC.FailedCapture ⇒ FailedCapture
       case _                ⇒ Cart
+    }
+  }
+
+  def fromApplePayState(apState: ApplePayCharge.State): State = {
+    apState match {
+      case ApplePayCharge.Cart       ⇒ Cart
+      case ApplePayCharge.Auth       ⇒ Auth
+      case ApplePayCharge.FailedAuth ⇒ FailedCapture
+      case _                         ⇒ ExpiredAuth
     }
   }
 

@@ -234,6 +234,13 @@ object Customer {
                 }
               }
             } ~
+            pathPrefix("payment-methods" / "apple-pay") {
+              (post & pathEnd & entity(as[CreateApplePayPayment])) { payload ⇒
+                mutateOrFailures {
+                  CartPaymentUpdater.addApplePayPayment(auth.model, payload)
+                }
+              }
+            } ~
             pathPrefix("payment-methods" / "credit-cards") {
               (get & pathEnd) {
                 complete {

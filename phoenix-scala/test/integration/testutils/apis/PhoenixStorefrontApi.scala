@@ -2,6 +2,7 @@ package testutils.apis
 
 import akka.http.scaladsl.model.HttpResponse
 import payloads.CartPayloads.CheckoutCart
+import payloads.PaymentPayloads.CreateApplePayPayment
 import testutils._
 
 trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒
@@ -40,6 +41,14 @@ trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒
 
   object storefrontPaymentsApi {
     val paymentPath = s"$rootPrefix/payment-methods"
+
+    object applePay {
+      val path = s"$paymentPath/apple-pay"
+
+      def create(p: CreateApplePayPayment): HttpResponse = POST(path, p)
+      def get(): HttpResponse                            = GET(path)
+      def delete(): HttpResponse                         = DELETE(path)
+    }
 
     object creditCards {
       val ccPath = s"$paymentPath/credit-cards"
