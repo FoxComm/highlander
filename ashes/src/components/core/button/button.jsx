@@ -8,24 +8,23 @@ import React, { Element } from 'react';
 import s from './button.css';
 
 type Props = {
-  className?: string,
   icon?: string,
   isLoading?: boolean,
-  children?: Element<*>,
+  className?: string,
+  children?: Element<any>,
 }
 
-export const Button = (props: Props) => {
-  const { icon, children, isLoading, ...restProps } = props;
-  const className = classNames(
+export const Button = ({ icon, children, isLoading = false, className = '', ...restProps }: Props) => {
+  const cls = classNames(
     s.button,
     { [s.loading]: isLoading },
-    props.className
+    className
   );
 
   const content = children ? <span className={s.text}>{children}</span> : null;
 
   return (
-    <button {...restProps} className={className}>
+    <button {...restProps} className={cls}>
       {icon && <i className={`icon-${icon}`} />}
       {content}
     </button>
