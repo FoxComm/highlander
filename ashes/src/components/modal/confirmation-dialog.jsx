@@ -2,6 +2,7 @@
 
 // libs
 import _ from 'lodash';
+import classNames from 'classnames';
 import React, { Element } from 'react';
 
 // components
@@ -19,19 +20,22 @@ type Props = {
   onCancel: Function,
   confirmAction: Function,
   asyncState: AsyncState,
+  className?: string,
 };
 
 const ConfirmationDialog = (props: Props) => {
   let modalIcon = null;
   if (props.icon) {
-    modalIcon = <i className={ `icon-${props.icon}` } />;
+    modalIcon = (
+      <div className='fc-modal-icon'>
+        <i className={ `icon-${props.icon}` } />
+      </div>
+    );
   }
 
   const title = (
     <div>
-      <div className='fc-modal-icon'>
-        {modalIcon}
-      </div>
+      {modalIcon}
       <div className='fc-modal-title'>{props.header}</div>
     </div>
   );
@@ -49,9 +53,11 @@ const ConfirmationDialog = (props: Props) => {
     }
   };
 
+  const cls = classNames('fc-confirmation-dialog', props.className);
+
   return (
     <div onKeyDown={handleKeyPress}>
-      <ContentBox title={title} className="fc-confirmation-dialog" actionBlock={actionBlock}>
+      <ContentBox title={title} className={cls} actionBlock={actionBlock}>
         <div className='fc-modal-body'>
           <ErrorAlerts error={_.get(props.asyncState, 'err', null)} />
           {props.body}

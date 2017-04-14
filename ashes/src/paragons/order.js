@@ -1,28 +1,36 @@
+// @flow
+
 import _ from 'lodash';
-
-export type Cart = {
-  referenceNumber: string,
-  shippingMethod: ShippingMethod,
-};
-
-export type Order = {
-  referenceNumber: string,
-  title: string,
-  customer: Object,
-  promotion: Object,
-  coupon: Object,
-  paymentMethods: Array<PaymentMethod>,
-  orderState: string,
-};
-
-export type ShippingMethod = {
-  id: number,
-};
 
 export type PaymentMethod = {
   id?: number,
   code?: string,
   type: string,
+  createdAt: string,
+  brand: string,
+};
+
+export type Cart = {
+  referenceNumber: string,
+  shippingMethod: ShippingMethod,
+  isCheckingOut: boolean,
+  promotion: Object,
+  customer: Object,
+  paymentMethods: Array<PaymentMethod>,
+};
+
+export type Order = {
+  referenceNumber: string,
+  customer: Object,
+  promotion: Object,
+  coupon: Object,
+  paymentMethods: Array<PaymentMethod>,
+  orderState: string,
+  lineItems: Object,
+};
+
+export type ShippingMethod = {
+  id: number,
 };
 
 export type CreditCard = {
@@ -84,7 +92,7 @@ function collectLineItems(skus: Array<SkuItem>): Array<SkuItem> {
 }
 
 export default class OrderParagon {
-  constructor(order) {
+  constructor(order: Order) {
     Object.assign(this, order);
     const skus = _.get(order, 'lineItems.skus');
     if (skus) {
@@ -92,35 +100,48 @@ export default class OrderParagon {
     }
   }
 
-  get entityId() {
+  lineItems: Object;
+  orderState: string;
+  referenceNumber: string;
+  customer: Object;
+  promotion: Object;
+  coupon: Object;
+  paymentMethods: Array<PaymentMethod>;
+  orderState: string;
+  remorsePeriodEnd: string;
+  shippingState: string;
+  paymentState: string;
+  placedAt: string;
+
+  get entityId(): string {
     return this.referenceNumber;
   }
 
-  get entityType() {
+  get entityType(): string {
     return 'order';
   }
 
-  get isCart() {
+  get isCart(): boolean {
     return this.orderState === states.cart;
   }
 
-  get isRemorseHold() {
+  get isRemorseHold(): boolean {
     return this.orderState === states.remorseHold;
   }
 
-  get isNew() {
+  get isNew(): boolean {
     return _.isEmpty(this.referenceNumber);
   }
 
-  get refNum() {
+  get refNum(): string {
     return this.referenceNumber;
   }
 
-  get title() {
+  get title(): string {
     return this.isCart ? 'Cart' : 'Order';
   }
 
-  get stateTitle() {
+  get stateTitle(): string {
     return stateTitles[this.orderState];
   }
 }

@@ -38,6 +38,7 @@ export default class SelectableSearchList extends React.Component {
     hasActionsColumn: PropTypes.bool,
     autoRefresh: PropTypes.bool,
     tbodyId: PropTypes.string,
+    tableClassName: PropTypes.string,
   };
 
   static defaultProps = {
@@ -88,6 +89,7 @@ export default class SelectableSearchList extends React.Component {
           failed={results.failed}
           emptyMessage={props.emptyMessage}
           errorMessage={props.errorMessage}
+          className={props.tableClassName}
           key={props.list.currentSearch().title} />
       </LiveSearchAdapter>
     );

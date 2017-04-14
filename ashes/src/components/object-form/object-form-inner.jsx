@@ -336,7 +336,6 @@ export default class ObjectFormInner extends Component {
   }
 
   getAttrOptions(name: string,
-                 // $FlowFixMe: there is no global context
                  schema: ?AttrSchema = this.props.schema && this.props.schema.properties[name]): Object {
     const options = {
       required: this.isRequired(name),

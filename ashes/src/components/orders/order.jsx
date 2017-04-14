@@ -1,5 +1,5 @@
 // libs
-import React, { PropTypes } from 'react';
+import React, { Element } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -14,7 +14,7 @@ import { DateTime } from '../common/datetime';
 import { PanelList, PanelListItem } from '../panel/panel-list';
 import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
-import State, { states } from '../common/state';
+import StateComponent, { states } from '../common/state';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import WaitAnimation from '../common/wait-animation';
 import Error from 'components/errors/error';
@@ -26,6 +26,12 @@ import { frn, readAction } from 'lib/frn';
 // redux
 import * as orderActions from 'modules/orders/details';
 
+// styles
+import s from './order.css';
+
+// types
+import type { StateToProps, DispatchToProps, Props, StateType, ReduxState, OrderType } from './orderTypes';
+
 const shippingClaims = readAction(frn.mdl.shipment);
 const fraudClaims = readAction(frn.oms.fraud);
 
@@ -33,7 +39,7 @@ const orderRefNum = props => {
   return props.params.order;
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state: ReduxState): StateToProps => {
   return {
     details: state.orders.details,
     isFetching: _.get(state.asyncActions, 'getOrder.inProgress', null),
@@ -41,31 +47,14 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = { ...orderActions };
+const mapDispatchToProps: DispatchToProps = { ...orderActions };
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class Order extends React.Component {
-  static propTypes = {
-    params: PropTypes.shape({
-      order: PropTypes.string.isRequired
-    }).isRequired,
-    details: PropTypes.shape({
-      order: PropTypes.object,
-    }),
-    children: PropTypes.node,
-    updateOrder: PropTypes.func,
-    updateShipments: PropTypes.func,
-    fetchOrder: PropTypes.func,
-    clearFetchErrors: PropTypes.func,
-    increaseRemorsePeriod: PropTypes.func
+  props: Props;
+  state: StateType = {
+    newOrderState: null,
   };
-
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      newOrderState: null,
-    };
-  }
 
   updateInterval = null;
 
@@ -74,24 +63,26 @@ export default class Order extends React.Component {
     this.props.fetchOrder(this.orderRefNum);
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: Props): void {
     if (this.orderRefNum != orderRefNum(nextProps)) {
       this.props.fetchOrder(orderRefNum(nextProps));
     }
     if (_.get(nextProps, 'details.order.state') !== 'remorseHold') {
+      if (this.updateInterval != null) {
+        clearInterval(this.updateInterval);
+        this.updateInterval = null;
+      }
+    }
+  }
+
+  componentWillUnmount(): void {
+    if (this.updateInterval != null) {
       clearInterval(this.updateInterval);
       this.updateInterval = null;
     }
   }
 
-  componentWillUnmount() {
-    if (this.state.updateInterval != null) {
-      clearInterval(this.updateInterval);
-      this.updateInterval = null;
-    }
-  }
-
-  get changeOptions() {
+  get changeOptions(): Object {
     return {
       header: 'Confirm',
       body: 'Are you sure you want to change the order state?',
@@ -100,7 +91,7 @@ export default class Order extends React.Component {
     };
   }
 
-  get cancelOptions() {
+  get cancelOptions(): Object {
     return {
       header: 'Confirm',
       body: 'Are you sure you want to cancel the order?',
@@ -109,15 +100,15 @@ export default class Order extends React.Component {
     };
   }
 
-  get orderRefNum() {
+  get orderRefNum(): string {
     return orderRefNum(this.props);
   }
 
-  get order() {
+  get order(): OrderType {
     return this.props.details.order;
   }
 
-  get remorseTimer() {
+  get remorseTimer(): ?Element<*> {
     if (this.order.isRemorseHold) {
       const refNum = this.order.referenceNumber;
       const handleIncreaseClick = () => {
@@ -134,8 +125,9 @@ export default class Order extends React.Component {
     }
   }
 
-  get details() {
+  get renderDetails(): Element<*> {
     const details = React.cloneElement(this.props.children, { ...this.props, entity: this.order });
+
     return (
       <div className="fc-grid">
         <div className="fc-col-md-1-1">
@@ -145,8 +137,8 @@ export default class Order extends React.Component {
     );
   }
 
-  get subNav() {
-    return <SubNav order={this.order} />;
+  get subNav(): Element<*> {
+    return <SubNav order={this.order} className={s.nav} />;
   }
 
   @autobind
@@ -157,7 +149,7 @@ export default class Order extends React.Component {
   }
 
   @autobind
-  onStateChange(value) {
+  onStateChange(value: string): void {
     trackEvent('Orders', 'change_orders_state_by_dropdown');
     this.setState({
       newOrderState: value,
@@ -165,7 +157,7 @@ export default class Order extends React.Component {
   }
 
   @autobind
-  confirmStateChange() {
+  confirmStateChange(): void {
     this.setState({
       newOrderState: null
     });
@@ -178,19 +170,19 @@ export default class Order extends React.Component {
   }
 
   @autobind
-  cancelStateChange() {
+  cancelStateChange(): void {
     this.setState({
       newOrderState: null
     });
   }
 
-  get orderStateDropdown() {
+  get orderStateDropdown(): Element<StateComponent|Dropdown> {
     const order = this.order;
     const claims = getClaims();
 
     if (order.orderState === 'canceled' ||
         order.orderState === 'shipped') {
-      return <State stateId="fct-order-state__value" value={order.shippingState} model="order" />;
+      return <StateComponent stateId="fct-order-state__value" value={order.shippingState} model="order" />;
     }
 
     let holdStates = ['manualHold'];
@@ -228,13 +220,13 @@ export default class Order extends React.Component {
     );
   }
 
-  get statusHeader() {
+  get statusHeader(): ?Element<*> {
     const order = this.order;
     const claims = getClaims();
     const shippingState = isPermitted(shippingClaims, claims)
       ? (
           <PanelListItem title="Shipping State">
-            <State stateId="order-shipping-state-value" value={order.shippingState} model="shipment" />
+            <StateComponent stateId="order-shipping-state-value" value={order.shippingState} model="shipment" />
           </PanelListItem>
         ) : null;
 
@@ -247,7 +239,7 @@ export default class Order extends React.Component {
             </PanelListItem>
             {shippingState}
             <PanelListItem title="Payment State">
-              <State stateId="order-payment-state-value" value={order.paymentState} model="payment" />
+              <StateComponent stateId="order-payment-state-value" value={order.paymentState} model="payment" />
             </PanelListItem>
             <PanelListItem title="Date/Time Placed">
               <DateTime value={order.placedAt} />
@@ -258,7 +250,7 @@ export default class Order extends React.Component {
     );
   }
 
-  get contents() {
+  get contents(): Element<*> {
     const order = this.order;
     return (
       <div>
@@ -268,7 +260,7 @@ export default class Order extends React.Component {
         {this.statusHeader}
         <div>
           {this.subNav}
-          {this.details}
+          {this.renderDetails}
         </div>
         <ConfirmationDialog
           isVisible={this.state.newOrderState != null}
@@ -283,8 +275,8 @@ export default class Order extends React.Component {
     );
   }
 
-  get body() {
-    if (this.props.isFetching !== false) {
+  get body(): Element<any> {
+    if (this.props.isFetching || !this.order) {
       return <WaitAnimation />;
     }
     if (this.props.fetchError) {
@@ -293,7 +285,7 @@ export default class Order extends React.Component {
     return this.contents;
   }
 
-  render() {
+  render(): Element<*> {
     return (
       <div className="fc-order">
         {this.body}

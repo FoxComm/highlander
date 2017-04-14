@@ -3,7 +3,7 @@
  */
 
 // libs
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Element } from 'react';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
@@ -12,7 +12,6 @@ import _ from 'lodash';
 import ObjectDetails from '../object-page/object-details';
 import OptionList from './options/option-list';
 import SkuContentBox from './skus/sku-content-box';
-import InputMask from 'react-input-mask';
 import TaxonomiesListWidget from '../taxonomies/widget/taxonomies-list-widget';
 
 import { renderFormField } from 'components/object-form/object-form-inner';

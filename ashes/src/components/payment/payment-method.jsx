@@ -8,14 +8,12 @@ import static_url from '../../lib/s3';
 
 import GiftCardCode from '../gift-cards/gift-card-code';
 
+import type { PaymentMethod as TPaymentMethod } from 'paragons/order';
+
 import styles from './payment-method.css';
 
 type Props = {
-  paymentMethod: {
-    type?: string;
-    brand: string;
-    code: string;
-  };
+  paymentMethod: TPaymentMethod;
   type?: string;
   className?: string;
 }
