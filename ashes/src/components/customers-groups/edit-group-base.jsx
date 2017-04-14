@@ -3,10 +3,6 @@
 import React from 'react';
 import { transitionToLazy } from 'browserHistory';
 
-import { reset, fetchGroup, saveGroup } from 'modules/customer-groups/details/group';
-import { fetchRegions } from 'modules/regions';
-
-import { Link } from 'components/link';
 import Form from 'components/forms/form';
 import ErrorAlerts from 'components/alerts/error-alerts';
 import SaveCancel from 'components/common/save-cancel';

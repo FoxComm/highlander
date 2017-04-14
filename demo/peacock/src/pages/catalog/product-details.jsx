@@ -7,7 +7,6 @@ import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
-import Currency from 'ui/currency';
 import Facets from 'components/facets/facets';
 
 // styles
@@ -187,47 +186,8 @@ class ProductDetails extends Component {
     );
   }
 
-  get productPrice(): Element<*> {
-    const {
-      currency,
-      price,
-      skus,
-    } = this.props.productView;
-
-    const salePrice = _.get(skus[0], 'attributes.salePrice.v.value', 0);
-    const retailPrice = _.get(skus[0], 'attributes.retailPrice.v.value', 0);
-
-    if (retailPrice > salePrice) {
-      return (
-        <div styleName="price">
-          <Currency
-            styleName="retail-price"
-            value={retailPrice}
-            currency={currency}
-          />
-          <Currency
-            styleName="on-sale-price"
-            value={salePrice}
-            currency={currency}
-          />
-        </div>
-      );
-    }
-
-    return (
-      <div styleName="price">
-        <Currency value={price} currency={currency} />
-      </div>
-    );
-  }
-
   render(): Element<*> {
-    return (
-      <div>
-        {this.productPrice}
-        {this.facets}
-      </div>
-    );
+    return this.facets;
   }
 }
 

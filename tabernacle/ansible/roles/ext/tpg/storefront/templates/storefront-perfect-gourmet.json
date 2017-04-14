@@ -5,6 +5,12 @@
   "mem": 1024,
   "disk": 0,
   "instances": 1,
+  "labels": {
+    "LAYER": "frontend",
+    "LANG": "js",
+    "TAG": "{{docker_tags.storefront_tpg}}",
+    "consul": "{{app_name}}"
+  },
   "env": {
     "API_URL": "https://{{storefront_server_name}}",
     "NODE_ENV": "production",
@@ -18,11 +24,6 @@
     "IMGIX_PRODUCTS_SOURCE": "{{imgix_products_source}}",
     "S3_BUCKET_NAME": "{{imgix_s3_bucket_name}}",
     "S3_BUCKET_PREFIX": "{{imgix_s3_bucket_prefix}}"
-  },
-  "labels": {
-    "LAYER": "frontend",
-    "LANG": "js",
-    "TAG": "{{docker_tags.storefront_tpg}}"
   },
   "healthChecks": [
     {

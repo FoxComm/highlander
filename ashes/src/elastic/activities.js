@@ -1,6 +1,6 @@
 
 import _ from 'lodash';
-import { get, post } from '../lib/search';
+import { post } from '../lib/search';
 import moment from 'moment';
 import * as dsl from './dsl';
 

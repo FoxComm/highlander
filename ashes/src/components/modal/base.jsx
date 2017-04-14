@@ -1,15 +1,20 @@
 /* @flow */
 
-import React, { Element, PropTypes } from 'react';
+// libs
+import noop from 'lodash/noop';
+import React, { Element } from 'react';
 import Transition from 'react-addons-css-transition-group';
+
+// components
+import Overlay from 'components/overlay/overlay';
 
 type Props = {
   isVisible: boolean,
   onCancel?: () => void,
-  children?: Element<*>|Array<Element<*>> // This is an ugly bug in Flow :(
+  children?: Element<*> | Array<Element<*>>, // This is an ugly bug in Flow :(
 };
 
-const ModalContainer = ({children, isVisible, onCancel = () => {}}: Props) => {
+const ModalContainer = ({ children, isVisible, onCancel = noop }: Props) => {
   let content;
 
   const handleEscKeyPress = (event) => {
@@ -22,6 +27,7 @@ const ModalContainer = ({children, isVisible, onCancel = () => {}}: Props) => {
   if (isVisible) {
     content = (
       <div className="fc-modal">
+        <Overlay shown={isVisible} onClick={onCancel} />
         <div className="fc-modal-container" onKeyDown={handleEscKeyPress}>
           {children}
         </div>

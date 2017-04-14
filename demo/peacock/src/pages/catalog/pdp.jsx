@@ -25,9 +25,9 @@ import styles from './pdp.css';
 // components
 // import { SecondaryButton } from 'ui/buttons';
 import AddToCartBtn from 'ui/add-to-cart-btn';
+import Currency from 'ui/currency';
 import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
-import Breadcrumbs from 'components/breadcrumbs/breadcrumbs';
 import ErrorAlerts from 'ui/alerts/error-alerts';
 import ProductDetails from './product-details';
 
@@ -76,10 +76,12 @@ type State = {
 const mapStateToProps = (state) => {
   const product = state.productDetails.product;
   const relatedProducts = state.crossSell.relatedProducts;
+  const relatedProductsOrder = state.crossSell.relatedProductsOrder;
 
   return {
     product,
     relatedProducts,
+    relatedProductsOrder,
     fetchError: _.get(state.asyncActions, 'pdp.err', null),
     notFound: !product && _.get(state.asyncActions, 'pdp.err.response.status') == 404,
     isLoading: _.get(state.asyncActions, ['pdp', 'inProgress'], true),
@@ -105,6 +107,7 @@ class Pdp extends Component {
   props: Props;
   productPromise: Promise<*>;
   _productDetails: ProductDetails;
+  containerNode: Element<*>;
 
   state: State = {
     currentSku: null,
@@ -141,6 +144,13 @@ class Pdp extends Component {
       this.props.actions.resetProduct();
       this.props.actions.clearRelatedProducts();
       this.fetchProduct(nextProps, nextId);
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.containerNode !== null) {
+      // $FlowFixMe
+      this.containerNode.scrollIntoView();
     }
   }
 
@@ -332,7 +342,7 @@ class Pdp extends Component {
   }
 
   get relatedProductsList(): ?Element<*> {
-    const { relatedProducts, isRelatedProductsLoading } = this.props;
+    const { relatedProducts, isRelatedProductsLoading, relatedProductsOrder } = this.props;
 
     if (_.isEmpty(relatedProducts) || relatedProducts.total < 1) return null;
 
@@ -340,9 +350,45 @@ class Pdp extends Component {
       <RelatedProductsList
         title="You might also like"
         list={relatedProducts.result}
+        productsOrder={relatedProductsOrder}
         isLoading={isRelatedProductsLoading}
         loadingBehavior={LoadingBehaviors.ShowWrapper}
       />
+    );
+  }
+
+  get productPrice(): ?Element<any> {
+    if (this.isGiftCard()) return null;
+    const {
+      currency,
+      price,
+      skus,
+    } = this.productView;
+
+    const salePrice = _.get(skus[0], 'attributes.salePrice.v.value', 0);
+    const retailPrice = _.get(skus[0], 'attributes.retailPrice.v.value', 0);
+
+    if (retailPrice > salePrice) {
+      return (
+        <div styleName="price">
+          <Currency
+            styleName="retail-price"
+            value={retailPrice}
+            currency={currency}
+          />
+          <Currency
+            styleName="on-sale-price"
+            value={salePrice}
+            currency={currency}
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div styleName="price">
+        <Currency value={price} currency={currency} />
+      </div>
     );
   }
 
@@ -368,35 +414,22 @@ class Pdp extends Component {
     const title = this.isGiftCard() ? t('Gift Card') : this.productView.title;
 
     return (
-      <div styleName="container">
-        <div styleName="row">
-          <div styleName="column-left">
-            {this.renderGallery()}
-          </div>
-          <div styleName="column-right">
-            <Breadcrumbs
-              routes={this.props.routes}
-              params={this.props.params}
-              styleName="breadcrumbs"
+      <div ref={(containerNode) => (this.containerNode = containerNode)} styleName="container">
+        <div styleName="body">
+          {this.renderGallery()}
+          <ErrorAlerts error={this.state.error} />
+          <h1 styleName="title">{title}</h1>
+          {this.productPrice}
+          {this.productForm}
+          <div styleName="cart-actions">
+            <AddToCartBtn
+              onClick={this.addToCart}
             />
-            <ErrorAlerts error={this.state.error} />
-            <h1 styleName="title">{title}</h1>
-            {this.productForm}
-            <div styleName="cart-actions">
-              <AddToCartBtn
-                onClick={this.addToCart}
-              />
-              {/* <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton> */}
-            </div>
+            {/* <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton> */}
           </div>
-        </div>
-        <div styleName="row">
-          <div styleName="column-left">
-            {this.productShortDescription}
-          </div>
-          <div styleName="column-right product-details">
-            {this.productDetails}
-          </div>
+          <h1 styleName="title-secondary">{title}</h1>
+          {this.productShortDescription}
+          {this.productDetails}
         </div>
         {this.relatedProductsList}
       </div>

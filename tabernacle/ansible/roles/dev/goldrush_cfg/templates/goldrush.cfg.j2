@@ -10,6 +10,9 @@ export GOOGLE_INSTANCE_NAME={{google_instance_name}}
 # Should we include IC?
 export WITH_INTELLIGENT_COMMERCE={{with_ic_value}}
 
+# Should we seed?
+export WITH_APPLIANCE_SEEDING=true
+
 ####################################################################
 # Docker Tags                                                      #
 ####################################################################
@@ -47,6 +50,7 @@ export DOCKER_TAG_ORDERS_SPHEX:=master
 export DOCKER_TAG_ORDERS_ANTHILL:=master
 export DOCKER_TAG_ANTHILL:=master
 export DOCKER_TAG_NEO4J:=3.0
+export DOCKER_TAG_SUGGESTER:=master
 
 # Data Import
 export DOCKER_TAG_DATA_IMPORT=master
@@ -88,3 +92,4 @@ export MARATHON_ORDERS_SPHEX:=true
 export MARATHON_ORDERS_ANTHILL:=true
 export MARATHON_ANTHILL:=true
 export MARATHON_NEO4J:=true
+export MARATHON_SUGGESTER:=true

@@ -2,7 +2,6 @@
 
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
-import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import { isElementInViewport } from 'lib/dom-utils';
 import { autobind } from 'core-decorators';
@@ -85,6 +84,8 @@ export default class Table extends Component {
   state: State = {
     newIds: [],
   };
+
+  _tableHead: HTMLElement;
 
   get rows(): Rows {
     return this.props.data.rows;
@@ -192,9 +193,8 @@ export default class Table extends Component {
   }
 
   scrollToTop() {
-    const tableHead = ReactDOM.findDOMNode(this.refs.tableHead);
-    if (tableHead && !isElementInViewport(tableHead)) {
-      tableHead.scrollIntoView();
+    if (this._tableHead && !isElementInViewport(this._tableHead)) {
+      this._tableHead.scrollIntoView();
     }
   }
 
@@ -202,7 +202,7 @@ export default class Table extends Component {
     if (this.props.renderHeadIfEmpty || !isEmpty) {
       const { data, setState, className, ...rest } = this.props;
       return (
-        <TableHead {...rest} ref="tableHead" sortBy={data.sortBy} setState={setState} />
+        <TableHead {...rest} ref={ref => this._tableHead = ref} sortBy={data.sortBy} setState={setState} />
       );
     }
   }

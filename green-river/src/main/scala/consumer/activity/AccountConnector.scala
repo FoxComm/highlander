@@ -49,11 +49,9 @@ object AccountConnector extends ActivityConnector {
     }
 
   private def byNoteData(activity: Activity): Seq[String] = {
-    (activity.data \ "note" \ "referenceType", activity.data \ "entity" \ "id") match {
-      case (JString("account"), JInt(id))  ⇒ Seq(id.toString)
-      case (JString("user"), JInt(id))     ⇒ Seq(id.toString)
-      case (JString("customer"), JInt(id)) ⇒ Seq(id.toString)
-      case _                               ⇒ Seq.empty
+    activity.data \ "note" \ "referenceId" match {
+      case JInt(id) ⇒ Seq(id.toString)
+      case _        ⇒ Seq.empty
     }
   }
 

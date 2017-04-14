@@ -119,6 +119,11 @@ shortcuts:
     alias: migrate_middlewarehouse_db.yml
     target: ansible/migrate_middlewarehouse_db.yml
 
+  # Deploy
+  - name: Deploy TopDrawer Storefront
+    alias: deploy_storefront.yml
+    target: ansible/deploy_storefront.yml
+
 # Packer shortcuts
 - type: snowflake
   process: packer build

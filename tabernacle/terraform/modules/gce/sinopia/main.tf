@@ -23,31 +23,12 @@ variable "instance_type" {
 }
 
 ##############################################
-# Firewall Rule
-##############################################
-resource "google_compute_firewall" "sinopia" {
-  name    = "${var.network}-sinopia"
-  network = "${var.network}"
-
-  allow {
-    protocol = "icmp"
-  }
-
-  allow {
-    protocol = "tcp"
-    ports    = ["4873"]
-  }
-
-  source_ranges = ["0.0.0.0/0"]
-}
-
-##############################################
 # VM Instance
 ##############################################
 resource "google_compute_instance" "sinopia" {
   name         = "${var.datacenter}-sinopia"
   machine_type = "${var.instance_type}"
-  tags         = ["ssh", "no-ip", "${var.network}-sinopia"]
+  tags         = ["ssh", "sinopia", "http-server", "https-server"]
   zone         = "us-central1-a"
 
   disk {
@@ -58,6 +39,8 @@ resource "google_compute_instance" "sinopia" {
 
   network_interface {
     network = "${var.network}"
+
+    access_config {}
   }
 
   connection {
@@ -80,7 +63,7 @@ resource "google_compute_instance" "sinopia" {
 resource "dnsimple_record" "sinopia-dns-record" {
   domain = "${var.domain}"
   name   = "${var.subdomain}"
-  value  = "${google_compute_instance.sinopia.network_interface.0.address}"
+  value  = "${google_compute_instance.sinopia.network_interface.0.access_config.0.assigned_nat_ip}"
   type   = "A"
   ttl    = 3600
 }
