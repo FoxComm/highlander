@@ -60,12 +60,8 @@ module.exports = {
         ]
       },
       {
-        test: /\.(eot|svg|ttf|woff|woff2)$/,
-        use: 'file-loader?name=public/fonts/[name].[ext]'
-      },
-      {
-        test: /\.(ico|jpg|jpeg|png|gif|svg)$/,
-        use: 'file-loader',
+        test: /\.(eot|svg|ttf|woff|woff2|ico|jpg|jpeg|png|gif)$/,
+        use: 'file-loader?name=public/[name].[ext]'
       },
     ]
   },
