@@ -1,5 +1,9 @@
 .facet-checkbox {
   white-space: nowrap;
+
+  &:hover {
+    opacity: 0.7
+  }
 }
 
 .facet-checkbox-input {

@@ -2,7 +2,10 @@
 @import "variables.css";
 @import "colors.css";
 
-.footer-wrap {}
+.footer-wrap {
+  position: relative;
+  z-index: -1;
+}
 
 .footer {
   display: flex;
