@@ -1,6 +1,10 @@
 from recommenders.Prod_Prod import Prod_Prod
-from util.response_utils import products_list_from_response, zip_responses
 from util.InvalidUsage import InvalidUsage
+from util.response_utils import (
+    products_list_from_response,
+    zip_responses,
+    format_es_response
+)
 from util.neo4j_utils import (
     add_purchase_event,
     get_all_channels,
@@ -9,6 +13,8 @@ from util.neo4j_utils import (
     get_all_by_channel,
     get_popular_products
 )
+
+EMPTY = {'products': []}
 
 def start_pprec_from_db(channel_id, neo4j_client):
     """start_pprec_from_db
@@ -56,33 +62,55 @@ class Prod_Prod_Manager(object):
             raise InvalidUsage('Channel ID not found', status_code=400,
                                payload={'error_code': 101})
 
-    def fallback_to_popular(self, response):
+    def fallback_to_popular(self, response, source):
         """fallback_to_popular
         if response contains no products, instead use popular products
+        This still requires data to be in neo4j
         """
         if len(response['products']) > 0:
+            response.update(source=source)
             return response
         else:
-            return get_popular_products(self.neo4j_client)
+            return self.fallback_to_all(
+                get_popular_products(self.neo4j_client),
+                source='anthill-popular')
 
-    def fallback_to_popular_full(self, response, from_param, size_param):
+    def fallback_to_popular_full(self, response, source, from_param, size_param):
         """fallback_to_popular_full
         full es response version of fallback_to_popular
         """
         es_resp = self.es_client.get_products_list(
             products_list_from_response(response),
             from_param,
-            size_param
-        )
+            size_param)
         if len(es_resp['result']) > 0:
-            return es_resp
+            response = zip_responses(response, es_resp)
+            response.update(source=source)
+            return response
         else:
-            return self.es_client.get_products_list(
-                products_list_from_response(
-                    get_popular_products(self.neo4j_client)),
+            popular_response = get_popular_products(self.neo4j_client)
+            es_resp = self.es_client.get_products_list(
+                products_list_from_response(popular_response),
                 from_param,
-                size_param
-            )
+                size_param)
+            return self.fallback_to_all(
+                zip_responses(popular_response, es_resp),
+                source='anthill-popular',
+                only_ids=False)
+
+    def fallback_to_all(self, response, source, only_ids=False):
+        """fallback_to_all
+        matches all products in elasticsearch
+        """
+        if len(response['products']) > 0:
+            response.update(source=source)
+            return response
+        else:
+            response = format_es_response(
+                self.es_client.get_products_list(EMPTY),
+                only_ids=only_ids)
+            response.update(source='es-match-all')
+            return response
 
     def recommend(self, prod_id, channel_id):
         """recommend
@@ -94,8 +122,8 @@ class Prod_Prod_Manager(object):
         if prod_id in rec.product_ids():
             resp = rec.recommend([prod_id])
         else:
-            resp = {'products': []}
-        return self.fallback_to_popular(resp)
+            resp = EMPTY
+        return self.fallback_to_popular(response=resp, source='anthill-similar')
 
     def recommend_full(self, prod_id, channel_id, from_param, size_param):
         """recommend_full
@@ -104,8 +132,11 @@ class Prod_Prod_Manager(object):
         product ids from the recommender
         """
         recommender_output = self.recommend(prod_id, channel_id)
-        es_resp = self.fallback_to_popular_full(recommender_output, from_param, size_param)
-        return zip_responses(recommender_output, es_resp)
+        return self.fallback_to_popular_full(
+            response=recommender_output,
+            source=recommender_output['source'],
+            from_param=from_param,
+            size_param=size_param)
 
     def cust_recommend(self, cust_id, channel_id):
         """cust_recommend
@@ -116,7 +147,7 @@ class Prod_Prod_Manager(object):
         prod_ids = get_purchased_products(cust_id, channel_id, self.neo4j_client)
         excludes = get_declined_products(cust_id, self.neo4j_client)
         resp = self.recommenders[channel_id].recommend(prod_ids, excludes)
-        return self.fallback_to_popular(resp)
+        return self.fallback_to_popular(response=resp, source='anthill-similar')
 
     def cust_recommend_full(self, cust_id, channel_id, from_param, size_param):
         """cust_recommend_full
@@ -124,8 +155,11 @@ class Prod_Prod_Manager(object):
         product ids from the recommender
         """
         recommender_output = self.cust_recommend(cust_id, channel_id)
-        es_resp = self.fallback_to_popular_full(recommender_output, from_param, size_param)
-        return zip_responses(recommender_output, es_resp)
+        return self.fallback_to_popular_full(
+            response=recommender_output,
+            source=recommender_output['source'],
+            from_param=from_param,
+            size_param=size_param)
 
     def add_point(self, cust_id, prod_id, channel_id):
         """add_point

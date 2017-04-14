@@ -107,8 +107,7 @@ def match_xyz(start_node, rel, end_node):
     return "MATCH (x:%s %s)-[y:%s %s]->(z:%s %s)" % (
         start_node["model"], stringify_props(start_node.get("props")),
         rel["model"], stringify_props(rel.get("props")),
-        end_node["model"], stringify_props(end_node.get("props"))
-    )
+        end_node["model"], stringify_props(end_node.get("props")))
 
 def stringify_props(props):
     """stringify_props
@@ -146,8 +145,7 @@ def build_purchase_query(payload):
 def add_purchase_event(payload, neo4j_client):
     neo4j_client.start()
     neo4j_client.session.run(
-        build_purchase_query(payload)
-    )
+        build_purchase_query(payload))
     neo4j_client.stop()
 
 class Neo4j_Client(object):
