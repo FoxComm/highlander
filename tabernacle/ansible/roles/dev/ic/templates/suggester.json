@@ -35,7 +35,7 @@
     "ANTHILL_HOST": "{{anthill_host}}",
     "TWILIO_ACCOUNT_SID": "{{twilio_account_sid}}",
     "TWILIO_AUTH_TOKEN": "{{twilio_auth_token}}",
-    "TWILIO_PHONE_NUMBER": "{{twilio_phone_number}}",
+    "TWILIO_PHONE_NUMBER": "{{twilio_phone_number}}"
   },
   "healthChecks": [
     {
