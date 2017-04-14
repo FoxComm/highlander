@@ -8,25 +8,11 @@ import TextFit from 'components/text-fit/text-fit';
 import styles from 'components/customers/title-block.css';
 
 type Props = {
-  customer: {
-    id: number,
-    name: string,
-    email: string,
-    isGuest: boolean,
-    groups: Array<string>,
-    avatarUrl?: string,
-    rank: number,
-    phoneNumber: string,
-    location: string,
-  },
+  customer: Customer,
 };
 
 export default class CustomerInfo extends Component {
   props: Props;
-
-  ensureNotEmpty(val: number|string) {
-    return val ? <span>{val}</span> : <span>&nbsp;</span>;
-  }
 
   customerLink(text: string) {
     const params = { customerId: this.props.customer.id };
@@ -48,7 +34,7 @@ export default class CustomerInfo extends Component {
         </div>
       );
     } else {
-      return <div>None</div>;
+      return <div styleName="value">None</div>;
     }
   }
 
@@ -61,7 +47,7 @@ export default class CustomerInfo extends Component {
     if (customer.avatarUrl) {
       avatar = <img src={customer.avatarUrl} />;
     } else {
-      avatar = <i className="icon-customer"></i>;
+      avatar = <i className="icon-customer" />;
     }
 
     return (
@@ -88,20 +74,26 @@ export default class CustomerInfo extends Component {
         </div>
         <article styleName="body">
           <ul styleName="fields">
-            <li>
-              <i className="icon-customer"></i>
-              <div>{this.ensureNotEmpty(customer.id)}</div>
-            </li>
-            <li>
-              <i className="icon-phone"></i>
-              <div>{this.ensureNotEmpty(customer.phoneNumber)}</div>
-            </li>
-            <li>
-              <i className="icon-location"></i>
-              <div>{this.ensureNotEmpty(customer.location)}</div>
-            </li>
+            {customer.id &&
+              <li>
+                <i className="icon-customer" />
+                <div styleName="value">{customer.id}</div>
+              </li>
+            }
+            {customer.phoneNumber &&
+              <li>
+                <i className="icon-phone" />
+                <div styleName="value">{customer.phoneNumber}</div>
+              </li>
+            }
+            {customer.location &&
+              <li>
+                <i className="icon-location" />
+                <div styleName="value">{customer.location}</div>
+              </li>
+            }
             <li styleName="groups">
-              <i className="icon-customers"></i>
+              <i className="icon-customers" />
               {this.customerGroups}
             </li>
           </ul>

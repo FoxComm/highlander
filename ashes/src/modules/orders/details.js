@@ -40,7 +40,19 @@ export const updateShipments = _updateShipments.perform;
 export const clearFetchErrors =_getOrder.clearErrors;
 
 function orderSucceeded(state: State, payload: Object): State {
-  const order: OrderParagon = new OrderParagon(payload.result || payload);
+  const res = payload.result || payload;
+  const order: OrderParagon = new OrderParagon(res);
+
+  return { ...state, order };
+}
+
+function amazonOrderSucceeded(state: State, payload: Object): State {
+  const res = payload.result || payload;
+
+  res.paymentMethods = [res.paymentMethods];
+  res.customer.id = res.customer.email;
+
+  const order: OrderParagon = new OrderParagon(res);
 
   return { ...state, order };
 }
@@ -53,7 +65,7 @@ export function increaseRemorsePeriod(refNum: string) {
 
 const reducer = createReducer({
   [_getOrder.succeeded]: orderSucceeded,
-  [_getAmazonOrder.succeeded]: orderSucceeded,
+  [_getAmazonOrder.succeeded]: amazonOrderSucceeded,
   [_updateOrder.succeeded]: orderSucceeded,
   [_updateShipments.succeeded]: (state) => state,
 }, initialState);

@@ -1,4 +1,5 @@
 /* @flow */
+
 import React, { Component, Element } from 'react';
 import Link from './link';
 

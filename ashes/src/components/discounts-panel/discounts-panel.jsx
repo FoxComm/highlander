@@ -1,9 +1,7 @@
-
 /* @flow */
 
 import React, { Component } from 'react';
 import _ from 'lodash';
-import classNames from 'classnames';
 
 import ContentBox from 'components/content-box/content-box';
 import PanelHeader from 'components/panel-header/panel-header';
@@ -13,7 +11,7 @@ import TableView from 'components/table/tableview';
 import styles from './discounts-panel.css';
 
 type Props = {
-  promotion: Object,
+  promotion: ?Object,
 };
 
 const viewColumns = [
@@ -31,11 +29,13 @@ export default class DiscountsPanel extends Component {
 
   get discounts(): Array<Object> {
     const { promotion } = this.props;
+
     return promotion ? [promotion] : [];
   }
 
   get viewContent() {
     const discounts = this.discounts;
+
     if (_.isEmpty(discounts)) {
       return <div styleName="empty-message">No discounts applied.</div>;
     } else {
@@ -60,7 +60,6 @@ export default class DiscountsPanel extends Component {
   }
 
   render() {
-
     return (
       <ContentBox
         title={this.title}
