@@ -110,7 +110,7 @@ class Prod_Prod_Manager(object):
             return response
         else:
             response = format_es_response(
-                self.es_client.get_products_list(EMPTY),
+                self.es_client.get_products_list([], 0, 10),
                 only_ids=only_ids)
             response.update(source='es-match-all')
             return response
