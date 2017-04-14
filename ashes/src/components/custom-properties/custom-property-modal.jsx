@@ -86,9 +86,17 @@ class CustomPropertyModal extends Component<void, Props, State> {
 
   @autobind
   handleUpdateType(value) {
+    const fieldValue = (() => {
+      switch(value) {
+        case('date'): return new Date().toString();
+        case('bool'): return false;
+        default: return '';
+      }
+    })();
+
     this.setState({
       propertyType: value,
-      fieldValue: ''
+      fieldValue: fieldValue
     });
   }
 
