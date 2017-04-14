@@ -78,17 +78,25 @@ export default class ObjectDetailsDeux extends Component {
   renderFields(fields: Fields, section: Array<NodeDesc>) {
     const fieldsToRender = this.calcFieldsToRender(fields, section);
     const attrsSchema = this.schema.properties.attributes;
+    const commonProps = {
+      onChange: this.handleObjectChange,
+      attributes: this.attributes,
+      schema: attrsSchema
+    };
+
+    const children = (
+      <ObjectFormInner
+        {...commonProps}
+        fieldsToRender={fieldsToRender}
+      />
+    );
 
     return (
       <CustomProperties
+        {...commonProps}
         canAddProperty={fields.canAddProperty}
-        onChange={this.handleObjectChange}
-        fieldsToRender={fieldsToRender}
-        attributes={this.attributes}
-        schema={attrsSchema}
-      >
-        <ObjectFormInner/>
-      </CustomProperties>
+        children={children}
+      />
     );
   }
 

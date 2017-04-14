@@ -29,14 +29,14 @@ type Props = {
   currentEdit: {
     name: string,
     type: string,
-    value: string | number,
+    value: any,
   }
 };
 
 type State = {
   fieldLabel: string,
   propertyType: string,
-  fieldValue: string | number,
+  fieldValue: any,
 };
 
 class CustomPropertyModal extends Component<void, Props, State> {

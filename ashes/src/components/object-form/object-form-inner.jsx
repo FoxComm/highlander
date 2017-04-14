@@ -29,6 +29,7 @@ type Props = {
   onChange: (attributes: Attributes) => void,
   schema?: Object,
   className?: string,
+  processAttr?: Function,
 };
 
 type State = {
@@ -317,7 +318,13 @@ export default class ObjectFormInner extends Component {
       const attrOptions = this.getAttrOptions(name, attrSchema);
       // $FlowFixMe: guessRenderName is enough
       const content = React.cloneElement(this[renderName](name, attribute && attribute.v, attrOptions), { key: name });
-      return this.props.processAttr(content, name, attribute && attribute.t, attribute && attribute.v)
+
+      if (this.props.processAttr) {
+        return this.props.processAttr(content, name, attribute && attribute.t, attribute && attribute.v);
+      }
+
+      return content;
+
     });
 
     return (

@@ -1,9 +1,7 @@
-/**
- * @flow
- */
+// @flow
 
 // libs
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
@@ -12,6 +10,25 @@ import CustomPropertyModal from './custom-property-modal';
 
 // style
 import s from './custom-properties.css';
+
+type Props = {
+  canAddProperty?: boolean,
+  attributes: Attributes,
+  onChange: (attributes: Attributes) => void,
+  schema?: Object,
+  children: Element<*>
+};
+
+type State = {
+  isAddingProperty: boolean,
+  isEditingProperty: boolean,
+  errors: {[id:string]: any},
+  currentEdit: {
+    name: string,
+    type: string,
+    value: any,
+  },
+}
 
 export default class CustomProperties extends Component {
   props: Props;
@@ -84,7 +101,7 @@ export default class CustomProperties extends Component {
   }
 
   @autobind
-  handleEditProperty(property: { fieldLabel: string, propertyType: string, fieldValue: string | number }) {
+  handleEditProperty(property: { fieldLabel: string, propertyType: string, fieldValue: any }) {
     const { attributes } = this.props;
     const { currentEdit: { name } } = this.state;
     const { fieldLabel, propertyType, fieldValue } = property;
@@ -136,7 +153,7 @@ export default class CustomProperties extends Component {
   }
 
   @autobind
-  processAttr(content, name, type, value) {
+  processAttr(content: Element<*>, name: string, type: string, value: any) {
     return (
       <div key={name}>
         {this.controlButtons(name, type, value)}
@@ -151,7 +168,7 @@ export default class CustomProperties extends Component {
   }
 
   @autobind
-  onEdit(name: string, type: string, value: string | number) {
+  onEdit(name: string, type: string, value: any) {
     this.setState({
       isEditingProperty: true,
       currentEdit: {
@@ -176,11 +193,8 @@ export default class CustomProperties extends Component {
     }
   }
 
-  get children() {
-    return React.cloneElement((this.props.children), {
-      ...this.props,
-      processAttr: this.processAttr
-    });
+  get children(): Element<*> {
+    return React.cloneElement((this.props.children), { processAttr: this.processAttr });
   }
 
   render() {

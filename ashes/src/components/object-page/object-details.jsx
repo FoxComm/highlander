@@ -108,17 +108,25 @@ export default class ObjectDetails extends Component {
   renderFields(fields: Fields, section: Array<NodeDesc>): Element<*> {
     const fieldsToRender = this.calcFieldsToRender(fields, section);
     const attrsSchema = this.schema.properties.attributes;
+    const commonProps = {
+      onChange: this.handleObjectChange,
+      attributes: this.attributes,
+      schema: attrsSchema
+    };
+
+    const children = (
+      <ObjectFormInner
+        {...commonProps}
+        fieldsToRender={fieldsToRender}
+      />
+    );
 
     return (
-    <CustomProperties
-      canAddProperty={fields.canAddProperty}
-      onChange={this.handleObjectChange}
-      fieldsToRender={fieldsToRender}
-      attributes={this.attributes}
-      schema={attrsSchema}
-    >
-      <ObjectFormInner/>
-    </CustomProperties>
+      <CustomProperties
+        {...commonProps}
+        canAddProperty={fields.canAddProperty}
+        children={children}
+      />
     );
   }
 
