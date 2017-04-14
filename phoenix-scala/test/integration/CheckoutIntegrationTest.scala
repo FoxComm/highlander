@@ -6,6 +6,7 @@ import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.{NoDefaultShippingMethod, ShippingMethodNotFoundByName}
 import failures.UserFailures._
 import java.time.Instant
+
 import models.account._
 import models.cord.Order.RemorseHold
 import models.cord._
@@ -22,10 +23,11 @@ import payloads.AddressPayloads.CreateAddressPayload
 import payloads.CartPayloads.{CheckoutCart, CreateCart}
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.LineItemPayloads._
-import payloads.PaymentPayloads.{CreateCreditCardFromTokenPayload, GiftCardPayment}
+import payloads.PaymentPayloads.{CreateApplePayPayment, CreateCreditCardFromTokenPayload, GiftCardPayment}
 import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
 import responses.cord._
+import services.carts.CartPaymentUpdater
 import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}

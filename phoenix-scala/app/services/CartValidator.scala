@@ -6,6 +6,7 @@ import failures.CartFailures._
 import failures.{Failure, Failures}
 import models.cord._
 import models.cord.lineitems.CartLineItems
+import models.payment.applepay.ApplePayCharges
 import models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
 import slick.driver.PostgresDriver.api._
@@ -120,9 +121,9 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
     }
 
     def availableFunds(grandTotal: Int, payments: Seq[OrderPayment]): DBIO[CartValidatorResponse] = {
-      // we'll find out if the CC doesn't auth at checkout but we presume sufficient funds if we have a
-      // credit card regardless of GC/SC funds availability
-      if (payments.exists(_.isCreditCard)) {
+      // we'll find out if the `ExternalFunds` doesn't auth at checkout but we presume sufficient funds if we have a
+      // `ExternalFunds` regardless of GC/SC funds availability
+      if (payments.exists(_.isExternalFunds)) {
         lift(response)
       } else if (payments.nonEmpty) {
         cartFunds(payments).map {
