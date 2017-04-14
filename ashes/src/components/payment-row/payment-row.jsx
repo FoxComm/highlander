@@ -50,7 +50,10 @@ class PaymentRow extends Component {
       case 'creditCard':
         return this.props.deleteCreditCardPayment(orderReferenceNumber);
       case 'giftCard':
-        return this.props.deleteGiftCardPayment(orderReferenceNumber, paymentMethod.code);
+        if (paymentMethod.code) {
+          return this.props.deleteGiftCardPayment(orderReferenceNumber, paymentMethod.code);
+        }
+        break;
       case 'storeCredit':
         return this.props.deleteStoreCreditPayment(orderReferenceNumber);
     }
