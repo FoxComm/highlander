@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { PropTypes, Element, Component, Children } from 'react';
+import React, { Element, Component } from 'react';
 import createFragment from 'react-addons-create-fragment';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
@@ -231,7 +231,7 @@ export default class GenericDropdown extends Component {
     if (!this.props.renderAppend) {
       return null;
     }
-    return this.props.renderAppend();
+    return this.props.renderAppend(this.handleToggleClick);
   }
 
   get optionsContainerClass(): string {
@@ -272,6 +272,9 @@ export default class GenericDropdown extends Component {
       switch (e.keyCode) {
         // enter
         case 13:
+          e.stopPropagation();
+          e.preventDefault();
+
           if (currentIndex > -1) {
             this._items.children[currentIndex].click();
           }

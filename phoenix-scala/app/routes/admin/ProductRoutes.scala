@@ -19,7 +19,7 @@ import utils.http.Http._
 
 object ProductRoutes {
 
-  def productRoutes(
+  private def productRoutes(
       productRef: ProductReference)(implicit ec: EC, db: DB, oc: OC, ac: AC, auth: AU): Route = {
     (get & pathEnd) {
       getOrFailures {

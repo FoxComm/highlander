@@ -22,7 +22,8 @@ type Category = {
 type Props = {
   item: Category,
   path: string,
-  onClick: ?Function,
+  onClick: ?() => void,
+  onShow?: () => void,
 };
 
 type State = {
@@ -54,8 +55,18 @@ export default class NavigationItem extends Component {
   }
 
   @autobind
+  handleStateChange(to: boolean, call: Function = _.noop) {
+    this.setState({ expanded: to }, () => {
+      if (this.props.onShow) {
+        this.props.onShow(to);
+      }
+      call();
+    });
+  }
+
+  @autobind
   handleClick() {
-    this.setState({ expanded: false }, () => {
+    this.handleStateChange(false, () => {
       if (this.props.onClick) {
         this.props.onClick();
       }
@@ -64,12 +75,12 @@ export default class NavigationItem extends Component {
 
   @autobind
   handleHoverOn() {
-    this.setState({ expanded: true });
+    this.handleStateChange(true);
   }
 
   @autobind
   handleHoverOff() {
-    this.setState({ expanded: false });
+    this.handleStateChange(false);
   }
 
   renderSubcategoryItems(subcategory: Category, baseUrl: string): ?Element<*> {
