@@ -3,7 +3,10 @@ import React, { Component } from 'react';
 
 // libs
 import { connect } from 'react-redux';
+
+// components
 import Name from './name';
+import Email from './email';
 
 import * as actions from 'modules/profile';
 
@@ -43,6 +46,11 @@ class AccountDetails extends Component {
           toggleModal={props.toggleNameModal}
           modalVisible={props.nameModalVisible}
         />
+        <Email
+          email={props.account.email}
+          toggleModal={props.toggleEmailModal}
+          modalVisible={props.emailModalVisible}
+        />
       </div>
     );
   }
@@ -52,6 +60,7 @@ const mapStateToProps = (state) => {
   return {
     account: state.profile.account,
     nameModalVisible: state.profile.nameModalVisible,
+    emailModalVisible: state.profile.emailModalVisible,
   };
 };
 
