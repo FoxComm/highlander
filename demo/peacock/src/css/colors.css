@@ -26,6 +26,7 @@
   --gallery: #EEEEEE;
   --white: #FFFFFF;
   --metallic-gray: #BABABA;
+  --half-transparent-black: rgba(0, 0, 0, 0.5);
 }
 
 :root {
@@ -54,6 +55,7 @@
   --body-background: var(--white);
   --input-background: var(--white);
   --select-active-background: var(--gallery);
+  --body-gray-over-background: var(--half-transparent-black);
 
   /* Inputs */
   --input-background: var(--white);
@@ -62,7 +64,9 @@
   --input-placeholder-color: var(--gray);
 
   --input-text-color: var(--blackish);
+  --input-focus-border-color: var(--water-blue);
   --input-active-border-color: var(--baby-blue);
+  --input-focus-border-color: var(--water-blue);
 
   /* Text colors */
   --text-color: var(--blackish);

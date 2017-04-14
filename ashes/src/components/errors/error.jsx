@@ -10,12 +10,12 @@ const UNEXPECTED_ERROR = 'Something went wrong. We are investigating it now.';
 
 type ErrorObject = {
   status: ?number;
-}
+};
 
 type Props = {
   notFound?: string;
   otherProblem?: string;
-  err: ?ErrorObject;
+  err?: ?ErrorObject;
 };
 
 const Error = ({ err, notFound = NOT_FOUND_ERROR, otherProblem = UNEXPECTED_ERROR }: Props) => {

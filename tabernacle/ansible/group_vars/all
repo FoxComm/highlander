@@ -104,6 +104,9 @@ marathon_restart:
 # Should we use Intelligent Commerce
 with_ic: "{{ lookup('env', 'WITH_INTELLIGENT_COMMERCE') | default(true, true) | bool }}"
 
+# Should we do seeding for appliance
+with_appliance_seeding: "{{ lookup('env', 'WITH_APPLIANCE_SEEDING') | default(true, true) | bool }}"
+
 # Consul Service Discovery
 consul_data_dir: /var/consul
 consul_suffix: service.consul
@@ -348,8 +351,8 @@ storefront_default_language: en
 storefront_fixed_language: false
 
 # Url prefixes
-url_prefix_topdrawer: "/"
-url_prefix_perfectgourmet: "/"
+url_prefix_topdrawer: ""
+url_prefix_perfectgourmet: ""
 
 # JMX ports
 es_jmx_port: 29010

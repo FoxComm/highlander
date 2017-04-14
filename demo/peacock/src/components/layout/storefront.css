@@ -14,7 +14,26 @@
 .content-container {
   flex: 1 1 auto;
   z-index: 0;
-  margin-top: 50px; /*TODO: fix mobile webkit smooth touch*/
+}
+
+.content-container {
+  &:after {
+    display: none;
+  }
+}
+
+.content-container-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  background: var(--body-gray-over-background);
+  display: none;
+}
+
+.content-container-overlay._with-overlay {
+  display: block;
 }
 
 .categories {

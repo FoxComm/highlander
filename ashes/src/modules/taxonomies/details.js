@@ -16,7 +16,7 @@ const defaultContext = 'default';
 const _fetchTaxonomy = createAsyncActions(
   'fetchTaxonomy',
   (id: number, context: string = defaultContext) => {
-    return Api.get(`/taxonomies/${defaultContext}/${id}`);
+    return Api.get(`/taxonomies/${context}/${id}`);
   }
 );
 
