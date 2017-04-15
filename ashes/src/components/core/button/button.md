@@ -30,7 +30,7 @@ import { Button } from 'components/core/button'
 ### States
 
 ```
-<div>
+<div className="demo">
   <Button.Button>Push Me</Button.Button>
   <Button.Button isLoading>Push Me</Button.Button>
   <Button.Button disabled>Push Me</Button.Button>
@@ -54,7 +54,7 @@ import { LeftButton } from 'components/core/button'
 ```
 
 ```
-<div>
+<div className="demo">
   <Button.LeftButton>Left</Button.LeftButton>
   <Button.LeftButton isLoading>Left</Button.LeftButton>
   <Button.LeftButton disabled>Left</Button.LeftButton>
@@ -69,7 +69,7 @@ import { RightButton } from 'components/core/button'
 ```
 
 ```
-<div>
+<div className="demo">
   <Button.RightButton>Right</Button.RightButton>
   <Button.RightButton isLoading>Right</Button.RightButton>
   <Button.RightButton disabled>Right</Button.RightButton>
@@ -84,7 +84,7 @@ import { DecrementButton } from 'components/core/button'
 ```
 
 ```
-<div>
+<div className="demo">
   <Button.DecrementButton>Less</Button.DecrementButton>
   <Button.DecrementButton isLoading>Less</Button.DecrementButton>
   <Button.DecrementButton disabled>Less</Button.DecrementButton>
@@ -99,7 +99,7 @@ import { IncrementButton } from 'components/core/button'
 ```
 
 ```
-<div>
+<div className="demo">
   <Button.IncrementButton>More</Button.IncrementButton>
   <Button.IncrementButton isLoading>More</Button.IncrementButton>
   <Button.IncrementButton disabled>More</Button.IncrementButton>
@@ -114,7 +114,7 @@ import { AddButton } from 'components/core/button'
 ```
 
 ```
-<div>
+<div className="demo">
   <Button.AddButton>Add</Button.AddButton>
   <Button.AddButton isLoading>Add</Button.AddButton>
   <Button.AddButton disabled>Add</Button.AddButton>
@@ -129,7 +129,7 @@ import { EditButton } from 'components/core/button'
 ```
 
 ```
-<div>
+<div className="demo">
   <Button.EditButton>Edit</Button.EditButton>
   <Button.EditButton isLoading>Edit</Button.EditButton>
   <Button.EditButton disabled>Edit</Button.EditButton>
@@ -144,7 +144,7 @@ import { DeleteButton } from 'components/core/button'
 ```
 
 ```
-<div>
+<div className="demo">
   <Button.DeleteButton>Delete</Button.DeleteButton>
   <Button.DeleteButton isLoading>Delete</Button.DeleteButton>
   <Button.DeleteButton disabled>Delete</Button.DeleteButton>

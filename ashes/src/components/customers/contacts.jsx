@@ -13,7 +13,7 @@ import FormField from '../forms/formfield';
 import Form from '../forms/form';
 import ErrorAlerts from '../alerts/error-alerts';
 import { EditButton } from 'components/core/button';
-import SaveCancel from '../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 
 function mapDispatchToProps(dispatch, props) {
   return _.transform(CustomerContactActions, (result, action, key) => {

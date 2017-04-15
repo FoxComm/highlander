@@ -2,12 +2,15 @@
 
 // libs
 import { isEmpty, noop } from 'lodash';
-import React, { Component } from 'react';
 import classNames from 'classnames';
+import React, { Component } from 'react';
 
 // components
 import { Button, PrimaryButton } from 'components/core/button';
 import ButtonWithMenu from 'components/core/button-with-menu';
+
+// styles
+import s from './save-cancel.css';
 
 type Props = {
   className?: string;
@@ -55,7 +58,7 @@ export default class SaveCancel extends Component {
         id="fct-modal-cancel-btn"
         type="button"
         onClick={onCancel}
-        className="fc-save-cancel__cancel"
+        className={classNames(s.cancel, 'fc-save-cancel__cancel')}
         tabIndex={cancelTabIndex}
         disabled={cancelDisabled}
         children={cancelText}

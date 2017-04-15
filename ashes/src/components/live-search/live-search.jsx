@@ -17,7 +17,7 @@ import EditableTabView from '../tabs/editable-tab';
 import DatePicker from '../datepicker/datepicker';
 import ShareSearch from '../share-search/share-search';
 import { Button } from 'components/core/button';
-import ButtonWithMenu from '../common/button-with-menu';
+import ButtonWithMenu from 'components/core/button-with-menu';
 import Alert from '../alerts/alert';
 
 import SearchTerm, { getInputMask } from '../../paragons/search-term';

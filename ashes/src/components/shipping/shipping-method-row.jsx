@@ -8,7 +8,7 @@ import CurrencyInput from '../forms/currency-input';
 import RadioButton from '../forms/radio-button';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
-import SaveCancel from '../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 
 const editBlock = (shippingMethod, isEditingPrice, editPriceAction, cancelPriceAction, submitPriceAction) => {
   if (shippingMethod.isSelected && isEditingPrice) {

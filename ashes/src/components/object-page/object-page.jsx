@@ -17,7 +17,7 @@ import styles from './object-page.css';
 import { PageTitle } from '../section-title';
 import WaitAnimation from '../common/wait-animation';
 import ErrorAlerts from '../alerts/error-alerts';
-import ButtonWithMenu from '../common/button-with-menu';
+import ButtonWithMenu from 'components/core/button-with-menu';
 import { Button } from 'components/core/button';
 import Error from '../errors/error';
 import ArchiveActionsSection from '../archive-actions/archive-actions';

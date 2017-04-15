@@ -3,6 +3,7 @@ const postcssConfig = require('./../src/postcss');
 
 module.exports = {
   entry: './src/client.js',
+  devtool: 'eval-source-map',
   output: {
     path: path.resolve(__dirname, 'build'),
     filename: 'app.bundle.js',

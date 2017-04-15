@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 
 import { FormField } from '../forms';
 import FoxyForm from '../forms/foxy-form';
-import SaveCancel from '../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 
 type FormContents = { [key:string]: any };
 

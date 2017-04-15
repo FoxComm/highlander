@@ -7,7 +7,7 @@ import React, { Element } from 'react';
 
 // components
 import ContentBox from 'components/content-box/content-box';
-import SaveCancel from 'components/common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 import wrapModal from 'components/modal/wrapper';
 import ErrorAlerts from 'components/alerts/error-alerts';
 

@@ -1,28 +1,31 @@
 
 /* @flow */
 
-import _ from 'lodash';
+// libs
+import classNames from 'classnames';
+import { isEmpty, map } from 'lodash';
+import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 import Transition from 'react-transition-group/CSSTransitionGroup';
-import { autobind } from 'core-decorators';
-import classNames from 'classnames';
 
-import styles from './button-with-menu.css';
-
+// components
 import { PrimaryButton } from 'components/core/button';
-import { DropdownItem } from '../dropdown';
+import { DropdownItem } from 'components/dropdown';
 
-type DropdownItemType = [any, string|Element<*>];
+// styles
+import s from './button-with-menu.css';
+
+type DropdownItemType = [any, string|Element<any>];
 
 type Props = {
   onPrimaryClick?: Function;
-  onSelect?: (value: any, title: string|Element<*>) => any;
-  children?: Element<*>;
+  onSelect?: (value: any, title: string|Element<any>) => any;
+  children?: Element<any>;
   buttonDisabled?: boolean;
   menuDisabled?: boolean;
   icon?: string;
   items: Array<DropdownItemType>;
-  title: string|Element<*>;
+  title: string|Element<any>;
   className?: string;
   menuPosition: "left" | "center" | "right";
   animate?: boolean;
@@ -55,7 +58,7 @@ export default class ButtonWithMenu extends Component {
   }
 
   @autobind
-  handleItemClick(value: any, title: string|Element<*>) {
+  handleItemClick(value: any, title: string|Element<any>) {
     const newState = { open: false };
 
     this.setState(newState, () => {
@@ -86,8 +89,8 @@ export default class ButtonWithMenu extends Component {
 
     let ddItems = null;
 
-    if (!_.isEmpty(items)) {
-      ddItems = _.map(items, ([value, title]) => (
+    if (!isEmpty(items)) {
+      ddItems = map(items, ([value, title]) => (
         <DropdownItem value={value} key={value} onSelect={this.handleItemClick}>
           {title}
         </DropdownItem>
@@ -100,7 +103,7 @@ export default class ButtonWithMenu extends Component {
       );
     }
     return (
-      <ul styleName="menu" ref="menu">
+      <ul className={s.menu} ref="menu">
         { ddItems }
       </ul>
     );
@@ -111,20 +114,22 @@ export default class ButtonWithMenu extends Component {
     const { icon, title, animate, menuPosition, buttonDisabled, menuDisabled } = props;
     const { open } = this.state;
 
-    const className = classNames(this.props.className, {
-      '_open': open,
-    });
+    const className = classNames(s.button, {
+      [s.opened]: open,
+    }, this.props.className);
+
     const buttonClassName = classNames('fc-button-with-menu__left-button', {
-      '_disabled': buttonDisabled,
+      [s._disabled]: buttonDisabled,
     });
-    const menuButtonClassName = classNames('fc-button-with-menu__right-button', 'dropdown-button', {
-      '_disabled': menuDisabled,
+
+    const menuButtonClassName = classNames(s.dropdownButton, 'fc-button-with-menu__right-button', {
+      [s._disabled]: menuDisabled,
     });
 
     return (
-      <div styleName="button-with-menu" className={className} onBlur={this.handleBlur} tabIndex="0">
-        { open && <div styleName="overlay" onClick={this.handleBlur}></div> }
-        <div styleName="controls">
+      <div className={className} onBlur={this.handleBlur} tabIndex="0">
+        { open && <div className={s.overlay} onClick={this.handleBlur}></div> }
+        <div className={s.controls}>
           <PrimaryButton
             id="fct-primary-save-btn"
             className={buttonClassName}

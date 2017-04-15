@@ -1,3 +1,13 @@
+@import 'mixins.css';
+
+
+@mixin dd-transition left, 0 0;
+@mixin dd-transition right, 100% 0;
+@mixin dd-transition center, 50% 0;
+
+@mixin dd-transition up-left, 0 100%;
+@mixin dd-transition up-center, 50% 100%;
+@mixin dd-transition up-right, 100% 100%;
 
 .loading {
   background-image: url(../../public/admin/images/caramel.png);
