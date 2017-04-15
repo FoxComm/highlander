@@ -9,6 +9,15 @@
   height: auto;
 }
 
+.thumbs {
+
+}
+
+.thumbnail {
+  height: 54px;
+  width: 54px;
+}
+
 :global .image-gallery-left-nav,
 :global .image-gallery-right-nav {
   font-size: 2em;

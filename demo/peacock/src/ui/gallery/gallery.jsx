@@ -17,15 +17,25 @@ const Gallery = (props: Props) => {
       originalClass: s.image,
     };
   });
+
+  const thumbs = props.images.map(src => {
+    return <img src={src} className={s.thumbnail} />;
+  });
+
   return (
-    <ImageGallery
-      items={items}
-      slideInterval={2000}
-      showThumbnails={false}
-      showPlayButton={false}
-      showBullets={false}
-      showFullscreenButton={false}
-    />
+    <div>
+      <div className={s.thumbs}>
+        {thumbs}
+      </div>
+      <ImageGallery
+        items={items}
+        slideInterval={2000}
+        showThumbnails={false}
+        showPlayButton={false}
+        showBullets={false}
+        showFullscreenButton={false}
+      />
+    </div>
   );
 };
 

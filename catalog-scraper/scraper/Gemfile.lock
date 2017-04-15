@@ -10,6 +10,3 @@ PLATFORMS
 
 DEPENDENCIES
   nokogiri!
-
-BUNDLED WITH
-   1.14.4
