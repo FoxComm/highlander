@@ -371,9 +371,9 @@ class EditBilling extends Component {
         onChange={({target}) => this.changeDefault(target.checked)}
         id="set-default-card"
       >
-          Set as default
-        </Checkbox>
-      );
+        Set as default
+      </Checkbox>
+    );
 
     return (
       <div styleName="card-form">

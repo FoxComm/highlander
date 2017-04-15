@@ -4,6 +4,9 @@ import React, { Component, Element } from 'react';
 import styles from './checkbox.css';
 import { autobind } from 'core-decorators';
 
+// components
+import CheckboxBase from 'ui/checkbox/checkbox';
+
 import type { FacetElementProps } from 'types/facets';
 
 type State = {
@@ -43,21 +46,31 @@ class Checkbox extends Component {
     } = this.props;
 
     return (
-      <div styleName="facet-checkbox">
-        <input
-          styleName="facet-checkbox-input"
-          id={reactKey}
-          type="checkbox"
-          checked={this.state.checked}
-          onChange={this.click}
-        />
-        <div styleName="facet-checkbox-box">
-          <label htmlFor={reactKey}>{''}</label>
-        </div>
-        <label styleName="facet-checkbox-label" htmlFor={reactKey}>{label} </label>
-      </div>
+      <CheckboxBase
+        styleName="facet-checkbox"
+        id={reactKey}
+        checked={this.state.checked}
+        onChange={this.click}
+      >
+        {label}
+      </CheckboxBase>
     );
   }
 }
 
 export default Checkbox;
+
+
+      // <div styleName="facet-checkbox">
+      //   <input
+      //     styleName="facet-checkbox-input"
+      //     id={reactKey}
+      //     type="checkbox"
+      //     checked={this.state.checked}
+      //     onChange={this.click}
+      //   />
+      //   <div styleName="facet-checkbox-box">
+      //     <label htmlFor={reactKey}>{''}</label>
+      //   </div>
+      //   <label styleName="facet-checkbox-label" htmlFor={reactKey}>{label} </label>
+      // </div>
