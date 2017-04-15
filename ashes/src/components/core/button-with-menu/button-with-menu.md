@@ -32,7 +32,7 @@ import { ButtonWithMenu } from 'components/core/button-with-menu'
 ```
 <ButtonWithMenu
   title="Save"
-  menuPosition="right"q
+  menuPosition="right"
   items={[
       ['id1', 'Save and Exit'],
       ['id2', 'Save and Duplicate'],
@@ -43,27 +43,15 @@ import { ButtonWithMenu } from 'components/core/button-with-menu'
 ### States
 
 ```
+const items=[['id1', 'Save and Exit'], ['id2', 'Save and Duplicate']];
+
 <div className="demo">
-  <SaveCancel />
-  <SaveCancel isLoading />
-  <SaveCancel saveDisabled />
-  <SaveCancel cancelDisabled />
-  <SaveCancel saveDisabled cancelDisabled />
+  <ButtonWithMenu title="Save" items={items} menuPosition="right" />
+  <ButtonWithMenu title="Save" items={items} menuPosition="right" buttonDisabled />
+  <ButtonWithMenu title="Save" items={items} menuPosition="right" menuDisabled />
+  <ButtonWithMenu title="Save" items={items} menuPosition="right" isLoading /><br />
+  <ButtonWithMenu icon="edit" items={items} menuPosition="right" />
+  <ButtonWithMenu title="Edit" items={items} menuPosition="right" icon="edit" />
+  <ButtonWithMenu title="Edit" items={items} menuPosition="right" icon="edit" animate={false} />
 </div>
-```
-
-### Save with menu
-
-```javascript
-import { SaveCancel } from 'components/core/save-cancel'
-```
-
-```
-<SaveCancelq
-  saveItems={[
-    ['id1', 'Save and Close'],
-    ['id2', 'Save and Duplicate'],
-    ['id3', 'Save and Destroy!!!'],
-  ]}
-/>
 ```
