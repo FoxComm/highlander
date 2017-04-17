@@ -189,8 +189,8 @@ object ProductManager extends LazyLogging {
       implicit ec: EC,
       db: DB,
       oc: OC): DbResultT[ProductResponse.Root] = {
-    val payload = Map("activeFrom" → (("v" → JNull) ~ ("type" → JString("datetime"))),
-                      "activeTo" → (("v" → JNull) ~ ("type" → JString("datetime"))))
+    val payload = Map("activeFrom" → (("v" → JNull) ~ ("t" → JString("datetime"))),
+                      "activeTo" → (("v" → JNull) ~ ("t" → JString("datetime"))))
 
     val newFormAttrs   = ObjectForm.fromPayload(Product.kind, payload).attributes
     val newShadowAttrs = ObjectShadow.fromPayload(payload).attributes
