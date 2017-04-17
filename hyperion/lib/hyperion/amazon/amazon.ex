@@ -146,14 +146,14 @@ defmodule Hyperion.Amazon do
           zip: order["ShippingAddress"]["PostalCode"],
           isDefault: false
         },
-        paymentMethods: %{
+        paymentMethods: [%{
           id: 0,
           amount: (String.to_float(order["OrderTotal"]["Amount"]) * 100 |> round),
           currentBalance: 0,
           availableBalance: 0,
           createdAt: order["PurchaseDate"],
           type: order["PaymentMethodDetails"]["PaymentMethodDetail"]
-        },
+        }],
         orderState: order["OrderStatus"],
         shippingState: "---",
         fraudScore: 0,
