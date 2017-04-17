@@ -25,10 +25,12 @@ trait FoxStripeApi {
                            stripeCustomerId: Option[String],
                            address: Address)(implicit ec: EC): Result[(StripeCustomer, StripeCard)]
 
-  def authorizeAmount(customerId: String,
-                      creditCardId: String,
-                      amount: Int,
-                      currency: Currency): Result[StripeCharge]
+  def authorizeAmount(
+      stripeTokenId: String,
+      amount: Int,
+      currency: Currency,
+      customerId: Option[String] = None // Unnecessary for one time payments like Apple Pay
+  ): Result[StripeCharge]
 
   def captureCharge(chargeId: String, amount: Int): Result[StripeCharge]
 

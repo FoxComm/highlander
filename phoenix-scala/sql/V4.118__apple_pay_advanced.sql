@@ -1,0 +1,1 @@
+alter table apple_payments alter column stripe_customer_id type text;

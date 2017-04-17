@@ -191,14 +191,13 @@ object CartPaymentUpdater {
       ctx: OC,
       apis: Apis): TheFullCart =
     for {
-      cart ← * <~ getCartByOriginator(originator, payload.cartRef.some)
+      cart ← * <~ getCartByOriginator(originator)
       _    ← * <~ OrderPayments.filter(_.cordRef === cart.refNum).applePays.delete
 
       //    create apple charge
       applePayment ← * <~ ApplePayments.create(
                         ApplePayment(accountId = originator.accountId,
-                                     stripeTokenId = payload.stripeToken,
-                                     stripeCustomerId = payload.stripeCustomerId))
+                                     stripeTokenId = payload.stripeToken))
 
       _ ← * <~ OrderPayments.create(
              OrderPayment(cordRef = cart.refNum,

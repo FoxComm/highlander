@@ -52,12 +52,10 @@ class ApplePayIntegrationTest
       val lineItemsPayloads = List(UpdateLineItemsPayload(skuCode, 2))
       cartsApi(refNum).lineItems.add(lineItemsPayloads).mustBeOk()
 
+      private val apToken = "tok_1A9YBQJVm1XvTUrO3V8caBvF"
+
       // test with cc token cause we can't create Apple Pay token, they act virtually the same tho
-      val payment = CreateApplePayPayment(
-          stripeToken = card.getId,
-          stripeCustomerId = realStripeCustomerId,
-          cartRef = refNum
-      )
+      val payment = CreateApplePayPayment(stripeToken = apToken)
 
       storefrontPaymentsApi.applePay.create(payment).mustBeOk()
 

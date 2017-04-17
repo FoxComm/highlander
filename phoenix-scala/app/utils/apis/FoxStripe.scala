@@ -80,14 +80,14 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
     stripeCustomerId.fold(newCustomer)(existingCustomer)
   }
 
-  def authorizeAmount(customerId: String,
-                      paymentSourceId: String,
+  def authorizeAmount(paymentSourceId: String,
                       amount: Int,
-                      currency: Currency): Result[StripeCharge] = {
+                      currency: Currency,
+                      customerId: Option[String]): Result[StripeCharge] = {
     val chargeMap: Map[String, Object] = Map(
         "amount"   → amount.toString,
         "currency" → currency.toString,
-        "customer" → customerId,
+        "customer" → customerId.getOrElse(""),
         "source"   → paymentSourceId,
         "capture"  → (false: java.lang.Boolean)
     )
