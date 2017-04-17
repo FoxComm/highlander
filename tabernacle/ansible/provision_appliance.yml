@@ -45,7 +45,7 @@
     - { role: dev/balancer }
     - { role: hotfix/mesos_consul }
     - { role: demo/balancer }
-    #Seed
+    # Seed
     - { role: dev/seeder }
     # Finale
     - { role: dev/healthcheck }

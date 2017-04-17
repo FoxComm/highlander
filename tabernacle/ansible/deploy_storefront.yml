@@ -17,11 +17,15 @@
     marathon_template_path: "{{ lookup('env', 'MARATHON_TEMPLATE_PATH') | default('ext/td/storefront/templates', true) }}"
     marathon_template_file: "{{ lookup('env', 'MARATHON_TEMPLATE_FILE') | default('storefront-top-drawer.json', true) }}"
     # Environment variables for Docker container
-    storefront_server_name: "{{ lookup('env', 'API_URL') }}"
     contact_email: "{{ lookup('env', 'CONTACT_EMAIL') }}"
-    stripe_publishable_key: "{{ lookup('env', 'STRIPE_PUBLISHABLE_KEY') }}"
-    mailchimp_api_key: "{{ lookup('env', 'MAILCHIMP_API_KEY') }}"
+    facebook_pixel_id: "{{ lookup('env', 'FB_PIXEL_ID') }}"
     ga_tracking_id: "{{ lookup('env', 'GA_TRACKING_ID') }}"
+    mailchimp_api_key: "{{ lookup('env', 'MAILCHIMP_API_KEY') }}"
+    imgix_products_source: "{{ lookup('env', 'IMGIX_PRODUCTS_SOURCE') }}"
+    imgix_s3_bucket_name: "{{ lookup('env', 'S3_BUCKET_NAME') }}"
+    imgix_s3_bucket_prefix: "{{ lookup('env', 'S3_BUCKET_PREFIX') }}"
+    storefront_server_name: "{{ lookup('env', 'API_URL') }}"
+    stripe_publishable_key: "{{ lookup('env', 'STRIPE_PUBLISHABLE_KEY') }}"
     # Default overrides
     app_name: storefront
     docker_tags:
