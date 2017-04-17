@@ -12,15 +12,6 @@ import { isDefined } from 'lib/utils';
 
 import * as renderers from './renderers';
 
-// components
-import { FormField, FormFieldError } from '../forms';
-import { SliderCheckbox } from '../checkbox/checkbox';
-import CurrencyInput from '../forms/currency-input';
-import DatePicker from '../datepicker/datepicker';
-import RichTextEditor from '../rich-text-editor/rich-text-editor';
-import { Dropdown } from '../dropdown';
-import SwatchInput from '../forms/swatch-input';
-
 import type { AttrSchema } from 'paragons/object';
 
 type Props = {
@@ -45,38 +36,10 @@ type AttrOptions = {
   disabled?: boolean,
 };
 
-const inputClass = 'fc-object-form__field-value';
-
 function formatLabel(label: string): string {
   return _.snakeCase(label).split('_').reduce((res, val) => {
     return `${res} ${_.capitalize(val)}`;
   });
-}
-
-// TODO: fix content type
-export function renderFormField(name: string, content: any, options: AttrOptions) {
-  return (
-    <FormField
-      {...options}
-      className="fc-object-form__field"
-      labelClassName="fc-object-form__field-label"
-      key={`object-form-attribute-${name}`}
-    >
-      {content}
-    </FormField>
-  );
-}
-
-function guessType(value: any): string {
-  const typeOf = typeof value;
-  switch (typeOf) {
-    case 'string':
-    case 'number':
-    case 'boolean':
-      return typeOf;
-    default:
-      return 'string';
-  }
 }
 
 export default class ObjectFormInner extends Component {
@@ -108,119 +71,6 @@ export default class ObjectFormInner extends Component {
     this.props.onChange(newAttributes);
   }
 
-  renderBoolean(name: string, value: boolean, options: AttrOptions) {
-    const onChange = () => this.handleChange(name, 'bool', !value);
-
-    const sliderCheckbox = (
-      <SliderCheckbox
-        id={name}
-        checked={value}
-        onChange={onChange}
-      />
-    );
-
-    return renderFormField(name, sliderCheckbox, options);
-  }
-
-  renderBool(...args: Array<any>) {
-    return this.renderBoolean(...args);
-  }
-
-  renderElement(name: string, value: any, options: AttrOptions) {
-    return renderFormField(name, value, options);
-  }
-
-  renderDate(name: string, value: string, options: AttrOptions) {
-    const dateValue = new Date(value);
-    const onChange = (v: Date) => this.handleChange(name, 'date', v.toISOString());
-    const dateInput = <DatePicker date={dateValue} onChange={onChange} />;
-    return renderFormField(name, dateInput, options);
-  }
-
-  renderPrice(name: string, value: any, options: AttrOptions) {
-    const priceValue: string = _.get(value, 'value', '');
-    const priceCurrency: string = _.get(value, 'currency', 'USD');
-    const onChange = value => this.handleChange(name, 'price', {
-      currency: priceCurrency,
-      value: Number(value)
-    });
-    const currencyInput = (
-      <CurrencyInput
-        inputClass={inputClass}
-        inputName={name}
-        value={priceValue}
-        onChange={onChange}
-      />
-    );
-
-    return renderFormField(name, currencyInput, options);
-  }
-
-  renderNumber(name: string, value: ?number = null, options: AttrOptions) {
-    const onChange = ({ target }) => {
-      return this.handleChange(name, 'number', target.value == '' ? null : Number(target.value));
-    };
-    const stringInput = (
-      <input
-        className={inputClass}
-        type="number"
-        name={name}
-        value={value == null ? '' : value}
-        onChange={onChange}
-      />
-    );
-
-    return renderFormField(name, stringInput, options);
-  }
-
-  renderOptions(name: string, value: any, options: AttrOptions) {
-    const fieldOptions = this.props.fieldsOptions && this.props.fieldsOptions[name];
-    if (!fieldOptions) throw new Error('You must define fieldOptions for options fields');
-
-    const onChange = v => this.handleChange(name, 'options', v);
-    const error = _.get(this.state, ['errors', name]);
-
-    return (
-      <div className="fc-object-form_field">
-        <div className="fc-object-form__field-label">{options.label}</div>
-        <Dropdown
-          value={value}
-          items={fieldOptions}
-          onChange={onChange}
-        />
-        {error && <FormFieldError error={error} />}
-      </div>
-    );
-  }
-
-  renderText(name: string, value: string = '', options: AttrOptions) {
-    const onChange = ({ target }) => {
-      return this.handleChange(name, 'text', target.value);
-    };
-    const textInput = (
-      <textarea
-        className={inputClass}
-        name={name}
-        onChange={onChange}
-        value={value}
-      />
-    );
-
-    return renderFormField(name, textInput, options);
-  }
-
-  renderColor(name: string, value: any, options: AttrOptions) {
-    const onChange = v => this.handleChange(name, 'color', v);
-    const colorSwatch = (
-      <SwatchInput
-        value={value}
-        onChange={onChange}
-      />
-    );
-
-    return renderFormField(name, colorSwatch, options);
-  }
-
   shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
     const attributesChanged = !_.eq(this.props.attributes, nextProps.attributes);
     const stateChanged = !_.eq(this.state, nextState);
@@ -247,7 +97,7 @@ export default class ObjectFormInner extends Component {
     }
 
     let renderName = `render${_.upperFirst(name)}`;
-    if (!(renderName in this)) {
+    if (!(renderName in renderers)) {
       renderName = 'renderString';
     }
     return renderName;
