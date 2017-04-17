@@ -18,3 +18,19 @@ def zip_responses(recommender_resp, es_response):
         if rec_prod['id'] == product['productId']
     ]
     return {'products': sorted(products, key=lambda pr: -pr['score'])}
+
+def format_es_response(es_response, only_ids=False):
+    """format_es_response
+    format a plain es response
+    """
+    def single_product(product):
+        if only_ids:
+            return product['productId']
+        else:
+            return product
+
+    products = [
+        {'score': 1, 'product': single_product(product)}
+        for product in es_response['result']
+    ]
+    return {'products': products}
