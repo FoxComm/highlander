@@ -15,6 +15,8 @@ import ChangePassword from './components/profile/blocks/change-password';
 import Order from './components/profile/blocks/order';
 import AddressForm from './components/profile/blocks/address-form';
 
+import MensCatPage from './pages/category/men';
+
 import HomePage from './pages/home/home-page';
 
 import Checkout from './pages/checkout/checkout';
@@ -48,6 +50,7 @@ export default function makeRoutes(getStore) {
             <Route path="addresses/:addressId" component={AddressForm} />
           </Route>
         </Route>
+        <Route path="men" component={MensCatPage} />
         <Route path="/checkout/done" component={OrderPlaced} />
         <Route name="product" path="/products/:productSlug" component={Pdp} />
         <Route name="gift-cards" path="/gift-cards" component={Pdp} />
