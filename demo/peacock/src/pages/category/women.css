@@ -1,0 +1,81 @@
+@import "colors.css";
+@import "layout.css";
+@import "typography.css";
+
+.wrap {
+  position: relative;
+  width: var(--vw-no-scrollbar);
+  /*left: calc(-50vw + var(--width));*/
+  left: var(--vw-no-scrollbar-left);
+}
+
+.header-wrap {
+  composes: paragraph;
+
+  display: flex;
+  background: url('/images/categories/women-header.jpg') center no-repeat;
+  background-size: cover;
+  height: 700px;
+}
+
+.header-content {
+  padding-top: 265px;
+  padding-left: 100px;
+  width: 100%;
+}
+
+.header-title {
+  composes: title-large;
+  font-size: 64px;
+  color: var(--white-smokish);
+  line-height: 1;
+  text-transform: uppercase;
+  width: 50%;
+}
+
+.header-body {
+  composes: paragraph;
+  color: var(--white-smokish);
+  line-height: 1.25;
+  width: 50%;
+}
+
+.header-button {
+  margin-top: 28px;
+  width: 290px;
+}
+
+.featured {
+  display: flex;
+  padding-top: 20px;
+  padding-left: 10px;
+  padding-right: 10px;
+  /*padding-left: 27px;
+  padding-right: 4px;
+  padding-top: 20px;*/
+}
+
+.featured-card {
+  flex-basis: 33%;
+  height: 480px;
+  padding: 0 10px;
+  flex-grow: 1;
+}
+
+.climachill {
+  background: url('/images/categories/women-climachill.jpg') center no-repeat;
+  background-size: cover;
+  height: 480px;
+}
+
+.champ {
+  background: url('/images/categories/women-reigning-champ.jpg') center no-repeat;
+  background-size: cover;
+  height: 480px;
+}
+
+.originals {
+  background: url('/images/categories/women-originals.jpg') center no-repeat;
+  background-size: cover;
+  height: 480px;
+}
