@@ -10,60 +10,60 @@ import styles from './men.css';
 type Props = {};
 
 const navItems = [
-  { label: 'Apparel', to: '/men/apparel' },
-  { label: 'Shoes', to: '/men/shoes' },
-  { label: 'Accessories', to: '/men/accessories' },
-  { label: 'View All', to: '/men' },
+  { label: 'Apparel', to: '/s/men/apparel' },
+  { label: 'Shoes', to: '/s/men/shoes' },
+  { label: 'Accessories', to: '/s/men/accessories' },
+  { label: 'View All', to: '/s/men' },
 ];
 
 const categories = [
   {
     label: 'Shoes',
     imageSrc: '/images/categories/men-shoe.jpg',
-    to: '/men/shoes',
+    to: '/s/men/shoes',
   }, {
     label: 'Sweatshirts & Hoodies',
     imageSrc: '/images/categories/men-hoodie.jpg',
-    to: '/men/hoodies',
+    to: '/s/men/hoodies',
   }, {
     label: 'Jackets',
     imageSrc: '/images/categories/men-jacket.jpg',
-    to: '/men/jackets',
+    to: '/s/men/jackets',
   }, {
     label: 'Pants',
     imageSrc: '/images/categories/men-pants.jpg',
-    to: '/men/pants',
+    to: '/s/men/pants',
   },
 ];
 
 const categoryLists = [
   {
-    category: { label: 'Sport Shoes', to: '/men/shoes' },
+    category: { label: 'Sport Shoes', to: '/s/men/shoes' },
     subCategories: [
-      { label: 'Running', to: '/men/shoes/running' },
-      { label: 'Basketball', to: '/men/shoes/basketball' },
-      { label: 'Soccer', to: '/men/shoes/soccer' },
+      { label: 'Running', to: '/s/men/shoes/running' },
+      { label: 'Basketball', to: '/s/men/shoes/basketball' },
+      { label: 'Soccer', to: '/s/men/shoes/soccer' },
     ],
   }, {
-    category: { label: 'Lifestyle Shoes', to: '/men/shoes/lifestyle' },
+    category: { label: 'Lifestyle Shoes', to: '/s/men/shoes/lifestyle' },
     subCategories: [
-      { label: 'Originals', to: '/men/shoes/originals' },
-      { label: 'Stan Smith', to: '/men/shoes/stan-smith' },
-      { label: 'Superstar', to: '/men/shoes/superstar' },
+      { label: 'Originals', to: '/s/men/shoes/originals' },
+      { label: 'Stan Smith', to: '/s/men/shoes/stan-smith' },
+      { label: 'Superstar', to: '/s/men/shoes/superstar' },
     ],
   }, {
-    category: { label: 'Tops', to: '/men/tops' },
+    category: { label: 'Tops', to: '/s/men/tops' },
     subCategories: [
-      { label: 'Jackets', to: '/men/jackets' },
-      { label: 'Tees', to: '/men/tees' },
-      { label: 'Hoodies', to: '/men/hoodies' },
+      { label: 'Jackets', to: '/s/men/jackets' },
+      { label: 'Tees', to: '/s/men/tees' },
+      { label: 'Hoodies', to: '/s/men/hoodies' },
     ],
   }, {
-    category: { label: 'Bottoms', to: '/men/bottoms' },
+    category: { label: 'Bottoms', to: '/s/men/bottoms' },
     subCategories: [
-      { label: 'Pants', to: '/men/pants' },
-      { label: 'Tights', to: '/men/tights' },
-      { label: 'Shorts', to: '/men/shorts' },
+      { label: 'Pants', to: '/s/men/pants' },
+      { label: 'Tights', to: '/s/men/tights' },
+      { label: 'Shorts', to: '/s/men/shorts' },
     ],
   },
 ];
@@ -81,7 +81,7 @@ const MenCatPage = (props: Props) => {
     <div>
       <LocalNav categoryName="Men" links={navItems} />
       <div styleName="header-wrap">
-          <div styleName="header-content">
+        <div styleName="header-content">
           <div styleName="header-title">
             The Game Moves Forward
           </div>
