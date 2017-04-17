@@ -72,10 +72,6 @@
   margin-top: 8px;
 }
 
-.facets {
-  margin-bottom: 30px;
-}
-
 @media (--medium) {
   .price {
     font-size: 22px;

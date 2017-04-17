@@ -29,8 +29,7 @@ import Currency from 'ui/currency';
 import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
 import ErrorAlerts from 'ui/alerts/error-alerts';
-import ProductDetails from './product-details';
-
+import ProductVariants from 'components/product-variants/product-variants';
 import GiftCardForm from 'components/gift-card-form';
 import ImagePlaceholder from 'components/products-item/image-placeholder';
 import RelatedProductsList,
@@ -106,7 +105,7 @@ const mapDispatchToProps = dispatch => ({
 class Pdp extends Component {
   props: Props;
   productPromise: Promise<*>;
-  _productDetails: ProductDetails;
+  _productDetails: ProductVariants;
   containerNode: Element<*>;
 
   state: State = {
@@ -331,7 +330,7 @@ class Pdp extends Component {
       );
     }
     return (
-      <ProductDetails
+      <ProductVariants
         ref={(_ref) => { this._productDetails = _ref; }}
         product={this.props.product}
         productView={this.productView}

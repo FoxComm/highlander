@@ -10,7 +10,7 @@ import { autobind } from 'core-decorators';
 import Facets from 'components/facets/facets';
 
 // styles
-import styles from './pdp.css';
+import styles from './product-variants.css';
 
 // types
 import type { TProductView } from './types';
@@ -40,7 +40,7 @@ function getSkuCodesForVariantValue(product: ProductResponse, valueId: number, v
   return variantValue.skuCodes;
 }
 
-class ProductDetails extends Component {
+class ProductVariants extends Component {
   props: Props;
   state: State = {
     selectedVariantValues: {},
@@ -191,4 +191,4 @@ class ProductDetails extends Component {
   }
 }
 
-export default ProductDetails;
+export default ProductVariants;

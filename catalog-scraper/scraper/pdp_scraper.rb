@@ -91,20 +91,24 @@ listings = JSON.parse(listing_file.read)
 listing_count = listings.length
 puts "There are #{listing_count} products to get data for..."
 
-products = listings.map.with_index do |listing, idx|
-  puts "Processing listing #{idx + 1} of #{listing_count}..."
+puts "Get first 10 products..."
 
-  url = listing['url']
-  puts "Grabbing data from #{url}..."
-  listing[:details] = parse_pdp(url)
+l = (1..10).map { |i| listings[i]}
 
-  listing
-end
+# products = listings.map.with_index do |listing, idx|
+#   puts "Processing listing #{idx + 1} of #{listing_count}..."
+#
+#   url = listing['url']
+#   puts "Grabbing data from #{url}..."
+#   listing[:details] = parse_pdp(url)
+#
+#   listing
+# end
+#
+puts "Writing to product-summary.json..."
 
-puts "Writing to products.json..."
-
-File.open('products.json', 'w') do |f|
-  f.puts products.to_json
+File.open('product-summary.json', 'w') do |f|
+  f.puts l.to_json
 end
 
 puts "Complete!"
