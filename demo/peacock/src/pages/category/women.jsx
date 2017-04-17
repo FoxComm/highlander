@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react';
-import Button from 'ui/buttons';
+import Button, { SecondaryButton } from 'ui/buttons';
 import { Link } from 'react-router';
 import LocalNav from 'components/local-nav/local-nav';
 
@@ -44,9 +44,9 @@ const WomensCatPage = (props: Props) => {
               <div styleName="climachill">
                 <div>Climachill</div>
                 <div styleName="featured-button">
-                  <Button>
+                  <SecondaryButton>
                     Shop now
-                  </Button>
+                  </SecondaryButton>
                 </div>
               </div>
             </Link>
@@ -56,9 +56,9 @@ const WomensCatPage = (props: Props) => {
               <div styleName="champ">
                 <div>Athletics<br />X Reigning Champ</div>
                 <div styleName="featured-button">
-                  <Button>
+                  <SecondaryButton>
                     Shop now
-                  </Button>
+                  </SecondaryButton>
                 </div>
               </div>
             </Link>
@@ -68,9 +68,9 @@ const WomensCatPage = (props: Props) => {
               <div styleName="originals">
                 <div>Originals:<br />Ocean Elements</div>
                 <div styleName="featured-button">
-                  <Button>
+                  <SecondaryButton>
                     Shop now
-                  </Button>
+                  </SecondaryButton>
                 </div>
               </div>
             </Link>
