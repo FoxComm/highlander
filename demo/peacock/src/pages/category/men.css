@@ -37,6 +37,16 @@
   width: 50%;
 }
 
+.cat-text-lists {
+  display: flex;
+  margin-top: 40px;
+  width: 100%;
+}
+
+.cat-text-list {
+  composes: quarter;
+}
+
 @media (--x-large) {
   .header-wrap {
     width: 1440px;

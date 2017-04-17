@@ -1,3 +1,7 @@
 .half {
   flex-basis: 50%;
 }
+
+.quarter {
+  flex-basis: 25%;
+}
