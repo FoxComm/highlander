@@ -103,7 +103,7 @@ class ValueEditDialog extends Component {
     }
   }
 
-  render() {
+  render(): Element<*> {
     return (
       <ConfirmationDialog
         isVisible={true}

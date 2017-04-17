@@ -2,7 +2,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { Component, PropTypes, Element } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -10,7 +10,7 @@ import { bindActionCreators } from 'redux';
 import styles from './select-products.css';
 
 import SelectVertical from '../../select-verical/select-vertical';
-import { Dropdown, DropdownItem } from '../../dropdown';
+import { Dropdown } from '../../dropdown';
 
 import { actions } from '../../../modules/products/list';
 import type { Context } from '../types';
