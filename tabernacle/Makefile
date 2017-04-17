@@ -24,6 +24,9 @@ deploy-stage:
 deploy-demo1:
 	ansible-playbook -v -i inventory/gce/ ansible/demo.yml --extra-vars='{ "first_run": true, "application_hostname": "demo1" }'
 
+deploy-pure-demo:
+	ansible-playbook -v -i inventory/static/dev ansible/deploy_storefront.yml
+
 deploy-td-stage:
 	ansible-playbook -v -i inventory/static/topdrawer ansible/deploy_storefront.yml
 
