@@ -1,8 +1,3 @@
-# Button Component
-
-Button component has a bunch of helper component built on top of `Button` component.
-Usage is the same across all buttons.
-
 #### Basic usage
 
 ```javascript

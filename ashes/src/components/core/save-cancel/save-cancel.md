@@ -1,8 +1,3 @@
-# SaveCancel Button Component
-
-Button component that represents two button: Save and Cancel.
-Most used in modals.
-
 #### Basic usage
 
 ```javascript

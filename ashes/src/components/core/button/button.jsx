@@ -8,12 +8,22 @@ import React, { Element } from 'react';
 import s from './button.css';
 
 type Props = {
+  /** Icon name that is used to be rendered in a button */
   icon?: string,
+  /** If to show loading animation */
   isLoading?: boolean,
+  /** Additional className */
   className?: string,
+  /** Button content (label) */
   children?: Element<any>,
 }
 
+/**
+ * Button component has a bunch of helper components built on top of generic `Button` component.
+ * Usage is the same across all buttons.
+ *
+ * @function Button
+ */
 export const Button = ({ icon, children, isLoading = false, className = '', ...restProps }: Props) => {
   const cls = classNames(
     s.button,

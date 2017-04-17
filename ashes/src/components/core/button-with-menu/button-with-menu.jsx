@@ -3,7 +3,7 @@
 
 // libs
 import classNames from 'classnames';
-import { isEmpty, map } from 'lodash';
+import { isEmpty, map, noop } from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 import Transition from 'react-transition-group/CSSTransitionGroup';
@@ -18,31 +18,55 @@ import s from './button-with-menu.css';
 type DropdownItemType = [any, string|Element<any>];
 
 type Props = {
-  onPrimaryClick?: Function;
-  onSelect?: (value: any, title: string|Element<any>) => any;
-  children?: Element<any>;
-  buttonDisabled?: boolean;
-  menuDisabled?: boolean;
-  icon?: string;
-  items: Array<DropdownItemType>;
+  /** Primary button label */
   title: string|Element<any>;
-  className?: string;
-  menuPosition: "left" | "center" | "right";
+  /** Menu items array */
+  items?: Array<DropdownItemType>;
+  /** Dropdown menu position. Affects animation start position (css's transform-origin) */
+  menuPosition?: "left" | "center" | "right";
+  /** If primary button is disabled */
+  buttonDisabled?: boolean;
+  /** If menu button is disabled */
+  menuDisabled?: boolean;
+  /** Icon name that is used to be rendered in a primary button */
+  icon?: string;
+  /** If to animate menu appearance */
   animate?: boolean;
+  /** If to show loading animation */
   isLoading?: boolean;
+  /** Additional className */
+  className?: string;
+  /** Callback called on primary button click */
+  onPrimaryClick?: Function;
+  /** Callback called on menu item click */
+  onSelect?: (value: any, title: string|Element<any>) => any;
+  /** Array of elements used to render menu items in case `items` prop is empty */
+  children?: Array<Element<any>>;
 }
 
 type State = {
   open: boolean;
 }
 
+/**
+ * Button component that represents a button with additional action in a dropdown menu.
+ *
+ * @class ButtonWithMenu
+ */
 export default class ButtonWithMenu extends Component {
   props: Props;
 
-  static defaultProps = {
+  static defaultProps: $Shape<Props> = {
     items: [],
+    menuPosition: 'right',
+    buttonDisabled: false,
+    menuDisabled: false,
+    icon: '',
+    className: '',
     animate: true,
-    menuPosition: 'left',
+    isLoading: false,
+    onPrimaryClick: noop,
+    onSelect: noop,
   };
 
   state: State = {
@@ -158,7 +182,7 @@ export default class ButtonWithMenu extends Component {
   }
 }
 
-function getTransitionProps(animate, position) {
+function getTransitionProps(animate, position = 'right') {
   return {
     component: 'div',
     transitionName: `dd-transition-${position}`,

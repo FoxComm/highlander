@@ -1,7 +1,3 @@
-#### Description
-
-Button component that represents a button with additional action in a dropdown menu.
-
 #### Basic usage
 
 ```javascript
@@ -32,12 +28,11 @@ import { ButtonWithMenu } from 'components/core/button-with-menu'
 ```
 <ButtonWithMenu
   title="Save"
-  menuPosition="right"
   items={[
       ['id1', 'Save and Exit'],
       ['id2', 'Save and Duplicate'],
   ]}
-  animate />
+/>
 ```
 
 ### States
