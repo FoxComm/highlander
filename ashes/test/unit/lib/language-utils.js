@@ -1,4 +1,4 @@
-const { default: formatCurrency, stringToCurrency } = requireSource('lib/language-utils', [
+const { stringToCurrency } = requireSource('lib/language-utils', [
   'codeToName'
 ]);
 

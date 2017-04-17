@@ -49,7 +49,6 @@ function orderSucceeded(state: State, payload: Object): State {
 function amazonOrderSucceeded(state: State, payload: Object): State {
   const res = payload.result || payload;
 
-  res.paymentMethods = [res.paymentMethods];
   res.customer.id = res.customer.email;
 
   const order: OrderParagon = new OrderParagon(res);

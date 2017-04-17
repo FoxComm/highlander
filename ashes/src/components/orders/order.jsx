@@ -60,13 +60,14 @@ export default class Order extends React.Component {
 
   componentDidMount() {
     this.props.clearFetchErrors();
-    this.props.fetchAmazonOrder(this.orderRefNum);
+    this.fetchOrder();
   }
 
   componentWillReceiveProps(nextProps: Props): void {
     if (this.orderRefNum != orderRefNum(nextProps)) {
-      this.props.fetchOrder(orderRefNum(nextProps));
+      this.fetchOrder(orderRefNum(nextProps));
     }
+
     if (_.get(nextProps, 'details.order.state') !== 'remorseHold') {
       if (this.updateInterval != null) {
         clearInterval(this.updateInterval);
@@ -79,6 +80,16 @@ export default class Order extends React.Component {
     if (this.updateInterval != null) {
       clearInterval(this.updateInterval);
       this.updateInterval = null;
+    }
+  }
+
+  fetchOrder(customOrderNum?: number): void {
+    const orderNum = customOrderNum || this.orderRefNum;
+
+    if (this.props.route.amazon) {
+      this.props.fetchAmazonOrder(orderNum);
+    } else {
+      this.props.fetchOrder(orderNum);
     }
   }
 
@@ -138,13 +149,13 @@ export default class Order extends React.Component {
   }
 
   get subNav(): Element<*> {
-    return <SubNav order={this.order} className={s.nav} />;
+    return <SubNav order={this.order} className={s.nav} isAmazon={this.props.route.amazon} />;
   }
 
   @autobind
   onRemorseCountdownFinish() {
     if (this.updateInterval == null) {
-      this.updateInterval = setInterval(() => this.props.fetchOrder(this.orderRefNum), 5000);
+      this.updateInterval = setInterval(() => this.fetchOrder(), 5000);
     }
   }
 
@@ -180,9 +191,11 @@ export default class Order extends React.Component {
     const order = this.order;
     const claims = getClaims();
 
-    if (order.orderState === 'canceled' ||
-        order.orderState === 'shipped') {
-      return <StateComponent stateId="fct-order-state__value" value={order.shippingState} model="order" />;
+    if (order.orderState.toLowerCase() === 'canceled' ||
+        order.orderState.toLowerCase() === 'shipped') {
+      const status = order.shippingState === '---' ? order.orderState : order.shippingState;
+
+      return <StateComponent stateId="fct-order-state__value" value={status} model="order" />;
     }
 
     let holdStates = ['manualHold'];
@@ -200,12 +213,14 @@ export default class Order extends React.Component {
         allowedStateTransitions[order.orderState].indexOf(state) != -1;
     });
 
+    const items = _.map(visibleAndSortedOrderStates, state => [state, states.order[state]]);
+
     return (
       <Dropdown
         id="fct-order-state-dd"
         dropdownValueId="fct-order-state__value"
         name="orderState"
-        items={_.map(visibleAndSortedOrderStates, state => [state, states.order[state]])}
+        items={items}
         placeholder={'Order state'}
         value={order.orderState}
         onChange={this.onStateChange}

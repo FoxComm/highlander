@@ -16,7 +16,7 @@ type Props = {
   paymentMethod: TPaymentMethod;
   type?: string;
   className?: string;
-}
+};
 
 function getIconType(type, paymentMethod) {
   switch (type) {

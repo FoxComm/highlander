@@ -78,13 +78,13 @@ export default class PaymentsPanel extends Component {
   @autobind
   renderRow(row: PaymentMethod) {
     const { order } = this.props;
-
     const customerId = order.customer.id;
     const referenceNumber = order.referenceNumber;
+    const key = row.id != null ? row.id : row.code;
 
     return (
       <PaymentRow
-        key={row.id || row.code}
+        key={key}
         customerId={customerId}
         editMode={this.props.isEditing}
         orderReferenceNumber={referenceNumber}
