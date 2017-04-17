@@ -1,0 +1,58 @@
+@import "media-queries.css";
+@import "variables.css";
+@import "colors.css";
+
+.container {
+  width: 100%;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.content-container {
+  flex: 1 1 auto;
+  z-index: 0;
+}
+
+.content-container {
+  &:after {
+    display: none;
+  }
+}
+
+.content-container-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  background: var(--body-gray-over-background);
+  display: none;
+}
+
+.content-container-overlay._with-overlay {
+  display: block;
+}
+
+.categories {
+  margin-top: 40px;
+}
+
+.mobile-sidebar {
+  display: none;
+}
+
+.overlay {
+  display: none;
+}
+
+
+@media (--small-only), (--medium-only) {
+  .mobile-sidebar {
+    display: block;
+    position: relative;
+    z-index: 10;
+  }
+}

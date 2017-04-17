@@ -1,0 +1,24 @@
+@import "colors.css";
+
+.pill {
+  padding: 0 15px;
+  font-size: 16px;
+  line-height: 20px;
+  height: 22px;
+  color: var(--text-color);
+  border-radius: 22px;
+  cursor: default;
+}
+
+.pill-chevron {
+  font-size: 12px;
+  line-height: 20px;
+}
+
+._is-active {
+  background-color: var(--select-active-background);
+}
+
+._is-inactive {
+  margin-right: 12px;
+}

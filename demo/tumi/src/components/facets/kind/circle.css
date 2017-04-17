@@ -1,0 +1,46 @@
+@import "colors.css";
+
+.circle-checkbox input[type=checkbox] {
+  display: none;
+
+  &:hover {
+    opacity: 0.7
+  }
+}
+
+.circle-checkbox {
+  cursor: pointer;
+  white-space: nowrap;
+  height: 32px;
+  min-width: 32px;
+  text-align: center;
+  display: inline-block;
+  margin-right: 11px;
+  margin-bottom: 10px;
+}
+
+.circle-checkbox div {
+  border-radius: 16px;
+  height: 100%;
+}
+
+.circle-checkbox label {
+  cursor: pointer;
+  display: inline-block;
+  padding: 0 7px;
+  height: 100%;
+  font-size: 14px;
+  font-weight: normal;
+  vertical-align: -6px;
+  color: #888888;
+  user-select: none;
+}
+
+.circle-checkbox input[type=checkbox]:checked + div {
+  background-color: var(--water-blue);
+}
+
+.circle-checkbox input[type=checkbox]:checked + div label {
+  color: #ffffff;
+}
+
