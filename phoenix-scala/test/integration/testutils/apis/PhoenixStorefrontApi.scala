@@ -4,7 +4,7 @@ import akka.http.scaladsl.model.HttpResponse
 import cats.implicits._
 import payloads.CartPayloads.CheckoutCart
 import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.PaymentPayloads.CreateCreditCardFromTokenPayload
+import payloads.PaymentPayloads.{CreateApplePayPayment, CreateCreditCardFromTokenPayload}
 import testutils._
 
 trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒
@@ -26,6 +26,9 @@ trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒
 
     def checkout(payload: CheckoutCart)(implicit ca: TestCustomerAuth): HttpResponse =
       POST(s"$cartPath/checkout", payload, ca.jwtCookie.some)
+
+    def applePayCheckout(payload: CreateApplePayPayment)(implicit ca: TestCustomerAuth): HttpResponse =
+      POST(s"$cartPath/applePayCheckout", payload)
 
     object lineItems {
       val lineItemsPath = s"$cartPath/line-items"

@@ -25,6 +25,7 @@ import models.shipping.DefaultShippingMethods
 import org.json4s.JsonAST._
 import payloads.CartPayloads.CheckoutCart
 import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.PaymentPayloads.CreateApplePayPayment
 import responses.cord.OrderResponse
 import scala.util.Random
 import services.carts._
@@ -108,6 +109,22 @@ object Checkout {
     for {
       customer ← * <~ Users.mustFindByAccountId(customerId)
       order    ← * <~ oneClickCheckout(customer, au.model.some, payload)
+    } yield order
+
+  def applePayCheckout(customer: User, stripeToken: CreateApplePayPayment)(
+      implicit ec: EC,
+      db: DB,
+      apis: Apis,
+      ac: AC,
+      ctx: OC,
+      au: AU): DbResultT[OrderResponse] =
+    for {
+      _ ← * <~ CartPaymentUpdater.addApplePayPayment(customer, stripeToken)
+      cart ← * <~ Carts
+              .findByAccountId(customer.accountId)
+              .one
+              .mustFindOr(GeneralFailure("Cart not found!"))
+      order ← * <~ Checkout(cart, CartValidator(cart)).checkout
     } yield order
 
   def forCustomerOneClick(payload: CheckoutCart)(implicit ec: EC,

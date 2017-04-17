@@ -25,32 +25,7 @@ class ApplePayIntegrationTest
     with AutomaticAuth {
 
   "POST v1/my/payment-methods/apple-pay" - {
-    "Apple pay checkout with funds authorized" in new ProductSku_ApiFixture with ShipmentSeeds {
-      val customer = customersApi
-        .create(CreateCustomerPayload(email = "test@bar.com"))
-        .as[CustomerResponse.Root]
-
-      val cart   = cartsApi.create(CreateCart(email = customer.email)).as[CartResponse]
-      val refNum = cart.referenceNumber
-
-      // we don't have shipping method API creation as of PR #910
-      val shippingMethod: ShippingMethod = ShippingMethods
-        .create(
-            Factories.shippingMethods.head.copy(conditions = lowConditions.some,
-                                                adminDisplayName =
-                                                  ShippingMethod.expressShippingNameForAdmin))
-        .gimme
-
-      val randomAddress = CreateAddressPayload(regionId = Region.californiaId,
-                                               name = Lorem.letterify("???"),
-                                               address1 = Lorem.letterify("???"),
-                                               city = Lorem.letterify("???"),
-                                               zip = Lorem.numerify("#####"))
-
-      cartsApi(refNum).shippingAddress.create(randomAddress).mustBeOk()
-
-      val lineItemsPayloads = List(UpdateLineItemsPayload(skuCode, 2))
-      cartsApi(refNum).lineItems.add(lineItemsPayloads).mustBeOk()
+    "Apple pay checkout with funds authorized" in new ApplePayFixture {
 
       private val apToken = "tok_1A9YBQJVm1XvTUrO3V8caBvF"
 
@@ -59,12 +34,6 @@ class ApplePayIntegrationTest
 
       storefrontPaymentsApi.applePay.create(payment).mustBeOk()
 
-      val grandTotal = cartsApi(refNum).shippingMethod
-        .update(UpdateShippingMethod(shippingMethod.id))
-        .asTheResult[CartResponse]
-        .totals
-        .total
-
       val skuInCart = cartsApi(refNum).checkout().as[OrderResponse].lineItems.skus.onlyElement
       skuInCart.sku must === (skuCode)
       skuInCart.quantity must === (2)
@@ -72,4 +41,43 @@ class ApplePayIntegrationTest
     }
   }
 
+  "One click apple pay checkout should work" in new ApplePayFixture {
+    private val apToken = "tok_1A9YBQJVm1XvTUrO3V8caBvF"
+
+    val payment = CreateApplePayPayment(stripeToken = apToken)
+
+    storefrontCartsApi.applePayCheckout(payment).as[OrderResponse]
+  }
+
+  trait ApplePayFixture extends ProductSku_ApiFixture with ShipmentSeeds {
+    val customer =
+      customersApi.create(CreateCustomerPayload(email = "test@bar.com")).as[CustomerResponse.Root]
+
+    val cart   = cartsApi.create(CreateCart(email = customer.email)).as[CartResponse]
+    val refNum = cart.referenceNumber
+
+    // we don't have shipping method API creation as of PR #910
+    val shippingMethod: ShippingMethod = ShippingMethods
+      .create(
+          Factories.shippingMethods.head.copy(conditions = lowConditions.some,
+                                              adminDisplayName =
+                                                ShippingMethod.expressShippingNameForAdmin))
+      .gimme
+
+    val randomAddress = CreateAddressPayload(regionId = Region.californiaId,
+                                             name = Lorem.letterify("???"),
+                                             address1 = Lorem.letterify("???"),
+                                             city = Lorem.letterify("???"),
+                                             zip = Lorem.numerify("#####"))
+
+    cartsApi(refNum).shippingAddress.create(randomAddress).mustBeOk()
+
+    val lineItemsPayloads = List(UpdateLineItemsPayload(skuCode, 2))
+    cartsApi(refNum).lineItems.add(lineItemsPayloads).mustBeOk()
+
+    cartsApi(refNum).shippingMethod
+      .update(UpdateShippingMethod(shippingMethod.id))
+      .asTheResult[CartResponse]
+
+  }
 }

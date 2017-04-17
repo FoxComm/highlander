@@ -16,7 +16,10 @@ case class ApplePayment(
     deletedAt: Option[Instant] = None,
     createdAt: Instant = Instant.now())
     extends PaymentMethod
-    with FoxModel[ApplePayment] {}
+    with FoxModel[ApplePayment] {
+
+  // todo validate stripeTokenId should start with "tok_"
+}
 
 class ApplePayments(tag: Tag) extends FoxTable[ApplePayment](tag, "apple_payments") {
   def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
