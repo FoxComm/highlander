@@ -2,21 +2,11 @@ const path = require('path');
 const postcssConfig = require('./../src/postcss');
 
 module.exports = {
-  entry: './src/client.js',
-  devtool: 'eval-source-map',
-  output: {
-    path: path.resolve(__dirname, 'build'),
-    filename: 'app.bundle.js',
-  },
   resolve: {
-    extensions: ['.js', '.jsx'],
     modules: [
       path.resolve('./src'),
       path.resolve('./node_modules')
     ],
-    alias: {
-      // 'rsg-components/Logo': path.join(__dirname, 'logo.jsx'),
-    }
   },
   module: {
     rules: [

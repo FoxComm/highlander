@@ -48,6 +48,7 @@ public/admin/admin.*
 public/admin/*.js
 public/admin/*.css
 public/admin/_
+public/admin/styleguide
 
 .vagrant
 !.vagrant/machines/default/google
