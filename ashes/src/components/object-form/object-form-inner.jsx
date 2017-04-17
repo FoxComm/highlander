@@ -10,6 +10,8 @@ import classNames from 'classnames';
 import { stripTags } from 'lib/text-utils';
 import { isDefined } from 'lib/utils';
 
+import * as renderers from './renderers';
+
 // components
 import { FormField, FormFieldError } from '../forms';
 import { SliderCheckbox } from '../checkbox/checkbox';
@@ -33,7 +35,7 @@ type Props = {
 };
 
 type State = {
-  errors: {[id:string]: any}
+  errors: { [id: string]: any }
 };
 
 type AttrOptions = {
@@ -108,6 +110,7 @@ export default class ObjectFormInner extends Component {
 
   renderBoolean(name: string, value: boolean, options: AttrOptions) {
     const onChange = () => this.handleChange(name, 'bool', !value);
+
     const sliderCheckbox = (
       <SliderCheckbox
         id={name}
@@ -153,47 +156,8 @@ export default class ObjectFormInner extends Component {
     return renderFormField(name, currencyInput, options);
   }
 
-  renderRichText(name: string, value: any, options: AttrOptions) {
-    const onChange = v => this.handleChange(name, 'richText', v);
-    const error = _.get(this.state, ['errors', name]);
-    const classForContainer = classNames('fc-object-form__field', {
-      '_has-error': error != null,
-    });
-    const nameVal = _.kebabCase(name);
-
-    return (
-      <div className={classForContainer}>
-        <RichTextEditor
-          className={`fc-rich-text__name-${nameVal}`}
-          label={options.label}
-          value={value}
-          onChange={onChange}
-        />
-        {error && <FormFieldError error={error} />}
-      </div>
-    );
-  }
-
-  renderString(name: string, value: string = '', options: AttrOptions) {
-    const onChange = ({target}) => {
-      return this.handleChange(name, 'string', target.value);
-    };
-    const stringInput = (
-      <input
-        className={inputClass}
-        type="text"
-        name={name}
-        value={value || ''}
-        onChange={onChange}
-        disabled={options.disabled}
-      />
-    );
-
-    return renderFormField(name, stringInput, options);
-  }
-
   renderNumber(name: string, value: ?number = null, options: AttrOptions) {
-    const onChange = ({target}) => {
+    const onChange = ({ target }) => {
       return this.handleChange(name, 'number', target.value == '' ? null : Number(target.value));
     };
     const stringInput = (
@@ -230,7 +194,7 @@ export default class ObjectFormInner extends Component {
   }
 
   renderText(name: string, value: string = '', options: AttrOptions) {
-    const onChange = ({target}) => {
+    const onChange = ({ target }) => {
       return this.handleChange(name, 'text', target.value);
     };
     const textInput = (
@@ -317,7 +281,12 @@ export default class ObjectFormInner extends Component {
       const renderName = this.guessRenderName(attrSchema, attribute);
       const attrOptions = this.getAttrOptions(name, attrSchema);
       // $FlowFixMe: guessRenderName is enough
-      const content = React.cloneElement(this[renderName](name, attribute && attribute.v, attrOptions), { key: name });
+
+      const renderFn = renderers[renderName] ?
+        renderers[renderName](this.state, this.handleChange) :
+        this[renderName].bind(this);
+
+      const content = React.cloneElement(renderFn(name, attribute && attribute.v, attrOptions), { key: name });
 
       if (this.props.processAttr) {
         return this.props.processAttr(content, name, attribute && attribute.t, attribute && attribute.v);
