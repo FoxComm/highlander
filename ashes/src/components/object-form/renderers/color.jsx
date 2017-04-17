@@ -8,7 +8,9 @@ import React from 'react';
 import renderFormField from './form-field';
 import SwatchInput from 'components/forms/swatch-input';
 
-export default function renderColor(state: Object, onChange: Function = noop) {
+import type { FieldErrors, ChangeHandler } from './index';
+
+export default function renderColor(errors: FieldErrors = {}, onChange: ChangeHandler = noop) {
   return function(name: string, value: any, options: AttrOptions) {
     const handler = v => onChange(name, 'color', v);
     const colorSwatch = (

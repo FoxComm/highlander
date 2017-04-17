@@ -8,7 +8,9 @@ import React from 'react';
 import renderFormField from './form-field';
 import DatePicker from 'components/datepicker/datepicker';
 
-export default function renderDate(state: Object, onChange: Function = noop) {
+import type { FieldErrors, ChangeHandler } from './index';
+
+export default function renderDate(errors: FieldErrors = {}, onChange: ChangeHandler = noop) {
   return function (name: string, value: string, options: AttrOptions) {
     const dateValue = new Date(value);
     const handler = (v: Date) => onChange(name, 'date', v.toISOString());

@@ -7,7 +7,9 @@ import React from 'react';
 // components
 import renderFormField from './form-field';
 
-export default function renderNumber(state: Object, onChange: Function = noop) {
+import type { FieldErrors, ChangeHandler } from './index';
+
+export default function renderNumber(errors: FieldErrors = {}, onChange: ChangeHandler = noop) {
   return function(name: string, value: ?number = null, options: AttrOptions) {
     const handler = ({ target }) => {
       return onChange(name, 'number', target.value == '' ? null : Number(target.value));

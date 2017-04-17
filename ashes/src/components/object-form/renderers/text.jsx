@@ -7,7 +7,9 @@ import React from 'react';
 // components
 import renderFormField from './form-field';
 
-export default function renderText(state: Object, onChange: Function = noop) {
+import type { FieldErrors, ChangeHandler } from './index';
+
+export default function renderText(errors: FieldErrors = {}, onChange: ChangeHandler = noop) {
   return function(name: string, value: string = '', options: AttrOptions) {
     const handler = ({ target }) => {
       return onChange(name, 'text', target.value);

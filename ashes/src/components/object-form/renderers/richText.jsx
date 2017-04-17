@@ -9,11 +9,13 @@ import React from 'react';
 import { FormFieldError } from 'components/forms';
 import RichTextEditor from 'components/rich-text-editor/rich-text-editor';
 
-export default function renderRichText(state: Object, onChange: Function = noop) {
+import type { FieldErrors, ChangeHandler } from './index';
+
+export default function renderRichText(errors: FieldErrors = {}, onChange: ChangeHandler = noop) {
   return function (name: string, value: string = '', options: AttrOptions) {
     const handler = v => onChange(name, 'richText', v);
 
-    const error = get(state, ['errors', name]);
+    const error = get(errors, name);
     const classForContainer = classNames('fc-object-form__field', {
       '_has-error': error != null,
     });

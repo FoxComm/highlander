@@ -8,7 +8,9 @@ import React from 'react';
 import renderFormField from './form-field';
 import { SliderCheckbox } from 'components/checkbox/checkbox';
 
-export default function renderBoolean(state: Object, onChange: Function = noop) {
+import type { FieldErrors, ChangeHandler } from './index';
+
+export default function renderBoolean(errors: FieldErrors = {}, onChange: ChangeHandler = noop) {
   return function (name: string, value: boolean, options: AttrOptions) {
     const handler = () => onChange(name, 'bool', !value);
 

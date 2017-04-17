@@ -23,3 +23,6 @@ export {
   renderOptions,
   renderFormField,
 };
+
+export type ChangeHandler = (attributes: Attributes) => void;
+export type FieldErrors = { [id: string]: any };

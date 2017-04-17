@@ -29,13 +29,6 @@ type State = {
   errors: { [id: string]: any }
 };
 
-type AttrOptions = {
-  required: boolean,
-  label: string,
-  isDefined: (value: any) => boolean,
-  disabled?: boolean,
-};
-
 function formatLabel(label: string): string {
   return _.snakeCase(label).split('_').reduce((res, val) => {
     return `${res} ${_.capitalize(val)}`;
@@ -130,10 +123,11 @@ export default class ObjectFormInner extends Component {
 
       const renderName = this.guessRenderName(attrSchema, attribute);
       const attrOptions = this.getAttrOptions(name, attrSchema);
-      // $FlowFixMe: guessRenderName is enough
+
 
       const renderFn = renderers[renderName] ?
-        renderers[renderName](this.state, this.handleChange) :
+        renderers[renderName](this.state.errors, this.handleChange) :
+        // $FlowFixMe: access of computed property/element
         this[renderName].bind(this);
 
       const content = React.cloneElement(renderFn(name, attribute && attribute.v, attrOptions), { key: name });
@@ -143,7 +137,6 @@ export default class ObjectFormInner extends Component {
       }
 
       return content;
-
     });
 
     return (
