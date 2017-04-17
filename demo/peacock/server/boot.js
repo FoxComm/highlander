@@ -1,29 +1,20 @@
 
 const path = require('path');
+const { fork } = require('child_process');
 
-process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib')}`;
+require('./setup_env');
 
-require('../src/postcss.config').installHook();
-require('./env_defaults');
+const child = fork(path.join(__dirname, 'app.js'));
 
-if (!process.env.GA_TRACKING_ID) {
-  console.warn(
-    'WARNING. There is no google analytics tracking id configured.' +
-    'Use GA_TRACKING_ID env variable for that.'
-  );
+function killChild() {
+  try {
+    process.kill(child.pid);
+  } catch (e) {
+    if (e.code != 'ESRCH') throw e;
+  }
 }
 
-if (process.env.NODE_ENV == 'production' &&
-  (process.env.MAILCHIMP_API_KEY === undefined ||
-  process.env.CONTACT_EMAIL === undefined)) {
-  throw new Error(
-    'MAILCHIMP_API_KEY and CONTACT_EMAIL variables should be defined in environment.'
-  );
-}
-
-const App = require('./app');
-
-process.title = 'peacock-ui';
-
-const app = new App();
-app.start();
+process.on('exit', killChild);
+process.on('SIGINT', killChild);
+process.on('SIGTERM', killChild);
+process.on('uncaughtException', killChild);

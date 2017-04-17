@@ -1,3 +1,6 @@
+
+require('../src/postcss.config').installHook();
+
 const KoaApp = require('koa');
 const { makeApiProxy } = require('./routes/api');
 const { makeElasticProxy } = require('./routes/elastic');
@@ -17,6 +20,9 @@ const test = require('./conditional-use');
 const { renderReact } = require('../lib/server');
 
 const isProduction = process.env.NODE_ENV === 'production';
+const projectRoot = path.join(__dirname, '..');
+
+process.title = process.env.STOREFRONT_NAME || 'fox-storefront';
 
 function timestamp() {
   return moment().format('D MMM H:mm:ss');
@@ -44,8 +50,8 @@ class App extends KoaApp {
     this
       // serve all static in dev mode through one middleware,
       // enable the second one to add cache headers to app*.js and app*.css
-      .use(test(mount(serve('public')), ctx => !shouldCacheForLongTime(ctx)))
-      .use(test(mount(serve('public'), { maxage: 31536000 }), shouldCacheForLongTime))
+      .use(test(mount(serve(path.join(projectRoot, 'public'))), ctx => !shouldCacheForLongTime(ctx)))
+      .use(test(mount(serve(path.join(projectRoot, 'public')), { maxage: 31536000 }), shouldCacheForLongTime))
       .use(log4js.koaLogger(log4js.getLogger('http'), { level: 'auto' }))
       .use(makeApiProxy())
       .use(makeElasticProxy())
@@ -79,3 +85,8 @@ class App extends KoaApp {
 }
 
 module.exports = App;
+
+if (require.main === module) {
+  const app = new App();
+  app.start();
+}

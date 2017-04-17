@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, IndexRoute } from 'react-router';
-import Site from './components/layout/site';
+import Site from 'components/layout/site';
 import StoreFront from './components/layout/storefront';
 import Products from './pages/catalog/products';
 import Pdp from './pages/catalog/pdp';

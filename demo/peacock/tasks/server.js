@@ -97,8 +97,8 @@ module.exports = function (gulp, $, opts) {
   process.on('uncaughtException', silentlyKill);
   process.on('SIGINT', () => {
     silentlyKill();
-    process.exit(130);
   });
+  process.on('SIGTERM', silentlyKill);
 };
 
 module.exports.affectsServer = affectsServer;

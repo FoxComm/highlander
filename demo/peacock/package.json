@@ -1,8 +1,8 @@
 {
-  "name": "peacock",
+  "name": "@foxcomm/storefront.js",
   "version": "1.0.0",
   "description": "FoxCommerce Demo Storefront",
-  "main": "index.js",
+  "main": "server/index.js",
   "scripts": {
     "lint": "eslint --ext .js --ext .jsx .",
     "flow": "flow check",
@@ -11,6 +11,9 @@
     "precompile": "babel src -d lib",
     "watch-precompile": "babel src -d lib -w --skip-initial-build",
     "storybook": "start-storybook -p 9001 -s ./public -c .storybook"
+  },
+  "bin": {
+    "fox": "cli/fox.js"
   },
   "author": "FoxCommerce",
   "license": "ISC",
@@ -57,6 +60,7 @@
     "gulp-load-plugins": "^1.2.0",
     "gulp-mocha": "^2.2.0",
     "gulp-postcss": "^6.3.0",
+    "gulp-read": "^0.0.1",
     "gulp-rev": "^7.1.2",
     "gulp-rev-delete-original": "^0.2.2",
     "gulp-sourcemaps": "^1.6.0",
@@ -105,6 +109,7 @@
     "lodash": "^4.3.0",
     "mandrill-api": "^1.0.45",
     "moment": "^2.15.2",
+    "mz": "^2.6.0",
     "react": "^15.2.0",
     "react-addons-css-transition-group": "^15.3.2",
     "react-dom": "^15.2.0",
@@ -123,6 +128,7 @@
     "redux-isomorphic-render": "^1.2.1",
     "redux-logger": "^2.7.4",
     "reselect": "^2.1.0",
+    "rimraf": "^2.6.1",
     "sprout-data": "^0.2.3",
     "use-named-routes": "^0.3.2",
     "zipcodes": "^2.0.0"

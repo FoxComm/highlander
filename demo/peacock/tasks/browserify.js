@@ -16,8 +16,6 @@ function setApiURL() {
   process.env.API_URL = process.env.API_URL || '/api';
 }
 
-process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib')}`;
-
 function setDemoAuthToken() {
   /*  The demo site is protected by basic auth. All requests from javascript
    *  require basic auth headers. This will create the basic auth base64 encoded
@@ -44,9 +42,6 @@ module.exports = function(gulp, $, opts) {
 
   let bundler = null;
 
-  // configure default env variables before browserify
-  require('../server/env_defaults');
-
   function getBundler() {
     if (bundler) return bundler;
 
@@ -66,6 +61,7 @@ module.exports = function(gulp, $, opts) {
     bundler.plugin(require('css-modulesify'), Object.assign({
       output: path.resolve('build/bundle.css'),
       use: plugins,
+      global: true,
       jsonOutput: 'build/css-modules.json',
     }));
 
