@@ -43,7 +43,7 @@ func SuggestionToSMS(phoneNumber string, imageUrl string, product responses.Prod
 	v := url.Values{}
 	v.Set("To", phoneNumber)
 	v.Set("From", twilioPhoneNumber)
-	v.Set("Body", product.Title+" for "+retailPriceUSD)
+	v.Set("Body", product.Title+" for "+retailPriceUSD+". Reply \"yes\" to purchase or \"no\" to decline")
 	v.Set("MediaUrl", imageUrl)
 
 	rb := *strings.NewReader(v.Encode())
