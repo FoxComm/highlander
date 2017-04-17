@@ -13,6 +13,7 @@
     mesos_quorum: 1
     dns_record: "{{hostname}}"
     appliance_hostname: "{{dns_record}}.{{foxcomm_domain}}"
+    api_server: "{{dns_record}}.{{foxcomm_domain}}"
     storefront_server_name: "{{dns_record}}.{{foxcomm_domain}}"
     private_ip: "{{ansible_default_ipv4.address}}"
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
