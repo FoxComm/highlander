@@ -40,34 +40,40 @@ const WomensCatPage = (props: Props) => {
         </div>
         <div styleName="featured">
           <div styleName="featured-card">
-            <div styleName="climachill">
-              <div>Climachill</div>
-              <div>
-                <Button>
-                  Shop now
-                </Button>
+            <Link to="/s/women">
+              <div styleName="climachill">
+                <div>Climachill</div>
+                <div styleName="featured-button">
+                  <Button>
+                    Shop now
+                  </Button>
+                </div>
               </div>
-            </div>
+            </Link>
           </div>
           <div styleName="featured-card">
-            <div styleName="champ">
-              <div>Athletics X Reigning Champ</div>
-              <div>
-                <Button>
-                  Shop now
-                </Button>
+            <Link to="/s/women">
+              <div styleName="champ">
+                <div>Athletics<br />X Reigning Champ</div>
+                <div styleName="featured-button">
+                  <Button>
+                    Shop now
+                  </Button>
+                </div>
               </div>
-            </div>
+            </Link>
           </div>
           <div styleName="featured-card">
-            <div styleName="originals">
-              <div>Originals: Ocean Elements</div>
-              <div>
-                <Button>
-                  Shop now
-                </Button>
+            <Link to="/s/women">
+              <div styleName="originals">
+                <div>Originals:<br />Ocean Elements</div>
+                <div styleName="featured-button">
+                  <Button>
+                    Shop now
+                  </Button>
+                </div>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </div>
