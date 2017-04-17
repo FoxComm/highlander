@@ -2,19 +2,41 @@
 
 import React from 'react';
 import Button from 'ui/buttons';
+import CategoryCardList from 'components/category-cards/list';
 import LocalNav from 'components/local-nav/local-nav';
 import styles from './men.css';
 
 type Props = {};
 
-const MenCatPage = (props: Props) => {
-  const navItems = [
-    { label: 'Apparel', to: '/men/apparel' },
-    { label: 'Shoes', to: '/men/shoes' },
-    { label: 'Accessories', to: '/men/accessories' },
-    { label: 'View All', to: '/men' },
-  ];
+const navItems = [
+  { label: 'Apparel', to: '/men/apparel' },
+  { label: 'Shoes', to: '/men/shoes' },
+  { label: 'Accessories', to: '/men/accessories' },
+  { label: 'View All', to: '/men' },
+];
 
+const categories = [
+  {
+    label: 'Shoes',
+    imageSrc: '/images/categories/men-shoe.jpg',
+    to: '/men/shoes',
+  }, {
+    label: 'Sweatshirts & Hoodies',
+    imageSrc: '/images/categories/men-hoodie.jpg',
+    to: '/men/hoodies',
+  }, {
+    label: 'Jackets',
+    imageSrc: '/images/categories/men-jacket.jpg',
+    to: '/men/jackets',
+  }, {
+    label: 'Pants',
+    imageSrc: '/images/categories/men-pants.jpg',
+    to: '/men/pants',
+  },
+];
+
+
+const MenCatPage = (props: Props) => {
   return (
     <div>
       <LocalNav categoryName="Men" links={navItems} />
@@ -34,14 +56,7 @@ const MenCatPage = (props: Props) => {
           </div>
         </div>
       </div>
-      <div>
-        <ul>
-          <li>Shoes</li>
-          <li>Hoodies & Sweatshirts</li>
-          <li>Jackets</li>
-          <li>Pants</li>
-        </ul>
-      </div>
+      <CategoryCardList categories={categories} />
       <div>
         <div>Sport Shoes</div>
         <ul>
