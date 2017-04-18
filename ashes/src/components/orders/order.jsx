@@ -137,7 +137,8 @@ export default class Order extends React.Component {
   }
 
   get renderDetails(): Element<*> {
-    const details = React.cloneElement(this.props.children, { ...this.props, entity: this.order });
+    const entityType = !this.props.route.amazon ? 'orders' : 'amazon-orders';
+    const details = React.cloneElement(this.props.children, { ...this.props, entity: this.order, entityType });
 
     return (
       <div className="fc-grid">
