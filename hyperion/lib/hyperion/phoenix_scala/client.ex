@@ -94,13 +94,13 @@ defmodule Hyperion.PhoenixScala.Client do
   end
 
   def create_order(payload, token) do
-    params = Poison.encode!(%{amazonOrderId: payload["amazonOrderId"],
+    params = Poison.encode!(%{amazonOrderId: payload["AmazonOrderId"],
                               orderTotal: String.to_float(payload["OrderTotal"]["Amount"]) * 100,
                               paymentMethodDetail: payload["PaymentMethodDetails"]["PaymentMethodDetail"],
                               orderType: payload["OrderType"],
                               currency: payload["OrderTotal"]["Currency"],
                               orderStatus: payload["OrderStatus"],
-                              purchaseDate: "2017-03-08T19:38:36Z",
+                              purchaseDate: payload["PurchaseDate"],
                               scope: Hyperion.JwtAuth.get_scope(token),
                               customerName: payload["BuyerName"],
                               customerEmail: payload["BuyerEmail"]})
