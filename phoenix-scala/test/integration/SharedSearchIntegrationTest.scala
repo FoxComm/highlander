@@ -9,6 +9,7 @@ import models.sharedsearch.SharedSearchAssociation.{build ⇒ buildAssociation}
 import models.sharedsearch._
 import org.json4s.jackson.JsonMethods._
 import payloads.SharedSearchPayloads._
+import payloads.StoreAdminPayloads.CreateStoreAdminPayload
 import responses.UserResponse.{Root ⇒ UserRoot, build ⇒ buildUser}
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -19,14 +20,15 @@ import utils.seeds.Factories
 class SharedSearchIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with BakedFixtures {
 
   val dummyJVal = parse("{}")
 
   "GET v1/shared-search" - {
     "return an error when not scoped" in new SharedSearchFixture {
-      GET(s"v1/shared-search").mustFailWith400(SharedSearchScopeNotFound)
+      GET(s"v1/shared-search", defaultAdminAuth.jwtCookie.some)
+        .mustFailWith400(SharedSearchScopeNotFound)
     }
 
     "returns an error when given an invalid scope" in new SharedSearchFixture {
@@ -72,7 +74,10 @@ class SharedSearchIntegrationTest
     }
 
     "returns associated scopes created by different admins" in new SharedSearchAssociationFixture {
-      SharedSearchAssociations.create(buildAssociation(search, storeAdmin)).gimme
+      SharedSearchAssociations
+        .create(
+            SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = defaultAdmin.id))
+        .gimme
 
       getByScope("customersScope") must === (Seq(search))
     }
@@ -110,7 +115,7 @@ class SharedSearchIntegrationTest
       root.scope must === (CustomersScope)
       root.code.isEmpty must === (false)
 
-      SharedSearches.byAdmin(storeAdmin.accountId).gimme.size must === (1)
+      SharedSearches.byAdmin(defaultAdmin.id).gimme.size must === (1)
     }
 
     "400 if query has invalid JSON payload" in new Fixture {
@@ -184,7 +189,7 @@ class SharedSearchIntegrationTest
 
     "can be associated with shared search" in new AssociateBaseFixture {
       sharedSearchApi(search.code)
-        .associate(SharedSearchAssociationPayload(Seq(storeAdmin.accountId)))
+        .associate(SharedSearchAssociationPayload(Seq(defaultAdmin.id)))
         .asThe[SharedSearch]
         .warnings mustBe empty
 
@@ -193,7 +198,7 @@ class SharedSearchIntegrationTest
 
     "404 if shared search is not found" in new AssociateBaseFixture {
       sharedSearchApi("nope")
-        .associate(SharedSearchAssociationPayload(Seq(storeAdmin.accountId)))
+        .associate(SharedSearchAssociationPayload(Seq(defaultAdmin.id)))
         .mustFailWith404(NotFoundFailure404(SharedSearch, "nope"))
     }
 
@@ -206,7 +211,7 @@ class SharedSearchIntegrationTest
     }
 
     "do not create duplicate records" in new AssociateBaseFixture {
-      val payload = SharedSearchAssociationPayload(Seq(storeAdmin.accountId))
+      val payload = SharedSearchAssociationPayload(Seq(defaultAdmin.id))
       sharedSearchApi(search.code).associate(payload).mustBeOk()
       sharedSearchApi(search.code).associate(payload).mustBeOk()
 
@@ -216,15 +221,24 @@ class SharedSearchIntegrationTest
 
   "GET v1/shared-search/:code/associates" - {
     "returns associates by code" in new AssociateSecondaryFixture {
-      val root = sharedSearchApi(search.code).associates().as[Seq[UserRoot]]
-      root must === (Seq(buildUser(storeAdmin)))
+      sharedSearchApi(search.code).associates().as[Seq[UserRoot]].onlyElement.id must === (
+          defaultAdmin.id)
     }
 
     "returns multiple associates by code" in new AssociateSecondaryFixture {
-      SharedSearchAssociations.create(buildAssociation(search, secondAdmin)).gimme
+      val secondAdminId = withRandomAdminAuth { implicit auth ⇒
+        // move shared search injected creation to an API call here
+        auth.adminId
+      }
 
-      val root = sharedSearchApi(search.code).associates().as[Seq[UserRoot]]
-      root must contain allOf (buildUser(storeAdmin), buildUser(secondAdmin))
+      SharedSearchAssociations
+        .create(SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = secondAdminId))
+        .gimme
+
+      sharedSearchApi(search.code)
+        .associates()
+        .as[Seq[UserRoot]]
+        .map(_.id) must contain allOf (defaultAdmin.id, secondAdminId)
     }
 
     "404 if not found" in {
@@ -237,20 +251,20 @@ class SharedSearchIntegrationTest
   "DELETE /v1/shared-search/:code/associate/:storeAdminId" - {
 
     "can be removed from associates" in new AssociateSecondaryFixture {
-      sharedSearchApi(search.code).unassociate(storeAdmin.accountId).mustBeOk()
+      sharedSearchApi(search.code).unassociate(defaultAdmin.id).mustBeOk()
 
       SharedSearchAssociations.bySharedSearch(search).gimme mustBe empty
     }
 
-    "400 if association is not found" in new AssociateSecondaryFixture {
+    "400 if association is not found" in new AssociateBaseFixture {
       sharedSearchApi(search.code)
-        .unassociate(secondAdmin.id)
-        .mustFailWith400(SharedSearchAssociationNotFound(search.code, secondAdmin.id))
+        .unassociate(defaultAdmin.id)
+        .mustFailWith400(SharedSearchAssociationNotFound(search.code, defaultAdmin.id))
     }
 
     "404 if sharedSearch is not found" in new AssociateSecondaryFixture {
       sharedSearchApi("nope")
-        .unassociate(storeAdmin.accountId)
+        .unassociate(defaultAdmin.id)
         .mustFailWith404(NotFoundFailure404(SharedSearch, "nope"))
     }
 
@@ -260,16 +274,7 @@ class SharedSearchIntegrationTest
   }
 
   trait Fixture {
-    val scope             = Scopes.forOrganization(TENANT).gimme
-    val storeAdminAccount = Accounts.create(Account()).gimme
-    val storeAdmin        = Users.create(authedUser.copy(accountId = storeAdminAccount.id)).gimme
-    val storeAdminUser = AdminsData
-      .create(
-          AdminData(userId = storeAdmin.id,
-                    accountId = storeAdmin.accountId,
-                    state = AdminData.Active,
-                    scope = scope))
-      .gimme
+    val scope = Scopes.forOrganization(TENANT).gimme
   }
 
   trait SharedSearchFixture extends Fixture {
@@ -278,7 +283,7 @@ class SharedSearchIntegrationTest
                    query = dummyJVal,
                    rawQuery = dummyJVal,
                    scope = scpe,
-                   storeAdminId = storeAdmin.accountId,
+                   storeAdminId = defaultAdmin.id,
                    accessScope = scope)
 
     val customerScope   = getSharedSearch(CustomersScope)
@@ -300,6 +305,7 @@ class SharedSearchIntegrationTest
          promotionsSearch,
          couponsSearch,
          returnsSearch) = (for {
+      storeAdmin        ← * <~ Users.mustFindByAccountId(defaultAdmin.id)
       customersSearch   ← * <~ SharedSearches.create(customerScope)
       _                 ← * <~ SharedSearchAssociations.create(buildAssociation(customersSearch, storeAdmin))
       ordersSearch      ← * <~ SharedSearches.create(orderScope)
@@ -330,35 +336,21 @@ class SharedSearchIntegrationTest
        returnsSearch)).gimme
   }
 
-  trait SecondAdminFixture {
-    def scope: LTree
-
-    val secondAccount = Accounts.create(Account()).gimme
-    val secondAdmin = Users
-      .create(
-          Factories.storeAdmin.copy(accountId = secondAccount.id,
-                                    name = "Junior".some,
-                                    email = "another@domain.com".some))
-      .gimme
-    val secondAdminUser = AdminsData
-      .create(
-          AdminData(userId = secondAdmin.id,
-                    accountId = secondAdmin.accountId,
-                    state = AdminData.Active,
-                    scope = scope))
-      .gimme
-  }
-
-  trait SharedSearchAssociationFixture extends Fixture with SecondAdminFixture {
+  trait SharedSearchAssociationFixture extends Fixture {
+    val secondAdminId = withRandomAdminAuth { implicit auth ⇒
+      // move shared search injected creation to an API call here
+      auth.adminId
+    }
     val search = (for {
       search ← * <~ SharedSearches.create(
                   SharedSearch(title = "Test",
                                query = dummyJVal,
                                rawQuery = dummyJVal,
                                scope = CustomersScope,
-                               storeAdminId = secondAdmin.id,
+                               storeAdminId = secondAdminId,
                                accessScope = scope))
-      _ ← * <~ SharedSearchAssociations.create(buildAssociation(search, secondAdmin))
+      secondAdmin ← * <~ Users.mustFindByAccountId(secondAdminId)
+      _           ← * <~ SharedSearchAssociations.create(buildAssociation(search, secondAdmin))
     } yield search).gimme
   }
 
@@ -367,14 +359,16 @@ class SharedSearchIntegrationTest
                                      query = dummyJVal,
                                      rawQuery = dummyJVal,
                                      scope = CustomersScope,
-                                     storeAdminId = storeAdmin.accountId,
+                                     storeAdminId = defaultAdmin.id,
                                      accessScope = scope)
 
     val search = SharedSearches.create(customerScope).gimme
   }
 
-  trait AssociateSecondaryFixture extends AssociateBaseFixture with SecondAdminFixture {
-    val associate = SharedSearchAssociations.create(buildAssociation(search, storeAdmin)).gimme
+  trait AssociateSecondaryFixture extends AssociateBaseFixture {
+    val associate = SharedSearchAssociations
+      .create(SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = defaultAdmin.id))
+      .gimme
   }
 
   private def getByScope(scope: String): Seq[SharedSearch] =

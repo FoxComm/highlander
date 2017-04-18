@@ -30,7 +30,6 @@ import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
 import testutils.fixtures.BakedFixtures
-import utils.MockedApis
 import utils.aliases.stripe.StripeCard
 import utils.db._
 import utils.seeds.Factories
@@ -39,8 +38,7 @@ class CustomerIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with PhoenixPublicApi
-    with AutomaticAuth
-    with MockedApis
+    with DefaultJwtAdminAuth
     with TestActivityContext.AdminAC
     with BakedFixtures {
 

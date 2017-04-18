@@ -7,6 +7,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.client.RequestBuilding.Get
 import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.headers.Cookie
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.ConnectionPoolSettings
 import akka.http.scaladsl.unmarshalling.Unmarshal
@@ -99,24 +100,15 @@ trait HttpSupport
         |}
       """.stripMargin).withFallback(ConfigFactory.load())
 
-  val adminUser    = Factories.storeAdmin.copy(id = 1, accountId = 1)
-  val customerData = Factories.customer.copy(id = 2, accountId = 2)
-
-  def overrideUserAuth: UserAuthenticator =
-    AuthAs(adminUser, customerData)
-
-  def apisOverride: Apis
+  def apisOverride: Option[Apis]
 
   private def makeService: Service =
     new Service(dbOverride = Some(db),
                 systemOverride = Some(system),
-                apisOverride = Some(apisOverride),
-                addRoutes = additionalRoutes) {
+                apisOverride = apisOverride,
+                addRoutes = additionalRoutes) {}
 
-      override val userAuth: UserAuthenticator = overrideUserAuth
-    }
-
-  def POST(path: String, rawBody: String): HttpResponse = {
+  def POST(path: String, rawBody: String, jwtCookie: Option[Cookie]): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.POST,
                               uri = pathToAbsoluteUrl(path),
                               entity = HttpEntity.Strict(
@@ -124,16 +116,14 @@ trait HttpSupport
                                   ByteString(rawBody)
                               ))
 
-    dispatchRequest(request)
+    dispatchRequest(request, jwtCookie)
   }
 
-  def POST(path: String): HttpResponse = {
-    val request = HttpRequest(method = HttpMethods.POST, uri = pathToAbsoluteUrl(path))
+  def POST(path: String, jwtCookie: Option[Cookie]): HttpResponse =
+    dispatchRequest(HttpRequest(method = HttpMethods.POST, uri = pathToAbsoluteUrl(path)),
+                    jwtCookie)
 
-    dispatchRequest(request)
-  }
-
-  def PATCH(path: String, rawBody: String): HttpResponse = {
+  def PATCH(path: String, rawBody: String, jwtCookie: Option[Cookie]): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.PATCH,
                               uri = pathToAbsoluteUrl(path),
                               entity = HttpEntity.Strict(
@@ -141,31 +131,27 @@ trait HttpSupport
                                   ByteString(rawBody)
                               ))
 
-    dispatchRequest(request)
+    dispatchRequest(request, jwtCookie)
   }
 
-  def PATCH(path: String): HttpResponse = {
-    val request = HttpRequest(method = HttpMethods.PATCH, uri = pathToAbsoluteUrl(path))
+  def PATCH(path: String, jwtCookie: Option[Cookie]): HttpResponse =
+    dispatchRequest(HttpRequest(method = HttpMethods.PATCH, uri = pathToAbsoluteUrl(path)),
+                    jwtCookie)
 
-    dispatchRequest(request)
-  }
+  def GET(path: String, jwtCookie: Option[Cookie]): HttpResponse =
+    dispatchRequest(HttpRequest(method = HttpMethods.GET, uri = pathToAbsoluteUrl(path)),
+                    jwtCookie)
 
-  def GET(path: String): HttpResponse = {
-    val request = HttpRequest(method = HttpMethods.GET, uri = pathToAbsoluteUrl(path))
+  def POST[T <: AnyRef](path: String, payload: T, jwtCookie: Option[Cookie]): HttpResponse =
+    POST(path, writeJson(payload), jwtCookie)
 
-    dispatchRequest(request)
-  }
+  def PATCH[T <: AnyRef](path: String, payload: T, jwtCookie: Option[Cookie]): HttpResponse =
+    PATCH(path, writeJson(payload), jwtCookie)
 
-  def POST[T <: AnyRef](path: String, payload: T): HttpResponse =
-    POST(path, writeJson(payload))
-
-  def PATCH[T <: AnyRef](path: String, payload: T): HttpResponse =
-    PATCH(path, writeJson(payload))
-
-  def DELETE(path: String): HttpResponse = {
+  def DELETE(path: String, jwtCookie: Option[Cookie]): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.DELETE, uri = pathToAbsoluteUrl(path))
 
-    dispatchRequest(request)
+    dispatchRequest(request, jwtCookie)
   }
 
   def pathToAbsoluteUrl(path: String): Uri = {
@@ -193,8 +179,9 @@ trait HttpSupport
     port
   }
 
-  protected def dispatchRequest(req: HttpRequest): HttpResponse = {
-    val response = Http().singleRequest(req, settings = connectionPoolSettings).futureValue
+  protected def dispatchRequest(req: HttpRequest, jwtCookie: Option[Cookie]): HttpResponse = {
+    val withCookie = jwtCookie.fold(req)(req.addHeader(_))
+    val response   = Http().singleRequest(withCookie, settings = connectionPoolSettings).futureValue
     validResponseContentTypes must contain(response.entity.contentType)
     response
   }

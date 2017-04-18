@@ -2,29 +2,17 @@ package utils
 
 import java.time.Instant
 
-import akka.actor.ActorSystem
 import akka.pattern.ask
-import akka.testkit.{TestActorRef, TestKit}
-
+import akka.testkit.TestActorRef
 import cats.implicits._
 import models.cord._
-import org.scalatest.BeforeAndAfterAll
 import services.actors._
 import testutils._
 import testutils.fixtures.BakedFixtures
 
-class RemorseTimerTest(_system: ActorSystem)
-    extends TestKit(_system)
-    with IntegrationTestBase
-    with BeforeAndAfterAll
-    with TestObjectContext
-    with BakedFixtures {
+class RemorseTimerTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 
-  def this() = this(ActorSystem("RemorseTimerTest"))
-
-  override def afterAll(): Unit = TestKit.shutdownActorSystem(system)
-
-  val timer = TestActorRef(new RemorseTimer())
+  val timer: TestActorRef[RemorseTimer] = TestActorRef(new RemorseTimer())
 
   "Remorse timer" - {
 

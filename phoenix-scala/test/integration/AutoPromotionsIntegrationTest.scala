@@ -57,7 +57,7 @@ import scala.concurrent.Future
 class AutoPromotionsIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with TestActivityContext.AdminAC
     with BakedFixtures
     with ApiFixtures

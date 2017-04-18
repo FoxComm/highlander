@@ -29,7 +29,7 @@ class CouponsIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with ApiFixtureHelpers
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with TestActivityContext.AdminAC
     with ApiFixtures
     with BakedFixtures {
@@ -136,7 +136,8 @@ class CouponsIntegrationTest
           order ← * <~ Orders.createFromCart(cart, subScope = None)
         } yield order).gimme
 
-        POST(s"v1/orders/$cartRef/coupon/$couponCode").mustFailWith400(OrderAlreadyPlaced(cartRef))
+        POST(s"v1/orders/$cartRef/coupon/$couponCode", defaultAdminAuth.jwtCookie.some)
+          .mustFailWith400(OrderAlreadyPlaced(cartRef))
       }
 
       "because purchased gift card is excluded from qualifier judgement" - {
@@ -146,7 +147,7 @@ class CouponsIntegrationTest
           val cartRef = api_newGuestCart().referenceNumber
 
           cartsApi(cartRef).lineItems
-            .add(Seq(UpdateLineItemsPayload(skuCode, 2, giftCardLineItemAttributes)))
+            .add(Seq(UpdateLineItemsPayload(skuCode, 2, randomGiftCardLineItemAttributes)))
 
           val message = "qualifier orderAnyQualifier rejected order with refNum=BR10001, " +
               "reason: Items in cart are not eligible for discount"
@@ -204,7 +205,7 @@ class CouponsIntegrationTest
 
     cartsApi(cartRef).lineItems
       .add(Seq(UpdateLineItemsPayload(skuCode, 1),
-               UpdateLineItemsPayload(gcSkuCode, 1, giftCardLineItemAttributes)))
+               UpdateLineItemsPayload(gcSkuCode, 1, randomGiftCardLineItemAttributes)))
       .mustBeOk()
   }
 }

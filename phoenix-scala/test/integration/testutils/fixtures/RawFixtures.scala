@@ -16,6 +16,7 @@ import services.carts._
 import testutils._
 import testutils.fixtures.raw._
 import utils.Money.Currency
+import utils.apis.Apis
 import utils.db._
 import utils.seeds.Factories
 
@@ -48,15 +49,20 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
 
   // Cart
   trait EmptyCart_Raw extends StoreAdmin_Seed {
+
     def customer: User
     def storeAdmin: User
 
     def cart: Cart = _cart
 
-    private val _cart = (for {
-      response ← * <~ CartCreator.createCart(storeAdmin, CreateCart(customer.accountId.some))
-      cart     ← * <~ Carts.mustFindByRefNum(response.referenceNumber)
-    } yield cart).gimme
+    private val _cart = {
+      // @anna just kill this....
+      implicit val apis = utils.MockedApis.apis
+      (for {
+        response ← * <~ CartCreator.createCart(storeAdmin, CreateCart(customer.accountId.some))
+        cart     ← * <~ Carts.mustFindByRefNum(response.referenceNumber)
+      } yield cart).gimme
+    }
   }
 
   trait CartWithShipAddress_Raw {

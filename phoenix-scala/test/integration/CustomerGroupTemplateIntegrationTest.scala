@@ -13,7 +13,7 @@ import cats.implicits._
 class CustomerGroupTemplateIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with MockitoSugar
     with BakedFixtures {
 

@@ -24,7 +24,7 @@ import utils.db._
 class NotificationIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with BakedFixtures {
 
   import SSE._
