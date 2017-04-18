@@ -52,7 +52,7 @@ class CustomPropertyModal extends Component<void, Props, State> {
     super(props);
     Object.keys(propertyTypes).map((type) => {
       if (Object.keys(renderers).indexOf(`render${upperFirst(type)}`) === -1) {
-        console.warn(`Custom property type: "${type}", does not have renderer!`)
+        console.warn(`Custom property type: "${type}", does not have renderer!`);
       }
     });
   }
