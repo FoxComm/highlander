@@ -20,7 +20,7 @@ const _getOrder = createAsyncActions(
 
 const _getAmazonOrder = createAsyncActions(
   'getAmazonOrder',
-  (refNum: string) => Api.get(`/hyperion/orders/111-5296499-9653858/full`) // ${refNum}
+  (refNum: string) => Api.get(`/hyperion/orders/${refNum}/full`)
 );
 
 const _updateOrder = createAsyncActions(
@@ -40,14 +40,13 @@ export const updateShipments = _updateShipments.perform;
 export const clearFetchErrors =_getOrder.clearErrors;
 
 function orderSucceeded(state: State, payload: Object): State {
-  const res = payload.result || payload;
-  const order: OrderParagon = new OrderParagon(res);
+  const order: OrderParagon = new OrderParagon(payload.result);
 
   return { ...state, order };
 }
 
 function amazonOrderSucceeded(state: State, payload: Object): State {
-  const res = payload.result || payload;
+  const res = payload.result;
 
   res.customer.id = res.customer.email;
 
