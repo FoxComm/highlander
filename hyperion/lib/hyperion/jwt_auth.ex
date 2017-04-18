@@ -14,7 +14,7 @@ defmodule Hyperion.JwtAuth do
   """
   def get_scope(token) do
     case verify(token) do
-      {:ok, data} -> data["scope"]
+      {:ok, data} -> data[:scope]
       _ -> raise RuntimeError
     end
   end
