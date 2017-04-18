@@ -123,10 +123,12 @@ class CustomPropertyModal extends Component<void, Props, State> {
   }
 
   render() {
+    const title = this.props.currentEdit ? "Edit Custom Property" : "New Custom Property";
+
     return (
       <div className="fc-product-details__custom-property">
         <div className="fc-modal-container" onKeyDown={this.handleKeyPress}>
-          <ContentBox title="New Custom Property" actionBlock={this.closeAction}>
+          <ContentBox title={title} actionBlock={this.closeAction}>
             <FormField
               className="fc-product-details__field"
               label="Field Label"
