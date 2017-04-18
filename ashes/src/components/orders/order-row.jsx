@@ -87,7 +87,7 @@ type Props = {
 };
 
 const OrderRow = (props: Props) => {
-  const { order, columns, params, hasAmazon = false } = props;
+  const { order, columns, params } = props;
 
   // @todo verify isAmazon more strictly and convenient
   const email = _.get(order, 'customer.email', '');

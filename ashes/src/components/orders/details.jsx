@@ -51,9 +51,7 @@ export default class OrderDetails extends Component {
           <div className="fc-order-details-aside">
             <TotalsSummary entity={order} title={order.title} />
             <CustomerCard customer={order.customer} />
-            {order.channel !== 'Amazon.com' &&
-              <ParticipantsPanel entity={{entityId: order.referenceNumber, entityType}} />
-            }
+            <ParticipantsPanel entity={{entityId: order.referenceNumber, entityType}} />
           </div>
         </div>
       </div>
