@@ -25,8 +25,7 @@ defmodule Hyperion.API do
   def customer_id(conn) do
     token = jwt(conn)
     try do
-      {:ok, data} = Hyperion.JwtAuth.verify(token)
-      data[:scope]
+      Hyperion.JwtAuth.get_scope(token)
     rescue RuntimeError ->
       raise NotAllowed
     end

@@ -23,33 +23,36 @@ defmodule Hyperion.Amazon.Workers.CustomersOrdersWorker do
   defp do_work() do
     try do
       fetch_amazon_orders()
-      |> store_customers()
+      |> store_customers_and_orders()
     rescue e in RuntimeError ->
       Logger.error "Error while fetching orders from Amazon: #{e.message}"
     end
   end
 
-  # TODO: Add order saving into phoenix
   defp fetch_amazon_orders do
     date = Timex.beginning_of_day(Timex.now)
            |> Timex.format!("%Y-%m-%dT%TZ", :strftime)
     list = [fulfillment_channel: ["MFN", "AFN"],
             created_after: [date]]
+    Logger.info("Fetching order with params: #{inspect(list)}")
+
     case MWSClient.list_orders(list, Amazon.fetch_config()) do
       {:error, error} -> raise inspect(error)
       {:warn, warn} -> raise warn["ErrorResponse"]["Error"]["Message"]
-      {_, resp} -> resp["ListOrdersResponse"]["ListOrdersResult"]["Orders"]
+      {_, resp} ->
+        Logger.info("Orders fetched: #{inspect(resp)}")
+        resp["ListOrdersResponse"]["ListOrdersResult"]
     end
   end
 
-  defp store_customers(orders) do
+  defp store_customers_and_orders(orders) do
     case orders["Orders"]["Order"] do
       list when is_list(list) -> Enum.each(list, fn order ->
-                                Client.create_customer(%{name: order["Order"]["BuyerName"],
-                                                         email: order["Order"]["BuyerEmail"]})
-                               end)
-      map when is_map(map) -> Client.create_customer(%{name: map["BuyerName"], email: map["BuyerEmail"]})
+                                  Client.create_order_and_customer(order)
+                                 end)
+      map when is_map(map) -> Client.create_order_and_customer(map)
       empty when empty in [%{}, []] -> nil
+      _ -> Logger.error "Some error occured! #{inspect(orders)}"
     end
   end
 

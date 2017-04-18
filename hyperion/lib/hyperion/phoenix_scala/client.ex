@@ -1,5 +1,6 @@
 defmodule Hyperion.PhoenixScala.Client do
   use HTTPoison.Base
+  require Logger
 
   @moduledoc """
   Provides simple access to Phoenix-scala API
@@ -80,14 +81,42 @@ defmodule Hyperion.PhoenixScala.Client do
   @doc """
   Creates new customer in Phoenix from Amazon order
   """
-  def create_customer(%{name: name, email: email}) do
-    params = Poison.encode!(%{name: name, email: email})
-    token = login()
-    {st, resp} = post("/api/v1/customers", params, make_request_headers(token))
+  def create_customer(payload, token) do
+    params = Poison.encode!(%{name: payload["BuyerName"], email: payload["BuyerName"]})
+    {_, resp} = post("/api/v1/customers", params, make_request_headers(token))
     case resp.status_code do
-      code when code == 200 -> parse_response({st, resp}, token)
-      _ -> %{status: resp.status_code, error: resp.body["errors"]}
+      # status_code = 400 means customer already exists
+      code when code in [200, 400] -> payload
+      _ ->
+        Logger.error("Customer creation error: #{inspect(resp)}")
+        raise %PhoenixError{message: inspect(resp)}
     end
+  end
+
+  def create_order(payload, token) do
+    params = Poison.encode!(%{amazonOrderId: payload["AmazonOrderId"],
+                              orderTotal: String.to_float(payload["OrderTotal"]["Amount"]) * 100,
+                              paymentMethodDetail: payload["PaymentMethodDetails"]["PaymentMethodDetail"],
+                              orderType: payload["OrderType"],
+                              currency: payload["OrderTotal"]["Currency"],
+                              orderStatus: payload["OrderStatus"],
+                              purchaseDate: payload["PurchaseDate"],
+                              scope: Hyperion.JwtAuth.get_scope(token),
+                              customerName: payload["BuyerName"],
+                              customerEmail: payload["BuyerEmail"]})
+    {st, resp} = post("/api/v1/amazon_orders", params, make_request_headers(token))
+    case resp.status_code do
+      code when code in [200, 201] -> parse_response({st, resp}, token)
+      _ ->
+        Logger.error("Order creation error: #{inspect(resp)}")
+        raise %PhoenixError{message: inspect(resp)}
+    end
+  end
+
+  def create_order_and_customer(payload) do
+    token = login()
+    create_customer(payload, token)
+    |> create_order(token)
   end
 
   @doc """
