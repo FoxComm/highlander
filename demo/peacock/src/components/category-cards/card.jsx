@@ -11,7 +11,7 @@ export type CardProps = {
   to: string,
 };
 
-const CategoryCard = (props: Props) => {
+const CategoryCard = (props: CardProps) => {
   return (
     <div styleName="card">
       <Link styleName="link" to={props.to}>
