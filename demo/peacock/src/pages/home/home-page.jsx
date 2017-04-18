@@ -24,7 +24,7 @@ const trending = [
           src: 'http://demandware.edgesuite.net/sits_pod20-adidas/dw/image/v2/aaqx_prd/on/demandware.static/-/Sites-adidas-products/en_US/dw30317f50/zoom/S75187_01_standard.jpg',
         }, {
           src: 'http://demandware.edgesuite.net/sits_pod20-adidas/dw/image/v2/aaqx_prd/on/demandware.static/-/Sites-adidas-products/default/dw6ab2d047/zoom/B24101_01_standard.jpg',
-        }
+        },
       ],
     }],
   }, {
@@ -86,44 +86,43 @@ const trending = [
   },
 ];
 
-class HomePage extends React.Component {
-  render() {
-    return (
-      <div>
-        <div styleName="header-wrap">
-          <div styleName="header-content">
-            <div styleName="header-title">
-              Greater<br />Every Mile
-            </div>
-            <div styleName="header-body">
-              <p>Training is over. Glory awaits.</p>
-              <Button>
-                Shop now
-              </Button>
-            </div>
+const HomePage = () => {
+  return (
+    <div>
+      <div styleName="header-wrap">
+        <div styleName="header-content">
+          <div styleName="header-title">
+            Greater<br />Every Mile
+          </div>
+          <div styleName="header-body">
+            <p>Training is over. Glory awaits.</p>
+            <Button>
+              Shop now
+            </Button>
           </div>
         </div>
-        <ul styleName="category-list">
-          <li styleName="category-item">
-            <Link styleName="shoes-img" to="/s/shoes">
-              <div styleName="category-title">Shoes</div>
-            </Link>
-          </li>
-          <li styleName="category-item">
-            <Link styleName="jackets-img" to="/s/jackets">
-              <div styleName="category-title">Jackets</div>
-            </Link>
-          </li>
-        </ul>
-        <ProductsList
-          list={trending}
-          isLoading={false}
-          loadingBehavior={1}
-          title="Trending"
-          productsOrder={[6228, 74301, 15329, 105477]} />
       </div>
-    );
-  }
-}
+      <ul styleName="category-list">
+        <li styleName="category-item">
+          <Link styleName="shoes-img" to="/s/shoes">
+            <div styleName="category-title">Shoes</div>
+          </Link>
+        </li>
+        <li styleName="category-item">
+          <Link styleName="jackets-img" to="/s/jackets">
+            <div styleName="category-title">Jackets</div>
+          </Link>
+        </li>
+      </ul>
+      <ProductsList
+        list={trending}
+        isLoading={false}
+        loadingBehavior={1}
+        title="Trending"
+        productsOrder={[6228, 74301, 15329, 105477]}
+      />
+    </div>
+  );
+};
 
 export default HomePage;

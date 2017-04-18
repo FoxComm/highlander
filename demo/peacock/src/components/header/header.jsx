@@ -30,7 +30,6 @@ const Header = (props: Props) => {
       <div styleName="banner">
         Free shipping and returns on all orders over $50
       </div>
-      
       <div id="header" styleName="header">
         <div styleName="wrap">
           <ActionLink

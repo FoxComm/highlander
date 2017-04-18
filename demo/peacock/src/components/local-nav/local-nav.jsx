@@ -16,7 +16,7 @@ type Props = {
 };
 
 const LocalNav = (props: Props) => {
-  const items = props.links.map(linkData => {
+  const items = props.links.map((linkData: LinkItem) => {
     return (
       <li styleName="local-nav-item" key={linkData.to}>
         <Link to={linkData.to}>
@@ -36,6 +36,6 @@ const LocalNav = (props: Props) => {
       </ul>
     </div>
   );
-}
+};
 
 export default LocalNav;

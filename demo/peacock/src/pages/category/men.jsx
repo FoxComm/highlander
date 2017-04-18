@@ -7,8 +7,6 @@ import CategoryTextList from 'components/category-list/list';
 import LocalNav from 'components/local-nav/local-nav';
 import styles from './men.css';
 
-type Props = {};
-
 const navItems = [
   { label: 'Apparel', to: '/s/men/apparel' },
   { label: 'Shoes', to: '/s/men/shoes' },
@@ -68,13 +66,13 @@ const categoryLists = [
   },
 ];
 
-const MenCatPage = (props: Props) => {
-  const categoryTextLists = categoryLists.map(list => {
+const MenCatPage = () => {
+  const categoryTextLists = categoryLists.map((list) => {
     return (
       <div styleName="cat-text-list">
         <CategoryTextList {...list} />
       </div>
-    )
+    );
   });
 
   return (

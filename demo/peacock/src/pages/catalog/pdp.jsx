@@ -320,8 +320,8 @@ class Pdp extends Component {
   @autobind
   getTaxonValue(name: string): ?string {
     const taxons = _.get(this.props.product, 'taxons', []);
-    const taxonomy = _.find(taxons, taxonomy => {
-      const taxonomyName = _.get(taxonomy, 'attributes.name.v');
+    const taxonomy = _.find(taxons, (taxonomyEntity) => {
+      const taxonomyName = _.get(taxonomyEntity, 'attributes.name.v');
       return name === taxonomyName;
     });
 
@@ -459,8 +459,6 @@ class Pdp extends Component {
               {/* <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton> */}
             </div>
           </div>
-        </div>
-        <div>
         </div>
         <div styleName="title-block">
           <h1 styleName="title-secondary">{title}</h1>

@@ -12,7 +12,7 @@ type Props = {
 };
 
 const CardList = (props: Props) => {
-  const list = props.categories.map(category => {
+  const list = props.categories.map((category: CardProps) => {
     return (
       <li styleName="item" key={category.label}>
         <CategoryCard {...category} />

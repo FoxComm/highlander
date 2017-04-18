@@ -7,8 +7,6 @@ import LocalNav from 'components/local-nav/local-nav';
 
 import styles from './women.css';
 
-type Props = {};
-
 const navItems = [
   { label: 'Apparel', to: '/s/women/apparel' },
   { label: 'Shoes', to: '/s/women/shoes' },
@@ -16,7 +14,7 @@ const navItems = [
   { label: 'View All', to: '/s/women' },
 ];
 
-const WomensCatPage = (props: Props) => {
+const WomensCatPage = () => {
   return (
     <div>
       <LocalNav categoryName="Women" links={navItems} />

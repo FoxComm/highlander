@@ -12,7 +12,7 @@ type Props = {
 };
 
 const CategoryList = (props: Props) => {
-  let links = props.subCategories.map(cat => {
+  let links = props.subCategories.map((cat: CategoryLink) => {
     return (
       <li styleName="link">
         <Link to={cat.to}>

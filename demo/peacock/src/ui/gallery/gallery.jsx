@@ -20,23 +20,16 @@ const Gallery = (props: Props) => {
     };
   });
 
-  const thumbs = props.images.map(src => {
-    return <img src={src} className={s.thumbnail} />;
-  });
-
   return (
     <div className={s.gallery}>
-      {/* <div className={s.thumbs}>
-        {thumbs}
-      </div> */}
       <ImageGallery
         items={items}
         slideInterval={2000}
-        showThumbnails={true}
         thumbnailPosition="left"
         showPlayButton={false}
         showBullets={false}
         showFullscreenButton={false}
+        showThumbnails
       />
     </div>
   );
