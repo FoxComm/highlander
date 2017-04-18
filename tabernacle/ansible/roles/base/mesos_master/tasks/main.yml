@@ -25,14 +25,15 @@
 - name: Reload Systemd for Mesos Master
   command: systemctl daemon-reload
 
-- name: Restart Services
-  service: name={{item}} state=restarted enabled=true
-  with_items:
-    - mesos_master
-    - marathon
-
 - name: Copy Consul Service Files
   template: src={{item}} dest=/etc/consul.d
   with_items:
     - mesos_master.json
     - marathon.json
+
+- name: Restart Services
+  service: name={{item}} state=restarted enabled=true
+  with_items:
+    - mesos_master
+    - marathon
+    - consul_agent
