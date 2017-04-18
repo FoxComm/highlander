@@ -7,6 +7,7 @@ import _ from 'lodash';
 
 // components
 import CustomPropertyModal from './custom-property-modal';
+import DeletePropertyModal from './delete-property-modal';
 
 // style
 import s from './custom-properties.css';
@@ -22,12 +23,14 @@ type Props = {
 type State = {
   isAddingProperty: boolean,
   isEditingProperty: boolean,
+  isDeletingProperty: boolean,
   errors: {[id:string]: any},
   currentEdit: {
     name: string,
     type: string,
     value: any,
   },
+  propertyToDelete: string,
 }
 
 export default class CustomProperties extends Component {
@@ -35,12 +38,14 @@ export default class CustomProperties extends Component {
   state: State = {
     isAddingProperty: false,
     isEditingProperty: false,
+    isDeletingProperty: false,
     errors: {},
     currentEdit: {
       name: '',
       type: '',
       value: '',
     },
+    propertyToDelete: '',
   };
 
   get customPropertyForm() {
@@ -66,6 +71,18 @@ export default class CustomProperties extends Component {
     }
   }
 
+  get deletePropertyForm () {
+    if (this.state.isDeletingProperty) {
+      return (
+        <DeletePropertyModal
+        isVisible={true}
+        onSave={this.handleDeleteProperty}
+        onCancel={() => this.setState({ isDeletingProperty: false }) }
+        />
+      );
+    }
+  }
+
   @autobind
   controlButtons(name: string, type: string, value: any) {
     const defaultProperties = _.keys(_.get(this.props.schema, 'properties', {}));
@@ -74,7 +91,7 @@ export default class CustomProperties extends Component {
     return (
       <div className={s.controls}>
         <i className="icon-edit" onClick={() => this.onEdit(name, type, value)}/>
-        <i className="icon-trash" onClick={() => this.handleDeleteProperty(name)}/>
+        <i className="icon-trash" onClick={() => this.onDelete(name)}/>
       </div>
     );
   }
@@ -126,9 +143,9 @@ export default class CustomProperties extends Component {
   }
 
   @autobind
-  handleDeleteProperty(name: string) {
-    const newAttributes = _.omit(this.props.attributes, name);
-    this.setState({ isAddingProperty: false }, this.props.onChange(newAttributes));
+  handleDeleteProperty() {
+    const newAttributes = _.omit(this.props.attributes, this.state.propertyToDelete);
+    this.setState({ isDeletingProperty: false }, this.props.onChange(newAttributes));
   }
 
   @autobind
@@ -179,6 +196,14 @@ export default class CustomProperties extends Component {
     });
   }
 
+  @autobind
+  onDelete(name: string) {
+    this.setState({
+      isDeletingProperty: true,
+      propertyToDelete: name
+    });
+  }
+
   get addCustomProperty() {
     if (this.props.canAddProperty) {
       return (
@@ -203,6 +228,7 @@ export default class CustomProperties extends Component {
         {this.children}
         {this.addCustomProperty}
         {this.customPropertyForm}
+        {this.deletePropertyForm}
       </div>
     );
   }

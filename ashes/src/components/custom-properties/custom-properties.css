@@ -8,3 +8,17 @@
         cursor: pointer;
   }
 }
+
+:global .fc-save-cancel {
+  display: flex;
+  justify-content: flex-end;
+}
+
+:global .fc-save-cancel__cancel {
+  background-color: transparent;
+  text-decoration: underline;
+
+  &:hover {
+    background-color: transparent;
+  }
+}
