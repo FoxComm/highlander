@@ -11,6 +11,9 @@
 
 .header {
   composes: header-base;
+  /*width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;*/
 }
 
 .header-wrap {
@@ -28,6 +31,9 @@
   align-items: center;
   height: 100%;
   padding-left: 15px;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
 }
 
 .action-link-menu {
