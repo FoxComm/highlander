@@ -11,7 +11,7 @@ object AmazonOrderWatchersManager extends AssignmentsManager[String, AmazonOrder
 
   val assignmentType  = Assignment.Watcher
   val referenceType   = Assignment.AmazonOrder
-  val notifyDimension = models.activity.Dimension.order
+  val notifyDimension = models.activity.Dimension.amazonOrder
   val notifyReason    = NotificationSubscription.Watching
 
   def buildResponse(model: AmazonOrder): Root = build(model)

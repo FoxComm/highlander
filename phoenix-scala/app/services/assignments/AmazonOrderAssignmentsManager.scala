@@ -11,7 +11,7 @@ object AmazonOrderAssignmentsManager extends AssignmentsManager[String, AmazonOr
 
   val assignmentType  = Assignment.Assignee
   val referenceType   = Assignment.AmazonOrder
-  val notifyDimension = models.activity.Dimension.order
+  val notifyDimension = models.activity.Dimension.amazonOrder
   val notifyReason    = NotificationSubscription.Assigned
 
   def buildResponse(model: AmazonOrder): Root = build(model)
