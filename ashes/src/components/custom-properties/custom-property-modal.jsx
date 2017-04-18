@@ -3,7 +3,7 @@
  */
 
 // libs
-import { isEmpty, map } from 'lodash';
+import { isEmpty, map, upperFirst } from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 
@@ -13,6 +13,7 @@ import { FormField } from 'components/forms';
 import wrapModal from 'components/modal/wrapper';
 import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/common/save-cancel';
+import renderers from 'components/object-form/renderers';
 
 const propertyTypes = {
   string: 'Text',
@@ -49,8 +50,11 @@ class CustomPropertyModal extends Component<void, Props, State> {
 
   constructor(props: Props) {
     super(props);
-
-    // TODO: check propertyTypes are in renderers or print warning otherwise
+    Object.keys(propertyTypes).map((type) => {
+      if (Object.keys(renderers).indexOf(`render${upperFirst(type)}`) === -1) {
+        console.warn(`Custom property type: "${type}", does not have renderer!`)
+      }
+    });
   }
 
   componentDidMount() {
