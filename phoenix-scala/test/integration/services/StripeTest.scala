@@ -162,6 +162,18 @@ class StripeTest extends IntegrationTestBase with RealStripeApi {
         capture.getAmount.toInt must === (100)
         capture.getAmountRefunded.toInt must === (25)
       }
+
+      "successfully captures Apple Pay charge" taggedAs External in {
+        pending
+        val apToken = "tok_1A9YBQJVm1XvTUrO3V8caBvF"
+        val auth    = stripe.authorizeApplePay(realStripeCardId, 100, currency = USD).gimme
+        val capture = stripe.captureCharge(auth.getId, 75).gimme
+
+        capture.getCaptured mustBe true
+        capture.getPaid mustBe true
+        capture.getAmount.toInt must === (100)
+        capture.getAmountRefunded.toInt must === (25)
+      }
     }
 
     "authorizeRefund" - {

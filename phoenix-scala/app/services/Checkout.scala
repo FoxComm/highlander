@@ -385,7 +385,7 @@ case class Checkout(
         case Some((pmt, ap)) ⇒
           for {
             stripeCharge ← * <~ apis.stripe
-                            .authorizeAmount(ap.stripeTokenId, authAmount, cart.currency)
+                            .authorizeApplePay(ap.stripeTokenId, authAmount, cart.currency)
             ourCharge = ApplePayCharges.authFromStripe(ap, pmt, stripeCharge, cart.currency)
             created ← * <~ ApplePayCharges.create(ourCharge)
             // todo logs here

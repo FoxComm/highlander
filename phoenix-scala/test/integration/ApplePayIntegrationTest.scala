@@ -24,10 +24,10 @@ class ApplePayIntegrationTest
     with MockedApis
     with AutomaticAuth {
 
+  val apToken = "tok_1A9YBQJVm1XvTUrO3V8caBvF"
+
   "POST v1/my/payment-methods/apple-pay" - {
     "Apple pay checkout with funds authorized" in new ApplePayFixture {
-
-      private val apToken = "tok_1A9YBQJVm1XvTUrO3V8caBvF"
 
       // test with cc token cause we can't create Apple Pay token, they act virtually the same tho
       val payment = CreateApplePayPayment(stripeToken = apToken)
@@ -42,11 +42,10 @@ class ApplePayIntegrationTest
   }
 
   "One click apple pay checkout should work" in new ApplePayFixture {
-    private val apToken = "tok_1A9YBQJVm1XvTUrO3V8caBvF"
-
     val payment = CreateApplePayPayment(stripeToken = apToken)
 
-    storefrontCartsApi.applePayCheckout(payment).as[OrderResponse]
+    storefrontCartsApi.applePayCheckout(payment).as[OrderResponse].referenceNumber must === (
+        cart.referenceNumber)
   }
 
   trait ApplePayFixture extends ProductSku_ApiFixture with ShipmentSeeds {

@@ -32,6 +32,11 @@ trait FoxStripeApi {
       customerId: Option[String] = None // Unnecessary for one time payments like Apple Pay
   ): Result[StripeCharge]
 
+  // let us have a dedicated method call for AP for now
+  def authorizeApplePay(paymentSourceId: String,
+                        amount: Int,
+                        currency: Currency): Result[StripeCharge]
+
   def captureCharge(chargeId: String, amount: Int): Result[StripeCharge]
 
   def authorizeRefund(chargeId: String, amount: Int, reason: RefundReason): Result[StripeCharge]
