@@ -31,17 +31,6 @@ class ShowHidePassword extends Component {
     isShown: false,
   };
 
-  get showLink() {
-    const { t, linkClassName } = this.props;
-    const message = this.state.isShown ? t('HIDE') : t('SHOW');
-    const linkClass = classNames(styles['toggle-link'], linkClassName);
-    return (
-      <span className={linkClass} onClick={this.toggleState}>
-        {message}
-      </span>
-    );
-  }
-
   @autobind
   toggleState(event) {
     event.preventDefault();
@@ -59,7 +48,6 @@ class ShowHidePassword extends Component {
       <TextInput
         {...inputProps}
         type={inputType}
-        label={this.showLink}
       />
     );
   }
