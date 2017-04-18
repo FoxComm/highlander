@@ -1,7 +1,10 @@
+// @flow
+
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
 import MultiSelectRow from '../table/multi-select-row';
+import OrderParagon from 'paragons/order';
 
 const compileShippingStatus = order => {
   if (order.state == 'canceled') {
@@ -77,19 +80,29 @@ const setCellContents = (order, field) => {
   }
 };
 
+type Props = {
+  order: OrderParagon;
+  columns: Array<*>;
+  params: Object;
+};
 
-const OrderRow = (props, context) => {
-  const { order, columns, params } = props;
-  const key = `order-${order.referenceNumber}`;
+const OrderRow = (props: Props) => {
+  const { order, columns, params, hasAmazon = false } = props;
+
+  // @todo verify isAmazon more strictly and convenient
+  const email = _.get(order, 'customer.email', '');
+  const isAmazon = email.endsWith('@marketplace.amazon.com');
+  const linkTo = isAmazon ? 'amazon-order' : 'order';
 
   return (
     <MultiSelectRow
       columns={columns}
-      linkTo="order"
+      linkTo={linkTo}
       linkParams={{order: order.referenceNumber}}
       row={order}
       setCellContents={setCellContents}
-      params={params} />
+      params={params}
+    />
   );
 };
 
