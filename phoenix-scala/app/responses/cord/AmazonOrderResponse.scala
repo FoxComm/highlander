@@ -36,6 +36,7 @@ object AmazonOrderResponse {
                   customerEmail: String = "",
                   createdAt: Instant,
                   updatedAt: Instant)
+      extends ResponseItem
 
   def build(amazonOrder: AmazonOrder): Root =
     Root(id = amazonOrder.id,
