@@ -5,7 +5,7 @@ import noop from 'lodash/noop';
 import React from 'react';
 
 // components
-import renderFormField from './form-field';
+import renderFormField from '../form-field';
 import SwatchInput from 'components/forms/swatch-input';
 
 import type { FieldErrors, ChangeHandler } from './index';

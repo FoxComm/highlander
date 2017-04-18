@@ -12,10 +12,9 @@ import _ from 'lodash';
 import ObjectDetails from '../object-page/object-details';
 import OptionList from './options/option-list';
 import SkuContentBox from './skus/sku-content-box';
-import InputMask from 'react-input-mask';
 import TaxonomiesListWidget from '../taxonomies/widget/taxonomies-list-widget';
 
-import renderFormField from 'components/object-form/renderers/form-field';
+import renderFormField from 'components/object-form/form-field';
 
 import { autoAssignVariants, deleteVariantCombination, addSkusForVariants } from 'paragons/variants';
 

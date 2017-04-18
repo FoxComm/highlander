@@ -3,4 +3,5 @@ declare type AttrOptions = {
   label: string,
   isDefined: (value: any) => boolean,
   disabled?: boolean,
+  error?: string,
 };

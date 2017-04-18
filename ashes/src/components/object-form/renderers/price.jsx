@@ -5,7 +5,7 @@ import React from 'react';
 import { noop, get } from 'lodash';
 
 // components
-import renderFormField from './form-field';
+import renderFormField from '../form-field';
 import CurrencyInput from 'components/forms/currency-input';
 
 import type { FieldErrors, ChangeHandler } from './index';

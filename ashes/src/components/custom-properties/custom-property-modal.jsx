@@ -3,16 +3,16 @@
  */
 
 // libs
-import React, { Component, Element } from 'react';
+import { isEmpty, map } from 'lodash';
 import { autobind } from 'core-decorators';
-import _ from 'lodash';
+import React, { Component, Element } from 'react';
 
 // components
-import { Dropdown } from '../dropdown';
-import { FormField } from '../forms';
-import wrapModal from '../modal/wrapper';
-import ContentBox from '../content-box/content-box';
-import SaveCancel from '../common/save-cancel';
+import { Dropdown } from 'components/dropdown';
+import { FormField } from 'components/forms';
+import wrapModal from 'components/modal/wrapper';
+import ContentBox from 'components/content-box/content-box';
+import SaveCancel from 'components/common/save-cancel';
 
 const propertyTypes = {
   string: 'Text',
@@ -41,15 +41,16 @@ type State = {
 
 class CustomPropertyModal extends Component<void, Props, State> {
   props: Props;
-  state: State;
+  state: State = {
+    fieldLabel: '',
+    propertyType: '',
+    fieldValue: '',
+  };
 
   constructor(props: Props) {
     super(props);
-    this.state = {
-      fieldLabel: '',
-      propertyType: '',
-      fieldValue: '',
-    };
+
+    // TODO: check propertyTypes are in renderers or print warning otherwise
   }
 
   componentDidMount() {
@@ -72,25 +73,28 @@ class CustomPropertyModal extends Component<void, Props, State> {
   }
 
   get propertyTypes(): Array<Element<*>> {
-    return _.map(propertyTypes, (type, key) => [key, type]);
+    return map(propertyTypes, (type, key) => [key, type]);
   }
 
   get saveDisabled(): boolean {
-    return _.isEmpty(this.state.fieldLabel) || _.isEmpty(this.state.propertyType);
+    return isEmpty(this.state.fieldLabel) || isEmpty(this.state.propertyType);
   }
 
   @autobind
-  handleUpdateLabel({target}) {
+  handleUpdateLabel({ target }) {
     this.setState({ fieldLabel: target.value });
   }
 
   @autobind
   handleUpdateType(value) {
     const fieldValue = (() => {
-      switch(value) {
-        case('date'): return new Date().toString();
-        case('bool'): return false;
-        default: return '';
+      switch (value) {
+        case('date'):
+          return new Date().toString();
+        case('bool'):
+          return false;
+        default:
+          return '';
       }
     })();
 
@@ -107,7 +111,7 @@ class CustomPropertyModal extends Component<void, Props, State> {
   }
 
   @autobind
-  handleKeyPress(event){
+  handleKeyPress(event) {
     if (!this.saveDisabled && event.keyCode === 13 /*enter*/) {
       event.preventDefault();
       this.props.onSave(this.state);

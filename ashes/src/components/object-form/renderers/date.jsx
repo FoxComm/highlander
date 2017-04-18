@@ -5,7 +5,7 @@ import noop from 'lodash/noop';
 import React from 'react';
 
 // components
-import renderFormField from './form-field';
+import renderFormField from '../form-field';
 import DatePicker from 'components/datepicker/datepicker';
 
 import type { FieldErrors, ChangeHandler } from './index';

@@ -7,10 +7,11 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
+import invariant from 'invariant';
 import { stripTags } from 'lib/text-utils';
 import { isDefined } from 'lib/utils';
 
-import * as renderers from './renderers';
+import renderers from './renderers';
 
 import type { AttrSchema } from 'paragons/object';
 
@@ -76,24 +77,34 @@ export default class ObjectFormInner extends Component {
     return schema ? _.includes(schema.required, name) : false;
   }
 
-  guessRenderName(schema: ?AttrSchema, attribute: ?Attribute): string {
+  getTypeFromSchema(schema: AttrSchema): string {
+    if (schema.widget) {
+      return schema.widget;
+    }
+
+    return _.isArray(schema.type) ? _.first(schema.type) : schema.type;
+  }
+
+  getType(schema: ?AttrSchema, attribute: ?Attribute): ?string {
     let name = null;
 
     if (attribute) {
       name = attribute.t;
     }
-    if (name == null && schema) {
-      name = schema.widget || schema.type;
+    if (name === null && schema) {
+      name = this.getTypeFromSchema(schema);
     }
-    if (name == 'integer') {
+    if (name === 'integer') {
       name = 'number';
     }
 
-    let renderName = `render${_.upperFirst(name)}`;
-    if (!(renderName in renderers)) {
-      renderName = 'renderString';
-    }
-    return renderName;
+    return name;
+  }
+
+  guessRenderName(schema: ?AttrSchema, attribute: ?Attribute): string {
+    let type = this.getType(schema, attribute);
+
+    return `render${_.upperFirst(type)}`;
   }
 
   getAttrOptions(name: string,
@@ -105,7 +116,7 @@ export default class ObjectFormInner extends Component {
       isDefined: isDefined,
       disabled: schema && schema.disabled,
     };
-    if (schema && schema.widget == 'richText') {
+    if (schema && schema.widget === 'richText') {
       options.isDefined = value => isDefined(stripTags(value));
     }
 
@@ -124,13 +135,15 @@ export default class ObjectFormInner extends Component {
       const renderName = this.guessRenderName(attrSchema, attribute);
       const attrOptions = this.getAttrOptions(name, attrSchema);
 
+      const renderFn = renderers[renderName];
+      const type = this.getType(schema, attribute);
 
-      const renderFn = renderers[renderName] ?
-        renderers[renderName](this.state.errors, this.handleChange) :
-        // $FlowFixMe: access of computed property/element
-        this[renderName].bind(this);
+      invariant(type, `There is no type defined for field "${name}".`);
+      invariant(renderFn, `There is no method for render "${type}" type.`);
 
-      const content = React.cloneElement(renderFn(name, attribute && attribute.v, attrOptions), { key: name });
+      const renderer = renderFn(this.state.errors, this.handleChange);
+
+      const content = React.cloneElement(renderer(name, attribute && attribute.v, attrOptions), { key: name });
 
       if (this.props.processAttr) {
         return this.props.processAttr(content, name, attribute && attribute.t, attribute && attribute.v);
