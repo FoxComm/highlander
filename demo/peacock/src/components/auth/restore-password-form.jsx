@@ -133,7 +133,7 @@ class RestorePasswordForm extends Component {
       );
     }
 
-    return <Button styleName="primary-button" type="submit">{t('SUBMIT')}</Button>;
+    return <Button styleName="primary-button" type="submit">{t('Submit')}</Button>;
   }
 
   get switchStage(): ?Element<*> {
