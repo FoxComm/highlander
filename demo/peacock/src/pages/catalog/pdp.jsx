@@ -317,6 +317,33 @@ class Pdp extends Component {
     }
   }
 
+  @autobind
+  getTaxonValue(name: string): ?string {
+    const taxonomy = _.find(this.props.product.taxons, taxonomy => {
+      const taxonomyName = _.get(taxonomy, 'attributes.name.v');
+      return name === taxonomyName;
+    });
+
+    return _.get(taxonomy, ['taxons', 0, 'attributes', 'name', 'v']);
+  }
+
+  get productCategory(): ?Element<any> {
+    let gender = this.getTaxonValue('gender');
+    const type = this.getTaxonValue('type');
+
+    if (gender && type) {
+      if (gender.toLowerCase() === 'men') {
+        gender = 'men\'s';
+      } else if (gender.toLowerCase() === 'women') {
+        gender = 'women\'s';
+      }
+      
+      return (
+        <div>{`${gender} ${type}`}</div>
+      );
+    }
+  }
+
   get productForm(): Element<any> {
     if (this.isGiftCard()) {
       return (
@@ -418,7 +445,8 @@ class Pdp extends Component {
           <div styleName="sixty">
             {this.renderGallery()}
           </div>
-          <div styleName="fourty">
+          <div styleName="forty">
+            <div styleName="category">{this.productCategory}</div>
             <h1 styleName="title">{title}</h1>
             <ErrorAlerts error={this.state.error} />
             {this.productPrice}

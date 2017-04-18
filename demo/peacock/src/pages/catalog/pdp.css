@@ -23,7 +23,7 @@
   margin-top: 40px;
 }
 
-.fourty {
+.forty {
   flex-basis: 40%;
   flex-grow: 1;
   margin-left: 24px;
@@ -36,10 +36,17 @@
 }
 
 .title {
-  margin-top: 20px;
   composes: title-large;
   color: var(--text-color);
   margin: 0 0 8px 0;
+}
+
+.category {
+  composes: paragraph;
+  font-weight: 300;
+  text-transform: uppercase;
+  color: var(--black);
+  margin: 0;
 }
 
 .short-description {
