@@ -75,7 +75,6 @@ export const stateTitles = {
 };
 
 // this map taken from scala code
-
 export const allowedStateTransitions = {
   [states.cart]: [states.fraudHold, states.remorseHold, states.canceled, states.fulfillmentStarted],
   [states.fraudHold]: [states.manualHold, states.remorseHold, states.fulfillmentStarted, states.canceled],
@@ -95,6 +94,7 @@ export default class OrderParagon {
   constructor(order: Order) {
     Object.assign(this, order);
     const skus = _.get(order, 'lineItems.skus');
+
     if (skus) {
       this.lineItems.skus = collectLineItems(skus);
     }
@@ -103,15 +103,16 @@ export default class OrderParagon {
   lineItems: Object;
   orderState: string;
   referenceNumber: string;
-  customer: Object;
-  promotion: Object;
-  coupon: Object;
+  customer: Customer;
   paymentMethods: Array<PaymentMethod>;
   orderState: string;
   remorsePeriodEnd: string;
   shippingState: string;
   paymentState: string;
   placedAt: string;
+  promotion: ?Object;
+  coupon: ?Object;
+  channel: ?string;
 
   get entityId(): string {
     return this.referenceNumber;

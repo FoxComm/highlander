@@ -95,21 +95,22 @@
   display: inline-block;
   width: 50%;
 
+  &:only-child {
+    width: 100%;
+  }
+
   & > li {
     height: 40px;
     display: flex;
     align-items: center;
 
     & > i {
-      width: 40px;
-      font-style: normal;
       font-size: 22px;
-      line-height: 24px;
-      text-align: center;
       color: var(--decor6);
     }
 
     &.fc-customer-info-days > i {
+      margin-right: 8px;
       font-size: 15px;
       font-weight: 700;
       line-height: 20px;
@@ -117,10 +118,15 @@
   }
 }
 
+.value {
+  margin-left: 8px;
+  width: 90%;
+  word-wrap: break-word;
+}
+
 .group {
   padding: 5px 10px;
-  margin-right: 5px;
-  margin-bottom: 5px;
+  margin: 0 5px 5px 8px;
   display: inline-block;
   vertical-align: top;
   font-size: 14px;
@@ -134,4 +140,5 @@
 .guest {
   color: var(--decor8);
   padding-top: 5px;
+  margin-left: 8px;
 }

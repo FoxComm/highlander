@@ -19,7 +19,7 @@ import { ChangeStateModal, CancelModal } from '../bulk-actions/modal';
 import { Link } from '../link';
 
 
-const mapStateToProps = ({orders: {list}}) => {
+const mapStateToProps = ({ orders: { list } }) => {
   return {
     list,
   };
@@ -99,14 +99,15 @@ export default class Orders extends React.Component {
 
   get renderRow() {
     return (row, index, columns, params) => {
-      const key = `order-${row.referenceNumber}`;
+      const key = `order-${row.id}`;
 
       return (
         <OrderRow
           order={row}
           columns={columns}
           key={key}
-          params={params} />
+          params={params}
+        />
       );
     };
   }
