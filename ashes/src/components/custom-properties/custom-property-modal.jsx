@@ -123,7 +123,7 @@ class CustomPropertyModal extends Component<void, Props, State> {
   }
 
   render() {
-    const title = this.props.currentEdit ? "Edit Custom Property" : "New Custom Property";
+    const title = this.props.currentEdit ? 'Edit Custom Property' : 'New Custom Property';
 
     return (
       <div className="fc-product-details__custom-property">
