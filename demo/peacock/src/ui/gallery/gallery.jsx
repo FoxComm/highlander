@@ -15,6 +15,8 @@ const Gallery = (props: Props) => {
     return {
       original: src,
       originalClass: s.image,
+      thumbnail: src,
+      thumbnailClass: s.thumbnail,
     };
   });
 
@@ -23,14 +25,15 @@ const Gallery = (props: Props) => {
   });
 
   return (
-    <div>
-      <div className={s.thumbs}>
+    <div className={s.gallery}>
+      {/* <div className={s.thumbs}>
         {thumbs}
-      </div>
+      </div> */}
       <ImageGallery
         items={items}
         slideInterval={2000}
-        showThumbnails={false}
+        showThumbnails={true}
+        thumbnailPosition="left"
         showPlayButton={false}
         showBullets={false}
         showFullscreenButton={false}

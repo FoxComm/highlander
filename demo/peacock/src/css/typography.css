@@ -30,6 +30,11 @@
   font-size: 16px;
 }
 
+.paragraph-large {
+  composes: base-text;
+  font-size: 24px;
+}
+
 .paragraph {
   composes: base-text;
   font-size: 20px;

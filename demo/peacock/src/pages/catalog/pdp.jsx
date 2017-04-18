@@ -297,12 +297,12 @@ class Pdp extends Component {
     const description = _.get(this.props.product, 'attributes.description.v', '');
     const descriptionList = _.get(this.props.product, 'attributes.description_list.v', '');
     return (
-      <div>
+      <div styleName="body">
         <div
           styleName="description"
           dangerouslySetInnerHTML={{__html: description}}
         />
-        <div
+        <ul
           styleName="description-list"
           dangerouslySetInnerHTML={{__html: descriptionList}}
         />
@@ -415,21 +415,29 @@ class Pdp extends Component {
     return (
       <div ref={(containerNode) => (this.containerNode = containerNode)} styleName="container">
         <div styleName="body">
-          {this.renderGallery()}
-          <h1 styleName="title">{title}</h1>
-          <ErrorAlerts error={this.state.error} />
-          {this.productPrice}
-          {this.productForm}
-          <div styleName="cart-actions">
-            <AddToCartBtn
-              onClick={this.addToCart}
-            />
-            {/* <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton> */}
+          <div styleName="sixty">
+            {this.renderGallery()}
           </div>
+          <div styleName="fourty">
+            <h1 styleName="title">{title}</h1>
+            <ErrorAlerts error={this.state.error} />
+            {this.productPrice}
+            {this.productForm}
+            <div styleName="cart-actions">
+              <AddToCartBtn
+                onClick={this.addToCart}
+              />
+              {/* <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton> */}
+            </div>
+          </div>
+        </div>
+        <div>
+        </div>
+        <div styleName="title-block">
           <h1 styleName="title-secondary">{title}</h1>
           {this.productShortDescription}
-          {this.productDetails}
         </div>
+        {this.productDetails}
         {this.relatedProductsList}
       </div>
     );
