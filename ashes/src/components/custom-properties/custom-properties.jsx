@@ -7,7 +7,7 @@ import _ from 'lodash';
 
 // components
 import CustomPropertyModal from './custom-property-modal';
-import DeletePropertyModal from './delete-property-modal';
+import ConfirmationDialog from '../modal/confirmation-dialog';
 
 // style
 import s from './custom-properties.css';
@@ -74,9 +74,13 @@ export default class CustomProperties extends Component {
   get deletePropertyForm () {
     if (this.state.isDeletingProperty) {
       return (
-        <DeletePropertyModal
+        <ConfirmationDialog
+        header="Delete Custom Property?"
+        body="Are you sure you want to delete the custom property?"
+        cancel="Cancel"
+        confirm="Yes, Delete"
         isVisible={true}
-        onSave={this.handleDeleteProperty}
+        confirmAction={this.handleDeleteProperty}
         onCancel={() => this.setState({ isDeletingProperty: false }) }
         />
       );
