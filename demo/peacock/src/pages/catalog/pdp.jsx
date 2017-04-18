@@ -319,7 +319,8 @@ class Pdp extends Component {
 
   @autobind
   getTaxonValue(name: string): ?string {
-    const taxonomy = _.find(this.props.product.taxons, taxonomy => {
+    const taxons = _.get(this.props.product, 'taxons', []);
+    const taxonomy = _.find(taxons, taxonomy => {
       const taxonomyName = _.get(taxonomy, 'attributes.name.v');
       return name === taxonomyName;
     });
@@ -337,7 +338,7 @@ class Pdp extends Component {
       } else if (gender.toLowerCase() === 'women') {
         gender = 'women\'s';
       }
-      
+
       return (
         <div>{`${gender} ${type}`}</div>
       );

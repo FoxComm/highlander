@@ -22,7 +22,7 @@ const WomensCatPage = (props: Props) => {
       <LocalNav categoryName="Women" links={navItems} />
       <div styleName="wrap">
         <div styleName="header-wrap">
-          <div styleName="header-content">
+          <Link styleName="header-content" to="/s/women/training">
             <div styleName="header-title">
               Karlie Is Never Done
             </div>
@@ -36,11 +36,11 @@ const WomensCatPage = (props: Props) => {
                 </Button>
               </div>
             </div>
-          </div>
+          </Link>
         </div>
         <div styleName="featured">
           <div styleName="featured-card">
-            <Link to="/s/women">
+            <Link to="/search/climachill">
               <div styleName="climachill">
                 <div>Climachill</div>
                 <div styleName="featured-button">
@@ -52,7 +52,7 @@ const WomensCatPage = (props: Props) => {
             </Link>
           </div>
           <div styleName="featured-card">
-            <Link to="/s/women">
+            <Link to="/search/reigning">
               <div styleName="champ">
                 <div>Athletics<br />X Reigning Champ</div>
                 <div styleName="featured-button">
@@ -64,7 +64,7 @@ const WomensCatPage = (props: Props) => {
             </Link>
           </div>
           <div styleName="featured-card">
-            <Link to="/s/women">
+            <Link to="/s/women/originals">
               <div styleName="originals">
                 <div>Originals:<br />Ocean Elements</div>
                 <div styleName="featured-button">
