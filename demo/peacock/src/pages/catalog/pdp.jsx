@@ -347,7 +347,7 @@ class Pdp extends Component {
 
     return (
       <RelatedProductsList
-        title="You might also like"
+        title="You Might Also Like"
         list={relatedProducts.result}
         productsOrder={relatedProductsOrder}
         isLoading={isRelatedProductsLoading}
@@ -438,6 +438,16 @@ class Pdp extends Component {
           {this.productShortDescription}
         </div>
         {this.productDetails}
+        <div styleName="share-block">
+          <div styleName="share-title">
+            Share How You Wear It
+          </div>
+          <p styleName="share-description">
+            For your change to be featured in our photo gallery<br />
+            tag your favorite Pure photo using #3stripestyle.
+          </p>
+          <img styleName="share-image" src="/images/pdp/style.jpg" />
+        </div>
         {this.relatedProductsList}
       </div>
     );

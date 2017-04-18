@@ -1,12 +1,14 @@
 @import "variables";
+@import "typography";
 @import "media-queries";
 @import "colors";
 
 .related-title {
-  display: flex;
-  font-weight: 600;
+  composes: title-medium;
+  display: block;
   margin-top: 90px;
-  font-size: 32px;
+  text-align: center;
+  width: 100%;
 }
 
 .list-wrapper {
@@ -28,7 +30,7 @@
 }
 
 .list {
-  margin-top: 90px;
+  margin-top: 60px;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;

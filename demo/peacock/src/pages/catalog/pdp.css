@@ -51,13 +51,32 @@
 
 .title-block {
   text-align: center;
-  margin-top: 40px;
+  margin-top: 90px;
 }
 
 .title-secondary {
   composes: title-medium;
   color: var(--text-color);
   margin-bottom: 11px;
+}
+
+.share-block {
+  text-align: center;
+  margin-top: 82px;
+}
+
+.share-title {
+  composes: title-secondary;
+}
+
+.share-description {
+  composes: paragraph;
+  text-transform: uppercase;
+  margin-top: 20px;
+}
+
+.share-image {
+  width: 100%;
 }
 
 .price {
