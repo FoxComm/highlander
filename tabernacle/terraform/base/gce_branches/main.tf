@@ -23,21 +23,6 @@ provider "google" {
 }
 
 ##############################################
-# Setup Coupons Feature Branch
-##############################################
-module "coupons" {
-  source           = "../../modules/gce/appliance"
-  instance_name    = "feature-branch-coupons"
-  dns_record       = "feature-branch-coupons"
-  appliance_image  = "${var.appliance_image}"
-  consul_leader    = "${var.consul_leader}"
-  ssh_user         = "${var.ssh_user}"
-  ssh_private_key  = "${var.ssh_private_key}"
-  dnsimple_account = "${var.dnsimple_account}"
-  dnsimple_token   = "${var.dnsimple_token}"
-}
-
-##############################################
 # Setup Storefront (Peacock) Feature Branch
 ##############################################
 module "peacock" {
