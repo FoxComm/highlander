@@ -1,0 +1,34 @@
+---
+
+- name: Start Isaac
+  include: app_isaac.yml
+  when: marathon_restart.isaac
+
+- name: Start Phoenix
+  include: app_phoenix.yml
+  when: marathon_restart.phoenix
+
+- name: Start Solomon
+  include: app_solomon.yml
+  when: marathon_restart.solomon
+
+- name: Start Middlewarehouse
+  include: app_middlewarehouse.yml
+  when: marathon_restart.middlewarehouse
+
+- name: Start Hyperion
+  include: app_hyperion.yml
+  when: marathon_restart.hyperion
+
+- name: Start Marketplace
+  include: app_marketplace.yml
+  when: with_marketplace and marathon_restart.marketplace
+
+- name: Start Ashes
+  include: app_ashes.yml
+  when: marathon_restart.ashes
+
+- name: Start Firebrand
+  include: app_peacock.yml
+  when: marathon_restart.peacock
+

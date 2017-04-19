@@ -1,0 +1,7 @@
+---
+
+- name: Creates Marathon JSON directory
+  file: path=/marathon/applications state=directory
+
+- name: Start Highlander Application group
+  include: app_highlander_group.yml
