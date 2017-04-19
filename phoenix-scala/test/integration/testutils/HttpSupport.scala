@@ -194,16 +194,16 @@ trait HttpSupport
 
   object SSE {
 
-    def sseProbe(path: String, skipHeartbeat: Boolean = true): Probe[String] =
+    def sseProbe(path: String, jwtCookie: Cookie, skipHeartbeat: Boolean = true): Probe[String] =
       probe(
-          if (skipHeartbeat) skipHeartbeatsAndAdminCreated(sseSource(path))
-          else sseSource(path))
+          if (skipHeartbeat) skipHeartbeatsAndAdminCreated(sseSource(path, jwtCookie))
+          else sseSource(path, jwtCookie))
 
-    def sseSource(path: String): Source[String, Any] = {
+    def sseSource(path: String, jwtCookie: Cookie): Source[String, Any] = {
       val localAddress = serverBinding.localAddress
 
       Source
-        .single(Get(pathToAbsoluteUrl(path)))
+        .single(Get(pathToAbsoluteUrl(path)).addHeader(jwtCookie))
         .via(Http().outgoingConnection(localAddress.getHostString, localAddress.getPort))
         .mapAsync(1)(Unmarshal(_).to[Source[ServerSentEvent, Any]])
         .runWith(Sink.head)
