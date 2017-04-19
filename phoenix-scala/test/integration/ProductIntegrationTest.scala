@@ -217,8 +217,9 @@ class ProductIntegrationTest
                                 swatch = None,
                                 image = None,
                                 name = Some("Test")))
-        val variantPayload =
-          Seq(VariantPayload(attributes = Map("test" → "Test"), values = Some(valuePayload)))
+        val variantPayload = Seq(
+            VariantPayload(attributes = Map("test" → (("t" → "test") ~ ("v" → "Test"))),
+                           values = Some(valuePayload)))
 
         val productResponse = doQuery(productPayload.copy(variants = Some(variantPayload)))
 
@@ -292,8 +293,9 @@ class ProductIntegrationTest
                                 swatch = None,
                                 image = None,
                                 skuCodes = Seq.empty))
-        val variantPayload =
-          Seq(VariantPayload(attributes = Map("t" → "t"), values = Some(values)))
+        val variantPayload = Seq(
+            VariantPayload(attributes = Map("t" → (("t" → "typ") ~ ("v" → "val"))),
+                           values = Some(values)))
         val payload =
           productPayload.copy(skus = Seq(redSkuPayload), variants = Some(variantPayload))
 
