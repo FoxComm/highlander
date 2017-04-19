@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import NavigationItem from './navigation-item';
 
 import * as actions from 'modules/categories';
+import { toggleContentOverlay } from 'modules/content-overlay';
 
 import styles from './navigation.css';
 
@@ -15,6 +16,7 @@ type Props = {
   fetch: Function,
   onClick?: ?Function,
   path: string,
+  toggleContentOverlay: () => void,
 };
 
 const getState = state => ({...state.categories});
@@ -36,6 +38,7 @@ class Navigation extends Component {
           item={item}
           path={path}
           onClick={this.props.onClick}
+          onShow={this.props.toggleContentOverlay}
         />
       );
     });
@@ -48,4 +51,4 @@ class Navigation extends Component {
   }
 }
 
-export default connect(getState, actions)(Navigation);
+export default connect(getState, { toggleContentOverlay, ...actions })(Navigation);

@@ -13,7 +13,7 @@ import Error from 'components/errors/error';
 import * as cartActions from 'modules/carts/details';
 
 // types
-import type { TCart } from 'paragons/order';
+import type { Cart as TCart } from 'paragons/order';
 
 type RouteParams = {
   cart: string,

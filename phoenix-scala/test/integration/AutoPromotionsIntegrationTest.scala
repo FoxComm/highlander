@@ -347,6 +347,15 @@ class AutoPromotionsIntegrationTest
       }
     }
 
+    "and customerGroupIds are returned correctly" in {
+      val (group, promo) = groupAndPromo(CustomerGroup.Dynamic)
+      val ids            = (promo.attributes \ "customerGroupIds" \ "v").extract[List[Int]]
+      val idsType        = (promo.attributes \ "customerGroupIds" \ "t").extract[String]
+
+      info(s"Is List[Int] ~ $idsType?…")
+      ids must === (List(group.id))
+    }
+
   }
 
 }

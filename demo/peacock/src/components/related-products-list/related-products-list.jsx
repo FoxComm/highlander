@@ -9,8 +9,8 @@ import { isElementInViewport } from 'lib/dom-utils';
 import styles from './related-products-list.css';
 
 // components
-import RelatedListItem from '../related-products-item/related-list-item';
 import Loader from 'ui/loader';
+import ListItem from 'components/products-item/list-item';
 
 // types
 import type { HTMLElement } from 'types';
@@ -23,6 +23,7 @@ export const LoadingBehaviors = {
 type Props = {
   loadingBehavior?: 0|1,
   list: ?Array<Object>,
+  productsOrder: ?Array<number>,
   isLoading: ?boolean,
   title: string,
 };
@@ -38,14 +39,25 @@ class RelatedProductsList extends Component {
   };
   _willUnmount: boolean = false;
 
-  renderProducts() {
-    return _.map(this.props.list, (item, index) => {
+  get renderProducts() {
+    const { list, productsOrder } = this.props;
+
+    if (_.isEmpty(list)) return null;
+
+    let sortedProductsList = [];
+    _.forEach(productsOrder, function(productId) {
+      sortedProductsList = _.concat(sortedProductsList, _.find(list, { productId }));
+    });
+
+    const avoidKeyCollision = 9999;
+
+    return _.map(sortedProductsList, (item, index) => {
       return (
-        <RelatedListItem
+        <ListItem
           {...item}
           index={index}
-          key={`product-${item.id}`}
-          ref={`product-${item.id}`}
+          key={`product-${_.get(item, 'id', _.random(avoidKeyCollision))}`}
+          ref={`product-${_.get(item, 'id', _.random(avoidKeyCollision))}`}
         />
       );
     });
@@ -87,12 +99,12 @@ class RelatedProductsList extends Component {
 
   render(): HTMLElement {
     const { loadingBehavior = LoadingBehaviors.ShowLoader, isLoading, list, title } = this.props;
+
     if (loadingBehavior == LoadingBehaviors.ShowLoader && isLoading) {
       return <Loader />;
     }
-    const items = list && list.length > 0
-      ? this.renderProducts()
-      : false;
+
+    if (_.isEmpty(list)) return null;
 
     return (
       <div styleName="list-wrapper">
@@ -101,7 +113,7 @@ class RelatedProductsList extends Component {
           {title}
         </div>
         <div styleName="list">
-          {items}
+          {this.renderProducts}
         </div>
       </div>
     );

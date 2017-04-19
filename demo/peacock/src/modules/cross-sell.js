@@ -6,7 +6,7 @@ import { createReducer, createAction } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 import _ from 'lodash';
 
-import { GIFT_CARD_TAG, MAX_RESULTS } from './products';
+import { GIFT_CARD_TAG } from './products';
 
 // types
 export type CrossSellPoint = {
@@ -24,14 +24,18 @@ export type RelatedProductResponse = {
   response: {products: Array<RelatedProduct>},
 };
 
+// const
+export const MAX_CROSS_SELLS_RESULTS = 10;
+
 // helpers
 function elasticSearchProductsQuery(rpResponse): Object {
-  const matchingProductIds = _.reduce(rpResponse.products, (result, product) => {
+  let matchingProductIds = _.reduce(rpResponse.products, (result, product) => {
     if (product.score > 0) {
       result.push(product.id);
     }
     return result;
   }, []);
+  matchingProductIds = _.slice(matchingProductIds, 0, MAX_CROSS_SELLS_RESULTS);
 
   const query = {
     query: {
@@ -59,23 +63,31 @@ function elasticSearchProductsQuery(rpResponse): Object {
     },
   };
 
-  return query;
+  return { query, productsOrder: matchingProductIds };
 }
 
-// actions
+// actions - private
+const updateRelatedProductsOrder = createAction('CROSS_SELL_UPDATED_RELATED_PRODUCTS_ORDER',
+  productsOrder => productsOrder
+);
+
 const _fetchRelatedProducts = createAsyncActions('relatedProducts',
   function(productFormId: number, channelId: number) {
     return this.api.crossSell.crossSellRelated(productFormId, channelId)
       .then((res) => {
+        const { dispatch } = this;
         const payload = elasticSearchProductsQuery(res);
+        dispatch(updateRelatedProductsOrder(payload.productsOrder));
+
         return this.api.post(
-          `/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload
+          `/search/public/products_catalog_view/_search?size=${MAX_CROSS_SELLS_RESULTS}`, payload.query
         );
       }
     );
   }
 );
 
+// actions - public
 export const clearRelatedProducts = createAction('CROSS_SELL_CLEAR_RELATED_PRODUCTS');
 
 export const train = (customerId: number, channelId: number, cartLineItemsSkus: Array<any>) => {
@@ -91,6 +103,7 @@ export const fetchRelatedProducts = _fetchRelatedProducts.perform;
 // redux
 const initialState = {
   relatedProducts: {},
+  relatedProductsOrder: [],
 };
 
 const reducer = createReducer({
@@ -100,10 +113,17 @@ const reducer = createReducer({
       relatedProducts: response,
     };
   },
+  [updateRelatedProductsOrder]: (state, productsOrder) => {
+    return {
+      ...state,
+      relatedProductsOrder: productsOrder,
+    };
+  },
   [clearRelatedProducts]: (state) => {
     return {
       ...state,
       relatedProducts: initialState.relatedProducts,
+      relatedProductsOrder: initialState.relatedProductsOrder,
     };
   },
 }, initialState);

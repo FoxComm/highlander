@@ -8,6 +8,7 @@
   "labels": {
     "LAYER": "backend",
     "LANG": "elixir",
+    "consul": "hyperion",
     "TAG": "{{docker_tags.hyperion}}"
   },
   "env": {

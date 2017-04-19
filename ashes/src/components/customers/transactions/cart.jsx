@@ -13,10 +13,10 @@ import WaitAnimation from 'components/common/wait-animation';
 
 import * as cartActions from 'modules/carts/details';
 
-import type { Order } from 'paragons/order';
+import OrderParagon from 'paragons/order';
 
 type Details = {
-  cart: Order,
+  cart: OrderParagon,
 };
 
 type Params = {
@@ -49,7 +49,7 @@ export default class CustomerCart extends Component {
     this.props.fetchCustomerCart(this.props.params.customerId);
   }
 
-  get cart(): Order {
+  get cart(): OrderParagon {
     return this.props.details.cart;
   }
 

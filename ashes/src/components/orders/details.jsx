@@ -14,11 +14,11 @@ import DiscountsPanel from 'components/discounts-panel/discounts-panel';
 import OrderCoupons from './order-coupons';
 import ParticipantsPanel from '../participants';
 
-import type { Order } from 'paragons/order';
+import OrderParagon from 'paragons/order';
 
 type Props = {
   details: {
-    order: Order,
+    order: OrderParagon,
   },
   entityType: string;
 };

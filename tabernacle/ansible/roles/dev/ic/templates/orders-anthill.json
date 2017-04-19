@@ -8,7 +8,8 @@
   "labels": {
     "LAYER": "consumer",
     "LANG": "go",
-    "TAG": "{{docker_tags.orders_anthill}}"
+    "TAG": "{{docker_tags.orders_anthill}}",
+    "consul": "orders-anthill"
   },
   "container": {
     "type": "DOCKER",

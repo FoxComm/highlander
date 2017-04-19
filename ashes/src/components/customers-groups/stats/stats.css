@@ -5,7 +5,7 @@
 ._loading {
   composes: loading from '../../../css/animations.css';
 
-  & :global(.fc-panel-list-panel) {
+  & > * {
     opacity: .8;
   }
 }

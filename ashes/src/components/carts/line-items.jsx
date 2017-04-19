@@ -11,7 +11,7 @@ import CartLineItemsFooter from './line-items-footer';
 import PanelHeader from 'components/panel-header/panel-header';
 import SkuLineItems, { defaultColumns } from 'components/sku-line-items/sku-line-items';
 
-import type { SkuItem } from 'paragons/order';
+import type { SkuItem, Cart } from 'paragons/order';
 
 const columns = [
   ...defaultColumns,
@@ -19,11 +19,7 @@ const columns = [
 ];
 
 type Props = {
-  cart: {
-    referenceNumber: string,
-    lineItems: Array<Object>,
-    isCheckingOut: boolean,
-  },
+  cart: Cart,
   id: string,
   status: string,
 };
