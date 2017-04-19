@@ -56,7 +56,7 @@ class JwtAuthTest
       }
 
       // Dudebro comes by, registers and adds some things to his cart
-      // Our store only carries one product because test api is cubersome
+      // Our store only carries one product because test api is cumbersome
       // ANNA FIX
       withNewCustomerAuth(dudebroLoginData) { implicit auth ⇒
         storefrontCartsApi.lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 10))).mustBeOk()

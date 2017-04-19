@@ -271,7 +271,6 @@ class CreditCardsIntegrationTest
       Mockito.verify(stripeWrapperMock, never()).createCustomer(m.any())
     }
 
-    // This test is pending because currently there is no way to auth as another customer midtest
     "creates cards for different customers correctly" in {
       val (id1, email1) = withRandomCustomerAuth { implicit auth ⇒
         storefrontPaymentsApi.creditCards.create(thePayload).mustBeOk()

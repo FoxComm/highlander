@@ -22,7 +22,7 @@ class RoutesCustomerOnlyIntegrationTest
       pending
       // Request gets rejected with 404 and falls through into admin auth domain where auth is not valid anymore
       // This is Akka...
-      // Can be solved by addind a route prefix for admin routes
+      // Can be solved by adding a route prefix for admin routes
       GET(s"v1/my/404hello", auth.jwtCookie.some).mustHaveStatus(StatusCodes.NotFound)
     }
 
