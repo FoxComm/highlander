@@ -35,6 +35,7 @@
   flex-direction: row;
 }
 
+
 .title {
   composes: title-large;
   color: var(--text-color);
@@ -121,4 +122,49 @@
 
 .one-click-checkout {
   margin-top: 8px;
+}
+
+@media (--small-only) {
+  .share-block {
+    display: none;
+  }
+
+  .body {
+    display: block;
+  }
+
+  .left, .right, .sixty, .forty {
+    margin: 0;
+  }
+
+  .title-secondary, .description-list, .description {
+    display: none;
+  }
+
+  .forty {
+    margin: 32px 0;
+  }
+
+  .title, .short-description {
+    composes: paragraph-large;
+    font-weight: 900;
+  }
+
+  .title-block {
+    margin-top: 50px;
+  }
+
+  .short-description {
+    text-align: left;
+    margin-top: 0;
+    text-transform: none;
+  }
+
+  .category {
+    composes: smallest-text;
+  }
+
+  .price {
+    composes: smallest-text;
+  }
 }

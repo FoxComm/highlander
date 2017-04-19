@@ -43,3 +43,13 @@
 :global .image-gallery-thumbnails-wrapper.left {
   width: 60px;
 }
+
+@media (--small-only) {
+  .gallery {
+    margin: -20px;
+  }
+  
+  :global .image-gallery-thumbnails-wrapper.left {
+    display: none;
+  }
+}

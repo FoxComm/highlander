@@ -45,15 +45,13 @@
 
 @media (--small-only), (--medium-only) {
   .list {
-    margin-top: 50px;
-    lost-column: 11/12;
-    lost-offset: -0.5/12;
+    margin-top: 20px;
   }
 
   .related-title {
-    font-size: 16px;
-    margin-top: 50px;
-    lost-column: 11/12;
-    lost-offset: -0.5/12;
+    composes: paragraph-large;
+    font-weight: 900;
+    margin-top: 76px;
+    text-align: left;
   }
 }
