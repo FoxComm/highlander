@@ -22,6 +22,12 @@
   padding: 0;
 }
 
+@supports (position: sticky) {
+  .header-wrap {
+    position: sticky;
+  }
+}
+
 .wrap {
   display: flex;
   justify-content: space-between;
