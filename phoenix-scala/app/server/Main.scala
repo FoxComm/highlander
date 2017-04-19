@@ -9,11 +9,15 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.RouteResult._
 import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
+import cats.implicits._
 import com.stripe.Stripe
 import com.typesafe.scalalogging.LazyLogging
+import failures.GeneralFailure
 import models.account.{AccountAccessMethod, Scope, Scopes}
+import models.objects.ObjectSchemas
 import org.json4s._
 import org.json4s.jackson._
+import slick.driver.PostgresDriver.api._
 import services.Authenticator
 import services.Authenticator.{UserAuthenticator, requireAdminAuth}
 import services.account.AccountCreateContext
@@ -23,6 +27,7 @@ import utils.apis._
 import utils.db._
 import utils.http.CustomHandlers
 import utils.http.HttpLogger.logFailedRequests
+import utils.seeds.ObjectSchemaSeeds
 import utils.{ElasticsearchApi, Environment, FoxConfig}
 
 import scala.collection.immutable
@@ -35,6 +40,10 @@ object Main extends App with LazyLogging {
   try {
     val service = new Service()
     service.performSelfCheck()
+    // Overwrite promo and coupon schemas
+    // We have no way to migrate schemas right now
+    // TODO @anna @michalrus remove this when refactoring promo models
+    service.overwritePromoSchemas()
     service.bind()
     service.setupRemorseTimers()
 
@@ -185,6 +194,23 @@ class Service(
     }
     logger.info(s"Using password hash algorithm: ${AccountAccessMethod.passwordsHashAlgorithm}")
     logger.info("Self check complete")
+  }
+
+  def overwritePromoSchemas(): Unit = {
+    logger.info("Overwriting promo and coupon schemas")
+    def overwriteSchema(name: String) =
+      for {
+        schema ← * <~ ObjectSchemas
+                  .filter(_.name === name)
+                  .mustFindOneOr(GeneralFailure(s"$name schema not found"))
+        _ ← * <~ ObjectSchemas.update(schema, ObjectSchemaSeeds.getSchema(name))
+      } yield {}
+    val result = DbResultT
+      .seqCollectFailures(List("coupon", "promotion").map(overwriteSchema))
+      .runTxn()
+      .runEmptyA
+      .value
+    Await.result(result, 10.seconds)
   }
 
   def setupStripe(): FoxStripe = {

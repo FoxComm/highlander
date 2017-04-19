@@ -4,6 +4,7 @@ import models.objects._
 import org.json4s.JValue
 import org.json4s.jackson.JsonMethods._
 import utils.db._
+import utils.seeds.ObjectSchemaSeeds._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -32,6 +33,16 @@ trait ObjectSchemaSeeds {
   def createObjectSchemas(): DbResultT[Option[Int]] =
     ObjectSchemas.createAll(allSchemas)
 
+}
+
+object ObjectSchemaSeeds {
+
+  def getSchema(name: String): ObjectSchema = {
+    val schema       = loadJson(s"/object_schemas/$name.json")
+    val dependencies = getDependencies(schema).toList
+    ObjectSchema(kind = name, name = name, dependencies = dependencies, schema = schema)
+  }
+
   private def loadJson(fileName: String): JValue = {
     val streamMaybe = Option(getClass.getResourceAsStream(fileName))
     streamMaybe.fold {
@@ -39,12 +50,6 @@ trait ObjectSchemaSeeds {
     } { stream ⇒
       parse(scala.io.Source.fromInputStream(stream).mkString)
     }
-  }
-
-  def getSchema(name: String): ObjectSchema = {
-    val schema       = loadJson(s"/object_schemas/$name.json")
-    val dependencies = getDependencies(schema).toList
-    ObjectSchema(kind = name, name = name, dependencies = dependencies, schema = schema)
   }
 
   private def getDependencies(schema: JValue): Set[String] = {
@@ -59,5 +64,4 @@ trait ObjectSchemaSeeds {
         }
     }
   }
-
 }
