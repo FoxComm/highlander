@@ -35,7 +35,6 @@
   flex-direction: row;
 }
 
-
 .title {
   composes: title-large;
   color: var(--text-color);
@@ -146,7 +145,7 @@
   }
 
   .title, .short-description {
-    composes: paragraph-large;
+    font-size: 24px;
     font-weight: 900;
   }
 
@@ -160,11 +159,7 @@
     text-transform: none;
   }
 
-  .category {
-    composes: smallest-text;
-  }
-
-  .price {
-    composes: smallest-text;
+  .category, .price {
+    font-size: 14px;
   }
 }
