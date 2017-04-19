@@ -57,6 +57,7 @@ docker_tags:
     phoenix_seeder: "{{ lookup('env', 'DOCKER_TAG_PHOENIX_SEEDER') | default('master', true) }}"
     greenriver: "{{ lookup('env', 'DOCKER_TAG_GREENRIVER') | default('master', true) }}"
     middlewarehouse: "{{ lookup('env', 'DOCKER_TAG_MIDDLEWAREHOUSE') | default('master', true) }}"
+    marketplace: "{{ lookup('env', 'DOCKER_TAG_MARKETPLACE') | default('master', true) }}"
     messaging: "{{ lookup('env', 'DOCKER_TAG_MESSAGING') | default('master', true) }}"
     isaac: "{{ lookup('env', 'DOCKER_TAG_ISAAC') | default('master', true) }}"
     solomon: "{{ lookup('env', 'DOCKER_TAG_SOLOMON') | default('master', true) }}"
