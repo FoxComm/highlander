@@ -1,39 +1,93 @@
 @import "colors.css";
+@import "layout.css";
 @import "variables.css";
 @import "media-queries.css";
+@import "typography.css";
+
+.left {
+  flex-basis: 50%;
+  flex-grow: 1;
+  margin-right: 24px;
+}
+
+.right {
+  flex-basis: 50%;
+  flex-grow: 1;
+  margin-left: 24px;
+}
+
+.sixty {
+  flex-basis: 60%;
+  flex-grow: 1;
+  margin-right: 24px;
+  margin-top: 40px;
+}
+
+.forty {
+  flex-basis: 40%;
+  flex-grow: 1;
+  margin-left: 24px;
+  margin-top: 40px;
+}
 
 .body {
   display: flex;
-  flex-flow: column nowrap;
+  flex-direction: row;
 }
 
-.title, .title-secondary {
-  font-weight: 900;
-  font-size: 24px;
+.title {
+  composes: title-large;
   color: var(--text-color);
-  position: relative;
-  line-height: 1.25;
   margin: 0 0 8px 0;
 }
 
-.short-description {
-  margin: 0 var(--grid-margin) var(--grid-margin);
-  font-size: 24px;
-  font-weight: 900;
-  line-height: 1.25;
+.category {
+  composes: paragraph;
+  font-weight: 300;
+  text-transform: uppercase;
   color: var(--black);
+  margin: 0;
 }
 
-.secondary-title {
-  font-size: 24px;
-  font-weight: 900;
-  line-height: 1.17;
+.short-description {
+  composes: paragraph-large;
+  text-transform: uppercase;
+  color: var(--black);
+  margin-top: 20px;
+}
+
+.title-block {
+  text-align: center;
+  margin-top: 90px;
+}
+
+.title-secondary {
+  composes: title-medium;
   color: var(--text-color);
   margin-bottom: 11px;
 }
 
+.share-block {
+  text-align: center;
+  margin-top: 82px;
+}
+
+.share-title {
+  composes: title-secondary;
+}
+
+.share-description {
+  composes: paragraph;
+  text-transform: uppercase;
+  margin-top: 20px;
+}
+
+.share-image {
+  width: 100%;
+}
+
 .price {
-  font-size: 14px;
+  composes: paragraph-large;
   color: var(--text-color);
   margin-bottom: 24px;
 }
@@ -52,134 +106,60 @@
 }
 
 .description {
-  font-size: 16px;
-  line-height: 1.63;
+  composes: left;
+  composes: small-text;
   color: var(--text-color);
   margin-bottom: 15px;
 }
 
 .description-list {
-  font-size: 16px;
-  line-height: 1.63;
-}
-
-.description-list  ul {
+  composes: right;
+  composes: small-text;
   list-style: disc;
-  margin-left: 20px;
+  margin-left: 68px;
 }
 
 .one-click-checkout {
   margin-top: 8px;
 }
 
-.facets {
-  margin-bottom: 30px;
-}
-
-@media (--medium) {
-  .price {
-    font-size: 22px;
-  }
-}
-
-@media (--medium-only) {
-  .items-title-wrap {
-    justify-content: space-around;
-  }
-
-  .item-title {
-    width: 33%;
-    margin: 0 4px;
-    display: flex;
-    justify-content: center;
-  }
-}
-
-@media (--up-to-large) {
-  .body > * {
-    order: 0;
-  }
-
-  .title, .price {
-    order: -1;
-  }
-
-  .body > :global(.image-gallery) {
-    margin-bottom: 12px;
-  }
-
-  .title-secondary {
-    display: block;
-  }
-
-  .container {
-    margin-left: var(--grid-margin);
-    margin-right: var(--grid-margin);
-    margin-top: 10px;
-  }
-
-  .short-description {
-    margin: 0 0 10px;
-  }
-}
-
-:root {
-  --gallery-size: 569px;
-  --gap-size: 43px;
-}
-
-@media (--large) {
-  .container {
-    padding-top: 39px;
-    lost-center: 1080px;
-  }
-
-  .title-secondary {
+@media (--small-only) {
+  .share-block {
     display: none;
   }
 
   .body {
-    max-width: 1080px;
-    align-items: flex-start;
+    display: block;
   }
 
-  .body > * {
-    margin-left: calc(var(--gallery-size) + var(--gap-size)) !important; /* ugly replacement for grid-gap */
-    width: calc(100% - var(--gallery-size) - var(--gap-size));
-
-    &:first-child {
-      /* image */
-      width: var(--gallery-size);
-      margin-left: 0 !important; /* ugly replacement for grid-gap */
-    }
+  .left, .right, .sixty, .forty {
+    margin: 0;
   }
 
-  .title {
-    margin-top: calc(0 - var(--gallery-size));
+  .title-secondary, .description-list, .description {
+    display: none;
   }
 
-  .title, .title-secondary {
-    font-size: 40px;
-    margin-bottom: 10px;
+  .forty {
+    margin: 32px 0;
   }
 
-  .price {
-    margin-bottom: 49px;
+  .title, .short-description {
+    font-size: 24px;
+    font-weight: 900;
   }
 
-  .cart-actions {
-    margin-bottom: 45px;
+  .title-block {
+    margin-top: 50px;
   }
 
   .short-description {
-    margin: 0 0 20px;
-    font-size: 20px;
-    font-weight: 900;
-    line-height: 1.25;
-    color: var(--black);
+    text-align: left;
+    margin-top: 0;
+    text-transform: none;
   }
-}
 
-.not-found {
-  composes: not-found from '../../components/products-list/products-list.css';
+  .category, .price {
+    font-size: 14px;
+  }
 }

@@ -155,8 +155,9 @@ class Facets extends Component {
     // Only showing facets with more then one element was decided because it
     // matches the expected behaviour based on research of other sites.
     const renderable = _.filter(facets, (f) => {
-      return f.values.length > 1
-        && (_.isEmpty(whitelist) || _.find(whitelist, key => _.toLower(key) == _.toLower(f.key)));
+      // return f.values.length > 1
+      //   && (_.isEmpty(whitelist) || _.find(whitelist, key => _.toLower(key) == _.toLower(f.key)));
+      return _.isEmpty(whitelist) || _.find(whitelist, key => _.toLower(key) == _.toLower(f.key));
     });
 
     const rendered = _.map(renderable, (f: TFacet) => {

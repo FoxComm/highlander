@@ -1,0 +1,27 @@
+@import "colors.css";
+@import "typography.css";
+
+.local-nav {
+  composes: small-text;
+
+  display: flex;
+  flex-direction: row;
+  padding: 15px 0px;
+}
+
+.local-nav-header {
+  border-right: 1px solid var(--border-color);
+  font-weight: 900;
+  padding-right: 12px;
+}
+
+.local-nav-items {
+  composes: smallest-text;
+
+  display: flex;
+  flex-direction: row;
+}
+
+.local-nav-item {
+  padding: 3px 12px;
+}
