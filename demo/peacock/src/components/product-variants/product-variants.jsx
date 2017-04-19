@@ -40,6 +40,29 @@ function getSkuCodesForVariantValue(product: ProductResponse, valueId: number, v
   return variantValue.skuCodes;
 }
 
+function sortSizes(sizes: { label: string }): string {
+  const labelMap = {
+    XS: '01_XS',
+    S: '02_S',
+    M: '03_M',
+    L: '04_L',
+    XL: '05_XL',
+    '2XL': '06_2XL',
+    '6.5': '06.5',
+    '7': '07.0',
+    '7.5': '07.5',
+    '8': '08.0',
+    '8.5': '08.5',
+    '9': '09.0',
+    '9.5': '09.5',
+  };
+
+  return _.sortBy(sizes, (size) => {
+    return _.get(labelMap, size.label, size.label);
+  });
+}
+
+
 class ProductVariants extends Component {
   props: Props;
   state: State = {
@@ -102,7 +125,7 @@ class ProductVariants extends Component {
 
     const { variants } = product;
 
-    return _.flatMap(variants, (variant: ProductVariant) => {
+    const facets = _.flatMap(variants, (variant: ProductVariant) => {
       const variantType = variant.attributes.type.v;
       let kind = variantType;
       if (kind === 'color') kind = 'image';
@@ -147,9 +170,11 @@ class ProductVariants extends Component {
         name: _.capitalize(variantType),
         key: variantType,
         kind,
-        values,
+        values: sortSizes(values),
       };
     });
+
+    return _.sortBy(facets, (facet) => facet.name);
   }
 
   getUnselectedFacets(product: ProductResponse = this.props.product): Array<string> {
