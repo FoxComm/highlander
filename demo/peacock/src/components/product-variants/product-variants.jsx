@@ -48,13 +48,13 @@ function sortSizes(sizes: { label: string }): string {
     L: '04_L',
     XL: '05_XL',
     '2XL': '06_2XL',
-    '6.5': '06.5',
-    '7': '07.0',
-    '7.5': '07.5',
-    '8': '08.0',
-    '8.5': '08.5',
-    '9': '09.0',
-    '9.5': '09.5',
+    6.5: '06.5',
+    7: '07.0',
+    7.5: '07.5',
+    8: '08.0',
+    8.5: '08.5',
+    9: '09.0',
+    9.5: '09.5',
   };
 
   return _.sortBy(sizes, (size) => {
@@ -174,7 +174,7 @@ class ProductVariants extends Component {
       };
     });
 
-    return _.sortBy(facets, (facet) => facet.name);
+    return _.sortBy(facets, facet => facet.name);
   }
 
   getUnselectedFacets(product: ProductResponse = this.props.product): Array<string> {

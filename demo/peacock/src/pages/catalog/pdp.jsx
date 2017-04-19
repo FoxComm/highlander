@@ -441,7 +441,7 @@ class Pdp extends Component {
     const title = this.isGiftCard() ? t('Gift Card') : this.productView.title;
 
     return (
-      <div ref={(containerNode) => (this.containerNode = containerNode)} styleName="container">
+      <div ref={containerNode => (this.containerNode = containerNode)} styleName="container">
         <div styleName="body">
           <div styleName="sixty">
             {this.renderGallery()}
