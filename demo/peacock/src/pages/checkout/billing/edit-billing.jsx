@@ -307,7 +307,7 @@ class EditBilling extends Component {
 
   @autobind
   saveGiftCard() {
-    const code = this.state.gcCode.replace(/\s+/g, '');
+    const code = this.state.gcCode.replace(/\s+/g, '').toUpperCase();
     this.props.saveGiftCard(code)
       .then(() => this.setState({ gcCode: '', error: false, addingGC: false }))
       .catch((error) => {
@@ -317,7 +317,7 @@ class EditBilling extends Component {
 
   @autobind
   saveCouponCode() {
-    const code = this.state.couponCode.replace(/\s+/g, '');
+    const code = this.state.couponCode.replace(/\s+/g, '').toUpperCase();
     this.props.saveCouponCode(code)
       .then(() => this.setState({ error: false, addingCoupon: false }))
       .catch((error) => {
