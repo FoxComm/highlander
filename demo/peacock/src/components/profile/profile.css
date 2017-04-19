@@ -3,7 +3,17 @@
 @import "variables.css";
 
 .profile {
-  composes: inner-wrap from "ui/css/layout.css";
+  lost-column: 7/11;
+  lost-offset: -1/11;
+  margin-top: 20px;
+  display: flex;
+}
+
+.account-details {
+  width: 48%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .link-button {
@@ -59,15 +69,6 @@
   line-height: 20px;
 }
 
-.line {
-  display: flex;
-  justify-content: space-between;
-}
-
-.section {
-  margin-bottom: 20px;
-}
-
 .buttons-footer {
   margin: 30px 0 10px;
   display: flex;
@@ -121,7 +122,7 @@
 }
 
 .payment-icon {
-  composes: payment-icon from '../../pages/checkout/billing/view-billing.css';
+  /*composes: payment-icon from '../../pages/checkout/billing/view-billing.css';*/
 }
 
 .payment-method {
