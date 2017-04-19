@@ -184,12 +184,9 @@ object CartPaymentUpdater {
       _           ← * <~ LogActivity().orderPaymentMethodDeletedGc(originator, deleteRes, giftCard)
     } yield TheResponse.validated(deleteRes, validated)
 
-  def addApplePayPayment(originator: User, payload: CreateApplePayPayment)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      ctx: OC,
-      apis: Apis): TheFullCart =
+  def addApplePayPayment(
+      originator: User,
+      payload: CreateApplePayPayment)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     for {
       cart ← * <~ getCartByOriginator(originator)
       _    ← * <~ OrderPayments.filter(_.cordRef === cart.refNum).applePays.delete

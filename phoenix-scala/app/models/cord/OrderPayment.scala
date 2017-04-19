@@ -3,8 +3,8 @@ package models.cord
 import cats.data.ValidatedNel
 import failures.Failure
 import models.payment.PaymentMethod
-import models.payment.PaymentMethod.ApplePay
-import models.payment.applepay.{ApplePayCharge, ApplePayCharges, ApplePayment, ApplePayments}
+import models.payment.PaymentMethod.External
+import models.payment.applepay.{ApplePayment, ApplePayments}
 import models.payment.creditcard.{CreditCard, CreditCards}
 import models.payment.giftcard.{GiftCard, GiftCards}
 import models.payment.storecredit.{StoreCredit, StoreCredits}
@@ -30,7 +30,7 @@ case class OrderPayment(id: Int = 0,
   def isStoreCredit: Boolean = paymentMethodType == PaymentMethod.StoreCredit
   def isApplePay: Boolean    = paymentMethodType == PaymentMethod.ApplePay
 
-  def isExternalFunds: Boolean = isCreditCard || isApplePay
+  def isExternalFunds: Boolean = paymentMethodType.isExternal
 
   override def validate: ValidatedNel[Failure, OrderPayment] = {
     val amountOk = paymentMethodType match {

@@ -335,14 +335,43 @@ case class Checkout(
       _ ← * <~ doOrMeh(gcTotal > 0,
                        LogActivity().gcFundsAuthorized(customer, cart, gcCodes, gcTotal))
 
-      // auth for Apple Pay payment
-      applePmtCharge ← * <~ authApplePay(cart.grandTotal, gcTotal + scTotal)
+//      // auth for Apple Pay payment
+//      applePmtCharge ← * <~ authApplePay(cart.grandTotal, gcTotal + scTotal)
+//
+//      // Authorize funds on credit card
+//      ccs ← * <~ authCreditCard(cart.grandTotal,
+//                                gcTotal + scTotal + applePmtCharge.fold(0)(_.amount))
 
-      // Authorize funds on credit card
-      ccs ← * <~ authCreditCard(cart.grandTotal,
-                                gcTotal + scTotal + applePmtCharge.fold(0)(_.amount))
+      grandTotal       = cart.grandTotal
+      internalPayments = gcTotal + scTotal
+      _ ← * <~ doOrMeh(grandTotal - internalPayments > 0, // run external payments only if we have to pay anything more
+                       doExternalPayment(grandTotal, internalPayments))
+
       mutatingResult = externalCalls.authPaymentsSuccess = true
     } yield {}
+
+  // do only one external payment. Check AP first, pay if it present otherwise try CC charge
+  private def doExternalPayment(orderTotal: Int, internalPaymentTotal: Int): DbResultT[Unit] = {
+    for {
+      // check if AP is there first
+      op ← OrderPayments.applePayByCordRef(cart.refNum)
+      ap ← * <~ op.applePayment.one
+
+      stripeCharge ← * <~ apis.stripe
+                      .authorizeApplePay(ap.stripeTokenId, authAmount, cart.currency)
+      ourCharge = ApplePayCharges.authFromStripe(ap, pmt, stripeCharge, cart.currency)
+      created ← * <~ ApplePayCharges.create(ourCharge)
+
+      // now try CC
+      pmt  ← OrderPayments.findAllCreditCardsForOrder(cart.refNum)
+      card ← pmt.creditCard
+
+      // todo logs here
+
+//      fail if no payment has been made
+//      DbResultT.failure(GeneralFailure("not enough payment"))
+    } yield ()
+  }
 
   private def authCreditCard(orderTotal: Int,
                              internalPaymentTotal: Int): DbResultT[Option[CreditCardCharge]] = {
@@ -380,8 +409,16 @@ case class Checkout(
     if (authAmount > 0) { // todo move this check to the call site with doIf
       (for {
         op ← OrderPayments.applePayByCordRef(cart.refNum)
-        ap ← op.applePayment
-      } yield (op, ap)).one.dbresult.flatMap {
+        ap ← * <~ op.applePayment.one
+
+        stripeCharge ← * <~ apis.stripe.authorizeApplePay(ap.stripeTokenId,
+                                                          authAmount,
+                                                          cart.currency)
+        ourCharge = ApplePayCharges.authFromStripe(ap, pmt, stripeCharge, cart.currency)
+        created ← * <~ ApplePayCharges.create(ourCharge)
+
+        // todo logs here
+      } yield created.some(op, ap)).one.dbresult.flatMap {
         case Some((pmt, ap)) ⇒
           for {
             stripeCharge ← * <~ apis.stripe
