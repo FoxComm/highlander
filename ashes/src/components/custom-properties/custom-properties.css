@@ -4,8 +4,8 @@
   right: 21px;
 
   & > i {
-        margin: 0 5px;
-        cursor: pointer;
+    margin: 0 5px;
+    cursor: pointer;
   }
 }
 
