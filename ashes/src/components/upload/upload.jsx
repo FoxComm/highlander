@@ -10,6 +10,9 @@ import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 import { findDOMNode } from 'react-dom';
 
+// components
+import { Button } from 'components/common/buttons';
+
 import type { FileInfo } from '../../modules/images';
 
 type Props = {
@@ -153,7 +156,9 @@ export default class Upload extends Component {
   get emptyContent() {
     return (
       <div className={styles.empty}>
-        <i className="icon-upload" /> Drag & Drop to upload
+        <i className="icon-upload" />
+        Drag & Drop to upload
+        <Button>or select file</Button>
       </div>
     );
   }

@@ -40,6 +40,8 @@
   font-weight: bold;
   color: #CED2D5;
   opacity: .5;
+  display: flex;
+  flex-direction: column;
 
   & i {
     display: block;

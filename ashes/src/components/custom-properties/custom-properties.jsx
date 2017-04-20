@@ -3,11 +3,17 @@
 // libs
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
-import _ from 'lodash';
+import { connect } from 'react-redux';
+import { get, keys, flow, omit } from 'lodash';
+import { makeLocalStore } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcomm/wings';
+import { bindActionCreators } from 'redux';
 
 // components
 import CustomPropertyModal from './custom-property-modal';
 import ConfirmationDialog from '../modal/confirmation-dialog';
+
+import createImagesModule from '../../modules/images'
 
 // style
 import s from './custom-properties.css';
@@ -33,7 +39,7 @@ type State = {
   propertyToDelete: string,
 }
 
-export default class CustomProperties extends Component {
+class CustomProperties extends Component {
   props: Props;
   state: State = {
     isAddingProperty: false,
@@ -89,7 +95,7 @@ export default class CustomProperties extends Component {
 
   @autobind
   controlButtons(name: string, type: string, value: any) {
-    const defaultProperties = _.keys(_.get(this.props.schema, 'properties', {}));
+    const defaultProperties = keys(get(this.props.schema, 'properties', {}));
     if (defaultProperties.includes(name)) { return null; }
 
     return (
@@ -127,7 +133,7 @@ export default class CustomProperties extends Component {
     const { currentEdit: { name } } = this.state;
     const { fieldLabel, propertyType, fieldValue } = property;
 
-    const preparedObject = _.omit(attributes, name);
+    const preparedObject = omit(attributes, name);
     const newAttributes = {
       ...preparedObject,
       [fieldLabel]: {
@@ -148,7 +154,7 @@ export default class CustomProperties extends Component {
 
   @autobind
   handleDeleteProperty() {
-    const newAttributes = _.omit(this.props.attributes, this.state.propertyToDelete);
+    const newAttributes = omit(this.props.attributes, this.state.propertyToDelete);
     this.setState({ isDeletingProperty: false }, this.props.onChange(newAttributes));
   }
 
@@ -168,7 +174,7 @@ export default class CustomProperties extends Component {
 
   @autobind
   isUnique(fieldLabel: string) {
-    const reservedNames = _.keys(_.get(this.props, 'attributes', {}));
+    const reservedNames = keys(get(this.props, 'attributes', {}));
     const unique = !reservedNames.includes(fieldLabel);
     return unique;
   }
@@ -208,6 +214,27 @@ export default class CustomProperties extends Component {
     });
   }
 
+
+  @autobind
+  handleNewFiles(images: Array<ImageFile>): void {
+    console.log('images:', images);
+    const newImages = images.map((file: ImageFile) => ({
+      title: file.file.name,
+      alt: file.file.name,
+      src: file.src,
+      file: file.file,
+      key: file.key,
+      loading: true,
+    }));
+
+   this.upload(newImages);
+  }
+
+  @autobind
+  upload(files) {
+    this.props.actions.uploadImages('default', 27, files)
+  }
+
   get addCustomProperty() {
     if (this.props.canAddProperty) {
       return (
@@ -223,7 +250,10 @@ export default class CustomProperties extends Component {
   }
 
   get children(): Element<*> {
-    return React.cloneElement((this.props.children), { processAttr: this.processAttr });
+    return React.cloneElement((this.props.children), {
+      processAttr: this.processAttr,
+      onDrop: this.handleNewFiles
+    });
   }
 
   render() {
@@ -237,3 +267,24 @@ export default class CustomProperties extends Component {
     );
   }
 }
+
+/*
+ * Local redux store
+ */
+
+const object = createImagesModule('customProperty');
+const actions = object.actions;
+const reducer = object.reducer;
+
+const mapState = state => ({
+  // state customProperty album?
+});
+
+const mapDispatch = dispatch => ({
+  actions: bindActionCreators(actions, dispatch),
+});
+
+export default flow(
+  connect(mapState, mapDispatch),
+  makeLocalStore(reducer),
+)(CustomProperties);

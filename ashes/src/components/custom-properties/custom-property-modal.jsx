@@ -22,6 +22,7 @@ const propertyTypes = {
   price: 'Price',
   bool: 'Yes/No',
   color: 'Color',
+  image: 'Image'
 };
 
 type Props = {
