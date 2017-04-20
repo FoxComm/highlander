@@ -1,5 +1,7 @@
 package responses
 
+import java.time.Instant
+
 import models.image.Image
 import models.objects.FullObject
 import utils.{IlluminateAlgorithm, JsonFormatters}
@@ -10,6 +12,7 @@ object ImageResponses {
   object ImageResponse {
     case class Root(id: Int,
                     src: String,
+                    createdAt: Instant,
                     baseUrl: Option[String],
                     title: Option[String],
                     alt: Option[String])
@@ -17,10 +20,11 @@ object ImageResponses {
 
     def build(id: Int,
               src: String,
+              createdAt: Instant,
               baseUrl: Option[String] = None,
               title: Option[String] = None,
               alt: Option[String] = None): ImageResponse.Root =
-      Root(id, src, baseUrl, title, alt)
+      Root(id, src, createdAt, baseUrl, title, alt)
 
     def build(value: FullObject[Image]): ImageResponse.Root = {
       val form   = value.form.attributes
@@ -31,7 +35,7 @@ object ImageResponses {
       val title   = IlluminateAlgorithm.get("title", form, shadow).extractOpt[String]
       val alt     = IlluminateAlgorithm.get("alt", form, shadow).extractOpt[String]
 
-      build(value.model.id, src, baseUrl, title, alt)
+      build(value.model.id, src, value.form.createdAt, baseUrl, title, alt)
     }
   }
 }
