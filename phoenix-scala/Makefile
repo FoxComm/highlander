@@ -3,6 +3,8 @@ header = $(call baseheader, $(1), phoenix-scala)
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
 DOCKER_TAG ?= master
+GIT_BRANCH ?= $(shell git symbolic-ref --short HEAD)
+INSTANCE ?= $(shell cat ../goldrush.state)
 
 build:
 	$(call header, Building)
@@ -45,4 +47,7 @@ docker-push-seeder:
 	docker tag phoenix-seeder $(DOCKER_REPO)/phoenix-seeder:$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/phoenix-seeder:$(DOCKER_TAG)
 
-.PHONY: build test clean docker docker-push
+update-app:	
+	cd ../tabernacle && ansible-playbook -v -i inventory/static/dev ansible/goldrush_update_app.yml --extra-vars "app_name=phoenix branch_name='$(GIT_BRANCH)' auto_build=y instance_ip=$(INSTANCE)"
+
+.PHONY: build test clean docker docker-push update-app
