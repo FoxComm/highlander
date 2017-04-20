@@ -24,7 +24,7 @@
       default: "feature-branch"
       private: no
   roles:
-    # # Core
+    # Core
     - { role: dev/appliance }
     - { role: dev/dashboard }
     # Services
