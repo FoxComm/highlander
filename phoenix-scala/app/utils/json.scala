@@ -23,6 +23,7 @@ import models.{Assignment, Note, Reason}
 import org.json4s.JsonAST.JString
 import org.json4s.{CustomSerializer, JNull, TypeHints, jackson}
 import payloads.AuthPayload
+import payloads.ExportEntityPayloads._
 import payloads.ReturnPayloads.ReturnLineItemPayload
 import responses.PublicResponses.CountryWithRegions
 
@@ -85,7 +86,8 @@ object JsonFormatters {
       IdentityKind.jsonFormat + AdminData.State.jsonFormat + PluginSettings.SettingType.jsonFormat +
       CustomerGroup.GroupType.jsonFormat +
       AuthPayload.JwtClaimsSerializer + LTreeFormat +
-      ReturnLineItemPayload.typeHints + PaymentMethod.Type.jsonKeyFormat
+      ReturnLineItemPayload.typeHints + PaymentMethod.Type.jsonKeyFormat +
+      ExportableEntity.jsonFormat + ExportEntity.Type.jsonFormat + ExportEntity.typeHints
 
   object LTreeFormat
       extends CustomSerializer[LTree](format ⇒

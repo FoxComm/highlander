@@ -9,5 +9,10 @@ object Strings {
     def upperCaseFirstLetter = s.capitalize
     def underscoreToCamel    = "_([a-z])".r.replaceAllIn(s, _.group(1).toUpperCase)
     def tableNameToCamel     = s.underscoreToCamel.singularize
+    def underscore =
+      s.flatMap {
+        case c if c.isUpper ⇒ s"_${c.toLower}"
+        case c              ⇒ s"$c"
+      }.stripPrefix("_")
   }
 }
