@@ -4,7 +4,7 @@ header = $(call baseheader, $(1), phoenix-scala)
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
 DOCKER_TAG ?= master
 GIT_BRANCH ?= $(shell git symbolic-ref --short HEAD)
-INSTANCE ?= local.foxcommerce.com
+INSTANCE ?= $(shell cat ../goldrush.state)
 
 build:
 	$(call header, Building)
