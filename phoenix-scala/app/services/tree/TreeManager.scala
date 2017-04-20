@@ -1,6 +1,6 @@
 package services.tree
 
-import cats.data._
+import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.DatabaseFailure
 import failures.TreeFailures._
@@ -91,7 +91,7 @@ object TreeManager {
       tree          ← * <~ getByNameAndContext(treeName, context)
       nodes         ← * <~ GenericTreeNodes.findNodes(tree.id).result
       maybeResponse ← * <~ TreeResponse.build(tree, nodes)
-      response      ← * <~ Xor.fromOption(maybeResponse, TreeNotFound(treeName, context.name).single)
+      response      ← * <~ Either.fromOption(maybeResponse, TreeNotFound(treeName, context.name).single)
       // TODO: replace this with values returned by objectService when object service be implemented
       fullTreeResponse = build(response, List())
     } yield fullTreeResponse

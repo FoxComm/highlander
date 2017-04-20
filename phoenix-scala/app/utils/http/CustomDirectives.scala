@@ -1,7 +1,5 @@
 package utils.http
 
-import scala.concurrent.Future
-import scala.util.{Failure, Success}
 import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.RawHeader
@@ -9,18 +7,16 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.PathMatcher.Matched
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
-
-import com.github.tminglei.slickpg.LTree
-
-import cats._
-import cats.data._
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import failures._
 import models.activity.ActivityContext
 import models.objects.{ObjectContext, ObjectContexts}
 import models.product.{ProductReference, SimpleContext}
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.AuthPayload
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 import services.JwtCookie
 import slick.driver.PostgresDriver.api._
 import utils._
@@ -88,9 +84,9 @@ object CustomDirectives {
   def adminObjectContext(contextName: String)(route: ObjectContext ⇒ Route)(implicit db: DB,
                                                                             ec: EC): Route =
     onComplete(tryGetContextByName(contextName)) {
-      case Success(Xor.Right(ctx)) ⇒
+      case Success(Right(ctx)) ⇒
         route(ctx)
-      case Success(Xor.Left(msg)) ⇒
+      case Success(Left(msg)) ⇒
         complete(renderFailure(NotFoundFailure404(msg).single, StatusCodes.NotFound))
       case Failure(ex) ⇒
         complete(renderFailure(GeneralFailure(ex.getMessage()).single))
@@ -104,8 +100,8 @@ object CustomDirectives {
 
   private def tryGetContextByName(name: String)(implicit db: DB, ec: EC) =
     db.run(ObjectContexts.filterByName(name).result.headOption).map {
-      case Some(c) ⇒ Xor.Right(c)
-      case None    ⇒ Xor.Left(s"Context with name $name cannot be found")
+      case Some(c) ⇒ Either.right(c)
+      case None    ⇒ Either.left(s"Context with name $name cannot be found")
     }
 
   //This is a really trivial version. We are not handling language weights,

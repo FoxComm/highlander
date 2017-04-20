@@ -1,6 +1,6 @@
 package models.account
 
-import cats.data.Xor
+import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.ScopeFailures._
 import failures.UserFailures.OrganizationNotFoundByName
@@ -27,22 +27,23 @@ object Scope {
     overwrite(au.token.scope, maybeSubscope)
 
   def overwrite(scope: String, maybeSubscope: Option[String])(implicit ec: EC): DbResultT[LTree] =
-    DbResultT.fromXor(scopeOrSubscope(scope, maybeSubscope)).map(LTree(_))
+    DbResultT.fromEither(scopeOrSubscope(scope, maybeSubscope)).map(LTree(_))
 
-  private def scopeOrSubscope(scope: String, maybeSubscope: Option[String]): Failures Xor String =
+  private def scopeOrSubscope(scope: String,
+                              maybeSubscope: Option[String]): Either[Failures, String] =
     maybeSubscope match {
-      case _ if scope.isEmpty ⇒ Xor.left(EmptyScope.single)
+      case _ if scope.isEmpty ⇒ Either.left(EmptyScope.single)
       case Some(subscope)     ⇒ validateSubscope(scope, subscope)
-      case None               ⇒ Xor.right(scope)
+      case None               ⇒ Either.right(scope)
     }
 
   // A subscope is a child if the scope is a prefix match and where it matches
   // is a '.' since scopes are separated by period characters.
-  private def validateSubscope(scope: String, maybeSubscope: String): Failures Xor String =
+  private def validateSubscope(scope: String, maybeSubscope: String): Either[Failures, String] =
     if (scope.equals(maybeSubscope) || maybeSubscope.startsWith(scope + "."))
-      Xor.right(maybeSubscope)
+      Either.right(maybeSubscope)
     else
-      Xor.left(InvalidSubscope(scope, maybeSubscope).single)
+      Either.left(InvalidSubscope(scope, maybeSubscope).single)
 }
 
 class Scopes(tag: Tag) extends FoxTable[Scope](tag, "scopes") {

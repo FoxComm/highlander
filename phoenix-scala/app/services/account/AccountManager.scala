@@ -1,11 +1,10 @@
 package services.account
 
-import java.time.Instant
-
 import cats.implicits._
 import failures.AuthFailures._
 import failures.NotFoundFailure404
 import failures.UserFailures._
+import java.time.Instant
 import models.account._
 import models.customer.CustomersData
 import responses.UserResponse._
@@ -53,7 +52,7 @@ object AccountManager {
 
       resetPwInstance ← * <~ UserPasswordReset
                          .optionFromUser(user)
-                         .toXor(UserHasNoEmail(user.id).single)
+                         .toEither(UserHasNoEmail(user.id).single)
       findOrCreate ← * <~ UserPasswordResets
                       .findActiveByEmail(email)
                       .one

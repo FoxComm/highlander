@@ -1,7 +1,5 @@
 package utils.db
 
-import cats._
-import cats.data._
 import cats.implicits._
 import failures.{Failure, Failures}
 import slick.dbio.DBIO
@@ -71,12 +69,12 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
       returned ← * <~ findById(oldModel.id).extract.updateReturningHead(returningQuery, prepared)
     } yield returningLens.set(prepared)(returned)
 
-  protected def beforeSave(model: M): Failures Xor M =
-    model.sanitize.validate.toXor
+  protected def beforeSave(model: M): Either[Failures, M] =
+    model.sanitize.validate.toEither
 
   private def beforeSaveBatch(unsaved: Iterable[M])(implicit ec: EC): DbResultT[List[M]] =
     DbResultT.seqCollectFailures {
-      unsaved.toList.map(m ⇒ DbResultT.fromXor(beforeSave(m)))
+      unsaved.toList.map(m ⇒ DbResultT.fromEither(beforeSave(m)))
     }
 
   def deleteById[A](id: M#Id, onSuccess: ⇒ DbResultT[A], onFailure: M#Id ⇒ Failure)(

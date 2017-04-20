@@ -57,8 +57,11 @@ object TheResponse {
       )
     }
 
-    override def tailRecM[A, B](a: A)(f: (A) ⇒ TheResponse[Either[A, B]]): TheResponse[B] =
-      defaultTailRecM(a)(f)
+    override def tailRecM[A, B](a: A)(f: A ⇒ TheResponse[Either[A, B]]): TheResponse[B] =
+      flatMap(f(a)) {
+        case Right(b)    ⇒ pure(b)
+        case Left(nextA) ⇒ tailRecM(nextA)(f)
+      }
   }
 }
 

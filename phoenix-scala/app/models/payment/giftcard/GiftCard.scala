@@ -1,19 +1,18 @@
 package models.payment.giftcard
 
-import java.time.Instant
-
 import cats.data.Validated._
-import cats.data.{ValidatedNel, Xor}
+import cats.data.ValidatedNel
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import failures.GiftCardFailures._
 import failures._
+import java.time.Instant
 import models.account._
 import models.cord.OrderPayment
-import models.payment.{PaymentMethod, InStorePaymentStates}
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
+import models.payment.{InStorePaymentStates, PaymentMethod}
 import payloads.GiftCardPayloads.{GiftCardCreateByCsr, GiftCardCreatedByCustomer}
 import shapeless._
 import slick.ast.BaseTypedType
@@ -75,7 +74,7 @@ case class GiftCard(id: Int = 0,
 
   def stateLens                         = lens[GiftCard].state
   override def primarySearchKey: String = code
-  override def updateTo(newModel: GiftCard): Failures Xor GiftCard =
+  override def updateTo(newModel: GiftCard): Either[Failures, GiftCard] =
     super.transitionModel(newModel)
 
   val fsm: Map[State, Set[State]] = Map(
@@ -89,18 +88,18 @@ case class GiftCard(id: Int = 0,
 
   def hasAvailable(amount: Int): Boolean = availableBalance >= amount
 
-  def mustBeCart: Failures Xor GiftCard =
-    if (isCart) Xor.Right(this) else Xor.Left(GiftCardMustBeCart(code).single)
+  def mustBeCart: Either[Failures, GiftCard] =
+    if (isCart) Either.right(this) else Either.left(GiftCardMustBeCart(code).single)
 
-  def mustNotBeCart: Failures Xor GiftCard =
-    if (!isCart) Xor.Right(this) else Xor.Left(GiftCardMustNotBeCart(code).single)
+  def mustNotBeCart: Either[Failures, GiftCard] =
+    if (!isCart) Either.right(this) else Either.left(GiftCardMustNotBeCart(code).single)
 
-  def mustBeActive: Failures Xor GiftCard =
-    if (isActive) Xor.Right(this) else Xor.Left(GiftCardIsInactive(this).single)
+  def mustBeActive: Either[Failures, GiftCard] =
+    if (isActive) Either.right(this) else Either.left(GiftCardIsInactive(this).single)
 
-  def mustHaveEnoughBalance(amount: Int): Failures Xor GiftCard =
-    if (hasAvailable(amount)) Xor.Right(this)
-    else Xor.Left(GiftCardNotEnoughBalance(this, amount).single)
+  def mustHaveEnoughBalance(amount: Int): Either[Failures, GiftCard] =
+    if (hasAvailable(amount)) Either.right(this)
+    else Either.left(GiftCardNotEnoughBalance(this, amount).single)
 }
 
 object GiftCard {

@@ -1,20 +1,19 @@
 package testutils
 
-import scala.reflect.runtime.universe._
-
-import cats.data.{Validated, Xor}
+import cats.data.Validated
 import org.scalatest.Assertions
+import scala.reflect.runtime.universe._
 
 trait CatsHelpers extends Assertions {
 
-  def rightValue[A, B](xor: A Xor B)(implicit ttA: TypeTag[A], ttB: TypeTag[B]): B =
-    xor.fold(
+  def rightValue[A, B](either: Either[A, B])(implicit ttA: TypeTag[A], ttB: TypeTag[B]): B =
+    either.fold(
         l ⇒ fail(s"Expected Right[${ttB.tpe.dealias}], got Left[${ttA.tpe.dealias}]: $l"),
         r ⇒ r
     )
 
-  def leftValue[A, B](xor: A Xor B)(implicit ttA: TypeTag[A], ttB: TypeTag[B]): A =
-    xor.fold(
+  def leftValue[A, B](either: Either[A, B])(implicit ttA: TypeTag[A], ttB: TypeTag[B]): A =
+    either.fold(
         l ⇒ l,
         r ⇒ fail(s"Expected Left[${ttA.tpe.dealias}], got Right[${ttB.tpe.dealias}]: $r")
     )
@@ -32,15 +31,15 @@ trait CatsHelpers extends Assertions {
         a ⇒ fail(s"Expected Invalid[${ttA.tpe.dealias}], got Valid[${ttE.tpe.dealias}]: $a")
     )
 
-  implicit class ImplicitCatsHelpersXor[A, B](xor: A Xor B) {
-    def rightVal(implicit ttA: TypeTag[A], ttB: TypeTag[B]) = rightValue(xor)
-    def leftVal(implicit ttA: TypeTag[A], ttB: TypeTag[B])  = leftValue(xor)
+  implicit class ImplicitCatsHelpersEither[A, B](either: Either[A, B]) {
+    def rightVal(implicit ttA: TypeTag[A], ttB: TypeTag[B]): B = rightValue(either)
+    def leftVal(implicit ttA: TypeTag[A], ttB: TypeTag[B]): A  = leftValue(either)
   }
 
   implicit class ImplicitCatsHelpersValidated[E, A](validated: Validated[E, A]) {
-    def validVal(implicit ttA: TypeTag[A], ttE: TypeTag[E]) =
+    def validVal(implicit ttA: TypeTag[A], ttE: TypeTag[E]): A =
       validValue(validated)
-    def invalidVal(implicit ttA: TypeTag[A], ttE: TypeTag[E]) =
+    def invalidVal(implicit ttA: TypeTag[A], ttE: TypeTag[E]): E =
       invalidValue(validated)
   }
 }

@@ -1,7 +1,7 @@
 package services.discount.compilers
 
-import cats.data.{NonEmptyList, Xor}
-import cats.instances.list._
+import cats.data.NonEmptyList
+import cats.implicits._
 import failures.DiscountCompilerFailures._
 import failures._
 import models.discount.offers._
@@ -13,12 +13,12 @@ case class OfferAstCompiler(data: Json) {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
-  def compile(): Xor[Failures, Offer] = data match {
+  def compile(): Either[Failures, Offer] = data match {
     case JObject(fields) ⇒ compile(fields)
-    case _               ⇒ Xor.Left(OfferAstInvalidFormatFailure.single)
+    case _               ⇒ Either.left(OfferAstInvalidFormatFailure.single)
   }
 
-  private def compile(fields: List[JField]): Xor[Failures, Offer] = {
+  private def compile(fields: List[JField]): Either[Failures, Offer] = {
     val offerCompiles = fields.map {
       case (offerType, value) ⇒ compile(offerType, value)
     }
@@ -32,14 +32,14 @@ case class OfferAstCompiler(data: Json) {
     }
 
     failures match {
-      case head :: tail ⇒ Xor.Left(NonEmptyList(head, tail))
-      case Nil          ⇒ Xor.Right(OfferList(offers))
+      case head :: tail ⇒ Either.left(NonEmptyList(head, tail))
+      case Nil          ⇒ Either.right(OfferList(offers))
     }
   }
 
-  private def compile(offerTypeString: String, attributes: Json): Xor[Failures, Offer] =
+  private def compile(offerTypeString: String, attributes: Json): Either[Failures, Offer] =
     OfferType.read(offerTypeString) match {
       case Some(offerType) ⇒ OfferCompiler(offerType, attributes).compile()
-      case _               ⇒ Xor.Left(OfferNotValid(offerTypeString).single)
+      case _               ⇒ Either.left(OfferNotValid(offerTypeString).single)
     }
 }

@@ -1,6 +1,6 @@
 package models.shipping
 
-import cats.data.Xor
+import cats.implicits._
 import failures.Failures
 import failures.ShippingMethodFailures.ShippingMethodIsNotActive
 import models.cord.OrderShippingMethods
@@ -21,8 +21,8 @@ case class ShippingMethod(id: Int = 0,
                           restrictions: Option[QueryStatement] = None)
     extends FoxModel[ShippingMethod] {
 
-  def mustBeActive: Failures Xor ShippingMethod =
-    if (isActive) Xor.right(this) else Xor.left(ShippingMethodIsNotActive(id).single)
+  def mustBeActive: Either[Failures, ShippingMethod] =
+    if (isActive) Either.right(this) else Either.left(ShippingMethodIsNotActive(id).single)
 }
 
 object ShippingMethod {
