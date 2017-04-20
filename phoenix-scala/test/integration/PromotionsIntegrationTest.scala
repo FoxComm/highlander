@@ -33,7 +33,7 @@ import services.objects.ObjectManager
 import services.promotion.PromotionManager
 import testutils.PayloadHelpers.tv
 import testutils._
-import testutils.apis.PhoenixAdminApi
+import testutils.apis._
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
 import testutils.fixtures.api._
 import testutils.fixtures.{BakedFixtures, PromotionFixtures}
@@ -47,7 +47,8 @@ import java.time.temporal.ChronoUnit.DAYS
 class PromotionsIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with PhoenixStorefrontApi
+    with DefaultJwtAdminAuth
     with TestActivityContext.AdminAC
     with BakedFixtures
     with ApiFixtures
@@ -205,41 +206,47 @@ class PromotionsIntegrationTest
           cartTotal * (1.0 - (DefaultDiscountPercent / 100.0)))
     }
 
-    "from storefront UI" in new StoreAdmin_Seed with Customer_Seed with ProductAndSkus_Baked {
+    "from storefront UI" in new StoreAdmin_Seed with ProductAndSkus_Baked {
 
       private val (_, couponCode) = setupPromoAndCoupon()
 
-      private val cartTotal = POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload("TEST", 1)))
-        .asTheResult[CartResponse]
-        .totals
-        .total
+      withRandomCustomerAuth { implicit auth ⇒
+        val cartTotal = POST("v1/my/cart/line-items",
+                             Seq(UpdateLineItemsPayload("TEST", 1)),
+                             auth.jwtCookie.some).asTheResult[CartResponse].totals.total
 
-      private val cartWithCoupon = POST(s"v1/my/cart/coupon/$couponCode").asTheResult[CartResponse]
+        val cartWithCoupon =
+          POST(s"v1/my/cart/coupon/$couponCode", auth.jwtCookie.some).asTheResult[CartResponse]
 
-      cartWithCoupon.promotion mustBe 'defined
-      cartWithCoupon.coupon mustBe 'defined
+        cartWithCoupon.promotion mustBe 'defined
+        cartWithCoupon.coupon mustBe 'defined
 
-      cartWithCoupon.totals.adjustments.toDouble must === (
-          cartTotal * (DefaultDiscountPercent / 100.0))
-      cartWithCoupon.totals.total.toDouble must === (
-          cartTotal * (1.0 - (DefaultDiscountPercent / 100.0)))
+        cartWithCoupon.totals.adjustments.toDouble must === (
+            cartTotal * (DefaultDiscountPercent / 100.0))
+        cartWithCoupon.totals.total.toDouble must === (
+            cartTotal * (1.0 - (DefaultDiscountPercent / 100.0)))
+      }
     }
 
-    "should update coupon discount when cart becomes clean" in new Fixture with Customer_Seed
+    "should update coupon discount when cart becomes clean" in new Fixture
     with ProductSku_ApiFixture {
       private val (_, couponCode) = setupPromoAndCoupon()
 
-      POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
+      withRandomCustomerAuth { implicit auth ⇒
+        POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload(skuCode, 1)), auth.jwtCookie.some)
+          .mustBeOk()
 
-      POST(s"v1/my/cart/coupon/$couponCode").mustBeOk()
+        POST(s"v1/my/cart/coupon/$couponCode", auth.jwtCookie.some).mustBeOk()
 
-      private val emptyCartWithCoupon =
-        POST(s"v1/my/cart/line-items", Seq(UpdateLineItemsPayload(skuCode, 0))).asThe[CartResponse]
+        val emptyCartWithCoupon = POST(s"v1/my/cart/line-items",
+                                       Seq(UpdateLineItemsPayload(skuCode, 0)),
+                                       auth.jwtCookie.some).asThe[CartResponse]
 
-      emptyCartWithCoupon.warnings mustBe 'nonEmpty withClue "containing information about removed coupons that no longer apply"
+        emptyCartWithCoupon.warnings mustBe 'nonEmpty withClue "containing information about removed coupons that no longer apply"
 
-      emptyCartWithCoupon.result.totals.total must === (0)
-      emptyCartWithCoupon.result.totals.adjustments must === (0)
+        emptyCartWithCoupon.result.totals.total must === (0)
+        emptyCartWithCoupon.result.totals.adjustments must === (0)
+      }
     }
 
     "but not after archiving the coupon" in new ProductSku_ApiFixture {

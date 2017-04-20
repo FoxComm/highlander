@@ -1,29 +1,20 @@
 import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
-import akka.http.scaladsl.server.directives.SecurityDirectives.challengeFor
-
-import services.Authenticator.UserAuthenticator
+import cats.implicits._
 import testutils._
-import utils.MockedApis
 
-class JsonRejectionHandlerIntegrationTest
-    extends IntegrationTestBase
-    with HttpSupport
-    with MockedApis {
-
-  override def overrideUserAuth: UserAuthenticator =
-    AuthFailWith(challengeFor("what ya doing!"))
+class JsonRejectionHandlerIntegrationTest extends IntegrationTestBase with HttpSupport {
 
   "JsonRejectionHandler should" - {
-    "return a valid JSON rejection on 401 Unauthorized" in {
-      val response = GET("v1/customers")
+    "return a valid JSON rejection on 401 Unauthorized" in withRandomCustomerAuth { auth ⇒
+      val response = GET("v1/customers", jwtCookie = auth.jwtCookie.some)
 
       response.mustHaveStatus(StatusCodes.Unauthorized)
       response.entity.contentType must === (ContentTypes.`application/json`)
       response.error must === ("The supplied authentication is invalid")
     }
 
-    "return a valid JSON rejection on 404 NotFound" in {
-      val response = GET("sdklgsdkvbnlsdkgmn")
+    "return a valid JSON rejection on 404 NotFound" in withRandomAdminAuth { auth ⇒
+      val response = GET("sdklgsdkvbnlsdkgmn", jwtCookie = auth.jwtCookie.some)
 
       response.mustHaveStatus(StatusCodes.NotFound)
       response.entity.contentType must === (ContentTypes.`application/json`)

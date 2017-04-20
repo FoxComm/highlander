@@ -15,7 +15,7 @@ import utils.seeds.Factories
 class SaveForLaterIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with BakedFixtures {
 
   "GET v1/save-for-later/:customerId" - {

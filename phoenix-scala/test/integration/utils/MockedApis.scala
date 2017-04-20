@@ -10,7 +10,6 @@ import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.scalatest.mockito.MockitoSugar
-import testutils.TestBase
 import utils.TestStripeSupport.randomStripeishId
 import utils.aliases._
 import utils.aliases.stripe._
@@ -18,8 +17,18 @@ import utils.apis._
 import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import scala.util.{Random, Try}
+
+trait RealStripeApi extends MockedApis {
+
+  override implicit def apisOverride: Option[Apis] =
+    Apis(server.Setup.defaultApis.stripe, amazonApiMock, middlewarehouseApiMock, elasticSearchMock).some
+}
+
+object MockedApis extends MockedApis {
+
+  val apis: Apis = Apis(stripeApiMock, amazonApiMock, middlewarehouseApiMock, elasticSearchMock)
+}
 
 trait MockedApis extends MockitoSugar {
 
@@ -112,6 +121,7 @@ trait MockedApis extends MockitoSugar {
 
   lazy val elasticSearchMock: ElasticsearchApi = mock[ElasticsearchApi] // TODO: fill me with some defaults?
 
-  implicit lazy val apisOverride: Apis =
-    Apis(stripeApiMock, amazonApiMock, middlewarehouseApiMock, elasticSearchMock)
+  implicit def apisOverride: Option[Apis] =
+    Apis(stripeApiMock, amazonApiMock, middlewarehouseApiMock, elasticSearchMock).some
+
 }

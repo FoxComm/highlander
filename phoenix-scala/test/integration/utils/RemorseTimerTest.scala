@@ -5,7 +5,6 @@ import java.time.Instant
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.testkit.{TestActorRef, TestKit}
-
 import cats.implicits._
 import models.cord._
 import org.scalatest.BeforeAndAfterAll
@@ -24,7 +23,7 @@ class RemorseTimerTest(_system: ActorSystem)
 
   override def afterAll(): Unit = TestKit.shutdownActorSystem(system)
 
-  val timer = TestActorRef(new RemorseTimer())
+  val timer: TestActorRef[RemorseTimer] = TestActorRef(new RemorseTimer())(implicitly, system)
 
   "Remorse timer" - {
 

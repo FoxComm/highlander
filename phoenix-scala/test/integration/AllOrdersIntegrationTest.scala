@@ -17,7 +17,7 @@ import utils.seeds.Factories
 class AllOrdersIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with BakedFixtures {
 
   "PATCH /v1/orders" - {

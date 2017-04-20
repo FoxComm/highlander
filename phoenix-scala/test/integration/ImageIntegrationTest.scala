@@ -32,7 +32,7 @@ import utils.time.RichInstant
 class ImageIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with BakedFixtures {
 
   "Album Tests" - {
@@ -337,7 +337,7 @@ class ImageIntegrationTest
 
       "uploads multiple images" in new Fixture {
 
-        val response = POST(s"/v1/albums/ru/${ctx.name}/images")
+        val response = POST(s"/v1/albums/ru/${ctx.name}/images", defaultAdminAuth.jwtCookie.some)
 
         val updatedAlbumImages = ImageManager
           .createOrUpdateImagesForAlbum(album, Seq(testPayload, testPayload), ctx)
@@ -355,7 +355,7 @@ class ImageIntegrationTest
 
       "fails if uploading no images" in new Fixture {
 
-        val response = POST(s"/v1/albums/ru/${ctx.name}/images")
+        val response = POST(s"/v1/albums/ru/${ctx.name}/images", defaultAdminAuth.jwtCookie.some)
 
         val updatedAlbumImages = ImageManager
           .createOrUpdateImagesForAlbum(album, Seq(testPayload, testPayload), ctx)
@@ -391,7 +391,7 @@ class ImageIntegrationTest
 
         val uri     = pathToAbsoluteUrl(s"v1/albums/${ctx.name}/${album.id}/images")
         val request = HttpRequest(method = HttpMethods.POST, uri = uri, entity = entity)
-        dispatchRequest(request)
+        dispatchRequest(request, defaultAdminAuth.jwtCookie.some)
       }
     }
   }

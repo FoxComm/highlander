@@ -1,4 +1,3 @@
-import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import failures.ReturnFailures._
 import failures._
@@ -25,7 +24,7 @@ import utils.seeds.Factories
 class ReturnIntegrationTest
     extends IntegrationTestBase
     with ApiFixtureHelpers
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with BakedFixtures
     with ReturnsFixtures
     with PropertyChecks {
@@ -39,7 +38,7 @@ class ReturnIntegrationTest
         .as[ReturnResponse.Root]
       rmaCreated.referenceNumber must === (s"${order.referenceNumber}.1")
       rmaCreated.customer.head.id must === (customer.accountId)
-      rmaCreated.storeAdmin.head.id must === (storeAdmin.accountId)
+      rmaCreated.storeAdmin.head.id must === (defaultAdmin.id)
 
       val getRmaRoot = returnsApi(rmaCreated.referenceNumber).get().as[ReturnResponse.Root]
       getRmaRoot.referenceNumber must === (rmaCreated.referenceNumber)

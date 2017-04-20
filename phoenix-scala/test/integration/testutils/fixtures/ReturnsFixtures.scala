@@ -27,6 +27,7 @@ trait ReturnsFixtures
     extends TestFixtureBase
     with BakedFixtures
     with ApiFixtureHelpers
+    with JwtTestAuth
     with OptionValues {
   self: FoxSuite ⇒
 
@@ -71,20 +72,26 @@ trait ReturnsFixtures
         sf: SF): OrderResponse = {
       val api = cartsApi(api_newCustomerCart(customer.id).referenceNumber)
 
-      api.lineItems.add(lineItems).mustBeOk()
-      api.shippingAddress.updateFromAddress(address.id).mustBeOk()
-      api.shippingMethod.update(UpdateShippingMethod(shippingMethod.id)).mustBeOk()
+      api.lineItems.add(lineItems)(defaultAdminAuth).mustBeOk()
+      api.shippingAddress.updateFromAddress(address.id)(defaultAdminAuth).mustBeOk()
+      api.shippingMethod
+        .update(UpdateShippingMethod(shippingMethod.id))(defaultAdminAuth)
+        .mustBeOk()
       paymentMethods.foreach {
         case (PaymentMethod.CreditCard, None) ⇒
-          api.payments.creditCard.add(CreditCardPayment(creditCard.id)).mustBeOk()
+          api.payments.creditCard
+            .add(CreditCardPayment(creditCard.id))(defaultAdminAuth)
+            .mustBeOk()
         case (PaymentMethod.GiftCard, amount) if amount.exists(_ <= giftCard.availableBalance) ⇒
-          api.payments.giftCard.add(GiftCardPayment(giftCard.code, amount)).mustBeOk()
+          api.payments.giftCard
+            .add(GiftCardPayment(giftCard.code, amount))(defaultAdminAuth)
+            .mustBeOk()
         case (PaymentMethod.StoreCredit, Some(amount)) if amount <= storeCredit.availableBalance ⇒
-          api.payments.storeCredit.add(StoreCreditPayment(amount)).mustBeOk()
+          api.payments.storeCredit.add(StoreCreditPayment(amount))(defaultAdminAuth).mustBeOk()
         case other ⇒ sys.error(s"Unsupported configuration for order payment method: $other")
       }
 
-      api.checkout().as[OrderResponse]
+      api.checkout()(defaultAdminAuth).as[OrderResponse]
     }
 
     def createDefaultOrder(paymentMethods: Map[PaymentMethod.Type, Option[Int]] = Map(
@@ -101,7 +108,9 @@ trait ReturnsFixtures
       NonEmptyList
         .fromList(transitionStates)
         .map(transitionEntity(_, none[OrderResponse])(_.orderState)(state ⇒
-                  api.update(UpdateOrderPayload(state = state)).as[OrderResponse]))
+                  api
+                    .update(UpdateOrderPayload(state = state))(defaultAdminAuth)
+                    .as[OrderResponse]))
         .getOrElse(initial)
     }
 
@@ -112,21 +121,25 @@ trait ReturnsFixtures
     def createReturn(orderRef: String, returnType: Return.ReturnType = Return.Standard)(
         implicit sl: SL,
         sf: SF): ReturnResponse.Root =
-      returnsApi.create(ReturnCreatePayload(orderRef, returnType)).as[ReturnResponse.Root]
+      returnsApi
+        .create(ReturnCreatePayload(orderRef, returnType))(defaultAdminAuth)
+        .as[ReturnResponse.Root]
 
     def updateReturnState(refNum: String, returnState: Return.State, reasonId: Option[Int] = None)(
         implicit sl: SL,
         sf: SF): ReturnResponse.Root =
       returnsApi(refNum)
-        .update(ReturnUpdateStatePayload(returnState, reasonId))
+        .update(ReturnUpdateStatePayload(returnState, reasonId))(defaultAdminAuth)
         .as[ReturnResponse.Root]
 
-    def completeReturn(refNum: String)(implicit sl: SL, sf: SF) = {
+    def completeReturn(refNum: String)(implicit sl: SL, sf: SF): ReturnResponse.Root = {
       val happyPath = NonEmptyList.fromListUnsafe(
           List(Return.Pending, Return.Processing, Return.Review, Return.Complete))
 
-      transitionEntity(happyPath, returnsApi(refNum).get().as[ReturnResponse.Root].some)(_.state)(
-          state ⇒ updateReturnState(refNum = refNum, returnState = state))
+      transitionEntity(
+          happyPath,
+          returnsApi(refNum).get()(defaultAdminAuth).as[ReturnResponse.Root].some)(_.state)(state ⇒
+            updateReturnState(refNum = refNum, returnState = state))
     }
   }
 
@@ -136,7 +149,9 @@ trait ReturnsFixtures
 
   trait ReturnReasonFixture extends ReturnFixture {
     def createReturnReason(name: String)(implicit sl: SL, sf: SF): ReturnReasonsResponse.Root =
-      returnsApi.reasons.add(ReturnReasonPayload(name)).as[ReturnReasonsResponse.Root]
+      returnsApi.reasons
+        .add(ReturnReasonPayload(name))(defaultAdminAuth)
+        .as[ReturnReasonsResponse.Root]
   }
 
   trait ReturnReasonDefaults extends ReturnReasonFixture {
@@ -146,11 +161,11 @@ trait ReturnsFixtures
   trait ReturnLineItemFixture extends ReturnReasonFixture {
     def createReturnLineItem(payload: ReturnLineItemPayload,
                              refNum: String)(implicit sl: SL, sf: SF): ReturnResponse.Root =
-      returnsApi(refNum).lineItems.add(payload).as[ReturnResponse.Root]
+      returnsApi(refNum).lineItems.add(payload)(defaultAdminAuth).as[ReturnResponse.Root]
 
     def createReturnSkuLineItems(payloads: List[ReturnSkuLineItemPayload],
                                  refNum: String)(implicit sl: SL, sf: SF): ReturnResponse.Root =
-      returnsApi(refNum).lineItems.addOrReplace(payloads).as[ReturnResponse.Root]
+      returnsApi(refNum).lineItems.addOrReplace(payloads)(defaultAdminAuth).as[ReturnResponse.Root]
   }
 
   trait ReturnLineItemDefaults
@@ -173,14 +188,14 @@ trait ReturnsFixtures
     def createReturnPayments(payments: Map[PaymentMethod.Type, Int],
                              refNum: String)(implicit sl: SL, sf: SF): ReturnResponse.Root =
       returnsApi(refNum).paymentMethods
-        .addOrReplace(ReturnPaymentsPayload(payments))
+        .addOrReplace(ReturnPaymentsPayload(payments))(defaultAdminAuth)
         .as[ReturnResponse.Root]
 
     def createReturnPayment(payment: PaymentMethod.Type, amount: Int, refNum: String)(
         implicit sl: SL,
         sf: SF): ReturnResponse.Root =
       returnsApi(refNum).paymentMethods
-        .add(payment, ReturnPaymentPayload(amount))
+        .add(payment, ReturnPaymentPayload(amount))(defaultAdminAuth)
         .as[ReturnResponse.Root]
 
     val paymentMethodTable = Table("paymentMethod",

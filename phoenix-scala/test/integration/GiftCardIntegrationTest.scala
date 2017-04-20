@@ -1,4 +1,3 @@
-import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.GiftCardFailures.GiftCardConvertFailure
@@ -6,20 +5,15 @@ import failures.ScopeFailures._
 import failures._
 import models.Reason
 import models.account._
-import models.cord.lineitems.GiftCardLineItemAttributes
-import models.cord.{Carts, Cord, Cords}
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard._
-import models.payment.{InStorePaymentStates, storecredit}
 import models.payment.storecredit.StoreCredit
-import org.json4s.jackson.JsonMethods._
-import payloads.CartPayloads.CreateCart
+import models.payment.{InStorePaymentStates, storecredit}
 import payloads.GiftCardPayloads._
 import responses.GiftCardAdjustmentsResponse.{Root ⇒ GcAdjRoot}
 import responses.GiftCardResponse.{Root ⇒ GcRoot}
 import responses.StoreCreditResponse.{Root ⇒ ScRoot}
 import responses._
-import responses.cord.CartResponse
 import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -27,12 +21,11 @@ import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtureHelpers
 import utils.Money._
 import utils.db._
-import utils.seeds.Factories
 
 class GiftCardIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with BakedFixtures
     with ApiFixtureHelpers {
 
@@ -50,7 +43,7 @@ class GiftCardIntegrationTest
         // Check that proper link is created
         val manual: GiftCardManual = GiftCardManuals.findOneById(giftCard.originId).gimme.value
         manual.reasonId must === (1)
-        manual.adminId must === (storeAdmin.accountId)
+        manual.adminId must === (defaultAdmin.id)
       }
 
       "create two gift cards with unique codes" in new Reason_Baked {

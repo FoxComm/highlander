@@ -14,8 +14,9 @@ import responses.CreditCardsResponse
 import responses.CreditCardsResponse.Root
 import slick.driver.PostgresDriver.api._
 import testutils._
-import testutils.apis.PhoenixAdminApi
+import testutils.apis._
 import testutils.fixtures.BakedFixtures
+import testutils.fixtures.api.ApiFixtureHelpers
 import utils.TestStripeSupport
 import utils.aliases.stripe.StripeCustomer
 import utils.db._
@@ -24,7 +25,9 @@ import utils.seeds.Factories
 class CreditCardsIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with PhoenixStorefrontApi
+    with ApiFixtureHelpers
+    with DefaultJwtAdminAuth
     with MockitoSugar
     with BakedFixtures
     with BeforeAndAfterEach {
@@ -72,16 +75,18 @@ class CreditCardsIntegrationTest
                                                         billingAddress = crookedAddressPayload)
 
   "POST /v1/customers/:id/payment-methods/credit-cards (admin auth)" - {
-    "creates a new credit card" in new Customer_Seed {
-      customersApi(customer.accountId).payments.creditCards.create(thePayload).mustBeOk()
-      Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer))
+    "creates a new credit card" in {
+      val customer = api_newCustomer()
+
+      customersApi(customer.id).payments.creditCards.create(thePayload).mustBeOk()
+      Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer.email.value))
 
       val cc = CreditCards.result.gimme.onlyElement
 
       val expected = CreditCard(id = 1,
                                 gatewayCustomerId = stripeCustomer.getId,
                                 gatewayCardId = stripeCard.getId,
-                                accountId = customer.accountId,
+                                accountId = customer.id,
                                 address = BillingAddress(name = theAddress.name,
                                                          address1 = theAddress.address1,
                                                          address2 = theAddress.address2,
@@ -100,7 +105,7 @@ class CreditCardsIntegrationTest
       // With existing Stripe customer
       Mockito.clearInvocations(stripeWrapperMock)
 
-      customersApi(customer.accountId).payments.creditCards.create(thePayload).mustBeOk()
+      customersApi(customer.id).payments.creditCards.create(thePayload).mustBeOk()
 
       Mockito.verify(stripeWrapperMock).findCustomer(stripeCustomer.getId)
       Mockito.verify(stripeWrapperMock).createCard(m.eq(stripeCustomer), m.any())
@@ -108,13 +113,9 @@ class CreditCardsIntegrationTest
     }
 
     "creates cards for different customers correctly" in {
-      val customer1 = new Customer_Seed {}.customer
-      val account2  = Accounts.create(Account()).gimme
-      val customer2 = Users
-        .create(Factories.customer.copy(accountId = account2.id, email = "another@gmail.com".some))
-        .gimme
+      val (customer1, customer2) = (api_newCustomer(), api_newCustomer())
 
-      customersApi(customer1.accountId).payments.creditCards
+      customersApi(customer1.id).payments.creditCards
         .create(thePayload.copy(token = "tok_1"))
         .mustBeOk()
 
@@ -124,20 +125,23 @@ class CreditCardsIntegrationTest
         .create(thePayload.copy(token = "tok_2"))
         .mustBeOk()
 
-      Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer1, "tok_1"))
-      Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer2, "tok_2"))
+      Mockito
+        .verify(stripeWrapperMock)
+        .createCustomer(customerSourceMap(customer1.email.value, "tok_1"))
+      Mockito
+        .verify(stripeWrapperMock)
+        .createCustomer(customerSourceMap(customer2.email.value, "tok_2"))
 
-      val ccCustomerIds = CreditCards.map(_.accountId).result.gimme
-      ccCustomerIds must contain allOf (customer1.id, customer2.id)
+      CreditCards.map(_.accountId).result.gimme must contain allOf (customer1.id, customer2.id)
     }
 
-    "does not create a new address if it isn't new" in new Customer_Seed {
-      customersApi(customer.accountId).payments.creditCards.create(thePayload).mustBeOk()
+    "does not create a new address if it isn't new" in {
+      customersApi(api_newCustomer().id).payments.creditCards.create(thePayload).mustBeOk()
       Addresses.result.headOption.gimme must not be defined
     }
 
-    "creates address if it's new" in new StoreAdmin_Seed with Customer_Seed {
-      customersApi(customer.accountId).payments.creditCards
+    "creates address if it's new" in {
+      customersApi(api_newCustomer().id).payments.creditCards
         .create(thePayload.copy(addressIsNew = true))
         .mustBeOk()
       Addresses.result.headOption.gimme.value must === (theAddress)
@@ -149,10 +153,11 @@ class CreditCardsIntegrationTest
         .mustFailWith404(NotFoundFailure404(User, 666))
     }
 
-    "errors 400 if wrong credit card token" in new Customer_Seed {
+    "errors 400 if wrong credit card token" in {
       when(stripeWrapperMock.createCustomer(m.any()))
         .thenReturn(Result.failure[StripeCustomer](GeneralFailure("BAD-TOKEN")))
-      customersApi(customer.accountId).payments.creditCards
+
+      customersApi(api_newCustomer().id).payments.creditCards
         .create(thePayload)
         .mustFailWithMessage("BAD-TOKEN")
     }
@@ -176,26 +181,25 @@ class CreditCardsIntegrationTest
   }
 
   "DELETE /v1/customers/:custId/payment-methods/credit-cards/:cardId (admin auth)" - {
-    "deletes specified card" in new Customer_Seed {
-      val ccResp1 =
-        customersApi(customer.accountId).payments.creditCards.create(thePayload).as[Root]
+    "deletes specified card" in {
+      val customer = api_newCustomer()
+
+      val ccResp1 = customersApi(customer.id).payments.creditCards.create(thePayload).as[Root]
 
       val stripeCard2 = newStripeCard
       when(stripeWrapperMock.createCard(m.any(), m.any())).thenReturn(Result.good(stripeCard2))
       when(stripeWrapperMock.findCardByCustomerId(stripeCustomer.getId, stripeCard2.getId))
         .thenReturn(Result.good(stripeCard2))
 
-      val ccResp2 =
-        customersApi(customer.accountId).payments.creditCards.create(thePayload).as[Root]
+      val ccResp2 = customersApi(customer.id).payments.creditCards.create(thePayload).as[Root]
 
-      val allCcs = customersApi(customer.accountId).payments.creditCards.get().as[Seq[Root]]
+      val allCcs = customersApi(customer.id).payments.creditCards.get().as[Seq[Root]]
       allCcs must contain theSameElementsAs Seq(ccResp1, ccResp2)
 
-      customersApi(customer.accountId).payments.creditCard(ccResp2.id).delete().mustBeEmpty()
+      customersApi(customer.id).payments.creditCard(ccResp2.id).delete().mustBeEmpty()
       verify(stripeWrapperMock).deleteCard(m.argThat(cardStripeIdMatches(stripeCard2.getId)))
 
-      customersApi(customer.accountId).payments.creditCards.get().as[Seq[Root]] must === (
-          Seq(ccResp1))
+      customersApi(customer.id).payments.creditCards.get().as[Seq[Root]] must === (Seq(ccResp1))
     }
 
     "errors 404 if customer not found" in {
@@ -205,8 +209,8 @@ class CreditCardsIntegrationTest
         .mustFailWith404(NotFoundFailure404(User, 666))
     }
 
-    "errors 404 if card not found" in new Customer_Seed {
-      customersApi(customer.accountId).payments
+    "errors 404 if card not found" in {
+      customersApi(api_newCustomer().id).payments
         .creditCard(666)
         .delete()
         .mustFailWith404(NotFoundFailure404(CreditCard, 666))
@@ -214,29 +218,32 @@ class CreditCardsIntegrationTest
   }
 
   "GET /v1/my/payment-methods/credit-cards" - {
-    "returns valid phone number" in new StoreAdmin_Seed with Customer_Seed {
+    "returns valid phone number" in withRandomCustomerAuth { implicit auth ⇒
       val testPhoneNumber = "1234567890"
       val payloadWithPhoneNumber = thePayload.copy(
           billingAddress = thePayload.billingAddress.copy(phoneNumber = testPhoneNumber.some))
-      POST("v1/my/payment-methods/credit-cards", payloadWithPhoneNumber).mustBeOk()
+      storefrontPaymentsApi.creditCards.create(payloadWithPhoneNumber).mustBeOk()
 
-      val ccs = GET("v1/my/payment-methods/credit-cards").as[Seq[CreditCardsResponse.Root]]
-      ccs.head.address.phoneNumber must === (testPhoneNumber.some)
+      storefrontPaymentsApi.creditCards
+        .get()
+        .as[Seq[CreditCardsResponse.Root]]
+        .head
+        .address
+        .phoneNumber must === (testPhoneNumber.some)
     }
-
   }
 
   "POST /v1/my/payment-methods/credit-cards (customer auth)" - {
-    "creates a new credit card" in new StoreAdmin_Seed with Customer_Seed {
+    "creates a new credit card" in withRandomCustomerAuth { implicit auth ⇒
       // No Stripe customer yet
-      POST("v1/my/payment-methods/credit-cards", thePayload).mustBeOk()
-      Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer))
+      storefrontPaymentsApi.creditCards.create(thePayload).mustBeOk()
+      Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(auth.loginData.email))
 
       val cc: CreditCard = CreditCards.result.gimme.onlyElement
 
       val expected = CreditCard(id = 1,
                                 gatewayCustomerId = stripeCustomer.getId,
-                                accountId = customer.accountId,
+                                accountId = auth.customerId,
                                 address = BillingAddress(name = theAddress.name,
                                                          address1 = theAddress.address1,
                                                          address2 = theAddress.address2,
@@ -256,67 +263,64 @@ class CreditCardsIntegrationTest
       // With existing Stripe customer
       Mockito.clearInvocations(stripeWrapperMock)
 
-      POST("v1/my/payment-methods/credit-cards", thePayload).mustBeOk()
+      storefrontPaymentsApi.creditCards.create(thePayload).mustBeOk()
 
       Mockito.verify(stripeWrapperMock).findCustomer(stripeCustomer.getId)
       Mockito.verify(stripeWrapperMock).createCard(m.eq(stripeCustomer), m.any())
       Mockito.verify(stripeWrapperMock, never()).createCustomer(m.any())
     }
 
-    // This test is pending because currently there is no way to auth as another customer midtest
     "creates cards for different customers correctly" in {
-      pending
+      val (id1, email1) = withRandomCustomerAuth { implicit auth ⇒
+        storefrontPaymentsApi.creditCards.create(thePayload).mustBeOk()
+        (auth.customerId, auth.loginData.email)
+      }
 
-      val customer1 = new Customer_Seed {}.customer
-      val account2  = Accounts.create(Account()).gimme
-      val customer2 = Users
-        .create(Factories.customer.copy(accountId = account2.id, email = "another@gmail.com".some))
-        .gimme
+      val (id2, email2) = withRandomCustomerAuth { implicit auth ⇒
+        storefrontPaymentsApi.creditCards.create(thePayload).mustBeOk()
+        (auth.customerId, auth.loginData.email)
+      }
 
-      POST("v1/my/payment-methods/credit-cards", thePayload).mustBeOk()
+      Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(email1))
+      Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(email2))
 
-      // TODO: auth as another customer here
-      POST("v1/my/payment-methods/credit-cards", thePayload).mustBeOk()
-
-      Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer1))
-      Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer2))
-
-      val ccCustomerIds = CreditCards.map(_.accountId).result.gimme
-      ccCustomerIds must contain allOf (customer1.accountId, customer2.accountId)
+      CreditCards.map(_.accountId).result.gimme must contain allOf (id1, id2)
     }
 
-    "does not create a new address if it isn't new" in new StoreAdmin_Seed with Customer_Seed {
-      POST("v1/my/payment-methods/credit-cards", thePayload).mustBeOk()
+    "does not create a new address if it isn't new" in withRandomCustomerAuth { implicit auth ⇒
+      storefrontPaymentsApi.creditCards.create(thePayload).mustBeOk()
       Addresses.result.headOption.gimme must not be defined
     }
 
-    "creates address if it's new" in new StoreAdmin_Seed with Customer_Seed {
-      POST("v1/my/payment-methods/credit-cards", thePayload.copy(addressIsNew = true)).mustBeOk()
+    "creates address if it's new" in withRandomCustomerAuth { implicit auth ⇒
+      storefrontPaymentsApi.creditCards.create(thePayload.copy(addressIsNew = true)).mustBeOk()
       Addresses.result.headOption.gimme.value must === (theAddress)
     }
 
-    "errors 400 if wrong credit card token" in new StoreAdmin_Seed with Customer_Seed {
+    "errors 400 if wrong credit card token" in withRandomCustomerAuth { implicit auth ⇒
       when(stripeWrapperMock.createCustomer(m.any()))
         .thenReturn(Result.failure[StripeCustomer](GeneralFailure("BAD-TOKEN")))
 
-      POST("v1/my/payment-methods/credit-cards", thePayload).mustFailWithMessage("BAD-TOKEN")
+      storefrontPaymentsApi.creditCards.create(thePayload).mustFailWithMessage("BAD-TOKEN")
     }
 
-    "errors 400 if wrong region id" in new Customer_Seed {
+    "errors 400 if wrong region id" in withRandomCustomerAuth { implicit auth ⇒
       val payload = thePayload.copy(billingAddress = theAddressPayload.copy(regionId = -1))
-      POST("v1/my/payment-methods/credit-cards", payload).mustFailWith400(
-          NotFoundFailure400(Region, -1))
+      storefrontPaymentsApi.creditCards
+        .create(payload)
+        .mustFailWith400(NotFoundFailure400(Region, -1))
     }
 
-    "validates payload" in {
+    "validates payload" in withRandomCustomerAuth { implicit auth ⇒
       val validationErrors = crookedPayload.validate.toEither.leftVal.toList.map(_.description)
 
-      POST("v1/my/payment-methods/credit-cards", crookedPayload).mustFailWithMessage(
-          validationErrors: _*)
+      storefrontPaymentsApi.creditCards
+        .create(crookedPayload)
+        .mustFailWithMessage(validationErrors: _*)
     }
   }
 
-  private def customerSourceMap(customer: User, token: String = tokenStripeId) =
-    Map("description" → "FoxCommerce", "email" → customer.email.value, "source" → token)
+  private def customerSourceMap(customerEmail: String, token: String = tokenStripeId) =
+    Map("description" → "FoxCommerce", "email" → customerEmail, "source" → token)
 
 }
