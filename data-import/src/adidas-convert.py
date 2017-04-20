@@ -46,6 +46,7 @@ def create_product(product_group):
         color = taxonomies['color']
 
         tags = list(taxonomies.values())
+        tags.sort()
 
         base_sku = {
             'attributes': {
@@ -159,6 +160,7 @@ def create_product(product_group):
             v['image'] = img
 
         color_values.append(v)
+    color_values.sort(key=lambda val:val["name"])
 
     size_values = variants[1]['values']
     for k, v in size_variants.items():
@@ -167,6 +169,7 @@ def create_product(product_group):
             'skuCodes': v,
             'swatch': ''
         })
+    size_values.sort(key=lambda val:val["name"])
 
     if len(skus) > 0:
         sorted_skus = list(sorted(skus.values(), key=lambda sku: sku['attributes']['code']['v']))
@@ -251,7 +254,7 @@ def read_taxonomies_section(data_product):
 def read_taxonomies_section_as_list(product):
     def toListOrValue(v):
         result = list(v)
-        return result[0] if len(result) == 1 else result
+        return result[0] if len(result) == 1 else sorted(result)
 
     data_taxonomies = read_taxonomies_section(product)
     return {k: toListOrValue(v) for (k, v) in data_taxonomies.items()}
@@ -336,11 +339,11 @@ def create_taxon(name):
 
 
 def main():
-    outDir = "data"
+    outDir = "data_r2"
     if not os.path.isdir(outDir):
         os.makedirs(outDir)
 
-    max_products_per_file = None
+    max_products_per_file = 1
 
     converted_taxonomies = convert_taxonomies()
     result = {'taxonomies': converted_taxonomies}
@@ -351,6 +354,8 @@ def main():
         file.close()
 
     converted_products = convert_products("./adidas/products.json")
+    converted_products.sort(key = lambda product: product['skus'][0]['attributes']['code']['v'])
+
     if max_products_per_file is not None and len(converted_products) > max_products_per_file:
         for index in range(0, int(math.ceil(len(converted_products) / max_products_per_file))):
             result = {'products': list(
