@@ -6,6 +6,7 @@
   vars:
     cert_path: test/fox
     docker_db_host: 172.17.0.1
+    first_run: true
     install_public_keys: true
     install_private_keys: true
     is_appliance: true
@@ -23,7 +24,7 @@
       default: "feature-branch"
       private: no
   roles:
-    # Core
+    # # Core
     - { role: dev/appliance }
     - { role: dev/dashboard }
     # Services
