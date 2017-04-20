@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 #
-
+import argparse
 import itertools
 import json
 import math
@@ -338,33 +338,6 @@ def create_taxon(name):
     return {'attributes': {'name': {'t': 'string', 'v': name}}}
 
 
-def main():
-    outDir = "data_r2"
-    if not os.path.isdir(outDir):
-        os.makedirs(outDir)
-
-    max_products_per_file = 1
-
-    converted_taxonomies = convert_taxonomies()
-    result = {'taxonomies': converted_taxonomies}
-    file = open(outDir + "/taxonomies.json", "w")
-    try:
-        json.dump(result, fp=file, indent=4, sort_keys=True)
-    finally:
-        file.close()
-
-    converted_products = convert_products("./adidas/products.json")
-    converted_products.sort(key = lambda product: product['skus'][0]['attributes']['code']['v'])
-
-    if max_products_per_file is not None and len(converted_products) > max_products_per_file:
-        for index in range(0, int(math.ceil(len(converted_products) / max_products_per_file))):
-            result = {'products': list(
-                itertools.islice(converted_products, index * max_products_per_file, (index + 1) * max_products_per_file))}
-            dump_products(result, outDir + "/products" + str(index) + ".json")
-    else:
-        dump_products(converted_products, outDir+"/products.json")
-
-
 def dump_products(products, file_name):
     file = open(file_name, "w")
     try:
@@ -384,6 +357,55 @@ def convert_products(file_location):
     converted = [create_product(g) for g in products.values()]
     return [v for v in converted if v is not None]
 
+
+def main():
+    settings = read_cmd_line()
+    if not os.path.isdir(settings.output):
+        os.makedirs(settings.output)
+
+    converted_taxonomies = convert_taxonomies()
+    dump_to_file(settings.output, "taxonomies", converted_taxonomies, settings.split_taxonomies[0])
+
+    converted_products = convert_products("./adidas/products.json")
+    converted_products.sort(key = lambda product: product['skus'][0]['attributes']['code']['v'])
+
+    dump_to_file(settings.output, "products", converted_products, settings.split_products[0])
+
+
+def read_cmd_line():
+    pp = argparse.ArgumentParser(
+        description='Converts products.json and listings.json to taxonomies.json and products.json.')
+    pp.add_argument("--input", "-i", default="adidas", nargs=1, type=str, help="input directory")
+    pp.add_argument("--output", "-o", default="data", nargs=1, type=str, help="output directory")
+    pp.add_argument("--split-products", nargs=1, type=int, default=[0],
+                    help="""if defined splits output to a multiple files.
+                    Each file contains amount of products which is less or equal 'split_products' value""")
+    pp.add_argument("--split-taxonomies", nargs=1, type=int, default=[0],
+                    help="""if defined splits output to a multiple files.
+                    Each file has amount of taxonomies which is <= 'split_taxonomies' value""")
+
+    return pp.parse_args()
+
+
+def dump_to_file(dir, objects_type, items, max_per_file):
+
+    def do_write(data, file_name):
+        file = open(file_name, "w")
+        try:
+            json.dump(data, fp=file, indent=4, sort_keys=True)
+        finally:
+            file.close()
+
+    assert type(items) is list
+    do_split = max_per_file is not None and max_per_file>0
+    if do_split and len(items) > max_per_file:
+        for index in range(0, int(math.ceil(len(items) / max_per_file))):
+            result = {objects_type: list(
+                itertools.islice(items, index * max_per_file,
+                                 (index + 1) * max_per_file))}
+            do_write(result, dir + "/"+objects_type + str(index) + ".json")
+    else:
+        do_write({objects_type: items}, dir + "/"+objects_type+".json")
 
 if __name__ == "__main__":
     main()
