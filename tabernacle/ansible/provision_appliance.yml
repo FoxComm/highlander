@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Developer Appliance
+- name: Provision Feature Branch Appliance
   hosts: '{{hostname}}'
   become: true
   vars:
