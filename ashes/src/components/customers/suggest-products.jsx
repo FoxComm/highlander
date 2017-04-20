@@ -2,8 +2,11 @@ import React, { PropTypes } from 'react';
 import ContentBox from '../content-box/content-box';
 import Api from 'lib/api';
 
-function requestSuggester(customerId, customerPhoneNumber) {
-  return Api.get(`/public/suggest/customer/${customerId}?channel=1&phone=+1${customerPhoneNumber}`);
+function requestSuggester(customerId, phoneNumber) {
+  return Api.post(
+    `/public/suggest/customer?channel=1`,
+    { customerId, phoneNumber }
+  );
 }
 
 export default class CustomerSuggestProducts extends React.Component {

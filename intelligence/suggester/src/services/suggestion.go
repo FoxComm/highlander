@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/FoxComm/highlander/intelligence/suggester/src/payloads"
 	"github.com/FoxComm/highlander/intelligence/suggester/src/responses"
 	"github.com/FoxComm/highlander/intelligence/suggester/src/util"
 	"github.com/labstack/echo"
@@ -40,10 +41,16 @@ func selectUpSellAndPushToSms(customerID string, phoneNumber string, antHillData
 }
 
 func GetSuggestion(c echo.Context) error {
-	customerID := c.Param("id")
 	channel := c.QueryParam("channel")
-	phoneNumber := c.QueryParam("phone")
-	phoneNumberClean := "+" + strings.Replace(phoneNumber, " ", "", -1)
+
+	customer := new(payloads.Customer)
+	payloadError := c.Bind(customer)
+	if payloadError != nil {
+		return c.String(http.StatusBadRequest, "payloadError: "+payloadError.Error())
+	}
+
+	customerID := customer.CustomerID
+	phoneNumberClean := "+" + strings.Replace(customer.PhoneNumber, " ", "", -1)
 
 	queryResponse, queryError := util.AntHillQuery(customerID, channel)
 	if queryError != nil {
@@ -64,7 +71,7 @@ func GetSuggestion(c echo.Context) error {
 }
 
 func DeclineSuggestion(c echo.Context) error {
-	phoneNumber := c.Param("phone")
+	phoneNumber := c.Param("phoneNumber")
 	customerID, productID, productSKU, lookupErr := util.FindCustomerAndProductFromPhoneNumber(phoneNumber)
 	if lookupErr != nil {
 		return c.String(http.StatusBadRequest, lookupErr.Error())
@@ -86,7 +93,7 @@ func DeclineSuggestion(c echo.Context) error {
 }
 
 func PurchaseSuggestion(c echo.Context) error {
-	phoneNumber := c.Param("phone")
+	phoneNumber := c.Param("phoneNumber")
 	customerID, productID, productSKU, lookupErr := util.FindCustomerAndProductFromPhoneNumber(phoneNumber)
 	if lookupErr != nil {
 		return c.String(http.StatusBadRequest, lookupErr.Error())
