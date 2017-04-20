@@ -1,17 +1,14 @@
 package services.inventory
 
-import java.time.Instant
-
-import cats._
-import cats.data._
 import cats.instances.all._
 import cats.syntax.all._
 import failures.ProductFailures._
 import failures.{Failures, GeneralFailure, NotFoundFailure400}
+import java.time.Instant
 import models.account._
 import models.inventory._
 import models.objects._
-import models.product.{Products, ProductId}
+import models.product.{ProductId, Products}
 import payloads.ImagePayloads.AlbumPayload
 import payloads.SkuPayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
@@ -174,10 +171,10 @@ object SkuManager {
         DbResultT.good(sku)
     }
 
-  def mustGetSkuCode(payload: SkuPayload): Failures Xor String =
+  def mustGetSkuCode(payload: SkuPayload): Either[Failures, String] =
     getSkuCode(payload.attributes) match {
-      case Some(code) ⇒ Xor.right(code)
-      case None       ⇒ Xor.left(GeneralFailure("SKU code not found in payload").single)
+      case Some(code) ⇒ Either.right(code)
+      case None       ⇒ Either.left(GeneralFailure("SKU code not found in payload").single)
     }
 
   def getSkuCode(attributes: Map[String, Json]): Option[String] =

@@ -1,8 +1,6 @@
 package models.auth
 
-import akka.http.scaladsl.model.headers.{BasicHttpCredentials, GenericHttpCredentials, HttpCredentials}
-
-import cats.data.Xor
+import akka.http.scaladsl.model.headers.{GenericHttpCredentials, HttpCredentials}
 import failures.Failures
 import utils.db._
 
@@ -16,11 +14,11 @@ case class BearerTokenCredentials(secret: String) extends Credentials
 object Credentials {
 
   def mustVerifyJWTCredentials(cred: Option[HttpCredentials],
-                               or: Failures): Failures Xor JWTCredentials =
+                               or: Failures): Either[Failures, JWTCredentials] =
     cred.flatMap {
       // assume it's JWT
       // passing scheme as argument where we expect token is not a typo
       case GenericHttpCredentials(scheme, token, params) ⇒ Some(JWTCredentials(scheme))
       case _                                             ⇒ None
-    }.toXor(or)
+    }.toEither(or)
 }

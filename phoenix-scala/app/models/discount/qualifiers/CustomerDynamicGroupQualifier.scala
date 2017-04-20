@@ -1,6 +1,5 @@
 package models.discount.qualifiers
 
-import cats.data._
 import cats.implicits._
 import failures.DiscountFailures._
 import models.discount.{CustomerSearch, DiscountInput}
@@ -13,8 +12,8 @@ case class CustomerDynamicGroupQualifier(search: CustomerSearch) extends Qualifi
   val qualifierType: QualifierType = CustomerDynamicGroup
 
   def check(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis, au: AU): Result[Unit] =
-    search.query(input).mapXor {
-      case Xor.Right(count) if count > 0 ⇒ Xor.Right(Unit)
-      case _                             ⇒ Xor.Left(SearchFailure.single)
+    search.query(input).mapEither {
+      case Right(count) if count > 0 ⇒ Either.right(Unit)
+      case _                         ⇒ Either.left(SearchFailure.single)
     }
 }

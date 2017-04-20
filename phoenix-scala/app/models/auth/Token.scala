@@ -1,13 +1,11 @@
 package models.auth
 
+import cats.implicits._
+import failures.AuthFailures._
+import failures.{Failures, GeneralFailure}
 import java.io.{FileInputStream, InputStream}
 import java.security.spec.{PKCS8EncodedKeySpec, X509EncodedKeySpec}
 import java.security.{KeyFactory, PrivateKey, PublicKey}
-import scala.collection.JavaConverters._
-import scala.util.{Failure, Success, Try}
-import cats.data.Xor
-import failures.AuthFailures._
-import failures.{Failures, GeneralFailure}
 import models.account.{Account, User}
 import org.jose4j.jwa.AlgorithmConstraints
 import org.jose4j.jws.JsonWebSignature
@@ -15,6 +13,8 @@ import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.consumer.JwtConsumerBuilder
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
+import scala.collection.JavaConverters._
+import scala.util.{Failure, Success, Try}
 import utils.FoxConfig
 import utils.FoxConfig.config
 import utils.db._
@@ -57,10 +57,10 @@ object Keys {
       case e ⇒ throw KeyLoadException(e)
     }
 
-  private[auth] lazy val authPrivateKey: Failures Xor PrivateKey =
-    loadPrivateKey.toOption.toXor(GeneralFailure("Server error: can't load private key").single)
-  private[auth] lazy val authPublicKey: Failures Xor PublicKey =
-    loadPublicKey.toOption.toXor(GeneralFailure("Server error: can't load public key").single)
+  private[auth] lazy val authPrivateKey: Either[Failures, PrivateKey] =
+    loadPrivateKey.toOption.toEither(GeneralFailure("Server error: can't load private key").single)
+  private[auth] lazy val authPublicKey: Either[Failures, PublicKey] =
+    loadPublicKey.toOption.toEither(GeneralFailure("Server error: can't load public key").single)
 }
 
 sealed trait Token extends Product {
@@ -71,7 +71,7 @@ sealed trait Token extends Product {
   val roles: Seq[String]
   val claims: Account.Claims
   val ratchet: Int
-  def encode: Failures Xor String = Token.encode(this)
+  def encode: Either[Failures, String] = Token.encode(this)
 
   def hasRole(test: String): Boolean = {
     roles.contains(test)
@@ -127,12 +127,12 @@ object Token {
     claims
   }
 
-  def encode(token: Token): Failures Xor String = {
+  def encode(token: Token): Either[Failures, String] = {
     val claims = Token.getJWTClaims(token)
     encodeJWTClaims(claims)
   }
 
-  def encodeJWTClaims(claims: JwtClaims): Failures Xor String = {
+  def encodeJWTClaims(claims: JwtClaims): Either[Failures, String] = {
     Keys.authPrivateKey.map { privateKey ⇒
       val jws = new JsonWebSignature
       jws.setPayload(claims.toJson)
@@ -142,7 +142,7 @@ object Token {
     }
   }
 
-  def fromString(rawToken: String, kind: Identity.IdentityKind): Failures Xor Token = {
+  def fromString(rawToken: String, kind: Identity.IdentityKind): Either[Failures, Token] = {
     Keys.authPublicKey.flatMap { publicKey ⇒
       val builder = new JwtConsumerBuilder()
         .setRequireExpirationTime()
@@ -158,10 +158,10 @@ object Token {
         val jValue    = parse(jwtClaims.toJson)
         Extraction.extract[UserToken](jValue)
       } match {
-        case Success(token) ⇒ Xor.right(token)
+        case Success(token) ⇒ Either.right(token)
         case Failure(e) ⇒
           System.err.println(e.getMessage)
-          Xor.left(AuthFailed(e.getMessage).single)
+          Either.left(AuthFailed(e.getMessage).single)
       }
     }
   }

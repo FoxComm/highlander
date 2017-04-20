@@ -1,12 +1,11 @@
 package testutils
 
 import scala.language.implicitConversions
-import scala.reflect.runtime.universe.TypeTag
-import cats.data._
 import cats.implicits._
 import failures.Failures
 import org.scalatest.AppendedClues
 import org.scalatest.concurrent.ScalaFutures
+import scala.reflect.runtime.universe.TypeTag
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Query
 import utils.aliases._
@@ -43,7 +42,7 @@ trait GimmeSupport extends ScalaFutures with CatsHelpers with AppendedClues {
       db.run(dbio.transactionally).futureValue withClue originalSourceClue
   }
 
-  implicit class GimmeDbResult[R](dbResult: DBIO[Failures Xor R]) { // TODO: is this used? @michalrus
+  implicit class GimmeDbResult[R](dbResult: DBIO[Either[Failures, R]]) { // TODO: is this used? @michalrus
 
     def gimme(implicit tt: TypeTag[R], ec: EC, db: DB, line: SL, file: SF): R =
       db.run(dbResult).futureValue.rightVal withClue originalSourceClue

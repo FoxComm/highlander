@@ -1,7 +1,6 @@
-import java.time.ZonedDateTime
-
 import cats.implicits._
 import failures.{GeneralFailure, NotFoundFailure400, NotFoundFailure404}
+import java.time.ZonedDateTime
 import models.account._
 import models.location.{Addresses, Region}
 import models.payment.creditcard.{BillingAddress, CreditCard, CreditCards}
@@ -19,8 +18,8 @@ import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.TestStripeSupport
 import utils.aliases.stripe.StripeCustomer
-import utils.seeds.Factories
 import utils.db._
+import utils.seeds.Factories
 
 class CreditCardsIntegrationTest
     extends IntegrationTestBase
@@ -168,7 +167,7 @@ class CreditCardsIntegrationTest
     }
 
     "validates payload" in {
-      val validationErrors = crookedPayload.validate.toXor.leftVal.toList.map(_.description)
+      val validationErrors = crookedPayload.validate.toEither.leftVal.toList.map(_.description)
 
       customersApi(666).payments.creditCards
         .create(crookedPayload)
@@ -310,7 +309,7 @@ class CreditCardsIntegrationTest
     }
 
     "validates payload" in {
-      val validationErrors = crookedPayload.validate.toXor.leftVal.toList.map(_.description)
+      val validationErrors = crookedPayload.validate.toEither.leftVal.toList.map(_.description)
 
       POST("v1/my/payment-methods/credit-cards", crookedPayload).mustFailWithMessage(
           validationErrors: _*)
