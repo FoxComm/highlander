@@ -1,6 +1,6 @@
 package payloads
 
-import cats.data.Xor
+import cats.implicits._
 import failures._
 import models.auth.Token
 import org.jose4j.jwt.JwtClaims
@@ -14,7 +14,7 @@ object AuthPayload {
   /**
     * Requires valid PHOENIX_PRIVATE_KEY for encode JwtClaims
     */
-  def apply(token: Token): Failures Xor AuthPayload = {
+  def apply(token: Token): Either[Failures, AuthPayload] = {
     val claims = Token.getJWTClaims(token)
     Token.encodeJWTClaims(claims).map { encoded ⇒
       AuthPayload(claims = claims, jwt = encoded)

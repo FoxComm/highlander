@@ -2,13 +2,13 @@ package testutils
 
 import cats.data.Validated
 import cats.data.Validated.Valid
-import cats.data.Xor.{left, right}
+import cats.implicits._
 
 class CatsHelpersTest extends TestBase with CatsHelpers {
   "rightValue" - {
     "on Right" - {
       "returns the value" in {
-        rightValue(right(42L)) must === (42L)
+        rightValue(Either.right(42L)) must === (42L)
       }
     }
 
@@ -16,7 +16,7 @@ class CatsHelpersTest extends TestBase with CatsHelpers {
       "throws an exception with a good error message" in {
         val exception =
           the[RuntimeException] thrownBy {
-            rightValue(left[String, Option[Long]]("Invalid number")) must === (Some(42L))
+            rightValue(Either.left[String, Option[Long]]("Invalid number")) must === (Some(42L))
           }
 
         exception.getMessage must (include("Expected Right") and
@@ -33,7 +33,7 @@ class CatsHelpersTest extends TestBase with CatsHelpers {
       "throws an exception with a good error message" in {
         val exception =
           the[RuntimeException] thrownBy {
-            leftValue(right[String, Option[Long]](Some(42L))) must === ("Invalid number")
+            leftValue(Either.right[String, Option[Long]](Some(42L))) must === ("Invalid number")
           }
 
         exception.getMessage must (include("Expected Left") and
@@ -46,7 +46,7 @@ class CatsHelpersTest extends TestBase with CatsHelpers {
 
     "on Left" - {
       "returns the value" in {
-        leftValue(left("Invalid number")) must === ("Invalid number")
+        leftValue(Either.left("Invalid number")) must === ("Invalid number")
       }
     }
   }
@@ -105,11 +105,11 @@ class CatsHelpersTest extends TestBase with CatsHelpers {
 
   "implicits" - {
     "right" in {
-      right("left").rightVal must === ("left")
+      Either.right("left").rightVal must === ("left")
     }
 
     "left" in {
-      left("right").leftVal must === ("right")
+      Either.left("right").leftVal must === ("right")
     }
 
     "valid" in {

@@ -1,15 +1,12 @@
 package utils.seeds
 
-import com.github.tminglei.slickpg.LTree
-import cats._
-import cats.data._
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import com.typesafe.config.Config
 import failures.UserFailures._
 import failures.{Failures, FailuresOps, NotFoundFailure404}
 import java.time.{Instant, ZoneId}
-
 import models.Reasons
 import models.account._
 import models.activity.ActivityContext
@@ -17,7 +14,6 @@ import models.auth.UserToken
 import models.objects.ObjectContexts
 import models.product.SimpleContext
 import org.postgresql.ds.PGSimpleDataSource
-
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -174,7 +170,7 @@ object Seeds {
       ac: AC): T = {
     Console.out.println(name)
     // TODO: Should we really be discarding all warnings here (and git-grep 'runEmptyA')? Rethink! @michalrus
-    val result: Failures Xor T = Await.result(f.runTxn().runEmptyA.value, waitFor)
+    val result: Either[Failures, T] = Await.result(f.runTxn().runEmptyA.value, waitFor)
     validateResults(name, result)
   }
 
@@ -298,7 +294,7 @@ object Seeds {
     source
   }
 
-  private def validateResults[R](seed: String, result: Failures Xor R)(implicit db: DB): R = {
+  private def validateResults[R](seed: String, result: Either[Failures, R])(implicit db: DB): R = {
     result.fold(failures ⇒ {
       Console.err.println(s"'$seed' has failed!")
       failures.flatten.foreach(Console.err.println)

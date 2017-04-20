@@ -1,11 +1,12 @@
 ---
 
-- name: Provision Developer Appliance
+- name: Provision Feature Branch Appliance
   hosts: '{{hostname}}'
   become: true
   vars:
     cert_path: test/fox
     docker_db_host: 172.17.0.1
+    first_run: true
     install_public_keys: true
     install_private_keys: true
     is_appliance: true
@@ -50,3 +51,6 @@
     - { role: dev/seeder }
     # Finale
     - { role: dev/healthcheck }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

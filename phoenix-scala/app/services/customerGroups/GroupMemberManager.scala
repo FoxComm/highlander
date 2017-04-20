@@ -1,12 +1,10 @@
 package services.customerGroups
 
-import cats._
 import cats.implicits._
-import java.time.Instant
-import java.time.temporal.ChronoUnit.DAYS
-
 import failures.CustomerGroupFailures.CustomerGroupMemberPayloadContainsSameIdsInBothSections
 import failures.{NotFoundFailure400, NotFoundFailure404}
+import java.time.Instant
+import java.time.temporal.ChronoUnit.DAYS
 import models.account.{User, Users}
 import models.cord.Orders
 import models.customer.CustomerGroup._
@@ -77,7 +75,7 @@ object GroupMemberManager {
       customer  ← * <~ Users.mustFindByAccountId(accountId)
       newGroups ← * <~ CustomerGroups.findAllByIds(groupIds.toSet).result
       check ← * <~ newGroups.map { group ⇒
-               DbResultT.fromXor(group.mustBeOfType(Manual))
+               DbResultT.fromEither(group.mustBeOfType(Manual))
              }
       customerDatas ← * <~ CustomersData
                        .filter(_.accountId === accountId)

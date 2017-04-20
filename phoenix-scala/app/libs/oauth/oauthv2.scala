@@ -1,10 +1,9 @@
 package libs.oauth
 
-import scala.concurrent.Future
-
-import cats.data.XorT
+import cats.data.EitherT
 import dispatch.{Http, as, url ⇒ request}
 import org.json4s._
+import scala.concurrent.Future
 import utils.aliases._
 
 case class UserInfo(name: String, email: String)
@@ -13,7 +12,7 @@ trait OauthProvider {
   val oauthAuthorizationUrl: String
   val oauthAccessTokenUrl: String
 
-  def userInfo(accessToken: String)(implicit ec: EC): XorT[Future, Throwable, UserInfo]
+  def userInfo(accessToken: String)(implicit ec: EC): EitherT[Future, Throwable, UserInfo]
 }
 
 trait OauthClientOptions {
@@ -41,8 +40,8 @@ abstract class Oauth(oauthOptions: OauthClientOptions) extends OauthProvider {
       .url
   }
 
-  def accessToken(code: String)(implicit ec: EC): XorT[Future, Throwable, AccessTokenResponse] =
-    xorTryFuture {
+  def accessToken(code: String)(implicit ec: EC): EitherT[Future, Throwable, AccessTokenResponse] =
+    eitherTryFuture {
       val req = request(oauthAccessTokenUrl).POST.<<(
           Map("client_id"     → oauthOptions.clientId,
               "client_secret" → oauthOptions.clientSecret,

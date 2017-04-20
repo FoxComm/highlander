@@ -1,20 +1,18 @@
 package services.carts
 
 import cats._
-import cats.data._
 import cats.implicits._
 import failures.CouponFailures._
 import failures.DiscountCompilerFailures._
 import failures.Failures
 import failures.OrderFailures._
 import failures.PromotionFailures._
-import failures.UserFailures.{UserEmailNotUnique, UserWithAccountNotFound}
+import failures.UserFailures.UserWithAccountNotFound
 import models.account.{User, Users}
 import models.cord.OrderPromotions.scope._
 import models.cord._
 import models.cord.lineitems._
 import models.coupon._
-import models.customer.CustomerGroups
 import models.discount.DiscountHelpers._
 import models.discount._
 import models.discount.offers._
@@ -269,9 +267,9 @@ object CartPromotionUpdater {
   /**
     * Getting only first discount now
     */
-  private def tryDiscount[T](discounts: Seq[T]): Failures Xor T = discounts.headOption match {
-    case Some(discount) ⇒ Xor.Right(discount)
-    case _              ⇒ Xor.Left(EmptyDiscountFailure.single)
+  private def tryDiscount[T](discounts: Seq[T]): Either[Failures, T] = discounts.headOption match {
+    case Some(discount) ⇒ Either.right(discount)
+    case _              ⇒ Either.left(EmptyDiscountFailure.single)
   }
 
   private def getAdjustments(promo: ObjectShadow, cart: Cart, qualifier: Qualifier, offer: Offer)(

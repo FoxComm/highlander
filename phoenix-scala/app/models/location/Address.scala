@@ -1,10 +1,8 @@
 package models.location
 
-import java.time.Instant
-
-import cats.data.Xor
-import cats.data.Xor.{left, right}
+import cats.implicits._
 import failures.{Failures, NotFoundFailure404}
+import java.time.Instant
 import models.cord.OrderShippingAddress
 import models.payment.creditcard.CreditCard
 import models.traits.Addressable
@@ -34,9 +32,9 @@ case class Address(id: Int = 0,
   override def sanitize = super.sanitize(this)
   override def validate = super.validate
 
-  def mustBelongToAccount(accountId: Int): Failures Xor Address =
-    if (this.isNew || this.accountId == accountId) right(this)
-    else left(NotFoundFailure404(Address, this.id).single)
+  def mustBelongToAccount(accountId: Int): Either[Failures, Address] =
+    if (this.isNew || this.accountId == accountId) Either.right(this)
+    else Either.left(NotFoundFailure404(Address, this.id).single)
 }
 
 object Address {

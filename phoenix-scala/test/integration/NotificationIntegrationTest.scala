@@ -1,21 +1,17 @@
 import akka.stream.scaladsl.Source
-
-import java.time.Instant
-
 import com.github.tminglei.slickpg.LTree
 import failures._
+import java.time.Instant
 import models.NotificationSubscription._
-import models.Notification
+import models.{Notification, NotificationSubscriptions}
 import models.account._
 import models.activity._
-import models.{NotificationSubscriptions}
 import org.json4s.Extraction
 import org.json4s.JsonAST._
 import org.json4s.jackson.Serialization.write
 import payloads.{CreateNotification, NotificationActivity}
-import responses.{NotificationResponse, ActivityResponse, LastSeenNotificationResponse}
+import responses.{ActivityResponse, LastSeenNotificationResponse, NotificationResponse}
 import services.NotificationManager
-import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -150,7 +146,7 @@ class NotificationIntegrationTest
       }
 
       "ignores wrong ids" in new Fixture {
-        unsubscribeFromNotifications() // `rightVal` checks we got Xor.Right
+        unsubscribeFromNotifications() // `rightVal` checks we got Either.right
       }
     }
   }

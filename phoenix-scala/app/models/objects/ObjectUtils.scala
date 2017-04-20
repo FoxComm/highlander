@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.data.NonEmptyList
 import cats.implicits._
 import failures.Failure
-import org.json4s.JsonAST.{JNothing, JObject, JString}
+import org.json4s.JsonAST.{JNothing, JObject, JString, JNull}
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -93,12 +93,17 @@ object ObjectUtils {
       case JObject(o) ⇒
         o.obj.map {
           case (key, value) ⇒
-            val t = value \ "type"
-            val ref = value \ "ref" match {
-              case JString(s) ⇒ s
-              case _          ⇒ key
+            val typ = value \ "type"
+            typ match {
+              case JString(t) ⇒ {
+                val ref = (value \ "ref") match {
+                  case JString(s) ⇒ s
+                  case _          ⇒ key
+                }
+                (key, ("type" → t) ~ ("ref" → keyMap.getOrElse(ref, ref)))
+              }
+              case _ ⇒ (key, JNull)
             }
-            (key, ("type" → t) ~ ("ref" → keyMap.getOrElse(ref, ref)))
         }
       case _ ⇒ JNothing
     }
@@ -134,17 +139,19 @@ object ObjectUtils {
 
   def insert(formProto: ObjectForm, shadowProto: ObjectShadow, schema: Option[String])(
       implicit ec: EC): DbResultT[InsertResult] = {
-    val n = ObjectUtils.newFormAndShadow(formProto.attributes, shadowProto.attributes)
 
+    val n = ObjectUtils.newFormAndShadow(formProto.attributes, shadowProto.attributes)
     for {
+      //make sure the form and shadow are correctly structured
+      _ ← * <~ failIfErrors(IlluminateAlgorithm.validateAttributesTypes(n.form, n.shadow))
+      _ ← * <~ failIfErrors(IlluminateAlgorithm.validateAttributes(n.form, n.shadow))
+
       optSchema ← * <~ ObjectSchemasManager.getSchemaByOptNameOrKind(schema, formProto.kind)
       form      ← * <~ ObjectForms.create(formProto.copy(attributes = n.form))
       shadow ← * <~ ObjectShadows.create(
                   shadowProto.copy(formId = form.id,
                                    attributes = n.shadow,
                                    jsonSchema = optSchema.map(_.name)))
-      _ ← * <~ failIfErrors(
-             IlluminateAlgorithm.validateAttributesTypes(form.attributes, shadow.attributes))
       //Make sure form is correct and shadow links are correct
       _ ← * <~ optSchema.map { schema ⇒
            IlluminateAlgorithm.validateObjectBySchema(schema, form, shadow)

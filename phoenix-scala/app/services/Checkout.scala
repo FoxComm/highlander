@@ -1,6 +1,5 @@
 package services
 
-import cats.data.Xor
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.AddressFailures.NoDefaultAddressForCustomer
@@ -26,6 +25,7 @@ import org.json4s.JsonAST._
 import payloads.CartPayloads.CheckoutCart
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import responses.cord.OrderResponse
+import scala.util.Random
 import services.carts._
 import services.coupon.CouponUsageService
 import services.inventory.SkuManager
@@ -33,8 +33,6 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.apis._
 import utils.db._
-
-import scala.util.Random
 
 object PaymentHelper {
 
@@ -207,9 +205,9 @@ case class Checkout(
     actions.transformF(_.recoverWith {
       case failures if externalCalls.middleWarehouseSuccess ⇒
         DbResultT
-          .fromResult(cancelHoldInMiddleWarehouse.mapXor {
-            case Xor.Left(cancelationFailures) ⇒ Xor.Left(failures |+| cancelationFailures)
-            case _                             ⇒ Xor.Left(failures)
+          .fromResult(cancelHoldInMiddleWarehouse.mapEither {
+            case Left(cancelationFailures) ⇒ Either.left(failures |+| cancelationFailures)
+            case _                         ⇒ Either.left(failures)
           })
           .runEmpty
     })

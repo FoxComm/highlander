@@ -56,3 +56,9 @@
     z-index: 10;
   }
 }
+
+@media (--small-only) {
+  .container {
+    padding: 16px;
+  }
+}

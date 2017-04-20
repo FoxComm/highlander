@@ -1,6 +1,6 @@
 package services.discount.compilers
 
-import cats.data.Xor
+import cats.implicits._
 import failures.DiscountCompilerFailures._
 import failures._
 import models.discount.NonEmptySearch
@@ -13,30 +13,30 @@ case class QualifierCompiler(qualifierType: QualifierType, attributes: Json) {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
-  def compile(): Xor[Failures, Qualifier] = qualifierType match {
+  def compile(): Either[Failures, Qualifier] = qualifierType match {
     case And                  ⇒ extract[AndQualifier](attributes)
     case CustomerDynamicGroup ⇒ extract[CustomerDynamicGroupQualifier](attributes)
-    case OrderAny             ⇒ Xor.Right(OrderAnyQualifier)
+    case OrderAny             ⇒ Either.right(OrderAnyQualifier)
     case OrderTotalAmount     ⇒ extract[OrderTotalAmountQualifier](attributes)
     case OrderNumUnits        ⇒ extract[OrderNumUnitsQualifier](attributes)
     case ItemsAny             ⇒ extract[ItemsAnyQualifier](attributes)
     case ItemsTotalAmount     ⇒ extract[ItemsTotalAmountQualifier](attributes)
     case ItemsNumUnits        ⇒ extract[ItemsNumUnitsQualifier](attributes)
-    case _                    ⇒ Xor.Left(QualifierNotImplementedFailure(qualifierType).single)
+    case _                    ⇒ Either.left(QualifierNotImplementedFailure(qualifierType).single)
   }
 
   private def extract[T <: Qualifier](json: Json)(
-      implicit m: Manifest[T]): Xor[Failures, Qualifier] = {
+      implicit m: Manifest[T]): Either[Failures, Qualifier] = {
     json.extractOpt[T] match {
       case Some(q) ⇒
         q match {
           case q: NonEmptySearch if q.search.isEmpty ⇒
-            Xor.Left(QualifierSearchIsEmpty(qualifierType).single)
+            Either.left(QualifierSearchIsEmpty(qualifierType).single)
           case _ ⇒
-            Xor.Right(q)
+            Either.right(q)
         }
       case None ⇒
-        Xor.Left(QualifierAttributesExtractionFailure(qualifierType).single)
+        Either.left(QualifierAttributesExtractionFailure(qualifierType).single)
     }
   }
 }

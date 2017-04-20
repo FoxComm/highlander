@@ -29,8 +29,7 @@ import Currency from 'ui/currency';
 import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
 import ErrorAlerts from 'ui/alerts/error-alerts';
-import ProductDetails from './product-details';
-
+import ProductVariants from 'components/product-variants/product-variants';
 import GiftCardForm from 'components/gift-card-form';
 import ImagePlaceholder from 'components/products-item/image-placeholder';
 import RelatedProductsList,
@@ -106,7 +105,7 @@ const mapDispatchToProps = dispatch => ({
 class Pdp extends Component {
   props: Props;
   productPromise: Promise<*>;
-  _productDetails: ProductDetails;
+  _productDetails: ProductVariants;
   containerNode: Element<*>;
 
   state: State = {
@@ -298,12 +297,12 @@ class Pdp extends Component {
     const description = _.get(this.props.product, 'attributes.description.v', '');
     const descriptionList = _.get(this.props.product, 'attributes.description_list.v', '');
     return (
-      <div>
+      <div styleName="body">
         <div
           styleName="description"
           dangerouslySetInnerHTML={{__html: description}}
         />
-        <div
+        <ul
           styleName="description-list"
           dangerouslySetInnerHTML={{__html: descriptionList}}
         />
@@ -315,6 +314,34 @@ class Pdp extends Component {
   handleSkuChange(sku: ?Sku) {
     if (sku) {
       this.setCurrentSku(sku);
+    }
+  }
+
+  @autobind
+  getTaxonValue(name: string): ?string {
+    const taxons = _.get(this.props.product, 'taxons', []);
+    const taxonomy = _.find(taxons, (taxonomyEntity) => {
+      const taxonomyName = _.get(taxonomyEntity, 'attributes.name.v');
+      return name === taxonomyName;
+    });
+
+    return _.get(taxonomy, ['taxons', 0, 'attributes', 'name', 'v']);
+  }
+
+  get productCategory(): ?Element<any> {
+    let gender = this.getTaxonValue('gender');
+    const type = this.getTaxonValue('type');
+
+    if (gender && type) {
+      if (gender.toLowerCase() === 'men') {
+        gender = 'men\'s';
+      } else if (gender.toLowerCase() === 'women') {
+        gender = 'women\'s';
+      }
+
+      return (
+        <div>{`${gender} ${type}`}</div>
+      );
     }
   }
 
@@ -331,7 +358,7 @@ class Pdp extends Component {
       );
     }
     return (
-      <ProductDetails
+      <ProductVariants
         ref={(_ref) => { this._productDetails = _ref; }}
         product={this.props.product}
         productView={this.productView}
@@ -348,7 +375,7 @@ class Pdp extends Component {
 
     return (
       <RelatedProductsList
-        title="You might also like"
+        title="You Might Also Like"
         list={relatedProducts.result}
         productsOrder={relatedProductsOrder}
         isLoading={isRelatedProductsLoading}
@@ -414,22 +441,39 @@ class Pdp extends Component {
     const title = this.isGiftCard() ? t('Gift Card') : this.productView.title;
 
     return (
-      <div ref={(containerNode) => (this.containerNode = containerNode)} styleName="container">
+      <div ref={containerNode => (this.containerNode = containerNode)} styleName="container">
         <div styleName="body">
-          {this.renderGallery()}
-          <h1 styleName="title">{title}</h1>
-          <ErrorAlerts error={this.state.error} />
-          {this.productPrice}
-          {this.productForm}
-          <div styleName="cart-actions">
-            <AddToCartBtn
-              onClick={this.addToCart}
-            />
-            {/* <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton> */}
+          <div styleName="sixty">
+            {this.renderGallery()}
           </div>
+          <div styleName="forty">
+            <div styleName="category">{this.productCategory}</div>
+            <h1 styleName="title">{title}</h1>
+            <ErrorAlerts error={this.state.error} />
+            {this.productPrice}
+            {this.productForm}
+            <div styleName="cart-actions">
+              <AddToCartBtn
+                onClick={this.addToCart}
+              />
+              {/* <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton> */}
+            </div>
+          </div>
+        </div>
+        <div styleName="title-block">
           <h1 styleName="title-secondary">{title}</h1>
           {this.productShortDescription}
-          {this.productDetails}
+        </div>
+        {this.productDetails}
+        <div styleName="share-block">
+          <div styleName="share-title">
+            Share How You Wear It
+          </div>
+          <p styleName="share-description">
+            For your change to be featured in our photo gallery<br />
+            tag your favorite Pure photo using #3stripestyle.
+          </p>
+          <img styleName="share-image" src="/images/pdp/style.jpg" />
         </div>
         {this.relatedProductsList}
       </div>

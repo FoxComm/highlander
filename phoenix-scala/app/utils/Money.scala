@@ -1,6 +1,6 @@
 package utils
 
-import cats.data.Xor
+import cats.implicits._
 import org.joda.money.CurrencyUnit
 import org.json4s.CustomSerializer
 import org.json4s.JsonAST.JString
@@ -19,7 +19,7 @@ object Money {
     val RUB = Currency("RUB")
 
     def apply(s: String): Currency =
-      Xor.catchOnly[BadCurrency] { CurrencyUnit.of(s.toUpperCase()) }.fold(_ ⇒ USD, identity)
+      Either.catchOnly[BadCurrency] { CurrencyUnit.of(s.toUpperCase()) }.fold(_ ⇒ USD, identity)
 
     def unapply(c: Currency): Option[String] = Some(c.getCode)
   }

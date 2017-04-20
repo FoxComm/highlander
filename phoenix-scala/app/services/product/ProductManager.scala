@@ -1,21 +1,18 @@
 package services.product
 
-import java.time.Instant
-
-import com.github.tminglei.slickpg.LTree
-import cats.data._
+import cats.data.{ValidatedNel, _}
 import cats.implicits._
-import cats.data.ValidatedNel
-import cats.instances.map
 import com.typesafe.scalalogging.LazyLogging
-import failures._
 import failures.ArchiveFailures._
 import failures.ProductFailures._
-import models.image.{AlbumImageLinks, Albums}
+import failures._
+import java.time.Instant
+import models.account._
 import models.inventory._
 import models.objects._
 import models.product._
-import models.account._
+import org.json4s.JsonDSL._
+import org.json4s._
 import payloads.ImagePayloads.AlbumPayload
 import payloads.ProductPayloads._
 import payloads.SkuPayloads._
@@ -26,20 +23,18 @@ import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses._
 import responses.SkuResponses._
 import responses.VariantResponses.IlluminatedVariantResponse
+import services.LogActivity
 import services.image.ImageManager
+import services.image.ImageManager.FullAlbumWithImages
 import services.inventory.SkuManager
 import services.objects.ObjectManager
+import services.taxonomy.TaxonomyManager
 import services.variant.VariantManager
 import services.variant.VariantManager._
 import slick.driver.PostgresDriver.api._
 import utils.Validation._
 import utils.aliases._
 import utils.db._
-import org.json4s._
-import org.json4s.JsonDSL._
-import services.LogActivity
-import services.taxonomy.TaxonomyManager
-import services.image.ImageManager.FullAlbumWithImages
 
 object ProductManager extends LazyLogging {
 
@@ -97,11 +92,11 @@ object ProductManager extends LazyLogging {
         .illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow)
       _ ← * <~ doOrMeh(checkActive, {
            illuminated.mustBeActive match {
-             case Xor.Left(err) ⇒ {
+             case Left(err) ⇒ {
                logger.warn(err.toString)
                DbResultT.failure(NotFoundFailure404(Product, oldProduct.model.slug))
              }
-             case Xor.Right(_) ⇒ DbResultT.unit
+             case Right(_) ⇒ DbResultT.unit
            }
          })
       albums ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
@@ -189,8 +184,8 @@ object ProductManager extends LazyLogging {
       implicit ec: EC,
       db: DB,
       oc: OC): DbResultT[ProductResponse.Root] = {
-    val payload = Map("activeFrom" → (("v" → JNull) ~ ("type" → JString("datetime"))),
-                      "activeTo" → (("v" → JNull) ~ ("type" → JString("datetime"))))
+    val payload = Map("activeFrom" → (("v" → JNull) ~ ("t" → JString("datetime"))),
+                      "activeTo" → (("v" → JNull) ~ ("t" → JString("datetime"))))
 
     val newFormAttrs   = ObjectForm.fromPayload(Product.kind, payload).attributes
     val newShadowAttrs = ObjectShadow.fromPayload(payload).attributes

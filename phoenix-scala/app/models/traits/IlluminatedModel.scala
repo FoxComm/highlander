@@ -1,10 +1,8 @@
 package models.traits
 
-import java.time.Instant
-
-import cats.data.Xor
-import cats.data.Xor.{Left, right}
+import cats.implicits._
 import failures.{Failure, Failures}
+import java.time.Instant
 import utils.JsonFormatters
 import utils.aliases.Json
 
@@ -18,9 +16,9 @@ trait IlluminatedModel[T] {
 
   protected def inactiveError: Failure
 
-  def mustBeActive: Failures Xor IlluminatedModel[T] = {
+  def mustBeActive: Either[Failures, IlluminatedModel[T]] = {
     if (archivedAt.isDefined) {
-      Left(inactiveError.single)
+      Either.left(inactiveError.single)
     } else {
       val activeFrom = (attributes \ "activeFrom" \ "v").extractOpt[Instant]
       val activeTo   = (attributes \ "activeTo" \ "v").extractOpt[Instant]
@@ -28,13 +26,13 @@ trait IlluminatedModel[T] {
 
       (activeFrom, activeTo) match {
         case (Some(from), Some(to)) ⇒
-          if (from.isBefore(now) && to.isAfter(now)) right(this)
-          else Left(inactiveError.single)
+          if (from.isBefore(now) && to.isAfter(now)) Either.right(this)
+          else Either.left(inactiveError.single)
         case (Some(from), None) ⇒
-          if (from.isBefore(now)) right(this)
-          else Left(inactiveError.single)
+          if (from.isBefore(now)) Either.right(this)
+          else Either.left(inactiveError.single)
         case _ ⇒
-          Left(inactiveError.single)
+          Either.left(inactiveError.single)
       }
     }
   }

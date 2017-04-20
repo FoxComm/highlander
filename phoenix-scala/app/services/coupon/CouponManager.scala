@@ -53,7 +53,7 @@ object CouponManager {
   private def forceActivate(attributes: Map[String, Json]): Map[String, Json] =
     attributes
       .updated("activeFrom", ("t" → "datetime") ~ ("v" → Instant.ofEpochMilli(1).toString))
-      .updated("activeTo", JNull)
+      .updated("activeTo", ("t"   → "datetime") ~ ("v" → JNull))
 
   def update(id: Int, payload: UpdateCoupon, contextName: String, admin: User)(
       implicit ec: EC,
