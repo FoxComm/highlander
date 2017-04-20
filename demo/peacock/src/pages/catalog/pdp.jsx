@@ -140,6 +140,7 @@ class Pdp extends Component {
     const nextId = this.getId(nextProps);
 
     if (this.productId !== nextId) {
+      this.setState({ currentSku: null });
       this.props.actions.resetProduct();
       this.props.actions.clearRelatedProducts();
       this.fetchProduct(nextProps, nextId);
