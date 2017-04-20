@@ -3,7 +3,8 @@ import React from 'react';
 import { Router, applyRouterMiddleware } from 'react-router';
 import { createAppHistory } from 'lib/history';
 
-import useScroll from 'react-router-scroll';
+import useScroll from 'react-router-scroll/lib/useScroll';
+
 import { Provider } from 'react-redux';
 import { render } from 'react-dom';
 import makeStore from './store';
