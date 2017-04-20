@@ -1,0 +1,8 @@
+.block._big .viewport {
+  position: absolute 40px;
+}
+
+.viewport {
+  display: flex;
+  align-items: stretch;
+}

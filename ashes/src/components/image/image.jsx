@@ -1,13 +1,12 @@
 /* @flow */
 
 // styles
-import styles from './image.css';
+import s from './image.css';
 
 // libs
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import React, { Component, Element } from 'react';
-import Transition from 'react-transition-group/CSSTransitionGroup';
 
 // components
 import WaitAnimation from '../common/wait-animation';
@@ -16,6 +15,7 @@ import ProductImage from 'components/imgix/product-image';
 type Props = {
   id: number,
   src: string,
+  size?: 'cover' | 'contain',
   loader?: string|Element<*>;
 }
 
@@ -76,6 +76,7 @@ export default class ImageLoader extends Component {
 
   @autobind
   handleLoad(): void {
+    console.log('handleLoad');
     if (!this.img) {
       return;
     }
@@ -94,47 +95,37 @@ export default class ImageLoader extends Component {
   }
 
   get image(): ?Element<*> {
-    return this.state.ready ? (
+    let img = (
       <ProductImage
         src={this.state.src}
         width={286}
         height={286}
         key={this.props.id}
       />
-    ) : null;
-  }
-
-  wrapToTransition(img: ?Element<*>) {
-    if (this.showTransition) {
-      return (
-        <Transition
-          key="image-transition"
-          component="div"
-          transitionName="image"
-          transitionAppear={true}
-          transitionLeave={false}
-          transitionEnterTimeout={500}
-          transitionAppearTimeout={500}
-        >
-          {img}
-        </Transition>
-      );
-    }
-    return (
-      <div key="image">{img}</div>
     );
+
+    if (this.props.size) {
+      let styles = {
+        backgroundSize: this.props.size,
+        backgroundImage: `url(${this.state.src})`,
+      };
+
+      img = <div style={styles} className={s.bgImage} />;
+    }
+
+    return this.state.ready ? img : null;
   }
 
   render() {
-    const className = classNames(styles.image, {
-      [styles.error]: this.state.error,
+    const className = classNames(s.image, {
+      [s.error]: this.state.error,
     });
 
     return (
       <div className={className}>
         {[
           this.loader,
-          this.wrapToTransition(this.image)
+          this.image,
         ]}
       </div>
     );

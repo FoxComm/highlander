@@ -19,9 +19,7 @@ type Props = {
   id: number,
   src: string,
   actions: Array<Action>,
-  title: string,
   loading: boolean,
-  secondaryTitle?: string,
   className?: string,
 };
 
@@ -42,7 +40,7 @@ export default class ImageCard extends Component {
 
     return (
       <div className={s.actions}>
-        {actions.map(({ name, handler }) => <i className={`icon-${name}`} onMouseDown={handler} key={name} />)}
+        {actions.map(({ name, handler }) => <i className={`icon-${name}`} onClick={handler} key={name} />)}
       </div>
     );
   }
@@ -52,7 +50,7 @@ export default class ImageCard extends Component {
 
     return (
       <div className={classNames(s.card, s.image, className)}>
-        <Image id={id} src={src} />
+        <Image id={id} src={src} size="cover" />
         {this.actions}
       </div>
     );

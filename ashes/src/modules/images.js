@@ -30,9 +30,10 @@ export type FileInfo = {
 
 export type ImageInfo = {
   title: string;
+  src: string;
+  uploaded: string;
   alt: ?string;
   key?: string;
-  src: string;
 }
 
 export type ImageFile = FileInfo & ImageInfo;

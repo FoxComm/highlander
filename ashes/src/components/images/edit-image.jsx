@@ -13,6 +13,9 @@ import SaveCancel from 'components/core/save-cancel';
 // types
 import type { ImageInfo } from '../../modules/images';
 
+// styles
+import s from './edit-image.css';
+
 type Props = {
   isVisible: boolean;
   image: ImageInfo;
@@ -28,6 +31,12 @@ class EditImage extends Component {
     title: this.props.image.title,
     alt: this.props.image.alt,
   };
+
+  image: any;
+
+  componentDidUpdate() {
+    console.log('this.image', this.image);
+  }
 
   get closeAction() {
     return <a onClick={this.props.onCancel}>&times;</a>;
@@ -45,48 +54,55 @@ class EditImage extends Component {
   }
 
   render() {
+    const { src } = this.state;
     const saveDisabled = !!this.state.title;
+    const match = src.match(/\.[0-9a-z]+$/i);
+    let ext = '–';
+
+    if (match && match[0]) {
+      ext = match[0];
+    }
 
     return (
-      <ModalContainer isVisible={this.props.isVisible}>
-        <ContentBox title="Edit Image" actionBlock={this.closeAction}>
-          <FormField label="Image Title"
-                     className="fc-product-details__field"
-                     labelClassName="fc-product-details__field-label"
-          >
-            <input type="text"
-                   className="fc-product-details__field-value"
-                   name="title"
-                   value={this.state.title}
-                   onChange={this.handleUpdateField}
-            />
-          </FormField>
-          <FormField label="Image Alt Text"
-                     className="fc-product-details__field"
-                     labelClassName="fc-product-details__field-label">
-            <input type="text"
-                   className="fc-product-details__field-value"
-                   name="alt"
-                   value={this.state.alt}
-                   onChange={this.handleUpdateField}
-            />
-          </FormField>
-          <FormField label="Image URL"
-                     className="fc-product-details__field"
-                     labelClassName="fc-product-details__field-label">
-            <input type="text"
-                   className="fc-product-details__field-value"
-                   name="src"
-                   value={this.state.src}
-                   placeholder="http://"
-                   onChange={this.handleUpdateField}
-             />
-          </FormField>
-          <SaveCancel onCancel={this.props.onCancel}
-                      onSave={this.handleSave}
-                      saveDisabled={saveDisabled}
-                      saveText="Save and Apply"
-          />
+      <ModalContainer isVisible={this.props.isVisible} size="big">
+        <ContentBox title="Edit Image" actionBlock={this.closeAction} bodyClassName={s.body}>
+          <div className={s.main}>
+            <div className={s.imageWrap}>
+              <img ref={ref => {console.log('ref', ref);this.image = ref}} src={src} className={s.image} />
+            </div>
+            <div className={s.sidebar}>
+              <div className={s.stat}>
+                <div className={s.statItem}>{`File Name: ${this.state.title}`}</div>
+                <div className={s.statItem}>{`Uploaded: ${this.props.image.uploaded}`}</div>
+                <div className={s.statItem}>{`File Type: ${ext}`}</div>
+                <div className={s.statItem}>{`File Size: ${ext}`}</div>
+                <div className={s.statItem}>{`Dimensions: ${ext}`}</div>
+              </div>
+              <FormField label="URL" className={s.field} labelClassName={s.label}>
+                <input type="text" className="fc-product-details__field-value" value={this.state.src} disabled />
+              </FormField>
+              <FormField label="Alt Text" className={s.field} labelClassName={s.label}>
+                <input type="text"
+                       className="fc-product-details__field-value"
+                       name="alt"
+                       value={this.state.alt}
+                       onChange={this.handleUpdateField}
+                />
+              </FormField>
+              <FormField label="Slug" className={s.field} labelClassName={s.label}>
+                <input type="text"
+                       className="fc-product-details__field-value"
+                       name="slug"
+                       value={this.state.title}
+                       onChange={this.handleUpdateField}
+                />
+              </FormField>
+            </div>
+          </div>
+          <footer className={s.footer}>
+            <div>1</div>
+            <SaveCancel onSave={this.handleSave} onCancel={this.props.onCancel} saveDisabled={saveDisabled} />
+          </footer>
         </ContentBox>
       </ModalContainer>
     );

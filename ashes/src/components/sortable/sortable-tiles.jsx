@@ -211,6 +211,7 @@ class SortableTiles extends Component {
 
   @autobind
   handleMouseUp() {
+    console.log('handleMouseUp');
     if (this.state.isPressed) {
       this.props.onSort(this.state.order);
     }
