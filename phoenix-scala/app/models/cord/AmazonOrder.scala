@@ -10,6 +10,7 @@ import utils.aliases._
 import failures._
 import payloads.AmazonOrderPayloads.CreateAmazonOrderPayload
 import com.github.tminglei.slickpg.LTree
+import models.account._
 
 case class AmazonOrder(id: Int = 0,
                        amazonOrderId: String = "",
@@ -20,14 +21,13 @@ case class AmazonOrder(id: Int = 0,
                        orderStatus: String = "",
                        purchaseDate: Instant,
                        scope: LTree,
-                       customerName: String,
-                       customerEmail: String,
+                       accountId: Int,
                        createdAt: Instant = Instant.now,
                        updatedAt: Instant = Instant.now)
     extends FoxModel[AmazonOrder]
 
 object AmazonOrder {
-  def build(payload: CreateAmazonOrderPayload): AmazonOrder =
+  def build(payload: CreateAmazonOrderPayload, accountId: Int)(implicit ec: EC): AmazonOrder =
     AmazonOrder(id = 0,
                 amazonOrderId = payload.amazonOrderId,
                 orderTotal = payload.orderTotal,
@@ -37,8 +37,7 @@ object AmazonOrder {
                 orderStatus = payload.orderStatus,
                 purchaseDate = payload.purchaseDate,
                 scope = payload.scope,
-                customerName = payload.customerName,
-                customerEmail = payload.customerEmail,
+                accountId = accountId,
                 createdAt = Instant.now,
                 updatedAt = Instant.now)
 
@@ -52,8 +51,7 @@ object AmazonOrder {
                 orderStatus = existingOrder.orderStatus,
                 purchaseDate = existingOrder.purchaseDate,
                 scope = existingOrder.scope,
-                customerName = existingOrder.customerName,
-                customerEmail = existingOrder.customerEmail,
+                accountId = existingOrder.accountId,
                 createdAt = existingOrder.createdAt,
                 updatedAt = existingOrder.updatedAt)
 }
@@ -83,8 +81,7 @@ class AmazonOrders(tag: Tag) extends FoxTable[AmazonOrder](tag, "amazon_orders")
   def orderStatus         = column[String]("order_status")
   def purchaseDate        = column[Instant]("purchase_date")
   def scope               = column[LTree]("scope")
-  def customerName        = column[String]("customer_name")
-  def customerEmail       = column[String]("customer_email")
+  def accountId           = column[Int]("account_id")
   def createdAt           = column[Instant]("created_at")
   def updatedAt           = column[Instant]("updated_at")
 
@@ -98,8 +95,7 @@ class AmazonOrders(tag: Tag) extends FoxTable[AmazonOrder](tag, "amazon_orders")
      orderStatus,
      purchaseDate,
      scope,
-     customerName,
-     customerEmail,
+     accountId,
      createdAt,
      updatedAt) <> ((AmazonOrder.apply _).tupled, AmazonOrder.unapply)
 }
