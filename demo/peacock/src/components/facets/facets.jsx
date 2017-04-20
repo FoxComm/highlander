@@ -21,6 +21,7 @@ type FacetsProps = {
   facets: Array<TFacet>,
   whitelist?: Array<string>,
   onSelect?: (facet: string, value: string, selected: boolean) => void,
+  notAllowDeselecting?: boolean,
 };
 
 type State = {
@@ -44,6 +45,8 @@ class Facets extends Component {
 
   @autobind
   handleClickFacets(facet: string, value: string, selected: boolean): void {
+    if (this.props.notAllowDeselecting && !selected) return;
+
     const { facetMessages } = this.state;
     this.setState({
       facetMessages: assoc(facetMessages, facet, null),

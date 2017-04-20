@@ -209,6 +209,7 @@ class ProductVariants extends Component {
         styleName="facets"
         facets={facets}
         onSelect={this.handleSelectFacet}
+        notAllowDeselecting
       />
     );
   }
