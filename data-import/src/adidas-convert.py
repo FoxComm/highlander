@@ -156,6 +156,7 @@ def convert_product(product_group):
             v['image'] = img
 
         color_values.append(v)
+
     color_values.sort(key=lambda val:val["name"])
 
     size_values = variants[1]['values']
@@ -165,6 +166,7 @@ def convert_product(product_group):
             'skuCodes': v,
             'swatch': ''
         })
+
     size_values.sort(key=lambda val:val["name"])
 
     if len(skus) > 0:
@@ -189,84 +191,64 @@ def convert_product(product_group):
     return None
 
 
-def load_taxonomies(file_name):
-    json_data = json.load(open(file_name, 'r'))
-    json_taxonomies = [read_taxonomies_section(e) for e in json_data]
-    taxonomy_names = set([taxonomy_name for pair in json_taxonomies for taxonomy_name in pair])
-    return dict(
-        [(key, set().union(*[pairs[key] for pairs in json_taxonomies if pairs[key] is not None])) for key in
-         taxonomy_names])
-
-
-def load_products(file_name):
-    json_data = json.load(open(file_name, 'r'))
-
-    products = defaultdict(list)
-    for p in json_data:
-        colors = p['colors']
-        products[colors].append(p)
-
-    return products
-
-
-def load_file_taxonomies():
-    listing_taxonomies = load_taxonomies("./adidas/listings.json")
-    taxonomies = load_taxonomies("./adidas/products.json")
-
-    # merge taxonomies from listing.json and products.json
-    for k in listing_taxonomies:
-        if k in taxonomies:
-            taxonomies[k].union(listing_taxonomies[k])
-        else:
-            taxonomies[k] = listing_taxonomies[k]
-    return taxonomies
-
-
-def read_taxonomies_section(data_product):
-    data_taxonomies = data_product['taxonomies']
-
-    # filter taxonomies and split taxons like 'a/b/c' to multiple taxons [a,b,c]
-    result = {}
-    for taxonomy in data_taxonomies:
-        if taxonomy not in ['model_id', 'video']:
-            delimiter = '|' if taxonomy == 'sport' else '/'
-            result[taxonomy] = set([t.strip() for t in data_taxonomies[taxonomy].split(delimiter)])
-
-    return result
-
-
-def read_taxonomies_section_for_product(product):
-    def toListOrValue(v):
-        result = list(v)
-        return result[0] if len(result) == 1 else sorted(result)
-
-    data_taxonomies = read_taxonomies_section(product)
-    return {k: toListOrValue(v) for (k, v) in data_taxonomies.items()}
-
-
-def create_taxonomy(name, hierarchical="false", taxons=None):
-    return {'attributes': {'name': {'t': 'string', 'v': name}}, 'hierarchical': hierarchical, 'taxons': taxons}
-
-
-def create_taxon(name):
-    return {'attributes': {'name': {'t': 'string', 'v': name}}}
-
-
-def dump_products(products, file_name):
-    file = open(file_name, "w")
-    try:
-        json.dump(products, fp=file, indent=4, sort_keys=True)
-    finally:
-        file.close()
-
-
 def convert_taxonomies():
+    def create_taxonomy(name, hierarchical="false", taxons=None):
+        return {'attributes': {'name': {'t': 'string', 'v': name}}, 'hierarchical': hierarchical, 'taxons': taxons}
+
+    def create_taxon(name):
+        return {'attributes': {'name': {'t': 'string', 'v': name}}}
+
     taxonomies = load_file_taxonomies()
     return [create_taxonomy(name, taxons=[create_taxon(taxon_name) for taxon_name in values]) for (name, values) in
             taxonomies.items()]
 
 
+def load_file_taxonomies():
+    def load_taxonomies(file_name, save_to = defaultdict(set)):
+        json_data = json.load(open(file_name, 'r'))
+        json_taxonomies = [read_taxonomies_section(e) for e in json_data]
+
+        for t in json_taxonomies:
+            for (k,v) in t.items():
+                save_to[k] = save_to[k].union(v)
+        return save_to
+
+    result = defaultdict(set)
+    load_taxonomies("./adidas/listings.json", result)
+    load_taxonomies("./adidas/products.json", result)
+    return result
+
+
+def read_taxonomies_section(data_product):
+    def parse_taxon(taxonomy, taxon):
+        delimiter = '|' if taxonomy == 'sport' else '/'
+        return [t.strip() for t in taxon.split(delimiter)]
+
+    data_taxonomies = data_product['taxonomies']
+    skip_taxonomies = ['model_id', 'video']
+    # filter taxonomies and split taxons like 'a/b/c' to multiple taxons [a,b,c]
+    return {taxonomy: parse_taxon(taxonomy, taxon) for (taxonomy,taxon) in data_taxonomies.items() if taxonomy not in skip_taxonomies}
+
+
+def read_taxonomies_section_for_product(product):
+    def to_list_or_single_value(v):
+        values = list(set(v))
+        return v[0] if len(values) == 1 else sorted(values)
+
+    return {k: to_list_or_single_value(v) for (k, v) in read_taxonomies_section(product).items()}
+
+
 def convert_products(file_location):
+    def load_products(file_name):
+        json_data = json.load(open(file_name, 'r'))
+
+        products = defaultdict(list)
+        for p in json_data:
+            colors = p['colors']
+            products[colors].append(p)
+
+        return products
+
     products = load_products(file_location)
     converted = [convert_product(g) for g in products.values()]
     return [v for v in converted if v is not None]
@@ -320,6 +302,7 @@ def dump_to_file(dir, objects_type, items, max_per_file):
             do_write(result, dir + "/"+objects_type + str(index) + ".json")
     else:
         do_write({objects_type: items}, dir + "/"+objects_type+".json")
+
 
 if __name__ == "__main__":
     main()
