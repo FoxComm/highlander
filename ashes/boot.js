@@ -20,6 +20,8 @@ process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib')}`;
 process.env.GIT_REVISION = rev;
 process.env.PORT = process.env.PORT || 4000;
 
+process.title = 'node-ashes';
+
 const basePath = process.env.BEHIND_NGINX ? '/admin' : '';
 const args = [
   `${clc.blackBright('NODE_ENV:')} ${clc.blue('%s')}, ${clc.blackBright('API_URL:')} ${clc.green('%s')}, ${clc.red('url: http://localhost:%d%s')}`,
