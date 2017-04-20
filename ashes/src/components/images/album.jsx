@@ -194,13 +194,7 @@ export default class Album extends Component {
         onDrop={this.handleNewFiles}
         empty={album.images.length == 0}
       >
-        <SortableTiles itemWidth={298}
-                       itemHeight={372}
-                       gutter={10}
-                       gutterY={40}
-                       loading={loading}
-                       onSort={this.handleSortImages}
-        >
+        <SortableTiles loading={loading} onSort={this.handleSortImages}>
           {album.images.map((image: ImageFile, idx: number) => {
             if (image.key && image.id) this.idsToKey[image.id] = image.key;
             const imagePid = image.key || this.idsToKey[image.id] || image.id;

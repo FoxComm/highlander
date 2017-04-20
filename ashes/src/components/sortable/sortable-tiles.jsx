@@ -15,9 +15,9 @@ type Coords = [number, number];
 
 type MousePosition = { pageX: number, pageY: number };
 
-type MotionStyle = { x: number, y: number, style: Object};
+type MotionType = { x: number, y: number, style: Object };
 
-type Transform = { translateX: number, translateY: number, scale: number };
+type Transform = { translateX: number, translateY: number };
 
 type Props = {
   itemWidth: number;
@@ -46,18 +46,16 @@ type State = {
 /** Calculate item column/row index fitted to bounds */
 const clamp = (n, min, max) => Math.max(Math.min(n, max), min);
 
-// define spring motion opts
-const springSetting1 = { stiffness: 180, damping: 10 };
-const springSetting2 = { stiffness: 150, damping: 16 };
-
 class SortableTiles extends Component {
 
   props: Props;
 
   static defaultProps = {
     itemStyles: {},
-    gutterX: 10,
+    gutterX: 20,
     gutterY: 20,
+    itemWidth: 286,
+    itemHeight: 286,
     spaceBetween: false,
     loading: false,
     onSort: _.noop,
@@ -87,6 +85,7 @@ class SortableTiles extends Component {
     window.addEventListener('mousemove', this.handleMouseMove);
     window.addEventListener('touchend', this.handleMouseUp);
     window.addEventListener('mouseup', this.handleMouseUp);
+    window.addEventListener('blur', this.handleMouseUp);
     window.addEventListener('resize', this.handleResize);
 
     this.initialMount = true;
@@ -119,6 +118,7 @@ class SortableTiles extends Component {
     window.removeEventListener('mousemove', this.handleMouseMove);
     window.removeEventListener('touchend', this.handleMouseUp);
     window.removeEventListener('mouseup', this.handleMouseUp);
+    window.removeEventListener('blur', this.handleMouseUp);
     window.removeEventListener('resize', this.handleResize);
   }
 
@@ -141,7 +141,9 @@ class SortableTiles extends Component {
     /** calculate max columns count for given width of container */
     const columns = Math.floor((containerWidth + gutterX) / (itemWidth + gutterX));
     const rows = Math.ceil(order.length / columns);
-    const gutter = spaceBetween && rows > 1 ? (containerWidth - itemWidth * columns) / (columns - 1) : gutterX;
+    const gutter = spaceBetween && rows > 1
+      ? (containerWidth - itemWidth * columns) / (columns - 1)
+      : gutterX;
 
     const layout = order.map((_: any, index: number) => {
       const column = index % columns;
@@ -236,7 +238,7 @@ class SortableTiles extends Component {
     this.setState({ isResizing });
   }
 
-  getItemStyle(isActive: boolean, index: number): MotionStyle {
+  getItemMotion(isActive: boolean, index: number): MotionType {
     const { mouse, isResizing, layout } = this.state;
 
     let style, x, y;
@@ -246,38 +248,31 @@ class SortableTiles extends Component {
       style = {
         translateX: x,
         translateY: y,
-        scale: spring(1.1, springSetting1)
       };
     } else if (isResizing) {
       [x, y] = layout[index];
       style = {
-        translateX: spring(x, springSetting2),
-        translateY: spring(y, springSetting2),
-        scale: 1
+        translateX: spring(x),
+        translateY: spring(y),
       };
     } else {
       [x, y] = layout[index];
 
       // disabled animation on initial mount
       style = {
-        translateX: this.initialMount ? x : spring(x, springSetting2),
-        translateY: this.initialMount ? y : spring(y, springSetting2),
-        scale: this.initialMount ? 1 : spring(1, springSetting1)
+        translateX: this.initialMount ? x : spring(x),
+        translateY: this.initialMount ? y : spring(y),
       };
     }
 
-    return {
-      x,
-      y,
-      style
-    };
+    return { x, y, style };
   }
 
-  renderItem(item: number, index: number, isActive: boolean, { x, y }: MotionStyle, transform: Transform) {
+  renderItem(item: number, index: number, isActive: boolean, { x, y }: MotionType, transform: Transform) {
     const { activeIndex } = this.state;
-    const { translateX, translateY, scale } = transform;
+    const { translateX, translateY } = transform;
     const transformStyles = {
-      transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
+      transform: `translate3d(${translateX}px, ${translateY}px, 0)`,
       zIndex: index === activeIndex ? 99 : 1,
     };
     const itemStyles = {
@@ -304,13 +299,12 @@ class SortableTiles extends Component {
       <div className={styles.items} ref={element => this.container = element}>
         {order.map((item, index) => {
           const isActive = (index === activeIndex && isPressed);
-          const style = this.getItemStyle(isActive, index);
-
+          const motion = this.getItemMotion(isActive, index);
           const key = this.props.children[item].key;
 
           return (
-            <Motion key={key} style={style.style}>
-              {this.renderItem.bind(this, item, index, isActive, style)}
+            <Motion key={key} style={motion.style}>
+              {this.renderItem.bind(this, item, index, isActive, motion)}
             </Motion>
           );
         })}

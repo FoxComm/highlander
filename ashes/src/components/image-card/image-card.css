@@ -1,17 +1,12 @@
 .card {
   position: relative;
-  border: 1px solid #d9d9d9;
-  background: #fff;
-  margin: 0 5px;
-}
-
-.image {
   width: 286px;
   height: 286px;
   overflow: hidden;
+  border: 1px solid #d9d9d9;
+  background: #fff;
 
   & img {
-    display: flex;
     height: 100%;
     width: 100%;
     pointer-events: none;
@@ -24,11 +19,7 @@
   background: #333a44;
   opacity: .86;
   text-align: right;
-  transition: transform .32s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &.actionsVisible {
-    transform: translateY(-100%);
-  }
+  bottom: 0;
 
   & i {
     color: #fff;
@@ -44,39 +35,6 @@
   }
 }
 
-.description {
-  position: relative;
-  padding: 18px;
-  max-width: 300px;
-  background-color: #fff;
-}
-
 ._loading {
   composes: loading from '../../css/animations.css';
-}
-
-.title {
-  width: 250px;
-  margin-bottom: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-
-.secondaryTitle {
-  font-size: 14px;
-  font-weight: 400;
-  color: #ABB2B6;
-}
-
-@keyframes caramel {
-  from {
-    background-position: 0 0;
-  }
-
-  to {
-    background-position: 20px 0;
-  }
 }
