@@ -14,16 +14,62 @@ import (
 	"github.com/labstack/echo"
 )
 
+func determineUpSellProductFromAnthillData(customerID string, antHillData responses.AntHillResponse) (responses.ProductInstance, error) {
+	// Query Neo4J for suggested products
+	queryResp, findSuggestedErr := util.FindAllProductsSuggestedForCustomer(customerID)
+	if findSuggestedErr != nil {
+		return responses.ProductInstance{}, findSuggestedErr
+	}
+
+	// Parse response into suggested products array
+	var neo4jResponse responses.Neo4jResponse
+	queryRespBytes := []byte(queryResp)
+	jsonErr := json.Unmarshal(queryRespBytes, &neo4jResponse)
+	if jsonErr != nil {
+		return responses.ProductInstance{}, jsonErr
+	}
+
+	// Build map of suggested product phoenix_id
+	if len(neo4jResponse.Results) <= 0 {
+		return responses.ProductInstance{}, errors.New("Customer has no previously suggested products")
+	}
+	suggestedProductDataNodes := neo4jResponse.Results[0].Data
+	suggestedProductsFromNeoMap := make(map[int]bool)
+
+	for dataNodeIdx := 0; dataNodeIdx < len(suggestedProductDataNodes); dataNodeIdx++ {
+		productID := suggestedProductDataNodes[dataNodeIdx].Graph.Nodes[0].Properties.PhoenixID
+		suggestedProductsFromNeoMap[productID] = true
+	}
+
+	// Find the first anthill product that is not in the suggestedProductsFromNeoMap
+	for antHillIdx := 0; antHillIdx < len(antHillData.Products); antHillIdx++ {
+		antHillProdID := antHillData.Products[antHillIdx].Product.ProductId
+		_, productFound := suggestedProductsFromNeoMap[antHillProdID]
+
+		if productFound {
+			continue
+		} else {
+			return antHillData.Products[antHillIdx].Product, nil
+		}
+	}
+
+	return responses.ProductInstance{}, errors.New("determineUpSellProductFromAnthillData nothing to suggest")
+}
+
 func selectUpSellAndPushToSms(customerID string, phoneNumber string, antHillData responses.AntHillResponse) (responses.TwilioSmsResponse, error) {
 	if len(antHillData.Products) < 1 {
 		return responses.TwilioSmsResponse{}, errors.New("There are no products for potential up-sell")
 	}
 
-	// The first item in the cross-sell results will have the highest reccomendation score
-	crossSellProduct := antHillData.Products[0].Product
-	productImageURL := crossSellProduct.Albums[0].Images[0].Src
-	productID := crossSellProduct.ProductId
-	productSKU := crossSellProduct.Skus[0]
+	// Determine up-sell product and gather image URL, ID number and SKU
+	upSellProduct, determineUpsellErr := determineUpSellProductFromAnthillData(customerID, antHillData)
+	if determineUpsellErr != nil {
+		return responses.TwilioSmsResponse{}, errors.New("Every possible up-sell product has been suggested already")
+	}
+
+	productImageURL := upSellProduct.Albums[0].Images[0].Src
+	productID := upSellProduct.ProductId
+	productSKU := upSellProduct.Skus[0]
 
 	// Create customer <- Suggest -> product in Neo4J
 	_, err := util.CreateNewSuggestProductRelation(customerID, strconv.Itoa(productID), phoneNumber, productSKU)
@@ -32,7 +78,7 @@ func selectUpSellAndPushToSms(customerID string, phoneNumber string, antHillData
 	}
 
 	// Send to Twilio
-	twilioSmsResponse, err := util.SuggestionToSMS(phoneNumber, productImageURL, crossSellProduct)
+	twilioSmsResponse, err := util.SuggestionToSMS(phoneNumber, productImageURL, upSellProduct)
 	if err != nil {
 		return responses.TwilioSmsResponse{}, err
 	}

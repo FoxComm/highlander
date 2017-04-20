@@ -80,6 +80,13 @@ func deleteSuggestedProductRelationCypher(customerID string, productID string) s
 	return match + deleteRelation
 }
 
+func queryFindAllProductsSuggestedForCustomer(customerID string) string {
+	matchCustomerSuggested := fmt.Sprintf("MATCH (c:Customer {phoenix_id: %s})-[r:SUGGEST]->(p:Product)", customerID)
+	returnProducts := "RETURN p"
+
+	return matchCustomerSuggested + returnProducts
+}
+
 func makeRestPayload(statementBody string) string {
 	return `{
 		"statements": [
@@ -124,6 +131,10 @@ func CreateNewDeclinedProductRelation(customerID string, productID string) (stri
 
 func CreateNewPurchasedProductRelation(customerID string, productID string) (string, error) {
 	return neo4jPostRequest(makeRestPayload(createNewPurchasedProductCypher(customerID, productID)))
+}
+
+func FindAllProductsSuggestedForCustomer(customerID string) (string, error) {
+	return neo4jPostRequest(queryFindAllProductsSuggestedForCustomer(customerID))
 }
 
 func FindCustomerAndProductFromPhoneNumber(phoneNumber string) (string, string, string, error) {
