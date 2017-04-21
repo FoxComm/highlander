@@ -96,11 +96,7 @@ async function product(c) {
 }
 
 function addToLineItems(items, sku, quantity, attributes) {
-  const toCollect = items.concat([{ sku, quantity, attributes }]);
-  return _.map(toCollect,
-    ({ sku, quantity, attributes }) => (
-      { sku, quantity, attributes }
-    ));
+  return items.concat([{ sku, quantity, attributes }]);
 }
 
 async function cart(c) {
