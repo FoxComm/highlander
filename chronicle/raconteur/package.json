@@ -1,0 +1,22 @@
+{
+  "name": "executor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "api-js": "git+ssh://git@github.com/FoxComm/api-js.git",
+    "crypto-js": "^3.1.9-1",
+    "faker": "^3.1.0",
+    "lodash": "^4.17.4",
+    "nightmare": "2.7.0",
+    "stripe": "^4.15.0",
+    "superagent": "^3.4.0",
+    "system": "^1.2.0"
+  }
+}

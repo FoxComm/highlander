@@ -36,10 +36,10 @@ object ObjectResponses {
 
   object IlluminatedObjectResponse {
 
-    case class Root(id: Int, attributes: Json)
+    case class Root(id: Int, kind: String, attributes: Json)
 
     def build(s: IlluminatedObject): Root =
-      Root(id = s.id, attributes = s.attributes)
+      Root(id = s.id, kind = s.kind, attributes = s.attributes)
   }
 
   object ObjectSchemaResponse {
