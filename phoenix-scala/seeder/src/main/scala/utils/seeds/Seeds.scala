@@ -30,9 +30,10 @@ import utils.{ADT, FoxConfig}
 object Seeds {
 
   sealed trait Command
-  case object NoCommand   extends Command
-  case object CreateAdmin extends Command
-  case object Seed        extends Command
+  case object NoCommand           extends Command
+  case object CreateAdmin         extends Command
+  case object UpdateObjectSchemas extends Command
+  case object Seed                extends Command
 
   object Command extends ADT[Command] {
     def types = sealerate.values[Command]
@@ -105,6 +106,10 @@ object Seeds {
               .action((x, c) ⇒ c.copy(adminRoles = x))
               .text("Admin Roles")
         )
+
+      cmd("updateObjectSchemas")
+        .action((_, c) ⇒ c.copy(mode = UpdateObjectSchemas))
+        .text("Create Object Schemas")
     }
 
     parser.parse(args, CliConfig()) match {
@@ -147,6 +152,8 @@ object Seeds {
                                               cfg.adminEmail,
                                               cfg.adminOrg,
                                               cfg.adminRoles.split(",").toList))
+      case UpdateObjectSchemas ⇒
+        step("Create Store Admin seeds", Factories.upgradeObjectSchemas())
       case _ ⇒
         System.err.println(usage)
     }
