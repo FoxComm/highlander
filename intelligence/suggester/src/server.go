@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/FoxComm/highlander/intelligence/suggester/src/services"
+
 	"github.com/labstack/echo"
 )
 

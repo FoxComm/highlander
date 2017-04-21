@@ -11,6 +11,7 @@ import (
 	"github.com/FoxComm/highlander/intelligence/suggester/src/payloads"
 	"github.com/FoxComm/highlander/intelligence/suggester/src/responses"
 	"github.com/FoxComm/highlander/intelligence/suggester/src/util"
+
 	"github.com/labstack/echo"
 )
 
