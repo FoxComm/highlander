@@ -21,7 +21,7 @@ type FacetsProps = {
   facets: Array<TFacet>,
   whitelist?: Array<string>,
   onSelect?: (facet: string, value: string, selected: boolean) => void,
-  notAllowDeselecting?: boolean,
+  required?: boolean,
 };
 
 type State = {
@@ -41,11 +41,13 @@ class Facets extends Component {
     facets: [],
     whitelist: [],
     prefix: '',
+    required: false, // allows user to deselect the value by clicking it again
   };
 
   @autobind
   handleClickFacets(facet: string, value: string, selected: boolean): void {
-    if (this.props.notAllowDeselecting && !selected) return;
+    const { required } = this.props;
+    if (required && !selected) return;
 
     const { facetMessages } = this.state;
     this.setState({
