@@ -209,12 +209,9 @@ object VariantManager {
       toDelete = variantValueLinks.filter(link ⇒ !newSkuIds.contains(link.rightId))
       toCreate = newSkuIds.diff(linkedSkuIds)
 
-      _ ← * <~ VariantValueSkuLinks.createAllReturningIds(
+      _ ← * <~ VariantValueSkuLinks.createAll(
              toCreate.map(id ⇒ VariantValueSkuLink(leftId = value.id, rightId = id)))
-      _ ← * <~ toDelete.map(
-             link ⇒
-               VariantValueSkuLinks
-                 .deleteById(link.id, DbResultT.unit, id ⇒ NotFoundFailure404(link, link.id)))
+      _ ← * <~ VariantValueSkuLinks.filter(_.id inSet toDelete.map(_.id)).delete
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
 

@@ -62,13 +62,7 @@ object GroupManager {
       _ ← * <~ templateInstances.map { template ⇒
            GroupTemplateInstances.update(template, template.copy(deletedAt = Option(Instant.now)))
          }
-      members ← * <~ CustomerGroupMembers.findByGroupId(groupId).result
-      _ ← * <~ members.map { member ⇒
-           CustomerGroupMembers.deleteById(
-               member.id,
-               DbResultT.unit,
-               id ⇒ CustomerGroupMemberCannotBeDeleted(groupId, member.id))
-         }
+      _ ← * <~ CustomerGroupMembers.findByGroupId(groupId).delete
       _ ← * <~ LogActivity().customerGroupArchived(group, admin)
     } yield DbResultT.unit
 
