@@ -10,7 +10,6 @@ import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
 case class ReturnsSearchViewResult(
     id: Int,
     referenceNumber: String,
-    orderId: Int,
     orderRef: String,
     createdAt: String,
     state: Return.State,
