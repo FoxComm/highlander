@@ -94,14 +94,16 @@ const renderDetail = (props: Props) => (messages, id) => {
 };
 
 const BulkWrapper = (props: Props) => {
-  const { entity, hideAlertDetails } = props;
+  const { entity,hideAlertDetails } = props;
   const module = `${entity}s`;
-
-  const bulkActions = [
-    ['Delete', deleteHandler(props), 'successfully deleted', 'could not be deleted'],
+  const stateActions = (entity == 'coupon') ? [] : [
     ['Activate', changeStateHandler(props, false), 'successfully activated', 'could not be activated'],
     ['Deactivate', changeStateHandler(props, false), 'successfully deactivated', 'could not be deactivated'],
     [`Schedule ${entity}s`, scheduleHandler(props), 'successfully updated', 'could not be updated'],
+  ];
+  const bulkActions = [
+    ['Delete', deleteHandler(props), 'successfully deleted', 'could not be deleted'],
+    ...stateActions
   ];
 
   return (
