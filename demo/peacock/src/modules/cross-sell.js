@@ -6,8 +6,6 @@ import { createReducer, createAction } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 import _ from 'lodash';
 
-import { GIFT_CARD_TAG } from './products';
-
 // types
 export type CrossSellPoint = {
   custID: number,
