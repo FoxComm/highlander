@@ -12,11 +12,13 @@ import (
 	"github.com/FoxComm/highlander/intelligence/suggester/src/responses"
 )
 
-var twilioAccountSid = os.Getenv("TWILIO_ACCOUNT_SID")
-var twilioAuthToken = os.Getenv("TWILIO_AUTH_TOKEN")
-var twilioPhoneNumber = os.Getenv("TWILIO_PHONE_NUMBER")
+var (
+	twilioAccountSid  string = os.Getenv("TWILIO_ACCOUNT_SID")
+	twilioAuthToken   string = os.Getenv("TWILIO_AUTH_TOKEN")
+	twilioPhoneNumber string = os.Getenv("TWILIO_PHONE_NUMBER")
+)
 
-func retailPriceToUsdString(priceInCents string) (string, error) {
+func RetailPriceToUsdString(priceInCents string) (string, error) {
 	priceInCentsFloat, priceInCentsErr := strconv.ParseFloat(priceInCents, 64)
 
 	if priceInCentsErr != nil {
@@ -34,7 +36,7 @@ func SuggestionToSMS(phoneNumber string, imageUrl string, product responses.Prod
 
 	// Variables
 	urlStr := "https://api.twilio.com/2010-04-01/Accounts/" + twilioAccountSid + "/Messages.json"
-	retailPriceUSD, currencyErr := retailPriceToUsdString(product.RetailPrice)
+	retailPriceUSD, currencyErr := RetailPriceToUsdString(product.RetailPrice)
 	if currencyErr != nil {
 		return responses.TwilioSmsResponse{}, currencyErr
 	}
