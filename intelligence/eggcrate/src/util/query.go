@@ -1,6 +1,7 @@
 package util
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"github.com/FoxComm/highlander/intelligence/eggcrate/src/responses"
@@ -45,6 +46,32 @@ func HenhouseQuery(action string, keys []string, from, to string, params string)
 	}
 
 	var pf responses.HenhouseResponse
+	jsonErr := json.NewDecoder(resp.Body).Decode(&pf)
+	if jsonErr != nil {
+		return nil, jsonErr
+	}
+	return pf, nil
+}
+
+func HenhouseValuesQuery(keys []string, payload []byte) (map[string]responses.ValuePairs, error) {
+	key := ""
+
+	for _, k := range keys {
+		key += k + ","
+	}
+
+	port, err := getPort()
+	if err != nil {
+		return nil, err
+	}
+
+	queryUrl := url + ":" + port + "/values?keys=" + key + "&xy&sum"
+	resp, reqErr := http.Post(queryUrl, "application/json", bytes.NewReader(payload))
+	if reqErr != nil {
+		return nil, reqErr
+	}
+
+	var pf map[string]responses.ValuePairs
 	jsonErr := json.NewDecoder(resp.Body).Decode(&pf)
 	if jsonErr != nil {
 		return nil, jsonErr
