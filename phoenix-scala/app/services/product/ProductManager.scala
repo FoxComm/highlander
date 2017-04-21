@@ -205,27 +205,12 @@ object ProductManager extends LazyLogging {
       archiveResult ← * <~ Products.update(updatedHead,
                                            updatedHead.copy(archivedAt = Some(Instant.now)))
 
-      albumLinks ← * <~ ProductAlbumLinks.filter(_.leftId === archiveResult.id).result
-      _ ← * <~ albumLinks.map { link ⇒
-           ProductAlbumLinks.deleteById(link.id,
-                                        DbResultT.unit,
-                                        id ⇒ NotFoundFailure400(ProductAlbumLinks, id))
-         }
-      albums   ← * <~ ImageManager.getAlbumsForProduct(ProductReference(inactive.form.id))
-      skuLinks ← * <~ ProductSkuLinks.filter(_.leftId === archiveResult.id).result
-      _ ← * <~ skuLinks.map { link ⇒
-           ProductSkuLinks.deleteById(link.id,
-                                      DbResultT.unit,
-                                      id ⇒ NotFoundFailure400(ProductSkuLink, id))
-         }
-      updatedSkus  ← * <~ ProductSkuLinks.queryRightByLeft(archiveResult)
-      skus         ← * <~ updatedSkus.map(SkuManager.illuminateSku)
-      variantLinks ← * <~ ProductVariantLinks.filter(_.leftId === archiveResult.id).result
-      _ ← * <~ variantLinks.map { link ⇒
-           ProductVariantLinks.deleteById(link.id,
-                                          DbResultT.unit,
-                                          id ⇒ NotFoundFailure400(ProductSkuLink, link.id))
-         }
+      _               ← * <~ ProductAlbumLinks.filter(_.leftId === archiveResult.id).delete
+      albums          ← * <~ ImageManager.getAlbumsForProduct(ProductReference(inactive.form.id))
+      _               ← * <~ ProductSkuLinks.filter(_.leftId === archiveResult.id).delete
+      updatedSkus     ← * <~ ProductSkuLinks.queryRightByLeft(archiveResult)
+      skus            ← * <~ updatedSkus.map(SkuManager.illuminateSku)
+      variantLinksNum ← * <~ ProductVariantLinks.filter(_.leftId === archiveResult.id).delete
       updatedVariants ← * <~ ProductVariantLinks.queryRightByLeft(archiveResult)
       variants        ← * <~ updatedVariants.map(VariantManager.zipVariantWithValues)
       variantAndSkus  ← * <~ getVariantsWithRelatedSkus(variants)
@@ -236,7 +221,7 @@ object ProductManager extends LazyLogging {
           product =
             IlluminatedProduct.illuminate(oc, archiveResult, inactive.form, inactive.shadow),
           albums = albums,
-          if (variantLinks.nonEmpty) variantSkus else skus,
+          if (variantLinksNum > 0) variantSkus else skus,
           variantResponses,
           taxons
       )
