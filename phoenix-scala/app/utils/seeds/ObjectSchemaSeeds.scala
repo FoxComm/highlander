@@ -33,18 +33,26 @@ trait ObjectSchemaSeeds {
   def createObjectSchemas(): DbResultT[Option[Int]] =
     ObjectSchemas.createAll(allSchemas)
 
-  def upgradeObjectSchemas(): DbResultT[Unit] =
+  def upgradeObjectSchemas(schemasToUpdate: Option[Seq[String]]): DbResultT[Unit] = {
+    val toUpgrade = schemasToUpdate.fold(allSchemas) { listOfSchemas ⇒
+      listOfSchemas.map(getSchema)
+    }
     for {
       allCurrent ← * <~ ObjectSchemas.result
       _ ← * <~ allCurrent.foreach { current ⇒
-           allSchemas.find(_.name == current.name).map(_.schema) match {
-             case Some(schemaOverride) ⇒
-               ObjectSchemas.update(current, current.copy(schema = schemaOverride)).meh
+           toUpgrade.find(_.name == current.name) match {
+             case Some(newSchema) ⇒
+               ObjectSchemas
+                 .update(current,
+                         current.copy(schema = newSchema.schema,
+                                      dependencies = newSchema.dependencies))
+                 .meh
              case _ ⇒
                DbResultT.unit
            }
          }
     } yield ()
+  }
 
   private def loadJson(fileName: String): JValue = {
     val streamMaybe = Option(getClass.getResourceAsStream(fileName))
