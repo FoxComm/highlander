@@ -29,7 +29,7 @@
     }
   },
   "env": {
-    "ES_HOST": "{{dns_record}}.{{foxcomm_domain}}",
+    "ES_HOST": "{{storefront_server_name}}",
     "NEO4J_USER": "{{neo4j_user}}",
     "NEO4J_PASS": "{{neo4j_pass}}",
     "NEO4J_HOST": "{{neo4j_host}}",
