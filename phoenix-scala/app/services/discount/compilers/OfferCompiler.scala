@@ -27,15 +27,15 @@ case class OfferCompiler(offerType: OfferType, attributes: Json) {
   }
 
   private def extract[T <: Offer](json: Json)(implicit m: Manifest[T]): Either[Failures, Offer] =
-    json.extractOpt[T] match {
-      case Some(q) ⇒
-        q match {
-          case q: NonEmptySearch if q.search.isEmpty ⇒
-            Either.left(OfferSearchIsEmpty(offerType).single)
-          case _ ⇒
-            Either.right(q)
-        }
-      case None ⇒
-        Either.left(OfferAttributesExtractionFailure(offerType).single)
+    try {
+      json.extract[T] match {
+        case q: NonEmptySearch if q.search.isEmpty ⇒
+          Either.left(OfferSearchIsEmpty(offerType).single)
+        case q ⇒
+          Either.right(q)
+      }
+    } catch {
+      case e: MappingException ⇒
+        Either.left(OfferAttributesExtractionFailure(offerType, e.getMessage).single)
     }
 }

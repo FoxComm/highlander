@@ -44,9 +44,10 @@ object DiscountCompilerFailures {
   }
 
   /* Qualifier Compiler */
-  case class QualifierAttributesExtractionFailure(qualifierType: QualifierType) extends Failure {
+  case class QualifierAttributesExtractionFailure(qualifierType: QualifierType, cause: String)
+      extends Failure {
     override def description =
-      s"failed to compile qualifier ${show(qualifierType)}, couldn't extract attributes"
+      s"failed to compile qualifier ${show(qualifierType)}, couldn't extract attributes: ${cause}"
   }
 
   case class QualifierNotImplementedFailure(qualifierType: QualifierType) extends Failure {
@@ -64,9 +65,10 @@ object DiscountCompilerFailures {
   }
 
   /* Offer Compiler */
-  case class OfferAttributesExtractionFailure(offerType: OfferType) extends Failure {
+  case class OfferAttributesExtractionFailure(offerType: OfferType, cause: String)
+      extends Failure {
     override def description =
-      s"failed to compile offer ${OfferType.show(offerType)}, couldn't extract attributes"
+      s"failed to compile offer ${OfferType.show(offerType)}, couldn't extract attributes: ${cause}"
   }
 
   case class OfferNotImplementedFailure(offerType: OfferType) extends Failure {
