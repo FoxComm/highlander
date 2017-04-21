@@ -129,6 +129,7 @@ class AddressList extends Component {
         this.setState({
           addressToEdit: {},
           isEditFormActive: false,
+          newAddress: null,
         });
       })
       .catch((err) => {
