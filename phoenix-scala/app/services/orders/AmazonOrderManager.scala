@@ -16,12 +16,11 @@ object AmazonOrderManager {
       db: DB,
       au: AU): DbResultT[AmazonOrderResponse.Root] = {
 
-    val amazonOrderT = AmazonOrders
-      .findOneByAmazonOrderId(payload.amazonOrderId)
-      .findOrCreateExtended(createInner(payload))
+    val amazonOrderT =
+      AmazonOrders.findOneByAmazonOrderId(payload.amazonOrderId).findOrCreate(createInner(payload))
 
     amazonOrderT.map {
-      case (existingOrder, foundOrCreated) ⇒
+      case (existingOrder) ⇒
         AmazonOrderResponse.build(AmazonOrder.fromExistingAmazonOrder(existingOrder))
     }
   }
@@ -32,7 +31,7 @@ object AmazonOrderManager {
       user ← * <~ Users
               .findByEmail(payload.customerEmail)
               .mustFindOneOr(NotFoundFailure404(User, payload.customerEmail))
-      amazonOrder ← AmazonOrders.create(AmazonOrder.build(payload, user.accountId))
+      amazonOrder ← * <~ AmazonOrders.create(AmazonOrder.build(payload, user.accountId))
     } yield amazonOrder
 
   def updateAmazonOrder(amazonOrderId: String, payload: UpdateAmazonOrderPayload)(
