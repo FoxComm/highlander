@@ -2,7 +2,6 @@ package services.customerGroups
 
 import java.time.Instant
 
-import failures.CustomerGroupFailures.CustomerGroupMemberCannotBeDeleted
 import failures.NotFoundFailure404
 import models.account.{Scope, User}
 import models.customer.CustomerGroup.Manual
