@@ -1,5 +1,7 @@
 package testutils.fixtures
 
+import java.time.Instant
+
 import failures.NotFoundFailure404
 import models.account.User
 import models.promotion.{Promotion, Promotions}
@@ -41,12 +43,15 @@ trait PromotionFixtures extends TestFixtureBase {
     val discountAttributes =
       makeDiscountAttrs("orderTotalAmount", "totalAmount" → JInt(totalAmount * 100))
 
-    val promoAttributes = Map[String, Json]("name" → tv("donkey promo"))
+    val promoAttributes = Map.empty[String, Json]
 
-    val promoPayload = CreatePromotion(applyType = Promotion.Coupon,
-                                       attributes = promoAttributes,
-                                       discounts =
-                                         Seq(CreateDiscount(attributes = discountAttributes)))
+    val promoPayload = CreatePromotion(
+        applyType = Promotion.Coupon,
+        name = "donkey promo",
+        activeFrom = Some(Instant.now), // TODO: really? Not `None`? @michalrus
+        activeTo = None,
+        attributes = promoAttributes,
+        discounts = Seq(CreateDiscount(attributes = discountAttributes)))
 
     val (promoRoot: PromotionResponse.Root, promotion: Promotion) = createPromotionFromPayload(
         promoPayload)

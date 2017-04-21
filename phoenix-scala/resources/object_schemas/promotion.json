@@ -5,28 +5,7 @@
   "properties": {
     "attributes": {
       "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "minLength": 1
-        },
-        "customerGroupIds": {
-          "type": "array",
-          "items": {
-            "type": "number"
-          },
-          "uniqueItems": true
-        },
-        "activeFrom": {
-          "type": ["string", "null"],
-          "format": "date-time"
-        },
-        "activeTo": {
-          "type": ["string", "null"],
-          "format": "date-time"
-        }
-      },
-      "required": ["name"]
+      "properties": {}
     },
     "discounts": {
       "type": "array",

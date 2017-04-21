@@ -53,35 +53,14 @@ package object seeds {
                            applyType: Promotion.ApplyType,
                            title: String)
 
-  case class BasePromotionForm(name: String, applyType: Promotion.ApplyType) {
-
-    val (keyMap, form) = ObjectUtils.createForm(parse(s"""
-    {
-      "name" : "$name",
-      "storefrontName" : "$name",
-      "description" : "$name",
-      "details" : "",
-      "activeFrom" : "${Instant.now}",
-      "activeTo" : null,
-      "tags" : []
-      }
-    }"""))
+  case object BasePromotionForm {
+    val (keyMap, form) = ObjectUtils.createForm(parse(s"""{ "tags" : [] }"""))
   }
 
-  case class BasePromotionShadow(f: BasePromotionForm) {
+  case object BasePromotionShadow {
 
-    val shadow = ObjectUtils.newShadow(
-        parse("""
-        {
-          "name" : {"type": "string", "ref": "name"},
-          "storefrontName" : {"type": "richText", "ref": "storefrontName"},
-          "description" : {"type": "text", "ref": "description"},
-          "details" : {"type": "richText", "ref": "details"},
-          "activeFrom" : {"type": "date", "ref": "activeFrom"},
-          "activeTo" : {"type": "date", "ref": "activeTo"},
-          "tags" : {"type": "tags", "ref": "tags"}
-        }"""),
-        f.keyMap)
+    val shadow = ObjectUtils
+      .newShadow(parse("""{"tags" : {"type": "tags", "ref": "tags"}}"""), BasePromotionForm.keyMap)
   }
 
   case class BaseCoupon(formId: Int = 0, shadowId: Int = 0, promotionId: Int)

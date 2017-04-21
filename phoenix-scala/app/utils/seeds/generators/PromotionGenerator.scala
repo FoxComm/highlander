@@ -29,35 +29,21 @@ case class SimplePromotion(promotionId: Int = 0,
                            totalAmount: Int,
                            applyType: Promotion.ApplyType = Promotion.Auto)
 
-case class SimplePromotionForm(percentOff: Percent, totalAmount: Int) {
+case class SimplePromotionForm() {
 
-  val (keyMap, form) = ObjectUtils.createForm(parse(s"""
+  val (keyMap, form) = ObjectUtils.createForm(parse("""
     {
-      "name" : "$percentOff% off after spending $totalAmount dollars",
-      "storefrontName" : "$percentOff% off after spending $totalAmount dollars",
-      "description" : "$percentOff% off full order after spending $totalAmount dollars",
-      "details" : "This offer applies after you spend over $totalAmount dollars",
-      "activeFrom" : "${Instant.now}",
-      "activeTo" : null,
       "tags" : []
-      }
     }"""))
 }
 
 case class SimplePromotionShadow(f: SimplePromotionForm) {
 
-  val shadow = ObjectUtils.newShadow(
-      parse("""
+  val shadow = ObjectUtils.newShadow(parse("""
       {
-        "name" : {"type": "string", "ref": "name"},
-        "storefrontName" : {"type": "richText", "ref": "storefrontName"},
-        "description" : {"type": "text", "ref": "description"},
-        "details" : {"type": "richText", "ref": "details"},
-        "activeFrom" : {"type": "date", "ref": "activeFrom"},
-        "activeTo" : {"type": "date", "ref": "activeTo"},
         "tags" : {"type": "tags", "ref": "tags"}
       }"""),
-      f.keyMap)
+                                     f.keyMap)
 }
 
 trait PromotionGenerator {
@@ -78,9 +64,11 @@ trait PromotionGenerator {
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       promotions ← * <~ sourceData.map(source ⇒ {
-                    val promotionForm   = SimplePromotionForm(source.percentOff, source.totalAmount)
+                    import source.{percentOff, totalAmount}
+
+                    val promotionForm   = SimplePromotionForm()
                     val promotionShadow = SimplePromotionShadow(promotionForm)
-                    val discountForm    = SimpleDiscountForm(source.percentOff, source.totalAmount)
+                    val discountForm    = SimpleDiscountForm(percentOff, totalAmount)
                     val discountShadow  = SimpleDiscountShadow(discountForm)
 
                     def discountFS: FormAndShadow = {
@@ -94,6 +82,13 @@ trait PromotionGenerator {
 
                     val payload =
                       CreatePromotion(applyType = source.applyType,
+                                      name =
+                                        s"$percentOff% off after spending $totalAmount dollars",
+                                      // "storefrontName" : "$percentOff% off after spending $totalAmount dollars",
+                                      // "description" : "$percentOff% off full order after spending $totalAmount dollars",
+                                      // "details" : "This offer applies after you spend over $totalAmount dollars",
+                                      activeFrom = Some(Instant.now),
+                                      activeTo = None,
                                       attributes = promotionFS.toPayload,
                                       discounts =
                                         Seq(CreateDiscount(attributes = discountFS.toPayload)))

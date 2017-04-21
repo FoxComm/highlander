@@ -44,6 +44,9 @@ object PromotionManager {
                      Promotion(scope = scope,
                                contextId = context.id,
                                applyType = payload.applyType,
+                               name = payload.name,
+                               activeFrom = payload.activeFrom,
+                               activeTo = payload.activeTo,
                                formId = ins.form.id,
                                shadowId = ins.shadow.id,
                                commitId = ins.commit.id))

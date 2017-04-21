@@ -150,12 +150,13 @@ class PromotionsIntegrationTest
             CreateDiscount(attributes = discountAttrs)
           }
 
-          val promoAttrs =
-            Map("name" → tv("testyPromo"), "storefrontName" → tv("<p>Testy promo</p>", "richText"))
-
           CreatePromotion(applyType = Promotion.Coupon,
+                          name = "testyPromo",
+                          // "storefrontName" → tv("<p>Testy promo</p>", "richText")
+                          activeFrom = Some(Instant.now), // TODO: really? Not `None`? @michalrus
+                          activeTo = None,
                           discounts = Seq(discountPayload),
-                          attributes = promoAttrs ++ extraPromoAttrs)
+                          attributes = extraPromoAttrs)
         }
 
         promotionsApi.create(promotionPayload).as[PromotionResponse.Root].id
