@@ -6,19 +6,72 @@ def sanitize_content(str)
   str.tr("\n", "").tr("\t", "").gsub("\r", "")
 end
 
-# Start by grabbing all of the products.
-files = ["luggage.html", "backpacks.html", "accessories.html", "bags.html"]
-pdp_links = []
+def collect_pdps()
 
-files.each do |file|
-  filename = "./raw/#{file}"
-  doc = File.open(filename) { |f| Nokogiri::HTML(f) }
-  links = doc.css(".productMainLink > a").map { |l| l.attribute("href").to_s }
-  pdp_links = pdp_links + links
+  files = ['luggage.html', 'backpacks.html', 'accessories.html', 'bags.html']
+  pdp_links = []
+  files.each do |file|
+    filename = "./raw/#{file}"
+    doc = File.open(filename) { |f| Nokogiri::HTML(f) }
+    links = doc.css('.productMainLink > a').map { |l| l.attribute('href').to_s }
+    pdp_links = pdp_links + links
+  end
+
+  pdp_links = pdp_links.sort { |x, y| x <=> y }.uniq
+
+=begin
+  output = File.open('pdp_links.txt', 'w')
+  pdp_links.each do |link|
+    output << link << "\n"
+  end
+
+  output.close
+=end
+  pdp_links
 end
 
+def read_images(doc)
+  doc.css("div.cntr-product-alternate-items").css("img").map do |image_tag|
+    thumbnail = "#{image_tag.attribute('src')}"
+    full_image = thumbnail.split('?')[0]
+    title = "#{image_tag.attribute('title')}"
+    alt = "#{image_tag.attribute('alt')}"
+    { title: title, alt: alt, thumb: thumbnail, src: full_image }
+  end
+end
+
+def parse_color_option(li_content)
+  # <a role="button" aria-pressed="false" href="/p/13%22-slim-solutions-laptop-cover-0114250DR" name="/p/13%22-slim-solutions-laptop-cover-0114250DR" rel="Black/Red">
+  a = li_content.css('a')
+  url = "#{a.attribute('href')}"
+  name = "#{a.attribute('name')}"
+
+  # <img src="https://tumi.scene7.com/is/image/Tumi/114250DR_sw" title="Black/Red" alt="">
+  img = li_content.css('img')
+  img_src = "#{img.attribute('src')}"
+  title = "#{img.attribute('title')}"
+  {url:url, name:name, img:img_src, variant_name:title}
+end
+
+def read_pdp_colors(doc)
+  options = []
+  doc.css("ul.choose-colors").css("li").each do |li|
+    current = (!li.attribute('class').nil? && (li['class'].include? 'select'))
+    parsed = parse_color_option(li)
+    if current
+      options = options.insert(0, parsed)
+    else
+      options = options.insert(-1, parsed)
+    end
+  end
+  options
+end
+
+# Start by grabbing all of the products.
+pdp_links = collect_pdps
+
 # What Tumi calls a product, we call a SKU
-skus = pdp_links.sort { |x, y| x <=> y }.uniq.map do |link|
+skus = pdp_links.map do |link|
   sku = {
     albums: [],
     attributes: {},
@@ -26,7 +79,7 @@ skus = pdp_links.sort { |x, y| x <=> y }.uniq.map do |link|
   }
 
   url = "https://www.tumi.com#{link}"
-  doc = Nokogiri::HTML(open(url))
+  doc = Nokogiri::HTML(open(url, "Cookie"=>'tumi-newTest=geoNo;tumi-geo=no'))
 
   script_tags = doc.css("script")
 
@@ -151,7 +204,13 @@ skus = pdp_links.sort { |x, y| x <=> y }.uniq.map do |link|
     end
   end
 
+  sku[:albums]=[{'name':'default'}]
+  sku[:albums][0][:images] = read_images(doc)
+
+  colors = read_pdp_colors(doc)
+
   puts "Object #{sku}"
+  puts "Colors: #{colors}"
 end
 # TODO: This gets the color variants
 # color_tags = doc.css("ul.choose-colors a")
