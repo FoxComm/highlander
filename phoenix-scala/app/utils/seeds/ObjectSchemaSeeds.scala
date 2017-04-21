@@ -35,13 +35,15 @@ trait ObjectSchemaSeeds {
 
   def upgradeObjectSchemas(): DbResultT[Unit] =
     for {
-      ss ← * <~ ObjectSchemas.result
-      _ ← * <~ ss.map(
-             s ⇒
-               ObjectSchemas.update(
-                   s,
-                   s.copy(schema =
-                         allSchemas.find(sc ⇒ s.name == sc.name).headOption.getOrElse(s).schema)))
+      allCurrent ← * <~ ObjectSchemas.result
+      _ ← * <~ allCurrent.foreach { current ⇒
+           allSchemas.find(_.name == current.name).map(_.schema) match {
+             case Some(schemaOverride) ⇒
+               ObjectSchemas.update(current, current.copy(schema = schemaOverride)).meh
+             case _ ⇒
+               DbResultT.unit
+           }
+         }
     } yield ()
 
   private def loadJson(fileName: String): JValue = {
