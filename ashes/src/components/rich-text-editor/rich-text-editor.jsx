@@ -237,6 +237,11 @@ export default class RichTextEditor extends Component {
   }
 
   @autobind
+  handleBlur() {
+   this.props.onChange(this.htmlContent);
+  }
+
+  @autobind
   handleKeyCommand(command: Object): boolean {
     const newState = RichUtils.handleKeyCommand(this.state.editorState, command);
     if (newState) {
@@ -303,6 +308,7 @@ export default class RichTextEditor extends Component {
             editorState={editorState}
             blockStyleFn={this.blockStyleFn}
             handleKeyCommand={this.handleKeyCommand}
+            onBlur={this.handleBlur}
             onChange={this.handleChange} />
         </div>
       </div>
