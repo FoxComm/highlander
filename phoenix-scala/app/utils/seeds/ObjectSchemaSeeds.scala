@@ -39,16 +39,18 @@ trait ObjectSchemaSeeds {
     }
     for {
       allCurrent ← * <~ ObjectSchemas.result
-      _ ← * <~ allCurrent.foreach { current ⇒
-           toUpgrade.find(_.name == current.name) match {
-             case Some(newSchema) ⇒
+      _ ← * <~ toUpgrade.map { newSchema ⇒
+           allCurrent.find(_.name == newSchema.name) match {
+             case Some(current) ⇒
+               Console.err.println(s"Found ${current.name}, update")
                ObjectSchemas
                  .update(current,
                          current.copy(schema = newSchema.schema,
                                       dependencies = newSchema.dependencies))
                  .meh
              case _ ⇒
-               DbResultT.unit
+               Console.err.println(s"Not found ${newSchema.name}, create")
+               ObjectSchemas.create(newSchema).meh
            }
          }
     } yield ()
