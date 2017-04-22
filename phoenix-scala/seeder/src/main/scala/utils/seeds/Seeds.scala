@@ -110,7 +110,7 @@ object Seeds {
 
       cmd("updateObjectSchemas")
         .action((_, c) ⇒ c.copy(mode = UpdateObjectSchemas))
-        .text("Create Object Schemas")
+        .text("Update or create Object Schemas")
         .children(
             arg[String]("schema")
               .optional()
