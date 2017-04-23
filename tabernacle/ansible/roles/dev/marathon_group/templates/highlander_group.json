@@ -1,5 +1,5 @@
 {
-  "id": "highlander",
+  "id": "/",
   "groups": [
     {
       "id": "core",
@@ -262,7 +262,8 @@
       ]
     },
     {
-      "id": "core-services",
+      "id": "services",
+      "dependencies": ["/core"],
       "apps":[
         {
           "id": "hyperion",
@@ -446,15 +447,14 @@
             }
           }
         }
-      ],
-      "dependencies": ["/highlander/core"]
+      ]
     },
     {
       "id": "ashes",
-      "dependencies": ["/highlander/core", "/highlander/core-services"],
+      "dependencies": ["/core", "/services"],
       "apps": [
         {
-          "id": "/highlander/core/ashes",
+          "id": "ashes",
           "cmd": null,
           "cpus": 1,
           "mem": 2048,
@@ -511,10 +511,11 @@
       ]
     },
     {
-      "id": "storefront",
+      "id": "frontend",
+      "dependencies": ["/core", "/services"],
       "apps": [
         {
-          "id": "frontend",
+          "id": "storefront",
           "cmd": null,
           "cpus": 1,
           "mem": 1024,
@@ -567,9 +568,7 @@
             }
           }
         }
-
-      ],
-      "dependencies": ["/highlander/core", "/highlander/core-services"]
+      ]
     }
   ]
 }
