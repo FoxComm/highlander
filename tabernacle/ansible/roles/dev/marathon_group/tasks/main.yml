@@ -18,9 +18,9 @@
 - name: Update Highlander group in Marathon
   shell: 'curl -sS -XPUT -d@/marathon/applications/highlander_group.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/groups'
 
-- name: Get Highlander group Marathon tasks in `healthy` state
-  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/highlander_group | jq '.app.tasksHealthy > 0'
-  register: healthy_tasks_available
-  until: healthy_tasks_available.stdout == 'true'
-  retries: "1000"
-  delay: "{{marathon_delay}}"
+# - name: Get Highlander group Marathon tasks in `healthy` state
+#   shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/highlander_group | jq '.app.tasksHealthy > 0'
+#   register: healthy_tasks_available
+#   until: healthy_tasks_available.stdout == 'true'
+#   retries: "1000"
+#   delay: "{{marathon_delay}}"
