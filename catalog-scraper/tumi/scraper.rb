@@ -1,6 +1,44 @@
 require "nokogiri"
 require "open-uri"
 require "json"
+require "yaml"
+
+def parse_taxon_hierarcy(values)
+  values.map do |value|
+    result = {'attributes': {'name':{'t':'string', 'v':value['name']}}}
+    if value['swatch'] != nil
+      result[:attributes][:swatch]= {'t':'swatch', 'v':value['swatch']}
+    end
+    if value['values'] != nil
+      result[:children] = parse_taxon_hierarcy(value['values'])
+    end
+    result
+  end
+end
+
+def parse_hierarchical_taxonomy(name, values)
+  result = {'attributes': {'name':{'t':'string', 'v':name}}}
+  taxons = parse_taxon_hierarcy(values)
+  result[:taxons] = taxons
+  result[:hierarchical] = taxons.any?{|i| i['children']!=nil}
+  result
+end
+
+def parseTaxonomies()
+  data = YAML.load_file("./raw/taxonomies.yml")
+  result = []
+  data.each do |yaml_taxonomy|
+    name = yaml_taxonomy['name']
+    result = result << parse_hierarchical_taxonomy(name, yaml_taxonomy['values'])
+  end
+  puts "Writing to json"
+
+  File.open('taxonomies.json', 'w') do |f|
+    f.puts result.to_json
+  end
+end
+
+parseTaxonomies
 
 def sanitize_content(str)
   str.tr("\n", "").tr("\t", "").gsub("\r", "").strip.gsub(/[\u0080-\u00ff]/, "")
@@ -282,12 +320,12 @@ skus = pdp_links.map.with_index do |link, idx|
     product[:skus] = product[:skus] << sku
     product[:albums] = product[:albums] << sku[:albums][0]
 
-    sku[:taxons].each do |taxon_name, taxon_value|
-      taxon_list = product[:taxons][taxon_name]
+    sku[:taxonomies].each do |taxon_name, taxon_value|
+      taxon_list = product[:taxonomies][taxon_name]
       taxon_list = [] if taxon_list == nil
 
       taxon_list = (taxon_list << taxon_value).uniq
-      product[:taxons][taxon_name] = taxon_list
+      product[:taxonomies][taxon_name] = taxon_list
     end
   end
 

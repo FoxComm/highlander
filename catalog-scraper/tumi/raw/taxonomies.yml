@@ -1,0 +1,184 @@
+---
+
+- name: Category
+  values:
+    - name: Luggage
+      values:
+        - name: Carry-On Luggage
+        - name: Checked Luggage
+        - name: Wheeled Briefcases
+        - name: Wheeled Garment Bags
+        - name: Duffels
+        - name: Garment Bags
+        - name: Satchels
+        - name: Wheeled Duffels
+        - name: Packable Totes
+        - name: Carry-All
+    - name: Backpacks
+      values:
+        - name: Backpacks
+        - name: Slings
+        - name: Briefcases
+    - name: Bags
+      values:
+        - name: Briefcases
+        - name: Totes
+        - name: Crossbodies
+        - name: Wheeled Briefcases
+        - name: Messenger Bags
+        - name: Portfolios
+        - name: Satchels
+        - name: Carry-All
+        - name: Boston Bag
+    - name: Accessories
+      values:
+        - name: Card Cases
+        - name: Billfold
+        - name: iPhone Cases
+        - name: Electronics
+        - name: Passport Cases
+        - name: Belts
+        - name: Toiletry Cases
+        - name: Key Fobs
+        - name: Cosmetic Cases
+        - name: Outerwear
+        - name: Coin Wallet
+        - name: Money Clips
+        - name: Travel Wallets
+        - name: Continental
+        - name: Packing Cubes
+        - name: Laptop Covers
+        - name: Zip Wallet
+        - name: Tri-Fold
+        - name: Breast Pocket Wallet
+        - name: Travel Pouches
+        - name: Tablet Covers
+        - name: Luggage Tags
+        - name: Tech Wallets
+        - name: Accent Kits
+        - name: Umbrellas
+        - name: Clutches
+        - name: Wristlet
+        - name: Agendas
+        - name: Locks
+        - name: Portfolios
+        - name: Hangers
+        - name: L-Fold
+        - name: Coin Cases
+        - name: Eyewear
+        - name: Jewelry Roll
+
+- name: Color Group
+  values:
+    - name: Beige
+      swatch: "#BD815D"
+    - name: Black
+      swatch: "#000000"
+    - name: Blue
+      swatch: "#0B5AB9"
+    - name: Brown
+      swatch: "#6D3D23"
+    - name: Green
+      swatch: "#3D8458"
+    - name: Grey
+      swatch: "#999999"
+    - name: Metallic
+      swatch: "#BCC6CC"
+    - name: Orange
+      swatch: "#FF5F01"
+    - name: Purple
+      swatch: "#9D4170"
+    - name: Yellow
+      swatch: "#FFD249"
+    - name: Pink
+      swatch: "#EF3C66"
+    - name: White
+      swatch: "#FFFFFF"
+    - name: No Color
+      swatch: "#FFFFFF"
+
+- name: Gender
+  values:
+    - name: Men
+    - name: Women
+
+- name: Collection
+  values:
+    - name: 19 Degree Aluminium
+    - name: 19 Degree Polycarbonate
+    - name: Alpha
+    - name: Alpha 2
+    - name: Alpha Bravo
+    - name: Arrivé
+    - name: Ashton
+    - name: Belts
+    - name: Camden
+    - name: CFX
+    - name: Chambers
+    - name: Electronics
+    - name: Harrison
+    - name: Key Fobs
+    - name: Haydon
+    - name: Landon
+    - name: Larkin
+    - name: Limited Edition
+    - name: Mariella
+    - name: Mason
+    - name: Mobile Accessory
+    - name: Monaco
+    - name: Sinclair
+    - name: Tahoe
+    - name: Travel Accessory
+    - name: Traverso
+    - name: Tegra-Lite®
+    - name: Tegra-Lite® X Frame
+    - name: Tumi Accents
+    - name: Tumi PAX Outerwear
+    - name: TUMI V3
+    - name: Umbrellas
+    - name: Voyageur
+    - name: Weekend
+
+- name: Material
+  values:
+    - name: Ballistic
+    - name: Hardside
+    - name: Fabric
+    - name: Leather
+    - name: Other
+
+- name: Laptop Size
+  values:
+    - name: Fits up to 12"
+    - name: Fits up to 14"
+    - name: Fits up to 15"
+    - name: Fits up to 17"
+
+- name: Size
+  values:
+    - name: +1.50 Power
+    - name: +2.00 Power
+    - name: +2.50 Power
+    - name: S
+    - name: M
+    - name: L
+    - name: XL
+    - name: XXL
+    - name: 32
+    - name: 34
+    - name: 36
+    - name: 38
+    - name: 40
+    - name: 42
+    - name: 44
+
+- name: Wheels
+  values:
+    - name: 4 Wheel
+    - name: 2 Wheel
+
+- name: Exclusive Features
+  values:
+    - name: Monogramable
+    - name: Expandable
+    - name: Suitor Selector
