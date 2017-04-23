@@ -49,6 +49,7 @@ object Seeds {
       seedStage: Boolean = false,
       seedDemo: Int = 0,
       customersScaleMultiplier: Int = 1000,
+      schemasToUpdate: Seq[String] = Seq(),
       mode: Command = NoCommand,
       adminName: String = "",
       adminEmail: String = "",
@@ -109,7 +110,14 @@ object Seeds {
 
       cmd("updateObjectSchemas")
         .action((_, c) ⇒ c.copy(mode = UpdateObjectSchemas))
-        .text("Create Object Schemas")
+        .text("Update or create Object Schemas")
+        .children(
+            arg[String]("schema")
+              .optional()
+              .unbounded()
+              .action((x, c) ⇒ c.copy(schemasToUpdate = c.schemasToUpdate :+ x))
+              .text("Schemas to update, if ommited update all schemas")
+        )
     }
 
     parser.parse(args, CliConfig()) match {
@@ -153,7 +161,15 @@ object Seeds {
                                               cfg.adminOrg,
                                               cfg.adminRoles.split(",").toList))
       case UpdateObjectSchemas ⇒
-        step("Create Store Admin seeds", Factories.upgradeObjectSchemas())
+        // if no schema list is empty upgrade all schemas
+        // do this logic to convert arg to Option
+        val argSchemasToUpgrade =
+          if (cfg.schemasToUpdate.isEmpty)
+            None
+          else
+            Some(cfg.schemasToUpdate)
+
+        step("Upgrade ObjectSchemas", Factories.upgradeObjectSchemas(argSchemasToUpgrade))
       case _ ⇒
         System.err.println(usage)
     }
