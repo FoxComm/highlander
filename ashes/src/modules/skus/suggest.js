@@ -18,10 +18,10 @@ export type SuggestOptions = {
 const _suggestSkus = createAsyncActions(
   'skus-suggest',
   (value: string, options: SuggestOptions = {}) => {
-    let filters = [
+    let filters = _.filter([
       options.context ? dsl.termFilter('context', options.context) : void 0,
       options.omitArchived ? dsl.existsFilter('archivedAt', 'missing') : void 0,
-    ];
+    ]);
     let titleMatch = [];
     if (options.useTitle) {
       titleMatch = [dsl.matchQuery('title', {
