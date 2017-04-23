@@ -18,7 +18,7 @@ export type SuggestOptions = {
 const _suggestSkus = createAsyncActions(
   'skus-suggest',
   (value: string, options: SuggestOptions = {}) => {
-    let filters = _.filter([
+    let filters = _.compact([
       options.context ? dsl.termFilter('context', options.context) : void 0,
       options.omitArchived ? dsl.existsFilter('archivedAt', 'missing') : void 0,
     ]);
