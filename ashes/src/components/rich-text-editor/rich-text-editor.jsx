@@ -3,14 +3,14 @@
  */
 
 // libs
-import _ from 'lodash';
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 import { stateFromHTML } from 'draft-js-import-html';
 import { stateToHTML } from 'draft-js-export-html';
 import { stateFromMarkdown } from 'draft-js-import-markdown';
 import { stateToMarkdown } from 'draft-js-export-markdown';
+import toMarkdown from 'to-markdown';
 
 // components
 import { ContentBlock, ContentState, Editor, EditorState, RichUtils } from 'draft-js';

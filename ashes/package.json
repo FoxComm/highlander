@@ -101,6 +101,7 @@
     "sprout-data": "^0.2.3",
     "superagent": "^3.5.0",
     "thunkify-wrap": "^1.0.4",
+    "to-markdown": "^3.0.4",
     "use-named-routes": "^0.3.0",
     "victory": "^0.15.0",
     "zipcodes-regex": "^1.0.0"
