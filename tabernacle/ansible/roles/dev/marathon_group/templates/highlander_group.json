@@ -569,6 +569,433 @@
           }
         }
       ]
+    },
+    {
+      "id": "consumers",
+      "dependencies": ["/core"],
+      "apps": [
+        {
+          "id": "green-river",
+          "cmd": null,
+          "cpus": 1,
+          "mem": 2048,
+          "disk": 0,
+          "instances": 1,
+          "labels": {
+            "LAYER": "consumer",
+            "LANG": "scala",
+            "TAG": "{{docker_tags.greenriver}}",
+            "consul": "green-river"
+          },
+          "env": {
+            "JAVA_OPTS": "-Denv={{greenriver_env}} -D{{greenriver_env}}.kafka.broker={{kafka_server}} -D{{greenriver_env}}.elastic.host=elasticsearch://{{search_server}} -D{{greenriver_env}}.activity.phoenix.url=http://{{phoenix_server}}/v1 -D{{greenriver_env}}.avro.schemaRegistryUrl=http://{{schema_server}} -D{{greenriver_env}}.consume.restart={{greenriver_restart}} {% if jmx_enabled %}-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{greenriver_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false{% endif %}"
+          },
+          "container": {
+            "type": "DOCKER",
+            "docker": {
+              "image": "{{docker_registry}}:5000/greenriver:{{docker_tags.greenriver}}",
+              "network": "HOST",
+              "privileged": false,
+              "parameters": [],
+              "forcePullImage": true
+            },
+            "volumes": [
+              {
+                "containerPath": "{{docker_logs_dir}}",
+                "hostPath": "{{docker_logs_host_dir}}",
+                "mode": "RW"
+              }
+            ]
+          },
+          "portDefinitions": [
+            {
+              "port": 10003,
+              "protocol": "tcp",
+              "labels": {}
+            }
+          ],
+          "healthChecks": [
+            {
+              "protocol": "COMMAND",
+              "command": {
+                "value": "ps -ef | grep -v grep | grep green-river-assembly-1.0.jar"
+              },
+              "gracePeriodSeconds": 300,
+              "intervalSeconds": 20,
+              "timeoutSeconds": 20,
+              "maxConsecutiveFailures": 3
+            }
+          ]
+        },
+        {
+          "id": "messaging",
+          "cmd": null,
+          "cpus": 1,
+          "mem": 512,
+          "disk": 0,
+          "instances": 1,
+          "labels": {
+            "LAYER": "consumer",
+            "LANG": "clojure",
+            "TAG": "{{docker_tags.messaging}}",
+            "consul": "messaging"
+          },
+          "container": {
+            "type": "DOCKER",
+            "volumes": [
+              {
+                "containerPath": "{{docker_logs_dir}}",
+                "hostPath": "{{docker_logs_host_dir}}",
+                "mode": "RW"
+              }
+            ],
+            "docker": {
+              "image": "{{docker_registry}}:5000/messaging:{{docker_tags.messaging}}",
+              "network": "HOST",
+              "privileged": false,
+              "parameters": [],
+              "forcePullImage": true
+            }
+          },
+          "env": {
+            "PHOENIX_USER": "{{phoenix_api_user}}",
+            "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
+            "PHOENIX_URL": "http://{{phoenix_server}}",
+            "API_HOST": "{{messaging_host}}",
+            "KAFKA_BROKER": "{{kafka_server}}",
+            "SCHEMA_REGISTRY_URL": "http://{{schema_server}}",
+            "JAVA_OPTS": "{% if jmx_enabled %}-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{messaging_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false{% endif %}"
+          },
+          "healthChecks": [
+            {
+              "protocol": "COMMAND",
+              "command": {
+                "value": "ps -ef | grep -v grep | grep messaging.jar"
+              },
+              "gracePeriodSeconds": 300,
+              "intervalSeconds": 30,
+              "timeoutSeconds": 20,
+              "maxConsecutiveFailures": 3
+            }
+          ]
+        },
+        {% if with_shipstation %}
+        {
+          "id": "shipstation",
+          "cmd": null,
+          "cpus": 0.25,
+          "mem": 64,
+          "disk": 0,
+          "instances": 0,
+          "labels": {
+            "LAYER": "consumer",
+            "LANG": "go",
+            "TAG": "{{docker_tags.shipstation_consumer}}",
+            "consul": "shipstation"
+          },
+          "container": {
+            "type": "DOCKER",
+            "volumes": [],
+            "docker": {
+              "image": "{{docker_registry}}:5000/shipstation-consumer:{{docker_tags.shipstation_consumer}}",
+              "network": "HOST",
+              "privileged": false,
+              "parameters": [],
+              "forcePullImage": true
+            }
+          },
+          "env": {
+            "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
+            "ZOOKEEPER_URL": "{{zookeeper_server}}",
+            "MWH_URL": "http://{{middlewarehouse_server}}",
+            "API_KEY": "{{shipstation_api_key}}",
+            "API_SECRET": "{{shipstation_api_secret}}",
+            "TOPIC": "{{shipstation_topic}}",
+            "POLLING_INTERVAL": "{{shipstation_interval}}",
+            "PHOENIX_URL": "http://{{phoenix_server}}",
+            "PHOENIX_USER": "{{phoenix_api_user}}",
+            "PHOENIX_PASSWORD": "{{phoenix_api_password}}"
+          },
+          "healthChecks": [
+            {
+              "protocol": "COMMAND",
+              "command": {
+                "value": "ps -ef | grep -v grep | grep shipstation-consumer"
+              },
+              "gracePeriodSeconds": 300,
+              "intervalSeconds": 30,
+              "timeoutSeconds": 20,
+              "maxConsecutiveFailures": 3
+            }
+          ]
+        },
+        {% endif %}
+        {
+          "id": "capture-consumer",
+          "cmd": null,
+          "cpus": 0.25,
+          "mem": 64,
+          "disk": 0,
+          "instances": 1,
+          "labels": {
+            "LAYER": "consumer",
+            "LANG": "go",
+            "TAG": "{{docker_tags.capture_consumer}}",
+            "consul": "capture-consumer"
+          },
+          "container": {
+            "type": "DOCKER",
+            "volumes": [
+              {
+                "containerPath": "{{docker_logs_dir}}",
+                "hostPath": "{{docker_logs_host_dir}}",
+                "mode": "RW"
+              }
+            ],
+            "docker": {
+              "image": "{{docker_registry}}:5000/capture-consumer:{{docker_tags.capture_consumer}}",
+              "network": "HOST",
+              "privileged": false,
+              "parameters": [],
+              "forcePullImage": true
+            }
+          },
+          "env": {
+            "TOPIC": "{{activities_topic}}",
+            "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
+            "ZOOKEEPER_URL": "{{zookeeper_server}}",
+            "MWH_URL": "http://{{middlewarehouse_server}}",
+            "PHOENIX_URL": "http://{{phoenix_server}}",
+            "PHOENIX_USER": "{{phoenix_api_user}}",
+            "PHOENIX_PASSWORD": "{{phoenix_api_password}}"
+          },
+          "healthChecks": [
+            {
+              "protocol": "COMMAND",
+              "command": {
+                "value": "ps -ef | grep -v grep | grep capture-consumer"
+              },
+              "gracePeriodSeconds": 300,
+              "intervalSeconds": 30,
+              "timeoutSeconds": 20,
+              "maxConsecutiveFailures": 3,
+              "ignoreHttp1xx": false
+            }
+          ]
+        },
+        {
+          "id": "customer-groups-consumer",
+          "cmd": null,
+          "cpus": 0.25,
+          "mem": 64,
+          "disk": 0,
+          "instances": 1,
+          "labels": {
+            "LAYER": "consumer",
+            "LANG": "go",
+            "TAG": "{{docker_tags.customer_groups_consumer}}",
+            "consul": "customer-groups-consumer"
+          },
+          "container": {
+            "type": "DOCKER",
+            "volumes": [
+              {
+                "containerPath": "{{docker_logs_dir}}",
+                "hostPath": "{{docker_logs_host_dir}}",
+                "mode": "RW"
+              }
+            ],
+            "docker": {
+              "image": "{{docker_registry}}:5000/customer-groups-consumer:{{docker_tags.customer_groups_consumer}}",
+              "network": "HOST",
+              "privileged": false,
+              "parameters": [],
+              "forcePullImage": true
+            }
+          },
+          "env": {
+            "ELASTIC_URL": "http://{{search_server_http}}",
+            "PHOENIX_URL": "http://{{phoenix_server}}",
+            "PHOENIX_USER": "{{phoenix_api_user}}",
+            "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
+            "POLLING_INTERVAL": "1m",
+            "TOPIC": "{{activities_topic}}",
+            "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
+            "ZOOKEEPER_URL": "{{zookeeper_server}}",
+            "MWH_URL": "http://{{middlewarehouse_server}}"
+          },
+          "healthChecks": [
+            {
+              "protocol": "COMMAND",
+              "command": {
+                "value": "ps -ef | grep -v grep | grep customer-groups-consumer"
+              },
+              "gracePeriodSeconds": 300,
+              "intervalSeconds": 30,
+              "timeoutSeconds": 20,
+              "maxConsecutiveFailures": 3
+            }
+          ]
+        },
+        {
+          "id": "gift-card-consumer",
+          "cmd": null,
+          "cpus": 0.25,
+          "mem": 64,
+          "disk": 0,
+          "instances": 1,
+          "labels": {
+            "LAYER": "consumer",
+            "LANG": "go",
+            "TAG": "{{docker_tags.gift_card_consumer}}",
+            "consul": "gift-card-consumer"
+          },
+          "container": {
+            "type": "DOCKER",
+            "volumes": [
+              {
+                "containerPath": "{{docker_logs_dir}}",
+                "hostPath": "{{docker_logs_host_dir}}",
+                "mode": "RW"
+              }
+            ],
+            "docker": {
+              "image": "{{docker_registry}}:5000/gift-card-consumer:{{docker_tags.gift_card_consumer}}",
+              "network": "HOST",
+              "privileged": false,
+              "parameters": [],
+              "forcePullImage": true
+            }
+          },
+          "env": {
+            "TOPIC": "{{activities_topic}}",
+            "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
+            "ZOOKEEPER_URL": "{{zookeeper_server}}",
+            "MWH_URL": "http://{{middlewarehouse_server}}",
+            "PHOENIX_URL": "http://{{phoenix_server}}",
+            "PHOENIX_USER": "{{phoenix_api_user}}",
+            "PHOENIX_PASSWORD": "{{phoenix_api_password}}"
+          },
+          "healthChecks": [
+            {
+              "protocol": "COMMAND",
+              "command": {
+                "value": "ps -ef | grep -v grep | grep gift-card-consumer"
+              },
+              "gracePeriodSeconds": 300,
+              "intervalSeconds": 30,
+              "timeoutSeconds": 20,
+              "maxConsecutiveFailures": 3,
+              "ignoreHttp1xx": false
+            }
+          ]
+        },
+        {
+          "id": "shipments-consumer",
+          "cmd": null,
+          "cpus": 0.25,
+          "mem": 64,
+          "disk": 0,
+          "instances": 1,
+          "labels": {
+            "LAYER": "consumer",
+            "LANG": "go",
+            "TAG": "{{docker_tags.shipments_consumer}}",
+            "consul": "shipments-consumer"
+          },
+          "container": {
+            "type": "DOCKER",
+            "volumes": [
+              {
+                "containerPath": "{{docker_logs_dir}}",
+                "hostPath": "{{docker_logs_host_dir}}",
+                "mode": "RW"
+              }
+            ],
+            "docker": {
+              "image": "{{docker_registry}}:5000/shipments-consumer:{{docker_tags.shipments_consumer}}",
+              "network": "HOST",
+              "privileged": false,
+              "parameters": [],
+              "forcePullImage": true
+            }
+          },
+          "env": {
+            "TOPIC": "{{activities_topic}}",
+            "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
+            "ZOOKEEPER_URL": "{{zookeeper_server}}",
+            "MWH_URL": "http://{{middlewarehouse_server}}",
+            "PHOENIX_URL": "http://{{phoenix_server}}",
+            "PHOENIX_USER": "{{phoenix_api_user}}",
+            "PHOENIX_PASSWORD": "{{phoenix_api_password}}"
+          },
+          "healthChecks": [
+            {
+              "protocol": "COMMAND",
+              "command": {
+                "value": "ps -ef | grep -v grep | grep shipments-consumer"
+              },
+              "gracePeriodSeconds": 300,
+              "intervalSeconds": 30,
+              "timeoutSeconds": 20,
+              "maxConsecutiveFailures": 3
+            }
+          ]
+        },
+        {
+          "id": "stock-items-consumer",
+          "cmd": null,
+          "cpus": 0.25,
+          "mem": 64,
+          "disk": 0,
+          "instances": 1,
+          "labels": {
+            "LAYER": "consumer",
+            "LANG": "go",
+            "TAG": "{{docker_tags.stock_items_consumer}}",
+            "consul": "stock-items-consumer"
+          },
+          "container": {
+            "type": "DOCKER",
+            "volumes": [
+              {
+                "containerPath": "{{docker_logs_dir}}",
+                "hostPath": "{{docker_logs_host_dir}}",
+                "mode": "RW"
+              }
+            ],
+            "docker": {
+              "image": "{{docker_registry}}:5000/stock-items-consumer:{{docker_tags.stock_items_consumer}}",
+              "network": "HOST",
+              "privileged": false,
+              "parameters": [],
+              "forcePullImage": true
+            }
+          },
+          "env": {
+            "TOPIC": "sku_search_view",
+            "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
+            "ZOOKEEPER_URL": "{{zookeeper_server}}",
+            "MWH_URL": "http://{{middlewarehouse_server}}",
+            "PHOENIX_URL": "http://{{phoenix_server}}",
+            "PHOENIX_USER": "{{phoenix_api_user}}",
+            "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
+            "OFFSET_RESET_STRATEGY": "smallest"
+          },
+          "healthChecks": [
+            {
+              "protocol": "COMMAND",
+              "command": {
+                "value": "ps -ef | grep -v grep | grep stock-items-consumer"
+              },
+              "gracePeriodSeconds": 300,
+              "intervalSeconds": 30,
+              "timeoutSeconds": 20,
+              "maxConsecutiveFailures": 3
+            }
+          ]
+        }
+      ]
     }
   ]
 }
