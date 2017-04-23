@@ -114,9 +114,19 @@ export default class RichTextEditor extends Component {
 
   componentWillReceiveProps(nextProps: Props) {
     if (this.props.value != nextProps.value) {
-      this.setState({
-        editorState: this.valueToEditorState(nextProps.value),
-      });
+
+      if (!this.state.richMode) {
+        const textValue = (this.state.contentType === 'html') ? this.htmlContent : toMarkdown(this.htmlContent);
+        this.setState({
+          editorState: EditorState.createWithContent(ContentState.createFromText(textValue))
+        });
+      }
+
+      if (this.state.richMode) {
+        this.setState({
+          editorState: this.valueToEditorState(nextProps.value),
+        });
+      }
     }
   }
 
@@ -238,7 +248,7 @@ export default class RichTextEditor extends Component {
 
   @autobind
   handleBlur() {
-   this.props.onChange(this.htmlContent);
+    this.props.onChange(this.htmlContent);
   }
 
   @autobind
