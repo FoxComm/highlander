@@ -7,7 +7,7 @@
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a database to migrate"
-      default: "vanilla-db"
+      default: "stage-backend"
       private: no
     - name: "object_schema_names"
       prompt: "Enter names of ObjectSchemas (space separated) to update, leavy empty to update all"
@@ -15,4 +15,4 @@
       private: no
 
   roles:
-    - { role: prod/update_object_schemas, become: true }
+    - { role: prod/update_object_schemas }
