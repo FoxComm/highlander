@@ -42,14 +42,14 @@ trait ObjectSchemaSeeds {
       _ ← * <~ toUpgrade.map { newSchema ⇒
            allCurrent.find(_.name == newSchema.name) match {
              case Some(current) ⇒
-               Console.err.println(s"Found ${current.name}, update")
+               Console.err.println(s"Found schema ${current.name}, updating...")
                ObjectSchemas
                  .update(current,
                          current.copy(schema = newSchema.schema,
                                       dependencies = newSchema.dependencies))
                  .meh
              case _ ⇒
-               Console.err.println(s"Not found ${newSchema.name}, create")
+               Console.err.println(s"Schema ${newSchema.name} not found, creating...")
                ObjectSchemas.create(newSchema).meh
            }
          }
