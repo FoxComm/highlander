@@ -1,5 +1,5 @@
 {
-  "id": "/highlander",
+  "id": "highlander",
   "groups": [
     {
       "id": "core",
@@ -258,7 +258,7 @@
                 "port": {{middlewarehouse_port}}
               }
             ]
-        },
+        }
       ]
     },
     {
@@ -328,63 +328,6 @@
               "maxConsecutiveFailures": 3,
               "ignoreHttp1xx": false,
               "portIndex": 0
-            }
-          ]
-        },
-        {
-          "id": "middlewarehouse",
-          "cmd": null,
-          "cpus": 0.25,
-          "mem": 64,
-          "disk": 0,
-          "instances": 1,
-          "labels": {
-            "LAYER": "backend",
-            "LANG": "go",
-            "consul": "middlewarehouse",
-            "TAG": "{{docker_tags.middlewarehouse}}"
-          },
-          "container": {
-            "type": "DOCKER",
-            "volumes": [
-              {
-                "containerPath": "{{docker_logs_dir}}",
-                "hostPath": "{{docker_logs_host_dir}}",
-                "mode": "RW"
-              }
-            ],
-            "docker": {
-              "image": "{{docker_registry}}:5000/middlewarehouse:{{docker_tags.middlewarehouse}}",
-              "network": "HOST",
-              "privileged": false,
-              "parameters": [],
-              "forcePullImage": true
-            }
-          },
-          "ports": [{{middlewarehouse_port}}],
-          "env": {
-            "PORT": "{{middlewarehouse_port}}",
-            "DB_SSLMODE": "disable",
-            "SCHEMA_REGISTRY_URL": "http://{{schema_server}}",
-            "DB_NAME": "{{middlewarehouse_db_name}}",
-            "PHOENIX_URL": "http://{{phoenix_server}}",
-            "ZOOKEEPER_URL": "{{zookeeper_server}}",
-            "LOG_LEVEL": "info",
-            "DB_HOST": "{{docker_db_host}}",
-            "KAFKA_BROKER": "{{kafka_server}}",
-            "DB_USER": "middlewarehouse"
-          },
-          "constraints": [["hostname", "UNIQUE"]],
-          "healthChecks": [
-            {
-              "path": "/v1/public/ping",
-              "protocol": "HTTP",
-              "gracePeriodSeconds": 300,
-              "intervalSeconds": 30,
-              "timeoutSeconds": 20,
-              "maxConsecutiveFailures": 3,
-              "ignoreHttp1xx": false,
-              "port": {{middlewarehouse_port}}
             }
           ]
         },
@@ -504,11 +447,11 @@
           }
         }
       ],
-      "dependencies": ["/highlander/core"],
+      "dependencies": ["/highlander/core"]
     },
     {
-      "id": "/highlander/ashes",
-      "dependencies": ["/highlander/core", "/highlander/core/services"],
+      "id": "ashes",
+      "dependencies": ["/highlander/core", "/highlander/core-services"],
       "apps": [
         {
           "id": "/highlander/core/ashes",
@@ -568,65 +511,10 @@
       ]
     },
     {
-      "id": "/highlander/core/storefront",
+      "id": "storefront",
       "apps": [
         {
-          "id": "/ashes",
-          "cmd": null,
-          "cpus": 1,
-          "mem": 2048,
-          "disk": 0,
-          "instances": 1,
-          "env": {
-            "NODE_ENV": "production",
-            "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",
-            "BEHIND_NGINX": "true",
-            "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}",
-            "GA_TRACKING_ID": "{{ashes_ga_tracking_id}}"
-          },
-          "labels": {
-            "LAYER": "frontend",
-            "LANG": "javascript",
-            "consul": "ashes",
-            "TAG": "{{docker_tags.ashes}}"
-          },
-          "healthChecks": [
-            {
-              "path": "/admin/login",
-              "protocol": "HTTP",
-              "gracePeriodSeconds": 300,
-              "intervalSeconds": 30,
-              "timeoutSeconds": 20,
-              "maxConsecutiveFailures": 3,
-              "ignoreHttp1xx": false,
-              "portIndex": 0
-            }
-          ],
-          "container": {
-            "type": "DOCKER",
-            "volumes": [
-              {
-                "containerPath": "/keys",
-                "hostPath": "{{public_keys_dest_dir}}",
-                "mode": "RO"
-              },
-              {
-                "containerPath": "{{docker_logs_dir}}",
-                "hostPath": "{{docker_logs_host_dir}}",
-                "mode": "RW"
-              }
-            ],
-            "docker": {
-              "image": "{{docker_registry}}:5000/ashes:{{docker_tags.ashes}}",
-              "network": "HOST",
-              "privileged": false,
-              "parameters": [],
-              "forcePullImage": true
-            }
-          }
-        }
-        {
-          "id": "/highlander/core/storefront",
+          "id": "frontend",
           "cmd": null,
           "cpus": 1,
           "mem": 1024,
@@ -681,7 +569,7 @@
         }
 
       ],
-      "dependencies": ["/highlander/core", "/highlander/core/services"],
+      "dependencies": ["/highlander/core", "/highlander/core-services"]
     }
   ]
 }

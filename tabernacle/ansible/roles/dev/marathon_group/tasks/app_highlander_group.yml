@@ -9,14 +9,11 @@
   template: src=highlander_group.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
 - name: Kill Highlander group Tasks in Marathon
-  shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/apps/highlander_group/tasks?scale=true'
+  shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/groups/highlander'
   when: is_redeploy
 
 - name: Update Highlander group in Marathon
-  shell: 'curl -sS -XPUT -d@/marathon/applications/highlander_group.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/highlander_group'
-
-- name: Restart Highlander group in Marathon
-  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/highlander_group/restart'
+  shell: 'curl -sS -XPUT -d@/marathon/applications/highlander_group.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/groups'
 
 - name: Get Highlander group Marathon tasks in `healthy` state
   shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/highlander_group | jq '.app.tasksHealthy > 0'
