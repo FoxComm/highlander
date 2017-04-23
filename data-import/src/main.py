@@ -1,13 +1,14 @@
 #!/usr/bin/python3
 #
-
+import argparse
+import itertools
 import json
 import os.path
-import sys
 import urllib.request
 from collections import defaultdict
 from urllib.error import HTTPError
-import itertools
+
+from adidas_convert import convert_taxonomies, convert_products
 
 
 class Taxon:
@@ -188,12 +189,17 @@ def assign_taxonomies(p: Phoenix, taxonomies, data_product, product_id):
             print("taxon {} is assigned to product {}".format(es_taxon.taxon_id, product_id))
 
 
-def import_taxonomies(p: Phoenix):
+def import_taxonomies(p: Phoenix, input_dir, import_from_adidas):
     print("Importing taxonomies\n")
+
+    if import_from_adidas:
+        taxonomies = convert_taxonomies(input_dir)
+    else:
+        taxonomies_json = load_taxonomies(input_dir + "/taxonomies.json")
+        taxonomies = taxonomies_json["taxonomies"]
+
     if p.ensure_logged_in():
         imported = query_es_taxonomies(p.jwt, p.host)
-        taxonomies_json = load_taxonomies("data/taxonomies.json")
-        taxonomies = taxonomies_json["taxonomies"]
 
         print("about to add {} taxonomies with overall {} taxons".format(len(taxonomies),
                                                                          sum([len(k["taxons"]) for k in
@@ -219,9 +225,16 @@ def import_taxonomies(p: Phoenix):
                                                                                             existing_taxon.taxon_id))
 
 
-def import_products(p: Phoenix, max_products):
+def import_products(p: Phoenix, max_products, input_dir, import_from_adidas):
     print("Importing products\n")
-    products_json = load_products("./data/products.json")
+
+    if import_from_adidas:
+        products = convert_products(input_dir)
+    else:
+        products_json = load_products(input_dir + "/products.json")
+        products = products_json["products"]
+
+
     cache_dir = "cache"
     if not os.path.exists(cache_dir):
         os.makedirs(cache_dir)
@@ -229,8 +242,7 @@ def import_products(p: Phoenix, max_products):
     p.ensure_logged_in()
     taxonomies = query_es_taxonomies(p.jwt, p.host)
 
-    products = products_json["products"] if max_products is None else itertools.islice(products_json["products"],
-                                                                                       int(max_products))
+    products = products if max_products is None else itertools.islice(products, int(max_products))
 
     for product in products:
         code = product['skus'][0]['attributes']['code']['v']
@@ -278,29 +290,48 @@ def add_inventory(phoenix, amount):
 
 
 def main():
-    host = sys.argv[1]
-    command = sys.argv[2]
-    max_products = None if len(sys.argv) < 4 else sys.argv[3]
+    options = read_cmd_line()
 
-    print("HOST: ", host)
-    print("CMD: ", command)
-    if max_products is not None:
-        print("MAX: ", max_products)
+    # host = sys.argv[1]
+    # command = sys.argv[2]
+    # max_products = None if len(sys.argv) < 4 else sys.argv[3]
 
-    p = Phoenix(host=host, user='admin@admin.com', password='password', org='tenant')
+    print("HOST: ", options.host)
+    print("CMD: ", options.command[0])
+    if options.max_products is not None:
+        print("MAX: ", options.max_products[0])
 
-    if command == 'taxonomies':
-        import_taxonomies(p)
-    elif command == 'products':
-        import_products(p, max_products)
-    elif command == 'both':
-        import_taxonomies(p)
-        import_products(p, max_products)
-    elif command == 'inventory':
-        amount = int(sys.argv[3])
-        add_inventory(p, amount)
+    max_products = None if options.max_products else options.max_products[0]
+
+    p = Phoenix(host=options.host, user='admin@admin.com', password='password', org='tenant')
+
+    if options.command[0] == 'taxonomies':
+        import_taxonomies(p, options.input[0], options.adidas)
+    elif options.command[0] == 'products':
+        import_products(p, max_products, options.input[0], options.adidas)
+    elif options.command[0] == 'both':
+        import_taxonomies(p, options.input[0], options.adidas)
+        import_products(p, max_products, options.input[0], options.adidas)
+    elif options.command[0] == 'inventory':
+        add_inventory(p, options.inventory_amount[0])
     else:
         print("Valid commands are, 'taxonomies', 'products', 'both', or 'inventory'")
+
+
+def read_cmd_line():
+    pp = argparse.ArgumentParser(
+        description='Converts products.json and listings.json to taxonomies.json and products.json.')
+    pp.add_argument("--host", type=str, required=True, help="host")
+    pp.add_argument("--max-products", "-m", nargs=1, type=int, help="Max products")
+    pp.add_argument("--input", "-i", nargs=1, type=str, default=['data'], help="input directory")
+    pp.add_argument("--inventory_amount", nargs=1, type=int, default=[100], help="inventory amount")
+    pp.add_argument("--adidas", action='store_true', default=False,
+                    help="treat input directory as container of listing.json and products.json with adidas data")
+    pp.add_argument("command", nargs=1, choices=['taxonomies', 'products', 'both', 'inventory'],
+                    type=str, help="Command")
+
+    return pp.parse_args()
+
 
 if __name__ == "__main__":
     main()

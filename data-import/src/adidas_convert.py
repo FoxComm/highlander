@@ -191,19 +191,19 @@ def convert_product(product_group):
     return None
 
 
-def convert_taxonomies():
+def convert_taxonomies(dir):
     def create_taxonomy(name, hierarchical="false", taxons=None):
         return {'attributes': {'name': {'t': 'string', 'v': name}}, 'hierarchical': hierarchical, 'taxons': taxons}
 
     def create_taxon(name):
         return {'attributes': {'name': {'t': 'string', 'v': name}}}
 
-    taxonomies = load_file_taxonomies()
+    taxonomies = load_file_taxonomies(dir)
     return [create_taxonomy(name, taxons=[create_taxon(taxon_name) for taxon_name in values]) for (name, values) in
             taxonomies.items()]
 
 
-def load_file_taxonomies():
+def load_file_taxonomies(dir):
     def load_taxonomies(file_name, save_to = defaultdict(set)):
         json_data = json.load(open(file_name, 'r'))
         json_taxonomies = [read_taxonomies_section(e) for e in json_data]
@@ -214,8 +214,8 @@ def load_file_taxonomies():
         return save_to
 
     result = defaultdict(set)
-    load_taxonomies("./adidas/listings.json", result)
-    load_taxonomies("./adidas/products.json", result)
+    load_taxonomies(dir+"/listings.json", result)
+    load_taxonomies(dir+"/products.json", result)
     return result
 
 
@@ -238,7 +238,7 @@ def read_taxonomies_section_for_product(product):
     return {k: to_list_or_single_value(v) for (k, v) in read_taxonomies_section(product).items()}
 
 
-def convert_products(file_location):
+def convert_products(dir):
     def load_products(file_name):
         json_data = json.load(open(file_name, 'r'))
 
@@ -249,6 +249,7 @@ def convert_products(file_location):
 
         return products
 
+    file_location = dir+"/products.json"
     products = load_products(file_location)
     converted = [convert_product(g) for g in products.values()]
     return [v for v in converted if v is not None]
@@ -259,10 +260,10 @@ def main():
     if not os.path.isdir(settings.output):
         os.makedirs(settings.output)
 
-    converted_taxonomies = convert_taxonomies()
+    converted_taxonomies = convert_taxonomies(settings.input)
     dump_to_file(settings.output, "taxonomies", converted_taxonomies, settings.split_taxonomies[0])
 
-    converted_products = convert_products("./adidas/products.json")
+    converted_products = convert_products(settings.input)
     converted_products.sort(key = lambda product: product['skus'][0]['attributes']['code']['v'])
 
     dump_to_file(settings.output, "products", converted_products, settings.split_products[0])
