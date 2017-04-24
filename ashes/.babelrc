@@ -24,8 +24,5 @@
     "transform-es2015-unicode-regex",
     "transform-styles"
   ],
-  "presets": ["stage-0", "react"],
-  "ignore": [
-    "src/**/*.stories.js"
-  ]
+  "presets": ["stage-0", "react"]
 }
