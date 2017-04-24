@@ -47,9 +47,9 @@ class Checkbox extends Component {
     } = this.props;
 
     const className = classNames(
-      'facet-checkbox',
+      styles['facet-checkbox'],
       {
-        [styles.disabled: !available
+        [styles.disabled]: !available
       }
     );
 

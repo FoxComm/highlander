@@ -64,7 +64,7 @@ class ColorCircle extends Component {
         [styles.light]: isLight(value.color),
       },
       {
-        [styles.disabled: !available
+        [styles.disabled]: !available
       }
     );
 

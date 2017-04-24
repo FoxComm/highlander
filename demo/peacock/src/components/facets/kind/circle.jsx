@@ -45,9 +45,9 @@ class Circle extends Component {
     } = this.props;
 
     const className = classNames(
-      'circle-checkbox',
+      styles['circle-checkbox'],
       {
-        [styles.disabled: !available
+        [styles.disabled]: !available
       }
     );
 

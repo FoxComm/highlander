@@ -47,9 +47,9 @@ class Image extends Component {
     const id = `${facet}-image-${label}`;
 
     const className = classNames(
-      'image-checkbox',
+      styles['image-checkbox'],
       {
-        [styles.disabled: !available
+        [styles.disabled]: !available
       }
     );
 
