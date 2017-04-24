@@ -48,14 +48,14 @@ class Elasticsearch:
 
     def get_taxonomies(self):
         response = self.do_query('taxonomies_search_view')
-        return [(item['name'], item['taxonomyId']) for item in response["result"] if item['context'] == 'default']
+        return [(item['name'], item['taxonomyId']) for item in response["result"] if item['context'] == 'default' and item['archivedAt'] is None]
 
     def get_taxons(self):
         def read_item(item):
             return Taxon(item['taxonId'], item['parentId'], item['name'], item['taxonomyId'])
 
         response = self.do_query('taxons_search_view')
-        return [read_item(item) for item in response["result"] if item['context'] == 'default']
+        return [read_item(item) for item in response["result"] if (item['context'] == 'default' and item['archivedAt'] is None)]
 
     def get_products(self):
         response = self.do_query('products_search_view')
@@ -301,7 +301,7 @@ def main():
     if options.max_products is not None:
         print("MAX: ", options.max_products[0])
 
-    max_products = None if options.max_products else options.max_products[0]
+    max_products = None if options.max_products is None else options.max_products[0]
 
     p = Phoenix(host=options.host, user='admin@admin.com', password='password', org='tenant')
 
@@ -320,7 +320,7 @@ def main():
 
 def read_cmd_line():
     pp = argparse.ArgumentParser(
-        description='Converts products.json and listings.json to taxonomies.json and products.json.')
+        description='Data import')
     pp.add_argument("--host", type=str, required=True, help="host")
     pp.add_argument("--max-products", "-m", nargs=1, type=int, help="Max products")
     pp.add_argument("--input", "-i", nargs=1, type=str, default=['data'], help="input directory")
