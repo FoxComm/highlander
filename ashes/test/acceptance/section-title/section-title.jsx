@@ -4,7 +4,7 @@ import * as ShallowTestUtils from 'react-shallow-testutils';
 
 describe('SectionTitle', function() {
   const SectionTitle = requireComponent('section-title/section-title.jsx');
-  const PrimaryButton = requireComponent('core/button.jsx', false).PrimaryButton;
+  const PrimaryButton = requireComponent('core/button/button.jsx', false).PrimaryButton;
 
   it('should render', function *() {
     const sectionTitle = SectionTitle({title: 'Orders'});

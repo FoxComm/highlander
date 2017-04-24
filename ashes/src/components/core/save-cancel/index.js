@@ -1,1 +1,1 @@
-export * from './save-cancel';
+export default from './save-cancel';
