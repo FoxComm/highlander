@@ -341,40 +341,40 @@ case class Checkout(
              grandTotal > internalPayments, // run external payments only if we have to pay more
              doExternalPayment(grandTotal, internalPayments))
 
-      mutatingResult = externalCalls.authPaymentsSuccess = true
+      mutatingResult = externalCalls.authPaymentsSuccess = true // fixme is this flag used anywhere? @aafa
     } yield {}
 
   // do only one external payment. Check AP first, pay if it present otherwise try CC charge
   private def doExternalPayment(orderTotal: Int, internalPaymentTotal: Int): DbResultT[Unit] = {
+    val notEnoughPayment = GeneralFailure("Not enough payment")
+
     for {
       ap ← * <~ authApplePay(orderTotal, internalPaymentTotal)
       _  ← * <~ doOrMeh(ap.isEmpty, authCreditCard(orderTotal, internalPaymentTotal))
+
+      // todo throw notEnoughPayment here
     } yield ()
   }
 
   private def authCreditCard(orderTotal: Int,
                              internalPaymentTotal: Int): DbResultT[Option[CreditCardCharge]] = {
 
-    val authAmount = orderTotal - internalPaymentTotal
+    val authAmount   = orderTotal - internalPaymentTotal
+    val cardNotFound = GeneralFailure("Credit card not found")
 
-    (for {
-      pmt  ← OrderPayments.findAllCreditCardsForOrder(cart.refNum)
-      card ← pmt.creditCard
-    } yield (pmt, card)).one.dbresult.flatMap {
-      case Some((pmt, card)) ⇒
-        for {
-          stripeCharge ← * <~ apis.stripe.authorizeAmount(card.gatewayCardId,
-                                                          authAmount,
-                                                          cart.currency,
-                                                          card.gatewayCustomerId.some)
-          ourCharge = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
-          _       ← * <~ LogActivity().creditCardAuth(cart, ourCharge)
-          created ← * <~ CreditCardCharges.create(ourCharge)
-        } yield created.some
+    for {
+      pmt  ← * <~ OrderPayments.findAllCreditCardsForOrder(cart.refNum).mustFindOneOr(cardNotFound)
+      card ← * <~ CreditCards.filter(_.id === pmt.paymentMethodId).mustFindOneOr(cardNotFound)
 
-      case None ⇒
-        DbResultT.failure(GeneralFailure("not enough payment"))
-    }
+      stripeCharge ← * <~ apis.stripe.authorizeAmount(card.gatewayCardId,
+                                                      authAmount,
+                                                      cart.currency,
+                                                      card.gatewayCustomerId.some)
+
+      ourCharge = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
+      _       ← * <~ LogActivity().creditCardAuth(cart, ourCharge)
+      created ← * <~ CreditCardCharges.create(ourCharge)
+    } yield created.some
   }
 
   private def authApplePay(orderTotal: Int,

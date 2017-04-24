@@ -6,7 +6,7 @@ import failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
 import models.account.{User, Users}
 import models.cord._
 import models.cord.lineitems._
-import models.payment.ExternalCharge
+import models.payment.{ExternalCharge, ExternalChargeProperties}
 import models.payment.ExternalCharge._
 import models.payment.applepay.ApplePayCharges
 import models.payment.creditcard._
@@ -152,18 +152,22 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
 
   private def externalCapture(total: Int, order: Order): DbResultT[Unit] = {
     val paymentNotFound = CaptureFailures.ExternalPaymentNotFound(order.refNum)
+    def capture(charge: ExternalCharge[_]) = captureFromStripe(total, charge, order)
 
     for {
       pmt ← * <~ OrderPayments
              .findAllExternalPayments(payload.order)
              .mustFindOneOr(paymentNotFound)
 
+      // we must find one the following charges
       apCharge ← * <~ ApplePayCharges.filter(_.orderPaymentId === pmt.id).one
       ccCharge ← * <~ CreditCardCharges.filter(_.orderPaymentId === pmt.id).one
 
-      _ ← * <~ ccCharge.map(captureFromStripe(total, _, order))
-      _ ← * <~ apCharge.map(captureFromStripe(total, _, order))
+      // make sure that smth was found
+      _ ← * <~ failIf(apCharge.isEmpty && ccCharge.isEmpty, paymentNotFound)
 
+      _ ← * <~ ccCharge.map(capture)
+      _ ← * <~ apCharge.map(capture)
     } yield ()
   }
 
@@ -175,10 +179,11 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       _            ← * <~ failIfNot(charge.state == Auth, CaptureFailures.ChargeNotInAuth(charge))
       stripeCharge ← * <~ apis.stripe.captureCharge(charge.stripeChargeId, total)
 
-      // todo update charge entity !!!
-//      updatedCharge = charge.updateTo(state = FullCapture)
-//      _ ← * <~ CreditCardCharges.update(charge, updatedCharge)
-//      _ ← * <~ LogActivity().creditCardCharge(order, updatedCharge)
+      _ ← * <~ ApplePayCharges.filter(_.id === charge.id).map(_.state).update(FullCapture)
+      _ ← * <~ CreditCardCharges.filter(_.id === charge.id).map(_.state).update(FullCapture)
+
+      // todo log if update successful
+      //      _ ← * <~ LogActivity().creditCardCharge(order, updatedCharge)
     } yield ()
   }
 
