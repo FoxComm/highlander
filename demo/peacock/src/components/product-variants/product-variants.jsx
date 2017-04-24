@@ -127,7 +127,9 @@ class ProductVariants extends Component {
 
     const { variants } = product;
     const { selectedVariantValues } = this.state;
-    const allowedSkuCodes = _.flatMap(selectedVariantValues, (id, type) => getSkuCodesForVariantValue(product, id, type));
+    const allowedSkuCodes = _.flatMap(selectedVariantValues, (id, type) => {
+      return getSkuCodesForVariantValue(product, id, type);
+    });
 
     const facets = _.flatMap(variants, (variant: ProductVariant) => {
       const variantType = variant.attributes.type.v;
