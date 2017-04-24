@@ -1,44 +1,44 @@
-require "nokogiri"
-require "open-uri"
-require "json"
-require "yaml"
+require 'nokogiri'
+require 'open-uri'
+require 'json'
+require 'yaml'
 
-def parse_taxon_hierarcy(values)
+def parse_taxon_hierarchy(values)
   values.map do |value|
-    result = {'attributes': {'name':{'t':'string', 'v':value['name']}}}
+    result = {'attributes': {'name':{'t':'string', 'v':"#{value['name']}"}}}
     if value['swatch'] != nil
-      result[:attributes][:swatch]= {'t':'swatch', 'v':value['swatch']}
+      result[:attributes][:swatch]= {'t':'swatch', 'v':"#{value['swatch']}"}
     end
     if value['values'] != nil
-      result[:children] = parse_taxon_hierarcy(value['values'])
+      result[:children] = parse_taxon_hierarchy(value['values'])
     end
     result
   end
 end
 
 def parse_hierarchical_taxonomy(name, values)
-  result = {'attributes': {'name':{'t':'string', 'v':name}}}
-  taxons = parse_taxon_hierarcy(values)
+  result = {'attributes': {'name':{'t':'string', 'v':"#{name}"}}}
+  taxons = parse_taxon_hierarchy(values)
   result[:taxons] = taxons
-  result[:hierarchical] = taxons.any?{|i| i['children']!=nil}
+  result[:hierarchical] = taxons.any?{|i| i.key?(:children) && i[:children]!=nil}
   result
 end
 
-def parseTaxonomies()
-  data = YAML.load_file("./raw/taxonomies.yml")
+def parse_taxonomies
+  data = YAML.load_file('./raw/taxonomies.yml')
   result = []
   data.each do |yaml_taxonomy|
     name = yaml_taxonomy['name']
     result = result << parse_hierarchical_taxonomy(name, yaml_taxonomy['values'])
   end
-  puts "Writing to json"
+  puts 'Writing taxonomies to json'
 
   File.open('taxonomies.json', 'w') do |f|
-    f.puts result.to_json
+    f.puts ({'taxonomies': result}).to_json
   end
 end
 
-parseTaxonomies
+parse_taxonomies
 
 def sanitize_content(str)
   str.tr("\n", "").tr("\t", "").gsub("\r", "").strip.gsub(/[\u0080-\u00ff]/, "")
@@ -139,7 +139,7 @@ def update_sku_from_scopes(doc, sku)
         }
       }
     elsif s[0] == "ProductCategories"
-      sku[:taxons][:productType] = [ s[1] ]
+      sku[:taxonomies][:productType] = [ s[1] ]
     end
   end
 
@@ -162,7 +162,7 @@ def update_sku_from_data_properties(doc, sku)
         v: d[2].gsub("'", "")
       }
     elsif d[0] == "productSubCat"
-      sku[:taxons][:category] = [ d[2].gsub("'", "") ]
+      sku[:taxonomies][:category] = [ d[2].gsub("'", "") ]
     elsif d[0] == "productDescription"
       sku[:attributes][:description] = {
         t: "richtext",
@@ -200,7 +200,7 @@ def update_sku_from_data_properties(doc, sku)
         }
       end
     elsif d[0] == "productCollection"
-      sku[:taxons][:collection] = [ d[2].gsub("'", "") ]
+      sku[:taxonomies][:collection] = [ d[2].gsub("'", "") ]
     end
   end
 
@@ -244,7 +244,7 @@ def update_sku_from_dimensions(doc, sku)
 
       unless value_tag == nil || value_tag.text == ""
         if dimension_title == "Primary Material"
-          sku[:taxons][:material] = [ sanitize_content(value_text) ]
+          sku[:taxonomies][:material] = [ sanitize_content(value_text) ]
         elsif dimension_title == "Weight"
           sku[:attributes][:weight] = {
             t: "string",
@@ -287,7 +287,7 @@ skus = pdp_links.map.with_index do |link, idx|
 
   sku[:albums]=[{'name':'default'}]
   sku[:albums][0][:images] = read_images(doc)
-  sku[:taxons][:features] = read_innovation_features(doc)
+  sku[:taxonomies][:features] = read_innovation_features(doc)
 
   color = read_current_pdp_color(doc)
 
@@ -314,7 +314,7 @@ skus = pdp_links.map.with_index do |link, idx|
         color: {},
         size: {}
       },
-      taxons: sku[:taxons]
+      taxonomies: sku[:taxonomies]
     }
   else
     product[:skus] = product[:skus] << sku
