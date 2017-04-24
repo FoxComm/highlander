@@ -1,6 +1,7 @@
 /* @flow */
 
 import React, { Component, Element } from 'react';
+import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 import styles from './image.css';
 
@@ -40,12 +41,20 @@ class Image extends Component {
       facet,
       value,
       label,
+      available,
     } = this.props;
 
     const id = `${facet}-image-${label}`;
 
+    const className = classNames(
+      'image-checkbox',
+      {
+        [styles.disabled: !available
+      }
+    );
+
     return (
-      <div styleName="image-checkbox">
+      <div className={className}>
         <input
           id={id}
           type="checkbox"

@@ -43,11 +43,19 @@ class Checkbox extends Component {
     const {
       reactKey,
       label,
+      available,
     } = this.props;
+
+    const className = classNames(
+      'facet-checkbox',
+      {
+        [styles.disabled: !available
+      }
+    );
 
     return (
       <CheckboxBase
-        styleName="facet-checkbox"
+        className={className}
         id={reactKey}
         checked={this.state.checked}
         onChange={this.click}
