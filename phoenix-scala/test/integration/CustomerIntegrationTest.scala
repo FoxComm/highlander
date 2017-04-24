@@ -649,7 +649,7 @@ class CustomerIntegrationTest
                              CreditCardCharge(
                                  creditCardId = creditCard.id,
                                  orderPaymentId = orderPayment.id,
-                                 chargeId = "asd1",
+                                 stripeChargeId = "asd1",
                                  state = ExternalCharge.FullCapture,
                                  amount = 100
                              ))
@@ -661,7 +661,7 @@ class CustomerIntegrationTest
                              CreditCardCharge(
                                  creditCardId = creditCard.id,
                                  orderPaymentId = orderPayment2.id,
-                                 chargeId = "asd2",
+                                 stripeChargeId = "asd2",
                                  state = ExternalCharge.FullCapture,
                                  amount = 1000000
                              ))

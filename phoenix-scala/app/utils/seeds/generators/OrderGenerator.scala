@@ -233,7 +233,7 @@ trait OrderGenerator extends ShipmentSeeds {
       ccc ← * <~ CreditCardCharges.create(
                CreditCardCharge(creditCardId = cc.id,
                                 orderPaymentId = op.id,
-                                chargeId = s"${cc.id}_${op.id}",
+                                stripeChargeId = s"${cc.id}_${op.id}",
                                 state = FullCapture,
                                 amount = op.amount.getOrElse(0)))
       addr ← * <~ getDefaultAddress(accountId)
@@ -329,7 +329,7 @@ trait OrderGenerator extends ShipmentSeeds {
                CreditCardCharges.create(
                    CreditCardCharge(creditCardId = cc.id,
                                     orderPaymentId = op.id,
-                                    chargeId = s"${cc.id}_${op.id}",
+                                    stripeChargeId = s"${cc.id}_${op.id}",
                                     state = FullCapture,
                                     amount = op.amount.getOrElse(0)))
            }

@@ -3,23 +3,25 @@ package models.payment
 import cats.data.Xor
 import com.pellucid.sealerate
 import failures.Failures
-import shapeless.lens
+import models.payment.ExternalCharge.State
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils.db.FoxModel
 import utils.{ADT, FSM}
 
-trait ExternalCharge[M <: FoxModel[M] with FSM[ExternalCharge.State, M]]
-    extends FoxModel[M]
-    with FSM[ExternalCharge.State, M] {
-  self: M ⇒
-  import ExternalCharge._
-  import shapeless._
-
-  val chargeId: String
+trait ExternalChargeProperties {
+  val stripeChargeId: String
   val state: State
+}
 
-  override def updateTo(newModel: M): Failures Xor M =
+trait ExternalCharge[Model <: FoxModel[Model] with FSM[ExternalCharge.State, Model]]
+    extends FoxModel[Model]
+    with ExternalChargeProperties
+    with FSM[ExternalCharge.State, Model] {
+  self: Model ⇒
+  import ExternalCharge._
+
+  override def updateTo(newModel: Model): Failures Xor Model =
     super.transitionModel(newModel)
 
   val fsm: Map[State, Set[State]] = Map(

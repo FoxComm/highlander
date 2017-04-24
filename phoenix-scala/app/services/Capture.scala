@@ -6,6 +6,7 @@ import failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
 import models.account.{User, Users}
 import models.cord._
 import models.cord.lineitems._
+import models.payment.ExternalCharge
 import models.payment.ExternalCharge._
 import models.payment.applepay.ApplePayCharges
 import models.payment.creditcard._
@@ -160,26 +161,25 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       apCharge ← * <~ ApplePayCharges.filter(_.orderPaymentId === pmt.id).one
       ccCharge ← * <~ CreditCardCharges.filter(_.orderPaymentId === pmt.id).one
 
-      _ ← * <~ captureFromStripe(total, ccCharge.get, order)
-
-//        _ ← * <~ apCharge.fold(
-//          ccCharge.fold(CaptureFailures.ExternalPaymentNotFound(order.refNum))(cc => captureFromStripe(total, cc, order))
-//        )(ap => captureFromStripe(total, ap, order))
+      _ ← * <~ ccCharge.map(captureFromStripe(total, _, order))
+      _ ← * <~ apCharge.map(captureFromStripe(total, _, order))
 
     } yield ()
   }
 
   private def captureFromStripe(total: Int,
-                                charge: CreditCardCharge,
-                                order: Order): DbResultT[Option[CreditCardCharge]] = {
+                                charge: ExternalCharge[_],
+                                order: Order): DbResultT[Unit] = {
 
     for {
-      _            ← * <~ failIf(charge.state == Auth, CaptureFailures.ChargeNotInAuth(charge))
-      stripeCharge ← * <~ apis.stripe.captureCharge(charge.chargeId, total)
-      updatedCharge = charge.copy(state = FullCapture)
-      _ ← * <~ CreditCardCharges.update(charge, updatedCharge)
-      _ ← * <~ LogActivity().creditCardCharge(order, updatedCharge)
-    } yield updatedCharge.some
+      _            ← * <~ failIfNot(charge.state == Auth, CaptureFailures.ChargeNotInAuth(charge))
+      stripeCharge ← * <~ apis.stripe.captureCharge(charge.stripeChargeId, total)
+
+      // todo update charge entity !!!
+//      updatedCharge = charge.updateTo(state = FullCapture)
+//      _ ← * <~ CreditCardCharges.update(charge, updatedCharge)
+//      _ ← * <~ LogActivity().creditCardCharge(order, updatedCharge)
+    } yield ()
   }
 
   private def determineExternalCapture(total: Int,
@@ -295,7 +295,6 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
                               orderSkus: Seq[OrderLineItemProductData]): DbResultT[Unit] =
     for {
       codes ← * <~ orderSkus.map { _.sku.code }
-      _     ← * <~ println(s"! compare with payload ${payload.items}, ${orderSkus}") // todo remove me
       _     ← * <~ mustHaveCodes(payload.items, codes, payload.order)
       _     ← * <~ mustHaveSameLineItems(payload.items.length, orderSkus.length, payload.order)
       _     ← * <~ mustHavePositiveShippingCost(payload.shipping)

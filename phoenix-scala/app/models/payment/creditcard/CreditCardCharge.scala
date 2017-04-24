@@ -14,7 +14,7 @@ import utils.db._
 case class CreditCardCharge(id: Int = 0,
                             creditCardId: Int,
                             orderPaymentId: Int,
-                            chargeId: String,
+                            stripeChargeId: String,
                             state: State = Cart,
                             currency: Currency = Currency.USD,
                             amount: Int,
@@ -32,7 +32,7 @@ object CreditCardCharge {
                      currency: Currency): CreditCardCharge =
     CreditCardCharge(creditCardId = card.id,
                      orderPaymentId = pmt.id,
-                     chargeId = stripe.getId,
+                     stripeChargeId = stripe.getId,
                      state = Auth,
                      currency = currency,
                      amount = stripe.getAmount.toInt) // FIXME int type shrink here

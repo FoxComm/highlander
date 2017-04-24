@@ -1,8 +1,6 @@
 package failures
 
-import utils.friendlyClassName
-
-import models.payment.creditcard._
+import models.payment.{ExternalCharge, ExternalChargeProperties}
 
 object CaptureFailures {
 
@@ -36,9 +34,9 @@ object CaptureFailures {
       s"Order $refNum is not in Auth state."
   }
 
-  case class ChargeNotInAuth(charge: CreditCardCharge) extends Failure {
+  case class ChargeNotInAuth(charge: ExternalChargeProperties) extends Failure {
     override def description =
-      s"The charge ${charge.chargeId} must be in Auth state. The charge is in ${charge.state} state."
+      s"The charge ${charge.stripeChargeId} must be in Auth state. The charge is in ${charge.state} state."
   }
 
   case class ExternalPaymentNotFound(refNum: String) extends Failure {

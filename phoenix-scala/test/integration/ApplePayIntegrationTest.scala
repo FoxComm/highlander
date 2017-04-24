@@ -51,7 +51,7 @@ class ApplePayIntegrationTest
   }
 
   "Capture Apple Pay" - {
-    "Should work" in new ApplePayFixture {
+    "Capture authorized payments" in new ApplePayFixture {
       val payment = CreateApplePayPayment(stripeToken = apToken)
 
       val orderResponse = storefrontCartsApi.applePayCheckout(payment).as[OrderResponse]
@@ -62,7 +62,10 @@ class ApplePayIntegrationTest
                 skuInCart.map(sku ⇒ CaptureLineItem(sku.referenceNumbers.head, sku.sku)),
                 ShippingCost(400, "USD"))
 
-      captureApi.capture(capturePayload).as[CaptureResponse]
+      private val captureResponse = captureApi.capture(capturePayload).as[CaptureResponse]
+
+      captureResponse.order must === (orderResponse.referenceNumber)
+      captureResponse.captured must === (orderResponse.totals.total)
     }
   }
 
