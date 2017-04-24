@@ -85,6 +85,7 @@ export function createEmptySku(): Object {
     attributes: {
       code: t.string(''),
       title: t.string(''),
+      context: t.string(''),
       retailPrice: emptyPrice,
       salePrice: emptyPrice,
     },
