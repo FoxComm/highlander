@@ -17,6 +17,10 @@ class Circle extends Component {
     checked: !!this.props.checked,
   };
 
+  static defaultProps = {
+    available: true,
+  };
+
   componentWillReceiveProps(nextProps: FacetElementProps) {
     if (nextProps.checked != this.props.checked) {
       this.setState({
