@@ -57,7 +57,7 @@ func determineUpSellProductFromAnthillData(customerID string, antHillData respon
 	return responses.ProductInstance{}, errors.New("determineUpSellProductFromAnthillData nothing to suggest")
 }
 
-func selectUpSellAndPushToSms(customerID string, phoneNumber string, antHillData responses.AntHillResponse) (responses.TwilioSmsResponse, error) {
+func selectUpSellAndPushToSmsTwilio(customerID string, phoneNumber string, antHillData responses.AntHillResponse) (responses.TwilioSmsResponse, error) {
 	if len(antHillData.Products) < 1 {
 		return responses.TwilioSmsResponse{}, errors.New("There are no products for potential up-sell")
 	}
@@ -104,7 +104,7 @@ func GetSuggestion(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "queryError: "+queryError.Error())
 	}
 
-	upSellResponse, upSellError := selectUpSellAndPushToSms(customerID, phoneNumberClean, queryResponse)
+	upSellResponse, upSellError := selectUpSellAndPushToSmsTwilio(customerID, phoneNumberClean, queryResponse)
 	if upSellError != nil {
 		return c.String(http.StatusBadRequest, "upSellError: "+upSellError.Error())
 	}
