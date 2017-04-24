@@ -44,3 +44,7 @@
   color: #ffffff;
 }
 
+.disabled, .disabled label {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

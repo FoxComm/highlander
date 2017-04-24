@@ -126,6 +126,10 @@ class ProductVariants extends Component {
     if (product == null) return [];
 
     const { variants } = product;
+    const { selectedVariantValues } = this.state;
+    const allowedSkuCodes = _.flatMap(selectedVariantValues, (id, type) => {
+      return getSkuCodesForVariantValue(product, id, type);
+    });
 
     const facets = _.flatMap(variants, (variant: ProductVariant) => {
       const variantType = variant.attributes.type.v;
@@ -140,9 +144,10 @@ class ProductVariants extends Component {
           valueId: value.id,
           variantType,
         };
-        const selectedVariant = this.state.selectedVariantValues;
+
         const baseProps = {
-          selected: valuesLength === 1 ? true : selectedVariant[variantType] == value.id,
+          selected: valuesLength === 1 ? true : selectedVariantValues[variantType] == value.id,
+          available: _.isEmpty(selectedVariantValues) || _.intersection(allowedSkuCodes, value.skuCodes).length,
         };
 
         if (variantType == 'color') {

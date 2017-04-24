@@ -53,6 +53,7 @@ class ColorCircle extends Component {
       reactKey,
       value,
       label,
+      available,
     } = this.props;
 
     const colorStyle = styles[value.color];
@@ -61,6 +62,9 @@ class ColorCircle extends Component {
       colorStyle,
       styles['color-checkbox'], {
         [styles.light]: isLight(value.color),
+      },
+      {
+        [styles.disabled]: !available,
       }
     );
 

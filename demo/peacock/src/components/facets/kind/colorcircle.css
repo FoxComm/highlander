@@ -822,3 +822,8 @@
 .light.color-checkbox input[type=checkbox]:checked + div {
   background-image: url(images/symbols/blackcheckbox.svg);
 }
+
+.disabled, .disabled label {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
