@@ -13,7 +13,7 @@ import { bindActionCreators } from 'redux';
 import CustomPropertyModal from './custom-property-modal';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 
-import createImagesModule from '../../modules/images'
+import { uploadImage } from '../../paragons/image'
 
 // style
 import s from './custom-properties.css';
@@ -39,7 +39,7 @@ type State = {
   propertyToDelete: string,
 }
 
-class CustomProperties extends Component {
+export default class CustomProperties extends Component {
   props: Props;
   state: State = {
     isAddingProperty: false,
@@ -214,25 +214,18 @@ class CustomProperties extends Component {
     });
   }
 
-
   @autobind
-  handleNewFiles(images: Array<ImageFile>): void {
-    console.log('images:', images);
-    const newImages = images.map((file: ImageFile) => ({
-      title: file.file.name,
-      alt: file.file.name,
-      src: file.src,
-      file: file.file,
-      key: file.key,
-      loading: true,
-    }));
+  handleNewFiles(image: ImageFile, name: string): void {
+    const { attributes } = this.props;
+    const newAttributes = {
+      ...attributes,
+      [name]: {
+        t: 'image',
+        v: uploadImage(image),
+      }
+    };
 
-   this.upload(newImages);
-  }
-
-  @autobind
-  upload(files) {
-    this.props.actions.uploadImages('default', 27, files)
+    this.props.onChange(newAttributes)
   }
 
   get addCustomProperty() {
@@ -267,24 +260,3 @@ class CustomProperties extends Component {
     );
   }
 }
-
-/*
- * Local redux store
- */
-
-const object = createImagesModule('customProperty');
-const actions = object.actions;
-const reducer = object.reducer;
-
-const mapState = state => ({
-  // state customProperty album?
-});
-
-const mapDispatch = dispatch => ({
-  actions: bindActionCreators(actions, dispatch),
-});
-
-export default flow(
-  connect(mapState, mapDispatch),
-  makeLocalStore(reducer),
-)(CustomProperties);
