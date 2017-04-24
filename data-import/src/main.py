@@ -17,17 +17,51 @@ class Taxon:
         self.parentId = parent_id
         self.name = name
         self.taxon_id = taxon_id
-
+        self.path = [name] if parent_id is None else None
 
 class Taxonomy:
     def __init__(self, taxonomy_id, name, taxons):
         self.taxons = [] if taxons is None else taxons
         self.name = name
         self.taxonomy_id = taxonomy_id
+        self.build_paths()
 
-    def get_taxon_by_name(self, taxon_name):
-        return next(iter([taxon for taxon in self.taxons if taxon.name == taxon_name]), None)
+    def get_taxon_by_name(self, taxon_name, parent_id = None):
+        def matches(taxon:Taxon):
+            matches = taxon.name == taxon_name
+            if parent_id is not None:
+                return matches and parent_id == taxon.parentId
+            else:
+                return matches
 
+        return next(iter([taxon for taxon in self.taxons if matches(taxon)]), None)
+
+    def get_taxon_by_path(self, path:list):
+        parent_id = None
+        taxon = None
+        for name in path:
+            taxon = self.get_taxon_by_name(name, parent_id)
+            parent_id = taxon.parentId
+
+        return taxon
+
+    def get_taxon_by_id(self, id):
+        for taxon in self.taxons:
+            if taxon.taxon_id == id:
+                return taxon
+
+        return None
+
+    def get_path(self, taxon:Taxon):
+        if taxon.path is None:
+            parent = self.get_taxon_by_id(taxon.parentId)
+            taxon.path = parent.path + [taxon.name]
+
+        return taxon.path
+
+    def build_paths(self):
+        for taxon in self.taxons:
+            self.get_path(taxon)
 
 class Elasticsearch:
     def __init__(self, jwt, host):
@@ -48,14 +82,17 @@ class Elasticsearch:
 
     def get_taxonomies(self):
         response = self.do_query('taxonomies_search_view')
-        return [(item['name'], item['taxonomyId']) for item in response["result"] if item['context'] == 'default' and item['archivedAt'] is None]
+        return [(item['name'], item['taxonomyId']) for item in response["result"] if
+                item['context'] == 'default' and item['archivedAt'] is None]
 
     def get_taxons(self):
         def read_item(item):
             return Taxon(item['taxonId'], item['parentId'], item['name'], item['taxonomyId'])
 
         response = self.do_query('taxons_search_view')
-        return [read_item(item) for item in response["result"] if (item['context'] == 'default' and item['archivedAt'] is None)]
+        taxonomies = [read_item(item) for item in response["result"] if
+                 (item['context'] == 'default' and item['archivedAt'] is None)]
+        return taxonomies
 
     def get_products(self):
         response = self.do_query('products_search_view')
@@ -120,8 +157,11 @@ class Phoenix:
         print("taxonomy created: id:%d, attributes: %r" % (response['id'], response['attributes']))
         return Taxonomy(response['id'], response["attributes"]["name"]["v"], [])
 
-    def create_taxon(self, taxon_json, taxonomy_id):
+    def create_taxon(self, taxon_json, taxonomy_id, parent_id):
         self.ensure_logged_in()
+        if parent_id is not None:
+            taxon_json = taxon_json.copy()
+            taxon_json['location'] = {'parent': parent_id}
         code, response = self.do_query("/taxonomies/default/" + str(taxonomy_id) + "/taxons", taxon_json, method="POST")
         print("taxon created: id:%d, attributes: %r" % (response['id'], response['attributes']))
         return response
@@ -189,6 +229,22 @@ def assign_taxonomies(p: Phoenix, taxonomies, data_product, product_id):
             print("taxon {} is assigned to product {}".format(es_taxon.taxon_id, product_id))
 
 
+def import_taxons(p: Phoenix, taxons, existing_taxonomy, parent_id=None):
+    for taxon in taxons:
+        name = taxon["attributes"]["name"]["v"]
+        existing_taxon = existing_taxonomy.get_taxon_by_name(name)
+        if existing_taxon is None:
+            r = p.create_taxon(taxon, existing_taxonomy.taxonomy_id, parent_id)
+            taxon_id = r['id']
+        else:
+            print("skipping taxon '{}' as soon as it already exists. id: {}".format(taxon,
+                                                                                    existing_taxon.taxon_id))
+            taxon_id = existing_taxon.taxon_id
+
+        if 'children' in taxon and taxon['children'] is not None:
+            import_taxons(p, taxon['children'], existing_taxonomy, taxon_id)
+
+
 def import_taxonomies(p: Phoenix, input_dir, import_from_adidas):
     print("Importing taxonomies\n")
 
@@ -215,14 +271,7 @@ def import_taxonomies(p: Phoenix, input_dir, import_from_adidas):
                 print("skipping taxonomy '{}' as soon as it already exists. id: {}".format(taxonomy,
                                                                                            existing_taxonomy.taxonomy_id))
 
-            for taxon in taxons:
-                name = taxon["attributes"]["name"]["v"]
-                existing_taxon = existing_taxonomy.get_taxon_by_name(name)
-                if existing_taxon is None:
-                    p.create_taxon(taxon, existing_taxonomy.taxonomy_id)
-                else:
-                    print("skipping taxon '{}' as soon as it already exists. id: {}".format(taxon,
-                                                                                            existing_taxon.taxon_id))
+            import_taxons(p, taxons, existing_taxonomy, )
 
 
 def import_products(p: Phoenix, max_products, input_dir, import_from_adidas):
@@ -233,7 +282,6 @@ def import_products(p: Phoenix, max_products, input_dir, import_from_adidas):
     else:
         products_json = load_products(input_dir + "/products.json")
         products = products_json["products"]
-
 
     cache_dir = "cache"
     if not os.path.exists(cache_dir):
