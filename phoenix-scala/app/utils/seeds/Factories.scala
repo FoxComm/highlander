@@ -1,6 +1,10 @@
 package utils.seeds
 
 import models.Reason
+import models.cord.AmazonOrder
+import java.time.Instant
+import com.github.tminglei.slickpg.LTree
+import utils.Money.Currency
 import models.Reason.{Cancellation, GiftCardCreation, StoreCreditCreation}
 import models.cord.{OrderPayment, OrderShippingAddress}
 import models.payment.creditcard.CreditCardCharge
@@ -25,7 +29,8 @@ object Factories
     with PromotionSeeds
     with ObjectSchemaSeeds
     with CouponSeeds
-    with SharedSearchSeeds {
+    with SharedSearchSeeds
+    with AmazonOrdersSeeds {
 
   implicit val formats = JsonFormatters.phoenixFormats
 

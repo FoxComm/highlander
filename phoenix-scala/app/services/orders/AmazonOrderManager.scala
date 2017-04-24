@@ -30,7 +30,7 @@ object AmazonOrderManager {
     for {
       user ← * <~ Users
               .findByEmail(payload.customerEmail)
-              .mustFindOneOr(NotFoundFailure404(User, payload.customerEmail))
+              .mustFindOneOr(NotFoundFailure404(User, "email", payload.customerEmail))
       amazonOrder ← * <~ AmazonOrders.create(AmazonOrder.build(payload, user.accountId))
     } yield amazonOrder
 
