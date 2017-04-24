@@ -77,7 +77,6 @@ export default function createImagesModule(entity: string): Module {
         .post(`/albums/${context}/${albumId}/images`, formData)
         .then(response => {
           // try to associate not uploaded files with uploaded files
-          console.log(response);
           const index = _.findIndex(response.images, { title: files[0].title });
           if (index != -1) {
             let filesIndex = 0;
@@ -262,7 +261,6 @@ export default function createImagesModule(entity: string): Module {
       return assoc(state, ['albums'], state.albums);
     },
     [_uploadImages.started]: (state: State, [context, albumId, images]) => {
-      console.log(state);
       const idx = _.findIndex(state.albums, (album: Album) => album.id === albumId);
       const album = get(state, ['albums', idx]);
 
