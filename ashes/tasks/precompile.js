@@ -47,8 +47,8 @@ module.exports = function (gulp, opts) {
   };
 
   gulp.task('precompile.source', function () {
-    return gulp.src('src/**/*.{jsx,js}')
-      .pipe(changed('lib', {extension: '.js'}))
+    return gulp.src(['src/**/*.{jsx,js}', '!src/**/*.stories.js'])
+      .pipe(changed('lib', { extension: '.js' }))
       .pipe(through.obj((file, enc, cb) => {
         logBabelified(file);
         cb(null, file);

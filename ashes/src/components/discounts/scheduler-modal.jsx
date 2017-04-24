@@ -9,7 +9,7 @@ import styles from './scheduler-modal.css';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import modalWrapper from '../modal/wrapper';
 import ContentBox from '../content-box/content-box';
-import SaveCancel from '../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 
 type Props = {
   entity: string;

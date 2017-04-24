@@ -1,6 +1,5 @@
 package models.cord.lineitems
 
-import cats.data.Xor
 import cats.implicits._
 import com.pellucid.sealerate
 import failures.Failures
@@ -64,7 +63,7 @@ case class OrderLineItem(id: Int = 0,
 
   def stateLens = lens[OrderLineItem].state
 
-  override def updateTo(newModel: OrderLineItem): Failures Xor OrderLineItem =
+  override def updateTo(newModel: OrderLineItem): Either[Failures, OrderLineItem] =
     super.transitionModel(newModel)
 
   val fsm: Map[State, Set[State]] = Map(

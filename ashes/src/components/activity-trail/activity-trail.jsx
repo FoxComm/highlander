@@ -6,7 +6,7 @@ import React, { PropTypes } from 'react';
 
 // components
 import Activity, { getActivityRepresentative } from './activities';
-import { Button } from '../common/buttons';
+import { Button } from 'components/core/button';
 
 function createTimeMark(time, daysDiff) {
   switch (daysDiff) {
@@ -90,7 +90,7 @@ const ActivityTrail = props => {
   if (props.hasMore) {
     olderButton = (
       <li className="fc-activity-trail__load-more">
-        <Button onClick={props.fetchMore}>Older...</Button>
+        <Button onClick={props.fetchMore} isLoading={props.fetchState.inProgress}>Older...</Button>
       </li>
     );
   }

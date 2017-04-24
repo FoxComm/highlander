@@ -130,7 +130,7 @@ object StoreCreditService {
       response ← * <~ DbResultT.seqCollectFailures(payload.ids.map { id ⇒
                   val itemPayload = StoreCreditUpdateStateByCsr(payload.state, payload.reasonId)
                   updateStateByCsr(id, itemPayload, admin)
-                    .mapXorRight(buildItemResult(id, _)) // FIXME: for God’s sake, use the standard error/warning reporting @michalrus
+                    .mapEitherRight(buildItemResult(id, _)) // FIXME: for God’s sake, use the standard error/warning reporting @michalrus
                 }.toList)
     } yield response
 

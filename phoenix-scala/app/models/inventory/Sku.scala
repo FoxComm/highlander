@@ -1,10 +1,9 @@
 package models.inventory
 
-import java.time.Instant
-
-import cats.data.Xor
+import cats.implicits._
 import failures.ArchiveFailures.{LinkArchivedSkuFailure, SkuIsPresentInCarts}
 import failures.Failures
+import java.time.Instant
 import models.objects._
 import shapeless._
 import utils.JsonFormatters
@@ -41,9 +40,9 @@ case class Sku(id: Int = 0,
   def withNewShadowAndCommit(shadowId: Int, commitId: Int): Sku =
     this.copy(shadowId = shadowId, commitId = commitId)
 
-  def mustNotBeArchived[T](target: T, targetId: Any): Failures Xor Sku = {
-    if (archivedAt.isEmpty) Xor.right(this)
-    else Xor.left(LinkArchivedSkuFailure(target, targetId, code).single)
+  def mustNotBeArchived[T](target: T, targetId: Any): Either[Failures, Sku] = {
+    if (archivedAt.isEmpty) Either.right(this)
+    else Either.left(LinkArchivedSkuFailure(target, targetId, code).single)
   }
 
   def mustNotBePresentInCarts(implicit ec: EC, db: DB): DbResultT[Unit] =

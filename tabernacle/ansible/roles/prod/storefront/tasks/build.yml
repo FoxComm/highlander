@@ -7,7 +7,7 @@
     - absent
     - directory
 
-- name: Checkout TopDrawer Repository
+- name: Checkout Storefront Repository
   shell: "git clone {{git_repo}} {{checkout_path}}"
   args:
     chdir: "{{checkout_path}}"

@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import { prefix } from '../../lib/text-utils';
 
 // components
-import { LeftButton, RightButton } from '../common/buttons';
+import { LeftButton, RightButton } from 'components/core/button';
 import { Lookup } from '../lookup';
 
 const prefixed = prefix('fc-table-paginator');

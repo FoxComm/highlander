@@ -1,31 +1,30 @@
 package utils.db
 
-import scala.collection.generic.CanBuildFrom
-import scala.concurrent.Future
 import cats._
 import cats.data._
 import cats.implicits._
 import failures.Failures
-import utils.db._
+import scala.concurrent.Future
 import slick.dbio._
 import slick.profile.SqlAction
 import utils.aliases.EC
 
 object * {
-  def <~[A](v: DBIO[Failures Xor A])(implicit M: Monad[DBIO]): DbResultT[A] =
-    DbResultT.fromFXor(v)
+  def <~[A](v: DBIO[Either[Failures, A]])(implicit M: Monad[DBIO]): DbResultT[A] =
+    DbResultT.fromFEither(v)
 
   def <~[A](v: SqlAction[A, NoStream, Effect.All])(implicit ec: EC): DbResultT[A] =
-    <~(v.map(Xor.right))
+    <~(v.map(Either.right))
 
   def <~[A](v: DBIO[A])(implicit ec: EC): DbResultT[A] =
     DbResultT.fromF(v)
 
-  def <~[A](v: Failures Xor A)(implicit ec: EC): DbResultT[A] =
-    DbResultT.fromXor(v)
+  def <~[A](v: Either[Failures, A])(implicit ec: EC): DbResultT[A] =
+    DbResultT.fromEither(v)
 
-  def <~[A](v: Future[Failures Xor A])(implicit M1: Monad[DBIO], M2: Monad[Future]): DbResultT[A] =
-    DbResultT.fromResult(Result.fromFXor(v))
+  def <~[A](v: Future[Either[Failures, A]])(implicit M1: Monad[DBIO],
+                                            M2: Monad[Future]): DbResultT[A] =
+    DbResultT.fromResult(Result.fromFEither(v))
 
   def <~[A](v: Future[A])(implicit ec: EC): DbResultT[A] =
     DbResultT.fromF(DBIO.from(v))
@@ -37,7 +36,7 @@ object * {
     DbResultT.pure(v)
 
   def <~[A](v: Validated[Failures, A])(implicit ec: EC): DbResultT[A] =
-    DbResultT.fromXor(v.toXor)
+    DbResultT.fromEither(v.toEither)
 
   def <~[M[_]: TraverseFilter, A](v: M[DbResultT[A]])(implicit ec: EC): DbResultT[M[A]] =
     DbResultT.seqCollectFailures(v)

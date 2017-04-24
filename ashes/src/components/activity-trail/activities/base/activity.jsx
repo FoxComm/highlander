@@ -5,7 +5,7 @@ import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 
 // components
-import { Button } from '../../../common/buttons';
+import { Button } from 'components/core/button';
 import { Time } from '../../../common/datetime';
 import AuthorTitle from './author-title';
 import AuthorIcon from './author-icon';

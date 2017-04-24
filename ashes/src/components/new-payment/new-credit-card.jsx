@@ -7,7 +7,7 @@ import _ from 'lodash';
 import CreditCardBox from 'components/credit-cards/card-box';
 import CreditCardDetails from 'components/credit-cards/card-details';
 import CreditCardForm from 'components/credit-cards/card-form';
-import SaveCancel from 'components/common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 import TileSelector from 'components/tile-selector/tile-selector';
 
 import * as CreditCardActions from 'modules/customers/credit-cards';

@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 
 import ContentBox from 'components/content-box/content-box';
-import { AddButton, DeleteButton } from 'components/common/buttons';
+import { AddButton, DeleteButton } from 'components/core/button';
 import SearchGroupModal from './search-group-modal';
 
 import { suggestGroups } from 'modules/customer-groups/suggest';

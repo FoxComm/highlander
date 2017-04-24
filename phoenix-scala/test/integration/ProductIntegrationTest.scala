@@ -51,7 +51,7 @@ class ProductIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with PhoenixStorefrontApi
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with BakedFixtures
     with ApiFixtures
     with TaxonomySeeds {
@@ -106,7 +106,9 @@ class ProductIntegrationTest
 
       productsApi(product.id).archive().mustBeOk()
 
-      storefrontProductsApi(slug).get.mustFailWith404(NotFoundFailure404(Product, slug))
+      withRandomCustomerAuth { implicit auth ⇒
+        storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
+      }
     }
 
     "404 for inactive products" in new Customer_Seed with Fixture {
@@ -122,7 +124,9 @@ class ProductIntegrationTest
                                  variants = None))
         .mustBeOk()
 
-      storefrontProductsApi(slug).get.mustFailWith404(NotFoundFailure404(Product, slug))
+      withRandomCustomerAuth { implicit auth ⇒
+        storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
+      }
     }
 
     "404 if all SKUs are archived" in new Customer_Seed with Fixture {
@@ -140,7 +144,9 @@ class ProductIntegrationTest
 
       allSkus.map(sku ⇒ skusApi(sku).archive().mustBeOk())
 
-      storefrontProductsApi(slug).get.mustFailWith404(NotFoundFailure404(Product, slug))
+      withRandomCustomerAuth { implicit auth ⇒
+        storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
+      }
     }
 
     "404 if all SKUs are inactive" in new Customer_Seed with Fixture {
@@ -157,7 +163,9 @@ class ProductIntegrationTest
                 variants = None))
         .mustBeOk()
 
-      storefrontProductsApi(slug).get.mustFailWith404(NotFoundFailure404(Product, slug))
+      withRandomCustomerAuth { implicit auth ⇒
+        storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
+      }
     }
   }
 
@@ -217,8 +225,9 @@ class ProductIntegrationTest
                                 swatch = None,
                                 image = None,
                                 name = Some("Test")))
-        val variantPayload =
-          Seq(VariantPayload(attributes = Map("test" → "Test"), values = Some(valuePayload)))
+        val variantPayload = Seq(
+            VariantPayload(attributes = Map("test" → (("t" → "test") ~ ("v" → "Test"))),
+                           values = Some(valuePayload)))
 
         val productResponse = doQuery(productPayload.copy(variants = Some(variantPayload)))
 
@@ -292,8 +301,9 @@ class ProductIntegrationTest
                                 swatch = None,
                                 image = None,
                                 skuCodes = Seq.empty))
-        val variantPayload =
-          Seq(VariantPayload(attributes = Map("t" → "t"), values = Some(values)))
+        val variantPayload = Seq(
+            VariantPayload(attributes = Map("t" → (("t" → "typ") ~ ("v" → "val"))),
+                           values = Some(values)))
         val payload =
           productPayload.copy(skus = Seq(redSkuPayload), variants = Some(variantPayload))
 
@@ -588,7 +598,7 @@ class ProductIntegrationTest
     }
 
     "Removes some SKUs from product" in new RemovingSkusFixture {
-      productsApi(product.formId).get.as[Root].skus must have size 4
+      productsApi(product.formId).get().as[Root].skus must have size 4
 
       val remainingSkus: Seq[String] = productsApi(product.formId)
         .update(twoSkuProductPayload)

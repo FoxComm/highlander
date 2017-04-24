@@ -1,5 +1,16 @@
 @import "media-queries.css";
 @import "colors.css";
+@import "typography.css";
+
+.banner {
+  composes: small-text;
+
+  text-align: center;
+  color: var(--body-background);
+  background: var(--water-blue);
+  border-bottom: 1px solid var(--border-color);
+  line-height: 2.5;
+}
 
 .header-base {
   height: 50px;
@@ -33,7 +44,7 @@
   justify-content: space-between;
   align-items: center;
   height: 100%;
-  padding-left: 15px;
+  padding: 0 15px;
 }
 
 .action-link-menu {

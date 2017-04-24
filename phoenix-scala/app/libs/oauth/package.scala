@@ -1,21 +1,21 @@
 package libs
 
-import scala.concurrent.Future
-
-import cats.data.{Xor, XorT}
+import cats.data.EitherT
 import cats.implicits._
 import org.json4s.DefaultFormats
+import scala.concurrent.Future
 import utils.aliases._
 
 package object oauth {
 
   implicit val formats = DefaultFormats
 
-  private[oauth] def xorTryFuture[A](f: ⇒ Future[A])(implicit ec: EC): XorT[Future, Throwable, A] = {
-    Xor
+  private[oauth] def eitherTryFuture[A](f: ⇒ Future[A])(
+      implicit ec: EC): EitherT[Future, Throwable, A] = {
+    Either
       .catchNonFatal(f)
       .leftMap(Future.successful)
-      .fold(XorT.left[Future, Throwable, A], XorT.right[Future, Throwable, A])
+      .fold(EitherT.left[Future, Throwable, A], EitherT.right[Future, Throwable, A])
   }
 
   implicit class EnrichedMap[K, V](val m: collection.immutable.Map[K, V]) extends AnyVal {

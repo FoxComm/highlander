@@ -1,19 +1,13 @@
 package models.customer
 
-import java.time.Instant
-
-import cats.data.{Validated, ValidatedNel, Xor}
-import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.UserFailures._
-import failures._
+import java.time.Instant
 import models.location._
 import models.payment.creditcard.CreditCards
-import payloads.CustomerPayloads.CreateCustomerPayload
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.Validation
 import utils.aliases._
+import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 case class CustomerData(id: Int = 0,
