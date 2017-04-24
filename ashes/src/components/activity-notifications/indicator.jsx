@@ -1,7 +1,7 @@
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import Transition from 'react-addons-css-transition-group';
+import Transition from 'react-transition-group/CSSTransitionGroup';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 

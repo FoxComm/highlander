@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import Transition from 'react-addons-css-transition-group';
+import Transition from 'react-transition-group/CSSTransitionGroup';
 
 const Menu = props => {
   const { position, isOpen, animate, children } = props;
