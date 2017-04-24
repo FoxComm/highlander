@@ -15,8 +15,7 @@ case class AmazonOrderResponse(id: Int,
                                orderStatus: String = "",
                                purchaseDate: Instant,
                                scope: LTree,
-                               customerName: String = "",
-                               customerEmail: String = "",
+                               accountId: Int,
                                createdAt: Instant = Instant.now,
                                updatedAt: Instant = Instant.now)
     extends ResponseItem
@@ -32,8 +31,7 @@ object AmazonOrderResponse {
                   orderStatus: String,
                   purchaseDate: Instant,
                   scope: LTree,
-                  customerName: String = "",
-                  customerEmail: String = "",
+                  accountId: Int,
                   createdAt: Instant,
                   updatedAt: Instant)
       extends ResponseItem
@@ -48,8 +46,7 @@ object AmazonOrderResponse {
          orderStatus = amazonOrder.orderStatus,
          purchaseDate = amazonOrder.purchaseDate,
          scope = amazonOrder.scope,
-         customerName = amazonOrder.customerName,
-         customerEmail = amazonOrder.customerEmail,
+         accountId = amazonOrder.accountId,
          createdAt = amazonOrder.createdAt,
          updatedAt = amazonOrder.updatedAt)
 }

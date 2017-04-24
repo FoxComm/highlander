@@ -30,6 +30,7 @@ import payloads.TaxonomyPayloads._
 import payloads.TaxonPayloads._
 import payloads.UserPayloads._
 import payloads.VariantPayloads._
+import payloads.AmazonOrderPayloads._
 import payloads._
 import testutils._
 import utils.aliases.OC
@@ -41,6 +42,16 @@ import utils.aliases.OC
 trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
   private val rootPrefix = "v1"
+
+  object amazonOrderApi {
+    val amazonOrdersPrefix = s"$rootPrefix/amazon_orders"
+
+    def create(payload: CreateAmazonOrderPayload): HttpResponse =
+      POST(amazonOrdersPrefix, payload)
+
+    def update(amazonOrderId: String, payload: UpdateAmazonOrderPayload): HttpResponse =
+      PATCH(s"$amazonOrdersPrefix/$amazonOrderId", payload)
+  }
 
   object customersApi {
     val customersPrefix = s"$rootPrefix/customers"

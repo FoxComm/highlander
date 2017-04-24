@@ -5,15 +5,14 @@ import java.time.Instant
 import com.github.tminglei.slickpg.LTree
 
 object AmazonOrderPayloads {
-  case class CreateAmazonOrderPayload(amazonOrderId: String = "",
+  case class CreateAmazonOrderPayload(amazonOrderId: String,
                                       orderTotal: Int,
                                       paymentMethodDetail: String,
-                                      orderType: String = "",
+                                      orderType: String,
                                       currency: Currency = Currency.USD,
-                                      orderStatus: String = "",
+                                      orderStatus: String,
                                       scope: LTree,
-                                      customerName: String = "",
-                                      customerEmail: String = "",
+                                      customerEmail: String,
                                       purchaseDate: Instant)
 
   case class UpdateAmazonOrderPayload(orderStatus: String)
