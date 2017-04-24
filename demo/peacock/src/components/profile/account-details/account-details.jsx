@@ -28,16 +28,6 @@ class AccountDetails extends Component {
   }
 
   render() {
-    /*
-    <div styleName="section">
-    <div styleName="section">
-      <div styleName="line">
-        <div styleName="subtitle">Email</div>
-        <Link styleName="link" to="/profile/email">EDIT</Link>
-      </div>
-      <div styleName="value">{account.email}</div>
-    </div>
-    */
     const { props } = this;
     return (
       <div className={props.className}>
