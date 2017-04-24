@@ -71,10 +71,10 @@ export const EditButton = (props: Props) => {
   return <Button icon='edit' {...props} />;
 };
 
-export const DeleteButton = ({ className, ...rest }: Props = {}) => {
+export const DeleteButton = ({ className, ...rest }: Props) => {
   return <Button icon='trash' {...rest} className={classNames(s.delete, className)} />;
 };
 
-export const CloseButton = ({ className, ...rest }: Props = {}) => {
+export const CloseButton = ({ className, ...rest }: Props) => {
   return <Button icon='close' {...rest} className={classNames(s.close, className)} />;
 };

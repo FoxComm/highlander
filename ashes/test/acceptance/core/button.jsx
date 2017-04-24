@@ -46,7 +46,7 @@ describe('Buttons', function() {
   });
 
   it('should render icon in DeleteButton', function() {
-    const button = Buttons.DeleteButton();
+    const button = Buttons.DeleteButton({});
 
     expect(button).to.be.instanceof(Object);
     expect(button.props.icon).to.equal('trash');

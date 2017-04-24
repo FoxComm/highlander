@@ -8,6 +8,6 @@ module.exports = {
   styleguideDir: path.resolve('public/admin/styleguide'),
   require: [
     path.join(__dirname, 'styleguide.css'),
-    path.join(__dirname, '../src/css/app.css'),
+    path.join(__dirname, './css/app.css'),
   ]
 };
