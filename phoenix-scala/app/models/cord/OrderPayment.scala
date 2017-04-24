@@ -9,6 +9,7 @@ import models.payment.creditcard.{CreditCard, CreditCards}
 import models.payment.giftcard.{GiftCard, GiftCards}
 import models.payment.storecredit.{StoreCredit, StoreCredits}
 import shapeless._
+import slick.lifted.{Rep, RepOption, ShapedValue}
 import utils.Money._
 import utils.Validation._
 import utils.aliases.stripe._
@@ -115,12 +116,19 @@ object OrderPayments
   def findAllCreditCardsForOrder(cordRef: Rep[String]): QuerySeq =
     filter(_.cordRef === cordRef).creditCards
 
+  def findAllExternalPayments(cordRef: Rep[String]): QuerySeq =
+    filter(_.cordRef === cordRef).externalPayments
+
   object scope {
     implicit class OrderPaymentsQuerySeqConversions(q: QuerySeq) {
       def giftCards: QuerySeq    = q.byType(PaymentMethod.GiftCard)
       def creditCards: QuerySeq  = q.byType(PaymentMethod.CreditCard)
       def storeCredits: QuerySeq = q.byType(PaymentMethod.StoreCredit)
       def applePays: QuerySeq    = q.byType(PaymentMethod.ApplePay)
+
+      // todo make use of PaymentMethod.External trait?
+      def externalPayments: QuerySeq =
+        q.filter(_.paymentMethodType.inSet(Set(PaymentMethod.CreditCard, PaymentMethod.ApplePay)))
 
       def byType(pmt: PaymentMethod.Type): QuerySeq =
         q.filter(_.paymentMethodType === (pmt: PaymentMethod.Type))

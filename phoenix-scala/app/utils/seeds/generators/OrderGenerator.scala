@@ -19,7 +19,7 @@ import models.inventory.Skus
 import models.location.Addresses
 import models.objects.ObjectContext
 import models.payment.InStorePaymentStates
-import models.payment.creditcard.CreditCardCharge.FullCapture
+import models.payment.ExternalCharge.FullCapture
 import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._

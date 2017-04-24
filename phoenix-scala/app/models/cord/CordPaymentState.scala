@@ -2,7 +2,7 @@ package models.cord
 
 import cats.implicits._
 import com.pellucid.sealerate
-import models.payment.InStorePaymentStates
+import models.payment.{ExternalCharge, InStorePaymentStates}
 import models.payment.applepay.ApplePayCharge
 import models.payment.creditcard.CreditCardCharge
 import utils.ADT
@@ -29,8 +29,8 @@ object CordPaymentState {
     }
   }
 
-  def fromCCState(ccPaymentState: CreditCardCharge.State): State = {
-    import models.payment.creditcard.{CreditCardCharge ⇒ CC}
+  def fromCCState(ccPaymentState: ExternalCharge.State): State = {
+    import models.payment.{ExternalCharge ⇒ CC}
 
     ccPaymentState match {
       case CC.Auth          ⇒ Auth

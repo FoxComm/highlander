@@ -12,6 +12,7 @@ import models.cord.OrderPayments.scope._
 import models.cord._
 import models.customer._
 import models.location.{Addresses, Regions}
+import models.payment.ExternalCharge
 import models.payment.creditcard._
 import models.shipping.Shipment.Shipped
 import models.shipping.{Shipment, Shipments}
@@ -649,7 +650,7 @@ class CustomerIntegrationTest
                                  creditCardId = creditCard.id,
                                  orderPaymentId = orderPayment.id,
                                  chargeId = "asd1",
-                                 state = CreditCardCharge.FullCapture,
+                                 state = ExternalCharge.FullCapture,
                                  amount = 100
                              ))
       orderPayment2 ← * <~ OrderPayments.create(
@@ -661,7 +662,7 @@ class CustomerIntegrationTest
                                  creditCardId = creditCard.id,
                                  orderPaymentId = orderPayment2.id,
                                  chargeId = "asd2",
-                                 state = CreditCardCharge.FullCapture,
+                                 state = ExternalCharge.FullCapture,
                                  amount = 1000000
                              ))
       order  ← * <~ Orders.update(order, order.copy(state = Order.FulfillmentStarted))

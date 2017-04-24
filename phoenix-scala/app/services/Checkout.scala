@@ -346,8 +346,6 @@ case class Checkout(
 
   // do only one external payment. Check AP first, pay if it present otherwise try CC charge
   private def doExternalPayment(orderTotal: Int, internalPaymentTotal: Int): DbResultT[Unit] = {
-    val authAmount = orderTotal - internalPaymentTotal
-
     for {
       ap ← * <~ authApplePay(orderTotal, internalPaymentTotal)
       _  ← * <~ doOrMeh(ap.isEmpty, authCreditCard(orderTotal, internalPaymentTotal))
@@ -359,26 +357,24 @@ case class Checkout(
 
     val authAmount = orderTotal - internalPaymentTotal
 
-    if (authAmount > 0) {
-      (for {
-        pmt  ← OrderPayments.findAllCreditCardsForOrder(cart.refNum)
-        card ← pmt.creditCard
-      } yield (pmt, card)).one.dbresult.flatMap {
-        case Some((pmt, card)) ⇒
-          for {
-            stripeCharge ← * <~ apis.stripe.authorizeAmount(card.gatewayCardId,
-                                                            authAmount,
-                                                            cart.currency,
-                                                            card.gatewayCustomerId.some)
-            ourCharge = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
-            _       ← * <~ LogActivity().creditCardAuth(cart, ourCharge)
-            created ← * <~ CreditCardCharges.create(ourCharge)
-          } yield created.some
+    (for {
+      pmt  ← OrderPayments.findAllCreditCardsForOrder(cart.refNum)
+      card ← pmt.creditCard
+    } yield (pmt, card)).one.dbresult.flatMap {
+      case Some((pmt, card)) ⇒
+        for {
+          stripeCharge ← * <~ apis.stripe.authorizeAmount(card.gatewayCardId,
+                                                          authAmount,
+                                                          cart.currency,
+                                                          card.gatewayCustomerId.some)
+          ourCharge = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
+          _       ← * <~ LogActivity().creditCardAuth(cart, ourCharge)
+          created ← * <~ CreditCardCharges.create(ourCharge)
+        } yield created.some
 
-        case None ⇒
-          DbResultT.failure(GeneralFailure("not enough payment"))
-      }
-    } else DbResultT.none
+      case None ⇒
+        DbResultT.failure(GeneralFailure("not enough payment"))
+    }
   }
 
   private def authApplePay(orderTotal: Int,

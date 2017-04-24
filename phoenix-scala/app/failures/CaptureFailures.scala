@@ -41,8 +41,8 @@ object CaptureFailures {
       s"The charge ${charge.chargeId} must be in Auth state. The charge is in ${charge.state} state."
   }
 
-  case class CreditCardNotFound(refNum: String) extends Failure {
+  case class ExternalPaymentNotFound(refNum: String) extends Failure {
     override def description =
-      s"Unable to find a credit card for the order $refNum"
+      s"Unable to find any external payment for the order $refNum"
   }
 }

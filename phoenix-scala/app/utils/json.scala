@@ -12,7 +12,7 @@ import models.inventory.SkuType
 import models.payment.creditcard.CreditCardCharge
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
-import models.payment.{InStorePaymentStates, PaymentMethod}
+import models.payment.{ExternalCharge, InStorePaymentStates, PaymentMethod}
 import models.plugins.PluginSettings
 import models.promotion.Promotion
 import models.returns._
@@ -79,7 +79,7 @@ object JsonFormatters {
       Reason.ReasonType.jsonFormat + ReturnReason.ReasonType.jsonFormat +
       Return.State.jsonFormat + Return.ReturnType.jsonFormat +
       ReturnLineItem.OriginType.jsonFormat +
-      CreditCardCharge.State.jsonFormat + CountryWithRegions.jsonFormat +
+      ExternalCharge.State.jsonFormat + CountryWithRegions.jsonFormat +
       QueryStatement.Comparison.jsonFormat + Condition.Operator.jsonFormat +
       PaymentMethod.Type.jsonFormat + SkuType.jsonFormat + SharedSearch.Scope.jsonFormat +
       IdentityKind.jsonFormat + AdminData.State.jsonFormat + PluginSettings.SettingType.jsonFormat +

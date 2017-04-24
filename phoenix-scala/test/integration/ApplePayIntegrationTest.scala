@@ -3,16 +3,17 @@ import faker.Lorem
 import models.location.Region
 import models.shipping._
 import payloads.AddressPayloads.CreateAddressPayload
+import payloads.CapturePayloads.{Capture, CaptureLineItem, ShippingCost}
 import payloads.CartPayloads.CreateCart
 import payloads.CustomerPayloads.CreateCustomerPayload
 import payloads.LineItemPayloads._
 import payloads.PaymentPayloads.CreateApplePayPayment
 import payloads.UpdateShippingMethod
-import responses.CustomerResponse
+import responses.{CaptureResponse, CustomerResponse}
 import responses.cord._
 import services.StripeTest
 import testutils._
-import testutils.apis.PhoenixStorefrontApi
+import testutils.apis.{PhoenixPaymentApi, PhoenixStorefrontApi}
 import testutils.fixtures.api._
 import utils.MockedApis
 import utils.seeds.{Factories, ShipmentSeeds}
@@ -20,6 +21,7 @@ import utils.seeds.{Factories, ShipmentSeeds}
 class ApplePayIntegrationTest
     extends StripeTest
     with PhoenixStorefrontApi
+    with PhoenixPaymentApi
     with ApiFixtures
     with MockedApis
     with AutomaticAuth {
@@ -36,7 +38,7 @@ class ApplePayIntegrationTest
 
       val skuInCart = cartsApi(refNum).checkout().as[OrderResponse].lineItems.skus.onlyElement
       skuInCart.sku must === (skuCode)
-      skuInCart.quantity must === (2)
+      skuInCart.quantity must === (1)
 
     }
   }
@@ -46,6 +48,22 @@ class ApplePayIntegrationTest
 
     storefrontCartsApi.applePayCheckout(payment).as[OrderResponse].referenceNumber must === (
         cart.referenceNumber)
+  }
+
+  "Capture Apple Pay" - {
+    "Should work" in new ApplePayFixture {
+      val payment = CreateApplePayPayment(stripeToken = apToken)
+
+      val orderResponse = storefrontCartsApi.applePayCheckout(payment).as[OrderResponse]
+      val skuInCart     = orderResponse.lineItems.skus
+
+      val capturePayload =
+        Capture(orderResponse.referenceNumber,
+                skuInCart.map(sku ⇒ CaptureLineItem(sku.referenceNumbers.head, sku.sku)),
+                ShippingCost(400, "USD"))
+
+      captureApi.capture(capturePayload).as[CaptureResponse]
+    }
   }
 
   trait ApplePayFixture extends ProductSku_ApiFixture with ShipmentSeeds {
@@ -71,7 +89,7 @@ class ApplePayIntegrationTest
 
     cartsApi(refNum).shippingAddress.create(randomAddress).mustBeOk()
 
-    val lineItemsPayloads = List(UpdateLineItemsPayload(skuCode, 2))
+    val lineItemsPayloads = List(UpdateLineItemsPayload(skuCode, 1))
     cartsApi(refNum).lineItems.add(lineItemsPayloads).mustBeOk()
 
     cartsApi(refNum).shippingMethod
