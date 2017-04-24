@@ -1,6 +1,7 @@
 /* @flow */
 
 import React, { Component, Element } from 'react';
+import classNames from 'classnames';
 import styles from './checkbox.css';
 import { autobind } from 'core-decorators';
 
