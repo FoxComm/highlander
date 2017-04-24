@@ -1,4 +1,3 @@
-import cats.implicits._
 import java.time.Instant
 
 import failures.NotFoundFailure404
@@ -7,7 +6,6 @@ import models.account._
 import payloads.NotePayloads._
 import responses.AdminNotes
 import responses.AdminNotes.Root
-import services.notes.StoreAdminNoteManager
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -17,7 +15,7 @@ import utils.time.RichInstant
 class StoreAdminNotesIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
@@ -25,7 +23,8 @@ class StoreAdminNotesIntegrationTest
     "can be created by an admin for a customer" in new Fixture {
       val note = notesApi.storeAdmin(storeAdmin.accountId).create(CreateNote("foo")).as[Root]
       note.body must === ("foo")
-      note.author must === (AdminNotes.buildAuthor(storeAdmin))
+      note.author.name.value must === (defaultAdmin.name.value)
+      note.author.email.value must === (defaultAdmin.email.value)
     }
 
     "returns a validation error if failed to create" in new Fixture {
@@ -46,26 +45,29 @@ class StoreAdminNotesIntegrationTest
   "GET /v1/notes/store-admins/:adminId" - {
 
     "can be listed" in new Fixture {
-      val createNotes = List("abc", "123", "xyz").map { body ⇒
-        StoreAdminNoteManager.create(storeAdmin.accountId, storeAdmin, CreateNote(body))
-      }
-      DbResultT.seqCollectFailures(createNotes).gimme
+      val bodies = List("abc", "123", "xyz")
 
-      val notes = notesApi.storeAdmin(storeAdmin.accountId).get().as[Seq[Root]]
-      notes must have size 3
-      notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
+      bodies.map { body ⇒
+        notesApi.storeAdmin(storeAdmin.accountId).create(CreateNote(body)).mustBeOk()
+      }
+
+      notesApi
+        .storeAdmin(storeAdmin.accountId)
+        .get()
+        .as[Seq[Root]]
+        .map(_.body) must contain theSameElementsAs bodies
     }
   }
 
   "PATCH /v1/notes/store-admins/:adminId/:noteId" - {
 
     "can update the body text" in new Fixture {
-      val rootNote =
-        StoreAdminNoteManager.create(storeAdmin.accountId, storeAdmin, CreateNote("foo")).gimme
+      val note =
+        notesApi.storeAdmin(storeAdmin.accountId).create(CreateNote("foo")).as[AdminNotes.Root]
 
       notesApi
         .storeAdmin(storeAdmin.accountId)
-        .note(rootNote.id)
+        .note(note.id)
         .update(UpdateNote("donkey"))
         .as[Root]
         .body must === ("donkey")
@@ -80,7 +82,7 @@ class StoreAdminNotesIntegrationTest
       notesApi.storeAdmin(storeAdmin.accountId).note(note.id).delete().mustBeEmpty()
 
       val updatedNote = Notes.findOneById(note.id).run().futureValue.value
-      updatedNote.deletedBy.value must === (1)
+      updatedNote.deletedBy.value must === (defaultAdmin.id)
 
       withClue(updatedNote.deletedAt.value → Instant.now) {
         updatedNote.deletedAt.value.isBeforeNow mustBe true

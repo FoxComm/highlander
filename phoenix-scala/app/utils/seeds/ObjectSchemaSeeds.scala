@@ -3,6 +3,7 @@ package utils.seeds
 import models.objects._
 import org.json4s.JValue
 import org.json4s.jackson.JsonMethods._
+import slick.driver.PostgresDriver.api._
 import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -31,6 +32,29 @@ trait ObjectSchemaSeeds {
 
   def createObjectSchemas(): DbResultT[Option[Int]] =
     ObjectSchemas.createAll(allSchemas)
+
+  def upgradeObjectSchemas(schemasToUpdate: Option[Seq[String]]): DbResultT[Unit] = {
+    val toUpgrade = schemasToUpdate.fold(allSchemas) { listOfSchemas ⇒
+      listOfSchemas.map(getSchema)
+    }
+    for {
+      allCurrent ← * <~ ObjectSchemas.result
+      _ ← * <~ toUpgrade.map { newSchema ⇒
+           allCurrent.find(_.name == newSchema.name) match {
+             case Some(current) ⇒
+               Console.err.println(s"Found schema ${current.name}, updating...")
+               ObjectSchemas
+                 .update(current,
+                         current.copy(schema = newSchema.schema,
+                                      dependencies = newSchema.dependencies))
+                 .meh
+             case _ ⇒
+               Console.err.println(s"Schema ${newSchema.name} not found, creating...")
+               ObjectSchemas.create(newSchema).meh
+           }
+         }
+    } yield ()
+  }
 
   private def loadJson(fileName: String): JValue = {
     val streamMaybe = Option(getClass.getResourceAsStream(fileName))

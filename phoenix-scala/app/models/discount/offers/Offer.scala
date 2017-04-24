@@ -1,6 +1,5 @@
 package models.discount.offers
 
-import cats.data._
 import cats.implicits._
 import failures.DiscountFailures.SearchFailure
 import failures._
@@ -31,17 +30,17 @@ trait Offer extends DiscountBase {
                subtract = subtract,
                lineItemRefNum = lineItemRefNum)
 
-  def buildXor(input: DiscountInput,
-               subtract: Int,
-               lineItemRefNum: Option[String] = None): Xor[Failures, Seq[Adjustment]] =
-    Xor.Right(Seq(build(input, subtract, lineItemRefNum)))
+  def buildEither(input: DiscountInput,
+                  subtract: Int,
+                  lineItemRefNum: Option[String] = None): Either[Failures, Seq[Adjustment]] =
+    Either.right(Seq(build(input, subtract, lineItemRefNum)))
 
   def buildResult(input: DiscountInput, subtract: Int, lineItemRefNum: Option[String] = None)(
       implicit ec: EC): OfferResult =
     Result.good(Seq(build(input, subtract, lineItemRefNum)))
 
   def pureResult()(implicit ec: EC): Result[Seq[Adjustment]] = Result.good(Seq.empty)
-  def pureXor(): Xor[Failures, Seq[Adjustment]]              = Xor.Left(SearchFailure.single)
+  def pureEither(): Either[Failures, Seq[Adjustment]]        = Either.left(SearchFailure.single)
 }
 
 object Offer {
@@ -84,11 +83,12 @@ trait SetOffer {
 
 trait ItemsOffer {
 
-  def matchXor(input: DiscountInput)(xor: Failures Xor Buckets): Failures Xor Seq[Adjustment] // FIXME: why use matchXor instead of .map, if *never* do anything with Left? @michalrus
+  def matchEither(input: DiscountInput)(either: Either[Failures, Buckets])
+    : Either[Failures, Seq[Adjustment]] // FIXME: why use matchEither instead of .map, if *never* do anything with Left? @michalrus
 
   def adjustInner(input: DiscountInput)(
       search: Seq[ProductSearch])(implicit db: DB, ec: EC, apis: Apis, au: AU): OfferResult = {
-    val inAnyOf = search.map(_.query(input).mapXor(matchXor(input)))
+    val inAnyOf = search.map(_.query(input).mapEither(matchEither(input)))
     Result.onlySuccessful(inAnyOf.toList).map(_.headOption.getOrElse(Seq.empty))
   }
 }

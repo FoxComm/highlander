@@ -239,7 +239,7 @@ export default class AddressForm extends React.Component {
             <ul className="fc-address-form-fields">
               {this.formTitle}
               <li>
-                <FormField label="Name" validator="ascii" maxLength={255}>
+                <FormField label="First & Last Name" validator="ascii" maxLength={255}>
                   <input name="name" ref="name" type="text" defaultValue={address.name} required />
                 </FormField>
               </li>

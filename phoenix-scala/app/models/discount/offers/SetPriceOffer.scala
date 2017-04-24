@@ -1,6 +1,5 @@
 package models.discount.offers
 
-import cats.data.Xor
 import cats.implicits._
 import failures._
 import models.cord.lineitems.CartLineItemAdjustment
@@ -23,10 +22,10 @@ case class SetPriceOffer(setPrice: Int, numUnits: Int, search: Seq[ProductSearch
   def adjust(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis, au: AU): OfferResult =
     if (setPrice > 0 && numUnits < 100) adjustInner(input)(search) else pureResult()
 
-  def matchXor(input: DiscountInput)(
-      xor: Failures Xor Buckets): Failures Xor Seq[CartLineItemAdjustment] =
+  def matchEither(input: DiscountInput)(
+      xor: Either[Failures, Buckets]): Either[Failures, Seq[CartLineItemAdjustment]] =
     xor match {
-      case Xor.Right(buckets) ⇒
+      case Right(buckets) ⇒
         val matchedFormIds = buckets.filter(_.docCount > 0).map(_.key)
         val adjustments = input.lineItems
           .filter(data ⇒ matchedFormIds.contains(data.productForm.id.toString))
@@ -35,7 +34,7 @@ case class SetPriceOffer(setPrice: Int, numUnits: Int, search: Seq[ProductSearch
             build(input, subtract(price(data), setPrice), data.lineItemReferenceNumber.some)
           }
 
-        Xor.Right(adjustments)
-      case _ ⇒ pureXor()
+        Either.right(adjustments)
+      case _ ⇒ pureEither()
     }
 }

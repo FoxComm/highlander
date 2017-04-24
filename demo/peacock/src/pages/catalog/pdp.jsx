@@ -29,8 +29,7 @@ import Currency from 'ui/currency';
 import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
 import ErrorAlerts from 'ui/alerts/error-alerts';
-import ProductDetails from './product-details';
-
+import ProductVariants from 'components/product-variants/product-variants';
 import GiftCardForm from 'components/gift-card-form';
 import ImagePlaceholder from 'components/products-item/image-placeholder';
 import RelatedProductsList,
@@ -76,12 +75,10 @@ type State = {
 const mapStateToProps = (state) => {
   const product = state.productDetails.product;
   const relatedProducts = state.crossSell.relatedProducts;
-  const relatedProductsOrder = state.crossSell.relatedProductsOrder;
 
   return {
     product,
     relatedProducts,
-    relatedProductsOrder,
     fetchError: _.get(state.asyncActions, 'pdp.err', null),
     notFound: !product && _.get(state.asyncActions, 'pdp.err.response.status') == 404,
     isLoading: _.get(state.asyncActions, ['pdp', 'inProgress'], true),
@@ -106,8 +103,7 @@ const mapDispatchToProps = dispatch => ({
 class Pdp extends Component {
   props: Props;
   productPromise: Promise<*>;
-  _productDetails: ProductDetails;
-  containerNode: Element<*>;
+  _productDetails: ProductVariants;
 
   state: State = {
     currentSku: null,
@@ -141,16 +137,10 @@ class Pdp extends Component {
     const nextId = this.getId(nextProps);
 
     if (this.productId !== nextId) {
+      this.setState({ currentSku: null });
       this.props.actions.resetProduct();
       this.props.actions.clearRelatedProducts();
       this.fetchProduct(nextProps, nextId);
-    }
-  }
-
-  componentDidUpdate() {
-    if (this.containerNode !== null) {
-      // $FlowFixMe
-      this.containerNode.scrollIntoView();
     }
   }
 
@@ -298,12 +288,12 @@ class Pdp extends Component {
     const description = _.get(this.props.product, 'attributes.description.v', '');
     const descriptionList = _.get(this.props.product, 'attributes.description_list.v', '');
     return (
-      <div>
+      <div styleName="body">
         <div
           styleName="description"
           dangerouslySetInnerHTML={{__html: description}}
         />
-        <div
+        <ul
           styleName="description-list"
           dangerouslySetInnerHTML={{__html: descriptionList}}
         />
@@ -315,6 +305,34 @@ class Pdp extends Component {
   handleSkuChange(sku: ?Sku) {
     if (sku) {
       this.setCurrentSku(sku);
+    }
+  }
+
+  @autobind
+  getTaxonValue(name: string): ?string {
+    const taxons = _.get(this.props.product, 'taxons', []);
+    const taxonomy = _.find(taxons, (taxonomyEntity) => {
+      const taxonomyName = _.get(taxonomyEntity, 'attributes.name.v');
+      return name === taxonomyName;
+    });
+
+    return _.get(taxonomy, ['taxons', 0, 'attributes', 'name', 'v']);
+  }
+
+  get productCategory(): ?Element<any> {
+    let gender = this.getTaxonValue('gender');
+    const type = this.getTaxonValue('type');
+
+    if (gender && type) {
+      if (gender.toLowerCase() === 'men') {
+        gender = 'men\'s';
+      } else if (gender.toLowerCase() === 'women') {
+        gender = 'women\'s';
+      }
+
+      return (
+        <div>{`${gender} ${type}`}</div>
+      );
     }
   }
 
@@ -331,7 +349,7 @@ class Pdp extends Component {
       );
     }
     return (
-      <ProductDetails
+      <ProductVariants
         ref={(_ref) => { this._productDetails = _ref; }}
         product={this.props.product}
         productView={this.productView}
@@ -342,15 +360,14 @@ class Pdp extends Component {
   }
 
   get relatedProductsList(): ?Element<*> {
-    const { relatedProducts, isRelatedProductsLoading, relatedProductsOrder } = this.props;
+    const { relatedProducts, isRelatedProductsLoading } = this.props;
 
-    if (_.isEmpty(relatedProducts) || relatedProducts.total < 1) return null;
+    if (_.isEmpty(relatedProducts.products)) return null;
 
     return (
       <RelatedProductsList
-        title="You might also like"
-        list={relatedProducts.result}
-        productsOrder={relatedProductsOrder}
+        title="You Might Also Like"
+        list={relatedProducts.products}
         isLoading={isRelatedProductsLoading}
         loadingBehavior={LoadingBehaviors.ShowWrapper}
       />
@@ -414,22 +431,39 @@ class Pdp extends Component {
     const title = this.isGiftCard() ? t('Gift Card') : this.productView.title;
 
     return (
-      <div ref={(containerNode) => (this.containerNode = containerNode)} styleName="container">
+      <div styleName="container">
         <div styleName="body">
-          {this.renderGallery()}
-          <ErrorAlerts error={this.state.error} />
-          <h1 styleName="title">{title}</h1>
-          {this.productPrice}
-          {this.productForm}
-          <div styleName="cart-actions">
-            <AddToCartBtn
-              onClick={this.addToCart}
-            />
-            {/* <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton> */}
+          <div styleName="sixty">
+            {this.renderGallery()}
           </div>
+          <div styleName="forty">
+            <div styleName="category">{this.productCategory}</div>
+            <h1 styleName="title">{title}</h1>
+            <ErrorAlerts error={this.state.error} />
+            {this.productPrice}
+            {this.productForm}
+            <div styleName="cart-actions">
+              <AddToCartBtn
+                onClick={this.addToCart}
+              />
+              {/* <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton> */}
+            </div>
+          </div>
+        </div>
+        <div styleName="title-block">
           <h1 styleName="title-secondary">{title}</h1>
           {this.productShortDescription}
-          {this.productDetails}
+        </div>
+        {this.productDetails}
+        <div styleName="share-block">
+          <div styleName="share-title">
+            Share How You Wear It
+          </div>
+          <p styleName="share-description">
+            For your change to be featured in our photo gallery<br />
+            tag your favorite Pure photo using #3stripestyle.
+          </p>
+          <img styleName="share-image" src="/images/pdp/style.jpg" />
         </div>
         {this.relatedProductsList}
       </div>

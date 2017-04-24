@@ -11,7 +11,7 @@ import testutils.fixtures.BakedFixtures
 class CartCreatorIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
@@ -34,14 +34,15 @@ class CartCreatorIntegrationTest
       }
 
       "returns current cart if customer already has one" in new Fixture {
-        CartCreator.createCart(storeAdmin, CreateCart(customerId = customer.accountId.some)).gimme
+        val refNum = cartsApi
+          .create(CreateCart(customerId = customer.accountId.some))
+          .as[CartResponse]
+          .referenceNumber
 
         cartsApi
           .create(CreateCart(customerId = customer.accountId.some))
           .as[CartResponse]
-          .customer
-          .value
-          .id must === (customer.accountId)
+          .referenceNumber must === (refNum)
       }
     }
 

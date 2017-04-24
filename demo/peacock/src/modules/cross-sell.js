@@ -6,8 +6,6 @@ import { createReducer, createAction } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 import _ from 'lodash';
 
-import { GIFT_CARD_TAG } from './products';
-
 // types
 export type CrossSellPoint = {
   custID: number,
@@ -16,7 +14,7 @@ export type CrossSellPoint = {
 };
 
 export type RelatedProduct = {
-  id: number,
+  product: Object,
   score: number,
 };
 
@@ -25,65 +23,12 @@ export type RelatedProductResponse = {
 };
 
 // const
-export const MAX_CROSS_SELLS_RESULTS = 10;
-
-// helpers
-function elasticSearchProductsQuery(rpResponse): Object {
-  let matchingProductIds = _.reduce(rpResponse.products, (result, product) => {
-    if (product.score > 0) {
-      result.push(product.id);
-    }
-    return result;
-  }, []);
-  matchingProductIds = _.slice(matchingProductIds, 0, MAX_CROSS_SELLS_RESULTS);
-
-  const query = {
-    query: {
-      bool: {
-        filter: [
-          {
-            term: {
-              context: 'default',
-            },
-          },
-          {
-            terms: {
-              productId: matchingProductIds,
-            },
-          },
-        ],
-        must_not: [
-          {
-            term: {
-              tags: GIFT_CARD_TAG,
-            },
-          },
-        ],
-      },
-    },
-  };
-
-  return { query, productsOrder: matchingProductIds };
-}
+export const MAX_CROSS_SELLS_RESULTS = 8;
 
 // actions - private
-const updateRelatedProductsOrder = createAction('CROSS_SELL_UPDATED_RELATED_PRODUCTS_ORDER',
-  productsOrder => productsOrder
-);
-
 const _fetchRelatedProducts = createAsyncActions('relatedProducts',
   function(productFormId: number, channelId: number) {
-    return this.api.crossSell.crossSellRelated(productFormId, channelId)
-      .then((res) => {
-        const { dispatch } = this;
-        const payload = elasticSearchProductsQuery(res);
-        dispatch(updateRelatedProductsOrder(payload.productsOrder));
-
-        return this.api.post(
-          `/search/public/products_catalog_view/_search?size=${MAX_CROSS_SELLS_RESULTS}`, payload.query
-        );
-      }
-    );
+    return this.api.crossSell.crossSellRelatedFull(productFormId, channelId, MAX_CROSS_SELLS_RESULTS);
   }
 );
 
@@ -103,7 +48,6 @@ export const fetchRelatedProducts = _fetchRelatedProducts.perform;
 // redux
 const initialState = {
   relatedProducts: {},
-  relatedProductsOrder: [],
 };
 
 const reducer = createReducer({
@@ -113,17 +57,10 @@ const reducer = createReducer({
       relatedProducts: response,
     };
   },
-  [updateRelatedProductsOrder]: (state, productsOrder) => {
-    return {
-      ...state,
-      relatedProductsOrder: productsOrder,
-    };
-  },
   [clearRelatedProducts]: (state) => {
     return {
       ...state,
       relatedProducts: initialState.relatedProducts,
-      relatedProductsOrder: initialState.relatedProductsOrder,
     };
   },
 }, initialState);

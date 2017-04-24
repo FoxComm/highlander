@@ -1,22 +1,20 @@
-import java.time.Instant
-
+import cats.implicits._
 import failures.NotFoundFailure404
 import models.account._
 import models.cord.OrderShippingAddresses
-import models.customer._
 import models.location.{Address, Addresses}
 import payloads.AddressPayloads.CreateAddressPayload
 import responses.AddressResponse
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.db._
-import utils.seeds.Factories
+import testutils.fixtures.api.{ApiFixtureHelpers, randomAddress}
 
 class AddressesIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
+    with ApiFixtureHelpers
     with PhoenixAdminApi
     with BakedFixtures {
 
@@ -109,13 +107,23 @@ class AddressesIntegrationTest
       deletedAddress.deletedAt mustBe defined
     }
 
-    "deleted address should be visible to StoreAdmin" in new DeletedAddressFixture {
-      customersApi(account.id).address(address.id).get().mustBeOk()
+    "deleted address should be visible to StoreAdmin" in {
+      val customer = api_newCustomer()
+      val address  = customersApi(customer.id).addresses.create(randomAddress()).as[AddressResponse]
+      customersApi(customer.id).address(address.id).delete().mustBeEmpty()
+
+      customersApi(customer.id).address(address.id).get().mustBeOk()
     }
 
-    "deleted address should be invisible to Customer" in new DeletedAddressFixture {
-      GET(s"v1/my/addresses/${address.id}")
-        .mustFailWith404(NotFoundFailure404(Address, address.id))
+    "deleted address should be invisible to Customer" in {
+      val (customer, loginData) = api_newCustomerWithLogin()
+      val address               = customersApi(customer.id).addresses.create(randomAddress()).as[AddressResponse]
+      customersApi(customer.id).address(address.id).delete().mustBeEmpty()
+
+      withCustomerAuth(loginData, customer.id) { implicit auth ⇒
+        GET(s"v1/my/addresses/${address.id}", auth.jwtCookie.some)
+          .mustFailWith404(NotFoundFailure404(Address, address.id))
+      }
     }
 
     "fails deleting using wrong address id" in new CustomerAddress_Baked {
@@ -134,24 +142,17 @@ class AddressesIntegrationTest
   }
 
   "GET /v1/my/addresses" - {
-    "retrieves a customer's addresses" in new CustomerAddress_Baked {
-      GET(s"v1/my/addresses").as[Seq[AddressResponse]].onlyElement.name must === (address.name)
-    }
-  }
+    "retrieves a customer's addresses" in {
+      val (customer, loginData) = api_newCustomerWithLogin()
+      val address               = customersApi(customer.id).addresses.create(randomAddress()).as[AddressResponse]
 
-  trait DeletedAddressFixture extends StoreAdmin_Seed {
-    val (account, address) = (for {
-      accountPre1 ← * <~ Accounts.create(Account())
-      accountPre2 ← * <~ Accounts.create(Account())
-      account     ← * <~ Accounts.create(Account())
-      user        ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
-      custData ← * <~ CustomersData.create(
-                    CustomerData(userId = user.id, accountId = account.id, scope = Scope.current))
-      address ← * <~ Addresses.create(
-                   Factories.address.copy(accountId = account.id,
-                                          isDefaultShipping = false,
-                                          deletedAt = Some(Instant.now)))
-    } yield (account, address)).gimme
+      withCustomerAuth(loginData, customer.id) { implicit auth ⇒
+        GET(s"v1/my/addresses", auth.jwtCookie.some)
+          .as[Seq[AddressResponse]]
+          .onlyElement
+          .id must === (address.id)
+      }
+    }
   }
 
   trait ShippingAddressFixture extends EmptyCartWithShipAddress_Baked

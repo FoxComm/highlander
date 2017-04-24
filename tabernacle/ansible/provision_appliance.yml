@@ -1,11 +1,12 @@
 ---
 
-- name: Provision Developer Appliance
+- name: Provision Feature Branch Appliance
   hosts: '{{hostname}}'
   become: true
   vars:
     cert_path: test/fox
     docker_db_host: 172.17.0.1
+    first_run: true
     install_public_keys: true
     install_private_keys: true
     is_appliance: true
@@ -13,6 +14,7 @@
     mesos_quorum: 1
     dns_record: "{{hostname}}"
     appliance_hostname: "{{dns_record}}.{{foxcomm_domain}}"
+    api_server: "{{dns_record}}.{{foxcomm_domain}}"
     storefront_server_name: "{{dns_record}}.{{foxcomm_domain}}"
     private_ip: "{{ansible_default_ipv4.address}}"
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
@@ -45,7 +47,10 @@
     - { role: dev/balancer }
     - { role: hotfix/mesos_consul }
     - { role: demo/balancer }
-    #Seed
+    # Seed
     - { role: dev/seeder }
     # Finale
     - { role: dev/healthcheck }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

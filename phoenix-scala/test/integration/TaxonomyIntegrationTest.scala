@@ -21,7 +21,7 @@ import utils.db.ExPostgresDriver.api._
 class TaxonomyIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with BakedFixtures
     with TaxonomySeeds
     with PhoenixAdminApi {

@@ -1,14 +1,13 @@
 package services
 
-import java.time.Instant
-
 import failures.NotFoundFailure404
 import failures.SharedSearchFailures._
 import failures.Util.diffToFailures
-import models.sharedsearch._
+import java.time.Instant
 import models.account._
+import models.sharedsearch._
 import payloads.SharedSearchPayloads._
-import responses.{UserResponse, TheResponse}
+import responses.{TheResponse, UserResponse}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -17,10 +16,10 @@ object SharedSearchService {
   def getAll(admin: User, rawScope: Option[String])(implicit ec: EC,
                                                     db: DB): DbResultT[Seq[SharedSearch]] =
     for {
-      scope ← * <~ rawScope.toXor(SharedSearchScopeNotFound.single)
+      scope ← * <~ rawScope.toEither(SharedSearchScopeNotFound.single)
       searchScope ← * <~ SharedSearch.Scope
                      .read(scope)
-                     .toXor(NotFoundFailure404(SharedSearch, scope).single)
+                     .toEither(NotFoundFailure404(SharedSearch, scope).single)
       result ← * <~ SharedSearchAssociations.associatedWith(admin, searchScope).result
     } yield result
 

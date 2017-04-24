@@ -21,6 +21,7 @@ type FacetsProps = {
   facets: Array<TFacet>,
   whitelist?: Array<string>,
   onSelect?: (facet: string, value: string, selected: boolean) => void,
+  required?: boolean,
 };
 
 type State = {
@@ -40,10 +41,14 @@ class Facets extends Component {
     facets: [],
     whitelist: [],
     prefix: '',
+    required: false, // allows user to deselect the value by clicking it again
   };
 
   @autobind
   handleClickFacets(facet: string, value: string, selected: boolean): void {
+    const { required } = this.props;
+    if (required && !selected) return;
+
     const { facetMessages } = this.state;
     this.setState({
       facetMessages: assoc(facetMessages, facet, null),
@@ -155,8 +160,9 @@ class Facets extends Component {
     // Only showing facets with more then one element was decided because it
     // matches the expected behaviour based on research of other sites.
     const renderable = _.filter(facets, (f) => {
-      return f.values.length > 1
-        && (_.isEmpty(whitelist) || _.find(whitelist, key => _.toLower(key) == _.toLower(f.key)));
+      // return f.values.length > 1
+      //   && (_.isEmpty(whitelist) || _.find(whitelist, key => _.toLower(key) == _.toLower(f.key)));
+      return _.isEmpty(whitelist) || _.find(whitelist, key => _.toLower(key) == _.toLower(f.key));
     });
 
     const rendered = _.map(renderable, (f: TFacet) => {

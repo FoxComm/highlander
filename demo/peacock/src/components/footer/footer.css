@@ -2,7 +2,9 @@
 @import "variables.css";
 @import "colors.css";
 
-.footer-wrap {}
+.footer-wrap {
+  position: relative;
+}
 
 .footer {
   display: flex;

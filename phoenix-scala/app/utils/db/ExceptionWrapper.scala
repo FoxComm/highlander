@@ -1,9 +1,9 @@
 package utils.db
 
-import cats.data.{StateT, Xor, XorT}
+import cats.data.EitherT
+import cats.implicits._
 import failures.{DatabaseFailure, Failures}
-import slick.dbio.Effect.All
-import slick.dbio.{DBIO, DBIOAction, NoStream}
+import slick.dbio.DBIO
 import utils.aliases._
 
 object ExceptionWrapper {
@@ -20,12 +20,12 @@ object ExceptionWrapper {
   def wrapDbResultT[A](dbresult: DbResultT[A])(implicit ec: EC): DbResultT[A] = { // TODO: can we get rid of that? @michalrus
     import scala.util.{Failure, Success}
     dbresult.transformF { fsa ⇒
-      val v: DBIO[Failures Xor (List[MetaResponse], A)] =
+      val v: DBIO[Either[Failures, (List[MetaResponse], A)]] =
         fsa.value.asTry.map { // Try has no fold? Also why do we have to hint the type here?
           case Success(x) ⇒ x
-          case Failure(e) ⇒ Xor.left(DatabaseFailure(e.getMessage).single)
+          case Failure(e) ⇒ Either.left(DatabaseFailure(e.getMessage).single)
         }
-      XorT(v)
+      EitherT(v)
     }
   }
 

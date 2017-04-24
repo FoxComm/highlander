@@ -2,13 +2,12 @@ package services.giftcards
 
 import cats.implicits._
 import failures.{NotFoundFailure400, OpenTransactionsFailure}
+import models.Reasons
 import models.account._
 import models.customer._
 import models.payment.giftcard.GiftCard.Canceled
 import models.payment.giftcard.GiftCardSubtypes.scope._
 import models.payment.giftcard._
-import models.{Reasons}
-
 import payloads.GiftCardPayloads._
 import responses.GiftCardBulkResponse._
 import responses.GiftCardResponse._
@@ -96,7 +95,7 @@ object GiftCardService {
                                             currency = payload.currency,
                                             scope = scope.toString.some)
       response ← * <~ DbResultT.seqCollectFailures((1 to payload.quantity).map { num ⇒
-                  createByAdmin(admin, gcCreatePayload).mapXorRight(buildItemResult(_))
+                  createByAdmin(admin, gcCreatePayload).mapEitherRight(buildItemResult(_))
                 }.toList)
     } yield response
 
@@ -105,7 +104,7 @@ object GiftCardService {
       admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[List[ItemResult]] =
     DbResultT.seqCollectFailures(payload.codes.map { code ⇒
       val itemPayload = GiftCardUpdateStateByCsr(payload.state, payload.reasonId)
-      updateStateByCsr(code, itemPayload, admin).mapXorRight(buildItemResult(_, Some(code)))
+      updateStateByCsr(code, itemPayload, admin).mapEitherRight(buildItemResult(_, Some(code)))
     }.toList)
 
   def updateStateByCsr(code: String, payload: GiftCardUpdateStateByCsr, admin: User)(

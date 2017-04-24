@@ -1,10 +1,8 @@
 package models.payment.creditcard
 
-import java.time.Instant
-
-import cats.data.Xor
 import com.pellucid.sealerate
 import failures.Failures
+import java.time.Instant
 import models.cord.{OrderPayment, OrderPayments}
 import shapeless._
 import slick.ast.BaseTypedType
@@ -29,7 +27,7 @@ case class CreditCardCharge(id: Int = 0,
   import CreditCardCharge._
 
   def stateLens = lens[CreditCardCharge].state
-  override def updateTo(newModel: CreditCardCharge): Failures Xor CreditCardCharge =
+  override def updateTo(newModel: CreditCardCharge): Either[Failures, CreditCardCharge] =
     super.transitionModel(newModel)
 
   val fsm: Map[State, Set[State]] = Map(

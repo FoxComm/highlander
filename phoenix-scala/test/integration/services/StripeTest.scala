@@ -1,27 +1,21 @@
 package services
 
-import cats._
+import java.time.{Instant, ZoneId}
+
 import cats.implicits._
 import com.stripe.Stripe
 import failures.CreditCardFailures.CardDeclined
-import java.time.{Instant, ZoneId}
 import testutils._
 import utils.Money.Currency.USD
+import utils.RealStripeApi
 import utils.TestStripeSupport._
-import utils.aliases.stripe.StripeCustomer
 import utils.apis._
 import utils.db._
 import utils.seeds.Factories
 
-trait RealStripeApis extends IntegrationTestBase {
+class StripeTest extends IntegrationTestBase with RealStripeApi {
   // Mutate Stripe state, set real key
   Stripe.apiKey = TestBase.config.apis.stripe.key
-}
-
-// Test that actually calls Stripe
-// Other integration tests should mock Stripe API and check that some method has been called on a mock
-// !!! Do not mix MockedApis in here
-class StripeTest extends RealStripeApis {
 
   val stripe = new FoxStripe(new StripeWrapper())
 

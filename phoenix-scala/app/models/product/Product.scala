@@ -1,21 +1,15 @@
 package models.product
 
-import java.time.Instant
-
-import cats.data.Xor
-
-import scala.util.matching.Regex
 import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.ProductIsPresentInCarts
 import failures.ProductFailures._
 import failures._
-import models.cord.Carts._
+import java.time.Instant
 import models.cord.lineitems.CartLineItems
 import models.objects._
+import scala.util.matching.Regex
 import services.objects.ObjectManager
 import shapeless._
-import slick.lifted._
-import sun.misc.Regexp
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._

@@ -19,6 +19,7 @@ import services.Authenticator.{UserAuthenticator, requireAdminAuth}
 import services.account.AccountCreateContext
 import services.actors._
 import slick.driver.PostgresDriver.api._
+import utils.FoxConfig.config
 import utils.apis._
 import utils.db._
 import utils.http.CustomHandlers
@@ -50,6 +51,32 @@ object Main extends App with LazyLogging {
   }
 }
 
+object Setup extends LazyLogging {
+
+  implicit val executionContext: ExecutionContextExecutor =
+    ExecutionContext.fromExecutor(java.util.concurrent.Executors.newCachedThreadPool())
+
+  lazy val defaultApis: Apis =
+    Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse(), setupElasticSearch())
+
+  def setupStripe(): FoxStripe = {
+    logger.info("Loading Stripe API key")
+    Stripe.apiKey = config.apis.stripe.key
+    logger.info("Successfully set Stripe key")
+    new FoxStripe(new StripeWrapper())
+  }
+
+  def setupMiddlewarehouse(): Middlewarehouse = {
+    logger.info("Setting up MWH...")
+    new Middlewarehouse(config.apis.middlewarehouse.url)
+  }
+
+  def setupElasticSearch(): ElasticsearchApi = {
+    logger.info("Setting up Elastic Search")
+    ElasticsearchApi.fromConfig(FoxConfig.config)
+  }
+}
+
 class Service(
     systemOverride: Option[ActorSystem] = None,
     dbOverride: Option[Database] = None,
@@ -67,18 +94,14 @@ class Service(
     ActorSystem.create("Orders", FoxConfig.unsafe)
   }
 
-  private val threadPool = java.util.concurrent.Executors.newCachedThreadPool()
-  implicit val executionContext: ExecutionContextExecutor =
-    ExecutionContext.fromExecutor(threadPool)
+  implicit val executionContext: ExecutionContextExecutor = Setup.executionContext
 
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
   val logger: LoggingAdapter = Logging(system, getClass)
 
   implicit val db: Database = dbOverride.getOrElse(Database.forConfig("db", FoxConfig.unsafe))
-  lazy val defaultApis: Apis =
-    Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse(), setupElasticSearch())
-  implicit val apis: Apis = apisOverride.getOrElse(defaultApis: Apis)
+  implicit val apis: Apis   = apisOverride.getOrElse(Setup.defaultApis)
 
   private val roleName: String = config.users.customer.role
   private val orgName: String  = config.users.customer.org
@@ -186,22 +209,5 @@ class Service(
     }
     logger.info(s"Using password hash algorithm: ${AccountAccessMethod.passwordsHashAlgorithm}")
     logger.info("Self check complete")
-  }
-
-  def setupStripe(): FoxStripe = {
-    logger.info("Loading Stripe API key")
-    Stripe.apiKey = config.apis.stripe.key
-    logger.info("Successfully set Stripe key")
-    new FoxStripe(new StripeWrapper())
-  }
-
-  def setupMiddlewarehouse(): Middlewarehouse = {
-    logger.info("Setting up MWH...")
-    new Middlewarehouse(config.apis.middlewarehouse.url)
-  }
-
-  def setupElasticSearch(): ElasticsearchApi = {
-    logger.info("Setting up Elastic Search")
-    ElasticsearchApi.fromConfig(FoxConfig.config)
   }
 }
