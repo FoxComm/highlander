@@ -116,7 +116,10 @@ export default class RichTextEditor extends Component {
     if (this.props.value != nextProps.value) {
 
       if (!this.state.richMode) {
-        const textValue = (this.state.contentType === 'html') ? this.htmlContent : toMarkdown(this.htmlContent);
+        const textValue = (this.state.contentType === 'html')
+          ? this.htmlContent
+          : toMarkdown(this.htmlContent);
+
         this.setState({
           editorState: EditorState.createWithContent(ContentState.createFromText(textValue))
         });
