@@ -274,7 +274,7 @@ skus = pdp_links.map.with_index do |link, idx|
   sku = {
     albums: [],
     attributes: {},
-    taxons: {}
+    taxonomies: {}
   }
 
   url = "https://www.tumi.com#{link}"
@@ -297,8 +297,8 @@ skus = pdp_links.map.with_index do |link, idx|
   product = products[product_id]
 
   if product == nil
-    product = { 
-      albums: sku[:albums], 
+    product = {
+      albums: sku[:albums],
       attributes: {
         title: {
           t: "string",
@@ -363,7 +363,7 @@ end
 puts "Writing to json"
 
 File.open('products_tumi.json', 'w') do |f|
-  f.puts products.to_json
+  f.puts ({'products': products.values}).to_json
 end
 
 puts "Complete!"
