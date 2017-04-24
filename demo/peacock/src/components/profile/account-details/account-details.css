@@ -29,6 +29,6 @@
   font-size: 14px;
 }
 
-.name-field {
+.name-field, .email-field {
   margin: 15px 10px 15px 15px;
 }
