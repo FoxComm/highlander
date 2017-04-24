@@ -50,7 +50,7 @@ class Checkbox extends Component {
     const className = classNames(
       styles['facet-checkbox'],
       {
-        [styles.disabled]: !available
+        [styles.disabled]: !available,
       }
     );
 

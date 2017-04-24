@@ -47,7 +47,7 @@ class Circle extends Component {
     const className = classNames(
       styles['circle-checkbox'],
       {
-        [styles.disabled]: !available
+        [styles.disabled]: !available,
       }
     );
 

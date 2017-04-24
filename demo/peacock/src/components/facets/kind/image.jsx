@@ -49,7 +49,7 @@ class Image extends Component {
     const className = classNames(
       styles['image-checkbox'],
       {
-        [styles.disabled]: !available
+        [styles.disabled]: !available,
       }
     );
 
