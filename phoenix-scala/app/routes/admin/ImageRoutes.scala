@@ -3,7 +3,7 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import utils.http.JsonSupport._
-import facades.ImageFacade
+import facades.AlbumImagesFacade
 import models.account.User
 import payloads.ImagePayloads._
 import services.image.ImageManager
@@ -43,7 +43,7 @@ object ImageRoutes {
               (post & pathEnd) {
                 extractRequest { req ⇒
                   goodOrFailures {
-                    ImageFacade.uploadImages(albumId, context, req)
+                    AlbumImagesFacade.uploadImages(albumId, context, req)
                   }
                 }
               }
