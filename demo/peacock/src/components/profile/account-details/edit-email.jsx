@@ -1,44 +1,27 @@
-// @flow
-import _ from 'lodash';
+/* @flow */
+
 import React, { Component } from 'react';
-import styles from '../profile.css';
+
+// libs
+import _ from 'lodash';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import { browserHistory } from 'lib/history';
 import { clearErrorsFor } from '@foxcomm/wings';
 
-import { Link } from 'react-router';
-import Button from 'ui/buttons';
+// components
 import { TextInput } from 'ui/text-input';
-import { FormField, Form } from 'ui/forms';
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import { FormField } from 'ui/forms';
+import CheckoutForm from 'pages/checkout/checkout-form';
 
 import * as actions from 'modules/profile';
 
+// types
 import type { AsyncStatus } from 'types/async-actions';
+import type { AccountDetailsProps } from 'types/profile';
 
+import styles from './account-details.css';
 
-function mapStateToProps(state) {
-  return {
-    account: state.profile.account,
-    updateState: _.get(state.asyncActions, 'updateAccount', {}),
-  };
-}
-
-type Account = {
-  name: string,
-  email: string,
-  isGuest: boolean,
-  id: number,
-}
-
-type EmptyAccount = {
-  email: void,
-  name: void,
-}
-
-type EditEmailProps = {
-  account: Account|EmptyAccount,
+type Props = AccountDetailsProps & {
   fetchAccount: () => Promise<*>,
   updateAccount: (payload: Object) => Promise<*>,
   updateState: AsyncStatus,
@@ -50,9 +33,8 @@ type State = {
 }
 
 class EditEmail extends Component {
-  static title = 'Edit email';
+  props: Props;
 
-  props: EditEmailProps;
   state: State = {
     email: this.props.account.email || '',
   };
@@ -77,38 +59,58 @@ class EditEmail extends Component {
     this.props.updateAccount({
       email: this.state.email,
     }).then(() => {
-      browserHistory.push('/profile');
+      this.props.toggleEmailModal();
     });
   }
 
+  @autobind
+  handleCancel() {
+    const email = this.props.account.email;
+    this.setState({ email });
+    this.props.toggleEmailModal();
+  }
+
   render() {
+    const action = {
+      title: 'Cancel',
+      handler: this.handleCancel,
+    };
+
     return (
-      <div>
-        <Form onSubmit={this.handleSave}>
-          <div styleName="section">Use this form to update your email address.</div>
-          <FormField error={!!this.props.updateState.err} validator="email">
-            <TextInput
-              required
-              value={this.state.email}
-              onChange={this.handleEmailChange}
-            />
-          </FormField>
-          <ErrorAlerts
-            error={this.props.updateState.err}
+      <CheckoutForm
+        submit={this.handleSave}
+        buttonLabel="Apply"
+        title="Edit email"
+        action={action}
+        error={this.props.updateState.err}
+        inProgress={this.props.updateState.inProgress}
+      >
+        <FormField
+          error={!!this.props.updateState.err}
+          validator="email"
+          styleName="email-field"
+        >
+          <TextInput
+            required
+            value={this.state.email}
+            onChange={this.handleEmailChange}
+            placeholder="Email"
+            name="email"
           />
-          <div styleName="buttons-footer">
-            <Button
-              type="submit"
-              styleName="save-button"
-              isLoading={this.props.updateState.inProgress}
-              children="Save"
-            />
-            <Link styleName="link" to="/profile">Cancel</Link>
-          </div>
-        </Form>
-      </div>
+        </FormField>
+      </CheckoutForm>
     );
   }
 }
 
-export default connect(mapStateToProps, {...actions, clearErrorsFor})(EditEmail);
+const mapStateToProps = (state) => {
+  return {
+    account: state.profile.account,
+    updateState: _.get(state.asyncActions, 'updateAccount', {}),
+  };
+};
+
+export default connect(mapStateToProps, {
+  ...actions,
+  clearErrorsFor,
+})(EditEmail);
