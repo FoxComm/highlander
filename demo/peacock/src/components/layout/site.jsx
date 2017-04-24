@@ -17,9 +17,14 @@ import type { RoutesParams } from 'types';
 
 import styles from './site.css';
 
-function scrollHandler(prevRouterProps, { params }) {
+function scrollHandler(prevRouterProps, { params, location }) {
   // do not scroll page to top if product type was selected in dropdown menu
   if (params.categoryName && params.productType) {
+    return false;
+  }
+
+  // Do not scroll the page if query string has been changed
+  if (prevRouterProps && prevRouterProps.location.pathname === location.pathname) {
     return false;
   }
 
