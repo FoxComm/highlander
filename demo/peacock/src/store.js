@@ -1,6 +1,6 @@
 
 import _ from 'lodash';
-import { createStore, applyMiddleware as clientApplyMiddleware } from 'redux';
+import { createStore, applyMiddleware as clientApplyMiddleware, compose } from 'redux';
 import { syncHistory } from 'react-router-redux';
 // @TODO: drop redux-isomorphic-render from client bundle
 import { default as serverApplyMiddleware } from 'redux-isomorphic-render';
@@ -33,6 +33,7 @@ export function thunkMiddleware({dispatch, getState}) {
 export default function makeStore(history, initialState = void 0) {
   const reduxRouterMiddleware = syncHistory(history);
   const applyMiddleware = isServer ? serverApplyMiddleware : clientApplyMiddleware;
+  const composeEnhancers = isServer ? compose : window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
   const logger = createLogger({
     duration: true,
@@ -42,11 +43,11 @@ export default function makeStore(history, initialState = void 0) {
   const store = createStore(
     rootReducer,
     initialState,
-    _.flow(..._.compact([
+    composeEnhancers(_.flow(..._.compact([
       !isServer && isDebug ? applyMiddleware(logger) : null,
       applyMiddleware(reduxRouterMiddleware),
       applyMiddleware(thunkMiddleware),
-    ]))
+    ])))
   );
 
   if (module.onReload) {
