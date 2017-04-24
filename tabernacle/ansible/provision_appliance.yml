@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Feature Branch Appliance
+- name: Initial Feature Branch Appliance Provision
   hosts: '{{hostname}}'
   become: true
   vars:
