@@ -15,7 +15,7 @@ import { FormField } from 'components/forms';
 import CurrencyInput from 'components/forms/currency-input';
 import MultiSelectRow from 'components/table/multi-select-row';
 import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
-import { DeleteButton } from 'components/common/buttons';
+import { DeleteButton } from 'components/core/button';
 import ProductImage from 'components/imgix/product-image';
 
 import reducer, { suggestSkus } from 'modules/skus/suggest';

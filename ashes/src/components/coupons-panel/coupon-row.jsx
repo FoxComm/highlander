@@ -4,7 +4,7 @@
 import { get, noop } from 'lodash';
 import React, { Element } from 'react';
 
-import { DeleteButton } from 'components/common/buttons';
+import { DeleteButton } from 'components/core/button';
 import MultiSelectRow from 'components/table/multi-select-row';
 
 function setCellContentsFunctionFactory(onDelete: Function): Function {

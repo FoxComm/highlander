@@ -12,7 +12,7 @@ import { createSelector } from 'reselect';
 import FormField from '../../forms/formfield';
 import FoxyForm from '../../forms/foxy-form';
 import ErrorAlerts from '../../alerts/error-alerts';
-import SaveCancel from '../../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 import { Dropdown, DropdownItem } from '../../dropdown';
 import TextInput from '../../forms/text-input';
 import AutoScroll from '../../common/auto-scroll';

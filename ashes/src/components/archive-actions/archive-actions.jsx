@@ -5,7 +5,7 @@ import React, { Component, Element } from 'react';
 import {autobind} from 'core-decorators';
 
 // components
-import { Button } from '../common/buttons';
+import { Button } from 'components/core/button';
 import ArchiveConfirmation from './archive-confirmation';
 
 type Props = {

@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
 
-import { PrimaryButton } from 'components/common/buttons';
+import { PrimaryButton } from 'components/core/button';
 import OrderDetails from 'components/orders/details';
 import WaitAnimation from 'components/common/wait-animation';
 

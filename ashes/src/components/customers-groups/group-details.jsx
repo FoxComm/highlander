@@ -29,7 +29,7 @@ import BulkActions from 'components/bulk-actions/bulk-actions';
 import BulkMessages from 'components/bulk-actions/bulk-messages';
 import { GenericModal as BulkModal } from 'components/bulk-actions/modal';
 import { SelectableSearchList, makeTotalCounter } from 'components/list-page';
-import { PrimaryButton, Button } from 'components/common/buttons';
+import { PrimaryButton, Button } from 'components/core/button';
 import MultiSelectRow from 'components/table/multi-select-row';
 import ContentBox from 'components/content-box/content-box';
 import Criterion from './editor/criterion-view';
