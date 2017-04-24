@@ -20,7 +20,7 @@ import utils.apis.Apis
 import utils.db._
 import utils.{IlluminateAlgorithm, JsonFormatters}
 
-object ImageFacade {
+object AlbumImagesFacade {
 
   implicit def formats = JsonFormatters.phoenixFormats
 
