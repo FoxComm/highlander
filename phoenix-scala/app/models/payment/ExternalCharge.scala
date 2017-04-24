@@ -1,6 +1,5 @@
 package models.payment
 
-import cats.data.Xor
 import com.pellucid.sealerate
 import failures.Failures
 import models.payment.ExternalCharge.State
@@ -21,7 +20,7 @@ trait ExternalCharge[Model <: FoxModel[Model] with FSM[ExternalCharge.State, Mod
   self: Model ⇒
   import ExternalCharge._
 
-  override def updateTo(newModel: Model): Failures Xor Model =
+  override def updateTo(newModel: Model): Either[Failures, Model] =
     super.transitionModel(newModel)
 
   val fsm: Map[State, Set[State]] = Map(
