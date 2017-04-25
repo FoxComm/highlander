@@ -16,12 +16,15 @@ import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Factories
 import cats.implicits._
+import failures.AddressFailures.NoCountryFound
 
 class ShippingMethodsIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with DefaultJwtAdminAuth
     with BakedFixtures {
+
+  type Methods = Seq[Root]
 
   "GET /v1/shipping-methods/:refNum" - {
 
@@ -42,7 +45,7 @@ class ShippingMethodsIntegrationTest
           .create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
           .gimme
 
-        val methodResponse = shippingMethodsApi.forCart(cart.refNum).as[Seq[Root]].headOption.value
+        val methodResponse = shippingMethodsApi.forCart(cart.refNum).as[Methods].headOption.value
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
         methodResponse.price must === (shippingMethod.price)
@@ -66,14 +69,14 @@ class ShippingMethodsIntegrationTest
           .create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
           .gimme
 
-        shippingMethodsApi.forCart(cart.refNum).as[Seq[Root]] mustBe 'empty
+        shippingMethodsApi.forCart(cart.refNum).as[Methods] mustBe 'empty
       }
     }
 
     "Evaluates shipping rule: shipping to CA, OR, or WA" - {
 
       "Shipping method is returned when the order is shipped to CA" in new WestCoastShippingMethodsFixture {
-        val methodResponse = shippingMethodsApi.forCart(cart.refNum).as[Seq[Root]].headOption.value
+        val methodResponse = shippingMethodsApi.forCart(cart.refNum).as[Methods].headOption.value
 
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
@@ -84,7 +87,7 @@ class ShippingMethodsIntegrationTest
     "Evaluates shipping rule: order total is between $10 and $100, and is shipped to CA, OR, or WA" - {
 
       "Is true when the order total is $27 and shipped to CA" in new ShippingMethodsStateAndPriceCondition {
-        val methodResponse = shippingMethodsApi.forCart(cart.refNum).as[Seq[Root]].headOption.value
+        val methodResponse = shippingMethodsApi.forCart(cart.refNum).as[Methods].headOption.value
 
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
@@ -95,7 +98,7 @@ class ShippingMethodsIntegrationTest
     "Evaluates shipping rule: ships to CA but has a restriction for hazardous items" - {
 
       "Shipping method is returned when the order has no hazardous SKUs" in new ShipToCaliforniaButNotHazardous {
-        val methodResponse = shippingMethodsApi.forCart(cart.refNum).as[Seq[Root]].headOption.value
+        val methodResponse = shippingMethodsApi.forCart(cart.refNum).as[Methods].headOption.value
 
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
@@ -105,12 +108,19 @@ class ShippingMethodsIntegrationTest
     }
   }
 
-  "GET /v1/shipping-methods" - {
-    "Get shipping method by country id" in {
-      val unitedStatesId: Int = 234
-      shippingMethodsApi
-        .searchByRegion(RegionSearchPayload(countryId = unitedStatesId.some))
-        .mustBeOk()
+  "Search /v1/shipping-methods" - {
+
+    "Has active methods" in new ShipToCaliforniaButNotHazardous {
+      assert(shippingMethodsApi.active().as[Methods].size > 0)
+    }
+
+    "Get shipping method by country id" in new ShipToCaliforniaButNotHazardous {
+      val usShippingMethods = shippingMethodsApi.searchByRegion("us").as[Methods]
+      assert(usShippingMethods.size > 0)
+    }
+
+    "No shipping methods for non existent country" in {
+      shippingMethodsApi.searchByRegion("uss").mustFailWith400(NoCountryFound("uss"))
     }
   }
 
@@ -248,6 +258,7 @@ class ShippingMethodsIntegrationTest
       shippingMethod ← shipping.ShippingMethods.create(
                           Factories.shippingMethods.head.copy(conditions = Some(conditions),
                                                               restrictions = Some(restrictions)))
+      usShippingMethod ← shipping.ShippingMethods.create(Factories.shippingMethods.last)
     } yield shippingMethod).gimme
   }
 }

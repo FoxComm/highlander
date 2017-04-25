@@ -1,13 +1,13 @@
 package services
 
 import com.github.tminglei.slickpg.LTree
-import failures.NotFoundFailure404
+import failures.{GeneralFailure, NotFoundFailure404}
 import failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
 import models.account._
 import models.cord._
 import models.cord.lineitems._
 import models.inventory.Sku
-import models.location.Region
+import models.location.{Countries, Region}
 import models.objects._
 import models.rules.{Condition, QueryStatement}
 import models.shipping.{DefaultShippingMethod, DefaultShippingMethods, ShippingMethod, ShippingMethods}
@@ -19,10 +19,12 @@ import slick.driver.PostgresDriver.api._
 import org.json4s.JsonAST._
 import responses.ShippingMethodsResponse
 import cats.implicits._
+import failures.AddressFailures.NoCountryFound
 import payloads.ShippingMethodsPayloads.RegionSearchPayload
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
+  def countryCode = """([a-zA-Z]{2,3})""".r
 
   case class ShippingData(cart: Cart,
                           cartTotal: Int = 0,
@@ -70,14 +72,22 @@ object ShippingManager {
       response = filter(shipMethods, shipData)
     } yield response
 
-  def getShippingMethodsForRegion(payload: RegionSearchPayload)(
+  def getShippingMethodsForRegion(countryCode: String)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[responses.ShippingMethodsResponse.Root]] =
     for {
       shipMethods ← * <~ ShippingMethods.findActive.result
-      searchByRegion = emptyShippingData.copy(
-          shippingRegion = payload.countryId.map(cid ⇒ Region(countryId = cid, name = "")))
-      response = filter(shipMethods, searchByRegion)
+      country     ← * <~ Countries.findByCode(countryCode).mustFindOneOr(NoCountryFound(countryCode))
+
+      shipToRegion = emptyShippingData.copy(
+          shippingRegion = Region(countryId = country.id, name = country.name).some)
+
+      _ ← * <~ println(s"evaluate $shipToRegion with $shipMethods")
+
+      response = filter(shipMethods, shipToRegion)
+
+      _ ← * <~ println(s"got $response")
+
     } yield response
 
   def getShippingMethodsForCart(refNum: String, customer: Option[User] = None)(
@@ -117,7 +127,9 @@ object ShippingManager {
   def filter(shipMethods: Seq[ShippingMethod], shipData: ShippingData) = shipMethods.collect {
     case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
       val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
-      responses.ShippingMethodsResponse.build(sm, !restricted)
+      val a          = responses.ShippingMethodsResponse.build(sm, !restricted)
+      println(s"collected $a with restricted status $restricted")
+      a
   }
 
   private def getShippingData(cart: Cart)(implicit ec: EC, db: DB): DbResultT[ShippingData] =
@@ -155,6 +167,8 @@ object ShippingManager {
 
   private def evaluateShippingAddressCondition(shippingData: ShippingData,
                                                condition: Condition): Boolean = {
+    println(s"$shippingData with $condition")
+
     shippingData.shippingAddress.fold(false) { shippingAddress ⇒
       condition.field match {
         case "address1" ⇒
@@ -164,9 +178,13 @@ object ShippingManager {
         case "city" ⇒
           Condition.matches(shippingAddress.city, condition)
         case "regionId" ⇒
-          shippingData.shippingRegion.fold(false)(sr ⇒ Condition.matches(sr.id, condition))
-        case "countryId" ⇒
-          shippingData.shippingRegion.fold(false)(sr ⇒ Condition.matches(sr.countryId, condition))
+          Condition.matches(shippingAddress.regionId, condition)
+        case "countryId" ⇒ {
+          val fold = shippingData.shippingRegion.fold(false)(sr ⇒
+                Condition.matches(sr.countryId, condition))
+          println(s"!!! $shippingData with $condition has result $fold")
+          fold
+        }
         case "regionName" ⇒
           shippingData.shippingRegion.fold(false)(sr ⇒ Condition.matches(sr.name, condition))
         case "regionAbbrev" ⇒

@@ -53,4 +53,8 @@ object Countries
     extends FoxTableQuery[Country, Countries](new Countries(_))
     with ReturningId[Country, Countries] {
   val returningLens: Lens[Country, Int] = lens[Country].id
+
+  def findByCode(code: String) =
+    filter(
+        c ⇒ c.alpha2.toUpperCase === code.toUpperCase || c.alpha3.toUpperCase === code.toUpperCase)
 }
