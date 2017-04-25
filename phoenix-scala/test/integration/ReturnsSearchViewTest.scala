@@ -47,7 +47,7 @@ class ReturnsSearchViewTest
         .add(PaymentMethod.CreditCard, ReturnPaymentPayload(amount = 20))
         .as[ReturnResponse.Root]
 
-      val rmaSearchView = viewOne(rma.id)
+      val rmaSearchView = viewOne(rma.id).value
 
       {
         import rmaSearchView._
@@ -75,18 +75,18 @@ class ReturnsSearchViewTest
   "Returns search view row must be updated when" - {
     "a return state was updated" in new ReturnDefaults {
       assert(rma.state == Pending)
-      viewOne(rma.id).state must === (rma.state)
+      viewOne(rma.id).value.state must === (rma.state)
 
       returnsApi(rma.referenceNumber)
         .update(ReturnUpdateStatePayload(state = Processing, reasonId = None))
         .as[ReturnResponse.Root]
         .state must === (Processing)
 
-      viewOne(rma.id).state must === (Processing)
+      viewOne(rma.id).value.state must === (Processing)
     }
 
     "a return message-to-customer was updated" in new ReturnDefaults {
-      viewOne(rma.id).messageToAccount must === (None)
+      viewOne(rma.id).value.messageToAccount must === (None)
 
       val payload = ReturnMessageToCustomerPayload(message = "Hello!")
       returnsApi(rma.referenceNumber)
@@ -95,7 +95,7 @@ class ReturnsSearchViewTest
         .messageToCustomer
         .head must === (payload.message)
 
-      viewOne(rma.id).messageToAccount must === ("Hello!".some)
+      viewOne(rma.id).value.messageToAccount must === ("Hello!".some)
     }
   }
 
