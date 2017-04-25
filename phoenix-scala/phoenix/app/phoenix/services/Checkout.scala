@@ -111,6 +111,22 @@ object Checkout {
       order    ← * <~ oneClickCheckout(customer, au.model.some, payload)
     } yield order
 
+  def applePayCheckout(customer: User, stripeToken: CreateApplePayPayment)(
+      implicit ec: EC,
+      db: DB,
+      apis: Apis,
+      ac: AC,
+      ctx: OC,
+      au: AU): DbResultT[OrderResponse] =
+    for {
+      _ ← * <~ CartPaymentUpdater.addApplePayPayment(customer, stripeToken)
+      cart ← * <~ Carts
+              .findByAccountId(customer.accountId)
+              .one
+              .mustFindOr(GeneralFailure("Cart not found!"))
+      order ← * <~ Checkout(cart, CartValidator(cart)).checkout
+    } yield order
+
   def forCustomerOneClick(payload: CheckoutCart)(implicit ec: EC,
                                                  db: DB,
                                                  apis: Apis,
@@ -319,66 +335,69 @@ case class Checkout(
       _ ← * <~ doOrMeh(gcTotal > 0,
                        LogActivity().gcFundsAuthorized(customer, cart, gcCodes, gcTotal))
 
-      // auth for Apple Pay payment
-      applePmtCharge ← * <~ authApplePay(cart.grandTotal, gcTotal + scTotal)
+      grandTotal       = cart.grandTotal
+      internalPayments = gcTotal + scTotal
+      _ ← * <~ doOrMeh(
+             grandTotal > internalPayments, // run external payments only if we have to pay more
+             doExternalPayment(grandTotal, internalPayments))
 
-      // Authorize funds on credit card
-      ccs ← * <~ authCreditCard(cart.grandTotal,
-                                gcTotal + scTotal + applePmtCharge.fold(0)(_.amount))
-      mutatingResult = externalCalls.authPaymentsSuccess = true
+      mutatingResult = externalCalls.authPaymentsSuccess = true // fixme is this flag used anywhere? @aafa
     } yield {}
+
+  // do only one external payment. Check AP first, pay if it present otherwise try CC charge
+  private def doExternalPayment(orderTotal: Int, internalPaymentTotal: Int): DbResultT[Unit] = {
+    val notEnoughPayment = GeneralFailure("Not enough payment")
+
+    for {
+      ap ← * <~ authApplePay(orderTotal, internalPaymentTotal)
+      _  ← * <~ doOrMeh(ap.isEmpty, authCreditCard(orderTotal, internalPaymentTotal))
+
+      // todo throw notEnoughPayment here
+    } yield ()
+  }
 
   private def authCreditCard(orderTotal: Int,
                              internalPaymentTotal: Int): DbResultT[Option[CreditCardCharge]] = {
 
-    val authAmount = orderTotal - internalPaymentTotal
+    val authAmount   = orderTotal - internalPaymentTotal
+    val cardNotFound = GeneralFailure("Credit card not found")
 
-    if (authAmount > 0) {
-      (for {
-        pmt  ← OrderPayments.findAllCreditCardsForOrder(cart.refNum)
-        card ← pmt.creditCard
-      } yield (pmt, card)).one.dbresult.flatMap {
-        case Some((pmt, card)) ⇒
-          for {
-            stripeCharge ← * <~ apis.stripe.authorizeAmount(card.gatewayCustomerId,
-                                                            card.gatewayCardId,
-                                                            authAmount,
-                                                            cart.currency)
-            ourCharge = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
-            _       ← * <~ LogActivity().creditCardAuth(cart, ourCharge)
-            created ← * <~ CreditCardCharges.create(ourCharge)
-          } yield created.some
+    for {
+      pmt  ← * <~ OrderPayments.findAllCreditCardsForOrder(cart.refNum).mustFindOneOr(cardNotFound)
+      card ← * <~ CreditCards.filter(_.id === pmt.paymentMethodId).mustFindOneOr(cardNotFound)
 
-        case None ⇒
-          DbResultT.failure(GeneralFailure("not enough payment"))
-      }
-    } else DbResultT.none
+      stripeCharge ← * <~ apis.stripe.authorizeAmount(card.gatewayCardId,
+                                                      authAmount,
+                                                      cart.currency,
+                                                      card.gatewayCustomerId.some)
+
+      ourCharge = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
+      _       ← * <~ LogActivity().creditCardAuth(cart, ourCharge)
+      created ← * <~ CreditCardCharges.create(ourCharge)
+    } yield created.some
   }
 
-  // todo unify with CC Auth @aafa
   private def authApplePay(orderTotal: Int,
                            internalPaymentTotal: Int): DbResultT[Option[ApplePayCharge]] = {
 
     val authAmount = orderTotal - internalPaymentTotal
 
-    if (authAmount > 0) { // todo move this check to the call site with doIf
-      (for {
-        op ← OrderPayments.applePayByCordRef(cart.refNum)
-        ap ← op.applePayment
-      } yield (op, ap)).one.dbresult.flatMap {
-        case Some((pmt, ap)) ⇒
-          for {
-            stripeCharge ← * <~ apis.stripe.authorizeAmount(ap.stripeCustomerId,
-                                                            ap.stripeTokenId,
-                                                            authAmount,
-                                                            cart.currency)
-            ourCharge = ApplePayCharges.authFromStripe(ap, pmt, stripeCharge, cart.currency)
-            created ← * <~ ApplePayCharges.create(ourCharge)
-            // todo logs here
-          } yield created.some
-        case _ ⇒ DbResultT.none // do nothing if apple pay is not there
-      }
-    } else DbResultT.none
+    (for {
+      op ← OrderPayments.applePayByCordRef(cart.refNum)
+      ap ← op.applePayment
+    } yield (op, ap)).one.dbresult.flatMap {
+      case Some((orderPayment, applePay)) ⇒
+        for {
+          stripeCharge ← * <~ apis.stripe
+                          .authorizeApplePay(applePay.stripeTokenId, authAmount, cart.currency)
+          ourCharge = ApplePayCharges
+            .authFromStripe(applePay, orderPayment, stripeCharge, cart.currency)
+          created ← * <~ ApplePayCharges.create(ourCharge)
+          // todo logs here
+
+        } yield created.some
+      case _ ⇒ DbResultT.none // do nothing if apple pay is not there
+    }
   }
 
   //TODO: Replace with the real deal once we figure out how to do it.

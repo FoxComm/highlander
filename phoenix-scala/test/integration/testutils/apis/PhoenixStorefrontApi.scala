@@ -22,8 +22,19 @@ trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒
     def get(): HttpResponse =
       GET(cartPath)
 
-    def checkout(payload: CheckoutCart): HttpResponse =
-      POST(s"$cartPath/checkout", payload)
+    def checkout(payload: CheckoutCart)(implicit ca: TestCustomerAuth): HttpResponse =
+      POST(s"$cartPath/checkout", payload, ca.jwtCookie.some)
+
+    def applePayCheckout(payload: CreateApplePayPayment)(
+        implicit ca: TestCustomerAuth): HttpResponse =
+      POST(s"$cartPath/apple-pay-checkout", payload)
+
+    object lineItems {
+      val lineItemsPath = s"$cartPath/line-items"
+
+      def add(payload: Seq[UpdateLineItemsPayload])(implicit ca: TestCustomerAuth): HttpResponse =
+        POST(lineItemsPath, payload, ca.jwtCookie.some)
+    }
   }
 
   object storefrontAddressesApi {

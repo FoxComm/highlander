@@ -2,6 +2,7 @@ package phoenix.failures
 
 import core.failures.Failure
 import phoenix.models.payment.creditcard._
+import models.payment.{ExternalCharge, ExternalChargeProperties}
 
 object CaptureFailures {
 
@@ -35,13 +36,13 @@ object CaptureFailures {
       s"Order $refNum is not in Auth state."
   }
 
-  case class ChargeNotInAuth(charge: CreditCardCharge) extends Failure {
+  case class ChargeNotInAuth(charge: ExternalChargeProperties) extends Failure {
     override def description =
-      s"The charge ${charge.chargeId} must be in Auth state. The charge is in ${charge.state} state."
+      s"The charge ${charge.stripeChargeId} must be in Auth state. The charge is in ${charge.state} state."
   }
 
-  case class CreditCardNotFound(refNum: String) extends Failure {
+  case class ExternalPaymentNotFound(refNum: String) extends Failure {
     override def description =
-      s"Unable to find a credit card for the order $refNum"
+      s"Unable to find any external payment for the order $refNum"
   }
 }

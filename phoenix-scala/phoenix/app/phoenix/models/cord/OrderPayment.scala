@@ -7,12 +7,17 @@ import core.failures.Failure
 import core.utils.Money._
 import core.utils.Validation._
 import phoenix.models.payment.PaymentMethod
+import phoenix.models.payment.PaymentMethod.External
 import phoenix.models.payment.creditcard.{CreditCard, CreditCards}
 import phoenix.models.payment.applepay.{ApplePayCharge, ApplePayCharges, ApplePayment, ApplePayments}
 import phoenix.models.payment.giftcard.{GiftCard, GiftCards}
 import phoenix.models.payment.storecredit.{StoreCredit, StoreCredits}
 import phoenix.utils.aliases.stripe.StripeCustomer
 import shapeless._
+import utils.Money._
+import utils.Validation._
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 case class OrderPayment(id: Int = 0,
                         // FIXME @anna WTF is wrong with these defaults?
@@ -29,7 +34,7 @@ case class OrderPayment(id: Int = 0,
   def isStoreCredit: Boolean = paymentMethodType == PaymentMethod.StoreCredit
   def isApplePay: Boolean    = paymentMethodType == PaymentMethod.ApplePay
 
-  def isExternalFunds: Boolean = isCreditCard || isApplePay
+  def isExternalFunds: Boolean = paymentMethodType.isExternal
 
   override def validate: ValidatedNel[Failure, OrderPayment] = {
     val amountOk = paymentMethodType match {
@@ -114,12 +119,19 @@ object OrderPayments
   def findAllCreditCardsForOrder(cordRef: Rep[String]): QuerySeq =
     filter(_.cordRef === cordRef).creditCards
 
+  def findAllExternalPayments(cordRef: Rep[String]): QuerySeq =
+    filter(_.cordRef === cordRef).externalPayments
+
   object scope {
     implicit class OrderPaymentsQuerySeqConversions(q: QuerySeq) {
       def giftCards: QuerySeq    = q.byType(PaymentMethod.GiftCard)
       def creditCards: QuerySeq  = q.byType(PaymentMethod.CreditCard)
       def storeCredits: QuerySeq = q.byType(PaymentMethod.StoreCredit)
       def applePays: QuerySeq    = q.byType(PaymentMethod.ApplePay)
+
+      // todo make use of PaymentMethod.External trait?
+      def externalPayments: QuerySeq =
+        q.filter(_.paymentMethodType.inSet(Set(PaymentMethod.CreditCard, PaymentMethod.ApplePay)))
 
       def byType(pmt: PaymentMethod.Type): QuerySeq =
         q.filter(_.paymentMethodType === (pmt: PaymentMethod.Type))

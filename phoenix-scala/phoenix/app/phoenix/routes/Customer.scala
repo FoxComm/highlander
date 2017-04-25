@@ -77,6 +77,12 @@ object Customer {
                   Checkout.forCustomer(auth.model)
                 }
               } ~
+              (post & path("apple-pay-checkout") & pathEnd & entity(as[CreateApplePayPayment])) {
+                payload ⇒
+                  mutateOrFailures {
+                    Checkout.applePayCheckout(auth.model, payload)
+                  }
+              } ~
               pathPrefix("payment-methods" / "credit-cards") {
                 (post & pathEnd & entity(as[CreditCardPayment])) { payload ⇒
                   mutateOrFailures {

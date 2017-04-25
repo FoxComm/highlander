@@ -5,7 +5,8 @@ import com.pellucid.sealerate
 import phoenix.models.payment.InStorePaymentStates
 import phoenix.models.payment.creditcard.CreditCardCharge
 import phoenix.utils.ADT
-import models.payment.applepay.ApplePayCharge
+import phoenix.models.payment.{ExternalCharge, InStorePaymentStates}
+import phoenix.models.payment.applepay.ApplePayCharge
 
 object CordPaymentState {
   sealed trait State
@@ -29,8 +30,8 @@ object CordPaymentState {
     }
   }
 
-  def fromCCState(ccPaymentState: CreditCardCharge.State): State = {
-    import phoenix.models.payment.creditcard.{CreditCardCharge ⇒ CC}
+  def fromCCState(ccPaymentState: ExternalCharge.State): State = {
+    import phoenix.models.payment.{ExternalCharge ⇒ CC}
 
     ccPaymentState match {
       case CC.Auth          ⇒ Auth
@@ -41,11 +42,11 @@ object CordPaymentState {
     }
   }
 
-  def fromApplePayState(apState: ApplePayCharge.State): State = {
+  def fromApplePayState(apState: ExternalCharge.State): State = {
     apState match {
-      case ApplePayCharge.Cart       ⇒ Cart
-      case ApplePayCharge.Auth       ⇒ Auth
-      case ApplePayCharge.FailedAuth ⇒ FailedCapture
+      case ExternalCharge.Cart       ⇒ Cart
+      case ExternalCharge.Auth       ⇒ Auth
+      case ExternalCharge.FailedAuth ⇒ FailedCapture
       case _                         ⇒ ExpiredAuth
     }
   }

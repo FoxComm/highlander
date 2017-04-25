@@ -46,7 +46,7 @@ class CartIntegrationTest
       }
 
       "displays 'auth' payment state" in new PaymentStateFixture {
-        CreditCardCharges.findById(ccc.id).extract.map(_.state).update(CreditCardCharge.Auth).gimme
+        CreditCardCharges.findById(ccc.id).extract.map(_.state).update(ExternalCharge.Auth).gimme
 
         val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
         fullCart.paymentState must === (CordPaymentState.Auth)

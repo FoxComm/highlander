@@ -17,7 +17,7 @@ import phoenix.models.cord.lineitems._
 import phoenix.models.inventory.Skus
 import phoenix.models.location.Addresses
 import phoenix.models.payment.InStorePaymentStates
-import phoenix.models.payment.creditcard.CreditCardCharge.FullCapture
+import phoenix.models.payment.ExternalCharge.FullCapture
 import phoenix.models.payment.creditcard._
 import phoenix.models.payment.giftcard._
 import phoenix.models.payment.storecredit._
@@ -233,7 +233,7 @@ trait OrderGenerator extends ShipmentSeeds {
       ccc ← * <~ CreditCardCharges.create(
                CreditCardCharge(creditCardId = cc.id,
                                 orderPaymentId = op.id,
-                                chargeId = s"${cc.id}_${op.id}",
+                                stripeChargeId = s"${cc.id}_${op.id}",
                                 state = FullCapture,
                                 amount = op.amount.getOrElse(0)))
       addr ← * <~ getDefaultAddress(accountId)
@@ -329,7 +329,7 @@ trait OrderGenerator extends ShipmentSeeds {
                CreditCardCharges.create(
                    CreditCardCharge(creditCardId = cc.id,
                                     orderPaymentId = op.id,
-                                    chargeId = s"${cc.id}_${op.id}",
+                                    stripeChargeId = s"${cc.id}_${op.id}",
                                     state = FullCapture,
                                     amount = op.amount.getOrElse(0)))
            }

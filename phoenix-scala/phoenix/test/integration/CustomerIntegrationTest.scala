@@ -648,8 +648,8 @@ class CustomerIntegrationTest
                              CreditCardCharge(
                                  creditCardId = creditCard.id,
                                  orderPaymentId = orderPayment.id,
-                                 chargeId = "asd1",
-                                 state = CreditCardCharge.FullCapture,
+                                 stripeChargeId = "asd1",
+                                 state = ExternalCharge.FullCapture,
                                  amount = 100
                              ))
       orderPayment2 ← * <~ OrderPayments.create(
@@ -660,8 +660,8 @@ class CustomerIntegrationTest
                              CreditCardCharge(
                                  creditCardId = creditCard.id,
                                  orderPaymentId = orderPayment2.id,
-                                 chargeId = "asd2",
-                                 state = CreditCardCharge.FullCapture,
+                                 stripeChargeId = "asd2",
+                                 state = ExternalCharge.FullCapture,
                                  amount = 1000000
                              ))
       order  ← * <~ Orders.update(order, order.copy(state = Order.FulfillmentStarted))

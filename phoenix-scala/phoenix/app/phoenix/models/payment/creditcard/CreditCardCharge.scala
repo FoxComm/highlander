@@ -1,69 +1,45 @@
 package phoenix.models.payment.creditcard
 
 import java.time.Instant
-
+import failures.Failures
 import com.pellucid.sealerate
 import core.db._
 import core.failures.Failures
 import core.utils.Money.Currency
 import phoenix.models.cord.{OrderPayment, OrderPayments}
+import models.payment.ExternalCharge
+import models.payment.ExternalCharge._
 import phoenix.utils._
 import phoenix.utils.aliases.stripe._
 import shapeless._
+import utils.Money.Currency
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
+import utils.db._
 
 case class CreditCardCharge(id: Int = 0,
                             creditCardId: Int,
                             orderPaymentId: Int,
-                            chargeId: String,
-                            state: CreditCardCharge.State = CreditCardCharge.Cart,
+                            stripeChargeId: String,
+                            state: State = Cart,
                             currency: Currency = Currency.USD,
                             amount: Int,
                             createdAt: Instant = Instant.now)
-    extends FoxModel[CreditCardCharge]
-    with FSM[CreditCardCharge.State, CreditCardCharge] {
+    extends ExternalCharge[CreditCardCharge] {
 
-  import CreditCardCharge._
+  def stateLens = lens[CreditCardCharge] >> 'state
 
-  def stateLens = lens[CreditCardCharge].state
-  override def updateTo(newModel: CreditCardCharge): Either[Failures, CreditCardCharge] =
-    super.transitionModel(newModel)
-
-  val fsm: Map[State, Set[State]] = Map(
-      Cart →
-        Set(Auth),
-      Auth →
-        Set(FullCapture, FailedCapture, CanceledAuth, ExpiredAuth),
-      ExpiredAuth →
-        Set(Auth)
-  )
 }
 
 object CreditCardCharge {
-  sealed trait State
-  case object Cart          extends State
-  case object Auth          extends State
-  case object FailedAuth    extends State
-  case object ExpiredAuth   extends State
-  case object CanceledAuth  extends State
-  case object FailedCapture extends State
-  case object FullCapture   extends State
-
-  object State extends ADT[State] {
-    def types = sealerate.values[State]
-  }
-
-  implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
-
   def authFromStripe(card: CreditCard,
                      pmt: OrderPayment,
                      stripe: StripeCharge,
                      currency: Currency): CreditCardCharge =
     CreditCardCharge(creditCardId = card.id,
                      orderPaymentId = pmt.id,
-                     chargeId = stripe.getId,
+                     stripeChargeId = stripe.getId,
                      state = Auth,
                      currency = currency,
                      amount = stripe.getAmount.toInt) // FIXME int type shrink here
@@ -74,7 +50,7 @@ class CreditCardCharges(tag: Tag) extends FoxTable[CreditCardCharge](tag, "credi
   def creditCardId   = column[Int]("credit_card_id")
   def orderPaymentId = column[Int]("order_payment_id")
   def chargeId       = column[String]("charge_id")
-  def state          = column[CreditCardCharge.State]("state")
+  def state          = column[State]("state")
   def currency       = column[Currency]("currency")
   def amount         = column[Int]("amount")
   def createdAt      = column[Instant]("created_at")
