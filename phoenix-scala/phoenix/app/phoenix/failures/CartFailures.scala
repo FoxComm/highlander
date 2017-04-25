@@ -13,7 +13,7 @@ object CartFailures {
   }
 
   case class CustomerHasNoCart(accountId: Int) extends Failure {
-    override def description = s"customer with id=$accountId has no active order"
+    override def description = s"customer with id=$accountId has no active cart"
   }
 
   case class EmptyCart(refNum: String) extends Failure {
