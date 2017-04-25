@@ -2,7 +2,7 @@
 import React from 'react';
 
 describe('Buttons', function() {
-  const Buttons = requireComponent('common/buttons.jsx', false);
+  const Buttons = requireComponent('core/button/button.jsx', false);
 
   it('should render Button', function() {
     const props = {
@@ -11,8 +11,7 @@ describe('Buttons', function() {
     const button = Buttons.Button(props);
 
     expect(button).to.be.instanceof(Object);
-    expect(button.props.className).to.contain('fc-btn');
-    expect(button.props.children, 'to contain', <span className="common⁄buttons__text">Done</span>);
+    expect(button.props.children, 'to contain', <span className="core⁄button⁄button__text">Done</span>);
   });
 
   it('should pass onClick to Button', function() {
@@ -22,7 +21,6 @@ describe('Buttons', function() {
     const button = Buttons.Button(props);
 
     expect(button).to.be.instanceof(Object);
-    expect(button.props.className).to.contain('fc-btn');
     expect(button.props.onClick).to.equal(props.onClick);
   });
 
@@ -48,7 +46,7 @@ describe('Buttons', function() {
   });
 
   it('should render icon in DeleteButton', function() {
-    const button = Buttons.DeleteButton();
+    const button = Buttons.DeleteButton({});
 
     expect(button).to.be.instanceof(Object);
     expect(button.props.icon).to.equal('trash');
@@ -59,7 +57,7 @@ describe('Buttons', function() {
     const button = Buttons.PrimaryButton(props);
 
     expect(button).to.be.instanceof(Object);
-    expect(button.props.className).to.equal('fc-btn-primary super-button');
+    expect(button.props.className).to.equal('core⁄button⁄button__primary super-button');
     expect(button.props.onClick).to.equal(props.onClick);
   });
 });

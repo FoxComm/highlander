@@ -1,15 +1,16 @@
-
-.button-with-menu {
+.button {
   display: inline-block;
   vertical-align: top;
   position: relative;
+}
 
-  &:global(._open) .menu {
+.button.opened {
+  & .menu {
     display: inline-block;
   }
 
-  &:global(._open) :global .fc-button-with-menu__right-button i {
-   transform: rotateX(180deg);
+  & :global .fc-button-with-menu__right-button i {
+    transform: rotateX(180deg);
   }
 }
 
@@ -18,6 +19,7 @@
   z-index: 100;
   right: 0;
   min-width: 100%;
+  margin: 0;
   background-color: #ffffff;
   border: 1px solid #d9d9d9;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1);
@@ -35,7 +37,7 @@
     border-left: 1px solid #ffffff;
     z-index: 100;
 
-    & :global(i) {
+    & i {
       font-size: 12px;
       transform: rotateX(0);
       transition: transform .2s ease-out;
@@ -43,7 +45,7 @@
   }
 }
 
-.dropdown-button {
+.dropdownButton {
   margin-left: 1px;
 }
 

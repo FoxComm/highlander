@@ -9,7 +9,7 @@ import { autobind } from 'core-decorators';
 // components
 import ContentBox from '../content-box/content-box';
 import NotificationItem from '../activity-notifications/item';
-import { PrimaryButton } from '../common/buttons';
+import { PrimaryButton } from 'components/core/button';
 
 export default class NotificationPanel extends React.Component {
 

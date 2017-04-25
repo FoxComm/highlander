@@ -1,0 +1,97 @@
+/*
+ * General Button Styles
+ */
+.button {
+  display: inline-flex; /* not just `flex` because of legacy */
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 20px;
+  color: #484848;
+  background-color: #ced2d5;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 40px;
+  border: none;
+  vertical-align: top;
+  user-select: none;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.button[class*="icon-"] {
+  padding: 0;
+  width: 40px;
+}
+
+.button i[class*="icon-"]:only-child {
+  margin: 0 -10px;
+}
+
+.button i[class*="icon-"] {
+  vertical-align: top;
+}
+
+.button i[class*="icon-"] + span,
+span + i[class*="icon-"] {
+  margin-left: 5px;
+}
+
+.text {
+  display: block;
+  line-height: 1.2;
+}
+
+.loading {
+  composes: loading from '../../../css/animations.css';
+}
+
+.button:focus {
+  outline: 0;
+}
+
+.button:hover {
+  color: #484848;
+  background-color: #bdc3c6;
+}
+
+.button:disabled,
+.button:disabled:hover {
+  cursor: default;
+  color: #959698;
+  background-color: #ced2d5;
+}
+
+/*
+ * Primary Button Styles
+ */
+.primary {
+  color: #f2f2f2;
+  background-color: #4fc2c9;
+}
+
+.primary:hover {
+  color: #f2f2f2;
+  background-color: #3aacb3;
+}
+
+.primary:disabled,
+.primary:disabled:hover {
+  cursor: default;
+  color: #a2dee1;
+  background-color: #4fc2c9;
+}
+
+/*
+ * Delete Button Styles
+ */
+.delete:hover {
+  background-color: #ff9796;
+}
+
+/*
+ * Close Button Styles
+ */
+.close {
+  cursor: pointer;
+}

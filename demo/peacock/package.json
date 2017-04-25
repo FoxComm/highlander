@@ -14,7 +14,7 @@
   },
   "engines": {
     "yarn": "0.23.2"
-  },  
+  },
   "author": "FoxCommerce",
   "license": "ISC",
   "devDependencies": {
@@ -87,7 +87,7 @@
     "watchify": "^3.9.0"
   },
   "dependencies": {
-    "@foxcomm/api-js": "^1.1.6",
+    "@foxcomm/api-js": "^1.1.7",
     "@foxcomm/babel-plugin-react-stylenames": "^3.1.0",
     "@foxcomm/wings": "^1.9.11",
     "classnames": "^2.2.3",
@@ -117,7 +117,7 @@
     "react-redux": "^5.0.3",
     "react-router": "^2.7.0",
     "react-router-redux": "^3.0.0",
-    "react-router-scroll": "^0.2.0",
+    "react-router-scroll": "^0.4.2",
     "react-text-mask": "^0.19.0",
     "recast": "^0.11.4",
     "reduce-reducers": "^0.1.2",

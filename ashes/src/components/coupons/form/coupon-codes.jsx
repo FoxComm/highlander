@@ -9,8 +9,6 @@ import { connect } from 'react-redux';
 // components
 import ContentBox from '../../content-box/content-box';
 import RadioButton from '../../forms/radio-button';
-import { PrimaryButton } from '../../common/buttons';
-import { Checkbox } from '../../checkbox/checkbox';
 import Counter from '../../forms/counter';
 import FormField from '../../forms/formfield';
 import CodeCreationModal from './code-creation-modal';
@@ -74,6 +72,12 @@ class CouponCodes extends Component {
   @autobind
   handleFormChange({target}: {target: Target}): void {
     this.props.couponsGenerationChange(target.name, target.value);
+  }
+
+  @autobind
+  handleCounterChange({target}: {target: Target}): void {
+    const num = Number(target.value);
+    this.props.couponsGenerationChange(target.name, num);
   }
 
   @autobind
@@ -152,7 +156,7 @@ class CouponCodes extends Component {
                 value={codesQuantity}
                 decreaseAction={() => this.setCounterValue('codesQuantity', codesQuantity - 1)}
                 increaseAction={() => this.setCounterValue('codesQuantity', codesQuantity + 1)}
-                onChange={this.handleFormChange}
+                onChange={this.handleCounterChange}
                 min={1}
               />
             </div>
@@ -181,7 +185,7 @@ class CouponCodes extends Component {
                 value={this.props.codeGeneration.codesLength}
                 decreaseAction={() => this.setCounterValue('codesLength', this.props.codeGeneration.codesLength - 1)}
                 increaseAction={() => this.setCounterValue('codesLength', this.props.codeGeneration.codesLength + 1)}
-                onChange={this.handleFormChange}
+                onChange={this.handleCounterChange}
                 min={1}
               />
             </div>

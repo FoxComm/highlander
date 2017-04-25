@@ -8,7 +8,7 @@ import { assoc, dissoc } from 'sprout-data';
 
 // components
 import Dropdown from '../dropdown/dropdown';
-import { Button } from '../common/buttons';
+import { Button } from 'components/core/button';
 
 type Props = {
   options: Object; // {value -> title}

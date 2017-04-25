@@ -13,7 +13,7 @@ import utils.aliases._
 class CategoryIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with TestActivityContext.AdminAC
     with TestObjectContext
     with BakedFixtures {

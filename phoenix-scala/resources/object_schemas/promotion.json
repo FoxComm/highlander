@@ -11,7 +11,7 @@
           "minLength": 1
         },
         "customerGroupIds": {
-          "type": "array",
+          "type": ["array", "null"],
           "items": {
             "type": "number"
           },

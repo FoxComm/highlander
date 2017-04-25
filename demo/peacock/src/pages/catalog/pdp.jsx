@@ -75,12 +75,10 @@ type State = {
 const mapStateToProps = (state) => {
   const product = state.productDetails.product;
   const relatedProducts = state.crossSell.relatedProducts;
-  const relatedProductsOrder = state.crossSell.relatedProductsOrder;
 
   return {
     product,
     relatedProducts,
-    relatedProductsOrder,
     fetchError: _.get(state.asyncActions, 'pdp.err', null),
     notFound: !product && _.get(state.asyncActions, 'pdp.err.response.status') == 404,
     isLoading: _.get(state.asyncActions, ['pdp', 'inProgress'], true),
@@ -106,7 +104,6 @@ class Pdp extends Component {
   props: Props;
   productPromise: Promise<*>;
   _productDetails: ProductVariants;
-  containerNode: Element<*>;
 
   state: State = {
     currentSku: null,
@@ -140,16 +137,10 @@ class Pdp extends Component {
     const nextId = this.getId(nextProps);
 
     if (this.productId !== nextId) {
+      this.setState({ currentSku: null });
       this.props.actions.resetProduct();
       this.props.actions.clearRelatedProducts();
       this.fetchProduct(nextProps, nextId);
-    }
-  }
-
-  componentDidUpdate() {
-    if (this.containerNode !== null) {
-      // $FlowFixMe
-      this.containerNode.scrollIntoView();
     }
   }
 
@@ -369,15 +360,14 @@ class Pdp extends Component {
   }
 
   get relatedProductsList(): ?Element<*> {
-    const { relatedProducts, isRelatedProductsLoading, relatedProductsOrder } = this.props;
+    const { relatedProducts, isRelatedProductsLoading } = this.props;
 
-    if (_.isEmpty(relatedProducts) || relatedProducts.total < 1) return null;
+    if (_.isEmpty(relatedProducts.products)) return null;
 
     return (
       <RelatedProductsList
         title="You Might Also Like"
-        list={relatedProducts.result}
-        productsOrder={relatedProductsOrder}
+        list={relatedProducts.products}
         isLoading={isRelatedProductsLoading}
         loadingBehavior={LoadingBehaviors.ShowWrapper}
       />
@@ -441,7 +431,7 @@ class Pdp extends Component {
     const title = this.isGiftCard() ? t('Gift Card') : this.productView.title;
 
     return (
-      <div ref={containerNode => (this.containerNode = containerNode)} styleName="container">
+      <div styleName="container">
         <div styleName="body">
           <div styleName="sixty">
             {this.renderGallery()}

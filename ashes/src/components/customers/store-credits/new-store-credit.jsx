@@ -16,7 +16,7 @@ import FormField from '../../forms/formfield';
 import Form from '../../forms/form';
 import Dropdown from '../../dropdown/dropdown';
 import Currency from '../../common/currency';
-import SaveCancel from '../../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 
 // redux
 import * as CustomerActions from '../../../modules/customers/details';

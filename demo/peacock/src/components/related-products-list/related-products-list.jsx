@@ -23,7 +23,6 @@ export const LoadingBehaviors = {
 type Props = {
   loadingBehavior?: 0|1,
   list: ?Array<Object>,
-  productsOrder: ?Array<number>,
   isLoading: ?boolean,
   title: string,
 };
@@ -40,24 +39,20 @@ class RelatedProductsList extends Component {
   _willUnmount: boolean = false;
 
   get renderProducts() {
-    const { list, productsOrder } = this.props;
+    const { list } = this.props;
 
     if (_.isEmpty(list)) return null;
 
-    let sortedProductsList = [];
-    _.forEach(productsOrder, function(productId) {
-      sortedProductsList = _.concat(sortedProductsList, _.find(list, { productId }));
-    });
-
     const avoidKeyCollision = 9999;
 
-    return _.map(sortedProductsList, (item, index) => {
+    return _.map(list, (item, index) => {
+      const prod = _.get(item, 'product');
       return (
         <ListItem
-          {...item}
+          {...prod}
           index={index}
-          key={`product-${_.get(item, 'id', _.random(avoidKeyCollision))}`}
-          ref={`product-${_.get(item, 'id', _.random(avoidKeyCollision))}`}
+          key={`product-${_.get(prod, 'id', _.random(avoidKeyCollision))}`}
+          ref={`product-${_.get(prod, 'id', _.random(avoidKeyCollision))}`}
         />
       );
     });

@@ -7,7 +7,7 @@ import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
 
 // components
-import { AddButton } from 'components/common/buttons';
+import { AddButton } from 'components/core/button';
 import HierarchicalTaxonomyListWidget from './hierarchical-taxonomy-widget';
 import FlatTaxonomyListWidget from './flat-taxonomy-widget';
 import { withTaxonomy } from '../hoc';

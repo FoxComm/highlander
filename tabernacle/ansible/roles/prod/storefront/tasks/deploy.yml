@@ -1,7 +1,7 @@
 ---
 
 - name: Copy Application Marathon JSON
-  template: src={{app_template_path}} dest=/tmp
+  template: src={{app_template_path}} dest=/tmp/
 
 - name: Kill Application Tasks in Marathon
   shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/apps/{{marathon_app_name}}/tasks?scale=true'
@@ -23,7 +23,7 @@
   delay: "{{marathon_delay}}"
 
 - name: Cleanup
-  file: path=/tmp/{{app_template_path}} state=absent
+  file: path="/tmp/{{marathon_template_file}}" state=absent
 
 - name: Wait for Consul Template Reloads Nginx
   uri: url=https://{{storefront_server_name}} method=GET status_code=200

@@ -11,7 +11,7 @@ import * as CustomersActions from 'modules/customers/new';
 // components
 import FormField from '../forms/formfield';
 import Form from '../forms/form';
-import SaveCancel from '../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 import ErrorAlerts from '../alerts/error-alerts';
 
 import type { NewCustomerPayload } from 'modules/customers/new';

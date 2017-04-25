@@ -1,7 +1,7 @@
 package services.discount.compilers
 
-import cats.data.{NonEmptyList, Xor}
-import cats.instances.list._
+import cats.data.NonEmptyList
+import cats.implicits._
 import failures.DiscountCompilerFailures._
 import failures._
 import models.discount.qualifiers._
@@ -13,12 +13,12 @@ case class QualifierAstCompiler(data: Json) {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
-  def compile(): Xor[Failures, Qualifier] = data match {
+  def compile(): Either[Failures, Qualifier] = data match {
     case JObject(fields) ⇒ compile(fields)
-    case _               ⇒ Xor.Left(QualifierAstInvalidFormatFailure.single)
+    case _               ⇒ Either.left(QualifierAstInvalidFormatFailure.single)
   }
 
-  private def compile(fields: List[JField]): Xor[Failures, Qualifier] = {
+  private def compile(fields: List[JField]): Either[Failures, Qualifier] = {
     val qualifierCompiles = fields.map {
       case (qualifierType, value) ⇒ compile(qualifierType, value)
     }
@@ -32,14 +32,14 @@ case class QualifierAstCompiler(data: Json) {
     }
 
     failures match {
-      case head :: tail ⇒ Xor.Left(NonEmptyList(head, tail))
-      case Nil          ⇒ Xor.Right(AndQualifier(qualifiers))
+      case head :: tail ⇒ Either.left(NonEmptyList(head, tail))
+      case Nil          ⇒ Either.right(AndQualifier(qualifiers))
     }
   }
 
-  private def compile(qualifierTypeString: String, attributes: Json): Xor[Failures, Qualifier] =
+  private def compile(qualifierTypeString: String, attributes: Json): Either[Failures, Qualifier] =
     QualifierType.read(qualifierTypeString) match {
       case Some(qualifierType) ⇒ QualifierCompiler(qualifierType, attributes).compile()
-      case _                   ⇒ Xor.Left(QualifierNotValid(qualifierTypeString).single)
+      case _                   ⇒ Either.left(QualifierNotValid(qualifierTypeString).single)
     }
 }

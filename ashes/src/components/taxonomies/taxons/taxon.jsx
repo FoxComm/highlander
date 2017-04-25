@@ -10,7 +10,7 @@ import { autobind } from 'core-decorators';
 
 // components
 import ObjectPageDeux from 'components/object-page/object-page-deux';
-import { AddButton } from 'components/common/buttons';
+import { AddButton } from 'components/core/button';
 
 // actions
 import { fetch as fetchTaxonomy } from 'modules/taxonomies/details';

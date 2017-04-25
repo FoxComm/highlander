@@ -39,7 +39,7 @@ module.exports = function(gulp, opts, $) {
 
   gulp.task('server.stop', function(cb) {
     if (node) {
-      node.once('close', cb);
+      node.once('close', () => cb());
       node.kill();
       node = null;
     } else {

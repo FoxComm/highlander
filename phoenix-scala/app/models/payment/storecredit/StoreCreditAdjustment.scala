@@ -1,15 +1,13 @@
 package models.payment.storecredit
 
-import java.time.Instant
-
-import cats.data.Xor
 import failures.Failures
-import models.payment._
+import java.time.Instant
 import models.payment.InStorePaymentStates._
+import models.payment._
 import shapeless._
 import slick.driver.PostgresDriver.api._
-import utils.db._
 import utils.FSM
+import utils.db._
 
 case class StoreCreditAdjustment(id: Int = 0,
                                  storeCreditId: Int,
@@ -24,7 +22,7 @@ case class StoreCreditAdjustment(id: Int = 0,
     with FSM[State, StoreCreditAdjustment] {
 
   def stateLens = lens[StoreCreditAdjustment].state
-  override def updateTo(newModel: StoreCreditAdjustment): Failures Xor StoreCreditAdjustment =
+  override def updateTo(newModel: StoreCreditAdjustment): Either[Failures, StoreCreditAdjustment] =
     super.transitionModel(newModel)
 
   def getAmount: Int = debit

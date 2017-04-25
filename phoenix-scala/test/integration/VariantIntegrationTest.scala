@@ -21,8 +21,7 @@ import utils.db._
 class VariantIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
-    with MockedApis
+    with DefaultJwtAdminAuth
     with BakedFixtures {
 
   "POST v1/variants/:context" - {

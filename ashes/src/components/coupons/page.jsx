@@ -9,7 +9,7 @@ import { transitionTo } from 'browserHistory';
 // components
 import { connectPage, ObjectPage } from '../object-page/object-page';
 import SubNav from './sub-nav';
-import SaveCancel from '../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 
 // actions
 import * as CouponActions from 'modules/coupons/details';

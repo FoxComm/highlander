@@ -66,3 +66,18 @@ module "applepay" {
   dnsimple_account = "${var.dnsimple_account}"
   dnsimple_token   = "${var.dnsimple_token}"
 }
+
+##############################################
+# Setup Tumi2 Feature Branch
+##############################################
+module "tumi2" {
+  source           = "../../modules/gce/appliance"
+  instance_name    = "tumi2"
+  dns_record       = "tumi2"
+  appliance_image  = "${var.appliance_image}"
+  consul_leader    = "${var.consul_leader}"
+  ssh_user         = "${var.ssh_user}"
+  ssh_private_key  = "${var.ssh_private_key}"
+  dnsimple_account = "${var.dnsimple_account}"
+  dnsimple_token   = "${var.dnsimple_token}"
+}

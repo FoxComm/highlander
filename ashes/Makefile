@@ -60,6 +60,9 @@ prod p:
 flow:
 	./node_modules/.bin/flow check
 
+build-styleguide:
+	yarn run styleguide:build
+
 build-dev: setup flow
 	test -f .env && export eval `cat .env` || true && BEHIND_NGINX=true ./node_modules/.bin/gulp build
 

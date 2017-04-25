@@ -12,8 +12,8 @@ import ContentBox from '../content-box/content-box';
 import FormField from '../forms/formfield';
 import Form from '../forms/form';
 import ErrorAlerts from '../alerts/error-alerts';
-import { EditButton } from '../common/buttons';
-import SaveCancel from '../common/save-cancel';
+import { EditButton } from 'components/core/button';
+import SaveCancel from 'components/core/save-cancel';
 
 function mapDispatchToProps(dispatch, props) {
   return _.transform(CustomerContactActions, (result, action, key) => {
@@ -152,7 +152,7 @@ export default class CustomerContacts extends React.Component {
               onChange={ this.onChange }
               onSubmit={ this.onSubmit }>
           <dl>
-            <dt>Name</dt>
+            <dt>First & Last Name</dt>
             { this.nameField }
           </dl>
           <dl>

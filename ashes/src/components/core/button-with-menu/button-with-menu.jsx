@@ -1,45 +1,71 @@
-
 /* @flow */
 
-import _ from 'lodash';
-import React, { Component, Element } from 'react';
-import Transition from 'react-addons-css-transition-group';
-import { autobind } from 'core-decorators';
+// libs
 import classNames from 'classnames';
+import { isEmpty, map, noop } from 'lodash';
+import { autobind } from 'core-decorators';
+import React, { Component, Element } from 'react';
+import Transition from 'react-transition-group/CSSTransitionGroup';
 
-import styles from './button-with-menu.css';
+// components
+import { PrimaryButton } from 'components/core/button';
+import { DropdownItem } from 'components/dropdown';
 
-import { PrimaryButton } from './buttons';
-import { DropdownItem } from '../dropdown';
+// styles
+import s from './button-with-menu.css';
 
-type DropdownItemType = [any, string|Element<*>];
+type DropdownItemType = [any, string|Element<any>];
 
 type Props = {
-  onPrimaryClick?: Function;
-  onSelect?: (value: any, title: string|Element<*>) => any;
-  children?: Element<*>;
+  /** Primary button label */
+  title: string|Element<any>;
+  /** Menu items array */
+  items?: Array<DropdownItemType>;
+  /** Dropdown menu position. Affects animation start position (css's transform-origin) */
+  menuPosition?: "left" | "center" | "right";
+  /** If primary button is disabled */
   buttonDisabled?: boolean;
+  /** If menu button is disabled */
   menuDisabled?: boolean;
+  /** Icon name that is used to be rendered in a primary button */
   icon?: string;
-  items: Array<DropdownItemType>;
-  title: string|Element<*>;
-  className?: string;
-  menuPosition: "left" | "center" | "right";
+  /** If to animate menu appearance */
   animate?: boolean;
+  /** If to show loading animation */
   isLoading?: boolean;
+  /** Additional className */
+  className?: string;
+  /** Callback called on primary button click */
+  onPrimaryClick?: Function;
+  /** Callback called on menu item click */
+  onSelect?: (value: any, title: string|Element<any>) => any;
+  /** Array of elements used to render menu items in case `items` prop is empty */
+  children?: Array<Element<any>>;
 }
 
 type State = {
   open: boolean;
 }
 
+/**
+ * Button component that represents a button with additional action in a dropdown menu.
+ *
+ * @class ButtonWithMenu
+ */
 export default class ButtonWithMenu extends Component {
   props: Props;
 
-  static defaultProps = {
+  static defaultProps: $Shape<Props> = {
     items: [],
+    menuPosition: 'right',
+    buttonDisabled: false,
+    menuDisabled: false,
+    icon: '',
+    className: '',
     animate: true,
-    menuPosition: 'left',
+    isLoading: false,
+    onPrimaryClick: noop,
+    onSelect: noop,
   };
 
   state: State = {
@@ -55,7 +81,7 @@ export default class ButtonWithMenu extends Component {
   }
 
   @autobind
-  handleItemClick(value: any, title: string|Element<*>) {
+  handleItemClick(value: any, title: string|Element<any>) {
     const newState = { open: false };
 
     this.setState(newState, () => {
@@ -86,8 +112,8 @@ export default class ButtonWithMenu extends Component {
 
     let ddItems = null;
 
-    if (!_.isEmpty(items)) {
-      ddItems = _.map(items, ([value, title]) => (
+    if (!isEmpty(items)) {
+      ddItems = map(items, ([value, title]) => (
         <DropdownItem value={value} key={value} onSelect={this.handleItemClick}>
           {title}
         </DropdownItem>
@@ -100,7 +126,7 @@ export default class ButtonWithMenu extends Component {
       );
     }
     return (
-      <ul styleName="menu" ref="menu">
+      <ul className={s.menu} ref="menu">
         { ddItems }
       </ul>
     );
@@ -111,20 +137,22 @@ export default class ButtonWithMenu extends Component {
     const { icon, title, animate, menuPosition, buttonDisabled, menuDisabled } = props;
     const { open } = this.state;
 
-    const className = classNames(this.props.className, {
-      '_open': open,
-    });
+    const className = classNames(s.button, {
+      [s.opened]: open,
+    }, this.props.className);
+
     const buttonClassName = classNames('fc-button-with-menu__left-button', {
-      '_disabled': buttonDisabled,
+      [s._disabled]: buttonDisabled,
     });
-    const menuButtonClassName = classNames('fc-button-with-menu__right-button', 'dropdown-button', {
-      '_disabled': menuDisabled,
+
+    const menuButtonClassName = classNames(s.dropdownButton, 'fc-button-with-menu__right-button', {
+      [s._disabled]: menuDisabled,
     });
 
     return (
-      <div styleName="button-with-menu" className={className} onBlur={this.handleBlur} tabIndex="0">
-        { open && <div styleName="overlay" onClick={this.handleBlur}></div> }
-        <div styleName="controls">
+      <div className={className} onBlur={this.handleBlur} tabIndex="0">
+        { open && <div className={s.overlay} onClick={this.handleBlur}></div> }
+        <div className={s.controls}>
           <PrimaryButton
             id="fct-primary-save-btn"
             className={buttonClassName}
@@ -153,7 +181,7 @@ export default class ButtonWithMenu extends Component {
   }
 }
 
-function getTransitionProps(animate, position) {
+function getTransitionProps(animate, position = 'right') {
   return {
     component: 'div',
     transitionName: `dd-transition-${position}`,
