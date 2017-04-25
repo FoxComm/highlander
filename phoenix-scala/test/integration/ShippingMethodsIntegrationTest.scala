@@ -6,13 +6,13 @@ import models.product.{Mvp, SimpleContext}
 import models.rules.QueryStatement
 import models.shipping
 import models.shipping.ShippingMethods
-import org.json4s.jackson.JsonMethods._
 import responses.ShippingMethodsResponse.Root
 import services.carts.CartTotaler
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
+import utils.json.yolo._
 import utils.seeds.Factories
 
 class ShippingMethodsIntegrationTest

@@ -1,11 +1,10 @@
 package utils.seeds
 
 import models.objects._
-import org.json4s.JValue
-import org.json4s.jackson.JsonMethods._
-import utils.db._
-
 import scala.concurrent.ExecutionContext.Implicits.global
+import utils.aliases.Json
+import utils.db._
+import utils.json.yolo._
 
 trait ObjectSchemaSeeds {
 
@@ -32,7 +31,7 @@ trait ObjectSchemaSeeds {
   def createObjectSchemas(): DbResultT[Option[Int]] =
     ObjectSchemas.createAll(allSchemas)
 
-  private def loadJson(fileName: String): JValue = {
+  private def loadJson(fileName: String): Json = {
     val streamMaybe = Option(getClass.getResourceAsStream(fileName))
     streamMaybe.fold {
       throw new java.io.FileNotFoundException(s"schema $fileName not found")
@@ -47,9 +46,7 @@ trait ObjectSchemaSeeds {
     ObjectSchema(kind = name, name = name, dependencies = dependencies, schema = schema)
   }
 
-  private def getDependencies(schema: JValue): Set[String] = {
-    implicit val formats = utils.JsonFormatters.phoenixFormats
-
+  private def getDependencies(schema: Json): Set[String] = {
     val depValue = (s: String) ⇒ s.drop("#/definitions/".length)
     schema.foldField(Set.empty[String]) {
       case (acc, (key, value)) ⇒

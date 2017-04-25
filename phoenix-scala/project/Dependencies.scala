@@ -6,14 +6,14 @@ object Versions {
   // https://github.com/kwark/slick/blob/3.1-deadlock/README.md
   // Fixes a critical deadlock in slick.
   // Change once lands in mainline.
-  val slick     = "3.1.1.2"
-  val json4s    = "3.4.0"
-  val akka      = "2.4.7"
-  val slickPg   = "0.14.2"
-  val gatling   = "2.2.1"
-  val dispatch  = "0.11.3"
-  val fasterxml = "2.8.2"
-  val scalatest = "3.0.1"
+  val slick      = "3.1.1.2"
+  val circe      = "0.7.1"
+  val akka       = "2.4.7"
+  val slickPg    = "0.14.2"
+  val gatling    = "2.2.1"
+  val dispatch   = "0.11.3"
+  val fasterxml  = "2.8.2"
+  val scalatest  = "3.0.1"
   val scalacheck = "1.13.4"
 }
 
@@ -37,11 +37,13 @@ object Dependencies {
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-smile" % Versions.fasterxml
   )
 
-  val json4s = Seq(
-    "org.json4s"        %% "json4s-core"      % Versions.json4s,
-    "org.json4s"        %% "json4s-jackson"   % Versions.json4s,
-    "org.json4s"        %% "json4s-ext"       % Versions.json4s,
-    "de.heikoseeberger" %% "akka-http-json4s" % "1.7.0"
+  val json = Seq(
+    "io.circe"          %% "circe-core"           % Versions.circe,
+    "io.circe"          %% "circe-generic"        % Versions.circe,
+    "io.circe"          %% "circe-generic-extras" % Versions.circe,
+    "io.circe"          %% "circe-jackson28"      % Versions.circe,
+    "io.circe"          %% "circe-parser"         % Versions.circe,
+    "de.heikoseeberger" %% "akka-http-circe"      % "1.7.0"
   )
 
   val gatling = Seq(
@@ -50,12 +52,12 @@ object Dependencies {
   )
 
   val db = Seq(
-    "com.github.tminglei" %% "slick-pg"         % Versions.slickPg,
-    "com.github.tminglei" %% "slick-pg_json4s"  % Versions.slickPg,
-    "com.zaxxer"          % "HikariCP"          % "2.4.7" % "provided",
-    "org.postgresql"      % "postgresql"        % "9.4.1208",
-    "org.flywaydb"        % "flyway-core"       % "4.0.3",
-    "com.github.mauricio" %% "postgresql-async" % "0.2.20"
+    "com.github.tminglei" %% "slick-pg"            % Versions.slickPg,
+    "com.github.tminglei" %% "slick-pg_circe-json" % Versions.slickPg,
+    "com.zaxxer"          % "HikariCP"             % "2.4.7" % "provided",
+    "org.postgresql"      % "postgresql"           % "9.4.1208",
+    "org.flywaydb"        % "flyway-core"          % "4.0.3",
+    "com.github.mauricio" %% "postgresql-async"    % "0.2.20"
   )
 
   val apis = Seq(
@@ -82,8 +84,7 @@ object Dependencies {
   }
 
   val http = Seq(
-    "net.databinder.dispatch" %% "dispatch-core"          % Versions.dispatch,
-    "net.databinder.dispatch" %% "dispatch-json4s-native" % Versions.dispatch
+    "net.databinder.dispatch" %% "dispatch-core" % Versions.dispatch
   )
 
   val auth = Seq(
@@ -96,7 +97,7 @@ object Dependencies {
     "com.networknt"         % "json-schema-validator"   % "0.1.1",
     "com.github.scopt"      %% "scopt"                  % "3.5.0", // CLI args
     ("org.joda"             % "joda-money"              % "0.11").exclude("org.joda", "joda-time"),
-    "com.chuusai"           %% "shapeless"              % "2.3.1",
+    "com.chuusai"           %% "shapeless"              % "2.3.2",
     "com.pellucid"          %% "sealerate"              % "0.0.3",
     "it.justwrote"          %% "scala-faker"            % "0.3",
     "org.conbere"           % "markov_2.10"             % "0.2.0",

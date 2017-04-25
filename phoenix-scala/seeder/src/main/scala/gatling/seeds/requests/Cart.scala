@@ -1,19 +1,17 @@
 package gatling.seeds.requests
 
-import java.time.Instant
-
-import scala.util.Random
-
+import gatling.seeds.dbFeeder
+import gatling.seeds.requests.Payments._
+import io.circe.jackson.syntax._
+import io.circe.syntax._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import org.json4s.jackson.Serialization.{write ⇒ json}
-import payloads.LineItemPayloads.UpdateLineItemsPayload
+import java.time.Instant
 import payloads.CartPayloads.CreateCart
+import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.OrderPayloads.OrderTimeMachine
 import payloads.UpdateShippingMethod
-import gatling.seeds.dbFeeder
-import gatling.seeds.requests.Auth._
-import gatling.seeds.requests.Payments._
+import scala.util.Random
 
 object Cart {
 
@@ -21,7 +19,7 @@ object Cart {
     .post("/v1/orders")
     .requireAdminAuth
     .body(StringBody { session ⇒
-      json(CreateCart(customerId = Some(session.get("customerId").as[Integer])))
+      CreateCart(customerId = Some(session.get("customerId").as[Integer])).asJson.jacksonPrint
     })
     .check(jsonPath("$.referenceNumber").ofType[String].saveAs("referenceNumber"))
 
@@ -45,7 +43,7 @@ object Cart {
             val skuCode = session.get(s"sku$i").as[String]
             newPayloadItem(skuCode)
           }
-      session.set("skuPayload", json(payload))
+      session.set("skuPayload", payload.asJson.jacksonPrint)
     }
   }
 
@@ -64,7 +62,7 @@ object Cart {
     .body(StringBody { session ⇒
       val shippingMethodIds      = session.get("possibleShippingMethods").as[Seq[Int]]
       val randomShippingMethodId = shippingMethodIds(Random.nextInt(shippingMethodIds.size))
-      json(UpdateShippingMethod(randomShippingMethodId))
+      UpdateShippingMethod(randomShippingMethodId).asJson.jacksonPrint
     })
 
   val checkout = http("Checkout").post("/v1/orders/${referenceNumber}/checkout")
@@ -83,11 +81,11 @@ object Cart {
       .post("/v1/order-time-machine")
       .requireAdminAuth
       .body(StringBody { session ⇒
-        json(
+
             OrderTimeMachine(
                 referenceNumber = session.get("referenceNumber").as[String],
                 placedAt = Instant.now.minusSeconds(
                     (Random.nextInt(15) * 60 * 60 * 24 * 30).toLong) // Minus ~15 months
-            ))
+            ).asJson.jacksonPrint
       })
 }

@@ -1,25 +1,23 @@
-import java.time.Instant
-
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.SkuIsPresentInCarts
 import failures.ObjectFailures.ObjectContextNotFound
 import failures.ProductFailures.SkuNotFoundForContext
+import io.circe._
+import java.time.Instant
 import models.account.Scope
 import models.inventory._
 import models.objects._
 import models.product._
-import org.json4s.JsonAST.JNothing
-import org.json4s.JsonDSL._
+import payloads.CartPayloads.CreateCart
 import payloads.ImagePayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.CartPayloads.CreateCart
-import payloads.ProductPayloads.UpdateProductPayload
 import payloads.SkuPayloads.SkuPayload
 import responses.ProductResponses.ProductResponse
 import responses.SkuResponses.SkuResponse
 import responses.cord.CartResponse
+import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -36,16 +34,16 @@ class SkuIntegrationTest
 
   "POST v1/skus/:context" - {
     "Creates a SKU successfully" in new Fixture {
-      val priceValue = ("currency" → "USD") ~ ("value" → 9999)
-      val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
+      val priceValue = Json.obj("currency" → Json.fromString("USD"), "value" → Json.fromInt(9999))
+      val priceJson  = tv(priceValue, t = "price")
       val attrMap    = Map("price" → priceJson)
 
       skusApi.create(makeSkuPayload("SKU-NEW-TEST", attrMap, None)).mustBeOk()
     }
 
     "Tries to create a SKU with no code" in new Fixture {
-      val priceValue = ("currency" → "USD") ~ ("value" → 9999)
-      val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
+      val priceValue = Json.obj("currency" → Json.fromString("USD"), "value" → Json.fromInt(9999))
+      val priceJson  = tv(priceValue, t = "price")
       val attrMap    = Map("price" → priceJson)
 
       skusApi
@@ -55,8 +53,8 @@ class SkuIntegrationTest
 
     "Creates a SKU with an album" in new Fixture {
       val code       = "SKU-NEW-TEST"
-      val priceValue = ("currency" → "USD") ~ ("value" → 9999)
-      val priceJson  = ("t" → "price") ~ ("v" → priceValue)
+      val priceValue = Json.obj("currency" → Json.fromString("USD"), "value" → Json.fromInt(9999))
+      val priceJson  = tv(priceValue, t = "price")
       val attrMap    = Map("price" → priceJson)
 
       val src          = "http://lorempixel/test.png"
@@ -91,7 +89,7 @@ class SkuIntegrationTest
   "PATCH v1/skus/:context/:code" - {
     "Adds a new attribute to the SKU" in new Fixture {
       val payload =
-        SkuPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Test"))), albums = None)
+        SkuPayload(attributes = Map("name" → tv("Test")), albums = None)
       val skuResponse = skusApi(sku.code).update(payload).as[SkuResponse.Root]
 
       (skuResponse.attributes \ "code" \ "v").extract[String] must === (sku.code)
@@ -101,7 +99,7 @@ class SkuIntegrationTest
 
     "Updates the SKU's code" in new Fixture {
       val payload =
-        SkuPayload(attributes = Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))), albums = None)
+        SkuPayload(attributes = Map("code" → tv("UPCODE")), albums = None)
       skusApi(sku.code).update(payload).mustBeOk()
 
       val skuResponse = skusApi("upcode").get().as[SkuResponse.Root]
@@ -137,7 +135,7 @@ class SkuIntegrationTest
     }
 
     "Responds with NOT FOUND when SKU is requested with wrong context" in new Fixture {
-      implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
+      implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = Json.obj())
 
       skusApi(sku.code)(donkeyContext)
         .archive()
@@ -169,7 +167,7 @@ class SkuIntegrationTest
     def makeSkuPayload(code: String,
                        attrMap: Map[String, Json],
                        albums: Option[Seq[AlbumPayload]] = None) = {
-      val codeJson   = ("t"              → "string") ~ ("v" → code)
+      val codeJson   = tv(code)
       val attributes = attrMap + ("code" → codeJson)
       SkuPayload(attributes = attributes, albums = albums)
     }

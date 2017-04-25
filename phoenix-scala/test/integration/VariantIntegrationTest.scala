@@ -1,20 +1,16 @@
-import java.time.Instant
-
-import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.LinkArchivedSkuFailure
 import failures.ProductFailures.VariantNotFoundForContext
+import java.time.Instant
 import models.account.Scope
 import models.inventory.Skus
 import models.product._
-import org.json4s.JsonDSL._
 import payloads.VariantPayloads._
-import responses.VariantResponses.IlluminatedVariantResponse.{Root ⇒ VariantRoot}
-import responses.VariantValueResponses.IlluminatedVariantValueResponse.{Root ⇒ ValueRoot}
-import services.product.ProductManager
+import responses.VariantResponses.IlluminatedVariantResponse.{Root => VariantRoot}
+import responses.VariantValueResponses.IlluminatedVariantValueResponse.{Root => ValueRoot}
+import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.MockedApis
 import utils.Money.Currency
 import utils.db._
 
@@ -73,7 +69,7 @@ class VariantIntegrationTest
     "Updates the name of the variant successfully" in new VariantFixture {
       val payload = VariantPayload(values = None,
                                    attributes =
-                                     Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
+                                     Map("name" → tv("New Size")))
       val response = variantsApi(variant.variant.variantFormId).update(payload).as[VariantRoot]
       response.values.length must === (2)
 
@@ -85,8 +81,7 @@ class VariantIntegrationTest
     "Fails when trying to attach archived SKU to the variant" in new ArchivedSkusFixture {
       var payload = VariantPayload(values = Some(Seq(archivedSkuVariantValuePayload)),
                                    attributes =
-                                     Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
-
+                                     Map("name" → tv("New Size")))
       variantsApi(variant.variant.variantFormId)
         .update(payload)
         .mustFailWith400(
@@ -118,7 +113,7 @@ class VariantIntegrationTest
     val scope = Scope.current
 
     val createVariantPayload = VariantPayload(attributes =
-                                                Map("name" → (("t" → "string") ~ ("v" → "Color"))),
+                                                Map("name" → tv("Color")),
                                               values = None)
 
     val testSkus = Seq(SimpleSku("SKU-TST", "SKU test", 1000, Currency.USD, active = true),

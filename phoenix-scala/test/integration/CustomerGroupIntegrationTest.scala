@@ -1,22 +1,18 @@
+import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
+import io.circe._
 import models.customer.CustomerGroup._
 import models.customer._
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
-import org.json4s.JsonDSL._
 import org.scalatest.mockito.MockitoSugar
 import payloads.CustomerGroupPayloads.CustomerGroupPayload
 import responses.GroupResponses.GroupResponse.{Root, build}
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-
-import shapeless._
-import utils.db._
-import utils.aliases._
 import utils.db.ExPostgresDriver.api._
-import cats.implicits._
+import utils.db._
+import utils.json.yolo._
 import utils.seeds.Factories
 
 class CustomerGroupIntegrationTest
@@ -29,8 +25,8 @@ class CustomerGroupIntegrationTest
   "POST /v1/customer-groups" - {
     "successfully creates customer group from payload" in new Fixture {
       val payload = CustomerGroupPayload(name = "Group number one",
-                                         clientState = JObject(),
-                                         elasticRequest = JObject(),
+                                         clientState = Json.obj(),
+                                         elasticRequest = Json.obj(),
                                          customersCount = 1,
                                          groupType = Manual)
 
@@ -44,8 +40,8 @@ class CustomerGroupIntegrationTest
       val scopeN = "1"
 
       val payload = CustomerGroupPayload(name = "Group number one",
-                                         clientState = JObject(),
-                                         elasticRequest = JObject(),
+                                         clientState = Json.obj(),
+                                         elasticRequest = Json.obj(),
                                          customersCount = 1,
                                          templateId = groupTemplate.id.some,
                                          scope = scopeN.some,
@@ -66,22 +62,22 @@ class CustomerGroupIntegrationTest
     "inserts group query if elasticquery is empty" in new Fixture {
       val scopeN = "1"
       val payload = CustomerGroupPayload(name = "Group number one",
-                                         clientState = JObject(),
-                                         elasticRequest = JNull,
+                                         clientState = Json.obj(),
+                                         elasticRequest = Json.Null,
                                          customersCount = 1,
                                          scope = scopeN.some,
                                          groupType = Manual)
 
       val root = customerGroupsApi.create(payload).as[Root]
-      root.elasticRequest must !==(JObject())
-      ((((root.elasticRequest \ "query" \ "bool" \ "filter")(0) \ "bool" \ "must")(0) \ "term" \ "groups")) must === (
-          JInt(root.id))
+      root.elasticRequest must !==(Json.obj())
+      ((((root.elasticRequest \ "query" \ "bool" \ "filter").asArray.flatMap(_.get(0)).value \ "bool" \ "must").asArray.flatMap(_.get(0)).value \ "term" \ "groups")) must === (
+          Json.fromInt(root.id))
     }
 
     "fail to create customer group with nonexistnet tempalte id" in new Fixture {
       val payload = CustomerGroupPayload(name = "Group number one",
-                                         clientState = JObject(),
-                                         elasticRequest = JObject(),
+                                         clientState = Json.obj(),
+                                         elasticRequest = Json.obj(),
                                          customersCount = 1,
                                          templateId = 666.some,
                                          groupType = Dynamic)
@@ -106,8 +102,8 @@ class CustomerGroupIntegrationTest
     "successfully updates group attributes" in new Fixture {
       val payload = CustomerGroupPayload(name = "New name for group",
                                          customersCount = 777,
-                                         clientState = JObject(),
-                                         elasticRequest = JObject(),
+                                         clientState = Json.obj(),
+                                         elasticRequest = Json.obj(),
                                          groupType = Dynamic)
 
       (payload.name, payload.customersCount) must !==((group.name, group.customersCount))
@@ -119,8 +115,8 @@ class CustomerGroupIntegrationTest
     "404 if group not found" in new Fixture {
       val payload = CustomerGroupPayload(name = "New name for group",
                                          customersCount = 777,
-                                         clientState = JObject(),
-                                         elasticRequest = JObject(),
+                                         clientState = Json.obj(),
+                                         elasticRequest = Json.obj(),
                                          groupType = Dynamic)
 
       customerGroupsApi(999)

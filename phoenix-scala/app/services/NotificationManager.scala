@@ -2,27 +2,20 @@ package services
 
 import de.heikoseeberger.akkasse.{ServerSentEvent ⇒ SSE}
 import failures._
-import models.{Notification, Notifications}
-import models.{LastSeenNotification, LastSeenNotifications}
+import io.circe.jackson.syntax._
+import io.circe.syntax._
 import models.Notification._
-import models.activity._
 import models.account._
-import models.{NotificationSubscription ⇒ Sub, NotificationSubscriptions ⇒ Subs}
-import org.json4s.Extraction.decompose
-import org.json4s.jackson.JsonMethods._
-import org.json4s.jackson.Serialization.write
+import models.activity._
+import models.{LastSeenNotification, LastSeenNotifications, Notification, Notifications, NotificationSubscription ⇒ Sub, NotificationSubscriptions ⇒ Subs}
 import org.postgresql.core.{Utils ⇒ PgjdbcUtils}
-import payloads.ActivityTrailPayloads.AppendActivity
 import payloads.CreateNotification
 import responses.{ActivityResponse, LastSeenNotificationResponse, NotificationResponse, TheResponse}
 import slick.driver.PostgresDriver.api._
-import utils.JsonFormatters
 import utils.aliases._
 import utils.db._
 
 object NotificationManager {
-  implicit val formats = JsonFormatters.phoenixFormats
-
   def createNotification(payload: CreateNotification)(implicit ac: AC,
                                                       au: AU,
                                                       ec: EC,
@@ -46,14 +39,14 @@ object NotificationManager {
                      accountId = adminId,
                      dimensionId = dimension.id,
                      objectId = payload.sourceObjectId,
-                     activity = decompose(payload.activity))
+                     activity = payload.activity.asJson)
       }
 
       createdNotifications ← * <~ Notifications.createAllReturningModels(notifications)
 
       _ ← * <~ DBIO.sequence(createdNotifications.map { notification ⇒
-           var payload        = compact(decompose(NotificationResponse.build(notification)))
-           var escapedPayload = PgjdbcUtils.escapeLiteral(null, payload, false).toString
+           val payload        = NotificationResponse.build(notification).asJson.jacksonPrint
+           val escapedPayload = PgjdbcUtils.escapeLiteral(null, payload, false).toString
            sqlu"NOTIFY #${notificationChannel(notification.accountId)}, '#$escapedPayload'"
          })
     } yield response

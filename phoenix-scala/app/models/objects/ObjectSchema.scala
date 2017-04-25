@@ -1,13 +1,12 @@
 package models.objects
 
+import io.circe.Json
 import java.time.Instant
-
-import org.json4s.JsonAST.JObject
 import shapeless._
+import utils.Validation
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{JsonFormatters, Validation}
 
 /**
   Represent json-schema for views: ObjectForm applied to ObjectShadow.
@@ -38,8 +37,6 @@ object ObjectSchemas
     with ReturningId[ObjectSchema, ObjectSchemas] {
 
   val returningLens: Lens[ObjectSchema, Int] = lens[ObjectSchema].id
-
-  implicit val formats = JsonFormatters.phoenixFormats
 }
 
 /**
@@ -56,7 +53,7 @@ case class ObjectFullSchema(id: Int = 0,
     with Validation[ObjectFullSchema]
 
 object ObjectFullSchema {
-  def emptySchema = ObjectFullSchema(name = "empty", kind = "empty", schema = JObject())
+  def emptySchema = ObjectFullSchema(name = "empty", kind = "empty", schema = Json.obj())
 }
 
 class ObjectFullSchemas(tag: Tag) extends FoxTable[ObjectFullSchema](tag, "object_full_schemas") {
@@ -75,8 +72,6 @@ object ObjectFullSchemas
     with ReturningId[ObjectFullSchema, ObjectFullSchemas] {
 
   val returningLens: Lens[ObjectFullSchema, Int] = lens[ObjectFullSchema].id
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   def filterByKind(kind: String): QuerySeq =
     filter(_.kind === kind)

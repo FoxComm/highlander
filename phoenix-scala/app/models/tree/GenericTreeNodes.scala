@@ -1,12 +1,12 @@
 package models.tree
 
-import _root_.utils.aliases.EC
+import com.github.tminglei.slickpg.LTree
+import shapeless._
 import slick.lifted.Tag
+import utils.Validation
+import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{JsonFormatters, Validation}
-import com.github.tminglei.slickpg._
-import shapeless._
 
 case class GenericTreeNode(id: Int,
                            treeId: Int,
@@ -34,8 +34,6 @@ object GenericTreeNodes
     extends FoxTableQuery[GenericTreeNode, GenericTreeNodes](new GenericTreeNodes(_))
     with ReturningId[GenericTreeNode, GenericTreeNodes] {
   val returningLens: Lens[GenericTreeNode, Int] = lens[GenericTreeNode].id
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   def findNodes(treeId: Int, path: Option[LTree] = None): QuerySeq = {
     val allNodesOfTree = filter(_.treeId === treeId)

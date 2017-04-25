@@ -2,11 +2,9 @@ package responses
 
 import models.objects._
 import models.product._
-import utils.{IlluminateAlgorithm, JsonFormatters}
+import utils.IlluminateAlgorithm
 
 object VariantValueResponses {
-  implicit val formats = JsonFormatters.phoenixFormats
-
   object IlluminatedVariantValueResponse {
     case class Root(id: Int,
                     name: String,

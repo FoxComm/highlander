@@ -5,22 +5,17 @@ import failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
 import models.account._
 import models.cord._
 import models.cord.lineitems._
-import models.inventory.Sku
 import models.location.Region
 import models.objects._
 import models.rules.{Condition, QueryStatement}
 import models.shipping.{DefaultShippingMethod, DefaultShippingMethods, ShippingMethod, ShippingMethods}
+import responses.ShippingMethodsResponse
 import services.carts.getCartByOriginator
-import utils.JsonFormatters
+import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import slick.driver.PostgresDriver.api._
-import org.json4s.JsonAST._
-import responses.ShippingMethodsResponse
 
 object ShippingManager {
-  implicit val formats = JsonFormatters.phoenixFormats
-
   case class ShippingData(cart: Cart,
                           cartTotal: Int,
                           cartSubTotal: Int,
@@ -192,15 +187,8 @@ object ShippingManager {
     }
 
   private def hasTag(lineItem: CartLineItemProductData, tag: String): Boolean =
-    ObjectUtils.get("tags", lineItem.productForm, lineItem.productShadow) match {
-      case JArray(tags) ⇒
-        tags.foldLeft(false) { (res, jtag) ⇒
-          jtag match {
-            case JString(t) ⇒ res || t.contains(tag)
-            case _          ⇒ res
-          }
-        }
-      case _ ⇒ false
-    }
-
+    ObjectUtils
+      .get("tags", lineItem.productForm, lineItem.productShadow)
+      .flatMap(_.asArray)
+      .exists(_.iterator.flatMap(_.asString.iterator).exists(_.contains(tag)))
 }

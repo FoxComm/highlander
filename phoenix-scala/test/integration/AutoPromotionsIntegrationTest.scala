@@ -1,58 +1,36 @@
-import java.time.Instant
-
 import cats.implicits._
-import failures.NotFoundFailure404
-import failures.ObjectFailures._
+import io.circe._
 import models.Reasons
 import models.customer.CustomerGroup
 import models.customer.CustomerGroup.GroupType
-import models.objects.ObjectContext
-import models.promotion.Promotion.{Auto, Coupon}
 import models.promotion._
 import models.rules.QueryStatement
 import models.shipping.{ShippingMethod, ShippingMethods}
-import org.json4s.JsonAST._
-import org.json4s.JsonDSL._
-import org.json4s.jackson.JsonMethods._
-import org.mockito.ArgumentMatcher
 import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito._
-import org.mockito.invocation.InvocationOnMock
-import org.mockito.stubbing.Answer
-import org.scalatest.mockito.MockitoSugar
-import org.mockito.Mockito
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{when, _}
 import org.scalactic.TolerantNumerics
 import payloads.AddressPayloads.CreateAddressPayload
 import payloads.CartPayloads.CreateCart
-import payloads.CouponPayloads.CreateCoupon
 import payloads.CustomerGroupPayloads.{CustomerGroupMemberSyncPayload, CustomerGroupPayload}
-import payloads.DiscountPayloads.CreateDiscount
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.PaymentPayloads.{CreateManualStoreCredit, StoreCreditPayment}
 import payloads.PromotionPayloads._
 import payloads.UpdateShippingMethod
-import responses.CouponResponses.CouponResponse
 import responses.PromotionResponses.PromotionResponse
 import responses.cord.base.CartResponseTotals
 import responses.cord.{CartResponse, OrderResponse}
 import responses.{CustomerResponse, GroupResponses, PromotionResponses, StoreCreditResponse}
-import services.objects.ObjectManager
-import services.promotion.PromotionManager
+import scala.concurrent.Future
 import testutils.PayloadHelpers.tv
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
 import testutils.fixtures.api._
 import testutils.fixtures.{BakedFixtures, PromotionFixtures}
-import utils.{ElasticsearchApi, IlluminateAlgorithm}
+import utils.ElasticsearchApi
 import utils.aliases._
-import utils.apis.Apis
-import utils.db._
+import utils.json.yolo._
 import utils.seeds.Factories
-import utils.time.RichInstant
-
-import scala.concurrent.Future
 
 class AutoPromotionsIntegrationTest
     extends IntegrationTestBase
@@ -259,8 +237,8 @@ class AutoPromotionsIntegrationTest
       val group = customerGroupsApi
         .create(
             CustomerGroupPayload(name = faker.Lorem.sentence(),
-                                 clientState = JNull,
-                                 elasticRequest = JNull,
+                                 clientState = Json.Null,
+                                 elasticRequest = Json.Null,
                                  groupType = tpe))
         .as[GroupResponses.GroupResponse.Root]
 

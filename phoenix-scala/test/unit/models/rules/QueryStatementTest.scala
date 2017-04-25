@@ -1,13 +1,9 @@
 package models.rules
 
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
 import testutils.TestBase
-import utils.JsonFormatters._
+import utils.json.yolo._
 
 class QueryStatementTest extends TestBase {
-  implicit val formats = phoenixFormats
-
   "QueryStatement" - {
     "JSON deserialization" - {
       "domestic shipping to non-P.0. boxes from JSON" in {

@@ -7,9 +7,9 @@ import java.time.Instant
 import models.objects._
 import shapeless._
 import slick.lifted.Tag
+import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{JsonFormatters, Validation}
 import com.github.tminglei.slickpg._
 
 object Album {
@@ -46,8 +46,6 @@ class Albums(tag: Tag) extends ObjectHeads[Album](tag, "albums") {
 object Albums extends FoxTableQuery[Album, Albums](new Albums(_)) with ReturningId[Album, Albums] {
 
   val returningLens: Lens[Album, Int] = lens[Album].id
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   def filterByContext(contextId: Int): QuerySeq =
     filter(_.contextId === contextId)

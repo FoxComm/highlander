@@ -3,6 +3,7 @@ package services.customerGroups
 import cats.implicits._
 import failures.CustomerGroupFailures.CustomerGroupMemberPayloadContainsSameIdsInBothSections
 import failures.{NotFoundFailure400, NotFoundFailure404}
+import io.circe.Json
 import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 import models.account.{User, Users}
@@ -11,7 +12,6 @@ import models.customer.CustomerGroup._
 import models.customer.CustomersData.scope._
 import models.customer._
 import models.discount.SearchReference
-import org.json4s.JsonAST._
 import payloads.CustomerGroupPayloads._
 import responses.CustomerResponse.{Root, build}
 import responses.GroupResponses.CustomerGroupResponse
@@ -164,15 +164,29 @@ object GroupMemberManager {
     } yield (num > 0)
     else DbResultT.pure(false)
 
+  // FIXME @kjanosz: this is insane
+  // There is ElasticDsl that would do the job in more safe manner,
+  // but instead query is created in ridiculously error prone way by constructing json ast
   private def narrowDownWithUserId(userId: Int)(elasticRequest: Json): Json = {
-    val userQuery = JObject(JField("query", JObject(JField("bool", JObject(JField("must",
-      JObject(JField("term", JObject(JField("id", JInt(userId)))))))))))
+    val userQuery = Json.obj(
+        "query" → Json.obj(
+            "bool" → Json.obj(
+                "must" → Json.obj(
+                    "term" → Json.obj(
+                        "id" → Json.fromInt(userId)
+                    )
+                )
+            )
+        )
+    )
 
-    JObject(
-        JField("query",
-               JObject(
-                   JField("bool",
-                          JObject(JField("filter", JArray(List(elasticRequest, userQuery))))))))
+    Json.obj(
+        "query" → Json.obj(
+            "bool" → Json.obj(
+                "filter" → Json.arr(elasticRequest, userQuery)
+            )
+        )
+    )
   }
 
 }

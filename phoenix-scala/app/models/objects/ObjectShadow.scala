@@ -1,15 +1,11 @@
 package models.objects
 
+import io.circe._
 import java.time.Instant
-
-//import org.json4s._
-import org.json4s.JsonAST._
-import org.json4s.JsonDSL._
 import shapeless._
-import utils.aliases._
+import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{JsonFormatters, Validation}
 
 /**
   * An ObjectShadow is what you get when a context illuminates an Object.
@@ -26,14 +22,19 @@ case class ObjectShadow(id: Int = 0,
 
 object ObjectShadow {
   def fromPayload(attributes: Map[String, Json]): ObjectShadow = {
-    val attributesJson = attributes.foldLeft(JNothing: JValue) {
+    val attributesJson = attributes.foldLeft(JsonObject.empty) {
       case (acc, (key, value)) ⇒
         // TODO: Clean this up and make a case class to represent the shadow ref.
-        val shadowJson: JValue = key → (("type" → (value \ "t")) ~ ("ref" → key))
-        acc.merge(shadowJson)
+
+        // FIXME KJ: yolo is not justified case here,
+        // but I had really no idea what should be default value when "t" is not found
+        // let it reproduce previous behaviour and default to json array then ;-)
+
+        val shadowJson = Json.obj("type" → (value \ "t"), "ref" → Json.fromString(key))
+        acc.add(key, shadowJson)
     }
 
-    ObjectShadow(attributes = attributesJson)
+    ObjectShadow(attributes = Json.fromJsonObject(attributesJson))
   }
 }
 
@@ -56,8 +57,6 @@ object ObjectShadows
     with ReturningId[ObjectShadow, ObjectShadows] {
 
   val returningLens: Lens[ObjectShadow, Int] = lens[ObjectShadow].id
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   def filterByForm(formId: Int): QuerySeq =
     filter(_.formId === formId)

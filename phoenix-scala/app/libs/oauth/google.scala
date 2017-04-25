@@ -1,10 +1,10 @@
 package libs.oauth
 
 import cats.data.EitherT
-import dispatch.{Http, as, url ⇒ request}
-import org.json4s._
+import dispatch.{Http, url ⇒ request}
 import scala.concurrent.Future
 import utils.aliases._
+import utils.json._
 
 case class GoogleOauthOptions(
     roleName: String,
@@ -30,7 +30,7 @@ trait GoogleProvider extends OauthProvider {
 
   def userInfo(accessToken: String)(implicit ec: EC): EitherT[Future, Throwable, UserInfo] =
     eitherTryFuture {
-      val req = request(oauthInfoUrl).GET.addHeader("Authorization", s"Bearer ${accessToken}")
-      Http(req OK as.json4s.Json).map(_.extract[UserInfo])
+      val req = request(oauthInfoUrl).GET.addHeader("Authorization", s"Bearer $accessToken")
+      Http(req OK asJson).map(_.as[UserInfo])
     }
 }

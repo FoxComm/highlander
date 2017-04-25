@@ -1,21 +1,18 @@
 package utils.seeds.generators
 
 import java.time.Instant
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.Random
-
-import models.objects._
 import models.objects.ObjectUtils._
+import models.objects._
 import models.product.SimpleContext
 import models.promotion._
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
 import payloads.DiscountPayloads._
 import payloads.PromotionPayloads._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Random
 import services.promotion.PromotionManager
 import utils.aliases._
 import utils.db._
+import utils.json.yolo._
 import utils.seeds.generators.SimplePromotion._
 
 object SimplePromotion {

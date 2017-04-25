@@ -1,15 +1,13 @@
 package models.product
 
+import com.github.tminglei.slickpg.LTree
 import java.time.Instant
-
 import models.objects._
 import shapeless._
-import utils.db.ExPostgresDriver.api._
 import slick.lifted.Tag
+import utils.Validation
+import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{JsonFormatters, Validation}
-
-import com.github.tminglei.slickpg._
 
 object VariantValue {
   val kind = "variant-value"
@@ -43,8 +41,6 @@ object VariantValues
     with ReturningId[VariantValue, VariantValues] {
 
   val returningLens: Lens[VariantValue, Int] = lens[VariantValue].id
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   def filterByContext(contextId: Int): QuerySeq =
     filter(_.contextId === contextId)

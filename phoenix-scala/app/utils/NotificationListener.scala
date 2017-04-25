@@ -8,8 +8,6 @@ import utils.aliases._
 
 class NotificationListener(adminId: Int, action: String ⇒ Unit)(implicit ec: EC) {
 
-  implicit val formats = JsonFormatters.phoenixFormats
-
   private val connection = createConnection()
 
   connection.connect.map { _ ⇒

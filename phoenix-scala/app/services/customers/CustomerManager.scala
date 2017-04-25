@@ -1,14 +1,13 @@
 package services.customers
 
-import java.time.Instant
-import java.time.temporal.ChronoUnit.DAYS
-
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.AuthFailures.ChangePasswordFailed
 import failures.CustomerFailures._
 import failures.UserFailures.AccessMethodNotFound
 import failures.{NotFoundFailure400, NotFoundFailure404}
+import java.time.Instant
+import java.time.temporal.ChronoUnit.DAYS
 import models.account._
 import models.auth.UserToken
 import models.cord.{OrderShippingAddresses, Orders}
@@ -23,13 +22,10 @@ import responses.GroupResponses.CustomerGroupResponse
 import services._
 import services.account._
 import slick.driver.PostgresDriver.api._
-import utils.JsonFormatters._
 import utils.aliases._
 import utils.db._
 
 object CustomerManager {
-
-  implicit val formatters = phoenixFormats
 
   def resolvePhoneNumber(accountId: Int)(implicit ec: EC): DbResultT[Option[String]] = {
     def resolveFromShipments(accountId: Int) =

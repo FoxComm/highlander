@@ -1,18 +1,16 @@
-import java.time.Instant
-import java.time.temporal.ChronoUnit
-
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import cats.implicits._
 import failures.ArchiveFailures._
 import failures.ObjectFailures.ObjectContextNotFound
 import failures.ProductFailures._
 import failures.{NotFoundFailure404, ProductFailures}
+import io.circe.Json
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import models.account.Scope
 import models.inventory.Skus
 import models.objects._
 import models.product._
-import org.json4s.JsonDSL._
-import org.json4s._
 import payloads.CartPayloads.CreateCart
 import payloads.ImagePayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
@@ -22,23 +20,21 @@ import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
 import responses.ProductResponses.ProductResponse
 import responses.ProductResponses.ProductResponse.Root
 import responses.cord.CartResponse
+import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtures
-import utils.JsonFormatters
 import utils.Money.Currency
 import utils.aliases._
 import utils.db._
+import utils.json.yolo._
 import utils.time.RichInstant
 
 object ProductTestExtensions {
 
   implicit class RichAttributes(val attributes: Json) extends AnyVal {
-    def code: String = {
-      implicit val formats = JsonFormatters.phoenixFormats
-      (attributes \ "code" \ "v").extract[String]
-    }
+    def code: String = (attributes \ "code" \ "v").extract[String]
   }
 }
 
@@ -226,7 +222,7 @@ class ProductIntegrationTest
                                 image = None,
                                 name = Some("Test")))
         val variantPayload = Seq(
-            VariantPayload(attributes = Map("test" → (("t" → "test") ~ ("v" → "Test"))),
+            VariantPayload(attributes = Map("test" → tv("Test", t = "test"),
                            values = Some(valuePayload)))
 
         val productResponse = doQuery(productPayload.copy(variants = Some(variantPayload)))
@@ -279,7 +275,7 @@ class ProductIntegrationTest
       }
 
       "an existing, but modified SKU successfully" in new Fixture {
-        val redPriceJson  = ("t" → "price") ~ ("v" → (("currency" → "USD") ~ ("value" → 7999)))
+        val redPriceJson  = tv(Json.obj("currency" → Json.fromString("USD"), "value" → Json.fromInt(7999)), t = "price")
         val redSkuAttrMap = Map("salePrice" → redPriceJson)
         val src           = "http://lorempixel/test.png"
         val imagePayload  = ImagePayload(src = src)
@@ -302,7 +298,7 @@ class ProductIntegrationTest
                                 image = None,
                                 skuCodes = Seq.empty))
         val variantPayload = Seq(
-            VariantPayload(attributes = Map("t" → (("t" → "typ") ~ ("v" → "val"))),
+            VariantPayload(attributes = Map("t" → tv("val", t = "typ")),
                            values = Some(values)))
         val payload =
           productPayload.copy(skus = Seq(redSkuPayload), variants = Some(variantPayload))
@@ -403,8 +399,7 @@ class ProductIntegrationTest
       }
 
       "trying to create a product with string price" in new Fixture {
-        val price: Json = ("t" → "price") ~ ("v" → (("currency"
-                        → "USD") ~ ("value" → "1000")))
+        val price = tv(Json.obj("currency" -> Json.fromString("USD"), "value" -> Json.fromString(1000)), t = "price")
         val skuAttributes: Map[String, Json] = skuPayload.attributes + ("salePrice" → price)
         val productToCreate =
           productPayload.copy(skus = Seq(skuPayload.copy(attributes = skuAttributes)))
@@ -519,7 +514,7 @@ class ProductIntegrationTest
       val albumsPayload = Seq(albumPayload).some
 
       val updateSkuPayload = makeSkuPayload("SKU-UPDATE-TEST", skuAttrMap, albumsPayload)
-      val newAttrMap       = Map("name" → (("t" → "string") ~ ("v" → "Some new product name")))
+      val newAttrMap       = Map("name" → tv("Some new product name"))
       val payload = UpdateProductPayload(attributes = newAttrMap,
                                          skus = Some(Seq(updateSkuPayload)),
                                          albums = None,
@@ -565,7 +560,7 @@ class ProductIntegrationTest
 
     "Updates and replaces a SKU on the product" in new Fixture with Product_Raw {
       val updateSkuPayload = makeSkuPayload("SKU-UPDATE-TEST", skuAttrMap, None)
-      val newAttrMap       = Map("name" → (("t" → "string") ~ ("v" → "Some new product name")))
+      val newAttrMap       = Map("name" → tv("Some new product name"))
       val payload = UpdateProductPayload(attributes = newAttrMap,
                                          skus = Some(Seq(updateSkuPayload)),
                                          albums = None,
@@ -648,7 +643,7 @@ class ProductIntegrationTest
     }
 
     "Updates the properties on a product successfully" in new Fixture {
-      val newAttrMap = Map("name" → (("t" → "string") ~ ("v" → "Some new product name")))
+      val newAttrMap = Map("name" → tv("Some new product name"))
       val payload =
         UpdateProductPayload(attributes = newAttrMap, skus = None, variants = None, albums = None)
 
@@ -817,7 +812,7 @@ class ProductIntegrationTest
     }
 
     "Responds with NOT FOUND when wrong context is requested" in new VariantFixture {
-      implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
+      implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = Json.obj())
       productsApi(product.formId)(donkeyContext)
         .archive()
         .mustFailWith404(ObjectContextNotFound("donkeyContext"))
@@ -827,9 +822,9 @@ class ProductIntegrationTest
   trait Fixture extends StoreAdmin_Seed {
 
     def makeSkuPayload(code: String, name: String, albums: Option[Seq[AlbumPayload]]): SkuPayload = {
-      val attrMap = Map("title" → (("t" → "string") ~ ("v" → name)),
-                        "name" → (("t" → "string") ~ ("v" → name)),
-                        "code" → (("t" → "string") ~ ("v" → code)))
+      val attrMap = Map("title" → tv(name),
+                        "name" → tv(name),
+                        "code" → tv(code))
 
       SkuPayload(attributes = attrMap, albums = albums)
     }
@@ -837,21 +832,21 @@ class ProductIntegrationTest
     def makeSkuPayload(code: String,
                        attrMap: Map[String, Json],
                        albums: Option[Seq[AlbumPayload]]) = {
-      val codeJson   = ("t"               → "string") ~ ("v"      → code)
-      val titleJson  = ("t"               → "string") ~ ("v"      → ("title_" + code))
+      val codeJson   = tv(code)
+      val titleJson  = tv(s"title_$code")
       val attributes = (attrMap + ("code" → codeJson)) + ("title" → titleJson)
       SkuPayload(attributes = attributes, albums = albums)
     }
 
-    val priceValue = ("currency" → "USD") ~ ("value" → 9999)
-    val priceJson  = ("t" → "price") ~ ("v" → priceValue)
+    val priceValue = Json.obj("currency" → Json.fromString("USD"), "value" → Json.fromInt(9999))
+    val priceJson  = tv(priceValue, t = "price")
     val skuAttrMap = Map("price" → priceJson)
     val skuPayload = makeSkuPayload("SKU-NEW-TEST", skuAttrMap, None)
 
-    val nameJson        = ("t"                        → "string") ~ ("v" → "Product name")
-    val attrMap         = Map("name"                  → nameJson, "title" → nameJson)
-    val activeFromJson  = ("t"                        → "date") ~ ("v" → (Instant.now.minus(2, ChronoUnit.DAYS)).toString)
-    val activeToJson    = ("t"                        → "date") ~ ("v" → (Instant.now.minus(1, ChronoUnit.DAYS)).toString)
+    val nameJson        = tv("Product name")
+    val attrMap         = Map("name" → nameJson, "title" → nameJson)
+    val activeFromJson  = tv(Instant.now.minus(2, ChronoUnit.DAYS).toString, t = "date")
+    val activeToJson    = tv(Instant.now.minus(1, ChronoUnit.DAYS).toString, t = "date")
     val inactiveAttrMap = attrMap ++ Map("activeFrom" → activeFromJson, "activeTo" → activeToJson)
     val activeAttrMap   = attrMap ++ Map("activeFrom" → activeFromJson)
     val productPayload = CreateProductPayload(attributes = attrMap,
@@ -934,7 +929,7 @@ class ProductIntegrationTest
 
   trait VariantFixture extends Fixture {
     def makeVariantPayload(name: String, values: Seq[VariantValuePayload]) =
-      VariantPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → name))),
+      VariantPayload(attributes = Map("name" → tv(name)),
                      values = Some(values))
 
     val redSkus   = Seq(skuRedSmallCode, skuRedLargeCode)

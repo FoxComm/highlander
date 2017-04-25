@@ -1,12 +1,11 @@
 package utils.seeds
 
 import com.github.tminglei.slickpg.LTree
+import io.circe.Json
 import models.account.Scopes
 import models.customer.CustomerGroup.Dynamic
-
-import scala.concurrent.ExecutionContext.Implicits.global
 import models.customer._
-import org.json4s.JObject
+import scala.concurrent.ExecutionContext.Implicits.global
 import utils.aliases._
 import utils.db._
 
@@ -14,7 +13,7 @@ trait CustomersGroupSeeds {
 
   type Groups = (CustomerGroup#Id, CustomerGroup#Id)
 
-  def fakeJson = JObject()
+  def fakeJson: Json = Json.obj()
 
   def createGroups(scopeId: Int)(implicit db: DB, ac: AC): DbResultT[Groups] =
     for {

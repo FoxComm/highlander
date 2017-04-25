@@ -4,24 +4,23 @@ import cats.data.NonEmptyList
 import cats.implicits._
 import failures.DiscountCompilerFailures._
 import failures._
+import io.circe.JsonObject
 import models.discount.offers._
-import org.json4s._
-import utils.JsonFormatters
 import utils.aliases._
 
 case class OfferAstCompiler(data: Json) {
 
-  implicit val formats: Formats = JsonFormatters.phoenixFormats
-
-  def compile(): Either[Failures, Offer] = data match {
-    case JObject(fields) ⇒ compile(fields)
-    case _               ⇒ Either.left(OfferAstInvalidFormatFailure.single)
+  def compile(): Either[Failures, Offer] = data.asObject match {
+    case Some(obj) ⇒ compile(obj)
+    case _         ⇒ Either.left(OfferAstInvalidFormatFailure.single)
   }
 
-  private def compile(fields: List[JField]): Either[Failures, Offer] = {
-    val offerCompiles = fields.map {
+  private def compile(obj: JsonObject): Either[Failures, Offer] = {
+    val offerCompiles = obj.toList.map {
       case (offerType, value) ⇒ compile(offerType, value)
     }
+
+    offerCompiles.traverseU()
 
     val offers: Seq[Offer] = offerCompiles.flatMap { o ⇒
       o.fold(f ⇒ Seq.empty, q ⇒ Seq(q))

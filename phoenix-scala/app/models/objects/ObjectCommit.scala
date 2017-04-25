@@ -1,9 +1,7 @@
 package models.objects
 
 import java.time.Instant
-
 import shapeless._
-import utils.JsonFormatters
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
@@ -38,8 +36,6 @@ object ObjectCommits
     with ReturningId[ObjectCommit, ObjectCommits] {
 
   val returningLens: Lens[ObjectCommit, Int] = lens[ObjectCommit].id
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   def filterByObject(formId: Int): QuerySeq =
     filter(_.formId === formId)

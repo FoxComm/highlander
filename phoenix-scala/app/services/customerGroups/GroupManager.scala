@@ -1,21 +1,18 @@
 package services.customerGroups
 
-import java.time.Instant
-
 import failures.CustomerGroupFailures.CustomerGroupMemberCannotBeDeleted
 import failures.NotFoundFailure404
+import io.circe.Json
+import java.time.Instant
 import models.account.{Scope, User}
 import models.customer.CustomerGroup.Manual
 import models.customer._
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
-import org.json4s.JsonDSL._
 import payloads.CustomerGroupPayloads.CustomerGroupPayload
 import responses.GroupResponses.GroupResponse.{Root, build}
 import services.LogActivity
 import utils.aliases._
-import utils.db._
 import utils.db.ExPostgresDriver.api._
+import utils.db._
 import utils.time._
 
 object GroupManager {
@@ -78,7 +75,7 @@ object GroupManager {
       scope ← * <~ Scope.resolveOverride(payload.scope)
       group ← * <~ CustomerGroups.create(
                  CustomerGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
-      updated ← * <~ doOrGood(group.elasticRequest == JObject() || group.elasticRequest == JNull,
+      updated ← * <~ doOrGood(group.elasticRequest == Json.obj() || group.elasticRequest == Json.Null,
                               CustomerGroups.update(group, withGroupQuery(group)),
                               group)
       _ ← * <~ LogActivity().customerGroupCreated(updated, admin)
@@ -101,24 +98,24 @@ object GroupManager {
       _ ← * <~ LogActivity().customerGroupCreated(group, admin)
     } yield build(group)
 
+  // FIXME @kjanosz: this is insane
+  // Similar as in GroupMemberManager.scala,
+  // but here earlier it was even worse,
+  // as query was constructed using json string
   private def withGroupQuery(group: CustomerGroup): CustomerGroup = {
-    val groupQuery = parse(s"""{"query":
-         |  {"bool":
-         |    {"filter":
-         |      [
-         |        {"bool":
-         |          {"must":
-         |            [
-         |              {"term":
-         |                {"groups": ${group.id}}
-         |              }
-         |            ]
-         |          }
-         |        }
-         |      ]
-         |    }
-         |  }
-         |}""".stripMargin)
+    val groupQuery = Json.obj(
+      "query" -> Json.obj(
+        "filter" -> Json.arr(Json.obj(
+          "bool" -> Json.obj(
+            "must" -> Json.arr(Json.obj(
+              "term" -> Json.obj(
+                "groups" -> Json.fromInt(group.id)
+              )
+            ))
+          )
+        ))
+      )
+    )
     group.copy(elasticRequest = groupQuery)
   }
 

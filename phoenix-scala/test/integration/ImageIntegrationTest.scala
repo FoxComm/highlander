@@ -1,23 +1,19 @@
-import java.nio.file.Paths
-import java.time.Instant
-
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model._
-
 import cats.implicits._
-import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.AddImagesToArchivedAlbumFailure
 import failures.ImageFailures._
 import failures.ObjectFailures._
+import io.circe._
+import java.nio.file.Paths
+import java.time.Instant
 import models.account.Scope
 import models.image._
 import models.inventory._
 import models.objects._
 import models.product._
-import org.json4s.JsonAST.JNothing
-import org.json4s.JsonDSL._
 import payloads.ImagePayloads._
-import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
+import responses.AlbumResponses.AlbumResponse.{Root => AlbumRoot}
 import responses.ProductResponses._
 import responses.SkuResponses._
 import services.image.ImageManager
@@ -25,7 +21,6 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.Money.Currency
-import utils._
 import utils.db._
 import utils.time.RichInstant
 
@@ -42,7 +37,7 @@ class ImageIntegrationTest
       }
 
       "404 if wrong context name" in new Fixture {
-        implicit val nopeCtx = ObjectContext(name = "NOPE", attributes = JNothing)
+        implicit val nopeCtx = ObjectContext(name = "NOPE", attributes = Json.obj())
         albumsApi(album.formId)(nopeCtx).get().mustFailWith404(ObjectContextNotFound("NOPE"))
       }
 
@@ -118,7 +113,7 @@ class ImageIntegrationTest
       }
 
       "Responds with NOT FOUND when wrong context is requested" in new Fixture {
-        implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
+        implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = Json.obj())
         albumsApi(album.formId)(donkeyContext)
           .delete()
           .mustFailWith404(ObjectContextNotFound("donkeyContext"))

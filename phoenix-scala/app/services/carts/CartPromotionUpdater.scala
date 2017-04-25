@@ -21,14 +21,12 @@ import models.objects._
 import models.promotion.Promotions.scope._
 import models.promotion._
 import models.shipping
-import org.json4s.JsonAST._
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.customerGroups.GroupMemberManager
 import services.discount.compilers._
 import services.{CartValidator, LineItemManager, LogActivity}
 import slick.driver.PostgresDriver.api._
-import utils.JsonFormatters
 import utils.aliases._
 import utils.apis.Apis
 import utils.db._
@@ -71,17 +69,15 @@ object CartPromotionUpdater {
                             apis: Apis,
                             ctx: OC,
                             db: DB): DbResultT[L[Promotion]] = {
-    implicit val formats = JsonFormatters.phoenixFormats
-
     def isApplicable(promotion: Promotion): DbResultT[Boolean] = {
       for {
         promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
         promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
         promoObject = IlluminatedPromotion.illuminate(ctx, promotion, promoForm, promoShadow)
-        customerGroupIdsO = promoObject.attributes \ "customerGroupIds" \ "v" match {
-          case JNothing | JNull ⇒ None
-          case cgis             ⇒ cgis.extractOpt[Set[Int]]
-        }
+        customerGroupIdsO = promoObject.attributes.hcursor
+          .downField("customerGroupIds")
+          .downField("v")
+          .as[Set[Int]]
         result ← * <~ customerGroupIdsO.fold(DbResultT.pure(true))(
                     GroupMemberManager.isMemberOfAny(_, user))
       } yield result

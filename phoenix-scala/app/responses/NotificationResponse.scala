@@ -1,16 +1,12 @@
 package responses
 
 import java.time.Instant
-
 import models.Notification
-import models.activity.{Activity, ActivityContext}
-import utils.JsonFormatters
-import utils.aliases._
+import models.activity.ActivityContext
 import payloads.NotificationActivity
+import utils.aliases._
 
 object NotificationResponse {
-  implicit val formats = JsonFormatters.phoenixFormats
-
   case class Root(id: Int, kind: String, data: Json, context: ActivityContext, createdAt: Instant)
       extends ResponseItem
 

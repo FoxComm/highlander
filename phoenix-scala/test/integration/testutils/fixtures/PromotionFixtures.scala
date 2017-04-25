@@ -1,10 +1,9 @@
 package testutils.fixtures
 
 import failures.NotFoundFailure404
+import io.circe.Json
 import models.account.User
 import models.promotion.{Promotion, Promotions}
-import org.json4s.JsonAST._
-import org.json4s.JsonDSL._
 import payloads.CouponPayloads._
 import payloads.DiscountPayloads._
 import payloads.PromotionPayloads.CreatePromotion
@@ -22,15 +21,15 @@ trait PromotionFixtures extends TestFixtureBase {
   trait Promotion_Seed {
     implicit def au: AU
 
-    def makeDiscountAttrs(qualifier: String, qualifierValue: JObject): Map[String, Json] = {
-      Map[String, Any](
-          "title"       → s"Get $percentOff% off when you spend $totalAmount dollars",
+    def makeDiscountAttrs(qualifier: String, qualifierValue: Json): Map[String, Json] = {
+      Map(
+          "title"       → tv(s"Get $percentOff% off when you spend $totalAmount dollars"),
           "description" → s"$percentOff% off when you spend over $totalAmount dollars",
-          "tags"        → tv(JArray(List.empty[JString]), "tags"),
-          "qualifier"   → JObject(qualifier → qualifierValue).asShadowVal(t = "qualifier"),
-          "offer" → JObject(
-              "orderPercentOff" → JObject(
-                  "discount" → JInt(percentOff)
+          "tags"        → tv(Json.arr(), "tags"),
+          "qualifier"   → Json.obj(qualifier → qualifierValue).asShadowVal(t = "qualifier"),
+          "offer" → Json.obj(
+              "orderPercentOff" → Json.obj(
+                  "discount" → Json.fromInt(percentOff)
               )
           ).asShadowVal("offer")
       ).asShadow
@@ -39,7 +38,7 @@ trait PromotionFixtures extends TestFixtureBase {
     val percentOff  = 10
     val totalAmount = 0
     val discountAttributes =
-      makeDiscountAttrs("orderTotalAmount", "totalAmount" → JInt(totalAmount * 100))
+      makeDiscountAttrs("orderTotalAmount", Json.obj("totalAmount" → Json.fromInt(totalAmount * 100)))
 
     val promoAttributes = Map[String, Json]("name" → tv("donkey promo"))
 

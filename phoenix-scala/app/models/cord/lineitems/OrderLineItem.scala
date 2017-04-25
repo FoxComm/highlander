@@ -3,11 +3,10 @@ package models.cord.lineitems
 import cats.implicits._
 import com.pellucid.sealerate
 import failures.Failures
+import io.circe.syntax._
 import models.cord.lineitems.{OrderLineItem ⇒ OLI}
 import models.inventory.{Sku, Skus}
 import models.objects._
-import org.json4s.Extraction.decompose
-import org.json4s.Formats
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
@@ -103,8 +102,6 @@ class OrderLineItems(tag: Tag) extends FoxTable[OrderLineItem](tag, "order_line_
   def state           = column[OrderLineItem.State]("state")
   def attributes      = column[Option[Json]]("attributes")
 
-  implicit val formats: Formats = JsonFormatters.phoenixFormats
-
   def * =
     (id, referenceNumber, cordRef, skuId, skuShadowId, state, attributes).shaped <>
       ({
@@ -115,7 +112,7 @@ class OrderLineItems(tag: Tag) extends FoxTable[OrderLineItem](tag, "order_line_
                         skuId,
                         skuShadowId,
                         state,
-                        attrs.flatMap(_.extractOpt[LineItemAttributes]))
+                        attrs.flatMap(_.as[LineItemAttributes].toOption))
       }, { oli: OrderLineItem ⇒
         (oli.id,
          oli.referenceNumber,
@@ -123,7 +120,7 @@ class OrderLineItems(tag: Tag) extends FoxTable[OrderLineItem](tag, "order_line_
          oli.skuId,
          oli.skuShadowId,
          oli.state,
-         oli.attributes.map(decompose)).some
+         oli.attributes.map(_.asJson)).some
       })
 
   def sku    = foreignKey(Skus.tableName, skuId, Skus)(_.id)

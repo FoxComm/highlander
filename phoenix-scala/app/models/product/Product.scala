@@ -10,10 +10,10 @@ import models.objects._
 import scala.util.matching.Regex
 import services.objects.ObjectManager
 import shapeless._
+import utils.Validation
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{JsonFormatters, Validation}
 
 object Product {
   val kind = "product"
@@ -84,8 +84,6 @@ object Products
   }
 
   override val returningQuery = map(p ⇒ (p.id, p.slug))
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   override def create(unsaved: Product)(implicit ec: EC): DbResultT[Product] =
     super.create(unsaved).resolveFailures(ErrorResolver.resolveSlugError(unsaved))

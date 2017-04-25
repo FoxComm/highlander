@@ -1,36 +1,37 @@
 package payloads
 
 import cats.data.NonEmptyList
-import models.objects._
-import utils.aliases._
-import utils.db._
 import com.networknt.schema.JsonSchemaFactory
 import failures.ObjectFailures._
-import org.json4s.jackson.JsonMethods._
-import org.json4s.Extraction
+import io.circe._
+import io.circe.syntax._
+import models.objects._
 import scala.collection.JavaConverters._
-import org.json4s.JsonAST._
+import utils.aliases._
+import utils.db._
+import utils.json._
 
 object ObjectSchemaValidation {
-
   trait SchemaValidation[M] {
     this: M ⇒
     def defaultSchemaName: String
     val schema: Option[String] = None
 
-    private def validatePayload(payload: M, jsonSchema: Json)(implicit ec: EC): DbResultT[M] = {
+    private def validatePayload(payload: M, jsonSchema: Json)(
+        implicit ec: EC,
+        encoder: Encoder[M]): DbResultT[M] = {
       val jsonSchemaFactory = new JsonSchemaFactory
-      val validator         = jsonSchemaFactory.getSchema(asJsonNode(jsonSchema))
+      val validator         = jsonSchemaFactory.getSchema(jsonSchema.asJsonNode)
 
-      val jsonPayload = Extraction.decompose(payload)
-
-      val flatPayload = jsonPayload.mapField {
-        case (name, JObject(List(("t", _), ("v", v)))) ⇒
-          JField(name, v)
-        case x ⇒ x
+      val flatPayload = payload.asJson.transformField {
+        case (name, json) ⇒
+          name → json.withObject {
+            case obj if obj.contains("t") ⇒ obj("v").getOrElse(Json.fromJsonObject(obj))
+            case obj                      ⇒ Json.fromJsonObject(obj)
+          }
       }
 
-      val errorMessages = validator.validate(asJsonNode(flatPayload)).asScala.toList
+      val errorMessages = validator.validate(flatPayload.asJsonNode).asScala.toList
 
       errorMessages.map { error ⇒
         PayloadValidationFailure(error.getMessage)

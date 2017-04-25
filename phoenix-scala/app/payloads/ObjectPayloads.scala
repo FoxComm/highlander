@@ -1,31 +1,32 @@
 package payloads
 
-import org.json4s.JField
-import org.json4s.JsonAST.JObject
-import org.json4s.JsonDSL._
-import utils.aliases._
+import io.circe.Json
 
 object ObjectPayloads {
+  type JsonField = (String, Json)
+
   trait FormShadowFieldBuilder {
-    def formJson: JField
-    def shadowJson: JField
+    def formJson: JsonField
+    def shadowJson: JsonField
   }
 
   class TypedFieldBuilder(attributeName: String, attributeType: String, attributeValue: Json)
       extends FormShadowFieldBuilder {
-    override def formJson: JField = attributeName → attributeValue
-    override def shadowJson: JField =
-      attributeName → (("type" → attributeType) ~ ("ref" → attributeName))
+    override def formJson: JsonField = attributeName → attributeValue
+    override def shadowJson: JsonField =
+      attributeName                  → Json.obj("type" → Json.fromString(attributeType),
+                               "ref" → Json.fromString(attributeName))
   }
 
   case class StringField(name: String, value: String)
-      extends TypedFieldBuilder(name, "string", value)
-  case class IntField(name: String, value: Int) extends TypedFieldBuilder(name, "int", value)
+      extends TypedFieldBuilder(name, "string", Json.fromString(value))
+  case class IntField(name: String, value: Int)
+      extends TypedFieldBuilder(name, "int", Json.fromInt(value))
 
   case class AttributesBuilder(attributes: FormShadowFieldBuilder*) {
 
-    def objectForm   = JObject(attributes.map(_.formJson): _*)
-    def objectShadow = JObject(attributes.map(_.shadowJson): _*)
+    def objectForm: Json   = Json.obj(attributes.map(_.formJson): _*)
+    def objectShadow: Json = Json.obj(attributes.map(_.shadowJson): _*)
   }
 
   def optionalAttributes(optional: Option[FormShadowFieldBuilder]*) =

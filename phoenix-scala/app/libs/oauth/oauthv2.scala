@@ -1,10 +1,10 @@
 package libs.oauth
 
 import cats.data.EitherT
-import dispatch.{Http, as, url ⇒ request}
-import org.json4s._
+import dispatch.{Http, url ⇒ request}
 import scala.concurrent.Future
 import utils.aliases._
+import utils.json._
 
 case class UserInfo(name: String, email: String)
 
@@ -49,6 +49,6 @@ abstract class Oauth(oauthOptions: OauthClientOptions) extends OauthProvider {
               "redirect_uri"  → oauthOptions.redirectUri,
               "grant_type"    → "authorization_code"))
 
-      Http(req OK as.json4s.Json).map(_.extract[AccessTokenResponse])
+      Http(req OK asJson).map(_.as[AccessTokenResponse])
     }
 }

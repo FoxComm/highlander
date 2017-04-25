@@ -1,29 +1,26 @@
 package models.product
 
-import java.time.Instant
-
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import failures.ImageFailures._
 import failures.ObjectFailures._
 import failures.ProductFailures._
+import io.circe._
+import io.circe.jackson.syntax._
+import java.time.Instant
+import models.account._
 import models.image._
 import models.inventory._
 import models.objects._
-import models.account._
-import org.json4s.JsonAST.{JNothing, JString}
-import org.json4s.JsonDSL._
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
 import payloads.ImagePayloads._
+import scala.concurrent.ExecutionContext.Implicits.global
 import services.image.ImageManager
 import services.inventory.SkuManager
-import com.github.tminglei.slickpg.LTree
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
 import utils.aliases._
 import utils.db._
+import utils.json.yolo._
 
 object SimpleContext {
   val id      = 1
@@ -35,7 +32,11 @@ object SimpleContext {
              name: String = "default",
              lang: String = "en",
              modality: String = "desktop"): ObjectContext =
-    ObjectContext(id = id, name = name, attributes = ("modality" → modality) ~ ("lang" → lang))
+    ObjectContext(
+        id = id,
+        name = name,
+        attributes =
+          Json.obj("modality" → Json.fromString(modality), "lang" → Json.fromString(lang)))
 }
 
 case class SimpleProduct(title: String,
@@ -43,7 +44,7 @@ case class SimpleProduct(title: String,
                          active: Boolean = false,
                          tags: Seq[String] = Seq.empty) {
   val activeFrom = if (active) s""""${Instant.now}"""" else "null";
-  val ts: String = compact(render(JArray(tags.map(t ⇒ JString(t)).toList)))
+  val ts: String = Json.fromValues(tags.map(t ⇒ Json.fromString(t)).toVector).jacksonPrint
 
   val (keyMap, form) = ObjectUtils.createForm(parse(s"""
     {
@@ -55,7 +56,7 @@ case class SimpleProduct(title: String,
 
   def create: ObjectForm = ObjectForm(kind = Product.kind, attributes = form)
   def update(oldForm: ObjectForm): ObjectForm =
-    oldForm.copy(attributes = oldForm.attributes merge form)
+    oldForm.copy(attributes = oldForm.attributes deepMerge form)
 }
 
 case class SimpleProductShadow(p: SimpleProduct) {
@@ -88,7 +89,7 @@ case class SimpleAlbum(payload: AlbumPayload) {
   def create: ObjectForm = ObjectForm(kind = Album.kind, attributes = form)
 
   def update(oldForm: ObjectForm): ObjectForm =
-    oldForm.copy(attributes = oldForm.attributes.merge(create.attributes))
+    oldForm.copy(attributes = oldForm.attributes.deepMerge(create.attributes))
 }
 
 case class SimpleAlbumShadow(album: SimpleAlbum) {
@@ -106,7 +107,7 @@ case class SimpleSku(code: String,
                      tags: Seq[String] = Seq.empty) {
 
   val activeFrom = if (active) s""""${Instant.now}"""" else "null";
-  val ts: String = compact(render(JArray(tags.map(t ⇒ JString(t)).toList)))
+  val ts: String = Json.fromValues(tags.map(t ⇒ Json.fromString(t)).toVector).jacksonPrint
 
   val (keyMap, form) = ObjectUtils.createForm(parse(s"""
       {
@@ -127,7 +128,7 @@ case class SimpleSku(code: String,
   def create: ObjectForm =
     ObjectForm(kind = Sku.kind, attributes = form)
   def update(oldForm: ObjectForm): ObjectForm =
-    oldForm.copy(attributes = oldForm.attributes merge form)
+    oldForm.copy(attributes = oldForm.attributes deepMerge form)
 }
 
 case class SimpleSkuShadow(s: SimpleSku) {
@@ -153,7 +154,7 @@ case class SimpleVariant(name: String) {
   def create: ObjectForm = ObjectForm(kind = Variant.kind, attributes = form)
 
   def update(oldForm: ObjectForm): ObjectForm =
-    oldForm.copy(attributes = oldForm.attributes merge form)
+    oldForm.copy(attributes = oldForm.attributes deepMerge form)
 }
 
 case class SimpleVariantShadow(v: SimpleVariant) {
@@ -170,7 +171,7 @@ case class SimpleVariantValue(name: String, swatch: String, skuCodes: Seq[String
   def create: ObjectForm = ObjectForm(kind = VariantValue.kind, attributes = form)
 
   def update(oldForm: ObjectForm): ObjectForm =
-    oldForm.copy(attributes = oldForm.attributes merge form)
+    oldForm.copy(attributes = oldForm.attributes deepMerge form)
 }
 
 case class SimpleVariantValueShadow(v: SimpleVariantValue) {
@@ -530,42 +531,24 @@ object Mvp {
       results ← * <~ ps.map(p ⇒ insertProductNewContext(oldContextId, contextId, p))
     } yield results
 
-  def priceFromJson(p: Json): Option[(Int, Currency)] = {
-    val price = for {
-      JInt(value)       ← p \ "value"
-      JString(currency) ← p \ "currency"
+  def priceFromJson(p: Json): Option[(Int, Currency)] =
+    for {
+      value    ← (p \ "value").asNumber.flatMap(_.toInt)
+      currency ← (p \ "currency").asString
     } yield (value.toInt, Currency(currency))
-    if (price.isEmpty) None else price.headOption
-  }
 
-  def price(f: ObjectForm, s: ObjectShadow): Option[(Int, Currency)] = {
-    ObjectUtils.get("salePrice", f, s) match {
-      case JNothing ⇒ None
-      case v        ⇒ priceFromJson(v)
-    }
-  }
+  def price(f: ObjectForm, s: ObjectShadow): Option[(Int, Currency)] =
+    ObjectUtils.get("salePrice", f, s).flatMap(priceFromJson)
 
   def priceAsInt(f: ObjectForm, s: ObjectShadow): Int =
     price(f, s).map { case (value, _) ⇒ value }.getOrElse(0)
 
-  def title(f: ObjectForm, s: ObjectShadow): Option[String] = {
-    ObjectUtils.get("title", f, s) match {
-      case JString(title) ⇒ title.some
-      case _              ⇒ None
-    }
-  }
+  def title(f: ObjectForm, s: ObjectShadow): Option[String] =
+    ObjectUtils.get("title", f, s).flatMap(_.asString)
 
-  def externalId(f: ObjectForm, s: ObjectShadow): Option[String] = {
-    ObjectUtils.get("externalId", f, s) match {
-      case JString(externalId) ⇒ externalId.some
-      case _                   ⇒ None
-    }
-  }
+  def externalId(f: ObjectForm, s: ObjectShadow): Option[String] =
+    ObjectUtils.get("externalId", f, s).flatMap(_.asString)
 
-  def trackInventory(f: ObjectForm, s: ObjectShadow): Boolean = {
-    ObjectUtils.get("trackInventory", f, s) match {
-      case JBool(trackInventory) ⇒ trackInventory
-      case _                     ⇒ true
-    }
-  }
+  def trackInventory(f: ObjectForm, s: ObjectShadow): Boolean =
+    ObjectUtils.get("trackInventory", f, s).forall(_.asBoolean)
 }

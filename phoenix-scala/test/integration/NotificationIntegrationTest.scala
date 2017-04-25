@@ -1,14 +1,14 @@
 import akka.stream.scaladsl.Source
 import com.github.tminglei.slickpg.LTree
 import failures._
+import io.circe.Json
+import io.circe.jackson.syntax._
+import io.circe.syntax._
 import java.time.Instant
 import models.NotificationSubscription._
-import models.{Notification, NotificationSubscriptions}
 import models.account._
 import models.activity._
-import org.json4s.Extraction
-import org.json4s.JsonAST._
-import org.json4s.jackson.Serialization.write
+import models.{Notification, NotificationSubscriptions}
 import payloads.{CreateNotification, NotificationActivity}
 import responses.{ActivityResponse, LastSeenNotificationResponse, NotificationResponse}
 import services.NotificationManager
@@ -157,7 +157,7 @@ class NotificationIntegrationTest
   val newNotificationActivity = NotificationActivity(
       id = "test",
       kind = "test",
-      data = JNothing,
+      data = Json.obj(),
       context =
         ActivityContext(userId = 1, userType = "x", transactionId = "y", scope = LTree("1")),
       createdAt = Instant.now)
@@ -173,10 +173,10 @@ class NotificationIntegrationTest
         accountId = 1,
         dimensionId = 1,
         objectId = "1",
-        activity = Extraction.decompose(newNotificationActivity.copy(id = id)),
+        activity = newNotificationActivity.copy(id = id).asJson,
         createdAt = Instant.now)
 
-    write(NotificationResponse.build(newNotification))
+    NotificationResponse.build(newNotification).asJson.jacksonPrint
   }
 
   def subscribeToNotifications(adminIds: Seq[Int] = Seq(1),

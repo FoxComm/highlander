@@ -6,13 +6,12 @@ import com.typesafe.scalalogging.LazyLogging
 import failures.ArchiveFailures._
 import failures.ProductFailures._
 import failures._
+import io.circe._
 import java.time.Instant
 import models.account._
 import models.inventory._
 import models.objects._
 import models.product._
-import org.json4s.JsonDSL._
-import org.json4s._
 import payloads.ImagePayloads.AlbumPayload
 import payloads.ProductPayloads._
 import payloads.SkuPayloads._
@@ -184,8 +183,9 @@ object ProductManager extends LazyLogging {
       implicit ec: EC,
       db: DB,
       oc: OC): DbResultT[ProductResponse.Root] = {
-    val payload = Map("activeFrom" → (("v" → JNull) ~ ("t" → JString("datetime"))),
-                      "activeTo" → (("v" → JNull) ~ ("t" → JString("datetime"))))
+    val payload = Json.obj(
+        "activeFrom" → Json.obj(("v" → Json.Null), ("t" → Json.fromString("datetime"))),
+        "activeTo"   → Json.obj(("v" → Json.Null), ("t" → Json.fromString("datetime"))))
 
     val newFormAttrs   = ObjectForm.fromPayload(Product.kind, payload).attributes
     val newShadowAttrs = ObjectShadow.fromPayload(payload).attributes

@@ -17,14 +17,11 @@ import responses.TheResponse
 import responses.cord.{CartResponse, OrderResponse}
 import services.carts.{CartPromotionUpdater, CartTotaler}
 import slick.driver.PostgresDriver.api._
-import utils.JsonFormatters
 import utils.aliases._
 import utils.apis.Apis
 import utils.db._
 
 object LineItemUpdater {
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   def updateQuantitiesOnCart(admin: User, refNum: String, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,

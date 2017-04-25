@@ -1,9 +1,12 @@
 package utils.db
 
-import utils.aliases._
+import cats.implicits._
 import com.github.tminglei.slickpg._
 import com.github.tminglei.slickpg.array.PgArrayJdbcTypes
 import com.github.tminglei.slickpg.utils.SimpleArrayUtils
+import io.circe.Json
+import io.circe.jackson.syntax._
+import io.circe.parser.parse
 import slick.driver.PostgresDriver
 
 trait ExPostgresDriver
@@ -12,7 +15,7 @@ trait ExPostgresDriver
     with PgDateSupport
     with PgRangeSupport
     with PgHStoreSupport
-    with PgJson4sSupport
+    with PgCirceJsonSupport
     with PgArrayJdbcTypes
     with PgSearchSupport
     // with PgPostGISSupport
@@ -21,11 +24,10 @@ trait ExPostgresDriver
 
   override val pgjson = "jsonb"
   type DOCType = Json
-  override val jsonMethods = org.json4s.jackson.JsonMethods
 
   override val api = MyAPI
 
-  val plainAPI = new API with Json4sJsonPlainImplicits
+  val plainAPI = new API with CirceJsonPlainImplicits
 
   object MyAPI
       extends API
@@ -41,11 +43,10 @@ trait ExPostgresDriver
     implicit val strListTypeMapper: DriverJdbcType[List[String]] =
       new SimpleArrayJdbcType[String]("text").to(_.toList)
 
-    implicit val json4sJsonArrayTypeMapper: DriverJdbcType[List[Json]] =
-      new AdvancedArrayJdbcType[Json](
-          pgjson,
-          (s) ⇒ SimpleArrayUtils.fromString[Json](jsonMethods.parse(_))(s).orNull,
-          (v) ⇒ SimpleArrayUtils.mkString[Json](_.toString())(v)).to(_.toList)
+    implicit val jsonArrayTypeMapper: DriverJdbcType[List[Json]] = new AdvancedArrayJdbcType[Json](
+        pgjson,
+        (s) ⇒ SimpleArrayUtils.fromString[Json](parse(_).getOrElse(Json.Null))(s).orNull,
+        (v) ⇒ SimpleArrayUtils.mkString[Json](_.jacksonPrint)(v)).to(_.toList)
   }
 }
 

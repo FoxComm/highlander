@@ -1,20 +1,15 @@
 package utils.http
 
 import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, ResponseEntity, StatusCode, StatusCodes}
+import akka.http.scaladsl.model._
 import failures.{Failures, NotFoundFailure404}
-import org.json4s.jackson.Serialization
-import org.json4s.jackson.Serialization.{write ⇒ json}
-import org.json4s.{Formats, jackson}
+import io.circe.Encoder
+import io.circe.jackson.syntax._
+import io.circe.syntax._
 import responses.{BatchMetadata, TheResponse}
 import utils.db.MetaResponse
 
 object Http {
-  import utils.JsonFormatters._
-
-  implicit lazy val serialization: Serialization.type = jackson.Serialization
-  implicit lazy val formats: Formats                  = phoenixFormats
-
   val notFoundResponse: HttpResponse   = HttpResponse(NotFound)
   val noContentResponse: HttpResponse  = HttpResponse(NoContent)
   val badRequestResponse: HttpResponse = HttpResponse(BadRequest)
@@ -53,10 +48,12 @@ object Http {
     }
   }
 
-  def renderRaw(resource: AnyRef) = // TODO: is this needed anymore? @michalrus
+  def renderRaw[A: Encoder](resource: A): HttpResponse = // TODO: is this needed anymore? @michalrus
     HttpResponse(OK, entity = jsonEntity(resource))
 
-  def render(result: AnyRef, uiInfo: List[MetaResponse], statusCode: StatusCode = OK) = {
+  def render[A: Encoder](result: A,
+                         uiInfo: List[MetaResponse],
+                         statusCode: StatusCode = OK): HttpResponse = {
     val response = SuccessfulResponse.from(result, uiInfo)
     val temporaryHack: AnyRef = result match {
       case _: TheResponse[_] ⇒ response
@@ -81,6 +78,6 @@ object Http {
     }
   }
 
-  private def jsonEntity[A <: AnyRef](resource: A): ResponseEntity =
-    HttpEntity(ContentTypes.`application/json`, json(resource))
+  private def jsonEntity[A: Encoder](resource: A): ResponseEntity =
+    HttpEntity(ContentTypes.`application/json`, resource.asJson.jacksonPrint)
 }

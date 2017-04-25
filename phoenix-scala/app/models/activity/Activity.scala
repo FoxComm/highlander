@@ -1,33 +1,24 @@
 package models.activity
 
-import java.io.ByteArrayOutputStream
-import java.nio.ByteBuffer;
+import com.github.tminglei.slickpg.LTree
+import com.typesafe.scalalogging.LazyLogging
+import io.circe.jackson.syntax._
+import io.circe.syntax._
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.util.Properties
-import scala.concurrent.Future
-import scala.util.{Failure, Success}
-import com.github.tminglei.slickpg.LTree
-import com.typesafe.scalalogging.LazyLogging
 import models.account.Scope
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
-import org.apache.avro.generic.GenericRecord
-import org.apache.avro.specific.SpecificDatumWriter
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
-import org.apache.avro.io._
-
-import org.json4s.Extraction
-import org.json4s.jackson.Serialization.{write ⇒ render}
-import shapeless._
-import slick.ast.BaseTypedType
-import slick.jdbc.JdbcType
-import slick.lifted._
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
+import utils.Environment
 import utils.FoxConfig.config
-import utils.{Environment, JsonFormatters}
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
+import utils.json._
 
 case class ActivityContext(userId: Int, userType: String, transactionId: String, scope: LTree) {
   def withCurrentScope(implicit au: AU): ActivityContext = withScope(Scope.current)
@@ -38,13 +29,8 @@ case class ActivityContext(userId: Int, userType: String, transactionId: String,
 object ActivityContext {
 
   // Convert context to json and back again
-  implicit val ActivityContextColumn: JdbcType[ActivityContext] with BaseTypedType[ActivityContext] = {
-    implicit val formats = JsonFormatters.phoenixFormats
-    MappedColumnType.base[ActivityContext, Json](
-        c ⇒ Extraction.decompose(c),
-        j ⇒ j.extract[ActivityContext]
-    )
-  }
+  implicit val ActivityContextColumn: BaseColumnType[ActivityContext] =
+    dbJsonColumn[ActivityContext]
 
   def build(userId: Int, userType: String, scope: LTree, transactionId: String): ActivityContext =
     ActivityContext(userId = userId,
@@ -124,8 +110,6 @@ object Activities extends LazyLogging {
       |}
     """.stripMargin.replaceAll("\n", " "))
 
-  implicit val formats = JsonFormatters.phoenixFormats
-
   def kafkaProducerProps(): Properties = {
     val props = new Properties()
 
@@ -148,8 +132,8 @@ object Activities extends LazyLogging {
     val record = new GenericData.Record(schema)
 
     record.put("kind", activity.activityType)
-    record.put("data", render(activity.data))
-    record.put("context", render(activity.context))
+    record.put("data", activity.data.jacksonPrint)
+    record.put("context", activity.context.asJson.jacksonPrint)
     record.put("created_at", DateTimeFormatter.ISO_INSTANT.format(activity.createdAt))
     record.put("scope", activity.context.scope.toString())
 

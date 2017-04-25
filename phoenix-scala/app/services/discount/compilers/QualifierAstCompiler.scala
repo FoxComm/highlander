@@ -4,22 +4,19 @@ import cats.data.NonEmptyList
 import cats.implicits._
 import failures.DiscountCompilerFailures._
 import failures._
+import io.circe.JsonObject
 import models.discount.qualifiers._
-import org.json4s._
-import utils.JsonFormatters
 import utils.aliases._
 
 case class QualifierAstCompiler(data: Json) {
 
-  implicit val formats: Formats = JsonFormatters.phoenixFormats
-
-  def compile(): Either[Failures, Qualifier] = data match {
-    case JObject(fields) ⇒ compile(fields)
-    case _               ⇒ Either.left(QualifierAstInvalidFormatFailure.single)
+  def compile(): Either[Failures, Qualifier] = data.asObject match {
+    case Some(obj) ⇒ compile(obj)
+    case _         ⇒ Either.left(QualifierAstInvalidFormatFailure.single)
   }
 
-  private def compile(fields: List[JField]): Either[Failures, Qualifier] = {
-    val qualifierCompiles = fields.map {
+  private def compile(obj: JsonObject): Either[Failures, Qualifier] = {
+    val qualifierCompiles = obj.toVector.map {
       case (qualifierType, value) ⇒ compile(qualifierType, value)
     }
 

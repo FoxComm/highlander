@@ -1,23 +1,20 @@
-import java.time.Instant
-import java.time.Instant.now
-import java.time.temporal.ChronoUnit.DAYS
-
 import cats.implicits._
 import failures.CartFailures.OrderAlreadyPlaced
 import failures.CouponFailures.CouponIsNotActive
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
+import io.circe.Json
+import java.time.Instant
+import java.time.Instant.now
+import java.time.temporal.ChronoUnit.DAYS
 import models.cord.{Carts, Orders}
 import models.coupon.Coupon
 import models.objects.ObjectContext
 import models.traits.IlluminatedModel
-import org.json4s.JsonAST._
-import payloads.CouponPayloads._
-import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.CartPayloads.CreateCart
+import payloads.LineItemPayloads.UpdateLineItemsPayload
 import responses.CouponResponses.CouponResponse
 import responses.cord.CartResponse
-import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -70,7 +67,7 @@ class CouponsIntegrationTest
     }
 
     "404 when context not found" in new StoreAdmin_Seed with Coupon_TotalQualifier_PercentOff {
-      couponsApi(coupon.id)(ObjectContext(name = "donkeyContext", attributes = JNothing))
+      couponsApi(coupon.id)(ObjectContext(name = "donkeyContext", attributes = Json.obj()))
         .archive()
         .mustFailWith404(ObjectContextNotFound("donkeyContext"))
     }

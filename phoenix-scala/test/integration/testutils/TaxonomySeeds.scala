@@ -4,8 +4,8 @@ import com.github.tminglei.slickpg.LTree
 import models.account.{Scope, User}
 import models.objects.{ObjectForm, ObjectShadow, ObjectUtils}
 import models.taxonomy._
-import org.json4s.JsonDSL._
 import services.Authenticator.AuthData
+import testutils.PayloadHelpers._
 import testutils.fixtures.TestFixtureBase
 import utils.aliases.Json
 import utils.db._
@@ -19,8 +19,8 @@ trait TaxonomySeeds extends TestFixtureBase {
 
   trait Taxonomy_Raw {
     implicit def au: AuthData[User]
-    val taxonomyAttributes: Map[String, Json] = Map("name" → (("t" → "string") ~ ("v" → "taxon")),
-                                                    "test" → (("t" → "string") ~ ("v" → "taxon")))
+    val taxonomyAttributes: Map[String, Json] = Map("name" → tv("taxon"),
+                                                    "test" → tv("taxon"))
     def taxonomyHierarchical = false
 
     private def _taxonomy: Taxonomy = {
@@ -66,10 +66,10 @@ trait TaxonomySeeds extends TestFixtureBase {
   trait FlatTaxons_Raw extends TaxonSeedBase {
     def taxonomy: Taxonomy
 
-    val taxonAttributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
+    val taxonAttributes = Map("name" → tv("name"))
 
     val taxonsNames        = (1 to 2).map("taxon" + _.toString)
-    val taxonsAttributes   = taxonsNames.map(name ⇒ Map("name" → (("t" → "string") ~ ("v" → name))))
+    val taxonsAttributes   = taxonsNames.map(name ⇒ Map("name" → tv("name")))
     val taxons: Seq[Taxon] = createTaxons(taxonsAttributes)
 
     val links: Seq[TaxonomyTaxonLink] = {
@@ -92,11 +92,11 @@ trait TaxonomySeeds extends TestFixtureBase {
   trait HierarchicalTaxons_Raw extends TaxonSeedBase {
     def taxonomy: Taxonomy
 
-    val taxonAttributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
+    val taxonAttributes = Map("name" → tv("name"))
 
     val taxonsNames = (1 to 7).map(i ⇒ s"taxon$i")
     val taxons: Seq[Taxon] = createTaxons(
-        taxonsNames.map(name ⇒ Map("name" → (("t" → "string") ~ ("v" → name)))))
+        taxonsNames.map(name ⇒ Map("name" → tv(name))))
 
     val links: Seq[TaxonomyTaxonLink] = {
       require(taxonomy.hierarchical)

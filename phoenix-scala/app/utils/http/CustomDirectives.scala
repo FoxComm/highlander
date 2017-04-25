@@ -13,7 +13,6 @@ import failures._
 import models.activity.ActivityContext
 import models.objects.{ObjectContext, ObjectContexts}
 import models.product.{ProductReference, SimpleContext}
-import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.AuthPayload
 import scala.concurrent.Future
 import scala.util.{Failure, Success}

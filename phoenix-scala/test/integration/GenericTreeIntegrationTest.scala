@@ -2,15 +2,12 @@ import com.github.tminglei.slickpg.LTree
 import failures.TreeFailures._
 import models.objects._
 import models.tree._
-import org.json4s.JsonDSL._
-import org.scalatest.Matchers._
 import payloads.GenericTreePayloads._
 import responses.GenericTreeResponses.FullTreeResponse.Root
 import responses.GenericTreeResponses.TreeResponse
 import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
-import utils.MockedApis
 import utils.aliases._
 import utils.db._
 

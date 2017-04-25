@@ -6,19 +6,22 @@ import com.typesafe.scalalogging.LazyLogging
 import dispatch._
 import failures.MiddlewarehouseFailures.MiddlewarehouseError
 import failures.{Failures, MiddlewarehouseFailures}
-import org.json4s.Extraction
-import org.json4s.jackson.JsonMethods._
+import io.circe.generic.semiauto._
+import io.circe.jackson.syntax._
+import io.circe.parser.parse
+import io.circe.syntax._
+import io.circe.{Encoder, Json}
 import payloads.AuthPayload
-import utils.JsonFormatters
 import utils.aliases._
 import utils.db._
 
 case class SkuInventoryHold(sku: String, qty: Int)
 case class OrderInventoryHold(refNum: String, items: Seq[SkuInventoryHold])
+object OrderInventoryHold {
+  implicit val encode: Encoder[OrderInventoryHold] = deriveEncoder[OrderInventoryHold]
+}
 
 trait MiddlewarehouseApi {
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   def hold(reservation: OrderInventoryHold)(implicit ec: EC, au: AU): Result[Unit]
   def cancelHold(orderRefNum: String)(implicit ec: EC, au: AU): Result[Unit]
@@ -28,8 +31,9 @@ trait MiddlewarehouseApi {
 class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
 
   def parseMwhErrors(message: String): Failures = {
-    val errorString = (parse(message) \ "errors").extractOpt[List[String]]
-    errorString
+    val errorString =
+      parse(message).getOrElse(Json.Null).hcursor.downField("errors").as[List[String]]
+    errorString.toOption
       .flatMap(errors ⇒ Failures(errors.map(MiddlewarehouseError): _*))
       .getOrElse(MiddlewarehouseError(message).single)
   }
@@ -37,7 +41,7 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
   override def hold(reservation: OrderInventoryHold)(implicit ec: EC, au: AU): Result[Unit] = {
 
     val reqUrl = dispatch.url(s"$url/v1/private/reservations/hold")
-    val body   = compact(Extraction.decompose(reservation))
+    val body   = reservation.asJson.jacksonPrint
     val jwt    = AuthPayload.jwt(au.token)
     val req    = reqUrl.setContentType("application/json", "UTF-8") <:< Map("JWT" → jwt) << body
     logger.info(s"middlewarehouse hold: $body")
@@ -45,7 +49,7 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     val f = Http(req.POST > AsMwhResponse).either.map {
       case Right(MwhResponse(status, _)) if status / 100 == 2 ⇒ Either.right(())
       case Right(MwhResponse(_, message))                     ⇒ Either.left(parseMwhErrors(message))
-      case Left(error)                                        ⇒ Either.left(MiddlewarehouseFailures.UnableToHoldLineItems.single)
+      case Left(_)                                            ⇒ Either.left(MiddlewarehouseFailures.UnableToHoldLineItems.single)
     }
     Result.fromFEither(f)
   }
@@ -56,7 +60,7 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     val reqUrl = dispatch.url(s"$url/v1/private/reservations/hold/${orderRefNum}")
     val jwt    = AuthPayload.jwt(au.token)
     val req    = reqUrl.setContentType("application/json", "UTF-8") <:< Map("JWT" → jwt)
-    logger.info(s"middlewarehouse cancel hold: ${orderRefNum}")
+    logger.info(s"middlewarehouse cancel hold: $orderRefNum")
     val f = Http(req.DELETE OK as.String).either.map {
       case Right(_)    ⇒ Either.right(())
       case Left(error) ⇒ Either.left(MiddlewarehouseFailures.UnableToCancelHoldLineItems.single)

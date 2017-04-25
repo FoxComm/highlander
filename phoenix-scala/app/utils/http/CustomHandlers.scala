@@ -1,24 +1,25 @@
 package utils.http
 
-import scala.collection.immutable
-import scala.util.control.NonFatal
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.stream.scaladsl.Flow
 import akka.util.ByteString
-import org.json4s.jackson.Serialization.{write ⇒ json}
+import io.circe.Json
+import io.circe.jackson.syntax._
+import scala.collection.immutable
 import scala.concurrent.ExecutionException
+import scala.util.control.NonFatal
 import utils._
 import utils.db.FoxFailureException
-import utils.http.Http._
 
 object CustomHandlers {
 
   private val defaultRejectionHandler = RejectionHandler.default
 
-  private def errorsJson(msg: String): String = json("errors" → Seq(msg))
+  private def errorsJson(msg: String): String =
+    Json.obj("errors" → Json.arr(Json.fromString(msg))).jacksonPrint
 
   private def errorsJsonEntity(msg: String): ResponseEntity =
     HttpEntity(ContentTypes.`application/json`, errorsJson(msg))

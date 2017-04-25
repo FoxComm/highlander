@@ -15,9 +15,9 @@ lazy val phoenixScala = (project in file("."))
   .settings(
     name := "phoenix-scala",
     /** Work around SBT warning for multiple dependencies */
-    dependencyOverrides += "org.scala-lang" % "scala-library" % scalaVersion.value,
+    dependencyOverrides += scalaOrganization.value % "scala-library" % scalaVersion.value,
     dependencyOverrides ++= Dependencies.slick.toSet,
-    dependencyOverrides ++= Dependencies.json4s.toSet,
+    dependencyOverrides ++= Dependencies.json.toSet,
     ivyScala := ivyScala.value.map(_.copy(overrideScalaVersion = true)),
     resolvers ++= Seq(
       "hseeberger bintray" at "http://dl.bintray.com/hseeberger/maven",
@@ -28,7 +28,7 @@ lazy val phoenixScala = (project in file("."))
     ),
     libraryDependencies ++= {
       import Dependencies._
-      akka ++ http ++ auth ++ db ++ slick ++ json4s ++ fasterxml ++ apis ++ logging ++ test ++ misc ++ kafka
+      akka ++ http ++ auth ++ db ++ slick ++ json ++ fasterxml ++ apis ++ logging ++ test ++ misc ++ kafka
     },
     addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.3"),
     scalaSource in Compile := baseDirectory.value / "app",

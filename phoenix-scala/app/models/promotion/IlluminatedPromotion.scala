@@ -6,10 +6,8 @@ import failures._
 import java.time.Instant
 import models.objects._
 import models.promotion.Promotion._
-import org.json4s.JsonAST.JNothing
-import org.json4s.JsonDSL._
+import utils.IlluminateAlgorithm
 import utils.aliases._
-import utils.{IlluminateAlgorithm, JsonFormatters}
 
 /**
   * An IlluminatedPromotion is what you get when you combine the promotion shadow and
@@ -20,11 +18,10 @@ case class IlluminatedPromotion(id: Int,
                                 applyType: ApplyType,
                                 attributes: Json) {
 
-  implicit val formats = JsonFormatters.phoenixFormats
-
   def mustBeActive: Either[Failures, IlluminatedPromotion] = {
-    val activeFrom = (attributes \ "activeFrom" \ "v").extractOpt[Instant]
-    val activeTo   = (attributes \ "activeTo" \ "v").extractOpt[Instant]
+    val attrs      = attributes.hcursor
+    val activeFrom = attrs.downField("activeFrom").downField("v").as[Instant].toOption
+    val activeTo   = attrs.downField("activeTo").downField("v").as[Instant].toOption
     val now        = Instant.now
 
     (activeFrom, activeTo) match {
@@ -55,7 +52,7 @@ object IlluminatedPromotion {
 
   def validatePromotion(applyType: ApplyType, promotion: FormAndShadow): FormAndShadow = {
     (applyType, promotion.getAttribute("activeFrom")) match {
-      case (Promotion.Coupon, JNothing) ⇒
+      case (Promotion.Coupon, None) ⇒
         promotion.setAttribute("activeFrom", "date", Instant.now.toString)
       case _ ⇒
         promotion

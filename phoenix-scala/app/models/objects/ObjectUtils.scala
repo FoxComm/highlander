@@ -1,18 +1,16 @@
 package models.objects
 
-import java.time.Instant
-
 import cats.data.NonEmptyList
 import cats.implicits._
 import failures.Failure
-import org.json4s.JsonAST.{JNothing, JObject, JString, JNull}
-import org.json4s.JsonDSL._
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
+import io.circe._
+import io.circe.jackson.syntax._
+import java.time.Instant
 import services.objects.ObjectSchemasManager
 import utils.IlluminateAlgorithm
 import utils.aliases._
 import utils.db._
+import utils.json._
 
 object ObjectUtils {
 
@@ -23,7 +21,7 @@ object ObjectUtils {
     override def update(form: ObjectForm, shadow: ObjectShadow): FormAndShadow = (form, shadow)
   }
 
-  def get(attr: String, form: ObjectForm, shadow: ObjectShadow): Json =
+  def get(attr: String, form: ObjectForm, shadow: ObjectShadow): Option[Json] =
     IlluminateAlgorithm.get(attr, form.attributes, shadow.attributes)
 
   val KeyLength = 5
@@ -37,7 +35,7 @@ object ObjectUtils {
   private def hash(content: Json): String =
     java.security.MessageDigest
       .getInstance("SHA-1") // shared instance would not be thread-safe
-      .digest(compact(render(content)).getBytes)
+      .digest(content.jacksonPrint.getBytes)
       .slice(0, KeyLength)
       .map("%02x".format(_))
       .mkString
@@ -52,10 +50,8 @@ object ObjectUtils {
   private[objects] def key(content: Json, alreadyExistingFields: Json): String = {
     val hashKey = hash(content)
 
-    def noHashCollision(newHash: String): Boolean = {
-      val value = alreadyExistingFields \ newHash
-      value == JNothing || value == content
-    }
+    def noHashCollision(newHash: String): Boolean =
+      (alreadyExistingFields \ newHash).forall(_ == content)
 
     Stream
       .from(0)
@@ -65,48 +61,42 @@ object ObjectUtils {
   }
 
   type KeyMap = Map[String, String]
-  def createForm(humanReadableForm: Json, existingForm: Json = JNothing): (KeyMap, Json) = {
-    humanReadableForm match {
-      case JObject(o) ⇒
-        val zeroAccumObj = existingForm.merge(humanReadableForm)
+  def createForm(humanReadableForm: Json, existingForm: Json = Json.obj()): (KeyMap, Json) = {
+    humanReadableForm.asObject match {
+      case Some(o) ⇒
+        val zeroAccumObj = existingForm.deepMerge(humanReadableForm)
         val (_, keyMap, newForm) =
-          o.obj.foldLeft((zeroAccumObj, Map.empty: KeyMap, Nil: List[(String, JValue)])) {
+          o.toMap.foldLeft((zeroAccumObj, Map.empty: KeyMap, List.empty[(String, Json)])) {
             case ((accumObj, keyMap, newForm), (attr, value)) ⇒
               val k            = key(value, accumObj)
               val field        = (k, value)
-              val nextAccumObj = accumObj.merge(JObject(List(field)))
+              val nextAccumObj = accumObj.deepMerge(Json.obj(field))
               (nextAccumObj, keyMap + (attr → k), field :: newForm)
           }
-        (keyMap, JObject(newForm.distinct))
+        (keyMap, Json.obj(newForm.distinct: _*))
       case _ ⇒
-        (Map(), JNothing)
+        (Map(), Json.obj())
     }
   }
 
   private[objects] def updateForm(oldForm: Json, humanReadableUpdatedForm: Json): (KeyMap, Json) = {
     val (keyMap, newForm) = createForm(humanReadableUpdatedForm, oldForm)
-    (keyMap, oldForm.merge(newForm))
+    (keyMap, oldForm.deepMerge(newForm))
   }
 
   def newShadow(oldShadow: Json, keyMap: KeyMap): Json =
-    oldShadow match {
-      case JObject(o) ⇒
-        o.obj.map {
-          case (key, value) ⇒
-            val typ = value \ "type"
-            typ match {
-              case JString(t) ⇒ {
-                val ref = (value \ "ref") match {
-                  case JString(s) ⇒ s
-                  case _          ⇒ key
-                }
-                (key, ("type" → t) ~ ("ref" → keyMap.getOrElse(ref, ref)))
-              }
-              case _ ⇒ (key, JNull)
-            }
-        }
-      case _ ⇒ JNothing
-    }
+    oldShadow.asObject
+      .map(_.toVector.map {
+        case (key, value) ⇒
+          val valueC = value.hcursor
+          val tpe    = valueC.downField("type").focus.flatMap(_.asString)
+          key → tpe.fold(Json.Null) { t ⇒
+            val ref = valueC.downField("ref").focus.flatMap(_.asString).getOrElse(key)
+            Json.obj("type" → Json.fromString(t),
+                     "ref"  → Json.fromString(keyMap.getOrElse(ref, ref)))
+          }
+      })
+      .fold(Json.obj())(Json.fromFields)
 
   case class FormShadowAttributes(form: Json, shadow: Json)
   private def updateFormAndShadow(oldForm: Json,

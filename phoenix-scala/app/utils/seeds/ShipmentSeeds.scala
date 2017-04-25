@@ -1,16 +1,14 @@
 package utils.seeds
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import models.location.Country.unitedStatesId
 import models.rules._
+import models.shipping.ShippingMethod._
 import models.shipping._
-import org.json4s.jackson.JsonMethods._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
+import utils.json.yolo._
 import utils.seeds.Factories._
-import models.shipping.ShippingMethod._
 
 trait ShipmentSeeds {
 

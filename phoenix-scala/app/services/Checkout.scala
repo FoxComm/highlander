@@ -21,7 +21,6 @@ import models.payment.giftcard._
 import models.payment.storecredit._
 import models.promotion._
 import models.shipping.DefaultShippingMethods
-import org.json4s.JsonAST._
 import payloads.CartPayloads.CheckoutCart
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import responses.cord.OrderResponse
@@ -241,10 +240,10 @@ case class Checkout(
       sku    ← * <~ SkuManager.mustFindSkuByContextAndCode(contextId = ctx.id, skuCode)
       shadow ← * <~ ObjectShadows.mustFindById400(sku.shadowId)
       form   ← * <~ ObjectForms.mustFindById400(shadow.formId)
-      trackInventory = ObjectUtils.get("trackInventory", form, shadow) match {
-        case JBool(trackInv) ⇒ trackInv
-        case _               ⇒ true
-      }
+      trackInventory = ObjectUtils
+        .get("trackInventory", form, shadow)
+        .flatMap(_.asBoolean)
+        .forall(identity)
     } yield InventoryTrackedSku(trackInventory, skuCode, qty)
 
   private def cancelHoldInMiddleWarehouse: Result[Unit] =

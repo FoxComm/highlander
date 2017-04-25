@@ -1,28 +1,25 @@
-import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import failures.CartFailures._
 import failures.ShippingMethodFailures._
 import failures.{NotFoundFailure400, NotFoundFailure404}
 import faker.Lorem
-import models.cord._
 import models.cord.lineitems._
+import models.cord.{CordPaymentState, _}
 import models.location._
 import models.payment.creditcard._
 import models.product.Mvp
 import models.rules.QueryStatement
 import models.shipping._
-import org.json4s.jackson.JsonMethods._
 import payloads.AddressPayloads.{CreateAddressPayload, UpdateAddressPayload}
-import payloads.CustomerPayloads.CreateCustomerPayload
-import payloads.LineItemPayloads._
 import payloads.CartPayloads.CreateCart
+import payloads.CustomerPayloads.CreateCustomerPayload
+import payloads.GiftCardPayloads.GiftCardCreateByCsr
+import payloads.LineItemPayloads._
+import payloads.PaymentPayloads._
 import payloads.UpdateShippingMethod
+import responses._
 import responses.cord.CartResponse
 import responses.cord.base.CordResponseLineItem
-import responses._
-import models.cord.CordPaymentState
-import payloads.GiftCardPayloads.GiftCardCreateByCsr
-import payloads.PaymentPayloads._
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import testutils._
@@ -30,8 +27,8 @@ import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtures
 import utils.db._
-import utils.seeds.Factories
-import utils.seeds.ShipmentSeeds
+import utils.json.yolo._
+import utils.seeds.{Factories, ShipmentSeeds}
 
 class CartIntegrationTest
     extends IntegrationTestBase

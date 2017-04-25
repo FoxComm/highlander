@@ -1,12 +1,12 @@
 package testutils
 
-import org.json4s.jackson.parseJson
 import org.scalatest.AppendedClues
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api._
-import utils.MockedApis
+import utils.Strings._
 import utils.aliases.{SF, SL}
 import utils.db.ExPostgresDriver.api._
+import utils.json.yolo._
 
 trait SearchViewTestBase
     extends IntegrationTestBase
@@ -66,8 +66,8 @@ trait SearchViewTestBase
         .as[String]
 
     Option(query.gimme.onlyElement).map { jsonString ⇒
-      // .camelizeKeys allows to convert snake_cased search view table to camelCased Scala case class. Sweet!
-      parseJson(jsonString).camelizeKeys
+      parse(jsonString)
+        .transformField { case (k, v) => (k.tableNameToCamel, v) }
         .extract[Seq[SearchViewResult]]
         .withClue(s"Failed to parse JSON, raw data was $jsonString")
     }

@@ -1,19 +1,18 @@
 package models.sharedsearch
 
-import java.time.Instant
-
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
+import java.time.Instant
 import models.account._
 import models.sharedsearch.SharedSearch._
 import payloads.SharedSearchPayloads.SharedSearchPayload
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
+import utils.ADT
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{ADT, JsonFormatters}
 
 case class SharedSearch(id: Int = 0,
                         code: String = "",
@@ -95,8 +94,6 @@ object SharedSearches
     extends FoxTableQuery[SharedSearch, SharedSearches](new SharedSearches(_))
     with ReturningIdAndString[SharedSearch, SharedSearches]
     with SearchByCode[SharedSearch, SharedSearches] {
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   import scope._
 

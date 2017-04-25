@@ -1,13 +1,12 @@
 package models.objects
 
+import io.circe._
 import java.time.Instant
-
-import org.json4s.JsonAST._
-import org.json4s.JsonDSL._
 import shapeless._
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
+import utils.json._
 
 case class ObjectForm(id: Int = 0,
                       kind: String,
@@ -24,13 +23,12 @@ object ObjectForm {
   val taxonomy  = "taxonomy"
 
   def fromPayload(kind: String, attributes: Map[String, Json]): ObjectForm = {
-    val attributesJson = attributes.foldLeft(JNothing: JValue) {
+    val attributesJson = attributes.foldLeft(JsonObject.empty) {
       case (acc, (key, value)) ⇒
-        val attributeJson: JValue = key → (value \ "v")
-        acc.merge(attributeJson)
+        acc.add(key, value yolo "v")
     }
 
-    ObjectForm(kind = kind, attributes = attributesJson)
+    ObjectForm(kind = kind, attributes = Json.fromJsonObject(attributesJson))
   }
 }
 

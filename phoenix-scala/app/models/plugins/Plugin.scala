@@ -1,22 +1,17 @@
 package models.plugins
 
-import java.time.Instant
-
 import cats.data._
+import cats.implicits._
 import failures.Failure
-import org.json4s.JsonAST._
+import io.circe.JsonObject
+import java.time.Instant
+import models.plugins.PluginSettings._
 import payloads.PluginPayloads.RegisterPluginPayload
 import shapeless._
-import utils.{JsonFormatters, Validation}
-import utils.aliases._
+import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import cats.implicits._
-import PluginSettings._
-import com.github.tminglei.slickpg.utils.SimpleArrayUtils
-import org.json4s.jackson.JsonMethods._
-import slick.driver.PostgresDriver.api.MappedColumnType
-import org.json4s.Extraction
+import utils.json._
 
 case class Plugin(id: Int = 0,
                   name: String,
@@ -25,7 +20,7 @@ case class Plugin(id: Int = 0,
                   version: String,
                   apiHost: Option[String], // TODO: change (apiHost, apiPort) to apiUrl @narma
                   apiPort: Option[Int],
-                  settings: SettingsValues = Map.empty[String, JValue],
+                  settings: SettingsValues = JsonObject.empty,
                   schemaSettings: SettingsSchema,
                   createdAt: Instant = Instant.now,
                   updatedAt: Option[Instant] = None,
@@ -67,17 +62,12 @@ object Plugin {
 }
 
 object PluginOrmTypeMapper {
-  implicit val formats = JsonFormatters.phoenixFormats
+  implicit val SettingsSchemaT: BaseColumnType[SettingsSchema] = dbJsonColumn[SettingsSchema]
 
-  implicit val SettingsSchemaT = MappedColumnType
-    .base[SettingsSchema, Json](v ⇒ Extraction.decompose(v), s ⇒ s.extract[SettingsSchema])
-
-  implicit val SettingsValuesT = MappedColumnType
-    .base[SettingsValues, Json](v ⇒ Extraction.decompose(v), s ⇒ s.extract[SettingsValues])
-
+  implicit val SettingsValuesT: BaseColumnType[SettingsValues] = dbJsonColumn[SettingsValues]
 }
 
-import PluginOrmTypeMapper._
+import models.plugins.PluginOrmTypeMapper._
 
 class Plugins(tag: Tag) extends FoxTable[Plugin](tag, "plugins") {
   def id             = column[Int]("id", O.PrimaryKey, O.AutoInc)

@@ -6,9 +6,9 @@ import failures._
 import java.time.Instant
 import models.objects._
 import services.coupon.CouponUsageService
+import utils.IlluminateAlgorithm
 import utils.aliases._
 import utils.db._
-import utils.{IlluminateAlgorithm, JsonFormatters}
 
 /**
   * An IlluminatedCoupon is what you get when you combine the coupon shadow and
@@ -18,8 +18,6 @@ case class IlluminatedCoupon(id: Int,
                              context: IlluminatedContext,
                              attributes: Json,
                              promotion: Int) {
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   def mustBeActive: Either[Failures, IlluminatedCoupon] = {
     val activeFrom = (attributes \ "activeFrom" \ "v").extractOpt[Instant]

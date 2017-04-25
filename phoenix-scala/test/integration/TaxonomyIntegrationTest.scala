@@ -1,21 +1,18 @@
-import java.time.Instant
-
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import failures.TaxonomyFailures._
+import java.time.Instant
 import models.objects.ObjectForm
-import models.taxonomy.{Taxon ⇒ ModelTaxon, _}
-import org.json4s.JsonDSL._
-import org.json4s._
-import payloads.TaxonomyPayloads._
+import models.taxonomy.{Taxon => ModelTaxon, _}
 import payloads.TaxonPayloads._
-import responses.TaxonomyResponses._
+import payloads.TaxonomyPayloads._
 import responses.TaxonResponses._
+import responses.TaxonomyResponses._
 import slick.jdbc.GetResult
+import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.aliases.Json
 import utils.db.ExPostgresDriver.api._
 
 class TaxonomyIntegrationTest
@@ -41,7 +38,7 @@ class TaxonomyIntegrationTest
       val response = queryGetTaxonomy(taxonomy.formId)
       response.id must === (taxonomy.formId)
       response.taxons mustBe empty
-      response.attributes must === (JObject(taxonomyAttributes.toList: _*))
+      response.attributes must === (Json.obj(taxonomyAttributes.toList: _*))
     }
 
     "gets full hierarchy" in new HierarchyTaxonsFixture {
@@ -61,22 +58,22 @@ class TaxonomyIntegrationTest
 
   "POST v1/taxonomies/:contextName" - {
     "creates taxonomy" in {
-      val payload = CreateTaxonomyPayload(Map("name" → (("t" → "string") ~ ("v" → "name"))),
+      val payload = CreateTaxonomyPayload(Map("name" → tv("name")),
                                           hierarchical = false,
                                           scope = None)
       val taxonResp = taxonomiesApi.create(payload).as[FullTaxonomyResponse]
       queryGetTaxonomy(taxonResp.id) must === (taxonResp)
-      taxonResp.attributes must === (JObject(payload.attributes.toList: _*))
+      taxonResp.attributes must === (Json.obj(payload.attributes.toList: _*))
       taxonResp.taxons mustBe empty
     }
   }
 
   "PATCH v1/taxonomies/:contextName/:taxonomyFormId" - {
     "updates taxonomy" in new TaxonomyFixture {
-      val newAttributes = taxonomyAttributes + ("testValue" → (("t" → "string") ~ ("v" → "test")))
+      val newAttributes = taxonomyAttributes + ("testValue" → tv("test"))
       val payload       = UpdateTaxonomyPayload(newAttributes)
       val taxonomyResp  = taxonomiesApi(taxonomy.formId).update(payload).as[FullTaxonomyResponse]
-      taxonomyResp.attributes must === (JObject(payload.attributes.toList: _*))
+      taxonomyResp.attributes must === (Json.obj(payload.attributes.toList: _*))
     }
   }
 
@@ -115,7 +112,7 @@ class TaxonomyIntegrationTest
   "POST v1/taxonomies/:contextName/:taxonomyFormId/taxons" - {
     "creates taxon" in new TaxonomyFixture {
       private val taxonName: String = "name"
-      private val taxonAttributes   = Map("name" → (("t" → "string") ~ ("v" → "name")))
+      private val taxonAttributes   = Map("name" → tv("name"))
 
       val response = taxonomiesApi(taxonomy.formId)
         .createTaxon(CreateTaxonPayload(taxonAttributes, None))
@@ -302,7 +299,7 @@ class TaxonomyIntegrationTest
 
     "should update taxonomy name" in new HierarchyTaxonsFixture {
       val newName       = "new name"
-      val newAttributes = taxonomyAttributes + ("name" → (("t" → "string") ~ ("v" → newName)))
+      val newAttributes = taxonomyAttributes + ("name" → tv(newName))
 
       val resp = taxonomiesApi(taxonomy.formId).update(UpdateTaxonomyPayload(newAttributes))
       resp.status must === (StatusCodes.OK)

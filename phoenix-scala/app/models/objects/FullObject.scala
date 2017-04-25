@@ -1,51 +1,48 @@
 package models.objects
 
-import org.json4s.JsonDSL._
+import io.circe.Json
+import models.objects.FormAndShadow._
 import utils.IlluminateAlgorithm
 import utils.aliases.Json
-import FormAndShadow._
-import org.json4s.JsonAST.JObject
 
 trait FormAndShadow {
   def form: ObjectForm
   def shadow: ObjectShadow
 
-  def tupled = form → shadow
+  def tupled: (ObjectForm, ObjectShadow) = form → shadow
 
+  // FIXME KJ: why not empty map
   def toPayload: Map[String, Json] = {
     val attributes = IlluminateAlgorithm
-      .projectAttributes(formJson = this.form.attributes, shadowJson = this.shadow.attributes)
-    attributes match {
-      case JObject(o) ⇒
-        o.foldLeft(Map.empty[String, Json]) {
-          case (acc, (fieldName, jvalue)) ⇒
-            acc + (fieldName → jvalue)
-        }
-      case _ ⇒ throw new IllegalArgumentException("Invalid attributes")
+      .projectAttributes(formJson = form.attributes, shadowJson = shadow.attributes)
+    attributes.flatMap(_.asObject) match {
+      case Some(o) ⇒ o.toMap
+      case _       ⇒ throw new IllegalArgumentException("Invalid attributes")
     }
 
   }
 
   def mergeShadowAttrs(newShadowAttrs: Json): FormAndShadow = {
-    val newShadow = this.shadow.copy(attributes = this.shadow.attributes.merge(newShadowAttrs))
+    val newShadow = this.shadow.copy(attributes = this.shadow.attributes.deepMerge(newShadowAttrs))
     FormAndShadowSimple(form = this.form, shadow = newShadow)
   }
 
-  def getAttribute(attr: String) =
+  def getAttribute(attr: String): Option[Json] =
     IlluminateAlgorithm.get(attr, form.attributes, shadow.attributes)
 
+  // FIXME KJ: remove shitty assertions
   def setAttribute(attr: String, attrType: String, value: Json): FormAndShadow = {
-    val (keyMap, newForm) = ObjectUtils.createForm(attr → value)
+    val (keyMap, newForm) = ObjectUtils.createForm(Json.obj(attr → value))
 
     assert(keyMap.size == 1)
     assert(keyMap.head._1 == attr)
 
     val (_, key) = keyMap.head
 
-    val newAttribute: Json        = attr → (("type" → attrType) ~ ("ref" → key))
-    val newShadowAttributes: Json = shadow.attributes.merge(newAttribute)
-    update(form.copy(attributes = form.attributes.merge(newForm)),
-           shadow.copy(attributes = newShadowAttributes))
+    val newAttribute =
+      Json.obj(attr → Json.obj("type" → Json.fromString(attrType), "ref" → Json.fromString(key)))
+    update(form.copy(attributes = form.attributes.deepMerge(newForm)),
+           shadow.copy(attributes = shadow.attributes.deepMerge(newAttribute)))
   }
 
   def update(form: ObjectForm, shadow: ObjectShadow): FormAndShadow

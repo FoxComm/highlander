@@ -1,16 +1,13 @@
 package responses
 
 import java.time.Instant
-
 import models.image._
 import models.objects._
 import responses.ImageResponses.ImageResponse
 import services.image.ImageManager.FullAlbumWithImages
-import utils.{IlluminateAlgorithm, JsonFormatters}
+import utils.IlluminateAlgorithm
 
 object AlbumResponses {
-  implicit val formats = JsonFormatters.phoenixFormats
-
   object AlbumResponse {
     case class Root(id: Int,
                     name: String,

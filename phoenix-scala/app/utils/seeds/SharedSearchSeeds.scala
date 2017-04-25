@@ -1,14 +1,13 @@
 package utils.seeds
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import models.account._
 import models.admin._
 import models.sharedsearch.{SharedSearch, SharedSearchAssociation, SharedSearchAssociations, SharedSearches}
-import org.json4s.jackson.JsonMethods._
-import utils.db._
+import scala.concurrent.ExecutionContext.Implicits.global
 import slick.driver.PostgresDriver.api._
 import utils.aliases.AU
+import utils.db._
+import utils.json.yolo._
 
 trait SharedSearchSeeds {
 

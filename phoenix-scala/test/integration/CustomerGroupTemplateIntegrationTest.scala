@@ -1,6 +1,7 @@
+import cats.implicits._
+import io.circe.Json
 import models.customer.CustomerGroup._
 import models.customer.{CustomerGroupTemplate, CustomerGroupTemplates}
-import org.json4s.JObject
 import org.scalatest.mockito.MockitoSugar
 import payloads.CustomerGroupPayloads.CustomerGroupPayload
 import responses.GroupResponses.GroupResponse.Root
@@ -8,7 +9,6 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.seeds.Factories
-import cats.implicits._
 
 class CustomerGroupTemplateIntegrationTest
     extends IntegrationTestBase
@@ -25,8 +25,8 @@ class CustomerGroupTemplateIntegrationTest
     val scopeN = "1"
 
     val payload = CustomerGroupPayload(name = "Group number one",
-                                       clientState = JObject(),
-                                       elasticRequest = JObject(),
+                                       clientState = Json.obj(),
+                                       elasticRequest = Json.obj(),
                                        customersCount = 1,
                                        templateId = groupTemplates.head.id.some,
                                        scope = scopeN.some,

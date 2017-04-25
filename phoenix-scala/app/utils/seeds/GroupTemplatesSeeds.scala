@@ -1,10 +1,10 @@
 package utils.seeds
 
+import io.circe.Json
 import models.customer.{CustomerGroupTemplate, CustomerGroupTemplates}
-import org.json4s.JObject
-import org.json4s.jackson.JsonMethods.parse
 import utils.aliases._
 import utils.db._
+import utils.json.yolo._
 
 trait GroupTemplatesSeeds {
 
@@ -47,7 +47,7 @@ trait GroupTemplatesSeeds {
 
   type GroupTemplates = (CustomerGroupTemplate#Id, CustomerGroupTemplate#Id)
 
-  private def fakeQuery = JObject()
+  private def fakeQuery = Json.obj()
 
   def createGroups(scopeId: Int)(implicit db: DB, ac: AC, ec: EC): DbResultT[GroupTemplates] =
     for {

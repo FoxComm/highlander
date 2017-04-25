@@ -1,15 +1,15 @@
 package utils
 
-import scala.collection.JavaConverters._
-import scala.concurrent.Future
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri, IndexAndType, RichSearchResponse}
 import com.typesafe.scalalogging.LazyLogging
+import io.circe.jackson.syntax._
+import io.circe.{Json, JsonObject}
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.search.aggregations.bucket.filter.InternalFilter
 import org.elasticsearch.search.aggregations.bucket.terms.{StringTerms, Terms}
-import org.json4s.JsonAST.{JArray, JObject, JString}
-import org.json4s.jackson.JsonMethods.{compact, parse, render}
+import scala.collection.JavaConverters._
+import scala.concurrent.Future
 import utils.ElasticsearchApi._
 import utils.FoxConfig.ESConfig
 import utils.aliases._
@@ -31,7 +31,7 @@ case class ElasticsearchApi(config: ESConfig)(implicit ec: EC) extends LazyLoggi
     * Injects metrics aggregation by specified field name into prepared query
     */
   def checkMetrics(searchView: SearchView,
-                   query: Json,
+                   query: JsonObject,
                    fieldName: String,
                    references: Seq[String]): Future[Long] = {
 
@@ -40,11 +40,11 @@ case class ElasticsearchApi(config: ESConfig)(implicit ec: EC) extends LazyLoggi
     // Extract metrics data from aggregation results
     def getDocCount(resp: RichSearchResponse): Long =
       resp.aggregations.getAsMap.asScala.get(aggregationName) match {
-        case Some(agg) ⇒ agg.asInstanceOf[InternalFilter].getDocCount
-        case _         ⇒ 0
+        case Some(agg)           ⇒ agg.asInstanceOf[InternalFilter].getDocCount
+        case _ fold (pureResult) ⇒ 0
       }
 
-    val queryString  = compact(render(query))
+    val queryString  = Json.fromJsonObject(query).jacksonPrint
     val indexAndType = getIndexAndType(searchView)
 
     val request =
@@ -60,7 +60,7 @@ case class ElasticsearchApi(config: ESConfig)(implicit ec: EC) extends LazyLoggi
     * Injects bucket aggregation by specified field name into prepared query
     */
   def checkBuckets(searchView: SearchView,
-                   esQuery: Json,
+                   esQuery: JsonObject,
                    fieldName: String,
                    references: Seq[String]): Future[Buckets] = {
 
@@ -76,8 +76,8 @@ case class ElasticsearchApi(config: ESConfig)(implicit ec: EC) extends LazyLoggi
         case _         ⇒ List.empty
       }
 
-    val newQuery     = injectFilterReferences(esQuery, fieldName, references)
-    val queryString  = compact(render(newQuery))
+    val newQuery     = injectFilterReferences(Json.fromJsonObject(esQuery), fieldName, references)
+    val queryString  = newQuery.jacksonPrint
     val indexAndType = getIndexAndType(searchView)
 
     val request = search in indexAndType rawQuery queryString aggregations (
@@ -90,7 +90,7 @@ case class ElasticsearchApi(config: ESConfig)(implicit ec: EC) extends LazyLoggi
 
   def numResults(searchView: SearchView, esQuery: Json): Future[Long] =
     client.execute {
-      search in getIndexAndType(searchView) rawQuery compact(render(esQuery)) size 0
+      search in getIndexAndType(searchView) rawQuery esQuery.jacksonPrint size 0
     }.map(_.totalHits)
 
   /**
@@ -98,8 +98,7 @@ case class ElasticsearchApi(config: ESConfig)(implicit ec: EC) extends LazyLoggi
     */
   private def logQuery(indexAndType: IndexAndType, query: String): Unit = {
     logger.debug(
-        s"Preparing Elasticsearch query to ${indexAndType.index}/${indexAndType.`type`}: ${compact(
-        render(parse(query)))}")
+        s"Preparing Elasticsearch query to ${indexAndType.index}/${indexAndType.`type`}: $query")
   }
 
 }
@@ -132,18 +131,17 @@ object ElasticsearchApi {
   protected def injectFilterReferences(query: Json,
                                        fieldName: String,
                                        references: Seq[String]): Json = {
-    val refFilter     = JObject("terms" → JObject(fieldName → JArray(references.map(JString).toList)))
-    val currentFilter = query \ "bool" \ "filter"
-    currentFilter match {
-      case singleFilter: JObject ⇒
-        val newFilter = JArray(List(refFilter, singleFilter))
-        query.replace(List("bool", "filter"), newFilter)
-      case JArray(filters) ⇒
-        val newFilter = JArray(List(refFilter) ++ filters)
-        query.replace(List("bool", "filter"), newFilter)
-      case _ ⇒
-        val newQuery = JObject("bool" → JObject("filter" → JArray(List(refFilter))))
-        query.merge(newQuery)
-    }
+    val refFilter =
+      Json.obj("terms" → Json.obj(fieldName → Json.arr(references.map(Json.fromString): _*)))
+    val currentFilter = query.hcursor.downField("bool").downField("filter")
+    currentFilter
+      .withFocus(
+          _.arrayOrObject(
+              Json.arr(refFilter),
+              jarr ⇒ Json.fromValues(refFilter +: jarr),
+              jobj ⇒ Json.fromValues(Vector(refFilter, Json.fromJsonObject(jobj)))
+          ))
+      .focus
+      .getOrElse(query.deepMerge(Json.obj("bool" → Json.obj("filter" → Json.arr(refFilter)))))
   }
 }

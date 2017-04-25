@@ -1,47 +1,44 @@
 package utils
 
-import java.time.Instant
-
 import cats.data._
+import cats.implicits._
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
+import com.networknt.schema.JsonSchemaFactory
 import com.typesafe.scalalogging.LazyLogging
 import failures.Failure
 import failures.ObjectFailures._
+import io.circe._
+import io.circe.jackson.CirceJsonModule
+import io.circe.jackson.syntax._
+import java.time.Instant
 import models.objects._
-import org.json4s.JsonAST._
-import org.json4s.JsonDSL._
+import scala.collection.JavaConverters._
 import utils.aliases._
 import utils.db._
+import utils.json._
 
-// json schema
-import scala.collection.JavaConverters._
-import com.networknt.schema.JsonSchemaFactory
-import org.json4s.jackson.JsonMethods.asJsonNode
-
+// FIXME KJ: way too much duplication
 object IlluminateAlgorithm extends LazyLogging {
-  implicit val formats = JsonFormatters.phoenixFormats
-
-  def get(attr: String, form: Json, shadow: Json): Json = shadow \ attr \ "ref" match {
-    case JString(key) ⇒ form \ key
-    case _            ⇒ JNothing
-  }
-
-  private def getInternalAttributes(schema: ObjectFullSchema): Option[JObject] = {
-    schema.schema \ "properties" \ "attributes" match {
-      case JObject(s) ⇒ Some(s)
+  def get(attr: String, form: Json, shadow: Json): Option[Json] =
+    shadow.hcursor.downField(attr).downField("ref").as[String] match {
+      case Right(key) ⇒ form.hcursor.downField(key).focus
       case _          ⇒ None
     }
-  }
+
+  private def getInternalAttributes(schema: ObjectFullSchema): Option[JsonObject] =
+    schema.schema.hcursor.downField("properties").downField("attributes").focus.flatMap(_.asObject)
 
   def validateObjectBySchema(schema: ObjectFullSchema, form: ObjectForm, shadow: ObjectShadow)(
       implicit ec: EC): DbResultT[Json] = {
-    val illuminated = projectFlatAttributes(form.attributes, shadow.attributes)
+    val illuminated =
+      projectFlatAttributes(form.attributes, shadow.attributes).getOrElse(Json.obj())
     getInternalAttributes(schema).fold {
       DbResultT.good(illuminated)
     } { jsonSchema ⇒
       val jsonSchemaFactory = new JsonSchemaFactory
-      val validator         = jsonSchemaFactory.getSchema(asJsonNode(jsonSchema))
+      val validator         = jsonSchemaFactory.getSchema(Json.fromJsonObject(jsonSchema).asJsonNode)
 
-      val errorMessages = validator.validate(asJsonNode(illuminated)).asScala.toList
+      val errorMessages = validator.validate(illuminated.asJsonNode).asScala.toList
 
       errorMessages.map { err ⇒
         ObjectValidationFailure(form.kind, shadow.id, err.getMessage)
@@ -52,81 +49,81 @@ object IlluminateAlgorithm extends LazyLogging {
     }
   }
 
-  def projectAttributes(formJson: Json, shadowJson: Json): Json =
-    (formJson, shadowJson) match {
-      case (JObject(from), JObject(shadow)) ⇒
-        shadow.obj.map {
+  def projectAttributes(formJson: Json, shadowJson: Json): Option[Json] =
+    formJson.asObject.map2(shadowJson.asObject)((_, _)).flatMap {
+      case (_, shadow) ⇒
+        shadow.toVector.map {
           case (attr, link) ⇒
-            def typed = link \ "type"
-            def ref   = link \ "ref"
-            ref match {
-              case JString(key) ⇒ (attr, ("t" → typed) ~ ("v" → (formJson \ key)))
-              case _            ⇒ (attr, JNothing)
-            }
-        }
-      case _ ⇒
-        JNothing
+            val linkC = link.hcursor
+
+            for {
+              ref   ← linkC.downField("ref").focus
+              key   ← ref.asString
+              tpe   ← linkC.downField("type").focus
+              value ← formJson \ key
+            } yield (attr, Json.obj("t" → tpe, "v" → value))
+        }.sequenceU.map(Json.obj(_: _*))
     }
 
-  def projectFlatAttributes(formJson: Json, shadowJson: Json): Json =
-    (formJson, shadowJson) match {
-      case (JObject(from), JObject(shadow)) ⇒
-        shadow.obj.map {
+  def projectFlatAttributes(formJson: Json, shadowJson: Json): Option[Json] =
+    formJson.asObject.map2(shadowJson.asObject)((_, _)).flatMap {
+      case (_, shadow) ⇒
+        shadow.toVector.map {
           case (attr, link) ⇒
-            def ref = link \ "ref"
-            ref match {
-              case JString(key) ⇒ (attr, formJson \ key)
-              case _            ⇒ (attr, JNothing)
-            }
-        }
-      case _ ⇒
-        JNothing
+            for {
+              ref   ← link.hcursor.downField("ref").focus
+              key   ← ref.asString
+              value ← formJson \ key
+            } yield (attr, value)
+        }.sequenceU.map(Json.obj(_: _*))
     }
 
   def validateAttributes(formJson: Json, shadowJson: Json): Seq[Failure] =
-    (formJson, shadowJson) match {
-      case (JObject(form), JObject(shadow)) ⇒
-        shadow.obj.flatMap {
+    (formJson.asObject, shadowJson.asObject) match {
+      case (Some(_), Some(shadow)) ⇒
+        shadow.toVector.flatMap {
           case (attr, link) ⇒
-            val ref = link \ "ref"
-            val t   = link \ "type"
-            ref match {
-              case JString(key) ⇒ validateAttribute(attr, key, t, formJson)
-              case _            ⇒ Seq(ShadowAttributeMissingRef(attr))
-            }
+            val linkC = link.hcursor
+
+            val failures = for {
+              ref ← linkC.downField("ref").focus
+              key ← ref.asString
+              tpe ← linkC.downField("type").focus
+            } yield validateAttribute(attr, key, tpe, formJson)
+            failures.getOrElse(Seq(ShadowAttributeMissingRef(attr)))
         }
-      case (JObject(_), _) ⇒
-        Seq(ShadowAttributesAreEmpty)
-      case (_, JObject(_)) ⇒
-        Seq(FormAttributesAreEmpty)
-      case _ ⇒
-        Seq(FormAttributesAreEmpty, ShadowAttributesAreEmpty)
+      case (Some(_), None) ⇒ Seq(ShadowAttributesAreEmpty)
+      case (None, Some(_)) ⇒ Seq(FormAttributesAreEmpty)
+      case _               ⇒ Seq(FormAttributesAreEmpty, ShadowAttributesAreEmpty)
     }
-  def validateAttributesTypes(formJson: Json, shadowJson: Json): Seq[Failure] = {
-    (formJson, shadowJson) match {
-      case (JObject(form), JObject(shadow)) ⇒
-        shadow.obj.flatMap {
-          case (attr, link) ⇒
-            val typed = link \ "type"
-            val ref   = link \ "ref"
-            ref match {
-              case JString(key) ⇒ validateAttributeType(attr, key, typed, formJson)
-              case _            ⇒ Seq.empty[Failure]
-            }
-        }
-      case _ ⇒ Seq.empty[Failure]
-    }
-  }
+
+  def validateAttributesTypes(formJson: Json, shadowJson: Json): Seq[Failure] =
+    formJson.asObject
+      .map2(shadowJson.asObject)((_, _))
+      .map {
+        case (_, shadow) ⇒
+          shadow.toVector.flatMap {
+            case (attr, link) ⇒
+              val linkC = link.hcursor
+
+              (for {
+                ref ← linkC.downField("ref").focus
+                key ← ref.asString
+                tpe ← linkC.downField("type").focus
+              } yield validateAttributeType(attr, key, tpe, formJson)).getOrElse(Seq.empty)
+          }
+      }
+      .getOrElse(Seq.empty)
 
   private def validateAttributeType(attr: String,
                                     key: String,
-                                    typed: JValue,
+                                    typed: Json,
                                     form: Json): Seq[Failure] = {
     val value = form \ key
 
-    typed match {
-      case JString("datetime") ⇒
-        if (value != JNull && value != JNothing && value.extractOpt[Instant].isEmpty)
+    typed.asString match {
+      case Some("datetime") ⇒
+        if (value.flatMap(_.as[Instant].toOption).isEmpty)
           Seq(ShadowAttributeInvalidTime(attr, value.toString))
         else
           Seq.empty[Failure]
@@ -134,15 +131,12 @@ object IlluminateAlgorithm extends LazyLogging {
     }
   }
 
-  private def validateAttribute(attr: String,
-                                key: String,
-                                typed: JValue,
-                                form: Json): Seq[Failure] = {
+  private def validateAttribute(attr: String, key: String, typed: Json, form: Json): Seq[Failure] = {
     val value = form \ key
 
     val shadowAttributesErrors = value match {
-      case JNothing ⇒ Seq(ShadowHasInvalidAttribute(attr, key))
-      case _        ⇒ Seq.empty[Failure]
+      case None ⇒ Seq(ShadowHasInvalidAttribute(attr, key))
+      case _    ⇒ Seq.empty[Failure]
     }
 
     validateAttributeType(attr, key, typed, form) ++ shadowAttributesErrors

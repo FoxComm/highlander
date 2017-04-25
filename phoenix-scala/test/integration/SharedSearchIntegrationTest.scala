@@ -1,21 +1,17 @@
 import cats.implicits._
-import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import failures.SharedSearchFailures._
 import models.account._
-import models.admin._
 import models.sharedsearch.SharedSearch._
-import models.sharedsearch.SharedSearchAssociation.{build ⇒ buildAssociation}
+import models.sharedsearch.SharedSearchAssociation.{build => buildAssociation}
 import models.sharedsearch._
-import org.json4s.jackson.JsonMethods._
 import payloads.SharedSearchPayloads._
-import payloads.StoreAdminPayloads.CreateStoreAdminPayload
-import responses.UserResponse.{Root ⇒ UserRoot, build ⇒ buildUser}
+import responses.UserResponse.{Root => UserRoot, build => buildUser}
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Factories
+import utils.json.yolo._
 
 class SharedSearchIntegrationTest
     extends IntegrationTestBase

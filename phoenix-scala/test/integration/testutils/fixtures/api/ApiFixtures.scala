@@ -1,25 +1,24 @@
 package testutils.fixtures.api
 
 import cats.data.NonEmptyList
+import faker.Lorem
 import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
-import faker.Lorem
 import models.promotion.Promotion
-import org.json4s.JsonDSL._
 import org.scalatest.SuiteMixin
 import payloads.CouponPayloads.CreateCoupon
 import payloads.ProductPayloads.CreateProductPayload
 import payloads.SkuPayloads.SkuPayload
 import responses.CouponResponses.CouponResponse
-import responses.ProductResponses.ProductResponse.{Root ⇒ ProductRoot}
+import responses.ProductResponses.ProductResponse.{Root => ProductRoot}
 import responses.PromotionResponses.PromotionResponse
 import responses.SkuResponses.SkuResponse
+import scala.util.Random
 import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
 import utils.aliases.Json
-import scala.util.Random
 
 trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with JwtTestAuth {
   self: FoxSuite ⇒

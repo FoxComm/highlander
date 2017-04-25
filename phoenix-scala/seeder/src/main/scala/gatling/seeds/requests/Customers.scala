@@ -1,20 +1,20 @@
 package gatling.seeds.requests
 
 import faker._
+import io.circe.jackson.syntax._
+import io.circe.syntax._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.CustomerPayloads.CreateCustomerPayload
-import gatling.seeds.requests.Auth._
 
 object Customers {
 
   private val createCustomer = http("Create customer")
     .post("/v1/customers")
     .requireAdminAuth
-    .body(StringBody(json(CreateCustomerPayload(name = Option("${customerName}"),
+    .body(StringBody(CreateCustomerPayload(name = Option("${customerName}"),
                                                 email = "${customerEmail}",
-                                                password = Option("${customerPassword}")))))
+                                                password = Option("${customerPassword}")).asJson.jacksonPrint))
     .check(jsonPath("$.id").ofType[Int].saveAs("customerId"))
 
   val createStaticCustomers = foreach(csv("data/customers.csv").records, "customerRecord") {

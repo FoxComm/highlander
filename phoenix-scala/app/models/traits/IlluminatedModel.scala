@@ -3,12 +3,9 @@ package models.traits
 import cats.implicits._
 import failures.{Failure, Failures}
 import java.time.Instant
-import utils.JsonFormatters
 import utils.aliases.Json
 
 trait IlluminatedModel[T] {
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   def archivedAt: Option[Instant]
 

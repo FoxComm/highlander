@@ -2,9 +2,9 @@ package services
 
 import failures.DiscountCompilerFailures._
 import models.discount.offers._
-import org.json4s.jackson.JsonMethods._
 import services.discount.compilers.OfferAstCompiler
 import testutils.TestBase
+import utils.json.yolo._
 
 class OfferAstCompilerTest extends TestBase {
 

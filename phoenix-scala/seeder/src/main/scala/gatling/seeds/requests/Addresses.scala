@@ -1,15 +1,14 @@
 package gatling.seeds.requests
 
-import scala.util.Random
-
 import faker.Lorem.numerify
+import gatling.seeds._
+import gatling.seeds.simulations._
+import io.circe.jackson.syntax._
+import io.circe.syntax._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.AddressPayloads.CreateAddressPayload
-import gatling.seeds._
-import gatling.seeds.requests.Auth._
-import gatling.seeds.simulations._
+import scala.util.Random
 
 object Addresses {
 
@@ -28,16 +27,14 @@ object Addresses {
         address  ← session("customerAddress").validate[String]
         city     ← session("customerCity").validate[String]
       } yield
-        json {
-          CreateAddressPayload(name = name,
+        CreateAddressPayload(name = name,
                                regionId = regionId.toInt,
                                address1 = address,
                                city = city,
                                zip = nDigits(5),
                                isDefault = true,
                                phoneNumber = Some(nDigits(10)),
-                               address2 = session("customerAddress2").asOption[String])
-        }
+                               address2 = session("customerAddress2").asOption[String]).asJson.jacksonPrint
     })
     .check(jsonPath("$.id").ofType[Int].saveAs("addressId"))
 

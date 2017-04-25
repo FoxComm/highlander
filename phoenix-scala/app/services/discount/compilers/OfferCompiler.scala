@@ -3,15 +3,12 @@ package services.discount.compilers
 import cats.implicits._
 import failures.DiscountCompilerFailures._
 import failures._
+import io.circe.Decoder
 import models.discount.NonEmptySearch
 import models.discount.offers._
-import org.json4s._
-import utils.JsonFormatters
 import utils.aliases._
 
 case class OfferCompiler(offerType: OfferType, attributes: Json) {
-
-  implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   def compile(): Either[Failures, Offer] = offerType match {
     case OrderPercentOff    ⇒ extract[OrderPercentOffer](attributes)
@@ -26,16 +23,16 @@ case class OfferCompiler(offerType: OfferType, attributes: Json) {
     case _                  ⇒ Either.left(OfferNotImplementedFailure(offerType).single)
   }
 
-  private def extract[T <: Offer](json: Json)(implicit m: Manifest[T]): Either[Failures, Offer] =
-    json.extractOpt[T] match {
-      case Some(q) ⇒
+  private def extract[T <: Offer: Decoder](json: Json): Either[Failures, Offer] =
+    json.as[T] match {
+      case Right(q) ⇒
         q match {
           case q: NonEmptySearch if q.search.isEmpty ⇒
             Either.left(OfferSearchIsEmpty(offerType).single)
           case _ ⇒
             Either.right(q)
         }
-      case None ⇒
+      case Left(_) ⇒
         Either.left(OfferAttributesExtractionFailure(offerType).single)
     }
 }

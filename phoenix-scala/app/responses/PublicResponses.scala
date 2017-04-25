@@ -1,34 +1,29 @@
 package responses
 
+import io.circe.Decoder.Result
+import io.circe._
+import models.location.{Country, Region}
 import scala.collection.immutable.Seq
 
-import models.location.{Country, Region}
-import org.json4s.JsonAST.{JField, JObject}
-import org.json4s.{CustomSerializer, Extraction}
-import utils.JsonFormatters
-import utils.aliases._
-
 object PublicResponses {
-
-  implicit val formats = JsonFormatters.DefaultFormats
-
   case class CountryWithRegions(country: Country, regions: Seq[Region])
 
   object CountryWithRegions {
+    implicit val decodeCountryWithRegions: Decoder[CountryWithRegions] =
+      new Decoder[CountryWithRegions] {
+        def apply(c: HCursor): Result[CountryWithRegions] =
+          for {
+            country ← Decoder[Country].tryDecode(c)
+            regions ← Decoder[Seq[Region]].tryDecode(c.downField("regions"))
+          } yield CountryWithRegions(country, regions)
+      }
 
-    val jsonFormat = new CustomSerializer[CountryWithRegions](format ⇒
-          ({
-        case json: JObject ⇒
-          val country = json.extract[Country]
-          val regions = (json \ "regions").extract[Seq[Region]]
-          CountryWithRegions(country, regions)
-      }, {
-        case CountryWithRegions(country, regions) ⇒
-          import org.json4s.JsonDSL._
-          val countryJson: Json  = Extraction.decompose(country)
-          val regionsJson: Json  = Extraction.decompose(regions)
-          val regionsField: Json = JField("regions", regionsJson)
-          countryJson.merge(regionsField)
-      }))
+    implicit val encodeCountryWithRegions: Encoder[CountryWithRegions] =
+      new Encoder[CountryWithRegions] {
+        def apply(cwr: CountryWithRegions): Json =
+          Encoder[Country]
+            .apply(cwr.country)
+            .deepMerge(Json.obj("regions" → Encoder[Seq[Region]].apply(cwr.regions)))
+      }
   }
 }

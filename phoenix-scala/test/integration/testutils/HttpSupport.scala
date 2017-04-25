@@ -1,7 +1,5 @@
 package testutils
 
-import java.net.ServerSocket
-
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
@@ -19,21 +17,20 @@ import akka.util.ByteString
 import com.typesafe.config.ConfigFactory
 import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
 import de.heikoseeberger.akkasse.ServerSentEvent
-import org.json4s.Formats
-import org.json4s.jackson.Serialization.{write ⇒ writeJson}
+import io.circe.Encoder
+import io.circe.jackson.syntax._
+import io.circe.syntax._
+import java.net.ServerSocket
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
-import server.Service
-import services.Authenticator.UserAuthenticator
-import utils.FoxConfig.config
-import utils.apis.Apis
-import utils.seeds.Factories
-import utils.{FoxConfig, JsonFormatters}
-
 import scala.collection.immutable
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+import server.Service
+import utils.FoxConfig
+import utils.FoxConfig.config
+import utils.apis.Apis
 
 // TODO: Move away from root package when `Service' moverd
 object HttpSupport {
@@ -54,8 +51,6 @@ trait HttpSupport
   self: FoxSuite ⇒
 
   import HttpSupport._
-
-  implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   private val validResponseContentTypes =
     Set(ContentTypes.`application/json`, ContentTypes.NoContentType)
@@ -142,11 +137,11 @@ trait HttpSupport
     dispatchRequest(HttpRequest(method = HttpMethods.GET, uri = pathToAbsoluteUrl(path)),
                     jwtCookie)
 
-  def POST[T <: AnyRef](path: String, payload: T, jwtCookie: Option[Cookie]): HttpResponse =
-    POST(path, writeJson(payload), jwtCookie)
+  def POST[T: Encoder](path: String, payload: T, jwtCookie: Option[Cookie]): HttpResponse =
+    POST(path, payload.asJson.jacksonPrint, jwtCookie)
 
-  def PATCH[T <: AnyRef](path: String, payload: T, jwtCookie: Option[Cookie]): HttpResponse =
-    PATCH(path, writeJson(payload), jwtCookie)
+  def PATCH[T: Encoder](path: String, payload: T, jwtCookie: Option[Cookie]): HttpResponse =
+    PATCH(path, payload.asJson.jacksonPrint, jwtCookie)
 
   def DELETE(path: String, jwtCookie: Option[Cookie]): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.DELETE, uri = pathToAbsoluteUrl(path))

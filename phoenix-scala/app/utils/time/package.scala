@@ -1,9 +1,9 @@
 package utils
 
-import java.time.{ZonedDateTime, Duration, ZoneId, Instant}
+import java.time.{Duration, Instant, ZoneId, ZonedDateTime}
 
 package object time {
-  val UTC = ZoneId.of("UTC")
+  val UTC: ZoneId = ZoneId.of("UTC")
 
   def today: ZonedDateTime = Instant.now().atZone(UTC)
 
@@ -13,13 +13,13 @@ package object time {
     def minuteOfHour: Int = utc.getMinute
 
     // The follow methods assume UTC
-    def plusMinutes(minutes: Long)  = instant.plusSeconds(minutes * 60)
-    def minusMinutes(minutes: Long) = plusMinutes(0 - minutes)
+    def plusMinutes(minutes: Long): Instant  = instant.plusSeconds(minutes * 60)
+    def minusMinutes(minutes: Long): Instant = plusMinutes(0 - minutes)
 
-    def durationUntil(other: Instant) = Duration.between(instant, other)
+    def durationUntil(other: Instant): Duration = Duration.between(instant, other)
 
     def isBeforeNow: Boolean = instant.toEpochMilli <= Instant.now.toEpochMilli
-    def utc                  = instant.atZone(UTC)
+    def utc: ZonedDateTime   = instant.atZone(UTC)
   }
 
   implicit class RichDuration(val duration: Duration) extends AnyVal {

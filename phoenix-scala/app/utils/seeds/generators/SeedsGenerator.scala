@@ -1,26 +1,20 @@
 package utils.seeds.generators
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.Random
-
-import cats.implicits._
 import faker.Faker
 import models.account._
-import models.cord._
 import models.coupon._
 import models.customer._
 import models.inventory._
 import models.location.{Address, Addresses}
-import models.objects.{ObjectContext, ObjectContexts}
-import models.payment.PaymentMethod
-import models.payment.creditcard.{CreditCard, CreditCards}
+import models.objects.ObjectContexts
+import models.payment.creditcard.CreditCards
 import models.product.SimpleContext
 import models.promotion._
-import org.json4s.JObject
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Random
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import utils.seeds.Factories
 
 object SeedsGenerator
     extends CustomerGenerator

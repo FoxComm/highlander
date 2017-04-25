@@ -1,17 +1,15 @@
 package services.coupon
 
-import java.time.Instant
-
+import failures.CouponFailures._
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import failures.PromotionFailures._
-import failures.CouponFailures._
+import io.circe._
+import java.time.Instant
 import models.account._
 import models.coupon._
 import models.objects._
 import models.promotion._
-import org.json4s.JsonAST._
-import org.json4s.JsonDSL._
 import payloads.CouponPayloads._
 import responses.CouponResponses._
 import services.LogActivity
@@ -52,8 +50,10 @@ object CouponManager {
 
   private def forceActivate(attributes: Map[String, Json]): Map[String, Json] =
     attributes
-      .updated("activeFrom", ("t" → "datetime") ~ ("v" → Instant.ofEpochMilli(1).toString))
-      .updated("activeTo", ("t"   → "datetime") ~ ("v" → JNull))
+      .updated("activeFrom",
+               Json.obj("t"             → Json.fromString("datetime"),
+                        "v"             → Json.fromString(Instant.ofEpochMilli(1).toString)))
+      .updated("activeTo", Json.obj("t" → Json.fromString("datetime"), "v" → Json.Null))
 
   def update(id: Int, payload: UpdateCoupon, contextName: String, admin: User)(
       implicit ec: EC,

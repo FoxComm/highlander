@@ -2,15 +2,14 @@ package models.discount
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import io.circe.JsonObject
 import models.discount.SearchReference._
 import models.sharedsearch.SharedSearches
-import org.json4s.JsonAST.JObject
+import scala.concurrent.Future
 import utils.ElasticsearchApi.{Buckets, ScopedSearchView, SearchView}
 import utils.aliases._
 import utils.apis.Apis
 import utils.db._
-
-import scala.concurrent.Future
 
 /**
   * Linking mechanism for qualifiers (also used in offers)
@@ -30,12 +29,14 @@ sealed trait SearchReference[T] {
                    .fromF(SharedSearches.findOneById(searchId).run()) // FIXME: why are we using .run here? And too verbose @michalrus
         result ← searchO match {
                   case Some(search) ⇒
-                    search.rawQuery \ "query" match {
-                      case query: JObject ⇒
+                    search.rawQuery.hcursor
+                      .downField("query")
+                      .focus
+                      .flatMap(_.asObject)
+                      .fold(pureResult) { query ⇒
                         val searchView = searchViewByScope(search.accessScope)
                         Result.fromF(esSearch(searchView, query, refs))
-                      case _ ⇒ pureResult
-                    }
+                      }
                   case _ ⇒ pureResult
                 }
       } yield result
@@ -44,14 +45,14 @@ sealed trait SearchReference[T] {
 
   protected val searchViewByScope: (LTree ⇒ SearchView)
   protected def references(input: DiscountInput): Seq[String]
-  protected def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(
+  protected def esSearch(searchView: SearchView, query: JsonObject, refs: Seq[String])(
       implicit apis: Apis): Future[T]
 }
 
 trait SearchBuckets extends SearchReference[Buckets] {
   def pureResult(implicit ec: EC): Result[Buckets] = pureBuckets
 
-  def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(
+  def esSearch(searchView: SearchView, query: JsonObject, refs: Seq[String])(
       implicit apis: Apis): Future[Buckets] =
     apis.elasticSearch.checkBuckets(searchView, query, fieldName, refs)
 }
@@ -59,7 +60,7 @@ trait SearchBuckets extends SearchReference[Buckets] {
 trait SearchMetrics extends SearchReference[Long] {
   def pureResult(implicit ec: EC): Result[Long] = pureMetrics
 
-  def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(
+  def esSearch(searchView: SearchView, query: JsonObject, refs: Seq[String])(
       implicit apis: Apis): Future[Long] =
     apis.elasticSearch.checkMetrics(searchView, query, fieldName, refs)
 }

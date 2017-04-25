@@ -1,47 +1,38 @@
 package testutils
 
-import java.time.Instant
-
 import cats.implicits._
-import org.json4s.Extraction.decompose
-import org.json4s.Formats
-import org.json4s.JsonAST._
-import org.json4s.JsonDSL._
+import io.circe._
+import io.circe.syntax._
+import java.time.Instant
 import payloads.ImagePayloads.{AlbumPayload, ImagePayload}
-import utils.JsonFormatters
 import utils.aliases._
 
 object PayloadHelpers {
-  implicit val formats: Formats = JsonFormatters.phoenixFormats
-
-  case class ShadowValue(v: Any, t: String)
+  case class ShadowValue(v: Json, t: String)
 
   implicit class ShadowExtString(val s: String) extends AnyVal {
     def richText: ShadowValue =
-      ShadowValue(t = "richText", v = s)
+      ShadowValue(t = "richText", v = Json.fromString(s))
   }
 
-  implicit class ShadowExtJson(val o: JValue) extends AnyVal {
+  implicit class ShadowExtJson(val o: Json) extends AnyVal {
     def asShadowVal(t: String): ShadowValue =
       ShadowValue(t = t, v = o)
   }
 
-  def tv(v: Any, t: String = "string"): JObject =
-    v match {
-      case o: JValue ⇒ ("t" → t) ~ ("v" → o)
-      case _         ⇒ ("t" → t) ~ ("v" → decompose(v))
-    }
+  def tv[T: Encoder](v: T, t: String = "string"): Json =
+    Json.obj("t" → Json.fromString(t), "v" → v.asJson)
 
-  def usdPrice(price: Int): JObject =
-    tv(("currency" → "USD") ~ ("value" → price), "price")
+  def usdPrice(price: Int): Json =
+    tv(Json.obj("currency" → Json.fromString("USD"), "value" → Json.fromInt(price)), "price")
 
   implicit class AttributesJsonifyValues(val attrs: Map[String, Any]) extends AnyVal {
     def asShadow: Map[String, Json] =
       attrs.mapValues {
-        case v: String         ⇒ ("t" → "string") ~ ("v" → v)
-        case i: Int            ⇒ ("t" → "number") ~ ("v" → i)
-        case d: Instant        ⇒ ("t" → "datetime") ~ ("v" → d.toString)
-        case ShadowValue(v, t) ⇒ ("t" → t) ~ ("v" → decompose(v))
+        case v: String         ⇒ tv(v)
+        case i: Int            ⇒ tv(i, t = "number")
+        case d: Instant        ⇒ tv(d, t = "datetime")
+        case ShadowValue(v, t) ⇒ tv(v, t = t)
         case v: Json           ⇒ v
         case e                 ⇒ throw new IllegalArgumentException(s"Can't find valid shadow type for value $e")
 

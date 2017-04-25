@@ -1,15 +1,13 @@
 package models.image
 
+import com.github.tminglei.slickpg.LTree
 import java.time.Instant
-
 import models.objects._
 import shapeless._
-import utils.db.ExPostgresDriver.api._
 import slick.lifted.Tag
+import utils.Validation
+import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{Validation, JsonFormatters}
-
-import com.github.tminglei.slickpg._
 
 object Image {
   val kind = "image"
@@ -39,8 +37,6 @@ class Images(tag: Tag) extends ObjectHeads[Image](tag, "images") {
 
 object Images extends FoxTableQuery[Image, Images](new Images(_)) with ReturningId[Image, Images] {
   val returningLens: Lens[Image, Int] = lens[Image].id
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   def filterByContextAndFormId(contextId: Int, formId: Int): QuerySeq =
     filter(q ⇒ q.contextId === contextId && q.formId === formId)

@@ -1,19 +1,16 @@
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse, StatusCode, StatusCodes}
+import akka.http.scaladsl.model.{HttpResponse, StatusCode, StatusCodes}
+import cats.implicits._
 import failures.Failure
-import org.json4s.Formats
-import org.json4s.jackson.JsonMethods._
+import io.circe.Decoder
 import org.scalatest._
 import org.scalatest.concurrent.PatienceConfiguration
 import responses.TheResponse
-import utils.JsonFormatters
-import utils.aliases._
-
 import scala.concurrent.Await._
 import scala.concurrent.duration._
+import utils.aliases._
+import utils.json.yolo._
 
-package object testutils extends MustMatchers with OptionValues with AppendedClues {
-
-  implicit val formats: Formats = JsonFormatters.phoenixFormats
+package object testutils extends MustMatchers with OptionValues with AppendedClues with CatsHelpers {
 
   def originalSourceClue(implicit line: SL, file: SF) =
     s"""\n(Original source: ${file.value.split("/").last}:${line.value})"""
@@ -21,13 +18,13 @@ package object testutils extends MustMatchers with OptionValues with AppendedClu
   type FoxSuite = TestSuite with PatienceConfiguration with DbTestSupport
 
   implicit class RichAttributes(val attributes: Json) extends AnyVal {
-    def get[A](field: String)(implicit mf: Manifest[A]): A =
+    def get[A: Decoder](field: String): A =
       (attributes \ field \ "v").extract[A]
 
-    def getOpt[A](field: String)(implicit mf: Manifest[A]): Option[A] =
-      (attributes \ field \ "v").extractOpt[A]
+    def getOpt[A: Decoder](field: String): Option[A] =
+      (attributes \ field \ "v").as[A].toOption
 
-    def getValue[A](field: String)(implicit mf: Manifest[A]): A =
+    def getValue[A: Decoder](field: String): A =
       (attributes \ field \ "v" \ "value").extract[A]
 
     def getString(field: String): String = get[String](field)
@@ -53,15 +50,15 @@ package object testutils extends MustMatchers with OptionValues with AppendedClu
     lazy val bodyText: String =
       result(response.entity.toStrict(1.second).map(_.data.utf8String), 1.second)
 
-    def as[A <: AnyRef](implicit mf: Manifest[A], line: SL, file: SF): A = {
+    def as[A: Decoder](implicit line: SL, file: SF): A = {
       response.mustBeOk()
-      parse(bodyText).extractOpt[A].value.withClue(s"Failed to parse body!")
+      parse(bodyText).as[A].rightVal.withClue(s"Failed to parse body!")
     } withClue originalSourceClue
 
-    def asTheResult[A <: AnyRef](implicit mf: Manifest[A], line: SL, file: SF): A =
+    def asTheResult[A: Decoder](implicit line: SL, file: SF): A =
       asThe[A].result
 
-    def asThe[A <: AnyRef](implicit mf: Manifest[A], line: SL, file: SF): TheResponse[A] =
+    def asThe[A: Decoder](implicit line: SL, file: SF): TheResponse[A] =
       as[TheResponse[A]]
 
     def errors(implicit line: SL, file: SF): List[String] = {
@@ -118,8 +115,8 @@ package object testutils extends MustMatchers with OptionValues with AppendedClu
 
     private def extractErrors: List[String] = {
       val errors = (parse(bodyText) \ "errors")
-        .extractOpt[List[String]]
-        .value
+        .as[List[String]]
+        .rightVal
         .withClue(s"Expected errors, found $bodyText!")
 
       // Apparently I was too ambitious with this one... -- Anna

@@ -5,7 +5,6 @@ import models.Reason.{Cancellation, GiftCardCreation, StoreCreditCreation}
 import models.cord.{OrderPayment, OrderShippingAddress}
 import models.payment.creditcard.CreditCardCharge
 import slick.driver.PostgresDriver.api._
-import utils.JsonFormatters
 import utils.aliases._
 
 object Factories
@@ -26,8 +25,6 @@ object Factories
     with ObjectSchemaSeeds
     with CouponSeeds
     with SharedSearchSeeds {
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   def orderPayment = OrderPayment.build(creditCard)
 

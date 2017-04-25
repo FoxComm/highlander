@@ -12,8 +12,9 @@ import akka.stream.ActorMaterializer
 import com.stripe.Stripe
 import com.typesafe.scalalogging.LazyLogging
 import models.account.{AccountAccessMethod, Scope, Scopes}
-import org.json4s._
-import org.json4s.jackson._
+import scala.collection.immutable
+import scala.concurrent.duration._
+import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
 import services.Authenticator
 import services.Authenticator.{UserAuthenticator, requireAdminAuth}
 import services.account.AccountCreateContext
@@ -25,10 +26,6 @@ import utils.db._
 import utils.http.CustomHandlers
 import utils.http.HttpLogger.logFailedRequests
 import utils.{ElasticsearchApi, Environment, FoxConfig}
-
-import scala.collection.immutable
-import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
 
 object Main extends App with LazyLogging {
   logger.info("Starting phoenix server")
@@ -85,10 +82,6 @@ class Service(
     addRoutes: immutable.Seq[Route] = immutable.Seq.empty)(implicit val env: Environment) {
 
   import FoxConfig.config
-  import utils.JsonFormatters._
-
-  implicit val serialization: Serialization.type = jackson.Serialization
-  implicit val formats: Formats                  = phoenixFormats
 
   implicit val system: ActorSystem = systemOverride.getOrElse {
     ActorSystem.create("Orders", FoxConfig.unsafe)

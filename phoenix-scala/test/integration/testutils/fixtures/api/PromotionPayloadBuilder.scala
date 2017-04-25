@@ -1,9 +1,8 @@
 package testutils.fixtures.api
 
+import io.circe.Json
 import java.time.Instant
 import models.promotion.Promotion.ApplyType
-import org.json4s.JsonAST.{JArray, JNull}
-import org.json4s.jackson.parseJson
 import payloads.DiscountPayloads.CreateDiscount
 import payloads.PromotionPayloads.CreatePromotion
 import testutils.PayloadHelpers._
@@ -31,7 +30,7 @@ object PromotionPayloadBuilder {
                     attributes = Map(
                           "name"       → tv(faker.Lorem.sentence(1)),
                           "activeFrom" → tv(Instant.now, "datetime"),
-                          "activeTo"   → tv(JNull, "datetime")
+                          "activeTo"   → tv(Json.Null, "datetime")
                       ) ++ extraAttrs,
                     discounts = Seq(CreateDiscount(discountAttrs)))
   }

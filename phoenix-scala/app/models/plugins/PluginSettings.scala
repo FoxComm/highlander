@@ -1,10 +1,8 @@
 package models.plugins
 
 import com.pellucid.sealerate
-import org.json4s.JsonAST.JValue
+import io.circe.{Json, JsonObject}
 import utils.ADT
-import org.json4s.Extraction
-import utils.JsonFormatters
 
 object PluginSettings {
   sealed trait SettingType
@@ -21,24 +19,17 @@ object PluginSettings {
                         title: String,
                         description: Option[String],
                         `type`: SettingType,
-                        default: JValue)
+                        default: Json)
 
   type SettingsSchema = Seq[SettingDef]
-  type SettingsValues = Map[String, JValue]
+  type SettingsValues = JsonObject
 
   object SettingsValues {
-    implicit val formats = JsonFormatters.phoenixFormats
-
     implicit class SettingsValuesEnriched(val values: SettingsValues) extends AnyVal {
       def merge(other: SettingsValues): SettingsValues = {
-        val merged = Extraction.decompose(values) merge Extraction.decompose(other)
-        merged.extract[SettingsValues]
+        val merged = Json.fromJsonObject(values) deepMerge Json.fromJsonObject(other)
+        merged.asObject.getOrElse(values)
       }
-
-      def toJson: JValue = {
-        Extraction.decompose(values)
-      }
-
     }
 
   }

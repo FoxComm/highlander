@@ -1,13 +1,10 @@
 package models.tree
 
-import utils.aliases._
-import models.objects.ObjectContext
 import shapeless._
 import slick.lifted.Tag
+import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{JsonFormatters, Validation}
-import failures.TreeFailures._
 
 case class GenericTree(id: Int, name: String, contextId: Int)
     extends FoxModel[GenericTree]
@@ -27,8 +24,6 @@ object GenericTrees
     extends FoxTableQuery[GenericTree, GenericTrees](new GenericTrees(_))
     with ReturningId[GenericTree, GenericTrees] {
   val returningLens: Lens[GenericTree, Int] = lens[GenericTree].id
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   def filterByNameAndContext(name: String, contextId: Int): QuerySeq =
     filter(tree ⇒ tree.name === name && tree.contextId === contextId)

@@ -5,7 +5,6 @@ import akka.http.scaladsl.server.Route
 import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku.skuCodeRegex
 import models.payment.giftcard.GiftCard
-import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.AddressPayloads._
 import payloads.CartPayloads.CheckoutCart
 import payloads.CustomerPayloads._
@@ -21,8 +20,6 @@ import services.product.ProductManager
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
-import utils.http.Http._
-import utils.http.JsonSupport._
 
 object Customer {
   def routes(implicit ec: EC, db: DB, auth: UserAuthenticator, apis: Apis): Route = {

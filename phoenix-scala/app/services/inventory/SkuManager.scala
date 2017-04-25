@@ -11,7 +11,7 @@ import models.objects._
 import models.product.{ProductId, Products}
 import payloads.ImagePayloads.AlbumPayload
 import payloads.SkuPayloads._
-import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
+import responses.AlbumResponses.AlbumResponse.{Root => AlbumRoot}
 import responses.AlbumResponses._
 import responses.ObjectResponses.ObjectContextResponse
 import responses.SkuResponses._
@@ -21,13 +21,10 @@ import services.image.ImageManager.FullAlbumWithImages
 import services.objects.ObjectManager
 import services.product.ProductManager
 import slick.driver.PostgresDriver.api._
-import utils.JsonFormatters
 import utils.aliases._
 import utils.db._
 
 object SkuManager {
-  implicit val formats = JsonFormatters.DefaultFormats
-
   def createSku(admin: User, payload: SkuPayload)(implicit ec: EC,
                                                   db: DB,
                                                   ac: AC,

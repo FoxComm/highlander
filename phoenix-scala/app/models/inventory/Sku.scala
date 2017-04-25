@@ -1,17 +1,16 @@
 package models.inventory
 
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.{LinkArchivedSkuFailure, SkuIsPresentInCarts}
 import failures.Failures
 import java.time.Instant
+import models.cord.lineitems.CartLineItems
 import models.objects._
 import shapeless._
-import utils.JsonFormatters
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import com.github.tminglei.slickpg._
-import models.cord.lineitems.CartLineItems
 
 object Sku {
   val kind         = "sku"
@@ -67,8 +66,6 @@ object Skus
     with SearchByCode[Sku, Skus] {
 
   val returningLens: Lens[Sku, Int] = lens[Sku].id
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   def filterByContext(contextId: Int): QuerySeq =
     filter(_.contextId === contextId)

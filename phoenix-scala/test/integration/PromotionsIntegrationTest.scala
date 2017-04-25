@@ -1,34 +1,24 @@
-import java.time.Instant
-
 import akka.http.scaladsl.model.StatusCodes
-import cats._
 import cats.implicits._
-import failures.CouponFailures.{CouponNotFound, CouponWithCodeCannotBeFound}
+import failures.CouponFailures.CouponWithCodeCannotBeFound
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import failures.PromotionFailures.PromotionIsNotActive
-import models.Reasons
-import models.objects.{ObjectContext, ObjectUtils}
+import io.circe._
+import java.time.Instant
+import java.time.temporal.ChronoUnit.DAYS
+import models.objects.ObjectContext
 import models.promotion.Promotion.{Auto, Coupon}
 import models.promotion._
-import models.rules.QueryStatement
-import models.shipping.{ShippingMethod, ShippingMethods}
-import org.json4s.JsonAST._
-import org.json4s.JsonDSL._
-import org.json4s.jackson.JsonMethods._
 import org.scalactic.TolerantNumerics
-import payloads.AddressPayloads.CreateAddressPayload
+import payloads.CartPayloads.CreateCart
 import payloads.CouponPayloads.CreateCoupon
 import payloads.DiscountPayloads.CreateDiscount
 import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.CartPayloads.CreateCart
-import payloads.PaymentPayloads.{CreateManualStoreCredit, StoreCreditPayment}
 import payloads.PromotionPayloads._
-import payloads.UpdateShippingMethod
 import responses.CouponResponses.CouponResponse
-import responses.{CustomerResponse, StoreCreditResponse}
 import responses.PromotionResponses.PromotionResponse
-import responses.cord.{CartResponse, OrderResponse}
+import responses.cord.CartResponse
 import services.objects.ObjectManager
 import services.promotion.PromotionManager
 import testutils.PayloadHelpers.tv
@@ -40,9 +30,7 @@ import testutils.fixtures.{BakedFixtures, PromotionFixtures}
 import utils.IlluminateAlgorithm
 import utils.aliases._
 import utils.db._
-import utils.seeds.{Factories, ShipmentSeeds}
 import utils.time.RichInstant
-import java.time.temporal.ChronoUnit.DAYS
 
 class PromotionsIntegrationTest
     extends IntegrationTestBase
@@ -74,7 +62,7 @@ class PromotionsIntegrationTest
     }
 
     "404 when context not found" in new Fixture {
-      implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
+      implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = Json.obj())
       promotionsApi(promotion.formId)(donkeyContext)
         .delete()
         .mustFailWith404(ObjectContextNotFound("donkeyContext"))
@@ -84,7 +72,7 @@ class PromotionsIntegrationTest
   "PATCH /v1/promotions/:context/:id" - {
     "change qualifier in promotion" in new Fixture {
 
-      val newDiscountAttrs = makeDiscountAttrs("orderAny", "any" → JInt(0))
+      val newDiscountAttrs = makeDiscountAttrs("orderAny", "any" → Json.fromInt(0))
       val formDiscount     = promoRoot.discounts.head
       val disablePromoPayload =
         UpdatePromotion(applyType = promotion.applyType,
@@ -102,20 +90,17 @@ class PromotionsIntegrationTest
       ObjectManager
         .getFullObject(DbResultT.pure(promotion))
         .gimme
-        .getAttribute("activeFrom") must !==(JNothing)
+        .getAttribute("activeFrom") must !==(Json.obj())
     }
 
     "updating" in new AutoApplyPromotionSeed {
 
       var fullPromotion = ObjectManager.getFullObject(DbResultT.pure(promotion)).gimme
-      fullPromotion.getAttribute("activeFrom") must === (JNothing)
+      fullPromotion.getAttribute("activeFrom") must === (Json.obj())
 
-      val attributes: List[(String, JValue)] =
+      val attributes: List[(String, Json)] =
         IlluminateAlgorithm.projectAttributes(fullPromotion.form.attributes,
-                                              fullPromotion.shadow.attributes) match {
-          case JObject(f) ⇒ f
-          case _          ⇒ List()
-        }
+                                              fullPromotion.shadow.attributes).flatMap(_.asObject).map(_.toList).getOrElse(Nil)
 
       PromotionManager
         .update(promotion.formId, UpdatePromotion(Coupon, attributes.toMap, Seq()), ctx.name, None)
@@ -123,7 +108,7 @@ class PromotionsIntegrationTest
 
       fullPromotion =
         ObjectManager.getFullObject(Promotions.mustFindById400(fullPromotion.model.id)).gimme
-      fullPromotion.getAttribute("activeFrom") must !==(JNothing)
+      fullPromotion.getAttribute("activeFrom") must !==(Json.obj())
     }
   }
 
@@ -141,9 +126,8 @@ class PromotionsIntegrationTest
         val promotionPayload = {
           val discountPayload = {
             val discountAttrs = {
-              val qualifier = JObject(JField("orderAny", JObject(("", JNothing))))
-              val offer = JObject(
-                  JField("orderPercentOff", JObject(JField("discount", DefaultDiscountPercent))))
+              val qualifier = Json.obj("orderAny" -> Json.obj("" -> Json.Null))
+              val offer = Json.obj("orderPercentOff" -> Json.obj("discount" -> Json.fromInt(DefaultDiscountPercent)))
               Map("qualifier" → tv(qualifier, "qualifier"), "offer" → tv(offer, "offer"))
             }
 
@@ -163,17 +147,17 @@ class PromotionsIntegrationTest
 
       val coupon = {
         val couponPayload = {
-          val usageRules = JObject(JField("isExclusive", false),
-                                   JField("isUnlimitedPerCode", false),
-                                   JField("usesPerCode", 1),
-                                   JField("isUnlimitedPerCustomer", false),
-                                   JField("usesPerCustomer", 1))
+          val usageRules = Json.obj("isExclusive" -> Json.fromBoolean(false),
+                                    "isUnlimitedPerCode" -> Json.fromBoolean(false),
+                                    "usesPerCode" -> Json.fromInt(1),
+                                    "isUnlimitedPerCustomer" -> Json.fromBoolean(false),
+                                    "usesPerCustomer" -> Json.fromInt(1))
 
           val attrs = Map("usageRules" → tv(usageRules, "usageRules"),
                           "name"           → tv("testyCoupon"),
                           "storefrontName" → tv("<p>Testy coupon</p>", "richText"),
                           "activeFrom"     → tv(Instant.now, "datetime"),
-                          "activeTo"       → tv(JNull, "datetime"))
+                          "activeTo"       → tv(Json.Null, "datetime"))
           CreateCoupon(promotion = promoId, attributes = attrs)
         }
         couponsApi.create(couponPayload).as[CouponResponse.Root]

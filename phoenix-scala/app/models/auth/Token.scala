@@ -3,6 +3,7 @@ package models.auth
 import cats.implicits._
 import failures.AuthFailures._
 import failures.{Failures, GeneralFailure}
+import io.circe.parser.parse
 import java.io.{FileInputStream, InputStream}
 import java.security.spec.{PKCS8EncodedKeySpec, X509EncodedKeySpec}
 import java.security.{KeyFactory, PrivateKey, PublicKey}
@@ -11,10 +12,8 @@ import org.jose4j.jwa.AlgorithmConstraints
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.consumer.JwtConsumerBuilder
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
 import scala.collection.JavaConverters._
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 import utils.FoxConfig
 import utils.FoxConfig.config
 import utils.db._
@@ -88,7 +87,6 @@ sealed trait Token extends Product {
 }
 
 object Token {
-  implicit val formats = DefaultFormats
   val algorithmConstraints = new AlgorithmConstraints(
       AlgorithmConstraints.ConstraintType.WHITELIST,
       config.auth.keyAlgorithm)
@@ -152,17 +150,12 @@ object Token {
         .setVerificationKey(publicKey)
         .setExpectedAudience("user")
 
-      Try {
-        val consumer  = builder.build()
-        val jwtClaims = consumer.processToClaims(rawToken)
-        val jValue    = parse(jwtClaims.toJson)
-        Extraction.extract[UserToken](jValue)
-      } match {
-        case Success(token) ⇒ Either.right(token)
-        case Failure(e) ⇒
-          System.err.println(e.getMessage)
-          Either.left(AuthFailed(e.getMessage).single)
-      }
+      Either.catchNonFatal {
+        val consumer = builder.build()
+        consumer.processToClaims(rawToken)
+      }.flatMap(jwtClaims ⇒ parse(jwtClaims.toJson))
+        .flatMap(_.as[UserToken])
+        .leftMap(e ⇒ AuthFailed(e.getMessage).single)
     }
   }
 }

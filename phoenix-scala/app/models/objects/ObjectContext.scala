@@ -1,12 +1,11 @@
 package models.objects
 
 import java.time.Instant
-
 import shapeless._
+import utils.Validation
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{JsonFormatters, Validation}
 
 /**
   * A ObjectContext stores information to determine which object shadow to show.
@@ -37,8 +36,6 @@ object ObjectContexts
     with ReturningId[ObjectContext, ObjectContexts] {
 
   val returningLens: Lens[ObjectContext, Int] = lens[ObjectContext].id
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   def filterByName(name: String): QuerySeq =
     filter(_.name === name)

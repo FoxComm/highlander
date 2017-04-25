@@ -3,15 +3,12 @@ package services.discount.compilers
 import cats.implicits._
 import failures.DiscountCompilerFailures._
 import failures._
+import io.circe.Decoder
 import models.discount.NonEmptySearch
 import models.discount.qualifiers._
-import org.json4s._
-import utils.JsonFormatters
 import utils.aliases._
 
 case class QualifierCompiler(qualifierType: QualifierType, attributes: Json) {
-
-  implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   def compile(): Either[Failures, Qualifier] = qualifierType match {
     case And                  ⇒ extract[AndQualifier](attributes)
@@ -25,17 +22,16 @@ case class QualifierCompiler(qualifierType: QualifierType, attributes: Json) {
     case _                    ⇒ Either.left(QualifierNotImplementedFailure(qualifierType).single)
   }
 
-  private def extract[T <: Qualifier](json: Json)(
-      implicit m: Manifest[T]): Either[Failures, Qualifier] = {
-    json.extractOpt[T] match {
-      case Some(q) ⇒
+  private def extract[T <: Qualifier: Decoder](json: Json): Either[Failures, Qualifier] = {
+    json.as[T] match {
+      case Right(q) ⇒
         q match {
           case q: NonEmptySearch if q.search.isEmpty ⇒
             Either.left(QualifierSearchIsEmpty(qualifierType).single)
           case _ ⇒
             Either.right(q)
         }
-      case None ⇒
+      case Left(_) ⇒
         Either.left(QualifierAttributesExtractionFailure(qualifierType).single)
     }
   }

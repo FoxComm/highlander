@@ -15,14 +15,12 @@ import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import scala.concurrent.Future
 import services.image.ImageManager._
 import services.objects.ObjectManager
+import utils.IlluminateAlgorithm
 import utils.aliases._
 import utils.apis.Apis
 import utils.db._
-import utils.{IlluminateAlgorithm, JsonFormatters}
 
 object ImageFacade {
-
-  implicit def formats = JsonFormatters.phoenixFormats
 
   def uploadImages(albumId: Int, contextName: String, request: HttpRequest)(
       implicit ec: EC,
