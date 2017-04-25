@@ -5,8 +5,10 @@ import React from 'react';
 
 // components
 import Upload from 'components/upload/upload';
-import renderFormField from '../form-field';
 import ImageCard from 'components/image-card/image-card';
+
+// style
+import s from './image.css';
 
 export default function renderImage(errors: FieldErrors = {}, onChange: ChangeHandler = noop) {
   return function(name: string, value: any, options: AttrOptions, addFile, deleteFile ) {
@@ -15,16 +17,19 @@ export default function renderImage(errors: FieldErrors = {}, onChange: ChangeHa
     ];
 
     const empty = (value.length === 0);
-    const children = (value.length > 0) ? <ImageCard src={value} actions={actions} /> : null;
+    const children = empty ? null : <ImageCard src={value} actions={actions} />;
 
-    const imageLoader = (
-      <Upload
-        empty={empty}
-        onDrop={(image) => addFile(image, name)}
-        children={children}
-      />
+    return (
+      <div>
+        <label className="fc-object-form__field-label">{name}</label>
+        <div className={s.upload}>
+          <Upload
+            empty={empty}
+            onDrop={(image) => addFile(image, name)}
+            children={children}
+          />
+        </div>
+      </div>
     );
-
-    return renderFormField(name, imageLoader, options);
   }
 }
