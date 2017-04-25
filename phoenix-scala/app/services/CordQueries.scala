@@ -3,12 +3,14 @@ package services
 import models.cord.CordPaymentState._
 import models.cord.{OrderPayment, OrderPayments}
 import models.payment.PaymentMethod
+import models.payment.applepay.ApplePayCharges
 import models.payment.creditcard.CreditCardCharges
 import models.payment.giftcard.GiftCardAdjustments
 import models.payment.storecredit.StoreCreditAdjustments
 import slick.dbio.DBIO
 import utils.aliases.EC
 import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 trait CordQueries {
 
@@ -27,13 +29,18 @@ trait CordQueries {
         CreditCardCharges
           .filter(_.orderPaymentId === payment.id)
           .map(_.state)
-          .result
-          .headOption
+          .one
           .map(_.map(fromCCState))
       case PaymentMethod.GiftCard ⇒
         GiftCardAdjustments.lastPaymentState(payment.id).map(_.map(fromInStoreState))
       case PaymentMethod.StoreCredit ⇒
         StoreCreditAdjustments.lastPaymentState(payment.id).map(_.map(fromInStoreState))
+      case PaymentMethod.ApplePay ⇒
+        ApplePayCharges
+          .filter(_.orderPaymentId === payment.id)
+          .map(_.state)
+          .one
+          .map(_.map(fromApplePayState))
     }
   }
 }

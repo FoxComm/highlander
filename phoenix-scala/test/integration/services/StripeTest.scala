@@ -5,6 +5,10 @@ import java.time.{Instant, ZoneId}
 import cats.implicits._
 import com.stripe.Stripe
 import failures.CreditCardFailures.CardDeclined
+import java.time.{Instant, ZoneId}
+
+import com.stripe.model.{ApplePayDomain, Token}
+import com.stripe.net.RequestOptions
 import testutils._
 import utils.Money.Currency.USD
 import utils.RealStripeApi
@@ -34,28 +38,30 @@ class StripeTest extends IntegrationTestBase with RealStripeApi {
 
   val customerEmail = faker.Internet.email
 
-  val (cust, card) = stripe
+  val (customer, card) = stripe
     .createCardFromToken(email = customerEmail.some,
                          token = token.getId,
                          stripeCustomerId = none,
                          address = theAddress)
     .gimme
 
-  val realStripeCustomerId = cust.getId
+  val realStripeCustomerId = customer.getId
   val realStripeCardId     = card.getId
 
   "Stripe" - {
     "authorizeAmount" - {
       "fails if the customerId doesn't exist" taggedAs External in {
-        val result =
-          stripe.authorizeAmount("BAD-CUSTOMER", "BAD-CARD", 100, currency = USD).gimmeFailures
+        val result = stripe
+          .authorizeAmount("BAD-CARD", 100, currency = USD, "BAD-CUSTOMER".some)
+          .gimmeFailures
 
         result.getMessage must include("No such customer")
       }
 
       "successfully creates an authorization charge" taggedAs External in {
-        val auth =
-          stripe.authorizeAmount(realStripeCustomerId, realStripeCardId, 100, currency = USD).gimme
+        val auth = stripe
+          .authorizeAmount(realStripeCardId, 100, currency = USD, realStripeCustomerId.some)
+          .gimme
 
         auth.getAmount.toInt must === (100)
         auth.getCurrency.toUpperCase must === (USD.getCode)
@@ -95,8 +101,8 @@ class StripeTest extends IntegrationTestBase with RealStripeApi {
 
       "successfully creates a card and new customer when given no customerId" taggedAs External in {
 
-        cust.getDescription must === ("FoxCommerce")
-        cust.getEmail must === (customerEmail)
+        customer.getDescription must === ("FoxCommerce")
+        customer.getEmail must === (customerEmail)
 
         card.getAddressLine1 must === (theAddress.address1)
         card.getAddressLine2 mustBe 'empty
@@ -146,8 +152,21 @@ class StripeTest extends IntegrationTestBase with RealStripeApi {
       }
 
       "successfully captures a charge" taggedAs External in {
-        val auth =
-          stripe.authorizeAmount(realStripeCustomerId, realStripeCardId, 100, currency = USD).gimme
+        val auth = stripe
+          .authorizeAmount(realStripeCardId, 100, currency = USD, realStripeCustomerId.some)
+          .gimme
+        val capture = stripe.captureCharge(auth.getId, 75).gimme
+
+        capture.getCaptured mustBe true
+        capture.getPaid mustBe true
+        capture.getAmount.toInt must === (100)
+        capture.getAmountRefunded.toInt must === (25)
+      }
+
+      "successfully captures Apple Pay charge" taggedAs External in {
+        pending
+        val apToken = "tok_1A9YBQJVm1XvTUrO3V8caBvF"
+        val auth    = stripe.authorizeApplePay(realStripeCardId, 100, currency = USD).gimme
         val capture = stripe.captureCharge(auth.getId, 75).gimme
 
         capture.getCaptured mustBe true
@@ -167,8 +186,9 @@ class StripeTest extends IntegrationTestBase with RealStripeApi {
       }
 
       "fails if the refund amount exceeds a charge" taggedAs External in {
-        val auth =
-          stripe.authorizeAmount(realStripeCustomerId, realStripeCardId, 100, currency = USD).gimme
+        val auth = stripe
+          .authorizeAmount(realStripeCardId, 100, currency = USD, realStripeCustomerId.some)
+          .gimme
         stripe.captureCharge(auth.getId, 90).gimme
 
         val result =
@@ -178,8 +198,9 @@ class StripeTest extends IntegrationTestBase with RealStripeApi {
       }
 
       "successfully partially refunds a charge" taggedAs External in {
-        val auth =
-          stripe.authorizeAmount(realStripeCustomerId, realStripeCardId, 100, currency = USD).gimme
+        val auth = stripe
+          .authorizeAmount(realStripeCardId, 100, currency = USD, realStripeCustomerId.some)
+          .gimme
         stripe.captureCharge(auth.getId, 100).gimme
 
         val refunded1 =
@@ -194,8 +215,9 @@ class StripeTest extends IntegrationTestBase with RealStripeApi {
       }
 
       "successfully refunds entire charge" taggedAs External in {
-        val auth =
-          stripe.authorizeAmount(realStripeCustomerId, realStripeCardId, 100, currency = USD).gimme
+        val auth = stripe
+          .authorizeAmount(realStripeCardId, 100, currency = USD, realStripeCustomerId.some)
+          .gimme
 
         val refunded =
           stripe.authorizeRefund(auth.getId, 100, RefundReason.RequestedByCustomer).gimme
@@ -206,8 +228,32 @@ class StripeTest extends IntegrationTestBase with RealStripeApi {
 
     "deleteCustomer" - {
       "successfully deletes a customer" taggedAs External in {
-        deleteCustomer(cust).void.gimme
+        deleteCustomer(customer).void.gimme
         getCustomer(realStripeCustomerId).gimme.getDeleted must === (Boolean.box(true))
+      }
+    }
+
+    "Test Apple Pay APIs" - {
+      import scala.collection.JavaConversions._
+
+      "Stripe API should be able to provide allowed domains for Apple Pay" in {
+        val domains = Map[String, AnyRef]("domain_name" → "stage-tpg.foxcommerce.com")
+        ApplePayDomain.create(mapAsJavaMap(domains))
+      }
+
+      "Random token should fail" in {
+        val randomToken = stripe.retrieveToken("random").gimmeFailures
+        randomToken.head.description must === ("No such token: random")
+      }
+
+      "Retrieve token and make sure it's valid" in {
+        val token: Token = createToken(cardNumber = successfulCard,
+                                       cvv = 123,
+                                       expYear = okExpYear,
+                                       expMonth = okExpMonth,
+                                       address = theAddress).gimme
+
+        stripe.retrieveToken(token.getId).gimme.getId must === (token.getId)
       }
     }
   }

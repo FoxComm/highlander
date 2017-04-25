@@ -1,6 +1,6 @@
 package utils.apis
 
-import com.stripe.model.DeletedCard
+import com.stripe.model.{DeletedCard, Token}
 import models.location.Address
 import models.payment.creditcard.CreditCard
 import payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
@@ -25,10 +25,17 @@ trait FoxStripeApi {
                            stripeCustomerId: Option[String],
                            address: Address)(implicit ec: EC): Result[(StripeCustomer, StripeCard)]
 
-  def authorizeAmount(customerId: String,
-                      creditCardId: String,
-                      amount: Int,
-                      currency: Currency): Result[StripeCharge]
+  def authorizeAmount(
+      stripeTokenId: String,
+      amount: Int,
+      currency: Currency,
+      customerId: Option[String] = None // Unnecessary for one time payments like Apple Pay
+  ): Result[StripeCharge]
+
+  // let us have a dedicated method call for AP for now
+  def authorizeApplePay(paymentSourceId: String,
+                        amount: Int,
+                        currency: Currency): Result[StripeCharge]
 
   def captureCharge(chargeId: String, amount: Int): Result[StripeCharge]
 
@@ -37,6 +44,8 @@ trait FoxStripeApi {
   def editCard(cc: CreditCard): Result[StripeCard]
 
   def deleteCard(cc: CreditCard): Result[DeletedCard]
+
+  def retrieveToken(t: String): Result[StripeToken]
 
 }
 

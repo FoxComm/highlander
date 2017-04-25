@@ -4,7 +4,7 @@ import java.time.{Instant, ZonedDateTime}
 
 import models.admin.AdminData
 import models.cord.Order
-import models.payment.creditcard.CreditCardCharge
+import models.payment.ExternalCharge
 import models.payment.giftcard.GiftCard
 import org.json4s.Formats
 import org.json4s.jackson.JsonMethods.parse
@@ -19,7 +19,7 @@ class JsonFormattersTest extends TestBase {
 
   case class Test(order: Order.State,
                   gc: GiftCard.State,
-                  cc: CreditCardCharge.State,
+                  cc: ExternalCharge.State,
                   sas: AdminData.State)
   case class Product(price: Int, currency: Currency)
 
@@ -28,12 +28,12 @@ class JsonFormattersTest extends TestBase {
       val ast = parse(
           write(
               Test(order = Order.ManualHold,
-                   cc = CreditCardCharge.Auth,
+                   cc = ExternalCharge.Auth,
                    gc = GiftCard.OnHold,
                    sas = AdminData.Invited)))
       (ast \ "order").extract[Order.State] mustBe Order.ManualHold
       (ast \ "gc").extract[GiftCard.State] mustBe GiftCard.OnHold
-      (ast \ "cc").extract[CreditCardCharge.State] mustBe CreditCardCharge.Auth
+      (ast \ "cc").extract[ExternalCharge.State] mustBe ExternalCharge.Auth
       (ast \ "sas").extract[AdminData.State] mustBe AdminData.Invited
     }
   }

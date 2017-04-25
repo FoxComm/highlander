@@ -13,12 +13,15 @@ import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.account.User
+import models.payment.PaymentMethod.ApplePay
+import models.payment.applepay._
 import payloads.PaymentPayloads._
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.{CartValidator, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
 
 object CartPaymentUpdater {
@@ -180,4 +183,28 @@ object CartPaymentUpdater {
       validated   ← * <~ CartValidator(updatedCart).validate()
       _           ← * <~ LogActivity().orderPaymentMethodDeletedGc(originator, deleteRes, giftCard)
     } yield TheResponse.validated(deleteRes, validated)
+
+  def addApplePayPayment(
+      originator: User,
+      payload: CreateApplePayPayment)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
+    for {
+      cart ← * <~ getCartByOriginator(originator)
+      _    ← * <~ OrderPayments.filter(_.cordRef === cart.refNum).applePays.delete
+
+      //    create apple charge
+      applePayment ← * <~ ApplePayments.create(
+                        ApplePayment(accountId = originator.accountId,
+                                     stripeTokenId = payload.stripeToken))
+
+      _ ← * <~ OrderPayments.create(
+             OrderPayment(cordRef = cart.refNum,
+                          amount = None,
+                          paymentMethodType = ApplePay,
+                          paymentMethodId = applePayment.id)
+         )
+
+      valid ← * <~ CartValidator(cart).validate()
+      resp  ← * <~ CartResponse.buildRefreshed(cart)
+    } yield TheResponse.validated(resp, valid)
+
 }

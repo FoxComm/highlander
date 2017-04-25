@@ -8,10 +8,18 @@ import utils.ADT
 abstract class PaymentMethod {}
 
 object PaymentMethod {
-  sealed trait Type extends Product with Serializable
-  case object CreditCard  extends Type
-  case object GiftCard    extends Type
-  case object StoreCredit extends Type
+  sealed trait Internal
+  sealed trait External
+
+  sealed trait Type extends Product with Serializable {
+    def isExternal: Boolean = this.isInstanceOf[External]
+    def isInternal: Boolean = this.isInstanceOf[Internal]
+  }
+
+  case object GiftCard    extends Type with Internal
+  case object StoreCredit extends Type with Internal
+  case object CreditCard  extends Type with External
+  case object ApplePay    extends Type with External
 
   implicit object Type extends ADT[Type] {
     def types = sealerate.values[Type]

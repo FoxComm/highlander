@@ -146,6 +146,7 @@ object ReturnPaymentManager {
     method match {
       case PaymentMethod.CreditCard ⇒ addCreditCard(rma.id, payment, amount)
       case PaymentMethod.GiftCard   ⇒ addGiftCard(rma.id, payment, amount)
+      case PaymentMethod.ApplePay   ⇒ addApplePayment(rma.id, payment, amount)
       case PaymentMethod.StoreCredit ⇒
         addStoreCredit(returnId = rma.id, accountId = rma.accountId, payment, amount)
     }
@@ -163,6 +164,15 @@ object ReturnPaymentManager {
                                   paymentMethodId = cc.id,
                                   paymentMethodType = PaymentMethod.CreditCard))
     } yield ccRefund
+
+  private def addApplePayment(returnId: Int, payment: OrderPayment, amount: Int)(implicit ec: EC,
+                                                                                 db: DB,
+                                                                                 au: AU) =
+    DbResultT.pure(
+        ReturnPayment(
+            paymentMethodId = payment.id,
+            amount = amount,
+            paymentMethodType = PaymentMethod.ApplePay)) // TODO implement AP returns @aafa
 
   private def addGiftCard(returnId: Int,
                           payment: OrderPayment,
@@ -248,6 +258,7 @@ object ReturnPaymentManager {
       case PaymentMethod.CreditCard  ⇒ deleteCcPayment(returnId)
       case PaymentMethod.GiftCard    ⇒ deleteGcPayment(returnId)
       case PaymentMethod.StoreCredit ⇒ deleteScPayment(returnId)
+      case PaymentMethod.ApplePay    ⇒ deleteApPayment(returnId)
     }
 
   private def deleteCcPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] =
@@ -288,6 +299,9 @@ object ReturnPaymentManager {
       somethingWasActuallyDeleted = queryDeleted || scDeleted || scRefundsDeleted
     } yield somethingWasActuallyDeleted
   }
+
+  def deleteApPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] =
+    DbResultT.pure(true) // TODO implement AP returns @aafa
 
   def issueRefunds(
       rma: Return)(implicit ec: EC, db: DB, au: AU, ac: AC, apis: Apis): DbResultT[Unit] = {
@@ -333,9 +347,9 @@ object ReturnPaymentManager {
                     charges: Seq[CreditCardCharge],
                     acc: Vector[(String, Int)]): Vector[(String, Int)] = charges match {
       case c +: cs if amount > c.amount ⇒
-        splitAmount(amount - c.amount, cs, acc :+ (c.chargeId → c.amount))
+        splitAmount(amount - c.amount, cs, acc :+ (c.stripeChargeId → c.amount))
       case c +: cs if amount <= c.amount ⇒
-        acc :+ (c.chargeId → amount)
+        acc :+ (c.stripeChargeId → amount)
       case _ ⇒ acc
     }
 
@@ -369,7 +383,7 @@ object ReturnPaymentManager {
                    .result
       _ ← * <~ checkCurrency(ccCharges)
       adjustedCcCharges = ccCharges
-        .map(c ⇒ c.copy(amount = c.amount - previousCcRefunds.getOrElse(c.chargeId, 0)))
+        .map(c ⇒ c.copy(amount = c.amount - previousCcRefunds.getOrElse(c.stripeChargeId, 0)))
         .filter(_.amount > 0)
       amountToRefund = splitAmount(payment.amount, adjustedCcCharges, Vector.empty)
       refunds ← * <~ amountToRefund.map(authorizeRefund).sequenceU
