@@ -347,9 +347,9 @@ object ReturnPaymentManager {
                     charges: Seq[CreditCardCharge],
                     acc: Vector[(String, Int)]): Vector[(String, Int)] = charges match {
       case c +: cs if amount > c.amount ⇒
-        splitAmount(amount - c.amount, cs, acc :+ (c.chargeId → c.amount))
+        splitAmount(amount - c.amount, cs, acc :+ (c.stripeChargeId → c.amount))
       case c +: cs if amount <= c.amount ⇒
-        acc :+ (c.chargeId → amount)
+        acc :+ (c.stripeChargeId → amount)
       case _ ⇒ acc
     }
 
@@ -383,7 +383,7 @@ object ReturnPaymentManager {
                    .result
       _ ← * <~ checkCurrency(ccCharges)
       adjustedCcCharges = ccCharges
-        .map(c ⇒ c.copy(amount = c.amount - previousCcRefunds.getOrElse(c.chargeId, 0)))
+        .map(c ⇒ c.copy(amount = c.amount - previousCcRefunds.getOrElse(c.stripeChargeId, 0)))
         .filter(_.amount > 0)
       amountToRefund = splitAmount(payment.amount, adjustedCcCharges, Vector.empty)
       refunds ← * <~ amountToRefund.map(authorizeRefund).sequenceU

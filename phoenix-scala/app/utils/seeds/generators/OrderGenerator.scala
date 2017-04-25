@@ -19,7 +19,7 @@ import models.inventory.Skus
 import models.location.Addresses
 import models.objects.ObjectContext
 import models.payment.InStorePaymentStates
-import models.payment.creditcard.CreditCardCharge.FullCapture
+import models.payment.ExternalCharge.FullCapture
 import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
@@ -233,7 +233,7 @@ trait OrderGenerator extends ShipmentSeeds {
       ccc ← * <~ CreditCardCharges.create(
                CreditCardCharge(creditCardId = cc.id,
                                 orderPaymentId = op.id,
-                                chargeId = s"${cc.id}_${op.id}",
+                                stripeChargeId = s"${cc.id}_${op.id}",
                                 state = FullCapture,
                                 amount = op.amount.getOrElse(0)))
       addr ← * <~ getDefaultAddress(accountId)
@@ -329,7 +329,7 @@ trait OrderGenerator extends ShipmentSeeds {
                CreditCardCharges.create(
                    CreditCardCharge(creditCardId = cc.id,
                                     orderPaymentId = op.id,
-                                    chargeId = s"${cc.id}_${op.id}",
+                                    stripeChargeId = s"${cc.id}_${op.id}",
                                     state = FullCapture,
                                     amount = op.amount.getOrElse(0)))
            }

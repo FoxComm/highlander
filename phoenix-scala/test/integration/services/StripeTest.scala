@@ -51,15 +51,17 @@ class StripeTest extends IntegrationTestBase with RealStripeApi {
   "Stripe" - {
     "authorizeAmount" - {
       "fails if the customerId doesn't exist" taggedAs External in {
-        val result =
-          stripe.authorizeAmount("BAD-CUSTOMER", "BAD-CARD", 100, currency = USD).gimmeFailures
+        val result = stripe
+          .authorizeAmount("BAD-CARD", 100, currency = USD, "BAD-CUSTOMER".some)
+          .gimmeFailures
 
         result.getMessage must include("No such customer")
       }
 
       "successfully creates an authorization charge" taggedAs External in {
-        val auth =
-          stripe.authorizeAmount(realStripeCustomerId, realStripeCardId, 100, currency = USD).gimme
+        val auth = stripe
+          .authorizeAmount(realStripeCardId, 100, currency = USD, realStripeCustomerId.some)
+          .gimme
 
         auth.getAmount.toInt must === (100)
         auth.getCurrency.toUpperCase must === (USD.getCode)
@@ -150,8 +152,21 @@ class StripeTest extends IntegrationTestBase with RealStripeApi {
       }
 
       "successfully captures a charge" taggedAs External in {
-        val auth =
-          stripe.authorizeAmount(realStripeCustomerId, realStripeCardId, 100, currency = USD).gimme
+        val auth = stripe
+          .authorizeAmount(realStripeCardId, 100, currency = USD, realStripeCustomerId.some)
+          .gimme
+        val capture = stripe.captureCharge(auth.getId, 75).gimme
+
+        capture.getCaptured mustBe true
+        capture.getPaid mustBe true
+        capture.getAmount.toInt must === (100)
+        capture.getAmountRefunded.toInt must === (25)
+      }
+
+      "successfully captures Apple Pay charge" taggedAs External in {
+        pending
+        val apToken = "tok_1A9YBQJVm1XvTUrO3V8caBvF"
+        val auth    = stripe.authorizeApplePay(realStripeCardId, 100, currency = USD).gimme
         val capture = stripe.captureCharge(auth.getId, 75).gimme
 
         capture.getCaptured mustBe true
@@ -171,8 +186,9 @@ class StripeTest extends IntegrationTestBase with RealStripeApi {
       }
 
       "fails if the refund amount exceeds a charge" taggedAs External in {
-        val auth =
-          stripe.authorizeAmount(realStripeCustomerId, realStripeCardId, 100, currency = USD).gimme
+        val auth = stripe
+          .authorizeAmount(realStripeCardId, 100, currency = USD, realStripeCustomerId.some)
+          .gimme
         stripe.captureCharge(auth.getId, 90).gimme
 
         val result =
@@ -182,8 +198,9 @@ class StripeTest extends IntegrationTestBase with RealStripeApi {
       }
 
       "successfully partially refunds a charge" taggedAs External in {
-        val auth =
-          stripe.authorizeAmount(realStripeCustomerId, realStripeCardId, 100, currency = USD).gimme
+        val auth = stripe
+          .authorizeAmount(realStripeCardId, 100, currency = USD, realStripeCustomerId.some)
+          .gimme
         stripe.captureCharge(auth.getId, 100).gimme
 
         val refunded1 =
@@ -198,8 +215,9 @@ class StripeTest extends IntegrationTestBase with RealStripeApi {
       }
 
       "successfully refunds entire charge" taggedAs External in {
-        val auth =
-          stripe.authorizeAmount(realStripeCustomerId, realStripeCardId, 100, currency = USD).gimme
+        val auth = stripe
+          .authorizeAmount(realStripeCardId, 100, currency = USD, realStripeCustomerId.some)
+          .gimme
 
         val refunded =
           stripe.authorizeRefund(auth.getId, 100, RefundReason.RequestedByCustomer).gimme
