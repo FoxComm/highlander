@@ -24,27 +24,56 @@ type Props = {
   onSave: (info: ImageInfo) => void;
   onCancel: () => void;
   onRemove: Function;
+  inProgress?: boolean;
+};
+
+type State = {
+  alt: string,
+  width: number,
+  height: number,
 };
 
 class EditImage extends Component {
   props: Props;
 
-  state: ImageInfo = {
-    src: this.props.image.src,
-    title: this.props.image.title,
-    alt: this.props.image.alt,
+  state: State = {
+    alt: this.props.image.alt || '',
+    width: 0,
+    height: 0,
   };
 
-  image: any;
-
-  componentDidUpdate() {
-    // console.log('this.image', this.image);
-    if (this.image) {
-    }
-  }
+  image: HTMLElement;
 
   get closeAction() {
     return <a onClick={this.props.onCancel}>&times;</a>;
+  }
+
+  componentDidMount(): void {
+    this.createImage();
+  }
+
+  componentWillUpdate(nextProps: Props) {
+    if (this.props.src != nextProps.src) {
+      this.createImage(nextProps.src);
+    }
+  }
+
+  componentWillUnmount() {
+    this.destroyImage();
+  }
+
+  createImage(src: string = this.props.image.src): void {
+    // We need to create new image and load it again (from cache) to know its real size
+    // Otherwise CSS may affect values
+    this.img = new Image();
+    this.img.onload = () => this.setState({ width: this.img.width, height: this.img.height });
+    this.img.onerror = () => this.setState({ width: 0, height: 0 });
+    this.img.src = src;
+  }
+
+  @autobind
+  destroyImage(): void {
+    this.img = null;
   }
 
   @autobind
@@ -60,22 +89,20 @@ class EditImage extends Component {
   @autobind
   handleSave(event: Event) {
     event.preventDefault();
-    this.props.onSave(this.state);
+    this.props.onSave({
+      ...this.props.image,
+      alt: this.state.alt,
+    });
   }
 
   render() {
-    const { src } = this.state;
-    const saveDisabled = !!this.state.title;
+    const { width, height, alt } = this.state;
+    const { image: { src, createdAt, baseUrl }, inProgress } = this.props;
     const match = src.match(/\.[0-9a-z]+$/i);
     let ext = '–';
-    let size = '–';
 
     if (match && match[0]) {
       ext = match[0];
-    }
-
-    if (this.image) {
-      size = `${this.image.width}×${this.image.height}`;
     }
 
     return (
@@ -83,26 +110,26 @@ class EditImage extends Component {
         <ContentBox title="Edit Image" actionBlock={this.closeAction} bodyClassName={s.body}>
           <div className={s.main}>
             <div className={s.imageWrap}>
-              <img ref={ref => {console.log('ref', ref);this.image = ref}} src={src} className={s.image} />
+              <img ref={ref => this.image} src={src} className={s.image} />
             </div>
             <div className={s.sidebar}>
               <div className={s.stat}>
-                <div className={s.statItem}>{`File Name: ${this.state.title}`}</div>
-                <div className={s.statItem}>{`Uploaded: ${this.props.image.createdAt || '–'}`}</div>
+                <div className={s.statItem}>{`File Name: ${baseUrl}`}</div>
+                <div className={s.statItem}>{`Uploaded: ${createdAt || '–'}`}</div>
                 <div className={s.statItem}>{`File Type: ${ext}`}</div>
-                <div className={s.statItem}>{`Dimensions: ${size}`}</div>
+                <div className={s.statItem}>{`Dimensions: ${width}×${height}`}</div>
               </div>
               <FormField label="URL" className={s.field} labelClassName={s.label}>
-                <Input value={this.state.src} disabled />
+                <Input value={src} disabled />
               </FormField>
               <FormField label="Alt Text" className={s.field} labelClassName={s.label}>
-                <Input onChange={this.handleUpdateAltText} value={this.state.alt || ''} />
+                <Input onChange={this.handleUpdateAltText} value={alt} />
               </FormField>
             </div>
           </div>
           <footer className={s.footer}>
-            <Button onClick={this.props.onRemove} icon='trash'>Delete</Button>
-            <SaveCancel onSave={this.handleSave} onCancel={this.props.onCancel} saveDisabled={saveDisabled} />
+            <Button onClick={this.props.onRemove} icon='trash' disabled={inProgress}>Delete</Button>
+            <SaveCancel onSave={this.handleSave} onCancel={this.props.onCancel} isLoading={inProgress} />
           </footer>
         </ContentBox>
       </ModalContainer>

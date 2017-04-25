@@ -31,6 +31,7 @@ export type FileInfo = {
 export type ImageInfo = {
   title: string;
   src: string;
+  baseUrl: string;
   createdAt?: string;
   alt: ?string;
   key?: string;

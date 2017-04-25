@@ -28,6 +28,7 @@ export type Props = {
 type State = {
   editMode: boolean;
   deleteMode: boolean;
+  saveInProgress: boolean;
 };
 
 export default class Image extends Component<void, Props, State> {
@@ -36,6 +37,7 @@ export default class Image extends Component<void, Props, State> {
   state: State = {
     editMode: false,
     deleteMode: false,
+    saveInProgress: false,
   };
 
   @autobind
@@ -50,9 +52,8 @@ export default class Image extends Component<void, Props, State> {
 
   @autobind
   handleConfirmEditImage(form: ImageInfo): void {
-    this.props.editImage(form);
-
-    this.setState({ editMode: false });
+    this.setState({ saveInProgress: true });
+    this.props.editImage(form).then(() => this.setState({ editMode: false, saveInProgress: false }));
   }
 
   @autobind
@@ -106,6 +107,7 @@ export default class Image extends Component<void, Props, State> {
           onCancel={this.handleCancelEditImage}
           onSave={this.handleConfirmEditImage}
           onRemove={this.handleRemove}
+          inProgress={this.state.saveInProgress}
         />
       </BodyPortal>
     );
