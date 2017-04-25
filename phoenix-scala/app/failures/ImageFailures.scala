@@ -28,6 +28,10 @@ object ImageFailures {
     override def description = "Image not found in payload"
   }
 
+  case class ImageFetchFailed(httpCode: Int) extends Failure {
+    override def description: String = s"Can't fetch image, status code $httpCode"
+  }
+
   case object ImageFilenameNotFoundInPayload extends Failure {
     override def description = "Image filename not found in payload"
   }
