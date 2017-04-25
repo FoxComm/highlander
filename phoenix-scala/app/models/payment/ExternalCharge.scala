@@ -8,14 +8,14 @@ import slick.jdbc.JdbcType
 import utils.db.FoxModel
 import utils.{ADT, FSM}
 
-trait ExternalChargeProperties {
+trait ExternalChargeVals {
   val stripeChargeId: String
   val state: State
 }
 
 trait ExternalCharge[Model <: FoxModel[Model] with FSM[ExternalCharge.State, Model]]
     extends FoxModel[Model]
-    with ExternalChargeProperties
+    with ExternalChargeVals
     with FSM[ExternalCharge.State, Model] {
   self: Model ⇒
   import ExternalCharge._

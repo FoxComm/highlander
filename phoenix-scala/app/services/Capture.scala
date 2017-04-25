@@ -6,7 +6,7 @@ import failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
 import models.account.{User, Users}
 import models.cord._
 import models.cord.lineitems._
-import models.payment.{ExternalCharge, ExternalChargeProperties}
+import models.payment.{ExternalCharge, ExternalChargeVals}
 import models.payment.ExternalCharge._
 import models.payment.applepay.ApplePayCharges
 import models.payment.creditcard._
@@ -182,8 +182,6 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       _ ← * <~ ApplePayCharges.filter(_.id === charge.id).map(_.state).update(FullCapture)
       _ ← * <~ CreditCardCharges.filter(_.id === charge.id).map(_.state).update(FullCapture)
 
-      // todo log if update successful
-      //      _ ← * <~ LogActivity().creditCardCharge(order, updatedCharge)
     } yield ()
   }
 

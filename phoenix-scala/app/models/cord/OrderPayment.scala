@@ -126,7 +126,6 @@ object OrderPayments
       def storeCredits: QuerySeq = q.byType(PaymentMethod.StoreCredit)
       def applePays: QuerySeq    = q.byType(PaymentMethod.ApplePay)
 
-      // todo make use of PaymentMethod.External trait?
       def externalPayments: QuerySeq =
         q.filter(_.paymentMethodType.inSet(Set(PaymentMethod.CreditCard, PaymentMethod.ApplePay)))
 

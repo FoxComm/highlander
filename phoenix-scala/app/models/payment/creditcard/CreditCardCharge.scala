@@ -42,14 +42,14 @@ class CreditCardCharges(tag: Tag) extends FoxTable[CreditCardCharge](tag, "credi
   def id             = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def creditCardId   = column[Int]("credit_card_id")
   def orderPaymentId = column[Int]("order_payment_id")
-  def chargeId       = column[String]("charge_id")
+  def stripeChargeId = column[String]("stripe_charge_id")
   def state          = column[State]("state")
   def currency       = column[Currency]("currency")
   def amount         = column[Int]("amount")
   def createdAt      = column[Instant]("created_at")
 
   def * =
-    (id, creditCardId, orderPaymentId, chargeId, state, currency, amount, createdAt) <>
+    (id, creditCardId, orderPaymentId, stripeChargeId, state, currency, amount, createdAt) <>
       ((CreditCardCharge.apply _).tupled, CreditCardCharge.unapply)
 
   def card         = foreignKey(CreditCards.tableName, creditCardId, CreditCards)(_.id)

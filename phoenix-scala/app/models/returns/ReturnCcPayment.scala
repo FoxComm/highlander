@@ -28,7 +28,7 @@ class ReturnCcPayments(tag: Tag) extends FoxTable[ReturnCcPayment](tag, "return_
 
   def pk = primaryKey(tableName, (returnPaymentId, chargeId))
   def creditCardCharge =
-    foreignKey(CreditCardCharges.tableName, chargeId, CreditCardCharges)(_.chargeId)
+    foreignKey(CreditCardCharges.tableName, chargeId, CreditCardCharges)(_.stripeChargeId)
   def returnPayment = foreignKey(ReturnPayments.tableName, returnPaymentId, ReturnPayments)(_.id)
   def rma           = foreignKey(Returns.tableName, returnId, Returns)(_.id)
 }
