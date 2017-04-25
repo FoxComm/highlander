@@ -13,6 +13,8 @@ object ImagePayloads {
 
   type Images = Option[Seq[ImagePayload]]
 
+  case class UploadImageByUrlPayload(url: String)
+
   case class ImagePayload(id: Option[Int] = None,
                           src: String,
                           baseUrl: Option[String] = None,
