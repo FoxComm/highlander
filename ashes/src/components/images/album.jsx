@@ -178,7 +178,7 @@ export default class Album extends Component {
   @autobind
   getAlbumActions(): Array<any> {
     return [
-      { name: 'add', handler: this.handleAddImages },
+      // { name: 'add', handler: this.handleAddImages },
       { name: 'edit', handler: this.handleEditAlbum },
       { name: 'trash', handler: this.handleArchiveAlbum },
     ];
@@ -232,11 +232,6 @@ export default class Album extends Component {
 
   @autobind
   renderTitle(title: string, count: number): Element<*> {
-    return (
-      <span>
-        <span className={styles.albumTitleText}>{title}</span>
-        <span className={styles.albumTitleCount}>{count}</span>
-      </span>
-    );
+    return <span className={styles.albumTitleText}>{title}</span>;
   }
 }

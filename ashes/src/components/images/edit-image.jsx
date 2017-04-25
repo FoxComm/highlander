@@ -10,7 +10,7 @@ import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
 import Input from 'components/forms/text-input';
-import { Button } from 'components/common/buttons';
+import { Button } from 'components/core/button';
 
 // types
 import type { ImageInfo } from '../../modules/images';
@@ -42,7 +42,7 @@ class EditImage extends Component {
     height: 0,
   };
 
-  image: HTMLElement;
+  img: Image | null;
 
   get closeAction() {
     return <a onClick={this.props.onCancel}>&times;</a>;
@@ -53,8 +53,8 @@ class EditImage extends Component {
   }
 
   componentWillUpdate(nextProps: Props) {
-    if (this.props.src != nextProps.src) {
-      this.createImage(nextProps.src);
+    if (this.props.image.src != nextProps.image.src) {
+      this.createImage(nextProps.image.src);
     }
   }
 
