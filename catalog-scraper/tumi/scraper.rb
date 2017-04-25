@@ -165,7 +165,7 @@ def update_sku_from_data_properties(doc, sku)
       sku[:taxonomies][:category] = [ d[2].gsub("'", "") ]
     elsif d[0] == "productDescription"
       sku[:attributes][:description] = {
-        t: "richtext",
+        t: "richText",
         v: d[2].gsub("'", "")
       }
     elsif d[0] == "product_sku_code"
@@ -214,7 +214,7 @@ def update_sku_from_details(doc, sku)
 
     unless title_tag == nil || content_tag == nil
       sku[:attributes][title_tag.text] = {
-        t: "richtext",
+        t: "richText",
         v: content_tag.inner_html
       }
     end
@@ -304,7 +304,7 @@ pdp_links = collect_pdps
 
 # What Tumi calls a product, we call a SKU
 products = {}
-skus = pdp_links[0..3].map.with_index do |link, idx|
+skus = pdp_links[0..100].map.with_index do |link, idx|
   puts "Processing PDP #{idx + 1} of #{pdp_links.count}"
   sku = {
     albums: [],
@@ -370,11 +370,11 @@ skus = pdp_links[0..3].map.with_index do |link, idx|
 
     if variant == nil
       product[:variants][:color][variant_name] = color
-      product[:variants][:color][variant_name][:sku_codes] = []
+      product[:variants][:color][variant_name][:skuCodes] = []
     end
 
-    sku_codes = product[:variants][:color][variant_name][:sku_codes] << sku_code
-    product[:variants][:color][variant_name][:sku_codes] = sku_codes
+    skuCodes = product[:variants][:color][variant_name][:skuCodes] << sku_code
+    product[:variants][:color][variant_name][:skuCodes] = skuCodes
   end
 
   size = read_current_pdp_size(doc, link)
@@ -385,11 +385,11 @@ skus = pdp_links[0..3].map.with_index do |link, idx|
 
     if variant == nil
       product[:variants][:size][variant_name] = size
-      product[:variants][:size][variant_name][:sku_codes] = []
+      product[:variants][:size][variant_name][:skuCodes] = []
     end
 
-    sku_codes = product[:variants][:size][variant_name][:sku_codes] << sku_code
-    product[:variants][:size][variant_name][:sku_codes] = sku_codes
+    skuCodes = product[:variants][:size][variant_name][:skuCodes] << sku_code
+    product[:variants][:size][variant_name][:skuCodes] = skuCodes
   end
 
   products[product_id] = product
@@ -404,7 +404,7 @@ File.open('products_tumi.json', 'w') do |f|
         {
           name: value_name,
           image: value[:img],
-          sku_codes: value[:sku_codes]
+          skuCodes: value[:skuCodes]
         }
       end
 
@@ -416,48 +416,8 @@ File.open('products_tumi.json', 'w') do |f|
 
     product
   end
-    # product[:variants] = product[:variants].map do |name, raw_variant|
-    #   illuminated_values = raw_variant.map do |value_name, value|
-    #     {
-    #       name: value_name,
-    #       image: value[:img],
-    #       sku_codes: value[:sku_codes]
-    #     }
-    #   end
-
-    #   {
-    #     attributes: {
-    #       t: 'string',
-    #       v: name
-    #     },
-    #     values: illuminated_values
-    #   }
-    # end
-  # end
 
   f.puts ({products: final_products}).to_json
 end
 
 puts "Complete!"
-
-# TODO: This gets the color variants
-# color_tags = doc.css("ul.choose-colors a")
-#
-# puts "Found #{color_tags.length} colors"
-#
-# color_tags.each do |c|
-#   puts "Name: #{c.attribute('name').to_s}"
-#   puts "Image: #{c.css('img').first.attribute('src').to_s}"
-# end
-#
-#
-# TODO: This gets the size variants
-# size_tags = doc.css("select.select-size option")
-#
-# puts "Found #{size_tags.length} sizes"
-#
-# size_tags.each do |s|
-#   puts "Value: #{s.attribute('value').to_s}"
-#   puts "Content: #{s.content}"
-# end
-#
