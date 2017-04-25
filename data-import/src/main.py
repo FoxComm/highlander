@@ -19,6 +19,7 @@ class Taxon:
         self.taxon_id = taxon_id
         self.path = [name] if parent_id is None else None
 
+
 class Taxonomy:
     def __init__(self, taxonomy_id, name, taxons):
         self.taxons = [] if taxons is None else taxons
@@ -26,17 +27,17 @@ class Taxonomy:
         self.taxonomy_id = taxonomy_id
         self.build_paths()
 
-    def get_taxon_by_name(self, taxon_name, parent_id = None):
-        def matches(taxon:Taxon):
-            matches = taxon.name == taxon_name
+    def get_taxon_by_name(self, taxon_name, parent_id=None):
+        def matches(taxon: Taxon):
+            result = taxon.name == taxon_name
             if parent_id is not None:
-                return matches and parent_id == taxon.parentId
+                return result and parent_id == taxon.parentId
             else:
-                return matches
+                return result
 
         return next(iter([taxon for taxon in self.taxons if matches(taxon)]), None)
 
-    def get_taxon_by_path(self, path:list):
+    def get_taxon_by_path(self, path: list):
         parent_id = None
         taxon = None
         for name in path:
@@ -45,14 +46,14 @@ class Taxonomy:
 
         return taxon
 
-    def get_taxon_by_id(self, id):
+    def get_taxon_by_id(self, taxon_id):
         for taxon in self.taxons:
-            if taxon.taxon_id == id:
+            if taxon.taxon_id == taxon_id:
                 return taxon
 
         return None
 
-    def get_path(self, taxon:Taxon):
+    def get_path(self, taxon: Taxon):
         if taxon.path is None:
             parent = self.get_taxon_by_id(taxon.parentId)
             taxon.path = parent.path + [taxon.name]
@@ -62,6 +63,18 @@ class Taxonomy:
     def build_paths(self):
         for taxon in self.taxons:
             self.get_path(taxon)
+
+    def merge(self, taxonomy, taxon: Taxon):
+        if taxonomy is not None:
+            assert type(taxonomy) == Taxonomy
+            self.taxons + taxonomy.taxons
+
+        if taxon is not None:
+            self.taxons.append(taxon)
+
+        self.build_paths()
+        return self
+
 
 class Elasticsearch:
     def __init__(self, jwt, host):
@@ -91,7 +104,7 @@ class Elasticsearch:
 
         response = self.do_query('taxons_search_view')
         taxonomies = [read_item(item) for item in response["result"] if
-                 (item['context'] == 'default' and item['archivedAt'] is None)]
+                      (item['context'] == 'default' and item['archivedAt'] is None)]
         return taxonomies
 
     def get_products(self):
@@ -164,7 +177,7 @@ class Phoenix:
             taxon_json['location'] = {'parent': parent_id}
         code, response = self.do_query("/taxonomies/default/" + str(taxonomy_id) + "/taxons", taxon_json, method="POST")
         print("taxon created: id:%d, attributes: %r" % (response['id'], response['attributes']))
-        return response
+        return Taxon(response['id'], parent_id, taxon_json["attributes"]["name"]["v"], taxonomy_id)
 
     def login_endpoint(self):
         return self.prefix + "/public/login"
@@ -210,10 +223,18 @@ def query_es_taxonomies(jwt: str, host: str):
     return result
 
 
-def assign_taxonomies(p: Phoenix, taxonomies, data_product, product_id):
+def assign_taxonomies(p: Phoenix, settings, taxonomies, data_product, product_id):
+    def get_sku_taxonomies(sku_record):
+        if 'taxonomies' in sku_record:
+            return sku_record['taxonomies']
+        elif 'taxonomies' in sku_record['attributes']:
+            return sku_record["attributes"]["taxonomies"]["v"]
+        else:
+            return []
+
     data_taxonomies = defaultdict(set)
     for sku in data_product["skus"]:
-        product_taxonomies = sku["attributes"]["taxonomies"]["v"]
+        product_taxonomies = get_sku_taxonomies(sku)
         for (taxonomy, taxon) in product_taxonomies.items():
             if type(taxon) is list:
                 data_taxonomies[taxonomy] = data_taxonomies[taxonomy].union(taxon)
@@ -222,11 +243,56 @@ def assign_taxonomies(p: Phoenix, taxonomies, data_product, product_id):
 
     for (taxonomy, taxons) in data_taxonomies.items():
         for taxon in taxons:
-            es_taxonomy = taxonomies[taxonomy]
-            es_taxon = next(iter([t for t in es_taxonomy.taxons if t.name == taxon]), None)
-            # TODO what if ws_taxon is None
-            p.assign_taxon(product_id, es_taxon.taxon_id)
-            print("taxon {} is assigned to product {}".format(es_taxon.taxon_id, product_id))
+            es_taxonomy, es_taxon = map_to_es_taxon(p, settings, data_product, taxon, taxonomies, taxonomy)
+
+            if es_taxonomy is None or es_taxon is None:
+                print("Skipping taxon '{}' (Taxonomy: '{}')", taxon, taxonomy)
+            else:
+                p.assign_taxon(product_id, es_taxon.taxon_id)
+                print("taxon {} is assigned to product {}".format(es_taxon.taxon_id, product_id))
+
+
+def map_to_es_taxon(p: Phoenix, settings, data_product, taxon, taxonomies, taxonomy):
+    es_taxonomy = taxonomies[taxonomy]
+    if es_taxonomy is None:
+        if settings.unknown_taxonomies[0] == 'fail':
+            raise ValueError(
+                "product '{}' references to unknown taxonomy '{}'".format(product_code(data_product), taxonomy))
+        elif settings.unknown_taxonomies[0] == 'ignore':
+            return None, None
+        else:
+            assert settings.unknown_taxonomies[0] == 'create'
+            r = create_taxon_from_name(p, taxonomy, taxon)
+            es_taxonomy = r[0].merge(None, r[1])
+            taxonomies[taxonomy] = es_taxonomy
+
+    es_taxon = next(iter([t for t in es_taxonomy.taxons if t.name == taxon]), None)
+    if es_taxon is None:
+        if settings.unknown_taxonomies[0] == 'fail':
+            raise ValueError(
+                "product '{}' references to unknown taxon '{}' in taxonomy '{}'".format(product_code(data_product), taxon,
+                                                                                  taxonomy))
+        elif settings.unknown_taxonomies[0] == 'ignore':
+            return es_taxonomy, None
+        else:
+            assert settings.unknown_taxonomies[0] == 'create'
+            r = create_taxon_from_name(p, es_taxonomy, taxon)
+            taxonomies[taxonomy] = r[0].merge(es_taxonomy, r[1])
+            es_taxon = r[1]
+
+    return es_taxonomy, es_taxon
+
+
+def create_taxon_from_name(p: Phoenix, taxonomy, taxon):
+    if type(taxonomy) == Taxonomy:
+        es_taxonomy = taxonomy
+    else:
+        assert type(taxonomy) == str
+        es_taxonomy = p.create_taxonomy({"attributes": {"name": {"t": "string", "v": taxonomy}}, "hierarchical": False})
+
+    assert type(taxon) == str
+    es_taxon = p.create_taxon({"attributes": {"name": {"t": "string", "v": taxon}}}, es_taxonomy.taxonomy_id, None)
+    return es_taxonomy, es_taxon
 
 
 def import_taxons(p: Phoenix, taxons, existing_taxonomy, parent_id=None):
@@ -234,8 +300,8 @@ def import_taxons(p: Phoenix, taxons, existing_taxonomy, parent_id=None):
         name = taxon["attributes"]["name"]["v"]
         existing_taxon = existing_taxonomy.get_taxon_by_name(name)
         if existing_taxon is None:
-            r = p.create_taxon(taxon, existing_taxonomy.taxonomy_id, parent_id)
-            taxon_id = r['id']
+            t = p.create_taxon(taxon, existing_taxonomy.taxonomy_id, parent_id)
+            taxon_id = t.taxon_id
         else:
             print("skipping taxon '{}' as soon as it already exists. id: {}".format(taxon,
                                                                                     existing_taxon.taxon_id))
@@ -268,13 +334,13 @@ def import_taxonomies(p: Phoenix, input_dir, import_from_adidas):
             if existing_taxonomy is None:
                 existing_taxonomy = p.create_taxonomy(taxonomy)
             else:
-                print("skipping taxonomy '{}' as soon as it already exists. id: {}".format(taxonomy,
-                                                                                           existing_taxonomy.taxonomy_id))
+                msg = "skipping taxonomy '{}' as soon as it already exists. id: {}"
+                print(msg.format(taxonomy, existing_taxonomy.taxonomy_id))
 
             import_taxons(p, taxons, existing_taxonomy, )
 
 
-def import_products(p: Phoenix, max_products, input_dir, import_from_adidas):
+def import_products(p: Phoenix, settings, max_products, input_dir, import_from_adidas):
     print("Importing products\n")
 
     if import_from_adidas:
@@ -293,7 +359,7 @@ def import_products(p: Phoenix, max_products, input_dir, import_from_adidas):
     products = products if max_products is None else itertools.islice(products, int(max_products))
 
     for product in products:
-        code = product['skus'][0]['attributes']['code']['v']
+        code = product_code(product)
 
         cache_file = cache_dir + "/" + code + ".json"
         skip = os.path.exists(cache_file)
@@ -302,7 +368,11 @@ def import_products(p: Phoenix, max_products, input_dir, import_from_adidas):
             uploaded, result = p.upload_product(code, product)
             if uploaded:
                 json.dump(product, open(cache_file, 'w'))
-                assign_taxonomies(p, taxonomies, product, result['id'])
+                assign_taxonomies(p, settings, taxonomies, product, result['id'])
+
+
+def product_code(product):
+    return product['skus'][0]['attributes']['code']['v']
 
 
 def get_inventory(phoenix):
@@ -316,14 +386,14 @@ def add_inventory_to_stock_item(phoenix, stock_item, amount):
         return
 
     itm = stock_item['stockItem']
-    id = str(itm['id'])
+    item_id = str(itm['id'])
     sku = itm['sku']
     old_amount = str(stock_item['onHand'])
 
-    print(sku + ' (' + id + ') ' + old_amount + ' => ' + str(amount))
+    print(sku + ' (' + item_id + ') ' + old_amount + ' => ' + str(amount))
     increment = {"qty": amount, "type": "Sellable", "status": "onHand"}
     try:
-        code, response = phoenix.do_query("/inventory/stock-items/" + id + "/increment", increment, method="PATCH")
+        code, response = phoenix.do_query("/inventory/stock-items/" + item_id + "/increment", increment, method="PATCH")
         if code != 204:
             print("error adding inventory: " + response)
     except HTTPError as err:
@@ -340,10 +410,6 @@ def add_inventory(phoenix, amount):
 def main():
     options = read_cmd_line()
 
-    # host = sys.argv[1]
-    # command = sys.argv[2]
-    # max_products = None if len(sys.argv) < 4 else sys.argv[3]
-
     print("HOST: ", options.host)
     print("CMD: ", options.command[0])
     if options.max_products is not None:
@@ -356,10 +422,10 @@ def main():
     if options.command[0] == 'taxonomies':
         import_taxonomies(p, options.input[0], options.adidas)
     elif options.command[0] == 'products':
-        import_products(p, max_products, options.input[0], options.adidas)
+        import_products(p, options, max_products, options.input[0], options.adidas)
     elif options.command[0] == 'both':
         import_taxonomies(p, options.input[0], options.adidas)
-        import_products(p, max_products, options.input[0], options.adidas)
+        import_products(p, options, max_products, options.input[0], options.adidas)
     elif options.command[0] == 'inventory':
         add_inventory(p, options.inventory_amount[0])
     else:
@@ -377,6 +443,12 @@ def read_cmd_line():
                     help="treat input directory as container of listing.json and products.json with adidas data")
     pp.add_argument("command", nargs=1, choices=['taxonomies', 'products', 'both', 'inventory'],
                     type=str, help="Command")
+    pp.add_argument("--unknown-taxonomies", nargs=1, choices=['ignore', 'create', 'fail'], type=str,
+                    help="defines behavior in case if product references on taxonomy/taxon which wasn't created before."
+                         "  <ignore> - ignore the taxon and continue import."
+                         "  <fail> - stop import. Prints error message."
+                         "  <create> - creates the absent taxonomy and taxon. The created taxonomy is flat.",
+                    default='fail')
 
     return pp.parse_args()
 
