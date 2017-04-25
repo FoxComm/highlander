@@ -30,24 +30,15 @@ object CordPaymentState {
     }
   }
 
-  def fromCCState(ccPaymentState: ExternalCharge.State): State = {
-    import phoenix.models.payment.{ExternalCharge ⇒ CC}
+  def fromExternalState(ccPaymentState: ExternalCharge.State): State = {
+    import phoenix.models.payment.{ExternalCharge ⇒ exState}
 
     ccPaymentState match {
-      case CC.Auth          ⇒ Auth
-      case CC.ExpiredAuth   ⇒ ExpiredAuth
-      case CC.FullCapture   ⇒ FullCapture
-      case CC.FailedCapture ⇒ FailedCapture
-      case _                ⇒ Cart
-    }
-  }
-
-  def fromApplePayState(apState: ExternalCharge.State): State = {
-    apState match {
-      case ExternalCharge.Cart       ⇒ Cart
-      case ExternalCharge.Auth       ⇒ Auth
-      case ExternalCharge.FailedAuth ⇒ FailedCapture
-      case _                         ⇒ ExpiredAuth
+      case exState.Auth          ⇒ Auth
+      case exState.ExpiredAuth   ⇒ ExpiredAuth
+      case exState.FullCapture   ⇒ FullCapture
+      case exState.FailedCapture ⇒ FailedCapture
+      case _                     ⇒ Cart
     }
   }
 

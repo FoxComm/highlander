@@ -346,13 +346,9 @@ case class Checkout(
 
   // do only one external payment. Check AP first, pay if it present otherwise try CC charge
   private def doExternalPayment(orderTotal: Int, internalPaymentTotal: Int): DbResultT[Unit] = {
-    val notEnoughPayment = GeneralFailure("Not enough payment")
-
     for {
       ap ← * <~ authApplePay(orderTotal, internalPaymentTotal)
       _  ← * <~ doOrMeh(ap.isEmpty, authCreditCard(orderTotal, internalPaymentTotal))
-
-      // todo throw notEnoughPayment here
     } yield ()
   }
 
@@ -389,12 +385,10 @@ case class Checkout(
       case Some((orderPayment, applePay)) ⇒
         for {
           stripeCharge ← * <~ apis.stripe
-                          .authorizeApplePay(applePay.stripeTokenId, authAmount, cart.currency)
+                          .authorizeAmount(applePay.stripeTokenId, authAmount, cart.currency)
           ourCharge = ApplePayCharges
             .authFromStripe(applePay, orderPayment, stripeCharge, cart.currency)
           created ← * <~ ApplePayCharges.create(ourCharge)
-          // todo logs here
-
         } yield created.some
       case _ ⇒ DbResultT.none // do nothing if apple pay is not there
     }

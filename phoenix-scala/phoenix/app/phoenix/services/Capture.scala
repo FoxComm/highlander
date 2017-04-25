@@ -19,7 +19,7 @@ import phoenix.utils.apis.Apis
 import slick.jdbc.PostgresProfile.api._
 import core.utils.Money.Currency
 import core.db._
-import models.payment.{ExternalCharge, ExternalChargeProperties}
+import models.payment.{ExternalCharge, ExternalChargeVals}
 import models.payment.ExternalCharge._
 import models.payment.applepay.ApplePayCharges
 
@@ -182,8 +182,6 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       _ ← * <~ ApplePayCharges.filter(_.id === charge.id).map(_.state).update(FullCapture)
       _ ← * <~ CreditCardCharges.filter(_.id === charge.id).map(_.state).update(FullCapture)
 
-      // todo log if update successful
-      //      _ ← * <~ LogActivity().creditCardCharge(order, updatedCharge)
     } yield ()
   }
 
