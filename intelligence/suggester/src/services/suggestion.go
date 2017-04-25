@@ -57,34 +57,33 @@ func determineUpSellProductFromAnthillData(customerID string, antHillData respon
 	return responses.ProductInstance{}, errors.New("determineUpSellProductFromAnthillData nothing to suggest")
 }
 
-func selectUpSellAndPushToSmsTwilio(customerID string, phoneNumber string, antHillData responses.AntHillResponse) (responses.TwilioSmsResponse, error) {
+func selectUpSellAndPushToSmsDexter(customerID string, phoneNumber string, antHillData responses.AntHillResponse) (responses.RunDexterResponse, error) {
 	if len(antHillData.Products) < 1 {
-		return responses.TwilioSmsResponse{}, errors.New("There are no products for potential up-sell")
+		return responses.RunDexterResponse{}, errors.New("There are no products for potential up-sell")
 	}
 
 	// Determine up-sell product and gather image URL, ID number and SKU
 	upSellProduct, determineUpsellErr := determineUpSellProductFromAnthillData(customerID, antHillData)
 	if determineUpsellErr != nil {
-		return responses.TwilioSmsResponse{}, errors.New("Every possible up-sell product has been suggested already")
+		return responses.RunDexterResponse{}, errors.New("Every possible up-sell product has been suggested already")
 	}
 
-	productImageURL := upSellProduct.Albums[0].Images[0].Src
 	productID := upSellProduct.ProductId
 	productSKU := upSellProduct.Skus[0]
 
 	// Create customer <- Suggest -> product in Neo4J
 	_, err := util.CreateNewSuggestProductRelation(customerID, strconv.Itoa(productID), phoneNumber, productSKU)
 	if err != nil {
-		return responses.TwilioSmsResponse{}, err
+		return responses.RunDexterResponse{}, err
 	}
 
-	// Send to Twilio
-	twilioSmsResponse, err := util.SuggestionToSMS(phoneNumber, productImageURL, upSellProduct)
+	// Send to Dexter
+	runDexterSmsResponse, err := util.DexterSuggestionToSMS(phoneNumber, "upsell", upSellProduct)
 	if err != nil {
-		return responses.TwilioSmsResponse{}, err
+		return responses.RunDexterResponse{}, err
 	}
 
-	return twilioSmsResponse, nil
+	return runDexterSmsResponse, nil
 }
 
 func GetSuggestion(c echo.Context) error {
@@ -99,12 +98,12 @@ func GetSuggestion(c echo.Context) error {
 	customerID := customer.CustomerID
 	phoneNumberClean := "+" + strings.Replace(customer.PhoneNumber, " ", "", -1)
 
-	queryResponse, queryError := util.AntHillQuery(customerID, channel)
+	anthillQueryResponse, queryError := util.AntHillQuery(customerID, channel)
 	if queryError != nil {
 		return c.String(http.StatusBadRequest, "queryError: "+queryError.Error())
 	}
 
-	upSellResponse, upSellError := selectUpSellAndPushToSmsTwilio(customerID, phoneNumberClean, queryResponse)
+	upSellResponse, upSellError := selectUpSellAndPushToSmsDexter(customerID, phoneNumberClean, anthillQueryResponse)
 	if upSellError != nil {
 		return c.String(http.StatusBadRequest, "upSellError: "+upSellError.Error())
 	}
