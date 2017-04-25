@@ -59,7 +59,7 @@ function stop(event: SyntheticEvent) {
 }
 
 function pickSkuAttrs(searchViewSku: SkuSearchItem) {
-  const sku = _.pick(searchViewSku, ['title', 'context']);
+  const sku = _.pick(searchViewSku, ['title']);
   sku.salePrice = {
     value: Number(searchViewSku.salePrice),
     currency: searchViewSku.salePriceCurrency,
