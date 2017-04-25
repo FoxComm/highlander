@@ -228,6 +228,23 @@ export default class CustomProperties extends Component {
     this.props.onChange(newAttributes)
   }
 
+  @autobind
+  handleDeleteFiles(src, name: string): void {
+    const { attributes } = this.props;
+    // deleteImage(src);
+    const newAttributes = {
+      ...attributes,
+      [name]: {
+        t: 'image',
+        v: '',
+      }
+    };
+
+    this.props.onChange(newAttributes)
+  }
+
+  //TODO add edit image?
+
   get addCustomProperty() {
     if (this.props.canAddProperty) {
       return (
@@ -245,7 +262,8 @@ export default class CustomProperties extends Component {
   get children(): Element<*> {
     return React.cloneElement((this.props.children), {
       processAttr: this.processAttr,
-      onDrop: this.handleNewFiles
+      addFile: this.handleNewFiles,
+      deleteFile: this.handleDeleteFiles,
     });
   }
 

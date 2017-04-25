@@ -144,7 +144,13 @@ export default class ObjectFormInner extends Component {
       const renderer = renderFn(this.state.errors, this.handleChange);
 
       const content = (attribute && attribute.t === 'image') ?
-        React.cloneElement(renderer(name, attribute && attribute.v, attrOptions, this.props.onDrop), { key: name })
+        React.cloneElement(renderer(
+          name,
+          attribute && attribute.v,
+          attrOptions,
+          this.props.addFile,
+          this.props.deleteFile
+        ), { key: name })
         :
         React.cloneElement(renderer(name, attribute && attribute.v, attrOptions), { key: name });
 
