@@ -3,12 +3,22 @@
 const path = require('path');
 const { spawn } = require('child_process');
 
+process.on('SIGINT', () => {
+  console.log('SIGINT. Exiting...');
+  process.exit();
+});
+
+process.on('uncaughtException', () => {
+  console.log('uncaughtException. Exiting...');
+  process.exit();
+});
+
 function runScript(name, cb = () => {}) {
   let child = spawn('yarn',
     ['run', name],
     {
       shell: true,
-      detached: true,
+      detached: true, // Do we need it to be detached? TBD
       stdio: 'inherit',
     }
   ).on('close', code => {
