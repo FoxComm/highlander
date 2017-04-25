@@ -9,6 +9,8 @@ import { ModalContainer } from '../modal/base';
 import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
+import Input from 'components/forms/text-input';
+import { Button } from 'components/common/buttons';
 
 // types
 import type { ImageInfo } from '../../modules/images';
@@ -21,6 +23,7 @@ type Props = {
   image: ImageInfo;
   onSave: (info: ImageInfo) => void;
   onCancel: () => void;
+  onRemove: Function;
 };
 
 class EditImage extends Component {
@@ -35,7 +38,9 @@ class EditImage extends Component {
   image: any;
 
   componentDidUpdate() {
-    console.log('this.image', this.image);
+    // console.log('this.image', this.image);
+    if (this.image) {
+    }
   }
 
   get closeAction() {
@@ -45,6 +50,11 @@ class EditImage extends Component {
   @autobind
   handleUpdateField({ target }: { target: HTMLInputElement }) {
     this.setState({ [target.name]: target.value });
+  }
+
+  @autobind
+  handleUpdateAltText(nextValue: string) {
+    this.setState({ alt: nextValue });
   }
 
   @autobind
@@ -58,9 +68,14 @@ class EditImage extends Component {
     const saveDisabled = !!this.state.title;
     const match = src.match(/\.[0-9a-z]+$/i);
     let ext = '–';
+    let size = '–';
 
     if (match && match[0]) {
       ext = match[0];
+    }
+
+    if (this.image) {
+      size = `${this.image.width}×${this.image.height}`;
     }
 
     return (
@@ -73,34 +88,20 @@ class EditImage extends Component {
             <div className={s.sidebar}>
               <div className={s.stat}>
                 <div className={s.statItem}>{`File Name: ${this.state.title}`}</div>
-                <div className={s.statItem}>{`Uploaded: ${this.props.image.uploaded}`}</div>
+                <div className={s.statItem}>{`Uploaded: ${this.props.image.createdAt || '–'}`}</div>
                 <div className={s.statItem}>{`File Type: ${ext}`}</div>
-                <div className={s.statItem}>{`File Size: ${ext}`}</div>
-                <div className={s.statItem}>{`Dimensions: ${ext}`}</div>
+                <div className={s.statItem}>{`Dimensions: ${size}`}</div>
               </div>
               <FormField label="URL" className={s.field} labelClassName={s.label}>
-                <input type="text" className="fc-product-details__field-value" value={this.state.src} disabled />
+                <Input value={this.state.src} disabled />
               </FormField>
               <FormField label="Alt Text" className={s.field} labelClassName={s.label}>
-                <input type="text"
-                       className="fc-product-details__field-value"
-                       name="alt"
-                       value={this.state.alt}
-                       onChange={this.handleUpdateField}
-                />
-              </FormField>
-              <FormField label="Slug" className={s.field} labelClassName={s.label}>
-                <input type="text"
-                       className="fc-product-details__field-value"
-                       name="slug"
-                       value={this.state.title}
-                       onChange={this.handleUpdateField}
-                />
+                <Input onChange={this.handleUpdateAltText} value={this.state.alt || ''} />
               </FormField>
             </div>
           </div>
           <footer className={s.footer}>
-            <div>1</div>
+            <Button onClick={this.props.onRemove} icon='trash'>Delete</Button>
             <SaveCancel onSave={this.handleSave} onCancel={this.props.onCancel} saveDisabled={saveDisabled} />
           </footer>
         </ContentBox>

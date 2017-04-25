@@ -25,13 +25,13 @@ export type FileInfo = {
   src: string;
   file: File;
   loading: boolean;
-  uploadedAt?: string;
+  createdAt?: string;
 }
 
 export type ImageInfo = {
   title: string;
   src: string;
-  uploaded: string;
+  createdAt?: string;
   alt: ?string;
   key?: string;
 }

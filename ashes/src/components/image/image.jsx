@@ -94,7 +94,7 @@ export default class ImageLoader extends Component {
     return !this.state.ready ? <WaitAnimation key="loader" size="m" /> : null;
   }
 
-  get image(): ?Element<*> {
+  get image(): ?Element<any> {
     let img = (
       <ProductImage
         src={this.state.src}
@@ -104,7 +104,7 @@ export default class ImageLoader extends Component {
       />
     );
 
-    if (this.props.size) {
+    if (this.props.size && this.state.src) {
       let styles = {
         backgroundSize: this.props.size,
         backgroundImage: `url(${this.state.src})`,

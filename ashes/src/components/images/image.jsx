@@ -72,6 +72,11 @@ export default class Image extends Component<void, Props, State> {
     this.setState({ deleteMode: false });
   }
 
+  @autobind
+  handleRemove(): void {
+    this.setState({ editMode: false, deleteMode: true });
+  }
+
   get deleteImageDialog(): ?Element<*> {
     if (!this.state.deleteMode) {
       return;
@@ -81,8 +86,8 @@ export default class Image extends Component<void, Props, State> {
       <BodyPortal className={styles.modal}>
         <ConfirmationDialog
           isVisible={true}
-          header='Delete Image'
-          body={'Are you sure you want to delete this image?'}
+          header='Delete Media'
+          body='Are you sure you want to delete this asset?'
           cancel='Cancel'
           confirm='Yes, Delete'
           onCancel={this.handleCancelDeleteImage}
@@ -100,6 +105,7 @@ export default class Image extends Component<void, Props, State> {
           image={this.props.image}
           onCancel={this.handleCancelEditImage}
           onSave={this.handleConfirmEditImage}
+          onRemove={this.handleRemove}
         />
       </BodyPortal>
     );
@@ -132,10 +138,10 @@ export default class Image extends Component<void, Props, State> {
           id={image.id}
           src={image.src}
           title={image.title}
-          secondaryTitle={`Uploaded ${image.uploadedAt || moment().format('MM/DD/YYYY HH: mm')}`}
+          secondaryTitle={`Uploaded ${image.createdAt || moment().format('MM/DD/YYYY HH: mm')}`}
           actions={this.getImageActions()}
           loading={image.loading}
-          key={`${imagePid}`}
+          key={imagePid}
         />
       </div>
     );

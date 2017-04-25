@@ -46,32 +46,23 @@ const ConfirmationDialog = (props: Props) => {
     </a>
   );
 
-  const handleKeyPress = (event) => {
-    if (event.keyCode === 13 /*enter*/) {
-      event.preventDefault();
-      props.confirmAction();
-    }
-  };
-
   const cls = classNames('fc-confirmation-dialog', props.className);
 
   return (
-    <div onKeyDown={handleKeyPress}>
-      <ContentBox title={title} className={cls} actionBlock={actionBlock}>
-        <div className='fc-modal-body'>
-          <ErrorAlerts error={_.get(props.asyncState, 'err', null)} />
-          {props.body}
-        </div>
+    <ContentBox title={title} className={cls} actionBlock={actionBlock}>
+      <div className='fc-modal-body'>
+        <ErrorAlerts error={_.get(props.asyncState, 'err', null)} />
+        {props.body}
+      </div>
 
-        <SaveCancel
-          className="fc-modal-footer"
-          onCancel={props.onCancel}
-          onSave={props.confirmAction}
-          saveText={props.confirm}
-          isLoading={_.get(props.asyncState, 'inProgress', false)}
-        />
-      </ContentBox>
-    </div>
+      <SaveCancel
+        className="fc-modal-footer"
+        onCancel={props.onCancel}
+        onSave={props.confirmAction}
+        saveText={props.confirm}
+        isLoading={_.get(props.asyncState, 'inProgress', false)}
+      />
+    </ContentBox>
   );
 };
 
