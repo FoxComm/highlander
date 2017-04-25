@@ -11,7 +11,6 @@ import Transition from 'react-transition-group/CSSTransitionGroup';
 
 // components
 import WaitAnimation from '../common/wait-animation';
-import ProductImage from 'components/imgix/product-image';
 
 type Props = {
   id: number,
@@ -94,8 +93,9 @@ export default class ImageLoader extends Component {
   }
 
   get image(): ?Element<*> {
+    const ImageComponent = this.props.imageComponent || 'img';
     return this.state.ready ? (
-      <ProductImage
+      <ImageComponent
         src={this.state.src}
         width={286}
         height={286}

@@ -13,6 +13,7 @@ import BodyPortal from '../body-portal/body-portal';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import ImageCard from '../image-card/image-card';
 import EditImage from './edit-image';
+import ProductImage from 'components/imgix/product-image';
 
 // types
 import type { ImageFile, ImageInfo } from '../../modules/images';
@@ -136,6 +137,7 @@ export default class Image extends Component<void, Props, State> {
           actions={this.getImageActions()}
           loading={image.loading}
           key={`${imagePid}`}
+          imageComponent={ProductImage}
         />
       </div>
     );
