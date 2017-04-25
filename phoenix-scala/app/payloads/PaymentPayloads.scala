@@ -102,7 +102,7 @@ object PaymentPayloads {
 
   case class CreditCardPayment(creditCardId: Int)
 
-  case class CreateApplePayPayment(stripeToken: String)
+  case class CreateApplePayPayment(stripeToken: String) // todo validate stripe token signature
 
   case class CreateManualStoreCredit(amount: Int,
                                      currency: Currency = Currency.USD,
