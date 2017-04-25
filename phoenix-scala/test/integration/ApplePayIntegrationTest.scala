@@ -21,8 +21,9 @@ class ApplePayIntegrationTest
     extends StripeTest
     with PhoenixStorefrontApi
     with ApiFixtures
+    with ApiFixtureHelpers
     with MockedApis
-    with AutomaticAuth {
+    with DefaultJwtAdminAuth {
 
   "POST v1/my/payment-methods/apple-pay" - {
     "Apple pay checkout with funds authorized" in new ProductSku_ApiFixture with ShipmentSeeds {
@@ -59,7 +60,10 @@ class ApplePayIntegrationTest
           cartRef = refNum
       )
 
-      storefrontPaymentsApi.applePay.create(payment).mustBeOk()
+      val (customerResponse, customerLoginData) = api_newCustomerWithLogin()
+      withCustomerAuth(customerLoginData, customerResponse.id) { implicit auth ⇒
+        storefrontPaymentsApi.applePay.create(payment).mustBeOk()
+      }
 
       val grandTotal = cartsApi(refNum).shippingMethod
         .update(UpdateShippingMethod(shippingMethod.id))
