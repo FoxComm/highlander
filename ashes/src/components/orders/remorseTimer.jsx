@@ -3,7 +3,7 @@
 
 import React, { Component, Element } from 'react';
 import moment from 'moment';
-import { AddButton } from '../common/buttons';
+import { AddButton } from 'components/core/button';
 import Countdown from '../countdown/countdown';
 
 type Props = {

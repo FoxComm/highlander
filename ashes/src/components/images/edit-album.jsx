@@ -8,7 +8,7 @@ import React, { Component } from 'react';
 // components
 import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
-import SaveCancel from '../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 import wrapModal from '../modal/wrapper';
 
 // types

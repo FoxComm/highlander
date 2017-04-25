@@ -9,7 +9,7 @@ import { getUserId } from 'lib/claims';
 
 // components
 import { PageTitle } from 'components/section-title';
-import { PrimaryButton } from 'components/common/buttons';
+import { PrimaryButton } from 'components/core/button';
 import ContentBox from 'components/content-box/content-box';
 import FormField from 'components/forms/formfield';
 import WaitAnimation from 'components/common/wait-animation';

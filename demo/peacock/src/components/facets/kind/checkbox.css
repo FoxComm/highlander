@@ -2,3 +2,8 @@
   margin-top: 7px;
   padding-top: 3px;
 }
+
+.disabled, .disabled label {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

@@ -10,7 +10,7 @@ import { getStore } from 'lib/store-creator';
 
 // components
 import WaitAnimation from 'components/common/wait-animation';
-import { PrimaryButton } from 'components/common/buttons';
+import { PrimaryButton } from 'components/core/button';
 import SectionTitle from 'components/section-title/section-title';
 import Shipment from './shipment';
 import UnshippedItems from './unshipped-items';

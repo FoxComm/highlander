@@ -7,9 +7,9 @@ const router = makeRouter()
     if (!info) {
       this.status = 404;
     } else {
-      this.body = Object.assign({
+      this.body = Object.assign({}, info, {
         state: zipcodes.states.abbr[info.state],
-      }, info);
+      });
     }
   });
 

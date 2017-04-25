@@ -9,8 +9,6 @@ import { connect } from 'react-redux';
 // components
 import ContentBox from '../../content-box/content-box';
 import RadioButton from '../../forms/radio-button';
-import { PrimaryButton } from '../../common/buttons';
-import { Checkbox } from '../../checkbox/checkbox';
 import Counter from '../../forms/counter';
 import FormField from '../../forms/formfield';
 import CodeCreationModal from './code-creation-modal';

@@ -9,7 +9,7 @@ import { trackEvent } from 'lib/analytics';
 import CouponsPanel from 'components/coupons-panel/coupons-panel';
 import EditableContentBox from 'components/content-box/editable-content-box';
 import PanelHeader from 'components/panel-header/panel-header';
-import { Button } from '../common/buttons';
+import { Button } from 'components/core/button';
 import AppendInput from '../forms/append-input';
 
 import * as CouponActions from 'modules/carts/coupons';

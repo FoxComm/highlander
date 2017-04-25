@@ -22,6 +22,7 @@ type FacetsProps = {
   whitelist?: Array<string>,
   onSelect?: (facet: string, value: string, selected: boolean) => void,
   required?: boolean,
+  available?: boolean,
 };
 
 type State = {
@@ -42,6 +43,7 @@ class Facets extends Component {
     whitelist: [],
     prefix: '',
     required: false, // allows user to deselect the value by clicking it again
+    available: true,
   };
 
   @autobind
@@ -74,6 +76,7 @@ class Facets extends Component {
           value={v.value}
           label={v.label}
           checked={v.selected}
+          available={v.available}
           click={this.handleClickFacets}
         />);
       } else if (f.kind == 'circle') {
@@ -84,6 +87,7 @@ class Facets extends Component {
           value={v.value}
           label={v.label}
           checked={v.selected}
+          available={v.available}
           click={this.handleClickFacets}
         />);
       } else if (f.kind == 'color') {
@@ -94,6 +98,7 @@ class Facets extends Component {
           value={v.value}
           label={v.label}
           checked={v.selected}
+          available={v.available}
           click={this.handleClickFacets}
         />);
       } else if (f.kind == 'image') {
@@ -103,6 +108,7 @@ class Facets extends Component {
           value={v.value}
           label={v.label}
           checked={v.selected}
+          available={v.available}
           click={this.handleClickFacets}
         />);
       }

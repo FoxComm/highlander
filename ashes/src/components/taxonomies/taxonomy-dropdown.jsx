@@ -6,7 +6,7 @@ import React from 'react';
 
 // components
 import { Dropdown } from 'components/dropdown';
-import { AddButton } from 'components/common/buttons';
+import { AddButton } from 'components/core/button';
 
 // styles
 import s from './taxonomy-dropdown.css';
