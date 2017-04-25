@@ -45,4 +45,4 @@
 
 - name: Start Suggester
   include: app_suggester.yml
-  when: marathon_restart.suggester
+  when: with_ic and marathon_restart.suggester
