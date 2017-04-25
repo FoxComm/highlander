@@ -62,12 +62,13 @@ class ProductsCatalogViewIntegrationTest
 
   "Products with no SKUs left are not visible" in {
     val product = new ProductSku_ApiFixture {}.product
+    val psv     = new ProductsSearchViewIntegrationTest
     def skuCode(skuAttrs: Json): String = (skuAttrs \ "code" \ "v").extractOpt[String].value
-    // FIXME: check if the product is visible in `products_search_view`
+    psv.viewOne(product.id).value.archivedAt mustBe 'empty
     viewOne(product.id) mustBe 'defined
     product.skus.foreach(sku ⇒ skusApi(skuCode(sku.attributes)).archive().mustBeOk)
     viewOne(product.id) mustBe 'empty
-    // FIXME: check if the product is *STILL* visible in `products_search_view`
+    psv.viewOne(product.id).value.archivedAt mustBe 'empty
   }
 
   case class ProductAlbumsFromDatabase(product: Product) {
