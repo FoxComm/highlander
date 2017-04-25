@@ -75,6 +75,12 @@ class CouponCodes extends Component {
   }
 
   @autobind
+  handleCounterChange({target}: {target: Target}): void {
+    const num = Number(target.value);
+    this.props.couponsGenerationChange(target.name, num);
+  }
+
+  @autobind
   setCounterValue(name: string, value: string|number): void {
     let num = Number(value);
     num = isNaN(num) ? 1 : num;
@@ -150,7 +156,7 @@ class CouponCodes extends Component {
                 value={codesQuantity}
                 decreaseAction={() => this.setCounterValue('codesQuantity', codesQuantity - 1)}
                 increaseAction={() => this.setCounterValue('codesQuantity', codesQuantity + 1)}
-                onChange={this.handleFormChange}
+                onChange={this.handleCounterChange}
                 min={1}
               />
             </div>
@@ -179,7 +185,7 @@ class CouponCodes extends Component {
                 value={this.props.codeGeneration.codesLength}
                 decreaseAction={() => this.setCounterValue('codesLength', this.props.codeGeneration.codesLength - 1)}
                 increaseAction={() => this.setCounterValue('codesLength', this.props.codeGeneration.codesLength + 1)}
-                onChange={this.handleFormChange}
+                onChange={this.handleCounterChange}
                 min={1}
               />
             </div>

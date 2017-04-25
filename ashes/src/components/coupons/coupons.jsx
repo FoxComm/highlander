@@ -8,6 +8,7 @@ import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
 // components
 import { SelectableSearchList } from '../list-page';
@@ -57,6 +58,9 @@ export default class Coupons extends Component {
 
   @autobind
   applyPromotionFilter(filters: Array<SearchFilter>) {
+    const promotionFilter = _.find(filters, { term: 'promotionId' });
+    const promotionIndex = _.findIndex(filters, { term: 'promotionId' });
+    const newFilters = promotionFilter ? _.remove(filters, (value, index) => {index == promotionIndex;}) : filters;
     return [
       {
         term: 'promotionId',
@@ -67,7 +71,7 @@ export default class Coupons extends Component {
           value: String(this.props.promotionId)
         }
       },
-      ...filters
+      ...newFilters
     ];
   }
 
