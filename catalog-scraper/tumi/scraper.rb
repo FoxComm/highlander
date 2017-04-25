@@ -5,9 +5,9 @@ require 'yaml'
 
 def parse_taxon_hierarchy(values)
   values.map do |value|
-    result = {'attributes': {'name':{'t':'string', 'v':"#{value['name']}"}}}
+    result = {attributes: {name:{t:'string', v:"#{value['name']}"}}}
     if value['swatch'] != nil
-      result[:attributes][:swatch]= {'t':'swatch', 'v':"#{value['swatch']}"}
+      result[:attributes][:swatch]= {t:'swatch', v:"#{value['swatch']}"}
     end
     if value['values'] != nil
       result[:children] = parse_taxon_hierarchy(value['values'])
@@ -17,7 +17,7 @@ def parse_taxon_hierarchy(values)
 end
 
 def parse_hierarchical_taxonomy(name, values)
-  result = {'attributes': {'name':{'t':'string', 'v':"#{name}"}}}
+  result = {attributes: {name:{t:'string', v:"#{name}"}}}
   taxons = parse_taxon_hierarchy(values)
   result[:taxons] = taxons
   result[:hierarchical] = taxons.any?{|i| i.key?(:children) && i[:children]!=nil}
@@ -34,7 +34,7 @@ def parse_taxonomies
   puts 'Writing taxonomies to json'
 
   File.open('taxonomies.json', 'w') do |f|
-    f.puts ({'taxonomies': result}).to_json
+    f.puts ({taxonomies: result}).to_json
   end
 end
 
@@ -110,7 +110,7 @@ end
 
 def read_innovation_features(doc)
   doc.css(".innovation-details .innovation-slider-clc").map do |innov|
-    title = sanitize_content(innov.css('h3').text)
+    sanitize_content(innov.css('h3').text)
   end
 end
 
@@ -207,17 +207,32 @@ def update_sku_from_data_properties(doc, sku)
   sku
 end
 
+def update_sku_from_details(doc, sku)
+  doc.css(".cntr-interior-exterior-feature-item").each do |item|
+    title_tag = item.css(".feature-name").first
+    content_tag = item.css(".pdpdetail-item-content").first
+
+    unless title_tag == nil || content_tag == nil
+      sku[:attributes][title_tag.text] = {
+        t: "richtext",
+        v: content_tag.inner_html
+      }
+    end
+  end
+
+  sku
+end
+
 def update_sku_from_dimensions(doc, sku)
-  dimensions = doc.css("ul.full-row .dimen-title").select do |d|
+  dimensions = doc.css(".full-row .dimen-title").select do |d|
     !d.attribute('class').to_s.include? "hidden"
   end
 
   dimensions.each do |d|
     dimension_title = d.css(".title-name").first.text
 
-    if dimension_title == "Laptop Dimensions"
-      measures = doc.css('.prod-measurements .dimen-prop .dimen-attr span')
-      measurements = {}
+    if dimension_title == "Dimensions"
+      measures = d.parent.css('.dimen-prop .dimen-attr span')
 
       measures.each do |m|
         attr = m.attribute("itemprop").to_s
@@ -235,6 +250,26 @@ def update_sku_from_dimensions(doc, sku)
           sku[:attributes][:depth] = {
             t: "string",
             v: sanitize_content(m.text)
+          }
+        end
+      end
+    elsif dimension_title == "Laptop Dimensions"
+      d.parent.css('.dimen-attr').each do |measure|
+        text = measure.text
+        if text.start_with? "H:"
+          sku[:attributes][:laptop_height] = {
+            t: "string",
+            v: sanitize_content(text.split(" ")[1])
+          }
+        elsif text.start_with? "W:"
+          sku[:attributes][:laptop_width] = {
+            t: "string",
+            v: sanitize_content(text.split(" ")[1])
+          }
+        elsif text.start_with? "D:"
+          sku[:attributes][:laptop_depth] = {
+            t: "string",
+            v: sanitize_content(text.split(" ")[1])
           }
         end
       end
@@ -269,7 +304,7 @@ pdp_links = collect_pdps
 
 # What Tumi calls a product, we call a SKU
 products = {}
-skus = pdp_links.map.with_index do |link, idx|
+skus = pdp_links[0..3].map.with_index do |link, idx|
   puts "Processing PDP #{idx + 1} of #{pdp_links.count}"
   sku = {
     albums: [],
@@ -283,9 +318,9 @@ skus = pdp_links.map.with_index do |link, idx|
   sku = update_sku_from_scopes(doc, sku)
   sku = update_sku_from_data_properties(doc, sku)
   sku = update_sku_from_dimensions(doc, sku)
+  sku = update_sku_from_details(doc, sku)
 
-
-  sku[:albums]=[{'name':'default'}]
+  sku[:albums]=[{name: 'default'}]
   sku[:albums][0][:images] = read_images(doc)
   sku[:taxonomies][:features] = read_innovation_features(doc)
 
@@ -363,7 +398,44 @@ end
 puts "Writing to json"
 
 File.open('products_tumi.json', 'w') do |f|
-  f.puts ({'products': products.values}).to_json
+  final_products = products.map do |product_id, product|
+    product[:variants] = product[:variants].map do |variant_name, raw_variant|
+      illuminated_values = raw_variant.map do |value_name, value|
+        {
+          name: value_name,
+          image: value[:img],
+          sku_codes: value[:sku_codes]
+        }
+      end
+
+      {
+        attributes: { t: 'string', v: variant_name },
+        values: illuminated_values
+      }
+    end
+
+    product
+  end
+    # product[:variants] = product[:variants].map do |name, raw_variant|
+    #   illuminated_values = raw_variant.map do |value_name, value|
+    #     {
+    #       name: value_name,
+    #       image: value[:img],
+    #       sku_codes: value[:sku_codes]
+    #     }
+    #   end
+
+    #   {
+    #     attributes: {
+    #       t: 'string',
+    #       v: name
+    #     },
+    #     values: illuminated_values
+    #   }
+    # end
+  # end
+
+  f.puts ({products: final_products}).to_json
 end
 
 puts "Complete!"
