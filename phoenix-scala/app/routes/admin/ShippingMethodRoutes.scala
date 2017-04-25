@@ -1,9 +1,10 @@
 package routes.admin
 
-import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Directives.{entity, _}
 import akka.http.scaladsl.server._
 import models.account.User
 import models.cord.Cord.cordRefNumRegex
+import payloads.ShippingMethodsPayloads.RegionSearchPayload
 import services.Authenticator.AuthData
 import services.ShippingManager
 import utils.aliases._
@@ -33,6 +34,11 @@ object ShippingMethodRoutes {
         (get & pathEnd) {
           getOrFailures {
             ShippingManager.getActive
+          }
+        } ~
+        (post & pathEnd & entity(as[RegionSearchPayload])) { payload ⇒
+          getOrFailures {
+            ShippingManager.getShippingMethodsForRegion(payload)
           }
         } ~
         path(cordRefNumRegex) { refNum ⇒

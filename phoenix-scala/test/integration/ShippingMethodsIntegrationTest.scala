@@ -7,6 +7,7 @@ import models.rules.QueryStatement
 import models.shipping
 import models.shipping.ShippingMethods
 import org.json4s.jackson.JsonMethods._
+import payloads.ShippingMethodsPayloads.RegionSearchPayload
 import responses.ShippingMethodsResponse.Root
 import services.carts.CartTotaler
 import testutils._
@@ -14,6 +15,7 @@ import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Factories
+import cats.implicits._
 
 class ShippingMethodsIntegrationTest
     extends IntegrationTestBase
@@ -100,6 +102,15 @@ class ShippingMethodsIntegrationTest
         methodResponse.price must === (shippingMethod.price)
         methodResponse.isEnabled must === (true)
       }
+    }
+  }
+
+  "GET /v1/shipping-methods" - {
+    "Get shipping method by country id" in {
+      val unitedStatesId: Int = 234
+      shippingMethodsApi
+        .searchByRegion(RegionSearchPayload(countryId = unitedStatesId.some))
+        .mustBeOk()
     }
   }
 

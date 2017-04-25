@@ -23,6 +23,7 @@ import payloads.ProductPayloads._
 import payloads.PromotionPayloads._
 import payloads.ReturnPayloads._
 import payloads.SharedSearchPayloads._
+import payloads.ShippingMethodsPayloads.RegionSearchPayload
 import payloads.SkuPayloads._
 import payloads.StoreAdminPayloads._
 import payloads.StoreCreditPayloads._
@@ -515,6 +516,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def active()(implicit aa: TestAdminAuth): HttpResponse =
       GET(shippingMethodsPrefix, aa.jwtCookie.some)
+
+    def searchByRegion(payload: RegionSearchPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(shippingMethodsPrefix, payload, aa.jwtCookie.some)
 
     def forCart(refNum: String)(implicit aa: TestAdminAuth): HttpResponse =
       GET(s"$shippingMethodsPrefix/$refNum", aa.jwtCookie.some)

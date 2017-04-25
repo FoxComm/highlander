@@ -1,5 +1,6 @@
 package services
 
+import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
 import models.account._
@@ -17,16 +18,20 @@ import utils.db._
 import slick.driver.PostgresDriver.api._
 import org.json4s.JsonAST._
 import responses.ShippingMethodsResponse
+import cats.implicits._
+import payloads.ShippingMethodsPayloads.RegionSearchPayload
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
   case class ShippingData(cart: Cart,
-                          cartTotal: Int,
-                          cartSubTotal: Int,
+                          cartTotal: Int = 0,
+                          cartSubTotal: Int = 0,
                           shippingAddress: Option[OrderShippingAddress] = None,
                           shippingRegion: Option[Region] = None,
-                          lineItems: Seq[CartLineItemProductData])
+                          lineItems: Seq[CartLineItemProductData] = Seq())
+
+  def emptyShippingData = ShippingData(cart = Cart(scope = LTree(""), accountId = 0))
 
   def setDefault(shippingMethodId: Int)(implicit ec: EC,
                                         db: DB,
@@ -62,11 +67,17 @@ object ShippingManager {
       cart        ← * <~ getCartByOriginator(originator, None)
       shipMethods ← * <~ ShippingMethods.findActive.result
       shipData    ← * <~ getShippingData(cart)
-      response = shipMethods.collect {
-        case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
-          val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
-          responses.ShippingMethodsResponse.build(sm, !restricted)
-      }
+      response = filter(shipMethods, shipData)
+    } yield response
+
+  def getShippingMethodsForRegion(payload: RegionSearchPayload)(
+      implicit ec: EC,
+      db: DB): DbResultT[Seq[responses.ShippingMethodsResponse.Root]] =
+    for {
+      shipMethods ← * <~ ShippingMethods.findActive.result
+      searchByRegion = emptyShippingData.copy(
+          shippingRegion = payload.countryId.map(cid ⇒ Region(countryId = cid, name = "")))
+      response = filter(shipMethods, searchByRegion)
     } yield response
 
   def getShippingMethodsForCart(refNum: String, customer: Option[User] = None)(
@@ -76,11 +87,7 @@ object ShippingManager {
       cart        ← * <~ findByRefNumAndOptionalCustomer(refNum, customer)
       shipMethods ← * <~ ShippingMethods.findActive.result
       shipData    ← * <~ getShippingData(cart)
-      response = shipMethods.collect {
-        case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
-          val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
-          responses.ShippingMethodsResponse.build(sm, !restricted)
-      }
+      response = filter(shipMethods, shipData)
     } yield response
 
   private def findByRefNumAndOptionalCustomer(refNum: String, customer: Option[User] = None)(
@@ -105,6 +112,12 @@ object ShippingManager {
         DbResultT.failure(failure)
       }
     }
+  }
+
+  def filter(shipMethods: Seq[ShippingMethod], shipData: ShippingData) = shipMethods.collect {
+    case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
+      val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
+      responses.ShippingMethodsResponse.build(sm, !restricted)
   }
 
   private def getShippingData(cart: Cart)(implicit ec: EC, db: DB): DbResultT[ShippingData] =
@@ -151,7 +164,7 @@ object ShippingManager {
         case "city" ⇒
           Condition.matches(shippingAddress.city, condition)
         case "regionId" ⇒
-          Condition.matches(shippingAddress.regionId, condition)
+          shippingData.shippingRegion.fold(false)(sr ⇒ Condition.matches(sr.id, condition))
         case "countryId" ⇒
           shippingData.shippingRegion.fold(false)(sr ⇒ Condition.matches(sr.countryId, condition))
         case "regionName" ⇒
