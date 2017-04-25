@@ -18,7 +18,7 @@ const SELECT_CRITERIA = [
   [operators.or, 'any']
 ];
 
-const prefixed = prefix('fc-customer-group-edit');
+const prefixed = prefix('fc-query-builder-edit');
 
 class ElasticQueryGenerator extends React.Component {
 
@@ -27,21 +27,21 @@ class ElasticQueryGenerator extends React.Component {
     this.state = {
       mainCondition: _.get(SELECT_CRITERIA, '0.0'),
       conditions: [],
-    }
+    };
   }
 
   @autobind
   setMainCondition(value) {
     this.setState({
       mainCondition: value,
-    })
+    });
   }
 
   @autobind
   setConditions(value) {
     this.setState({
       conditions: value,
-    })
+    });
   }
 
   get mainCondition() {

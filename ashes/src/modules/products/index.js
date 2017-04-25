@@ -10,6 +10,7 @@ import details from './details';
 import list from './list';
 import images from './images';
 import imagesBulk from './images-bulk';
+import suggest from './suggest';
 
 
 const productReducer = combineReducers({
@@ -17,6 +18,7 @@ const productReducer = combineReducers({
   list,
   images,
   imagesBulk,
+  suggest,
 });
 
 export default productReducer;

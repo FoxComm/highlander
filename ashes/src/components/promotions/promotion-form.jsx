@@ -18,6 +18,7 @@ import offers from './offers';
 import qualifiers from './qualifiers';
 import Discounts from './discounts';
 import ElasticQueryGenerator from 'components/query-builder/elastic-query-generator';
+import { fetchRegions } from 'modules/regions';
 
 import { setDiscountAttr } from 'paragons/promotion';
 const layout = require('./layout.json');
@@ -33,6 +34,10 @@ export default class PromotionForm extends ObjectDetails {
     qualifiedCustomerGroupIds: [], // it's temporary state until qualified customer groups not implemented in backend!
   };
   layout = layout;
+
+  componentDidMount(){
+    fetchRegions();
+  }
 
   renderApplyType() {
     const promotion = this.props.object;

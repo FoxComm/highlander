@@ -14,7 +14,7 @@ import { prefix } from 'lib/text-utils';
 //components
 import { Dropdown, DropdownItem } from 'components/dropdown';
 
-const prefixed = prefix('fc-customer-group-builder');
+const prefixed = prefix('fc-query-builder');
 const fields = criterions.map(({ field,label }) => [ field, label ]);
 
 class Criterion extends Component {
@@ -92,7 +92,7 @@ const renderValue = (criterion, operator, value, changeValue) => {
     criterion,
     value,
     changeValue,
-    className: 'fc-customer-group-builder',
+    className: 'fc-query-builder',
   });
 };
 

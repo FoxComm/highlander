@@ -12,6 +12,7 @@ import { FormField } from '../../forms';
 
 import ElasticQueryGenerator from 'components/query-builder/elastic-query-generator';
 
+
 const QUALIFIERS = [
   {
     discountType: 'order',

@@ -47,7 +47,7 @@ const PilledInput = props => {
   const { controls, children, className, icon, pills = [], solid, disabled, ...rest } = props;
 
   const containerClass = classNames('fc-pilled-input__input-container', {
-    '_solid': solid
+    '_solid': solid,
   });
 
   const inputClass = classNames('fc-pilled-input__input-field', '_no-fc-behaviour', {

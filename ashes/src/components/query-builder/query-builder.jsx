@@ -13,7 +13,7 @@ import { AddButton } from 'components/common/buttons';
 import Criterion from './criterion-edit';
 
 
-const prefixed = prefix('fc-customer-group-builder');
+const prefixed = prefix('fc-query-builder');
 
 export default class QueryBuilder extends React.Component {
 

@@ -14,7 +14,7 @@ const criterions = [
     type: types.string,
     widget: {
       default: widgets.plain('text'),
-      [ops.equal]: widgets.lookup('state'),
+      [ops.equal]: widgets.typeahead('products.suggest.products','productSuggest.inProgress'),
       [ops.notEqual]: widgets.lookup('state'),
       [ops.oneOf]: widgets.oneOf(widgets.lookup('state')),
       [ops.notOneOf]: widgets.oneOf(widgets.lookup('state')),
