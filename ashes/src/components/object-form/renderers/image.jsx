@@ -14,7 +14,7 @@ export default function renderImage(errors: FieldErrors = {}, onChange: ChangeHa
   return function(name: string, value: any, options: AttrOptions, addFile, deleteFile ) {
     const actions = [
       { name: 'external-link', handler: () => window.open(value) },
-      { name: 'edit', handler: () => console.log('open edit modal') },
+      { name: 'edit', handler: () => {} },
       { name: 'trash', handler: () => deleteFile(value, name) }
     ];
 
@@ -37,5 +37,5 @@ export default function renderImage(errors: FieldErrors = {}, onChange: ChangeHa
         </div>
       </div>
     );
-  }
+  };
 }

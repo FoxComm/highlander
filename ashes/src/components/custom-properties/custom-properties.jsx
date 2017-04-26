@@ -3,17 +3,13 @@
 // libs
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
-import { connect } from 'react-redux';
-import { get, keys, flow, omit } from 'lodash';
-import { makeLocalStore } from '@foxcomm/wings';
-import { createAsyncActions } from '@foxcomm/wings';
-import { bindActionCreators } from 'redux';
+import { get, keys, omit } from 'lodash';
 
 // components
 import CustomPropertyModal from './custom-property-modal';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 
-import { uploadImage } from '../../paragons/image'
+import { uploadImage } from '../../paragons/image';
 
 // style
 import s from './custom-properties.css';
@@ -226,7 +222,7 @@ export default class CustomProperties extends Component {
         }
       };
 
-      this.props.onChange(newAttributes)
+      this.props.onChange(newAttributes);
     });
 
   }
@@ -243,7 +239,7 @@ export default class CustomProperties extends Component {
       }
     };
 
-    this.props.onChange(newAttributes)
+    this.props.onChange(newAttributes);
   }
 
   //TODO add edit image?
