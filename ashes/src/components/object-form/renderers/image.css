@@ -1,4 +1,8 @@
 
-.upload {
+.uploadContainer {
   margin-top: 25px;
+}
+
+.imageCard {
+  max-width: 287px;
 }

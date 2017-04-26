@@ -48,6 +48,10 @@
     font-size: 96px;
     line-height: .8;
   }
+
+  & :global(.fc-btn) {
+    margin-top: 15px;
+  }
 }
 
 .input {

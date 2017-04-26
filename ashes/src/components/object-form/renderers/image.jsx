@@ -13,16 +13,20 @@ import s from './image.css';
 export default function renderImage(errors: FieldErrors = {}, onChange: ChangeHandler = noop) {
   return function(name: string, value: any, options: AttrOptions, addFile, deleteFile ) {
     const actions = [
-      { name: 'trash', handler: () => deleteFile(value, name)}
+      { name: 'trash', handler: () => deleteFile(value, name) }
     ];
 
     const empty = (value.length === 0);
-    const children = empty ? null : <ImageCard src={value} actions={actions} />;
+    const children = empty ? null : (
+      <div className={s.imageCard}>
+        <ImageCard src={value} actions={actions} />
+      </div>
+    );
 
     return (
       <div>
         <label className="fc-object-form__field-label">{name}</label>
-        <div className={s.upload}>
+        <div className={s.uploadContainer}>
           <Upload
             empty={empty}
             onDrop={(image) => addFile(image, name)}
