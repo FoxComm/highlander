@@ -146,6 +146,18 @@ def update_sku_from_scopes(doc, sku)
   sku
 end
 
+def update_sku_with_description(doc, sku)
+  description_tag = doc.css(".product-desc-pdp").first
+  unless description_tag == nil
+    sku[:attributes][:description] = {
+      t: "richText",
+      v: description_tag.inner_html
+    }
+  end
+
+  sku
+end
+
 def update_sku_from_data_properties(doc, sku)
   script_tags = doc.css("script")
 
@@ -163,11 +175,6 @@ def update_sku_from_data_properties(doc, sku)
       }
     elsif d[0] == "productSubCat"
       sku[:taxonomies][:category] = [ d[2].gsub("'", "") ]
-    elsif d[0] == "productDescription"
-      sku[:attributes][:description] = {
-        t: "richText",
-        v: d[2].gsub("'", "")
-      }
     elsif d[0] == "product_sku_code"
       sku[:attributes][:code] = {
         t: "string",
@@ -308,7 +315,12 @@ skus = pdp_links.map.with_index do |link, idx|
   puts "Processing PDP #{idx + 1} of #{pdp_links.count}"
   sku = {
     albums: [],
-    attributes: {},
+    attributes: {
+      activeFrom: {
+        t: "datetime",
+        v: "2017-03-09T19:59:21.609Z",
+      }
+    },
     taxonomies: {}
   }
 
@@ -319,12 +331,11 @@ skus = pdp_links.map.with_index do |link, idx|
   sku = update_sku_from_data_properties(doc, sku)
   sku = update_sku_from_dimensions(doc, sku)
   sku = update_sku_from_details(doc, sku)
+  sku = update_sku_with_description(doc, sku)
 
   sku[:albums]=[{name: 'default'}]
   sku[:albums][0][:images] = read_images(doc)
   sku[:taxonomies][:features] = read_innovation_features(doc)
-
-  puts "#{sku[:taxonomies]}"
 
   color = read_current_pdp_color(doc)
 
@@ -344,6 +355,10 @@ skus = pdp_links.map.with_index do |link, idx|
         description: {
           t: "richText",
           v: sku[:attributes][:description][:v]
+        },
+        activeFrom: {
+          t: "datetime",
+          v: "2017-03-09T19:59:21.609Z",
         }
       },
       skus: [sku],
