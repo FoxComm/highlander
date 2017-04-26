@@ -13,6 +13,8 @@ import s from './image.css';
 export default function renderImage(errors: FieldErrors = {}, onChange: ChangeHandler = noop) {
   return function(name: string, value: any, options: AttrOptions, addFile, deleteFile ) {
     const actions = [
+      { name: 'external-link', handler: () => window.open(value) },
+      { name: 'edit', handler: () => console.log('open edit modal') },
       { name: 'trash', handler: () => deleteFile(value, name) }
     ];
 
