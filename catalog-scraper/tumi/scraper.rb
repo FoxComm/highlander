@@ -304,7 +304,7 @@ pdp_links = collect_pdps
 
 # What Tumi calls a product, we call a SKU
 products = {}
-skus = pdp_links[0..10].map.with_index do |link, idx|
+skus = pdp_links.map.with_index do |link, idx|
   puts "Processing PDP #{idx + 1} of #{pdp_links.count}"
   sku = {
     albums: [],
@@ -342,7 +342,7 @@ skus = pdp_links[0..10].map.with_index do |link, idx|
           v: sku[:attributes][:title][:v]
         },
         description: {
-          t: "string",
+          t: "richText",
           v: sku[:attributes][:description][:v]
         }
       },
