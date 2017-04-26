@@ -173,8 +173,13 @@ def update_sku_from_data_properties(doc, sku)
         t: "string",
         v: d[2].gsub("'", "")
       }
+    elsif d[0] == "productCategory"
+      cat = d[2].gsub("'", "")
+      existing_cat = sku[:taxonomies][:category] || []
+      sku[:taxonomies][:category] = [ cat ] if existing_cat == []
     elsif d[0] == "productSubCat"
-      sku[:taxonomies][:category] = [ d[2].gsub("'", "") ]
+      subCat = d[2].gsub("'", "")
+      sku[:taxonomies][:category] = [ subCat ] unless subCat == ""
     elsif d[0] == "product_sku_code"
       sku[:attributes][:code] = {
         t: "string",
@@ -311,7 +316,7 @@ pdp_links = collect_pdps
 
 # What Tumi calls a product, we call a SKU
 products = {}
-skus = pdp_links.map.with_index do |link, idx|
+pdp_links.map.with_index do |link, idx|
   puts "Processing PDP #{idx + 1} of #{pdp_links.count}"
   sku = {
     albums: [],
