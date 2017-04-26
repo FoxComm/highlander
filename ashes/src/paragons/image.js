@@ -5,6 +5,11 @@
 //     () => { return Api.post(`/images/s3/`, image) }
 // );
 
-export const uploadImage = (image: ImageFile) => {
+// mocked api response
+const delay = (ms) =>
+  new Promise(resolve => setTimeout(resolve, ms));
+
+export const uploadImage = (image: ImageFile) =>
+  delay(500).then(() => {
   return "http://s5.pikabu.ru/images/big_size_comm/2015-10_2/144430079217215265.jpg"
-};
+  });

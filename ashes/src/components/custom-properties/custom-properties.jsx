@@ -217,15 +217,18 @@ export default class CustomProperties extends Component {
   @autobind
   handleNewFiles(image: ImageFile, name: string): void {
     const { attributes } = this.props;
-    const newAttributes = {
-      ...attributes,
-      [name]: {
-        t: 'image',
-        v: uploadImage(image),
-      }
-    };
+    uploadImage(image).then((src) => {
+      const newAttributes = {
+        ...attributes,
+        [name]: {
+          t: 'image',
+          v: src,
+        }
+      };
 
-    this.props.onChange(newAttributes)
+      this.props.onChange(newAttributes)
+    });
+
   }
 
   @autobind
