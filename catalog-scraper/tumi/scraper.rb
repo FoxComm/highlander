@@ -173,10 +173,6 @@ def update_sku_from_data_properties(doc, sku)
         t: "string",
         v: d[2].gsub("'", "")
       }
-    elsif d[0] == "productCategory"
-      cat = d[2].gsub("'", "")
-      existing_cat = sku[:taxonomies][:category] || []
-      sku[:taxonomies][:category] = [ cat ] if existing_cat == []
     elsif d[0] == "productSubCat"
       subCat = d[2].gsub("'", "")
       sku[:taxonomies][:category] = [ subCat ] unless subCat == ""
@@ -431,7 +427,12 @@ File.open('products_tumi.json', 'w') do |f|
       end
 
       {
-        attributes: { t: 'string', v: variant_name },
+        attributes: { 
+          name: {
+            t: 'string', 
+            v: variant_name
+          }
+        },
         values: illuminated_values
       }
     end
