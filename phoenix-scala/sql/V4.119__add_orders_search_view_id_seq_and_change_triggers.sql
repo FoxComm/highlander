@@ -11,6 +11,7 @@ alter table orders_search_view
 create or replace function update_orders_search_view_from_amazon_orders_insert_fn() returns trigger as $$
 begin
   insert into orders_search_view (
+    id,
     scope,
     reference_number,
     state,
@@ -23,6 +24,7 @@ begin
     grand_total,
     customer)
   select distinct on (new.id)
+    nextval('orders_search_view_id_seq') as id,
     -- order
     new.scope as scope,
     new.amazon_order_id as reference_number,
@@ -56,6 +58,7 @@ $$ language plpgsql;
 create or replace function update_orders_view_from_orders_insert_fn() returns trigger as $$
 begin
   insert into orders_search_view (
+    id,
     scope,
     reference_number,
     state,
@@ -68,6 +71,7 @@ begin
     grand_total,
     customer)
   select distinct on (new.id)
+    nextval('orders_search_view_id_seq') as id,
     -- order
     new.scope as scope,
     new.reference_number as reference_number,

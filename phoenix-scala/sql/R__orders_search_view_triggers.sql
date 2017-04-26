@@ -1,6 +1,7 @@
 create or replace function update_orders_view_from_orders_insert_fn() returns trigger as $$
     begin
         insert into orders_search_view (
+            id,
             scope,
             reference_number,
             state,
@@ -13,6 +14,7 @@ create or replace function update_orders_view_from_orders_insert_fn() returns tr
             grand_total,
             customer)
         select distinct on (new.id)
+            nextval('orders_search_view_id_seq') as id,
             -- order
             new.scope as scope,
             new.reference_number as reference_number,
