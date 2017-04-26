@@ -304,7 +304,7 @@ pdp_links = collect_pdps
 
 # What Tumi calls a product, we call a SKU
 products = {}
-skus = pdp_links[0..100].map.with_index do |link, idx|
+skus = pdp_links[0..10].map.with_index do |link, idx|
   puts "Processing PDP #{idx + 1} of #{pdp_links.count}"
   sku = {
     albums: [],
@@ -323,6 +323,8 @@ skus = pdp_links[0..100].map.with_index do |link, idx|
   sku[:albums]=[{name: 'default'}]
   sku[:albums][0][:images] = read_images(doc)
   sku[:taxonomies][:features] = read_innovation_features(doc)
+
+  puts "#{sku[:taxonomies]}"
 
   color = read_current_pdp_color(doc)
 
@@ -359,7 +361,7 @@ skus = pdp_links[0..100].map.with_index do |link, idx|
       taxon_list = product[:taxonomies][taxon_name]
       taxon_list = [] if taxon_list == nil
 
-      taxon_list = (taxon_list << taxon_value).uniq
+      taxon_list = (taxon_list << taxon_value).flatten.uniq
       product[:taxonomies][taxon_name] = taxon_list
     end
   end
