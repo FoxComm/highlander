@@ -79,7 +79,7 @@ export default class Promotions extends Component {
 
     return (
       <div className="promotions">
-        <BulkWrapper entity="promotion">
+        <BulkWrapper onDelete={searchActions.refresh} entity="promotion">
           <SelectableSearchList
             entity="promotions.list"
             emptyMessage="No promotions found."
@@ -87,7 +87,6 @@ export default class Promotions extends Component {
             renderRow={this.renderRow}
             tableColumns={tableColumns}
             searchActions={searchActions}
-            autoRefresh={true}
           />
         </BulkWrapper>
       </div>
