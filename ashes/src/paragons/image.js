@@ -11,5 +11,5 @@ const delay = (ms) =>
 
 export const uploadImage = (image: ImageFile) =>
   delay(500).then(() => {
-  return "http://s5.pikabu.ru/images/big_size_comm/2015-10_2/144430079217215265.jpg"
+  return "https://s-media-cache-ak0.pinimg.com/originals/a3/f2/37/a3f237a95a6fa4a314a9ccdd667b6056.jpg"
   });
