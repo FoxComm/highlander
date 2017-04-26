@@ -208,7 +208,7 @@ const OFFERS = [
   },
   {
     type: 'chooseGiftWithPurchase',
-    text: 'Your choice of with purchase',
+    text: 'Your choice of gift with purchase',
     value: 0,
   },
 ];

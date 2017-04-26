@@ -8,19 +8,26 @@ import ops from './operators';
 //components
 import widgets from '../../components/query-builder/widgets';
 
+//modules
+import * as suggestProducts from 'modules/products/suggest';
+import * as suggestTaxonomies from 'modules/taxonomies/suggest';
+
+const suggestProductsItems = suggestProducts.suggestItems;
+const suggestTaxonomiesItems = suggestTaxonomies.suggestItems;
 
 const criterions = [
   {
     type: types.string,
     widget: {
       default: widgets.plain('text'),
-      [ops.equal]: widgets.typeahead('products.suggest.products','productSuggest.inProgress'),
-      [ops.notEqual]: widgets.lookup('state'),
-      [ops.oneOf]: widgets.oneOf(widgets.lookup('state')),
-      [ops.notOneOf]: widgets.oneOf(widgets.lookup('state')),
-      config: {
-        storePath: 'groups.shippingState',
-      },
+      [ops.equal]: widgets.typeahead('products.suggest.products',
+        'productSuggest.inProgress',{ suggestItems: suggestProductsItems }),
+      [ops.notEqual]: widgets.typeahead('products.suggest.products',
+        'productSuggest.inProgress',{ suggestItems: suggestProductsItems }),
+      [ops.oneOf]: widgets.oneOf(widgets.typeahead('products.suggest.products',
+        'productSuggest.inProgress',{ suggestItems: suggestProductsItems })),
+      [ops.notOneOf]: widgets.oneOf(widgets.typeahead('products.suggest.products',
+        'productSuggest.inProgress',{ suggestItems: suggestProductsItems })),
     },
     field: 'product-title',
     label: 'Product Title',
@@ -75,13 +82,14 @@ const criterions = [
     type: types.string,
     widget: {
       default: widgets.plain('text'),
-      [ops.equal]: widgets.lookup('state'),
-      [ops.notEqual]: widgets.lookup('state'),
-      [ops.oneOf]: widgets.oneOf(widgets.lookup('state')),
-      [ops.notOneOf]: widgets.oneOf(widgets.lookup('state')),
-      config: {
-        storePath: 'groups.shippingState',
-      },
+      [ops.equal]: widgets.typeahead('taxonomies.suggest.taxonomies',
+        'taxonomySuggest.inProgress',{suggestItems: suggestTaxonomiesItems}),
+      [ops.notEqual]: widgets.typeahead('taxonomies.suggest.taxonomies',
+        'taxonomySuggest.inProgress',{suggestItems: suggestTaxonomiesItems}),
+      [ops.oneOf]: widgets.oneOf(widgets.typeahead('taxonomies.suggest.taxonomies',
+        'taxonomySuggest.inProgress',{suggestItems: suggestTaxonomiesItems})),
+      [ops.notOneOf]: widgets.oneOf(widgets.typeahead('taxonomies.suggest.taxonomies',
+        'taxonomySuggest.inProgress',{suggestItems: suggestTaxonomiesItems})),
     },
     field: 'taxonomy-value',
     label: 'Taxonomy Value',

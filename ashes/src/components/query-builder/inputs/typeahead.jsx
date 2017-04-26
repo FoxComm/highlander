@@ -39,19 +39,20 @@ export class Input extends Component {
     super(props);
     this.state = {
       term: '',
+      focused: false,
     };
   }
 
   @autobind
   pilledInput() {
     const { state, props } = this;
-    const pills = (props.value == '') ? [] : [props.value];
+    const pills = (props.value == '' || !props.value) ? [] : [props.value];
 
     return (
       <PilledInput
         solid={true}
         value={state.term}
-        disabled={this.props.value != ''}
+        disabled={this.props.value != '' && this.props.value != null}
         onChange={({target}) => this.setTerm(target.value)}
         pills={pills}
         icon={null}
@@ -62,16 +63,17 @@ export class Input extends Component {
 
   @autobind
   setTerm(term) {
-    this.suggestProducts(term);
+    this.suggestItems(term);
     this.setState({
       term,
+      focused: true,
     });
   }
 
   @debounce(1000)
-  suggestProducts(value){
+  suggestItems(value){
     if (value.length < 3) return null;
-    return this.props.suggestProducts(value);
+    return this.props.suggestItems(value);
   }
 
   get suggestedList(){
@@ -90,22 +92,35 @@ export class Input extends Component {
   handleSelectItem(item, event) {
     this.setState({
       term: '',
+      focused: false,
     });
     this.props.changeValue(item.name);
+
+  }
+
+  @autobind
+  updateFocus(item, event) {
+    this.setState({
+      focused: false,
+    });
   }
 
   render () {
     const prefixed = prefix(this.props.className);
     const value = this.props.value;
     const item = _.find(this.props.data, {name: value});
+    const isFetching = ((this.props.value == ''
+      || this.props.value == null) && this.state.focused) ? this.props.isFetchingProducts : false;
     return (
       <Typeahead
         styleName={'typeahead'}
         component={TypeaheadRow}
         hideOnBlur={true}
         items={this.props.data}
-        isFetching={this.props.isFetchingProducts}
+        isFetching={isFetching}
         name="queryBuilderTypeahead"
+        onBlur={this.updateFocus}
+        hideOnBlur={true}
         inputElement={this.pilledInput()}
         onItemSelected={this.handleSelectItem}
         placeholder={'Search..'} />

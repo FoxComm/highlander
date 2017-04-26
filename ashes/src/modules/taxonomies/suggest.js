@@ -4,13 +4,13 @@ import { post } from 'lib/search';
 import * as dsl from 'elastic/dsl';
 import { createAsyncActions } from '@foxcomm/wings';
 
-const _productSuggest = createAsyncActions(
-  'productSuggest',
+const _taxonomySuggest = createAsyncActions(
+  'taxonomySuggest',
   (value) => {
-    return post('products_search_view/_search?size=100', dsl.query({
+    return post('taxonomies_search_view/_search?size=100', dsl.query({
       bool: {
         should: [
-          dsl.matchQuery('title', {
+          dsl.matchQuery('name', {
             query: value,
             operator: 'and',
           })
@@ -21,27 +21,27 @@ const _productSuggest = createAsyncActions(
   }
 );
 
-const resetSuggestedProducts = createAction('PRODUCTS_RESET_SUGGESTED_PRODUCTS');
+const resetSuggestedTaxonomies = createAction('PRODUCTS_RESET_SUGGESTED_TAXONOMIES');
 
 export function suggestItems(value) {
   return (dispatch) => {
-    return dispatch(_productSuggest.perform(value));
+    return dispatch(_taxonomySuggest.perform(value));
   };
 }
 
 const initialState = {
-  products: [],
+  taxonomies: [],
 };
 
 const reducer = createReducer({
-  [_productSuggest.succeeded]: (state, response) => {
+  [_taxonomySuggest.succeeded]: (state, response) => {
     return {
-      products: _.get(response, 'result', []),
+      taxonomies: _.get(response, 'result', []),
     };
   },
-  [resetSuggestedProducts]: state => {
+  [resetSuggestedTaxonomies]: state => {
     return {
-      products: [],
+      taxonomies: [],
     };
   },
 }, initialState);

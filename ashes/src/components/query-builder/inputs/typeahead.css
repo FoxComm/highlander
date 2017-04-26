@@ -1,13 +1,11 @@
 .typeahead {
-  width: 33%;
-  max-width: 33%;
-
+  width: 180px;
   & :global .fc-pilled-input__input-wrapper {
     min-width: 0;
   }
 
   & :global input[type=text]{
-    width: auto ;
+    width: 100% ;
   }
 
   & :global input[type=text]:disabled{

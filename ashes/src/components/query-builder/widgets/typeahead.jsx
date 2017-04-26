@@ -5,19 +5,18 @@ import { connect } from 'react-redux';
 //components
 import { Input, getDefault, isValid } from '../inputs/typeahead';
 
-//modules
-import { suggestProducts } from 'modules/products/suggest';
 
-const mapActions = { suggestProducts };
-
-const connected = (getState, asyncPath) => connect(state => ({
-  data: getState(state).map(item => {return {id: item.id, name: item.title};}),
+const connected = (getState, asyncPath, mapActions) => connect(state => ({
+  data: getState(state).map(item => {
+  	const name = item.name ? item.name : item.title;
+		return {id: item.id, name: name };
+  }),
   isFetchingProducts: _.get(state.asyncActions, `${asyncPath}`, false),
 }),mapActions);
 
-export default function(path,asyncPath) {
+export default function(path,asyncPath,mapActions) {
   return {
-    Input: connected(state => _.toArray(_.get(state, `${path}`)),asyncPath)(Input),
+    Input: connected(state => _.toArray(_.get(state, `${path}`)), asyncPath, mapActions)(Input),
     getDefault,
     isValid,
   };
