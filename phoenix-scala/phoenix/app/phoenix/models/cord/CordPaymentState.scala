@@ -30,10 +30,10 @@ object CordPaymentState {
     }
   }
 
-  def fromExternalState(ccPaymentState: ExternalCharge.State): State = {
+  def fromExternalState(state: ExternalCharge.State): State = {
     import phoenix.models.payment.{ExternalCharge ⇒ exState}
 
-    ccPaymentState match {
+    state match {
       case exState.Auth          ⇒ Auth
       case exState.ExpiredAuth   ⇒ ExpiredAuth
       case exState.FullCapture   ⇒ FullCapture

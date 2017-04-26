@@ -28,7 +28,7 @@ case class CreditCardCharge(id: Int = 0,
                             createdAt: Instant = Instant.now)
     extends ExternalCharge[CreditCardCharge] {
 
-  def stateLens = lens[CreditCardCharge] >> 'state
+  def stateLens = lens[CreditCardCharge].state
 
 }
 

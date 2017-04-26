@@ -22,7 +22,7 @@ case class ApplePayCharge(id: Int = 0,
                           createdAt: Instant = Instant.now())
     extends ExternalCharge[ApplePayCharge] {
 
-  def stateLens = lens[ApplePayCharge] >> 'state
+  def stateLens = lens[ApplePayCharge].state
 }
 
 class ApplePayCharges(tag: Tag) extends FoxTable[ApplePayCharge](tag, "apple_pay_charges") {

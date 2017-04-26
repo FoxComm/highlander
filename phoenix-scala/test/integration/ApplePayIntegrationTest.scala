@@ -13,7 +13,7 @@ import responses.{CaptureResponse, CustomerResponse}
 import responses.cord._
 import services.StripeTest
 import testutils._
-import testutils.apis.{PhoenixPaymentApi, PhoenixStorefrontApi}
+import testutils.apis.PhoenixStorefrontApi
 import testutils.fixtures.api._
 import utils.MockedApis
 import utils.seeds.{Factories, ShipmentSeeds}
@@ -21,7 +21,6 @@ import utils.seeds.{Factories, ShipmentSeeds}
 class ApplePayIntegrationTest
     extends IntegrationTestBase
     with PhoenixStorefrontApi
-    with PhoenixPaymentApi
     with ApiFixtures
     with ApiFixtureHelpers
     with MockedApis

@@ -8,18 +8,25 @@ import slick.jdbc.JdbcType
 abstract class PaymentMethod {}
 
 object PaymentMethod {
-  sealed trait Internal
-  sealed trait External
-
-  sealed trait Type extends Product with Serializable {
-    def isExternal: Boolean = this.isInstanceOf[External]
-    def isInternal: Boolean = this.isInstanceOf[Internal]
+  sealed trait Payment {
+    val isExternal = false
+    val isInternal = false
   }
 
-  case object GiftCard    extends Type with Internal
-  case object StoreCredit extends Type with Internal
-  case object CreditCard  extends Type with External
-  case object ApplePay    extends Type with External
+  sealed trait InternalPayment extends Payment {
+    override val isInternal = true
+  }
+
+  sealed trait ExternalPayment extends Payment {
+    override val isExternal = true
+  }
+
+  sealed trait Type extends Product with Serializable with Payment
+
+  case object GiftCard    extends Type with InternalPayment
+  case object StoreCredit extends Type with InternalPayment
+  case object CreditCard  extends Type with ExternalPayment
+  case object ApplePay    extends Type with ExternalPayment
 
   implicit object Type extends ADT[Type] {
     def types = sealerate.values[Type]

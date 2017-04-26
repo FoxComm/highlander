@@ -7,7 +7,7 @@ import core.failures.Failure
 import core.utils.Money._
 import core.utils.Validation._
 import phoenix.models.payment.PaymentMethod
-import phoenix.models.payment.PaymentMethod.External
+import phoenix.models.payment.PaymentMethod.ExternalPayment
 import phoenix.models.payment.creditcard.{CreditCard, CreditCards}
 import phoenix.models.payment.applepay.{ApplePayCharge, ApplePayCharges, ApplePayment, ApplePayments}
 import phoenix.models.payment.giftcard.{GiftCard, GiftCards}

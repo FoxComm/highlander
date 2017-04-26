@@ -878,4 +878,11 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def updateLastSeen(activityId: Int)(implicit aa: TestAdminAuth): HttpResponse =
       POST(s"$notificationsPrefix/last-seen/$activityId", aa.jwtCookie.some)
   }
+
+  object captureApi {
+    val productPath = s"$rootPrefix/service/capture"
+
+    def capture(payload: CapturePayloads.Capture)(implicit ca: TestAdminAuth): HttpResponse =
+      POST(productPath, payload, ca.jwtCookie.some)
+  }
 }
