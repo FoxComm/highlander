@@ -1,7 +1,7 @@
 package services
 
-import java.time.Instant
 import com.github.tminglei.slickpg.LTree
+import java.time.Instant
 import models.Assignment._
 import models.Note
 import models.account.User
@@ -21,7 +21,7 @@ import models.sharedsearch.SharedSearch
 import models.shipping.ShippingMethod
 import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.ReturnPayloads.{ReturnLineItemPayload, ReturnShippingCostLineItemPayload, ReturnSkuLineItemPayload}
+import payloads.ReturnPayloads.{ReturnShippingCostLineItemPayload, ReturnSkuLineItemPayload}
 import payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
 import responses.CategoryResponses.FullCategoryResponse
 import responses.CouponResponses.CouponResponse
@@ -55,6 +55,7 @@ import services.activity.StoreCreditTailored._
 import services.activity.UserTailored._
 import utils.aliases._
 import utils.db._
+import utils.json.codecs._
 
 case class LogActivity(implicit ac: AC) {
 

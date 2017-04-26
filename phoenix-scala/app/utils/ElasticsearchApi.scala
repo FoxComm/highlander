@@ -40,8 +40,8 @@ case class ElasticsearchApi(config: ESConfig)(implicit ec: EC) extends LazyLoggi
     // Extract metrics data from aggregation results
     def getDocCount(resp: RichSearchResponse): Long =
       resp.aggregations.getAsMap.asScala.get(aggregationName) match {
-        case Some(agg)           ⇒ agg.asInstanceOf[InternalFilter].getDocCount
-        case _ fold (pureResult) ⇒ 0
+        case Some(agg) ⇒ agg.asInstanceOf[InternalFilter].getDocCount
+        case _         ⇒ 0
       }
 
     val queryString  = Json.fromJsonObject(query).jacksonPrint

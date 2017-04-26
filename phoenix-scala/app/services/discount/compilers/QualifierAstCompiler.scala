@@ -16,7 +16,7 @@ case class QualifierAstCompiler(data: Json) {
   }
 
   private def compile(obj: JsonObject): Either[Failures, Qualifier] = {
-    val qualifierCompiles = obj.toVector.map {
+    val qualifierCompiles = obj.toList.map {
       case (qualifierType, value) ⇒ compile(qualifierType, value)
     }
 

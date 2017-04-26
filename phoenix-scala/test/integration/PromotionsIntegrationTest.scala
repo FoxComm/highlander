@@ -100,7 +100,7 @@ class PromotionsIntegrationTest
 
       val attributes: List[(String, Json)] =
         IlluminateAlgorithm.projectAttributes(fullPromotion.form.attributes,
-                                              fullPromotion.shadow.attributes).flatMap(_.asObject).map(_.toList).getOrElse(Nil)
+                                              fullPromotion.shadow.attributes).asObject.map(_.toList).getOrElse(Nil)
 
       PromotionManager
         .update(promotion.formId, UpdatePromotion(Coupon, attributes.toMap, Seq()), ctx.name, None)

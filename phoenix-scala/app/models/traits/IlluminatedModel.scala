@@ -4,6 +4,7 @@ import cats.implicits._
 import failures.{Failure, Failures}
 import java.time.Instant
 import utils.aliases.Json
+import utils.json.codecs._
 
 trait IlluminatedModel[T] {
 
@@ -17,8 +18,9 @@ trait IlluminatedModel[T] {
     if (archivedAt.isDefined) {
       Either.left(inactiveError.single)
     } else {
-      val activeFrom = (attributes \ "activeFrom" \ "v").extractOpt[Instant]
-      val activeTo   = (attributes \ "activeTo" \ "v").extractOpt[Instant]
+      val attrsC     = attributes.hcursor
+      val activeFrom = attrsC.downField("activeFrom").downField("v").as[Instant].toOption
+      val activeTo   = attrsC.downField("activeTo").downField("v").as[Instant].toOption
       val now        = Instant.now
 
       (activeFrom, activeTo) match {

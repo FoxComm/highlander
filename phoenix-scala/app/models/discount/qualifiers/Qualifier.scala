@@ -11,6 +11,7 @@ import utils.apis.Apis
 import utils.db._
 
 trait Qualifier extends DiscountBase {
+  def json: Json
 
   val qualifierType: QualifierType
 

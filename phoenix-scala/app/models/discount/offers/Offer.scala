@@ -13,6 +13,7 @@ import utils.apis.Apis
 import utils.db._
 
 trait Offer extends DiscountBase {
+  def json: Json
 
   val offerType: OfferType
 

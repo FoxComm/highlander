@@ -3,7 +3,7 @@ package utils.http
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model._
 import failures.{Failures, NotFoundFailure404}
-import io.circe.Encoder
+import io.circe._
 import io.circe.jackson.syntax._
 import io.circe.syntax._
 import responses.{BatchMetadata, TheResponse}
@@ -17,13 +17,13 @@ object Http {
   private def renderNotFoundFailure(f: NotFoundFailure404): HttpResponse =
     notFoundResponse.copy(entity = jsonEntity("errors" → Seq(f.message)))
 
-  private final case class SuccessfulResponse(result: Any,
+  private final case class SuccessfulResponse(result: Json,
                                               warnings: Option[List[String]],
                                               errors: Option[List[String]],
                                               batch: Option[BatchMetadata])
 
   private object SuccessfulResponse {
-    def from(result: Any, uiInfo: List[MetaResponse]): SuccessfulResponse = {
+    def from[A: Encoder](result: A, uiInfo: List[MetaResponse]): SuccessfulResponse = {
       val uiInfoWarnings = uiInfo.collect { case MetaResponse.Warning(f)        ⇒ f.description }
       val uiInfoErrors   = uiInfo.collect { case MetaResponse.Error(f)          ⇒ f.description }
       val uiInfoBatches  = uiInfo.collectFirst { case MetaResponse.BatchInfo(b) ⇒ b }
@@ -34,13 +34,17 @@ object Http {
         // FIXME: get rid of `TheResponse` and s/AnyRef/Any/ around here. @michalrus
         case TheResponse(res, alerts, errors, warnings, batch) ⇒
           SuccessfulResponse(
-              result = res,
+              result = res.asJson.hcursor
+                .downField("result")
+                .focus
+                .getOrElse(sys.error(
+                        "If you changed TheResponse shape, it'd be better spending time on removing it")),
               warnings = emptyToNoneNonemptyToSome(
                   uiInfoWarnings ::: alerts.toList.flatten ::: warnings.toList.flatten),
               errors = emptyToNoneNonemptyToSome(uiInfoErrors ::: errors.toList.flatten),
               batch = uiInfoBatches orElse batch)
         case raw ⇒
-          SuccessfulResponse(result = raw,
+          SuccessfulResponse(result = raw.asJson,
                              warnings = emptyToNoneNonemptyToSome(uiInfoWarnings),
                              errors = emptyToNoneNonemptyToSome(uiInfoErrors),
                              batch = uiInfoBatches)

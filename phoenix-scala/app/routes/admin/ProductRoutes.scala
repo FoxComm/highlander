@@ -2,20 +2,20 @@ package routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import utils.http.JsonSupport._
 import models.account.User
 import models.product.ProductReference
 import payloads.ContextPayloads._
 import payloads.ImagePayloads.{AlbumPayload, UpdateAlbumPositionPayload}
 import payloads.ProductPayloads._
+import services.Authenticator.AuthData
 import services.image.ImageManager
 import services.objects.ObjectManager
 import services.product.ProductManager
-import services.Authenticator.AuthData
 import services.taxonomy.TaxonomyManager
 import utils.aliases._
 import utils.http.CustomDirectives._
-import utils.http.Http._
+import utils.http.JsonSupport._
+import utils.json.codecs._
 
 object ProductRoutes {
 

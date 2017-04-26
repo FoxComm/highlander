@@ -1,7 +1,6 @@
 package utils
 
 import cats.implicits._
-import io.circe.{Decoder, Encoder}
 import org.joda.money.CurrencyUnit
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -14,10 +13,6 @@ object Money {
   type BadCurrency = org.joda.money.IllegalCurrencyException
 
   object Currency {
-    implicit val decodeCurrency: Decoder[Currency] =
-      Decoder.decodeString.map(s ⇒ Currency(s.toUpperCase()))
-    implicit val encodeCurrency: Encoder[Currency] = Encoder.encodeString.contramap(_.getCode)
-
     val USD = Currency("USD")
     val RUB = Currency("RUB")
 
@@ -29,9 +24,5 @@ object Money {
   }
 
   val currencyColumnType: JdbcType[Currency] with BaseTypedType[Currency] =
-    MappedColumnType.base[Currency, String]({ c ⇒
-      c.getCode
-    }, { s ⇒
-      Currency(s)
-    })
+    MappedColumnType.base[Currency, String](_.getCode, Currency(_))
 }

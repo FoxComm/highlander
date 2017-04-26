@@ -1,8 +1,10 @@
 package responses
 
+import cats.implicits._
 import models.image.Image
 import models.objects.FullObject
 import utils.IlluminateAlgorithm
+import utils.json.yolo._
 
 object ImageResponses {
   object ImageResponse {
@@ -24,10 +26,10 @@ object ImageResponses {
       val form   = value.form.attributes
       val shadow = value.shadow.attributes
 
-      val src     = IlluminateAlgorithm.get("src", form, shadow).extract[String]
-      val baseUrl = IlluminateAlgorithm.get("baseUrl", form, shadow).extractOpt[String]
-      val title   = IlluminateAlgorithm.get("title", form, shadow).extractOpt[String]
-      val alt     = IlluminateAlgorithm.get("alt", form, shadow).extractOpt[String]
+      val src     = IlluminateAlgorithm.get("src", form, shadow).orEmpty.extract[String]
+      val baseUrl = IlluminateAlgorithm.get("baseUrl", form, shadow).flatMap(_.asString)
+      val title   = IlluminateAlgorithm.get("title", form, shadow).flatMap(_.asString)
+      val alt     = IlluminateAlgorithm.get("alt", form, shadow).flatMap(_.asString)
 
       build(value.model.id, src, baseUrl, title, alt)
     }

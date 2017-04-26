@@ -16,6 +16,7 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
+import utils.json.codecs._
 
 class NotificationIntegrationTest
     extends IntegrationTestBase

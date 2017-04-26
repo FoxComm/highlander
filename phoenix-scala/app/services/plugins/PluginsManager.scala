@@ -16,6 +16,7 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 import utils.json._
+import utils.json.codecs._
 
 object PluginsManager extends LazyLogging {
 

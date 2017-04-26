@@ -2,18 +2,18 @@ package routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import utils.http.JsonSupport._
 import models.account.User
 import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku.skuCodeRegex
 import models.payment.giftcard.GiftCard.giftCardCodeRegex
 import models.returns.Return.returnRefNumRegex
 import payloads.AssignmentPayloads._
-import services.assignments._
 import services.Authenticator.AuthData
+import services.assignments._
 import utils.aliases._
 import utils.http.CustomDirectives._
-import utils.http.Http._
+import utils.http.JsonSupport._
+import utils.json.codecs._
 
 object AssignmentsRoutes {
 

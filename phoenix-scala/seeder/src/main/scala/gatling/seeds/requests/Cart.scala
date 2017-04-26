@@ -12,6 +12,7 @@ import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.OrderPayloads.OrderTimeMachine
 import payloads.UpdateShippingMethod
 import scala.util.Random
+import utils.json.codecs._
 
 object Cart {
 

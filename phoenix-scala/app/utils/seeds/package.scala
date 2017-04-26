@@ -1,6 +1,5 @@
 package utils
 
-import io.circe.syntax._
 import java.time.Instant
 import models.discount.offers.{Offer, OfferType}
 import models.discount.qualifiers.{Qualifier, QualifierType}
@@ -16,8 +15,8 @@ package object seeds {
     val qualifierType = QualifierType.show(qualifier.qualifierType)
     val offerType     = OfferType.show(offer.offerType)
 
-    val qualifierJson = s"""{"$qualifierType": ${qualifier.asJson}}"""
-    val offerJson     = s"""{"$offerType": ${offer.asJson}}"""
+    val qualifierJson = s"""{"$qualifierType": ${qualifier.json}}"""
+    val offerJson     = s"""{"$offerType": ${offer.json}}"""
 
     val (keyMap, form) = ObjectUtils.createForm(parse(s"""
     {

@@ -95,7 +95,7 @@ object TaxonomyManager {
       newTaxonomy ← * <~ ObjectUtils.commitUpdate(
                        taxonomy,
                        form.attributes,
-                       taxonomy.shadow.attributes.merge(shadow.attributes),
+                       taxonomy.shadow.attributes.deepMerge(shadow.attributes),
                        Taxonomies.updateHead)
       taxons ← * <~ TaxonomyTaxonLinks.queryRightByLeftWithLinks(newTaxonomy.model)
     } yield FullTaxonomyResponse.build(newTaxonomy, taxons)
@@ -255,7 +255,7 @@ object TaxonomyManager {
       newTaxon ← * <~ ObjectUtils.commitUpdate(
                     fullTaxon,
                     form.attributes,
-                    fullTaxon.shadow.attributes.merge(shadow.attributes),
+                    fullTaxon.shadow.attributes.deepMerge(shadow.attributes),
                     Taxons.updateHead)
     } yield newTaxon.model
   }

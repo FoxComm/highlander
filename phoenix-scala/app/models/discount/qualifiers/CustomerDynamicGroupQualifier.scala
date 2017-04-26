@@ -2,10 +2,12 @@ package models.discount.qualifiers
 
 import cats.implicits._
 import failures.DiscountFailures._
+import io.circe.syntax._
 import models.discount.{CustomerSearch, DiscountInput}
 import utils.aliases._
 import utils.apis.Apis
 import utils.db._
+import utils.json.codecs._
 
 case class CustomerDynamicGroupQualifier(search: CustomerSearch) extends Qualifier {
 
@@ -16,4 +18,6 @@ case class CustomerDynamicGroupQualifier(search: CustomerSearch) extends Qualifi
       case Right(count) if count > 0 ⇒ Either.right(Unit)
       case _                         ⇒ Either.left(SearchFailure.single)
     }
+
+  def json: Json = this.asJson
 }

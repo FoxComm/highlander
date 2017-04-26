@@ -20,6 +20,8 @@ import services.product.ProductManager
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
+import utils.http.JsonSupport._
+import utils.json.codecs._
 
 object Customer {
   def routes(implicit ec: EC, db: DB, auth: UserAuthenticator, apis: Apis): Route = {

@@ -17,6 +17,7 @@ import scala.util.Try
 import utils.FoxConfig
 import utils.FoxConfig.config
 import utils.db._
+import utils.json.codecs._
 
 object Keys {
 

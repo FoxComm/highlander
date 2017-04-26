@@ -20,8 +20,6 @@ case class OfferAstCompiler(data: Json) {
       case (offerType, value) ⇒ compile(offerType, value)
     }
 
-    offerCompiles.traverseU()
-
     val offers: Seq[Offer] = offerCompiles.flatMap { o ⇒
       o.fold(f ⇒ Seq.empty, q ⇒ Seq(q))
     }

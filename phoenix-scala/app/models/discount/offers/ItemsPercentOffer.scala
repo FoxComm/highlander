@@ -2,6 +2,7 @@ package models.discount.offers
 
 import cats.implicits._
 import failures._
+import io.circe.syntax._
 import models.cord.lineitems.CartLineItemAdjustment
 import models.cord.lineitems.CartLineItemAdjustment._
 import models.discount._
@@ -9,6 +10,7 @@ import models.discount.offers.Offer.OfferResult
 import utils.ElasticsearchApi._
 import utils.aliases._
 import utils.apis.Apis
+import utils.json.codecs._
 
 // Percent off all matched items in cart
 case class ItemsPercentOffer(discount: Int, search: Seq[ProductSearch])
@@ -37,4 +39,6 @@ case class ItemsPercentOffer(discount: Int, search: Seq[ProductSearch])
         Either.right(adjustments)
       case _ ⇒ pureEither()
     }
+
+  def json: Json = this.asJson
 }

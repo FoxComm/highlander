@@ -1,6 +1,5 @@
 package services.image
 
-import cats.implicits._
 import failures.ImageFailures._
 import failures.{NotFoundFailure400, NotFoundFailure404}
 import java.time.Instant
@@ -216,7 +215,7 @@ object ImageManager {
       album ← * <~ mustFindFullAlbumByFormIdAndContext404(id, context)
       oldShadow                    = album.shadow
       (payloadForm, payloadShadow) = payload.formAndShadow.tupled
-      mergedAtts                   = oldShadow.attributes.merge(payloadShadow.attributes)
+      mergedAtts                   = oldShadow.attributes.deepMerge(payloadShadow.attributes)
       album ← * <~ ObjectUtils.commitUpdate[Album](album,
                                                    payloadForm.attributes,
                                                    mergedAtts,
@@ -296,7 +295,7 @@ object ImageManager {
       src ← * <~ imageLink.fold(DbResultT.none[String]) { link ⇒
              for {
                fullImage ← * <~ ObjectManager.getFullObject(Images.mustFindById404(link.rightId))
-             } yield ObjectUtils.get("src", fullImage.form, fullImage.shadow).asString
+             } yield ObjectUtils.get("src", fullImage.form, fullImage.shadow).flatMap(_.asString)
            }
     } yield src
 

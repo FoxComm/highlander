@@ -9,6 +9,7 @@ import services.coupon.CouponUsageService
 import utils.IlluminateAlgorithm
 import utils.aliases._
 import utils.db._
+import utils.json.codecs._
 
 /**
   * An IlluminatedCoupon is what you get when you combine the coupon shadow and
@@ -20,8 +21,9 @@ case class IlluminatedCoupon(id: Int,
                              promotion: Int) {
 
   def mustBeActive: Either[Failures, IlluminatedCoupon] = {
-    val activeFrom = (attributes \ "activeFrom" \ "v").extractOpt[Instant]
-    val activeTo   = (attributes \ "activeTo" \ "v").extractOpt[Instant]
+    val attrsC     = attributes.hcursor
+    val activeFrom = attrsC.downField("activeFrom").downField("v").as[Instant].toOption
+    val activeTo   = attrsC.downField("activeTo").downField("v").as[Instant].toOption
     val now        = Instant.now
 
     (activeFrom, activeTo) match {
@@ -37,7 +39,8 @@ case class IlluminatedCoupon(id: Int,
 
   def mustBeApplicable(code: CouponCode, accountId: Int)(implicit ec: EC,
                                                          db: DB): DbResultT[IlluminatedCoupon] = {
-    val usageRules = (attributes \ "usageRules" \ "v").extractOpt[CouponUsageRules]
+    val usageRules =
+      attributes.hcursor.downField("usageRules").downField("v").as[CouponUsageRules].toOption
 
     val validation = usageRules match {
       case Some(rules) if !rules.isUnlimitedPerCode && !rules.isUnlimitedPerCustomer ⇒

@@ -2,10 +2,10 @@ package payloads
 
 import cats.data._
 import cats.implicits._
-import failures.{EmptyCancellationReasonFailure, Failure, InvalidCancellationReasonFailure, NonEmptyCancellationReasonFailure}
+import failures._
 import models.payment.PaymentMethod
-import models.returns.{Return, ReturnLineItem}
-import utils.{ADTTypeHints, Validation}
+import models.returns.Return
+import utils.Validation
 import utils.Validation._
 
 object ReturnPayloads {
@@ -28,14 +28,6 @@ object ReturnPayloads {
 
   sealed trait ReturnLineItemPayload extends Validation[ReturnLineItemPayload] {
     def reasonId: Int
-  }
-  object ReturnLineItemPayload {
-    def typeHints =
-      ADTTypeHints(
-          Map(
-              ReturnLineItem.ShippingCost → classOf[ReturnShippingCostLineItemPayload],
-              ReturnLineItem.SkuItem      → classOf[ReturnSkuLineItemPayload]
-          ))
   }
 
   case class ReturnSkuLineItemPayload(sku: String, quantity: Int, reasonId: Int)

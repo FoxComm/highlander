@@ -16,6 +16,7 @@ import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
 import utils.http.JsonSupport._
+import utils.json.codecs._
 
 object Public {
   def routes(customerCreateContext: AccountCreateContext,

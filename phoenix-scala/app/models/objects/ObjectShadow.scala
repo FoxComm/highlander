@@ -26,12 +26,10 @@ object ObjectShadow {
       case (acc, (key, value)) ⇒
         // TODO: Clean this up and make a case class to represent the shadow ref.
 
-        // FIXME KJ: yolo is not justified case here,
-        // but I had really no idea what should be default value when "t" is not found
-        // let it reproduce previous behaviour and default to json array then ;-)
-
-        val shadowJson = Json.obj("type" → (value \ "t"), "ref" → Json.fromString(key))
-        acc.add(key, shadowJson)
+        value.hcursor
+          .downField("t")
+          .focus
+          .fold(acc)(tpe ⇒ acc.add(key, Json.obj("type" → tpe, "ref" → Json.fromString(key))))
     }
 
     ObjectShadow(attributes = Json.fromJsonObject(attributesJson))

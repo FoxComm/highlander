@@ -6,20 +6,17 @@ import com.typesafe.scalalogging.LazyLogging
 import dispatch._
 import failures.MiddlewarehouseFailures.MiddlewarehouseError
 import failures.{Failures, MiddlewarehouseFailures}
-import io.circe.generic.semiauto._
+import io.circe.Json
 import io.circe.jackson.syntax._
 import io.circe.parser.parse
 import io.circe.syntax._
-import io.circe.{Encoder, Json}
 import payloads.AuthPayload
 import utils.aliases._
 import utils.db._
+import utils.json.codecs._
 
 case class SkuInventoryHold(sku: String, qty: Int)
 case class OrderInventoryHold(refNum: String, items: Seq[SkuInventoryHold])
-object OrderInventoryHold {
-  implicit val encode: Encoder[OrderInventoryHold] = deriveEncoder[OrderInventoryHold]
-}
 
 trait MiddlewarehouseApi {
 
@@ -57,13 +54,13 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
   //Note cart ref becomes order ref num after cart turns into order
   override def cancelHold(orderRefNum: String)(implicit ec: EC, au: AU): Result[Unit] = {
 
-    val reqUrl = dispatch.url(s"$url/v1/private/reservations/hold/${orderRefNum}")
+    val reqUrl = dispatch.url(s"$url/v1/private/reservations/hold/$orderRefNum")
     val jwt    = AuthPayload.jwt(au.token)
     val req    = reqUrl.setContentType("application/json", "UTF-8") <:< Map("JWT" → jwt)
     logger.info(s"middlewarehouse cancel hold: $orderRefNum")
     val f = Http(req.DELETE OK as.String).either.map {
-      case Right(_)    ⇒ Either.right(())
-      case Left(error) ⇒ Either.left(MiddlewarehouseFailures.UnableToCancelHoldLineItems.single)
+      case Right(_) ⇒ Either.right(())
+      case Left(_)  ⇒ Either.left(MiddlewarehouseFailures.UnableToCancelHoldLineItems.single)
     }
     Result.fromFEither(f)
   }

@@ -2,16 +2,16 @@ package routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import utils.http.JsonSupport._
 import de.heikoseeberger.akkasse.EventStreamMarshalling._
 import facades.NotificationFacade
 import models.account.User
 import payloads.CreateNotification
-import services.NotificationManager
 import services.Authenticator.AuthData
+import services.NotificationManager
 import utils.aliases._
 import utils.http.CustomDirectives._
-import utils.http.Http._
+import utils.http.JsonSupport._
+import utils.json.codecs._
 
 object NotificationRoutes {
 

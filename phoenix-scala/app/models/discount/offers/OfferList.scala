@@ -1,6 +1,7 @@
 package models.discount.offers
 
 import cats.implicits._
+import io.circe.Json
 import models.cord.lineitems.CartLineItemAdjustment._
 import models.discount.DiscountInput
 import models.discount.offers.Offer.OfferResult
@@ -16,4 +17,5 @@ case class OfferList(offers: Seq[Offer]) extends Offer {
   def adjust(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis, au: AU): OfferResult =
     Result.seqCollectFailures(offers.map(_.adjust(input)).toList).map(_.flatten)
 
+  def json: Json = Json.obj("offers" → Json.fromValues(offers.map(_.json)))
 }

@@ -550,5 +550,5 @@ object Mvp {
     ObjectUtils.get("externalId", f, s).flatMap(_.asString)
 
   def trackInventory(f: ObjectForm, s: ObjectShadow): Boolean =
-    ObjectUtils.get("trackInventory", f, s).forall(_.asBoolean)
+    ObjectUtils.get("trackInventory", f, s).flatMap(_.asBoolean).forall(identity)
 }

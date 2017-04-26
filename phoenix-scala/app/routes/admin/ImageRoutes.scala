@@ -2,16 +2,16 @@ package routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import utils.http.JsonSupport._
 import facades.ImageFacade
 import models.account.User
 import payloads.ImagePayloads._
-import services.image.ImageManager
 import services.Authenticator.AuthData
+import services.image.ImageManager
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
-import utils.http.Http._
+import utils.http.JsonSupport._
+import utils.json.codecs._
 
 object ImageRoutes {
   def routes(implicit ec: EC, db: DB, am: Mat, auth: AuthData[User], apis: Apis): Route = {

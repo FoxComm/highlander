@@ -11,6 +11,7 @@ import payloads.PaymentPayloads.GiftCardPayment
 import scala.util.Random
 import utils.Money.Currency
 import utils.Strings._
+import utils.json.codecs._
 
 object GiftCards {
 

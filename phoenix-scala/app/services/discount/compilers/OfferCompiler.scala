@@ -7,6 +7,7 @@ import io.circe.Decoder
 import models.discount.NonEmptySearch
 import models.discount.offers._
 import utils.aliases._
+import utils.json.codecs._
 
 case class OfferCompiler(offerType: OfferType, attributes: Json) {
 

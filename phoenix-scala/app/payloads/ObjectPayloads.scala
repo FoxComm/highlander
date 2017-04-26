@@ -1,10 +1,9 @@
 package payloads
 
 import io.circe.Json
+import utils.json._
 
 object ObjectPayloads {
-  type JsonField = (String, Json)
-
   trait FormShadowFieldBuilder {
     def formJson: JsonField
     def shadowJson: JsonField
@@ -14,8 +13,10 @@ object ObjectPayloads {
       extends FormShadowFieldBuilder {
     override def formJson: JsonField = attributeName → attributeValue
     override def shadowJson: JsonField =
-      attributeName                  → Json.obj("type" → Json.fromString(attributeType),
-                               "ref" → Json.fromString(attributeName))
+      attributeName → Json.obj(
+          "type" → Json.fromString(attributeType),
+          "ref"  → Json.fromString(attributeName)
+      )
   }
 
   case class StringField(name: String, value: String)

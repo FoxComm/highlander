@@ -19,6 +19,7 @@ import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.json._
+import utils.json.codecs._
 
 case class ActivityContext(userId: Int, userType: String, transactionId: String, scope: LTree) {
   def withCurrentScope(implicit au: AU): ActivityContext = withScope(Scope.current)

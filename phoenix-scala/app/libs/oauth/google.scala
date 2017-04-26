@@ -5,6 +5,7 @@ import dispatch.{Http, url ⇒ request}
 import scala.concurrent.Future
 import utils.aliases._
 import utils.json._
+import utils.json.codecs._
 
 case class GoogleOauthOptions(
     roleName: String,

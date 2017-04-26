@@ -11,7 +11,7 @@ import models.objects._
 import models.product.{ProductId, Products}
 import payloads.ImagePayloads.AlbumPayload
 import payloads.SkuPayloads._
-import responses.AlbumResponses.AlbumResponse.{Root => AlbumRoot}
+import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
 import responses.ObjectResponses.ObjectContextResponse
 import responses.SkuResponses._

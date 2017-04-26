@@ -3,11 +3,13 @@ package models.promotion
 import cats.implicits._
 import failures.PromotionFailures._
 import failures._
+import io.circe.syntax._
 import java.time.Instant
 import models.objects._
 import models.promotion.Promotion._
 import utils.IlluminateAlgorithm
 import utils.aliases._
+import utils.json.codecs._
 
 /**
   * An IlluminatedPromotion is what you get when you combine the promotion shadow and
@@ -53,7 +55,7 @@ object IlluminatedPromotion {
   def validatePromotion(applyType: ApplyType, promotion: FormAndShadow): FormAndShadow = {
     (applyType, promotion.getAttribute("activeFrom")) match {
       case (Promotion.Coupon, None) ⇒
-        promotion.setAttribute("activeFrom", "date", Instant.now.toString)
+        promotion.setAttribute("activeFrom", "date", Instant.now.asJson)
       case _ ⇒
         promotion
     }

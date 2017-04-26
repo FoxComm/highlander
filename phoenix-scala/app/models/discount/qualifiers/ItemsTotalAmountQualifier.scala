@@ -3,6 +3,7 @@ package models.discount.qualifiers
 import cats.implicits._
 import failures.DiscountFailures._
 import failures._
+import io.circe.Json
 import models.discount._
 import utils.ElasticsearchApi._
 import utils.aliases._
@@ -29,4 +30,7 @@ case class ItemsTotalAmountQualifier(totalAmount: Int, search: Seq[ProductSearch
       case _ ⇒
         Either.left(SearchFailure.single)
     }
+
+  // yep, it's backward compatible with json4s behaviour
+  def json: Json = Json.obj()
 }

@@ -19,6 +19,7 @@ import utils.IlluminateAlgorithm
 import utils.aliases._
 import utils.apis.Apis
 import utils.db._
+import utils.json.yolo._
 
 object ImageFacade {
 
@@ -107,9 +108,9 @@ object ImageFacade {
     val form   = image.form.attributes
     val shadow = image.shadow.attributes
 
-    val src   = IlluminateAlgorithm.get("src", form, shadow).extract[String]
-    val title = IlluminateAlgorithm.get("title", form, shadow).extractOpt[String]
-    val alt   = IlluminateAlgorithm.get("alt", form, shadow).extractOpt[String]
+    val src   = IlluminateAlgorithm.get("src", form, shadow).orEmpty.extract[String]
+    val title = IlluminateAlgorithm.get("title", form, shadow).flatMap(_.asString)
+    val alt   = IlluminateAlgorithm.get("alt", form, shadow).flatMap(_.asString)
 
     ImagePayload(Some(image.model.id), src, title, alt)
   }

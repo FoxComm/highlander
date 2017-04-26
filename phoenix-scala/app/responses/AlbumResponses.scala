@@ -1,11 +1,13 @@
 package responses
 
+import cats.implicits._
 import java.time.Instant
 import models.image._
 import models.objects._
 import responses.ImageResponses.ImageResponse
 import services.image.ImageManager.FullAlbumWithImages
 import utils.IlluminateAlgorithm
+import utils.json.yolo._
 
 object AlbumResponses {
   object AlbumResponse {
@@ -22,7 +24,7 @@ object AlbumResponses {
       val formAttrs   = album.form.attributes
       val shadowAttrs = album.shadow.attributes
 
-      val name = IlluminateAlgorithm.get("name", formAttrs, shadowAttrs).extract[String]
+      val name = IlluminateAlgorithm.get("name", formAttrs, shadowAttrs).orEmpty.extract[String]
 
       Root(id = album.form.id,
            name = name,

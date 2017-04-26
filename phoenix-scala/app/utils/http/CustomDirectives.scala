@@ -10,6 +10,7 @@ import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures._
+import io.circe.Encoder
 import models.activity.ActivityContext
 import models.objects.{ObjectContext, ObjectContexts}
 import models.product.{ProductReference, SimpleContext}
@@ -114,24 +115,24 @@ object CustomDirectives {
       case None ⇒ getContextByName(DefaultContextName)
     }
 
-  def good[A <: AnyRef](a: Future[A])(implicit ec: EC): StandardRoute = // TODO: is this needed anymore? @michalrus
+  def good[A: Encoder](a: Future[A])(implicit ec: EC): StandardRoute = // TODO: is this needed anymore? @michalrus
     complete(a.map(renderRaw(_)))
 
-  def good[A <: AnyRef](a: A): StandardRoute = // TODO: is this needed anymore? @michalrus
+  def good[A: Encoder](a: A): StandardRoute = // TODO: is this needed anymore? @michalrus
     complete(renderRaw(a))
 
-  def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: EC): StandardRoute =
+  def goodOrFailures[A: Encoder](a: Result[A])(implicit ec: EC): StandardRoute =
     complete(
         a.runEmpty.value.map(_.fold(renderFailure(_), { case (uiInfo, a) ⇒ render(a, uiInfo) })))
 
-  def getOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
+  def getOrFailures[A: Encoder](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
     goodOrFailures(a.runDBIO())
 
-  def mutateOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
+  def mutateOrFailures[A: Encoder](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
     goodOrFailures(a.runTxn())
 
-  def mutateWithNewTokenOrFailures[A <: AnyRef](a: DbResultT[(A, AuthPayload)])(implicit ec: EC,
-                                                                                db: DB): Route = {
+  def mutateWithNewTokenOrFailures[A: Encoder](a: DbResultT[(A, AuthPayload)])(implicit ec: EC,
+                                                                               db: DB): Route = {
     onSuccess(a.runTxn().runEmpty.value) { result ⇒
       result.fold(f ⇒ complete(renderFailure(f)), { resp ⇒
         val (uiInfo, (body, auth)) = resp

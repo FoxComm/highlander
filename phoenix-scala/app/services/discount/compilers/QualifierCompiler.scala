@@ -7,6 +7,7 @@ import io.circe.Decoder
 import models.discount.NonEmptySearch
 import models.discount.qualifiers._
 import utils.aliases._
+import utils.json.codecs._
 
 case class QualifierCompiler(qualifierType: QualifierType, attributes: Json) {
 

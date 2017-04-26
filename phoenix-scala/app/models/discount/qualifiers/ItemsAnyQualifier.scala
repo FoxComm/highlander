@@ -3,11 +3,13 @@ package models.discount.qualifiers
 import cats.implicits._
 import failures.DiscountFailures._
 import failures._
+import io.circe.syntax._
 import models.discount._
 import utils.ElasticsearchApi._
 import utils.aliases._
 import utils.apis.Apis
 import utils.db._
+import utils.json.codecs._
 
 case class ItemsAnyQualifier(search: Seq[ProductSearch])
     extends Qualifier
@@ -27,4 +29,6 @@ case class ItemsAnyQualifier(search: Seq[ProductSearch])
     case _ ⇒
       Either.left(SearchFailure.single)
   }
+
+  def json: Json = this.asJson
 }

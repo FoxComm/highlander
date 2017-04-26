@@ -8,6 +8,7 @@ import io.gatling.http.Predef._
 import java.time.{Instant, LocalDateTime, ZoneId}
 import payloads.PaymentPayloads._
 import scala.util.Random
+import utils.json.codecs._
 
 object CreditCards {
 

@@ -6,7 +6,7 @@ import de.heikoseeberger.akkahttpcirce.CirceSupport
 import failures._
 import io.circe.Decoder
 import scala.concurrent.Future
-import utils.Validation
+import utils._
 
 case class FoxValidationException(failures: Failures) extends Exception
 

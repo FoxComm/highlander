@@ -25,21 +25,18 @@ trait ADT[F] extends Read[F] with Show[F] { self ⇒
 
   def slickColumn(implicit m: Manifest[F]): JdbcType[F] with BaseTypedType[F] =
     MappedColumnType.base[F, String](show, f ⇒ read(f).getOrError(s"No such element: $f"))
+
+  implicit val decodeADT: Decoder[F] = Decoder.decodeString.emap(str ⇒
+        read(str).map(Either.right(_)).getOrElse(Either.left(s"No such element: $str")))
+
+  implicit val decodeADTKey: KeyDecoder[F] = new KeyDecoder[F] {
+    def apply(key: String): Option[F] = read(key)
+  }
+
+  implicit val encodeADT: Encoder[F] = Encoder.encodeString.contramap(show)
+
+  implicit val encodeADTKey: KeyEncoder[F] = KeyEncoder.encodeKeyString.contramap(show)
 }
 object ADT {
   @inline def apply[T](implicit adt: ADT[T]): ADT[T] = adt
-
-  implicit def adtDecoder[T: ADT]: Decoder[T] =
-    Decoder.decodeString.emap(str ⇒
-          ADT[T].read(str).map(Either.right(_)).getOrElse(Either.left(s"No such element: $str")))
-
-  implicit def adtEncoder[T: ADT]: Encoder[T] = Encoder.encodeString.contramap(ADT[T].show(_))
-
-  implicit def adtKeyDecoder[T: ADT]: KeyDecoder[T] = new KeyDecoder[T] {
-    def apply(key: String): Option[T] = ADT[T].read(key)
-  }
-
-  implicit def adtKeyEncoder[T: ADT]: KeyEncoder[T] = new KeyEncoder[T] {
-    def apply(key: T): String = ADT[T].show(key)
-  }
 }

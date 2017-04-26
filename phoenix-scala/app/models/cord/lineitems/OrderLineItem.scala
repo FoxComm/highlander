@@ -14,6 +14,7 @@ import utils._
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
+import utils.json.codecs._
 
 trait LineItemProductData[LI] {
   def sku: Sku

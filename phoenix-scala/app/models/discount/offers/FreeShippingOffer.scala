@@ -1,5 +1,6 @@
 package models.discount.offers
 
+import io.circe.Json
 import models.cord.lineitems.CartLineItemAdjustment._
 import models.discount.DiscountInput
 import models.discount.offers.Offer.OfferResult
@@ -16,4 +17,7 @@ case object FreeShippingOffer extends Offer {
       case Some(sm) ⇒ buildResult(input, sm.price)
       case _        ⇒ pureResult()
     }
+
+  // yep, it's backward compatible with json4s behaviour
+  def json: Json = Json.obj()
 }

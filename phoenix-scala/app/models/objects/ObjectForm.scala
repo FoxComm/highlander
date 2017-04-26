@@ -6,7 +6,6 @@ import shapeless._
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.json._
 
 case class ObjectForm(id: Int = 0,
                       kind: String,
@@ -24,8 +23,7 @@ object ObjectForm {
 
   def fromPayload(kind: String, attributes: Map[String, Json]): ObjectForm = {
     val attributesJson = attributes.foldLeft(JsonObject.empty) {
-      case (acc, (key, value)) ⇒
-        acc.add(key, value yolo "v")
+      case (acc, (key, value)) ⇒ value.hcursor.downField("v").focus.fold(acc)(acc.add(key, _))
     }
 
     ObjectForm(kind = kind, attributes = Json.fromJsonObject(attributesJson))

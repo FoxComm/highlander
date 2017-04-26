@@ -144,7 +144,7 @@ object ProductManager extends LazyLogging {
 
       _ ← * <~ skusToBeUnassociatedMustNotBePresentInCarts(oldProduct.model.id, payloadSkus)
 
-      mergedAttrs = oldProduct.shadow.attributes.merge(formAndShadow.shadow.attributes)
+      mergedAttrs = oldProduct.shadow.attributes.deepMerge(formAndShadow.shadow.attributes)
       updated ← * <~ ObjectUtils.update(oldProduct.form.id,
                                         oldProduct.shadow.id,
                                         formAndShadow.form.attributes,
@@ -193,7 +193,7 @@ object ProductManager extends LazyLogging {
     for {
       productObject ← * <~ Products.mustFindFullByReference(productId)
       _             ← * <~ productObject.model.mustNotBePresentInCarts
-      mergedAttrs = productObject.shadow.attributes.merge(newShadowAttrs)
+      mergedAttrs = productObject.shadow.attributes.deepMerge(newShadowAttrs)
       inactive ← * <~ ObjectUtils.update(productObject.form.id,
                                          productObject.shadow.id,
                                          newFormAttrs,

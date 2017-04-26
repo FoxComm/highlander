@@ -12,7 +12,7 @@ import utils.db._
 import utils.json._
 
 object ObjectSchemaValidation {
-  trait SchemaValidation[M] {
+  trait SchemaValidation[M <: SchemaValidation[M]] {
     this: M ⇒
     def defaultSchemaName: String
     val schema: Option[String] = None
@@ -42,7 +42,7 @@ object ObjectSchemaValidation {
 
     }
 
-    def validate(implicit ec: EC): DbResultT[M] = {
+    def validate(implicit ec: EC, encoder: Encoder[M]): DbResultT[M] = {
       val schemaName = schema.fold(defaultSchemaName)(identity)
       for {
         schema    ← * <~ ObjectFullSchemas.mustFindByName404(schemaName)

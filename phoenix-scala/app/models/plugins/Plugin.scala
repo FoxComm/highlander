@@ -12,6 +12,7 @@ import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.json._
+import utils.json.codecs._
 
 case class Plugin(id: Int = 0,
                   name: String,

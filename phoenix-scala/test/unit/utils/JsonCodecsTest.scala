@@ -1,6 +1,7 @@
 package utils
 
-import io.circe.parser.parse
+import io.circe.Json
+import io.circe.jackson.syntax._
 import io.circe.syntax._
 import java.time.{Instant, ZonedDateTime}
 import models.admin.AdminData
@@ -9,8 +10,10 @@ import models.payment.creditcard.CreditCardCharge
 import models.payment.giftcard.GiftCard
 import testutils.TestBase
 import utils.Money.Currency
+import utils.json.codecs._
+import utils.json.yolo._
 
-class JsonFormattersTest extends TestBase {
+class JsonCodecsTest extends TestBase {
   case class Test(order: Order.State,
                   gc: GiftCard.State,
                   cc: CreditCardCharge.State,
@@ -23,7 +26,7 @@ class JsonFormattersTest extends TestBase {
           Test(order = Order.ManualHold,
                    cc = CreditCardCharge.Auth,
                    gc = GiftCard.OnHold,
-                   sas = AdminData.Invited).asJson)
+                   sas = AdminData.Invited).asJson.jacksonPrint)
       (ast \ "order").extract[Order.State] mustBe Order.ManualHold
       (ast \ "gc").extract[GiftCard.State] mustBe GiftCard.OnHold
       (ast \ "cc").extract[CreditCardCharge.State] mustBe CreditCardCharge.Auth
@@ -32,7 +35,7 @@ class JsonFormattersTest extends TestBase {
   }
 
   "Can JSON (de-)serialize Currency" in {
-    val ast = parse(write(Product(price = 50, currency = Currency.USD)))
+    val ast = parse(Product(price = 50, currency = Currency.USD).asJson.jacksonPrint)
     (ast \ "price").extract[Int] must === (50)
     (ast \ "currency").extract[Currency] must === (Currency.USD)
   }
@@ -40,7 +43,7 @@ class JsonFormattersTest extends TestBase {
   "(de)serializes java.time.Instant" in {
     val instant = ZonedDateTime.of(2015, 9, 14, 15, 38, 46, 0, time.UTC).toInstant
 
-    write("hello" → instant) must === ("""{"hello":"2015-09-14T15:38:46Z"}""")
+    Json.obj("hello" → instant.asJson).jacksonPrint must === ("""{"hello":"2015-09-14T15:38:46Z"}""")
     (parse("""{"hello":"2015-09-14T15:38:46Z"}""") \ "hello").extract[Instant] must === (instant)
   }
 }

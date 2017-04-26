@@ -9,6 +9,7 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import payloads.AddressPayloads.CreateAddressPayload
 import scala.util.Random
+import utils.json.codecs._
 
 object Addresses {
 

@@ -2,14 +2,14 @@ package routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import utils.http.JsonSupport._
 import models.account.User
 import payloads.CategoryPayloads._
 import services.Authenticator.AuthData
 import services.category.CategoryManager
 import utils.aliases._
 import utils.http.CustomDirectives._
-import utils.http.Http._
+import utils.http.JsonSupport._
+import utils.json.codecs._
 
 object CategoryRoutes {
 

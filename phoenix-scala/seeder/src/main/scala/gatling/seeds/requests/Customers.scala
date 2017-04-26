@@ -6,6 +6,7 @@ import io.circe.syntax._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import payloads.CustomerPayloads.CreateCustomerPayload
+import utils.json.codecs._
 
 object Customers {
 

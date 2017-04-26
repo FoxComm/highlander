@@ -1,10 +1,9 @@
 package routes
 
-import cats.implicits._
 import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-
+import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import payloads.LoginPayload
 import payloads.UserPayloads._
@@ -17,6 +16,7 @@ import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 import utils.http.JsonSupport._
+import utils.json.codecs._
 
 object AuthRoutes {
 

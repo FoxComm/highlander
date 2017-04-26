@@ -14,6 +14,7 @@ import responses.{ActivityResponse, LastSeenNotificationResponse, NotificationRe
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
+import utils.json.codecs._
 
 object NotificationManager {
   def createNotification(payload: CreateNotification)(implicit ac: AC,

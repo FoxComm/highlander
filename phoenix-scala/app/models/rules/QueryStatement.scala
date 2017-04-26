@@ -5,6 +5,7 @@ import scala.collection.immutable.Seq
 import utils.ADT
 import utils.db.ExPostgresDriver.api._
 import utils.json._
+import utils.json.codecs._
 
 case class QueryStatement(comparison: QueryStatement.Comparison,
                           conditions: Seq[Condition] = Seq.empty,

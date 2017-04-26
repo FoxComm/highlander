@@ -6,6 +6,7 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
 import payloads.LoginPayload
+import utils.json.codecs._
 
 object Auth {
   val loginAsAdmin = http("Login as Admin")

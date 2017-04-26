@@ -2,14 +2,11 @@ package utils
 
 import cats.data._
 import cats.implicits._
-import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.networknt.schema.JsonSchemaFactory
 import com.typesafe.scalalogging.LazyLogging
 import failures.Failure
 import failures.ObjectFailures._
 import io.circe._
-import io.circe.jackson.CirceJsonModule
-import io.circe.jackson.syntax._
 import java.time.Instant
 import models.objects._
 import scala.collection.JavaConverters._
@@ -17,21 +14,22 @@ import utils.aliases._
 import utils.db._
 import utils.json._
 
-// FIXME KJ: way too much duplication
+// FIXME @kjanosz: way too much duplication
 object IlluminateAlgorithm extends LazyLogging {
   def get(attr: String, form: Json, shadow: Json): Option[Json] =
-    shadow.hcursor.downField(attr).downField("ref").as[String] match {
-      case Right(key) ⇒ form.hcursor.downField(key).focus
-      case _          ⇒ None
-    }
+    shadow.hcursor
+      .downField(attr)
+      .downField("ref")
+      .as[String]
+      .toOption
+      .flatMap(form.hcursor.downField(_).focus)
 
   private def getInternalAttributes(schema: ObjectFullSchema): Option[JsonObject] =
     schema.schema.hcursor.downField("properties").downField("attributes").focus.flatMap(_.asObject)
 
   def validateObjectBySchema(schema: ObjectFullSchema, form: ObjectForm, shadow: ObjectShadow)(
       implicit ec: EC): DbResultT[Json] = {
-    val illuminated =
-      projectFlatAttributes(form.attributes, shadow.attributes).getOrElse(Json.obj())
+    val illuminated = projectFlatAttributes(form.attributes, shadow.attributes)
     getInternalAttributes(schema).fold {
       DbResultT.good(illuminated)
     } { jsonSchema ⇒
@@ -49,34 +47,40 @@ object IlluminateAlgorithm extends LazyLogging {
     }
   }
 
-  def projectAttributes(formJson: Json, shadowJson: Json): Option[Json] =
-    formJson.asObject.map2(shadowJson.asObject)((_, _)).flatMap {
-      case (_, shadow) ⇒
-        shadow.toVector.map {
-          case (attr, link) ⇒
-            val linkC = link.hcursor
+  def projectAttributes(formJson: Json, shadowJson: Json): Json =
+    formJson.asObject
+      .map2(shadowJson.asObject)((_, _))
+      .flatMap {
+        case (_, shadow) ⇒
+          shadow.toVector.map {
+            case (attr, link) ⇒
+              val linkC = link.hcursor
 
-            for {
-              ref   ← linkC.downField("ref").focus
-              key   ← ref.asString
-              tpe   ← linkC.downField("type").focus
-              value ← formJson \ key
-            } yield (attr, Json.obj("t" → tpe, "v" → value))
-        }.sequenceU.map(Json.obj(_: _*))
-    }
+              for {
+                ref   ← linkC.downField("ref").focus
+                key   ← ref.asString
+                tpe   ← linkC.downField("type").focus
+                value ← formJson \ key
+              } yield (attr, Json.obj("t" → tpe, "v" → value))
+          }.sequenceU.map(Json.obj(_: _*))
+      }
+      .getOrElse(Json.Null)
 
-  def projectFlatAttributes(formJson: Json, shadowJson: Json): Option[Json] =
-    formJson.asObject.map2(shadowJson.asObject)((_, _)).flatMap {
-      case (_, shadow) ⇒
-        shadow.toVector.map {
-          case (attr, link) ⇒
-            for {
-              ref   ← link.hcursor.downField("ref").focus
-              key   ← ref.asString
-              value ← formJson \ key
-            } yield (attr, value)
-        }.sequenceU.map(Json.obj(_: _*))
-    }
+  def projectFlatAttributes(formJson: Json, shadowJson: Json): Json =
+    formJson.asObject
+      .map2(shadowJson.asObject)((_, _))
+      .flatMap {
+        case (_, shadow) ⇒
+          shadow.toVector.map {
+            case (attr, link) ⇒
+              for {
+                ref   ← link.hcursor.downField("ref").focus
+                key   ← ref.asString
+                value ← formJson \ key
+              } yield (attr, value)
+          }.sequenceU.map(Json.obj(_: _*))
+      }
+      .getOrElse(Json.Null)
 
   def validateAttributes(formJson: Json, shadowJson: Json): Seq[Failure] =
     (formJson.asObject, shadowJson.asObject) match {

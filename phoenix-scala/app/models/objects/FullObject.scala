@@ -11,15 +11,13 @@ trait FormAndShadow {
 
   def tupled: (ObjectForm, ObjectShadow) = form → shadow
 
-  // FIXME KJ: why not empty map
+  // FIXME @kjanosz: why not empty map
   def toPayload: Map[String, Json] = {
     val attributes = IlluminateAlgorithm
       .projectAttributes(formJson = form.attributes, shadowJson = shadow.attributes)
-    attributes.flatMap(_.asObject) match {
-      case Some(o) ⇒ o.toMap
-      case _       ⇒ throw new IllegalArgumentException("Invalid attributes")
-    }
-
+    attributes.asObject
+      .map(_.toMap)
+      .getOrElse(throw new IllegalArgumentException("Invalid attributes"))
   }
 
   def mergeShadowAttrs(newShadowAttrs: Json): FormAndShadow = {
@@ -30,7 +28,7 @@ trait FormAndShadow {
   def getAttribute(attr: String): Option[Json] =
     IlluminateAlgorithm.get(attr, form.attributes, shadow.attributes)
 
-  // FIXME KJ: remove shitty assertions
+  // FIXME @kjanosz: remove assertions
   def setAttribute(attr: String, attrType: String, value: Json): FormAndShadow = {
     val (keyMap, newForm) = ObjectUtils.createForm(Json.obj(attr → value))
 
