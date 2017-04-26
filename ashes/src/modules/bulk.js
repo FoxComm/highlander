@@ -104,7 +104,7 @@ export function toggleWatch(isDirectAction: bool): Function {
   };
 }
 
-function deleteEntity(actions, ids, entityType, refresh): Function {
+function deleteEntity(actions, ids, entityType, onDelete): Function {
   const prefix = pluralize(entityType);
   return dispatch => {
     dispatch(actions.bulkRequest());
@@ -114,7 +114,7 @@ function deleteEntity(actions, ids, entityType, refresh): Function {
       Api.delete(url)
         .then(
           ({batch}) => {
-            refresh();
+            onDelete();
             const errors = _.get(batch, `failures.${entityType}`);
             dispatch(actions.bulkDone(getSuccesses(entityType, ids, batch), errors));
           },
