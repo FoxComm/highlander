@@ -11,10 +11,9 @@ import utils.db.ExPostgresDriver.api._
 trait SearchViewTestBase
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with ApiFixtures
-    with AppendedClues
-    with MockedApis {
+    with AppendedClues {
 
   // Case class that holds all search view fields
   type SearchViewResult

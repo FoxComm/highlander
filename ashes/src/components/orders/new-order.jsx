@@ -9,7 +9,7 @@ import classNames from 'classnames';
 import * as newOrderActions from '../../modules/orders/new-order';
 import { email } from '../../lib/validators';
 
-import { PrimaryButton } from '../common/buttons';
+import { PrimaryButton } from 'components/core/button';
 import BigCheckbox from '../checkbox/big-checkbox';
 import ChooseCustomer from './choose-customer';
 import ChooseCustomerRow from './choose-customer-row';

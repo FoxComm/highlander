@@ -14,7 +14,7 @@ import * as UserActions from 'modules/users/details';
 import WaitAnimation from '../common/wait-animation';
 import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
-import { Button, PrimaryButton } from '../common/buttons';
+import { Button, PrimaryButton } from 'components/core/button';
 
 type Params = {
   userId: number,

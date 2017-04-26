@@ -1,6 +1,5 @@
 package responses.cord.base
 
-import cats._
 import cats.implicits._
 import failures.CouponFailures._
 import failures.PromotionFailures.PromotionNotFound
@@ -13,9 +12,9 @@ import models.promotion._
 import responses.CouponResponses.CouponResponse
 import responses.PromotionResponses.PromotionResponse
 import responses.ResponseItem
+import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import slick.driver.PostgresDriver.api._
 
 case class CordResponseCouponPair(coupon: CouponResponse.Root, code: String) extends ResponseItem
 
@@ -34,7 +33,7 @@ object CordResponsePromotions {
       ec: EC,
       ctx: OC): DbResultT[Option[CordResponsePromoDetails]] = {
     // FIXME: how to compose this better without laziness? This is awful. :/ @michalrus
-    val coupon    = orderPromo.traverseM(_.couponCodeId.traverse(fetchCoupon))
+    val coupon    = orderPromo.flatTraverse(_.couponCodeId.traverse(fetchCoupon))
     lazy val auto = orderPromo.traverse(x ⇒ fetchAutoApply(x.promotionShadowId))
     lazyOrElse(fa = coupon.map(_.map { case (a, b) ⇒ (a, b.some) }),
                fb = auto.map(_.map((_, none))))

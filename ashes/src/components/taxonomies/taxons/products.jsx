@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 
 // actions
 import { actions } from 'modules/taxons/details/products-list';
-import { addProduct } from 'modules/taxons/details/taxon';
+import { addProduct, deleteProduct as unlinkProduct } from 'modules/taxons/details/taxon';
 
 // components
 import { SectionTitle } from 'components/section-title';
@@ -17,6 +17,7 @@ import SelectableSearchList from 'components/list-page/selectable-search-list';
 import ProductRow from 'components/products/product-row';
 import { makeTotalCounter } from 'components/list-page';
 import { ProductsAddModal } from 'components/products-add';
+import { Button } from 'components/core/button';
 
 // helpers
 import { filterArchived } from 'elastic/archive';
@@ -32,6 +33,7 @@ type Props = ObjectPageChildProps<Taxon> & {
   actions: Object,
   list: Object,
   addState: AsyncState,
+  deleteState: AsyncState,
   params: TaxonomyParams & {
     taxonId: number,
   },
@@ -39,21 +41,15 @@ type Props = ObjectPageChildProps<Taxon> & {
 
 type State = {
   modalVisible: boolean,
+  deletedProductId: ?number,
 }
-
-const tableColumns: Columns = [
-  { field: 'productId', text: 'ID' },
-  { field: 'image', text: 'Image', type: 'image' },
-  { field: 'title', text: 'Name' },
-  { field: 'skus', text: 'SKUs' },
-  { field: 'state', text: 'State' },
-];
 
 export class TaxonProductsPage extends Component {
   props: Props;
 
   state: State = {
     modalVisible: false,
+    deletedProductId: null,
   };
 
   componentDidMount() {
@@ -63,6 +59,32 @@ export class TaxonProductsPage extends Component {
 
     this.props.actions.fetch();
   }
+
+  get tableColumns(): Columns {
+    return [
+      { field: 'productId', text: 'ID' },
+      { field: 'image', text: 'Image', type: 'image' },
+      { field: 'title', text: 'Name' },
+      { field: 'skus', text: 'SKUs' },
+      { field: 'state', text: 'State' },
+      { field: '', render: this.unlinkButton },
+    ];
+  }
+
+  @autobind
+  unlinkButton(children: any, row: Product) {
+    const inProgress = this.props.deleteState.inProgress && this.state.deletedProductId === row.productId;
+
+    return (
+      <Button
+        onClick={this.handleUnlinkProduct.bind(this, row)}
+        isLoading={inProgress}
+      >
+        Unlink
+      </Button>
+    );
+  }
+
 
   @autobind
   openModal() {
@@ -87,8 +109,30 @@ export class TaxonProductsPage extends Component {
       .then(this.props.actions.fetch);
   }
 
+  @autobind
+  handleUnlinkProduct(product: Product, e: MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const { actions, params: { taxonId, context } } = this.props;
+
+    this.setState({ deletedProductId: product.productId }, () => {
+      actions.unlinkProduct(product.productId, context, taxonId)
+        .then(this.props.actions.fetch);
+
+      return;
+    });
+  }
+
   renderRow(row: Product, index: number, columns: Columns, params: Object) {
-    return <ProductRow key={row.id} product={row} columns={columns} params={params} />;
+    return (
+      <ProductRow
+        key={row.id}
+        product={row}
+        columns={columns}
+        params={params}
+      />
+    );
   }
 
   render() {
@@ -110,13 +154,13 @@ export class TaxonProductsPage extends Component {
           addTitle="Product"
           onAddClick={this.openModal}
         />
-
         <SelectableSearchList
           entity="taxons.details.products"
           emptyMessage="No products found."
+          tableClassName={styles.productsTable}
           list={list}
           renderRow={this.renderRow}
-          tableColumns={tableColumns}
+          tableColumns={this.tableColumns}
           searchOptions={{ singleSearch: true }}
           searchActions={searchActions}
           predicate={({ id }) => id}
@@ -137,12 +181,14 @@ export class TaxonProductsPage extends Component {
 const mapState = state => ({
   list: get(state, 'taxons.details.products'),
   addState: get(state.asyncActions, 'taxonAddProduct', {}),
+  deleteState: get(state.asyncActions, 'taxonDeleteProduct', {}),
 });
 
 const mapActions = dispatch => ({
   actions: {
     ...bindActionCreators(actions, dispatch),
     addProduct: bindActionCreators(addProduct, dispatch),
+    unlinkProduct: bindActionCreators(unlinkProduct, dispatch),
   },
 });
 

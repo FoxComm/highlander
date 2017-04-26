@@ -4,6 +4,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { dissoc } from 'sprout-data';
+import ScrollContainer from 'react-router-scroll/lib/ScrollContainer';
 
 // components
 import Overlay from '../overlay/overlay';
@@ -16,12 +17,28 @@ import type { RoutesParams } from 'types';
 
 import styles from './site.css';
 
+function scrollHandler(prevRouterProps, { params, location }) {
+  // do not scroll page to top if product type was selected in dropdown menu
+  if (params.categoryName && params.productType) {
+    return false;
+  }
+
+  // Do not scroll the page if query string has been changed
+  if (prevRouterProps && prevRouterProps.location.pathname === location.pathname) {
+    return false;
+  }
+
+  return true;
+}
+
 const mapState = state => ({
   isAuthBlockVisible: state.auth.isAuthBlockVisible,
+  isContentOverlayVisible: state.contentOverlay.isVisible,
 });
 
 type Props = RoutesParams & {
   children: Array<any>,
+  isContentOverlayVisible: boolean,
 };
 
 class Site extends Component {
@@ -46,20 +63,23 @@ class Site extends Component {
       child => React.cloneElement(child, {
         routes: this.props.routes,
         routerParams: this.props.params,
+        isContentOverlayVisible: this.props.isContentOverlayVisible,
       })
     );
 
     const { location } = this.props;
 
     return (
-      <div styleName="site" id="site">
-        <Header
-          path={location.pathname}
-          query={location.query}
-        />
-        {isAuthBlockVisible && this.renderAuthBlock()}
-        {childrenWithRoutes}
-      </div>
+      <ScrollContainer scrollKey="site" shouldUpdateScroll={scrollHandler}>
+        <div styleName="site" id="site">
+          <Header
+            path={location.pathname}
+            query={location.query}
+          />
+          {isAuthBlockVisible && this.renderAuthBlock()}
+          {childrenWithRoutes}
+        </div>
+      </ScrollContainer>
     );
   }
 }

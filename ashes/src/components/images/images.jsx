@@ -11,7 +11,7 @@ import React, { Component, Element } from 'react';
 
 // components
 import WaitAnimation from '../common/wait-animation';
-import { AddButton } from '../common/buttons';
+import { AddButton } from 'components/core/button';
 import EditAlbum from './edit-album';
 import Album from './album';
 

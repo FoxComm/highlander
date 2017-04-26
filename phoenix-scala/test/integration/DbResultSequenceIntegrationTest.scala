@@ -3,6 +3,7 @@ import cats.data._
 import failures._
 import models.account._
 import testutils._
+import utils.MockedApis
 import utils.db._
 
 class DbResultSequenceIntegrationTest extends IntegrationTestBase {

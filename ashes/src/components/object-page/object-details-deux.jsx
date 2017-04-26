@@ -3,7 +3,7 @@
 // libs
 import _ from 'lodash';
 import { pluralize } from 'fleck';
-import React, { Component, Element } from 'react';
+import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import invariant from 'invariant';
 import { assoc } from 'sprout-data';
@@ -25,6 +25,18 @@ import styles from './object-details.css';
 export default class ObjectDetailsDeux extends Component {
   props: ObjectPageChildProps<*>;
 
+  static contextTypes = {
+    validationDispatcher: PropTypes.object,
+  };
+
+  componentWillMount() {
+    this.toggleBindToDispatcher(true);
+  }
+
+  componentWillUnmount() {
+    this.toggleBindToDispatcher(false);
+  }
+
   get schema(): Object {
     return expandRefs(this.props.schema);
   }
@@ -33,8 +45,18 @@ export default class ObjectDetailsDeux extends Component {
     return _.get(this.props, 'object.attributes', {});
   }
 
-  checkValidity(): boolean {
-    return this.refs.form.checkValidity();
+  toggleBindToDispatcher(bind: boolean) {
+    const { validationDispatcher } = this.context;
+    if (validationDispatcher) {
+      const toggleBind = bind ? validationDispatcher.on : validationDispatcher.removeListener;
+
+      toggleBind.call(validationDispatcher, 'validate', this.checkValidity);
+    }
+  }
+
+  @autobind
+  checkValidity(isValid: Function): boolean {
+    return isValid(this.refs.form.checkValidity());
   }
 
   updateAttributes(attributes: Attributes): Object {

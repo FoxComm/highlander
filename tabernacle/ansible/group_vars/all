@@ -65,6 +65,7 @@ docker_tags:
     product_activity: "{{ lookup('env', 'DOCKER_TAG_PRODUCT_ACTIVITY') | default('master', true) }}"
     anthill: "{{ lookup('env', 'DOCKER_TAG_ANTHILL') | default('master', true) }}"
     neo4j: "{{ lookup('env', 'DOCKER_TAG_NEO4J') | default('master', true) }}"
+    suggester: "{{ lookup('env', 'DOCKER_TAG_SUGGESTER') | default('master', true) }}"
     data_import: "{{ lookup('env', 'DOCKER_TAG_DATA_IMPORT') | default('master', true) }}"
 
 # Configurable Marathon re-deploys
@@ -98,9 +99,13 @@ marathon_restart:
     product_activity: "{{ lookup('env', 'MARATHON_PRODUCT_ACTIVITY') | default(true, true) | bool }}"
     anthill: "{{ lookup('env', 'MARATHON_ANTHILL') | default(true, true) | bool }}"
     neo4j: "{{ lookup('env', 'MARATHON_NEO4J') | default(true, true) | bool }}"
+    suggester: "{{ lookup('env', 'MARATHON_SUGGESTER') | default(true, true) | bool }}"
 
 # Should we use Intelligent Commerce
 with_ic: "{{ lookup('env', 'WITH_INTELLIGENT_COMMERCE') | default(true, true) | bool }}"
+
+# Should we do seeding for appliance
+with_appliance_seeding: "{{ lookup('env', 'WITH_APPLIANCE_SEEDING') | default(true, true) | bool }}"
 
 # Consul Service Discovery
 consul_data_dir: /var/consul
@@ -303,6 +308,10 @@ neo4j_server: "{{neo4j_host}}"
 neo4j_port: "7687"
 neo4j_http_port: "7474"
 
+# suggester
+suggester_host: "suggester.{{consul_suffix}}"
+suggester_server: "{{suggester_host}}"
+
 # Elasticsearch 2.x
 es_version: elasticsearch-2.1.2
 es_zip: "{{es_version}}.zip"
@@ -342,8 +351,8 @@ storefront_default_language: en
 storefront_fixed_language: false
 
 # Url prefixes
-url_prefix_topdrawer: "/"
-url_prefix_perfectgourmet: "/"
+url_prefix_topdrawer: ""
+url_prefix_perfectgourmet: ""
 
 # JMX ports
 es_jmx_port: 29010

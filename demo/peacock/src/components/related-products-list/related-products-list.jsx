@@ -9,8 +9,8 @@ import { isElementInViewport } from 'lib/dom-utils';
 import styles from './related-products-list.css';
 
 // components
-import RelatedListItem from '../related-products-item/related-list-item';
 import Loader from 'ui/loader';
+import ListItem from 'components/products-item/list-item';
 
 // types
 import type { HTMLElement } from 'types';
@@ -38,14 +38,21 @@ class RelatedProductsList extends Component {
   };
   _willUnmount: boolean = false;
 
-  renderProducts() {
-    return _.map(this.props.list, (item, index) => {
+  get renderProducts() {
+    const { list } = this.props;
+
+    if (_.isEmpty(list)) return null;
+
+    const avoidKeyCollision = 9999;
+
+    return _.map(list, (item, index) => {
+      const prod = _.get(item, 'product');
       return (
-        <RelatedListItem
-          {...item}
+        <ListItem
+          {...prod}
           index={index}
-          key={`product-${item.id}`}
-          ref={`product-${item.id}`}
+          key={`product-${_.get(prod, 'id', _.random(avoidKeyCollision))}`}
+          ref={`product-${_.get(prod, 'id', _.random(avoidKeyCollision))}`}
         />
       );
     });
@@ -87,12 +94,12 @@ class RelatedProductsList extends Component {
 
   render(): HTMLElement {
     const { loadingBehavior = LoadingBehaviors.ShowLoader, isLoading, list, title } = this.props;
+
     if (loadingBehavior == LoadingBehaviors.ShowLoader && isLoading) {
       return <Loader />;
     }
-    const items = list && list.length > 0
-      ? this.renderProducts()
-      : false;
+
+    if (_.isEmpty(list)) return null;
 
     return (
       <div styleName="list-wrapper">
@@ -101,7 +108,7 @@ class RelatedProductsList extends Component {
           {title}
         </div>
         <div styleName="list">
-          {items}
+          {this.renderProducts}
         </div>
       </div>
     );

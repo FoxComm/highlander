@@ -8,6 +8,7 @@
   "labels": {
     "LAYER": "backend",
     "LANG": "scala",
+    "consul": "phoenix",
     "TAG": "{{docker_tags.phoenix}}"
   },
   "env": {

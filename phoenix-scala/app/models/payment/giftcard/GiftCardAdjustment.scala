@@ -1,16 +1,14 @@
 package models.payment.giftcard
 
-import java.time.Instant
-
-import cats.data.Xor
 import failures.Failures
+import java.time.Instant
 import models.cord.OrderPayment
-import models.payment._
 import models.payment.InStorePaymentStates._
+import models.payment._
 import shapeless._
 import slick.driver.PostgresDriver.api._
-import utils.db._
 import utils.FSM
+import utils.db._
 
 case class GiftCardAdjustment(id: Int = 0,
                               giftCardId: Int,
@@ -26,7 +24,7 @@ case class GiftCardAdjustment(id: Int = 0,
     with FSM[InStorePaymentStates.State, GiftCardAdjustment] {
 
   def stateLens = lens[GiftCardAdjustment].state
-  override def updateTo(newModel: GiftCardAdjustment): Failures Xor GiftCardAdjustment =
+  override def updateTo(newModel: GiftCardAdjustment): Either[Failures, GiftCardAdjustment] =
     super.transitionModel(newModel)
 
   def getAmount: Int = if (credit > 0) credit else -debit

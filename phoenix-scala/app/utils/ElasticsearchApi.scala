@@ -22,7 +22,7 @@ case class ElasticsearchApi(config: ESConfig)(implicit ec: EC) extends LazyLoggi
 
   private def getIndexAndType(searchView: SearchView): IndexAndType = searchView match {
     case ScopedSearchView(typeName, scope) ⇒
-      IndexAndType(s"${index}_$scope", typeName)
+      IndexAndType(s"${config.index}_$scope", typeName)
     case SimpleSearchView(typeName) ⇒
       IndexAndType(config.index, typeName)
   }

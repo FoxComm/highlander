@@ -8,7 +8,8 @@
   "labels": {
     "LAYER": "consumer",
     "LANG": "go",
-    "TAG": "{{docker_tags.orders_sphex}}"
+    "TAG": "{{docker_tags.orders_sphex}}",
+    "consul": "orders-sphex"
   },
   "container": {
     "type": "DOCKER",

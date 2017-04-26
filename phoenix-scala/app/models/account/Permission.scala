@@ -1,14 +1,8 @@
 package models.account
 
 import java.time.Instant
-
-import cats.data.{Validated, ValidatedNel, Xor}
-import cats.implicits._
-import failures._
 import shapeless._
-import utils.Validation
 import utils.db.ExPostgresDriver.api._
-import utils.aliases._
 import utils.db._
 
 case class Permission(id: Int = 0,

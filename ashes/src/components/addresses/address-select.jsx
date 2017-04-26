@@ -7,7 +7,7 @@ import { startAddingAddress } from '../../modules/customers/addresses-details';
 
 // components
 import AddressDetails from './address-details';
-import { Button, AddButton } from '../common/buttons';
+import { Button, AddButton } from 'components/core/button';
 
 @connect(null, { startAddingAddress })
 export default class AddressSelect extends React.Component {

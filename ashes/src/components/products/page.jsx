@@ -18,7 +18,7 @@ import { transitionTo } from 'browserHistory';
 import SubNav from './sub-nav';
 import { connectPage, ObjectPage } from '../object-page/object-page';
 import { Dropdown } from '../dropdown';
-import { Button } from '../common/buttons';
+import { Button } from 'components/core/button';
 import s from './page.css';
 
 type Props = {

@@ -15,7 +15,7 @@
   include: app_bernardo.yml
   when: with_ic and marathon_restart.bernardo
 
-- name: Start anthill
+- name: Start Anthill
   include: app_anthill.yml
   when: with_ic and marathon_restart.anthill
 
@@ -42,3 +42,7 @@
 - name: Start River Rock
   include: app_river_rock.yml
   when: marathon_restart.river_rock
+
+- name: Start Suggester
+  include: app_suggester.yml
+  when: with_ic and marathon_restart.suggester

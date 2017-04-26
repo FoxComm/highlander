@@ -9,7 +9,7 @@ import styles from './plugin.css';
 
 import { PageTitle } from 'components/section-title';
 import ObjectFormInner from 'components/object-form/object-form-inner';
-import SaveCancel from 'components/common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 import WaitAnimation from 'components/common/wait-animation';
 
 import * as PluginsActions from 'modules/plugins';

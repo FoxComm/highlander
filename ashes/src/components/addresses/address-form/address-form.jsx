@@ -12,7 +12,7 @@ import { createSelector } from 'reselect';
 import FormField from '../../forms/formfield';
 import FoxyForm from '../../forms/foxy-form';
 import ErrorAlerts from '../../alerts/error-alerts';
-import SaveCancel from '../../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 import { Dropdown, DropdownItem } from '../../dropdown';
 import TextInput from '../../forms/text-input';
 import AutoScroll from '../../common/auto-scroll';
@@ -239,7 +239,7 @@ export default class AddressForm extends React.Component {
             <ul className="fc-address-form-fields">
               {this.formTitle}
               <li>
-                <FormField label="Name" validator="ascii" maxLength={255}>
+                <FormField label="First & Last Name" validator="ascii" maxLength={255}>
                   <input name="name" ref="name" type="text" defaultValue={address.name} required />
                 </FormField>
               </li>

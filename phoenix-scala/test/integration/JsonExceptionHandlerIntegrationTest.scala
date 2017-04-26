@@ -9,8 +9,7 @@ import utils.MockedApis
 class JsonExceptionHandlerIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth
-    with MockedApis {
+    with DefaultJwtAdminAuth {
 
   val illegalRequestExceptionText = "A test IllegalRequestException"
   val exceptionText               = "A test exception"
@@ -28,7 +27,7 @@ class JsonExceptionHandlerIntegrationTest
   )
 
   "return a valid JSON exception on an IllegalRequestException" in {
-    val response = GET("testThrowAnIllegalRequestException")
+    val response = GET("testThrowAnIllegalRequestException", jwtCookie = None)
 
     response.mustHaveStatus(StatusCodes.BadRequest)
     response.entity.contentType must === (ContentTypes.`application/json`)
@@ -36,7 +35,7 @@ class JsonExceptionHandlerIntegrationTest
   }
 
   "return a valid JSON exception on an other exception" in {
-    val response = GET("testThrowAnExcepton")
+    val response = GET("testThrowAnExcepton", jwtCookie = None)
 
     response.mustHaveStatus(StatusCodes.InternalServerError)
     response.entity.contentType must === (ContentTypes.`application/json`)

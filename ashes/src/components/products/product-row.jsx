@@ -1,7 +1,7 @@
 /* @flow */
 
-//libs
-import React, { PropTypes } from 'react';
+// libs
+import React from 'react';
 import _ from 'lodash';
 
 // helpers
@@ -10,6 +10,9 @@ import { activeStatus, isArchived } from 'paragons/common';
 // components
 import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
+
+// styles
+import styles from './product-row.css';
 
 type Props = {
   product: Product,

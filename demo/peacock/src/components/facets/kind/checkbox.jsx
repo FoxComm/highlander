@@ -1,8 +1,12 @@
 /* @flow */
 
 import React, { Component, Element } from 'react';
+import classNames from 'classnames';
 import styles from './checkbox.css';
 import { autobind } from 'core-decorators';
+
+// components
+import CheckboxBase from 'ui/checkbox/checkbox';
 
 import type { FacetElementProps } from 'types/facets';
 
@@ -14,6 +18,10 @@ class Checkbox extends Component {
   props: FacetElementProps;
   state: State = {
     checked: !!this.props.checked,
+  };
+
+  static defaultProps = {
+    available: true,
   };
 
   componentWillReceiveProps(nextProps: FacetElementProps) {
@@ -40,22 +48,25 @@ class Checkbox extends Component {
     const {
       reactKey,
       label,
+      available,
     } = this.props;
 
+    const className = classNames(
+      styles['facet-checkbox'],
+      {
+        [styles.disabled]: !available,
+      }
+    );
+
     return (
-      <div styleName="facet-checkbox">
-        <input
-          styleName="facet-checkbox-input"
-          id={reactKey}
-          type="checkbox"
-          checked={this.state.checked}
-          onChange={this.click}
-        />
-        <div styleName="facet-checkbox-box">
-          <label htmlFor={reactKey}>{''}</label>
-        </div>
-        <label styleName="facet-checkbox-label" htmlFor={reactKey}>{label} </label>
-      </div>
+      <CheckboxBase
+        className={className}
+        id={reactKey}
+        checked={this.state.checked}
+        onChange={this.click}
+      >
+        {label}
+      </CheckboxBase>
     );
   }
 }

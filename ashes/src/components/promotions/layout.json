@@ -13,6 +13,7 @@
           ],
           "omit": [
             "storefrontName",
+            "customerGroupIds",
             "description",
             "details",
             "activeFrom",

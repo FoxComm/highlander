@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
-import { Button, PrimaryButton } from '../common/buttons';
+import { Button, PrimaryButton } from 'components/core/button';
 import ChooseCustomerRow from './choose-customer-row';
 import Table from '../table/table';
 

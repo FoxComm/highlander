@@ -6,7 +6,8 @@
   "disk": 0,
   "instances": 1,
   "labels": {
-    "LAYER": "backend"
+    "LAYER": "backend",
+    "consul": "neo4j"
   },
   "container": {
     "type": "DOCKER",
@@ -53,15 +54,16 @@
     }
   ],
   "healthChecks": [
-      {
-          "protocol": "TCP",
-          "gracePeriodSeconds": 300,
-          "intervalSeconds": 60,
-          "timeoutSeconds": 20,
-          "maxConsecutiveFailures": 3,
-          "ignoreHttp1xx": false,
-          "port": 7474
-      }
+    {
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 30,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "port": 7474,
+      "path": "/",
+      "protocol": "HTTP",
+      "ignoreHttp1xx": false
+    }
   ],
   "upgradeStrategy": {
     "minimumHealthCapacity": 0.5,

@@ -8,7 +8,8 @@
   "labels": {
     "LAYER": "consumer",
     "LANG": "go",
-    "TAG": "{{docker_tags.shipments_consumer}}"
+    "TAG": "{{docker_tags.shipments_consumer}}",
+    "consul": "shipments-consumer"
   },
   "container": {
     "type": "DOCKER",

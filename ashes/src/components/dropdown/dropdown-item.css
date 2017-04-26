@@ -1,0 +1,19 @@
+.item {
+  padding: 0 20px;
+  font-size: 14px;
+  line-height: 44px;
+  color: #484848;
+  background: #ffffff;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.item._active,
+.item:hover {
+  background-color: #f5f5f5;
+}
+
+._hidden {
+  display: none;
+}

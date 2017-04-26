@@ -115,13 +115,8 @@ object ImageManager {
       imageIds = updatedImages.map(_.model.id).toSet
       links ← * <~ AlbumImageLinks.filterLeft(album).result
       linksToDelete = links.filter(link ⇒ !imageIds.contains(link.rightId))
-      _ ← * <~ linksToDelete.map(
-             link ⇒
-               AlbumImageLinks
-                 .deleteById(link.id, DbResultT.unit, (id) ⇒ NotFoundFailure404(link, id)))
-      imagesToDelete ← * <~ Images.filterByIds(linksToDelete.map(_.rightId)).result
-      _ ← * <~ imagesToDelete.map(img ⇒
-               Images.deleteById(img.id, DbResultT.unit, (id) ⇒ NotFoundFailure404(img, id)))
+      _ ← * <~ AlbumImageLinks.filter(_.id inSet linksToDelete.map(_.id)).delete
+      _ ← * <~ Images.filterByIds(linksToDelete.map(_.rightId)).delete
     } yield updatedImages
 
   def createOrUpdateImageForAlbum(
@@ -258,18 +253,8 @@ object ImageManager {
       albumObject ← * <~ mustFindFullAlbumByFormIdAndContext404(id, context)
       archiveResult ← * <~ Albums.update(albumObject.model,
                                          albumObject.model.copy(archivedAt = Some(Instant.now)))
-      productLinks ← * <~ ProductAlbumLinks.filterRight(albumObject.model).result
-      _ ← * <~ productLinks.map { link ⇒
-           ProductAlbumLinks.deleteById(link.id,
-                                        DbResultT.unit,
-                                        id ⇒ NotFoundFailure400(ProductAlbumLinks, id))
-         }
-      skuLinks ← * <~ SkuAlbumLinks.filterRight(albumObject.model).result
-      _ ← * <~ skuLinks.map { link ⇒
-           SkuAlbumLinks.deleteById(link.id,
-                                    DbResultT.unit,
-                                    id ⇒ NotFoundFailure400(SkuAlbumLink, id))
-         }
+      _      ← * <~ ProductAlbumLinks.filterRight(albumObject.model).delete
+      _      ← * <~ SkuAlbumLinks.filterRight(albumObject.model).delete
       images ← * <~ getAlbumImages(albumObject.model)
     } yield
       AlbumResponse.build(

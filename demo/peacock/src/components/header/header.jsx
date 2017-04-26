@@ -26,7 +26,10 @@ type Props = {
 
 const Header = (props: Props) => {
   return (
-    <div>
+    <div styleName="header-wrap">
+      <div styleName="banner">
+        Free shipping and returns on all orders over $50
+      </div>
       <div id="header" styleName="header">
         <div styleName="wrap">
           <ActionLink
@@ -56,6 +59,7 @@ const Header = (props: Props) => {
       <div styleName="mobile-sidebar">
         <Sidebar path={props.path} />
       </div>
+
     </div>
   );
 };

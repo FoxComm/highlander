@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 // components
 import { ModalContainer } from '../modal/base';
 import ContentBox from '../content-box/content-box';
-import SaveCancel from '../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 import AdminsTypeahead from '../users-typeahead/admins-typeahead';
 
 type Props = {

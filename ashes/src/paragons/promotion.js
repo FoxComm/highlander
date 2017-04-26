@@ -35,9 +35,12 @@ export function createEmptyPromotion() {
       storefrontName: {
         t: 'richText',
         v: 'Storefront name'
-      }
+      },
+      customerGroupIds: {
+        t: 'tock673sjgmqbi5zlfx43o4px6jnxi7absotzjvxwir7jo2v',
+        v: null,
+      },
     },
-    customerGroupIds: null,
     discounts: [],
   };
 

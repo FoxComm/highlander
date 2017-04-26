@@ -9,7 +9,7 @@ import { activeStatus, isArchived } from 'paragons/common';
 
 // components
 import { TableRow, TableCell } from 'components/table';
-import { Button } from 'components/common/buttons';
+import { Button } from 'components/core/button';
 
 // styles
 import styles from './products-add.css';

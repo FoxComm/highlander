@@ -129,6 +129,7 @@ class AddressList extends Component {
         this.setState({
           addressToEdit: {},
           isEditFormActive: false,
+          newAddress: null,
         });
       })
       .catch((err) => {
@@ -227,12 +228,15 @@ class AddressList extends Component {
   }
 
   renderEditingForm(address) {
+    const { addresses, toggleShippingModal } = this.props;
+    const isAdd = _.isEmpty(this.state.addressToEdit);
+    const isRequired = _.isEmpty(addresses);
     const id = _.get(address, 'id');
     const action = {
-      handler: this.cancelEditing,
-      title: 'Cancel',
+      handler: isRequired ? toggleShippingModal : this.cancelEditing,
+      title: isRequired ? 'Close' : 'Cancel',
     };
-    const title = _.isEmpty(this.state.addressToEdit) ? 'Add Address' : 'Edit Address';
+    const title = isAdd ? 'Add Address' : 'Edit Address';
 
 
     return (

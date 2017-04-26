@@ -1,7 +1,6 @@
 package utils.apis
 
 import cats.implicits._
-import cats.data.Xor
 import com.ning.http.client
 import com.typesafe.scalalogging.LazyLogging
 import dispatch._
@@ -9,8 +8,8 @@ import failures.MiddlewarehouseFailures.MiddlewarehouseError
 import failures.{Failures, MiddlewarehouseFailures}
 import org.json4s.Extraction
 import org.json4s.jackson.JsonMethods._
-import utils.JsonFormatters
 import payloads.AuthPayload
+import utils.JsonFormatters
 import utils.aliases._
 import utils.db._
 
@@ -44,11 +43,11 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     logger.info(s"middlewarehouse hold: $body")
 
     val f = Http(req.POST > AsMwhResponse).either.map {
-      case Right(MwhResponse(status, _)) if status / 100 == 2 ⇒ Xor.right(())
-      case Right(MwhResponse(_, message))                     ⇒ Xor.left(parseMwhErrors(message))
-      case Left(error)                                        ⇒ Xor.left(MiddlewarehouseFailures.UnableToHoldLineItems.single)
+      case Right(MwhResponse(status, _)) if status / 100 == 2 ⇒ Either.right(())
+      case Right(MwhResponse(_, message))                     ⇒ Either.left(parseMwhErrors(message))
+      case Left(error)                                        ⇒ Either.left(MiddlewarehouseFailures.UnableToHoldLineItems.single)
     }
-    Result.fromFXor(f)
+    Result.fromFEither(f)
   }
 
   //Note cart ref becomes order ref num after cart turns into order
@@ -59,10 +58,10 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     val req    = reqUrl.setContentType("application/json", "UTF-8") <:< Map("JWT" → jwt)
     logger.info(s"middlewarehouse cancel hold: ${orderRefNum}")
     val f = Http(req.DELETE OK as.String).either.map {
-      case Right(_)    ⇒ Xor.right(())
-      case Left(error) ⇒ Xor.left(MiddlewarehouseFailures.UnableToCancelHoldLineItems.single)
+      case Right(_)    ⇒ Either.right(())
+      case Left(error) ⇒ Either.left(MiddlewarehouseFailures.UnableToCancelHoldLineItems.single)
     }
-    Result.fromFXor(f)
+    Result.fromFEither(f)
   }
 }
 

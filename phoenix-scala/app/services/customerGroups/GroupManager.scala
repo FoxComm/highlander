@@ -2,7 +2,6 @@ package services.customerGroups
 
 import java.time.Instant
 
-import failures.CustomerGroupFailures.CustomerGroupMemberCannotBeDeleted
 import failures.NotFoundFailure404
 import models.account.{Scope, User}
 import models.customer.CustomerGroup.Manual
@@ -49,7 +48,7 @@ object GroupManager {
                        group,
                        CustomerGroup
                          .fromPayloadAndAdmin(payloadWithCount, group.createdBy, scope)
-                         .copy(id = groupId, updatedAt = Instant.now))
+                         .copy(id = groupId, createdAt = group.createdAt, updatedAt = Instant.now))
       _ ← * <~ LogActivity().customerGroupUpdated(groupEdited, admin)
     } yield build(groupEdited)
 
@@ -62,13 +61,7 @@ object GroupManager {
       _ ← * <~ templateInstances.map { template ⇒
            GroupTemplateInstances.update(template, template.copy(deletedAt = Option(Instant.now)))
          }
-      members ← * <~ CustomerGroupMembers.findByGroupId(groupId).result
-      _ ← * <~ members.map { member ⇒
-           CustomerGroupMembers.deleteById(
-               member.id,
-               DbResultT.unit,
-               id ⇒ CustomerGroupMemberCannotBeDeleted(groupId, member.id))
-         }
+      _ ← * <~ CustomerGroupMembers.findByGroupId(groupId).delete
       _ ← * <~ LogActivity().customerGroupArchived(group, admin)
     } yield DbResultT.unit
 

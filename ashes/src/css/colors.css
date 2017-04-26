@@ -1,4 +1,12 @@
 :root {
+  --nav-main: #1a2534;
+  --nav-active: #25334a;
+  --nav-pink: #fc54a6;
+  --green-buttons: #49cab9;
+  --grey-buttons: #ced2d5;
+  --grey-headers: #f7f7f7;
+  --grey-background: #f9f9f9;
+
   --white: #ffffff;
   --black: #000000;
   --decor0: #f2f2f2;

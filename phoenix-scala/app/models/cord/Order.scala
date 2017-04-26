@@ -1,27 +1,22 @@
 package models.cord
 
-import java.time.Instant
-
+import cats.implicits._
+import com.github.tminglei.slickpg.LTree
+import com.pellucid.sealerate
 import failures.{Failures, GeneralFailure}
-import models.cord.lineitems.{OrderLineItem, OrderLineItems, CartLineItems}
+import java.time.Instant
 import models.account._
+import models.cord.lineitems.{CartLineItems, OrderLineItem, OrderLineItems}
 import models.inventory.Skus
+import shapeless._
+import slick.ast.BaseTypedType
+import slick.jdbc.JdbcType
 import utils.Money.Currency
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.time._
 import utils.{ADT, FSM}
-
-import cats.data.Xor
-import cats.data.Xor.{left, right}
-import cats.implicits._
-import com.pellucid.sealerate
-import shapeless._
-import slick.ast.BaseTypedType
-import slick.jdbc.JdbcType
-
-import com.github.tminglei.slickpg.LTree
 
 case class Order(id: Int = 0,
                  scope: LTree,
@@ -45,7 +40,7 @@ case class Order(id: Int = 0,
 
   def stateLens = lens[Order].state
 
-  override def updateTo(newModel: Order): Failures Xor Order = super.transitionModel(newModel)
+  override def updateTo(newModel: Order): Either[Failures, Order] = super.transitionModel(newModel)
 
   override def primarySearchKey: String = referenceNumber
 
@@ -70,9 +65,9 @@ case class Order(id: Int = 0,
 
   def getShippingState: Option[State] = Some(state)
 
-  def mustBeRemorseHold: Failures Xor Order =
-    if (state == RemorseHold) right(this)
-    else left(GeneralFailure("Order is not in RemorseHold state").single)
+  def mustBeRemorseHold: Either[Failures, Order] =
+    if (state == RemorseHold) Either.right(this)
+    else Either.left(GeneralFailure("Order is not in RemorseHold state").single)
 }
 
 object Order {
