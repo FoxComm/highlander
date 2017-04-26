@@ -1,6 +1,6 @@
 // @flow
 
-import type { ImageFile } from '../modules/images'
+import type { ImageFile } from '../modules/images';
 
 // export const uploadImage = (image: ImageFile) => () => createAsyncActions(
 //     'imageUpload',

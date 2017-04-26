@@ -15,7 +15,7 @@ import { uploadImage } from '../../paragons/image';
 import s from './custom-properties.css';
 
 // types
-import type { ImageFile } from '../../modules/images'
+import type { ImageFile } from '../../modules/images';
 
 type Props = {
   canAddProperty?: boolean,

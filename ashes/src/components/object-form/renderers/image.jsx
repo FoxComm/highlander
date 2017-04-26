@@ -15,7 +15,13 @@ import s from './image.css';
 import type { FieldErrors, ChangeHandler } from './index';
 
 export default function renderImage(errors: FieldErrors = {}, onChange: ChangeHandler = noop) {
-  return function(name: string, value: any, options: AttrOptions, addFile: Function = noop, deleteFile: Function = noop) {
+  return function(
+    name: string,
+    value: any,
+    options: AttrOptions,
+    addFile: Function = noop,
+    deleteFile: Function = noop ) {
+
     const actions = [
       { name: 'external-link', handler: () => window.open(value) },
       { name: 'edit', handler: () => {} },
