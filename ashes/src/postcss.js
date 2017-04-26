@@ -35,6 +35,7 @@ const plugins = [
     flexbox: 'flex',
     gutter: '1.85%',
   }),
+  require('postcss-nested'),
   require('postcss-mixins'),
   require('postcss-nested'),
   require('postcss-modules-extract-imports'),

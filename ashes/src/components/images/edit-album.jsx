@@ -64,37 +64,27 @@ class EditAlbum extends Component {
     this.props.onSave(this.state.name);
   }
 
-  @autobind
-  handleKeyPress(event) {
-    if (!this.saveDisabled && event.keyCode === 13 /*enter*/) {
-      event.preventDefault();
-      this.props.onSave(this.state.name);
-    }
-  }
-
   render() {
     const title = this.props.isNew ? 'Add New Album' : 'Edit Album';
 
     return (
-        <div onKeyDown={this.handleKeyPress}>
-          <ContentBox title={title} actionBlock={this.closeAction}>
-            <FormField label="Album Name"
-                       className="fc-product-details__field"
-                       labelClassName="fc-product-details__field-label">
-              <input type="text"
-                     name="name"
-                     className="fc-product-details__field-value"
-                     value={this.state.name}
-                     onChange={this.handleUpdateField}
-                     ref={(i) => this._input = i}/>
-            </FormField>
-            <SaveCancel onCancel={this.props.onCancel}
-                        onSave={this.handleSave}
-                        saveDisabled={this.saveDisabled}
-                        isLoading={this.props.loading}
-                        saveText="Save and Apply"/>
-          </ContentBox>
-        </div>
+      <ContentBox title={title} actionBlock={this.closeAction}>
+        <FormField label="Album Name"
+                   className="fc-product-details__field"
+                   labelClassName="fc-product-details__field-label">
+          <input type="text"
+                 name="name"
+                 className="fc-product-details__field-value"
+                 value={this.state.name}
+                 onChange={this.handleUpdateField}
+                 ref={(i) => this._input = i}/>
+        </FormField>
+        <SaveCancel onCancel={this.props.onCancel}
+                    onSave={this.handleSave}
+                    saveDisabled={this.saveDisabled}
+                    isLoading={this.props.loading}
+                    saveText="Save and Apply"/>
+      </ContentBox>
     );
   }
 }

@@ -1,50 +1,52 @@
 .upload {
   transition: border-color .3s;
-  padding: 15px 5px;
-  margin: -15px -5px;
 
-  &:global(._empty) {
-    border: 3px dashed #CED2D5;
-    margin: -18px -8px;
-  }
-
-  &:global(._dragPossible) {
+  &._dragOverWindow {
     border: 3px dashed #9bc1ca;
-    margin: -18px -8px;
+    margin: -10px;
+    padding: 7px;
   }
 
-  &:global(._dragActive) {
-    border: 3px dashed #49C2CA;
-    margin: -18px -8px;
+  &._dragOverArea {
+    background-color: #e1f2ef;
   }
 
-  &:global(._disabled) {
-    & .container {
-      cursor: no-drop;
-    }
-  }
-
-  &:global(._empty) .container {
-    display: flex;
-    align-items: center;
+  &._empty {
+    border: dashed 2px #ced2d5;
   }
 }
 
 .container {
-  min-height: 420px;
+  min-height: 300px;
+
+  ._dragOverArea & {
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  ._empty & {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+  }
+
+  ._disabled & {
+    cursor: no-drop;
+  }
 }
 
 .empty {
   text-align: center;
   margin: 0 auto;
   font-weight: bold;
-  color: #CED2D5;
-  opacity: .5;
+  color: #dadddf;
 
   & i {
     display: block;
     font-size: 96px;
     line-height: .8;
+    color: #e3e5e7;
   }
 }
 

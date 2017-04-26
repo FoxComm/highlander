@@ -37,16 +37,6 @@ function runScript(name, cb = () => {}) {
     if (child) process.kill(-child.pid);
   });
 
-  process.on('SIGINT', () => {
-    console.log('SIGINT. Exiting...');
-    process.exit();
-  });
-
-  process.on('uncaughtException', () => {
-    console.log('uncaughtException. Exiting...');
-    process.exit();
-  });
-
   return child;
 }
 

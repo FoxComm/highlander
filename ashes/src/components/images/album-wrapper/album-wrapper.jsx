@@ -24,7 +24,13 @@ type Props = {
   className?: string;
   contentClassName: ?string;
   children?: Array<Element<*>>|Element<*>;
+  onAddFile?: Function;
 };
+
+const ddItems = [
+  ['fromDesk', 'Upload from desktop'],
+  ['fromLink', 'Upload from Link']
+];
 
 export default class AlbumWrapper extends Component {
 
@@ -33,6 +39,7 @@ export default class AlbumWrapper extends Component {
   static defaultProps = {
     title: '',
     actions: [],
+    onAddFile: () => {},
   };
 
   get isFirstAlbum(): boolean {
@@ -71,9 +78,17 @@ export default class AlbumWrapper extends Component {
     );
   }
 
+  @autobind
+  handleAdd(actionName: 'fromDesk' | 'fromLink'): void {
+    switch (actionName) {
+      case 'fromDesk':
+        this.props.onAddFile();
+        break;
+    }
+  }
+
   render() {
     const { className, contentClassName } = this.props;
-
     const cls = classNames(s.accordion, className);
 
     return (
@@ -84,7 +99,7 @@ export default class AlbumWrapper extends Component {
         </div>
         <div className={classNames(s.content, contentClassName)}>
           <div className={s.menu}>
-            <ButtonWithMenu />
+            <ButtonWithMenu title="Upload Media" icon="upload" items={ddItems} onSelect={this.handleAdd} />
           </div>
           {this.props.children}
         </div>

@@ -73,7 +73,7 @@ export default class Album extends Component {
   }
 
   @autobind
-  handleAddImages() {
+  handleAddFiles() {
     this._uploadRef.openUploadDialog();
   }
 
@@ -178,7 +178,7 @@ export default class Album extends Component {
   @autobind
   getAlbumActions(): Array<any> {
     return [
-      // { name: 'add', handler: this.handleAddImages },
+      // { name: 'add', handler: this.handleAddFiles },
       { name: 'edit', handler: this.handleEditAlbum },
       { name: 'trash', handler: this.handleArchiveAlbum },
     ];
@@ -223,6 +223,7 @@ export default class Album extends Component {
                       contentClassName={styles.albumContent}
                       onSort={this.handleMove}
                       actions={this.getAlbumActions()}
+                      onAddFile={this.handleAddFiles}
         >
           {albumContent}
         </AlbumWrapper>

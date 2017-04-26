@@ -133,8 +133,7 @@ export default class ButtonWithMenu extends Component {
   }
 
   render() {
-    const { props } = this;
-    const { icon, title, animate, menuPosition, buttonDisabled, menuDisabled } = props;
+    const { icon, title, animate, menuPosition, buttonDisabled, menuDisabled, onPrimaryClick, isLoading } = this.props;
     const { open } = this.state;
 
     const className = classNames(s.button, this.props.className, {
@@ -157,8 +156,8 @@ export default class ButtonWithMenu extends Component {
             id="fct-primary-save-btn"
             className={buttonClassName}
             icon={icon}
-            onClick={props.onPrimaryClick}
-            isLoading={props.isLoading}
+            onClick={onPrimaryClick}
+            isLoading={isLoading}
             onBlur={this.dontPropagate}
             disabled={buttonDisabled} >
             {title}
