@@ -2,12 +2,6 @@
   display: inline-block;
   vertical-align: top;
   position: relative;
-}
-
-.button.opened {
-  & .menu {
-    display: inline-block;
-  }
 
   & :global .fc-button-with-menu__right-button i {
     transform: rotateX(180deg);
@@ -28,6 +22,10 @@
   overflow-y: auto;
   overflow-x: hidden;
   text-align: left;
+
+  .button.opened & {
+    display: inline-block;
+  }
 }
 
 .controls {
