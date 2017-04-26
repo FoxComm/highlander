@@ -17,6 +17,7 @@ import ObjectScheduler from '../object-scheduler/object-scheduler';
 import { Form } from '../forms';
 import Tags from '../tags/tags';
 import ParticipantsPanel from '../participants';
+import CustomProperties from 'components/custom-properties/custom-properties';
 
 type Layout = {
   content: Array<Object>,
@@ -107,14 +108,24 @@ export default class ObjectDetails extends Component {
   renderFields(fields: Fields, section: Array<NodeDesc>): Element<*> {
     const fieldsToRender = this.calcFieldsToRender(fields, section);
     const attrsSchema = this.schema.properties.attributes;
+    const commonProps = {
+      onChange: this.handleObjectChange,
+      attributes: this.attributes,
+      schema: attrsSchema
+    };
+
+    const children = (
+      <ObjectFormInner
+        {...commonProps}
+        fieldsToRender={fieldsToRender}
+      />
+    );
 
     return (
-      <ObjectFormInner
+      <CustomProperties
+        {...commonProps}
         canAddProperty={fields.canAddProperty}
-        onChange={this.handleObjectChange}
-        fieldsToRender={fieldsToRender}
-        attributes={this.attributes}
-        schema={attrsSchema}
+        children={children}
       />
     );
   }

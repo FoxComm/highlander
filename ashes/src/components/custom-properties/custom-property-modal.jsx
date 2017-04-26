@@ -3,16 +3,17 @@
  */
 
 // libs
-import React, { Component, Element } from 'react';
+import { isEmpty, map, upperFirst } from 'lodash';
 import { autobind } from 'core-decorators';
-import _ from 'lodash';
+import React, { Component, Element } from 'react';
 
 // components
-import { Dropdown } from '../dropdown';
-import { FormField } from '../forms';
-import wrapModal from '../modal/wrapper';
-import ContentBox from '../content-box/content-box';
+import { Dropdown } from 'components/dropdown';
+import { FormField } from 'components/forms';
+import wrapModal from 'components/modal/wrapper';
+import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
+import renderers from 'components/object-form/renderers';
 
 const propertyTypes = {
   string: 'Text',
@@ -20,34 +21,54 @@ const propertyTypes = {
   date: 'Date',
   price: 'Price',
   bool: 'Yes/No',
+  color: 'Color',
 };
 
 type Props = {
   onSave: (state: State) => void,
   onCancel: () => void,
+  currentEdit: {
+    name: string,
+    type: string,
+    value: any,
+  }
 };
 
 type State = {
   fieldLabel: string,
   propertyType: string,
+  fieldValue: any,
 };
 
-class CustomProperty extends Component<void, Props, State> {
+class CustomPropertyModal extends Component<void, Props, State> {
   props: Props;
-  state: State;
+  state: State = {
+    fieldLabel: '',
+    propertyType: '',
+    fieldValue: '',
+  };
 
   constructor(props: Props) {
     super(props);
-    this.state = {
-      fieldLabel: '',
-      propertyType: '',
-    };
+    Object.keys(propertyTypes).map((type) => {
+      if (Object.keys(renderers).indexOf(`render${upperFirst(type)}`) === -1) {
+        console.warn(`Custom property type: "${type}", does not have renderer!`);
+      }
+    });
   }
 
   componentDidMount() {
     const fieldLabelInput = this.refs.field;
     if (fieldLabelInput) {
       fieldLabelInput.focus();
+    }
+
+    if (this.props.currentEdit) {
+      this.setState({
+        fieldLabel: this.props.currentEdit.name,
+        propertyType: this.props.currentEdit.type,
+        fieldValue: this.props.currentEdit.value,
+      });
     }
   }
 
@@ -56,21 +77,35 @@ class CustomProperty extends Component<void, Props, State> {
   }
 
   get propertyTypes(): Array<Element<*>> {
-    return _.map(propertyTypes, (type, key) => [key, type]);
+    return map(propertyTypes, (type, key) => [key, type]);
   }
 
   get saveDisabled(): boolean {
-    return _.isEmpty(this.state.fieldLabel) || _.isEmpty(this.state.propertyType);
+    return isEmpty(this.state.fieldLabel) || isEmpty(this.state.propertyType);
   }
 
   @autobind
-  handleUpdateLabel({target}) {
+  handleUpdateLabel({ target }) {
     this.setState({ fieldLabel: target.value });
   }
 
   @autobind
   handleUpdateType(value) {
-    this.setState({ propertyType: value });
+    const fieldValue = (() => {
+      switch (value) {
+        case('date'):
+          return new Date().toString();
+        case('bool'):
+          return false;
+        default:
+          return '';
+      }
+    })();
+
+    this.setState({
+      propertyType: value,
+      fieldValue: fieldValue
+    });
   }
 
   @autobind
@@ -80,7 +115,7 @@ class CustomProperty extends Component<void, Props, State> {
   }
 
   @autobind
-  handleKeyPress(event){
+  handleKeyPress(event) {
     if (!this.saveDisabled && event.keyCode === 13 /*enter*/) {
       event.preventDefault();
       this.props.onSave(this.state);
@@ -88,10 +123,12 @@ class CustomProperty extends Component<void, Props, State> {
   }
 
   render() {
+    const title = this.props.currentEdit ? 'Edit Custom Property' : 'New Custom Property';
+
     return (
       <div className="fc-product-details__custom-property">
         <div className="fc-modal-container" onKeyDown={this.handleKeyPress}>
-          <ContentBox title="New Custom Property" actionBlock={this.closeAction}>
+          <ContentBox title={title} actionBlock={this.closeAction}>
             <FormField
               className="fc-product-details__field"
               label="Field Label"
@@ -129,4 +166,4 @@ class CustomProperty extends Component<void, Props, State> {
   }
 }
 
-export default wrapModal(CustomProperty);
+export default wrapModal(CustomPropertyModal);
