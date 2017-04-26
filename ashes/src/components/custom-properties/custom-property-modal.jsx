@@ -12,7 +12,7 @@ import { Dropdown } from 'components/dropdown';
 import { FormField } from 'components/forms';
 import wrapModal from 'components/modal/wrapper';
 import ContentBox from 'components/content-box/content-box';
-import SaveCancel from 'components/common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 import renderers from 'components/object-form/renderers';
 
 const propertyTypes = {
