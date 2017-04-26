@@ -192,7 +192,7 @@ def convert_product(product_group):
 
 
 def convert_taxonomies(dir):
-    def create_taxonomy(name, hierarchical="false", taxons=None):
+    def create_taxonomy(name, hierarchical=False, taxons=None):
         return {'attributes': {'name': {'t': 'string', 'v': name}}, 'hierarchical': hierarchical, 'taxons': taxons}
 
     def create_taxon(name):
