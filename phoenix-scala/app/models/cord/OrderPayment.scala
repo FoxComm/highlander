@@ -3,7 +3,7 @@ package models.cord
 import cats.data.ValidatedNel
 import failures.Failure
 import models.payment.PaymentMethod
-import models.payment.PaymentMethod.External
+import models.payment.PaymentMethod.ExternalPayment
 import models.payment.applepay.{ApplePayment, ApplePayments}
 import models.payment.creditcard.{CreditCard, CreditCards}
 import models.payment.giftcard.{GiftCard, GiftCards}
