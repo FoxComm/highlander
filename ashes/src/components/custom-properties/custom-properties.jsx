@@ -14,6 +14,9 @@ import { uploadImage } from '../../paragons/image';
 // style
 import s from './custom-properties.css';
 
+// types
+import type { ImageFile } from '../../modules/images'
+
 type Props = {
   canAddProperty?: boolean,
   attributes: Attributes,
@@ -228,7 +231,7 @@ export default class CustomProperties extends Component {
   }
 
   @autobind
-  handleDeleteFiles(src, name: string): void {
+  handleDeleteFiles(src: string, name: string): void {
     const { attributes } = this.props;
     // deleteImage(src);
     const newAttributes = {

@@ -24,7 +24,8 @@ type Props = {
   schema?: Object,
   className?: string,
   processAttr?: Function,
-  onDrop?: Function,
+  addFile?: Function,
+  deleteFile?: Function,
 };
 
 type State = {

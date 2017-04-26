@@ -13,9 +13,10 @@ import Transition from 'react-transition-group/CSSTransitionGroup';
 import WaitAnimation from '../common/wait-animation';
 
 type Props = {
-  id: number,
+  id: number | string,
   src: string,
-  loader?: string|Element<*>;
+  loader?: string|Element<*>,
+  imageComponent?: string,
 }
 
 type State = {

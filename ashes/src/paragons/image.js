@@ -1,5 +1,7 @@
 // @flow
 
+import type { ImageFile } from '../modules/images'
+
 // export const uploadImage = (image: ImageFile) => () => createAsyncActions(
 //     'imageUpload',
 //     () => { return Api.post(`/images/s3/`, image) }

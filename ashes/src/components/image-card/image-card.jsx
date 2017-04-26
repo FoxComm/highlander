@@ -18,13 +18,14 @@ export type Action = {
 };
 
 type Props = {
-  id: number,
+  id: number | string,
   src: string,
   actions: Array<Action>,
-  title: string,
+  title?: string,
   loading: boolean,
   secondaryTitle?: string,
   className?: string,
+  imageComponent?: string,
 };
 
 type State = {
