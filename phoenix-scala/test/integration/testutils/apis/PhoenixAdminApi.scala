@@ -23,7 +23,6 @@ import payloads.ProductPayloads._
 import payloads.PromotionPayloads._
 import payloads.ReturnPayloads._
 import payloads.SharedSearchPayloads._
-import payloads.ShippingMethodsPayloads.RegionSearchPayload
 import payloads.SkuPayloads._
 import payloads.StoreAdminPayloads._
 import payloads.StoreCreditPayloads._

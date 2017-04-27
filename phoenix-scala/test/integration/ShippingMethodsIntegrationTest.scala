@@ -7,7 +7,6 @@ import models.rules.QueryStatement
 import models.shipping
 import models.shipping.ShippingMethods
 import org.json4s.jackson.JsonMethods._
-import payloads.ShippingMethodsPayloads.RegionSearchPayload
 import responses.ShippingMethodsResponse.Root
 import services.carts.CartTotaler
 import testutils._

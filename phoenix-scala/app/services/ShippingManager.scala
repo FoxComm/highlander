@@ -20,7 +20,6 @@ import org.json4s.JsonAST._
 import responses.ShippingMethodsResponse
 import cats.implicits._
 import failures.AddressFailures.NoCountryFound
-import payloads.ShippingMethodsPayloads.RegionSearchPayload
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
