@@ -108,16 +108,17 @@ class ShippingMethodsIntegrationTest
   }
 
   "Search /v1/shipping-methods" - {
-    "Has active methods" in new ShipToCaliforniaButNotHazardous {
+
+    "Has active methods" in new UsShipping {
       shippingMethodsApi.active().as[Methods].size mustBe >(0)
     }
 
-    "Get shipping method by country code" in new ShipToCaliforniaButNotHazardous {
+    "Get shipping method by country code" in new UsShipping {
       val usShippingMethods = shippingMethodsApi.searchByRegion("us").as[Methods]
       usShippingMethods.size mustBe >(0)
     }
 
-    "No shipping to Russia ;(" in new ShipToCaliforniaButNotHazardous {
+    "No shipping to Russia ;(" in new UsShipping {
       val usShippingMethods = shippingMethodsApi.searchByRegion("rus").as[Methods]
       usShippingMethods.size must === (0)
     }
@@ -261,7 +262,16 @@ class ShippingMethodsIntegrationTest
       shippingMethod ← shipping.ShippingMethods.create(
                           Factories.shippingMethods.head.copy(conditions = Some(conditions),
                                                               restrictions = Some(restrictions)))
-      usShippingMethod ← shipping.ShippingMethods.create(Factories.shippingMethods.last)
     } yield shippingMethod).gimme
+  }
+
+  trait UsShipping {
+    val usShippingMethod = (for {
+      usShippingMethod ← shipping.ShippingMethods.create(
+                            Factories.shippingMethods
+                              .filter(_.conditions == Some(Factories.usOnly))
+                              .head)
+
+    } yield usShippingMethod).gimme
   }
 }
