@@ -67,12 +67,12 @@ begin
     when 'addresses' then
       account_ids := array_agg(new.account_id);
     when 'regions' then
-      select array_agg(o.account_id) into strict account_ids
+      select array_agg(a.account_id) into strict account_ids
       from addresses as a
       inner join regions as r on (r.id = a.region_id)
       where r.id = new.id;
     when 'countries' then
-      select array_agg(o.account_id) into strict account_ids
+      select array_agg(a.account_id) into strict account_ids
       from addresses as a
       inner join regions as r1 on (r1.id = a.region_id)
       inner join countries as c1 on (r1.country_id = c1.id)
@@ -126,7 +126,7 @@ begin
       inner join regions as r on (cc.region_id = r.id)
       where r.id = new.id;
     when 'countries' then
-      select array_agg(o.account_id) into strict account_ids
+      select array_agg(cc.account_id) into strict account_ids
       from credit_cards as cc
       inner join regions as r on (cc.region_id = r.id)
       inner join countries as c on (c.id = r.country_id)
