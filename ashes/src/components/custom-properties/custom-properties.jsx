@@ -9,13 +9,8 @@ import { get, keys, omit } from 'lodash';
 import CustomPropertyModal from './custom-property-modal';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 
-import { uploadImage } from '../../paragons/image';
-
 // style
 import s from './custom-properties.css';
-
-// types
-import type { ImageFile } from '../../modules/images';
 
 type Props = {
   canAddProperty?: boolean,
@@ -213,40 +208,6 @@ export default class CustomProperties extends Component {
     });
   }
 
-  @autobind
-  handleNewFiles(image: ImageFile, name: string): void {
-    const { attributes } = this.props;
-    uploadImage(image).then((src) => {
-      const newAttributes = {
-        ...attributes,
-        [name]: {
-          t: 'image',
-          v: src,
-        }
-      };
-
-      this.props.onChange(newAttributes);
-    });
-
-  }
-
-  @autobind
-  handleDeleteFiles(src: string, name: string): void {
-    const { attributes } = this.props;
-    // deleteImage(src);
-    const newAttributes = {
-      ...attributes,
-      [name]: {
-        t: 'image',
-        v: '',
-      }
-    };
-
-    this.props.onChange(newAttributes);
-  }
-
-  //TODO add edit image?
-
   get addCustomProperty() {
     if (this.props.canAddProperty) {
       return (
@@ -264,8 +225,6 @@ export default class CustomProperties extends Component {
   get children(): Element<*> {
     return React.cloneElement((this.props.children), {
       processAttr: this.processAttr,
-      addFile: this.handleNewFiles,
-      deleteFile: this.handleDeleteFiles,
     });
   }
 

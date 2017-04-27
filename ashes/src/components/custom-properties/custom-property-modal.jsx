@@ -98,6 +98,8 @@ class CustomPropertyModal extends Component<void, Props, State> {
           return new Date().toString();
         case('bool'):
           return false;
+        case('image'):
+          return {};
         default:
           return '';
       }
