@@ -33,6 +33,7 @@ object ShippingManager {
                           shippingRegion: Option[Region] = None,
                           lineItems: Seq[CartLineItemProductData] = Seq())
 
+  // convenient empty container to construct queries against given conditions
   def emptyShippingData = ShippingData(cart = Cart(scope = LTree(""), accountId = 0))
 
   def setDefault(shippingMethodId: Int)(implicit ec: EC,
