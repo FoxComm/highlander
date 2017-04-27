@@ -3,12 +3,12 @@
 // libs
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 
 // components
 import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
-import SaveCancel from '../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 import wrapModal from '../modal/wrapper';
 
 // types
@@ -45,7 +45,7 @@ class EditAlbum extends Component {
     this._input ? this._input.focus() : _.noop();
   }
 
-  get closeAction(): Element {
+  get closeAction() {
     return <a onClick={this.props.onCancel}>&times;</a>;
   }
 
@@ -70,9 +70,9 @@ class EditAlbum extends Component {
       event.preventDefault();
       this.props.onSave(this.state.name);
     }
-  };
+  }
 
-  render(): Element {
+  render() {
     const title = this.props.isNew ? 'Add New Album' : 'Edit Album';
 
     return (

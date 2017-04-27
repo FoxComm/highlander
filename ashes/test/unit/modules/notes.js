@@ -35,7 +35,7 @@ describe('Notes module', function() {
     before(function() {
       const uri = notesUri(entity);
 
-      nock(phoenixUrl)
+      nock(process.env.API_URL)
         .get(uri)
         .reply(200, notesPayload)
         .post(uri, notePayload)
@@ -61,7 +61,7 @@ describe('Notes module', function() {
         {type: searchActions.updateItems, payload: [notePayload]}
       ];
 
-      nock(phoenixUrl)
+      nock(process.env.API_URL)
         .patch(notesUri(entity, 1))
         .reply(200, notePayload);
 
@@ -74,7 +74,7 @@ describe('Notes module', function() {
         { type: searchActions.removeEntity, payload: {id: 1}}
       ];
 
-      nock(phoenixUrl)
+      nock(process.env.API_URL)
         .delete(notesUri(entity, 1))
         .reply(204, {});
 

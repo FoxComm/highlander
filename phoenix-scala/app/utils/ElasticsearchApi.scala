@@ -2,10 +2,8 @@ package utils
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
-
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri, IndexAndType, RichSearchResponse}
-import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.search.aggregations.bucket.filter.InternalFilter
@@ -13,21 +11,20 @@ import org.elasticsearch.search.aggregations.bucket.terms.{StringTerms, Terms}
 import org.json4s.JsonAST.{JArray, JObject, JString}
 import org.json4s.jackson.JsonMethods.{compact, parse, render}
 import utils.ElasticsearchApi._
+import utils.FoxConfig.ESConfig
 import utils.aliases._
 
-// TODO: move to Apis?
-case class ElasticsearchApi(host: String, cluster: String, index: String)(implicit ec: EC)
-    extends LazyLogging {
+case class ElasticsearchApi(config: ESConfig)(implicit ec: EC) extends LazyLogging {
 
   val aggregationName = "my-unique-aggregation"
-  val settings        = Settings.settingsBuilder().put("cluster.name", cluster).build()
-  val client          = ElasticClient.transport(settings, ElasticsearchClientUri(host))
+  val settings        = Settings.settingsBuilder().put("cluster.name", config.cluster).build()
+  val client          = ElasticClient.transport(settings, ElasticsearchClientUri(config.host))
 
   private def getIndexAndType(searchView: SearchView): IndexAndType = searchView match {
     case ScopedSearchView(typeName, scope) ⇒
-      IndexAndType(s"${index}_$scope", typeName)
+      IndexAndType(s"${config.index}_$scope", typeName)
     case SimpleSearchView(typeName) ⇒
-      IndexAndType(index, typeName)
+      IndexAndType(config.index, typeName)
   }
 
   /**
@@ -91,6 +88,11 @@ case class ElasticsearchApi(host: String, cluster: String, index: String)(implic
     client.execute(request).map(getBuckets)
   }
 
+  def numResults(searchView: SearchView, esQuery: Json): Future[Long] =
+    client.execute {
+      search in getIndexAndType(searchView) rawQuery compact(render(esQuery)) size 0
+    }.map(_.totalHits)
+
   /**
     * Render compact query for logging
     */
@@ -112,10 +114,6 @@ object ElasticsearchApi {
   val clusterKey = "elasticsearch.cluster"
   val indexKey   = "elasticsearch.index"
 
-  val defaultHost    = "elasticsearch://localhost:9300"
-  val defaultCluster = "elasticsearch"
-  val defaultIndex   = "admin"
-
   sealed trait SearchView {
     val typeName: String
   }
@@ -128,13 +126,8 @@ object ElasticsearchApi {
 
   case class SearchViewReference(typeName: String, scoped: Boolean)
 
-  def fromConfig(config: Config)(implicit ec: EC): ElasticsearchApi =
-    ElasticsearchApi(host = config.getString(hostKey),
-                     cluster = config.getString(clusterKey),
-                     index = config.getString(indexKey))
-
-  def default()(implicit ec: EC): ElasticsearchApi =
-    ElasticsearchApi(host = defaultHost, cluster = defaultCluster, index = defaultIndex)
+  def fromConfig(config: FoxConfig)(implicit ec: EC): ElasticsearchApi =
+    ElasticsearchApi(config.apis.elasticsearch)
 
   protected def injectFilterReferences(query: Json,
                                        fieldName: String,

@@ -9,10 +9,8 @@ import _ from 'lodash';
 // components
 import { Dropdown } from 'components/dropdown';
 import { PageTitle } from 'components/section-title';
-import { PrimaryButton } from 'components/common/buttons';
+import { PrimaryButton } from 'components/core/button';
 import ContentBox from 'components/content-box/content-box';
-import FormField from 'components/forms/formfield';
-import FoxyForm from 'components/forms/foxy-form';
 import WaitAnimation from 'components/common/wait-animation';
 
 // redux
@@ -102,7 +100,7 @@ class MerchantApplicationDetails extends Component {
     return state == 'new';
   }
 
-  get renderPageTitle(): ?Element {
+  get renderPageTitle(): ?Element<*> {
     if (this.props.details.application) {
       const title = this.props.details.application.business_name;
       return (
@@ -118,7 +116,7 @@ class MerchantApplicationDetails extends Component {
     }
   }
 
-  get renderState(): Element {
+  get renderState() {
     return (
       <div className="fc-col-md-1-3">
         <ContentBox title="State">
@@ -142,19 +140,12 @@ class MerchantApplicationDetails extends Component {
   handleSubmit() {
     const { application } = this.props.details;
     if (application) {
-      // :( The Elixir app has camel cased JSON.
-      const merchant_application = {
-        ...application,
-        state: this.state.newState,
-      };
-
       this.props.approveApplication(application.id);
     }
   }
 
-  render(): Element {
+  render() {
     const { application, businessProfile, socialProfile } = this.props.details;
-    const { isFetching, fetchError } = this.props;
 
     if (!application || !businessProfile || !socialProfile) {
       return (

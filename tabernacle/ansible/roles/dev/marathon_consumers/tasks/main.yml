@@ -1,0 +1,15 @@
+---
+
+- name: Creates Marathon JSON directory
+  file: path=/marathon/applications state=directory
+
+- name: Start Green River
+  include: app_greenriver.yml
+  when: marathon_restart.greenriver
+
+- name: Start Messaging
+  include: app_messaging.yml
+  when: marathon_restart.messaging
+
+- name: Start Middlewarehouse Consumers
+  include: consumers.yml

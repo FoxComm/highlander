@@ -7,7 +7,7 @@ import type { Claims } from 'lib/claims';
 type FoxRoute = Route|IndexRoute;
 type JWT = { claims: Claims };
 type RouteParams = {
-  component?: ReactClass,
+  component?: ReactClass<*>,
   dimension?: string,
   isIndex?: bool,
   path?: string,

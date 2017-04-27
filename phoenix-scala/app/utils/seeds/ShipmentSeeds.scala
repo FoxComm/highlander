@@ -9,7 +9,7 @@ import org.json4s.jackson.JsonMethods._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import utils.seeds.Seeds.Factories._
+import utils.seeds.Factories._
 import models.shipping.ShippingMethod._
 
 trait ShipmentSeeds {

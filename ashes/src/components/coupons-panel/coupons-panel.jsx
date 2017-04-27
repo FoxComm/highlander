@@ -11,10 +11,10 @@ import styles from './coupons-panel.css';
 type Props = {
   coupons: Array<Object>;
   columns: Array<Object>;
-  onDelete?: () => Promise;
+  onDelete?: () => Promise<*>;
 };
 
-const CouponsPanel = (props: Props): Element => {
+const CouponsPanel = (props: Props) => {
   const renderFn = (row: Object) => {
     return (
       <CouponRow

@@ -47,7 +47,7 @@ export default class ImagesPage extends Component {
     }
   }
 
-  render(): Element {
+  render() {
     const { params, ...rest } = this.props;
 
     return (

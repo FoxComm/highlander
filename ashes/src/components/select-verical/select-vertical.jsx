@@ -1,14 +1,14 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { PropTypes, Component, Element } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
-import { assoc, get, dissoc } from 'sprout-data';
+import { assoc, dissoc } from 'sprout-data';
 
 // components
 import Dropdown from '../dropdown/dropdown';
-import { Button } from '../common/buttons';
+import { Button } from 'components/core/button';
 
 type Props = {
   options: Object; // {value -> title}
@@ -16,7 +16,7 @@ type Props = {
   onChange: Function;
   className?: string;
   placeholder?: string;
-  emptyMessage?: string|Element;
+  emptyMessage?: string|Element<*>;
   onChange: (values: Array<any>) => any;
 }
 
@@ -133,7 +133,7 @@ export default class SelectVertical extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const props = this.props;
 
     const className = classNames('fc-vmultiselect', props.className);

@@ -1,20 +1,18 @@
 package services.product
 
-import java.time.Instant
-
-import com.github.tminglei.slickpg.LTree
-import cats.data._
+import cats.data.{ValidatedNel, _}
 import cats.implicits._
-import cats.data.ValidatedNel
-import cats.instances.map
-import failures._
+import com.typesafe.scalalogging.LazyLogging
 import failures.ArchiveFailures._
 import failures.ProductFailures._
-import models.image.{AlbumImageLinks, Albums}
+import failures._
+import java.time.Instant
+import models.account._
 import models.inventory._
 import models.objects._
 import models.product._
-import models.account._
+import org.json4s.JsonDSL._
+import org.json4s._
 import payloads.ImagePayloads.AlbumPayload
 import payloads.ProductPayloads._
 import payloads.SkuPayloads._
@@ -25,22 +23,20 @@ import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses._
 import responses.SkuResponses._
 import responses.VariantResponses.IlluminatedVariantResponse
+import services.LogActivity
 import services.image.ImageManager
+import services.image.ImageManager.FullAlbumWithImages
 import services.inventory.SkuManager
 import services.objects.ObjectManager
+import services.taxonomy.TaxonomyManager
 import services.variant.VariantManager
 import services.variant.VariantManager._
 import slick.driver.PostgresDriver.api._
 import utils.Validation._
 import utils.aliases._
 import utils.db._
-import org.json4s._
-import org.json4s.JsonDSL._
-import services.LogActivity
-import services.taxonomy.TaxonomyManager
-import services.image.ImageManager.FullAlbumWithImages
 
-object ProductManager {
+object ProductManager extends LazyLogging {
 
   def createProduct(admin: User, payload: CreateProductPayload)(
       implicit ec: EC,
@@ -79,20 +75,41 @@ object ProductManager {
           if (hasVariants) variantSkus else productSkus,
           variantResponses,
           taxons)
-      _ ← * <~ LogActivity
+      _ ← * <~ LogActivity()
+           .withScope(scope)
            .fullProductCreated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
 
   }
 
-  def getProduct(productId: ProductReference)(implicit ec: EC,
-                                              db: DB,
-                                              oc: OC): DbResultT[ProductResponse.Root] =
+  def getProduct(productId: ProductReference, checkActive: Boolean = false)(
+      implicit ec: EC,
+      db: DB,
+      oc: OC): DbResultT[ProductResponse.Root] =
     for {
       oldProduct ← * <~ Products.mustFindFullByReference(productId)
-      albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
+      illuminated = IlluminatedProduct
+        .illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow)
+      _ ← * <~ doOrMeh(checkActive, {
+           illuminated.mustBeActive match {
+             case Left(err) ⇒ {
+               logger.warn(err.toString)
+               DbResultT.failure(NotFoundFailure404(Product, oldProduct.model.slug))
+             }
+             case Right(_) ⇒ DbResultT.unit
+           }
+         })
+      albums ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
 
-      fullSkus    ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
+      fullSkus ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
+      _ ← * <~ failIf(
+             checkActive && fullSkus
+               .filter(sku ⇒ IlluminatedSku.illuminate(oc, sku).mustBeActive.isRight)
+               .isEmpty, {
+               logger.warn(
+                   s"Product variants for product with id=${oldProduct.model.slug} is archived or inactive")
+               NotFoundFailure404(Product, oldProduct.model.slug)
+             })
       productSkus ← * <~ fullSkus.map(SkuManager.illuminateSku)
 
       variants     ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
@@ -105,12 +122,11 @@ object ProductManager {
 
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(oldProduct.model)
     } yield
-      ProductResponse.build(
-          IlluminatedProduct.illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow),
-          albums,
-          if (hasVariants) variantSkus else productSkus,
-          variantResponses,
-          taxons)
+      ProductResponse.build(illuminated,
+                            albums,
+                            if (hasVariants) variantSkus else productSkus,
+                            variantResponses,
+                            taxons)
 
   def updateProduct(productId: ProductReference, payload: UpdateProductPayload)(
       implicit ec: EC,
@@ -158,7 +174,7 @@ object ProductManager {
           if (hasVariants) variantSkus else updatedSkus,
           variantResponses,
           taxons)
-      _ ← * <~ LogActivity
+      _ ← * <~ LogActivity()
            .fullProductUpdated(Some(au.model), response, ObjectContextResponse.build(oc))
     } yield response
 
@@ -168,8 +184,8 @@ object ProductManager {
       implicit ec: EC,
       db: DB,
       oc: OC): DbResultT[ProductResponse.Root] = {
-    val payload = Map("activeFrom" → (("v" → JNull) ~ ("type" → JString("datetime"))),
-                      "activeTo" → (("v" → JNull) ~ ("type" → JString("datetime"))))
+    val payload = Map("activeFrom" → (("v" → JNull) ~ ("t" → JString("datetime"))),
+                      "activeTo" → (("v" → JNull) ~ ("t" → JString("datetime"))))
 
     val newFormAttrs   = ObjectForm.fromPayload(Product.kind, payload).attributes
     val newShadowAttrs = ObjectShadow.fromPayload(payload).attributes
@@ -189,27 +205,12 @@ object ProductManager {
       archiveResult ← * <~ Products.update(updatedHead,
                                            updatedHead.copy(archivedAt = Some(Instant.now)))
 
-      albumLinks ← * <~ ProductAlbumLinks.filter(_.leftId === archiveResult.id).result
-      _ ← * <~ albumLinks.map { link ⇒
-           ProductAlbumLinks.deleteById(link.id,
-                                        DbResultT.unit,
-                                        id ⇒ NotFoundFailure400(ProductAlbumLinks, id))
-         }
-      albums   ← * <~ ImageManager.getAlbumsForProduct(ProductReference(inactive.form.id))
-      skuLinks ← * <~ ProductSkuLinks.filter(_.leftId === archiveResult.id).result
-      _ ← * <~ skuLinks.map { link ⇒
-           ProductSkuLinks.deleteById(link.id,
-                                      DbResultT.unit,
-                                      id ⇒ NotFoundFailure400(ProductSkuLink, id))
-         }
-      updatedSkus  ← * <~ ProductSkuLinks.queryRightByLeft(archiveResult)
-      skus         ← * <~ updatedSkus.map(SkuManager.illuminateSku)
-      variantLinks ← * <~ ProductVariantLinks.filter(_.leftId === archiveResult.id).result
-      _ ← * <~ variantLinks.map { link ⇒
-           ProductVariantLinks.deleteById(link.id,
-                                          DbResultT.unit,
-                                          id ⇒ NotFoundFailure400(ProductSkuLink, link.id))
-         }
+      _               ← * <~ ProductAlbumLinks.filter(_.leftId === archiveResult.id).delete
+      albums          ← * <~ ImageManager.getAlbumsForProduct(ProductReference(inactive.form.id))
+      _               ← * <~ ProductSkuLinks.filter(_.leftId === archiveResult.id).delete
+      updatedSkus     ← * <~ ProductSkuLinks.queryRightByLeft(archiveResult)
+      skus            ← * <~ updatedSkus.map(SkuManager.illuminateSku)
+      variantLinksNum ← * <~ ProductVariantLinks.filter(_.leftId === archiveResult.id).delete
       updatedVariants ← * <~ ProductVariantLinks.queryRightByLeft(archiveResult)
       variants        ← * <~ updatedVariants.map(VariantManager.zipVariantWithValues)
       variantAndSkus  ← * <~ getVariantsWithRelatedSkus(variants)
@@ -220,7 +221,7 @@ object ProductManager {
           product =
             IlluminatedProduct.illuminate(oc, archiveResult, inactive.form, inactive.shadow),
           albums = albums,
-          if (variantLinks.nonEmpty) variantSkus else skus,
+          if (variantLinksNum > 0) variantSkus else skus,
           variantResponses,
           taxons
       )

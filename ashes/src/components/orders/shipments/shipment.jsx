@@ -38,7 +38,7 @@ export default class Shipment extends Component<void, Props, void> {
   props: Props;
 
   @autobind
-  renderRow(row: Object, index: number): Element {
+  renderRow(row: Object, index: number): Element<*> {
     return (
       <ShipmentRow
         key={index}
@@ -58,7 +58,7 @@ export default class Shipment extends Component<void, Props, void> {
     );
   }
 
-  render(): Element {
+  render() {
     const { index, total } = this.props;
     const title = `Shipment ${index} of ${total}`;
 

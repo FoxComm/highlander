@@ -1,0 +1,30 @@
+@import "colors.css";
+@import "typography.css";
+
+.container {
+  padding: 40px;
+}
+
+.title {
+  composes: title-small;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.link {
+  padding: 12px 0;
+}
+
+.link > a {
+  text-decoration: none;
+}
+
+.shop-all-link {
+  composes: link;
+  border-top: 1px solid var(--border-color);
+  font-weight: 900;
+}
+
+.shop-all-link > a {
+  text-decoration: none;
+}

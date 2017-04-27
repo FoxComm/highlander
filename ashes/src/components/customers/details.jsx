@@ -1,4 +1,3 @@
-
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import CustomerContacts from './contacts';
@@ -6,6 +5,8 @@ import CustomerAccountPassword from './account-password';
 import CustomerAddressBook from './address-book';
 import CustomerCreditCards from './credit-cards';
 import CustomerAccountStatus from './account-status';
+import CustomerSuggestProducts from './suggest-products';
+import CustomerGroups from './groups/groups';
 import SectionSubtitle from '../section-title/section-subtitle';
 import { connect } from 'react-redux';
 import * as AddressesActions from '../../modules/customers/addresses';
@@ -27,35 +28,38 @@ export default class CustomerDetails extends React.Component {
   }
 
   render() {
-    const customer = this.props.entity;
-    const addresses = this.props.addresses;
+    const { entity: customer, addresses } = this.props;
+
     return (
       <div className="fc-customer-details">
         <SectionSubtitle>Details</SectionSubtitle>
         <div className="fc-grid fc-grid-gutter">
-          <div className="fc-col-md-1-2">
-            <CustomerContacts customerId={ customer.id } />
+          <div className="fc-col-md-1-3">
+            <CustomerContacts customerId={customer.id} />
           </div>
-          <div className="fc-col-md-1-2">
-            <CustomerAccountPassword />
+          <div className="fc-col-md-1-3">
+            <CustomerGroups customer={customer} groups={customer.groups} customerId={customer.id} />
           </div>
-        </div>
-        <div className="fc-grid fc-grid-gutter">
-          <div className="fc-col-md-1-1">
-            <CustomerAddressBook customerId={ customer.id } addresses={ addresses } />
+          <div className="fc-col-md-1-3">
+            <CustomerSuggestProducts customer={customer} />
           </div>
         </div>
         <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-1">
-            <CustomerCreditCards customerId={ customer.id } addresses={ addresses } />
+            <CustomerAddressBook customerId={customer.id} addresses={addresses} />
+          </div>
+        </div>
+        <div className="fc-grid fc-grid-gutter">
+          <div className="fc-col-md-1-1">
+            <CustomerCreditCards customerId={customer.id} addresses={addresses} />
           </div>
         </div>
         <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-2">
-            <CustomerAccountStatus customer={ customer }/>
+            <CustomerAccountStatus customer={customer}/>
           </div>
         </div>
       </div>
     );
   }
-};
+}

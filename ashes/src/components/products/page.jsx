@@ -10,25 +10,26 @@ import { setSkuAttribute, skuId } from 'paragons/product';
 import { assoc } from 'sprout-data';
 
 // actions
-import * as ProductActions from 'modules/products/details';
+import * as productActions from 'modules/products/details';
 import { sanitizeError } from 'modules/products/details';
+import { transitionTo } from 'browserHistory';
 
 // components
 import SubNav from './sub-nav';
 import { connectPage, ObjectPage } from '../object-page/object-page';
 import { Dropdown } from '../dropdown';
-
-// types
-import type { Product } from 'paragons/product';
+import { Button } from 'components/core/button';
+import s from './page.css';
 
 type Props = {
   actions: {
+    newEntity: () => void,
     createProduct: (product: Product) => void,
-    fetchProduct: (productId: string, context: string) => Promise,
+    fetchProduct: (productId: string, context: string) => Promise<*>,
     productNew: () => void,
     productDuplicate: () => void,
     updateProduct: (product: Product, context: string) => void,
-    archiveProduct: (id: string|number, context: ?string) => Promise,
+    archiveProduct: (id: string|number, context: ?string) => Promise<*>,
   },
   children: any,
   params: { productId: string, context: string },
@@ -37,6 +38,7 @@ type Props = {
   },
   originalObject: ?Product,
   selectContextAvailable: boolean,
+  hasAmazon: ?boolean,
 };
 
 const SELECT_CONTEXT = [
@@ -68,7 +70,7 @@ class ProductPage extends ObjectPage {
     return _.get(this.props.originalObject, 'attributes.title.v', '');
   }
 
-  fetchEntity(): Promise {
+  fetchEntity(): Promise<*> {
     return this.props.actions.fetchProduct(this.entityId, this.entityContext);
   }
 
@@ -204,12 +206,35 @@ class ProductPage extends ObjectPage {
     return <SubNav productId={this.entityId} product={this.state.object} context={this.entityContext} />;
   }
 
+  get amazonButton(): ?Element<*> {
+    const amazonTitle = 'Push to Amazon';
+
+    return (
+      <Button key="amazonButton" type="button" onClick={() => this.handleAmazon()} className={s.amazonButton}>
+        {amazonTitle}
+      </Button>
+    );
+  }
+
+  handleAmazon() {
+    transitionTo('product-amazon', {
+      productId: this.entityId
+    });
+  }
+
   renderHead() {
-    return [
+    const { hasAmazon } = this.props;
+    const buttons = [
       this.selectContextDropdown,
       this.cancelButton,
     ];
+
+    if (hasAmazon) {
+      buttons.unshift(this.amazonButton);
+    }
+
+    return buttons;
   }
 }
 
-export default connectPage('product', ProductActions)(ProductPage);
+export default connectPage('product', productActions)(ProductPage);

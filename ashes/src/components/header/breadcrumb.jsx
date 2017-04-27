@@ -10,8 +10,7 @@ import { autobind } from 'core-decorators';
 // components
 import { Link, IndexLink } from '../link/index';
 
-const onServer = process.env.ON_SERVER;
-const rootPath = onServer ? '/admin' : '/';
+const rootPath = process.env.BEHIND_NGINX ? '/admin' : '/';
 
 export default class Breadcrumb extends React.Component {
 
@@ -71,7 +70,12 @@ export default class Breadcrumb extends React.Component {
       } else {
         return (
           <li className="fc-breadcrumbs__item" key={`${route.name}-breadcrumbs-link`}>
-            <IndexLink id="item-id" to={route.indexRoute.name} params={this.props.params} className="fc-breadcrumbs__link">
+            <IndexLink
+              id="fct-breadcrumbs-id"
+              to={route.indexRoute.name}
+              params={this.props.params}
+              className="fc-breadcrumbs__link"
+            >
               {this.readableName(route)}
             </IndexLink>
           </li>

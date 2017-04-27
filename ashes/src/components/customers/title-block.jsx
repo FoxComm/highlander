@@ -21,7 +21,7 @@ export default class Customer extends React.Component {
 
     if (customer.name) {
       return (
-        <div id="customer-title-name" styleName="name">
+        <div id="fct-customer-title-name" styleName="name">
           {customer.name}
         </div>
       );

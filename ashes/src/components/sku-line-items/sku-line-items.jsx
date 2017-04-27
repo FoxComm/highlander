@@ -37,21 +37,15 @@ const attributesColumns = {
   ],
 };
 
-type Column = {
-  field: string,
-  text: string,
-  type?: string,
-};
-
 type Props = {
-  columns?: Array<Column>,
+  columns?: Columns,
   items: Array<SkuItem>,
   renderRow?: Function,
   withAttributes?: boolean,
   className?: string,
 };
 
-const lineItemAttributes = (item: SkuItem, columns: Array<Column>): Array<?Element> => {
+const lineItemAttributes = (item: SkuItem, columns: Columns): Array<?Element<*>> => {
   const attributes = _.get(item, 'attributes', {});
 
   if (!_.isEmpty(attributes)) {
@@ -68,7 +62,7 @@ const lineItemAttributes = (item: SkuItem, columns: Array<Column>): Array<?Eleme
   return [];
 };
 
-const SkuLineItems = (props: Props): Element => {
+const SkuLineItems = (props: Props) => {
   const { items, renderRow, withAttributes, className } = props;
   const columns = props.columns ? props.columns : defaultColumns;
 
@@ -86,7 +80,7 @@ const SkuLineItems = (props: Props): Element => {
   if (items.length > 0) {
     return (
       <TableView
-        tbodyId="cart-line-items"
+        tbodyId="fct-cart-line-items"
         className={className}
         columns={columns}
         emptyMessage="No items yet."

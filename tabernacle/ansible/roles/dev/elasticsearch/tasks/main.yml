@@ -1,0 +1,17 @@
+---
+
+- name: Kill Elasticsearch if it is Running
+  service: name=elasticsearch state=restarted
+  ignore_errors: true
+
+- name: Purge Elasticsearch data
+  file: path="{{es_path}}/data" state=absent
+
+- name: Create Elasticsearch subdirectories
+  file: path="{{es_path}}/data" owner=elasticsearch state=directory mode="u=rwx,g=rwx,o=r"
+
+- name: Restart Elasticsearch
+  service: name=elasticsearch state=restarted enabled=yes
+
+- name: Sleep
+  shell: sleep 20

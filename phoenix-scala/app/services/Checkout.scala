@@ -1,25 +1,32 @@
 package services
 
-import scala.util.Random
-import cats.data.Xor
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import failures.AddressFailures.NoDefaultAddressForCustomer
 import failures.CouponFailures.CouponWithCodeCannotBeFound
+import failures.CreditCardFailures.NoDefaultCreditCardForCustomer
 import failures.GeneralFailure
 import failures.PromotionFailures.PromotionNotFoundForContext
+import failures.ShippingMethodFailures.NoDefaultShippingMethod
 import models.account._
 import models.cord._
 import models.cord.lineitems.CartLineItems
 import models.cord.lineitems.CartLineItems.scope._
 import models.coupon._
-import models.account._
+import models.inventory.Skus
+import models.location.Addresses
 import models.objects._
 import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.promotion._
+import models.shipping.DefaultShippingMethods
 import org.json4s.JsonAST._
+import payloads.CartPayloads.CheckoutCart
+import payloads.LineItemPayloads.UpdateLineItemsPayload
 import responses.cord.OrderResponse
+import scala.util.Random
+import services.carts._
 import services.coupon.CouponUsageService
 import services.inventory.SkuManager
 import slick.driver.PostgresDriver.api._
@@ -90,20 +97,95 @@ object Checkout {
       (cart, _) = result
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
     } yield order
+
+  def forAdminOneClick(customerId: Int, payload: CheckoutCart)(implicit ec: EC,
+                                                               db: DB,
+                                                               apis: Apis,
+                                                               ac: AC,
+                                                               ctx: OC,
+                                                               au: AU): DbResultT[OrderResponse] =
+    for {
+      customer ← * <~ Users.mustFindByAccountId(customerId)
+      order    ← * <~ oneClickCheckout(customer, au.model.some, payload)
+    } yield order
+
+  def forCustomerOneClick(payload: CheckoutCart)(implicit ec: EC,
+                                                 db: DB,
+                                                 apis: Apis,
+                                                 ac: AC,
+                                                 ctx: OC,
+                                                 au: AU): DbResultT[OrderResponse] =
+    oneClickCheckout(au.model, None, payload)
+
+  private def oneClickCheckout(customer: User, admin: Option[User], payload: CheckoutCart)(
+      implicit ec: EC,
+      db: DB,
+      apis: Apis,
+      ac: AC,
+      ctx: OC,
+      au: AU): DbResultT[OrderResponse] = {
+
+    def stashItems(refNum: String): DbResultT[Seq[UpdateLineItemsPayload]] =
+      CartLineItems
+        .byCordRef(refNum)
+        .join(Skus)
+        .on(_.skuId === _.id)
+        .result
+        .dbresult
+        .map(_.groupBy { case (cli, sku) ⇒ sku.code → cli.attributes }.map {
+          case ((code, attrs), skus) ⇒
+            UpdateLineItemsPayload(sku = code, quantity = skus.size, attributes = attrs)
+        }.toStream)
+
+    def unstashItems(items: Seq[UpdateLineItemsPayload]): DbResultT[Unit] =
+      LineItemUpdater.updateQuantitiesOnCustomersCart(customer, items).void
+
+    for {
+      cart ← * <~ CartQueries.findOrCreateCartByAccount(customer, ctx, admin)
+      refNum     = cart.referenceNumber.some
+      customerId = customer.accountId
+      scope      = Scope.current
+
+      stashedItems ← * <~ stashItems(cart.referenceNumber)
+      _            ← * <~ LineItemUpdater.updateQuantitiesOnCustomersCart(customer, payload.items)
+
+      ccId ← * <~ CreditCards
+              .findDefaultByAccountId(customerId)
+              .map(_.id)
+              .mustFindOneOr(NoDefaultCreditCardForCustomer())
+      _ ← * <~ CartPaymentUpdater.addCreditCard(customer, ccId, refNum)
+
+      addressId ← * <~ Addresses
+                   .findShippingDefaultByAccountId(customerId)
+                   .map(_.id)
+                   .mustFindOneOr(NoDefaultAddressForCustomer())
+      _ ← * <~ CartShippingAddressUpdater
+           .createShippingAddressFromAddressId(customer, addressId, refNum)
+
+      shippingMethod ← * <~ DefaultShippingMethods
+                        .resolve(scope)
+                        .mustFindOr(NoDefaultShippingMethod())
+      _ ← * <~ CartShippingMethodUpdater.updateShippingMethod(customer, shippingMethod.id, refNum)
+
+      cart  ← * <~ Carts.mustFindByRefNum(cart.referenceNumber)
+      order ← * <~ Checkout(cart, CartValidator(cart)).checkout
+      _     ← * <~ unstashItems(stashedItems)
+    } yield order
+  }
 }
 
 class ExternalCalls {
-  var authPaymentsSuccess: Boolean    = false
-  var middleWarehouseSuccess: Boolean = false
+  @volatile var authPaymentsSuccess: Boolean    = false
+  @volatile var middleWarehouseSuccess: Boolean = false
 }
 
 case class Checkout(
     cart: Cart,
     cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: AC, ctx: OC, au: AU) {
 
-  var externalCalls = new ExternalCalls()
+  val externalCalls = new ExternalCalls()
 
-  def checkout: Result[OrderResponse] = {
+  def checkout: DbResultT[OrderResponse] = {
     val actions = for {
       customer  ← * <~ Users.mustFindByAccountId(cart.accountId)
       _         ← * <~ customer.mustHaveCredentials
@@ -117,17 +199,18 @@ case class Checkout(
       _         ← * <~ fraudScore(order)
       _         ← * <~ updateCouponCountersForPromotion(customer)
       fullOrder ← * <~ OrderResponse.fromOrder(order, grouped = true)
-      _         ← * <~ LogActivity.orderCheckoutCompleted(fullOrder)
+      _         ← * <~ LogActivity().orderCheckoutCompleted(fullOrder)
     } yield fullOrder
 
-    actions.runTxn().map {
-      case failures @ Xor.Left(_) ⇒
-        if (externalCalls.middleWarehouseSuccess) cancelHoldInMiddleWarehouse
-        failures
-
-      case result @ Xor.Right(_) ⇒
-        result
-    }
+    actions.transformF(_.recoverWith {
+      case failures if externalCalls.middleWarehouseSuccess ⇒
+        DbResultT
+          .fromResult(cancelHoldInMiddleWarehouse.mapEither {
+            case Left(cancelationFailures) ⇒ Either.left(failures |+| cancelationFailures)
+            case _                         ⇒ Either.left(failures)
+          })
+          .runEmpty
+    })
   }
 
   private case class InventoryTrackedSku(isInventoryTracked: Boolean, code: String, qty: Int)
@@ -136,21 +219,19 @@ case class Checkout(
     for {
       liSkus               ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
       inventoryTrackedSkus ← * <~ filterInventoryTrackingSkus(liSkus)
-      skusToHold ← * <~ inventoryTrackedSkus.map { s ⇒
-                    SkuInventoryHold(s.code, s.qty)
-                  }.toSeq
-      _ ← * <~ doOrMeh(skusToHold.size > 0,
-                       DbResultT(
-                           DBIO.from(apis.middlwarehouse.hold(
-                                   OrderInventoryHold(cart.referenceNumber, skusToHold)))))
-      mutating = externalCalls.middleWarehouseSuccess = skusToHold.size > 0
+      skusToHold           ← * <~ inventoryTrackedSkus.map(sku ⇒ SkuInventoryHold(sku.code, sku.qty))
+      _ ← * <~ doOrMeh(
+             skusToHold.nonEmpty,
+             DbResultT.fromResult(
+                 apis.middlewarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold))))
+      mutating = externalCalls.middleWarehouseSuccess = skusToHold.nonEmpty
     } yield {}
 
   private def filterInventoryTrackingSkus(skus: Map[String, Int]) =
     for {
       skuInventoryData ← * <~ skus.map {
                           case (skuCode, qty) ⇒ isInventoryTracked(skuCode, qty)
-                        }
+                        }.toList
       // TODO: Add this back, but for gift cards we will track inventory (in the super short term).
       // inventoryTrackedSkus ← * <~ skuInventoryData.filter(_.isInventoryTracked)
     } yield skuInventoryData
@@ -167,7 +248,7 @@ case class Checkout(
     } yield InventoryTrackedSku(trackInventory, skuCode, qty)
 
   private def cancelHoldInMiddleWarehouse: Result[Unit] =
-    apis.middlwarehouse.cancelHold(cart.referenceNumber)
+    apis.middlewarehouse.cancelHold(cart.referenceNumber)
 
   private def activePromos: DbResultT[Unit] =
     for {
@@ -231,9 +312,10 @@ case class Checkout(
       scIds   = scPayments.map { case (_, sc) ⇒ sc.id }.distinct
       gcCodes = gcPayments.map { case (_, gc) ⇒ gc.code }.distinct
 
-      _ ← * <~ doOrMeh(scTotal > 0, LogActivity.scFundsAuthorized(customer, cart, scIds, scTotal))
+      _ ← * <~ doOrMeh(scTotal > 0,
+                       LogActivity().scFundsAuthorized(customer, cart, scIds, scTotal))
       _ ← * <~ doOrMeh(gcTotal > 0,
-                       LogActivity.gcFundsAuthorized(customer, cart, gcCodes, gcTotal))
+                       LogActivity().gcFundsAuthorized(customer, cart, gcCodes, gcTotal))
 
       // Authorize funds on credit card
       ccs ← * <~ authCreditCard(cart.grandTotal, gcTotal + scTotal)
@@ -257,7 +339,7 @@ case class Checkout(
                                                             authAmount,
                                                             cart.currency)
             ourCharge = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
-            _       ← * <~ LogActivity.creditCardAuth(cart, ourCharge)
+            _       ← * <~ LogActivity().creditCardAuth(cart, ourCharge)
             created ← * <~ CreditCardCharges.create(ourCharge)
           } yield created.some
 

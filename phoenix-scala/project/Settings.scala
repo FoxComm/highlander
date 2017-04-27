@@ -9,6 +9,7 @@ object Settings {
     version := "1.0",
     scalaVersion := Versions.scala,
     updateOptions := updateOptions.value.withCachedResolution(true),
+    excludeDependencies += "org.slf4j.slf4j-log4j12",
     scalacOptions ++= List(
       "-encoding",
       "UTF-8",
@@ -19,6 +20,7 @@ object Settings {
       "-Xfatal-warnings",
       "-language:higherKinds",
       "-language:existentials",
+      "-Ypartial-unification",
       "-Ywarn-numeric-widen",
       "-Ywarn-nullary-override",
       "-Ywarn-nullary-unit",

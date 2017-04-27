@@ -6,7 +6,7 @@ import types from './types';
 import ops from './operators';
 
 //components
-import widgets from '../../components/customers-groups/dynamic/widgets';
+import widgets from '../../components/customers-groups/editor/widgets';
 
 
 const criterions = [
@@ -21,7 +21,7 @@ const criterions = [
     label: 'Name',
   },
   {
-    type: types.string,
+    type: types.stringNotAnalyzed,
     widget: {
       default: widgets.plain('text'),
       [ops.oneOf]: widgets.oneOf(widgets.plain('text')),
@@ -38,6 +38,15 @@ const criterions = [
     },
     field: 'revenue',
     label: 'Total Sales',
+  },
+  {
+    type: types.number,
+    widget: {
+      default: widgets.plain('number'),
+      [ops.between]: widgets.range(widgets.plain('number')),
+    },
+    field: 'orderCount',
+    label: 'Total Orders',
   },
   {
     type: types.enum,
@@ -181,6 +190,40 @@ const criterions = [
     },
     field: 'joinedAt',
     label: 'Date Joined',
+  },
+  {
+    type: types.enum,
+    operators: [
+      ops.equal,
+      ops.notEqual,
+    ],
+    widget: {
+      default: widgets.dropdown,
+      config: {
+        choices: [
+          [false, 'Registered User'],
+          [true, 'Guest'],
+        ],
+      },
+    },
+    field: 'isGuest',
+    label: 'User Status',
+  },
+  {
+    type: types.number,
+    operators: [
+      ops.equal,
+      ops.notEqual,
+      ops.oneOf,
+      ops.notOneOf,
+    ],
+    widget: {
+      default: widgets.plain('number'),
+      [ops.oneOf]: widgets.oneOf(widgets.plain('number')),
+      [ops.notOneOf]: widgets.oneOf(widgets.plain('number')),
+    },
+    field: 'groups',
+    label: 'Groups',
   },
 ];
 

@@ -1,4 +1,0 @@
----
-
-- name: Install Elixir
-  apt: name=elixir state=latest force=yes

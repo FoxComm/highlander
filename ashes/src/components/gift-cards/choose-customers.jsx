@@ -28,7 +28,7 @@ class ChooseCustomers extends Component {
     this.props.toggleVisibility(false);
     this.props.onAddCustomers(this.refs.customers.selectedItemsMap());
     this.props.clearInputState();
-  };
+  }
 
   renderCustomer(item: ItemType) {
     // Cast the ItemType to a customer row.

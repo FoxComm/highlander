@@ -1,12 +1,11 @@
 
 // libs
-import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 
 // components
-import { Button } from '../../../common/buttons';
+import { Button } from 'components/core/button';
 import { Time } from '../../../common/datetime';
 import AuthorTitle from './author-title';
 import AuthorIcon from './author-icon';
@@ -55,12 +54,14 @@ export default class Activity extends React.Component {
 
     if (details && this.state.expanded) {
       if (details.newOne || details.previous) {
+        const previousTitle = <div className="fc-activity__details-head">Previous</div>;
+        const previous = details.previous ? <div>{previousTitle}{details.previous}</div> : null;
+        const newTitle = <div className="fc-activity__details-head">New</div>;
+        const newOne = details.newOne ? <div>{newTitle}{details.newOne}</div> : null;
         return (
           <div className="fc-activity__details">
-            <div className="fc-activity__details-head">New</div>
-            {details.newOne}
-            <div className="fc-activity__details-head">Previous</div>
-            {details.previous}
+            {newOne}
+            {previous}
           </div>
         );
       } else {

@@ -6,6 +6,7 @@ import giftCards from './gift-cards';
 import customers from './customers';
 import customerGroups from './customer-groups';
 import carts from './carts';
+import channels from './channels';
 import orders from './orders';
 import rmas from './rmas';
 import notes from './notes';
@@ -16,6 +17,7 @@ import reasons from './reasons';
 import activityNotifications from './activity-notifications';
 import storeCreditTypes from './store-credit-types';
 import activityTrail from './activity-trail';
+import analytics from './analytics';
 import siteMenu from './site-menu';
 import inventory from './inventory';
 import products from './products';
@@ -30,6 +32,7 @@ import objectSchemas from './object-schema';
 import applications from './merchant-applications';
 import originIntegrations from './origin-integrations';
 import taxonomies from './taxonomies';
+import taxons from './taxons';
 
 const rootReducer = combineReducers({
   routing: routerReducer,
@@ -37,6 +40,7 @@ const rootReducer = combineReducers({
   giftCards,
   customers,
   carts,
+  channels,
   orders,
   rmas,
   notes,
@@ -50,6 +54,7 @@ const rootReducer = combineReducers({
   customerGroups,
   activityNotifications,
   activityTrail,
+  analytics,
   siteMenu,
   inventory,
   products,
@@ -62,6 +67,7 @@ const rootReducer = combineReducers({
   applications,
   originIntegrations,
   taxonomies,
+  taxons,
 });
 
 export default rootReducer;

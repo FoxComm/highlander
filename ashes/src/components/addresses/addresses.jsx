@@ -23,19 +23,20 @@ const Addresses = props => {
         confirm='Yes, Delete'
         onCancel={() => props.stopDeletingAddress(props.customerId) }
         confirmAction={() => {
-            props.stopDeletingAddress();
-            props.deleteAddress(props.customerId, props.deletingId)
-              .then(() => {
-                props.onDeleteAddress && props.onDeleteAddress(props.deletingId);
-              });
-          }} />
+          props.stopDeletingAddress();
+          props.deleteAddress(props.customerId, props.deletingId)
+            .then(() => {
+              props.onDeleteAddress && props.onDeleteAddress(props.deletingId);
+            });
+        }}
+      />
     </div>
   );
 };
 
 const renderContent = (props) => {
   return (
-    <ul id="customer-addresses-list" className="fc-addresses-list fc-float-list">
+    <ul id="fct-customer-addresses-list" className="fc-addresses-list fc-float-list">
       {props.processContent(
         props.addresses.map((address, idx) => props.createAddressBox(address, idx, props))
       )}

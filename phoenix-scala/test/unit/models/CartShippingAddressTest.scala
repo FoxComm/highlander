@@ -5,7 +5,7 @@ import failures.{Failure, GeneralFailure}
 import models.location.Address
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import testutils.TestBase
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class CartShippingAddressTest extends TestBase {
 

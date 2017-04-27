@@ -29,7 +29,7 @@ export function createGiftCard() {
       currency: 'USD'
     };
 
-    return Api.post('/gift-cards', postData)
+    return Api.post('/gift-cards/bulk', postData)
       .then(
         response => {
           dispatch(actions.fetch());

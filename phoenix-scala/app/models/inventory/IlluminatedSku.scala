@@ -2,7 +2,9 @@ package models.inventory
 
 import java.time.Instant
 
+import failures.{Failure, NotFoundFailure404}
 import models.objects._
+import models.traits.IlluminatedModel
 import utils.IlluminateAlgorithm
 import utils.aliases._
 
@@ -15,6 +17,10 @@ case class IlluminatedSku(id: Int,
                           archivedAt: Option[Instant],
                           context: IlluminatedContext,
                           attributes: Json)
+    extends IlluminatedModel[IlluminatedSku] {
+
+  override protected def inactiveError: Failure = NotFoundFailure404(Sku, code)
+}
 
 object IlluminatedSku {
 

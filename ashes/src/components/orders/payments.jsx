@@ -7,17 +7,18 @@ import PanelHeader from 'components/panel-header/panel-header';
 import PaymentsPanel from 'components/payments-panel/payments-panel';
 
 import type { Order, PaymentMethod } from 'paragons/order';
+import OrderParagon from 'paragons/order';
 
 type Props = {
   details: {
-    order: Order,
+    order: OrderParagon,
   },
 };
 
 export default class Payments extends React.Component {
   props: Props;
 
-  render(): Element {
+  render() {
     const { order } = this.props.details;
     const { paymentMethods } = order;
 

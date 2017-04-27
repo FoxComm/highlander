@@ -12,7 +12,7 @@ import utils.db._
 import utils.{JsonFormatters, Validation}
 
 /**
-  * A ObjectShadow is what you get when a context illuminates a Object.
+  * An ObjectShadow is what you get when a context illuminates an Object.
   * The ObjectShadow, when applied to a Object is what is displayed on the
   * storefront.
   */

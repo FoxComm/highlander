@@ -10,9 +10,6 @@ import { createEmptyProduct, configureProduct, duplicateProduct } from 'paragons
 import { createAsyncActions } from '@foxcomm/wings';
 import { dissoc, assoc, update, merge } from 'sprout-data';
 
-// types
-import type { Product } from 'paragons/product';
-
 export type ProductDetailsState = {
   product: ?Product,
   skuVariantMap: Object,
@@ -110,6 +107,10 @@ function cleanProductPayload(product) {
 const _updateProduct = createAsyncActions(
   'updateProduct',
   (product: Product, context: string = defaultContext) => {
+    if (!product.id) {
+      throw new Error('product has no id');
+    }
+
     return Api.patch(`/products/${context}/${product.id}`, cleanProductPayload(product));
   }
 );

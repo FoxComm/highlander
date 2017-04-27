@@ -8,7 +8,7 @@ import { transitionTo } from 'browserHistory';
 import { ListPageContainer } from '../list-page';
 
 type Props = {
-  children: Element,
+  children: Element<*>,
 };
 
 const UserListPage = (props: Props) => {

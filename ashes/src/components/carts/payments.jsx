@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { trackEvent } from 'lib/analytics';
 import _ from 'lodash';
 
-import { AddButton } from 'components/common/buttons';
+import { AddButton } from 'components/core/button';
 import EditableContentBox from 'components/content-box/editable-content-box';
 import PanelHeader from 'components/panel-header/panel-header';
 import PaymentsPanel from 'components/payments-panel/payments-panel';
@@ -72,12 +72,12 @@ export class Payments extends Component {
         trackEvent('Orders', 'add_new_payment_method');
         this.setState({ isAdding: true });
       };
-      return <AddButton id="payment-methods-add-method-btn" onClick={handleClick} />;
+      return <AddButton id="fct-add-btn__payment-method" onClick={handleClick} />;
     }
   }
 
 
-  render(): Element {
+  render() {
     const { cart, id, status } = this.props;
     const { paymentMethods } = cart;
 
@@ -107,8 +107,8 @@ export class Payments extends Component {
         indentContent={false}
         isEditing={this.state.isEditing}
         editAction={this.startEdit}
-        editButtonId="payment-method-edit-btn"
-        doneButtonId="payment-method-done-btn"
+        editButtonId="fct-edit-btn__payment-method"
+        doneButtonId="fct-done-btn__payment-method"
         editingActions={this.editingActions}
         doneAction={this.completeEdit}
         editContent={content}

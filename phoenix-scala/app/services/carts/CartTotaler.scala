@@ -1,13 +1,11 @@
 package services.carts
 
-import scala.util.Try
-
 import models.cord.lineitems._
 import models.cord._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import utils.FoxConfig._
+import utils.FoxConfig.config
 
 // TODO: Use utils.Money
 object CartTotaler {
@@ -20,7 +18,7 @@ object CartTotaler {
              taxes = taxes,
              shipping = shipping,
              adjustments = adjustments,
-             total = (adjustments - (subTotal + taxes + shipping)).abs)
+             total = math.max(0, subTotal + taxes + shipping - adjustments))
     }
 
     def empty: Totals = Totals(0, 0, 0, 0, 0)
@@ -52,20 +50,18 @@ object CartTotaler {
 
   def adjustmentsTotal(cart: Cart)(implicit ec: EC): DbResultT[Int] =
     for {
-      lineItemAdjustments ← * <~ OrderLineItemAdjustments.filter(_.cordRef === cart.refNum).result
+      lineItemAdjustments ← * <~ CartLineItemAdjustments.filter(_.cordRef === cart.refNum).result
       sum = lineItemAdjustments.foldLeft(0)(_ + _.subtract)
     } yield sum
 
-  def taxesTotal(cart: Cart, subTotal: Int, shipping: Int, adjustments: Int)(
+  def taxesTotal(cordRef: String, subTotal: Int, shipping: Int, adjustments: Int)(
       implicit ec: EC): DbResultT[Int] =
     for {
-      maybeAddress ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).one
+      maybeAddress ← * <~ OrderShippingAddresses.findByOrderRef(cordRef).one
       optionalCustomRate = for {
-        address        ← maybeAddress
-        cfgTaxRegionId ← config.getOptString("tax_rules.region_id")
-        cfgTaxRate     ← config.getOptString("tax_rules.rate")
-        taxRegionId    ← Try(cfgTaxRegionId.toInt).toOption
-        taxRate        ← Try(cfgTaxRate.toDouble).toOption
+        address     ← maybeAddress
+        taxRegionId ← config.taxRules.regionId
+        taxRate     ← config.taxRules.rate
       } yield if (address.regionId == taxRegionId) taxRate / 100 else defaultTaxRate
       taxRate = optionalCustomRate.getOrElse(defaultTaxRate)
     } yield ((subTotal - adjustments + shipping) * taxRate).toInt
@@ -75,7 +71,10 @@ object CartTotaler {
       sub  ← * <~ subTotal(cart)
       ship ← * <~ shippingTotal(cart)
       adj  ← * <~ adjustmentsTotal(cart)
-      tax  ← * <~ taxesTotal(cart = cart, subTotal = sub, shipping = ship, adjustments = adj)
+      tax ← * <~ taxesTotal(cordRef = cart.refNum,
+                            subTotal = sub,
+                            shipping = ship,
+                            adjustments = adj)
     } yield Totals.build(subTotal = sub, shipping = ship, adjustments = adj, taxes = tax)
 
   def saveTotals(cart: Cart)(implicit ec: EC): DbResultT[Cart] =

@@ -16,12 +16,12 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class StoreCreditIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with PhoenixAdminApi
     with BakedFixtures {
 
@@ -36,7 +36,7 @@ class StoreCreditIntegrationTest
           // Check that proper link is created
           val manual = StoreCreditManuals.findOneById(sc.originId).gimme.value
           manual.reasonId must === (reason.id)
-          manual.adminId must === (storeAdmin.accountId)
+          manual.adminId must === (defaultAdmin.id)
         }
       }
 

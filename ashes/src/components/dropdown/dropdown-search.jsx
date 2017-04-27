@@ -2,7 +2,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { PropTypes, Element, Component } from 'react';
+import React, { PropTypes, Component } from 'react';
 import { autobind } from 'core-decorators';
 
 import GenericDropdown from './generic-dropdown';
@@ -55,7 +55,7 @@ export default class DropdownSearch extends Component {
   }
 
   @autobind
-  searchBar(): Element {
+  searchBar() {
     return (
       <div styleName="searchbar" onClick={doNothing} >
         <div styleName="searchbar-wrapper" >

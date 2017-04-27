@@ -4,17 +4,15 @@ import models.cord._
 import payloads.NotePayloads._
 import responses.AdminNotes
 import responses.AdminNotes.Root
-import services.notes.CordNoteManager
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.db._
 import utils.time._
 
 class OrderNotesIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
@@ -22,7 +20,8 @@ class OrderNotesIntegrationTest
     "can be created by an admin for an order" in new Order_Baked {
       val note = notesApi.order(order.refNum).create(CreateNote("foo")).as[Root]
       note.body must === ("foo")
-      note.author must === (AdminNotes.buildAuthor(authedUser))
+      note.author.name.value must === (defaultAdmin.name.value)
+      note.author.email.value must === (defaultAdmin.email.value)
     }
 
     "returns a validation error if failed to create" in new Order_Baked {
@@ -42,24 +41,27 @@ class OrderNotesIntegrationTest
 
   "GET /v1/notes/order/:refNum" - {
     "can be listed" in new Order_Baked {
-      val createNotes = List("abc", "123", "xyz").map { body ⇒
-        CordNoteManager.create(order.refNum, storeAdmin, CreateNote(body))
-      }
-      DbResultT.sequence(createNotes).gimme
+      val bodies = List("abc", "123", "xyz")
 
-      val notes = notesApi.order(order.refNum).get().as[Seq[Root]]
-      notes must have size 3
-      notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
+      bodies.foreach { body ⇒
+        notesApi.order(order.refNum).create(CreateNote(body)).mustBeOk()
+      }
+
+      notesApi
+        .order(order.refNum)
+        .get()
+        .as[Seq[Root]]
+        .map(_.body) must contain theSameElementsAs bodies
     }
   }
 
   "PATCH /v1/notes/order/:refNum/:noteId" - {
     "can update the body text" in new Order_Baked {
-      val rootNote = CordNoteManager.create(order.refNum, storeAdmin, CreateNote("foo")).gimme
+      val note = notesApi.order(order.refNum).create(CreateNote("foo")).as[AdminNotes.Root]
 
       notesApi
         .order(order.refNum)
-        .note(rootNote.id)
+        .note(note.id)
         .update(UpdateNote("donkey"))
         .as[Root]
         .body must === ("donkey")
@@ -68,12 +70,12 @@ class OrderNotesIntegrationTest
 
   "DELETE /v1/notes/order/:refNum/:noteId" - {
     "can soft delete note" in new Order_Baked {
-      val note = CordNoteManager.create(order.refNum, storeAdmin, CreateNote("foo")).gimme
+      val note = notesApi.order(order.refNum).create(CreateNote("foo")).as[AdminNotes.Root]
 
       notesApi.order(order.refNum).note(note.id).delete().mustBeEmpty()
 
-      val updatedNote = Notes.findOneById(note.id).run().futureValue.value
-      updatedNote.deletedBy.value must === (1)
+      val updatedNote = Notes.findOneById(note.id).gimme.value
+      updatedNote.deletedBy.value must === (defaultAdmin.id)
       updatedNote.deletedAt.value.isBeforeNow mustBe true
 
       val allNotes = notesApi.order(order.refNum).get().as[Seq[Root]]

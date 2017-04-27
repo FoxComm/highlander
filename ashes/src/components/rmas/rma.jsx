@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { IndexLink, Link } from '../link';
 import Notes from '../notes/notes';
 import { PageTitle } from '../section-title';
-import { PrimaryButton } from '../common/buttons';
+import { PrimaryButton } from 'components/core/button';
 import LocalNav from '../local-nav/local-nav';
 import { PanelList, PanelListItem } from '../panel/panel-list';
 import ContentBox from '../content-box/content-box';
@@ -78,7 +78,6 @@ export default class Rma extends React.Component {
 
   render() {
     const rma = this.rma;
-    const params = {rma: rma && rma.referenceNumber || ''};
 
     if (!rma.id) {
       return null;

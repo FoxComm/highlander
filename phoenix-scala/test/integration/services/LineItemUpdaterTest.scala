@@ -8,15 +8,18 @@ import testutils._
 import testutils.fixtures.BakedFixtures
 import utils.MockedApis
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class LineItemUpdaterTest
     extends IntegrationTestBase
     with TestObjectContext
     with TestActivityContext.AdminAC
-    with MockedApis
     with BakedFixtures {
+
+  // TODO remove this @anna
+  implicit val apis: Apis = apisOverride.value
 
   def createProducts(num: Int)(
       implicit au: AU): DbResultT[(ObjectContext, Seq[SimpleProductData])] =

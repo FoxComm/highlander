@@ -1,0 +1,4 @@
+vpn_server_port: 1194
+visc_base_dir: /tmp
+visc_filename: connection.zip
+visc_bundle_dir: connection.visc

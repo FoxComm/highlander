@@ -1,75 +1,51 @@
 /* @flow */
-import React, { Component, Element } from 'react';
 
-import { anyPermitted, isPermitted } from 'lib/claims';
+import React from 'react';
+
+import { anyPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
 
-import NavigationItem from 'components/sidebar/navigation-item';
-import { IndexLink, Link } from 'components/link';
+import NavigationItem from '../navigation-item';
 
-import type { Claims } from 'lib/claims';
-
-type Props = {
-  routes: Array<Object>,
-  collapsed: boolean,
-  status: string,
-  toggleMenuItem: Function,
-  claims: Claims,
-  id?: string,
-};
+import styles from './entries.css';
 
 const giftCardClaims = readAction(frn.mkt.giftCard);
 const promotionClaims = readAction(frn.mkt.promotion);
 const couponClaims = readAction(frn.mkt.coupon);
 
+const MarketingEntry = ({ claims, routes }: TMenuEntry) => {
+  const allClaims = { ...giftCardClaims, ...promotionClaims, ...couponClaims };
 
-export default class MarketingEntry extends Component {
-  props: Props;
+  if (!anyPermitted(allClaims, claims)) {
+    return <div></div>;
+  }
 
-  render(): Element {
-    const { claims, collapsed, routes, status, toggleMenuItem } = this.props;
-    const allClaims = { ...giftCardClaims, ...promotionClaims, ...couponClaims };
-
-    if (!anyPermitted(allClaims, claims)) {
-      return <div></div>;
-    }
-
-    return (
+  return (
+    <div styleName="fc-entries-wrapper">
+      <h3>MARKETING</h3>
       <li>
         <NavigationItem
           to="gift-cards"
-          icon="icon-discounts"
-          title="Marketing"
-          isIndex={true}
-          isExpandable={true}
+          icon="gift-cards"
+          title="Gift Cards"
           routes={routes}
-          collapsed={collapsed}
-          status={status}
-          toggleMenuItem={toggleMenuItem}>
-          <IndexLink
-            id="side-bar-navigation-gift-cards"
-            to="gift-cards"
-            className="fc-navigation-item__sublink"
-            actualClaims={claims}
-            expectedClaims={giftCardClaims}>
-            Gift Cards
-          </IndexLink>
-          <IndexLink
-            to="promotions"
-            className="fc-navigation-item__sublink"
-            actualClaims={claims}
-            expectedClaims={promotionClaims}>
-            Promotions
-          </IndexLink>
-          <IndexLink
-            to="coupons"
-            className="fc-navigation-item__sublink"
-            actualClaims={claims}
-            expectedClaims={couponClaims}>
-            Coupons
-          </IndexLink>
-        </NavigationItem>
+          actualClaims={claims}
+          expectedClaims={giftCardClaims}
+        />
       </li>
-    );
-  }
-}
+      <li>
+        <NavigationItem
+          to="promotions"
+          icon="promotions"
+          title="Promotions"
+          routes={routes}
+          actualClaims={claims}
+          expectedClaims={promotionClaims}
+        />
+      </li>
+    </div>
+
+  );
+};
+
+export default MarketingEntry;

@@ -30,9 +30,9 @@ class SwatchInput extends Component {
   @autobind
   handleChange({ target }: EventTarget) {
     this.props.onChange(target.value);
-  };
+  }
 
-  render(): Element {
+  render() {
     const hexCode = this.props.value;
     const colorStyle = {
       background: `#${hexCode}`,
@@ -48,7 +48,7 @@ class SwatchInput extends Component {
           onChange={this.handleChange}
           value={hexCode}
         />
-        <span styleName="swatch" style={colorStyle} />
+        <span styleName="swatch" style={colorStyle} key={hexCode}/>
       </div>
     );
   }

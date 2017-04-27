@@ -1,11 +1,10 @@
 package models.payment.creditcard
 
-import java.time.Instant
-
-import cats.data.{ValidatedNel, Xor}
+import cats.data.ValidatedNel
 import cats.implicits._
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures._
+import java.time.Instant
 import models.account._
 import models.location._
 import models.payment.PaymentMethod
@@ -64,12 +63,12 @@ case class CreditCard(id: Int = 0,
     }
   }
 
-  def mustBeInWallet: Failures Xor CreditCard =
-    if (inWallet) Xor.right(this) else Xor.left(CannotUseInactiveCreditCard(this).single)
+  def mustBeInWallet: Either[Failures, CreditCard] =
+    if (inWallet) Either.right(this) else Either.left(CannotUseInactiveCreditCard(this).single)
 
-  def mustBelongToAccount(ownerId: Int): Failures Xor CreditCard =
-    if (accountId == ownerId) Xor.right(this)
-    else Xor.left(NotFoundFailure400(CreditCard, id).single)
+  def mustBelongToAccount(ownerId: Int): Either[Failures, CreditCard] =
+    if (accountId == ownerId) Either.right(this)
+    else Either.left(NotFoundFailure400(CreditCard, id).single)
 
   def copyFromAddress(address: Address): CreditCard =
     this.copy(

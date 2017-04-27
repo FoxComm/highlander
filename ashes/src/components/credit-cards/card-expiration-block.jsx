@@ -24,7 +24,7 @@ export default class ExpirationBlock extends Component {
     return nextProps.month !== this.props.month || nextProps.year !== this.props.year;
   }
 
-  render(): Element {
+  render() {
     const { month, year, onMonthChange, onYearChange } = this.props;
 
     return (

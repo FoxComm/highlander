@@ -13,7 +13,7 @@ import PaymentMethodDetails from 'components/payment/payment-method';
 import TableCell from 'components/table/cell';
 import TableRow from 'components/table/row';
 import { DateTime } from 'components/common/datetime';
-import { EditButton, DeleteButton } from 'components/common/buttons';
+import { EditButton, DeleteButton } from 'components/core/button';
 
 import styles from './payment-row.css';
 import {deleteCreditCardPayment, deleteGiftCardPayment, deleteStoreCreditPayment} from 'modules/carts/details';
@@ -25,9 +25,9 @@ type Props = {
   editMode: boolean,
   orderReferenceNumber: string,
   paymentMethod: PaymentMethod,
-  deleteCreditCardPayment: (refNum: string) => Promise,
-  deleteGiftCardPayment: (refNum: string, code: string) => Promise,
-  deleteStoreCreditPayment: (refNum: string) => Promise,
+  deleteCreditCardPayment: (refNum: string) => Promise<*>,
+  deleteGiftCardPayment: (refNum: string, code: string) => Promise<*>,
+  deleteStoreCreditPayment: (refNum: string) => Promise<*>,
 };
 
 type State = {
@@ -43,25 +43,28 @@ class PaymentRow extends Component {
   };
 
   @autobind
-  deletePayment(): ?Promise {
+  deletePayment(): ?Promise<*> {
     const { orderReferenceNumber, paymentMethod } = this.props;
 
     switch (paymentMethod.type) {
       case 'creditCard':
         return this.props.deleteCreditCardPayment(orderReferenceNumber);
       case 'giftCard':
-        return this.props.deleteGiftCardPayment(orderReferenceNumber, paymentMethod.code);
+        if (paymentMethod.code) {
+          return this.props.deleteGiftCardPayment(orderReferenceNumber, paymentMethod.code);
+        }
+        break;
       case 'storeCredit':
         return this.props.deleteStoreCreditPayment(orderReferenceNumber);
     }
   }
 
-  get amount(): ?Element {
+  get amount(): ?Element<*> {
     const amount = _.get(this.props, 'paymentMethod.amount');
     return _.isNumber(amount) ? <Currency value={amount} /> : null;
   }
 
-  get details(): ?Element {
+  get details(): ?Element<*> {
     if (this.state.showDetails) {
       const { customerId, orderReferenceNumber, paymentMethod } = this.props;
       const detailsProps = {
@@ -99,7 +102,7 @@ class PaymentRow extends Component {
     }
   }
 
-  get editActions(): ?Element {
+  get editActions(): ?Element<*> {
     if (this.props.editMode) {
       const editButton = !this.state.isEditing
         ? <EditButton onClick={this.startEdit} />
@@ -114,7 +117,7 @@ class PaymentRow extends Component {
     }
   }
 
-  get summary(): Element {
+  get summary(): Element<*> {
     const { paymentMethod } = this.props;
     const dir = this.state.showDetails ? 'up' : 'down';
     const iconClass = `icon-chevron-${dir}`;
@@ -160,7 +163,7 @@ class PaymentRow extends Component {
     });
   }
 
-  render(): Element {
+  render() {
     return (
       <tbody>
         {this.summary}

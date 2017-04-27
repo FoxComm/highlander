@@ -1,0 +1,40 @@
+---
+
+- name: Add Confluent Key
+  apt_key: url={{confluent_key_url}}
+
+- name: Add Confluent Repository
+  apt_repository: repo='deb [arch=amd64] {{confluent_url}} stable main' state=present update_cache=yes
+
+- name: Install Packages
+  apt: name=confluent-platform-2.11.7 state=latest force=yes
+
+- name: Create Kafka dir
+  file: path=/var/lib/kafka state=directory
+
+- name: Copy Kafka Config File
+  template: src=kafka.properties dest=/etc/kafka/server.properties
+
+- name: Copy Schema Registry Config
+  template: src=schema-registry.properties dest=/etc/schema-registry/schema-registry.properties
+
+- name: Copy Service Files
+  copy: src={{item}} dest={{dest_services}}
+  with_items:
+    - kafka.service
+    - schema-registry.service
+
+- name: Copy Consul Service Files
+  template: src={{item}} dest=/etc/consul.d
+  with_items:
+    - kafka.json
+    - schema-registry.json
+
+- name: Reload Systemd for Confluent Platform
+  command: systemctl daemon-reload
+
+- name: Start Services
+  service: name={{item}} state=restarted enabled=true
+  with_items:
+    - kafka
+    - schema-registry

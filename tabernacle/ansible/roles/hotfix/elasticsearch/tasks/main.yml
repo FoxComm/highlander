@@ -1,0 +1,10 @@
+---
+
+- name: Remove Logrotate Config for Elasticsearch 2.x
+  file: path="{{logrotate_dir}}/elasticsearch-2" state=absent
+
+- name: Copy Elasticsearch Logging Config
+  template: src=logging.yml dest={{es_path}}/config/logging.yml force=yes
+
+- name: Restart Elasticsearch
+  service: name=elasticsearch state=restarted enabled=yes

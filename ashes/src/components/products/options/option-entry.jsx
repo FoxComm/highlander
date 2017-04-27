@@ -16,15 +16,12 @@ import ValueEditDialog from './value-edit-dialog';
 // styles
 import styles from './option-list.css';
 
-// types
-import type { Option, OptionValue } from 'paragons/product';
-
 type Props = {
-  id: string,
+  id: number,
   option: ?Option,
   editOption: Function,
   deleteOption: Function,
-  confirmAction: (id: string|number, option: Option, deletingValue: ?OptionValue) => void,
+  confirmAction: (id: number, option: Option, deletingValue: ?OptionValue) => void,
 };
 
 type Value = {
@@ -48,7 +45,7 @@ class OptionEntry extends Component {
     return _.get(this.props, 'option.values', []);
   }
 
-  get content(): Element {
+  get content(): Element<*> {
     const optionName = _.get(this.props, 'option.attributes.name.v', '');
     const optionId = _.kebabCase(optionName);
 
@@ -73,7 +70,7 @@ class OptionEntry extends Component {
     );
   }
 
-  get emptyContent(): Element {
+  get emptyContent(): Element<*> {
     return (
       <div className="fc-content-box__empty-text">
         This option does not have values applied.
@@ -81,7 +78,7 @@ class OptionEntry extends Component {
     );
   }
 
-  get titleBarActions(): Element {
+  get titleBarActions(): Element<*> {
     return (
       <div className="fc-option-entry__actions">
         <a
@@ -91,7 +88,7 @@ class OptionEntry extends Component {
           <i className="icon-add"/>
         </a>
         <a
-          className="option-edit-btn"
+          className="fct-edit-btn__option"
           onClick={() => this.props.editOption(this.props.id)}
           styleName="action-icon">
           <i className="icon-edit"/>
@@ -111,7 +108,7 @@ class OptionEntry extends Component {
     const editValue = { id, value };
 
     this.setState({editValue});
-  };
+  }
 
   @autobind
   deleteValue(id: number): void {
@@ -152,7 +149,7 @@ class OptionEntry extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const values = this.values;
     const name = _.get(this.props, 'option.attributes.name.v');
     const content = _.isEmpty(values) ? this.emptyContent : this.content;
@@ -160,7 +157,7 @@ class OptionEntry extends Component {
 
     return (
       <ContentBox
-        id={`product-option-${optionId}-box`}
+        id={`fct-option-box__${optionId}`}
         title={name}
         actionBlock={this.titleBarActions}
         indentContent={false}

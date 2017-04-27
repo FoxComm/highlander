@@ -8,7 +8,7 @@ import { ListPageContainer, makeTotalCounter } from '../list-page';
 import { actions } from 'modules/carts/list';
 
 type Props = {
-  children: Element,
+  children: Element<*>,
 }
 
 const CartListPage = (props: Props) => {

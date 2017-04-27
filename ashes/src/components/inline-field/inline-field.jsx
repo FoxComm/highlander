@@ -1,8 +1,6 @@
-/**
- * @flow
- */
+/* @flow */
 
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 
 import InlineForm from './inline-form';
 
@@ -34,12 +32,12 @@ export default class InlineField extends Component<void, Props, State> {
   }
 
   handleSave(contents: { [key:string]: any }) {
-    console.log(contents);
     this.setState({ isEditing: false });
   }
 
   render() {
-    let valueElement: ?Element = null;
+    let valueElement = null;
+
     if (this.state.isEditing) {
       valueElement = (
         <InlineForm

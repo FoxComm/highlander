@@ -2,7 +2,6 @@
 
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
-import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import { isElementInViewport } from 'lib/dom-utils';
 import { autobind } from 'core-decorators';
@@ -12,7 +11,7 @@ import TableRow from './row';
 import TableCell from './cell';
 import WaitAnimation from '../common/wait-animation';
 
-export function tableMessage(message: Element|string, inline: boolean = false): Element {
+export function tableMessage(message: Element<*>|string, inline: boolean = false): Element<*> {
   const cls = classNames('fc-table-message', { '_inline': inline });
 
   return (
@@ -26,10 +25,6 @@ export function tableMessage(message: Element|string, inline: boolean = false): 
 
 type RowType = Object;
 type Rows = Array<RowType>;
-type Column = {
-  type: string;
-  field?: string;
-}
 
 export type Props = {
   data: {
@@ -38,27 +33,27 @@ export type Props = {
     from?: number,
     size?: number,
     total?: number,
-  };
-  renderRow?: (row: RowType, index: number, isNew: ?boolean) => ?Element;
-  setState?: Function;
-  predicate: (row: RowType) => string|number;
-  processRows: (rows: Array<Element>) => Element;
-  detectNewRows?: boolean;
-  isLoading?: boolean;
-  failed?: boolean;
-  emptyMessage?: string;
-  errorMessage?: string;
-  className?: string;
-  showLoadingOnMount?: boolean;
-  wrapToTbody: boolean;
-  columns: Array<Column>;
-  renderHeadIfEmpty: boolean;
-  tbodyId?: string;
-}
+  },
+  renderRow?: (row: RowType, index: number, isNew: ?boolean) => ?Element<*>,
+  setState?: Function,
+  predicate: (row: RowType) => string|number,
+  processRows: (rows: Array<Element<*>>) => Element<*>,
+  detectNewRows?: boolean,
+  isLoading?: boolean,
+  failed: boolean,
+  emptyMessage: string,
+  errorMessage: string,
+  className?: string,
+  showLoadingOnMount: boolean,
+  wrapToTbody: boolean,
+  columns: Array<Column>,
+  renderHeadIfEmpty: boolean,
+  tbodyId?: string,
+};
 
 type State = {
-  newIds: Array<string|number>;
-}
+  newIds: Array<string|number>,
+};
 
 const ROWS_COUNT_TO_SHOW_LOADING_OVERLAY = 4;
 
@@ -90,12 +85,14 @@ export default class Table extends Component {
     newIds: [],
   };
 
+  _tableHead: HTMLElement;
+
   get rows(): Rows {
     return this.props.data.rows;
   }
 
   @autobind
-  defaultRenderRow(row: RowType, index: number, isNew: ?boolean): Element {
+  defaultRenderRow(row: RowType, index: number, isNew: ?boolean): Element<*> {
     const rowKey = this.props.predicate && this.props.predicate(row) || index;
     return (
       <TableRow key={`row-${rowKey}`} isNew={isNew}>
@@ -140,7 +137,7 @@ export default class Table extends Component {
     return this.rows.length >= ROWS_COUNT_TO_SHOW_LOADING_OVERLAY;
   }
 
-  get tableRows(): Element {
+  get tableRows(): Element<*> {
     const { props } = this;
 
     const renderRow = props.renderRow || this.defaultRenderRow;
@@ -156,21 +153,25 @@ export default class Table extends Component {
     return props.processRows(rows, props.columns);
   }
 
-  message(isEmpty: boolean): ?Element {
+  message(isEmpty: boolean) {
     const { props } = this;
 
     const showLoading = props.showLoadingOnMount && props.isLoading === null || props.isLoading;
 
     if (showLoading) {
-      return tableMessage(<WaitAnimation />, this.loadingInline);
-    } else if (props.failed && props.errorMessage) {
+      return tableMessage(<WaitAnimation className="fc-table__waiting" />, this.loadingInline);
+    } else if (props.failed) {
       return tableMessage(props.errorMessage);
-    } else if (isEmpty && props.emptyMessage) {
+    } else if (isEmpty) {
       return tableMessage(props.emptyMessage);
     }
   }
 
-  get body(): ?Element {
+  get body() {
+    if (this.props.failed) {
+      return;
+    }
+
     const { tableRows } = this;
     // $FlowFixMe: respect lodash typechecks!
     const dataExists = _.isArray(tableRows) ? tableRows.length > 0 : !!tableRows;
@@ -181,7 +182,7 @@ export default class Table extends Component {
     }
   }
 
-  wrapBody(body: Element): Element {
+  wrapBody(body: Element<*>) {
     const {tbodyId} = this.props;
     const firstRow = React.Children.toArray(body)[0];
     if (firstRow && (firstRow.type === 'tbody' || !this.props.wrapToTbody)) {
@@ -192,17 +193,16 @@ export default class Table extends Component {
   }
 
   scrollToTop() {
-    const tableHead = ReactDOM.findDOMNode(this.refs.tableHead);
-    if (tableHead && !isElementInViewport(tableHead)) {
-      tableHead.scrollIntoView();
+    if (this._tableHead && !isElementInViewport(this._tableHead)) {
+      this._tableHead.scrollIntoView();
     }
   }
 
-  tableHead(isEmpty: boolean): ?Element {
+  tableHead(isEmpty: boolean) {
     if (this.props.renderHeadIfEmpty || !isEmpty) {
       const { data, setState, className, ...rest } = this.props;
       return (
-        <TableHead {...rest} ref="tableHead" sortBy={data.sortBy} setState={setState} />
+        <TableHead {...rest} ref={ref => this._tableHead = ref} sortBy={data.sortBy} setState={setState} />
       );
     }
   }
@@ -221,4 +221,4 @@ export default class Table extends Component {
       </div>
     );
   }
-};
+}

@@ -10,7 +10,7 @@ import payloads.PaymentPayloads.StoreCreditPayment
 import slick.driver.PostgresDriver.api._
 import testutils._
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTestBase {
 

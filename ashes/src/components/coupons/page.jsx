@@ -4,13 +4,22 @@
 import _ from 'lodash';
 import React, { Element } from 'react';
 import { autobind } from 'core-decorators';
+import { transitionTo } from 'browserHistory';
 
 // components
 import { connectPage, ObjectPage } from '../object-page/object-page';
 import SubNav from './sub-nav';
+import SaveCancel from 'components/core/save-cancel';
 
 // actions
 import * as CouponActions from 'modules/coupons/details';
+import { actions } from 'modules/coupons/list';
+
+const refresh = actions.refresh;
+const combinedActions = {
+  ...CouponActions,
+  refresh,
+};
 
 type State = {
   promotionError?: boolean,
@@ -19,11 +28,13 @@ type State = {
 
 type Params = {
   couponId: string,
+  promotionId: Number,
+  modalCancelAction: Function,
 };
 
 type Actions = {
   couponsNew: Function,
-  fetchCoupon: () => Promise,
+  fetchCoupon: () => Promise<*>,
   createCoupon: Function,
   updateCoupon: Function,
   generateCode: Function,
@@ -34,6 +45,7 @@ type Actions = {
   couponsGenerationShowDialog: Function,
   couponsGenerationReset: Function,
   clearSubmitErrors: Function,
+  refresh: Function,
 };
 
 type Props = {
@@ -42,7 +54,7 @@ type Props = {
   actions: Actions,
   dispatch: Function,
   details: Object,
-  children: Element,
+  children: Element<*>,
   isFetching: boolean,
   isSaving: boolean,
   fetchError: any,
@@ -66,7 +78,7 @@ class CouponPage extends ObjectPage {
     return _.get(this.props, 'details.selectedPromotions', []);
   }
 
-  save(): ?Promise {
+  save(): ?Promise<*> {
     let willBeCoupon = super.save();
 
     if (willBeCoupon) {
@@ -78,6 +90,9 @@ class CouponPage extends ObjectPage {
           return this.props.actions.generateCode(newId, singleCode);
         }).then(() => {
           this.props.actions.couponsGenerationReset();
+        }).then(() => {
+          this.props.actions.refresh();
+          transitionTo('promotion-coupons',{promotionId: this.props.params.promotionId});
         });
       }
 
@@ -89,6 +104,40 @@ class CouponPage extends ObjectPage {
     }
 
     return willBeCoupon;
+  }
+
+  @autobind
+  receiveNewObject(nextObject) {
+    nextObject.promotion = Number(this.props.params.promotionId);
+    nextObject.attributes.name = { // TO BE REMOVED WHEN COUPON NAME WILL BE REMOVED FROM COUPONS SCHEMA
+      t: 'string',
+      v: 'Coupon name',
+    };
+    this.setState({
+      object: nextObject
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState) { // CHECK IF NEEDED AFTER KANGAROOS MERGE
+    return;
+  }
+
+  @autobind
+  titleBar() {
+    return;
+  }
+
+  @autobind
+  alterSave() {
+    return (
+      <SaveCancel
+        onSave={this.handleSubmit}
+        cancelDisabled={this.props.isSaving}
+        saveDisabled={this.props.isSaving}
+        onCancel={this.props.params.modalCancelAction}
+        saveText="Generate Coupon Code(s)"
+      />
+    );
   }
 
   @autobind
@@ -124,7 +173,7 @@ class CouponPage extends ObjectPage {
   }
 
   @autobind
-  createCoupon(): ?Promise {
+  createCoupon(): ?Promise<*> {
     if (!this.validateForm()) {
       return null;
     }
@@ -140,12 +189,13 @@ class CouponPage extends ObjectPage {
       promotionError: this.state.promotionError,
       createCoupon: this.createCoupon,
       selectedPromotions: this.selectedPromotions,
+      refresh: this.props.actions.refresh,
     };
   }
 
   subNav() {
-    return <SubNav params={this.props.params} />;
+    return null;
   }
 }
 
-export default connectPage('coupon', CouponActions)(CouponPage);
+export default connectPage('coupon', combinedActions)(CouponPage);

@@ -13,23 +13,23 @@ import React, { Component, Element } from 'react';
 import Image from '../image/image';
 
 export type Action = {
-  name: string;
-  handler: (e: MouseEvent) => void;
-}
+  name: string,
+  handler: (e: MouseEvent) => void,
+};
 
 type Props = {
-  id: number;
-  src: string;
-  actions: Array<Action>;
-  title: string;
-  loading: boolean;
-  secondaryTitle?: string;
-  className?: string;
+  id: number,
+  src: string,
+  actions: Array<Action>,
+  title: string,
+  loading: boolean,
+  secondaryTitle?: string,
+  className?: string,
 };
 
 type State = {
-  actionsVisible: boolean;
-}
+  actionsVisible: boolean,
+};
 
 export default class ImageCard extends Component {
 
@@ -63,7 +63,7 @@ export default class ImageCard extends Component {
     }, 100);
   }
 
-  get actions(): ?Element {
+  get actions(): ?Element<*> {
     const { actions } = this.props;
 
     if (_.isEmpty(actions)) {
@@ -81,30 +81,26 @@ export default class ImageCard extends Component {
     );
   }
 
-  get description(): ?Element {
-    let { title, secondaryTitle, src } = this.props;
+  get description(): ?Element<*> {
+    let { title, secondaryTitle, src, loading } = this.props;
 
     if (!title) {
       title = src;
     }
 
     return (
-      <div className={styles.description}>
+      <div className={classNames(styles.description, { [styles._loading]: loading })}>
         <div className={styles.title}>{title}</div>
         <div className={styles.secondaryTitle}>{secondaryTitle}</div>
       </div>
     );
   }
 
-  render(): Element {
-    const { id, src, loading, className } = this.props;
-
-    const cls = classNames(styles.card, {
-      [styles.loading]: loading,
-    }, className);
+  render() {
+    const { id, src, className } = this.props;
 
     return (
-      <div className={cls}>
+      <div className={classNames(styles.card, className)}>
         <div className={styles.image} onMouseOver={this.showActions} onMouseOut={this.hideActions}>
           <Image id={id} src={src} />
         </div>
@@ -113,4 +109,4 @@ export default class ImageCard extends Component {
       </div>
     );
   }
-};
+}

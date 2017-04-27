@@ -25,10 +25,6 @@ export default class DetailedUserInitials extends Component {
     showTooltipOnClick: false
   };
 
-  get fullName() {
-    return this.props.name || `${this.props.firstName} ${this.props.lastName}`;
-  }
-
   get initials() {
     const initials = <UserInitials {...this.props}/>;
 
@@ -61,7 +57,7 @@ export default class DetailedUserInitials extends Component {
         {this.initials}
         <div className={tooltipClass}>
           <div className="fc-tooltip__body">
-            <div className="fc-strong">{this.fullName}</div>
+            <div className="fc-strong">{this.props.name}</div>
             {this.props.email && (<div>{this.props.email}</div>)}
           </div>
           {this.props.actionBlock && (<div className="fc-tooltip__actions">{this.props.actionBlock}</div>)}

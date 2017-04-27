@@ -6,7 +6,7 @@ import Addresses, { createAddressBox } from '../addresses/addresses';
 import AddressBox from '../addresses/address-box';
 import AddressForm from '../addresses/address-form';
 import ItemCardContainer from '../item-card-container/item-card-container';
-import { AddButton } from '../common/buttons';
+import { AddButton } from 'components/core/button';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import * as AddressesDetailsActions from '../../modules/customers/addresses-details';
@@ -99,7 +99,7 @@ export default class CustomerAddressBook extends React.Component {
       <ContentBox title="Address Book"
                   className="fc-customer-address-book"
                   actionBlock={
-                    <AddButton id="customer-add-new-address-btn"
+                    <AddButton id="fct-add-btn__new-address"
                                onClick={() => props.startAddingAddress(props.customerId)}
                     />
                   }

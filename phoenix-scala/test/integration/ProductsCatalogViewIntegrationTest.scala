@@ -31,8 +31,7 @@ object ProductsCatalogViewIntegrationTest {
 class ProductsCatalogViewIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
-    with MockedApis
+    with DefaultJwtAdminAuth
     with BakedFixtures {
 
   import ProductsCatalogViewIntegrationTest._

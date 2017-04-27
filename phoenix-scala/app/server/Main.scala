@@ -1,45 +1,40 @@
 package server
 
-import scala.collection.immutable
-import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
 import akka.actor.{ActorSystem, Props}
 import akka.agent.Agent
-import akka.event.Logging
+import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.RouteResult._
 import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
-
 import com.stripe.Stripe
-import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
-import models.account.{AccountAccessMethod, User}
+import models.account.{AccountAccessMethod, Scope, Scopes}
 import org.json4s._
 import org.json4s.jackson._
-import services.account.AccountCreateContext
 import services.Authenticator
-import services.Authenticator.UserAuthenticator
-import services.Authenticator.requireAdminAuth
+import services.Authenticator.{UserAuthenticator, requireAdminAuth}
+import services.account.AccountCreateContext
 import services.actors._
 import slick.driver.PostgresDriver.api._
-import utils.FoxConfig.{Development, Staging}
-import utils.aliases._
+import utils.FoxConfig.config
 import utils.apis._
+import utils.db._
 import utils.http.CustomHandlers
 import utils.http.HttpLogger.logFailedRequests
-import utils.{ElasticsearchApi, FoxConfig}
+import utils.{ElasticsearchApi, Environment, FoxConfig}
+
+import scala.collection.immutable
+import scala.concurrent.duration._
+import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
 
 object Main extends App with LazyLogging {
-  implicit val env = FoxConfig.environment
-
   logger.info("Starting phoenix server")
 
-  val service = new Service()
-
   try {
+    val service = new Service()
     service.performSelfCheck()
     service.bind()
     service.setupRemorseTimers()
@@ -47,53 +42,82 @@ object Main extends App with LazyLogging {
     logger.info("Startup process complete")
   } catch {
     case e: Throwable ⇒
-      logger.error(s"${e.getMessage}\nExiting now!")
+      val cause = Option(e.getCause).fold("") { c ⇒
+        s"\nCaused by $c"
+      }
+      logger.error(s"$e$cause\nExiting now!")
       Thread.sleep(1000)
       System.exit(1)
   }
 }
 
-class Service(systemOverride: Option[ActorSystem] = None,
-              dbOverride: Option[Database] = None,
-              apisOverride: Option[Apis] = None,
-              esOverride: Option[ElasticsearchApi] = None,
-              addRoutes: immutable.Seq[Route] = immutable.Seq.empty)(
-    implicit val env: FoxConfig.Environment) {
+object Setup extends LazyLogging {
 
+  implicit val executionContext: ExecutionContextExecutor =
+    ExecutionContext.fromExecutor(java.util.concurrent.Executors.newCachedThreadPool())
+
+  lazy val defaultApis: Apis =
+    Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse(), setupElasticSearch())
+
+  def setupStripe(): FoxStripe = {
+    logger.info("Loading Stripe API key")
+    Stripe.apiKey = config.apis.stripe.key
+    logger.info("Successfully set Stripe key")
+    new FoxStripe(new StripeWrapper())
+  }
+
+  def setupMiddlewarehouse(): Middlewarehouse = {
+    logger.info("Setting up MWH...")
+    new Middlewarehouse(config.apis.middlewarehouse.url)
+  }
+
+  def setupElasticSearch(): ElasticsearchApi = {
+    logger.info("Setting up Elastic Search")
+    ElasticsearchApi.fromConfig(FoxConfig.config)
+  }
+}
+
+class Service(
+    systemOverride: Option[ActorSystem] = None,
+    dbOverride: Option[Database] = None,
+    apisOverride: Option[Apis] = None,
+    esOverride: Option[ElasticsearchApi] = None,
+    addRoutes: immutable.Seq[Route] = immutable.Seq.empty)(implicit val env: Environment) {
+
+  import FoxConfig.config
   import utils.JsonFormatters._
 
   implicit val serialization: Serialization.type = jackson.Serialization
   implicit val formats: Formats                  = phoenixFormats
 
-  val config: Config = FoxConfig.loadWithEnv()
-
   implicit val system: ActorSystem = systemOverride.getOrElse {
-    ActorSystem.create("Orders", config)
+    ActorSystem.create("Orders", FoxConfig.unsafe)
   }
 
-  val threadPool                = java.util.concurrent.Executors.newCachedThreadPool()
-  implicit val executionContext = ExecutionContext.fromExecutor(threadPool)
+  implicit val executionContext: ExecutionContextExecutor = Setup.executionContext
 
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
-  val logger = Logging(system, getClass)
+  val logger: LoggingAdapter = Logging(system, getClass)
 
-  implicit val db: Database         = dbOverride.getOrElse(Database.forConfig("db", config))
-  lazy val defaultApis: Apis        = Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse())
-  implicit val apis: Apis           = apisOverride.getOrElse(defaultApis: Apis)
-  implicit val es: ElasticsearchApi = esOverride.getOrElse(ElasticsearchApi.fromConfig(config))
+  implicit val db: Database = dbOverride.getOrElse(Database.forConfig("db", FoxConfig.unsafe))
+  implicit val apis: Apis   = apisOverride.getOrElse(Setup.defaultApis)
 
-  val roleName = config.getString(s"user.customer.role")
-  val orgName  = config.getString(s"user.customer.org")
-  val scopeId  = config.getInt(s"user.customer.scope_id")
+  private val roleName: String = config.users.customer.role
+  private val orgName: String  = config.users.customer.org
+  private val scopeId: Int     = config.users.customer.scopeId
 
-  val customerCreateContext                = AccountCreateContext(List(roleName), orgName, scopeId)
+  private val scope: Scope = Await
+    .result(Scopes.findOneById(scopeId).run(), Duration.Inf)
+    .getOrElse(throw new RuntimeException(s"Unable to find a scope with id $scopeId"))
+
+  private val customerCreateContext        = AccountCreateContext(List(roleName), orgName, scopeId)
   implicit val userAuth: UserAuthenticator = Authenticator.forUser(customerCreateContext)
 
-  val defaultRoutes = {
+  val defaultRoutes: Route = {
     pathPrefix("v1") {
-      routes.AuthRoutes.routes ~
-      routes.Public.routes(customerCreateContext) ~
+      routes.AuthRoutes.routes(scope.ltree) ~
+      routes.Public.routes(customerCreateContext, scope.ltree) ~
       routes.Customer.routes ~
       requireAdminAuth(userAuth) { implicit auth ⇒
         routes.admin.AdminRoutes.routes ~
@@ -105,7 +129,6 @@ class Service(systemOverride: Option[ActorSystem] = None,
         routes.admin.CustomerGroupsRoutes.routes ~
         routes.admin.GiftCardRoutes.routes ~
         routes.admin.ReturnRoutes.routes ~
-        routes.admin.Activity.routes ~
         routes.admin.ProductRoutes.routes ~
         routes.admin.SkuRoutes.routes ~
         routes.admin.VariantRoutes.routes ~
@@ -121,13 +144,17 @@ class Service(systemOverride: Option[ActorSystem] = None,
         routes.admin.TaxonomyRoutes.routes ~
         routes.admin.ChannelRoutes.routes ~
         routes.admin.ContextRoutes.routes ~
-        routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
-        routes.service.MigrationRoutes.routes(customerCreateContext)
+        routes.admin.ShippingMethodRoutes.routes ~
+        routes.service.MigrationRoutes.routes(customerCreateContext, scope.ltree) ~
+        pathPrefix("service") {
+          routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
+          routes.service.CustomerGroupRoutes.routes
+        }
       }
     }
   }
 
-  lazy val devRoutes = {
+  lazy val devRoutes: Route = {
     pathPrefix("v1") {
       requireAdminAuth(userAuth) { implicit auth ⇒
         routes.admin.DevRoutes.routes
@@ -135,14 +162,12 @@ class Service(systemOverride: Option[ActorSystem] = None,
     }
   }
 
-  val allRoutes = {
-    val routes = FoxConfig.environment match {
-      case Development | Staging ⇒
-        logger.info("Activating dev routes")
-        addRoutes.foldLeft(defaultRoutes ~ devRoutes)(_ ~ _)
-      case _ ⇒
-        addRoutes.foldLeft(defaultRoutes)(_ ~ _)
-    }
+  val allRoutes: Route = {
+    val routes = if (!env.isProd) {
+      logger.info("Activating dev routes")
+      addRoutes.foldLeft(defaultRoutes ~ devRoutes)(_ ~ _)
+    } else
+      addRoutes.foldLeft(defaultRoutes)(_ ~ _)
     logFailedRequests(routes, logger)
   }
 
@@ -152,9 +177,9 @@ class Service(systemOverride: Option[ActorSystem] = None,
 
   private final val serverBinding = Agent[Option[ServerBinding]](None)
 
-  def bind(config: Config = config): Future[ServerBinding] = {
-    val host = config.getString("http.interface")
-    val port = config.getInt("http.port")
+  def bind(config: FoxConfig = config): Future[ServerBinding] = {
+    val host = config.http.interface
+    val port = config.http.port
     val bind = Http().bindAndHandle(allRoutes, host, port).flatMap { binding ⇒
       serverBinding.alter(Some(binding)).map(_ ⇒ binding)
     }
@@ -178,24 +203,12 @@ class Service(systemOverride: Option[ActorSystem] = None,
 
   def performSelfCheck(): Unit = {
     logger.info("Performing self check")
-    if (config.getString("auth.method") == "jwt") {
+    if (config.auth.method == FoxConfig.AuthMethod.Jwt) {
       import models.auth.Keys
       assert(Keys.loadPrivateKey.isSuccess, "Can't load private key")
       assert(Keys.loadPublicKey.isSuccess, "Can't load public key")
     }
     logger.info(s"Using password hash algorithm: ${AccountAccessMethod.passwordsHashAlgorithm}")
     logger.info("Self check complete")
-  }
-
-  def setupStripe(): FoxStripe = {
-    logger.info("Loading Stripe API key")
-    Stripe.apiKey = config.getString("stripe.key")
-    logger.info("Successfully set Stripe key")
-    new FoxStripe(new StripeWrapper())
-  }
-
-  def setupMiddlewarehouse(): Middlewarehouse = {
-    val url = config.getString("middlewarehouse.url")
-    new Middlewarehouse(url)
   }
 }

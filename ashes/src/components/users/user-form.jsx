@@ -12,7 +12,7 @@ import UserInitials from '../user-initials/initials';
 import ContentBox from '../content-box/content-box';
 import RoundedPill from '../rounded-pill/rounded-pill';
 import { Form, FormField } from '../forms';
-import { Button } from '../common/buttons';
+import { Button } from 'components/core/button';
 import AccountState from './account-state';
 
 // styles
@@ -85,7 +85,7 @@ export default class UserForm extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     return (
       <div styleName="user-form">
         <section styleName="main">

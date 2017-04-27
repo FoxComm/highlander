@@ -10,7 +10,7 @@ import EmptyText from '../content-box/empty-text';
 import CreditCardBox from '../credit-cards/card-box';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import CustomerCreditCardForm from './credit-card-form';
-import { AddButton } from '../common/buttons';
+import { AddButton } from 'components/core/button';
 
 function mapDispatchToProps(dispatch, props) {
   return _.transform(CustomerCreditCardActions, (result, action, key) => {
@@ -152,7 +152,7 @@ export default class CustomerCreditCards extends React.Component {
       <ContentBox title="Credit Cards"
                   className="fc-customer-credit-cards"
                   actionBlock={ this.actionBlock }>
-        <ul id="customer-credit-cards-list" className="fc-float-list">
+        <ul id="fct-customer-credit-cards-list" className="fc-float-list">
           {props.newCreditCard || (cards && cards.length)
             ? cards.map(this.createCardBox)
             : this.emptyText}

@@ -4,6 +4,7 @@ import java.time.Instant
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import models.Reason.Cancellation
 import models._
 import models.account._
 import models.channel._
@@ -18,8 +19,9 @@ import services.carts._
 import testutils._
 import testutils.fixtures.raw._
 import utils.Money.Currency
+import utils.apis.Apis
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 /**
   * Raw fixtures are cake-pattern definitions.
@@ -31,7 +33,9 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
   trait Reason_Raw {
     def storeAdmin: User
 
-    val reason: Reason = Reasons.create(Factories.reason(storeAdmin.accountId)).gimme
+    private val r: Reason          = Factories.reason(storeAdmin.accountId)
+    val reason: Reason             = Reasons.create(r).gimme
+    val cancellationReason: Reason = Reasons.create(r.copy(reasonType = Cancellation)).gimme
   }
 
   trait CustomerAddress_Raw {
@@ -48,15 +52,20 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
 
   // Cart
   trait EmptyCart_Raw extends StoreAdmin_Seed {
+
     def customer: User
     def storeAdmin: User
 
     def cart: Cart = _cart
 
-    private val _cart = (for {
-      response ← * <~ CartCreator.createCart(storeAdmin, CreateCart(customer.accountId.some))
-      cart     ← * <~ Carts.mustFindByRefNum(response.referenceNumber)
-    } yield cart).gimme
+    private val _cart = {
+      // @anna just kill this....
+      implicit val apis = utils.MockedApis.apis
+      (for {
+        response ← * <~ CartCreator.createCart(storeAdmin, CreateCart(customer.accountId.some))
+        cart     ← * <~ Carts.mustFindByRefNum(response.referenceNumber)
+      } yield cart).gimme
+    }
   }
 
   trait CartWithShipAddress_Raw {

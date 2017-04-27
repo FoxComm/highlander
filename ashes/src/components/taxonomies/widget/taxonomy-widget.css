@@ -1,0 +1,90 @@
+.waiting {
+  margin: 10px auto;
+}
+
+.taxonomies {
+  border: 1px solid #d9d9d9;
+  background-color: #f7f7f7;
+  margin-bottom: 20px;
+  padding: 20px;
+  position: relative;
+}
+
+._loading {
+  composes: loadingBefore from '../../../css/animations.css';
+  background: none;
+}
+
+._loading::before {
+  opacity: .2;
+  z-index: -1;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  line-height: 30px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.pill {
+  margin: 5px;
+}
+
+.button {
+  display: inline-flex;
+  margin-left: 10px;
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 8px;
+}
+
+.button i {
+  transition: transform .1s;
+  transform: translateY(1px);
+}
+
+.taxonomies._open .button i {
+  transform: translateY(1px) rotate(-45deg);
+}
+
+/********************************************************
+ * Transitions
+ ********************************************************/
+
+/* required for transitionName to work as it's used as `transitionName={styles.dropdown}` */
+.dropdown {
+
+}
+
+.dropdownEnter,
+.dropdownLeave.dropdownLeaveActive {
+  display: flex;
+  align-items: flex-start;
+  height: 0;
+  overflow: hidden;
+}
+
+.dropdownEnter.dropdownEnterActive,
+.dropdownLeave {
+  height: 40px;
+  transition: height .1s;
+}
+
+.pillEnter,
+.pillAppear,
+.pillLeave.pillLeaveActive {
+  opacity: 0.1;
+  transform: scale(.8);
+}
+
+.pillEnter.pillEnterActive,
+.pillAppear.pillAppearActive,
+.pillLeave {
+  opacity: 1;
+  transform: none;
+  transition: all .2s ease-in-out;
+}

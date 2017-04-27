@@ -1,5 +1,5 @@
 /**
- * Detects element is viewport or not.
+ * Detects Element<*>is viewport or not.
  * Use this method if you need to write some logic related to scrolling, for example.
  * @param el
  * @returns {boolean}
@@ -16,7 +16,7 @@ export function isElementInViewport(el) {
 }
 
 /**
- * Detects element is overlapped by over elements or not.
+ * Detects Element<*>is overlapped by over elements or not.
  * @param element
  * @param ancestors
  * @returns {boolean}

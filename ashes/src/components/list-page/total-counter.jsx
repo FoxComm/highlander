@@ -1,7 +1,7 @@
 
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import TransitionGroup from 'react-addons-css-transition-group';
+import Transition from 'react-transition-group/CSSTransitionGroup';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
@@ -56,13 +56,13 @@ class TotalCounter extends React.Component {
     }
 
     return (
-      <TransitionGroup transitionName="fc-transition-counter"
+      <Transition transitionName="fc-transition-counter"
                        transitionAppear={true}
                        transitionLeave={false}
                        transitionAppearTimeout={300}
                        transitionEnterTimeout={300}>
-        <span id="total-counter-value" key={count}>{count}</span>
-      </TransitionGroup>
+        <span id="fct-total-counter-value" key={count}>{count}</span>
+      </Transition>
     );
   }
 }

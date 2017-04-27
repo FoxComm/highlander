@@ -2,7 +2,7 @@ package routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import utils.http.JsonSupport._
 import models.account.User
 import payloads.DiscountPayloads._
 import services.discount.DiscountManager
@@ -15,7 +15,7 @@ object DiscountRoutes {
 
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
 
-    activityContext(auth.model) { implicit ac ⇒
+    activityContext(auth) { implicit ac ⇒
       pathPrefix("discounts") {
         pathPrefix("forms" / IntNumber) { id ⇒
           (get & pathEnd) {

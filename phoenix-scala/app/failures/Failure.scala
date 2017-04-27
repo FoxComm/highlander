@@ -70,6 +70,10 @@ case class NotificationTrailNotFound400(adminId: Int) extends Failure {
   override def description = s"Notification trail for adminId=$adminId not found"
 }
 
+case class LastSeenNotFound400(adminId: Int) extends Failure {
+  override def description = s"Notification Last Seen not found for adminId=$adminId"
+}
+
 case object OpenTransactionsFailure extends Failure {
   override def description = "Open transactions should be canceled/completed"
 }
@@ -78,8 +82,12 @@ case object EmptyCancellationReasonFailure extends Failure {
   override def description = "Please provide valid cancellation reason"
 }
 
+case object NonEmptyCancellationReasonFailure extends Failure {
+  override def description = "Cancellation reason shouldn't be specified in irrelevant context"
+}
+
 case object InvalidCancellationReasonFailure extends Failure {
-  override def description = "Cancellation reason doesn't exist"
+  override def description = "Invalid cancellation reason provided"
 }
 
 case class InvalidReasonTypeFailure(name: String) extends Failure {
@@ -93,8 +101,4 @@ case class InvalidFieldFailure(name: String) extends Failure {
 case class AlreadySavedForLater(accountId: Int, skuId: Int) extends Failure {
   override def description =
     s"Customer with id=$accountId already has SKU with id=$skuId saved for later"
-}
-
-case class ShipmentNotFoundFailure(cordRefNum: String) extends Failure {
-  override def description = s"No shipments found for cart/order with refNum=$cordRefNum"
 }

@@ -4,7 +4,7 @@ import React, { Element } from 'react';
 import styles from './css/wrap-to-lines.css';
 
 type Props = {
-  children?: Element,
+  children?: Element<*>,
   className?: string
 }
 

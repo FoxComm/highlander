@@ -1,6 +1,5 @@
-
 import _ from 'lodash';
-import { get, post } from '../lib/search';
+import { post } from '../lib/search';
 import moment from 'moment';
 import * as dsl from './dsl';
 
@@ -9,34 +8,36 @@ const sortBy = [
   dsl.sortByField('activity.createdAt', 'desc'),
 ];
 
-function buildRequest({fromId = null, untilDate = null, query = null, dimension = 'admin', objectId = null} = {}) {
+function buildRequest({ fromDate = null, untilDate = null, query = null, dimension = 'admin', objectId = null } = {}) {
   const filter = [
     dsl.termFilter('dimension', dimension)
   ];
   if (objectId != null) {
     filter.push(dsl.termFilter('objectId', objectId));
   }
-  if (fromId != null) {
-    filter.push(dsl.rangeFilter('id', {lt: fromId}));
+  if (fromDate) {
+    filter.push(dsl.rangeFilter('createdAt', { gt: fromDate }));
   }
   if (untilDate) {
-    filter.push(dsl.rangeFilter('createdAt', {gt: untilDate}));
+    filter.push(dsl.rangeFilter('createdAt', { lt: untilDate }));
   }
 
   return dsl.query({
-    bool: {filter}
+    bool: { filter }
   });
 }
 
 export function fetch(queryParams, forCount = false) {
-  let q = buildRequest(queryParams);
+  let query = buildRequest(queryParams);
+  let verb = '_search';
+
   if (!forCount) {
-    q.sort = sortBy;
+    query.sort = sortBy;
   } else {
-    q.size = 0;
+    verb = '_count';
   }
 
-  return post(`activity_connections_view/_search`, q);
+  return post(`scoped_activity_trails/${verb}`, query);
 }
 
 export default function searchActivities(fromActivity = null, trailParams, days = 2, query = null) {
@@ -55,9 +56,13 @@ export default function searchActivities(fromActivity = null, trailParams, days 
   if (fromActivity == null) {
     const now = moment.utc();
 
-    promise = post('activity_connections_view/_search', queryFirstActivity())
+    const q = queryFirstActivity();
+
+    promise = post('scoped_activity_trails/_search', q)
       .then(response => {
-        const result = response.result;
+        const result = _.isEmpty(response.result) ? [] : response.result;
+        _.set(response, 'result', result);
+
         if (result.length) {
           const firstActivityDate = moment.utc(result[0].createdAt);
 
@@ -65,16 +70,16 @@ export default function searchActivities(fromActivity = null, trailParams, days 
           // if not - fetch activities for last 2 days from latest activity
 
           const markerDate = now.diff(firstActivityDate, 'days', true) > days ? firstActivityDate : now;
-          const untilDate = markerDate.endOf('day').subtract(days, 'days');
+          const fromDate = markerDate.endOf('day').subtract(days, 'days');
 
-          return fetch({...trailParams, untilDate, query});
+          return fetch({ ...trailParams, fromDate, query });
         }
 
         return response;
       });
   } else {
     const untilDate = moment.utc(fromActivity.createdAt).startOf('day').subtract(days, 'days');
-    promise = fetch({...trailParams, fromId: fromActivity.id, untilDate, query});
+    promise = fetch({ ...trailParams, fromDate: fromActivity.createdAt, untilDate, query });
   }
 
   let response;
@@ -87,8 +92,8 @@ export default function searchActivities(fromActivity = null, trailParams, days 
       if (result.length == 0) {
         hasMore = false;
       } else {
-        const fromId = _.get(_.last(result), 'id');
-        return fetch({...trailParams, fromId, query}, '_count')
+        const untilDate = _.get(_.last(result), 'createdAt');
+        return fetch({ ...trailParams, untilDate, query }, true)
           .then(response => hasMore = response.count > 0);
       }
     })

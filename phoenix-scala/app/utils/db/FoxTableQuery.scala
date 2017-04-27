@@ -1,6 +1,6 @@
 package utils.db
 
-import cats.data.Xor
+import cats.implicits._
 import failures.{Failure, Failures}
 import slick.dbio.DBIO
 import slick.driver.PostgresDriver.api._
@@ -69,13 +69,13 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
       returned ← * <~ findById(oldModel.id).extract.updateReturningHead(returningQuery, prepared)
     } yield returningLens.set(prepared)(returned)
 
-  protected def beforeSave(model: M): Failures Xor M =
-    model.sanitize.validate.toXor
+  protected def beforeSave(model: M): Either[Failures, M] =
+    model.sanitize.validate.toEither
 
-  private def beforeSaveBatch(unsaved: Iterable[M])(implicit ec: EC): DbResultT[Seq[M]] =
-    DbResultT.sequence {
-      unsaved.map(m ⇒ DbResultT.fromXor(beforeSave(m)))
-    }.map(_.toSeq)
+  private def beforeSaveBatch(unsaved: Iterable[M])(implicit ec: EC): DbResultT[List[M]] =
+    DbResultT.seqCollectFailures {
+      unsaved.toList.map(m ⇒ DbResultT.fromEither(beforeSave(m)))
+    }
 
   def deleteById[A](id: M#Id, onSuccess: ⇒ DbResultT[A], onFailure: M#Id ⇒ Failure)(
       implicit ec: EC): DbResultT[A] = {
@@ -92,15 +92,18 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
   type QuerySeq = Query[T, M, Seq]
 
   implicit class EnrichedTableQuery(q: QuerySeq) {
+    def deleteAll(implicit ec: EC): DbResultT[Int] = wrapDbio(q.delete)
 
     def deleteAll[A](onSuccess: ⇒ DbResultT[A], onFailure: ⇒ DbResultT[A])(
-        implicit ec: EC): DbResultT[A] =
-      for {
-        deletedQty ← * <~ q.delete
-        result ← * <~ (deletedQty match {
-                      case 0 ⇒ onFailure
-                      case _ ⇒ onSuccess
-                    })
-      } yield result
+        implicit ec: EC): DbResultT[A] = {
+      val deleteResult = q.delete.dbresult.flatMap {
+        case 0 ⇒ onFailure
+        case _ ⇒ onSuccess
+      }
+      wrapDbResultT(deleteResult)
+    }
+
+    def deleteAllWithRowsBeingAffected(implicit ec: EC): DbResultT[Boolean] =
+      deleteAll.map(_ > 0)
   }
 }

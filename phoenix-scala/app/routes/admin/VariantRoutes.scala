@@ -2,7 +2,7 @@ package routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import utils.http.JsonSupport._
 import models.account.User
 import payloads.VariantPayloads._
 import services.variant.VariantManager
@@ -15,7 +15,7 @@ object VariantRoutes {
 
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
 
-    activityContext(auth.model) { implicit ac ⇒
+    activityContext(auth) { implicit ac ⇒
       pathPrefix("variants") {
         pathPrefix(Segment) { context ⇒
           (post & pathEnd & entity(as[VariantPayload])) { payload ⇒

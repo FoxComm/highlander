@@ -9,11 +9,12 @@ import MultiSelectRow from '../../table/multi-select-row';
 import OriginType from '../../common/origin-type';
 
 const setCellContents = (transaction, field) => {
+  const state = _.get(transaction, field);
+
   switch(field) {
     case 'debit': return (-1) * _.get(transaction, field, null);
     case 'transaction': return <OriginType value={transaction}/>;
     case 'state':
-      const state = _.get(transaction, field);
       return state.charAt(0).toUpperCase() + state.slice(1);
     default: return _.get(transaction, field, null);
   }

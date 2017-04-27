@@ -3,7 +3,7 @@
 
 import React, { Component, Element } from 'react';
 import moment from 'moment';
-import { AddButton } from '../common/buttons';
+import { AddButton } from 'components/core/button';
 import Countdown from '../countdown/countdown';
 
 type Props = {
@@ -28,15 +28,19 @@ export default class RemorseTimer extends Component {
     });
   }
 
-  extendButton(): Element {
+  extendButton(): Element<*> {
     return (
-      <AddButton id="remorse-timer-extend-btn" className="fc-remorse-timer-extend" onClick={ this.props.onIncreaseClick }>
+      <AddButton
+        id="fct-remorse-timer-extend-btn"
+        className="fc-remorse-timer-extend"
+        onClick={ this.props.onIncreaseClick }
+      >
         15 min
       </AddButton>
     );
   }
 
-  controls(): Element|string {
+  controls(): Element<*>|string {
     if (this.state.frozen) {
       return 'Frozen while editing.';
     } else {
@@ -44,7 +48,7 @@ export default class RemorseTimer extends Component {
     }
   }
 
-  render(): Element {
+  render() {
     return (
       <div className="fc-remorse-timer">
         <Countdown

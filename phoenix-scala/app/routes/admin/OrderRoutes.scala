@@ -3,7 +3,6 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import cats.implicits._
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import models.cord.Cord.cordRefNumRegex
 import models.payment.giftcard.GiftCard
@@ -13,20 +12,21 @@ import payloads.LineItemPayloads._
 import payloads.OrderPayloads._
 import payloads.PaymentPayloads._
 import payloads.UpdateShippingMethod
+import services.Authenticator.AuthData
 import services.carts._
 import services.orders._
 import services.{Checkout, LineItemUpdater}
-import services.Authenticator.AuthData
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
+import utils.http.JsonSupport._
 
 object OrderRoutes {
 
-  def routes(implicit ec: EC, es: ES, db: DB, auth: AuthData[User], apis: Apis): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
 
-    activityContext(auth.model) { implicit ac ⇒
+    activityContext(auth) { implicit ac ⇒
       determineObjectContext(db, ec) { implicit ctx ⇒
         pathPrefix("orders") {
           // deprecated in favor of /carts route
@@ -82,18 +82,6 @@ object OrderRoutes {
           (post & path("increase-remorse-period") & pathEnd) {
             mutateOrFailures {
               OrderUpdater.increaseRemorsePeriod(refNum, auth.model)
-            }
-          } ~
-          // deprecated in favor of /carts route
-          (post & path("lock") & pathEnd) {
-            mutateOrFailures {
-              CartLockUpdater.lock(refNum, auth.model)
-            }
-          } ~
-          // deprecated in favor of /carts route
-          (post & path("unlock") & pathEnd) {
-            mutateOrFailures {
-              CartLockUpdater.unlock(refNum)
             }
           } ~
           // deprecated in favor of /carts route
@@ -200,7 +188,9 @@ object OrderRoutes {
             // deprecated in favor of /carts route
             (patch & pathEnd & entity(as[UpdateShippingMethod])) { payload ⇒
               mutateOrFailures {
-                CartShippingMethodUpdater.updateShippingMethod(auth.model, payload, Some(refNum))
+                CartShippingMethodUpdater.updateShippingMethod(auth.model,
+                                                               payload.shippingMethodId,
+                                                               Some(refNum))
               }
             } ~
             // deprecated in favor of /carts route

@@ -1,0 +1,26 @@
+---
+
+- name: Copy Application Marathon JSON
+  template: src={{app_template_path}} dest=/tmp
+
+- name: Kill Application Tasks in Marathon
+  shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/apps/{{app_name_marathon}}/tasks?scale=true'
+
+- name: Pause for a bit...
+  pause: seconds=15
+
+- name: Update Application in Marathon
+  shell: 'curl -sS -XPUT -d@/tmp/{{app_name}}.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/{{app_name_marathon}}'
+
+- name: Restart Application in Marathon
+  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/{{app_name_marathon}}/restart'
+
+- name: Get Application Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/{{app_name_marathon}} | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: "{{marathon_retries}}"
+  delay: "{{marathon_delay}}"
+
+- name: Cleanup
+  file: path=/tmp/{{app_name}}.json state=absent

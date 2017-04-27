@@ -1,8 +1,9 @@
 package routes.admin
 
+import cats.implicits._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import utils.http.JsonSupport._
 import models.account.User
 import models.location.Address
 import payloads.AddressPayloads.CreateAddressPayload
@@ -21,7 +22,7 @@ import ch.qos.logback.classic.{Logger ⇒ LogBackLogger}
 object DevRoutes {
 
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
-    activityContext(auth.model) { implicit ac ⇒
+    activityContext(auth) { implicit ac ⇒
       pathPrefix("order-time-machine") {
         (post & pathEnd & entity(as[OrderTimeMachine])) { payload ⇒
           mutateOrFailures {
@@ -51,11 +52,11 @@ object DevRoutes {
                            expYear = payload.expYear,
                            cvv = payload.cvv,
                            address = Address.fromPayload(payload.address, payload.customerId))
-              .map(_.map { token ⇒
+              .map { token ⇒
                 CreditCardTokenResponse(token = token.getId,
                                         brand = token.getCard.getBrand,
                                         lastFour = token.getCard.getLast4)
-              })
+              }
           }
         }
       } ~

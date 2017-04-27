@@ -2,7 +2,10 @@ package models.product
 
 import java.time.Instant
 
+import failures.Failure
+import failures.NotFoundFailure404
 import models.objects._
+import models.traits.IlluminatedModel
 import utils.IlluminateAlgorithm
 import utils.aliases._
 
@@ -15,6 +18,11 @@ case class IlluminatedProduct(id: Int,
                               context: IlluminatedContext,
                               attributes: Json,
                               archivedAt: Option[Instant])
+    extends IlluminatedModel[IlluminatedProduct] {
+
+  override protected def inactiveError: Failure = NotFoundFailure404(Product, slug)
+
+}
 
 object IlluminatedProduct {
 

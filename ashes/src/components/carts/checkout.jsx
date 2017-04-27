@@ -1,10 +1,9 @@
 /* @flow */
 
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import _ from 'lodash';
 
-import { PrimaryButton } from 'components/common/buttons';
+import { PrimaryButton } from 'components/core/button';
 
 import * as CartActions from 'modules/carts/details';
 
@@ -22,7 +21,7 @@ type Props = {
 export class Checkout extends Component {
   props: Props;
 
-  render(): Element {
+  render() {
     const { errors, warnings } = this.props.validations;
     const totalCount = errors.length + warnings.length;
     const refNum = this.props.cart.referenceNumber;
@@ -31,7 +30,7 @@ export class Checkout extends Component {
 
     return (
       <div className="fc-order-checkout fc-col-md-1-1">
-        <PrimaryButton id="place-order-btn" onClick={() => this.props.checkout(refNum)} disabled={isDisabled}>
+        <PrimaryButton id="fct-place-order-btn" onClick={() => this.props.checkout(refNum)} disabled={isDisabled}>
           Place order
         </PrimaryButton>
       </div>

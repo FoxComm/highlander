@@ -1,11 +1,9 @@
 package testutils
 
-import java.util.concurrent.TimeUnit
-
 import akka.util.Timeout
-
-import cats.data.Xor
+import com.typesafe.config.Config
 import failures.Failures
+import java.util.concurrent.TimeUnit
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.concurrent.{AbstractPatienceConfiguration, ScalaFutures}
 import org.scalatest.time.{Milliseconds, Seconds, Span}
@@ -28,15 +26,13 @@ trait TestBase
 
   implicit val timeout: Timeout = Timeout(10, TimeUnit.SECONDS)
 
-  val config = TestBase.config
-
   object Tags {
     object Slow     extends Tag("tags.Slow")
     object External extends Tag("tags.External")
   }
 
-  implicit class XorTestOps[G, B](val xor: B Xor G) {
-    def get: G = xor.fold(l ⇒ fail(s".get on a Xor.Left: $l"), r ⇒ r)
+  implicit class EitherTestOps[G, B](val either: Either[B, G]) {
+    def get: G = either.fold(l ⇒ fail(s".get on a Either.left: $l"), r ⇒ r)
   }
 
   implicit class FailuresTestOps(val failures: Failures) {
@@ -45,6 +41,6 @@ trait TestBase
 }
 
 object TestBase {
-  implicit val env = FoxConfig.Test
-  def config = FoxConfig.loadWithEnv()
+  val bareConfig: Config = FoxConfig.unsafe
+  val config: FoxConfig  = FoxConfig.config
 }

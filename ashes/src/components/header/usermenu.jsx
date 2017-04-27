@@ -48,7 +48,7 @@ export class UserMenu extends Component {
     }
   }
 
-  get settingsLink(): ?Element {
+  get settingsLink(): ?Element<*> {
     const { user } = this.props;
     if (user && user.id != null) {
       return <li><a onClick={this.goToSettings}>Settings</a></li>;

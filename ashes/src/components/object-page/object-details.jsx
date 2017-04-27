@@ -18,8 +18,6 @@ import { Form } from '../forms';
 import Tags from '../tags/tags';
 import ParticipantsPanel from '../participants';
 
-import type { ObjectView } from 'paragons/object';
-
 type Layout = {
   content: Array<Object>,
   aside: Array<Object>,
@@ -34,6 +32,7 @@ type Fields = {
 
 type NodeDesc = {
   type: string,
+  showIfNew?: boolean,
   title?: string,
   fields?: Fields,
   renderer?: string,
@@ -105,9 +104,10 @@ export default class ObjectDetails extends Component {
     return result;
   }
 
-  renderFields(fields: Fields, section: Array<NodeDesc>): Element {
+  renderFields(fields: Fields, section: Array<NodeDesc>): Element<*> {
     const fieldsToRender = this.calcFieldsToRender(fields, section);
     const attrsSchema = this.schema.properties.attributes;
+
     return (
       <ObjectFormInner
         canAddProperty={fields.canAddProperty}
@@ -119,7 +119,7 @@ export default class ObjectDetails extends Component {
     );
   }
 
-  renderTags(): Element {
+  renderTags() {
     return (
       <Tags
         attributes={this.attributes}
@@ -128,7 +128,7 @@ export default class ObjectDetails extends Component {
     );
   }
 
-  renderState(): ?Element {
+  renderState() {
     return (
       <ObjectScheduler
         attributes={this.attributes}
@@ -138,7 +138,7 @@ export default class ObjectDetails extends Component {
     );
   }
 
-  renderWatchers(): ?Element {
+  renderWatchers(): ?Element<*> {
     const { object, plural } = this.props;
 
     if (object.id) {
@@ -146,8 +146,11 @@ export default class ObjectDetails extends Component {
     }
   }
 
-  renderGroup(group: NodeDesc, section: Array<NodeDesc>): Element {
-    const { title, fields, renderer, content } = group;
+  renderGroup(group: NodeDesc, section: Array<NodeDesc>): ?Element<*> {
+    const { title, fields, renderer, content, showIfNew } = group;
+    if( !this.props.isNew && showIfNew ){
+      return null;
+    }
 
     let children;
     if (content) {
@@ -168,27 +171,40 @@ export default class ObjectDetails extends Component {
     );
   }
 
-  renderNode(description: NodeDesc, section: Array<NodeDesc>): Element {
+  renderNode(description: NodeDesc, section: Array<NodeDesc>) {
     const renderName = `render${_.upperFirst(_.camelCase(description.type))}`;
     // $FlowFixMe: we don't need indexable signature here
     invariant(this[renderName], `There is no method for render ${description.type}.`);
+
+    // $FlowFixMe: call of computed property. Computed property/element cannot be called on
     return this[renderName](description, section);
   }
 
-  renderSection(name: string): Element {
+  renderSection(name: string) {
     const section = this.layout[name];
+
     return addKeys(name, section.map(desc => this.renderNode(desc, section)));
   }
 
-  render() {
-    return (
-      <Form ref="form" styleName="object-details">
-        <div styleName="main">
-          {this.renderSection('main')}
-        </div>
+  get aside() {
+    if (this.layout.aside != null) {
+      return (
         <div styleName="aside">
           {this.renderSection('aside')}
         </div>
+      );
+    }
+  }
+
+  render() {
+    const mainStyleName = this.layout.aside != null ? 'main' : 'full-page';
+
+    return (
+      <Form ref="form" styleName="object-details">
+        <div styleName={mainStyleName}>
+          {this.renderSection('main')}
+        </div>
+        {this.aside}
       </Form>
     );
   }

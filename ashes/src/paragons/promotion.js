@@ -28,8 +28,19 @@ function addEmptyDiscount(promotion) {
 export function createEmptyPromotion() {
   const promotion = {
     id: null,
+    applyType: 'auto',
+    isExclusive: true,
     createdAt: null,
-    attributes: {},
+    attributes: {
+      storefrontName: {
+        t: 'richText',
+        v: 'Storefront name'
+      },
+      customerGroupIds: {
+        t: 'tock673sjgmqbi5zlfx43o4px6jnxi7absotzjvxwir7jo2v',
+        v: null,
+      },
+    },
     discounts: [],
   };
 

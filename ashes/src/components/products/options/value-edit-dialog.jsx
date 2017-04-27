@@ -15,9 +15,6 @@ import SwatchInput from 'components/forms/swatch-input';
 // styles
 import styles from './option-list.css';
 
-// types
-import type { Option, OptionValue } from 'paragons/product';
-
 type Props = {
   value: {
     id: string|number,
@@ -78,7 +75,7 @@ class ValueEditDialog extends Component {
           required
         >
           <input
-            id="value-name-fld"
+            id="fct-value-name-fld"
             type="text"
             value={name}
             ref="nameInput"
@@ -106,7 +103,7 @@ class ValueEditDialog extends Component {
     }
   }
 
-  render(): Element {
+  render() {
     return (
       <ConfirmationDialog
         isVisible={true}

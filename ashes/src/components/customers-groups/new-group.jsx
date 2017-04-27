@@ -1,40 +1,31 @@
-import React, { PropTypes } from 'react';
-import { Link } from '../link';
+/* @flow */
 
-//helpers
-import { prefix } from '../../lib/text-utils';
+//libs
+import _ from 'lodash';
+import React from 'react';
 
-const prefixed = prefix('fc-customer-group-dynamic-edit');
+//components
+import EditGroupBase from './edit-group-base';
 
-const NewGroupBase = ({title, alternative, children}) => {
+type Props = {
+  group: TCustomerGroup,
+  onSave: () => Promise<*>,
+  saveInProgress: boolean,
+  saveError: boolean,
+  params: {
+    type: string,
+  },
+};
+
+export default (props: Props) => {
+  const type = _.get(props, 'params.type');
+  const title = `New ${_.capitalize(type)} Customer Group`;
+
   return (
-    <div className={prefixed()}>
-      <header>
-        <h1 className="fc-title">
-          {title}
-        </h1>
-        {alternative ? (
-          <span>
-            or <Link className={prefixed('or')} to={alternative.id}>
-            create a {alternative.title}
-          </Link>
-          </span>
-        ) : null}
-      </header>
-      <article>
-        {children}
-      </article>
-    </div>
+    <EditGroupBase
+      title={title}
+      cancelTo="customer-groups"
+      {...props}
+    />
   );
 };
-
-NewGroupBase.propTypes = {
-  title: PropTypes.string.isRequired,
-  alternative: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-  }),
-  children: PropTypes.node
-};
-
-export default NewGroupBase;

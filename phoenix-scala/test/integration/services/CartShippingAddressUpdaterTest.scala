@@ -5,7 +5,7 @@ import payloads.AddressPayloads._
 import services.carts.CartShippingAddressUpdater._
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class CartShippingAddressUpdaterTest
     extends IntegrationTestBase

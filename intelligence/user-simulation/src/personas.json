@@ -1,0 +1,123 @@
+{
+    "Demo" : {
+        "start" : "signup",
+        "states" : {
+            "homepage" : {
+                "signup" : {"p": 1.0}
+            },
+            "signup" : {
+                "category" : {"p": 1.0, "select": ["men", "women", "kids", "shoes", "apparel", "accessories"]}
+            },
+            "category" : {
+                "product" : {"p": 0.9},
+                "category" : {"p": 0.1, "select": ["men", "women", "kids", "shoes", "apparel", "accessories"]},
+                "done" : {"p": 0.001}
+            },
+            "product" : {
+                "cart" : {"p": 0.7 },
+                "category" : {"p": 0.3 , "select": ["men", "women", "kids", "shoes", "apparel", "accessories"]}
+            },
+            "cart" : {
+                "purchase" : {"p": 0.5},
+                "category" : {"p": 0.4, "select": ["men", "women", "kids", "shoes", "apparel", "accessories"]},
+                "clear_cart" : {"p": 0.1}
+            },
+            "purchase": {
+                "done" : {"p": 0.5},
+                "category": {"p": 0.5, "select": ["men", "women", "kids", "shoes", "apparel", "accessories"]}
+            },
+            "clear_cart" : {
+                "category" : {"p": 1.0, "select": ["men", "women", "kids", "shoes", "apparel", "accessories"]}
+            }
+        }
+    },
+    "McShopFace" : {
+        "start" : "signup",
+        "states" : {
+            "homepage" : {
+                "signup" : {"p": 1.0}
+            },
+            "signup" : {
+                "category" : {"p": 1.0, "select": ["sunglasses", "eyeglasses"]}
+            },
+            "category" : { 
+                "product" : {"p": 0.5},
+                "category" : {"p": 0.5, "select": ["sunglasses", "eyeglasses"]}
+            },
+            "product" : {
+                "cart" : {"p": 0.5 },
+                "category" : {"p": 0.5 , "select": ["sunglasses", "eyeglasses"]}
+            },
+            "cart" : {
+                "purchase" : {"p": 0.5},
+                "category" : {"p": 0.5, "select": ["sunglasses", "eyeglasses"]},
+                "clear_cart" : {"p": 0.1}
+            },
+            "purchase": {
+                "category": {"p": 0.2, "select": ["sunglasses", "eyeglasses"]},
+                "done" : {"p": 0.8}
+            },
+            "clear_cart" : {
+                "category" : {"p": 1.0, "select": ["sunglasses", "eyeglasses"]}
+            }
+        }
+    },
+    "Eyeglasses" : {
+        "start" : "signup",
+        "states" : {
+            "homepage" : {
+                "signup" : {"p": 1.0}
+            },
+            "signup" : {
+                "category" : {"p": 1.0, "select": [ "eyeglasses"]}
+            },
+            "category" : { 
+                "product" : {"p": 0.5},
+                "category" : {"p": 0.5, "select": ["eyeglasses"]}
+            },
+            "product" : {
+                "cart" : {"p": 0.5 },
+                "category" : {"p": 0.5 , "select": ["eyeglasses"]}
+            },
+            "cart" : {
+                "purchase" : {"p": 0.5},
+                "category" : {"p": 0.5, "select": ["eyeglasses"]},
+                "clear_cart" : {"p": 0.1}
+            },
+            "purchase": {
+                "category": {"p": 0.2, "select": ["eyeglasses"]},
+                "done" : {"p": 0.8}
+            },
+            "clear_cart" : {
+                "category" : {"p": 1.0, "select": ["eyeglasses"]}
+            }
+        }
+    },
+    "hoarder" : {
+        "start" : "signup",
+        "states" : {
+            "homepage" : {
+                "signup" : {"p": 1.0}
+            },
+            "signup" : {
+                "category" : {"p": 1.0, "select": ["sunglasses", "eyeglasses"]}
+            },
+            "category" : { 
+                "product" : {"p": 1.0}
+            },
+            "product" : {
+                "cart" : {"p": 1.0, "quantity": {"from": 1, "to": 2} }
+            },
+            "cart" : {
+                "purchase" : {"p": 1.0}
+            },
+            "purchase": {
+                "category": {"p": 0.2, "select": ["sunglasses", "eyeglasses"]},
+                "done" : {"p": 0.8}
+            },
+            "clear_cart" : {
+                "category" : {"p": 1.0, "select": ["sunglasses", "eyeglasses"]}
+            }
+        }
+    }
+}

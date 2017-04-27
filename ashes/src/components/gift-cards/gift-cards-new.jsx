@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
 // helpers
-import { transitionTo } from 'browserHistory';
+import { transitionTo, transitionToLazy } from 'browserHistory';
 
 // components
 import Counter from '../forms/counter';
@@ -15,7 +15,7 @@ import Typeahead from '../typeahead/typeahead';
 import { Dropdown } from '../dropdown';
 import { Form, FormField } from '../forms';
 import PilledInput from '../pilled-search/pilled-input';
-import SaveCancel from '../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 import CurrencyInput from '../forms/currency-input';
 
 import { ReasonType } from 'lib/reason-utils';
@@ -189,7 +189,7 @@ export default class NewGiftCard extends React.Component {
           <div className="fc-grid fc-grid-no-gutter fc-new-gift-card__fieldset">
             <div className="fc-new-gift-card__types fc-col-md-1-2">
               <label className="fc-new-gift-card__label" htmlFor="originType">Gift Card Type</label>
-              <Dropdown id="gift-card-type-dd"
+              <Dropdown id="fct-gift-card-type-dd"
                         value={originType}
                         onChange={value => changeFormData('originType', value) }
                         items={types.map((entry, idx) => [entry.originType, typeTitles[entry.originType]])}
@@ -225,9 +225,11 @@ export default class NewGiftCard extends React.Component {
           </fieldset>
           {this.quantitySection}
 
-          <SaveCancel cancelTo="gift-cards"
-                      saveDisabled={saveDisabled}
-                      saveText="Issue Gift Card" />
+          <SaveCancel
+            onCancel={transitionToLazy('gift-cards')}
+            saveDisabled={saveDisabled}
+            saveText="Issue Gift Card"
+          />
         </Form>
       </div>
     );

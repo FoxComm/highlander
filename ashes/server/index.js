@@ -13,7 +13,7 @@ const app = koa();
 app.init = co.wrap(function *(env) {
   if (env) { app.env = env; }
   app.config = new Config(app.env);
-  app.use(serve(app.config.server.publicDir));
+  app.use(serve(app.config.server.publicDir, { index: 'index.html' }));
   app.use(favicon(app.config.layout.favicon));
   if (app.env.environment !== 'production') {
     app.use(require('koa-logger')());

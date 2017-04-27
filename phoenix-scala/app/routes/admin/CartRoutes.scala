@@ -3,7 +3,6 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import cats.implicits._
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import models.cord.Cord.cordRefNumRegex
 import models.payment.giftcard.GiftCard
@@ -19,12 +18,13 @@ import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
+import utils.http.JsonSupport._
 
 object CartRoutes {
 
-  def routes(implicit ec: EC, es: ES, db: DB, auth: AuthData[User], apis: Apis): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
 
-    activityContext(auth.model) { implicit ac ⇒
+    activityContext(auth) { implicit ac ⇒
       determineObjectContext(db, ec) { implicit ctx ⇒
         pathPrefix("carts") {
           (post & pathEnd & entity(as[CreateCart])) { payload ⇒
@@ -48,16 +48,6 @@ object CartRoutes {
                 mutateOrFailures {
                   CartPromotionUpdater.detachCoupon(auth.model, refNum.some)
                 }
-              }
-            } ~
-            (post & path("lock") & pathEnd) {
-              mutateOrFailures {
-                CartLockUpdater.lock(refNum, auth.model)
-              }
-            } ~
-            (post & path("unlock") & pathEnd) {
-              mutateOrFailures {
-                CartLockUpdater.unlock(refNum)
               }
             } ~
             (post & path("checkout")) {
@@ -157,7 +147,9 @@ object CartRoutes {
             pathPrefix("shipping-method") {
               (patch & pathEnd & entity(as[UpdateShippingMethod])) { payload ⇒
                 mutateOrFailures {
-                  CartShippingMethodUpdater.updateShippingMethod(auth.model, payload, Some(refNum))
+                  CartShippingMethodUpdater.updateShippingMethod(auth.model,
+                                                                 payload.shippingMethodId,
+                                                                 Some(refNum))
                 }
               } ~
               (delete & pathEnd) {

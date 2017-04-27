@@ -47,20 +47,20 @@ export type Func8<T1, T2, T3, T4, T5, T6, T7, T8, R>
 
 // async actions
 export type AsyncAction
-  = Func<Promise>;
+  = Func<Promise<*>>;
 export type AsyncAction1<T1>
-  = Func1<T1, Promise>;
+  = Func1<T1, Promise<*>>;
 export type AsyncAction2<T1, T2>
-  = Func2<T1, T2, Promise>;
+  = Func2<T1, T2, Promise<*>>;
 export type AsyncAction3<T1, T2, T3>
-  = Func3<T1, T2, T3, Promise>;
+  = Func3<T1, T2, T3, Promise<*>>;
 export type AsyncAction4<T1, T2, T3, T4>
-  = Func4<T1, T2, T3, T4, Promise>;
+  = Func4<T1, T2, T3, T4, Promise<*>>;
 export type AsyncAction5<T1, T2, T3, T4, T5>
-  = Func5<T1, T2, T3, T4, T5, Promise>;
+  = Func5<T1, T2, T3, T4, T5, Promise<*>>;
 export type AsyncAction6<T1, T2, T3, T4, T5, T6>
-  = Func6<T1, T2, T3, T4, T5, T6, Promise>;
+  = Func6<T1, T2, T3, T4, T5, T6, Promise<*>>;
 export type AsyncAction7<T1, T2, T3, T4, T5, T6, T7>
-  = Func7<T1, T2, T3, T4, T5, T6, T7, Promise>;
+  = Func7<T1, T2, T3, T4, T5, T6, T7, Promise<*>>;
 export type AsyncAction8<T1, T2, T3, T4, T5, T6, T7, T8>
-  = Func8<T1, T2, T3, T4, T5, T6, T7, T8, Promise>;
+  = Func8<T1, T2, T3, T4, T5, T6, T7, T8, Promise<*>>;

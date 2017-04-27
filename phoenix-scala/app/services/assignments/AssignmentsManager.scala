@@ -14,10 +14,13 @@ import responses.UserResponse.{build ⇒ buildUser}
 import responses._
 import services._
 import slick.driver.PostgresDriver.api._
+import utils.FoxConfig.config
 import utils.aliases._
 import utils.db._
 
 trait AssignmentsManager[K, M <: FoxModel[M]] {
+  val defaultContextId: Int = config.app.defaultContextId
+
   // Assign / unassign
   sealed trait ActionType
   case object Assigning   extends ActionType
@@ -69,7 +72,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       // Activity log + notifications subscription
       _ ← * <~ subscribe(this, assignedAdmins.map(_.id), Seq(key.toString))
       responseItem = buildResponse(entity)
-      _ ← * <~ LogActivity
+      _ ← * <~ LogActivity()
            .assigned(originator, responseItem, assignedAdmins, assignmentType, referenceType)
     } yield TheResponse.build(response, errors = notFoundAdmins)
 
@@ -88,7 +91,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       response = assignments.map((buildAssignment _).tupled)
       // Activity log + notifications subscription
       responseItem = buildResponse(entity)
-      _ ← * <~ LogActivity
+      _ ← * <~ LogActivity()
            .unassigned(originator, responseItem, admin, assignmentType, referenceType)
       _ ← * <~ unsubscribe(this, adminIds = Seq(assigneeId), objectIds = Seq(key.toString))
     } yield response

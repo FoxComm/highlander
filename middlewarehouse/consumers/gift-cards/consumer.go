@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 
@@ -96,7 +95,7 @@ func (consumer GiftCardConsumer) processOrder(order payloads.Order) error {
 
 			skusToUpdate = append(skusToUpdate, sku)
 			for j := 0; j < sku.Quantity; j++ {
-				giftCardPayloads = append(giftCardPayloads, *payloads.NewCreateGiftCardPayload(sku, order.ReferenceNumber))
+				giftCardPayloads = append(giftCardPayloads, *payloads.NewCreateGiftCardPayload(sku, order.ReferenceNumber, order.Scope))
 			}
 		}
 	}
@@ -113,16 +112,8 @@ func (consumer GiftCardConsumer) processOrder(order payloads.Order) error {
 }
 
 func (consumer GiftCardConsumer) createGiftCards(giftCardPayloads []payloads.CreateGiftCardPayload, skusToUpdate []payloads.OrderLineItem, order payloads.Order) error {
-	giftCardResponse, err := consumer.client.CreateGiftCards(giftCardPayloads)
-	defer giftCardResponse.Body.Close()
-
+	codes, err := consumer.client.CreateGiftCards(giftCardPayloads)
 	if err != nil {
-		return err
-	}
-
-	codes := make([]payloads.GiftCardResponse, 0)
-
-	if err := json.NewDecoder(giftCardResponse.Body).Decode(&codes); err != nil {
 		return err
 	}
 

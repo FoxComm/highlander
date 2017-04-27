@@ -7,7 +7,7 @@ import { startAddingAddress } from '../../modules/customers/addresses-details';
 
 // components
 import AddressDetails from './address-details';
-import { Button, AddButton } from '../common/buttons';
+import { Button, AddButton } from 'components/core/button';
 
 @connect(null, { startAddingAddress })
 export default class AddressSelect extends React.Component {
@@ -81,7 +81,7 @@ export default class AddressSelect extends React.Component {
         </div>
         <div className="fc-address-select-body">
           <input type="hidden" name={ this.props.name } value={ this.state.value } readOnly/>
-          <div id="address-select-list" className="fc-address-select-list">
+          <div id="fct-address-select-list" className="fc-address-select-list">
             {(this.props.items && this.props.items.map( this.renderSelectItem ))}
           </div>
         </div>

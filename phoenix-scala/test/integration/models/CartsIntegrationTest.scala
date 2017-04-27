@@ -31,11 +31,8 @@ class CartsIntegrationTest extends IntegrationTestBase with TestObjectContext wi
     "can only have one cart per customer" in new Customer_Seed with StoreAdmin_Seed {
       val cart = Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)).gimme
 
-      val failure = Carts
-        .create(cart.copy(id = 0, referenceNumber = cart.refNum + "ZZZ"))
-        .run()
-        .futureValue
-        .leftVal
+      val failure =
+        Carts.create(cart.copy(id = 0, referenceNumber = cart.refNum + "ZZZ")).gimmeFailures
       failure.getMessage must include(
           """value violates unique constraint "customer_has_only_one_cart"""")
     }
@@ -43,7 +40,7 @@ class CartsIntegrationTest extends IntegrationTestBase with TestObjectContext wi
     "has a unique index on referenceNumber" in new Customer_Seed with StoreAdmin_Seed {
       val cart = Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)).gimme
 
-      val failure = Carts.create(cart.copy(id = 0).copy(subTotal = 123)).run().futureValue.leftVal
+      val failure = Carts.create(cart.copy(id = 0).copy(subTotal = 123)).gimmeFailures
       failure.getMessage must include(
           """value violates unique constraint "cords_reference_number_key"""")
     }

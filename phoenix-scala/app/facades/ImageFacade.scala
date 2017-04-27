@@ -1,21 +1,20 @@
 package facades
 
-import java.nio.file.Files
-
 import akka.http.scaladsl.model.{HttpRequest, Multipart}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
-
-import cats.data._
 import cats.implicits._
+import failures.Failures
 import failures.ImageFailures._
+import java.nio.file.Files
 import models.image._
 import models.objects.FullObject
 import payloads.ImagePayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
-import services.Result
+// import services.Result
 import services.context.ContextManager
+import scala.concurrent.Future
 import services.image.ImageManager._
 import utils.aliases._
 import utils.apis.Apis
@@ -37,33 +36,39 @@ object ImageFacade {
       album   ← * <~ mustFindAlbumByFormIdAndContext404(albumId, context)
       _       ← * <~ album.mustNotBeArchived
       result  ← * <~ uploadImages(album, request, context)
-    } yield result).run()
+    } yield result).runDBIO()
   }
 
   def uploadImages(
       album: Album,
       request: HttpRequest,
       context: OC)(implicit ec: EC, db: DB, au: AU, am: Mat, apis: Apis): Result[AlbumRoot] = {
-    val failures            = ImageNotFoundInPayload.single
-    val error: Result[Unit] = Result.failures(failures)
-    implicit val oc         = context
+    val failures                              = ImageNotFoundInPayload.single
+    val error: Future[Either[Failures, Unit]] = Future.successful(Either.left(failures))
+    implicit val oc                           = context
 
-    Unmarshal(request.entity).to[Multipart.FormData].flatMap { formData ⇒
+    // FIXME: this needs a rewrite badly. No .runTxn, runDBIO or .runEmptyA, or .value should be here. @michalrus
+    // FIXME: Naive approach at composition fails with Akka’s SubscriptionTimeoutException.
+    // FIXME: Investigate Akka’s `runFold` maybe?
+
+    val xs = Unmarshal(request.entity).to[Multipart.FormData].flatMap { formData ⇒
       formData.parts
         .filter(_.name == "upload-file")
         .runFold(error) { (previousUpload, part) ⇒
           previousUpload.flatMap {
-            case Xor.Left(err) if err != failures ⇒ Result.left(err)
-            case _                                ⇒ uploadImage(part, album).runTxn()
+            case Left(err) if err != failures ⇒ Future.successful(Either.left(err))
+            case _                            ⇒ uploadImage(part, album).runTxn().runEmptyA.value
           }
         }
         .flatMap { r ⇒
           (for {
             _     ← * <~ r
             album ← * <~ getAlbumInner(album.formId, oc)
-          } yield album).run()
+          } yield album).runDBIO().runEmptyA.value
         }
     }
+
+    Result.fromFEither(xs)
   }
 
   def uploadImage(part: Multipart.FormData.BodyPart, album: Album)(implicit ec: EC,
@@ -89,8 +94,8 @@ object ImageFacade {
   private def getFileFromRequest(bytes: Source[ByteString, Any])(implicit ec: EC, am: Mat) = {
     val file = Files.createTempFile("tmp", ".jpg")
     bytes.runWith(FileIO.toPath(file)).map { ioResult ⇒
-      if (ioResult.wasSuccessful) Xor.right(file)
-      else Xor.left(ErrorReceivingImage.single)
+      if (ioResult.wasSuccessful) Either.right(file)
+      else Either.left(ErrorReceivingImage.single)
     }
   }
 

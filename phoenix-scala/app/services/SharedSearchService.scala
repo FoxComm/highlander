@@ -1,14 +1,13 @@
 package services
 
-import java.time.Instant
-
 import failures.NotFoundFailure404
 import failures.SharedSearchFailures._
 import failures.Util.diffToFailures
-import models.sharedsearch._
+import java.time.Instant
 import models.account._
+import models.sharedsearch._
 import payloads.SharedSearchPayloads._
-import responses.{UserResponse, TheResponse}
+import responses.{TheResponse, UserResponse}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -17,10 +16,10 @@ object SharedSearchService {
   def getAll(admin: User, rawScope: Option[String])(implicit ec: EC,
                                                     db: DB): DbResultT[Seq[SharedSearch]] =
     for {
-      scope ← * <~ rawScope.toXor(SharedSearchScopeNotFound.single)
+      scope ← * <~ rawScope.toEither(SharedSearchScopeNotFound.single)
       searchScope ← * <~ SharedSearch.Scope
                      .read(scope)
-                     .toXor(NotFoundFailure404(SharedSearch, scope).single)
+                     .toEither(NotFoundFailure404(SharedSearch, scope).single)
       result ← * <~ SharedSearchAssociations.associatedWith(admin, searchScope).result
     } yield result
 
@@ -74,7 +73,7 @@ object SharedSearchService {
       _ ← * <~ SharedSearchAssociations.createAll(newAssociations)
       notFoundAdmins = diffToFailures(requestedAssigneeIds, adminIds, User)
       assignedAdmins = associates.filter(a ⇒ newAssociations.map(_.storeAdminId).contains(a.id))
-      _ ← * <~ LogActivity.associatedWithSearch(admin, search, assignedAdmins)
+      _ ← * <~ LogActivity().associatedWithSearch(admin, search, assignedAdmins)
     } yield TheResponse.build(search, errors = notFoundAdmins)
 
   def unassociate(admin: User, code: String, assigneeId: Int)(implicit ec: EC,
@@ -87,7 +86,7 @@ object SharedSearchService {
                     .byStoreAdmin(associate)
                     .mustFindOneOr(SharedSearchAssociationNotFound(code, assigneeId))
       _ ← * <~ SharedSearchAssociations.byStoreAdmin(associate).delete
-      _ ← * <~ LogActivity.unassociatedFromSearch(admin, search, associate)
+      _ ← * <~ LogActivity().unassociatedFromSearch(admin, search, associate)
     } yield search
 
   private def mustFindActiveByCode(code: String)(implicit ec: EC): DbResultT[SharedSearch] =

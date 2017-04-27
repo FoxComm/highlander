@@ -5,14 +5,14 @@ import { autobind } from 'core-decorators';
 import Currency from 'components/common/currency';
 import CurrencyInput from 'components/forms/currency-input';
 import { Form, FormField } from 'components/forms';
-import SaveCancel from 'components/common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 
 type Props = {
   amountToUse: number,
   availableBalance: number,
   onCancel: Function,
   onSubmit: Function,
-  title?: string|Element,
+  title?: string|Element<*>,
   amountToUse?: number,
   saveText: string,
 }
@@ -70,7 +70,7 @@ export default class DebitCredit extends Component {
     this.props.onSubmit(this.state.amountToUse);
   }
 
-  get title(): ?Element {
+  get title(): ?Element<*> {
     const { title } = this.props;
 
     if (title) {

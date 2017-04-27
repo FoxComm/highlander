@@ -14,8 +14,7 @@ import slick.driver.PostgresDriver.api._
 import testutils.fixtures.TestFixtureBase
 import utils.aliases._
 import utils.db._
-import utils.seeds.Seeds.Factories
-import utils.seeds.ObjectSchemaSeeds
+import utils.seeds.Factories
 
 /**
   * Seeds are simple values that can be created without any external dependencies.
@@ -24,16 +23,12 @@ trait TestSeeds extends TestFixtureBase {
 
   val TENANT = "tenant"
 
-  trait Schemas_Seed extends ObjectSchemaSeeds {
-    private val _productSchema = createObjectSchemas().gimme
-
-  }
-
   trait StoreAdmin_Seed {
     def storeAdminAccount: Account         = _storeAdminAccount
     def storeAdmin: User                   = _storeAdmin
     def storeAdminUser: AdminData          = _storeAdminUser
     def storeAdminClaims: Account.ClaimSet = _storeAdminClaims
+    val password = "password"
 
     def storeAdminAuthData: AuthData[User] =
       AuthData[User](token =
@@ -52,9 +47,9 @@ trait TestSeeds extends TestFixtureBase {
                 case Some(admin) ⇒ DbResultT.pure(admin)
                 case None ⇒
                   Factories.createStoreAdmin(user = Factories.storeAdmin,
-                                             password = "password",
+                                             password = password,
                                              state = AdminData.Active,
-                                             org = "tenant",
+                                             org = TENANT,
                                              roles = List("admin"),
                                              author = None)
               })

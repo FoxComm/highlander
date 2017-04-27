@@ -20,6 +20,8 @@ import MerchantApplicationDetails from 'components/merchant-applications/details
 import MerchantApplicationsList from 'components/merchant-applications/list';
 
 import IntegrationDetails from 'components/origin-integrations/details';
+// @todo replace with channels list and make amazon as a subroute of it
+import Channels from 'components/channels/amazon';
 
 import type { JWT } from 'lib/claims';
 
@@ -27,7 +29,7 @@ const getRoutes = (jwt: JWT) => {
   const router = new FoxRouter(jwt);
 
   const userRoutes =
-    router.read('user-base', { path: 'users', frn: frn.settings.user }, [
+    router.read('users-base', { path: 'users', frn: frn.settings.user }, [
       router.read('users-list-page', { component: UsersListPage }, [
         router.read('users', { component: Users, isIndex: true }),
         router.read('users-activity-trail', {
@@ -60,6 +62,11 @@ const getRoutes = (jwt: JWT) => {
       router.read('application-details', { path: ':applicationId', component: MerchantApplicationDetails }),
     ]);
 
+  const channelRoutes =
+    router.read('channel-base', { path: 'channels' }, [
+      router.read('channels', { component: Channels, isIndex: true }),
+    ]);
+
   const integrationRoutes =
     router.read('integration-base', { path: 'integrations' }, [
       router.read('integrations', { component: IntegrationDetails, isIndex: true }),
@@ -70,6 +77,7 @@ const getRoutes = (jwt: JWT) => {
       {userRoutes}
       {pluginRoutes}
       {applicationsRoutes}
+      {channelRoutes}
       {integrationRoutes}
     </div>
   );

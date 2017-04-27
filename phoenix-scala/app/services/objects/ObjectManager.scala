@@ -1,7 +1,7 @@
 package services.objects
 
-import failures._
 import failures.ObjectFailures._
+import failures._
 import models.objects._
 import payloads.ContextPayloads._
 import responses.ObjectResponses._
@@ -50,7 +50,7 @@ object ObjectManager {
     val shadowsMap = shadows.groupBy(_.id)
 
     def getByIdOrFail[M](items: Map[Int, Traversable[M]], id: Int, failure: ⇒ Failures) =
-      items.get(id).flatMap(_.headOption).toXor(failure)
+      items.get(id).flatMap(_.headOption).toEither(failure)
 
     def buildFullObject(model: T) =
       for {

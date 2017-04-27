@@ -1,7 +1,5 @@
 package utils.http
 
-import scala.concurrent.Future
-import scala.util.{Failure, Success}
 import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.RawHeader
@@ -9,16 +7,17 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.PathMatcher.Matched
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
-
-import cats.data.Xor
+import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import failures._
-import models.account._
 import models.activity.ActivityContext
 import models.objects.{ObjectContext, ObjectContexts}
 import models.product.{ProductReference, SimpleContext}
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.AuthPayload
-import services.{JwtCookie, Result}
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
+import services.JwtCookie
 import slick.driver.PostgresDriver.api._
 import utils._
 import utils.aliases._
@@ -40,21 +39,33 @@ object CustomDirectives {
     }
   }
 
-  def activityContext(user: User): Directive1[ActivityContext] = {
+  def activityContext(au: AU): Directive1[ActivityContext] = {
+    val user  = au.model
+    val scope = LTree(au.token.scope)
+
     optionalHeaderValueByName("x-request-id").map {
       case (Some(uuid)) ⇒
-        ActivityContext(userId = user.accountId, userType = "user", transactionId = uuid)
+        ActivityContext(userId = user.accountId,
+                        userType = "user",
+                        transactionId = uuid,
+                        scope = scope)
       case (None) ⇒
-        ActivityContext(userId = user.accountId, userType = "user", transactionId = generateUuid)
+        ActivityContext(userId = user.accountId,
+                        userType = "user",
+                        transactionId = generateUuid,
+                        scope = scope)
     }
   }
 
-  def activityContext(): Directive1[ActivityContext] = {
+  def activityContext(scope: LTree): Directive1[ActivityContext] = {
     optionalHeaderValueByName("x-request-id").map {
       case (Some(uuid)) ⇒
-        ActivityContext(userId = 0, userType = "guest", transactionId = uuid)
+        ActivityContext(userId = 0, userType = "guest", transactionId = uuid, scope = scope)
       case (None) ⇒
-        ActivityContext(userId = 0, userType = "guest", transactionId = generateUuid)
+        ActivityContext(userId = 0,
+                        userType = "guest",
+                        transactionId = generateUuid,
+                        scope = scope)
     }
   }
 
@@ -73,9 +84,9 @@ object CustomDirectives {
   def adminObjectContext(contextName: String)(route: ObjectContext ⇒ Route)(implicit db: DB,
                                                                             ec: EC): Route =
     onComplete(tryGetContextByName(contextName)) {
-      case Success(Xor.Right(ctx)) ⇒
+      case Success(Right(ctx)) ⇒
         route(ctx)
-      case Success(Xor.Left(msg)) ⇒
+      case Success(Left(msg)) ⇒
         complete(renderFailure(NotFoundFailure404(msg).single, StatusCodes.NotFound))
       case Failure(ex) ⇒
         complete(renderFailure(GeneralFailure(ex.getMessage()).single))
@@ -89,8 +100,8 @@ object CustomDirectives {
 
   private def tryGetContextByName(name: String)(implicit db: DB, ec: EC) =
     db.run(ObjectContexts.filterByName(name).result.headOption).map {
-      case Some(c) ⇒ Xor.Right(c)
-      case None    ⇒ Xor.Left(s"Context with name $name cannot be found")
+      case Some(c) ⇒ Either.right(c)
+      case None    ⇒ Either.left(s"Context with name $name cannot be found")
     }
 
   //This is a really trivial version. We are not handling language weights,
@@ -104,48 +115,39 @@ object CustomDirectives {
       case None ⇒ getContextByName(DefaultContextName)
     }
 
-  def good[A <: AnyRef](a: Future[A])(implicit ec: EC): StandardRoute =
-    complete(a.map(render(_)))
+  def good[A <: AnyRef](a: Future[A])(implicit ec: EC): StandardRoute = // TODO: is this needed anymore? @michalrus
+    complete(a.map(renderRaw(_)))
 
-  def good[A <: AnyRef](a: A): StandardRoute =
-    complete(render(a))
-
-  private def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G): HttpResponse =
-    or.fold(renderFailure(_), render(_))
+  def good[A <: AnyRef](a: A): StandardRoute = // TODO: is this needed anymore? @michalrus
+    complete(renderRaw(a))
 
   def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: EC): StandardRoute =
-    complete(a.map(renderGoodOrFailures))
+    complete(
+        a.runEmpty.value.map(_.fold(renderFailure(_), { case (uiInfo, a) ⇒ render(a, uiInfo) })))
 
   def getOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
-    complete(a.run().map(renderGoodOrFailures))
+    goodOrFailures(a.runDBIO())
 
   def mutateOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
-    complete(a.runTxn().map(renderGoodOrFailures))
+    goodOrFailures(a.runTxn())
 
   def mutateWithNewTokenOrFailures[A <: AnyRef](a: DbResultT[(A, AuthPayload)])(implicit ec: EC,
                                                                                 db: DB): Route = {
-    onSuccess(a.runTxn()) { result ⇒
-      result.fold({ f ⇒
-        complete(renderFailure(f))
-      }, { resp ⇒
-        {
-          val (body, auth) = resp
-          respondWithHeader(RawHeader("JWT", auth.jwt)).&(setCookie(JwtCookie(auth))) {
-            complete(
-                HttpResponse(
-                    entity = HttpEntity(ContentTypes.`application/json`, json(body))
-                ))
-          }
+    onSuccess(a.runTxn().runEmpty.value) { result ⇒
+      result.fold(f ⇒ complete(renderFailure(f)), { resp ⇒
+        val (uiInfo, (body, auth)) = resp
+        respondWithHeader(RawHeader("JWT", auth.jwt)).&(setCookie(JwtCookie(auth))) {
+          complete(render(body, uiInfo))
         }
       })
     }
   }
 
   def deleteOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute =
-    complete(a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
+    doOrFailures(a)
 
-  def doOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute =
-    complete(a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
+  def doOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute = // TODO: rethink discarding warnings here @michalrus
+    complete(a.runTxn().runEmptyA.value.map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
 
   def entityOr[T](um: FromRequestUnmarshaller[T], failure: failures.Failure): Directive1[T] =
     extractRequestContext.flatMap[Tuple1[T]] { ctx ⇒

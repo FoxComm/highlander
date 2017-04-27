@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
@@ -16,6 +16,9 @@ import CustomProperty from '../products/custom-property';
 import DatePicker from '../datepicker/datepicker';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
 import { Dropdown } from '../dropdown';
+import SwatchInput from '../forms/swatch-input';
+
+import type { AttrSchema } from 'paragons/object';
 
 type Props = {
   canAddProperty?: boolean,
@@ -24,6 +27,7 @@ type Props = {
   attributes: Attributes,
   onChange: (attributes: Attributes) => void,
   schema?: Object,
+  className?: string,
 };
 
 type State = {
@@ -31,18 +35,12 @@ type State = {
   errors: {[id:string]: any},
 };
 
-type AttrSchema = {
-  type: string,
-  title?: string,
-  widget?: string,
-  properties?: Object,
-}
-
 type AttrOptions = {
   required: boolean,
   label: string,
   isDefined: (value: any) => boolean,
-}
+  disabled?: boolean,
+};
 
 const inputClass = 'fc-object-form__field-value';
 
@@ -52,7 +50,8 @@ function formatLabel(label: string): string {
   });
 }
 
-export function renderFormField(name: string, content: Element, options: AttrOptions): Element {
+// TODO: fix content type
+export function renderFormField(name: string, content: any, options: AttrOptions) {
   return (
     <FormField
       {...options}
@@ -81,12 +80,12 @@ export default class ObjectFormInner extends Component {
   props: Props;
   state: State = { isAddingProperty: false, errors: {} };
 
-  get addCustomProperty(): ?Element<any> {
+  get addCustomProperty() {
     if (this.props.canAddProperty) {
       return (
         <div className="fc-object-form__add-custom-property">
           Custom Property
-          <a id="add-custom-property-btn" className="fc-object-form__add-custom-property-icon"
+          <a id="fct-add-btn__custom-property" className="fc-object-form__add-custom-property-icon"
              onClick={this.handleAddProperty}>
             <i className="icon-add" />
           </a>
@@ -95,7 +94,7 @@ export default class ObjectFormInner extends Component {
     }
   }
 
-  get customPropertyForm(): ?Element {
+  get customPropertyForm() {
     if (this.state.isAddingProperty) {
       return (
         <CustomProperty
@@ -150,7 +149,7 @@ export default class ObjectFormInner extends Component {
     this.props.onChange(newAttributes);
   }
 
-  renderBoolean(name: string, value: boolean, options: AttrOptions): Element {
+  renderBoolean(name: string, value: boolean, options: AttrOptions) {
     const onChange = () => this.handleChange(name, 'bool', !value);
     const sliderCheckbox = (
       <SliderCheckbox
@@ -163,22 +162,22 @@ export default class ObjectFormInner extends Component {
     return renderFormField(name, sliderCheckbox, options);
   }
 
-  renderBool(...args: Array<any>): Element {
+  renderBool(...args: Array<any>) {
     return this.renderBoolean(...args);
   }
 
-  renderElement(name: string, value: any, options: AttrOptions): Element {
+  renderElement(name: string, value: any, options: AttrOptions) {
     return renderFormField(name, value, options);
   }
 
-  renderDate(name: string, value: string, options: AttrOptions): Element {
+  renderDate(name: string, value: string, options: AttrOptions) {
     const dateValue = new Date(value);
     const onChange = (v: Date) => this.handleChange(name, 'date', v.toISOString());
     const dateInput = <DatePicker date={dateValue} onChange={onChange} />;
     return renderFormField(name, dateInput, options);
   }
 
-  renderPrice(name: string, value: any, options: AttrOptions): Element {
+  renderPrice(name: string, value: any, options: AttrOptions) {
     const priceValue: string = _.get(value, 'value', '');
     const priceCurrency: string = _.get(value, 'currency', 'USD');
     const onChange = value => this.handleChange(name, 'price', {
@@ -197,13 +196,14 @@ export default class ObjectFormInner extends Component {
     return renderFormField(name, currencyInput, options);
   }
 
-  renderRichText(name: string, value: any, options: AttrOptions): Element {
+  renderRichText(name: string, value: any, options: AttrOptions) {
     const onChange = v => this.handleChange(name, 'richText', v);
     const error = _.get(this.state, ['errors', name]);
     const classForContainer = classNames('fc-object-form__field', {
       '_has-error': error != null,
     });
     const nameVal = _.kebabCase(name);
+
     return (
       <div className={classForContainer}>
         <RichTextEditor
@@ -217,7 +217,7 @@ export default class ObjectFormInner extends Component {
     );
   }
 
-  renderString(name: string, value: string = '', options: AttrOptions): Element {
+  renderString(name: string, value: string = '', options: AttrOptions) {
     const onChange = ({target}) => {
       return this.handleChange(name, 'string', target.value);
     };
@@ -228,13 +228,14 @@ export default class ObjectFormInner extends Component {
         name={name}
         value={value || ''}
         onChange={onChange}
+        disabled={options.disabled}
       />
     );
 
     return renderFormField(name, stringInput, options);
   }
 
-  renderNumber(name: string, value: ?number = null, options: AttrOptions): Element {
+  renderNumber(name: string, value: ?number = null, options: AttrOptions) {
     const onChange = ({target}) => {
       return this.handleChange(name, 'number', target.value == '' ? null : Number(target.value));
     };
@@ -251,7 +252,7 @@ export default class ObjectFormInner extends Component {
     return renderFormField(name, stringInput, options);
   }
 
-  renderOptions(name: string, value: any, options: AttrOptions): Element {
+  renderOptions(name: string, value: any, options: AttrOptions) {
     const fieldOptions = this.props.fieldsOptions && this.props.fieldsOptions[name];
     if (!fieldOptions) throw new Error('You must define fieldOptions for options fields');
 
@@ -271,7 +272,7 @@ export default class ObjectFormInner extends Component {
     );
   }
 
-  renderText(name: string, value: string = '', options: AttrOptions): Element {
+  renderText(name: string, value: string = '', options: AttrOptions) {
     const onChange = ({target}) => {
       return this.handleChange(name, 'text', target.value);
     };
@@ -285,6 +286,21 @@ export default class ObjectFormInner extends Component {
     );
 
     return renderFormField(name, textInput, options);
+  }
+
+  renderColor(name: string, value: string = '', options: AttrOptions) {
+    const label = _.upperFirst(options.label);
+    const onChange = v => this.handleChange(name, 'color', v);
+
+    return (
+      <div>
+        <label className="fc-object-form__field-label">{label}</label>
+        <SwatchInput
+          value={value}
+          onChange={onChange}
+        />
+      </div>
+    );
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
@@ -320,12 +336,12 @@ export default class ObjectFormInner extends Component {
   }
 
   getAttrOptions(name: string,
-                 // $FlowFixMe: there is no global context
                  schema: ?AttrSchema = this.props.schema && this.props.schema.properties[name]): Object {
     const options = {
       required: this.isRequired(name),
       label: schema && schema.title || formatLabel(name),
       isDefined: isDefined,
+      disabled: schema && schema.disabled,
     };
     if (schema && schema.widget == 'richText') {
       options.isDefined = value => isDefined(stripTags(value));
@@ -334,12 +350,12 @@ export default class ObjectFormInner extends Component {
     return options;
   }
 
-  render(): Element<any> {
+  render() {
     const { props } = this;
-    const { attributes, schema } = props;
+    const { attributes, schema, className } = props;
     const fieldsToRender = _.isEmpty(props.fieldsToRender) ? Object.keys(attributes) : props.fieldsToRender;
 
-    const renderedAttributes: Array<Element> = _.map(fieldsToRender, name => {
+    const renderedAttributes: Array<Element<*>> = _.map(fieldsToRender, name => {
       const attribute: Attribute = attributes[name];
       const attrSchema: ?AttrSchema = schema ? schema.properties[name] : null;
 
@@ -350,7 +366,7 @@ export default class ObjectFormInner extends Component {
     });
 
     return (
-      <div className="fc-object-form">
+      <div className={classNames('fc-object-form', className)}>
         {renderedAttributes}
         {this.addCustomProperty}
         {this.customPropertyForm}

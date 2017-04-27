@@ -16,16 +16,6 @@ import TaxonomyRow from './taxonomy-row';
 // helpers
 import { filterArchived } from 'elastic/archive';
 
-// types
-import type { Taxonomy } from 'paragons/taxonomy';
-import type { SearchFilter } from 'elastic/common';
-
-type Column = {
-  field: string,
-  text: string,
-  type: ?string,
-};
-
 type Props = {
   actions: Object,
   list: Object,
@@ -36,6 +26,9 @@ const tableColumns = [
   { field: 'name', text: 'Name' },
   { field: 'type', text: 'Type' },
   { field: 'valuesCount', text: 'Values' },
+  { field: 'createdAt', type: 'datetime', text: 'Date/Time Created' },
+  { field: 'updatedAt', type: 'datetime', text: 'Date/Time Updated' },
+  { field: 'state', text: 'State' },
 ];
 
 export class SearchableList extends Component {
@@ -46,12 +39,12 @@ export class SearchableList extends Component {
     return this.props.actions.addSearchFilters(filterArchived(filters), initial);
   }
 
-  renderRow(row: Taxonomy, index: number, columns: Array<Column>, params: Object) {
+  renderRow(row: TaxonomyResult, index: number, columns: Columns, params: Object) {
     const key = `taxonomies-${row.id}`;
     return <TaxonomyRow key={key} taxonomy={row} columns={columns} params={params} />;
   }
 
-  render(): Element {
+  render() {
     const { list, actions } = this.props;
 
     const searchActions = {

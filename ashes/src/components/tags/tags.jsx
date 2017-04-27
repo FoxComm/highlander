@@ -12,6 +12,8 @@ import TextInput from '../forms/text-input';
 
 import styles from './tags.css';
 
+import type { Value } from 'components/rounded-pill/rounded-pill';
+
 type Props = {
   attributes: Attributes,
   onChange: (attributes: Attributes) => void,
@@ -27,7 +29,7 @@ export default class Tags extends Component {
   state: State = { isAdding: false, addingValue: '' };
   props: Props;
 
-  get addInput(): ?Element {
+  get addInput(): ?Element<*> {
     if (this.state.isAdding) {
       return (
         <TextInput
@@ -36,7 +38,8 @@ export default class Tags extends Component {
           onBlur={this.submitTags}
           onKeyDown={this.handleKeyDown}
           onChange={this.handleChange}
-          value={this.state.addingValue} />
+          value={this.state.addingValue}
+          autoFocus />
       );
     }
   }
@@ -87,8 +90,8 @@ export default class Tags extends Component {
   }
 
   @autobind
-  handleRemoveTag(value: string) {
-    const tags = _.reject(this.tags, tag => tag === value);
+  handleRemoveTag(value: Value) {
+    const tags = _.reject(this.tags, tag => tag === String(value));
     this.updateTags(tags);
   }
 
@@ -98,7 +101,7 @@ export default class Tags extends Component {
     this.props.onChange({ ...attributes, tags: newAttr });
   }
 
-  render(): Element {
+  render() {
     const tags = this.tags;
     const mainContent = _.isEmpty(tags)
       ? <div styleName="empty-text">Add a tag</div>

@@ -1,3 +1,4 @@
+import java.time.Instant
 import java.time.Instant.now
 import java.time.temporal.ChronoUnit.DAYS
 
@@ -9,6 +10,7 @@ import failures.ObjectFailures._
 import models.cord.{Carts, Orders}
 import models.coupon.Coupon
 import models.objects.ObjectContext
+import models.traits.IlluminatedModel
 import org.json4s.JsonAST._
 import payloads.CouponPayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
@@ -27,7 +29,7 @@ class CouponsIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with ApiFixtureHelpers
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with TestActivityContext.AdminAC
     with ApiFixtures
     with BakedFixtures {
@@ -37,16 +39,20 @@ class CouponsIntegrationTest
       coupon
     }
 
-    "create coupon with invalid date should fail" in new StoreAdmin_Seed
+    "created coupon should always be active" in new StoreAdmin_Seed
     with Coupon_TotalQualifier_PercentOff {
-      private val invalidAttrs = Map[String, Any](
-          "name"       → "donkey coupon",
-          "activeFrom" → ShadowValue("2016-07-19T08:28:21.405+00:00", "datetime")).asShadow
+      override def couponActiveFrom = Instant.now.plus(10, DAYS)
+      override def couponActiveTo   = Some(Instant.now.plus(20, DAYS))
 
-      couponsApi
-        .create(CreateCoupon(attributes = invalidAttrs, promotion = promotion.id))
-        .mustFailWith400(
-            ShadowAttributeInvalidTime("activeFrom", "JString(2016-07-19T08:28:21.405+00:00)"))
+      coupon
+
+      val whatAmIDoing = new IlluminatedModel[Unit] {
+        def archivedAt    = None
+        def attributes    = coupon.attributes
+        def inactiveError = CouponIsNotActive
+      }
+
+      whatAmIDoing.mustBeActive mustBe 'right
     }
   }
 
@@ -94,43 +100,77 @@ class CouponsIntegrationTest
         response.coupon.value.code must === (couponCode)
         response.promotion mustBe 'defined
       }
-    }
 
-    "ignores purchased gift cards" - {
-      // coupon must fail to be applied to the cart because gc cost should be excluded from qualifier validation
+      "and excludes gift card cost from the applied discount" - {
+        // discount must be 10% off regular line item cost, not regular + gift card cost
 
-      "for cart total qualifier" in new Coupon_TotalQualifier_PercentOff
-      with GiftCardLineItemFixture {
-        override def qualifiedSubtotal: Int = 4000
+        "for cart total qualifier" in new Coupon_TotalQualifier_PercentOff
+        with RegularAndGiftCardLineItemFixture {
+          override def qualifiedSubtotal: Int = 2000
 
-        private val message = "qualifier orderTotalAmountQualifier rejected order with refNum=BR10001, " +
-            "reason: Order subtotal is less than 4000"
-        cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
-      }
+          cartsApi(cartRef).coupon
+            .add(couponCode)
+            .asTheResult[CartResponse]
+            .totals
+            .adjustments must === (300)
+        }
 
-      "for items total qualifier" in new Coupon_NumItemsQualifier_PercentOff
-      with GiftCardLineItemFixture {
-        override def qualifiedNumItems: Int = 2
+        "for items number qualifier" in new Coupon_NumItemsQualifier_PercentOff
+        with RegularAndGiftCardLineItemFixture {
+          override def qualifiedNumItems: Int = 1
 
-        private val message = "qualifier orderNumUnitsQualifier rejected order with refNum=BR10001, " +
-            "reason: Order unit count is less than 2"
-        cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
+          cartsApi(cartRef).coupon
+            .add(couponCode)
+            .asTheResult[CartResponse]
+            .totals
+            .adjustments must === (300)
+        }
       }
     }
 
     "fails to attach coupon" - {
-      "when activeFrom is after now" in new CartCouponFixture {
-        override def couponActiveFrom = now.plus(1, DAYS)
-        override def couponActiveTo   = now.plus(2, DAYS).some
+      // TODO @anna: This can be removed once /orders vs /carts routes are split
+      "when attaching to order" in new CartCouponFixture {
+        (for {
+          cart  ← * <~ Carts.mustFindByRefNum(cartRef)
+          order ← * <~ Orders.createFromCart(cart, subScope = None)
+        } yield order).gimme
 
-        cartsApi(cartRef).coupon.add(couponCode).mustFailWith400(CouponIsNotActive)
+        POST(s"v1/orders/$cartRef/coupon/$couponCode", defaultAdminAuth.jwtCookie.some)
+          .mustFailWith400(OrderAlreadyPlaced(cartRef))
       }
 
-      "when activeTo is before now" in new CartCouponFixture {
-        override def couponActiveFrom = now.minus(2, DAYS)
-        override def couponActiveTo   = now.minus(1, DAYS).some
+      "because purchased gift card is excluded from qualifier judgement" - {
 
-        cartsApi(cartRef).coupon.add(couponCode).mustFailWith400(CouponIsNotActive)
+        "for `carts any` qualifier (cart only has gift card line items)" in new Coupon_AnyQualifier_PercentOff {
+          val skuCode = new ProductSku_ApiFixture {}.skuCode
+          val cartRef = api_newGuestCart().referenceNumber
+
+          cartsApi(cartRef).lineItems
+            .add(Seq(UpdateLineItemsPayload(skuCode, 2, randomGiftCardLineItemAttributes)))
+
+          val message = "qualifier orderAnyQualifier rejected order with refNum=BR10001, " +
+              "reason: Items in cart are not eligible for discount"
+          cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
+        }
+
+        "for `cart total` qualifier" in new Coupon_TotalQualifier_PercentOff
+        with RegularAndGiftCardLineItemFixture {
+          override def qualifiedSubtotal: Int = 4000
+
+          val message = "qualifier orderTotalAmountQualifier rejected order with refNum=BR10001, " +
+              "reason: Order subtotal is less than 4000"
+          cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
+        }
+
+        "for `items number` qualifier" in new Coupon_NumItemsQualifier_PercentOff
+        with RegularAndGiftCardLineItemFixture {
+          override def qualifiedNumItems: Int = 2
+
+          val message = "qualifier orderNumUnitsQualifier rejected order with refNum=BR10001, " +
+              "reason: Order unit count is less than 2"
+          cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
+        }
       }
     }
   }
@@ -157,7 +197,7 @@ class CouponsIntegrationTest
     }
   }
 
-  trait GiftCardLineItemFixture extends StoreAdmin_Seed {
+  trait RegularAndGiftCardLineItemFixture extends StoreAdmin_Seed {
     val cartRef = api_newGuestCart().referenceNumber
 
     private val skuCode   = new ProductSku_ApiFixture { override def skuPrice = 3000 }.skuCode
@@ -165,7 +205,7 @@ class CouponsIntegrationTest
 
     cartsApi(cartRef).lineItems
       .add(Seq(UpdateLineItemsPayload(skuCode, 1),
-               UpdateLineItemsPayload(gcSkuCode, 1, giftCardLineItemAttributes)))
+               UpdateLineItemsPayload(gcSkuCode, 1, randomGiftCardLineItemAttributes)))
       .mustBeOk()
   }
 }

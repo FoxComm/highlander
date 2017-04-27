@@ -42,10 +42,6 @@ phoenix-scala.iml
 .DS_Store
 .gce
 
-# Gatling
-gatling-results/
-gatling-classes/
-
 version
 
 #style files

@@ -10,53 +10,60 @@ import TableCell from '../table/cell';
 import TableRow from '../table/row';
 
 const MultiSelectRow = (props, context) => {
-  const { columns, row, setCellContents, params: {checked, setChecked}, linkTo, linkParams, ...rest } = props;
+  const {
+    columns,
+    row,
+    setCellContents,
+    processCell,
+    params: { checked, setChecked },
+    linkTo,
+    linkParams,
+    ...rest,
+  } = props;
+
   let { onClick, href } = rest;
 
   // linkTo is shortcut for creating onClick and href properties which leads to defined behaviour:
   // single click leads to transition
   // over click leads to page load
   if (linkTo) {
-    onClick = (event) => {
+    onClick = (event: MouseEvent) => {
       if (event.button == 0 && !event.ctrlKey) {
         event.preventDefault();
+        event.stopPropagation();
+
         transitionTo(linkTo, linkParams);
       }
     };
 
-    href = context.router.createHref({name: linkTo, params: linkParams});
+    href = context.router.createHref({ name: linkTo, params: linkParams });
   }
+
+  const onChange = ({ target: { checked } }) => setChecked(checked);
 
   const cells = _.reduce(columns, (visibleCells, col) => {
     const cellKey = `row-${col.field}`;
     let cellContents = null;
     let cellClickAction = null;
-
-    const onChange = ({target: { checked }}) => {
-      setChecked(checked);
-    };
-
-    switch (col.field) {
-      case 'toggleColumns':
-        cellContents = '';
-        break;
-      case 'selectColumn':
-        cellClickAction = event => event.stopPropagation();
-        cellContents = <Checkbox id={`multi-select-${row.id}`} inline={true} checked={checked} onChange={onChange} />;
-        break;
-      default:
-        cellContents = setCellContents(row, col.field);
-        break;
-    }
+    const setCellFn = setCellContents || _.get;
 
     const cls = classNames(`fct-row__${col.field}`, {
       'row-head-left': col.field == 'selectColumn',
-      'row-head-right': col.field == 'toggleColumns'
     });
+
+    switch (col.field) {
+      case 'selectColumn':
+        cellClickAction = (event: MouseEvent) => event.stopPropagation();
+        cellContents = <Checkbox id={`multi-select-${row.id}`} inline={true} checked={checked} onChange={onChange} />;
+        break;
+      default:
+        cellContents = setCellFn(row, col.field);
+        break;
+    }
 
     visibleCells.push(
       <TableCell className={cls} onClick={cellClickAction} key={cellKey} column={col} row={row}>
-        {cellContents}
+        {processCell(cellContents, col)}
       </TableCell>
     );
 
@@ -78,9 +85,10 @@ MultiSelectRow.propTypes = {
   linkParams: PropTypes.object,
   row: PropTypes.object.isRequired,
   setCellContents: PropTypes.func.isRequired,
+  processCell: PropTypes.func,
   params: PropTypes.shape({
-    checked: PropTypes.bool.isRequired,
-    setChecked: PropTypes.func.isRequired,
+    checked: PropTypes.bool,
+    setChecked: PropTypes.func,
   }),
 };
 
@@ -89,7 +97,8 @@ MultiSelectRow.contextTypes = {
 };
 
 MultiSelectRow.defaultProps = {
-  onClick: _.noop
+  processCell: _.identity,
+  onClick: _.noop,
 };
 
 export default MultiSelectRow;

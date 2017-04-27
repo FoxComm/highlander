@@ -8,12 +8,14 @@ import payloads.CartPayloads.CreateCart
 import responses.cord.CartResponse
 import services._
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
 
 object CartCreator {
 
   def createCart(admin: User, payload: CreateCart)(implicit db: DB,
                                                    ec: EC,
+                                                   apis: Apis,
                                                    ac: AC,
                                                    ctx: OC,
                                                    au: AU): DbResultT[CartResponse] = {
@@ -22,10 +24,11 @@ object CartCreator {
       (payload.customerId, payload.email) match {
         case (Some(customerId), _) ⇒ createCartForCustomer(customerId)
         case (_, Some(email))      ⇒ createCartAndGuest(email)
-        case _                     ⇒ ???
+        case _                     ⇒ ??? // FIXME: the hell‽ @michalrus
       }
 
-    def createCartForCustomer(accountId: Int)(implicit ctx: OC): DbResultT[CartResponse] =
+    def createCartForCustomer(accountId: Int)(implicit ctx: OC,
+                                              apis: Apis): DbResultT[CartResponse] =
       for {
         customer ← * <~ Users.mustFindByAccountId(accountId)
         fullCart ← * <~ CartQueries.findOrCreateCartByAccountInner(customer, Some(admin))
@@ -42,13 +45,12 @@ object CartCreator {
                                    scope = Scope.current))
         scope ← * <~ Scope.resolveOverride(payload.scope)
         cart  ← * <~ Carts.create(Cart(accountId = account.id, scope = scope))
-        _     ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest, custData))
+        _ ← * <~ LogActivity()
+             .withScope(scope)
+             .cartCreated(Some(admin), root(cart, guest, custData))
       } yield root(cart, guest, custData)
 
-    for {
-      _    ← * <~ payload.validate.toXor
-      root ← * <~ existingCustomerOrNewGuest
-    } yield root
+    existingCustomerOrNewGuest
   }
 
   private def root(cart: Cart, customer: User, custData: CustomerData): CartResponse =

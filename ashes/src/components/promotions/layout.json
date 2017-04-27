@@ -5,41 +5,62 @@
       "title": "General",
       "content": [
         {
-          "type": "apply-type"
-        },
-        {
+          "canAddProperty": true,
+          "includeRest": true,
           "type": "fields",
           "value": [
-            "name",
+            "name"
+          ],
+          "omit": [
             "storefrontName",
+            "customerGroupIds",
             "description",
-            "details"
+            "details",
+            "activeFrom",
+            "activeTo",
+            "tags"
           ]
         }
       ]
     },
     {
       "type": "group",
-      "title": "Qualifier",
-      "renderer": "qualifier"
+      "title": "Discounts",
+      "content": [
+        {
+          "type": "discounts"
+        },
+        {
+          "type": "customers"
+        }
+      ]
     },
     {
       "type": "group",
-      "title": "Offer",
-      "renderer": "offer"
+      "title": "Usage Rules",
+      "content": [
+        {
+          "type": "usage-rules"
+        }
+      ]
     },
     {
       "type": "group",
-      "title": "Customers",
-      "renderer": "customers"
+      "showIfNew": true,
+      "title": "Apply Type",
+      "content": [
+        {
+          "type": "apply-type"
+        }
+      ]
     }
   ],
   "aside": [
     {
-      "type": "tags"
+      "type": "state"
     },
     {
-      "type": "state"
+      "type": "tags"
     },
     {
       "type": "watchers"

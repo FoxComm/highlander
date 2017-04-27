@@ -5,7 +5,7 @@ import models.payment.storecredit._
 import testutils._
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class StoreCreditIntegrationTest
     extends IntegrationTestBase

@@ -11,12 +11,13 @@
   .fc-pilled-input {
     &__pill {
       .icon-filter, .icon-search {
-        margin-right: 10px;
+        margin-left: 10px;
       }
     }
 
     &__controls-container {
-      .fc-btn {
+      .fc-button-with-menu__left-button,
+      .fc-button-with-menu__right-button {
         color: @color-decor32;
         border: none;
         background-color: transparent;
@@ -48,6 +49,7 @@
   }
 
   &__search-control {
+    position: relative;
     padding: 0 1.85%;
     margin-top: 20px;
   }

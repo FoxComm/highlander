@@ -1,60 +1,67 @@
 package models.discount
 
-import scala.concurrent.Future
-
-import cats.data.Xor
+import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import models.discount.SearchReference._
 import models.sharedsearch.SharedSearches
 import org.json4s.JsonAST.JObject
-import services.Result
 import utils.ElasticsearchApi.{Buckets, ScopedSearchView, SearchView}
 import utils.aliases._
+import utils.apis.Apis
+import utils.db._
+
+import scala.concurrent.Future
 
 /**
   * Linking mechanism for qualifiers (also used in offers)
   */
 sealed trait SearchReference[T] {
   val fieldName: String
-  val pureResult: Result[T]
+  def pureResult(implicit ec: EC): Result[T]
   val searchId: Int
 
-  def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[T] = {
+  def query(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis): Result[T] = {
     val refs = references(input)
-    if (refs.isEmpty) return pureResult
 
-    SharedSearches.findOneById(searchId).run().flatMap {
-      case Some(search) ⇒
-        search.rawQuery \ "query" match {
-          case query: JObject ⇒
-            val searchView = searchViewByScope(search.accessScope)
-            esSearch(searchView, query, refs).map(result ⇒ Xor.Right(result))
-          case _ ⇒ pureResult
-        }
-      case _ ⇒ pureResult
+    if (refs.isEmpty) pureResult
+    else {
+      for {
+        searchO ← Result
+                   .fromF(SharedSearches.findOneById(searchId).run()) // FIXME: why are we using .run here? And too verbose @michalrus
+        result ← searchO match {
+                  case Some(search) ⇒
+                    search.rawQuery \ "query" match {
+                      case query: JObject ⇒
+                        val searchView = searchViewByScope(search.accessScope)
+                        Result.fromF(esSearch(searchView, query, refs))
+                      case _ ⇒ pureResult
+                    }
+                  case _ ⇒ pureResult
+                }
+      } yield result
     }
   }
 
   protected val searchViewByScope: (LTree ⇒ SearchView)
   protected def references(input: DiscountInput): Seq[String]
   protected def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(
-      implicit es: ES): Future[T]
+      implicit apis: Apis): Future[T]
 }
 
 trait SearchBuckets extends SearchReference[Buckets] {
-  val pureResult: Result[Buckets] = pureBuckets
+  def pureResult(implicit ec: EC): Result[Buckets] = pureBuckets
 
   def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(
-      implicit es: ES): Future[Buckets] =
-    es.checkBuckets(searchView, query, fieldName, refs)
+      implicit apis: Apis): Future[Buckets] =
+    apis.elasticSearch.checkBuckets(searchView, query, fieldName, refs)
 }
 
 trait SearchMetrics extends SearchReference[Long] {
-  val pureResult: Result[Long] = pureMetrics
+  def pureResult(implicit ec: EC): Result[Long] = pureMetrics
 
   def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(
-      implicit es: ES): Future[Long] =
-    es.checkMetrics(searchView, query, fieldName, refs)
+      implicit apis: Apis): Future[Long] =
+    apis.elasticSearch.checkMetrics(searchView, query, fieldName, refs)
 }
 
 case class CustomerSearch(customerSearchId: Int) extends SearchMetrics {
@@ -99,6 +106,6 @@ object SearchReference {
   def productsSearchField: String  = "productId"
   def skuSearchField: String       = "code"
 
-  def pureMetrics: Result[Long]    = Future.successful(Xor.Right(0))
-  def pureBuckets: Result[Buckets] = Future.successful(Xor.Right(List.empty))
+  def pureMetrics(implicit ec: EC): Result[Long]    = Result.pure(0L)
+  def pureBuckets(implicit ec: EC): Result[Buckets] = Result.pure(Seq.empty)
 }

@@ -9,7 +9,7 @@ import Alert from '../alerts/alert';
 import ErrorAlerts from '../alerts/error-alerts';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
-import { PrimaryButton, Button } from '../common/buttons';
+import { PrimaryButton, Button } from 'components/core/button';
 import WrapToLines from './wrap-to-lines';
 import WaitAnimation from '../common/wait-animation';
 
@@ -32,7 +32,7 @@ type TState = {
 
 type LoginProps = {
   current: TUser,
-  authenticate: (payload: LoginPayload) => Promise,
+  authenticate: (payload: LoginPayload) => Promise<*>,
   user: {
     message: String,
   },
@@ -87,7 +87,7 @@ export default class Login extends Component {
 
   @autobind
   onForgotClick() {
-    console.log('todo: restore password');
+    // @todo: restore password
   }
 
   @autobind

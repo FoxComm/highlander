@@ -5,12 +5,12 @@
 import React, { Element, PropTypes } from 'react';
 
 type Props = {
-  children?: Element,
+  children?: Element<*>,
   onClickUp: () => void,
   onClickDown: () => void,
 };
 
-const DateTimeCounter = (props: Props): Element => {
+const DateTimeCounter = (props: Props) => {
   const { children, onClickUp, onClickDown } = props;
   return (
     <div className="fc-date-time-picker__counter">

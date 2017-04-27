@@ -1,72 +1,60 @@
 /* @flow */
-import React, { Component, Element } from 'react';
 
-import { anyPermitted, isPermitted } from 'lib/claims';
+import React from 'react';
+
+import { anyPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
 
-import NavigationItem from 'components/sidebar/navigation-item';
-import { IndexLink, Link } from 'components/link';
+import NavigationItem from '../navigation-item';
 
-import type { Claims } from 'lib/claims';
-
-type Props = {
-  claims: Claims,
-  routes: Array<Object>,
-  collapsed: boolean,
-  status: string,
-  toggleMenuItem: Function,
-};
+import styles from './entries.css';
 
 const productClaims = readAction(frn.pim.product);
 const skuClaims = readAction(frn.pim.sku);
 const inventoryClaims = readAction(frn.mdl.summary);
 
-export default class CatalogEntry extends Component {
-  props: Props;
+const CatalogEntry = ({ claims, routes }: TMenuEntry) => {
+  const allClaims = { ...productClaims, ...skuClaims, ...inventoryClaims };
 
-  render(): Element {
-    const { claims, collapsed, routes, status, toggleMenuItem } = this.props;
-    const allClaims = { ...productClaims, ...skuClaims, ...inventoryClaims };
+  if (!anyPermitted(allClaims, claims)) {
+    return <div></div>;
+  }
 
-    if (!anyPermitted(allClaims, claims)) {
-      return <div></div>;
-    }
-
-    return (
+  return (
+    <div styleName="fc-entries-wrapper">
+      <h3>CATALOG</h3>
       <li>
         <NavigationItem
           to="products"
-          icon="icon-items"
-          title="Catalog"
-          isIndex={true}
-          isExpandable={true}
+          icon="products"
+          title="Products"
           routes={routes}
-          collapsed={collapsed}
-          status={status}
-          toggleMenuItem={toggleMenuItem}>
-          <IndexLink
-            to="products"
-            className="fc-navigation-item__sublink"
-            actualClaims={claims}
-            expectedClaims={productClaims}>
-            Products
-          </IndexLink>
-          <IndexLink
-            to="skus"
-            className="fc-navigation-item__sublink"
-            actualClaims={claims}
-            expectedClaims={skuClaims}>
-            SKUs
-          </IndexLink>
-          <IndexLink
-            to="inventory"
-            className="fc-navigation-item__sublink"
-            actualClaims={claims}
-            expectedClaims={inventoryClaims}>
-            Inventory
-          </IndexLink>
-        </NavigationItem>
+          actualClaims={claims}
+          expectedClaims={productClaims}
+        />
       </li>
-    );
-  }
-}
+      <li>
+        <NavigationItem
+          to="skus"
+          icon="skus"
+          title="SKUs"
+          routes={routes}
+          actualClaims={claims}
+          expectedClaims={skuClaims}
+        />
+      </li>
+      <li>
+        <NavigationItem
+          to="inventory"
+          icon="skus"
+          title="Inventory"
+          routes={routes}
+          actualClaims={claims}
+          expectedClaims={inventoryClaims}
+        />
+      </li>
+    </div>
+  );
+};
+
+export default CatalogEntry;

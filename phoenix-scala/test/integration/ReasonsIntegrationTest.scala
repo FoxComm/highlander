@@ -6,12 +6,12 @@ import testutils.apis.PhoenixPublicApi
 import testutils.fixtures.BakedFixtures
 import utils.Strings._
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class ReasonsIntegrationTest
     extends IntegrationTestBase
     with PhoenixPublicApi
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with BakedFixtures {
 
   "Reasons" - {

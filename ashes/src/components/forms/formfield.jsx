@@ -3,7 +3,6 @@
 import _ from 'lodash';
 import { autobind, debounce } from 'core-decorators';
 import React, { Component, Element, PropTypes } from 'react';
-import { findDOMNode } from 'react-dom';
 import * as validators from 'lib/validators';
 import classNames from 'classnames';
 import { isDefined } from 'lib/utils';
@@ -11,7 +10,7 @@ import { isDefined } from 'lib/utils';
 import AutoScroll from '../common/auto-scroll';
 
 type FormFieldErrorProps = {
-  error: Element|string,
+  error: Element<*>|string,
   autoScroll?: boolean,
 }
 
@@ -26,7 +25,7 @@ export function FormFieldError(props: FormFieldErrorProps) {
 
 type FormFieldProps = {
   validator?: string|(value: any) => string;
-  children: Element;
+  children: Element<*>;
   required: ?any;
   validateOnBlur: ?any;
   maxLength: ?number;
@@ -36,9 +35,9 @@ type FormFieldProps = {
   getTargetValue: (node: any) => any;
   className: ?string;
   labelClassName?: string;
-  labelAtRight?: Element|string;
+  labelAtRight?: Element<*>|string;
   labelAfterInput?: boolean;
-  label?: Element|string;
+  label?: string;
   validationLabel?: string;
   requiredMessage?: string;
   isDefined: (value: any) => boolean;
@@ -67,6 +66,8 @@ export default class FormField extends Component {
     isValid: true,
     submitted: false,
   };
+
+  _block: HTMLElement;
 
   toggleBindToDispatcher(bind) {
     const { formDispatcher } = this.context;
@@ -143,8 +144,8 @@ export default class FormField extends Component {
   }
 
   findTargetNode() {
-    if (this.props.target) {
-      return findDOMNode(this).querySelector(this.props.target);
+    if (this._block && this.props.target) {
+      return this._block.querySelector(this.props.target);
     }
   }
 
@@ -247,7 +248,6 @@ export default class FormField extends Component {
   }
 
   @autobind
-  // $FlowFixMe: there is no global context
   fullValidate(target = this.findTargetNode()) {
     this.validate();
 
@@ -286,7 +286,7 @@ export default class FormField extends Component {
     }
   }
 
-  get label(): ?Element {
+  get label() {
     if (this.props.label) {
       const optionalMark = 'optional' in this.props ? <span className="fc-form-field-optional">(optional)</span> : null;
       const className = classNames('fc-form-field-label', this.props.labelClassName);
@@ -318,7 +318,7 @@ export default class FormField extends Component {
       : [this.label, children];
 
     return (
-      <div className={className}>
+      <div className={className} ref={ref => this._block = ref}>
         {content}
         {this.errorMessages}
       </div>

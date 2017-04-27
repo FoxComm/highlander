@@ -11,10 +11,13 @@ import { numberize } from 'lib/text-utils';
 import { ModalContainer } from '../modal/base';
 import ContentBox from '../content-box/content-box';
 
-import { PrimaryButton } from '../common/buttons';
+import { PrimaryButton } from 'components/core/button';
 import WaitAnimation from '../common/wait-animation';
 import AdminsTypeahead from '../users-typeahead/admins-typeahead';
 import Alert from '../alerts/alert';
+
+// styles
+import s from './share-search.css';
 
 const mapStateToProps = (state, props) => {
   const search = _.invoke(state, `${props.entity}.currentSearch`);
@@ -170,6 +173,7 @@ class ShareSearch extends Component {
             <ContentBox title={this.title} actionBlock={this.closeAction}>
               {this.alert}
               <AdminsTypeahead
+                className={s.typeahead}
                 hideOnBlur
                 label="Invite Users"
                 onSelect={this.handleSelectUsers}

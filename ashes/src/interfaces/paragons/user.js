@@ -1,8 +1,6 @@
 
 type TUser = {
   id: number,
-  name?: string,
+  name: string,
   email?: string,
-  firstName?: string,
-  lastName?: string,
 }

@@ -1,4 +1,3 @@
-
 import makeLiveSearch from '../live-search';
 
 const searchTerms = [
@@ -16,6 +15,15 @@ const searchTerms = [
     title: 'Promotion : Storefront Name',
     type: 'string',
     term: 'storefrontName'
+  },
+  {
+    title: 'Promotion : Apply Type',
+    type: 'enum',
+    term: 'applyType',
+    suggestions: [
+      { display: 'Coupon', value: 'coupon' },
+      { display: 'Auto', value: 'auto' },
+    ],
   },
   {
     title: 'Promotion : Date/Time Created',

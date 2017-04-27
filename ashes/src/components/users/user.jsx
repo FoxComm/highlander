@@ -14,7 +14,7 @@ import * as UserActions from 'modules/users/details';
 import WaitAnimation from '../common/wait-animation';
 import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
-import { Button, PrimaryButton } from '../common/buttons';
+import { Button, PrimaryButton } from 'components/core/button';
 
 type Params = {
   userId: number,
@@ -27,7 +27,7 @@ type Details = {
 type Props = {
   params: Params,
   details: Details,
-  children: Element,
+  children: Element<*>,
   fetchError: any,
   isFetching: bool,
   fetchUser: Function,
@@ -88,7 +88,7 @@ class User extends Component {
     this.props.updateUser(this.state.user);
   }
 
-  renderChildren(): Element {
+  renderChildren() {
     return React.cloneElement(this.props.children, {
       user: this.state.user,
       onChange: this.handleFormChange,
@@ -111,9 +111,8 @@ class User extends Component {
   @autobind
   handleNewUserSubmit() {
     this.props.createUser(this.state.user).then(({ payload }) => {
-        transitionTo('user', {userId: payload.id});
-      }
-    );
+      transitionTo('user', {userId: payload.id});
+    });
   }
 
   renderNewUserTitle() {

@@ -67,7 +67,7 @@ class MerchantApplicationsList extends Component {
     };
   }
 
-  render(): Element {
+  render() {
     const { list, isFetching } = this.props;
     const count = list.applications.length;
 

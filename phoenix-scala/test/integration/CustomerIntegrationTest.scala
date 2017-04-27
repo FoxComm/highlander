@@ -25,23 +25,20 @@ import responses.CreditCardsResponse.{Root ⇒ CardResponse}
 import responses.CustomerResponse.Root
 import responses.cord.CartResponse
 import responses.{CreditCardsResponse, CustomerResponse}
-import services.Result
 import services.carts.CartPaymentUpdater
 import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
 import testutils.fixtures.BakedFixtures
-import utils.MockedApis
 import utils.aliases.stripe.StripeCard
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class CustomerIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with PhoenixPublicApi
-    with AutomaticAuth
-    with MockedApis
+    with DefaultJwtAdminAuth
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
@@ -60,6 +57,28 @@ class CustomerIntegrationTest
         .create(CreateCustomerPayload(email = customer.email.value, name = "test".some))
         .mustFailWith400(CustomerEmailNotUnique)
     }
+
+    "guests may have email that was already registered" in new GuestAndCustomerFixture {
+      val customerCreated = customersApi.create(customer).as[Root]
+      val guestCreated    = customersApi.create(guest).as[Root]
+
+      guestCreated.name must === (guest.name)
+      customerCreated.name must === (customer.name)
+    }
+
+    "customer may have email that was already registered for a guest before" in new GuestAndCustomerFixture {
+      val guestCreated    = customersApi.create(guest).as[Root]
+      val customerCreated = customersApi.create(customer).as[Root]
+
+      guestCreated.name must === (guest.name)
+      customerCreated.name must === (customer.name)
+    }
+
+    trait GuestAndCustomerFixture {
+      val customer = CreateCustomerPayload(email = "test@example.com", name = "customer".some)
+      val guest    = customer.copy(name = "guest".some, isGuest = true.some)
+    }
+
   }
 
   "GET /v1/customers/:accountId" - {
@@ -203,7 +222,6 @@ class CustomerIntegrationTest
 
         // check that states used in sql still actual
         sqlu"UPDATE orders SET state = 'shipped' WHERE reference_number = ${order.refNum}".gimme
-        sql"SELECT public.update_customers_ranking()".as[Boolean].gimme
 
         customersApi(customer.accountId).get().as[Root].rank must === (2.some)
         val rank  = CustomersRanks.findById(customer.accountId).extract.result.head.gimme
@@ -374,7 +392,7 @@ class CustomerIntegrationTest
 
       val ccResp = customersApi(customer.accountId).payments
         .creditCard(creditCard.id)
-        .toggleDefault(ToggleDefaultCreditCard(isDefault = true))
+        .setDefault()
         .as[CardResponse]
 
       ccResp.isDefault mustBe true
@@ -391,7 +409,7 @@ class CustomerIntegrationTest
 
       val ccResp = customersApi(customer.accountId).payments
         .creditCard(nonDefault.id)
-        .toggleDefault(ToggleDefaultCreditCard(isDefault = true))
+        .setDefault()
         .as[CardResponse]
 
       val (prevDefault, currDefault) =
@@ -405,7 +423,7 @@ class CustomerIntegrationTest
     "fails when the credit card doesn't exist" in new Fixture {
       customersApi(customer.accountId).payments
         .creditCard(99)
-        .toggleDefault(ToggleDefaultCreditCard(isDefault = true))
+        .setDefault()
         .mustFailWith404(NotFoundFailure404(CreditCard, 99))
     }
   }
@@ -630,7 +648,7 @@ class CustomerIntegrationTest
                              CreditCardCharge(
                                  creditCardId = creditCard.id,
                                  orderPaymentId = orderPayment.id,
-                                 chargeId = "asd",
+                                 chargeId = "asd1",
                                  state = CreditCardCharge.FullCapture,
                                  amount = 100
                              ))
@@ -642,7 +660,7 @@ class CustomerIntegrationTest
                              CreditCardCharge(
                                  creditCardId = creditCard.id,
                                  orderPaymentId = orderPayment2.id,
-                                 chargeId = "asd",
+                                 chargeId = "asd2",
                                  state = CreditCardCharge.FullCapture,
                                  amount = 1000000
                              ))

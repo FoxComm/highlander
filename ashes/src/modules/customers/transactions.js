@@ -102,6 +102,7 @@ const { reducer, actions } = makeLiveSearch(
   searchTerms,
   'orders_search_view/_search',
   'customerTransactionsScope', {
+    initialState: { sortBy: '-placedAt' },
     skipInitialFetch: true
   }
 );

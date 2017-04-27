@@ -1,5 +1,6 @@
 package utils.apis
 
+import cats.implicits._
 import com.ning.http.client
 import com.typesafe.scalalogging.LazyLogging
 import dispatch._
@@ -7,10 +8,10 @@ import failures.MiddlewarehouseFailures.MiddlewarehouseError
 import failures.{Failures, MiddlewarehouseFailures}
 import org.json4s.Extraction
 import org.json4s.jackson.JsonMethods._
-import services.Result
-import utils.JsonFormatters
 import payloads.AuthPayload
+import utils.JsonFormatters
 import utils.aliases._
+import utils.db._
 
 case class SkuInventoryHold(sku: String, qty: Int)
 case class OrderInventoryHold(refNum: String, items: Seq[SkuInventoryHold])
@@ -41,11 +42,12 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     val req    = reqUrl.setContentType("application/json", "UTF-8") <:< Map("JWT" → jwt) << body
     logger.info(s"middlewarehouse hold: $body")
 
-    Http(req.POST > AsMwhResponse).either.flatMap {
-      case Right(MwhResponse(status, _)) if status / 100 == 2 ⇒ Result.unit
-      case Right(MwhResponse(_, message))                     ⇒ Result.failures(parseMwhErrors(message))
-      case Left(error)                                        ⇒ Result.failure(MiddlewarehouseFailures.UnableToHoldLineItems)
+    val f = Http(req.POST > AsMwhResponse).either.map {
+      case Right(MwhResponse(status, _)) if status / 100 == 2 ⇒ Either.right(())
+      case Right(MwhResponse(_, message))                     ⇒ Either.left(parseMwhErrors(message))
+      case Left(error)                                        ⇒ Either.left(MiddlewarehouseFailures.UnableToHoldLineItems.single)
     }
+    Result.fromFEither(f)
   }
 
   //Note cart ref becomes order ref num after cart turns into order
@@ -55,10 +57,11 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     val jwt    = AuthPayload.jwt(au.token)
     val req    = reqUrl.setContentType("application/json", "UTF-8") <:< Map("JWT" → jwt)
     logger.info(s"middlewarehouse cancel hold: ${orderRefNum}")
-    Http(req.DELETE OK as.String).either.flatMap {
-      case Right(_)    ⇒ Result.unit
-      case Left(error) ⇒ Result.failure(MiddlewarehouseFailures.UnableToCancelHoldLineItems)
+    val f = Http(req.DELETE OK as.String).either.map {
+      case Right(_)    ⇒ Either.right(())
+      case Left(error) ⇒ Either.left(MiddlewarehouseFailures.UnableToCancelHoldLineItems.single)
     }
+    Result.fromFEither(f)
   }
 }
 

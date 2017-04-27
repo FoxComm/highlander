@@ -5,7 +5,7 @@ import failures.GeneralFailure
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
 import testutils.TestBase
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class ReasonTest extends TestBase {
   "Reason" - {

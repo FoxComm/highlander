@@ -9,7 +9,7 @@ type Props = {
   cart: Cart,
 };
 
-const SubNav = (props: Props): Element => {
+const SubNav = (props: Props) => {
   const cart = props.cart;
   const params = {cart: cart.referenceNumber};
 

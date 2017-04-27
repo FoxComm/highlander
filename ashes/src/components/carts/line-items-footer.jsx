@@ -14,8 +14,6 @@ import { updateLineItemCount } from 'modules/carts/details';
 
 import type { SuggestOptions } from 'modules/skus/suggest';
 
-import type { Sku } from 'modules/skus/list';
-
 const mapStateToProps = state => {
   return {
     suggestedSkus: _.get(state, 'skus.suggest.skus', []),
@@ -30,9 +28,9 @@ type Props = {
   cart: {
     referenceNumber: string,
   },
-  suggestedSkus: Array<Sku>,
+  suggestedSkus: SkuSearch,
   isFetchingSkus: boolean,
-  suggestSkus: (code: string, options?: SuggestOptions) => Promise,
+  suggestSkus: (code: string, options?: SuggestOptions) => Promise<*>,
   updateLineItemCount: Function,
   updateLineItemErrors: Array<string>
 };
@@ -41,7 +39,7 @@ export class CartLineItemsFooter extends Component {
   props: Props;
 
   @autobind
-  skuSelected(item: Sku) {
+  skuSelected(item: SkuSearchItem) {
     const { cart: { referenceNumber }, updateLineItemCount } = this.props;
 
     const skus = _.get(this.props, 'cart.lineItems.skus', []);
@@ -55,9 +53,10 @@ export class CartLineItemsFooter extends Component {
   }
 
   @autobind
-  suggestSkus(value: string): Promise {
+  suggestSkus(value: string): Promise<*> {
     return this.props.suggestSkus(value, {
       useTitle: true,
+      omitArchived: true,
     });
   }
 

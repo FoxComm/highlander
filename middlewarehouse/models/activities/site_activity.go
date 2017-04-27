@@ -10,10 +10,11 @@ import (
 // SiteActivity is as action that occurs within the system that should be
 // written to the activity log.
 type ISiteActivity interface {
-	Id() int
+	Id() string
 	Type() string
 	Data() string
 	CreatedAt() string
+	Scope() string
 }
 
 func NewActivityFromAvro(message metamorphosis.AvroMessage) (ISiteActivity, error) {
@@ -23,13 +24,14 @@ func NewActivityFromAvro(message metamorphosis.AvroMessage) (ISiteActivity, erro
 }
 
 type defaultSiteActivity struct {
-	ActivityId   int    `json:"id"`
-	ActivityData string `json:"data"`
-	ActivityType string `json:"activity_type" binding:"required"`
-	createdAt    time.Time
+	ActivityId    string `json:"id"`
+	ActivityData  string `json:"data"`
+	ActivityType  string `json:"kind" binding:"required"`
+	createdAt     time.Time
+	ActivityScope string `json:"scope"`
 }
 
-func (a defaultSiteActivity) Id() int {
+func (a defaultSiteActivity) Id() string {
 	return a.ActivityId
 }
 
@@ -43,4 +45,8 @@ func (a defaultSiteActivity) Type() string {
 
 func (a defaultSiteActivity) CreatedAt() string {
 	return a.createdAt.String()
+}
+
+func (a defaultSiteActivity) Scope() string {
+	return a.ActivityScope
 }

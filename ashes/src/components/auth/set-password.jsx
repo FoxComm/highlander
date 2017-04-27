@@ -10,7 +10,7 @@ import { transitionTo } from 'browserHistory';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import ErrorAlerts from '../alerts/error-alerts';
-import { PrimaryButton, Button } from '../common/buttons';
+import { PrimaryButton, Button } from 'components/core/button';
 import PasswordInput from '../forms/password-input';
 import WaitAnimation from '../common/wait-animation';
 
@@ -28,7 +28,7 @@ type Props = {
     err?: any,
     inProgress?: boolean,
   },
-  signUp: (payload: SignupPayload) => Promise,
+  signUp: (payload: SignupPayload) => Promise<*>,
   isMounted: boolean,
   location: Location,
 }

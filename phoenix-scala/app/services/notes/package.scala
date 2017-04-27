@@ -15,7 +15,7 @@ import utils.db._
 package object notes {
   def forModel[M <: FoxModel[M]](finder: Notes.QuerySeq)(implicit ec: EC): DbResultT[Seq[Root]] = {
     val query = for (notes ← finder; authors ← notes.author) yield (notes, authors)
-    DbResultT.fromDbio(query.result.map(_.map {
+    DbResultT.fromF(query.result.map(_.map {
       case (note, author) ⇒ AdminNotes.build(note, author)
     }))
   }
@@ -32,7 +32,7 @@ package object notes {
                      referenceType = refType,
                      body = payload.body,
                      scope = Scope.current))
-      _ ← * <~ LogActivity.noteCreated(author, entity, note)
+      _ ← * <~ LogActivity().noteCreated(author, entity, note)
     } yield note
 
   def updateNote[T](entity: T, noteId: Int, author: User, payload: UpdateNote)(
@@ -43,7 +43,7 @@ package object notes {
                  .filterByIdAndAdminId(noteId, author.id)
                  .mustFindOneOr(NotFoundFailure404(Note, noteId))
       newNote ← * <~ Notes.update(oldNote, oldNote.copy(body = payload.body))
-      _       ← * <~ LogActivity.noteUpdated(author, entity, oldNote, newNote)
+      _       ← * <~ LogActivity().noteUpdated(author, entity, oldNote, newNote)
     } yield AdminNotes.build(newNote, author)
 
   def deleteNote[T](entity: T, noteId: Int, admin: User)(implicit ec: EC,
@@ -54,6 +54,6 @@ package object notes {
       _ ← * <~ Notes.update(
              note,
              note.copy(deletedAt = Some(Instant.now), deletedBy = Some(admin.accountId)))
-      _ ← * <~ LogActivity.noteDeleted(admin, entity, note)
+      _ ← * <~ LogActivity().noteDeleted(admin, entity, note)
     } yield {}
 }

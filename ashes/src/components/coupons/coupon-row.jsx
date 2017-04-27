@@ -18,16 +18,18 @@ type CouponRowProps = {
   coupon: Object,
   columns: Array<string>,
   params: Object,
+  promotionId: Number
 };
 
 // This is a workaround for empty fields
 const setCellContents = (coupon: Object, field: string) => {
+  const codes = _.get(coupon, field) || [];
+
   switch (field) {
     case 'totalUsed':
     case 'currentCarts':
       return _.get(coupon, field, 0);
     case 'codes':
-      const codes = _.get(coupon, field) || [];
       if (codes.length > 1) {
         return (
           <span>{codes[0]} <span styleName="text-gray">+{codes.length - 1}</span></span>
@@ -42,7 +44,7 @@ const setCellContents = (coupon: Object, field: string) => {
 };
 
 const CouponRow = (props: CouponRowProps) => {
-  const { coupon, columns, params } = props;
+  const { coupon, columns, params, promotionId } = props;
   const key = `coupon-${coupon.id}`;
   const commonParams = {
     columns,
@@ -58,8 +60,7 @@ const CouponRow = (props: CouponRowProps) => {
   return (
     <MultiSelectRow
       {...commonParams}
-      linkTo="coupon-details"
-      linkParams={{couponId: coupon.id}}
+      linkParams={{couponId: coupon.id, promotionId: promotionId}}
     />
   );
 };

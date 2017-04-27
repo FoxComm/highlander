@@ -2,7 +2,7 @@ package routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import utils.http.JsonSupport._
 import models.account.User
 import payloads.PluginPayloads._
 import services.plugins.PluginsManager._
@@ -13,8 +13,8 @@ import utils.http.Http._
 
 object PluginRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
-    activityContext(auth.model) { implicit ac ⇒
+  def routes(implicit ec: EC, db: DB, auth: AU): Route = {
+    activityContext(auth) { implicit ac ⇒
       pathPrefix("plugins") {
         (get & pathEnd) {
           getOrFailures {

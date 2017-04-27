@@ -3,15 +3,18 @@ package testutils
 import java.sql.PreparedStatement
 import java.util.Locale
 import javax.sql.DataSource
-import scala.annotation.tailrec
-import models.objects.{ObjectContext, ObjectContexts}
+
+import models.objects.ObjectContexts
 import models.product.SimpleContext
 import org.scalatest._
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
 import utils.aliases.EC
+import utils.db._
 import utils.db.flyway.newFlyway
-import utils.seeds.Seeds
+import utils.seeds.Factories
+
+import scala.annotation.tailrec
 
 trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport {
   this: TestSuite ⇒
@@ -29,7 +32,6 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
                           "countries",
                           "regions",
                           "schema_version",
-                          "object_contexts",
                           "systems",
                           "resources",
                           "scopes",
@@ -47,38 +49,44 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
       flyway.clean()
       flyway.migrate()
 
-      setupObjectContext()
-      Seeds.createSingleMerchantSystem.gimme
+      truncateTablesStmt = {
+        val allTables =
+          persistConn.getMetaData.getTables(persistConn.getCatalog, "public", "%", Array("TABLE"))
 
-      val allTables =
-        persistConn.getMetaData.getTables(persistConn.getCatalog, "public", "%", Array("TABLE"))
+        @tailrec
+        def iterate(in: Seq[String]): Seq[String] =
+          if (allTables.next()) iterate(in :+ allTables.getString(3)) else in
 
-      @tailrec
-      def iterate(in: Seq[String]): Seq[String] = {
-        if (allTables.next()) {
-          iterate(in :+ allTables.getString(3))
-        } else {
-          in
+        tables = iterate(Seq()).filterNot { t ⇒
+          t.startsWith("pg_") || t.startsWith("sql_") || doNotTruncate.contains(t)
         }
+        val sqlTables = tables.mkString("{", ",", "}")
+        persistConn.prepareStatement(s"select truncate_nonempty_tables('$sqlTables'::text[])")
       }
 
-      tables = iterate(Seq()).filterNot { t ⇒
-        t.startsWith("pg_") || t.startsWith("sql_") || doNotTruncate.contains(t)
-      }
-      val sqlTables = tables.mkString("{", ",", "}")
-      truncateTablesStmt =
-        persistConn.prepareStatement(s"select truncate_nonempty_tables('$sqlTables'::text[])")
+      Factories.createSingleMerchantSystem.gimme
 
       migrated = true
     }
   }
 
-  private def setupObjectContext(): ObjectContext =
-    ObjectContexts.create(SimpleContext.create()).gimme
-
   override abstract protected def withFixture(test: NoArgTest): Outcome = {
     truncateTablesStmt.executeQuery()
+
+    // TODO: Use Seeds.createBase after promo tests are fixed?
+    createBaseTestSeeds()
+
     test()
+  }
+
+  private def createBaseTestSeeds() = {
+    // Base test data
+    (for {
+      _ ← * <~ ObjectContexts.create(SimpleContext.create())
+      // Can't create all schemas right now because promo tests are fucky
+      // FIXME @anna @michalrus
+      _ ← * <~ Factories.FIXME_createAllButPromoSchemas
+    } yield {}).gimme
   }
 }
 
@@ -88,7 +96,7 @@ object DbTestSupport {
   @volatile var tables: Seq[String]                   = Seq()
   @volatile var truncateTablesStmt: PreparedStatement = _
 
-  lazy val database    = Database.forConfig("db", TestBase.config)
+  lazy val database    = Database.forConfig("db", TestBase.bareConfig)
   lazy val dataSource  = jdbcDataSourceFromSlickDB(database)
   lazy val persistConn = dataSource.getConnection
   val api              = slick.driver.PostgresDriver.api

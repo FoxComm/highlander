@@ -1,0 +1,17 @@
+---
+
+- name: Copy Henhouse Marathon JSON
+  template: src=henhouse.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+
+- name: Update Henhouse in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/henhouse.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/henhouse'
+
+- name: Restart Henhouse in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/henhouse/restart'
+
+- name: Get Henhouse Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/henhouse | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: "{{marathon_retries}}"
+  delay: "{{marathon_delay}}"

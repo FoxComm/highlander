@@ -8,12 +8,10 @@ import _ from 'lodash';
 import { getUserId } from 'lib/claims';
 
 // components
-import { Dropdown } from 'components/dropdown';
 import { PageTitle } from 'components/section-title';
-import { PrimaryButton } from 'components/common/buttons';
+import { PrimaryButton } from 'components/core/button';
 import ContentBox from 'components/content-box/content-box';
 import FormField from 'components/forms/formfield';
-import FoxyForm from 'components/forms/foxy-form';
 import WaitAnimation from 'components/common/wait-animation';
 
 // redux
@@ -89,7 +87,7 @@ class IntegrationDetails extends Component {
       this.state.shopify_domain !== domain;
   }
 
-  get renderPageTitle(): Element {
+  get renderPageTitle(): Element<*> {
     const { isCreating, isUpdating } = this.props;
     const isLoading = isCreating || isUpdating;
     const disabled = isLoading || !this.isDirty;
@@ -127,9 +125,8 @@ class IntegrationDetails extends Component {
     }
   }
 
-  render(): Element {
-    const { originIntegration } = this.props.details;
-    const { isFetching, fetchError } = this.props;
+  render() {
+    const { isFetching } = this.props;
 
     if (isFetching) {
       return (
@@ -162,7 +159,7 @@ class IntegrationDetails extends Component {
                   <li styleName="entry">
                     <FormField label="Shopify Key" validator="ascii" maxLength={255}>
                       <div>
-                        <input 
+                        <input
                           type="text"
                           value={this.state.shopify_key}
                           onChange={handleShopifyKey} />

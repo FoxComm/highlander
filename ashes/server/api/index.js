@@ -1,4 +1,3 @@
-
 const proxy = require('koa-proxy');
 
 module.exports = function(app) {

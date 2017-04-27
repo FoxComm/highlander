@@ -7,15 +7,15 @@ import { autobind } from 'core-decorators';
 // components
 import { ModalContainer } from '../modal/base';
 import ContentBox from '../content-box/content-box';
-import SaveCancel from '../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 import AdminsTypeahead from '../users-typeahead/admins-typeahead';
 
 type Props = {
   isVisible: boolean,
   onCancel: (event: SyntheticEvent) => void,
   onConfirm: (users: Array<TUser>) => void,
-  title: string|Element,
-  bodyLabel: string|Element,
+  title: string|Element<*>,
+  bodyLabel: string|Element<*>,
   saveLabel: string,
   maxUsers?: number,
 }
@@ -84,6 +84,7 @@ class SelectAdminsModal extends Component {
               onSelect={this.handleAdminsSelected}
               label={props.bodyLabel}
               maxUsers={props.maxUsers}
+              view="modal"
             />
           </div>
         </ContentBox>

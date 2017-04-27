@@ -10,9 +10,10 @@ import { connect } from 'react-redux';
 // components
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import Counter from 'components/forms/counter';
-import { DeleteButton } from 'components/common/buttons';
+import { DeleteButton } from 'components/core/button';
 import Currency from 'components/common/currency';
 import Link from 'components/link/link';
+import ProductImage from 'components/imgix/product-image';
 
 // actions
 import { updateLineItemCount } from 'modules/carts/details';
@@ -113,13 +114,15 @@ export class CartLineItem extends Component {
 
     return (
       <tr className={classNames('line-item', className)}>
-        <td><img src={item.imagePath} /></td>
+        <td>
+          <ProductImage src={item.imagePath} width={50} height={50} />
+        </td>
         <td className="line-item-name">{item.name}</td>
         <td><Link to="sku-details" params={{ skuCode: item.sku }}>{item.sku}</Link></td>
         <td><Currency className="item-price" value={item.price} /></td>
         <td class="line-item-quantity">
           <Counter
-            id={`item-quantity-input-${skuQtyInput}`}
+            id={`fct-counter-input__${skuQtyInput}`}
             value={quantity}
             min={1}
             max={1000000}

@@ -9,7 +9,7 @@ export type ItemDesc = {
   type?: string;
   name?: string;
   widget?: string;
-  template?: (props: Object) => Element;
+  template?: (props: Object) => Element<*>;
 }
 
 

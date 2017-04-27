@@ -30,7 +30,7 @@ export default class OrderCoupons extends Component {
     return [coupon];
   }
 
-  render(): Element {
+  render() {
     const title = <PanelHeader showStatus={false} isOptional={true} text="Coupons" />;
     const content = <CouponsPanel coupons={this.coupons} columns={columns} />;
     return (

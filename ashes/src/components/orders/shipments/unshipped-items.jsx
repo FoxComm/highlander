@@ -14,6 +14,7 @@ import TableView from 'components/table/tableview';
 import TableRow from 'components/table/row';
 import TableCell from 'components/table/cell';
 import Currency from 'components/common/currency';
+import ProductImage from 'components/imgix/product-image';
 
 // styles
 import styles from './unshipped-items.css';
@@ -41,11 +42,11 @@ export default class UnshippedItems extends Component {
   props: Props;
 
   @autobind
-  renderRow(row: Object, index: number): Element {
+  renderRow(row: Object, index: number): Element<*> {
     return (
       <TableRow key={index}>
         <TableCell>
-          <img src={row.imagePath} />
+          <ProductImage src={row.imagePath} width={50} height={50} />
         </TableCell>
         <TableCell>{row.name}</TableCell>
         <TableCell>{row.sku}</TableCell>
@@ -59,7 +60,7 @@ export default class UnshippedItems extends Component {
     );
   }
 
-  get content(): Element {
+  get content(): Element<*> {
     const { items } = this.props;
 
     return (
@@ -73,7 +74,7 @@ export default class UnshippedItems extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     return (
       <ContentBox
         styleName="box"

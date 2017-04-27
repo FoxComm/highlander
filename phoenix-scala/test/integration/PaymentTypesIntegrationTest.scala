@@ -6,7 +6,7 @@ import testutils._
 import testutils.apis.PhoenixPublicApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class PaymentTypesIntegrationTest
     extends IntegrationTestBase

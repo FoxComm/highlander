@@ -1,0 +1,27 @@
+
+.item {
+  display: flex;
+  align-items: center;
+  height: 60px;
+}
+
+.item-icon {
+  margin-left: 10px;
+  display: flex;
+  .initials {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.item-name {
+  flex-grow: 1;
+  margin-left: 20px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.item-email {
+  margin-right: 20px;
+}

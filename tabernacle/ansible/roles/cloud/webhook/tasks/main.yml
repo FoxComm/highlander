@@ -1,0 +1,37 @@
+---
+
+- name: Get Webhook
+  unarchive: src={{webhook_url}} dest={{home}} remote_src=yes
+
+- name: Copy Binary to Working Directory
+  shell: mv {{home}}/{{webhook_archive_dir}}/webhook /usr/local/bin/
+
+- name: Create Configuration Directory
+  file: path={{webhook_dir}} state=directory
+
+- name: Copy Demo Deployment Script
+  template: src=deploy-bigbag.sh dest={{webhook_dir}} mode=750
+
+- name: Copy Marathon Configuration
+  template: src="{{role_path}}/../bigbag/templates/storefront.json" dest={{webhook_dir}} mode=750
+
+- name: Make Executable
+  file: path=/usr/local/bin/webhook mode=750
+
+- name: Copy Execution File
+  template: src=run_webhook.sh dest=/usr/local/bin/run_webhook.sh mode=750
+
+- name: Copy Hooks Configuration
+  template: src=hooks.json dest={{webhook_dir}}
+
+- name: Copy Service
+  template: src=webhook.service dest={{dest_services}}
+
+- name: Reload Systemd
+  command: systemctl daemon-reload
+
+- name: Restart Service
+  service: name=webhook state=restarted enabled=yes
+
+- name: Cleanup
+  file: path={{webhook_archive_dir}} state=absent

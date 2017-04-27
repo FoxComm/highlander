@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { getStore } from '../../lib/store-creator';
 
 import { ChangeStateModal } from '../bulk-actions/modal';
+import { DeleteModal } from '../bulk-actions/modal';
 import SchedulerModal from './scheduler-modal';
 import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
@@ -16,11 +17,14 @@ type RefId = string|number;
 
 type Props = {
   entity: string;
+  hideAlertDetails?: boolean;
   bulkActions: {
     changeState: (ids: Array<RefId>, isActivation: boolean) => void;
     updateAttributes: (ids: Array<RefId>, attributes: Attributes) => void;
+    deleteEntity: (ids: Array<RefId>) => void;
   };
-  children: Element;
+  onDelete: () => void;
+  children: Element<*>;
 };
 
 const mapDispatchToProps = (dispatch: Function, { entity }) => {
@@ -43,6 +47,20 @@ const changeStateHandler = function(props: Props, isActivation: boolean): Functi
         count={toggledIds.length}
         stateTitle={stateTitle}
         onConfirm={() => changeState(toggledIds, isActivation)}
+      />
+    );
+  };
+};
+
+const deleteHandler = function(props: Props): Function {
+  return (allChecked, toggledIds) => {
+    const {deleteEntity} = props.bulkActions;
+
+    return (
+      <DeleteModal
+        count={toggledIds.length}
+        stateTitle={'Delete'}
+        onConfirm={() => deleteEntity(toggledIds, props.entity, props.onDelete)}
       />
     );
   };
@@ -77,13 +95,16 @@ const renderDetail = (props: Props) => (messages, id) => {
 };
 
 const BulkWrapper = (props: Props) => {
-  const { entity } = props;
+  const { entity,hideAlertDetails } = props;
   const module = `${entity}s`;
-
-  const bulkActions = [
-    ['Activate', changeStateHandler(props, true), 'successfully activated', 'could not be activated'],
+  const stateActions = (entity == 'coupon') ? [] : [
+    ['Activate', changeStateHandler(props, false), 'successfully activated', 'could not be activated'],
     ['Deactivate', changeStateHandler(props, false), 'successfully deactivated', 'could not be deactivated'],
     [`Schedule ${entity}s`, scheduleHandler(props), 'successfully updated', 'could not be updated'],
+  ];
+  const bulkActions = [
+    ['Delete', deleteHandler(props), 'successfully deleted', 'could not be deleted'],
+    ...stateActions
   ];
 
   return (
@@ -92,6 +113,7 @@ const BulkWrapper = (props: Props) => {
         storePath={`${module}.bulk`}
         module={module}
         entity={entity}
+        hideAlertDetails={hideAlertDetails}
         renderDetail={renderDetail(props)} />
       <BulkActions
         module={module}
@@ -105,4 +127,3 @@ const BulkWrapper = (props: Props) => {
 };
 
 export default connect(null, mapDispatchToProps)(BulkWrapper);
-

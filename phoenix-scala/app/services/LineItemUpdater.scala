@@ -1,5 +1,6 @@
 package services
 
+import cats.implicits._
 import failures.CartFailures._
 import failures.OrderFailures.OrderLineItemNotFound
 import failures.ProductFailures.SkuNotFoundForContext
@@ -18,6 +19,7 @@ import services.carts.{CartPromotionUpdater, CartTotaler}
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
 
 object LineItemUpdater {
@@ -26,25 +28,25 @@ object LineItemUpdater {
 
   def updateQuantitiesOnCart(admin: User, refNum: String, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ac: AC,
       ctx: OC,
       au: AU): DbResultT[TheResponse[CartResponse]] = {
 
     val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
-      LogActivity.orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
+      LogActivity().orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
 
     for {
       cart     ← * <~ Carts.mustFindByRefNum(refNum)
       _        ← * <~ updateQuantities(cart, payload)
-      response ← * <~ runUpdates(cart, logActivity)
+      response ← * <~ runUpdates(cart, logActivity.some)
     } yield response
   }
 
   def updateOrderLineItems(admin: User, payload: Seq[UpdateOrderLineItemsPayload], refNum: String)(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ac: AC,
       ctx: OC): DbResultT[OrderResponse] =
@@ -55,30 +57,33 @@ object LineItemUpdater {
     } yield orderResponse
 
   private def runOrderLineItemUpdates(payload: Seq[UpdateOrderLineItemsPayload])(implicit ec: EC,
-                                                                                 es: ES,
+                                                                                 apis: Apis,
                                                                                  db: DB,
                                                                                  ac: AC,
                                                                                  ctx: OC) =
-    DbResultT.sequence(payload.map(updatePayload ⇒
-              for {
-        orderLineItem ← * <~ OrderLineItems
-                         .filter(_.referenceNumber === updatePayload.referenceNumber)
-                         .mustFindOneOr(OrderLineItemNotFound(updatePayload.referenceNumber))
-        patch = orderLineItem.copy(state = updatePayload.state,
-                                   attributes = updatePayload.attributes)
-        updatedItem ← * <~ OrderLineItems.update(orderLineItem, patch)
-      } yield updatedItem))
+    DbResultT.seqCollectFailures(
+        payload
+          .map(updatePayload ⇒
+                for {
+          orderLineItem ← * <~ OrderLineItems
+                           .filter(_.referenceNumber === updatePayload.referenceNumber)
+                           .mustFindOneOr(OrderLineItemNotFound(updatePayload.referenceNumber))
+          patch = orderLineItem.copy(state = updatePayload.state,
+                                     attributes = updatePayload.attributes)
+          updatedItem ← * <~ OrderLineItems.update(orderLineItem, patch)
+        } yield updatedItem)
+          .toList)
 
   def updateQuantitiesOnCustomersCart(customer: User, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ac: AC,
       ctx: OC,
       au: AU): DbResultT[TheResponse[CartResponse]] = {
 
     val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
-      LogActivity.orderLineItemsUpdated(cart, oldQtys, payload)
+      LogActivity().orderLineItemsUpdated(cart, oldQtys, payload)
 
     val finder = Carts
       .findByAccountId(customer.accountId)
@@ -88,38 +93,38 @@ object LineItemUpdater {
     for {
       cart     ← * <~ finder
       _        ← * <~ updateQuantities(cart, payload)
-      response ← * <~ runUpdates(cart, logActivity)
+      response ← * <~ runUpdates(cart, logActivity.some)
     } yield response
   }
 
   def addQuantitiesOnCart(admin: User, refNum: String, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ac: AC,
       ctx: OC,
       au: AU): DbResultT[TheResponse[CartResponse]] = {
 
     val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
-      LogActivity.orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
+      LogActivity().orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
 
     for {
       cart     ← * <~ Carts.mustFindByRefNum(refNum)
       _        ← * <~ addQuantities(cart, payload)
-      response ← * <~ runUpdates(cart, logActivity)
+      response ← * <~ runUpdates(cart, logActivity.some)
     } yield response
   }
 
   def addQuantitiesOnCustomersCart(customer: User, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ac: AC,
       ctx: OC,
       au: AU): DbResultT[TheResponse[CartResponse]] = {
 
     val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
-      LogActivity.orderLineItemsUpdated(cart, oldQtys, payload)
+      LogActivity().orderLineItemsUpdated(cart, oldQtys, payload)
 
     val finder = Carts
       .findByAccountId(customer.accountId)
@@ -129,24 +134,26 @@ object LineItemUpdater {
     for {
       cart     ← * <~ finder
       _        ← * <~ addQuantities(cart, payload)
-      response ← * <~ runUpdates(cart, logActivity)
+      response ← * <~ runUpdates(cart, logActivity.some)
     } yield response
   }
 
-  private def runUpdates(cart: Cart,
-                         logAct: (CartResponse, Map[String, Int]) ⇒ DbResultT[Activity])(
+  def runUpdates(cart: Cart,
+                 logAct: Option[(CartResponse, Map[String, Int]) ⇒ DbResultT[Activity]])(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ctx: OC,
       au: AU): DbResultT[TheResponse[CartResponse]] =
     for {
-      _     ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
+      _ ← * <~ CartPromotionUpdater.readjust(cart, failFatally = false).recover {
+           case _ ⇒ () /* FIXME: don’t swallow errors @michalrus */
+         }
       cart  ← * <~ CartTotaler.saveTotals(cart)
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ CartResponse.buildRefreshed(cart)
       li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
-      _     ← * <~ logAct(res, li)
+      _     ← * <~ logAct.traverse(_ (res, li)).void
     } yield TheResponse.validated(res, valid)
 
   def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] =
@@ -204,7 +211,7 @@ object LineItemUpdater {
                     removeLineItems(sku.id, -lineItem.quantity, cart.refNum, lineItem.attributes))
       } yield {}
     }
-    DbResultT.sequence(lineItemUpdActions).meh
+    DbResultT.seqCollectFailures(lineItemUpdActions.toList).meh
   }
 
   private def mustFindProductIdForSku(sku: Sku, refNum: String)(implicit ec: EC, oc: OC) = {

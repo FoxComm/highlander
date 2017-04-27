@@ -1,7 +1,0 @@
----
-
-- name: Start Ashes
-  include: app_ashes.yml
-
-- name: Start Firebrand
-  include: app_firebrand.yml

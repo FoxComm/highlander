@@ -12,7 +12,9 @@ begin
       context.name                                                        as context,
       illuminate_text(f, s, 'activeFrom')                                 as active_from,
       illuminate_text(f, s, 'activeTo')                                   as active_to,
-      to_char(t.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')             as archived_at
+      to_char(t.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')             as archived_at,
+      to_char(t.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')              as created_at,
+      to_char(t.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')              as updated_at
     from taxons as t
       inner join object_contexts as context on (t.context_id = context.id)
       inner join object_forms as f on (f.id = t.form_id)
@@ -50,6 +52,7 @@ begin
     context      = context.name,
     active_from  = illuminate_text(f, s, 'activeFrom'),
     active_to    = illuminate_text(f, s, 'activeTo'),
+    updated_at   = to_char(t.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
     archived_at  = to_char(t.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
   from taxons as t
     inner join object_contexts as context on (t.context_id = context.id)

@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken');
 require('babel-polyfill');
 
 const htmlescape = require('htmlescape');
-const errors = require('./errors');
 
 const { isPathRequiredAuth } = require('../lib/route-rules');
 
@@ -23,7 +22,7 @@ module.exports = function(app) {
   const config = app.config;
   const template = path.join(__dirname, './views/layout.tmpl');
   const layout = _.template(fs.readFileSync(template, 'utf8'));
-
+  const sprite = fs.readFileSync(path.resolve('build/svg/fc-sprite.svg'), 'utf-8');
 
   // lets do renderReact property is lazy
   Object.defineProperty(app, 'renderReact', {
@@ -51,7 +50,7 @@ module.exports = function(app) {
         });
       }
       if (!_.includes(token.roles, 'admin')) {
-        console.log('token.roles doesn\'t contain admin role', token.roles);
+        console.info('token.roles doesn\'t contain admin role', token.roles);
         return null; // only admins allowed to proceed
       }
       return token;
@@ -99,6 +98,7 @@ module.exports = function(app) {
     let layoutData = _.defaults({
       stylesheet: `/admin/admin.css`,
       javascript: `/admin/admin.js`,
+      fcsprite: sprite,
       rootHTML: this.state.html,
       appStart: `App.start(${htmlescape(bootstrap)});`,
       // use GA_LOCAL=1 gulp dev command for enable tracking events in google analytics from localhost

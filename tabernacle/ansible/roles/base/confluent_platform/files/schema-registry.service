@@ -1,0 +1,15 @@
+[Service]
+WorkingDirectory=/usr/local/share
+ExecStart=/usr/bin/schema-registry-start /etc/schema-registry/schema-registry.properties
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=schema-registry
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+Requires=kafka.service
+After=kafka.service

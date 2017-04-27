@@ -1,8 +1,7 @@
 /* @flow */
 
 // libs
-import _ from 'lodash';
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -11,14 +10,14 @@ import { getStore } from 'lib/store-creator';
 
 // components
 import WaitAnimation from 'components/common/wait-animation';
-import { PrimaryButton } from 'components/common/buttons';
+import { PrimaryButton } from 'components/core/button';
 import SectionTitle from 'components/section-title/section-title';
 import Shipment from './shipment';
 import UnshippedItems from './unshipped-items';
 
 // types
 import type AsyncState from 'lib/async-action-creator';
-import type { TShipment, TShipmentLineItem, TUnshippedLineItem } from 'paragons/shipment';
+import type { TShipment, TUnshippedLineItem } from 'paragons/shipment';
 
 
 type Props = {
@@ -87,7 +86,7 @@ class Shipments extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     return (
       <div>
         <SectionTitle title="Shipments" />

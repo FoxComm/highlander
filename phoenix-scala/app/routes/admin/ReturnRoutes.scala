@@ -1,27 +1,67 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import akka.http.scaladsl.server.{PathMatcher, Route}
+import utils.http.JsonSupport._
 import models.account.User
+import models.cord.Cord
+import models.payment.PaymentMethod
 import models.returns.Return
 import payloads.ReturnPayloads._
 import services.returns._
 import services.Authenticator.AuthData
 import utils.aliases._
+import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object ReturnRoutes {
+  val PaymentMethodMatcher = PathMatcher(PaymentMethod.Type.typeMap)
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
 
-    activityContext(auth.model) { implicit ac ⇒
-      determineObjectContext(db, ec) { productContext ⇒
+    activityContext(auth) { implicit ac ⇒
+      determineObjectContext(db, ec) { implicit productContext ⇒
         pathPrefix("returns") {
           (post & pathEnd & entity(as[ReturnCreatePayload])) { payload ⇒
             mutateOrFailures {
               ReturnService.createByAdmin(auth.model, payload)
+            }
+          } ~
+          (get & pathEnd) {
+            getOrFailures {
+              ReturnService.list
+            }
+          } ~
+          pathPrefix("customer") {
+            (get & path(IntNumber) & pathEnd) { customerId ⇒
+              getOrFailures {
+                ReturnService.getByCustomer(customerId)
+              }
+            }
+          } ~
+          pathPrefix("order" / Cord.cordRefNumRegex) { refNum ⇒
+            (get & pathEnd) {
+              getOrFailures {
+                ReturnService.getByOrder(refNum)
+              }
+            }
+          } ~
+          pathPrefix("reasons") {
+            (get & pathEnd) {
+              getOrFailures {
+                ReturnReasonsManager.reasonsList
+              }
+            } ~
+            (post & pathEnd & entity(as[ReturnReasonPayload])) { payload ⇒
+              mutateOrFailures {
+                ReturnReasonsManager.addReason(payload)
+              }
+            } ~
+            (delete & path(IntNumber) & pathEnd) { id ⇒
+              deleteOrFailures {
+                ReturnReasonsManager.deleteReason(id)
+              }
             }
           }
         } ~
@@ -29,11 +69,6 @@ object ReturnRoutes {
           (get & pathEnd) {
             getOrFailures {
               ReturnService.getByRefNum(refNum)
-            }
-          } ~
-          (get & path("expanded") & pathEnd) {
-            getOrFailures {
-              ReturnService.getExpandedByRefNum(refNum)
             }
           } ~
           (patch & pathEnd & entity(as[ReturnUpdateStatePayload])) { payload ⇒
@@ -47,78 +82,42 @@ object ReturnRoutes {
                 ReturnService.updateMessageToCustomer(refNum, payload)
               }
           } ~
-          (get & path("lock") & pathEnd) {
-            getOrFailures {
-              ReturnLockUpdater.getLockState(refNum)
-            }
-          } ~
-          (post & path("lock") & pathEnd) {
-            mutateOrFailures {
-              ReturnLockUpdater.lock(refNum, auth.model)
-            }
-          } ~
-          (post & path("unlock") & pathEnd) {
-            mutateOrFailures {
-              ReturnLockUpdater.unlock(refNum)
-            }
-          } ~
-          pathPrefix("line-items" / "skus") {
-            (post & pathEnd & entity(as[ReturnSkuLineItemsPayload])) { payload ⇒
+          pathPrefix("line-items") {
+            (post & path("skus") & entity(as[List[ReturnSkuLineItemPayload]])) { payload ⇒
               mutateOrFailures {
-                ReturnLineItemUpdater.addSkuLineItem(refNum, payload, productContext)
+                ReturnLineItemManager.updateSkuLineItems(refNum, payload)
+              }
+            } ~
+            (post & pathEnd & entity(as[ReturnLineItemPayload])) { payload ⇒
+              mutateOrFailures {
+                ReturnLineItemManager.addLineItem(refNum, payload)
               }
             } ~
             (delete & path(IntNumber) & pathEnd) { lineItemId ⇒
-              mutateOrFailures {
-                ReturnLineItemUpdater.deleteSkuLineItem(refNum, lineItemId)
+              deleteOrFailures {
+                ReturnLineItemManager.deleteLineItem(refNum, lineItemId)
               }
             }
           } ~
-          pathPrefix("line-items" / "shipping-costs") {
-            (post & pathEnd & entity(as[ReturnShippingCostLineItemsPayload])) { payload ⇒
+          pathPrefix("payment-methods") {
+            (post & pathEnd & entity(as[ReturnPaymentsPayload])) { payload ⇒
               mutateOrFailures {
-                ReturnLineItemUpdater.addShippingCostItem(refNum, payload)
+                ReturnPaymentManager.updatePayments(refNum, payload.payments, overwrite = true)
               }
             } ~
-            (delete & path(IntNumber) & pathEnd) { lineItemId ⇒
-              mutateOrFailures {
-                ReturnLineItemUpdater.deleteShippingCostLineItem(refNum, lineItemId)
-              }
-            }
-          } ~
-          pathPrefix("payment-methods" / "credit-cards") {
-            (post & pathEnd & entity(as[ReturnPaymentPayload])) { payload ⇒
-              mutateOrFailures {
-                ReturnPaymentUpdater.addCreditCard(refNum, payload)
-              }
+            (post & path(PaymentMethodMatcher) & pathEnd & entity(as[ReturnPaymentPayload])) {
+              case (paymentMethod, payload) ⇒
+                mutateOrFailures {
+                  ReturnPaymentManager.updatePayments(
+                      refNum,
+                      Map(paymentMethod → payload.amount),
+                      overwrite = false
+                  )
+                }
             } ~
-            (delete & pathEnd) {
-              mutateOrFailures {
-                ReturnPaymentUpdater.deleteCreditCard(refNum)
-              }
-            }
-          } ~
-          pathPrefix("payment-methods" / "gift-cards") {
-            (post & pathEnd & entity(as[ReturnPaymentPayload])) { payload ⇒
-              mutateOrFailures {
-                ReturnPaymentUpdater.addGiftCard(refNum, payload)
-              }
-            } ~
-            (delete & pathEnd) {
-              mutateOrFailures {
-                ReturnPaymentUpdater.deleteGiftCard(refNum)
-              }
-            }
-          } ~
-          pathPrefix("payment-methods" / "store-credit") {
-            (post & pathEnd & entity(as[ReturnPaymentPayload])) { payload ⇒
-              mutateOrFailures {
-                ReturnPaymentUpdater.addStoreCredit(refNum, payload)
-              }
-            } ~
-            (delete & pathEnd) {
-              mutateOrFailures {
-                ReturnPaymentUpdater.deleteStoreCredit(refNum)
+            (delete & path(PaymentMethodMatcher) & pathEnd) { paymentMethod ⇒
+              deleteOrFailures {
+                ReturnPaymentManager.deletePayment(refNum, paymentMethod)
               }
             }
           }

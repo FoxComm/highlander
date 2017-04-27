@@ -11,7 +11,7 @@ import type Props from './table';
 const SELECTOR_CELLS_HEAD = '.fc-table-tr:first-child .fc-table-th';
 const SELECTOR_CELLS_BODY = '.fc-table-tr:first-child .fc-table-td';
 
-function getElements(el: HTMLElement, selector: string) {
+function getElements(el: HTMLElement<*>, selector: string) {
   return [].slice.call(el.querySelectorAll(selector));
 }
 
@@ -91,7 +91,7 @@ function isStretchRequired(columnWidths: Array<number>, hostWidth: number) {
 }
 
 /**
- * If the sum of all adjusted columns widths less than host element width we need to stretch table columns
+ * If the sum of all adjusted columns widths less than host Element<*>width we need to stretch table columns
  *
  * @param {Array<HTMLElement>} headerCells Header row
  * @param {Array<Number>} columnWidths

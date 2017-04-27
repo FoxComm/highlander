@@ -8,9 +8,10 @@ import consumer.elastic.mappings._
 import consumer.elastic.mappings.dateFormat
 
 final case class CustomersSearchView()(implicit ec: EC) extends AvroTransformer {
-  def mapping() = esMapping("customers_search_view").fields(
+  def topic() = "customers_search_view"
+  def mapping() = esMapping(topic()).fields(
       // Customer
-      field("id", IntegerType),
+      field("id", LongType),
       field("scope", StringType).index("not_analyzed"),
       field("name", StringType)
         .analyzer("autocomplete")
@@ -28,6 +29,19 @@ final case class CustomersSearchView()(implicit ec: EC) extends AvroTransformer 
       field("joinedAt", DateType).format(dateFormat),
       field("revenue", IntegerType),
       field("rank", IntegerType),
+      // Cart
+      field("carts").nested(
+          field("customerId", IntegerType),
+          field("referenceNumber", StringType).analyzer("upper_cased"),
+          field("createdAt", DateType).format(dateFormat),
+          field("updatedAt", DateType).format(dateFormat),
+          field("subTotal", IntegerType),
+          field("shippingTotal", IntegerType),
+          field("adjustmentsTotal", IntegerType),
+          field("taxesTotal", IntegerType),
+          field("grandTotal", IntegerType),
+          field("itemsCount", IntegerType)
+      ),
       // Orders
       field("orderCount", IntegerType),
       field("orders").nested(
@@ -53,12 +67,16 @@ final case class CustomersSearchView()(implicit ec: EC) extends AvroTransformer 
       field("storeCreditCount", IntegerType),
       // Revenue and rank
       field("revenue", IntegerType),
-      field("rank", IntegerType)
+      field("rank", IntegerType),
+      // Groups
+      field("groups", StringType).index("not_analyzed")
   )
 
   override def nestedFields() = List(
       "orders",
+      "carts",
       "shipping_addresses",
-      "billing_addresses"
+      "billing_addresses",
+      "groups"
   )
 }

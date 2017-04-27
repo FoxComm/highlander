@@ -9,7 +9,7 @@ import org.scalatest.prop.TableDrivenPropertyChecks._
 import payloads.PaymentPayloads._
 import testutils.CustomMatchers._
 import testutils.TestBase
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class PaymentPayloadsTest extends TestBase {
   val today = ZonedDateTime.now()

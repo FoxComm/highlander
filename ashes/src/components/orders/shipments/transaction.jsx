@@ -1,8 +1,7 @@
 /* @flow */
 
 // libs
-import _ from 'lodash';
-import React, { Component, PropTypes, Element } from 'react';
+import React, { Element } from 'react';
 
 // styles
 import styles from './transaction.css';
@@ -17,10 +16,9 @@ type Props = {
   source: Object;
   amount: number;
   date: string;
-}
+};
 
-
-const Transaction = (props: Props): Element => (
+const Transaction = (props: Props): Element<*> => (
   <div styleName="row">
     <div styleName="source">
       <PaymentMethod paymentMethod={props.source} />

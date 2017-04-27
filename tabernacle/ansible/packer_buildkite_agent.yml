@@ -1,0 +1,19 @@
+---
+
+- name: Packer Buildkite Agent Image
+  hosts: all
+  become: true
+  vars:
+    user: ubuntu
+    packing: true
+
+  roles:
+    - { role: base/common }
+    - { role: base/languages }
+    - { role: base/devkit }
+    - { role: base/ssh_keys }
+    - { role: base/builder }
+    - { role: base/flyway }
+    - { role: test/db }
+    - { role: test/selenium }
+    - { role: hotfix/ci }

@@ -2,15 +2,12 @@ package testutils
 
 import java.net.ServerSocket
 
-import scala.collection.immutable
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.client.RequestBuilding.Get
 import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.headers.Cookie
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.ConnectionPoolSettings
 import akka.http.scaladsl.unmarshalling.Unmarshal
@@ -19,7 +16,6 @@ import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.stream.testkit.TestSubscriber.Probe
 import akka.stream.testkit.scaladsl.TestSink
 import akka.util.ByteString
-
 import com.typesafe.config.ConfigFactory
 import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
 import de.heikoseeberger.akkasse.ServerSentEvent
@@ -29,9 +25,15 @@ import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import server.Service
 import services.Authenticator.UserAuthenticator
+import utils.FoxConfig.config
 import utils.apis.Apis
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 import utils.{FoxConfig, JsonFormatters}
+
+import scala.collection.immutable
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 // TODO: Move away from root package when `Service' moverd
 object HttpSupport {
@@ -40,7 +42,7 @@ object HttpSupport {
   protected var system: ActorSystem             = _
   protected var materializer: ActorMaterializer = _
   protected var service: Service                = _
-  protected var serverBinding: ServerBinding    = _
+  var serverBinding: ServerBinding              = _
 }
 
 trait HttpSupport
@@ -74,10 +76,13 @@ trait HttpSupport
 
     service = makeService
 
-    serverBinding = service.bind(ConfigFactory.parseString(s"""
-           |http.interface = 127.0.0.1
-           |http.port      = $getFreePort
-        """.stripMargin)).futureValue
+    serverBinding = service
+      .bind(
+          FoxConfig.http.modify(config)(_.copy(
+                  interface = "127.0.0.1",
+                  port = getFreePort
+              )))
+      .futureValue
   }
 
   override protected def afterAll: Unit = {
@@ -90,31 +95,20 @@ trait HttpSupport
 
   private def actorSystemConfig =
     ConfigFactory.parseString("""
-      |akka {
-      |  log-dead-letters = off
-      |}
-    """.stripMargin).withFallback(ConfigFactory.load())
+        |akka {
+        |  log-dead-letters = off
+        |}
+      """.stripMargin).withFallback(ConfigFactory.load())
 
-  val adminUser    = Factories.storeAdmin.copy(id = 1, accountId = 1)
-  val customerData = Factories.customer.copy(id = 2, accountId = 2)
-
-  def overrideUserAuth: UserAuthenticator =
-    AuthAs(adminUser, customerData)
-
-  implicit val env = FoxConfig.Test
-
-  def apisOverride: Apis
+  def apisOverride: Option[Apis]
 
   private def makeService: Service =
     new Service(dbOverride = Some(db),
                 systemOverride = Some(system),
-                apisOverride = Some(apisOverride),
-                addRoutes = additionalRoutes) {
+                apisOverride = apisOverride,
+                addRoutes = additionalRoutes) {}
 
-      override val userAuth: UserAuthenticator = overrideUserAuth
-    }
-
-  def POST(path: String, rawBody: String): HttpResponse = {
+  def POST(path: String, rawBody: String, jwtCookie: Option[Cookie]): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.POST,
                               uri = pathToAbsoluteUrl(path),
                               entity = HttpEntity.Strict(
@@ -122,16 +116,14 @@ trait HttpSupport
                                   ByteString(rawBody)
                               ))
 
-    dispatchRequest(request)
+    dispatchRequest(request, jwtCookie)
   }
 
-  def POST(path: String): HttpResponse = {
-    val request = HttpRequest(method = HttpMethods.POST, uri = pathToAbsoluteUrl(path))
+  def POST(path: String, jwtCookie: Option[Cookie]): HttpResponse =
+    dispatchRequest(HttpRequest(method = HttpMethods.POST, uri = pathToAbsoluteUrl(path)),
+                    jwtCookie)
 
-    dispatchRequest(request)
-  }
-
-  def PATCH(path: String, rawBody: String): HttpResponse = {
+  def PATCH(path: String, rawBody: String, jwtCookie: Option[Cookie]): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.PATCH,
                               uri = pathToAbsoluteUrl(path),
                               entity = HttpEntity.Strict(
@@ -139,31 +131,27 @@ trait HttpSupport
                                   ByteString(rawBody)
                               ))
 
-    dispatchRequest(request)
+    dispatchRequest(request, jwtCookie)
   }
 
-  def PATCH(path: String): HttpResponse = {
-    val request = HttpRequest(method = HttpMethods.PATCH, uri = pathToAbsoluteUrl(path))
+  def PATCH(path: String, jwtCookie: Option[Cookie]): HttpResponse =
+    dispatchRequest(HttpRequest(method = HttpMethods.PATCH, uri = pathToAbsoluteUrl(path)),
+                    jwtCookie)
 
-    dispatchRequest(request)
-  }
+  def GET(path: String, jwtCookie: Option[Cookie]): HttpResponse =
+    dispatchRequest(HttpRequest(method = HttpMethods.GET, uri = pathToAbsoluteUrl(path)),
+                    jwtCookie)
 
-  def GET(path: String): HttpResponse = {
-    val request = HttpRequest(method = HttpMethods.GET, uri = pathToAbsoluteUrl(path))
+  def POST[T <: AnyRef](path: String, payload: T, jwtCookie: Option[Cookie]): HttpResponse =
+    POST(path, writeJson(payload), jwtCookie)
 
-    dispatchRequest(request)
-  }
+  def PATCH[T <: AnyRef](path: String, payload: T, jwtCookie: Option[Cookie]): HttpResponse =
+    PATCH(path, writeJson(payload), jwtCookie)
 
-  def POST[T <: AnyRef](path: String, payload: T): HttpResponse =
-    POST(path, writeJson(payload))
-
-  def PATCH[T <: AnyRef](path: String, payload: T): HttpResponse =
-    PATCH(path, writeJson(payload))
-
-  def DELETE(path: String): HttpResponse = {
+  def DELETE(path: String, jwtCookie: Option[Cookie]): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.DELETE, uri = pathToAbsoluteUrl(path))
 
-    dispatchRequest(request)
+    dispatchRequest(request, jwtCookie)
   }
 
   def pathToAbsoluteUrl(path: String): Uri = {
@@ -191,8 +179,9 @@ trait HttpSupport
     port
   }
 
-  protected def dispatchRequest(req: HttpRequest): HttpResponse = {
-    val response = Http().singleRequest(req, settings = connectionPoolSettings).futureValue
+  protected def dispatchRequest(req: HttpRequest, jwtCookie: Option[Cookie]): HttpResponse = {
+    val withCookie = jwtCookie.fold(req)(req.addHeader(_))
+    val response   = Http().singleRequest(withCookie, settings = connectionPoolSettings).futureValue
     validResponseContentTypes must contain(response.entity.contentType)
     response
   }
@@ -205,16 +194,16 @@ trait HttpSupport
 
   object SSE {
 
-    def sseProbe(path: String, skipHeartbeat: Boolean = true): Probe[String] =
+    def sseProbe(path: String, jwtCookie: Cookie, skipHeartbeat: Boolean = true): Probe[String] =
       probe(
-          if (skipHeartbeat) skipHeartbeatsAndAdminCreated(sseSource(path))
-          else sseSource(path))
+          if (skipHeartbeat) skipHeartbeatsAndAdminCreated(sseSource(path, jwtCookie))
+          else sseSource(path, jwtCookie))
 
-    def sseSource(path: String): Source[String, Any] = {
+    def sseSource(path: String, jwtCookie: Cookie): Source[String, Any] = {
       val localAddress = serverBinding.localAddress
 
       Source
-        .single(Get(pathToAbsoluteUrl(path)))
+        .single(Get(pathToAbsoluteUrl(path)).addHeader(jwtCookie))
         .via(Http().outgoingConnection(localAddress.getHostString, localAddress.getPort))
         .mapAsync(1)(Unmarshal(_).to[Source[ServerSentEvent, Any]])
         .runWith(Sink.head)

@@ -7,19 +7,15 @@ import com.stripe.Stripe
 import failures.CreditCardFailures.CardDeclined
 import testutils._
 import utils.Money.Currency.USD
+import utils.RealStripeApi
 import utils.TestStripeSupport._
 import utils.apis._
-import utils.seeds.Seeds.Factories
+import utils.db._
+import utils.seeds.Factories
 
-trait RealStripeApis extends IntegrationTestBase {
+class StripeTest extends IntegrationTestBase with RealStripeApi {
   // Mutate Stripe state, set real key
-  Stripe.apiKey = config.getString("stripe.key")
-}
-
-// Test that actually calls Stripe
-// Other integration tests should mock Stripe API and check that some method has been called on a mock
-// !!! Do not mix MockedApis in here
-class StripeTest extends RealStripeApis {
+  Stripe.apiKey = TestBase.config.apis.stripe.key
 
   val stripe = new FoxStripe(new StripeWrapper())
 
@@ -52,9 +48,9 @@ class StripeTest extends RealStripeApis {
     "authorizeAmount" - {
       "fails if the customerId doesn't exist" taggedAs External in {
         val result =
-          stripe.authorizeAmount("BAD-CUSTOMER", "BAD-CARD", 100, currency = USD).futureValue
+          stripe.authorizeAmount("BAD-CUSTOMER", "BAD-CARD", 100, currency = USD).gimmeFailures
 
-        result.leftVal.getMessage must include("No such customer")
+        result.getMessage must include("No such customer")
       }
 
       "successfully creates an authorization charge" taggedAs External in {
@@ -81,9 +77,9 @@ class StripeTest extends RealStripeApis {
                                token = token.getId,
                                address = theAddress,
                                stripeCustomerId = realStripeCustomerId.some)
-          .futureValue
+          .gimmeFailures
 
-        result.leftVal.head must === (CardDeclined)
+        result.head must === (CardDeclined)
       }
 
       "fails if token does not exist" taggedAs External in {
@@ -92,9 +88,9 @@ class StripeTest extends RealStripeApis {
                                token = "BAD-TOKEN",
                                stripeCustomerId = none,
                                address = theAddress)
-          .futureValue
+          .gimmeFailures
 
-        result.leftVal.head.description must === ("No such token: BAD-TOKEN")
+        result.head.description must === ("No such token: BAD-TOKEN")
       }
 
       "successfully creates a card and new customer when given no customerId" taggedAs External in {
@@ -144,9 +140,9 @@ class StripeTest extends RealStripeApis {
 
     "captureCharge" - {
       "fails if the charge was not found" taggedAs External in {
-        val result = stripe.captureCharge("BAD-CHARGE-ID", 100).futureValue
+        val result = stripe.captureCharge("BAD-CHARGE-ID", 100).gimmeFailures
 
-        result.leftVal.getMessage must include("No such charge")
+        result.getMessage must include("No such charge")
       }
 
       "successfully captures a charge" taggedAs External in {
@@ -161,11 +157,57 @@ class StripeTest extends RealStripeApis {
       }
     }
 
+    "authorizeRefund" - {
+      "fails if the charge was not found" taggedAs External in {
+        val result = stripe
+          .authorizeRefund("BAD-CHARGE-ID", 100, RefundReason.RequestedByCustomer)
+          .gimmeFailures
+
+        result.getMessage must include("No such charge")
+      }
+
+      "fails if the refund amount exceeds a charge" taggedAs External in {
+        val auth =
+          stripe.authorizeAmount(realStripeCustomerId, realStripeCardId, 100, currency = USD).gimme
+        stripe.captureCharge(auth.getId, 90).gimme
+
+        val result =
+          stripe.authorizeRefund(auth.getId, 91, RefundReason.RequestedByCustomer).gimmeFailures
+        result.getMessage must === (
+            "Refund amount ($0.91) is greater than unrefunded amount on charge ($0.90)")
+      }
+
+      "successfully partially refunds a charge" taggedAs External in {
+        val auth =
+          stripe.authorizeAmount(realStripeCustomerId, realStripeCardId, 100, currency = USD).gimme
+        stripe.captureCharge(auth.getId, 100).gimme
+
+        val refunded1 =
+          stripe.authorizeRefund(auth.getId, 30, RefundReason.RequestedByCustomer).gimme
+        refunded1.getAmount.toInt must === (100)
+        refunded1.getAmountRefunded.toInt must === (30)
+
+        val refunded2 =
+          stripe.authorizeRefund(auth.getId, 50, RefundReason.RequestedByCustomer).gimme
+        refunded2.getAmount.toInt must === (100)
+        refunded2.getAmountRefunded.toInt must === (80)
+      }
+
+      "successfully refunds entire charge" taggedAs External in {
+        val auth =
+          stripe.authorizeAmount(realStripeCustomerId, realStripeCardId, 100, currency = USD).gimme
+
+        val refunded =
+          stripe.authorizeRefund(auth.getId, 100, RefundReason.RequestedByCustomer).gimme
+        refunded.getAmount.toInt must === (100)
+        refunded.getAmountRefunded.toInt must === (100)
+      }
+    }
+
     "deleteCustomer" - {
       "successfully deletes a customer" taggedAs External in {
-        val result = deleteCustomer(cust)
-
-        getCustomer(realStripeCustomerId).value must === (None)
+        deleteCustomer(cust).void.gimme
+        getCustomer(realStripeCustomerId).gimme.getDeleted must === (Boolean.box(true))
       }
     }
   }

@@ -11,7 +11,7 @@ const TotalsFooter = props => {
     <footer className="fc-content-box-footer is-highlighted">
       <dl className="fc-totals-summary-grand-total">
         <dt>{text}</dt>
-        <dd><Currency id="grand-total" value={props.entity.totals.total} /></dd>
+        <dd><Currency id="fct-totals__grand-total" value={props.entity.totals.total} /></dd>
       </dl>
     </footer>
   );
@@ -23,9 +23,11 @@ const discounts = totals => {
   return (
     <div>
       <dt>Discounts</dt>
-      <dd><Currency id="discounts-total" value={totals.adjustments}/></dd>
+      <dd><Currency id="fct-totals__discounts-total" value={totals.adjustments}/></dd>
       <dt className="fc-totals-summary-new-subtotal">New Subtotal</dt>
-      <dd className="fc-totals-summary-new-subtotal"><Currency id="new-subtotal" value={subTotalWithDiscounts}/></dd>
+      <dd className="fc-totals-summary-new-subtotal">
+        <Currency id="fct-totals__new-subtotal" value={subTotalWithDiscounts}/>
+      </dd>
     </div>
   );
 };
@@ -34,7 +36,7 @@ const shipping = totals => {
   return (
     <div>
       <dt>Shipping</dt>
-      <dd><Currency id="shipping-total" value={totals.shipping}/></dd>
+      <dd><Currency id="fct-totals__shipping-total" value={totals.shipping}/></dd>
     </div>
   );
 };
@@ -49,11 +51,11 @@ const TotalsSummary = props => {
       <article className="fc-totals-summary-content">
         <dl className="rma-totals">
           <dt>Subtotal</dt>
-          <dd><Currency id="subtotal" value={totals.subTotal}/></dd>
+          <dd><Currency id="fct-totals__subtotal" value={totals.subTotal}/></dd>
           {discounts(entity.totals)}
           {shipping(entity.totals)}
           <dt>Tax</dt>
-          <dd><Currency id="tax-total" value={totals.taxes}/></dd>
+          <dd><Currency id="fct-totals__tax-total" value={totals.taxes}/></dd>
         </dl>
       </article>
     </ContentBox>

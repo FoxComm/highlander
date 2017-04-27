@@ -19,10 +19,10 @@ type Props = {
   position: number;
   albumsCount: number;
   onSort: (direction: number) => void;
-  titleWrapper?: (title: string) => Element;
+  titleWrapper?: (title: string) => Element<*>;
   className?: string;
   contentClassName: ?string;
-  children?: Array<Element>|Element;
+  children?: Array<Element<*>>|Element<*>;
 }
 
 const MOVE_DIRECTION_UP = -1;
@@ -63,7 +63,7 @@ export default class AlbumWrapper extends Component {
     return this.props.position === this.props.albumsCount - 1;
   }
 
-  get title(): Element {
+  get title() {
     const { title, titleWrapper } = this.props;
 
     return (
@@ -75,9 +75,10 @@ export default class AlbumWrapper extends Component {
     );
   }
 
-  get controls(): Element {
+  get controls() {
     const moveUpCsl = classNames(styles.controlItem, { '_disabled': this.isFirstAlbum });
     const moveDownCsl = classNames(styles.controlItem, { '_disabled': this.isLastAlbum });
+
     return (
       <div className={styles.controls}>
         <div className={styles.left}>
@@ -103,7 +104,7 @@ export default class AlbumWrapper extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const { className, contentClassName } = this.props;
 
     const cls = classNames(styles.accordion, className);

@@ -1,51 +1,67 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { PropTypes, Element, Component, Children } from 'react';
+import React, { Element, Component } from 'react';
 import createFragment from 'react-addons-create-fragment';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 
 import DropdownItem from './dropdownItem';
 import Overlay from '../overlay/overlay';
-import { Button } from '../common/buttons';
+import { Button } from 'components/core/button';
 import BodyPortal from '../body-portal/body-portal';
 
-export type ValueType = ?string|number;
+export type ValueType = ?string | number;
 
-export type DropdownItemType = [ValueType, string|Element, bool];
+export type DropdownItemType = [ValueType, string | Element<*>, ?boolean];
+
+export type MouseHandler = (e: MouseEvent) => void;
+
+export type RenderDropdownFunction = (value: any,
+                                      title: ?string | Element<*>,
+                                      props: Props,
+                                      handleToggleClick: MouseHandler) => Element<*>
 
 export type Props = {
   id?: string,
   dropdownValueId?: string,
-  name?: string,
+  name: string,
   value: ValueType,
   className?: string,
   listClassName?: string,
   placeholder?: string,
-  emptyMessage?: string|Element,
+  emptyMessage?: string | Element<*>,
   open?: bool,
-  children?: Element,
+  children?: Element<*>,
   items?: Array<DropdownItemType>,
   primary?: bool,
   editable?: bool,
   changeable?: bool,
   disabled?: bool,
   inputFirst?: bool,
-  renderDropdownInput?: Function,
+  renderDropdownInput?: RenderDropdownFunction,
   renderNullTitle?: Function,
   renderPrepend?: Function,
   renderAppend?: Function,
   onChange?: Function,
   dropdownProps?: Object,
   detached?: boolean,
+  noControls?: boolean,
 };
 
 type State = {
   open: bool,
   dropup: bool,
   selectedValue: ValueType,
+  pointedValueIndex: number,
 };
+
+function getNewItemIndex(itemsCount, currentIndex, increment = 1) {
+  const startIndex = increment > 0 ? -1 : 0;
+  const index = Math.max(currentIndex, startIndex);
+
+  return (itemsCount + index + increment) % itemsCount;
+}
 
 /**
  * Generic Dropdown component
@@ -63,18 +79,30 @@ export default class GenericDropdown extends Component {
     editable: false,
     inputFirst: true,
     dropdownProps: {},
+    name: '',
     value: '',
     detached: false,
+    noControls: false,
   };
 
   state: State = {
     open: !!this.props.open,
     dropup: false,
     selectedValue: this.props.value,
+    pointedValueIndex: -1,
   };
 
   _menu: HTMLElement;
+  _items: HTMLElement;
   _container: HTMLElement;
+
+  componentDidMount() {
+    window.addEventListener('keydown', this.handleKeyPress, true);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyPress, true);
+  }
 
   componentWillReceiveProps(newProps: Props) {
     this.setState({
@@ -124,7 +152,7 @@ export default class GenericDropdown extends Component {
     });
   }
 
-  renderNullTitle(value: ?number|string, placeholder: ?string): ?string|Element {
+  renderNullTitle(value: ?number | string, placeholder: ?string): ?string | Element<*> {
     if (this.props.renderNullTitle) {
       return this.props.renderNullTitle(value, placeholder);
     }
@@ -132,7 +160,7 @@ export default class GenericDropdown extends Component {
     return placeholder;
   }
 
-  findTitleByValue(value: ?string|number, props: Props): string {
+  findTitleByValue(value: ?string | number, props: Props): string {
     if (props.items) {
       const item = _.find(props.items, item => item[0] == value);
       return item && item[1];
@@ -161,8 +189,9 @@ export default class GenericDropdown extends Component {
     });
   }
 
-  get dropdownButton(): Element {
+  get dropdownButton() {
     const icon = this.state.open ? 'chevron-up' : 'chevron-down';
+
     return (
       <Button
         icon={icon}
@@ -175,7 +204,7 @@ export default class GenericDropdown extends Component {
     );
   }
 
-  get dropdownInput(): Element {
+  get dropdownInput(): Element<*> {
     const { name, placeholder, value, renderDropdownInput } = this.props;
     const actualValue = this.state.selectedValue;
     const title = this.findTitleByValue(actualValue, this.props) || this.renderNullTitle(value, placeholder);
@@ -184,29 +213,98 @@ export default class GenericDropdown extends Component {
     return renderDropdownInput
       ? renderDropdownInput(actualValue, title, this.props, this.handleToggleClick)
       : (
-      <div className="fc-dropdown__value" onClick={this.handleToggleClick}>
-        {title}
-        <input name={name} type="hidden" value={valueForInput} readOnly />
-      </div>
-    );
+        <div className="fc-dropdown__value" onClick={this.handleToggleClick}>
+          {title}
+          <input name={name} type="hidden" value={valueForInput} readOnly />
+        </div>
+      );
   }
 
-  get prependList(): ?Element {
+  get prependList(): ?Element<*> {
     if (!this.props.renderPrepend) {
       return null;
     }
     return this.props.renderPrepend();
   }
 
-  get appendList(): ?Element {
+  get appendList(): ?Element<*> {
     if (!this.props.renderAppend) {
       return null;
     }
-    return this.props.renderAppend();
+    return this.props.renderAppend(this.handleToggleClick);
   }
 
   get optionsContainerClass(): string {
     return classNames('fc-dropdown__item-container', this.props.listClassName);
+  }
+
+  @autobind
+  scrollViewport(movingUp: boolean = false) {
+    const newIndex = this.state.pointedValueIndex;
+    const item = this._items.children[newIndex];
+
+    const containerTop = this._items.scrollTop;
+    const containerVisibleHeight = this._items.clientHeight;
+    const itemTop = item.offsetTop;
+    const itemHeight = item.offsetHeight;
+
+    // shift height when compare to viewport top position - item height if moving up, zero otherwise
+    const heightShift = movingUp ? itemHeight : 0;
+
+    const elementBelowViewport = containerTop + containerVisibleHeight <= itemTop + itemHeight;
+    const elementAboveViewport = containerTop > itemTop + heightShift;
+
+    if (elementBelowViewport) {
+      this._items.scrollTop = itemTop + itemHeight - containerVisibleHeight;
+    }
+    if (elementAboveViewport) {
+      this._items.scrollTop = itemTop;
+    }
+  }
+
+  @autobind
+  handleKeyPress(e: KeyboardEvent) {
+    const { open, pointedValueIndex: currentIndex } = this.state;
+
+    if (open) {
+      const itemsCount = React.Children.count(this.props.children);
+
+      switch (e.keyCode) {
+        // enter
+        case 13:
+          e.stopPropagation();
+          e.preventDefault();
+
+          if (currentIndex > -1) {
+            this._items.children[currentIndex].click();
+          }
+
+          break;
+        // esc
+        case 27:
+          this.setState({ open: false, pointedValueIndex: -1 });
+
+          break;
+        // up
+        case 38:
+          e.preventDefault();
+
+          this.setState({
+            pointedValueIndex: getNewItemIndex(itemsCount, currentIndex, -1),
+          }, this.scrollViewport.bind(this, true));
+
+          break;
+        // down
+        case 40:
+          e.preventDefault();
+
+          this.setState({
+            pointedValueIndex: getNewItemIndex(itemsCount, currentIndex),
+          }, this.scrollViewport);
+
+          break;
+      }
+    }
   }
 
   @autobind
@@ -215,13 +313,12 @@ export default class GenericDropdown extends Component {
     if (this.props.disabled) {
       return;
     }
-    this.setState({
-      open: !this.state.open
-    });
+
+    this.toggleMenu();
   }
 
   @autobind
-  handleItemClick(value: number|string, title: string) {
+  handleItemClick(value: number | string, title: string) {
     let state = { open: false };
     if (this.props.changeable) {
       state = { ...state, selectedValue: value };
@@ -235,12 +332,22 @@ export default class GenericDropdown extends Component {
   }
 
   @autobind
-  closeMenu() {
-    this.setState({ open: false });
+  toggleMenu() {
+    this.setState({ open: !this.state.open, pointedValueIndex: -1 });
   }
 
   @autobind
-  renderItems(): Element {
+  closeMenu() {
+    this.setState({ open: false, pointedValueIndex: -1 });
+  }
+
+  @autobind
+  openMenu() {
+    this.setState({ open: true });
+  }
+
+  @autobind
+  renderItems() {
     const { children, emptyMessage } = this.props;
 
     if (_.isEmpty(children) && emptyMessage) {
@@ -251,19 +358,27 @@ export default class GenericDropdown extends Component {
       );
     }
 
-    return React.Children.map(children, item => {
-      if (item.type !== DropdownItem) {
-        return item;
+    return React.Children.map(children, (item, index) => {
+      const className = classNames('fc-dropdown__item', { _active: index === this.state.pointedValueIndex });
+
+      const props: any = {
+        className,
+      };
+
+      if (item.type === DropdownItem) {
+        props.onSelect = this.handleItemClick;
       }
 
-      return React.cloneElement(item, {
-        onSelect: this.handleItemClick,
-      });
+      return React.cloneElement(item, props);
     });
   }
 
-  get controls(): Element[] {
-    const { inputFirst } = this.props;
+  get controls(): Element<*> {
+    const { inputFirst, noControls } = this.props;
+
+    if (noControls) {
+      return this.dropdownInput;
+    }
 
     return createFragment({
       left: inputFirst ? this.dropdownInput : this.dropdownButton,
@@ -271,7 +386,7 @@ export default class GenericDropdown extends Component {
     });
   }
 
-  get menu(): ?Element {
+  get menu(): ?Element<*> {
     if (!this.state.open) {
       return;
     }
@@ -280,14 +395,14 @@ export default class GenericDropdown extends Component {
       <BodyPortal active={this.props.detached}>
         <div className={this.listClassName} ref={m => this._menu = m}>
           {this.prependList}
-          <ul className={this.optionsContainerClass}>
+          <ul className={this.optionsContainerClass} ref={i => this._items = i}>
             {this.renderItems()}
           </ul>
           {this.appendList}
         </div>
       </BodyPortal>
     );
-  };
+  }
 
   render() {
     const { editable, id } = this.props;

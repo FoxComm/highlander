@@ -8,10 +8,13 @@ import { frn } from 'lib/frn';
 import Customers from 'components/customers/customers';
 import CustomersListPage from 'components/customers/list-page';
 import NewCustomer from 'components/customers/new-customer';
-import Groups from 'components/customers-groups/groups';
-import Group from 'components/customers-groups/group';
-import NewDynamicGroup from 'components/customers-groups/dynamic/new-group';
-import EditDynamicGroup from 'components/customers-groups/dynamic/edit-group';
+import GroupsListPage from 'components/customers-groups/list-page';
+import GroupsList from 'components/customers-groups/groups-list';
+import NewGroupWizardPage from 'components/customers-groups/new-wizard';
+import EditGroupPage from 'components/customers-groups/edit-group-page';
+import GroupPage from 'components/customers-groups/group-page';
+import NewGroup from 'components/customers-groups/new-group';
+import EditGroup from 'components/customers-groups/edit-group';
 import Customer from 'components/customers/customer';
 import CustomerDetails from 'components/customers/details';
 import Notes from 'components/notes/notes';
@@ -35,21 +38,24 @@ const getRoutes = (jwt: Object) => {
           dimension: 'account',
           component: ActivityTrailPage,
           frn: frn.activity.customer,
-         }),
+        }),
       ]),
       router.read('groups-base', { path: 'groups', frn: frn.user.customerGroup }, [
-        router.read('customer-groups', { component: CustomersListPage }, [
-          router.read('groups', { component: Groups, isIndex: true }),
+        router.read('customer-groups', { component: GroupsListPage }, [
+          router.read('groups', { component: GroupsList, isIndex: true }),
         ]),
-        router.create('new-dynamic-customer-group', {
-          path: 'new-dynamic',
-          component: NewDynamicGroup,
-        }),
-        router.update('edit-dynamic-customer-group', {
-          path: 'edit-dynamic/:groupId',
-          component: EditDynamicGroup,
-        }),
-        router.read('customer-group', { path: ':groupId', title: 'Group', component: Group }),
+
+        router.create('customer-group-wizard', { path: 'new', component: NewGroupWizardPage }),
+
+        router.create('new-custom-group', { component: EditGroupPage }, [
+          router.create('new-custom-group', { path: 'new/:type', component: NewGroup }),
+        ]),
+
+        router.update('edit-customer-group', { component: EditGroupPage }, [
+          router.update('edit-customer-group', { path: ':groupId/edit', component: EditGroup }),
+        ]),
+
+        router.read('customer-group', { path: ':groupId', title: 'Group', component: GroupPage }),
       ]),
       router.create('customers-new', { path: 'new', component: NewCustomer }),
       router.read('customer', { path: ':customerId', component: Customer }, [
@@ -59,13 +65,13 @@ const getRoutes = (jwt: Object) => {
           path: 'transactions',
           component: CustomerTransactions,
           frn: frn.user.customerTransaction,
-         }),
+        }),
         router.read('customer-cart', {
           title: 'Cart',
           path: 'cart',
           component: CustomerCart,
           frn: frn.user.customerCart,
-         }),
+        }),
         router.read('customer-items', { title: 'Items', path: 'items', component: CustomerItems }),
         router.read('customer-notes', { path: 'notes', component: Notes }),
         router.read('customer-activity-trail', {
@@ -76,7 +82,7 @@ const getRoutes = (jwt: Object) => {
         router.read('customer-storecredits-base', { path: 'storecredit' }, [
           router.read('customer-storecredits', { component: StoreCredits, isIndex: true }),
           router.read('customer-storecredit-transactions', { path: 'transactions',
-              component: StoreCreditsTransactions }),
+            component: StoreCreditsTransactions }),
         ]),
       ]),
       router.read('customer-storecredits-new', { path: ':customerId/storecredits/new', component: NewStoreCredit }),

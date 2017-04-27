@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -ue
+
+cd /etc/openvpn/easy-rsa/
+
+source ./vars
+./clean-all
+
+./pkitool --initca
+./pkitool --server {{OPENVPN_KEY_ORG}}
+
+./build-dh
+
+touch /etc/openvpn/easy-rsa/keys/index.txt.attr
+
+cd /etc/openvpn/easy-rsa/keys
+export KEY_ALTNAMES="{{OPENVPN_KEY_ORG}}"
+
+# create empty CRL
+openssl ca -config $KEY_CONFIG -gencrl -out crl.pem

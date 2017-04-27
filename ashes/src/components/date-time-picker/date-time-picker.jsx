@@ -175,7 +175,7 @@ export default class DateTimePicker extends Component<void, Props, State> {
     this.triggerChange(currentDate);
   }
 
-  render(): Element {
+  render() {
     return (
       <div className="fc-date-time-picker">
         <DatePicker

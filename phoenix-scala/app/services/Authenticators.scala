@@ -1,8 +1,7 @@
 package services
 
-import scala.concurrent.Future
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.{HttpChallenge, HttpCookie, RawHeader}
-import akka.http.scaladsl.model.{ContentTypes, DateTime, HttpEntity, HttpResponse, StatusCodes, Uri}
 import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
@@ -10,19 +9,18 @@ import akka.http.scaladsl.server.directives.CookieDirectives.setCookie
 import akka.http.scaladsl.server.directives.RespondWithDirectives.respondWithHeader
 import akka.http.scaladsl.server.directives.SecurityDirectives.AuthenticationResult
 import akka.http.scaladsl.server.directives.{AuthenticationDirective, AuthenticationResult}
-
-import cats.data.Xor
+import cats.implicits._
 import failures.AuthFailures._
 import failures._
 import models.account._
 import models.admin._
 import models.auth._
-import org.jose4j.jwt.JwtClaims
 import payloads.{AuthPayload, LoginPayload}
+import scala.concurrent.Future
 import services.account._
 import services.customers.CustomerManager
 import slick.driver.PostgresDriver.api._
-import utils.FoxConfig.{RichConfig, config}
+import utils.FoxConfig.config
 import utils.aliases._
 import utils.db._
 
@@ -55,13 +53,13 @@ object JwtCookie {
   def apply(authPayload: AuthPayload): HttpCookie = HttpCookie(
       name = "JWT",
       value = authPayload.jwt,
-      secure = config.getOptBool("auth.cookieSecure").getOrElse(true),
+      secure = config.auth.cookie.secure,
       httpOnly = true,
-      expires = config.getOptLong("auth.cookieTTL").map { ttl ⇒
+      expires = config.auth.cookie.ttl.map { ttl ⇒
         DateTime.now + ttl * 1000
       },
       path = Some("/"),
-      domain = config.getOptString("auth.cookieDomain")
+      domain = config.auth.cookie.domain
   )
 }
 
@@ -85,7 +83,7 @@ object Authenticator {
       readCookieOrHeader(headerName = "JWT")
     }
 
-    def toUserToken(token: String): Failures Xor Token =
+    def toUserToken(token: String): Either[Failures, Token] =
       Token.fromString(token, Identity.User)
 
     def checkAuthUser(credentials: Option[String]): Future[AuthenticationResult[AuthData[User]]] =
@@ -102,15 +100,16 @@ object Authenticator {
         implicit ec: EC,
         db: DB): Future[AuthenticationResult[AuthData[User]]] =
       (for {
-        jwtCredentials ← * <~ credentials.toXor(AuthFailed("missing credentials").single)
+        jwtCredentials ← * <~ credentials.toEither(AuthFailed("missing credentials").single)
         token          ← * <~ toUserToken(jwtCredentials)
         account ← * <~ Accounts
                    .findByIdAndRatchet(token.id, token.ratchet)
                    .mustFindOr(AuthFailed("account not found"))
         user ← * <~ Users.mustFindByAccountId(token.id)
-      } yield AuthData[User](token, user, account)).run().map {
-        case Xor.Right(data) ⇒ AuthenticationResult.success(data)
-        case Xor.Left(f)     ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
+      } yield
+        AuthData[User](token, user, account)).runDBIO.runEmptyA.value.map { // TODO: rethink discarding warnings here @michalrus
+        case Right(data) ⇒ AuthenticationResult.success(data)
+        case Left(f)     ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
       }
 
     def jwtAuthGuest(realm: String)(implicit ec: EC,
@@ -121,12 +120,13 @@ object Authenticator {
         account ← * <~ Accounts.mustFindById404(user.accountId)
         claims  ← * <~ AccountManager.getClaims(user.accountId, guestCreateContext.scopeId)
       } yield
-        AuthData[User](UserToken.fromUserAccount(user, account, claims),
-                       user,
-                       account,
-                       isGuest = true)).run().map {
-        case Xor.Right(data) ⇒ AuthenticationResult.success(data)
-        case Xor.Left(f)     ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
+        AuthData[User](
+            UserToken.fromUserAccount(user, account, claims),
+            user,
+            account,
+            isGuest = true)).runDBIO.runEmptyA.value.map { // TODO: rethink discarding warnings here @michalrus
+        case Right(data) ⇒ AuthenticationResult.success(data)
+        case Left(f)     ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
       }
     }
   }
@@ -190,11 +190,11 @@ object Authenticator {
                   Account.ClaimSet(scope = authData.token.scope,
                                    roles = authData.token.roles,
                                    claims = authData.token.claims))) match {
-            case Xor.Right(authPayload) ⇒
+            case Right(authPayload) ⇒
               val header = respondWithHeader(RawHeader("JWT", authPayload.jwt))
               val cookie = setCookie(JwtCookie(authPayload))
               header & cookie & provide(authData)
-            case Xor.Left(failures) ⇒
+            case Left(failures) ⇒
               val challenge = FailureChallenge("customer", failures)
               AuthRejections.credentialsRejected[AuthData[User]](challenge)
           }
@@ -206,7 +206,7 @@ object Authenticator {
     }
 
   def authTokenBaseResponse(token: Token,
-                            response: AuthPayload ⇒ StandardRoute): Failures Xor Route = {
+                            response: AuthPayload ⇒ StandardRoute): Either[Failures, Route] = {
     for {
       authPayload ← AuthPayload(token)
     } yield
@@ -215,7 +215,7 @@ object Authenticator {
       }
   }
 
-  def authTokenLoginResponse(token: Token): Failures Xor Route = {
+  def authTokenLoginResponse(token: Token): Either[Failures, Route] = {
     authTokenBaseResponse(token, { payload ⇒
       complete(
           HttpResponse(
@@ -223,17 +223,16 @@ object Authenticator {
     })
   }
 
-  def oauthTokenLoginResponse(redirectUri: Uri)(token: Token): Failures Xor Route = {
+  def oauthTokenLoginResponse(redirectUri: Uri)(token: Token): Either[Failures, Route] = {
     authTokenBaseResponse(token, { _ ⇒
       redirect(redirectUri, StatusCodes.Found)
     })
   }
 
   def authenticate(payload: LoginPayload)(implicit ec: EC, db: DB): Result[Route] = {
-
-    val tokenResult = (for {
+    val tokenResult = for {
       organization ← * <~ Organizations.findByName(payload.org).mustFindOr(LoginFailed)
-      user         ← * <~ Users.findByEmail(payload.email.toLowerCase).mustFindOneOr(LoginFailed)
+      user         ← * <~ Users.findNonGuestByEmail(payload.email.toLowerCase).mustFindOneOr(LoginFailed)
       _            ← * <~ user.mustNotBeMigrated
       accessMethod ← * <~ AccountAccessMethods
                       .findOneByAccountIdAndName(user.accountId, "login")
@@ -245,29 +244,30 @@ object Authenticator {
 
       adminUsers ← * <~ AdminsData.findOneByAccountId(user.accountId)
       _ ← * <~ adminUsers.map { adminData ⇒
-           DbResultT.fromXor(checkState(adminData))
+           DbResultT.fromEither(checkState(adminData))
          }
 
       claimSet     ← * <~ AccountManager.getClaims(account.id, organization.scopeId)
       _            ← * <~ validateClaimSet(claimSet)
       checkedToken ← * <~ UserToken.fromUserAccount(user, account, claimSet)
-    } yield checkedToken).run()
+    } yield checkedToken
 
-    tokenResult.map(_.flatMap { token ⇒
-      authTokenLoginResponse(token)
-    })
+    for {
+      token ← tokenResult.runDBIO
+      route ← Result.fromEither(authTokenLoginResponse(token))
+    } yield route
   }
 
   //A user must have at least some role in an organization to login under that
   //organization. Otherwise they get an auth failure.
-  private def validateClaimSet(claimSet: Account.ClaimSet): Failures Xor Unit =
+  private def validateClaimSet(claimSet: Account.ClaimSet): Either[Failures, Unit] =
     if (claimSet.roles.isEmpty)
-      Xor.left(AuthFailed(reason = "User has no roles in the organization").single)
+      Either.left(AuthFailed(reason = "User has no roles in the organization").single)
     else
-      Xor.right(Unit)
+      Either.right(Unit)
 
-  private def checkState(adminData: AdminData): Failures Xor AdminData = {
-    if (adminData.canLogin) Xor.right(adminData)
-    else Xor.left(AuthFailed(reason = "Store admin is Inactive or Archived").single)
+  private def checkState(adminData: AdminData): Either[Failures, AdminData] = {
+    if (adminData.canLogin) Either.right(adminData)
+    else Either.left(AuthFailed(reason = "Store admin is Inactive or Archived").single)
   }
 }

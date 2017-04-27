@@ -1,9 +1,8 @@
 package models.cord.lineitems
 
-import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
 import com.pellucid.sealerate
-import failures.{Failure, Failures}
+import failures.Failures
 import models.cord.lineitems.{OrderLineItem ⇒ OLI}
 import models.inventory.{Sku, Skus}
 import models.objects._
@@ -12,7 +11,6 @@ import org.json4s.Formats
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.Validation._
 import utils._
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
@@ -30,6 +28,10 @@ trait LineItemProductData[LI] {
   def lineItemReferenceNumber: String
   def lineItemState: OrderLineItem.State
   def withLineItemReferenceNumber(newLineItemRef: String): LineItemProductData[LI]
+
+  def isEligibleForDiscount: Boolean = !isGiftCard
+
+  def isGiftCard: Boolean = attributes.flatMap(_.giftCard).isDefined
 }
 
 case class OrderLineItemProductData(sku: Sku,
@@ -61,7 +63,7 @@ case class OrderLineItem(id: Int = 0,
 
   def stateLens = lens[OrderLineItem].state
 
-  override def updateTo(newModel: OrderLineItem): Failures Xor OrderLineItem =
+  override def updateTo(newModel: OrderLineItem): Either[Failures, OrderLineItem] =
     super.transitionModel(newModel)
 
   val fsm: Map[State, Set[State]] = Map(
@@ -134,19 +136,25 @@ object OrderLineItems
 
   val returningLens: Lens[OrderLineItem, Int] = lens[OrderLineItem].id
 
-  def findByOrderRef(cordRef: Rep[String]): Query[OrderLineItems, OrderLineItem, Seq] =
+  def findByOrderRef(cordRef: String): QuerySeq =
     filter(_.cordRef === cordRef)
 
   def findBySkuId(id: Int): DBIO[Option[OrderLineItem]] =
     filter(_.skuId === id).one
 
   object scope {
-    implicit class OrderLineItemQuerySeqConversions(q: QuerySeq) {
+    implicit class OrderLineItemQuerySeqConversions(private val q: QuerySeq) extends AnyVal {
       def withSkus: Query[(OrderLineItems, Skus), (OrderLineItem, Sku), Seq] =
         for {
           items ← q
           skus  ← items.sku
         } yield (items, skus)
+
+      def forContextAndCode(contextId: Int, code: String): QuerySeq =
+        for {
+          items ← q
+          sku   ← items.sku if sku.code === code && sku.contextId === contextId
+        } yield items
     }
   }
 

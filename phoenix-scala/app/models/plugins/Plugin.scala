@@ -23,8 +23,8 @@ case class Plugin(id: Int = 0,
                   description: String,
                   isDisabled: Boolean = false,
                   version: String,
-                  apiHost: String,
-                  apiPort: Int,
+                  apiHost: Option[String], // TODO: change (apiHost, apiPort) to apiUrl @narma
+                  apiPort: Option[Int],
                   settings: SettingsValues = Map.empty[String, JValue],
                   schemaSettings: SettingsSchema,
                   createdAt: Instant = Instant.now,
@@ -38,11 +38,20 @@ case class Plugin(id: Int = 0,
 
     (notEmpty(name, "name")
           |@| notEmpty(version, "version")
-          |@| greaterThan(apiPort, 1, "Api port must be greater than 1")
-          |@| notEmpty(apiHost, "apiHost")).map {
+          |@| apiPort.fold(ok) { port ⇒
+            greaterThan(port, 1, "Api port must be greater than 1")
+          }
+          |@| nullOrNotEmpty(apiHost, "apiHost")).map {
       case _ ⇒ this
     }
   }
+
+  // TODO: change me to field @narma
+  def apiUrl(): Option[String] =
+    for {
+      host ← apiHost
+      port ← apiPort
+    } yield s"http://$host:$port/"
 }
 
 object Plugin {
@@ -76,8 +85,8 @@ class Plugins(tag: Tag) extends FoxTable[Plugin](tag, "plugins") {
   def description    = column[String]("description")
   def isDisabled     = column[Boolean]("is_disabled")
   def version        = column[String]("version")
-  def apiHost        = column[String]("api_host")
-  def apiPort        = column[Int]("api_port")
+  def apiHost        = column[Option[String]]("api_host")
+  def apiPort        = column[Option[Int]]("api_port")
   def settings       = column[SettingsValues]("settings")
   def schemaSettings = column[SettingsSchema]("schema_settings")
 

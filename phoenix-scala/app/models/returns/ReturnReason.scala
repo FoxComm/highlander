@@ -1,8 +1,7 @@
 package models.returns
 
-import java.time.Instant
-
 import com.pellucid.sealerate
+import java.time.Instant
 import models.returns.Return._
 import models.returns.ReturnReason._
 import shapeless._

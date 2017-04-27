@@ -19,9 +19,6 @@ import { actions } from '../../modules/promotions/list';
 // helpers
 import { filterArchived } from 'elastic/archive';
 
-// types
-import type { SearchFilter } from 'elastic/common';
-
 type Props = {
   list: Object,
   actions: Object,
@@ -42,7 +39,6 @@ const mapDispatchToProps = (dispatch: Function) => {
 const tableColumns = [
   {field: 'id', text: 'Promotion ID'},
   {field: 'promotionName', text: 'Name'},
-  {field: 'storefrontName', text: 'Storefront Name'},
   {field: 'applyType', text: 'Apply Type'},
   {field: 'totalUsed', text: 'Total Uses'},
   {field: 'currentCarts', text: 'Current Carts'},
@@ -61,7 +57,7 @@ export default class Promotions extends Component {
     return this.props.actions.addSearchFilters(filterArchived(filters), initial);
   }
 
-  renderRow(row: Object, index: number, columns: Array<any>, params: any): Element {
+  renderRow(row: Object, index: number, columns: Array<any>, params: any): Element<*> {
     const key = `promotion-${row.id}`;
     return (
       <PromotionRow
@@ -73,7 +69,7 @@ export default class Promotions extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const {list, actions} = this.props;
 
     const searchActions = {
@@ -83,7 +79,7 @@ export default class Promotions extends Component {
 
     return (
       <div className="promotions">
-        <BulkWrapper entity="promotion">
+        <BulkWrapper onDelete={searchActions.refresh} entity="promotion">
           <SelectableSearchList
             entity="promotions.list"
             emptyMessage="No promotions found."

@@ -4,6 +4,7 @@ import React, { Component, Element } from 'react';
 import FoxRouter from 'lib/fox-router';
 import { frn } from 'lib/frn';
 
+import Analytics from 'components/analytics/analytics';
 import ActivityTrailPage from 'components/activity-trail/activity-trail-page';
 import Notes from 'components/notes/notes';
 
@@ -17,6 +18,7 @@ import ProductsListPage from 'components/products/list-page';
 import Products from 'components/products/products';
 import ProductPage from 'components/products/page';
 import ProductForm from 'components/products/product-form';
+import ProductAmazon from 'components/products/product-amazon';
 import ProductImages from 'components/products/images';
 
 import Skus from 'components/skus/skus';
@@ -41,6 +43,11 @@ const getRoutes = (jwt: Object) => {
           frn: frn.activity.product,
         }),
       ]),
+      router.read('product-amazon', {
+        title: 'Amazon',
+        path: 'amazon/:productId',
+        component: ProductAmazon,
+      }),
       router.read('product', {
         path: ':context/:productId',
         titleParam: ':productId',
@@ -63,6 +70,12 @@ const getRoutes = (jwt: Object) => {
         router.read('product-activity-trail', {
           path: 'activity-trail',
           component: ActivityTrailPage,
+          frn: frn.activity.product,
+        }),
+        router.read('product-analytics', {
+          title: 'Analytics',
+          path: 'analytics',
+          component: Analytics,
           frn: frn.activity.product,
         }),
       ]),
@@ -122,10 +135,10 @@ const getRoutes = (jwt: Object) => {
         router.read('inventory-list-page',{ component: InventoryListPage }, [
           router.read('inventory', { component: InventoryList, isIndex: true }),
           router.read('inventory-activity-trail', {
-             path: 'activity-trail',
-             dimension: 'inventory',
-             component: ActivityTrailPage,
-             frn: frn.activity.inventory,
+            path: 'activity-trail',
+            dimension: 'inventory',
+            component: ActivityTrailPage,
+            frn: frn.activity.inventory,
           }),
         ]),
       ]);

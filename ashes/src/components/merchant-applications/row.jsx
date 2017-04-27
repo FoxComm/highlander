@@ -1,7 +1,7 @@
 /* @flow */
 
 //libs
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 
 // components
@@ -29,7 +29,7 @@ function setCellContents(application, field) {
 export default class MerchantApplicationRow extends Component {
   props: Props;
 
-  render(): Element {
+  render() {
     const { application, columns, params } = this.props;
     const commonParams = {
       columns,

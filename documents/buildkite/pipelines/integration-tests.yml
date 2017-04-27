@@ -1,0 +1,36 @@
+steps:
+  - command: sbt compile
+    label: compile
+    agents:
+      - queue=core
+
+  - wait
+
+  - command: |-
+      echo "Just Checkout Code to Stage Master"
+      echo "tabernacle will take care of building and deploying to the stage machine"
+    label: Dump to stage master
+    agents:
+      - queue=stage_master
+    branches: master
+
+  - wait
+
+  - command: |-
+      curl -X POST "https://api.buildkite.com/v1/organizations/foxcommerce/projects/$PROJECT/builds?access_token=$TOKEN" \
+       -d '{
+          "commit": "HEAD",
+          "branch": "master",
+          "message": "Integration Tests Updated",
+          "author": {
+            "name": "CI",
+            "email": "ci@foxcommerce.com"
+          }
+        }'
+    label: run tests
+    agents:
+      - queue=stage_master
+    env:
+      TOKEN: c5e4764e4d0116e34e17c2d4e0b1e7df45aaa468
+      PROJECT: stage-provisioning
+    branches: master

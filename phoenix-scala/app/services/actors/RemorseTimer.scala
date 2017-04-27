@@ -1,25 +1,24 @@
 package services.actors
 
-import java.time.Instant
-
-import scala.util.Success
 import akka.actor.{Actor, ActorLogging}
+import cats.implicits._
+import faker.Lorem.letterify
+import java.time.Instant
 import models.activity.ActivityContext
 import models.cord.Order._
 import models.cord.{Order, Orders}
+import scala.util.Success
 import services.LogActivity
-import services.Result
 import utils.aliases._
-import utils.db.javaTimeSlickMapper
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 case object Tick
 
+// FIXME: what is this, Result has Future inside! @michalrus
 case class RemorseTimerResponse(updatedQuantity: Result[Int])
 
 class RemorseTimer(implicit db: DB, ec: EC) extends Actor {
-  implicit val ac = ActivityContext.build(userId = 1, userType = "admin")
 
   override def receive = {
     case Tick ⇒ sender() ! tick
@@ -35,12 +34,31 @@ class RemorseTimer(implicit db: DB, ec: EC) extends Actor {
     val query = for {
       cordRefs ← * <~ orders.result
       count    ← * <~ orders.map(_.state).update(newState)
-      refNums = cordRefs.map(_.referenceNumber)
-      _ ← * <~ doOrMeh(count > 0, LogActivity.orderBulkStateChanged(newState, refNums))
+      _        ← * <~ doOrMeh(count > 0, logAcitvity(newState, cordRefs))
     } yield count
 
     RemorseTimerResponse(query.runTxn)
   }
+
+  private def logAcitvity(newState: Order.State, orders: Seq[Order])(
+      implicit ec: EC): DbResultT[Unit] =
+    DbResultT
+      .seqCollectFailures(
+          orders
+            .groupBy(_.scope)
+            .map {
+          case (scope, scopeOrders) ⇒
+            val refNums = scopeOrders.map(_.referenceNumber)
+
+            implicit val ac = ActivityContext.build(userId = 1,
+                                                    userType = "admin",
+                                                    scope = scope,
+                                                    transactionId = letterify("?" * 5))
+
+            LogActivity().withScope(scope).orderBulkStateChanged(newState, refNums)
+        }
+            .toList)
+      .meh
 }
 
 /*
@@ -52,7 +70,8 @@ class RemorseTimerMate(implicit ec: EC) extends Actor with ActorLogging {
 
   override def receive = {
     case response: RemorseTimerResponse ⇒
-      response.updatedQuantity.onComplete {
+      response.updatedQuantity.runEmptyA.value.onComplete {
+        // TODO: do we now quantity is `Either[Failures, Int]` here? @michalrus
         case Success(quantity) ⇒ log.debug(s"Remorse timer updated $quantity orders")
         case _                 ⇒ log.error("Remorse timer failed")
       }

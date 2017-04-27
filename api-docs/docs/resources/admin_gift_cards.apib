@@ -10,8 +10,16 @@
 
 ### Create [POST /v1/gift-cards]
 
-Creates a GiftCard with `CsrAppeasement` type, which is only supported at this endpoint.
-If `quantity` parameter is provided in payload, multiple GiftCard will be generated.
+Creates a GiftCard with `CsrAppeasement` type.
+
++ Request (application/json)
+    + Attributes (GiftCardSingleCreatePayload)
++ Response 200 (application/json)
+    + Attributes (GiftCard)
+
+### Bulk Create [POST /v1/gift-cards/bulk]
+
+Creates multiple GiftCards with `CsrAppeasement` type.
 
 + Request (application/json)
     + Attributes (GiftCardCreatePayload)
@@ -25,7 +33,7 @@ If `quantity` parameter is provided in payload, multiple GiftCard will be genera
 + Response 200 (application/json)
     + Attributes (GiftCard)
 
-### Bulk Update State [PATCH /v1/gift-cards]
+### Bulk Update State [PATCH /v1/gift-cards/bulk]
 
 + Request (application/json)
     + Attributes (GiftCardBulkStateUpdatePayload)

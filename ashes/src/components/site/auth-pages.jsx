@@ -6,7 +6,7 @@ import React, { Element, Component } from 'react';
 import styles from './auth-pages.css';
 
 type Props = {
-  children: Element,
+  children: Element<*>,
 };
 
 type State = {
@@ -27,7 +27,7 @@ export default class AuthPages extends Component {
     });
   }
 
-  get body(): Element {
+  get body(): Element<*> {
     return React.cloneElement(
       this.props.children, {
         isMounted: this.state.isMounted,

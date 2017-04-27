@@ -36,7 +36,7 @@ export PHOENIX_COOKIE_SECURE=off
 ```
 
 RSA keys for staging and instruction how-to generate own keys located here:
-https://github.com/FoxComm/prov-shit/blob/master/ansible/roles/secret_keys/README.md
+https://github.com/FoxComm/tabernacle/blob/master/ansible/roles/secret_keys/README.md
 
 #### Google oauth
 
@@ -65,4 +65,4 @@ To upload images to S3, you should set the following environment variables:
 - `S3_BUCKET`
 - `S3_REGION`
 
-These settings are in `prov-shit` in the location: `ansible/roles/dev/phoenix/vars/aws.yml`. You'll need to use `ansible-vault` to decrypt and get the settings.
+These settings are in `tabernacle` in the location: `ansible/roles/dev/phoenix/vars/aws.yml`. You'll need to use `ansible-vault` to decrypt and get the settings.

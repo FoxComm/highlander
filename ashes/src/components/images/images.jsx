@@ -11,7 +11,7 @@ import React, { Component, Element } from 'react';
 
 // components
 import WaitAnimation from '../common/wait-animation';
-import { AddButton } from '../common/buttons';
+import { AddButton } from 'components/core/button';
 import EditAlbum from './edit-album';
 import Album from './album';
 
@@ -28,14 +28,14 @@ export type Props = {
   uploadImagesInProgress: boolean;
   isImageLoading: (idx: number) => boolean;
 
-  uploadImages: (context: string, albumId: number, files: Array<ImageFile>) => Promise;
-  editImage: (context: string, albumId: number, idx: number, info: ImageInfo) => Promise;
-  deleteImage: (context: string, albumId: number, idx: number) => Promise;
-  fetchAlbums: (context: string, entityId: number) => Promise;
-  addAlbum: (context: string, entityId: number, album: NewAlbum) => Promise;
-  editAlbum: (context: string, albumId: number, album: TAlbum) => Promise;
-  moveAlbum: (context: string, entityId: number, albumId: number, position: number) => Promise;
-  archiveAlbum: (context: string, albumId: number) => Promise;
+  uploadImages: (context: string, albumId: number, files: Array<ImageFile>) => Promise<*>;
+  editImage: (context: string, albumId: number, idx: number, info: ImageInfo) => Promise<*>;
+  deleteImage: (context: string, albumId: number, idx: number) => Promise<*>;
+  fetchAlbums: (context: string, entityId: number) => Promise<*>;
+  addAlbum: (context: string, entityId: number, album: NewAlbum) => Promise<*>;
+  editAlbum: (context: string, albumId: number, album: TAlbum) => Promise<*>;
+  moveAlbum: (context: string, entityId: number, albumId: number, position: number) => Promise<*>;
+  archiveAlbum: (context: string, albumId: number) => Promise<*>;
 };
 
 type State = {
@@ -76,7 +76,7 @@ class Images extends Component {
     this.setState({ newAlbumMode: false });
   }
 
-  get newAlbumDialog(): ?Element {
+  get newAlbumDialog(): ?Element<*> {
     const album = { name: '', images: [] };
 
     return (
@@ -91,7 +91,7 @@ class Images extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     if (this.props.isLoading) {
       return <WaitAnimation />;
     }

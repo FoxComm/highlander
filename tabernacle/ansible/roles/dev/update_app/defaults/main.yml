@@ -1,0 +1,8 @@
+app_name: middlewarehouse
+branch_name: master
+tag_name: "{{ branch_name | replace('/', '-') }}"
+
+app_name_marathon: "{{app_name}}"
+app_build_target: "make build"
+app_docker_target: "make docker"
+app_push_target: "make docker-push"

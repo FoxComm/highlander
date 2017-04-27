@@ -293,4 +293,4 @@ export default function createImagesModule(entity: string): Module {
       archiveAlbum
     }
   };
-};
+}

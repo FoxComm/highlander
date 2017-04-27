@@ -20,6 +20,7 @@
   &__controls {
     overflow: hidden;
     display: flex;
+    flex: 1;
   }
 
   &__value {
@@ -44,7 +45,7 @@
     border: 1px solid @color-decor9;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1);
     user-select: none;
-    max-height: 50vh;
+    max-height: 30vh;
     overflow: hidden;
 
     &._open {
@@ -70,7 +71,9 @@
     padding: 0 20px;
     cursor: pointer;
     white-space: nowrap;
+    transition: background .2s;
 
+    &._active,
     &:hover {
       background-color: @color-decor11;
     }
@@ -119,7 +122,6 @@
         .size(100%);
         padding: 0 10px;
         .colors(@color-control-standard-fg, @color-white);
-        border: none;
       }
     }
   }
@@ -132,5 +134,5 @@
 }
 
 .fc-searchable-dropdown__item-list {
-  max-height: ~"calc(50vh - 60px)";
+  max-height: ~"calc(30vh - 60px)";
 }

@@ -14,9 +14,6 @@ import { FormField, Form } from 'components/forms';
 // styles
 import styles from './option-list.css';
 
-// types
-import type { Option } from 'paragons/product';
-
 type OptionEntry = {
   id: number|string,
   option: Option,
@@ -72,7 +69,7 @@ class OptionEditDialog extends Component {
     }
   }
 
-  renderDialogContent(): Element {
+  renderDialogContent(): Element<*> {
     const name = _.get(this.state, 'option.attributes.name.v');
     const type = _.get(this.state, 'option.attributes.type.v');
 
@@ -85,7 +82,7 @@ class OptionEditDialog extends Component {
           required
         >
           <input
-            id="option-name-fld"
+            id="fct-option-name-fld"
             type="text"
             ref="nameInput"
             value={name}
@@ -108,7 +105,7 @@ class OptionEditDialog extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     return (
       <ConfirmationDialog
         isVisible={true}

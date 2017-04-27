@@ -19,9 +19,7 @@ class GiftCardAdjustmentIntegrationTest
 
       val failure = GiftCards
         .auth(giftCard = giftCard, orderPaymentId = orderPayments.head.id, debit = -1)
-        .runTxn()
-        .futureValue
-        .leftVal
+        .gimmeTxnFailures
       failure.getMessage must include("""violates check constraint "valid_entry"""")
     }
 
@@ -32,9 +30,7 @@ class GiftCardAdjustmentIntegrationTest
                 orderPaymentId = orderPayments.head.id.some,
                 debit = 50,
                 credit = 50)
-        .runTxn()
-        .futureValue
-        .leftVal
+        .gimmeTxnFailures
       failure.getMessage must include("""violates check constraint "valid_entry"""")
     }
 
@@ -92,7 +88,7 @@ class GiftCardAdjustmentIntegrationTest
       val debits = List(50, 25, 15, 10)
       def auth(amount: Int) =
         GiftCards.auth(giftCard = giftCard, orderPaymentId = orderPayments.head.id, debit = amount)
-      val adjustments = DbResultT.sequence((1 to 4).map(auth)).gimme
+      val adjustments = DbResultT.seqCollectFailures((1 to 4).toList.map(auth)).gimme
 
       adjustments.map { adj ⇒
         GiftCardAdjustments.cancel(adj.id).gimme

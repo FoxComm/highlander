@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import { trackEvent } from 'lib/analytics';
 import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
 
@@ -11,19 +11,15 @@ import CartLineItemsFooter from './line-items-footer';
 import PanelHeader from 'components/panel-header/panel-header';
 import SkuLineItems, { defaultColumns } from 'components/sku-line-items/sku-line-items';
 
-import type { SkuItem } from 'paragons/order';
+import type { SkuItem, Cart } from 'paragons/order';
 
 const columns = [
-    ...defaultColumns,
+  ...defaultColumns,
   { field: 'delete', text: '', component: 'DeleteLineItem' }
 ];
 
 type Props = {
-  cart: {
-    referenceNumber: string,
-    lineItems: Array<Object>,
-    isCheckingOut: boolean,
-  },
+  cart: Cart,
   id: string,
   status: string,
 };
@@ -36,7 +32,7 @@ export default class CartLineItems extends Component {
   props: Props;
   state: State = { isEditing: false };
 
-  get editContent(): Element {
+  get editContent() {
     const { cart } = this.props;
 
     const renderRow = (item: SkuItem) => {
@@ -74,9 +70,9 @@ export default class CartLineItems extends Component {
         id={id}
         title={title}
         isEditing={this.state.isEditing}
-        editButtonId="line-items-edit-btn"
+        editButtonId="fct-edit-btn__line-items"
         editAction={editAction}
-        doneButtonId="line-items-done-btn"
+        doneButtonId="fct-done-btn__line-items"
         doneAction={doneAction}
         editContent={this.editContent}
         editFooter={editFooter}

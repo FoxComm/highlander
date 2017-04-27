@@ -8,7 +8,7 @@ import models.payment.storecredit.StoreCredit
 import services.Authenticator.AuthData
 import testutils.TestBase
 import utils.aliases._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class StoreCreditTest extends TestBase {
 

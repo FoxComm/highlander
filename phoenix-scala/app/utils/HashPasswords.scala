@@ -2,6 +2,7 @@ package utils
 
 import scala.util.Try
 import com.lambdaworks.crypto.SCryptUtil
+import com.pellucid.sealerate
 
 trait HashPasswords {
   def generateHash(password: String): String
@@ -29,6 +30,10 @@ object HashPasswords {
 
     def checkHash(password: String, hash: String): Boolean =
       password == hash
+  }
+
+  implicit object HashAlgorithm extends ADT[HashAlgorithm] {
+    def types = sealerate.collect[HashAlgorithm]
   }
 
   case class SCryptImpl(cpuCost: Int, memCost: Int, parallelization: Int) extends HashPasswords {

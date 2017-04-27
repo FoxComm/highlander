@@ -3,7 +3,7 @@ package services.plugins
 import scala.concurrent.Future
 
 import dispatch.{Http, as, host, url ⇒ request}
-import failures.NotFoundFailure404
+import failures.{GeneralFailure, NotFoundFailure404}
 import models.plugins._
 import models.plugins.PluginSettings.{SettingsSchema, SettingsValues}
 import models.plugins.PluginSettings.SettingsValues._
@@ -13,33 +13,39 @@ import responses.plugins.PluginCommonResponses._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import utils.JsonFormatters
-
+import org.json4s.Formats
 import com.typesafe.scalalogging.LazyLogging
 
 object PluginsManager extends LazyLogging {
 
-  private def fetchSchemaSettings(
+  private def getSchemaSettings(
       plugin: Plugin,
       payload: RegisterPluginPayload,
       foundOrCreated: FoundOrCreated)(implicit ec: EC): DbResultT[SettingsSchema] =
     payload.schemaSettings.fold {
-      implicit val formats = JsonFormatters.phoenixFormats
-      val req              = host(plugin.apiHost, plugin.apiPort) / "_settings" / "schema"
-      DbResultT.fromDbio(DBIO.from(Http(req OK as.json4s.Json).map(_.extract[SettingsSchema])))
+      plugin
+        .apiUrl()
+        .fold(DbResultT.failure[SettingsSchema](
+                GeneralFailure("settingsSchema or apiUrl should be " +
+                      "present"))) { apiUrl ⇒
+          val req = host(apiUrl) / "_settings" / "schema"
+          DbResultT.fromF(DBIO.from(Http(req OK as.json4s.Json).map(_.extract[SettingsSchema])))
+        }
     }(DbResultT.good(_))
 
-  def uploadNewSettingsToPlugin(plugin: Plugin)(implicit ec: EC): Future[String] = {
-    val rawReq = host(plugin.apiHost, plugin.apiPort) / "_settings" / "upload"
-    val body   = compact(render(plugin.settings.toJson))
-    val req    = rawReq.setContentType("application/json", "UTF-8") << body
-    logger.info(s"Updating plugin ${plugin.name} at ${plugin.apiHost}:${plugin.apiPort}: ${body}")
-    val res = Http(req.POST OK as.String)
-    for {
-      r ← res
-    } yield {
-      logger.info(s"Plugin Response: $r")
-      r
+  def uploadNewSettingsToPlugin(plugin: Plugin)(implicit ec: EC,
+                                                formats: Formats): Future[String] = {
+    plugin.apiUrl().fold(Future.successful("")) { apiUrl ⇒
+      val rawReq = host(apiUrl) / "_settings" / "upload"
+      val body   = compact(render(plugin.settings.toJson))
+      val req    = rawReq.setContentType("application/json", "UTF-8") << body
+      logger.info(
+          s"Updating plugin ${plugin.name} at ${plugin.apiHost}:${plugin.apiPort}: ${body}")
+      val resp = Http(req.POST OK as.String)
+      resp.map { respBody ⇒
+        logger.info(s"Plugin Response: $respBody")
+        respBody
+      }
     }
   }
 
@@ -65,7 +71,7 @@ object PluginsManager extends LazyLogging {
                            payload: RegisterPluginPayload,
                            foundOrCreated: FoundOrCreated)(implicit ec: EC): DbResultT[Plugin] =
     for {
-      schema ← * <~ fetchSchemaSettings(plugin, payload, foundOrCreated)
+      schema ← * <~ getSchemaSettings(plugin, payload, foundOrCreated)
       plugin ← * <~ updatePluginInfo(plugin, schema, payload)
     } yield plugin
 

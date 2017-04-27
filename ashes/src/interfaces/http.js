@@ -4,6 +4,6 @@ type HttpError = {
   messages: Array<string>,
 };
 
-type AbortablePromise = Promise & {
+type AbortablePromise = Promise<*> & {
   abort?: () => void,
 }

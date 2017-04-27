@@ -1,10 +1,8 @@
 package services.auth
 
+import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
-import akka.http.scaladsl.model.Uri
-
-import cats.data.{Xor, XorT}
 import cats.implicits._
 import failures.GeneralFailure
 import libs.oauth.{Oauth, UserInfo}
@@ -18,11 +16,11 @@ import utils.http.Http._
 
 case class OauthCallbackResponse(code: Option[String] = None, error: Option[String] = None) {
 
-  def getCode: Xor[Throwable, String] =
+  def getCode: Either[Throwable, String] =
     if (this.error.isEmpty && this.code.nonEmpty) {
-      Xor.right(this.code.getOrElse(""))
+      Either.right(this.code.getOrElse(""))
     } else {
-      Xor.left(new Throwable(this.error.getOrElse("Unexpected error")))
+      Either.left(new Throwable(this.error.getOrElse("Unexpected error")))
     }
 }
 
@@ -50,9 +48,8 @@ trait OauthService[M] {
   def fetchUserInfoFromCode(oauthResponse: OauthCallbackResponse)(
       implicit ec: EC): DbResultT[UserInfo] = {
     for {
-      code ← XorT
-              .fromXor[DBIO](oauthResponse.getCode)
-              .leftMap(t ⇒ GeneralFailure(t.toString).single)
+      code ← DbResultT.fromEither(
+                oauthResponse.getCode.leftMap(t ⇒ GeneralFailure(t.toString).single))
       accessTokenResp ← * <~ this
                          .accessToken(code)
                          .leftMap(t ⇒ GeneralFailure(t.toString).single)
@@ -91,23 +88,21 @@ trait OauthService[M] {
     } yield token
 
   def customerCallback(
-      oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route = {
-    onSuccess(oauthCallback(oauthResponse, createCustomerByUserInfo).run()) { tokenOrFailure ⇒
-      tokenOrFailure
-        .flatMap(Authenticator.oauthTokenLoginResponse(Uri./))
-        .fold({ f ⇒
-          complete(renderFailure(f))
-        }, identity)
-    }
-  }
+      oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route =
+    commonCallback(createCustomerByUserInfo, Uri./)(oauthResponse)
 
-  def adminCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route = {
-    onSuccess(oauthCallback(oauthResponse, createAdminByUserInfo).run()) { tokenOrFailure ⇒
-      tokenOrFailure
-        .flatMap(Authenticator.oauthTokenLoginResponse(Uri("/admin")))
-        .fold({ f ⇒
-          complete(renderFailure(f))
-        }, identity)
+  def adminCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route =
+    commonCallback(createAdminByUserInfo, Uri("/admin"))(oauthResponse)
+
+  private def commonCallback(createByUserInfo: UserInfo ⇒ DbResultT[M], redirectUri: Uri)(
+      oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route =
+    // TODO: rethink discarding warnings here @michalrus
+    onSuccess(oauthCallback(oauthResponse, createByUserInfo).runDBIO.runEmptyA.value) {
+      tokenOrFailure ⇒
+        tokenOrFailure
+          .flatMap(Authenticator.oauthTokenLoginResponse(redirectUri))
+          .fold({ f ⇒
+            complete(renderFailure(f))
+          }, identity)
     }
-  }
 }

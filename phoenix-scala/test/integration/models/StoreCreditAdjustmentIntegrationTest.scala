@@ -1,5 +1,6 @@
 package models
 
+import cats.implicits._
 import models.cord.OrderPayments
 import models.payment.storecredit._
 import org.scalatest.prop.TableDrivenPropertyChecks._
@@ -7,7 +8,7 @@ import org.scalatest.prop.Tables.Table
 import testutils._
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class StoreCreditAdjustmentIntegrationTest
     extends IntegrationTestBase
@@ -34,7 +35,7 @@ class StoreCreditAdjustmentIntegrationTest
       )
 
       forAll(adjustments) { adjustment ⇒
-        val failure = adjustment.run().futureValue.leftVal
+        val failure = adjustment.gimmeFailures
         failure.getMessage must include("""violates check constraint "valid_debit"""")
       }
     }
@@ -97,7 +98,7 @@ class StoreCreditAdjustmentIntegrationTest
 
       val debits = List(50, 25, 15, 10)
       val auths = DbResultT
-        .sequence(debits.map { amount ⇒
+        .seqCollectFailures(debits.map { amount ⇒
           StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = amount)
         })
         .gimme

@@ -1,9 +1,7 @@
-/**
- * @flow
- */
+/* @flow */
 
 // libs
-import React, { Component, Element } from 'react';
+import React, { Element } from 'react';
 import { transitionTo } from 'browserHistory';
 
 // components
@@ -18,9 +16,9 @@ type Props = {
 
 // TaxonomiesPage is a presentation component that is responsible for the page
 // structure under /admin/taxonomies.
-const TaxonomiesPage = (props: Props): Element => {
+const TaxonomiesPage = (props: Props) => {
   const TotalCounter = makeTotalCounter(state => state.taxonomies.list, actions);
-  const addAction = () => console.log('Not implemented');
+  const addAction = () => transitionTo('taxonomy-details', { taxonomyId: 'new', context: 'default' });
   const navLinks = [{ title: 'Lists', to: 'taxonomies' }];
 
   return (

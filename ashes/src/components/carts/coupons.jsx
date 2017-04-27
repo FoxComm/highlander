@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -9,7 +9,7 @@ import { trackEvent } from 'lib/analytics';
 import CouponsPanel from 'components/coupons-panel/coupons-panel';
 import EditableContentBox from 'components/content-box/editable-content-box';
 import PanelHeader from 'components/panel-header/panel-header';
-import { Button } from '../common/buttons';
+import { Button } from 'components/core/button';
 import AppendInput from '../forms/append-input';
 
 import * as CouponActions from 'modules/carts/coupons';
@@ -34,8 +34,6 @@ type Props = CouponModuleActions & {
 };
 
 const viewColumns = [
-  { field: 'name', text: 'Name' },
-  { field: 'storefrontName', text: 'Storefront Name' },
   { field: 'code', text: 'Code' },
 ];
 
@@ -62,7 +60,7 @@ class CartCoupons extends Component {
     return this.props.cart.referenceNumber;
   }
 
-  get title(): Element {
+  get title() {
     return (
       <PanelHeader isOptional={true} text="Coupons" />
     );
@@ -76,9 +74,9 @@ class CartCoupons extends Component {
     return [coupon];
   }
 
-  get editFooter(): Element {
+  get editFooter() {
     const plate = (
-      <Button id="apply-coupon-btn" styleName="add-coupon-button" onClick={this.onAddClick}>Apply</Button>
+      <Button id="fct-apply-coupon-btn" styleName="add-coupon-button" onClick={this.onAddClick}>Apply</Button>
     );
     const errorMessage = this.props.coupons.error && (
         <div className="fc-form-field-error">{this.fancyErrorMessage}</div>
@@ -150,7 +148,7 @@ class CartCoupons extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const { id } = this.props;
 
     return (
@@ -162,9 +160,9 @@ class CartCoupons extends Component {
         editContent={this.content}
         editFooter={this.editFooter}
         isEditing={this.isEditing}
-        editButtonId="coupons-edit-btn"
+        editButtonId="fct-edit-btn__coupons"
         editAction={this.handleEditAction}
-        doneButtonId="coupons-done-btn"
+        doneButtonId="fct-done-btn__coupons"
         doneAction={this.handleDoneAction}
       />
     );

@@ -1,91 +1,83 @@
 /* @flow */
-import React, { Component, Element } from 'react';
 
-import { anyPermitted, isPermitted } from 'lib/claims';
+import React from 'react';
+
+import { anyPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
 
-import NavigationItem from 'components/sidebar/navigation-item';
-import { IndexLink, Link } from 'components/link';
+import NavigationItem from '../navigation-item';
 
-import type { Claims } from 'lib/claims';
-
-type Props = {
-  routes: Array<Object>,
-  collapsed: boolean,
-  status: string,
-  toggleMenuItem: Function,
-  claims: Claims,
-};
+import styles from './entries.css';
 
 const userClaims = readAction(frn.settings.user);
 const pluginClaims = readAction(frn.settings.plugin);
 const applicationClaims = readAction(frn.settings.application);
 
-export default class SettingsEntry extends Component {
-  props: Props;
+const SettingsEntry = ({ claims, routes }: TMenuEntry) => {
+  const allClaims = { ...userClaims, ...pluginClaims, ...applicationClaims };
 
-  render(): Element {
-    const { claims, collapsed, routes, status, toggleMenuItem } = this.props;
-    const allClaims = { ...userClaims, ...pluginClaims };
-
-    if (!anyPermitted(allClaims, claims)) {
-      return (
+  if (!anyPermitted(allClaims, claims)) {
+    return (
+      <div styleName="fc-entries-wrapper">
+        <h3>SETTINGS</h3>
         <li>
           <NavigationItem
-            to="integrations"
-            icon="icon-settings"
-            title="Settings"
-            isIndex={true}
-            isExpandable={true}
+            to='integrations'
+            icon='integrations'
+            title='Integrations'
             routes={routes}
-            collapsed={collapsed}
-            status={status}
-            toggleMenuItem={toggleMenuItem}>
-            <IndexLink
-              to="integrations"
-              className="fc-navigation-item__sublink">
-              Integrations
-            </IndexLink>
-          </NavigationItem>
+            actualClaims='none'
+            expectedClaims='none'
+          />
         </li>
-      );
-    }
+        </div>
+    );
+  }
 
-    return (
+  return (
+    <div styleName="fc-entries-wrapper">
+      <h3>SETTINGS</h3>
       <li>
         <NavigationItem
           to="users"
-          icon="icon-settings"
-          title="Settings"
-          isIndex={true}
-          isExpandable={true}
+          icon="customers"
+          title="Users"
           routes={routes}
-          collapsed={collapsed}
-          status={status}
-          toggleMenuItem={toggleMenuItem}>
-          <IndexLink
-            to="users"
-            className="fc-navigation-item__sublink"
-            actualClaims={claims}
-            expectedClaims={userClaims}>
-            Users
-          </IndexLink>
-          <Link
-            to="plugins"
-            className="fc-navigation-item__sublink"
-            actualClaims={claims}
-            expectedClaims={pluginClaims}>
-            Plugins
-          </Link>
-          <Link
-            to="applications"
-            className="fc-navigation-item__sublink"
-            actualClaims={claims}
-            expectedClaims={applicationClaims}>
-            Applications
-          </Link>
-        </NavigationItem>
+          actualClaims={claims}
+          expectedClaims={userClaims}
+        />
       </li>
-    );
-  }
-}
+      <li>
+        <NavigationItem
+          to="plugins"
+          icon="plugins"
+          title="Plugins"
+          routes={routes}
+          actualClaims={claims}
+          expectedClaims={pluginClaims}
+        />
+      </li>
+      <li>
+        <NavigationItem
+          to="applications"
+          icon="applications"
+          title="Applications"
+          routes={routes}
+          actualClaims={claims}
+          expectedClaims={applicationClaims}
+        />
+      </li>
+      {/*<li>
+        <NavigationItem
+          to="channels"
+          icon="channels"
+          title="Channels"
+          routes={routes}
+          actualClaims='none'
+          expectedClaims='none'
+        />
+      </li>*/}
+    </div>
+  );
+};
+export default SettingsEntry;

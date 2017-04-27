@@ -1,0 +1,12 @@
+.segment-control-list-legend {
+  margin-top: 51px;
+  margin-right: 9px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #9BA3A7;
+}
+
+.segment-control-list-container {
+  display: flex;
+  justify-content: flex-end;
+}
