@@ -29,7 +29,6 @@ func DexterSuggestionToSMS(phoneNumber string, command string, product responses
 
 	// Build payload
 	productData := payloads.RunDexterProductData{
-		Message:  "We've got a great product recommendation for you...",
 		ImageURL: productImageURL,
 		Price:    retailPriceUSD,
 	}

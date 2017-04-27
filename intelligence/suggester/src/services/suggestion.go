@@ -63,9 +63,11 @@ func selectUpSellAndPushToSmsDexter(customerID string, phoneNumber string, antHi
 	}
 
 	// Determine up-sell product and gather image URL, ID number and SKU
+	var upSellProduct responses.ProductInstance
+
 	upSellProduct, determineUpsellErr := determineUpSellProductFromAnthillData(customerID, antHillData)
 	if determineUpsellErr != nil {
-		return responses.RunDexterResponse{}, errors.New("Every possible up-sell product has been suggested already")
+		upSellProduct = antHillData.Products[0].Product
 	}
 
 	productID := upSellProduct.ProductId
