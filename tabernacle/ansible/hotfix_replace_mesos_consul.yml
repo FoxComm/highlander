@@ -31,6 +31,6 @@
     - { role: ext/td/storefront }
     - { role: ext/tpg/storefront }
     # Install marathon-consul
-    - { role: base/marathon_consul }
+    - { role: hotfix/marathon_consul }
     # Disable mesos_consul
     - { role: hotfix/replace_mesos_consul, stop_mesos_consul: true }

@@ -6,13 +6,10 @@ import ContentBox from 'components/content-box/content-box';
 import SkuLineItems from 'components/sku-line-items/sku-line-items';
 
 import type { SkuItem } from 'paragons/order';
+import OrderParagon from 'paragons/order';
 
 type Props = {
-  order: {
-    lineItems: {
-      skus: Array<SkuItem>,
-    },
-  },
+  order: OrderParagon;
 };
 
 const OrderLineItems = (props: Props) => {

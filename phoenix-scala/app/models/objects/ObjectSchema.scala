@@ -40,6 +40,10 @@ object ObjectSchemas
   val returningLens: Lens[ObjectSchema, Int] = lens[ObjectSchema].id
 
   implicit val formats = JsonFormatters.phoenixFormats
+
+  def findOneByName(name: String): DBIO[Option[ObjectSchema]] =
+    filter(_.name === name).one
+
 }
 
 /**

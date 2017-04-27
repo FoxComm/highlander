@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import ItemCardContainer from './item-card-container';
-import { Button } from '../common/buttons';
+import { Button } from 'components/core/button';
 import { Checkbox } from '../checkbox/checkbox';
 
 export default class EditableItemCardContainer extends React.Component {

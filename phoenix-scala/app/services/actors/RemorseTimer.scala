@@ -1,14 +1,13 @@
 package services.actors
 
-import cats.implicits._
-import java.time.Instant
-import faker.Lorem.letterify
-
-import scala.util.Success
 import akka.actor.{Actor, ActorLogging}
+import cats.implicits._
+import faker.Lorem.letterify
+import java.time.Instant
 import models.activity.ActivityContext
 import models.cord.Order._
 import models.cord.{Order, Orders}
+import scala.util.Success
 import services.LogActivity
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
@@ -72,7 +71,7 @@ class RemorseTimerMate(implicit ec: EC) extends Actor with ActorLogging {
   override def receive = {
     case response: RemorseTimerResponse ⇒
       response.updatedQuantity.runEmptyA.value.onComplete {
-        // TODO: do we now quantity is `Failures Xor Int` here? @michalrus
+        // TODO: do we now quantity is `Either[Failures, Int]` here? @michalrus
         case Success(quantity) ⇒ log.debug(s"Remorse timer updated $quantity orders")
         case _                 ⇒ log.error("Remorse timer failed")
       }

@@ -1,9 +1,8 @@
 package utils.db
 
-import scala.util.matching.Regex
-
-import cats.data.Xor
+import cats.implicits._
 import failures.Failure
+import scala.util.matching.Regex
 import slick.ast.{CompiledStatement, ResultSetMapping}
 import slick.dbio.Effect
 import slick.driver.PostgresDriver._
@@ -37,7 +36,7 @@ object UpdateReturning {
         notFoundFailure: Failure)(implicit ec: EC): DbResultT[F] = {
       val returningResult = updateReturning(returningQuery, v)
       val withFailure = returningResult.headOption.dbresult.flatMap(res ⇒
-            DbResultT.fromXor(Xor.fromOption(res, notFoundFailure.single)))
+            DbResultT.fromEither(Either.fromOption(res, notFoundFailure.single)))
       ExceptionWrapper.wrapDbResultT(withFailure)
     }
 

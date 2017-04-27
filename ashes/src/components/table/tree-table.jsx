@@ -12,7 +12,7 @@ import { findNode, updateNodes } from 'paragons/tree';
 
 // components
 import MultiSelectTable from 'components/table/multi-select-table';
-import { Button } from 'components/common/buttons';
+import { Button } from 'components/core/button';
 
 // styles
 import styles from './tree-table.css';

@@ -1,5 +1,9 @@
+// libs
 import React, { PropTypes, Component } from 'react';
 import classNames from 'classnames';
+
+// styles
+import s from './local-nav.css';
 
 class NavDropdown extends Component {
   static propTypes = {
@@ -11,16 +15,16 @@ class NavDropdown extends Component {
   render() {
     const { title, className, children } = this.props;
     const cls = classNames(
-      'fc-tabbed-nav-parent',
-      'fc-tabbed-nav-item',
+      s.parent,
+      s.item,
       className
     );
 
     return (
       <li className={cls}>
         <a>{title}<i className="icon-chevron-down"/></a>
-        <ul className="fc-tabbed-nav-dropdown">
-          {React.Children.map(children, item => <li>{item}</li>)}
+        <ul className={s.dropdown}>
+          {React.Children.map(children, item => <li className={s.item}>{item}</li>)}
         </ul>
       </li>
     );

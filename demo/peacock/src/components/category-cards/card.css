@@ -1,0 +1,20 @@
+@import "typography.css";
+
+.card {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.link {
+  text-decoration: none;
+}
+
+.image {
+  border: 1px solid #fff;
+}
+
+.label {
+  composes: title-small;
+  padding: 10px;
+  text-transform: uppercase;
+}

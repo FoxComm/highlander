@@ -19,9 +19,10 @@ func selectUpSellAndPushToSms(customerID string, phoneNumber string, antHillData
 	}
 
 	// The first item in the cross-sell results will have the highest reccomendation score
-	productImageURL := antHillData.Products[0].Product.Albums[0].Images[0].Src
-	productID := antHillData.Products[0].Product.ProductId
-	productSKU := antHillData.Products[0].Product.Skus[0]
+	crossSellProduct := antHillData.Products[0].Product
+	productImageURL := crossSellProduct.Albums[0].Images[0].Src
+	productID := crossSellProduct.ProductId
+	productSKU := crossSellProduct.Skus[0]
 
 	// Create customer <- Suggest -> product in Neo4J
 	_, err := util.CreateNewSuggestProductRelation(customerID, strconv.Itoa(productID), phoneNumber, productSKU)
@@ -30,7 +31,7 @@ func selectUpSellAndPushToSms(customerID string, phoneNumber string, antHillData
 	}
 
 	// Send to Twilio
-	twilioSmsResponse, err := util.SuggestionToSMS(phoneNumber, productImageURL)
+	twilioSmsResponse, err := util.SuggestionToSMS(phoneNumber, productImageURL, crossSellProduct)
 	if err != nil {
 		return responses.TwilioSmsResponse{}, err
 	}

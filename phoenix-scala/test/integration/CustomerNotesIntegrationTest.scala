@@ -16,7 +16,7 @@ import utils.time.RichInstant
 class CustomerNotesIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
@@ -24,8 +24,8 @@ class CustomerNotesIntegrationTest
     "can be created by an admin for a customer" in new Fixture {
       val note =
         notesApi.customer(customer.accountId).create(CreateNote("foo")).as[AdminNotes.Root]
-      note.body must === ("foo")
-      note.author must === (AdminNotes.buildAuthor(storeAdmin))
+      note.author.name.value must === (defaultAdmin.name.value)
+      note.author.email.value must === (defaultAdmin.email.value)
     }
 
     "returns a validation error if failed to create" in new Fixture {
@@ -46,23 +46,26 @@ class CustomerNotesIntegrationTest
   "GET /v1/notes/customer/:customerId" - {
 
     "can be listed" in new Fixture {
-      val createNotes = List("abc", "123", "xyz").map { body ⇒
-        CustomerNoteManager.create(customer.accountId, storeAdmin, CreateNote(body))
-      }
-      DbResultT.seqCollectFailures(createNotes).void.gimme
+      val bodies = List("abc", "123", "xyz")
 
-      val notes = notesApi.customer(customer.accountId).get().as[Seq[AdminNotes.Root]]
-      notes must have size 3
-      notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
+      bodies.map { body ⇒
+        notesApi.customer(customer.accountId).create(CreateNote(body)).mustBeOk()
+      }
+
+      notesApi
+        .customer(customer.accountId)
+        .get()
+        .as[Seq[AdminNotes.Root]]
+        .map(_.body)
+        .toSet must contain theSameElementsAs bodies
     }
   }
 
   "PATCH /v1/notes/customer/:customerId/:noteId" - {
 
     "can update the body text" in new Fixture {
-      val note = CustomerNoteManager
-        .create(customer.accountId, storeAdmin.copy(accountId = 1), CreateNote("foo"))
-        .gimme
+      val note =
+        notesApi.customer(customer.accountId).create(CreateNote("foo")).as[AdminNotes.Root]
 
       notesApi
         .customer(customer.accountId)
@@ -81,8 +84,8 @@ class CustomerNotesIntegrationTest
 
       notesApi.customer(customer.accountId).note(note.id).delete().mustBeEmpty()
 
-      val updatedNote = Notes.findOneById(note.id).run().futureValue.value
-      updatedNote.deletedBy.value must === (1)
+      val updatedNote = Notes.findOneById(note.id).gimme.value
+      updatedNote.deletedBy.value must === (defaultAdmin.id)
 
       withClue(updatedNote.deletedAt.value → Instant.now) {
         updatedNote.deletedAt.value.isBeforeNow mustBe true

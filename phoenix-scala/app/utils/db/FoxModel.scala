@@ -1,7 +1,8 @@
 package utils.db
 
 import cats.data.Validated.Valid
-import cats.data.{ValidatedNel, Xor}
+import cats.data.ValidatedNel
+import cats.implicits._
 import failures.{Failure, Failures, GeneralFailure}
 import utils.Strings._
 import utils.{Validation, friendlyClassName}
@@ -23,13 +24,13 @@ trait FoxModel[M <: FoxModel[M]] extends Validation[M] with Identity[M] { self: 
 
   def sanitize: M = this
 
-  def updateTo(newModel: M): Failures Xor M = Xor.right(newModel)
+  def updateTo(newModel: M): Either[Failures, M] = Either.right(newModel)
 
   def primarySearchKey: String = id.toString
 
-  def mustBeCreated: Failures Xor M =
+  def mustBeCreated: Either[Failures, M] =
     if (id == 0)
-      Xor.Left(
+      Either.left(
           GeneralFailure(s"Refusing to update unsaved ${friendlyClassName(this)} model").single)
-    else Xor.right(this)
+    else Either.right(this)
 }

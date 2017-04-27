@@ -5,7 +5,7 @@ import React, { Component, Element } from 'react';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
-import { PrimaryButton } from '../common/buttons';
+import { PrimaryButton } from 'components/core/button';
 import Overlay from '../overlay/overlay';
 import SelectableItem from './selectable-item';
 

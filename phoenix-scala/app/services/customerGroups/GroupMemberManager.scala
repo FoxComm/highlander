@@ -1,12 +1,10 @@
 package services.customerGroups
 
-import cats._
 import cats.implicits._
-import java.time.Instant
-import java.time.temporal.ChronoUnit.DAYS
-
 import failures.CustomerGroupFailures.CustomerGroupMemberPayloadContainsSameIdsInBothSections
 import failures.{NotFoundFailure400, NotFoundFailure404}
+import java.time.Instant
+import java.time.temporal.ChronoUnit.DAYS
 import models.account.{User, Users}
 import models.cord.Orders
 import models.customer.CustomerGroup._
@@ -35,7 +33,7 @@ object GroupMemberManager {
       currentMembers ← * <~ CustomerGroupMembers.findByGroupId(group.id).result
       dataIds = currentMembers.map(_.customerDataId).toSet
       currentMemberData ← * <~ CustomersData.findAllByIds(dataIds).result
-      memberIds   = currentMemberData.map(_.userId).toSet
+      memberIds   = currentMemberData.map(_.accountId).toSet
       newIds      = payload.customers.toSet
       forCreation = newIds.diff(memberIds).toSeq
       forDeletion = memberIds.diff(newIds).toSeq
@@ -56,7 +54,7 @@ object GroupMemberManager {
       currentMembers ← * <~ CustomerGroupMembers.findByGroupId(group.id).result
       dataIds = currentMembers.map(_.customerDataId).toSet
       currentMemberData ← * <~ CustomersData.findAllByIds(dataIds).result
-      memberIds   = currentMemberData.map(_.userId).toSet
+      memberIds   = currentMemberData.map(_.accountId).toSet
       forCreation = payload.toAdd.toSet
       forDeletion = payload.toDelete.toSet
       _ ← * <~ failIf(!forCreation.intersect(forDeletion).isEmpty,
@@ -77,7 +75,7 @@ object GroupMemberManager {
       customer  ← * <~ Users.mustFindByAccountId(accountId)
       newGroups ← * <~ CustomerGroups.findAllByIds(groupIds.toSet).result
       check ← * <~ newGroups.map { group ⇒
-               DbResultT.fromXor(group.mustBeOfType(Manual))
+               DbResultT.fromEither(group.mustBeOfType(Manual))
              }
       customerDatas ← * <~ CustomersData
                        .filter(_.accountId === accountId)
@@ -167,8 +165,8 @@ object GroupMemberManager {
     else DbResultT.pure(false)
 
   private def narrowDownWithUserId(userId: Int)(elasticRequest: Json): Json = {
-    val userQuery = JObject(
-        JField("must", JObject(JField("term", JObject(JField("id", JInt(userId)))))))
+    val userQuery = JObject(JField("query", JObject(JField("bool", JObject(JField("must",
+      JObject(JField("term", JObject(JField("id", JInt(userId)))))))))))
 
     JObject(
         JField("query",

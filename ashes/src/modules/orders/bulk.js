@@ -1,14 +1,12 @@
 // libs
 import _ from 'lodash';
-import { createAction, createReducer } from 'redux-act';
 
 // helpers
 import Api from '../../lib/api';
-import { singularize } from 'fleck';
 import createStore from '../../lib/store-creator';
 
 // data
-import { initialState, reducers, getSuccesses as _getSuccesses, bulkActions } from '../bulk';
+import { reducers, getSuccesses as _getSuccesses, bulkActions } from '../bulk';
 
 const getSuccesses = _.partial(_getSuccesses, 'order');
 

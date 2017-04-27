@@ -1,10 +1,9 @@
 package libs.oauth
 
-import scala.concurrent.Future
-
-import cats.data.XorT
+import cats.data.EitherT
 import dispatch.{Http, as, url ⇒ request}
 import org.json4s._
+import scala.concurrent.Future
 import utils.aliases._
 
 case class GoogleOauthOptions(
@@ -29,8 +28,8 @@ trait GoogleProvider extends OauthProvider {
   val oauthAccessTokenUrl   = "https://accounts.google.com/o/oauth2/token"
   val oauthInfoUrl          = "https://www.googleapis.com/oauth2/v1/userinfo"
 
-  def userInfo(accessToken: String)(implicit ec: EC): XorT[Future, Throwable, UserInfo] =
-    xorTryFuture {
+  def userInfo(accessToken: String)(implicit ec: EC): EitherT[Future, Throwable, UserInfo] =
+    eitherTryFuture {
       val req = request(oauthInfoUrl).GET.addHeader("Authorization", s"Bearer ${accessToken}")
       Http(req OK as.json4s.Json).map(_.extract[UserInfo])
     }

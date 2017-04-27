@@ -13,6 +13,7 @@
   text-align: left;
   color: var(--text-color);
   font-size: 12px;
+  padding-bottom: 10px;
 }
 
 .header {

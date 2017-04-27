@@ -1,6 +1,5 @@
 /* @flow */
 import React from 'react';
-import classnames from 'classnames';
 
 const Icon = ({ name, className }: { name: string, className?: string }) => {
   return(

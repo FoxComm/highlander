@@ -3,12 +3,22 @@
 const path = require('path');
 const { spawn } = require('child_process');
 
+process.on('SIGINT', () => {
+  console.log('SIGINT. Exiting...');
+  process.exit();
+});
+
+process.on('uncaughtException', () => {
+  console.log('uncaughtException. Exiting...');
+  process.exit();
+});
+
 function runScript(name, cb = () => {}) {
   let child = spawn('yarn',
     ['run', name],
     {
       shell: true,
-      detached: true,
+      detached: true, // Do we need it to be detached? TBD
       stdio: 'inherit',
     }
   ).on('close', code => {
@@ -47,8 +57,8 @@ module.exports = function (gulp, opts) {
   };
 
   gulp.task('precompile.source', function () {
-    return gulp.src('src/**/*.{jsx,js}')
-      .pipe(changed('lib', {extension: '.js'}))
+    return gulp.src(['src/**/*.{jsx,js}', '!src/**/*.stories.js'])
+      .pipe(changed('lib', { extension: '.js' }))
       .pipe(through.obj((file, enc, cb) => {
         logBabelified(file);
         cb(null, file);

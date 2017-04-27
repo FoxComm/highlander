@@ -2,6 +2,7 @@ package services.objects
 
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
+import payloads.ObjectSchemaPayloads._
 import responses.ObjectResponses.ObjectSchemaResponse._
 import models.objects._
 import utils.aliases._
@@ -40,5 +41,18 @@ object ObjectSchemasManager {
       ObjectFullSchemas.findOneByName(schemaName)
     }.dbresult
   }
+
+  def update(name: String, payload: UpdateObjectSchema)(implicit ec: EC,
+                                                        db: DB): DbResultT[ObjectSchema] =
+    for {
+      objectSchema ← * <~ ObjectSchemas
+                      .findOneByName(name)
+                      .mustFindOr(NotFoundFailure404(ObjectSchema, name))
+      updated ← * <~ ObjectSchemas.update(
+                   objectSchema,
+                   objectSchema.copy(schema = payload.schema,
+                                     dependencies =
+                                       payload.dependencies.getOrElse(objectSchema.dependencies)))
+    } yield updated
 
 }

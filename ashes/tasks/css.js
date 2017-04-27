@@ -2,7 +2,7 @@
 module.exports = function(gulp, opts) {
   const src = [
     'build/less_bundle.css',
-    'build/css_bundle.css'
+    'build/css_bundle.css',
   ];
 
   gulp.task('css', function() {

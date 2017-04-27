@@ -2,7 +2,7 @@
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 
-import { PrimaryButton } from '../common/buttons';
+import { PrimaryButton } from 'components/core/button';
 import Title from './title';
 
 /**

@@ -27,7 +27,7 @@ def ping():
     """ping
     Returns pong
     """
-    return 'pong'
+    return jsonify({'ping': 'pong'})
 
 @APP.route('/public/prod-prod/<int:prod_id>', methods=['GET'])
 def rec_prod_prod(prod_id):
@@ -43,7 +43,7 @@ def rec_prod_prod_full(prod_id):
     returns a list of full products from elasticsearch
     """
     channel_id = int(request.args.get('channel', -1))
-    size_param = int(request.args.get('size', 5))
+    size_param = int(request.args.get('size', 10))
     from_param = int(request.args.get('from', 0))
     full_resp = PP_MANAGER.recommend_full(prod_id, channel_id, from_param, size_param)
     return jsonify(full_resp)

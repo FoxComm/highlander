@@ -13,7 +13,6 @@
   font-size: 16px;
   padding: 12px 11px 5px;
   border-radius: 2px;
-  background-color: var(--input-background);
   color: var(--input-text-color);
   border: none;
   box-shadow: none;
@@ -26,7 +25,13 @@
     color: var(--color-error);
   }
 
-  &::placeholder { color: var(--input-placeholder-color); }
+  &.empty {
+    padding: 10px 11px 10px;
+  }
+
+  &::placeholder {
+    color: var(--input-placeholder-color);
+  }
 }
 
 .hasTopMessages .textInput {
@@ -38,8 +43,10 @@
   border-color: var(--color-error);
 }
 
-.block:focus {
+.block.focused {
   z-index: 2;
+  border-color: var(--input-focus-border-color);
+  box-shadow: 0 0 0 3px var(--input-active-border-color);
 }
 
 :root {

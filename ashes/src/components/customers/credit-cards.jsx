@@ -10,7 +10,7 @@ import EmptyText from '../content-box/empty-text';
 import CreditCardBox from '../credit-cards/card-box';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import CustomerCreditCardForm from './credit-card-form';
-import { AddButton } from '../common/buttons';
+import { AddButton } from 'components/core/button';
 
 function mapDispatchToProps(dispatch, props) {
   return _.transform(CustomerCreditCardActions, (result, action, key) => {

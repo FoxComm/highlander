@@ -1,18 +1,19 @@
-//libs
+// libs
 import _ from 'lodash';
 import React, { PropTypes, Component } from 'react';
 import ReactDOM from 'react-dom';
 import { autobind } from 'core-decorators';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 
-//helpers
+// helpers
 import { addResizeListener, removeResizeListener } from 'lib/resize';
 
-//components
+// components
 import { Link, IndexLink } from '../link';
-import InkBar from '../ink-bar/ink-bar';
 import NavDropdown from './nav-dropdown';
+
+// styles
+import s from './local-nav.css';
 
 class LocalNav extends Component {
 
@@ -22,23 +23,14 @@ class LocalNav extends Component {
 
   static propTypes = {
     children: PropTypes.node,
-    gutter: PropTypes.bool,
-  };
-
-  static defaultProps = {
-    gutter: false
   };
 
   state = {
     //index of children, from with the automatic collapse starts
     collapseFrom: null,
-    inkLeft: 0,
-    inkWidth: 0,
   };
 
   componentDidMount() {
-    // this.setState(this.getInkState(this.props));
-
     addResizeListener(this.handleResize);
     this.handleResize();
   }
@@ -67,26 +59,6 @@ class LocalNav extends Component {
     } else if (!collapsing && this.isCollapsed) {
       this.expand();
     }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    // this.setState(this.getInkState(this.props));
-  }
-
-  getInkState(props) {
-    const children = React.Children.toArray(props.children);
-
-    const index = _.findIndex(children, link => this.isActiveLink(link));
-
-    if (index === -1) {
-      return { inkLeft: 0, inkWidth: 0 };
-    }
-
-    const ref = this.refs[index];
-    const inkLeft = ref.offsetLeft;
-    const inkWidth = ref.offsetWidth;
-
-    return { inkLeft, inkWidth };
   }
 
   get hasOverflow() {
@@ -129,7 +101,6 @@ class LocalNav extends Component {
     });
   }
 
-  @autobind
   compileLinks({ props }) {
     return _.flatMap(React.Children.toArray(props.children), child => {
       if (child.type === Link || child.type === IndexLink) {
@@ -142,7 +113,6 @@ class LocalNav extends Component {
     });
   }
 
-  @autobind
   hasActiveLink(item) {
     const { routes } = this.context.router;
     const linkList = this.compileLinks(item);
@@ -168,16 +138,24 @@ class LocalNav extends Component {
     // Index based keys aren't great, but in this case we don't have better
     // information and these won't get reordered - so it's fine.
     const key = `local-nav-item-${item.key ? item.key : index}`;
+
     if (item.type !== NavDropdown) {
-      return <li ref={index} className="fc-tabbed-nav-item" key={key}>{item}</li>;
+      const child = React.cloneElement(item, {
+        ref: index,
+        key,
+        activeClassName: s.activeLink,
+      });
+
+      return <li ref={index} className={s.item} key={key}>{child}</li>;
     }
 
     const isActive = this.hasActiveLink(item);
 
     return React.cloneElement(item, {
       ref: index,
-      className: classNames(item.props.className, { 'fc-tabbed-nav-selected': isActive }),
+      className: classNames(item.props.className, { [s.selected]: isActive }),
       key: key,
+      activeClassName: s.activeLink,
     });
   }
 
@@ -199,7 +177,10 @@ class LocalNav extends Component {
       return null;
     }
 
-    const children = React.Children.toArray(this.props.children).slice(collapseFrom);
+    const children = React.Children
+      .toArray(this.props.children)
+      .slice(collapseFrom)
+      .map(el => React.cloneElement(el, { activeClassName: s.activeLink }));
 
     return (
       <NavDropdown ref={collapseFrom} title="More">
@@ -209,20 +190,13 @@ class LocalNav extends Component {
   }
 
   render() {
-    const { gutter } = this.props;
-    const { inkLeft, inkWidth } = this.state;
-    const className = classNames('fc-grid', { 'fc-grid-gutter': gutter });
+    const { className } = this.props;
 
     return (
-      <div className={className}>
-        <div className="fc-col-md-1-1">
-          <ul className="fc-tabbed-nav">
-            {this.flatItems}
-            {this.collapsedItems}
-            <InkBar left={inkLeft} width={inkWidth}/>
-          </ul>
-        </div>
-      </div>
+      <ul className={classNames(s.block, className)}>
+        {this.flatItems}
+        {this.collapsedItems}
+      </ul>
     );
   }
 }

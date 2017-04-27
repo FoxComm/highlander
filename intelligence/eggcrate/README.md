@@ -23,6 +23,14 @@ Current choices for `<step>` are
 - cart
 - checkout
 
+### productStats
+Use `GET /api/v1/stats/productStats/:channel/:id` to get product statistics for specified product and average for all products.
+additional params:
+ - from - start of time range (unix time)
+ - to - end of time range (unix time)
+ - frequency - if specified then multiple values are returned corresponding to `frequency` size (minute, hour, day, week, month, quarter, year)
+
+
 ### date ranges
 To restrict the date range use query params `to` and `from` with dates in unix time format.
 
