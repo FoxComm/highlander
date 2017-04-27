@@ -7,6 +7,7 @@ import { updateUser } from './auth';
 
 export const toggleNameModal = createAction('TOGGLE_NAME_MODAL');
 export const toggleEmailModal = createAction('TOGGLE_EMAIL_MODAL');
+export const togglePasswordModal = createAction('TOGGLE_PASSWORD_MODAL');
 
 const _fetchAccount = createAsyncActions(
   'fetchAccount',
@@ -40,6 +41,7 @@ const initialState = {
   account: {},
   nameModalVisible: false,
   emailModalVisible: false,
+  passwordModalVisible: false,
 };
 
 function updateAccountInState(state, account) {
@@ -64,6 +66,13 @@ const reducer = createReducer({
     return {
       ...state,
       emailModalVisible: !current,
+    };
+  },
+  [togglePasswordModal]: (state) => {
+    const current = _.get(state, 'passwordModalVisible', false);
+    return {
+      ...state,
+      passwordModalVisible: !current,
     };
   },
 }, initialState);
