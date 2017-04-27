@@ -20,23 +20,9 @@ import styles from '../profile.css';
 import * as actions from 'modules/profile';
 
 import type { AsyncStatus } from 'types/async-actions';
+import type { AccountDetailsProps } from 'types/profile';
 
-function mapStateToProps(state) {
-  return {
-    account: state.profile.account,
-    changeState: _.get(state.asyncActions, 'changePassword', {}),
-  };
-}
-
-type Account = {
-  name: string,
-  email: string,
-  isGuest: boolean,
-  id: number,
-};
-
-type ChangePasswordProps = {
-  account: Account|{},
+type Props = AccountDetailsProps & {
   fetchAccount: () => Promise<*>,
   changePassword: (oldPassword: string, newPassword: string) => Promise<*>,
   changeState: AsyncStatus,
@@ -50,9 +36,8 @@ type State = {
 };
 
 class ChangePassword extends Component {
-  static title = 'Change password';
-
   props: ChangePasswordProps;
+
   state: State = {
     currentPassword: '',
     newPassword1: '',
@@ -146,4 +131,12 @@ class ChangePassword extends Component {
   }
 }
 
-export default connect(mapStateToProps, actions)(ChangePassword);
+const mapStateToProps = (state) => {
+  return {
+    changeState: _.get(state.asyncActions, 'changePassword', {}),
+  };
+};
+
+export default connect(mapStateToProps, {
+  ...actions,
+})(ChangePassword);
