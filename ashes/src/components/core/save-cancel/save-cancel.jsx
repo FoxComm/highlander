@@ -60,7 +60,6 @@ export default class SaveCancel extends Component {
     saveDisabled: false,
     saveItems: [],
     saveMenuPosition: 'right',
-    onSave: noop,
     onSaveSelect: noop,
     onCancel: noop,
     isLoading: false,
@@ -119,7 +118,7 @@ export default class SaveCancel extends Component {
       <PrimaryButton
         id="fct-modal-confirm-btn"
         type={onSave ? 'button' : 'submit'}
-        onClick={onSave ? onSave : noop}
+        onClick={onSave}
         className="fc-save-cancel__save"
         tabIndex={saveTabIndex}
         isLoading={isLoading}
