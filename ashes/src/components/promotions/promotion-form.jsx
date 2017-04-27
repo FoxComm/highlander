@@ -2,22 +2,19 @@
 /* @flow weak */
 
 import _ from 'lodash';
-import React, { PropTypes, Component, Element } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
 
 import styles from '../object-page/object-details.css';
 
 import ObjectDetails from '../object-page/object-details';
-import { Dropdown } from '../dropdown';
 import { FormField } from '../forms';
 import RadioButton from '../forms/radio-button';
 import SelectCustomerGroups from '../customers-groups/select-groups';
 import DiscountAttrs from './discount-attrs';
 import offers from './offers';
 import qualifiers from './qualifiers';
-import Discounts from './discounts';
-
 
 import { setDiscountAttr } from 'paragons/promotion';
 const layout = require('./layout.json');
@@ -110,7 +107,6 @@ export default class PromotionForm extends ObjectDetails {
   }
 
   renderState(): ?Element<*> {
-    const applyType = this.props.object.applyType;
     return super.renderState();
   }
 
@@ -159,7 +155,7 @@ export default class PromotionForm extends ObjectDetails {
     this.props.onUpdateObject(newPromotion);
   }
 
-  renderCustomers() {
+  renderCustomers(): Element<*> {
     const promotion = this.props.object;
     return (
       <div styleName="customer-groups">

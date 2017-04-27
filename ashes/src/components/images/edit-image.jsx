@@ -1,7 +1,6 @@
 /* @flow */
 
 // libs
-import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 

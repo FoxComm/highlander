@@ -1,9 +1,6 @@
 
-import _ from 'lodash';
-import Api from '../lib/api';
-import { assoc, merge, get, update } from 'sprout-data';
+import { assoc, get } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
-import { fetchCountry } from './countries';
 import { createAddress, patchAddress } from './customers/addresses';
 
 const setError = createAction('ADDRESS_FORM_SET_ERROR', (form, err) => [form, err]);

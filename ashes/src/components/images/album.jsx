@@ -4,7 +4,7 @@
 import styles from './images.css';
 
 // libs
-import { autobind, debounce } from 'core-decorators';
+import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 
 // components
