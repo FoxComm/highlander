@@ -3,7 +3,6 @@ package models.objects
 import io.circe.Json
 import models.objects.FormAndShadow._
 import utils.IlluminateAlgorithm
-import utils.aliases.Json
 
 trait FormAndShadow {
   def form: ObjectForm

@@ -1,10 +1,10 @@
 package services
 
-import java.time.Instant
-
 import failures.NotFoundFailure404
-import models.{Note, Notes}
+import io.circe.Encoder
+import java.time.Instant
 import models.account._
+import models.{Note, Notes}
 import payloads.NotePayloads._
 import responses.AdminNotes
 import responses.AdminNotes.Root
@@ -20,11 +20,12 @@ package object notes {
     }))
   }
 
-  def createNote[T](entity: T,
-                    refId: Int,
-                    refType: Note.ReferenceType,
-                    author: User,
-                    payload: CreateNote)(implicit ec: EC, ac: AC, au: AU): DbResultT[Note] =
+  def createNote[T: Encoder](
+      entity: T,
+      refId: Int,
+      refType: Note.ReferenceType,
+      author: User,
+      payload: CreateNote)(implicit ec: EC, ac: AC, au: AU): DbResultT[Note] =
     for {
       note ← * <~ Notes.create(
                 Note(storeAdminId = author.id,
@@ -35,7 +36,7 @@ package object notes {
       _ ← * <~ LogActivity().noteCreated(author, entity, note)
     } yield note
 
-  def updateNote[T](entity: T, noteId: Int, author: User, payload: UpdateNote)(
+  def updateNote[T: Encoder](entity: T, noteId: Int, author: User, payload: UpdateNote)(
       implicit ec: EC,
       ac: AC): DbResultT[Root] =
     for {
@@ -46,9 +47,9 @@ package object notes {
       _       ← * <~ LogActivity().noteUpdated(author, entity, oldNote, newNote)
     } yield AdminNotes.build(newNote, author)
 
-  def deleteNote[T](entity: T, noteId: Int, admin: User)(implicit ec: EC,
-                                                         db: DB,
-                                                         ac: AC): DbResultT[Unit] =
+  def deleteNote[T: Encoder](entity: T, noteId: Int, admin: User)(implicit ec: EC,
+                                                                  db: DB,
+                                                                  ac: AC): DbResultT[Unit] =
     for {
       note ← * <~ Notes.mustFindById404(noteId)
       _ ← * <~ Notes.update(

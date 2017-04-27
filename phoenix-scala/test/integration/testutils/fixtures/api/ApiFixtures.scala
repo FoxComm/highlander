@@ -18,7 +18,7 @@ import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
-import utils.aliases.Json
+import utils.aliases._
 
 trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with JwtTestAuth {
   self: FoxSuite ⇒

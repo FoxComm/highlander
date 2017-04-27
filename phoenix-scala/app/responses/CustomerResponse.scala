@@ -1,12 +1,13 @@
 package responses
 
+import io.circe.syntax._
 import java.time.Instant
-
 import models.account._
-import models.customer.CustomerRank
-import models.customer.CustomerData
+import models.customer.{CustomerData, CustomerRank}
 import models.location.Region
 import responses.StoreCreditResponse.Totals
+import utils.aliases._
+import utils.json.codecs._
 
 object CustomerResponse {
   case class Root(id: Int = 0,
@@ -25,7 +26,9 @@ object CustomerResponse {
                   shippingRegion: Option[Region] = None,
                   lastOrderDays: Option[Long] = None,
                   groups: Seq[GroupResponses.CustomerGroupResponse.Root])
-      extends ResponseItem
+      extends ResponseItem {
+    def json: Json = this.asJson
+  }
 
   def build(customer: User,
             customerData: CustomerData,

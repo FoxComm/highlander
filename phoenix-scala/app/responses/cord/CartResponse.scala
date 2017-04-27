@@ -1,10 +1,11 @@
 package responses.cord
 
 import cats.implicits._
+import io.circe.syntax._
 import models.account.{User, _}
+import models.cord.OrderPayments.scope._
 import models.cord._
 import models.cord.lineitems.CartLineItems
-import models.cord.OrderPayments.scope._
 import models.customer.{CustomerData, CustomersData}
 import responses.PromotionResponses.PromotionResponse
 import responses._
@@ -13,6 +14,7 @@ import services.carts.CartQueries
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
+import utils.json.codecs._
 
 case class CartResponse(referenceNumber: String,
                         paymentState: CordPaymentState.State,
@@ -25,7 +27,9 @@ case class CartResponse(referenceNumber: String,
                         shippingMethod: Option[ShippingMethodsResponse.Root] = None,
                         shippingAddress: Option[AddressResponse] = None,
                         paymentMethods: Seq[CordResponsePayments] = Seq.empty)
-    extends ResponseItem
+    extends ResponseItem {
+  def json: Json = this.asJson
+}
 
 object CartResponse {
 

@@ -1,19 +1,22 @@
 package responses
 
-import java.time.Instant
-
 import cats.implicits._
+import io.circe.syntax._
+import java.time.Instant
 import models.inventory._
 import models.objects._
 import responses.AlbumResponses.AlbumResponse
 import responses.ObjectResponses.ObjectContextResponse
 import utils.aliases._
+import utils.json.codecs._
 
 object SkuResponses {
 
   object SkuHeadResponse {
 
-    case class Root(code: String) extends ResponseItem
+    case class Root(code: String) extends ResponseItem {
+      def json: Json = this.asJson
+    }
 
     def build(sku: Sku): Root =
       Root(code = sku.code)
@@ -22,7 +25,9 @@ object SkuResponses {
   object SkuFormResponse {
 
     case class Root(id: Int, code: String, attributes: Json, createdAt: Instant)
-        extends ResponseItem
+        extends ResponseItem {
+      def json: Json = this.asJson
+    }
 
     def build(sku: Sku, form: ObjectForm): Root =
       Root(id = form.id, code = sku.code, attributes = form.attributes, createdAt = form.createdAt)
@@ -30,7 +35,9 @@ object SkuResponses {
 
   object SkuShadowResponse {
 
-    case class Root(code: String, attributes: Json, createdAt: Instant) extends ResponseItem
+    case class Root(code: String, attributes: Json, createdAt: Instant) extends ResponseItem {
+      def json: Json = this.asJson
+    }
 
     def build(sku: Sku, shadow: ObjectShadow): Root =
       Root(code = sku.code, attributes = shadow.attributes, createdAt = shadow.createdAt)
@@ -42,7 +49,9 @@ object SkuResponses {
                     context: Option[ObjectContextResponse.Root],
                     attributes: Json,
                     albums: Seq[AlbumResponse.Root])
-        extends ResponseItem
+        extends ResponseItem {
+      def json: Json = this.asJson
+    }
 
     def build(s: IlluminatedSku): Root =
       Root(code = s.code,
@@ -95,7 +104,9 @@ object SkuResponses {
                     attributes: Json,
                     albums: Seq[AlbumResponse.Root],
                     archivedAt: Option[Instant])
-        extends ResponseItem
+        extends ResponseItem {
+      def json: Json = this.asJson
+    }
 
     def build(sku: IlluminatedSku, albums: Seq[AlbumResponse.Root]): Root =
       Root(id = sku.id,

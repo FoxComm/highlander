@@ -3,7 +3,7 @@ package models.traits
 import cats.implicits._
 import failures.{Failure, Failures}
 import java.time.Instant
-import utils.aliases.Json
+import utils.aliases._
 import utils.json.codecs._
 
 trait IlluminatedModel[T] {

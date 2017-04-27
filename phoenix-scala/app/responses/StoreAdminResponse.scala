@@ -1,8 +1,10 @@
 package responses
 
-import cats.implicits._
+import io.circe.syntax._
 import models.account.User
 import models.admin.AdminData
+import utils.aliases._
+import utils.json.codecs._
 
 object StoreAdminResponse {
   case class Root(id: Int = 0,
@@ -10,7 +12,9 @@ object StoreAdminResponse {
                   name: Option[String] = None,
                   phoneNumber: Option[String] = None,
                   state: AdminData.State)
-      extends ResponseItem
+      extends ResponseItem {
+    def json: Json = this.asJson
+  }
 
   def build(admin: User, adminData: AdminData): Root = {
 

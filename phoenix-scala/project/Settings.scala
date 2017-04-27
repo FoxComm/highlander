@@ -24,7 +24,10 @@ object Settings {
       "-Ywarn-numeric-widen",
       "-Ywarn-nullary-override",
       "-Ywarn-nullary-unit",
-      "-Ywarn-infer-any"
+      "-Ywarn-infer-any"/*,
+      "-verbose",
+      "-Ydebug",
+      "-Ylog:all"*/
     )
   )
 

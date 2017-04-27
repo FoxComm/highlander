@@ -9,6 +9,8 @@ import services.customerGroups.{GroupManager, GroupMemberManager}
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
+import utils.http.JsonSupport._
+import utils.json.codecs._
 
 object CustomerGroupRoutes {
 

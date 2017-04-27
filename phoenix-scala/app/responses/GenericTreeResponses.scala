@@ -1,12 +1,24 @@
 package responses
 
+import io.circe.syntax._
+import io.circe.{Encoder, Json}
 import models.tree.{GenericTree, GenericTreeNode}
+import utils.aliases.Json
+import utils.json.codecs._
 
 object GenericTreeResponses {
 
   object FullTreeResponse {
 
     case class Root(tree: TreeResponse.Root, nodeValues: List[ResponseItem])
+    object Root {
+      implicit val encodeRoot: Encoder[Root] = new Encoder[Root] {
+        def apply(a: Root): Json = Json.obj(
+            "tree"       → Encoder[TreeResponse.Root].apply(a.tree),
+            "nodeValues" → Json.fromValues(a.nodeValues.map(_.json))
+        )
+      }
+    }
 
     def build(tree: TreeResponse.Root, nodeValues: List[ResponseItem]): Root =
       Root(tree, nodeValues)
@@ -14,13 +26,17 @@ object GenericTreeResponses {
 
   object TreeResponse {
 
-    case class Root(id: Int, name: String, contextId: Int, nodes: Node) extends ResponseItem
+    case class Root(id: Int, name: String, contextId: Int, nodes: Node) extends ResponseItem {
+      def json: Json = this.asJson
+    }
 
     def build(tree: GenericTree, nodes: Seq[GenericTreeNode]) =
       buildTree(nodes).map(nodes ⇒ Root(tree.id, tree.name, tree.contextId, nodes))
 
     case class Node(kind: String, objectId: Int, index: Int, children: Seq[Node])
-        extends ResponseItem
+        extends ResponseItem {
+      def json: Json = this.asJson
+    }
 
     def buildTree(nodes: Seq[GenericTreeNode]): Option[TreeResponse.Node] = {
       buildTree(1, nodes.sortBy(_.path.value.size)).headOption

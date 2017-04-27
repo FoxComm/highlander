@@ -13,7 +13,6 @@ import utils.db._
 import utils.json._
 
 object ObjectUtils {
-
   implicit class FormShadowTuple(pair: (ObjectForm, ObjectShadow)) extends FormAndShadow {
     override def form: ObjectForm     = pair._1
     override def shadow: ObjectShadow = pair._2
@@ -32,13 +31,21 @@ object ObjectUtils {
     * We don't care about the whole hash because it would take up too much space.
     * Collisions are handled below in the findKey function.
     */
-  private def hash(content: Json): String =
+  private def hash(content: Json): String = {
+    // Extracting this seems to be necessary, as without it compiler fails with
+    // > polymorphic expression cannot be instantiated to expected type;
+    // > [error]  found   : [A]()Array[Byte]
+    // > [error]  required: Array[Byte]
+    //
+    // Looks like some bug associated with user-defined value classes.
+    val json: String = content.jacksonPrint
     java.security.MessageDigest
       .getInstance("SHA-1") // shared instance would not be thread-safe
-      .digest(content.jacksonPrint.getBytes)
+      .digest(json.getBytes)
       .slice(0, KeyLength)
       .map("%02x".format(_))
       .mkString
+  }
 
   /**
     * The key algorithm will compute a hash of the content and then search

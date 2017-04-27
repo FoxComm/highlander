@@ -1,9 +1,11 @@
 package responses
 
+import io.circe.syntax._
 import models.location.{Region, Regions}
 import models.payment.creditcard.CreditCard
 import utils.aliases._
 import utils.db._
+import utils.json.codecs._
 
 object CreditCardsResponse {
   case class Root(id: Int,
@@ -18,7 +20,9 @@ object CreditCardsResponse {
                   inWallet: Boolean = true,
                   brand: String,
                   address: AddressResponse)
-      extends ResponseItem
+      extends ResponseItem {
+    def json: Json = this.asJson
+  }
 
   def buildFromCreditCard(cc: CreditCard)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {
@@ -49,7 +53,9 @@ object CreditCardsResponse {
                         zipCheck: Option[String] = None,
                         inWallet: Boolean = true,
                         brand: String)
-      extends ResponseItem
+      extends ResponseItem {
+    def json: Json = this.asJson
+  }
 
   def buildSimple(cc: CreditCard): RootSimple =
     RootSimple(id = cc.id,

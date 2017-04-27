@@ -1,9 +1,10 @@
 package responses
 
+import io.circe.syntax._
 import java.time.Instant
-
 import models.activity.{Activity, ActivityContext}
 import utils.aliases._
+import utils.json.codecs._
 
 object ActivityResponse {
   case class Root(id: String,
@@ -11,7 +12,9 @@ object ActivityResponse {
                   data: Json,
                   context: ActivityContext,
                   createdAt: Instant)
-      extends ResponseItem
+      extends ResponseItem {
+    def json: Json = this.asJson
+  }
 
   def build(a: Activity): Root =
     Root(id = a.id,

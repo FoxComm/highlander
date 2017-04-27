@@ -1,10 +1,11 @@
 package responses
 
+import io.circe.syntax._
 import java.time.Instant
-
-import models.customer.{CustomerGroup, CustomerGroupTemplate}
 import models.customer.CustomerGroup._
+import models.customer.{CustomerGroup, CustomerGroupTemplate}
 import utils.aliases._
+import utils.json.codecs._
 
 object GroupResponses {
 
@@ -19,7 +20,9 @@ object GroupResponses {
         customersCount: Int = 0,
         updatedAt: Instant,
         createdAt: Instant
-    ) extends ResponseItem
+    ) extends ResponseItem {
+      def json: Json = this.asJson
+    }
 
     def build(group: CustomerGroup): Root =
       Root(id = group.id,

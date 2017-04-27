@@ -63,6 +63,8 @@ object Plugin {
 }
 
 object PluginOrmTypeMapper {
+  import PluginSettings.SettingType._
+
   implicit val SettingsSchemaT: BaseColumnType[SettingsSchema] = dbJsonColumn[SettingsSchema]
 
   implicit val SettingsValuesT: BaseColumnType[SettingsValues] = dbJsonColumn[SettingsValues]

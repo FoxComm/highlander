@@ -1,7 +1,10 @@
 package responses
 
+import io.circe.syntax._
 import models.payment.InStorePaymentStates
 import models.payment.giftcard.GiftCardAdjustment
+import utils.aliases._
+import utils.json.codecs._
 
 object GiftCardAdjustmentsResponse {
   case class Root(id: Int,
@@ -9,7 +12,9 @@ object GiftCardAdjustmentsResponse {
                   availableBalance: Int,
                   state: InStorePaymentStates.State,
                   cordRef: Option[String])
-      extends ResponseItem
+      extends ResponseItem {
+    def json: Json = this.asJson
+  }
 
   def build(adj: GiftCardAdjustment, cordRef: Option[String] = None): Root = {
     Root(id = adj.id,

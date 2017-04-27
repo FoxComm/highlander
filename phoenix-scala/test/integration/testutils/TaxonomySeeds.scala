@@ -7,7 +7,7 @@ import models.taxonomy._
 import services.Authenticator.AuthData
 import testutils.PayloadHelpers._
 import testutils.fixtures.TestFixtureBase
-import utils.aliases.Json
+import utils.aliases._
 import utils.db._
 
 trait TaxonomySeeds extends TestFixtureBase {

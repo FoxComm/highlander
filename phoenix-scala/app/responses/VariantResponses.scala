@@ -1,11 +1,13 @@
 package responses
 
 import cats.implicits._
+import io.circe.syntax._
 import models.objects._
 import models.product._
 import responses.ObjectResponses.ObjectContextResponse
 import responses.VariantValueResponses.IlluminatedVariantValueResponse
 import utils.aliases._
+import utils.json.codecs._
 
 object VariantResponses {
 
@@ -16,7 +18,9 @@ object VariantResponses {
                     context: Option[ObjectContextResponse.Root],
                     attributes: Json,
                     values: Seq[IlluminatedVariantValueResponse.Root])
-        extends ResponseItem
+        extends ResponseItem {
+      def json: Json = this.asJson
+    }
 
     def build(variant: IlluminatedVariant,
               variantValues: Seq[FullObject[VariantValue]],

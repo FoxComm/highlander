@@ -1,10 +1,11 @@
 package responses
 
+import io.circe.syntax._
 import java.time.Instant
-
 import models.payment.giftcard._
 import utils.Money._
-import utils.aliases.Json
+import utils.aliases._
+import utils.json.codecs._
 
 object GiftCardResponse {
 
@@ -29,7 +30,9 @@ object GiftCardResponse {
                   recipientName: Option[String] = None,
                   recipientEmail: Option[String] = None,
                   message: Option[String] = None)
-      extends ResponseItem
+      extends ResponseItem {
+    def json: Json = this.asJson
+  }
 
   def build(gc: GiftCard,
             customer: Option[CustomerResponse.Root] = None,
@@ -53,6 +56,6 @@ object GiftCardResponse {
         senderName = gc.senderName,
         recipientName = gc.recipientName,
         recipientEmail = gc.recipientEmail,
-        message = (gc.message)
+        message = gc.message
     )
 }

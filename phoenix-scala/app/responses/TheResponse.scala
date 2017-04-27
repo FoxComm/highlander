@@ -13,7 +13,6 @@ case class TheResponse[A](result: A,
                           batch: Option[BatchMetadata] = None)
 
 object TheResponse {
-
   def build[A](value: A,
                alerts: Option[Failures] = None,
                errors: Option[Failures] = None,

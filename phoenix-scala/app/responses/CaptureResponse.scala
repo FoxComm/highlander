@@ -1,10 +1,9 @@
 package responses
 
-import java.time.Instant
-
-import models.cord.Order
-import models.location.Region
+import io.circe.syntax._
 import utils.Money.Currency
+import utils.aliases._
+import utils.json.codecs._
 
 case class CaptureResponse(order: String,
                            captured: Int,
@@ -14,4 +13,6 @@ case class CaptureResponse(order: String,
                            taxes: Int,
                            shipping: Int,
                            currency: Currency)
-    extends ResponseItem
+    extends ResponseItem {
+  def json: Json = this.asJson
+}

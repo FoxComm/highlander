@@ -1,14 +1,19 @@
 package responses.cord.base
 
+import io.circe.syntax._
 import models.cord.{Cart, Order}
 import responses.ResponseItem
+import utils.aliases._
+import utils.json.codecs._
 
 case class OrderResponseTotals(subTotal: Int,
                                taxes: Int,
                                shipping: Int,
                                adjustments: Int,
                                total: Int)
-    extends ResponseItem
+    extends ResponseItem {
+  def json: Json = this.asJson
+}
 
 object OrderResponseTotals {
 
@@ -27,7 +32,9 @@ case class CartResponseTotals(subTotal: Int,
                               adjustments: Int,
                               total: Int,
                               customersExpenses: Int)
-    extends ResponseItem
+    extends ResponseItem {
+  def json: Json = this.asJson
+}
 
 object CartResponseTotals {
 

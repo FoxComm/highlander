@@ -8,6 +8,7 @@ import services.Authenticator.AuthData
 import services.ShippingManager
 import utils.aliases._
 import utils.http.CustomDirectives._
+import utils.json.codecs._
 
 object ShippingMethodRoutes {
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {

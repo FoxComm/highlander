@@ -1,5 +1,6 @@
 package responses.cord.base
 
+import io.circe.syntax._
 import models.cord.lineitems._
 import models.product.Mvp
 import responses.ResponseItem
@@ -7,6 +8,7 @@ import services.LineItemManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
+import utils.json.codecs._
 
 case class CordResponseLineItem(imagePath: String,
                                 referenceNumbers: Seq[String],
@@ -20,9 +22,14 @@ case class CordResponseLineItem(imagePath: String,
                                 trackInventory: Boolean,
                                 state: OrderLineItem.State,
                                 attributes: Option[LineItemAttributes] = None)
-    extends ResponseItem
+    extends ResponseItem {
+  def json: Json = this.asJson
+}
 
-case class CordResponseLineItems(skus: Seq[CordResponseLineItem] = Seq.empty) extends ResponseItem
+case class CordResponseLineItems(skus: Seq[CordResponseLineItem] = Seq.empty)
+    extends ResponseItem {
+  def json: Json = this.asJson
+}
 
 object CordResponseLineItems {
 
@@ -165,7 +172,9 @@ case class CordResponseLineItemAdjustment(
     adjustmentType: CartLineItemAdjustment.AdjustmentType,
     subtract: Int,
     lineItemRefNum: Option[String]
-) extends ResponseItem
+) extends ResponseItem {
+  def json: Json = this.asJson
+}
 
 object CordResponseLineItemAdjustments {
 

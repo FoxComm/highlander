@@ -1,9 +1,11 @@
 package responses
 
+import io.circe.syntax._
 import java.time.Instant
-
 import models.payment.storecredit.StoreCredit
 import utils.Money.Currency
+import utils.aliases._
+import utils.json.codecs._
 
 object StoreCreditResponse {
   case class Root(id: Int,
@@ -19,7 +21,9 @@ object StoreCreditResponse {
                   canceledReason: Option[Int],
                   state: StoreCredit.State,
                   createdAt: Instant)
-      extends ResponseItem
+      extends ResponseItem {
+    def json: Json = this.asJson
+  }
 
   case class Totals(availableBalance: Int = 0, currentBalance: Int = 0)
 

@@ -1,7 +1,7 @@
 package models.plugins
 
 import com.pellucid.sealerate
-import io.circe.{Json, JsonObject}
+import io.circe._
 import utils.ADT
 
 object PluginSettings {

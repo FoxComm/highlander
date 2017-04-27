@@ -2,7 +2,7 @@ package utils.seeds
 
 import models.objects._
 import scala.concurrent.ExecutionContext.Implicits.global
-import utils.aliases.Json
+import utils.aliases._
 import utils.db._
 import utils.json.yolo._
 

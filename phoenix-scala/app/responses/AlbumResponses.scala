@@ -1,12 +1,15 @@
 package responses
 
 import cats.implicits._
+import io.circe.syntax._
 import java.time.Instant
 import models.image._
 import models.objects._
 import responses.ImageResponses.ImageResponse
 import services.image.ImageManager.FullAlbumWithImages
 import utils.IlluminateAlgorithm
+import utils.aliases._
+import utils.json.codecs._
 import utils.json.yolo._
 
 object AlbumResponses {
@@ -17,7 +20,9 @@ object AlbumResponses {
                     createdAt: Instant,
                     updatedAt: Instant,
                     archivedAt: Option[Instant])
-        extends ResponseItem
+        extends ResponseItem {
+      def json: Json = this.asJson
+    }
 
     def build(album: FullObject[Album], images: Seq[FullObject[Image]]): Root = {
       val model       = album.model

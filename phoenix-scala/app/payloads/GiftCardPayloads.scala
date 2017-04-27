@@ -7,7 +7,6 @@ import models.payment.giftcard.GiftCard
 import utils.Money._
 import utils.Validation
 import utils.Validation._
-import utils.aliases.Json
 
 object GiftCardPayloads {
 

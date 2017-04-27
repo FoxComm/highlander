@@ -1,8 +1,8 @@
 package responses.cord
 
-import java.time.Instant
-
 import failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
+import io.circe.syntax._
+import java.time.Instant
 import models.account._
 import models.cord._
 import models.customer.CustomersData
@@ -13,6 +13,7 @@ import responses.cord.base._
 import services.orders.OrderQueries
 import utils.aliases._
 import utils.db._
+import utils.json.codecs._
 
 case class OrderResponse(referenceNumber: String,
                          paymentState: CordPaymentState.State,
@@ -26,14 +27,16 @@ case class OrderResponse(referenceNumber: String,
                          shippingAddress: AddressResponse,
                          billingAddress: Option[AddressResponse] = None,
                          billingCreditCardInfo: Option[CordResponseCreditCardPayment] = None,
-                         paymentMethods: Seq[_ <: CordResponsePayments] = Seq.empty,
+                         paymentMethods: Seq[CordResponsePayments] = Seq.empty,
                          // Order-specific
                          orderState: Order.State,
                          shippingState: Option[Order.State] = None,
                          fraudScore: Int,
                          remorsePeriodEnd: Option[Instant] = None,
                          placedAt: Instant)
-    extends ResponseItem
+    extends ResponseItem {
+  def json: Json = this.asJson
+}
 
 object OrderResponse {
 

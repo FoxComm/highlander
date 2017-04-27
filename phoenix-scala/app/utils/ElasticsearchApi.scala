@@ -3,8 +3,8 @@ package utils
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri, IndexAndType, RichSearchResponse}
 import com.typesafe.scalalogging.LazyLogging
+import io.circe._
 import io.circe.jackson.syntax._
-import io.circe.{Json, JsonObject}
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.search.aggregations.bucket.filter.InternalFilter
 import org.elasticsearch.search.aggregations.bucket.terms.{StringTerms, Terms}

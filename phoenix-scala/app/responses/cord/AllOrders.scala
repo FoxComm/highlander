@@ -1,12 +1,13 @@
 package responses.cord
 
+import io.circe.syntax._
 import java.time.Instant
-
-import scala.concurrent.Future
-
 import models.account.User
 import models.cord.{CordPaymentState, Order}
 import responses.ResponseItem
+import scala.concurrent.Future
+import utils.aliases._
+import utils.json.codecs._
 
 object AllOrders {
   type Response = Future[Seq[Root]]
@@ -21,7 +22,9 @@ object AllOrders {
                   placedAt: Instant,
                   remorsePeriodEnd: Option[Instant] = None,
                   total: Int)
-      extends ResponseItem
+      extends ResponseItem {
+    def json: Json = this.asJson
+  }
 
   def build(order: Order,
             customer: Option[User] = None,

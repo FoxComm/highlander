@@ -1,9 +1,10 @@
 package responses
 
+import io.circe.syntax._
 import java.time.Instant
-
 import models.account._
-import models.location.Region
+import utils.aliases._
+import utils.json.codecs._
 
 object UserResponse {
   case class Root(id: Int = 0,
@@ -13,7 +14,9 @@ object UserResponse {
                   createdAt: Instant,
                   disabled: Boolean,
                   isBlacklisted: Boolean)
-      extends ResponseItem
+      extends ResponseItem {
+    def json: Json = this.asJson
+  }
 
   def build(user: User): Root = {
     Root(id = user.accountId,

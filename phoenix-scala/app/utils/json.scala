@@ -5,14 +5,16 @@ import cats.kernel.Monoid
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.github.tminglei.slickpg.LTree
 import com.ning.http.client.Response
+import io.circe._
 import io.circe.generic.extras.{AutoDerivation, Configuration}
 import io.circe.jackson.CirceJsonModule
 import io.circe.syntax._
-import io.circe.{Decoder, Encoder, Json, parser}
+import responses.TheResponse
+import responses.cord.{CartResponse, OrderResponse}
 import scala.annotation.tailrec
 import scala.reflect.{ClassTag, classTag}
 import utils.Money.Currency
-import utils.aliases.Json
+import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.time.JavaInstantJsonCodec
 
@@ -91,6 +93,19 @@ object json {
   object codecs extends AutoDerivation with JavaInstantJsonCodec {
     implicit val configuration: Configuration =
       Configuration.default.withDefaults.withDiscriminator("payloadType")
+
+    implicit def decodeSeq[A: Decoder]: Decoder[Seq[A]] =
+      Decoder.decodeCanBuildFrom[A, Seq].withErrorMessage("[A]Seq[A]")
+    implicit def encodeSeq[A: Encoder]: Encoder[Seq[A]] = Encoder.encodeTraversableOnce[A, Seq]
+
+    implicit def decodeTheResponse[A]: Decoder[TheResponse[A]] = ???
+    implicit def encodeTheResponse[A]: Encoder[TheResponse[A]] = ???
+
+    implicit val decodeCartResponse: Decoder[CartResponse] = ???
+    implicit val encodeCartResponse: Encoder[CartResponse] = ???
+
+    implicit val decodeOrderResponse: Decoder[OrderResponse] = ???
+    implicit val encodeOrderResponse: Encoder[OrderResponse] = ???
 
     implicit val decodeCurrency: Decoder[Currency] =
       Decoder.decodeString.map(s ⇒ Currency(s.toUpperCase()))

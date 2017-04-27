@@ -2,7 +2,7 @@ package utils
 
 import cats.Show
 import cats.implicits._
-import io.circe.{Decoder, Encoder, KeyDecoder, KeyEncoder}
+import io.circe._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType

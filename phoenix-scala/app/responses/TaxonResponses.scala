@@ -2,10 +2,12 @@ package responses
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import io.circe.syntax._
 import models.objects.FullObject
 import models.taxonomy._
 import utils.IlluminateAlgorithm
-import utils.aliases.Json
+import utils.aliases._
+import utils.json.codecs._
 
 object TaxonResponses {
 
@@ -42,19 +44,25 @@ object TaxonResponses {
   }
 
   object TaxonResponse {
-    case class Root(id: Int) extends ResponseItem
+    case class Root(id: Int) extends ResponseItem {
+      def json: Json = this.asJson
+    }
 
     //Taxon here is a placeholder for future. Using only form
     def build(t: Taxon): Root = Root(id = t.formId)
   }
 
-  case class TaxonLocationResponse(parent: Option[Int] = None) extends ResponseItem
+  case class TaxonLocationResponse(parent: Option[Int] = None) extends ResponseItem {
+    def json: Json = this.asJson
+  }
 
   case class FullTaxonResponse(id: Int,
                                taxonomyId: Int,
                                location: TaxonLocationResponse,
                                attributes: Json)
-      extends ResponseItem
+      extends ResponseItem {
+    def json: Json = this.asJson
+  }
 
   object FullTaxonResponse {
     def build(taxon: FullObject[Taxon],
@@ -71,6 +79,8 @@ object TaxonResponses {
   case class TaxonTreeResponse(node: FullTaxonResponse, children: Option[Seq[TaxonTreeResponse]])
       extends ResponseItem {
     def childrenAsList: Seq[TaxonTreeResponse] = children.getOrElse(Seq.empty)
+
+    def json: Json = this.asJson
   }
 
   object TaxonTreeResponse {

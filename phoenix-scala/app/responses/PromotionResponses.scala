@@ -1,19 +1,22 @@
 package responses
 
+import io.circe.syntax._
 import java.time.Instant
-
 import models.discount._
 import models.objects._
 import models.promotion._
 import responses.DiscountResponses._
 import responses.ObjectResponses.ObjectContextResponse
 import utils.aliases._
+import utils.json.codecs._
 
 object PromotionResponses {
 
   object PromotionFormResponse {
 
-    case class Root(id: Int, attributes: Json, createdAt: Instant) extends ResponseItem
+    case class Root(id: Int, attributes: Json, createdAt: Instant) extends ResponseItem {
+      def json: Json = this.asJson
+    }
 
     def build(f: ObjectForm): Root =
       Root(id = f.id, attributes = f.attributes, createdAt = f.createdAt)
@@ -27,7 +30,9 @@ object PromotionResponses {
                     attributes: Json,
                     discounts: Seq[IlluminatedDiscountResponse.Root],
                     archivedAt: Option[Instant])
-        extends ResponseItem
+        extends ResponseItem {
+      def json: Json = this.asJson
+    }
 
     def build(promotion: IlluminatedPromotion,
               discounts: Seq[IlluminatedDiscount],

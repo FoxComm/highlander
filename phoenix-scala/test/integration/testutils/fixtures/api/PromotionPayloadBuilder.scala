@@ -6,7 +6,7 @@ import models.promotion.Promotion.ApplyType
 import payloads.DiscountPayloads.CreateDiscount
 import payloads.PromotionPayloads.CreatePromotion
 import testutils.PayloadHelpers._
-import utils.aliases.Json
+import utils.aliases._
 
 object PromotionPayloadBuilder {
 

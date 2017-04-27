@@ -1,7 +1,6 @@
 package responses.cord.base
 
 import java.time.Instant
-
 import models.cord.OrderPayments
 import models.payment.PaymentMethod._
 import models.payment.creditcard.CreditCards

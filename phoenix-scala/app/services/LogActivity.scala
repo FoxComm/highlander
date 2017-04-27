@@ -1,6 +1,7 @@
 package services
 
 import com.github.tminglei.slickpg.LTree
+import io.circe.Encoder
 import java.time.Instant
 import models.Assignment._
 import models.Note
@@ -62,19 +63,19 @@ case class LogActivity(implicit ac: AC) {
   def withScope(scope: LTree): LogActivity = copy()(ac = ac.copy(scope = scope))
 
   /* Assignments */
-  def assigned[T](admin: User,
-                  entity: T,
-                  assignees: Seq[UserResponse],
-                  assignType: AssignmentType,
-                  refType: ReferenceType)(implicit ec: EC): DbResultT[Activity] = {
+  def assigned[T: Encoder](admin: User,
+                           entity: T,
+                           assignees: Seq[UserResponse],
+                           assignType: AssignmentType,
+                           refType: ReferenceType)(implicit ec: EC): DbResultT[Activity] = {
     Activities.log(Assigned[T](buildUser(admin), entity, assignees, assignType, refType))
   }
 
-  def unassigned[T](admin: User,
-                    entity: T,
-                    assignee: User,
-                    assignType: AssignmentType,
-                    refType: ReferenceType)(implicit ec: EC): DbResultT[Activity] = {
+  def unassigned[T: Encoder](admin: User,
+                             entity: T,
+                             assignee: User,
+                             assignType: AssignmentType,
+                             refType: ReferenceType)(implicit ec: EC): DbResultT[Activity] = {
     Activities.log(
         Unassigned[T](buildUser(admin), entity, buildUser(assignee), assignType, refType))
   }
@@ -98,14 +99,16 @@ case class LogActivity(implicit ac: AC) {
   }
 
   /* Notes */
-  def noteCreated[T](admin: User, entity: T, note: Note)(implicit ec: EC): DbResultT[Activity] =
+  def noteCreated[T: Encoder](admin: User, entity: T, note: Note)(
+      implicit ec: EC): DbResultT[Activity] =
     Activities.log(NoteCreated[T](buildUser(admin), entity, note))
 
-  def noteUpdated[T](admin: User, entity: T, oldNote: Note, note: Note)(
+  def noteUpdated[T: Encoder](admin: User, entity: T, oldNote: Note, note: Note)(
       implicit ec: EC): DbResultT[Activity] =
     Activities.log(NoteUpdated[T](buildUser(admin), entity, oldNote, note))
 
-  def noteDeleted[T](admin: User, entity: T, note: Note)(implicit ec: EC): DbResultT[Activity] =
+  def noteDeleted[T: Encoder](admin: User, entity: T, note: Note)(
+      implicit ec: EC): DbResultT[Activity] =
     Activities.log(NoteDeleted[T](buildUser(admin), entity, note))
 
   /* Shared Search Associations */

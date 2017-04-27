@@ -1,6 +1,6 @@
 package utils.time
 
-import io.circe.{Decoder, Encoder}
+import io.circe._
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 

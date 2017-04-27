@@ -4,7 +4,7 @@ import faker.Lorem
 import payloads.ImagePayloads.AlbumPayload
 import payloads.SkuPayloads.SkuPayload
 import testutils.PayloadHelpers._
-import utils.aliases.Json
+import utils.aliases._
 import utils.time.yesterday
 
 package object products {

@@ -2,9 +2,9 @@ package payloads
 
 import cats.implicits._
 import failures._
+import io.circe._
 import io.circe.jackson.syntax._
 import io.circe.parser.parse
-import io.circe.{Decoder, Encoder, Json}
 import models.auth.Token
 import org.jose4j.jwt.JwtClaims
 

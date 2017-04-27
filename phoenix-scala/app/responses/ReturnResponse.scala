@@ -1,5 +1,6 @@
 package responses
 
+import io.circe.syntax._
 import java.time.Instant
 import models.account.Users
 import models.admin.AdminsData
@@ -14,12 +15,12 @@ import services.returns.{ReturnLineItemManager, ReturnTotaler}
 import utils.Money._
 import utils.aliases._
 import utils.db._
+import utils.json.codecs._
 
 object ReturnResponse {
   case class ReturnTotals(subTotal: Int, taxes: Int, shipping: Int, adjustments: Int, total: Int)
-      extends ResponseItem
 
-  sealed trait LineItem extends ResponseItem {
+  sealed trait LineItem {
     def id: Int
     def reason: String
     def price: Int
@@ -44,9 +45,8 @@ object ReturnResponse {
         extends LineItem
   }
   case class LineItems(skus: Seq[LineItem.Sku], shippingCosts: Option[LineItem.ShippingCost])
-      extends ResponseItem
 
-  sealed trait Payment extends ResponseItem {
+  sealed trait Payment {
     def id: Int
     def amount: Int
     def currency: Currency
@@ -59,7 +59,6 @@ object ReturnResponse {
   case class Payments(creditCard: Option[Payment.CreditCard],
                       giftCard: Option[Payment.GiftCard],
                       storeCredit: Option[Payment.StoreCredit])
-      extends ResponseItem
 
   case class Root(id: Int,
                   referenceNumber: String,
@@ -75,7 +74,9 @@ object ReturnResponse {
                   createdAt: Instant,
                   updatedAt: Instant,
                   totals: ReturnTotals)
-      extends ResponseItem
+      extends ResponseItem {
+    def json: Json = this.asJson
+  }
 
   def buildPayments(creditCard: Option[ReturnPayment],
                     giftCard: Option[(ReturnPayment, GiftCard)],

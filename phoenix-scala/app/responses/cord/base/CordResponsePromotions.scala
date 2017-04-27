@@ -3,6 +3,7 @@ package responses.cord.base
 import cats.implicits._
 import failures.CouponFailures._
 import failures.PromotionFailures.PromotionNotFound
+import io.circe.syntax._
 import models.cord.{OrderPromotion, OrderPromotions}
 import models.coupon._
 import models.discount.IlluminatedDiscount
@@ -15,8 +16,11 @@ import responses.ResponseItem
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
+import utils.json.codecs._
 
-case class CordResponseCouponPair(coupon: CouponResponse.Root, code: String) extends ResponseItem
+case class CordResponseCouponPair(coupon: CouponResponse.Root, code: String) extends ResponseItem {
+  def json: Json = this.asJson
+}
 
 object CordResponsePromotions {
 
