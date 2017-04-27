@@ -45,6 +45,52 @@ def sanitize_content(str)
 end
 
 def collect_pdps()
+  category_files = [
+    {
+      filename: "luggage__carry-all.html",
+      category: "luggage",
+      productType: "Carry-All"
+    },
+    {
+      filename: "luggage__carry-on-luggage.html",
+      productType: "Carry-On Luggage"
+    },
+    {
+      filename: "luggage__checked-luggage.html",
+      productType: "Checked Luggage"
+    },
+    {
+      filename: "luggage__duffels.html",
+      productType: "Duffels"
+    },
+    {
+      filename: "luggage__garment-bags.html",
+      productType: "Garment Bags"
+    },
+    {
+      filename: "luggage__packable-totes.html",
+      productType: "Packable Totes"
+    },
+    {
+      filename: "luggage__satchels.html",
+      productType: "Satchels"
+    },
+    {
+      filename: "luggage__wheeled-briefcases.html",
+      productType: "Wheeled Briefcases"
+    },
+    {
+      filename: "luggage__wheeled-duffels.html",
+      productType: "Wheeled Duffels"
+    },
+    {
+      filename: "luggage__wheeled-garment-bags.html",
+      productType: "Wheeled Garment Bags"
+    }
+  ]
+
+
+
   files = ['luggage.html', 'backpacks.html', 'accessories.html', 'bags.html']
   pdp_links = []
   files.each do |file|
