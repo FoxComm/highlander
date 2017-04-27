@@ -40,7 +40,7 @@ const TableView = props => {
                       identifier={props.tableIdentifier} />
     );
 
-    topItemsLeft.push(toggler);
+    topItemsRight.push(toggler);
   }
 
   const flexSeparator = <div className="fc-table__flex-separator" />;
