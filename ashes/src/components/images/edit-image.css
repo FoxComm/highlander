@@ -4,11 +4,19 @@
 }
 
 .main {
+  overflow: auto;
   display: flex;
   flex: 1 1 auto;
+
+  @media (orientation:portrait) {
+    flex-direction: column;
+  }
 }
 
 .imageWrap {
+  overflow: hidden;
+  min-width: 50%;
+  min-height: 50%;
   width: 70%;
   flex: 1 1 auto;
   display: flex;
@@ -21,16 +29,26 @@
     box-shadow: 0 0 0.5px #ccc inset;
     border: none;
   }
+
+  @media (orientation:portrait) {
+    width: auto;
+    margin-right: 0;
+  }
 }
 
 .sidebar {
   min-width: 300px;
+  min-height: 300px;
   width: 30%;
   flex: 1 0 auto;
   padding: 10px;
   background-color: #f7f7f7;
   font-size: 13px;
   line-height: 16px;
+
+  @media (orientation:portrait) {
+    width: auto;
+  }
 }
 
 .stat {

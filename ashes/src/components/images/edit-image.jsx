@@ -9,7 +9,7 @@ import { ModalContainer } from '../modal/base';
 import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
-import Input from 'components/forms/text-input-cm';
+import Input from 'components/forms/text-input';
 import { Button } from 'components/core/button';
 
 // types
@@ -102,11 +102,17 @@ class EditImage extends Component {
   render() {
     const { width, height, alt } = this.state;
     const { image: { src, createdAt }, inProgress } = this.props;
-    const match = src.match(/\.[0-9a-z]+$/i);
+    const extMatch = src.match(/\.([0-9a-z]+)$/i);
+    const nameMatch = src.match(/\/([^/]+)$/i);
     let ext = '–';
+    let name = '–';
 
-    if (match && match[0]) {
-      ext = match[0];
+    if (extMatch && extMatch[1]) {
+      ext = extMatch[1];
+    }
+
+    if (nameMatch && nameMatch[1]) {
+      name = nameMatch[1];
     }
 
     return (
@@ -118,7 +124,7 @@ class EditImage extends Component {
             </div>
             <div className={s.sidebar}>
               <div className={s.stat}>
-                <div className={s.statItem}>{`File Name: TODO`}</div>
+                <div className={s.statItem}>{`File Name: ${name}`}</div>
                 <div className={s.statItem}>{`Uploaded: ${createdAt || '–'}`}</div>
                 <div className={s.statItem}>{`File Type: ${ext}`}</div>
                 <div className={s.statItem}>{`Dimensions: ${width}×${height}`}</div>

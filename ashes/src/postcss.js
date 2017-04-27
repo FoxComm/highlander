@@ -47,7 +47,6 @@ const plugins = [
       customProperties: false,
     },
   }),
-  require('postcss-short'),
 ];
 
 exports.installHook = function () {

@@ -42,6 +42,21 @@ export default class Image extends Component<void, Props, State> {
     disabled: false,
   };
 
+  componentDidMount(): void {
+    document.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyDown);
+  }
+
+  @autobind
+  handleKeyDown({ key }) {
+    if (key === 'Escape') {
+      this.handleCancelEditImage();
+    }
+  }
+
   @autobind
   handleEditImage(): void {
     const { disabled } = this.props;

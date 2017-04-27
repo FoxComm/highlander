@@ -31,6 +31,10 @@
 .modal {
   & :global(.fc-modal-container) {
     min-width: 720px;
+
+    @media (max-width: 768px) {
+      min-width: 0;
+    }
   }
   & :global(.fc-alert) {
     margin-bottom: 20px;
