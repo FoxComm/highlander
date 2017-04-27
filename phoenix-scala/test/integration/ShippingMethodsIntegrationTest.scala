@@ -109,14 +109,18 @@ class ShippingMethodsIntegrationTest
   }
 
   "Search /v1/shipping-methods" - {
-
     "Has active methods" in new ShipToCaliforniaButNotHazardous {
-      assert(shippingMethodsApi.active().as[Methods].size > 0)
+      shippingMethodsApi.active().as[Methods].size mustBe >(0)
     }
 
-    "Get shipping method by country id" in new ShipToCaliforniaButNotHazardous {
+    "Get shipping method by country code" in new ShipToCaliforniaButNotHazardous {
       val usShippingMethods = shippingMethodsApi.searchByRegion("us").as[Methods]
-      assert(usShippingMethods.size > 0)
+      usShippingMethods.size mustBe >(0)
+    }
+
+    "No shipping to Russia ;(" in new ShipToCaliforniaButNotHazardous {
+      val usShippingMethods = shippingMethodsApi.searchByRegion("rus").as[Methods]
+      usShippingMethods.size must === (0)
     }
 
     "No shipping methods for non existent country" in {

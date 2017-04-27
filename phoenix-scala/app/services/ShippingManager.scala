@@ -81,13 +81,7 @@ object ShippingManager {
 
       shipToRegion = emptyShippingData.copy(
           shippingRegion = Region(countryId = country.id, name = country.name).some)
-
-      _ ← * <~ println(s"evaluate $shipToRegion with $shipMethods")
-
       response = filter(shipMethods, shipToRegion)
-
-      _ ← * <~ println(s"got $response")
-
     } yield response
 
   def getShippingMethodsForCart(refNum: String, customer: Option[User] = None)(
@@ -127,9 +121,7 @@ object ShippingManager {
   def filter(shipMethods: Seq[ShippingMethod], shipData: ShippingData) = shipMethods.collect {
     case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
       val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
-      val a          = responses.ShippingMethodsResponse.build(sm, !restricted)
-      println(s"collected $a with restricted status $restricted")
-      a
+      responses.ShippingMethodsResponse.build(sm, !restricted)
   }
 
   private def getShippingData(cart: Cart)(implicit ec: EC, db: DB): DbResultT[ShippingData] =
@@ -167,8 +159,6 @@ object ShippingManager {
 
   private def evaluateShippingAddressCondition(shippingData: ShippingData,
                                                condition: Condition): Boolean = {
-    println(s"$shippingData with $condition")
-
     shippingData.shippingAddress.fold(false) { shippingAddress ⇒
       condition.field match {
         case "address1" ⇒
@@ -179,23 +169,21 @@ object ShippingManager {
           Condition.matches(shippingAddress.city, condition)
         case "regionId" ⇒
           Condition.matches(shippingAddress.regionId, condition)
-        case "countryId" ⇒ {
-          val fold = shippingData.shippingRegion.fold(false)(sr ⇒
-                Condition.matches(sr.countryId, condition))
-          println(s"!!! $shippingData with $condition has result $fold")
-          fold
-        }
-        case "regionName" ⇒
-          shippingData.shippingRegion.fold(false)(sr ⇒ Condition.matches(sr.name, condition))
-        case "regionAbbrev" ⇒
-          shippingData.shippingRegion.fold(false)(sr ⇒
-                Condition.matches(sr.abbreviation, condition))
         case "zip" ⇒
           Condition.matches(shippingAddress.zip, condition)
         case _ ⇒
           false
       }
-    }
+    } || shippingData.shippingRegion.fold(false)(shippingRegion ⇒
+          condition.field match {
+        case "countryId" ⇒
+          Condition.matches(shippingRegion.countryId, condition)
+        case "regionName" ⇒
+          Condition.matches(shippingRegion.name, condition)
+        case "regionAbbrev" ⇒
+          Condition.matches(shippingRegion.abbreviation, condition)
+        case _ ⇒ false
+    })
   }
 
   private val COUNT_TAG         = "countTag-"
