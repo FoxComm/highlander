@@ -9,7 +9,7 @@ import { ModalContainer } from '../modal/base';
 import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
-import Input from 'components/forms/text-input';
+import Input from 'components/forms/text-input-cm';
 import { Button } from 'components/core/button';
 
 // types
@@ -42,7 +42,7 @@ class EditImage extends Component {
     height: 0,
   };
 
-  img: Image | null;
+  img: ?Image;
 
   get closeAction() {
     return <a onClick={this.props.onCancel}>&times;</a>;
@@ -66,7 +66,11 @@ class EditImage extends Component {
     // We need to create new image and load it again (from cache) to know its real size
     // Otherwise CSS may affect values
     this.img = new Image();
-    this.img.onload = () => this.setState({ width: this.img.width, height: this.img.height });
+    this.img.onload = () => {
+      if (this.img) {
+        this.setState({ width: this.img.width, height: this.img.height })
+      }
+    };
     this.img.onerror = () => this.setState({ width: 0, height: 0 });
     this.img.src = src;
   }
@@ -97,7 +101,7 @@ class EditImage extends Component {
 
   render() {
     const { width, height, alt } = this.state;
-    const { image: { src, createdAt, baseUrl }, inProgress } = this.props;
+    const { image: { src, createdAt }, inProgress } = this.props;
     const match = src.match(/\.[0-9a-z]+$/i);
     let ext = '–';
 
@@ -110,11 +114,11 @@ class EditImage extends Component {
         <ContentBox title="Edit Image" actionBlock={this.closeAction} bodyClassName={s.body}>
           <div className={s.main}>
             <div className={s.imageWrap}>
-              <img ref={ref => this.image} src={src} className={s.image} />
+              <img src={src} className={s.image} />
             </div>
             <div className={s.sidebar}>
               <div className={s.stat}>
-                <div className={s.statItem}>{`File Name: ${baseUrl}`}</div>
+                <div className={s.statItem}>{`File Name: TODO`}</div>
                 <div className={s.statItem}>{`Uploaded: ${createdAt || '–'}`}</div>
                 <div className={s.statItem}>{`File Type: ${ext}`}</div>
                 <div className={s.statItem}>{`Dimensions: ${width}×${height}`}</div>

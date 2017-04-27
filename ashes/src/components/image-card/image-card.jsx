@@ -21,6 +21,7 @@ type Props = {
   actions: Array<Action>,
   loading: boolean,
   className?: string,
+  onImageClick?: Function,
 };
 
 export default class ImageCard extends Component {
@@ -29,6 +30,7 @@ export default class ImageCard extends Component {
 
   static defaultProps = {
     actions: [],
+    onImageClick: () => {},
   };
 
   get actions(): ?Element<*> {
@@ -40,16 +42,23 @@ export default class ImageCard extends Component {
 
     return (
       <div className={s.actions}>
-        {actions.map(({ name, handler }) => <i className={`icon-${name}`} onClick={handler} key={name} />)}
+        {actions.map(({ name, handler }) => {
+          return <i className={`icon-${name}`} onClick={handler} onMouseDown={this.prevent} key={name} />;
+        })}
       </div>
     );
+  }
+
+  prevent(e: MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
   }
 
   render() {
     const { id, src, className } = this.props;
 
     return (
-      <div className={classNames(s.card, s.image, className)}>
+      <div className={classNames(s.card, s.image, className)} onClick={this.props.onImageClick}>
         <Image id={id} src={src} size="cover" />
         {this.actions}
       </div>

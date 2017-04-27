@@ -5,7 +5,8 @@ import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 
-import ButtonWithMenu from 'components/core/button-with-menu';
+import ButtonWithMenu
+  from 'components/core/button-with-menu';
 
 // styles
 import s from './album-wrapper.css';
@@ -20,16 +21,16 @@ type Props = {
   title: string;
   position: number;
   albumsCount: number;
+  onAddFile: Function;
   titleWrapper?: (title: string) => Element<*>;
   className?: string;
   contentClassName: ?string;
   children?: Array<Element<*>>|Element<*>;
-  onAddFile?: Function;
 };
 
 const ddItems = [
   ['fromDesk', 'Upload from desktop'],
-  ['fromLink', 'Upload from Link']
+  // ['fromLink', 'Upload from Link'] // @todo
 ];
 
 export default class AlbumWrapper extends Component {
@@ -99,7 +100,13 @@ export default class AlbumWrapper extends Component {
         </div>
         <div className={classNames(s.content, contentClassName)}>
           <div className={s.menu}>
-            <ButtonWithMenu title="Upload Media" icon="upload" items={ddItems} onSelect={this.handleAdd} />
+            <ButtonWithMenu
+              title="Upload Media"
+              icon="upload"
+              items={ddItems}
+              onSelect={this.handleAdd}
+              onPrimaryClick={this.props.onAddFile}
+            />
           </div>
           {this.props.children}
         </div>

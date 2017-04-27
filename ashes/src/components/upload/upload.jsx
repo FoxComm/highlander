@@ -162,7 +162,7 @@ export default class Upload extends Component {
     );
   }
 
-  get container() {
+  get container(): ?Element<*> {
     const { children, empty } = this.props;
 
     return empty ? this.emptyContent : children;

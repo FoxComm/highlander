@@ -25,11 +25,11 @@ type Props = {
   gutterX: number;
   gutterY: number;
   spaceBetween: boolean;
-  onSort: (order: Array<number>) => void;
+  onSort: (order: Array<number>) => Promise<*>;
   loading: boolean;
   itemStyles?: Object;
-  children: Array<Element<*>>;
-}
+  children: Array<Function>;
+};
 
 type State = {
   order: Array<number>;
@@ -41,7 +41,8 @@ type State = {
   activeIndex: number;
   isPressed: boolean;
   isResizing: boolean;
-}
+  dragging: boolean;
+};
 
 /** Calculate item column/row index fitted to bounds */
 const clamp = (n, min, max) => Math.max(Math.min(n, max), min);
@@ -58,13 +59,13 @@ class SortableTiles extends Component {
     itemHeight: 286,
     spaceBetween: false,
     loading: false,
-    onSort: _.noop,
+    onSort: () => Promise.resolve([]),
     children: [],
   };
 
   state: State = {
-    order: _.range(Children.count(this.props.children)),
-    layout: new Array(Children.count(this.props.children)).fill([0, 0]),
+    order: _.range(this.props.children.length),
+    layout: new Array(this.props.children.length).fill([0, 0]),
     columns: 3,
     gutter: this.props.gutterX,
     mouse: [0, 0],
@@ -72,6 +73,7 @@ class SortableTiles extends Component {
     activeIndex: 0, // key of the last pressed component
     isPressed: false,
     isResizing: false,
+    dragging: false,
   };
 
   container: HTMLElement; // Container element
@@ -95,11 +97,11 @@ class SortableTiles extends Component {
 
   componentWillReceiveProps(nextProps: Props) {
     const childrenChanged = !nextProps.loading && this.props.loading;
-    const childrenNumberChanged = Children.count(nextProps.children) !== Children.count(this.props.children);
+    const childrenNumberChanged = nextProps.children.length !== this.props.children.length;
 
     if (childrenChanged || childrenNumberChanged) {
       /** reset order to [0, ..., n-1] when new children array arrives */
-      const order = _.range(Children.count(nextProps.children));
+      const order = _.range(nextProps.children.length);
 
       this.recalculateLayout(order);
     }
@@ -195,6 +197,7 @@ class SortableTiles extends Component {
       this.setState({
         mouse,
         activeIndex: to,
+        dragging: true,
       });
     }
   }
@@ -211,14 +214,17 @@ class SortableTiles extends Component {
 
   @autobind
   handleMouseUp() {
-    console.log('handleMouseUp');
     if (this.state.isPressed) {
-      this.props.onSort(this.state.order);
+      this.props.onSort(this.state.order).then(() => {
+        this.setState({ dragging: false })
+      });
+    } else {
+      this.setState({ dragging: false });
     }
 
     this.setState({
       isPressed: false,
-      delta: [0, 0]
+      delta: [0, 0],
     });
   }
 
@@ -288,7 +294,7 @@ class SortableTiles extends Component {
         className={classNames(styles.item, { [styles.isActive]: isActive })}
         style={itemStyles}
       >
-        {this.props.children[item]}
+        {this.props.children[item](this.state.dragging)}
       </div>
     );
   }

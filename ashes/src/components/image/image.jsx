@@ -17,13 +17,13 @@ type Props = {
   src: string,
   size?: 'cover' | 'contain',
   loader?: string|Element<*>;
-}
+};
 
 type State = {
   ready: boolean;
   error: boolean;
   src?: string;
-}
+};
 
 export default class ImageLoader extends Component {
   props: Props;
@@ -76,7 +76,6 @@ export default class ImageLoader extends Component {
 
   @autobind
   handleLoad(): void {
-    console.log('handleLoad');
     if (!this.img) {
       return;
     }
@@ -95,14 +94,7 @@ export default class ImageLoader extends Component {
   }
 
   get image(): ?Element<any> {
-    let img = (
-      <ProductImage
-        src={this.state.src}
-        width={286}
-        height={286}
-        key={this.props.id}
-      />
-    );
+    let img = <ProductImage src={this.state.src} width={286} height={286} />;
 
     if (this.props.size && this.state.src) {
       let styles = {
@@ -123,10 +115,8 @@ export default class ImageLoader extends Component {
 
     return (
       <div className={className}>
-        {[
-          this.loader,
-          this.image,
-        ]}
+        {this.loader}
+        {this.image}
       </div>
     );
   }

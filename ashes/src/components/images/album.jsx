@@ -112,8 +112,7 @@ export default class Album extends Component {
   }
 
   @autobind
-  @debounce(300)
-  handleSortImages(order: Array<number>): void {
+  handleSortImages(order: Array<number>): Promise<*> {
     const album = { ...this.props.album };
 
     const newOrder = [];
@@ -124,13 +123,14 @@ export default class Album extends Component {
 
     album.images = newOrder;
 
-    this.props.editAlbum(album);
+    return this.props.editAlbum(album);
   }
 
   @autobind
-  handleMove(direction: number): void {
+  handleMove(direction: number): Promise<*> {
     const position = this.props.position + direction;
-    this.props.moveAlbum(position);
+
+    return this.props.moveAlbum(position);
   }
 
   get editAlbumDialog(): ?Element<*> {
@@ -198,15 +198,20 @@ export default class Album extends Component {
           {album.images.map((image: ImageFile, idx: number) => {
             if (image.key && image.id) this.idsToKey[image.id] = image.key;
             const imagePid = image.key || this.idsToKey[image.id] || image.id;
-            return (
+
+            const func = (disabled) =>
               <Image
                 image={image}
                 imagePid={imagePid}
                 editImage={(form: ImageInfo) => this.props.editImage(idx, form)}
                 deleteImage={() => this.props.deleteImage(idx)}
                 key={imagePid}
-              />
-            );
+                disabled={disabled}
+              />;
+
+            func.key = imagePid;
+
+            return func;
           })}
         </SortableTiles>
       </Upload>

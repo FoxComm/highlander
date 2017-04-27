@@ -23,6 +23,7 @@ export type Props = {
   editImage: (info: ImageInfo) => Promise<*>;
   deleteImage: () => Promise<*>;
   imagePid: string|number;
+  disabled?: boolean;
 };
 
 type State = {
@@ -38,11 +39,16 @@ export default class Image extends Component<void, Props, State> {
     editMode: false,
     deleteMode: false,
     saveInProgress: false,
+    disabled: false,
   };
 
   @autobind
   handleEditImage(): void {
-    this.setState({ editMode: true });
+    const { disabled } = this.props;
+
+    if (!disabled) {
+      this.setState({ editMode: true });
+    }
   }
 
   @autobind
@@ -131,6 +137,7 @@ export default class Image extends Component<void, Props, State> {
 
   render() {
     const { image, imagePid } = this.props;
+    const { disabled } = this.props;
 
     return (
       <div>
@@ -142,6 +149,7 @@ export default class Image extends Component<void, Props, State> {
           title={image.title}
           secondaryTitle={`Uploaded ${image.createdAt || moment().format('MM/DD/YYYY HH: mm')}`}
           actions={this.getImageActions()}
+          onImageClick={this.handleEditImage}
           loading={image.loading}
           key={imagePid}
         />
