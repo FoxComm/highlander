@@ -21,6 +21,7 @@ import responses.cord.CartResponse
 import responses.cord.base.CordResponseLineItem
 import responses._
 import models.cord.CordPaymentState
+import models.payment.ExternalCharge
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.PaymentPayloads._
 import services.carts.CartTotaler
@@ -49,7 +50,7 @@ class CartIntegrationTest
       }
 
       "displays 'auth' payment state" in new PaymentStateFixture {
-        CreditCardCharges.findById(ccc.id).extract.map(_.state).update(CreditCardCharge.Auth).gimme
+        CreditCardCharges.findById(ccc.id).extract.map(_.state).update(ExternalCharge.Auth).gimme
 
         val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
         fullCart.paymentState must === (CordPaymentState.Auth)

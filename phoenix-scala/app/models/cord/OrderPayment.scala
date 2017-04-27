@@ -3,12 +3,13 @@ package models.cord
 import cats.data.ValidatedNel
 import failures.Failure
 import models.payment.PaymentMethod
-import models.payment.PaymentMethod.ApplePay
-import models.payment.applepay.{ApplePayCharge, ApplePayCharges, ApplePayment, ApplePayments}
+import models.payment.PaymentMethod.ExternalPayment
+import models.payment.applepay.{ApplePayment, ApplePayments}
 import models.payment.creditcard.{CreditCard, CreditCards}
 import models.payment.giftcard.{GiftCard, GiftCards}
 import models.payment.storecredit.{StoreCredit, StoreCredits}
 import shapeless._
+import slick.lifted.{Rep, RepOption, ShapedValue}
 import utils.Money._
 import utils.Validation._
 import utils.aliases.stripe._
@@ -30,7 +31,7 @@ case class OrderPayment(id: Int = 0,
   def isStoreCredit: Boolean = paymentMethodType == PaymentMethod.StoreCredit
   def isApplePay: Boolean    = paymentMethodType == PaymentMethod.ApplePay
 
-  def isExternalFunds: Boolean = isCreditCard || isApplePay
+  def isExternalFunds: Boolean = paymentMethodType.isExternal
 
   override def validate: ValidatedNel[Failure, OrderPayment] = {
     val amountOk = paymentMethodType match {
@@ -115,12 +116,18 @@ object OrderPayments
   def findAllCreditCardsForOrder(cordRef: Rep[String]): QuerySeq =
     filter(_.cordRef === cordRef).creditCards
 
+  def findAllExternalPayments(cordRef: Rep[String]): QuerySeq =
+    filter(_.cordRef === cordRef).externalPayments
+
   object scope {
     implicit class OrderPaymentsQuerySeqConversions(q: QuerySeq) {
       def giftCards: QuerySeq    = q.byType(PaymentMethod.GiftCard)
       def creditCards: QuerySeq  = q.byType(PaymentMethod.CreditCard)
       def storeCredits: QuerySeq = q.byType(PaymentMethod.StoreCredit)
       def applePays: QuerySeq    = q.byType(PaymentMethod.ApplePay)
+
+      def externalPayments: QuerySeq =
+        q.filter(_.paymentMethodType.inSet(Set(PaymentMethod.CreditCard, PaymentMethod.ApplePay)))
 
       def byType(pmt: PaymentMethod.Type): QuerySeq =
         q.filter(_.paymentMethodType === (pmt: PaymentMethod.Type))

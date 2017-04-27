@@ -3,12 +3,13 @@ import faker.Lorem
 import models.location.Region
 import models.shipping._
 import payloads.AddressPayloads.CreateAddressPayload
+import payloads.CapturePayloads.{Capture, CaptureLineItem, ShippingCost}
 import payloads.CartPayloads.CreateCart
 import payloads.CustomerPayloads.CreateCustomerPayload
 import payloads.LineItemPayloads._
 import payloads.PaymentPayloads.CreateApplePayPayment
 import payloads.UpdateShippingMethod
-import responses.CustomerResponse
+import responses.{CaptureResponse, CustomerResponse}
 import responses.cord._
 import services.StripeTest
 import testutils._
@@ -18,7 +19,7 @@ import utils.MockedApis
 import utils.seeds.{Factories, ShipmentSeeds}
 
 class ApplePayIntegrationTest
-    extends StripeTest
+    extends IntegrationTestBase
     with PhoenixStorefrontApi
     with ApiFixtures
     with ApiFixtureHelpers
@@ -26,56 +27,85 @@ class ApplePayIntegrationTest
     with DefaultJwtAdminAuth {
 
   "POST v1/my/payment-methods/apple-pay" - {
-    "Apple pay checkout with funds authorized" in new ProductSku_ApiFixture with ShipmentSeeds {
-      val customer = customersApi
-        .create(CreateCustomerPayload(email = "test@bar.com"))
-        .as[CustomerResponse.Root]
+    "Apple pay checkout with funds authorized" in new ApplePayFixture {
 
-      val cart   = cartsApi.create(CreateCart(email = customer.email)).as[CartResponse]
-      val refNum = cart.referenceNumber
+      val payment = CreateApplePayPayment(stripeToken = apToken)
 
-      // we don't have shipping method API creation as of PR #910
-      val shippingMethod: ShippingMethod = ShippingMethods
-        .create(
-            Factories.shippingMethods.head.copy(conditions = lowConditions.some,
-                                                adminDisplayName =
-                                                  ShippingMethod.expressShippingNameForAdmin))
-        .gimme
-
-      val randomAddress = CreateAddressPayload(regionId = Region.californiaId,
-                                               name = Lorem.letterify("???"),
-                                               address1 = Lorem.letterify("???"),
-                                               city = Lorem.letterify("???"),
-                                               zip = Lorem.numerify("#####"))
-
-      cartsApi(refNum).shippingAddress.create(randomAddress).mustBeOk()
-
-      val lineItemsPayloads = List(UpdateLineItemsPayload(skuCode, 2))
-      cartsApi(refNum).lineItems.add(lineItemsPayloads).mustBeOk()
-
-      // test with cc token cause we can't create Apple Pay token, they act virtually the same tho
-      val payment = CreateApplePayPayment(
-          stripeToken = card.getId,
-          stripeCustomerId = realStripeCustomerId,
-          cartRef = refNum
-      )
-
-      val (customerResponse, customerLoginData) = api_newCustomerWithLogin()
-      withCustomerAuth(customerLoginData, customerResponse.id) { implicit auth ⇒
+      withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
         storefrontPaymentsApi.applePay.create(payment).mustBeOk()
       }
 
-      val grandTotal = cartsApi(refNum).shippingMethod
-        .update(UpdateShippingMethod(shippingMethod.id))
-        .asTheResult[CartResponse]
-        .totals
-        .total
-
       val skuInCart = cartsApi(refNum).checkout().as[OrderResponse].lineItems.skus.onlyElement
       skuInCart.sku must === (skuCode)
-      skuInCart.quantity must === (2)
+      skuInCart.quantity must === (1)
 
     }
   }
 
+  "One click apple pay checkout should work" in new ApplePayFixture {
+    val payment = CreateApplePayPayment(stripeToken = apToken)
+
+    withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
+      storefrontCartsApi.applePayCheckout(payment).as[OrderResponse].referenceNumber must === (
+          cart.referenceNumber)
+    }
+  }
+
+  "Capture Apple Pay" - {
+    "Capture authorized payments" in new ApplePayFixture {
+      val payment = CreateApplePayPayment(stripeToken = apToken)
+
+      withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
+        val orderResponse = storefrontCartsApi.applePayCheckout(payment).as[OrderResponse]
+        val skuInCart     = orderResponse.lineItems.skus
+
+        val capturePayload =
+          Capture(orderResponse.referenceNumber,
+                  skuInCart.map(sku ⇒ CaptureLineItem(sku.referenceNumbers.head, sku.sku)),
+                  ShippingCost(400, "USD"))
+
+        val captureResponse = captureApi.capture(capturePayload).as[CaptureResponse]
+
+        captureResponse.order must === (orderResponse.referenceNumber)
+        captureResponse.captured must === (orderResponse.totals.total)
+      }
+    }
+  }
+
+  trait ApplePayFixture extends ProductSku_ApiFixture with ShipmentSeeds {
+    val apToken           = "tok_1A9YBQJVm1XvTUrO3V8caBvF"
+    val customerLoginData = TestLoginData(email = "test@bar.com", password = "pwd")
+    val customer = customersApi
+      .create(CreateCustomerPayload(email = customerLoginData.email,
+                                    password = customerLoginData.password.some))
+      .as[CustomerResponse.Root]
+
+    val cart = cartsApi.create(CreateCart(customerId = customer.id.some)).as[CartResponse]
+
+    val refNum = cart.referenceNumber
+
+    // we don't have shipping method API creation as of PR #910
+    val shippingMethod: ShippingMethod = ShippingMethods
+      .create(
+          Factories.shippingMethods.head.copy(conditions = lowConditions.some,
+                                              adminDisplayName =
+                                                ShippingMethod.expressShippingNameForAdmin))
+      .gimme
+
+    val randomAddress = CreateAddressPayload(regionId = Region.californiaId,
+                                             name = Lorem.letterify("???"),
+                                             address1 = Lorem.letterify("???"),
+                                             city = Lorem.letterify("???"),
+                                             zip = Lorem.numerify("#####"))
+
+    cartsApi(refNum).shippingAddress.create(randomAddress).mustBeOk()
+
+    val lineItemsPayloads = List(UpdateLineItemsPayload(skuCode, 1))
+    cartsApi(refNum).lineItems.add(lineItemsPayloads).mustBeOk()
+
+    cartsApi(refNum).shippingMethod
+      .update(UpdateShippingMethod(shippingMethod.id))
+      .asTheResult[CartResponse]
+
+  }
 }

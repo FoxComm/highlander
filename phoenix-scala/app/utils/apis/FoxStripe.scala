@@ -80,19 +80,23 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
     stripeCustomerId.fold(newCustomer)(existingCustomer)
   }
 
-  def authorizeAmount(customerId: String,
-                      paymentSourceId: String,
+  def authorizeAmount(paymentSourceId: String,
                       amount: Int,
-                      currency: Currency): Result[StripeCharge] = {
-    val chargeMap: Map[String, Object] = Map(
+                      currency: Currency,
+                      customerId: Option[String]): Result[StripeCharge] = {
+    import scala.collection.mutable
+
+    val chargeMap: mutable.Map[String, AnyRef] = mutable.Map(
         "amount"   → amount.toString,
         "currency" → currency.toString,
-        "customer" → customerId,
         "source"   → paymentSourceId,
         "capture"  → (false: java.lang.Boolean)
     )
 
-    stripe.createCharge(chargeMap)
+    // we must pass customer.id for cc and must not for Apple Pay
+    customerId map (cid ⇒ chargeMap += ("customer" → cid))
+
+    stripe.createCharge(chargeMap.toMap)
   }
 
   def captureCharge(chargeId: String, amount: Int): Result[StripeCharge] =

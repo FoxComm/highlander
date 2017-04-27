@@ -30,7 +30,7 @@ trait CordQueries {
           .filter(_.orderPaymentId === payment.id)
           .map(_.state)
           .one
-          .map(_.map(fromCCState))
+          .map(_.map(fromExternalState))
       case PaymentMethod.GiftCard ⇒
         GiftCardAdjustments.lastPaymentState(payment.id).map(_.map(fromInStoreState))
       case PaymentMethod.StoreCredit ⇒
@@ -40,7 +40,7 @@ trait CordQueries {
           .filter(_.orderPaymentId === payment.id)
           .map(_.state)
           .one
-          .map(_.map(fromApplePayState))
+          .map(_.map(fromExternalState))
     }
   }
 }

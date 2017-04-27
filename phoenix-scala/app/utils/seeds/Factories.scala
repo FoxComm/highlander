@@ -47,7 +47,7 @@ object Factories
   def creditCardCharge =
     CreditCardCharge(creditCardId = creditCard.id,
                      orderPaymentId = orderPayment.id,
-                     chargeId = "foo",
+                     stripeChargeId = "foo",
                      amount = 25)
 
   def reason(storeAdminId: Int) =
