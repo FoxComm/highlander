@@ -6,7 +6,6 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import { clearErrorsFor } from '@foxcomm/wings';
 
 // components
 import { TextInput } from 'ui/text-input';
@@ -25,7 +24,6 @@ type Props = AccountDetailsProps & {
   fetchAccount: () => Promise<*>,
   updateAccount: (payload: Object) => Promise<*>,
   updateState: AsyncStatus,
-  clearErrorsFor: (...args: Array<string>) => void,
 }
 
 type State = {
@@ -44,7 +42,7 @@ class EditEmail extends Component {
   }
 
   componentWillUnmount() {
-    this.props.clearErrorsFor('updateAccount');
+    this.props.clearAccountErrors();
   }
 
   @autobind
@@ -60,6 +58,7 @@ class EditEmail extends Component {
       email: this.state.email,
     }).then(() => {
       this.props.toggleEmailModal();
+      this.props.clearAccountErrors();
     });
   }
 
@@ -68,6 +67,7 @@ class EditEmail extends Component {
     const email = this.props.account.email;
     this.setState({ email });
     this.props.toggleEmailModal();
+    this.props.clearAccountErrors();
   }
 
   render() {
@@ -112,5 +112,4 @@ const mapStateToProps = (state) => {
 
 export default connect(mapStateToProps, {
   ...actions,
-  clearErrorsFor,
 })(EditEmail);
