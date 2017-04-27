@@ -146,7 +146,6 @@ export default class ColumnSelector extends React.Component {
       <div styleName="column-selector">
         <Dropdown className={styles.dropdown}
                   listClassName={classNames(styles.list, { [styles._hasDraggingItem]: this.state.hasDraggingItem })}
-                  placeholder="Toggle Columns"
                   changeable={false}
                   inputFirst={false}
                   dropdownProps={{ icon: 'settings-col' }}

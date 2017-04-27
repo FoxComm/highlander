@@ -72,7 +72,7 @@ export default class GenericDropdown extends Component {
   props: Props;
 
   static defaultProps = {
-    placeholder: '- Select -',
+    placeholder: '',
     changeable: true,
     disabled: false,
     primary: false,
@@ -374,15 +374,16 @@ export default class GenericDropdown extends Component {
   }
 
   get controls(): Element<*> {
-    const { inputFirst, noControls } = this.props;
+    const { inputFirst, noControls, placeholder } = this.props;
 
     if (noControls) {
       return this.dropdownInput;
     }
+    const rightInput = inputFirst ? this.dropdownButton : this.dropdownInput;
 
     return createFragment({
       left: inputFirst ? this.dropdownInput : this.dropdownButton,
-      right: inputFirst ? this.dropdownButton : this.dropdownInput,
+      right: placeholder ? rightInput : null,
     });
   }
 
