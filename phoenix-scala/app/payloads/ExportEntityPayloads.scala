@@ -25,13 +25,13 @@ object ExportEntityPayloads {
     case object GiftCardTransactions extends ExportableEntity {
       override def searchView: String = s"${entity}_view"
     }
-    case object Inventory               extends ExportableEntity
-    case object InventoryTransactions   extends ExportableEntity
-    case object Notes                   extends ExportableEntity
-    case object Orders                  extends ExportableEntity
-    case object Products                extends ExportableEntity
-    case object Promotions              extends ExportableEntity
-    case object Skus                    extends ExportableEntity {
+    case object Inventory             extends ExportableEntity
+    case object InventoryTransactions extends ExportableEntity
+    case object Notes                 extends ExportableEntity
+    case object Orders                extends ExportableEntity
+    case object Products              extends ExportableEntity
+    case object Promotions            extends ExportableEntity
+    case object Skus extends ExportableEntity {
       override def searchView: String = s"sku_search_view"
     }
     case object StoreAdmins             extends ExportableEntity
