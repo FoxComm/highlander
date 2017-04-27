@@ -4,7 +4,7 @@
 import _ from 'lodash';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
-import React, { Component, Element } from 'react';
+import React, { Component, Element, Children } from 'react';
 import { Motion, spring } from 'react-motion';
 
 // styles
