@@ -178,7 +178,6 @@ export default class Album extends Component {
   @autobind
   getAlbumActions(): Array<any> {
     return [
-      // { name: 'add', handler: this.handleAddFiles },
       { name: 'edit', handler: this.handleEditAlbum },
       { name: 'trash', handler: this.handleArchiveAlbum },
     ];

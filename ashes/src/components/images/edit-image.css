@@ -15,8 +15,12 @@
   justify-content: center;
   align-items: center;
   margin-right: 20px;
-  /*border: 1px solid #d9d9d9;*/
-  box-shadow: 0 0 0.5px #ccc inset;
+  border: 1px solid #d9d9d9;
+
+  @media (min-resolution: 120dpi) {
+    box-shadow: 0 0 0.5px #ccc inset;
+    border: none;
+  }
 }
 
 .sidebar {

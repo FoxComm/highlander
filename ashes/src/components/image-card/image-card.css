@@ -13,6 +13,11 @@
     width: 100%;
     pointer-events: none;
   }
+
+  @media (min-resolution: 120dpi) {
+    box-shadow: 0 0 0.5px #999 inset;
+    border: none;
+  }
 }
 
 .actions {

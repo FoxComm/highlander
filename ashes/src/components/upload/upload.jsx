@@ -41,7 +41,7 @@ export default class Upload extends Component {
 
   files: Array<FileInfo> = [];
 
-  _fileInput: any;
+  _fileInput: HTMLElement;
 
   componentDidMount() {
     this.dragCounter = 0;
