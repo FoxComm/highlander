@@ -106,6 +106,7 @@ class ChangePassword extends Component {
               styleName="text-input"
               value={this.state.currentPassword}
               name="currentPassword"
+              required
             />
           </FormField>
           <FormField name="newPassword1" styleName="form-field" required>
@@ -115,6 +116,7 @@ class ChangePassword extends Component {
               value={this.state.newPassword1}
               name="newPassword1"
               minLength={8}
+              required
             />
           </FormField>
           <FormField name="newPassword2" styleName="form-field" required>
@@ -124,6 +126,7 @@ class ChangePassword extends Component {
               value={this.state.newPassword2}
               name="newPassword2"
               minLength={8}
+              required
             />
           </FormField>
           <ErrorAlerts error={this.state.error} />
