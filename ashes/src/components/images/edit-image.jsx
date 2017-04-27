@@ -68,7 +68,7 @@ class EditImage extends Component {
     this.img = new Image();
     this.img.onload = () => {
       if (this.img) {
-        this.setState({ width: this.img.width, height: this.img.height })
+        this.setState({ width: this.img.width, height: this.img.height });
       }
     };
     this.img.onerror = () => this.setState({ width: 0, height: 0 });

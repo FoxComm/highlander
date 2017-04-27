@@ -137,7 +137,6 @@ export default class Image extends Component<void, Props, State> {
 
   render() {
     const { image, imagePid } = this.props;
-    const { disabled } = this.props;
 
     return (
       <div>

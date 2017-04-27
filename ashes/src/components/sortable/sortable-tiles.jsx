@@ -4,7 +4,7 @@
 import _ from 'lodash';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
-import React, { Component, Element, Children } from 'react';
+import React, { Component, Element } from 'react';
 import { Motion, spring } from 'react-motion';
 
 // styles
@@ -216,7 +216,7 @@ class SortableTiles extends Component {
   handleMouseUp() {
     if (this.state.isPressed) {
       this.props.onSort(this.state.order).then(() => {
-        this.setState({ dragging: false })
+        this.setState({ dragging: false });
       });
     } else {
       this.setState({ dragging: false });
