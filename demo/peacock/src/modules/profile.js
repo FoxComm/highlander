@@ -36,6 +36,8 @@ const _changePassword = createAsyncActions(
 export const fetchAccount = _fetchAccount.perform;
 export const updateAccount = _updateAccount.perform;
 export const changePassword = _changePassword.perform;
+export const clearPasswordErrors = _changePassword.clearErrors;
+export const clearAccountErrors = _updateAccount.clearErrors;
 
 const initialState = {
   account: {},

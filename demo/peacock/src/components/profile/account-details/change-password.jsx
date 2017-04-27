@@ -1,25 +1,24 @@
 // @flow
 
+import React, { Component } from 'react';
+
 // libs
 import _ from 'lodash';
-import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
 // components
-
-
 import ShowHidePassword from 'ui/forms/show-hide-password';
 import { FormField } from 'ui/forms';
 import CheckoutForm from 'pages/checkout/checkout-form';
 
-// styles
-import styles from './account-details.css';
-
 import * as actions from 'modules/profile';
 
+// types
 import type { AsyncStatus } from 'types/async-actions';
 import type { AccountDetailsProps } from 'types/profile';
+
+import styles from './account-details.css';
 
 type Props = AccountDetailsProps & {
   fetchAccount: () => Promise<*>,
@@ -58,6 +57,7 @@ class ChangePassword extends Component {
   handleCancel() {
     this.clearState();
     this.props.togglePasswordModal();
+    this.props.clearPasswordErrors();
   }
 
   @autobind
