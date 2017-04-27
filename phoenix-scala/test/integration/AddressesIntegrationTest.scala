@@ -164,6 +164,13 @@ class AddressesIntegrationTest
       countryWithRegions.country.id must === (234)
       countryWithRegions.country.alpha2 must === ("US")
 
+      countryWithRegions.regions.foreach(r ⇒
+            r.abbreviation match {
+          case Some("CA") ⇒ r.name must === ("California")
+          case Some("CO") ⇒ r.name must === ("Colorado")
+          case Some("DE") ⇒ r.name must === ("Delaware")
+          case _          ⇒
+      })
     }
   }
 
