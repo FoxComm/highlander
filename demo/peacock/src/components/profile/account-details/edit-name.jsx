@@ -6,7 +6,6 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import { clearErrorsFor } from '@foxcomm/wings';
 
 // components
 import { TextInput } from 'ui/text-input';
@@ -45,7 +44,7 @@ class EditName extends Component {
   }
 
   componentWillUnmount() {
-    this.props.clearErrorsFor('updateAccount');
+    this.props.clearAccountErrors();
   }
 
   @autobind
@@ -61,6 +60,7 @@ class EditName extends Component {
       name: this.state.name,
     }).then(() => {
       this.props.toggleNameModal();
+      this.props.clearAccountErrors();
     });
   }
 
@@ -69,6 +69,7 @@ class EditName extends Component {
     const name = this.props.account.name;
     this.setState({ name });
     this.props.toggleNameModal();
+    this.props.clearAccountErrors();
   }
 
   render() {
@@ -112,5 +113,4 @@ const mapStateToProps = (state) => {
 
 export default connect(mapStateToProps, {
   ...actions,
-  clearErrorsFor,
 })(EditName);
