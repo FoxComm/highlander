@@ -8,20 +8,20 @@ import utils.ADT
 abstract class PaymentMethod {}
 
 object PaymentMethod {
-  sealed trait Payment {
-    val isExternal = false
-    val isInternal = false
+  sealed trait PaymentTag {
+    def isExternal: Boolean = false
+    def isInternal: Boolean = false
   }
 
-  sealed trait InternalPayment extends Payment {
-    override val isInternal = true
+  sealed trait InternalPayment extends PaymentTag {
+    override def isInternal: Boolean = true
   }
 
-  sealed trait ExternalPayment extends Payment {
-    override val isExternal = true
+  sealed trait ExternalPayment extends PaymentTag {
+    override def isExternal: Boolean = true
   }
 
-  sealed trait Type extends Product with Serializable with Payment
+  sealed trait Type extends Product with Serializable with PaymentTag
 
   case object GiftCard    extends Type with InternalPayment
   case object StoreCredit extends Type with InternalPayment
