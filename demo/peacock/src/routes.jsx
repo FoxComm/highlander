@@ -36,6 +36,8 @@ export default function makeRoutes(getStore) {
         <IndexRoute component={HomePage} />
         <Route name="profile" path="/profile" component={Profile} onEnter={handleProfileEnter} />
         <Route path="/checkout/done" component={OrderPlaced} />
+        <Route path="men" component={MensCatPage} />
+        <Route path="women" component={WomensCatPage} />
         <Route name="product" path="/products/:productSlug" component={Pdp} />
         <Route name="gift-cards" path="/gift-cards" component={Pdp} />
         <Route name="search" path="/search/:term" component={Search} />
