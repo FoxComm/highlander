@@ -52,13 +52,17 @@ const QUALIFIERS = [
     qualifierTypes: [
       {
         type: 'noQualifier',
-        text: 'No qualifier'
+        text: 'No qualifier',
       },
       {
         type: 'numUnits',
         text: 'Total units in order',
         value: 0,
         widget: 'counter',
+        queryObject: {
+          mainCondition: '$and',
+          conditions: [],
+        },
         template: (comp) => {
           return (
             <div>
@@ -70,7 +74,11 @@ const QUALIFIERS = [
         },
         additional: (comp) => {
           return (
-            <ElasticQueryGenerator/>
+            <ElasticQueryGenerator
+              mainCondition={_.get(comp, 'qualifier.queryObject.mainCondition', '$and')}
+              conditions={_.get(comp, 'qualifier.queryObject.conditions', [])}
+              setMainCondition={comp.setQualQueryMain}
+              setConditions={comp.setQualQueryCond}/>
           );
         },
       },
@@ -98,7 +106,7 @@ const QUALIFIERS = [
   }
 ];
 
-const DISCOUNT_TYPES = QUALIFIERS.map(item => [item.discountType,item.text]);
+const DISCOUNT_TYPES = QUALIFIERS.map( item => [item.discountType,item.text]);
 
 const QUALIFIER_TYPES = QUALIFIERS.map( item => {
   let cell = {
@@ -243,33 +251,13 @@ export default class Discounts extends Component {
 
   @autobind
   offerTypeChange(value) {
-    let widgetValue = _.find(OFFERS, i => i.type == value).value || null;
+    let widget = _.find(OFFERS, i => i.type == value);
     this.offer = {
       ...this.offer,
       offerType: value,
-      widgetValue: widgetValue
+      widgetValue: widget.value,
     };
     this.props.onChangeOffer(this.offer);
-  }
-
-  @autobind
-  renderDiscount() {
-    return(<Dropdown
-      className="autowidth_dd"
-      items={DISCOUNT_TYPES}
-      value={this.qualifier.discountType}
-      onChange={this.discountTypeChange}/>);
-  }
-
-  @autobind
-  renderQualifier() {
-    let discountType = this.qualifier.discountType;
-    let items = _.find(QUALIFIER_TYPES, i => i.scope == discountType).list;
-    return(<Dropdown
-      className="autowidth_dd"
-      items={items}
-      value={this.qualifier.qualifierType}
-      onChange={this.qualifierTypeChange}/>);
   }
 
   @autobind
@@ -277,32 +265,16 @@ export default class Discounts extends Component {
     let items = _.find(QUALIFIER_TYPES, i => i.scope == value).list;
     let qualifierType = _.get(items, '0.0');
     let qualifierTypes = _.find(QUALIFIERS, i => i.discountType == value).qualifierTypes;
-    let widgetValue = _.find(qualifierTypes, i => i.type == qualifierType).value || null;
+    let widget = _.find(qualifierTypes, i => i.type == qualifierType);
 
     this.qualifier = {
       ...this.qualifier,
       discountType: value,
       qualifierType: qualifierType,
-      widgetValue: widgetValue
+      widgetValue: widget.value,
+      queryObject: widget.queryObject,
     };
     this.props.onChangeQualifier(this.qualifier);
-  }
-
-  @autobind
-  renderOffer() {
-    return(<Dropdown
-      className="autowidth_dd"
-      items={OFFER_TYPES}
-      value={this.offer.offerType}
-      onChange={this.offerTypeChange}/>);
-  }
-
-  @autobind
-  renderOfferWidget() {
-    let comp = this;
-    let offerType = this.offer.offerType;
-    let renderWidget = _.find(OFFERS, i => i.type == offerType).template || function(){return null;};
-    return renderWidget(comp);
   }
 
   @autobind
@@ -310,24 +282,15 @@ export default class Discounts extends Component {
     let discountType = this.qualifier.discountType;
     let qualifierType = value;
     let qualifierTypes = _.find(QUALIFIERS, i => i.discountType == discountType).qualifierTypes;
-    let widgetValue = _.find(qualifierTypes, i => i.type == qualifierType).value || null;
+    let widget = _.find(qualifierTypes, i => i.type == qualifierType);
 
     this.qualifier = {
       ...this.qualifier,
       qualifierType: value,
-      widgetValue: widgetValue
+      widgetValue: widget.value,
+      queryObject: widget.queryObject,
     };
     this.props.onChangeQualifier(this.qualifier);
-  }
-
-  @autobind
-  renderQualWidget() {
-    let comp = this;
-    let discountType = this.qualifier.discountType;
-    let qualifierType = this.qualifier.qualifierType;
-    let qualifierTypes = _.find(QUALIFIERS, i => i.discountType == discountType).qualifierTypes;
-    let renderWidget = _.find(qualifierTypes, i => i.type == qualifierType).template || function(){return null;};
-    return renderWidget(comp);
   }
 
   @autobind
@@ -357,6 +320,7 @@ export default class Discounts extends Component {
     this.props.onChangeQualifier(this.qualifier);
   }
 
+
   @autobind
   setValueOffer(value) {
     this.offer = {
@@ -382,6 +346,72 @@ export default class Discounts extends Component {
       value: this.offer.widgetValue.value,
     };
     this.setValueOffer(widgetValue);
+  }
+
+  @autobind
+  setQualQueryCond(value) {
+    this.qualifier.queryObject = {
+      ...this.qualifier.queryObject,
+      conditions: value,
+    };
+    this.props.onChangeQualifier(this.qualifier);
+  }
+
+  @autobind
+  setQualQueryMain(value) {
+    this.qualifier.queryObject = {
+      ...this.qualifier.queryObject,
+      mainCondition: value,
+    };
+    this.props.onChangeQualifier(this.qualifier);
+  }
+
+  @autobind
+  renderDiscount() {
+    return(<Dropdown
+      className="autowidth_dd"
+      items={DISCOUNT_TYPES}
+      value={this.qualifier.discountType}
+      onChange={this.discountTypeChange}/>);
+  }
+
+  @autobind
+  renderQualifier() {
+    let discountType = this.qualifier.discountType;
+    let items = _.find(QUALIFIER_TYPES, i => i.scope == discountType).list;
+    return(<Dropdown
+      className="autowidth_dd"
+      items={items}
+      value={this.qualifier.qualifierType}
+      onChange={this.qualifierTypeChange}/>);
+  }
+
+  @autobind
+  renderOffer() {
+    return(<Dropdown
+      className="autowidth_dd"
+      items={OFFER_TYPES}
+      value={this.offer.offerType}
+      onChange={this.offerTypeChange}/>);
+  }
+
+  @autobind
+  renderOfferWidget() {
+    let comp = this;
+    let offerType = this.offer.offerType;
+    let renderWidget = _.find(OFFERS, i => i.type == offerType).template || function(){return null;};
+    return renderWidget(comp);
+  }
+
+
+  @autobind
+  renderQualWidget() {
+    let comp = this;
+    let discountType = this.qualifier.discountType;
+    let qualifierType = this.qualifier.qualifierType;
+    let qualifierTypes = _.find(QUALIFIERS, i => i.discountType == discountType).qualifierTypes;
+    let renderWidget = _.find(qualifierTypes, i => i.type == qualifierType).template || function(){return null;};
+    return renderWidget(comp);
   }
 
   @autobind

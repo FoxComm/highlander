@@ -24,24 +24,6 @@ class ElasticQueryGenerator extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      mainCondition: _.get(SELECT_CRITERIA, '0.0'),
-      conditions: [],
-    };
-  }
-
-  @autobind
-  setMainCondition(value) {
-    this.setState({
-      mainCondition: value,
-    });
-  }
-
-  @autobind
-  setConditions(value) {
-    this.setState({
-      conditions: value,
-    });
   }
 
   get mainCondition() {
@@ -52,8 +34,8 @@ class ElasticQueryGenerator extends React.Component {
         <span className={prefixed('match-dropdown')}>
           <Dropdown
             name="matchCriteria"
-            value={this.state.mainCondition}
-            onChange={value => this.setMainCondition(value)}
+            value={this.props.mainCondition}
+            onChange={value => this.props.setMainCondition(value)}
             items={SELECT_CRITERIA}
           />
         </span>
@@ -69,9 +51,9 @@ class ElasticQueryGenerator extends React.Component {
       <div>
         {this.mainCondition}
         <QueryBuilder
-          mainCondition={this.state.mainCondition}
-          conditions={this.state.conditions}
-          setConditions={this.setConditions}
+          mainCondition={this.mainCondition}
+          conditions={this.props.conditions}
+          setConditions={this.props.setConditions}
         />
       </div>
     );

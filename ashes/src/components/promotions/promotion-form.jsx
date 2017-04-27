@@ -88,7 +88,7 @@ export default class PromotionForm extends ObjectDetails {
     );
   }
 
-  @autobind
+  /*@autobind
   handleQualifierChange(qualifier: Object) {
     const newPromotion = setDiscountAttr(this.props.object,
       'qualifier', qualifier
@@ -104,7 +104,7 @@ export default class PromotionForm extends ObjectDetails {
     );
 
     this.props.onUpdateObject(newPromotion);
-  }
+  }*/
 
   @autobind
   handleApplyTypeChange({target}: Object) {
@@ -127,7 +127,7 @@ export default class PromotionForm extends ObjectDetails {
     return super.renderState();
   }
 
-  renderDiscounts() {
+  /*renderDiscounts() {
     let discountChilds = [];
     const discounts = _.get(this.props.object, 'discounts', []);
     discounts.map((disc,index) => {
@@ -155,7 +155,7 @@ export default class PromotionForm extends ObjectDetails {
         {discountChilds}
       </div>
     );
-  }
+  }*/
 
   @autobind
   handleQualifyAllChange(isAllQualify) {
@@ -190,20 +190,12 @@ export default class PromotionForm extends ObjectDetails {
   }
 
   renderDiscountsSection() {
-    let qualifier = _.get(this.props.object, 'discounts.0.attributes.qualifier1.v', {
-        discountType: 'order',
-        qualifierType: 'noQualifier',
-        widgetValue: 0,
-        exGiftCardQual: true
-    });
-    let offer = _.get(this.props.object, 'discounts.0.attributes.offer1.v', {
-        offerType: 'orderPercentOff',
-        exGiftCardOffer: true
-    });
+    let qualifier = _.get(this.props.object, 'discounts.0.attributes.qualifier.v');
+    let offer = _.get(this.props.object, 'discounts.0.attributes.offer.v');
     return (<div>
         <Discounts
-          onChangeQualifier={this.handleQualifierChange1}
-          onChangeOffer={this.handleOfferChange1}
+          onChangeQualifier={this.handleQualifierChange}
+          onChangeOffer={this.handleOfferChange}
           discounts={{
             qualifier: {
               ...qualifier
@@ -211,24 +203,24 @@ export default class PromotionForm extends ObjectDetails {
             offer: {
               ...offer
             }
-        }}/>
+          }}/>
       </div>);
   }
 
-
   @autobind
-  handleQualifierChange1(qualifier: Object) {
+  handleQualifierChange(qualifier: Object) {
+    console.log(qualifier)
     const newPromotion = setDiscountAttr(this.props.object,
-      'qualifier1', qualifier
+      'qualifier', qualifier
     );
     this.props.onUpdateObject(newPromotion);
   }
-  @autobind
-  handleOfferChange1(offer: Object) {
-    const newPromotion = setDiscountAttr(this.props.object,
-      'offer1', offer
-    );
 
+  @autobind
+  handleOfferChange(offer: Object) {
+    const newPromotion = setDiscountAttr(this.props.object,
+      'offer', offer
+    );
     this.props.onUpdateObject(newPromotion);
   }
 

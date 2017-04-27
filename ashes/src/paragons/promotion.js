@@ -21,7 +21,7 @@ function addEmptyDiscount(promotion) {
     },
   };
 
-  promotion.discounts.push(discount);
+  promotion.discounts1.push(discount);
   return promotion;
 }
 
@@ -34,7 +34,32 @@ export function createEmptyPromotion() {
     qualifyAll: true,
     qualifiedCustomerGroupIds: [],
     attributes: {},
-    discounts: [],
+    discounts1: [],
+    discounts: [
+     {
+        id: null,
+        createdAt: null,
+        attributes: {
+          qualifier: {
+            t: 'qualifier',
+            v: {
+              discountType: 'order',
+              qualifierType: 'noQualifier',
+              widgetValue: 0,
+              exGiftCardQual: true,
+            }
+          },
+          offer: {
+            t: 'offer',
+            v: {
+              offerType: 'orderPercentOff',
+              exGiftCardOffer: true,
+              widgetValue: 0,
+            }
+          }
+        },
+      },
+    ]
   };
 
   return addEmptyDiscount(promotion);
