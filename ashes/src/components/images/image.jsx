@@ -51,7 +51,7 @@ export default class Image extends Component<void, Props, State> {
   }
 
   @autobind
-  handleKeyDown({ key }) {
+  handleKeyDown({ key }: KeyboardEvent) {
     if (key === 'Escape') {
       this.handleCancelEditImage();
     }
