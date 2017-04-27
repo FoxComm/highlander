@@ -37,7 +37,7 @@ class Password extends Component {
           toggle={toggleModal}
         >
           <ChangePassword
-            account={this.props.account}
+            account={account}
           />
         </Modal>
       </div>

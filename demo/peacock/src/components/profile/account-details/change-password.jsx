@@ -5,14 +5,12 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import { browserHistory } from 'lib/history';
 
 // components
-import { Link } from 'react-router';
-import Button from 'ui/buttons';
+
+
 import ShowHidePassword from 'ui/forms/show-hide-password';
-import { Form, FormField } from 'ui/forms';
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import { FormField } from 'ui/forms';
 import CheckoutForm from 'pages/checkout/checkout-form';
 
 // styles
@@ -37,7 +35,7 @@ type State = {
 };
 
 class ChangePassword extends Component {
-  props: ChangePasswordProps;
+  props: Props;
 
   state: State = {
     currentPassword: '',
@@ -115,7 +113,7 @@ class ChangePassword extends Component {
       >
         <FormField
           name="currentPassword"
-          styleName="name-field"
+          styleName="password-field"
         >
           <ShowHidePassword
             placeholder="Current password"
@@ -128,7 +126,7 @@ class ChangePassword extends Component {
         </FormField>
         <FormField
           name="newPassword1"
-          styleName="name-field"
+          styleName="password-field"
         >
           <ShowHidePassword
             placeholder="New password"
@@ -142,10 +140,10 @@ class ChangePassword extends Component {
         </FormField>
         <FormField
           name="newPassword2"
-          styleName="name-field"
+          styleName="password-field"
         >
           <ShowHidePassword
-            placeholder="Confirm password"
+            placeholder="Confirm new password"
             styleName="text-input"
             value={this.state.newPassword2}
             name="newPassword2"
@@ -154,7 +152,7 @@ class ChangePassword extends Component {
             required
           />
         </FormField>
-        </CheckoutForm>
+      </CheckoutForm>
     );
   }
 }
