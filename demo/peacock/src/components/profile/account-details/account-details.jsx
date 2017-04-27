@@ -3,10 +3,12 @@ import React, { Component } from 'react';
 
 // libs
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
 // components
 import Name from './name';
 import Email from './email';
+import Password from './password';
 
 import * as actions from 'modules/profile';
 
@@ -41,6 +43,11 @@ class AccountDetails extends Component {
           toggleModal={props.toggleEmailModal}
           modalVisible={props.emailModalVisible}
         />
+        <Password
+          account={props.account}
+          toggleModal={props.togglePasswordModal}
+          modalVisible={props.passwordModalVisible}
+        />
       </div>
     );
   }
@@ -48,10 +55,13 @@ class AccountDetails extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    account: state.profile.account,
-    nameModalVisible: state.profile.nameModalVisible,
-    emailModalVisible: state.profile.emailModalVisible,
+    account: _.get(state.profile, 'account', {}),
+    nameModalVisible: _.get(state.profile, 'nameModalVisible', false),
+    emailModalVisible: _.get(state.profile, 'emailModalVisible', false),
+    passwordModalVisible: _.get(state.profile, 'passwordModalVisible', false),
   };
 };
 
-export default connect(mapStateToProps, actions)(AccountDetails);
+export default connect(mapStateToProps, {
+  ...actions,
+})(AccountDetails);
