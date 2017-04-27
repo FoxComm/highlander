@@ -152,7 +152,7 @@ export default class CustomerContacts extends React.Component {
               onChange={ this.onChange }
               onSubmit={ this.onSubmit }>
           <dl>
-            <dt>Name</dt>
+            <dt>First & Last Name</dt>
             { this.nameField }
           </dl>
           <dl>

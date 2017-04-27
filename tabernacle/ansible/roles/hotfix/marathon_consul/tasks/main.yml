@@ -28,5 +28,12 @@
   retries: "{{marathon_retries}}"
   delay: 2
 
+- name: Wait before marathon.service.consul will be registered
+  shell: 'ping -c 1 marathon.service.consul'
+  register: marathon_host_ex
+  until: marathon_host_ex.rc == 0
+  retries: "{{marathon_retries}}"
+  delay: 2
+
 - name: Subscribe Marathon events to Marathon Consul
   command: curl -X POST 'http://marathon.service.consul:8080/v2/eventSubscriptions?callbackUrl=http://marathon-consul.service.consul:4000/events'

@@ -234,7 +234,7 @@ class AddressList extends Component {
     const id = _.get(address, 'id');
     const action = {
       handler: isRequired ? toggleShippingModal : this.cancelEditing,
-      title: 'Cancel',
+      title: isRequired ? 'Close' : 'Cancel',
     };
     const title = isAdd ? 'Add Address' : 'Edit Address';
 
