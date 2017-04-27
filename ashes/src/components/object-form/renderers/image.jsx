@@ -1,8 +1,9 @@
 /* @flow */
 
 // libs
-import React from 'react';
+import React, { Component, Element } from 'react';
 import { noop, isEmpty } from 'lodash';
+import { autobind } from 'core-decorators';
 
 // components
 import Upload from 'components/upload/upload';
@@ -19,31 +20,47 @@ import type { FieldErrors, ChangeHandler } from './index';
 
 export default function renderImage(errors: FieldErrors = {}, onChange: ChangeHandler = noop) {
   return function( name: string, value: any, options: AttrOptions ) {
+    return (
+      <ImageRenderer name={name} value={value} onChange={onChange}/>
+    )
+  };
+}
 
-    const addFile = (image: ImageFile): void => {
-      uploadImage(image).then((obj) => {
-        onChange(name, 'image', obj);
-      });
-    };
+class ImageRenderer extends React.Component {
 
-    const deleteFile = (value): void => {
-      deleteImage(value).then((obj) => {
-        onChange(name, 'image', obj);
-      });
-    };
+  @autobind
+  addFile(image: ImageFile): void {
+    const { name, onChange } = this.props;
+    uploadImage(image).then((obj) => {
+      onChange(name, 'image', obj);
+    });
+  };
 
-    const actions = [
+  @autobind
+  deleteFile(): void {
+    const { value, name, onChange } = this.props;
+    deleteImage(value).then((obj) => {
+      onChange(name, 'image', obj);
+    });
+  };
+
+  get actions() {
+    const { value } = this.props;
+    return [
       { name: 'external-link', handler: () => window.open(value.src) },
       { name: 'edit', handler: () => {} },
-      { name: 'trash', handler: () => deleteFile(value) }
-    ];
+      { name: 'trash', handler: this.deleteFile }
+    ]
+  };
 
+  render() {
+    const { value, name } = this.props;
     const empty = isEmpty(value);
     const children = empty ? null : (
       <div className={s.imageCard}>
         <ImageCard
           src={value.src}
-          actions={actions}
+          actions={this.actions}
           id={value.id}
           loading={empty}
           secondaryTitle={`Uploaded ${value.uploadedAt}`}
@@ -51,18 +68,19 @@ export default function renderImage(errors: FieldErrors = {}, onChange: ChangeHa
       </div>
     );
 
-      return (
-        <div>
-          <label className="fc-object-form__field-label">{name}</label>
-          <div className={s.uploadContainer}>
-            <Upload
-              empty={empty}
-              onDrop={(image) => addFile(image, name)}
-            >
-              {children}
-            </Upload>
-          </div>
+    return (
+      <div>
+        <label className="fc-object-form__field-label">{name}</label>
+        <div className={s.uploadContainer}>
+          <Upload
+            empty={empty}
+            onDrop={(image) => this.addFile(image, name)}
+          >
+            {children}
+          </Upload>
         </div>
-      );
-  };
+      </div>
+    );
+  }
+
 }
