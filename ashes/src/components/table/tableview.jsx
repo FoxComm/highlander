@@ -8,6 +8,9 @@ import ActionsDropdown from '../bulk-actions/actions-dropdown';
 import TablePaginator from './paginator';
 import TablePageSize from './pagesize';
 import ColumnSelector from './column-selector';
+import { Button } from 'components/core/button';
+
+import styles from './tableview.css';
 
 function getLine(position, items) {
   if (!items.length) {
@@ -32,6 +35,15 @@ const TableView = props => {
   const topItemsLeft = [];
   const topItemsRight = [];
   const bottomItems = [];
+
+  const bulkExport = (
+    <Button
+      styleName="bulk-export"
+    >
+    Bulk export
+    </Button>
+  );
+  topItemsRight.push(bulkExport);
 
   if (props.selectableColumns.length) {
     const toggler = (
