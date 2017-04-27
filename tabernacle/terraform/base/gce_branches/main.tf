@@ -81,3 +81,33 @@ module "tumi2" {
   dnsimple_account = "${var.dnsimple_account}"
   dnsimple_token   = "${var.dnsimple_token}"
 }
+
+##############################################
+# Setup Stage 2 Instance
+##############################################
+module "stage2" {
+  source           = "../../modules/gce/appliance"
+  instance_name    = "stage2"
+  dns_record       = "stage2"
+  appliance_image  = "${var.appliance_image}"
+  consul_leader    = "${var.consul_leader}"
+  ssh_user         = "${var.ssh_user}"
+  ssh_private_key  = "${var.ssh_private_key}"
+  dnsimple_account = "${var.dnsimple_account}"
+  dnsimple_token   = "${var.dnsimple_token}"
+}
+
+##############################################
+# Setup Stage 3 Instance
+##############################################
+module "stage3" {
+  source           = "../../modules/gce/appliance"
+  instance_name    = "stage3"
+  dns_record       = "stage3"
+  appliance_image  = "${var.appliance_image}"
+  consul_leader    = "${var.consul_leader}"
+  ssh_user         = "${var.ssh_user}"
+  ssh_private_key  = "${var.ssh_private_key}"
+  dnsimple_account = "${var.dnsimple_account}"
+  dnsimple_token   = "${var.dnsimple_token}"
+}
