@@ -2,7 +2,7 @@ import cats.implicits._
 import failures.NotFoundFailure404
 import models.account._
 import models.cord.OrderShippingAddresses
-import models.location.{Address, Addresses}
+import models.location.{Address, Addresses, Country}
 import payloads.AddressPayloads.CreateAddressPayload
 import responses.AddressResponse
 import responses.PublicResponses.CountryWithRegions
@@ -159,9 +159,9 @@ class AddressesIntegrationTest
 
   "GET country by id" - {
     "Make sure that we have region short name provided" in {
-      val usId               = 234
+      val usId               = Country.unitedStatesId
       val countryWithRegions = publicApi.getCountryById(usId).as[CountryWithRegions]
-      countryWithRegions.country.id must === (234)
+      countryWithRegions.country.id must === (usId)
       countryWithRegions.country.alpha2 must === ("US")
 
       countryWithRegions.regions.foreach(r ⇒

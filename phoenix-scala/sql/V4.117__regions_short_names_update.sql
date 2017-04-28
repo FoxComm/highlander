@@ -1,56 +1,5 @@
--- we're need to fix this function here (defined in R__customers_search_view_triggers.sql) because it will be triggered by following updates
-
-create or replace function update_customers_view_from_shipping_addresses_fn() returns trigger as $$
-declare account_ids integer[];
-begin
-  case tg_table_name
-    when 'addresses' then
-      account_ids := array_agg(new.account_id);
-    when 'regions' then
-      select array_agg(a.account_id) into strict account_ids
-      from addresses as a
-      inner join regions as r on (r.id = a.region_id)
-      where r.id = new.id;
-    when 'countries' then
-      select array_agg(a.account_id) into strict account_ids
-      from addresses as a
-      inner join regions as r1 on (r1.id = a.region_id)
-      inner join countries as c1 on (r1.country_id = c1.id)
-      where c1.id = new.id;
-  end case;
-
-  update customers_search_view set
-    shipping_addresses_count = subquery.count,
-    shipping_addresses = subquery.addresses
-    from (select
-            c.account_id as id,
-            count(a) as count,
-            case when count(a) = 0
-            then
-                '[]'
-            else
-                json_agg((
-                  a.address1,
-                  a.address2,
-                  a.city,
-                  a.zip,
-                  r1.name,
-                  c1.name,
-                  c1.continent,
-                  c1.currency
-                )::export_addresses)::jsonb
-            end as addresses
-        from customer_data as c
-        left join addresses as a on (a.account_id = c.account_id)
-        left join regions as r1 on (a.region_id = r1.id)
-        left join countries as c1 on (r1.country_id = c1.id)
-        where c.account_id = any(account_ids)
-        group by c.account_id) as subquery
-    where customers_search_view.id = subquery.id;
-
-    return null;
-end;
-$$ language plpgsql;
+-- this trigger is broken, will be fixed in R__customers_search_view_triggers.sql
+alter table regions disable trigger update_customers_view_from_regions;
 
 update regions set abbreviation = 'AL' where name = 'Alabama';
 update regions set abbreviation = 'AK' where name = 'Alaska';
@@ -112,3 +61,5 @@ update regions set abbreviation = 'AA' where name = 'Armed Forces Americas';
 update regions set abbreviation = 'AE' where name = 'Armed Forces Europe';
 update regions set abbreviation = 'AP' where name = 'Armed Forces Pacific';
 update regions set abbreviation = 'DC' where name = 'District of Columbia';
+
+alter table regions enable trigger update_customers_view_from_regions;
