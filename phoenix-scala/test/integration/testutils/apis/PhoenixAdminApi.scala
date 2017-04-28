@@ -49,7 +49,8 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def create(payload: CreateAmazonOrderPayload)(implicit aa: TestAdminAuth): HttpResponse =
       POST(amazonOrdersPrefix, payload, aa.jwtCookie.some)
 
-    def update(amazonOrderId: String, payload: UpdateAmazonOrderPayload)(implicit aa: TestAdminAuth): HttpResponse =
+    def update(amazonOrderId: String, payload: UpdateAmazonOrderPayload)(
+        implicit aa: TestAdminAuth): HttpResponse =
       PATCH(s"$amazonOrdersPrefix/$amazonOrderId", payload, aa.jwtCookie.some)
   }
 

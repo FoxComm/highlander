@@ -17,6 +17,7 @@ class AmazonOrderIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with BakedFixtures
+    with DefaultJwtAdminAuth
     with TestActivityContext.AdminAC {
 
   "POST /v1/amazon_orders" - {
