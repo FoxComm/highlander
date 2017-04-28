@@ -24,6 +24,7 @@ export type Props = {
   editImage: (info: ImageInfo) => Promise<*>;
   deleteImage: () => Promise<*>;
   imagePid: string|number;
+  imageComponent?: string;
 };
 
 type State = {
@@ -123,7 +124,7 @@ export default class Image extends Component<void, Props, State> {
   }
 
   render() {
-    const { image, imagePid } = this.props;
+    const { image, imagePid, imageComponent } = this.props;
 
     return (
       <div>
@@ -137,7 +138,7 @@ export default class Image extends Component<void, Props, State> {
           actions={this.getImageActions()}
           loading={image.loading}
           key={`${imagePid}`}
-          imageComponent={ProductImage}
+          imageComponent={imageComponent || ProductImage}
         />
       </div>
     );

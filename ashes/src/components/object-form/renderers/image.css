@@ -6,9 +6,3 @@
 .imageCard {
   width: 298px;
 }
-
-.modal {
-  & :global(.fc-modal-container) {
-      min-width: 720px;
-  }
-}
