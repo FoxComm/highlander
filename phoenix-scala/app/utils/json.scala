@@ -20,6 +20,7 @@ import models.rules.{Condition, QueryStatement}
 import models.sharedsearch.SharedSearch
 import models.shipping.Shipment
 import models.{Assignment, Note, Reason}
+import models.channel._
 import org.json4s.JsonAST.JString
 import org.json4s.{CustomSerializer, JNull, TypeHints, jackson}
 import payloads.AuthPayload
@@ -85,7 +86,7 @@ object JsonFormatters {
       IdentityKind.jsonFormat + AdminData.State.jsonFormat + PluginSettings.SettingType.jsonFormat +
       CustomerGroup.GroupType.jsonFormat +
       AuthPayload.JwtClaimsSerializer + LTreeFormat +
-      ReturnLineItemPayload.typeHints + PaymentMethod.Type.jsonKeyFormat
+      ReturnLineItemPayload.typeHints + PaymentMethod.Type.jsonKeyFormat + Channel.Location.jsonFormat
 
   object LTreeFormat
       extends CustomSerializer[LTree](format ⇒

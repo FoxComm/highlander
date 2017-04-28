@@ -14,7 +14,7 @@ import utils.http.Http._
 
 object ContextRoutes {
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
-    activityContext(auth.model) { implicit ac ⇒
+    activityContext(auth) { implicit ac ⇒
       pathPrefix("contexts") {
         (post & pathEnd & entity(as[CreateObjectContext])) { payload ⇒
           mutateOrFailures {

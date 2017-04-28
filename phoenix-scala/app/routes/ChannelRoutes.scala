@@ -13,7 +13,7 @@ import utils.http.Http._
 
 object ChannelRoutes {
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
-    activityContext(auth.model) { implicit ac ⇒
+    activityContext(auth) { implicit ac ⇒
       pathPrefix("channels") {
         (post & pathEnd & entity(as[CreateChannelPayload])) { payload ⇒
           mutateOrFailures {

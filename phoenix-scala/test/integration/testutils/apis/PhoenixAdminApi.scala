@@ -777,7 +777,6 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def baked()(implicit aa: TestAdminAuth): HttpResponse =
       GET(s"$categoryPath/baked", aa.jwtCookie.some)
-
   }
 
   case object taxonomiesApi {
@@ -820,19 +819,19 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   }
 
   case object channelsApi {
-    def create(payload: CreateChannelPayload) =
-      POST("v1/channels", payload)
+    def create(payload: CreateChannelPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST("v1/channels", payload, aa.jwtCookie.some)
   }
 
-  case class channelsApi(channelId: Int) {
-    def get =
-      GET(s"v1/channels/$channelId")
+  case class channelsApi(channelId: Int)(implicit aa: TestAdminAuth) {
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(s"v1/channels/$channelId", aa.jwtCookie.some)
 
-    def update(payload: UpdateChannelPayload) =
-      PATCH(s"v1/channels/$channelId", payload)
+    def update(payload: UpdateChannelPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(s"v1/channels/$channelId", payload, aa.jwtCookie.some)
 
-    def delete =
-      DELETE(s"v1/channels/$channelId")
+    def delete(implicit aa: TestAdminAuth): HttpResponse =
+      DELETE(s"v1/channels/$channelId", aa.jwtCookie.some)
   }
 
   object notesApi {

@@ -151,7 +151,7 @@ object Products
       shadow ← ObjectShadows if shadow.id === head.shadowId
     } yield (head, form, shadow)).one
 
-    DbResultT.fromDbio(productTupleQ).flatMap { maybeTuple ⇒
+    DbResultT.fromF(productTupleQ).flatMap { maybeTuple ⇒
       (maybeTuple, context.parentId) match {
         case (Some(productTuple), _) ⇒
           val (head, form, shadow) = productTuple

@@ -27,8 +27,11 @@ object ChannelManager {
     for {
       scope          ← * <~ Scope.resolveOverride(payload.scope)
       defaultContext ← * <~ findOrCreateContext(payload)
-      draftContext ← * <~ ObjectContexts.create(
-                        defaultContext.copy(id = 0, name = s"${defaultContext.name}-draft"))
+      draftContext ← * <~ ObjectContexts
+                      .filterByName(s"${defaultContext.name}-draft")
+                      .one
+                      .findOrCreate(ObjectContexts.create(
+                              defaultContext.copy(id = 0, name = s"${defaultContext.name}-draft")))
       channel ← * <~ Channels.create(
                    Channel.build(payload, defaultContext.id, draftContext.id, scope))
     } yield ChannelResponse.build(channel, defaultContext, draftContext)
