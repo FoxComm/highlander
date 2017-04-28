@@ -17,15 +17,6 @@ import utils.http.Http._
 object ImageRoutes {
   def routes(implicit ec: EC, db: DB, am: Mat, auth: AuthData[User], apis: Apis): Route = {
     activityContext(auth) { implicit ac ⇒
-      pathPrefix("images") {
-        pathPrefix("s3") {
-          (post & pathEnd & entity(as[UploadImageByUrlPayload])) { payload ⇒
-            goodOrFailures {
-              ImageFacade.uploadImageToS3(payload)
-            }
-          }
-        }
-      } ~
       pathPrefix("albums") {
         pathPrefix(Segment) { context ⇒
           (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
@@ -53,8 +44,13 @@ object ImageRoutes {
               (post & pathEnd) {
                 extractRequest { req ⇒
                   goodOrFailures {
-                    AlbumImagesFacade.uploadImages(albumId, context, req)
+                    AlbumImagesFacade.uploadImagesFromMultipart(albumId, context, req)
                   }
+                }
+              } ~
+              (path("byUrl") & post & entity(as[ImagePayload])) { payload ⇒
+                goodOrFailures {
+                  AlbumImagesFacade.uploadImagesFromPayload(albumId, context, payload)
                 }
               }
             }

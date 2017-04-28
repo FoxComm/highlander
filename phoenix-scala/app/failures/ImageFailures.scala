@@ -32,6 +32,10 @@ object ImageFailures {
     override def description: String = s"Can't fetch image, status code $httpCode"
   }
 
+  case class ImageTemporarySaveFailed(e: Throwable) extends Failure {
+    override def description: String = s"Can't save image, internal error: $e"
+  }
+
   case object ImageFilenameNotFoundInPayload extends Failure {
     override def description = "Image filename not found in payload"
   }
