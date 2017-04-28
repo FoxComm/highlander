@@ -19,13 +19,18 @@ import s from './image.css';
 
 // types
 import type { FieldErrors, ChangeHandler } from './index';
+import type { ImageFile } from '../../../modules/images';
 
 export default function renderImage(errors: FieldErrors = {}, onChange: ChangeHandler = noop) {
   return function( name: string, value: any, options: AttrOptions ) {
     return (
       <ImageRenderer name={name} value={value} onChange={onChange}/>
-    )
+    );
   };
+}
+
+type State = {
+  editMode: boolean
 }
 
 class ImageRenderer extends React.Component {
@@ -39,8 +44,8 @@ class ImageRenderer extends React.Component {
     const { name, onChange } = this.props;
     uploadImage(image).then((obj) => {
       onChange(name, 'image', obj);
-    })
-  };
+    });
+  }
 
   @autobind
   deleteFile(): void {
@@ -48,11 +53,11 @@ class ImageRenderer extends React.Component {
     deleteImage(value).then((obj) => {
       onChange(name, 'image', obj);
     });
-  };
+  }
 
   @autobind
   handleModeChange() {
-    this.setState({ editMode: !this.state.editMode })
+    this.setState({ editMode: !this.state.editMode });
   }
 
   @autobind
@@ -63,7 +68,7 @@ class ImageRenderer extends React.Component {
     };
 
     this.setState({ editMode: !this.state.editMode },
-      this.props.onChange(this.props.name, 'image', newObject))
+      this.props.onChange(this.props.name, 'image', newObject));
   }
 
   get actions() {
@@ -72,8 +77,8 @@ class ImageRenderer extends React.Component {
       { name: 'external-link', handler: () => window.open(value.src) },
       { name: 'edit', handler: this.handleModeChange },
       { name: 'trash', handler: this.deleteFile }
-    ]
-  };
+    ];
+  }
 
   get editImageDialog() {
     return (
@@ -85,8 +90,8 @@ class ImageRenderer extends React.Component {
           onSave={this.handleSave}
         />
       </BodyPortal>
-    )
-  };
+    );
+  }
 
   render() {
     const { value, name } = this.props;

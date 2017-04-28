@@ -18,7 +18,7 @@ export type Action = {
 };
 
 type Props = {
-  id: number | string,
+  id: number,
   src: string,
   actions: Array<Action>,
   title?: string,

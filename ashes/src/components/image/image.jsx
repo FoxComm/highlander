@@ -13,7 +13,7 @@ import Transition from 'react-transition-group/CSSTransitionGroup';
 import WaitAnimation from '../common/wait-animation';
 
 type Props = {
-  id: number | string,
+  id: number,
   src: string,
   loader?: string|Element<*>,
   imageComponent?: string,
