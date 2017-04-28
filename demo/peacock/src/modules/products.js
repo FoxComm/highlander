@@ -38,7 +38,7 @@ function apiCall(
   sorting: ?{ direction: number, field: string },
   selectedFacets: Object,
   toLoad: number,
-  { ignoreGiftCards = true } = {}): Promise<*> {
+  { ignoreGiftCards = true, pushHistory = false } = {}): Promise<*> {
   let payload = defaultSearch(String(context));
 
   _.forEach(_.compact(categoryNames), (cat) => {
@@ -68,7 +68,7 @@ function apiCall(
     }
   });
 
-  if (browserHistory) {
+  if (browserHistory && pushHistory) {
     browserHistory.push({
       pathname: document.location.pathname,
       query: selectedFacets,
@@ -95,7 +95,7 @@ export function searchGiftCards() {
     selectedFacets,
     toLoad,
   });
-  return apiCall.call({ api }, [GIFT_CARD_TAG], sorting, selectedFacets, toLoad, { ignoreGiftCards: false });
+  return apiCall.call({ api }, [GIFT_CARD_TAG], sorting, selectedFacets, toLoad, { ignoreGiftCards: false, pushHistory: false });
 }
 
 const _fetchProducts = createAsyncActions('products', apiCall);
