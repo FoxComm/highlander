@@ -1,0 +1,19 @@
+{
+    "cert_path": "prod/perfect-gourmet",
+    "consul_expect": 1,
+    "join_type": "join",
+    "docker_registry_bucket": "tpg-docker",
+    "docker_registry":"https://docker-tpg.foxcommerce.com",
+    "google_oauth_admin_client_id": "",
+    "google_oauth_admin_secret": "",
+    "google_oauth_admin_hosted_domain": "",
+    "google_oauth_admin_redirect_uri": "",
+    "google_oauth_frontend_client_id": "",
+    "google_oauth_frontend_secret": "",
+    "google_oauth_frontend_redirect_uri": "",
+    "mesos_quorum": 1,
+    "mesos_cluster_name": "perfect-gourmet-2",
+    "phoenix_tracing": false,
+    "zookeeper_server": "zookeeper.service.consul:2181",
+    "zookeepers" : "zk://zookeeper.service.consul:2181"
+}

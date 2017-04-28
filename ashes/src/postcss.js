@@ -36,7 +36,7 @@ const plugins = [
     gutter: '1.85%',
   }),
   require('postcss-mixins'),
-  require('postcss-modules-values'),
+  require('postcss-nested'),
   require('postcss-modules-extract-imports'),
   require('postcss-modules-local-by-default'),
   require('postcss-modules-scope')({

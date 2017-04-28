@@ -1,5 +1,8 @@
 import React, { PropTypes } from 'react';
+
 import ContentBox from '../content-box/content-box';
+import { Button } from 'components/core/button';
+
 import Api from 'lib/api';
 import Alert from '../alerts/alert';
 import ErrorAlerts from '../alerts/error-alerts';
@@ -33,8 +36,8 @@ export default class CustomerSuggestProducts extends React.Component {
   onSend = () => {
     let { id, phoneNumber } = this.props.customer;
     requestSuggester(id.toString(), prependCountryCode(phoneNumber))
-      .then((resp) => this.setState({msgSent: true}))
-      .catch((err) => this.setState({error: err.response.text}));
+      .then((resp) => this.setState({ msgSent: true }))
+      .catch((err) => this.setState({ error: err.response.text }));
   }
 
   buttonOrNot() {
@@ -49,11 +52,7 @@ export default class CustomerSuggestProducts extends React.Component {
       return <ErrorAlerts error={this.state.error} />;
     }
     return (
-        <button
-          id="customer-suggest-products-btn"
-          className="fc-btn fc-btn-suggest-products"
-          onClick={this.onSend}
-        >Send Suggestion</button>
+      <Button id="customer-suggest-products-btn" onClick={this.onSend}>Send Suggestion</Button>
     );
   }
 

@@ -107,7 +107,7 @@ export default class Coupons extends Component {
 
     return (
       <div className="coupons">
-        <BulkWrapper hideAlertDetails entity="coupon">
+        <BulkWrapper hideAlertDetails onDelete={searchActions.refresh} entity="coupon">
           <SelectableSearchList
             entity="coupons.list"
             emptyMessage="No coupons found."
@@ -115,7 +115,6 @@ export default class Coupons extends Component {
             renderRow={this.renderRow}
             tableColumns={tableColumns}
             searchActions={searchActions}
-            autoRefresh={true}
           />
         </BulkWrapper>
       </div>

@@ -60,7 +60,7 @@
 }
 
 .input-rules(@base-styles: {#input-styles.base}, @textarea-styles: {#input-styles.textarea}) {
-  input[type=text],
+  input[type=text]:not(.__cssmodules),
   input[type=email],
   input[type=tel],
   input[type=number],

@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 
 // components
 import Currency from '../common/currency';
-import { EditButton, PrimaryButton } from 'components/core/button';
+import { EditButton } from 'components/core/button';
 import CurrencyInput from '../forms/currency-input';
 import RadioButton from '../forms/radio-button';
 import TableRow from '../table/row';

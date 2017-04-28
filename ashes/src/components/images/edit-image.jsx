@@ -1,7 +1,6 @@
 /* @flow */
 
 // libs
-import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 
@@ -46,7 +45,7 @@ class EditImage extends Component {
   }
 
   render() {
-    const saveDisabled = _.isEmpty(this.state.title);
+    const saveDisabled = !!this.state.title;
 
     return (
       <ModalContainer isVisible={this.props.isVisible}>

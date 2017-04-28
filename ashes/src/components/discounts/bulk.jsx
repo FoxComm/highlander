@@ -23,6 +23,7 @@ type Props = {
     updateAttributes: (ids: Array<RefId>, attributes: Attributes) => void;
     deleteEntity: (ids: Array<RefId>) => void;
   };
+  onDelete: () => void;
   children: Element<*>;
 };
 
@@ -59,7 +60,7 @@ const deleteHandler = function(props: Props): Function {
       <DeleteModal
         count={toggledIds.length}
         stateTitle={'Delete'}
-        onConfirm={() => deleteEntity(toggledIds, props.entity)}
+        onConfirm={() => deleteEntity(toggledIds, props.entity, props.onDelete)}
       />
     );
   };

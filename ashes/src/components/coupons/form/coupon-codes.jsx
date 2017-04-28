@@ -23,6 +23,7 @@ import * as actions from 'modules/coupons/details';
 type Props = {
   isNew: boolean,
   isValid: boolean,
+  refresh: Function,
   codeGeneration: Object,
   promotionId: Number,
   coupon: Object,
@@ -112,6 +113,7 @@ class CouponCodes extends Component {
     this.props.generateCodes(codesPrefix, codesLength, codesQuantity).then(() => {
       this.props.couponsGenerationReset();
     }).then(() => {
+      this.props.refresh();
       transitionTo('promotion-coupons', {promotionId: this.props.promotionId});
     });
   }

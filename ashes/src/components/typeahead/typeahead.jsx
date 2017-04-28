@@ -179,8 +179,8 @@ export default class Typeahead extends React.Component {
   }
 
   get listContent() {
-    const { items, isFetching, itemsElement, minQueryLength } = this.props;
-    const { searchedOnce } = this.state;
+    const { isFetching, itemsElement, minQueryLength } = this.props;
+    // const { searchedOnce } = this.state;
     // const noResults = !items.length && searchedOnce && !isFetching;
 
     const ourProps = {
