@@ -5,8 +5,8 @@ import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
 //data
-import criterions, { getCriterion, getOperators, getWidget } from 'paragons/promotions-query-builder/criterions';
-import operators from 'paragons/promotions-query-builder/operators';
+import criterions, { getCriterion, getOperators, getWidget } from 'paragons/query-builder/promotions-criterions';
+import operators from 'paragons/query-builder/operators';
 
 //helpers
 import { prefix } from 'lib/text-utils';
@@ -21,7 +21,6 @@ class Criterion extends Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     const { field, operator, value, conditionsLength, mainCondition } = this.props;
-
     return nextProps.field != field ||
             nextProps.conditionsLength != conditionsLength ||
             nextProps.operator != operator ||
@@ -32,18 +31,32 @@ class Criterion extends Component {
   @autobind
   renderAndOrLabel() {
     if (this.props.conditionsLength == 1) return null;
-    if(this.props.mainCondition == operators.and) {
-      if (this.props.index == 0) return(<span className={prefixed('prefix')}></span>);
-      return(<span className={prefixed('prefix')}>and</span>);
-    } else if(this.props.mainCondition == operators.or) {
-      if (this.props.index == 0) return(<span className={prefixed('prefix')}></span>);
-      return(<span className={prefixed('prefix')}>or</span>);
+
+    if (this.props.mainCondition == operators.and) {
+      if (this.props.index == 0) return (<span className={prefixed('prefix')}></span>);
+      return (<span className={prefixed('prefix')}>and</span>);
+    } else if (this.props.mainCondition == operators.or) {
+      if (this.props.index == 0) return (<span className={prefixed('prefix')}></span>);
+      return (<span className={prefixed('prefix')}>or</span>);
     }
   }
 
   render() {
-    const { field, operator, value, changeField, changeOperator, changeValue, remove } = this.props;
+    const {
+            field,
+            operator,
+            value,
+            changeField,
+            changeOperator,
+            changeValue,
+            remove,
+            criterions,
+            getCriterion,
+            getOperators,
+            getWidget
+          } = this.props;
     const criterion = getCriterion(field);
+    const fields = criterions.map(({ field,label }) => [ field, label ]);
 
     return (
       <div className={prefixed('criterion')}>
@@ -55,15 +68,15 @@ class Criterion extends Component {
           value={field}
           onChange={changeField}
         />
-        {renderOperator(criterion, operator, changeOperator)}
-        {renderValue(criterion, operator, value, changeValue)}
+        {renderOperator(criterion, operator, changeOperator, getOperators)}
+        {renderValue(criterion, operator, value, changeValue, getWidget)}
         <i onClick={remove} className={classNames(prefixed('remove-criterion'), 'icon-close')} />
       </div>
     );
   }
 };
 
-const renderOperator = (criterion, operator, changeOperator) => {
+const renderOperator = (criterion, operator, changeOperator, getOperators) => {
   if (!criterion) {
     return null;
   }
@@ -81,7 +94,7 @@ const renderOperator = (criterion, operator, changeOperator) => {
   );
 };
 
-const renderValue = (criterion, operator, value, changeValue) => {
+const renderValue = (criterion, operator, value, changeValue, getWidget) => {
   if (!criterion || !operator) {
     return null;
   }
@@ -97,8 +110,15 @@ const renderValue = (criterion, operator, value, changeValue) => {
 };
 
 Criterion.propTypes = {
+  criterions: PropTypes.array.isRequired,
+  getCriterion: PropTypes.func.isRequired,
+  getOperators: PropTypes.func.isRequired,
+  getWidget: PropTypes.func.isRequired,
+  index: PropTypes.number,
   field: PropTypes.string,
   operator: PropTypes.string,
+  mainCondition: PropTypes.string,
+  conditionsLength: PropTypes.number,
   value: PropTypes.any,
   changeField: PropTypes.func.isRequired,
   changeOperator: PropTypes.func.isRequired,

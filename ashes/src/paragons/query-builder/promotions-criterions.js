@@ -52,14 +52,17 @@ const criterions = [
     type: types.string,
     widget: {
       default: widgets.plain('text'),
-      [ops.equal]: widgets.lookup('state'),
-      [ops.notEqual]: widgets.lookup('state'),
-      [ops.oneOf]: widgets.oneOf(widgets.lookup('state')),
-      [ops.notOneOf]: widgets.oneOf(widgets.lookup('state')),
-      config: {
-        storePath: 'groups.shippingState',
-      },
+      [ops.equal]: widgets.plain('text'),
+      [ops.notEqual]: widgets.plain('text'),
+      [ops.oneOf]: widgets.oneOf(widgets.plain('text')),
+      [ops.notOneOf]: widgets.oneOf(widgets.plain('text')),
     },
+    operators: [
+      ops.equal,
+      ops.notEqual,
+      ops.oneOf,
+      ops.notOneOf,
+    ],
     field: 'tag',
     label: 'Tag',
   },
@@ -67,13 +70,6 @@ const criterions = [
     type: types.string,
     widget: {
       default: widgets.plain('text'),
-      [ops.equal]: widgets.lookup('state'),
-      [ops.notEqual]: widgets.lookup('state'),
-      [ops.oneOf]: widgets.oneOf(widgets.lookup('state')),
-      [ops.notOneOf]: widgets.oneOf(widgets.lookup('state')),
-      config: {
-        storePath: 'groups.shippingState',
-      },
     },
     field: 'category',
     label: 'Category',
@@ -107,13 +103,6 @@ const criterions = [
     type: types.string,
     widget: {
       default: widgets.plain('text'),
-      [ops.equal]: widgets.lookup('state'),
-      [ops.notEqual]: widgets.lookup('state'),
-      [ops.oneOf]: widgets.oneOf(widgets.lookup('state')),
-      [ops.notOneOf]: widgets.oneOf(widgets.lookup('state')),
-      config: {
-        storePath: 'groups.shippingState',
-      },
     },
     field: 'sale-status',
     label: 'Sale Status',
@@ -122,13 +111,6 @@ const criterions = [
     type: types.string,
     widget: {
       default: widgets.plain('text'),
-      [ops.equal]: widgets.lookup('state'),
-      [ops.notEqual]: widgets.lookup('state'),
-      [ops.oneOf]: widgets.oneOf(widgets.lookup('state')),
-      [ops.notOneOf]: widgets.oneOf(widgets.lookup('state')),
-      config: {
-        storePath: 'groups.billingState',
-      },
     },
     field: 'option-value',
     label: 'Option Value ',
@@ -137,13 +119,6 @@ const criterions = [
     type: types.string,
     widget: {
       default: widgets.plain('text'),
-      [ops.equal]: widgets.lookup('city'),
-      [ops.notEqual]: widgets.lookup('city'),
-      [ops.oneOf]: widgets.oneOf(widgets.lookup('city')),
-      [ops.notOneOf]: widgets.oneOf(widgets.lookup('city')),
-      config: {
-        storePath: 'groups.shippingCity',
-      },
     },
     field: 'variant-title',
     label: 'Variant Title',

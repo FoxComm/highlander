@@ -209,7 +209,6 @@ export default class PromotionForm extends ObjectDetails {
 
   @autobind
   handleQualifierChange(qualifier: Object) {
-    console.log(qualifier)
     const newPromotion = setDiscountAttr(this.props.object,
       'qualifier', qualifier
     );

@@ -3,8 +3,9 @@ import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
+
 //data
-import operators from 'paragons/promotions-query-builder/operators';
+import operators from 'paragons/query-builder/operators';
 
 //helpers
 import { prefix } from 'lib/text-utils';
@@ -20,7 +21,7 @@ const SELECT_CRITERIA = [
 
 const prefixed = prefix('fc-query-builder-edit');
 
-class ElasticQueryGenerator extends React.Component {
+class QueryBuilderContainer extends React.Component {
 
   constructor(props) {
     super(props);
@@ -51,7 +52,11 @@ class ElasticQueryGenerator extends React.Component {
       <div>
         {this.mainCondition}
         <QueryBuilder
-          mainCondition={this.mainCondition}
+          criterions={this.props.criterions}
+          getCriterion={this.props.getCriterion}
+          getOperators={this.props.getOperators}
+          getWidget={this.props.getWidget}
+          mainCondition={this.props.mainCondition}
           conditions={this.props.conditions}
           setConditions={this.props.setConditions}
         />
@@ -68,4 +73,4 @@ class ElasticQueryGenerator extends React.Component {
   }
 }
 
-export default ElasticQueryGenerator;
+export default QueryBuilderContainer;

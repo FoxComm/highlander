@@ -2,9 +2,6 @@
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 
-//data
-import criterions, { getCriterion, getWidget } from 'paragons/promotions-query-builder/criterions';
-
 //helpers
 import { prefix } from 'lib/text-utils';
 
@@ -18,6 +15,10 @@ const prefixed = prefix('fc-query-builder');
 export default class QueryBuilder extends React.Component {
 
   static propTypes = {
+    criterions: PropTypes.array.isRequired,
+    getCriterion: PropTypes.func.isRequired,
+    getOperators: PropTypes.func.isRequired,
+    getWidget: PropTypes.func.isRequired,
     conditions: PropTypes.arrayOf(PropTypes.array).isRequired,
     setConditions: PropTypes.func.isRequired,
     mainCondition: PropTypes.string.isRequired,
@@ -45,8 +46,8 @@ export default class QueryBuilder extends React.Component {
 
   @autobind
   changeOperator(index, field, operator) {
-    const criterion = getCriterion(field);
-    const { getDefault } = getWidget(criterion, operator);
+    const criterion = this.props.getCriterion(field);
+    const { getDefault } = this.props.getWidget(criterion, operator);
 
     this.updateCondition(index, [field, operator, getDefault(criterion)]);
   }
@@ -67,6 +68,10 @@ export default class QueryBuilder extends React.Component {
 
     return (
       <Criterion
+        criterions={this.props.criterions}
+        getCriterion={this.props.getCriterion}
+        getOperators={this.props.getOperators}
+        getWidget={this.props.getWidget}
         key={`${field}.${operator}.${index}`}
         index={index}
         field={field}
