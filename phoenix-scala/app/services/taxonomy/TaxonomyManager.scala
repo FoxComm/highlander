@@ -119,7 +119,7 @@ object TaxonomyManager {
       implicit ec: EC,
       oc: OC,
       au: AU): DbResultT[FullTaxonResponse] = {
-    val form   = ObjectForm.fromPayload(Taxonomy.kind, payload.attributes)
+    val form   = ObjectForm.fromPayload(Taxon.kind, payload.attributes)
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
     for {
@@ -247,7 +247,7 @@ object TaxonomyManager {
       taxon: Taxon,
       payload: UpdateTaxonPayload)(implicit ec: EC, db: DB, oc: OC): DbResultT[Taxon] = {
 
-    val form   = ObjectForm.fromPayload(Taxonomy.kind, payload.attributes)
+    val form   = ObjectForm.fromPayload(Taxon.kind, payload.attributes)
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
     for {
