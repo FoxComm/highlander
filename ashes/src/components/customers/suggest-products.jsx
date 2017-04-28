@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import ContentBox from '../content-box/content-box';
 import Api from 'lib/api';
-import Alerts from '../alerts/alert';
+import Alert from '../alerts/alert';
 import ErrorAlerts from '../alerts/error-alerts';
 
 function requestSuggester(customerId, phoneNumber) {
@@ -9,6 +9,14 @@ function requestSuggester(customerId, phoneNumber) {
     `/public/suggest/customer?channel=1`,
     { customerId, phoneNumber }
   );
+}
+
+// TODO: We need to actually handle country code instead of assuming USA.
+function prependCountryCode(phoneNumber) {
+  if(phoneNumber) {
+    return phoneNumber.length == 10 ? '1'+phoneNumber : phoneNumber;
+  }
+  return phoneNumber;
 }
 
 export default class CustomerSuggestProducts extends React.Component {
@@ -23,17 +31,22 @@ export default class CustomerSuggestProducts extends React.Component {
   };
 
   onSend = () => {
-    requestSuggester(this.props.customer.id.toString(), this.props.customer.phoneNumber)
+    let { id, phoneNumber } = this.props.customer;
+    requestSuggester(id.toString(), prependCountryCode(phoneNumber))
       .then((resp) => this.setState({msgSent: true}))
       .catch((err) => this.setState({error: err.response.text}));
   }
 
   buttonOrNot() {
     if(this.state.msgSent) {
-      return <Alert type='success' />
+      return (
+        <Alert type='success'>
+          Success! Your message has been sent.
+        </Alert>
+      );
     }
     if(this.state.error) {
-      return <ErrorAlerts error={this.state.error} />
+      return <ErrorAlerts error={this.state.error} />;
     }
     return (
         <button
