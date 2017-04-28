@@ -99,9 +99,11 @@ class Prod_Prod_Manager(object):
             return self.fallback_to_all(
                 zip_responses(popular_response, es_resp),
                 source='anthill-popular',
+                from_param=from_param,
+                size_param=size_param,
                 only_ids=False)
 
-    def fallback_to_all(self, response, source, only_ids=False):
+    def fallback_to_all(self, response, source, from_param=0, size_param=10, only_ids=True):
         """fallback_to_all
         matches all products in elasticsearch
         """
@@ -110,7 +112,7 @@ class Prod_Prod_Manager(object):
             return response
         else:
             response = format_es_response(
-                self.es_client.get_products_list([], 0, 10),
+                self.es_client.get_products_list([], from_param, size_param),
                 only_ids=only_ids)
             response.update(source='es-match-all')
             return response
