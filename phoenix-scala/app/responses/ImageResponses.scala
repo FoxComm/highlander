@@ -7,8 +7,6 @@ import utils.{IlluminateAlgorithm, JsonFormatters}
 object ImageResponses {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  case class S3ImageResponse(s3url: String) extends ResponseItem
-
   object ImageResponse {
     case class Root(id: Int,
                     src: String,
