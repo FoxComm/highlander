@@ -39,9 +39,8 @@ const TableView = props => {
   const bulkExport = (
     <Button
       styleName="bulk-export"
-    >
-    Bulk export
-    </Button>
+      icon="export"
+    />
   );
   topItemsRight.push(bulkExport);
 
