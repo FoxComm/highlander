@@ -70,14 +70,4 @@ trait ImageFacade extends LazyLogging {
       result
     }
   }
-
-//  def uploadImageToS3(
-//      payload: ImagePayload)(implicit ec: EC, db: DB, apis: Apis): Result[S3ImageResponse] = {
-//    for {
-//      byteBuffer ← fetchImageData(payload.src)
-//      path = saveByteBuffer(byteBuffer)
-//      url ← apis.amazon.uploadFile(extractFileNameFromUrl(payload.src), path.toFile)
-//      _ = Files.deleteIfExists(path)
-//    } yield S3ImageResponse(s3url = url)
-//  }
 }
