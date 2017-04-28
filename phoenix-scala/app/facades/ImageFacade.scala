@@ -63,11 +63,12 @@ trait ImageFacade extends LazyLogging {
     }
   }
 
-  protected def saveBufferAndDoSmth[R](b: ByteBuffer)(block: Path ⇒ R): Either[Failures, R] = {
-    saveByteBuffer(b).map { path ⇒
-      val result = block(path)
-      Files.deleteIfExists(path)
-      result
-    }
-  }
+  protected def saveBufferAndThen[R](b: ByteBuffer)(block: Path ⇒ DbResultT[R])(
+      implicit ec: EC): DbResultT[R] =
+    for {
+      path   ← * <~ saveByteBuffer(b)
+      result ← * <~ block(path)
+      _      ← * <~ Files.deleteIfExists(path)
+    } yield result
+
 }
