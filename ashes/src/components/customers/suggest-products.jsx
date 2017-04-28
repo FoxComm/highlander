@@ -1,6 +1,8 @@
 import React, { PropTypes } from 'react';
 import ContentBox from '../content-box/content-box';
 import Api from 'lib/api';
+import Alerts from '../alerts/alert';
+import ErrorAlerts from '../alerts/error-alerts';
 
 function requestSuggester(customerId, phoneNumber) {
   return Api.post(
@@ -21,17 +23,17 @@ export default class CustomerSuggestProducts extends React.Component {
   };
 
   onSend = () => {
-    requestSuggester(this.props.customer.id, this.props.customer.phoneNumber)
+    requestSuggester(this.props.customer.id.toString(), this.props.customer.phoneNumber)
       .then((resp) => this.setState({msgSent: true}))
       .catch((err) => this.setState({error: err.response.text}));
   }
 
   buttonOrNot() {
     if(this.state.msgSent) {
-      return <p>Message Sent!</p>;
+      return <Alert type='success' />
     }
     if(this.state.error) {
-      return <p>{this.state.error}</p>;
+      return <ErrorAlerts error={this.state.error} />
     }
     return (
         <button
