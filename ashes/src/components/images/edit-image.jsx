@@ -31,9 +31,9 @@ class EditImage extends Component {
 
   componentWillReceiveProps(nextProps) {
     this.setState({
-      src: nextProps.image.src,
-      title: nextProps.image.title,
-      alt: nextProps.image.alt,
+      src: nextProps.image.src || '',
+      title: nextProps.image.title || '',
+      alt: nextProps.image.alt || '',
     })
   }
 

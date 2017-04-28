@@ -2,7 +2,7 @@
 
 // libs
 import React, { Component, Element } from 'react';
-import { noop, isEmpty } from 'lodash';
+import { noop, isEmpty, get } from 'lodash';
 import { autobind } from 'core-decorators';
 
 // components
@@ -39,7 +39,7 @@ class ImageRenderer extends React.Component {
     const { name, onChange } = this.props;
     uploadImage(image).then((obj) => {
       onChange(name, 'image', obj);
-    });
+    })
   };
 
   @autobind
@@ -76,7 +76,6 @@ class ImageRenderer extends React.Component {
   };
 
   get editImageDialog() {
-
     return (
       <BodyPortal className={s.modal}>
         <EditImage
@@ -92,6 +91,8 @@ class ImageRenderer extends React.Component {
   render() {
     const { value, name } = this.props;
     const empty = isEmpty(value);
+    const title = get(value, 'title');
+    const alt = get(value, 'alt');
     const children = empty ? null : (
       <div className={s.imageCard}>
         <ImageCard
@@ -99,7 +100,8 @@ class ImageRenderer extends React.Component {
           actions={this.actions}
           id={value.id}
           loading={empty}
-          secondaryTitle={`Uploaded ${value.uploadedAt}`}
+          title={title}
+          secondaryTitle={alt || `Uploaded ${value.uploadedAt}`}
         />
       </div>
     );
