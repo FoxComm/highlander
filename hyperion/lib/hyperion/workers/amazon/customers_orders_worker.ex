@@ -20,27 +20,38 @@ defmodule Hyperion.Amazon.Workers.CustomersOrdersWorker do
     {:noreply, state}
   end
 
-  defp do_work() do
+  def do_work() do
     try do
-      fetch_amazon_orders()
+      get_credentials()
+      |> fetch_amazon_orders
       |> store_customers_and_orders()
     rescue e in RuntimeError ->
       Logger.error "Error while fetching orders from Amazon: #{e.message}"
     end
   end
 
-  defp fetch_amazon_orders do
-    date = Timex.beginning_of_day(Timex.now)
-           |> Timex.format!("%Y-%m-%dT%TZ", :strftime)
+  defp get_credentials() do
+    cfg = Amazon.fetch_config()
+    if String.strip(cfg.seller_id) != "" do
+      cfg
+    else
+      raise "Credentials not set. Exiting."
+    end
+  end
+
+  defp fetch_amazon_orders(cfg) do
+    date = PullWorkerHistory.last_run_for(cfg.seller_id)
+           |>Timex.format!("%Y-%m-%dT%H:%M:%SZ", :strftime)
     list = [fulfillment_channel: ["MFN", "AFN"],
             created_after: [date]]
     Logger.info("Fetching order with params: #{inspect(list)}")
 
-    case MWSClient.list_orders(list, Amazon.fetch_config()) do
+    case MWSClient.list_orders(list, cfg) do
       {:error, error} -> raise inspect(error)
       {:warn, warn} -> raise warn["ErrorResponse"]["Error"]["Message"]
       {_, resp} ->
         Logger.info("Orders fetched: #{inspect(resp)}")
+        PullWorkerHistory.insert_run_mark(cfg.seller_id)
         resp["ListOrdersResponse"]["ListOrdersResult"]
     end
   end
@@ -51,7 +62,7 @@ defmodule Hyperion.Amazon.Workers.CustomersOrdersWorker do
                                   Client.create_order_and_customer(order)
                                  end)
       map when is_map(map) -> Client.create_order_and_customer(map)
-      empty when empty in [%{}, []] -> nil
+      nil -> Logger.info "No orders present: #{inspect(orders)}"
       _ -> Logger.error "Some error occured! #{inspect(orders)}"
     end
   end
