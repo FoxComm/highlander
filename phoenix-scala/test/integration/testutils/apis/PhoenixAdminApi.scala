@@ -46,11 +46,11 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   object amazonOrderApi {
     val amazonOrdersPrefix = s"$rootPrefix/amazon_orders"
 
-    def create(payload: CreateAmazonOrderPayload): HttpResponse =
-      POST(amazonOrdersPrefix, payload)
+    def create(payload: CreateAmazonOrderPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(amazonOrdersPrefix, payload, aa.jwtCookie.some)
 
-    def update(amazonOrderId: String, payload: UpdateAmazonOrderPayload): HttpResponse =
-      PATCH(s"$amazonOrdersPrefix/$amazonOrderId", payload)
+    def update(amazonOrderId: String, payload: UpdateAmazonOrderPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(s"$amazonOrdersPrefix/$amazonOrderId", payload, aa.jwtCookie.some)
   }
 
   object customersApi {
