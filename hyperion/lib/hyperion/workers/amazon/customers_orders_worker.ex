@@ -20,7 +20,7 @@ defmodule Hyperion.Amazon.Workers.CustomersOrdersWorker do
     {:noreply, state}
   end
 
-  def do_work() do
+  defp do_work() do
     try do
       get_credentials()
       |> fetch_amazon_orders
