@@ -12,21 +12,33 @@
 - name: Copy logrotate to cron.hourly
   shell: mv /etc/cron.daily/logrotate /etc/cron.hourly
 
-- name: Install Core Packages
+- name: Install Core Packages 1
   apt: name={{item}} state=latest force=yes
   with_items:
     - apt-transport-https
     - ca-certificates
     - debconf-utils
     - curl
+
+- name: Install Core Packages 2
+  apt: name={{item}} state=latest force=yes
+  with_items:
     - htop
     - make
     - nmap
     - python-httplib2
+
+- name: Install Core Packages 3
+  apt: name={{item}} state=latest force=yes
+  with_items:
     - python-pip
     - python-software-properties
     - software-properties-common
     - tmux
+
+- name: Install Core Packages 4
+  apt: name={{item}} state=latest force=yes
+  with_items:
     - tree
     - unzip
     - vim
