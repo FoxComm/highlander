@@ -95,7 +95,10 @@ export function searchGiftCards() {
     selectedFacets,
     toLoad,
   });
-  return apiCall.call({ api }, [GIFT_CARD_TAG], sorting, selectedFacets, toLoad, { ignoreGiftCards: false, pushHistory: false });
+  return apiCall.call({ api }, [GIFT_CARD_TAG], sorting, selectedFacets, toLoad, {
+    ignoreGiftCards: false,
+    pushHistory: false,
+  });
 }
 
 const _fetchProducts = createAsyncActions('products', apiCall);
