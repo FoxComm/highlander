@@ -8,6 +8,8 @@ import { autobind } from 'core-decorators';
 // components
 import Upload from 'components/upload/upload';
 import ImageCard from 'components/image-card/image-card';
+import EditImage from 'components/images/edit-image';
+import BodyPortal from 'components/body-portal/body-portal';
 
 // helpers
 import { uploadImage, deleteImage } from '../../../paragons/image';
@@ -28,6 +30,10 @@ export default function renderImage(errors: FieldErrors = {}, onChange: ChangeHa
 
 class ImageRenderer extends React.Component {
 
+  state: State = {
+    editMode: false
+  };
+
   @autobind
   addFile(image: ImageFile): void {
     const { name, onChange } = this.props;
@@ -44,13 +50,43 @@ class ImageRenderer extends React.Component {
     });
   };
 
+  @autobind
+  handleModeChange() {
+    this.setState({ editMode: !this.state.editMode })
+  }
+
+  @autobind
+  handleSave(obj) {
+    const newObject = {
+      ...this.props.value,
+      ...obj
+    };
+
+    this.setState({ editMode: !this.state.editMode },
+      this.props.onChange(this.props.name, 'image', newObject))
+  }
+
   get actions() {
     const { value } = this.props;
     return [
       { name: 'external-link', handler: () => window.open(value.src) },
-      { name: 'edit', handler: () => {} },
+      { name: 'edit', handler: this.handleModeChange },
       { name: 'trash', handler: this.deleteFile }
     ]
+  };
+
+  get editImageDialog() {
+
+    return (
+      <BodyPortal className={s.modal}>
+        <EditImage
+          image={this.props.value}
+          isVisible={this.state.editMode}
+          onCancel={this.handleModeChange}
+          onSave={this.handleSave}
+        />
+      </BodyPortal>
+    )
   };
 
   render() {
@@ -70,6 +106,7 @@ class ImageRenderer extends React.Component {
 
     return (
       <div>
+        {this.editImageDialog}
         <label className="fc-object-form__field-label">{name}</label>
         <div className={s.uploadContainer}>
           <Upload
