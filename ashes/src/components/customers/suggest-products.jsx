@@ -16,10 +16,7 @@ function requestSuggester(customerId, phoneNumber) {
 
 // TODO: We need to actually handle country code instead of assuming USA.
 function prependCountryCode(phoneNumber) {
-  if(phoneNumber) {
-    return phoneNumber.length == 10 ? '1'+phoneNumber : phoneNumber;
-  }
-  return phoneNumber;
+  return phoneNumber && phoneNumber.length == 10 ? '1'+phoneNumber : phoneNumber;
 }
 
 export default class CustomerSuggestProducts extends React.Component {
