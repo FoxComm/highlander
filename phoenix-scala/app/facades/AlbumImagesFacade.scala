@@ -131,12 +131,11 @@ object AlbumImagesFacade extends ImageFacade {
 
       (for {
         imageData ← * <~ fetchImageData(payload.src)
-        dbResultUrl ← * <~ saveBufferAndDoSmth(imageData) { path ⇒
-                       val fileName = extractFileNameFromUrl(payload.src)
-                       val fullPath = s"albums/${oc.id}/${album.formId}/$fileName"
-                       apis.amazon.uploadFile(fullPath, path.toFile)
-                     }
-        url ← * <~ dbResultUrl
+        url ← * <~ saveBufferAndThen[String](imageData) { path ⇒
+               val fileName = extractFileNameFromUrl(payload.src)
+               val fullPath = s"albums/${oc.id}/${album.formId}/$fileName"
+               DbResultT.fromResult(apis.amazon.uploadFile(fullPath, path.toFile))
+             }
 
         existingImages ← * <~ AlbumImageLinks.queryRightByLeft(album)
         newPayload = existingImages.map(imageToPayload) :+
