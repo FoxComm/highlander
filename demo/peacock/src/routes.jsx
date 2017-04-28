@@ -17,6 +17,7 @@ import AddressForm from './components/profile/blocks/address-form';
 
 import MensCatPage from './pages/category/men';
 import WomensCatPage from './pages/category/women';
+import KidsCatPage from './pages/category/kids';
 
 import HomePage from './pages/home/home-page';
 
@@ -53,6 +54,7 @@ export default function makeRoutes(getStore) {
         </Route>
         <Route path="men" component={MensCatPage} />
         <Route path="women" component={WomensCatPage} />
+        <Route path="kids" component={KidsCatPage} />
         <Route path="/checkout/done" component={OrderPlaced} />
         <Route name="product" path="/products/:productSlug" component={Pdp} />
         <Route name="gift-cards" path="/gift-cards" component={Pdp} />
