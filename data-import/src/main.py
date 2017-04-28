@@ -67,10 +67,10 @@ class Taxonomy:
     def merge(self, taxonomy, taxon: Taxon):
         if taxonomy is not None:
             assert type(taxonomy) == Taxonomy
-            self.taxons + taxonomy.taxons
+            self.taxons = list(set(self.taxons + taxonomy.taxons))
 
         if taxon is not None:
-            self.taxons.append(taxon)
+            self.taxons = list(set(self.taxons.append(taxon)))
 
         self.build_paths()
         return self
