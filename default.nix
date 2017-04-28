@@ -1,4 +1,12 @@
-with import <nixpkgs> {}; {
+let
+
+  nixpkgs = (import <nixpkgs> {}).pkgs.fetchFromGitHub {
+    owner = "NixOS"; repo = "nixpkgs";
+    rev = "0ff8fc1d83f85dbde91a3ce65111141c9014114e"; # 16.09
+    sha256 = "0llha8bhvwvf2pij1vik693181gxgwhyzldfc1pa31jxqajxxjlz";
+  };
+
+in with import nixpkgs {}; {
   main = let
     dnsimple = python27Packages.buildPythonPackage rec {
       name = "dnsimple-${version}";
@@ -33,7 +41,7 @@ with import <nixpkgs> {}; {
     flow25 = stdenv.lib.overrideDerivation flow (oldAttrs : rec {
       name = "flow-${version}";
       version = "0.25.0";
-      
+
       src = fetchFromGitHub {
         owner = "facebook";
         repo = "flow";
@@ -47,7 +55,7 @@ with import <nixpkgs> {}; {
     shellHook = ''
       source .env.local
       cd ashes
-      ln -sf `readlink -f $(which flow)` node_modules/flow-bin/vendor/flow 
+      ln -sf `readlink -f $(which flow)` node_modules/flow-bin/vendor/flow
     '';
   };
 
@@ -59,7 +67,7 @@ with import <nixpkgs> {}; {
       cd green-river
     '';
   };
-  
+
   middlewarehouse = stdenv.mkDerivation {
     name = "middlewarehouse";
     buildInputs = [ go glide ];
