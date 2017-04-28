@@ -17,8 +17,6 @@ export const uploadImage = (image: ImageFile) =>
       uploadedAt: new Date().toString(),
       id: 14,
       src: 'https://s-media-cache-ak0.pinimg.com/originals/a3/f2/37/a3f237a95a6fa4a314a9ccdd667b6056.jpg',
-      title: 'title',
-      alt: 'alt'
     }
   });
 
