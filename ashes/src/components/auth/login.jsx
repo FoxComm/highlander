@@ -43,7 +43,9 @@ type LoginProps = {
   err: any,
   googleSignin: Function,
   isMounted: boolean,
-}
+};
+
+const isDev = process.env.NODE_ENV != 'production';
 
 /* ::`*/
 @connect((state) => ({
@@ -53,9 +55,9 @@ type LoginProps = {
 /* ::`*/
 export default class Login extends Component {
   state: TState = {
-    org: '',
-    email: '',
-    password: '',
+    org: isDev ? 'tenant' : '',
+    email: isDev ? 'admin@admin.com' : '',
+    password: isDev ? 'password' : '',
   };
 
   props: LoginProps;

@@ -24,7 +24,7 @@ type Props = {
  *
  * @function Button
  */
-export const Button = ({ icon, children, isLoading = false, className = '', ...restProps }: Props) => {
+export const Button = ({ icon, children, isLoading = false, className = '', returnRef, ...restProps }: Props) => {
   const cls = classNames(
     s.button,
     { [s.loading]: isLoading },
@@ -34,7 +34,7 @@ export const Button = ({ icon, children, isLoading = false, className = '', ...r
   const content = children ? <span className={s.text}>{children}</span> : null;
 
   return (
-    <button {...restProps} className={cls}>
+    <button {...restProps} className={cls} ref={returnRef}>
       {icon && <i className={`icon-${icon}`} />}
       {content}
     </button>

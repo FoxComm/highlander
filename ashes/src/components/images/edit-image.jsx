@@ -1,6 +1,7 @@
 /* @flow */
 
 // libs
+import { get } from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 
@@ -10,7 +11,7 @@ import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
 import Input from 'components/forms/text-input';
-import { Button } from 'components/core/button';
+import { DeleteButton } from 'components/core/button';
 
 // types
 import type { ImageInfo } from '../../modules/images';
@@ -81,11 +82,6 @@ class EditImage extends Component {
   }
 
   @autobind
-  handleUpdateField({ target }: { target: HTMLInputElement }) {
-    this.setState({ [target.name]: target.value });
-  }
-
-  @autobind
   handleUpdateAltText(nextValue: string) {
     this.setState({ alt: nextValue });
   }
@@ -104,16 +100,8 @@ class EditImage extends Component {
     const { image: { src, createdAt }, inProgress } = this.props;
     const extMatch = src.match(/\.([0-9a-z]+)$/i);
     const nameMatch = src.match(/\/([^/]+)$/i);
-    let ext = '–';
-    let name = '–';
-
-    if (extMatch && extMatch[1]) {
-      ext = extMatch[1];
-    }
-
-    if (nameMatch && nameMatch[1]) {
-      name = nameMatch[1];
-    }
+    const ext = get(extMatch, '[1]', '–');
+    const name = get(nameMatch, '[1]', '–');
 
     return (
       <ModalContainer isVisible={this.props.isVisible} size="big">
@@ -138,7 +126,7 @@ class EditImage extends Component {
             </div>
           </div>
           <footer className={s.footer}>
-            <Button onClick={this.props.onRemove} icon='trash' disabled={inProgress}>Delete</Button>
+            <DeleteButton onClick={this.props.onRemove} disabled={inProgress}>Delete</DeleteButton>
             <SaveCancel onSave={this.handleSave} onCancel={this.props.onCancel} isLoading={inProgress} />
           </footer>
         </ContentBox>

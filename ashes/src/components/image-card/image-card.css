@@ -44,7 +44,7 @@
   }
 }
 
-.card:hover > .actions {
+.card:not(.disabled):hover > .actions {
   opacity: 1;
   visibility: visible;
 }

@@ -46,10 +46,6 @@ span + i[class*="icon-"] {
   composes: loading from '../../../css/animations.css';
 }
 
-.button:focus {
-  outline: 0;
-}
-
 .button:hover {
   color: #484848;
   background-color: #bdc3c6;

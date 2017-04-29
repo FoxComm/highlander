@@ -52,8 +52,8 @@ export default class SaveCancel extends Component {
 
   static defaultProps: $Shape<Props> = {
     className: '',
-    cancelTabIndex: '0',
-    saveTabIndex: '1',
+    cancelTabIndex: '101',
+    saveTabIndex: '102',
     cancelText: 'Cancel',
     cancelDisabled: false,
     saveText: 'Save',
@@ -64,6 +64,14 @@ export default class SaveCancel extends Component {
     onCancel: noop,
     isLoading: false,
   };
+
+  _cancel: HTMLElement;
+
+  componentDidMount() {
+    if (this._cancel) {
+      this._cancel.focus();
+    }
+  }
 
   get cancel() {
     const {
@@ -77,6 +85,7 @@ export default class SaveCancel extends Component {
       <Button
         id="fct-modal-cancel-btn"
         type="button"
+        returnRef={r => this._cancel = r}
         onClick={onCancel}
         className={classNames(s.cancel, 'fc-save-cancel__cancel')}
         tabIndex={cancelTabIndex}

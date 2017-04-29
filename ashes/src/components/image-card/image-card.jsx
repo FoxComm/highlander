@@ -20,6 +20,7 @@ type Props = {
   src: string,
   actions: Array<Action>,
   loading: boolean,
+  disabled?: boolean,
   className?: string,
   onImageClick?: Function,
 };
@@ -32,6 +33,12 @@ export default class ImageCard extends Component {
     actions: [],
     onImageClick: () => {},
   };
+
+  shouldComponentUpdate({ src: nextSrc, disabled: nextDisabled }) {
+    const { src, disabled } = this.props;
+
+    return src !== nextSrc || disabled !== nextDisabled;
+  }
 
   get actions(): ?Element<*> {
     const { actions } = this.props;
@@ -55,10 +62,11 @@ export default class ImageCard extends Component {
   }
 
   render() {
-    const { id, src, className } = this.props;
+    const { id, src, className, disabled } = this.props;
+    const cls = classNames(s.card, s.image, className, { [s.disabled]: disabled });
 
     return (
-      <div className={classNames(s.card, s.image, className)} onClick={this.props.onImageClick}>
+      <div className={cls} onClick={this.props.onImageClick}>
         <Image id={id} src={src} size="cover" />
         {this.actions}
       </div>

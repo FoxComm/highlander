@@ -30,6 +30,7 @@ type State = {
   editMode: boolean;
   deleteMode: boolean;
   saveInProgress: boolean;
+  deleteInProgress: boolean;
 };
 
 export default class Image extends Component<void, Props, State> {
@@ -40,6 +41,7 @@ export default class Image extends Component<void, Props, State> {
     deleteMode: false,
     saveInProgress: false,
     disabled: false,
+    deleteInProgress: false,
   };
 
   componentDidMount(): void {
@@ -89,9 +91,11 @@ export default class Image extends Component<void, Props, State> {
 
   @autobind
   handleConfirmDeleteImage(): void {
-    this.props.deleteImage();
+    this.setState({ deleteInProgress: true });
 
-    this.setState({ deleteMode: false });
+    this.props.deleteImage().then(() =>
+      this.setState({ deleteMode: false, deleteInProgress: false })
+    );
   }
 
   @autobind
@@ -151,7 +155,7 @@ export default class Image extends Component<void, Props, State> {
   }
 
   render() {
-    const { image, imagePid } = this.props;
+    const { image, imagePid, disabled } = this.props;
 
     return (
       <div>
@@ -166,6 +170,7 @@ export default class Image extends Component<void, Props, State> {
           onImageClick={this.handleEditImage}
           loading={image.loading}
           key={imagePid}
+          disabled={disabled}
         />
       </div>
     );

@@ -6,10 +6,11 @@ import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 
 // components
-import { FormField } from '../forms';
-import ContentBox from '../content-box/content-box';
+import { FormField } from 'components/forms';
+import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
-import wrapModal from '../modal/wrapper';
+import wrapModal from 'components/modal/wrapper';
+import TextInput from 'components/forms/text-input';
 
 // types
 import type { NewAlbum } from '../../modules/images';
@@ -69,21 +70,25 @@ class EditAlbum extends Component {
 
     return (
       <ContentBox title={title} actionBlock={this.closeAction}>
-        <FormField label="Album Name"
-                   className="fc-product-details__field"
-                   labelClassName="fc-product-details__field-label">
-          <input type="text"
-                 name="name"
-                 className="fc-product-details__field-value"
-                 value={this.state.name}
-                 onChange={this.handleUpdateField}
-                 ref={(i) => this._input = i}/>
+        <FormField
+          label="Album Name"
+          className="fc-product-details__field"
+          labelClassName="fc-product-details__field-label">
+          <TextInput
+            name="name"
+            className="fc-product-details__field-value"
+            value={this.state.name}
+            onChange={this.handleUpdateField}
+            ref={(i) => this._input = i}
+          />
         </FormField>
-        <SaveCancel onCancel={this.props.onCancel}
-                    onSave={this.handleSave}
-                    saveDisabled={this.saveDisabled}
-                    isLoading={this.props.loading}
-                    saveText="Save and Apply"/>
+        <SaveCancel
+          onCancel={this.props.onCancel}
+          onSave={this.handleSave}
+          saveDisabled={this.saveDisabled}
+          isLoading={this.props.loading}
+          saveText="Save and Apply"
+        />
       </ContentBox>
     );
   }

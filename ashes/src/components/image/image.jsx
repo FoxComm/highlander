@@ -11,12 +11,12 @@ import React, { Component, Element } from 'react';
 // components
 import WaitAnimation from '../common/wait-animation';
 import ProductImage from 'components/imgix/product-image';
+import Transition from 'react-transition-group/CSSTransitionGroup';
 
 type Props = {
   id: number,
   src: string,
   size?: 'cover' | 'contain',
-  loader?: string|Element<*>;
 };
 
 type State = {
@@ -108,6 +108,27 @@ export default class ImageLoader extends Component {
     return this.state.ready ? img : null;
   }
 
+  wrapIfTransition(img: ?Element<any>): Element<any> {
+    if (this.showTransition) {
+      return (
+        <Transition
+          key="image-transition"
+          component="div"
+          className={s.transition}
+          transitionName="image"
+          transitionAppear={true}
+          transitionLeave={false}
+          transitionEnterTimeout={500}
+          transitionAppearTimeout={500}
+        >
+          {img}
+        </Transition>
+      );
+    }
+
+    return img;
+  }
+
   render() {
     const className = classNames(s.image, {
       [s.error]: this.state.error,
@@ -116,7 +137,7 @@ export default class ImageLoader extends Component {
     return (
       <div className={className}>
         {this.loader}
-        {this.image}
+        {this.wrapIfTransition(this.image)}
       </div>
     );
   }
