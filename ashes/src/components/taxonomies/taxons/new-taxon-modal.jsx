@@ -1,7 +1,7 @@
 /* @flow */
 
-//libs
-import { get, omit } from 'lodash';
+// libs
+import { omit } from 'lodash';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import React, { Component } from 'react';

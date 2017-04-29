@@ -2,7 +2,7 @@ import nock from 'nock';
 import sinon from 'sinon';
 import stripe from 'lib/stripe';
 
-const { default: reducer, ...actions } = importSource('modules/customers/credit-cards.js', [
+const actions = importSource('modules/customers/credit-cards.js', [
   'fetchCreditCards',
   'requestCustomerCreditCards',
   'receiveCustomerCreditCards',

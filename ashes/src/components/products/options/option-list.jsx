@@ -5,7 +5,7 @@
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
-import { assoc, dissoc } from 'sprout-data';
+import { assoc } from 'sprout-data';
 import { autoAssignVariants } from 'paragons/variants';
 import { skuId } from 'paragons/product';
 
