@@ -129,4 +129,6 @@ class CustomProperty extends Component<void, Props, State> {
   }
 }
 
-export default wrapModal(CustomProperty);
+const Wrapped: Class<Component<void, Props, State>> = wrapModal(CustomProperty);
+
+export default Wrapped;
