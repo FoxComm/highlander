@@ -4,11 +4,12 @@ import cats.data.ValidatedNel
 import failures.Failure
 import models.payment.PaymentMethod
 import models.payment.PaymentMethod.ExternalPayment
-import models.payment.applepay.{ApplePayment, ApplePayments}
-import models.payment.creditcard.{CreditCard, CreditCards}
+import models.payment.applepay.{ApplePayCharges, ApplePayment, ApplePayments}
+import models.payment.creditcard.{CreditCard, CreditCardCharges, CreditCards}
 import models.payment.giftcard.{GiftCard, GiftCards}
 import models.payment.storecredit.{StoreCredit, StoreCredits}
 import shapeless._
+import slick.jdbc.GetResult
 import slick.lifted.{Rep, RepOption, ShapedValue}
 import utils.Money._
 import utils.Validation._
@@ -50,12 +51,13 @@ case class OrderPayment(id: Int = 0,
   }
 }
 
-object OrderPayment {
-  def fromStripeCustomer(stripeCustomer: StripeCustomer, cart: Cart): OrderPayment =
-    OrderPayment(cordRef = cart.refNum,
-                 paymentMethodId = 1,
-                 paymentMethodType = PaymentMethod.CreditCard)
+case class StripeOrderPayment(stripeChargeId: String,
+                              amount: Int,
+                              currency: Currency = Currency.USD)
 
+object OrderPayment {
+
+  // it is used in tests only
   def build(method: PaymentMethod): OrderPayment = method match {
     case gc: GiftCard ⇒
       OrderPayment(paymentMethodId = gc.id, paymentMethodType = PaymentMethod.GiftCard)
@@ -118,6 +120,25 @@ object OrderPayments
 
   def findAllExternalPayments(cordRef: Rep[String]): QuerySeq =
     filter(_.cordRef === cordRef).externalPayments
+
+  def findAllStripeCharges(
+      cordRef: Rep[String]): Query[Rep[StripeOrderPayment], StripeOrderPayment, Seq] = {
+    def ccCharges = {
+      filter(_.cordRef === cordRef).join(CreditCardCharges).on(_.paymentMethodId === _.id).map {
+        case (_, charge) ⇒
+          ((charge.stripeChargeId, charge.amount, charge.currency) <> (StripeOrderPayment.tupled, StripeOrderPayment.unapply _))
+      }
+    }
+
+    def applePayCharges = {
+      filter(_.cordRef === cordRef).join(ApplePayCharges).on(_.paymentMethodId === _.id).map {
+        case (_, charge) ⇒
+          ((charge.stripeChargeId, charge.amount, charge.currency) <> (StripeOrderPayment.tupled, StripeOrderPayment.unapply _))
+      }
+    }
+
+    ccCharges.unionAll(applePayCharges)
+  }
 
   object scope {
     implicit class OrderPaymentsQuerySeqConversions(q: QuerySeq) {

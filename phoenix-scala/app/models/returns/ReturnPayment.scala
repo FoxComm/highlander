@@ -1,5 +1,6 @@
 package models.returns
 
+import models.cord.OrderPayments.QuerySeq
 import models.payment.PaymentMethod
 import models.payment.giftcard.{GiftCard, GiftCards}
 import models.payment.storecredit.{StoreCredit, StoreCredits}
@@ -60,8 +61,12 @@ object ReturnPayments
   object scope {
     implicit class RmaPaymentsQuerySeqConversions(private val q: QuerySeq) extends AnyVal {
       def giftCards: QuerySeq    = q.byType(PaymentMethod.GiftCard)
-      def creditCards: QuerySeq  = q.byType(PaymentMethod.CreditCard)
       def storeCredits: QuerySeq = q.byType(PaymentMethod.StoreCredit)
+
+      // todo external here is enough?
+      def creditCards: QuerySeq = q.byType(PaymentMethod.CreditCard)
+      def externalPayments: QuerySeq =
+        q.filter(_.paymentMethodType.inSet(Set(PaymentMethod.CreditCard, PaymentMethod.ApplePay)))
 
       def paymentMethodIds: Query[Rep[Int], Int, Set] = q.map(_.paymentMethodId).to[Set]
 

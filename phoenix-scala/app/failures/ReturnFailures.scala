@@ -47,17 +47,18 @@ object ReturnFailures {
       s"Returned credit card payment ($amount) cannot be greater than $maxAmount for return $refNum"
   }
 
-  case class ReturnCcPaymentCurrencyMismatch(refNum: String,
-                                             expected: Currency,
-                                             actual: List[Currency])
+  case class ReturnStripePaymentCurrencyMismatch(refNum: String,
+                                                 expected: Currency,
+                                                 actual: List[Currency])
       extends Failure {
     def description: String =
       "Cannot have return for order with more than one currency. " +
         s"Expected $expected, but got: ${actual.mkString(", ")}"
   }
 
-  case class ReturnCcPaymentViolation(refNum: String, issued: Int, allowed: Int) extends Failure {
+  case class ReturnStripePaymentViolation(refNum: String, issued: Int, allowed: Int)
+      extends Failure {
     def description: String =
-      s"Issued credit card payment ($issued) is different than $allowed for return $refNum"
+      s"Issued external payment ($issued) is different than $allowed for return $refNum"
   }
 }

@@ -477,8 +477,9 @@ case class LogActivity(implicit ac: AC) {
       implicit ec: EC): DbResultT[Activity] =
     Activities.log(ReturnPaymentsDeleted(rma, payments))
 
-  def issueCcRefund(rma: Return, payment: ReturnPayment)(implicit ec: EC): DbResultT[Activity] =
-    Activities.log(ReturnIssueCcRefund(rma, payment))
+  def issueStripeRefund(rma: Return, payment: ReturnPayment)(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnIssueStripeRefund(rma, payment))
 
   def issueGcRefund(customer: User, rma: Return, gc: GiftCard)(
       implicit ec: EC): DbResultT[Activity] =

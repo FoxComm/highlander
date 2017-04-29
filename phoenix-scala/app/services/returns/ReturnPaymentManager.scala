@@ -308,8 +308,9 @@ object ReturnPaymentManager {
     for {
       customer ← * <~ Users.mustFindByAccountId(rma.accountId)
 
-      ccPayment ← * <~ ReturnPayments.findAllByReturnId(rma.id).creditCards.one
-      _         ← * <~ ccPayment.map(issueCcRefund(rma, _))
+      // we are assuming that refund will go to the first external payment we have on records
+      stripePayment ← * <~ ReturnPayments.findAllByReturnId(rma.id).externalPayments.one
+      _             ← * <~ stripePayment.map(issueStripeRefund(rma, _))
 
       gc ← * <~ ReturnPayments.findOnHoldGiftCards(rma.id).one
       _  ← * <~ gc.map(issueGcRefund(customer, rma, _))
@@ -319,21 +320,21 @@ object ReturnPaymentManager {
     } yield ()
   }
 
-  private def issueCcRefund(
+  private def issueStripeRefund(
       rma: Return,
       payment: ReturnPayment)(implicit ec: EC, db: DB, ac: AC, apis: Apis): DbResultT[Unit] = {
     val authorizeRefund =
       ((id: String, amount: Int) ⇒
          for {
            _ ← * <~ apis.stripe.authorizeRefund(id, amount, RefundReason.RequestedByCustomer)
-           ccPayment = ReturnCcPayment(
+           stripePayment = ReturnStripePayment(
                returnPaymentId = payment.id,
                chargeId = id,
                returnId = payment.returnId,
                amount = amount,
                currency = payment.currency
            )
-           created ← * <~ ReturnCcPayments.create(ccPayment)
+           created ← * <~ ReturnStripePayments.create(stripePayment)
          } yield created).tupled
         .andThen(_.runTxn()) // we want to run each stripe refund in separate transaction to avoid any rollback of `ReturnCcPayments` table
 
@@ -344,7 +345,7 @@ object ReturnPaymentManager {
       */
     @tailrec
     def splitAmount(amount: Int,
-                    charges: Seq[CreditCardCharge],
+                    charges: Seq[StripeOrderPayment],
                     acc: Vector[(String, Int)]): Vector[(String, Int)] = charges match {
       case c +: cs if amount > c.amount ⇒
         splitAmount(amount - c.amount, cs, acc :+ (c.stripeChargeId → c.amount))
@@ -353,46 +354,47 @@ object ReturnPaymentManager {
       case _ ⇒ acc
     }
 
-    def checkCurrency(ccCharges: Seq[CreditCardCharge]) = {
-      val mismatchedCharges = ccCharges.collect {
+    def checkCurrency(orderPayments: Seq[StripeOrderPayment]) = {
+      val mismatchedCharges = orderPayments.collect {
         case charge if charge.currency != payment.currency ⇒ charge.currency
       }
       failIf(mismatchedCharges.nonEmpty,
-             ReturnCcPaymentCurrencyMismatch(refNum = rma.refNum,
-                                             expected = payment.currency,
-                                             actual = mismatchedCharges.toList))
+             ReturnStripePaymentCurrencyMismatch(refNum = rma.refNum,
+                                                 expected = payment.currency,
+                                                 actual = mismatchedCharges.toList))
     }
 
     for {
-      previousCcRefunds ← * <~ Returns
-                           .findPreviousOrCurrent(rma)
-                           .join(ReturnCcPayments)
-                           .on(_.id === _.returnId)
-                           .map { case (_, ccPayment) ⇒ ccPayment.chargeId → ccPayment.amount }
-                           .groupBy(_._1)
-                           .map {
-                             case (id, ccPayment) ⇒ id → ccPayment.map(_._2).sum.getOrElse(0)
-                           }
-                           .result
-                           .map(_.toMap)
-      ccCharges ← * <~ OrderPayments
-                   .findAllCreditCardsForOrder(rma.orderRef)
-                   .join(CreditCardCharges)
-                   .on(_.id === _.orderPaymentId)
-                   .map { case (_, charge) ⇒ charge }
-                   .result
-      _ ← * <~ checkCurrency(ccCharges)
-      adjustedCcCharges = ccCharges
-        .map(c ⇒ c.copy(amount = c.amount - previousCcRefunds.getOrElse(c.stripeChargeId, 0)))
-        .filter(_.amount > 0)
-      amountToRefund = splitAmount(payment.amount, adjustedCcCharges, Vector.empty)
+      previousStripeRefunds ← * <~ Returns
+                               .findPreviousOrCurrent(rma)
+                               .join(ReturnStripePayments)
+                               .on(_.id === _.returnId)
+                               .map { case (_, payment) ⇒ payment.chargeId → payment.amount }
+                               .groupBy(_._1)
+                               .map {
+                                 case (id, payment) ⇒ id → payment.map(_._2).sum.getOrElse(0)
+                               }
+                               .result
+                               .map(_.toMap)
+
+      stripeOrderPayments ← * <~ OrderPayments.findAllStripeCharges(rma.orderRef).result
+      _                   ← * <~ checkCurrency(stripeOrderPayments)
+
+      adjustedStripeCharges = stripeOrderPayments.map { payment ⇒
+        payment.copy(
+            amount = payment.amount - previousStripeRefunds.getOrElse(payment.stripeChargeId, 0))
+      }.filter(_.amount > 0)
+
+      amountToRefund = splitAmount(payment.amount, adjustedStripeCharges, Vector.empty)
+
       refunds ← * <~ amountToRefund.map(authorizeRefund).sequenceU
       totalRefund = refunds.map(_.amount).sum
+
       _ ← * <~ failIf(totalRefund != payment.amount,
-                      ReturnCcPaymentViolation(refNum = rma.refNum,
-                                               issued = totalRefund,
-                                               allowed = payment.amount))
-      _ ← * <~ LogActivity().issueCcRefund(rma, payment)
+                      ReturnStripePaymentViolation(refNum = rma.refNum,
+                                                   issued = totalRefund,
+                                                   allowed = payment.amount))
+      _ ← * <~ LogActivity().issueStripeRefund(rma, payment)
     } yield ()
   }
 

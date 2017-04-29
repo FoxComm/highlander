@@ -45,8 +45,8 @@ object ReturnTailored {
   case class ReturnPaymentsDeleted(rma: ReturnResponse, payments: List[PaymentMethod.Type])
       extends ActivityBase[ReturnPaymentsDeleted]
 
-  case class ReturnIssueCcRefund(rma: Return, payment: ReturnPayment)
-      extends ActivityBase[ReturnIssueCcRefund]
+  case class ReturnIssueStripeRefund(rma: Return, payment: ReturnPayment)
+      extends ActivityBase[ReturnIssueStripeRefund]
 
   case class ReturnIssueGcRefund(customer: User, rma: Return, gc: GiftCard)
       extends ActivityBase[ReturnIssueGcRefund]
