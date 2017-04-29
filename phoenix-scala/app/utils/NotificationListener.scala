@@ -6,6 +6,7 @@ import models.Notification._
 import org.postgresql.Driver
 import utils.aliases._
 import akka.actor._
+import akka.stream.actor.ActorPublisherMessage.Cancel
 
 import com.typesafe.scalalogging.LazyLogging
 import de.heikoseeberger.akkasse.{ServerSentEvent ⇒ SSE}
@@ -17,7 +18,8 @@ object NotificationListener {
     override def receive: Receive = {
       case msg: SSE ⇒
         onNext(msg)
-      case _ ⇒ ()
+      case Cancel ⇒ context.stop(self)
+      case _      ⇒ ()
     }
   }
 
@@ -43,9 +45,12 @@ class NotificationListener(adminId: Int, action: (String, ActorRef) ⇒ Unit)(im
         action(msg, childrenRef)
       }
 
-    case t @ Terminated(child) ⇒
+    case Terminated(child) ⇒
       context.unwatch(child)
-      if (context.children.isEmpty) context.stop(self)
+      if (context.children.isEmpty) {
+        connection.disconnect
+        context.stop(self)
+      }
   }
 
   override def preStart() {

@@ -36,7 +36,7 @@ object NotificationFacade extends LazyLogging {
   implicit val formats = JsonFormatters.phoenixFormats
 
   val retriesToFindListenerActor              = 5
-  implicit val akkaTimeout: akka.util.Timeout = akka.util.Timeout(400.millisecond)
+  implicit val akkaTimeout: akka.util.Timeout = akka.util.Timeout(500.millisecond)
 
   def streamByAdminId(adminId: Int)(
       implicit au: AU,
@@ -66,7 +66,7 @@ object NotificationFacade extends LazyLogging {
       .actorSelection(s"user/$listenerActorName")
       .resolveOne(100.millisecond)
       .recoverWith[ActorRef] { // FIXME: better approach to handle concurrency conflicts
-                              // use just mutable.Map here ? @narma
+        // use just mutable.Map here ? @narma
         case _ ⇒
           try {
             val ref = system.actorOf(
