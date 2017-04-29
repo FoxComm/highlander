@@ -16,7 +16,7 @@ type Props = {
   className?: string,
   /** Button content (label) */
   children?: Element<any>,
-}
+};
 
 /**
  * Button component has a bunch of helper components built on top of generic `Button` component.

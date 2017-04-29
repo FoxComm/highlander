@@ -27,6 +27,9 @@ function generateShortName(name, filename, css) {
 const generateScopedName = process.env.NODE_ENV === 'production' ? generateShortName : generateLongName;
 
 const plugins = [
+  require('postcss-assets')({
+    loadPaths: ['src/images/']
+  }),
   require('postcss-import')({
     path: ['src/css', 'node_modules'],
   }),
