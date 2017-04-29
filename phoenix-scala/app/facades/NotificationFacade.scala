@@ -76,7 +76,7 @@ object NotificationFacade extends LazyLogging {
             Future.successful(ref)
           } catch {
             case _: InvalidActorNameException ⇒
-              subscribeToDbListenerActor(retriesToFindListenerActor, retries - 1)
+              subscribeToDbListenerActor(adminId, retries - 1)
           }
       }
   }
