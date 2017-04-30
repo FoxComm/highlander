@@ -194,7 +194,7 @@ export default class NewStoreCredit extends React.Component {
       '_hidden': _.isEmpty(this.scSubtypes)
     });
 
-    const { form, createStoreCredit, changeScFormData } = this.props;
+    const { form, changeScFormData } = this.props;
 
     return (
       <Form className="fc-store-credit-form fc-form-vertical"

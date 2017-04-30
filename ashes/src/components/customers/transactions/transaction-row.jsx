@@ -48,7 +48,6 @@ const setCellContents = (order, field) => {
 
 const OrderTransactionRow = (props) => {
   const { order, columns, params } = props;
-  const key = `order-${order.referenceNumber}`;
 
   return (
     <MultiSelectRow

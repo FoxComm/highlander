@@ -54,7 +54,7 @@ export default class Header extends React.Component {
     }
   }
 
-  render() {
+  render(): Element<*> {
     const props = this.props;
     const user: ?TUser = props.user;
 

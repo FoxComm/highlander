@@ -1,7 +1,7 @@
 /* @flow */
 
 // libs
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
@@ -47,7 +47,7 @@ export default class TextInput extends Component {
     }
   }
 
-  render() {
+  render(): Element<*> {
     const { className, placeholder, onChange, ...rest } = this.props;
     const inputClass = classNames(s.input, className, '__cssmodules');
 

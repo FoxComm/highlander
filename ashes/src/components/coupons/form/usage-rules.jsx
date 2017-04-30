@@ -8,7 +8,6 @@ import { autobind } from 'core-decorators';
 // components
 import ContentBox from '../../content-box/content-box';
 import RadioButton from '../../forms/radio-button';
-import { Checkbox } from '../../checkbox/checkbox';
 import Counter from '../../forms/counter';
 
 // styles

@@ -71,8 +71,13 @@ object TaxonomyTaxonLinks
         Taxons)
     with ReturningId[TaxonomyTaxonLink, TaxonomyTaxonLinks] {
 
-  def hasChildren(link: TaxonomyTaxonLink) =
-    active().filter(l ⇒ l.path @> link.path && !(l.path === link.path)).exists
+  def hasChildren(link: TaxonomyTaxonLink): Rep[Boolean] = {
+    val childrenPath: String = s"${link.path}.${link.index}"
+    active()
+      .filter(_.taxonomyId === link.taxonomyId)
+      .filter(_.path.asColumnOf[String].startsWith(childrenPath))
+      .exists
+  }
 
   val returningLens: Lens[TaxonomyTaxonLink, Int] = lens[TaxonomyTaxonLink].id
 

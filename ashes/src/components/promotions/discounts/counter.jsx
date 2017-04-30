@@ -16,7 +16,7 @@ function toNumber(value, def = 1) {
   return isNaN(asNumber) ? def : asNumber;
 }
 
-const CounterWidget = (props: Props) => {
+const CounterWidget = (props: Props): Element<*> => {
   const value = toNumber(props.value);
   const setValue = value => {
     props.onChange(value);
