@@ -66,8 +66,11 @@ build-styleguide sg:
 build-dev: setup flow
 	test -f .env && export eval `cat .env` || true && BEHIND_NGINX=true ./node_modules/.bin/gulp build
 
-build: rev setup flow
+build: 
 	$(call header, Building)
+	make rev 
+	make setup
+	make flow
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production BEHIND_NGINX=true ./node_modules/.bin/gulp build
 
 docker:
