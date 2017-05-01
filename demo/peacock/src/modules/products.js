@@ -36,13 +36,13 @@ export const PAGE_SIZE = 20;
 const context = process.env.STOREFRONT_CONTEXT || 'default';
 export const GIFT_CARD_TAG = 'GIFT-CARD';
 
-const ignoreCategoryFilterNames = (function getIgnoreCategoryFilterNames(categories, acc = []) {
-  return _.reduce(categories, (acc, cat) => {
+const ignoreCategoryFilterNames = (function getIgnoreCategoryFilterNames(cats, acc = []) {
+  return _.reduce(cats, (memo, cat) => {
     const found = cat.ignoreCategoryFilter ? [cat.name] : [];
-    if (!cat.children) return [...acc, ...found];
-    return getIgnoreCategoryFilterNames(cat.children, [...acc, ...found]);
+    if (!cat.children) return [...memo, ...found];
+    return getIgnoreCategoryFilterNames(cat.children, [...memo, ...found]);
   }, acc);
-})(categories);
+}(categories));
 
 function apiCall(
   categoryNames: ?Array<string>,
