@@ -13,8 +13,10 @@ import type { Localized } from 'lib/i18n';
 import Typeahead from 'components/typeahead/typeahead';
 import ProductRow from './product-row';
 
-import { toggleActive, forceSearch, searchProducts } from 'modules/search';
+import createSearch from 'modules/search';
 import { toggleContentOverlay } from 'modules/content-overlay';
+
+const { toggleActive, forceSearch, searchProducts } = createSearch('searchInput');
 
 type SearchProps = Localized & {
   isActive: boolean,
@@ -103,11 +105,11 @@ class Search extends Component {
   }
 }
 
-function mapState({ search, asyncActions }: Object, { isActive }: ?Object): Object {
+function mapState({ searchInput, asyncActions }: Object, { isActive }: ?Object): Object {
   return {
-    ...search,
-    searchState: _.get(asyncActions, 'search', {}),
-    isActive: isActive || search.isActive,
+    ...searchInput,
+    searchState: _.get(asyncActions, 'searchInput', {}),
+    isActive: isActive || searchInput.isActive,
   };
 }
 

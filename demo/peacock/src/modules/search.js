@@ -20,62 +20,75 @@ const INITIAL_STATE: Search = {
 const MAX_RESULTS = 1000;
 const context = process.env.STOREFRONT_CONTEXT || 'default';
 
-const _search = createAsyncActions('search',
-  function searchApiCall(term: string) {
-    const payload = addMatchQuery(defaultSearch(String(context)), term);
-    return this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
-  },
-  (payload, term) => [payload, term]
-);
+const memoize = {};
 
-export function searchProducts(searchTerm: string) {
-  return (dispatch: Function, getState: Function) => {
-    const { term, force } = getState().search;
-    const { search = {} } = getState().asyncActions;
+export default function createSearch(key: string = 'search') {
+  if (memoize[key]) return memoize[key];
 
-    if (force || term != searchTerm) {
-      dispatch(_search.perform(searchTerm));
-    } else if (search.isReady) {
-      // we should reset ready flag anyway because createAsyncActions skips first request
-      // on client side after state has been hydrated on server
-      dispatch(_search.resetReadyFlag());
-    }
+  const _search = createAsyncActions(key,
+    function searchApiCall(term: string) {
+      const payload = addMatchQuery(defaultSearch(String(context)), term);
+      return this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
+    },
+    (payload, term) => [payload, term]
+  );
+
+  function searchProducts(searchTerm: string) {
+    return (dispatch: Function, getState: Function) => {
+      const { term, force } = getState()[key];
+      const search = getState().asyncActions[key] || {};
+
+      if (force || term != searchTerm) {
+        dispatch(_search.perform(searchTerm));
+      } else if (search.isReady) {
+        // we should reset ready flag anyway because createAsyncActions skips first request
+        // on client side after state has been hydrated on server
+        dispatch(_search.resetReadyFlag());
+      }
+    };
+  }
+
+  /**
+   * External actions
+   */
+  const toggleActive = createAction(`TOGGLE_ACTIVE_${key}`);
+  const forceSearch = createAction(`FORCE_SEARCH__${key}`);
+
+  const reducer = createReducer({
+    [_search.started]: (state) => {
+      return {
+        ...state,
+        results: [],
+        force: false,
+      };
+    },
+    [forceSearch]: (state) => {
+      return {
+        ...state,
+        force: true,
+      };
+    },
+    [_search.succeeded]: (state, [payload, term]) => {
+      return {
+        ...state,
+        results: payload,
+        term,
+      };
+    },
+    [toggleActive]: (state) => {
+      return {
+        ...state,
+        isActive: !get(state, 'isActive', false),
+      };
+    },
+  }, INITIAL_STATE);
+
+  memoize[key] = {
+    searchProducts,
+    toggleActive,
+    forceSearch,
+    reducer,
   };
+
+  return memoize[key];
 }
-
-/**
- * External actions
- */
-export const toggleActive = createAction('TOGGLE_ACTIVE');
-export const forceSearch = createAction('FORCE_SEARCH');
-
-const reducer = createReducer({
-  [_search.started]: (state) => {
-    return {
-      ...state,
-      results: [],
-      force: false,
-    };
-  },
-  [forceSearch]: (state) => {
-    return {
-      ...state,
-      force: true,
-    };
-  },
-  [_search.succeeded]: (state, [payload, term]) => {
-    return {
-      ...state,
-      results: payload,
-      term,
-    };
-  },
-  [toggleActive]: (state) => {
-    return {
-      ...state,
-      isActive: !get(state, 'isActive', false),
-    };
-  },
-}, INITIAL_STATE);
-
-export default reducer;
