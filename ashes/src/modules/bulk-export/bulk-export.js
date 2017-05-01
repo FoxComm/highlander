@@ -65,6 +65,6 @@ export const bulkExportByIds = createAsyncActions(
       ...payload,
     }).then((res) => {
       genDownloadLink(res);
-    });;
+    });
   }
 ).perform;

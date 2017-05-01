@@ -16,7 +16,7 @@ type Props = {
   entity: string,
   onCancel: () => void,
   count: number,
-  onConfirm: Function, // signature here
+  onConfirm: (description: ?string) => Promise<*>,
 };
 
 type State = {
