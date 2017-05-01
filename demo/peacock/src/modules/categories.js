@@ -231,6 +231,7 @@ const groups = [
     id: 10,
     name: 'featured',
     children: featured,
+    ignoreCategoryFilter: true,
   },
   {
     id: 11,
@@ -251,6 +252,7 @@ const groups = [
     id: 14,
     name: 'sports',
     children: sports,
+    ignoreCategoryFilter: true,
   },
 ];
 
