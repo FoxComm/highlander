@@ -28,7 +28,7 @@ export class Input extends Component {
 
   static propTypes = {
     ...propTypes,
-    isFetchingProducts: PropTypes.boolean,
+    isFetchingProducts: PropTypes.bool,
     data: PropTypes.arrayOf(PropTypes.shape({
       id: PropTypes.any,
       name: PropTypes.string,

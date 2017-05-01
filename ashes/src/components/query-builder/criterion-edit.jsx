@@ -53,11 +53,13 @@ class Criterion extends Component {
             criterions,
             getCriterion,
             getOperators,
-            getWidget
+            getWidget,
+            omitDeleteIcon,
           } = this.props;
     const criterion = getCriterion(field);
     const fields = criterions.map(({ field,label }) => [ field, label ]);
-
+    const delIcon = (<i onClick={remove} className={classNames(prefixed('remove-criterion'), 'icon-close')} />);
+    const deleteButton = omitDeleteIcon ? null : delIcon;
     return (
       <div className={prefixed('criterion')}>
         {this.renderAndOrLabel()}
@@ -70,7 +72,7 @@ class Criterion extends Component {
         />
         {renderOperator(criterion, operator, changeOperator, getOperators)}
         {renderValue(criterion, operator, value, changeValue, getWidget)}
-        <i onClick={remove} className={classNames(prefixed('remove-criterion'), 'icon-close')} />
+        {deleteButton}
       </div>
     );
   }
@@ -124,6 +126,7 @@ Criterion.propTypes = {
   changeOperator: PropTypes.func.isRequired,
   changeValue: PropTypes.func.isRequired,
   remove: PropTypes.func.isRequired,
+  omitDeleteIcon: PropTypes.bool,
 };
 
 export default Criterion;

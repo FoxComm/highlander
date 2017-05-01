@@ -15,6 +15,22 @@ import * as suggestTaxonomies from 'modules/taxonomies/suggest';
 const suggestProductsItems = suggestProducts.suggestItems;
 const suggestTaxonomiesItems = suggestTaxonomies.suggestItems;
 
+export const limitedCriterions = [
+  {
+    type: types.string,
+    widget: {
+      default: widgets.plain('text'),
+      [ops.equal]: widgets.typeahead('products.suggest.products',
+        'productSuggest.inProgress',{ suggestItems: suggestProductsItems }),
+    },
+    operators: [
+      ops.equal,
+    ],
+    field: 'product-title',
+    label: 'Product Title',
+  },
+];
+
 const criterions = [
   {
     type: types.string,
@@ -126,6 +142,8 @@ const criterions = [
 ];
 
 export const getCriterion = field => _.find(criterions, {field: field});
+
+export const getLimitedCriterion = field => _.find(limitedCriterions, {field: field});
 
 export const getOperators = ({operators, type}) => operators ? _.pick(type.operators, operators) : type.operators;
 

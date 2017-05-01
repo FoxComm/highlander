@@ -28,6 +28,7 @@ class QueryBuilderContainer extends React.Component {
   }
 
   get mainCondition() {
+    if (this.props.omitMainCondition) return (<hr className={prefixed('separator-hr')}/>);
 
     return (
       <div className={prefixed('match-div')}>
@@ -52,6 +53,8 @@ class QueryBuilderContainer extends React.Component {
       <div>
         {this.mainCondition}
         <QueryBuilder
+          itemName={this.props.itemName}
+          omitAddButton = {this.props.omitAddButton || false}
           criterions={this.props.criterions}
           getCriterion={this.props.getCriterion}
           getOperators={this.props.getOperators}

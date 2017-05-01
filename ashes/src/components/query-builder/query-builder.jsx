@@ -22,6 +22,8 @@ export default class QueryBuilder extends React.Component {
     conditions: PropTypes.arrayOf(PropTypes.array).isRequired,
     setConditions: PropTypes.func.isRequired,
     mainCondition: PropTypes.string.isRequired,
+    omitAddButton: PropTypes.bool.isRequired,
+    itemName: PropTypes.string,
   };
 
   updateCondition(index, value) {
@@ -68,6 +70,7 @@ export default class QueryBuilder extends React.Component {
 
     return (
       <Criterion
+        omitDeleteIcon={this.props.omitAddButton}
         criterions={this.props.criterions}
         getCriterion={this.props.getCriterion}
         getOperators={this.props.getOperators}
@@ -98,16 +101,23 @@ export default class QueryBuilder extends React.Component {
   }
 
   render() {
-    const {conditions} = this.props;
+    const {conditions,itemName} = this.props;
+    const name = itemName || 'criterion';
+    let button;
+    if (this.props.omitAddButton) {
+      button = null;
+    } else {
+      button = (<div className={prefixed('add-criterion')} onClick={this.addCondition}>
+                  <AddButton type="button" onClick={this.addCondition} />
+                  <span>Add {name}</span>
+                </div>);
+    }
     return (
       <div className={prefixed()}>
         <div className={prefixed('criterions')}>
           {conditions.map(this.renderCriterion)}
         </div>
-        <div className={prefixed('add-criterion')} onClick={this.addCondition}>
-          <AddButton type="button" onClick={this.addCondition} />
-          <span>Add criteria</span>
-        </div>
+        {button}
       </div>
     );
   }

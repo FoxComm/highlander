@@ -53,6 +53,7 @@ export default class Discounts extends Component {
       ...this.offer,
       offerType: value,
       widgetValue: widget.value,
+      queryObject: widget.queryObject,
     };
     this.props.onChangeOffer(this.offer);
   }
@@ -161,6 +162,24 @@ export default class Discounts extends Component {
       mainCondition: value,
     };
     this.props.onChangeQualifier(this.qualifier);
+  }
+
+  @autobind
+  setOfferQueryCond(value) {
+    this.offer.queryObject = {
+      ...this.offer.queryObject,
+      conditions: value,
+    };
+    this.props.onChangeOffer(this.offer);
+  }
+
+  @autobind
+  setOfferQueryMain(value) {
+    this.offer.queryObject = {
+      ...this.offer.queryObject,
+      mainCondition: value,
+    };
+    this.props.onChangeOffer(this.offer);
   }
 
   @autobind

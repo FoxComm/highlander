@@ -4,9 +4,11 @@ import _ from 'lodash';
 import Currency from './currency';
 import Counter from './counter';
 import Percent from './percent';
+import { Dropdown } from 'components/dropdown';
 import QueryBuilderContainer from 'components/query-builder/query-builder-container';
 
-import criterions, { getCriterion, getOperators, getWidget } from 'paragons/query-builder/promotions-criterions';
+import criterions, { getCriterion, getLimitedCriterion, getOperators, getWidget, limitedCriterions }
+from 'paragons/query-builder/promotions-criterions';
 
 const OFFERS = [
   {
@@ -51,10 +53,10 @@ const OFFERS = [
           getCriterion={getCriterion}
           getOperators={getOperators}
           getWidget={getWidget}
-          mainCondition={_.get(comp, 'qualifier.queryObject.mainCondition', '$and')}
-          conditions={_.get(comp, 'qualifier.queryObject.conditions', [])}
-          setMainCondition={comp.setQualQueryMain}
-          setConditions={comp.setQualQueryCond}/>
+          mainCondition={_.get(comp, 'offer.queryObject.mainCondition', '$and')}
+          conditions={_.get(comp, 'offer.queryObject.conditions', [])}
+          setMainCondition={comp.setOfferQueryMain}
+          setConditions={comp.setOfferQueryCond}/>
       );
     },
   },
@@ -76,10 +78,10 @@ const OFFERS = [
           getCriterion={getCriterion}
           getOperators={getOperators}
           getWidget={getWidget}
-          mainCondition={_.get(comp, 'qualifier.queryObject.mainCondition', '$and')}
-          conditions={_.get(comp, 'qualifier.queryObject.conditions', [])}
-          setMainCondition={comp.setQualQueryMain}
-          setConditions={comp.setQualQueryCond}/>
+          mainCondition={_.get(comp, 'offer.queryObject.mainCondition', '$and')}
+          conditions={_.get(comp, 'offer.queryObject.conditions', [])}
+          setMainCondition={comp.setOfferQueryMain}
+          setConditions={comp.setOfferQueryCond}/>
       );
     },
   },
@@ -124,12 +126,48 @@ const OFFERS = [
   {
     type: 'giftWithPurchase',
     text: 'Gift with purchase',
-    value: 0,
+    queryObject: {
+      mainCondition: '$and',
+      conditions: [['product-title', 'equal', null]],
+    },
+    additional: (comp) => {
+      return (
+        <QueryBuilderContainer
+          omitAddButton={true}
+          omitMainCondition={true}
+          criterions={limitedCriterions}
+          getCriterion={getLimitedCriterion}
+          getOperators={getOperators}
+          getWidget={getWidget}
+          mainCondition={_.get(comp, 'offer.queryObject.mainCondition', '$and')}
+          conditions={_.get(comp, 'offer.queryObject.conditions', [])}
+          setMainCondition={comp.setOfferQueryMain}
+          setConditions={comp.setOfferQueryCond}/>
+      );
+    },
   },
   {
     type: 'chooseGiftWithPurchase',
     text: 'Your choice of gift with purchase',
-    value: 0,
+    queryObject: {
+      mainCondition: '$or',
+      conditions: [['product-title', 'equal', null]],
+    },
+    additional: (comp) => {
+      return (
+        <QueryBuilderContainer
+          omitMainCondition={true}
+          itemName={'choice'}
+          criterions={limitedCriterions}
+          getCriterion={getLimitedCriterion}
+          getOperators={getOperators}
+          getWidget={getWidget}
+          mainCondition={_.get(comp, 'offer.queryObject.mainCondition', '$and')}
+          conditions={_.get(comp, 'offer.queryObject.conditions', [])}
+          setMainCondition={comp.setOfferQueryMain}
+          setConditions={comp.setOfferQueryCond}/>
+      );
+    },
   },
 ];
 
@@ -247,4 +285,4 @@ const QUALIFIERS = [
 export {
   OFFERS,
   QUALIFIERS,
-}
+};
