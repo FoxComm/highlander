@@ -10,6 +10,7 @@ object Settings {
     scalaVersion := Versions.scala,
     updateOptions := updateOptions.value.withCachedResolution(true),
     excludeDependencies += "org.slf4j.slf4j-log4j12",
+    addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.3"),
     scalacOptions ++= List(
       "-encoding",
       "UTF-8",

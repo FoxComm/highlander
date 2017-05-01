@@ -10,8 +10,9 @@ import slick.jdbc.JdbcType
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.{ADT, Validation}
-
 import com.github.tminglei.slickpg._
+import failures.HasSearchTerm
+import models.shipping.ShippingMethod
 
 object Promotion {
   val kind = "promotion"
@@ -62,6 +63,10 @@ class Promotions(tag: Tag) extends ObjectHeads[Promotion](tag, "promotions") {
 object Promotions
     extends ObjectHeadsQueries[Promotion, Promotions](new Promotions(_))
     with ReturningId[Promotion, Promotions] {
+
+  implicit object HST extends HasSearchTerm[Promotion.type] {
+    def searchTerm(a: Promotion.type): String = "id"
+  }
 
   val returningLens: Lens[Promotion, Int] = lens[Promotion].id
 

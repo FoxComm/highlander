@@ -1,7 +1,7 @@
 package utils.time
 
 import java.sql.Timestamp
-import java.time.{ZoneOffset, ZoneId}
+import java.time.{ZoneId, ZoneOffset}
 
 import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._

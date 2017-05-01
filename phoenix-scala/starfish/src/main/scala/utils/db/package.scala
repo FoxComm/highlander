@@ -4,17 +4,19 @@ import cats._
 import cats.data._
 import cats.implicits._
 import failures._
-import responses.BatchMetadata
-import scala.concurrent.Future
+
+import scala.concurrent.{ExecutionContext, Future}
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.SQLActionBuilder
 import slick.lifted.Query
 import slick.profile.SqlAction
-import utils.aliases._
 import utils.time.JavaTimeSlickMapper
 
 /*_*/ // <- this little guy will disable IJ lint for the code below
 package object db {
+
+  type EC = ExecutionContext
+  type DB = slick.driver.PostgresDriver.api.Database
 
   // ————————————————————————————— Foxy —————————————————————————————
 
@@ -30,8 +32,9 @@ package object db {
       * error, this can be used to signal that *some* requested jobs
       * have failed, but others did fine, and here’s what we were able
       * to achieve anyway, and here are the errors encountered. */
-    final case class Error(ζ: Failure)           extends MetaResponse
-    final case class BatchInfo(ζ: BatchMetadata) extends MetaResponse
+    final case class Error(ζ: Failure) extends MetaResponse
+    // FIXME: uncomment this & pull BatchMetadata from phoenix into starfish, when getting rid of TheResponse @michalrus
+    /* final case class BatchInfo(ζ: BatchMetadata) extends MetaResponse */
   }
 
   /* We can’t use WriterT for warnings, because of the `failWithMatchedWarning`. */
@@ -368,6 +371,7 @@ package object db {
     // we only use this when we *know* we can call head safely on a query. (e.g., you've created a record which
     // has a FK constraint to another table and you then fetch that associated record -- we already *know* it must
     // exist.
+    // FIXME: if you know it, prove it. Or s/safe/unsafe/ in the name *AND* comment. @michalrus
     def safeGet(implicit ec: EC): DBIO[R] = dbio.map(_.get)
   }
 }
