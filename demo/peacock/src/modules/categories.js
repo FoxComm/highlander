@@ -3,37 +3,6 @@
 import { createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 
-const featured = [
-  {
-    id: 100,
-    name: 'new arrivals',
-  },
-  {
-    id: 101,
-    name: 'best sellers',
-  },
-  {
-    id: 102,
-    name: 'sale',
-  },
-  {
-    id: 103,
-    name: 'EQT',
-  },
-  {
-    id: 104,
-    name: 'superstar',
-  },
-  {
-    id: 105,
-    name: 'workout essentials',
-  },
-  {
-    id: 106,
-    name: 'blue blast',
-  },
-];
-
 const shoes = [
   {
     id: 201,
@@ -227,12 +196,6 @@ const sports = [
 ];
 
 const groups = [
-  {
-    id: 10,
-    name: 'featured',
-    children: featured,
-    ignoreCategoryFilter: true,
-  },
   {
     id: 11,
     name: 'shoes',
