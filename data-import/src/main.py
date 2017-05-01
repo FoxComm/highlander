@@ -246,7 +246,7 @@ def assign_taxonomies(p: Phoenix, settings, taxonomies, data_product, product_id
             es_taxonomy, es_taxon = map_to_es_taxon(p, settings, data_product, taxon, taxonomies, taxonomy)
 
             if es_taxonomy is None or es_taxon is None:
-                print("Skipping taxon '{}' (Taxonomy: '{}')", taxon, taxonomy)
+                print("Skipping taxon '{}' (Taxonomy: '{}')".format(taxon, taxonomy))
             else:
                 p.assign_taxon(product_id, es_taxon.taxon_id)
                 print("taxon {} is assigned to product {}".format(es_taxon.taxon_id, product_id))
