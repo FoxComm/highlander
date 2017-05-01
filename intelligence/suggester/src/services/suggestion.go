@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/FoxComm/highlander/intelligence/suggester/src/payloads"
 	"github.com/FoxComm/highlander/intelligence/suggester/src/responses"
@@ -98,14 +97,13 @@ func GetSuggestion(c echo.Context) error {
 	}
 
 	customerID := customer.CustomerID
-	phoneNumberClean := "+" + strings.Replace(customer.PhoneNumber, " ", "", -1)
 
 	anthillQueryResponse, queryError := util.AntHillQuery(customerID, channel)
 	if queryError != nil {
 		return c.String(http.StatusBadRequest, "queryError: "+queryError.Error())
 	}
 
-	upSellResponse, upSellError := selectUpSellAndPushToSmsDexter(customerID, phoneNumberClean, anthillQueryResponse)
+	upSellResponse, upSellError := selectUpSellAndPushToSmsDexter(customerID, customer.PhoneNumber, anthillQueryResponse)
 	if upSellError != nil {
 		return c.String(http.StatusBadRequest, "upSellError: "+upSellError.Error())
 	}
