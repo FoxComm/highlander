@@ -1,5 +1,6 @@
 // libs
 import React, { Component, PropTypes } from 'react';
+import _ from 'lodash';
 
 // components
 import Table from './table';
@@ -36,13 +37,20 @@ const TableView = props => {
   const topItemsRight = [];
   const bottomItems = [];
 
-  const bulkExport = (
-    <Button
-      styleName="bulk-export"
-      icon="export"
-    />
-  );
-  topItemsRight.push(bulkExport);
+  const handleExport = () => {
+    props.bulkExportAction(props.exportFields, props.exportEntity, props.tableIdentifier);
+  };
+
+  if (props.bulkExport) {
+    const bulkExport = (
+      <Button
+        styleName="bulk-export"
+        icon="export"
+        onClick={handleExport}
+      />
+    );
+    topItemsRight.push(bulkExport);
+  }
 
   if (props.selectableColumns.length) {
     const toggler = (

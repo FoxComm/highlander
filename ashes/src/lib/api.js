@@ -80,7 +80,17 @@ export function request(method, uri, data, options = {}) {
 
   const promise = result
     .then(
-      response => response.body,
+      response => {
+        const disposition = response.header['content-disposition'];
+        if (disposition && disposition.startsWith('attachment')) {
+          const name = disposition.split(';')[1].split('=')[1];
+          return {
+            fileName: name,
+            data: response.text,
+          };
+        }
+        return response.body;
+      },
       err => {
         if (err.status == 401) {
           unauthorizedHandler(err.response);
@@ -138,5 +148,3 @@ export default class Api {
     return this.request('PATCH', ...args);
   }
 }
-
-

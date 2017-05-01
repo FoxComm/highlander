@@ -18,6 +18,8 @@ import OrderRow from './order-row';
 import { ChangeStateModal, CancelModal } from '../bulk-actions/modal';
 import { Link } from '../link';
 
+// actions
+import { bulkExport } from 'modules/bulk-export/bulk-export';
 
 const mapStateToProps = ({orders: {list}}) => {
   return {
@@ -29,6 +31,7 @@ const mapDispatchToProps = dispatch => {
   return {
     actions: bindActionCreators(actions, dispatch),
     bulkActions: bindActionCreators(bulkActions, dispatch),
+    bulkExportAction: bindActionCreators(bulkExport, dispatch),
   };
 };
 
@@ -136,6 +139,9 @@ export default class Orders extends React.Component {
           actions={this.bulkActions}>
           <SelectableSearchList
             entity="orders.list"
+            exportEntity="orders"
+            bulkExport
+            bulkExportAction={this.props.bulkExportAction}
             emptyMessage="No orders found."
             list={list}
             renderRow={this.renderRow}
