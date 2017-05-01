@@ -123,15 +123,22 @@ export default class NavigationItem extends Component {
 
     const children = _.map(item.children, (child) => {
       const url = `${this.baseUrl}${this.getNavUrl(child)}`;
+      const childName = child.ignoreCategoryFilter ? (
+        <span styleName="drawer-item-link">
+          {humanize(child.name)}
+        </span>
+      ) : (
+        <Link
+          styleName="drawer-item-link"
+          to={url}
+          onClick={this.handleClick}
+        >
+          {humanize(child.name)}
+        </Link>
+      );
       return (
         <div key={`${child.name}-sub-category`}>
-          <Link
-            styleName="drawer-item-link"
-            to={url}
-            onClick={this.handleClick}
-          >
-            {humanize(child.name)}
-          </Link>
+          {childName}
           { this.renderSubcategoryItems(child, url) }
         </div>
       );
