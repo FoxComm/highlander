@@ -14,23 +14,34 @@ const getFields = (allFields, identifier) => {
 
 };
 
+const getQuery = (raw) => {
+  if (_.isEmpty(raw)) {
+    return {
+      bool: {},
+    };
+  }
+  return raw.query;
+};
+
 export const bulkExport = createAsyncActions(
   'bulkExport',
   function(fields, entity, identifier) {
+    const { getState } = this;
     const queryFields = getFields(fields, identifier);
+    const selectedSearch = getState().orders.list.selectedSearch;
+    const savedSearch = getState().orders.list.savedSearches[selectedSearch];
+    const query = getQuery(savedSearch.rawQuery);
 
     return Api.post(`/export/${entity}`, {
-      payloadType: "query",
+      payloadType: 'query',
       fields: queryFields,
-      query: {
-        bool: {}
-      }
+      query,
     }).then((res) => {
       const blob = new Blob([res.data]);
       const link = document.createElement('a');
       link.href=window.URL.createObjectURL(blob);
       link.download=res.fileName;
-      link.click()
+      link.click();
     });
   }
 ).perform;
