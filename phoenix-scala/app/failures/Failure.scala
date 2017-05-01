@@ -19,7 +19,7 @@ object StateTransitionNotAllowed {
                searchKey: Any): StateTransitionNotAllowed = {
     StateTransitionNotAllowed(
         s"Transition from $fromState to $toState is not allowed for ${friendlyClassName(a)} " +
-          s"with ${searchTerm(a)}=$searchKey")
+          s"with key=$searchKey")
   }
 
   def apply(from: Order.State, to: Order.State, refNum: String): StateTransitionNotAllowed = {

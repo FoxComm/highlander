@@ -3,7 +3,6 @@ package models.returns
 import com.pellucid.sealerate
 import java.time.Instant
 
-import failures.HasSearchTerm
 import models.returns.Return._
 import models.returns.ReturnReason._
 import shapeless._
@@ -51,8 +50,4 @@ object ReturnReasons
     with ReturningId[ReturnReason, ReturnReasons] {
 
   val returningLens: Lens[ReturnReason, Int] = lens[ReturnReason].id
-
-  implicit object ReturnReasonsHST extends HasSearchTerm[ReturnReasons.type] {
-    def searchTerm(a: ReturnReasons.type): String = "id"
-  }
 }

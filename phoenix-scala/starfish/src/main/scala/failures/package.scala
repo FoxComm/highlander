@@ -31,25 +31,18 @@ package object failures {
     override def description = message
   }
 
-  // TODO: use simulacrum @michalrus
-  trait HasSearchTerm[A] {
-    def searchTerm(a: A): String
-  }
-
   case class NotFoundFailure404(message: String) extends Failure {
     override def description = message
   }
 
   object NotFoundFailure404 {
-    def apply[A: HasSearchTerm](a: A, searchKey: Any): NotFoundFailure404 = {
-      NotFoundFailure404(
-          s"${friendlyClassName(a)} with ${implicitly[HasSearchTerm[A]].searchTerm(a)}=$searchKey not found")
+    def apply[A](a: A, searchKey: Any): NotFoundFailure404 = {
+      NotFoundFailure404(s"${friendlyClassName(a)} with key=$searchKey not found")
     }
 
     // TODO: get rid of this usage @michalrus
-    def apply[A: HasSearchTerm](a: A, searchTerm: String, searchKey: Any): NotFoundFailure404 =
-      NotFoundFailure404(
-          s"${friendlyClassName(a)} with ${implicitly[HasSearchTerm[A]].searchTerm(a)}=$searchKey not found")
+    def apply[A](a: A, searchTerm: String, searchKey: Any): NotFoundFailure404 =
+      NotFoundFailure404(s"${friendlyClassName(a)} with key=$searchKey not found")
 
     // TODO: get rid of this usage @michalrus
     def apply(className: String, searchTerm: String, searchKey: Any): NotFoundFailure404 = {
@@ -62,9 +55,8 @@ package object failures {
   }
 
   object NotFoundFailure400 {
-    def apply[A: HasSearchTerm](a: A, searchKey: Any): NotFoundFailure400 = {
-      NotFoundFailure400(
-          s"${friendlyClassName(a)} with ${implicitly[HasSearchTerm[A]].searchTerm(a)}=$searchKey not found")
+    def apply[A](a: A, searchKey: Any): NotFoundFailure400 = {
+      NotFoundFailure400(s"${friendlyClassName(a)} with key=$searchKey not found")
     }
   }
 

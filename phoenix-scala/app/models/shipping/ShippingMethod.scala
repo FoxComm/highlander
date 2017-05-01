@@ -1,7 +1,7 @@
 package models.shipping
 
 import cats.implicits._
-import failures.{Failures, HasSearchTerm}
+import failures.Failures
 import failures.ShippingMethodFailures.ShippingMethodIsNotActive
 import models.cord.OrderShippingMethods
 import models.rules.QueryStatement
@@ -26,9 +26,6 @@ case class ShippingMethod(id: Int = 0,
 }
 
 object ShippingMethod {
-  implicit object HST extends HasSearchTerm[ShippingMethod.type] {
-    def searchTerm(a: ShippingMethod.type): String = "id"
-  }
   val standardShippingName          = "Standard shipping"
   val standardShippingNameForAdmin  = "Standard shipping (USPS)"
   val expressShippingName           = "2-3 day express"
