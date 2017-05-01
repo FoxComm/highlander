@@ -2,6 +2,7 @@
 
 import { createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
+import _ from 'lodash';
 
 const shoes = [
   {
@@ -219,27 +220,48 @@ const groups = [
   },
 ];
 
+const rejectGroupChildren = (items: Array<Object>, ids: Array<number> = []) => {
+  return _.map(items, (item: Object) => {
+    return {
+      ...item,
+      children: _.reject(item.children, (child: Object) => ids.includes(child.id)),
+    };
+  });
+};
+
 const categories = [
   {
     id: 0,
     name: 'women',
     description: '',
     showNameCatPage: true,
-    children: groups,
+    children: rejectGroupChildren(groups, [
+      202, 204, 207, 208, 210, 211,
+      302, 303, 304, 305, 306, 307, 308, 309,
+      402, 403, 404, 405, 408, 409,
+      505, 506, 510, 511, 512,
+    ]),
   },
   {
     id: 1,
     name: 'men',
     description: '',
     showNameCatPage: true,
-    children: groups,
+    children: rejectGroupChildren(groups, [
+      210, 211,
+      302, 303, 304, 305, 306, 307, 308, 310,
+      512, 514,
+    ]),
   },
   {
     id: 2,
     name: 'kids',
     description: '',
     showNameCatPage: true,
-    children: groups,
+    children: rejectGroupChildren(groups, [
+      206, 208, 209, 210, 211,
+      507, 508, 509, 510, 511, 512, 513, 514,
+    ]),
   },
 ];
 
