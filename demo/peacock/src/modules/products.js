@@ -11,6 +11,9 @@ import _ from 'lodash';
 import { api } from 'lib/api';
 import { browserHistory } from 'lib/history';
 
+// modules
+import { categories } from './categories';
+
 import type { Facet } from 'types/facets';
 
 export type Product = {
@@ -33,6 +36,14 @@ export const PAGE_SIZE = 20;
 const context = process.env.STOREFRONT_CONTEXT || 'default';
 export const GIFT_CARD_TAG = 'GIFT-CARD';
 
+const ignoreCategoryFilterNames = (function getIgnoreCategoryFilterNames(categories, acc = []) {
+  return _.reduce(categories, (acc, cat) => {
+    const found = cat.ignoreCategoryFilter ? [cat.name] : [];
+    if (!cat.children) return [...acc, ...found];
+    return getIgnoreCategoryFilterNames(cat.children, [...acc, ...found]);
+  }, acc);
+})(categories);
+
 function apiCall(
   categoryNames: ?Array<string>,
   sorting: ?{ direction: number, field: string },
@@ -41,7 +52,7 @@ function apiCall(
   { ignoreGiftCards = true, pushHistory = false } = {}): Promise<*> {
   let payload = defaultSearch(String(context));
 
-  _.forEach(_.compact(categoryNames), (cat) => {
+  _.forEach(_.compact(_.difference(categoryNames, ignoreCategoryFilterNames)), (cat) => {
     if (cat !== 'ALL' && cat !== GIFT_CARD_TAG) {
       payload = addCategoryFilter(payload, cat.toUpperCase());
     } else if (cat === GIFT_CARD_TAG) {
