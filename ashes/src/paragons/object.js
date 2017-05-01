@@ -26,8 +26,7 @@ export function guessType(value: any): string {
 }
 
 export function setObjectAttr(obj: Object, key: string, attr: Attribute): Object {
-  return assoc(obj, ['attributes', key, 'v'], attr.v,
-                    ['attributes', key, 't'], attr.t);
+  return assoc(obj, ['attributes', key], attr);
 }
 
 export function omitObjectAttr(obj: Object, key: string): Object {

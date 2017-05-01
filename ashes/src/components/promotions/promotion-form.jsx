@@ -18,7 +18,7 @@ import qualifiers from './qualifiers';
 
 import { setDiscountAttr } from 'paragons/promotion';
 import { setObjectAttr, omitObjectAttr } from 'paragons/object';
-import { customerGroups } from 'paragons/object-types'
+import { customerGroups } from 'paragons/object-types';
 const layout = require('./layout.json');
 
 export default class PromotionForm extends ObjectDetails {

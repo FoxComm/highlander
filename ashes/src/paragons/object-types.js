@@ -17,5 +17,5 @@ export function bool(v: boolean): Attribute {
 }
 
 export function customerGroups(v: Array<number>): Attribute {
-  return { t: 'customerGroups', v }
+  return { t: 'customerGroups', v };
 }
