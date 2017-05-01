@@ -15,21 +15,13 @@ import (
 )
 
 func determineUpSellProductFromAnthillData(customerID string, antHillData responses.AntHillResponse) (responses.ProductInstance, error) {
-	// Query Neo4J for suggested products
-	queryResp, findSuggestedErr := util.FindAllProductsSuggestedForCustomer(customerID)
+	// Query Neo4J for products that this customer has either been Suggested, Purchased and or Declined
+	neo4jResponse, findSuggestedErr := util.FindAllProductsSuggestedForCustomer(customerID)
 	if findSuggestedErr != nil {
 		return responses.ProductInstance{}, findSuggestedErr
 	}
 
-	// Parse response into suggested products array
-	var neo4jResponse responses.Neo4jResponse
-	queryRespBytes := []byte(queryResp)
-	jsonErr := json.Unmarshal(queryRespBytes, &neo4jResponse)
-	if jsonErr != nil {
-		return responses.ProductInstance{}, jsonErr
-	}
-
-	// Build map of suggested product phoenix_id
+	// Build map of suggested, purchased and or declined product phoenix_id(s)
 	if len(neo4jResponse.Results) <= 0 {
 		return responses.ProductInstance{}, errors.New("Customer has no previously suggested products")
 	}
@@ -66,6 +58,7 @@ func selectUpSellAndPushToSmsDexter(customerID string, phoneNumber string, antHi
 
 	upSellProduct, determineUpsellErr := determineUpSellProductFromAnthillData(customerID, antHillData)
 	if determineUpsellErr != nil {
+		fmt.Println("UpSell Error = ", determineUpsellErr)
 		upSellProduct = antHillData.Products[0].Product
 	}
 
@@ -140,7 +133,7 @@ func DeclineSuggestion(c echo.Context) error {
 
 func PurchaseSuggestion(c echo.Context) error {
 	phoneNumber := c.Param("phoneNumber")
-	customerID, productID, productSKU, lookupErr := util.FindCustomerAndProductFromPhoneNumber(phoneNumber)
+	customerID, _, productSKU, lookupErr := util.FindCustomerAndProductFromPhoneNumber(phoneNumber)
 	if lookupErr != nil {
 		return c.String(http.StatusBadRequest, lookupErr.Error())
 	}
@@ -148,11 +141,6 @@ func PurchaseSuggestion(c echo.Context) error {
 	purchaseResp, purchaseErr := util.OneClickPurchase(customerID, productSKU)
 	if purchaseErr != nil {
 		return c.String(http.StatusBadRequest, purchaseErr.Error())
-	}
-
-	_, purchaseRelationErr := util.CreateNewPurchasedProductRelation(customerID, productID)
-	if purchaseRelationErr != nil {
-		return c.String(http.StatusBadRequest, purchaseRelationErr.Error())
 	}
 
 	return c.String(http.StatusOK, purchaseResp)
