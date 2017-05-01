@@ -13,7 +13,7 @@ import Error from 'components/errors/error';
 import LocalNav from 'components/local-nav/local-nav';
 import WaitAnimation from 'components/common/wait-animation';
 import ArchiveActionsSection from 'components/archive-actions/archive-actions';
-import ButtonWithMenu from '../common/button-with-menu';
+import ButtonWithMenu from 'components/core/button-with-menu';
 
 
 // helpers

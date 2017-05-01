@@ -3,7 +3,6 @@
 - include_vars: aws.yml
 
 # Phoenix
-
 - name: Get Latest Phoenix Seeder Image
   shell: docker pull {{docker_registry}}:5000/phoenix-seeder:{{docker_tags.phoenix}}
   when: with_base_seeds is defined and with_base_seeds
@@ -13,7 +12,6 @@
   when: with_gatling_seeder is defined and with_gatling_seeder
 
 # Middlewarehouse
-
 - name: Create Middlewarehouse Seeder directory
   file: path="{{middlewarehouse_dir}}/seeder" state=directory
   when: with_mwh_seeder is defined and with_mwh_seeder
@@ -31,7 +29,6 @@
   when: with_mwh_seeder is defined and with_mwh_seeder
 
 # Hyperion
-
 - name: Create Hyperion Seeder directory
   file: path="{{hyperion_dir}}/priv/seeds" state=directory
   when: with_hyperion_seeder is defined and with_hyperion_seeder
@@ -45,7 +42,6 @@
   when: with_hyperion_seeder is defined and with_hyperion_seeder
 
 # Data Import
-
 - name: Create Data Import Directory
   file:
     path: "{{data_import_dir}}"
@@ -94,6 +90,7 @@
 
 - name: Take a nap for indexing to catch up
   pause: seconds=45
+  when: with_data_import is defined and with_data_import
 
 - name: Run Products Import Container
   command: docker run --env-file "{{data_import_dir}}/.env.products" -v "{{data_import_dir}}:/data-import/data" --network host {{data_import_docker_url}}

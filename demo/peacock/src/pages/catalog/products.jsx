@@ -121,7 +121,9 @@ class Products extends Component {
         toLoad,
       });
 
-      this.fetch(categoryNames, sorting, selectedFacets, toLoad);
+      this.fetch(categoryNames, sorting, selectedFacets, toLoad, {
+        pushHistory: true,
+      });
     }
   }
 
@@ -147,7 +149,9 @@ class Products extends Component {
       toLoad: PAGE_SIZE,
     });
 
-    this.fetch(categoryNames, newState, selectedFacets, PAGE_SIZE);
+    this.fetch(categoryNames, newState, selectedFacets, PAGE_SIZE, {
+      pushHistory: true,
+    });
   }
 
   @autobind
@@ -164,7 +168,9 @@ class Products extends Component {
       toLoad: nextToLoad,
     });
 
-    this.fetch(categoryNames, sorting, selectedFacets, nextToLoad);
+    this.fetch(categoryNames, sorting, selectedFacets, nextToLoad, {
+      pushHistory: true,
+    });
   }
 
   @autobind
@@ -203,7 +209,9 @@ class Products extends Component {
       toLoad,
     });
 
-    this.fetch(categoryNames, sorting, selectedFacets, toLoad);
+    this.fetch(categoryNames, sorting, selectedFacets, toLoad, {
+      pushHistory: true,
+    });
   }
 
   @autobind
@@ -237,7 +245,9 @@ class Products extends Component {
     const categoryNames = [categoryName, subCategory, leafCategory];
     const { sorting, selectedFacets, toLoad } = this.props.filters;
 
-    this.fetch(categoryNames, sorting, selectedFacets, toLoad);
+    this.fetch(categoryNames, sorting, selectedFacets, toLoad, {
+      pushHistory: true,
+    });
   }
 
   get navBar(): ?Element<*> {

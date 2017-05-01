@@ -1,4 +1,3 @@
-
 /* @flow */
 
 import _ from 'lodash';
@@ -152,7 +151,7 @@ class ProductsQualifier extends Component {
     }
   }
 
-  render() {
+  render(): Element<*> {
     return (
       <div styleName="products">
         <strong styleName="label">{this.props.label}</strong>

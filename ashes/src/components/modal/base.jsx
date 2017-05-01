@@ -3,7 +3,7 @@
 // libs
 import noop from 'lodash/noop';
 import React, { Element } from 'react';
-import Transition from 'react-addons-css-transition-group';
+import Transition from 'react-transition-group/CSSTransitionGroup';
 
 // components
 import Overlay from 'components/overlay/overlay';

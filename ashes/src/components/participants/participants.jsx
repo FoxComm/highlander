@@ -14,7 +14,7 @@ import { groups } from 'paragons/participants';
 // components
 import WaitAnimation from '../common/wait-animation';
 import SelectAdminsModal from '../users/select-modal';
-import { AddButton, Button } from '../common/buttons';
+import { AddButton, Button } from 'components/core/button';
 import DetailedInitials from '../user-initials/detailed-initials';
 
 // actions

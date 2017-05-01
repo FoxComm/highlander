@@ -505,7 +505,7 @@ export default class Analytics extends React.Component {
           case questionTitles.TotalOrders:
           case questionTitles.TotalPdPViews:
           case questionTitles.TotalInCarts:
-            qb.content = productValue.toString();
+            qb.content = Math.max(0, parseInt(productValue)).toString();
             break;
           case questionTitles.ProductConversionRate:
             qb.content = `${_.round(productValue, 2)}%`;

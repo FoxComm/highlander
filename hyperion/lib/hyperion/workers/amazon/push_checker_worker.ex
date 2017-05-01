@@ -52,7 +52,7 @@ defmodule Hyperion.Amazon.Workers.PushCheckerWorker do
       {:error, error} -> Logger.error "Push ID: #{push.id} checking error: #{inspect(error)}"
       {_, resp} ->
         feed_result_name = String.to_atom("#{Atom.to_string(feed_name)}_result")
-        data = %{feed_result_name => resp["AmazonEnvelope"]["Message"]["ProcessingReport"]}
+        data = resp["AmazonEnvelope"]["Message"]["ProcessingReport"]
         store_result(push.id, feed_result_name, data)
     end
   end
@@ -62,7 +62,7 @@ defmodule Hyperion.Amazon.Workers.PushCheckerWorker do
     row = Ecto.Changeset.change(row, %{feed_result_name => result})
     case Hyperion.Repo.update(row) do
       {:ok, struct} ->
-        Logger.info("#{push_id} #{inspect(result)}")
+        Logger.info("Push ID: #{push_id}. #{feed_result_name}: #{inspect(result)}")
         mark_as_complete(struct)
       {:error, changeset} -> Logger.error("#{push_id}: Error while updating push with results: #{inspect(changeset)}")
     end

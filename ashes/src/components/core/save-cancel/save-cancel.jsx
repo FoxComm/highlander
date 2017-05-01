@@ -2,26 +2,42 @@
 
 // libs
 import { isEmpty, noop } from 'lodash';
-import React, { Component } from 'react';
 import classNames from 'classnames';
+import React, { Component } from 'react';
 
 // components
-import { Button, PrimaryButton } from './buttons';
-import ButtonWithMenu from './button-with-menu';
+import { Button, PrimaryButton } from 'components/core/button';
+import ButtonWithMenu from 'components/core/button-with-menu';
+
+// styles
+import s from './save-cancel.css';
 
 type Props = {
+  /** Additional className */
   className?: string;
+  /** Component tabindex value */
   cancelTabIndex: string;
+  /** Save button tabindex value */
   saveTabIndex: string;
-  cancelText: string;
+  /** Cancel button label */
+  cancelText?: string;
+  /** If cancel button is disabled */
   cancelDisabled?: boolean;
-  saveText: string;
+  /** Save button label */
+  saveText?: string;
+  /** If save button is disabled */
   saveDisabled?: boolean;
+  /** If provided, save button acts as a ButtonWithMenu - it provides additional actions in a menu */
   saveItems?: SaveComboItems,
+  /** Dropdown menu position. Affects animation start position (css's transform-origin). Used when 'saveItems' is not empty  */
   saveMenuPosition?: 'left'|'right',
+  /** Callback called on save button click */
   onSave?: (value: any) => void;
+  /** Callback called on menu item click. Used when 'saveItems' is not empty  */
   onSaveSelect?: (value: any) => void;
+  /** Callback called on cancel button click */
   onCancel?: (event: SyntheticEvent) => void;
+  /** If to show loading animation */
   isLoading?: boolean;
 };
 
@@ -34,12 +50,19 @@ type Props = {
 export default class SaveCancel extends Component {
   props: Props;
 
-  static defaultProps = {
+  static defaultProps: $Shape<Props> = {
+    className: '',
     cancelTabIndex: '0',
-    cancelText: 'Cancel',
-    cancelParams: {},
     saveTabIndex: '1',
+    cancelText: 'Cancel',
+    cancelDisabled: false,
     saveText: 'Save',
+    saveDisabled: false,
+    saveItems: [],
+    saveMenuPosition: 'right',
+    onSaveSelect: noop,
+    onCancel: noop,
+    isLoading: false,
   };
 
   get cancel() {
@@ -55,7 +78,7 @@ export default class SaveCancel extends Component {
         id="fct-modal-cancel-btn"
         type="button"
         onClick={onCancel}
-        className="fc-save-cancel__cancel"
+        className={classNames(s.cancel, 'fc-save-cancel__cancel')}
         tabIndex={cancelTabIndex}
         disabled={cancelDisabled}
         children={cancelText}
@@ -95,7 +118,7 @@ export default class SaveCancel extends Component {
       <PrimaryButton
         id="fct-modal-confirm-btn"
         type={onSave ? 'button' : 'submit'}
-        onClick={onSave ? onSave : noop}
+        onClick={onSave}
         className="fc-save-cancel__save"
         tabIndex={saveTabIndex}
         isLoading={isLoading}

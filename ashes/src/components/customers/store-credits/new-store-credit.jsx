@@ -16,7 +16,7 @@ import FormField from '../../forms/formfield';
 import Form from '../../forms/form';
 import Dropdown from '../../dropdown/dropdown';
 import Currency from '../../common/currency';
-import SaveCancel from '../../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 
 // redux
 import * as CustomerActions from '../../../modules/customers/details';
@@ -194,7 +194,7 @@ export default class NewStoreCredit extends React.Component {
       '_hidden': _.isEmpty(this.scSubtypes)
     });
 
-    const { form, createStoreCredit, changeScFormData } = this.props;
+    const { form, changeScFormData } = this.props;
 
     return (
       <Form className="fc-store-credit-form fc-form-vertical"

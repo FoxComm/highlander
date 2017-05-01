@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Feature Branch Appliance
+- name: Initial Feature Branch Appliance Provision
   hosts: '{{hostname}}'
   become: true
   vars:
@@ -12,6 +12,10 @@
     is_appliance: true
     is_amigo: true
     mesos_quorum: 1
+    with_base_seeds: true
+    with_mwh_seeder: true
+    with_hyperion_seeder: true
+    with_data_import: true
     dns_record: "{{hostname}}"
     appliance_hostname: "{{dns_record}}.{{foxcomm_domain}}"
     api_server: "{{dns_record}}.{{foxcomm_domain}}"
@@ -40,7 +44,7 @@
     - { role: dev/seed_system }
     - { role: dev/marathon }
     - { role: dev/marathon_consumers }
-    - { role: dev/ic }
+    - { role: dev/ic, when: with_ic }
     - { role: ext/td/storefront, when: marathon_restart.storefront_td }
     - { role: ext/tpg/storefront, when: marathon_restart.storefront_td }
     # Nginx

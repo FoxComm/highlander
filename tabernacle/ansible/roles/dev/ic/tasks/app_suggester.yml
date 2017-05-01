@@ -1,5 +1,7 @@
 ---
 
+- include_vars: suggester.yml
+
 - name: Copy Suggester Marathon JSON
   template: src=suggester.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 

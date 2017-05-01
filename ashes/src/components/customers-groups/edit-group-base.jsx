@@ -5,7 +5,7 @@ import { transitionToLazy } from 'browserHistory';
 
 import Form from 'components/forms/form';
 import ErrorAlerts from 'components/alerts/error-alerts';
-import SaveCancel from 'components/common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 import DynamicGroupEditor from './editor/group-editor';
 
 type Props = {

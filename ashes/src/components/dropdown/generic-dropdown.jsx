@@ -8,7 +8,7 @@ import classNames from 'classnames';
 
 import DropdownItem from './dropdownItem';
 import Overlay from '../overlay/overlay';
-import { Button } from '../common/buttons';
+import { Button } from 'components/core/button';
 import BodyPortal from '../body-portal/body-portal';
 
 export type ValueType = ?string | number;
