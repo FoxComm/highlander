@@ -155,12 +155,11 @@ export default class PromotionForm extends ObjectDetails {
   @autobind
   handleQualifyAllChange(isAllQualify) {
     const promotion = this.props.object;
-    const arr = isAllQualify ? null : [];
     let newPromotion;
     if (isAllQualify) {
       newPromotion = omitObjectAttr(promotion, 'customerGroupIds');
     } else {
-      newPromotion = setObjectAttr(promotion, 'customerGroupIds', customerGroups(arr));
+      newPromotion = setObjectAttr(promotion, 'customerGroupIds', customerGroups([]));
     }
     this.props.onUpdateObject(newPromotion);
   }
