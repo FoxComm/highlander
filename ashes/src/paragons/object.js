@@ -23,6 +23,17 @@ export function guessType(value: any): string {
   }
 }
 
+export function setObjectAttr(obj: Object, key: string, attr: Attribute): Object {
+  _.set(obj, ['attributes', key, 'v'], attr.v);
+  _.set(obj, ['attributes', key, 't'], attr.t);
+  return obj;
+}
+
+export function omitObjectAttr(obj: Object, key: string): Object {
+  _.unset(obj, ['attributes', key]);
+  return obj;
+}
+
 function supressor(object: Object): Object {
   if (object.attributes) {
     object.attributes = _.reduce(object.attributes, (acc, value, key) => {

@@ -16,6 +16,7 @@
             "customerGroupIds",
             "description",
             "details",
+            "usageRules",
             "activeFrom",
             "activeTo",
             "tags"
