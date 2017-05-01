@@ -23,13 +23,21 @@ const getQuery = (raw) => {
   return raw.query;
 };
 
+const genDownloadLink = (response) => {
+  const blob = new Blob([response.data]);
+  const link = document.createElement('a');
+  link.href=window.URL.createObjectURL(blob);
+  link.download=response.fileName;
+  link.click();
+};
+
 export const bulkExport = createAsyncActions(
   'bulkExport',
   function(fields, entity, identifier) {
     const { getState } = this;
     const queryFields = getFields(fields, identifier);
-    const selectedSearch = getState().orders.list.selectedSearch;
-    const savedSearch = getState().orders.list.savedSearches[selectedSearch];
+    const selectedSearch = getState()[entity].list.selectedSearch;
+    const savedSearch = getState()[entity].list.savedSearches[selectedSearch];
     const query = getQuery(savedSearch.rawQuery);
 
     return Api.post(`/export/${entity}`, {
@@ -37,11 +45,26 @@ export const bulkExport = createAsyncActions(
       fields: queryFields,
       query,
     }).then((res) => {
-      const blob = new Blob([res.data]);
-      const link = document.createElement('a');
-      link.href=window.URL.createObjectURL(blob);
-      link.download=res.fileName;
-      link.click();
+      genDownloadLink(res);
     });
+  }
+).perform;
+
+export const bulkExportByIds = createAsyncActions(
+  'bulkExportByIds',
+  function(ids, fields, entity, identifier, description) {
+    const queryFields = getFields(fields, identifier);
+    const payload = {
+      ids,
+      fields: queryFields,
+    };
+    if (description != null) payload.description = description;
+
+    return Api.post(`/export/${entity}`, {
+      payloadType: 'ids',
+      ...payload,
+    }).then((res) => {
+      genDownloadLink(res);
+    });;
   }
 ).perform;

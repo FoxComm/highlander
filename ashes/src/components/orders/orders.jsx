@@ -15,11 +15,11 @@ import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
 import { SelectableSearchList } from '../list-page';
 import OrderRow from './order-row';
-import { ChangeStateModal, CancelModal } from '../bulk-actions/modal';
+import { ChangeStateModal, CancelModal, BulkExportModal } from '../bulk-actions/modal';
 import { Link } from '../link';
 
 // actions
-import { bulkExport } from 'modules/bulk-export/bulk-export';
+import { bulkExport, bulkExportByIds } from 'modules/bulk-export/bulk-export';
 
 const mapStateToProps = ({orders: {list}}) => {
   return {
@@ -32,6 +32,7 @@ const mapDispatchToProps = dispatch => {
     actions: bindActionCreators(actions, dispatch),
     bulkActions: bindActionCreators(bulkActions, dispatch),
     bulkExportAction: bindActionCreators(bulkExport, dispatch),
+    bulkExportByIds: bindActionCreators(bulkExportByIds, dispatch),
   };
 };
 
@@ -55,12 +56,34 @@ export default class Orders extends React.Component {
 
   @autobind
   cancelOrders(allChecked, toggledIds) {
-    const {cancelOrders} = this.props.bulkActions;
+    const { cancelOrders } = this.props.bulkActions;
 
     return (
       <CancelModal
         count={toggledIds.length}
-        onConfirm={(reasonId) => cancelOrders(toggledIds, reasonId)} />
+        onConfirm={(reasonId) => cancelOrders(toggledIds, reasonId)}/>
+    );
+  }
+
+  @autobind
+  getIdsByRefNum(refNums, list) {
+    return _.filter(list, (entry) => {
+      return refNums.indexOf(entry.referenceNumber) !== -1;
+    }).map((e) => e.id);
+  }
+
+  @autobind
+  bulkExport(allChecked, toggledIds) {
+    const { bulkExportByIds, list } = this.props;
+    const fields = _.map(tableColumns, (c) => c.field);
+    const identifier = tableColumns.map(item => item.text).toString();
+    const results = list.currentSearch().results.rows;
+    const ids = this.getIdsByRefNum(toggledIds, results);
+    return (
+      <BulkExportModal
+        count={toggledIds.length}
+        onConfirm={(description) => bulkExportByIds(ids, fields, 'orders', identifier, description)}
+      />
     );
   }
 
@@ -90,9 +113,28 @@ export default class Orders extends React.Component {
     ];
   }
 
+  get cancelOrdersAction() {
+    return [
+      'Cancel Selected Orders',
+      this.cancelOrders,
+      'successfully canceled',
+      'could not be canceled',
+    ];
+  }
+
+  get bulkExportAction() {
+    return [
+      'Export Selected Orders',
+      this.bulkExport,
+      'successfully exported',
+      'could not be exported',
+    ];
+  }
+
   get bulkActions() {
     return [
-      ['Cancel Orders', this.cancelOrders, 'successfully canceled', 'could not be canceled'],
+      this.bulkExportAction,
+      this.cancelOrdersAction,
       this.getChangeOrdersStateAction('manualHold'),
       this.getChangeOrdersStateAction('fraudHold'),
       this.getChangeOrdersStateAction('remorseHold'),
@@ -124,7 +166,6 @@ export default class Orders extends React.Component {
 
   render() {
     const {list, actions} = this.props;
-
     return (
       <div>
         <BulkMessages

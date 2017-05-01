@@ -47,7 +47,6 @@ const changeOrdersState = (actions, referenceNumbers, state) =>
       );
   };
 
-
 const { actions, reducer } = createStore({
   path: 'orders.bulk',
   actions: {
