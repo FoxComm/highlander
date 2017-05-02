@@ -5,7 +5,7 @@ import React, { Element } from 'react';
 
 import { numberize } from 'lib/text-utils';
 
-import modal from 'components/modal/wrapper';
+import wrapModal from 'components/modal/wrapper';
 import ModalBase from './modal-base';
 
 type Props = {
@@ -37,4 +37,6 @@ const ChangeStateModal = (props: Props) => {
   );
 };
 
-export default modal(ChangeStateModal);
+const Wrapped: Class<React.Component<void, Props, any>> = wrapModal(ChangeStateModal);
+
+export default Wrapped;

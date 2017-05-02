@@ -10,8 +10,8 @@ import slick.jdbc.JdbcType
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.{ADT, Validation}
-
 import com.github.tminglei.slickpg._
+import models.shipping.ShippingMethod
 
 object Promotion {
   val kind = "promotion"

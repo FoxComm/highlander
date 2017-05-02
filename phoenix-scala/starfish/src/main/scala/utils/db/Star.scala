@@ -7,7 +7,6 @@ import failures.Failures
 import scala.concurrent.Future
 import slick.dbio._
 import slick.profile.SqlAction
-import utils.aliases.EC
 
 object * {
   def <~[A](v: DBIO[Either[Failures, A]])(implicit M: Monad[DBIO]): DbResultT[A] =

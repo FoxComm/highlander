@@ -78,6 +78,7 @@ const scheduleHandler = (props: Props) => (allChecked, toggledIds) => {
       entity={props.entity}
       count={toggledIds.length}
       onConfirm={handleConfirm}
+      onCancel={() => {}}
     />
   );
 };
