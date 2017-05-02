@@ -2,11 +2,12 @@ import cats.implicits._
 import failures.NotFoundFailure404
 import models.account._
 import models.cord.OrderShippingAddresses
-import models.location.{Address, Addresses}
+import models.location.{Address, Addresses, Country}
 import payloads.AddressPayloads.CreateAddressPayload
 import responses.AddressResponse
+import responses.PublicResponses.CountryWithRegions
 import testutils._
-import testutils.apis.PhoenixAdminApi
+import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.{ApiFixtureHelpers, randomAddress}
 
@@ -16,6 +17,7 @@ class AddressesIntegrationTest
     with DefaultJwtAdminAuth
     with ApiFixtureHelpers
     with PhoenixAdminApi
+    with PhoenixPublicApi
     with BakedFixtures {
 
   "GET /v1/customers/:customerId/addresses" - {
@@ -152,6 +154,39 @@ class AddressesIntegrationTest
           .onlyElement
           .id must === (address.id)
       }
+    }
+  }
+
+  "GET country by id" - {
+    "Make sure that we have region short name provided" in {
+      val countryWithRegions =
+        publicApi.getCountryById(Country.unitedStatesId).as[CountryWithRegions]
+      countryWithRegions.country.id must === (Country.unitedStatesId)
+      countryWithRegions.country.alpha2 must === ("US")
+
+      countryWithRegions.regions.map { region ⇒
+        (region.abbreviation, region.name)
+      } must contain
+      theSameElementsAs(
+          List(
+              ("CA".some, "California"),
+              ("CO".some, "Colorado"),
+              ("DE".some, "Delaware")
+          ))
+    }
+
+    "Should not contain absent or non-existent regions" in {
+      val countryWithRegions =
+        publicApi.getCountryById(Country.unitedStatesId).as[CountryWithRegions]
+
+      countryWithRegions.regions.map { region ⇒
+        (region.abbreviation, region.name)
+      } mustNot contain
+      theSameElementsAs(
+          List(
+              ("MSK".some, "Moscow"),
+              ("MO".some, "Moscow Oblast")
+          ))
     }
   }
 

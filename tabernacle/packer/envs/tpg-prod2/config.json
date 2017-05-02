@@ -1,0 +1,10 @@
+{
+    "project_base": "tpg-prod2",
+    "account_file": "foxcomm-vanilla.json",
+    "project_id": "foxcommerce-production-shared",
+    "network": "tpg",
+    "zone": "us-central1-a",
+    "base_ubuntu_image": "ubuntu-1604-xenial-v20160921",
+    "base_united_image": "base-170428-052705",
+    "ssh_username": "ubuntu"
+}

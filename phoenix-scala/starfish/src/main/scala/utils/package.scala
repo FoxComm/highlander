@@ -2,7 +2,7 @@ import scala.language.implicitConversions
 import utils.Strings._
 
 package object utils {
-  def generateUuid: String = java.util.UUID.randomUUID.toString
+  def generateUuid: String = java.util.UUID.randomUUID.toString // FIXME: please… @michalrus
 
   def friendlyClassName[A](a: A): String =
     a.getClass.getSimpleName.replaceAll("""\$""", "").lowerCaseFirstLetter
@@ -16,8 +16,9 @@ package object utils {
     })
 
   implicit class OptionError[A](val o: Option[A]) extends AnyVal {
-    def getOrError(text: String): A = o.getOrElse {
-      throw new NoSuchElementException(text)
-    }
+    def getOrError(text: String): A =
+      o.getOrElse { // FIXME: PLEASE. Prove statically at usage sites. @michalrus
+        throw new NoSuchElementException(text)
+      }
   }
 }

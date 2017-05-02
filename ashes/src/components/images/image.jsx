@@ -28,7 +28,7 @@ export type Props = {
 type State = {
   editMode: boolean;
   deleteMode: boolean;
-}
+};
 
 export default class Image extends Component<void, Props, State> {
   props: Props;

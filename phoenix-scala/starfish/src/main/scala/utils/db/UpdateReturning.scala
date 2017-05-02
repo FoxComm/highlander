@@ -11,10 +11,9 @@ import slick.lifted.Query
 import slick.profile.SqlStreamingAction
 import slick.relational.{CompiledMapping, ResultConverter}
 import slick.util.SQLBuilder
-import utils.aliases._
 
 /*
- * Provides an implicit conversion to allow for UDPATE _ RETURNING _ queries
+ * Provides an implicit conversion to allow for UPDATE _ RETURNING _ queries
  * Usage: Customers.filter(_.id === 1).map(_.firstName).
  *  updateReturning(Customers.map(_.firstName), ("blah"))
  *

@@ -1,4 +1,3 @@
-
 /* @flow */
 
 import _ from 'lodash';
@@ -10,7 +9,7 @@ import { bindActionCreators } from 'redux';
 import styles from './select-products.css';
 
 import SelectVertical from '../../select-verical/select-vertical';
-import { Dropdown, DropdownItem } from '../../dropdown';
+import { Dropdown } from '../../dropdown';
 
 import { actions } from '../../../modules/products/list';
 import type { Context } from '../types';
@@ -152,7 +151,7 @@ class ProductsQualifier extends Component {
     }
   }
 
-  render() {
+  render(): Element<*> {
     return (
       <div styleName="products">
         <strong styleName="label">{this.props.label}</strong>
