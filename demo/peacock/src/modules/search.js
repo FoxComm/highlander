@@ -30,8 +30,8 @@ const _search = createAsyncActions('search',
 
 export function searchProducts(searchTerm: string) {
   return (dispatch: Function, getState: Function) => {
-    const { term, force } = getState().search;
-    const { search = {} } = getState().asyncActions;
+    const { term, force, asyncActions } = getState();
+    const { search = {} } = asyncActions;
 
     if (force || term != searchTerm) {
       dispatch(_search.perform(searchTerm));
