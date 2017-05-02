@@ -11,6 +11,7 @@ ARG db_name="hyperion_development"
 ARG db_user="hyperion"
 ARG db_password=""
 ARG push_check_interval=5
+ARG orders_fetch_interval=1440
 ARG hyperion_env=prod
 
 ENV HYPERION_DB_NAME $db_name
@@ -18,6 +19,7 @@ ENV HYPERION_DB_USER $db_user
 ENV HYPERION_DB_PASSWORD $db_password
 ENV HYPERION_DB_HOST $db_host
 ENV PUSH_CHECK_INTERVAL $push_check_interval
+ENV ORDERS_FETCH_INTERVAL $orders_fetch_interval
 ENV MIX_ENV $hyperion_env
 
 RUN mix local.hex --force
