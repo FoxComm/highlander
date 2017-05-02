@@ -19,6 +19,8 @@ final case class CouponsSearchView()(implicit ec: EC) extends AvroTransformer {
       field("activeFrom", DateType).format(dateFormat),
       field("activeTo", DateType).format(dateFormat),
       field("totalUsed", IntegerType),
+      field("maxUsesPerCode", IntegerType),
+      field("maxUsesPerCustomer", IntegerType),
       field("createdAt", DateType).format(dateFormat),
       field("archivedAt", DateType).format(dateFormat)
   )

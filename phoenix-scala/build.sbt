@@ -9,6 +9,7 @@ scalaVersion in ThisBuild := Versions.scala
 scalaOrganization in ThisBuild := "org.typelevel"
 
 lazy val phoenixScala = (project in file("."))
+  .dependsOn(starfish)
   .settings(commonSettings)
   .configs(IT, ET)
   .settings(itSettings, etSettings)
@@ -28,9 +29,8 @@ lazy val phoenixScala = (project in file("."))
     ),
     libraryDependencies ++= {
       import Dependencies._
-      akka ++ http ++ auth ++ db ++ slick ++ json4s ++ fasterxml ++ apis ++ logging ++ test ++ misc ++ kafka
+      akka ++ http ++ auth ++ json4s ++ fasterxml ++ apis ++ logging ++ test ++ misc ++ kafka
     },
-    addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.3"),
     scalaSource in Compile := baseDirectory.value / "app",
     scalaSource in Test    := baseDirectory.value / "test" / "unit",
     scalaSource in IT      := baseDirectory.value / "test" / "integration",
@@ -108,6 +108,17 @@ lazy val seeder = (project in file("seeder"))
       (fullClasspath in assembly).value.filterNot(_.data.getAbsolutePath.startsWith(phoenixClasses))
     },
     assemblyExcludedJars in assembly := (fullClasspath in assembly in phoenixScala).value
+  )
+
+lazy val starfish = (project in file("starfish"))
+  .settings(
+    commonSettings,
+    scalafmtConfig := Some(file(".scalafmt")),
+    reformatOnCompileSettings, // scalafmt,
+    libraryDependencies ++= {
+      import Dependencies._
+      cats ++ shapeless ++ db ++ slick ++ json4s
+    }
   )
 
 fullAssembly := Def.task().dependsOn(writeVersion in phoenixScala, assembly in phoenixScala, assembly in seeder).value

@@ -1,10 +1,7 @@
 ---
 
-- name: Build Consul Alerts from Fork Repository
-  command: go get github.com/FoxComm/consul-alerts
-
-- name: Copy Consul Alerts Binary
-  command: mv $GOPATH/bin/consul-alerts /usr/local/bin/consul-alerts
+- name: Get Consul Alerts
+  get_url: url={{consul_alerts_url}} dest=/usr/local/bin/consul-alerts
 
 - name: Make Consul Alerts Executable
   file: path=/usr/local/bin/consul-alerts mode=750

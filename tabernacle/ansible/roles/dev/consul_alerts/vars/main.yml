@@ -1,0 +1,2 @@
+consul_alerts_base_url: https://github.com/FoxComm/consul-alerts
+consul_alerts_url: "{{consul_alerts_base_url}}/releases/download/v0.3.4/consul-alerts-linux-amd64"

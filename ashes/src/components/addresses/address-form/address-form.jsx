@@ -2,7 +2,6 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import InputMask from 'react-input-mask';
-import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -13,7 +12,7 @@ import FormField from '../../forms/formfield';
 import FoxyForm from '../../forms/foxy-form';
 import ErrorAlerts from '../../alerts/error-alerts';
 import SaveCancel from 'components/core/save-cancel';
-import { Dropdown, DropdownItem } from '../../dropdown';
+import { Dropdown } from '../../dropdown';
 import TextInput from '../../forms/text-input';
 import AutoScroll from '../../common/auto-scroll';
 
@@ -228,7 +227,6 @@ export default class AddressForm extends React.Component {
   render() {
     const { address, onCancel, saveTitle } = this.props;
     const countryCode = this.countryCode;
-    const regionId = _.get(address, 'region.id');
 
     return (
       <div className="fc-address-form">

@@ -8,7 +8,7 @@ import { numberize } from '../../../lib/text-utils';
 
 // components
 import ModalBase from './modal-base';
-import modal from 'components/modal/wrapper';
+import wrapModal from 'components/modal/wrapper';
 import { CancelReason } from '../../fields';
 
 type Props = {
@@ -19,10 +19,14 @@ type Props = {
   onConfirm: Function;
 };
 
+type State = {
+  reason: any;
+};
+
 class CancelModal extends Component {
   props: Props;
 
-  state = {
+  state: State = {
     reason: null
   };
 
@@ -59,4 +63,6 @@ class CancelModal extends Component {
   }
 }
 
-export default modal(CancelModal);
+const Wrapped: Class<Component<void, Props, State>> = wrapModal(CancelModal);
+
+export default Wrapped;

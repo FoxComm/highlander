@@ -25,7 +25,7 @@ type Props = {
 
 type State = {
   name: string;
-}
+};
 
 class EditAlbum extends Component {
 
@@ -99,4 +99,6 @@ class EditAlbum extends Component {
   }
 }
 
-export default wrapModal(EditAlbum);
+const Wrapped: Class<Component<void, Props, State>> = wrapModal(EditAlbum);
+
+export default Wrapped;

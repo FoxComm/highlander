@@ -23,11 +23,4 @@ class UtilsTest extends TestBase {
     }
   }
 
-  "singularize" - {
-    "should singularize table names properly" in {
-      "orders".tableNameToCamel must === ("order")
-      "order_line_items".tableNameToCamel must === ("orderLineItem")
-      "activities".tableNameToCamel must === ("activity")
-    }
-  }
 }

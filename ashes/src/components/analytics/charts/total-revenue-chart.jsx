@@ -125,7 +125,7 @@ class TotalRevenueChart extends React.Component {
 
   @autobind
   generateDataTickValues(jsonData: any) {
-    const { debugMode, queryKey, segmentType } = this.props;
+    const { debugMode, segmentType } = this.props;
 
     const jsonDisplay = (debugMode) ? debugJsonData[debugQueryKey] : jsonData;
 
