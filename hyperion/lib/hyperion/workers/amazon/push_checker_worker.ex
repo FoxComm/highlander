@@ -8,12 +8,8 @@ defmodule Hyperion.Amazon.Workers.PushCheckerWorker do
   end
 
   def init(state) do
-    case Mix.env do
-      :test -> {:ok, state}
-      _ ->
-        schedule_work()
-        {:ok, state}
-    end
+    schedule_work()
+    {:ok, state}
   end
 
   def handle_info(:work, state) do
