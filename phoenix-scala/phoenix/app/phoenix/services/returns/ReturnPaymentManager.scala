@@ -19,8 +19,9 @@ import phoenix.services.carts.CartTotaler
 import phoenix.utils.aliases._
 import phoenix.utils.apis.{Apis, RefundReason}
 import slick.jdbc.PostgresProfile.api._
-
 import scala.annotation.tailrec
+import utils.db._
+import models.payment.applepay.ApplePayments
 
 object ReturnPaymentManager {
   def updatePayments(refNum: String, payments: Map[PaymentMethod.Type, Int], overwrite: Boolean)(
@@ -157,7 +158,7 @@ object ReturnPaymentManager {
       db: DB): DbResultT[ReturnPayment] =
     for {
       cc ← * <~ CreditCards.mustFindById404(payment.paymentMethodId)
-      _  ← * <~ deleteCcPayment(returnId)
+      _  ← * <~ deleteExternalPayment(returnId)
       ccRefund ← * <~ ReturnPayments.create(
                     ReturnPayment(returnId = returnId,
                                   amount = amount,
@@ -169,11 +170,16 @@ object ReturnPaymentManager {
   private def addApplePayment(returnId: Int, payment: OrderPayment, amount: Int)(implicit ec: EC,
                                                                                  db: DB,
                                                                                  au: AU) =
-    DbResultT.pure(
-        ReturnPayment(
-            paymentMethodId = payment.id,
-            amount = amount,
-            paymentMethodType = PaymentMethod.ApplePay)) // TODO implement AP returns @aafa
+    for {
+      ap ← * <~ ApplePayments.mustFindById404(payment.paymentMethodId)
+      _  ← * <~ deleteExternalPayment(returnId)
+      applePayRefund ← * <~ ReturnPayments.create(
+                          ReturnPayment(returnId = returnId,
+                                        amount = amount,
+                                        currency = payment.currency,
+                                        paymentMethodId = ap.id,
+                                        paymentMethodType = PaymentMethod.ApplePay))
+    } yield applePayRefund
 
   private def addGiftCard(returnId: Int,
                           payment: OrderPayment,
@@ -256,14 +262,13 @@ object ReturnPaymentManager {
   private def processDeletePayment(returnId: Int, paymentMethod: PaymentMethod.Type)(
       implicit ec: EC): DbResultT[Boolean] =
     paymentMethod match {
-      case PaymentMethod.CreditCard  ⇒ deleteCcPayment(returnId)
-      case PaymentMethod.GiftCard    ⇒ deleteGcPayment(returnId)
-      case PaymentMethod.StoreCredit ⇒ deleteScPayment(returnId)
-      case PaymentMethod.ApplePay    ⇒ deleteApPayment(returnId)
+      case PaymentMethod.GiftCard                            ⇒ deleteGcPayment(returnId)
+      case PaymentMethod.StoreCredit                         ⇒ deleteScPayment(returnId)
+      case PaymentMethod.CreditCard | PaymentMethod.ApplePay ⇒ deleteExternalPayment(returnId)
     }
 
-  private def deleteCcPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] =
-    ReturnPayments.findAllByReturnId(returnId).creditCards.deleteAllWithRowsBeingAffected
+  private def deleteExternalPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] =
+    ReturnPayments.findAllByReturnId(returnId).externalPayments.deleteAllWithRowsBeingAffected
 
   private def deleteGcPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] = {
     val gcQuery = ReturnPayments.findAllByReturnId(returnId).giftCards
@@ -300,9 +305,6 @@ object ReturnPaymentManager {
       somethingWasActuallyDeleted = queryDeleted || scDeleted || scRefundsDeleted
     } yield somethingWasActuallyDeleted
   }
-
-  def deleteApPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] =
-    DbResultT.pure(true) // TODO implement AP returns @aafa
 
   def issueRefunds(
       rma: Return)(implicit ec: EC, db: DB, au: AU, ac: AC, apis: Apis): DbResultT[Unit] = {
