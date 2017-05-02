@@ -27,7 +27,14 @@ export default function renderImage(errors: FieldErrors = {}, onChange: ChangeHa
   };
 }
 
+type Props = {
+  name: string,
+  value: Object,
+  onChange: ChangeHandler,
+}
+
 class ImageRenderer extends Component {
+  props: Props;
 
   @autobind
   addFile(image: ImageFile): Promise<*> {
@@ -56,7 +63,8 @@ class ImageRenderer extends Component {
       ...this.props.value,
       ...obj
     };
-    this.props.onChange(this.props.name, 'image', newObject);
+
+    return Promise.resolve(this.props.onChange(this.props.name, 'image', newObject));
   }
 
   render() {
@@ -77,7 +85,6 @@ class ImageRenderer extends Component {
                 imagePid={value.id}
                 deleteImage={this.deleteFile}
                 editImage={this.handleSave}
-                imageComponent='img'
               />
             </div>
           </Upload>

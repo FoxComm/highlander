@@ -8,8 +8,9 @@ import { autobind, debounce } from 'core-decorators';
 import React, { Component, Element } from 'react';
 
 // components
-import ConfirmationDialog from '../modal/confirmation-dialog';
-import Alert from '../alerts/alert';
+import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import Alert from 'components/alerts/alert';
+import ProductImage from 'components/imgix/product-image';
 import AlbumWrapper from './album-wrapper/album-wrapper';
 import EditAlbum from './edit-album';
 import Upload from '../upload/upload';
@@ -51,7 +52,7 @@ export default class Album extends Component {
   };
 
   _uploadRef: Upload;
-  idsToKey: { [key:any]: string };
+  idsToKey: { [key: any]: string };
 
   constructor(...args: Array<any>) {
     super(...args);
@@ -137,12 +138,13 @@ export default class Album extends Component {
     const { album, loading } = this.props;
 
     return (
-      <EditAlbum className={styles.modal}
-                 isVisible={this.state.editMode}
-                 album={album}
-                 loading={loading}
-                 onCancel={this.handleCancelEditAlbum}
-                 onSave={this.handleConfirmEditAlbum}
+      <EditAlbum
+        className={styles.modal}
+        isVisible={this.state.editMode}
+        album={album}
+        loading={loading}
+        onCancel={this.handleCancelEditAlbum}
+        onSave={this.handleConfirmEditAlbum}
       />
     );
   }
@@ -163,14 +165,15 @@ export default class Album extends Component {
     );
 
     return (
-      <ConfirmationDialog className={styles.modal}
-                          isVisible={this.state.archiveMode}
-                          header='Archive Album'
-                          body={body}
-                          cancel='Cancel'
-                          confirm='Yes, Archive'
-                          onCancel={this.handleCancelArchiveAlbum}
-                          confirmAction={this.handleConfirmArchiveAlbum}
+      <ConfirmationDialog
+        className={styles.modal}
+        isVisible={this.state.archiveMode}
+        header='Archive Album'
+        body={body}
+        cancel='Cancel'
+        confirm='Yes, Archive'
+        onCancel={this.handleCancelArchiveAlbum}
+        confirmAction={this.handleConfirmArchiveAlbum}
       />
     );
   }
@@ -194,12 +197,13 @@ export default class Album extends Component {
         onDrop={this.handleNewFiles}
         empty={album.images.length == 0}
       >
-        <SortableTiles itemWidth={298}
-                       itemHeight={372}
-                       gutter={10}
-                       gutterY={40}
-                       loading={loading}
-                       onSort={this.handleSortImages}
+        <SortableTiles
+          itemWidth={298}
+          itemHeight={372}
+          gutter={10}
+          gutterY={40}
+          loading={loading}
+          onSort={this.handleSortImages}
         >
           {album.images.map((image: ImageFile, idx: number) => {
             if (image.key && image.id) this.idsToKey[image.id] = image.key;
@@ -210,6 +214,7 @@ export default class Album extends Component {
                 imagePid={imagePid}
                 editImage={(form: ImageInfo) => this.props.editImage(idx, form)}
                 deleteImage={() => this.props.deleteImage(idx)}
+                imageComponent={ProductImage}
                 key={imagePid}
               />
             );
@@ -222,13 +227,15 @@ export default class Album extends Component {
       <div>
         {this.editAlbumDialog}
         {this.archiveAlbumDialog}
-        <AlbumWrapper title={album.name}
-                      titleWrapper={(title: string) => this.renderTitle(title, album.images.length)}
-                      position={position}
-                      albumsCount={albumsCount}
-                      contentClassName={styles.albumContent}
-                      onSort={this.handleMove}
-                      actions={this.getAlbumActions()}
+
+        <AlbumWrapper
+          title={album.name}
+          titleWrapper={(title: string) => this.renderTitle(title, album.images.length)}
+          position={position}
+          albumsCount={albumsCount}
+          contentClassName={styles.albumContent}
+          onSort={this.handleMove}
+          actions={this.getAlbumActions()}
         >
           {albumContent}
         </AlbumWrapper>

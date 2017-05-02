@@ -8,10 +8,9 @@ import _ from 'lodash';
 import { autobind, debounce } from 'core-decorators';
 import classNames from 'classnames';
 import React, { Component, Element } from 'react';
-import { findDOMNode } from 'react-dom';
 
 // components
-import { Button } from 'components/common/buttons';
+import { Button } from 'components/core/button';
 
 import type { FileInfo } from '../../modules/images';
 

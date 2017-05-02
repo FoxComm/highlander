@@ -15,8 +15,8 @@ import WaitAnimation from '../common/wait-animation';
 type Props = {
   id: number,
   src: string,
-  loader?: string|Element<*>,
-  imageComponent?: string,
+  loader?: string | Element<*>,
+  imageComponent: string,
 }
 
 type State = {
@@ -31,6 +31,10 @@ export default class ImageLoader extends Component {
   state: State = {
     ready: true,
     error: false,
+  };
+
+  static defaultProps = {
+    imageComponent: 'img',
   };
 
   img: ?Image;
@@ -94,15 +98,18 @@ export default class ImageLoader extends Component {
   }
 
   get image(): ?Element<*> {
-    const ImageComponent = this.props.imageComponent || 'img';
-    return this.state.ready ? (
+    const ImageComponent = this.props.imageComponent;
+
+    if (!this.state.ready) return null;
+
+    return (
       <ImageComponent
         src={this.state.src}
         width={286}
         height={286}
         key={this.props.id}
       />
-    ) : null;
+    );
   }
 
   wrapToTransition(img: ?Element<*>) {

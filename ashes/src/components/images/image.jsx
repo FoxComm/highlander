@@ -13,7 +13,6 @@ import BodyPortal from '../body-portal/body-portal';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import ImageCard from '../image-card/image-card';
 import EditImage from './edit-image';
-import ProductImage from 'components/imgix/product-image';
 
 // types
 import type { ImageFile, ImageInfo } from '../../modules/images';
@@ -23,21 +22,29 @@ export type Props = {
   image: ImageFile;
   editImage: (info: ImageInfo) => Promise<*>;
   deleteImage: () => Promise<*>;
-  imagePid: string|number;
+  imagePid: string | number;
   imageComponent?: string;
 };
+
+type DefaultProps = {
+  imageComponent: string;
+}
 
 type State = {
   editMode: boolean;
   deleteMode: boolean;
 };
 
-export default class Image extends Component<void, Props, State> {
+export default class Image extends Component<DefaultProps, Props, State> {
   props: Props;
 
   state: State = {
     editMode: false,
     deleteMode: false,
+  };
+
+  static defaultProps: DefaultProps = {
+    imageComponent: 'img',
   };
 
   @autobind
@@ -138,7 +145,7 @@ export default class Image extends Component<void, Props, State> {
           actions={this.getImageActions()}
           loading={image.loading}
           key={`${imagePid}`}
-          imageComponent={imageComponent || ProductImage}
+          imageComponent={imageComponent}
         />
       </div>
     );

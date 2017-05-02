@@ -26,9 +26,9 @@ const propertyTypes = {
 };
 
 type Props = {
-  onSave: (state: State) => void,
-  onCancel: () => void,
-  currentEdit: {
+  onSave: (state: State) => any,
+  onCancel: () => any,
+  currentEdit?: {
     name: string,
     type: string,
     value: any,
@@ -43,6 +43,7 @@ type State = {
 
 class CustomPropertyModal extends Component<void, Props, State> {
   props: Props;
+
   state: State = {
     fieldLabel: '',
     propertyType: '',
