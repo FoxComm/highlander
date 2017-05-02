@@ -57,16 +57,6 @@ defmodule Hyperion.PhoenixScala.Client do
   end
 
   @doc """
-  Returns all non archived skus
-  FIXME!!!
-  """
-  def get_all_skus(token, size \\ 50) do
-    q = %{query: %{bool: %{filter: [%{missing: %{field: "archivedAt"}}]}}}
-    post("/admin_1/sku_search_view/_search?size=#{size}", Poison.encode!(q), make_request_headers(token))
-    |> parse_response(token)
-  end
-
-  @doc """
   Return all countries from Phoenix
   """
   def get_countries(token) do
