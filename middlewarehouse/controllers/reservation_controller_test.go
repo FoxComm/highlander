@@ -6,6 +6,7 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
 
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
@@ -45,6 +46,18 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems() {
 
 	suite.Equal(http.StatusNoContent, res.Code)
 	suite.service.AssertExpectations(suite.T())
+}
+
+func (suite *reservationControllerTestSuite) Test_ReserveItems_OutOfStock() {
+	suite.service.On("HoldItems", "BR10001", map[string]int{"SKU": 1}).Return(errors.New("boom")).Once()
+
+	jsonStr := `{"refNum": "BR10001","items": [{ "sku": "SKU", "qty": 1 }]}`
+
+	res := suite.Post("/reservations/hold", jsonStr)
+
+	suite.Equal(http.StatusBadRequest, res.Code)
+	suite.Contains(res.Body.String(), "errors")
+	suite.Contains(res.Body.String(), "boom")
 }
 
 func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongSKUs() {

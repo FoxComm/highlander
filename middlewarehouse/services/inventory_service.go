@@ -12,6 +12,10 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+const (
+	outOfStockError = "One of your items is out of stock. Please remove %s from your cart to complete checkout"
+)
+
 type inventoryService struct {
 	stockItemRepo  repositories.IStockItemRepository
 	unitRepo       repositories.IStockItemUnitRepository
@@ -38,6 +42,10 @@ type IInventoryService interface {
 }
 
 type updateItemsStatusFunc func() (int, error)
+
+func skuOutOfStockError(sku string) error {
+	return fmt.Errorf(outOfStockError, sku)
+}
 
 func NewInventoryService(
 	stockItemRepo repositories.IStockItemRepository,
@@ -196,8 +204,7 @@ func (service *inventoryService) getStockItemsBySKUs(skusList []string) ([]*mode
 	diff := utils.DiffSlices(skusList, skusListRepo)
 	if len(diff) > 0 {
 		for _, sku := range diff {
-			msg := fmt.Sprintf("Can't hold items for %s - no stock items found", sku)
-			aggregateErr.Add(errors.New(msg))
+			aggregateErr.Add(errors.New(sku))
 		}
 
 		return nil, aggregateErr
@@ -212,7 +219,7 @@ func (service *inventoryService) getUnitsForOrder(items []*models.StockItem, sku
 	for _, si := range items {
 		ids, err := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SKU])
 		if err != nil {
-			aggregateErr.Add(err)
+			aggregateErr.Add(skuOutOfStockError(si.SKU))
 		}
 
 		unitsIds = append(unitsIds, ids...)
