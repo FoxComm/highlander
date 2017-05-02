@@ -28,7 +28,7 @@
     "PUBLIC_KEY": "{{public_keys_dest_dir}}/public_key.pem",
     "PUSH_CHECK_INTERVAL": "{{hyperion_push_check_interval}}",
     "ORDERS_FETCH_INTERVAL" : "{{hyperion_orders_fetch_interval}}",
-    "CREATE_ASHES_PLUGIN": "{{hyperion_create_plugin_in_ashes_on_start | bool}}"
+    "CREATE_ASHES_PLUGIN": "{{hyperion_create_plugin_in_ashes_on_start | bool | lower}}"
   },
   "constraints": [["hostname", "UNIQUE"]],
   "container": {
