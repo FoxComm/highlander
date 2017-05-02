@@ -24,7 +24,7 @@
     "PHOENIX_USER": "{{phoenix_api_user}}",
     "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
     "PHOENIX_ORG": "{{phoenix_api_user_org}}",
-    "PHOENIX_URL": "https://{{storefront_server_name}}",
+    "PHOENIX_URL": "http://{{phoenix_server}}",
     "PUBLIC_KEY": "{{public_keys_dest_dir}}/public_key.pem",
     "PUSH_CHECK_INTERVAL": "{{hyperion_push_check_interval}}",
     "ORDERS_FETCH_INTERVAL" : "{{hyperion_orders_fetch_interval}}",
