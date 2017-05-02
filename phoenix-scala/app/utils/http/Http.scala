@@ -29,9 +29,10 @@ object Http {
 
   private object SuccessfulResponse {
     def from(result: Any, uiInfo: List[MetaResponse]): SuccessfulResponse = {
-      val uiInfoWarnings = uiInfo.collect { case MetaResponse.Warning(f)        ⇒ f.description }
-      val uiInfoErrors   = uiInfo.collect { case MetaResponse.Error(f)          ⇒ f.description }
-      val uiInfoBatches  = uiInfo.collectFirst { case MetaResponse.BatchInfo(b) ⇒ b }
+      val uiInfoWarnings = uiInfo.collect { case MetaResponse.Warning(f) ⇒ f.description }
+      val uiInfoErrors   = uiInfo.collect { case MetaResponse.Error(f)   ⇒ f.description }
+      // FIXME: uncomment this & pull BatchMetadata from phoenix into starfish, when getting rid of TheResponse @michalrus
+      /* val uiInfoBatches  = uiInfo.collectFirst { case MetaResponse.BatchInfo(b) ⇒ b } */
       // FIXME: have a way of merging multiple `BatchMetadata`s, as types allow for that. @michalrus
       def emptyToNoneNonemptyToSome[A](xs: List[A]): Option[List[A]] =
         if (xs.nonEmpty) Some(xs) else None
@@ -43,12 +44,14 @@ object Http {
               warnings = emptyToNoneNonemptyToSome(
                   uiInfoWarnings ::: alerts.toList.flatten ::: warnings.toList.flatten),
               errors = emptyToNoneNonemptyToSome(uiInfoErrors ::: errors.toList.flatten),
-              batch = uiInfoBatches orElse batch)
+              // FIXME: uncomment this & pull BatchMetadata from phoenix into starfish, when getting rid of TheResponse @michalrus
+              batch = /* uiInfoBatches orElse */ batch)
         case raw ⇒
           SuccessfulResponse(result = raw,
                              warnings = emptyToNoneNonemptyToSome(uiInfoWarnings),
                              errors = emptyToNoneNonemptyToSome(uiInfoErrors),
-                             batch = uiInfoBatches)
+                             // FIXME: uncomment this & pull BatchMetadata from phoenix into starfish, when getting rid of TheResponse @michalrus
+                             batch = None /* uiInfoBatches */ )
       }
     }
   }

@@ -5,7 +5,6 @@ import failures.{Failure, Failures}
 import slick.dbio.DBIO
 import slick.driver.PostgresDriver.api._
 import slick.lifted.{TableQuery, Tag}
-import utils.aliases._
 import utils.db.UpdateReturning._
 
 abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag ⇒ T)
