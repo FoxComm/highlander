@@ -5,7 +5,6 @@ defmodule Hyperion.PhoenixScala.Client do
   @moduledoc """
   Provides simple access to Phoenix-scala API
   """
-
   def process_url(path) do
     {:ok, base_uri} = Application.fetch_env(:hyperion, :phoenix_url)
     base_uri <> path
@@ -22,17 +21,17 @@ defmodule Hyperion.PhoenixScala.Client do
   """
   def login do
     params = login_params()
-    case post("/api/v1/public/login", params, make_request_headers()) do
-      {_, %{body: _, headers: headers, status_code: 200}} -> Keyword.take(headers, ["Jwt"]) |> hd |> elem(1)
+    case post("/v1/public/login", params, make_request_headers()) do
+      {_, %{body: _, headers: headers, status_code: 200}} -> Keyword.take(headers, ["JWT"]) |> hd |> elem(1)
       {_, %{body: resp, headers: _, status_code: _}} -> raise %PhoenixError{message: hd(resp["errors"])}
     end
   end
 
   def safe_login() do
     params = login_params()
-    case post("/api/v1/public/login", params, make_request_headers()) do
-      {_, %{body: _, headers: headers, status_code: 200}} -> Keyword.take(headers, ["Jwt"]) |> hd |> elem(1)
-      {:ok, %{body: body, headers: headers, status_code: 502}} ->
+    case post("/v1/public/login", params, make_request_headers()) do
+      {_, %{body: _, headers: headers, status_code: 200}} -> Keyword.take(headers, ["JWT"]) |> hd |> elem(1)
+      {:ok, %{body: body, headers: _, status_code: 502}} ->
         Logger.error "Some error occured on login: #{body}"
         nil
       {:error, %HTTPoison.Error{id: _, reason: reason}} ->
@@ -45,7 +44,7 @@ defmodule Hyperion.PhoenixScala.Client do
   Returns product by id
   """
   def get_product(product_id, token, ctx \\ "default") do
-    get("/api/v1/products/#{ctx}/#{product_id}", make_request_headers(token))
+    get("/v1/products/#{ctx}/#{product_id}", make_request_headers(token))
     |> parse_response(token)
   end
 
@@ -53,16 +52,17 @@ defmodule Hyperion.PhoenixScala.Client do
   Returns sku by SKU-CODE
   """
   def get_sku(sku_code, token, ctx \\ "default") do
-    get("/api/v1/skus/#{ctx}/#{sku_code}", make_request_headers(token))
+    get("/v1/skus/#{ctx}/#{sku_code}", make_request_headers(token))
     |> parse_response(token)
   end
 
   @doc """
   Returns all non archived skus
+  FIXME!!!
   """
   def get_all_skus(token, size \\ 50) do
     q = %{query: %{bool: %{filter: [%{missing: %{field: "archivedAt"}}]}}}
-    post("/api/search/admin/sku_search_view/_search?size=#{size}", Poison.encode!(q), make_request_headers(token))
+    post("/admin_1/sku_search_view/_search?size=#{size}", Poison.encode!(q), make_request_headers(token))
     |> parse_response(token)
   end
 
@@ -70,7 +70,7 @@ defmodule Hyperion.PhoenixScala.Client do
   Return all countries from Phoenix
   """
   def get_countries(token) do
-    get("/api/v1/public/countries", make_request_headers(token))
+    get("/v1/public/countries", make_request_headers(token))
     |> parse_response(token)
   end
 
@@ -79,18 +79,18 @@ defmodule Hyperion.PhoenixScala.Client do
   """
   def get_countries do
     token = login()
-    get("/api/v1/public/countries", make_request_headers(token))
+    get("/v1/public/countries", make_request_headers(token))
     |> parse_response(token)
   end
 
   def get_regions(country_id) do
     token = login()
-    get("/api/v1/public/countries/#{country_id}", make_request_headers(token))
+    get("/v1/public/countries/#{country_id}", make_request_headers(token))
     |> parse_response(token)
   end
 
   def get_regions(country_id, token) do
-    get("/api/v1/public/countries/#{country_id}", make_request_headers(token))
+    get("/v1/public/countries/#{country_id}", make_request_headers(token))
     |> parse_response(token)
   end
 
@@ -99,7 +99,7 @@ defmodule Hyperion.PhoenixScala.Client do
   """
   def create_customer(payload, token) do
     params = Poison.encode!(%{name: payload["BuyerName"], email: payload["BuyerEmail"]})
-    {_, resp} = post("/api/v1/customers", params, make_request_headers(token))
+    {_, resp} = post("/v1/customers", params, make_request_headers(token))
     case resp.status_code do
       # status_code = 400 means customer already exists
       code when code in [200, 400] -> payload
@@ -120,7 +120,7 @@ defmodule Hyperion.PhoenixScala.Client do
                               scope: Hyperion.JwtAuth.get_scope(token),
                               customerName: payload["BuyerName"],
                               customerEmail: payload["BuyerEmail"]})
-    {st, resp} = post("/api/v1/amazon_orders", params, make_request_headers(token))
+    {st, resp} = post("/v1/amazon_orders", params, make_request_headers(token))
     case resp.status_code do
       code when code in [200, 201] -> parse_response({st, resp}, token)
       _ ->
@@ -141,7 +141,7 @@ defmodule Hyperion.PhoenixScala.Client do
   def get_credentials(token) when token == nil, do: nil
 
   def get_credentials(token) do
-    {_, resp} = get("/api/v1/plugins/settings/AmazonMWS/detailed", make_request_headers(token))
+    {_, resp} = get("/v1/plugins/settings/AmazonMWS/detailed", make_request_headers(token))
     case resp.status_code do
       code when code in [200, 201] ->
         resp.body["settings"]
@@ -154,7 +154,7 @@ defmodule Hyperion.PhoenixScala.Client do
   Not raising an error if no credentials set
   """
   def safe_get_credentials(token) do
-    {_, resp} = get("/api/v1/plugins/settings/AmazonMWS/detailed", make_request_headers(token))
+    {_, resp} = get("/v1/plugins/settings/AmazonMWS/detailed", make_request_headers(token))
     case resp.status_code do
       code when code in [200, 201] ->
         resp.body["settings"]
@@ -179,7 +179,7 @@ defmodule Hyperion.PhoenixScala.Client do
        %{"default" => "", "name" => "mws_auth_token",
          "title" => "Amazon MWS Auth Token", "type" => "string"}]
     }
-    post("/api/v1/plugins/register", Poison.encode!(params), make_request_headers(token))
+    post("/v1/plugins/register", Poison.encode!(params), make_request_headers(token))
     |> parse_response(token)
   end
 
