@@ -11,17 +11,33 @@ defmodule Hyperion.PhoenixScala.Client do
     base_uri <> path
   end
 
+  def email, do: Application.fetch_env!(:hyperion, :phoenix_email)
+  def password, do: Application.fetch_env!(:hyperion, :phoenix_password)
+  def org, do: Application.fetch_env!(:hyperion, :phoenix_org)
+  def login_params, do: Poison.encode!(%{email: email(), password: password(), org: org()})
+
+
   @doc """
   Gets JWT from Phoenix. Try to not use it very often because it takes a lot of time
   """
   def login do
-    email = Application.fetch_env!(:hyperion, :phoenix_email)
-    password = Application.fetch_env!(:hyperion, :phoenix_password)
-    org = Application.fetch_env!(:hyperion, :phoenix_org)
-    params = Poison.encode!(%{email: email, password: password, org: org})
+    params = login_params()
     case post("/api/v1/public/login", params, make_request_headers()) do
       {_, %{body: _, headers: headers, status_code: 200}} -> Keyword.take(headers, ["Jwt"]) |> hd |> elem(1)
       {_, %{body: resp, headers: _, status_code: _}} -> raise %PhoenixError{message: hd(resp["errors"])}
+    end
+  end
+
+  def safe_login() do
+    params = login_params()
+    case post("/api/v1/public/login", params, make_request_headers()) do
+      {_, %{body: _, headers: headers, status_code: 200}} -> Keyword.take(headers, ["Jwt"]) |> hd |> elem(1)
+      {:ok, %{body: body, headers: headers, status_code: 502}} ->
+        Logger.error "Some error occured on login: #{body}"
+        nil
+      {:error, %HTTPoison.Error{id: _, reason: reason}} ->
+        Logger.error "Some error occured on login: #{reason}"
+        nil
     end
   end
 
@@ -122,6 +138,8 @@ defmodule Hyperion.PhoenixScala.Client do
   @doc """
   Returns MWS credentials stored in Phoenix plugins
   """
+  def get_credentials(token) when token == nil, do: nil
+
   def get_credentials(token) do
     {_, resp} = get("/api/v1/plugins/settings/AmazonMWS/detailed", make_request_headers(token))
     case resp.status_code do
@@ -129,6 +147,21 @@ defmodule Hyperion.PhoenixScala.Client do
         resp.body["settings"]
         |> Enum.reduce(%{}, fn({k, v}, acc) -> Map.put(acc, String.to_atom(k), v) end)
       _ -> raise %AmazonCredentialsError{}
+    end
+  end
+
+  @doc """
+  Not raising an error if no credentials set
+  """
+  def safe_get_credentials(token) do
+    {_, resp} = get("/api/v1/plugins/settings/AmazonMWS/detailed", make_request_headers(token))
+    case resp.status_code do
+      code when code in [200, 201] ->
+        resp.body["settings"]
+        |> Enum.reduce(%{}, fn({k, v}, acc) -> Map.put(acc, String.to_atom(k), v) end)
+      _ ->
+        Logger.error "Error while getting credentials #{inspect(resp)}"
+        nil
     end
   end
 

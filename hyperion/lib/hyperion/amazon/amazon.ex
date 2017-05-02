@@ -76,11 +76,17 @@ defmodule Hyperion.Amazon do
   def fetch_config do
     token = Client.login
     fetch_config(token)
-    # Credentials.mws_config(jwt.scope)
   end
 
   def fetch_config(token) do
     Credentials.mws_config(token)
+  end
+
+  def safe_fetch_config() do
+    case Client.safe_login() do
+      token -> Credentials.safe_mws_config(token)
+      nil -> nil
+    end
   end
 
   def get_full_order(order_id, token) do
@@ -222,13 +228,6 @@ defmodule Hyperion.Amazon do
     }]
   end
 
-  defp get_country_id(code, token) do
-    resp = Client.get_countries(token)
-    Enum.filter(resp.body, fn(cnt) -> cnt["alpha2"] == code end)
-    |> hd
-    |> get_in(["id"])
-  end
-
   defp get_sku_image(sku, token) do
     sku = Client.get_sku(sku, token)
     case sku.body["errors"] do
@@ -238,6 +237,14 @@ defmodule Hyperion.Amazon do
       err -> raise %AmazonError{message: "#{err}"}
     end
   end
+
+  defp get_country_id(code, token) do
+    resp = Client.get_countries(token)
+    Enum.filter(resp.body, fn(cnt) -> cnt["alpha2"] == code end)
+    |> hd
+    |> get_in(["id"])
+  end
+
 
   # gets the albums and images for skus,
   # adds the SKU for matching

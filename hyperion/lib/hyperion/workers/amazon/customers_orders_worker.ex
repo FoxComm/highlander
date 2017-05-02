@@ -30,11 +30,12 @@ defmodule Hyperion.Amazon.Workers.CustomersOrdersWorker do
     end
   end
 
-  defp get_credentials() do
-    cfg = Amazon.fetch_config()
+  def get_credentials() do
+    cfg = Amazon.safe_fetch_config()
     if String.strip(cfg.seller_id) != "" do
       cfg
     else
+      schedule_work()
       raise "Credentials not set. Exiting."
     end
   end
@@ -67,7 +68,10 @@ defmodule Hyperion.Amazon.Workers.CustomersOrdersWorker do
     end
   end
 
-  defp schedule_work do
-    Process.send_after(self(), :work, 24 * 60 * 60 * 1000) # In 24 hours
+  defp schedule_work() do
+    mins = Application.fetch_env!(:hyperion, :orders_fetch_interval) |> String.to_integer
+    next_run = Timex.shift(Timex.now, minutes: mins) |> Timex.format!("{ISO:Extended}")
+    Logger.info "Scheduling #{__MODULE__} for next run at: #{next_run}. Run Interval is set to #{mins} minute(s)"
+    Process.send_after(self(), :work, mins * 60 * 1000)
   end
 end
