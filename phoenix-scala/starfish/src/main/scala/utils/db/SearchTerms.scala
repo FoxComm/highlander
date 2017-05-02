@@ -48,8 +48,6 @@ trait SearchByRefNum[M <: FoxModel[M], T <: FoxTable[M]] extends SearchById[M, T
 
 trait SearchByAmazonOrderId[M <: FoxModel[M], T <: FoxTable[M]] extends SearchById[M, T] {
 
-  override def primarySearchTerm = "amazonOrderId"
-
   def findOneByAmazonOrderId(amazonOrderId: String): DBIO[Option[M]]
 
   def mustFindByAmazonOrderId(
