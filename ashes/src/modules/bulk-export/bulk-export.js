@@ -52,7 +52,7 @@ export const bulkExport = createAsyncActions(
 
 export const bulkExportByIds = createAsyncActions(
   'bulkExportByIds',
-  function(ids, fields, entity, identifier, description) {
+  function(ids, description, fields, entity, identifier) {
     const queryFields = getFields(fields, identifier);
     const payload = {
       ids,

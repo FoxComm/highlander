@@ -1,6 +1,8 @@
+/* @flow */
+
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -20,6 +22,16 @@ import { Link } from '../link';
 
 // actions
 import { bulkExport, bulkExportByIds } from 'modules/bulk-export/bulk-export';
+
+type Props = {
+  list: Object,
+  actions: Object,
+  bulkActions: Object,
+  bulkExportAction: (fields: Array<String>, entity: string, identifier: string) => Promise<*>,
+  bulkExportByIds: (
+    ids: Array<number>, description: ?string, fields: Array<String>, entity: string, identifier: string
+  ) => Promise<*>,
+};
 
 const mapStateToProps = ({orders: {list}}) => {
   return {
@@ -47,15 +59,12 @@ const tableColumns = [
 ];
 
 @connect(mapStateToProps, mapDispatchToProps)
-export default class Orders extends React.Component {
-  static propTypes = {
-    list: PropTypes.object.isRequired,
-    actions: PropTypes.objectOf(PropTypes.func).isRequired,
-    bulkActions: PropTypes.objectOf(PropTypes.func).isRequired,
-  };
+
+class Orders extends Component {
+  props: Props;
 
   @autobind
-  cancelOrders(allChecked, toggledIds) {
+  cancelOrders(allChecked: boolean, toggledIds: Array<string>) {
     const { cancelOrders } = this.props.bulkActions;
 
     return (
@@ -66,13 +75,13 @@ export default class Orders extends React.Component {
   }
 
   @autobind
-  getIdsByRefNum(refNums, list) {
+  getIdsByRefNum(refNums: Array<string>, list: Array<Object>) {
     return _.filter(list, (entry) => refNums.indexOf(entry.referenceNumber) !== -1)
       .map((e) => e.id);
   }
 
   @autobind
-  bulkExport(allChecked, toggledIds) {
+  bulkExport(allChecked: boolean, toggledIds: Array<string>) {
     const { bulkExportByIds, list } = this.props;
     const fields = _.map(tableColumns, c => c.field);
     const identifier = _.map(tableColumns, item => item.text).toString();
@@ -81,15 +90,15 @@ export default class Orders extends React.Component {
     return (
       <BulkExportModal
         count={toggledIds.length}
-        onConfirm={(description) => bulkExportByIds(ids, fields, 'orders', identifier, description)}
+        onConfirm={(description) => bulkExportByIds(ids, description, fields, 'orders', identifier)}
       />
     );
   }
 
-  getChangeOrdersState(state) {
+  getChangeOrdersState(state: string) {
     const stateTitle = stateTitles[state];
 
-    return (allChecked, toggledIds) => {
+    return (allChecked: boolean, toggledIds: Array<string>) => {
       const {changeOrdersState} = this.props.bulkActions;
 
       return (
@@ -101,7 +110,7 @@ export default class Orders extends React.Component {
     };
   }
 
-  getChangeOrdersStateAction(state) {
+  getChangeOrdersStateAction(state: string) {
     const stateTitle = stateTitles[state];
 
     return [
@@ -112,7 +121,7 @@ export default class Orders extends React.Component {
     ];
   }
 
-  get cancelOrdersAction() {
+  get cancelOrdersAction(): Array<any> {
     return [
       'Cancel Selected Orders',
       this.cancelOrders,
@@ -121,7 +130,7 @@ export default class Orders extends React.Component {
     ];
   }
 
-  get bulkExportAction() {
+  get bulkExportAction(): Array<any> {
     return [
       'Export Selected Orders',
       this.bulkExport,
@@ -130,7 +139,7 @@ export default class Orders extends React.Component {
     ];
   }
 
-  get bulkActions() {
+  get bulkActions(): Array<any> {
     return [
       this.bulkExportAction,
       this.cancelOrdersAction,
@@ -141,7 +150,7 @@ export default class Orders extends React.Component {
     ];
   }
 
-  get renderRow() {
+  get renderRow(): Function {
     return (row, index, columns, params) => {
       const key = `order-${row.referenceNumber}`;
 
@@ -155,7 +164,7 @@ export default class Orders extends React.Component {
     };
   }
 
-  renderDetail(messages, referenceNumber) {
+  renderDetail(messages: Array<string>, referenceNumber: string) {
     return (
       <span key={referenceNumber}>
         Order <Link to="order-details" params={{order: referenceNumber}}>{referenceNumber}</Link>: {messages}
@@ -193,3 +202,5 @@ export default class Orders extends React.Component {
     );
   }
 }
+
+export default Orders;
