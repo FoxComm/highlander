@@ -4,6 +4,8 @@ import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
+import { addAsyncReducer } from '@foxcomm/wings';
+import makeLocalStore from 'lib/local-store';
 import { Product } from 'modules/products';
 import styles from './search.css';
 
@@ -13,7 +15,7 @@ import type { Localized } from 'lib/i18n';
 import Typeahead from 'components/typeahead/typeahead';
 import ProductRow from './product-row';
 
-import { toggleActive, forceSearch, searchProducts } from 'modules/search';
+import reducer, { toggleActive, forceSearch, searchProducts } from 'modules/search';
 import { toggleContentOverlay } from 'modules/content-overlay';
 
 type SearchProps = Localized & {
@@ -103,15 +105,19 @@ class Search extends Component {
   }
 }
 
-function mapState({ search, asyncActions }: Object, { isActive }: ?Object): Object {
+function mapState(state: Object, { isActive }: ?Object): Object {
   return {
-    ...search,
-    searchState: _.get(asyncActions, 'search', {}),
-    isActive: isActive || search.isActive,
+    ...state,
+    searchState: _.get(state.asyncActions, 'search', {}),
+    isActive: isActive || state.isActive,
   };
 }
 
-export default connect(
-  mapState,
-  { toggleContentOverlay, toggleActive, forceSearch, searchProducts }
-)(localized(Search));
+export default _.flowRight(
+  makeLocalStore(addAsyncReducer(reducer)),
+  connect(
+    mapState,
+    { toggleContentOverlay, toggleActive, forceSearch, searchProducts }
+  ),
+  localized
+)(Search);
