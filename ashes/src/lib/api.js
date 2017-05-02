@@ -80,7 +80,7 @@ export function request(method, uri, data, options = {}) {
 
   const promise = result
     .then(
-      response => {
+      (response) => {
         const disposition = response.header['content-disposition'];
         if (disposition && disposition.startsWith('attachment')) {
           const name = disposition.split(';')[1].split('=')[1];
@@ -91,7 +91,7 @@ export function request(method, uri, data, options = {}) {
         }
         return response.body;
       },
-      err => {
+      (err) => {
         if (err.status == 401) {
           unauthorizedHandler(err.response);
         }

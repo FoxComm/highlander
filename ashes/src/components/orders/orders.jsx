@@ -61,22 +61,21 @@ export default class Orders extends React.Component {
     return (
       <CancelModal
         count={toggledIds.length}
-        onConfirm={(reasonId) => cancelOrders(toggledIds, reasonId)}/>
+        onConfirm={(reasonId) => cancelOrders(toggledIds, reasonId)} />
     );
   }
 
   @autobind
   getIdsByRefNum(refNums, list) {
-    return _.filter(list, (entry) => {
-      return refNums.indexOf(entry.referenceNumber) !== -1;
-    }).map((e) => e.id);
+    return _.filter(list, (entry) => refNums.indexOf(entry.referenceNumber) !== -1)
+      .map((e) => e.id);
   }
 
   @autobind
   bulkExport(allChecked, toggledIds) {
     const { bulkExportByIds, list } = this.props;
-    const fields = _.map(tableColumns, (c) => c.field);
-    const identifier = tableColumns.map(item => item.text).toString();
+    const fields = _.map(tableColumns, c => c.field);
+    const identifier = _.map(tableColumns, item => item.text).toString();
     const results = list.currentSearch().results.rows;
     const ids = this.getIdsByRefNum(toggledIds, results);
     return (

@@ -9,7 +9,7 @@ const getFields = (allFields, identifier) => {
   if (_.isEmpty(columns[identifier])) {
     return allFields;
   }
-  return _.filter(columns[identifier], {isVisible: true}).map((c) => c.field);
+  return _.filter(columns[identifier], {isVisible: true}).map(c => c.field);
 
 
 };
