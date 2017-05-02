@@ -257,6 +257,7 @@ const categories = [
   {
     id: 2,
     name: 'kids',
+    url: '/s/kids',
     description: '',
     showNameCatPage: true,
     children: rejectGroupChildren(groups, [

@@ -163,7 +163,7 @@ export default class NavigationItem extends Component {
 
     const dashedName = _.toLower(item.name.replace(/\s/g, '-'));
     const key = `category-${dashedName}`;
-    const url = this.getNavUrl(item);
+    const url = item.url || this.getNavUrl(item);
     const basePath = router.createPath({name: 'category', params: {categoryName: item.name}}, true);
     const isActive = `${path}/`.startsWith(basePath) || path.startsWith(url);
     const linkClasses = classNames(styles.item, {
