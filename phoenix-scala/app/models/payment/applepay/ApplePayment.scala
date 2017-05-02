@@ -2,10 +2,13 @@ package models.payment.applepay
 
 import java.time.Instant
 
+import cats.implicits._
+import cats.data.ValidatedNel
+import failures.Failure
 import models.payment.PaymentMethod
-import models.payment.creditcard.BillingAddress
 import shapeless.{Lens, lens}
 import slick.driver.PostgresDriver.api._
+import utils.Validation
 import utils.db._
 
 case class ApplePayment(
@@ -16,9 +19,16 @@ case class ApplePayment(
     deletedAt: Option[Instant] = None,
     createdAt: Instant = Instant.now())
     extends PaymentMethod
-    with FoxModel[ApplePayment] {
+    with FoxModel[ApplePayment]
+    with Validation[ApplePayment] {
 
-  // todo validate stripeTokenId should start with "tok_"
+  import Validation._
+
+  override def validate: ValidatedNel[Failure, ApplePayment] = {
+    (validExpr(stripeTokenId.startsWith("tok_"), "stripeTokenId should start with 'tok_'") |@| super.validate).map {
+      case _ ⇒ this
+    }
+  }
 }
 
 class ApplePayments(tag: Tag) extends FoxTable[ApplePayment](tag, "apple_payments") {
