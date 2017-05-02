@@ -98,7 +98,7 @@ defmodule Hyperion.PhoenixScala.Client do
   Creates new customer in Phoenix from Amazon order
   """
   def create_customer(payload, token) do
-    params = Poison.encode!(%{name: payload["BuyerName"], email: payload["BuyerName"]})
+    params = Poison.encode!(%{name: payload["BuyerName"], email: payload["BuyerEmail"]})
     {_, resp} = post("/api/v1/customers", params, make_request_headers(token))
     case resp.status_code do
       # status_code = 400 means customer already exists
