@@ -16,10 +16,8 @@ import type { AsyncStatus } from 'types/async-actions';
 import type { Product } from 'modules/products';
 import type { Localized } from 'lib/i18n';
 
-import createSearch from 'modules/search';
-
 // actions
-const { searchProducts } = createSearch('searchUrl');
+import { searchProducts } from 'modules/search';
 
 type SearchParams = {
   term: string,
@@ -43,8 +41,8 @@ type Props = Localized & {
 
 function mapStateToProps(state): Object {
   return {
-    ...state.searchUrl,
-    searchState: _.get(state.asyncActions, 'searchUrl', {}),
+    ...state.search,
+    searchState: _.get(state.asyncActions, 'search', {}),
   };
 }
 
