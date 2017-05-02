@@ -30,8 +30,16 @@ class BulkExportModal extends Component {
   };
 
   @autobind
-  onChange(value) {
+  handleChange(value) {
     this.setState({ value });
+  }
+
+  @autobind
+  handleKeyDown(event) {
+    const { key } = event;
+    if (key == 'Enter') {
+      this.handleSave();
+    }
   }
 
   @autobind
@@ -80,7 +88,8 @@ class BulkExportModal extends Component {
       >
         <div className="fc-modal-body">{this.label}</div>
         <TextInput
-          onChange={this.onChange}
+          onChange={this.handleChange}
+          onKeyDown={this.handleKeyDown}
           placeholder="Short description (optional)"
           value={this.state.value}
           className="fc-bulk-export-modal-description"
