@@ -159,18 +159,34 @@ class AddressesIntegrationTest
 
   "GET country by id" - {
     "Make sure that we have region short name provided" in {
-      val usId               = Country.unitedStatesId
-      val countryWithRegions = publicApi.getCountryById(usId).as[CountryWithRegions]
-      countryWithRegions.country.id must === (usId)
+      val countryWithRegions =
+        publicApi.getCountryById(Country.unitedStatesId).as[CountryWithRegions]
+      countryWithRegions.country.id must === (Country.unitedStatesId)
       countryWithRegions.country.alpha2 must === ("US")
 
-      countryWithRegions.regions.foreach(r ⇒
-            r.abbreviation match {
-          case Some("CA") ⇒ r.name must === ("California")
-          case Some("CO") ⇒ r.name must === ("Colorado")
-          case Some("DE") ⇒ r.name must === ("Delaware")
-          case _          ⇒
-      })
+      countryWithRegions.regions.map { region ⇒
+        (region.abbreviation, region.name)
+      } must contain
+      theSameElementsAs(
+          List(
+              ("CA".some, "California"),
+              ("CO".some, "Colorado"),
+              ("DE".some, "Delaware")
+          ))
+    }
+
+    "Should not contain absent or non-existent regions" in {
+      val countryWithRegions =
+        publicApi.getCountryById(Country.unitedStatesId).as[CountryWithRegions]
+
+      countryWithRegions.regions.map { region ⇒
+        (region.abbreviation, region.name)
+      } mustNot contain
+      theSameElementsAs(
+          List(
+              ("MSK".some, "Moscow"),
+              ("MO".some, "Moscow Oblast")
+          ))
     }
   }
 
