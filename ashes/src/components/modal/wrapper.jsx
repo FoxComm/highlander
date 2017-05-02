@@ -1,5 +1,10 @@
+// @flow
+
 import React, { Component, PropTypes } from 'react';
 import { ModalContainer } from './base';
+
+type FunctionComponent<P> = (props: P) => ?React$Element<any>;
+type ClassComponent<D, P, S> = Class<Component<D, P, S>>;
 
 /**
  * Wrapper for modal for add extra functionality.
@@ -7,10 +12,14 @@ import { ModalContainer } from './base';
  * Currently it supports only toggling 'fc-is-modal-opened' class on body. It may be helpful if you are using
  * huge modal which can have a greater height than viewport.
  * @param Modal
- * @returns {ModalWrapper}
+ * @returns {ModalWrapperInner}
  */
-export default function wrapModal(Modal) {
-  class ModalWrapper extends Component {
+export default function wrapModal<P:Object, S:Object>(
+  Modal: ClassComponent<any, P, S> | FunctionComponent<P>,
+): Class<Component<void, P, S>> {
+  class ModalWrapperInner extends Component {
+    props: P;
+    state: S;
 
     static propTypes = {
       children: PropTypes.node,
@@ -18,11 +27,19 @@ export default function wrapModal(Modal) {
     };
 
     componentDidUpdate() {
-      document.body.classList[this.props.isVisible ? 'add' : 'remove']('fc-is-modal-opened');
+      if (document.body) {
+        if (this.props.isVisible) {
+          document.body.classList.add('fc-is-modal-opened');
+        } else {
+          document.body.classList.remove('fc-is-modal-opened');
+        }
+      }
     }
 
     componentWillUnmount() {
-      document.body.classList.remove('fc-is-modal-opened');
+      if (document.body) {
+        document.body.classList.remove('fc-is-modal-opened');
+      }
     }
 
     render() {
@@ -38,5 +55,5 @@ export default function wrapModal(Modal) {
     }
   }
 
-  return ModalWrapper;
+  return ModalWrapperInner;
 }
