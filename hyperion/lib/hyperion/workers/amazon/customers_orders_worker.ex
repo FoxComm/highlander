@@ -10,8 +10,12 @@ defmodule Hyperion.Amazon.Workers.CustomersOrdersWorker do
   end
 
   def init(state) do
-    schedule_work()
-    {:ok, state}
+    case Mix.env do
+      :test -> {:ok, state}
+      _ ->
+        schedule_work()
+        {:ok, state}
+    end
   end
 
   def handle_info(:work, state) do
