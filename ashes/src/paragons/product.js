@@ -67,7 +67,7 @@ export function createEmptyProduct(): Product {
 }
 
 export function duplicateProduct(product: Product): Product {
-  const cleared = dissoc(product, 'id');
+  const cleared = dissoc(product, 'id', 'slug');
 
   return update(cleared, 'albums', _.map, album => {
     const cleared = dissoc(album, 'id', 'createdAt', 'updatedAt');
