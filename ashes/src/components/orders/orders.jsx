@@ -60,7 +60,7 @@ const tableColumns = [
 
 @connect(mapStateToProps, mapDispatchToProps)
 
-class Orders extends Component {
+export default class Orders extends Component {
   props: Props;
 
   @autobind
@@ -202,5 +202,3 @@ class Orders extends Component {
     );
   }
 }
-
-export default Orders;

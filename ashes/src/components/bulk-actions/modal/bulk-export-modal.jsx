@@ -58,7 +58,7 @@ class BulkExportModal extends Component {
         onCancel={onCancel}
         saveTabIndex="1"
         onSave={this.handleSave}
-        saveText="Yes, export"
+        saveText="Yes, Export"
       />
     );
   }
