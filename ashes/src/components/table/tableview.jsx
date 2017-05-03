@@ -1,5 +1,6 @@
 // libs
 import React, { Component, PropTypes } from 'react';
+import _ from 'lodash';
 
 // components
 import Table from './table';
@@ -8,6 +9,9 @@ import ActionsDropdown from '../bulk-actions/actions-dropdown';
 import TablePaginator from './paginator';
 import TablePageSize from './pagesize';
 import ColumnSelector from './column-selector';
+import { Button } from 'components/core/button';
+
+import styles from './tableview.css';
 
 function getLine(position, items) {
   if (!items.length) {
@@ -33,14 +37,31 @@ const TableView = props => {
   const topItemsRight = [];
   const bottomItems = [];
 
+  const handleExport = () => {
+    props.bulkExportAction(props.exportFields, props.exportEntity, props.tableIdentifier);
+  };
+
+  if (props.bulkExport) {
+    const bulkExport = (
+      <Button
+        styleName="bulk-export"
+        icon="export"
+        onClick={handleExport}
+      />
+    );
+    topItemsRight.push(bulkExport);
+  }
+
   if (props.selectableColumns.length) {
     const toggler = (
-      <ColumnSelector setColumns={props.setColumnSelected}
-                      columns={props.selectableColumns}
-                      identifier={props.tableIdentifier} />
+      <ColumnSelector
+        setColumns={props.setColumnSelected}
+        columns={props.selectableColumns}
+        identifier={props.tableIdentifier}
+      />
     );
 
-    topItemsLeft.push(toggler);
+    topItemsRight.push(toggler);
   }
 
   const flexSeparator = <div className="fc-table__flex-separator" />;
@@ -55,11 +76,13 @@ const TableView = props => {
     const disabled = total === 0 || totalSelected === 0;
 
     topItemsLeft.push(
-      <ActionsDropdown actions={bulkActions}
-                       disabled={disabled}
-                       allChecked={allChecked}
-                       toggledIds={toggledIds}
-                       total={total} />
+      <ActionsDropdown
+        actions={bulkActions}
+        disabled={disabled}
+        allChecked={allChecked}
+        toggledIds={toggledIds}
+        total={total}
+      />
     );
   }
 

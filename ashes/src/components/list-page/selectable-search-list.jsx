@@ -78,11 +78,14 @@ export default class SelectableSearchList extends React.Component {
         <MultiSelectTable
           tbodyId={props.tbodyId}
           columns={props.tableColumns}
+          exportEntity={props.exportEntity}
+          bulkExport={props.bulkExport}
           data={results}
           renderRow={props.renderRow}
           processRows={props.processRows}
           setState={props.searchActions.updateStateAndFetch}
           bulkActions={props.bulkActions}
+          bulkExportAction={props.bulkExportAction}
           predicate={props.predicate}
           hasActionsColumn={props.hasActionsColumn}
           isLoading={results.isFetching}

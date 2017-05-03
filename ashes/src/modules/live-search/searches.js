@@ -266,10 +266,11 @@ function _submitFilters(state, filters, initial) {
 
   /** not mark search as dirty on initial filters set but left it dirty if it was marked before */
   const isDirty = !initial || wasDirty;
-
+  const rawQuery = toQuery(filters);
   return assoc(state,
     ['savedSearches', state.selectedSearch, 'query'], filters,
-    ['savedSearches', state.selectedSearch, 'isDirty'], isDirty
+    ['savedSearches', state.selectedSearch, 'isDirty'], isDirty,
+    ['savedSearches', state.selectedSearch, 'rawQuery'], rawQuery,
   );
 }
 
@@ -282,10 +283,11 @@ function _submitPhrase(state, phrase) {
   };
 
   const query = [...state.savedSearches[state.selectedSearch].query, filter];
-
+  const rawQuery = toQuery(query);
   return assoc(state,
     ['savedSearches', state.selectedSearch, 'query'], query,
-    ['savedSearches', state.selectedSearch, 'isDirty'], true
+    ['savedSearches', state.selectedSearch, 'isDirty'], true,
+    ['savedSearches', state.selectedSearch, 'rawQuery'], rawQuery,
   );
 }
 

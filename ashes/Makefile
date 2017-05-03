@@ -15,6 +15,9 @@ version = $(shell iojs -e "console.log(JSON.parse(require('fs').readFileSync('pa
 clean:
 	rm -rf ./node_modules
 
+clean-build:
+	rm -rf ./build/* ./lib/* ./public/admin/admin.css ./public/admin/admin.js
+	
 test:
 	$(call header, Testing)
 	make setup

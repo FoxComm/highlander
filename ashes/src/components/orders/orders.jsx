@@ -1,11 +1,14 @@
+/* @flow */
+
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import { flow, map, filter } from 'lodash/fp';
+import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-// data
+// actions
 import { stateTitles } from '../../paragons/order';
 import { actions } from '../../modules/orders/list';
 import { actions as bulkActions } from '../../modules/orders/bulk';
@@ -15,21 +18,17 @@ import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
 import { SelectableSearchList } from '../list-page';
 import OrderRow from './order-row';
-import { ChangeStateModal, CancelModal } from '../bulk-actions/modal';
+import { ChangeStateModal, CancelModal, BulkExportModal } from '../bulk-actions/modal';
 import { Link } from '../link';
 
+// actions
+import { bulkExport } from 'modules/bulk-export/bulk-export';
 
-const mapStateToProps = ({orders: {list}}) => {
-  return {
-    list,
-  };
-};
-
-const mapDispatchToProps = dispatch => {
-  return {
-    actions: bindActionCreators(actions, dispatch),
-    bulkActions: bindActionCreators(bulkActions, dispatch),
-  };
+type Props = {
+  list: Object,
+  actions: Object,
+  bulkActions: Object,
+  bulkExportAction: (fields: Array<String>, entity: string, identifier: string) => Promise<*>,
 };
 
 const tableColumns = [
@@ -42,17 +41,12 @@ const tableColumns = [
   {field: 'grandTotal', text: 'Total', type: 'currency'}
 ];
 
-@connect(mapStateToProps, mapDispatchToProps)
-export default class Orders extends React.Component {
-  static propTypes = {
-    list: PropTypes.object.isRequired,
-    actions: PropTypes.objectOf(PropTypes.func).isRequired,
-    bulkActions: PropTypes.objectOf(PropTypes.func).isRequired,
-  };
+class Orders extends Component {
+  props: Props;
 
   @autobind
-  cancelOrders(allChecked, toggledIds) {
-    const {cancelOrders} = this.props.bulkActions;
+  cancelOrders(allChecked: boolean, toggledIds: Array<string>) {
+    const { cancelOrders } = this.props.bulkActions;
 
     return (
       <CancelModal
@@ -61,10 +55,34 @@ export default class Orders extends React.Component {
     );
   }
 
-  getChangeOrdersState(state) {
+  @autobind
+  getIdsByRefNum(refNums: Array<string>, list: Array<Object>) {
+    return flow(
+      filter(entry => refNums.indexOf(entry.referenceNumber) !== -1),
+      map(e => e.id),
+    )(list);
+  }
+
+  @autobind
+  bulkExport(allChecked: boolean, toggledIds: Array<string>) {
+    const { list } = this.props;
+    const { exportByIds } = this.props.bulkActions;
+    const fields = _.map(tableColumns, c => c.field);
+    const identifier = _.map(tableColumns, item => item.text).toString();
+    const results = list.currentSearch().results.rows;
+    const ids = this.getIdsByRefNum(toggledIds, results);
+    return (
+      <BulkExportModal
+        count={toggledIds.length}
+        onConfirm={(description) => exportByIds(toggledIds, ids, description, fields, 'orders', identifier)}
+      />
+    );
+  }
+
+  getChangeOrdersState(state: string) {
     const stateTitle = stateTitles[state];
 
-    return (allChecked, toggledIds) => {
+    return (allChecked: boolean, toggledIds: Array<string>) => {
       const {changeOrdersState} = this.props.bulkActions;
 
       return (
@@ -76,7 +94,7 @@ export default class Orders extends React.Component {
     };
   }
 
-  getChangeOrdersStateAction(state) {
+  getChangeOrdersStateAction(state: string) {
     const stateTitle = stateTitles[state];
 
     return [
@@ -87,9 +105,28 @@ export default class Orders extends React.Component {
     ];
   }
 
-  get bulkActions() {
+  get cancelOrdersAction(): Array<any> {
     return [
-      ['Cancel Orders', this.cancelOrders, 'successfully canceled', 'could not be canceled'],
+      'Cancel Selected Orders',
+      this.cancelOrders,
+      'successfully canceled',
+      'could not be canceled',
+    ];
+  }
+
+  get bulkExportAction(): Array<any> {
+    return [
+      'Export Selected Orders',
+      this.bulkExport,
+      'successfully exported',
+      'could not be exported',
+    ];
+  }
+
+  get bulkActions(): Array<any> {
+    return [
+      this.bulkExportAction,
+      this.cancelOrdersAction,
       this.getChangeOrdersStateAction('manualHold'),
       this.getChangeOrdersStateAction('fraudHold'),
       this.getChangeOrdersStateAction('remorseHold'),
@@ -97,7 +134,7 @@ export default class Orders extends React.Component {
     ];
   }
 
-  get renderRow() {
+  get renderRow(): Function {
     return (row, index, columns, params) => {
       const key = `order-${row.referenceNumber}`;
 
@@ -111,7 +148,7 @@ export default class Orders extends React.Component {
     };
   }
 
-  renderDetail(messages, referenceNumber) {
+  renderDetail(messages: Array<string>, referenceNumber: string) {
     return (
       <span key={referenceNumber}>
         Order <Link to="order-details" params={{order: referenceNumber}}>{referenceNumber}</Link>: {messages}
@@ -121,7 +158,6 @@ export default class Orders extends React.Component {
 
   render() {
     const {list, actions} = this.props;
-
     return (
       <div>
         <BulkMessages
@@ -136,6 +172,9 @@ export default class Orders extends React.Component {
           actions={this.bulkActions}>
           <SelectableSearchList
             entity="orders.list"
+            exportEntity="orders"
+            bulkExport
+            bulkExportAction={this.props.bulkExportAction}
             emptyMessage="No orders found."
             list={list}
             renderRow={this.renderRow}
@@ -147,3 +186,19 @@ export default class Orders extends React.Component {
     );
   }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    list: _.get(state.orders, 'list', {}),
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    actions: bindActionCreators(actions, dispatch),
+    bulkActions: bindActionCreators(bulkActions, dispatch),
+    bulkExportAction: bindActionCreators(bulkExport, dispatch),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Orders);
