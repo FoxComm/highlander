@@ -262,9 +262,9 @@ object ReturnPaymentManager {
   private def processDeletePayment(returnId: Int, paymentMethod: PaymentMethod.Type)(
       implicit ec: EC): DbResultT[Boolean] =
     paymentMethod match {
-      case PaymentMethod.GiftCard                            ⇒ deleteGcPayment(returnId)
-      case PaymentMethod.StoreCredit                         ⇒ deleteScPayment(returnId)
-      case PaymentMethod.CreditCard | PaymentMethod.ApplePay ⇒ deleteExternalPayment(returnId)
+      case PaymentMethod.GiftCard                               ⇒ deleteGcPayment(returnId)
+      case PaymentMethod.StoreCredit                            ⇒ deleteScPayment(returnId)
+      case t if PaymentMethod.Type.externalPayments.contains(t) ⇒ deleteExternalPayment(returnId)
     }
 
   private def deleteExternalPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] =
