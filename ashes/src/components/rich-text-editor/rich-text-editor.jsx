@@ -10,7 +10,6 @@ import { stateFromHTML } from 'draft-js-import-html';
 import { stateToHTML } from 'draft-js-export-html';
 import { stateFromMarkdown } from 'draft-js-import-markdown';
 import { stateToMarkdown } from 'draft-js-export-markdown';
-import toMarkdown from 'to-markdown';
 
 // components
 import { ContentBlock, ContentState, Editor, EditorState, RichUtils } from 'draft-js';
@@ -118,7 +117,7 @@ export default class RichTextEditor extends Component {
       if (!this.state.richMode) {
         const textValue = (this.state.contentType === 'html')
           ? this.htmlContent
-          : toMarkdown(this.htmlContent);
+          : stateToMarkdown(stateFromHTML(this.htmlContent));
 
         this.setState({
           editorState: EditorState.createWithContent(ContentState.createFromText(textValue))
