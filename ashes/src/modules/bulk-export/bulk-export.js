@@ -1,20 +1,26 @@
+/* @flow */
+
 import Api from 'lib/api';
 import { createAsyncActions } from '@foxcomm/wings';
 import localStorage from 'localStorage';
 import _ from 'lodash';
 
-const getFields = (allFields, identifier) => {
+type Payload = {
+  ids: Array<number>,
+  fields: Array<string>,
+  description?: string,
+};
+
+const getFields = (allFields: Array<string>, identifier: string): Array<string> => {
   const columns = localStorage.getItem('columns') ? JSON.parse(localStorage.getItem('columns')) : {};
 
   if (_.isEmpty(columns[identifier])) {
     return allFields;
   }
   return _.filter(columns[identifier], {isVisible: true}).map(c => c.field);
-
-
 };
 
-const getQuery = (raw) => {
+const getQuery = (raw: Object): Object => {
   if (_.isEmpty(raw)) {
     return {
       bool: {},
@@ -23,7 +29,7 @@ const getQuery = (raw) => {
   return raw.query;
 };
 
-const genDownloadLink = (response) => {
+const genDownloadLink = (response: Object) => {
   const blob = new Blob([response.data]);
   const link = document.createElement('a');
   link.href=window.URL.createObjectURL(blob);
@@ -54,7 +60,7 @@ export const bulkExportByIds = createAsyncActions(
   'bulkExportByIds',
   function(ids, description, fields, entity, identifier) {
     const queryFields = getFields(fields, identifier);
-    const payload = {
+    const payload: Payload = {
       ids,
       fields: queryFields,
     };
