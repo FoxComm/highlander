@@ -1,16 +1,20 @@
 /* @flow */
 
 import React, { Component } from 'react';
+
 // libs
 import { numberize } from 'lib/text-utils';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
+import classNames from 'classnames';
 
 // components
 import modal from 'components/modal/wrapper';
 import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
 import TextInput from 'components/forms/text-input';
+
+import styles from './bulk-export-modal.css';
 
 type Props = {
   entity: string,
@@ -50,9 +54,13 @@ class BulkExportModal extends Component {
 
   get footer() {
     const { onCancel } = this.props;
+    const className = classNames(
+      'fc-modal-footer',
+      styles['export-modal-footer'],
+    );
     return (
       <SaveCancel
-        className="fc-modal-footer fc-bulk-export-modal-footer"
+        className={className}
         cancelTabIndex="2"
         cancelText="Cancel"
         onCancel={onCancel}
@@ -92,7 +100,7 @@ class BulkExportModal extends Component {
           onKeyDown={this.handleKeyDown}
           placeholder="Short description (optional)"
           value={this.state.value}
-          className="fc-bulk-export-modal-description"
+          className={styles["export-modal-description"]}
         />
       </ContentBox>
     );
