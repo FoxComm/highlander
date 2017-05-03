@@ -56,7 +56,7 @@ class PromoCode extends Component {
     );
   }
 
-  get renderGiftCards(): Array<Element<*>> | null {
+  get renderGiftCards(): Element<*> | null {
     if (_.isEmpty(this.props.giftCards)) return null;
 
     const { className } = this.props;
