@@ -2,6 +2,7 @@ package models.cord
 
 import cats.data.ValidatedNel
 import failures.Failure
+import models.cord.OrderPayments.filter
 import models.payment.PaymentMethod
 import models.payment.PaymentMethod.ExternalPayment
 import models.payment.applepay.{ApplePayCharges, ApplePayment, ApplePayments}
@@ -123,21 +124,17 @@ object OrderPayments
 
   def findAllStripeCharges(
       cordRef: Rep[String]): Query[Rep[StripeOrderPayment], StripeOrderPayment, Seq] = {
-    def ccCharges = {
-      filter(_.cordRef === cordRef).join(CreditCardCharges).on(_.paymentMethodId === _.id).map {
-        case (_, charge) ⇒
-          ((charge.stripeChargeId, charge.amount, charge.currency) <> (StripeOrderPayment.tupled, StripeOrderPayment.unapply _))
-      }
+    def ccCharges = filter(_.cordRef === cordRef).join(CreditCardCharges).on(_.paymentMethodId === _.id).map {
+      case (_, charge) ⇒
+        ((charge.stripeChargeId, charge.amount, charge.currency) <> (StripeOrderPayment.tupled, StripeOrderPayment.unapply _))
     }
 
-    def applePayCharges = {
-      filter(_.cordRef === cordRef).join(ApplePayCharges).on(_.paymentMethodId === _.id).map {
-        case (_, charge) ⇒
-          ((charge.stripeChargeId, charge.amount, charge.currency) <> (StripeOrderPayment.tupled, StripeOrderPayment.unapply _))
-      }
+    def applePayCharges = filter(_.cordRef === cordRef).join(ApplePayCharges).on(_.paymentMethodId === _.id).map {
+      case (_, charge) ⇒
+        ((charge.stripeChargeId, charge.amount, charge.currency) <> (StripeOrderPayment.tupled, StripeOrderPayment.unapply _))
     }
 
-    ccCharges.unionAll(applePayCharges)
+    ccCharges ++ applePayCharges
   }
 
   object scope {
