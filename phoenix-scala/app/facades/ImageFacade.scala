@@ -13,6 +13,8 @@ import akka.http.scaladsl.model.{HttpRequest, _}
 import akka.stream.ActorMaterializer
 import akka.util.ByteString
 
+import cats._
+import cats.syntax._
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
 import failures.Failures
@@ -49,19 +51,15 @@ trait ImageFacade extends LazyLogging {
     Result.fromFEither(r)
   }
 
-  private def saveByteBuffer(b: ByteBuffer): Either[Failures, Path] = {
-    Try {
+  private def saveByteBuffer(b: ByteBuffer): Either[Failures, Path] =
+    Either.catchNonFatal {
       val path = Files.createTempFile("s3tmp", ".img")
       val ch   = FileChannel.open(path, java.nio.file.StandardOpenOption.WRITE)
       ch.write(b)
       ch.force(false)
       ch.close()
       path
-    } match { // TODO: .toEither in scala 2.12 @narma
-      case Success(path)         ⇒ Either.right[Failures, Path](path)
-      case scala.util.Failure(e) ⇒ Either.left[Failures, Path](ImageTemporarySaveFailed(e).single)
-    }
-  }
+    }.leftMap(ImageTemporarySaveFailed(_).single)
 
   protected def saveBufferAndThen[R](b: ByteBuffer)(block: Path ⇒ DbResultT[R])(
       implicit ec: EC): DbResultT[R] =
