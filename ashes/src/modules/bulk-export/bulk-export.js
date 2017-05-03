@@ -18,7 +18,7 @@ const getFields = (allFields: Array<string>, identifier: string): Array<string> 
   if (_.isEmpty(columns[identifier])) {
     return allFields;
   }
-  
+
   return flow(
     filter(column => column.isVisible === true),
     map(c => c.field),

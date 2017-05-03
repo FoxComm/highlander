@@ -100,7 +100,7 @@ class BulkExportModal extends Component {
           onKeyDown={this.handleKeyDown}
           placeholder="Short description (optional)"
           value={this.state.value}
-          className={styles["export-modal-description"]}
+          className={styles['export-modal-description']}
         />
       </ContentBox>
     );
