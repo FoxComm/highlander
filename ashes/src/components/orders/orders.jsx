@@ -30,20 +30,6 @@ type Props = {
   bulkExportAction: (fields: Array<String>, entity: string, identifier: string) => Promise<*>,
 };
 
-const mapStateToProps = ({orders: {list}}) => {
-  return {
-    list,
-  };
-};
-
-const mapDispatchToProps = dispatch => {
-  return {
-    actions: bindActionCreators(actions, dispatch),
-    bulkActions: bindActionCreators(bulkActions, dispatch),
-    bulkExportAction: bindActionCreators(bulkExport, dispatch),
-  };
-};
-
 const tableColumns = [
   {field: 'referenceNumber', text: 'Order', model: 'order'},
   {field: 'placedAt', text: 'Date/Time Placed', type: 'datetime'},
@@ -54,9 +40,7 @@ const tableColumns = [
   {field: 'grandTotal', text: 'Total', type: 'currency'}
 ];
 
-@connect(mapStateToProps, mapDispatchToProps)
-
-export default class Orders extends Component {
+class Orders extends Component {
   props: Props;
 
   @autobind
@@ -199,3 +183,19 @@ export default class Orders extends Component {
     );
   }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    list: _.get(state.orders, 'list', {}),
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    actions: bindActionCreators(actions, dispatch),
+    bulkActions: bindActionCreators(bulkActions, dispatch),
+    bulkExportAction: bindActionCreators(bulkExport, dispatch),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Orders);

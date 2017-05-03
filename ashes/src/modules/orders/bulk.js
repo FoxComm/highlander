@@ -62,7 +62,7 @@ const { actions, reducer } = createStore({
     cancelOrders,
     changeOrdersState,
     ...bulkActions,
-    exportByIds
+    exportByIds,
   },
   reducers,
 });
