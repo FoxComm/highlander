@@ -153,7 +153,7 @@ create or replace function update_products_cat_from_product_sku_links_delete_fn(
 begin
   if not exists (select 1 from product_sku_links where left_id = old.left_id) then
      -- if this was the last such left_id
-     delete from products_catalog_view where product_id = old.left_id;
+     delete from products_catalog_view where id = old.left_id;
   end if;
   return null;
 end;
