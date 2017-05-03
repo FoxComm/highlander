@@ -39,6 +39,8 @@ type Props = {
   onCancel?: (event: SyntheticEvent) => void;
   /** If to show loading animation */
   isLoading?: boolean;
+  /** If true, wil set focus on Cancel button, otherwise do nothing */
+  focus?: boolean;
 };
 
 /**
@@ -52,8 +54,8 @@ export default class SaveCancel extends Component {
 
   static defaultProps: $Shape<Props> = {
     className: '',
-    cancelTabIndex: '0',
-    saveTabIndex: '1',
+    cancelTabIndex: '101',
+    saveTabIndex: '102',
     cancelText: 'Cancel',
     cancelDisabled: false,
     saveText: 'Save',
@@ -64,6 +66,14 @@ export default class SaveCancel extends Component {
     onCancel: noop,
     isLoading: false,
   };
+
+  _cancel: HTMLElement;
+
+  componentDidMount() {
+    if (this.props.focus && this._cancel) {
+      this._cancel.focus();
+    }
+  }
 
   get cancel() {
     const {
@@ -77,6 +87,7 @@ export default class SaveCancel extends Component {
       <Button
         id="fct-modal-cancel-btn"
         type="button"
+        returnRef={r => this._cancel = r}
         onClick={onCancel}
         className={classNames(s.cancel, 'fc-save-cancel__cancel')}
         tabIndex={cancelTabIndex}

@@ -41,11 +41,11 @@ type Props = {
   onSelect?: (value: any, title: string|Element<any>) => any;
   /** Array of elements used to render menu items in case `items` prop is empty */
   children?: Array<Element<any>>;
-}
+};
 
 type State = {
   open: boolean;
-}
+};
 
 /**
  * Button component that represents a button with additional action in a dropdown menu.
@@ -133,13 +133,12 @@ export default class ButtonWithMenu extends Component {
   }
 
   render() {
-    const { props } = this;
-    const { icon, title, animate, menuPosition, buttonDisabled, menuDisabled } = props;
+    const { icon, title, animate, menuPosition, buttonDisabled, menuDisabled, onPrimaryClick, isLoading } = this.props;
     const { open } = this.state;
 
-    const className = classNames(s.button, {
+    const className = classNames(s.button, this.props.className, {
       [s.opened]: open,
-    }, this.props.className);
+    });
 
     const buttonClassName = classNames('fc-button-with-menu__left-button', {
       [s._disabled]: buttonDisabled,
@@ -157,8 +156,8 @@ export default class ButtonWithMenu extends Component {
             id="fct-primary-save-btn"
             className={buttonClassName}
             icon={icon}
-            onClick={props.onPrimaryClick}
-            isLoading={props.isLoading}
+            onClick={onPrimaryClick}
+            isLoading={isLoading}
             onBlur={this.dontPropagate}
             disabled={buttonDisabled} >
             {title}

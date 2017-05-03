@@ -4,7 +4,7 @@
 import styles from './images.css';
 
 // libs
-import { autobind, debounce } from 'core-decorators';
+import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 
 // components
@@ -73,7 +73,7 @@ export default class Album extends Component {
   }
 
   @autobind
-  handleAddImages() {
+  handleAddFiles() {
     this._uploadRef.openUploadDialog();
   }
 
@@ -112,8 +112,7 @@ export default class Album extends Component {
   }
 
   @autobind
-  @debounce(300)
-  handleSortImages(order: Array<number>): void {
+  handleSortImages(order: Array<number>): Promise<*> {
     const album = { ...this.props.album };
 
     const newOrder = [];
@@ -124,13 +123,14 @@ export default class Album extends Component {
 
     album.images = newOrder;
 
-    this.props.editAlbum(album);
+    return this.props.editAlbum(album);
   }
 
   @autobind
-  handleMove(direction: number): void {
+  handleMove(direction: number): Promise<*> {
     const position = this.props.position + direction;
-    this.props.moveAlbum(position);
+
+    return this.props.moveAlbum(position);
   }
 
   get editAlbumDialog(): ?Element<*> {
@@ -163,14 +163,16 @@ export default class Album extends Component {
     );
 
     return (
-      <ConfirmationDialog className={styles.modal}
-                          isVisible={this.state.archiveMode}
-                          header='Archive Album'
-                          body={body}
-                          cancel='Cancel'
-                          confirm='Yes, Archive'
-                          onCancel={this.handleCancelArchiveAlbum}
-                          confirmAction={this.handleConfirmArchiveAlbum}
+      <ConfirmationDialog
+        className={styles.modal}
+        isVisible={this.state.archiveMode}
+        header='Archive Album'
+        body={body}
+        cancel='Cancel'
+        confirm='Yes, Archive'
+        onCancel={this.handleCancelArchiveAlbum}
+        confirmAction={this.handleConfirmArchiveAlbum}
+        focus
       />
     );
   }
@@ -178,7 +180,6 @@ export default class Album extends Component {
   @autobind
   getAlbumActions(): Array<any> {
     return [
-      { name: 'add', handler: this.handleAddImages },
       { name: 'edit', handler: this.handleEditAlbum },
       { name: 'trash', handler: this.handleArchiveAlbum },
     ];
@@ -194,25 +195,24 @@ export default class Album extends Component {
         onDrop={this.handleNewFiles}
         empty={album.images.length == 0}
       >
-        <SortableTiles itemWidth={298}
-                       itemHeight={372}
-                       gutter={10}
-                       gutterY={40}
-                       loading={loading}
-                       onSort={this.handleSortImages}
-        >
+        <SortableTiles loading={loading} onSort={this.handleSortImages}>
           {album.images.map((image: ImageFile, idx: number) => {
             if (image.key && image.id) this.idsToKey[image.id] = image.key;
             const imagePid = image.key || this.idsToKey[image.id] || image.id;
-            return (
+
+            const func = (disabled) =>
               <Image
                 image={image}
                 imagePid={imagePid}
                 editImage={(form: ImageInfo) => this.props.editImage(idx, form)}
                 deleteImage={() => this.props.deleteImage(idx)}
                 key={imagePid}
-              />
-            );
+                disabled={disabled}
+              />;
+
+            func.key = imagePid;
+
+            return func;
           })}
         </SortableTiles>
       </Upload>
@@ -229,6 +229,7 @@ export default class Album extends Component {
                       contentClassName={styles.albumContent}
                       onSort={this.handleMove}
                       actions={this.getAlbumActions()}
+                      onAddFile={this.handleAddFiles}
         >
           {albumContent}
         </AlbumWrapper>
@@ -238,11 +239,6 @@ export default class Album extends Component {
 
   @autobind
   renderTitle(title: string, count: number): Element<*> {
-    return (
-      <span>
-        <span className={styles.albumTitleText}>{title}</span>
-        <span className={styles.albumTitleCount}>{count}</span>
-      </span>
-    );
+    return <span className={styles.albumTitleText}>{title}</span>;
   }
 }

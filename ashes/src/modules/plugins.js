@@ -40,7 +40,8 @@ export const fetchSettings =  _fetchSettings.perform;
 
 export function lazyFetchSettings(name: string) {
   const alreadyCalled = function(state) {
-    return _.get(state.asyncActions, 'fetchPluginSettings.inProgress', false);
+    return _.get(state.asyncActions, 'fetchPluginSettings.inProgress', false) ||
+      _.get(state.asyncActions, 'fetchPluginSettings.finished', false);
   };
   return (dispatch: Function, getState: Function) => {
     if (!alreadyCalled(getState())) {

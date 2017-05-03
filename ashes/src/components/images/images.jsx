@@ -40,7 +40,7 @@ export type Props = {
 
 type State = {
   newAlbumMode: boolean;
-}
+};
 
 class Images extends Component {
   props: Props;

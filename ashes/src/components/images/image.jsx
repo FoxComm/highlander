@@ -23,11 +23,14 @@ export type Props = {
   editImage: (info: ImageInfo) => Promise<*>;
   deleteImage: () => Promise<*>;
   imagePid: string|number;
+  disabled?: boolean;
 };
 
 type State = {
   editMode: boolean;
   deleteMode: boolean;
+  saveInProgress: boolean;
+  deleteInProgress: boolean;
 };
 
 export default class Image extends Component<void, Props, State> {
@@ -36,11 +39,33 @@ export default class Image extends Component<void, Props, State> {
   state: State = {
     editMode: false,
     deleteMode: false,
+    saveInProgress: false,
+    disabled: false,
+    deleteInProgress: false,
   };
+
+  componentDidMount(): void {
+    document.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyDown);
+  }
+
+  @autobind
+  handleKeyDown({ key }: KeyboardEvent) {
+    if (key === 'Escape') {
+      this.handleCancelEditImage();
+    }
+  }
 
   @autobind
   handleEditImage(): void {
-    this.setState({ editMode: true });
+    const { disabled } = this.props;
+
+    if (!disabled) {
+      this.setState({ editMode: true });
+    }
   }
 
   @autobind
@@ -50,9 +75,8 @@ export default class Image extends Component<void, Props, State> {
 
   @autobind
   handleConfirmEditImage(form: ImageInfo): void {
-    this.props.editImage(form);
-
-    this.setState({ editMode: false });
+    this.setState({ saveInProgress: true });
+    this.props.editImage(form).then(() => this.setState({ editMode: false, saveInProgress: false }));
   }
 
   @autobind
@@ -67,9 +91,18 @@ export default class Image extends Component<void, Props, State> {
 
   @autobind
   handleConfirmDeleteImage(): void {
-    this.props.deleteImage();
+    this.setState({ deleteInProgress: true });
 
-    this.setState({ deleteMode: false });
+    this.props.deleteImage();
+    // We don't need to set `deleteMode: false`, because component will be removed
+    // .then(() =>
+    //   this.setState({ deleteMode: false, deleteInProgress: false })
+    // );
+  }
+
+  @autobind
+  handleRemove(): void {
+    this.setState({ editMode: false, deleteMode: true });
   }
 
   get deleteImageDialog(): ?Element<*> {
@@ -81,12 +114,14 @@ export default class Image extends Component<void, Props, State> {
       <BodyPortal className={styles.modal}>
         <ConfirmationDialog
           isVisible={true}
-          header='Delete Image'
-          body={'Are you sure you want to delete this image?'}
+          header='Delete Media'
+          body='Are you sure you want to delete this asset?'
           cancel='Cancel'
           confirm='Yes, Delete'
           onCancel={this.handleCancelDeleteImage}
           confirmAction={this.handleConfirmDeleteImage}
+          inProgress={this.state.deleteInProgress}
+          focus
         />
       </BodyPortal>
     );
@@ -100,6 +135,8 @@ export default class Image extends Component<void, Props, State> {
           image={this.props.image}
           onCancel={this.handleCancelEditImage}
           onSave={this.handleConfirmEditImage}
+          onRemove={this.handleRemove}
+          inProgress={this.state.saveInProgress}
         />
       </BodyPortal>
     );
@@ -122,7 +159,7 @@ export default class Image extends Component<void, Props, State> {
   }
 
   render() {
-    const { image, imagePid } = this.props;
+    const { image, imagePid, disabled } = this.props;
 
     return (
       <div>
@@ -132,10 +169,12 @@ export default class Image extends Component<void, Props, State> {
           id={image.id}
           src={image.src}
           title={image.title}
-          secondaryTitle={`Uploaded ${image.uploadedAt || moment().format('MM/DD/YYYY HH: mm')}`}
+          secondaryTitle={`Uploaded ${image.createdAt || moment().format('MM/DD/YYYY HH: mm')}`}
           actions={this.getImageActions()}
+          onImageClick={this.handleEditImage}
           loading={image.loading}
-          key={`${imagePid}`}
+          key={imagePid}
+          disabled={disabled}
         />
       </div>
     );

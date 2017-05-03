@@ -1,32 +1,37 @@
 /* @flow */
 
-// styles
-import styles from './album-wrapper.css';
-
 // libs
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 
+import ButtonWithMenu
+  from 'components/core/button-with-menu';
+
+// styles
+import s from './album-wrapper.css';
+
 type Action = {
   name: string;
   handler: Function;
-}
+};
 
 type Props = {
   actions: Array<Action>;
   title: string;
   position: number;
   albumsCount: number;
-  onSort: (direction: number) => void;
+  onAddFile: Function;
   titleWrapper?: (title: string) => Element<*>;
   className?: string;
   contentClassName: ?string;
   children?: Array<Element<*>>|Element<*>;
-}
+};
 
-const MOVE_DIRECTION_UP = -1;
-const MOVE_DIRECTION_DOWN = 1;
+const ddItems = [
+  ['fromDesk', 'Upload from desktop'],
+  // ['fromLink', 'Upload from Link'] // @todo
+];
 
 export default class AlbumWrapper extends Component {
 
@@ -35,25 +40,8 @@ export default class AlbumWrapper extends Component {
   static defaultProps = {
     title: '',
     actions: [],
+    onAddFile: () => {},
   };
-
-  @autobind
-  handleMoveUp(): void {
-    if (this.isFirstAlbum) {
-      return;
-    }
-
-    this.props.onSort(MOVE_DIRECTION_UP);
-  }
-
-  @autobind
-  handleMoveDown(): void {
-    if (this.isLastAlbum) {
-      return;
-    }
-
-    this.props.onSort(MOVE_DIRECTION_DOWN);
-  }
 
   get isFirstAlbum(): boolean {
     return this.props.position === 0;
@@ -67,8 +55,8 @@ export default class AlbumWrapper extends Component {
     const { title, titleWrapper } = this.props;
 
     return (
-      <div className={styles.title}>
-        <div className={styles.titleWrapper}>
+      <div className={s.title}>
+        <div className={s.titleWrapper}>
           <span>{titleWrapper ? titleWrapper(title) : title}</span>
         </div>
       </div>
@@ -76,25 +64,12 @@ export default class AlbumWrapper extends Component {
   }
 
   get controls() {
-    const moveUpCsl = classNames(styles.controlItem, { '_disabled': this.isFirstAlbum });
-    const moveDownCsl = classNames(styles.controlItem, { '_disabled': this.isLastAlbum });
-
     return (
-      <div className={styles.controls}>
-        <div className={styles.left}>
-          <div className={styles.controlMove}>
-            <span className={moveUpCsl}>
-              <i className="icon-up" onClick={this.handleMoveUp} />
-            </span>
-            <span className={moveDownCsl}>
-              <i className="icon-down" onClick={this.handleMoveDown} />
-            </span>
-          </div>
-        </div>
-        <div className={styles.right}>
+      <div className={s.controls}>
+        <div className={s.right}>
           {this.props.actions.map(({ name, handler }) => {
             return (
-              <span className={styles.controlItem} key={name}>
+              <span className={s.controlItem} key={name}>
                 <i className={`icon-${name}`} onClick={handler} />
               </span>
             );
@@ -104,18 +79,35 @@ export default class AlbumWrapper extends Component {
     );
   }
 
+  @autobind
+  handleAdd(actionName: 'fromDesk' | 'fromLink'): void {
+    switch (actionName) {
+      case 'fromDesk':
+        this.props.onAddFile();
+        break;
+    }
+  }
+
   render() {
     const { className, contentClassName } = this.props;
-
-    const cls = classNames(styles.accordion, className);
+    const cls = classNames(s.accordion, className);
 
     return (
       <div className={cls}>
-        <div className={styles.header}>
+        <div className={s.header}>
           {this.title}
           {this.controls}
         </div>
-        <div className={classNames(styles.content, contentClassName)} ref="content">
+        <div className={classNames(s.content, contentClassName)}>
+          <div className={s.menu}>
+            <ButtonWithMenu
+              title="Upload Media"
+              icon="upload"
+              items={ddItems}
+              onSelect={this.handleAdd}
+              onPrimaryClick={this.props.onAddFile}
+            />
+          </div>
           {this.props.children}
         </div>
       </div>

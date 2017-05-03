@@ -43,7 +43,7 @@ type LoginProps = {
   err: any,
   googleSignin: Function,
   isMounted: boolean,
-}
+};
 
 /* ::`*/
 @connect((state) => ({

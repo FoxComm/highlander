@@ -1,29 +1,29 @@
 /* @flow */
 
 // styles
-import styles from './image.css';
+import s from './image.css';
 
 // libs
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import React, { Component, Element } from 'react';
-import Transition from 'react-transition-group/CSSTransitionGroup';
 
 // components
 import WaitAnimation from '../common/wait-animation';
 import ProductImage from 'components/imgix/product-image';
+import Transition from 'react-transition-group/CSSTransitionGroup';
 
 type Props = {
   id: number,
   src: string,
-  loader?: string|Element<*>;
-}
+  size?: 'cover' | 'contain',
+};
 
 type State = {
   ready: boolean;
   error: boolean;
   src?: string;
-}
+};
 
 export default class ImageLoader extends Component {
   props: Props;
@@ -93,23 +93,28 @@ export default class ImageLoader extends Component {
     return !this.state.ready ? <WaitAnimation key="loader" size="m" /> : null;
   }
 
-  get image(): ?Element<*> {
-    return this.state.ready ? (
-      <ProductImage
-        src={this.state.src}
-        width={286}
-        height={286}
-        key={this.props.id}
-      />
-    ) : null;
+  get image(): ?Element<any> {
+    let img = <ProductImage src={this.state.src} width={286} height={286} />;
+
+    if (this.props.size && this.state.src) {
+      let styles = {
+        backgroundSize: this.props.size,
+        backgroundImage: `url(${this.state.src})`,
+      };
+
+      img = <div style={styles} className={s.bgImage} />;
+    }
+
+    return this.state.ready ? img : null;
   }
 
-  wrapToTransition(img: ?Element<*>) {
+  wrapIfTransition(img: ?Element<any>): ?Element<any> {
     if (this.showTransition) {
       return (
         <Transition
           key="image-transition"
           component="div"
+          className={s.transition}
           transitionName="image"
           transitionAppear={true}
           transitionLeave={false}
@@ -120,22 +125,19 @@ export default class ImageLoader extends Component {
         </Transition>
       );
     }
-    return (
-      <div key="image">{img}</div>
-    );
+
+    return img;
   }
 
   render() {
-    const className = classNames(styles.image, {
-      [styles.error]: this.state.error,
+    const className = classNames(s.image, {
+      [s.error]: this.state.error,
     });
 
     return (
       <div className={className}>
-        {[
-          this.loader,
-          this.wrapToTransition(this.image)
-        ]}
+        {this.loader}
+        {this.wrapIfTransition(this.image)}
       </div>
     );
   }

@@ -42,23 +42,17 @@
   position: absolute;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   bottom: 0;
   top: 0;
   left: 0;
   right: 0;
   pointer-events: none;
 
-  & .left,
   & .right {
     display: flex;
     background: #f2f2f2;
     pointer-events: auto;
-  }
-
-  & .left {
-    padding-right: 10px;
-    font-size: 13px;
   }
 
   & .right {
@@ -88,11 +82,11 @@
   }
 }
 
-.controlMove {
-  display: block;
-  font-size: 15px;
+.content {
+
 }
 
-.content {
-  margin-top: 40px;
+.menu {
+  margin: 10px 0 30px;
+  text-align: right;
 }

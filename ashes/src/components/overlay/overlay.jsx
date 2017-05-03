@@ -16,7 +16,8 @@ const Overlay = (props: Props) => {
     'overlay_hidden': !props.shown,
     'overlay_shown': props.shown,
   });
-  return <div styleName={style} onClick={props.onClick}></div>;
+
+  return <div styleName={style} onClick={props.onClick} />;
 };
 
 export default Overlay;
