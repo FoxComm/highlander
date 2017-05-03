@@ -168,11 +168,12 @@ object AlbumImagesFacade extends ImageFacade {
     val form   = image.form.attributes
     val shadow = image.shadow.attributes
 
-    val src   = IlluminateAlgorithm.get("src", form, shadow).extract[String]
-    val title = IlluminateAlgorithm.get("title", form, shadow).extractOpt[String]
-    val alt   = IlluminateAlgorithm.get("alt", form, shadow).extractOpt[String]
+    val src     = IlluminateAlgorithm.get("src", form, shadow).extract[String]
+    val title   = IlluminateAlgorithm.get("title", form, shadow).extractOpt[String]
+    val alt     = IlluminateAlgorithm.get("alt", form, shadow).extractOpt[String]
+    val baseUrl = IlluminateAlgorithm.get("baseUrl", form, shadow).extractOpt[String]
 
-    ImagePayload(Some(image.model.id), src, title, alt)
+    ImagePayload(Some(image.model.id), src = src, title = title, alt = alt, baseUrl = baseUrl)
   }
 
 }
