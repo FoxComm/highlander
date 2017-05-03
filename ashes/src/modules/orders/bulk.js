@@ -6,7 +6,8 @@ import Api from '../../lib/api';
 import createStore from '../../lib/store-creator';
 
 // data
-import { reducers, getSuccesses as _getSuccesses, bulkActions } from '../bulk';
+import { initialState, reducers, getSuccesses as _getSuccesses, bulkActions } from '../bulk';
+import { bulkExportByIds } from 'modules/bulk-export/bulk-export';
 
 const getSuccesses = _.partial(_getSuccesses, 'order');
 
@@ -28,6 +29,14 @@ const cancelOrders = (actions, referenceNumbers, reasonId) =>
         }
       );
   };
+
+const exportByIds = (actions, refNums, ids, description, fields, entity, identifier) => (dispatch) => {
+  dispatch(actions.bulkRequest());
+
+  dispatch(bulkExportByIds(ids, description, fields, entity, identifier))
+    .then(() => dispatch(actions.bulkDone(getSuccesses(refNums), null)))
+    .catch(err => dispatch(actions.bulkError(err)));
+};
 
 const changeOrdersState = (actions, referenceNumbers, state) =>
   dispatch => {
@@ -53,6 +62,7 @@ const { actions, reducer } = createStore({
     cancelOrders,
     changeOrdersState,
     ...bulkActions,
+    exportByIds
   },
   reducers,
 });

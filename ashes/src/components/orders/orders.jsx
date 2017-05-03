@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-// data
+// actions
 import { stateTitles } from '../../paragons/order';
 import { actions } from '../../modules/orders/list';
 import { actions as bulkActions } from '../../modules/orders/bulk';
@@ -21,16 +21,13 @@ import { ChangeStateModal, CancelModal, BulkExportModal } from '../bulk-actions/
 import { Link } from '../link';
 
 // actions
-import { bulkExport, bulkExportByIds } from 'modules/bulk-export/bulk-export';
+import { bulkExport } from 'modules/bulk-export/bulk-export';
 
 type Props = {
   list: Object,
   actions: Object,
   bulkActions: Object,
   bulkExportAction: (fields: Array<String>, entity: string, identifier: string) => Promise<*>,
-  bulkExportByIds: (
-    ids: Array<number>, description: ?string, fields: Array<String>, entity: string, identifier: string
-  ) => Promise<*>,
 };
 
 const mapStateToProps = ({orders: {list}}) => {
@@ -44,7 +41,6 @@ const mapDispatchToProps = dispatch => {
     actions: bindActionCreators(actions, dispatch),
     bulkActions: bindActionCreators(bulkActions, dispatch),
     bulkExportAction: bindActionCreators(bulkExport, dispatch),
-    bulkExportByIds: bindActionCreators(bulkExportByIds, dispatch),
   };
 };
 
@@ -82,7 +78,8 @@ export default class Orders extends Component {
 
   @autobind
   bulkExport(allChecked: boolean, toggledIds: Array<string>) {
-    const { bulkExportByIds, list } = this.props;
+    const { list } = this.props;
+    const { exportByIds } = this.props.bulkActions;
     const fields = _.map(tableColumns, c => c.field);
     const identifier = _.map(tableColumns, item => item.text).toString();
     const results = list.currentSearch().results.rows;
@@ -90,7 +87,7 @@ export default class Orders extends Component {
     return (
       <BulkExportModal
         count={toggledIds.length}
-        onConfirm={(description) => bulkExportByIds(ids, description, fields, 'orders', identifier)}
+        onConfirm={(description) => exportByIds(toggledIds, ids, description, fields, 'orders', identifier)}
       />
     );
   }
