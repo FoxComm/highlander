@@ -60,14 +60,14 @@ class PromoCode extends Component {
     if (_.isEmpty(this.props.giftCards)) return null;
 
     const { className } = this.props;
-    const classes = classNames(styles['gift-card'], className);
+    const classes = classNames(styles['gift-card-code'], className);
 
     const cardCodes = _.map(this.props.giftCards, (card) => {
       const { code } = card;
       const formattedCode = code.match(/.{1,4}/g).join(' ');
 
       return (
-        <div styleName="gift-card-code" key={card.code}>
+        <div className={classes} key={card.code}>
           <div>
             {formattedCode}
           </div>
@@ -77,9 +77,9 @@ class PromoCode extends Component {
     });
 
     return (
-      <div className={classes}>
+      <div styleName="gift-card">
         <div styleName="gift-card-info">
-          <div styleName="title">Gift Card</div>
+          <div styleName="title">Gift Cards</div>
           {cardCodes}
         </div>
       </div>
