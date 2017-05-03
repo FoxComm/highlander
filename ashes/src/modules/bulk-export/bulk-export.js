@@ -4,6 +4,7 @@ import Api from 'lib/api';
 import { createAsyncActions } from '@foxcomm/wings';
 import localStorage from 'localStorage';
 import _ from 'lodash';
+import { flow, map, filter } from 'lodash/fp';
 
 type Payload = {
   ids: Array<number>,
@@ -17,7 +18,11 @@ const getFields = (allFields: Array<string>, identifier: string): Array<string> 
   if (_.isEmpty(columns[identifier])) {
     return allFields;
   }
-  return _.filter(columns[identifier], {isVisible: true}).map(c => c.field);
+  
+  return flow(
+    filter(column => column.isVisible === true),
+    map(c => c.field),
+  )(columns[identifier]);
 };
 
 const getQuery = (raw: Object): Object => {

@@ -2,6 +2,7 @@
 
 // libs
 import _ from 'lodash';
+import { flow, map, filter } from 'lodash/fp';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
@@ -56,8 +57,10 @@ class Orders extends Component {
 
   @autobind
   getIdsByRefNum(refNums: Array<string>, list: Array<Object>) {
-    return _.filter(list, (entry) => refNums.indexOf(entry.referenceNumber) !== -1)
-      .map((e) => e.id);
+    return flow(
+      filter(entry => refNums.indexOf(entry.referenceNumber) !== -1),
+      map(e => e.id),
+    )(list);
   }
 
   @autobind
