@@ -16,6 +16,8 @@ type Props = {
   className?: string,
   /** Button content (label) */
   children?: Element<any>,
+  /** Returns a react reference to <button> html node */
+  returnRef?: Function,
 };
 
 /**

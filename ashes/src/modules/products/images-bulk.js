@@ -2,15 +2,11 @@
  * @flow
  */
 
-
-// libs
-import { createAction, createReducer } from 'redux-act';
-
 // helpers
 import createStore from '../../lib/store-creator';
 
 // data
-import { initialState, reducers } from '../bulk';
+import { reducers } from '../bulk';
 
 
 const openNewWindow = () => dispatch => {

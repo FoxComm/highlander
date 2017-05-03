@@ -163,14 +163,16 @@ export default class Album extends Component {
     );
 
     return (
-      <ConfirmationDialog className={styles.modal}
-                          isVisible={this.state.archiveMode}
-                          header='Archive Album'
-                          body={body}
-                          cancel='Cancel'
-                          confirm='Yes, Archive'
-                          onCancel={this.handleCancelArchiveAlbum}
-                          confirmAction={this.handleConfirmArchiveAlbum}
+      <ConfirmationDialog
+        className={styles.modal}
+        isVisible={this.state.archiveMode}
+        header='Archive Album'
+        body={body}
+        cancel='Cancel'
+        confirm='Yes, Archive'
+        onCancel={this.handleCancelArchiveAlbum}
+        confirmAction={this.handleConfirmArchiveAlbum}
+        focus
       />
     );
   }

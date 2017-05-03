@@ -93,9 +93,11 @@ export default class Image extends Component<void, Props, State> {
   handleConfirmDeleteImage(): void {
     this.setState({ deleteInProgress: true });
 
-    this.props.deleteImage().then(() =>
-      this.setState({ deleteMode: false, deleteInProgress: false })
-    );
+    this.props.deleteImage();
+    // We don't need to set `deleteMode: false`, because component will be removed
+    // .then(() =>
+    //   this.setState({ deleteMode: false, deleteInProgress: false })
+    // );
   }
 
   @autobind
@@ -118,6 +120,8 @@ export default class Image extends Component<void, Props, State> {
           confirm='Yes, Delete'
           onCancel={this.handleCancelDeleteImage}
           confirmAction={this.handleConfirmDeleteImage}
+          inProgress={this.state.deleteInProgress}
+          focus
         />
       </BodyPortal>
     );

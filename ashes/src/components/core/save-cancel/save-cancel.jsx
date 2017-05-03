@@ -39,6 +39,8 @@ type Props = {
   onCancel?: (event: SyntheticEvent) => void;
   /** If to show loading animation */
   isLoading?: boolean;
+  /** If true, wil set focus on Cancel button, otherwise do nothing */
+  focus?: boolean;
 };
 
 /**
@@ -68,7 +70,7 @@ export default class SaveCancel extends Component {
   _cancel: HTMLElement;
 
   componentDidMount() {
-    if (this._cancel) {
+    if (this.props.focus && this._cancel) {
       this._cancel.focus();
     }
   }

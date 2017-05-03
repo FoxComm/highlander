@@ -18,6 +18,7 @@ type Props = {
   confirm: string,
   onCancel: Function,
   confirmAction: Function,
+  inProgress?: boolean,
   icon?: string,
   asyncState?: AsyncState,
   className?: string,
@@ -60,7 +61,9 @@ const ConfirmationDialog = (props: Props) => {
         onCancel={props.onCancel}
         onSave={props.confirmAction}
         saveText={props.confirm}
-        isLoading={_.get(props.asyncState, 'inProgress', false)}
+        isLoading={props.inProgress || _.get(props.asyncState, 'inProgress', false)}
+        cancelDisabled={props.inProgress}
+        saveDisabled={props.inProgress}
       />
     </ContentBox>
   );

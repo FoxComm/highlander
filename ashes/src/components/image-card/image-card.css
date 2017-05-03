@@ -30,8 +30,8 @@
   height: 100%;
   background: rgba(37, 51, 74, 0.86);
   opacity: 0;
-  visibility: hidden;
-  transition: opacity .1s;
+  pointer-events: none;
+  transition: opacity .3s;
 
   & i {
     color: #fff;
@@ -46,7 +46,7 @@
 
 .card:not(.disabled):hover > .actions {
   opacity: 1;
-  visibility: visible;
+  pointer-events: auto;
 }
 
 ._loading {

@@ -108,7 +108,7 @@ export default class ImageLoader extends Component {
     return this.state.ready ? img : null;
   }
 
-  wrapIfTransition(img: ?Element<any>): Element<any> {
+  wrapIfTransition(img: ?Element<any>): ?Element<any> {
     if (this.showTransition) {
       return (
         <Transition

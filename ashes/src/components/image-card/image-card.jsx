@@ -34,7 +34,7 @@ export default class ImageCard extends Component {
     onImageClick: () => {},
   };
 
-  shouldComponentUpdate({ src: nextSrc, disabled: nextDisabled }) {
+  shouldComponentUpdate({ src: nextSrc, disabled: nextDisabled }: Props) {
     const { src, disabled } = this.props;
 
     return src !== nextSrc || disabled !== nextDisabled;

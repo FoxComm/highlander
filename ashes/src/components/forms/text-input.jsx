@@ -32,6 +32,8 @@ export default class TextInput extends Component {
     value: this.props.value
   };
 
+  input: HTMLElement;
+
   componentWillUpdate(nextProps: Props) {
     if (this.state.value != nextProps.value) {
       this.setState({ value: nextProps.value });
@@ -47,6 +49,12 @@ export default class TextInput extends Component {
     }
   }
 
+  focus() {
+    if (this.input) {
+      this.input.focus();
+    }
+  }
+
   render(): Element<*> {
     const { className, placeholder, onChange, ...rest } = this.props;
     const inputClass = classNames(s.input, className, '__cssmodules');
@@ -54,11 +62,13 @@ export default class TextInput extends Component {
     return (
       <input
         type="text"
+        ref={r => this.input = r}
         className={inputClass}
         onChange={({ target }) => this.handleChange(target.value)}
         placeholder={placeholder}
         {...rest}
-        value={this.state.value} />
+        value={this.state.value}
+      />
     );
   }
 }

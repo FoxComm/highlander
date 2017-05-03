@@ -170,11 +170,11 @@ export default class Upload extends Component {
 
   render() {
     const { onDrop, empty } = this.props;
-    const className = classNames(s.upload, this.props.className, {
+    const className = classNames(s.block, this.props.className, {
       [s._disabled]: !onDrop,
       [s._dragOverArea]: this.state.dragOverArea,
       [s._dragOverWindow]: this.state.dragOverWindow,
-      [s._empty]: empty,
+      [s._emptyMod]: empty,
     });
 
     return (

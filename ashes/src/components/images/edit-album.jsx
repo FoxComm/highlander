@@ -10,6 +10,7 @@ import { FormField } from 'components/forms';
 import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
 import wrapModal from 'components/modal/wrapper';
+import Form from 'components/forms/form';
 import TextInput from 'components/forms/text-input';
 
 // types
@@ -40,10 +41,12 @@ class EditAlbum extends Component {
     isNew: false,
   };
 
-  _input: HTMLInputElement;
+  input: TextInput;
 
   componentDidMount() {
-    this._input ? this._input.focus() : _.noop();
+    if (this.input) {
+      this.input.focus();
+    }
   }
 
   get closeAction() {
@@ -55,8 +58,8 @@ class EditAlbum extends Component {
   }
 
   @autobind
-  handleUpdateField({ target }: { target: HTMLInputElement }) {
-    this.setState({ [target.name]: target.value });
+  handleUpdateName(name: string) {
+    this.setState({ name });
   }
 
   @autobind
@@ -70,25 +73,27 @@ class EditAlbum extends Component {
 
     return (
       <ContentBox title={title} actionBlock={this.closeAction}>
-        <FormField
-          label="Album Name"
-          className="fc-product-details__field"
-          labelClassName="fc-product-details__field-label">
-          <TextInput
-            name="name"
-            className="fc-product-details__field-value"
-            value={this.state.name}
-            onChange={this.handleUpdateField}
-            ref={(i) => this._input = i}
+        <Form onSubmit={this.handleSave}>
+          <FormField
+            label="Album Name"
+            className="fc-product-details__field"
+            labelClassName="fc-product-details__field-label">
+            <TextInput
+              name="name"
+              className="fc-product-details__field-value"
+              value={this.state.name}
+              onChange={this.handleUpdateName}
+              ref={r => this.input = r}
+            />
+          </FormField>
+          <SaveCancel
+            onCancel={this.props.onCancel}
+            onSave={this.handleSave}
+            saveDisabled={this.saveDisabled}
+            isLoading={this.props.loading}
+            saveText="Save and Apply"
           />
-        </FormField>
-        <SaveCancel
-          onCancel={this.props.onCancel}
-          onSave={this.handleSave}
-          saveDisabled={this.saveDisabled}
-          isLoading={this.props.loading}
-          saveText="Save and Apply"
-        />
+        </Form>
       </ContentBox>
     );
   }

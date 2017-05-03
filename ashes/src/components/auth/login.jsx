@@ -45,8 +45,6 @@ type LoginProps = {
   isMounted: boolean,
 };
 
-const isDev = process.env.NODE_ENV != 'production';
-
 /* ::`*/
 @connect((state) => ({
   user: state.user,
@@ -55,9 +53,9 @@ const isDev = process.env.NODE_ENV != 'production';
 /* ::`*/
 export default class Login extends Component {
   state: TState = {
-    org: isDev ? 'tenant' : '',
-    email: isDev ? 'admin@admin.com' : '',
-    password: isDev ? 'password' : '',
+    org: '',
+    email: '',
+    password: '',
   };
 
   props: LoginProps;
