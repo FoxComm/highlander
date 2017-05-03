@@ -110,13 +110,10 @@ object ReturnResponse {
       storeAdmin   ← * <~ rma.storeAdminId.map(Users.findOneByAccountId).getOrElse(lift(None))
       adminData    ← * <~ rma.storeAdminId.map(AdminsData.findOneByAccountId).getOrElse(lift(None))
       // Payment methods
-      ccPayment ← * <~ ReturnPayments.findAllByReturnId(rma.id).creditCards.one
-      applePayPayment ← * <~ ReturnPayments
-                         .findAllByReturnId(rma.id)
-                         .applePays
-                         .one
-      gcPayment ← * <~ ReturnPayments.findGiftCards(rma.id).one
-      scPayment ← * <~ ReturnPayments.findAllByReturnId(rma.id).storeCredits.one
+      ccPayment       ← * <~ ReturnPayments.findAllByReturnId(rma.id).creditCards.one
+      applePayPayment ← * <~ ReturnPayments.findAllByReturnId(rma.id).applePays.one
+      gcPayment       ← * <~ ReturnPayments.findGiftCards(rma.id).one
+      scPayment       ← * <~ ReturnPayments.findAllByReturnId(rma.id).storeCredits.one
       // Line items of each subtype
       lineItems     ← * <~ ReturnLineItemManager.fetchSkuLineItems(rma)
       shippingCosts ← * <~ ReturnLineItemManager.fetchShippingCostLineItem(rma)

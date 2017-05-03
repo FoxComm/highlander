@@ -1,25 +1,33 @@
 import cats.implicits._
 import failures.ReturnFailures._
 import failures._
+import faker.Lorem
 import models.Reason.Cancellation
 import models.account._
 import models.cord._
+import models.location.Region
 import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
 import models.product.Mvp
 import models.returns.Return._
 import models.returns._
+import models.shipping.{ShippingMethod, ShippingMethods}
 import org.scalatest.prop.PropertyChecks
+import payloads.AddressPayloads.CreateAddressPayload
+import payloads.CartPayloads.CreateCart
+import payloads.CustomerPayloads.CreateCustomerPayload
 import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.PaymentPayloads.CreateManualStoreCredit
+import payloads.PaymentPayloads.{CreateApplePayPayment, CreateManualStoreCredit}
 import payloads.ReturnPayloads._
+import payloads.UpdateShippingMethod
 import responses.ReturnResponse.Root
 import responses._
+import responses.cord.CartResponse
 import testutils._
 import testutils.fixtures.api.ApiFixtureHelpers
 import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
-import utils.seeds.Factories
+import utils.seeds.{Factories, ShipmentSeeds}
 
 class ReturnIntegrationTest
     extends IntegrationTestBase
@@ -492,6 +500,24 @@ class ReturnIntegrationTest
         }
       }
 
+      "Apple Pay charges should be taken into account" in new ApplePayFixture {
+        pending
+        val api = returnsApi(rma.referenceNumber).paymentMethods
+
+        val payload = ReturnPaymentsPayload(
+            Map(PaymentMethod.ApplePay    → 50,
+                PaymentMethod.CreditCard  → 100,
+                PaymentMethod.StoreCredit → 120))
+
+        api
+          .addOrReplace(payload)
+          .as[ReturnResponse.Root]
+          .payments
+          .asMap
+          .mapValues(_.amount) must === (payload.payments)
+
+      }
+
       "bulk insert should override any existing payments, whilst single addition endpoint should append payment to existing ones" in
       new ReturnPaymentDefaults {
         val api = returnsApi(rma.referenceNumber).paymentMethods
@@ -624,4 +650,43 @@ class ReturnIntegrationTest
     }
   }
 
+  trait ApplePayFixture extends ReturnPaymentDefaults with ShipmentSeeds {
+    val skuCode           = new ProductSku_ApiFixture {}.skuCode
+    val apToken           = "tok_1A9YBQJVm1XvTUrO3V8caBvF"
+    val customerLoginData = TestLoginData(email = customer.email.get, password = "password")
+
+    val apCart = cartsApi.create(CreateCart(customerId = customer.id.some)).as[CartResponse]
+
+    val refNum = apCart.referenceNumber
+
+    // we don't have shipping method API creation as of PR #910
+    val apShippingMethod: ShippingMethod = ShippingMethods
+      .create(
+          Factories.shippingMethods.head.copy(conditions = lowConditions.some,
+                                              adminDisplayName =
+                                                ShippingMethod.expressShippingNameForAdmin))
+      .gimme
+
+    val randomAddress = CreateAddressPayload(regionId = Region.californiaId,
+                                             name = Lorem.letterify("???"),
+                                             address1 = Lorem.letterify("???"),
+                                             city = Lorem.letterify("???"),
+                                             zip = Lorem.numerify("#####"))
+
+    cartsApi(refNum).shippingAddress.create(randomAddress).mustBeOk()
+
+    val lineItemsPayloads = List(UpdateLineItemsPayload(skuCode, 1))
+    cartsApi(refNum).lineItems.add(lineItemsPayloads).mustBeOk()
+
+    cartsApi(refNum).shippingMethod
+      .update(UpdateShippingMethod(apShippingMethod.id))
+      .asTheResult[CartResponse]
+
+    val payment = CreateApplePayPayment(stripeToken = apToken)
+
+    withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
+      storefrontPaymentsApi.applePay.create(payment).mustBeOk()
+    }
+
+  }
 }
