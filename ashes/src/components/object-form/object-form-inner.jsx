@@ -141,7 +141,6 @@ export default class ObjectFormInner extends Component {
       invariant(renderFn, `There is no method for render "${type}" type.`);
 
       const renderer = renderFn(this.state.errors, this.handleChange);
-
       const content = React.cloneElement(renderer(name, attribute && attribute.v, attrOptions), { key: name });
 
       if (this.props.processAttr) {

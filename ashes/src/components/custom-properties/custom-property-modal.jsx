@@ -22,12 +22,13 @@ const propertyTypes = {
   price: 'Price',
   bool: 'Yes/No',
   color: 'Color',
+  image: 'Image'
 };
 
 type Props = {
-  onSave: (state: State) => void,
-  onCancel: () => void,
-  currentEdit: {
+  onSave: (state: State) => any,
+  onCancel: () => any,
+  currentEdit?: {
     name: string,
     type: string,
     value: any,
@@ -42,6 +43,7 @@ type State = {
 
 class CustomPropertyModal extends Component<void, Props, State> {
   props: Props;
+
   state: State = {
     fieldLabel: '',
     propertyType: '',
@@ -97,6 +99,8 @@ class CustomPropertyModal extends Component<void, Props, State> {
           return new Date().toString();
         case('bool'):
           return false;
+        case('image'):
+          return {};
         default:
           return '';
       }

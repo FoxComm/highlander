@@ -11,12 +11,12 @@ import Transition from 'react-transition-group/CSSTransitionGroup';
 
 // components
 import WaitAnimation from '../common/wait-animation';
-import ProductImage from 'components/imgix/product-image';
 
 type Props = {
   id: number,
   src: string,
-  loader?: string|Element<*>;
+  loader?: string | Element<*>,
+  imageComponent: string,
 }
 
 type State = {
@@ -31,6 +31,10 @@ export default class ImageLoader extends Component {
   state: State = {
     ready: true,
     error: false,
+  };
+
+  static defaultProps = {
+    imageComponent: 'img',
   };
 
   img: ?Image;
@@ -94,14 +98,18 @@ export default class ImageLoader extends Component {
   }
 
   get image(): ?Element<*> {
-    return this.state.ready ? (
-      <ProductImage
+    const ImageComponent = this.props.imageComponent;
+
+    if (!this.state.ready) return null;
+
+    return (
+      <ImageComponent
         src={this.state.src}
         width={286}
         height={286}
         key={this.props.id}
       />
-    ) : null;
+    );
   }
 
   wrapToTransition(img: ?Element<*>) {

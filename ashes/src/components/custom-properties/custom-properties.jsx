@@ -3,7 +3,7 @@
 // libs
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
-import _ from 'lodash';
+import { get, keys, omit } from 'lodash';
 
 // components
 import CustomPropertyModal from './custom-property-modal';
@@ -24,7 +24,7 @@ type State = {
   isAddingProperty: boolean,
   isEditingProperty: boolean,
   isDeletingProperty: boolean,
-  errors: {[id:string]: any},
+  errors: { [id: string]: any },
   currentEdit: {
     name: string,
     type: string,
@@ -35,6 +35,7 @@ type State = {
 
 export default class CustomProperties extends Component {
   props: Props;
+
   state: State = {
     isAddingProperty: false,
     isEditingProperty: false,
@@ -71,17 +72,17 @@ export default class CustomProperties extends Component {
     }
   }
 
-  get deletePropertyForm () {
+  get deletePropertyForm() {
     if (this.state.isDeletingProperty) {
       return (
         <ConfirmationDialog
-        header="Delete Custom Property?"
-        body="Are you sure you want to delete the custom property?"
-        cancel="Cancel"
-        confirm="Yes, Delete"
-        isVisible={true}
-        confirmAction={this.handleDeleteProperty}
-        onCancel={() => this.setState({ isDeletingProperty: false }) }
+          header="Delete Custom Property?"
+          body="Are you sure you want to delete the custom property?"
+          cancel="Cancel"
+          confirm="Yes, Delete"
+          isVisible={true}
+          confirmAction={this.handleDeleteProperty}
+          onCancel={() => this.setState({ isDeletingProperty: false }) }
         />
       );
     }
@@ -89,13 +90,16 @@ export default class CustomProperties extends Component {
 
   @autobind
   controlButtons(name: string, type: string, value: any) {
-    const defaultProperties = _.keys(_.get(this.props.schema, 'properties', {}));
-    if (defaultProperties.includes(name)) { return null; }
+    const defaultProperties = keys(get(this.props.schema, 'properties', {}));
+
+    if (defaultProperties.includes(name)) {
+      return null;
+    }
 
     return (
       <div className={s.controls}>
-        <i className="icon-edit" onClick={() => this.onEdit(name, type, value)}/>
-        <i className="icon-trash" onClick={() => this.onDelete(name)}/>
+        <i className="icon-edit" onClick={() => this.onEdit(name, type, value)} />
+        <i className="icon-trash" onClick={() => this.onDelete(name)} />
       </div>
     );
   }
@@ -110,10 +114,13 @@ export default class CustomProperties extends Component {
     }
 
     const value = (() => {
-      switch(propertyType) {
-        case('date'): return new Date().toString();
-        case('bool'): return false;
-        default: return '';
+      switch (propertyType) {
+        case('date'):
+          return new Date().toString();
+        case('bool'):
+          return false;
+        default:
+          return '';
       }
     })();
     this.setState({
@@ -127,7 +134,7 @@ export default class CustomProperties extends Component {
     const { currentEdit: { name } } = this.state;
     const { fieldLabel, propertyType, fieldValue } = property;
 
-    const preparedObject = _.omit(attributes, name);
+    const preparedObject = omit(attributes, name);
     const newAttributes = {
       ...preparedObject,
       [fieldLabel]: {
@@ -148,7 +155,7 @@ export default class CustomProperties extends Component {
 
   @autobind
   handleDeleteProperty() {
-    const newAttributes = _.omit(this.props.attributes, this.state.propertyToDelete);
+    const newAttributes = omit(this.props.attributes, this.state.propertyToDelete);
     this.setState({ isDeletingProperty: false }, this.props.onChange(newAttributes));
   }
 
@@ -168,7 +175,7 @@ export default class CustomProperties extends Component {
 
   @autobind
   isUnique(fieldLabel: string) {
-    const reservedNames = _.keys(_.get(this.props, 'attributes', {}));
+    const reservedNames = keys(get(this.props, 'attributes', {}));
     const unique = !reservedNames.includes(fieldLabel);
     return unique;
   }
@@ -223,7 +230,9 @@ export default class CustomProperties extends Component {
   }
 
   get children(): Element<*> {
-    return React.cloneElement((this.props.children), { processAttr: this.processAttr });
+    return React.cloneElement((this.props.children), {
+      processAttr: this.processAttr,
+    });
   }
 
   render() {

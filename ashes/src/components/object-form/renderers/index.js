@@ -11,6 +11,7 @@ import renderColor from './color';
 import renderText from './text';
 import renderNumber from './number';
 import renderOptions from './options';
+import renderImage from './image';
 
 // types
 export type ChangeHandler = (name: string, type: string, value: any) => any;
@@ -29,6 +30,7 @@ const renderers: { [key: string]: FieldRenderer } = {
   renderText,
   renderNumber,
   renderOptions,
+  renderImage,
 };
 
 export default renderers;
