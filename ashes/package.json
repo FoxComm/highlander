@@ -195,7 +195,7 @@
     "unexpected-react-shallow": "^0.7.0",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
-    "watchify": "^3.3.1",
+    "watchify": "^3.9.0",
     "webpack": "^2.3.3",
     "xmlhttprequest": "^1.7.0"
   },

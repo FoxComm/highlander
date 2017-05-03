@@ -41,7 +41,7 @@ export type ImageFile = FileInfo & ImageInfo;
 
 type State = {
   albums: Array<Album>;
-}
+};
 
 const initialState: State = {
   albums: [],
@@ -202,6 +202,17 @@ export default function createImagesModule(entity: string): Module {
   };
 
   /**
+   * Upload image by url
+   *
+   * @param {String} context System context
+   * @param {Number} albumId Album id
+   * @param {url} an url of image to be uploaded by backend
+   */
+  const uploadImagesByLink = (context: string, albumId: number, url: string>) => dispatch => {
+    return dispatch(_uploadImagesByLink.perform(context, albumId, url));
+  };
+
+  /**
    * Edit image info
    *
    * @param {String} context System context
@@ -275,6 +286,10 @@ export default function createImagesModule(entity: string): Module {
       return assoc(state, ['albums', idx], response);
     },
 
+    [_uploadImagesByLink.succeeded]: (state: State, [response]) => {
+      console.log('state, response', state, response);
+    },
+
     [_editImageStarted]: (state, [albumId, imageIndex]) => {
       const albumIndex = _.findIndex(state.albums, (album: Album) => album.id === albumId);
 
@@ -286,6 +301,7 @@ export default function createImagesModule(entity: string): Module {
     reducer,
     actions: {
       uploadImages,
+      uploadImagesByLink,
       editImage,
       deleteImage,
       fetchAlbums,
