@@ -155,15 +155,6 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     }
   }
 
-  // todo delete me? not used anywhere @aafa
-  object activityTrailsApi {
-    val activityTrailPrefix = s"$rootPrefix/trails"
-
-    def appendActivity(dimension: String, objectId: Int, payload: AppendActivity)(
-        implicit aa: TestAdminAuth): HttpResponse =
-      POST(s"$activityTrailPrefix/$dimension/$objectId", payload, aa.jwtCookie.some)
-  }
-
   object giftCardsApi {
     val giftCardsPrefix   = s"$rootPrefix/gift-cards"
     val customerGiftCards = s"$rootPrefix/customer-gift-cards"

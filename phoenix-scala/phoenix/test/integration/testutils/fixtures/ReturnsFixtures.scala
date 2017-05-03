@@ -198,8 +198,11 @@ trait ReturnsFixtures
         .add(payment, ReturnPaymentPayload(amount))(defaultAdminAuth)
         .as[ReturnResponse.Root]
 
+    def createApplePay(): Unit = api_newApplePay(CreateApplePayPayment("tok_123"))
+
     val paymentMethodTable = Table("paymentMethod",
                                    PaymentMethod.CreditCard,
+//                                   PaymentMethod.ApplePay,
                                    PaymentMethod.GiftCard,
                                    PaymentMethod.StoreCredit)
 
@@ -207,6 +210,7 @@ trait ReturnsFixtures
       def asMap: Map[PaymentMethod.Type, ReturnResponse.Payment] =
         Map.empty[PaymentMethod.Type, ReturnResponse.Payment] ++
           payments.creditCard.map(PaymentMethod.CreditCard   → _) ++
+          payments.applePay.map(PaymentMethod.ApplePay       → _) ++
           payments.giftCard.map(PaymentMethod.GiftCard       → _) ++
           payments.storeCredit.map(PaymentMethod.StoreCredit → _)
     }

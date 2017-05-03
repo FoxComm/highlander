@@ -6,14 +6,16 @@ import faker.Name.{name ⇒ randomName}
 import phoenix.payloads.CartPayloads.CreateCart
 import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
 import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
-import phoenix.payloads.PaymentPayloads.{CreateCreditCardFromTokenPayload, CreateManualStoreCredit}
+import phoenix.payloads.PaymentPayloads.{CreateApplePayPayment, CreateCreditCardFromTokenPayload, CreateManualStoreCredit}
 import phoenix.responses.cord.CartResponse
 import phoenix.responses.{CreditCardsResponse, CustomerResponse, GiftCardResponse, StoreCreditResponse}
 import phoenix.utils.aliases._
 import testutils._
-import testutils.apis.PhoenixAdminApi
+import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
+import utils.aliases._
 
-trait ApiFixtureHelpers extends PhoenixAdminApi with ApiFixtures { self: FoxSuite ⇒
+trait ApiFixtureHelpers extends PhoenixAdminApi with PhoenixStorefrontApi with ApiFixtures {
+  self: FoxSuite ⇒
   def api_newCustomer()(implicit sl: SL, sf: SF): CustomerResponse.Root = {
     val name = randomName
     customersApi
@@ -45,6 +47,15 @@ trait ApiFixtureHelpers extends PhoenixAdminApi with ApiFixtures { self: FoxSuit
     customersApi(customerId).payments.creditCards
       .create(payload)(defaultAdminAuth)
       .as[CreditCardsResponse.Root]
+
+  def api_newApplePay(payload: CreateApplePayPayment)(implicit sl: SL, sf: SF): Unit = {
+    val (customer, testLoginData) = api_newCustomerWithLogin()
+    api_newCustomerCart(customer.id)
+
+    withCustomerAuth(testLoginData, customer.id) { implicit auth ⇒
+      storefrontPaymentsApi.applePay.create(payload).mustBeOk()
+    }
+  }
 
   def api_newGiftCard(payload: GiftCardCreateByCsr)(implicit sl: SL,
                                                     sf: SF): GiftCardResponse.Root =
