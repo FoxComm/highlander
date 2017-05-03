@@ -62,20 +62,28 @@ class PromoCode extends Component {
     const { className } = this.props;
     const classes = classNames(styles['gift-card'], className);
 
-    return _.map(this.props.giftCards, (card) => {
+    const cardCodes = _.map(this.props.giftCards, (card) => {
       const { code } = card;
       const formattedCode = code.match(/.{1,4}/g).join(' ');
 
       return (
-        <div className={classes} key={card.code}>
-          <div styleName="gift-card-info">
-            <div styleName="title">Gift Card</div>
-            <div>{formattedCode}</div>
+        <div styleName="gift-card-code" key={card.code}>
+          <div>
+            {formattedCode}
           </div>
           {this.getRemoveLink(code)}
         </div>
       );
     });
+
+    return (
+      <div className={classes}>
+        <div styleName="gift-card-info">
+          <div styleName="title">Gift Card</div>
+          {cardCodes}
+        </div>
+      </div>
+    );
   }
 
   get renderCoupon(): Element<*> | null {
