@@ -3,8 +3,7 @@
  */
 
 // libs
-import _ from 'lodash';
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 import { stateFromHTML } from 'draft-js-import-html';
@@ -114,9 +113,22 @@ export default class RichTextEditor extends Component {
 
   componentWillReceiveProps(nextProps: Props) {
     if (this.props.value != nextProps.value) {
-      this.setState({
-        editorState: this.valueToEditorState(nextProps.value),
-      });
+
+      if (!this.state.richMode) {
+        const textValue = (this.state.contentType === 'html')
+          ? this.htmlContent
+          : stateToMarkdown(stateFromHTML(this.htmlContent));
+
+        this.setState({
+          editorState: EditorState.createWithContent(ContentState.createFromText(textValue))
+        });
+      }
+
+      if (this.state.richMode) {
+        this.setState({
+          editorState: this.valueToEditorState(nextProps.value),
+        });
+      }
     }
   }
 
