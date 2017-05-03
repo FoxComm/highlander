@@ -55,8 +55,10 @@ object ReturnResponse {
     case class CreditCard(id: Int, amount: Int, currency: Currency)             extends Payment
     case class GiftCard(id: Int, code: String, amount: Int, currency: Currency) extends Payment
     case class StoreCredit(id: Int, amount: Int, currency: Currency)            extends Payment
+    case class ApplePay(id: Int, amount: Int, currency: Currency)               extends Payment
   }
   case class Payments(creditCard: Option[Payment.CreditCard],
+                      applePay: Option[Payment.ApplePay],
                       giftCard: Option[Payment.GiftCard],
                       storeCredit: Option[Payment.StoreCredit])
       extends ResponseItem
@@ -78,11 +80,13 @@ object ReturnResponse {
       extends ResponseItem
 
   def buildPayments(creditCard: Option[ReturnPayment],
+                    applePay: Option[ReturnPayment],
                     giftCard: Option[(ReturnPayment, GiftCard)],
                     storeCredit: Option[ReturnPayment]): Payments =
     Payments(
         creditCard =
           creditCard.map(cc ⇒ Payment.CreditCard(cc.paymentMethodId, cc.amount, cc.currency)),
+        applePay = applePay.map(ap ⇒ Payment.ApplePay(ap.paymentMethodId, ap.amount, ap.currency)),
         giftCard = giftCard.map {
           case (p, gc) ⇒ Payment.GiftCard(p.paymentMethodId, gc.code, p.amount, p.currency)
         },
@@ -107,6 +111,10 @@ object ReturnResponse {
       adminData    ← * <~ rma.storeAdminId.map(AdminsData.findOneByAccountId).getOrElse(lift(None))
       // Payment methods
       ccPayment ← * <~ ReturnPayments.findAllByReturnId(rma.id).creditCards.one
+      applePayPayment ← * <~ ReturnPayments
+                         .findAllByReturnId(rma.id)
+                         .applePays
+                         .one
       gcPayment ← * <~ ReturnPayments.findGiftCards(rma.id).one
       scPayment ← * <~ ReturnPayments.findAllByReturnId(rma.id).storeCredits.one
       // Line items of each subtype
@@ -131,8 +139,10 @@ object ReturnResponse {
             a  ← storeAdmin
             au ← adminData
           } yield StoreAdminResponse.build(a, au),
-          payments =
-            buildPayments(creditCard = ccPayment, giftCard = gcPayment, storeCredit = scPayment),
+          payments = buildPayments(creditCard = ccPayment,
+                                   applePay = applePayPayment,
+                                   giftCard = gcPayment,
+                                   storeCredit = scPayment),
           lineItems = LineItems(skus = lineItems, shippingCosts = shippingCosts),
           totals = buildTotals(subTotal = subTotal,
                                shipping = shipping,
@@ -145,7 +155,7 @@ object ReturnResponse {
             customer: Option[Customer] = None,
             storeAdmin: Option[User] = None,
             lineItems: LineItems = LineItems(List.empty, Option.empty),
-            payments: Payments = Payments(Option.empty, Option.empty, Option.empty),
+            payments: Payments = Payments(Option.empty, Option.empty, Option.empty, Option.empty),
             totals: ReturnTotals = ReturnTotals(0, 0, 0, 0, 0)): Root =
     Root(id = rma.id,
          referenceNumber = rma.refNum,

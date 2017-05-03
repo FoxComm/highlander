@@ -64,6 +64,8 @@ object ReturnPayments
 
       // todo check if creditCards is used in a right places
       def creditCards: QuerySeq = q.byType(PaymentMethod.CreditCard)
+      def applePays: QuerySeq   = q.byType(PaymentMethod.ApplePay)
+
       def externalPayments: QuerySeq =
         q.filter(_.paymentMethodType.inSet(PaymentMethod.Type.externalPayments))
 

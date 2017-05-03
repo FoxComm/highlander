@@ -158,7 +158,7 @@ object ReturnPaymentManager {
       db: DB): DbResultT[ReturnPayment] =
     for {
       cc ← * <~ CreditCards.mustFindById404(payment.paymentMethodId)
-      _  ← * <~ deleteExternalPayment(returnId)
+      _  ← * <~ deleteCcPayment(returnId)
       ccRefund ← * <~ ReturnPayments.create(
                     ReturnPayment(returnId = returnId,
                                   amount = amount,
@@ -172,7 +172,7 @@ object ReturnPaymentManager {
                                                                                  au: AU) =
     for {
       ap ← * <~ ApplePayments.mustFindById404(payment.paymentMethodId)
-      _  ← * <~ deleteExternalPayment(returnId)
+      _  ← * <~ deleteApplePayPayment(returnId)
       applePayRefund ← * <~ ReturnPayments.create(
                           ReturnPayment(returnId = returnId,
                                         amount = amount,
@@ -262,13 +262,17 @@ object ReturnPaymentManager {
   private def processDeletePayment(returnId: Int, paymentMethod: PaymentMethod.Type)(
       implicit ec: EC): DbResultT[Boolean] =
     paymentMethod match {
-      case PaymentMethod.GiftCard                               ⇒ deleteGcPayment(returnId)
-      case PaymentMethod.StoreCredit                            ⇒ deleteScPayment(returnId)
-      case t if PaymentMethod.Type.externalPayments.contains(t) ⇒ deleteExternalPayment(returnId)
+      case PaymentMethod.GiftCard    ⇒ deleteGcPayment(returnId)
+      case PaymentMethod.StoreCredit ⇒ deleteScPayment(returnId)
+      case PaymentMethod.CreditCard  ⇒ deleteCcPayment(returnId)
+      case PaymentMethod.ApplePay    ⇒ deleteApplePayPayment(returnId)
     }
 
-  private def deleteExternalPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] =
-    ReturnPayments.findAllByReturnId(returnId).externalPayments.deleteAllWithRowsBeingAffected
+  private def deleteCcPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] =
+    ReturnPayments.findAllByReturnId(returnId).creditCards.deleteAllWithRowsBeingAffected
+
+  private def deleteApplePayPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] =
+    ReturnPayments.findAllByReturnId(returnId).applePays.deleteAllWithRowsBeingAffected
 
   private def deleteGcPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] = {
     val gcQuery = ReturnPayments.findAllByReturnId(returnId).giftCards

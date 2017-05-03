@@ -6,6 +6,8 @@ import core.db._
 import core.failures.Failure
 import core.utils.Money._
 import core.utils.Validation._
+import failures.Failure
+import models.cord.OrderPayments.filter
 import phoenix.models.payment.PaymentMethod
 import phoenix.models.payment.PaymentMethod.ExternalPayment
 import phoenix.models.payment.creditcard.{CreditCard, CreditCards}
@@ -121,6 +123,21 @@ object OrderPayments
 
   def findAllExternalPayments(cordRef: Rep[String]): QuerySeq =
     filter(_.cordRef === cordRef).externalPayments
+
+  def findAllStripeCharges(
+      cordRef: Rep[String]): Query[Rep[StripeOrderPayment], StripeOrderPayment, Seq] = {
+    def ccCharges = filter(_.cordRef === cordRef).join(CreditCardCharges).on(_.paymentMethodId === _.id).map {
+      case (_, charge) ⇒
+        ((charge.stripeChargeId, charge.amount, charge.currency) <> (StripeOrderPayment.tupled, StripeOrderPayment.unapply _))
+    }
+
+    def applePayCharges = filter(_.cordRef === cordRef).join(ApplePayCharges).on(_.paymentMethodId === _.id).map {
+      case (_, charge) ⇒
+        ((charge.stripeChargeId, charge.amount, charge.currency) <> (StripeOrderPayment.tupled, StripeOrderPayment.unapply _))
+    }
+
+    ccCharges ++ applePayCharges
+  }
 
   object scope {
     implicit class OrderPaymentsQuerySeqConversions(q: QuerySeq) {
