@@ -54,9 +54,11 @@ const TableView = props => {
 
   if (props.selectableColumns.length) {
     const toggler = (
-      <ColumnSelector setColumns={props.setColumnSelected}
-                      columns={props.selectableColumns}
-                      identifier={props.tableIdentifier} />
+      <ColumnSelector
+        setColumns={props.setColumnSelected}
+        columns={props.selectableColumns}
+        identifier={props.tableIdentifier}
+      />
     );
 
     topItemsRight.push(toggler);
@@ -74,11 +76,13 @@ const TableView = props => {
     const disabled = total === 0 || totalSelected === 0;
 
     topItemsLeft.push(
-      <ActionsDropdown actions={bulkActions}
-                       disabled={disabled}
-                       allChecked={allChecked}
-                       toggledIds={toggledIds}
-                       total={total} />
+      <ActionsDropdown
+        actions={bulkActions}
+        disabled={disabled}
+        allChecked={allChecked}
+        toggledIds={toggledIds}
+        total={total}
+      />
     );
   }
 
