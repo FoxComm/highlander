@@ -63,10 +63,10 @@ object ReturnPayments
       def giftCards: QuerySeq    = q.byType(PaymentMethod.GiftCard)
       def storeCredits: QuerySeq = q.byType(PaymentMethod.StoreCredit)
 
-      // todo external here is enough?
+      // todo check if creditCards is used in a right places
       def creditCards: QuerySeq = q.byType(PaymentMethod.CreditCard)
       def externalPayments: QuerySeq =
-        q.filter(_.paymentMethodType.inSet(Set(PaymentMethod.CreditCard, PaymentMethod.ApplePay)))
+        q.filter(_.paymentMethodType.inSet(PaymentMethod.Type.externalPayments))
 
       def paymentMethodIds: Query[Rep[Int], Int, Set] = q.map(_.paymentMethodId).to[Set]
 

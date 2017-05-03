@@ -36,9 +36,9 @@ case class OrderPayment(id: Int = 0,
 
   override def validate: ValidatedNel[Failure, OrderPayment] = {
     val amountOk = paymentMethodType match {
-      case PaymentMethod.StoreCredit | PaymentMethod.GiftCard ⇒
+      case t if PaymentMethod.Type.internalPayments.contains(t) ⇒
         validExpr(amount.getOrElse(0) > 0, s"amount must be > 0 for $paymentMethodType")
-      case PaymentMethod.CreditCard | PaymentMethod.ApplePay ⇒
+      case t if PaymentMethod.Type.externalPayments.contains(t) ⇒
         validExpr(amount.isEmpty, "amount must be empty for ExternalFunds")
     }
 
@@ -148,13 +148,13 @@ object OrderPayments
       def applePays: QuerySeq    = q.byType(PaymentMethod.ApplePay)
 
       def externalPayments: QuerySeq =
-        q.filter(_.paymentMethodType.inSet(Set(PaymentMethod.CreditCard, PaymentMethod.ApplePay)))
+        q.filter(_.paymentMethodType.inSet(PaymentMethod.Type.externalPayments))
 
       def byType(pmt: PaymentMethod.Type): QuerySeq =
         q.filter(_.paymentMethodType === (pmt: PaymentMethod.Type))
 
       def inStoreMethods: QuerySeq =
-        q.filter(_.paymentMethodType.inSet(Seq(PaymentMethod.GiftCard, PaymentMethod.StoreCredit)))
+        q.filter(_.paymentMethodType.inSet(PaymentMethod.Type.internalPayments))
 
       def byCartAndGiftCard(cart: Cart, giftCard: GiftCard): QuerySeq =
         q.giftCards.filter(_.paymentMethodId === giftCard.id).filter(_.cordRef === cart.refNum)

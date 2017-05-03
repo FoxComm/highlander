@@ -29,7 +29,9 @@ object PaymentMethod {
   case object ApplePay    extends Type with ExternalPayment
 
   implicit object Type extends ADT[Type] {
-    def types = sealerate.values[Type]
+    def types            = sealerate.values[Type]
+    def externalPayments = types.filter(_.isExternal)
+    def internalPayments = types.filter(_.isInternal)
   }
 
   implicit val paymentMethodTypeColumnType: JdbcType[Type] with BaseTypedType[Type] =

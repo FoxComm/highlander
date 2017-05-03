@@ -15,7 +15,7 @@ case class ReturnStripePayment(id: Int = 0,
     extends FoxModel[ReturnStripePayment]
 
 class ReturnStripePayments(tag: Tag)
-    extends FoxTable[ReturnStripePayment](tag, "return_cc_payments") { // todo rename the table
+    extends FoxTable[ReturnStripePayment](tag, "return_stripe_payments") {
   def id              = column[Int]("id", O.AutoInc)
   def returnPaymentId = column[Int]("return_payment_id")
   def chargeId        = column[String]("charge_id")
