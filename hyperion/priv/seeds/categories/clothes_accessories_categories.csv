@@ -1222,7 +1222,6 @@
 6796859011,"Clothing, Shoes & Jewelry/Men/Shoes/Work & Safety/Fire & Safety",department_name:mens AND item_type_keyword:fire-and-safety-shoes,See Available Refinements
 6796861011,"Clothing, Shoes & Jewelry/Men/Shoes/Work & Safety/Health Care & Food Service",department_name:mens AND item_type_keyword:health-care-and-food-service-shoes,See Available Refinements
 6796860011,"Clothing, Shoes & Jewelry/Men/Shoes/Work & Safety/Industrial & Construction",department_name:mens AND item_type_keyword:industrial-and-construction-shoes,See Available Refinements
-11312338011,"Clothing, Shoes & Jewelry/Men/Shoes/Work & Safety/Medical",department_name:mens AND item_type_keyword:medical-professional-shoes,See Available Refinements
 6796862011,"Clothing, Shoes & Jewelry/Men/Shoes/Work & Safety/Military & Tactical",department_name:mens AND item_type_keyword:military-and-tactical-boots,See Available Refinements
 6796863011,"Clothing, Shoes & Jewelry/Men/Shoes/Work & Safety/Uniform Dress Shoes",department_name:mens AND item_type_keyword:uniform-dress-shoes,See Available Refinements
 7581669011,"Clothing, Shoes & Jewelry/Men/Shops",,
@@ -1322,7 +1321,6 @@
 6567202011,"Clothing, Shoes & Jewelry/Men/Shops/Uniforms, Work & Safety/Clothing/Medical/Scrub Jackets",department_name:mens AND item_type_keyword:medical-scrubs-jackets,See Available Refinements
 6567203011,"Clothing, Shoes & Jewelry/Men/Shops/Uniforms, Work & Safety/Clothing/Medical/Scrub Sets",department_name:mens AND item_type_keyword:medical-scrubs-apparel-sets,See Available Refinements
 6567204011,"Clothing, Shoes & Jewelry/Men/Shops/Uniforms, Work & Safety/Clothing/Medical/Scrub Tops",department_name:mens AND item_type_keyword:medical-scrubs-shirts,See Available Refinements
-11316162011,"Clothing, Shoes & Jewelry/Men/Shops/Uniforms, Work & Safety/Clothing/Medical/Shoes",department_name:mens AND item_type_keyword:medical-shoes,
 6567205011,"Clothing, Shoes & Jewelry/Men/Shops/Uniforms, Work & Safety/Clothing/Medical/T-Shirts",department_name:mens AND item_type_keyword:medical-apparel-t-shirts,See Available Refinements
 2492606011,"Clothing, Shoes & Jewelry/Men/Shops/Uniforms, Work & Safety/Clothing/Military",department_name:mens AND item_type_keyword:military-apparel,
 2492612011,"Clothing, Shoes & Jewelry/Men/Shops/Uniforms, Work & Safety/Clothing/Military/Accessories",department_name:mens AND item_type_keyword:military-apparel-accessories,
@@ -1345,7 +1343,6 @@
 6796859011,"Clothing, Shoes & Jewelry/Men/Shops/Uniforms, Work & Safety/Shoes/Fire & Safety",department_name:mens AND item_type_keyword:fire-and-safety-shoes,See Available Refinements
 6796861011,"Clothing, Shoes & Jewelry/Men/Shops/Uniforms, Work & Safety/Shoes/Health Care & Food Service",department_name:mens AND item_type_keyword:health-care-and-food-service-shoes,See Available Refinements
 6796860011,"Clothing, Shoes & Jewelry/Men/Shops/Uniforms, Work & Safety/Shoes/Industrial & Construction",department_name:mens AND item_type_keyword:industrial-and-construction-shoes,See Available Refinements
-11312338011,"Clothing, Shoes & Jewelry/Men/Shops/Uniforms, Work & Safety/Shoes/Medical",department_name:mens AND item_type_keyword:medical-professional-shoes,See Available Refinements
 6796862011,"Clothing, Shoes & Jewelry/Men/Shops/Uniforms, Work & Safety/Shoes/Military & Tactical",department_name:mens AND item_type_keyword:military-and-tactical-boots,See Available Refinements
 6796863011,"Clothing, Shoes & Jewelry/Men/Shops/Uniforms, Work & Safety/Shoes/Uniform Dress Shoes",department_name:mens AND item_type_keyword:uniform-dress-shoes,See Available Refinements
 6358539011,"Clothing, Shoes & Jewelry/Men/Watches",,
@@ -1954,7 +1951,6 @@
 6567202011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Clothing/Medical/Men/Scrub Jackets",department_name:mens AND item_type_keyword:medical-scrubs-jackets,See Available Refinements
 6567203011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Clothing/Medical/Men/Scrub Sets",department_name:mens AND item_type_keyword:medical-scrubs-apparel-sets,See Available Refinements
 6567204011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Clothing/Medical/Men/Scrub Tops",department_name:mens AND item_type_keyword:medical-scrubs-shirts,See Available Refinements
-11316162011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Clothing/Medical/Men/Shoes",department_name:mens AND item_type_keyword:medical-shoes,
 6567205011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Clothing/Medical/Men/T-Shirts",department_name:mens AND item_type_keyword:medical-apparel-t-shirts,See Available Refinements
 6567206011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Clothing/Medical/Women",,
 6567208011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Clothing/Medical/Women/Lab Coats",department_name:womens AND item_type_keyword:medical-lab-coats,See Available Refinements
@@ -1963,7 +1959,6 @@
 6567211011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Clothing/Medical/Women/Scrub Jackets",department_name:womens AND item_type_keyword:medical-scrubs-jackets,See Available Refinements
 6567212011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Clothing/Medical/Women/Scrub Sets",department_name:womens AND item_type_keyword:medical-scrubs-apparel-sets,See Available Refinements
 6567213011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Clothing/Medical/Women/Scrub Tops",department_name:womens AND item_type_keyword:medical-scrubs-shirts,See Available Refinements
-11316163011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Clothing/Medical/Women/Shoes",department_name:womens AND item_type_keyword:medical-shoes,
 6567214011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Clothing/Medical/Women/T-Shirts",department_name:womens AND item_type_keyword:medical-apparel-t-shirts,See Available Refinements
 1283420011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Clothing/Military",,
 2492606011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Clothing/Military/Men",department_name:mens AND item_type_keyword:military-apparel,
@@ -2092,14 +2087,12 @@
 6796859011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Shoes/Men/Fire & Safety",department_name:mens AND item_type_keyword:fire-and-safety-shoes,See Available Refinements
 6796861011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Shoes/Men/Health Care & Food Service",department_name:mens AND item_type_keyword:health-care-and-food-service-shoes,See Available Refinements
 6796860011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Shoes/Men/Industrial & Construction",department_name:mens AND item_type_keyword:industrial-and-construction-shoes,See Available Refinements
-11312338011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Shoes/Men/Medical",department_name:mens AND item_type_keyword:medical-professional-shoes,See Available Refinements
 6796862011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Shoes/Men/Military & Tactical",department_name:mens AND item_type_keyword:military-and-tactical-boots,See Available Refinements
 6796863011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Shoes/Men/Uniform Dress Shoes",department_name:mens AND item_type_keyword:uniform-dress-shoes,See Available Refinements
 679442011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Shoes/Women",,See Available Refinements
 6796864011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Shoes/Women/Fire & Safety",department_name:womens AND item_type_keyword:fire-and-safety-shoes,See Available Refinements
 6796865011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Shoes/Women/Health Care & Food Service",department_name:womens AND item_type_keyword:health-care-and-food-service-shoes,See Available Refinements
 6796866011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Shoes/Women/Industrial & Construction",department_name:womens AND item_type_keyword:industrial-and-construction-shoes,See Available Refinements
-11312339011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Shoes/Women/Medical",department_name:womens AND item_type_keyword:medical-professional-shoes,See Available Refinements
 6796867011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Shoes/Women/Military & Tactical",department_name:womens AND item_type_keyword:military-and-tactical-boots,See Available Refinements
 6796868011,"Clothing, Shoes & Jewelry/Uniforms, Work & Safety/Shoes/Women/Uniform Dress Shoes",department_name:womens AND item_type_keyword:uniform-dress-shoes,See Available Refinements
 7147440011,"Clothing, Shoes & Jewelry/Women",,
@@ -2599,7 +2592,6 @@
 6796864011,"Clothing, Shoes & Jewelry/Women/Shoes/Work & Safety/Fire & Safety",department_name:womens AND item_type_keyword:fire-and-safety-shoes,See Available Refinements
 6796865011,"Clothing, Shoes & Jewelry/Women/Shoes/Work & Safety/Health Care & Food Service",department_name:womens AND item_type_keyword:health-care-and-food-service-shoes,See Available Refinements
 6796866011,"Clothing, Shoes & Jewelry/Women/Shoes/Work & Safety/Industrial & Construction",department_name:womens AND item_type_keyword:industrial-and-construction-shoes,See Available Refinements
-11312339011,"Clothing, Shoes & Jewelry/Women/Shoes/Work & Safety/Medical",department_name:womens AND item_type_keyword:medical-professional-shoes,See Available Refinements
 6796867011,"Clothing, Shoes & Jewelry/Women/Shoes/Work & Safety/Military & Tactical",department_name:womens AND item_type_keyword:military-and-tactical-boots,See Available Refinements
 6796868011,"Clothing, Shoes & Jewelry/Women/Shoes/Work & Safety/Uniform Dress Shoes",department_name:womens AND item_type_keyword:uniform-dress-shoes,See Available Refinements
 7581668011,"Clothing, Shoes & Jewelry/Women/Shops",,
@@ -2965,7 +2957,6 @@
 6567211011,"Clothing, Shoes & Jewelry/Women/Shops/Uniforms, Work & Safety/Clothing/Medical/Scrub Jackets",department_name:womens AND item_type_keyword:medical-scrubs-jackets,See Available Refinements
 6567212011,"Clothing, Shoes & Jewelry/Women/Shops/Uniforms, Work & Safety/Clothing/Medical/Scrub Sets",department_name:womens AND item_type_keyword:medical-scrubs-apparel-sets,See Available Refinements
 6567213011,"Clothing, Shoes & Jewelry/Women/Shops/Uniforms, Work & Safety/Clothing/Medical/Scrub Tops",department_name:womens AND item_type_keyword:medical-scrubs-shirts,See Available Refinements
-11316163011,"Clothing, Shoes & Jewelry/Women/Shops/Uniforms, Work & Safety/Clothing/Medical/Shoes",department_name:womens AND item_type_keyword:medical-shoes,
 6567214011,"Clothing, Shoes & Jewelry/Women/Shops/Uniforms, Work & Safety/Clothing/Medical/T-Shirts",department_name:womens AND item_type_keyword:medical-apparel-t-shirts,See Available Refinements
 2492613011,"Clothing, Shoes & Jewelry/Women/Shops/Uniforms, Work & Safety/Clothing/Military",department_name:womens AND item_type_keyword:military-apparel,
 2492619011,"Clothing, Shoes & Jewelry/Women/Shops/Uniforms, Work & Safety/Clothing/Military/Accessories",department_name:womens AND item_type_keyword:military-apparel-accessories,
@@ -2988,7 +2979,6 @@
 6796864011,"Clothing, Shoes & Jewelry/Women/Shops/Uniforms, Work & Safety/Shoes/Fire & Safety",department_name:womens AND item_type_keyword:fire-and-safety-shoes,See Available Refinements
 6796865011,"Clothing, Shoes & Jewelry/Women/Shops/Uniforms, Work & Safety/Shoes/Health Care & Food Service",department_name:womens AND item_type_keyword:health-care-and-food-service-shoes,See Available Refinements
 6796866011,"Clothing, Shoes & Jewelry/Women/Shops/Uniforms, Work & Safety/Shoes/Industrial & Construction",department_name:womens AND item_type_keyword:industrial-and-construction-shoes,See Available Refinements
-11312339011,"Clothing, Shoes & Jewelry/Women/Shops/Uniforms, Work & Safety/Shoes/Medical",department_name:womens AND item_type_keyword:medical-professional-shoes,See Available Refinements
 6796867011,"Clothing, Shoes & Jewelry/Women/Shops/Uniforms, Work & Safety/Shoes/Military & Tactical",department_name:womens AND item_type_keyword:military-and-tactical-boots,See Available Refinements
 6796868011,"Clothing, Shoes & Jewelry/Women/Shops/Uniforms, Work & Safety/Shoes/Uniform Dress Shoes",department_name:womens AND item_type_keyword:uniform-dress-shoes,See Available Refinements
 6358543011,"Clothing, Shoes & Jewelry/Women/Watches",,
