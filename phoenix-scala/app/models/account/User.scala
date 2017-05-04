@@ -130,7 +130,7 @@ object Users extends FoxTableQuery[User, Users](new Users(_)) with ReturningId[U
     filter(c ⇒ c.email === email && !c.isBlacklisted && !c.isDisabled)
 
   def mustfindOneByEmail(email: String)(implicit ec: EC): DbResultT[User] = {
-    findByEmail(email).mustFindOneOr(UserWithEmailNotFound(email))
+    findByEmail(email).mustFindOneOr(NotFoundFailure404(s"Customer with email=$email not found"))
   }
 
   def otherUserByEmail(email: String, accountId: Int): QuerySeq = {

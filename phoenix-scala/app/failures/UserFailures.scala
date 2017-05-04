@@ -17,10 +17,6 @@ object UserFailures {
     def apply(accountId: Int) = NotFoundFailure404(User, accountId)
   }
 
-  object UserWithEmailNotFound {
-    def apply(email: String) = NotFoundFailure404(User, email)
-  }
-
   case class UserIsBlacklisted(accountId: Int) extends Failure {
     override def description = s"User with id = $accountId is blacklisted"
   }
