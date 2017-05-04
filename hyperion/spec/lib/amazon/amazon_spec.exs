@@ -50,7 +50,7 @@ defmodule AmazonSpec do
   describe "images_feed" do
     context "when product have images" do
       let resp: build(:sku_with_images)
-      let images: [[{[sku: "XMENTEEX1", type: "Main", location: "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/245/81B6PnROB1L._UX522_.jpg"], 1}]]
+      let images: [{{"XMENTEEX1", "Main", "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/245/81B6PnROB1L._UX522_.jpg"}, 1}]
 
       before do: allow(Hyperion.PhoenixScala.Client).to accept(:get_product, fn(_, _) -> resp() end)
 
