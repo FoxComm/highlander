@@ -23,6 +23,7 @@ type Props = {
     updateAttributes: (ids: Array<RefId>, attributes: Attributes) => void;
     deleteEntity: (ids: Array<RefId>) => void;
   };
+  onDelete: () => void;
   children: Element<*>;
 };
 
@@ -59,7 +60,7 @@ const deleteHandler = function(props: Props): Function {
       <DeleteModal
         count={toggledIds.length}
         stateTitle={'Delete'}
-        onConfirm={() => deleteEntity(toggledIds, props.entity)}
+        onConfirm={() => deleteEntity(toggledIds, props.entity, props.onDelete)}
       />
     );
   };
@@ -77,6 +78,7 @@ const scheduleHandler = (props: Props) => (allChecked, toggledIds) => {
       entity={props.entity}
       count={toggledIds.length}
       onConfirm={handleConfirm}
+      onCancel={() => {}}
     />
   );
 };
@@ -94,14 +96,16 @@ const renderDetail = (props: Props) => (messages, id) => {
 };
 
 const BulkWrapper = (props: Props) => {
-  const { entity, hideAlertDetails } = props;
+  const { entity,hideAlertDetails } = props;
   const module = `${entity}s`;
-
-  const bulkActions = [
-    ['Delete', deleteHandler(props), 'successfully deleted', 'could not be deleted'],
+  const stateActions = (entity == 'coupon') ? [] : [
     ['Activate', changeStateHandler(props, false), 'successfully activated', 'could not be activated'],
     ['Deactivate', changeStateHandler(props, false), 'successfully deactivated', 'could not be deactivated'],
     [`Schedule ${entity}s`, scheduleHandler(props), 'successfully updated', 'could not be updated'],
+  ];
+  const bulkActions = [
+    ['Delete', deleteHandler(props), 'successfully deleted', 'could not be deleted'],
+    ...stateActions
   ];
 
   return (

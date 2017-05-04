@@ -1,8 +1,7 @@
 /* @flow weak */
 
 // libs
-import React, { PropTypes, Component, Element } from 'react';
-import { inflect } from 'fleck';
+import React, { Element } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
@@ -55,7 +54,7 @@ export default class Header extends React.Component {
     }
   }
 
-  render() {
+  render(): Element<*> {
     const props = this.props;
     const user: ?TUser = props.user;
 

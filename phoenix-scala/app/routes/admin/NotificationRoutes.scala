@@ -15,7 +15,11 @@ import utils.http.Http._
 
 object NotificationRoutes {
 
-  def routes(implicit ec: EC, db: DB, mat: Mat, auth: AuthData[User]): Route = {
+  def routes(implicit ec: EC,
+             db: DB,
+             mat: Mat,
+             auth: AuthData[User],
+             system: akka.actor.ActorSystem): Route = {
     activityContext(auth) { implicit ac ⇒
       pathPrefix("notifications") {
         (get & pathEnd) {

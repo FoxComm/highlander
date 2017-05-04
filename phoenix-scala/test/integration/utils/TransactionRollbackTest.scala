@@ -9,7 +9,7 @@ import utils.seeds.Factories
 
 class TransactionRollbackTest extends IntegrationTestBase {
 
-  "Transaction must be rolled back if DbResultT's value is Xor.left" - {
+  "Transaction must be rolled back if DbResultT's value is Either.left" - {
 
     "for one comprehension" in {
       (for {

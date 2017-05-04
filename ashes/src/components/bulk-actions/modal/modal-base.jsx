@@ -3,9 +3,9 @@
 import React, { Element } from 'react';
 
 import ContentBox from 'components/content-box/content-box';
-import SaveCancel from 'components/common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 
-type Props = {
+export type Props = {
   title: Element<*>|string,
   label: Element<*>|string,
   onCancel: Function,

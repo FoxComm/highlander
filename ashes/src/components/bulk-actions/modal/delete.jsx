@@ -6,9 +6,9 @@ import React, { PropTypes } from 'react';
 import { numberize } from 'lib/text-utils';
 
 // components
-import modal from '../../modal/wrapper';
+import wrapModal from '../../modal/wrapper';
 import ContentBox from '../../content-box/content-box';
-import SaveCancel from '../../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 
 type Props = {
   entity: string;
@@ -46,4 +46,6 @@ const ChangeStateModal = (props: Props) => {
   );
 };
 
-export default modal(ChangeStateModal);
+const Wrapped: Class<React.Component<void, Props, any>> = wrapModal(ChangeStateModal);
+
+export default Wrapped;

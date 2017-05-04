@@ -13,7 +13,6 @@
     storefront_server_name: "{{dns_record}}.foxcommerce.com"
     is_appliance: true
     is_redeploy: true
-    with_base_seeds: true
     url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"
   roles:
@@ -24,7 +23,7 @@
     - { role: prod/migrate_middlewarehouse_db }
     - { role: dev/marathon }
     - { role: dev/marathon_consumers }
-    - { role: dev/ic }
+    - { role: dev/ic, when: with_ic }
     - { role: ext/td/storefront, when: marathon_restart.storefront_td }
     - { role: ext/tpg/storefront, when: marathon_restart.storefront_tpg }
     - { role: dev/balancer }

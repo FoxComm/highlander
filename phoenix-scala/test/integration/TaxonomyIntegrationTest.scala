@@ -21,7 +21,7 @@ import utils.db.ExPostgresDriver.api._
 class TaxonomyIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with BakedFixtures
     with TaxonomySeeds
     with PhoenixAdminApi {
@@ -227,9 +227,19 @@ class TaxonomyIntegrationTest
   }
 
   "DELETE v1/taxonomies/:contextName/taxon/:taxonFormId" - {
-    "deletes taxon" in new FlatTaxonsFixture {
-      val resp = taxonsApi(taxons.head.formId).delete
-      resp.status must === (StatusCodes.NoContent)
+    "deletes flat taxon" in new FlatTaxonsFixture {
+      val resp = taxonsApi(taxons.head.formId).delete.mustBeEmpty()
+
+      val taxon = Taxons.mustFindByFormId404(taxons.head.formId).gimme
+      taxon.archivedAt mustBe defined
+    }
+
+    "deletes hierarchical taxon if it has no children" in new HierarchyTaxonsFixture {
+      val taxonId = links.filter(_.parentIndex.isEmpty).head.taxonId
+
+      val taxonToArchive = Taxons.mustFindById404(taxonId).gimme
+
+      taxonsApi(taxonToArchive.formId).delete.mustBeEmpty()
 
       val taxon = Taxons.mustFindByFormId404(taxons.head.formId).gimme
       taxon.archivedAt mustBe defined

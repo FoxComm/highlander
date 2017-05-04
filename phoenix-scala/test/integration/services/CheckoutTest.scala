@@ -4,6 +4,7 @@ import cats.implicits._
 import failures.GeneralFailure
 import faker.Lorem
 import java.util.concurrent.atomic.AtomicBoolean
+
 import models.Reasons
 import models.account.Scope
 import models.cord._
@@ -20,22 +21,26 @@ import org.scalacheck.Prop.BooleanOperators
 import org.scalacheck.{Gen, Prop, Test ⇒ QTest}
 import org.scalatest.mockito.MockitoSugar
 import payloads.LineItemPayloads.UpdateLineItemsPayload
+
 import scala.concurrent.Future
 import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.fixtures.BakedFixtures
 import utils.MockedApis
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
 import utils.seeds.Factories
 
 class CheckoutTest
     extends IntegrationTestBase
     with MockitoSugar
-    with MockedApis
     with TestObjectContext
     with TestActivityContext.AdminAC
     with BakedFixtures {
+
+  // TODO remove this @anna
+  implicit val apis: Apis = apisOverride.value
 
   def cartValidator(resp: CartValidatorResponse = CartValidatorResponse()): CartValidation = {
     val m = mock[CartValidation]

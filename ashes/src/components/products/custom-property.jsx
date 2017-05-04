@@ -12,7 +12,7 @@ import { Dropdown } from '../dropdown';
 import { FormField } from '../forms';
 import wrapModal from '../modal/wrapper';
 import ContentBox from '../content-box/content-box';
-import SaveCancel from '../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 
 const propertyTypes = {
   string: 'Text',
@@ -129,4 +129,6 @@ class CustomProperty extends Component<void, Props, State> {
   }
 }
 
-export default wrapModal(CustomProperty);
+const Wrapped: Class<Component<void, Props, State>> = wrapModal(CustomProperty);
+
+export default Wrapped;

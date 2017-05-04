@@ -9,12 +9,16 @@ defmodule PushCheckerWorkerSpec do
                 images_feed: %{"FeedSubmissionId" => "123"},
                 variations_feed: %{"FeedSubmissionId" => "123"}}
     let pushes: build(:submission_result, attrs)
-    let amazon_resp: {:ok, %{"AmazonEnvelope" => %{"Message" => %{"ProcessingReport" => %{"Foo" => "Bar"}}}}}
 
     before do
       Hyperion.Repo.insert!(pushes)
       allow(Hyperion.Amazon).to accept(:fetch_config, fn() -> %MWSClient.Config{} end)
-      allow(MWSClient).to accept(:get_feed_submission_result, fn(_, _) -> amazon_resp() end)
+      allow(MWSClient).to accept(:get_feed_submission_result, fn(_, _) ->
+        {:ok, %{"AmazonEnvelope" =>
+                %{"Message" =>
+                  %{"ProcessingReport" =>
+                    %{"Foo" => :crypto.strong_rand_bytes(32) |> Base.encode64}}}}}
+      end)
     end
 
     it "should check push" do

@@ -9,7 +9,6 @@ import sidebar from './sidebar';
 import products from './products';
 import productDetails from './product-details';
 import countries from './countries';
-import search from './search';
 import auth from './auth';
 import usermenu from './usermenu';
 import profile from './profile';
@@ -29,7 +28,6 @@ const reducer = combineReducers({
   products,
   productDetails,
   countries,
-  search,
   auth,
   usermenu,
   profile,

@@ -2,11 +2,21 @@
 @import "colors.css";
 
 .gallery {
+  display: flex;
   height: 100%;
 }
 
 .image {
   height: auto;
+}
+
+.thumbs {
+  width: 225px;
+}
+
+.thumbnail {
+  height: 54px;
+  width: 54px;
 }
 
 :global .image-gallery-left-nav,
@@ -20,4 +30,26 @@
 :global .image-gallery-right-nav::before {
   color: #222;
   text-shadow: none;
+}
+
+:global .image-gallery-content {
+  display: flex;
+}
+
+:global .image-gallery-slide-wrapper.left {
+  width: 100%;
+}
+
+:global .image-gallery-thumbnails-wrapper.left {
+  width: 60px;
+}
+
+@media (--small-only) {
+  .gallery {
+    margin: -20px;
+  }
+  
+  :global .image-gallery-thumbnails-wrapper.left {
+    display: none;
+  }
 }

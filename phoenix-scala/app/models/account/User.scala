@@ -1,11 +1,10 @@
 package models.account
 
-import java.time.Instant
-
-import cats.data.{Validated, ValidatedNel, Xor}
+import cats.data.{Validated, ValidatedNel}
 import cats.implicits._
 import failures.UserFailures._
 import failures._
+import java.time.Instant
 import models.customer.CustomersData
 import shapeless._
 import slick.driver.PostgresDriver.api._
@@ -31,19 +30,19 @@ case class User(id: Int = 0,
 
   import Validation._
 
-  def mustHaveCredentials: Failures Xor User = email match {
-    case Some(e) ⇒ Xor.Right(this)
-    case _       ⇒ Xor.Left(UserMustHaveCredentials.single)
+  def mustHaveCredentials: Either[Failures, User] = email match {
+    case Some(e) ⇒ Either.right(this)
+    case _       ⇒ Either.left(UserMustHaveCredentials.single)
   }
 
-  def mustNotBeBlacklisted: Failures Xor User = {
-    if (isBlacklisted) Xor.Left(UserIsBlacklisted(id).single)
-    else Xor.Right(this)
+  def mustNotBeBlacklisted: Either[Failures, User] = {
+    if (isBlacklisted) Either.left(UserIsBlacklisted(id).single)
+    else Either.right(this)
   }
 
-  def mustNotBeMigrated: Failures Xor User = {
-    if (isMigrated) Xor.Left(UserIsMigrated(id).single)
-    else Xor.Right(this)
+  def mustNotBeMigrated: Either[Failures, User] = {
+    if (isMigrated) Either.left(UserIsMigrated(id).single)
+    else Either.right(this)
   }
 
   override def validate: ValidatedNel[Failure, User] = {

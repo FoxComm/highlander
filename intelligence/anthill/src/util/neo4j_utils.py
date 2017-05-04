@@ -12,12 +12,30 @@ def get_all_channels(client):
     client.stop()
     return out
 
+def get_popular_products(client):
+    """get_popular_products
+    get all products ordered by number of times purchased
+    """
+    client.start()
+    query = """MATCH (p:Product)
+        MATCH (c:Customer)-[:PURCHASED]->(p)
+        RETURN p.phoenix_id, count(*)
+        ORDER BY count(*) DESC"""
+    result = client.session.run(query)
+    out = {'products': [
+        {'id': record['p.phoenix_id'],
+         'score': record['count(*)']}
+        for record in result
+    ]}
+    return out
+
 def get_purchased_products(customer_id, channel_id, client):
     """get_purchased_products
     return a list of products which have been purchased
     by the customer over a specific channel
     """
     client.start()
+    client.session.run(merge_customer_node("c", customer_id))
     query = match_xyz(
         {"model": "Customer", "props": {"phoenix_id": customer_id}},
         {"model": "PURCHASED", "props": {"channel": channel_id}},
@@ -89,8 +107,7 @@ def match_xyz(start_node, rel, end_node):
     return "MATCH (x:%s %s)-[y:%s %s]->(z:%s %s)" % (
         start_node["model"], stringify_props(start_node.get("props")),
         rel["model"], stringify_props(rel.get("props")),
-        end_node["model"], stringify_props(end_node.get("props"))
-    )
+        end_node["model"], stringify_props(end_node.get("props")))
 
 def stringify_props(props):
     """stringify_props
@@ -128,8 +145,7 @@ def build_purchase_query(payload):
 def add_purchase_event(payload, neo4j_client):
     neo4j_client.start()
     neo4j_client.session.run(
-        build_purchase_query(payload)
-    )
+        build_purchase_query(payload))
     neo4j_client.stop()
 
 class Neo4j_Client(object):

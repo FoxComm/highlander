@@ -55,14 +55,13 @@
   ],
   "healthChecks": [
     {
-      "protocol": "COMMAND",
-      "command": {
-        "value": "curl -X GET \"http://{{neo4j_user}}:{{neo4j_pass}}@{{neo4j_host}}:{{neo4j_http_port}}/db/data/\""
-      },
       "gracePeriodSeconds": 300,
-      "intervalSeconds": 60,
+      "intervalSeconds": 30,
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,
+      "port": 7474,
+      "path": "/",
+      "protocol": "HTTP",
       "ignoreHttp1xx": false
     }
   ],

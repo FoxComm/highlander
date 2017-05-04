@@ -1,7 +1,8 @@
 /* @flow */
 
-import React from 'react';
+import React, { Component } from 'react';
 import classNames from 'classnames';
+import { autobind } from 'core-decorators';
 
 import Overlay from 'ui/overlay/overlay';
 
@@ -13,19 +14,38 @@ type Props = {
   children?: any,
 };
 
-const Modal = (props: Props) => {
-  const modalClass = classNames(styles.modal, {
-    [styles.show]: props.show,
-  });
+export default class Modal extends Component {
+  props: Props;
 
-  return (
-    <div className={modalClass}>
-      <Overlay onClick={props.toggle} shown={props.show} />
-      <div styleName="modal-wrapper">
-        {props.children}
+  componentDidMount() {
+    window.addEventListener('keydown', this.handleKeyPress, true);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyPress, true);
+  }
+
+  @autobind
+  handleKeyPress(e: KeyboardEvent) {
+    const { show, toggle } = this.props;
+    if (show && e.keyCode === 27) {
+      toggle();
+    }
+  }
+
+  render() {
+    const { show, toggle, children } = this.props;
+    const modalClass = classNames(styles.modal, {
+      [styles.show]: show,
+    });
+
+    return (
+      <div className={modalClass}>
+        <Overlay onClick={toggle} shown={show} />
+        <div styleName="modal-wrapper">
+          {children}
+        </div>
       </div>
-    </div>
-  );
-};
-
-export default Modal;
+    );
+  }
+}

@@ -1,15 +1,12 @@
 package utils.seeds
 
-import com.github.tminglei.slickpg.LTree
-import cats._
-import cats.data._
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import com.typesafe.config.Config
 import failures.UserFailures._
 import failures.{Failures, FailuresOps, NotFoundFailure404}
 import java.time.{Instant, ZoneId}
-
 import models.Reasons
 import models.account._
 import models.activity.ActivityContext
@@ -17,7 +14,6 @@ import models.auth.UserToken
 import models.objects.ObjectContexts
 import models.product.SimpleContext
 import org.postgresql.ds.PGSimpleDataSource
-
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -34,9 +30,10 @@ import utils.{ADT, FoxConfig}
 object Seeds {
 
   sealed trait Command
-  case object NoCommand   extends Command
-  case object CreateAdmin extends Command
-  case object Seed        extends Command
+  case object NoCommand           extends Command
+  case object CreateAdmin         extends Command
+  case object UpdateObjectSchemas extends Command
+  case object Seed                extends Command
 
   object Command extends ADT[Command] {
     def types = sealerate.values[Command]
@@ -52,6 +49,7 @@ object Seeds {
       seedStage: Boolean = false,
       seedDemo: Int = 0,
       customersScaleMultiplier: Int = 1000,
+      schemasToUpdate: Seq[String] = Seq(),
       mode: Command = NoCommand,
       adminName: String = "",
       adminEmail: String = "",
@@ -109,6 +107,17 @@ object Seeds {
               .action((x, c) ⇒ c.copy(adminRoles = x))
               .text("Admin Roles")
         )
+
+      cmd("updateObjectSchemas")
+        .action((_, c) ⇒ c.copy(mode = UpdateObjectSchemas))
+        .text("Update or create Object Schemas")
+        .children(
+            arg[String]("schema")
+              .optional()
+              .unbounded()
+              .action((x, c) ⇒ c.copy(schemasToUpdate = c.schemasToUpdate :+ x))
+              .text("Schemas to update, if ommited update all schemas")
+        )
     }
 
     parser.parse(args, CliConfig()) match {
@@ -151,6 +160,16 @@ object Seeds {
                                               cfg.adminEmail,
                                               cfg.adminOrg,
                                               cfg.adminRoles.split(",").toList))
+      case UpdateObjectSchemas ⇒
+        // if no schema list is empty upgrade all schemas
+        // do this logic to convert arg to Option
+        val argSchemasToUpgrade =
+          if (cfg.schemasToUpdate.isEmpty)
+            None
+          else
+            Some(cfg.schemasToUpdate)
+
+        step("Upgrade ObjectSchemas", Factories.upgradeObjectSchemas(argSchemasToUpgrade))
       case _ ⇒
         System.err.println(usage)
     }
@@ -174,7 +193,7 @@ object Seeds {
       ac: AC): T = {
     Console.out.println(name)
     // TODO: Should we really be discarding all warnings here (and git-grep 'runEmptyA')? Rethink! @michalrus
-    val result: Failures Xor T = Await.result(f.runTxn().runEmptyA.value, waitFor)
+    val result: Either[Failures, T] = Await.result(f.runTxn().runEmptyA.value, waitFor)
     validateResults(name, result)
   }
 
@@ -298,7 +317,7 @@ object Seeds {
     source
   }
 
-  private def validateResults[R](seed: String, result: Failures Xor R)(implicit db: DB): R = {
+  private def validateResults[R](seed: String, result: Either[Failures, R])(implicit db: DB): R = {
     result.fold(failures ⇒ {
       Console.err.println(s"'$seed' has failed!")
       failures.flatten.foreach(Console.err.println)

@@ -1,4 +1,3 @@
-import cats.implicits._
 import java.time.Instant
 
 import failures.{GeneralFailure, NotFoundFailure404}
@@ -9,14 +8,13 @@ import responses.AdminNotes
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
-import utils.db._
 import utils.time.RichInstant
 
 class ReturnNotesIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with TestActivityContext.AdminAC
     with ReturnsFixtures
     with BakedFixtures {
@@ -26,12 +24,12 @@ class ReturnNotesIntegrationTest
   "Return Notes" - {
     "POST /v1/notes/return/:code" - {
       "can be created for return" in new ReturnDefaults {
-        val noteCreated = api(rma.referenceNumber)
+        val note = api(rma.referenceNumber)
           .create(CreateNote(body = "Hello, FoxCommerce!"))
           .as[AdminNotes.Root]
 
-        noteCreated.body must === ("Hello, FoxCommerce!")
-        noteCreated.author must === (AdminNotes.buildAuthor(storeAdmin))
+        note.author.name.value must === (defaultAdmin.name.value)
+        note.author.email.value must === (defaultAdmin.email.value)
       }
 
       "returns a validation error if failed to create" in new ReturnDefaults {
@@ -49,13 +47,16 @@ class ReturnNotesIntegrationTest
     "GET /v1/notes/return/:code" - {
 
       "can be listed" in new ReturnDefaults {
-        List("abc", "123", "xyz").foreach { body ⇒
+        val bodies = List("abc", "123", "xyz")
+
+        bodies.foreach { body ⇒
           api(rma.referenceNumber).create(CreateNote(body = body)).mustBeOk()
         }
 
-        val notes = api(rma.referenceNumber).get().as[Seq[AdminNotes.Root]]
-        notes must have size 3
-        notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
+        api(rma.referenceNumber)
+          .get()
+          .as[Seq[AdminNotes.Root]]
+          .map(_.body) must contain theSameElementsAs bodies
       }
     }
 
@@ -84,8 +85,8 @@ class ReturnNotesIntegrationTest
 
         api(rma.referenceNumber).note(note.id).delete().mustBeEmpty()
 
-        val updatedNote = Notes.findOneById(note.id).run().futureValue.value
-        updatedNote.deletedBy.value must === (1)
+        val updatedNote = Notes.findOneById(note.id).gimme.value
+        updatedNote.deletedBy.value must === (defaultAdmin.id)
 
         withClue(updatedNote.deletedAt.value → Instant.now) {
           updatedNote.deletedAt.value.isBeforeNow mustBe true

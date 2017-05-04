@@ -1,8 +1,8 @@
 package utils
 
-import cats.data.Xor
-import shapeless._
+import cats.implicits._
 import failures.{Failures, StateTransitionNotAllowed}
+import shapeless._
 
 trait FSM[S, M <: FSM[S, M]] { self: M ⇒
   /* this is a def because a val confuses jackson somehow for json rendering
@@ -15,14 +15,14 @@ trait FSM[S, M <: FSM[S, M]] { self: M ⇒
 
   private def currentState = stateLens.get(this)
 
-  def transitionState(newState: S): Failures Xor M =
-    if (newState == currentState) Xor.right(this)
+  def transitionState(newState: S): Either[Failures, M] =
+    if (newState == currentState) Either.right(this)
     else
       fsm.get(currentState) match {
         case Some(states) if states.contains(newState) ⇒
-          Xor.right(stateLens.set(this)(newState))
+          Either.right(stateLens.set(this)(newState))
         case _ ⇒
-          Xor.left(
+          Either.left(
               StateTransitionNotAllowed(self,
                                         currentState.toString,
                                         newState.toString,
@@ -31,6 +31,6 @@ trait FSM[S, M <: FSM[S, M]] { self: M ⇒
 
   def transitionAllowed(newState: S): Boolean = transitionState(newState).isRight
 
-  def transitionModel(newModel: M): Failures Xor M =
+  def transitionModel(newModel: M): Either[Failures, M] =
     transitionState(newModel.stateLens.get(newModel)).map(_ ⇒ newModel)
 }

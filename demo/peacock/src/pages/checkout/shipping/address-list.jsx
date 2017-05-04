@@ -129,6 +129,7 @@ class AddressList extends Component {
         this.setState({
           addressToEdit: {},
           isEditFormActive: false,
+          newAddress: null,
         });
       })
       .catch((err) => {
@@ -165,6 +166,7 @@ class AddressList extends Component {
 
   renderAddresses() {
     const items = _.map(this.props.addresses, (address, key) => {
+      const title = address.isDefault ? `${address.name} (Default)` : address.name;
       const content = <AddressDetails address={address} hideName />;
       const checked = address.id === this.state.activeAddressId;
       const itemClasses = classNames(styles.item, {
@@ -182,7 +184,7 @@ class AddressList extends Component {
             <EditableBlock
               isEditing={!_.isEmpty(this.state.addressToEdit)}
               styleName="item-content"
-              title={address.name}
+              title={title}
               content={content}
               editAction={() => this.editAddress(address)}
             />
@@ -227,12 +229,15 @@ class AddressList extends Component {
   }
 
   renderEditingForm(address) {
+    const { addresses, toggleShippingModal } = this.props;
+    const isAdd = _.isEmpty(this.state.addressToEdit);
+    const isRequired = _.isEmpty(addresses);
     const id = _.get(address, 'id');
     const action = {
-      handler: this.cancelEditing,
-      title: 'Cancel',
+      handler: isRequired ? toggleShippingModal : this.cancelEditing,
+      title: isRequired ? 'Close' : 'Cancel',
     };
-    const title = _.isEmpty(this.state.addressToEdit) ? 'Add Address' : 'Edit Address';
+    const title = isAdd ? 'Add Address' : 'Edit Address';
 
 
     return (

@@ -1,10 +1,9 @@
 package models.coupon
 
-import java.time.Instant
-
-import cats.data.Xor
+import cats.implicits._
 import failures.CouponFailures._
 import failures._
+import java.time.Instant
 import models.objects._
 import services.coupon.CouponUsageService
 import utils.aliases._
@@ -22,19 +21,19 @@ case class IlluminatedCoupon(id: Int,
 
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def mustBeActive: Failures Xor IlluminatedCoupon = {
+  def mustBeActive: Either[Failures, IlluminatedCoupon] = {
     val activeFrom = (attributes \ "activeFrom" \ "v").extractOpt[Instant]
     val activeTo   = (attributes \ "activeTo" \ "v").extractOpt[Instant]
     val now        = Instant.now
 
     (activeFrom, activeTo) match {
       case (Some(from), Some(to)) ⇒
-        if (from.isBefore(now) && to.isAfter(now)) Xor.right(this)
-        else Xor.left(CouponIsNotActive.single)
+        if (from.isBefore(now) && to.isAfter(now)) Either.right(this)
+        else Either.left(CouponIsNotActive.single)
       case (Some(from), None) ⇒
-        if (from.isBefore(now)) Xor.right(this) else Xor.left(CouponIsNotActive.single)
+        if (from.isBefore(now)) Either.right(this) else Either.left(CouponIsNotActive.single)
       case (_, _) ⇒
-        Xor.left(CouponIsNotActive.single)
+        Either.left(CouponIsNotActive.single)
     }
   }
 

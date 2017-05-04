@@ -12,7 +12,7 @@ import { actions } from 'modules/taxons/list';
 // components
 import MultiSelectTable from 'components/table/multi-select-table';
 import TreeTable from 'components/table/tree-table';
-import { AddButton } from 'components/common/buttons';
+import { AddButton } from 'components/core/button';
 import TaxonRow from './taxon-row';
 
 // helpers

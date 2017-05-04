@@ -10,7 +10,7 @@ import criterions, { getCriterion, getOperators, getWidget } from 'paragons/cust
 import { prefix } from 'lib/text-utils';
 
 //components
-import { Dropdown, DropdownItem } from 'components/dropdown';
+import { Dropdown } from 'components/dropdown';
 
 const prefixed = prefix('fc-customer-group-builder');
 const fields = criterions.map(({ field,label }) => [ field, label ]);
@@ -66,7 +66,7 @@ const renderValue = (criterion, operator, value, changeValue) => {
     return null;
   }
 
-  const {Input, getDefault} = getWidget(criterion, operator);
+  const { Input } = getWidget(criterion, operator);
 
   return React.createElement(Input, {
     criterion,

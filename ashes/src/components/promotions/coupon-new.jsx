@@ -42,4 +42,6 @@ class CouponNew extends Component {
   }
 }
 
-export default wrapModal(CouponNew);
+const Wrapped: Class<React.Component<void, Props, any>> = wrapModal(CouponNew);
+
+export default Wrapped;

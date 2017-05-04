@@ -23,7 +23,7 @@ import * as schemaActions from 'modules/object-schema';
 // components
 import WaitAnimation from 'components/common/wait-animation';
 import ContentBox from 'components/content-box/content-box';
-import SaveCancel from 'components/common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 import Form from 'components/forms/form';
 import ProductAmazonMain from './product-amazon-main';
 import ProductAmazonVariants from './product-amazon-variants';

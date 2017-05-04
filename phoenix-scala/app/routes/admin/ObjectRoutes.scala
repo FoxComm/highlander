@@ -4,6 +4,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import utils.http.JsonSupport._
 import models.account.User
+import payloads.ObjectSchemaPayloads._
 import services.Authenticator.AuthData
 import utils.aliases._
 import services.objects.ObjectSchemasManager
@@ -26,9 +27,16 @@ object ObjectRoutes {
             }
           }
         } ~
-        (get & pathPrefix("byName") & path(Segment)) { schemaName ⇒
-          getOrFailures {
-            ObjectSchemasManager.getSchema(schemaName)
+        (pathPrefix("byName") & path(Segment)) { schemaName ⇒
+          (get & pathEnd) {
+            getOrFailures {
+              ObjectSchemasManager.getSchema(schemaName)
+            }
+          } ~
+          (post & entity(as[UpdateObjectSchema])) { payload ⇒
+            mutateOrFailures {
+              ObjectSchemasManager.update(schemaName, payload)
+            }
           }
         }
       }

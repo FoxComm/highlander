@@ -2,11 +2,12 @@
 
 // libs
 import _ from 'lodash';
-import React, { Element } from 'react';
+import classNames from 'classnames';
+import React, { Element, Component } from 'react';
 
 // components
 import ContentBox from 'components/content-box/content-box';
-import SaveCancel from 'components/common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 import wrapModal from 'components/modal/wrapper';
 import ErrorAlerts from 'components/alerts/error-alerts';
 
@@ -15,23 +16,26 @@ type Props = {
   header: string|Element<*>,
   cancel: string,
   confirm: string,
-  icon?: string,
   onCancel: Function,
   confirmAction: Function,
-  asyncState: AsyncState,
+  icon?: string,
+  asyncState?: AsyncState,
+  className?: string,
 };
 
 const ConfirmationDialog = (props: Props) => {
   let modalIcon = null;
   if (props.icon) {
-    modalIcon = <i className={ `icon-${props.icon}` } />;
+    modalIcon = (
+      <div className='fc-modal-icon'>
+        <i className={ `icon-${props.icon}` } />
+      </div>
+    );
   }
 
   const title = (
     <div>
-      <div className='fc-modal-icon'>
-        {modalIcon}
-      </div>
+      {modalIcon}
       <div className='fc-modal-title'>{props.header}</div>
     </div>
   );
@@ -49,9 +53,11 @@ const ConfirmationDialog = (props: Props) => {
     }
   };
 
+  const cls = classNames('fc-confirmation-dialog', props.className);
+
   return (
     <div onKeyDown={handleKeyPress}>
-      <ContentBox title={title} className="fc-confirmation-dialog" actionBlock={actionBlock}>
+      <ContentBox title={title} className={cls} actionBlock={actionBlock}>
         <div className='fc-modal-body'>
           <ErrorAlerts error={_.get(props.asyncState, 'err', null)} />
           {props.body}
@@ -69,4 +75,6 @@ const ConfirmationDialog = (props: Props) => {
   );
 };
 
-export default wrapModal(ConfirmationDialog);
+const Wrapped: Class<Component<void, Props, any>> = wrapModal(ConfirmationDialog);
+
+export default Wrapped;

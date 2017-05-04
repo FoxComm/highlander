@@ -116,15 +116,15 @@ class SelectCustomerGroups extends Component {
   get pilledInput() {
     const { state, props } = this;
     const pills = props.selectedGroupIds.map((cg) => {
-      return _.find(props.groups, { 'id': cg }).name;
+      if (_.find(props.groups, { 'id': cg })) return _.find(props.groups, { 'id': cg }, {}).name;
+      return 'loading...';
     });
 
     return (
       <PilledInput
         solid={true}
-        autoFocus={true}
         value={state.term}
-        disabled={false}
+        disabled={props.groups == null}
         onChange={({target}) => this.setTerm(target.value)}
         pills={pills}
         icon={null}

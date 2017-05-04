@@ -1,21 +1,15 @@
 package models.account
 
-import java.time.Instant
-
-import cats.data.{Validated, ValidatedNel, Xor}
-import cats.implicits._
-import failures._
-import shapeless._
-import slick.driver.PostgresDriver.api._
-import utils.HashPasswords
-import utils.HashPasswords.HashAlgorithm
-import utils.Validation
-import utils.aliases._
-import utils.db._
 import com.typesafe.scalalogging.LazyLogging
+import java.time.Instant
+import shapeless._
 import slick.ast.BaseTypedType
+import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.FoxConfig.config
+import utils.HashPasswords
+import utils.HashPasswords.HashAlgorithm
+import utils.db._
 
 case class AccountAccessMethod(id: Int = 0,
                                accountId: Int,
