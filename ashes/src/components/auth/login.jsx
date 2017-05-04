@@ -28,6 +28,7 @@ type TState = {
   org: string;
   email: string;
   password: string;
+  message: string;
 };
 
 type LoginProps = {
@@ -56,16 +57,16 @@ export default class Login extends Component {
     org: '',
     email: '',
     password: '',
-    message: null
+    message: ''
   };
 
   props: LoginProps;
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.user.message) {
-      this.setState({
-        message: nextProps.user.message
-      })
+  componentWillReceiveProps(nextProps: LoginProps) {
+    const message = _.get(nextProps, 'user.message');
+
+    if (message) {
+      this.setState({ message: message });
     }
   }
 
@@ -106,8 +107,8 @@ export default class Login extends Component {
   @autobind
   clearMessage() {
     this.setState({
-      message: null
-    })
+      message: ''
+    });
   }
 
   get iForgot() {
