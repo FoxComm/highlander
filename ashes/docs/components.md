@@ -13,8 +13,8 @@ All files related to core component(jsx/css/md) should reside in separate direct
 #### index.js
 
 `index.js` file should reside in the directory and should export public components(s) from main component file.
-```
-  export default from './button';
+```js
+export default from './button';
 ```
 
 #### component.jsx
@@ -25,7 +25,7 @@ All files related to core component(jsx/css/md) should reside in separate direct
 All components should be typechecked with flow.
 It should have `Props` and `State` definitions(in case components accepts it).
 
-```
+```js
 // src/components/core/component/component.jsx
 type Props = {
   // Title string to be shown
@@ -59,7 +59,7 @@ Import block should be grouped and commented accordingly.
 The order of import block should be the following: libs, redux, components, types, styles.
 Imported modules from `node_modules` should preceed local modules.
 
-```
+```js
 /* @flow *.
 
 // libs
@@ -87,7 +87,7 @@ import s from './orders.css';
 
 CSS should be written with usage of css-modules and importing styles object in `s`-named variable.
 
-```
+```js
 // libs
 import classNames from 'classnames';
 
@@ -113,7 +113,7 @@ You can start styleguidist server with `yarn run styleguid`. It will start on `l
 
 Core componentes can be imported as `components/core/component-name`.
 
-```
+```js
 import Button from 'components/core/button`
 
 ```
@@ -121,7 +121,7 @@ import Button from 'components/core/button`
 Import with absolute path(relative to `src` directory) is possible here due to setting NODE_PATH env variable to `lib` directory(all source files
 from `src` dir are transpiled from ES6 to ES5 syntax to `lib` dir on build step).
 
-```
+```js
 process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib')}`;
 ```
 
