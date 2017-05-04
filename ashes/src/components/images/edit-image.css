@@ -77,3 +77,13 @@
   flex: 0 0 auto;
   justify-content: space-between;
 }
+
+.uploadByUrl {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.editAlbumFooter {
+  display: flex;
+  justify-content: flex-end;
+}

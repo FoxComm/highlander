@@ -19,6 +19,10 @@ import SaveCancel from 'components/core/save-cancel';
 import wrapModal from 'components/modal/wrapper';
 import Form from 'components/forms/form';
 import TextInput from 'components/forms/text-input';
+import ErrorAlerts from 'components/alerts/error-alerts';
+
+// styles
+import s from './edit-image.css';
 
 // types
 import type { NewAlbum } from '../../modules/images';
@@ -26,11 +30,12 @@ import type { NewAlbum } from '../../modules/images';
 type Props = {
   onSave: (name: string) => void;
   onCancel: () => void;
-  loading?: boolean;
+  inProgress?: boolean;
+  error?: any;
 };
 
 type State = {
-  name: string;
+  url: string;
 };
 
 class UploadByUrl extends Component {
@@ -69,6 +74,8 @@ class UploadByUrl extends Component {
   }
 
   render() {
+    const { error, inProgress } = this.props;
+
     return (
       <ContentBox title="Upload From Link" actionBlock={this.closeAction}>
         <Form onSubmit={this.handleSave}>
@@ -82,13 +89,18 @@ class UploadByUrl extends Component {
               value={this.state.url}
               onChange={this.handleUpdateName}
               ref={r => this.input = r}
+              autoComplete="off"
             />
           </FormField>
+          <ErrorAlerts error={error} />
           <SaveCancel
+            className={s.uploadByUrl}
             onCancel={this.props.onCancel}
             onSave={this.handleSave}
             saveDisabled={this.saveDisabled}
-            isLoading={this.props.loading}
+            isLoading={inProgress}
+            cancelDisabled={inProgress}
+            saveDisabled={inProgress}
             saveText="Upload"
           />
         </Form>

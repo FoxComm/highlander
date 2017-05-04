@@ -5,10 +5,9 @@ import styles from './images.css';
 
 // libs
 import { autobind } from 'core-decorators';
-import React, { Component, Element } from 'react';
+import React, { Component, Element, PropTypes } from 'react';
 
 // components
-import ContentBox from 'components/content-box/content-box';
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import Alert from 'components/alerts/alert';
 import AlbumWrapper from './album-wrapper/album-wrapper';
@@ -27,6 +26,7 @@ export type Props = {
   position: number;
   albumsCount: number;
   uploadFiles: (files: Array<ImageFile>) => Promise<*>;
+  uploadByUrl: (idx: number, url: string) => Promise<*>;
   editImage: (idx: number, info: ImageInfo) => Promise<*>;
   deleteImage: (idx: number) => Promise<*>;
   editAlbum: (album: TAlbum) => Promise<*>;
@@ -38,7 +38,7 @@ export type Props = {
 type State = {
   editMode: boolean;
   archiveMode: boolean;
-  uploadMode: boolean;
+  uploadUrlMode: boolean;
 };
 
 export default class Album extends Component {
@@ -51,6 +51,13 @@ export default class Album extends Component {
   state: State = {
     editMode: false,
     archiveMode: false,
+    uploadUrlMode: false,
+  };
+
+  static contextTypes = {
+    uploadMediaByUrl: PropTypes.object,
+    editAlbum: PropTypes.object,
+    archiveAlbum: PropTypes.object,
   };
 
   _uploadRef: Upload;
@@ -82,7 +89,7 @@ export default class Album extends Component {
 
   @autobind
   handleAddUrl(): void {
-    this._uploadRef.openUploadDialog();
+    this.setState({ uploadUrlMode: true });
   }
 
   @autobind
@@ -102,13 +109,14 @@ export default class Album extends Component {
   }
 
   @autobind
-  handleCancelUpload(): void {
-    this.setState({ uploadMode: false });
+  handleCancelUrlUpload(): void {
+    this.setState({ uploadUrlMode: false });
   }
 
-  handleConfirmUpload(url): void {
-    this.props.uploadByUrl({ ...this.props.album, url })
-      .then(this.handleCancelEditAlbum);
+  @autobind
+  handleConfirmUrlUpload(url: string): void {
+    this.props.uploadByUrl(this.props.album.id, url)
+      .then(this.handleCancelUrlUpload);
   }
 
   @autobind
@@ -124,9 +132,8 @@ export default class Album extends Component {
   @autobind
   handleConfirmArchiveAlbum(): void {
     this.props.archiveAlbum(this.props.album.id)
+      .then(() => this.setState({ archiveMode: false }))
       .then(this.props.fetchAlbums);
-
-    this.setState({ archiveMode: false });
   }
 
   @autobind
@@ -152,36 +159,41 @@ export default class Album extends Component {
   }
 
   get editAlbumDialog(): ?Element<*> {
-    const { album, loading } = this.props;
+    const { album } = this.props;
+    const { editAlbum = {} } = this.context;
 
     return (
       <EditAlbum
         className={styles.modal}
         isVisible={this.state.editMode}
         album={album}
-        loading={loading}
+        loading={editAlbum.inProgress}
+        inProgress={editAlbum.inProgress}
+        error={editAlbum.err}
         onCancel={this.handleCancelEditAlbum}
         onSave={this.handleConfirmEditAlbum}
       />
     );
   }
 
-  get editAlbumDialog(): ?Element<*> {
-    const { album, loading } = this.props;
+  get uploadByUrlDialog(): ?Element<*> {
+    const { uploadMediaByUrl = {} } = this.context;
 
     return (
       <UploadByUrl
         className={styles.modal}
-        isVisible={this.state.uploadMode}
-        loading={loading}
-        onCancel={this.handleCancelUpload}
-        onSave={this.handleConfirmUpload}
+        isVisible={this.state.uploadUrlMode}
+        inProgress={uploadMediaByUrl.inProgress}
+        error={uploadMediaByUrl.err}
+        onCancel={this.handleCancelUrlUpload}
+        onSave={this.handleConfirmUrlUpload}
       />
     );
   }
 
   get archiveAlbumDialog(): ?Element<*> {
-    const album = this.props.album;
+    const { album } = this.props;
+    const { archiveAlbum } = this.context;
 
     const body = (
       <div>
@@ -205,7 +217,8 @@ export default class Album extends Component {
         confirm='Yes, Archive'
         onCancel={this.handleCancelArchiveAlbum}
         confirmAction={this.handleConfirmArchiveAlbum}
-        focus
+        asyncState={archiveAlbum}
+        focusCancel
       />
     );
   }

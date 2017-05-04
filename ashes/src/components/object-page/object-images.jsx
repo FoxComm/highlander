@@ -2,7 +2,7 @@
 
 // libs
 import _ from 'lodash';
-import React, { Component, Element } from 'react';
+import React, { Component, Element, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 // components
@@ -17,7 +17,15 @@ export function connectImages(namespace, actions) {
     isLoading: _.get(state, ['asyncActions', `${plural}FetchAlbums`, 'inProgress'], true),
     addAlbumInProgress: _.get(state, ['asyncActions', `${plural}AddAlbum`, 'inProgress'], false),
     editAlbumInProgress: _.get(state, ['asyncActions', `${plural}EditAlbum`, 'inProgress'], false),
-    uploadImagesInProgress: _.get(state, ['asyncActions', `${plural}UploadImages`, 'inProgress'], false),
+    uploadMediaInProgress: _.get(state, ['asyncActions', `${plural}UploadMedia`, 'inProgress'], false) ||
+      _.get(state, ['asyncActions', `${plural}UploadMediaByUrl`, 'inProgress'], false),
+    asyncActions: {
+      addAlbum: state.asyncActions[`${plural}AddAlbum`],
+      editAlbum: state.asyncActions[`${plural}EditAlbum`],
+      uploadMedia: state.asyncActions[`${plural}UploadMedia`],
+      uploadMediaByUrl: state.asyncActions[`${plural}UploadMediaByUrl`],
+      archiveAlbum: state.asyncActions[`${plural}ArchiveAlbum`],
+    }
   });
 
   return ImagesPage => {
@@ -26,6 +34,18 @@ export function connectImages(namespace, actions) {
 }
 
 export default class ImagesPage extends Component {
+
+  static childContextTypes = {
+    addAlbum: PropTypes.object,
+    editAlbum: PropTypes.object,
+    uploadMedia: PropTypes.object,
+    uploadMediaByUrl: PropTypes.object,
+    archiveAlbum: PropTypes.object,
+  };
+
+  getChildContext() {
+    return { ...this.props.asyncActions };
+  }
 
   get entityId(): string {
     return this.props.entity.entityId;
@@ -55,4 +75,3 @@ export default class ImagesPage extends Component {
     );
   }
 }
-

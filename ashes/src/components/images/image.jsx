@@ -5,13 +5,13 @@ import styles from './images.css';
 
 // libs
 import { autobind } from 'core-decorators';
-import React, { Component, Element } from 'react';
+import React, { Component, Element, PropTypes } from 'react';
 import moment from 'moment';
 
 // components
-import BodyPortal from '../body-portal/body-portal';
-import ConfirmationDialog from '../modal/confirmation-dialog';
-import ImageCard from '../image-card/image-card';
+import BodyPortal from 'components/body-portal/body-portal';
+import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ImageCard from 'components/image-card/image-card';
 import EditImage from './edit-image';
 
 // types
@@ -29,8 +29,6 @@ export type Props = {
 type State = {
   editMode: boolean;
   deleteMode: boolean;
-  saveInProgress: boolean;
-  deleteInProgress: boolean;
 };
 
 export default class Image extends Component<void, Props, State> {
@@ -39,9 +37,11 @@ export default class Image extends Component<void, Props, State> {
   state: State = {
     editMode: false,
     deleteMode: false,
-    saveInProgress: false,
     disabled: false,
-    deleteInProgress: false,
+  };
+
+  static contextTypes = {
+    editAlbum: PropTypes.object,
   };
 
   componentDidMount(): void {
@@ -75,8 +75,8 @@ export default class Image extends Component<void, Props, State> {
 
   @autobind
   handleConfirmEditImage(form: ImageInfo): void {
-    this.setState({ saveInProgress: true });
-    this.props.editImage(form).then(() => this.setState({ editMode: false, saveInProgress: false }));
+    this.props.editImage(form)
+      .then(() => this.setState({ editMode: false }));
   }
 
   @autobind
@@ -91,13 +91,8 @@ export default class Image extends Component<void, Props, State> {
 
   @autobind
   handleConfirmDeleteImage(): void {
-    this.setState({ deleteInProgress: true });
-
     this.props.deleteImage();
     // We don't need to set `deleteMode: false`, because component will be removed
-    // .then(() =>
-    //   this.setState({ deleteMode: false, deleteInProgress: false })
-    // );
   }
 
   @autobind
@@ -106,6 +101,8 @@ export default class Image extends Component<void, Props, State> {
   }
 
   get deleteImageDialog(): ?Element<*> {
+    const editAlbum = this.context.editAlbum;
+
     if (!this.state.deleteMode) {
       return;
     }
@@ -120,7 +117,7 @@ export default class Image extends Component<void, Props, State> {
           confirm='Yes, Delete'
           onCancel={this.handleCancelDeleteImage}
           confirmAction={this.handleConfirmDeleteImage}
-          inProgress={this.state.deleteInProgress}
+          asyncState={editAlbum}
           focus
         />
       </BodyPortal>
@@ -128,6 +125,8 @@ export default class Image extends Component<void, Props, State> {
   }
 
   get editImageDialog(): ?Element<*> {
+    const { editAlbum = {} } = this.context;
+
     return (
       <BodyPortal className={styles.modal}>
         <EditImage
@@ -136,7 +135,8 @@ export default class Image extends Component<void, Props, State> {
           onCancel={this.handleCancelEditImage}
           onSave={this.handleConfirmEditImage}
           onRemove={this.handleRemove}
-          inProgress={this.state.saveInProgress}
+          inProgress={editAlbum.inProgress}
+          error={editAlbum.err}
         />
       </BodyPortal>
     );

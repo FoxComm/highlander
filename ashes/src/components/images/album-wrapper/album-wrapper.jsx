@@ -30,7 +30,7 @@ type Props = {
 
 const ddItems = [
   ['fromDesk', 'Upload from desktop'],
-  ['fromLink', 'Upload from Link'] // @todo
+  ['fromLink', 'Upload from Link']
 ];
 
 export default class AlbumWrapper extends Component {

@@ -12,17 +12,22 @@ import SaveCancel from 'components/core/save-cancel';
 import wrapModal from 'components/modal/wrapper';
 import Form from 'components/forms/form';
 import TextInput from 'components/forms/text-input';
+import ErrorAlerts from 'components/alerts/error-alerts';
 
 // types
 import type { NewAlbum } from '../../modules/images';
 
+// styles
+import s from './edit-image.css';
+
 type Props = {
   isVisible: boolean;
   isNew?: boolean;
-  loading: boolean;
+  inProgress: boolean;
   album: NewAlbum;
   onSave: (name: string) => void;
   onCancel: () => void;
+  error?: any;
 };
 
 type State = {
@@ -64,11 +69,17 @@ class EditAlbum extends Component {
 
   @autobind
   handleSave(event: Event) {
+    const { inProgress, onSave } = this.props;
+
     event.preventDefault();
-    this.props.onSave(this.state.name);
+
+    if (!inProgress && !this.saveDisabled) {
+      onSave(this.state.name);
+    }
   }
 
   render() {
+    const { error, inProgress } = this.props;
     const title = this.props.isNew ? 'Add New Album' : 'Edit Album';
 
     return (
@@ -84,13 +95,17 @@ class EditAlbum extends Component {
               value={this.state.name}
               onChange={this.handleUpdateName}
               ref={r => this.input = r}
+              autoComplete="off"
             />
           </FormField>
+          <ErrorAlerts error={error} />
           <SaveCancel
+            className={s.editAlbumFooter}
             onCancel={this.props.onCancel}
             onSave={this.handleSave}
-            saveDisabled={this.saveDisabled}
-            isLoading={this.props.loading}
+            saveDisabled={this.saveDisabled || inProgress}
+            cancelDisabled={inProgress}
+            isLoading={inProgress}
             saveText="Save and Apply"
           />
         </Form>

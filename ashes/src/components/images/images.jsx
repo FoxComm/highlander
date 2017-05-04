@@ -25,10 +25,11 @@ export type Props = {
   isLoading: boolean;
   addAlbumInProgress: boolean;
   editAlbumInProgress: boolean;
-  uploadImagesInProgress: boolean;
+  uploadMediaInProgress: boolean;
   isImageLoading: (idx: number) => boolean;
 
-  uploadImages: (context: string, albumId: number, files: Array<ImageFile>) => Promise<*>;
+  uploadMedia: (context: string, albumId: number, files: Array<ImageFile>) => Promise<*>;
+  uploadMediaByUrl: (context: string, albumId: number, url: string) => Promise<*>;
   editImage: (context: string, albumId: number, idx: number, info: ImageInfo) => Promise<*>;
   deleteImage: (context: string, albumId: number, idx: number) => Promise<*>;
   fetchAlbums: (context: string, entityId: number) => Promise<*>;
@@ -80,13 +81,14 @@ export default class Images extends Component {
     const album = { name: '', images: [] };
 
     return (
-      <EditAlbum className={styles.modal}
-                 isVisible={this.state.newAlbumMode}
-                 album={album}
-                 loading={this.props.addAlbumInProgress}
-                 onCancel={this.handleCancelEditAlbum}
-                 onSave={this.addNewAlbum}
-                 isNew={true}
+      <EditAlbum
+        className={styles.modal}
+        isVisible={this.state.newAlbumMode}
+        album={album}
+        inProgress={this.props.addAlbumInProgress}
+        onCancel={this.handleCancelEditAlbum}
+        onSave={this.addNewAlbum}
+        isNew={true}
       />
     );
   }
@@ -96,7 +98,7 @@ export default class Images extends Component {
       return <WaitAnimation />;
     }
 
-    const { albums, editAlbumInProgress, context, entityId } = this.props;
+    const { albums, editAlbumInProgress, uploadMediaInProgress, context, entityId } = this.props;
 
     return (
       <div className={styles.images}>
@@ -108,9 +110,9 @@ export default class Images extends Component {
           return (
             <Album
               album={album}
-              loading={editAlbumInProgress}
-              uploadFiles={(files: Array<ImageFile>) => this.props.uploadImages(context, album.id, files)}
-              uploadByUrl=
+              loading={editAlbumInProgress || uploadMediaInProgress}
+              uploadFiles={(files: Array<ImageFile>) => this.props.uploadMedia(context, album.id, files)}
+              uploadByUrl={(albumId, url) => this.props.uploadMediaByUrl(context, albumId, url)}
               editImage={(idx: number, form: ImageInfo) => this.props.editImage(context, album.id, idx, form)}
               deleteImage={(idx: number) => this.props.deleteImage(context, album.id, idx)}
               editAlbum={(album: TAlbum) => this.props.editAlbum(context, album.id, album)}

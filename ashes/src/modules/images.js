@@ -9,16 +9,16 @@ import Api from '../lib/api';
 type Module = {
   reducer: Function;
   actions: any;
-}
+};
 
 export type NewAlbum = {
   name: string;
   images: Array<ImageFile>;
-}
+};
 
 export type Album = NewAlbum & {
   id: number;
-}
+};
 
 export type FileInfo = {
   id?: number;
@@ -26,7 +26,7 @@ export type FileInfo = {
   file: File;
   loading: boolean;
   createdAt?: string;
-}
+};
 
 export type ImageInfo = {
   title: string;
@@ -35,7 +35,7 @@ export type ImageInfo = {
   createdAt?: string;
   alt: ?string;
   key?: string;
-}
+};
 
 export type ImageFile = FileInfo & ImageInfo;
 
@@ -58,7 +58,7 @@ function actionPath(entity: string, action: string) {
  *
  * @returns {{reducer: (), actions: {}}}
  */
-export default function createImagesModule(entity: string): Module {
+export default function createMediaModule(entity: string): Module {
 
   /** Internal actions */
 
@@ -66,8 +66,8 @@ export default function createImagesModule(entity: string): Module {
   // as images actions performed through album
   const _editImageStarted = createAction(`${entity.toUpperCase()}_EDIT_IMAGE_STARTED`, (...args) => [...args]);
 
-  const _uploadImages = createAsyncActions(
-    actionPath(entity, 'uploadImages'),
+  const _uploadMedia = createAsyncActions(
+    actionPath(entity, 'uploadMedia'),
     (context: string, albumId: string, files: Array<ImageFile>) => {
       const formData = new FormData();
 
@@ -93,6 +93,13 @@ export default function createImagesModule(entity: string): Module {
         });
     },
     (...args) => [...args]
+  );
+
+  const _uploadMediaByUrl = createAsyncActions(
+    actionPath(entity, 'uploadMediaByUrl'),
+    (context: string, albumId: string, url: string) => {
+      return Api.post(`/albums/default/${albumId}/images/byUrl`, { src: url });
+    }
   );
 
   const _fetchAlbums = createAsyncActions(
@@ -197,20 +204,11 @@ export default function createImagesModule(entity: string): Module {
    * @param {Number} albumId Album id
    * @param {ImageFile[]} files Array of image files to upload
    */
-  const uploadImages = (context: string, albumId: number, files: Array<ImageFile>) => dispatch => {
-    return dispatch(_uploadImages.perform(context, albumId, files));
+  const uploadMedia = (context: string, albumId: number, files: Array<ImageFile>) => dispatch => {
+    return dispatch(_uploadMedia.perform(context, albumId, files));
   };
 
-  /**
-   * Upload image by url
-   *
-   * @param {String} context System context
-   * @param {Number} albumId Album id
-   * @param {url} an url of image to be uploaded by backend
-   */
-  const uploadImagesByLink = (context: string, albumId: number, url: string>) => dispatch => {
-    return dispatch(_uploadImagesByLink.perform(context, albumId, url));
-  };
+  const uploadMediaByUrl = _uploadMediaByUrl.perform;
 
   /**
    * Edit image info
@@ -273,7 +271,7 @@ export default function createImagesModule(entity: string): Module {
     [_archiveAlbum.succeeded]: (state: State) => {
       return assoc(state, ['albums'], state.albums);
     },
-    [_uploadImages.started]: (state: State, [context, albumId, images]) => {
+    [_uploadMedia.started]: (state: State, [context, albumId, images]) => {
       const idx = _.findIndex(state.albums, (album: Album) => album.id === albumId);
       const album = get(state, ['albums', idx]);
 
@@ -281,13 +279,16 @@ export default function createImagesModule(entity: string): Module {
 
       return assoc(state, ['albums', idx, 'images'], [...album.images, ...images]);
     },
-    [_uploadImages.succeeded]: (state: State, [response]) => {
+    [_uploadMedia.succeeded]: (state: State, [response]) => {
       const idx = _.findIndex(state.albums, (album: Album) => album.id === response.id);
+
       return assoc(state, ['albums', idx], response);
     },
 
-    [_uploadImagesByLink.succeeded]: (state: State, [response]) => {
-      console.log('state, response', state, response);
+    [_uploadMediaByUrl.succeeded]: (state: State, respAlbum: Album) => {
+      const idx = _.findIndex(state.albums, (album: Album) => album.id === respAlbum.id);
+
+      return assoc(state, ['albums', idx], respAlbum);
     },
 
     [_editImageStarted]: (state, [albumId, imageIndex]) => {
@@ -300,8 +301,8 @@ export default function createImagesModule(entity: string): Module {
   return {
     reducer,
     actions: {
-      uploadImages,
-      uploadImagesByLink,
+      uploadMedia,
+      uploadMediaByUrl,
       editImage,
       deleteImage,
       fetchAlbums,
