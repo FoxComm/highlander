@@ -148,3 +148,19 @@ create trigger update_products_cat_view_taxonomies_from_search
 after update on products_search_view
 for each row
 execute procedure refresh_products_cat_taxonomies_from_search_view_fn();
+
+create or replace function update_products_cat_from_product_sku_links_delete_fn() returns trigger as $$
+begin
+  if not exists (select 1 from product_sku_links where left_id = old.left_id) then
+     -- if this was the last such left_id
+     delete from products_catalog_view where id = old.left_id;
+  end if;
+  return null;
+end;
+$$ language plpgsql;
+
+drop trigger if exists update_products_cat_from_product_sku_links_delete_trigger on product_sku_links;
+create trigger update_products_cat_from_product_sku_links_delete_trigger
+  after delete on product_sku_links
+  for each row
+  execute procedure update_products_cat_from_product_sku_links_delete_fn();

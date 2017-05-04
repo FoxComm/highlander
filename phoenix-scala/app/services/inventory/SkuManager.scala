@@ -80,28 +80,12 @@ object SkuManager {
       productLinksQ = ProductSkuLinks.filter(_.rightId === archivedSku.id)
       productIds ← * <~ productLinksQ.map(_.leftId).result
       _          ← * <~ productLinksQ.delete
-      _          ← * <~ archiveProductsWithNoSkus(productIds.toSet)
     } yield
       SkuResponse.build(
           IlluminatedSku.illuminate(
               oc,
               FullObject(model = archivedSku, form = fullSku.form, shadow = fullSku.shadow)),
           albums)
-
-  private def archiveProductsWithNoSkus(
-      productIds: Set[Int])(implicit ec: EC, db: DB, oc: OC): DbResultT[Unit] =
-    for {
-      products ← * <~ Products.findAllByIds(productIds).result
-      withNoLinks ← * <~ products.toList.filterA(
-                       p ⇒
-                         ProductSkuLinks
-                           .filter(_.leftId === p.id)
-                           .size
-                           .result
-                           .map(_ == 0)
-                           .dbresult)
-      _ ← * <~ withNoLinks.map(p ⇒ ProductManager.archiveByContextAndId(ProductId(p.formId)))
-    } yield ()
 
   def createSkuInner(
       context: ObjectContext,
