@@ -60,7 +60,7 @@ prod p:
 flow:
 	./node_modules/.bin/flow check
 
-build-styleguide sg:
+build-styleguide:
 	yarn run styleguide:build
 
 build-dev: setup flow

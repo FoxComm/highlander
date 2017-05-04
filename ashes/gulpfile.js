@@ -13,15 +13,29 @@ process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib')}`;
 
 const opts = new Config().gulp;
 
-for (let task of fs.readdirSync(opts.taskDir)) {
+const skipFiles = ['helpers'];
+
+const tasks = fs.readdirSync(opts.taskDir)
+  .filter(file => skipFiles.some(skip => file.indexOf(skip) === -1));
+
+for (let task of tasks) {
   let file = path.join(opts.taskDir, task);
   require(file)(gulp, opts, $);
 }
 
 gulp.task('clean', () => del(['build/**/*', 'lib/**/*']));
 
-gulp.task('build', function(cb) {
-  let tasks = ['imagemin', 'less', 'sprites', 'precompile', 'browserify', 'css'];
+gulp.task('build', function (cb) {
+  let tasks = _.compact([
+    process.env.NODE_ENV === 'production' ? 'clean' : null,
+    'imagemin',
+    'less',
+    'sprites',
+    'precompile',
+    'browserify',
+    'css',
+    process.env.ASHES_BUILD_STYLEGUIDE ? 'styleguide-build' : null,
+  ]);
 
   if (process.env.NODE_ENV === 'production') {
     tasks = ['clean', ...tasks];
@@ -29,7 +43,7 @@ gulp.task('build', function(cb) {
   runSequence(...tasks, cb);
 });
 
-gulp.task('dev', function(cb) {
+gulp.task('dev', function (cb) {
   opts.devMode = true;
 
   let tasks = _.compact([
