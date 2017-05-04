@@ -57,17 +57,17 @@ object AlbumImagesFacade extends ImageFacade {
     uploadImages[ImagePayload](albumId, contextName, payload)
   }
 
-  def uploadImagesFromMultipart(albumId: Int, contextName: String, request: HttpRequest)(
+  def uploadImagesFromMultipart(albumId: Int, contextName: String, formData: Multipart.FormData)(
       implicit ec: EC,
       db: DB,
       au: AU,
       am: Mat,
       apis: Apis): Result[AlbumRoot] = {
     implicit val imageUploader = MultipartUploader
-    uploadImages[HttpRequest](albumId, contextName, request)
+    uploadImages[Multipart.FormData](albumId, contextName, formData)
   }
 
-  object MultipartUploader extends ImageUploader[HttpRequest] {
+  object MultipartUploader extends ImageUploader[Multipart.FormData] {
 
     def uploadImage(part: Multipart.FormData.BodyPart, album: Album)(implicit ec: EC,
                                                                      db: DB,
@@ -91,32 +91,30 @@ object AlbumImagesFacade extends ImageFacade {
 
     def uploadImages(
         album: Album,
-        request: HttpRequest,
+        formData: Multipart.FormData,
         context: OC)(implicit ec: EC, db: DB, au: AU, am: Mat, apis: Apis): Result[AlbumRoot] = {
       val failures                              = ImageNotFoundInPayload.single
       val error: Future[Either[Failures, Unit]] = Future.successful(Either.left(failures))
       implicit val oc                           = context
 
-      // FIXME: this needs a rewrite badly. No .runTxn, runDBIO or .runEmptyA, or .value should be here. @michalrus
-      // FIXME: Naive approach at composition fails with Akka’s SubscriptionTimeoutException.
-      // FIXME: Investigate Akka’s `runFold` maybe?
-
-      val xs = Unmarshal(request.entity).to[Multipart.FormData].flatMap { formData ⇒
-        formData.parts
-          .filter(_.name == "upload-file")
-          .runFold(error) { (previousUpload, part) ⇒
-            previousUpload.flatMap {
-              case Left(err) if err != failures ⇒ Future.successful(Either.left(err))
-              case _                            ⇒ uploadImage(part, album).runTxn().runEmptyA.value
-            }
-          }
-          .flatMap { r ⇒
-            (for {
-              _     ← * <~ r
-              album ← * <~ getAlbumInner(album.formId, oc)
-            } yield album).runDBIO().runEmptyA.value
-          }
+      formData.parts.mapAsync(1) { p ⇒
+        p.filename
       }
+
+      val xs = formData.parts
+        .filter(_.name == "upload-file")
+        .runFold(error) { (previousUpload, part) ⇒
+          previousUpload.flatMap {
+            case Left(err) if err != failures ⇒ Future.successful(Either.left(err))
+            case _                            ⇒ uploadImage(part, album).runTxn().runEmptyA.value
+          }
+        }
+        .flatMap { r ⇒
+          (for {
+            _     ← * <~ r
+            album ← * <~ getAlbumInner(album.formId, oc)
+          } yield album).runDBIO().runEmptyA.value
+        }
 
       Result.fromFEither(xs)
     }

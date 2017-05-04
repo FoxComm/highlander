@@ -1,10 +1,13 @@
 package routes.admin
 
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+
 import utils.http.JsonSupport._
 import facades.AlbumImagesFacade
 import facades.ImageFacade
+import failures.ImageFailures.ImageNotFoundInPayload
 import models.account.User
 import payloads.ImagePayloads._
 import services.image.ImageManager
@@ -41,16 +44,19 @@ object ImageRoutes {
               }
             } ~
             pathPrefix("images") {
-              (post & pathEnd) {
-                extractRequest { req ⇒
+              extractRequestContext { ctx ⇒
+                implicit val materializer = ctx.materializer
+                implicit val ec           = ctx.executionContext
+                (post & pathEnd & entityOr(as[Multipart.FormData], ImageNotFoundInPayload)) {
+                  formData ⇒
+                    goodOrFailures {
+                      AlbumImagesFacade.uploadImagesFromMultipart(albumId, context, formData)
+                    }
+                } ~
+                (path("byUrl") & post & entity(as[ImagePayload])) { payload ⇒
                   goodOrFailures {
-                    AlbumImagesFacade.uploadImagesFromMultipart(albumId, context, req)
+                    AlbumImagesFacade.uploadImagesFromPayload(albumId, context, payload)
                   }
-                }
-              } ~
-              (path("byUrl") & post & entity(as[ImagePayload])) { payload ⇒
-                goodOrFailures {
-                  AlbumImagesFacade.uploadImagesFromPayload(albumId, context, payload)
                 }
               }
             }
