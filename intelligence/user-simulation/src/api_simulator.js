@@ -92,8 +92,8 @@ async function category(c) {
               }
             }]
           }
-        } 
-      }, "random_score": {}
+        }, "random_score": {}
+      } 
     }
   };
 
