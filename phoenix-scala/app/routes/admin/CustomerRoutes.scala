@@ -39,6 +39,13 @@ object CustomerRoutes {
               val context = AccountCreateContext(List(roleName), orgName, scopeId)
               CustomerManager.createFromAdmin(payload, Some(auth.model), context)
             }
+          } ~
+          pathPrefix(Segment) { customerEmail ⇒
+            (get & pathEnd) {
+              getOrFailures {
+                CustomerManager.getByEmail(customerEmail)
+              }
+            }
           }
         } ~
         pathPrefix("customers" / IntNumber) { accountId ⇒

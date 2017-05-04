@@ -81,6 +81,37 @@ object CustomerManager {
             groups = groups.map(CustomerGroupResponse.build))
   }
 
+  def getByEmail(email: String)(implicit ec: EC, db: DB): DbResultT[Root] = {
+    for {
+      customer ← * <~ Users.mustfindOneByEmail(email)
+      customerDatas ← * <~ CustomersData
+                       .filter(_.accountId === customer.accountId)
+                       .withRegionsAndRank
+                       .mustFindOneOr(NotFoundFailure404(CustomerData, customer.accountId))
+      (customerData, shipRegion, billRegion, rank) = customerDatas
+      maxOrdersDate ← * <~ Orders
+                       .filter(_.accountId === customer.accountId)
+                       .map(_.placedAt)
+                       .max
+                       .result
+      totals ← * <~ StoreCreditService.fetchTotalsForCustomer(customer.accountId)
+      phoneOverride ← * <~ doOrGood(customer.phoneNumber.isEmpty,
+                                    resolvePhoneNumber(customer.accountId),
+                                    None)
+      groupMembership ← * <~ CustomerGroupMembers.findByCustomerDataId(customerData.id).result
+      groupIds = groupMembership.map(_.groupId).toSet
+      groups ← * <~ CustomerGroups.findAllByIds(groupIds).result
+    } yield
+      build(customer.copy(phoneNumber = customer.phoneNumber.orElse(phoneOverride)),
+            customerData,
+            shipRegion,
+            billRegion,
+            rank = rank,
+            scTotals = totals,
+            lastOrderDays = maxOrdersDate.map(DAYS.between(_, Instant.now)),
+            groups = groups.map(CustomerGroupResponse.build))
+  }
+
   def create(payload: CreateCustomerPayload,
              admin: Option[User] = None,
              context: AccountCreateContext)(implicit ec: EC,

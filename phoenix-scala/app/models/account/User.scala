@@ -129,6 +129,10 @@ object Users extends FoxTableQuery[User, Users](new Users(_)) with ReturningId[U
   def activeUserByEmail(email: Option[String]): QuerySeq =
     filter(c ⇒ c.email === email && !c.isBlacklisted && !c.isDisabled)
 
+  def mustfindOneByEmail(email: String)(implicit ec: EC): DbResultT[User] = {
+    findByEmail(email).mustFindOneOr(UserWithEmailNotFound(email))
+  }
+
   def otherUserByEmail(email: String, accountId: Int): QuerySeq = {
     filter(c ⇒ c.email === email && c.accountId =!= accountId && !c.isBlacklisted && !c.isDisabled)
   }

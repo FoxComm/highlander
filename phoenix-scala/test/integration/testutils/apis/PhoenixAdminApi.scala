@@ -57,8 +57,13 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   object customersApi {
     val customersPrefix = s"$rootPrefix/customers"
 
-    def create(payload: CreateCustomerPayload)(implicit aa: TestAdminAuth): HttpResponse =
+    def create(payload: CreateCustomerPayload)(implicit aa: TestAdminAuth): HttpResponse = {
       POST(customersPrefix, payload, aa.jwtCookie.some)
+    }
+
+    def get(customerEmail: Option[String])(implicit aa: TestAdminAuth): HttpResponse = {
+      GET(s"$customersPrefix/$customerEmail", aa.jwtCookie.some)
+    }
   }
 
   case class customersApi(id: Int) {

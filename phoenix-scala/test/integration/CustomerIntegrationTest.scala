@@ -81,7 +81,16 @@ class CustomerIntegrationTest
 
   }
 
+  "GET /v1/customers/:email" - {
+    "fetches customer info by email" in new Fixture {
+      val customerRoot =
+        CustomerResponse.build(customer, customerData, shippingRegion = region.some)
+      customersApi.get(customer.email).as[Root] must === (customerRoot)
+    }
+  }
+
   "GET /v1/customers/:accountId" - {
+
     "fetches customer info" in new Fixture {
       val customerRoot =
         CustomerResponse.build(customer, customerData, shippingRegion = region.some)
