@@ -68,13 +68,13 @@ build-dev: setup flow
 
 build:
 	$(call header, Building)
-ifeq ($(ASHES_BUILD_STYLEGUIDE), true)
-	make build-styleguide
-endif
 	make rev
 	make setup
 	make flow
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production BEHIND_NGINX=true ./node_modules/.bin/gulp build
+ifeq ($(ASHES_BUILD_STYLEGUIDE), true)
+	make build-styleguide
+endif
 
 docker:
 	$(call header, Dockerizing)
