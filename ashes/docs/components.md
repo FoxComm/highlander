@@ -60,7 +60,7 @@ The order of import block should be the following: libs, redux, components, type
 Imported modules from `node_modules` should preceed local modules.
 
 ```js
-/* @flow *.
+/* @flow */
 
 // libs
 import classNames from 'classnames';
@@ -114,7 +114,7 @@ You can start styleguidist server with `yarn run styleguid`. It will start on `l
 Core componentes can be imported as `components/core/component-name`.
 
 ```js
-import Button from 'components/core/button`
+import Button from 'components/core/button'
 
 ```
 
