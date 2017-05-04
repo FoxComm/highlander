@@ -54,10 +54,10 @@ object CustomerManager {
     } yield shipment
   }
 
-  private def getCustomerInfo(user: DbResultT[models.account.User])(implicit ec: EC,
-                                                                    db: DB): DbResultT[Root] = {
+  private def getCustomerInfo(userDbT: DbResultT[models.account.User])(implicit ec: EC,
+                                                                       db: DB): DbResultT[Root] = {
     for {
-      customer ← * <~ user
+      customer ← * <~ userDbT
       customerDatas ← * <~ CustomersData
                        .filter(_.accountId === customer.accountId)
                        .withRegionsAndRank
@@ -87,13 +87,13 @@ object CustomerManager {
   }
 
   def getByAccountId(accountId: Int)(implicit ec: EC, db: DB): DbResultT[Root] = {
-    val userByAccountId = Users.mustFindByAccountId(accountId)
-    getCustomerInfo(userByAccountId)
+    val userDbByAccountId = Users.mustFindByAccountId(accountId)
+    getCustomerInfo(userDbByAccountId)
   }
 
   def getByEmail(email: String)(implicit ec: EC, db: DB): DbResultT[Root] = {
-    val userByEmail = Users.mustfindOneByEmail(email)
-    getCustomerInfo(userByEmail)
+    val userDbByEmail = Users.mustfindOneByEmail(email)
+    getCustomerInfo(userDbByEmail)
   }
 
   def create(payload: CreateCustomerPayload,
