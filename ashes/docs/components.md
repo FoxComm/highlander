@@ -1,3 +1,2 @@
 ### Developing new components
 
-#### Styleguidist
