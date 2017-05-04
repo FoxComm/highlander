@@ -249,32 +249,10 @@ defmodule Hyperion.Amazon do
   end
 
 
-  @doc """
-  Gets the albums and images for amazon enabled skus,
-  adds the SKU for matching
-  renders main, pt and swatch images
-  """
-  # defp process_images(response) do
-  #   r = response.body
-  #   amazon_skus = Enum.filter(r["skus"], fn (sku) ->
-  #                   sku["attributes"]["amazon"]["v"] == true
-  #                 end)
 
-  #   case amazon_skus do
-  #     [] -> raise "No images for product #{r["id"]}"
-  #     _ -> amazon_skus
-  #   end
-  #   |> Enum.flat_map(fn(sku)->
-  #     images = Enum.flat_map(sku["albums"], fn(album) ->
-  #       Enum.map(album["images"], fn(image) ->
-  #         [code: sku["attributes"]["code"]["v"], src: image["src"], type: album["name"]]
-  #       end)
-  #     end)
-  #   end)
-  #   |> Enum.with_index(1)
-
-  # end
-
+  # Gets the albums and images for amazon enabled skus,
+  # adds the SKU for matching
+  # renders main, pt and swatch images
   defp process_images(response) do
     r = response.body
     amazon_skus = Enum.filter(r["skus"], fn (sku) ->
@@ -304,19 +282,16 @@ defmodule Hyperion.Amazon do
   # {[type: "PT",
   #   location: "http:", id: 1],
   #   2}],
-  defp render_main_section({_, [h|t]}, sku, idx) when t == [] do
+  defp render_main_section({_, [h|t]}, sku, _idx) when t == [] do
     IO.puts("t is []")
-    # [{[sku: sku, type: "Main", location: String.replace(h["src"], "https", "http")], idx}]
     [{sku, "Main", String.replace(h["src"], "https", "http")}]
   end
 
-  defp render_main_section({_, [h|t]}, sku, idx) do
-    # main = [sku: sku, type: "Main", location: String.replace(h["src"], "https", "http")]
+  defp render_main_section({_, [h|t]}, sku, _idx) do
     main = {sku, "Main", String.replace(h["src"], "https", "http")}
 
     pt = Enum.with_index(t, 1)
          |> Enum.map(fn({img, idx}) ->
-              # [sku: sku, type: "PT", location: String.replace(img["src"], "https", "http"), id: idx]
               {sku, "PT", String.replace(img["src"], "https", "http"), idx}
             end)
     [main, pt]
@@ -329,8 +304,7 @@ defmodule Hyperion.Amazon do
   # [[type: Swatch, lication: http://, id: id]]
   def render_swatch_section(list, sku, initial) do
     Enum.with_index(list, initial + 1)
-    |> Enum.map(fn {image, idx} ->
-      # [sku: sku, type: "Swatch", location: String.replace(image["src"], "https", "http")]
+    |> Enum.map(fn {image, _idx} ->
       {sku, "Swatch", String.replace(image["src"], "https", "http")}
     end)
   end

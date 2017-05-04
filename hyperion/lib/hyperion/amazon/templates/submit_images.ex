@@ -20,7 +20,7 @@ defmodule Hyperion.Amazon.Templates.SubmitImages do
     """
   end
 
-  def render_any_image({n, idx}) when n == nil, do: ""
+  def render_any_image({n, _idx}) when n == nil, do: ""
 
   def render_any_image({{sku, type, src}, message_id}) do
     """
