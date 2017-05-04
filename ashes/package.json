@@ -21,8 +21,7 @@
     "lint": "gulp lint",
     "precompile": "babel src -d lib",
     "watch-precompile": "babel src -d lib -w --skip-initial-build",
-    "styleguide": "styleguidist server --config styleguide/config.styleguide.js",
-    "styleguide:build": "styleguidist build --config styleguide/config.styleguide.js"
+    "styleguide": "styleguidist server --config styleguide/config.styleguide.js"
   },
   "repository": {
     "type": "git",
