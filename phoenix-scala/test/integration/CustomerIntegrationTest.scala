@@ -81,11 +81,11 @@ class CustomerIntegrationTest
 
   }
 
-  "GET /v1/customers/:email" - {
+  "GET /v1/customers/email/:email" - {
     "fetches customer info by email" in new Fixture {
       val customerRoot =
         CustomerResponse.build(customer, customerData, shippingRegion = region.some)
-      customersApi.get(customer.email).as[Root] must === (customerRoot)
+      customersApi.get_by_email(customer.email.value).as[Root] must === (customerRoot)
     }
   }
 

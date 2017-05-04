@@ -61,8 +61,8 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       POST(customersPrefix, payload, aa.jwtCookie.some)
     }
 
-    def get(customerEmail: Option[String])(implicit aa: TestAdminAuth): HttpResponse = {
-      GET(s"$customersPrefix/$customerEmail", aa.jwtCookie.some)
+    def get_by_email(customerEmail: String)(implicit aa: TestAdminAuth): HttpResponse = {
+      GET(s"$customersPrefix/email/$customerEmail", aa.jwtCookie.some)
     }
   }
 

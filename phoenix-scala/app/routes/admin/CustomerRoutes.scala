@@ -40,7 +40,7 @@ object CustomerRoutes {
               CustomerManager.createFromAdmin(payload, Some(auth.model), context)
             }
           } ~
-          pathPrefix(Segment) { customerEmail ⇒
+          pathPrefix("email" / Segment) { customerEmail ⇒
             (get & pathEnd) {
               getOrFailures {
                 CustomerManager.getByEmail(customerEmail)

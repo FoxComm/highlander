@@ -54,36 +54,10 @@ object CustomerManager {
     } yield shipment
   }
 
-  def getByAccountId(accountId: Int)(implicit ec: EC, db: DB): DbResultT[Root] = {
+  private def getCustomerInfo(user: DbResultT[models.account.User])(implicit ec: EC,
+                                                                    db: DB): DbResultT[Root] = {
     for {
-      customer ← * <~ Users.mustFindByAccountId(accountId)
-      customerDatas ← * <~ CustomersData
-                       .filter(_.accountId === accountId)
-                       .withRegionsAndRank
-                       .mustFindOneOr(NotFoundFailure404(CustomerData, accountId))
-      (customerData, shipRegion, billRegion, rank) = customerDatas
-      maxOrdersDate ← * <~ Orders.filter(_.accountId === accountId).map(_.placedAt).max.result
-      totals        ← * <~ StoreCreditService.fetchTotalsForCustomer(accountId)
-      phoneOverride ← * <~ doOrGood(customer.phoneNumber.isEmpty,
-                                    resolvePhoneNumber(accountId),
-                                    None)
-      groupMembership ← * <~ CustomerGroupMembers.findByCustomerDataId(customerData.id).result
-      groupIds = groupMembership.map(_.groupId).toSet
-      groups ← * <~ CustomerGroups.findAllByIds(groupIds).result
-    } yield
-      build(customer.copy(phoneNumber = customer.phoneNumber.orElse(phoneOverride)),
-            customerData,
-            shipRegion,
-            billRegion,
-            rank = rank,
-            scTotals = totals,
-            lastOrderDays = maxOrdersDate.map(DAYS.between(_, Instant.now)),
-            groups = groups.map(CustomerGroupResponse.build))
-  }
-
-  def getByEmail(email: String)(implicit ec: EC, db: DB): DbResultT[Root] = {
-    for {
-      customer ← * <~ Users.mustfindOneByEmail(email)
+      customer ← * <~ user
       customerDatas ← * <~ CustomersData
                        .filter(_.accountId === customer.accountId)
                        .withRegionsAndRank
@@ -110,6 +84,16 @@ object CustomerManager {
             scTotals = totals,
             lastOrderDays = maxOrdersDate.map(DAYS.between(_, Instant.now)),
             groups = groups.map(CustomerGroupResponse.build))
+  }
+
+  def getByAccountId(accountId: Int)(implicit ec: EC, db: DB): DbResultT[Root] = {
+    val userByAccountId = Users.mustFindByAccountId(accountId)
+    getCustomerInfo(userByAccountId)
+  }
+
+  def getByEmail(email: String)(implicit ec: EC, db: DB): DbResultT[Root] = {
+    val userByEmail = Users.mustfindOneByEmail(email)
+    getCustomerInfo(userByEmail)
   }
 
   def create(payload: CreateCustomerPayload,
