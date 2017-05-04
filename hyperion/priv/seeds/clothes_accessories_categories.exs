@@ -20,3 +20,5 @@ end
 Enum.map(data, fn row -> parse_and_store.(row) end)
 
 from(c in Category, where: c.department == "NULL" and not is_nil(c.item_type)) |> Hyperion.Repo.update_all(set: [department: nil])
+
+from(c in Category, where: like(c.node_path, "%Clothing%")) |> Hyperion.Repo.update_all(set: [category_name: "clothing"])

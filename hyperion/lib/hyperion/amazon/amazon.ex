@@ -249,25 +249,31 @@ defmodule Hyperion.Amazon do
   end
 
 
-  # gets the albums and images for skus,
+
+  # Gets the albums and images for amazon enabled skus,
   # adds the SKU for matching
   # renders main, pt and swatch images
   defp process_images(response) do
     r = response.body
-    albums = Enum.map(r["skus"], fn(sku)->
-      Enum.map(sku["albums"], fn(album) ->
+    amazon_skus = Enum.filter(r["skus"], fn (sku) ->
+                    sku["attributes"]["amazon"]["v"] == true
+                  end)
+
+    case amazon_skus do
+      [] -> raise "No images for product #{r["id"]}"
+      _ -> amazon_skus
+    end
+    |> Enum.map(fn(sku)->
+      images = Enum.map(sku["albums"], fn(album) ->
         {String.to_atom(album["name"]), album["images"]}
       end)
-    end) |> Enum.reject(fn(list) -> list == [] end)
-
-    case albums do
-      [] -> raise "No images for product #{r["id"]}"
-      _ -> Enum.map(r["skus"], fn(x)-> [albums: hd(albums), code: x["attributes"]["code"]["v"]] end)
-    end
-    |> Enum.flat_map(fn(product) ->
-        main = render_main_section(hd(product[:albums]), product[:code])
-        [main, render_swatch_section(product[:albums][:swatches], product[:code], Enum.count(main))]
-       end) |> Enum.reject(fn el -> el == nil end)
+      [albums: images, code: sku["attributes"]["code"]["v"]]
+    end)
+    |> Enum.map(fn(sku) ->
+        main = render_main_section(hd(sku[:albums]), sku[:code], 1)
+        [main, render_swatch_section(sku[:albums][:swatches], sku[:code], Enum.count(main))]
+       end)
+    |> List.flatten |> Enum.reject(fn el -> el == nil end) |> Enum.with_index(1)
   end
 
   # renders main images section as:
@@ -276,19 +282,20 @@ defmodule Hyperion.Amazon do
   # {[type: "PT",
   #   location: "http:", id: 1],
   #   2}],
-  defp render_main_section({_, [h|[]]}, sku) do
-    [{[sku: sku, type: "Main", location: String.replace(h["src"], "https", "http")], 1}]
+  defp render_main_section({_, [h|t]}, sku, _idx) when t == [] do
+    IO.puts("t is []")
+    [{sku, "Main", String.replace(h["src"], "https", "http")}]
   end
 
-  defp render_main_section({_, [h|t]}, sku) do
-    main = [sku: sku, type: "Main", location: String.replace(h["src"], "https", "http")]
+  defp render_main_section({_, [h|t]}, sku, _idx) do
+    main = {sku, "Main", String.replace(h["src"], "https", "http")}
 
     pt = Enum.with_index(t, 1)
-         |> Enum.flat_map(fn({img, idx}) ->
-              [sku: sku, type: "PT", location: String.replace(img["src"], "https", "http"), id: idx]
+         |> Enum.map(fn({img, idx}) ->
+              {sku, "PT", String.replace(img["src"], "https", "http"), idx}
             end)
     [main, pt]
-    |> Enum.with_index(1)
+    # |> Enum.with_index(idx)
   end
 
   def render_swatch_section(nil, _, _), do: nil
@@ -297,8 +304,8 @@ defmodule Hyperion.Amazon do
   # [[type: Swatch, lication: http://, id: id]]
   def render_swatch_section(list, sku, initial) do
     Enum.with_index(list, initial + 1)
-    |> Enum.map(fn {image, idx} ->
-      [sku: sku, type: "Swatch", location: String.replace(image["src"], "https", "http"), idx: idx]
+    |> Enum.map(fn {image, _idx} ->
+      {sku, "Swatch", String.replace(image["src"], "https", "http")}
     end)
   end
 
@@ -357,7 +364,7 @@ defmodule Hyperion.Amazon do
   # assign variants options to associated sku
   defp process_variants(variants) do
     func = fn var ->
-      {String.to_atom(var["attributes"]["name"]["v"]), atomize_keys(var["values"])}
+      {format_string(var["attributes"]["name"]["v"]), atomize_keys(var["values"])}
     end
 
     props = Enum.map(variants, func)
