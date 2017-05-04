@@ -81,7 +81,20 @@ class CustomerIntegrationTest
 
   }
 
+  "GET /v1/customers/email/:email" - {
+    "fetches customer info by email" in new Customer_Seed {
+      customersApi.getByEmail(customer.email.value).as[Root].id must === (customer.id)
+    }
+
+    "fails if customer not found" in {
+      customersApi
+        .getByEmail("foo@bar.baz")
+        .mustFailWith404(NotFoundFailure404(User, "foo@bar.baz"))
+    }
+  }
+
   "GET /v1/customers/:accountId" - {
+
     "fetches customer info" in new Fixture {
       val customerRoot =
         CustomerResponse.build(customer, customerData, shippingRegion = region.some)

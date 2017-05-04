@@ -114,9 +114,8 @@ object Users extends FoxTableQuery[User, Users](new Users(_)) with ReturningId[U
 
   val returningLens: Lens[User, Int] = lens[User].id
 
-  def findByEmail(email: String): QuerySeq = {
+  def findByEmail(email: String): QuerySeq =
     filter(_.email === email)
-  }
 
   def findNonGuestByEmail(email: String): QuerySeq = {
     findByEmail(email)
@@ -129,9 +128,11 @@ object Users extends FoxTableQuery[User, Users](new Users(_)) with ReturningId[U
   def activeUserByEmail(email: Option[String]): QuerySeq =
     filter(c ⇒ c.email === email && !c.isBlacklisted && !c.isDisabled)
 
-  def otherUserByEmail(email: String, accountId: Int): QuerySeq = {
+  def mustfindOneByEmail(email: String)(implicit ec: EC): DbResultT[User] =
+    findByEmail(email).mustFindOneOr(NotFoundFailure404(User, email))
+
+  def otherUserByEmail(email: String, accountId: Int): QuerySeq =
     filter(c ⇒ c.email === email && c.accountId =!= accountId && !c.isBlacklisted && !c.isDisabled)
-  }
 
   def findOneByAccountId(accountId: Int): DBIO[Option[User]] =
     filter(_.accountId === accountId).result.headOption
