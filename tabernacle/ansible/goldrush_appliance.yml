@@ -40,8 +40,5 @@
         storefront_server_name: "{{dns_record}}.{{foxcomm_domain}}"
         api_server: "{{dns_record}}.{{foxcomm_domain}}"
   roles:
-    - { role: dev/seed_system }
     - { role: ext/td/storefront }
     - { role: ext/tpg/storefront }
-    # Seed
-    - { role: dev/seeder, when: with_appliance_seeding }

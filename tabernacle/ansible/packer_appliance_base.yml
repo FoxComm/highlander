@@ -1,7 +1,7 @@
 ---
 
 - name: Packer Appliance Base Image
-  hosts: all
+  hosts: marat-clean
   become: true
   vars:
     user: ubuntu
@@ -13,52 +13,65 @@
     consul_expect: 1
     mesos_quorum: 1
     mesos_ip: "$(hostname -i)"
+  pre_tasks:
+    - name: Set IP/DNS Facts
+      set_fact:
+        private_ip: "{{ansible_default_ipv4.address}}"
+        dns_record: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}"
+    - name: Override hostnames
+      set_fact:
+        appliance_hostname: "{{dns_record}}.{{foxcomm_domain}}"
+        ashes_server_name: "{{dns_record}}.{{foxcomm_domain}}"
+        storefront_server_name: "{{dns_record}}.{{foxcomm_domain}}"
+        api_server: "{{dns_record}}.{{foxcomm_domain}}"
+
   roles:
-    # Common Packages
-    - { role: base/common }
-    - { role: base/languages }
-    - { role: base/devkit }
-    # Private Keys
-    - { role: base/ssh_keys }
-    - { role: base/secret_keys }
-    # Logging
-    - { role: base/rsyslog }
-    # Consul
-    - { role: base/consul }
-    - { role: base/consul_agent }
-    # Zookeeper
-    - { role: base/zookeeper }
-    # Confluent Platform
-    - { role: base/confluent_platform }
-    # Mesosphere
-    - { role: base/mesos }
-    - { role: base/mesos_master }
-    - { role: base/mesos_worker }
-    # PostgreSQL
-    - { role: base/flyway }
-    - { role: base/db }
-    - { role: base/bottledwater }
-    - { role: base/pgweb }
-    # Elasticsearch
-    - { role: base/elasticsearch }
-    - { role: base/elasticsearch-5 }
-    - { role: base/kibana }
-    # Nginx
-    - { role: base/balancer }
-    # Moved from goldrush_appliance
-    # Core
-    - { role: dev/appliance }
-    - { role: base/dashboard }
-    # Services
-    - { role: dev/consul_agent }
-    - { role: dev/zookeeper }
-    - { role: dev/elasticsearch }
-    - { role: hotfix/elasticsearch }
-    - { role: hotfix/rsyslog }
-    - { role: hotfix/kibana }
-    - { role: dev/db }
-    - { role: dev/db_ic, when: with_ic }
+    # # Common Packages
+    # - { role: base/common }
+    # - { role: base/languages }
+    # - { role: base/devkit }
+    # # Private Keys
+    # - { role: base/ssh_keys }
+    # - { role: base/secret_keys }
+    # # Logging
+    # - { role: base/rsyslog }
+    # # Consul
+    # - { role: base/consul }
+    # - { role: base/consul_agent }
+    # # Zookeeper
+    # - { role: base/zookeeper }
+    # # Confluent Platform
+    # - { role: base/confluent_platform }
+    # # Mesosphere
+    # - { role: base/mesos }
+    # - { role: base/mesos_master }
+    # - { role: base/mesos_worker }
+    # # PostgreSQL
+    # - { role: base/flyway }
+    # - { role: base/db }
+    # - { role: base/bottledwater }
+    # - { role: base/pgweb }
+    # # Elasticsearch
+    # - { role: base/elasticsearch }
+    # - { role: base/elasticsearch-5 }
+    # - { role: base/kibana }
+    # # Nginx
+    # - { role: base/balancer }
+    # # Moved from goldrush_appliance
+    # # Core
+    # - { role: dev/appliance }
+    # - { role: base/dashboard }
+    # # Services
+    # - { role: dev/consul_agent }
+    # - { role: dev/zookeeper }
+    # - { role: dev/elasticsearch }
+    # - { role: hotfix/elasticsearch }
+    # - { role: hotfix/rsyslog }
+    # - { role: hotfix/kibana }
+    # - { role: dev/db }
+    # - { role: dev/db_ic, when: with_ic }
     # Marathon
+    # - { role: dev/seed_system }
     - { role: dev/marathon }
     - { role: base/marathon_consul }
     - { role: dev/marathon_consumers }
@@ -66,6 +79,8 @@
     # Nginx
     - { role: dev/balancer }
     - { role: demo/balancer }
+    # Seed
+    - { role: dev/seeder, when: with_appliance_seeding }
     # Finale
     - { role: dev/healthcheck }
     - { role: dev/appliance_dns }
