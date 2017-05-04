@@ -83,12 +83,12 @@ class CustomerIntegrationTest
 
   "GET /v1/customers/email/:email" - {
     "fetches customer info by email" in new Customer_Seed {
-      customersApi.get_by_email(customer.email.value).as[Root].id must === (customer.id)
+      customersApi.getByEmail(customer.email.value).as[Root].id must === (customer.id)
     }
 
     "fails if customer not found" in {
       customersApi
-        .get_by_email("foo@bar.baz")
+        .getByEmail("foo@bar.baz")
         .mustFailWith404(NotFoundFailure404(User, "foo@bar.baz"))
     }
   }
