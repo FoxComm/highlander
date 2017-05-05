@@ -42,6 +42,10 @@ object ReturnFailures {
       s"Returned payment ($amount) cannot be greater than $maxAmount for return $refNum"
   }
 
+  case object OnlyOneExternalPaymentIsAllowed extends Failure {
+    def description: String = "Only one external payment is allowed!"
+  }
+
   case class ReturnCcPaymentExceeded(refNum: String, amount: Int, maxAmount: Int) extends Failure {
     def description: String =
       s"Returned credit card payment ($amount) cannot be greater than $maxAmount for return $refNum"

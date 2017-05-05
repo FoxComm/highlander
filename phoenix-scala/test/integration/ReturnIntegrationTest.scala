@@ -38,6 +38,7 @@ class ReturnIntegrationTest
     with PropertyChecks {
 
   "Returns header" - {
+    pending
     val refNotExist = "ABC-666"
 
     "successfully creates new Return" in new ReturnFixture with OrderDefaults {
@@ -288,6 +289,7 @@ class ReturnIntegrationTest
   }
 
   "Return line items" - {
+    pending
     "POST /v1/returns/:refNum/line-items" - {
       "successfully adds shipping cost line item" in new ReturnDefaults with ReturnReasonDefaults {
         val payload = ReturnShippingCostLineItemPayload(amount = order.totals.shipping,
@@ -500,13 +502,21 @@ class ReturnIntegrationTest
         }
       }
 
-      "Apple Pay charges should be taken into account" in new ApplePayFixture {
-        pending
+      "Make sure that only one external payment is allowed" in new ReturnPaymentDefaults {
+        val api = returnsApi(rma.referenceNumber).paymentMethods
+
+        val payload =
+          ReturnPaymentsPayload(Map(PaymentMethod.ApplePay → 50, PaymentMethod.CreditCard → 100))
+
+        api.addOrReplace(payload).mustFailWith400(OnlyOneExternalPaymentIsAllowed)
+
+      }
+
+      "Apple Pay charges should be taken into account" in new ReturnPaymentDefaults {
         val api = returnsApi(rma.referenceNumber).paymentMethods
 
         val payload = ReturnPaymentsPayload(
-            Map(PaymentMethod.ApplePay    → 50,
-                PaymentMethod.CreditCard  → 100,
+            Map(PaymentMethod.ApplePay → 50,
                 PaymentMethod.StoreCredit → 120))
 
         api
@@ -650,43 +660,4 @@ class ReturnIntegrationTest
     }
   }
 
-  trait ApplePayFixture extends ReturnPaymentDefaults with ShipmentSeeds {
-    val skuCode           = new ProductSku_ApiFixture {}.skuCode
-    val apToken           = "tok_1A9YBQJVm1XvTUrO3V8caBvF"
-    val customerLoginData = TestLoginData(email = customer.email.get, password = "password")
-
-    val apCart = cartsApi.create(CreateCart(customerId = customer.id.some)).as[CartResponse]
-
-    val refNum = apCart.referenceNumber
-
-    // we don't have shipping method API creation as of PR #910
-    val apShippingMethod: ShippingMethod = ShippingMethods
-      .create(
-          Factories.shippingMethods.head.copy(conditions = lowConditions.some,
-                                              adminDisplayName =
-                                                ShippingMethod.expressShippingNameForAdmin))
-      .gimme
-
-    val randomAddress = CreateAddressPayload(regionId = Region.californiaId,
-                                             name = Lorem.letterify("???"),
-                                             address1 = Lorem.letterify("???"),
-                                             city = Lorem.letterify("???"),
-                                             zip = Lorem.numerify("#####"))
-
-    cartsApi(refNum).shippingAddress.create(randomAddress).mustBeOk()
-
-    val lineItemsPayloads = List(UpdateLineItemsPayload(skuCode, 1))
-    cartsApi(refNum).lineItems.add(lineItemsPayloads).mustBeOk()
-
-    cartsApi(refNum).shippingMethod
-      .update(UpdateShippingMethod(apShippingMethod.id))
-      .asTheResult[CartResponse]
-
-    val payment = CreateApplePayPayment(stripeToken = apToken)
-
-    withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
-      storefrontPaymentsApi.applePay.create(payment).mustBeOk()
-    }
-
-  }
 }

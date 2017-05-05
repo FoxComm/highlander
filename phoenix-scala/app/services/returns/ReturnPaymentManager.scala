@@ -1,6 +1,7 @@
 package services.returns
 
 import cats.implicits._
+import failures.GeneralFailure
 import failures.OrderFailures.OrderPaymentNotFoundFailure
 import failures.ReturnFailures._
 import models.account.{Scope, User, Users}
@@ -14,6 +15,7 @@ import models.payment.storecredit._
 import models.returns.ReturnPayments.scope._
 import models.returns._
 import responses.ReturnResponse
+
 import scala.annotation.tailrec
 import services.LogActivity
 import services.carts.CartTotaler
@@ -49,8 +51,13 @@ object ReturnPaymentManager {
       } yield response
     else
       for {
+        _ ← * <~ failIf(paymentsToAdd.filter { case (pt, _) ⇒ pt.isExternal }
+                          .groupBy(_._1)
+                          .map(_._2.keySet)
+                          .size > 1,
+                        OnlyOneExternalPaymentIsAllowed)
         rma     ← * <~ Returns.mustFindActiveByRefNum404(refNum)
-        payment ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
+        payment ← * <~ mustFindExternalPaymentsByOrderRef(rma.orderRef)
         _       ← * <~ validateMaxAllowedPayments(rma, paymentsToAdd, sumOther = !overwrite)
         _       ← * <~ paymentsToAdd.map(addPayment(rma, payment, _)).toList
         _       ← * <~ updateTotalsReturn(rma)
@@ -132,11 +139,11 @@ object ReturnPaymentManager {
     } yield ()
   }
 
-  private def mustFindCcPaymentsByOrderRef(cordRef: String)(
+  private def mustFindExternalPaymentsByOrderRef(cordRef: String)(
       implicit ec: EC): DbResultT[OrderPayment] =
     OrderPayments
       .findAllByCordRef(cordRef)
-      .creditCards
+      .externalPayments
       .mustFindOneOr(OrderPaymentNotFoundFailure(Order))
 
   private def processAddPayment(
