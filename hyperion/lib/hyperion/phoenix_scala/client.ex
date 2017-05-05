@@ -84,6 +84,17 @@ defmodule Hyperion.PhoenixScala.Client do
     |> parse_response(token)
   end
 
+  def get_customer_by_email(email, token) do
+    get("/v1/customers/email/#{email}", make_request_headers(token))
+    |> parse_response(token)
+  end
+
+  def get_customer_by_email(email) do
+    token = login()
+    get("/v1/customers/email/#{email}", make_request_headers(token))
+    |> parse_response(token)
+  end
+
   @doc """
   Creates new customer in Phoenix from Amazon order
   """

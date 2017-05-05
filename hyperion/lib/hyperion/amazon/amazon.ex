@@ -126,10 +126,7 @@ defmodule Hyperion.Amazon do
          adjustments: 0,
          total: String.to_float(order["OrderTotal"]["Amount"]) * 100 |> round
         },
-        customer: %{
-          email: order["BuyerEmail"],
-          name: order["BuyerName"]
-        },
+        customer: Client.get_customer_by_email(order["BuyerEmail"], token).body,
         shippingMethod: %{
           id: 0,
           name: order["ShipmentServiceLevelCategory"],
