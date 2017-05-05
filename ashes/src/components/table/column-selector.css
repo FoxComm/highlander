@@ -20,7 +20,6 @@
   & :global(.fc-dropdown__items) {
     min-width: 300px;
     max-height: 304px;
-    overflow: auto;
   }
 
   &:global(._open) {
