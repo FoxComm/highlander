@@ -1,5 +1,7 @@
 /* @flow */
 
+// parent: `./album`
+
 // styles
 import styles from './images.css';
 
@@ -23,6 +25,7 @@ export type Props = {
   editImage: (info: ImageInfo) => Promise<*>;
   deleteImage: () => Promise<*>;
   imagePid: string|number;
+  editAlbumState?: AsyncState;
   disabled?: boolean;
 };
 
@@ -38,10 +41,6 @@ export default class Image extends Component<void, Props, State> {
     editMode: false,
     deleteMode: false,
     disabled: false,
-  };
-
-  static contextTypes = {
-    editAlbum: PropTypes.object,
   };
 
   componentDidMount(): void {
@@ -101,7 +100,7 @@ export default class Image extends Component<void, Props, State> {
   }
 
   get deleteImageDialog(): ?Element<*> {
-    const editAlbum = this.context.editAlbum;
+    const { editAlbumState } = this.props;
 
     if (!this.state.deleteMode) {
       return;
@@ -117,7 +116,7 @@ export default class Image extends Component<void, Props, State> {
           confirm='Yes, Delete'
           onCancel={this.handleCancelDeleteImage}
           confirmAction={this.handleConfirmDeleteImage}
-          asyncState={editAlbum}
+          asyncState={editAlbumState}
           focus
         />
       </BodyPortal>
@@ -125,7 +124,7 @@ export default class Image extends Component<void, Props, State> {
   }
 
   get editImageDialog(): ?Element<*> {
-    const { editAlbum = {} } = this.context;
+    const { editAlbumState = {} } = this.props;
 
     return (
       <BodyPortal className={styles.modal}>
@@ -135,8 +134,8 @@ export default class Image extends Component<void, Props, State> {
           onCancel={this.handleCancelEditImage}
           onSave={this.handleConfirmEditImage}
           onRemove={this.handleRemove}
-          inProgress={editAlbum.inProgress}
-          error={editAlbum.err}
+          inProgress={editAlbumState.inProgress}
+          error={editAlbumState.err}
         />
       </BodyPortal>
     );

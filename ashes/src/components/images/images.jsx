@@ -1,7 +1,8 @@
 /* @flow */
 
-// styles
+// parent: `products/images` which just extends `object-page/object-images`
 
+// styles
 import styles from './images.css';
 
 // libs
@@ -23,10 +24,6 @@ export type Props = {
   context: string;
   albums: Array<TAlbum>;
   isLoading: boolean;
-  addAlbumInProgress: boolean;
-  editAlbumInProgress: boolean;
-  uploadMediaInProgress: boolean;
-  isImageLoading: (idx: number) => boolean;
 
   uploadMedia: (context: string, albumId: number, files: Array<ImageFile>) => Promise<*>;
   uploadMediaByUrl: (context: string, albumId: number, url: string) => Promise<*>;
@@ -37,6 +34,13 @@ export type Props = {
   editAlbum: (context: string, albumId: number, album: TAlbum) => Promise<*>;
   moveAlbum: (context: string, entityId: number, albumId: number, position: number) => Promise<*>;
   archiveAlbum: (context: string, albumId: number) => Promise<*>;
+  asyncActionsState: {
+    addAlbum?: AsyncState;
+    editAlbum?: AsyncState;
+    uploadMedia?: AsyncState;
+    uploadMediaByUrl?: AsyncState;
+    archiveAlbum?: AsyncState;
+  };
 };
 
 type State = {
@@ -79,13 +83,14 @@ export default class Images extends Component {
 
   get newAlbumDialog(): ?Element<*> {
     const album = { name: '', images: [] };
+    const { addAlbum = {} } = this.props.asyncActionsState;
 
     return (
       <EditAlbum
         className={styles.modal}
         isVisible={this.state.newAlbumMode}
         album={album}
-        inProgress={this.props.addAlbumInProgress}
+        inProgress={addAlbum.inProgress}
         onCancel={this.handleCancelEditAlbum}
         onSave={this.addNewAlbum}
         isNew={true}
@@ -98,7 +103,11 @@ export default class Images extends Component {
       return <WaitAnimation />;
     }
 
-    const { albums, editAlbumInProgress, uploadMediaInProgress, context, entityId } = this.props;
+    const { albums, context, entityId, asyncActionsState } = this.props;
+
+    const inProgress = _.get(asyncActionsState, 'editAlbum.inProgress', false)
+      || _.get(asyncActionsState, 'uploadMedia.inProgress', false)
+      || _.get(asyncActionsState, 'uploadMediaByUrl.inProgress', false);
 
     return (
       <div className={styles.images}>
@@ -110,7 +119,7 @@ export default class Images extends Component {
           return (
             <Album
               album={album}
-              loading={editAlbumInProgress || uploadMediaInProgress}
+              loading={inProgress}
               uploadFiles={(files: Array<ImageFile>) => this.props.uploadMedia(context, album.id, files)}
               uploadByUrl={(albumId, url) => this.props.uploadMediaByUrl(context, albumId, url)}
               editImage={(idx: number, form: ImageInfo) => this.props.editImage(context, album.id, idx, form)}
@@ -122,6 +131,9 @@ export default class Images extends Component {
               albumsCount={albums.length}
               key={album.id}
               fetchAlbums={() => this.props.fetchAlbums(context, entityId)}
+              editAlbumState={asyncActionsState.editAlbum}
+              uploadMediaByUrlState={asyncActionsState.uploadMediaByUrl}
+              archiveAlbumState={asyncActionsState.archiveAlbum}
             />
           );
         })}

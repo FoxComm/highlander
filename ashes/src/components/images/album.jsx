@@ -1,5 +1,7 @@
 /* @flow */
 
+// parent: `./images`
+
 // styles
 import styles from './images.css';
 
@@ -33,6 +35,9 @@ export type Props = {
   moveAlbum: (position: number) => Promise<*>;
   archiveAlbum: (id: number) => Promise<*>;
   fetchAlbums: () => Promise<*>;
+  editAlbumState?: AsyncState;
+  uploadMediaByUrlState?: AsyncState;
+  archiveAlbumState?: AsyncState;
 };
 
 type State = {
@@ -52,12 +57,6 @@ export default class Album extends Component {
     editMode: false,
     archiveMode: false,
     uploadUrlMode: false,
-  };
-
-  static contextTypes = {
-    uploadMediaByUrl: PropTypes.object,
-    editAlbum: PropTypes.object,
-    archiveAlbum: PropTypes.object,
   };
 
   _uploadRef: Upload;
@@ -159,17 +158,15 @@ export default class Album extends Component {
   }
 
   get editAlbumDialog(): ?Element<*> {
-    const { album } = this.props;
-    const { editAlbum = {} } = this.context;
+    const { album, editAlbumState = {} } = this.props;
 
     return (
       <EditAlbum
         className={styles.modal}
         isVisible={this.state.editMode}
         album={album}
-        loading={editAlbum.inProgress}
-        inProgress={editAlbum.inProgress}
-        error={editAlbum.err}
+        inProgress={editAlbumState.inProgress}
+        error={editAlbumState.err}
         onCancel={this.handleCancelEditAlbum}
         onSave={this.handleConfirmEditAlbum}
       />
@@ -177,14 +174,14 @@ export default class Album extends Component {
   }
 
   get uploadByUrlDialog(): ?Element<*> {
-    const { uploadMediaByUrl = {} } = this.context;
+    const { uploadMediaByUrlState = {} } = this.props;
 
     return (
       <UploadByUrl
         className={styles.modal}
         isVisible={this.state.uploadUrlMode}
-        inProgress={uploadMediaByUrl.inProgress}
-        error={uploadMediaByUrl.err}
+        inProgress={uploadMediaByUrlState.inProgress}
+        error={uploadMediaByUrlState.err}
         onCancel={this.handleCancelUrlUpload}
         onSave={this.handleConfirmUrlUpload}
       />
@@ -192,8 +189,7 @@ export default class Album extends Component {
   }
 
   get archiveAlbumDialog(): ?Element<*> {
-    const { album } = this.props;
-    const { archiveAlbum } = this.context;
+    const { album, archiveAlbumState } = this.props;
 
     const body = (
       <div>
@@ -217,7 +213,7 @@ export default class Album extends Component {
         confirm='Yes, Archive'
         onCancel={this.handleCancelArchiveAlbum}
         confirmAction={this.handleConfirmArchiveAlbum}
-        asyncState={archiveAlbum}
+        asyncState={archiveAlbumState}
         focusCancel
       />
     );
@@ -232,7 +228,7 @@ export default class Album extends Component {
   }
 
   render() {
-    const { album, position, albumsCount, loading } = this.props;
+    const { album, position, albumsCount, loading, editAlbumState } = this.props;
 
     const albumContent = (
       <Upload
@@ -254,6 +250,7 @@ export default class Album extends Component {
                 deleteImage={() => this.props.deleteImage(idx)}
                 key={imagePid}
                 disabled={disabled}
+                editAlbumState={editAlbumState}
               />;
 
             func.key = imagePid;

@@ -6,7 +6,7 @@ import React, { Component, Element, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 // components
-import Images from '../images/images';
+import Images from 'components/images/images';
 
 export function connectImages(namespace, actions) {
   const plural = `${namespace}s`;
@@ -15,11 +15,7 @@ export function connectImages(namespace, actions) {
     namespace,
     albums: _.get(state, [plural, 'images', 'albums'], []),
     isLoading: _.get(state, ['asyncActions', `${plural}FetchAlbums`, 'inProgress'], true),
-    addAlbumInProgress: _.get(state, ['asyncActions', `${plural}AddAlbum`, 'inProgress'], false),
-    editAlbumInProgress: _.get(state, ['asyncActions', `${plural}EditAlbum`, 'inProgress'], false),
-    uploadMediaInProgress: _.get(state, ['asyncActions', `${plural}UploadMedia`, 'inProgress'], false) ||
-      _.get(state, ['asyncActions', `${plural}UploadMediaByUrl`, 'inProgress'], false),
-    asyncActions: {
+    asyncActionsState: {
       addAlbum: state.asyncActions[`${plural}AddAlbum`],
       editAlbum: state.asyncActions[`${plural}EditAlbum`],
       uploadMedia: state.asyncActions[`${plural}UploadMedia`],
@@ -34,18 +30,6 @@ export function connectImages(namespace, actions) {
 }
 
 export default class ImagesPage extends Component {
-
-  static childContextTypes = {
-    addAlbum: PropTypes.object,
-    editAlbum: PropTypes.object,
-    uploadMedia: PropTypes.object,
-    uploadMediaByUrl: PropTypes.object,
-    archiveAlbum: PropTypes.object,
-  };
-
-  getChildContext() {
-    return { ...this.props.asyncActions };
-  }
 
   get entityId(): string {
     return this.props.entity.entityId;
