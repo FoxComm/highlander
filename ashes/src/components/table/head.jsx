@@ -59,8 +59,10 @@ class TableHead extends React.Component {
   }
 
   render() {
+    const { getRef } = this.props;
+
     return (
-      <thead className="fc-table-head">
+      <thead className="fc-table-head" ref={getRef}>
         <TableRow>
           {this.props.columns.map(this.renderColumn)}
         </TableRow>
