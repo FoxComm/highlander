@@ -3,7 +3,8 @@
  */
 
 // libs
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';

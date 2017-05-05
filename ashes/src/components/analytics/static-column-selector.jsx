@@ -6,7 +6,7 @@
 import _ from 'lodash';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
-import React, { PropTypes } from 'react';
+import React from 'react';
 import localStorage from 'localStorage';
 
 // components

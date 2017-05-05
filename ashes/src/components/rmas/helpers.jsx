@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
 import { DateTime } from '../common/datetime';

@@ -4,7 +4,8 @@ import { get, capitalize } from 'lodash';
 import { autobind } from 'core-decorators';
 import EventEmitter from 'events';
 import jsen from 'jsen';
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
+import PropTypes from 'prop-types';
 
 // components
 import { IndexLink, Link } from 'components/link';

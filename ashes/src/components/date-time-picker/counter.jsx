@@ -2,7 +2,8 @@
  * @flow
  */
 
-import React, { Element, PropTypes } from 'react';
+import React, { Element } from 'react';
+import PropTypes from 'prop-types';
 
 type Props = {
   children?: Element<*>,

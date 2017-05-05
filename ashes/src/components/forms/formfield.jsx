@@ -2,7 +2,8 @@
 
 import _ from 'lodash';
 import { autobind, debounce } from 'core-decorators';
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
+import PropTypes from 'prop-types';
 import * as validators from 'lib/validators';
 import classNames from 'classnames';
 import { isDefined } from 'lib/utils';
