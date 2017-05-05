@@ -2,7 +2,8 @@
 // libs
 import _ from 'lodash';
 import moment from 'moment';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 // components
 import Activity, { getActivityRepresentative } from './activities';

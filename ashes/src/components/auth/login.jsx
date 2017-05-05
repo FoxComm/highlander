@@ -1,5 +1,5 @@
 /** @flow */
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';

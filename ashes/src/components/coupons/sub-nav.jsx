@@ -2,7 +2,8 @@
 /* @flow */
 
 // libs
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 // components
 import { Link, IndexLink } from '../link';

@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { trackEvent } from 'lib/analytics';

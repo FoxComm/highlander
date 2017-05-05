@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import ItemCardContainer from './item-card-container';
 import { Button, EditButton, DeleteButton } from 'components/core/button';
 import { Checkbox } from '../checkbox/checkbox';
