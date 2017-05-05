@@ -2,6 +2,8 @@ package errors
 
 import (
 	"strings"
+
+	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 )
 
 type AggregateError struct {
@@ -16,8 +18,22 @@ func (e *AggregateError) Length() int {
 	return len(e.errors)
 }
 
-func (e AggregateError) Error() string {
+func (e *AggregateError) Error() string {
 	return strings.Join(e.Messages(), ", ")
+}
+
+func (e *AggregateError) ToJsonStruct() []interface{} {
+	var result []interface{}
+
+	for _, err := range e.errors {
+		if skuItemErr, ok := err.(*responses.InvalidSKUItemError); ok {
+			result = append(result, skuItemErr)
+		} else {
+			result = append(result, err.Error())
+		}
+	}
+
+	return result
 }
 
 func (e *AggregateError) Messages() []string {

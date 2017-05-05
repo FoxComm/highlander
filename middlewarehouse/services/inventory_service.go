@@ -1,11 +1,12 @@
 package services
 
 import (
-	"errors"
 	"fmt"
 
+	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 	"github.com/FoxComm/highlander/middlewarehouse/common/async"
 	commonErrors "github.com/FoxComm/highlander/middlewarehouse/common/errors"
+	"github.com/FoxComm/highlander/middlewarehouse/common/logging"
 	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
@@ -44,7 +45,8 @@ type IInventoryService interface {
 type updateItemsStatusFunc func() (int, error)
 
 func skuOutOfStockError(sku string) error {
-	return fmt.Errorf(outOfStockError, sku)
+	err := responses.InvalidSKUItemError{Sku: sku, Debug: fmt.Sprintf(outOfStockError, sku)}
+	return &err
 }
 
 func NewInventoryService(
@@ -204,10 +206,12 @@ func (service *inventoryService) getStockItemsBySKUs(skusList []string) ([]*mode
 	diff := utils.DiffSlices(skusList, skusListRepo)
 	if len(diff) > 0 {
 		for _, sku := range diff {
-			aggregateErr.Add(errors.New(sku))
+			msg := fmt.Sprintf("Stock item not found for SKU %s. Check SKU database for discrepancies.", sku)
+			logging.Log.Warnf(msg)
+			aggregateErr.Add(&responses.InvalidSKUItemError{Sku: sku, Debug: msg})
 		}
 
-		return nil, aggregateErr
+		return nil, &aggregateErr
 	}
 
 	return items, nil
@@ -226,7 +230,7 @@ func (service *inventoryService) getUnitsForOrder(items []*models.StockItem, sku
 	}
 
 	if aggregateErr.Length() > 0 {
-		return nil, aggregateErr
+		return nil, &aggregateErr
 	}
 
 	return unitsIds, nil
@@ -235,7 +239,7 @@ func (service *inventoryService) getUnitsForOrder(items []*models.StockItem, sku
 func (service *inventoryService) checkItemsStatus(refNum string, statusShift models.StatusChange) error {
 	units, err := service.unitRepo.GetUnitsInOrder(refNum)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	for _, unit := range units {

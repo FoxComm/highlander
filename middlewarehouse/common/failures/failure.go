@@ -18,13 +18,13 @@ func Abort(context *gin.Context, failure Failure) {
 }
 
 func toJSON(err error) responses.Error {
-	if err, ok := err.(errors.AggregateError); ok {
+	if err, ok := err.(*errors.AggregateError); ok {
 		return responses.Error{
-			Errors: err.Messages(),
+			Errors: err.ToJsonStruct(),
 		}
 	}
 
 	return responses.Error{
-		Errors: []string{err.Error()},
+		Errors: []interface{}{err.Error()},
 	}
 }
