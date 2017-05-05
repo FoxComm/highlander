@@ -3,6 +3,7 @@ import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
+import { Request, query } from 'elastic/request';
 
 //data
 import operators from 'paragons/query-builder/operators';
@@ -14,6 +15,24 @@ import { prefix } from 'lib/text-utils';
 import { Dropdown } from 'components/dropdown';
 import QueryBuilder from './query-builder';
 
+
+const requestAdapter = (criterions, mainCondition, conditions) => {
+  const request = new Request(criterions);
+  console.log(mainCondition);
+  console.log(mainCondition === operators.and);
+
+  request.query = mainCondition === operators.and ? new query.ConditionAnd() : new query.ConditionOr();
+
+  _.each(conditions, ([name, operator, value]) => {
+    if (value != null) {
+      const field = (new query.Field(name)).add(operator, value);
+      request.query.add(field);
+    }
+  });
+
+  return request;
+};
+
 const SELECT_CRITERIA = [
   [operators.and, 'all'],
   [operators.or, 'any']
@@ -23,8 +42,29 @@ const prefixed = prefix('fc-query-builder-edit');
 
 class QueryBuilderContainer extends React.Component {
 
+  static propTypes = {
+    omitMainCondition: PropTypes.bool,
+    itemName: PropTypes.string,
+    criterions: PropTypes.array.isRequired,
+    getCriterion: PropTypes.func.isRequired,
+    getOperators: PropTypes.func.isRequired,
+    getWidget: PropTypes.func.isRequired,
+    mainCondition: PropTypes.string.isRequired,
+    conditions: PropTypes.arrayOf(PropTypes.array).isRequired,
+    setMainCondition: PropTypes.func.isRequired,
+    setElasticQuery: PropTypes.func.isRequired,
+    setConditions: PropTypes.func.isRequired,
+  };
+
   constructor(props) {
     super(props);
+  }
+
+  @autobind
+  setConditions(newConditions) {
+    const {criterions, mainCondition} = this.props;
+    this.props.setConditions(newConditions);
+    this.props.setElasticQuery(requestAdapter(criterions, mainCondition, newConditions).toRequest());
   }
 
   get mainCondition() {
@@ -61,7 +101,7 @@ class QueryBuilderContainer extends React.Component {
           getWidget={this.props.getWidget}
           mainCondition={this.props.mainCondition}
           conditions={this.props.conditions}
-          setConditions={this.props.setConditions}
+          setConditions={this.setConditions}
         />
       </div>
     );

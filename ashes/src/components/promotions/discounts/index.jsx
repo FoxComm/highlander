@@ -156,6 +156,15 @@ export default class Discounts extends Component {
   }
 
   @autobind
+  setQualElasticQuery(value) {
+    this.qualifier.queryObject = {
+      ...this.qualifier.queryObject,
+      elasticRequest: value,
+    };
+    this.props.onChangeQualifier(this.qualifier);
+  }
+
+  @autobind
   setQualQueryMain(value) {
     this.qualifier.queryObject = {
       ...this.qualifier.queryObject,
@@ -181,6 +190,16 @@ export default class Discounts extends Component {
     };
     this.props.onChangeOffer(this.offer);
   }
+
+  @autobind
+  setOfferElasticQuery(value) {
+    this.offer.queryObject = {
+      ...this.offer.queryObject,
+      elasticRequest: value,
+    };
+    this.props.onChangeOffer(this.offer);
+  }
+
 
   @autobind
   renderDiscount() {

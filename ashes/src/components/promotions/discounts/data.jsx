@@ -56,6 +56,7 @@ const OFFERS = [
           mainCondition={_.get(comp, 'offer.queryObject.mainCondition', '$and')}
           conditions={_.get(comp, 'offer.queryObject.conditions', [])}
           setMainCondition={comp.setOfferQueryMain}
+          setElasticQuery={comp.setOfferElasticQuery}
           setConditions={comp.setOfferQueryCond}/>
       );
     },
@@ -81,6 +82,7 @@ const OFFERS = [
           mainCondition={_.get(comp, 'offer.queryObject.mainCondition', '$and')}
           conditions={_.get(comp, 'offer.queryObject.conditions', [])}
           setMainCondition={comp.setOfferQueryMain}
+          setElasticQuery={comp.setOfferElasticQuery}
           setConditions={comp.setOfferQueryCond}/>
       );
     },
@@ -142,6 +144,7 @@ const OFFERS = [
           mainCondition={_.get(comp, 'offer.queryObject.mainCondition', '$and')}
           conditions={_.get(comp, 'offer.queryObject.conditions', [])}
           setMainCondition={comp.setOfferQueryMain}
+          setElasticQuery={comp.setOfferElasticQuery}
           setConditions={comp.setOfferQueryCond}/>
       );
     },
@@ -165,6 +168,7 @@ const OFFERS = [
           mainCondition={_.get(comp, 'offer.queryObject.mainCondition', '$and')}
           conditions={_.get(comp, 'offer.queryObject.conditions', [])}
           setMainCondition={comp.setOfferQueryMain}
+          setElasticQuery={comp.setOfferElasticQuery}
           setConditions={comp.setOfferQueryCond}/>
       );
     },
@@ -245,6 +249,7 @@ const QUALIFIERS = [
               mainCondition={_.get(comp, 'qualifier.queryObject.mainCondition', '$and')}
               conditions={_.get(comp, 'qualifier.queryObject.conditions', [])}
               setMainCondition={comp.setQualQueryMain}
+              setElasticQuery={comp.setQualElasticQuery}
               setConditions={comp.setQualQueryCond}/>
           );
         },
@@ -274,6 +279,7 @@ const QUALIFIERS = [
               mainCondition={_.get(comp, 'qualifier.queryObject.mainCondition', '$and')}
               conditions={_.get(comp, 'qualifier.queryObject.conditions', [])}
               setMainCondition={comp.setQualQueryMain}
+              setElasticQuery={comp.setQualElasticQuery}
               setConditions={comp.setQualQueryCond}/>
           );
         },

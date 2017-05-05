@@ -1,6 +1,7 @@
 //libs
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
+import _ from 'lodash';
 
 //helpers
 import { prefix } from 'lib/text-utils';
@@ -8,7 +9,6 @@ import { prefix } from 'lib/text-utils';
 //components
 import { AddButton } from 'components/common/buttons';
 import Criterion from './criterion-edit';
-
 
 const prefixed = prefix('fc-query-builder');
 
@@ -27,13 +27,15 @@ export default class QueryBuilder extends React.Component {
   };
 
   updateCondition(index, value) {
-    const {conditions, setConditions} = this.props;
+    const {conditions, setConditions, criterions, mainCondition, setElasticQuery} = this.props;
 
-    setConditions([
+    const newConditions =[
       ...conditions.slice(0, index),
       value,
       ...conditions.slice(index + 1),
-    ]);
+    ];
+
+    setConditions(newConditions);
   }
 
   @autobind
@@ -56,12 +58,12 @@ export default class QueryBuilder extends React.Component {
 
   @autobind
   remove(index) {
-    const {conditions, setConditions} = this.props;
-
-    setConditions([
+    const {conditions, setConditions, criterions, mainCondition, setElasticQuery} = this.props;
+    const newConditions =[
       ...conditions.slice(0, index),
       ...conditions.slice(index + 1),
-    ]);
+    ];
+    setConditions(newConditions);
   }
 
   @autobind
