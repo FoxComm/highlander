@@ -94,16 +94,16 @@ export default class TablePaginator extends React.Component {
   render() {
     const { currentPage, pagesCount } = this.state;
 
-    const leftButtonClass = classNames({'_hidden': currentPage <= 1});
-    const rightButtonClass = classNames({'_hidden': currentPage >= pagesCount});
+    const leftDisabled = currentPage <= 1;
+    const rightDisabled = currentPage >= pagesCount;
 
     return (
       <div className={prefixed()}>
-        <LeftButton className={leftButtonClass} onClick={this.onPrevPageClick}/>
+        <LeftButton onClick={this.onPrevPageClick} disabled={leftDisabled}/>
         {this.renderCurrentPage()}
         <div className={prefixed('separator')}>of</div>
         {this.renderPagesCount()}
-        <RightButton className={rightButtonClass} onClick={this.onNextPageClick}/>
+        <RightButton onClick={this.onNextPageClick} disabled={rightDisabled}/>
       </div>
     );
   }
