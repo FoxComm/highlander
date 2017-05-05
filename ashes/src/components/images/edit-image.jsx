@@ -12,6 +12,7 @@ import ContentBox from '../content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
 import Input from 'components/forms/text-input';
 import { DeleteButton } from 'components/core/button';
+import ErrorAlerts from 'components/alerts/error-alerts';
 
 // types
 import type { ImageInfo } from '../../modules/images';
@@ -26,6 +27,7 @@ type Props = {
   onCancel: () => void;
   onRemove: Function;
   inProgress?: boolean;
+  error?: string;
 };
 
 type State = {
@@ -97,7 +99,7 @@ class EditImage extends Component {
 
   render() {
     const { width, height, alt } = this.state;
-    const { image: { src, createdAt }, inProgress } = this.props;
+    const { image: { src, createdAt }, inProgress, error } = this.props;
     const extMatch = src.match(/\.([0-9a-z]+)$/i);
     const nameMatch = src.match(/\/([^/]+)$/i);
     const ext = get(extMatch, '[1]', '–');
@@ -125,9 +127,16 @@ class EditImage extends Component {
               </FormField>
             </div>
           </div>
+          <ErrorAlerts error={error} />
           <footer className={s.footer}>
             <DeleteButton onClick={this.props.onRemove} disabled={inProgress}>Delete</DeleteButton>
-            <SaveCancel onSave={this.handleSave} onCancel={this.props.onCancel} isLoading={inProgress} />
+            <SaveCancel
+              onSave={this.handleSave}
+              onCancel={this.props.onCancel}
+              isLoading={inProgress}
+              saveDisabled={inProgress}
+              cancelDisabled={inProgress}
+            />
           </footer>
         </ContentBox>
       </ModalContainer>

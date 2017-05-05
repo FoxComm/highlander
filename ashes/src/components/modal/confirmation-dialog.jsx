@@ -22,6 +22,8 @@ type Props = {
   icon?: string,
   asyncState?: AsyncState,
   className?: string,
+  focusAction?: boolean,
+  focusCancel?: boolean,
 };
 
 const ConfirmationDialog = (props: Props) => {
@@ -49,6 +51,8 @@ const ConfirmationDialog = (props: Props) => {
 
   const cls = classNames('fc-confirmation-dialog', props.className);
 
+  const inProgress = props.inProgress || _.get(props.asyncState, 'inProgress', false);
+
   return (
     <ContentBox title={title} className={cls} actionBlock={actionBlock}>
       <div className='fc-modal-body'>
@@ -61,9 +65,11 @@ const ConfirmationDialog = (props: Props) => {
         onCancel={props.onCancel}
         onSave={props.confirmAction}
         saveText={props.confirm}
-        isLoading={props.inProgress || _.get(props.asyncState, 'inProgress', false)}
-        cancelDisabled={props.inProgress}
-        saveDisabled={props.inProgress}
+        isLoading={inProgress}
+        cancelDisabled={inProgress}
+        saveDisabled={inProgress}
+        focusAction={props.focusAction}
+        focusCancel={props.focusCancel}
       />
     </ContentBox>
   );

@@ -1,20 +1,23 @@
 /* @flow */
 
+// parent: `./images`
+
 // styles
 import styles from './images.css';
 
 // libs
 import { autobind } from 'core-decorators';
-import React, { Component, Element } from 'react';
+import React, { Component, Element, PropTypes } from 'react';
 
 // components
-import ConfirmationDialog from '../modal/confirmation-dialog';
-import Alert from '../alerts/alert';
+import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import Alert from 'components/alerts/alert';
 import AlbumWrapper from './album-wrapper/album-wrapper';
 import EditAlbum from './edit-album';
-import Upload from '../upload/upload';
-import SortableTiles from '../sortable/sortable-tiles';
+import Upload from 'components/upload/upload';
+import SortableTiles from 'components/sortable/sortable-tiles';
 import Image from './image';
+import UploadByUrl from './upload-by-url';
 
 // types
 import type { Album as TAlbum, ImageFile, ImageInfo } from '../../modules/images';
@@ -24,18 +27,23 @@ export type Props = {
   loading: boolean;
   position: number;
   albumsCount: number;
-  upload: (files: Array<ImageFile>) => Promise<*>;
+  uploadFiles: (files: Array<ImageFile>) => Promise<*>;
+  uploadByUrl: (idx: number, url: string) => Promise<*>;
   editImage: (idx: number, info: ImageInfo) => Promise<*>;
   deleteImage: (idx: number) => Promise<*>;
   editAlbum: (album: TAlbum) => Promise<*>;
   moveAlbum: (position: number) => Promise<*>;
   archiveAlbum: (id: number) => Promise<*>;
   fetchAlbums: () => Promise<*>;
+  editAlbumState?: AsyncState;
+  uploadMediaByUrlState?: AsyncState;
+  archiveAlbumState?: AsyncState;
 };
 
 type State = {
   editMode: boolean;
   archiveMode: boolean;
+  uploadUrlMode: boolean;
 };
 
 export default class Album extends Component {
@@ -48,6 +56,7 @@ export default class Album extends Component {
   state: State = {
     editMode: false,
     archiveMode: false,
+    uploadUrlMode: false,
   };
 
   _uploadRef: Upload;
@@ -69,12 +78,17 @@ export default class Album extends Component {
       loading: true,
     }));
 
-    this.props.upload(newImages);
+    this.props.uploadFiles(newImages);
   }
 
   @autobind
-  handleAddFiles() {
+  handleAddFiles(): void {
     this._uploadRef.openUploadDialog();
+  }
+
+  @autobind
+  handleAddUrl(): void {
+    this.setState({ uploadUrlMode: true });
   }
 
   @autobind
@@ -94,6 +108,17 @@ export default class Album extends Component {
   }
 
   @autobind
+  handleCancelUrlUpload(): void {
+    this.setState({ uploadUrlMode: false });
+  }
+
+  @autobind
+  handleConfirmUrlUpload(url: string): void {
+    this.props.uploadByUrl(this.props.album.id, url)
+      .then(this.handleCancelUrlUpload);
+  }
+
+  @autobind
   handleArchiveAlbum(): void {
     this.setState({ archiveMode: true });
   }
@@ -106,9 +131,8 @@ export default class Album extends Component {
   @autobind
   handleConfirmArchiveAlbum(): void {
     this.props.archiveAlbum(this.props.album.id)
+      .then(() => this.setState({ archiveMode: false }))
       .then(this.props.fetchAlbums);
-
-    this.setState({ archiveMode: false });
   }
 
   @autobind
@@ -134,21 +158,38 @@ export default class Album extends Component {
   }
 
   get editAlbumDialog(): ?Element<*> {
-    const { album, loading } = this.props;
+    const { album, editAlbumState = {} } = this.props;
 
     return (
-      <EditAlbum className={styles.modal}
-                 isVisible={this.state.editMode}
-                 album={album}
-                 loading={loading}
-                 onCancel={this.handleCancelEditAlbum}
-                 onSave={this.handleConfirmEditAlbum}
+      <EditAlbum
+        className={styles.modal}
+        isVisible={this.state.editMode}
+        album={album}
+        inProgress={editAlbumState.inProgress}
+        error={editAlbumState.err}
+        onCancel={this.handleCancelEditAlbum}
+        onSave={this.handleConfirmEditAlbum}
+      />
+    );
+  }
+
+  get uploadByUrlDialog(): ?Element<*> {
+    const { uploadMediaByUrlState = {} } = this.props;
+
+    return (
+      <UploadByUrl
+        className={styles.modal}
+        isVisible={this.state.uploadUrlMode}
+        inProgress={uploadMediaByUrlState.inProgress}
+        error={uploadMediaByUrlState.err}
+        onCancel={this.handleCancelUrlUpload}
+        onSave={this.handleConfirmUrlUpload}
       />
     );
   }
 
   get archiveAlbumDialog(): ?Element<*> {
-    const album = this.props.album;
+    const { album, archiveAlbumState } = this.props;
 
     const body = (
       <div>
@@ -172,7 +213,8 @@ export default class Album extends Component {
         confirm='Yes, Archive'
         onCancel={this.handleCancelArchiveAlbum}
         confirmAction={this.handleConfirmArchiveAlbum}
-        focus
+        asyncState={archiveAlbumState}
+        focusCancel
       />
     );
   }
@@ -186,7 +228,7 @@ export default class Album extends Component {
   }
 
   render() {
-    const { album, position, albumsCount, loading } = this.props;
+    const { album, position, albumsCount, loading, editAlbumState } = this.props;
 
     const albumContent = (
       <Upload
@@ -208,6 +250,7 @@ export default class Album extends Component {
                 deleteImage={() => this.props.deleteImage(idx)}
                 key={imagePid}
                 disabled={disabled}
+                editAlbumState={editAlbumState}
               />;
 
             func.key = imagePid;
@@ -221,15 +264,18 @@ export default class Album extends Component {
     return (
       <div>
         {this.editAlbumDialog}
+        {this.uploadByUrlDialog}
         {this.archiveAlbumDialog}
-        <AlbumWrapper title={album.name}
-                      titleWrapper={(title: string) => this.renderTitle(title, album.images.length)}
-                      position={position}
-                      albumsCount={albumsCount}
-                      contentClassName={styles.albumContent}
-                      onSort={this.handleMove}
-                      actions={this.getAlbumActions()}
-                      onAddFile={this.handleAddFiles}
+        <AlbumWrapper
+          title={album.name}
+          titleWrapper={(title: string) => this.renderTitle(title, album.images.length)}
+          position={position}
+          albumsCount={albumsCount}
+          contentClassName={styles.albumContent}
+          onSort={this.handleMove}
+          actions={this.getAlbumActions()}
+          onAddFile={this.handleAddFiles}
+          onAddUrl={this.handleAddUrl}
         >
           {albumContent}
         </AlbumWrapper>

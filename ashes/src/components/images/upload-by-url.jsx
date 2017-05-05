@@ -1,5 +1,12 @@
 /* @flow */
 
+/**
+ * Upload From Link   x
+ * Media URL
+ * <input>
+ * cancel | upload
+ */
+
 // libs
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
@@ -14,36 +21,29 @@ import Form from 'components/forms/form';
 import TextInput from 'components/forms/text-input';
 import ErrorAlerts from 'components/alerts/error-alerts';
 
-// types
-import type { NewAlbum } from '../../modules/images';
-
 // styles
 import s from './edit-image.css';
 
+// types
+import type { NewAlbum } from '../../modules/images';
+
 type Props = {
-  isVisible: boolean;
-  isNew?: boolean;
-  inProgress: boolean;
-  album: NewAlbum;
   onSave: (name: string) => void;
   onCancel: () => void;
+  inProgress?: boolean;
   error?: any;
 };
 
 type State = {
-  name: string;
+  url: string;
 };
 
-class EditAlbum extends Component {
+class UploadByUrl extends Component {
 
   props: Props;
 
   state: State = {
-    name: this.props.album.name,
-  };
-
-  static defaultProps = {
-    isNew: false,
+    url: '',
   };
 
   input: TextInput;
@@ -59,40 +59,34 @@ class EditAlbum extends Component {
   }
 
   get saveDisabled(): boolean {
-    return _.isEmpty(this.state.name) || this.state.name === this.props.album.name;
+    return _.isEmpty(this.state.url);
   }
 
   @autobind
-  handleUpdateName(name: string) {
-    this.setState({ name });
+  handleUpdateName(url: string) {
+    this.setState({ url });
   }
 
   @autobind
   handleSave(event: Event) {
-    const { inProgress, onSave } = this.props;
-
     event.preventDefault();
-
-    if (!inProgress && !this.saveDisabled) {
-      onSave(this.state.name);
-    }
+    this.props.onSave(this.state.url);
   }
 
   render() {
     const { error, inProgress } = this.props;
-    const title = this.props.isNew ? 'Add New Album' : 'Edit Album';
 
     return (
-      <ContentBox title={title} actionBlock={this.closeAction}>
+      <ContentBox title="Upload From Link" actionBlock={this.closeAction}>
         <Form onSubmit={this.handleSave}>
           <FormField
-            label="Album Name"
+            label="Media URL"
             className="fc-product-details__field"
             labelClassName="fc-product-details__field-label">
             <TextInput
-              name="name"
+              name="url"
               className="fc-product-details__field-value"
-              value={this.state.name}
+              value={this.state.url}
               onChange={this.handleUpdateName}
               ref={r => this.input = r}
               autoComplete="off"
@@ -100,13 +94,14 @@ class EditAlbum extends Component {
           </FormField>
           <ErrorAlerts error={error} />
           <SaveCancel
-            className={s.editAlbumFooter}
+            className={s.uploadByUrl}
             onCancel={this.props.onCancel}
             onSave={this.handleSave}
-            saveDisabled={this.saveDisabled || inProgress}
-            cancelDisabled={inProgress}
+            saveDisabled={this.saveDisabled}
             isLoading={inProgress}
-            saveText="Save and Apply"
+            cancelDisabled={inProgress}
+            saveDisabled={inProgress}
+            saveText="Upload"
           />
         </Form>
       </ContentBox>
@@ -114,6 +109,6 @@ class EditAlbum extends Component {
   }
 }
 
-const Wrapped: Class<Component<void, Props, State>> = wrapModal(EditAlbum);
+const Wrapped: Class<Component<void, Props, State>> = wrapModal(UploadByUrl);
 
 export default Wrapped;

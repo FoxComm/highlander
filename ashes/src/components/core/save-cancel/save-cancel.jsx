@@ -40,7 +40,9 @@ type Props = {
   /** If to show loading animation */
   isLoading?: boolean;
   /** If true, wil set focus on Cancel button, otherwise do nothing */
-  focus?: boolean;
+  focusCancel?: boolean;
+  /** If true, wil set focus on Action button, otherwise do nothing */
+  focusAction?: boolean;
 };
 
 /**
@@ -68,10 +70,13 @@ export default class SaveCancel extends Component {
   };
 
   _cancel: HTMLElement;
+  _action: HTMLElement;
 
   componentDidMount() {
-    if (this.props.focus && this._cancel) {
+    if (this.props.focusCancel && this._cancel) {
       this._cancel.focus();
+    } else if (this.props.focusAction && this._action) {
+      this._action.focus();
     }
   }
 
@@ -135,6 +140,7 @@ export default class SaveCancel extends Component {
         isLoading={isLoading}
         disabled={saveDisabled}
         children={saveText}
+        returnRef={r => this._action = r}
       />
     );
   }

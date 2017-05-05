@@ -2,11 +2,11 @@
 
 // libs
 import _ from 'lodash';
-import React, { Component, Element } from 'react';
+import React, { Component, Element, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 // components
-import Images from '../images/images';
+import Images from 'components/images/images';
 
 export function connectImages(namespace, actions) {
   const plural = `${namespace}s`;
@@ -15,9 +15,13 @@ export function connectImages(namespace, actions) {
     namespace,
     albums: _.get(state, [plural, 'images', 'albums'], []),
     isLoading: _.get(state, ['asyncActions', `${plural}FetchAlbums`, 'inProgress'], true),
-    addAlbumInProgress: _.get(state, ['asyncActions', `${plural}AddAlbum`, 'inProgress'], false),
-    editAlbumInProgress: _.get(state, ['asyncActions', `${plural}EditAlbum`, 'inProgress'], false),
-    uploadImagesInProgress: _.get(state, ['asyncActions', `${plural}UploadImages`, 'inProgress'], false),
+    asyncActionsState: {
+      addAlbum: state.asyncActions[`${plural}AddAlbum`],
+      editAlbum: state.asyncActions[`${plural}EditAlbum`],
+      uploadMedia: state.asyncActions[`${plural}UploadMedia`],
+      uploadMediaByUrl: state.asyncActions[`${plural}UploadMediaByUrl`],
+      archiveAlbum: state.asyncActions[`${plural}ArchiveAlbum`],
+    }
   });
 
   return ImagesPage => {
@@ -55,4 +59,3 @@ export default class ImagesPage extends Component {
     );
   }
 }
-
