@@ -10,7 +10,7 @@ e.g. `Button`, `Dropdown`, `ConfirmationDialog`, etc.
 Core components are located in `src/components/core` directory.
 All files related to core component(jsx/css/md) should reside in separate directory named after component in kebab-case.
 
-[![files structure](assets/files-structure.png)]
+![files structure](assets/files-structure.png)
 #### index.js
 
 `index.js` file should reside in the directory and should export public components(s) from main component file.
@@ -105,7 +105,7 @@ export default ({ title, className = '' }: Props) => (
 );
 ```
 
-[More on styles](styles.md);
+[More on styles](styles.md)
 
 ### Styleguidist
 
