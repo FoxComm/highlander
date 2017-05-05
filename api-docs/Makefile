@@ -13,14 +13,14 @@ build:
 	$(call header, Building)
 	make install
 	mkdir -p $(BUILD_DIR)
-	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/public.apib -o $(BUILD_DIR)/public.html
+	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/auth.apib -o $(BUILD_DIR)/auth.html
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/customer.apib -o $(BUILD_DIR)/storefront.html
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/transactions.apib -o $(BUILD_DIR)/transactions.html
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/merchandising.apib -o $(BUILD_DIR)/merchandising.html
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/inventory.apib -o $(BUILD_DIR)/inventory.html
 
 watch_public:
-	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/public.apib -o $(BUILD_DIR)/ --server -p $(PORT)
+	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/auth.apib -o $(BUILD_DIR)/ --server -p $(PORT)
 
 watch_customer:
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/customer.apib -o $(BUILD_DIR)/ --server -p $(PORT)
