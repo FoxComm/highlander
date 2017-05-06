@@ -7820,10 +7820,6 @@ react-imgix@^5.2.1:
     jsuri "^1.3.1"
     react-is-deprecated "^0.1.2"
 
-react-input-mask@^0.8.0:
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/react-input-mask/-/react-input-mask-0.8.0.tgz#c8243004f2a43a4b6d5add380f0a5d68d9be806f"
-
 react-is-deprecated@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/react-is-deprecated/-/react-is-deprecated-0.1.2.tgz#301148f86ea428fe8e673eca7a372160b7579dbd"
@@ -7915,6 +7911,12 @@ react-styleguidist@^5.0.6:
     unist-util-visit "^1.1.1"
     webpack-dev-server "^1.16.3"
     webpack-merge "^4.1.0"
+
+react-text-mask@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/react-text-mask/-/react-text-mask-5.0.1.tgz#20fe3294aee067eca78e6663a5fef5d1954e7278"
+  dependencies:
+    prop-types "^15.5.6"
 
 react-transition-group@^1.1.2:
   version "1.1.2"

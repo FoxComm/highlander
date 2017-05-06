@@ -18,7 +18,7 @@ import Form from '../forms/form';
 import AddressDetails from '../addresses/address-details';
 import AddressSelect from '../addresses/address-select';
 import SaveCancel from 'components/core/save-cancel';
-import InputMask from 'react-input-mask';
+import { TextMask } from 'components/core/text-mask';
 import TextInput from '../forms/text-input';
 import AutoScroll from '../common/auto-scroll';
 import ExpirationBlock from './card-expiration-block';
@@ -154,7 +154,7 @@ export default class CreditCardForm extends React.Component {
   }
 
   @autobind
-  changeCardNumber({target}) {
+  changeCardNumber({ target }) {
     const value = target.value.replace(/[^\d]/g, '');
 
     const newState = assoc(this.state, ['card', 'cardNumber'], value);
@@ -173,11 +173,10 @@ export default class CreditCardForm extends React.Component {
             <FormField label="Card Number"
                        labelClassName="fc-credit-card-form__label"
                        validator={this.validateCardNumber}>
-              <InputMask
+              <TextMask
                 id="numberCardFormField"
                 className="fc-credit-card-form__input"
                 name="cardNumber"
-                maskChar=" "
                 size="20"
                 mask={this.cardMask}
                 type="text"
