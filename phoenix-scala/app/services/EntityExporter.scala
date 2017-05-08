@@ -33,34 +33,35 @@ object EntityExporter {
       au: AU,
       ec: EC,
       system: ActorSystem): HttpResponse = {
-    implicit val chunkable = Chunkable.csvChunkable(payload.fields)
+    implicit val chunkable = Chunkable.csvChunkable(payload.fields.map(_.displayName))
 
     val index = s"admin_${au.token.scope}" / entity.searchView
     val jsonSource = payload match {
       case ExportEntity.ByIDs(_, fields, ids) ⇒
         EntityExporter.export(
             searchIndex = index,
-            searchFields = fields,
+            searchFields = fields.map(_.name),
             searchIds = ids
         )
       case ExportEntity.BySearchQuery(_, fields, query) ⇒
         EntityExporter.export(
             searchIndex = index,
-            searchFields = fields,
+            searchFields = fields.map(_.name),
             searchQuery = query
         )
     }
     val csvSource = jsonSource.collect {
       case obj: JObject ⇒
         val objFields = obj.obj.toMap
-        payload.fields.map { field ⇒
-          objFields
-            .get(field)
-            .collect {
-              case jn: JNumber ⇒ field → s"${jn.values}"
-              case js: JString ⇒ field → s""""${js.values.replace("\"", "\"\"")}""""
-            }
-            .getOrElse(field → "")
+        payload.fields.map {
+          case ExportField(name, displayName) ⇒
+            objFields
+              .get(name)
+              .collect {
+                case jn: JNumber ⇒ displayName → s"${jn.values}"
+                case js: JString ⇒ displayName → s""""${js.values.replace("\"", "\"\"")}""""
+              }
+              .getOrElse(displayName → "")
         }
     }
 

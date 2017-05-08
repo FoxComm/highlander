@@ -1,9 +1,9 @@
 package payloads
 
 import com.pellucid.sealerate
-import utils.{ADT, ADTTypeHints}
 import utils.Strings._
 import utils.aliases.Json
+import utils.{ADT, ADTTypeHints}
 
 object ExportEntityPayloads {
   sealed trait ExportableEntity {
@@ -43,10 +43,12 @@ object ExportEntityPayloads {
     def types: Set[ExportableEntity] = sealerate.values[ExportableEntity]
   }
 
+  case class ExportField(name: String, displayName: String)
+
   sealed trait ExportEntity {
     def description: Option[String]
 
-    def fields: List[String]
+    def fields: List[ExportField]
   }
   object ExportEntity {
     def typeHints =
@@ -64,9 +66,9 @@ object ExportEntityPayloads {
       def types: Set[Type] = sealerate.values[Type]
     }
 
-    case class ByIDs(description: Option[String], fields: List[String], ids: List[Long])
+    case class ByIDs(description: Option[String], fields: List[ExportField], ids: List[Long])
         extends ExportEntity
-    case class BySearchQuery(description: Option[String], fields: List[String], query: Json)
+    case class BySearchQuery(description: Option[String], fields: List[ExportField], query: Json)
         extends ExportEntity
   }
 }
