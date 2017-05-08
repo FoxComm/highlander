@@ -165,7 +165,8 @@ class TaxonPage extends React.Component {
   }
 
   get headerControls() {
-    if (this.isNew) {
+    const hierarchical = get(this.props.taxonomy, 'hierarchical');
+    if (this.isNew || !hierarchical) {
       return;
     }
 
