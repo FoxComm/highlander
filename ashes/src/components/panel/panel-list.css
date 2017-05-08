@@ -27,7 +27,6 @@
 
 @media (min-resolution: 120dpi) {
   .item {
-    box-shadow: 0px 0px 0px 0.5px #9ba3a7 inset;
-    border: none;
+    border: 0.5px solid #9ba3a7;
   }
 }

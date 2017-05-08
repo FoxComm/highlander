@@ -16,6 +16,8 @@ type Props = {
   className?: string,
   /** Button content (label) */
   children?: Element<any>,
+  /** If true — sets `width` style to 100% */
+  stretch?: boolean,
 };
 
 /**
@@ -24,10 +26,10 @@ type Props = {
  *
  * @function Button
  */
-export const Button = ({ icon, children, isLoading = false, className = '', ...restProps }: Props) => {
+export const Button = ({ icon, children, isLoading = false, className = '', stretch, ...restProps }: Props) => {
   const cls = classNames(
     s.button,
-    { [s.loading]: isLoading },
+    { [s.loading]: isLoading, [s.stretch]: stretch },
     className
   );
 
