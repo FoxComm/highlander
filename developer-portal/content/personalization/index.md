@@ -9,7 +9,7 @@ The Fox Platform is learning about which products to recommend to your customers
 
 - Learn how to access product recommendations and use them in your storefront [here](recommendations.md)
 
-## Tarted Messaging
+## Targeted Messaging
 
 The Fox Platform allows you to send targeted messages based on who your customers are.
 
