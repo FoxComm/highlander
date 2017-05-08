@@ -9,7 +9,7 @@ The Fox Platform is learning about which products to recommend to your customers
 
 ### Quickstart
 
-### More
+### Learn
 
 - Learn how to access product recommendations and use them in your storefront [here](recommendations.md)
 
@@ -19,7 +19,7 @@ The Fox Platform allows you to send targeted messages based on who your customer
 
 ### Quickstart
 
-### More
+### Learn
 
 - Learn Suggest products to customers via Email or SMS [here](messaging.md)
 
@@ -29,6 +29,6 @@ You can group and segment your customers based on dynamic custom rules.
 
 ### Quickstart
 
-### More
+### Learn
 
 - Learn how to group customers and offer targeted discounts [here](customer-groups.md).

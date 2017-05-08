@@ -10,7 +10,7 @@ export your products to Amazon and keep track of orders and customers within the
 
 ### Quickstart
 
-### More
+### Learn
 
 - Learn how to export products to Amazon and Manage orders and manage orders [here](amazon.md)
 

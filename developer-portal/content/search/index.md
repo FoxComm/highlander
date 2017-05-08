@@ -8,7 +8,7 @@ There are two places to search for products, the public and private catalogs.
 
 ### Quickstart
 
-### More
+### Learn
 
 - Learn how to search the public catalog in your storefront code [here](public-catalog.md).
 - Learn how to search the private catalog for all product information [here](private-catalog.md).
@@ -19,7 +19,7 @@ You can search order history and get aggregate statistics. Search for orders of 
 
 ### Quickstart
 
-### More
+### Learn
 
 - Learn how to search the order history and get aggregate statistics [here](orders.md).
 
@@ -30,7 +30,7 @@ get aggregate statistics about customers.
 
 ### Quickstart
 
-### More
+### Learn
 
 - Learn how to search for customers and get aggregate statistics [here](customers.md).
 
@@ -40,6 +40,6 @@ Fox standardized on the Elastic Search query language.
 
 ### Quickstart
 
-### More
+### Learn
 
 - Learn how to send queries and process results [here](language.md).

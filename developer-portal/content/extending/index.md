@@ -7,7 +7,7 @@ The API first design allows for the creation of storefront experiences that are 
 
 ### Quickstart
 
-### More
+### Learn
 
 - Learn how to create a custom storefront experience [here](experience.md).
 
@@ -16,7 +16,7 @@ Our [Event System](../events/index.md) allow flexible back end processing which 
 
 ### Quickstart
 
-### More
+### Learn
 
 - Learn how to process events and integrate with a third party provider [here](integrate.md).
 
@@ -26,7 +26,7 @@ Our flexible [Product](../products/index.md) and Content model allow you to mode
 
 ### Quickstart
 
-### More
+### Learn
 
 - Learn how to extend Fox Platform data models so you can innovate in your business [here](innovate.md)
 
