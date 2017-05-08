@@ -6,7 +6,6 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
-	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
 	"github.com/gin-gonic/gin"
 )
 
@@ -36,8 +35,7 @@ func (controller *reservationController) Hold() gin.HandlerFunc {
 		}
 
 		if err := payload.Validate(); err != nil {
-			fail := failures.NewBadRequest(err)
-			failures.Abort(context, fail)
+			handleServiceError(context, err)
 			return
 		}
 
