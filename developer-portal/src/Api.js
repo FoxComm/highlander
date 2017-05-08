@@ -8,9 +8,16 @@ class Api extends Component {
   render() {
     return (
       <div>
-        <Section title="The order object">
+        <Section title="Product">
           <Content>
-            This is the content section.
+            <p>
+              This is an object that represents a unique product within a
+              storefront. It differs from <code>Variants</code>, which represent
+              the unique variations of a product. To understand the difference,
+              consider a store that sells jackets. Each jacket style would be a
+              <code>Product</code>, while the size and color combinations
+              of each style would be individual <code>Variants</code>.
+            </p>
           </Content>
           <Example>
             This is an example response.
