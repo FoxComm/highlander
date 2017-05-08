@@ -19,6 +19,8 @@ import * as taxonsActions from 'modules/taxons/details/taxon';
 // helpers
 import { transitionTo, transitionToLazy } from 'browserHistory';
 
+import s from './taxons.css'
+
 
 // page layout
 import layout from './layout';
@@ -172,6 +174,7 @@ class TaxonPage extends React.Component {
 
     return [
       <AddButton
+        className={s.subValue}
         onClick={this.handleAddSubvalue}
         children={'Subvalue'}
         key="subvalue-btn"
