@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { CustomerInfo } from './helpers';
-import TotalsSummary from '../common/totals';
+// import TotalsSummary from '../common/totals';
 import Payment from '../payment/payment';
 
 export default class RmaDetails extends React.Component {
