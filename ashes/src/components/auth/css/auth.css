@@ -19,14 +19,10 @@
   color: #484848;
 }
 
-.auth-row {
+.main {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.main {
-  composes: auth-row;
   width: 388px;
 
   & :global(.fc-input),
@@ -45,7 +41,6 @@
 }
 
 .form {
-  composes: global(fc-form-vertical);
   width: 100%;
   margin-top: 20px;
 

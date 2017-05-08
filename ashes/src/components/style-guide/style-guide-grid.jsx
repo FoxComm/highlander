@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from '../link';
 import DescriptiveGridColumn from './descriptive-grid-column';
 
 const StyleGuideGridGenerator = props => {

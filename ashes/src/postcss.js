@@ -27,28 +27,29 @@ function generateShortName(name, filename, css) {
 const generateScopedName = process.env.NODE_ENV === 'production' ? generateShortName : generateLongName;
 
 const plugins = [
-  require('postcss-assets')({
-    loadPaths: ['src/images/']
-  }),
   require('postcss-import')({
     path: ['src/css', 'node_modules'],
   }),
+  require('postcss-assets')({
+    loadPaths: ['src/images/']
+  }),
   require('postcss-css-variables'),
+  require('postcss-cssnext')({
+    features: {
+      // Instead of it we are using `postcss-css-variables` above
+      // https://github.com/MadLittleMods/postcss-css-variables#differences-from-postcss-custom-properties
+      customProperties: false,
+    },
+  }),
   require('lost')({
     flexbox: 'flex',
     gutter: '1.85%',
   }),
   require('postcss-mixins'),
   require('postcss-nested'),
-  require('postcss-modules-extract-imports'),
   require('postcss-modules-local-by-default'),
   require('postcss-modules-scope')({
     generateScopedName,
-  }),
-  require('postcss-cssnext')({
-    features: {
-      customProperties: false,
-    },
   }),
 ];
 

@@ -1,3 +1,5 @@
+@import "common.css";
+
 .main {
   display: inline-flex;
   align-items: center;
@@ -9,7 +11,7 @@
 }
 
 ._loading {
-  composes: loading from '../../css/animations.css';
+  @apply --loading-caramel;
   background-color: rgba(58, 67, 80, .8);
 }
 

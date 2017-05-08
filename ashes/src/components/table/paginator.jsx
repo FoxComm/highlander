@@ -3,7 +3,6 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
-import classNames from 'classnames';
 
 //helpers
 import { prefix } from '../../lib/text-utils';
