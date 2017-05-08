@@ -7,7 +7,7 @@ import _ from 'lodash';
 import { prefix } from 'lib/text-utils';
 
 //components
-import { AddButton } from 'components/common/buttons';
+import { AddButton } from 'components/core/button';
 import Criterion from './criterion-edit';
 
 const prefixed = prefix('fc-query-builder');

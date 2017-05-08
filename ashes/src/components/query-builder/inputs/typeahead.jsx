@@ -70,7 +70,7 @@ export class Input extends Component {
     });
   }
 
-  @debounce(1000)
+  @debounce(400)
   suggestItems(value){
     if (value.length < 3) return null;
     return this.props.suggestItems(value);
@@ -116,11 +116,12 @@ export class Input extends Component {
         styleName={'typeahead'}
         component={TypeaheadRow}
         hideOnBlur={true}
-        items={this.props.data}
+        items={isFetching ? [] : this.props.data}
         isFetching={isFetching}
         name="queryBuilderTypeahead"
         onBlur={this.updateFocus}
         hideOnBlur={true}
+        minQueryLength={3}
         inputElement={this.pilledInput()}
         onItemSelected={this.handleSelectItem}
         placeholder={'Search..'} />
