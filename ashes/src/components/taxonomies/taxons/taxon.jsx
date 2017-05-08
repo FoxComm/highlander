@@ -19,7 +19,7 @@ import * as taxonsActions from 'modules/taxons/details/taxon';
 // helpers
 import { transitionTo, transitionToLazy } from 'browserHistory';
 
-import s from './taxons.css'
+import s from './taxons.css';
 
 
 // page layout
