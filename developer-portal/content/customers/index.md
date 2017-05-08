@@ -6,14 +6,14 @@ The Fox Platform has a model for customers that both have logins and guest accou
 
 ## Learn More
 
-### Guest Customers
+### Guests
 
 Anyone new who visits your storefront can have a guest account. Guest accounts
 can have server side carts and can order products without having to sign up.
 
 - [Create a guest account with an email](guest.md)
 
-### Signed Up Customers
+### Accounts
 
 Customers can have a login with a password which allows them to access their address
 book, credit cards, and other information.
