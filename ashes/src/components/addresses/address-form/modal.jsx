@@ -1,5 +1,6 @@
 
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import modalWrapper from '../../modal/wrapper';
 import AddressForm from './address-form';
 import ContentBox from '../../content-box/content-box';

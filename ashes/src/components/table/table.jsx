@@ -202,7 +202,7 @@ export default class Table extends Component {
     if (this.props.renderHeadIfEmpty || !isEmpty) {
       const { data, setState, className, ...rest } = this.props;
       return (
-        <TableHead {...rest} ref={ref => this._tableHead = ref} sortBy={data.sortBy} setState={setState} />
+        <TableHead {...rest} getRef={ref => this._tableHead = ref} sortBy={data.sortBy} setState={setState} />
       );
     }
   }
