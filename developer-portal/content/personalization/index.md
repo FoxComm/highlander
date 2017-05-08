@@ -11,16 +11,16 @@ You can personalize your experience via product recommendations, targeted messag
 
 The Fox Platform is learning about which products to recommend to your customers in real-time.  
 
-- Learn how to access product recommendations and use them in your storefront [here](recommendations.md)
+- [Access product recommendations and use them in your storefront](recommendations.md)
 
 ### Targeted Messaging
 
 The Fox Platform allows you to send targeted messages based on who your customers are.
 
-- Learn Suggest products to customers via Email or SMS [here](messaging.md)
+- [Suggest products to customers via Email or SMS](messaging.md)
 
 ### Dynamic Customer Groups
 
 You can group and segment your customers based on dynamic custom rules.
 
-- Learn how to group customers and offer targeted discounts [here](customer-groups.md).
+- [Group customers and offer targeted discounts](customer-groups.md).

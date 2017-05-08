@@ -13,5 +13,5 @@ FoxCommerce is your central hub for managing your orders and customers. You can
 export your products to Amazon and keep track of orders and customers within the Platform.
 
 
-- Learn how to export products to Amazon and Manage orders and manage orders [here](amazon.md)
+- [Export products to Amazon and Manage orders and manage orders](amazon.md)
 
