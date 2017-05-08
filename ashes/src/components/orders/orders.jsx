@@ -151,7 +151,8 @@ class Orders extends Component {
   renderDetail(messages: Array<string>, referenceNumber: string) {
     return (
       <span key={referenceNumber}>
-        Order <Link to="order-details" params={{order: referenceNumber}}>{referenceNumber}</Link>: {messages}
+        Order <Link to="order-details" params={{order: referenceNumber}}>{referenceNumber}</Link>
+        {_.isEmpty(messages) ? null : `: ${messages}`}
       </span>
     );
   }
