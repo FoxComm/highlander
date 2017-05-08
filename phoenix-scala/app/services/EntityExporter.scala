@@ -14,6 +14,7 @@ import org.json4s.JsonAST.{JNumber, JString}
 import org.json4s._
 import org.json4s.jackson.{compactJson, parseJson}
 import payloads.ExportEntityPayloads._
+import scala.annotation.tailrec
 import utils.Chunkable
 import utils.aliases._
 import utils.apis.Apis
@@ -52,20 +53,31 @@ object EntityExporter {
     }
     val csvSource = jsonSource.collect {
       case obj: JObject ⇒
-        val objFields = obj.obj.toMap
         payload.fields.map {
           case ExportField(name, displayName) ⇒
-            objFields
-              .get(name)
-              .collect {
-                case jn: JNumber ⇒ displayName → s"${jn.values}"
-                case js: JString ⇒ displayName → s""""${js.values.replace("\"", "\"\"")}""""
-              }
-              .getOrElse(displayName → "")
+            displayName → extractValue(name.split("\\.").toList, Some(obj)).getOrElse("")
         }
     }
 
     Http.renderAttachment(fileName = setName(payload, entity))(csvSource)
+  }
+
+  /** Extracts value from (possibly nested) field path.
+    *
+    * When there is something left in `fields` and `acc` is not a json object,
+    * we simply omit outputting the value.
+    */
+  @tailrec private def extractValue(fields: List[String], acc: Option[JValue]): Option[String] = {
+    def convert(jv: Option[JValue]) = jv.collect {
+      case jn: JNumber ⇒ s"${jn.values}"
+      case js: JString ⇒ s""""${js.values.replace("\"", "\"\"")}""""
+    }
+
+    (fields, acc) match {
+      case (h :: t, Some(jobj: JObject)) ⇒ extractValue(t, jobj.obj.toMap.get(h))
+      case (Nil, _)                      ⇒ convert(acc)
+      case (_, _)                        ⇒ None
+    }
   }
 
   private def setName(payload: ExportEntity, entity: ExportableEntity): String = {
@@ -81,15 +93,15 @@ object EntityExporter {
       searchIds: List[Long])(implicit apis: Apis, au: AU, ec: EC): Source[Json, NotUsed] = {
     import scala.collection.JavaConverters._
 
-    // as of 2.3.x elastic4s's fetchSourceContext on single get item is ignored in multi get request
-    // so we need to set it manually
-    // this time we dank mutability
+    // As of 2.3.x elastic4s's fetchSourceContext on single get item is ignored in multi get request,
+    // so we need to set it manually.
+    // This time we dank mutability.
     val sourceCtx = new FetchSourceContext(searchFields.toArray)
     val query     = multiget(searchIds.map(get id _ from searchIndex))
     query._builder.request().getItems.asScala.foreach(_.fetchSourceContext(sourceCtx))
 
-    // for sake of api consistency we pretend here we have a stream of results
-    // it's not true as multiget fetches all documents eagerly
+    // For the sake of api consistency we pretend here we have a stream of results.
+    // It's not true, as multiget fetches all documents eagerly.
     Source
       .fromFuture(apis.elasticSearch.client.execute(query))
       .map(_.responses.flatMap(_.response.map(_.getSourceAsString).map(parseJson(_))).toStream)
