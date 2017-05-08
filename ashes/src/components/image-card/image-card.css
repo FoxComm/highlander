@@ -1,3 +1,5 @@
+@import "common.css";
+
 .card {
   position: relative;
   border: 1px solid #d9d9d9;
@@ -52,7 +54,7 @@
 }
 
 ._loading {
-  composes: loading from '../../css/animations.css';
+  @apply --loading-caramel;
 }
 
 .title {
