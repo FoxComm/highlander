@@ -39,6 +39,7 @@ type Props = {
       ids: Array<number>, description: string, fields: Array<string>, entity: string, identifier: string
     ) => void,
   },
+  bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
 };
 
 type State = {

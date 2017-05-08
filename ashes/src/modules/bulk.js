@@ -153,8 +153,15 @@ function updateAttributes(actions, ids, object) {
   };
 }
 
-export const createExportByIds = (getEntities) => {
-  return (actions, ids, description, fields, entity, identifier) => (dispatch, getState) => {
+export const createExportByIds = (getEntities: (getState: Function, ids: Array<number>) => any) => {
+  return (
+    actions: Object,
+    ids: Array<number>,
+    description: string,
+    fields: Array<string>,
+    entity: string,
+    identifier: string
+  ) => (dispatch: Function, getState: Function) => {
     dispatch(actions.bulkRequest());
 
     dispatch(bulkExportByIds(ids, description, fields, entity, identifier))
