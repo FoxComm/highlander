@@ -8,6 +8,8 @@ import { pluralize } from 'fleck';
 import type { Store} from '../lib/store-creator';
 import createStore from '../lib/store-creator';
 
+import { bulkExportByIds } from 'modules/bulk-export/bulk-export';
+
 export const initialState = {
   isFetching: false,
   messages: {},
@@ -151,6 +153,16 @@ function updateAttributes(actions, ids, object) {
   };
 }
 
+export const createExportByIds = (getEntities) => {
+  return (actions, ids, description, fields, entity, identifier) => (dispatch, getState) => {
+    dispatch(actions.bulkRequest());
+
+    dispatch(bulkExportByIds(ids, description, fields, entity, identifier))
+      .then(() => dispatch(actions.bulkDone(getEntities(getState, ids), null)))
+      .catch(err => dispatch(actions.bulkError(err)));
+  };
+};
+
 export default function makeBulkActions(path: string): Store {
   return createStore({
     path,
@@ -164,4 +176,3 @@ export default function makeBulkActions(path: string): Store {
     initialState,
   });
 }
-
