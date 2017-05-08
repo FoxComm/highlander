@@ -1,13 +1,17 @@
 # Data Structures
 
+### ExportField
++ name: `customer.email` (required, string) - Name for a field to export.
++ displayName: `Customer Email` (required, string) - Display name for a field to export.
+
 ### ExportEntityByIds
 + description: `whatever` (optional, string) - Description of an export.
-+ fields: `id` (required, array[string]) - List of fields to export.
++ fields (required, array[ExportField]) - List of fields to export.
 + ids (required, array[number]) - List of ids.
 
 ### ExportEntityByQuery
 + description: `whatever` (optional, string) - Description of an export.
-+ fields: `id` (required, array[string]) - List of fields to export.
++ fields (required, array[ExportField]) - List of fields to export.
 + query (required, RawQuerySample) - Search query.
 
 ### RawQuerySample
