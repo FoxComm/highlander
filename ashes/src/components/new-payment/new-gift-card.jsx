@@ -115,12 +115,12 @@ export default class NewGiftCard extends Component {
       return <Alert type="warning">{`Gift Card ${giftCardCode} not found`}</Alert>;
     }
 
-    if (giftCard && giftCard.state === 'onHold') {
+    if (this.codeIsValid && giftCard && giftCard.state === 'onHold') {
       return (
         <Alert type="warning">
           {`Gift Card ${giftCardCode} is on hold`}
         </Alert>
-      )
+      );
     }
 
     return null;
