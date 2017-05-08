@@ -11,7 +11,6 @@ The API first design allows for the creation of storefront experiences that are 
 Our [Event System](../events/index.md) allow flexible back end processing which enables innovative business models and easy integration with external systems.
 
 - Learn how to process events and integrate with a third party provider [here](integrate.md).
-- Learn how to extend 
 
 ## Business Innovation
 
