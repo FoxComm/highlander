@@ -1,6 +1,7 @@
 /** Libs */
 import { get } from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 /** Components */
 import MultiSelectRow from '../../table/multi-select-row';
@@ -11,7 +12,7 @@ function setCellContents(order, field) {
 
   switch (field) {
     case 'savedForLaterAt':
-      return !!value ? <i className="icon-heart"/> : null;
+      return value ? <i className="icon-heart"/> : null;
     case 'image':
       return 'https://placeholdit.imgix.net/~text?txtsize=8&txt=IMAGE&w=50&h=50';
     default:

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 import LiveSearchAdapter from '../live-search/live-search-adapter';
 import MultiSelectTable from '../table/multi-select-table';
@@ -38,6 +39,7 @@ export default class SelectableSearchList extends React.Component {
     hasActionsColumn: PropTypes.bool,
     autoRefresh: PropTypes.bool,
     tbodyId: PropTypes.string,
+    tableClassName: PropTypes.string,
   };
 
   static defaultProps = {
@@ -88,8 +90,9 @@ export default class SelectableSearchList extends React.Component {
           failed={results.failed}
           emptyMessage={props.emptyMessage}
           errorMessage={props.errorMessage}
+          className={props.tableClassName}
           key={props.list.currentSearch().title} />
       </LiveSearchAdapter>
     );
-  };
+  }
 }

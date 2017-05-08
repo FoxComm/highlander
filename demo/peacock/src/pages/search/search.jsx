@@ -1,25 +1,25 @@
 /* @flow */
 
 // libs
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
+import { addAsyncReducer } from '@foxcomm/wings';
+import makeLocalStore from 'lib/local-store';
 import _ from 'lodash';
 import localized from 'lib/i18n';
-
 // components
-import ProductsList from '../../components/products-list/products-list';
+import ProductsList from 'components/products-list/products-list';
 
 // styles
 import styles from './search.css';
 
 // types
-import type { HTMLElement } from 'types';
 import type { AsyncStatus } from 'types/async-actions';
 import type { Product } from 'modules/products';
 import type { Localized } from 'lib/i18n';
 
 // actions
-import { searchProducts } from 'modules/search';
+import reducer, { searchProducts } from 'modules/search';
 
 type SearchParams = {
   term: string,
@@ -37,13 +37,13 @@ type Props = Localized & {
   results: SearchResult,
   params: SearchParams,
   force: boolean,
-  searchProducts: (term: string) => Promise,
+  searchProducts: (term: string) => Promise<*>,
   searchState: AsyncStatus,
 };
 
 function mapStateToProps(state): Object {
   return {
-    ...state.search,
+    ...state,
     searchState: _.get(state.asyncActions, 'search', {}),
   };
 }
@@ -65,7 +65,7 @@ class Search extends Component {
     props.searchProducts(props.params.term);
   }
 
-  render(): HTMLElement {
+  render(): Element<*> {
     const { params, results, t } = this.props;
     const { term } = params;
 
@@ -75,11 +75,15 @@ class Search extends Component {
       <div styleName="search">
         <h1 styleName="search-title">
           <span styleName="label">{t('Search results for')}</span>
-          <strong styleName="term">"{term}"</strong>
+          <strong styleName="term">&quot;{term}&quot;</strong>
         </h1>
         <ProductsList
+          sorting={{direction: 1, field: 'salesPrice'}}
+          changeSorting={_.noop}
           list={result}
           isLoading={this.props.searchState.inProgress !== false}
+          fetchMoreProducts={_.noop}
+          moreAvailable={false}
         />
       </div>
     );
@@ -87,6 +91,7 @@ class Search extends Component {
 }
 
 export default _.flowRight(
+  makeLocalStore(addAsyncReducer(reducer)),
   connect(mapStateToProps, {searchProducts}),
   localized
 )(Search);

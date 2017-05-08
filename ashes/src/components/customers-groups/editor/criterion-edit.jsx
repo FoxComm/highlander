@@ -1,6 +1,7 @@
 //libs
 import _ from 'lodash';
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 //data
@@ -10,7 +11,7 @@ import criterions, { getCriterion, getOperators, getWidget } from 'paragons/cust
 import { prefix } from 'lib/text-utils';
 
 //components
-import { Dropdown, DropdownItem } from 'components/dropdown';
+import { Dropdown } from 'components/dropdown';
 
 const prefixed = prefix('fc-customer-group-builder');
 const fields = criterions.map(({ field,label }) => [ field, label ]);
@@ -41,7 +42,7 @@ class Criterion extends Component {
       </div>
     );
   }
-};
+}
 
 const renderOperator = (criterion, operator, changeOperator) => {
   if (!criterion) {
@@ -66,7 +67,7 @@ const renderValue = (criterion, operator, value, changeValue) => {
     return null;
   }
 
-  const {Input, getDefault} = getWidget(criterion, operator);
+  const { Input } = getWidget(criterion, operator);
 
   return React.createElement(Input, {
     criterion,

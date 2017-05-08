@@ -1,9 +1,7 @@
 package services.variant
 
-import failures.ArchiveFailures._
 import failures.NotFoundFailure404
 import failures.ProductFailures._
-import models.inventory.Sku
 import models.account._
 import models.objects._
 import models.product._
@@ -169,7 +167,7 @@ object VariantManager {
       scope    ← * <~ Scope.resolveOverride(payload.scope)
       skuCodes ← * <~ payload.skuCodes.map(SkuManager.mustFindSkuByContextAndCode(context.id, _))
       _ ← * <~ skuCodes.map(sku ⇒
-               DbResultT.fromXor(sku.mustNotBeArchived(Variant, variant.formId)))
+               DbResultT.fromEither(sku.mustNotBeArchived(Variant, variant.formId)))
       ins ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       variantValue ← * <~ VariantValues.create(
                         VariantValue(scope = scope,
@@ -211,12 +209,9 @@ object VariantManager {
       toDelete = variantValueLinks.filter(link ⇒ !newSkuIds.contains(link.rightId))
       toCreate = newSkuIds.diff(linkedSkuIds)
 
-      _ ← * <~ VariantValueSkuLinks.createAllReturningIds(
+      _ ← * <~ VariantValueSkuLinks.createAll(
              toCreate.map(id ⇒ VariantValueSkuLink(leftId = value.id, rightId = id)))
-      _ ← * <~ toDelete.map(
-             link ⇒
-               VariantValueSkuLinks
-                 .deleteById(link.id, DbResultT.unit, id ⇒ NotFoundFailure404(link, link.id)))
+      _ ← * <~ VariantValueSkuLinks.filter(_.id inSet toDelete.map(_.id)).delete
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
 

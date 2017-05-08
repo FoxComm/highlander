@@ -3,19 +3,29 @@
 + Parameters
     + refNum: `ABC-123.1` (required, string) - Return reference number
 
+### View all [GET /v1/returns]
+
++ Response 200 (application/json)
+    + Attributes (array[Return])
+
+### View by Customer [GET /v1/returns/customer/{customerId}]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer id
++ Response 200 (application/json)
+    + Attributes (array[Return])
+
+### View by Order [GET /v1/returns/order/{refNum}]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Order reference number
++ Response 200 (application/json)
+    + Attributes (array[Return])
+
 ### View [GET]
 
 + Response 200 (application/json)
     + Attributes (Return)
-    
-### Edit View [GET /v1/returns/{refNum}/expanded]
-
-Expanded view with embedded Order + warnings and includes.
-
-+ Parameters
-    + refNum: `ABC-123.1` (required, string) - Return reference number
-+ Response 200 (application/json)
-    + Attributes (ReturnExpanded)
 
 ### Create [POST /v1/returns]
 
@@ -38,121 +48,98 @@ Expanded view with embedded Order + warnings and includes.
 + Parameters
     + refNum: `ABC-123.1` (required, string) - Return reference number
 + Request (application/json)
-    + Attributes (ReturnMessageToCustomerUpdatePayload)
+    + Attributes (ReturnMessageToCustomerPayload)
 + Response 200 (application/json)
     + Attributes (Return)
 
-## Line Items SKUs [/v1/returns/{refNum}/line-items/skus]
+## Return Reasons [/v1/returns/reasons]
+
+### View all [GET]
+
++ Response 200 (application/json)
+    + Attributes (ReturnReason)
+
+### Create [POST]
+
++ Request (application/json)
+    + Attributes (ReturnReasonPayload)
++ Response 200 (application/json)
+    + Attributes (ReturnReason)
+
+### Remove [DELETE /v1/returns/reasons/{reasonId}]
+
++ Parameters
+    + reasonId: 1 (required, number) - Return reason id
++ Response 204 (application/json)
+
+## Return Line Items [/v1/returns/{refNum}/line-items]
 
 + Parameters
     + refNum: `ABC-123.1` (required, string) - Return reference number
 
-### Add [POST]
+### Add or update SKUs [POST /v1/returns/{refNum}/line-items/skus]
+
++ Parameters
+    + refNum: `ABC-123.1` (required, string) - Return reference number
 
 + Request (application/json)
     + Attributes (array[ReturnSkuLineItemPayload])
 + Response 200 (application/json)
     + Attributes (Return)
 
-### Delete [DELETE /v1/returns/{refNum}/line-items/skus/{id}]
-
-+ Parameters
-    + refNum: `ABC-123.1` (required, string) - Return reference number
-    + id: 1 (required, number) - Line item ID
-+ Response 200 (application/json)
-    + Attributes (Return)
-
-## Line Items Gift Cards [/v1/returns/{refNum}/line-items/gift-cards]
-
-+ Parameters
-    + refNum: `ABC-123.1` (required, string) - Return reference number
-
 ### Add [POST]
 
-+ Parameters
-    + refNum: `ABC-123.1` (required, string) - Return referenceNumber.
-+ Request (application/json)
-    + Attributes (array[ReturnGiftCardLineItemPayload])
++ Request Shipping cost (application/json)
+    + Attributes
+        + payloadType: `shippingCost` (required, fixed) - Payload discriminator.
+        + Include ReturnShippingCostLineItemPayload
++ Request SKU line item (application/json)
+    + Attributes
+        + payloadType: `skuItem` (required, fixed) - Payload discriminator.
+        + Include ReturnSkuLineItemPayload
 + Response 200 (application/json)
     + Attributes (Return)
 
-### Delete [DELETE /v1/returns/{refNum}/line-items/gift-cards/{id}]
+### Delete [DELETE /v1/returns/{refNum}/line-items/{liId}]
 
 + Parameters
     + refNum: `ABC-123.1` (required, string) - Return reference number
-    + id: 1 (required, number) - Line item ID
-+ Response 200 (application/json)
-    + Attributes (Return)
+    + liId: 1 (required, number) - Line item ID
++ Response 204 (application/json)
 
-## Line Items Shipping Costs [/v1/returns/{refNum}/line-items/shipping-costs]
-
-+ Parameters
-    + refNum: `ABC-123.1` (required, string) - Return reference number
-
-### Add [POST]
-
-+ Parameters
-    + refNum: `ABC-123.1` (required, string) - Return referenceNumber.
-+ Request (application/json)
-    + Attributes (array[ReturnShippingCostLineItemPayload])
-+ Response 200 (application/json)
-    + Attributes (Return)
-
-### Delete [DELETE /v1/returns/{refNum}/line-items/shipping-costs/{id}]
-
-+ Parameters
-    + refNum: `ABC-123.1` (required, string) - Return reference number
-    + id: 1 (required, number) - Line item ID
-+ Response 200 (application/json)
-    + Attributes (Return)
-
-## Credit Card Payments [/v1/returns/{refNum}/payment-methods/credit-cards]
+## Return Payments [/v1/returns/{refNum}/payment-methods]
 
 + Parameters
     + refNum: `ABC-123` (required, string) - Return reference number
 
-### Add [POST]
+### Add or update payments [POST]
 
 + Request (application/json)
-    + Attributes (ReturnPaymentPayload)
+    + Attributes (ReturnPaymentsPayload)
 + Response 200 (application/json)
     + Attributes (Return)
 
-### Delete [DELETE]
-
-+ Response 200 (application/json)
-    + Attributes (Return)
-
-## Gift Card Payments [/v1/returns/{refNum}/payment-methods/gift-cards]
+### Add single payment [POST /v1/returns/{refNum}/payment-methods/{paymentMethod}]
 
 + Parameters
-    + refNum: `ABC-123.1` (required, string) - Return reference number
-
-### Add [POST]
-
+    + refNum: `ABC-123` (required, string) - Return reference number
+    + paymentMethod: `giftCard` (required, enum[string]) - Payment method type
+        + Members
+            + `creditCard`
+            + `giftCard`
+            + `storeCredit`
 + Request (application/json)
     + Attributes (ReturnPaymentPayload)
 + Response 200 (application/json)
     + Attributes (Return)
 
-### Delete [DELETE]
-
-+ Response 200 (application/json)
-    + Attributes (Return)
-
-## Store Credit Payments [/v1/returns/{refNum}/payment-methods/store-credits]
+### Delete single payment [DELETE /v1/returns/{refNum}/payment-methods/{paymentMethod}]
 
 + Parameters
-    + refNum: `ABC-123.1` (required, string) - Return reference number
-
-### Add [POST]
-
-+ Request (application/json)
-    + Attributes (ReturnPaymentPayload)
-+ Response 200 (application/json)
-    + Attributes (Return)
-
-### Delete [DELETE]
-
-+ Response 200 (application/json)
-    + Attributes (Return)
+    + refNum: `ABC-123` (required, string) - Return reference number
+    + paymentMethod: `creditCard` (required, enum[string]) - Payment method type
+        + Members
+            + `creditCard`
+            + `giftCard`
+            + `storeCredit`
++ Response 204 (application/json)

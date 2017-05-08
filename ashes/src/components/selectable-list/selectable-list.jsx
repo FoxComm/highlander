@@ -5,7 +5,7 @@ import React, { Component, Element } from 'react';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
-import { PrimaryButton } from '../common/buttons';
+import { PrimaryButton } from 'components/core/button';
 import Overlay from '../overlay/overlay';
 import SelectableItem from './selectable-item';
 
@@ -107,7 +107,7 @@ export default class SelectableList extends Component {
       this.props.onSelect(this.selectedIds, event);
     }
     this.clearState();
-  };
+  }
 
   selectedItemsMap(): Object {
     return _.reduce(this.props.items, (itemsMap: Object, item: ItemType) => {

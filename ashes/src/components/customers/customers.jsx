@@ -41,7 +41,7 @@ function renderRow(row, index, columns, params) {
   return (
     <CustomerRow key={row.id} customer={row} columns={columns} params={params} />
   );
-};
+}
 
 class Customers extends Component {
   props: Props;
@@ -92,11 +92,11 @@ class Customers extends Component {
     this.props.bulkActions.setMessages({ success, error });
 
     this.setState({
-        addToGroupModalShown: false,
-        customerIds: [],
-      }, () =>
-        groups.forEach(({ id }: TCustomerGroup) =>
-          this.props.bulkActions.addCustomersToGroup(id, customers))
+      addToGroupModalShown: false,
+      customerIds: [],
+    }, () =>
+      groups.forEach(({ id }: TCustomerGroup) =>
+        this.props.bulkActions.addCustomersToGroup(id, customers))
     );
   }
 

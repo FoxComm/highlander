@@ -3,7 +3,7 @@
  */
 
 // libs
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { assoc, dissoc } from 'sprout-data';
@@ -19,10 +19,6 @@ import { availableVariantsValues, variantsWithMultipleOptions } from 'paragons/v
 
 // styles
 import styles from './sku-content-box.css';
-
-// types
-import type { Product, OptionValue } from 'paragons/product';
-import type { Sku } from 'modules/skus/details';
 
 type UpdateFn = (code: string, field: string, value: any) => void;
 

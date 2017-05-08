@@ -1,0 +1,112 @@
+.block {
+  position: relative;
+}
+
+/* @todo remove globals from here somehow */
+.block._active :global(.fc-pilled-input__input-container),
+.block._active :global(.fc-pilled-input__input-container:hover) {
+  border-color: #a2dee1 !important;
+}
+
+.block :global(.fc-form-field-label) {
+  display: block;
+}
+
+.block :global(.fc-image-column) {
+  max-width: 50px;
+  max-height: 50px;
+}
+
+.input {
+  flex: 1 1 auto;
+}
+
+.list._search .input {
+  padding-left: 40px;
+}
+
+.input-icon {
+  display: none;
+  color: #bfbfbf;
+  position: absolute;
+  left: 13px;
+  bottom: 11px;
+}
+
+.list._search .input-icon {
+  display: block;
+}
+
+.list {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  z-index: 2;
+  transition: all .2s linear;
+}
+
+.list._visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+.items {
+  max-height: 350px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  background-color: #fff;
+  border: 1px solid #bbbdbf;
+  border-width: 0 1px 1px 1px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
+
+  font-size: 12px;
+}
+
+.list._users .items {
+  width: 600px;
+  overflow-y: auto;
+}
+
+.item {
+  padding: 0;
+  border-width: 0 1px 1px;
+  background-color: #fff;
+  box-shadow: 0px -0.5px 0px #bbbdbf inset;
+}
+
+.item:last-child {
+  box-shadow: none;
+}
+
+.item:hover {
+  background-color: #f7f7f7;
+  cursor: pointer;
+}
+
+.list._modal .item {
+  width: 600px;
+}
+
+.item :global(.fc-grid) {
+  line-height: 20px;
+}
+
+.not-found {
+  padding: 15px 20px;
+}
+
+.please { /* `Please type more` notification */
+  padding: 15px 20px;
+}
+
+/* @todo refactor Alert component */
+.need-more-characters {
+  margin-top: 0;
+}
+
+.preloader {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}

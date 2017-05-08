@@ -135,10 +135,10 @@ const getRoutes = (jwt: Object) => {
         router.read('inventory-list-page',{ component: InventoryListPage }, [
           router.read('inventory', { component: InventoryList, isIndex: true }),
           router.read('inventory-activity-trail', {
-             path: 'activity-trail',
-             dimension: 'inventory',
-             component: ActivityTrailPage,
-             frn: frn.activity.inventory,
+            path: 'activity-trail',
+            dimension: 'inventory',
+            component: ActivityTrailPage,
+            frn: frn.activity.inventory,
           }),
         ]),
       ]);

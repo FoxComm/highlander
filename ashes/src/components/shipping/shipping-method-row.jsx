@@ -1,14 +1,15 @@
 // libs
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 // components
 import Currency from '../common/currency';
-import { EditButton, PrimaryButton } from '../common/buttons';
+import { EditButton } from 'components/core/button';
 import CurrencyInput from '../forms/currency-input';
 import RadioButton from '../forms/radio-button';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
-import SaveCancel from '../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 
 const editBlock = (shippingMethod, isEditingPrice, editPriceAction, cancelPriceAction, submitPriceAction) => {
   if (shippingMethod.isSelected && isEditingPrice) {

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 export default class DescriptiveGridColumn extends React.Component {
   static propTypes = {
@@ -13,11 +14,11 @@ export default class DescriptiveGridColumn extends React.Component {
 
   render() {
     return (
-        <div className={ this.clsName }>
-          <div className='content-box'>
-            { this.clsName }
-          </div>
+      <div className={ this.clsName }>
+        <div className='content-box'>
+          { this.clsName }
         </div>
-      );
+      </div>
+    );
   }
 }

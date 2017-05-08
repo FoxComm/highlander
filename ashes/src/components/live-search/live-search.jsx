@@ -1,5 +1,6 @@
 // libs
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 
 import _ from 'lodash';
@@ -16,8 +17,8 @@ import TabListView from '../tabs/tabs';
 import EditableTabView from '../tabs/editable-tab';
 import DatePicker from '../datepicker/datepicker';
 import ShareSearch from '../share-search/share-search';
-import { Button } from '../common/buttons';
-import ButtonWithMenu from '../common/button-with-menu';
+import { Button } from 'components/core/button';
+import ButtonWithMenu from 'components/core/button-with-menu';
 import Alert from '../alerts/alert';
 
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
@@ -381,7 +382,7 @@ export default class LiveSearch extends React.Component {
         onClick={() => props.onPillClick(pill, idx)}
         title={pill.display}>
         <i className={icon} />
-        {pill.display}
+        <span className="fc-pilled-input__pill-value">{pill.display}</span>
         <a onClick={() => props.onPillClose(pill, idx)}
            className="fc-pilled-input__pill-close">
           &times;

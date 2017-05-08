@@ -1,7 +1,7 @@
 /* @flow */
 
-//libs
-import React, { PropTypes } from 'react';
+// libs
+import React from 'react';
 import _ from 'lodash';
 
 // helpers
@@ -11,8 +11,8 @@ import { activeStatus, isArchived } from 'paragons/common';
 import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
 
-// types
-import type { Product } from 'paragons/product';
+// styles
+import styles from './product-row.css';
 
 type Props = {
   product: Product,
@@ -22,6 +22,8 @@ type Props = {
 
 function setCellContents(product, field) {
   switch (field) {
+    case 'skus':
+      return _.size(_.get(product, 'skus'));
     case 'image':
       return _.get(product, ['albums', 0, 'images', 0, 'src']);
     case 'state':

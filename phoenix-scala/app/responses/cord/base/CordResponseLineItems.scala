@@ -120,7 +120,7 @@ object CordResponseLineItems {
   private def getAttributesHash(attributes: Option[LineItemAttributes]): String =
     attributes.fold("")(_.toString.hashCode.toString)
 
-  private val NO_IMAGE =
+  val NO_IMAGE =
     "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/no_image.jpg"
 
   private def createResponseGrouped(lineItemData: Seq[LineItemProductData[_]],

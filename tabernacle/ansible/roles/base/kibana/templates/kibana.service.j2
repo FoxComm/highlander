@@ -1,16 +1,15 @@
 [Service]
-ExecStart={{kibana_bin}}
 WorkingDirectory={{kibana_dir}}
+ExecStart={{kibana_bin}}
 Restart=always
+RestartSec=10
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=kibana
-TimeoutStartSec=5m
-RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
 
 [Unit]
-Requires=elasticsearch.service
-After=elasticsearch.service
+Requires=elasticsearch_5.service
+After=elasticsearch_5.service

@@ -1,7 +1,8 @@
 // libs
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 // components
 import UserInitials from './initials';

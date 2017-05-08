@@ -1,7 +1,7 @@
 /* @flow */
 
 // libs
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 
 // components
 import TotalsSummary from 'components/common/totals';
@@ -14,11 +14,11 @@ import DiscountsPanel from 'components/discounts-panel/discounts-panel';
 import OrderCoupons from './order-coupons';
 import ParticipantsPanel from '../participants';
 
-import type { Order } from 'paragons/order';
+import OrderParagon from 'paragons/order';
 
 type Props = {
   details: {
-    order: Order,
+    order: OrderParagon,
   },
   entityType: string;
 };
@@ -52,5 +52,5 @@ export default class OrderDetails extends Component {
         </div>
       </div>
     );
-  };
+  }
 }

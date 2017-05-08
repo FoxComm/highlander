@@ -1,14 +1,17 @@
 /* @flow */
 
-import { capitalize, get, isNumber, isNaN, identity } from 'lodash';
+// libs
+import { capitalize, get, identity } from 'lodash';
 import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 
+// components
 import { PanelList, PanelListItem } from 'components/panel/panel-list';
 import Currency from 'components/common/currency';
 import RadioButton from 'components/forms/radio-button';
 
-import styles from './stats.css';
+// styles
+import s from './stats.css';
 
 type Props = {
   stats: TCustomerGroupStats,
@@ -47,7 +50,7 @@ const StatsUnit = ({ title, stats, period, fieldName, currency = false, preproce
       currency={currency}
     />
     <StatsValue
-      className={styles.percent}
+      className={s.percent}
       value={getPercent(stats, period, fieldName)}
       preprocess={(v: number) => `${(v * 100).toFixed(2)}%`}
     />
@@ -69,7 +72,7 @@ class CustomerGroupStats extends Component {
     return Object.keys(this.props.stats).map((period: string) => (
       <RadioButton
         id={period}
-        className={styles.period}
+        className={s.period}
         checked={this.state.period === period}
         onChange={() => this.setState({ period })}
         disabled={this.props.isLoading}
@@ -91,10 +94,10 @@ class CustomerGroupStats extends Component {
 
     return (
       <div>
-        <div className={styles.periods}>
+        <div className={s.periods}>
           {this.timeframes}
         </div>
-        <PanelList className={classNames(styles.stats, { [styles._loading]: isLoading })}>
+        <PanelList className={classNames(s.stats, { [s._loading]: isLoading })}>
           <Stats title="Total Orders" fieldName="ordersCount" />
           <Stats title="Total Sales" fieldName="totalSales" currency />
           <Stats title="Avg. Order Size" fieldName="averageOrderSize" preprocess={Math.round} />

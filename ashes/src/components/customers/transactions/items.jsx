@@ -1,9 +1,7 @@
-
 /* @flow */
 
 /** Libs */
-import { get, isString, capitalize } from 'lodash';
-import React, { PropTypes, Component, Element } from 'react';
+import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as dsl from '../../../elastic/dsl';

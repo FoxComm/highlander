@@ -2,18 +2,15 @@
 
 import _ from 'lodash';
 
-export type Context = {
-  name: string,
-  attributes?: {
-    lang: string,
-    modality: string,
-  },
-}
+import { assoc, dissoc } from 'sprout-data';
 
-export type ObjectView = {
-  attributes: Attributes,
-  context: Context;
-}
+export type AttrSchema = {
+  type: string,
+  title?: string,
+  widget?: string,
+  properties?: Object,
+  disabled?: boolean,
+};
 
 export function guessType(value: any): string {
   const typeOf = typeof value;
@@ -26,6 +23,14 @@ export function guessType(value: any): string {
     default:
       return 'string';
   }
+}
+
+export function setObjectAttr(obj: Object, key: string, attr: Attribute): Object {
+  return assoc(obj, ['attributes', key], attr);
+}
+
+export function omitObjectAttr(obj: Object, key: string): Object {
+  return dissoc(obj, ['attributes', key]);
 }
 
 function supressor(object: Object): Object {

@@ -14,7 +14,7 @@ const PageTitle = (props: Props) => {
   return (
     <div styleName="title-block">
       <h1 styleName="page-title">{props.title}</h1>
-      <div styleName="divider"></div>
+      <div styleName="divider" />
     </div>
   );
 };

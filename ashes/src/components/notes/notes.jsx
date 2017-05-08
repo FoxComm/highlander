@@ -2,7 +2,8 @@
 // libs
 import _ from 'lodash';
 import classNames from 'classnames';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -10,7 +11,7 @@ import { bindActionCreators } from 'redux';
 
 // components
 import ConfirmationDialog from '../modal/confirmation-dialog';
-import { PrimaryButton } from '../../components/common/buttons';
+import { PrimaryButton } from 'components/core/button';
 import SectionTitle from '../section-title/section-title';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';

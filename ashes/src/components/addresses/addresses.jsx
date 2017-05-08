@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 
@@ -23,12 +24,13 @@ const Addresses = props => {
         confirm='Yes, Delete'
         onCancel={() => props.stopDeletingAddress(props.customerId) }
         confirmAction={() => {
-            props.stopDeletingAddress();
-            props.deleteAddress(props.customerId, props.deletingId)
-              .then(() => {
-                props.onDeleteAddress && props.onDeleteAddress(props.deletingId);
-              });
-          }} />
+          props.stopDeletingAddress();
+          props.deleteAddress(props.customerId, props.deletingId)
+            .then(() => {
+              props.onDeleteAddress && props.onDeleteAddress(props.deletingId);
+            });
+        }}
+      />
     </div>
   );
 };

@@ -2,13 +2,12 @@ package services.giftcards
 
 import cats.implicits._
 import failures.{NotFoundFailure400, OpenTransactionsFailure}
+import models.Reasons
 import models.account._
 import models.customer._
 import models.payment.giftcard.GiftCard.Canceled
 import models.payment.giftcard.GiftCardSubtypes.scope._
 import models.payment.giftcard._
-import models.{Reasons}
-
 import payloads.GiftCardPayloads._
 import responses.GiftCardBulkResponse._
 import responses.GiftCardResponse._
@@ -56,7 +55,6 @@ object GiftCardService {
       admin: User,
       payload: GiftCardCreateByCsr)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[Root] =
     for {
-      _     ← * <~ payload.validate
       scope ← * <~ Scope.resolveOverride(payload.scope)
       _     ← * <~ Reasons.mustFindById400(payload.reasonId)
       // If `subTypeId` is absent, don't query. Check for model existence otherwise.
@@ -78,7 +76,6 @@ object GiftCardService {
                                                                         ac: AC,
                                                                         au: AU): DbResultT[Root] =
     for {
-      _      ← * <~ payload.validate
       scope  ← * <~ Scope.resolveOverride(payload.scope)
       origin ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = payload.cordRef))
       adminResp = UserResponse.build(admin).some
@@ -92,35 +89,29 @@ object GiftCardService {
       ac: AC,
       au: AU): DbResultT[List[ItemResult]] =
     for {
-      _     ← * <~ payload.validate
       scope ← * <~ Scope.resolveOverride(payload.scope)
       gcCreatePayload = GiftCardCreateByCsr(balance = payload.balance,
                                             reasonId = payload.reasonId,
                                             currency = payload.currency,
                                             scope = scope.toString.some)
       response ← * <~ DbResultT.seqCollectFailures((1 to payload.quantity).map { num ⇒
-                  createByAdmin(admin, gcCreatePayload).mapXorRight(buildItemResult(_))
+                  createByAdmin(admin, gcCreatePayload).mapEitherRight(buildItemResult(_))
                 }.toList)
     } yield response
 
   def bulkUpdateStateByCsr(
       payload: GiftCardBulkUpdateStateByCsr,
       admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[List[ItemResult]] =
-    for {
-      _ ← * <~ payload.validate.toXor
-      response ← * <~ DbResultT.seqCollectFailures(payload.codes.map { code ⇒
-                  val itemPayload = GiftCardUpdateStateByCsr(payload.state, payload.reasonId)
-                  updateStateByCsr(code, itemPayload, admin).mapXorRight(
-                      buildItemResult(_, Some(code)))
-                }.toList)
-    } yield response
+    DbResultT.seqCollectFailures(payload.codes.map { code ⇒
+      val itemPayload = GiftCardUpdateStateByCsr(payload.state, payload.reasonId)
+      updateStateByCsr(code, itemPayload, admin).mapEitherRight(buildItemResult(_, Some(code)))
+    }.toList)
 
   def updateStateByCsr(code: String, payload: GiftCardUpdateStateByCsr, admin: User)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Root] =
     for {
-      _        ← * <~ payload.validate
       _        ← * <~ payload.reasonId.map(id ⇒ Reasons.mustFindById400(id)).getOrElse(DbResultT.unit)
       giftCard ← * <~ GiftCards.mustFindByCode(code)
       updated  ← * <~ cancelOrUpdate(giftCard, payload.state, payload.reasonId, admin)

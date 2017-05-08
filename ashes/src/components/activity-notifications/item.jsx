@@ -1,7 +1,8 @@
 
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 // components
@@ -74,7 +75,7 @@ export default class NotificationItem extends React.Component {
     );
   }
 
-};
+}
 
 NotificationItem.propTypes = {
   item: PropTypes.shape({

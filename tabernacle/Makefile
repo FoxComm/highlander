@@ -21,8 +21,26 @@ fmt:
 deploy-stage:
 	ansible-playbook -v -i inventory/gce/ ansible/test_stage.yml
 
-deploy-demo:
-	ansible-playbook -v -i inventory/gce/ ansible/test_stage.yml
+deploy-demo1:
+	ansible-playbook -v -i inventory/gce/ ansible/demo.yml --extra-vars='{ "first_run": true, "application_hostname": "demo1" }'
+
+deploy-pure-demo:
+	ansible-playbook -v -i inventory/static/dev ansible/deploy_storefront.yml
+
+deploy-td-stage:
+	ansible-playbook -v -i inventory/static/topdrawer ansible/deploy_storefront.yml
+
+deploy-tpg-stage:
+	ansible-playbook -v -i inventory/static/tpg ansible/deploy_storefront.yml
+
+update-demo1:
+	ansible-playbook -v -i inventory/gce/ ansible/demo.yml --extra-vars='{ "with_data_import": false, "application_hostname": "demo1" }'
+
+deploy-demo2:
+	ansible-playbook -v -i inventory/gce/ ansible/demo.yml --extra-vars='{ "first_run": true, "application_hostname": "demo2" }'
+
+update-demo2:
+	ansible-playbook -v -i inventory/gce/ ansible/demo.yml --extra-vars='{ "with_data_import": false, "application_hostname": "demo2" }'
 
 deploy-feature-branch:
 	ansible-playbook -v -i inventory/gce/ ansible/provision_feature_branch.yml

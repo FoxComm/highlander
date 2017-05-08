@@ -7,7 +7,6 @@ import models.cord.Cart
 import models.customer._
 import models.payment.creditcard._
 import payloads.PaymentPayloads.CreditCardPayment
-import services.CreditCardManager
 import testutils._
 import utils.db._
 import utils.seeds.Factories
@@ -45,7 +44,7 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
     }
 
     "fails if the creditCard is inActive" in new CreditCardFixture {
-      CreditCardManager.deleteCreditCard(customer.accountId, creditCard.id, Some(storeAdmin)).gimme
+      customersApi(customer.accountId).payments.creditCard(creditCard.id).delete().mustBeEmpty()
 
       cartsApi(cart.refNum).payments.creditCard
         .add(CreditCardPayment(creditCard.id))

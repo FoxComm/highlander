@@ -1,5 +1,6 @@
 // libs
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { debounce, autobind } from 'core-decorators';
 import { cloneElement } from '../../lib/react-utils';
@@ -8,40 +9,44 @@ import _ from 'lodash';
 // components
 import TypeaheadItems from './items';
 import TypeaheadInput from './input';
-import { FormField } from '../forms';
-import Alert from '../alerts/alert';
-import LoadingInputWrapper from '../forms/loading-input-wrapper';
+import { FormField } from 'components/forms';
+import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
+
+// styles
+import s from './typeahead.css';
 
 export default class Typeahead extends React.Component {
 
   static propTypes = {
-    onBlur: PropTypes.func,
-    onChange: PropTypes.func,
-    onItemSelected: PropTypes.func,
+    onBlur: PropTypes.func, // blur handler
+    onChange: PropTypes.func, // input keyup/change handler
+    onItemSelected: PropTypes.func, // on item click/choose handler
     // fetchItems if passed should return promise for results
-    fetchItems: PropTypes.func,
-    component: PropTypes.func,
+    fetchItems: PropTypes.func, // triggers when text is changed and text is valid
     hideOnBlur: PropTypes.bool,
     isFetching: PropTypes.bool,
     isAsync: PropTypes.bool,
-    items: PropTypes.array,
-    label: PropTypes.string,
-    name: PropTypes.string,
-    placeholder: PropTypes.string,
-    className: PropTypes.string,
-    itemsElement: PropTypes.element,
-    inputElement: PropTypes.element,
-    minQueryLength: PropTypes.number,
-    autoComplete: PropTypes.string,
-    initialValue: PropTypes.string,
+    items: PropTypes.array.isRequired, // Array of data for suggestion. Each element passed to `component`
+    label: PropTypes.string, // title for input
+    name: PropTypes.string, // name attr for default input
+    placeholder: PropTypes.string, // placeholder attr for default input
+    className: PropTypes.string, // additional cl for root element of Typeahead
+    component: PropTypes.func, // component of one item, props={model: item}
+    itemsElement: PropTypes.element, // custom component for items as a list (not just for one item)
+    inputElement: PropTypes.element, // custom component for input field, default is `TypeaheadInput`
+    minQueryLength: PropTypes.number, // if < then no fetching
+    autoComplete: PropTypes.string, // autoComplete attr for default input
+    initialValue: PropTypes.string, // value attr for default input
+    view: PropTypes.string,
   };
 
   static defaultProps = {
     name: 'typeahead',
     fetchItems: _.noop,
+    items: [],
     onBlur: _.noop,
     hideOnBlur: false,
-    placeholder: 'Search',
+    placeholder: 'Start typing to search...',
     minQueryLength: 1,
     autoComplete: 'off',
     initialValue: '',
@@ -51,17 +56,13 @@ export default class Typeahead extends React.Component {
   state = {
     active: false,
     showMenu: false,
-    showAlert: false,
     query: this.props.initialValue,
+    searchedOnce: false,
   };
 
   componentWillReceiveProps(nextProps) {
-    if(this.props.isAsync){
-      if (this.props.isFetching && !nextProps.isFetching) {
-        this.toggleVisibility(true);
-      }
-    } else {
-      this.toggleVisibility(true);
+    if (nextProps.initialValue !== this.props.initialValue) {
+      this.setState({ query: nextProps.initialValue });
     }
   }
 
@@ -94,7 +95,7 @@ export default class Typeahead extends React.Component {
   onBlur(event) {
     this.setState({ active: false });
 
-    if (this.props.hideOnBlur) {
+    if (this.props.hideOnBlur || !this.queryIsValid()) {
       this.toggleVisibility(false);
     }
     this.props.onBlur(event);
@@ -102,10 +103,14 @@ export default class Typeahead extends React.Component {
 
   @autobind
   onFocus() {
-    this.setState({ active: true });
+    const { items } = this.props;
+    const { searchedOnce } = this.state;
 
-    if (this.state.query.length >= this.props.minQueryLength) {
-      this.toggleVisibility(true);
+    this.setState({ active: true });
+    this.toggleVisibility(true);
+
+    if (!searchedOnce && !items.length) {
+      this.fetchItemsImmediately();
     }
   }
 
@@ -117,12 +122,26 @@ export default class Typeahead extends React.Component {
   }
 
   @debounce(400)
-  fetchItems(value) {
-    if (value.length < this.props.minQueryLength) {
-      return this.toggleAlert(true);
-    }
+  fetchItems(q: ?string) {
+    this.fetchItemsImmediately(q);
+  }
 
-    this._fetchRequest = this.props.fetchItems(value);
+  fetchItemsImmediately(q: ?string) {
+    const query = _.isString(q) ? q : this.state.query;
+
+    if (this.queryIsValid(query)) {
+      this._fetch = {
+        query,
+        request: this.props.fetchItems(query),
+      };
+      this.setState({ searchedOnce: true });
+    }
+  }
+
+  queryIsValid(q) {
+    const query = _.isString(q) ? q : this.state.query;
+
+    return query.length >= this.props.minQueryLength;
   }
 
   @autobind
@@ -131,22 +150,18 @@ export default class Typeahead extends React.Component {
 
     this.setState({
       query: value,
-      showAlert: false
     });
     if (this.props.onChange) {
       this.props.onChange(value);
     }
 
-    if (this._fetchRequest && this._fetchRequest.abort) {
-      this._fetchRequest.abort();
-    }
+    _.invoke(this, '_fetch.request.abort');
 
-    if (value.length === 0) {
-      return this.toggleVisibility(false);
+    if (!this.state.showMenu) {
+      this.toggleVisibility(true);
     }
 
     this.fetchItems(value);
-
   }
 
   toggleVisibility(show) {
@@ -155,56 +170,58 @@ export default class Typeahead extends React.Component {
     });
   }
 
-  toggleAlert(show) {
-    this.setState({
-      showAlert: show
-    });
+  // Because we have debounce on `fetchItems`, we have to check if fQuery matches query
+  get updating() {
+    const { isFetching } = this.props;
+    const { query } = this.state;
+    const fQuery = this._fetch && this._fetch.query;
+
+    return isFetching || (this.queryIsValid() && fQuery !== query);
   }
 
-  renderAlert() {
-    return (
-      <div className="fc-typeahead__need-more-characters">
-        <Alert type={Alert.WARNING}>
-          Please enter at least {this.props.minQueryLength} characters.
-        </Alert>
-      </div>
-    );
-  }
-
-  get menuContent() {
-    if (this.state.showAlert) return this.renderAlert();
-
-    const itemsElement = this.props.itemsElement;
+  get listContent() {
+    const { isFetching, itemsElement, minQueryLength } = this.props;
+    // const { searchedOnce } = this.state;
+    // const noResults = !items.length && searchedOnce && !isFetching;
 
     const ourProps = {
-      updating: this.props.isFetching,
+      updating: this.updating,
       toggleVisibility: show => this.toggleVisibility(show),
-    };
-
-    const clearState = {
       clearInputState: this.clearState,
     };
 
+    if (!this.queryIsValid() && !isFetching) {
+      let chars = minQueryLength === 1 ? 'character' : 'characters';
+
+      // @todo do we need custom `please` component?
+      return <div className={`${s.items} ${s.please}`}>{`Please enter at least ${minQueryLength} ${chars}.`}</div>;
+    }
+
     if (itemsElement) {
-      return React.cloneElement(itemsElement, { ...ourProps, ...clearState });
+      return React.cloneElement(itemsElement, ourProps);
     } else {
       return (
-        <TypeaheadItems {...ourProps}
+        <TypeaheadItems
+          {...ourProps}
           component={this.props.component}
           items={this.props.items}
-          onItemSelected={this.onItemSelected} />
+          onItemSelected={this.onItemSelected}
+          query={this.state.query}
+        />
       );
     }
   }
 
   get inputContent() {
-    const inputElement = this.props.inputElement;
+    const { isFetching, inputElement } = this.props;
 
     const defaultProps = {
       value: this.state.query,
       name: this.props.name,
       placeholder: this.props.placeholder,
       autoComplete: this.props.autoComplete,
+      className: s.input,
+      isFetching,
     };
 
     const handlers = {
@@ -215,28 +232,33 @@ export default class Typeahead extends React.Component {
     };
 
     if (inputElement) {
-      return cloneElement(inputElement, { defaultProps, handlers });
+      return (
+        <LoadingInputWrapper inProgress={isFetching}>
+          {cloneElement(inputElement, { defaultProps, handlers })}
+        </LoadingInputWrapper>
+      );
     } else {
       return <TypeaheadInput {...defaultProps} {...handlers} />;
     }
   }
 
   render() {
-    const elementClass = classNames('fc-typeahead', { '_active': this.state.active }, this.props.className);
+    const className = classNames(s.block, { [s._active]: this.state.active }, this.props.className);
 
-    const menuClass = classNames('fc-typeahead__menu', {
-      '_visible': this.state.showMenu
+    const listClass = classNames(s.list, {
+      [s._visible]: this.state.showMenu,
+      [s._modal]: this.props.view == 'modal',
+      [s._search]: this.props.view != 'no-search' && this.props.view != 'users',
+      [s._users]: this.props.view == 'users',
     });
 
     return (
-      <div className={elementClass}>
-        <FormField className="fc-typeahead__input-group" label={this.props.label}>
-          <LoadingInputWrapper inProgress={this.props.isFetching}>
-            {this.inputContent}
-          </LoadingInputWrapper>
+      <div className={className}>
+        <FormField label={this.props.label}>
+          {this.inputContent}
         </FormField>
-        <div className={menuClass}>
-          {this.menuContent}
+        <div className={listClass}>
+          {this.listContent}
         </div>
       </div>
     );

@@ -8,6 +8,7 @@
   "labels": {
     "LAYER": "backend",
     "LANG": "cpp",
+    "consul": "isaac",
     "TAG": "{{docker_tags.isaac}}"
   },
   "container": {
@@ -25,7 +26,7 @@
       }
     ],
     "docker": {
-      "image": "docker-stage.foxcommerce.com:5000/isaac:{{docker_tags.isaac}}",
+      "image": "{{docker_registry}}:5000/isaac:{{docker_tags.isaac}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

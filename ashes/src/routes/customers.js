@@ -38,7 +38,7 @@ const getRoutes = (jwt: Object) => {
           dimension: 'account',
           component: ActivityTrailPage,
           frn: frn.activity.customer,
-         }),
+        }),
       ]),
       router.read('groups-base', { path: 'groups', frn: frn.user.customerGroup }, [
         router.read('customer-groups', { component: GroupsListPage }, [
@@ -65,13 +65,13 @@ const getRoutes = (jwt: Object) => {
           path: 'transactions',
           component: CustomerTransactions,
           frn: frn.user.customerTransaction,
-         }),
+        }),
         router.read('customer-cart', {
           title: 'Cart',
           path: 'cart',
           component: CustomerCart,
           frn: frn.user.customerCart,
-         }),
+        }),
         router.read('customer-items', { title: 'Items', path: 'items', component: CustomerItems }),
         router.read('customer-notes', { path: 'notes', component: Notes }),
         router.read('customer-activity-trail', {
@@ -82,7 +82,7 @@ const getRoutes = (jwt: Object) => {
         router.read('customer-storecredits-base', { path: 'storecredit' }, [
           router.read('customer-storecredits', { component: StoreCredits, isIndex: true }),
           router.read('customer-storecredit-transactions', { path: 'transactions',
-              component: StoreCreditsTransactions }),
+            component: StoreCreditsTransactions }),
         ]),
       ]),
       router.read('customer-storecredits-new', { path: ':customerId/storecredits/new', component: NewStoreCredit }),

@@ -2,7 +2,7 @@
 /* @flow */
 
 // libs
-import React, { Component, Element } from 'react';
+import React, { Element } from 'react';
 
 // components
 import ConfirmationDialog from '../../modal/confirmation-dialog';
@@ -14,7 +14,7 @@ type Props = {
   cancelAction: Function,
 };
 
-const CodeCreationModal = (props: Props) => {
+const CodeCreationModal = (props: Props): Element<*> => {
   const { isVisible, probability, confirmAction, cancelAction } = props;
 
   const body = (

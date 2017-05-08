@@ -64,6 +64,13 @@ class SelectCustomerGroups extends Component {
     return suggestions;
   }
 
+  get tableColumns(): Array<Object> {
+    return [
+      { field: 'name', text: 'Customer Group Name' },
+      { field: 'type', text: 'Type' },
+    ];
+  }
+
   get customersGroups(): ?Element<*> {
     if (this.props.qualifyAll !== false) return null;
     return (<div styleName="root">
@@ -109,15 +116,15 @@ class SelectCustomerGroups extends Component {
   get pilledInput() {
     const { state, props } = this;
     const pills = props.selectedGroupIds.map((cg) => {
-      return _.find(props.groups, { 'id': cg }).name;
+      if (_.find(props.groups, { 'id': cg })) return _.find(props.groups, { 'id': cg }, {}).name;
+      return 'loading...';
     });
 
     return (
       <PilledInput
         solid={true}
-        autoFocus={true}
         value={state.term}
-        disabled={false}
+        disabled={props.groups == null}
         onChange={({target}) => this.setTerm(target.value)}
         pills={pills}
         icon={null}

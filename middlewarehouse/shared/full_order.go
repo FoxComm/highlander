@@ -14,8 +14,12 @@ type FullOrder struct {
 func NewFullOrderFromActivity(activity activities.ISiteActivity) (*FullOrder, error) {
 	bt := []byte(activity.Data())
 	fo := new(FullOrder)
-	err := json.Unmarshal(bt, fo)
-	return fo, err
+	if err := json.Unmarshal(bt, fo); err != nil {
+		return nil, err
+	}
+
+	fo.Order.SetScope(activity.Scope())
+	return fo, nil
 }
 
 func NewFullOrderFromPayload(payload *payloads.OrderResult) *FullOrder {

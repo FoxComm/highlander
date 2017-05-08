@@ -18,7 +18,7 @@ object GiftCardPayloads {
                                        senderName: String,
                                        recipientName: String,
                                        recipientEmail: String,
-                                       message: String,
+                                       message: Option[String],
                                        cordRef: String)
       extends Validation[GiftCardCreatedByCustomer] {
 

@@ -1,6 +1,7 @@
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { ReasonType } from '../../lib/reason-utils';
@@ -10,7 +11,7 @@ import { IndexLink, Link } from '../link';
 import GiftCardCode from './gift-card-code';
 import { DateTime } from '../common/datetime';
 import Currency from '../common/currency';
-import { PrimaryButton } from '../common/buttons';
+import { PrimaryButton } from 'components/core/button';
 import WaitAnimation from '../common/wait-animation';
 import { PageTitle } from '../section-title';
 import Panel from '../panel/panel';

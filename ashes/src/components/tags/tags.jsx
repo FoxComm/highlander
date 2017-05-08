@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { trackEvent } from 'lib/analytics';
@@ -11,6 +11,8 @@ import RoundedPill from '../rounded-pill/rounded-pill';
 import TextInput from '../forms/text-input';
 
 import styles from './tags.css';
+
+import type { Value } from 'components/rounded-pill/rounded-pill';
 
 type Props = {
   attributes: Attributes,
@@ -88,8 +90,8 @@ export default class Tags extends Component {
   }
 
   @autobind
-  handleRemoveTag(value: string) {
-    const tags = _.reject(this.tags, tag => tag === value);
+  handleRemoveTag(value: Value) {
+    const tags = _.reject(this.tags, tag => tag === String(value));
     this.updateTags(tags);
   }
 

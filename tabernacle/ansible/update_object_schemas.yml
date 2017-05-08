@@ -1,0 +1,33 @@
+---
+
+- name: Update ObjectSchemas
+  hosts: '{{hostname}}'
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    docker_tags:
+        phoenix: "{{docker_tag_phoenix_seeder}}"
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with a database to migrate"
+      default: "stage-backend"
+      private: no
+    - name: "object_schema_names"
+      prompt: "Enter names of ObjectSchemas (space separated) to update, leavy empty to update all"
+      default: ""
+      private: no
+    - name: "docker_registry"
+      prompt: "Enter Docker Registry URL"
+      default: "docker-stage.foxcommerce.com"
+      private: no
+    - name: "docker_tag_phoenix_seeder"
+      prompt: "Enter Docker Tag for Phoenix Seeder"
+      default: "master"
+      private: no
+    - name: "phoenix_env"
+      prompt: "Enter Phoenix Environment"
+      default: "staging"
+      private: no
+
+  roles:
+    - { role: prod/update_object_schemas }

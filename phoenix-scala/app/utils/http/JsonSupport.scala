@@ -12,7 +12,7 @@ case class FoxValidationException(failures: Failures) extends Exception
 
 object JsonSupport extends Json4sSupport {
   private def validateData[A <: Validation[_]](data: A): Future[A] = data.validate match {
-    case Valid(v)          ⇒ Future.successful(data)
+    case Valid(_)          ⇒ Future.successful(data)
     case Invalid(failures) ⇒ Future.failed(FoxValidationException(failures))
   }
 

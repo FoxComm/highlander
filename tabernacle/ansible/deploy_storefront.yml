@@ -1,0 +1,38 @@
+---
+
+- name: Deploy Storefront to Stage / Production
+  hosts: localhost
+  connection: local
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    # Steps
+    step_build: "{{ lookup('env', 'STEP_BUILD') | default(true, true) }}"
+    step_deploy: "{{ lookup('env', 'STEP_DEPLOY') | default(false, true) }}"
+    # Main
+    git_repo: "{{ lookup('env', 'GIT_REPO') }}"
+    git_tag: "{{ lookup('env', 'GIT_TAG') }}"
+    docker_registry: "{{ lookup('env', 'DOCKER_REPO') }}"
+    docker_tag: "{{ lookup('env', 'DOCKER_TAG') }}"
+    marathon_ip: "{{ lookup('env', 'MARATHON_IP') }}"
+    marathon_app_name: "{{ lookup('env', 'MARATHON_APP_NAME') }}"
+    marathon_template_path: "{{ lookup('env', 'MARATHON_TEMPLATE_PATH') }}"
+    marathon_template_file: "{{ lookup('env', 'MARATHON_TEMPLATE_FILE') }}"
+    # Environment variables for Docker container
+    contact_email: "{{ lookup('env', 'CONTACT_EMAIL') }}"
+    facebook_pixel_id: "{{ lookup('env', 'FB_PIXEL_ID') }}"
+    ga_tracking_id: "{{ lookup('env', 'GA_TRACKING_ID') }}"
+    mailchimp_api_key: "{{ lookup('env', 'MAILCHIMP_API_KEY') }}"
+    imgix_products_source: "{{ lookup('env', 'IMGIX_PRODUCTS_SOURCE') }}"
+    imgix_s3_bucket_name: "{{ lookup('env', 'S3_BUCKET_NAME') }}"
+    imgix_s3_bucket_prefix: "{{ lookup('env', 'S3_BUCKET_PREFIX') }}"
+    storefront_server_name: "{{ lookup('env', 'API_URL') }}"
+    stripe_publishable_key: "{{ lookup('env', 'STRIPE_PUBLISHABLE_KEY') }}"
+    # Default overrides
+    app_name: storefront
+    docker_tags:
+        peacock: "{{docker_tag}}"
+        storefront_td: "{{docker_tag}}"
+        storefront_tpg: "{{docker_tag}}"
+    marathon_server: "{{marathon_ip}}:8080"
+  roles:
+    - { role: prod/storefront }

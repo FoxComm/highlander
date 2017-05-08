@@ -30,10 +30,10 @@ class CouponNew extends Component {
       <div styleName="promotion-coupons-new">
         <ContentBox actionBlock={actionBlock} title="Add Coupon Code">
           <CouponPage params={{
-              couponId: 'new',
-              promotionId: this.props.promotionId,
-              modalCancelAction: this.cancelAction
-            }}>
+            couponId: 'new',
+            promotionId: this.props.promotionId,
+            modalCancelAction: this.cancelAction
+          }}>
             <CouponForm/>
           </CouponPage>
         </ContentBox>
@@ -42,4 +42,6 @@ class CouponNew extends Component {
   }
 }
 
-export default wrapModal(CouponNew);
+const Wrapped: Class<React.Component<void, Props, any>> = wrapModal(CouponNew);
+
+export default Wrapped;

@@ -1,7 +1,8 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 
-import { AddButton } from '../common/buttons';
+import { AddButton } from 'components/core/button';
 import TileItems from './tile-items';
 
 const TileSelector = props => {

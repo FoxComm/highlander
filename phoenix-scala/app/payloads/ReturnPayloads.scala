@@ -2,10 +2,10 @@ package payloads
 
 import cats.data._
 import cats.implicits._
-import failures.Failure
-import models.returns.Return
-import models.returns.ReturnLineItem.InventoryDisposition
-import utils.Validation
+import failures.{EmptyCancellationReasonFailure, Failure, InvalidCancellationReasonFailure, NonEmptyCancellationReasonFailure}
+import models.payment.PaymentMethod
+import models.returns.{Return, ReturnLineItem}
+import utils.{ADTTypeHints, Validation}
 import utils.Validation._
 
 object ReturnPayloads {
@@ -14,45 +14,57 @@ object ReturnPayloads {
 
   case class ReturnCreatePayload(cordRefNum: String, returnType: Return.ReturnType)
 
-  case class ReturnUpdateStatePayload(state: Return.State, reasonId: Option[Int] = None)
+  case class ReturnUpdateStatePayload(state: Return.State, reasonId: Option[Int])
       extends Validation[ReturnUpdateStatePayload] {
-
-    def validate: ValidatedNel[Failure, ReturnUpdateStatePayload] = {
-      Return.validateStateReason(state, reasonId).map { case _ ⇒ this }
-    }
+    def validate: ValidatedNel[Failure, ReturnUpdateStatePayload] =
+      (Validation.ok |+|
+            Validation.isInvalid(state == Return.Canceled && reasonId.isEmpty,
+                                 EmptyCancellationReasonFailure) |+|
+            Validation.isInvalid(state != Return.Canceled && reasonId.isDefined,
+                                 NonEmptyCancellationReasonFailure)).map(_ ⇒ this)
   }
 
   /* Line item updater payloads */
 
-  case class ReturnSkuLineItemsPayload(sku: String,
-                                       quantity: Int,
-                                       reasonId: Int,
-                                       isReturnItem: Boolean,
-                                       inventoryDisposition: InventoryDisposition)
-      extends Validation[ReturnSkuLineItemsPayload] {
-
-    def validate: ValidatedNel[Failure, ReturnSkuLineItemsPayload] = {
-      greaterThan(quantity, 0, "Quantity").map { case _ ⇒ this }
-    }
+  sealed trait ReturnLineItemPayload extends Validation[ReturnLineItemPayload] {
+    def reasonId: Int
+  }
+  object ReturnLineItemPayload {
+    def typeHints =
+      ADTTypeHints(
+          Map(
+              ReturnLineItem.ShippingCost → classOf[ReturnShippingCostLineItemPayload],
+              ReturnLineItem.SkuItem      → classOf[ReturnSkuLineItemPayload]
+          ))
   }
 
-  case class ReturnGiftCardLineItemsPayload(code: String, reasonId: Int)
+  case class ReturnSkuLineItemPayload(sku: String, quantity: Int, reasonId: Int)
+      extends ReturnLineItemPayload {
+    def validate: ValidatedNel[Failure, ReturnLineItemPayload] =
+      greaterThan(quantity, 0, "Quantity").map(_ ⇒ this)
+  }
 
-  case class ReturnShippingCostLineItemsPayload(reasonId: Int)
+  case class ReturnShippingCostLineItemPayload(amount: Int, reasonId: Int)
+      extends ReturnLineItemPayload {
+    def validate: ValidatedNel[Failure, ReturnLineItemPayload] =
+      greaterThan(amount, 0, "Amount").map(_ ⇒ this)
+  }
 
   /* Payment payloads */
 
-  case class ReturnPaymentPayload(amount: Int) extends Validation[ReturnPaymentPayload] {
-
-    def validate: ValidatedNel[Failure, ReturnPaymentPayload] = {
-      greaterThan(amount, 0, "Amount").map { case _ ⇒ this }
+  case class ReturnPaymentsPayload(payments: Map[PaymentMethod.Type, Int])
+      extends Validation[ReturnPaymentsPayload] {
+    def validate: ValidatedNel[Failure, ReturnPaymentsPayload] = {
+      payments.collect {
+        case (paymentType, amount) if amount <= 0 ⇒
+          greaterThanOrEqual(amount, 0, s"$paymentType amount")
+      }.fold(Validation.ok)(_ |+| _).map(_ ⇒ this)
     }
   }
 
-  case class ReturnCcPaymentPayload(amount: Int) extends Validation[ReturnCcPaymentPayload] {
-
-    def validate: ValidatedNel[Failure, ReturnCcPaymentPayload] = {
-      greaterThan(amount, 0, "Amount").map { case _ ⇒ this }
+  case class ReturnPaymentPayload(amount: Int) extends Validation[ReturnPaymentPayload] {
+    def validate: ValidatedNel[Failure, ReturnPaymentPayload] = {
+      greaterThan(amount, 0, "Amount").map(_ ⇒ this)
     }
   }
 
@@ -62,12 +74,23 @@ object ReturnPayloads {
       extends Validation[ReturnMessageToCustomerPayload] {
 
     def validate: ValidatedNel[Failure, ReturnMessageToCustomerPayload] = {
-      (greaterThanOrEqual(message.length, 0, "Message length") |@| lesserThanOrEqual(
+      (greaterThanOrEqual(message.length, 0, "Message length") |+| lesserThanOrEqual(
               message.length,
               Return.messageToAccountMaxLength,
               "Message length")).map {
         case _ ⇒ this
       }
+    }
+  }
+
+  case class ReturnReasonPayload(name: String) extends Validation[ReturnReasonPayload] {
+    val reasonNameMaxLength = 255
+
+    def validate: ValidatedNel[Failure, ReturnReasonPayload] = {
+      val clue = "Reason name length"
+      (greaterThan(name.length, 0, clue) |+| lesserThanOrEqual(name.length,
+                                                               reasonNameMaxLength,
+                                                               clue)).map(_ ⇒ this)
     }
   }
 }

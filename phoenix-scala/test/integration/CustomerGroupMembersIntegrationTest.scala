@@ -19,7 +19,7 @@ import utils.db.ExPostgresDriver.api._
 class CustomerGroupMembersIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with MockitoSugar
     with BakedFixtures {
 

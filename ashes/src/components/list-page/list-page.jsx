@@ -1,4 +1,4 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
 
 import ListPageContainer from './list-page-container';
 import SelectableSearchList from './selectable-search-list';

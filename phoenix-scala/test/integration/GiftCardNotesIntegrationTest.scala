@@ -18,7 +18,7 @@ import utils.time.RichInstant
 class GiftCardNotesIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with BakedFixtures
     with TestActivityContext.AdminAC {
 
@@ -26,7 +26,8 @@ class GiftCardNotesIntegrationTest
     "can be created by an admin for a gift card" in new Fixture {
       val note = notesApi.giftCard(giftCard.code).create(CreateNote(body = "foo")).as[Root]
       note.body must === ("foo")
-      note.author must === (AdminNotes.buildAuthor(storeAdmin))
+      note.author.name.value must === (defaultAdmin.name.value)
+      note.author.email.value must === (defaultAdmin.email.value)
     }
 
     "returns a validation error if failed to create" in new Fixture {
@@ -47,29 +48,31 @@ class GiftCardNotesIntegrationTest
   "GET /v1/notes/gift-card/:code" - {
 
     "can be listed" in new Fixture {
-      val createNotes = List("abc", "123", "xyz").map { body ⇒
-        GiftCardNoteManager.create(giftCard.code, storeAdmin, CreateNote(body = body))
-      }
-      DbResultT.seqCollectFailures(createNotes).gimme
+      val bodies = List("abc", "123", "xyz")
 
-      val notes = notesApi.giftCard(giftCard.code).get().as[Seq[Root]]
-      notes must have size 3
-      notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
+      bodies.foreach { body ⇒
+        notesApi.giftCard(giftCard.code).create(CreateNote(body)).mustBeOk()
+      }
+
+      notesApi
+        .giftCard(giftCard.code)
+        .get()
+        .as[Seq[Root]]
+        .map(_.body) must contain theSameElementsAs bodies
     }
   }
 
   "PATCH /v1/notes/gift-card/:code/:noteId" - {
 
     "can update the body text" in new Fixture {
-      val rootNote =
-        GiftCardNoteManager.create(giftCard.code, storeAdmin, CreateNote(body = "foo")).gimme
+      val note = notesApi.giftCard(giftCard.code).create(CreateNote("foo")).as[AdminNotes.Root]
 
-      val note = notesApi
+      notesApi
         .giftCard(giftCard.code)
-        .note(rootNote.id)
+        .note(note.id)
         .update(UpdateNote(body = "donkey"))
         .as[Root]
-      note.body must === ("donkey")
+        .body must === ("donkey")
     }
   }
 
@@ -80,8 +83,8 @@ class GiftCardNotesIntegrationTest
 
       notesApi.giftCard(giftCard.code).note(note.id).delete().mustBeEmpty()
 
-      val updatedNote = Notes.findOneById(note.id).run().futureValue.value
-      updatedNote.deletedBy.value must === (1)
+      val updatedNote = Notes.findOneById(note.id).gimme.value
+      updatedNote.deletedBy.value must === (defaultAdmin.id)
 
       withClue(updatedNote.deletedAt.value → Instant.now) {
         updatedNote.deletedAt.value.isBeforeNow must === (true)

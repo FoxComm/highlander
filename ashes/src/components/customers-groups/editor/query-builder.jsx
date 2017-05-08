@@ -1,15 +1,16 @@
 //libs
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 
 //data
-import criterions, { getCriterion, getWidget } from 'paragons/customer-groups/criterions';
+import { getCriterion, getWidget } from 'paragons/customer-groups/criterions';
 
 //helpers
 import { prefix } from 'lib/text-utils';
 
 //components
-import { AddButton } from 'components/common/buttons';
+import { AddButton } from 'components/core/button';
 import Criterion from './criterion-edit';
 
 
@@ -63,8 +64,6 @@ export default class QueryBuilder extends React.Component {
 
   @autobind
   renderCriterion([field, operator, value], index) {
-    const {conditions, setConditions} = this.props;
-
     return (
       <Criterion
         key={`${field}.${operator}.${index}`}

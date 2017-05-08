@@ -1,5 +1,5 @@
 /** @flow */
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
@@ -9,7 +9,7 @@ import Alert from '../alerts/alert';
 import ErrorAlerts from '../alerts/error-alerts';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
-import { PrimaryButton, Button } from '../common/buttons';
+import { PrimaryButton, Button } from 'components/core/button';
 import WrapToLines from './wrap-to-lines';
 import WaitAnimation from '../common/wait-animation';
 
@@ -28,6 +28,7 @@ type TState = {
   org: string;
   email: string;
   password: string;
+  message: string;
 };
 
 type LoginProps = {
@@ -56,10 +57,18 @@ export default class Login extends Component {
     org: '',
     email: '',
     password: '',
+    message: ''
   };
 
   props: LoginProps;
 
+  componentWillReceiveProps(nextProps: LoginProps) {
+    const message = _.get(nextProps, 'user.message');
+
+    if (message) {
+      this.setState({ message: message });
+    }
+  }
 
   @autobind
   submitLogin() {
@@ -87,7 +96,7 @@ export default class Login extends Component {
 
   @autobind
   onForgotClick() {
-    console.log('todo: restore password');
+    // @todo: restore password
   }
 
   @autobind
@@ -95,12 +104,19 @@ export default class Login extends Component {
     this.props.googleSignin();
   }
 
+  @autobind
+  clearMessage() {
+    this.setState({
+      message: ''
+    });
+  }
+
   get iForgot() {
     return <a onClick={this.onForgotClick} styleName="forgot-link">i forgot</a>;
   }
 
   get infoMessage() {
-    const { message } = this.props.user;
+    const { message } = this.state;
     if (!message) return null;
     return <Alert type="success">{message}</Alert>;
   }
@@ -142,6 +158,7 @@ export default class Login extends Component {
             <input onChange={this.onPasswordChange} value={password} type="password" className="fc-input" />
           </FormField>
           <PrimaryButton
+            onClick={this.clearMessage}
             styleName="submit-button"
             type="submit"
             isLoading={this.props.authenticationState.inProgress}>

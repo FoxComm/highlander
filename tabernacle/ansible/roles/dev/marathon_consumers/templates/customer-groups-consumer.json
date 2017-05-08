@@ -8,7 +8,8 @@
   "labels": {
     "LAYER": "consumer",
     "LANG": "go",
-    "TAG": "{{docker_tags.customer_groups_consumer}}"
+    "TAG": "{{docker_tags.customer_groups_consumer}}",
+    "consul": "customer-groups-consumer"
   },
   "container": {
     "type": "DOCKER",
@@ -33,7 +34,7 @@
     "PHOENIX_USER": "{{phoenix_api_user}}",
     "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
     "POLLING_INTERVAL": "1m",
-    "TOPIC": "activities",
+    "TOPIC": "{{activities_topic}}",
     "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
     "ZOOKEEPER_URL": "{{zookeeper_server}}",
     "MWH_URL": "http://{{middlewarehouse_server}}"

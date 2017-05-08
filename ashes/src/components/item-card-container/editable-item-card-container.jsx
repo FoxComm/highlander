@@ -1,6 +1,7 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import ItemCardContainer from './item-card-container';
-import { Button } from '../common/buttons';
+import { Button, EditButton, DeleteButton } from 'components/core/button';
 import { Checkbox } from '../checkbox/checkbox';
 
 export default class EditableItemCardContainer extends React.Component {
@@ -39,7 +40,7 @@ export default class EditableItemCardContainer extends React.Component {
   get editButton() {
     let editButton = null;
     if (this.props.editHandler) {
-      editButton = (<button className="fc-btn icon-edit" onClick={ this.props.editHandler }></button>);
+      editButton = (<EditButton onClick={ this.props.editHandler } />);
     }
     return editButton;
   }
@@ -47,7 +48,7 @@ export default class EditableItemCardContainer extends React.Component {
   get deleteButton() {
     let deleteButton = null;
     if (this.props.deleteHandler) {
-      deleteButton = (<button className="fc-btn icon-trash" onClick={ this.props.deleteHandler }></button>);
+      deleteButton = (<DeleteButton onClick={ this.props.deleteHandler } />);
     }
     return deleteButton;
   }

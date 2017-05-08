@@ -1,6 +1,17 @@
 package testutils
 
-trait IntegrationTestBase extends TestBase with DbTestSupport with GimmeSupport {
+import utils.MockedApis
+import utils.apis.Apis
 
-  implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContextExecutor
+
+trait IntegrationTestBase
+    extends TestBase
+    with DbTestSupport
+    with GimmeSupport
+    with JwtTestAuth
+    with MockedApis {
+
+  implicit val ec: ExecutionContextExecutor = scala.concurrent.ExecutionContext.Implicits.global
+
 }

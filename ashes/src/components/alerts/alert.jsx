@@ -1,6 +1,7 @@
 
 import classNames from 'classnames';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 const ERROR = 'error';
 const WARNING = 'warning';
@@ -9,6 +10,7 @@ const SUCCESS = 'success';
 const Alert = props => {
   const className = classNames(
     `fc-alert is-alert-${props.type}`,
+    props.className,
     {'is-can-be-closed': props.closeAction}
   );
 
@@ -31,7 +33,8 @@ Alert.propTypes = {
     ERROR, WARNING, SUCCESS
   ]).isRequired,
   closeAction: PropTypes.func,
-  children: PropTypes.node
+  children: PropTypes.node,
+  className: PropTypes.string,
 };
 
 Alert.ERROR = ERROR;

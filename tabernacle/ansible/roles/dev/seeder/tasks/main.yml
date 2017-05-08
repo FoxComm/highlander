@@ -1,10 +1,8 @@
 ---
 
-- name: Restart Postgres
-  service: name=postgresql state=restarted enabled=yes
+- include_vars: aws.yml
 
 # Phoenix
-
 - name: Get Latest Phoenix Seeder Image
   shell: docker pull {{docker_registry}}:5000/phoenix-seeder:{{docker_tags.phoenix}}
   when: with_base_seeds is defined and with_base_seeds
@@ -14,7 +12,6 @@
   when: with_gatling_seeder is defined and with_gatling_seeder
 
 # Middlewarehouse
-
 - name: Create Middlewarehouse Seeder directory
   file: path="{{middlewarehouse_dir}}/seeder" state=directory
   when: with_mwh_seeder is defined and with_mwh_seeder
@@ -32,13 +29,8 @@
   when: with_mwh_seeder is defined and with_mwh_seeder
 
 # Hyperion
-
 - name: Create Hyperion Seeder directory
   file: path="{{hyperion_dir}}/priv/seeds" state=directory
-  when: with_hyperion_seeder is defined and with_hyperion_seeder
-
-- name: Copy Hyperion Seeder .env
-  template: src=hyperion.env dest="{{hyperion_dir}}/priv/seeds/.env"
   when: with_hyperion_seeder is defined and with_hyperion_seeder
 
 - name: Get Latest Hyperion Seeder Image
@@ -46,5 +38,60 @@
   when: with_hyperion_seeder is defined and with_hyperion_seeder
 
 - name: Run Hyperion Seeder docker container
-  command: docker run --env-file "{{hyperion_dir}}/priv/seeds/.env" --network host -e HYPERION_DB_HOST={{docker_db_host}} {{docker_registry}}:5000/hyperion-seeder:{{docker_tags.hyperion}}
+  command: docker run --network host -e HYPERION_DB_HOST={{docker_db_host}} -e PUSH_CHECK_INTERVAL=100000 {{docker_registry}}:5000/hyperion-seeder:{{docker_tags.hyperion}}
   when: with_hyperion_seeder is defined and with_hyperion_seeder
+
+# Data Import
+- name: Create Data Import Directory
+  file:
+    path: "{{data_import_dir}}"
+    owner: "{{user}}"
+    state: directory
+    mode: "u=rwx,g=rwx,o=r"
+  when: with_data_import is defined and with_data_import
+
+- name: Copy Taxonomy Import .env
+  template: src=data_import_taxonomies.env dest="{{data_import_dir}}/.env.taxonomies"
+  when: with_data_import is defined and with_data_import
+
+- name: Copy Product Import .env
+  template: src=data_import_products.env dest="{{data_import_dir}}/.env.products"
+  when: with_data_import is defined and with_data_import
+
+- name: Get Latest Data Import Image
+  shell: docker pull {{data_import_docker_url}}
+  when: with_data_import is defined and with_data_import
+
+- name: Pull listing.json
+  s3:
+    aws_access_key: "{{aws_access_key}}"
+    aws_secret_key: "{{aws_secret_key}}"
+    region: "{{data_import_s3_region}}"
+    bucket: "{{data_import_s3_bucket}}"
+    object: "{{data_import_listings_path}}"
+    dest: "{{data_import_dir}}/listings.json"
+    mode: get
+  when: with_data_import is defined and with_data_import
+
+- name: Pull products.json
+  s3:
+    aws_access_key: "{{aws_access_key}}"
+    aws_secret_key: "{{aws_secret_key}}"
+    region: "{{data_import_s3_region}}"
+    bucket: "{{data_import_s3_bucket}}"
+    object: "{{data_import_products_path}}"
+    dest: "{{data_import_dir}}/products.json"
+    mode: get
+  when: with_data_import is defined and with_data_import
+
+- name: Run Taxonomies Import Container
+  command: docker run --env-file "{{data_import_dir}}/.env.taxonomies" -v "{{data_import_dir}}:/data-import/data" --network host {{data_import_docker_url}}
+  when: with_data_import is defined and with_data_import
+
+- name: Take a nap for indexing to catch up
+  pause: seconds=45
+  when: with_data_import is defined and with_data_import
+
+- name: Run Products Import Container
+  command: docker run --env-file "{{data_import_dir}}/.env.products" -v "{{data_import_dir}}:/data-import/data" --network host {{data_import_docker_url}}
+  when: with_data_import is defined and with_data_import

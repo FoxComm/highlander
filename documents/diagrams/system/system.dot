@@ -16,6 +16,8 @@ digraph {
         phoenix [shape=rectangle,color=gray];
         middlewarehouse [shape=rectangle,color=gray];
         eggcrate [shape=rectangle,color=gray];
+        anthill [shape=rectangle,color=gray];
+        suggester [shape=rectangle,color=gray];
         hyperion [shape=rectangle,color=gray];
         isaac [shape=rectangle,color=gray];
         bernardo [shape=rectangle,color=gray];
@@ -26,11 +28,13 @@ digraph {
         greenriver [color=gray];
         "capture consumer" [color=gray];
         "gift card consumer" [color=gray];
-        "order sphex" [color=gray];
+        "orders sphex" [color=gray];
+        "orders anthill" [color=gray];
         "digger sphex" [color=gray];
         "messaging" [color=gray];
         "shipstation consumer" [color=gray];
         "stock items consumer" [color=gray];
+        "product activity consumer" [color=gray];
     }
 
     subgraph {
@@ -39,6 +43,7 @@ digraph {
         db [shape=note,color=blue]; 
         kafka [shape=note,color=blue];
         elasticsearch [shape=note,color=blue];
+        neo4j [shape=note,color=blue];
     }
 
     subgraph { 
@@ -48,17 +53,23 @@ digraph {
         MAILCHIMP [shape=box3d,color=red];
         S3 [shape=box3d,color=red];
         AMAZON [shape=box3d,color=red];
+        DEXTER [shape=box3d,color=red];
     }
 
     "capture consumer" -> phoenix;
     "digger sphex" -> henhouse;
-    "order sphex" -> henhouse;
+    "orders sphex" -> henhouse;
+    "orders anthill" -> anthill;
     "shipstation consumer" -> SHIPSTATION [dir=both];
     "shipstation consumer" -> middlewarehouse;
     "stock items consumer" -> middlewarehouse;
     "gift card consumer" -> phoenix;
+    "product activity consumer" -> phoenix;
+    "product activity consumer" -> henhouse;
     api -> eggcrate;
     api -> henhouse;
+    api -> anthill;
+    api -> suggester;
     api -> isaac;
     api -> middlewarehouse;
     api -> phoenix;
@@ -72,11 +83,17 @@ digraph {
     greenriver -> phoenix;
     hyperion -> AMAZON;
     hyperion -> phoenix;
+    anthill -> elasticsearch;
+    anthill -> neo4j;
+    suggester -> anthill
+    suggester -> neo4j
+    suggester -> DEXTER
     isaac -> db;
     kafka -> "capture consumer";
     kafka -> "digger sphex";
     kafka -> "gift card consumer";
-    kafka -> "order sphex";
+    kafka -> "orders sphex";
+    kafka -> "orders anthill";
     kafka -> "shipstation consumer";
     kafka -> "stock items consumer";
     kafka -> greenriver;

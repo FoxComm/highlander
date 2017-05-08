@@ -1,7 +1,9 @@
 package testutils.apis
 
 import akka.http.scaladsl.model.HttpResponse
+import cats.implicits._
 import models.objects.ObjectForm
+import models.payment.PaymentMethod
 import payloads.ActivityTrailPayloads._
 import payloads.AddressPayloads._
 import payloads.AssignmentPayloads._
@@ -19,10 +21,12 @@ import payloads.OrderPayloads._
 import payloads.PaymentPayloads._
 import payloads.ProductPayloads._
 import payloads.PromotionPayloads._
+import payloads.ReturnPayloads._
 import payloads.SharedSearchPayloads._
 import payloads.SkuPayloads._
 import payloads.StoreAdminPayloads._
 import payloads.StoreCreditPayloads._
+import payloads.TaxonPayloads._
 import payloads.TaxonomyPayloads._
 import payloads.UserPayloads._
 import payloads.VariantPayloads._
@@ -41,58 +45,58 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   object customersApi {
     val customersPrefix = s"$rootPrefix/customers"
 
-    def create(payload: CreateCustomerPayload): HttpResponse =
-      POST(customersPrefix, payload)
+    def create(payload: CreateCustomerPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(customersPrefix, payload, aa.jwtCookie.some)
   }
 
   case class customersApi(id: Int) {
     val customerPath = s"${customersApi.customersPrefix}/$id"
 
-    def get(): HttpResponse =
-      GET(customerPath)
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(customerPath, aa.jwtCookie.some)
 
-    def update(payload: UpdateCustomerPayload): HttpResponse =
-      PATCH(s"$customerPath", payload)
+    def update(payload: UpdateCustomerPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(s"$customerPath", payload, aa.jwtCookie.some)
 
-    def activate(payload: ActivateCustomerPayload): HttpResponse =
-      POST(s"$customerPath/activate", payload)
+    def activate(payload: ActivateCustomerPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$customerPath/activate", payload, aa.jwtCookie.some)
 
-    def disable(payload: ToggleUserDisabled): HttpResponse =
-      POST(s"$customerPath/disable", payload)
+    def disable(payload: ToggleUserDisabled)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$customerPath/disable", payload, aa.jwtCookie.some)
 
-    def blacklist(payload: ToggleUserBlacklisted): HttpResponse =
-      POST(s"$customerPath/blacklist", payload)
+    def blacklist(payload: ToggleUserBlacklisted)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$customerPath/blacklist", payload, aa.jwtCookie.some)
 
-    def cart(): HttpResponse =
-      GET(s"$customerPath/cart")
+    def cart()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(s"$customerPath/cart", aa.jwtCookie.some)
 
     object addresses {
       val addressesPrefix = s"$customerPath/addresses"
 
-      def get(): HttpResponse =
-        GET(addressesPrefix)
+      def get()(implicit aa: TestAdminAuth): HttpResponse =
+        GET(addressesPrefix, aa.jwtCookie.some)
 
-      def create(payload: CreateAddressPayload): HttpResponse =
-        POST(addressesPrefix, payload)
+      def create(payload: CreateAddressPayload)(implicit aa: TestAdminAuth): HttpResponse =
+        POST(addressesPrefix, payload, aa.jwtCookie.some)
 
-      def unsetDefault(): HttpResponse =
-        DELETE(s"$addressesPrefix/default")
+      def unsetDefault()(implicit aa: TestAdminAuth): HttpResponse =
+        DELETE(s"$addressesPrefix/default", aa.jwtCookie.some)
     }
 
     case class address(id: Int) {
       val addressPath = s"${addresses.addressesPrefix}/$id"
 
-      def get(): HttpResponse =
-        GET(addressPath)
+      def get()(implicit aa: TestAdminAuth): HttpResponse =
+        GET(addressPath, aa.jwtCookie.some)
 
-      def edit(payload: CreateAddressPayload): HttpResponse =
-        PATCH(addressPath, payload)
+      def edit(payload: CreateAddressPayload)(implicit aa: TestAdminAuth): HttpResponse =
+        PATCH(addressPath, payload, aa.jwtCookie.some)
 
-      def delete(): HttpResponse =
-        DELETE(addressPath)
+      def delete()(implicit aa: TestAdminAuth): HttpResponse =
+        DELETE(addressPath, aa.jwtCookie.some)
 
-      def setDefault(): HttpResponse =
-        POST(s"$addressPath/default")
+      def setDefault()(implicit aa: TestAdminAuth): HttpResponse =
+        POST(s"$addressPath/default", aa.jwtCookie.some)
     }
 
     object payments {
@@ -101,135 +105,222 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       object creditCards {
         val creditCardsPrefix = s"$paymentPrefix/credit-cards"
 
-        def get(): HttpResponse =
-          GET(creditCardsPrefix)
+        def get()(implicit aa: TestAdminAuth): HttpResponse =
+          GET(creditCardsPrefix, aa.jwtCookie.some)
 
-        def create(payload: CreateCreditCardFromTokenPayload): HttpResponse =
-          POST(creditCardsPrefix, payload)
+        def create(payload: CreateCreditCardFromTokenPayload)(
+            implicit aa: TestAdminAuth): HttpResponse =
+          POST(creditCardsPrefix, payload, aa.jwtCookie.some)
 
-        def unsetDefault(): HttpResponse =
-          DELETE(s"$creditCardsPrefix/default")
+        def unsetDefault()(implicit aa: TestAdminAuth): HttpResponse =
+          DELETE(s"$creditCardsPrefix/default", aa.jwtCookie.some)
       }
 
       case class creditCard(id: Int) {
         val creditCardPath = s"${creditCards.creditCardsPrefix}/$id"
 
-        def setDefault(): HttpResponse =
-          POST(s"$creditCardPath/default")
+        def setDefault()(implicit aa: TestAdminAuth): HttpResponse =
+          POST(s"$creditCardPath/default", aa.jwtCookie.some)
 
-        def edit(payload: EditCreditCard): HttpResponse =
-          PATCH(creditCardPath, payload)
+        def edit(payload: EditCreditCard)(implicit aa: TestAdminAuth): HttpResponse =
+          PATCH(creditCardPath, payload, aa.jwtCookie.some)
 
-        def delete(): HttpResponse =
-          DELETE(creditCardPath)
+        def delete()(implicit aa: TestAdminAuth): HttpResponse =
+          DELETE(creditCardPath, aa.jwtCookie.some)
       }
 
       object storeCredit {
         val storeCreditPrefix = s"$paymentPrefix/store-credit"
 
-        def create(payload: CreateManualStoreCredit): HttpResponse =
-          POST(storeCreditPrefix, payload)
+        def create(payload: CreateManualStoreCredit)(implicit aa: TestAdminAuth): HttpResponse =
+          POST(storeCreditPrefix, payload, aa.jwtCookie.some)
 
-        def totals(): HttpResponse =
-          GET(s"$storeCreditPrefix/totals")
+        def totals()(implicit aa: TestAdminAuth): HttpResponse =
+          GET(s"$storeCreditPrefix/totals", aa.jwtCookie.some)
       }
 
       case class storeCredit(id: Int) {
         val storeCreditPath = s"${storeCredit.storeCreditPrefix}/$id"
 
-        def convert(): HttpResponse =
-          POST(s"$storeCreditPath/convert")
+        def convert()(implicit aa: TestAdminAuth): HttpResponse =
+          POST(s"$storeCreditPath/convert", aa.jwtCookie.some)
       }
     }
 
     object groups {
       val customerGroupsPath = s"$customerPath/customer-groups"
 
-      def syncGroups(payload: AddCustomerToGroups): HttpResponse =
-        POST(customerGroupsPath, payload)
+      def syncGroups(payload: AddCustomerToGroups)(implicit aa: TestAdminAuth): HttpResponse =
+        POST(customerGroupsPath, payload, aa.jwtCookie.some)
     }
   }
 
+  // todo delete me? not used anywhere @aafa
   object activityTrailsApi {
     val activityTrailPrefix = s"$rootPrefix/trails"
 
-    def appendActivity(dimension: String, objectId: Int, payload: AppendActivity): HttpResponse =
-      POST(s"$activityTrailPrefix/$dimension/$objectId", payload)
+    def appendActivity(dimension: String, objectId: Int, payload: AppendActivity)(
+        implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$activityTrailPrefix/$dimension/$objectId", payload, aa.jwtCookie.some)
   }
 
   object giftCardsApi {
     val giftCardsPrefix   = s"$rootPrefix/gift-cards"
     val customerGiftCards = s"$rootPrefix/customer-gift-cards"
 
-    def create(payload: GiftCardCreateByCsr): HttpResponse =
-      POST(giftCardsPrefix, payload)
+    def create(payload: GiftCardCreateByCsr)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(giftCardsPrefix, payload, aa.jwtCookie.some)
 
-    def createFromCustomer(payload: GiftCardCreatedByCustomer): HttpResponse =
-      POST(customerGiftCards, payload)
+    def createFromCustomer(payload: GiftCardCreatedByCustomer)(
+        implicit aa: TestAdminAuth): HttpResponse =
+      POST(customerGiftCards, payload, aa.jwtCookie.some)
 
-    def createMultipleFromCustomer(payload: Seq[GiftCardCreatedByCustomer]): HttpResponse =
-      POST(s"$customerGiftCards/bulk", payload)
+    def createMultipleFromCustomer(payload: Seq[GiftCardCreatedByCustomer])(
+        implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$customerGiftCards/bulk", payload, aa.jwtCookie.some)
 
-    def createBulk(payload: GiftCardBulkCreateByCsr): HttpResponse =
-      POST(s"$giftCardsPrefix/bulk", payload)
+    def createBulk(payload: GiftCardBulkCreateByCsr)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$giftCardsPrefix/bulk", payload, aa.jwtCookie.some)
 
-    def updateBulk(payload: GiftCardBulkUpdateStateByCsr): HttpResponse =
-      PATCH(s"$giftCardsPrefix/bulk", payload)
+    def updateBulk(payload: GiftCardBulkUpdateStateByCsr)(
+        implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(s"$giftCardsPrefix/bulk", payload, aa.jwtCookie.some)
   }
 
   case class giftCardsApi(code: String) {
     val giftCardPath = s"${giftCardsApi.giftCardsPrefix}/$code"
 
-    def get(): HttpResponse =
-      GET(giftCardPath)
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(giftCardPath, aa.jwtCookie.some)
 
-    def update(payload: GiftCardUpdateStateByCsr): HttpResponse =
-      PATCH(giftCardPath, payload)
+    def update(payload: GiftCardUpdateStateByCsr)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(giftCardPath, payload, aa.jwtCookie.some)
 
-    def transactions(): HttpResponse =
-      GET(s"$giftCardPath/transactions")
+    def transactions()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(s"$giftCardPath/transactions", aa.jwtCookie.some)
 
-    def convertToStoreCredit(customerId: Int): HttpResponse =
-      POST(s"$giftCardPath/convert/$customerId")
+    def convertToStoreCredit(customerId: Int)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$giftCardPath/convert/$customerId", aa.jwtCookie.some)
+  }
+
+  object returnsApi {
+    val returnsPrefix = s"$rootPrefix/returns"
+
+    def create(payload: ReturnCreatePayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(returnsPrefix, payload, aa.jwtCookie.some)
+
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(returnsPrefix, aa.jwtCookie.some)
+
+    def getByCustomer(id: Int)(implicit aa: TestAdminAuth): HttpResponse =
+      GET(s"$returnsPrefix/customer/$id", aa.jwtCookie.some)
+
+    def getByOrder(ref: String)(implicit aa: TestAdminAuth): HttpResponse =
+      GET(s"$returnsPrefix/order/$ref", aa.jwtCookie.some)
+
+    object reasons {
+      val requestPath = s"$returnsPrefix/reasons"
+
+      def list()(implicit aa: TestAdminAuth): HttpResponse =
+        GET(requestPath, aa.jwtCookie.some)
+
+      def add(payload: ReturnReasonPayload)(implicit aa: TestAdminAuth): HttpResponse =
+        POST(requestPath, payload, aa.jwtCookie.some)
+
+      def remove(id: Int)(implicit aa: TestAdminAuth): HttpResponse =
+        DELETE(s"$requestPath/$id", aa.jwtCookie.some)
+    }
+  }
+
+  case class returnsApi(refNum: String) { returns ⇒
+    val requestPath = s"${returnsApi.returnsPrefix}/$refNum"
+
+    def update(payload: ReturnUpdateStatePayload)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(requestPath, payload, aa.jwtCookie.some)
+
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(requestPath, aa.jwtCookie.some)
+
+    def getLock()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(s"$requestPath/lock", aa.jwtCookie.some)
+
+    def lock()(implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$requestPath/lock", aa.jwtCookie.some)
+
+    def unlock()(implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$requestPath/unlock", aa.jwtCookie.some)
+
+    def message(payload: ReturnMessageToCustomerPayload)(
+        implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$requestPath/message", payload, aa.jwtCookie.some)
+
+    object lineItems {
+      val requestPath = s"${returns.requestPath}/line-items"
+
+      def addOrReplace(payload: List[ReturnSkuLineItemPayload])(
+          implicit aa: TestAdminAuth): HttpResponse =
+        POST(s"$requestPath/skus", payload, aa.jwtCookie.some)
+
+      def add(payload: ReturnLineItemPayload)(implicit aa: TestAdminAuth): HttpResponse =
+        POST(requestPath, payload, aa.jwtCookie.some)
+
+      def remove(lineItemId: Int)(implicit aa: TestAdminAuth): HttpResponse =
+        DELETE(s"$requestPath/$lineItemId", aa.jwtCookie.some)
+    }
+
+    object paymentMethods {
+      val requestPath = s"${returns.requestPath}/payment-methods"
+
+      def addOrReplace(payload: ReturnPaymentsPayload)(implicit aa: TestAdminAuth): HttpResponse =
+        POST(requestPath, payload, aa.jwtCookie.some)
+
+      def add(paymentMethod: PaymentMethod.Type, payload: ReturnPaymentPayload)(
+          implicit aa: TestAdminAuth): HttpResponse =
+        POST(s"$requestPath/${PaymentMethod.Type.show(paymentMethod)}", payload, aa.jwtCookie.some)
+
+      def remove(paymentMethod: PaymentMethod.Type)(implicit aa: TestAdminAuth): HttpResponse =
+        DELETE(s"$requestPath/${PaymentMethod.Type.show(paymentMethod)}", aa.jwtCookie.some)
+    }
   }
 
   object ordersApi {
     val ordersPrefix = s"$rootPrefix/orders"
 
-    def update(payload: BulkUpdateOrdersPayload): HttpResponse =
-      PATCH(ordersPrefix, payload)
+    def update(payload: BulkUpdateOrdersPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(ordersPrefix, payload, aa.jwtCookie.some)
 
-    def assign(payload: BulkAssignmentPayload[String]): HttpResponse =
-      POST(s"$ordersPrefix/assignees", payload)
+    def assign(payload: BulkAssignmentPayload[String])(implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$ordersPrefix/assignees", payload, aa.jwtCookie.some)
 
-    def unassign(payload: BulkAssignmentPayload[String]): HttpResponse =
-      POST(s"$ordersPrefix/assignees/delete", payload)
+    def unassign(payload: BulkAssignmentPayload[String])(
+        implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$ordersPrefix/assignees/delete", payload, aa.jwtCookie.some)
   }
 
   case class ordersApi(refNum: String) {
     val orderPath = s"${ordersApi.ordersPrefix}/$refNum"
 
-    def get(): HttpResponse =
-      GET(orderPath)
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(orderPath, aa.jwtCookie.some)
 
-    def update(payload: UpdateOrderPayload): HttpResponse =
-      PATCH(orderPath, payload)
+    def update(payload: UpdateOrderPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(orderPath, payload, aa.jwtCookie.some)
 
-    def assign(payload: AssignmentPayload): HttpResponse =
-      POST(s"$orderPath/assignees", payload)
+    def assign(payload: AssignmentPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$orderPath/assignees", payload, aa.jwtCookie.some)
 
-    def unassign(adminId: Int): HttpResponse =
-      DELETE(s"$orderPath/assignees/$adminId")
+    def unassign(adminId: Int)(implicit aa: TestAdminAuth): HttpResponse =
+      DELETE(s"$orderPath/assignees/$adminId", aa.jwtCookie.some)
 
-    def increaseRemorsePeriod(): HttpResponse =
-      POST(s"$orderPath/increase-remorse-period")
+    def increaseRemorsePeriod()(implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$orderPath/increase-remorse-period", aa.jwtCookie.some)
   }
 
   object cartsApi {
     val cartsPrefix = s"$rootPrefix/carts"
 
-    def create(payload: CreateCart): HttpResponse =
-      POST(cartsPrefix, payload)
+    def create(payload: CreateCart)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(cartsPrefix, payload, aa.jwtCookie.some)
   }
 
   case class cartsApi(refNum: String) {
@@ -237,60 +328,61 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     val cartPath     = s"${cartsApi.cartsPrefix}/$refNum"
     val updateLIAttr = s"$cartPath/line-items/attributes"
 
-    def updateCartLineItem(payload: Seq[UpdateOrderLineItemsPayload]): HttpResponse = {
-      PATCH(updateLIAttr, payload)
+    def updateCartLineItem(payload: Seq[UpdateOrderLineItemsPayload])(
+        implicit aa: TestAdminAuth): HttpResponse = {
+      PATCH(updateLIAttr, payload, aa.jwtCookie.some)
     }
 
-    def get(): HttpResponse =
-      GET(cartPath)
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(cartPath, aa.jwtCookie.some)
 
-    def checkout(): HttpResponse =
-      POST(s"$cartPath/checkout")
+    def checkout()(implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$cartPath/checkout", aa.jwtCookie.some)
 
     object coupon {
       val couponPrefix = s"$cartPath/coupon"
 
-      def add(code: String): HttpResponse =
-        POST(s"$couponPrefix/$code")
+      def add(code: String)(implicit aa: TestAdminAuth): HttpResponse =
+        POST(s"$couponPrefix/$code", aa.jwtCookie.some)
 
-      def delete(): HttpResponse =
-        DELETE(couponPrefix)
+      def delete()(implicit aa: TestAdminAuth): HttpResponse =
+        DELETE(couponPrefix, aa.jwtCookie.some)
     }
 
     object shippingMethod {
       val shippingMethodPrefix = s"$cartPath/shipping-method"
 
-      def update(payload: UpdateShippingMethod): HttpResponse =
-        PATCH(shippingMethodPrefix, payload)
+      def update(payload: UpdateShippingMethod)(implicit aa: TestAdminAuth): HttpResponse =
+        PATCH(shippingMethodPrefix, payload, aa.jwtCookie.some)
 
-      def delete(): HttpResponse =
-        DELETE(shippingMethodPrefix)
+      def delete()(implicit aa: TestAdminAuth): HttpResponse =
+        DELETE(shippingMethodPrefix, aa.jwtCookie.some)
     }
 
     object shippingAddress {
       val shippingAddressPrefix = s"$cartPath/shipping-address"
 
-      def create(payload: CreateAddressPayload): HttpResponse =
-        POST(shippingAddressPrefix, payload)
+      def create(payload: CreateAddressPayload)(implicit aa: TestAdminAuth): HttpResponse =
+        POST(shippingAddressPrefix, payload, aa.jwtCookie.some)
 
-      def update(payload: UpdateAddressPayload): HttpResponse =
-        PATCH(shippingAddressPrefix, payload)
+      def update(payload: UpdateAddressPayload)(implicit aa: TestAdminAuth): HttpResponse =
+        PATCH(shippingAddressPrefix, payload, aa.jwtCookie.some)
 
-      def updateFromAddress(addressId: Int): HttpResponse =
-        PATCH(s"$shippingAddressPrefix/$addressId")
+      def updateFromAddress(addressId: Int)(implicit aa: TestAdminAuth): HttpResponse =
+        PATCH(s"$shippingAddressPrefix/$addressId", aa.jwtCookie.some)
 
-      def delete(): HttpResponse =
-        DELETE(shippingAddressPrefix)
+      def delete()(implicit aa: TestAdminAuth): HttpResponse =
+        DELETE(shippingAddressPrefix, aa.jwtCookie.some)
     }
 
     object lineItems {
       val lineItemsPrefix = s"$cartPath/line-items"
 
-      def add(payload: Seq[UpdateLineItemsPayload]): HttpResponse =
-        POST(lineItemsPrefix, payload)
+      def add(payload: Seq[UpdateLineItemsPayload])(implicit aa: TestAdminAuth): HttpResponse =
+        POST(lineItemsPrefix, payload, aa.jwtCookie.some)
 
-      def update(payload: Seq[UpdateLineItemsPayload]): HttpResponse =
-        PATCH(lineItemsPrefix, payload)
+      def update(payload: Seq[UpdateLineItemsPayload])(implicit aa: TestAdminAuth): HttpResponse =
+        PATCH(lineItemsPrefix, payload, aa.jwtCookie.some)
     }
 
     object payments {
@@ -299,34 +391,34 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       object creditCard {
         val creditCardPrefix = s"$paymentPrefix/credit-cards"
 
-        def add(payload: CreditCardPayment): HttpResponse =
-          POST(creditCardPrefix, payload)
+        def add(payload: CreditCardPayment)(implicit aa: TestAdminAuth): HttpResponse =
+          POST(creditCardPrefix, payload, aa.jwtCookie.some)
 
-        def delete(): HttpResponse =
-          DELETE(creditCardPrefix)
+        def delete()(implicit aa: TestAdminAuth): HttpResponse =
+          DELETE(creditCardPrefix, aa.jwtCookie.some)
       }
 
       object giftCard {
         val giftCardPrefix = s"$paymentPrefix/gift-cards"
 
-        def add(payload: GiftCardPayment): HttpResponse =
-          POST(giftCardPrefix, payload)
+        def add(payload: GiftCardPayment)(implicit aa: TestAdminAuth): HttpResponse =
+          POST(giftCardPrefix, payload, aa.jwtCookie.some)
 
-        def update(payload: GiftCardPayment): HttpResponse =
-          PATCH(giftCardPrefix, payload)
+        def update(payload: GiftCardPayment)(implicit aa: TestAdminAuth): HttpResponse =
+          PATCH(giftCardPrefix, payload, aa.jwtCookie.some)
 
-        def delete(code: String): HttpResponse =
-          DELETE(s"$giftCardPrefix/$code")
+        def delete(code: String)(implicit aa: TestAdminAuth): HttpResponse =
+          DELETE(s"$giftCardPrefix/$code", aa.jwtCookie.some)
       }
 
       object storeCredit {
         val storeCreditPrefix = s"$paymentPrefix/store-credit"
 
-        def add(payload: StoreCreditPayment): HttpResponse =
-          POST(storeCreditPrefix, payload)
+        def add(payload: StoreCreditPayment)(implicit aa: TestAdminAuth): HttpResponse =
+          POST(storeCreditPrefix, payload, aa.jwtCookie.some)
 
-        def delete(): HttpResponse =
-          DELETE(storeCreditPrefix)
+        def delete()(implicit aa: TestAdminAuth): HttpResponse =
+          DELETE(storeCreditPrefix, aa.jwtCookie.some)
       }
     }
   }
@@ -334,372 +426,396 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   object couponsApi {
     def couponsPrefix(implicit ctx: OC) = s"$rootPrefix/coupons/${ctx.name}"
 
-    def create(payload: CreateCoupon)(implicit ctx: OC): HttpResponse =
-      POST(couponsPrefix, payload)
+    def create(payload: CreateCoupon)(implicit ctx: OC, aa: TestAdminAuth): HttpResponse =
+      POST(couponsPrefix, payload, aa.jwtCookie.some)
   }
 
   case class couponsApi(formId: Int)(implicit ctx: OC) {
     val couponPath = s"${couponsApi.couponsPrefix}/$formId"
 
-    def get(): HttpResponse =
-      GET(couponPath)
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(couponPath, aa.jwtCookie.some)
 
-    def archive(): HttpResponse =
-      DELETE(couponPath)
+    def archive()(implicit aa: TestAdminAuth): HttpResponse =
+      DELETE(couponPath, aa.jwtCookie.some)
 
     object codes {
 
-      def generate(code: String): HttpResponse =
-        POST(s"$rootPrefix/coupons/codes/generate/$formId/$code")
+      def generate(code: String)(implicit aa: TestAdminAuth): HttpResponse =
+        POST(s"$rootPrefix/coupons/codes/generate/$formId/$code", aa.jwtCookie.some)
     }
   }
 
   object customerGroupsApi {
     val customerGroupsPrefix = s"$rootPrefix/customer-groups"
 
-    def create(payload: CustomerGroupPayload): HttpResponse =
-      POST(customerGroupsPrefix, payload)
+    def create(payload: CustomerGroupPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(customerGroupsPrefix, payload, aa.jwtCookie.some)
   }
 
   object customerGroupTemplateApi {
     val customerGroupTemplatePrefix = s"$rootPrefix/customer-groups/templates"
 
-    def get(): HttpResponse =
-      GET(customerGroupTemplatePrefix)
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(customerGroupTemplatePrefix, aa.jwtCookie.some)
   }
 
   case class customerGroupsMembersServiceApi(groupId: Int) {
     val customerGroupMembersPrefix = s"$rootPrefix/service/customer-groups/$groupId"
 
-    def syncCustomers(payload: CustomerGroupMemberServiceSyncPayload): HttpResponse =
-      POST(s"$customerGroupMembersPrefix/customers", payload)
+    def syncCustomers(payload: CustomerGroupMemberServiceSyncPayload)(
+        implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$customerGroupMembersPrefix/customers", payload, aa.jwtCookie.some)
   }
 
   case class customerGroupsMembersApi(groupId: Int) {
     val customerGroupMembersPrefix = s"$rootPrefix/customer-groups/$groupId/customers"
 
-    def syncCustomers(payload: CustomerGroupMemberSyncPayload): HttpResponse =
-      POST(s"$customerGroupMembersPrefix", payload)
+    def syncCustomers(payload: CustomerGroupMemberSyncPayload)(
+        implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$customerGroupMembersPrefix", payload, aa.jwtCookie.some)
   }
 
   case class customerGroupsApi(id: Int) {
     val customerGroupPath = s"${customerGroupsApi.customerGroupsPrefix}/$id"
 
-    def get(): HttpResponse =
-      GET(customerGroupPath)
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(customerGroupPath, aa.jwtCookie.some)
 
-    def update(payload: CustomerGroupPayload): HttpResponse =
-      PATCH(customerGroupPath, payload)
+    def update(payload: CustomerGroupPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(customerGroupPath, payload, aa.jwtCookie.some)
 
-    def delete: HttpResponse =
-      DELETE(customerGroupPath)
+    def delete()(implicit aa: TestAdminAuth): HttpResponse =
+      DELETE(customerGroupPath, aa.jwtCookie.some)
   }
 
   case class genericTreesApi(name: String) {
     def genericTreePath(implicit ctx: OC) = s"$rootPrefix/tree/${ctx.name}/$name"
 
-    def get(): HttpResponse =
-      GET(genericTreePath)
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(genericTreePath, aa.jwtCookie.some)
 
-    def create(payload: NodePayload): HttpResponse =
-      POST(genericTreePath, payload)
+    def create(payload: NodePayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(genericTreePath, payload, aa.jwtCookie.some)
 
-    def createInPath(path: String, payload: NodePayload): HttpResponse =
-      POST(s"$genericTreePath/$path", payload)
+    def createInPath(path: String, payload: NodePayload)(
+        implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$genericTreePath/$path", payload, aa.jwtCookie.some)
 
-    def moveNode(payload: MoveNodePayload): HttpResponse =
-      PATCH(genericTreePath, payload)
+    def moveNode(payload: MoveNodePayload)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(genericTreePath, payload, aa.jwtCookie.some)
 
-    def moveNodeInPath(path: String, payload: NodeValuesPayload): HttpResponse =
-      PATCH(s"$genericTreePath/$path", payload)
+    def moveNodeInPath(path: String, payload: NodeValuesPayload)(
+        implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(s"$genericTreePath/$path", payload, aa.jwtCookie.some)
   }
 
   object shippingMethodsApi {
     val shippingMethodsPrefix = s"$rootPrefix/shipping-methods"
 
-    def active(): HttpResponse =
-      GET(shippingMethodsPrefix)
+    def active()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(shippingMethodsPrefix, aa.jwtCookie.some)
 
-    def forCart(refNum: String): HttpResponse =
-      GET(s"$shippingMethodsPrefix/$refNum")
+    def forCart(refNum: String)(implicit aa: TestAdminAuth): HttpResponse =
+      GET(s"$shippingMethodsPrefix/$refNum", aa.jwtCookie.some)
 
-    def getDefault(): HttpResponse =
-      GET(s"$shippingMethodsPrefix/default")
+    def getDefault()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(s"$shippingMethodsPrefix/default", aa.jwtCookie.some)
 
-    def unsetDefault(): HttpResponse =
-      DELETE(s"$shippingMethodsPrefix/default")
+    def unsetDefault()(implicit aa: TestAdminAuth): HttpResponse =
+      DELETE(s"$shippingMethodsPrefix/default", aa.jwtCookie.some)
   }
 
   case class shippingMethodsApi(id: Int) {
-    def setDefault(): HttpResponse =
-      POST(s"${shippingMethodsApi.shippingMethodsPrefix}/$id/default")
+    def setDefault()(implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"${shippingMethodsApi.shippingMethodsPrefix}/$id/default", aa.jwtCookie.some)
   }
 
   case object skusApi {
     val skusPrefix = s"$rootPrefix/skus"
     def skusPath(implicit ctx: OC) = s"$skusPrefix/${ctx.name}"
 
-    def create(payload: SkuPayload)(implicit ctx: OC): HttpResponse =
-      POST(skusPath, payload)
+    def create(payload: SkuPayload)(implicit ctx: OC, aa: TestAdminAuth): HttpResponse =
+      POST(skusPath, payload, aa.jwtCookie.some)
   }
 
   case class skusApi(code: String)(implicit val ctx: OC) {
     val skuPath = s"${skusApi.skusPath}/$code"
 
-    def get(): HttpResponse =
-      GET(skuPath)
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(skuPath, aa.jwtCookie.some)
 
-    def update(payload: SkuPayload): HttpResponse =
-      PATCH(skuPath, payload)
+    def update(payload: SkuPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(skuPath, payload, aa.jwtCookie.some)
 
-    def archive(): HttpResponse =
-      DELETE(skuPath)
+    def archive()(implicit aa: TestAdminAuth): HttpResponse =
+      DELETE(skuPath, aa.jwtCookie.some)
 
     object albums {
       val albumsPrefix = s"$skuPath/albums"
 
-      def get(): HttpResponse =
-        GET(albumsPrefix)
+      def get()(implicit aa: TestAdminAuth): HttpResponse =
+        GET(albumsPrefix, aa.jwtCookie.some)
 
-      def create(payload: AlbumPayload): HttpResponse =
-        POST(albumsPrefix, payload)
+      def create(payload: AlbumPayload)(implicit aa: TestAdminAuth): HttpResponse =
+        POST(albumsPrefix, payload, aa.jwtCookie.some)
 
-      def update(payload: AlbumPayload): HttpResponse =
-        PATCH(albumsPrefix, payload)
+      def update(payload: AlbumPayload)(implicit aa: TestAdminAuth): HttpResponse =
+        PATCH(albumsPrefix, payload, aa.jwtCookie.some)
     }
   }
 
   object productsApi {
     def productsPrefix()(implicit ctx: OC) = s"$rootPrefix/products/${ctx.name}"
 
-    def create(payload: CreateProductPayload)(implicit ctx: OC): HttpResponse =
-      POST(productsPrefix, payload)
+    def create(payload: CreateProductPayload)(implicit ctx: OC, aa: TestAdminAuth): HttpResponse =
+      POST(productsPrefix, payload, aa.jwtCookie.some)
 
-    def apply(formId: Int)(implicit ctx: OC): productsApi = productsApi(formId.toString)
+    def apply(formId: Int)(implicit ctx: OC): productsApi =
+      productsApi(formId.toString)
   }
 
   case class productsApi(reference: String)(implicit ctx: OC) {
     val productPath = s"${productsApi.productsPrefix}/$reference"
 
-    def get(): HttpResponse =
-      GET(productPath)
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(productPath, aa.jwtCookie.some)
 
-    def update(payload: UpdateProductPayload): HttpResponse =
-      PATCH(productPath, payload)
+    def update(payload: UpdateProductPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(productPath, payload, aa.jwtCookie.some)
 
-    def archive(): HttpResponse =
-      DELETE(productPath)
+    def archive()(implicit aa: TestAdminAuth): HttpResponse =
+      DELETE(productPath, aa.jwtCookie.some)
 
     object albums {
       val albumsPrefix = s"$productPath/albums"
 
-      def get(): HttpResponse =
-        GET(albumsPrefix)
+      def get()(implicit aa: TestAdminAuth): HttpResponse =
+        GET(albumsPrefix, aa.jwtCookie.some)
 
-      def create(payload: AlbumPayload): HttpResponse =
-        POST(albumsPrefix, payload)
+      def create(payload: AlbumPayload)(implicit aa: TestAdminAuth): HttpResponse =
+        POST(albumsPrefix, payload, aa.jwtCookie.some)
 
       // Why not PATCH?
-      def updatePosition(payload: UpdateAlbumPositionPayload): HttpResponse =
-        POST(s"$albumsPrefix/position", payload)
+      def updatePosition(payload: UpdateAlbumPositionPayload)(
+          implicit aa: TestAdminAuth): HttpResponse =
+        POST(s"$albumsPrefix/position", payload, aa.jwtCookie.some)
     }
 
     object taxons {
-      def get: HttpResponse =
-        GET(s"$productPath/taxons")
+      def get()(implicit aa: TestAdminAuth): HttpResponse =
+        GET(s"$productPath/taxons", aa.jwtCookie.some)
     }
   }
 
   object storeAdminsApi {
     val storeAdminsPrefix = s"$rootPrefix/store-admins"
 
-    def create(payload: CreateStoreAdminPayload): HttpResponse =
-      POST(storeAdminsPrefix, payload)
+    def create(payload: CreateStoreAdminPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(storeAdminsPrefix, payload, aa.jwtCookie.some)
   }
 
   case class storeAdminsApi(id: Int) {
     val storeAdminPath = s"${storeAdminsApi.storeAdminsPrefix}/$id"
 
-    def get(): HttpResponse =
-      GET(storeAdminPath)
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(storeAdminPath, aa.jwtCookie.some)
 
-    def update(payload: UpdateStoreAdminPayload): HttpResponse =
-      PATCH(storeAdminPath, payload)
+    def update(payload: UpdateStoreAdminPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(storeAdminPath, payload, aa.jwtCookie.some)
 
-    def updateState(payload: StateChangeStoreAdminPayload): HttpResponse =
-      PATCH(s"$storeAdminPath/state", payload)
+    def updateState(payload: StateChangeStoreAdminPayload)(
+        implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(s"$storeAdminPath/state", payload, aa.jwtCookie.some)
 
-    def delete(): HttpResponse =
-      DELETE(storeAdminPath)
+    def delete()(implicit aa: TestAdminAuth): HttpResponse =
+      DELETE(storeAdminPath, aa.jwtCookie.some)
   }
 
   object variantsApi {
     def variantsPrefix()(implicit ctx: OC) = s"$rootPrefix/variants/${ctx.name}"
 
-    def create(payload: VariantPayload)(implicit ctx: OC): HttpResponse =
-      POST(variantsPrefix, payload)
+    def create(payload: VariantPayload)(implicit ctx: OC, aa: TestAdminAuth): HttpResponse =
+      POST(variantsPrefix, payload, aa.jwtCookie.some)
   }
 
   case class variantsApi(formId: Int)(implicit ctx: OC) {
     val variantPath = s"${variantsApi.variantsPrefix}/$formId"
 
-    def get()(implicit ctx: OC): HttpResponse =
-      GET(variantPath)
+    def get()(implicit ctx: OC, aa: TestAdminAuth): HttpResponse =
+      GET(variantPath, aa.jwtCookie.some)
 
-    def update(payload: VariantPayload)(implicit ctx: OC): HttpResponse =
-      PATCH(variantPath, payload)
+    def update(payload: VariantPayload)(implicit ctx: OC, aa: TestAdminAuth): HttpResponse =
+      PATCH(variantPath, payload, aa.jwtCookie.some)
 
-    def createValues(payload: VariantValuePayload)(implicit ctx: OC): HttpResponse =
-      POST(s"$variantPath/values", payload)
+    def createValues(payload: VariantValuePayload)(implicit ctx: OC,
+                                                   aa: TestAdminAuth): HttpResponse =
+      POST(s"$variantPath/values", payload, aa.jwtCookie.some)
   }
 
   object albumsApi {
     def albumsPrefix()(implicit ctx: OC) = s"$rootPrefix/albums/${ctx.name}"
 
-    def create(payload: AlbumPayload)(implicit ctx: OC): HttpResponse =
-      POST(albumsPrefix, payload)
+    def create(payload: AlbumPayload)(implicit ctx: OC, aa: TestAdminAuth): HttpResponse =
+      POST(albumsPrefix, payload, aa.jwtCookie.some)
   }
 
   case class albumsApi(formId: Int)(implicit val ctx: OC) {
     val albumPath = s"${albumsApi.albumsPrefix}/$formId"
 
-    def get(): HttpResponse =
-      GET(albumPath)
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(albumPath, aa.jwtCookie.some)
 
-    def update(payload: AlbumPayload): HttpResponse =
-      PATCH(albumPath, payload)
+    def update(payload: AlbumPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(albumPath, payload, aa.jwtCookie.some)
 
-    def delete(): HttpResponse =
-      DELETE(albumPath)
+    def delete()(implicit aa: TestAdminAuth): HttpResponse =
+      DELETE(albumPath, aa.jwtCookie.some)
   }
 
   object saveForLaterApi {
     val saveForLaterPrefix = s"$rootPrefix/save-for-later"
 
-    def delete(id: Int): HttpResponse =
-      DELETE(s"$saveForLaterPrefix/$id")
+    def delete(id: Int)(implicit aa: TestAdminAuth): HttpResponse =
+      DELETE(s"$saveForLaterPrefix/$id", aa.jwtCookie.some)
   }
 
   case class saveForLaterApi(customerId: Int) {
     val saveForLaterPrefix = s"${saveForLaterApi.saveForLaterPrefix}/$customerId"
 
-    def get(): HttpResponse =
-      GET(saveForLaterPrefix)
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(saveForLaterPrefix, aa.jwtCookie.some)
 
-    def create(sku: String): HttpResponse =
-      POST(s"$saveForLaterPrefix/$sku")
+    def create(sku: String)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$saveForLaterPrefix/$sku", aa.jwtCookie.some)
   }
 
   object sharedSearchApi {
     val sharedSearchPrefix = s"$rootPrefix/shared-search"
 
-    def scope(scope: String): HttpResponse =
-      GET(s"$sharedSearchPrefix?scope=$scope")
+    def scope(scope: String)(implicit aa: TestAdminAuth): HttpResponse =
+      GET(s"$sharedSearchPrefix?scope=$scope", aa.jwtCookie.some)
 
-    def create(payload: SharedSearchPayload): HttpResponse =
-      POST(sharedSearchPrefix, payload)
+    def create(payload: SharedSearchPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(sharedSearchPrefix, payload, aa.jwtCookie.some)
 
-    def createFromQuery(query: String): HttpResponse =
-      POST(sharedSearchPrefix, query)
+    def createFromQuery(query: String)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(sharedSearchPrefix, query, aa.jwtCookie.some)
   }
 
   case class sharedSearchApi(code: String) {
     val sharedSearchPath = s"${sharedSearchApi.sharedSearchPrefix}/$code"
 
-    def get(): HttpResponse =
-      GET(sharedSearchPath)
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(sharedSearchPath, aa.jwtCookie.some)
 
-    def create(payload: SharedSearchPayload): HttpResponse =
-      POST(sharedSearchPath, payload)
+    def create(payload: SharedSearchPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(sharedSearchPath, payload, aa.jwtCookie.some)
 
-    def update(payload: SharedSearchPayload): HttpResponse =
-      PATCH(sharedSearchPath, payload)
+    def update(payload: SharedSearchPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(sharedSearchPath, payload, aa.jwtCookie.some)
 
-    def updateFromQuery(query: String): HttpResponse =
-      PATCH(sharedSearchPath, query)
+    def updateFromQuery(query: String)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(sharedSearchPath, query, aa.jwtCookie.some)
 
-    def delete(): HttpResponse =
-      DELETE(sharedSearchPath)
+    def delete()(implicit aa: TestAdminAuth): HttpResponse =
+      DELETE(sharedSearchPath, aa.jwtCookie.some)
 
-    def associate(payload: SharedSearchAssociationPayload): HttpResponse =
-      POST(s"$sharedSearchPath/associate", payload)
+    def associate(payload: SharedSearchAssociationPayload)(
+        implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$sharedSearchPath/associate", payload, aa.jwtCookie.some)
 
-    def associates(): HttpResponse =
-      GET(s"$sharedSearchPath/associates")
+    def associates()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(s"$sharedSearchPath/associates", aa.jwtCookie.some)
 
-    def unassociate(adminId: Int): HttpResponse =
-      DELETE(s"$sharedSearchPath/associate/$adminId")
+    def unassociate(adminId: Int)(implicit aa: TestAdminAuth): HttpResponse =
+      DELETE(s"$sharedSearchPath/associate/$adminId", aa.jwtCookie.some)
   }
 
   object promotionsApi {
     def promotionsPrefix(implicit ctx: OC) = s"$rootPrefix/promotions/${ctx.name}"
 
-    def create(payload: CreatePromotion)(implicit ctx: OC): HttpResponse =
-      POST(promotionsPrefix, payload)
+    def create(payload: CreatePromotion)(implicit ctx: OC, aa: TestAdminAuth): HttpResponse =
+      POST(promotionsPrefix, payload, aa.jwtCookie.some)
   }
 
   case class promotionsApi(formId: Int)(implicit ctx: OC) {
     val promotionPath = s"${promotionsApi.promotionsPrefix}/$formId"
 
-    def delete(): HttpResponse =
-      DELETE(promotionPath)
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(promotionPath, aa.jwtCookie.some)
 
-    def update(payload: UpdatePromotion): HttpResponse =
-      PATCH(promotionPath, payload)
+    def delete()(implicit aa: TestAdminAuth): HttpResponse =
+      DELETE(promotionPath, aa.jwtCookie.some)
+
+    def update(payload: UpdatePromotion)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(promotionPath, payload, aa.jwtCookie.some)
   }
 
   object categoriesApi {
     def categoriesPrefix()(implicit ctx: OC) = s"$rootPrefix/categories/${ctx.name}"
 
-    def create(payload: CreateFullCategory)(implicit ctx: OC): HttpResponse =
-      POST(categoriesPrefix, payload)
+    def create(payload: CreateFullCategory)(implicit ctx: OC, aa: TestAdminAuth): HttpResponse =
+      POST(categoriesPrefix, payload, aa.jwtCookie.some)
   }
 
   case class categoriesApi(formId: Int)(implicit ctx: OC) {
     val categoryPath = s"${categoriesApi.categoriesPrefix}/$formId"
 
-    def get(): HttpResponse =
-      GET(categoryPath)
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(categoryPath, aa.jwtCookie.some)
 
-    def update(payload: UpdateFullCategory): HttpResponse =
-      PATCH(categoryPath, payload)
+    def update(payload: UpdateFullCategory)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(categoryPath, payload, aa.jwtCookie.some)
 
-    def form(): HttpResponse =
-      GET(s"$rootPrefix/categories/$formId/form")
+    def form()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(s"$rootPrefix/categories/$formId/form", aa.jwtCookie.some)
 
-    def shadow(): HttpResponse =
-      GET(s"$categoryPath/shadow")
+    def shadow()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(s"$categoryPath/shadow", aa.jwtCookie.some)
 
-    def baked(): HttpResponse =
-      GET(s"$categoryPath/baked")
+    def baked()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(s"$categoryPath/baked", aa.jwtCookie.some)
 
   }
 
   case object taxonomiesApi {
-    def create(payload: CreateTaxonomyPayload)(implicit ctx: OC) =
-      POST(s"v1/taxonomies/${ctx.name}", payload)
+    def create(payload: CreateTaxonomyPayload)(implicit ctx: OC, aa: TestAdminAuth): HttpResponse =
+      POST(s"v1/taxonomies/${ctx.name}", payload, aa.jwtCookie.some)
   }
 
   case class taxonomiesApi(taxonomyId: Int)(implicit ctx: OC) {
-    def update(payload: UpdateTaxonomyPayload) =
-      PATCH(s"v1/taxonomies/${ctx.name}/$taxonomyId", payload)
-    def delete = DELETE(s"v1/taxonomies/${ctx.name}/$taxonomyId")
-    def get    = GET(s"v1/taxonomies/${ctx.name}/$taxonomyId")
-    def createTaxon(payload: CreateTaxonPayload) =
-      POST(s"v1/taxonomies/${ctx.name}/$taxonomyId", payload)
+    def update(payload: UpdateTaxonomyPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(s"v1/taxonomies/${ctx.name}/$taxonomyId", payload, aa.jwtCookie.some)
+
+    def delete()(implicit aa: TestAdminAuth): HttpResponse =
+      DELETE(s"v1/taxonomies/${ctx.name}/$taxonomyId", aa.jwtCookie.some)
+
+    def get()(implicit aa: TestAdminAuth) =
+      GET(s"v1/taxonomies/${ctx.name}/$taxonomyId", aa.jwtCookie.some)
+
+    def createTaxon(payload: CreateTaxonPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"v1/taxonomies/${ctx.name}/$taxonomyId/taxons", payload, aa.jwtCookie.some)
   }
 
   case class taxonsApi(taxonId: Int)(implicit ctx: OC) {
-    def get = GET(s"v1/taxons/${ctx.name}/$taxonId")
-    def update(payload: UpdateTaxonPayload) =
-      PATCH(s"v1/taxons/${ctx.name}/$taxonId", payload)
-    def delete = DELETE(s"v1/taxons/${ctx.name}/$taxonId")
 
-    def assignProduct(productFormId: ObjectForm#Id)(implicit ctx: OC): HttpResponse =
-      PATCH(s"v1/taxons/${ctx.name}/$taxonId/product/$productFormId")
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(s"v1/taxons/${ctx.name}/$taxonId", aa.jwtCookie.some)
 
-    def unassignProduct(productFormId: ObjectForm#Id)(implicit ctx: OC): HttpResponse =
-      DELETE(s"v1/taxons/${ctx.name}/$taxonId/product/$productFormId")
+    def update(payload: UpdateTaxonPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(s"v1/taxons/${ctx.name}/$taxonId", payload, aa.jwtCookie.some)
+
+    def delete()(implicit aa: TestAdminAuth): HttpResponse =
+      DELETE(s"v1/taxons/${ctx.name}/$taxonId", aa.jwtCookie.some)
+
+    def assignProduct(productFormId: ObjectForm#Id)(implicit ctx: OC,
+                                                    aa: TestAdminAuth): HttpResponse =
+      PATCH(s"v1/taxons/${ctx.name}/$taxonId/product/$productFormId", aa.jwtCookie.some)
+
+    def unassignProduct(productFormId: ObjectForm#Id)(implicit ctx: OC,
+                                                      aa: TestAdminAuth): HttpResponse =
+      DELETE(s"v1/taxons/${ctx.name}/$taxonId/product/$productFormId", aa.jwtCookie.some)
   }
 
   object notesApi {
@@ -709,6 +825,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     case class storeAdmin(id: Int)  extends notesApiBase[Int]    { val prefix = "store-admins" }
     case class order(id: String)    extends notesApiBase[String] { val prefix = "order"        }
     case class giftCard(id: String) extends notesApiBase[String] { val prefix = "gift-card"    }
+    case class returns(id: String)  extends notesApiBase[String] { val prefix = "return"       }
 
     trait notesApiBase[A] {
       def id: A
@@ -716,20 +833,20 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
       lazy val path = s"$notesPrefix/$prefix/$id"
 
-      def get(): HttpResponse =
-        GET(path)
+      def get()(implicit aa: TestAdminAuth): HttpResponse =
+        GET(path, aa.jwtCookie.some)
 
-      def create(payload: CreateNote): HttpResponse =
-        POST(path, payload)
+      def create(payload: CreateNote)(implicit aa: TestAdminAuth): HttpResponse =
+        POST(path, payload, aa.jwtCookie.some)
 
       case class note(id: Int) {
         val notePath = s"$path/$id"
 
-        def update(payload: UpdateNote): HttpResponse =
-          PATCH(notePath, payload)
+        def update(payload: UpdateNote)(implicit aa: TestAdminAuth): HttpResponse =
+          PATCH(notePath, payload, aa.jwtCookie.some)
 
-        def delete(): HttpResponse =
-          DELETE(notePath)
+        def delete()(implicit aa: TestAdminAuth): HttpResponse =
+          DELETE(notePath, aa.jwtCookie.some)
       }
     }
   }
@@ -737,24 +854,28 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   object storeCreditsApi {
     val storeCreditsPrefix = s"$rootPrefix/store-credits"
 
-    def update(payload: StoreCreditBulkUpdateStateByCsr): HttpResponse =
-      PATCH(storeCreditsPrefix, payload)
+    def update(payload: StoreCreditBulkUpdateStateByCsr)(
+        implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(storeCreditsPrefix, payload, aa.jwtCookie.some)
   }
 
   case class storeCreditsApi(id: Int) {
     val storeCreditPath = s"${storeCreditsApi.storeCreditsPrefix}/$id"
 
-    def update(payload: StoreCreditUpdateStateByCsr): HttpResponse =
-      PATCH(storeCreditPath, payload)
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(storeCreditPath, aa.jwtCookie.some)
+
+    def update(payload: StoreCreditUpdateStateByCsr)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(storeCreditPath, payload, aa.jwtCookie.some)
   }
 
   object notificationsApi {
     val notificationsPrefix = s"$rootPrefix/notifications"
 
-    def create(payload: CreateNotification): HttpResponse =
-      POST(notificationsPrefix, payload)
+    def create(payload: CreateNotification)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(notificationsPrefix, payload, aa.jwtCookie.some)
 
-    def updateLastSeen(activityId: Int): HttpResponse =
-      POST(s"$notificationsPrefix/last-seen/$activityId")
+    def updateLastSeen(activityId: Int)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$notificationsPrefix/last-seen/$activityId", aa.jwtCookie.some)
   }
 }

@@ -1,9 +1,10 @@
 import _ from 'lodash';
 import React from 'react';
 import { Router, applyRouterMiddleware } from 'react-router';
-import { browserHistory } from 'lib/history';
+import { createAppHistory } from 'lib/history';
 
-import useScroll from 'react-router-scroll';
+import useScroll from 'react-router-scroll/lib/useScroll';
+
 import { Provider } from 'react-redux';
 import { render } from 'react-dom';
 import makeStore from './store';
@@ -14,20 +15,15 @@ import { initTracker, trackPageView } from 'lib/analytics';
 const DEBUG = process.env.NODE_ENV != 'production';
 import { api } from 'lib/api';
 
-
-function scrollHandler(prevRouterProps, { params }) {
-  // do not scroll page to top if product type was selected in dropdown menu
-  if (params.categoryName && params.productType) {
-    return false;
-  }
-
-  return true;
-}
-
 export function renderApp() {
-  const history = browserHistory;
-  const store = makeStore(history, window.__data);
-  const routes = makeRoutes(store);
+  let store;
+  const getStore = () => store;
+  const routes = makeRoutes(getStore);
+  const history = createAppHistory({
+    routes,
+  });
+  store = makeStore(history, window.__data);
+
 
   if (DEBUG) {
     window.store = store;
@@ -37,7 +33,7 @@ export function renderApp() {
   const userId = _.get(store.getState(), 'state.auth.user.id');
   initTracker(userId);
 
-  history.listen(location => {
+  history.listen((location) => {
     trackPageView(location.pathname);
   });
 
@@ -46,7 +42,7 @@ export function renderApp() {
   render((
     <I18nProvider locale={language} translation={translation}>
       <Provider store={store} key="provider">
-        <Router history={history} render={applyRouterMiddleware(useScroll(scrollHandler))}>
+        <Router history={history} routes={routes} render={applyRouterMiddleware(useScroll())}>
           {routes}
         </Router>
       </Provider>

@@ -1,6 +1,7 @@
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -8,27 +9,21 @@ import { connect } from 'react-redux';
 //helpers
 import { ReasonType } from '../../../lib/reason-utils';
 import { codeToName } from '../../../lib/language-utils';
-import { transitionTo } from 'browserHistory';
+import { transitionTo, transitionToLazy } from 'browserHistory';
 
 // components
 import { PageTitle } from '../../section-title';
 import FormField from '../../forms/formfield';
 import Form from '../../forms/form';
-import { Link } from '../../link';
 import Dropdown from '../../dropdown/dropdown';
 import Currency from '../../common/currency';
-import SaveCancel from '../../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 
 // redux
 import * as CustomerActions from '../../../modules/customers/details';
 import * as NewStoreCreditActions from '../../../modules/customers/new-store-credit';
 import * as ScTypesActions from '../../../modules/store-credit-types';
 import * as ReasonsActions from '../../../modules/reasons';
-
-// currency - USD only
-const currencyList = [
-  ['USD', 'United States Dollar - USD'],
-];
 
 function validateCardCode(code) {
   if (!code) {
@@ -81,7 +76,7 @@ export default class NewStoreCredit extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     if (_.isNumber(nextProps.form.id)) {
-      transitionTo('customer-storecredits', {customerId: this.customerId});
+      transitionTo('customer-storecredits', { customerId: this.customerId });
       this.props.resetForm();
       return false;
     }
@@ -89,7 +84,7 @@ export default class NewStoreCredit extends React.Component {
   }
 
   @autobind
-  onChangeValue({target}) {
+  onChangeValue({ target }) {
     if (target.name === 'code') {
       //remove whitespaces
       this.props.changeGCCode(target.value.replace(' ', ''));
@@ -118,7 +113,7 @@ export default class NewStoreCredit extends React.Component {
   }
 
   get scSubtypes() {
-    const {types, form} = this.props;
+    const { types, form } = this.props;
 
     if (types && form.reasonId) {
       const type = _.find(types, 'originType', form.type);
@@ -180,7 +175,7 @@ export default class NewStoreCredit extends React.Component {
 
   @autobind
   changeScType(value) {
-    this.setState({scTypeError: null}, () => {
+    this.setState({ scTypeError: null }, () => {
       this.props.changeScType(value);
     });
   }
@@ -188,7 +183,7 @@ export default class NewStoreCredit extends React.Component {
   @autobind
   submitCreateStoreCredit() {
     if (this.props.form.type == null) {
-      this.setState({scTypeError: 'Type is required field.'});
+      this.setState({ scTypeError: 'Type is required field.' });
       return null;
     }
 
@@ -200,7 +195,7 @@ export default class NewStoreCredit extends React.Component {
       '_hidden': _.isEmpty(this.scSubtypes)
     });
 
-    const {form, createStoreCredit, changeScFormData} = this.props;
+    const { form, changeScFormData } = this.props;
 
     return (
       <Form className="fc-store-credit-form fc-form-vertical"
@@ -235,9 +230,10 @@ export default class NewStoreCredit extends React.Component {
                 {this.balances}
               </li>
               <li className="fc-store-credit-form__controls">
-                <SaveCancel cancelTo="customer-storecredits"
-                            cancelParams={{customerId: this.customerId}}
-                            saveText="Issue Store Credit" />
+                <SaveCancel
+                  onCancel={transitionToLazy('customer-storecredits', {customerId: this.customerId})}
+                  saveText="Issue Store Credit"
+                />
               </li>
             </ul>
           </div>
@@ -289,7 +285,7 @@ export default class NewStoreCredit extends React.Component {
   }
 
   get giftCardConvertForm() {
-    const {form, convertGiftCard} = this.props;
+    const { form, convertGiftCard } = this.props;
 
     return (
       <Form className="fc-store-credit-form fc-form-vertical"
@@ -322,9 +318,10 @@ export default class NewStoreCredit extends React.Component {
                 </div>
               </li>
               <li className="fc-store-credit-form__controls">
-                <SaveCancel cancelTo="customer-storecredits"
-                            cancelParams={{customerId: this.customerId}}
-                            saveText="Transfer Gift Card to Store Credit" />
+                <SaveCancel
+                  onCancel={transitionToLazy('customer-storecredits', {customerId: this.customerId})}
+                  saveText="Transfer Gift Card to Store Credit"
+                />
               </li>
             </ul>
           </div>
@@ -340,7 +337,7 @@ export default class NewStoreCredit extends React.Component {
 
     return (
       <div className="fc-store-credits-new">
-        <PageTitle title="Issue New Store Credit" subtitle={this.customerName}/>
+        <PageTitle title="Issue New Store Credit" subtitle={this.customerName} />
         {form}
       </div>
     );

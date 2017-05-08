@@ -1,7 +1,8 @@
 /** Libs */
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
-import React, {PropTypes, Component} from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 
 /** helpers */
@@ -76,7 +77,7 @@ export default class TextFit extends Component {
 
   componentDidMount() {
     this.setFontSize();
-  };
+  }
 
   render() {
     const style = {

@@ -1,12 +1,13 @@
 package models.discount.qualifiers
 
-import cats.data.Xor
+import cats.implicits._
 import failures.DiscountFailures._
 import failures._
 import models.discount._
-import utils.db._
 import utils.ElasticsearchApi._
 import utils.aliases._
+import utils.apis.Apis
+import utils.db._
 
 case class ItemsAnyQualifier(search: Seq[ProductSearch])
     extends Qualifier
@@ -15,14 +16,15 @@ case class ItemsAnyQualifier(search: Seq[ProductSearch])
 
   val qualifierType: QualifierType = ItemsAny
 
-  def check(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): Result[Unit] =
+  def check(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis, au: AU): Result[Unit] =
     checkInner(input)(search)
 
-  def matchXor(input: DiscountInput)(xor: Failures Xor Buckets): Failures Xor Unit = xor match {
-    case Xor.Right(buckets) ⇒
+  def matchEither(input: DiscountInput)(
+      either: Either[Failures, Buckets]): Either[Failures, Unit] = either match {
+    case Right(buckets) ⇒
       val bucketDocCount = buckets.foldLeft(0.toLong)((acc, bucket) ⇒ acc + bucket.docCount)
-      if (bucketDocCount > 0) Xor.Right(Unit) else Xor.Left(SearchFailure.single)
+      if (bucketDocCount > 0) Either.right(Unit) else Either.left(SearchFailure.single)
     case _ ⇒
-      Xor.Left(SearchFailure.single)
+      Either.left(SearchFailure.single)
   }
 }

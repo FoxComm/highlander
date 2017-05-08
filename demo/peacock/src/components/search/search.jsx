@@ -1,20 +1,22 @@
 /* flow */
 
-import React, { Component } from 'react';
-import classNames from 'classnames';
-import type { HTMLElement } from 'types';
-import { browserHistory } from 'lib/history';
+import _ from 'lodash';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
+import { addAsyncReducer } from '@foxcomm/wings';
+import makeLocalStore from 'lib/local-store';
 import { Product } from 'modules/products';
 import styles from './search.css';
 
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
-import Icon from 'ui/icon';
+import Typeahead from 'components/typeahead/typeahead';
+import ProductRow from './product-row';
 
-import { toggleActive, forceSearch } from 'modules/search';
+import reducer, { toggleActive, forceSearch, searchProducts } from 'modules/search';
+import { toggleContentOverlay } from 'modules/content-overlay';
 
 type SearchProps = Localized & {
   isActive: boolean,
@@ -23,24 +25,34 @@ type SearchProps = Localized & {
   forceSearch: () => void,
   onSearch?: Function,
   isScrolled: boolean,
+  setFocus: ?Function,
+  onItemSelected?: () => void,
 };
 
 type SearchState = {
   term: string,
+  focus: boolean,
 };
 
 class Search extends Component {
   props: SearchProps;
   state: SearchState = {
     term: '',
+    focus: false,
   };
 
   static defaultProps = {
     isScrolled: false,
   };
 
+  componentWillUpdate(nextProps: SearchProps, nextState: SearchState) {
+    if (nextState.focus != this.state.focus) {
+      toggleContentOverlay();
+    }
+  }
+
   @autobind
-  onKeyDown({ keyCode }: any): void {
+  onKeyDown({ keyCode }: { keyCode: number }): void {
     if (keyCode === 13) {
       this.search();
       this.refs.input.blur();
@@ -53,72 +65,59 @@ class Search extends Component {
   }
 
   @autobind
-  search(): void {
-    if (!this.props.isActive) {
-      return;
-    }
-    const { term } = this.state;
-
-    if (term.length) {
-      if (this.props.onSearch) this.props.onSearch();
-      this.props.toggleActive();
-      this.setState({ term: '' });
-      // we do want make new request even if there is same term
-      this.props.forceSearch();
-
-      browserHistory.push(`/search/${term}`);
-    }
-  }
-
-  @autobind
-  handleClickSearch(): void {
-    if (!this.props.isActive) {
-      this.props.toggleActive();
-      this.refs.input.focus();
-    } else {
-      this.search();
-    }
-  }
-
-  @autobind
-  onChange({ target }: any): void {
+  onChange({ target }: { target: { value: string }}): void {
     this.setState({ term: target.value });
   }
 
-  render(): HTMLElement {
-    const searchStyle = this.props.isActive ? 'search-expanded' : 'search';
+  @autobind
+  setFocus() {
+    this.setState({ focus: !this.state.focus });
+  }
 
-    const cls = classNames({
-      _scrolled: this.props.isScrolled,
-    });
+  @autobind
+  onToggleVisibility(show: boolean) {
+    this.props.toggleContentOverlay(show);
+  }
 
-    const { t } = this.props;
+  render(): Element<*> {
+    const { t, results } = this.props;
+    const items = _.get(results, 'result', []);
 
     return (
-      <div styleName={searchStyle} className={cls}>
-        <form action="." >
-          <input value={this.state.term}
-            onChange={this.onChange}
-            onKeyDown={this.onKeyDown}
-            styleName="search-input"
-            autoComplete="off"
-            placeholder={t('Search')}
-            ref="input"
-            type="search"
-          />
-        </form>
-        <Icon styleName="head-icon" name="fc-magnifying-glass" onClick={this.handleClickSearch}/>
-        <Icon styleName="close-icon" name="fc-close" onClick={this.props.toggleActive}/>
+      <div styleName="search">
+        <Typeahead
+          className={styles['search-typeahead']}
+          inputClassName={styles['search-input']}
+          view="products"
+          isFetching={_.get(this.props.searchState, 'inProgress', false)}
+          fetchItems={this.props.searchProducts}
+          minQueryLength={3}
+          component={ProductRow}
+          items={items}
+          name="productsSelect"
+          hideOnBlur
+          placeholder={t('Search...')}
+          onToggleVisibility={this.onToggleVisibility}
+          onItemSelected={this.props.onItemSelected}
+        />
       </div>
     );
   }
 }
 
-function mapState({ search }: Object, { isActive }: ?Object): Object {
+function mapState(state: Object, { isActive }: ?Object): Object {
   return {
-    ...search,
-    isActive: isActive || search.isActive,
+    ...state,
+    searchState: _.get(state.asyncActions, 'search', {}),
+    isActive: isActive || state.isActive,
   };
 }
 
-export default connect(mapState, { toggleActive, forceSearch })(localized(Search));
+export default _.flowRight(
+  makeLocalStore(addAsyncReducer(reducer)),
+  connect(
+    mapState,
+    { toggleContentOverlay, toggleActive, forceSearch, searchProducts }
+  ),
+  localized
+)(Search);

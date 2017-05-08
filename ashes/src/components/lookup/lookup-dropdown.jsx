@@ -1,6 +1,6 @@
 // libs
-import _ from 'lodash';
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
@@ -9,8 +9,6 @@ import { prefix } from '../../lib/text-utils';
 
 // components
 import Lookup from './lookup';
-import { Button } from '../common/buttons';
-
 
 const prefixed = prefix('fc-lookup');
 
@@ -74,4 +72,4 @@ export default class LookupDropdown extends Component {
       </div>
     );
   }
-};
+}

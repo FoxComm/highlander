@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import path from 'path';
 import rewire from 'rewire';
 import register from 'ignore-styles';
@@ -60,10 +59,3 @@ global.requireSource = function(sourcePath) {
   const finalPath = path.resolve(`./src/${sourcePath}`);
   return require(finalPath);
 };
-
-
-global.importDefault = function(sourcePath) {
-  return requireSource(sourcePath).default;
-};
-
-global.phoenixUrl = process.env.API_URL;

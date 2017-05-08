@@ -1,6 +1,5 @@
 package utils
 
-import cats.data.Xor
 import failures.Failures
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import shapeless._
@@ -20,7 +19,7 @@ class FSMTest extends TestBase {
       extends FoxModel[Robot]
       with FSM[Operation, Robot] {
     def stateLens = lens[Robot].state
-    override def updateTo(newModel: Robot): Failures Xor Robot =
+    override def updateTo(newModel: Robot): Either[Failures, Robot] =
       super.transitionModel(newModel)
 
     val fsm: Map[Operation, Set[Operation]] = Map(

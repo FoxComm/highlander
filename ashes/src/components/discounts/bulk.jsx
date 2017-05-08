@@ -17,11 +17,13 @@ type RefId = string|number;
 
 type Props = {
   entity: string;
+  hideAlertDetails?: boolean;
   bulkActions: {
     changeState: (ids: Array<RefId>, isActivation: boolean) => void;
     updateAttributes: (ids: Array<RefId>, attributes: Attributes) => void;
     deleteEntity: (ids: Array<RefId>) => void;
   };
+  onDelete: () => void;
   children: Element<*>;
 };
 
@@ -51,14 +53,14 @@ const changeStateHandler = function(props: Props, isActivation: boolean): Functi
 };
 
 const deleteHandler = function(props: Props): Function {
-    return (allChecked, toggledIds) => {
+  return (allChecked, toggledIds) => {
     const {deleteEntity} = props.bulkActions;
 
     return (
       <DeleteModal
         count={toggledIds.length}
         stateTitle={'Delete'}
-        onConfirm={() => deleteEntity(toggledIds, props.entity)}
+        onConfirm={() => deleteEntity(toggledIds, props.entity, props.onDelete)}
       />
     );
   };
@@ -76,6 +78,7 @@ const scheduleHandler = (props: Props) => (allChecked, toggledIds) => {
       entity={props.entity}
       count={toggledIds.length}
       onConfirm={handleConfirm}
+      onCancel={() => {}}
     />
   );
 };
@@ -93,14 +96,16 @@ const renderDetail = (props: Props) => (messages, id) => {
 };
 
 const BulkWrapper = (props: Props) => {
-  const { entity } = props;
+  const { entity,hideAlertDetails } = props;
   const module = `${entity}s`;
-
-  const bulkActions = [
-    ['Delete', deleteHandler(props), 'successfully deleted', 'could not be deleted'],
+  const stateActions = (entity == 'coupon') ? [] : [
     ['Activate', changeStateHandler(props, false), 'successfully activated', 'could not be activated'],
     ['Deactivate', changeStateHandler(props, false), 'successfully deactivated', 'could not be deactivated'],
     [`Schedule ${entity}s`, scheduleHandler(props), 'successfully updated', 'could not be updated'],
+  ];
+  const bulkActions = [
+    ['Delete', deleteHandler(props), 'successfully deleted', 'could not be deleted'],
+    ...stateActions
   ];
 
   return (
@@ -109,6 +114,7 @@ const BulkWrapper = (props: Props) => {
         storePath={`${module}.bulk`}
         module={module}
         entity={entity}
+        hideAlertDetails={hideAlertDetails}
         renderDetail={renderDetail(props)} />
       <BulkActions
         module={module}
@@ -122,4 +128,3 @@ const BulkWrapper = (props: Props) => {
 };
 
 export default connect(null, mapDispatchToProps)(BulkWrapper);
-

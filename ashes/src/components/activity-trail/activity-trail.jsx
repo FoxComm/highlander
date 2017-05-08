@@ -2,11 +2,12 @@
 // libs
 import _ from 'lodash';
 import moment from 'moment';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 // components
 import Activity, { getActivityRepresentative } from './activities';
-import { Button } from '../common/buttons';
+import { Button } from 'components/core/button';
 
 function createTimeMark(time, daysDiff) {
   switch (daysDiff) {
@@ -60,6 +61,8 @@ export function injectTimeMarks(activities) {
 }
 
 const renderActivityItem = (activity, idx, list, hasMore) => {
+  const isFirst = !hasMore && idx == list.length - 1;
+
   switch (activity.kind) {
     case 'mark':
       return (
@@ -74,7 +77,6 @@ const renderActivityItem = (activity, idx, list, hasMore) => {
         </li>
       );
     default:
-      const isFirst = !hasMore && idx == list.length - 1;
       return <Activity activity={activity} isFirst={isFirst} key={`activity_${activity.id}_${activity.kind}`} />;
   }
 };
@@ -89,7 +91,7 @@ const ActivityTrail = props => {
   if (props.hasMore) {
     olderButton = (
       <li className="fc-activity-trail__load-more">
-        <Button onClick={props.fetchMore}>Older...</Button>
+        <Button onClick={props.fetchMore} isLoading={props.fetchState.inProgress}>Older...</Button>
       </li>
     );
   }

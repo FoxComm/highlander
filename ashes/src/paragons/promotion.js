@@ -36,9 +36,16 @@ export function createEmptyPromotion() {
     applyType: 'auto',
     isExclusive: true,
     createdAt: null,
-    qualifyAll: true,
-    qualifiedCustomerGroupIds: [],
-    attributes: {},
+    attributes: {
+      storefrontName: {
+        t: 'richText',
+        v: 'Storefront name'
+      },
+      customerGroupIds: {
+        t: 'tock673sjgmqbi5zlfx43o4px6jnxi7absotzjvxwir7jo2v',
+        v: null,
+      },
+    },
     discounts: [],
   };
 

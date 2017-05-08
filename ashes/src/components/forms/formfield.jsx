@@ -2,8 +2,8 @@
 
 import _ from 'lodash';
 import { autobind, debounce } from 'core-decorators';
-import React, { Component, Element, PropTypes } from 'react';
-import { findDOMNode } from 'react-dom';
+import React, { Component, Element } from 'react';
+import PropTypes from 'prop-types';
 import * as validators from 'lib/validators';
 import classNames from 'classnames';
 import { isDefined } from 'lib/utils';
@@ -67,6 +67,8 @@ export default class FormField extends Component {
     isValid: true,
     submitted: false,
   };
+
+  _block: HTMLElement;
 
   toggleBindToDispatcher(bind) {
     const { formDispatcher } = this.context;
@@ -143,8 +145,8 @@ export default class FormField extends Component {
   }
 
   findTargetNode() {
-    if (this.props.target) {
-      return findDOMNode(this).querySelector(this.props.target);
+    if (this._block && this.props.target) {
+      return this._block.querySelector(this.props.target);
     }
   }
 
@@ -247,7 +249,6 @@ export default class FormField extends Component {
   }
 
   @autobind
-  // $FlowFixMe: there is no global context
   fullValidate(target = this.findTargetNode()) {
     this.validate();
 
@@ -318,7 +319,7 @@ export default class FormField extends Component {
       : [this.label, children];
 
     return (
-      <div className={className}>
+      <div className={className} ref={ref => this._block = ref}>
         {content}
         {this.errorMessages}
       </div>

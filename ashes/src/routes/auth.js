@@ -1,10 +1,8 @@
 /* @flow */
 
-import React, { Component, Element } from 'react';
-import { Route, IndexRoute } from 'react-router';
+import React from 'react';
 
 import FoxRouter from 'lib/fox-router';
-import { frn } from 'lib/frn';
 
 import AuthPages from 'components/site/auth-pages';
 import Login from 'components/auth/login';

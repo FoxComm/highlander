@@ -2,32 +2,32 @@
  * @flow
  */
 
-import React, { Component, Element, PropTypes } from 'react';
+// libs
+import React, { Component, Element } from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
-import styles from './editable-sku-row.css';
+import classNames from 'classnames';
 
+// components
 import { FormField } from 'components/forms';
 import CurrencyInput from 'components/forms/currency-input';
 import MultiSelectRow from 'components/table/multi-select-row';
 import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
-import { DeleteButton } from 'components/common/buttons';
+import { DeleteButton } from 'components/core/button';
+import ProductImage from 'components/imgix/product-image';
 
 import reducer, { suggestSkus } from 'modules/skus/suggest';
 import type { SuggestOptions } from 'modules/skus/suggest';
-import type { Sku } from 'modules/skus/details';
-import type { Sku as SearchViewSku } from 'modules/skus/list';
 import { skuId } from 'paragons/product';
 
-type Column = {
-  field: string,
-  text: string,
-};
+// styles
+import styles from './editable-sku-row.css';
 
 type Props = {
-  columns: Array<Column>,
+  columns: Columns,
   sku: Sku,
   index: number,
   params: Object,
@@ -38,7 +38,7 @@ type Props = {
   isFetchingSkus: boolean,
   variantsSkusIndex: Object,
   suggestSkus: (code: string, context?: SuggestOptions) => Promise<*>,
-  suggestedSkus: Array<SearchViewSku>,
+  suggestedSkus: SkuSearch,
   variants: Array<any>,
 };
 
@@ -59,8 +59,8 @@ function stop(event: SyntheticEvent) {
   event.stopPropagation();
 }
 
-function pickSkuAttrs(searchViewSku: SearchViewSku) {
-  const sku = _.pick(searchViewSku, ['title', 'context']);
+function pickSkuAttrs(searchViewSku: SkuSearchItem) {
+  const sku = _.pick(searchViewSku, ['title']);
   sku.salePrice = {
     value: Number(searchViewSku.salePrice),
     currency: searchViewSku.salePriceCurrency,
@@ -179,12 +179,12 @@ class EditableSkuRow extends Component {
     });
   }
 
-  updateAttrsBySearchViewSku(searchViewSku: SearchViewSku) {
+  updateAttrsBySearchViewSku(searchViewSku: SkuSearchItem) {
     this.updateSku(pickSkuAttrs(searchViewSku));
   }
 
   @autobind
-  handleSelectSku(searchViewSku: SearchViewSku) {
+  handleSelectSku(searchViewSku: SkuSearchItem) {
     this.closeSkusMenu(
       () => this.updateAttrsBySearchViewSku(searchViewSku)
     );
@@ -212,7 +212,7 @@ class EditableSkuRow extends Component {
   get menuItemsContent(): Array<Element<*>> {
     const items = this.props.suggestedSkus;
 
-    return items.map((sku: SearchViewSku) => {
+    return items.map((sku: SkuSearchItem) => {
       return (
         <li
           id={`fct-search-view-line__${sku.skuCode}`}
@@ -246,7 +246,7 @@ class EditableSkuRow extends Component {
 
   skuCell(sku: Sku): Element<*> {
     const { codeError } = this.state;
-    const error = codeError ? `SKU Code violates constraint: ${codeError.keyword}` : void 0;
+    const error = codeError ? `SKU code can't be empty` : void 0;
     return (
       <div styleName="sku-cell">
         <FormField error={error} scrollToErrors>
@@ -271,13 +271,13 @@ class EditableSkuRow extends Component {
     return (
       <FormField>
         <input
-          className="fc-text-input"
+          className={classNames('fc-text-input', styles.inventory)}
           type="text"
           value={value}
           onChange={({ target: { value } }) => {
             this.updateSku({ inventory: value });
           }}
-          placeholder="Inventory"
+          placeholder="QTY"
         />
       </FormField>
     );
@@ -303,12 +303,16 @@ class EditableSkuRow extends Component {
 
   imageCell(sku: Sku): Element<*> {
     const imageObject = _.get(sku, ['albums', 0, 'images', 0]);
-    const imageProps = _.pick(imageObject, 'src', 'title');
 
-    if (!_.isEmpty(imageProps)) {
+    if (!_.isEmpty(imageObject)) {
       return (
         <div styleName="image-cell">
-          <img {...imageProps} styleName="cell-thumbnail" />
+          <ProductImage
+            {...imageObject}
+            styleName="cell-thumbnail"
+            width={60}
+            height={60}
+          />
         </div>
       );
     }

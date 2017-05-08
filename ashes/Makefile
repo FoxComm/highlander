@@ -33,6 +33,7 @@ tag:
 	git push --tags origin master
 
 setup:
+	yarn cache clean
 	yarn --pure-lockfile
 	yarn build
 
@@ -59,12 +60,21 @@ prod p:
 flow:
 	./node_modules/.bin/flow check
 
-build-dev: setup flow
-	test -f .env && export eval `cat .env` || true && ON_SERVER=true ./node_modules/.bin/gulp build
+build-styleguide:
+	./node_modules/.bin/styleguidist build --config styleguide/config.styleguide.js
 
-build: rev setup flow
+build-dev: setup flow
+	test -f .env && export eval `cat .env` || true && BEHIND_NGINX=true ./node_modules/.bin/gulp build
+
+build:
 	$(call header, Building)
-	test -f .env && export eval `cat .env` || true && NODE_ENV=production ON_SERVER=true ./node_modules/.bin/gulp build
+	make rev
+	make setup
+	make flow
+	test -f .env && export eval `cat .env` || true && NODE_ENV=production BEHIND_NGINX=true ./node_modules/.bin/gulp build
+ifeq ($(ASHES_BUILD_STYLEGUIDE), true)
+	make build-styleguide
+endif
 
 docker:
 	$(call header, Dockerizing)

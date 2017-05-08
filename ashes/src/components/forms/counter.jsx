@@ -1,11 +1,11 @@
 /* @flow */
 
 // libs
-import React, { PropTypes } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 
 // components
-import { IncrementButton, DecrementButton } from '../common/buttons';
+import { IncrementButton, DecrementButton } from 'components/core/button';
 
 type Props = {
   value?: number,

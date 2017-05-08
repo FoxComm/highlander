@@ -1,10 +1,11 @@
 
 import { noop } from 'lodash';
 import classNames from 'classnames';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import AddressDetails from './address-details';
 import EditableItemCardContainer from '../item-card-container/editable-item-card-container';
-import { Button } from '../common/buttons';
+import { Button } from 'components/core/button';
 
 const AddressBoxMainAction = props => {
   return (

@@ -3,14 +3,12 @@
  */
 
 // libs
-import React, { Component, PropTypes, Element } from 'react';
+import React, { Component, Element } from 'react';
+import PropTypes from 'prop-types';
 
 // components
 import { Link, IndexLink } from '../link';
 import LocalNav from '../local-nav/local-nav';
-
-// types
-import type { Product } from 'paragons/product';
 
 type Props = {
   productId: string,

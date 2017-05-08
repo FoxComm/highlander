@@ -5,7 +5,7 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
 import Button from 'ui/buttons';
-import { TextInput } from 'ui/inputs';
+import { TextInput } from 'ui/text-input';
 import { FormField } from 'ui/forms';
 
 import { email as validateEmail } from 'ui/forms/validators';

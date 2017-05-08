@@ -13,7 +13,7 @@ import PaymentMethodDetails from 'components/payment/payment-method';
 import TableCell from 'components/table/cell';
 import TableRow from 'components/table/row';
 import { DateTime } from 'components/common/datetime';
-import { EditButton, DeleteButton } from 'components/common/buttons';
+import { EditButton, DeleteButton } from 'components/core/button';
 
 import styles from './payment-row.css';
 import {deleteCreditCardPayment, deleteGiftCardPayment, deleteStoreCreditPayment} from 'modules/carts/details';
@@ -50,7 +50,10 @@ class PaymentRow extends Component {
       case 'creditCard':
         return this.props.deleteCreditCardPayment(orderReferenceNumber);
       case 'giftCard':
-        return this.props.deleteGiftCardPayment(orderReferenceNumber, paymentMethod.code);
+        if (paymentMethod.code) {
+          return this.props.deleteGiftCardPayment(orderReferenceNumber, paymentMethod.code);
+        }
+        break;
       case 'storeCredit':
         return this.props.deleteStoreCreditPayment(orderReferenceNumber);
     }

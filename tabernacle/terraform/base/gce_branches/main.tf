@@ -23,12 +23,12 @@ provider "google" {
 }
 
 ##############################################
-# Setup Returns Feature Branch
+# Setup Apple Pay Feature Branch
 ##############################################
-module "returns" {
+module "applepay" {
   source           = "../../modules/gce/appliance"
-  instance_name    = "feature-branch-returns-consul-server"
-  dns_record       = "feature-branch-returns"
+  instance_name    = "feature-branch-apple"
+  dns_record       = "feature-branch-apple"
   appliance_image  = "${var.appliance_image}"
   consul_leader    = "${var.consul_leader}"
   ssh_user         = "${var.ssh_user}"
@@ -38,12 +38,12 @@ module "returns" {
 }
 
 ##############################################
-# Setup Coupons Feature Branch
+# Setup Tumi Instance
 ##############################################
-module "coupons" {
+module "tumi" {
   source           = "../../modules/gce/appliance"
-  instance_name    = "feature-branch-coupons"
-  dns_record       = "feature-branch-coupons"
+  instance_name    = "tumi"
+  dns_record       = "tumi"
   appliance_image  = "${var.appliance_image}"
   consul_leader    = "${var.consul_leader}"
   ssh_user         = "${var.ssh_user}"
@@ -53,12 +53,12 @@ module "coupons" {
 }
 
 ##############################################
-# Setup Storefront (Peacock) Feature Branch
+# Setup Tumi2 Instance
 ##############################################
-module "peacock" {
+module "tumi2" {
   source           = "../../modules/gce/appliance"
-  instance_name    = "feature-branch-peacock"
-  dns_record       = "feature-branch-peacock"
+  instance_name    = "tumi2"
+  dns_record       = "tumi2"
   appliance_image  = "${var.appliance_image}"
   consul_leader    = "${var.consul_leader}"
   ssh_user         = "${var.ssh_user}"
@@ -68,12 +68,27 @@ module "peacock" {
 }
 
 ##############################################
-# Setup Amazon Feature Branch
+# Setup Stage 2 Instance
 ##############################################
-module "amazon" {
+module "stage2" {
   source           = "../../modules/gce/appliance"
-  instance_name    = "feature-branch-amazon"
-  dns_record       = "feature-branch-amazon"
+  instance_name    = "stage2"
+  dns_record       = "stage2"
+  appliance_image  = "${var.appliance_image}"
+  consul_leader    = "${var.consul_leader}"
+  ssh_user         = "${var.ssh_user}"
+  ssh_private_key  = "${var.ssh_private_key}"
+  dnsimple_account = "${var.dnsimple_account}"
+  dnsimple_token   = "${var.dnsimple_token}"
+}
+
+##############################################
+# Setup Stage 3 Instance
+##############################################
+module "stage3" {
+  source           = "../../modules/gce/appliance"
+  instance_name    = "stage3"
+  dns_record       = "stage3"
   appliance_image  = "${var.appliance_image}"
   consul_leader    = "${var.consul_leader}"
   ssh_user         = "${var.ssh_user}"

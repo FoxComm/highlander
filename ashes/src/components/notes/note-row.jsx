@@ -1,6 +1,7 @@
 //libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 //components
 import MultiSelectRow from '../table/multi-select-row';
@@ -16,6 +17,7 @@ const entityTitles = {
 
 const NoteRow = props => {
   const { note, columns, params, actions } = props;
+  let cell = null;
 
   const setCellContents = (note, field) => {
     switch(field) {
@@ -28,7 +30,6 @@ const NoteRow = props => {
           />
         );
       case 'transaction':
-        let cell = null;
         if (note.referenceType != 'customer') {
           cell = (
             <div>

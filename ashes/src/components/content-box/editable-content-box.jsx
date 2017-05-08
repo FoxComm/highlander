@@ -1,7 +1,8 @@
 
 import classNames from 'classnames';
-import React, { PropTypes } from 'react';
-import { EditButton, PrimaryButton } from '../common/buttons';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { EditButton, PrimaryButton } from 'components/core/button';
 import ContextBox from './content-box';
 
 export const EditDoneButton = props => {

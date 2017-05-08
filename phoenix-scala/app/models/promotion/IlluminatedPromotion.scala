@@ -1,11 +1,9 @@
 package models.promotion
 
-import java.time.Instant
-
-import cats.data.Xor
-import cats.data.Xor._
+import cats.implicits._
 import failures.PromotionFailures._
 import failures._
+import java.time.Instant
 import models.objects._
 import models.promotion.Promotion._
 import org.json4s.JsonAST.JNothing
@@ -24,21 +22,19 @@ case class IlluminatedPromotion(id: Int,
 
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def mustBeActive: Failures Xor IlluminatedPromotion = {
+  def mustBeActive: Either[Failures, IlluminatedPromotion] = {
     val activeFrom = (attributes \ "activeFrom" \ "v").extractOpt[Instant]
     val activeTo   = (attributes \ "activeTo" \ "v").extractOpt[Instant]
     val now        = Instant.now
 
-    (applyType, activeFrom, activeTo) match {
-      case (Auto, Some(from), Some(to)) ⇒
-        if (from.isBefore(now) && to.isAfter(now)) right(this)
-        else Left(PromotionIsNotActive.single)
-      case (Auto, Some(from), None) ⇒
-        if (from.isBefore(now)) right(this) else Left(PromotionIsNotActive.single)
-      case (Auto, _, _) ⇒
-        Left(PromotionIsNotActive.single)
-      case (Coupon, _, _) ⇒
-        right(this)
+    (activeFrom, activeTo) match {
+      case (Some(from), Some(to)) ⇒
+        if (from.isBefore(now) && to.isAfter(now)) Either.right(this)
+        else Either.left(PromotionIsNotActive.single)
+      case (Some(from), None) ⇒
+        if (from.isBefore(now)) Either.right(this) else Either.left(PromotionIsNotActive.single)
+      case (_, _) ⇒
+        Either.left(PromotionIsNotActive.single)
     }
   }
 }

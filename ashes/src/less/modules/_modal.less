@@ -13,8 +13,10 @@
   backface-visibility: hidden;
 
   &-container {
+    position: relative;
     margin: auto;
     background-color: @color-white;
+    z-index: 3;
 
     // fix weird bug in chrome v50, test case - https://jsfiddle.net/x00o9wbL/7/
     .fc-dropdown__item-container {
@@ -57,7 +59,6 @@
     > .fc-btn {
       display: inline-block;
       vertical-align: baseline;
-      margin: 0 0 0 20px;
     }
   }
 }

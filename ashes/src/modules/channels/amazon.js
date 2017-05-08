@@ -92,7 +92,7 @@ const _pushToAmazon = createAsyncActions(
   (id) => {
     // https://github.com/FoxComm/highlander/blob/amazon/engineering-wiki/hyperion/README.md#push-product-to-amazon
     const data = {
-      purge: false
+      purge: true
     };
 
     return Api.post(`/hyperion/products/${id}/push`, data);

@@ -16,6 +16,7 @@ object PromotionPayloadBuilder {
             qualifier: PromoQualifierBuilder,
             tags: PromoTagsBuilder = PromoTagsBuilder.Empty,
             title: String = faker.Lorem.sentence(),
+            extraAttrs: Map[String, Json] = Map.empty,
             description: String = faker.Lorem.sentence()): CreatePromotion = {
 
     val discountAttrs = Map[String, Json](
@@ -28,10 +29,10 @@ object PromotionPayloadBuilder {
 
     CreatePromotion(applyType = applyType,
                     attributes = Map(
-                        "name"       → tv(faker.Lorem.sentence(1)),
-                        "activeFrom" → tv(Instant.now, "datetime"),
-                        "activeTo"   → tv(JNull, "datetime")
-                    ),
+                          "name"       → tv(faker.Lorem.sentence(1)),
+                          "activeFrom" → tv(Instant.now, "datetime"),
+                          "activeTo"   → tv(JNull, "datetime")
+                      ) ++ extraAttrs,
                     discounts = Seq(CreateDiscount(discountAttrs)))
   }
 

@@ -14,6 +14,7 @@ import TableView from 'components/table/tableview';
 import TableRow from 'components/table/row';
 import TableCell from 'components/table/cell';
 import Currency from 'components/common/currency';
+import ProductImage from 'components/imgix/product-image';
 
 // styles
 import styles from './unshipped-items.css';
@@ -45,7 +46,7 @@ export default class UnshippedItems extends Component {
     return (
       <TableRow key={index}>
         <TableCell>
-          <img src={row.imagePath} />
+          <ProductImage src={row.imagePath} width={50} height={50} />
         </TableCell>
         <TableCell>{row.name}</TableCell>
         <TableCell>{row.sku}</TableCell>

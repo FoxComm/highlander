@@ -14,7 +14,6 @@ import utils.ElasticsearchApi._
 import utils.FoxConfig.ESConfig
 import utils.aliases._
 
-// TODO: move to Apis?
 case class ElasticsearchApi(config: ESConfig)(implicit ec: EC) extends LazyLogging {
 
   val aggregationName = "my-unique-aggregation"
@@ -23,7 +22,7 @@ case class ElasticsearchApi(config: ESConfig)(implicit ec: EC) extends LazyLoggi
 
   private def getIndexAndType(searchView: SearchView): IndexAndType = searchView match {
     case ScopedSearchView(typeName, scope) ⇒
-      IndexAndType(s"${index}_$scope", typeName)
+      IndexAndType(s"${config.index}_$scope", typeName)
     case SimpleSearchView(typeName) ⇒
       IndexAndType(config.index, typeName)
   }
@@ -88,6 +87,11 @@ case class ElasticsearchApi(config: ESConfig)(implicit ec: EC) extends LazyLoggi
     logQuery(indexAndType, request.show)
     client.execute(request).map(getBuckets)
   }
+
+  def numResults(searchView: SearchView, esQuery: Json): Future[Long] =
+    client.execute {
+      search in getIndexAndType(searchView) rawQuery compact(render(esQuery)) size 0
+    }.map(_.totalHits)
 
   /**
     * Render compact query for logging

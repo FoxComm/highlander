@@ -5,7 +5,7 @@
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
-import { assoc, dissoc } from 'sprout-data';
+import { assoc } from 'sprout-data';
 import { autoAssignVariants } from 'paragons/variants';
 import { skuId } from 'paragons/product';
 
@@ -17,10 +17,6 @@ import OptionEditDialog from './option-edit-dialog';
 
 // styles
 import styles from './option-list.css';
-
-// types
-import type { Option, OptionValue, Product } from 'paragons/product';
-import type { Sku } from 'modules/skus/details';
 
 type Props = {
   variants: Array<Option>,

@@ -72,9 +72,13 @@ shortcuts:
     target: ansible/bootstrap_sinopia.yml
 
   # Goldrush
-  - name: Generate .env.local
-    alias: env_local.yml
-    target: ansible/goldrush_env_local.yml
+  - name: Generate Goldrush Configuration
+    alias: goldrush_cfg.yml
+    target: ansible/goldrush_config_gen.yml
+
+  - name: Debug Goldrush Configuration
+    alias: goldrush_debug.yml
+    target: ansible/goldrush_debug.yml
 
   - name: Create Feature Branch Pipeline
     alias: feature_branch.yml
@@ -114,6 +118,15 @@ shortcuts:
   - name: Migrate MWH DB
     alias: migrate_middlewarehouse_db.yml
     target: ansible/migrate_middlewarehouse_db.yml
+
+  - name: Update Object Schemas
+    alias: update_object_schemas.yml
+    target: ansible/update_object_schemas.yml
+
+  # Deploy
+  - name: Deploy TopDrawer Storefront
+    alias: deploy_storefront.yml
+    target: ansible/deploy_storefront.yml
 
 # Packer shortcuts
 - type: snowflake

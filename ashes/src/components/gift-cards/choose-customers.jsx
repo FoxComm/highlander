@@ -1,8 +1,7 @@
 /* @flow weak */
 
 // libs
-import _ from 'lodash';
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
@@ -28,7 +27,7 @@ class ChooseCustomers extends Component {
     this.props.toggleVisibility(false);
     this.props.onAddCustomers(this.refs.customers.selectedItemsMap());
     this.props.clearInputState();
-  };
+  }
 
   renderCustomer(item: ItemType) {
     // Cast the ItemType to a customer row.

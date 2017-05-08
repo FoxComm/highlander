@@ -1,3 +1,4 @@
+import java.time.Instant
 import java.time.Instant.now
 import java.time.temporal.ChronoUnit.DAYS
 
@@ -9,6 +10,7 @@ import failures.ObjectFailures._
 import models.cord.{Carts, Orders}
 import models.coupon.Coupon
 import models.objects.ObjectContext
+import models.traits.IlluminatedModel
 import org.json4s.JsonAST._
 import payloads.CouponPayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
@@ -27,7 +29,7 @@ class CouponsIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with ApiFixtureHelpers
-    with AutomaticAuth
+    with DefaultJwtAdminAuth
     with TestActivityContext.AdminAC
     with ApiFixtures
     with BakedFixtures {
@@ -37,16 +39,20 @@ class CouponsIntegrationTest
       coupon
     }
 
-    "create coupon with invalid date should fail" in new StoreAdmin_Seed
+    "created coupon should always be active" in new StoreAdmin_Seed
     with Coupon_TotalQualifier_PercentOff {
-      private val invalidAttrs = Map[String, Any](
-          "name"       → "donkey coupon",
-          "activeFrom" → ShadowValue("2016-07-19T08:28:21.405+00:00", "datetime")).asShadow
+      override def couponActiveFrom = Instant.now.plus(10, DAYS)
+      override def couponActiveTo   = Some(Instant.now.plus(20, DAYS))
 
-      couponsApi
-        .create(CreateCoupon(attributes = invalidAttrs, promotion = promotion.id))
-        .mustFailWith400(
-            ShadowAttributeInvalidTime("activeFrom", "JString(2016-07-19T08:28:21.405+00:00)"))
+      coupon
+
+      val whatAmIDoing = new IlluminatedModel[Unit] {
+        def archivedAt    = None
+        def attributes    = coupon.attributes
+        def inactiveError = CouponIsNotActive
+      }
+
+      whatAmIDoing.mustBeActive mustBe 'right
     }
   }
 
@@ -123,20 +129,6 @@ class CouponsIntegrationTest
     }
 
     "fails to attach coupon" - {
-      "when activeFrom is after now" in new CartCouponFixture {
-        override def couponActiveFrom = now.plus(1, DAYS)
-        override def couponActiveTo   = now.plus(2, DAYS).some
-
-        cartsApi(cartRef).coupon.add(couponCode).mustFailWith400(CouponIsNotActive)
-      }
-
-      "when activeTo is before now" in new CartCouponFixture {
-        override def couponActiveFrom = now.minus(2, DAYS)
-        override def couponActiveTo   = now.minus(1, DAYS).some
-
-        cartsApi(cartRef).coupon.add(couponCode).mustFailWith400(CouponIsNotActive)
-      }
-
       // TODO @anna: This can be removed once /orders vs /carts routes are split
       "when attaching to order" in new CartCouponFixture {
         (for {
@@ -144,7 +136,8 @@ class CouponsIntegrationTest
           order ← * <~ Orders.createFromCart(cart, subScope = None)
         } yield order).gimme
 
-        POST(s"v1/orders/$cartRef/coupon/$couponCode").mustFailWith400(OrderAlreadyPlaced(cartRef))
+        POST(s"v1/orders/$cartRef/coupon/$couponCode", defaultAdminAuth.jwtCookie.some)
+          .mustFailWith400(OrderAlreadyPlaced(cartRef))
       }
 
       "because purchased gift card is excluded from qualifier judgement" - {
@@ -154,7 +147,7 @@ class CouponsIntegrationTest
           val cartRef = api_newGuestCart().referenceNumber
 
           cartsApi(cartRef).lineItems
-            .add(Seq(UpdateLineItemsPayload(skuCode, 2, giftCardLineItemAttributes)))
+            .add(Seq(UpdateLineItemsPayload(skuCode, 2, randomGiftCardLineItemAttributes)))
 
           val message = "qualifier orderAnyQualifier rejected order with refNum=BR10001, " +
               "reason: Items in cart are not eligible for discount"
@@ -212,7 +205,7 @@ class CouponsIntegrationTest
 
     cartsApi(cartRef).lineItems
       .add(Seq(UpdateLineItemsPayload(skuCode, 1),
-               UpdateLineItemsPayload(gcSkuCode, 1, giftCardLineItemAttributes)))
+               UpdateLineItemsPayload(gcSkuCode, 1, randomGiftCardLineItemAttributes)))
       .mustBeOk()
   }
 }

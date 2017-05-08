@@ -1,15 +1,18 @@
 @import "colors.css";
 @import "media-queries.css";
 
+:root {
+  --dividerMargin: 20px;
+}
+
 .auth-block {
   position: relative;
   z-index: 15;
-  text-align: center;
   margin-top: 44px;
   margin-bottom: 20px;
 
-  lost-column: 3/11;
-  lost-offset: -4/11;
+  lost-column: 3/12;
+  lost-offset: -1/12;
 
   & :global(.fc-errors) {
     margin-bottom: 10px;
@@ -17,20 +20,41 @@
 }
 
 .logo {
-  width: 208px;
-  height: 102px;
-  margin-bottom: 40px;
+  margin-bottom: 92px;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .title {
-  margin-bottom: 26px;
-  font-size: 16px;
-  text-align: center;
-  line-height: 18px;
+  margin-bottom: 12px;
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 1.25;
+  color: var(--text-color);
 }
 
-:root {
-  --dividerMargin: 20px;
+.top-message {
+  margin-top: 0;
+  margin-bottom: 30px;
+  font-size: 16px;
+  line-height: 1.25;
+  text-align: left;
+  font-weight: 400;
+}
+
+.top-message-success {
+  composes: top-message;
+  color: var(--greenish);
+}
+
+.top-message-error {
+  composes: top-message;
+  color: var(--redish);
+}
+
+.inputs-body {
+  margin-top: 24px;
+  margin-bottom: 32px;
 }
 
 .google-login {
@@ -54,88 +78,25 @@
   margin-bottom: calc(30px - var(--dividerMargin));
 }
 
-.form-field-input {
-  composes: text-input from "ui/css/input.css";
-  height: 50px;
-  width: 100%;
-  font-weight: 400;
-  color:  var(--dark-blackish);
-  background: var(--whitish);
-  border-color: var(--additional-color);
-  -webkit-appearance: none;
-  -webkit-border-radius: 0;
-
-  &:focus, &:hover {
-    border-color: var(--input-text-color);
-  }
-
-  &::-webkit-input-placeholder { color: var(--input-text-color); }
-  &::-moz-placeholder { color: var(--input-text-color); }
-  &:-moz-placeholder { color: var(--input-text-color); }
-  &:-ms-input-placeholder { color: var(--input-text-color); }
-}
-
 .form-field {
   width: 100%;
-  margin-bottom: 10px;
-
-  & > input {
-    height: 50px;
-    width: 100%;
-    font-weight: 400;
-    color:  var(--dark-blackish);
-    background: var(--whitish);
-    border-color: var(--additional-color);
-    -webkit-appearance: none;
-    -webkit-border-radius: 0;
-
-    &:focus, &:hover {
-      border-color: var(--input-text-color);
-    }
-
-    &::-webkit-input-placeholder { color: var(--input-text-color); }
-    &::-moz-placeholder { color: var(--input-text-color); }
-    &:-moz-placeholder { color: var(--input-text-color); }
-    &:-ms-input-placeholder { color: var(--input-text-color); }
-  }
 }
 
 .primary-button {
   composes: button from "ui/css/buttons.css";
-  width: 100%;
+  font-size: 20px;
+  font-weight: 900;
 }
 
-.switch-stage {
+.bottom-message {
   margin-top: 20px;
-  font-size: 15px;
-  line-height: 18px;
-  font-weight: 300;
-  color: var(--dark-blackish);
-  text-align: center;
-}
-
-.top-message {
-  margin-bottom: 30px;
-  font-size: 15px;
-  line-height: 33px;
-  text-align: left;
-  font-weight: 300;
-}
-
-.top-message-success {
-  composes: top-message;
-  color: var(--greenish);
-}
-
-.top-message-error {
-  composes: top-message;
-  color: var(--redish);
+  font-size: 14px;
 }
 
 .restore-link {
   font-weight: 400;
   font-size: 14px;
-  color: var(--dark-blackish);
+  color: var(--link-alt-color);
   opacity: 0.38;
   text-decoration: none;
 
@@ -145,16 +106,16 @@
 }
 
 .link {
-  color: #8D757A;
-  text-decoration: underline;
+  color: var(--link-color);
+  text-decoration: none;
   font-weight: 500;
 
   &:hover {
-    color: #3E3436;
+    color: var(--link-hover-color);
   }
 }
 
-@media (--small-only) {
+@media (--small-only), (--medium-only) {
   .auth-block {
     lost-column: 1/1;
     lost-offset: 0;
@@ -175,6 +136,8 @@
 
   .title {
     margin-bottom: 20px;
+    font-size: 17px;
+    font-weight: normal;
   }
 
   .google-login {

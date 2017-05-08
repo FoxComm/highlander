@@ -1,15 +1,17 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
 
-import InputMask from 'react-input-mask';
+import { TextMask } from 'components/core/text-mask';
 
 function formatMask(mask, prepend) {
   if (_.isEmpty(mask)) {
-    return '';
+    return false;
   }
 
-  return `${prepend}${mask}`.replace(/a/, '\\a'); // escape "a" symbol as it's a rule for react-input-mask
+  // escape "a" symbol as it's a rule for react-text-mask
+  return `${prepend}${mask}`.replace(/a/, '\\a');
 }
 
 export default class MaskedInput extends Component {
@@ -46,11 +48,12 @@ export default class MaskedInput extends Component {
     const formattedMask = formatMask(mask, prepend);
 
     return (
-      <InputMask
+      <TextMask
         ref="maskedInput"
         type="text"
         mask={formattedMask}
-        {...rest} />
+        {...rest}
+      />
     );
   }
 }

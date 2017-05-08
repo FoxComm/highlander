@@ -2,28 +2,31 @@
 
 // libs
 import _ from 'lodash';
-import React, { Component } from 'react';
-import type { HTMLElement } from 'types';
-import { browserHistory } from 'lib/history';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as actions from 'modules/products';
-import { assetsUrl } from 'lib/env';
+import { categoryNameFromUrl } from 'paragons/categories';
+import { PAGE_SIZE } from 'modules/products';
 
 // components
-import ProductsList, { LoadingBehaviors } from '../../components/products-list/products-list';
-import ProductTypeSelector from 'ui/product-type-selector';
+import ProductsList, { LoadingBehaviors } from 'components/products-list/products-list';
+import Facets from 'components/facets/facets';
+import Breadcrumbs from 'components/breadcrumbs/breadcrumbs';
+import ErrorAlerts from 'ui/alerts/error-alerts';
 
 // styles
 import styles from './products.css';
 
-// constants
-import { productTypes } from 'modules/categories';
-
 // types
+import type { Route } from 'types';
+import type { Facet } from 'types/facets';
+import type { AbortablePromise } from 'types/promise';
+
 type Params = {
   categoryName: ?string,
-  productType: ?string,
+  subCategory: ?string,
+  leafCategory: ?string,
 };
 
 type Category = {
@@ -36,128 +39,370 @@ type Props = {
   params: Params,
   list: Array<Object>,
   categories: ?Array<Category>,
-  isLoading: boolean,
+  fetchState: AsyncState,
+  saveProductsFilters: Function,
   fetch: Function,
   location: any,
+  routes: Array<Route>,
+  routerParams: Object,
+  facets: Array<Facet>,
+  total: number,
+  filters: {
+    sorting: {
+      direction: number,
+      field: string,
+    },
+    toLoad: number,
+    selectedFacets: {},
+  },
 };
 
 // redux
-const mapStateToProps = state => {
-  const async = state.asyncActions.products;
-
+const mapStateToProps = (state) => {
   return {
     ...state.products,
-    isLoading: !!async ? async.inProgress : true,
+    fetchState: _.get(state.asyncActions, 'products', {}),
     categories: state.categories.list,
   };
 };
 
-const defaultProductType = productTypes[0];
+const facetWhitelist = [
+  'GENDER', 'CATEGORY', 'COLOR', 'BRAND', 'SPORT',
+];
 
 class Products extends Component {
   props: Props;
+  lastFetch: ?AbortablePromise<*>;
+
+  fetch(...args): void {
+    if (this.lastFetch && this.lastFetch.abort) {
+      this.lastFetch.abort();
+      this.lastFetch = null;
+    }
+    this.lastFetch = this.props.fetch(...args);
+    this.lastFetch.catch(_.noop);
+  }
 
   componentWillMount() {
-    const { categoryName, productType } = this.props.params;
-    this.props.fetch(categoryName, productType);
+    const { categoryName, subCategory, leafCategory } = this.props.params;
+    const categoryNames = [categoryName, subCategory, leafCategory];
+    const { sorting, selectedFacets, toLoad } = this.props.filters;
+
+    this.fetch(categoryNames, sorting, selectedFacets, toLoad);
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const { categoryName, productType } = this.props.params;
+    const { categoryName, subCategory, leafCategory } = this.props.params;
     const {
       categoryName: nextCategoryName,
-      productType: nextProductType,
+      subCategory: nextSubCategory,
+      leafCategory: nextLeafCategory,
     } = nextProps.params;
 
-    if ((categoryName !== nextCategoryName) || (productType !== nextProductType)) {
-      this.props.fetch(nextCategoryName, nextProductType);
+    const mustInvalidate = (categoryName !== nextCategoryName) ||
+      (subCategory !== nextSubCategory) ||
+      (leafCategory !== nextLeafCategory);
+
+    if (mustInvalidate) {
+      const categoryNames = [nextCategoryName, nextSubCategory, nextLeafCategory];
+      const initialFilters = {
+        sorting: {
+          direction: 1,
+          field: 'salePrice',
+        },
+        selectedFacets: {},
+        toLoad: PAGE_SIZE,
+      };
+      const { sorting, selectedFacets, toLoad } = initialFilters;
+
+      this.props.saveProductsFilters({
+        sorting,
+        selectedFacets,
+        toLoad,
+      });
+
+      this.fetch(categoryNames, sorting, selectedFacets, toLoad, {
+        pushHistory: true,
+      });
     }
+  }
+
+
+  @autobind
+  changeSorting(field: string) {
+    const { sorting, selectedFacets } = this.props.filters;
+    const direction = sorting.field === field
+      ? sorting.direction * (-1)
+      : sorting.direction;
+
+    const newState = {
+      field,
+      direction,
+    };
+
+    const { categoryName, subCategory, leafCategory } = this.props.params;
+    const categoryNames = [categoryName, subCategory, leafCategory];
+
+    this.props.saveProductsFilters({
+      sorting: newState,
+      selectedFacets,
+      toLoad: PAGE_SIZE,
+    });
+
+    this.fetch(categoryNames, newState, selectedFacets, PAGE_SIZE, {
+      pushHistory: true,
+    });
   }
 
   @autobind
-  onDropDownItemClick (productType = '') {
-    const { categoryName = defaultProductType.toUpperCase() } = this.props.params;
+  fetchMoreProducts() {
+    const { categoryName, subCategory, leafCategory } = this.props.params;
+    const { sorting, selectedFacets, toLoad } = this.props.filters;
 
-    if (productType.toLowerCase() !== defaultProductType.toLowerCase()) {
-      browserHistory.push(`/${categoryName}/${productType.toUpperCase()}`);
-    } else {
-      browserHistory.push(`/${categoryName}`);
-    }
-  }
+    const nextToLoad = toLoad + PAGE_SIZE;
+    const categoryNames = [categoryName, subCategory, leafCategory];
 
-  renderHeader() {
-    const props = this.props;
-    const { categories } = props;
-    const { categoryName } = props.params;
-
-    const realCategoryName =
-      decodeURIComponent(categoryName || '').toUpperCase().replace(/-/g, ' ');
-
-    const category = _.find(categories, {
-      name: realCategoryName,
+    this.props.saveProductsFilters({
+      sorting,
+      selectedFacets,
+      toLoad: nextToLoad,
     });
 
-    if (!category || !categoryName ||
-      (categoryName.toLowerCase() === defaultProductType.toLowerCase())) {
-      return;
+    this.fetch(categoryNames, sorting, selectedFacets, nextToLoad, {
+      pushHistory: true,
+    });
+  }
+
+  @autobind
+  categoryName(categoryName: string) {
+    return categoryNameFromUrl(categoryName);
+  }
+
+  @autobind
+  newFacetSelectState(facet: string, value: string, selected: boolean) {
+    const newSelection = this.props.filters.selectedFacets;
+    if (selected) {
+      if (facet in newSelection) {
+        newSelection[facet].push(value);
+      } else {
+        newSelection[facet] = [value];
+      }
+    } else if (facet in newSelection) {
+      const values = newSelection[facet];
+      newSelection[facet] = _.filter(values, (v) => {
+        return v != value;
+      });
+    }
+    return newSelection;
+  }
+
+  @autobind
+  onSelectFacet(facet: string, value: string, selected: boolean) {
+    const selectedFacets = this.newFacetSelectState(facet, value, selected);
+    const { categoryName, subCategory, leafCategory } = this.props.params;
+    const categoryNames = [categoryName, subCategory, leafCategory];
+    const { sorting, toLoad } = this.props.filters;
+
+    this.props.saveProductsFilters({
+      sorting,
+      selectedFacets,
+      toLoad,
+    });
+
+    this.fetch(categoryNames, sorting, selectedFacets, toLoad, {
+      pushHistory: true,
+    });
+  }
+
+  @autobind
+  onSelectMobileFacet(facet, value, selected) {
+    const selectedFacets = this.newFacetSelectState(facet, value, selected);
+    const { sorting, toLoad } = this.props.filters;
+
+    this.props.saveProductsFilters({
+      sorting,
+      selectedFacets,
+      toLoad,
+    });
+  }
+
+  @autobind
+  hideMenuBar() {
+    const header = document.getElementById('header');
+    if (header) header.style.display = 'none';
+  }
+
+  @autobind
+  showMenuBar() {
+    const header = document.getElementById('header');
+    if (header) header.style.display = 'block';
+  }
+
+  @autobind
+  applyMobileFilters() {
+    this.showMenuBar();
+    const { categoryName, subCategory, leafCategory } = this.props.params;
+    const categoryNames = [categoryName, subCategory, leafCategory];
+    const { sorting, selectedFacets, toLoad } = this.props.filters;
+
+    this.fetch(categoryNames, sorting, selectedFacets, toLoad, {
+      pushHistory: true,
+    });
+  }
+
+  get navBar(): ?Element<*> {
+    return <div />;
+  }
+
+  determineRealCategoryName() {
+    const { params } = this.props;
+    const { categoryName, subCategory, leafCategory } = params;
+
+    let realCategoryName = '';
+    if (leafCategory) {
+      realCategoryName = this.categoryName(leafCategory);
+    } else if (subCategory) {
+      realCategoryName = this.categoryName(subCategory);
+    } else if (categoryName) {
+      realCategoryName = this.categoryName(categoryName);
     }
 
-    const description = (category && category.description && category.showNameCatPage)
-      ? <p styleName="description">{category.description}</p>
-      : '';
+    return realCategoryName;
+  }
 
-    const bgImageStyle = category.imageUrl ?
-    { backgroundImage: `url(${assetsUrl(category.imageUrl)})` } : {};
-
-    const className = `header-${categoryName}`;
-
-    const title = (category.showNameCatPage)
-      ? <h1 styleName="title">{category.name}</h1>
-      : <h1 styleName="title">{category.description}</h1>;
+  renderSidebar() {
+    const realCategoryName = this.determineRealCategoryName();
 
     return (
-      <header styleName={className}>
-        <div styleName="header-wrap" style={bgImageStyle}>
-          <div styleName="text-wrap">
-            <span styleName="description">{description}</span>
-            {title}
-          </div>
+      <div styleName="sidebar">
+        <div styleName="crumbs">
+          <Breadcrumbs
+            routes={this.props.routes}
+            params={this.props.routerParams}
+          />
         </div>
-      </header>
+        <div styleName="title">
+          {realCategoryName}
+        </div>
+        <Facets
+          prefix={'big'}
+          facets={this.props.facets}
+          whitelist={facetWhitelist}
+          onSelect={this.onSelectFacet}
+        />
+      </div>
     );
   }
 
-  get navBar() {
-    const { categoryName, productType } = this.props.params;
-
-    const type = (productType && !_.isEmpty(productType))
-      ? _.capitalize(productType)
-      : productTypes[0];
-
-    if (categoryName == 'ENTRÉES') {
-      return (
-        <ProductTypeSelector
-          items={productTypes}
-          activeItem={type}
-          onItemClick={this.onDropDownItemClick}
+  renderMobileSidebar() {
+    return (
+      <div styleName="sidebar-mobile">
+        <div styleName="sidebar-mobile-filter-header">
+          <div styleName="sidebar-mobile-filters">Filters</div>
+          <label
+            htmlFor={'sidebar-mobile-checkbox'}
+            styleName="sidebar-mobile-close"
+            onClick={this.showMenuBar}
+          >
+            Close
+          </label>
+        </div>
+        <Facets
+          styleName="sidebar-mobile-facets"
+          prefix={'mobile'}
+          facets={this.props.facets}
+          whitelist={facetWhitelist}
+          onSelect={this.onSelectMobileFacet}
         />
-      );
-    }
-    return null;
+        <div styleName="sidebar-mobile-footer">
+          <label
+            htmlFor={'sidebar-mobile-checkbox'}
+            styleName="sidebar-mobile-apply"
+            onClick={this.applyMobileFilters}
+          >
+            Apply Filters
+          </label>
+        </div>
+      </div>
+    );
   }
 
-  render(): HTMLElement {
+  renderContent() {
+    const { finished } = this.props.fetchState;
+    const moreAvailable = this.props.list.length !== this.props.total;
+
     return (
-      <section styleName="catalog">
-        {this.renderHeader()}
+      <div styleName="content">
+        <ProductsList
+          sorting={this.props.filters.sorting}
+          changeSorting={this.changeSorting}
+          list={this.props.list}
+          isLoading={!finished}
+          loadingBehavior={LoadingBehaviors.ShowWrapper}
+          fetchMoreProducts={this.fetchMoreProducts}
+          moreAvailable={moreAvailable}
+        />
+      </div>);
+  }
+
+  renderMobileContent() {
+    const realCategoryName = this.determineRealCategoryName();
+    const moreAvailable = this.props.list.length !== this.props.total;
+
+    const { finished } = this.props.fetchState;
+    return (
+      <div styleName="content-mobile">
+        <div styleName="crumbs">
+          <Breadcrumbs
+            routes={this.props.routes}
+            params={this.props.routerParams}
+          />
+        </div>
+        <div styleName="title">
+          {realCategoryName}
+        </div>
+        <ProductsList
+          sorting={this.props.filters.sorting}
+          changeSorting={this.changeSorting}
+          list={this.props.list}
+          isLoading={!finished}
+          loadingBehavior={LoadingBehaviors.ShowWrapper}
+          fetchMoreProducts={this.fetchMoreProducts}
+          moreAvailable={moreAvailable}
+          filterOnClick={this.hideMenuBar}
+          filterFor={'sidebar-mobile-checkbox'}
+        />
+      </div>);
+  }
+
+  get body(): Element<any> {
+    const { err } = this.props.fetchState;
+    if (err) {
+      return <ErrorAlerts styleName="products-error" error={err} />;
+    }
+
+    return (
+      <div>
         <div styleName="dropDown">
           {this.navBar}
         </div>
-        <ProductsList
-          list={this.props.list}
-          isLoading={this.props.isLoading}
-          loadingBehavior={LoadingBehaviors.ShowWrapper}
-        />
+        <div styleName="facetted-container-mobile">
+          <input styleName="sidebar-mobile-checkbox" id="sidebar-mobile-checkbox" type="checkbox" />
+          {this.renderMobileSidebar()}
+          {this.renderMobileContent()}
+        </div>
+        <div styleName="facetted-container">
+          {this.renderSidebar()}
+          {this.renderContent()}
+        </div>
+      </div>
+    );
+  }
+
+  render(): Element<*> {
+    return (
+      <section styleName="catalog">
+        {this.body}
       </section>
     );
   }

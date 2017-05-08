@@ -1,9 +1,9 @@
 // @flow weak
 import _ from 'lodash';
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import { transitionTo } from 'browserHistory';
+import { transitionTo, transitionToLazy } from 'browserHistory';
 
 // redux
 import * as CustomersActions from 'modules/customers/new';
@@ -11,7 +11,7 @@ import * as CustomersActions from 'modules/customers/new';
 // components
 import FormField from '../forms/formfield';
 import Form from '../forms/form';
-import SaveCancel from '../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 import ErrorAlerts from '../alerts/error-alerts';
 
 import type { NewCustomerPayload } from 'modules/customers/new';
@@ -117,7 +117,7 @@ class NewCustomer extends Component {
                   {this.errors}
                   <li className="fc-customer-form-controls">
                     <SaveCancel
-                      cancelTo="customers"
+                      onCancel={transitionToLazy('customers')}
                       saveText="Save Customer"
                       isLoading={submitStatus.inProgress}
                     />

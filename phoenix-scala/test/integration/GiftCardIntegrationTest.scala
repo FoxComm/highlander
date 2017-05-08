@@ -1,5 +1,3 @@
-import akka.http.scaladsl.model.StatusCodes
-
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.GiftCardFailures.GiftCardConvertFailure
@@ -7,12 +5,10 @@ import failures.ScopeFailures._
 import failures._
 import models.Reason
 import models.account._
-import models.cord.{Carts, Cord, Cords}
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard._
-import models.payment.{InStorePaymentStates, storecredit}
 import models.payment.storecredit.StoreCredit
-import org.json4s.jackson.JsonMethods._
+import models.payment.{InStorePaymentStates, storecredit}
 import payloads.GiftCardPayloads._
 import responses.GiftCardAdjustmentsResponse.{Root ⇒ GcAdjRoot}
 import responses.GiftCardResponse.{Root ⇒ GcRoot}
@@ -22,15 +18,16 @@ import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
+import testutils.fixtures.api.ApiFixtureHelpers
 import utils.Money._
 import utils.db._
-import utils.seeds.Factories
 
 class GiftCardIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
-    with BakedFixtures {
+    with DefaultJwtAdminAuth
+    with BakedFixtures
+    with ApiFixtureHelpers {
 
   "GiftCards" - {
 
@@ -46,7 +43,7 @@ class GiftCardIntegrationTest
         // Check that proper link is created
         val manual: GiftCardManual = GiftCardManuals.findOneById(giftCard.originId).gimme.value
         manual.reasonId must === (1)
-        manual.adminId must === (storeAdmin.accountId)
+        manual.adminId must === (defaultAdmin.id)
       }
 
       "create two gift cards with unique codes" in new Reason_Baked {
@@ -115,18 +112,16 @@ class GiftCardIntegrationTest
     }
 
     "POST /v1/customer-gift-cards" - {
-      "successfully creates gift card as a custumer from payload" in new Reason_Baked {
-        val cordInsert = Carts.create(Factories.cart(LTree("1"))).gimme
-        val attributes = Some(parse("""{"attributes":{"giftCard":{"senderName":"senderName",
-                 "recipientName":"recipientName",
-                 "recipientEmail":"example@example.com"}}}""".stripMargin))
+      "successfully creates gift card as a customer from payload" in new Fixture {
+        val cordInsert = api_newCustomerCart(customer.id)
+
         val root = giftCardsApi
           .createFromCustomer(
               GiftCardCreatedByCustomer(balance = 555,
                                         senderName = "senderName",
                                         recipientName = "recipienName",
                                         recipientEmail = "recipientEmail@mail.com",
-                                        message = "test message",
+                                        message = "test message".some,
                                         cordRef = cordInsert.referenceNumber))
           .as[GiftCardResponse.Root]
         root.currency must === (Currency.USD)
@@ -136,25 +131,27 @@ class GiftCardIntegrationTest
         root.recipientEmail.get must === ("recipientEmail@mail.com")
       }
 
-      "successfully creates gift cards  as a custumer from payload" in new Reason_Baked {
-        val cordInsert = Carts.create(Factories.cart(LTree("1"))).gimme
-        val attributes = Some(
-            parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
+      "successfully creates gift cards as a customer from payload" in new Fixture {
+        val cordInsert = api_newCustomerCart(customer.id)
+
         val root = giftCardsApi
           .createMultipleFromCustomer(
               Seq(GiftCardCreatedByCustomer(balance = 555,
                                             senderName = "senderName",
                                             recipientName = "recipienName",
                                             recipientEmail = "recipientEmail@mail.com",
-                                            message = "test message",
+                                            message = "test message".some,
                                             cordRef = cordInsert.referenceNumber),
                   GiftCardCreatedByCustomer(balance = 100,
                                             senderName = "senderName2",
                                             recipientName = "recipienName2",
                                             recipientEmail = "recipientEmail@mail.com2",
-                                            message = "test message2",
+                                            message = "test message2".some,
                                             cordRef = cordInsert.referenceNumber)))
           .as[Seq[GiftCardResponse.Root]]
+
+        root.size must === (2)
+
         root.head.currency must === (Currency.USD)
         root.head.availableBalance must === (555)
         root.tail.head.currency must === (Currency.USD)
@@ -162,6 +159,32 @@ class GiftCardIntegrationTest
         root.head.message.get must === ("test message")
         root.head.senderName.get must === ("senderName")
         root.tail.head.recipientEmail.get must === ("recipientEmail@mail.com2")
+      }
+
+      "successfully creates gift cards with empty messages as a customer from payload" in new Fixture {
+        val cordInsert = api_newCustomerCart(customer.id)
+
+        val root = giftCardsApi
+          .createMultipleFromCustomer(
+              Seq(GiftCardCreatedByCustomer(balance = 555,
+                                            senderName = "senderName",
+                                            recipientName = "recipienName",
+                                            recipientEmail = "recipientEmail@mail.com",
+                                            message = None,
+                                            cordRef = cordInsert.referenceNumber),
+                  GiftCardCreatedByCustomer(balance = 100,
+                                            senderName = "senderName2",
+                                            recipientName = "recipienName2",
+                                            recipientEmail = "recipientEmail@mail.com2",
+                                            message = "".some,
+                                            cordRef = cordInsert.referenceNumber)))
+          .as[Seq[GiftCardResponse.Root]]
+
+        root.size must === (2)
+
+        root.map { gc ⇒
+          (gc.currency, gc.availableBalance, gc.message)
+        } must contain theSameElementsAs Seq((Currency.USD, 555, None), (Currency.USD, 100, None))
       }
     }
 

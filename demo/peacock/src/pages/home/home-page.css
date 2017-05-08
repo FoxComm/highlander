@@ -1,87 +1,87 @@
-@import "variables";
-@import "media-queries";
-@import "colors";
+@import "layout.css";
+@import "typography.css";
 
+.header-wrap {
+  composes: paragraph;
 
-.instagram-info {
-  text-align: center;
-  padding: 70px 30px;
-}
-
-.instagram-title {
-  font-family: var(--font-main);
-  font-weight: 400;
-  font-size: 18px;
-  color: #212121;
-  letter-spacing: 2.04px;
-}
-
-.instagram-description {
-  font-family: var(--font-main);
-  font-weight: 300;
-  font-size: 16px;
-  color: #212121;
-  line-height: 33px;
-  margin-top: 30px;
-}
-
-.hashtag-image {
-  background: url('/images/home-page/MyGourmet-hashtag.svg') center no-repeat;
-  height: 152px;
-  background-size: contain;
-}
-
-.instagram-gallery {
-  margin-bottom: 120px;
-}
-
-.gallery-wrap {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
+  background: url('/images/home-page/home-header.jpg') center no-repeat;
+  height: 830px;
 
-.instagram-image {
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  width: 145px;
-  height: 145px;
-  margin-right: 10px;
-  margin-bottom: 20px;
   position: relative;
-
-  &:hover .instagram-image-hover {
-    opacity: 0.9;
-  }
+  width: var(--vw-no-scrollbar);
+  left: var(--vw-no-scrollbar-left);
 }
 
-.instagram-image-hover {
-  position: absolute;
-  left: 0;
-  top: 0;
+.header-content{
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-top: 130px;
   width: 100%;
-  height: 100%;
-  background-color: #3E3436;
-  opacity: 0;
-  transition: opacity .3s ease-out;
-  cursor: pointer;
+}
+
+.header-title {
+  composes: title-large;
+  line-height: 1;
+  padding: 0px 100px;
+  text-transform: uppercase;
+  width: 50%;
+}
+
+.header-body {
+  composes: paragraph;
+  line-height: 1.25;
+  padding-left: 100px;
+  width: 400px;
+}
+
+.category-list {
   display: flex;
+  z-index: 10;
+  margin-top: -200px;
   justify-content: center;
-  align-items: center;
 }
 
-.instagram-icon {
-  opacity: 0.87;
-  color: white;
-  width: 18px;
-  height: 18px;
-  stroke: none;
+.category-item {
+  border: 1px solid #FFF;
+  text-align: center;
+  z-index: 10;
+  margin-left: 5px;
+  margin-right: 5px;
 }
 
-@media (--medium), (--large) {
-  .instagram-image {
-    width: 209px;
-    height: 209px;
-  }
+.category-image {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  width: 470px;
+  height: 246px;
+}
+
+.category-title {
+  composes: title-small;
+  margin-top: 260px;
+  text-transform: uppercase;
+}
+
+.shoes-img {
+  composes: category-image;
+  background: url('/images/home-page/home-adizero.jpg') center no-repeat;
+}
+
+.header-wrap:after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 50%;
+  bottom: 0;
+  background: -webkit-linear-gradient(transparent, #FFF) left repeat;
+  background: linear-gradient(transparent, #FFF) left repeat;
+}
+
+
+.jackets-img {
+  composes: category-image;
+  background: url('/images/home-page/home-jackets.jpg') center no-repeat;
 }

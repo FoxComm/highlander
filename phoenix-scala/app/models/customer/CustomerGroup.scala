@@ -1,13 +1,11 @@
 package models.customer
 
-import java.time.Instant
-
-import cats.data.Xor
+import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import failures.CustomerGroupFailures.CustomerGroupTypeIsWrong
 import failures.Failures
-import models.account.Scope
+import java.time.Instant
 import models.customer.CustomerGroup._
 import payloads.CustomerGroupPayloads.CustomerGroupPayload
 import shapeless._
@@ -32,15 +30,15 @@ case class CustomerGroup(id: Int = 0,
                          deletedAt: Option[Instant] = None)
     extends FoxModel[CustomerGroup] {
 
-  def mustBeOfType(expected: GroupType): Failures Xor CustomerGroup = {
-    if (groupType == expected) Xor.Right(this)
-    else Xor.Left(CustomerGroupTypeIsWrong(id, groupType, Set(expected)).single)
+  def mustBeOfType(expected: GroupType): Either[Failures, CustomerGroup] = {
+    if (groupType == expected) Either.right(this)
+    else Either.left(CustomerGroupTypeIsWrong(id, groupType, Set(expected)).single)
   }
 
-  def mustNotBeOfType(expectedNot: GroupType): Failures Xor CustomerGroup = {
-    if (groupType != expectedNot) Xor.Right(this)
+  def mustNotBeOfType(expectedNot: GroupType): Either[Failures, CustomerGroup] = {
+    if (groupType != expectedNot) Either.right(this)
     else
-      Xor.Left(
+      Either.left(
           CustomerGroupTypeIsWrong(id,
                                    groupType,
                                    CustomerGroup.types.filterNot(_ == expectedNot).toSet).single)
@@ -111,6 +109,9 @@ object CustomerGroups
 
   def filterActive(): QuerySeq = filter(_.deletedAt.isEmpty)
 
-  def fildAllByIdsAndType(ids: Set[Int], groupType: GroupType) =
-    filter(_.id.inSet(ids)).filter(_.groupType === groupType)
+  def fildAllByIds(ids: Set[Int]): QuerySeq =
+    filter(_.id.inSet(ids))
+
+  def fildAllByIdsAndType(ids: Set[Int], groupType: GroupType): QuerySeq =
+    findAllByIds(ids).filter(_.groupType === groupType)
 }

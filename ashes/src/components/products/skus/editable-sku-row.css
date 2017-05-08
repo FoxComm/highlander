@@ -63,3 +63,7 @@
   padding: 10px;
   white-space: nowrap;
 }
+
+.inventory {
+  width: 70px;
+}

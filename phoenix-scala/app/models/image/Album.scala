@@ -1,17 +1,15 @@
 package models.image
 
-import java.time.Instant
-
-import cats.data.Xor
+import cats.implicits._
 import failures.ArchiveFailures._
 import failures._
+import java.time.Instant
 import models.objects._
 import shapeless._
-import utils.db.ExPostgresDriver.api._
 import slick.lifted.Tag
+import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.{JsonFormatters, Validation}
-
 import com.github.tminglei.slickpg._
 
 object Album {
@@ -34,9 +32,9 @@ case class Album(id: Int = 0,
   def withNewShadowAndCommit(shadowId: Int, commitId: Int): Album =
     this.copy(shadowId = shadowId, commitId = commitId)
 
-  def mustNotBeArchived: Failures Xor Album = {
-    if (archivedAt.isEmpty) Xor.right(this)
-    else Xor.left(AddImagesToArchivedAlbumFailure(id).single)
+  def mustNotBeArchived: Either[Failures, Album] = {
+    if (archivedAt.isEmpty) Either.right(this)
+    else Either.left(AddImagesToArchivedAlbumFailure(id).single)
   }
 }
 

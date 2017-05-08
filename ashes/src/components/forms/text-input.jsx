@@ -1,19 +1,24 @@
 /* @flow */
 
-import React, { Component, Element, PropTypes } from 'react';
+// libs
+import React, { Component, Element } from 'react';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
+// styles
+import s from './text-input.css';
+
 type Props = {
+  value: string,
   className?: string,
-  onChange: (value: string) => void,
+  onChange?: (value: string) => void,
   placeholder?: string,
-  value: ?string,
-  autoFocus?: boolean
+  autoFocus?: boolean,
+  disabled?: boolean,
 };
 
 type State = {
-  value: ?string,
+  value: string,
 };
 
 export default class TextInput extends Component {
@@ -38,13 +43,13 @@ export default class TextInput extends Component {
     if (this.props.onChange) {
       this.props.onChange(value);
     } else {
-      this.setState({value});
+      this.setState({ value });
     }
-  };
+  }
 
-  render() {
+  render(): Element<*> {
     const { className, placeholder, onChange, ...rest } = this.props;
-    const inputClass = classNames('fc-text-input', className);
+    const inputClass = classNames(s.input, className, '__cssmodules');
 
     return (
       <input

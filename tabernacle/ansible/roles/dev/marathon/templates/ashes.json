@@ -8,13 +8,14 @@
   "env": {
     "NODE_ENV": "production",
     "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",
-    "ON_SERVER": "true",
+    "BEHIND_NGINX": "true",
     "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}",
     "GA_TRACKING_ID": "{{ashes_ga_tracking_id}}"
   },
   "labels": {
     "LAYER": "frontend",
     "LANG": "javascript",
+    "consul": "ashes",
     "TAG": "{{docker_tags.ashes}}"
   },
   "healthChecks": [

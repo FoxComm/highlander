@@ -1,17 +1,14 @@
 package utils.apis
 
-import java.util.concurrent.Executors
-
-import scala.collection.JavaConversions._
-import scala.concurrent.{ExecutionContext, Future, blocking}
-
-import cats.data.Xor
 import cats.implicits._
 import com.stripe.exception.{CardException, StripeException}
 import com.stripe.model.{DeletedCard, ExternalAccount, Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
 import com.typesafe.scalalogging.LazyLogging
 import failures.StripeFailures.{CardNotFoundForNewCustomer, StripeFailure}
 import failures.{Failures, GeneralFailure}
+import java.util.concurrent.Executors
+import scala.collection.JavaConversions._
+import scala.concurrent.{ExecutionContext, Future}
 import utils.apis.StripeMappings.cardExceptionMap
 import utils.db._
 
@@ -34,20 +31,20 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
     logger.info(
         s"Find card for customer, customer id: $gatewayCustomerId, card id: $gatewayCardId")
     inBlockingPool(StripeCustomer.retrieve(gatewayCustomerId).getSources.retrieve(gatewayCardId))
-      .flatMapXor(accountToCard)
+      .flatMapEither(accountToCard)
   }
 
   def findCardForCustomer(stripeCustomer: StripeCustomer,
                           gatewayCardId: String): Result[StripeCard] = {
     logger.info(s"Find card for customer, customer: $stripeCustomer, card id: $gatewayCardId")
-    inBlockingPool(stripeCustomer.getSources.retrieve(gatewayCardId)).flatMapXor(accountToCard)
+    inBlockingPool(stripeCustomer.getSources.retrieve(gatewayCardId)).flatMapEither(accountToCard)
   }
 
   def getCustomersOnlyCard(stripeCustomer: StripeCustomer): Result[StripeCard] = {
     // No external request ⇒ no logging
-    val maybeCard  = stripeCustomer.getSources.getData.headOption
-    val cardXorNot = maybeCard.toRightXor(CardNotFoundForNewCustomer(stripeCustomer.getId).single)
-    accountToCard(cardXorNot)
+    val maybeCard     = stripeCustomer.getSources.getData.headOption
+    val cardEitherNot = maybeCard.toRight(CardNotFoundForNewCustomer(stripeCustomer.getId).single)
+    accountToCard(cardEitherNot)
   }
 
   def createCustomer(options: Map[String, AnyRef]): Result[StripeCustomer] = {
@@ -63,6 +60,14 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
   def getCharge(chargeId: String): Result[StripeCharge] = {
     logger.info(s"Get charge, id: $chargeId")
     inBlockingPool(StripeCharge.retrieve(chargeId))
+  }
+
+  def refundCharge(chargeId: String, options: Map[String, AnyRef]): Result[StripeCharge] = {
+    logger.info(s"Refund charge, id: $chargeId, options: $options")
+    for {
+      charge ← getCharge(chargeId)
+      refund ← inBlockingPool(charge.refund(mapAsJavaMap(options)))
+    } yield refund
   }
 
   def captureCharge(chargeId: String, options: Map[String, AnyRef]): Result[StripeCharge] = {
@@ -90,11 +95,11 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
 
   // TODO: This needs a life-cycle hook so we can shut it down.
 
-  private def accountToCard(account: Failures Xor ExternalAccount): Result[StripeCard] =
+  private def accountToCard(account: Either[Failures, ExternalAccount]): Result[StripeCard] =
     account match {
-      case Xor.Left(xs) ⇒
+      case Left(xs) ⇒
         Result.failures(xs)
-      case Xor.Right(c: StripeCard) if c.getObject.equals("card") ⇒
+      case Right(c: StripeCard) if c.getObject.equals("card") ⇒
         Result.good(c)
       case _ ⇒
         Result.failure(GeneralFailure("Not a stripe card: " ++ account.toString))
@@ -107,13 +112,13 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
   // param: ⇒ A makes method param "lazy". Do not remove!
   @inline protected[utils] final def inBlockingPool[A <: AnyRef](action: ⇒ A): Result[A] = {
     // TODO: don’t we need to catch Future (and DBIO) failures like that in general? Also handling ExecutionException. See dispatch.EnrichedFuture#either @michalrus
-    val f = Future(Xor.right(blocking(action))).recover {
+    val f = Future(Either.right(action)).recover {
       case t: CardException if cardExceptionMap.contains(t.getCode) ⇒
-        Xor.left(cardExceptionMap(t.getCode).single)
+        Either.left(cardExceptionMap(t.getCode).single)
       case t: StripeException ⇒
-        Xor.left(StripeFailure(t).single)
+        Either.left(StripeFailure(t).single)
     }
 
-    Result.fromFXor(f)
+    Result.fromFEither(f)
   }
 }

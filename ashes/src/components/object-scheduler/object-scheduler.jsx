@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import moment from 'moment';
 import _ from 'lodash';

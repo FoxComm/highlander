@@ -181,7 +181,6 @@ object CustomerManager {
                                                          db: DB,
                                                          ac: AC): DbResultT[(User, CustomerData)] =
     for {
-      _        ← * <~ payload.validate
       customer ← * <~ Users.mustFindByAccountId(accountId)
       custData ← * <~ CustomersData.mustFindByAccountId(accountId)
       _ ← * <~ (if (custData.isGuest) DbResultT.unit
@@ -195,7 +194,6 @@ object CustomerManager {
       accountId: Int,
       payload: ChangeCustomerPasswordPayload)(implicit ec: EC, db: DB, ac: AC): DbResultT[Unit] =
     for {
-      _       ← * <~ payload.validate
       user    ← * <~ Users.mustFindByAccountId(accountId)
       account ← * <~ Accounts.mustFindById404(accountId)
       accessMethod ← * <~ AccountAccessMethods
@@ -226,7 +224,6 @@ object CustomerManager {
                payload: ActivateCustomerPayload,
                admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
-      _        ← * <~ payload.validate
       customer ← * <~ Users.mustFindByAccountId(accountId)
       _ ← * <~ (customer.email match {
                case None ⇒ DbResultT.failure(CustomerMustHaveCredentials)

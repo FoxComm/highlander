@@ -2,27 +2,20 @@ package services
 
 import java.time.{Instant, ZoneId}
 
-import cats._
 import cats.implicits._
 import com.stripe.Stripe
 import failures.CreditCardFailures.CardDeclined
 import testutils._
 import utils.Money.Currency.USD
+import utils.RealStripeApi
 import utils.TestStripeSupport._
-import utils.aliases.stripe.StripeCustomer
 import utils.apis._
 import utils.db._
 import utils.seeds.Factories
 
-trait RealStripeApis extends IntegrationTestBase {
+class StripeTest extends IntegrationTestBase with RealStripeApi {
   // Mutate Stripe state, set real key
   Stripe.apiKey = TestBase.config.apis.stripe.key
-}
-
-// Test that actually calls Stripe
-// Other integration tests should mock Stripe API and check that some method has been called on a mock
-// !!! Do not mix MockedApis in here
-class StripeTest extends RealStripeApis {
 
   val stripe = new FoxStripe(new StripeWrapper())
 
@@ -164,19 +157,57 @@ class StripeTest extends RealStripeApis {
       }
     }
 
+    "authorizeRefund" - {
+      "fails if the charge was not found" taggedAs External in {
+        val result = stripe
+          .authorizeRefund("BAD-CHARGE-ID", 100, RefundReason.RequestedByCustomer)
+          .gimmeFailures
+
+        result.getMessage must include("No such charge")
+      }
+
+      "fails if the refund amount exceeds a charge" taggedAs External in {
+        val auth =
+          stripe.authorizeAmount(realStripeCustomerId, realStripeCardId, 100, currency = USD).gimme
+        stripe.captureCharge(auth.getId, 90).gimme
+
+        val result =
+          stripe.authorizeRefund(auth.getId, 91, RefundReason.RequestedByCustomer).gimmeFailures
+        result.getMessage must === (
+            "Refund amount ($0.91) is greater than unrefunded amount on charge ($0.90)")
+      }
+
+      "successfully partially refunds a charge" taggedAs External in {
+        val auth =
+          stripe.authorizeAmount(realStripeCustomerId, realStripeCardId, 100, currency = USD).gimme
+        stripe.captureCharge(auth.getId, 100).gimme
+
+        val refunded1 =
+          stripe.authorizeRefund(auth.getId, 30, RefundReason.RequestedByCustomer).gimme
+        refunded1.getAmount.toInt must === (100)
+        refunded1.getAmountRefunded.toInt must === (30)
+
+        val refunded2 =
+          stripe.authorizeRefund(auth.getId, 50, RefundReason.RequestedByCustomer).gimme
+        refunded2.getAmount.toInt must === (100)
+        refunded2.getAmountRefunded.toInt must === (80)
+      }
+
+      "successfully refunds entire charge" taggedAs External in {
+        val auth =
+          stripe.authorizeAmount(realStripeCustomerId, realStripeCardId, 100, currency = USD).gimme
+
+        val refunded =
+          stripe.authorizeRefund(auth.getId, 100, RefundReason.RequestedByCustomer).gimme
+        refunded.getAmount.toInt must === (100)
+        refunded.getAmountRefunded.toInt must === (100)
+      }
+    }
+
     "deleteCustomer" - {
       "successfully deletes a customer" taggedAs External in {
-        // TODO: what should be happening here? @kjanosz @michalrus
-
-        // The code was:
-        // ```
-        // val result = deleteCustomer(cust)
-        // getCustomer(realStripeCustomerId).value must === (None)
-        // ```
-        // Which made very little sense, as it was just checking whether the Future was *not yet completed*.
-
         deleteCustomer(cust).void.gimme
-        getCustomer(realStripeCustomerId).gimme // must === 42 // ⸮
+        getCustomer(realStripeCustomerId).gimme.getDeleted must === (Boolean.box(true))
       }
     }
   }

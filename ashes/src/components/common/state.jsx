@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React, { Element } from 'react';
+import PropTypes from 'prop-types';
 import { get } from 'sprout-data';
 
 import { stateTitles as orderStateTitles } from '../../paragons/order';
@@ -55,7 +56,7 @@ export const states = {
   }
 };
 
-const State = (props) => {
+const State = (props): Element<*> => {
   return (
     <span id={props.stateId} className="fc-model-state">
       {get(states, [props.model, props.value], '[Invalid]')}

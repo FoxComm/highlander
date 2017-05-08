@@ -1,5 +1,6 @@
 
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from '../../../link';
 
 const ProductLink = props => {
@@ -12,9 +13,9 @@ const ProductLink = props => {
 };
 
 ProductLink.propTypes = {
-    context: PropTypes.string.isRequired,
-    id: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired
+  context: PropTypes.string.isRequired,
+  id: PropTypes.number.isRequired,
+  name: PropTypes.string.isRequired
 };
 
 export default ProductLink;

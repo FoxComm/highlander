@@ -1,14 +1,14 @@
 /* @flow */
 
 // libs
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import { bindActionCreators } from 'redux';
 
 // components
 import { PageTitle } from 'components/section-title';
-import { PrimaryButton } from 'components/common/buttons';
+import { PrimaryButton } from 'components/core/button';
 import ContentBox from 'components/content-box/content-box';
 import FormField from 'components/forms/formfield';
 import WaitAnimation from 'components/common/wait-animation';
@@ -41,11 +41,6 @@ function mapDispatchToProps(dispatch) {
 }
 
 function mapStateToProps(state) {
-  const {
-    fetchAmazonCredentials = {},
-    updateAmazonCredentials = {},
-    removeAmazonCredentials = {},
-  } = state.asyncActions;
   const { credentials } = state.channels.amazon;
 
   return {
@@ -54,7 +49,7 @@ function mapStateToProps(state) {
     updateState:  _.get(state.asyncActions, 'updateAmazonCredentials', {}),
     removeState:  _.get(state.asyncActions, 'removeAmazonCredentials', {}),
   };
-};
+}
 
 class AmazonCredentials extends Component {
   props: Props;
@@ -163,11 +158,11 @@ class AmazonCredentials extends Component {
 
   _handleSellerId({ target }) {
     this.setState({ seller_id: target.value });
-  };
+  }
 
   _handleAuthToken({ target }) {
     this.setState({ mws_auth_token: target.value });
-  };
+  }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(AmazonCredentials);

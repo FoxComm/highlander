@@ -1,14 +1,10 @@
 package services
 
-import java.time.Instant
-
-import scala.concurrent.Future
-
-import cats.data.Xor
 import cats.implicits._
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures.GiftCardFailures.CreditCardMustHaveAddress
 import failures.{Failures, NotFoundFailure404}
+import java.time.Instant
 import models.account._
 import models.cord.OrderPayments.scope._
 import models.cord._
@@ -17,6 +13,7 @@ import models.payment.creditcard.{CreditCard, CreditCards}
 import payloads.AddressPayloads.CreateAddressPayload
 import payloads.PaymentPayloads._
 import responses.CreditCardsResponse
+import scala.concurrent.Future
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.aliases.stripe._
@@ -38,7 +35,6 @@ object CreditCardManager {
       payload: CreateCreditCardFromTokenPayload,
       admin: Option[User] = None)(implicit ec: EC, db: DB, apis: Apis, ac: AC): DbResultT[Root] = {
     for {
-      _        ← * <~ payload.validate
       _        ← * <~ Regions.mustFindById400(payload.billingAddress.regionId)
       customer ← * <~ Users.mustFindByAccountId(accountId)
       customerToken ← * <~ CreditCards
@@ -94,7 +90,6 @@ object CreditCardManager {
       } yield (stripeId, address)
 
     for {
-      _                  ← * <~ payload.validate
       customer           ← * <~ Users.mustFindByAccountId(accountId)
       stripeIdAndAddress ← * <~ getExistingStripeIdAndAddress
       (stripeId, address) = stripeIdAndAddress
@@ -190,7 +185,6 @@ object CreditCardManager {
     } yield address.fold(creditCard)(creditCard.copyFromAddress)
 
     for {
-      _           ← * <~ payload.validate
       customer    ← * <~ Users.mustFindByAccountId(accountId)
       creditCard  ← * <~ getCardAndAddressChange
       updated     ← * <~ update(customer, creditCard)
@@ -215,10 +209,10 @@ object CreditCardManager {
     } yield buildResponse(cc, region)
 
   private def validateOptionalAddressOwnership(address: Option[Address],
-                                               accountId: Int): Failures Xor Unit = {
+                                               accountId: Int): Either[Failures, Unit] = {
     address match {
       case Some(a) ⇒ a.mustBelongToAccount(accountId).map(_ ⇒ Unit)
-      case _       ⇒ Xor.Right(Unit)
+      case _       ⇒ Either.right(Unit)
     }
   }
 

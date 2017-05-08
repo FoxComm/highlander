@@ -1,13 +1,14 @@
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { createSelector } from 'reselect';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
 // helpers
-import { transitionTo } from 'browserHistory';
+import { transitionTo, transitionToLazy } from 'browserHistory';
 
 // components
 import Counter from '../forms/counter';
@@ -15,7 +16,7 @@ import Typeahead from '../typeahead/typeahead';
 import { Dropdown } from '../dropdown';
 import { Form, FormField } from '../forms';
 import PilledInput from '../pilled-search/pilled-input';
-import SaveCancel from '../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 import CurrencyInput from '../forms/currency-input';
 
 import { ReasonType } from 'lib/reason-utils';
@@ -225,9 +226,11 @@ export default class NewGiftCard extends React.Component {
           </fieldset>
           {this.quantitySection}
 
-          <SaveCancel cancelTo="gift-cards"
-                      saveDisabled={saveDisabled}
-                      saveText="Issue Gift Card" />
+          <SaveCancel
+            onCancel={transitionToLazy('gift-cards')}
+            saveDisabled={saveDisabled}
+            saveText="Issue Gift Card"
+          />
         </Form>
       </div>
     );

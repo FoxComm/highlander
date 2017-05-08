@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -13,13 +13,11 @@ import { authBlockTypes } from 'paragons/auth';
 
 import localized from 'lib/i18n';
 
-import { TextInput } from 'ui/inputs';
+import { TextInput } from 'ui/text-input';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
 
 import { restorePassword } from 'modules/auth';
-
-import type { HTMLElement } from 'types';
 
 type RestoreState = {
   emailSent: boolean;
@@ -28,26 +26,18 @@ type RestoreState = {
 };
 
 export type RestorePasswordFormProps = {
-  fields: Object,
-  handleSubmit: Function,
-  resetForm: Function,
-  submitting: boolean,
-  error: string,
-  dispatch: ?Function,
-  changeAuthBlockType: ?Function,
   getPath: Function,
-  topMessage: string,
-  title: string,
-  t: Function,
-  restorePassword: Function,
 };
 
-/* ::`*/
-@connect(null, { restorePassword })
-@localized
-/* ::`*/
-export default class RestorePasswordForm extends Component {
-  props: RestorePasswordFormProps;
+type RestorePasswordFormPropsFinal = RestorePasswordFormProps & {
+  topMessage: string,
+  title: string,
+  restorePassword: Function,
+  t: Function,
+}
+
+class RestorePasswordForm extends Component {
+  props: RestorePasswordFormPropsFinal;
 
   state: RestoreState = {
     emailSent: false,
@@ -56,7 +46,7 @@ export default class RestorePasswordForm extends Component {
   };
 
   @autobind
-  handleSubmit(): ?Promise {
+  handleSubmit(): ?Promise<*> {
     const { email } = this.state;
     const { t } = this.props;
 
@@ -74,13 +64,13 @@ export default class RestorePasswordForm extends Component {
         });
       }).catch(() => {
         this.setState({
-          error: t(`Oops! We don’t have a user with that email. Please check your entry and try again.`),
+          error: t('Oops! We don’t have a user with that email. Please check your entry and try again.'),
         });
       }
     );
   }
 
-  get topMessage(): HTMLElement {
+  get topMessage(): Element<*> {
     const { emailSent, error, email } = this.state;
     const { t } = this.props;
 
@@ -114,7 +104,7 @@ export default class RestorePasswordForm extends Component {
     });
   }
 
-  get emailField(): ?HTMLElement {
+  get emailField(): ?Element<*> {
     const { emailSent, email } = this.state;
     const { t } = this.props;
 
@@ -122,7 +112,13 @@ export default class RestorePasswordForm extends Component {
 
     return (
       <FormField name="email" key="email" styleName="form-field">
-        <TextInput placeholder={t('EMAIL')} required type="email" value={email} onChange={this.changeEmail} />
+        <TextInput
+          placeholder={t('Email')}
+          required
+          type="email"
+          value={email}
+          onChange={this.changeEmail}
+        />
       </FormField>
     );
   }
@@ -131,43 +127,45 @@ export default class RestorePasswordForm extends Component {
     browserHistory.push(this.props.getPath(authBlockTypes.LOGIN));
   };
 
-  get primaryButton(): HTMLElement {
+  get primaryButton(): Element<*> {
     const { emailSent } = this.state;
     const { t } = this.props;
 
     if (emailSent) {
       return (
         <Button styleName="primary-button" onClick={this.goToLogin} type="button">
-          {t('BACK TO SIGN IN')}
+          {t('Back to sign in')}
         </Button>
       );
     }
 
-    return <Button styleName="primary-button" type="submit">{t('SUBMIT')}</Button>;
+    return <Button styleName="primary-button" type="submit">{t('Submit')}</Button>;
   }
 
-  get switchStage(): ?HTMLElement {
+  get switchStage(): ?Element<*> {
     const { emailSent } = this.state;
     const { t, getPath } = this.props;
 
     if (!emailSent) {
       return (
-        <div styleName="switch-stage">
+        <div styleName="bottom-message">
           <Link to={getPath(authBlockTypes.LOGIN)} styleName="link">
-            {t('BACK TO SIGN IN')}
+            {t('Back to sign in')}
           </Link>
         </div>
       );
     }
   }
 
-  render(): HTMLElement {
+  render(): Element<*> {
     return (
       <div>
         <div styleName="title">{this.props.title}</div>
         {this.topMessage}
         <Form onSubmit={this.handleSubmit}>
-          {this.emailField}
+          <div styleName="inputs-body">
+            {this.emailField}
+          </div>
           {this.primaryButton}
         </Form>
         {this.switchStage}
@@ -175,3 +173,8 @@ export default class RestorePasswordForm extends Component {
     );
   }
 }
+
+export default _.flowRight(
+  connect(null, { restorePassword }),
+  localized
+)(RestorePasswordForm);

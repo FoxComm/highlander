@@ -10,6 +10,13 @@
           "type": "string",
           "minLength": 1
         },
+        "customerGroupIds": {
+          "type": ["array", "null"],
+          "items": {
+            "type": "number"
+          },
+          "uniqueItems": true
+        },
         "activeFrom": {
           "type": ["string", "null"],
           "format": "date-time"

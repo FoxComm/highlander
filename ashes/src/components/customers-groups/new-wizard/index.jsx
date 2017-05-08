@@ -2,7 +2,7 @@
 
 import { get, isEmpty, find } from 'lodash';
 import { autobind } from 'core-decorators';
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 
@@ -14,7 +14,6 @@ import {
   GROUP_TYPE_MANUAL
 } from 'modules/customer-groups/details/group';
 
-import { Link } from 'components/link';
 import WaitAnimation from 'components/common/wait-animation';
 import Error from 'components/errors/error';
 import Template from '../group-template';

@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { trackEvent } from 'lib/analytics';
 import _ from 'lodash';
 
-import { AddButton } from 'components/common/buttons';
+import { AddButton } from 'components/core/button';
 import EditableContentBox from 'components/content-box/editable-content-box';
 import PanelHeader from 'components/panel-header/panel-header';
 import PaymentsPanel from 'components/payments-panel/payments-panel';

@@ -1,11 +1,10 @@
 
 // libs
-import React, { PropTypes } from 'react';
-import { autobind } from 'core-decorators';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 // components
-import { Link } from '../link';
 import { PageTitle } from '../section-title';
 import LocalNav from '../local-nav/local-nav';
 import { TabListView, TabView } from '../tabs';

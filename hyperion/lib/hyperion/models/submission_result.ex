@@ -1,10 +1,14 @@
 defmodule SubmissionResult do
   use Ecto.Schema
   alias Hyperion.Repo
+  require Logger
   import Ecto.Query
   import Ecto.Changeset
 
-  @derive {Poison.Encoder, only: [:product_id, :product_feed, :variations_feed, :price_feed, :inventory_feed, :images_feed]}
+  @derive {Poison.Encoder, only: [:product_id, :product_feed, :variations_feed,
+                                  :price_feed, :inventory_feed, :images_feed,
+                                  :product_feed_result, :variations_feed_result, :price_feed_result,
+                                  :inventory_feed_result, :images_feed_result, :completed]}
 
   schema "amazon_submission_results" do
     field :product_id, :integer
@@ -13,6 +17,12 @@ defmodule SubmissionResult do
     field :price_feed, :map
     field :inventory_feed, :map
     field :images_feed, :map
+    field :product_feed_result, :map
+    field :variations_feed_result, :map
+    field :price_feed_result, :map
+    field :inventory_feed_result, :map
+    field :images_feed_result, :map
+    field :completed, :boolean
 
     timestamps()
   end
@@ -51,6 +61,14 @@ defmodule SubmissionResult do
     case Hyperion.Repo.delete_all(q) do
       {_, nil} -> first_or_create(product_id)
       {:error, changeset} -> raise changeset.error
+    end
+  end
+
+  def mark_as_complete(submission_result) do
+    r = Ecto.Changeset.change(submission_result, %{completed: true})
+    case Repo.update(r) do
+      {:ok, struct} -> Logger.info("Push ID: #{struct.id} completed successfully")
+      {:error, changeset} -> Logger.error("Push ID: #{submission_result.id} error occured: #{inspect(changeset)}")
     end
   end
 end

@@ -20,10 +20,6 @@
   align-items: center;
 }
 
-:global(.fc-auth__title) + :global(.fc-alert) {
-  margin-top: 20px;
-}
-
 .main {
   composes: auth-row;
   width: 388px;
@@ -36,6 +32,10 @@
 
 .content {
   width: 100%;
+
+  & :global(.fc-alert) {
+    margin-top: 20px;
+  }
 }
 
 .form {

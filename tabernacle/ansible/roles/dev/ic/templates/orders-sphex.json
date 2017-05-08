@@ -8,7 +8,8 @@
   "labels": {
     "LAYER": "consumer",
     "LANG": "go",
-    "TAG": "{{docker_tags.orders_sphex}}"
+    "TAG": "{{docker_tags.orders_sphex}}",
+    "consul": "orders-sphex"
   },
   "container": {
     "type": "DOCKER",
@@ -18,10 +19,17 @@
       "privileged": false,
       "parameters": [],
       "forcePullImage": true
-    }
+    },
+    "volumes": [
+      {
+        "containerPath": "{{docker_logs_dir}}",
+        "hostPath": "{{docker_logs_host_dir}}",
+        "mode": "RW"
+      }
+    ]
   },
   "env": {
-    "TOPIC": "scoped_activities",
+    "TOPIC": "{{activities_topic}}",
     "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
     "ZOOKEEPER_URL": "{{zookeeper_server}}",
     "MWH_URL": "http://{{middlewarehouse_server}}",

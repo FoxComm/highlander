@@ -1,5 +1,16 @@
 ---
 
+- name: Set URLs
+  set_fact:
+    allure_download_url: "{{allure_base_url}}/releases/download/allure-core-{{allure_version}}/allure-commandline.tar.gz"
+    chromedriver_url: "{{chromedriver_base_url}}/{{chromedriver_version}}/chromedriver_linux64.zip"
+
+- name: Create Dirs for Allure and ChromeDriver
+  file: path={{home}}/{{item}} state=directory
+  with_items:
+    - allure
+    - chromedriver
+
 - name: Add Chrome apt key
   apt_key: url=https://dl-ssl.google.com/linux/linux_signing_key.pub
 
@@ -13,12 +24,6 @@
   with_items:
     - google-chrome-stable
     - xvfb
-
-- name: Create Dirs for Allure and ChromeDriver
-  file: path={{home}}/{{item}} state=directory
-  with_items:
-    - allure
-    - chromedriver
 
 - name: Get Allure Test Report
   get_url: url={{allure_download_url}} dest={{home}}

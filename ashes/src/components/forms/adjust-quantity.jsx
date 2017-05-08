@@ -2,7 +2,6 @@
 
 import _ from 'lodash';
 import React, { Component } from 'react';
-import { findDOMNode } from 'react-dom';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
@@ -38,15 +37,15 @@ export default class AdjustQuantity extends Component {
   };
 
   _popup: HTMLElement;
+  _block: HTMLElement;
 
   componentDidUpdate(prevProps: Props) {
-    if (this.props.isPopupShown && !prevProps.isPopupShown) {
-      this.setMenuPosition();
+    if (this._block && this.props.isPopupShown && !prevProps.isPopupShown) {
+      this.setMenuPosition(this._block);
     }
   }
 
-  setMenuPosition() {
-    const node = findDOMNode(this);
+  setMenuPosition(node: HTMLElement) {
     const parentDim = node.getBoundingClientRect();
 
     this._popup.style.width = `${node.offsetWidth}px`;
@@ -92,7 +91,7 @@ export default class AdjustQuantity extends Component {
     const { counterId } = this.props;
 
     return (
-      <div styleName="block">
+      <div styleName="block" ref={ref => this._block = ref}>
         <Overlay shown={this.props.isPopupShown} onClick={() => this.hide()} />
         <input
           className="fc-text-input _no-counters"

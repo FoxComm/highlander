@@ -1,11 +1,11 @@
-
 // @flow weak
 
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import EventEmitter from 'events';
 import { bindActionCreators } from 'redux';
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
+import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import { push } from 'react-router-redux';
 import { autobind } from 'core-decorators';
@@ -18,8 +18,8 @@ import styles from './object-page.css';
 import { PageTitle } from '../section-title';
 import WaitAnimation from '../common/wait-animation';
 import ErrorAlerts from '../alerts/error-alerts';
-import ButtonWithMenu from '../common/button-with-menu';
-import { Button } from '../common/buttons';
+import ButtonWithMenu from 'components/core/button-with-menu';
+import { Button } from 'components/core/button';
 import Error from '../errors/error';
 import ArchiveActionsSection from '../archive-actions/archive-actions';
 import Prompt from '../common/prompt';
@@ -509,7 +509,7 @@ export class ObjectPage extends Component {
     const { actions, namespace } = props;
 
     if (this.isFetching) {
-      return <div><WaitAnimation /></div>;
+      return <WaitAnimation className={styles.waiting} />;
     }
 
     if (!object) {

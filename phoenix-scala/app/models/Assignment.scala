@@ -42,6 +42,8 @@ object Assignment {
   case object Product   extends ReferenceType
   case object Promotion extends ReferenceType
   case object Coupon    extends ReferenceType
+  case object Taxonomy  extends ReferenceType
+  case object Taxon     extends ReferenceType
 
   object ReferenceType extends ADT[ReferenceType] {
     def types = sealerate.values[ReferenceType]

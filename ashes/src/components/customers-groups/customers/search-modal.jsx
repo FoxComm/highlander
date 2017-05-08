@@ -8,7 +8,7 @@ import { isEmpty, map } from 'lodash';
 // components
 import { ModalContainer } from 'components/modal/base';
 import ContentBox from 'components/content-box/content-box';
-import SaveCancel from 'components/common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 import CustomersTypeahead from 'components/users-typeahead/customers-typeahead';
 
 type Props = {
@@ -82,6 +82,7 @@ export default class SearchCustomersModal extends Component {
               suggested={props.suggested}
               suggestState={props.suggestState}
               onSelect={this.handleSelect}
+              view="modal"
             />
           </div>
         </ContentBox>

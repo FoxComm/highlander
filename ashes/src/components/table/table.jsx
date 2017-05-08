@@ -2,7 +2,6 @@
 
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
-import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import { isElementInViewport } from 'lib/dom-utils';
 import { autobind } from 'core-decorators';
@@ -26,10 +25,6 @@ export function tableMessage(message: Element<*>|string, inline: boolean = false
 
 type RowType = Object;
 type Rows = Array<RowType>;
-type Column = {
-  type: string,
-  field?: string,
-};
 
 export type Props = {
   data: {
@@ -89,6 +84,8 @@ export default class Table extends Component {
   state: State = {
     newIds: [],
   };
+
+  _tableHead: HTMLElement;
 
   get rows(): Rows {
     return this.props.data.rows;
@@ -162,7 +159,7 @@ export default class Table extends Component {
     const showLoading = props.showLoadingOnMount && props.isLoading === null || props.isLoading;
 
     if (showLoading) {
-      return tableMessage(<WaitAnimation />, this.loadingInline);
+      return tableMessage(<WaitAnimation className="fc-table__waiting" />, this.loadingInline);
     } else if (props.failed) {
       return tableMessage(props.errorMessage);
     } else if (isEmpty) {
@@ -196,9 +193,8 @@ export default class Table extends Component {
   }
 
   scrollToTop() {
-    const tableHead = ReactDOM.findDOMNode(this.refs.tableHead);
-    if (tableHead && !isElementInViewport(tableHead)) {
-      tableHead.scrollIntoView();
+    if (this._tableHead && !isElementInViewport(this._tableHead)) {
+      this._tableHead.scrollIntoView();
     }
   }
 
@@ -206,7 +202,7 @@ export default class Table extends Component {
     if (this.props.renderHeadIfEmpty || !isEmpty) {
       const { data, setState, className, ...rest } = this.props;
       return (
-        <TableHead {...rest} ref="tableHead" sortBy={data.sortBy} setState={setState} />
+        <TableHead {...rest} getRef={ref => this._tableHead = ref} sortBy={data.sortBy} setState={setState} />
       );
     }
   }
@@ -225,4 +221,4 @@ export default class Table extends Component {
       </div>
     );
   }
-};
+}

@@ -6,13 +6,13 @@
 import _ from 'lodash';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
-import React, { PropTypes } from 'react';
+import React from 'react';
 import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import localStorage from 'localStorage';
 
 // components
-import { PrimaryButton } from '../common/buttons';
+import { PrimaryButton } from 'components/core/button';
 import Dropdown from '../dropdown/generic-dropdown';
 import SelectorItem from './column-selector-item';
 

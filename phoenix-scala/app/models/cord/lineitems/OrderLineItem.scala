@@ -1,6 +1,5 @@
 package models.cord.lineitems
 
-import cats.data.Xor
 import cats.implicits._
 import com.pellucid.sealerate
 import failures.Failures
@@ -64,7 +63,7 @@ case class OrderLineItem(id: Int = 0,
 
   def stateLens = lens[OrderLineItem].state
 
-  override def updateTo(newModel: OrderLineItem): Failures Xor OrderLineItem =
+  override def updateTo(newModel: OrderLineItem): Either[Failures, OrderLineItem] =
     super.transitionModel(newModel)
 
   val fsm: Map[State, Set[State]] = Map(
@@ -137,19 +136,25 @@ object OrderLineItems
 
   val returningLens: Lens[OrderLineItem, Int] = lens[OrderLineItem].id
 
-  def findByOrderRef(cordRef: Rep[String]): Query[OrderLineItems, OrderLineItem, Seq] =
+  def findByOrderRef(cordRef: String): QuerySeq =
     filter(_.cordRef === cordRef)
 
   def findBySkuId(id: Int): DBIO[Option[OrderLineItem]] =
     filter(_.skuId === id).one
 
   object scope {
-    implicit class OrderLineItemQuerySeqConversions(q: QuerySeq) {
+    implicit class OrderLineItemQuerySeqConversions(private val q: QuerySeq) extends AnyVal {
       def withSkus: Query[(OrderLineItems, Skus), (OrderLineItem, Sku), Seq] =
         for {
           items ← q
           skus  ← items.sku
         } yield (items, skus)
+
+      def forContextAndCode(contextId: Int, code: String): QuerySeq =
+        for {
+          items ← q
+          sku   ← items.sku if sku.code === code && sku.contextId === contextId
+        } yield items
     }
   }
 

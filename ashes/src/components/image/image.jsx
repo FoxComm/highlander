@@ -7,10 +7,11 @@ import styles from './image.css';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import React, { Component, Element } from 'react';
-import Transition from 'react-addons-css-transition-group';
+import Transition from 'react-transition-group/CSSTransitionGroup';
 
 // components
 import WaitAnimation from '../common/wait-animation';
+import ProductImage from 'components/imgix/product-image';
 
 type Props = {
   id: number,
@@ -61,7 +62,6 @@ export default class ImageLoader extends Component {
     }
   }
 
-  // $FlowFixMe: there is no global context, stupid flow
   createImage(src: string = this.props.src): void {
     this.img = new Image();
     this.img.onload = this.handleLoad;
@@ -94,7 +94,14 @@ export default class ImageLoader extends Component {
   }
 
   get image(): ?Element<*> {
-    return this.state.ready ? <img src={this.state.src} key={this.props.id} /> : null;
+    return this.state.ready ? (
+      <ProductImage
+        src={this.state.src}
+        width={286}
+        height={286}
+        key={this.props.id}
+      />
+    ) : null;
   }
 
   wrapToTransition(img: ?Element<*>) {

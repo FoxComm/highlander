@@ -1,10 +1,15 @@
 
-import React, { PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import modalWrapper from '../../modal/wrapper';
 import AddressForm from './address-form';
 import ContentBox from '../../content-box/content-box';
 
-const AddressFormWrapper = props => {
+type Props = {
+  onCancel?: Function;
+};
+
+const AddressFormWrapper = (props: Props) => {
   const actionBlock = <i onClick={props.onCancel} className="fc-btn-close icon-close" title="Close"/>;
 
   return (
@@ -18,6 +23,6 @@ AddressFormWrapper.propTypes = {
   onCancel: PropTypes.func.isRequired
 };
 
-const ModalAddressForm = modalWrapper(AddressFormWrapper);
+const ModalAddressForm: Class<Component<void, Props, any>> = modalWrapper(AddressFormWrapper);
 
 export default ModalAddressForm;

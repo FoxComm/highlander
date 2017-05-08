@@ -8,11 +8,18 @@
   "labels": {
     "LAYER": "backend",
     "LANG": "cpp",
-    "TAG": "{{docker_tags.bernardo}}"
+    "TAG": "{{docker_tags.bernardo}}",
+    "consul": "bernardo"
   },
   "container": {
     "type": "DOCKER",
-    "volumes": [],
+    "volumes": [
+      {
+        "containerPath": "{{docker_logs_dir}}",
+        "hostPath": "{{docker_logs_host_dir}}",
+        "mode": "RW"
+      }
+    ],
     "docker": {
       "image": "{{docker_registry}}:5000/bernardo:{{docker_tags.bernardo}}",
       "network": "HOST",

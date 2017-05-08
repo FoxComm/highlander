@@ -3,7 +3,6 @@ import { flow, filter, getOr, invoke, reduce, set } from 'lodash/fp';
 
 // helpers
 import Api from 'lib/api';
-import { singularize } from 'fleck';
 import createStore from 'lib/store-creator';
 
 // data

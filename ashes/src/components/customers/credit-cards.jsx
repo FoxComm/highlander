@@ -1,5 +1,6 @@
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
@@ -10,7 +11,7 @@ import EmptyText from '../content-box/empty-text';
 import CreditCardBox from '../credit-cards/card-box';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import CustomerCreditCardForm from './credit-card-form';
-import { AddButton } from '../common/buttons';
+import { AddButton } from 'components/core/button';
 
 function mapDispatchToProps(dispatch, props) {
   return _.transform(CustomerCreditCardActions, (result, action, key) => {

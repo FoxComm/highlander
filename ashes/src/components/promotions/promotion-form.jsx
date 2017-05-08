@@ -2,14 +2,13 @@
 /* @flow weak */
 
 import _ from 'lodash';
-import React, { PropTypes, Component, Element } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
 
 import styles from '../object-page/object-details.css';
 
 import ObjectDetails from '../object-page/object-details';
-import { Dropdown } from '../dropdown';
 import { FormField } from '../forms';
 import RadioButton from '../forms/radio-button';
 import SelectCustomerGroups from '../customers-groups/select-groups';
@@ -19,9 +18,12 @@ import qualifiers from './qualifiers';
 import Discounts from './discounts';
 
 import { setDiscountAttr } from 'paragons/promotion';
+import { setObjectAttr, omitObjectAttr } from 'paragons/object';
+import { customerGroups } from 'paragons/object-types';
 const layout = require('./layout.json');
 
 export default class PromotionForm extends ObjectDetails {
+
   layout = layout;
 
   renderApplyType() {
@@ -49,21 +51,26 @@ export default class PromotionForm extends ObjectDetails {
     );
   }
 
+
+  get usageRules() {
+    return _.get(this.props, 'object.attributes.usageRules.v', {});
+  }
+
   renderUsageRules() {
-    const promotion = this.props.object;
+    const isExclusive = _.get(this.usageRules, 'isExclusive');
     return (
       <FormField className="fc-object-form__field">
         <div>
           <RadioButton id="isExlusiveRadio"
             onChange={this.handleUsageRulesChange}
             name="true"
-            checked={promotion.isExclusive === true}>
+            checked={isExclusive === true}>
             <label htmlFor="isExlusiveRadio">Promotion is exclusive</label>
           </RadioButton>
           <RadioButton id="notExclusiveRadio"
             onChange={this.handleUsageRulesChange}
             name="false"
-            checked={promotion.isExclusive === false}>
+            checked={isExclusive === false}>
             <label htmlFor="notExclusiveRadio">Promotion can be used with other promotions</label>
           </RadioButton>
         </div>
@@ -82,43 +89,50 @@ export default class PromotionForm extends ObjectDetails {
   @autobind
   handleUsageRulesChange({target}: Object) {
     const value = (target.getAttribute('name') === 'true');
-    const newPromotion = assoc(this.props.object, 'isExclusive', value);
+    const newPromotion = setObjectAttr(this.props.object, 'usageRules', {
+      t: 'PromoUsageRules',
+      v: {
+        'isExclusive': value
+      }
+    });
 
     this.props.onUpdateObject(newPromotion);
   }
 
   renderState(): ?Element<*> {
-    const applyType = this.props.object.applyType;
     return super.renderState();
   }
 
   @autobind
   handleQualifyAllChange(isAllQualify) {
     const promotion = this.props.object;
-    const arr = isAllQualify ? [] : promotion.qualifiedCustomerGroupIds;
-    const newPromotion1 = assoc(promotion, 'qualifyAll', isAllQualify);
-    const newPromotion2 = assoc(newPromotion1, 'qualifiedCustomerGroupIds', arr);
-    this.props.onUpdateObject(newPromotion2);
-  }
-
-  @autobind
-  handleQulifierGroupChange(ids){
-    const promotion = this.props.object;
-    const newPromotion = assoc(promotion, 'qualifiedCustomerGroupIds', ids);
+    let newPromotion;
+    if (isAllQualify) {
+      newPromotion = omitObjectAttr(promotion, 'customerGroupIds');
+    } else {
+      newPromotion = setObjectAttr(promotion, 'customerGroupIds', customerGroups([]));
+    }
     this.props.onUpdateObject(newPromotion);
   }
 
-  renderCustomers() {
+  @autobind
+  handleQualifierGroupChange(ids){
+    const promotion = this.props.object;
+    const newPromotion = setObjectAttr(promotion, 'customerGroupIds', customerGroups(ids));
+    this.props.onUpdateObject(newPromotion);
+  }
+
+  renderCustomers(): Element<*> {
     const promotion = this.props.object;
     return (
       <div styleName="customer-groups">
         <div styleName="sub-title" >Customers</div>
         <SelectCustomerGroups
           parent="Promotions"
-          selectedGroupIds={promotion.qualifiedCustomerGroupIds}
-          qualifyAll={promotion.qualifyAll}
+          selectedGroupIds={_.get(promotion, 'attributes.customerGroupIds.v', null)}
+          qualifyAll={_.get(promotion, 'attributes.customerGroupIds.v', null) == null}
           qualifyAllChange={this.handleQualifyAllChange}
-          updateSelectedIds={this.handleQulifierGroupChange}
+          updateSelectedIds={this.handleQualifierGroupChange}
         />
       </div>
     );

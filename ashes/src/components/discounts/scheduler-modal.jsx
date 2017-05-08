@@ -7,9 +7,9 @@ import { numberize } from 'lib/text-utils';
 import styles from './scheduler-modal.css';
 
 import ObjectScheduler from '../object-scheduler/object-scheduler';
-import modalWrapper from '../modal/wrapper';
+import wrapModal from '../modal/wrapper';
 import ContentBox from '../content-box/content-box';
-import SaveCancel from '../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 
 type Props = {
   entity: string;
@@ -71,4 +71,6 @@ const SchedulerModal = (props: Props) => {
   );
 };
 
-export default modalWrapper(SchedulerModal);
+const Wrapped: Class<React.Component<void, Props, any>> = wrapModal(SchedulerModal);
+
+export default Wrapped;

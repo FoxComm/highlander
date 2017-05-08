@@ -89,14 +89,12 @@ object ImageManager {
     } yield AlbumResponse.build(album, images)
 
   def createAlbumInner(
-      createPayload: AlbumPayload,
+      payload: AlbumPayload,
       context: ObjectContext)(implicit ec: EC, db: DB, au: AU): DbResultT[FullAlbumWithImages] =
     for {
-      payload ← * <~ createPayload.validate
-
       album ← * <~ ObjectUtils.insertFullObject(
                  payload.formAndShadow,
-                 ins ⇒ createAlbumHeadFromInsert(context, ins, createPayload.scope))
+                 ins ⇒ createAlbumHeadFromInsert(context, ins, payload.scope))
       images ← * <~ (payload.images match {
                     case Some(imagesPayload) ⇒
                       createImagesForAlbum(album.model, imagesPayload, context)
@@ -117,13 +115,8 @@ object ImageManager {
       imageIds = updatedImages.map(_.model.id).toSet
       links ← * <~ AlbumImageLinks.filterLeft(album).result
       linksToDelete = links.filter(link ⇒ !imageIds.contains(link.rightId))
-      _ ← * <~ linksToDelete.map(
-             link ⇒
-               AlbumImageLinks
-                 .deleteById(link.id, DbResultT.unit, (id) ⇒ NotFoundFailure404(link, id)))
-      imagesToDelete ← * <~ Images.filterByIds(linksToDelete.map(_.rightId)).result
-      _ ← * <~ imagesToDelete.map(img ⇒
-               Images.deleteById(img.id, DbResultT.unit, (id) ⇒ NotFoundFailure404(img, id)))
+      _ ← * <~ AlbumImageLinks.filter(_.id inSet linksToDelete.map(_.id)).delete
+      _ ← * <~ Images.filterByIds(linksToDelete.map(_.rightId)).delete
     } yield updatedImages
 
   def createOrUpdateImageForAlbum(
@@ -213,13 +206,12 @@ object ImageManager {
       response ← * <~ updateAlbumInner(id, payload, context)
     } yield AlbumResponse.build(response)
 
-  def updateAlbumInner(id: ObjectForm#Id, updatePayload: AlbumPayload, context: ObjectContext)(
+  def updateAlbumInner(id: ObjectForm#Id, payload: AlbumPayload, context: ObjectContext)(
       implicit ec: EC,
       db: DB,
       au: AU): DbResultT[FullAlbumWithImages] =
     for {
-      payload ← * <~ updatePayload.validate
-      album   ← * <~ mustFindFullAlbumByFormIdAndContext404(id, context)
+      album ← * <~ mustFindFullAlbumByFormIdAndContext404(id, context)
       oldShadow                    = album.shadow
       (payloadForm, payloadShadow) = payload.formAndShadow.tupled
       mergedAtts                   = oldShadow.attributes.merge(payloadShadow.attributes)
@@ -261,18 +253,8 @@ object ImageManager {
       albumObject ← * <~ mustFindFullAlbumByFormIdAndContext404(id, context)
       archiveResult ← * <~ Albums.update(albumObject.model,
                                          albumObject.model.copy(archivedAt = Some(Instant.now)))
-      productLinks ← * <~ ProductAlbumLinks.filterRight(albumObject.model).result
-      _ ← * <~ productLinks.map { link ⇒
-           ProductAlbumLinks.deleteById(link.id,
-                                        DbResultT.unit,
-                                        id ⇒ NotFoundFailure400(ProductAlbumLinks, id))
-         }
-      skuLinks ← * <~ SkuAlbumLinks.filterRight(albumObject.model).result
-      _ ← * <~ skuLinks.map { link ⇒
-           SkuAlbumLinks.deleteById(link.id,
-                                    DbResultT.unit,
-                                    id ⇒ NotFoundFailure400(SkuAlbumLink, id))
-         }
+      _      ← * <~ ProductAlbumLinks.filterRight(albumObject.model).delete
+      _      ← * <~ SkuAlbumLinks.filterRight(albumObject.model).delete
       images ← * <~ getAlbumImages(albumObject.model)
     } yield
       AlbumResponse.build(

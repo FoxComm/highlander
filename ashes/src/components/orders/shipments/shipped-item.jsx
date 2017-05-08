@@ -1,15 +1,14 @@
 /* @flow */
 
 // libs
-import _ from 'lodash';
-import React, { Component, PropTypes, Element } from 'react';
-import { autobind } from 'core-decorators';
+import React, { Element } from 'react';
 
 // styles
 import styles from './shipped-item.css';
 
 // components
 import Currency from 'components/common/currency';
+import ProductImage from 'components/imgix/product-image';
 
 //types
 import type { TShipmentLineItem } from 'paragons/shipment';
@@ -17,7 +16,12 @@ import type { TShipmentLineItem } from 'paragons/shipment';
 const ShippedItem = (props: TShipmentLineItem): Element<*> => (
   <div styleName="row">
     <div styleName="name">
-      <img src={props.imagePath} />
+      <ProductImage
+        className="fc-image-column"
+        src={props.imagePath}
+        width={64}
+        height={64}
+      />
       {props.name}
     </div>
     <div styleName="sku">{props.sku}</div>

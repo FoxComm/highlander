@@ -1,5 +1,5 @@
-
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Header from '../header/header';
 import Sidebar from '../sidebar/sidebar';
 import * as CountriesActions from '../../modules/countries';
@@ -22,9 +22,15 @@ export default class Site extends React.Component {
   render() {
     return (
       <div className="fc-admin">
-        <Sidebar routes={this.props.routes} />
+        <Sidebar
+          routes={this.props.routes}
+          params={this.props.params}
+        />
         <div className="fc-container">
-          <Header routes={this.props.routes} params={this.props.params} />
+          <Header
+            routes={this.props.routes}
+            params={this.props.params}
+          />
           <main role='main' className="fc-main">
             {this.props.children}
           </main>

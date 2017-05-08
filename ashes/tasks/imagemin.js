@@ -13,7 +13,7 @@ module.exports = function(gulp, opts, $) {
         svgoPlugins: [{removeViewBox: false}],
         use: [pngquant()]
       }))
-      .pipe(gulp.dest(opts.publicDir));
+      .pipe(gulp.dest(opts.assetsDir));
   });
 
   gulp.task('imagemin.watch', function() {

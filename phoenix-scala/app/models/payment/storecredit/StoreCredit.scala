@@ -1,28 +1,25 @@
 package models.payment.storecredit
 
-import java.time.Instant
-
 import cats.data.Validated._
-import cats.data.{ValidatedNel, Xor}
+import cats.data.ValidatedNel
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import failures.{Failure, Failures, GeneralFailure, StoreCreditFailures}
+import java.time.Instant
 import models.account._
 import models.cord.OrderPayment
-import models.payment.{PaymentMethod, InStorePaymentStates}
-import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit._
 import models.payment.storecredit.{StoreCreditAdjustment ⇒ Adj, StoreCreditAdjustments ⇒ Adjs}
-import payloads.PaymentPayloads._
+import models.payment.{InStorePaymentStates, PaymentMethod}
 import shapeless._
 import slick.ast.BaseTypedType
-import utils.db.ExPostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Money._
 import utils.Validation._
 import utils._
 import utils.aliases._
+import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 case class StoreCredit(id: Int = 0,
@@ -33,8 +30,8 @@ case class StoreCredit(id: Int = 0,
                        subTypeId: Option[Int] = None,
                        currency: Currency = Currency.USD,
                        originalBalance: Int,
-                       currentBalance: Int = 0,
-                       availableBalance: Int = 0,
+                       currentBalance: Int = 0, // opening balance minus ‘captured’ debits
+                       availableBalance: Int = 0, // current balance minus ‘auth’ debits
                        state: State = Active,
                        canceledAmount: Option[Int] = None,
                        canceledReason: Option[Int] = None,
@@ -66,7 +63,7 @@ case class StoreCredit(id: Int = 0,
   }
 
   def stateLens = lens[StoreCredit].state
-  override def updateTo(newModel: StoreCredit): Failures Xor StoreCredit =
+  override def updateTo(newModel: StoreCredit): Either[Failures, StoreCredit] =
     super.transitionModel(newModel)
 
   val fsm: Map[State, Set[State]] = Map(

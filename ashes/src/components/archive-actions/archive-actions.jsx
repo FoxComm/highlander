@@ -5,7 +5,7 @@ import React, { Component, Element } from 'react';
 import {autobind} from 'core-decorators';
 
 // components
-import { Button } from '../common/buttons';
+import { Button } from 'components/core/button';
 import ArchiveConfirmation from './archive-confirmation';
 
 type Props = {
@@ -13,7 +13,7 @@ type Props = {
   type: string,
   archive: Function,
   archiveState: AsyncState,
-  clearArchiveErrors: () => Promise<*>,
+  clearArchiveErrors: () => void,
 };
 
 type State = {
@@ -58,7 +58,8 @@ class ArchiveActions extends Component {
         <Button
           id="archive-btn"
           type="button"
-          onClick={this.showArchiveConfirmation}>
+          onClick={this.showArchiveConfirmation}
+        >
           Archive {this.props.type}
         </Button>
         <ArchiveConfirmation
