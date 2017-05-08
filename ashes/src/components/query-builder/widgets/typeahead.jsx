@@ -8,8 +8,8 @@ import { Input, getDefault, isValid } from '../inputs/typeahead';
 
 const connected = (getState, asyncPath, mapActions) => connect(state => ({
   data: getState(state).map(item => {
-  	const name = item.name ? item.name : item.title;
-		return {id: item.id, name: name };
+    const name = item.name ? item.name : item.title;
+    return {id: item.id, name: name };
   }),
   isFetchingProducts: _.get(state.asyncActions, `${asyncPath}`, false),
 }),mapActions);

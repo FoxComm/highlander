@@ -126,7 +126,7 @@ export class Input extends Component {
         placeholder={'Search..'} />
     );
   }
-};
+}
 
 
 export const getDefault = () => '';

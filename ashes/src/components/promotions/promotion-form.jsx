@@ -146,16 +146,14 @@ export default class PromotionForm extends ObjectDetails {
         <Discounts
           onChangeQualifier={this.handleQualifierChange}
           onChangeOffer={this.handleOfferChange}
-          discounts={
-            {
-              qualifier: {
-                ...qualifier
-              },
-              offer: {
-                ...offer
-              }
+          discounts={{
+            qualifier: {
+              ...qualifier
+            },
+            offer: {
+              ...offer
             }
-          }
+          }}
         />
       </div>
     );

@@ -76,7 +76,7 @@ class Criterion extends Component {
       </div>
     );
   }
-};
+}
 
 const renderOperator = (criterion, operator, changeOperator, getOperators) => {
   if (!criterion) {

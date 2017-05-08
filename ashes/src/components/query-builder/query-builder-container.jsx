@@ -18,9 +18,6 @@ import QueryBuilder from './query-builder';
 
 const requestAdapter = (criterions, mainCondition, conditions) => {
   const request = new Request(criterions);
-  console.log(mainCondition);
-  console.log(mainCondition === operators.and);
-
   request.query = mainCondition === operators.and ? new query.ConditionAnd() : new query.ConditionOr();
 
   _.each(conditions, ([name, operator, value]) => {
