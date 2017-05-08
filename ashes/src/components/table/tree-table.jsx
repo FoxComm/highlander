@@ -1,9 +1,9 @@
 /* @flow */
 
 // libs
-import { eq, noop, values } from 'lodash';
+import { eq, values } from 'lodash';
 import classNames from 'classnames';
-import { assoc, update } from 'sprout-data';
+import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 

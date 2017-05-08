@@ -39,7 +39,7 @@ const CounterWidget = (props: Props): Element<*> => {
 
   return (
     <Counter
-      className={classNames(s['inline-edit-input'], counterInput)}
+      className={classNames(s['inline-edit-input'], s.counterInput)}
       value={value}
       onChange={event => setValue(event.target.value)}
       {...actions}
