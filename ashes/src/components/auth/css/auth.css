@@ -1,3 +1,8 @@
+.title {
+  font-size: 20px;
+  line-height: 27px;
+  margin-top: 40px;
+}
 
 .or-line {
   margin-top: 20px;
@@ -32,6 +37,7 @@
 
 .content {
   width: 100%;
+  margin-top: 30px;
 
   & :global(.fc-alert) {
     margin-top: 20px;
@@ -56,21 +62,6 @@
 
 .submit-button {
   margin-top: 20px;
-  width: 100%;
-}
-
-.google-button {
-  composes: global(fc-btn);
-
-  margin-top: 30px;
-  width: 100%;
-  color: #ffffff;
-  background-color: rgb(243, 86, 88);
-
-  &:hover {
-    color: #ffffff;
-    background-color: rgb(240, 60, 67);
-  }
 }
 
 .password-label {

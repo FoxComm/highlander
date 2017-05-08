@@ -15,7 +15,7 @@ import WaitAnimation from '../common/wait-animation';
 
 import * as userActions from 'modules/user';
 
-import styles from './css/auth.css';
+import s from './css/auth.css';
 
 // types
 import type {
@@ -44,7 +44,7 @@ type LoginProps = {
   err: any,
   googleSignin: Function,
   isMounted: boolean,
-}
+};
 
 /* ::`*/
 @connect((state) => ({
@@ -112,7 +112,7 @@ export default class Login extends Component {
   }
 
   get iForgot() {
-    return <a onClick={this.onForgotClick} styleName="forgot-link">i forgot</a>;
+    return <a onClick={this.onForgotClick} className={s['forgot-link']}>i forgot</a>;
   }
 
   get infoMessage() {
@@ -135,18 +135,18 @@ export default class Login extends Component {
     const { org, email, password } = this.state;
 
     return (
-      <div styleName="content">
+      <div className={s.content}>
         {this.infoMessage}
         <Button
           type="button"
-          styleName="google-button"
           icon="google"
           onClick={this.onGoogleSignIn}
+          stretch
         >
           Sign In with Google
         </Button>
-        <Form styleName="form" onSubmit={this.submitLogin}>
-          <WrapToLines styleName="or-line">or</WrapToLines>
+        <Form className={s.form} onSubmit={this.submitLogin}>
+          <WrapToLines className={s['or-line']}>or</WrapToLines>
           {this.errorMessage}
           <FormField label="Organization" required>
             <input onChange={this.onOrgChange} value={org} type="text" className="fc-input" />
@@ -159,7 +159,8 @@ export default class Login extends Component {
           </FormField>
           <PrimaryButton
             onClick={this.clearMessage}
-            styleName="submit-button"
+            className={s['submit-button']}
+            stretch={true}
             type="submit"
             isLoading={this.props.authenticationState.inProgress}>
             Sign In
@@ -171,8 +172,8 @@ export default class Login extends Component {
 
   render() {
     return (
-      <div styleName="main">
-        <div className="fc-auth__title">Sign In</div>
+      <div className={s.main}>
+        <div className={s.title}>Sign In</div>
         {this.content}
       </div>
     );

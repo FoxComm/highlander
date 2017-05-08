@@ -8,13 +8,11 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import classNames from 'classnames';
 import _ from 'lodash';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 
 // components
-import Form from 'components/forms/form';
 import WaitAnimation from 'components/common/wait-animation';
 import ObjectFormInner from 'components/object-form/object-form-inner';
 import Typeahead from 'components/typeahead/typeahead';
