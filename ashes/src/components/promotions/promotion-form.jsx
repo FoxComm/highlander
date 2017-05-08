@@ -17,27 +17,12 @@ import DiscountAttrs from './discount-attrs';
 import offers from './offers';
 import qualifiers from './qualifiers';
 import Discounts from './discounts';
-import ElasticQueryGenerator from 'components/query-builder/elastic-query-generator';
-import { fetchRegions } from 'modules/regions';
 
 import { setDiscountAttr } from 'paragons/promotion';
 const layout = require('./layout.json');
 
-type State = {
-  qualifiedCustomerGroupIds: Array<any>,
-};
-
 export default class PromotionForm extends ObjectDetails {
-  // $FlowFixMe: flow!
-  state: State = {
-    qualifyAll: true,
-    qualifiedCustomerGroupIds: [], // it's temporary state until qualified customer groups not implemented in backend!
-  };
   layout = layout;
-
-  componentDidMount(){
-    fetchRegions();
-  }
 
   renderApplyType() {
     const promotion = this.props.object;
@@ -67,9 +52,7 @@ export default class PromotionForm extends ObjectDetails {
   renderUsageRules() {
     const promotion = this.props.object;
     return (
-      <FormField
-        className="fc-object-form__field"
-      >
+      <FormField className="fc-object-form__field">
         <div>
           <RadioButton id="isExlusiveRadio"
             onChange={this.handleUsageRulesChange}
@@ -87,24 +70,6 @@ export default class PromotionForm extends ObjectDetails {
       </FormField>
     );
   }
-
-  /*@autobind
-  handleQualifierChange(qualifier: Object) {
-    const newPromotion = setDiscountAttr(this.props.object,
-      'qualifier', qualifier
-    );
-
-    this.props.onUpdateObject(newPromotion);
-  }
-
-  @autobind
-  handleOfferChange(offer: Object) {
-    const newPromotion = setDiscountAttr(this.props.object,
-      'offer', offer
-    );
-
-    this.props.onUpdateObject(newPromotion);
-  }*/
 
   @autobind
   handleApplyTypeChange({target}: Object) {
@@ -126,36 +91,6 @@ export default class PromotionForm extends ObjectDetails {
     const applyType = this.props.object.applyType;
     return super.renderState();
   }
-
-  /*renderDiscounts() {
-    let discountChilds = [];
-    const discounts = _.get(this.props.object, 'discounts', []);
-    discounts.map((disc,index) => {
-        discountChilds.push(<div styleName="sub-title">Qualifier</div>),
-        discountChilds.push(<DiscountAttrs
-          blockId={'promo-qualifier-block-'+index}
-          dropdownId={'promo-qualifier-dd-'+index}
-          discount={disc}
-          attr="qualifier"
-          descriptions={qualifiers}
-          onChange={this.handleQualifierChange}
-        />);
-        discountChilds.push(<div styleName="sub-title">Offer</div>),
-        discountChilds.push(<DiscountAttrs
-          blockId={'promo-offer-block-'+index}
-          dropdownId={'promo-offer-dd-'+index}
-          discount={disc}
-          attr="offer"
-          descriptions={offers}
-          onChange={this.handleOfferChange}
-        />);
-      });
-    return (
-      <div>
-        {discountChilds}
-      </div>
-    );
-  }*/
 
   @autobind
   handleQualifyAllChange(isAllQualify) {
@@ -192,19 +127,24 @@ export default class PromotionForm extends ObjectDetails {
   renderDiscountsSection() {
     let qualifier = _.get(this.props.object, 'discounts.0.attributes.qualifier.v');
     let offer = _.get(this.props.object, 'discounts.0.attributes.offer.v');
-    return (<div>
+    return (
+      <div>
         <Discounts
           onChangeQualifier={this.handleQualifierChange}
           onChangeOffer={this.handleOfferChange}
-          discounts={{
-            qualifier: {
-              ...qualifier
-            },
-            offer: {
-              ...offer
+          discounts={
+            {
+              qualifier: {
+                ...qualifier
+              },
+              offer: {
+                ...offer
+              }
             }
-          }}/>
-      </div>);
+          }
+        />
+      </div>
+    );
   }
 
   @autobind
@@ -222,5 +162,4 @@ export default class PromotionForm extends ObjectDetails {
     );
     this.props.onUpdateObject(newPromotion);
   }
-
 }

@@ -1,19 +1,20 @@
 import _ from 'lodash';
 import React, {Component} from 'react';
 import { autobind } from 'core-decorators';
+
 import { Dropdown } from '../../dropdown';
+import { FormField } from '../../forms';
+import { Checkbox } from '../../checkbox/checkbox';
 
 import styles from './discounts.css';
-import { Checkbox } from '../../checkbox/checkbox';
-import { FormField } from '../../forms';
 
 import { OFFERS, QUALIFIERS } from './data';
 
-const DISCOUNT_TYPES = QUALIFIERS.map( item => [item.discountType,item.text]);
+const DISCOUNT_TYPES = QUALIFIERS.map(item => [item.discountType,item.text]);
 
 const OFFER_TYPES = OFFERS.map(item => [item.type,item.text]);
 
-const QUALIFIER_TYPES = QUALIFIERS.map( item => {
+const QUALIFIER_TYPES = QUALIFIERS.map(item => {
   const cell = {
     scope: item.discountType,
     list: item.qualifierTypes.map(i => [i.type,i.text]),
@@ -118,7 +119,6 @@ export default class Discounts extends Component {
     this.props.onChangeQualifier(this.qualifier);
   }
 
-
   @autobind
   setValueOffer(value) {
     this.offer = {
@@ -200,7 +200,6 @@ export default class Discounts extends Component {
     this.props.onChangeOffer(this.offer);
   }
 
-
   @autobind
   renderDiscount() {
     return(<Dropdown
@@ -267,7 +266,7 @@ export default class Discounts extends Component {
     return renderWidget(comp);
   }
 
-  render(){
+  render() {
     return(
       <div styleName="discount_qualifier">
         <div styleName="sub-title">Qualifier</div>

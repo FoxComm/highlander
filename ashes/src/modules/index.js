@@ -33,7 +33,6 @@ import applications from './merchant-applications';
 import originIntegrations from './origin-integrations';
 import taxonomies from './taxonomies';
 import taxons from './taxons';
-import aaa from 'components/aaa/actions';
 
 const rootReducer = combineReducers({
   routing: routerReducer,
@@ -69,7 +68,6 @@ const rootReducer = combineReducers({
   originIntegrations,
   taxonomies,
   taxons,
-  aaa,
 });
 
 export default rootReducer;
