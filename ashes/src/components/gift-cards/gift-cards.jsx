@@ -5,11 +5,7 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-
-// data
 import { stateTitles } from '../../paragons/gift-card';
-import { actions } from '../../modules/gift-cards/list';
-import { actions as bulkActions } from '../../modules/gift-cards/bulk';
 
 // components
 import BulkActions from '../bulk-actions/bulk-actions';
@@ -19,15 +15,10 @@ import { ChangeStateModal, CancelModal } from '../bulk-actions/modal';
 import { SelectableSearchList } from '../list-page';
 import { Link } from '../link';
 
-
-const mapStateToProps = state => ({list: state.giftCards.list});
-
-const mapDispatchToProps = dispatch => {
-  return {
-    actions: bindActionCreators(actions, dispatch),
-    bulkActions: bindActionCreators(bulkActions, dispatch),
-  };
-};
+// actions
+import { actions } from '../../modules/gift-cards/list';
+import { actions as bulkActions } from '../../modules/gift-cards/bulk';
+import { bulkExport } from 'modules/bulk-export/bulk-export';
 
 const tableColumns = [
   {field: 'code', text: 'Gift Card Number', model: 'giftcard'},
@@ -39,8 +30,7 @@ const tableColumns = [
   {field: 'createdAt', text: 'Date/Time Issued', type: 'date'}
 ];
 
-@connect(mapStateToProps, mapDispatchToProps)
-export default class GiftCards extends React.Component {
+class GiftCards extends React.Component {
   static propTypes = {
     list: PropTypes.object.isRequired,
     actions: PropTypes.objectOf(PropTypes.func).isRequired,
@@ -125,6 +115,9 @@ export default class GiftCards extends React.Component {
           entity="gift card"
           actions={this.bulkActions}>
           <SelectableSearchList
+            exportEntity="giftCards"
+            bulkExport
+            bulkExportAction={this.props.bulkExportAction}
             entity="giftCards.list"
             emptyMessage="No gift cards found."
             list={list}
@@ -137,3 +130,19 @@ export default class GiftCards extends React.Component {
     );
   }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    list: _.get(state.giftCards, 'list', {}),
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    actions: bindActionCreators(actions, dispatch),
+    bulkActions: bindActionCreators(bulkActions, dispatch),
+    bulkExportAction: bindActionCreators(bulkExport, dispatch),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(GiftCards);
