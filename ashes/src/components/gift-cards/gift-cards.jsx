@@ -1,7 +1,10 @@
+/* @flow */
+
+import React, { PropTypes } from 'react';
+
 // libs
 import _ from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
+import { flow, map, filter } from 'lodash/fp';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -11,7 +14,7 @@ import { stateTitles } from '../../paragons/gift-card';
 import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
 import GiftCardRow from './gift-card-row';
-import { ChangeStateModal, CancelModal } from '../bulk-actions/modal';
+import { ChangeStateModal, CancelModal, BulkExportModal } from '../bulk-actions/modal';
 import { SelectableSearchList } from '../list-page';
 import { Link } from '../link';
 
@@ -74,9 +77,53 @@ class GiftCards extends React.Component {
     ];
   }
 
+  @autobind
+  getIdsByCode(codes: Array<string>, list: Array<Object>) {
+    return flow(
+      filter(entry => codes.indexOf(entry.code) !== -1),
+      map(e => e.id),
+    )(list);
+  }
+
+  @autobind
+  bulkExport(allChecked: boolean, toggledIds: Array<number>) {
+    const { list } = this.props;
+    const { exportByIds } = this.props.bulkActions;
+    const fields = _.map(tableColumns, c => c.field);
+    const identifier = _.map(tableColumns, item => item.text).toString();
+    const results = list.currentSearch().results.rows;
+    const ids = this.getIdsByCode(toggledIds, results);
+
+    return (
+      <BulkExportModal
+        count={toggledIds.length}
+        onConfirm={(description) => exportByIds(ids, description, fields, 'giftCards', identifier)}
+      />
+    );
+  }
+
+  get cancelGCAction () {
+    return [
+      'Cancel Gift Cards',
+      this.cancelGiftCards,
+      'successfully canceled',
+      'could not be canceled',
+    ];
+  }
+
+  get bulkExportAction() {
+    return [
+      'Export Selected Gift Cards',
+      this.bulkExport,
+      'successfully exported',
+      'could not be exported',
+    ];
+  }
+
   get bulkActions() {
     return [
-      ['Cancel Gift Cards', this.cancelGiftCards, 'successfully canceled', 'could not be canceled'],
+      this.bulkExportAction,
+      this.cancelGCAction,
       this.getChangeGiftCardsStateAction('active'),
       this.getChangeGiftCardsStateAction('onHold'),
     ];

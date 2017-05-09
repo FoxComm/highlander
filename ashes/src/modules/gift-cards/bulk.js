@@ -1,6 +1,7 @@
 // libs
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
+import { flow, filter, getOr, invoke, reduce, set } from 'lodash/fp';
 
 // helpers
 import Api from '../../lib/api';
@@ -8,7 +9,16 @@ import { singularize } from 'fleck';
 import createStore from '../../lib/store-creator';
 
 // data
-import { initialState, reducers } from '../bulk';
+import { initialState, reducers, createExportByIds } from '../bulk';
+
+const getCodes = (getState, ids) => {
+  return codes = flow(
+    invoke('giftCards.list.currentSearch'),
+    getOr([], 'results.rows'),
+    filter(c => ids.indexOf(c.id) !== -1),
+    reduce((obj, c) => set(c.code, c.code, obj), {})
+  )(getState());
+};
 
 // TODO remove when https://github.com/FoxComm/phoenix-scala/issues/763 closed
 const preprocessResponse = (results) => {
@@ -85,12 +95,14 @@ const changeGiftCardsState = (actions, codes, state) =>
       );
   };
 
+const exportByIds = createExportByIds(getCodes);
 
 const { actions, reducer } = createStore({
   path: 'giftCards.bulk',
   actions: {
     cancelGiftCards,
     changeGiftCardsState,
+    exportByIds,
   },
   reducers,
 });
