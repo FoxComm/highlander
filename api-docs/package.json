@@ -5,6 +5,14 @@
     "type": "git",
     "url": "https://github.com/FoxComm/api-docs"
   },
+  "scripts": {
+    "init": "nvm install && make install",
+    "dist": "make build",
+    "deploy-stage": "yarn run dist && yarn run sync-stage",
+    "deploy-production": "yarn run dist && yarn run sync-production",
+    "sync-stage": "firebase use stage && firebase deploy",
+    "sync-production": "firebase deploy -P production"
+  },
   "dependencies": {
     "aglio-theme-olio": "1.6.3",
     "aglio": "2.3.0"

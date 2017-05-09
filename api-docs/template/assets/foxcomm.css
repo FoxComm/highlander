@@ -1,0 +1,89 @@
+
+body {
+  font-family: 'Raleway', sans-serif;
+  font-size: 15px;
+  background: white;
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+}
+
+/* Larger sentence-case titles
+*/
+h1, h2, nav .heading {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 300;
+  margin: 0;
+}
+h1 {
+  font-size: 2em;
+}
+h2 {
+  font-size: 1.5em;
+}
+/*  Smaller all-caps titles
+*/
+h3, .main-menu {
+  font-family: 'Raleway', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 400;
+}
+
+.header {
+  padding-top: 1em;
+  padding-bottom: 1em;
+  width: 100%;
+  background: #1e232d;
+  color: white;
+}
+.header a {
+  color: white;
+}
+.row-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo-head {
+  height: 36px;
+}
+.main-menu {
+  margin: 0;
+}
+.main-menu--item {
+  display: inline-block;
+  margin-left: 2em;
+  padding: 0.3em 0;
+}
+.main-menu--item.active {
+  border-bottom: 2px solid white;
+}
+.footer {
+  text-align: center;
+  padding-top: 10em;
+}
+
+
+.jeff { /* This is not actually Jeff, it's the left menu. Yay naming! */
+  top: 75px;
+}
+
+/*  If we want to fix the menu at the top.
+    Problem is, #anchor links will then be hidden under the menu.
+    Tried all 4 methods at http://nicolasgallagher.com/jump-links-and-viewport-positioning/demo/
+    to no avail.
+*/
+.header {
+  position: fixed;
+  top: 0;
+}
+.content {
+  margin-top: 75px;
+}
+.anchor::before {
+    display: block;
+    content: "";
+    height: 75px;
+    margin: -75px 0 0;
+}
