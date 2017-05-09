@@ -11,7 +11,7 @@ import models.account._
 import payloads.DiscountPayloads._
 import responses.DiscountResponses._
 import services.discount.compilers.{OfferAstCompiler, QualifierAstCompiler}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

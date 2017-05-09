@@ -2,7 +2,7 @@ package models.returns
 
 import models.payment.creditcard.CreditCardCharges
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.Money.Currency
 import utils.db._
 

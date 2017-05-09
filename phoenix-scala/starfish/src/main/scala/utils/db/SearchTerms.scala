@@ -1,7 +1,7 @@
 package utils.db
 
 import failures.{Failure, NotFoundFailure400, NotFoundFailure404}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.Strings._
 
 trait SearchById[M <: FoxModel[M], T <: FoxTable[M]] {

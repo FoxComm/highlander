@@ -10,7 +10,7 @@ import models.plugins.PluginSettings.SettingsValues._
 import org.json4s.jackson.JsonMethods._
 import payloads.PluginPayloads._
 import responses.plugins.PluginCommonResponses._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 import org.json4s.Formats

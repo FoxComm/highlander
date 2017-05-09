@@ -1,7 +1,7 @@
 package models.payment.giftcard
 
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.db._
 
 case class GiftCardManual(id: Int = 0, adminId: Int, reasonId: Int)

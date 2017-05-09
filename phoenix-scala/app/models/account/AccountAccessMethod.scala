@@ -4,7 +4,7 @@ import com.typesafe.scalalogging.LazyLogging
 import java.time.Instant
 import shapeless._
 import slick.ast.BaseTypedType
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.JdbcType
 import utils.FoxConfig.config
 import utils.HashPasswords

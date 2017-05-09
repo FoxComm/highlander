@@ -10,7 +10,7 @@ import akka.pattern.{ask, pipe}
 import scala.concurrent.duration._
 
 import de.heikoseeberger.akkasse.{EventStreamElement, ServerSentEvent ⇒ SSE}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import models.account.Scope
 import models.account.Users
 import models.activity.{Activities, Activity}

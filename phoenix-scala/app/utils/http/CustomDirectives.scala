@@ -18,7 +18,7 @@ import payloads.AuthPayload
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 import services.JwtCookie
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils._
 import utils.aliases._
 import utils.db._

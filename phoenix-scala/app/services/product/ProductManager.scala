@@ -31,7 +31,7 @@ import services.objects.ObjectManager
 import services.taxonomy.TaxonomyManager
 import services.variant.VariantManager
 import services.variant.VariantManager._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.Validation._
 import utils.aliases._
 import utils.db._

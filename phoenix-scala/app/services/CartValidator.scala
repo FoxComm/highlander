@@ -8,7 +8,7 @@ import models.cord._
 import models.cord.lineitems.CartLineItems
 import models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

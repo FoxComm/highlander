@@ -10,7 +10,7 @@ import models.product._
 import services.image.ImageManager
 import services.inventory.SkuManager
 import services.product.ProductManager
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 
