@@ -52,7 +52,7 @@ object Dependencies {
   val db = Seq(
     "com.github.tminglei" %% "slick-pg"         % Versions.slickPg,
     "com.github.tminglei" %% "slick-pg_json4s"  % Versions.slickPg,
-    "com.zaxxer"          % "HikariCP"          % "2.6.1" % "provided",
+    "com.zaxxer"          % "HikariCP"          % "2.6.1",
     "org.postgresql"      % "postgresql"        % "42.1.1",
     "org.flywaydb"        % "flyway-core"       % "4.0.3",
     "com.wix"               %% "accord-core"            % "0.5", // Validation
