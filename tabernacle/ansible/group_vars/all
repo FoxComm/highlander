@@ -311,6 +311,7 @@ neo4j_http_port: "7474"
 # suggester
 suggester_host: "suggester.{{consul_suffix}}"
 suggester_server: "{{suggester_host}}"
+dexter_base_url: "https://bots.rundexter.com/api/v2/bot/"
 
 # Elasticsearch 2.x
 es_version: elasticsearch-2.1.2
