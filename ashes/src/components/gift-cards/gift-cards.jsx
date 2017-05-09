@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { PropTypes } from 'react';
+import React, { Component } from 'react';
 
 // libs
 import _ from 'lodash';
@@ -23,6 +23,19 @@ import { actions } from '../../modules/gift-cards/list';
 import { actions as bulkActions } from '../../modules/gift-cards/bulk';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
 
+type Props = {
+  list: Object,
+  actions: Object,
+  bulkActions: {
+    cancelGiftCards: (codes: Array<string>, reasonId: number) => void,
+    changeGiftCardsState: (codes: Array<string>, state: string) => void,
+    exportByIds: (
+      ids: Array<number>, description: string, fields: Array<string>, entity: string, identifier: string
+    ) => void,
+  },
+  bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
+};
+
 const tableColumns = [
   {field: 'code', text: 'Gift Card Number', model: 'giftcard'},
   {field: 'originType', text: 'Type', model: 'giftCard'},
@@ -33,15 +46,11 @@ const tableColumns = [
   {field: 'createdAt', text: 'Date/Time Issued', type: 'date'}
 ];
 
-class GiftCards extends React.Component {
-  static propTypes = {
-    list: PropTypes.object.isRequired,
-    actions: PropTypes.objectOf(PropTypes.func).isRequired,
-    bulkActions: PropTypes.objectOf(PropTypes.func).isRequired,
-  };
+class GiftCards extends Component {
+  props: Props;
 
   @autobind
-  cancelGiftCards(allChecked, toggledIds) {
+  cancelGiftCards(allChecked: boolean, toggledIds: Array<string>) {
     const {cancelGiftCards} = this.props.bulkActions;
 
     return (
@@ -51,7 +60,7 @@ class GiftCards extends React.Component {
     );
   }
 
-  getChangeGiftCardsState(state) {
+  getChangeGiftCardsState(state: string) {
     const stateTitle = stateTitles[state];
 
     return (allChecked, toggledIds) => {
@@ -66,7 +75,7 @@ class GiftCards extends React.Component {
     };
   }
 
-  getChangeGiftCardsStateAction(state) {
+  getChangeGiftCardsStateAction(state: string) {
     const stateTitle = stateTitles[state];
 
     return [
@@ -86,7 +95,7 @@ class GiftCards extends React.Component {
   }
 
   @autobind
-  bulkExport(allChecked: boolean, toggledIds: Array<number>) {
+  bulkExport(allChecked: boolean, toggledIds: Array<string>) {
     const { list } = this.props;
     const { exportByIds } = this.props.bulkActions;
     const fields = _.map(tableColumns, c => c.field);
@@ -102,7 +111,7 @@ class GiftCards extends React.Component {
     );
   }
 
-  get cancelGCAction () {
+  get cancelGCAction(): Array<any> {
     return [
       'Cancel Gift Cards',
       this.cancelGiftCards,
@@ -111,7 +120,7 @@ class GiftCards extends React.Component {
     ];
   }
 
-  get bulkExportAction() {
+  get bulkExportAction(): Array<any> {
     return [
       'Export Selected Gift Cards',
       this.bulkExport,
@@ -120,7 +129,7 @@ class GiftCards extends React.Component {
     ];
   }
 
-  get bulkActions() {
+  get bulkActions(): Array<any> {
     return [
       this.bulkExportAction,
       this.cancelGCAction,
@@ -129,7 +138,7 @@ class GiftCards extends React.Component {
     ];
   }
 
-  renderDetail(messages, code) {
+  renderDetail(messages: string, code: string) {
     return (
       <span key={code}>
         Gift card <Link to="giftcard" params={{giftCard: code}}>{code}</Link>

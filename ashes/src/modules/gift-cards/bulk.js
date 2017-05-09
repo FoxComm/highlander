@@ -1,3 +1,5 @@
+/* @flow */
+
 // libs
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
@@ -11,8 +13,8 @@ import createStore from '../../lib/store-creator';
 // data
 import { initialState, reducers, createExportByIds } from '../bulk';
 
-const getCodes = (getState, ids) => {
-  return codes = flow(
+const getCodes = (getState: Function, ids: Array<number>): Object => {
+  return flow(
     invoke('giftCards.list.currentSearch'),
     getOr([], 'results.rows'),
     filter(c => ids.indexOf(c.id) !== -1),
@@ -21,7 +23,7 @@ const getCodes = (getState, ids) => {
 };
 
 // TODO remove when https://github.com/FoxComm/phoenix-scala/issues/763 closed
-const preprocessResponse = (results) => {
+const preprocessResponse = (results: Object): Object => {
   const successes = results
     .filter(({success}) => success)
     .map(({code}) => code);
@@ -42,7 +44,7 @@ const preprocessResponse = (results) => {
   };
 };
 
-const parseChangeStateResponse = (results) => {
+const parseChangeStateResponse = (results: Object): Object => {
   const {batch} = preprocessResponse(results);
 
   const successes = _.reduce(batch.success.giftCard,
@@ -56,8 +58,8 @@ const parseChangeStateResponse = (results) => {
   };
 };
 
-const cancelGiftCards = (actions, codes, reasonId) =>
-  dispatch => {
+const cancelGiftCards = (actions: Object, codes: Array<string>, reasonId: number) =>
+  (dispatch) => {
     dispatch(actions.bulkRequest());
     Api.patch('/gift-cards/bulk', {
       codes,
@@ -76,7 +78,7 @@ const cancelGiftCards = (actions, codes, reasonId) =>
       );
   };
 
-const changeGiftCardsState = (actions, codes, state) =>
+const changeGiftCardsState = (actions: Object, codes: Array<string>, state: string) =>
   dispatch => {
     dispatch(actions.bulkRequest());
     Api.patch('/gift-cards/bulk', {
