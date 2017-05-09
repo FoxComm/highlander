@@ -18,6 +18,10 @@ Products, variants, and options.
 
 Track your inventory and make products available to customers.
 
+## [Search](search/index.md)
+
+Search indices and queries.
+
 ## [Merchandising](merchandising/index.md)
 
 Offer discounts and promotions.

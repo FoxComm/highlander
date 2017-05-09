@@ -2,22 +2,25 @@
 
 The Fox Platform is designed to be extended from inception. 
 
-## Storefront Experience
+## Quickstart
+
+## Learn More
+
+### Storefront Experience
 The API first design allows for the creation of storefront experiences that are only limited by the imagination. 
 
-- Learn how to create a custom storefront experience [here](experience.md).
+- [Create a custom storefront experience](experience.md).
 
-## Integration 
+### Integration 
 Our [Event System](../events/index.md) allow flexible back end processing which enables innovative business models and easy integration with external systems.
 
-- Learn how to process events and integrate with a third party provider [here](integrate.md).
-- Learn how to extend 
+- [Process events and integrate with a third party providers](integrate.md).
 
-## Business Innovation
+### Business Innovation
 
 Our flexible [Product](../products/index.md) and Content model allow you to model your business.
 
-- Learn how to extend Fox Platform data models so you can innovate in your business [here](innovate.md)
+- [Extend data models to match your Business](innovate.md)
 
 
 
