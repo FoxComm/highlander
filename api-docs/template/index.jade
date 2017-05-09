@@ -6,16 +6,19 @@ html
     head
         meta(charset="utf-8")
         title= self.api.name || 'API Documentation'
+        script(src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js")
+        script(src="/assets/firebase-init.js")
+        script(src="/assets/firebase-check-login.js")
         link(rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css")
         link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Raleway:300,400,500,600,700|Poppins:100,300,400,500,600,700&subset=latin")
         style!= self.css
-        link(rel="stylesheet", href="assets/foxcomm.css")
+        link(rel="stylesheet", href="/assets/foxcomm.css")
     body.preload
         .header
             .container
                 .row-flex
-                    a(href="/")
-                        img(src="assets/logo-white.png" class="logo-head" style="display:block")
+                    a(href="/home.html")
+                        img(src="/assets/logo-white.png" class="logo-head" style="display:block")
 
                     
                     ul.main-menu
@@ -46,7 +49,7 @@ html
 
             .footer
               p
-                img(src="assets/logo-fox-head.png" class="logo-head")
+                img(src="/assets/logo-fox-head.png" class="logo-head")
               p ©&nbsp;
                 span(id="copyright_year") 2017
                 | &nbsp; FoxCommerce | All rights reserved

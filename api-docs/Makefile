@@ -13,15 +13,19 @@ build:
 	$(call header, Building)
 	make install
 	mkdir -p $(BUILD_DIR)
+	rsync ./template/static/ $(BUILD_DIR)/ -av
 	rsync ./template/assets/ $(BUILD_DIR)/assets/ -av
-	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/index.apib -o $(BUILD_DIR)/index.html
+	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/home.apib -o $(BUILD_DIR)/home.html
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/auth.apib -o $(BUILD_DIR)/auth.html
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/customer.apib -o $(BUILD_DIR)/storefront.html
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/transactions.apib -o $(BUILD_DIR)/transactions.html
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/merchandising.apib -o $(BUILD_DIR)/merchandising.html
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/inventory.apib -o $(BUILD_DIR)/inventory.html
 
-watch_public:
+watch_home:
+	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/home.apib -o $(BUILD_DIR)/ --server -p $(PORT)
+
+watch_auth:
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/auth.apib -o $(BUILD_DIR)/ --server -p $(PORT)
 
 watch_customer:

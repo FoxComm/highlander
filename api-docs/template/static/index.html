@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Sample FirebaseUI App</title>
+    <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
+    <script src="https://cdn.firebase.com/libs/firebaseui/1.0.1/firebaseui.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/1.0.1/firebaseui.css" />
+    <link type="text/css" rel="stylesheet" href="/assets/foxcomm.css" />
+    <script src="/assets/firebase-init.js"></script>
+    <script src="/assets/firebase-login.js"></script>
+  </head>
+  <body style="text-align: center;">
+    <div class="header">
+        <a href="/home.html"><img src="assets/logo-white.png" class="logo-head"></a>
+      </div>
+    </div>
+    <div style="margin-top: 150px;">
+      <h2>Please sign in:</h2>
+      <div id="firebaseui-auth-container"></div>
+    </div>
+    <div class="footer">
+      <p><img src="assets/logo-fox-head.png" class="logo-head"></p>
+      <p>©&nbsp;<span id="copyright_year">2017</span>&nbsp; FoxCommerce | All rights reserved</p>
+      <script>document.getElementById('copyright_year').innerHTML = new Date().getFullYear()</script>
+    </div>
+  </body>
+</html>
