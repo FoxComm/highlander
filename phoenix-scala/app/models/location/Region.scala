@@ -1,7 +1,7 @@
 package models.location
 
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.db._
 
 case class Region(id: Int = 0, countryId: Int, name: String, abbreviation: Option[String] = None)

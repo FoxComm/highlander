@@ -1,7 +1,7 @@
 package models.account
 
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.db._
 
 case class AccountRole(id: Int = 0, accountId: Int, roleId: Int) extends FoxModel[AccountRole]

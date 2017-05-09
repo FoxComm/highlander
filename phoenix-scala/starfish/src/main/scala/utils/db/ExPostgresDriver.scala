@@ -4,10 +4,10 @@ import com.github.tminglei.slickpg._
 import com.github.tminglei.slickpg.array.PgArrayJdbcTypes
 import com.github.tminglei.slickpg.utils.SimpleArrayUtils
 import org.json4s.JValue
-import slick.driver.PostgresDriver
+import slick.jdbc.PostgresProfile
 
 trait ExPostgresDriver
-    extends PostgresDriver
+    extends PostgresProfile
     with PgArraySupport
     with PgDateSupport
     with PgRangeSupport

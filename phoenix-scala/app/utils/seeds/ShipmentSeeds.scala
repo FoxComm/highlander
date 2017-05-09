@@ -6,7 +6,7 @@ import models.location.Country.unitedStatesId
 import models.rules._
 import models.shipping._
 import org.json4s.jackson.JsonMethods._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 import utils.seeds.Factories._

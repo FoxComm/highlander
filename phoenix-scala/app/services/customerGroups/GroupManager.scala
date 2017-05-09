@@ -41,7 +41,7 @@ object GroupManager {
       group ← * <~ CustomerGroups.mustFindById404(groupId)
       _ ← * <~ failIf(group.deletedAt.isDefined && group.deletedAt.get.isBeforeNow,
                       NotFoundFailure404(CustomerGroup, groupId))
-      memberCount ← * <~ CustomerGroupMembers.findByGroupId(group.id).countDistinct.result
+      memberCount ← * <~ CustomerGroupMembers.findByGroupId(group.id).distinct.length.result
       payloadWithCount = if (group.groupType == Manual) payload.copy(customersCount = memberCount)
       else payload
       groupEdited ← * <~ CustomerGroups.update(

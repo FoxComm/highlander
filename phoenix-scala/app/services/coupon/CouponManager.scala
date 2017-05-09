@@ -15,7 +15,7 @@ import org.json4s.JsonDSL._
 import payloads.CouponPayloads._
 import responses.CouponResponses._
 import services.LogActivity
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

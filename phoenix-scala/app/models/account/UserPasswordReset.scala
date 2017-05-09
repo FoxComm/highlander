@@ -6,7 +6,7 @@ import models.account._
 
 import com.pellucid.sealerate
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.ADT
 import utils.db._
 import UserPasswordReset.{Initial, State}

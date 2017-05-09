@@ -7,7 +7,7 @@ import javax.sql.DataSource
 import models.objects.ObjectContexts
 import models.product.SimpleContext
 import org.scalatest._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
 import utils.aliases.EC
 import utils.db._
@@ -25,7 +25,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
 
   implicit val ec: EC
 
-  val api = slick.driver.PostgresDriver.api
+  val api = slick.jdbc.PostgresProfile.api
 
   /* tables which should *not* be truncated b/c they're static and seeded by migration */
   val doNotTruncate = Set("states",
@@ -99,7 +99,7 @@ object DbTestSupport {
   lazy val database    = Database.forConfig("db", TestBase.bareConfig)
   lazy val dataSource  = jdbcDataSourceFromSlickDB(database)
   lazy val persistConn = dataSource.getConnection
-  val api              = slick.driver.PostgresDriver.api
+  val api              = slick.jdbc.PostgresProfile.api
 
   def jdbcDataSourceFromSlickDB(db: api.Database): DataSource =
     db.source match {

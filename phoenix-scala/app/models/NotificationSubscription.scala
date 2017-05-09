@@ -7,7 +7,7 @@ import models.activity.Dimensions
 import models.account._
 import shapeless._
 import slick.ast.BaseTypedType
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.JdbcType
 import slick.lifted.Tag
 import utils.db._

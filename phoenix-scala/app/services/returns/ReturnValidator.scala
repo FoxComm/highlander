@@ -3,7 +3,7 @@ package services.returns
 import failures.{Failure, Failures}
 import failures.ReturnFailures.EmptyReturn
 import models.returns._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

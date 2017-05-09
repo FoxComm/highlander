@@ -4,7 +4,7 @@ import failures.NotFoundFailure404
 import models.returns._
 import payloads.ReturnPayloads.ReturnReasonPayload
 import responses.ReturnReasonsResponse._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases.{DB, EC}
 import utils.db._
 

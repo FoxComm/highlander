@@ -24,7 +24,7 @@ import models.cord.CordPaymentState
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.PaymentPayloads._
 import services.carts.CartTotaler
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

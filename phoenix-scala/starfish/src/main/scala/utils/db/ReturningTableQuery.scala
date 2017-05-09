@@ -1,7 +1,7 @@
 package utils.db
 
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import slick.lifted.{Query, Rep}
 
 trait ReturningTableQuery[M <: FoxModel[M], T <: FoxTable[M]] { self: FoxTableQuery[M, T] ⇒

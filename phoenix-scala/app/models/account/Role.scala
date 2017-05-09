@@ -2,7 +2,7 @@ package models.account
 
 import java.time.Instant
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.db._
 
 case class Role(id: Int = 0,

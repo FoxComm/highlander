@@ -7,7 +7,7 @@ import models.Assignment.{AssignmentType, ReferenceType}
 import shapeless._
 import models.account._
 import slick.ast.BaseTypedType
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.JdbcType
 import utils.db._
 import utils.ADT

@@ -2,7 +2,7 @@ package models.payment.giftcard
 
 import models.payment.giftcard.GiftCard.OriginType
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.db._
 
 case class GiftCardSubtype(id: Int = 0, title: String, originType: OriginType)

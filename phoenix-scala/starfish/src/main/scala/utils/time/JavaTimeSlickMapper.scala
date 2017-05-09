@@ -3,8 +3,8 @@ package utils.time
 import java.sql.Timestamp
 import java.time.{ZoneId, ZoneOffset}
 
-import slick.driver.PostgresDriver
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile
+import slick.jdbc.PostgresProfile.api._
 
 object JavaTimeSlickMapper {
   import java.time
@@ -23,7 +23,7 @@ object JavaTimeSlickMapper {
     * we don’t care about the zone
     */
   implicit def instantAndTimestampWithoutZone: BaseColumnType[time.Instant] =
-    PostgresDriver.MappedColumnType.base[time.Instant, Timestamp](
+    PostgresProfile.MappedColumnType.base[time.Instant, Timestamp](
         instant ⇒ Timestamp.valueOf(instant.atZone(UTC).toLocalDateTime),
         timestamp ⇒ timestamp.toLocalDateTime.toInstant(ZoneOffset.UTC))
 }

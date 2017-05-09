@@ -14,7 +14,7 @@ import services.carts.getCartByOriginator
 import utils.JsonFormatters
 import utils.aliases._
 import utils.db._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import org.json4s.JsonAST._
 import responses.ShippingMethodsResponse
 

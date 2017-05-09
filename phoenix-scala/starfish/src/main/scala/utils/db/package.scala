@@ -4,19 +4,19 @@ import cats._
 import cats.data._
 import cats.implicits._
 import failures._
-
 import scala.concurrent.{ExecutionContext, Future}
-import slick.driver.PostgresDriver.api._
+
+import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.SQLActionBuilder
 import slick.lifted.Query
-import slick.profile.SqlAction
+import slick.sql.SqlAction
 import utils.time.JavaTimeSlickMapper
 
 /*_*/ // <- this little guy will disable IJ lint for the code below
 package object db {
 
   type EC = ExecutionContext
-  type DB = slick.driver.PostgresDriver.api.Database
+  type DB = slick.jdbc.PostgresProfile.api.Database
 
   // ————————————————————————————— Foxy —————————————————————————————
 
@@ -267,7 +267,7 @@ package object db {
   }
 
   // Return B whenever A is inserted
-  type Returning[A, B] = slick.driver.JdbcActionComponent#ReturningInsertActionComposer[A, B]
+  type Returning[A, B] = slick.jdbc.JdbcActionComponent#ReturningInsertActionComposer[A, B]
 
   implicit val javaTimeSlickMapper      = JavaTimeSlickMapper.instantAndTimestampWithoutZone
   implicit val currencyColumnTypeMapper = Money.currencyColumnType

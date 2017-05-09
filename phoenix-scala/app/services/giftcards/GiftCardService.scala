@@ -13,7 +13,7 @@ import responses.GiftCardBulkResponse._
 import responses.GiftCardResponse._
 import responses.{CustomerResponse, GiftCardResponse, GiftCardSubTypesResponse, UserResponse}
 import services._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

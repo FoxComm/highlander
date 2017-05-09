@@ -2,6 +2,7 @@ package routes
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+
 import com.github.tminglei.slickpg.LTree
 import models.Reason.reasonTypeRegex
 import payloads.CustomerPayloads.CreateCustomerPayload
@@ -10,7 +11,7 @@ import services.account.AccountCreateContext
 import services.customers.CustomerManager
 import services.giftcards.GiftCardService
 import services.product.ProductManager
-import services.{ReasonService, StoreCreditService}
+import services.{PublicService, ReasonService, StoreCreditService}
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
@@ -78,7 +79,7 @@ object Public {
             }
           } ~
           (get & path(IntNumber) & pathEnd) { countryId ⇒
-            getOrFailures {
+            mutateOrFailures {
               findCountry(countryId)
             }
           }

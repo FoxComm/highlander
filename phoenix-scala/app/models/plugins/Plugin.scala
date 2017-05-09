@@ -15,7 +15,7 @@ import cats.implicits._
 import PluginSettings._
 import com.github.tminglei.slickpg.utils.SimpleArrayUtils
 import org.json4s.jackson.JsonMethods._
-import slick.driver.PostgresDriver.api.MappedColumnType
+import slick.jdbc.PostgresProfile.api.MappedColumnType
 import org.json4s.Extraction
 
 case class Plugin(id: Int = 0,

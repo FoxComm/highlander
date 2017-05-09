@@ -4,7 +4,7 @@ import models.Reason
 import models.Reason.{Cancellation, GiftCardCreation, StoreCreditCreation}
 import models.cord.{OrderPayment, OrderShippingAddress}
 import models.payment.creditcard.CreditCardCharge
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.JsonFormatters
 import utils.aliases._
 
