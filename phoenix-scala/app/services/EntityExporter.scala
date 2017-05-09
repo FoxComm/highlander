@@ -10,9 +10,9 @@ import com.sksamuel.elastic4s.streams.ReactiveElastic._
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, ZoneId}
 import org.elasticsearch.search.fetch.source.FetchSourceContext
-import org.json4s.JsonAST.{JNumber, JString}
-import org.json4s._
-import org.json4s.jackson.{compactJson, parseJson}
+import org.json4s.JsonAST._
+import org.json4s.jackson.JsonMethods.{compact, render}
+import org.json4s.jackson.parseJson
 import payloads.ExportEntityPayloads._
 import scala.annotation.tailrec
 import utils.Chunkable
@@ -39,17 +39,9 @@ object EntityExporter {
     val index = s"admin_${au.token.scope}" / entity.searchView
     val jsonSource = payload match {
       case ExportEntity.ByIDs(_, fields, ids) ⇒
-        EntityExporter.export(
-            searchIndex = index,
-            searchFields = fields.map(_.name),
-            searchIds = ids
-        )
-      case ExportEntity.BySearchQuery(_, fields, query) ⇒
-        EntityExporter.export(
-            searchIndex = index,
-            searchFields = fields.map(_.name),
-            searchQuery = query
-        )
+        EntityExporter.export(index, fields.map(_.name), ids)
+      case ExportEntity.BySearchQuery(_, fields, query, sort) ⇒
+        EntityExporter.export(index, fields.map(_.name), query, sort)
     }
     val csvSource = jsonSource.collect {
       case obj: JObject ⇒
@@ -109,14 +101,22 @@ object EntityExporter {
       .flatMapConcat(identity)
   }
 
-  private def export(searchIndex: IndexAndTypes, searchFields: List[String], searchQuery: Json)(
+  private def export(searchIndex: IndexAndTypes,
+                     searchFields: List[String],
+                     searchQuery: JObject,
+                     searchSort: Option[List[RawSortDefinition]])(
       implicit apis: Apis,
       au: AU,
-      system: ActorSystem): Source[Json, NotUsed] =
+      system: ActorSystem): Source[Json, NotUsed] = {
+    val rawQuery = search in searchIndex rawQuery compact(render(searchQuery))
+    val query = searchSort match {
+      case Some(sorts @ (_ :: _)) ⇒ rawQuery sort (sorts: _*)
+      case _                      ⇒ rawQuery
+    }
     Source
       .fromPublisher(
-          apis.elasticSearch.client.publisher(search in searchIndex rawQuery compactJson(
-                  searchQuery) sourceInclude (searchFields: _*) scroll "1m"))
+          apis.elasticSearch.client.publisher(query sourceInclude (searchFields: _*) scroll "1m"))
       .map(_.getSourceAsString)
       .map(parseJson(_))
+  }
 }
