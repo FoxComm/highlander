@@ -1,5 +1,3 @@
-import 'babel-polyfill';
-
 import get from 'lodash/get';
 import React from 'react';
 import { render } from 'react-dom';
@@ -17,6 +15,9 @@ import { setHistory } from 'browserHistory';
 import { trackPageView, initTracker } from './lib/analytics';
 import { getJWT } from 'lib/claims';
 import { isPathRequiredAuth } from './route-rules';
+
+// global styles
+import './less/base.less';
 
 const createBrowserHistory = useNamedRoutes(useRouterHistory(createHistory));
 
@@ -64,3 +65,5 @@ export function start() {
     document.getElementById('foxcom')
   );
 }
+
+start();

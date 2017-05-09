@@ -21,7 +21,7 @@ for (let task of fs.readdirSync(opts.taskDir)) {
 gulp.task('clean', () => del(['build/**/*', 'lib/**/*']));
 
 gulp.task('build', function(cb) {
-  let tasks = ['imagemin', 'less', 'sprites', 'precompile', 'browserify', 'css'];
+  let tasks = ['images', 'less', 'sprites', 'precompile', 'browserify', 'css'];
 
   if (process.env.NODE_ENV === 'production') {
     tasks = ['clean', ...tasks];
@@ -33,10 +33,10 @@ gulp.task('dev', function(cb) {
   opts.devMode = true;
 
   let tasks = _.compact([
-    'build',
-    process.env.ASHES_NO_TEST_FOR_DEV ? null : 'test',
+    // 'build',
+    // process.env.ASHES_NO_TEST_FOR_DEV ? null : 'test',
     'server',
-    'watch',
+    // 'watch',
     process.env.ASHES_NOTIFY_ABOUT_TASKS ? 'notifier' : null
   ]);
 

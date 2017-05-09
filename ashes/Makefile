@@ -85,4 +85,7 @@ docker-push:
 	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
-.PHONY: hooks rev dev d prod p build test test-cov tag docker docker-push
+webpack:
+	./node_modules/.bin/webpack --progress --colors --watch
+
+.PHONY: hooks rev dev d prod p build test test-cov tag docker docker-push webpack

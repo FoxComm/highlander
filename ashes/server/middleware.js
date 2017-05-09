@@ -97,7 +97,7 @@ module.exports = function(app) {
 
     let layoutData = _.defaults({
       stylesheet: `/admin/admin.css`,
-      javascript: `/admin/admin.js`,
+      javascript: `/admin/main.js`,
       fcsprite: sprite,
       rootHTML: this.state.html,
       appStart: `App.start(${htmlescape(bootstrap)});`,

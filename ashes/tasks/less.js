@@ -11,11 +11,7 @@ const autoPrefix = new PluginAutoPrefix({browsers: ["last 2 versions"]});
 
 module.exports = function(gulp, opts, $) {
   gulp.task('less', function() {
-    let src = [
-      path.join(opts.srcDir, 'less/[^_]*.less'),
-      path.join(opts.srcDir, 'components/**/*.less')
-    ];
-    return gulp.src(src)
+    return gulp.src(path.join(opts.srcDir, 'less/base.less'))
       .pipe($.if(opts.devMode, $.plumber(function (err) {
         console.error(err);
         this.emit('end');
