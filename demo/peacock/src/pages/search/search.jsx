@@ -3,6 +3,8 @@
 // libs
 import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
+import { addAsyncReducer } from '@foxcomm/wings';
+import makeLocalStore from 'lib/local-store';
 import _ from 'lodash';
 import localized from 'lib/i18n';
 // components
@@ -17,7 +19,7 @@ import type { Product } from 'modules/products';
 import type { Localized } from 'lib/i18n';
 
 // actions
-import { searchProducts } from 'modules/search';
+import reducer, { searchProducts } from 'modules/search';
 
 type SearchParams = {
   term: string,
@@ -41,7 +43,7 @@ type Props = Localized & {
 
 function mapStateToProps(state): Object {
   return {
-    ...state.search,
+    ...state,
     searchState: _.get(state.asyncActions, 'search', {}),
   };
 }
@@ -89,6 +91,7 @@ class Search extends Component {
 }
 
 export default _.flowRight(
+  makeLocalStore(addAsyncReducer(reducer)),
   connect(mapStateToProps, {searchProducts}),
   localized
 )(Search);

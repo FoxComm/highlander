@@ -1,3 +1,5 @@
+@import "common.css";
+
 /*
  * General Button Styles
  */
@@ -5,18 +7,42 @@
   display: inline-flex; /* not just `flex` because of legacy */
   align-items: center;
   justify-content: center;
-  height: 40px;
-  padding: 0 20px;
+  padding: 10px 20px;
   color: #484848;
   background-color: #ced2d5;
   font-size: 14px;
   font-weight: 600;
-  line-height: 40px;
+  line-height: 18px;
   border: none;
   vertical-align: top;
   user-select: none;
   cursor: pointer;
-  transition: all .2s;
+  transition: background .2s;
+
+  &:active {
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, .2) inset;
+  }
+
+  &:focus {
+    outline: 0;
+  }
+
+  &:hover {
+    color: #484848;
+    background-color: #bdc3c6;
+  }
+
+  &:disabled,
+  &:disabled:hover {
+    cursor: default;
+    color: #959698;
+    background-color: #ced2d5;
+  }
+
+  &.stretch {
+    display: block;
+    width: 100%;
+  }
 }
 
 .button[class*="icon-"] {
@@ -38,28 +64,11 @@ span + i[class*="icon-"] {
 }
 
 .text {
-  display: block;
-  line-height: 1.2;
+
 }
 
 .loading {
-  composes: loading from '../../../css/animations.css';
-}
-
-.button:focus {
-  outline: 0;
-}
-
-.button:hover {
-  color: #484848;
-  background-color: #bdc3c6;
-}
-
-.button:disabled,
-.button:disabled:hover {
-  cursor: default;
-  color: #959698;
-  background-color: #ced2d5;
+  @apply --loading-caramel;
 }
 
 /*

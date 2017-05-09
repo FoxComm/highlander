@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 
 import MultiSelectRow from '../../table/multi-select-row';
@@ -48,7 +49,6 @@ const setCellContents = (order, field) => {
 
 const OrderTransactionRow = (props) => {
   const { order, columns, params } = props;
-  const key = `order-${order.referenceNumber}`;
 
   return (
     <MultiSelectRow

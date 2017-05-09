@@ -29,6 +29,7 @@ import { Button } from 'components/core/button'
   <Button.Button>Push Me</Button.Button>
   <Button.Button isLoading>Push Me</Button.Button>
   <Button.Button disabled>Push Me</Button.Button>
+  <Button.Button stretch>Push Me</Button.Button>
 </div>
 ```
 
@@ -39,7 +40,10 @@ import { PrimaryButton } from 'components/core/button'
 ```
 
 ```
-<Button.PrimaryButton>Push Me</Button.PrimaryButton>
+<div className="demo">
+  <Button.PrimaryButton>Push Me</Button.PrimaryButton>
+  <Button.PrimaryButton stretch icon="google">Push Me</Button.PrimaryButton>
+</div>
 ```
 
 #### Left Button:

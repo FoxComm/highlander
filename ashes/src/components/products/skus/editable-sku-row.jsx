@@ -3,7 +3,8 @@
  */
 
 // libs
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
@@ -245,7 +246,7 @@ class EditableSkuRow extends Component {
 
   skuCell(sku: Sku): Element<*> {
     const { codeError } = this.state;
-    const error = codeError ? `SKU Code violates constraint: ${codeError.keyword}` : void 0;
+    const error = codeError ? `SKU code can't be empty` : void 0;
     return (
       <div styleName="sku-cell">
         <FormField error={error} scrollToErrors>

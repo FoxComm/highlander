@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 const TabListView = props => {
   const cls = classNames('fc-tab-list', { '_loading': props.isLoading });

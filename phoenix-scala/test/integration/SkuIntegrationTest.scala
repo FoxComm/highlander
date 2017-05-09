@@ -153,16 +153,6 @@ class SkuIntegrationTest
 
       skusApi(sku.code).archive().mustFailWith400(SkuIsPresentInCarts(sku.code))
     }
-
-    "Archives related products if they have no SKUs left" in new FixtureWithProduct {
-      val product1 = productsApi(product.formId).get.as[ProductResponse.Root]
-      product1.archivedAt mustBe 'empty
-
-      skusApi(sku.code).archive().mustBeOk()
-
-      val product2 = productsApi(product.formId).get.as[ProductResponse.Root]
-      product2.archivedAt mustBe 'defined
-    }
   }
 
   trait Fixture extends StoreAdmin_Seed {

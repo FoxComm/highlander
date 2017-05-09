@@ -56,6 +56,9 @@ object Dependencies {
     "com.zaxxer"          % "HikariCP"          % "2.4.7" % "provided",
     "org.postgresql"      % "postgresql"        % "9.4.1208",
     "org.flywaydb"        % "flyway-core"       % "4.0.3",
+    "com.wix"               %% "accord-core"            % "0.5", // Validation
+    "io.backchat.inflector" %% "scala-inflector"        % "1.3.5", // used only for singularizing table names in error messages…
+    ("org.joda"             % "joda-money"              % "0.11").exclude("org.joda", "joda-time"),
     "com.github.mauricio" %% "postgresql-async" % "0.2.20"
   )
 
@@ -93,19 +96,22 @@ object Dependencies {
   )
 
   val misc = Seq(
-    "com.wix"               %% "accord-core"            % "0.5", // Validation
     "com.networknt"         % "json-schema-validator"   % "0.1.1",
     "com.github.scopt"      %% "scopt"                  % "3.5.0", // CLI args
-    ("org.joda"             % "joda-money"              % "0.11").exclude("org.joda", "joda-time"),
-    "com.chuusai"           %% "shapeless"              % "2.3.1",
     "com.pellucid"          %% "sealerate"              % "0.0.3",
     "it.justwrote"          %% "scala-faker"            % "0.3",
     "org.conbere"           % "markov_2.10"             % "0.2.0",
-    "io.backchat.inflector" %% "scala-inflector"        % "1.3.5",
     "com.github.tototoshi"  %% "scala-csv"              % "1.3.3",
-    "org.typelevel"         %% "cats"                   % "0.9.0",
     "com.github.melrief"    %% "pureconfig"             % "0.5.1",
     "com.sksamuel.elastic4s"%% "elastic4s-streams"      % Versions.elastic4s
+  )
+
+  val cats = Seq(
+    "org.typelevel"         %% "cats"                   % "0.9.0"
+  )
+
+  val shapeless = Seq(
+    "com.chuusai"           %% "shapeless"              % "2.3.1"
   )
 
   val kafka = Seq(

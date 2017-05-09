@@ -11,6 +11,9 @@ import _ from 'lodash';
 import { api } from 'lib/api';
 import { browserHistory } from 'lib/history';
 
+// modules
+import { categories } from './categories';
+
 import type { Facet } from 'types/facets';
 
 export type Product = {
@@ -33,15 +36,23 @@ export const PAGE_SIZE = 20;
 const context = process.env.STOREFRONT_CONTEXT || 'default';
 export const GIFT_CARD_TAG = 'GIFT-CARD';
 
+const ignoreCategoryFilterNames = (function getIgnoreCategoryFilterNames(cats, acc = []) {
+  return _.reduce(cats, (memo, cat) => {
+    const found = cat.ignoreCategoryFilter ? [cat.name] : [];
+    if (!cat.children) return [...memo, ...found];
+    return getIgnoreCategoryFilterNames(cat.children, [...memo, ...found]);
+  }, acc);
+}(categories));
+
 function apiCall(
   categoryNames: ?Array<string>,
   sorting: ?{ direction: number, field: string },
   selectedFacets: Object,
   toLoad: number,
-  { ignoreGiftCards = true } = {}): Promise<*> {
+  { ignoreGiftCards = true, pushHistory = false } = {}): Promise<*> {
   let payload = defaultSearch(String(context));
 
-  _.forEach(_.compact(categoryNames), (cat) => {
+  _.forEach(_.compact(_.difference(categoryNames, ignoreCategoryFilterNames)), (cat) => {
     if (cat !== 'ALL' && cat !== GIFT_CARD_TAG) {
       payload = addCategoryFilter(payload, cat.toUpperCase());
     } else if (cat === GIFT_CARD_TAG) {
@@ -68,7 +79,7 @@ function apiCall(
     }
   });
 
-  if (browserHistory) {
+  if (browserHistory && pushHistory) {
     browserHistory.push({
       pathname: document.location.pathname,
       query: selectedFacets,
@@ -95,7 +106,10 @@ export function searchGiftCards() {
     selectedFacets,
     toLoad,
   });
-  return apiCall.call({ api }, [GIFT_CARD_TAG], sorting, selectedFacets, toLoad, { ignoreGiftCards: false });
+  return apiCall.call({ api }, [GIFT_CARD_TAG], sorting, selectedFacets, toLoad, {
+    ignoreGiftCards: false,
+    pushHistory: false,
+  });
 }
 
 const _fetchProducts = createAsyncActions('products', apiCall);

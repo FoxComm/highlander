@@ -481,7 +481,7 @@ class EditBilling extends Component {
         <PromoCode
           giftCards={this.props.giftCards}
           removeCode={this.props.removeGiftCard}
-          styleName="promo-codes"
+          className={styles['promo-codes']}
         />
         <ActionLink
           action={this.addGC}

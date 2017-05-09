@@ -2,7 +2,10 @@
 
 import React from 'react';
 
-import modal from 'components/modal/wrapper';
+import wrapModal from 'components/modal/wrapper';
+import type { Props } from './modal-base';
 import ModalBase from './modal-base';
 
-export default modal(ModalBase);
+const Wrapped: Class<React.Component<void, Props, any>> = wrapModal(ModalBase);
+
+export default Wrapped;

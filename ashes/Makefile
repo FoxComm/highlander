@@ -64,14 +64,20 @@ flow:
 	./node_modules/.bin/flow check
 
 build-styleguide:
-	yarn run styleguide:build
+	./node_modules/.bin/styleguidist build --config styleguide/config.styleguide.js
 
 build-dev: setup flow
 	test -f .env && export eval `cat .env` || true && BEHIND_NGINX=true ./node_modules/.bin/gulp build
 
-build: rev setup flow
+build:
 	$(call header, Building)
+	make rev
+	make setup
+	make flow
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production BEHIND_NGINX=true ./node_modules/.bin/gulp build
+ifeq ($(ASHES_BUILD_STYLEGUIDE), true)
+	make build-styleguide
+endif
 
 docker:
 	$(call header, Dockerizing)

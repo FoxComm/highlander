@@ -1,9 +1,11 @@
+@import "common.css";
+
 .stats {
   margin-bottom: 40px;
 }
 
 ._loading {
-  composes: loading from '../../../css/animations.css';
+  @apply --loading-caramel;
 
   & > * {
     opacity: .8;

@@ -1,22 +1,28 @@
 /* @flow */
 
+// libs
 import React, { Element } from 'react';
-import styles from './counter.css';
+import classNames from 'classnames';
 
+// styles
+import s from '../attrs-edit.css';
+
+// components
 import Counter from '../../forms/counter';
 
+// types
 import type { Context, ItemDesc } from '../types';
 
 type Props = ItemDesc & {
   context: Context;
-}
+};
 
 function toNumber(value, def = 1) {
   const asNumber = Number(value);
   return isNaN(asNumber) ? def : asNumber;
 }
 
-const CounterWidget = (props: Props) => {
+const CounterWidget = (props: Props): Element<*> => {
   const value = toNumber(props.value);
   const setValue = value => {
     props.onChange(value);
@@ -33,7 +39,7 @@ const CounterWidget = (props: Props) => {
 
   return (
     <Counter
-      styleName="counter-input"
+      className={classNames(s['inline-edit-input'], s.counterInput)}
       value={value}
       onChange={event => setValue(event.target.value)}
       {...actions}

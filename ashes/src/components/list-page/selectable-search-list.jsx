@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 import LiveSearchAdapter from '../live-search/live-search-adapter';
 import MultiSelectTable from '../table/multi-select-table';

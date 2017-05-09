@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import classNames from 'classnames';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 const ContextBox = props => {
   let body = props.children;

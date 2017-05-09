@@ -3,8 +3,10 @@ package testutils.fixtures.api
 import cats.data.NonEmptyList
 import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
+
 import faker.Lorem
 import models.promotion.Promotion
+import org.json4s.JsonAST.JNull
 import org.json4s.JsonDSL._
 import org.scalatest.SuiteMixin
 import payloads.CouponPayloads.CreateCoupon
@@ -19,6 +21,7 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
 import utils.aliases.Json
+
 import scala.util.Random
 
 trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with JwtTestAuth {
@@ -54,12 +57,14 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
                          "salePrice"   → tv(("currency" → "USD") ~ ("value" → skuPrice), "price"),
                          "retailPrice" → tv(("currency" → "USD") ~ ("value" → skuPrice), "price")))
 
-    val productPayload =
-      CreateProductPayload(
-          attributes =
-            Map("name" → tv(productCode.capitalize), "title" → tv(productCode.capitalize)),
-          skus = Seq(skuPayload),
-          variants = None)
+    val productPayload = CreateProductPayload(
+        attributes =
+          Map("name"       → tv(productCode.capitalize),
+              "title"      → tv(productCode.capitalize),
+              "activeFrom" → (("t" → "datetime") ~ ("v" → Instant.ofEpochMilli(1).toString)),
+              "activeTo"   → (("t" → "datetime") ~ ("v" → JNull))),
+        skus = Seq(skuPayload),
+        variants = None)
 
     val product: ProductRoot =
       productsApi.create(productPayload)(implicitly, defaultAdminAuth).as[ProductRoot]

@@ -195,7 +195,6 @@ export default class GenericDropdown extends Component {
     return (
       <Button
         icon={icon}
-        docked={this.props.inputFirst ? 'right' : 'left'}
         className="_dropdown-size"
         disabled={this.props.disabled}
         onClick={this.handleToggleClick}

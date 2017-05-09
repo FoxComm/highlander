@@ -2,6 +2,8 @@
 
 import _ from 'lodash';
 
+import { assoc, dissoc } from 'sprout-data';
+
 export type AttrSchema = {
   type: string,
   title?: string,
@@ -21,6 +23,14 @@ export function guessType(value: any): string {
     default:
       return 'string';
   }
+}
+
+export function setObjectAttr(obj: Object, key: string, attr: Attribute): Object {
+  return assoc(obj, ['attributes', key], attr);
+}
+
+export function omitObjectAttr(obj: Object, key: string): Object {
+  return dissoc(obj, ['attributes', key]);
 }
 
 function supressor(object: Object): Object {

@@ -1,6 +1,6 @@
 /* @flow */
 
-import { isDirectField, getNestedPath } from '../helpers';
+import { getNestedPath } from '../helpers';
 
 
 export function wrapInheritedDirectLeave(aggregation: Object): Object {

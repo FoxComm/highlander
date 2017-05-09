@@ -3,7 +3,7 @@
 // libs
 import _ from 'lodash';
 import classNames from 'classnames';
-import React, { Element } from 'react';
+import React, { Element, Component } from 'react';
 
 // components
 import ContentBox from 'components/content-box/content-box';
@@ -16,10 +16,10 @@ type Props = {
   header: string|Element<*>,
   cancel: string,
   confirm: string,
-  icon?: string,
   onCancel: Function,
   confirmAction: Function,
-  asyncState: AsyncState,
+  icon?: string,
+  asyncState?: AsyncState,
   className?: string,
 };
 
@@ -75,4 +75,6 @@ const ConfirmationDialog = (props: Props) => {
   );
 };
 
-export default wrapModal(ConfirmationDialog);
+const Wrapped: Class<Component<void, Props, any>> = wrapModal(ConfirmationDialog);
+
+export default Wrapped;

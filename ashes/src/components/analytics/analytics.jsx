@@ -2,7 +2,7 @@
 /*eslint max-len: ["error", 1000]*/
 
 // libs
-import React, { PropTypes } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import moment from 'moment';

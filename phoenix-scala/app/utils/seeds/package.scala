@@ -98,7 +98,6 @@ package object seeds {
       "activeTo" : null,
       "tags" : [],
       "usageRules": {
-        "isExclusive": false,
         "isUnlimitedPerCode": true,
         "isUnlimitedPerCustomer": true
       }

@@ -1,6 +1,7 @@
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -194,7 +195,7 @@ export default class NewStoreCredit extends React.Component {
       '_hidden': _.isEmpty(this.scSubtypes)
     });
 
-    const { form, createStoreCredit, changeScFormData } = this.props;
+    const { form, changeScFormData } = this.props;
 
     return (
       <Form className="fc-store-credit-form fc-form-vertical"
