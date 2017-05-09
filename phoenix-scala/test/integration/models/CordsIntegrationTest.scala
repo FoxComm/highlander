@@ -2,7 +2,7 @@ package models
 
 import models.account.Scope
 import models.cord._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.fixtures.BakedFixtures
 import utils.aliases._

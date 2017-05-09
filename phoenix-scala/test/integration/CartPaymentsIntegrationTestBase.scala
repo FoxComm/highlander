@@ -1,7 +1,7 @@
 import models.cord.OrderPayments.scope._
 import models.cord._
 import models.payment.PaymentMethod
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

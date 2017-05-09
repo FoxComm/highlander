@@ -6,7 +6,7 @@ import failures.Failures
 import org.scalatest.AppendedClues
 import org.scalatest.concurrent.ScalaFutures
 import scala.reflect.runtime.universe.TypeTag
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import slick.lifted.Query
 import utils.aliases._
 import utils.db._

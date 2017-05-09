@@ -28,7 +28,7 @@ import payloads.UpdateShippingMethod
 import payloads.UserPayloads.ToggleUserBlacklisted
 import responses.{AddressResponse, GiftCardResponse}
 import responses.cord._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis._
 import testutils.fixtures.BakedFixtures
