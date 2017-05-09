@@ -1,5 +1,5 @@
 // libs
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 
@@ -26,7 +26,7 @@ function getLine(position, items) {
   );
 }
 
-const TableView = props => {
+const TableView = (props) => {
   let setState = null;
   if (props.setState) {
     setState = params => {

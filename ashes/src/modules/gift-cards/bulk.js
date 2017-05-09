@@ -2,16 +2,14 @@
 
 // libs
 import _ from 'lodash';
-import { createAction, createReducer } from 'redux-act';
 import { flow, filter, getOr, invoke, reduce, set } from 'lodash/fp';
 
 // helpers
 import Api from '../../lib/api';
-import { singularize } from 'fleck';
 import createStore from '../../lib/store-creator';
 
 // data
-import { initialState, reducers, createExportByIds } from '../bulk';
+import { reducers, createExportByIds } from '../bulk';
 
 const getCodes = (getState: Function, ids: Array<number>): Object => {
   return flow(
