@@ -2,6 +2,7 @@
 
 // libs
 import _ from 'lodash';
+import { flow, map, filter, reduce } from 'lodash/fp';
 
 // helpers
 import Api from '../../lib/api';
@@ -14,13 +15,20 @@ const getCodes = (getState: Function, ids: Array<number>): Object => getPropsByI
 
 // TODO remove when https://github.com/FoxComm/phoenix-scala/issues/763 closed
 const preprocessResponse = (results: Object): Object => {
-  const successes = results
-    .filter(({success}) => success)
-    .map(({code}) => code);
+  const successes = flow(
+    filter(result => result.success),
+    map(result => result.code)
+  )(results);
 
-  const errors = results
-    .filter(({success}) => !success)
-    .reduce((result, {code, errors}) => ({...result, [code]: errors[0]}), {});
+  const errors = flow(
+    filter(result => !result.success),
+    reduce((obj, result) => {
+      return {
+        ...result,
+        [result.code]: result.errors[0],
+      };
+    }, {})
+  )(results);
 
   return {
     batch: {
