@@ -132,10 +132,6 @@ export function connectPage(namespace, actions, options = {}) {
   };
 }
 
-function getObjectId(object) {
-  return _.get(object, 'form.id', object.id);
-}
-
 export class ObjectPage extends Component {
   state = {
     object: this.props.originalObject,
@@ -260,8 +256,12 @@ export class ObjectPage extends Component {
     }
   }
 
+  getObjectId(object) {
+    return _.get(object, 'form.id', object.id);
+  }
+
   receiveNewObject(nextObject) {
-    const nextObjectId = getObjectId(nextObject);
+    const nextObjectId = this.getObjectId(nextObject);
     const wasNew = this.isNew;
     this.setState({
       object: nextObject
@@ -445,23 +445,23 @@ export class ObjectPage extends Component {
   }
 
   @autobind
-  alterSave(){
+  alterSave() {
     return null;
   }
 
   @autobind
   titleBar() {
     return (<PageTitle title={this.pageTitle}>
-        {this.renderHead()}
-        <ButtonWithMenu
-          title="Save"
-          menuPosition="right"
-          onPrimaryClick={this.handleSubmit}
-          onSelect={this.handleSelectSaving}
-          isLoading={this.props.isSaving}
-          items={SAVE_COMBO_ITEMS}
-        />
-      </PageTitle>);
+      {this.renderHead()}
+      <ButtonWithMenu
+        title="Save"
+        menuPosition="right"
+        onPrimaryClick={this.handleSubmit}
+        onSelect={this.handleSelectSaving}
+        isLoading={this.props.isSaving}
+        items={SAVE_COMBO_ITEMS}
+      />
+    </PageTitle>);
   }
 
   childrenProps() {
