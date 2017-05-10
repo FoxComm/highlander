@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 
 import classNames from 'classnames';
@@ -58,8 +59,10 @@ class TableHead extends React.Component {
   }
 
   render() {
+    const { getRef } = this.props;
+
     return (
-      <thead className="fc-table-head">
+      <thead className="fc-table-head" ref={getRef}>
         <TableRow>
           {this.props.columns.map(this.renderColumn)}
         </TableRow>

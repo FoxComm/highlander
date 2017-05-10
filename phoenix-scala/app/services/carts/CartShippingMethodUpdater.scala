@@ -8,7 +8,7 @@ import models.shipping.{Shipments, ShippingMethods}
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.{CartValidator, LogActivity, ShippingManager}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.apis.Apis
 import utils.db._

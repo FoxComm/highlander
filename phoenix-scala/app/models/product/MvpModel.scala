@@ -20,7 +20,7 @@ import payloads.ImagePayloads._
 import services.image.ImageManager
 import services.inventory.SkuManager
 import com.github.tminglei.slickpg.LTree
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.Money.Currency
 import utils.aliases._
 import utils.db._

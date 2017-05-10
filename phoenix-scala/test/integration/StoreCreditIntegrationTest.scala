@@ -11,7 +11,7 @@ import payloads.PaymentPayloads.CreateManualStoreCredit
 import payloads.StoreCreditPayloads._
 import responses.StoreCreditResponse.Root
 import responses.{GiftCardResponse, StoreCreditResponse}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

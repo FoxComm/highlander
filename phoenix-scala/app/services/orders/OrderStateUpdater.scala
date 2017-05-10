@@ -13,7 +13,7 @@ import models.payment.storecredit.StoreCreditAdjustments.scope._
 import responses.cord.{AllOrders, OrderResponse}
 import responses.{BatchMetadata, BatchMetadataSource, BatchResponse}
 import services.LogActivity
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

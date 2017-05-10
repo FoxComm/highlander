@@ -14,7 +14,7 @@ import payloads.AddressPayloads.CreateAddressPayload
 import payloads.PaymentPayloads._
 import responses.CreditCardsResponse
 import scala.concurrent.Future
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.aliases.stripe._
 import utils.apis.Apis

@@ -2,7 +2,7 @@
 /* @flow weak */
 
 import _ from 'lodash';
-import React, { Component, Element } from 'react';
+import React, { Element } from 'react';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
 
@@ -17,6 +17,8 @@ import offers from './offers';
 import qualifiers from './qualifiers';
 
 import { setDiscountAttr } from 'paragons/promotion';
+import { setObjectAttr, omitObjectAttr } from 'paragons/object';
+import { customerGroups } from 'paragons/object-types';
 const layout = require('./layout.json');
 
 export default class PromotionForm extends ObjectDetails {
@@ -48,8 +50,13 @@ export default class PromotionForm extends ObjectDetails {
     );
   }
 
+
+  get usageRules() {
+    return _.get(this.props, 'object.attributes.usageRules.v', {});
+  }
+
   renderUsageRules() {
-    const promotion = this.props.object;
+    const isExclusive = _.get(this.usageRules, 'isExclusive');
     return (
       <FormField
         className="fc-object-form__field"
@@ -58,13 +65,13 @@ export default class PromotionForm extends ObjectDetails {
           <RadioButton id="isExlusiveRadio"
             onChange={this.handleUsageRulesChange}
             name="true"
-            checked={promotion.isExclusive === true}>
+            checked={isExclusive === true}>
             <label htmlFor="isExlusiveRadio">Promotion is exclusive</label>
           </RadioButton>
           <RadioButton id="notExclusiveRadio"
             onChange={this.handleUsageRulesChange}
             name="false"
-            checked={promotion.isExclusive === false}>
+            checked={isExclusive === false}>
             <label htmlFor="notExclusiveRadio">Promotion can be used with other promotions</label>
           </RadioButton>
         </div>
@@ -101,7 +108,12 @@ export default class PromotionForm extends ObjectDetails {
   @autobind
   handleUsageRulesChange({target}: Object) {
     const value = (target.getAttribute('name') === 'true');
-    const newPromotion = assoc(this.props.object, 'isExclusive', value);
+    const newPromotion = setObjectAttr(this.props.object, 'usageRules', {
+      t: 'PromoUsageRules',
+      v: {
+        'isExclusive': value
+      }
+    });
 
     this.props.onUpdateObject(newPromotion);
   }
@@ -143,15 +155,19 @@ export default class PromotionForm extends ObjectDetails {
   @autobind
   handleQualifyAllChange(isAllQualify) {
     const promotion = this.props.object;
-    const arr = isAllQualify ? null : [];
-    const newPromotion = _.set(promotion, 'attributes.customerGroupIds.v', arr);
+    let newPromotion;
+    if (isAllQualify) {
+      newPromotion = omitObjectAttr(promotion, 'customerGroupIds');
+    } else {
+      newPromotion = setObjectAttr(promotion, 'customerGroupIds', customerGroups([]));
+    }
     this.props.onUpdateObject(newPromotion);
   }
 
   @autobind
-  handleQulifierGroupChange(ids){
+  handleQualifierGroupChange(ids){
     const promotion = this.props.object;
-    const newPromotion = _.set(promotion, 'attributes.customerGroupIds.v', ids);
+    const newPromotion = setObjectAttr(promotion, 'customerGroupIds', customerGroups(ids));
     this.props.onUpdateObject(newPromotion);
   }
 
@@ -165,7 +181,7 @@ export default class PromotionForm extends ObjectDetails {
           selectedGroupIds={_.get(promotion, 'attributes.customerGroupIds.v', null)}
           qualifyAll={_.get(promotion, 'attributes.customerGroupIds.v', null) == null}
           qualifyAllChange={this.handleQualifyAllChange}
-          updateSelectedIds={this.handleQulifierGroupChange}
+          updateSelectedIds={this.handleQualifierGroupChange}
         />
       </div>
     );

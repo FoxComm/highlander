@@ -19,8 +19,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import services.Authenticator.AuthData
 import services.account.AccountManager
-import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.DatabaseDef
+import slick.jdbc.PostgresProfile.api._
+import slick.jdbc.PostgresProfile.backend.DatabaseDef
 import utils.aliases._
 import utils.db._
 import utils.db.flyway.newFlyway

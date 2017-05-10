@@ -6,7 +6,7 @@ import failures.ScopeFailures._
 import failures.UserFailures.OrganizationNotFoundByName
 import failures._
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

@@ -7,7 +7,7 @@ import org.scalatest.Matchers._
 import payloads.GenericTreePayloads._
 import responses.GenericTreeResponses.FullTreeResponse.Root
 import responses.GenericTreeResponses.TreeResponse
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import utils.MockedApis

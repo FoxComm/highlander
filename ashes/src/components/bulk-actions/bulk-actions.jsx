@@ -1,6 +1,7 @@
 // libs
 import _ from 'lodash';
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -30,8 +31,7 @@ export default class BulkActions extends Component {
     children: PropTypes.element.isRequired,
     watchActions: PropTypes.bool,
 
-    //computed
-    selectedWatchers: PropTypes.array.isRequired,
+    // computed
     bulkActions: PropTypes.objectOf(PropTypes.func).isRequired,
   };
 

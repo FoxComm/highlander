@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Link, IndexLink } from '../link';
 import LocalNav from '../local-nav/local-nav';
 

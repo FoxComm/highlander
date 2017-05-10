@@ -5,10 +5,10 @@ import failures.Failure
 import scala.util.matching.Regex
 import slick.ast.{CompiledStatement, ResultSetMapping}
 import slick.dbio.Effect
-import slick.driver.PostgresDriver._
+import slick.jdbc.PostgresProfile._
 import slick.jdbc.{GetResult, JdbcResultConverterDomain, SQLActionBuilder, SetParameter}
 import slick.lifted.Query
-import slick.profile.SqlStreamingAction
+import slick.sql.SqlStreamingAction
 import slick.relational.{CompiledMapping, ResultConverter}
 import slick.util.SQLBuilder
 

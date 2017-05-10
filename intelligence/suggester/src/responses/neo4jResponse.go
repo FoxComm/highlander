@@ -28,7 +28,8 @@ type Neo4jResultsDataMeta struct {
 }
 
 type Neo4jResultsDataRow struct {
-	PhoenixID int `json:"phoenix_id"`
+	PhoenixID int    `json:"phoenix_id"`
+	SKU       string `json:"sku"`
 }
 
 type Neo4jResultsData struct {

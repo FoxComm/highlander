@@ -6,7 +6,7 @@ import models.cord.OrderPayment
 import models.payment.InStorePaymentStates._
 import models.payment._
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.FSM
 import utils.db._
 

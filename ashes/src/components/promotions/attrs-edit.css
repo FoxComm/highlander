@@ -11,6 +11,10 @@
   line-height: 40px;
 }
 
+.counterInput {
+  width: 80px;
+}
+
 .attr-row {
   display: block;
 }

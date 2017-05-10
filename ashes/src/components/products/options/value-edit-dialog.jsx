@@ -10,7 +10,7 @@ import { assoc } from 'sprout-data';
 // components
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import { FormField, Form } from 'components/forms';
-import SwatchInput from 'components/forms/swatch-input';
+import SwatchInput from 'components/core/swatch-input';
 
 // styles
 import styles from './option-list.css';

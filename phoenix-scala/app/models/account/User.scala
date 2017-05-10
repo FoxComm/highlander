@@ -7,7 +7,7 @@ import failures._
 import java.time.Instant
 import models.customer.CustomersData
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.Validation
 import utils.aliases._
 import utils.db._

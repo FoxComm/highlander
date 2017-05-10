@@ -3,7 +3,7 @@ package utils.db
 import cats.implicits._
 import failures.{Failure, Failures}
 import slick.dbio.DBIO
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import slick.lifted.{TableQuery, Tag}
 import utils.db.UpdateReturning._
 

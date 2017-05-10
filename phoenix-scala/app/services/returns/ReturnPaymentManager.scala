@@ -16,7 +16,7 @@ import responses.ReturnResponse
 import scala.annotation.tailrec
 import services.LogActivity
 import services.carts.CartTotaler
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.apis.{Apis, RefundReason}
 import utils.db._

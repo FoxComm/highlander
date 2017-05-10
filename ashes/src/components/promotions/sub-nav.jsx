@@ -3,7 +3,7 @@
  */
 
 // libs
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
 
 // components
 import { Link, IndexLink } from '../link';

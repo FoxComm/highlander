@@ -17,7 +17,7 @@ import models.payment.creditcard.{CreditCard, CreditCards}
 import models.product.SimpleContext
 import models.promotion._
 import org.json4s.JObject
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 import utils.seeds.Factories

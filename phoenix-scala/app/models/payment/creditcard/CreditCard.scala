@@ -11,7 +11,7 @@ import models.payment.PaymentMethod
 import models.traits.Addressable
 import payloads.PaymentPayloads.{CreateCreditCardFromSourcePayload, CreateCreditCardFromTokenPayload}
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils._
 import utils.aliases._
 import utils.aliases.stripe._

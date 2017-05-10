@@ -9,7 +9,7 @@ import models.admin.AdminsData
 import models.payment.giftcard._
 import models.payment.storecredit._
 import responses.{GiftCardResponse, StoreCreditResponse, UserResponse}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

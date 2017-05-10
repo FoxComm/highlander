@@ -4,7 +4,7 @@ import models.cord.lineitems._
 import models.product.Mvp
 import responses.ResponseItem
 import services.LineItemManager
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

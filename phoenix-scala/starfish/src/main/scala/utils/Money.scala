@@ -5,7 +5,7 @@ import org.joda.money.CurrencyUnit
 import org.json4s.CustomSerializer
 import org.json4s.JsonAST.JString
 import slick.ast.BaseTypedType
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.JdbcType
 
 // ALWAYS use BigMoney

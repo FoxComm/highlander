@@ -27,12 +27,25 @@ def match_all_query():
         }
     })
 
+def cleanup_search_result(json):
+    """cleanup_search_results
+    es response cleaning that usually happens in nginx
+    """
+    output = {
+        "result": [hit['_source'] for hit in json['hits']['hits']],
+        "pagination": {
+            "total": json['hits']['total']
+        }
+    }
+    return output
+
 class ES_Client(object):
     """ES_Client
     provides an interface to query elasticsearch
     """
-    def __init__(self, host):
+    def __init__(self, host, port):
         self.host = host
+        self.port = port
         self.header = {'Content-Type': 'application/json'}
         self.url = '/api/search/public/products_catalog_view/_search'
 
@@ -58,4 +71,5 @@ class ES_Client(object):
             headers=self.header)
         resp = conn.getresponse().read().decode('utf-8')
         conn.close()
-        return json.loads(resp)
+        output = json.loads(resp)
+        return output

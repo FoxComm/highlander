@@ -1,27 +1,19 @@
 package util
 
 import (
+	"fmt"
 	"log"
 
-	"fmt"
-
+	"github.com/FoxComm/highlander/intelligence/suggester/src/payloads"
 	"github.com/FoxComm/highlander/intelligence/suggester/src/suggester_phoenix"
+
 	"github.com/FoxComm/highlander/middlewarehouse/lib/gohttp"
 	"github.com/FoxComm/highlander/middlewarehouse/shared"
 )
 
-type OneClickProducts struct {
-	Items []OneClickProduct `json:"items"`
-}
-
-type OneClickProduct struct {
-	SKU      string `json:"sku"`
-	Quantity int    `json:"quantity"`
-}
-
-func makePostRequestPayload(productSKU string) OneClickProducts {
-	oneClickProduct := OneClickProduct{SKU: productSKU, Quantity: 1}
-	oneClickProducts := OneClickProducts{Items: []OneClickProduct{oneClickProduct}}
+func makePostRequestPayload(productSKU string) payloads.OneClickProducts {
+	oneClickProduct := payloads.OneClickProduct{SKU: productSKU, Quantity: 1}
+	oneClickProducts := payloads.OneClickProducts{Items: []payloads.OneClickProduct{oneClickProduct}}
 	return oneClickProducts
 }
 

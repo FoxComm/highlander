@@ -2,7 +2,7 @@ package utils
 
 import failures.GeneralFailure
 import models.location._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import testutils._
 import utils.db._
 import utils.seeds.Factories

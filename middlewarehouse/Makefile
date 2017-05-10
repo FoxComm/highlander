@@ -17,7 +17,7 @@ DOCKER_IMAGE ?= middlewarehouse
 DOCKER_TAG ?= master
 
 prepare:
-	rm $(BUILD_ROOT_PATH) || true
+	rm -rf $(BUILD_ROOT_PATH) || true
 	mkdir -p $(GOPATH)/src/github.com/FoxComm
 	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH) || true
 	cd $(BUILD_PATH) && glide install

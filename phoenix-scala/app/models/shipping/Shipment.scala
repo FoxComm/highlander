@@ -6,7 +6,7 @@ import com.pellucid.sealerate
 import models.shipping.Shipment._
 import shapeless._
 import slick.ast.BaseTypedType
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.JdbcType
 import utils.ADT
 import utils.db._

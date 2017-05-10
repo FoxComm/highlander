@@ -1,5 +1,8 @@
 package testutils
 
+import java.time.Instant
+
+import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import models.account.{Scope, User}
 import models.objects.{ObjectForm, ObjectShadow, ObjectUtils}
@@ -95,15 +98,35 @@ trait TaxonomySeeds extends TestFixtureBase {
     val taxonAttributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
 
     val taxonsNames = (1 to 7).map(i ⇒ s"taxon$i")
-    val taxons: Seq[Taxon] = createTaxons(
-        taxonsNames.map(name ⇒ Map("name" → (("t" → "string") ~ ("v" → name)))))
+    val taxons: Seq[Taxon] = {
+      val attributes      = taxonsNames.map(name ⇒ Map("name" → (("t" → "string") ~ ("v" → name))))
+      val taxonsToArchive = createTaxons(attributes)
+      DbResultT
+        .seqCollectFailures(
+            taxonsToArchive
+              .map(taxon ⇒ Taxons.update(taxon, taxon.copy(archivedAt = Some(Instant.now))))
+              .toList)
+        .gimme
+      createTaxons(attributes)
+    }
 
     val links: Seq[TaxonomyTaxonLink] = {
       require(taxonomy.hierarchical)
-      Seq(createLink(taxonomy, taxons.head, "", 1, 0), createLink(taxonomy, taxons(1), "", 2, 1)) ++
-      Seq(createLink(taxonomy, taxons(2), "1", 3, 0), createLink(taxonomy, taxons(3), "1", 4, 1)) ++
-      Seq(createLink(taxonomy, taxons(4), "2", 5, 0), createLink(taxonomy, taxons(5), "2", 6, 1)) ++
-      Seq(createLink(taxonomy, taxons(6), "1.3", 7, 1))
+      def createLinks: Seq[TaxonomyTaxonLink] = {
+        Seq(createLink(taxonomy, taxons.head, "", 1, 0), createLink(taxonomy, taxons(1), "", 2, 1)) ++
+        Seq(createLink(taxonomy, taxons(2), "1", 3, 0), createLink(taxonomy, taxons(3), "1", 4, 1)) ++
+        Seq(createLink(taxonomy, taxons(4), "2", 5, 0), createLink(taxonomy, taxons(5), "2", 6, 1)) ++
+        Seq(createLink(taxonomy, taxons(6), "1.3", 7, 1))
+      }
+      val linksToArchive = createLinks
+
+      DbResultT
+        .seqCollectFailures(
+            linksToArchive
+              .map(l ⇒ TaxonomyTaxonLinks.update(l, l.copy(archivedAt = Some(Instant.now()))))
+              .toList)
+        .gimme
+      createLinks
     }
 
     def createTaxons(attributes: Seq[Map[String, Json]]): Seq[Taxon] =

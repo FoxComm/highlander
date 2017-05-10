@@ -1,4 +1,5 @@
-import React, { PropTypes, Element } from 'react';
+import React, { Element } from 'react';
+import PropTypes from 'prop-types';
 import { get } from 'sprout-data';
 
 import { stateTitles as orderStateTitles } from '../../paragons/order';

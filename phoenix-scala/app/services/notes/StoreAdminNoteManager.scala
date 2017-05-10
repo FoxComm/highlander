@@ -5,7 +5,7 @@ import models.Note
 import models.account._
 import utils.aliases._
 import utils.db._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 
 object StoreAdminNoteManager extends NoteManager[Int, User] {
 

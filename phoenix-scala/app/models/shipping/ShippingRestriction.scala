@@ -2,7 +2,7 @@ package models.shipping
 
 import shapeless._
 import slick.ast.BaseTypedType
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.JdbcType
 import utils.db._
 

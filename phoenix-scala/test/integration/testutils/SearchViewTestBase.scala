@@ -31,29 +31,24 @@ trait SearchViewTestBase
    * If you think something should be tested against all search view results, reach out to Anna before implementing.
    */
   // queryParam is value of id/code/reference_number etc
+  def findOne(queryParam: AnyVal)(implicit sl: SL,
+                                  sf: SF,
+                                  mf: Manifest[SearchViewResult]): Option[SearchViewResult] = {
+    val results = queryView(queryParam).toSeq.flatten
+    (results.size must be <= 1) withClue s"Too many search view results for $searchKeyName=$queryParam!\n"
+    results.headOption
+  } withClue originalSourceClue
+
   def viewOne(queryParam: AnyVal)(implicit sl: SL,
                                   sf: SF,
-                                  mf: Manifest[SearchViewResult]): SearchViewResult = {
-    val parsedSequence = withClue(noResultsClue(queryParam)) {
-      queryView(queryParam).value
-    }
-    parsedSequence.onlyElement
-  } withClue originalSourceClue
+                                  mf: Manifest[SearchViewResult]): SearchViewResult =
+    findOne(queryParam).value withClue originalSourceClue
 
   // As the name suggests, use this to debug view tests. Only to debug.
   def DEBUG_rawViewResult(implicit sl: SL,
                           sf: SF,
                           mf: Manifest[SearchViewResult]): Vector[String] =
     sql"select array_to_json(array_agg(sv)) from #$searchViewName as sv".as[String].gimme
-
-  def existsInView(
-      queryParam: AnyVal)(implicit sl: SL, sf: SF, mf: Manifest[SearchViewResult]): Boolean =
-    withClue(noResultsClue(queryParam)) {
-      queryView(queryParam).isDefined
-    } withClue originalSourceClue
-
-  private def noResultsClue(queryParam: AnyVal): String =
-    s"No search view results for $searchKeyName=$queryParam!\n"
 
   private def queryView(queryParam: AnyVal)(
       implicit sl: SL,

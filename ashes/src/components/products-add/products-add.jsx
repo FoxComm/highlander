@@ -10,7 +10,6 @@ import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
 import { createAsyncActions } from '@foxcomm/wings';
 
 // components
-import { ModalContainer } from 'components/modal/base';
 import SearchInput from 'components/typeahead/input';
 import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 import { Table } from 'components/table';

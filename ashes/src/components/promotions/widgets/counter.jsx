@@ -1,15 +1,21 @@
 /* @flow */
 
+// libs
 import React from 'react';
-import styles from './counter.css';
+import classNames from 'classnames';
 
+// components
 import Counter from '../../forms/counter';
 
+// styles
+import s from '../attrs-edit.css';
+
+// types
 import type { Context, ItemDesc } from '../types';
 
 type Props = ItemDesc & {
   context: Context;
-}
+};
 
 function toNumber(value, def = 1) {
   const asNumber = Number(value);
@@ -35,7 +41,7 @@ const CounterWidget = (props: Props) => {
 
   return (
     <Counter
-      styleName="counter-input"
+      className={classNames(s['inline-edit-input'], s.counterInput)}
       value={value}
       onChange={event => setValue(event.target.value)}
       {...actions}

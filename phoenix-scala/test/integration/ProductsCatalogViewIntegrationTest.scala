@@ -8,13 +8,14 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import payloads.ImagePayloads._
 import services.image.ImageManager
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.SQLActionBuilder
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.MockedApis
 import utils.Money.Currency
+import utils.aliases.Json
 import utils.db._
 
 object ProductsCatalogViewIntegrationTest {
@@ -26,15 +27,49 @@ object ProductsCatalogViewIntegrationTest {
     def this(payload: AlbumPayload) =
       this(payload.name, payload.images.map(images ⇒ images.map(new ViewImage(_))))
   }
+
+  case class ProductCatalogViewResult(
+      id: Int,
+      productId: Int,
+      context: String,
+      title: String,
+      description: String,
+      salePrice: String,
+      currency: String,
+      tags: String,
+      albums: Json,
+      scope: LTree,
+      skus: Json,
+      slug: String,
+      retailPrice: String,
+      taxonomies: Json
+  )
+
 }
 
 class ProductsCatalogViewIntegrationTest
-    extends IntegrationTestBase
+    extends SearchViewTestBase
+    with IntegrationTestBase
     with PhoenixAdminApi
     with DefaultJwtAdminAuth
     with BakedFixtures {
 
   import ProductsCatalogViewIntegrationTest._
+
+  type SearchViewResult = ProductCatalogViewResult
+  val searchViewName: String = "products_catalog_view"
+  val searchKeyName: String  = "id"
+
+  "Products with no SKUs left are not visible" in {
+    val product = new ProductSku_ApiFixture {}.product
+    val psv     = new ProductsSearchViewIntegrationTest
+    def skuCode(skuAttrs: Json): String = (skuAttrs \ "code" \ "v").extractOpt[String].value
+    psv.viewOne(product.id).archivedAt mustBe 'empty
+    findOne(product.id) mustBe 'defined
+    product.skus.foreach(sku ⇒ skusApi(skuCode(sku.attributes)).archive().mustBeOk)
+    findOne(product.id) mustBe 'empty
+    psv.viewOne(product.id).archivedAt mustBe 'empty
+  }
 
   case class ProductAlbumsFromDatabase(product: Product) {
     private def parseJsonColumnValues(query: SQLActionBuilder): List[ViewAlbum] = {

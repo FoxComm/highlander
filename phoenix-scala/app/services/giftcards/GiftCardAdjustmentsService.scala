@@ -3,7 +3,7 @@ package services.giftcards
 import models.cord.{Carts, OrderPayments}
 import models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import responses.GiftCardAdjustmentsResponse._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

@@ -8,7 +8,7 @@ import models.objects._
 import models.promotion.Promotion
 import models.promotion.Promotion._
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.db._
 
 final case class OrderPromotion(id: Int = 0,
