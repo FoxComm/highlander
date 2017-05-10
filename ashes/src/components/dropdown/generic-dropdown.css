@@ -6,11 +6,6 @@
     box-shadow: none !important;
   }
 
-  /* @todo get rid of negative margins in buttons */
-  & i[class*="icon-"]:only-child {
-    margin: 0;
-  }
-
   :global(.fc-rich-text-editor__command-headers) & {
     /* @todo!important something about priority for core components */
     background-color: transparent !important;

@@ -19,10 +19,6 @@
   cursor: pointer;
   transition: background .2s;
 
-  &:active {
-    box-shadow: 1px 1px 3px rgba(0, 0, 0, .2) inset;
-  }
-
   &:focus {
     outline: 0;
   }
@@ -37,6 +33,11 @@
     cursor: default;
     color: #959698;
     background-color: #ced2d5;
+  }
+
+  &.onlyIcon {
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
   &.stretch {
@@ -54,17 +55,13 @@
   }
 
   &.small {
-    padding: 4px 14px;
+    padding: 4px 5px;
   }
 }
 
 .button[class*="icon-"] {
   padding: 0;
   width: 40px;
-}
-
-.button i[class*="icon-"]:only-child {
-  margin: 0 -10px;
 }
 
 .button i[class*="icon-"] {

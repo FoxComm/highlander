@@ -32,6 +32,10 @@ import { Button } from 'components/core/button'
   <Button.Button stretch>Stretched button</Button.Button>
   <Button.Button google>Google</Button.Button>
   <Button.Button small>Small</Button.Button>
+  <Button.Button icon="add">Add</Button.Button>
+  <Button.Button icon="add" />
+  <Button.Button icon="add" small>Add</Button.Button>
+  <Button.Button icon="add" small />
 </div>
 ```
 

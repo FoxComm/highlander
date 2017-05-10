@@ -31,13 +31,19 @@ type Props = {
  * @function Button
  */
 export const Button = ({ icon, children, isLoading, className, stretch, google, small, ...restProps }: Props) => {
+  const hasIcon = !!icon;
+  const content = children ? <span className={s.text}>{children}</span> : null;
   const cls = classNames(
     s.button,
-    { [s.loading]: isLoading, [s.stretch]: stretch, [s.google]: google, [s.small]: small },
+    {
+      [s.loading]: isLoading,
+      [s.stretch]: stretch,
+      [s.google]: google,
+      [s.small]: small,
+      [s.onlyIcon]: hasIcon && !content
+    },
     className
   );
-
-  const content = children ? <span className={s.text}>{children}</span> : null;
 
   return (
     <button {...restProps} className={cls}>
