@@ -14,3 +14,17 @@ export const getIdsByProps = (propName: string, props: Array<any>, list: Array<O
     map(e => e.id),
   )(list);
 };
+
+/**
+  @modal - a pass by reference function that returns a confirmation modal
+
+  @entityName - the name of the entity to export
+*/
+export const bulkExportBulkAction = (modal: (checked: boolean, ids: Array<any>) => any, entityName: string): Array<any> => {
+  return [
+    `Export Selected ${entityName}`,
+    modal,
+    'successfully exported',
+    'could not be exported',
+  ];
+};

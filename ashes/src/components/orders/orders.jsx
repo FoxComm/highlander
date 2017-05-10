@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { getIdsByProps } from 'modules/bulk-export/helpers';
+import { getIdsByProps, bulkExportBulkAction } from 'modules/bulk-export/helpers';
 
 // actions
 import { stateTitles } from '../../paragons/order';
@@ -108,18 +108,9 @@ class Orders extends Component {
     ];
   }
 
-  get bulkExportAction(): Array<any> {
-    return [
-      'Export Selected Orders',
-      this.bulkExport,
-      'successfully exported',
-      'could not be exported',
-    ];
-  }
-
   get bulkActions(): Array<any> {
     return [
-      this.bulkExportAction,
+      bulkExportBulkAction(this.bulkExport, 'Orders'),
       this.cancelOrdersAction,
       this.getChangeOrdersStateAction('manualHold'),
       this.getChangeOrdersStateAction('fraudHold'),

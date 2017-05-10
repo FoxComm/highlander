@@ -8,7 +8,7 @@ import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { stateTitles } from '../../paragons/gift-card';
-import { getIdsByProps } from 'modules/bulk-export/helpers';
+import { getIdsByProps, bulkExportBulkAction } from 'modules/bulk-export/helpers';
 
 // components
 import BulkActions from '../bulk-actions/bulk-actions';
@@ -112,18 +112,9 @@ class GiftCards extends Component {
     ];
   }
 
-  get bulkExportAction(): Array<any> {
-    return [
-      'Export Selected Gift Cards',
-      this.bulkExport,
-      'successfully exported',
-      'could not be exported',
-    ];
-  }
-
   get bulkActions(): Array<any> {
     return [
-      this.bulkExportAction,
+      bulkExportBulkAction(this.bulkExport, 'Gift Cards'),
       this.cancelGCAction,
       this.getChangeGiftCardsStateAction('active'),
       this.getChangeGiftCardsStateAction('onHold'),
