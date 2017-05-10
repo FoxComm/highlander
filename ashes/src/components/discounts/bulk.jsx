@@ -25,6 +25,7 @@ type Props = {
   };
   onDelete: () => void;
   children: Element<*>;
+  extraActions: Array<any>,
 };
 
 const mapDispatchToProps = (dispatch: Function, { entity }) => {
@@ -96,7 +97,7 @@ const renderDetail = (props: Props) => (messages, id) => {
 };
 
 const BulkWrapper = (props: Props) => {
-  const { entity,hideAlertDetails } = props;
+  const { entity,hideAlertDetails, extraActions } = props;
   const module = `${entity}s`;
   const stateActions = (entity == 'coupon') ? [] : [
     ['Activate', changeStateHandler(props, false), 'successfully activated', 'could not be activated'],
@@ -104,6 +105,7 @@ const BulkWrapper = (props: Props) => {
     [`Schedule ${entity}s`, scheduleHandler(props), 'successfully updated', 'could not be updated'],
   ];
   const bulkActions = [
+    ...extraActions,
     ['Delete', deleteHandler(props), 'successfully deleted', 'could not be deleted'],
     ...stateActions
   ];

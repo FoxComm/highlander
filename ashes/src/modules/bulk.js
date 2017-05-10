@@ -170,7 +170,7 @@ export const createExportByIds = (getEntities: (getState: Function, ids: Array<n
   };
 };
 
-export default function makeBulkActions(path: string): Store {
+export default function makeBulkActions(path: string, extraActions: Object): Store {
   return createStore({
     path,
     actions: {
@@ -178,6 +178,7 @@ export default function makeBulkActions(path: string): Store {
       updateAttributes,
       deleteEntity,
       ...bulkActions,
+      ...extraActions,
     },
     reducers,
     initialState,
