@@ -156,3 +156,18 @@ import { DeleteButton } from 'components/core/button'
   <Button.DeleteButton />
 </div>
 ```
+
+#### Social Button:
+
+```javascript
+import { SocialButton } from 'components/core/button'
+```
+
+```
+<div className="demo">
+  <Button.SocialButton type="google">Social</Button.SocialButton>
+  <Button.SocialButton type="google" isLoading>Social</Button.SocialButton>
+  <Button.SocialButton type="google" disabled>Social</Button.SocialButton>
+  <Button.SocialButton type="google" />
+</div>
+```

@@ -45,15 +45,6 @@
     width: 100%;
   }
 
-  &.google {
-    background-color: #f65554;
-    color: #f2f2f2;
-
-    &:hover {
-      background-color: #f66564;
-    }
-  }
-
   &.small {
     padding: 4px 5px;
   }
@@ -113,4 +104,22 @@ span + i[class*="icon-"] {
  */
 .close {
   cursor: pointer;
+}
+
+/*
+ * Social Buttons Styles
+ */
+.socialButton {
+  &.google {
+    background-color: #f65554;
+    color: #f2f2f2;
+
+    &:hover {
+      background-color: #f66564;
+    }
+
+    &:disabled {
+      color: #ddd;
+    }
+  }
 }
