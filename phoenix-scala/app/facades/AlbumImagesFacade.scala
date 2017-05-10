@@ -135,6 +135,11 @@ object AlbumImagesFacade extends ImageFacade {
         .recover {
           case _: NoSuchElementException ⇒
             DbResultT.failure(ImageNotFoundInPayload)
+          case e: ImageFacadeException ⇒
+            DbResultT.failure(e.underlyingFailure)
+          case e: Throwable ⇒
+            logger.error(s"Error during upload files: $e")
+            DbResultT.failure(ImageUploadFailedGeneralFailure(e))
         }
 
       for {

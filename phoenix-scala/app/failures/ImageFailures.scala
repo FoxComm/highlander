@@ -36,6 +36,10 @@ object ImageFailures {
     override def description: String = s"Can't save image, internal error: $e"
   }
 
+  case class ImageUploadFailedGeneralFailure(e: Throwable) extends Failure {
+    override def description: String = s"Can't upload image, internal error: $e"
+  }
+
   case object ImageFilenameNotFoundInPayload extends Failure {
     override def description = "Image filename not found in payload"
   }
