@@ -5,14 +5,16 @@ import java.nio.file.Files
 import scala.concurrent.Future
 import akka.http.scaladsl.model.{HttpRequest, Multipart}
 import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.scaladsl.{FileIO, Source}
+import akka.stream.scaladsl.{FileIO, Sink, Source}
 import akka.util.ByteString
 
 import cats.implicits._
+import de.heikoseeberger.akkasse.EventStreamElement
 import failures.Failures
 import failures.ImageFailures._
 import models.image._
 import models.objects.FullObject
+import slick.dbio.DBIO
 import payloads.ImagePayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import services.image.ImageManager._
@@ -26,11 +28,13 @@ object AlbumImagesFacade extends ImageFacade {
 
   implicit def formats = JsonFormatters.phoenixFormats
 
+  case class ImageFacadeException(underlyingFailure: failures.Failure) extends Throwable
+
   trait ImageUploader[T] {
     def uploadImages(
         album: Album,
         imageSource: T,
-        context: OC)(implicit ec: EC, db: DB, au: AU, am: Mat, apis: Apis): Result[AlbumRoot]
+        context: OC)(implicit ec: EC, db: DB, au: AU, am: Mat, apis: Apis): DbResultT[AlbumRoot]
   }
 
   private def uploadImages[T](albumId: Int, contextName: String, imageSource: T)(
@@ -39,20 +43,20 @@ object AlbumImagesFacade extends ImageFacade {
       au: AU,
       am: Mat,
       imageUploader: ImageUploader[T],
-      apis: Apis): Result[AlbumRoot] =
-    (for {
+      apis: Apis): DbResultT[AlbumRoot] =
+    for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       album   ← * <~ mustFindAlbumByFormIdAndContext404(albumId, context)
       _       ← * <~ album.mustNotBeArchived
       result  ← * <~ imageUploader.uploadImages(album, imageSource, context)
-    } yield result).runDBIO()
+    } yield result
 
   def uploadImagesFromPayload(albumId: Int, contextName: String, payload: ImagePayload)(
       implicit ec: EC,
       db: DB,
       au: AU,
       am: Mat,
-      apis: Apis): Result[AlbumRoot] = {
+      apis: Apis): DbResultT[AlbumRoot] = {
     implicit val imageUploader = ImagePayloadUploader
     uploadImages[ImagePayload](albumId, contextName, payload)
   }
@@ -62,72 +66,89 @@ object AlbumImagesFacade extends ImageFacade {
       db: DB,
       au: AU,
       am: Mat,
-      apis: Apis): Result[AlbumRoot] = {
+      apis: Apis): DbResultT[AlbumRoot] = {
     implicit val imageUploader = MultipartUploader
     uploadImages[Multipart.FormData](albumId, contextName, formData)
   }
 
+  def attachImageToAlbum(album: Album, srcInfo: ImageUploaded)(implicit ec: EC,
+                                                               db: DB,
+                                                               oc: OC,
+                                                               au: AU,
+                                                               mat: Mat,
+                                                               apis: Apis): DbResultT[Unit] =
+    for {
+      existingImages ← * <~ AlbumImageLinks.queryRightByLeft(album)
+      payload = existingImages.map(imageToPayload) :+
+        ImagePayload(src = srcInfo.url, title = srcInfo.fileName.some, alt = srcInfo.fileName.some)
+
+      _ ← * <~ createOrUpdateImagesForAlbum(album, payload, oc)
+    } yield {}
+
+  case class ImageUploaded(url: String, fileName: String)
+
   object MultipartUploader extends ImageUploader[Multipart.FormData] {
 
-    def uploadImage(part: Multipart.FormData.BodyPart, album: Album)(implicit ec: EC,
-                                                                     db: DB,
-                                                                     oc: OC,
-                                                                     au: AU,
-                                                                     mat: Mat,
-                                                                     apis: Apis): DbResultT[Unit] =
+    private def uploadBodyToS3(part: Multipart.FormData.BodyPart,
+                               directoryPath: String)(implicit ec: EC, am: Mat, apis: Apis) = {
       for {
-        filePath ← * <~ getFileFromRequest(part.entity.dataBytes)
-        fileName ← * <~ getFileNameFromBodyPart(part)
-        fullPath = s"albums/${oc.id}/${album.formId}/$fileName"
+        filePathE ← getFileFromRequest(part.entity.dataBytes)
+        filePath = filePathE.leftMap { _ ⇒
+          ImageFacadeException(ErrorReceivingImage)
+        }.toTry.get
+        fileName = part.filename.getOrElse(
+            throw ImageFacadeException(ImageFilenameNotFoundInPayload))
 
-        url ← * <~ apis.amazon.uploadFile(fullPath, filePath.toFile)
+        fullPath = s"$directoryPath/$fileName"
 
-        existingImages ← * <~ AlbumImageLinks.queryRightByLeft(album)
-        payload = existingImages.map(imageToPayload) :+
-          ImagePayload(src = url, title = fileName.some, alt = fileName.some)
+        url ← apis.amazon.uploadFileF(fullPath, filePath.toFile)
+      } yield ImageUploaded(url = url, fileName = fileName)
+    }
 
-        _ ← * <~ createOrUpdateImagesForAlbum(album, payload, oc)
-      } yield {}
-
-    def uploadImages(
-        album: Album,
-        formData: Multipart.FormData,
-        context: OC)(implicit ec: EC, db: DB, au: AU, am: Mat, apis: Apis): Result[AlbumRoot] = {
+    def uploadImages(album: Album, formData: Multipart.FormData, context: OC)(
+        implicit ec: EC,
+        db: DB,
+        au: AU,
+        am: Mat,
+        apis: Apis): DbResultT[AlbumRoot] = {
       val failures                              = ImageNotFoundInPayload.single
       val error: Future[Either[Failures, Unit]] = Future.successful(Either.left(failures))
-      implicit val oc                           = context
 
-      formData.parts.mapAsync(1) { p ⇒
-        p.filename
-      }
+      implicit val oc = context
 
-      val xs = formData.parts
+      val attachToAlbum = attachImageToAlbum(album, _: ImageUploaded)
+
+      val uploadedImages = formData.parts
         .filter(_.name == "upload-file")
-        .runFold(error) { (previousUpload, part) ⇒
-          previousUpload.flatMap {
-            case Left(err) if err != failures ⇒ Future.successful(Either.left(err))
-            case _                            ⇒ uploadImage(part, album).runTxn().runEmptyA.value
-          }
+        .mapAsync(1) { part ⇒
+          val directoryPath = s"albums/${oc.id}/${album.formId}"
+          uploadBodyToS3(part, directoryPath)
         }
-        .flatMap { r ⇒
-          (for {
-            _     ← * <~ r
-            album ← * <~ getAlbumInner(album.formId, oc)
-          } yield album).runDBIO().runEmptyA.value
+        .map(attachToAlbum)
+        .runReduce[DbResultT[Unit]] {
+          case (a, b)                                             ⇒
+            DbResultT.seqCollectFailures(List(a, b)).map { case _ ⇒ () }
         }
 
-      Result.fromFEither(xs)
+      for {
+        images ← * <~ DBIO.from(uploadedImages)
+        _      ← * <~ images
+        album  ← * <~ getAlbumInner(album.formId, oc)
+      } yield album
     }
+
   }
 
   object ImagePayloadUploader extends ImageUploader[ImagePayload] {
-    def uploadImages(
-        album: Album,
-        payload: ImagePayload,
-        context: OC)(implicit ec: EC, db: DB, au: AU, am: Mat, apis: Apis): Result[AlbumRoot] = {
+    def uploadImages(album: Album, payload: ImagePayload, context: OC)(
+        implicit ec: EC,
+        db: DB,
+        au: AU,
+        am: Mat,
+        apis: Apis): DbResultT[AlbumRoot] = {
       implicit val oc = context
 
-      (for {
+      for {
         imageData ← * <~ fetchImageData(payload.src)
         url ← * <~ saveBufferAndThen[String](imageData) { path ⇒
                val fileName = extractFileNameFromUrl(payload.src)
@@ -142,7 +163,7 @@ object AlbumImagesFacade extends ImageFacade {
         _     ← * <~ createOrUpdateImagesForAlbum(album, newPayload, oc)
         album ← * <~ getAlbumInner(album.formId, oc)
 
-      } yield album).runDBIO()
+      } yield album
     }
   }
 
@@ -154,15 +175,7 @@ object AlbumImagesFacade extends ImageFacade {
     }
   }
 
-  private def getFileNameFromBodyPart(part: Multipart.FormData.BodyPart)(
-      implicit ec: EC): Result[String] = {
-    part.filename match {
-      case Some(fileName) ⇒ Result.good[String](fileName)
-      case None           ⇒ Result.failure[String](ImageFilenameNotFoundInPayload)
-    }
-  }
-
-  private def imageToPayload(image: FullObject[Image]): ImagePayload = {
+  def imageToPayload(image: FullObject[Image]): ImagePayload = {
     val form   = image.form.attributes
     val shadow = image.shadow.attributes
 

@@ -18,6 +18,7 @@ import utils.db._
 trait AmazonApi {
 
   def uploadFile(fileName: String, file: File)(implicit ec: EC): Result[String]
+  def uploadFileF(fileName: String, file: File)(implicit ec: EC): Future[String]
 }
 
 class AmazonS3 extends AmazonApi with LazyLogging {
@@ -26,13 +27,17 @@ class AmazonS3 extends AmazonApi with LazyLogging {
   private[this] val credentials = new BasicAWSCredentials(accessKey, secretKey)
   private[this] val client      = new AmazonS3Client(credentials)
 
-  def uploadFile(fileName: String, file: File)(implicit ec: EC): Result[String] = {
-    val f = Future {
+  def uploadFileF(fileName: String, file: File)(implicit ec: EC): Future[String] = {
+    Future {
       val putRequest = new PutObjectRequest(s3Bucket, fileName, file)
         .withCannedAcl(CannedAccessControlList.PublicRead)
       client.putObject(putRequest)
-      Either.right(s"https://s3-$s3Region.amazonaws.com/$s3Bucket/$fileName")
-    }.recover {
+      s"https://s3-$s3Region.amazonaws.com/$s3Bucket/$fileName"
+    }
+  }
+
+  def uploadFile(fileName: String, file: File)(implicit ec: EC): Result[String] = {
+    val f = uploadFileF(fileName, file).map(Either.right).recover {
       case e: AmazonS3Exception ⇒
         Either.left(GeneralFailure(e.getLocalizedMessage).single)
       case e: AmazonClientException ⇒
