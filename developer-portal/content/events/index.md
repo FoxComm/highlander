@@ -1,3 +1,5 @@
+--- row
+<<< left
 # Activity Events
 
 The Fox Platform creates detailed events for all activity in the system. 
@@ -25,5 +27,17 @@ All activity is recorded in an event stream which can be tapped programmatically
 This allows extending the system via a [Reactive Programming model](https://en.wikipedia.org/wiki/Reactive_programming).
 
 - [Process activity events using the Go Programming Language](process-activity.md)
+<<<
 
+>>> right
 
+### API Reference
+See the API reference for more.
+
+::: note
+[API Reference](api/index.html)
+:::
+
+>>>
+
+---

@@ -1,3 +1,5 @@
+--- row
+<<< left
 # Welcome
 
 Welcome to FoxCommerce! The Fox Platform is a large and diverse set of modern services
@@ -5,11 +7,12 @@ that allow you create next generation commerce experiences.
 
 Explore and get familiar with the different features of FoxCommerce:
 
-## [Customers](customers/index.html)
-Understand and take care of your customers.
+
+## [Customers/Checkout](customers/index.html)
+Customers can be guests or have a login. Learn about customer accounts, carts, and the checkout process.
 
 ## [Orders](orders/index.html)
-Place and manage orders.
+A full Order Management System is available that integrates with Inventory, Messaging, Returns.  Learn how to manage orders and order states.
 
 ## [Products](products/index.html)
 Products, variants, and options.
@@ -42,5 +45,18 @@ Extending the storefront and back office.
 
 Sell on Amazon.
 
+<<<
+
+>>> right
+
+### API Reference
+See the API reference for more.
+
+::: note
+[API Reference](api/index.html)
+:::
+
+>>>
 
 
+---
