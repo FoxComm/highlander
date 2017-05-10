@@ -1,18 +1,16 @@
-
 /* @flow weak */
 
-/** Libs */
-import { get, isString, capitalize } from 'lodash';
+// libs
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as dsl from '../../elastic/dsl';
 
-/** Components */
+// components
 import SearchList from '../list-page/search-list';
 import InventoryItemTransactionsRow from './item-transactions-row';
 
-/** Redux */
+// redux
 import { actions } from '../../modules/inventory/transactions';
 
 type Actions = {

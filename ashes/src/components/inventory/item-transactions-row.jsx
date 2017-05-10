@@ -1,5 +1,5 @@
 /** Libs */
-import { get, isString, capitalize } from 'lodash';
+import { get } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 

@@ -15,7 +15,7 @@ export type LinkProps = {
   activeClassName?: string,
 };
 
-export default class Link extends React.Component {
+export default class Link extends Component {
   props: LinkProps;
 
   static defaultProps = {

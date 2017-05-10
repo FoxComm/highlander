@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 
 // components
-import { ListPageContainer, makeTotalCounter } from 'components/list-page';
+import { ListPageContainer } from 'components/list-page';
 import MerchantApplicationRow from './row';
 import MultiSelectTable from 'components/table/multi-select-table';
 import SubNav from './sub-nav';
