@@ -9,22 +9,24 @@ export const toggleNotifications = createAction('NOTIFICATIONS_TOGGLE');
 
 export function startFetchingNotifications() {
   return (dispatch) => {
-    const eventSource = new EventSource(`/sse/v1/notifications`, { withCredentials: true });
+    if (typeof EventSource != 'undefined') {
+      const eventSource = new EventSource(`/sse/v1/notifications`, { withCredentials: true });
 
-    eventSource.onmessage = function (e) {
-      if (!_.isEmpty(e.data)) {
-        const data = JSON.parse(e.data);
-        dispatch(notificationReceived(data));
-      }
-    };
+      eventSource.onmessage = function (e) {
+        if (!_.isEmpty(e.data)) {
+          const data = JSON.parse(e.data);
+          dispatch(notificationReceived(data));
+        }
+      };
 
-    eventSource.onopen = function (e) {
-      console.info('Connection was opened.');
-    };
+      eventSource.onopen = function (e) {
+        console.info('Connection was opened.');
+      };
 
-    eventSource.onerror = function (e) {
-      console.info('Connection was closed.');
-    };
+      eventSource.onerror = function (e) {
+        console.info('Connection was closed.');
+      };
+    }
   };
 }
 

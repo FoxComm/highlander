@@ -141,6 +141,7 @@ export default class Login extends Component {
           type="button"
           icon="google"
           onClick={this.onGoogleSignIn}
+          google
           stretch
         >
           Sign In with Google

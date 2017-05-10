@@ -26,6 +26,7 @@ type Props = {
   toggleUserMenu: Function,
   isMenuVisible?: boolean,
   user: ?TUser,
+  className?: string,
 };
 
 const mapStateToProps = state => ({
@@ -55,12 +56,13 @@ export default class Header extends React.Component {
   }
 
   render(): Element<*> {
+    const { className } = this.props;
     const props = this.props;
     const user: ?TUser = props.user;
 
     const name = (user == null || _.isEmpty(user) || user.name == null) ? '' : user.name.split(' ')[0];
     return (
-      <header role='banner' styleName="header" name="">
+      <header role='banner' styleName="header" className={className} name="">
         <div styleName="logo">
           <Icon name="logo" className={styles['logo-icon']}/>
         </div>

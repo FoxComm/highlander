@@ -18,6 +18,10 @@ type Props = {
   children?: Element<any>,
   /** If true — sets `width` style to 100% */
   stretch?: boolean,
+  /** Google theme for button */
+  google?: boolean,
+  /** Small theme for button */
+  small?: boolean,
 };
 
 /**
@@ -26,10 +30,10 @@ type Props = {
  *
  * @function Button
  */
-export const Button = ({ icon, children, isLoading = false, className = '', stretch, ...restProps }: Props) => {
+export const Button = ({ icon, children, isLoading, className, stretch, google, small, ...restProps }: Props) => {
   const cls = classNames(
     s.button,
-    { [s.loading]: isLoading, [s.stretch]: stretch },
+    { [s.loading]: isLoading, [s.stretch]: stretch, [s.google]: google, [s.small]: small },
     className
   );
 

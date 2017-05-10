@@ -48,20 +48,6 @@
   }
 }
 
-.add-button {
-  width: 28px;
-  height: 28px;
-  padding: 0 10px;
-  color: #ced2d5;
-  background-color: #fff;
-  border: 2px dashed #ced2d5;
-  line-height: 24px;
-
-  &:hover {
-    border-color: #bdc3c6; /* change of color does not invoke full border redraw */
-  }
-}
-
 .empty-list {
   font-size: 14px;
   font-weight: 600;

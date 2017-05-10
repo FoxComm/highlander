@@ -26,10 +26,12 @@ import { Button } from 'components/core/button'
 
 ```
 <div className="demo">
-  <Button.Button>Push Me</Button.Button>
-  <Button.Button isLoading>Push Me</Button.Button>
-  <Button.Button disabled>Push Me</Button.Button>
-  <Button.Button stretch>Push Me</Button.Button>
+  <Button.Button>Ready</Button.Button>
+  <Button.Button isLoading>Loading...</Button.Button>
+  <Button.Button disabled>Disabled</Button.Button>
+  <Button.Button stretch>Stretched button</Button.Button>
+  <Button.Button google>Google</Button.Button>
+  <Button.Button small>Small</Button.Button>
 </div>
 ```
 
