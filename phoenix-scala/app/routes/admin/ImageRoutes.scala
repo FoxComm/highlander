@@ -1,10 +1,13 @@
 package routes.admin
 
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import utils.http.JsonSupport._
+import akka.http.scaladsl.unmarshalling.Unmarshaller
+
 import facades.AlbumImagesFacade
 import facades.ImageFacade
+import failures.ImageFailures.ImageNotFoundInPayload
 import models.account.User
 import payloads.ImagePayloads._
 import services.image.ImageManager
@@ -13,9 +16,10 @@ import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
+import utils.http.JsonSupport._
 
 object ImageRoutes {
-  def routes(implicit ec: EC, db: DB, am: Mat, auth: AuthData[User], apis: Apis): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
     activityContext(auth) { implicit ac ⇒
       pathPrefix("albums") {
         pathPrefix(Segment) { context ⇒
@@ -41,16 +45,21 @@ object ImageRoutes {
               }
             } ~
             pathPrefix("images") {
-              (post & pathEnd) {
-                extractRequest { req ⇒
-                  goodOrFailures {
-                    AlbumImagesFacade.uploadImagesFromMultipart(albumId, context, req)
+              extractRequestContext { ctx ⇒
+                implicit val materializer = ctx.materializer
+                implicit val ec           = ctx.executionContext
+                import akka.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers._
+
+                (post & pathEnd & entityOr(as[Multipart.FormData], ImageNotFoundInPayload)) {
+                  formData ⇒
+                    mutateOrFailures {
+                      AlbumImagesFacade.uploadImagesFromMultipart(albumId, context, formData)
+                    }
+                } ~
+                (path("byUrl") & post & entity(as[ImagePayload])) { payload ⇒
+                  mutateOrFailures {
+                    AlbumImagesFacade.uploadImagesFromPayload(albumId, context, payload)
                   }
-                }
-              } ~
-              (path("byUrl") & post & entity(as[ImagePayload])) { payload ⇒
-                goodOrFailures {
-                  AlbumImagesFacade.uploadImagesFromPayload(albumId, context, payload)
                 }
               }
             }
