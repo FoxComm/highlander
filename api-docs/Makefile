@@ -35,7 +35,7 @@ watch_transactions:
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/transactions.apib -o $(BUILD_DIR)/ --server -p $(PORT)
 
 watch:
-	NOCACHE=1 ./node_modules/.bin/aglio --theme-template ./template/triple.jade -i ./docs/index.apib -o $(BUILD_DIR)/ --server -p $(PORT)
+	NOCACHE=1 ./node_modules/.bin/aglio -t fox --theme-template triple -i ./docs/index.apib -o $(BUILD_DIR)/ --server -p $(PORT)
 
 clean:
 	rm -rf ./node_modules
