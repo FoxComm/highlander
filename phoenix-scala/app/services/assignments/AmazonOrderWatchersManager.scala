@@ -3,7 +3,7 @@ package services.assignments
 import models.cord._
 import models.{Assignment, NotificationSubscription}
 import responses.cord.AmazonOrderResponse._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 
