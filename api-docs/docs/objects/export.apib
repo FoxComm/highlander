@@ -12,8 +12,12 @@
 ### ExportEntityByQuery
 + description: `whatever` (optional, string) - Description of an export.
 + fields (required, array[ExportField]) - List of fields to export.
-+ query (required, RawQuerySample) - Search query.
++ query (required, RawQuery) - Search query in format accepted by ElasticSearch.
++ sort (optional, array[RawSort]) - Search sort in format accepted by ElasticSearch.
 
-### RawQuerySample
+### RawQuery
 + bool (object)
+
+### RawSort
++ `_score`: `asc`
 

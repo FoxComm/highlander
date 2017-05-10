@@ -11,8 +11,7 @@ import java.time.format.DateTimeFormatter
 import java.time.{Instant, ZoneId}
 import org.elasticsearch.search.fetch.source.FetchSourceContext
 import org.json4s.JsonAST._
-import org.json4s.jackson.JsonMethods.{compact, render}
-import org.json4s.jackson.parseJson
+import org.json4s.jackson.JsonMethods._
 import payloads.ExportEntityPayloads._
 import scala.annotation.tailrec
 import utils.Chunkable
@@ -96,7 +95,7 @@ object EntityExporter {
     // It's not true, as multiget fetches all documents eagerly.
     Source
       .fromFuture(apis.elasticSearch.client.execute(query))
-      .map(_.responses.flatMap(_.response.map(_.getSourceAsString).map(parseJson(_))).toStream)
+      .map(_.responses.flatMap(_.response.map(_.getSourceAsString).map(parse(_))).toStream)
       .map(Source.apply)
       .flatMapConcat(identity)
   }
@@ -117,6 +116,6 @@ object EntityExporter {
       .fromPublisher(
           apis.elasticSearch.client.publisher(query sourceInclude (searchFields: _*) scroll "1m"))
       .map(_.getSourceAsString)
-      .map(parseJson(_))
+      .map(parse(_))
   }
 }
