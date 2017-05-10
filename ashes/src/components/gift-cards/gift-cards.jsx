@@ -7,20 +7,20 @@ import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { stateTitles } from '../../paragons/gift-card';
+import { stateTitles } from 'paragons/gift-card';
 import { getIdsByProps, bulkExportBulkAction } from 'modules/bulk-export/helpers';
 
 // components
-import BulkActions from '../bulk-actions/bulk-actions';
-import BulkMessages from '../bulk-actions/bulk-messages';
+import BulkActions from 'components/bulk-actions/bulk-actions';
+import BulkMessages from 'components/bulk-actions/bulk-messages';
 import GiftCardRow from './gift-card-row';
-import { ChangeStateModal, CancelModal, BulkExportModal } from '../bulk-actions/modal';
-import { SelectableSearchList } from '../list-page';
-import { Link } from '../link';
+import { ChangeStateModal, CancelModal, BulkExportModal } from 'components/bulk-actions/modal';
+import { SelectableSearchList } from 'components/list-page';
+import { Link } from 'components/link';
 
 // actions
-import { actions } from '../../modules/gift-cards/list';
-import { actions as bulkActions } from '../../modules/gift-cards/bulk';
+import { actions } from 'modules/gift-cards/list';
+import { actions as bulkActions } from 'modules/gift-cards/bulk';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
 
 type Props = {
