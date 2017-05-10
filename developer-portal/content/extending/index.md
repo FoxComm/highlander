@@ -1,6 +1,6 @@
 --- row
 
-<<< row
+<<< left
 # Extending the Fox Platform Quickstart
 
 The Fox Platform is designed to be extended from inception. 
@@ -32,15 +32,10 @@ Our flexible [Product](../products/index.html) and Content model allow you to mo
 <<<
 
 >>> right
-
-### API Reference
-See the API reference for more.
-
-::: note
-[API Reference](api/index.html)
-:::
-
+<!-- include(../api-ref-snippet.md) -->
 >>>
 
 
 ---
+
+<!-- include(../support.md) -->

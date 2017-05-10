@@ -18,13 +18,9 @@ export your products to Amazon and keep track of orders and customers within the
 <<<
 
 >>> right
-
-## API Reference
-See the API reference for more.
-
-::: note
-[API Reference](api/index.html)
-:::
-
+<!-- include(../api-ref-snippet.md) -->
 >>>
 ---
+
+
+<!-- include(../support.md) -->

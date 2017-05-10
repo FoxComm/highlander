@@ -7,14 +7,7 @@ Scroll down to the end for more articles detailing specifics and references to t
 <<<
 
 >>> right
-
-### API Reference
-See the API reference for more.
-
-::: note
-[API Reference](api/index.html)
-:::
-
+<!-- include(../api-ref-snippet.md) -->
 >>>
 
 ---
@@ -285,5 +278,4 @@ fox.auth.login('john@doe.com', 'password', 'org')
 
 ---
 
---- row
-
+<!-- include(../support.md) -->

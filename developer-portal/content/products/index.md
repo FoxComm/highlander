@@ -40,14 +40,9 @@ information such as a description and separate images.
 <<<
 
 >>> right
-
-### API Reference
-See the API reference for more.
-
-::: note
-[API Reference](api/index.html)
-:::
-
+<!-- include(../api-ref-snippet.md) -->
 >>>
 
 ---
+
+<!-- include(../support.md) -->

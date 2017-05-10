@@ -34,14 +34,9 @@ You can group and segment your customers based on dynamic custom rules.
 <<<
 
 >>> right
-
-### API Reference
-See the API reference for more.
-
-::: note
-[API Reference](api/index.html)
-:::
-
+<!-- include(../api-ref-snippet.md) -->
 >>>
 
 ---
+
+<!-- include(../support.md) -->
