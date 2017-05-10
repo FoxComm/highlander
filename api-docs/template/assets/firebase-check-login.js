@@ -1,5 +1,5 @@
 initApp = function() {
-  firebase.auth().onAuthStateChanged(function(user) {
+  firebase.auth().onAuthStateChanged(function(user, o, i) {
     if (user) {
       // User is signed in. We can stay here.
       // if (window.location.pathname == '/')

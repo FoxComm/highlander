@@ -7,8 +7,13 @@ html
         meta(charset="utf-8")
         title= self.api.name || 'API Documentation'
         script(src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js")
-        script(src="/assets/firebase-init.js")
+
+        //- TODO: this should be a local passed to jade via algio.
+        //- script(src="/assets/firebase-init-#{env}.js")
+        //- script(src="/assets/firebase-init-stage.js")
+        script(src="/assets/firebase-init-production.js")
         script(src="/assets/firebase-check-login.js")
+
         link(rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css")
         link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Raleway:300,400,500,600,700|Poppins:100,300,400,500,600,700&subset=latin")
         style!= self.css

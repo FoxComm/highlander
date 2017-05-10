@@ -28,6 +28,7 @@ h3, .main-menu {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-weight: 400;
+  font-size: 14px;
 }
 
 .header {
@@ -48,13 +49,22 @@ h3, .main-menu {
 .logo-head {
   height: 36px;
 }
+@media (max-width: 992px) {
+  .main-menu {
+    font-size: 11px;
+  }
+}
 .main-menu {
   margin: 0;
+  padding: 0;
 }
 .main-menu--item {
   display: inline-block;
   margin-left: 2em;
   padding: 0.3em 0;
+}
+.main-menu--item:first-child {
+  margin-left: 0;
 }
 .main-menu--item.active {
   border-bottom: 2px solid white;

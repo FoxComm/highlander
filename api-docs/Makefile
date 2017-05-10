@@ -13,7 +13,10 @@ build:
 	$(call header, Building)
 	make install
 	mkdir -p $(BUILD_DIR)
-	rsync ./template/static/ $(BUILD_DIR)/ -av
+	# TODO: make aglio accept ENV vars passed to template like jade does.
+	# Currently stage/prod env path is hard-coded in ./template/index.jade
+	./node_modules/jade/bin/jade.js --out build -O '{"env":"$(NODE_ENV)"}' -P ./template/static/index.jade
+	# ./node_modules/jade/bin/jade.js --out build -O '{"env":"$(NODE_ENV)"}' -P ./template/static/index.jade
 	rsync ./template/assets/ $(BUILD_DIR)/assets/ -av
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/home.apib -o $(BUILD_DIR)/home.html
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/auth.apib -o $(BUILD_DIR)/auth.html

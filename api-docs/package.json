@@ -8,8 +8,8 @@
   "scripts": {
     "init": "nvm install && make install",
     "dist": "make build",
-    "deploy-stage": "yarn run dist && yarn run sync-stage",
-    "deploy-production": "yarn run dist && yarn run sync-production",
+    "deploy-stage": "export NODE_ENV=stage && yarn run dist && yarn run sync-stage",
+    "deploy-production": "export NODE_ENV=production && yarn run dist && yarn run sync-production",
     "sync-stage": "firebase use stage && firebase deploy",
     "sync-production": "firebase deploy -P production"
   },

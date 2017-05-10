@@ -1,0 +1,29 @@
+doctype
+
+html
+    head
+        meta(charset="utf-8")
+        title Login
+        script(src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js")
+        script(src="https://cdn.firebase.com/libs/firebaseui/1.0.1/firebaseui.js")
+        link(rel="stylesheet", href="https://cdn.firebase.com/libs/firebaseui/1.0.1/firebaseui.css")
+        script(src="/assets/firebase-init-#{env}.js")
+        script(src="/assets/firebase-login.js")
+        link(rel="stylesheet", href="/assets/foxcomm.css")
+    body(style="text-align: center;")
+        .header
+            a(href="/home.html")
+                img(src="/assets/logo-white.png" class="logo-head")
+
+        div(style="margin-top: 150px;")
+            h2 Please sign in:
+            #firebaseui-auth-container
+
+        .footer
+          p
+            img(src="/assets/logo-fox-head.png" class="logo-head")
+          p ©&nbsp;
+            span(id="copyright_year") 2017
+            | &nbsp; FoxCommerce | All rights reserved
+          script
+            | document.getElementById('copyright_year').innerHTML = new Date().getFullYear()
