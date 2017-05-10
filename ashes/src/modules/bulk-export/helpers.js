@@ -20,7 +20,10 @@ export const getIdsByProps = (propName: string, props: Array<any>, list: Array<O
 
   @entityName - the name of the entity to export
 */
-export const bulkExportBulkAction = (modal: (checked: boolean, ids: Array<any>) => any, entityName: string): Array<any> => {
+export const bulkExportBulkAction = (
+  modal: (checked: boolean, ids: Array<any>) => any,
+  entityName: string
+): Array<any> => {
   return [
     `Export Selected ${entityName}`,
     modal,
