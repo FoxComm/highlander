@@ -29,6 +29,14 @@ class EditImage extends Component {
     alt: this.props.image.alt,
   };
 
+  componentWillReceiveProps(nextProps: Props) {
+    this.setState({
+      src: nextProps.image.src || '',
+      title: nextProps.image.title || '',
+      alt: nextProps.image.alt || '',
+    });
+  }
+
   get closeAction() {
     return <a onClick={this.props.onCancel}>&times;</a>;
   }

@@ -21,10 +21,11 @@ type Props = {
   id: number,
   src: string,
   actions: Array<Action>,
-  title: string,
+  title?: string,
   loading: boolean,
   secondaryTitle?: string,
   className?: string,
+  imageComponent?: string,
 };
 
 type State = {
@@ -97,12 +98,12 @@ export default class ImageCard extends Component {
   }
 
   render() {
-    const { id, src, className } = this.props;
+    const { id, src, className, imageComponent } = this.props;
 
     return (
       <div className={classNames(styles.card, className)}>
         <div className={styles.image} onMouseOver={this.showActions} onMouseOut={this.hideActions}>
-          <Image id={id} src={src} />
+          <Image id={id} src={src} imageComponent={imageComponent} />
         </div>
         {this.actions}
         {this.description}

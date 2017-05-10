@@ -10,7 +10,7 @@ import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 
 // components
-import WaitAnimation from '../common/wait-animation';
+import WaitAnimation from 'components/common/wait-animation';
 import { AddButton } from 'components/core/button';
 import EditAlbum from './edit-album';
 import Album from './album';
@@ -80,13 +80,14 @@ class Images extends Component {
     const album = { name: '', images: [] };
 
     return (
-      <EditAlbum className={styles.modal}
-                 isVisible={this.state.newAlbumMode}
-                 album={album}
-                 loading={this.props.addAlbumInProgress}
-                 onCancel={this.handleCancelEditAlbum}
-                 onSave={this.addNewAlbum}
-                 isNew={true}
+      <EditAlbum
+        className={styles.modal}
+        isVisible={this.state.newAlbumMode}
+        album={album}
+        loading={this.props.addAlbumInProgress}
+        onCancel={this.handleCancelEditAlbum}
+        onSave={this.addNewAlbum}
+        isNew={true}
       />
     );
   }
@@ -106,18 +107,19 @@ class Images extends Component {
         </div>
         {albums.map((album: TAlbum, i: number) => {
           return (
-            <Album album={album}
-                   loading={editAlbumInProgress}
-                   upload={(files: Array<ImageFile>) => this.props.uploadImages(context, album.id, files)}
-                   editImage={(idx: number, form: ImageInfo) => this.props.editImage(context, album.id, idx, form)}
-                   deleteImage={(idx: number) => this.props.deleteImage(context, album.id, idx)}
-                   editAlbum={(album: TAlbum) => this.props.editAlbum(context, album.id, album)}
-                   moveAlbum={(position: number) => this.props.moveAlbum(context, entityId, album.id, position)}
-                   archiveAlbum={(id: number) => this.props.archiveAlbum(context, id)}
-                   position={i}
-                   albumsCount={albums.length}
-                   key={album.id}
-                   fetchAlbums={() => this.props.fetchAlbums(context, entityId)}
+            <Album
+              album={album}
+              loading={editAlbumInProgress}
+              upload={(files: Array<ImageFile>) => this.props.uploadImages(context, album.id, files)}
+              albumsCount={albums.length}
+              editImage={(idx: number, form: ImageInfo) => this.props.editImage(context, album.id, idx, form)}
+              deleteImage={(idx: number) => this.props.deleteImage(context, album.id, idx)}
+              editAlbum={(album: TAlbum) => this.props.editAlbum(context, album.id, album)}
+              moveAlbum={(position: number) => this.props.moveAlbum(context, entityId, album.id, position)}
+              archiveAlbum={(id: number) => this.props.archiveAlbum(context, id)}
+              fetchAlbums={() => this.props.fetchAlbums(context, entityId)}
+              position={i}
+              key={album.id}
             />
           );
         })}

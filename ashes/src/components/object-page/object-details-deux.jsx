@@ -19,6 +19,7 @@ import ObjectFormInner from 'components/object-form/object-form-inner';
 import ObjectScheduler from 'components/object-scheduler/object-scheduler';
 import Tags from 'components/tags/tags';
 import ParticipantsPanel from 'components/participants';
+import CustomProperties from 'components/custom-properties/custom-properties';
 
 import styles from './object-details.css';
 
@@ -100,14 +101,24 @@ export default class ObjectDetailsDeux extends Component {
   renderFields(fields: Fields, section: Array<NodeDesc>) {
     const fieldsToRender = this.calcFieldsToRender(fields, section);
     const attrsSchema = this.schema.properties.attributes;
+    const commonProps = {
+      onChange: this.handleObjectChange,
+      attributes: this.attributes,
+      schema: attrsSchema
+    };
+
+    const children = (
+      <ObjectFormInner
+        {...commonProps}
+        fieldsToRender={fieldsToRender}
+      />
+    );
 
     return (
-      <ObjectFormInner
+      <CustomProperties
+        {...commonProps}
         canAddProperty={fields.canAddProperty}
-        onChange={this.handleObjectChange}
-        fieldsToRender={fieldsToRender}
-        attributes={this.attributes}
-        schema={attrsSchema}
+        children={children}
       />
     );
   }

@@ -1,0 +1,24 @@
+
+.controls {
+  position: absolute;
+  right: 21px;
+
+  & > i {
+    margin: 0 5px;
+    cursor: pointer;
+  }
+}
+
+:global .fc-save-cancel {
+  display: flex;
+  justify-content: flex-end;
+}
+
+:global .fc-save-cancel__cancel {
+  background-color: transparent;
+  text-decoration: underline;
+
+  &:hover {
+    background-color: transparent;
+  }
+}
