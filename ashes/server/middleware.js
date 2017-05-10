@@ -24,12 +24,12 @@ module.exports = function(app) {
   const layout = _.template(fs.readFileSync(template, 'utf8'));
   const sprite = fs.readFileSync(path.resolve('build/svg/fc-sprite.svg'), 'utf-8');
 
-  // lets do renderReact property is lazy
-  Object.defineProperty(app, 'renderReact', {
-    get: function() {
-      return require('../lib/render').renderReact;
-    }
-  });
+  // // lets do renderReact property is lazy
+  // Object.defineProperty(app, 'renderReact', {
+  //   get: function() {
+  //     return require('../lib/render').renderReact;
+  //   }
+  // });
 
   function getToken(ctx) {
     const jwtToken = ctx.cookies.get(config.api.auth.cookieName);
@@ -99,8 +99,6 @@ module.exports = function(app) {
       stylesheet: `/admin/admin.css`,
       javascript: `/admin/main.js`,
       fcsprite: sprite,
-      rootHTML: this.state.html,
-      appStart: `App.start(${htmlescape(bootstrap)});`,
       // use GA_LOCAL=1 gulp dev command for enable tracking events in google analytics from localhost
       gaEnableLocal: 'GA_LOCAL' in process.env,
       JWT: JSON.stringify(this.state.jwt || null),

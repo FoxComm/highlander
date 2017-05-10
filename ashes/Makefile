@@ -50,7 +50,8 @@ rev:
 	git describe --always | cat > .git-rev
 
 dev d: rev
-	test -f .env && export eval `cat .env` || true && ./node_modules/.bin/gulp dev
+	test -f .env && export eval `cat .env` || true &&\
+	 ./node_modules/.bin/nodemon --watch server --watch config --watch ./ -e js,tmpl boot.js
 
 prod p:
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ./node_modules/.bin/gulp build

@@ -4,7 +4,7 @@ module.exports = function(app) {
   const router = new Router();
 
   router
-    .get('/:path*', app.renderReact, app.renderLayout);
+    .get('/:path*', app.renderLayout);
 
   app
     .use(app.requireAdmin)
