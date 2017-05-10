@@ -1,4 +1,4 @@
-# Quickstart for Customers and Checkout
+# Customers and Checkout Quickstart
 --- row
 
 <<< left
@@ -83,6 +83,12 @@ There is one cart per customer per channel. The cart is designed to support dive
 checkout flows and there is no particular order in preparing the cart for checkout.
 
 <img class='eimg' src="data/cart.png"/>
+
+## More about Carts
+::: note
+[Create and manage a Cart](carts.html)
+:::
+
 <<<
 
 >>> right
