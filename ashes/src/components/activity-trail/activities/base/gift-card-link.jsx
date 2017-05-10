@@ -1,5 +1,6 @@
 
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import GiftCardCode from '../../../gift-cards/gift-card-code';
 import { Link } from '../../../link';
 

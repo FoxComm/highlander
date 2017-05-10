@@ -5,7 +5,7 @@ import models.objects.{ObjectForm, ObjectForms}
 import models.promotion.Promotion
 import models.{Assignment, NotificationSubscription}
 import responses.PromotionResponses.PromotionFormResponse._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.db._
 import utils.aliases._
 

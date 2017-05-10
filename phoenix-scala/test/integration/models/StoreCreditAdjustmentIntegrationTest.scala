@@ -77,7 +77,7 @@ class StoreCreditAdjustmentIntegrationTest
         adj  ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = pay.id, amount = 50)
         adj  ← * <~ StoreCreditAdjustments.refresh(adj)
         sc   ← * <~ StoreCredits.refresh(sc)
-      } yield (adj, sc)).value.gimme
+      } yield (adj, sc)).gimme
 
       sc.availableBalance must === (450)
       sc.currentBalance must === (450)

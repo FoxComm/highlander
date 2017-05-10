@@ -1,5 +1,6 @@
 // libs
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 // components
 import Table from './table';

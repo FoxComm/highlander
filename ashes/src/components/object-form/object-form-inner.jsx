@@ -16,7 +16,7 @@ import CustomProperty from '../products/custom-property';
 import DatePicker from '../datepicker/datepicker';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
 import { Dropdown } from '../dropdown';
-import SwatchInput from '../forms/swatch-input';
+import SwatchInput from 'components/core/swatch-input';
 
 import type { AttrSchema } from 'paragons/object';
 

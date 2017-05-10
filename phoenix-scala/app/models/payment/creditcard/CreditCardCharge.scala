@@ -6,7 +6,7 @@ import java.time.Instant
 import models.cord.{OrderPayment, OrderPayments}
 import shapeless._
 import slick.ast.BaseTypedType
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.JdbcType
 import utils.Money.Currency
 import utils._

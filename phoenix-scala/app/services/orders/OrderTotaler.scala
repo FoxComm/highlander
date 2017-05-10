@@ -2,7 +2,7 @@ package services.orders
 
 import models.cord.lineitems._
 import models.cord.{Order, OrderShippingMethods, Orders, Cart}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

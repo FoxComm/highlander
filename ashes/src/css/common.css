@@ -1,0 +1,18 @@
+/* Think twice before adding any styles as common: is must be simple and used in many places */
+
+:root {
+  --loading-caramel: {
+    background-image: inline(caramel.png);
+    animation: caramel .5s linear infinite;
+  };
+}
+
+@keyframes caramel {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 20px 0;
+  }
+}

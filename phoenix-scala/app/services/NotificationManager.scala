@@ -15,7 +15,7 @@ import org.postgresql.core.{Utils ⇒ PgjdbcUtils}
 import payloads.ActivityTrailPayloads.AppendActivity
 import payloads.CreateNotification
 import responses.{ActivityResponse, LastSeenNotificationResponse, NotificationResponse, TheResponse}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.JsonFormatters
 import utils.aliases._
 import utils.db._

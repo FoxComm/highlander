@@ -4,7 +4,7 @@ import models.cord._
 import models.{Assignment, NotificationSubscription}
 import responses.cord.CartResponse
 import responses.cord.CartResponse.buildEmpty
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

@@ -166,6 +166,7 @@ class AddressList extends Component {
 
   renderAddresses() {
     const items = _.map(this.props.addresses, (address, key) => {
+      const title = address.isDefault ? `${address.name} (Default)` : address.name;
       const content = <AddressDetails address={address} hideName />;
       const checked = address.id === this.state.activeAddressId;
       const itemClasses = classNames(styles.item, {
@@ -183,7 +184,7 @@ class AddressList extends Component {
             <EditableBlock
               isEditing={!_.isEmpty(this.state.addressToEdit)}
               styleName="item-content"
-              title={address.name}
+              title={title}
               content={content}
               editAction={() => this.editAddress(address)}
             />

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { pick, flow, reduce, entries } from 'lodash/fp';
 import formatCurrency, { stringToCurrency } from '../../lib/format-currency';

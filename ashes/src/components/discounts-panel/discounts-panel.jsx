@@ -3,7 +3,6 @@
 
 import React, { Component } from 'react';
 import _ from 'lodash';
-import classNames from 'classnames';
 
 import ContentBox from 'components/content-box/content-box';
 import PanelHeader from 'components/panel-header/panel-header';

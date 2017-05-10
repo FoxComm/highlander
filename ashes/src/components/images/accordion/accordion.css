@@ -1,3 +1,5 @@
+@import "common.css";
+
 .accordion {
   margin-bottom: 40px;
 
@@ -65,7 +67,7 @@
     width: 184px;
 
     &.loading {
-      composes: loading from '../../../css/animations.css';
+      @apply --loading-caramel;
     }
   }
 }

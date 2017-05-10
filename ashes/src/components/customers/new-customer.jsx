@@ -1,6 +1,6 @@
 // @flow weak
 import _ from 'lodash';
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { transitionTo, transitionToLazy } from 'browserHistory';

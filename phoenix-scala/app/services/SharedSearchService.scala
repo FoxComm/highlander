@@ -8,7 +8,7 @@ import models.account._
 import models.sharedsearch._
 import payloads.SharedSearchPayloads._
 import responses.{TheResponse, UserResponse}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

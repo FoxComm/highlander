@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -53,9 +54,11 @@ export default class NewGiftCard extends Component {
     const { isSearchingGiftCards } = nextProps;
     const gcResults = _.get(nextProps, 'paymentMethods.giftCards', []);
     const gcCode = _.get(gcResults, [0, 'code'], '');
+    const gcState = _.get(gcResults, [0, 'state'], '');
 
     if (!isSearchingGiftCards &&
       gcResults.length == 1 &&
+      gcState !== 'onHold' &&
       _.startsWith(gcCode.toLowerCase(), this.codeValue.toLowerCase())) {
 
       this.setState({
@@ -110,6 +113,14 @@ export default class NewGiftCard extends Component {
 
     if (!isSearchingGiftCards && this.codeIsValid && !giftCard) {
       return <Alert type="warning">{`Gift Card ${giftCardCode} not found`}</Alert>;
+    }
+
+    if (this.codeIsValid && giftCard && giftCard.state === 'onHold') {
+      return (
+        <Alert type="warning">
+          {`Gift Card ${giftCardCode} is on hold`}
+        </Alert>
+      );
     }
 
     return null;

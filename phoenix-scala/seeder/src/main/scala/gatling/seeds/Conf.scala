@@ -5,7 +5,7 @@ import scala.concurrent.duration._
 import com.typesafe.config.Config
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.FoxConfig
 import utils.Money.Currency._
 

@@ -3,7 +3,7 @@ package services.assignments
 import models.{Assignment, NotificationSubscription}
 import models.returns._
 import responses.ReturnResponse._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.db._
 import utils.aliases._
 

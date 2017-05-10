@@ -1,6 +1,6 @@
 /* @flow */
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
 
 // helpers
 import { numberize } from 'lib/text-utils';

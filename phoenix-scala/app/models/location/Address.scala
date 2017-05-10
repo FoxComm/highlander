@@ -8,7 +8,7 @@ import models.payment.creditcard.CreditCard
 import models.traits.Addressable
 import payloads.AddressPayloads.CreateAddressPayload
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.Validation
 import utils.db._
 

@@ -1,7 +1,6 @@
 /* @flow */
 
 // libs
-import get from 'lodash/get';
 import React, { Element } from 'react';
 import { transitionTo } from 'browserHistory';
 

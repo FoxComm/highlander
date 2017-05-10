@@ -119,6 +119,10 @@ shortcuts:
     alias: migrate_middlewarehouse_db.yml
     target: ansible/migrate_middlewarehouse_db.yml
 
+  - name: Update Object Schemas
+    alias: update_object_schemas.yml
+    target: ansible/update_object_schemas.yml
+
   # Deploy
   - name: Deploy TopDrawer Storefront
     alias: deploy_storefront.yml

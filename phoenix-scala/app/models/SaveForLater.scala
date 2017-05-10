@@ -5,7 +5,7 @@ import java.time.Instant
 import models.customer.CustomersData
 import models.account._
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.db._
 
 case class SaveForLater(id: Int = 0,

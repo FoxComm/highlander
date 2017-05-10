@@ -84,10 +84,12 @@
                 (log/debug msg)
                 (mail/handle-activity msg)
                 (commit-offsets-sync! c {(select-keys record [:topic :partition])
-                                        {:offset (:offset record) :metadata ""}}))
+                                         {:offset (:offset record) :metadata ""}}))
               (catch Exception e
-                (log/errorf "Caught exception: %s\n\tDuring processing %s" e
-                            (safe-decode-minimal record))))))
+                (let [record-info (safe-decode-minimal record)]
+                  (log/errorf "Caught exception: %s\n\tDuring processing %s" e
+                            record-info)
+                  (throw (ex-info "Caught exception" {:record record-info} e)))))))
 
        (when-not @stop
         (recur))))

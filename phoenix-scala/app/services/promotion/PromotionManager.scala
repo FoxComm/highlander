@@ -17,7 +17,7 @@ import responses.PromotionResponses._
 import services.LogActivity
 import services.discount.DiscountManager
 import services.objects.ObjectManager
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

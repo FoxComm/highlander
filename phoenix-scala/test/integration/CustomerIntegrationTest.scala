@@ -26,7 +26,7 @@ import responses.CustomerResponse.Root
 import responses.cord.CartResponse
 import responses.{CreditCardsResponse, CustomerResponse}
 import services.carts.CartPaymentUpdater
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
 import testutils.fixtures.BakedFixtures

@@ -1,6 +1,6 @@
 /* @flow weak */
 
-import React, { PropTypes } from 'react';
+import React from 'react';
 import { autobind } from 'core-decorators';
 import moment from 'moment';
 import _ from 'lodash';

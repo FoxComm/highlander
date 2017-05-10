@@ -7,7 +7,7 @@ import models.inventory.{Sku, Skus}
 import models.objects._
 import models.product.Mvp
 import models.{SaveForLater, SaveForLaters}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

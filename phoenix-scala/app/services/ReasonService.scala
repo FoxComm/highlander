@@ -3,7 +3,7 @@ package services
 import failures.InvalidReasonTypeFailure
 import models.Reason.ReasonType
 import models.{Reason, Reasons}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

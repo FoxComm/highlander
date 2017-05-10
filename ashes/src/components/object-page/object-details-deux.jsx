@@ -3,7 +3,8 @@
 // libs
 import _ from 'lodash';
 import { pluralize } from 'fleck';
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import invariant from 'invariant';
 import { assoc } from 'sprout-data';

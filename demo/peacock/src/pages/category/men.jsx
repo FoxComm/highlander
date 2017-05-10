@@ -1,6 +1,7 @@
 // @flow
 
 import React from 'react';
+import { Link } from 'react-router';
 import Button from 'ui/buttons';
 import CategoryCardList from 'components/category-cards/list';
 import CategoryTextList from 'components/category-list/list';
@@ -67,9 +68,9 @@ const categoryLists = [
 ];
 
 const MenCatPage = () => {
-  const categoryTextLists = categoryLists.map((list) => {
+  const categoryTextLists = categoryLists.map((list, index) => {
     return (
-      <div styleName="cat-text-list">
+      <div key={`cat-${index}`} styleName="cat-text-list">
         <CategoryTextList {...list} />
       </div>
     );
@@ -88,9 +89,11 @@ const MenCatPage = () => {
               The Reigning Champ Primeknit Tracksuit is the product of unwavering
               innovation and obsessive craftsmanship.
             </p>
-            <Button>
-              Shop Now
-            </Button>
+            <Link to="/s/men">
+              <Button>
+                Shop Now
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

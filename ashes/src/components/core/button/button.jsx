@@ -18,6 +18,10 @@ type Props = {
   children?: Element<any>,
   /** Returns a react reference to <button> html node */
   returnRef?: Function,
+  /** If true — sets `width` style to 100% */
+  fullWidth?: boolean,
+  /** Small theme for button */
+  small?: boolean,
 };
 
 /**
@@ -26,14 +30,19 @@ type Props = {
  *
  * @function Button
  */
-export const Button = ({ icon, children, isLoading = false, className = '', returnRef, ...restProps }: Props) => {
+export const Button = ({ icon, children, isLoading, className, fullWidth, returnRef, small, ...restProps }: Props) => {
+  const hasIcon = !!icon;
+  const content = children ? <span className={s.text}>{children}</span> : null;
   const cls = classNames(
     s.button,
-    { [s.loading]: isLoading },
+    {
+      [s.loading]: isLoading,
+      [s.fullWidth]: fullWidth,
+      [s.small]: small,
+      [s.onlyIcon]: hasIcon && !content
+    },
     className
   );
-
-  const content = children ? <span className={s.text}>{children}</span> : null;
 
   return (
     <button {...restProps} className={cls} ref={returnRef}>
@@ -79,4 +88,12 @@ export const DeleteButton = ({ className, ...rest }: Props) => {
 
 export const CloseButton = ({ className, ...rest }: Props) => {
   return <Button icon='close' {...rest} className={classNames(s.close, className)} />;
+};
+
+type SocialProps = Props & {
+  type: 'google',
+};
+
+export const SocialButton = ({ className, type, ...rest }: SocialProps) => {
+  return <Button icon={type} {...rest} className={classNames(s.socialButton, s[type], className)} />;
 };

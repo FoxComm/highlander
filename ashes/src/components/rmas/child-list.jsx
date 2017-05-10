@@ -1,10 +1,9 @@
-import React, { PropTypes } from 'react';
-import { autobind } from 'core-decorators';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import * as rmaActions from '../../modules/rmas/list';
 import { renderRow } from './helpers';
 import TableView from '../table/tableview';
-import { get } from 'sprout-data';
 
 @connect(state => ({rmas: state.rmas.list}), rmaActions)
 export default class RmaChildList extends React.Component {

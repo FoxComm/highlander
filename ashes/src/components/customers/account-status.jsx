@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import ContentBox from '../content-box/content-box';
 import { SliderCheckbox } from '../checkbox/checkbox';

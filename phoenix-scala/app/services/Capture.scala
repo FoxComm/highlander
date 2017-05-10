@@ -14,7 +14,7 @@ import models.shipping.{ShippingMethod, ShippingMethods}
 import payloads.CapturePayloads
 import responses.CaptureResponse
 import services.orders.OrderQueries
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.Money.Currency
 import utils.aliases._
 import utils.apis.Apis
