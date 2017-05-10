@@ -71,18 +71,16 @@ object AlbumImagesFacade extends ImageFacade {
     uploadImages[Multipart.FormData](albumId, contextName, formData)
   }
 
-  def attachImageToAlbum(album: Album, srcInfo: ImageUploaded)(implicit ec: EC,
-                                                               db: DB,
-                                                               oc: OC,
-                                                               au: AU,
-                                                               mat: Mat,
-                                                               apis: Apis): DbResultT[Unit] =
+  def attachImageToAlbum(album: Album, payload: ImagePayload)(implicit ec: EC,
+                                                              db: DB,
+                                                              oc: OC,
+                                                              au: AU,
+                                                              mat: Mat,
+                                                              apis: Apis): DbResultT[Unit] =
     for {
       existingImages ← * <~ AlbumImageLinks.queryRightByLeft(album)
-      payload = existingImages.map(imageToPayload) :+
-        ImagePayload(src = srcInfo.url, title = srcInfo.fileName.some, alt = srcInfo.fileName.some)
-
-      _ ← * <~ createOrUpdateImagesForAlbum(album, payload, oc)
+      newPayloads = existingImages.map(imageToPayload) :+ payload
+      _ ← * <~ createOrUpdateImagesForAlbum(album, newPayloads, oc)
     } yield {}
 
   case class ImageUploaded(url: String, fileName: String)
@@ -114,7 +112,7 @@ object AlbumImagesFacade extends ImageFacade {
 
       implicit val oc = context
 
-      val attachToAlbum = attachImageToAlbum(album, _: ImageUploaded)
+      val attachToAlbum = attachImageToAlbum(album, _: ImagePayload)
 
       val uploadedImages = formData.parts
         .filter(_.name == "upload-file")
@@ -122,7 +120,12 @@ object AlbumImagesFacade extends ImageFacade {
           val directoryPath = s"albums/${oc.id}/${album.formId}"
           uploadBodyToS3(part, directoryPath)
         }
-        .map(attachToAlbum)
+        .map { srcInfo ⇒
+          val payload = ImagePayload(src = srcInfo.url,
+                                     title = srcInfo.fileName.some,
+                                     alt = srcInfo.fileName.some)
+          attachToAlbum(payload)
+        }
         .runReduce[DbResultT[Unit]] {
           case (a, b) ⇒
             DbResultT.seqCollectFailures(List(a, b)).map { _ ⇒
@@ -160,11 +163,8 @@ object AlbumImagesFacade extends ImageFacade {
                DbResultT.fromResult(apis.amazon.uploadFile(fullPath, path.toFile))
              }
 
-        existingImages ← * <~ AlbumImageLinks.queryRightByLeft(album)
-        newPayload = existingImages.map(imageToPayload) :+
-          payload.copy(src = url)
+        _ ← * <~ attachImageToAlbum(album, payload.copy(src = url))
 
-        _     ← * <~ createOrUpdateImagesForAlbum(album, newPayload, oc)
         album ← * <~ getAlbumInner(album.formId, oc)
 
       } yield album
