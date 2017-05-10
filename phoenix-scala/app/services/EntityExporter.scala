@@ -12,21 +12,30 @@ import java.time.{Instant, ZoneId}
 import org.elasticsearch.search.fetch.source.FetchSourceContext
 import org.json4s.JsonAST._
 import org.json4s.jackson.JsonMethods._
-import payloads.ExportEntityPayloads._
+import payloads.EntityExportPayloads._
 import scala.annotation.tailrec
+import scala.collection.JavaConverters._
+import scala.util.control.Exception._
 import utils.Chunkable
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.Http
 
-/** Export entities from ElasticSearch with given fields using specified search type.
+/** Export entities from ElasticSearch with given path using specified search type.
   *
   * Note that this implementation is quite stringly typed.
   * That shouldn't be that much problem,
   * as all those functions should just pass arguments to ElasticSearch and then result back to the client.
   */
 object EntityExporter {
-  private[this] val formatter = DateTimeFormatter.ISO_LOCAL_DATE.withZone(ZoneId.of("UTC"))
+  private val formatter = DateTimeFormatter.ISO_LOCAL_DATE.withZone(ZoneId.of("UTC"))
+
+  private val FieldMatcher = "(\\w+)(\\[\\d+\\])?".r
+
+  private object ArrayElement {
+    def unapply(field: String): Option[Int] =
+      catching(classOf[NumberFormatException]).opt(field.stripPrefix("[").stripSuffix("]").toInt)
+  }
 
   def export(payload: ExportEntity, entity: ExportableEntity)(
       implicit apis: Apis,
@@ -36,38 +45,58 @@ object EntityExporter {
     implicit val chunkable = Chunkable.csvChunkable(payload.fields.map(_.displayName))
 
     val index = s"admin_${au.token.scope}" / entity.searchView
+    val fields = payload.fields.map {
+      case ExportField(name, _) ⇒
+        getPath(name, removeArrayIndices = true)
+          .mkString(".") // we don't care about array index if it exists
+    }
     val jsonSource = payload match {
-      case ExportEntity.ByIDs(_, fields, ids) ⇒
-        EntityExporter.export(index, fields.map(_.name), ids)
-      case ExportEntity.BySearchQuery(_, fields, query, sort) ⇒
-        EntityExporter.export(index, fields.map(_.name), query, sort)
+      case ExportEntity.ByIDs(_, _, ids) ⇒
+        EntityExporter.export(index, fields, ids)
+      case ExportEntity.BySearchQuery(_, _, query, sort) ⇒
+        EntityExporter.export(index, fields, query, sort)
     }
     val csvSource = jsonSource.collect {
       case obj: JObject ⇒
         payload.fields.map {
           case ExportField(name, displayName) ⇒
-            displayName → extractValue(name.split("\\.").toList, Some(obj)).getOrElse("")
+            displayName → extractValue(getPath(name, removeArrayIndices = false), Some(obj))
+              .getOrElse("")
         }
     }
 
     Http.renderAttachment(fileName = setName(payload, entity))(csvSource)
   }
 
+  private def getPath(field: String, removeArrayIndices: Boolean): List[String] = {
+    val fields = field.split("\\.")
+
+    fields.flatMap {
+      // optional group returns `null` if not matched, so we must guard it in option
+      case FieldMatcher(name, idx) ⇒
+        val tail = if (removeArrayIndices) Nil else Option(idx).toList
+        name :: tail
+      case _ ⇒ Nil
+    }(collection.breakOut)
+  }
+
   /** Extracts value from (possibly nested) field path.
     *
-    * When there is something left in `fields` and `acc` is not a json object,
+    * When there is something left in `path` and `acc` is not a json object,
     * we simply omit outputting the value.
     */
-  @tailrec private def extractValue(fields: List[String], acc: Option[JValue]): Option[String] = {
+  @tailrec private def extractValue(path: List[String], acc: Option[JValue]): Option[String] = {
     def convert(jv: Option[JValue]) = jv.collect {
       case jn: JNumber ⇒ jn.values.toString
-      case js: JString ⇒ js.values.replace("\"", "\"\"")
+      case jv: JValue  ⇒ jv.values.toString.replace("\"", "\"\"")
     }
 
-    (fields, acc) match {
+    (path, acc) match {
       case (h :: t, Some(jobj: JObject)) ⇒ extractValue(t, jobj.obj.toMap.get(h))
-      case (Nil, _)                      ⇒ convert(acc)
-      case (_, _)                        ⇒ None
+      case (ArrayElement(i) :: t, Some(jarr: JArray)) ⇒
+        extractValue(t, catching(classOf[IndexOutOfBoundsException]).opt(jarr(i)))
+      case (Nil, _) ⇒ convert(acc)
+      case (_, _)   ⇒ None
     }
   }
 
@@ -82,8 +111,6 @@ object EntityExporter {
       searchIndex: IndexAndTypes,
       searchFields: List[String],
       searchIds: List[Long])(implicit apis: Apis, au: AU, ec: EC): Source[Json, NotUsed] = {
-    import scala.collection.JavaConverters._
-
     // As of 2.3.x elastic4s's fetchSourceContext on single get item is ignored in multi get request,
     // so we need to set it manually.
     // This time we dank mutability.

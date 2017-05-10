@@ -23,7 +23,7 @@ import models.{Assignment, Note, Reason}
 import org.json4s.JsonAST.JString
 import org.json4s.{CustomSerializer, JNull, TypeHints, jackson}
 import payloads.AuthPayload
-import payloads.ExportEntityPayloads._
+import payloads.EntityExportPayloads._
 import payloads.ReturnPayloads.ReturnLineItemPayload
 import responses.PublicResponses.CountryWithRegions
 

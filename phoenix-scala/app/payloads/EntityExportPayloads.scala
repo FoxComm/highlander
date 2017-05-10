@@ -12,7 +12,7 @@ import org.json4s.jackson.JsonMethods.{compact, render}
 import utils.Strings._
 import utils.{ADT, ADTTypeHints}
 
-object ExportEntityPayloads {
+object EntityExportPayloads {
   sealed trait ExportableEntity {
     this: Product ⇒
     def entity: String = productPrefix.underscore
