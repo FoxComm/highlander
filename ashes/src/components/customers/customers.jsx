@@ -9,6 +9,7 @@ import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { bulkExportBulkAction } from 'modules/bulk-export/helpers';
 
 // components
 import { Link } from 'components/link';
@@ -73,15 +74,6 @@ class Customers extends Component {
     ]
   };
 
-  get bulkExportAction(): Array<any> {
-    return [
-      'Export Selected Customers',
-      this.bulkExport,
-      'successfully exported',
-      'could not be exported',
-    ];
-  }
-
   get addToGroupAction(): Array<any> {
     return [
       'Add To Group',
@@ -93,7 +85,7 @@ class Customers extends Component {
 
   get bulkActions(): Array<any> {
     return [
-      this.bulkExportAction,
+      bulkExportBulkAction(this.bulkExport, 'Customers'),
       this.addToGroupAction,
     ];
   }
@@ -117,6 +109,7 @@ class Customers extends Component {
       <BulkExportModal
         count={toggledIds.length}
         onConfirm={(description) => exportByIds(toggledIds, description, fields, 'customers', identifier)}
+        title="Customers"
       />
     );
   }

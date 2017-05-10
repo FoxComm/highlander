@@ -2,12 +2,12 @@
 
 // libs
 import _ from 'lodash';
-import { flow, map, filter } from 'lodash/fp';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { getIdsByProps, bulkExportBulkAction } from 'modules/bulk-export/helpers';
 
 // actions
 import { stateTitles } from '../../paragons/order';
@@ -57,25 +57,19 @@ class Orders extends Component {
   }
 
   @autobind
-  getIdsByRefNum(refNums: Array<string>, list: Array<Object>) {
-    return flow(
-      filter(entry => refNums.indexOf(entry.referenceNumber) !== -1),
-      map(e => e.id),
-    )(list);
-  }
-
-  @autobind
   bulkExport(allChecked: boolean, toggledIds: Array<string>) {
     const { list } = this.props;
     const { exportByIds } = this.props.bulkActions;
     const fields = _.map(tableColumns, c => c.field);
     const identifier = _.map(tableColumns, item => item.text).toString();
     const results = list.currentSearch().results.rows;
-    const ids = this.getIdsByRefNum(toggledIds, results);
+    const ids = getIdsByProps('referenceNumber', toggledIds, results);
+
     return (
       <BulkExportModal
         count={toggledIds.length}
         onConfirm={(description) => exportByIds(ids, description, fields, 'orders', identifier)}
+        title="Orders"
       />
     );
   }
@@ -115,18 +109,9 @@ class Orders extends Component {
     ];
   }
 
-  get bulkExportAction(): Array<any> {
-    return [
-      'Export Selected Orders',
-      this.bulkExport,
-      'successfully exported',
-      'could not be exported',
-    ];
-  }
-
   get bulkActions(): Array<any> {
     return [
-      this.bulkExportAction,
+      bulkExportBulkAction(this.bulkExport, 'Orders'),
       this.cancelOrdersAction,
       this.getChangeOrdersStateAction('manualHold'),
       this.getChangeOrdersStateAction('fraudHold'),

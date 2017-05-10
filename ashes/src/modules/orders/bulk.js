@@ -7,7 +7,7 @@ import Api from '../../lib/api';
 import createStore from '../../lib/store-creator';
 
 // data
-import { initialState, reducers, getSuccesses as _getSuccesses, bulkActions, createExportByIds } from '../bulk';
+import { reducers, getSuccesses as _getSuccesses, bulkActions, createExportByIds } from '../bulk';
 
 const getSuccesses = _.partial(_getSuccesses, 'order');
 
