@@ -13,10 +13,6 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-const (
-	outOfStockError = "One of your items is out of stock. Please remove %s from your cart to complete checkout"
-)
-
 type inventoryService struct {
 	stockItemRepo  repositories.IStockItemRepository
 	unitRepo       repositories.IStockItemUnitRepository
@@ -43,11 +39,6 @@ type IInventoryService interface {
 }
 
 type updateItemsStatusFunc func() (int, error)
-
-func skuOutOfStockError(sku string) error {
-	err := responses.InvalidSKUItemError{Sku: sku, Debug: fmt.Sprintf(outOfStockError, sku)}
-	return &err
-}
 
 func NewInventoryService(
 	stockItemRepo repositories.IStockItemRepository,
@@ -206,7 +197,7 @@ func (service *inventoryService) getStockItemsBySKUs(skusList []string) ([]*mode
 	diff := utils.DiffSlices(skusList, skusListRepo)
 	if len(diff) > 0 {
 		for _, sku := range diff {
-			msg := fmt.Sprintf("Stock item not found for SKU %s. Check SKU database for discrepancies.", sku)
+			msg := fmt.Sprintf("Entry in table stock_items not found for sku=%s.", sku)
 			logging.Log.Warnf(msg)
 			aggregateErr.Add(&responses.InvalidSKUItemError{Sku: sku, Debug: msg})
 		}
@@ -223,7 +214,10 @@ func (service *inventoryService) getUnitsForOrder(items []*models.StockItem, sku
 	for _, si := range items {
 		ids, err := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SKU])
 		if err != nil {
-			aggregateErr.Add(skuOutOfStockError(si.SKU))
+			aggregateErr.Add(&responses.InvalidSKUItemError{
+				Sku:   si.SKU,
+				Debug: fmt.Sprintf("SKU %s is out of stock", si.SKU),
+			})
 		}
 
 		unitsIds = append(unitsIds, ids...)

@@ -179,7 +179,7 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_SingleSKU_OutOfStock()
 	suite.NotNil(err)
 	expectedErr := commonErrors.AggregateError{}
 	suite.IsType(&expectedErr, err)
-	suite.Contains(err.Error(), fmt.Sprintf("One of your items is out of stock. Please remove %s from your cart to complete checkout", sku))
+	suite.Contains(err.Error(), fmt.Sprintf("SKU %s is out of stock", sku))
 
 	var units []models.StockItemUnit
 	suite.db.Where("ref_num = ?", refNum).Find(&units)
@@ -235,7 +235,7 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_NoSKU() {
 	suite.NotNil(err)
 	expectedErr := commonErrors.AggregateError{}
 	suite.IsType(&expectedErr, err)
-	suite.Contains(err.Error(), "Stock item not found for SKU NO-SKU")
+	suite.Contains(err.Error(), "Entry in table stock_items not found for sku=NO-SKU.")
 }
 
 func (suite *InventoryServiceTestSuite) Test_ReleaseItems_NoReservedSKUs() {
