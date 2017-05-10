@@ -4,11 +4,11 @@ import React, { Component } from 'react';
 
 // libs
 import _ from 'lodash';
-import { flow, map, filter } from 'lodash/fp';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { stateTitles } from '../../paragons/gift-card';
+import { getIdsByProps } from 'modules/bulk-export/helpers';
 
 // components
 import BulkActions from '../bulk-actions/bulk-actions';
@@ -87,21 +87,13 @@ class GiftCards extends Component {
   }
 
   @autobind
-  getIdsByCode(codes: Array<string>, list: Array<Object>) {
-    return flow(
-      filter(entry => codes.indexOf(entry.code) !== -1),
-      map(e => e.id),
-    )(list);
-  }
-
-  @autobind
   bulkExport(allChecked: boolean, toggledIds: Array<string>) {
     const { list } = this.props;
     const { exportByIds } = this.props.bulkActions;
     const fields = _.map(tableColumns, c => c.field);
     const identifier = _.map(tableColumns, item => item.text).toString();
     const results = list.currentSearch().results.rows;
-    const ids = this.getIdsByCode(toggledIds, results);
+    const ids = getIdsByProps('code', toggledIds, results);
 
     return (
       <BulkExportModal
