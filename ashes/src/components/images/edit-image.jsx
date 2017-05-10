@@ -104,14 +104,13 @@ class EditImage extends Component {
     const nameMatch = src.match(/\/([^/]+)$/i);
     const ext = get(extMatch, '[1]', '–');
     const name = get(nameMatch, '[1]', '–');
+    const style = { backgroundImage: `url(${src})` };
 
     return (
       <ModalContainer isVisible={this.props.isVisible} size="big">
         <ContentBox title="Edit Image" actionBlock={this.closeAction} bodyClassName={s.body}>
           <div className={s.main}>
-            <div className={s.imageWrap}>
-              <img src={src} className={s.image} />
-            </div>
+            <div className={s.image} style={style} />
             <div className={s.sidebar}>
               <div className={s.stat}>
                 <div className={s.statItem}>{`File Name: ${name}`}</div>

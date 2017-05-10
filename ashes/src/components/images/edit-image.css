@@ -13,21 +13,20 @@
   }
 }
 
-.imageWrap {
+.image {
   overflow: hidden;
   min-width: 50%;
   min-height: 50%;
   width: 70%;
   flex: 1 1 auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   margin-right: 20px;
   border: 1px solid #d9d9d9;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 
   @media (min-resolution: 120dpi) {
-    box-shadow: 0 0 0.5px #ccc inset;
-    border: none;
+    border-width: 0.5px;
   }
 
   @media (orientation:portrait) {
