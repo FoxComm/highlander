@@ -2,22 +2,28 @@
  * @flow
  */
 
-import { get, map } from 'lodash';
-import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
+
+// libs
+import _ from 'lodash';
+import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { actions as bulkActions } from 'modules/customers/bulk';
-import { actions } from 'modules/customers/list';
-import { suggestGroups } from 'modules/customer-groups/suggest';
-
+// components
 import { Link } from 'components/link';
 import BulkActions from 'components/bulk-actions/bulk-actions';
 import BulkMessages from 'components/bulk-actions/bulk-messages';
 import SearchGroupModal from './groups/search-group-modal';
 import { SelectableSearchList } from 'components/list-page';
 import CustomerRow from './customer-row';
+import { BulkExportModal } from 'components/bulk-actions/modal';
+
+// actions
+import { actions as bulkActions } from 'modules/customers/bulk';
+import { actions } from 'modules/customers/list';
+import { suggestGroups } from 'modules/customer-groups/suggest';
+import { bulkExport } from 'modules/bulk-export/bulk-export';
 
 type Props = {
   list: Object,
@@ -29,7 +35,11 @@ type Props = {
     addCustomersToGroup: (groupId: number, customersIds: Array<number>) => Promise<*>,
     reset: () => void,
     setMessages: (messages: Object) => void,
+    exportByIds: (
+      ids: Array<number>, description: string, fields: Array<string>, entity: string, identifier: string
+    ) => void,
   },
+  bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
 };
 
 type State = {
@@ -63,19 +73,33 @@ class Customers extends Component {
     ]
   };
 
-  get bulkActions() {
+  get bulkExportAction(): Array<any> {
     return [
-      [
-        'Add To Group',
-        this.handleAddToGroup,
-        'successfully added to group(s)',
-        'could not be added to group(s)'
-      ],
+      'Export Selected Customers',
+      this.bulkExport,
+      'successfully exported',
+      'could not be exported',
+    ];
+  }
+
+  get addToGroupAction(): Array<any> {
+    return [
+      'Add To Group',
+      this.handleAddToGroup,
+      'successfully added to group(s)',
+      'could not be added to group(s)',
+    ];
+  }
+
+  get bulkActions(): Array<any> {
+    return [
+      this.bulkExportAction,
+      this.addToGroupAction,
     ];
   }
 
   @autobind
-  handleAddToGroup(_, customerIds) {
+  handleAddToGroup(_, customerIds: Array<number>) {
     this.setState({
       addToGroupModalShown: true,
       customerIds,
@@ -83,10 +107,26 @@ class Customers extends Component {
   }
 
   @autobind
+  bulkExport(allChecked: boolean, toggledIds: Array<number>) {
+    const { tableColumns } = this.props;
+    const { exportByIds } = this.props.bulkActions;
+    const fields = _.map(tableColumns, c => c.field);
+    const identifier = _.map(tableColumns, item => item.text).toString();
+
+    return (
+      <BulkExportModal
+        count={toggledIds.length}
+        onConfirm={(description) => exportByIds(toggledIds, description, fields, 'customers', identifier)}
+      />
+    );
+  }
+
+  @autobind
   handleSelectGroup(groups: Array<TCustomerGroup>) {
     const customers = this.state.customerIds;
-
-    const [[_, __, success, error]] = this.bulkActions;
+    const messages = this.addToGroupAction;
+    const success = messages[2];
+    const error = messages[3];
 
     this.props.bulkActions.reset();
     this.props.bulkActions.setMessages({ success, error });
@@ -125,6 +165,9 @@ class Customers extends Component {
           actions={this.bulkActions}
         >
           <SelectableSearchList
+            exportEntity="customers"
+            bulkExport
+            bulkExportAction={this.props.bulkExportAction}
             entity="customers.list"
             emptyMessage="No customers found."
             list={list}
@@ -151,7 +194,7 @@ class Customers extends Component {
 const mapState = state => ({
   list: state.customers.list,
   suggestedGroups: state.customerGroups.suggest.groups,
-  suggestState: get(state.asyncActions, 'suggestGroups', {}),
+  suggestState: _.get(state.asyncActions, 'suggestGroups', {}),
 });
 
 const mapActions = (dispatch, props: Props) => ({
@@ -160,6 +203,7 @@ const mapActions = (dispatch, props: Props) => ({
     suggestGroups: suggestGroups(),
   }, dispatch),
   bulkActions: bindActionCreators(bulkActions, dispatch),
+  bulkExportAction: bindActionCreators(bulkExport, dispatch),
 });
 
 export default connect(mapState, mapActions)(Customers);

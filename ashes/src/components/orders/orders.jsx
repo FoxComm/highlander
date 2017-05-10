@@ -29,7 +29,7 @@ type Props = {
   list: Object,
   actions: Object,
   bulkActions: Object,
-  bulkExportAction: (fields: Array<String>, entity: string, identifier: string) => Promise<*>,
+  bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
 };
 
 const tableColumns = [
@@ -75,7 +75,7 @@ class Orders extends Component {
     return (
       <BulkExportModal
         count={toggledIds.length}
-        onConfirm={(description) => exportByIds(toggledIds, ids, description, fields, 'orders', identifier)}
+        onConfirm={(description) => exportByIds(ids, description, fields, 'orders', identifier)}
       />
     );
   }
@@ -149,10 +149,11 @@ class Orders extends Component {
     };
   }
 
-  renderDetail(messages: Array<string>, referenceNumber: string) {
+  renderDetail(message: string, referenceNumber: string) {
     return (
       <span key={referenceNumber}>
-        Order <Link to="order-details" params={{order: referenceNumber}}>{referenceNumber}</Link>: {messages}
+        Order <Link to="order-details" params={{order: referenceNumber}}>{referenceNumber}</Link>
+        {_.isEmpty(message) ? null : `: ${message}`}
       </span>
     );
   }
