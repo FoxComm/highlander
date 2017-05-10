@@ -104,9 +104,12 @@ const BulkWrapper = (props: Props) => {
     ['Deactivate', changeStateHandler(props, false), 'successfully deactivated', 'could not be deactivated'],
     [`Schedule ${entity}s`, scheduleHandler(props), 'successfully updated', 'could not be updated'],
   ];
+  const extras = _.isEmpty(extraActions) ? [] : extraActions;
+  const deleteAction = ['Delete', deleteHandler(props), 'successfully deleted', 'could not be deleted'];
+  
   const bulkActions = [
-    ...extraActions,
-    ['Delete', deleteHandler(props), 'successfully deleted', 'could not be deleted'],
+    ...extras,
+    deleteAction,
     ...stateActions
   ];
 

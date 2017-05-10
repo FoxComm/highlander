@@ -1,17 +1,9 @@
-
+import _ from 'lodash';
 import makeBulkActions, { createExportByIds } from '../bulk';
-import { flow, filter, getOr, invoke, reduce, set } from 'lodash/fp';
 
-const getCodes = (getState: Function, ids: Array<number>): Object => {
-  return flow(
-    invoke('promotions.list.currentSearch'),
-    getOr([], 'results.rows'),
-    filter(c => ids.indexOf(c.id) !== -1),
-    reduce((obj, c) => set(c.id, c.id, obj), {})
-  )(getState());
-};
+const getExportedIds = (getState: Function, ids: Array<number>): Object => _.reduce(ids, (obj, entry) => _.set(obj, entry, entry), {});
 
-const exportByIds = createExportByIds(getCodes);
+const exportByIds = createExportByIds(getExportedIds);
 
 const { actions, reducer } = makeBulkActions('promotions.bulk', {
   exportByIds,
