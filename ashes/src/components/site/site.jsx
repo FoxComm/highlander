@@ -25,19 +25,22 @@ export default class Site extends React.Component {
   render() {
     return (
       <div className={classNames(s.block, 'fc-admin')}>
-        <Sidebar
+        <Header
+          className={s.header}
           routes={this.props.routes}
           params={this.props.params}
-          className={s.sidebar}
         />
-        <div className={classNames(s.container, 'fc-container')}>
-          <Header
+        <div className={s.content}>
+          <Sidebar
             routes={this.props.routes}
             params={this.props.params}
+            className={s.sidebar}
           />
-          <main role='main' className={classNames(s.main, 'fc-main')}>
-            {this.props.children}
-          </main>
+          <div className={classNames(s.container, 'fc-container')}>
+            <main role='main' className={classNames(s.main, 'fc-main')}>
+              {this.props.children}
+            </main>
+          </div>
         </div>
       </div>
     );

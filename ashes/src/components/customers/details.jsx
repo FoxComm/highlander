@@ -2,7 +2,6 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import CustomerContacts from './contacts';
-import CustomerAccountPassword from './account-password';
 import CustomerAddressBook from './address-book';
 import CustomerCreditCards from './credit-cards';
 import CustomerAccountStatus from './account-status';

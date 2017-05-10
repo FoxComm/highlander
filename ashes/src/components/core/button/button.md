@@ -26,10 +26,16 @@ import { Button } from 'components/core/button'
 
 ```
 <div className="demo">
-  <Button.Button>Push Me</Button.Button>
-  <Button.Button isLoading>Push Me</Button.Button>
-  <Button.Button disabled>Push Me</Button.Button>
-  <Button.Button stretch>Push Me</Button.Button>
+  <Button.Button>Ready</Button.Button>
+  <Button.Button isLoading>Loading...</Button.Button>
+  <Button.Button disabled>Disabled</Button.Button>
+  <Button.Button fullWidth>Stretched button</Button.Button>
+  <Button.Button google>Google</Button.Button>
+  <Button.Button small>Small</Button.Button>
+  <Button.Button icon="add">Add</Button.Button>
+  <Button.Button icon="add" />
+  <Button.Button icon="add" small>Add</Button.Button>
+  <Button.Button icon="add" small />
 </div>
 ```
 
@@ -42,7 +48,7 @@ import { PrimaryButton } from 'components/core/button'
 ```
 <div className="demo">
   <Button.PrimaryButton>Push Me</Button.PrimaryButton>
-  <Button.PrimaryButton stretch icon="google">Push Me</Button.PrimaryButton>
+  <Button.PrimaryButton fullWidth icon="google">Push Me</Button.PrimaryButton>
 </div>
 ```
 
@@ -148,5 +154,20 @@ import { DeleteButton } from 'components/core/button'
   <Button.DeleteButton isLoading>Delete</Button.DeleteButton>
   <Button.DeleteButton disabled>Delete</Button.DeleteButton>
   <Button.DeleteButton />
+</div>
+```
+
+#### Social Button:
+
+```javascript
+import { SocialButton } from 'components/core/button'
+```
+
+```
+<div className="demo">
+  <Button.SocialButton type="google">Social</Button.SocialButton>
+  <Button.SocialButton type="google" isLoading>Social</Button.SocialButton>
+  <Button.SocialButton type="google" disabled>Social</Button.SocialButton>
+  <Button.SocialButton type="google" />
 </div>
 ```
