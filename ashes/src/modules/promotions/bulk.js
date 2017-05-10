@@ -1,3 +1,5 @@
+/* @flow */
+
 import _ from 'lodash';
 import makeBulkActions, { createExportByIds } from '../bulk';
 
