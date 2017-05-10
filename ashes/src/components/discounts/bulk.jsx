@@ -106,7 +106,7 @@ const BulkWrapper = (props: Props) => {
   ];
   const extras = _.isEmpty(extraActions) ? [] : extraActions;
   const deleteAction = ['Delete', deleteHandler(props), 'successfully deleted', 'could not be deleted'];
-  
+
   const bulkActions = [
     ...extras,
     deleteAction,

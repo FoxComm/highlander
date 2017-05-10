@@ -8,7 +8,9 @@ import { getPropsByIds } from 'modules/bulk-export/helpers';
 // data
 import { reducers, createExportByIds } from '../bulk';
 
-const getCustomers = (getState: Function, ids: Array<number>): Object => getPropsByIds('customers', ids, ['id', 'name'], getState());
+const getCustomers = (getState: Function, ids: Array<number>): Object => {
+  return getPropsByIds('customers', ids, ['id', 'name'], getState());
+};
 
 const addCustomersToGroup = (actions, groupId: number, customersIds: Array<number> = []) =>
   (dispatch: Function, getState: Function) => {

@@ -11,7 +11,9 @@ import { getPropsByIds } from 'modules/bulk-export/helpers';
 
 // data
 import { reducers, createExportByIds } from '../bulk';
-const getCodes = (getState: Function, ids: Array<number>): Object => getPropsByIds('giftCards', ids, ['code'], getState());
+const getCodes = (getState: Function, ids: Array<number>): Object => {
+  return getPropsByIds('giftCards', ids, ['code'], getState());
+};
 
 // TODO remove when https://github.com/FoxComm/phoenix-scala/issues/763 closed
 const preprocessResponse = (results: Object): Object => {
