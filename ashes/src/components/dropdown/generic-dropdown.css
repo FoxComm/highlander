@@ -1,3 +1,9 @@
+.block {
+  &:focus {
+    outline: none;
+  }
+}
+
 .downArrowBtn {
   /* @todo!important something about priority for core components */
   padding: 0 10px !important;

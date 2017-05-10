@@ -6,6 +6,10 @@
   & :global .fc-button-with-menu__right-button i {
     transform: rotateX(180deg);
   }
+
+  &:focus {
+    outline: none;
+  }
 }
 
 .menu {
