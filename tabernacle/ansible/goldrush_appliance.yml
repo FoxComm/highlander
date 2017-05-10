@@ -40,6 +40,9 @@
         storefront_server_name: "{{dns_record}}.{{foxcomm_domain}}"
         api_server: "{{dns_record}}.{{foxcomm_domain}}"
   roles:
+    - { role: dev/marathon }
+    - { role: dev/marathon_consumers }
+    - { role: dev/ic }
     # Seed
     - { role: dev/seeder, when: with_appliance_seeding }
     # Dashboard client side

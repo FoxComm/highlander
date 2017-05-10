@@ -1,7 +1,7 @@
 ---
 
 - name: Packer Appliance Base Image
-  hosts: marat-clean
+  hosts: all
   become: true
   vars:
     user: ubuntu
@@ -48,6 +48,7 @@
     - { role: base/mesos }
     - { role: base/mesos_master }
     - { role: base/mesos_worker }
+    - { role: base/mesos_consul }
     # PostgreSQL
     - { role: base/flyway }
     - { role: base/db }
@@ -71,12 +72,7 @@
     - { role: hotfix/kibana }
     - { role: dev/db }
     - { role: dev/db_ic, when: with_ic }
-    # Marathon
     - { role: dev/seed_system }
-    - { role: dev/marathon }
-    - { role: base/marathon_consul }
-    - { role: dev/marathon_consumers }
-    - { role: dev/ic }
     # Nginx
     - { role: dev/balancer }
     - { role: demo/balancer }
