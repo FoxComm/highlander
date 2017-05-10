@@ -40,7 +40,7 @@
     padding-right: 10px;
   }
 
-  &.stretch {
+  &.fullWidth {
     display: block;
     width: 100%;
   }

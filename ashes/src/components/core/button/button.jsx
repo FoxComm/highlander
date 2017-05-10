@@ -17,7 +17,7 @@ type Props = {
   /** Button content (label) */
   children?: Element<any>,
   /** If true — sets `width` style to 100% */
-  stretch?: boolean,
+  fullWidth?: boolean,
   /** Google theme for button */
   google?: boolean,
   /** Small theme for button */
@@ -30,14 +30,14 @@ type Props = {
  *
  * @function Button
  */
-export const Button = ({ icon, children, isLoading, className, stretch, google, small, ...restProps }: Props) => {
+export const Button = ({ icon, children, isLoading, className, fullWidth, google, small, ...restProps }: Props) => {
   const hasIcon = !!icon;
   const content = children ? <span className={s.text}>{children}</span> : null;
   const cls = classNames(
     s.button,
     {
       [s.loading]: isLoading,
-      [s.stretch]: stretch,
+      [s.fullWidth]: fullWidth,
       [s.google]: google,
       [s.small]: small,
       [s.onlyIcon]: hasIcon && !content

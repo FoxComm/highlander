@@ -142,7 +142,7 @@ export default class Login extends Component {
           icon="google"
           onClick={this.onGoogleSignIn}
           google
-          stretch
+          fullWidth
         >
           Sign In with Google
         </Button>
@@ -161,7 +161,7 @@ export default class Login extends Component {
           <PrimaryButton
             onClick={this.clearMessage}
             className={s['submit-button']}
-            stretch={true}
+            fullWidth
             type="submit"
             isLoading={this.props.authenticationState.inProgress}>
             Sign In
