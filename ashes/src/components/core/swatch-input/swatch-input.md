@@ -4,7 +4,7 @@
 <SwatchInput onChange={handleChange} value="ff0000"/>
 ```
 
-### Simple SaveCancel Buttons
+### Simple SwatchInput
 
 ```javascript
 import { SwatchInput } from 'components/core/swatch-input'

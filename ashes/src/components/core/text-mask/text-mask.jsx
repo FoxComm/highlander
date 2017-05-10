@@ -5,7 +5,7 @@ import { isString, isEmpty, map } from 'lodash';
 import ReactTextMask from 'react-text-mask';
 
 type Props = {
-  /** [react-text-mask#](https://github.com/text-mask/text-mask/blob/master/componentDocumentation.md#mask) */
+  /** [react-text-mask#mask](https://github.com/text-mask/text-mask/blob/master/componentDocumentation.md#mask) */
   mask: Array<RegExp>|string|false;
   /** [react-text-mask#guide](https://github.com/text-mask/text-mask/blob/master/componentDocumentation.md#guide) */
   guide?: boolean;

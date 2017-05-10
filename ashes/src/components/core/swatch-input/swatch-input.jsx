@@ -10,7 +10,7 @@ import { autobind } from 'core-decorators';
 import s from './swatch-input.css';
 
 type Props = {
-  /** Callback called on input change, should be passed from parent */
+  /** Callback called on input change */
   onChange: (value: string) => void,
   /** Input value */
   value: string,
