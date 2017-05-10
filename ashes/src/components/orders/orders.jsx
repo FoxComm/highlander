@@ -69,6 +69,7 @@ class Orders extends Component {
       <BulkExportModal
         count={toggledIds.length}
         onConfirm={(description) => exportByIds(ids, description, fields, 'orders', identifier)}
+        title="Orders"
       />
     );
   }

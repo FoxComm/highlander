@@ -99,6 +99,7 @@ class GiftCards extends Component {
       <BulkExportModal
         count={toggledIds.length}
         onConfirm={(description) => exportByIds(ids, description, fields, 'giftCards', identifier)}
+        title="Gift Cards"
       />
     );
   }

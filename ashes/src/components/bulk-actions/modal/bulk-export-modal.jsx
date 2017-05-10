@@ -21,6 +21,7 @@ type Props = {
   onCancel: () => void,
   count: number,
   onConfirm: (description: ?string) => Promise<*>,
+  title: string,
 };
 
 type State = {
@@ -80,16 +81,17 @@ class BulkExportModal extends Component {
   get label() {
     const { entity, count } = this.props;
     const entityForm = numberize(entity, count);
-
     return (
       <span>Are you sure you want to export <b>{count} {entityForm}</b>?</span>
     );
   }
 
   render() {
+    const { title } = this.props;
+
     return (
       <ContentBox
-        title="Export Selected Orders"
+        title={`Export Selected ${title}`}
         actionBlock={this.actionBlock}
         footer={this.footer}
         className="fc-bulk-action-modal"

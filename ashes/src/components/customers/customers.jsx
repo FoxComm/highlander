@@ -109,6 +109,7 @@ class Customers extends Component {
       <BulkExportModal
         count={toggledIds.length}
         onConfirm={(description) => exportByIds(toggledIds, description, fields, 'customers', identifier)}
+        title="Customers"
       />
     );
   }
