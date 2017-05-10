@@ -111,8 +111,6 @@ object AlbumImagesFacade extends ImageFacade {
         au: AU,
         am: Mat,
         apis: Apis): DbResultT[AlbumRoot] = {
-      val failures                              = ImageNotFoundInPayload.single
-      val error: Future[Either[Failures, Unit]] = Future.successful(Either.left(failures))
 
       implicit val oc = context
 
@@ -126,8 +124,14 @@ object AlbumImagesFacade extends ImageFacade {
         }
         .map(attachToAlbum)
         .runReduce[DbResultT[Unit]] {
-          case (a, b)                                             ⇒
-            DbResultT.seqCollectFailures(List(a, b)).map { case _ ⇒ () }
+          case (a, b) ⇒
+            DbResultT.seqCollectFailures(List(a, b)).map { _ ⇒
+              ()
+            }
+        }
+        .recover {
+          case _: NoSuchElementException ⇒
+            DbResultT.failure(ImageNotFoundInPayload)
         }
 
       for {
