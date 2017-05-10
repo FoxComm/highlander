@@ -42,6 +42,8 @@
   roles:
     # Seed
     - { role: dev/seeder, when: with_appliance_seeding }
+    # Dashboard client side
+    - { role: dev/dashboard }
     # Storefronts
     - { role: ext/td/storefront }
     - { role: ext/tpg/storefront }

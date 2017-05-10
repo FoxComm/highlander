@@ -30,7 +30,7 @@
   roles:
     # Core
     - { role: dev/appliance }
-    - { role: base/dashboard }
+    - { role: dev/dashboard }
     # Services
     - { role: dev/consul_agent }
     - { role: dev/zookeeper }

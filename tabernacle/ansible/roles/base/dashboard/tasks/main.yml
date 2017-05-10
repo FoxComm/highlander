@@ -18,20 +18,6 @@
 - name: Install Dashboard service entry
   template: src=dashboard.service.j2 dest="{{dest_services}}/dashboard.service"
 
-- name: Set Facts for Template
-  set_fact:
-    consul_ui_url: "http://{{private_ip}}:{{consul_port}}"
-    mesos_ui_url: "http://{{private_ip}}:{{mesos_port}}"
-    marathon_ui_url: "https://{{dns_record}}.{{foxcomm_domain}}/private/marathon"
-    kibana_url: "http://{{private_ip}}:{{kibana_port}}"
-    pgweb_url: "https://{{dns_record}}.{{foxcomm_domain}}/private/pgweb"
-
-- name: Copy Dashboard Index Template
-  template: src=index.html.j2 dest="{{dashboard_assets_location}}/index.html"
-
-- name: Restart Dashboard
-  service: name=dashboard state=restarted enabled=true
-
 - name: Reload Systemd for Dashboard
   command: systemctl daemon-reload
 
