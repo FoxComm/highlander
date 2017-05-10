@@ -1,6 +1,4 @@
-/**
- * @flow
- */
+/* @flow */
 
 // libs
 import React, { Component, Element } from 'react';
@@ -118,7 +116,7 @@ class Promotions extends Component {
 
 const mapStateToProps = (state: Object) => {
   return {
-    list: state.promotions.list,
+    list: _.get(state.promotions, 'list', {}),
   };
 };
 

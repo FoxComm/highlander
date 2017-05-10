@@ -32,6 +32,15 @@ export const bulkExportBulkAction = (
   ];
 };
 
+/**
+  @entity - an entity you perform the action on (e.g. orders, carts, promotions, etc.)
+
+  @ids - ids for the elements
+
+  @props - the properties you want to extract, can only have a maximum of two
+
+  @state - a result of getState() from redux store
+*/
 export const getPropsByIds = (
   entity: string,
   ids: Array<number>,
