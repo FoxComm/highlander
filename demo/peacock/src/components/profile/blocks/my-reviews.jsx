@@ -3,17 +3,30 @@ import React, { Component } from 'react';
 import styles from '../profile.css';
 
 import Block from '../common/block';
+import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import ReviewRow from './review-row';
+
+type State = {
+  error: ?string;
+};
 
 class MyReviews extends Component {
+  state: State = {
+    error: null,
+  };
+
   get content() {
-    const reviews = [(
-      <tr>
-        <td>placehoder</td>
-        <td>placehoder</td>
-        <td>placehoder</td>
-        <td>placehoder</td>
-      </tr>
-    )];
+    if (this.state.error) {
+      return (
+        <ErrorAlerts error={this.state.error} />
+      );
+    }
+    const reviews = [{
+      product: 'placeholder product',
+      date: 'today',
+      status: 'status',
+      rating: '4',
+    }];
     return (
       <table styleName="simple-table">
         <thead>
@@ -26,7 +39,7 @@ class MyReviews extends Component {
           </tr>
         </thead>
         <tbody>
-          {_.map(reviews, _.identity)}
+          {_.map(reviews, (review) => <ReviewRow review={review} />)}
         </tbody>
       </table>
     );
