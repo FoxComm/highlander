@@ -60,8 +60,8 @@ object EntityExporter {
     */
   @tailrec private def extractValue(fields: List[String], acc: Option[JValue]): Option[String] = {
     def convert(jv: Option[JValue]) = jv.collect {
-      case jn: JNumber ⇒ s"${jn.values}"
-      case js: JString ⇒ s""""${js.values.replace("\"", "\"\"")}""""
+      case jn: JNumber ⇒ jn.values.toString
+      case js: JString ⇒ js.values.replace("\"", "\"\"")
     }
 
     (fields, acc) match {
