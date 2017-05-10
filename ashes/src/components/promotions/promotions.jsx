@@ -7,33 +7,21 @@ import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { filterArchived } from 'elastic/archive';
 
 // components
 import { SelectableSearchList } from '../list-page';
 import PromotionRow from './promotion-row';
 import BulkWrapper from '../discounts/bulk';
 
-// redux
+// actions
 import { actions } from '../../modules/promotions/list';
-
-// helpers
-import { filterArchived } from 'elastic/archive';
+import { bulkExport } from 'modules/bulk-export/bulk-export';
 
 type Props = {
   list: Object,
   actions: Object,
-};
-
-const mapStateToProps = (state: Object) => {
-  return {
-    list: state.promotions.list,
-  };
-};
-
-const mapDispatchToProps = (dispatch: Function) => {
-  return {
-    actions: bindActionCreators(actions, dispatch),
-  };
+  bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
 };
 
 const tableColumns = [
@@ -46,10 +34,7 @@ const tableColumns = [
   {field: 'state', text: 'State'},
 ];
 
-/* ::`*/
-@connect(mapStateToProps, mapDispatchToProps)
-/* ::`*/
-export default class Promotions extends Component {
+class Promotions extends Component {
   props: Props;
 
   @autobind
@@ -79,8 +64,14 @@ export default class Promotions extends Component {
 
     return (
       <div className="promotions">
-        <BulkWrapper onDelete={searchActions.refresh} entity="promotion">
+        <BulkWrapper
+          onDelete={searchActions.refresh}
+          entity="promotion"
+        >
           <SelectableSearchList
+            exportEntity="promotions"
+            bulkExport
+            bulkExportAction={this.props.bulkExportAction}
             entity="promotions.list"
             emptyMessage="No promotions found."
             list={list}
@@ -93,3 +84,18 @@ export default class Promotions extends Component {
     );
   }
 }
+
+const mapStateToProps = (state: Object) => {
+  return {
+    list: state.promotions.list,
+  };
+};
+
+const mapDispatchToProps = (dispatch: Function) => {
+  return {
+    actions: bindActionCreators(actions, dispatch),
+    bulkExportAction: bindActionCreators(bulkExport, dispatch),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Promotions);
