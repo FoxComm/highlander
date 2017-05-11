@@ -1,26 +1,19 @@
-// @flow
+/* @flow */
+
 import React, { Element, Component } from 'react';
+
+// libs
+import _ from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-
-// data
-import { actions } from 'modules/carts/list';
 
 // components
 import { SelectableSearchList } from '../list-page';
 import CartRow from './cart-row';
 
-const mapStateToProps = (state) => {
-  return {
-    list: state.carts.list,
-  };
-};
-
-const mapDispatchToProps = dispatch => {
-  return {
-    actions: bindActionCreators(actions, dispatch),
-  };
-};
+// actions
+import { actions } from 'modules/carts/list';
+import { bulkExport } from 'modules/bulk-export/bulk-export';
 
 const tableColumns = [
   {field: 'referenceNumber', text: 'Cart'},
@@ -32,7 +25,9 @@ const tableColumns = [
 
 type Props = {
   list: Object,
-  actions: Object
+  actions: Object,
+  bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
+
 }
 
 class Carts extends Component {
@@ -58,6 +53,9 @@ class Carts extends Component {
 
     return (
       <SelectableSearchList
+        exportEntity="carts"
+        bulkExport
+        bulkExportAction={this.props.bulkExportAction}
         entity="carts.list"
         emptyMessage="No carts found."
         list={list}
@@ -69,5 +67,18 @@ class Carts extends Component {
     );
   }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    list: _.get(state.carts, 'list', {}),
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    actions: bindActionCreators(actions, dispatch),
+    bulkExportAction: bindActionCreators(bulkExport, dispatch),
+  };
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Carts);
