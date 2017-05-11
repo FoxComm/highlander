@@ -2,10 +2,13 @@ SUBDIRS := content
 BUILDDIRS := $(SUBDIRS:%=build-%)
 
 clean: 
+	rm content/*.html
 	rm content/**/*.html
 
-build: $(BUILDDIRS)
+prep:
+	npm install
 
+build: prep $(BUILDDIRS)
 
 $(BUILDDIRS):
 	$(MAKE) -C $(@:build-%=%) build
@@ -19,4 +22,4 @@ docker:
 docker-push:
 	true
 
-.PHONY: clean build test docker docker-push
+.PHONY: prep clean build test docker docker-push

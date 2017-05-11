@@ -2,51 +2,56 @@
 
 <<< left
 
-# Search
+# Search Guide
 
 The Fox Platform has sophisticated search features which allow more dynamic storefront experiences.
 
-## Quickstart
-
-## Learn More
-
-### Searching Products
+## Searching Products
 
 There are two places to search for products, the public and private catalogs.
 
-- [Search the public catalog in your storefront](public-catalog.html).
-- [Search the private catalog for all product information](private-catalog.html).
+### Learn more about searching Products
+::: note
+[Search the Public Catalog in Your Storefront](public-catalog.html).
+:::
+::: note
+[Search the Private Catalog for All Product Information](private-catalog.html).
+:::
 
-### Searching Orders
+## Searching Orders
 
 You can search order history and get aggregate statistics. Search for orders of specific customers and products.
 
-- [Search order history and get aggregate statistics](orders.html).
+### Learn more about searching Orders
+::: note
+[Search Order History and get Aggregate Statistics](orders.html).
+::: 
 
-### Searching Customers
+## Searching Customers
 
 You can search customers by name, email and products they purchased. Use search to
 get aggregate statistics about customers.
 
-- [Search customers and get aggregate statistics](customers.html).
+### Learn more about searching Customers
+::: note
+[Search Customers and get Aggregate Statistics](customers.html).
+:::
 
-### Query Language
+## Query Language
 
 Fox standardized on the Elastic Search query language. 
 
-- [Send queries and process results](language.html).
+### Learn more about the Search Query Language
+::: note
+[Send Queries and Process Results](language.html).
+:::
 
 <<<
 
 >>> right
-
-### API Reference
-See the API reference for more.
-
-::: note
-[API Reference](api/index.html)
-:::
-
+<!-- include(../api-ref-snippet.md) -->
 >>>
 
 ---
+
+<!-- include(../support.md) -->
