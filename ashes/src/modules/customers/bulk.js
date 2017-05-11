@@ -21,7 +21,7 @@ const addCustomersToGroup = (actions: Object, groupId: number, customersIds: Arr
     return Api.post(`/customer-groups/${groupId}/customers`, { toAdd: customersIds, toDelete: [], })
       .then(() => dispatch(actions.bulkDone(customers, null)))
       .catch(error => dispatch(actions.bulkError(error)));
-};
+  };
 
 const exportByIds = createExportByIds(getCustomers);
 
