@@ -6,14 +6,20 @@ import React, { Element, Component } from 'react';
 import _ from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
+import { bulkExportBulkAction, getIdsByProps } from 'modules/bulk-export/helpers';
 
 // components
 import { SelectableSearchList } from '../list-page';
 import CartRow from './cart-row';
+import BulkActions from 'components/bulk-actions/bulk-actions';
+import BulkMessages from 'components/bulk-actions/bulk-messages';
+import { BulkExportModal } from 'components/bulk-actions/modal';
 
 // actions
 import { actions } from 'modules/carts/list';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
+import { actions as bulkActions } from 'modules/carts/bulk';
 
 const tableColumns = [
   {field: 'referenceNumber', text: 'Cart'},
@@ -27,6 +33,11 @@ type Props = {
   list: Object,
   actions: Object,
   bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
+  bulkActions: {
+    exportByIds: (
+      ids: Array<number>, description: string, fields: Array<string>, entity: string, identifier: string
+    ) => void,
+  },
 
 }
 
@@ -48,22 +59,69 @@ class Carts extends Component {
     };
   }
 
-  render() {
-    const {list, actions} = this.props;
+  @autobind
+  bulkExport(allChecked: boolean, toggledIds: Array<number>) {
+    const { list } = this.props;
+    const { exportByIds } = this.props.bulkActions;
+    const fields = _.map(tableColumns, c => c.field);
+    const identifier = _.map(tableColumns, item => item.text).toString();
+    const results = list.currentSearch().results.rows;
+    const ids = getIdsByProps('referenceNumber', toggledIds, results);
 
     return (
-      <SelectableSearchList
-        exportEntity="carts"
-        bulkExport
-        bulkExportAction={this.props.bulkExportAction}
-        entity="carts.list"
-        emptyMessage="No carts found."
-        list={list}
-        renderRow={this.renderRow}
-        tableColumns={tableColumns}
-        searchActions={actions}
-        predicate={cart => cart.referenceNumber}
+      <BulkExportModal
+        count={toggledIds.length}
+        onConfirm={(description) => exportByIds(ids, description, fields, 'carts', identifier)}
+        title="Customers"
       />
+    );
+  }
+
+  get bulkActions() {
+    return [
+      bulkExportBulkAction(this.bulkExport, 'Carts'),
+    ];
+  }
+
+  renderBulkDetails(message, cart) {
+    console.log('calling renderBulkDetails()');
+    return (
+      <span key={cart}>
+        Cart <Link to="carts" params={{ cart }}>{cart}</Link>
+      </span>
+    );
+  }
+
+  render() {
+    const { list, actions } = this.props;
+
+    return (
+      <div>
+        <BulkMessages
+          storePath="carts.bulk"
+          module="carts"
+          entity="cart"
+          renderDetail={this.renderBulkDetails}
+        />
+        <BulkActions
+          module="carts"
+          entity="cart"
+          actions={this.bulkActions}
+        >
+          <SelectableSearchList
+            exportEntity="carts"
+            bulkExport
+            bulkExportAction={this.props.bulkExportAction}
+            entity="carts.list"
+            emptyMessage="No carts found."
+            list={list}
+            renderRow={this.renderRow}
+            tableColumns={tableColumns}
+            searchActions={actions}
+            predicate={cart => cart.referenceNumber}
+          />
+        </BulkActions>
+      </div>
     );
   }
 }
@@ -78,6 +136,7 @@ const mapDispatchToProps = dispatch => {
   return {
     actions: bindActionCreators(actions, dispatch),
     bulkExportAction: bindActionCreators(bulkExport, dispatch),
+    bulkActions: bindActionCreators(bulkActions, dispatch),
   };
 };
 
