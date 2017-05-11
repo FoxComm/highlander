@@ -3,18 +3,60 @@
 <<< left
 # Products Guide
 
-The Fox Platform has a very flexible Product model which allows custom attributes and
-different versions of the same product. 
+The Fox Platform has a very flexible product model which allows custom attributes and
+different versions of the same product in difference channels.
+<<<
 
+>>> right
+<!-- include(../api-ref-snippet.md) -->
+>>>
+
+---
+
+--- row
+
+<<< left
 ## Products
 
 Products are a collection of one or more variants along with merchandising information
-such as a title, description, and images.
+such as a title, description, and images. If a product has many colors or sizes, 
+you can add options to the product and assign each combination of options a variant. 
+
+
+<img class='eimg' src="data/products.png"/>
 
 ### Learn more about Products
 ::: note
 [Creating a New Product](products.html)
 :::
+
+<<<
+
+>>> right
+
+<br></br>
+#### Getting a Product 
+
+Along with the product id, you must specify which view you want.
+
+``` javascript
+fox.products.one('default',1343).then( (product) => {
+    //do something with the cart like render it.
+});
+```
+
+#### Adding Products
+``` javascript
+fox.cart.addSku('SKU-123', 10);
+```
+
+>>>
+
+---
+
+--- row 
+
+<<< left
 
 ## Options
 
@@ -25,6 +67,14 @@ as size and color. Every combination of options is assigned a variant.
 ::: note
 [Adding a Size and Color Option](options.html)
 :::
+
+<<<
+
+---
+
+--- row 
+
+<<< left
 
 ## Variants
 
@@ -38,10 +88,6 @@ information such as a description and separate images.
 :::
 
 <<<
-
->>> right
-<!-- include(../api-ref-snippet.md) -->
->>>
 
 ---
 
