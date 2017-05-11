@@ -1,4 +1,5 @@
 import cats.implicits._
+import failures.GeneralFailure
 import faker.Lorem
 import models.location.Region
 import models.shipping._
@@ -49,6 +50,15 @@ class ApplePayIntegrationTest
       storefrontCartsApi.applePayCheckout(payment).as[OrderResponse].referenceNumber must === (
           cart.referenceNumber)
     }
+  }
+
+  "Fails with wrongly formatted token" in new ApplePayFixture {
+    val payment = CreateApplePayPayment(stripeToken = "random token")
+
+    val api = cartsApi(api_newCustomerCart(customer.id).referenceNumber)
+    api.payments.applePay
+      .add(payment)(defaultAdminAuth)
+      .mustFailWith400(GeneralFailure("stripeTokenId should start with 'tok_'"))
   }
 
   "Capture Apple Pay" - {

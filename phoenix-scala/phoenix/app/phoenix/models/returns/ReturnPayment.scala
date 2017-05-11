@@ -61,10 +61,8 @@ object ReturnPayments
     implicit class RmaPaymentsQuerySeqConversions(private val q: QuerySeq) extends AnyVal {
       def giftCards: QuerySeq    = q.byType(PaymentMethod.GiftCard)
       def storeCredits: QuerySeq = q.byType(PaymentMethod.StoreCredit)
-
-      // todo check if creditCards is used in a right places
-      def creditCards: QuerySeq = q.byType(PaymentMethod.CreditCard)
-      def applePays: QuerySeq   = q.byType(PaymentMethod.ApplePay)
+      def creditCards: QuerySeq  = q.byType(PaymentMethod.CreditCard)
+      def applePays: QuerySeq    = q.byType(PaymentMethod.ApplePay)
 
       def externalPayments: QuerySeq =
         q.filter(_.paymentMethodType.inSet(PaymentMethod.Type.externalPayments))

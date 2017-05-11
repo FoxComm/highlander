@@ -505,17 +505,13 @@ class ReturnIntegrationTest
       }
 
       "Apple Pay charges should be taken into account" in new ReturnPaymentDefaults {
-        val apOrder = createDefaultOrder(
-            paymentMethods = Map(PaymentMethod.ApplePay → None),
-            items = List(UpdateLineItemsPayload(product.code, 5))
-        )
+        val apRma = createReturn(
+            createDefaultOrder(
+                paymentMethods = Map(PaymentMethod.ApplePay → None)
+            ).referenceNumber)
 
-        val apRma = createReturn(apOrder.referenceNumber)
-
-        val apShippingCostItemId =
-          createReturnLineItem(shippingCostPayload, apRma.referenceNumber).lineItems.shippingCosts.value.id
-        val apSkuItemId =
-          createReturnLineItem(skuPayload, apRma.referenceNumber).lineItems.skus.head.id
+        createReturnLineItem(shippingCostPayload, apRma.referenceNumber)
+        createReturnLineItem(skuPayload, apRma.referenceNumber)
 
         val api = returnsApi(apRma.referenceNumber).paymentMethods
 
