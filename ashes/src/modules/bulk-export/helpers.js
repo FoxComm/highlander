@@ -84,6 +84,7 @@ export const renderExportModal = (
 ): Element<*> => {
   const fields = columnsToPayload(tableColumns);
   const identifier = _.map(tableColumns, item => item.text).toString();
+
   const exportByIds = (description) => performExport(toggledIds, description, fields, entity, identifier);
   const exportByQuery = (description) => performExport(fields, entity, identifier, description);
 

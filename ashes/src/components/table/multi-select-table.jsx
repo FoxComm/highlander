@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import localStorage from 'localStorage';
+import { columnsToPayload } from 'modules/bulk-export/helpers';
 
 // components
 import TableView from './tableview';
@@ -191,6 +192,12 @@ export default class MultiSelectTable extends React.Component {
       return this.columns.slice(1);
     }
     return [];
+  }
+
+  get exportFields() {
+    const { columns } = this.props;
+
+    return columnsToPayload(columns);
   }
 
   render() {
