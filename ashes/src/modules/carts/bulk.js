@@ -2,8 +2,11 @@
 
 import createStore from 'lib/store-creator';
 import { reducers, createExportByIds } from '../bulk';
+import { getPropsByIds } from 'modules/bulk-export/helpers';
 
-const getCarts = (getState, ids) => ids;
+const getCarts = (getState, ids) => {
+  return getPropsByIds('carts', ids, ['referenceNumber'], getState());
+};
 
 const exportByIds = createExportByIds(getCarts);
 

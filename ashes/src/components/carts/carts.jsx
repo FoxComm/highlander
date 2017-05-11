@@ -7,14 +7,14 @@ import _ from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import { bulkExportBulkAction, getIdsByProps } from 'modules/bulk-export/helpers';
+import { bulkExportBulkAction, getIdsByProps, renderExportModal } from 'modules/bulk-export/helpers';
 
 // components
 import { SelectableSearchList } from '../list-page';
 import CartRow from './cart-row';
 import BulkActions from 'components/bulk-actions/bulk-actions';
 import BulkMessages from 'components/bulk-actions/bulk-messages';
-import { BulkExportModal } from 'components/bulk-actions/modal';
+import { Link } from 'components/link';
 
 // actions
 import { actions } from 'modules/carts/list';
@@ -63,18 +63,12 @@ class Carts extends Component {
   bulkExport(allChecked: boolean, toggledIds: Array<number>) {
     const { list } = this.props;
     const { exportByIds } = this.props.bulkActions;
-    const fields = _.map(tableColumns, c => c.field);
-    const identifier = _.map(tableColumns, item => item.text).toString();
+    const modalTitle = 'Carts';
+    const entity = 'carts';
     const results = list.currentSearch().results.rows;
     const ids = getIdsByProps('referenceNumber', toggledIds, results);
 
-    return (
-      <BulkExportModal
-        count={toggledIds.length}
-        onConfirm={(description) => exportByIds(ids, description, fields, 'carts', identifier)}
-        title="Customers"
-      />
-    );
+    return renderExportModal(tableColumns, ids, exportByIds, modalTitle, entity);
   }
 
   get bulkActions() {
@@ -84,10 +78,9 @@ class Carts extends Component {
   }
 
   renderBulkDetails(message, cart) {
-    console.log('calling renderBulkDetails()');
     return (
       <span key={cart}>
-        Cart <Link to="carts" params={{ cart }}>{cart}</Link>
+        Cart <Link to="cart-details" params={{ cart }}>{cart}</Link>
       </span>
     );
   }
