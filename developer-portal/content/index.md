@@ -19,7 +19,7 @@ Explore and get familiar with the different features of FoxCommerce:
 
 <<< left
 ## [Customers/Checkout Guide](customers/index.html)
-Customers can be guests or have a login. Learn about customer accounts, carts, and the checkout process.
+Learn about customer accounts, registration, and checkout.
 
 <img class='eimg' src="data/customers.png"/>
 <<<
@@ -48,7 +48,7 @@ fox.auth.signup('john@doe.com', 'John Doe', 'password')
 <<< left
 
 ## [Orders Guide](orders/index.html)
-A full Order Management System is available that integrates with Inventory, Messaging, Returns.  Learn how to manage orders and order states.
+Learn how to manage orders and process orders.
 
 <img class='eimg' src="data/orders.png"/>
 
@@ -74,7 +74,7 @@ fox.orders.get('BR42443').then((resp) => {
 
 <<< left
 ## [Products Guide](products/index.html)
-Products, variants, and options.
+Learn about products, variants, and SKUs.
 
 <img class='eimg' src="data/products.png"/>
 <<<
@@ -101,7 +101,7 @@ fox.products.one('default',1343).then( (product) => {
 <<< left
 ## [Inventory Guide](inventory/index.html)
 
-Track your inventory and make products available to customers.
+Learn about how to track inventory and make products available to customers.
 
 <img class='eimg' src="data/inventory.png"/>
 <<<
@@ -113,7 +113,8 @@ Track your inventory and make products available to customers.
 <<< left
 ## [Search Guide](search/index.html)
 
-Search indices and queries.
+Learn about searching products, customers, and orders. Learn how to create
+search queries using the query language.
 
 <img class='eimg' src="data/search.png"/>
 <<<
@@ -125,7 +126,7 @@ Search indices and queries.
 <<< left
 ## [Merchandising Guide](merchandising/index.html)
 
-Offer discounts and promotions.
+Learn about offering discounts and promotions to your customers to increase conversion.
 
 <img class='eimg' src="data/promotions.png"/>
 <<<
@@ -179,7 +180,7 @@ Extending the storefront and back office.
 <<< left
 ## [Channels Guide](channels/index.html)
 
-Sell on Amazon.
+Learn about selling your products on amazon and managing orders.
 
 <img class='eimg' src="data/amazon.png"/>
 
