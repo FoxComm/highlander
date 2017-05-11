@@ -26,11 +26,14 @@ type Props = {
  * Button component has a bunch of helper components built on top of generic `Button` component.
  * Usage is the same across all buttons.
  *
+ * [Mockups](https://zpl.io/Z39JBU)
+ *
  * @function Button
  */
 export const Button = ({ icon, children, isLoading, className, fullWidth, small, ...restProps }: Props) => {
   const hasIcon = !!icon;
   const content = children ? <span className={s.text}>{children}</span> : null;
+  const disabled = restProps.disabled || isLoading;
   const cls = classNames(
     s.button,
     {
@@ -43,7 +46,7 @@ export const Button = ({ icon, children, isLoading, className, fullWidth, small,
   );
 
   return (
-    <button {...restProps} className={cls}>
+    <button {...restProps} className={cls} disabled={disabled}>
       {icon && <i className={`icon-${icon}`} />}
       {content}
     </button>

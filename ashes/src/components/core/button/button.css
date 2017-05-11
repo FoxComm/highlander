@@ -1,4 +1,5 @@
 @import "common.css";
+@import "colors.css";
 
 /*
  * General Button Styles
@@ -8,8 +9,8 @@
   align-items: center;
   justify-content: center;
   padding: 10px 20px;
-  color: #484848;
-  background-color: #ced2d5;
+  color: var(--button-color);
+  background-color: var(--button-bg);
   font-size: 14px;
   font-weight: 600;
   line-height: 18px;
@@ -24,15 +25,14 @@
   }
 
   &:hover {
-    color: #484848;
-    background-color: #bdc3c6;
+    background-color: var(--button-bg-hover);
   }
 
   &:disabled,
   &:disabled:hover {
     cursor: default;
-    color: #959698;
-    background-color: #ced2d5;
+    color: var(--button-color-disabled);
+    background-color: var(--button-bg-disabled);
   }
 
   &.onlyIcon {
@@ -76,20 +76,19 @@ span + i[class*="icon-"] {
  * Primary Button Styles
  */
 .primary {
-  color: #f2f2f2;
-  background-color: #4fc2c9;
+  color: var(--primary-button-color);
+  background-color: var(--primary-button-bg);
 }
 
 .primary:hover {
-  color: #f2f2f2;
-  background-color: #3aacb3;
+  background-color: var(--primary-button-bg-hover);
 }
 
 .primary:disabled,
 .primary:disabled:hover {
   cursor: default;
-  color: #a2dee1;
-  background-color: #4fc2c9;
+  color: var(--primary-button-color-disabled);
+  background-color: var(--primary-button-bg-disabled);
 }
 
 /*

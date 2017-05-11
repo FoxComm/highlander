@@ -1,13 +1,42 @@
 :root {
+
+  /*
+   * http://chir.ag/projects/name-that-color
+   */
+  --white: #ffffff;
+  --iron: #ced2d5;
+  --silver-sand: #bdc3c6;
+  --boulder: #797c7d;
+  --mine-shaft: #363636;
+  --pale-robin-egg-blue: #8DDDD2;
+  --puerto-rico: #49cab9;
+  --java: #1dbfaa;
+
   --nav-main: #1a2534;
   --nav-active: #25334a;
   --nav-pink: #fc54a6;
-  --green-buttons: #49cab9;
+
+  /*
+   * Buttons
+   */
+  --button-color: var(--mine-shaft);
+  --button-color-disabled: var(--boulder);
+  --button-bg: var(--iron);
+  --button-bg-hover: var(--silver-sand);
+  --button-bg-disabled: var(--silver-sand);
+  --button-bg-loading: var(--iron);
+
+  --primary-button-color: var(--white);
+  --primary-button-color-disabled: var(--pale-robin-egg-blue);
+  --primary-button-bg: var(--puerto-rico);
+  --primary-button-bg-hover: var(--java);
+  --primary-button-bg-disabled: var(--java);
+  --primary-button-bg-loading: var(--puerto-rico);
+
   --grey-buttons: #ced2d5;
   --grey-headers: #f7f7f7;
   --grey-background: #f9f9f9;
 
-  --white: #ffffff;
   --black: #000000;
   --decor0: #f2f2f2;
   --decor1: #484848;

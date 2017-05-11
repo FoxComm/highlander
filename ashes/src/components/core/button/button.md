@@ -31,9 +31,9 @@ import { Button } from 'components/core/button'
   <Button.Button disabled>Disabled</Button.Button>
   <Button.Button fullWidth>Stretched button</Button.Button>
   <Button.Button google>Google</Button.Button>
-  <Button.Button small>Small</Button.Button>
   <Button.Button icon="add">Add</Button.Button>
   <Button.Button icon="add" />
+  <Button.Button small>Small</Button.Button>
   <Button.Button icon="add" small>Add</Button.Button>
   <Button.Button icon="add" small />
 </div>
@@ -48,6 +48,8 @@ import { PrimaryButton } from 'components/core/button'
 ```
 <div className="demo">
   <Button.PrimaryButton>Push Me</Button.PrimaryButton>
+  <Button.PrimaryButton isLoading>Loading...</Button.PrimaryButton>
+  <Button.PrimaryButton disabled>Disabled</Button.PrimaryButton>
   <Button.PrimaryButton fullWidth icon="google">Push Me</Button.PrimaryButton>
 </div>
 ```
