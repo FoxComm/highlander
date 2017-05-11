@@ -58,7 +58,6 @@ case class StripeOrderPayment(stripeChargeId: String,
 
 object OrderPayment {
 
-  // it is used in tests only
   def build(method: PaymentMethod): OrderPayment = method match {
     case gc: GiftCard ⇒
       OrderPayment(paymentMethodId = gc.id, paymentMethodType = PaymentMethod.GiftCard)
