@@ -36,8 +36,6 @@ function generateScopedNameFn() {
   }
 }
 
-console.info(process.env.NODE_ENV);
-
 const plugins = [
   require('postcss-import')({
     path: ['src/css', 'node_modules'],
