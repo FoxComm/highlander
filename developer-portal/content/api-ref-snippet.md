@@ -2,6 +2,6 @@
 See the API reference for more.
 
 ::: note
-[API Reference](api.foxcommerce.com)
+[API Reference](reference/index.html)
 :::
 
