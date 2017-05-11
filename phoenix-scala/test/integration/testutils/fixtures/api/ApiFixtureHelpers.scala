@@ -6,15 +6,14 @@ import faker.Name.{name ⇒ randomName}
 import payloads.CartPayloads.CreateCart
 import payloads.CustomerPayloads.CreateCustomerPayload
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
-import payloads.PaymentPayloads.{CreateApplePayPayment, CreateCreditCardFromTokenPayload, CreateManualStoreCredit}
+import payloads.PaymentPayloads.{CreateCreditCardFromTokenPayload, CreateManualStoreCredit}
 import responses.cord.CartResponse
 import responses.{CreditCardsResponse, CustomerResponse, GiftCardResponse, StoreCreditResponse}
 import testutils._
-import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
+import testutils.apis.PhoenixAdminApi
 import utils.aliases._
 
-trait ApiFixtureHelpers extends PhoenixAdminApi with PhoenixStorefrontApi with ApiFixtures {
-  self: FoxSuite ⇒
+trait ApiFixtureHelpers extends PhoenixAdminApi with ApiFixtures { self: FoxSuite ⇒
   def api_newCustomer()(implicit sl: SL, sf: SF): CustomerResponse.Root = {
     val name = randomName
     customersApi
