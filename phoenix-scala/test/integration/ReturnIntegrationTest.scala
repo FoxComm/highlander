@@ -513,11 +513,14 @@ class ReturnIntegrationTest
       }
 
       "Apple Pay charges should be taken into account" in new ReturnPaymentDefaults {
-        val api = returnsApi(rma.referenceNumber).paymentMethods
+        val apRma = createReturn(
+            orderRef = createDefaultOrder(
+                paymentMethods = Map(PaymentMethod.ApplePay    → None,
+                                     PaymentMethod.StoreCredit → 120.some)).referenceNumber)
+        val api = returnsApi(apRma.referenceNumber).paymentMethods
 
-        val payload = ReturnPaymentsPayload(
-            Map(PaymentMethod.ApplePay → 50,
-                PaymentMethod.StoreCredit → 120))
+        val payload =
+          ReturnPaymentsPayload(Map(PaymentMethod.ApplePay → 50, PaymentMethod.StoreCredit → 10))
 
         api
           .addOrReplace(payload)

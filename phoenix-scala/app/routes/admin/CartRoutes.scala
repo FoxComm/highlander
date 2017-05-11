@@ -74,6 +74,13 @@ object CartRoutes {
               }
             } ~
             pathPrefix("payment-methods") {
+              pathPrefix("apple-pay") {
+                (post & pathEnd & entity(as[CreateApplePayPayment])) { payload ⇒
+                  mutateOrFailures {
+                    CartPaymentUpdater.addApplePayPayment(auth.model, payload, refNum.some)
+                  }
+                }
+              } ~
               pathPrefix("credit-cards") {
                 (post & pathEnd & entity(as[CreditCardPayment])) { payload ⇒
                   mutateOrFailures {

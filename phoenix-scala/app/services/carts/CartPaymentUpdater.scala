@@ -186,9 +186,10 @@ object CartPaymentUpdater {
 
   def addApplePayPayment(
       originator: User,
-      payload: CreateApplePayPayment)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
+      payload: CreateApplePayPayment,
+      cartRefNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     for {
-      cart ← * <~ getCartByOriginator(originator)
+      cart ← * <~ getCartByOriginator(originator, cartRefNum)
       _    ← * <~ OrderPayments.filter(_.cordRef === cart.refNum).applePays.delete
 
       //    create apple charge

@@ -10,7 +10,7 @@ import payloads.CustomerGroupPayloads.AddCustomerToGroups
 import payloads.CustomerPayloads._
 import payloads.UserPayloads._
 import payloads.PaymentPayloads._
-import services.carts.CartQueries
+import services.carts.{CartPaymentUpdater, CartQueries}
 import services.customers._
 import services.account._
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditService}
