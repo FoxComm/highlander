@@ -379,6 +379,13 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     object payments {
       val paymentPrefix = s"$cartPath/payment-methods"
 
+      object applePay {
+        val applePayPrefix = s"$paymentPrefix/apple-pay"
+
+        def add(payload: CreateApplePayPayment)(implicit aa: TestAdminAuth): HttpResponse =
+          POST(applePayPrefix, payload, aa.jwtCookie.some)
+      }
+
       object creditCard {
         val creditCardPrefix = s"$paymentPrefix/credit-cards"
 

@@ -59,12 +59,7 @@ trait ReturnsFixtures
                         ))
     }
 
-    val apPayment =
-      withCustomerAuth(TestLoginData(email = customer.email.get, password = "password"),
-                       customer.id) { implicit auth ⇒
-        storefrontPaymentsApi.applePay.create(
-            CreateApplePayPayment(stripeToken = "tok_1A9YBQJVm1XvTUrO3V8caBvF"))
-      }.mustBeOk() // todo return actual response here
+    val applePayPayment = CreateApplePayPayment(stripeToken = "tok_1A9YBQJVm1XvTUrO3V8caBvF")
 
     val giftCard = api_newGiftCard(GiftCardCreateByCsr(balance = 1000, reasonId = reason.id))
 
@@ -89,6 +84,8 @@ trait ReturnsFixtures
           api.payments.creditCard
             .add(CreditCardPayment(creditCard.id))(defaultAdminAuth)
             .mustBeOk()
+        case (PaymentMethod.ApplePay, None) ⇒
+          api.payments.applePay.add(applePayPayment)(defaultAdminAuth).mustBeOk()
         case (PaymentMethod.GiftCard, amount) if amount.exists(_ <= giftCard.availableBalance) ⇒
           api.payments.giftCard
             .add(GiftCardPayment(giftCard.code, amount))(defaultAdminAuth)
@@ -209,7 +206,6 @@ trait ReturnsFixtures
 
     val paymentMethodTable = Table("paymentMethod",
                                    PaymentMethod.CreditCard,
-//                                   PaymentMethod.ApplePay, // fixme
                                    PaymentMethod.GiftCard,
                                    PaymentMethod.StoreCredit)
 
