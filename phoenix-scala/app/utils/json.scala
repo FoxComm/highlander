@@ -3,8 +3,8 @@ package utils
 import com.github.tminglei.slickpg.LTree
 import models.admin.AdminData
 import models.auth.Identity.IdentityKind
-import models.cord.{CordPaymentState, Order}
 import models.cord.lineitems._
+import models.cord.{CordPaymentState, Order}
 import models.customer.CustomerGroup
 import models.discount.offers.OfferType
 import models.discount.qualifiers.QualifierType
@@ -23,7 +23,7 @@ import models.{Assignment, Note, Reason}
 import org.json4s.JsonAST.JString
 import org.json4s.{CustomSerializer, JNull, TypeHints, jackson}
 import payloads.AuthPayload
-import payloads.ExportEntityPayloads._
+import payloads.EntityExportPayloads._
 import payloads.ReturnPayloads.ReturnLineItemPayload
 import responses.PublicResponses.CountryWithRegions
 
@@ -87,7 +87,8 @@ object JsonFormatters {
       CustomerGroup.GroupType.jsonFormat +
       AuthPayload.JwtClaimsSerializer + LTreeFormat +
       ReturnLineItemPayload.typeHints + PaymentMethod.Type.jsonKeyFormat +
-      ExportableEntity.jsonFormat + ExportEntity.Type.jsonFormat + ExportEntity.typeHints
+      ExportableEntity.jsonFormat + ExportEntity.Type.jsonFormat +
+      ExportEntity.typeHints + RawSortDefinition.jsonFormat
 
   object LTreeFormat
       extends CustomSerializer[LTree](format ⇒
