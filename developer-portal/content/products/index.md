@@ -41,7 +41,9 @@ Along with the product id, you must specify which view you want.
 
 ``` javascript
 fox.products.one('default',1343).then( (product) => {
-    //do something with the cart like render it.
+    var title = product.attributes.title;
+    //attributes have a type and a value in the 't' and 'v' 
+    //keys.
 });
 ```
 
