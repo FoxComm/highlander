@@ -1,5 +1,10 @@
 /* @flow */
+import React, { Element } from 'react';
+
+import _ from 'lodash';
 import { flow, map, filter, getOr, invoke, reduce, set } from 'lodash/fp';
+
+import { BulkExportModal } from 'components/bulk-actions/modal';
 
 /**
   @propName - a property name used for constructing @props (e.g. referenceNumber, code, etc.)
@@ -57,4 +62,33 @@ export const getPropsByIds = (
     filter(entry => ids.indexOf(entry.id) !== -1),
     reduce((obj, entry) => set(entry[prop1], entry[prop2], obj), {})
   )(state);
+};
+
+/**
+  @tableColumns - columns of the entity's table (e.g. referenceNumber, state, customer.name, etc.)
+
+  @toggledIds - ids of the toggled elements of the table
+
+  @exportByIds - redux action to start the export
+
+  @title - a title for the modal
+
+  @entity - the name of the entity (e.g. giftCards, promotions, etc.)
+*/
+export const renderExportModal = (
+  tableColumns: Array<Object>,
+  toggledIds: Array<number>,
+  exportByIds: Function,
+  title: string,
+  entity: string
+): Element<*> => {
+  const fields = _.map(tableColumns, c => c.field);
+  const identifier = _.map(tableColumns, item => item.text).toString();
+  return (
+    <BulkExportModal
+      count={toggledIds.length}
+      onConfirm={(description) => exportByIds(toggledIds, description, fields, entity, identifier)}
+      title={title}
+    />
+  );
 };

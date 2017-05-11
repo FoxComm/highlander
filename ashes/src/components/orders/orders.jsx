@@ -7,23 +7,21 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { getIdsByProps, bulkExportBulkAction } from 'modules/bulk-export/helpers';
+import { bulkExportBulkAction, renderExportModal, getIdsByProps } from 'modules/bulk-export/helpers';
 
 // actions
 import { stateTitles } from '../../paragons/order';
 import { actions } from '../../modules/orders/list';
 import { actions as bulkActions } from '../../modules/orders/bulk';
+import { bulkExport } from 'modules/bulk-export/bulk-export';
 
 // components
 import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
 import { SelectableSearchList } from '../list-page';
 import OrderRow from './order-row';
-import { ChangeStateModal, CancelModal, BulkExportModal } from '../bulk-actions/modal';
+import { ChangeStateModal, CancelModal } from '../bulk-actions/modal';
 import { Link } from '../link';
-
-// actions
-import { bulkExport } from 'modules/bulk-export/bulk-export';
 
 type Props = {
   list: Object,
@@ -60,18 +58,12 @@ class Orders extends Component {
   bulkExport(allChecked: boolean, toggledIds: Array<string>) {
     const { list } = this.props;
     const { exportByIds } = this.props.bulkActions;
-    const fields = _.map(tableColumns, c => c.field);
-    const identifier = _.map(tableColumns, item => item.text).toString();
+    const modalTitle = 'Orders';
+    const entity = 'orders';
     const results = list.currentSearch().results.rows;
     const ids = getIdsByProps('referenceNumber', toggledIds, results);
 
-    return (
-      <BulkExportModal
-        count={toggledIds.length}
-        onConfirm={(description) => exportByIds(ids, description, fields, 'orders', identifier)}
-        title="Orders"
-      />
-    );
+    return renderExportModal(tableColumns, ids, exportByIds, modalTitle, entity);
   }
 
   getChangeOrdersState(state: string) {
