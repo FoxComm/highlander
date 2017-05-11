@@ -1,3 +1,5 @@
+/* @flow */
+
 // libs
 import _ from 'lodash';
 import { flow, filter, getOr, invoke, map } from 'lodash/fp';
@@ -11,7 +13,7 @@ import { reducers, getSuccesses as _getSuccesses, bulkActions, createExportByIds
 
 const getSuccesses = _.partial(_getSuccesses, 'order');
 
-const getOrders = (getState, ids) => {
+const getOrders = (getState: Function, ids: Array<number>) => {
   const orders =  flow(
     invoke('orders.list.currentSearch'),
     getOr([], 'results.rows'),
@@ -21,8 +23,8 @@ const getOrders = (getState, ids) => {
   return getSuccesses(orders);
 };
 
-const cancelOrders = (actions, referenceNumbers, reasonId) =>
-  dispatch => {
+const cancelOrders = (actions: Object, referenceNumbers: Array<string>, reasonId: number) =>
+  (dispatch: Function) => {
     dispatch(actions.bulkRequest());
     Api.patch('/orders', {
       referenceNumbers,
@@ -42,8 +44,8 @@ const cancelOrders = (actions, referenceNumbers, reasonId) =>
 
 const exportByIds = createExportByIds(getOrders);
 
-const changeOrdersState = (actions, referenceNumbers, state) =>
-  dispatch => {
+const changeOrdersState = (actions: Object, referenceNumbers: Array<string>, state: string) =>
+  (dispatch: Function) => {
     dispatch(actions.bulkRequest());
     Api.patch('/orders', {
       referenceNumbers,

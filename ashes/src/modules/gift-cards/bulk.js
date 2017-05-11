@@ -2,33 +2,35 @@
 
 // libs
 import _ from 'lodash';
-import { flow, filter, getOr, invoke, reduce, set } from 'lodash/fp';
+import { flow, map, filter, reduce } from 'lodash/fp';
 
 // helpers
 import Api from '../../lib/api';
 import createStore from '../../lib/store-creator';
+import { getPropsByIds } from 'modules/bulk-export/helpers';
 
 // data
 import { reducers, createExportByIds } from '../bulk';
-
 const getCodes = (getState: Function, ids: Array<number>): Object => {
-  return flow(
-    invoke('giftCards.list.currentSearch'),
-    getOr([], 'results.rows'),
-    filter(c => ids.indexOf(c.id) !== -1),
-    reduce((obj, c) => set(c.code, c.code, obj), {})
-  )(getState());
+  return getPropsByIds('giftCards', ids, ['code'], getState());
 };
 
 // TODO remove when https://github.com/FoxComm/phoenix-scala/issues/763 closed
 const preprocessResponse = (results: Object): Object => {
-  const successes = results
-    .filter(({success}) => success)
-    .map(({code}) => code);
+  const successes = flow(
+    filter(result => result.success),
+    map(result => result.code)
+  )(results);
 
-  const errors = results
-    .filter(({success}) => !success)
-    .reduce((result, {code, errors}) => ({...result, [code]: errors[0]}), {});
+  const errors = flow(
+    filter(result => !result.success),
+    reduce((obj, result) => {
+      return {
+        ...result,
+        [result.code]: result.errors[0],
+      };
+    }, {})
+  )(results);
 
   return {
     batch: {

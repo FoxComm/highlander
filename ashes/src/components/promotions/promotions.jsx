@@ -1,39 +1,34 @@
-/**
- * @flow
- */
+/* @flow */
 
 // libs
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { filterArchived } from 'elastic/archive';
+import { bulkExportBulkAction } from 'modules/bulk-export/helpers';
+import _ from 'lodash';
 
 // components
 import { SelectableSearchList } from '../list-page';
 import PromotionRow from './promotion-row';
 import BulkWrapper from '../discounts/bulk';
+import { BulkExportModal } from '../bulk-actions/modal';
 
-// redux
-import { actions } from '../../modules/promotions/list';
-
-// helpers
-import { filterArchived } from 'elastic/archive';
+// actions
+import { actions } from 'modules/promotions/list';
+import { bulkExport } from 'modules/bulk-export/bulk-export';
+import { actions as bulkActions } from 'modules/promotions/bulk';
 
 type Props = {
   list: Object,
   actions: Object,
-};
-
-const mapStateToProps = (state: Object) => {
-  return {
-    list: state.promotions.list,
-  };
-};
-
-const mapDispatchToProps = (dispatch: Function) => {
-  return {
-    actions: bindActionCreators(actions, dispatch),
-  };
+  bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
+  bulkActions: {
+    exportByIds: (
+      ids: Array<number>, description: string, fields: Array<string>, entity: string, identifier: string
+    ) => void,
+  },
 };
 
 const tableColumns = [
@@ -46,10 +41,7 @@ const tableColumns = [
   {field: 'state', text: 'State'},
 ];
 
-/* ::`*/
-@connect(mapStateToProps, mapDispatchToProps)
-/* ::`*/
-export default class Promotions extends Component {
+class Promotions extends Component {
   props: Props;
 
   @autobind
@@ -69,6 +61,27 @@ export default class Promotions extends Component {
     );
   }
 
+  @autobind
+  bulkExport(allChecked: boolean, toggledIds: Array<number>) {
+    const { exportByIds } = this.props.bulkActions;
+    const fields = _.map(tableColumns, c => c.field);
+    const identifier = _.map(tableColumns, item => item.text).toString();
+
+    return (
+      <BulkExportModal
+        count={toggledIds.length}
+        onConfirm={(description) => exportByIds(toggledIds, description, fields, 'promotions', identifier)}
+        title="Promotions"
+      />
+    );
+  }
+
+  get bulkActions() {
+    return [
+      bulkExportBulkAction(this.bulkExport, 'Promotions'),
+    ];
+  }
+
   render() {
     const {list, actions} = this.props;
 
@@ -79,8 +92,15 @@ export default class Promotions extends Component {
 
     return (
       <div className="promotions">
-        <BulkWrapper onDelete={searchActions.refresh} entity="promotion">
+        <BulkWrapper
+          onDelete={searchActions.refresh}
+          entity="promotion"
+          extraActions={this.bulkActions}
+        >
           <SelectableSearchList
+            exportEntity="promotions"
+            bulkExport
+            bulkExportAction={this.props.bulkExportAction}
             entity="promotions.list"
             emptyMessage="No promotions found."
             list={list}
@@ -93,3 +113,19 @@ export default class Promotions extends Component {
     );
   }
 }
+
+const mapStateToProps = (state: Object) => {
+  return {
+    list: _.get(state.promotions, 'list', {}),
+  };
+};
+
+const mapDispatchToProps = (dispatch: Function) => {
+  return {
+    actions: bindActionCreators(actions, dispatch),
+    bulkExportAction: bindActionCreators(bulkExport, dispatch),
+    bulkActions: bindActionCreators(bulkActions, dispatch),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Promotions);
