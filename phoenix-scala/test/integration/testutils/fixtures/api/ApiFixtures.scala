@@ -21,8 +21,10 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
 import utils.aliases.Json
-
 import scala.util.Random
+
+import payloads.ProductReviewPayloads.CreateProductReviewPayload
+import responses.ProductReviewResponses.ProductReviewResponse
 
 trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with JwtTestAuth {
   self: FoxSuite ⇒
@@ -141,5 +143,14 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
       activeTo.fold(commonAttrs)(act ⇒ commonAttrs + ("activeTo" → act)).asShadow
     }
 
+  }
+
+  trait ProductReviewApiFixture extends ProductSku_ApiFixture {
+    val reviewAttributes: Map[String, Json] = Map("title" → tv("title"), "body" → tv("body"))
+    private val payload = CreateProductReviewPayload(attributes = Map("title" → tv("title")),
+                                                     sku = skuCode,
+                                                     scope = None)
+    val productReview =
+      productReviewApi.create(payload)(implicitly, defaultAdminAuth).as[ProductReviewResponse]
   }
 }

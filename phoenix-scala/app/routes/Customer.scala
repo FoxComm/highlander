@@ -2,6 +2,7 @@ package routes
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+
 import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku.skuCodeRegex
 import models.payment.giftcard.GiftCard
@@ -11,6 +12,7 @@ import payloads.CartPayloads.CheckoutCart
 import payloads.CustomerPayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.PaymentPayloads._
+import payloads.ProductReviewPayloads.{CreateProductReviewPayload, UpdateProductReviewPayload}
 import payloads.UpdateShippingMethod
 import services.Authenticator.{UserAuthenticator, requireCustomerAuth}
 import services._
@@ -18,6 +20,7 @@ import services.carts._
 import services.customers.CustomerManager
 import services.orders.OrderQueries
 import services.product.ProductManager
+import services.review.ProductReviewManager
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
@@ -299,6 +302,26 @@ object Customer {
                 (delete & path(IntNumber) & pathEnd) { id ⇒
                   deleteOrFailures {
                     SaveForLaterManager.deleteSaveForLater(id)
+                  }
+                }
+              }
+            } ~
+            pathPrefix("review") {
+              determineObjectContext(db, ec) { implicit ctx ⇒
+                (post & entity(as[CreateProductReviewPayload]) & pathEnd) { payload ⇒
+                  mutateOrFailures {
+                    ProductReviewManager.createProductReview(auth.account.id, payload)
+                  }
+                } ~
+                (path(IntNumber) & patch & entity(as[UpdateProductReviewPayload]) & pathEnd) {
+                  (reviewId, payload) ⇒
+                    mutateOrFailures {
+                      ProductReviewManager.updateProductReview(auth.account.id, reviewId, payload)
+                    }
+                } ~
+                (delete & path(IntNumber) & pathEnd) { id ⇒
+                  deleteOrFailures {
+                    ProductReviewManager.archiveByContextAndId(id)
                   }
                 }
               }
