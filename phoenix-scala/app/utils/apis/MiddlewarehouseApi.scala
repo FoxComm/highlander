@@ -27,11 +27,16 @@ trait MiddlewarehouseApi {
 
 class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
 
+  case class MiddlewarehouseErrorInfo(sku: String, debug: String)
+
   def parseMwhErrors(message: String): Failures = {
-    val errorString = (parse(message) \ "errors").extractOpt[List[String]]
-    errorString
-      .flatMap(errors ⇒ Failures(errors.map(MiddlewarehouseError): _*))
-      .getOrElse(MiddlewarehouseError(message).single)
+    val errorObjects = (parse(message) \ "errors").extractOpt[List[MiddlewarehouseErrorInfo]]
+    val errorList = errorObjects.getOrElse(List(MiddlewarehouseErrorInfo("", message)))
+    val invalidSKUs = errorList.map(info => info.sku).mkString(", ")
+    logger.info("Middlewarehouse errors:")
+    logger.info(errorList.map(info => info.debug).mkString("\n"))
+    logger.info("Check Middlewarehouse logs for more details.")
+    return MiddlewarehouseError(s"Following SKUs are out of stock: $invalidSKUs. Please remove them from your cart to complete checkout.").single
   }
 
   override def hold(reservation: OrderInventoryHold)(implicit ec: EC, au: AU): Result[Unit] = {
@@ -45,7 +50,7 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     val f = Http(req.POST > AsMwhResponse).either.map {
       case Right(MwhResponse(status, _)) if status / 100 == 2 ⇒ Either.right(())
       case Right(MwhResponse(_, message))                     ⇒ Either.left(parseMwhErrors(message))
-      case Left(error)                                        ⇒ Either.left(MiddlewarehouseFailures.UnableToHoldLineItems.single)
+      case Left(_)                                            ⇒ Either.left(MiddlewarehouseFailures.UnableToHoldLineItems.single)
     }
     Result.fromFEither(f)
   }
