@@ -68,9 +68,7 @@ export default class Form extends Component {
   @autobind
   handleKeyPress(event) {
     if (event.keyCode === 13 /*enter*/) {
-      event.preventDefault();
-      const formReactDOM = ReactDOM.findDOMNode(this.refs.form);
-      formReactDOM.dispatchEvent(new Event('submit'));
+      this.handleSubmit(event);
     }
   }
 
