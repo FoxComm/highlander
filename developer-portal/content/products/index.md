@@ -46,12 +46,6 @@ fox.products.one('default',1343).then( (product) => {
     //keys.
 });
 ```
-
-#### Adding Products
-``` javascript
-fox.cart.addSku('SKU-123', 10);
-```
-
 >>>
 
 ---
