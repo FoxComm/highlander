@@ -1,64 +1,122 @@
-
 import React from 'react';
+import { shallow } from 'enzyme';
 
-describe('Buttons', function() {
+describe('Buttons', function () {
   const Buttons = requireComponent('core/button/button.jsx', false);
 
-  it('should render Button', function() {
-    const props = {
-      children: 'Done'
-    };
-    const button = Buttons.Button(props);
+  it('should render Button', function () {
+    const button = shallow(
+      <Buttons.Button>Done</Buttons.Button>
+    );
 
-    expect(button).to.be.instanceof(Object);
-    expect(button.props.children, 'to contain', <span className="text">Done</span>);
+    expect(button.text()).to.equal('Done');
   });
 
-  it('should pass onClick to Button', function() {
-    const props = {
-      onClick: () => {return;}
-    };
-    const button = Buttons.Button(props);
+  it('should render Buttonw with icon and text', function () {
+    const button = shallow(
+      <Buttons.Button icon="fake">Done</Buttons.Button>
+    );
 
-    expect(button).to.be.instanceof(Object);
-    expect(button.props.onClick).to.equal(props.onClick);
+    expect(button.text()).to.equal('Done');
+    expect(button.find('i').hasClass('icon-fake')).to.be.true;
   });
 
-  it('should render icon in EditButton', function() {
-    const button = Buttons.EditButton();
+  it('should set onClick handler to Button', function () {
+    let counter = 0;
 
-    expect(button).to.be.instanceof(Object);
-    expect(button.props.icon).to.equal('edit');
+    const onClick = () => counter += 1;
+
+    const button = shallow(
+      <Buttons.Button onClick={onClick}>Done</Buttons.Button>
+    );
+
+    button.simulate('click');
+    expect(counter).to.equal(1);
   });
 
-  it('should render icon in DecrementButton', function() {
-    const button = Buttons.DecrementButton();
+  it('should render className in PrimaryButton', function () {
+    const className = 'super-button';
+    const button    = shallow(
+      <Buttons.PrimaryButton className={className} />
+    );
 
-    expect(button).to.be.instanceof(Object);
-    expect(button.props.icon).to.equal('chevron-down');
+    expect(button.hasClass('primary')).to.be.true;
+    expect(button.hasClass('super-button')).to.be.true;
   });
 
-  it('should render icon in IncrementButton', function() {
-    const button = Buttons.IncrementButton();
+  it('should render icon in LeftButton', function () {
+    const button = shallow(
+      <Buttons.LeftButton />
+    );
 
-    expect(button).to.be.instanceof(Object);
-    expect(button.props.icon).to.equal('chevron-up');
+    expect(button.dive().find('i').hasClass('icon-chevron-left')).to.be.true;
   });
 
-  it('should render icon in DeleteButton', function() {
-    const button = Buttons.DeleteButton({});
+  it('should render icon in RightButton', function () {
+    const button = shallow(
+      <Buttons.RightButton />
+    );
 
-    expect(button).to.be.instanceof(Object);
-    expect(button.props.icon).to.equal('trash');
+    expect(button.dive().find('i').hasClass('icon-chevron-right')).to.be.true;
   });
 
-  it('should render className in PrimaryButton', function() {
-    const props = {className: 'super-button', onClick: () => {}};
-    const button = Buttons.PrimaryButton(props);
+  it('should render icon in AddButton', function () {
+    const button = shallow(
+      <Buttons.AddButton />
+    );
 
-    expect(button).to.be.instanceof(Object);
-    expect(button.props.className).to.equal('super-button');
-    expect(button.props.className).to.equal('primary super-button');
-    expect(button.props.onClick).to.equal(props.onClick);
+    expect(button.dive().find('i').hasClass('icon-add')).to.be.true;
+  });
+
+  it('should render icon in EditButton', function () {
+    const button = shallow(
+      <Buttons.EditButton />
+    );
+
+    expect(button.dive().find('i').hasClass('icon-edit')).to.be.true;
+  });
+
+  it('should render icon in DeleteButton', function () {
+    const button = shallow(
+      <Buttons.DeleteButton />
+    );
+
+    expect(button.hasClass('delete')).to.be.true;
+    expect(button.dive().find('i').hasClass('icon-trash')).to.be.true;
+  });
+
+  it('should render icon in CloseButton', function () {
+    const button = shallow(
+      <Buttons.CloseButton />
+    );
+
+    expect(button.hasClass('close')).to.be.true;
+    expect(button.dive().find('i').hasClass('icon-close')).to.be.true;
+  });
+
+  it('should render icon in IncrementButton', function () {
+    const button = shallow(
+      <Buttons.IncrementButton />
+    );
+
+    expect(button.dive().find('i').hasClass('icon-chevron-up')).to.be.true;
+  });
+
+  it('should render icon in DecrementButton', function () {
+    const button = shallow(
+      <Buttons.DecrementButton />
+    );
+
+    expect(button.dive().find('i').hasClass('icon-chevron-down')).to.be.true;
+  });
+
+  it('should render icon in SocialButton with google icon', function () {
+    const button = shallow(
+      <Buttons.SocialButton type="google" />
+    );
+
+    expect(button.hasClass('socialButton')).to.be.true;
+    expect(button.hasClass('google')).to.be.true;
+    expect(button.dive().find('i').hasClass('icon-google')).to.be.true;
   });
 });
