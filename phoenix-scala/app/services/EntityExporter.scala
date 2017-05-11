@@ -45,7 +45,8 @@ object EntityExporter {
     implicit val chunkable = Chunkable.csvChunkable(payload.fields.map(_.displayName))
 
     val index = s"admin_${au.token.scope}" / entity.searchView
-    val fields = payload.fields.map {
+    val fields = entity.extraFields
+        .map(getPath(_, removeArrayIndices = true).mkString(".")) ::: payload.fields.map {
       case ExportField(name, _) ⇒
         getPath(name, removeArrayIndices = true)
           .mkString(".") // we don't care about array index if it exists
@@ -59,10 +60,13 @@ object EntityExporter {
     val csvSource = jsonSource.collect {
       case obj: JObject ⇒
         payload.fields.map {
+          case ExportField(name, displayName) if entity.calculateFields.isDefinedAt((name, obj)) ⇒
+            (displayName, entity.calculateFields((name, obj)))
           case ExportField(name, displayName) ⇒
-            displayName → extractValue(getPath(name, removeArrayIndices = false), Some(obj))
-              .getOrElse("")
+            (displayName,
+             extractValue(getPath(name, removeArrayIndices = false), Some(obj)).getOrElse(""))
         }
+
     }
 
     Http.renderAttachment(fileName = setName(payload, entity))(csvSource)
@@ -88,7 +92,7 @@ object EntityExporter {
   @tailrec private def extractValue(path: List[String], acc: Option[JValue]): Option[String] = {
     def convert(jv: Option[JValue]) = jv.collect {
       case jn: JNumber ⇒ jn.values.toString
-      case jv: JValue  ⇒ jv.values.toString.replace("\"", "\"\"")
+      case jv: JValue  ⇒ s""" "${jv.values.toString.replace("\"", "\"\"")}" """.trim
     }
 
     (path, acc) match {
