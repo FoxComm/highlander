@@ -194,12 +194,6 @@ export default class MultiSelectTable extends React.Component {
     return [];
   }
 
-  get exportFields() {
-    const { columns } = this.props;
-
-    return columnsToPayload(columns);
-  }
-
   render() {
     const columns = this.columns;
 
@@ -215,8 +209,9 @@ export default class MultiSelectTable extends React.Component {
         tableIdentifier={this.getTableIdentifier()}
         renderRow={this.renderRow}
         exportEntity={this.props.exportEntity}
-        exportFields={this.exportFields}
+        exportFields={this.props.columns}
         bulkExport={this.props.bulkExport}
+        exportTitle={this.props.exportTitle}
         bulkExportAction={this.props.bulkExportAction}
       />
     );

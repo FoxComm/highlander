@@ -66,7 +66,7 @@ class Promotions extends Component {
     const modalTitle = 'Promotions';
     const entity = 'promotions';
 
-    return renderExportModal(tableColumns, toggledIds, exportByIds, modalTitle, entity);
+    return renderExportModal(tableColumns, entity, modalTitle, exportByIds, toggledIds);
   }
 
   get bulkActions() {
@@ -92,6 +92,7 @@ class Promotions extends Component {
         >
           <SelectableSearchList
             exportEntity="promotions"
+            exportTitle="Promotions"
             bulkExport
             bulkExportAction={this.props.bulkExportAction}
             entity="promotions.list"

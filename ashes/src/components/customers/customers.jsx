@@ -103,7 +103,7 @@ class Customers extends Component {
     const entity = 'customers';
 
     if (tableColumns) {
-      return renderExportModal(tableColumns, toggledIds, exportByIds, modalTitle, entity);
+      return renderExportModal(tableColumns, entity, modalTitle, exportByIds, toggledIds);
     }
   }
 
@@ -152,6 +152,7 @@ class Customers extends Component {
         >
           <SelectableSearchList
             exportEntity="customers"
+            exportTitle="Customers"
             bulkExport
             bulkExportAction={this.props.bulkExportAction}
             entity="customers.list"

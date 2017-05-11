@@ -63,7 +63,7 @@ class Orders extends Component {
     const results = list.currentSearch().results.rows;
     const ids = getIdsByProps('referenceNumber', toggledIds, results);
 
-    return renderExportModal(tableColumns, ids, exportByIds, modalTitle, entity);
+    return renderExportModal(tableColumns, entity, modalTitle, exportByIds, ids);
   }
 
   getChangeOrdersState(state: string) {
@@ -152,6 +152,7 @@ class Orders extends Component {
           <SelectableSearchList
             entity="orders.list"
             exportEntity="orders"
+            exportTitle="Orders"
             bulkExport
             bulkExportAction={this.props.bulkExportAction}
             emptyMessage="No orders found."

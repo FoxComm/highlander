@@ -95,7 +95,7 @@ class GiftCards extends Component {
     const results = list.currentSearch().results.rows;
     const ids = getIdsByProps('code', toggledIds, results);
 
-    return renderExportModal(tableColumns, ids, exportByIds, modalTitle, entity);
+    return renderExportModal(tableColumns, entity, modalTitle, exportByIds, ids);
   }
 
   get cancelGCAction(): Array<any> {
@@ -150,6 +150,7 @@ class GiftCards extends Component {
           actions={this.bulkActions}>
           <SelectableSearchList
             exportEntity="giftCards"
+            exportTitle="Gift Cards"
             bulkExport
             bulkExportAction={this.props.bulkExportAction}
             entity="giftCards.list"

@@ -68,7 +68,7 @@ class Carts extends Component {
     const results = list.currentSearch().results.rows;
     const ids = getIdsByProps('referenceNumber', toggledIds, results);
 
-    return renderExportModal(tableColumns, ids, exportByIds, modalTitle, entity);
+    return renderExportModal(tableColumns, entity, modalTitle, exportByIds, ids);
   }
 
   get bulkActions() {
@@ -103,6 +103,7 @@ class Carts extends Component {
         >
           <SelectableSearchList
             exportEntity="carts"
+            exportTitle="Carts"
             bulkExport
             bulkExportAction={this.props.bulkExportAction}
             entity="carts.list"
