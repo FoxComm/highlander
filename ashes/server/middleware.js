@@ -78,13 +78,14 @@ module.exports = function(app) {
   app.renderLayout = function *() {
     const layoutData = _.defaults({
       tokenOk: !!this.state.token,
-      stylesheet: `/admin/admin.css`,
+      stylesheet: process.env.NODE_ENV === 'production' && `/admin/styles.css`,
       javascript: `/admin/main.js`,
       // use GA_LOCAL=1 gulp dev command for enable tracking events in google analytics from localhost
       gaEnableLocal: 'GA_LOCAL' in process.env,
       JWT: JSON.stringify(this.state.jwt || null),
       stripeApiKey: JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY || null),
-    }, config.layout.pageConstants);
+      GA_TRACKING_ID: process.env.GA_TRACKING_ID,
+    });
 
     this.body = layout(layoutData);
   };

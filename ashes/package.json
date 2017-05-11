@@ -11,18 +11,6 @@
   "os": [
     "!win32"
   ],
-  "scripts": {
-    "test": "make test",
-    "start": "node --harmony boot.js",
-    "stop": "kill -USR2 $(ps aux | grep '[m]-ashes' | awk '{print $2}')",
-    "build": "gulp",
-    "dev": "gulp dev --optimize_for_size --stack_size=4096",
-    "flow": "flow check",
-    "lint": "gulp lint",
-    "precompile": "babel src -d lib",
-    "watch-precompile": "babel src -d lib -w --skip-initial-build",
-    "styleguide": "styleguidist server --config styleguide/config.styleguide.js"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/FoxComm/highlander.git"
@@ -135,6 +123,7 @@
     "eslint": "^3.19.0",
     "eslint-plugin-lodash-fp": "^2.1.3",
     "eslint-plugin-react": "^6.10.3",
+    "extract-text-webpack-plugin": "^2.1.0",
     "file-loader": "^0.11.1",
     "flow-bin": "^0.45.0",
     "gulp": "^3.9.0",
