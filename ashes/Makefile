@@ -49,9 +49,18 @@ run-production: setup stop
 rev:
 	git describe --always | cat > .git-rev
 
-dev d: rev
+.PHONY: nodemon
+nodemon: rev
 	test -f .env && export eval `cat .env` || true &&\
-	 ./node_modules/.bin/nodemon --watch server --watch config --watch ./ -e js,tmpl boot.js
+	 ./node_modules/.bin/nodemon --watch server --watch config --watch ./boot.js -e js,tmpl boot.js
+
+.PHONY: dev_build
+dev_build:
+	./node_modules/.bin/webpack --progress --colors --watch
+
+.PHONY: dev d
+dev d:
+	make --jobs dev_build nodemon
 
 prod p:
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ./node_modules/.bin/gulp build
@@ -86,7 +95,4 @@ docker-push:
 	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
-webpack:
-	./node_modules/.bin/webpack --progress --colors --watch
-
-.PHONY: hooks rev dev d prod p build test test-cov tag docker docker-push webpack
+.PHONY: hooks rev dev d prod p build test test-cov tag docker docker-push

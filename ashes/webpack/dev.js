@@ -5,13 +5,16 @@ const webpack = require('webpack');
 // const StatsPlugin = require('stats-webpack-plugin');
 // const StatsWriterPlugin = require('webpack-stats-plugin').StatsWriterPlugin;
 
-// const SvgStore = require('webpack-svgstore-plugin');
+const SvgStore = require('webpack-svgstore-plugin');
 
 module.exports = {
-  entry: [ 'babel-polyfill', './src/client.js' ],
+  entry: [
+    'babel-polyfill',
+    path.resolve(__dirname, '../src/client.js')
+  ],
 
   output: {
-    path: path.resolve('./public/admin'),
+    path: path.resolve(__dirname, '../public/admin'),
     filename: '[name].js',
   },
 
@@ -25,7 +28,6 @@ module.exports = {
         test: /\.js(x)?$/,
         exclude: /node_modules/,
         use: [ 'babel-loader' ]
-
       },
       {
         test: /\.css$/,
@@ -55,12 +57,14 @@ module.exports = {
         NODE_ENV: JSON.stringify(process.env.NODE_ENV)
       }
     }),
+
+    new SvgStore({}),
   ],
 
   resolve: {
     modules: [
-      path.resolve(__dirname, 'node_modules'),
-      path.resolve(__dirname, 'src')
+      path.resolve(__dirname, '../node_modules'),
+      path.resolve(__dirname, '../src')
     ],
     extensions: ['.js', '.jsx']
   },

@@ -200,9 +200,11 @@
     "webpack-dev-middleware": "^1.10.2",
     "webpack-dev-server": "^2.4.5",
     "webpack-merge": "^4.1.0",
+    "webpack-svgstore-plugin": "^4.0.0",
     "xmlhttprequest": "^1.7.0"
   },
   "directories": {
     "test": "test"
-  }
+  },
+  "optionalDependencies": {}
 }
