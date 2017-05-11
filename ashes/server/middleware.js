@@ -2,11 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
 const jwt = require('jsonwebtoken');
-require('babel-polyfill');
-
-const htmlescape = require('htmlescape');
-
-const { isPathRequiredAuth } = require('../lib/route-rules');
 
 function loadPublicKey(config) {
   try {
@@ -25,12 +20,16 @@ module.exports = function(app) {
 
   function getToken(ctx) {
     const jwtToken = ctx.cookies.get(config.api.auth.cookieName);
+
     if (!jwtToken) {
       return null;
     }
+
     ctx.state.jwt = jwtToken;
+
     try {
       let token;
+
       if (process.env.DEV_SKIP_JWT_VERIFY) {
         console.info('DEV_SKIP_JWT_VERIFY is enabled, JWT is not verified');
         token = jwt.decode(jwtToken);
@@ -41,26 +40,20 @@ module.exports = function(app) {
           algorithms: ['RS256', 'RS384', 'RS512']
         });
       }
+
       if (!_.includes(token.roles, 'admin')) {
         console.info('token.roles doesn\'t contain admin role', token.roles);
         return null; // only admins allowed to proceed
       }
+
       return token;
-    }
-    catch(err) {
+    } catch(err) {
       console.warn(`Can't decode token: ${err}`);
     }
   }
 
-  app.requireAdmin = function *(next) {
-    if (isPathRequiredAuth(this.request.path)) {
-      const token = getToken(this);
-      // TODO: When we read tokens, validate that we have a claim to the admin UI.
-      if (!token) {
-        this.redirect(config.api.auth.loginUri);
-      }
-      this.state.token = token;
-    }
+  app.verifyToken = function *(next) {
+    this.state.token = getToken(this);
 
     yield next;
   };
@@ -83,11 +76,8 @@ module.exports = function(app) {
   };
 
   app.renderLayout = function *() {
-    let bootstrap = {
-      path: this.path
-    };
-
-    let layoutData = _.defaults({
+    const layoutData = _.defaults({
+      tokenOk: !!this.state.token,
       stylesheet: `/admin/admin.css`,
       javascript: `/admin/main.js`,
       // use GA_LOCAL=1 gulp dev command for enable tracking events in google analytics from localhost

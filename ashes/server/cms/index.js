@@ -7,7 +7,6 @@ module.exports = function(app) {
     .get('/:path*', app.renderLayout);
 
   app
-    .use(app.requireAdmin)
     .use(router.routes())
     .use(router.allowedMethods());
 };

@@ -5,15 +5,16 @@ const favicon = require('koa-favicon');
 const serve = require('koa-better-static');
 const Config  = require(path.resolve('config'));
 
-require('babel-polyfill');
-require('../src/postcss').installHook();
-
 const app = koa();
+
+const publicDir = path.resolve(__dirname + './../public');
+const buildDir = path.resolve(__dirname + './../build');
 
 app.init = co.wrap(function *(env) {
   if (env) { app.env = env; }
   app.config = new Config(app.env);
-  app.use(serve(app.config.server.publicDir, { index: 'index.html' }));
+  app.use(serve(buildDir));
+  app.use(serve(publicDir));
   app.use(favicon(app.config.layout.favicon));
   if (app.env.environment !== 'production') {
     app.use(require('koa-logger')());
