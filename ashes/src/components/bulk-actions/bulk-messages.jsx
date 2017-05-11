@@ -17,7 +17,7 @@ type Props = {
   storePath: string,
   module: string,
   entity: string,
-  renderDetails: () => ReactElement,
+  renderDetail: () => ReactElement,
   hideAlertDetails?: boolean,
   bulk: {
     successes: ?Object,
@@ -43,7 +43,6 @@ class BulkMessages extends Component {
     const { bulk, bulkActions, entity, renderDetail, hideAlertDetails } = this.props;
     const { successes, errors, messages, error } = bulk;
     const { clearSuccesses, clearErrors, clearError } = bulkActions;
-
     const notifications = [];
 
     if (successes) {

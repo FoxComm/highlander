@@ -8,13 +8,13 @@ import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { stateTitles } from 'paragons/gift-card';
-import { getIdsByProps, bulkExportBulkAction } from 'modules/bulk-export/helpers';
+import { getIdsByProps, bulkExportBulkAction, renderExportModal } from 'modules/bulk-export/helpers';
 
 // components
 import BulkActions from 'components/bulk-actions/bulk-actions';
 import BulkMessages from 'components/bulk-actions/bulk-messages';
 import GiftCardRow from './gift-card-row';
-import { ChangeStateModal, CancelModal, BulkExportModal } from 'components/bulk-actions/modal';
+import { ChangeStateModal, CancelModal } from 'components/bulk-actions/modal';
 import { SelectableSearchList } from 'components/list-page';
 import { Link } from 'components/link';
 
@@ -90,18 +90,12 @@ class GiftCards extends Component {
   bulkExport(allChecked: boolean, toggledIds: Array<string>) {
     const { list } = this.props;
     const { exportByIds } = this.props.bulkActions;
-    const fields = _.map(tableColumns, c => c.field);
-    const identifier = _.map(tableColumns, item => item.text).toString();
+    const modalTitle = 'Gift Cards';
+    const entity = 'giftCards';
     const results = list.currentSearch().results.rows;
     const ids = getIdsByProps('code', toggledIds, results);
 
-    return (
-      <BulkExportModal
-        count={toggledIds.length}
-        onConfirm={(description) => exportByIds(ids, description, fields, 'giftCards', identifier)}
-        title="Gift Cards"
-      />
-    );
+    return renderExportModal(tableColumns, ids, exportByIds, modalTitle, entity);
   }
 
   get cancelGCAction(): Array<any> {

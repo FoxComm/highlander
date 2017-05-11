@@ -1,6 +1,4 @@
-/**
- * @flow
- */
+/* @flow */
 
 import React, { Component } from 'react';
 
@@ -9,7 +7,7 @@ import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { bulkExportBulkAction } from 'modules/bulk-export/helpers';
+import { bulkExportBulkAction, renderExportModal } from 'modules/bulk-export/helpers';
 
 // components
 import { Link } from 'components/link';
@@ -18,7 +16,6 @@ import BulkMessages from 'components/bulk-actions/bulk-messages';
 import SearchGroupModal from './groups/search-group-modal';
 import { SelectableSearchList } from 'components/list-page';
 import CustomerRow from './customer-row';
-import { BulkExportModal } from 'components/bulk-actions/modal';
 
 // actions
 import { actions as bulkActions } from 'modules/customers/bulk';
@@ -100,18 +97,14 @@ class Customers extends Component {
 
   @autobind
   bulkExport(allChecked: boolean, toggledIds: Array<number>) {
-    const { tableColumns } = this.props;
     const { exportByIds } = this.props.bulkActions;
-    const fields = _.map(tableColumns, c => c.field);
-    const identifier = _.map(tableColumns, item => item.text).toString();
+    const { tableColumns } = this.props;
+    const modalTitle = 'Customers';
+    const entity = 'customers';
 
-    return (
-      <BulkExportModal
-        count={toggledIds.length}
-        onConfirm={(description) => exportByIds(toggledIds, description, fields, 'customers', identifier)}
-        title="Customers"
-      />
-    );
+    if (tableColumns) {
+      return renderExportModal(tableColumns, toggledIds, exportByIds, modalTitle, entity);
+    }
   }
 
   @autobind

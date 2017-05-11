@@ -6,14 +6,13 @@ import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { filterArchived } from 'elastic/archive';
-import { bulkExportBulkAction } from 'modules/bulk-export/helpers';
+import { bulkExportBulkAction, renderExportModal } from 'modules/bulk-export/helpers';
 import _ from 'lodash';
 
 // components
 import { SelectableSearchList } from '../list-page';
 import PromotionRow from './promotion-row';
 import BulkWrapper from '../discounts/bulk';
-import { BulkExportModal } from '../bulk-actions/modal';
 
 // actions
 import { actions } from 'modules/promotions/list';
@@ -64,16 +63,10 @@ class Promotions extends Component {
   @autobind
   bulkExport(allChecked: boolean, toggledIds: Array<number>) {
     const { exportByIds } = this.props.bulkActions;
-    const fields = _.map(tableColumns, c => c.field);
-    const identifier = _.map(tableColumns, item => item.text).toString();
+    const modalTitle = 'Promotions';
+    const entity = 'promotions';
 
-    return (
-      <BulkExportModal
-        count={toggledIds.length}
-        onConfirm={(description) => exportByIds(toggledIds, description, fields, 'promotions', identifier)}
-        title="Promotions"
-      />
-    );
+    return renderExportModal(tableColumns, toggledIds, exportByIds, modalTitle, entity);
   }
 
   get bulkActions() {
