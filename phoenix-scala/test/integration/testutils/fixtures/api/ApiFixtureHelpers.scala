@@ -47,15 +47,6 @@ trait ApiFixtureHelpers extends PhoenixAdminApi with PhoenixStorefrontApi with A
       .create(payload)(defaultAdminAuth)
       .as[CreditCardsResponse.Root]
 
-  def api_newApplePay(payload: CreateApplePayPayment)(implicit sl: SL, sf: SF): Unit = {
-    val (customer, testLoginData) = api_newCustomerWithLogin()
-    api_newCustomerCart(customer.id)
-
-    withCustomerAuth(testLoginData, customer.id) { implicit auth ⇒
-      storefrontPaymentsApi.applePay.create(payload).mustBeOk()
-    }
-  }
-
   def api_newGiftCard(payload: GiftCardCreateByCsr)(implicit sl: SL,
                                                     sf: SF): GiftCardResponse.Root =
     giftCardsApi.create(payload)(defaultAdminAuth).as[GiftCardResponse.Root]

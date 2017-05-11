@@ -38,7 +38,6 @@ class ReturnIntegrationTest
     with PropertyChecks {
 
   "Returns header" - {
-    pending
     val refNotExist = "ABC-666"
 
     "successfully creates new Return" in new ReturnFixture with OrderDefaults {
@@ -289,7 +288,6 @@ class ReturnIntegrationTest
   }
 
   "Return line items" - {
-    pending
     "POST /v1/returns/:refNum/line-items" - {
       "successfully adds shipping cost line item" in new ReturnDefaults with ReturnReasonDefaults {
         val payload = ReturnShippingCostLineItemPayload(amount = order.totals.shipping,
@@ -513,22 +511,26 @@ class ReturnIntegrationTest
       }
 
       "Apple Pay charges should be taken into account" in new ReturnPaymentDefaults {
-        val apRma = createReturn(
-            orderRef = createDefaultOrder(
-                paymentMethods = Map(PaymentMethod.ApplePay    → None,
-                                     PaymentMethod.StoreCredit → 120.some)).referenceNumber)
+        val apOrder = createDefaultOrder(
+            paymentMethods = Map(PaymentMethod.ApplePay → None),
+            items = List(UpdateLineItemsPayload(product.code, 5))
+        )
+
+        val apRma = createReturn(apOrder.referenceNumber)
+
+        val apShippingCostItemId =
+          createReturnLineItem(shippingCostPayload, apRma.referenceNumber).lineItems.shippingCosts.value.id
+        val apSkuItemId =
+          createReturnLineItem(skuPayload, apRma.referenceNumber).lineItems.skus.head.id
+
         val api = returnsApi(apRma.referenceNumber).paymentMethods
 
-        val payload =
-          ReturnPaymentsPayload(Map(PaymentMethod.ApplePay → 50, PaymentMethod.StoreCredit → 10))
-
         api
-          .addOrReplace(payload)
+          .add(PaymentMethod.ApplePay, ReturnPaymentPayload(50))
           .as[ReturnResponse.Root]
           .payments
           .asMap
-          .mapValues(_.amount) must === (payload.payments)
-
+          .mapValues(_.amount) must === (Map[PaymentMethod.Type, Int](PaymentMethod.ApplePay → 50))
       }
 
       "bulk insert should override any existing payments, whilst single addition endpoint should append payment to existing ones" in
