@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const path = require('path');
+const identity = require('lodash/identity');
 
 // '../../src/components/product/page' + 'wrapper' -> 'product/page__wrapper'
 function generateLongName(exportedName, filepath) {
@@ -24,7 +25,18 @@ function generateShortName(name, filename, css) {
   return `_${name}_${hash}_${numLines}`;
 }
 
-const generateScopedName = process.env.NODE_ENV === 'production' ? generateShortName : generateLongName;
+function generateScopedNameFn() {
+  switch (process.env.NODE_ENV) {
+    case 'test':
+      return identity;
+    case 'production':
+      return generateShortName;
+    default:
+      return generateLongName;
+  }
+}
+
+console.info(process.env.NODE_ENV);
 
 const plugins = [
   require('postcss-import')({
@@ -49,7 +61,7 @@ const plugins = [
   require('postcss-nested'),
   require('postcss-modules-local-by-default'),
   require('postcss-modules-scope')({
-    generateScopedName,
+    generateScopedName: generateScopedNameFn(),
   }),
 ];
 
