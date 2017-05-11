@@ -1,6 +1,6 @@
 --- row
 <<< left
-# Activity Events Quickstart
+# Activity Events Guide
 
 The Fox Platform creates detailed events for all activity in the system. 
 These events are both accessible via the Admin interface and programmatically. 

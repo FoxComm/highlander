@@ -1,4 +1,4 @@
-### API Reference
+#### API Reference
 See the API reference for more.
 
 ::: note

@@ -1,6 +1,6 @@
 --- row
 <<< left
-# Channels Quickstart
+# Channels Guide
 
 The Fox Platform allows you to sell your products to external channels. Currently
 we support selling to [Amazon.com](www.amazon.com).

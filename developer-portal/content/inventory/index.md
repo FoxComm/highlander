@@ -1,7 +1,7 @@
 --- row
 
 <<< left
-# Inventory Quickstart
+# Inventory Guide
 
 The Fox Platform allows you to manage inventory across your warehouses. 
 Inventory is automatically integrated with the Order Management System.

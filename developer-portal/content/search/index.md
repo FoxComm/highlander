@@ -2,7 +2,7 @@
 
 <<< left
 
-# Search Quickstart
+# Search Guide
 
 The Fox Platform has sophisticated search features which allow more dynamic storefront experiences.
 

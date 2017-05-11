@@ -1,7 +1,7 @@
 --- row
 
 <<< left
-# Extending the Fox Platform Quickstart
+# Extending the Fox Platform Guide
 
 The Fox Platform is designed to be extended from inception. 
 

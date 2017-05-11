@@ -1,6 +1,6 @@
 --- row
 <<< left
-# Merchandising Quickstart
+# Merchandising Guide
 
 The Fox Platform provides powerful merchandising tools such as Promotions, Taxonomies, and Content Management,
 

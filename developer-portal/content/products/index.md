@@ -1,7 +1,7 @@
 --- row
 
 <<< left
-# Products Quickstart
+# Products Guide
 
 The Fox Platform has a very flexible Product model which allows custom attributes and
 different versions of the same product. 

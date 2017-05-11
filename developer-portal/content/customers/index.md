@@ -1,9 +1,13 @@
-# Customers and Checkout Quickstart
+# Customers and Checkout Guide
 --- row
 
 <<< left
-This quickstart will introduce you to accounts and the checkout process.
-Scroll down to the end for more articles detailing specifics and references to the API.
+The Fox Platform has a fully functional Customer Management System including support
+for guest and login accounts. 
+
+This guide will introduce you to customer accounts and the checkout process.
+By the end you should have an idea of what the checkout process looks like
+and how you can structure your storefronts checkout code.
 <<<
 
 >>> right
@@ -22,7 +26,7 @@ to their address book and payment methods.
 
 <img class='eimg' src="data/login.png"/>
 
-### More about Accounts
+#### More about Accounts
 ::: note
 [Create a guest account with an email](guest.html)
 :::
@@ -39,7 +43,8 @@ to their address book and payment methods.
 
 >>> right
 
-### Registering a User
+<br></br>
+#### Registering a User
 
 Signup will register a user and return the user information and a JWT authorization token.
 
@@ -52,13 +57,12 @@ fox.auth.signup('john@doe.com', 'John Doe', 'password')
     });
 ```
 
-### Guest
+#### Guest
 
 Guest accounts are automatically created if a user isn't logged in and touched
 their cart. During checkout you want to set the users email.
 
 ``` javascript
-var fox = new FoxApi();
 fox.account.update({'foo@bar.com'});
 ```
 
@@ -77,7 +81,7 @@ checkout flows and there is no particular order in preparing the cart for checko
 
 <img class='eimg' src="data/cart.png"/>
 
-## More about Carts
+#### More about Carts
 ::: note
 [Create and manage a Cart](carts.html)
 :::
@@ -86,26 +90,17 @@ checkout flows and there is no particular order in preparing the cart for checko
 
 >>> right
 
-### Getting The Cart
+<br></br>
+#### Getting The Cart
 ``` javascript
-var fox = new FoxApi();
-fox.auth.login('john@doe.com', 'password', 'org')
-    .then(({jwt, user}) => {
-        fox.addAuth(jwt);
-        fox.cart.get().then( (cart) => {
-            //do something with the cart like render it.
-        });
+fox.cart.get().then( (cart) => {
+    //do something with the cart like render it.
 });
 ```
 
-### Adding Products
+#### Adding Products
 ``` javascript
-var fox = new FoxApi();
-fox.auth.login('john@doe.com', 'password', 'org')
-    .then(({jwt, user}) => {
-        fox.addAuth(jwt);
-        fox.cart.addSku('SKU-123', 10);
-});
+fox.cart.addSku('SKU-123', 10);
 ```
 
 >>>
@@ -135,7 +130,7 @@ or incorrect to create an order
 These items can be provided in any order which allows diverse checkout flows.
 :::
 
-### More about Checkout
+#### More about Checkout
 ::: note
 [Checkout and Error Handling](checkout.html)
 :::
@@ -144,67 +139,50 @@ These items can be provided in any order which allows diverse checkout flows.
 
 >>> right
 
-### Adding a New Shipping Address
+<br></br>
+#### Adding a New Shipping Address
 ``` javascript
-var fox = new FoxApi();
-fox.auth.login('john@doe.com', 'password', 'org')
-    .then(({jwt, user}) => {
-        fox.addAuth(jwt);
+var address = {
+    name: "John Doe",
+    address1: "325 W Richmor",
+    address2: "",
+    city: "Seattle",
+    phoneNumber: "6666666666",
+    zip: 98109,
+    regionId: regions["WA"],
+    isDefault: false,
+    country: 'United States'
+};
 
-        var address = {
-            name: "John Doe",
-            address1: "325 W Richmor",
-            address2: "",
-            city: "Seattle",
-            phoneNumber: "6666666666",
-            zip: 98109,
-            regionId: regions["WA"],
-            isDefault: false,
-            country: 'United States'
-        };
-
-        fox.addresses.add(address).then((newAddress) => {
-            fox.cart.setShippingAddressById(newAddress.id);
-        });
-    });
+fox.addresses.add(address).then((newAddress) => {
+    fox.cart.setShippingAddressById(newAddress.id);
+});
 ```
 
-### Adding a Credit Card
+#### Adding a Credit Card
 ``` javascript
-var fox = new FoxApi();
-fox.auth.login('john@doe.com', 'password', 'org')
-    .then(({jwt, user}) => {
-        fox.addAuth(jwt);
-
-        var stripe = Stripe('pk_test_6pRNASCoBOKtIshFeQd4XMUh');
-        stripe.tokens.create({
-                card: {
-                "name": "John Doe",
-                "number": '4242424242424242',
-                "exp_month": 12,
-                "exp_year": 2018,
-                "cvc": '123'
-                }
-        }).then((token) => {;
-            fox.creditCards.createCardFromStripeToken(token, address)
-                .then((card) => {;
-                    fox.cart.addCreditCard(card.id);
-                });
+var stripe = Stripe('pk_test_6pRNASCoBOKtIshFeQd4XMUh');
+stripe.tokens.create({
+        card: {
+        "name": "John Doe",
+        "number": '4242424242424242',
+        "exp_month": 12,
+        "exp_year": 2018,
+        "cvc": '123'
+        }
+}).then((token) => {;
+    fox.creditCards.createCardFromStripeToken(token, address)
+        .then((card) => {;
+            fox.cart.addCreditCard(card.id);
         });
-
-    });
+});
 ```
 
-### Completing Checkout
+#### Completing Checkout
 ``` javascript
-var fox = new FoxApi();
-fox.auth.login('john@doe.com', 'password', 'org')
-    .then(({jwt, user}) => {
-        fox.addAuth(jwt);
-        fox.cart.checkout().then((order) => {
-            //Show customer order number and summary
-        });
-    });
+fox.cart.checkout().then((order) => {
+    //Show customer order number and summary
+});
 ```
 
 >>>
@@ -221,7 +199,7 @@ default address is required for single click checkout.
 
 <img class='eimg' src="data/addresses.png"/>
 
-### More Address Books
+#### More Address Books
 ::: note
 [Managing the Address Book](address.html)
 :::
@@ -229,16 +207,12 @@ default address is required for single click checkout.
 
 >>> right
 
-### Getting Addresses
+<br></br>
+#### Getting Addresses
 
 ``` javascript
-var fox = new FoxApi();
-fox.auth.login('john@doe.com', 'password', 'org')
-    .then(({jwt, user}) => {
-        fox.addAuth(jwt);
-        fox.addresses.list().then( (addresses) => {
-            //do something with addresses such as choosing one during checkout.
-        });
+fox.addresses.list().then( (addresses) => {
+    //do something with addresses such as choosing one during checkout.
 });
 ```
 
@@ -255,23 +229,20 @@ Setting a default credit card is required for single click checkout.
 
 <img class='eimg' src="data/wallet.png"/>
 
-### More about Wallets
+#### More about Wallets
 ::: note
 - [Managing the Wallet](wallet.html)
 :::
 <<<
 
 >>> right
-### Fetching Cards
+
+<br></br>
+#### Fetching Cards
 
 ``` javascript
-var fox = new FoxApi();
-fox.auth.login('john@doe.com', 'password', 'org')
-    .then(({jwt, user}) => {
-        fox.addAuth(jwt);
-        fox.creditCards.list().then( (cards) => {
-            //do something with cards set as picking one during checkout.
-        });
+fox.creditCards.list().then( (cards) => {
+    //do something with cards set as picking one during checkout.
 });
 ```
 >>>

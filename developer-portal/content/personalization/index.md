@@ -1,6 +1,6 @@
 --- row
 <<< left
-# Personalization Quickstart
+# Personalization Guide
 
 The Fox Platform is constantly learning about who your customers are and their behavior. 
 You can personalize your experience via product recommendations, targeted messaging, and dynamic customer groups.
