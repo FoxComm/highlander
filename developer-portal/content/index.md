@@ -6,18 +6,24 @@
 Welcome to FoxCommerce! The Fox Platform is a large and diverse set of modern services
 that allow you create next generation commerce experiences. 
 
-Explore and get familiar with the different features of FoxCommerce:
+
 <<<
 
 >>> right
 <!-- include(api-ref-snippet.md) -->
 >>>
+---
 
+--- row
+<<< left
+# [API Reference](reference/index.html)
+<<<
 ---
 
 --- row
 
 <<< left
+# Guides
 ## [Customers/Checkout Guide](customers/index.html)
 Learn about customer accounts, registration, and checkout.
 
