@@ -202,8 +202,6 @@ trait ReturnsFixtures
         .add(payment, ReturnPaymentPayload(amount))(defaultAdminAuth)
         .as[ReturnResponse.Root]
 
-    def createApplePay(): Unit = api_newApplePay(CreateApplePayPayment("tok_123"))
-
     val paymentMethodTable = Table("paymentMethod",
                                    PaymentMethod.CreditCard,
                                    PaymentMethod.GiftCard,
