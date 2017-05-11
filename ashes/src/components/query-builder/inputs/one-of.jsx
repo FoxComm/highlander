@@ -6,7 +6,6 @@ import classNames from 'classnames';
 import { prefix } from 'lib/text-utils';
 
 //components
-import { Button } from 'components/common/buttons';
 import propTypes from '../widgets/propTypes';
 
 
