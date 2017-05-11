@@ -8,6 +8,7 @@ import { columnsToPayload } from './helpers';
 
 type Payload = {
   ids: Array<number>,
+  query: Object,
   fields: Array<Object>,
   description?: string,
 };
@@ -42,17 +43,22 @@ const genDownloadLink = (response: Object) => {
 
 export const bulkExport = createAsyncActions(
   'bulkExport',
-  function(fields, entity, identifier) {
+  function(fields, entity, identifier, description) {
     const { getState } = this;
     const queryFields = getFields(fields, identifier);
     const selectedSearch = getState()[entity].list.selectedSearch;
     const savedSearch = getState()[entity].list.savedSearches[selectedSearch];
     const query = getQuery(savedSearch.rawQuery);
 
-    return Api.post(`/export/${entity}`, {
-      payloadType: 'query',
+    const payload: Payload = {
       fields: queryFields,
       query,
+    };
+    if (description != null) payload.description = description;
+
+    return Api.post(`/export/${entity}`, {
+      payloadType: 'query',
+      ...payload,
     }).then((res) => {
       genDownloadLink(res);
     });
