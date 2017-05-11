@@ -82,8 +82,9 @@ export const renderExportModal = (
   title: string,
   entity: string
 ): Element<*> => {
-  const fields = _.map(tableColumns, c => c.field);
+  const fields = columnsToPayload(tableColumns);
   const identifier = _.map(tableColumns, item => item.text).toString();
+
   return (
     <BulkExportModal
       count={toggledIds.length}
@@ -91,4 +92,21 @@ export const renderExportModal = (
       title={title}
     />
   );
+};
+
+/**
+  @tableColumns - columns of the entity's table (e.g. referenceNumber, state, customer.name, etc.)
+*/
+export const columnsToPayload = (tableColumns: Array<Object>): Array<Object> => {
+  const fields = _.reduce(tableColumns, (acc, field) => {
+    return [
+      ...acc,
+      {
+        name: field.field,
+        displayName: field.text,
+      },
+    ];
+  }, []);
+
+  return fields;
 };

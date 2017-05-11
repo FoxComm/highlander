@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import localStorage from 'localStorage';
+import { columnsToPayload } from 'modules/bulk-export/helpers';
 
 // components
 import TableView from './tableview';
@@ -193,6 +194,12 @@ export default class MultiSelectTable extends React.Component {
     return [];
   }
 
+  get exportFields() {
+    const { columns } = this.props;
+
+    return columnsToPayload(columns);
+  }
+
   render() {
     const columns = this.columns;
 
@@ -208,7 +215,7 @@ export default class MultiSelectTable extends React.Component {
         tableIdentifier={this.getTableIdentifier()}
         renderRow={this.renderRow}
         exportEntity={this.props.exportEntity}
-        exportFields={_.map(this.props.columns, (c) => c.field)}
+        exportFields={this.exportFields}
         bulkExport={this.props.bulkExport}
         bulkExportAction={this.props.bulkExportAction}
       />

@@ -4,25 +4,23 @@ import Api from 'lib/api';
 import { createAsyncActions } from '@foxcomm/wings';
 import localStorage from 'localStorage';
 import _ from 'lodash';
-import { flow, map, filter } from 'lodash/fp';
+import { columnsToPayload } from './helpers';
 
 type Payload = {
   ids: Array<number>,
-  fields: Array<string>,
+  fields: Array<Object>,
   description?: string,
 };
 
-const getFields = (allFields: Array<string>, identifier: string): Array<string> => {
+const getFields = (allFields: Array<Object>, identifier: string): Array<Object> => {
   const columns = localStorage.getItem('columns') ? JSON.parse(localStorage.getItem('columns')) : {};
 
   if (_.isEmpty(columns[identifier])) {
     return allFields;
   }
 
-  return flow(
-    filter(column => column.isVisible === true),
-    map(c => c.field),
-  )(columns[identifier]);
+  const selectedFields = _.filter(columns[identifier], column => column.isVisible === true);
+  return columnsToPayload(selectedFields);
 };
 
 const getQuery = (raw: Object): Object => {
