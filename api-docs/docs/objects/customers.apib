@@ -2,23 +2,18 @@
 
 ## CustomerBase
 + id: 1 (required, number) - Unique identifier.
-+ name: `John Smith` (optional, string) - Full name.
-+ email: `john@smith.com` (required, string) - E-mail.
-+ phoneNumber: `123-444-4388` (optional, string) - Phone number.
-+ location: `San Francisco, CA` (optional, string) - Location.
-+ modality: `Desktop[PC]` (optional, string) - Client.
-+ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
-+ disabled: false (required, boolean) - Defines whether account is disabled.
-+ isGuest: false (required, boolean) - Defines whether account is guest.
-+ isBlacklisted: false (required, boolean) - Defines whether account is added to blacklisted.
++ name: `John Smith` (optional, string) - The customer's full name.
++ email: `john@smith.com` (required, string) - The customer's email - by default, this is a unique identifier for all non-guest customers.
++ isGuest: false (required, boolean) - Defines whether account is guest - these accounts do not contain account credentials and are therefore unable to login to the site.
++ disabled: false (required, boolean) - Defines whether account is disabled - if this is set, the customer will be unable to login.
++ isBlacklisted: false (required, boolean) - Defines whether account is added to blacklisted - blacklisted accounts are used for fraud and will allow customers to login but not purchase.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - The date when the customer was created.
 
 ## CustomerResponse
 - Include CustomerBase
-+ billingRegion (optional, Region) - Billing region name.
-+ shippingRegion (optional, Region) - Shipping region name.
-+ rank: 1 (optional, number) - Customer ranking.
-+ numOrders: 1 (optional, number) - Total number of orders.
-+ totalSales: 100 (optional, number) - Customers sales stats.
++ groups (required, array[GroupSummary]) - The list of groups that the customer is a part of - groups are used to manually or programatically cluster customers.
++ storeCreditTotals (required, StoreCreditTotals) - Summary information about the store credit balance that the user possesses.
++ totalSales: 100 (optional, number) - The amount of money, in cents, that the customer has spent on the site.
 
 ## FullCustomer
 - Include CustomerResponse

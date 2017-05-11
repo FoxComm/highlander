@@ -1,10 +1,38 @@
 ## Customer [/v1/customers/{id}]
 
+This object is the base customer entity.
+
++ Model (application/json)
+    + Attributes (CustomerResponse)
+
 + Parameters
     + id: 1 (required, number) - Customer ID.
 
-### View [GET]
+### Retrieve Customer [GET]
 
+Allows an administrator to retrieve a customer record, which includes basic
+information about the customer profile, location, and transaction summary.
+
++ Response 200 (application/json)
+    + Attributes (CustomerResponse)
+
+### Create New Customer [POST /v1/customers]
+
+Allows an administrator to create a new customer record. The new customer may
+either be a guest or full customer and the creator is given the option of
+whether to supply a password.
+
+New full customers must have a unique email address within their own scope.
+
++ Request (application/json)
+    + Attributes (CustomerCreatePayload)
++ Response 200 (application/json)
+    + Attributes (CustomerResponse)
+
+### Update Existing Customer [PATCH]
+
++ Request (application/json)
+    + Attributes(CustomerUpdatePayload)
 + Response 200 (application/json)
     + Attributes (CustomerResponse)
 
@@ -13,19 +41,6 @@
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-### Create [POST /v1/customers]
-
-+ Request (application/json)
-    + Attributes (CustomerCreatePayload)
-+ Response 200 (application/json)
-    + Attributes (CustomerResponse)
-
-### Update [PATCH]
-
-+ Request (application/json)
-	+ Attributes(CustomerUpdatePayload)
-+ Response 200 (application/json)
-    + Attributes (CustomerResponse)
 
 ### Enable / Disable [POST /v1/customers/{id}/disable]
 
