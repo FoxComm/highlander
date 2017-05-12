@@ -6,8 +6,22 @@
 Welcome to FoxCommerce! The Fox Platform is a large and diverse set of modern services
 that allow you create next generation commerce experiences. 
 
-
 <<<
+
+>>> right
+
+#### API Reference Quick Links
+::: note
+[Authentication](reference/index.html#header-authentication)
+:::
+::: note
+[Errors](reference/index.html#header-errors)
+:::
+::: note
+[API.js](https://github.com/FoxComm/api-js)
+:::
+
+>>>
 
 ---
 
@@ -17,6 +31,7 @@ that allow you create next generation commerce experiences.
 See the API Reference for detailed information or the guides below for a tour
 of FoxCommerce features.
 <<<
+
 ---
 
 --- row
