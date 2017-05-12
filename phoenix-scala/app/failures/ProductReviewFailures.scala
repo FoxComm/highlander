@@ -1,11 +1,16 @@
 package failures
 
-import models.objects.ObjectForm
+import models.review.ProductReview
 
 object ProductReviewFailures {
 
-  case class ProductReviewIsArchived(id: ObjectForm#Id) extends Failure {
+  case class ProductReviewIsArchived(id: ProductReview#Id) extends Failure {
     override def description: String = s"Cannot update deleted review: $id"
+  }
+
+  case class ProductReviewUserMismatch(id: ProductReview#Id) extends Failure {
+    override def description: String =
+      s"Cannot update review $id: Only user which created the review can modify it."
   }
 
 }
