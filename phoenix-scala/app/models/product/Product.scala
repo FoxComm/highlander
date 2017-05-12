@@ -119,7 +119,54 @@ object Products
 
   def mustFindFullByReference(
       ref: ProductReference)(implicit oc: OC, ec: EC, db: DB): DbResultT[FullObject[Product]] =
-    ObjectManager.getFullObject(mustFindByReference(ref: ProductReference))
+    mustFindProductFallback(ref, oc)
+
+  private def filterByReference(ref: ProductReference, contextId: Int): QuerySeq =
+    ref match {
+      case ProductId(id) ⇒
+        filter(p ⇒ p.contextId === contextId && p.formId === id)
+      case ProductSlug(slug) ⇒
+        filter(p ⇒ p.contextId === contextId && p.slug.toLowerCase === slug.toLowerCase)
+    }
+
+  /*
+   * Tries to find a product within the given context. If the product is found,
+   * put it into a FullObject and return it. If it isn't, attempt to find in
+   * the context's parent context. If no parent context exists, then fail.
+   */
+  private def mustFindProductFallback(ref: ProductReference, context: ObjectContext)(
+      implicit ec: EC): DbResultT[FullObject[Product]] = {
+
+    def mustFindContext(id: Int) =
+      ObjectContexts.filter(_.id === id).mustFindOneOr(NotFoundFailure404(ObjectContext, id))
+
+    val notFoundFailure = ref match {
+      case ProductId(id)     ⇒ ProductFormNotFoundForContext(id, context.id)
+      case ProductSlug(slug) ⇒ ProductNotFoundForContext(slug, context.id)
+    }
+
+    val productTupleQ = (for {
+      head   ← filterByReference(ref, context.id)
+      form   ← ObjectForms if form.id === head.formId
+      shadow ← ObjectShadows if shadow.id === head.shadowId
+    } yield (head, form, shadow)).one
+
+    DbResultT.fromF(productTupleQ).flatMap { maybeTuple ⇒
+      (maybeTuple, context.parentId) match {
+        case (Some(productTuple), _) ⇒
+          val (head, form, shadow) = productTuple
+          val x                    = (FullObject.apply[Product] _).tupled(productTuple)
+          DbResultT.pure(FullObject(head, form, shadow))
+        case (None, None) ⇒
+          DbResultT.failure[FullObject[Product]](notFoundFailure)
+        case (None, Some(parentId)) ⇒
+          for {
+            parentContext ← * <~ mustFindContext(parentId)
+            product       ← * <~ mustFindProductFallback(ref, parentContext)
+          } yield product
+      }
+    }
+  }
 
   private object ErrorResolver {
     val slugDuplicatedRegex: Regex =

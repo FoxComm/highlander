@@ -37,4 +37,6 @@ trait BakedFixtures extends TestSeeds with RawFixtures {
       extends StoreAdmin_Seed
       with Product_Raw
       with ProductWithVariants_Raw
+
+  trait Channel_Baked extends StoreAdmin_Seed with Channel_Raw
 }

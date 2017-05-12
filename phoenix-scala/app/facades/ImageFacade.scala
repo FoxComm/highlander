@@ -12,9 +12,10 @@ import models.image._
 import models.objects.FullObject
 import payloads.ImagePayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
+// import services.Result
+import services.context.ContextManager
 import scala.concurrent.Future
 import services.image.ImageManager._
-import services.objects.ObjectManager
 import utils.aliases._
 import utils.apis.Apis
 import utils.db._
@@ -31,7 +32,7 @@ object ImageFacade {
       am: Mat,
       apis: Apis): Result[AlbumRoot] = {
     (for {
-      context ← * <~ ObjectManager.mustFindByName404(contextName)
+      context ← * <~ ContextManager.mustFindByName404(contextName)
       album   ← * <~ mustFindAlbumByFormIdAndContext404(albumId, context)
       _       ← * <~ album.mustNotBeArchived
       result  ← * <~ uploadImages(album, request, context)

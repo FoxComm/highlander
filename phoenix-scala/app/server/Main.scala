@@ -142,6 +142,8 @@ class Service(
         routes.admin.ObjectRoutes.routes ~
         routes.admin.PluginRoutes.routes ~
         routes.admin.TaxonomyRoutes.routes ~
+        routes.admin.ChannelRoutes.routes ~
+        routes.admin.ContextRoutes.routes ~
         routes.admin.ShippingMethodRoutes.routes ~
         routes.service.MigrationRoutes.routes(customerCreateContext, scope.ltree) ~
         pathPrefix("service") {

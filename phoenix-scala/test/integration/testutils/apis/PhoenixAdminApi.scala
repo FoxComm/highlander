@@ -9,6 +9,7 @@ import payloads.AddressPayloads._
 import payloads.AssignmentPayloads._
 import payloads.CartPayloads._
 import payloads.CategoryPayloads._
+import payloads.ChannelPayloads._
 import payloads.CouponPayloads._
 import payloads.CustomerGroupPayloads._
 import payloads.CustomerPayloads._
@@ -776,7 +777,6 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def baked()(implicit aa: TestAdminAuth): HttpResponse =
       GET(s"$categoryPath/baked", aa.jwtCookie.some)
-
   }
 
   case object taxonomiesApi {
@@ -816,6 +816,22 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def unassignProduct(productFormId: ObjectForm#Id)(implicit ctx: OC,
                                                       aa: TestAdminAuth): HttpResponse =
       DELETE(s"v1/taxons/${ctx.name}/$taxonId/product/$productFormId", aa.jwtCookie.some)
+  }
+
+  case object channelsApi {
+    def create(payload: CreateChannelPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST("v1/channels", payload, aa.jwtCookie.some)
+  }
+
+  case class channelsApi(channelId: Int)(implicit aa: TestAdminAuth) {
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(s"v1/channels/$channelId", aa.jwtCookie.some)
+
+    def update(payload: UpdateChannelPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(s"v1/channels/$channelId", payload, aa.jwtCookie.some)
+
+    def delete(implicit aa: TestAdminAuth): HttpResponse =
+      DELETE(s"v1/channels/$channelId", aa.jwtCookie.some)
   }
 
   object notesApi {
