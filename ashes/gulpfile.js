@@ -9,7 +9,7 @@ const runSequence = require('run-sequence');
 const $ = require('gulp-load-plugins')();
 const Config = require('./config');
 
-process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib')}`;
+process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./src')}`;
 
 const opts = new Config().gulp;
 
