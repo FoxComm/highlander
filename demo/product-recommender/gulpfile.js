@@ -39,8 +39,8 @@ gulp.task('build', function(cb) {
 
 gulp.task('build.clean', function() {
   const dir = 'build';
-  if (!fs.existsSync(dir)){
-      fs.mkdirSync(dir);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
   }
   return del(['build/*.*', 'public/{*.js,*.css,images}']);
 });

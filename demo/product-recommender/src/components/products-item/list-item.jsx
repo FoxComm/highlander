@@ -3,7 +3,6 @@
 import React, { Element } from 'react';
 import { findDOMNode } from 'react-dom';
 import styles from './list-item.css';
-import { Link } from 'react-router';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 // import { addLineItem, toggleCart } from 'modules/cart';

@@ -13,7 +13,7 @@ import Loader from 'ui/loader';
 import ListItem from 'components/products-item/list-item';
 
 // types
-import type { HTMLElement } from 'types';
+import type { HTMLElement } from '../../../types';
 
 export const LoadingBehaviors = {
   ShowLoader: 0,

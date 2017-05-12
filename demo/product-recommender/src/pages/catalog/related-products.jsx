@@ -18,10 +18,8 @@ import RelatedProductsList,
   { LoadingBehaviors } from 'components/related-products-list/related-products-list';
 
 // types
-import type { ProductResponse, Sku } from 'modules/product-details';
 import type { RelatedProductResponse } from 'modules/cross-sell';
-import type { RoutesParams } from 'types';
-import type { TProductView } from './types';
+import type { RoutesParams } from '../../../types';
 
 type Actions = {
   fetchRelatedProducts: Function,
