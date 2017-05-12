@@ -230,7 +230,7 @@ class TableView extends Component {
         {this.getRow('footer', this.bottomItems)}
       </div>
     );
-  };
+  }
 }
 
 TableView.propTypes = {

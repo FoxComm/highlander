@@ -7,8 +7,8 @@ import _ from 'lodash';
 import { columnsToPayload } from './helpers';
 
 type Payload = {
-  ids: Array<number>,
-  query: Object,
+  ids?: Array<number>,
+  query?: Object,
   fields: Array<Object>,
   description?: string,
 };
@@ -36,7 +36,7 @@ const getQuery = (raw: Object, sort: Array<Object>): Object => {
   return {
     query: raw.query,
     sort,
-  }
+  };
 };
 
 const genDownloadLink = (response: Object) => {
