@@ -17,7 +17,6 @@ import type { Localized } from 'lib/i18n';
 import { searchGiftCards } from 'modules/products';
 import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-details';
 import { addLineItem, toggleCart } from 'modules/cart';
-// import { fetchRelatedProducts, clearRelatedProducts } from 'modules/cross-sell';
 
 // styles
 import styles from './pdp.css';
@@ -35,7 +34,6 @@ import ImagePlaceholder from 'components/products-item/image-placeholder';
 
 // types
 import type { ProductResponse, Sku } from 'modules/product-details';
-// import type { RelatedProductResponse } from 'modules/cross-sell';
 import type { RoutesParams } from 'types';
 import type { TProductView } from './types';
 
