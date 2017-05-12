@@ -14,6 +14,8 @@ that allow you create next generation commerce experiences.
 --- row
 <<< left
 # [API Reference](reference/index.html)
+See the API Reference for detailed information or the guides below for a tour
+of FoxCommerce features.
 <<<
 ---
 
