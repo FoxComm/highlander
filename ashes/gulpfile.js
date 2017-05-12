@@ -18,33 +18,6 @@ for (let task of fs.readdirSync(opts.taskDir)) {
   require(file)(gulp, opts, $);
 }
 
-gulp.task('clean', () => del(['build/**/*', 'lib/**/*']));
-
-gulp.task('build', function(cb) {
-  let tasks = ['images', 'less', 'sprites', 'precompile', 'browserify', 'css'];
-
-  if (process.env.NODE_ENV === 'production') {
-    tasks = ['clean', ...tasks];
-  }
-  runSequence(...tasks, cb);
-});
-
-gulp.task('dev', function(cb) {
-  opts.devMode = true;
-
-  let tasks = _.compact([
-    // 'build',
-    // process.env.ASHES_NO_TEST_FOR_DEV ? null : 'test',
-    'server',
-    // 'watch',
-    process.env.ASHES_NOTIFY_ABOUT_TASKS ? 'notifier' : null
-  ]);
-
-  runSequence(...tasks, cb);
-});
-
-gulp.task('default', ['build']);
-
 function handleErrors(err) {
   if (err) {
     console.error(err);

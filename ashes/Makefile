@@ -35,10 +35,10 @@ tag:
 
 .PHONY: clean
 clean:
-	rm -rf ./node_modules
+	rm -rf ./build
 
 .PHONY: test
-test:
+test: flow
 	$(call header, Testing)
 	make install
 	@NODE_ENV=$(NODE_ENV) ./node_modules/.bin/gulp test
@@ -99,12 +99,11 @@ prod p: prod_build
 # Buildkite ###
 
 .PHONY: build
-build:
+build: clean
 	$(call header, Building)
 	make rev
 	make install
-	make flow
-	BEHIND_NGINX=true make prod
+	BEHIND_NGINX=true make prod_build
 ifeq ($(ASHES_BUILD_STYLEGUIDE), true)
 	make build-styleguide
 endif
