@@ -116,13 +116,13 @@ object OrderPayments
     } yield (pmts, sc)
 
   def applePayByCordRef(cordRef: String): QuerySeq =
-    filter(_.cordRef === cordRef).applePays
+    findAllByCordRef(cordRef).applePays
 
-  def findAllCreditCardsForOrder(cordRef: Rep[String]): QuerySeq =
-    filter(_.cordRef === cordRef).creditCards
+  def findAllCreditCardsForOrder(cordRef: String): QuerySeq =
+    findAllByCordRef(cordRef).creditCards
 
-  def findAllExternalPayments(cordRef: Rep[String]): QuerySeq =
-    filter(_.cordRef === cordRef).externalPayments
+  def findAllExternalPayments(cordRef: String): QuerySeq =
+    findAllByCordRef(cordRef).externalPayments
 
   def findAllStripeCharges(
       cordRef: Rep[String]): Query[Rep[StripeOrderPayment], StripeOrderPayment, Seq] = {
