@@ -10,7 +10,7 @@ object ProductReviewFailures {
 
   case class ProductReviewUserMismatch(id: ProductReview#Id) extends Failure {
     override def description: String =
-      s"Cannot update review $id: Only user which created the review can modify it."
+      s"Cannot update review $id: Only user who created the review can modify it."
   }
 
 }

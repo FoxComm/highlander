@@ -52,7 +52,7 @@ as $$
 begin
   update product_reviews_search_view
   set user_name = new.name
-  where product_reviews_search_view.id in (select product_reviews.id where user_id = new.id);
+  where product_reviews_search_view.id in (select id from product_reviews where user_id = new.id);
   return null;
 end; $$ language plpgsql;
 
@@ -69,7 +69,8 @@ as $$
 begin
   update product_reviews_search_view
   set sku = new.code
-  where product_reviews_search_view.id in (select product_reviews.id where sku_id = new.id);
+  where product_reviews_search_view.id in (select id from product_reviews where sku_id = new.id);
+  return null;
 end; $$ language plpgsql;
 
 drop trigger if exists update_product_reviews_search_view_from_sku_update on skus;
