@@ -2,7 +2,6 @@
 
 const _ = require('lodash');
 const fs = require('fs');
-const del = require('del');
 const path = require('path');
 const gulp = require('gulp');
 const runSequence = require('run-sequence');
