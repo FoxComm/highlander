@@ -51,11 +51,9 @@ object ReturnPaymentManager {
       } yield response
     else
       for {
-        _ ← * <~ failIf(paymentsToAdd.filter { case (pt, _) ⇒ pt.isExternal }
-                          .groupBy(_._1)
-                          .map(_._2.keySet)
-                          .size > 1,
-                        OnlyOneExternalPaymentIsAllowed)
+        _ ← * <~ failIf(
+               paymentsToAdd.filter { case (pt, _) ⇒ pt.isExternal }.groupBy(_._1).size > 1,
+               OnlyOneExternalPaymentIsAllowed)
         rma     ← * <~ Returns.mustFindActiveByRefNum404(refNum)
         payment ← * <~ mustFindExternalPaymentsByOrderRef(rma.orderRef)
         _       ← * <~ validateMaxAllowedPayments(rma, paymentsToAdd, sumOther = !overwrite)

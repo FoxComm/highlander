@@ -1,5 +1,6 @@
 package models.returns
 
+import models.payment.applepay.ApplePayCharges
 import models.payment.creditcard.CreditCardCharges
 import shapeless._
 import slick.driver.PostgresDriver.api._
@@ -30,6 +31,8 @@ class ReturnStripePayments(tag: Tag)
   def pk = primaryKey(tableName, (returnPaymentId, chargeId))
   def creditCardCharge =
     foreignKey(CreditCardCharges.tableName, chargeId, CreditCardCharges)(_.stripeChargeId)
+  def applePayCharge =
+    foreignKey(ApplePayCharges.tableName, chargeId, ApplePayCharges)(_.stripeChargeId)
   def returnPayment = foreignKey(ReturnPayments.tableName, returnPaymentId, ReturnPayments)(_.id)
   def rma           = foreignKey(Returns.tableName, returnId, Returns)(_.id)
 }
