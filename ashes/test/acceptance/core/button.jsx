@@ -11,7 +11,7 @@ describe('Buttons', function() {
     const button = Buttons.Button(props);
 
     expect(button).to.be.instanceof(Object);
-    expect(button.props.children, 'to contain', <span className="core⁄button⁄button__text">Done</span>);
+    expect(button.props.children, 'to contain', <span className={undefined}>Done</span>);
   });
 
   it('should pass onClick to Button', function() {
@@ -57,7 +57,7 @@ describe('Buttons', function() {
     const button = Buttons.PrimaryButton(props);
 
     expect(button).to.be.instanceof(Object);
-    expect(button.props.className).to.equal('core⁄button⁄button__primary super-button');
+    expect(button.props.className).to.equal('super-button');
     expect(button.props.onClick).to.equal(props.onClick);
   });
 });

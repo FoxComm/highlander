@@ -40,6 +40,7 @@ clean:
 .PHONY: test
 test: flow
 	$(call header, Testing)
+	rm -rf ./node_modules
 	make install
 	@NODE_ENV=$(NODE_ENV) ./node_modules/.bin/gulp test
 
