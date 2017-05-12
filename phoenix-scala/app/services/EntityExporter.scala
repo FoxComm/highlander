@@ -45,7 +45,8 @@ object EntityExporter {
     implicit val chunkable = Chunkable.csvChunkable(payload.fields.map(_.displayName))
 
     val index = s"admin_${au.token.scope}" / entity.searchView
-    val fields = payload.fields.map {
+    val fields = entity.extraFields
+        .map(getPath(_, removeArrayIndices = true).mkString(".")) ::: payload.fields.map {
       case ExportField(name, _) ⇒
         getPath(name, removeArrayIndices = true)
           .mkString(".") // we don't care about array index if it exists
@@ -59,25 +60,30 @@ object EntityExporter {
     val csvSource = jsonSource.collect {
       case obj: JObject ⇒
         payload.fields.map {
+          case ExportField(name, displayName) if entity.calculateFields.isDefinedAt((name, obj)) ⇒
+            (displayName, entity.calculateFields((name, obj)))
           case ExportField(name, displayName) ⇒
-            displayName → extractValue(getPath(name, removeArrayIndices = false), Some(obj))
-              .getOrElse("")
+            (displayName,
+             extractValue(getPath(name, removeArrayIndices = false), Some(obj)).getOrElse(""))
         }
+
     }
 
     Http.renderAttachment(fileName = setName(payload, entity))(csvSource)
   }
 
   private def getPath(field: String, removeArrayIndices: Boolean): List[String] = {
-    val fields = field.split("\\.")
+    if (field.nonEmpty) {
+      val path = field.split("\\.")
 
-    fields.flatMap {
-      // optional group returns `null` if not matched, so we must guard it in option
-      case FieldMatcher(name, idx) ⇒
-        val tail = if (removeArrayIndices) Nil else Option(idx).toList
-        name :: tail
-      case _ ⇒ Nil
-    }(collection.breakOut)
+      path.flatMap {
+        // optional group returns `null` if not matched, so we must guard it in option
+        case FieldMatcher(name, idx) ⇒
+          val tail = if (removeArrayIndices) Nil else Option(idx).toList
+          name :: tail
+        case _ ⇒ Nil
+      }(collection.breakOut)
+    } else Nil
   }
 
   /** Extracts value from (possibly nested) field path.
@@ -86,17 +92,16 @@ object EntityExporter {
     * we simply omit outputting the value.
     */
   @tailrec private def extractValue(path: List[String], acc: Option[JValue]): Option[String] = {
-    def convert(jv: Option[JValue]) = jv.collect {
-      case jn: JNumber ⇒ jn.values.toString
-      case jv: JValue  ⇒ jv.values.toString.replace("\"", "\"\"")
-    }
-
     (path, acc) match {
       case (h :: t, Some(jobj: JObject)) ⇒ extractValue(t, jobj.obj.toMap.get(h))
       case (ArrayElement(i) :: t, Some(jarr: JArray)) ⇒
         extractValue(t, catching(classOf[IndexOutOfBoundsException]).opt(jarr(i)))
-      case (Nil, _) ⇒ convert(acc)
-      case (_, _)   ⇒ None
+      case (Nil, _) ⇒
+        acc.collect {
+          case jn @ (_: JNumber | _: JBool) ⇒ jn.values.toString
+          case jv: JString                  ⇒ "\"" + jv.values.replace("\"", "\"\"") + "\""
+        }
+      case (_, _) ⇒ None
     }
   }
 
@@ -122,7 +127,9 @@ object EntityExporter {
     // It's not true, as multiget fetches all documents eagerly.
     Source
       .fromFuture(apis.elasticSearch.client.execute(query))
-      .map(_.responses.flatMap(_.response.map(_.getSourceAsString).map(parse(_))).toStream)
+      .map(_.responses
+            .flatMap(_.response.map(_.getSourceAsString).map(parseOpt(_).getOrElse(JObject())))
+            .toStream)
       .map(Source.apply)
       .flatMapConcat(identity)
   }
@@ -143,6 +150,6 @@ object EntityExporter {
       .fromPublisher(
           apis.elasticSearch.client.publisher(query sourceInclude (searchFields: _*) scroll "1m"))
       .map(_.getSourceAsString)
-      .map(parse(_))
+      .map(parseOpt(_).getOrElse(JObject()))
   }
 }

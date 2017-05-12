@@ -3,26 +3,80 @@ package payloads
 import com.google.common.base.Charsets
 import com.pellucid.sealerate
 import com.sksamuel.elastic4s.SortDefinition
+import java.time.Instant
 import org.elasticsearch.common.bytes.BytesArray
 import org.elasticsearch.common.xcontent.{ToXContent, XContentBuilder}
 import org.elasticsearch.search.sort.{SortBuilder, SortOrder}
-import org.json4s.CustomSerializer
-import org.json4s.JsonAST.{JObject, JString}
+import org.json4s.JsonAST._
 import org.json4s.jackson.JsonMethods.{compact, render}
+import org.json4s.{CustomSerializer, Formats}
 import utils.Strings._
-import utils.{ADT, ADTTypeHints}
+import utils.{ADT, ADTTypeHints, JsonFormatters}
 
 object EntityExportPayloads {
-  sealed trait ExportableEntity {
+
+  /** Denotes entity that can be exported.
+    *
+    * Note that `dynamicCalculations` allows for exporting fields,
+    * that aren't in ElasticSearch directly,
+    * but are calculated based on other fields values.
+    * Order in list matters, as if there are more than one `FieldCalculation` that reacts to the same field name,
+    * only the last one will be taken into account.
+    */
+  sealed abstract class ExportableEntity(dynamicCalculations: List[FieldCalculation]) {
     this: Product ⇒
+    def this(dynamicCalculations: FieldCalculation*) = this(dynamicCalculations.toList)
+
+    lazy val (extraFields, calculateFields) = dynamicCalculations.foldLeft(
+        List.empty[String] → PartialFunction.empty[(String, JObject), String]) {
+      case ((accFields, accCalc), fc) ⇒
+        (fc.extraFields ::: accFields, fc.calculate.orElse(accCalc))
+    }
+
     def entity: String = productPrefix.underscore
 
     def searchView: String = s"${entity}_search_view"
   }
+
+  sealed trait FieldCalculation {
+    def extraFields: List[String]
+
+    def calculate: PartialFunction[(String, JObject), String]
+  }
+  object FieldCalculation {
+    implicit def formats: Formats = JsonFormatters.phoenixFormats
+
+    object State extends FieldCalculation {
+      this: Product ⇒
+      def extraFields: List[String] = List("activeFrom", "activeTo", "archivedAt")
+
+      lazy val calculate: PartialFunction[(String, JObject), String] = {
+        val active   = "\"Active\""
+        val inactive = "\"Inactive\""
+
+        {
+          case ("state", jobj: JObject) ⇒
+            val doc = jobj.obj.toMap
+
+            val activeFrom = doc.get("activeFrom").flatMap(_.extractOpt[Instant])
+            val activeTo   = doc.get("activeTo").flatMap(_.extractOpt[Instant])
+            val archivedAt = doc.get("archivedAt").flatMap(_.extractOpt[Instant])
+            val now        = Instant.now()
+
+            (archivedAt, activeFrom, activeTo) match {
+              case (None, Some(from), Some(to)) if from.isBefore(now) && to.isAfter(now) ⇒ active
+              case (None, Some(from), None) if from.isBefore(now)                        ⇒ active
+              case _                                                                     ⇒ inactive
+            }
+        }
+      }
+    }
+  }
+
   object ExportableEntity extends ADT[ExportableEntity] {
     case object Carts          extends ExportableEntity
     case object CouponCodes    extends ExportableEntity
-    case object Coupons        extends ExportableEntity
+    case object Coupons        extends ExportableEntity(FieldCalculation.State)
     case object CustomerGroups extends ExportableEntity
     case object CustomerItems extends ExportableEntity {
       override def searchView: String = s"${entity}_view"
@@ -36,18 +90,18 @@ object EntityExportPayloads {
     case object InventoryTransactions extends ExportableEntity
     case object Notes                 extends ExportableEntity
     case object Orders                extends ExportableEntity
-    case object Products              extends ExportableEntity
-    case object Promotions            extends ExportableEntity
+    case object Products              extends ExportableEntity(FieldCalculation.State)
+    case object Promotions            extends ExportableEntity(FieldCalculation.State)
     case object Skus extends ExportableEntity {
       override def searchView: String = s"sku_search_view"
     }
     case object StoreAdmins             extends ExportableEntity
     case object StoreCredits            extends ExportableEntity
     case object StoreCreditTransactions extends ExportableEntity
-    case object Taxonomies              extends ExportableEntity
-    case object Taxons                  extends ExportableEntity
+    case object Taxonomies              extends ExportableEntity(FieldCalculation.State)
+    case object Taxons                  extends ExportableEntity(FieldCalculation.State)
 
-    def types: Set[ExportableEntity] = sealerate.values[ExportableEntity]
+    def types: Set[ExportableEntity] = sealerate.collect[ExportableEntity]
   }
 
   case class ExportField(name: String, displayName: String)
