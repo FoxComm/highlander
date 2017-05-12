@@ -1,7 +1,7 @@
 
 --- row
 <<< left
-# Options
+# Stock Keeping Units (SKUs)
 ## Coming Soon
 <<<
 
