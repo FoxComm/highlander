@@ -1,5 +1,7 @@
+// @flow
 import _ from 'lodash';
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
 import Block from '../common/block';
@@ -7,6 +9,15 @@ import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import ReviewRow from './review-row';
 
 import styles from '../profile.css';
+
+import * as actions from 'modules/reviews';
+
+function mapStateToProps(state) {
+  return {
+    reviews: _.get(state.reviews, 'list', []),
+    auth: state.auth,
+  };
+}
 
 type State = {
   error: ?string;
@@ -17,9 +28,19 @@ class MyReviews extends Component {
     error: null,
   };
 
+  componentWillMount() {
+    if (_.get(this.props.auth, 'jwt')) {
+      this.props.fetchReviews().catch((ex) => {
+        this.setState({
+          error: ex.toString(),
+        });
+      });
+    }
+  }
+
   @autobind
   renderReview(review) {
-    return <ReviewRow review={review} />;
+    return <ReviewRow {...review} />;
   }
 
   get content() {
@@ -28,34 +49,11 @@ class MyReviews extends Component {
         <ErrorAlerts error={this.state.error} />
       );
     }
-    const reviews = [
-      {
-        product: 'newly purchased product',
-        date: undefined,
-        status: 'Needs Review',
-        isNew: true,
-      },
-      {
-        product: 'previously reviewed product',
-        date: '12 January, 2017',
-        status: 'Reviewed',
-        isNew: false,
-      },
-    ];
+
     return (
-      <table styleName="simple-table">
-        <thead>
-          <tr>
-            <th>Review Date</th>
-            <th>Product</th>
-            <th>Status</th>
-            <th>&nbsp;</th>
-          </tr>
-        </thead>
-        <tbody>
-          {_.map(reviews, this.renderReview)}
-        </tbody>
-      </table>
+      <div styleName="reviews">
+        {_.map(this.props.reviews, this.renderReview)}
+      </div>
     );
   }
 
@@ -68,4 +66,4 @@ class MyReviews extends Component {
   }
 }
 
-export default MyReviews;
+export default connect(mapStateToProps, actions)(MyReviews);

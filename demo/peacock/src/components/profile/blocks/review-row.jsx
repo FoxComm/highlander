@@ -1,8 +1,8 @@
 
-import _ from 'lodash';
 import React from 'react';
 
 import { Link } from 'react-router';
+import ProductImage from '../../image/image';
 
 import styles from '../profile.css';
 
@@ -11,17 +11,17 @@ const renderActions = (isNew) => {
   if (isNew) {
     actionsContent = (
       <div styleName="actions-block">
-        <Link styleName="link" to={`/profile`}>ADD</Link>
+        <Link styleName="link" to={'/profile'}>ADD</Link>
         &nbsp;|&nbsp;
-        <Link styleName="link" to={`/profile`}>IGNORE</Link>
+        <Link styleName="link" to={'/profile'}>IGNORE</Link>
       </div>
     );
   } else {
     actionsContent = (
       <div styleName="actions-block">
-        <Link styleName="link" to={`/profile`}>EDIT</Link>
+        <Link styleName="link" to={'/profile'}>EDIT</Link>
         &nbsp;|&nbsp;
-        <Link styleName="link" to={`/profile`}>REMOVE</Link>
+        <Link styleName="link" to={'/profile'}>REMOVE</Link>
       </div>
     );
   }
@@ -29,14 +29,21 @@ const renderActions = (isNew) => {
 };
 
 const ReviewRow = (props) => {
-  const { product, date, status, isNew } = props.review;
   return (
-    <tr>
-      <td>{product}</td>
-      <td>{date}</td>
-      <td>{status}</td>
-      <td>{renderActions(isNew)}</td>
-    </tr>
+    <div styleName="line-item">
+      <div styleName="content">
+        <div styleName="product-image">
+          <ProductImage src={props.imagePath} width={50} height={50} />
+        </div>
+        <div styleName="product-data">
+          <div styleName="product-info">
+            <div styleName="product-name">{props.name}</div>
+            <div styleName="product-variant">{/* TODO: variant info must be here */}</div>
+          </div>
+        </div>
+        {renderActions(true)}
+      </div>
+    </div>
   );
 };
 
