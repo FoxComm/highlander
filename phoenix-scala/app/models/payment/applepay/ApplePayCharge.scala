@@ -6,7 +6,7 @@ import models.cord.OrderPayment
 import models.payment.ExternalCharge
 import models.payment.ExternalCharge._
 import shapeless.{Lens, lens}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import slick.lifted._
 import utils.Money.Currency
 import utils.aliases.stripe.StripeCharge

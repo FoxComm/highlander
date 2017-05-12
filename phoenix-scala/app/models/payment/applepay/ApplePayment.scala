@@ -7,7 +7,7 @@ import cats.data.ValidatedNel
 import failures.Failure
 import models.payment.PaymentMethod
 import shapeless.{Lens, lens}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.Validation
 import utils.db._
 
