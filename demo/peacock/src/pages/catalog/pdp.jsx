@@ -32,9 +32,6 @@ import ErrorAlerts from 'ui/alerts/error-alerts';
 import ProductVariants from 'components/product-variants/product-variants';
 import GiftCardForm from 'components/gift-card-form';
 import ImagePlaceholder from 'components/products-item/image-placeholder';
-import RelatedProducts from './related-products';
-// import RelatedProductsList,
-//   { LoadingBehaviors } from 'components/related-products-list/related-products-list';
 
 // types
 import type { ProductResponse, Sku } from 'modules/product-details';
@@ -53,8 +50,6 @@ type Actions = {
   resetProduct: Function,
   addLineItem: Function,
   toggleCart: Function,
-  // fetchRelatedProducts: Function,
-  // clearRelatedProducts: Function,
 };
 
 type Props = Localized & RoutesParams & {
@@ -64,7 +59,6 @@ type Props = Localized & RoutesParams & {
   isLoading: boolean,
   isCartLoading: boolean,
   notFound: boolean,
-  // relatedProducts: ?RelatedProductResponse,
 };
 
 type State = {
@@ -75,16 +69,13 @@ type State = {
 
 const mapStateToProps = (state) => {
   const product = state.productDetails.product;
-  // const relatedProducts = state.crossSell.relatedProducts;
 
   return {
     product,
-    // relatedProducts,
     fetchError: _.get(state.asyncActions, 'pdp.err', null),
     notFound: !product && _.get(state.asyncActions, 'pdp.err.response.status') == 404,
     isLoading: _.get(state.asyncActions, ['pdp', 'inProgress'], true),
     isCartLoading: _.get(state.asyncActions, ['cartChange', 'inProgress'], false),
-    // isRelatedProductsLoading: _.get(state.asyncActions, ['relatedProducts', 'inProgress'], false),
   };
 };
 
@@ -96,8 +87,6 @@ const mapDispatchToProps = dispatch => ({
     resetProduct,
     addLineItem,
     toggleCart,
-    // fetchRelatedProducts,
-    // clearRelatedProducts,
   }, dispatch),
 });
 
@@ -126,17 +115,13 @@ class Pdp extends Component {
 
   componentDidMount() {
     this.productPromise.then(() => {
-      const { product, /*isRelatedProductsLoading,*/ actions } = this.props;
+      const { product, actions } = this.props;
       tracking.viewDetails(this.productView);
-      // if (!isRelatedProductsLoading) {
-      //   actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
-      // }
     });
   }
 
   componentWillUnmount() {
     this.props.actions.resetProduct();
-    // this.props.actions.clearRelatedProducts();
   }
 
   componentWillUpdate(nextProps) {
@@ -145,22 +130,15 @@ class Pdp extends Component {
     if (this.productId !== nextId) {
       this.setState({ currentSku: null });
       this.props.actions.resetProduct();
-      // this.props.actions.clearRelatedProducts();
       this.fetchProduct(nextProps, nextId);
     }
   }
 
   safeFetch(id) {
     return this.props.actions.fetch(id)
-      .then((product) => {
-        // this.props.actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
-      })
       .catch(() => {
         const { params } = this.props;
-        this.props.actions.fetch(params.productSlug)
-        .then((product) => {
-          // this.props.actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
-        });
+        this.props.actions.fetch(params.productSlug);
       });
   }
 
@@ -365,21 +343,6 @@ console.log('slug',slug);
     );
   }
 
-  // get relatedProductsList(): ?Element<*> {
-  //   const { relatedProducts, isRelatedProductsLoading } = this.props;
-
-  //   if (_.isEmpty(relatedProducts.products)) return null;
-
-  //   return (
-  //     <RelatedProductsList
-  //       title="You Might Also Like"
-  //       list={relatedProducts.products}
-  //       isLoading={isRelatedProductsLoading}
-  //       loadingBehavior={LoadingBehaviors.ShowWrapper}
-  //     />
-  //   );
-  // }
-
   get productPrice(): ?Element<any> {
     if (this.isGiftCard()) return null;
     const {
@@ -472,9 +435,6 @@ console.log('slug',slug);
           <img styleName="share-image" src="/images/pdp/style.jpg" />
         </div>
         <div id="product-recommender">test</div>
-        {/*<iframe src={`/related-products/${this.props.product.id}`} width="100%" height="100%" />*/}
-        {/*<RelatedProducts id={} />*/}
-        {/*this.relatedProductsList*/}
       </div>
     );
   }
