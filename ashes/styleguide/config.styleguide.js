@@ -7,7 +7,6 @@ module.exports = {
   webpackConfig: require('./webpack.styleguide.js'),
   styleguideDir: path.resolve('public/admin/styleguide'),
   require: [
-    path.join(__dirname, 'styleguide.css'),
-    path.join(__dirname, './css/app.css'),
+    path.join(__dirname, 'styleguide.less'),
   ]
 };

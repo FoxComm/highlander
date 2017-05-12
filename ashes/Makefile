@@ -31,7 +31,7 @@ tag:
 	git tag v$(version)
 	git push --tags origin master
 
-# Linters and cleaners ###
+# Linters, utils and cleaners ###
 
 .PHONY: clean
 clean:
@@ -56,6 +56,14 @@ lint:
 .PHONY: flow
 flow:
 	./node_modules/.bin/flow check
+
+.PHONY: build-styleguide
+build-styleguide:
+	./node_modules/.bin/styleguidist build --config styleguide/config.styleguide.js
+
+.PHONY: styleguide
+styleguide:
+	./node_modules/.bin/styleguidist server --config styleguide/config.styleguide.js
 
 # Base ###
 
@@ -82,10 +90,6 @@ dev_build:
 .PHONY: dev d
 dev d:
 	make --jobs dev_build nodemon
-
-.PHONY: build-styleguide
-build-styleguide:
-	./node_modules/.bin/styleguidist build --config styleguide/config.styleguide.js
 
 # Production ###
 
