@@ -6,8 +6,8 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.unmarshalling.Unmarshaller
 
-import facades.AlbumImagesFacade
 import facades.ImageFacade
+import facades.ImageHelpers
 import failures.ImageFailures.ImageNotFoundInPayload
 import models.account.User
 import payloads.ImagePayloads._
@@ -30,7 +30,7 @@ object ImageRoutes {
 
           (post & pathEnd & entityOr(as[Multipart.FormData], ImageNotFoundInPayload)) { formData ⇒
             mutateOrFailures {
-              AlbumImagesFacade.uploadImagesFromMultiPart(context, formData)
+              ImageFacade.uploadImagesFromMultiPart(context, formData)
             }
           }
         }
@@ -67,14 +67,12 @@ object ImageRoutes {
                 (post & pathEnd & entityOr(as[Multipart.FormData], ImageNotFoundInPayload)) {
                   formData ⇒
                     mutateOrFailures {
-                      AlbumImagesFacade.uploadImagesFromMultipartToAlbum(albumId,
-                                                                         context,
-                                                                         formData)
+                      ImageFacade.uploadImagesFromMultipartToAlbum(albumId, context, formData)
                     }
                 } ~
                 (path("byUrl") & post & entity(as[ImagePayload])) { payload ⇒
                   mutateOrFailures {
-                    AlbumImagesFacade.uploadImagesFromPayloadToAlbum(albumId, context, payload)
+                    ImageFacade.uploadImagesFromPayloadToAlbum(albumId, context, payload)
                   }
                 }
               }
