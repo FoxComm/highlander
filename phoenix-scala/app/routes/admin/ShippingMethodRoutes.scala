@@ -8,6 +8,7 @@ import services.ShippingManager
 import utils.aliases._
 import utils.http.CustomDirectives._
 import akka.http.scaladsl.server.Directives._
+import models.location.Country
 import utils.http.Http._
 
 object ShippingMethodRoutes {
@@ -36,7 +37,7 @@ object ShippingMethodRoutes {
             ShippingManager.getActive
           }
         } ~
-        (get & path(ShippingManager.countryCode) & pathEnd) { countryCode ⇒
+        (get & path(Country.countryCodeRegex) & pathEnd) { countryCode ⇒
           getOrFailures {
             ShippingManager.getShippingMethodsForRegion(countryCode)
           }

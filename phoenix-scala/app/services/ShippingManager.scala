@@ -20,31 +20,26 @@ import org.json4s.JsonAST._
 import responses.ShippingMethodsResponse
 import cats.implicits._
 import failures.AddressFailures.NoCountryFound
+import responses.ShippingMethodsResponse.Root
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
-  def countryCode = """([a-zA-Z]{2,3})""".r
 
   case class ShippingData(cart: Cart,
-                          cartTotal: Int = 0,
-                          cartSubTotal: Int = 0,
+                          cartTotal: Int,
+                          cartSubTotal: Int,
                           shippingAddress: Option[OrderShippingAddress] = None,
                           shippingRegion: Option[Region] = None,
                           lineItems: Seq[CartLineItemProductData] = Seq())
 
-  // convenient empty container to construct queries against given conditions
-  def emptyShippingData = ShippingData(cart = Cart(scope = LTree(""), accountId = 0))
-
-  def setDefault(shippingMethodId: Int)(implicit ec: EC,
-                                        db: DB,
-                                        au: AU): DbResultT[ShippingMethodsResponse.Root] =
+  def setDefault(shippingMethodId: Int)(implicit ec: EC, db: DB, au: AU): DbResultT[Root] =
     for {
       shippingMethod ← * <~ ShippingMethods.mustFindById404(shippingMethodId)
       _ ← * <~ DefaultShippingMethods.create(
              DefaultShippingMethod(scope = Scope.current, shippingMethodId = shippingMethodId))
     } yield ShippingMethodsResponse.build(shippingMethod)
 
-  def removeDefault()(implicit ec: EC, au: AU): DbResultT[Option[ShippingMethodsResponse.Root]] = {
+  def removeDefault()(implicit ec: EC, au: AU): DbResultT[Option[Root]] = {
     val scope = Scope.current
     for {
       shippingMethod ← * <~ DefaultShippingMethods.resolve(scope)
@@ -52,47 +47,44 @@ object ShippingManager {
     } yield shippingMethod.map(ShippingMethodsResponse.build(_))
   }
 
-  def getDefault(implicit ec: EC, au: AU): DbResultT[Option[ShippingMethodsResponse.Root]] =
+  def getDefault(implicit ec: EC, au: AU): DbResultT[Option[Root]] =
     for {
       shippingMethod ← * <~ DefaultShippingMethods.resolve(Scope.current)
     } yield shippingMethod.map(ShippingMethodsResponse.build(_))
 
-  def getActive(implicit ec: EC): DbResultT[Seq[ShippingMethodsResponse.Root]] =
+  def getActive(implicit ec: EC): DbResultT[Seq[Root]] =
     for {
       shippingMethods ← * <~ ShippingMethods.findActive.result
     } yield shippingMethods.map(responses.ShippingMethodsResponse.build(_))
 
-  def getShippingMethodsForCart(originator: User)(
-      implicit ec: EC,
-      db: DB): DbResultT[Seq[responses.ShippingMethodsResponse.Root]] =
+  def getShippingMethodsForCart(originator: User)(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
     for {
       cart        ← * <~ getCartByOriginator(originator, None)
       shipMethods ← * <~ ShippingMethods.findActive.result
       shipData    ← * <~ getShippingData(cart)
-      response = filter(shipMethods, shipData)
-    } yield response
+    } yield filterMethods(shipMethods, shipData)
 
-  def getShippingMethodsForRegion(countryCode: String)(
-      implicit ec: EC,
-      db: DB): DbResultT[Seq[responses.ShippingMethodsResponse.Root]] =
+  def getShippingMethodsForRegion(countryCode: String)(implicit ec: EC,
+                                                       db: DB): DbResultT[Seq[Root]] =
     for {
       shipMethods ← * <~ ShippingMethods.findActive.result
       country     ← * <~ Countries.findByCode(countryCode).mustFindOneOr(NoCountryFound(countryCode))
 
-      shipToRegion = emptyShippingData.copy(
-          shippingRegion = Region(countryId = country.id, name = country.name).some)
-      response = filter(shipMethods, shipToRegion)
-    } yield response
+      shipToRegion = ShippingData(cart = Cart(scope = LTree(""), accountId = 0),
+                                  cartTotal = 0,
+                                  cartSubTotal = 0,
+                                  shippingRegion =
+                                    Region(countryId = country.id, name = country.name).some)
+    } yield filterMethods(shipMethods, shipToRegion)
 
   def getShippingMethodsForCart(refNum: String, customer: Option[User] = None)(
       implicit ec: EC,
-      db: DB): DbResultT[Seq[responses.ShippingMethodsResponse.Root]] =
+      db: DB): DbResultT[Seq[Root]] =
     for {
       cart        ← * <~ findByRefNumAndOptionalCustomer(refNum, customer)
       shipMethods ← * <~ ShippingMethods.findActive.result
       shipData    ← * <~ getShippingData(cart)
-      response = filter(shipMethods, shipData)
-    } yield response
+    } yield filterMethods(shipMethods, shipData)
 
   private def findByRefNumAndOptionalCustomer(refNum: String, customer: Option[User] = None)(
       implicit ec: EC,
@@ -118,10 +110,10 @@ object ShippingManager {
     }
   }
 
-  def filter(shipMethods: Seq[ShippingMethod], shipData: ShippingData) = shipMethods.collect {
+  def filterMethods(shipMethods: Seq[ShippingMethod], shipData: ShippingData) = shipMethods.collect {
     case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
       val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
-      responses.ShippingMethodsResponse.build(sm, !restricted)
+      responses.ShippingMethodsResponse.build(sm, isEnabled = !restricted)
   }
 
   private def getShippingData(cart: Cart)(implicit ec: EC, db: DB): DbResultT[ShippingData] =
@@ -174,6 +166,8 @@ object ShippingManager {
         case _ ⇒
           false
       }
+    // @aafa Here I extracted shippingRegion matching against incoming queries
+    // since we can have address and region provided separately within shippingData
     } || shippingData.shippingRegion.fold(false)(shippingRegion ⇒
           condition.field match {
         case "countryId" ⇒
