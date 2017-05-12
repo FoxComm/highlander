@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { renderExportModal } from 'modules/bulk-export/helpers';
 import { autobind } from 'core-decorators';
+import { toQuery } from 'elastic/common';
 
 // components
 import Table from './table';
@@ -186,10 +187,14 @@ class TableView extends Component {
 
   @autobind
   onExportConfirm(fields, entity, identifier, description) {
-    const { bulkExportAction } = this.props;
-
+    const { bulkExportAction, data, rawSorts } = this.props;
+    const sortRaw = _.isEmpty(rawSorts) ? false : rawSorts.indexOf(_.trim(data.sortBy, '-')) !== -1;
+    const sortBy = toQuery(null, {
+      sortBy: data.sortBy,
+      sortRaw,
+    }).sort;
     this.closeModal();
-    bulkExportAction(fields, entity, identifier, description);
+    bulkExportAction(fields, entity, identifier, description, sortBy);
   }
 
   get bulkExportModal() {
