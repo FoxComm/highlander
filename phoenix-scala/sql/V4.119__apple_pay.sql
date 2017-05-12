@@ -34,3 +34,12 @@ alter table order_payments drop constraint valid_payment_type;
 alter table order_payments add constraint valid_payment_type check
   (payment_method_type in ('creditCard', 'giftCard', 'storeCredit', 'applePay'));
 
+alter table apple_payments alter column stripe_customer_id type text;
+alter table credit_card_charges rename column charge_id to stripe_charge_id;
+
+alter table return_cc_payments rename to return_stripe_payments;
+alter table return_stripe_payments alter column charge_id type stripe_id_string;
+
+alter table return_payments drop constraint valid_payment_type;
+alter table return_payments add constraint valid_payment_type check
+  (payment_method_type in ('creditCard', 'giftCard', 'storeCredit', 'applePay'));
