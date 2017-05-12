@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import { bulkExportBulkAction, getIdsByProps, renderExportModal } from 'modules/bulk-export/helpers';
 
 // components
 import { SelectableSearchList } from 'components/list-page';
@@ -19,6 +20,7 @@ import { Link } from 'components/link';
 import { actions } from 'modules/customer-groups/list';
 import { GROUP_TYPE_MANUAL, GROUP_TYPE_DYNAMIC, GROUP_TYPE_TEMPLATE } from 'modules/customer-groups/details/group';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
+import { actions as bulkActions } from 'modules/customer-groups/bulk';
 
 type Props = {
   list: Object,
@@ -68,21 +70,58 @@ class GroupsList extends Component {
     );
   }
 
+  @autobind
+  bulkExport(allChecked: boolean, toggledIds: Array<number>) {
+    const { exportByIds } = this.props.bulkActions;
+    const modalTitle = 'Customer Groups';
+    const entity = 'customerGroups';
+
+    return renderExportModal(tableColumns, entity, modalTitle, exportByIds, toggledIds);
+  }
+
+  get bulkActions() {
+    return [
+      bulkExportBulkAction(this.bulkExport, 'Cutomer Groups'),
+    ];
+  }
+
+  renderBulkDetails(groupName: string, groupId: number) {
+    return (
+      <span key={groupId}>
+        Customer Group <Link to="customer-group" params={{ groupId }}>{`${groupId}: ${groupName}`}</Link>
+      </span>
+    );
+  }
+
   render() {
     return (
-      <SelectableSearchList
-        exportEntity="customerGroups"
-        exportTitle="Customer Groups"
-        bulkExport
-        bulkExportAction={this.props.bulkExportAction}
-        entity="customerGroups.list"
-        emptyMessage="No groups found."
-        list={this.props.list}
-        renderRow={this.renderRow}
-        tableColumns={tableColumns}
-        searchActions={this.props.actions}
-        searchOptions={{ singleSearch: true }}
-      />
+      <div>
+        <BulkMessages
+          storePath="customerGroups.bulk"
+          module="customerGroups"
+          entity="customer group"
+          renderDetail={this.renderBulkDetails}
+        />
+        <BulkActions
+          module="customerGroups"
+          entity="customer group"
+          actions={this.bulkActions}
+        >
+          <SelectableSearchList
+            exportEntity="customerGroups"
+            exportTitle="Customer Groups"
+            bulkExport
+            bulkExportAction={this.props.bulkExportAction}
+            entity="customerGroups.list"
+            emptyMessage="No groups found."
+            list={this.props.list}
+            renderRow={this.renderRow}
+            tableColumns={tableColumns}
+            searchActions={this.props.actions}
+            searchOptions={{ singleSearch: true }}
+          />
+        </BulkActions>
+      </div>
     );
   }
 }
@@ -94,6 +133,7 @@ const mapState = state => ({
 const mapActions = dispatch => ({
   actions: bindActionCreators(actions, dispatch),
   bulkExportAction: bindActionCreators(bulkExport, dispatch),
+  bulkActions: bindActionCreators(bulkActions, dispatch),
 });
 
 export default connect(mapState, mapActions)(GroupsList);

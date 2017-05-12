@@ -77,7 +77,7 @@ class Carts extends Component {
     ];
   }
 
-  renderBulkDetails(message, cart) {
+  renderBulkDetails(message: string, cart: string) {
     return (
       <span key={cart}>
         Cart <Link to="cart-details" params={{ cart }}>{cart}</Link>
