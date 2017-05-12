@@ -4,13 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
-	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
-	commonErrors "github.com/FoxComm/highlander/middlewarehouse/common/errors"
 	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
 
 	"github.com/SermoDigital/jose/jwt"
@@ -55,28 +52,6 @@ func paramUint(context *gin.Context, key string) (uint, failures.Failure) {
 	return uint(id), nil
 }
 
-func handleReservationError(context *gin.Context, err error) {
-	status := http.StatusBadRequest
-
-	if err == gorm.ErrRecordNotFound {
-		status = http.StatusNotFound
-	}
-
-	var response responses.ReservationError
-	if aggrErr, ok := err.(*commonErrors.AggregateError); ok {
-		response = aggrErr.ToReservationError()
-	} else {
-		response = responses.NewReservationError(err)
-	}
-
-	for _, err := range response.Errors {
-		log.Printf("Error when trying to hold reservation: %s\n", err.Debug)
-	}
-
-	context.JSON(status, response)
-	context.Abort()
-}
-
 func handleServiceError(context *gin.Context, err error) {
 	fail := getFailure(err)
 
@@ -95,7 +70,7 @@ func getFailure(err error) failures.Failure {
 
 func logFailure(fail failures.Failure) {
 	messages := []string{}
-	for _, err := range fail.ToJSON().Errors {
+	for _, err := range fail.ToJSON().GetAllErrors() {
 		messages = append(messages, fmt.Sprintf("ServiceError: %s", err))
 	}
 

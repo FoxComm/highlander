@@ -4,6 +4,10 @@ import (
 	"encoding/json"
 )
 
+type ErrorResponse interface {
+	GetAllErrors() []string
+}
+
 type Error struct {
 	Errors []string `json:"errors"`
 }
@@ -25,17 +29,14 @@ func (err *InvalidSKUItemError) Error() string {
 	}
 }
 
-func NewInvalidSKUItemError(err error) InvalidSKUItemError {
-	if skuErr, ok := err.(*InvalidSKUItemError); ok {
-		return *skuErr
-	}
-	return InvalidSKUItemError{Sku: "", Debug: err.Error()}
+func (err Error) GetAllErrors() []string {
+	return err.Errors
 }
 
-func NewReservationError(err error) ReservationError {
-	return ReservationError{
-		Errors: []InvalidSKUItemError{
-			NewInvalidSKUItemError(err),
-		},
+func (err ReservationError) GetAllErrors() []string {
+	var result []string
+	for _, err := range err.Errors {
+		result = append(result, err.Error())
 	}
+	return result
 }

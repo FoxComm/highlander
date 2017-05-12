@@ -9,7 +9,7 @@ import (
 
 type Failure interface {
 	Status() int
-	ToJSON() responses.Error
+	ToJSON() responses.ErrorResponse
 }
 
 func Abort(context *gin.Context, failure Failure) {
@@ -17,10 +17,15 @@ func Abort(context *gin.Context, failure Failure) {
 	context.Abort()
 }
 
-func toJSON(err error) responses.Error {
+func toJSON(err error) responses.ErrorResponse {
 	if err, ok := err.(*errors.AggregateError); ok {
-		return responses.Error{
-			Errors: err.Messages(),
+		response, resErr := err.ToReservationError()
+		if resErr != nil {
+			return responses.Error{
+				Errors: err.Messages(),
+			}
+		} else {
+			return *response
 		}
 	}
 

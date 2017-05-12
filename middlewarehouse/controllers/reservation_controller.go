@@ -35,7 +35,7 @@ func (controller *reservationController) Hold() gin.HandlerFunc {
 		}
 
 		if err := payload.Validate(); err != nil {
-			handleReservationError(context, err)
+			handleServiceError(context, err)
 			return
 		}
 
@@ -45,7 +45,7 @@ func (controller *reservationController) Hold() gin.HandlerFunc {
 		}
 
 		if err := controller.service.HoldItems(payload.RefNum, skuMap); err != nil {
-			handleReservationError(context, err)
+			handleServiceError(context, err)
 			return
 		}
 
