@@ -164,7 +164,7 @@ class Pdp extends Component {
   @autobind
   getId(props): string|number {
     const slug = props.params.productSlug;
-console.log('slug',slug);
+
     if (/^\d+$/g.test(slug)) {
       return parseInt(slug, 10);
     }
