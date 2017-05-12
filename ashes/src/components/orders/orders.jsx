@@ -10,9 +10,9 @@ import { connect } from 'react-redux';
 import { bulkExportBulkAction, renderExportModal, getIdsByProps } from 'modules/bulk-export/helpers';
 
 // actions
-import { stateTitles } from '../../paragons/order';
-import { actions } from '../../modules/orders/list';
-import { actions as bulkActions } from '../../modules/orders/bulk';
+import { stateTitles } from 'paragons/order';
+import { actions, rawSorts } from 'modules/orders/list';
+import { actions as bulkActions } from 'modules/orders/bulk';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
 
 // components
@@ -150,6 +150,7 @@ class Orders extends Component {
           watchActions={true}
           actions={this.bulkActions}>
           <SelectableSearchList
+            rawSorts={rawSorts}
             entity="orders.list"
             exportEntity="orders"
             exportTitle="Orders"

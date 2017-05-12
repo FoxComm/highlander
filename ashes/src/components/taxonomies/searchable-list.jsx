@@ -7,7 +7,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 // data
-import { actions } from 'modules/taxonomies/list';
+import { actions, rawSorts } from 'modules/taxonomies/list';
 
 // components
 import SelectableSearchList from 'components/list-page/selectable-search-list';
@@ -55,6 +55,7 @@ export class SearchableList extends Component {
     return (
       <div>
         <SelectableSearchList
+          rawSorts={rawSorts}
           entity="taxonomies.list"
           emptyMessage="No taxonomies found."
           list={list}

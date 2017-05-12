@@ -17,7 +17,7 @@ import BulkMessages from 'components/bulk-actions/bulk-messages';
 import { Link } from 'components/link';
 
 // actions
-import { actions } from 'modules/carts/list';
+import { actions, rawSorts } from 'modules/carts/list';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
 import { actions as bulkActions } from 'modules/carts/bulk';
 
@@ -102,6 +102,7 @@ class Carts extends Component {
           actions={this.bulkActions}
         >
           <SelectableSearchList
+            rawSorts={rawSorts}
             exportEntity="carts"
             exportTitle="Carts"
             bulkExport

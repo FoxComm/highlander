@@ -7,7 +7,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 // data
-import { actions } from 'modules/taxons/list';
+import { actions, rawSorts } from 'modules/taxons/list';
 
 // components
 import MultiSelectTable from 'components/table/multi-select-table';
@@ -72,6 +72,7 @@ export class TaxonsListPage extends Component {
 
     return (
       <Table
+        rawSorts={rawSorts}
         columns={tableColumns}
         data={results}
         renderRow={this.renderRow}

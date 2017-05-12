@@ -7,6 +7,8 @@ const storeLocation = 'taxons.list';
 const searchView = 'taxons_search_view/_search';
 const scope = 'taxonsScope';
 
+export const rawSorts = ['name'];
+
 const { reducer, actions } = makeLiveSearch(
   storeLocation,
   searchTerms,
@@ -14,7 +16,7 @@ const { reducer, actions } = makeLiveSearch(
   scope,
   {
     initialState: { sortBy: 'name' },
-    rawSorts: ['name'],
+    rawSorts,
   }
 );
 

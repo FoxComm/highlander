@@ -19,7 +19,7 @@ import CustomerRow from './customer-row';
 
 // actions
 import { actions as bulkActions } from 'modules/customers/bulk';
-import { actions } from 'modules/customers/list';
+import { actions, rawSorts } from 'modules/customers/list';
 import { suggestGroups } from 'modules/customer-groups/suggest';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
 
@@ -151,6 +151,7 @@ class Customers extends Component {
           actions={this.bulkActions}
         >
           <SelectableSearchList
+            rawSorts={rawSorts}
             exportEntity="customers"
             exportTitle="Customers"
             bulkExport

@@ -77,6 +77,7 @@ export default class SelectableSearchList extends React.Component {
         noGutter={props.noGutter}
       >
         <MultiSelectTable
+          rawSorts={this.props.rawSorts}
           tbodyId={props.tbodyId}
           columns={props.tableColumns}
           exportEntity={props.exportEntity}

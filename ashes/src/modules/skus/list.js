@@ -36,13 +36,15 @@ const searchTerms = [
   },
 ];
 
+export const rawSorts = ['title'];
+
 const { reducer, actions } = makeLiveSearch(
   'skus.list',
   searchTerms,
   'sku_search_view/_search',
   'skusScope',
   {
-    rawSorts: ['title']
+    rawSorts,
   }
 );
 
