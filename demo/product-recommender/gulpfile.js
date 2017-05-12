@@ -38,7 +38,11 @@ gulp.task('build', function(cb) {
 });
 
 gulp.task('build.clean', function() {
-  return del(['build', 'public/{*.js,*.css,images}']);
+  const dir = 'build';
+  if (!fs.existsSync(dir)){
+      fs.mkdirSync(dir);
+  }
+  return del(['build/*.*', 'public/{*.js,*.css,images}']);
 });
 
 gulp.task('rev', function () {
@@ -56,7 +60,7 @@ gulp.task('dev', function(cb) {
 
   const tasks = _.compact([
     'build',
-    'server',
+    // 'server',
     'watch',
     'interactivity',
     opts.enableNotifier ? 'notifier' : null,
