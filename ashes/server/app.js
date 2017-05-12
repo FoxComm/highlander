@@ -21,7 +21,12 @@ app.init = co.wrap(function *(env) {
   }
 
   require(`${__dirname}/middleware`)(app);
-  require(`${__dirname}/api`)(app);
+
+  // Without nginx we use `api` middleware to proxy api requests to API_URL
+  if (!process.env.BEHIND_NGINX) {
+    require(`${__dirname}/api`)(app);
+  }
+
   require(`${__dirname}/cms`)(app);
   app.server = app.listen(app.config.server.port);
 });

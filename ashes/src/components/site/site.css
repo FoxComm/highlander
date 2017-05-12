@@ -1,5 +1,6 @@
 /* Consider this file as an "entry point" for all css */
 
+@import 'base.css';
 @import 'transitions.css';
 
 .block {

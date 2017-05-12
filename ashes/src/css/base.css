@@ -1,0 +1,33 @@
+/* Some components independent styles */
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  font-family: 'Open Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:global(#foxcom) {
+  height: 100%;
+  background: #f2f2f2;
+}
+
+:global(._start_image_container) {
+  display: flex;
+  justify-content: center;
+  height: 100%;
+}
+
+:global(._start_image) {
+  animation: _start_image_blink 4s linear infinite;
+}
+
+@keyframes _start_image_blink {
+  0% { opacity: 1 }
+  50% { opacity: 0.2 }
+  100% { opacity: 1 }
+}

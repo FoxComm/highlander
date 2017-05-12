@@ -2,10 +2,6 @@ const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-// const WriteFilePlugin = require('write-file-webpack-plugin');
-// const failPlugin = require('webpack-fail-plugin');
-// const StatsPlugin = require('stats-webpack-plugin');
-// const StatsWriterPlugin = require('webpack-stats-plugin').StatsWriterPlugin;
 
 const SvgStore = require('webpack-svgstore-plugin');
 
@@ -39,21 +35,22 @@ module.exports = {
       {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: [ 'css-loader', 'postcss-loader' ],
-          allChunks: true,
+          use: [ 'css-loader', 'postcss-loader' ]
         })
       },
       {
         test: /\.less$/,
-        use: [ 'style-loader', 'css-loader', 'less-loader' ]
+        use: ExtractTextPlugin.extract({
+          use: [ 'css-loader', 'less-loader' ]
+        })
       },
     ]
   },
 
   plugins: [
-    new ExtractTextPlugin('styles.css'),
-    new OptimizeCssAssetsPlugin(),
+    new webpack.optimize.UglifyJsPlugin({
+      compress: { warnings: false }
+    }),
 
     new webpack.DefinePlugin({
       'process.env': {
@@ -62,6 +59,9 @@ module.exports = {
         GIT_REVISION: JSON.stringify(process.env.GIT_REVISION),
       },
     }),
+
+    new ExtractTextPlugin('styles.css'),
+    new OptimizeCssAssetsPlugin(),
 
     new SvgStore(),
   ],

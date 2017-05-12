@@ -89,7 +89,7 @@ build-styleguide:
 # Production ###
 
 .PHONY: prod_build
-prod_build:
+prod_build: clean
 	NODE_ENV=production ./node_modules/.bin/webpack
 
 .PHONY: prod p
@@ -99,7 +99,7 @@ prod p: prod_build
 # Buildkite ###
 
 .PHONY: build
-build: clean
+build:
 	$(call header, Building)
 	make rev
 	make install

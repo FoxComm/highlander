@@ -68,4 +68,6 @@ module.exports = {
     ],
     extensions: ['.js', '.jsx']
   },
+
+  devtool: 'eval-source-map',
 };
