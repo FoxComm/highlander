@@ -2,7 +2,7 @@
   "name": "product-recommender",
   "version": "1.0.0",
   "description": "FoxCommerce Demo Storefront Product Recommender",
-  "main": "public/product-recommender.js",
+  "main": "public/app.js",
   "scripts": {
     "lint": "eslint --ext .js --ext .jsx .",
     "flow": "flow check",
