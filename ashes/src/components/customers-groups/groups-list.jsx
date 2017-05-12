@@ -26,6 +26,11 @@ type Props = {
   list: Object,
   actions: Object,
   bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
+  bulkActions: {
+    exportByIds: (
+      ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
+    ) => void,
+  },
 };
 
 const tableColumns = [

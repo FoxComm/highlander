@@ -62,7 +62,7 @@ export class Products extends Component {
     return renderExportModal(tableColumns, entity, modalTitle, exportByIds, toggledIds);
   }
 
-  get bulkActions() {
+  get bulkActions(): Array<any> {
     return [
       bulkExportBulkAction(this.bulkExport, 'Products'),
     ];
@@ -135,6 +135,6 @@ const mapDispatchToProps = (dispatch) => {
     bulkExportAction: bindActionCreators(bulkExport, dispatch),
     bulkActions: bindActionCreators(bulkActions, dispatch),
   };
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Products);
