@@ -1,8 +1,9 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
+import * as Buttons from './button';
+
 describe('Buttons', function () {
-  const Buttons = requireComponent('core/button', false);
 
   it('should render Button', function () {
     const button = shallow(
@@ -12,7 +13,7 @@ describe('Buttons', function () {
     expect(button.text()).to.equal('Done');
   });
 
-  it('should render Buttonw with icon and text', function () {
+  it('should render Button with icon and text', function () {
     const button = shallow(
       <Buttons.Button icon="fake">Done</Buttons.Button>
     );
@@ -39,6 +40,8 @@ describe('Buttons', function () {
     const button = shallow(
       <Buttons.PrimaryButton className={className} />
     );
+
+    console.log(button.html());
 
     expect(button.hasClass('primary')).to.be.true;
     expect(button.hasClass('super-button')).to.be.true;

@@ -2,8 +2,11 @@ import path from 'path';
 import rewire from 'rewire';
 import register from 'ignore-styles';
 
+process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./src')}`;
+
 process.env.API_URL = 'http://api.foxcommerce'; // mock
 process.env.STRIPE_PUBLISHABLE_KEY = 'key_mock'; // mock
+
 
 register(['.css']);
 

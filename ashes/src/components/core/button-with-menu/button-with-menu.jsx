@@ -35,8 +35,6 @@ type Props = {
     onPrimaryClick?: Function;
   /** Callback called on menu item click */
     onSelect?: (value: any, title: string | Element<any>) => any;
-  /** Array of elements used to render menu items in case `items` prop is empty */
-    children?: Array<Element<any>>;
 }
 
 type State = {
@@ -106,28 +104,19 @@ export default class ButtonWithMenu extends Component {
   }
 
   get menu() {
-    const { children, items } = this.props;
+    const { items } = this.props;
     const { open } = this.state;
 
     if (!open) {
       return;
     }
 
-    let ddItems = null;
+    const ddItems = map(items, ([value, title]) => (
+      <DropdownItem value={value} onSelect={this.handleItemClick} key={value}>
+        {title}
+      </DropdownItem>
+    ));
 
-    if (!isEmpty(items)) {
-      ddItems = map(items, ([value, title]) => (
-        <DropdownItem value={value} key={value} onSelect={this.handleItemClick}>
-          {title}
-        </DropdownItem>
-      ));
-    } else {
-      ddItems = React.Children.map(children, item =>
-        React.cloneElement(item, {
-          onSelect: this.handleItemClick,
-        })
-      );
-    }
     return (
       <ul className={s.menu}>
         { ddItems }
