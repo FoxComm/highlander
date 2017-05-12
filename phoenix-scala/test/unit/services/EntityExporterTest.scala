@@ -2,14 +2,13 @@ package services
 
 import cats.implicits._
 import org.json4s.JsonAST._
-import org.scalacheck.{Gen, Shrink}
+import org.scalacheck.Gen
 import org.scalatest.PrivateMethodTester
 import org.scalatest.prop.PropertyChecks
 import scala.collection.JavaConverters._
 import testutils.TestBase
 
 class EntityExporterTest extends TestBase with PropertyChecks with PrivateMethodTester {
-  implicit val noShrink = Shrink.shrinkAny[List[String]]
   val fieldsGen: Gen[List[String]] =
     Gen.listOf(Gen.alphaStr.suchThat(s ⇒ !s.contains(".") && s.nonEmpty))
 
