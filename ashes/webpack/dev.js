@@ -1,10 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-// const WriteFilePlugin = require('write-file-webpack-plugin');
-// const failPlugin = require('webpack-fail-plugin');
-// const StatsPlugin = require('stats-webpack-plugin');
-// const StatsWriterPlugin = require('webpack-stats-plugin').StatsWriterPlugin;
-
 const SvgStore = require('webpack-svgstore-plugin');
 
 module.exports = {
