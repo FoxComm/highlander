@@ -312,7 +312,6 @@ export default class LiveSearch extends React.Component {
       <ButtonWithMenu
         onPrimaryClick={this.handleSearchClick}
         icon="search"
-        menuPosition="right"
         onSelect={this.handleMenu}
         items={menuItems}
         buttonDisabled={buttonDisabled}

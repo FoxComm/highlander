@@ -14,33 +14,31 @@ import { DropdownItem } from 'components/dropdown';
 // styles
 import s from './button-with-menu.css';
 
-type DropdownItemType = [any, string|Element<any>];
+type DropdownItemType = [any, string | Element<any>];
 
 type Props = {
   /** Primary button label */
-  title: string|Element<any>;
+    title: string | Element<any>;
   /** Menu items array */
-  items?: Array<DropdownItemType>;
-  /** Dropdown menu position. Affects animation start position (css's transform-origin) */
-  menuPosition?: "left" | "center" | "right";
+    items?: Array<DropdownItemType>;
   /** If primary button is disabled */
-  buttonDisabled?: boolean;
+    buttonDisabled?: boolean;
   /** If menu button is disabled */
-  menuDisabled?: boolean;
+    menuDisabled?: boolean;
   /** Icon name that is used to be rendered in a primary button */
-  icon?: string;
+    icon?: string;
   /** If to animate menu appearance */
-  animate?: boolean;
+    animate?: boolean;
   /** If to show loading animation */
-  isLoading?: boolean;
+    isLoading?: boolean;
   /** Additional className */
-  className?: string;
+    className?: string;
   /** Callback called on primary button click */
-  onPrimaryClick?: Function;
+    onPrimaryClick?: Function;
   /** Callback called on menu item click */
-  onSelect?: (value: any, title: string|Element<any>) => any;
+    onSelect?: (value: any, title: string | Element<any>) => any;
   /** Array of elements used to render menu items in case `items` prop is empty */
-  children?: Array<Element<any>>;
+    children?: Array<Element<any>>;
 }
 
 type State = {
@@ -59,7 +57,6 @@ export default class ButtonWithMenu extends Component {
 
   static defaultProps: $Shape<Props> = {
     items: [],
-    menuPosition: 'right',
     buttonDisabled: false,
     menuDisabled: false,
     icon: '',
@@ -83,7 +80,7 @@ export default class ButtonWithMenu extends Component {
   }
 
   @autobind
-  handleItemClick(value: any, title: string|Element<any>) {
+  handleItemClick(value: any, title: string | Element<any>) {
     const newState = { open: false };
 
     this.setState(newState, () => {
@@ -128,7 +125,7 @@ export default class ButtonWithMenu extends Component {
       );
     }
     return (
-      <ul className={s.menu} ref="menu">
+      <ul className={s.menu}>
         { ddItems }
       </ul>
     );
@@ -136,7 +133,7 @@ export default class ButtonWithMenu extends Component {
 
   render() {
     const { props } = this;
-    const { icon, title, animate, menuPosition, buttonDisabled, menuDisabled } = props;
+    const { icon, title, animate, buttonDisabled, menuDisabled } = props;
     const { open } = this.state;
 
     const className = classNames(s.button, {
@@ -162,7 +159,7 @@ export default class ButtonWithMenu extends Component {
             onClick={props.onPrimaryClick}
             isLoading={props.isLoading}
             onBlur={this.dontPropagate}
-            disabled={buttonDisabled} >
+            disabled={buttonDisabled}>
             {title}
           </PrimaryButton>
           <PrimaryButton
@@ -175,7 +172,7 @@ export default class ButtonWithMenu extends Component {
           />
         </div>
 
-        <Transition {...(getTransitionProps(animate, menuPosition))}>
+        <Transition {...(getTransitionProps(animate))}>
           {this.menu}
         </Transition>
       </div>
@@ -183,10 +180,10 @@ export default class ButtonWithMenu extends Component {
   }
 }
 
-function getTransitionProps(animate, position = 'right') {
+function getTransitionProps(animate) {
   return {
     component: 'div',
-    transitionName: `dd-transition-${position}`,
+    transitionName: `dd-transition-right`,
     transitionEnter: animate,
     transitionLeave: animate,
     transitionEnterTimeout: 300,
