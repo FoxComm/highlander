@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "stage-fox-developers",
+    "stage": "stage-fox-developers",
+    "production": "fox-developers"
+  }
+}

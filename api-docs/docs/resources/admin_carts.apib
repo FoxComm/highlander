@@ -1,4 +1,15 @@
-# Carts [/v1/carts/{refNum}]
+## Carts [/v1/carts/{refNum}]
+
+This object represents a customer's purchase before the customer has checked
+out. It contains the items that the customer wishes to purchase, where and however they should be shipped, what discounts are applied, and how they are paid.
+
+All actions that manipulate the cart validate the state of the cart for things
+like available inventory, whether selected shipping options are valid, etc. This
+gives you confidence that you will understand the consequences of any changes to
+the cart.
+
++ Model (application/json)
+    + Attributes (FullOrder)
 
 + Parameters
     + refNum: `ABC-123` (required, string) - Cart referenceNumber.

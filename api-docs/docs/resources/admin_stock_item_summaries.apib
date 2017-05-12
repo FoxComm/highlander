@@ -1,5 +1,34 @@
 ## Stock Item Summaries [/v1/inventory/summary/{code}]
 
+Stock Level Summaries allows a user to see levels of inventory available across
+various inventory types and stock locations.
+
+_Inventory Types_
+
+- **Sellable**: the standard inventory type. Units in this state are considered to
+  be in-stock and available in a stock location.
+- **Non-sellable**: inventory that is in a stock location but not allowed to sold.
+  One example would be inventory that has been received in a warehouse from a
+  manufacturer, but is not yet put in to bins.
+- **Backorder**: the amount of inventory that is either available for backorder or
+  has already been backordered.
+- **Preorder**: the amount of inventory that is either available for preorder or
+  has already been preordered.
+
+_Inventory Count Definitions_
+
+- **On Hand**: refers to the number of units that are sitting within a given stock
+  location. Depending on other states, these may or may not be available for
+  sale.
+- **Hold**: units that have been purchased, but are in one of the hold order states
+  (Manual Hold, Fraud Hold, Remorse Hold). If an outside WMS or 3PL is
+  connected to FoxCommerce, these units will not show up as purchased in that
+  system. Units that are in this state cannot be purchased by other customers.
+- **Reserved**: units that are in the process of being fulfilled.
+- **AFS**: the number of units that are available for sale. This is a calculated
+  field (afs = on hand - hold - reserved).
+
+
 ### View [GET]
 
 + Parameters

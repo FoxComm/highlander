@@ -1,4 +1,14 @@
-## Customers group [/v1/groups/{id}]
+## Customer Group [/v1/groups/{id}]
+
+Customer Group is an entity that aggregates similar customers for purposes of
+analytics or integration with third-party services. There are two types of groups:
+dynamic and manual. Manual groups are lists of individual customers compiled
+by a user, while dynamic are aggregations based on a criteria defined by a user.
+The membership to dynamic groups will continuously update as changes are made to
+the system.
+
++ Model (application/json)
+    + Attributes (GroupResponse)
 
 + Parameters
     + id: 1 (required, number) - Group ID.

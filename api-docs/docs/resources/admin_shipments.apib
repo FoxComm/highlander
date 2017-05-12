@@ -1,5 +1,19 @@
 ## Shipments [/v1/inventory/shipmints]
 
+Shipments track the status of items that have been purchased and are scheduled
+to be sent from a store to a 3rd party, such as a customer.
+
+_Shipment States_
+
+- **Pending**: the initial state when a new shipment is created. It means that
+  the shipment exists in the warehouse and is in the process of being readied
+  for shipment.
+- **Shipped**: the shipment has left the warehouse and is in the process of
+  being fulfilled.
+- **Delivered**: the recipient has received the shipment.
+- **Cancelled**: the shipment has been cancelled and inventory has been made
+  available to other customers.
+
 ### View By Order [GET /v1/inventory/shipments/{referenceNumber}]
 
 Gets all of the shipments associated with a single order.
