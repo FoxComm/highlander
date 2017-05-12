@@ -214,7 +214,6 @@ class TableView extends Component {
   render() {
     const TableComponent = this.props.dataTable ? DataTable : Table;
 
->>>>>>> Rewrite/refactor tableview cmp + add export modal
     return (
       <div className="fc-tableview">
         {this.bulkExportModal}
@@ -229,6 +228,7 @@ class TableView extends Component {
       </div>
     );
   }
+}
 
 TableView.propTypes = {
   columns: PropTypes.array.isRequired,

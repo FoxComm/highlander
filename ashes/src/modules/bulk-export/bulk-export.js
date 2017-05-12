@@ -7,7 +7,8 @@ import _ from 'lodash';
 import { columnsToPayload } from './helpers';
 
 type Payload = {
-  ids: Array<number>,
+  ids?: Array<number>,
+  query?: Object,
   fields: Array<Object>,
   description?: string,
 };
