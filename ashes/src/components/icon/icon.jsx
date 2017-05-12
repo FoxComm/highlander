@@ -2,7 +2,7 @@
 import React from 'react';
 
 // webpack-svgstore-plugin will replace it with path to generated sprite
-let __svg__ = { path: '../../images/**/*.svg', name: 'symbols.svg' };
+let __svg__ = { path: '../../images/**/*.svg', name: 'admin/symbols.svg' };
 // @todo [hash]. https://github.com/mrsum/webpack-svgstore-plugin/issues/141
 
 // Loading svg sprite to <body>

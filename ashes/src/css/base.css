@@ -1,5 +1,8 @@
 /* Some components independent styles */
 
+@import 'fontello.css';
+@import 'transitions.css';
+
 html {
   height: 100%;
 }

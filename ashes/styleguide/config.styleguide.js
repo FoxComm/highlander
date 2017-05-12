@@ -8,5 +8,6 @@ module.exports = {
   styleguideDir: path.resolve('public/admin/styleguide'),
   require: [
     path.join(__dirname, 'styleguide.less'),
+    path.join(__dirname, '../src/css/base.css'),
   ]
 };

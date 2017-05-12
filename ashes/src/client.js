@@ -18,6 +18,8 @@ import { isPathRequiredAuth } from './route-rules';
 
 // global styles
 import './less/base.less';
+import './css/base.css';
+import 'images/favicon.png';
 
 const createBrowserHistory = useNamedRoutes(useRouterHistory(createHistory));
 

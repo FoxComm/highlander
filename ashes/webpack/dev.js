@@ -9,8 +9,8 @@ module.exports = {
   ],
 
   output: {
-    path: path.resolve(__dirname, '../build/admin'),
-    filename: '[name].js',
+    path: path.resolve(__dirname, '../build'),
+    filename: 'admin/[name].js',
   },
 
   module: {
@@ -33,12 +33,12 @@ module.exports = {
         use: [ 'style-loader', 'css-loader', 'less-loader' ]
       },
       {
-        test: /\.(woff|woff2)$/,
+        test: /\.(png|woff|woff2)$/,
         use: [
           {
             loader: 'file-loader',
             query: {
-              name: '[name].[ext]'
+              name: '/admin/[name].[ext]'
             }
           }
         ]
@@ -49,8 +49,10 @@ module.exports = {
   plugins: [
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: JSON.stringify(process.env.NODE_ENV)
-      }
+        NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+        BEHIND_NGINX: JSON.stringify(process.env.BEHIND_NGINX),
+        GIT_REVISION: JSON.stringify(process.env.GIT_REVISION),
+      },
     }),
 
     new SvgStore({}),
