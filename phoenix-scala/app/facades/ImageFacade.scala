@@ -24,10 +24,6 @@ import utils.aliases._
 import utils.db._
 
 trait ImageFacade extends LazyLogging {
-  implicit val system: ActorSystem             = ActorSystem.create("Images")
-  implicit val materializer: ActorMaterializer = ActorMaterializer()
-
-  case class UnableToFetchImage(code: Int) extends Throwable
 
   protected def extractFileNameFromUrl(url: String): String = {
     val i = url.lastIndexOf('/')
@@ -37,7 +33,7 @@ trait ImageFacade extends LazyLogging {
       s"${utils.generateUuid}.jpg"
   }
 
-  def fetchImageData(url: String)(implicit ec: EC): Result[ByteBuffer] = {
+  def fetchImageData(url: String)(implicit ec: EC, sys: ActorSystem, am: Mat): Result[ByteBuffer] = {
     val r = Http().singleRequest(HttpRequest(uri = url)).flatMap {
       case HttpResponse(StatusCodes.OK, _, entity, _) ⇒
         entity.dataBytes.runFold(ByteString(""))(_ ++ _).map { body ⇒

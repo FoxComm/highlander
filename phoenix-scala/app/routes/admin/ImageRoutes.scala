@@ -1,5 +1,6 @@
 package routes.admin
 
+import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
@@ -19,8 +20,21 @@ import utils.http.Http._
 import utils.http.JsonSupport._
 
 object ImageRoutes {
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis, sys: ActorSystem): Route = {
     activityContext(auth) { implicit ac ⇒
+      pathPrefix("images") {
+        extractRequestContext { ctx ⇒
+          implicit val materializer = ctx.materializer
+          implicit val ec           = ctx.executionContext
+          import akka.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers._
+
+          (post & pathEnd & entityOr(as[Multipart.FormData], ImageNotFoundInPayload)) { formData ⇒
+            mutateOrFailures {
+              AlbumImagesFacade.uploadImagesFromMultiPart(formData)
+            }
+          }
+        }
+      } ~
       pathPrefix("albums") {
         pathPrefix(Segment) { context ⇒
           (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
@@ -53,12 +67,14 @@ object ImageRoutes {
                 (post & pathEnd & entityOr(as[Multipart.FormData], ImageNotFoundInPayload)) {
                   formData ⇒
                     mutateOrFailures {
-                      AlbumImagesFacade.uploadImagesFromMultipart(albumId, context, formData)
+                      AlbumImagesFacade.uploadImagesFromMultipartToAlbum(albumId,
+                                                                         context,
+                                                                         formData)
                     }
                 } ~
                 (path("byUrl") & post & entity(as[ImagePayload])) { payload ⇒
                   mutateOrFailures {
-                    AlbumImagesFacade.uploadImagesFromPayload(albumId, context, payload)
+                    AlbumImagesFacade.uploadImagesFromPayloadToAlbum(albumId, context, payload)
                   }
                 }
               }
