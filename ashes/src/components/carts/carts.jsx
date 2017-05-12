@@ -59,7 +59,7 @@ class Carts extends Component {
   }
 
   @autobind
-  bulkExport(allChecked: boolean, toggledIds: Array<number>) {
+  bulkExport(allChecked: boolean, toggledIds: Array<string>) {
     const { list } = this.props;
     const { exportByIds } = this.props.bulkActions;
     const modalTitle = 'Carts';

@@ -1,14 +1,14 @@
 /* @flow */
 
+import React, { Component, Element } from 'react';
+
 // libs
 import _ from 'lodash';
-import React, { Component, Element } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { bulkExportBulkAction, renderExportModal } from 'modules/bulk-export/helpers';
 import { filterArchived } from 'elastic/archive';
-import { getPropsByIds } from 'modules/bulk-export/helpers';
 
 // actions
 import { actions, rawSorts } from 'modules/products/list';
