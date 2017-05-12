@@ -2,7 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 
 describe('Buttons', function () {
-  const Buttons = requireComponent('core/button/button.jsx', false);
+  const Buttons = requireComponent('core/button', false);
 
   it('should render Button', function () {
     const button = shallow(
@@ -36,7 +36,7 @@ describe('Buttons', function () {
 
   it('should render className in PrimaryButton', function () {
     const className = 'super-button';
-    const button    = shallow(
+    const button = shallow(
       <Buttons.PrimaryButton className={className} />
     );
 

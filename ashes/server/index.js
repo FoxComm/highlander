@@ -30,6 +30,6 @@ const args = [
 console.log.apply(this, args); // eslint-disable-line no-console
 
 app.init()
-  .catch(function(err) {
+  .catch(function (err) {
     console.error(err.stack);
   });

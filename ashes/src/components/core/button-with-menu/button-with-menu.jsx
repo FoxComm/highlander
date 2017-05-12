@@ -50,6 +50,8 @@ type State = {
 /**
  * Button component that represents a button with additional action in a dropdown menu.
  *
+ * [Mockups](https://zpl.io/Z39JBU)
+ *
  * @class ButtonWithMenu
  */
 export default class ButtonWithMenu extends Component {
