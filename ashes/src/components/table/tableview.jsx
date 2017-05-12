@@ -207,7 +207,8 @@ class TableView extends Component {
     return React.cloneElement(modal, {
       onCancel: this.closeModal,
       isVisible: true,
-      entity: exportTitle.toLowerCase(),
+      entity: exportEntity === 'skus' ? exportTitle : exportTitle.toLowerCase(),
+      inBulk: true,
     });
   }
 

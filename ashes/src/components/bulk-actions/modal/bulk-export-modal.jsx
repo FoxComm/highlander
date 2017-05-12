@@ -22,6 +22,7 @@ type Props = {
   count: number,
   onConfirm: (description: ?string) => Promise<*>,
   title: string,
+  inBulk: boolean,
 };
 
 type State = {
@@ -29,6 +30,9 @@ type State = {
 };
 class BulkExportModal extends Component {
   props: Props;
+  static defaultProps = {
+    inBulk: false,
+  };
 
   state: State = {
     value: '',
@@ -87,11 +91,12 @@ class BulkExportModal extends Component {
   }
 
   render() {
-    const { title } = this.props;
+    const { inBulk, title } = this.props;
+    const modalTitle = inBulk ? `Export All ${title}` : `Export Selected ${title}`;
 
     return (
       <ContentBox
-        title={`Export Selected ${title}`}
+        title={modalTitle}
         actionBlock={this.actionBlock}
         footer={this.footer}
         className="fc-bulk-action-modal"
