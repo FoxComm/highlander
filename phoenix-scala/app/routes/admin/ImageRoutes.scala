@@ -22,7 +22,7 @@ import utils.http.JsonSupport._
 object ImageRoutes {
   def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis, sys: ActorSystem): Route = {
     activityContext(auth) { implicit ac ⇒
-      pathPrefix("images") {
+      pathPrefix("images" / Segment) { context ⇒
         extractRequestContext { ctx ⇒
           implicit val materializer = ctx.materializer
           implicit val ec           = ctx.executionContext
@@ -30,7 +30,7 @@ object ImageRoutes {
 
           (post & pathEnd & entityOr(as[Multipart.FormData], ImageNotFoundInPayload)) { formData ⇒
             mutateOrFailures {
-              AlbumImagesFacade.uploadImagesFromMultiPart(formData)
+              AlbumImagesFacade.uploadImagesFromMultiPart(context, formData)
             }
           }
         }

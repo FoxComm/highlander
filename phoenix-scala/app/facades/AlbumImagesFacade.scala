@@ -1,6 +1,7 @@
 package facades
 
 import java.nio.file.Files
+import java.time.ZonedDateTime
 
 import scala.concurrent.Future
 import akka.actor.ActorSystem
@@ -32,7 +33,29 @@ object AlbumImagesFacade extends ImageFacade {
 
   trait ImageUploader[T] {
 
-    def uploadImagesR(album: Option[(Album, OC)], imageSource: T)(
+    case class S3Path(dir: String, fileName: String) {
+      def absPath(): String = {
+        s"$dir/$fileName"
+      }
+    }
+
+    object S3Path {
+      def get(album: Option[Album], fileName: String): S3Path = {
+        val now        = ZonedDateTime.now()
+        val year: Int  = now.getYear
+        val month: Int = now.getMonthValue
+
+        val prefix = s"${now.getDayOfMonth}${now.getHour}${now.getMinute}${now.getSecond}"
+
+        album.fold {
+          S3Path(dir = s"other/$year/$month", fileName = s"$prefix$fileName")
+        } { album ⇒
+          S3Path(dir = s"albums/${album.contextId}/${album.formId}", fileName = fileName)
+        }
+      }
+    }
+
+    def uploadImagesR(imageSource: T, context: OC, album: Option[Album])(
         implicit ec: EC,
         db: DB,
         au: AU,
@@ -40,22 +63,24 @@ object AlbumImagesFacade extends ImageFacade {
         sys: ActorSystem,
         apis: Apis): DbResultT[Seq[ImagePayload]]
 
-    def s3DirectoryPath(album: Option[Album]): String = {
-      album.fold(s"/other/") { album ⇒
-        s"albums/${album.contextId}/${album.formId}"
-      }
-    }
-
-    def uploadImages(
-        imageSource: T)(implicit ec: EC, db: DB, au: AU, am: Mat, sys: ActorSystem, apis: Apis) =
-      uploadImagesR(None, imageSource)
+    def uploadImages(imageSource: T, contextName: String)(
+        implicit ec: EC,
+        db: DB,
+        au: AU,
+        am: Mat,
+        sys: ActorSystem,
+        apis: Apis): DbResultT[Seq[ImagePayload]] =
+      for {
+        context ← * <~ ObjectManager.mustFindByName404(contextName)
+        result  ← * <~ uploadImagesR(imageSource, context, album = None)
+      } yield result
 
     def uploadImagesToAlbum(
         album: Album,
         context: OC,
         imageSource: T)(implicit ec: EC, db: DB, au: AU, am: Mat, sys: ActorSystem, apis: Apis) =
       for {
-        _     ← * <~ uploadImagesR(Some(album, context), imageSource)
+        _     ← * <~ uploadImagesR(imageSource, context, Some(album))
         album ← * <~ getAlbumInner(album.formId, context)
       } yield album
   }
@@ -101,7 +126,7 @@ object AlbumImagesFacade extends ImageFacade {
     uploadImagesToAlbum[Multipart.FormData](albumId, contextName, formData)
   }
 
-  def uploadImagesFromMultiPart(formData: Multipart.FormData)(
+  def uploadImagesFromMultiPart(contextName: String, formData: Multipart.FormData)(
       implicit ec: EC,
       db: DB,
       au: AU,
@@ -109,7 +134,7 @@ object AlbumImagesFacade extends ImageFacade {
       sys: ActorSystem,
       apis: Apis): DbResultT[Seq[ImagePayload]] = {
 
-    MultipartUploader.uploadImages(formData)
+    MultipartUploader.uploadImages(formData, contextName)
   }
 
   // - endpoints
@@ -117,15 +142,25 @@ object AlbumImagesFacade extends ImageFacade {
   def attachImageToAlbum(album: Album, payload: ImagePayload)(
       implicit ec: EC,
       db: DB,
-      oc: OC,
       au: AU,
-      mat: Mat,
-      apis: Apis): DbResultT[Seq[FullObject[Image]]] =
+      oc: OC): DbResultT[Seq[FullObject[Image]]] =
     for {
       existingImages ← * <~ AlbumImageLinks.queryRightByLeft(album)
       newPayloads = existingImages.map(imageToPayload) :+ payload
       objectImages ← * <~ createOrUpdateImagesForAlbum(album, newPayloads, oc)
     } yield objectImages
+
+  def attachImageTo(payload: ImagePayload, context: OC, maybeAlbum: Option[Album])(
+      implicit ec: EC,
+      db: DB,
+      au: AU): DbResultT[Seq[FullObject[Image]]] = {
+    implicit val oc = context
+    maybeAlbum.fold {
+      createOrUpdateImages(Seq(payload), oc)
+    } { album ⇒
+      attachImageToAlbum(album, payload)
+    }
+  }
 
   case class ImageUploaded(url: String, fileName: String)
 
@@ -140,21 +175,21 @@ object AlbumImagesFacade extends ImageFacade {
     }
 
     private def uploadPathToS3(filePath: java.nio.file.Path,
-                               fileName: String,
-                               directoryPath: String)(implicit ec: EC, am: Mat, apis: Apis) = {
+                               s3Path: S3Path)(implicit ec: EC, am: Mat, apis: Apis) = {
       for {
-        url ← apis.amazon.uploadFileF(s"$directoryPath/$fileName", filePath.toFile)
+        url ← apis.amazon.uploadFileF(s3Path.absPath, filePath.toFile)
         _ = Files.deleteIfExists(filePath)
-      } yield ImageUploaded(url = url, fileName = fileName)
+      } yield ImageUploaded(url = url, fileName = s3Path.fileName)
     }
 
-    def uploadImagesR(maybeAlbum: Option[(Album, OC)], formData: Multipart.FormData)(
+    def uploadImagesR(formData: Multipart.FormData, context: OC, maybeAlbum: Option[Album])(
         implicit ec: EC,
         db: DB,
         au: AU,
         am: Mat,
         sys: ActorSystem,
         apis: Apis): DbResultT[Seq[ImagePayload]] = {
+      implicit val oc = context
 
       val uploadedImages = formData.parts
         .filter(_.name == "upload-file")
@@ -170,19 +205,15 @@ object AlbumImagesFacade extends ImageFacade {
         }
         .mapAsyncUnordered(4) {
           case (filePath, fileName) ⇒
-            val directoryPath = s3DirectoryPath(maybeAlbum.map(_._1))
-            uploadPathToS3(filePath, fileName, directoryPath)
+            val s3path = S3Path.get(maybeAlbum, fileName = fileName)
+            uploadPathToS3(filePath, s3path)
         }
         .map { srcInfo ⇒
           val payload = ImagePayload(src = srcInfo.url,
                                      title = srcInfo.fileName.some,
                                      alt = srcInfo.fileName.some)
 
-          maybeAlbum.fold(DbResultT.good(Seq(payload))) {
-            case (album, context) ⇒
-              implicit val oc = context
-              attachImageToAlbum(album, payload).map(_.map(imageToPayload))
-          }
+          attachImageTo(payload, context, maybeAlbum).map(_.map(imageToPayload))
 
         }
         .runReduce[DbResultT[Seq[ImagePayload]]] {
@@ -210,7 +241,7 @@ object AlbumImagesFacade extends ImageFacade {
   }
 
   object ImagePayloadUploader extends ImageUploader[ImagePayload] {
-    def uploadImagesR(maybeAlbum: Option[(Album, OC)], payload: ImagePayload)(
+    def uploadImagesR(payload: ImagePayload, context: OC, maybeAlbum: Option[Album])(
         implicit ec: EC,
         db: DB,
         au: AU,
@@ -220,22 +251,16 @@ object AlbumImagesFacade extends ImageFacade {
 
       for {
         imageData ← * <~ fetchImageData(payload.src)
-        s3Path = s3DirectoryPath(maybeAlbum.map(_._1))
         url ← * <~ saveBufferAndThen[String](imageData) { path ⇒
                val fileName = extractFileNameFromUrl(payload.src)
-               val fullPath = s"$s3Path/$fileName"
-               DbResultT.fromResult(apis.amazon.uploadFile(fullPath, path.toFile))
+               val s3Path   = S3Path.get(maybeAlbum, fileName = fileName)
+               DbResultT.fromResult(apis.amazon.uploadFile(s3Path.absPath, path.toFile))
              }
-
         newPayload = payload.copy(src = url)
 
-        payloads ← * <~ maybeAlbum.fold(DbResultT.good(Seq(newPayload))) {
-                    case (album, context) ⇒
-                      implicit val oc = context
-                      attachImageToAlbum(album, newPayload).map(_.map(imageToPayload))
-                  }
+        payloads ← * <~ attachImageTo(newPayload, context, maybeAlbum)
 
-      } yield payloads
+      } yield payloads.map(imageToPayload)
     }
   }
 
