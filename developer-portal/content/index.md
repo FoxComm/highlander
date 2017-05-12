@@ -9,9 +9,6 @@ that allow you create next generation commerce experiences.
 
 <<<
 
->>> right
-<!-- include(api-ref-snippet.md) -->
->>>
 ---
 
 --- row
