@@ -15,7 +15,6 @@
   isLoading={saveState.inProgress}
   buttonDisabled={!saveState.finished}
   menuDisabled={!saveState.finished}
-  animate
 />
 ```
 
@@ -47,6 +46,6 @@ const items=[['id1', 'Save and Exit'], ['id2', 'Save and Duplicate']];
   <ButtonWithMenu title="Save" items={items} isLoading /><br />
   <ButtonWithMenu icon="edit" items={items} />
   <ButtonWithMenu title="Edit" items={items} icon="edit" />
-  <ButtonWithMenu title="Edit" items={items} icon="edit" animate={false} />
+  <ButtonWithMenu title="Edit" items={items} icon="edit" />
 </div>
 ```

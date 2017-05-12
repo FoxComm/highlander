@@ -27,8 +27,6 @@ type Props = {
     menuDisabled?: boolean;
   /** Icon name that is used to be rendered in a primary button */
     icon?: string;
-  /** If to animate menu appearance */
-    animate?: boolean;
   /** If to show loading animation */
     isLoading?: boolean;
   /** Additional className */
@@ -44,6 +42,13 @@ type Props = {
 type State = {
   open: boolean;
 }
+
+const transitionProps = {
+  component: 'div',
+  transitionName: `dd-transition-right`,
+  transitionEnterTimeout: 300,
+  transitionLeaveTimeout: 300,
+};
 
 /**
  * Button component that represents a button with additional action in a dropdown menu.
@@ -61,7 +66,6 @@ export default class ButtonWithMenu extends Component {
     menuDisabled: false,
     icon: '',
     className: '',
-    animate: true,
     isLoading: false,
     onPrimaryClick: noop,
     onSelect: noop,
@@ -133,7 +137,7 @@ export default class ButtonWithMenu extends Component {
 
   render() {
     const { props } = this;
-    const { icon, title, animate, buttonDisabled, menuDisabled } = props;
+    const { icon, title, buttonDisabled, menuDisabled } = props;
     const { open } = this.state;
 
     const className = classNames(s.button, {
@@ -172,21 +176,10 @@ export default class ButtonWithMenu extends Component {
           />
         </div>
 
-        <Transition {...(getTransitionProps(animate))}>
+        <Transition {...transitionProps}>
           {this.menu}
         </Transition>
       </div>
     );
   }
-}
-
-function getTransitionProps(animate) {
-  return {
-    component: 'div',
-    transitionName: `dd-transition-right`,
-    transitionEnter: animate,
-    transitionLeave: animate,
-    transitionEnterTimeout: 300,
-    transitionLeaveTimeout: 300,
-  };
 }
