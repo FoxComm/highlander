@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import { bulkExportBulkAction, getIdsByProps, renderExportModal } from 'modules/bulk-export/helpers';
+import { bulkExportBulkAction, renderExportModal } from 'modules/bulk-export/helpers';
 
 // components
 import { SelectableSearchList } from 'components/list-page';
@@ -88,7 +88,7 @@ class GroupsList extends Component {
   renderBulkDetails(groupName: string, groupId: number) {
     return (
       <span key={groupId}>
-        Customer Group <Link to="customer-group" params={{ groupId }}>{`${groupId}: ${groupName}`}</Link>
+        Customer Group <Link to="customer-group" params={{ groupId }}>{groupName}</Link>
       </span>
     );
   }

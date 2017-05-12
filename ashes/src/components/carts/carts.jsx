@@ -38,7 +38,6 @@ type Props = {
       ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
     ) => void,
   },
-
 }
 
 class Carts extends Component {
