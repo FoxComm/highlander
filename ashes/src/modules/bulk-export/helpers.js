@@ -96,15 +96,28 @@ export const renderExportModal = (
   );
 };
 
+const checkField = (fieldName) => {
+  if (fieldName === 'shipRegion') {
+    return 'shippingAddresses[0].region';
+  } else if (fieldName === 'billRegion') {
+    return 'billingAddresses[0].region';
+  }
+
+  return fieldName;
+};
+
 /**
   @tableColumns - columns of the entity's table (e.g. referenceNumber, state, customer.name, etc.)
 */
 export const columnsToPayload = (tableColumns: Array<Object>): Array<Object> => {
   const fields = _.reduce(tableColumns, (acc, field) => {
+    const currentField = field.field;
+    const name = checkField(currentField);
+
     return [
       ...acc,
       {
-        name: field.field,
+        name,
         displayName: field.text,
       },
     ];
