@@ -1,5 +1,4 @@
 const path = require('path');
-const postcssConfig = require('../postcss.config.js');
 
 module.exports = {
   resolve: {
