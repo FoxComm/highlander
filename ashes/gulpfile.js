@@ -22,7 +22,6 @@ function handleErrors(err) {
     console.error(err);
   }
   process.exitCode = 1;
-  $.util.beep();
 }
 
 process.on('unhandledRejection', handleErrors);

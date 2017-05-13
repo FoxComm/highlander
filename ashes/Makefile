@@ -51,7 +51,7 @@ t:
 
 .PHONY: lint
 lint:
-	@NODE_ENV=$(NODE_ENV) ./node_modules/.bin/gulp lint
+	./node_modules/.bin/eslint --ext .js --ext .jsx ./
 
 .PHONY: flow
 flow:

@@ -52,7 +52,7 @@ module.exports = function(gulp, opts, $) {
       notify({
         title: 'Gulp emit error',
         message: stripColors(e && e.toString() || '')
-      })
+      });
     });
   });
 };
