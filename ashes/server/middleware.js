@@ -79,7 +79,6 @@ module.exports = function(app) {
     const layoutData = _.defaults({
       tokenOk: !!this.state.token,
       stylesheet: process.env.NODE_ENV === 'production' && `/admin/styles.css`,
-      javascript: `/admin/main.js`,
       // use GA_LOCAL=1 gulp dev command for enable tracking events in google analytics from localhost
       gaEnableLocal: 'GA_LOCAL' in process.env,
       JWT: JSON.stringify(this.state.jwt || null),

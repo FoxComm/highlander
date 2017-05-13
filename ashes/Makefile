@@ -83,24 +83,24 @@ rev:
 .PHONY: nodemon
 nodemon: rev
 	test -f .env && export eval `cat .env` || true &&\
-	 nodemon --watch server --watch config -e js,tmpl ./server/index.js
+	nodemon --watch server --watch config -e js,tmpl ./server/index.js
 
-.PHONY: dev_build
-dev_build:
+.PHONY: build-dev
+build-dev:
 	webpack --progress --colors --watch
 
 .PHONY: dev d
 dev d:
-	make --jobs dev_build nodemon
+	make --jobs build-dev nodemon
 
 # Production ###
 
-.PHONY: prod_build
-prod_build: clean
+.PHONY: build-prod
+build-prod: clean
 	NODE_ENV=production webpack
 
 .PHONY: prod p
-prod p: prod_build
+prod p: build-prod
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production node ./server/index.js
 
 # Buildkite ###
@@ -110,7 +110,7 @@ build:
 	$(call header, Building)
 	make rev
 	make install
-	BEHIND_NGINX=true make prod_build
+	BEHIND_NGINX=true make build-prod
 ifeq ($(ASHES_BUILD_STYLEGUIDE), true)
 	make build-styleguide
 endif

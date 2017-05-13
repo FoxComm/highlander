@@ -55,6 +55,11 @@ const baseConfig = {
         GIT_REVISION: JSON.stringify(process.env.GIT_REVISION),
       },
     }),
+    new webpack.optimize.CommonsChunkPlugin({
+      filename:  '[name].js',
+      name:      'vendor',
+      minChunks: module => module.resource && module.resource.indexOf(path.resolve('node_modules')) >= 0,
+    }),
 
     new SvgStore(),
   ],

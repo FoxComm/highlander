@@ -60,6 +60,32 @@
     window.STRIPE_PUBLISHABLE_KEY = <%= stripeApiKey %>;
     window.tokenOk = <%= tokenOk %>;
   </script>
+  <style>
+    html {
+      height: 100%;
+    }
+    body {
+      height: 100%;
+      margin: 0;
+    }
+    #foxcom {
+      height: 100%;
+      background: #f2f2f2;
+    }
+    ._start_image_container {
+      display: flex;
+      justify-content: center;
+      height: 100%;
+    }
+    ._start_image {
+      animation: _start_image_blink 4s linear infinite;
+    }
+    @keyframes _start_image_blink {
+      0% { opacity: 1 }
+      50% { opacity: 0.2 }
+      100% { opacity: 1 }
+    }
+  </style>
 </head>
 <body>
   <div id="foxcom">
@@ -69,7 +95,8 @@
   </div>
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,Intl.~locale.en"></script>
   <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
-  <script src="<%= javascript %>"></script>
+  <script src="/admin/vendor.js"></script>
+  <script src="/admin/main.js"></script>
   <script>
     ga('send', 'timing', 'JS Dependencies', 'load_time', getHMTime() - headEndTime);
   </script>

@@ -1,10 +1,8 @@
 'use strict';
 
-const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 const gulp = require('gulp');
-const runSequence = require('run-sequence');
 const $ = require('gulp-load-plugins')();
 const Config = require('./config');
 
