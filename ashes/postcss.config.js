@@ -53,15 +53,4 @@ const plugins = [
   }),
 ];
 
-exports.installHook = function () {
-  const map = require('../build/css-modules.json');
-
-  require.extensions['.css'] = function (m, filename) {
-    const relativePath = path.relative(process.cwd(), filename);
-
-    const tokens = map[relativePath];
-    return m._compile(`module.exports = ${JSON.stringify(tokens)}`, filename);
-  };
-};
-
 exports.plugins = plugins;

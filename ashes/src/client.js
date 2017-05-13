@@ -1,5 +1,3 @@
-import 'babel-polyfill';
-
 import get from 'lodash/get';
 import React from 'react';
 import { render } from 'react-dom';
@@ -17,6 +15,11 @@ import { setHistory } from 'browserHistory';
 import { trackPageView, initTracker } from './lib/analytics';
 import { getJWT } from 'lib/claims';
 import { isPathRequiredAuth } from './route-rules';
+
+// global styles
+import './less/base.less';
+import './css/base.css';
+import 'images/favicon.png';
 
 const createBrowserHistory = useNamedRoutes(useRouterHistory(createHistory));
 
@@ -45,14 +48,16 @@ export function start() {
   setHistory(history);
 
   initTracker();
-  history.listen(location => {
-    // reset title in order to have default title if page will not set own one
-    document.title = 'FoxCommerce';
-    trackPageView(location.pathname);
 
-    if (!get(store.getState(), 'user.current') && isPathRequiredAuth(location.pathname)) {
-      store.dispatch(push('/login'));
-    }
+  const currentUser = get(store.getState(), 'user.current');
+  const needLogin = (!currentUser || !window.tokenOk) && isPathRequiredAuth(location.pathname);
+
+  if (needLogin) {
+    store.dispatch(push('/login'));
+  }
+
+  history.listen(location => {
+    trackPageView(location.pathname);
   });
 
   render(
@@ -64,3 +69,5 @@ export function start() {
     document.getElementById('foxcom')
   );
 }
+
+start();

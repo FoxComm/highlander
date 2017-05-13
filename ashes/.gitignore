@@ -1,3 +1,5 @@
+build
+
 # Logs
 logs
 *.log
@@ -36,19 +38,6 @@ build/Release
 # Users Environment Variables & settings
 .lock-wscript
 /.env
-
-# Ignore compiled js/css
-public/themes
-public/admin.*
-public/*.js
-public/*.css
-public/_
-public/admin/themes
-public/admin/admin.*
-public/admin/*.js
-public/admin/*.css
-public/admin/_
-public/admin/styleguide
 
 .vagrant
 !.vagrant/machines/default/google

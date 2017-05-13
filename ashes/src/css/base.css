@@ -1,0 +1,16 @@
+/* Some components independent styles */
+
+@import 'fontello.css';
+@import 'transitions.css';
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  font-family: 'Open Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+

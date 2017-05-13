@@ -22,6 +22,6 @@ describe('FormField', function() {
       true
     );
 
-    expect(dropdown.container.querySelector('.fc-dropdown__controls')).to.be.ok
+    expect(dropdown.container.querySelector('.fc-dropdown__controls')).to.be.ok;
   });
 });

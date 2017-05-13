@@ -5,8 +5,6 @@ const path = require('path');
 const ReactDOM = require('react-dom');
 const ReactTestUtils = require('react-addons-test-utils');
 
-require('../../src/postcss').installHook();
-
 const unexpectedReactShallow = require('unexpected-react-shallow');
 
 global.unexpected = global.unexpected.clone()
@@ -14,10 +12,8 @@ global.unexpected = global.unexpected.clone()
 
 
 global.requireComponent = function(componentPath, returnDefault = true) {
-  if (componentPath.endsWith('.jsx')) {
-    componentPath = componentPath.slice(0, componentPath.length - 1);
-  }
-  const result = require(path.resolve('lib/components/' + componentPath));
+  const result = require(path.resolve('src/components/' + componentPath));
+
   return returnDefault ? result.default : result;
 };
 

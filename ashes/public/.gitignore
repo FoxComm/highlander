@@ -1,0 +1,13 @@
+# Ignore compiled js/css
+themes
+admin.*
+*.js
+*.css
+_
+admin/themes
+admin/admin.*
+admin/*.js
+admin/*.css
+admin/*.svg
+admin/_
+admin/styleguide

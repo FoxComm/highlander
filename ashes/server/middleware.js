@@ -2,11 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
 const jwt = require('jsonwebtoken');
-require('babel-polyfill');
-
-const htmlescape = require('htmlescape');
-
-const { isPathRequiredAuth } = require('../lib/route-rules');
 
 function loadPublicKey(config) {
   try {
@@ -22,23 +17,19 @@ module.exports = function(app) {
   const config = app.config;
   const template = path.join(__dirname, './views/layout.tmpl');
   const layout = _.template(fs.readFileSync(template, 'utf8'));
-  const sprite = fs.readFileSync(path.resolve('build/svg/fc-sprite.svg'), 'utf-8');
-
-  // lets do renderReact property is lazy
-  Object.defineProperty(app, 'renderReact', {
-    get: function() {
-      return require('../lib/render').renderReact;
-    }
-  });
 
   function getToken(ctx) {
     const jwtToken = ctx.cookies.get(config.api.auth.cookieName);
+
     if (!jwtToken) {
       return null;
     }
+
     ctx.state.jwt = jwtToken;
+
     try {
       let token;
+
       if (process.env.DEV_SKIP_JWT_VERIFY) {
         console.info('DEV_SKIP_JWT_VERIFY is enabled, JWT is not verified');
         token = jwt.decode(jwtToken);
@@ -49,26 +40,20 @@ module.exports = function(app) {
           algorithms: ['RS256', 'RS384', 'RS512']
         });
       }
+
       if (!_.includes(token.roles, 'admin')) {
         console.info('token.roles doesn\'t contain admin role', token.roles);
         return null; // only admins allowed to proceed
       }
+
       return token;
-    }
-    catch(err) {
+    } catch(err) {
       console.warn(`Can't decode token: ${err}`);
     }
   }
 
-  app.requireAdmin = function *(next) {
-    if (isPathRequiredAuth(this.request.path)) {
-      const token = getToken(this);
-      // TODO: When we read tokens, validate that we have a claim to the admin UI.
-      if (!token) {
-        this.redirect(config.api.auth.loginUri);
-      }
-      this.state.token = token;
-    }
+  app.verifyToken = function *(next) {
+    this.state.token = getToken(this);
 
     yield next;
   };
@@ -91,21 +76,15 @@ module.exports = function(app) {
   };
 
   app.renderLayout = function *() {
-    let bootstrap = {
-      path: this.path
-    };
-
-    let layoutData = _.defaults({
-      stylesheet: `/admin/admin.css`,
-      javascript: `/admin/admin.js`,
-      fcsprite: sprite,
-      rootHTML: this.state.html,
-      appStart: `App.start(${htmlescape(bootstrap)});`,
+    const layoutData = _.defaults({
+      tokenOk: !!this.state.token,
+      stylesheet: process.env.NODE_ENV === 'production' && `/admin/styles.css`,
       // use GA_LOCAL=1 gulp dev command for enable tracking events in google analytics from localhost
       gaEnableLocal: 'GA_LOCAL' in process.env,
       JWT: JSON.stringify(this.state.jwt || null),
       stripeApiKey: JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY || null),
-    }, config.layout.pageConstants);
+      GA_TRACKING_ID: process.env.GA_TRACKING_ID,
+    });
 
     this.body = layout(layoutData);
   };
