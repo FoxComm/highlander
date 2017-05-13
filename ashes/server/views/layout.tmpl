@@ -81,9 +81,9 @@
       animation: _start_image_blink 4s linear infinite;
     }
     @keyframes _start_image_blink {
-      0% { opacity: 1 }
-      50% { opacity: 0.2 }
-      100% { opacity: 1 }
+      0% { opacity: .2; transform: scale(.95); }
+      50% { opacity: 1; transform: scale(1); }
+      100% { opacity: .2; transform: scale(.95); }
     }
   </style>
 </head>
