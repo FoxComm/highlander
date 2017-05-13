@@ -7,6 +7,7 @@ module.exports = function(app) {
     .get('/:path*', app.renderLayout);
 
   app
+    .use(app.verifyToken)
     .use(router.routes())
     .use(router.allowedMethods());
 };
