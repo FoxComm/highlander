@@ -1,6 +1,9 @@
 include ../makelib
 header = $(call baseheader, $(1), ashes)
 
+export PATH := $(CURDIR)/node_modules/.bin:$(PATH)
+SHELL := env PATH=$(PATH) /bin/bash
+
 # Docker stuff ###
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
@@ -38,31 +41,31 @@ clean:
 	rm -rf ./build
 
 .PHONY: test
-test: flow
+test: flow lint
 	$(call header, Testing)
 	rm -rf ./node_modules
 	make install
-	@NODE_ENV=$(NODE_ENV) ./node_modules/.bin/gulp test
+	@NODE_ENV=$(NODE_ENV) gulp test
 
 .PHONY: t
 t: flow lint
-	@NODE_ENV=$(NODE_ENV) ./node_modules/.bin/gulp test
+	@NODE_ENV=$(NODE_ENV) gulp test
 
 .PHONY: lint
 lint:
-	./node_modules/.bin/eslint --ext .js --ext .jsx ./
+	 eslint --ext .js --ext .jsx ./
 
 .PHONY: flow
 flow:
-	./node_modules/.bin/flow check
+	flow check
 
 .PHONY: build-styleguide
 build-styleguide:
-	./node_modules/.bin/styleguidist build --config styleguide/config.styleguide.js
+	styleguidist build --config styleguide/config.styleguide.js
 
 .PHONY: styleguide
 styleguide:
-	./node_modules/.bin/styleguidist server --config styleguide/config.styleguide.js
+	styleguidist server --config styleguide/config.styleguide.js
 
 # Base ###
 
@@ -80,11 +83,11 @@ rev:
 .PHONY: nodemon
 nodemon: rev
 	test -f .env && export eval `cat .env` || true &&\
-	 ./node_modules/.bin/nodemon --watch server --watch config -e js,tmpl ./server/index.js
+	 nodemon --watch server --watch config -e js,tmpl ./server/index.js
 
 .PHONY: dev_build
 dev_build:
-	./node_modules/.bin/webpack --progress --colors --watch
+	webpack --progress --colors --watch
 
 .PHONY: dev d
 dev d:
@@ -94,7 +97,7 @@ dev d:
 
 .PHONY: prod_build
 prod_build: clean
-	NODE_ENV=production ./node_modules/.bin/webpack
+	NODE_ENV=production webpack
 
 .PHONY: prod p
 prod p: prod_build
