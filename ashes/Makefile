@@ -45,8 +45,7 @@ test: flow
 	@NODE_ENV=$(NODE_ENV) ./node_modules/.bin/gulp test
 
 .PHONY: t
-t:
-	make flow
+t: flow lint
 	@NODE_ENV=$(NODE_ENV) ./node_modules/.bin/gulp test
 
 .PHONY: lint
