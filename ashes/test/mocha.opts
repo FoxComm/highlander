@@ -1,8 +1,5 @@
 --reporter dot
 --ui bdd
 --timeout 30000
---grows
 --require babel-register
---require babel-polyfill
---require co-mocha
 --require test/_setup

@@ -25,16 +25,7 @@ function generateShortName(name, filename, css) {
   return `_${name}_${hash}_${numLines}`;
 }
 
-function generateScopedNameFn() {
-  switch (process.env.NODE_ENV) {
-    case 'test':
-      return identity;
-    case 'production':
-      return generateShortName;
-    default:
-      return generateLongName;
-  }
-}
+const generateScopedName = process.env.NODE_ENV === 'production' ? generateShortName : generateLongName;
 
 const plugins = [
   require('postcss-import')({
@@ -59,7 +50,7 @@ const plugins = [
   require('postcss-nested'),
   require('postcss-modules-local-by-default'),
   require('postcss-modules-scope')({
-    generateScopedName: generateScopedNameFn(),
+    generateScopedName,
   }),
 ];
 

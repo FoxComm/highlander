@@ -41,8 +41,6 @@ describe('Buttons', function () {
       <Buttons.PrimaryButton className={className} />
     );
 
-    console.log(button.html());
-
     expect(button.hasClass('primary')).to.be.true;
     expect(button.hasClass('super-button')).to.be.true;
   });

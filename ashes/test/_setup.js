@@ -1,12 +1,16 @@
+import 'babel-polyfill';
+import 'co-mocha';
+
 import path from 'path';
 import rewire from 'rewire';
 import register from 'ignore-styles';
 
+// works when running from gulp but does not when running mocha from cli/webstorm
+// NODE_PATH should be set as env variable before running mocha binary, NODE_PATH=src mocha ...
 process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./src')}`;
 
 process.env.API_URL = 'http://api.foxcommerce'; // mock
 process.env.STRIPE_PUBLISHABLE_KEY = 'key_mock'; // mock
-
 
 register(['.css']);
 

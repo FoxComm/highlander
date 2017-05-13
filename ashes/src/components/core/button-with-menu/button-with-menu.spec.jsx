@@ -1,9 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-
-console.log(process.env.NODE_PATH);
-
 import ButtonWithMenu from './button-with-menu';
 
 describe('ButtonWithMenu', function () {
