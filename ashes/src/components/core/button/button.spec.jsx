@@ -23,6 +23,14 @@ describe('Buttons', function () {
     expect(button.find('i').hasClass('icon-fake')).to.be.true;
   });
 
+  it('should render loading state', function () {
+    const button = shallow(
+      <Buttons.Button isLoading>Done</Buttons.Button>
+    );
+
+    expect(button.hasClass('loading')).to.be.true;
+  });
+
   it('should handle click', function () {
     const onClick = sinon.spy();
 

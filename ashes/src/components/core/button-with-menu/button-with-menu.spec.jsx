@@ -23,6 +23,14 @@ describe('ButtonWithMenu', function () {
     expect(button.find('.actionButton').text()).to.equal('Save');
   });
 
+  it('should render loading state', function () {
+    const button = mount(
+      <ButtonWithMenu title="Save" items={[]} isLoading />
+    );
+
+    expect(button.find('.actionButton').hasClass('loading')).to.be.true;
+  });
+
   it('should handle action button click', function () {
     const onClick = sinon.spy();
     const button = mount(

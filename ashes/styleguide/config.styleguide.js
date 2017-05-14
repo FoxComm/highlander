@@ -22,6 +22,10 @@ module.exports = {
           name: 'Flow',
           content: '../docs/flow.md',
         },
+        {
+          name: 'Tests',
+          content: '../docs/tests.md',
+        },
       ],
     },
     {
