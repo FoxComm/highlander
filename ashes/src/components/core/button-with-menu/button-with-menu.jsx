@@ -18,23 +18,27 @@ type DropdownItemType = [any, string | Element<any>];
 
 type Props = {
   /** Primary button label */
-    title: string | Element<any>;
+  title: string | Element<any>;
   /** Menu items array */
-    items?: Array<DropdownItemType>;
+  items: Array<DropdownItemType>;
   /** If primary button is disabled */
-    buttonDisabled?: boolean;
+  buttonDisabled?: boolean;
   /** If menu button is disabled */
-    menuDisabled?: boolean;
+  menuDisabled?: boolean;
   /** Icon name that is used to be rendered in a primary button */
-    icon?: string;
+  icon?: string;
   /** If to show loading animation */
-    isLoading?: boolean;
+  isLoading?: boolean;
   /** Additional className */
-    className?: string;
+  className?: string;
+  /** Action button className */
+  buttonClassName?: string;
+  /** Menu button className */
+  menuClassName?: string;
   /** Callback called on primary button click */
-    onPrimaryClick?: Function;
+  onPrimaryClick?: Function;
   /** Callback called on menu item click */
-    onSelect?: (value: any, title: string | Element<any>) => any;
+  onSelect?: (value: any, title: string | Element<any>) => any;
 }
 
 type State = {
@@ -125,32 +129,42 @@ export default class ButtonWithMenu extends Component {
   }
 
   render() {
-    const { props } = this;
-    const { icon, title, buttonDisabled, menuDisabled } = props;
+    const {
+      icon,
+      title,
+      buttonDisabled,
+      menuDisabled,
+      className,
+      buttonClassName,
+      menuClassName,
+      onPrimaryClick,
+      isLoading
+    } = this.props;
+
     const { open } = this.state;
 
-    const className = classNames(s.button, {
+    const cls = classNames(s.button, {
       [s.opened]: open,
-    }, this.props.className);
+    }, className);
 
-    const buttonClassName = classNames('fc-button-with-menu__left-button', {
+    const actionButtonClassName = classNames(s.actionButton, buttonClassName, {
       [s._disabled]: buttonDisabled,
     });
 
-    const menuButtonClassName = classNames(s.dropdownButton, 'fc-button-with-menu__right-button', {
+    const menuButtonClassName = classNames(s.dropdownButton, menuClassName, {
       [s._disabled]: menuDisabled,
     });
 
     return (
-      <div className={className} onBlur={this.handleBlur} tabIndex="0">
+      <div className={cls} onBlur={this.handleBlur} tabIndex="0">
         { open && <div className={s.overlay} onClick={this.handleBlur}></div> }
         <div className={s.controls}>
           <PrimaryButton
             id="fct-primary-save-btn"
-            className={buttonClassName}
+            className={actionButtonClassName}
             icon={icon}
-            onClick={props.onPrimaryClick}
-            isLoading={props.isLoading}
+            onClick={onPrimaryClick}
+            isLoading={isLoading}
             onBlur={this.dontPropagate}
             disabled={buttonDisabled}>
             {title}

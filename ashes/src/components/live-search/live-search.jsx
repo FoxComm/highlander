@@ -316,6 +316,8 @@ export default class LiveSearch extends React.Component {
         items={menuItems}
         buttonDisabled={buttonDisabled}
         menuDisabled={menuDisabled}
+        buttonClassName="fc-button-with-menu__left-button"
+        menuClassName="fc-button-with-menu__right-button"
       />
     );
   }
