@@ -10,7 +10,6 @@ const prodConfig = require('./webpack/prod');
 
 const baseConfig = {
   entry: [
-    // 'babel-polyfill',
     path.resolve(__dirname, './src/client.js')
   ],
 
@@ -48,16 +47,15 @@ const baseConfig = {
   },
 
   plugins: [
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify(process.env.NODE_ENV),
-        BEHIND_NGINX: JSON.stringify(process.env.BEHIND_NGINX),
-        GIT_REVISION: JSON.stringify(process.env.GIT_REVISION),
-      },
+    new webpack.EnvironmentPlugin({
+      NODE_ENV: 'development',
+      BEHIND_NGINX: false,
+      GIT_REVISION: 'unknown'
     }),
+
     new webpack.optimize.CommonsChunkPlugin({
-      filename:  '[name].js',
-      name:      'vendor',
+      filename: '[name].js',
+      name: 'vendor',
       minChunks: module => module.resource && module.resource.indexOf(path.resolve('node_modules')) >= 0,
     }),
 
