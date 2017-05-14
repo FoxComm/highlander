@@ -32,7 +32,9 @@ const tableColumns = [
 type Props = {
   list: Object,
   actions: Object,
-  bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
+  bulkExportAction: (
+    fields: Array<string>, entity: string, identifier: string, description: string, sort: Array<Object>
+  ) => Promise<*>,
   bulkActions: {
     exportByIds: (
       ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
@@ -70,7 +72,7 @@ class Carts extends Component {
     return renderExportModal(tableColumns, entity, modalTitle, exportByIds, ids);
   }
 
-  get bulkActions() {
+  get bulkActions(): Array<any> {
     return [
       bulkExportBulkAction(this.bulkExport, 'Carts'),
     ];

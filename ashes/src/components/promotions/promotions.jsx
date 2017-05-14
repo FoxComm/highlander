@@ -22,7 +22,9 @@ import { actions as bulkActions } from 'modules/promotions/bulk';
 type Props = {
   list: Object,
   actions: Object,
-  bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
+  bulkExportAction: (
+    fields: Array<string>, entity: string, identifier: string, description: string, sort: Array<Object>
+  ) => Promise<*>,
   bulkActions: {
     exportByIds: (
       ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
