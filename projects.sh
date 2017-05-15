@@ -28,6 +28,7 @@ PROJECTS=(
     'isaac'
     'messaging'
     'middlewarehouse'
+    'developer-portal'
     'phoenix-scala'
     'tabernacle'
     'solomon'
