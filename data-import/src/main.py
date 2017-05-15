@@ -88,7 +88,9 @@ class Elasticsearch:
         req = urllib.request.Request(endpoint, headers={"Content-Type": "application/json", "JWT": self.jwt})
 
         try:
-            response = urllib.request.urlopen(req)
+            context = ssl.create_default_context()
+            context.check_hostname = False
+            response = urllib.request.urlopen(req, context=context)
         except HTTPError as err:
             print(repr(err))
             raise
@@ -140,7 +142,9 @@ class Phoenix:
                                      method=method)
 
         try:
-            response = urllib.request.urlopen(req)
+            context = ssl.create_default_context()
+            context.check_hostname = False
+            response = urllib.request.urlopen(req, context=context)
         except HTTPError as err:
             print("HTTP error. code: {}. message: {}".format(err.code, err.read()))
             raise
