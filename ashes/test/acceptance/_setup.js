@@ -7,7 +7,7 @@ const ReactTestUtils = require('react-dom/test-utils');
 const hook = require('css-modules-require-hook');
 
 hook({
-  generateScopedName: _.identity,
+  generateScopedName: '[local]',
 });
 
 const unexpectedReactShallow = require('unexpected-react-shallow');

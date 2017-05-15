@@ -40,12 +40,13 @@
     width: 100%;
   }
 
-  &.small {
-    padding: 4px 5px;
-  }
-
   &.onlyIcon {
     width: 40px;
+    padding: 11px 0;
+  }
+
+  &.small {
+    padding: 4px 5px;
   }
 
   &.small.onlyIcon {
@@ -58,13 +59,18 @@
   font-size: 10px;
 }
 
+.button:not(.onlyIcon) i[class*="icon-"] {
+  margin-bottom: -1px;
+}
+
 .button.onlyIcon i[class*="icon-"] {
   font-size: 14px;
+  margin: 0 auto;
 }
 
 .button i[class*="icon-"] + span,
 span + i[class*="icon-"] {
-  margin-left: 5px;
+  margin-left: 8px;
 }
 
 .text {

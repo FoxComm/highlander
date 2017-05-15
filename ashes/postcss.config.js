@@ -1,6 +1,5 @@
 const crypto = require('crypto');
 const path = require('path');
-const identity = require('lodash/identity');
 
 // '../../src/components/product/page' + 'wrapper' -> 'product/page__wrapper'
 function generateLongName(exportedName, filepath) {
