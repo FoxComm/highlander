@@ -123,6 +123,23 @@ shortcuts:
     alias: update_object_schemas.yml
     target: ansible/update_object_schemas.yml
 
+  # Seeders
+  - name: Run Phoenix Seeder
+    alias: seed_phoenix.yml
+    target: ansible/seed_phoenix.yml
+
+  - name: Run Middlewarehouse Seeder
+    alias: seed_middlewarehouse.yml
+    target: ansible/seed_middlewarehouse.yml
+
+  - name: Run Hyperion Seeder
+    alias: seed_hyperion.yml
+    target: ansible/seed_hyperion.yml
+
+  - name: Run Data Import Seeder
+    alias: seed_data_import.yml
+    target: ansible/seed_data_import.yml
+
   # Deploy
   - name: Deploy TopDrawer Storefront
     alias: deploy_storefront.yml
