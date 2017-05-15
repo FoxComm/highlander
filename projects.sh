@@ -41,12 +41,7 @@ if [ "$BUILDKITE_PULL_REQUEST" ] ; then
     GITHUB_BASE_URL=https://api.github.com/repos/FoxComm/highlander/pulls
     GITHUB_REQUEST_URL=$GITHUB_BASE_URL/$BUILDKITE_PULL_REQUEST?access_token=$GITHUB_API_TOKEN
     BASE_BRANCH_VALUE=$(curl -sS -XGET $GITHUB_REQUEST_URL | jq '.base.ref' | tr -d '"')
-
-    if [ "$BASE_BRANCH_VALUE" == "master" ]; then
-        BASE_BRANCH="master"
-    else
-        BASE_BRANCH="origin/$BASE_BRANCH_VALUE"
-    fi;
+    BASE_BRANCH="origin/$BASE_BRANCH_VALUE"
 else
     write "No pull request created, setting base branch to master"
     BASE_BRANCH="master"
