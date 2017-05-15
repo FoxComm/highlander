@@ -77,7 +77,6 @@
     "jsx-a11y/no-static-element-interactions": 0,
     "react/no-find-dom-node": 1,
     "react/no-string-refs": 1,
-    "jsx-a11y/img-has-alt": 1,
     "arrow-parens": 1,
     "react/no-array-index-key": 1,
     "import/no-duplicates": 0 // turn on later

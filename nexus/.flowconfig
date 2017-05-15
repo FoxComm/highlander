@@ -7,6 +7,7 @@
 .*/node_modules/systemjs-builder/.*
 .*/node_modules/.tmp/.*
 .*/node_modules/invariant/*
+.*/node_modules/eslint-plugin-jsx-a11y/*
 
 [include]
 src
