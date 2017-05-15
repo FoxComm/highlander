@@ -25,13 +25,6 @@ const baseConfig = {
         use: [ 'json-loader' ]
       },
       {
-        test: /\.js(x)?$/,
-        include: [
-          path.resolve(__dirname, './src'),
-        ],
-        use: [ 'babel-loader' ],
-      },
-      {
         test: /\.(png|woff|woff2)$/,
         use: [
           {

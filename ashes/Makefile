@@ -95,7 +95,7 @@ dev d:
 
 .PHONY: build-prod
 build-prod: clean
-	GIT_REVISION=$(GIT_REVISION) webpack -p
+	GIT_REVISION=$(GIT_REVISION) NODE_ENV=production webpack
 
 .PHONY: prod p
 prod p: build-prod
