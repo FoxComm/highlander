@@ -35,6 +35,18 @@ PROJECTS=(
     'hyperion'
 )
 
+# Define base branch via GitHub API
+if [ "$BUILDKITE_PULL_REQUEST" ] ; then
+    write "Fetching base branch for PR#$BUILDKITE_PULL_REQUEST via Github API..."
+    GITHUB_BASE_URL=https://api.github.com/repos/FoxComm/highlander/pulls
+    GITHUB_REQUEST_URL=$GITHUB_BASE_URL/$BUILDKITE_PULL_REQUEST?access_token=$GITHUB_API_TOKEN
+    BASE_BRANCH_VALUE=$(curl -sS -XGET $GITHUB_REQUEST_URL | jq '.base.ref' | tr -d '"')
+    BASE_BRANCH="origin/$BASE_BRANCH_VALUE"
+else
+    write "No pull request created, setting base branch to master"
+    BASE_BRANCH="master"
+fi
+
 # fetch origin
 git fetch origin
 
@@ -42,8 +54,7 @@ if $ALL; then
     echo ${PROJECTS[@]}
 else
     # get the current branch name
-    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    ALL_CHANGED=$(git diff --name-only master...$CURRENT_BRANCH | cut -d'/' -f1 | uniq)
+    ALL_CHANGED=$(git diff --name-only $BASE_BRANCH...$BUILDKITE_COMMIT | cut -d'/' -f1 | uniq)
 
     # make newlines the only separator
     IFS=$'\n'

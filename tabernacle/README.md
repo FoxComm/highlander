@@ -20,3 +20,7 @@ All of our DevOps tools for deploying the application to both development and pr
 
 - [easy](https://github.com/kpashka/easy)
 - [shellcheck](https://www.shellcheck.net)
+
+### Description
+
+TBD.
