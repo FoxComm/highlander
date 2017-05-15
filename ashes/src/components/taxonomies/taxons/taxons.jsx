@@ -5,18 +5,24 @@ import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
 import * as dsl from 'elastic/dsl';
 import { transitionToLazy } from 'browserHistory';
+import { bulkExportBulkAction, renderExportModal } from 'modules/bulk-export/helpers';
 
 // components
 import MultiSelectTable from 'components/table/multi-select-table';
 import TreeTable from 'components/table/tree-table';
 import { AddButton } from 'components/core/button';
 import TaxonRow from './taxon-row';
+import BulkActions from 'components/bulk-actions/bulk-actions';
+import BulkMessages from 'components/bulk-actions/bulk-messages';
+import { Link } from 'components/link';
 
 // actions
 import { actions } from 'modules/taxons/list';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
+import { actions as bulkActions } from 'modules/taxons/bulk';
 
 import type { TaxonomyParams } from '../taxonomy';
 
@@ -30,6 +36,11 @@ type Props = ObjectPageChildProps<Taxonomy> & {
   bulkExportAction: (
     fields: Array<string>, entity: string, identifier: string, description: string
   ) => Promise<*>,
+  bulkActions: {
+    exportByIds: (
+      ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
+    ) => void,
+  },
 };
 
 const tableColumns = [
@@ -53,15 +64,53 @@ export class TaxonsListPage extends Component {
   }
 
   renderRow(row: TaxonResult, index: number, columns: Columns, params: Object) {
-    return <TaxonRow key={row.id} taxon={row} columns={columns} params={params} />;
+    return (
+      <TaxonRow
+        key={row.id}
+        taxon={row}
+        columns={columns}
+        params={params}
+      />
+    );
   }
 
   get tableControls(): Array<Element<*>> {
     const handleClick = transitionToLazy('taxon-details', { ...this.props.params, taxonId: 'new' });
 
     return [
-      <AddButton className={classNames('fc-btn-primary', styles.headerButton)} onClick={handleClick}>Value</AddButton>
+      <AddButton
+        className={classNames('fc-btn-primary', styles.headerButton)}
+        onClick={handleClick}
+      >
+        Value
+      </AddButton>
     ];
+  }
+
+  @autobind
+  bulkExport(allChecked: boolean, toggledIds: Array<number>) {
+    const { exportByIds } = this.props.bulkActions;
+    const modalTitle = 'Taxons';
+    const entity = 'taxons';
+
+    return renderExportModal(tableColumns, entity, modalTitle, exportByIds, toggledIds);
+  }
+
+  get bulkActions(): Array<any> {
+    return [
+      bulkExportBulkAction(this.bulkExport, 'Taxons'),
+    ];
+  }
+
+  @autobind
+  renderBulkDetails(context: string, taxonId: string) {
+    const taxonomyId = this.props.object.id;
+
+    return (
+      <span key={taxonId}>
+        Taxon <Link to="taxon-details" params={{ taxonId, taxonomyId, context }}>{taxonId}</Link>
+      </span>
+    );
   }
 
   render() {
@@ -72,22 +121,36 @@ export class TaxonsListPage extends Component {
     const Table = taxonomy.hierarchical ? TreeTable : MultiSelectTable;
 
     return (
-      <Table
-        exportEntity="taxons"
-        exportTitle="Taxons"
-        bulkExport
-        bulkExportAction={this.props.bulkExportAction}
-        columns={tableColumns}
-        data={results}
-        renderRow={this.renderRow}
-        hasActionsColumn={false}
-        isLoading={results.isFetching}
-        failed={results.failed}
-        emptyMessage={'This taxonomy does not have any values yet.'}
-        headerControls={this.tableControls}
-        idField="taxonId"
-        className={styles.taxonsTable}
-      />
+      <div>
+        <BulkMessages
+          storePath="taxons.bulk"
+          module="taxons"
+          entity="taxon"
+          renderDetail={this.renderBulkDetails}
+        />
+        <BulkActions
+          module="taxons"
+          entity="taxon"
+          actions={this.bulkActions}
+        >
+          <Table
+            exportEntity="taxons"
+            exportTitle="Taxons"
+            bulkExport
+            bulkExportAction={this.props.bulkExportAction}
+            columns={tableColumns}
+            data={results}
+            renderRow={this.renderRow}
+            hasActionsColumn={false}
+            isLoading={results.isFetching}
+            failed={results.failed}
+            emptyMessage={'This taxonomy does not have any values yet.'}
+            headerControls={this.tableControls}
+            idField="taxonId"
+            className={styles.taxonsTable}
+          />
+        </BulkActions>
+      </div>
     );
   }
 }
@@ -100,6 +163,7 @@ function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators(actions, dispatch),
     bulkExportAction: bindActionCreators(bulkExport, dispatch),
+    bulkActions: bindActionCreators(bulkActions, dispatch),
   };
 }
 
