@@ -106,6 +106,7 @@ class Pdp extends Component {
     }
 
     if (typeof document !== 'undefined') {
+      // $FlowFixMe: there is product-recommender in node_modules
       const renderProductRecommender = require('product-recommender').default;
       renderProductRecommender(this.props.product.id, 'product-recommender');
     }
