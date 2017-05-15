@@ -53,7 +53,7 @@ if $ALL; then
     echo ${PROJECTS[@]}
 else
     # get the current branch name
-    ALL_CHANGED=$(git diff --name-only origin/$BASE_BRANCH...$BUILDKITE_COMMIT | cut -d'/' -f1 | uniq)
+    ALL_CHANGED=$(git diff --name-only origin/$BASE_BRANCH...$BUILDKITE_BRANCH | cut -d'/' -f1 | uniq)
 
     # make newlines the only separator
     IFS=$'\n'
