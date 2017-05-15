@@ -121,10 +121,16 @@ import Button from 'components/core/button'
 
 ```
 
-Import with absolute path(relative to `src` directory) is possible here due to setting NODE_PATH env variable to `lib` directory(all source files
-from `src` dir are transpiled from ES6 to ES5 syntax to `lib` dir on build step).
+Import with absolute path(relative to `src` directory) is possible here due to
+[babel-plugin-module-resolver](https://www.npmjs.com/package/babel-plugin-module-resolver) usage.
 
-```js
-process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib')}`;
+```json
+{
+  "plugins": [
+    ["module-resolver", {
+      "root": ["./src"]
+    }]
+  ]
+}
 ```
 
