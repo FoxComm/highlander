@@ -22,4 +22,8 @@ docker:
 docker-push:
 	true
 
+publish: build
+	firebase use production
+	firebase deploy
+
 .PHONY: prep clean build test docker docker-push

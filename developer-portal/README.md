@@ -14,8 +14,14 @@ Build:
 	$ make build
 
 ## Publishing
+First install the [firebase CLI tools](https://github.com/firebase/firebase-tools)
 
-TODO: Create easy way to publish to firebase.
+    $ sudo npm install -g firebase-tools
+    
+
+Use firebase login:ci to generate a token then set the environment variable FIREBASE_TOKEN 
+
+    $ make publish
 	
 ## Links
 
