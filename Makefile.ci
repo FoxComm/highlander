@@ -37,4 +37,4 @@ deploy:
 publish:
 	$(MAKE) -C developer-portal publish
 
-.PHONY: build test clean docker docker-push $(SUBDIRS) $(BUILDDIRS)
+.PHONY: build deploy publish test clean docker docker-push $(SUBDIRS) $(BUILDDIRS)
