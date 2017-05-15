@@ -6,11 +6,17 @@
 - name: Copy Flyway Config
   template: src=flyway.conf.j2 dest="{{hyperion_dir}}/sql/flyway.conf"
 
+- name: Clean Flyway Schema
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
+  args:
+    chdir: "{{hyperion}}"
+  when: clean_flyway_hyperion in prompt_yes
+
 - name: Repair Flyway Schema
   shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} repair
-  become: true
   args:
     chdir: "{{hyperion_dir}}"
+  when: clean_flyway_hyperion not in prompt_yes
 
 - name: Migrate Database
   shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
