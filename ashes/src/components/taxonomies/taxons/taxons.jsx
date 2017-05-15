@@ -1,8 +1,10 @@
 // @flow
 
-// libs
-import classNames from 'classnames';
 import React, { Component, Element } from 'react';
+
+// libs
+import _ from 'lodash';
+import classNames from 'classnames';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
@@ -156,16 +158,18 @@ export class TaxonsListPage extends Component {
   }
 }
 
-function mapStateToProps({ taxons: { list } }) {
-  return { list };
-}
+const mapStateToProps = (state) => {
+  return {
+    list: _.get(state.taxons, 'list', {}),
+  };
+};
 
-function mapDispatchToProps(dispatch) {
+const mapDispatchToProps = (dispatch) => {
   return {
     actions: bindActionCreators(actions, dispatch),
     bulkExportAction: bindActionCreators(bulkExport, dispatch),
     bulkActions: bindActionCreators(bulkActions, dispatch),
   };
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(TaxonsListPage);
