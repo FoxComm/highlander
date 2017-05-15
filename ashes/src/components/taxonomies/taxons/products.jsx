@@ -183,7 +183,7 @@ export class TaxonProductsPage extends Component {
       addSearchFilters: this.addSearchFilters,
     };
 
-    const TotalCounter = makeTotalCounter(state => _.get(state, 'taxons.details.list'), actions);
+    const TotalCounter = makeTotalCounter(state => _.get(state, 'taxons.details.products'), actions);
 
     return (
       <div className="fc-products-list">
@@ -210,7 +210,7 @@ export class TaxonProductsPage extends Component {
             exportTitle="Products"
             bulkExport
             bulkExportAction={this.props.bulkExportAction}
-            entity="taxons.details.list"
+            entity="taxons.details.products"
             emptyMessage="No products found."
             tableClassName={styles.productsTable}
             list={list}
@@ -236,7 +236,7 @@ export class TaxonProductsPage extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    list: _.get(state, 'taxons.details.list', {}),
+    list: _.get(state, 'taxons.details.products', {}),
     addState: _.get(state.asyncActions, 'taxonAddProduct', {}),
     deleteState: _.get(state.asyncActions, 'taxonDeleteProduct', {}),
   };

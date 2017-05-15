@@ -4,7 +4,7 @@ import makeLiveSearch from 'modules/live-search';
 import productsSearchTerms from 'modules/products/search-terms';
 
 const { reducer, actions } = makeLiveSearch(
-  'taxons.details.list',
+  'taxons.details.products',
   productsSearchTerms,
   'products_search_view/_search',
   'productsScope',
