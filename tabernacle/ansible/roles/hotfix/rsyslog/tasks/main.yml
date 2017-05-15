@@ -11,6 +11,10 @@
     group=root
     mode=0644
 
+- name: Remove Elasticsearch 5 logging everything
+  file: path=/etc/rsyslog.d/52-elastic.conf state=absent
+  when: is_appliance
+
 - name: Update Syslog Rotation
   lineinfile: dest="{{logrotate_dir}}/rsyslog" regexp='^daily' line='size=100M'
 
