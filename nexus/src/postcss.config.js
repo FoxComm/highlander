@@ -2,7 +2,8 @@ const crypto = require('crypto');
 const path = require('path');
 
 function generateLongName(exportedName, filepath) {
-  const sanitisedPath = path.relative(process.cwd(), filepath)
+  const sanitisedPath = path
+    .relative(process.cwd(), filepath)
     .replace('src/components', '')
     .replace('lib/components', '')
     .replace(/\.[^\.\/\\]+$/, '')
@@ -11,7 +12,7 @@ function generateLongName(exportedName, filepath) {
   return `_${sanitisedPath}__${exportedName}`;
 }
 
-function generateShortName (name, filename, css) {
+function generateShortName(name, filename, css) {
   const i = css.indexOf(`.${name}`);
   const numLines = css.substr(0, i).split(/[\r\n]/).length;
 
@@ -19,7 +20,9 @@ function generateShortName (name, filename, css) {
   return `_${name}_${hash}_${numLines}`;
 }
 
-const generateScopedName = process.env.NODE_ENV === 'production' ? generateShortName : generateLongName;
+const generateScopedName = process.env.NODE_ENV === 'production'
+  ? generateShortName
+  : generateLongName;
 
 const plugins = [
   require('postcss-import')({

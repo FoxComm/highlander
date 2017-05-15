@@ -27,7 +27,6 @@ function shouldCacheForLongTime(ctx) {
 }
 
 class App extends KoaApp {
-
   constructor(...args) {
     super(...args);
     onerror(this);
@@ -38,10 +37,15 @@ class App extends KoaApp {
       // serve all static in dev mode through one middleware,
       // enable the second one to add cache headers to app*.js and app*.css
       .use(test(mount(serve('public')), ctx => !shouldCacheForLongTime(ctx)))
-      .use(test(mount(serve('public'), { maxage: 31536000 }), shouldCacheForLongTime))
+      .use(
+        test(
+          mount(serve('public'), { maxage: 31536000 }),
+          shouldCacheForLongTime
+        )
+      )
       .use(log4js.koaLogger(log4js.getLogger('http'), { level: 'auto' }))
       .use(bodyParser());
-//      .use(mount(renderReact));
+    //      .use(mount(renderReact));
   }
 
   start() {
