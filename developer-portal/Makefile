@@ -7,6 +7,7 @@ clean:
 
 prep:
 	npm install
+	cd node_modules/aglio-theme-fox && npm install
 
 build: prep $(BUILDDIRS)
 
