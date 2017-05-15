@@ -6,7 +6,7 @@ import com.typesafe.scalalogging.LazyLogging
 import dispatch._
 import failures.MiddlewarehouseFailures.MiddlewarehouseError
 import failures.{Failures, MiddlewarehouseFailures}
-import org.json4s.Extraction
+import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import payloads.AuthPayload
 import utils.JsonFormatters
@@ -25,18 +25,39 @@ trait MiddlewarehouseApi {
 
 }
 
+case class MiddlewarehouseErrorInfo(sku: String, debug: String)
+
 class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
 
-  case class MiddlewarehouseErrorInfo(sku: String, debug: String)
+
+  def parseListOfStringErrors(strings: Option[List[String]]): Option[Failures] = {
+    strings.flatMap(errors ⇒ Failures(errors.map(MiddlewarehouseError): _*))
+  }
+
+  def parseListOfMwhInfoErrors(errors: Option[List[MiddlewarehouseErrorInfo]]): Option[Failures] = {
+    val invalidSKUs = errors.map(list ⇒ {
+      logger.info("Middlewarehouse errors:")
+      logger.info(list.map(info ⇒ info.debug).mkString("\n"))
+      logger.info("Check Middlewarehouse logs for more details.")
+      list.map(info ⇒ info.sku)
+    }).getOrElse(List[String]()).mkString(", ")
+    Some(
+        MiddlewarehouseError(
+            s"Following SKUs are out of stock: $invalidSKUs. Please remove them from your cart to complete checkout.").single)
+  }
 
   def parseMwhErrors(message: String): Failures = {
-    val errorObjects = (parse(message) \ "errors").extractOpt[List[MiddlewarehouseErrorInfo]]
-    val errorList = errorObjects.getOrElse(List(MiddlewarehouseErrorInfo("", message)))
-    val invalidSKUs = errorList.map(info => info.sku).mkString(", ")
-    logger.info("Middlewarehouse errors:")
-    logger.info(errorList.map(info => info.debug).mkString("\n"))
-    logger.info("Check Middlewarehouse logs for more details.")
-    return MiddlewarehouseError(s"Following SKUs are out of stock: $invalidSKUs. Please remove them from your cart to complete checkout.").single
+    val json = (parse(message) \ "errors")
+    val skuErrors = (json.filterField {
+      case JField("sku", _) ⇒ true
+      case _                ⇒ false
+    })
+    val possibleFailures = if (skuErrors.isEmpty) {
+      parseListOfStringErrors(json.extractOpt[List[String]])
+    } else {
+      parseListOfMwhInfoErrors(json.extractOpt[List[MiddlewarehouseErrorInfo]])
+    }
+    possibleFailures.getOrElse(MiddlewarehouseError(message).single)
   }
 
   override def hold(reservation: OrderInventoryHold)(implicit ec: EC, au: AU): Result[Unit] = {
