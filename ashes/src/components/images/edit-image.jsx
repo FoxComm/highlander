@@ -105,7 +105,7 @@ class EditImage extends Component {
     const nameMatch = src.match(/\/([^/]+)$/i);
     const ext = get(extMatch, '[1]', '–');
     const name = get(nameMatch, '[1]', '–');
-    const style = { backgroundImage: `url(${src})` };
+    const style = { backgroundImage: `url('${src}')` };
 
     return (
       <ModalContainer isVisible={this.props.isVisible} size="big">

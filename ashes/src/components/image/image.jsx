@@ -94,12 +94,13 @@ export default class ImageLoader extends Component {
   }
 
   get image(): ?Element<any> {
+    // Why ProductImage???
     let img = <ProductImage src={this.state.src} width={286} height={286} />;
 
     if (this.props.size && this.state.src) {
       let styles = {
         backgroundSize: this.props.size,
-        backgroundImage: `url(${this.state.src})`,
+        backgroundImage: `url('${this.state.src}')`,
       };
 
       img = <div style={styles} className={s.bgImage} />;
