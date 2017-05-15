@@ -141,7 +141,7 @@ class SortableTiles extends Component {
     const containerWidth = this.container ? this.container.clientWidth : 0;
 
     /** calculate max columns count for given width of container */
-    const columns = Math.floor((containerWidth + gutterX) / (itemWidth + gutterX));
+    const columns = Math.floor((containerWidth + gutterX) / (itemWidth + gutterX)) || 1;
     const rows = Math.ceil(order.length / columns);
     const gutter = spaceBetween && rows > 1
       ? (containerWidth - itemWidth * columns) / (columns - 1)
