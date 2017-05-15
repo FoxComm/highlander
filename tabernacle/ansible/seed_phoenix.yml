@@ -17,4 +17,4 @@
       private: no
 
   roles:
-    - { role: dev/seeder }
+    - { role: dev/seed_system }
