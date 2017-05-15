@@ -5,6 +5,7 @@ export PATH := $(CURDIR)/node_modules/.bin:$(PATH)
 SHELL := env PATH=$(PATH) /bin/bash
 
 GIT_REVISION = $(shell git describe --always)
+WEBPACK_PORT = 4001
 
 # Docker stuff ###
 
@@ -81,11 +82,12 @@ install i:
 .PHONY: nodemon
 nodemon:
 	test -f .env && export eval `cat .env` || true &&\
-	nodemon --watch server --watch config -e js,tmpl ./server/index.js
+	WEBPACK_PORT=$(WEBPACK_PORT) nodemon --watch server --watch config -e js,tmpl ./server/index.js
 
 .PHONY: build-dev
 build-dev:
-	GIT_REVISION=$(GIT_REVISION) webpack --progress --colors --watch
+	GIT_REVISION=$(GIT_REVISION) webpack-dev-server \
+	--inline --watch --hot --progress --content-base=build/ --port $(WEBPACK_PORT)
 
 .PHONY: dev d
 dev d:

@@ -15,7 +15,7 @@ module.exports = function(app) {
   });
 
   app.use(proxy({
-    host:  config.host,
+    host: config.host,
     match: matchUriRegexp,
   }));
 

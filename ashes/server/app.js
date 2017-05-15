@@ -11,11 +11,20 @@ const publicDir = path.resolve(__dirname + './../public');
 const buildDir = path.resolve(__dirname + './../build');
 
 app.init = co.wrap(function *(env) {
-  if (env) { app.env = env; }
+  if (env) {
+    app.env = env;
+  }
+
   app.config = new Config(app.env);
+
+  if (app.env.environment !== 'production') {
+    require('./hmr')(app);
+  }
+
   app.use(serve(buildDir));
   app.use(serve(publicDir));
   app.use(favicon(path.resolve('public/admin/favicon.ico')));
+
   if (app.env.environment !== 'production') {
     app.use(require('koa-logger')());
   }

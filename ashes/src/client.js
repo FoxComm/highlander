@@ -1,8 +1,6 @@
 import get from 'lodash/get';
 import React from 'react';
 import { render } from 'react-dom';
-import { Router } from 'react-router';
-import { Provider } from 'react-redux';
 import { syncHistoryWithStore, push } from 'react-router-redux';
 
 import { createHistory } from 'history';
@@ -15,11 +13,16 @@ import { setHistory } from 'browserHistory';
 import { trackPageView, initTracker } from './lib/analytics';
 import { getJWT } from 'lib/claims';
 import { isPathRequiredAuth } from './route-rules';
+import Root from './root';
 
 // global styles
 import './less/base.less';
 import './css/base.css';
 import 'images/favicon.png';
+
+if (module.hot) {
+  module.hot.accept();
+}
 
 const createBrowserHistory = useNamedRoutes(useRouterHistory(createHistory));
 
@@ -34,40 +37,34 @@ export function syncJWTFromServer() {
 
 syncJWTFromServer();
 
-export function start() {
-  const routes = makeRoutes();
-  let history = createBrowserHistory({ routes });
 
-  const initialState = {
-    user: {
-      current: getJWT(),
-    },
-  };
-  const store = configureStore(history, initialState);
-  history = syncHistoryWithStore(history, store);
-  setHistory(history);
+const routes = makeRoutes();
+let history = createBrowserHistory({ routes });
 
-  initTracker();
+const initialState = {
+  user: {
+    current: getJWT(),
+  },
+};
 
-  const currentUser = get(store.getState(), 'user.current');
-  const needLogin = (!currentUser || !window.tokenOk) && isPathRequiredAuth(location.pathname);
+const store = configureStore(history, initialState);
+history = syncHistoryWithStore(history, store);
+setHistory(history);
 
-  if (needLogin) {
-    store.dispatch(push('/login'));
-  }
+initTracker();
 
-  history.listen(location => {
-    trackPageView(location.pathname);
-  });
+const currentUser = get(store.getState(), 'user.current');
+const needLogin = (!currentUser || !window.tokenOk) && isPathRequiredAuth(location.pathname);
 
-  render(
-    <Provider store={store} routes={routes} key="provider">
-      <Router history={history}>
-        {routes}
-      </Router>
-    </Provider>,
-    document.getElementById('foxcom')
-  );
+if (needLogin) {
+  store.dispatch(push('/login'));
 }
 
-start();
+history.listen(location => {
+  trackPageView(location.pathname);
+});
+
+render(
+  <Root store={store} routes={routes} history={history} />,
+  document.getElementById('foxcom')
+);

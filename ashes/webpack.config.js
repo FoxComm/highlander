@@ -10,11 +10,13 @@ const prodConfig = require('./webpack/prod');
 
 const baseConfig = {
   entry: [
+    'react-hot-loader/patch',
     path.resolve(__dirname, './src/client.js')
   ],
 
   output: {
     path: path.resolve(__dirname, './build/admin'),
+    publicPath: '/admin',
     filename: '[name].js',
   },
 

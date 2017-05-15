@@ -163,6 +163,7 @@
     "watchify": "^3.3.1",
     "webpack": "^2.3.3",
     "webpack-dev-middleware": "^1.10.2",
+    "webpack-dev-server": "^2.4.5",
     "webpack-merge": "^4.1.0",
     "webpack-svgstore-plugin": "^4.0.0"
   },
