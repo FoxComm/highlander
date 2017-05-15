@@ -14,6 +14,8 @@ import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Factories
+import cats.implicits._
+import failures.AddressFailures.NoCountryFound
 
 class ShippingMethodsIntegrationTest
     extends IntegrationTestBase
@@ -100,6 +102,25 @@ class ShippingMethodsIntegrationTest
         methodResponse.price must === (shippingMethod.price)
         methodResponse.isEnabled must === (true)
       }
+    }
+  }
+
+  "Search /v1/shipping-methods" - {
+
+    "Has active methods" in new UsShipping {
+      shippingMethodsApi.active().as[Seq[Root]].size mustBe >(0)
+    }
+
+    "Get shipping method by country code" in new UsShipping {
+      shippingMethodsApi.searchByRegion("us").as[Seq[Root]].size mustBe >(0)
+    }
+
+    "No shipping to Russia ;(" in new UsShipping {
+      shippingMethodsApi.searchByRegion("rus").as[Seq[Root]].size must === (0)
+    }
+
+    "No shipping methods for non existent country" in {
+      shippingMethodsApi.searchByRegion("uss").mustFailWith400(NoCountryFound("uss"))
     }
   }
 
@@ -238,5 +259,15 @@ class ShippingMethodsIntegrationTest
                           Factories.shippingMethods.head.copy(conditions = Some(conditions),
                                                               restrictions = Some(restrictions)))
     } yield shippingMethod).gimme
+  }
+
+  trait UsShipping {
+    val usShippingMethod = (for {
+      usShippingMethod ← shipping.ShippingMethods.create(
+                            Factories.shippingMethods
+                              .filter(_.conditions == Some(Factories.usOnly))
+                              .head)
+
+    } yield usShippingMethod).gimme
   }
 }
