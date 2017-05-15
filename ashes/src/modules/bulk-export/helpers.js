@@ -61,7 +61,7 @@ export const getPropsByIds = (
     invoke(`${entity}.${field}.currentSearch`),
     getOr([], 'results.rows'),
     filter(entry => ids.indexOf(entry.id) !== -1),
-    reduce((obj, entry) => set(entry[prop1], entry[prop2], obj), {})
+    reduce((obj, entry) => set(_.get(entry, prop1), _.get(entry, prop2), obj), {})
   )(state);
 };
 
