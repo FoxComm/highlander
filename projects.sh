@@ -35,17 +35,6 @@ PROJECTS=(
     'hyperion'
 )
 
-# Define base branch via GitHub API
-if [ "$BUILDKITE_PULL_REQUEST" ] ; then
-    write "Fetching base branch via Github API..."
-    GITHUB_BASE_URL=https://api.github.com/repos/FoxComm/highlander/pulls
-    GITHUB_REQUEST_URL=$GITHUB_BASE_URL/$BUILDKITE_PULL_REQUEST?access_token=$GITHUB_API_TOKEN
-    BASE_BRANCH=$(curl -sS -XGET $GITHUB_REQUEST_URL | jq '.base.ref')
-else
-    write "No pull request created, setting base branch to master"
-    BASE_BRANCH="master"
-fi
-
 # Fetch origin
 git fetch origin
 
