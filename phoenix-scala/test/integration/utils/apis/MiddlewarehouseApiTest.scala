@@ -2,39 +2,40 @@ package utils.apis
 
 import cats.data.NonEmptyList
 import failures.Failures
-import failures.MiddlewarehouseFailures.MiddlewarehouseError
+import failures.MiddlewarehouseFailures.{MiddlewarehouseError, SkusOutOfStockFailure}
 import testutils.TestBase
 
 class MiddlewarehouseApiTest extends TestBase {
 
-  def MwhApiTest(message: String, errors: Failures): Unit = {
+  private def mwhApiTest(message: String, errors: Failures) = {
+
     val mwhApi = new Middlewarehouse("testURL")
-    val failures = mwhApi.parseMwhErrors(message)
-    failures must === (errors)
+    val result = mwhApi.parseMwhErrors(message)
+    result must ===(errors)
   }
 
   "MiddlewarehouseApi" - {
     "returns proper error message with sinle SKU that is out of stock" in {
-      MwhApiTest(
+      mwhApiTest(
         "{\"errors\":[{\"sku\":\"SKU\",\"debug\":\"Entry in table stock_items not found for sku=SKU.\"}]}",
-        NonEmptyList.of((MiddlewarehouseError("Following SKUs are out of stock: SKU. Please remove them from your cart to complete checkout.")))
+        NonEmptyList.of(SkusOutOfStockFailure(List[String]("SKU")))
       )
     }
     "returns proper error message with list of SKUs that are out of stock" in {
-      MwhApiTest(
+      mwhApiTest(
         "{\"errors\":[{\"sku\":\"SKU1\",\"debug\":\"boom.\"},{\"sku\":\"SKU2\",\"debug\":\"boom.\"}]}",
-        NonEmptyList.of(MiddlewarehouseError("Following SKUs are out of stock: SKU1, SKU2. Please remove them from your cart to complete checkout."))
+        NonEmptyList.of(SkusOutOfStockFailure(List[String]("SKU1", "SKU2")))
       )
     }
     "returns proper errors with list of errors" in {
-      MwhApiTest(
+      mwhApiTest(
         "{\"errors\":[\"test1\", \"test2\"]}",
-        NonEmptyList.of(MiddlewarehouseError("test1"),MiddlewarehouseError("test2"))
+        NonEmptyList.of(MiddlewarehouseError("test1"), MiddlewarehouseError("test2"))
       )
     }
     "returns default error message with empty error list" in {
       val err = "{\"errors\":[]}"
-      MwhApiTest(
+      mwhApiTest(
         err,
         NonEmptyList.of(MiddlewarehouseError(err))
       )
