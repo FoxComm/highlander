@@ -127,6 +127,7 @@ export class TaxonsListPage extends Component {
           module="taxons"
           entity="taxon"
           renderDetail={this.renderBulkDetails}
+          className={styles['bulk-message']}
         />
         <BulkActions
           module="taxons"
