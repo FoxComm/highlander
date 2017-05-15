@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { ReasonType } from '../../lib/reason-utils';
 
 // components
-import { IndexLink, Link } from '../link';
+import { IndexLink, Link } from 'components/link';
 import GiftCardCode from './gift-card-code';
 import { DateTime } from '../common/datetime';
 import Currency from '../common/currency';

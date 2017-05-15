@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 
-import { IndexLink } from '../link';
+import { IndexLink } from 'components/link';
 import LocalNav from '../local-nav/local-nav';
 import { PageTitle } from '../section-title';
 

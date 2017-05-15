@@ -6,7 +6,7 @@
 import React, { Component } from 'react';
 
 // components
-import { Link, IndexLink } from '../link';
+import { Link, IndexLink } from 'components/link';
 import LocalNav from '../local-nav/local-nav';
 
 type Props = {

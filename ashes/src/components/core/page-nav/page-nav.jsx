@@ -1,10 +1,12 @@
+/* flow */
+
 // libs
-import _ from 'lodash';
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom';
-import { autobind } from 'core-decorators';
 import classNames from 'classnames';
+import { find, flatMap, get, includes, map } from 'lodash';
+import { autobind } from 'core-decorators';
+import React, { Component, Element as ReactElement } from 'react';
+import ReactDOM from 'react-dom';
+import { withRouter } from 'react-router';
 
 // helpers
 import { addResizeListener, removeResizeListener } from 'lib/resize';
@@ -14,20 +16,33 @@ import { Link, IndexLink } from 'components/link';
 import NavDropdown from './nav-dropdown';
 
 // styles
-import s from './local-nav.css';
+import s from './page-nav.css';
 
-class LocalNav extends Component {
+type Props = {
+  /** react-router's routes object */
+  routes: Object,
+  /** Check weather route active or not */
+  isActive: (routeName: string) => boolean,
+  /** Children */
+  children: Array<ReactElement<any>>,
+};
 
-  static contextTypes = {
-    router: PropTypes.object.isRequired,
-  };
+type State = {
+  /** index of children, from with the automatic collapse starts */
+   collapseFrom: ?number,
+};
 
-  static propTypes = {
-    children: PropTypes.node,
-  };
+/**
+ * Object page top navigation
+ *
+ * [Mockups](https://zpl.io/1p2SEW)
+ *
+ * @class PageNav
+ */
+class PageNav extends Component {
+  props: Props;
 
-  state = {
-    //index of children, from with the automatic collapse starts
+  state: State = {
     collapseFrom: null,
   };
 
@@ -38,12 +53,6 @@ class LocalNav extends Component {
 
   componentWillUnmount() {
     removeResizeListener(this.handleResize);
-  }
-
-  @autobind
-  handleResize() {
-    this.collapsing = false;
-    this.forceUpdate();
   }
 
   componentDidUpdate() {
@@ -62,25 +71,10 @@ class LocalNav extends Component {
     }
   }
 
-  get hasOverflow() {
-    const refs = Object.values(this.refs);
-    let mostLeft = this.refs[0].getBoundingClientRect().left;
-
-    return Boolean(_.find(refs, (ref) => {
-      const left = ref instanceof Element
-        ? ref.getBoundingClientRect().left
-        : ReactDOM.findDOMNode(ref).getBoundingClientRect().left;
-
-      //if referenced node is visible (not in collapsed menu)
-      if (ref.offsetParent !== null && left < mostLeft) {
-        return true;
-      }
-      mostLeft = left;
-    }));
-  }
-
-  get isCollapsed() {
-    return this.state.collapseFrom !== null;
+  @autobind
+  handleResize() {
+    this.collapsing = false;
+    this.forceUpdate();
   }
 
   collapse() {
@@ -103,7 +97,7 @@ class LocalNav extends Component {
   }
 
   compileLinks({ props }) {
-    return _.flatMap(React.Children.toArray(props.children), child => {
+    return flatMap(React.Children.toArray(props.children), child => {
       if (child.type === Link || child.type === IndexLink) {
         return child;
       }
@@ -115,13 +109,13 @@ class LocalNav extends Component {
   }
 
   hasActiveLink(item) {
-    const { routes } = this.context.router;
+    const { routes } = this.props;
     const linkList = this.compileLinks(item);
-    const linkNames = _.map(linkList, ['props', 'to']);
+    const linkNames = map(linkList, ['props', 'to']);
 
     const currentRoute = routes[routes.length - 1];
 
-    return _.includes(linkNames, currentRoute.name);
+    return includes(linkNames, currentRoute.name);
   }
 
   isActiveLink(item) {
@@ -129,9 +123,9 @@ class LocalNav extends Component {
       return false;
     }
 
-    const linkName = _.get(item, ['props', 'to']);
+    const linkName = get(item, ['props', 'to']);
 
-    return this.context.router.isActive(linkName);
+    return this.props.isActive(linkName);
   }
 
   @autobind
@@ -158,6 +152,27 @@ class LocalNav extends Component {
       key: key,
       activeClassName: s.activeLink,
     });
+  }
+
+  get isCollapsed() {
+    return this.state.collapseFrom !== null;
+  }
+
+  get hasOverflow() {
+    const refs = Object.values(this.refs);
+    let mostLeft = this.refs[0].getBoundingClientRect().left;
+
+    return Boolean(find(refs, (ref) => {
+      const left = ref instanceof Element
+        ? ref.getBoundingClientRect().left
+        : ReactDOM.findDOMNode(ref).getBoundingClientRect().left;
+
+      //if referenced node is visible (not in collapsed menu)
+      if (ref.offsetParent !== null && left < mostLeft) {
+        return true;
+      }
+      mostLeft = left;
+    }));
   }
 
   get flatItems() {
@@ -202,4 +217,4 @@ class LocalNav extends Component {
   }
 }
 
-export default LocalNav;
+export default withRouter(PageNav);

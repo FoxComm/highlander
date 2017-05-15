@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { IndexLink, Link } from '../link';
+import { IndexLink, Link } from 'components/link';
 import Notes from '../notes/notes';
 import { PageTitle } from '../section-title';
 import { PrimaryButton } from 'components/core/button';

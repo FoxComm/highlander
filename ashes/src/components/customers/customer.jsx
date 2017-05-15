@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Link, IndexLink } from '../link';
+
+import { Link, IndexLink } from 'components/link';
 import TitleBlock from './title-block';
 import { connect } from 'react-redux';
 import * as CustomersActions from '../../modules/customers/details';

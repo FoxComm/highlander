@@ -8,7 +8,7 @@ import React, { Element } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
-import { Link, IndexLink } from '../link';
+import { Link, IndexLink } from 'components/link';
 import LocalNav from '../local-nav/local-nav';
 import { connectPage, ObjectPage } from '../object-page/object-page';
 

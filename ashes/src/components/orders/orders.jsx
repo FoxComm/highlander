@@ -12,12 +12,12 @@ import { actions } from '../../modules/orders/list';
 import { actions as bulkActions } from '../../modules/orders/bulk';
 
 // components
+import { Link } from 'components/link';
 import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
 import { SelectableSearchList } from '../list-page';
 import OrderRow from './order-row';
 import { ChangeStateModal, CancelModal } from '../bulk-actions/modal';
-import { Link } from '../link';
 
 
 const mapStateToProps = ({orders: {list}}) => {

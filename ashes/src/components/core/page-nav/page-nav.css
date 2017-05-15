@@ -1,0 +1,108 @@
+@import "colors.css";
+
+.block {
+  position: relative;
+  border-bottom: 2px solid var(--grey-buttons);
+  margin: 20px 1.85%; /* because of grid system :( */
+}
+
+.item {
+  font-size: 14px;
+  color: #484848;
+  display: inline-block;
+  vertical-align: top;
+  margin: 0 5px -2px 0;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &:hover {
+    color: #121212;
+  }
+
+  & a,
+  & a:visited {
+    position: relative;
+    display: inline-flex;
+    color: inherit;
+    padding: 0 20px 10px;
+
+    &:after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2px;
+      background-color: transparent;
+      transition: all .2s;
+    }
+
+    &.activeLink:after {
+      background-color: var(--nav-pink);
+    }
+  }
+
+  & a:hover {
+    cursor: pointer;
+  }
+}
+
+.selected {
+  &:hover {
+    border-bottom: 2px solid #3a4350;
+  }
+
+  & > a,
+  & > a:visited {
+  }
+}
+
+.parent {
+  position: relative;
+
+  & > a,
+  & > a:visited {
+    & i {
+      padding-left: 10px;
+    }
+  }
+}
+
+.parent:hover {
+  & ul {
+    display: block;
+  }
+}
+
+.dropdown {
+  z-index: 3;
+  display: none;
+  position: absolute;
+  min-width: 150px;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.50);
+  border-radius: 3px;
+}
+
+.dropdown .item {
+  color: #484848;
+  width: 100%;
+  margin: 0;
+}
+
+.dropdown .item:hover {
+  background: var(--grey-background);
+}
+
+.dropdown .item a {
+  display: block;
+  line-height: 44px;
+  padding: 0 20px;
+}
+
+.dropdown .item a:hover {
+  color: #484848;
+}

@@ -1,5 +1,6 @@
 /* @flow */
 import React, { Element } from 'react';
+
 import { Link, IndexLink } from 'components/link';
 import LocalNav from 'components/local-nav/local-nav';
 
