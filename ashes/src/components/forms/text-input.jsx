@@ -34,8 +34,8 @@ export default class TextInput extends Component {
 
   input: HTMLElement;
 
-  componentWillUpdate(nextProps: Props) {
-    if (this.state.value != nextProps.value) {
+  componentWillReceiveProps(nextProps: Props) {
+    if (this.state.value !== nextProps.value) {
       this.setState({ value: nextProps.value });
     }
   }

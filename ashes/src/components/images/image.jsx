@@ -8,7 +8,6 @@ import styles from './images.css';
 // libs
 import { autobind } from 'core-decorators';
 import React, { Component, Element, PropTypes } from 'react';
-import moment from 'moment';
 
 // components
 import BodyPortal from 'components/body-portal/body-portal';
@@ -167,8 +166,6 @@ export default class Image extends Component<void, Props, State> {
         <ImageCard
           id={image.id}
           src={image.src}
-          title={image.title}
-          secondaryTitle={`Uploaded ${image.createdAt || moment().format('MM/DD/YYYY HH: mm')}`}
           actions={this.getImageActions()}
           onImageClick={this.handleEditImage}
           loading={image.loading}

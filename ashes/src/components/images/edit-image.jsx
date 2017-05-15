@@ -6,6 +6,7 @@ import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 
 // components
+import { DateTime } from 'components/common/datetime';
 import { ModalContainer } from '../modal/base';
 import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
@@ -114,7 +115,7 @@ class EditImage extends Component {
             <div className={s.sidebar}>
               <div className={s.stat}>
                 <div className={s.statItem}>{`File Name: ${name}`}</div>
-                <div className={s.statItem}>{`Uploaded: ${createdAt || '–'}`}</div>
+                <div className={s.statItem}>Uploaded: <DateTime value={createdAt} /></div>
                 <div className={s.statItem}>{`File Type: ${ext}`}</div>
                 <div className={s.statItem}>{`Dimensions: ${width}×${height}`}</div>
               </div>
