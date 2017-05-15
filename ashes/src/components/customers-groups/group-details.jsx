@@ -13,6 +13,7 @@ import criterions from 'paragons/customer-groups/criterions';
 import operators from 'paragons/customer-groups/operators';
 import { transitionTo } from 'browserHistory';
 import { prefix, numberize } from 'lib/text-utils';
+import { bulkExportBulkAction, renderExportModal } from 'modules/bulk-export/helpers';
 
 // actions
 import requestAdapter from 'modules/customer-groups/utils/request-adapter';
@@ -59,7 +60,11 @@ type Props = {
   },
   bulkActions: {
     deleteCustomersFromGroup: (groupId: number, customersIds: Array<number>) => Promise<*>,
+    exportByIds: (
+      ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
+    ) => void,
   },
+  bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
   suggested: Array<TUser>,
   suggestState: AsyncState,
   suggestCustomers: (token: string) => Promise<*>,
@@ -127,16 +132,52 @@ class GroupDetails extends Component {
     this.setState({ addCustomersModalShown: false });
   }
 
+  @autobind
+  bulkExport(allChecked: boolean, toggledIds: Array<number>) {
+    const { exportByIds } = this.props.bulkActions;
+    const modalTitle = 'Customers';
+    const entity = 'customers';
+
+    return renderExportModal(tableColumns, entity, modalTitle, exportByIds, toggledIds);
+  }
+
+  @autobind
+  handleDeleteCustomers(allChecked: boolean, customersIds: Array<number> = []) {
+    const { deleteCustomersFromGroup } = this.props.bulkActions;
+
+    const count = customersIds.length;
+    const label = (
+      <span>
+        Are you sure you want to delete&nbsp;
+        <b>{count} {numberize('customer', count)}</b> from group <b>"{this.props.group.name}"</b>?
+      </span>
+    );
+
+    return (
+      <BulkModal
+        title="Delete from group?"
+        label={label}
+        onConfirm={() => {
+          deleteCustomersFromGroup(this.props.group.id, customersIds).then(this.refreshGroupData);
+        }}
+      />
+    );
+  }
+
+  get deleteAction() {
+    return [
+      'Delete From Group',
+      this.handleDeleteCustomers,
+      'successfully deleted from group',
+      'could not be deleted from group'
+    ];
+  }
   get bulkActions() {
     if (this.props.group.groupType != GROUP_TYPE_MANUAL) return [];
 
     return [
-      [
-        'Delete From Group',
-        this.handleDeleteCustomers,
-        'successfully deleted from group',
-        'could not be deleted from group'
-      ],
+      bulkExportBulkAction(this.bulkExport, 'Customers'),
+      this.deleteAction,
     ];
   }
 
@@ -162,29 +203,6 @@ class GroupDetails extends Component {
         suggestCustomers={this.props.suggestCustomers}
         suggested={this.props.suggested}
         suggestState={this.props.suggestState}
-      />
-    );
-  }
-
-  @autobind
-  handleDeleteCustomers(allChecked: boolean, customersIds: Array<number> = []) {
-    const { deleteCustomersFromGroup } = this.props.bulkActions;
-
-    const count = customersIds.length;
-    const label = (
-      <span>
-        Are you sure you want to delete&nbsp;
-        <b>{count} {numberize('customer', count)}</b> from group <b>"{this.props.group.name}"</b>?
-      </span>
-    );
-
-    return (
-      <BulkModal
-        title="Delete from group?"
-        label={label}
-        onConfirm={() => {
-          deleteCustomersFromGroup(this.props.group.id, customersIds).then(this.refreshGroupData);
-        }}
       />
     );
   }
