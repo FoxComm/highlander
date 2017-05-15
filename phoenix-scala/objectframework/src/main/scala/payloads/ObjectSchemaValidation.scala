@@ -1,15 +1,15 @@
 package payloads
 
 import cats.data.NonEmptyList
-import models.objects._
-import utils.aliases._
-import utils.db._
 import com.networknt.schema.JsonSchemaFactory
 import failures.ObjectFailures._
-import org.json4s.jackson.JsonMethods._
-import org.json4s.Extraction
-import scala.collection.JavaConverters._
+import models.objects._
+import org.json4s.{Extraction, Formats}
 import org.json4s.JsonAST._
+import org.json4s.jackson.JsonMethods._
+import utils.db._
+
+import scala.collection.JavaConverters._
 
 object ObjectSchemaValidation {
 
@@ -18,7 +18,8 @@ object ObjectSchemaValidation {
     def defaultSchemaName: String
     val schema: Option[String] = None
 
-    private def validatePayload(payload: M, jsonSchema: Json)(implicit ec: EC): DbResultT[M] = {
+    private def validatePayload(payload: M, jsonSchema: JValue)(implicit ec: EC,
+                                                                fmt: Formats): DbResultT[M] = {
       val jsonSchemaFactory = new JsonSchemaFactory
       val validator         = jsonSchemaFactory.getSchema(asJsonNode(jsonSchema))
 
@@ -41,7 +42,7 @@ object ObjectSchemaValidation {
 
     }
 
-    def validate(implicit ec: EC): DbResultT[M] = {
+    def validate(implicit ec: EC, fmt: Formats): DbResultT[M] = {
       val schemaName = schema.fold(defaultSchemaName)(identity)
       for {
         schema    ← * <~ ObjectFullSchemas.mustFindByName404(schemaName)

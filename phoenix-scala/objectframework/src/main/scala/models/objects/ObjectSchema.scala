@@ -2,12 +2,11 @@ package models.objects
 
 import java.time.Instant
 
-import org.json4s.JsonAST.JObject
+import org.json4s.{JObject, JValue}
 import shapeless._
-import utils.aliases._
+import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{JsonFormatters, Validation}
 
 /**
   Represent json-schema for views: ObjectForm applied to ObjectShadow.
@@ -16,7 +15,7 @@ case class ObjectSchema(id: Int = 0,
                         kind: String,
                         name: String,
                         dependencies: List[String],
-                        schema: Json,
+                        schema: JValue,
                         createdAt: Instant = Instant.now)
     extends FoxModel[ObjectSchema]
     with Validation[ObjectSchema]
@@ -26,7 +25,7 @@ class ObjectSchemas(tag: Tag) extends FoxTable[ObjectSchema](tag, "object_schema
   def name         = column[String]("name")
   def kind         = column[String]("kind")
   def dependencies = column[List[String]]("dependencies")
-  def schema       = column[Json]("schema")
+  def schema       = column[JValue]("schema")
   def createdAt    = column[Instant]("created_at")
 
   def * =
@@ -38,8 +37,6 @@ object ObjectSchemas
     with ReturningId[ObjectSchema, ObjectSchemas] {
 
   val returningLens: Lens[ObjectSchema, Int] = lens[ObjectSchema].id
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   def findOneByName(name: String): DBIO[Option[ObjectSchema]] =
     filter(_.name === name).one
@@ -54,7 +51,7 @@ object ObjectSchemas
 case class ObjectFullSchema(id: Int = 0,
                             name: String,
                             kind: String,
-                            schema: Json,
+                            schema: JValue,
                             createdAt: Instant = Instant.now)
     extends FoxModel[ObjectFullSchema]
     with Validation[ObjectFullSchema]
@@ -67,7 +64,7 @@ class ObjectFullSchemas(tag: Tag) extends FoxTable[ObjectFullSchema](tag, "objec
   def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name      = column[String]("name")
   def kind      = column[String]("kind")
-  def schema    = column[Json]("schema")
+  def schema    = column[JValue]("schema")
   def createdAt = column[Instant]("created_at")
 
   def * =
@@ -80,8 +77,6 @@ object ObjectFullSchemas
 
   val returningLens: Lens[ObjectFullSchema, Int] = lens[ObjectFullSchema].id
 
-  implicit val formats = JsonFormatters.phoenixFormats
-
   def filterByKind(kind: String): QuerySeq =
     filter(_.kind === kind)
 
@@ -93,7 +88,7 @@ object ObjectFullSchemas
     filter(_.name === name).one
 
   // test method
-  def getDefaultOrEmptySchemaForForm(form: ObjectForm)(implicit ec: EC) = {
+  def getDefaultOrEmptySchemaForForm(form: ObjectForm)(implicit ec: EC): DBIO[ObjectFullSchema] = {
     findOneByName(form.kind).map { o ⇒
       o.getOrElse(ObjectFullSchema.emptySchema)
     }

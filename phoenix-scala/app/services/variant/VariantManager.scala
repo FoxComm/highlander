@@ -5,17 +5,21 @@ import failures.ProductFailures._
 import models.account._
 import models.objects._
 import models.product._
+import org.json4s.Formats
 import payloads.VariantPayloads._
 import responses.VariantResponses.IlluminatedVariantResponse
 import responses.VariantValueResponses.IlluminatedVariantValueResponse
 import services.inventory.SkuManager
 import services.objects.ObjectManager
 import slick.jdbc.PostgresProfile.api._
+import utils.JsonFormatters
 import utils.aliases._
 import utils.db._
 
 object VariantManager {
   type FullVariant = (FullObject[Variant], Seq[FullObject[VariantValue]])
+
+  implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   def createVariant(contextName: String, payload: VariantPayload)(
       implicit ec: EC,

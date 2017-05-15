@@ -1,13 +1,11 @@
 package services.objects
 
 import failures.NotFoundFailure404
-import failures.ObjectFailures._
+import models.objects._
 import payloads.ObjectSchemaPayloads._
 import responses.ObjectResponses.ObjectSchemaResponse._
-import models.objects._
-import utils.aliases._
-import utils.db._
 import slick.jdbc.PostgresProfile.api._
+import utils.db._
 
 object ObjectSchemasManager {
 

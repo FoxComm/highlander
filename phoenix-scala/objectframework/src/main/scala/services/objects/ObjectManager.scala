@@ -5,7 +5,6 @@ import failures._
 import models.objects._
 import payloads.ContextPayloads._
 import responses.ObjectResponses._
-import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

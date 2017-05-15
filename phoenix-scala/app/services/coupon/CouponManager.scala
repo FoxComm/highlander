@@ -10,16 +10,20 @@ import models.account._
 import models.coupon._
 import models.objects._
 import models.promotion._
+import org.json4s.Formats
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
 import payloads.CouponPayloads._
 import responses.CouponResponses._
 import services.LogActivity
 import slick.jdbc.PostgresProfile.api._
+import utils.JsonFormatters
 import utils.aliases._
 import utils.db._
 
 object CouponManager {
+
+  implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   def create(payload: CreateCoupon, contextName: String, admin: Option[User])(
       implicit ec: EC,

@@ -1,16 +1,16 @@
 package models.objects
 
+import org.json4s.JValue
 import utils.IlluminateAlgorithm
-import utils.aliases._
 import utils.db.Identity
 
-case class IlluminatedContext(name: String, attributes: Json)
+case class IlluminatedContext(name: String, attributes: JValue)
 
 /**
   * An IlluminatedObject is what you get when you combine the product shadow and
   * the product. 
   */
-case class IlluminatedObject(id: Int = 0, attributes: Json) extends Identity[IlluminatedObject]
+case class IlluminatedObject(id: Int = 0, attributes: JValue) extends Identity[IlluminatedObject]
 
 object IlluminatedObject {
 

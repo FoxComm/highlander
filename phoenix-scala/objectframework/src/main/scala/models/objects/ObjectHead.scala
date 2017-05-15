@@ -2,12 +2,10 @@ package models.objects
 
 import java.time.Instant
 
-import failures.ObjectFailures.{ObjectHeadCannotBeFoundByFormId, ObjectHeadCannotBeFoundForContext}
+import failures.ObjectFailures._
 import slick.lifted.Tag
-import utils.aliases.{EC, OC}
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-
 import com.github.tminglei.slickpg._
 
 trait ObjectHead[M <: ObjectHead[M]] extends FoxModel[M] { self: M ⇒
@@ -49,7 +47,8 @@ abstract class ObjectHeads[M <: ObjectHead[M]](tag: Tag, table: String)
 abstract class ObjectHeadsQueries[M <: ObjectHead[M], T <: ObjectHeads[M]](construct: Tag ⇒ T)
     extends FoxTableQuery[M, T](construct) {
 
-  def mustFindByFormId404(formId: ObjectForm#Id)(implicit oc: OC, ec: EC): DbResultT[M] =
+  def mustFindByFormId404(formId: ObjectForm#Id)(implicit oc: ObjectContext,
+                                                 ec: EC): DbResultT[M] =
     findOneByFormId(formId).mustFindOneOr(
         ObjectHeadCannotBeFoundByFormId(baseTableRow.tableName, formId, oc.name))
 
@@ -57,7 +56,7 @@ abstract class ObjectHeadsQueries[M <: ObjectHead[M], T <: ObjectHeads[M]](const
     findOneByContextAndFormId(contextId, formId).mustFindOneOr(
         ObjectHeadCannotBeFoundForContext(baseTableRow.tableName, formId, contextId))
 
-  def findOneByFormId(formId: Int)(implicit oc: OC): QuerySeq =
+  def findOneByFormId(formId: Int)(implicit oc: ObjectContext): QuerySeq =
     filter(_.contextId === oc.id).filter(_.formId === formId)
 
   def findOneByContextAndFormId(contextId: Int, formId: Int): QuerySeq =

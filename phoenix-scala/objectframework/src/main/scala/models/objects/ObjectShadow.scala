@@ -2,14 +2,12 @@ package models.objects
 
 import java.time.Instant
 
-//import org.json4s._
-import org.json4s.JsonAST._
+import org.json4s.JsonAST.{JNothing, JValue}
 import org.json4s.JsonDSL._
 import shapeless._
-import utils.aliases._
+import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{JsonFormatters, Validation}
 
 /**
   * An ObjectShadow is what you get when a context illuminates an Object.
@@ -19,13 +17,13 @@ import utils.{JsonFormatters, Validation}
 case class ObjectShadow(id: Int = 0,
                         formId: Int = 0,
                         jsonSchema: Option[String] = None,
-                        attributes: Json,
+                        attributes: JValue,
                         createdAt: Instant = Instant.now)
     extends FoxModel[ObjectShadow]
     with Validation[ObjectShadow]
 
 object ObjectShadow {
-  def fromPayload(attributes: Map[String, Json]): ObjectShadow = {
+  def fromPayload(attributes: Map[String, JValue]): ObjectShadow = {
     val attributesJson = attributes.foldLeft(JNothing: JValue) {
       case (acc, (key, value)) ⇒
         // TODO: Clean this up and make a case class to represent the shadow ref.
@@ -41,7 +39,7 @@ class ObjectShadows(tag: Tag) extends FoxTable[ObjectShadow](tag, "object_shadow
   def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def formId     = column[Int]("form_id")
   def jsonSchema = column[Option[String]]("json_schema")
-  def attributes = column[Json]("attributes")
+  def attributes = column[JValue]("attributes")
   def createdAt  = column[Instant]("created_at")
 
   def * =
@@ -56,8 +54,6 @@ object ObjectShadows
     with ReturningId[ObjectShadow, ObjectShadows] {
 
   val returningLens: Lens[ObjectShadow, Int] = lens[ObjectShadow].id
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   def filterByForm(formId: Int): QuerySeq =
     filter(_.formId === formId)

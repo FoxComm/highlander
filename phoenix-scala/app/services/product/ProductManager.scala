@@ -7,6 +7,7 @@ import failures.ArchiveFailures._
 import failures.ProductFailures._
 import failures._
 import java.time.Instant
+
 import models.account._
 import models.inventory._
 import models.objects._
@@ -32,11 +33,14 @@ import services.taxonomy.TaxonomyManager
 import services.variant.VariantManager
 import services.variant.VariantManager._
 import slick.jdbc.PostgresProfile.api._
+import utils.JsonFormatters
 import utils.Validation._
 import utils.aliases._
 import utils.db._
 
 object ProductManager extends LazyLogging {
+
+  implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   def createProduct(admin: User, payload: CreateProductPayload)(
       implicit ec: EC,

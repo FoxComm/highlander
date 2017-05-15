@@ -1,23 +1,22 @@
 package models.objects
 
+import models.objects.FormAndShadow._
+import org.json4s.JsonAST.{JObject, JValue}
 import org.json4s.JsonDSL._
 import utils.IlluminateAlgorithm
-import utils.aliases.Json
-import FormAndShadow._
-import org.json4s.JsonAST.JObject
 
 trait FormAndShadow {
   def form: ObjectForm
   def shadow: ObjectShadow
 
-  def tupled = form → shadow
+  def tupled: (ObjectForm, ObjectShadow) = form → shadow
 
-  def toPayload: Map[String, Json] = {
+  def toPayload: Map[String, JValue] = {
     val attributes = IlluminateAlgorithm
       .projectAttributes(formJson = this.form.attributes, shadowJson = this.shadow.attributes)
     attributes match {
       case JObject(o) ⇒
-        o.foldLeft(Map.empty[String, Json]) {
+        o.foldLeft(Map.empty[String, JValue]) {
           case (acc, (fieldName, jvalue)) ⇒
             acc + (fieldName → jvalue)
         }
@@ -26,15 +25,15 @@ trait FormAndShadow {
 
   }
 
-  def mergeShadowAttrs(newShadowAttrs: Json): FormAndShadow = {
+  def mergeShadowAttrs(newShadowAttrs: JValue): FormAndShadow = {
     val newShadow = this.shadow.copy(attributes = this.shadow.attributes.merge(newShadowAttrs))
     FormAndShadowSimple(form = this.form, shadow = newShadow)
   }
 
-  def getAttribute(attr: String) =
+  def getAttribute(attr: String): JValue =
     IlluminateAlgorithm.get(attr, form.attributes, shadow.attributes)
 
-  def setAttribute(attr: String, attrType: String, value: Json): FormAndShadow = {
+  def setAttribute(attr: String, attrType: String, value: JValue): FormAndShadow = {
     val (keyMap, newForm) = ObjectUtils.createForm(attr → value)
 
     assert(keyMap.size == 1)
@@ -42,8 +41,8 @@ trait FormAndShadow {
 
     val (_, key) = keyMap.head
 
-    val newAttribute: Json        = attr → (("type" → attrType) ~ ("ref" → key))
-    val newShadowAttributes: Json = shadow.attributes.merge(newAttribute)
+    val newAttribute: JValue        = attr → (("type" → attrType) ~ ("ref" → key))
+    val newShadowAttributes: JValue = shadow.attributes.merge(newAttribute)
     update(form.copy(attributes = form.attributes.merge(newForm)),
            shadow.copy(attributes = newShadowAttributes))
   }
@@ -57,7 +56,7 @@ object FormAndShadow {
       copy(form = form, shadow = shadow)
   }
 
-  def fromPayload(kind: String, attributes: Map[String, Json]): FormAndShadow = {
+  def fromPayload(kind: String, attributes: Map[String, JValue]): FormAndShadow = {
     FormAndShadowSimple(form = ObjectForm.fromPayload(kind, attributes),
                         shadow = ObjectShadow.fromPayload(attributes))
   }

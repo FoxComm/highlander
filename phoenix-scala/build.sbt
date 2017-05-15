@@ -9,7 +9,7 @@ scalaVersion in ThisBuild := Versions.scala
 scalaOrganization in ThisBuild := "org.typelevel"
 
 lazy val phoenixScala = (project in file("."))
-  .dependsOn(starfish)
+  .dependsOn(starfish, objectframework)
   .settings(commonSettings)
   .configs(IT, ET)
   .settings(itSettings, etSettings)
@@ -108,6 +108,19 @@ lazy val seeder = (project in file("seeder"))
       (fullClasspath in assembly).value.filterNot(_.data.getAbsolutePath.startsWith(phoenixClasses))
     },
     assemblyExcludedJars in assembly := (fullClasspath in assembly in phoenixScala).value
+  )
+
+lazy val objectframework = (project in file("objectframework"))
+  .dependsOn(starfish)
+  .settings(
+    commonSettings,
+    scalafmtConfig := Some(file(".scalafmt")),
+    reformatOnCompileSettings, // scalafmt,
+    libraryDependencies ++= {
+      import Dependencies._
+      cats ++ shapeless ++ db ++ slick ++ json4s ++ logging :+
+      "com.networknt"         % "json-schema-validator"   % "0.1.1"
+    }
   )
 
 lazy val starfish = (project in file("starfish"))
