@@ -65,10 +65,6 @@ const baseConfig = {
   ],
 
   resolve: {
-    modules: [
-      path.resolve(__dirname, './node_modules'),
-      path.resolve(__dirname, './src')
-    ],
     extensions: ['.js', '.jsx']
   },
 };

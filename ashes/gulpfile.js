@@ -6,8 +6,6 @@ const gulp = require('gulp');
 const $ = require('gulp-load-plugins')();
 const Config = require('./config');
 
-process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./src')}`;
-
 const opts = new Config().gulp;
 
 for (let task of fs.readdirSync(opts.taskDir)) {

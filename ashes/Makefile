@@ -69,8 +69,8 @@ styleguide:
 
 # Base ###
 
-.PHONY: install
-install:
+.PHONY: install i
+install i:
 	yarn cache clean
 	yarn --pure-lockfile
 
