@@ -12,9 +12,6 @@
     "watch-precompile": "babel src -d lib -w --skip-initial-build",
     "storybook": "start-storybook -p 9001 -s ./public -c .storybook"
   },
-  "engines": {
-    "yarn": "0.23.2"
-  },
   "author": "FoxCommerce",
   "license": "ISC",
   "devDependencies": {
