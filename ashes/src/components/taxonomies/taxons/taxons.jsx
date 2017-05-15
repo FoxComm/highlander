@@ -5,9 +5,8 @@ import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-
-// data
-import { actions, rawSorts } from 'modules/taxons/list';
+import * as dsl from 'elastic/dsl';
+import { transitionToLazy } from 'browserHistory';
 
 // components
 import MultiSelectTable from 'components/table/multi-select-table';
@@ -15,20 +14,22 @@ import TreeTable from 'components/table/tree-table';
 import { AddButton } from 'components/core/button';
 import TaxonRow from './taxon-row';
 
-// helpers
-import * as dsl from 'elastic/dsl';
-import { transitionToLazy } from 'browserHistory';
-
-// styling
-import styles from './taxons.css';
+// actions
+import { actions } from 'modules/taxons/list';
+import { bulkExport } from 'modules/bulk-export/bulk-export';
 
 import type { TaxonomyParams } from '../taxonomy';
+
+import styles from './taxons.css';
 
 type Props = ObjectPageChildProps<Taxonomy> & {
   taxonomy: Taxonomy,
   actions: Object,
   list: Object,
   params: TaxonomyParams,
+  bulkExportAction: (
+    fields: Array<string>, entity: string, identifier: string, description: string
+  ) => Promise<*>,
 };
 
 const tableColumns = [
@@ -72,7 +73,10 @@ export class TaxonsListPage extends Component {
 
     return (
       <Table
-        rawSorts={rawSorts}
+        exportEntity="taxons"
+        exportTitle="Taxons"
+        bulkExport
+        bulkExportAction={this.props.bulkExportAction}
         columns={tableColumns}
         data={results}
         renderRow={this.renderRow}
@@ -95,6 +99,7 @@ function mapStateToProps({ taxons: { list } }) {
 function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators(actions, dispatch),
+    bulkExportAction: bindActionCreators(bulkExport, dispatch),
   };
 }
 

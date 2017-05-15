@@ -8,7 +8,7 @@ import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { filterArchived } from 'elastic/archive';
-import { bulkExportBulkAction, getIdsByProps, renderExportModal } from 'modules/bulk-export/helpers';
+import { bulkExportBulkAction, renderExportModal } from 'modules/bulk-export/helpers';
 
 // components
 import SelectableSearchList from 'components/list-page/selectable-search-list';
@@ -18,7 +18,7 @@ import BulkMessages from 'components/bulk-actions/bulk-messages';
 import { Link } from 'components/link';
 
 // actions
-import { actions, rawSorts } from 'modules/taxonomies/list';
+import { actions } from 'modules/taxonomies/list';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
 import { actions as bulkActions } from 'modules/taxonomies/bulk';
 
@@ -26,7 +26,7 @@ type Props = {
   actions: Object,
   list: Object,
   bulkExportAction: (
-    fields: Array<string>, entity: string, identifier: string, description: string, sort: Array<Object>
+    fields: Array<string>, entity: string, identifier: string, description: string
   ) => Promise<*>,
   bulkActions: {
     exportByIds: (
@@ -103,7 +103,6 @@ export class SearchableList extends Component {
           actions={this.bulkActions}
         >
           <SelectableSearchList
-            rawSorts={rawSorts}
             exportEntity="taxonomies"
             exportTitle="Taxonomies"
             bulkExport
