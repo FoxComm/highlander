@@ -57,14 +57,6 @@ object ImageFacade extends ImageHelpers {
       }
     }
 
-    def uploadImagesR(imageSource: T, context: OC, album: Option[Album])(
-        implicit ec: EC,
-        db: DB,
-        au: AU,
-        am: Mat,
-        sys: ActorSystem,
-        apis: Apis): DbResultT[Seq[ImagePayload]]
-
     def uploadImages(imageSource: T, contextName: String)(
         implicit ec: EC,
         db: DB,
@@ -77,6 +69,14 @@ object ImageFacade extends ImageHelpers {
         result  ← * <~ uploadImagesR(imageSource, context, album = None)
       } yield result
 
+    def uploadImagesR(imageSource: T, context: OC, album: Option[Album])(
+        implicit ec: EC,
+        db: DB,
+        au: AU,
+        am: Mat,
+        sys: ActorSystem,
+        apis: Apis): DbResultT[Seq[ImagePayload]]
+
     def uploadImagesToAlbum(
         album: Album,
         context: OC,
@@ -85,6 +85,111 @@ object ImageFacade extends ImageHelpers {
         _     ← * <~ uploadImagesR(imageSource, context, Some(album))
         album ← * <~ getAlbumInner(album.formId, context)
       } yield album
+
+  }
+
+  object ImageUploader {
+
+    implicit object ImagePayloadUploader extends ImageUploader[ImagePayload] {
+      def uploadImagesR(payload: ImagePayload, context: OC, maybeAlbum: Option[Album])(
+          implicit ec: EC,
+          db: DB,
+          au: AU,
+          am: Mat,
+          sys: ActorSystem,
+          apis: Apis): DbResultT[Seq[ImagePayload]] = {
+
+        for {
+          imageData ← * <~ fetchImageData(payload.src)
+          url ← * <~ saveBufferAndThen[String](imageData) { path ⇒
+                 val fileName = extractFileNameFromUrl(payload.src)
+                 val s3Path   = S3Path.get(maybeAlbum, fileName = fileName)
+                 DbResultT.fromResult(apis.amazon.uploadFile(s3Path.absPath, path.toFile))
+               }
+          newPayload = payload.copy(src = url)
+
+          payloads ← * <~ attachImageTo(newPayload, context, maybeAlbum)
+
+        } yield payloads.map(imageToPayload)
+      }
+    }
+
+    implicit object MultipartUploader extends ImageUploader[Multipart.FormData] {
+
+      private def getFileFromRequest(bytes: Source[ByteString, Any])(implicit ec: EC, am: Mat) = {
+        val file = Files.createTempFile("tmp", ".jpg")
+        bytes.runWith(FileIO.toPath(file)).map { ioResult ⇒
+          if (ioResult.wasSuccessful) Either.right(file)
+          else Either.left(ErrorReceivingImage.single)
+        }
+      }
+
+      private def uploadPathToS3(filePath: java.nio.file.Path,
+                                 s3Path: S3Path)(implicit ec: EC, am: Mat, apis: Apis) = {
+        for {
+          url ← apis.amazon.uploadFileF(s3Path.absPath, filePath.toFile)
+          _ = Files.deleteIfExists(filePath)
+        } yield ImageUploaded(url = url, fileName = s3Path.fileName)
+      }
+
+      def uploadImagesR(formData: Multipart.FormData, context: OC, maybeAlbum: Option[Album])(
+          implicit ec: EC,
+          db: DB,
+          au: AU,
+          am: Mat,
+          sys: ActorSystem,
+          apis: Apis): DbResultT[Seq[ImagePayload]] = {
+        implicit val oc = context
+
+        val uploadedImages = formData.parts
+          .filter(_.name == "upload-file")
+          .mapAsyncUnordered(4) { part ⇒
+            for {
+              filePathE ← getFileFromRequest(part.entity.dataBytes)
+              filePath ← filePathE.fold(
+                            _ ⇒ Future.failed[Path](ImageFacadeException(ErrorReceivingImage)),
+                            Future.successful)
+              fileName ← part.filename.fold(Future.failed[String](ImageFacadeException(
+                                    ImageFilenameNotFoundInPayload)))(Future.successful)
+            } yield (filePath, fileName)
+          }
+          .mapAsyncUnordered(4) {
+            case (filePath, fileName) ⇒
+              val s3path = S3Path.get(maybeAlbum, fileName = fileName)
+              uploadPathToS3(filePath, s3path)
+          }
+          .map { srcInfo ⇒
+            val payload = ImagePayload(src = srcInfo.url,
+                                       title = srcInfo.fileName.some,
+                                       alt = srcInfo.fileName.some)
+
+            attachImageTo(payload, context, maybeAlbum).map(_.map(imageToPayload))
+
+          }
+          .runReduce[DbResultT[Seq[ImagePayload]]] {
+            case (a, b) ⇒
+              DbResultT.seqCollectFailures(List(a, b)).map { e ⇒
+                e.flatten
+              }
+          }
+          .recover {
+            case _: NoSuchElementException ⇒
+              DbResultT.failure(ImageNotFoundInPayload)
+            case e: ImageFacadeException ⇒
+              DbResultT.failure(e.underlyingFailure)
+            case e: Throwable ⇒
+              logger.error(s"Error during upload files: $e")
+              DbResultT.failure(ImageUploadFailedGeneralFailure(e))
+          }
+
+        for {
+          images   ← * <~ DBIO.from(uploadedImages)
+          payloads ← * <~ images
+        } yield payloads
+      }
+
+    }
+
   }
 
   private def uploadImagesToAlbum[T](albumId: Int, contextName: String, imageSource: T)(
@@ -98,7 +203,7 @@ object ImageFacade extends ImageHelpers {
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       album   ← * <~ mustFindAlbumByFormIdAndContext404(albumId, context)
-      _       ← * <~ DbResultT.fromEither(album.mustNotBeArchived)
+      _       ← * <~ album.mustNotBeArchived
 
       result ← * <~ imageUploader.uploadImagesToAlbum(album, context, imageSource)
     } yield result
@@ -111,7 +216,7 @@ object ImageFacade extends ImageHelpers {
       am: Mat,
       sys: ActorSystem,
       apis: Apis): DbResultT[AlbumRoot] = {
-    implicit val imageUploader = ImagePayloadUploader
+
     uploadImagesToAlbum[ImagePayload](albumId, contextName, payload)
   }
 
@@ -124,7 +229,7 @@ object ImageFacade extends ImageHelpers {
       am: Mat,
       sys: ActorSystem,
       apis: Apis): DbResultT[AlbumRoot] = {
-    implicit val imageUploader = MultipartUploader
+
     uploadImagesToAlbum[Multipart.FormData](albumId, contextName, formData)
   }
 
@@ -136,7 +241,7 @@ object ImageFacade extends ImageHelpers {
       sys: ActorSystem,
       apis: Apis): DbResultT[Seq[ImagePayload]] = {
 
-    MultipartUploader.uploadImages(formData, contextName)
+    ImageUploader.MultipartUploader.uploadImages(formData, contextName)
   }
 
   // - endpoints
@@ -165,106 +270,6 @@ object ImageFacade extends ImageHelpers {
   }
 
   case class ImageUploaded(url: String, fileName: String)
-
-  object MultipartUploader extends ImageUploader[Multipart.FormData] {
-
-    private def getFileFromRequest(bytes: Source[ByteString, Any])(implicit ec: EC, am: Mat) = {
-      val file = Files.createTempFile("tmp", ".jpg")
-      bytes.runWith(FileIO.toPath(file)).map { ioResult ⇒
-        if (ioResult.wasSuccessful) Either.right(file)
-        else Either.left(ErrorReceivingImage.single)
-      }
-    }
-
-    private def uploadPathToS3(filePath: java.nio.file.Path,
-                               s3Path: S3Path)(implicit ec: EC, am: Mat, apis: Apis) = {
-      for {
-        url ← apis.amazon.uploadFileF(s3Path.absPath, filePath.toFile)
-        _ = Files.deleteIfExists(filePath)
-      } yield ImageUploaded(url = url, fileName = s3Path.fileName)
-    }
-
-    def uploadImagesR(formData: Multipart.FormData, context: OC, maybeAlbum: Option[Album])(
-        implicit ec: EC,
-        db: DB,
-        au: AU,
-        am: Mat,
-        sys: ActorSystem,
-        apis: Apis): DbResultT[Seq[ImagePayload]] = {
-      implicit val oc = context
-
-      val uploadedImages = formData.parts
-        .filter(_.name == "upload-file")
-        .mapAsyncUnordered(4) { part ⇒
-          for {
-            filePathE ← getFileFromRequest(part.entity.dataBytes)
-            filePath = filePathE.leftMap { _ ⇒
-              ImageFacadeException(ErrorReceivingImage)
-            }.toTry.get
-            fileName = part.filename.getOrElse(
-                throw ImageFacadeException(ImageFilenameNotFoundInPayload))
-          } yield (filePath, fileName)
-        }
-        .mapAsyncUnordered(4) {
-          case (filePath, fileName) ⇒
-            val s3path = S3Path.get(maybeAlbum, fileName = fileName)
-            uploadPathToS3(filePath, s3path)
-        }
-        .map { srcInfo ⇒
-          val payload = ImagePayload(src = srcInfo.url,
-                                     title = srcInfo.fileName.some,
-                                     alt = srcInfo.fileName.some)
-
-          attachImageTo(payload, context, maybeAlbum).map(_.map(imageToPayload))
-
-        }
-        .runReduce[DbResultT[Seq[ImagePayload]]] {
-          case (a, b) ⇒
-            DbResultT.seqCollectFailures(List(a, b)).map { e ⇒
-              e.flatten
-            }
-        }
-        .recover {
-          case _: NoSuchElementException ⇒
-            DbResultT.failure(ImageNotFoundInPayload)
-          case e: ImageFacadeException ⇒
-            DbResultT.failure(e.underlyingFailure)
-          case e: Throwable ⇒
-            logger.error(s"Error during upload files: $e")
-            DbResultT.failure(ImageUploadFailedGeneralFailure(e))
-        }
-
-      for {
-        images   ← * <~ DBIO.from(uploadedImages)
-        payloads ← * <~ images
-      } yield payloads
-    }
-
-  }
-
-  object ImagePayloadUploader extends ImageUploader[ImagePayload] {
-    def uploadImagesR(payload: ImagePayload, context: OC, maybeAlbum: Option[Album])(
-        implicit ec: EC,
-        db: DB,
-        au: AU,
-        am: Mat,
-        sys: ActorSystem,
-        apis: Apis): DbResultT[Seq[ImagePayload]] = {
-
-      for {
-        imageData ← * <~ fetchImageData(payload.src)
-        url ← * <~ saveBufferAndThen[String](imageData) { path ⇒
-               val fileName = extractFileNameFromUrl(payload.src)
-               val s3Path   = S3Path.get(maybeAlbum, fileName = fileName)
-               DbResultT.fromResult(apis.amazon.uploadFile(s3Path.absPath, path.toFile))
-             }
-        newPayload = payload.copy(src = url)
-
-        payloads ← * <~ attachImageTo(newPayload, context, maybeAlbum)
-
-      } yield payloads.map(imageToPayload)
-    }
-  }
 
   def imageToPayload(image: FullObject[Image]): ImagePayload = {
     val form   = image.form.attributes

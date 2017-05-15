@@ -18,6 +18,7 @@ import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
 import utils.http.JsonSupport._
+import akka.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers._
 
 object ImageRoutes {
   def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis, sys: ActorSystem): Route = {
@@ -26,7 +27,6 @@ object ImageRoutes {
         extractRequestContext { ctx ⇒
           implicit val materializer = ctx.materializer
           implicit val ec           = ctx.executionContext
-          import akka.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers._
 
           (post & pathEnd & entityOr(as[Multipart.FormData], ImageNotFoundInPayload)) { formData ⇒
             mutateOrFailures {
@@ -62,7 +62,6 @@ object ImageRoutes {
               extractRequestContext { ctx ⇒
                 implicit val materializer = ctx.materializer
                 implicit val ec           = ctx.executionContext
-                import akka.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers._
 
                 (post & pathEnd & entityOr(as[Multipart.FormData], ImageNotFoundInPayload)) {
                   formData ⇒

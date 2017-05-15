@@ -41,7 +41,7 @@ class AmazonS3 extends AmazonApi with LazyLogging {
       case e: AmazonS3Exception ⇒
         Either.left(GeneralFailure(e.getLocalizedMessage).single)
       case e: AmazonClientException ⇒
-        logger.error(s"Can't upload file to AmazonS3: $e")
+        logger.error(s"Can't upload file to AmazonS3", e)
         Either.left(GeneralFailure("An unexpected error occurred uploading to S3").single)
       case _ ⇒
         Either.left(GeneralFailure("An unexpected error occurred uploading to S3").single)
