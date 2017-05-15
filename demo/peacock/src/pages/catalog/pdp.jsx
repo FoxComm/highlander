@@ -113,7 +113,6 @@ class Pdp extends Component {
 
   componentDidMount() {
     this.productPromise.then(() => {
-      const { product, actions } = this.props;
       tracking.viewDetails(this.productView);
     });
   }
