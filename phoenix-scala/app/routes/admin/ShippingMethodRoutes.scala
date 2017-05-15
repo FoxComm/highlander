@@ -1,6 +1,5 @@
 package routes.admin
 
-import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import models.account.User
 import models.cord.Cord.cordRefNumRegex
@@ -8,6 +7,9 @@ import services.Authenticator.AuthData
 import services.ShippingManager
 import utils.aliases._
 import utils.http.CustomDirectives._
+import akka.http.scaladsl.server.Directives._
+import models.location.Country
+import utils.http.Http._
 
 object ShippingMethodRoutes {
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
@@ -33,6 +35,11 @@ object ShippingMethodRoutes {
         (get & pathEnd) {
           getOrFailures {
             ShippingManager.getActive
+          }
+        } ~
+        (get & path(Country.countryCodeRegex) & pathEnd) { countryCode ⇒
+          getOrFailures {
+            ShippingManager.getShippingMethodsForRegion(countryCode)
           }
         } ~
         path(cordRefNumRegex) { refNum ⇒
