@@ -1,0 +1,28 @@
+## Orders [/v1/orders/{refNum}]
+
++ Model (application/json)
+    + Attributes (FullOrder)
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Order referenceNumber.
+
+### View [GET]
+
++ Response 200 (application/json)
+  + Attributes (FullOrder)
+
+### Bulk Update State [PATCH /v1/orders]
+
++ Request (application/json)
+    + Attributes (OrderBulkStateUpdatePayload)
++ Response 200 (application/json)
+    + Attributes (OrderList)
+
+### Increase Remorse Period [POST /v1/orders/{refNum}/increase-remorse-period]
+
+Order must be in `remorseHold` state.
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Order reference number
++ Response 200 (application/json)
+    + Attributes (FullOrder)
