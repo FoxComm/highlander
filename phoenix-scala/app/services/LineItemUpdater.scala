@@ -179,6 +179,8 @@ object LineItemUpdater {
              .filterByContext(ctx.id)
              .filter(_.code === lineItem.sku)
              .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, ctx.id))
+      // TODO: check if SKU is not archived/deactivated @michalrus
+      // TODO: check if its Product is not archived/deactivated @michalrus
       _ ← * <~ mustFindProductIdForSku(sku, cart.refNum)
       updateResult ← * <~ createLineItems(sku.id,
                                           lineItem.quantity,

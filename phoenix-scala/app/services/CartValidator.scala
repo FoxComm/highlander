@@ -1,14 +1,24 @@
 package services
 
+import java.time.Instant
+
 import cats._
 import cats.implicits._
 import failures.CartFailures._
-import failures.{Failure, Failures}
+import failures.{ArchiveFailures, Failure, Failures}
 import models.cord._
+import models.traits.IlluminatedModel
 import models.cord.lineitems.CartLineItems
+import models.inventory.{Sku, Skus}
 import models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
+import services.objects.ObjectManager
+import slick.dbio.Effect
+import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
+import slick.lifted.QueryBase
+import slick.profile.FixedSqlAction
+import utils.IlluminateAlgorithm
 import utils.aliases._
 import utils.db._
 
@@ -23,12 +33,21 @@ case class CartValidatorResponse(
     alerts: Option[Failures] = None,
     warnings: Option[Failures] = None) {} // TODO: use real warnings from StateT. What’s with not used alerts? @michalrus
 
+object CartValidator {}
+
 case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValidation {
 
   def validate(isCheckout: Boolean = false,
                fatalWarnings: Boolean = false): DbResultT[CartValidatorResponse] = {
     val validationResult = for {
-      state ← * <~ hasItems(CartValidatorResponse())
+      // FIXME: this is the State monad… Use FoxyT. @michalrus
+      state ← * <~ hasItems(CartValidatorResponse(), isCheckout)
+      state ← * <~ (if (isCheckout) {
+                      // Check SKU/Product inactive/archived state only during checkout.
+                      // Deactivation/archival don’t happen often enough to justify
+                      // this additional overhead for each cart GET request.
+                      hasActiveLineItems(state)
+                    } else DbResultT.pure(state))
       state ← * <~ hasShipAddress(state)
       state ← * <~ validShipMethod(state)
       state ← * <~ sufficientPayments(state, isCheckout)
@@ -47,12 +66,49 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
     }
   }
 
-  //todo: do we need alway have sku or at least sku or gc
-  private def hasItems(response: CartValidatorResponse): DBIO[CartValidatorResponse] = {
-    CartLineItems.byCordRef(cart.refNum).length.result.map { numItems ⇒
-      if (numItems == 0) warning(response, EmptyCart(cart.refNum)) else response
-    }
+  // TODO: check if SKUs are not archived/deactivated @michalrus
+  // TODO: check VariantValue, Variant? — this feels as if duplicating `LineItemUpdater.mustFindProductIdForSku` a bit. @michalrus
+  // TODO: check if their Products are not archived/deactivated @michalrus
+  private def hasActiveLineItems(
+      response: CartValidatorResponse): DbResultT[CartValidatorResponse] = {
+    for {
+      skus ← * <~ CartLineItems
+              .byCordRef(cart.referenceNumber)
+              .join(Skus)
+              .on(_.skuId === _.id)
+              .map(_._2)
+              .result
+      inactiveSkus ← * <~ skus.toList.filterA { sku ⇒
+                      // FIXME: have mercy… ;( @michalrus
+                      for {
+                        full ← ObjectManager.getFullObject(DbResultT.pure(sku))
+                        im = new IlluminatedModel[Unit] {
+                          override def archivedAt: Option[Instant] = full.model.archivedAt
+
+                          override def attributes: Json =
+                            IlluminateAlgorithm.projectAttributes(full.form.attributes,
+                                                                  full.shadow.attributes)
+
+                          override protected def inactiveError: Failure = null
+                        }
+                      } yield im.mustBeActive.isLeft
+                    }
+    } yield
+      if (inactiveSkus.isEmpty) response
+      else
+        warnings(
+            response,
+            inactiveSkus.map(sku ⇒
+                  ArchiveFailures.LinkArchivedSkuFailure(cart, cart.referenceNumber, sku.code)))
   }
+
+  //todo: do we need alway have sku or at least sku or gc
+  private def hasItems(response: CartValidatorResponse,
+                       isCheckout: Boolean): DbResultT[CartValidatorResponse] =
+    for {
+      numItems ← * <~ CartLineItems.byCordRef(cart.refNum).length.result
+      response ← * <~ (if (numItems == 0) warning(response, EmptyCart(cart.refNum)) else response) // FIXME: use FoxyT @michalrus
+    } yield response
 
   private def hasShipAddress(response: CartValidatorResponse): DBIO[CartValidatorResponse] = {
     OrderShippingAddresses.findByOrderRef(cart.refNum).one.map { shipAddress ⇒
@@ -85,7 +141,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
   private def sufficientPayments(response: CartValidatorResponse,
                                  isCheckout: Boolean): DBIO[CartValidatorResponse] = {
 
-    def cartFunds(payments: Seq[OrderPayment]) = {
+    def cartFunds(payments: Seq[OrderPayment]): DBIO[Option[Int]] = {
       if (isCheckout) {
         val paymentIds = payments.map(_.id)
 
@@ -148,6 +204,11 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
   }
 
   private def warning(response: CartValidatorResponse, failure: Failure): CartValidatorResponse =
-    response.copy(warnings = response.warnings.fold(Failures(failure))(current ⇒
-              Failures(current.toList :+ failure: _*)))
+    warnings(response, Seq(failure))
+
+  // FIXME: wat @michalrus
+  private def warnings(response: CartValidatorResponse,
+                       failures: Seq[Failure]): CartValidatorResponse =
+    response.copy(warnings = response.warnings.fold(Failures(failures: _*))(current ⇒
+              Failures(current.toList ++ failures: _*)))
 }
