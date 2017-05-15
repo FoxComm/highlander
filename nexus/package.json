@@ -7,5 +7,25 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "koa": "^2.2.0",
+    "koa-better-static": "^1.0.5",
+    "koa-bodyparser": "^4.2.0",
+    "koa-log4": "^2.2.1",
+    "koa-mount": "^3.0.0",
+    "koa-onerror": "^3.1.0",
+    "koa-proxy": "^0.8.0",
+    "koa-router": "^7.1.1",
+    "moment": "^2.18.1"
+  },
+  "devDependencies": {
+    "css-modulesify": "^0.27.2",
+    "lost": "^8.0.0",
+    "postcss-css-variables": "^0.7.0",
+    "postcss-cssnext": "^2.11.0",
+    "postcss-devtools": "^1.1.1",
+    "postcss-import": "^10.0.0",
+    "postcss-modules-values": "^1.2.2"
+  }
 }
