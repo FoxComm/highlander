@@ -3,7 +3,12 @@ require('./_testdom');
 const _ = require('lodash');
 const path = require('path');
 const ReactDOM = require('react-dom');
-const ReactTestUtils = require('react-addons-test-utils');
+const ReactTestUtils = require('react-dom/test-utils');
+const hook = require('css-modules-require-hook');
+
+hook({
+  generateScopedName: '[local]',
+});
 
 const unexpectedReactShallow = require('unexpected-react-shallow');
 

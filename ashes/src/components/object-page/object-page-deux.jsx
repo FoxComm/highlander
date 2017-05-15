@@ -203,7 +203,6 @@ class ObjectPageDeux extends Component {
       ...this.props.headerControls,
       <ButtonWithMenu
         title="Save"
-        menuPosition="right"
         onPrimaryClick={this.handleSaveButton}
         onSelect={this.handleSelectSaving}
         isLoading={this.props.saveState.inProgress}

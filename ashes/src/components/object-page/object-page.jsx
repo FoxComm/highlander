@@ -455,7 +455,6 @@ export class ObjectPage extends Component {
       {this.renderHead()}
       <ButtonWithMenu
         title="Save"
-        menuPosition="right"
         onPrimaryClick={this.handleSubmit}
         onSelect={this.handleSelectSaving}
         isLoading={this.props.isSaving}

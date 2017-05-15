@@ -7,6 +7,7 @@ const
 module.exports = function() {
   return {
     taskDir: path.resolve('tasks'),
+    srcDir: path.resolve('src'),
     testDir: path.resolve('test'),
     testSrc: path.resolve('test', '**/*.js'),
     configSrc: path.resolve('config', '*.js'),
