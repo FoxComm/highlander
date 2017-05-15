@@ -36,7 +36,7 @@ PROJECTS=(
 
 # Define base branch via GitHub API
 if [ "$BUILDKITE_PULL_REQUEST" ] ; then
-    write "Fetching base branch via Github API..."
+    write "Fetching base branch for PR#$BUILDKITE_PULL_REQUEST via Github API..."
     GITHUB_BASE_URL=https://api.github.com/repos/FoxComm/highlander/pulls
     GITHUB_REQUEST_URL=$GITHUB_BASE_URL/$BUILDKITE_PULL_REQUEST?access_token=$GITHUB_API_TOKEN
     BASE_BRANCH=$(curl -sS -XGET $GITHUB_REQUEST_URL | jq '.base.ref')
