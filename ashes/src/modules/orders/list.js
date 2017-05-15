@@ -1,8 +1,6 @@
 import makeLiveSearch from '../live-search';
 import searchTerms from './search-terms';
 
-export const rawSorts = ['customer.name', 'customer.email'];
-
 const { reducer, actions } = makeLiveSearch(
   'orders.list',
   searchTerms,
@@ -10,7 +8,7 @@ const { reducer, actions } = makeLiveSearch(
   'ordersScope',
   {
     initialState: { sortBy: '-placedAt' },
-    rawSorts,
+    rawSorts: ['customer.name', 'customer.email'],
   }
 );
 

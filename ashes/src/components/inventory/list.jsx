@@ -10,7 +10,7 @@ import { autobind } from 'core-decorators';
 import { bulkExportBulkAction, renderExportModal } from 'modules/bulk-export/helpers';
 
 // actions
-import { actions, rawSorts } from '../../modules/inventory/list';
+import { actions } from '../../modules/inventory/list';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
 import { actions as bulkActions } from 'modules/inventory/bulk';
 
@@ -100,7 +100,6 @@ class InventoryList extends Component {
           actions={this.bulkActions}
         >
           <SelectableSearchList
-            rawSorts={rawSorts}
             exportEntity="inventory"
             exportTitle="Inventory Units"
             bulkExport

@@ -11,7 +11,7 @@ import { bulkExportBulkAction, renderExportModal, getIdsByProps } from 'modules/
 import { filterArchived } from 'elastic/archive';
 
 // actions
-import { actions, rawSorts } from 'modules/skus/list';
+import { actions } from 'modules/skus/list';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
 import { actions as bulkActions } from 'modules/skus/bulk';
 
@@ -111,7 +111,6 @@ export class Skus extends Component {
           actions={this.bulkActions}
         >
           <SelectableSearchList
-            rawSorts={rawSorts}
             exportEntity="skus"
             exportTitle="SKUs"
             bulkExport

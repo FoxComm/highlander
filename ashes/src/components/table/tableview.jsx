@@ -187,14 +187,9 @@ class TableView extends Component {
 
   @autobind
   onExportConfirm(fields, entity, identifier, description) {
-    const { bulkExportAction, data, rawSorts } = this.props;
-    const sortRaw = _.isEmpty(rawSorts) ? false : rawSorts.indexOf(_.trim(data.sortBy, '-')) !== -1;
-    const sortBy = toQuery(null, {
-      sortBy: data.sortBy,
-      sortRaw,
-    }).sort;
+    const { bulkExportAction } = this.props;
     this.closeModal();
-    bulkExportAction(fields, entity, identifier, description, sortBy);
+    bulkExportAction(fields, entity, identifier, description);
   }
 
   get bulkExportModal() {

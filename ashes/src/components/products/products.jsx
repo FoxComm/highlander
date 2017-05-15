@@ -11,7 +11,7 @@ import { bulkExportBulkAction, renderExportModal } from 'modules/bulk-export/hel
 import { filterArchived } from 'elastic/archive';
 
 // actions
-import { actions, rawSorts } from 'modules/products/list';
+import { actions } from 'modules/products/list';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
 import { actions as bulkActions } from 'modules/products/bulk';
 
@@ -25,7 +25,9 @@ import { Link } from 'components/link';
 type Props = {
   actions: Object,
   list: Object,
-  bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
+  bulkExportAction: (
+    fields: Array<string>, entity: string, identifier: string, description: string
+  ) => Promise<*>,
   bulkActions: {
     exportByIds: (
       ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
@@ -104,7 +106,6 @@ export class Products extends Component {
           actions={this.bulkActions}
         >
           <SelectableSearchList
-            rawSorts={rawSorts}
             exportEntity="products"
             exportTitle="Products"
             bulkExport

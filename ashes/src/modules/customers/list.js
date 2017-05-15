@@ -2,7 +2,6 @@ import makeLiveSearch from '../live-search';
 import searchTerms from './search-terms';
 
 import * as dsl from 'elastic/dsl';
-export const rawSorts = ['name', 'email'];
 
 const { reducer, actions } = makeLiveSearch(
   'customers.list',
@@ -11,7 +10,7 @@ const { reducer, actions } = makeLiveSearch(
   'customersScope',
   {
     initialState: { sortBy: '-joinedAt' },
-    rawSorts,
+    rawSorts: ['name', 'email'],
     extraFilters: [
       dsl.termFilter('isGuest', false)
     ]

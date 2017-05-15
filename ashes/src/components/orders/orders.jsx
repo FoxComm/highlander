@@ -11,7 +11,7 @@ import { bulkExportBulkAction, renderExportModal, getIdsByProps } from 'modules/
 
 // actions
 import { stateTitles } from 'paragons/order';
-import { actions, rawSorts } from 'modules/orders/list';
+import { actions } from 'modules/orders/list';
 import { actions as bulkActions } from 'modules/orders/bulk';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
 
@@ -150,7 +150,6 @@ class Orders extends Component {
           watchActions={true}
           actions={this.bulkActions}>
           <SelectableSearchList
-            rawSorts={rawSorts}
             entity="orders.list"
             exportEntity="orders"
             exportTitle="Orders"
