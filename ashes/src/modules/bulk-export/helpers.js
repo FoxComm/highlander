@@ -116,6 +116,11 @@ export const columnsToPayload = (tableColumns: Array<Object>): Array<Object> => 
   const fields = _.reduce(tableColumns, (acc, field) => {
     const currentField = field.field;
     const name = checkField(currentField);
+    if (_.isEmpty(currentField)) {
+      return [
+        ...acc,
+      ];
+    }
 
     return [
       ...acc,
@@ -124,6 +129,7 @@ export const columnsToPayload = (tableColumns: Array<Object>): Array<Object> => 
         displayName: field.text,
       },
     ];
+
   }, []);
 
   return fields;
