@@ -6,6 +6,6 @@
     "license": "MIT",
     "dependencies": {
       "aglio": "2.3.0",
-      "aglio-theme-fox": "file:../../aglio-theme-fox"
+      "aglio-theme-fox": "git@github.com:FoxComm/aglio-theme-fox.git"
    }
  }
