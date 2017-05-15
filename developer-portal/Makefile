@@ -26,4 +26,4 @@ publish: build
 	firebase use production
 	firebase deploy
 
-.PHONY: prep clean build test docker docker-push
+.PHONY: prep clean build test docker docker-push publish
