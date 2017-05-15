@@ -3,10 +3,6 @@
 - include_vars: aws.yml
 
 # Phoenix
-- name: Get Latest Phoenix Seeder Image
-  shell: docker pull {{docker_registry}}:5000/phoenix-seeder:{{docker_tags.phoenix}}
-  when: with_base_seeds is defined and with_base_seeds
-
 - name: Gatling Seed Phoenix Db
   shell: docker run --network host -t {{docker_registry}}:5000/phoenix-seeder:{{docker_tags.phoenix}} java -Dphoenix.env={{phoenix_env}} -Dapp.baseUrl=http://{{phoenix_server}} -Dhttp.interface={{phoenix_host}} -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -cp '{{phoenix_seeder_jar}}:{{phoenix_jar}}' {{gatling_oneshot_seeds_cmd}}
   when: with_gatling_seeder is defined and with_gatling_seeder
