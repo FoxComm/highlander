@@ -213,6 +213,7 @@ shortcuts:
       target: terraform/envs/aws_target/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
+      trial: terraform/envs/gce_trial/terraform.tfstate
 
   - name: Variable Files
     flag: "-var-file"
@@ -226,6 +227,7 @@ shortcuts:
       target: terraform/envs/aws_target/target.tfvars
       topdrawer: terraform/envs/gce_td/td.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
+      trial: terraform/envs/gce_trial/trial.tfvars
 
   targets:
   - name: FoxCommerce Cloud
@@ -259,3 +261,7 @@ shortcuts:
   - name: TPG Production
     alias: tpg
     target: terraform/base/gce_tpg
+
+  - name: Trial Production
+    alias: trial
+    target: terraform/base/gce_trial
