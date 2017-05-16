@@ -40,13 +40,19 @@
         storefront_server_name: "{{dns_record}}.{{foxcomm_domain}}"
         api_server: "{{dns_record}}.{{foxcomm_domain}}"
   roles:
-    - { role: dev/marathon }
-    - { role: dev/marathon_consumers }
-    - { role: dev/ic }
-    # Seed
-    - { role: dev/seeder, when: with_appliance_seeding }
     # Dashboard client side
     - { role: dev/dashboard }
+
+    - { role: dev/marathon }
+    - { role: dev/marathon_consumers }
+
+    - { role: dev/ic }
+
     # Storefronts
     - { role: ext/td/storefront }
     - { role: ext/tpg/storefront }
+    - { role: demo/balancer }
+    # Seed
+    - { role: dev/seeder, when: with_appliance_seeding }
+
+    - { role: dev/healthcheck }

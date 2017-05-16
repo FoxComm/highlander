@@ -75,7 +75,5 @@
     - { role: dev/seed_system }
     # Nginx
     - { role: dev/balancer }
-    - { role: demo/balancer }
     # Finale
-    - { role: dev/healthcheck }
     - { role: dev/appliance_dns }
