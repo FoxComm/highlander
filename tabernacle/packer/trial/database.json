@@ -8,7 +8,7 @@
             "source_image": "{{user `base_image`}}",
             "network": "{{user `network`}}",
             "zone": "{{user `zone`}}",
-            "image_name": "trial-amigo-{{isotime \"060102-150405\"}}",
+            "image_name": "trial-database-{{isotime \"060102-150405\"}}",
             "image_description": "Trial Database Image",
             "instance_name": "packer-trial-database-{{uuid}}",
             "machine_type": "n1-standard-2",
