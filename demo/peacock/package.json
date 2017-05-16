@@ -87,7 +87,7 @@
     "watchify": "^3.9.0"
   },
   "dependencies": {
-    "@foxcomm/api-js": "^1.1.7",
+    "@foxcomm/api-js": "git+ssh://git@github.com/FoxComm/api-js.git#feature/product-review-api",
     "@foxcomm/babel-plugin-react-stylenames": "^3.1.0",
     "@foxcomm/wings": "^1.9.12",
     "classnames": "^2.2.3",

@@ -6,21 +6,25 @@ import { createAsyncActions } from '@foxcomm/wings';
 const _fetchReviews = createAsyncActions(
   'fetchReviews',
   function() {
-    return this.api.orders.get('BR11010'); // placeholder api call until we have list reviews endpoint
+    const body = {
+      query: { match_all: {} }
+    };
+    return this.api.reviews.search(body, 5); // placeholder api call until we have list reviews endpoint
   }
 );
 
 export const fetchReviews = _fetchReviews.perform;
 
 const initialState = {
-  reviews: null,
+  current: null,
+  list: {},
 };
 
 const reducer = createReducer({
   [_fetchReviews.succeeded]: (state, response) => {
     return {
       ...state,
-      list: response.result.lineItems.skus,
+      list: response.result
     };
   },
 }, initialState);
