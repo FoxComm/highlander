@@ -165,6 +165,7 @@ shortcuts:
       staging: packer/envs/staging/config.json
       topdrawer: packer/envs/topdrawer/config.json
       tpg-prod: packer/envs/tpg-prod/config.json
+      trial: packer/envs/trial/config.json
 
   targets:
   # Base Images
@@ -179,6 +180,11 @@ shortcuts:
   - name: Base Buildkite Agent Image
     alias: agent.json
     target: packer/buildkite/agent.json
+
+  # Trial
+  - name: Trial Base Image
+    alias: trial_base.json
+    target: packer/trial/base.json
 
   # Tinystack
   - name: Tinystack Amigo

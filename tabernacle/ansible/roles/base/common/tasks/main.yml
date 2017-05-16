@@ -55,7 +55,10 @@
   with_items:
     - bootstrap.sh
     - bootstrap_consul.sh
-    - bootstrap_consul_aws.sh
+
+- name: Install AWS Bootstrap Script
+  copy: src=bootstrap_consul_aws.sh dest=/usr/local/bin mode=775
+  when: is_aws
 
 - name: Install Docker
   include: docker.yml

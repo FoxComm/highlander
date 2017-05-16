@@ -1,0 +1,20 @@
+---
+
+- name: Packing Trial Base
+  hosts: all
+  become: true
+  vars:
+    packing: true
+    user: ubuntu
+
+  roles:
+    - { role: base/common }
+    - { role: base/languages }
+    - { role: base/devkit }
+    - { role: base/ssh_keys }
+    - { role: base/secret_keys }
+    - { role: base/consul }
+    - { role: base/consul_agent }
+    - { role: base/mesos }
+    - { role: base/flyway }
+
