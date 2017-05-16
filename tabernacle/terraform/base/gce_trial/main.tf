@@ -119,6 +119,7 @@ module "trial_production" {
 #   account = "${var.dnsimple_account}"
 # }
 
+
 # resource "dnsimple_record" "docker-registry-dns-record" {
 #   domain = "foxcommerce.com"
 #   name   = "docker-trial"
@@ -127,6 +128,7 @@ module "trial_production" {
 #   ttl    = 3600
 # }
 
+
 # resource "dnsimple_record" "frontend-dns-record" {
 #   domain = "foxcommerce.com"
 #   name   = "trial"
@@ -134,3 +136,4 @@ module "trial_production" {
 #   type   = "A"
 #   ttl    = 3600
 # }
+
