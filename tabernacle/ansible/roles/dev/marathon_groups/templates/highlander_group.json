@@ -1134,6 +1134,676 @@
 
         {% endif %}
       ]
+    },
+    {
+     "id": "neo4j",
+     "dependencies": [],
+     "apps": [
+      {
+        "id": "neo4j",
+        "cmd": null,
+        "cpus": 1,
+        "mem": 2048,
+        "disk": 0,
+        "instances": 1,
+        "labels": {
+          "LAYER": "backend",
+          "consul": "neo4j"
+        },
+        "container": {
+          "type": "DOCKER",
+          "volumes": [
+            {
+              "containerPath": "data",
+              "mode": "RW",
+              "persistent": {
+                "size": 1048
+              }
+            },
+            {
+              "containerPath": "logs",
+              "mode": "RW",
+              "persistent": {
+                "size": 1048
+              }
+            },
+            {
+              "containerPath": "/data",
+              "hostPath": "data",
+              "mode": "RW"
+            },
+            {
+              "containerPath": "/logs",
+              "hostPath": "logs",
+              "mode": "RW"
+            }
+          ],
+          "docker": {
+            "image": "neo4j:3.0",
+            "network": "HOST",
+            "portMappings": null,
+            "privileged": false,
+            "parameters": [],
+            "forcePullImage": false
+          }
+        },
+        "portDefinitions": [
+          {
+            "port": 10011,
+            "protocol": "tcp",
+            "labels": {}
+          }
+        ],
+        "healthChecks": [
+          {
+            "gracePeriodSeconds": 300,
+            "intervalSeconds": 30,
+            "timeoutSeconds": 20,
+            "maxConsecutiveFailures": 3,
+            "port": 7474,
+            "path": "/",
+            "protocol": "HTTP",
+            "ignoreHttp1xx": false
+          }
+        ],
+        "upgradeStrategy": {
+          "minimumHealthCapacity": 0.5,
+          "maximumOverCapacity": 0
+        }
+      },
+      {
+        "id": "create-user",
+        "cpus": 0.1,
+        "mem": 20.0,
+        "instances": 1,
+        "dependencies": ["/neo4j/neo4j"],
+        "cmd": "/usr/local/bin/create_neo4j_user.sh && curl -X DELETE marathon.service.consul:8080/v2/apps/neo4j/create-user"
+      }
+     ]
+    },
+    {
+      "id": "ic-layer-one",
+      "dependencies": ["/core", "/neo4j"],
+      "apps": [
+        {
+          "id": "anthill",
+          "cmd": null,
+          "cpus": 1,
+          "mem": 512,
+          "disk": 0,
+          "instances": 1,
+          "labels": {
+            "LAYER": "backend",
+            "LANG": "python",
+            "TAG": "{{docker_tags.anthill}}",
+            "consul": "anthill"
+          },
+          "container": {
+            "type": "DOCKER",
+            "volumes": [
+              {
+                "containerPath": "{{docker_logs_dir}}",
+                "hostPath": "{{docker_logs_host_dir}}",
+                "mode": "RW"
+              }
+            ],
+            "docker": {
+              "image": "{{docker_registry}}:5000/anthill:{{docker_tags.anthill}}",
+              "network": "HOST",
+              "privileged": false,
+              "parameters": [],
+              "forcePullImage": true
+            }
+          },
+          "env": {
+            "ES_HOST": "{{search_host}}",
+            "ES_PORT": "9200",
+            "NEO4J_USER": "{{neo4j_user}}",
+            "NEO4J_PASS": "{{neo4j_pass}}",
+            "NEO4J_HOST": "{{neo4j_host}}",
+            "NEO4J_PORT": "{{neo4j_port}}"
+          },
+          "constraints": [["hostname", "UNIQUE"]],
+          "healthChecks": [
+            {
+              "path": "/public/ping",
+              "protocol": "HTTP",
+              "portIndex": 0,
+              "gracePeriodSeconds": 300,
+              "intervalSeconds": 30,
+              "timeoutSeconds": 20,
+              "maxConsecutiveFailures": 3,
+              "ignoreHttp1xx": false
+            }
+          ],
+          "portDefinitions": [
+              {
+                  "port": 10005,
+                  "protocol": "tcp",
+                  "name": "http",
+                  "labels": {}
+              }
+          ]
+        },
+        {
+          "id": "bernardo",
+          "cmd": null,
+          "cpus": 0.25,
+          "mem": 64,
+          "disk": 0,
+          "instances": 1,
+          "labels": {
+            "LAYER": "backend",
+            "LANG": "cpp",
+            "TAG": "{{docker_tags.bernardo}}",
+            "consul": "bernardo"
+          },
+          "container": {
+            "type": "DOCKER",
+            "volumes": [
+              {
+                "containerPath": "{{docker_logs_dir}}",
+                "hostPath": "{{docker_logs_host_dir}}",
+                "mode": "RW"
+              }
+            ],
+            "docker": {
+              "image": "{{docker_registry}}:5000/bernardo:{{docker_tags.bernardo}}",
+              "network": "HOST",
+              "privileged": false,
+              "parameters": [],
+              "forcePullImage": true
+            }
+          },
+          "env": {
+            "DB_HOST": "{{docker_db_host}}",
+            "DB_NAME": "{{bernardo_db_name}}",
+            "DB_USER": "{{bernardo_db_user}}",
+            "PORT1" : "19090"
+          },
+          "constraints": [["hostname", "UNIQUE"]],
+          "healthChecks": [
+            {
+              "path": "/ping",
+              "protocol": "HTTP",
+              "portIndex": 0,
+              "gracePeriodSeconds": 300,
+              "intervalSeconds": 30,
+              "timeoutSeconds": 20,
+              "maxConsecutiveFailures": 3,
+              "ignoreHttp1xx": false
+            }
+          ],
+          "portDefinitions": [
+              {
+                  "port": 10000,
+                  "protocol": "tcp",
+                  "name": "http",
+                  "labels": {}
+              }
+          ]
+        },
+        {
+          "id": "henhouse",
+          "cmd": null,
+          "cpus": 1,
+          "mem": 500,
+          "disk": 0,
+          "instances": 1,
+          "labels": {
+            "LAYER": "backend",
+            "LANG": "cpp",
+            "TAG": "{{docker_tags.henhouse}}",
+            "consul": "henhouse"
+          },
+          "container": {
+            "type": "DOCKER",
+            "volumes": [
+              {
+                "containerPath": "hendata",
+                "mode": "RW",
+                "persistent" : {
+                    "type":"root",
+                    "size": 1000,
+                    "constraints": []
+                }
+              }
+            ],
+            "docker": {
+              "image": "{{docker_registry}}:5000/henhouse:{{docker_tags.henhouse}}",
+              "network": "HOST",
+              "privileged": false,
+              "parameters": [],
+              "forcePullImage": true
+            }
+          },
+          "residency": { "taskLostBehavior": "WAIT_FOREVER" },
+          "env": {
+            "DATA": "/var/lib/sandbox/hendata"
+          },
+          "healthChecks": [
+            {
+              "path": "/summary?keys=ping",
+              "protocol": "HTTP",
+              "portIndex": 0,
+              "gracePeriodSeconds": 300,
+              "intervalSeconds": 60,
+              "timeoutSeconds": 20,
+              "maxConsecutiveFailures": 3,
+              "ignoreHttp1xx": false
+            }
+          ],
+          "portDefinitions": [
+            {
+              "port": 9999,
+              "protocol": "tcp",
+              "labels": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ic-layer-two",
+      "dependencies": ["/neo4j", "/ic-layer-one"],
+      "apps": [
+        {
+          "id": "river-rock",
+          "cmd": null,
+          "cpus": 0.25,
+          "mem": 64,
+          "disk": 0,
+          "instances": 1,
+          "labels": {
+            "LAYER": "backend",
+            "LANG": "go",
+            "TAG": "{{docker_tags.river_rock}}",
+            "consul": "river-rock"
+          },
+          "container": {
+            "type": "DOCKER",
+            "volumes": [],
+            "docker": {
+              "image": "{{docker_registry}}:5000/river-rock:{{docker_tags.river_rock}}",
+              "network": "HOST",
+              "privileged": false,
+              "parameters": [],
+              "forcePullImage": true
+            },
+            "volumes": [
+              {
+                "containerPath": "{{docker_logs_dir}}",
+                "hostPath": "{{docker_logs_host_dir}}",
+                "mode": "RW"
+              }
+            ]
+          },
+          "env": {
+            "DB_HOST": "{{docker_db_host}}",
+            "DB_NAME": "{{bernardo_db_name}}",
+            "DB_USER": "{{bernardo_db_user}}",
+            "BERNARDO_HOST": "{{bernardo_host}}",
+            "UPSTREAM_URL": "http://balancer.service.consul:8888"
+          },
+          "healthChecks": [
+            {
+              "path": "/ping",
+              "protocol": "HTTP",
+              "portIndex": 0,
+              "gracePeriodSeconds": 300,
+              "intervalSeconds": 30,
+              "timeoutSeconds": 20,
+              "maxConsecutiveFailures": 3,
+              "ignoreHttp1xx": false
+            }
+          ],
+          "portDefinitions": [
+              {
+                  "port": 10000,
+                  "protocol": "tcp",
+                  "name": "http",
+                  "labels": {}
+              }
+          ]
+        },
+        {
+          "id": "digger-sphex-consumer",
+          "cmd": null,
+          "cpus": 1,
+          "mem": 500,
+          "disk": 0,
+          "instances": 1,
+          "constraints": [
+            [
+              "hostname",
+              "UNIQUE"
+            ]
+          ],
+          "labels": {
+            "LAYER": "consumer",
+            "LANG": "perl6",
+            "TAG": "{{docker_tags.digger_sphex}}",
+            "consul": "digger-sphex-consumer"
+          },
+          "container": {
+            "type": "DOCKER",
+            "volumes": [
+              {
+                "containerPath": "{{docker_logs_dir}}",
+                "hostPath": "{{docker_logs_host_dir}}",
+                "mode": "RW"
+              }
+            ],
+            "docker": {
+              "image": "{{docker_registry}}:5000/digger-sphex:{{docker_tags.digger_sphex}}",
+              "network": "HOST",
+              "privileged": false,
+              "parameters": [],
+              "forcePullImage": true
+            }
+          },
+          "env": {
+            "KAFKA": "kafka.service.consul",
+            "HENHOUSE": "henhouse.service.consul",
+            "TOPIC": "nginx-access"
+          },
+          "healthChecks": [
+            {
+              "protocol": "COMMAND",
+              "command": {
+                "value": "ps -ef | grep -v grep | grep sphex"
+              },
+              "gracePeriodSeconds": 300,
+              "intervalSeconds": 20,
+              "timeoutSeconds": 20,
+              "maxConsecutiveFailures": 3
+            }
+          ],
+          "portDefinitions": [
+            {
+              "port": 10009,
+              "protocol": "tcp",
+              "labels": {}
+            }
+          ]
+        },
+        {
+          "id": "eggcrate",
+          "cmd": null,
+          "cpus": 0.25,
+          "mem": 64,
+          "disk": 0,
+          "instances": 1,
+          "labels": {
+            "LAYER": "backend",
+            "LANG": "go",
+            "TAG": "{{docker_tags.eggcrate}}",
+            "consul": "eggcrate"
+          },
+          "container": {
+            "type": "DOCKER",
+            "docker": {
+              "image": "{{docker_registry}}:5000/eggcrate:{{docker_tags.eggcrate}}",
+              "network": "HOST",
+              "privileged": false,
+              "parameters": [],
+              "forcePullImage": true
+            },
+            "volumes": [
+                {
+                    "containerPath": "{{docker_logs_dir}}",
+                    "hostPath": "{{docker_logs_host_dir}}",
+                    "mode": "RW"
+                }
+            ]
+          },
+          "env": {
+              "API_URL": "http://{{henhouse_host}}"
+          },
+          "healthChecks": [
+            {
+              "path": "/ping",
+              "protocol": "HTTP",
+              "portIndex": 0,
+              "gracePeriodSeconds": 300,
+              "intervalSeconds": 60,
+              "timeoutSeconds": 20,
+              "maxConsecutiveFailures": 3,
+              "ignoreHttp1xx": false
+            }
+          ],
+          "portDefinitions": [
+            {
+              "port": 10020,
+              "protocol": "tcp",
+              "labels": {}
+            }
+          ]
+        },
+        {
+          "id": "orders-anthill",
+          "cmd": null,
+          "cpus": 0.25,
+          "mem": 64,
+          "disk": 0,
+          "instances": 1,
+          "labels": {
+            "LAYER": "consumer",
+            "LANG": "go",
+            "TAG": "{{docker_tags.orders_anthill}}",
+            "consul": "orders-anthill"
+          },
+          "container": {
+            "type": "DOCKER",
+            "docker": {
+              "image": "{{docker_registry}}:5000/orders-anthill:{{docker_tags.orders_anthill}}",
+              "network": "HOST",
+              "privileged": false,
+              "parameters": [],
+              "forcePullImage": true
+            },
+            "volumes": [
+              {
+                "containerPath": "{{docker_logs_dir}}",
+                "hostPath": "{{docker_logs_host_dir}}",
+                "mode": "RW"
+              }
+            ]
+          },
+          "env": {
+            "TOPIC": "scoped_activities",
+            "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
+            "ZOOKEEPER_URL": "{{zookeeper_server}}",
+            "MWH_URL": "http://{{middlewarehouse_server}}",
+            "ANTHILL_HOST": "{{anthill_host}}"
+          },
+          "healthChecks": [
+            {
+              "protocol": "COMMAND",
+              "command": {
+                "value": "ps -ef | grep -v grep | grep orders-anthill"
+              },
+              "gracePeriodSeconds": 300,
+              "intervalSeconds": 30,
+              "timeoutSeconds": 20,
+              "maxConsecutiveFailures": 3,
+              "ignoreHttp1xx": false
+            }
+          ]
+        },
+        {
+          "id": "orders-sphex",
+          "cmd": null,
+          "cpus": 0.25,
+          "mem": 64,
+          "disk": 0,
+          "instances": 1,
+          "labels": {
+            "LAYER": "consumer",
+            "LANG": "go",
+            "TAG": "{{docker_tags.orders_sphex}}",
+            "consul": "orders-sphex"
+          },
+          "container": {
+            "type": "DOCKER",
+            "docker": {
+              "image": "{{docker_registry}}:5000/orders-sphex:{{docker_tags.orders_sphex}}",
+              "network": "HOST",
+              "privileged": false,
+              "parameters": [],
+              "forcePullImage": true
+            },
+            "volumes": [
+              {
+                "containerPath": "{{docker_logs_dir}}",
+                "hostPath": "{{docker_logs_host_dir}}",
+                "mode": "RW"
+              }
+            ]
+          },
+          "env": {
+            "TOPIC": "{{activities_topic}}",
+            "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
+            "ZOOKEEPER_URL": "{{zookeeper_server}}",
+            "MWH_URL": "http://{{middlewarehouse_server}}",
+            "HENHOUSE": "{{henhouse_server}}"
+          },
+          "healthChecks": [
+            {
+              "protocol": "COMMAND",
+              "command": {
+                "value": "ps -ef | grep -v grep | grep orders-sphex"
+              },
+              "gracePeriodSeconds": 300,
+              "intervalSeconds": 30,
+              "timeoutSeconds": 20,
+              "maxConsecutiveFailures": 3,
+              "ignoreHttp1xx": false
+            }
+          ]
+        },
+        {
+          "id": "product-activity",
+          "cmd": null,
+          "cpus": 0.25,
+          "mem": 64,
+          "disk": 0,
+          "instances": 1,
+          "labels": {
+            "LAYER": "consumer",
+            "LANG": "go",
+            "TAG": "{{docker_tags.product_activity}}",
+            "consul": "product-activity"
+          },
+          "container": {
+            "type": "DOCKER",
+            "docker": {
+              "image": "{{docker_registry}}:5000/product-activity:{{docker_tags.product_activity}}",
+              "network": "HOST",
+              "privileged": false,
+              "parameters": [],
+              "forcePullImage": true
+            },
+            "volumes": [
+              {
+                "containerPath": "{{docker_logs_dir}}",
+                "hostPath": "{{docker_logs_host_dir}}",
+                "mode": "RW"
+              }
+            ]
+          },
+          "env": {
+            "ELASTIC_URL": "http://{{search_server_http}}",
+            "ELASTIC_INDEX":"admin_1",
+            "INTERVAL":"{{product_activity_interval}}",
+            "HENHOUSE":"{{henhouse_server}}"
+          },
+          "healthChecks": [
+            {
+              "protocol": "COMMAND",
+              "command": {
+                "value": "ps -ef | grep -v grep | grep product-activity"
+              },
+              "gracePeriodSeconds": 300,
+              "intervalSeconds": 30,
+              "timeoutSeconds": 20,
+              "maxConsecutiveFailures": 3,
+              "ignoreHttp1xx": false
+            }
+          ]
+        },
+        {
+          "id": "suggester",
+          "cmd": null,
+          "cpus": 0.25,
+          "mem": 64,
+          "disk": 0,
+          "instances": 1,
+          "container": {
+            "type": "DOCKER",
+            "volumes": [
+              {
+                "containerPath": "{{docker_logs_dir}}",
+                "hostPath": "{{docker_logs_host_dir}}",
+                "mode": "RW"
+              }
+            ],
+            "docker": {
+              "image": "{{docker_registry}}:5000/suggester:{{docker_tags.suggester}}",
+              "network": "HOST",
+              "portMappings": null,
+              "privileged": false,
+              "parameters": [],
+              "forcePullImage": true
+            }
+          },
+          "env": {
+            "ANTHILL_HOST": "{{anthill_host}}",
+            "DEXTER_BOT_ID": "{{dexter_bot_id}}",
+            "DEXTER_API_KEY": "{{dexter_api_key}}",
+            "DEXTER_BASE_URL": "{{dexter_base_url}}",
+            "NEO4J_HOST": "{{neo4j_host}}",
+            "NEO4J_PORT": "{{neo4j_http_port}}",
+            "NEO4J_USER": "{{neo4j_user}}",
+            "NEO4J_PASS": "{{neo4j_pass}}",
+            "PHOENIX_URL": "http://{{phoenix_server}}",
+            "PHOENIX_USER": "{{phoenix_api_user}}",
+            "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
+            "ANTHILL_HOST": "{{anthill_host}}",
+            "TWILIO_ACCOUNT_SID": "{{twilio_account_sid}}",
+            "TWILIO_AUTH_TOKEN": "{{twilio_auth_token}}",
+            "TWILIO_PHONE_NUMBER": "{{twilio_phone_number}}"
+          },
+          "healthChecks": [
+            {
+              "protocol": "COMMAND",
+              "command": {
+                "value": "ps -ef | grep -v grep | grep suggester"
+              },
+              "gracePeriodSeconds": 300,
+              "intervalSeconds": 30,
+              "timeoutSeconds": 20,
+              "maxConsecutiveFailures": 3,
+              "ignoreHttp1xx": false
+            }
+          ],
+          "labels": {
+            "LAYER": "consumer",
+            "LANG": "go",
+            "TAG": "master",
+            "consul": "suggester"
+          },
+          "portDefinitions": [
+            {
+              "port": 10030,
+              "protocol": "tcp",
+              "labels": {}
+            }
+          ]
+        }
+
+      ]
+
     }
   ]
 }

@@ -4,6 +4,7 @@
 - include_vars: stripe.yml
 - include_vars: hyperion.yml
 - include_vars: solomon.yml
+- include_vars: suggester.yml
 
 - name: Creates Marathon JSON directory
   file: path=/marathon/applications state=directory
@@ -18,16 +19,12 @@
 - name: Copy application group Marathon JSON
   template: src=highlander_group.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
+- name: Copy create Neo4j command
+  template: src=create_neo4j_user.sh dest=/usr/local/bin/create_neo4j_user.sh mode="u+x,g+x,o+x"
+
 - name: Kill Highlander group Tasks in Marathon
   shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/groups/highlander'
   when: is_redeploy
 
 - name: Update Highlander group in Marathon
   shell: 'curl -sS -XPUT -d@/marathon/applications/highlander_group.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/groups'
-
-# - name: Get Highlander group Marathon tasks in `healthy` state
-#   shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/highlander_group | jq '.app.tasksHealthy > 0'
-#   register: healthy_tasks_available
-#   until: healthy_tasks_available.stdout == 'true'
-#   retries: "1000"
-#   delay: "{{marathon_delay}}"
