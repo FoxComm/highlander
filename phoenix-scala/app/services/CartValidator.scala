@@ -5,7 +5,8 @@ import java.time.Instant
 import cats._
 import cats.implicits._
 import failures.CartFailures._
-import failures.{ArchiveFailures, Failure, Failures}
+import failures.{Failure, Failures}
+import failures.ArchiveFailures.LinkInactiveSkuFailure
 import models.cord._
 import models.traits.IlluminatedModel
 import models.cord.lineitems.CartLineItems
@@ -29,7 +30,25 @@ case class CartValidatorResponse(
     alerts: Option[Failures] = None,
     warnings: Option[Failures] = None) {} // TODO: use real warnings from StateT. What’s with not used alerts? @michalrus
 
-object CartValidator {}
+object CartValidator {
+
+  def skuIsActive(sku: Sku)(implicit ec: EC, db: DB): DbResultT[Boolean] =
+    // FIXME: have mercy… ;( @michalrus
+    for {
+      full ← ObjectManager.getFullObject(DbResultT.pure(sku))
+      im = new IlluminatedModel[Unit] {
+        override def archivedAt: Option[Instant] = full.model.archivedAt
+
+        override def attributes: Json =
+          IlluminateAlgorithm.projectAttributes(full.form.attributes, full.shadow.attributes)
+
+        override protected def inactiveError: Failure = null
+      }
+    } yield im.mustBeActive.isRight
+
+}
+
+import CartValidator._
 
 case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValidation {
 
@@ -74,28 +93,13 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
               .on(_.skuId === _.id)
               .map(_._2)
               .result
-      inactiveSkus ← * <~ skus.toList.filterA { sku ⇒
-                      // FIXME: have mercy… ;( @michalrus
-                      for {
-                        full ← ObjectManager.getFullObject(DbResultT.pure(sku))
-                        im = new IlluminatedModel[Unit] {
-                          override def archivedAt: Option[Instant] = full.model.archivedAt
-
-                          override def attributes: Json =
-                            IlluminateAlgorithm.projectAttributes(full.form.attributes,
-                                                                  full.shadow.attributes)
-
-                          override protected def inactiveError: Failure = null
-                        }
-                      } yield im.mustBeActive.isLeft
-                    }
+      inactiveSkus ← * <~ skus.toList.filterA(skuIsActive(_).map(!_))
     } yield
       if (inactiveSkus.isEmpty) response
       else
         warnings(
             response,
-            inactiveSkus.map(sku ⇒
-                  ArchiveFailures.LinkInactiveSkuFailure(cart, cart.referenceNumber, sku.code)))
+            inactiveSkus.map(sku ⇒ LinkInactiveSkuFailure(cart, cart.referenceNumber, sku.code)))
   }
 
   //todo: do we need alway have sku or at least sku or gc
