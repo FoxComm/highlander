@@ -40,6 +40,3 @@
 
 - name: Copy Consul Service File
   template: src=balancer.json dest="/etc/consul.d/balancer.json"
-
-- name: Reload Systemd for Nginx
-  command: systemctl daemon-reload
