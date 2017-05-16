@@ -12,7 +12,13 @@ variable "datacenter" {}
 
 variable "network" {}
 
-variable "base_image" {}
+variable "amigo_image" {}
+
+variable "database_image" {}
+
+variable "search_image" {}
+
+variable "frontend_image" {}
 
 ##############################################
 # Secondary Parameters
@@ -72,14 +78,14 @@ resource "google_storage_bucket" "registry" {
 ##############################################
 # Amigo Servers
 ##############################################
-resource "google_compute_instance" "trial-amigo" {
+resource "google_compute_instance" "trial-amigo-0" {
   name         = "${var.datacenter}-amigo-0"
   machine_type = "${var.amigo_machine_type}"
   zone         = "${var.zone}"
   tags         = ["no-ip"]
 
   disk {
-    image = "${var.base_image}"
+    image = "${var.amigo_image}"
     size  = "${var.amigo_disk_size}"
     type  = "pd-ssd"
   }
@@ -90,6 +96,20 @@ resource "google_compute_instance" "trial-amigo" {
 
   service_account {
     scopes = ["storage-rw"]
+  }
+
+  connection {
+    type        = "ssh"
+    user        = "${var.ssh_user}"
+    private_key = "${file(var.ssh_private_key)}"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "/usr/local/bin/bootstrap.sh",
+      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.trial-amigo-0.network_interface.0.address}",
+      "sudo rm -rf /var/consul/* && sudo systemctl restart consul_server.service",
+    ]
   }
 }
 
@@ -100,7 +120,7 @@ resource "google_compute_instance" "trial-amigo-1" {
   tags         = ["no-ip"]
 
   disk {
-    image = "${var.base_image}"
+    image = "${var.amigo_image}"
     size  = "${var.amigo_disk_size}"
     type  = "pd-ssd"
   }
@@ -111,6 +131,20 @@ resource "google_compute_instance" "trial-amigo-1" {
 
   service_account {
     scopes = ["storage-rw"]
+  }
+
+  connection {
+    type        = "ssh"
+    user        = "${var.ssh_user}"
+    private_key = "${file(var.ssh_private_key)}"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "/usr/local/bin/bootstrap.sh",
+      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.trial-amigo-0.network_interface.0.address}",
+      "sudo rm -rf /var/consul/* && sudo systemctl restart consul_server.service",
+    ]
   }
 }
 
@@ -121,7 +155,7 @@ resource "google_compute_instance" "trial-amigo-2" {
   tags         = ["no-ip"]
 
   disk {
-    image = "${var.base_image}"
+    image = "${var.amigo_image}"
     size  = "${var.amigo_disk_size}"
     type  = "pd-ssd"
   }
@@ -132,6 +166,20 @@ resource "google_compute_instance" "trial-amigo-2" {
 
   service_account {
     scopes = ["storage-rw"]
+  }
+
+  connection {
+    type        = "ssh"
+    user        = "${var.ssh_user}"
+    private_key = "${file(var.ssh_private_key)}"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "/usr/local/bin/bootstrap.sh",
+      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.trial-amigo-0.network_interface.0.address}",
+      "sudo rm -rf /var/consul/* && sudo systemctl restart consul_server.service",
+    ]
   }
 }
 
@@ -145,7 +193,7 @@ resource "google_compute_instance" "trial-database" {
   tags         = ["no-ip"]
 
   disk {
-    image = "${var.base_image}"
+    image = "${var.database_image}"
     size  = "${var.backend_disk_size}"
     type  = "pd-ssd"
   }
@@ -156,6 +204,19 @@ resource "google_compute_instance" "trial-database" {
 
   service_account {
     scopes = ["storage-rw"]
+  }
+
+  connection {
+    type        = "ssh"
+    user        = "${var.ssh_user}"
+    private_key = "${file(var.ssh_private_key)}"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "/usr/local/bin/bootstrap.sh",
+      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.trial-amigo-0.network_interface.0.address}",
+    ]
   }
 }
 
@@ -169,7 +230,7 @@ resource "google_compute_instance" "trial-search" {
   tags         = ["no-ip"]
 
   disk {
-    image = "${var.base_image}"
+    image = "${var.search_image}"
     size  = "${var.backend_disk_size}"
     type  = "pd-ssd"
   }
@@ -180,6 +241,19 @@ resource "google_compute_instance" "trial-search" {
 
   service_account {
     scopes = ["storage-rw"]
+  }
+
+  connection {
+    type        = "ssh"
+    user        = "${var.ssh_user}"
+    private_key = "${file(var.ssh_private_key)}"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "/usr/local/bin/bootstrap.sh",
+      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.trial-amigo-0.network_interface.0.address}",
+    ]
   }
 }
 
@@ -193,7 +267,7 @@ resource "google_compute_instance" "trial-frontend" {
   tags         = ["http-server", "https-server"]
 
   disk {
-    image = "${var.base_image}"
+    image = "${var.frontend_image}"
     size  = "${var.frontend_disk_size}"
     type  = "pd-ssd"
   }
@@ -204,5 +278,18 @@ resource "google_compute_instance" "trial-frontend" {
 
   service_account {
     scopes = ["storage-rw"]
+  }
+
+  connection {
+    type        = "ssh"
+    user        = "${var.ssh_user}"
+    private_key = "${file(var.ssh_private_key)}"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "/usr/local/bin/bootstrap.sh",
+      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.trial-amigo-0.network_interface.0.address}",
+    ]
   }
 }
