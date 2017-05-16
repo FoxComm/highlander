@@ -4,6 +4,7 @@
   service: name={{item}} state=restarted enabled=true
   with_items:
     - consul_agent
+    - dnsmasq
     - zookeeper
     - kafka
     - schema-registry

@@ -12,7 +12,6 @@ logrotate_dir: /etc/logrotate.d
 appliance_prefix: appliance
 appliance_hostname: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
 dashboard_assets_location: /usr/local/dashboard
-dashboard_port: 4198
 
 # Prompt answers
 prompt_yes:
