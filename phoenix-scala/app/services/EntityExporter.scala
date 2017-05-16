@@ -31,7 +31,7 @@ import utils.http.Http
 object EntityExporter {
   private val formatter = DateTimeFormatter.ISO_LOCAL_DATE.withZone(ZoneId.of("UTC"))
 
-  private val FieldMatcher = "(\\w+)(\\[\\d+\\])?".r
+  private val FieldMatcher = "(\\w+)(\\[-?\\d+\\])?".r
 
   private object ArrayElement {
     def unapply(field: String): Option[Int] =
@@ -98,7 +98,7 @@ object EntityExporter {
       case (ArrayElement(i) :: t, Some(jarr: JArray)) ⇒
         extractValue(t,
                      catching(classOf[IndexOutOfBoundsException])
-                       .opt(if (i >= 0) jarr(i) else jarr(jarr.values.length - i)))
+                       .opt(if (i >= 0) jarr(i) else jarr(jarr.arr.length + i)))
       case (Nil, _) ⇒
         acc.collect {
           case jn @ (_: JNumber | _: JBool) ⇒ jn.values.toString

@@ -13,6 +13,7 @@ import org.elasticsearch.search.sort.{SortBuilder, SortOrder}
 import org.json4s.JsonAST._
 import org.json4s.jackson.JsonMethods.{compact, render}
 import org.json4s.{CustomSerializer, Formats}
+import services.CordQueries
 import utils.Strings._
 import utils.{ADT, ADTTypeHints, JsonFormatters}
 
@@ -101,12 +102,7 @@ object EntityExportPayloads {
               .arr
             val cordPayments = payments.flatMap(getState)
 
-            val state =
-              if (cordPayments.isEmpty || cordPayments
-                    .contains(CordPaymentState.Cart) || payments.length != cordPayments.length)
-                CordPaymentState.Cart
-              else cordPayments.deduceCordPaymentState
-            state.toString.prettify.quote('"')
+            CordQueries.foldPaymentStates(cordPayments, payments.size).toString.prettify.quote('"')
         }
       }
     }
