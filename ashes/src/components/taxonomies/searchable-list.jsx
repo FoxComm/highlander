@@ -55,7 +55,15 @@ export class SearchableList extends Component {
 
   renderRow(row: TaxonomyResult, index: number, columns: Columns, params: Object) {
     const key = `taxonomies-${row.id}`;
-    return <TaxonomyRow key={key} taxonomy={row} columns={columns} params={params} />;
+
+    return (
+      <TaxonomyRow
+        key={key}
+        taxonomy={row}
+        columns={columns}
+        params={params}
+      />
+    );
   }
 
   @autobind

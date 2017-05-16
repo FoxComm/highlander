@@ -25,7 +25,9 @@ import { actions as bulkActions } from 'modules/customer-groups/bulk';
 type Props = {
   list: Object,
   actions: Object,
-  bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
+  bulkExportAction: (
+    fields: Array<string>, entity: string, identifier: string, description: string
+  ) => Promise<*>,
   bulkActions: {
     exportByIds: (
       ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
@@ -51,7 +53,7 @@ class GroupsList extends Component {
   props: Props;
 
   @autobind
-  setCellContents(group, field) {
+  setCellContents(group: Object, field: string) {
     if (field == 'groupType') {
       const type = groupTypes[_.get(group, 'groupType', GROUP_TYPE_DYNAMIC)];
       return <RoundedPill text={type} />;
@@ -61,7 +63,7 @@ class GroupsList extends Component {
   }
 
   @autobind
-  renderRow(row, index, columns, params) {
+  renderRow(row: Object, index: number, columns: Columns, params: Object) {
     return (
       <MultiSelectRow
         columns={columns}

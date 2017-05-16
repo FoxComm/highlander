@@ -46,7 +46,7 @@ const tableColumns = [
 class Users extends Component {
   props: Props;
 
-  renderRow(row, index, columns, params) {
+  renderRow(row: Object, index: number, columns: Columns, params: Object) {
     const key = `user-${row.id}`;
 
     return (

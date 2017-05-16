@@ -87,8 +87,9 @@ class StoreCreditTransactions extends Component {
     this.props.actions.fetch();
   }
 
-  renderRow(row, index, columns, params) {
+  renderRow(row: Object, index: number, columns: Columns, params: Object) {
     const key = `sc-transaction-${row.id}`;
+
     return (
       <StoreCreditTransactionRow
         key={key}

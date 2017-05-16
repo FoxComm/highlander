@@ -135,9 +135,12 @@ export class TaxonProductsPage extends Component {
   }
 
   renderRow(row: Product, index: number, columns: Columns, params: Object) {
+    const id = row.productId != null ? row.productId : 0;
+    const key = `taxon-product-${id}`;
+
     return (
       <ProductRow
-        key={row.id}
+        key={key}
         product={row}
         columns={columns}
         params={params}

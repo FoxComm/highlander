@@ -8,7 +8,7 @@ import _ from 'lodash';
 import MultiSelectRow from '../table/multi-select-row';
 
 type Props = {
-  columns: Array<Object>,
+  columns: Columns,
   sku: Object,
   params: Object,
 };
@@ -16,7 +16,7 @@ type Props = {
 const InventoryListRow = (props: Props) => {
   const { sku, columns, params } = props;
 
-  const setCellContents = (sku, field) => {
+  const setCellContents = (sku: Object, field: string) => {
     return _.get(sku, field);
   };
 

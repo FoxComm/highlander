@@ -66,9 +66,11 @@ export class TaxonsListPage extends Component {
   }
 
   renderRow(row: TaxonResult, index: number, columns: Columns, params: Object) {
+    const key = `taxon-list-${row.id}`;
+
     return (
       <TaxonRow
-        key={row.id}
+        key={key}
         taxon={row}
         columns={columns}
         params={params}

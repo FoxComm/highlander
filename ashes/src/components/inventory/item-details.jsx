@@ -89,8 +89,9 @@ class InventoryItemDetails extends Component {
   }
 
   @autobind
-  renderRow(row: WarehouseInventorySummary, index, columns, params) {
+  renderRow(row: WarehouseInventorySummary, index: number, columns: Columns, params: Object) {
     const key = `inventory-warehouse-${row.stockLocation.id}`;
+
     return (
       <InventoryWarehouseRow
         key={key}

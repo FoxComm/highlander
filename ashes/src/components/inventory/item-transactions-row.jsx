@@ -9,14 +9,14 @@ import MultiSelectRow from 'components/table/multi-select-row';
 
 type Props = {
   transaction: Object,
-  columns: Array<Object>,
+  columns: Columns,
   params: Object,
 };
 
 const InventoryItemTransactionsRow = (props: Props) => {
   const { transaction, columns, params } = props;
 
-  const setCellContents = (transaction, field) => {
+  const setCellContents = (transaction: Object, field: string) => {
     return _.get(transaction, field);
   };
 

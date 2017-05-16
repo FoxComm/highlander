@@ -129,9 +129,10 @@ class StoreCredits extends Component {
 
 
   @autobind
-  renderRow(row, index, columns, params) {
+  renderRow(row: Object, index: number, columns: Columns, params: Object) {
     const customerId = this.customerId;
     const key = `sc-transaction-${row.id}`;
+
     return (
       <StoreCreditRow
         storeCredit={row}

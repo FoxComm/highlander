@@ -50,8 +50,9 @@ class Promotions extends Component {
     return this.props.actions.addSearchFilters(filterArchived(filters), initial);
   }
 
-  renderRow(row: Object, index: number, columns: Array<any>, params: any): Element<*> {
+  renderRow(row: Object, index: number, columns: Columns, params: any): Element<*> {
     const key = `promotion-${row.id}`;
+
     return (
       <PromotionRow
         promotion={row}

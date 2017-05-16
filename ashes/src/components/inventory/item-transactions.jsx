@@ -68,7 +68,7 @@ class InventoryItemTransactions extends Component {
   }
 
   @autobind
-  renderRow(row: Object, index: number, columns: Array<Object>, params: Object) {
+  renderRow(row: Object, index: number, columns: Columns, params: Object) {
     const key = `inventory-transaction-${row.id}`;
 
     return (

@@ -64,7 +64,9 @@ type Props = {
       ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
     ) => void,
   },
-  bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
+  bulkExportAction: (
+    fields: Array<string>, entity: string, identifier: string, description: string
+  ) => Promise<*>,
   suggested: Array<TUser>,
   suggestState: AsyncState,
   suggestCustomers: (token: string) => Promise<*>,

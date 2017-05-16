@@ -16,7 +16,7 @@ import { bulkExport } from 'modules/bulk-export/bulk-export';
 import { actions as bulkActions } from 'modules/gift-cards/transactions/bulk';
 
 // components
-import { SelectableSearchList } from '../list-page';
+import { SelectableSearchList } from 'components/list-page';
 import GiftCardTransactionRow from './gift-card-transaction-row';
 import BulkActions from 'components/bulk-actions/bulk-actions';
 import BulkMessages from 'components/bulk-actions/bulk-messages';
@@ -58,8 +58,9 @@ class GiftCardTransactions extends Component {
   }
 
   @autobind
-  renderRow(row, index, columns, params) {
+  renderRow(row: Object, index: number, columns: Columns, params: Object) {
     const key = `gift-card-${index}`;
+
     return (
       <GiftCardTransactionRow
         key={key}

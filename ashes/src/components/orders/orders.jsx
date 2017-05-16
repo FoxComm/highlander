@@ -26,8 +26,16 @@ import { Link } from '../link';
 type Props = {
   list: Object,
   actions: Object,
-  bulkActions: Object,
-  bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
+  bulkActions: {
+    cancelOrders: (referenceNumbers: Array<string>, reasonId: number) => Promise<*>,
+    changeOrdersState: (referenceNumbers: Array<string>, state: string) => Promise<*>,
+    exportByIds: (
+      ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
+    ) => void,
+  },
+  bulkExportAction: (
+    fields: Array<string>, entity: string, identifier: string, description: string
+  ) => Promise<*>,
 };
 
 const tableColumns = [

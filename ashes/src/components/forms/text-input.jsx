@@ -12,7 +12,7 @@ type Props = {
   value: string,
   className?: string,
   onChange?: (value: string) => void,
-  placeholder?: string,
+  placeholder?: string | Element<*>,
   autoFocus?: boolean,
   disabled?: boolean,
 };

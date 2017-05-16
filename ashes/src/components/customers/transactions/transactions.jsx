@@ -59,7 +59,7 @@ class CustomerTransactions extends Component {
   }
 
   @autobind
-  renderRow(row: Object, index: number, columns: Array<any>, params: Object) {
+  renderRow(row: Object, index: number, columns: Columns, params: Object) {
     const key = `order-${row.referenceNumber}`;
 
     return (
