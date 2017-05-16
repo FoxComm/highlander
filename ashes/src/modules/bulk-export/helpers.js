@@ -105,6 +105,8 @@ const checkField = (fieldName) => {
     return 'shippingAddresses[0].region';
   } else if (fieldName === 'billRegion') {
     return 'billingAddresses[0].region';
+  } else if (fieldName === 'transaction') {
+    return 'originType';
   }
 
   return fieldName;

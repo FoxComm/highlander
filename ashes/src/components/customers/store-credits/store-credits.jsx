@@ -310,7 +310,7 @@ class StoreCredits extends Component {
   }
 
   renderDetail(messages, id) {
-    return <span key={id}>Store credit #{id}</span>;
+    return <span key={id}>Store Credit #{id}</span>;
   }
 
   render() {
@@ -335,7 +335,8 @@ class StoreCredits extends Component {
           <BulkActions
             module="customers.store-credits"
             entity="store credit"
-            actions={this.bulkActions}>
+            actions={this.bulkActions}
+          >
             <SelectableSearchList
               exportEntity="storeCredits"
               exportTitle="Store Credits"
