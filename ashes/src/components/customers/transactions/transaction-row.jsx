@@ -36,7 +36,7 @@ const setCellContents = (order, field) => {
       break;
     case 'assignee':
       if (!_.isEmpty(order.assignees)) {
-        return _.last(order.assignees).firstName;
+        return _.last(order.assignees).name;
       }
       break;
     case 'payment.state':
