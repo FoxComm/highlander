@@ -16,6 +16,7 @@ shortcuts:
       target_dev: inventory/static/target_dev
       topdrawer: inventory/static/topdrawer
       tpg: inventory/static/tpg
+      trial: inventory/static/trial
 
   - name: Private Key Files
     flag: "--private-key"
