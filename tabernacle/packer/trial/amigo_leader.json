@@ -5,7 +5,7 @@
             "type": "googlecompute",
             "account_file": "{{user `account_file`}}",
             "project_id" : "{{user `project_id`}}",
-            "source_image": "{{user `base_image`}}",
+            "source_image": "{{user `base_amigo_image`}}",
             "network": "{{user `network`}}",
             "zone": "{{user `zone`}}",
             "image_name": "trial-amigo-{{isotime \"060102-150405\"}}",
