@@ -1,6 +1,6 @@
 ---
 
-- name: Packer Appliance Base Image
+- name: Fat Base Image
   hosts: pavel-test
   become: true
   vars:
