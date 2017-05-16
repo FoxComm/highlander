@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { flow, filter, map as fpMap} from 'lodash/fp';
 import { renderExportModal } from 'modules/bulk-export/helpers';
 import { autobind } from 'core-decorators';
 import { toQuery } from 'elastic/common';
@@ -36,11 +35,9 @@ class TableView extends Component {
   getRow(position, items) {
     if (_.isEmpty(items)) return null;
 
-    const map = fpMap.convert({ 'cap': false });
-    const filteredItems = flow(
-      filter(item => item != null),
-      map((item, index) => React.cloneElement(item, { key: `${position}-${index}` }))
-    )(items);
+    const filteredItems = _.flatMap(items, (item, index) => {
+      return item ? React.cloneElement(item, { key: `${position}-${index}` }) : [];
+    });
 
     return (
       <div className={`fc-table__${position}`}>
