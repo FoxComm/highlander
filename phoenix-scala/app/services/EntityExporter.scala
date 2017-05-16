@@ -17,6 +17,7 @@ import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.util.control.Exception._
 import utils.Chunkable
+import utils.Strings._
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.Http
@@ -101,7 +102,7 @@ object EntityExporter {
       case (Nil, _) ⇒
         acc.collect {
           case jn @ (_: JNumber | _: JBool) ⇒ jn.values.toString
-          case jv: JString                  ⇒ "\"" + jv.values.replace("\"", "\"\"") + "\""
+          case jv: JString                  ⇒ jv.values.quote('"')
         }
       case (_, _) ⇒ None
     }

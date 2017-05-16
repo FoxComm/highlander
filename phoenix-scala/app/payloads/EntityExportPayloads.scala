@@ -4,6 +4,9 @@ import com.google.common.base.Charsets
 import com.pellucid.sealerate
 import com.sksamuel.elastic4s.SortDefinition
 import java.time.Instant
+import models.cord.CordPaymentState
+import models.payment.InStorePaymentStates
+import models.payment.creditcard.CreditCardCharge
 import org.elasticsearch.common.bytes.BytesArray
 import org.elasticsearch.common.xcontent.{ToXContent, XContentBuilder}
 import org.elasticsearch.search.sort.{SortBuilder, SortOrder}
@@ -47,7 +50,6 @@ object EntityExportPayloads {
     implicit def formats: Formats = JsonFormatters.phoenixFormats
 
     object State extends FieldCalculation {
-      this: Product ⇒
       def extraFields: List[String] = List("activeFrom", "activeTo", "archivedAt")
 
       lazy val calculate: PartialFunction[(String, JObject), String] = {
@@ -55,7 +57,7 @@ object EntityExportPayloads {
         val inactive = "\"Inactive\""
 
         {
-          case ("state", jobj: JObject) ⇒
+          case ("state", jobj) ⇒
             val doc = jobj.obj.toMap
 
             val activeFrom = doc.get("activeFrom").flatMap(_.extractOpt[Instant])
@@ -68,6 +70,43 @@ object EntityExportPayloads {
               case (None, Some(from), None) if from.isBefore(now)                        ⇒ active
               case _                                                                     ⇒ inactive
             }
+        }
+      }
+    }
+
+    object PaymentState extends FieldCalculation {
+      def extraFields: List[String] = List("payments")
+
+      lazy val calculate: PartialFunction[(String, JObject), String] = {
+        def getState(jv: JValue): Option[CordPaymentState.State] =
+          (jv \ "creditCardState")
+            .extractOpt[String]
+            .flatMap(CreditCardCharge.State.read)
+            .map(CordPaymentState.fromCCState) orElse
+            (jv \ "giftCardState")
+              .extractOpt[String]
+              .flatMap(InStorePaymentStates.State.read)
+              .map(CordPaymentState.fromInStoreState) orElse
+            (jv \ "storeCreditState")
+              .extractOpt[String]
+              .flatMap(InStorePaymentStates.State.read)
+              .map(CordPaymentState.fromInStoreState)
+
+        {
+          case ("payment.state", jobj) ⇒
+            val payments = jobj.obj.toMap
+              .get("payments")
+              .flatMap(_.extractOpt[JArray])
+              .getOrElse(JArray(Nil))
+              .arr
+            val cordPayments = payments.flatMap(getState)
+
+            val state =
+              if (cordPayments.isEmpty || cordPayments
+                    .contains(CordPaymentState.Cart) || payments.length != cordPayments.length)
+                CordPaymentState.Cart
+              else cordPayments.deduceCordPaymentState
+            state.toString.prettify.quote('"')
         }
       }
     }
@@ -89,7 +128,7 @@ object EntityExportPayloads {
     case object Inventory             extends ExportableEntity
     case object InventoryTransactions extends ExportableEntity
     case object Notes                 extends ExportableEntity
-    case object Orders                extends ExportableEntity
+    case object Orders                extends ExportableEntity(FieldCalculation.PaymentState)
     case object Products              extends ExportableEntity(FieldCalculation.State)
     case object Promotions            extends ExportableEntity(FieldCalculation.State)
     case object Skus extends ExportableEntity {
