@@ -96,19 +96,19 @@ module "trial_vpn" {
   network = "${google_compute_network.trial.name}"
 }
 
-# ##############################################
-# # Production Cluster
-# ##############################################
-# module "trial_production" {
-#   source          = "../../modules/gce/tinyproduction"
-#   ssh_user        = "${var.ssh_user}"
-#   ssh_private_key = "${var.ssh_private_key}"
-#   network         = "${google_compute_network.trial.name}"
-#   datacenter      = "trial"
-#   amigo_image     = "base-amigo-161104-095319"
-#   backend_image   = "base-backend-161104-105155"
-#   frontend_image  = "base-frontend-161104-105130"
-# }
+##############################################
+# Production Cluster
+##############################################
+module "trial_production" {
+  source          = "../../modules/gce/trial"
+  ssh_user        = "${var.ssh_user}"
+  ssh_private_key = "${var.ssh_private_key}"
+  network         = "${google_compute_network.trial.name}"
+  datacenter      = "trial"
+  amigo_image     = "base-amigo-161104-095319"
+  backend_image   = "base-backend-161104-105155"
+  frontend_image  = "base-frontend-161104-105130"
+}
 
 # ##############################################
 # # DNS Records
