@@ -12,11 +12,7 @@ variable "datacenter" {}
 
 variable "network" {}
 
-variable "amigo_image" {}
-
-variable "backend_image" {}
-
-variable "frontend_image" {}
+variable "base_image" {}
 
 ##############################################
 # Secondary Parameters
@@ -83,7 +79,7 @@ resource "google_compute_instance" "trial-amigo" {
   tags         = ["no-ip"]
 
   disk {
-    image = "${var.amigo_image}"
+    image = "${var.base_image}"
     size  = "${var.amigo_disk_size}"
     type  = "pd-ssd"
   }
@@ -121,7 +117,7 @@ resource "google_compute_instance" "trial-backend" {
   tags         = ["no-ip"]
 
   disk {
-    image = "${var.backend_image}"
+    image = "${var.base_image}"
     size  = "${var.backend_disk_size}"
     type  = "pd-ssd"
   }
@@ -158,7 +154,7 @@ resource "google_compute_instance" "trial-frontend" {
   tags         = ["http-server", "https-server"]
 
   disk {
-    image = "${var.frontend_image}"
+    image = "${var.base_image}"
     size  = "${var.frontend_disk_size}"
     type  = "pd-ssd"
   }

@@ -105,9 +105,7 @@ module "trial_production" {
   ssh_private_key = "${var.ssh_private_key}"
   network         = "${google_compute_network.trial.name}"
   datacenter      = "trial"
-  amigo_image     = "base-amigo-161104-095319"
-  backend_image   = "base-backend-161104-105155"
-  frontend_image  = "base-frontend-161104-105130"
+  base_image      = "base-170516-221225"
 }
 
 # ##############################################

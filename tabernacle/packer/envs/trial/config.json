@@ -5,6 +5,5 @@
     "network": "trial",
     "zone": "us-central1-a",
     "base_ubuntu_image": "ubuntu-1604-xenial-v20160921",
-    "base_united_image": "",
     "ssh_username": "ubuntu"
 }
