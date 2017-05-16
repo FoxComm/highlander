@@ -8,19 +8,19 @@
     "lint": "eslint --ext .js --ext .jsx .",
     "flow": "flow check",
     "fmt": "node_modules/.bin/prettier --single-quote --trailing-comma es5 --write \"{src,server}/**/*.js\" --write \"webpack.config.js\"",
-    "build": "./node_modules/.bin/webpack --config webpack.config.js"
+    "build": "./node_modules/.bin/webpack --config webpack.config.js",
+    "dev": "node ./server/boot.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "chalk": "^1.1.3",
     "koa": "^2.2.0",
     "koa-better-static": "^1.0.5",
-    "koa-bodyparser": "^4.2.0",
     "koa-log4": "^2.2.1",
+    "koa-logger": "^3.0.0",
     "koa-mount": "^3.0.0",
     "koa-onerror": "^3.1.0",
-    "koa-proxy": "^0.8.0",
-    "koa-router": "^7.1.1",
     "moment": "^2.18.1"
   },
   "devDependencies": {

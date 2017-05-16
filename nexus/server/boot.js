@@ -9,4 +9,5 @@ const App = require('./app');
 process.title = 'nexus-ui';
 
 const app = new App();
+
 app.start();
