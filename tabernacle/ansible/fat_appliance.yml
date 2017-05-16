@@ -38,5 +38,3 @@
     - { role: base/nginx }
     - { role: base/consul_template }
     - { role: base/dashboard }
-    - { role: dev/db }
-    - { role: dev/db_ic }

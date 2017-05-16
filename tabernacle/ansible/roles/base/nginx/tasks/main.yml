@@ -32,11 +32,5 @@
 - name: Make Sure Nginx Restarts After Failure
   lineinfile: dest=/etc/systemd/system/multi-user.target.wants/nginx.service line="Restart=always" insertafter="^KillMode" state=present
 
-- name: Install Service Locations Upstreams
-  template: src=service_locations.j2 dest=/etc/nginx/service_locations.conf
-
-- name: Install Service Upstreams
-  template: src=services.j2 dest=/etc/nginx/services.template
-
 - name: Copy Consul Service File
   template: src=balancer.json dest="/etc/consul.d/balancer.json"
