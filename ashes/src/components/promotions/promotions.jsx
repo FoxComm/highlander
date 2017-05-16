@@ -23,7 +23,7 @@ type Props = {
   list: Object,
   actions: Object,
   bulkExportAction: (
-    fields: Array<string>, entity: string, identifier: string, description: string, sort: Array<Object>
+    fields: Array<string>, entity: string, identifier: string, description: string
   ) => Promise<*>,
   bulkActions: {
     exportByIds: (

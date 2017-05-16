@@ -10,12 +10,12 @@ import { autobind } from 'core-decorators';
 import { bulkExportBulkAction, renderExportModal } from 'modules/bulk-export/helpers';
 
 // actions
-import { actions } from '../../modules/inventory/list';
+import { actions } from 'modules/inventory/list';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
 import { actions as bulkActions } from 'modules/inventory/bulk';
 
 // component
-import { SelectableSearchList } from '../list-page';
+import { SelectableSearchList } from 'components/list-page';
 import InventoryListRow from './inventory-list-row';
 import BulkActions from 'components/bulk-actions/bulk-actions';
 import BulkMessages from 'components/bulk-actions/bulk-messages';
@@ -49,7 +49,7 @@ class InventoryList extends Component {
   props: Props;
 
   @autobind
-  renderRow(row: Object, index: number, columns: Object, params: Object) {
+  renderRow(row: Object, index: number, columns: Array<Object>, params: Object) {
     const key = `inventory-sku-${row.id}`;
     return (
       <InventoryListRow

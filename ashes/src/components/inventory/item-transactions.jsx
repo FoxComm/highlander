@@ -1,19 +1,21 @@
-
 /* @flow weak */
 
-/** Libs */
-import { get, isString, capitalize } from 'lodash';
 import React, { Component } from 'react';
+
+// libs
+import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as dsl from '../../elastic/dsl';
+import * as dsl from 'elastic/dsl';
+import { autobind } from 'core-decorators';
 
-/** Components */
-import SearchList from '../list-page/search-list';
+// actions
+import { actions } from 'modules/inventory/transactions';
+import { bulkExport } from 'modules/bulk-export/bulk-export';
+
+// components
+import { SelectableSearchList } from 'components/list-page';
 import InventoryItemTransactionsRow from './item-transactions-row';
-
-/** Redux */
-import { actions } from '../../modules/inventory/transactions';
 
 type Actions = {
   setExtraFilters: Function,
@@ -29,6 +31,9 @@ type Props = {
   actions: Actions,
   params: Params,
   list: Object,
+  bulkExportAction: (
+    fields: Array<string>, entity: string, identifier: string, description: string
+  ) => Promise<*>,
 };
 
 const tableColumns = [
@@ -42,11 +47,6 @@ const tableColumns = [
   { field: 'afsNew', text: 'New AFS' },
 ];
 
-const renderRow = (row, index, columns) => {
-  return <InventoryItemTransactionsRow transaction={row} columns={columns} key={row.id}/>;
-};
-
-/** InventoryItemTransactions Component */
 class InventoryItemTransactions extends Component {
   props: Props;
 
@@ -58,12 +58,31 @@ class InventoryItemTransactions extends Component {
     this.props.actions.fetch();
   }
 
+  @autobind
+  renderRow(row: Object, index: number, columns: Array<Object>, params: Object) {
+    const key = `inventory-transaction-${row.id}`;
+
+    return (
+      <InventoryItemTransactionsRow
+        transaction={row}
+        columns={columns}
+        key={key}
+        params={params}
+      />
+    );
+  }
+
   render() {
     return (
-      <SearchList
+      <SelectableSearchList
+        exportEntity="inventoryTransactions"
+        exportTitle="Inventory Transactions"
+        bulkExport
+        bulkExportAction={this.props.bulkExportAction}
+        entity="inventory.transactions"
         emptyMessage="No transaction units found."
         list={this.props.list}
-        renderRow={renderRow}
+        renderRow={this.renderRow}
         tableColumns={tableColumns}
         searchOptions={{singleSearch: true}}
         searchActions={this.props.actions}
@@ -74,14 +93,17 @@ class InventoryItemTransactions extends Component {
 }
 
 
-function mapState(state) {
+const mapStateToProps = (state) => {
   return {
-    list: state.inventory.transactions
+    list: _.get(state.inventory, 'transactions', {}),
   };
-}
+};
 
-function mapDispatch(dispatch) {
-  return { actions: bindActionCreators(actions, dispatch) };
-}
+const mapDispatchToProps = (dispatch) => {
+  return {
+    actions: bindActionCreators(actions, dispatch),
+    bulkExportAction: bindActionCreators(bulkExport, dispatch),
+  };
+};
 
-export default connect(mapState, mapDispatch)(InventoryItemTransactions);
+export default connect(mapStateToProps, mapDispatchToProps)(InventoryItemTransactions);
