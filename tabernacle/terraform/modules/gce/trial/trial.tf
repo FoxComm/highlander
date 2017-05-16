@@ -14,6 +14,8 @@ variable "network" {}
 
 variable "amigo_image" {}
 
+variable "amigo_leader_image" {}
+
 variable "database_image" {}
 
 variable "search_image" {}
@@ -85,7 +87,7 @@ resource "google_compute_instance" "trial-amigo-0" {
   tags         = ["no-ip"]
 
   disk {
-    image = "${var.amigo_image}"
+    image = "${var.amigo_leader_image}"
     size  = "${var.amigo_disk_size}"
     type  = "pd-ssd"
   }
