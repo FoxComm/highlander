@@ -186,6 +186,26 @@ shortcuts:
     alias: trial_base.json
     target: packer/trial/base.json
 
+  - name: Trial Amigo Image
+    alias: trial_amigo.json
+    target: packer/trial/amigo.json
+
+  - name: Trial Amigo Leader Image
+    alias: trial_amigo_leader.json
+    target: packer/trial/amigo_leader.json
+
+  - name: Trial Database Image
+    alias: trial_database.json
+    target: packer/trial/database.json
+
+  - name: Trial Search Image
+    alias: trial_search.json
+    target: packer/trial/search.json
+
+  - name: Trial Frontend Image
+    alias: trial_frontend.json
+    target: packer/trial/frontend.json
+
   # Tinystack
   - name: Tinystack Amigo
     alias: tiny_amigo.json

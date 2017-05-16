@@ -1,0 +1,18 @@
+---
+
+- name: Packer Trial Database
+  hosts: all
+  become: true
+  vars:
+    user: ubuntu
+    packing: true
+
+  roles:
+    - { role: base/mesos_worker }
+    - { role: base/rsyslog }
+    - { role: base/confluent_platform }
+    - { role: base/db }
+    - { role: base/bottledwater }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
