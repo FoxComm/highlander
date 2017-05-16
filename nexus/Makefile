@@ -9,7 +9,7 @@ setup: clean
 	yarn --pure-lockfile
 
 build: setup
-	test -f .env && export eval `cat .env` || true && NODE_ENV=production ./node_modules/.bin/gulp build
+	test -f .env && export eval `cat .env` || true && NODE_ENV=production yarn build
 
 check:
 	yarn lint
@@ -26,9 +26,12 @@ clean: clean-build
 	rm -rf ./node_modules
 
 clean-build:
-	rm -rf ./build/* ./lib/* ./public/app-*.css ./public/app-*.js
+	rm -rf ./public/app-*.css ./public/app-*.js
 
 test: check
 	yarn test
 
-.PHONY: dev d setup build docker docker-push clean clean-build test check
+fmt:
+	yarn fmt
+
+.PHONY: dev d setup build docker docker-push clean clean-build test check fmt

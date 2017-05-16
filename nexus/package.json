@@ -9,7 +9,7 @@
     "flow": "flow check",
     "fmt": "node_modules/.bin/prettier --single-quote --trailing-comma es5 --write \"{src,server}/**/*.js\" --write \"webpack.config.js\"",
     "build": "./node_modules/.bin/webpack --config webpack.config.js",
-    "dev": "node ./server/boot.js"
+    "dev": "node ./server/boot.js & ./node_modules/.bin/webpack --config webpack.config.js --watch"
   },
   "author": "",
   "license": "ISC",
