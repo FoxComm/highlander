@@ -9,7 +9,6 @@ const test = require('./conditional-use');
 const _ = require('lodash');
 const fs = require('fs');
 
-
 const isProduction = process.env.NODE_ENV === 'production';
 
 function timestamp() {
@@ -28,7 +27,6 @@ function shouldCacheForLongTime(ctx) {
 }
 
 class App extends KoaApp {
-
   constructor(...args) {
     super(...args);
     onerror(this);
@@ -47,12 +45,17 @@ class App extends KoaApp {
       // serve all static in dev mode through one middleware,
       // enable the second one to add cache headers to app*.js and app*.css
       .use(test(mount(serve('public')), ctx => !shouldCacheForLongTime(ctx)))
-      .use(test(mount(serve('public'), { maxage: 31536000 }), shouldCacheForLongTime))
+      .use(
+        test(
+          mount(serve('public'), { maxage: 31536000 }),
+          shouldCacheForLongTime
+        )
+      )
       .use(mount(this.renderLayout()));
   }
 
   renderLayout() {
-    return function *() {
+    return function*() {
       const template = path.join(__dirname, '../public/index.html');
       const layout = fs.readFileSync(template, 'utf8');
 
