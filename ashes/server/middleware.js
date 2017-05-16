@@ -3,6 +3,14 @@ const path = require('path');
 const _ = require('lodash');
 const jwt = require('jsonwebtoken');
 
+let webpackManifest = {
+  'main.js': 'main.js'
+};
+
+if (process.env.NODE_ENV === 'production') {
+  webpackManifest['vendor.js'] = 'vendor.js';
+}
+
 function loadPublicKey(config) {
   try {
     return fs.readFileSync(config.api.auth.publicKey);
@@ -77,6 +85,7 @@ module.exports = function(app) {
 
   app.renderLayout = function *() {
     const layoutData = _.defaults({
+      manifest: webpackManifest,
       tokenOk: !!this.state.token,
       stylesheet: process.env.NODE_ENV === 'production' && `/admin/styles.css`,
       // use GA_LOCAL=1 gulp dev command for enable tracking events in google analytics from localhost

@@ -4,7 +4,6 @@
     "transform-decorators-legacy",
     "transform-class-properties",
     "check-es2015-constants",
-    "react-hot-loader/babel",
     "transform-es2015-arrow-functions",
     "transform-es2015-block-scoped-functions",
     "transform-es2015-block-scoping",

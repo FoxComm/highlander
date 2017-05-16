@@ -7,7 +7,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js(x)?$/,
+        test: /\.jsx?$/,
         include: [
           path.resolve(__dirname, '../src'),
         ],
@@ -32,6 +32,12 @@ module.exports = {
     new webpack.optimize.UglifyJsPlugin({
       compress: { warnings: false },
       sourceMap: false
+    }),
+
+    new webpack.optimize.CommonsChunkPlugin({
+      filename: '[name].js',
+      name: 'vendor',
+      minChunks: module => module.resource && module.resource.indexOf(path.resolve('node_modules')) >= 0,
     }),
 
     new ExtractTextPlugin('styles.css'),

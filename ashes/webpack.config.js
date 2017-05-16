@@ -10,13 +10,12 @@ const prodConfig = require('./webpack/prod');
 
 const baseConfig = {
   entry: [
-    'react-hot-loader/patch',
     path.resolve(__dirname, './src/client.js')
   ],
 
   output: {
     path: path.resolve(__dirname, './build/admin'),
-    publicPath: '/admin',
+    publicPath: '/admin/',
     filename: '[name].js',
   },
 
@@ -46,12 +45,6 @@ const baseConfig = {
       NODE_ENV: 'development',
       BEHIND_NGINX: false,
       GIT_REVISION: 'unknown'
-    }),
-
-    new webpack.optimize.CommonsChunkPlugin({
-      filename: '[name].js',
-      name: 'vendor',
-      minChunks: module => module.resource && module.resource.indexOf(path.resolve('node_modules')) >= 0,
     }),
 
     new SvgStore(),

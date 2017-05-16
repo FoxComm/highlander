@@ -21,7 +21,16 @@ import './css/base.css';
 import 'images/favicon.png';
 
 if (module.hot) {
-  module.hot.accept();
+  module.hot.accept(['./root', './routes', './store'], () => {
+    try {
+      require('./root');
+      require('./routes');
+    } catch (e) {
+      // pass
+    }
+    // do nothing, only css reload works
+    // because of, for example, https://github.com/pauldijou/redux-act/issues/42
+  });
 }
 
 const createBrowserHistory = useNamedRoutes(useRouterHistory(createHistory));
@@ -36,7 +45,6 @@ export function syncJWTFromServer() {
 }
 
 syncJWTFromServer();
-
 
 const routes = makeRoutes();
 let history = createBrowserHistory({ routes });
@@ -57,7 +65,9 @@ const currentUser = get(store.getState(), 'user.current');
 const needLogin = (!currentUser || !window.tokenOk) && isPathRequiredAuth(location.pathname);
 
 if (needLogin) {
-  store.dispatch(push('/login'));
+  const loginUri = process.env.BEHIND_NGINX ? '/admin/login' : '/login';
+
+  store.dispatch(push(loginUri));
 }
 
 history.listen(location => {

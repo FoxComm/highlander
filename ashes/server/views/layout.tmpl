@@ -95,8 +95,10 @@
   </div>
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,Intl.~locale.en"></script>
   <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
-  <script src="/admin/vendor.js"></script>
-  <script src="/admin/main.js"></script>
+  <% if (typeof manifest['vendor.js'] == 'string') { %>
+  <script src="/admin/<%= manifest['vendor.js'] %>"></script>
+  <% } %>
+  <script src="/admin/<%= manifest['main.js'] %>"></script>
   <script>
     ga('send', 'timing', 'JS Dependencies', 'load_time', getHMTime() - headEndTime);
   </script>

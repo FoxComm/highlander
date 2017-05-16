@@ -4,7 +4,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js(x)?$/,
+        test: /\.jsx?$/,
         include: [
           path.resolve(__dirname, '../src'),
         ],
