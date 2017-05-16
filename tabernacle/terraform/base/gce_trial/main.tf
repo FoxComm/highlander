@@ -100,15 +100,16 @@ module "trial_vpn" {
 # Production Cluster
 ##############################################
 module "trial_production" {
-  source          = "../../modules/gce/trial"
-  ssh_user        = "${var.ssh_user}"
-  ssh_private_key = "${var.ssh_private_key}"
-  network         = "${google_compute_network.trial.name}"
-  datacenter      = "trial"
-  amigo_image     = "base-170516-221225"
-  database_image  = "base-170516-221225"
-  search_image    = "base-170516-221225"
-  frontend_image  = "base-170516-221225"
+  source             = "../../modules/gce/trial"
+  ssh_user           = "${var.ssh_user}"
+  ssh_private_key    = "${var.ssh_private_key}"
+  network            = "${google_compute_network.trial.name}"
+  datacenter         = "trial"
+  amigo_image        = "base-170516-221225"
+  amigo_leader_image = "base-170516-221225"
+  database_image     = "base-170516-221225"
+  search_image       = "base-170516-221225"
+  frontend_image     = "base-170516-221225"
 }
 
 # ##############################################

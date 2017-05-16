@@ -5,6 +5,6 @@
     "zone": "us-central1-a",
     "base_ubuntu_image": "ubuntu-1604-xenial-v20160921",
     "base_image": "base-170516-221225",
-    "base_amigo_image": "",
+    "base_amigo_image": "trial-amigo-170516-231235",
     "ssh_username": "ubuntu"
 }
