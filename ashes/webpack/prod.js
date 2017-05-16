@@ -2,8 +2,15 @@ const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const ManifestPlugin = require('webpack-manifest-plugin');
+const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
 
 module.exports = {
+  output: {
+    filename: 'app.[hash:6].js',
+    sourceMapFilename: '[name].map'
+  },
+
   module: {
     rules: [
       {
@@ -29,19 +36,26 @@ module.exports = {
   },
 
   plugins: [
+    new webpack.optimize.CommonsChunkPlugin({
+      filename: 'vendor.[hash:6].js',
+      name: 'vendor',
+      minChunks: module => module.resource && module.resource.indexOf(path.resolve('node_modules')) >= 0,
+    }),
+
     new webpack.optimize.UglifyJsPlugin({
       compress: { warnings: false },
       sourceMap: false
     }),
 
-    new webpack.optimize.CommonsChunkPlugin({
-      filename: '[name].js',
-      name: 'vendor',
-      minChunks: module => module.resource && module.resource.indexOf(path.resolve('node_modules')) >= 0,
+    new ExtractTextPlugin('app.[contenthash:6].css'),
+    new OptimizeCssAssetsPlugin(),
+
+    new FaviconsWebpackPlugin({
+      logo: path.resolve(__dirname + '/../src/images/favicon.png'),
+      prefix: 'icons/',
     }),
 
-    new ExtractTextPlugin('styles.css'),
-    new OptimizeCssAssetsPlugin(),
+    new ManifestPlugin(),
   ],
 
   // https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/35
