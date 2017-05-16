@@ -2,7 +2,8 @@ import akka.http.scaladsl.model.HttpResponse
 import cats.implicits._
 import failures.AddressFailures.NoDefaultAddressForCustomer
 import failures.CreditCardFailures.NoDefaultCreditCardForCustomer
-import failures.{ArchiveFailures, NotFoundFailure404}
+import failures.NotFoundFailure404
+import failures.ArchiveFailures.LinkInactiveSkuFailure
 import failures.ShippingMethodFailures._
 import failures.UserFailures._
 import java.time.Instant
@@ -221,10 +222,10 @@ class CheckoutIntegrationTest
                     Map("activeFrom" → activeFromJson, "activeTo" → activeToJson)))
         .mustBeOk()
       class Cart // FIXME: bad failures design @michalrus
-      val expectedFailure = ArchiveFailures.LinkArchivedSkuFailure(
-          new Cart,
-          cartApi.get.asTheResult[CartResponse].referenceNumber,
-          skuCode)
+      val expectedFailure =
+        LinkInactiveSkuFailure(new Cart,
+                               cartApi.get.asTheResult[CartResponse].referenceNumber,
+                               skuCode)
       cartApi
         .checkout()
         .mustFailWith400(List.fill(4 /* FIXME: why 4? o_O @michalrus */ )(expectedFailure): _*)

@@ -95,7 +95,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
         warnings(
             response,
             inactiveSkus.map(sku ⇒
-                  ArchiveFailures.LinkArchivedSkuFailure(cart, cart.referenceNumber, sku.code)))
+                  ArchiveFailures.LinkInactiveSkuFailure(cart, cart.referenceNumber, sku.code)))
   }
 
   //todo: do we need alway have sku or at least sku or gc

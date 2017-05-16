@@ -352,7 +352,7 @@ object ProductManager extends LazyLogging {
                                                      else Seq.empty)
                 } yield existingSku
               } else {
-                DbResultT.failure(LinkArchivedSkuFailure(Product, product.id, code))
+                DbResultT.failure(LinkInactiveSkuFailure(Product, product.id, code))
               }
             }.getOrElse {
               for {
