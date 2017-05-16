@@ -95,7 +95,9 @@ object EntityExporter {
     (path, acc) match {
       case (h :: t, Some(jobj: JObject)) ⇒ extractValue(t, jobj.obj.toMap.get(h))
       case (ArrayElement(i) :: t, Some(jarr: JArray)) ⇒
-        extractValue(t, catching(classOf[IndexOutOfBoundsException]).opt(jarr(i)))
+        extractValue(t,
+                     catching(classOf[IndexOutOfBoundsException])
+                       .opt(if (i >= 0) jarr(i) else jarr(jarr.values.length - i)))
       case (Nil, _) ⇒
         acc.collect {
           case jn @ (_: JNumber | _: JBool) ⇒ jn.values.toString
