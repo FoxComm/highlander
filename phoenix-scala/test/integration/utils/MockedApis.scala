@@ -2,6 +2,8 @@ package utils
 
 import java.io.File
 
+import scala.concurrent.Future
+
 import cats.implicits._
 import com.stripe.model.DeletedCard
 import org.mockito.ArgumentMatcher
@@ -109,6 +111,8 @@ trait MockedApis extends MockitoSugar {
     val mocked = mock[AmazonApi]
     when(mocked.uploadFile(any[String], any[File])(any[EC]))
       .thenReturn(Result.good("amazon-image-url"))
+    when(mocked.uploadFileF(any[String], any[File])(any[EC]))
+      .thenReturn(Future.successful("amazon-image-url"))
     mocked
   }
 

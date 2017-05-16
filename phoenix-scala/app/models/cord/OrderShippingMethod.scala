@@ -2,7 +2,7 @@ package models.cord
 
 import models.shipping.{ShippingMethod, ShippingMethods}
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.db._
 
 case class OrderShippingMethod(id: Int = 0, cordRef: String, shippingMethodId: Int, price: Int)

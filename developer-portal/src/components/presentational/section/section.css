@@ -1,0 +1,23 @@
+.section {
+}
+
+.section__title-block {
+  display: flex;
+}
+
+.section__title {
+  flex-basis: 50%;
+  font-size: 24px;
+  font-weight: 300;
+  padding: 20px 40px;
+}
+
+.section__buffer {
+  background-color: #263349;
+  flex-basis: 50%;
+  padding: 20px 40px;
+}
+
+.section__content {
+  display: flex;
+}

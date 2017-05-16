@@ -7,7 +7,7 @@ import responses.ObjectResponses.ObjectSchemaResponse._
 import models.objects._
 import utils.aliases._
 import utils.db._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 
 object ObjectSchemasManager {
 

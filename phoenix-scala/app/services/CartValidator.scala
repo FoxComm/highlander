@@ -13,12 +13,8 @@ import models.inventory.{Sku, Skus}
 import models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
 import services.objects.ObjectManager
-import slick.dbio.Effect
-import slick.driver.PostgresDriver
-import slick.driver.PostgresDriver.api._
-import slick.lifted.QueryBase
-import slick.profile.FixedSqlAction
 import utils.IlluminateAlgorithm
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

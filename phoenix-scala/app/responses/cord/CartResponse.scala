@@ -10,7 +10,7 @@ import responses.PromotionResponses.PromotionResponse
 import responses._
 import responses.cord.base._
 import services.carts.CartQueries
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

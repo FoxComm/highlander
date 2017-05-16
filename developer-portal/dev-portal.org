@@ -1,0 +1,116 @@
+#+TITLE: Developer Portal Content
+
+* Home
+
+** Welcome
+
+Welcome to FoxCommerce! The Fox Platform is a large and diverse set of services
+that allow you create the next generation of modern commerce experiences. Get
+familiar with the different aspects of the platorm:
+
+*** Customers
+    
+The Customers Module of the Fox Platform is basis for tracking, understanding,
+and taking action against everything that a customer does on a Fox-powered site
+or connected channel.
+
+Inside of this module, you can:
+
+- See the cart, purchase history for any site powered by the Fox APIs
+- View purchase history for connected third-party channels, such as Amazon
+- Get insights about the customer, such as total sales, average order, and return rate
+- Cluster similar customers into groups to power messaging and custom promotions
+- Suggest products based on previous behavior on site and through connected channels
+    
+**** Customer
+     
+The /Customer/ is the gateway to understand who your users are and how they use
+your site and connected channels. When, viewing a /Customer/, you get basic
+information about the user (such as email, phone, preferred shipping and payment
+information, messaging preferences, and sales statistics.
+
+Here's a quick example of what you might see:
+
+#+BEGIN_SRC json
+{
+    "id": 1193,
+    "email": "kiarra_heller@hotmail.com",
+    "phoneNumber": "2065551212",
+    "name": "Raegan",
+    "createdAt": "2017-05-03T06:24:39.043Z",
+    "disabled": false,
+    "isGuest": false,
+    "isBlacklisted": false,
+    "totalSales": 0,
+    "storeCreditTotals": {
+        "availableBalance": 0,
+        "currentBalance": 0
+    },
+    "groups": []
+}
+#+END_SRC
+
+     
+**** Insights
+
+**** Groups 
+
+*** Products
+    
+**** Product
+
+**** Variant
+
+**** Option
+
+*** Orders
+    
+**** Cart
+
+**** Order
+
+**** Shipping
+
+**** Payment
+
+***** Credit Card
+
+***** Gift Card
+
+***** Store Credit
+
+*** Inventory
+
+**** SKU
+
+**** Stock Item
+
+**** Stock Location
+     
+*** Merchandising
+
+**** Promotions
+
+***** Discount
+
+***** Promotion
+
+***** Coupon
+
+**** Album
+
+**** Versioning
+
+*** Intelligence
+
+**** Cross Sells
+
+**** Product Reviews
+    
+*** Activities
+
+*** Extending
+
+*** Other
+
+**** Amazon?

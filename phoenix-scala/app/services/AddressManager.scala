@@ -8,7 +8,7 @@ import models.account._
 import models.location.{Address, Addresses}
 import payloads.AddressPayloads._
 import responses.AddressResponse
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

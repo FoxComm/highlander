@@ -1,5 +1,5 @@
 /* @flow */
-import React, { PropTypes, Component, Element } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 
 import Currency from 'components/common/currency';

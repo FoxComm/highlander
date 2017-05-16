@@ -2,7 +2,7 @@
 /* @flow weak */
 
 import _ from 'lodash';
-import React, { Component, Element } from 'react';
+import React, { Element } from 'react';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
 

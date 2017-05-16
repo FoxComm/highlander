@@ -16,7 +16,11 @@ type Props = {
   className?: string,
   /** Button content (label) */
   children?: Element<any>,
-}
+  /** If true — sets `width` style to 100% */
+  fullWidth?: boolean,
+  /** Small theme for button */
+  small?: boolean,
+};
 
 /**
  * Button component has a bunch of helper components built on top of generic `Button` component.
@@ -24,14 +28,19 @@ type Props = {
  *
  * @function Button
  */
-export const Button = ({ icon, children, isLoading = false, className = '', ...restProps }: Props) => {
+export const Button = ({ icon, children, isLoading, className, fullWidth, small, ...restProps }: Props) => {
+  const hasIcon = !!icon;
+  const content = children ? <span className={s.text}>{children}</span> : null;
   const cls = classNames(
     s.button,
-    { [s.loading]: isLoading },
+    {
+      [s.loading]: isLoading,
+      [s.fullWidth]: fullWidth,
+      [s.small]: small,
+      [s.onlyIcon]: hasIcon && !content
+    },
     className
   );
-
-  const content = children ? <span className={s.text}>{children}</span> : null;
 
   return (
     <button {...restProps} className={cls}>
@@ -77,4 +86,12 @@ export const DeleteButton = ({ className, ...rest }: Props) => {
 
 export const CloseButton = ({ className, ...rest }: Props) => {
   return <Button icon='close' {...rest} className={classNames(s.close, className)} />;
+};
+
+type SocialProps = Props & {
+  type: 'google',
+};
+
+export const SocialButton = ({ className, type, ...rest }: SocialProps) => {
+  return <Button icon={type} {...rest} className={classNames(s.socialButton, s[type], className)} />;
 };

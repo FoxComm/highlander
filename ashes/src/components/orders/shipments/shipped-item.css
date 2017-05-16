@@ -4,13 +4,9 @@
   padding: 10px;
 }
 
-.cell {
+.name {
   display: flex;
   align-items: center;
-}
-
-.name {
-  composes: cell;
   font-weight: 600;
   width: 40%;
 
@@ -22,27 +18,32 @@
 }
 
 .sku {
-  composes: cell;
+  display: flex;
+  align-items: center;
   width: 15%;
 }
 
 .price {
-  composes: cell;
+  display: flex;
+  align-items: center;
   width: 15%;
 }
 
 .quantity {
-  composes: cell;
+  display: flex;
+  align-items: center;
   width: 15%;
 }
 
 .state {
-  composes: cell;
+  display: flex;
+  align-items: center;
   width: 15%;
 }
 
 .total {
-  composes: cell;
+  display: flex;
+  align-items: center;
   min-width: 80px;
   padding-right: 10px;
   justify-content: flex-end;

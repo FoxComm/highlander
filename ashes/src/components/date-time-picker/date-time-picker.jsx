@@ -2,12 +2,11 @@
  * @flow
  */
 
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
 import moment from 'moment';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
-import { Dropdown, DropdownItem } from '../dropdown';
 import DatePicker from '../datepicker/datepicker';
 import DateTimeCounter from './counter';
 import TextInput from '../forms/text-input';

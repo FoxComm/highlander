@@ -7,7 +7,7 @@ import models.Reasons
 import models.cord._
 import models.payment.giftcard._
 import payloads.PaymentPayloads.GiftCardPayment
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import testutils._
 import utils.db._
 import utils.seeds.Factories

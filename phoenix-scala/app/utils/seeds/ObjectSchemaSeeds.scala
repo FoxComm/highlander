@@ -3,7 +3,7 @@ package utils.seeds
 import models.objects._
 import org.json4s.JValue
 import org.json4s.jackson.JsonMethods._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global

@@ -14,7 +14,12 @@ Run the server.
 
 ## API
 
-```GET /api/v1/suggester/customer/:customer_id```
+| Action      | Endpoint                                                              | Payload                                           |
+|-------------|-----------------------------------------------------------------------|---------------------------------------------------|
+| GET         | /api/v1/public/suggest/ping                                           |                                                   |
+| POST        | /api/v1/public/suggest/customer?channel=[integer]                     | {"customerID": "string", "phoneNumber": "string"} |
+| POST        | /api/v1/public/suggest/customer/[international-phone-number]/decline  |                                                   |
+| POST        | /api/v1/public/suggest/customer/[international-phone-number]/purchase |                                                   |
 
 ## Structure
 | Directory                              | Description                                                                                                  |

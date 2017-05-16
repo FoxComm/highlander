@@ -8,7 +8,7 @@ import models.admin.{AdminData, AdminsData}
 import payloads.StoreAdminPayloads._
 import responses.StoreAdminResponse
 import services.account._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

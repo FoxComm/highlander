@@ -1,3 +1,8 @@
+.title {
+  font-size: 20px;
+  line-height: 27px;
+  margin-top: 40px;
+}
 
 .or-line {
   margin-top: 20px;
@@ -14,14 +19,10 @@
   color: #484848;
 }
 
-.auth-row {
+.main {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.main {
-  composes: auth-row;
   width: 388px;
 
   & :global(.fc-input),
@@ -32,14 +33,14 @@
 
 .content {
   width: 100%;
+  margin-top: 30px;
 
   & :global(.fc-alert) {
-    margin-top: 20px;
+    margin: 20px 0;
   }
 }
 
 .form {
-  composes: global(fc-form-vertical);
   width: 100%;
   margin-top: 20px;
 
@@ -56,21 +57,6 @@
 
 .submit-button {
   margin-top: 20px;
-  width: 100%;
-}
-
-.google-button {
-  composes: global(fc-btn);
-
-  margin-top: 30px;
-  width: 100%;
-  color: #ffffff;
-  background-color: rgb(243, 86, 88);
-
-  &:hover {
-    color: #ffffff;
-    background-color: rgb(240, 60, 67);
-  }
 }
 
 .password-label {

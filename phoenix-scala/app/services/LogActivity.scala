@@ -573,15 +573,15 @@ case class LogActivity(implicit ac: AC) {
   /* Customer Groups */
   def customerGroupCreated(customerGroup: CustomerGroup,
                            admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
-    Activities.log(CustomerGroupCreated(customerGroup, admin))
+    Activities.log(CustomerGroupCreated(CustomerGroupActivity(customerGroup), admin))
 
   def customerGroupUpdated(customerGroup: CustomerGroup,
                            admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
-    Activities.log(CustomerGroupUpdated(customerGroup, admin))
+    Activities.log(CustomerGroupUpdated(CustomerGroupActivity(customerGroup), admin))
 
   def customerGroupArchived(customerGroup: CustomerGroup,
                             admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
-    Activities.log(CustomerGroupArchived(customerGroup, admin))
+    Activities.log(CustomerGroupArchived(CustomerGroupActivity(customerGroup), admin))
 
   /* Mail stuff */
 

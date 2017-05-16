@@ -1,0 +1,11 @@
+ {
+    "name": "fox-developer-content",
+    "version": "0.0.1",
+    "description": "Explain how this damn thing works",
+    "main": "index.js",
+    "license": "MIT",
+    "dependencies": {
+      "aglio": "2.3.0",
+      "aglio-theme-fox": "git@github.com:FoxComm/aglio-theme-fox.git"
+   }
+ }

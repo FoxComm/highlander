@@ -16,7 +16,7 @@ import payloads.LineItemPayloads._
 import responses.TheResponse
 import responses.cord.{CartResponse, OrderResponse}
 import services.carts.{CartPromotionUpdater, CartTotaler}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.JsonFormatters
 import utils.aliases._
 import utils.apis.Apis

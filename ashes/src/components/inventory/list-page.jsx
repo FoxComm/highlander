@@ -1,7 +1,7 @@
 
 // libs
-import React, { PropTypes } from 'react';
-import { transitionTo } from 'browserHistory';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 // components
 import { ListPageContainer, makeTotalCounter } from '../list-page';

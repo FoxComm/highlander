@@ -6,10 +6,10 @@ object Versions {
   // https://github.com/kwark/slick/blob/3.1-deadlock/README.md
   // Fixes a critical deadlock in slick.
   // Change once lands in mainline.
-  val slick     = "3.1.1.2"
+  val slick     = "3.2.0"
   val json4s    = "3.4.0"
   val akka      = "2.4.7"
-  val slickPg   = "0.14.2"
+  val slickPg   = "0.15.0-RC"
   val gatling   = "2.2.1"
   val dispatch  = "0.11.3"
   val fasterxml = "2.8.2"
@@ -52,8 +52,8 @@ object Dependencies {
   val db = Seq(
     "com.github.tminglei" %% "slick-pg"         % Versions.slickPg,
     "com.github.tminglei" %% "slick-pg_json4s"  % Versions.slickPg,
-    "com.zaxxer"          % "HikariCP"          % "2.4.7" % "provided",
-    "org.postgresql"      % "postgresql"        % "9.4.1208",
+    "com.zaxxer"          % "HikariCP"          % "2.6.1",
+    "org.postgresql"      % "postgresql"        % "42.1.1",
     "org.flywaydb"        % "flyway-core"       % "4.0.3",
     "com.wix"               %% "accord-core"            % "0.5", // Validation
     "io.backchat.inflector" %% "scala-inflector"        % "1.3.5", // used only for singularizing table names in error messages…

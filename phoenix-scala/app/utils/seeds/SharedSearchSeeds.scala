@@ -7,7 +7,7 @@ import models.admin._
 import models.sharedsearch.{SharedSearch, SharedSearchAssociation, SharedSearchAssociations, SharedSearches}
 import org.json4s.jackson.JsonMethods._
 import utils.db._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases.AU
 
 trait SharedSearchSeeds {

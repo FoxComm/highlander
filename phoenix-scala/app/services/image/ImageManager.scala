@@ -18,7 +18,7 @@ import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
 import services.inventory.SkuManager
 import services.objects.ObjectManager
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 
@@ -118,6 +118,33 @@ object ImageManager {
       _ ← * <~ AlbumImageLinks.filter(_.id inSet linksToDelete.map(_.id)).delete
       _ ← * <~ Images.filterByIds(linksToDelete.map(_.rightId)).delete
     } yield updatedImages
+
+  def createOrUpdateImages(imagesPayload: Seq[ImagePayload], context: ObjectContext)(
+      implicit ec: EC,
+      db: DB,
+      au: AU): DbResultT[Seq[FullObject[Image]]] =
+    for {
+      images ← * <~ imagesPayload.map { payload ⇒
+                payload.id match {
+                  case None ⇒
+                    for {
+                      inserted ← * <~ ObjectUtils.insertFullObject(
+                                    payload.formAndShadow,
+                                    ins ⇒ createImageHeadFromInsert(context, ins, payload.scope))
+                    } yield inserted
+                  case Some(id) ⇒
+                    for {
+                      image ← * <~ ObjectManager.getFullObject(Images.mustFindById404(id))
+                      (newForm, newShadow) = payload.formAndShadow.tupled
+                      updated ← * <~ ObjectUtils.commitUpdate(image,
+                                                              newForm.attributes,
+                                                              newShadow.attributes,
+                                                              updateImageHead)
+                    } yield updated
+                }
+              }
+
+    } yield images
 
   def createOrUpdateImageForAlbum(
       album: Album,

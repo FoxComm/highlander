@@ -1,7 +1,7 @@
 
 /* @flow */
 
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { transitionTo } from 'browserHistory';

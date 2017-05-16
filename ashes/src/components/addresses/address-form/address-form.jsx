@@ -1,7 +1,8 @@
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
-import InputMask from 'react-input-mask';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { TextMask } from 'components/core/text-mask';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -20,7 +21,7 @@ import AutoScroll from '../../common/auto-scroll';
 import * as validators from '../../../lib/validators';
 import * as AddressFormActions from '../../../modules/address-form';
 import * as CountryActions from '../../../modules/countries';
-import {regionName, zipName, zipExample, phoneExample, phoneMask} from '../../../i18n';
+import { regionName, zipName, zipExample, phoneExample, phoneMask } from '../../../i18n';
 
 const formNamespace = props => _.get(props, 'address.id', 'new');
 
@@ -125,7 +126,13 @@ export default class AddressForm extends React.Component {
 
     if (this.countryCode === 'US') {
       const onChange = ({ target: { value }}) => this.handlePhoneChange(value);
-      input = <InputMask {...inputAttributes} onChange={onChange} mask={phoneMask(this.countryCode)}/>;
+      input = (
+        <TextMask
+          {...inputAttributes}
+          onChange={onChange}
+          mask={phoneMask(this.countryCode)}
+        />
+      );
     } else {
       const onChange = value => this.handlePhoneChange(value);
       input = <TextInput {...inputAttributes} onChange={onChange} maxLength="15"/>;

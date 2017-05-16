@@ -27,7 +27,7 @@ import responses.cord.CartResponse
 import services.customerGroups.GroupMemberManager
 import services.discount.compilers._
 import services.{CartValidator, LineItemManager, LogActivity}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.JsonFormatters
 import utils.aliases._
 import utils.apis.Apis

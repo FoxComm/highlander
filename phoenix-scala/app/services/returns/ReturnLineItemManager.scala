@@ -15,7 +15,7 @@ import responses.ReturnResponse
 import responses.cord.base.CordResponseLineItems
 import services.{LineItemManager, LogActivity}
 import services.inventory.SkuManager
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 
@@ -121,13 +121,15 @@ object ReturnLineItemManager {
       orderedQuantity ← * <~ OrderLineItems
                          .findByOrderRef(rma.orderRef)
                          .forContextAndCode(oc.id, sku)
-                         .countDistinct
+                         .distinct
+                         .length
                          .result
       previouslyReturned ← * <~ Returns
                             .findPrevious(rma)
                             .join(ReturnLineItemSkus.findByContextAndCode(oc.id, sku))
                             .on(_.id === _.returnId)
-                            .countDistinct
+                            .distinct
+                            .length
                             .result
       maxQuantity = orderedQuantity - previouslyReturned
       _ ← * <~ failIf(quantity > maxQuantity,

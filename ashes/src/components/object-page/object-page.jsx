@@ -4,7 +4,8 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import EventEmitter from 'events';
 import { bindActionCreators } from 'redux';
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
+import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import { push } from 'react-router-redux';
 import { autobind } from 'core-decorators';
@@ -131,10 +132,6 @@ export function connectPage(namespace, actions, options = {}) {
   };
 }
 
-function getObjectId(object) {
-  return _.get(object, 'form.id', object.id);
-}
-
 export class ObjectPage extends Component {
   state = {
     object: this.props.originalObject,
@@ -259,8 +256,12 @@ export class ObjectPage extends Component {
     }
   }
 
+  getObjectId(object) {
+    return _.get(object, 'form.id', object.id);
+  }
+
   receiveNewObject(nextObject) {
-    const nextObjectId = getObjectId(nextObject);
+    const nextObjectId = this.getObjectId(nextObject);
     const wasNew = this.isNew;
     this.setState({
       object: nextObject
@@ -444,23 +445,23 @@ export class ObjectPage extends Component {
   }
 
   @autobind
-  alterSave(){
+  alterSave() {
     return null;
   }
 
   @autobind
   titleBar() {
     return (<PageTitle title={this.pageTitle}>
-        {this.renderHead()}
-        <ButtonWithMenu
-          title="Save"
-          menuPosition="right"
-          onPrimaryClick={this.handleSubmit}
-          onSelect={this.handleSelectSaving}
-          isLoading={this.props.isSaving}
-          items={SAVE_COMBO_ITEMS}
-        />
-      </PageTitle>);
+      {this.renderHead()}
+      <ButtonWithMenu
+        title="Save"
+        menuPosition="right"
+        onPrimaryClick={this.handleSubmit}
+        onSelect={this.handleSelectSaving}
+        isLoading={this.props.isSaving}
+        items={SAVE_COMBO_ITEMS}
+      />
+    </PageTitle>);
   }
 
   childrenProps() {

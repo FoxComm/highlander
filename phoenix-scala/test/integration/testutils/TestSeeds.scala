@@ -10,7 +10,7 @@ import models.customer._
 import models.payment.giftcard._
 import services.Authenticator.AuthData
 import services.account.AccountManager
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import testutils.fixtures.TestFixtureBase
 import utils.aliases._
 import utils.db._

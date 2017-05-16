@@ -12,7 +12,7 @@ import payloads.AddressPayloads.CreateAddressPayload
 import payloads.PaymentPayloads.CreateCreditCardFromTokenPayload
 import responses.CreditCardsResponse
 import responses.CreditCardsResponse.Root
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis._
 import testutils.fixtures.BakedFixtures

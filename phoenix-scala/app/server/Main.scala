@@ -18,7 +18,7 @@ import services.Authenticator
 import services.Authenticator.{UserAuthenticator, requireAdminAuth}
 import services.account.AccountCreateContext
 import services.actors._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.FoxConfig.config
 import utils.apis._
 import utils.db._

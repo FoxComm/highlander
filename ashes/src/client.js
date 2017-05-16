@@ -1,4 +1,4 @@
-require('babel-polyfill');
+import 'babel-polyfill';
 
 import get from 'lodash/get';
 import React from 'react';

@@ -1,7 +1,8 @@
 /* @flow weak */
 
 //libs
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 // components
 import { SectionTitle } from '../section-title';

@@ -1,6 +1,7 @@
 /** Libs */
-import { get, isString, capitalize } from 'lodash';
-import React, { PropTypes } from 'react';
+import { get } from 'lodash';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 /** Components */
 import Row from '../table/row';

@@ -1,5 +1,6 @@
 //libs
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 
 //data
@@ -98,7 +99,7 @@ export default class QueryBuilder extends React.Component {
           {conditions.map(this.renderCriterion)}
         </div>
         <div className={prefixed('add-criterion')} onClick={this.addCondition}>
-          <AddButton type="button" onClick={this.addCondition} />
+          <AddButton type="button" onClick={this.addCondition} small />
           <span>Add criteria</span>
         </div>
       </div>

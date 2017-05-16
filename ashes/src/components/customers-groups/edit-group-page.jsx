@@ -9,7 +9,6 @@ import { push } from 'react-router-redux';
 import { reset, fetchGroup, saveGroup, clearFetchErrors, clearSaveErrors } from 'modules/customer-groups/details/group';
 import { fetchRegions } from 'modules/regions';
 
-import { Link } from 'components/link';
 import WaitAnimation from 'components/common/wait-animation';
 import Error from 'components/errors/error';
 
@@ -58,7 +57,7 @@ class NewGroupBase extends Component {
 
   @autobind
   handleSave() {
-    const { group, saveGroup, push } = this.props;
+    const { saveGroup, push } = this.props;
 
     saveGroup().then(res => {
       push({ name: 'customer-group', params: { groupId: res.id } });

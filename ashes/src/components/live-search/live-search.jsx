@@ -1,5 +1,6 @@
 // libs
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 
 import _ from 'lodash';
@@ -7,7 +8,7 @@ import classNames from 'classnames';
 import { trackEvent } from 'lib/analytics';
 
 // components
-import MaskedInput from '../masked-input/masked-input';
+// import MaskedInput from '../masked-input/masked-input'; // @todo get back
 import Menu from '../menu/menu';
 import MenuItem from '../menu/menu-item';
 import PilledInput from '../pilled-search/pilled-input';
@@ -95,6 +96,8 @@ export default class LiveSearch extends React.Component {
     noGutter: false,
   };
 
+  _input: HTMLElement;
+
   componentDidMount() {
     this.props.submitFilters(this.currentSearch.query, true);
 
@@ -104,8 +107,8 @@ export default class LiveSearch extends React.Component {
   }
 
   componentDidUpdate() {
-    if (this.state.shouldSetFocus && !this.isDisabled) {
-      this.refs.input.focus();
+    if (this.state.shouldSetFocus && !this.isDisabled && this._input) {
+      this._input.focus();
     }
   }
 
@@ -641,7 +644,8 @@ export default class LiveSearch extends React.Component {
                 formatPill={this.formatPill}
                 icon={null}
                 pills={this.state.pills}>
-                <MaskedInput
+              {/* @todo get back MaskedInput */}
+                <input
                   className="fc-pilled-input__input-field _no-fc-behavior"
                   mask={this.state.inputMask}
                   onChange={this.change}
@@ -652,7 +656,7 @@ export default class LiveSearch extends React.Component {
                   prepend={this.state.searchPrepend}
                   value={this.state.searchDisplay}
                   disabled={this.isDisabled}
-                  ref="input" />
+                  ref={i => this._input = i} />
               </PilledInput>
             </form>
 

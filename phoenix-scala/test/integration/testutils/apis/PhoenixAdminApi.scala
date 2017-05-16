@@ -516,6 +516,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def active()(implicit aa: TestAdminAuth): HttpResponse =
       GET(shippingMethodsPrefix, aa.jwtCookie.some)
 
+    def searchByRegion(countryCode: String)(implicit aa: TestAdminAuth): HttpResponse =
+      GET(s"$shippingMethodsPrefix/$countryCode", aa.jwtCookie.some)
+
     def forCart(refNum: String)(implicit aa: TestAdminAuth): HttpResponse =
       GET(s"$shippingMethodsPrefix/$refNum", aa.jwtCookie.some)
 

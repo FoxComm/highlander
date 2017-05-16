@@ -7,7 +7,7 @@ import models.location.Country._
 import models.location.Region._
 import models.location._
 import responses.PublicResponses.CountryWithRegions
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 
