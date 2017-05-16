@@ -135,8 +135,11 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
 
   trait Sku_Raw extends StoreAdmin_Seed {
 
-    val simpleSku: Sku =
-      Mvp.insertSku(Scope.current, ctx.id, SimpleSku("BY-ITSELF", "A lonely item", 9999)).gimme
+    val simpleSku: Sku = Mvp
+      .insertSku(Scope.current,
+                 ctx.id,
+                 SimpleSku("BY-ITSELF", "A lonely item", 9999, active = true))
+      .gimme
   }
 
   trait ProductWithVariants_Raw extends StoreAdmin_Seed {
