@@ -1,0 +1,10 @@
+.container {
+  background: #f2f2f2;
+  color: #484848;
+}
+
+.header {
+  height: 30px;
+  line-height: 20px;
+  background: #fff;
+}
