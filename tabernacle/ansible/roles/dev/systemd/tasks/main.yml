@@ -1,0 +1,20 @@
+---
+
+- name: Start Services
+  service: name={{item}} state=restarted enabled=true
+  with_items:
+    - consul_agent
+    - zookeeper
+    - kafka
+    - schema-registry
+    - mesos_master
+    - mesos_worker
+    - marathon
+    - marathon_consul
+    - postgresql
+    - pgweb
+    - bottledwater_phoenix
+    - bottledwater_middlewarehouse
+    - elasticsearch
+    - elasticsearch_5
+    - kibana

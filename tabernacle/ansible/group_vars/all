@@ -6,9 +6,13 @@ usr_local: /usr/local/
 public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
 scala_version: scala-2.11
-foxcomm_domain: foxcommerce.com
 logrotate_dir: /etc/logrotate.d
+
+# Appliance-related things
 appliance_prefix: appliance
+appliance_hostname: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
+dashboard_assets_location: /usr/local/dashboard
+dashboard_port: 4198
 
 # Prompt answers
 prompt_yes:

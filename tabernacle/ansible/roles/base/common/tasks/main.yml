@@ -68,3 +68,6 @@
 
 - name: Remove Unattended Upgrades
   apt: name=unattended-upgrades state=absent
+
+- name: Remove Daily Apt
+  file: path=/etc/cron.daily/apt-compat state=absent
