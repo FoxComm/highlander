@@ -24,8 +24,6 @@
   args:
       chdir: "{{home}}/libfastjson"
 
-  sudo: true
-
 - name: Get Rsyslog
   get_url: url=http://www.rsyslog.com/files/download/rsyslog/rsyslog-8.23.0.tar.gz dest={{home}}/
 
@@ -40,12 +38,11 @@
       chdir: "{{home}}/rsyslog-8.23.0"
 
 - name: Make Rsyslog
-  make: 
+  make:
       chdir: "{{home}}/rsyslog-8.23.0"
 
 - name: Install Rsyslog
-  sudo: true
-  make: 
+  make:
       target: install
       chdir: "{{home}}/rsyslog-8.23.0"
 
@@ -76,7 +73,7 @@
     group=root
     mode=0644
 
-- name: Install rsyslog kafka config
+- name: Install Rsyslog kafka config
   template: >
     src=kafka.conf.j2
     dest=/etc/rsyslog.d/53-kafka.conf
