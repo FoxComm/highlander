@@ -8,13 +8,14 @@ begin
                                             skus.code,
                                             users.name,
                                             pr.content -> 'title' ->> 'v' as title,
-                                            pr.content -> 'body' ->> 'v' as body,
-                                            pr.created_at,
-                                            pr.updated_at,
-                                            pr.archived_at
+                                            pr.content -> 'body' ->> 'v'  as body,
+                                            to_char(pr.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+                                            to_char(pr.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+                                            to_char(pr.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
                                           from product_reviews as pr
                                             inner join users on pr.user_id = users.id
-                                            inner join skus on pr.sku_id = skus.id;
+                                            inner join skus on pr.sku_id = skus.id
+                                          where pr.id = new.id;
 
   return null;
 end; $$ language plpgsql;
@@ -25,15 +26,15 @@ after insert on product_reviews
 for each row
 execute procedure insert_product_reviews_search_view_from_insert_fn();
 
-create function update_product_reviews_search_view_from_update_fn()
+create or replace function update_product_reviews_search_view_from_update_fn()
   returns trigger
 as $$
 begin
   update product_reviews_search_view
   set title     = new.content -> 'title' ->> 'v',
     body        = new.content -> 'body' ->> 'v',
-    updated_at  = new.updated_at,
-    archived_at = new.archived_at
+    updated_at  = to_char(new.updated_at,'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+    archived_at = to_char(new.archived_at,'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
   where product_reviews_search_view.id = new.id;
 
   return null;
