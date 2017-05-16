@@ -16,5 +16,5 @@ mesos-slave --hostname=$IP \
     --work_dir=$WORK_DIR \
     --log_dir=$LOG_DIR \
     --sandbox_directory=$SANDBOX_DIR \
-    {{% if is_appliance %}}--resources=file:///var/lib/mesos/resources.json \{% endif %}
+    {% if is_appliance %}--resources=file:///var/lib/mesos/resources.json \{% endif %}
     --executor_registration_timeout=10mins
