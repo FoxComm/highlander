@@ -1,6 +1,5 @@
 /* @flow */
 
-import _ from 'lodash';
 import React from 'react';
 import { render } from 'react-dom';
 import makeStore from './store';
@@ -8,8 +7,6 @@ import makeRoutes from './routes';
 import createHistory from 'history/createBrowserHistory';
 import { ConnectedRouter } from 'react-router-redux';
 import { Provider } from 'react-redux';
-
-const DEBUG = process.env.NODE_ENV != 'production';
 
 function renderApp() {
   const history = createHistory();

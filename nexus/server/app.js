@@ -6,7 +6,6 @@ const path = require('path');
 const serve = require('koa-better-static');
 const koaMount = require('koa-mount');
 const test = require('./conditional-use');
-const _ = require('lodash');
 const fs = require('fs');
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -37,7 +36,6 @@ class App extends KoaApp {
       this.use(log4js.koaLogger(log4js.getLogger('http'), { level: 'auto' }));
     } else {
       const logger = require('koa-logger');
-      console.log(logger);
       this.use(logger());
     }
 
@@ -55,7 +53,7 @@ class App extends KoaApp {
   }
 
   renderLayout() {
-    return function*() {
+    return function* () {
       const template = path.join(__dirname, '../public/index.html');
       const layout = fs.readFileSync(template, 'utf8');
 
@@ -64,7 +62,7 @@ class App extends KoaApp {
   }
 
   start() {
-    this.listenPort = process.env.PORT ? Number(process.env.PORT) : 4041;
+    this.listenPort = process.env.PORT ? Number(process.env.PORT) : 4050;
 
     this.listen(this.listenPort);
     this.logInfo();
@@ -72,8 +70,7 @@ class App extends KoaApp {
 
   logInfo() {
     const description = require('../package.json').description;
-    /* eslint-disable no-console-log/no-console-log */
-    console.log(
+    console.info(
       `%s: %s ${chalk.blue('%s')} ${chalk.green('api: %s')} ${chalk.red('development url: http://localhost:%d')}`,
       timestamp(),
       description,

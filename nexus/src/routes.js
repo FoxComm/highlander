@@ -1,10 +1,12 @@
+/* @flow */
+
 import React from 'react';
-import { Route, IndexRoute } from 'react-router';
+import { Route } from 'react-router';
 
 const Hello = () => {
   return <div>Nexus</div>;
 };
 
-export default function makeRoutes(store) {
+export default function makeRoutes() {
   return <Route path="/" component={Hello} />;
 }

@@ -1,3 +1,8 @@
+const fs = require('fs');
+const path = require('path');
+
+let rev;
+
 try {
   rev = fs.readFileSync(path.resolve(__dirname, '.git-rev'), 'utf8').trim();
 } catch (e) {

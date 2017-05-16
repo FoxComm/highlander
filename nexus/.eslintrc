@@ -57,7 +57,7 @@
     "react/jsx-filename-extension": 0,
     "no-plusplus": 0,
     "no-mixed-operators": 0,
-    "no-unused-vars": [2, { "varsIgnorePattern": "^styles$", "ignoreRestSiblings": true }],
+    "no-unused-vars": [2, { "varsIgnorePattern": "^(styles|webpack)$", "ignoreRestSiblings": true }],
     "consistent-return": 0,
     "import/extensions": 0,
     "react/prefer-stateless-function": 1,

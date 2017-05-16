@@ -2,18 +2,11 @@
 
 import _ from 'lodash';
 import { createStore, applyMiddleware as clientApplyMiddleware } from 'redux';
-import { syncHistory } from 'react-router-redux';
 import { createLogger } from 'redux-logger';
 import rootReducer from './modules/index';
 import {
-  ConnectedRouter,
-  routerReducer,
   routerMiddleware,
-  push,
 } from 'react-router-redux';
-
-const isServer = typeof self == 'undefined';
-const isDebug = process.env.NODE_ENV != 'production';
 
 export default function makeStore(
   history: Object,
@@ -28,9 +21,11 @@ export default function makeStore(
 
   const middleware = routerMiddleware(history);
 
-  const store = createStore(rootReducer, applyMiddleware(middleware));
+  const store = createStore(rootReducer,
+                            initialState,
+                            _.flow(applyMiddleware(middleware), applyMiddleware(logger)));
 
-  /*::`*/
+  /*::`*/ // eslint-disable-line spaced-comment
   if (module.onReload) {
     module.onReload(() => {
       const nextReducer = require('./modules');
@@ -39,7 +34,7 @@ export default function makeStore(
       return true;
     });
   }
-  /*::`;*/
+  /*::`;*/ // eslint-disable-line spaced-comment
 
   return store;
 }
