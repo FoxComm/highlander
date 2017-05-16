@@ -33,27 +33,27 @@ variable "zone" {
 # Hardware Configurations
 ##############################################
 variable "amigo_machine_type" {
-  default = "n1-standard-2"
+  default = "n1-standard-4"
 }
 
 variable "amigo_disk_size" {
-  default = "20"
+  default = "100"
 }
 
 variable "backend_machine_type" {
-  default = "n1-standard-8"
+  default = "n1-highmem-8"
 }
 
 variable "backend_disk_size" {
-  default = "200"
+  default = "500"
 }
 
 variable "frontend_machine_type" {
-  default = "n1-standard-8"
+  default = "n1-highcpu-8"
 }
 
 variable "frontend_disk_size" {
-  default = "60"
+  default = "250"
 }
 
 ##############################################
@@ -70,10 +70,10 @@ resource "google_storage_bucket" "registry" {
 }
 
 ##############################################
-# Amigo Server
+# Amigo Servers
 ##############################################
 resource "google_compute_instance" "trial-amigo" {
-  name         = "${var.datacenter}-amigo"
+  name         = "${var.datacenter}-amigo-0"
   machine_type = "${var.amigo_machine_type}"
   zone         = "${var.zone}"
   tags         = ["no-ip"]
@@ -91,27 +91,55 @@ resource "google_compute_instance" "trial-amigo" {
   service_account {
     scopes = ["storage-rw"]
   }
+}
 
-  connection {
-    type        = "ssh"
-    user        = "${var.ssh_user}"
-    private_key = "${file(var.ssh_private_key)}"
+resource "google_compute_instance" "trial-amigo-1" {
+  name         = "${var.datacenter}-amigo-1"
+  machine_type = "${var.amigo_machine_type}"
+  zone         = "${var.zone}"
+  tags         = ["no-ip"]
+
+  disk {
+    image = "${var.base_image}"
+    size  = "${var.amigo_disk_size}"
+    type  = "pd-ssd"
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "/usr/local/bin/bootstrap.sh",
-      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.trial-amigo.network_interface.0.address}",
-      "sudo rm -rf /var/consul/* && sudo systemctl restart consul_server.service",
-    ]
+  network_interface {
+    network = "${var.network}"
+  }
+
+  service_account {
+    scopes = ["storage-rw"]
+  }
+}
+
+resource "google_compute_instance" "trial-amigo-2" {
+  name         = "${var.datacenter}-amigo-2"
+  machine_type = "${var.amigo_machine_type}"
+  zone         = "${var.zone}"
+  tags         = ["no-ip"]
+
+  disk {
+    image = "${var.base_image}"
+    size  = "${var.amigo_disk_size}"
+    type  = "pd-ssd"
+  }
+
+  network_interface {
+    network = "${var.network}"
+  }
+
+  service_account {
+    scopes = ["storage-rw"]
   }
 }
 
 ##############################################
-# Backend Worker
+# Database Worker
 ##############################################
-resource "google_compute_instance" "trial-backend" {
-  name         = "${var.datacenter}-backend"
+resource "google_compute_instance" "trial-database" {
+  name         = "${var.datacenter}-database"
   machine_type = "${var.backend_machine_type}"
   zone         = "${var.zone}"
   tags         = ["no-ip"]
@@ -129,18 +157,29 @@ resource "google_compute_instance" "trial-backend" {
   service_account {
     scopes = ["storage-rw"]
   }
+}
 
-  connection {
-    type        = "ssh"
-    user        = "${var.ssh_user}"
-    private_key = "${file(var.ssh_private_key)}"
+##############################################
+# Search Worker
+##############################################
+resource "google_compute_instance" "trial-search" {
+  name         = "${var.datacenter}-search"
+  machine_type = "${var.backend_machine_type}"
+  zone         = "${var.zone}"
+  tags         = ["no-ip"]
+
+  disk {
+    image = "${var.base_image}"
+    size  = "${var.backend_disk_size}"
+    type  = "pd-ssd"
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "/usr/local/bin/bootstrap.sh",
-      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.trial-amigo.network_interface.0.address}",
-    ]
+  network_interface {
+    network = "${var.network}"
+  }
+
+  service_account {
+    scopes = ["storage-rw"]
   }
 }
 
@@ -165,18 +204,5 @@ resource "google_compute_instance" "trial-frontend" {
 
   service_account {
     scopes = ["storage-rw"]
-  }
-
-  connection {
-    type        = "ssh"
-    user        = "${var.ssh_user}"
-    private_key = "${file(var.ssh_private_key)}"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "/usr/local/bin/bootstrap.sh",
-      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.trial-amigo.network_interface.0.address}",
-    ]
   }
 }
