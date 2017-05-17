@@ -27,12 +27,12 @@ provider "google" {
 ##############################################
 # Network
 ##############################################
-resource "google_compute_network" "trial" {
+resource "google_compute_network" "ark" {
   name       = "${var.network}"
   ipv4_range = "10.0.0.0/16"
 }
 
-resource "google_compute_firewall" "trial_web" {
+resource "google_compute_firewall" "ark_web" {
   name    = "${var.network}-web"
   network = "${var.network}"
 
@@ -49,7 +49,7 @@ resource "google_compute_firewall" "trial_web" {
   target_tags   = ["http-server", "https-server"]
 }
 
-resource "google_compute_firewall" "trial_ssh" {
+resource "google_compute_firewall" "ark_ssh" {
   name    = "${var.network}-ssh"
   network = "${var.network}"
 
@@ -66,7 +66,7 @@ resource "google_compute_firewall" "trial_ssh" {
   target_tags   = ["ssh"]
 }
 
-resource "google_compute_firewall" "trial_internal" {
+resource "google_compute_firewall" "ark_internal" {
   name    = "${var.network}-internal"
   network = "${var.network}"
 
@@ -90,22 +90,22 @@ resource "google_compute_firewall" "trial_internal" {
 ##############################################
 # VPN
 ##############################################
-module "trial_vpn" {
+module "ark_vpn" {
   source  = "../../modules/gce/vpn"
   image   = "${var.vpn_image}"
-  network = "${google_compute_network.trial.name}"
+  network = "${google_compute_network.ark.name}"
 }
 
 ##############################################
 # Production Cluster
 ##############################################
-module "trial_production" {
-  source             = "../../modules/gce/trial"
+module "ark_production" {
+  source             = "../../modules/gce/ark"
   ssh_user           = "${var.ssh_user}"
   ssh_private_key    = "${var.ssh_private_key}"
-  network            = "${google_compute_network.trial.name}"
-  datacenter         = "trial"
-  amigo_image        = "trial-amigo-170516-231235"
+  network            = "${google_compute_network.ark.name}"
+  datacenter         = "ark"
+  amigo_image        = "trial-amigo-170517-172258"
   logstash_image     = "trial-logstash-170517-173120"
   database_image     = "trial-database-170516-235144"
   search_image       = "trial-search-170517-000959"
@@ -123,7 +123,7 @@ module "trial_production" {
 
 # resource "dnsimple_record" "docker-registry-dns-record" {
 #   domain = "foxcommerce.com"
-#   name   = "docker-trial"
+#   name   = "docker-ark"
 #   value  = "${module.trial_production.amigo_address}"
 #   type   = "A"
 #   ttl    = 3600
@@ -132,7 +132,7 @@ module "trial_production" {
 
 # resource "dnsimple_record" "frontend-dns-record" {
 #   domain = "foxcommerce.com"
-#   name   = "trial"
+#   name   = "api"
 #   value  = "${module.trial_production.frontend_address}"
 #   type   = "A"
 #   ttl    = 3600

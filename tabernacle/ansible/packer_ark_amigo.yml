@@ -1,6 +1,6 @@
 ---
 
-- name: Packing Trial Amigo
+- name: Packing Ark Amigo
   hosts: all
   become: true
   vars:

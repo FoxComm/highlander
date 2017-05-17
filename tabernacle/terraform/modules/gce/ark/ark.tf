@@ -65,7 +65,7 @@ variable "search_disk_size" {
 }
 
 variable "logstash_machine_type" {
-  default = "n1-standard-4"
+  default = "n1-standard-2"
 }
 
 variable "logstash_disk_size" {
@@ -84,7 +84,7 @@ variable "frontend_disk_size" {
 # Storage Buckets
 ##############################################
 resource "google_storage_bucket" "backups" {
-  name     = "${var.datacenter}-backups"
+  name     = "${var.datacenter}-database-backups"
   location = "${var.bucket_location}"
 }
 
@@ -96,7 +96,7 @@ resource "google_storage_bucket" "registry" {
 ##############################################
 # Amigo Servers
 ##############################################
-resource "google_compute_instance" "trial-amigo-0" {
+resource "google_compute_instance" "ark-amigo-0" {
   name         = "${var.datacenter}-amigo-0"
   machine_type = "${var.amigo_machine_type}"
   zone         = "${var.zone}"
@@ -125,13 +125,13 @@ resource "google_compute_instance" "trial-amigo-0" {
   provisioner "remote-exec" {
     inline = [
       "/usr/local/bin/bootstrap.sh",
-      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.trial-amigo-0.network_interface.0.address}",
+      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.ark-amigo-0.network_interface.0.address}",
       "sudo rm -rf /var/consul/* && sudo systemctl restart consul_server.service",
     ]
   }
 }
 
-resource "google_compute_instance" "trial-amigo-1" {
+resource "google_compute_instance" "ark-amigo-1" {
   name         = "${var.datacenter}-amigo-1"
   machine_type = "${var.amigo_machine_type}"
   zone         = "${var.zone}"
@@ -160,13 +160,13 @@ resource "google_compute_instance" "trial-amigo-1" {
   provisioner "remote-exec" {
     inline = [
       "/usr/local/bin/bootstrap.sh",
-      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.trial-amigo-0.network_interface.0.address}",
+      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.ark-amigo-0.network_interface.0.address}",
       "sudo rm -rf /var/consul/* && sudo systemctl restart consul_server.service",
     ]
   }
 }
 
-resource "google_compute_instance" "trial-amigo-2" {
+resource "google_compute_instance" "ark-amigo-2" {
   name         = "${var.datacenter}-amigo-2"
   machine_type = "${var.amigo_machine_type}"
   zone         = "${var.zone}"
@@ -195,7 +195,7 @@ resource "google_compute_instance" "trial-amigo-2" {
   provisioner "remote-exec" {
     inline = [
       "/usr/local/bin/bootstrap.sh",
-      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.trial-amigo-0.network_interface.0.address}",
+      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.ark-amigo-0.network_interface.0.address}",
       "sudo rm -rf /var/consul/* && sudo systemctl restart consul_server.service",
     ]
   }
@@ -204,7 +204,7 @@ resource "google_compute_instance" "trial-amigo-2" {
 ##############################################
 # Database Worker
 ##############################################
-resource "google_compute_instance" "trial-database" {
+resource "google_compute_instance" "ark-database" {
   name         = "${var.datacenter}-database"
   machine_type = "${var.database_machine_type}"
   zone         = "${var.zone}"
@@ -233,7 +233,7 @@ resource "google_compute_instance" "trial-database" {
   provisioner "remote-exec" {
     inline = [
       "/usr/local/bin/bootstrap.sh",
-      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.trial-amigo-0.network_interface.0.address}",
+      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.ark-amigo-0.network_interface.0.address}",
     ]
   }
 }
@@ -241,7 +241,7 @@ resource "google_compute_instance" "trial-database" {
 ##############################################
 # Search Worker
 ##############################################
-resource "google_compute_instance" "trial-search" {
+resource "google_compute_instance" "ark-search" {
   name         = "${var.datacenter}-search"
   machine_type = "${var.search_machine_type}"
   zone         = "${var.zone}"
@@ -270,7 +270,7 @@ resource "google_compute_instance" "trial-search" {
   provisioner "remote-exec" {
     inline = [
       "/usr/local/bin/bootstrap.sh",
-      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.trial-amigo-0.network_interface.0.address}",
+      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.ark-amigo-0.network_interface.0.address}",
     ]
   }
 }
@@ -278,7 +278,7 @@ resource "google_compute_instance" "trial-search" {
 ##############################################
 # Logstash Worker
 ##############################################
-resource "google_compute_instance" "trial-logstash" {
+resource "google_compute_instance" "ark-logstash" {
   name         = "${var.datacenter}-logstash"
   machine_type = "${var.logstash_machine_type}"
   zone         = "${var.zone}"
@@ -307,7 +307,7 @@ resource "google_compute_instance" "trial-logstash" {
   provisioner "remote-exec" {
     inline = [
       "/usr/local/bin/bootstrap.sh",
-      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.trial-amigo-0.network_interface.0.address}",
+      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.ark-amigo-0.network_interface.0.address}",
     ]
   }
 }
@@ -315,7 +315,7 @@ resource "google_compute_instance" "trial-logstash" {
 ##############################################
 # Frontend Worker
 ##############################################
-resource "google_compute_instance" "trial-frontend" {
+resource "google_compute_instance" "ark-frontend" {
   name         = "${var.datacenter}-frontend"
   machine_type = "${var.frontend_machine_type}"
   zone         = "${var.zone}"
@@ -344,7 +344,7 @@ resource "google_compute_instance" "trial-frontend" {
   provisioner "remote-exec" {
     inline = [
       "/usr/local/bin/bootstrap.sh",
-      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.trial-amigo-0.network_interface.0.address}",
+      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.ark-amigo-0.network_interface.0.address}",
     ]
   }
 }

@@ -1,6 +1,6 @@
 ---
 
-- name: Packing Trial Base
+- name: Packing Ark Base
   hosts: all
   become: true
   vars:
