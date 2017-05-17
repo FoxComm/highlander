@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask, request, jsonify
+from flask_cors import cross_origin
 from managers.Prod_Prod_Manager import Prod_Prod_Manager
 from util.ES_Client import ES_Client
 from util.InvalidUsage import InvalidUsage
@@ -40,6 +41,7 @@ def rec_prod_prod(prod_id):
     return jsonify(resp)
 
 @APP.route('/public/prod-prod/full/<int:prod_id>', methods=['GET'])
+@cross_origin()
 def rec_prod_prod_full(prod_id):
     """rec_prod_prod_full
     returns a list of full products from elasticsearch
