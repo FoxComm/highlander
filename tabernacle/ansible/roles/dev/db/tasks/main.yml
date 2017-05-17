@@ -5,8 +5,8 @@
   with_items:
     - phoenix
     - middlewarehouse
-    - onboarding_service
-  when: item != 'onboarding_service' or with_onboarding
+    - onboarding
+  when: item != 'onboarding' or with_onboarding
 
 - name: Kill Materialized Views
   shell: systemctl stop materialized_views || true
@@ -118,5 +118,5 @@
   with_items:
     - phoenix
     - middlewarehouse
-    - onboarding_service
-  when: item != "onboarding_service" or with_onboarding
+    - onboarding
+  when: item != "onboarding" or with_onboarding
