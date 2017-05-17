@@ -37,9 +37,12 @@
 
 .label {
   padding: 8px 15px;
-  border-top-left-radius: 17px;
-  border-bottom-left-radius: 17px;
+  border-radius: 17px;
   transition: background .2s;
+
+  .closable & {
+    border-radius: 17px 0 0 17px;
+  }
 }
 
 .main.clickable:not(._loading) .label:hover {

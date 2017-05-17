@@ -1,8 +1,7 @@
 // @flow
 
-import noop from 'lodash/noop';
 import classNames from 'classnames';
-import React, { Element } from 'react';
+import React from 'react';
 
 import s from './rounded-pill.css';
 
@@ -34,7 +33,11 @@ export const RoundedPill = (props: Props) => {
     [s._loading]: inProgress,
   }, className);
 
-  const handleClick = onClick && value ? () => onClick(value) : noop;
+  function handleClick() {
+    if (onClick && value) {
+      onClick(value);
+    }
+  }
 
   return (
     <div className={cls} key={value} id={pillId}>
