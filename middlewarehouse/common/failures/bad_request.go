@@ -14,7 +14,7 @@ func (failure badRequest) Status() int {
 	return http.StatusBadRequest
 }
 
-func (failure badRequest) ToJSON() responses.Error {
+func (failure badRequest) ToJSON() responses.ErrorResponse {
 	return toJSON(failure.err)
 }
 
