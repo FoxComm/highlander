@@ -59,8 +59,6 @@ lazy val phoenixScala = (project in file("."))
     logBuffered in ET   := false,
     test in assembly := {},
     addCommandAlias("all", "; clean; seeder/clean; it:compile; seeder/compile; test; seeder/assembly"),
-    scalafmtConfig := Some(file(".scalafmt")),
-    reformatOnCompileWithItSettings, // scalafmt
     Revolver.settings,
     assemblyMergeStrategy in assembly := {
       case PathList("org", "joda", "time", xs @ _ *) ⇒
@@ -84,8 +82,6 @@ lazy val seeder = (project in file("seeder"))
     commonSettings,
     libraryDependencies ++= Dependencies.gatling,
     cleanFiles += baseDirectory.value / "results",
-    scalafmtConfig := Some(file(".scalafmt")),
-    reformatOnCompileSettings, // scalafmt,
     Revolver.settings,
     // we cannot fork and set javaOptions simply, as it causes some weird issue with db schema creation
     initialize ~= (_ => System.setProperty("phoenix.env", "test" )),
@@ -114,8 +110,6 @@ lazy val objectframework = (project in file("objectframework"))
   .dependsOn(starfish)
   .settings(
     commonSettings,
-    scalafmtConfig := Some(file(".scalafmt")),
-    reformatOnCompileSettings, // scalafmt,
     libraryDependencies ++= {
       import Dependencies._
       cats ++ shapeless ++ db ++ slick ++ json4s ++ logging :+
@@ -126,8 +120,6 @@ lazy val objectframework = (project in file("objectframework"))
 lazy val starfish = (project in file("starfish"))
   .settings(
     commonSettings,
-    scalafmtConfig := Some(file(".scalafmt")),
-    reformatOnCompileSettings, // scalafmt,
     libraryDependencies ++= {
       import Dependencies._
       cats ++ shapeless ++ db ++ slick ++ json4s

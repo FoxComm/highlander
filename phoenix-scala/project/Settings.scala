@@ -1,5 +1,6 @@
 import Configurations._
 import org.scalafmt.sbt.ScalaFmtPlugin
+import org.scalafmt.sbt.ScalaFmtPlugin.autoImport._
 import sbt.Keys._
 import sbt._
 
@@ -27,7 +28,10 @@ object Settings {
       "-Ywarn-nullary-unit",
       "-Ywarn-infer-any"
     )
-  )
+  ) ++ scalafmtSettings
+
+  lazy val scalafmtSettings: Seq[Setting[_]] =
+    reformatOnCompileSettings :+ (scalafmtConfig := Some(file(".scalafmt")))
 
   lazy val sharedItSettings: Seq[Setting[_]] =
     Defaults.testTasks ++ Defaults.itSettings ++ ScalaFmtPlugin.configScalafmtSettings
