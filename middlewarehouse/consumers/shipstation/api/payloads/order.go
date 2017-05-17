@@ -44,7 +44,7 @@ type Order struct {
 }
 
 func NewOrderFromActivity(order mwhPayloads.Order) (*Order, error) {
-	shippingAddress, err := NewAddressFromPhoenix(order.ShippingAddress.Name, order.ShippingAddress)
+	shippingAddress, err := NewAddressFromPhoenix(order.ShippingAddress.Name, &order.ShippingAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func NewOrderFromActivity(order mwhPayloads.Order) (*Order, error) {
 		if paymentMethod.Type == "creditCard" {
 			if paymentMethod.Address != nil {
 				name := pickName(&order, &(paymentMethod.Address.Name))
-				billingAddress, _ = NewAddressFromPhoenix(*name, *paymentMethod.Address)
+				billingAddress, _ = NewAddressFromPhoenix(*name, paymentMethod.Address)
 			} else {
 				return nil, fmt.Errorf("Order %s has credit card payment without an address", order.ReferenceNumber)
 			}

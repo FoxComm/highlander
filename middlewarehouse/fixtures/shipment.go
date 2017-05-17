@@ -49,8 +49,8 @@ func GetShipmentShort(id uint) *models.Shipment {
 		[]models.ShipmentLineItem{*shipmentLineItem1, *shipmentLineItem2})
 }
 
-func ToShipmentPayload(model *models.Shipment) *payloads.Shipment {
-	shipment := &payloads.Shipment{
+func ToShipmentPayload(model *models.Shipment) *payloads.CreateShipment {
+	shipment := &payloads.CreateShipment{
 		ShippingMethodCode: model.ShippingMethodCode,
 		OrderRefNum:        model.OrderRefNum,
 		State:              string(model.State),

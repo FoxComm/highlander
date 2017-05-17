@@ -3,13 +3,14 @@ package services
 import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
+	"github.com/jinzhu/gorm"
 )
 
 type stockLocationService struct {
 	repository repositories.IStockLocationRepository
 }
 
-type IStockLocationService interface {
+type StockLocationService interface {
 	GetLocations() ([]*models.StockLocation, error)
 	GetLocationByID(id uint) (*models.StockLocation, error)
 	CreateLocation(location *models.StockLocation) (*models.StockLocation, error)
@@ -17,7 +18,8 @@ type IStockLocationService interface {
 	DeleteLocation(id uint) error
 }
 
-func NewStockLocationService(repository repositories.IStockLocationRepository) IStockLocationService {
+func NewStockLocationService(db *gorm.DB) StockLocationService {
+	repository := repositories.NewStockLocationRepository(db)
 	return &stockLocationService{repository}
 }
 
