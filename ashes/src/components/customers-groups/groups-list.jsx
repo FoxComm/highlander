@@ -12,7 +12,7 @@ import { GROUP_TYPE_MANUAL, GROUP_TYPE_DYNAMIC, GROUP_TYPE_TEMPLATE } from 'modu
 // components
 import { SelectableSearchList } from 'components/list-page';
 import MultiSelectRow from 'components/table/multi-select-row';
-import RoundedPill from 'components/rounded-pill/rounded-pill';
+import { RoundedPill } from 'components/core/rounded-pill';
 
 type Props = {
   list: Object,
