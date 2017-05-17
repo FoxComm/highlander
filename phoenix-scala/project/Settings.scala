@@ -28,6 +28,18 @@ object Settings {
       "-Ywarn-nullary-override",
       "-Ywarn-nullary-unit",
       "-Ywarn-infer-any"
+    ),
+    // Work around SBT warning for multiple dependencies
+    dependencyOverrides += "org.scala-lang" % "scala-library" % scalaVersion.value,
+    dependencyOverrides ++= Dependencies.slick.toSet,
+    dependencyOverrides ++= Dependencies.json4s.toSet,
+    ivyScala := ivyScala.value.map(_.copy(overrideScalaVersion = true)),
+    resolvers ++= Seq(
+      "hseeberger bintray" at "http://dl.bintray.com/hseeberger/maven",
+      "pellucid bintray"   at "http://dl.bintray.com/pellucid/maven",
+      "justwrote"          at "http://repo.justwrote.it/releases/",
+      "confluent"          at "http://packages.confluent.io/maven/",
+      Resolver.bintrayRepo("kwark", "maven") // Slick with deadlock patch
     )
   ) ++ scalafmtSettings ++ sourceLocationSettings ++ Revolver.settings
 
