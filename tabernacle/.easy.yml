@@ -43,6 +43,10 @@ shortcuts:
     alias: marathon_alerts.yml
     target: ansible/bootstrap_marathon_alerts.yml
 
+  - name: Bootstrap Database
+    alias: bootstrap_db.yml
+    target: ansible/bootstrap_db.yml
+
   - name: Bootstrap DB Backup Script
     alias: backup_db.yml
     target: ansible/bootstrap_backup_db.yml
