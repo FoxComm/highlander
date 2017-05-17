@@ -4,34 +4,39 @@ import Api from 'lib/api';
 import { createAsyncActions } from '@foxcomm/wings';
 import localStorage from 'localStorage';
 import _ from 'lodash';
-import { flow, map, filter } from 'lodash/fp';
+import { columnsToPayload } from './helpers';
 
 type Payload = {
-  ids: Array<number>,
-  fields: Array<string>,
+  ids?: Array<number>,
+  query?: Object,
+  fields: Array<Object>,
   description?: string,
 };
 
-const getFields = (allFields: Array<string>, identifier: string): Array<string> => {
+const getFields = (allFields: Array<Object>, identifier: string): Array<Object> => {
   const columns = localStorage.getItem('columns') ? JSON.parse(localStorage.getItem('columns')) : {};
 
   if (_.isEmpty(columns[identifier])) {
     return allFields;
   }
 
-  return flow(
-    filter(column => column.isVisible === true),
-    map(c => c.field),
-  )(columns[identifier]);
+  const selectedFields = _.filter(columns[identifier], column => column.isVisible === true);
+  return columnsToPayload(selectedFields);
 };
 
-const getQuery = (raw: Object): Object => {
+const getQuery = (raw: Object, sort: Array<Object>): Object => {
   if (_.isEmpty(raw)) {
     return {
-      bool: {},
+      query: {
+        bool: {},
+      },
+      sort,
     };
   }
-  return raw.query;
+  return {
+    query: raw.query,
+    sort,
+  };
 };
 
 const genDownloadLink = (response: Object) => {
@@ -44,17 +49,22 @@ const genDownloadLink = (response: Object) => {
 
 export const bulkExport = createAsyncActions(
   'bulkExport',
-  function(fields, entity, identifier) {
+  function(fields, entity, identifier, description, sort) {
     const { getState } = this;
     const queryFields = getFields(fields, identifier);
     const selectedSearch = getState()[entity].list.selectedSearch;
     const savedSearch = getState()[entity].list.savedSearches[selectedSearch];
-    const query = getQuery(savedSearch.rawQuery);
+    const queries = getQuery(savedSearch.rawQuery, sort);
+
+    const payload: Payload = {
+      fields: queryFields,
+      ...queries,
+    };
+    if (description != null) payload.description = description;
 
     return Api.post(`/export/${entity}`, {
       payloadType: 'query',
-      fields: queryFields,
-      query,
+      ...payload,
     }).then((res) => {
       genDownloadLink(res);
     });

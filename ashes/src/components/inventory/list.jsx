@@ -8,8 +8,8 @@ import { bindActionCreators } from 'redux';
 import { SelectableSearchList } from '../list-page';
 import InventoryListRow from './inventory-list-row';
 
-// redux
-import { actions } from '../../modules/inventory/list';
+// actions
+import { actions, rawSorts } from '../../modules/inventory/list';
 
 const getState = state => ({ list: state.inventory.list });
 
@@ -37,6 +37,7 @@ const InventoryList = props => {
 
   return (
     <SelectableSearchList
+      rawSorts={rawSorts}
       entity="inventory.list"
       emptyMessage="No inventory units found."
       list={props.list}

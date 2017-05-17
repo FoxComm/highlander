@@ -9,8 +9,8 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
-// data
-import { actions } from 'modules/products/list';
+// actions
+import { actions, rawSorts } from 'modules/products/list';
 
 // components
 import SelectableSearchList from '../list-page/selectable-search-list';
@@ -55,6 +55,7 @@ export class Products extends Component {
     return (
       <div className="fc-products-list">
         <SelectableSearchList
+          rawSorts={rawSorts}
           entity="products.list"
           emptyMessage="No products found."
           list={list}

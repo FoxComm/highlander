@@ -17,7 +17,7 @@ import BulkMessages from 'components/bulk-actions/bulk-messages';
 import { Link } from 'components/link';
 
 // actions
-import { actions } from 'modules/carts/list';
+import { actions, rawSorts } from 'modules/carts/list';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
 import { actions as bulkActions } from 'modules/carts/bulk';
 
@@ -35,7 +35,7 @@ type Props = {
   bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
   bulkActions: {
     exportByIds: (
-      ids: Array<number>, description: string, fields: Array<string>, entity: string, identifier: string
+      ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
     ) => void,
   },
 
@@ -68,7 +68,7 @@ class Carts extends Component {
     const results = list.currentSearch().results.rows;
     const ids = getIdsByProps('referenceNumber', toggledIds, results);
 
-    return renderExportModal(tableColumns, ids, exportByIds, modalTitle, entity);
+    return renderExportModal(tableColumns, entity, modalTitle, exportByIds, ids);
   }
 
   get bulkActions() {
@@ -102,7 +102,9 @@ class Carts extends Component {
           actions={this.bulkActions}
         >
           <SelectableSearchList
+            rawSorts={rawSorts}
             exportEntity="carts"
+            exportTitle="Carts"
             bulkExport
             bulkExportAction={this.props.bulkExportAction}
             entity="carts.list"

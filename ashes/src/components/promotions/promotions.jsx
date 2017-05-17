@@ -25,7 +25,7 @@ type Props = {
   bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
   bulkActions: {
     exportByIds: (
-      ids: Array<number>, description: string, fields: Array<string>, entity: string, identifier: string
+      ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
     ) => void,
   },
 };
@@ -66,7 +66,7 @@ class Promotions extends Component {
     const modalTitle = 'Promotions';
     const entity = 'promotions';
 
-    return renderExportModal(tableColumns, toggledIds, exportByIds, modalTitle, entity);
+    return renderExportModal(tableColumns, entity, modalTitle, exportByIds, toggledIds);
   }
 
   get bulkActions() {
@@ -92,6 +92,7 @@ class Promotions extends Component {
         >
           <SelectableSearchList
             exportEntity="promotions"
+            exportTitle="Promotions"
             bulkExport
             bulkExportAction={this.props.bulkExportAction}
             entity="promotions.list"

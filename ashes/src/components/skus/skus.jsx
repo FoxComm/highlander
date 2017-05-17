@@ -8,8 +8,8 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
-// data
-import { actions } from 'modules/skus/list';
+// actions
+import { actions, rawSorts } from 'modules/skus/list';
 
 // components
 import SelectableSearchList from '../list-page/selectable-search-list';
@@ -54,6 +54,7 @@ export class Skus extends Component {
     return (
       <div>
         <SelectableSearchList
+          rawSorts={rawSorts}
           entity="skus.list"
           emptyMessage="No SKUs found."
           list={list}

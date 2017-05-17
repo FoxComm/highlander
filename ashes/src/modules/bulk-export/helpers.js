@@ -67,28 +67,61 @@ export const getPropsByIds = (
 /**
   @tableColumns - columns of the entity's table (e.g. referenceNumber, state, customer.name, etc.)
 
-  @toggledIds - ids of the toggled elements of the table
-
-  @exportByIds - redux action to start the export
+  @entity - the name of the entity (e.g. giftCards, promotions, etc.)
 
   @title - a title for the modal
 
-  @entity - the name of the entity (e.g. giftCards, promotions, etc.)
+  @performExport - redux action to start the export
+
+  @toggledIds - ids of the toggled elements of the table. If it's null, we're exporting everything
 */
 export const renderExportModal = (
   tableColumns: Array<Object>,
-  toggledIds: Array<number>,
-  exportByIds: Function,
+  entity: string,
   title: string,
-  entity: string
+  performExport: Function,
+  toggledIds: ?Array<number>
 ): Element<*> => {
-  const fields = _.map(tableColumns, c => c.field);
+  const fields = columnsToPayload(tableColumns);
   const identifier = _.map(tableColumns, item => item.text).toString();
+  const exportByIds = (description) => performExport(toggledIds, description, fields, entity, identifier);
+  const exportByQuery = (description) => performExport(fields, entity, identifier, description);
+
   return (
     <BulkExportModal
-      count={toggledIds.length}
-      onConfirm={(description) => exportByIds(toggledIds, description, fields, entity, identifier)}
+      count={toggledIds ? toggledIds.length : null}
+      onConfirm={toggledIds ? exportByIds : exportByQuery}
       title={title}
     />
   );
+};
+
+const checkField = (fieldName) => {
+  if (fieldName === 'shipRegion') {
+    return 'shippingAddresses[0].region';
+  } else if (fieldName === 'billRegion') {
+    return 'billingAddresses[0].region';
+  }
+
+  return fieldName;
+};
+
+/**
+  @tableColumns - columns of the entity's table (e.g. referenceNumber, state, customer.name, etc.)
+*/
+export const columnsToPayload = (tableColumns: Array<Object>): Array<Object> => {
+  const fields = _.reduce(tableColumns, (acc, field) => {
+    const currentField = field.field;
+    const name = checkField(currentField);
+
+    return [
+      ...acc,
+      {
+        name,
+        displayName: field.text,
+      },
+    ];
+  }, []);
+
+  return fields;
 };
