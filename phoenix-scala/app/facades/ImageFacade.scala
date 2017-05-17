@@ -5,10 +5,11 @@ import java.nio.channels.FileChannel
 import java.nio.file.{Files, Path}
 import java.time.ZonedDateTime
 
+import scala.annotation.tailrec
 import scala.concurrent.Future
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Multipart, StatusCodes}
+import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Multipart, StatusCodes, Uri}
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 
@@ -288,11 +289,18 @@ object ImageFacade extends ImageHelpers {
 trait ImageHelpers extends LazyLogging {
 
   protected def extractFileNameFromUrl(url: String): String = {
-    val i = url.lastIndexOf('/')
-    if (i > 0)
-      url.substring(i + 1)
-    else
-      s"${utils.generateUuid}.jpg"
+
+    @tailrec
+    def latestSegment(path: Uri.Path): Option[String] = {
+      path match {
+        case Uri.Path.Slash(tail) ⇒ latestSegment(tail)
+        case Uri.Path.Segment(head, tail) ⇒ Some(head)
+        case Uri.Path.Empty ⇒ None
+      }
+    }
+
+    val revPath = Uri(url).path.reverse
+    latestSegment(revPath).getOrElse(s"${utils.generateUuid}.jpg")
   }
 
   def fetchImageData(url: String)(implicit ec: EC, sys: ActorSystem, am: Mat): Result[ByteBuffer] = {
