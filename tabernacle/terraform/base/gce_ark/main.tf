@@ -112,29 +112,18 @@ module "ark_production" {
   frontend_image     = "trial-frontend-170517-001738"
 }
 
-# ##############################################
-# # DNS Records
-# ##############################################
-# provider "dnsimple" {
-#   token   = "${var.dnsimple_token}"
-#   account = "${var.dnsimple_account}"
-# }
+##############################################
+# DNS Records
+##############################################
+provider "dnsimple" {
+  token   = "${var.dnsimple_token}"
+  account = "${var.dnsimple_account}"
+}
 
-
-# resource "dnsimple_record" "docker-registry-dns-record" {
-#   domain = "foxcommerce.com"
-#   name   = "docker-ark"
-#   value  = "${module.trial_production.amigo_address}"
-#   type   = "A"
-#   ttl    = 3600
-# }
-
-
-# resource "dnsimple_record" "frontend-dns-record" {
-#   domain = "foxcommerce.com"
-#   name   = "api"
-#   value  = "${module.trial_production.frontend_address}"
-#   type   = "A"
-#   ttl    = 3600
-# }
-
+resource "dnsimple_record" "docker-registry-dns-record" {
+  domain = "foxcommerce.com"
+  name   = "docker-ark"
+  value  = "${module.ark_production.amigo_address}"
+  type   = "A"
+  ttl    = 3600
+}
