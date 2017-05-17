@@ -130,7 +130,6 @@
     "less": "^2.7.2",
     "less-loader": "^4.0.3",
     "localStorage": "^1.0.3",
-    "lost": "^6.7.2",
     "mocha": "^2.3.0",
     "nock": "^9.0.10",
     "node-notifier": "^4.2.3",

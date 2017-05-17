@@ -41,10 +41,6 @@ const plugins = [
       customProperties: false,
     },
   }),
-  require('lost')({
-    flexbox: 'flex',
-    gutter: '1.85%',
-  }),
   require('postcss-mixins'),
   require('postcss-nested'),
   require('postcss-modules-local-by-default'),
