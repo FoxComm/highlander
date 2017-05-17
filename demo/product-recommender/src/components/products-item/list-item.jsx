@@ -55,23 +55,6 @@ class ListItem extends React.Component {
     skus: [],
   };
 
-  // @autobind
-  // addToCart() {
-  //   const skuId = this.props.skus[0];
-  //   const quantity = 1;
-
-  //   tracking.addToCart(this.props, quantity);
-  //   this.props.addLineItem(skuId, quantity)
-  //     .then(() => {
-  //       this.props.toggleCart();
-  //     })
-  //     .catch((ex) => {
-  //       this.setState({
-  //         error: ex,
-  //       });
-  //     });
-  // }
-
   get image() {
     const previewImageUrl = _.get(this.props.albums, [0, 'images', 0, 'src']);
 
@@ -154,7 +137,4 @@ class ListItem extends React.Component {
   }
 }
 
-export default connect(null, {
-  // addLineItem,
-  // toggleCart,
-}, void 0, { withRef: true })(ListItem);
+export default connect(null, {}, void 0, { withRef: true })(ListItem);
