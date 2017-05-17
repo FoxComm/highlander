@@ -10,7 +10,7 @@ import failures.ArchiveFailures.LinkInactiveSkuFailure
 import models.cord._
 import models.traits.IlluminatedModel
 import models.cord.lineitems.CartLineItems
-import models.inventory.{Sku, Skus}
+import models.inventory.{IlluminatedSku, Sku, Skus}
 import models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
 import services.objects.ObjectManager
@@ -30,27 +30,7 @@ case class CartValidatorResponse(
     alerts: Option[Failures] = None,
     warnings: Option[Failures] = None) {} // TODO: use real warnings from StateT. What’s with not used alerts? @michalrus
 
-object CartValidator {
-
-  def skuIsActive(sku: Sku)(implicit ec: EC, db: DB): DbResultT[Boolean] =
-    // FIXME: have mercy… ;( @michalrus
-    for {
-      full ← ObjectManager.getFullObject(DbResultT.pure(sku))
-      im = new IlluminatedModel[Unit] {
-        override def archivedAt: Option[Instant] = full.model.archivedAt
-
-        override def attributes: Json =
-          IlluminateAlgorithm.projectAttributes(full.form.attributes, full.shadow.attributes)
-
-        override protected def inactiveError: Failure = null
-      }
-    } yield im.mustBeActive.isRight
-
-}
-
-import CartValidator._
-
-case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValidation {
+case class CartValidator(cart: Cart)(implicit ec: EC, db: DB, ctx: OC) extends CartValidation {
 
   def validate(isCheckout: Boolean = false,
                fatalWarnings: Boolean = false): DbResultT[CartValidatorResponse] = {
@@ -93,13 +73,10 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
               .on(_.skuId === _.id)
               .map(_._2)
               .result
-      inactiveSkus ← * <~ skus.toList.filterA(skuIsActive(_).map(!_))
-    } yield
-      if (inactiveSkus.isEmpty) response
-      else
-        warnings(
-            response,
-            inactiveSkus.map(sku ⇒ LinkInactiveSkuFailure(cart, cart.referenceNumber, sku.code)))
+      fullSkus ← ObjectManager.getFullObjects(skus)
+      illuminatedSkus = fullSkus.map(IlluminatedSku.illuminate(ctx, _))
+      // TODO: use .mustBeActive instead and proper StateT warnings @michalrus
+    } yield warnings(response, illuminatedSkus.filterNot(_.isActive).map(_.inactiveError))
   }
 
   //todo: do we need alway have sku or at least sku or gc

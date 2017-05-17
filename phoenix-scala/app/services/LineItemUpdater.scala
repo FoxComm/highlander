@@ -10,13 +10,14 @@ import models.activity.Activity
 import models.cord._
 import models.cord.lineitems.CartLineItems.scope._
 import models.cord.lineitems._
-import models.inventory.{Sku, Skus}
+import models.inventory.{IlluminatedSku, Sku, Skus}
 import models.objects._
 import models.product.VariantValueSkuLinks
 import payloads.LineItemPayloads._
 import responses.TheResponse
 import responses.cord.{CartResponse, OrderResponse}
 import services.carts.{CartPromotionUpdater, CartTotaler}
+import services.objects.ObjectManager
 import slick.jdbc.PostgresProfile.api._
 import utils.JsonFormatters
 import utils.aliases._
@@ -181,10 +182,8 @@ object LineItemUpdater {
              .filterByContext(ctx.id)
              .filter(_.code === lineItem.sku)
              .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, ctx.id))
-      skuIsActive ← CartValidator.skuIsActive(sku)
-      _ ← * <~ (if (skuIsActive) DbResultT.pure(())
-                else
-                  DbResultT.failure(LinkInactiveSkuFailure(cart, cart.referenceNumber, sku.code)))
+      fullSku ← ObjectManager.getFullObject(DbResultT.pure(sku))
+      _       ← * <~ IlluminatedSku.illuminate(ctx, fullSku).mustBeActive
       // TODO: check if that SKU’s Product is not archived/deactivated @michalrus
       _ ← * <~ mustFindProductIdForSku(sku, cart.refNum)
       updateResult ← * <~ createLineItems(sku.id,

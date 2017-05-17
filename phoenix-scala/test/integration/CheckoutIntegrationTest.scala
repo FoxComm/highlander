@@ -206,9 +206,15 @@ class CheckoutIntegrationTest
     }
 
     "fails when some SKUs in cart are inactive" in new Fixture {
+      val cartApi = prepareCheckout()
+      deactivateSku(skuCode)
+      val expectedFailure = NotFoundFailure404(models.inventory.Sku, skuCode)
+      cartApi.checkout().mustFailWith404(expectedFailure)
+    }
+
+    def deactivateSku(skuCode: String): Unit = {
       import org.json4s.JsonDSL._
       import org.json4s._
-      val cartApi     = prepareCheckout()
       val skuResponse = skusApi(skuCode).get().as[SkuResponse.Root]
       val activeFromJson: Json = ("t" → "date") ~ ("v" → (Instant.now
               .minus(2, ChronoUnit.DAYS))
@@ -216,19 +222,10 @@ class CheckoutIntegrationTest
       val activeToJson: Json = ("t" → "date") ~ ("v" → (Instant.now
               .minus(1, ChronoUnit.DAYS))
               .toString)
-      // Deactivate this SKU.
       skusApi(skuCode)
         .update(SkuPayload(attributes = skuResponse.attributes.extract[Map[String, Json]] ++
                     Map("activeFrom" → activeFromJson, "activeTo" → activeToJson)))
         .mustBeOk()
-      class Cart // FIXME: bad failures design @michalrus
-      val expectedFailure =
-        LinkInactiveSkuFailure(new Cart,
-                               cartApi.get.asTheResult[CartResponse].referenceNumber,
-                               skuCode)
-      cartApi
-        .checkout()
-        .mustFailWith400(List.fill(4 /* FIXME: why 4? o_O @michalrus */ )(expectedFailure): _*)
     }
   }
 
