@@ -16,10 +16,10 @@ object Strings {
       }.stripPrefix("_")
     def prettify: String = s.split("(?=\\p{Upper})").mkString(" ")
     def quote(escapeChar: Char = '\\'): String = {
-      val quoted = "\"" + s.replace("\"", s"""$escapeChar"""") + "\""
+      val escaped =
+        if (escapeChar == '"') s else s.replace(s"$escapeChar", s"$escapeChar$escapeChar")
 
-      if (escapeChar == '"') quoted
-      else quoted.replace(s"$escapeChar", s"$escapeChar$escapeChar")
+      "\"" + escaped.replace("\"", s"""$escapeChar"""") + "\""
     }
   }
 }
