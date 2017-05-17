@@ -88,9 +88,6 @@ export const renderExportModal = (
   const exportByIds = (description) => performExport(toggledIds, description, fields, entity, identifier);
   const exportByQuery = (description) => performExport(fields, entity, identifier, description);
 
-  const exportByIds = (description) => performExport(toggledIds, description, fields, entity, identifier);
-  const exportByQuery = (description) => performExport(fields, entity, identifier, description);
-
   return (
     <BulkExportModal
       count={toggledIds ? toggledIds.length : null}
@@ -101,17 +98,20 @@ export const renderExportModal = (
 };
 
 const checkField = (fieldName) => {
-  if (fieldName === 'shipRegion') {
-    return 'shippingAddresses[0].region';
-  } else if (fieldName === 'billRegion') {
-    return 'billingAddresses[0].region';
-  } else if (fieldName === 'transaction') {
-    return 'originType';
-  } else if (fieldName === 'assignee') {
-    return 'assignees[-1].name';
+  switch(fieldName) {
+    case 'shipRegion':
+      return 'shippingAddresses[0].region';
+    case 'billRegion':
+      return 'billingAddresses[0].region';
+    case 'transaction':
+      return 'originType';
+    case 'assignee':
+      return 'assignees[-1].name';
+    case 'image':
+      return 'albums[0].images[0].src';
+    default:
+      return fieldName;
   }
-
-  return fieldName;
 };
 
 /**
@@ -120,13 +120,13 @@ const checkField = (fieldName) => {
 export const columnsToPayload = (tableColumns: Array<Object>): Array<Object> => {
   const fields = _.reduce(tableColumns, (acc, field) => {
     const currentField = field.field;
-    const name = checkField(currentField);
     if (_.isEmpty(currentField)) {
       return [
         ...acc,
       ];
     }
 
+    const name = checkField(currentField);
     return [
       ...acc,
       {

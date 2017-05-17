@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { renderExportModal } from 'modules/bulk-export/helpers';
 import { autobind } from 'core-decorators';
-import { toQuery } from 'elastic/common';
 
 // components
 import Table from './table';

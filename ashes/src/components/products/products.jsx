@@ -52,7 +52,14 @@ export class Products extends Component {
 
   renderRow(row: Product, index: number, columns: Columns, params: Object) {
     const key = `products-${_.get(row, 'id', index)}`;
-    return <ProductRow key={key} product={row} columns={columns} params={params} />;
+    return (
+      <ProductRow
+        key={key}
+        product={row}
+        columns={columns}
+        params={params}
+      />
+    );
   }
 
   @autobind
