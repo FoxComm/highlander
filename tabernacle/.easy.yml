@@ -55,6 +55,10 @@ shortcuts:
     alias: backup_zk.yml
     target: ansible/bootstrap_backup_zk.yml
 
+  - name: Bootstrap Marathon Consul
+    alias: marathon_consul.yml
+    target: ansible/bootstrap_marathon_consul.yml
+
   - name: Bootstrap OpenVPN Server
     alias: openvpn_server.yml
     target: ansible/bootstrap_openvpn.yml
