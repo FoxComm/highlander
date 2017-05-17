@@ -3,7 +3,6 @@ const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
-const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
 
 module.exports = {
   output: {
@@ -49,11 +48,6 @@ module.exports = {
 
     new ExtractTextPlugin('app.[contenthash:6].css'),
     new OptimizeCssAssetsPlugin(),
-
-    new FaviconsWebpackPlugin({
-      logo: path.resolve(__dirname + '/../src/images/favicon.png'),
-      prefix: 'icons/',
-    }),
 
     new ManifestPlugin(),
   ],

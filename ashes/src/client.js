@@ -18,7 +18,9 @@ import Root from './root';
 // global styles
 import './less/base.less';
 import './css/base.css';
-import 'images/favicon.png';
+
+// images
+import './favicons';
 
 if (module.hot) {
   module.hot.accept(['./root', './routes', './store'], () => {
