@@ -9,7 +9,7 @@ import { autobind } from 'core-decorators';
 
 // components
 import { Link, IndexLink } from 'components/link';
-import LocalNav from '../local-nav/local-nav';
+import PageNav from 'components/core/page-nav';
 import { connectPage, ObjectPage } from '../object-page/object-page';
 
 // actions
@@ -82,10 +82,10 @@ class SkuPage extends ObjectPage {
     const { params } = this.props;
 
     return (
-      <LocalNav>
+      <PageNav>
         <IndexLink to="sku-details" params={params}>Details</IndexLink>
         {this.detailsLinks}
-      </LocalNav>
+      </PageNav>
     );
   }
 }

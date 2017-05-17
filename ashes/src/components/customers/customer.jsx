@@ -5,7 +5,7 @@ import { Link, IndexLink } from 'components/link';
 import TitleBlock from './title-block';
 import { connect } from 'react-redux';
 import * as CustomersActions from '../../modules/customers/details';
-import LocalNav, { NavDropdown } from '../local-nav/local-nav';
+import PageNav from 'components/core/page-nav';
 import WaitAnimation from '../common/wait-animation';
 
 @connect((state, props) => ({
@@ -73,7 +73,7 @@ export default class Customer extends Component {
             <TitleBlock customer={details}/>
           </div>
         </div>
-        <LocalNav gutter={true}>
+        <PageNav>
           <IndexLink to="customer-details" params={params}>Details</IndexLink>
           <Link to="customer-cart" params={params}>Cart</Link>
           <Link to="customer-transactions" params={params}>Orders</Link>
@@ -81,7 +81,7 @@ export default class Customer extends Component {
           <Link to="customer-storecredits" params={params}>Store Credit</Link>
           <Link to="customer-notes" params={params}>Notes</Link>
           <Link to="customer-activity-trail" params={params}>Activity Trail</Link>
-        </LocalNav>
+        </PageNav>
         <div className="fc-grid">
           <div className="fc-col-md-1-1 fc-col-no-overflow">
             { this.renderChildren() }

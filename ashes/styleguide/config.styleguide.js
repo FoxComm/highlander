@@ -1,11 +1,23 @@
 const path = require('path');
+const { camelCase, upperFirst } = require('lodash');
+
+console.log(path.resolve(__dirname, 'src/components/code/button', 'index.js'));
 
 module.exports = {
   title: 'Ashes Components Style Guide',
-  showCode: true,
+  showCode: false,
   ignore: [path.join(__dirname, '../src/components/core/**/*.spec.jsx')],
   webpackConfig: require('./webpack.styleguide.js'),
   styleguideDir: path.resolve('public/admin/styleguide'),
+  getComponentPathLine: (componentPath) => {
+    const dirname = path.dirname(componentPath, '.jsx');
+    const name = dirname.split('/').slice(-1)[0];
+    const componentName = upperFirst(camelCase(name));
+
+    const importPath = dirname.split(/\/src\//).pop();
+
+    return `import ${componentName} from ${importPath}`;
+  },
   sections: [
     {
       name: 'Documentation',
@@ -33,7 +45,29 @@ module.exports = {
       sections: [
         {
           name: 'Core',
-          components: '../src/components/core/**/*.jsx',
+          sections: [
+            {
+              name: 'Buttons',
+              components: () => ([
+                path.resolve(__dirname, '../src/components/core/button/button.jsx'),
+                path.resolve(__dirname, '../src/components/core/button-with-menu/button-with-menu.jsx'),
+                path.resolve(__dirname, '../src/components/core/save-cancel/save-cancel.jsx'),
+              ]),
+            },
+            {
+              name: 'Navigation',
+              components: () => ([
+                path.resolve(__dirname, '../src/components/core/page-nav/page-nav.jsx'),
+              ]),
+            },
+            {
+              name: 'Forms',
+              components: () => ([
+                path.resolve(__dirname, '../src/components/core/text-mask/text-mask.jsx'),
+                path.resolve(__dirname, '../src/components/core/swatch-input/swatch-input.jsx'),
+              ]),
+            },
+          ],
         },
       ],
     },

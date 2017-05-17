@@ -16,7 +16,7 @@ import { PageTitle } from '../section-title';
 import Panel from '../panel/panel';
 import { PanelList, PanelListItem } from '../panel/panel-list';
 import { Dropdown } from '../dropdown';
-import LocalNav from '../local-nav/local-nav';
+import PageNav from 'components/core/page-nav';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import State, { formattedStatus } from '../common/state';
 
@@ -94,11 +94,11 @@ export default class GiftCard extends React.Component {
 
     return (
       <div>
-        <LocalNav>
+        <PageNav>
           <IndexLink to="gift-card-transactions" params={params}>Transactions</IndexLink>
           <Link to="gift-card-notes" params={params}>Notes</Link>
           <Link to="gift-card-activity-trail" params={params}>Activity Trail</Link>
-        </LocalNav>
+        </PageNav>
         <div className="fc-gift-card-tabs">
           {content}
         </div>

@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 
 // components
 import { Link, IndexLink } from 'components/link';
-import LocalNav from '../local-nav/local-nav';
+import PageNav from 'components/core/page-nav';
 
 type Props = {
   productId: string,
@@ -42,10 +42,10 @@ export default class SubNav extends Component<void, Props, void> {
 
   render() {
     return (
-      <LocalNav>
+      <PageNav>
         <IndexLink to="product-details" params={this.props}>Details</IndexLink>
         {this.detailsLinks}
-      </LocalNav>
+      </PageNav>
     );
   }
 }

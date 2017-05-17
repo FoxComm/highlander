@@ -2,34 +2,23 @@
 
 // libs
 import classNames from 'classnames';
-import { find, flatMap, get, includes, map } from 'lodash';
+import { last } from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { Component, Element as ReactElement } from 'react';
-import ReactDOM from 'react-dom';
 import { withRouter } from 'react-router';
 
 // helpers
 import { addResizeListener, removeResizeListener } from 'lib/resize';
 
 // components
-import { Link, IndexLink } from 'components/link';
-import NavDropdown from './nav-dropdown';
+import NavDropdown from './page-nav-dropdown';
 
 // styles
 import s from './page-nav.css';
 
 type Props = {
-  /** react-router's routes object */
-  routes: Object,
-  /** Check weather route active or not */
-  isActive: (routeName: string) => boolean,
-  /** Children */
+  /** List of links */
   children: Array<ReactElement<any>>,
-};
-
-type State = {
-  /** index of children, from with the automatic collapse starts */
-   collapseFrom: ?number,
 };
 
 /**
@@ -42,11 +31,16 @@ type State = {
 class PageNav extends Component {
   props: Props;
 
-  state: State = {
-    collapseFrom: null,
-  };
+  _nav;
+
+  _itemsRightEdges = [];
+
+  _itemsSumWidth = 0;
 
   componentDidMount() {
+    this._itemsRightEdges = this.itemElements.map(item => item.offsetLeft + item.offsetWidth);
+    this._itemsSumWidth = last(this._itemsRightEdges);
+
     addResizeListener(this.handleResize);
     this.handleResize();
   }
@@ -55,163 +49,75 @@ class PageNav extends Component {
     removeResizeListener(this.handleResize);
   }
 
-  componentDidUpdate() {
-    const refs = Object.values(this.refs);
+  @autobind
+  handleResize() {
+    const items = this.itemElements;
 
-    if (!global.document || refs.length < 2) {
+    if (items.length < 3) {
       return;
     }
 
-    const { collapsing } = this;
-
-    if (refs.length > 1 && this.hasOverflow) {
-      this.collapse();
-    } else if (!collapsing && this.isCollapsed) {
-      this.expand();
-    }
-  }
-
-  @autobind
-  handleResize() {
-    this.collapsing = false;
     this.forceUpdate();
-  }
-
-  collapse() {
-    this.collapsing = true;
-    const refs = Object.values(this.refs);
-    const { collapseFrom } = this.state;
-
-    this.setState({
-      collapseFrom: collapseFrom === null ? refs.length - 2 : collapseFrom - 1
-    });
-  }
-
-  expand() {
-    const total = React.Children.count(this.props.children);
-    const { collapseFrom } = this.state;
-
-    this.setState({
-      collapseFrom: total - collapseFrom <= 2 ? null : collapseFrom + 1
-    });
-  }
-
-  compileLinks({ props }) {
-    return flatMap(React.Children.toArray(props.children), child => {
-      if (child.type === Link || child.type === IndexLink) {
-        return child;
-      }
-      if (React.isValidElement(child)) {
-        return this.compileLinks(child);
-      }
-      return [];
-    });
-  }
-
-  hasActiveLink(item) {
-    const { routes } = this.props;
-    const linkList = this.compileLinks(item);
-    const linkNames = map(linkList, ['props', 'to']);
-
-    const currentRoute = routes[routes.length - 1];
-
-    return includes(linkNames, currentRoute.name);
-  }
-
-  isActiveLink(item) {
-    if (item.type !== Link && item.type !== IndexLink) {
-      return false;
-    }
-
-    const linkName = get(item, ['props', 'to']);
-
-    return this.props.isActive(linkName);
   }
 
   @autobind
   renderItem(item, index) {
-    // Index based keys aren't great, but in this case we don't have better
-    // information and these won't get reordered - so it's fine.
-    const key = `local-nav-item-${item.key ? item.key : index}`;
+    const key = `page-nav-item-${item.key ? item.key : index}`;
 
     if (item.type !== NavDropdown) {
       const child = React.cloneElement(item, {
-        ref: index,
-        key,
         activeClassName: s.activeLink,
       });
 
-      return <li ref={index} className={s.item} key={key}>{child}</li>;
+      return <li className={s.item} key={key}>{child}</li>;
     }
 
-    const isActive = this.hasActiveLink(item);
-
-    return React.cloneElement(item, {
-      ref: index,
-      className: classNames(item.props.className, { [s.selected]: isActive }),
-      key: key,
-      activeClassName: s.activeLink,
-    });
+    return item;
   }
 
-  get isCollapsed() {
-    return this.state.collapseFrom !== null;
+  get itemElements() {
+    const items = this._nav.getElementsByTagName('li');
+
+    return Array.prototype.slice.call(items, 0);
   }
 
-  get hasOverflow() {
-    const refs = Object.values(this.refs);
-    let mostLeft = this.refs[0].getBoundingClientRect().left;
+  get collapseFrom() {
+    const itemsCount = React.Children.count(this.props.children);
 
-    return Boolean(find(refs, (ref) => {
-      const left = ref instanceof Element
-        ? ref.getBoundingClientRect().left
-        : ReactDOM.findDOMNode(ref).getBoundingClientRect().left;
-
-      //if referenced node is visible (not in collapsed menu)
-      if (ref.offsetParent !== null && left < mostLeft) {
-        return true;
-      }
-      mostLeft = left;
-    }));
-  }
-
-  get flatItems() {
-    const { collapseFrom } = this.state;
-
-    let children = React.Children.toArray(this.props.children);
-    if (collapseFrom !== null) {
-      children = children.slice(0, collapseFrom);
+    if (itemsCount < 3) {
+      return itemsCount;
     }
 
-    return children.map(this.renderItem);
+    // find element who's right side is further then nav width
+    const from = this._itemsRightEdges.findIndex(right => right > this._nav.offsetWidth);
+
+    return from > -1 ? from - 1 : React.Children.count(this.props.children);
   }
 
-  get collapsedItems() {
-    const { collapseFrom } = this.state;
+  get items() {
+    const children = React.Children.toArray(this.props.children);
+    const items = children.map(this.renderItem);
+    const from = this.collapseFrom;
+    const flatItems = items.slice(0, from);
+    const collapsedItems = items.slice(from);
 
-    if (collapseFrom === null) {
-      return null;
-    }
-
-    const children = React.Children
-      .toArray(this.props.children)
-      .slice(collapseFrom)
-      .map(el => React.cloneElement(el, { activeClassName: s.activeLink }));
-
-    return (
-      <NavDropdown ref={collapseFrom} title="More">
-        {children}
+    const menu = !collapsedItems.length ? null : (
+      <NavDropdown title="More" key="dropdown">
+        {collapsedItems}
       </NavDropdown>
     );
+
+    return [
+      ...flatItems,
+      menu,
+    ];
   }
 
-  render() {
-    const { className } = this.props;
 
+  render() {
     return (
-      <ul className={classNames(s.block, className)}>
-        {this.flatItems}
-        {this.collapsedItems}
+      <ul className={classNames(s.block, this.props.className)} ref={n => this._nav = n}>
+        {this.items}
       </ul>
     );
   }
