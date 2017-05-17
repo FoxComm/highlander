@@ -432,7 +432,7 @@ class Pdp extends Component {
           </p>
           <img styleName="share-image" src="/images/pdp/style.jpg" />
         </div>
-        <div id="product-recommender"></div>
+        <div id="product-recommender" />
       </div>
     );
   }
