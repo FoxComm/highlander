@@ -6,8 +6,16 @@ const ManifestPlugin = require('webpack-manifest-plugin');
 
 module.exports = {
   output: {
-    filename: 'app.[hash:6].js',
-    sourceMapFilename: '[name].map'
+    // What is chunkhash? Read explanation: https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/153
+    filename: '[name].[chunkhash:4].js',
+
+    // We set const string here because `chunkFilename` value will be injected to vendor.js.
+    // It expected to be vice versa, but for some reasons webpack thinks that `vendor.js` is the main chunk.
+    // Default of `chunkFilename` is something like `[name].[chunkhash].js`, and if `main.js` changes, its hash changes,
+    // which changes the content of `vendor.js`, which changes hash of `vendor.js`,
+    // and that breaks the point of long-term cache.
+    // If we want `true` (not hardcoded) chunks, `chunkFilename` must be changed.
+    chunkFilename: 'unused-but-const-string'
   },
 
   module: {
@@ -35,10 +43,10 @@ module.exports = {
   },
 
   plugins: [
+    // Move all node_modules to `vendor.js` chunk
     new webpack.optimize.CommonsChunkPlugin({
-      filename: 'vendor.[hash:6].js',
       name: 'vendor',
-      minChunks: module => module.resource && module.resource.indexOf(path.resolve('node_modules')) >= 0,
+      minChunks: module => module.resource && module.resource.includes(path.resolve('node_modules')),
     }),
 
     new webpack.optimize.UglifyJsPlugin({
@@ -46,7 +54,7 @@ module.exports = {
       sourceMap: false
     }),
 
-    new ExtractTextPlugin('app.[contenthash:6].css'),
+    new ExtractTextPlugin('app.[contenthash:4].css'),
     new OptimizeCssAssetsPlugin(),
 
     new ManifestPlugin(),
