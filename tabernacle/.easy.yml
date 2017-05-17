@@ -10,13 +10,13 @@ shortcuts:
   - name: Inventory Files
     flag: "--inventory-file"
     aliases:
+      ark: inventory/static/ark
       dev: inventory/static/dev
       stage_vpn: inventory/static/stage_vpn
       staging: inventory/gce/
       target_dev: inventory/static/target_dev
       topdrawer: inventory/static/topdrawer
       tpg: inventory/static/tpg
-      trial: inventory/static/trial
 
   - name: Private Key Files
     flag: "--private-key"
@@ -161,11 +161,11 @@ shortcuts:
   - name: Variable Files
     flag: "-var-file"
     aliases:
+      ark: packer/envs/ark/config.json
       target: packer/envs/aws_target/config.json
       staging: packer/envs/staging/config.json
       topdrawer: packer/envs/topdrawer/config.json
       tpg-prod: packer/envs/tpg-prod/config.json
-      trial: packer/envs/trial/config.json
 
   targets:
   # Base Images
@@ -181,30 +181,30 @@ shortcuts:
     alias: agent.json
     target: packer/buildkite/agent.json
 
-  # Trial
-  - name: Trial Base Image
-    alias: trial_base.json
-    target: packer/trial/base.json
+  # Ark
+  - name: Ark Base Image
+    alias: ark_base.json
+    target: packer/ark/base.json
 
-  - name: Trial Amigo Image
-    alias: trial_amigo.json
-    target: packer/trial/amigo.json
+  - name: Ark Amigo Image
+    alias: ark_amigo.json
+    target: packer/ark/amigo.json
 
-  - name: Trial Logstash Image
-    alias: trial_logstash.json
-    target: packer/trial/logstash.json
+  - name: Ark Logstash Image
+    alias: ark_logstash.json
+    target: packer/ark/logstash.json
 
-  - name: Trial Database Image
-    alias: trial_database.json
-    target: packer/trial/database.json
+  - name: Ark Database Image
+    alias: ark_database.json
+    target: packer/ark/database.json
 
-  - name: Trial Search Image
-    alias: trial_search.json
-    target: packer/trial/search.json
+  - name: Ark Search Image
+    alias: ark_search.json
+    target: packer/ark/search.json
 
-  - name: Trial Frontend Image
-    alias: trial_frontend.json
-    target: packer/trial/frontend.json
+  - name: Ark Frontend Image
+    alias: ark_frontend.json
+    target: packer/ark/frontend.json
 
   # Tinystack
   - name: Tinystack Amigo
@@ -231,6 +231,7 @@ shortcuts:
   - name: State Files
     flag: "-state"
     aliases:
+      ark: terraform/envs/gce_ark/terraform.tfstate
       branches: terraform/envs/gce_branches/terraform.tfstate
       branches2: terraform/envs/gce_branches2/terraform.tfstate
       cloud: terraform/envs/gce_cloud/terraform.tfstate
@@ -240,11 +241,11 @@ shortcuts:
       target: terraform/envs/aws_target/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
-      trial: terraform/envs/gce_trial/terraform.tfstate
 
   - name: Variable Files
     flag: "-var-file"
     aliases:
+      ark: terraform/envs/gce_ark/ark.tfvars
       branches: terraform/envs/gce_branches/branches.tfvars
       branches2: terraform/envs/gce_branches2/branches.tfvars
       cloud: terraform/envs/gce_cloud/cloud.tfvars
@@ -254,9 +255,12 @@ shortcuts:
       target: terraform/envs/aws_target/target.tfvars
       topdrawer: terraform/envs/gce_td/td.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
-      trial: terraform/envs/gce_trial/trial.tfvars
 
   targets:
+  - name: Ark Production
+    alias: ark
+    target: terraform/base/gce_ark
+
   - name: FoxCommerce Cloud
     alias: cloud
     target: terraform/base/gce_cloud
@@ -288,7 +292,3 @@ shortcuts:
   - name: TPG Production
     alias: tpg
     target: terraform/base/gce_tpg
-
-  - name: Trial Production
-    alias: trial
-    target: terraform/base/gce_trial
