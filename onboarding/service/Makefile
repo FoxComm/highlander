@@ -1,4 +1,4 @@
-include ../makelib
+include ../../makelib
 header = $(call baseheader, $(1), onboarding-service)
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
