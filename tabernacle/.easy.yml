@@ -189,9 +189,9 @@ shortcuts:
     alias: trial_amigo.json
     target: packer/trial/amigo.json
 
-  - name: Trial Amigo Leader Image
-    alias: trial_amigo_leader.json
-    target: packer/trial/amigo_leader.json
+  - name: Trial Logstash Image
+    alias: trial_logstash.json
+    target: packer/trial/logstash.json
 
   - name: Trial Database Image
     alias: trial_database.json

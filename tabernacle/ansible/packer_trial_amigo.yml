@@ -14,6 +14,7 @@
     - { role: base/consul_server }
     - { role: base/zookeeper }
     - { role: base/mesos_master }
+    - { role: base/docker_registry }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

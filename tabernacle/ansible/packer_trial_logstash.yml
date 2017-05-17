@@ -1,17 +1,13 @@
 ---
 
-- name: Packer Trial Amigo Leader
+- name: Packer Trial Logstash
   hosts: all
   become: true
   vars:
     user: ubuntu
     packing: true
-    join_type: join-wan
-    mesos_quorum: 3
-    consul_expect: 3
 
   roles:
-    - { role: base/docker_registry }
     - { role: base/elasticsearch-5 }
     - { role: base/kibana }
 

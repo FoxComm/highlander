@@ -14,7 +14,7 @@ variable "network" {}
 
 variable "amigo_image" {}
 
-variable "amigo_leader_image" {}
+variable "logstash_image" {}
 
 variable "database_image" {}
 
@@ -45,15 +45,31 @@ variable "amigo_machine_type" {
 }
 
 variable "amigo_disk_size" {
-  default = "30"
+  default = "50"
 }
 
-variable "backend_machine_type" {
+variable "database_machine_type" {
   default = "n1-highmem-8"
 }
 
-variable "backend_disk_size" {
+variable "database_disk_size" {
   default = "500"
+}
+
+variable "search_machine_type" {
+  default = "n1-highmem-8"
+}
+
+variable "search_disk_size" {
+  default = "500"
+}
+
+variable "logstash_machine_type" {
+  default = "n1-standard-4"
+}
+
+variable "logstash_disk_size" {
+  default = "2000"
 }
 
 variable "frontend_machine_type" {
@@ -87,7 +103,7 @@ resource "google_compute_instance" "trial-amigo-0" {
   tags         = ["no-ip"]
 
   disk {
-    image = "${var.amigo_leader_image}"
+    image = "${var.amigo_image}"
     size  = "${var.amigo_disk_size}"
     type  = "pd-ssd"
   }
@@ -190,13 +206,13 @@ resource "google_compute_instance" "trial-amigo-2" {
 ##############################################
 resource "google_compute_instance" "trial-database" {
   name         = "${var.datacenter}-database"
-  machine_type = "${var.backend_machine_type}"
+  machine_type = "${var.database_machine_type}"
   zone         = "${var.zone}"
   tags         = ["no-ip"]
 
   disk {
     image = "${var.database_image}"
-    size  = "${var.backend_disk_size}"
+    size  = "${var.database_disk_size}"
     type  = "pd-ssd"
   }
 
@@ -227,13 +243,50 @@ resource "google_compute_instance" "trial-database" {
 ##############################################
 resource "google_compute_instance" "trial-search" {
   name         = "${var.datacenter}-search"
-  machine_type = "${var.backend_machine_type}"
+  machine_type = "${var.search_machine_type}"
   zone         = "${var.zone}"
   tags         = ["no-ip"]
 
   disk {
     image = "${var.search_image}"
-    size  = "${var.backend_disk_size}"
+    size  = "${var.search_disk_size}"
+    type  = "pd-ssd"
+  }
+
+  network_interface {
+    network = "${var.network}"
+  }
+
+  service_account {
+    scopes = ["storage-rw"]
+  }
+
+  connection {
+    type        = "ssh"
+    user        = "${var.ssh_user}"
+    private_key = "${file(var.ssh_private_key)}"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "/usr/local/bin/bootstrap.sh",
+      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.trial-amigo-0.network_interface.0.address}",
+    ]
+  }
+}
+
+##############################################
+# Logstash Worker
+##############################################
+resource "google_compute_instance" "trial-logstash" {
+  name         = "${var.datacenter}-logstash"
+  machine_type = "${var.logstash_machine_type}"
+  zone         = "${var.zone}"
+  tags         = ["no-ip"]
+
+  disk {
+    image = "${var.logstash_image}"
+    size  = "${var.logstash_disk_size}"
     type  = "pd-ssd"
   }
 
