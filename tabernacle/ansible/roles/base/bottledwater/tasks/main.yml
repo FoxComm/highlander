@@ -55,16 +55,16 @@
   with_items:
     - { name: phoenix, db_connection_string: "{{phoenix_db_connection_string}}", slot: "{{bottledwater_slot_phoenix}}" }
     - { name: middlewarehouse, db_connection_string: "{{middlewarehouse_db_connection_string}}", slot: "{{bottledwater_slot_middlewarehouse}}" }
-    - { name: onboarding_service, db_connection_string: "{{onboarding_service_db_connection_string}}", slot: "{{bottledwater_slot_onboarding_service}}" }
-  when: item.name != 'onboarding_service' or with_onboarding_service
+    - { name: onboarding, db_connection_string: "{{onboarding_service_db_connection_string}}", slot: "{{bottledwater_slot_onboarding_service}}" }
+  when: item.name != 'onboarding' or with_onboarding
 
 - name: Copy Bottledwater Services
   template: src=bottledwater.service dest="{{dest_services}}/bottledwater_{{item}}.service"
   with_items:
     - phoenix
     - middlewarehouse
-    - onboarding_service
-  when: item != 'onboarding_service' or with_onboarding_service
+    - onboarding
+  when: item != 'onboarding' or with_onboarding
 
 - name: Reload Systemd for Bottledwater
   command: systemctl daemon-reload
@@ -74,13 +74,13 @@
   with_items:
     - phoenix
     - middlewarehouse
-    - onboarding_service
-  when: item != 'onboarding_service' or with_onboarding_service
+    - onboarding
+  when: item != 'onboarding' or with_onboarding
 
 - name: Copy Bottledwater Consul Service
   template: src=bottledwater.json dest="/etc/consul.d/bottledwater_{{item}}.json"
   with_items:
     - phoenix
     - middlewarehouse
-    - onboarding_service
-  when: item != 'onboarding_service' or with_onboarding_service
+    - onboarding
+  when: item != 'onboarding' or with_onboarding
