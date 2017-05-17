@@ -85,7 +85,7 @@ marathon_restart:
     shipstation_consumer: "{{ lookup('env', 'MARATHON_SHIPSTATION_CONSUMER') | default(true, true) | bool }}"
     stock_items_consumer: "{{ lookup('env', 'MARATHON_STOCK_ITEMS_CONSUMER') | default(true, true) | bool }}"
     customer_groups_consumer: "{{ lookup('env', 'MARATHON_CUSTOMER_GROUPS_CONSUMER') | default(true, true) | bool }}"
-    onboarding_service: "{{ lookup('env', 'MARATHON_MARKETPLACE') | default(true, true) | bool }}"
+    onboarding_service: "{{ lookup('env', 'MARATHON_ONBOARDING') | default(true, true) | bool }}"
     storefront_td: "{{ lookup('env', 'MARATHON_STOREFRONT_TD') | default(true, true) | bool }}"
     storefront_tpg: "{{ lookup('env', 'MARATHON_STOREFRONT_TPG') | default(true, true) | bool }}"
     hyperion: "{{ lookup('env', 'MARATHON_HYPERION') | default(true, true) | bool }}"
@@ -397,8 +397,8 @@ mesos_quorum: 1
 mesos_ip: "$(hostname -i)"
 
 # Onboarding
-onboarding_service_db_name: onboarding_service_development
-onboarding_service_db_user: onboarding_service
+onboarding_service_db_name: onboarding_development
+onboarding_service_db_user: onboarding
 onboarding_service_db_connection_string: "postgresql://{{onboarding_service_db_user}}@{{db_host}}/{{onboarding_service_db_name}}"
 
 # Messaging
