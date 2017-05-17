@@ -2,7 +2,7 @@
 
 // libs
 import React, { Component, Element } from 'react';
-import { noop, isEmpty, get } from 'lodash';
+import { noop, isEmpty } from 'lodash';
 import { autobind } from 'core-decorators';
 
 // components
@@ -10,7 +10,7 @@ import Upload from 'components/upload/upload';
 import Image from 'components/images/image';
 
 // helpers
-import { uploadImage, deleteImage } from '../../../paragons/image';
+import { uploadImage } from '../../../paragons/image';
 
 // style
 import s from './image.css';
@@ -37,24 +37,28 @@ class ImageRenderer extends Component {
   props: Props;
 
   @autobind
-  addFile(image: ImageFile): Promise<*> {
+  addFile(image: Array<ImageFile>) {
     const { name, onChange } = this.props;
     onChange(name, 'image', { loading: true });
 
-    return uploadImage(image).then((obj) => {
-      const img = { ...obj, loading: false };
-      onChange(name, 'image', img);
+    const newImage = image.map((file: ImageFile) => ({
+      title: file.file.name,
+      alt: file.file.name,
+      src: file.src,
+      file: file.file,
+      key: file.key,
+      loading: true,
+    }));
+
+    uploadImage(newImage).then(res => {
+      onChange(name, 'image', res[0]);
     });
   }
 
   @autobind
-  deleteFile(): Promise<*> {
-    const { value, name, onChange } = this.props;
-    onChange(name, 'image', { loading: true });
-
-    return deleteImage(value).then((obj) => {
-      onChange(name, 'image', obj);
-    });
+  deleteFile(): Promise<*>  {
+    const { name, onChange } = this.props;
+    return Promise.resolve(onChange(name, 'image', ''));
   }
 
   @autobind
