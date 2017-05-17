@@ -1,0 +1,60 @@
+## Gift Card [/v1/gift-cards/{code}]
+
+Gift card is a tender type maintained by the Fox Platform that is specific to an
+individual site or tenant. Gift cards each have a balance that can be spent
+against in multiple orders. A gift card is different from a store credit in that
+it is not tied to a specific custoomer, but is instead identified by a unique
+code.
+
++ Model (application/json)
+    + Attributes (GiftCard)
+
++ Parameters
+    + code: `ABC-123` (required, string) - Gift card code
+
+### View [GET]
+
++ Response 200 (application/json)
+    + Attributes (GiftCard)
+
+### Create [POST /v1/gift-cards]
+
+Creates a GiftCard with `CsrAppeasement` type.
+
++ Request (application/json)
+    + Attributes (GiftCardSingleCreatePayload)
++ Response 200 (application/json)
+    + Attributes (GiftCard)
+
+### Bulk Create [POST /v1/gift-cards/bulk]
+
+Creates multiple GiftCards with `CsrAppeasement` type.
+
++ Request (application/json)
+    + Attributes (GiftCardCreatePayload)
++ Response 200 (application/json)
+    + Attributes (GiftCard)
+
+### Update State [PATCH]
+
++ Request (application/json)
+    + Attributes (GiftCardUpdateStatePayload)
++ Response 200 (application/json)
+    + Attributes (GiftCard)
+
+### Bulk Update State [PATCH /v1/gift-cards/bulk]
+
++ Request (application/json)
+    + Attributes (GiftCardBulkStateUpdatePayload)
++ Response 200 (application/json)
+    + Attributes (array[GiftCardBulkResponse])
+
+### Convert to StoreCredit [POST /v1/gift-cards/{code}/convert/{customerId}]
+
+Converts GiftCard to specified customer's Store Credit if it's active and has no open adjustments.
+
++ Parameters
+    + code: `ABC-123` (required, string) - Gift card code.
+    + customerId: 1 (required, number) - Customer ID.
++ Response 200 (application/json)
+    + Attributes (StoreCredit)

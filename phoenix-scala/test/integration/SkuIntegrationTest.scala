@@ -165,7 +165,7 @@ class SkuIntegrationTest
     }
 
     val (sku, skuForm, skuShadow) = (for {
-      simpleSku       ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD)
+      simpleSku       ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD, active = true)
       skuForm         ← * <~ ObjectForms.create(simpleSku.create)
       simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
       skuShadow       ← * <~ ObjectShadows.create(simpleSkuShadow.create.copy(formId = skuForm.id))

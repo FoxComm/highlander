@@ -30,6 +30,7 @@ import styles from './taxons.css';
 import type { TaxonomyParams } from '../taxonomy';
 
 type Props = ObjectPageChildProps<Taxon> & {
+  taxonomy: Taxonomy,
   actions: Object,
   list: Object,
   addState: AsyncState,
@@ -54,6 +55,7 @@ export class TaxonProductsPage extends Component {
 
   componentDidMount() {
     this.props.actions.setExtraFilters([
+      dsl.nestedTermFilter('taxonomies.taxonomy', get(this.props.taxonomy, 'attributes.name.v')),
       dsl.nestedTermFilter('taxonomies.taxons', get(this.props.object, 'attributes.name.v')),
     ]);
 

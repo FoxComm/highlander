@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/FoxComm/highlander/intelligence/suggester/src/payloads"
 	"github.com/FoxComm/highlander/intelligence/suggester/src/responses"
@@ -80,6 +81,24 @@ func selectUpSellAndPushToSmsDexter(customerID string, phoneNumber string, antHi
 	return runDexterSmsResponse, nil
 }
 
+func normalizePhoneNumber(phoneNumber string) (string, error) {
+	if len(phoneNumber) <= 1 {
+		return phoneNumber, errors.New("PhoneNumber missing")
+	}
+
+	phoneNumber = strings.Replace(phoneNumber, " ", "", -1)
+
+	// Check for international code
+	if phoneNumber[0] != '+' {
+		if phoneNumber[0] != '1' {
+			phoneNumber = "1" + phoneNumber
+		}
+		phoneNumber = "+" + phoneNumber
+	}
+
+	return phoneNumber, nil
+}
+
 func GetSuggestion(c echo.Context) error {
 	channel := c.QueryParam("channel")
 
@@ -93,10 +112,15 @@ func GetSuggestion(c echo.Context) error {
 
 	anthillQueryResponse, queryError := util.AntHillQuery(customerID, channel)
 	if queryError != nil {
-		return c.String(http.StatusBadRequest, "queryError: "+queryError.Error())
+		return c.String(http.StatusBadRequest, "Anthill query response error: "+queryError.Error())
 	}
 
-	upSellResponse, upSellError := selectUpSellAndPushToSmsDexter(customerID, customer.PhoneNumber, anthillQueryResponse)
+	phoneNumberClean, phoneError := normalizePhoneNumber(customer.PhoneNumber)
+	if phoneError != nil {
+		return c.String(http.StatusBadRequest, "phoneNumber error: "+phoneError.Error())
+	}
+
+	upSellResponse, upSellError := selectUpSellAndPushToSmsDexter(customerID, phoneNumberClean, anthillQueryResponse)
 	if upSellError != nil {
 		return c.String(http.StatusBadRequest, "upSellError: "+upSellError.Error())
 	}
