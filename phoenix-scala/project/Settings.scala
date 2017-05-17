@@ -3,6 +3,7 @@ import org.scalafmt.sbt.ScalaFmtPlugin
 import org.scalafmt.sbt.ScalaFmtPlugin.autoImport._
 import sbt.Keys._
 import sbt._
+import spray.revolver.RevolverPlugin.Revolver
 
 object Settings {
 
@@ -28,7 +29,7 @@ object Settings {
       "-Ywarn-nullary-unit",
       "-Ywarn-infer-any"
     )
-  ) ++ scalafmtSettings ++ sourceLocationSettings
+  ) ++ scalafmtSettings ++ sourceLocationSettings ++ Revolver.settings
 
   lazy val scalafmtSettings: Seq[Setting[_]] =
     reformatOnCompileSettings :+ (scalafmtConfig := Some(file(".scalafmt")))

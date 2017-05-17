@@ -38,7 +38,6 @@ lazy val phoenixScala = (project in file("."))
     resourceDirectory in Test    := baseDirectory.value / "test" / "resources",
     resourceDirectory in IT      := (resourceDirectory in Test).value,
     resourceDirectory in ET      := (resourceDirectory in Test).value,
-    Revolver.settings,
     (mainClass in Compile) := Some("server.Main"),
     initialCommands in console := fromFile("project/console_init").getLines.mkString("\n"),
     initialCommands in (Compile, consoleQuick) := "",
@@ -58,7 +57,6 @@ lazy val phoenixScala = (project in file("."))
     logBuffered in ET   := false,
     test in assembly := {},
     addCommandAlias("all", "; clean; seeder/clean; it:compile; seeder/compile; test; seeder/assembly"),
-    Revolver.settings,
     assemblyMergeStrategy in assembly := {
       case PathList("org", "joda", "time", xs @ _ *) ⇒
         MergeStrategy.first
@@ -81,7 +79,6 @@ lazy val seeder = (project in file("seeder"))
     commonSettings,
     libraryDependencies ++= Dependencies.gatling,
     cleanFiles += baseDirectory.value / "results",
-    Revolver.settings,
     // we cannot fork and set javaOptions simply, as it causes some weird issue with db schema creation
     initialize ~= (_ => System.setProperty("phoenix.env", "test" )),
     assemblyMergeStrategy in assembly := {
