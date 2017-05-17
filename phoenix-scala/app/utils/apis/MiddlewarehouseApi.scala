@@ -37,16 +37,14 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
   private def parseListOfMwhInfoErrors(
       maybeErrors: Option[List[MiddlewarehouseErrorInfo]]): Option[Failures] = {
     maybeErrors match {
-      case Some(errors) ⇒ {
+      case Some(errors) ⇒
         logger.info("Middlewarehouse errors:")
         logger.info(errors.map(_.debug).mkString("\n"))
         logger.info("Check Middlewarehouse logs for more details.")
         Some(SkusOutOfStockFailure(errors.map(_.sku)).single)
-      }
-      case _ ⇒ {
+      case _ ⇒
         logger.warn("No errors in failed Middlewarehouse response!")
         Some(MiddlewarehouseFailures.UnableToHoldLineItems.single)
-      }
     }
   }
 

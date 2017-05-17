@@ -7,10 +7,8 @@ object MiddlewarehouseFailures {
   }
 
   case class SkusOutOfStockFailure(skus: List[String]) extends Failure {
-    val readableSkus = skus.mkString(", ")
-
     override def description =
-      s"Following SKUs are out of stock: $readableSkus. Please remove them from your cart to complete checkout."
+      s"Following SKUs are out of stock: ${skus.mkString(", ")}. Please remove them from your cart to complete checkout."
   }
 
   case object UnableToHoldLineItems extends Failure {
