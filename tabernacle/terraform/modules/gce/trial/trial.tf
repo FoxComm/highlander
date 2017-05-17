@@ -41,11 +41,11 @@ variable "zone" {
 # Hardware Configurations
 ##############################################
 variable "amigo_machine_type" {
-  default = "n1-standard-4"
+  default = "n1-standard-2"
 }
 
 variable "amigo_disk_size" {
-  default = "100"
+  default = "30"
 }
 
 variable "backend_machine_type" {
