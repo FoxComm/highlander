@@ -6,7 +6,7 @@ import sbt._
 
 object Settings {
 
-  lazy val commonSettings = Seq(
+  lazy val commonSettings: Seq[Setting[_]] = Seq(
     version := "1.0",
     scalaVersion := Versions.scala,
     updateOptions := updateOptions.value.withCachedResolution(true),
@@ -28,10 +28,17 @@ object Settings {
       "-Ywarn-nullary-unit",
       "-Ywarn-infer-any"
     )
-  ) ++ scalafmtSettings
+  ) ++ scalafmtSettings ++ sourceLocationSettings
 
   lazy val scalafmtSettings: Seq[Setting[_]] =
     reformatOnCompileSettings :+ (scalafmtConfig := Some(file(".scalafmt")))
+
+  // Let's keep project sources in `app` directory instead of `src/scala/main`
+  // I also prefer `app` over `src` because sources end up on top of list in the project tree view! -- Anna
+  lazy val sourceLocationSettings: Seq[Setting[_]] = Seq(
+    scalaSource in Compile       := baseDirectory.value / "app",
+    resourceDirectory in Compile := baseDirectory.value / "resources"
+  )
 
   lazy val sharedItSettings: Seq[Setting[_]] =
     Defaults.testTasks ++ Defaults.itSettings ++ ScalaFmtPlugin.configScalafmtSettings

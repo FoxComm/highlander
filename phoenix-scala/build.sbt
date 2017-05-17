@@ -31,11 +31,10 @@ lazy val phoenixScala = (project in file("."))
       import Dependencies._
       akka ++ http ++ auth ++ json4s ++ fasterxml ++ apis ++ logging ++ test ++ misc ++ kafka
     },
-    scalaSource in Compile := baseDirectory.value / "app",
+    // TODO @anna move the rest of these settings to common when tests are moved into subprojects
     scalaSource in Test    := baseDirectory.value / "test" / "unit",
     scalaSource in IT      := baseDirectory.value / "test" / "integration",
     scalaSource in ET      := baseDirectory.value / "test" / "integration",
-    resourceDirectory in Compile := baseDirectory.value / "resources",
     resourceDirectory in Test    := baseDirectory.value / "test" / "resources",
     resourceDirectory in IT      := (resourceDirectory in Test).value,
     resourceDirectory in ET      := (resourceDirectory in Test).value,
