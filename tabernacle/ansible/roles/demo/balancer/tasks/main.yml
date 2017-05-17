@@ -15,8 +15,12 @@
 - name: Enable Web UI Hosts
   file: src=/etc/nginx/sites-available/web-ui dest=/etc/nginx/sites-enabled/web-ui owner=root group=root state=link force=true
 
-- name: Restart Consul Template
+- name: Restart Demo consul Template
   service: name=demo_consul_template state=restarted
+  when: not packing
+
+- name: Restart Consul Template
+  service: name=consul_template state=restarted
   when: not packing
 
 - name: Restart Nginx every 30 seconds, Try for 30 minutes
