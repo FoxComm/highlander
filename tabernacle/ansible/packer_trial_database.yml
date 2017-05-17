@@ -6,6 +6,7 @@
   vars:
     user: ubuntu
     packing: true
+    with_marketplace: true
 
   roles:
     - { role: base/mesos_worker }
