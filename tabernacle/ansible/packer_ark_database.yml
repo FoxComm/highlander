@@ -6,6 +6,10 @@
   vars:
     user: ubuntu
     packing: true
+    db_name: phoenix
+    middlewarehouse_db_name: middlewarehouse
+    onboarding_service_db_name: onboarding
+    phoenix_db_name: phoenix
     with_onboarding: true
 
   roles:
