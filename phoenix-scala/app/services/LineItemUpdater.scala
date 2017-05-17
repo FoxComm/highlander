@@ -4,18 +4,20 @@ import cats.implicits._
 import failures.CartFailures._
 import failures.OrderFailures.OrderLineItemNotFound
 import failures.ProductFailures.SkuNotFoundForContext
+import failures.ArchiveFailures.LinkInactiveSkuFailure
 import models.account._
 import models.activity.Activity
 import models.cord._
 import models.cord.lineitems.CartLineItems.scope._
 import models.cord.lineitems._
-import models.inventory.{Sku, Skus}
+import models.inventory.{IlluminatedSku, Sku, Skus}
 import models.objects._
 import models.product.VariantValueSkuLinks
 import payloads.LineItemPayloads._
 import responses.TheResponse
 import responses.cord.{CartResponse, OrderResponse}
 import services.carts.{CartPromotionUpdater, CartTotaler}
+import services.objects.ObjectManager
 import slick.jdbc.PostgresProfile.api._
 import utils.JsonFormatters
 import utils.aliases._
@@ -164,7 +166,8 @@ object LineItemUpdater {
 
   private def updateQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
-      ctx: OC): DbResultT[Seq[CartLineItem]] =
+      ctx: OC,
+      db: DB): DbResultT[Seq[CartLineItem]] =
     for {
       _ ← * <~ CartLineItems
            .byCordRef(cart.referenceNumber)
@@ -172,13 +175,16 @@ object LineItemUpdater {
       updateResult ← * <~ payload.filter(_.quantity > 0).map(updateLineItems(cart, _))
     } yield updateResult.flatten
 
-  private def updateLineItems(cart: Cart, lineItem: UpdateLineItemsPayload)(implicit ec: EC,
-                                                                            ctx: OC) =
+  private def updateLineItems(cart: Cart,
+                              lineItem: UpdateLineItemsPayload)(implicit ec: EC, db: DB, ctx: OC) =
     for {
       sku ← * <~ Skus
              .filterByContext(ctx.id)
              .filter(_.code === lineItem.sku)
              .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, ctx.id))
+      fullSku ← ObjectManager.getFullObject(DbResultT.pure(sku))
+      _       ← * <~ IlluminatedSku.illuminate(ctx, fullSku).mustBeActive
+      // TODO: check if that SKU’s Product is not archived/deactivated @michalrus
       _ ← * <~ mustFindProductIdForSku(sku, cart.refNum)
       updateResult ← * <~ createLineItems(sku.id,
                                           lineItem.quantity,

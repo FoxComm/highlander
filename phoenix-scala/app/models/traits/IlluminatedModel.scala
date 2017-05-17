@@ -14,27 +14,22 @@ trait IlluminatedModel[T] {
 
   def attributes: Json
 
-  protected def inactiveError: Failure
+  def inactiveError: Failure
 
-  def mustBeActive: Either[Failures, IlluminatedModel[T]] = {
-    if (archivedAt.isDefined) {
-      Either.left(inactiveError.single)
-    } else {
+  def isActive: Boolean =
+    archivedAt.isEmpty && {
       val activeFrom = (attributes \ "activeFrom" \ "v").extractOpt[Instant]
       val activeTo   = (attributes \ "activeTo" \ "v").extractOpt[Instant]
       val now        = Instant.now
 
       (activeFrom, activeTo) match {
-        case (Some(from), Some(to)) ⇒
-          if (from.isBefore(now) && to.isAfter(now)) Either.right(this)
-          else Either.left(inactiveError.single)
-        case (Some(from), None) ⇒
-          if (from.isBefore(now)) Either.right(this)
-          else Either.left(inactiveError.single)
-        case _ ⇒
-          Either.left(inactiveError.single)
+        case (Some(from), Some(to)) ⇒ from.isBefore(now) && to.isAfter(now)
+        case (Some(from), None)     ⇒ from.isBefore(now)
+        case _                      ⇒ false
       }
     }
-  }
+
+  def mustBeActive: Either[Failures, IlluminatedModel[T]] =
+    if (isActive) Either.right(this) else Either.left(inactiveError.single)
 
 }
