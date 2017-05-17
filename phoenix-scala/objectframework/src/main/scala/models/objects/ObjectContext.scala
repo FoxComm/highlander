@@ -2,11 +2,11 @@ package models.objects
 
 import java.time.Instant
 
+import org.json4s.JValue
 import shapeless._
-import utils.aliases._
+import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{JsonFormatters, Validation}
 
 /**
   * A ObjectContext stores information to determine which object shadow to show.
@@ -17,7 +17,7 @@ import utils.{JsonFormatters, Validation}
   */
 case class ObjectContext(id: Int = 0,
                          name: String,
-                         attributes: Json,
+                         attributes: JValue,
                          createdAt: Instant = Instant.now)
     extends FoxModel[ObjectContext]
     with Validation[ObjectContext]
@@ -25,7 +25,7 @@ case class ObjectContext(id: Int = 0,
 class ObjectContexts(tag: Tag) extends FoxTable[ObjectContext](tag, "object_contexts") {
   def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name       = column[String]("name")
-  def attributes = column[Json]("attributes")
+  def attributes = column[JValue]("attributes")
   def createdAt  = column[Instant]("created_at")
 
   def * =
@@ -37,8 +37,6 @@ object ObjectContexts
     with ReturningId[ObjectContext, ObjectContexts] {
 
   val returningLens: Lens[ObjectContext, Int] = lens[ObjectContext].id
-
-  implicit val formats = JsonFormatters.phoenixFormats
 
   def filterByName(name: String): QuerySeq =
     filter(_.name === name)

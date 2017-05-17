@@ -5,13 +5,12 @@ import java.time.Instant
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
 import shapeless._
-import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 case class ObjectForm(id: Int = 0,
                       kind: String,
-                      attributes: Json,
+                      attributes: JValue,
                       updatedAt: Instant = Instant.now,
                       createdAt: Instant = Instant.now)
     extends FoxModel[ObjectForm]
@@ -23,7 +22,7 @@ object ObjectForm {
   val coupon    = "coupon"
   val taxonomy  = "taxonomy"
 
-  def fromPayload(kind: String, attributes: Map[String, Json]): ObjectForm = {
+  def fromPayload(kind: String, attributes: Map[String, JValue]): ObjectForm = {
     val attributesJson = attributes.foldLeft(JNothing: JValue) {
       case (acc, (key, value)) ⇒
         val attributeJson: JValue = key → (value \ "v")
@@ -38,7 +37,7 @@ object ObjectForm {
 class ObjectForms(tag: Tag) extends FoxTable[ObjectForm](tag, "object_forms") {
   def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def kind       = column[String]("kind")
-  def attributes = column[Json]("attributes")
+  def attributes = column[JValue]("attributes")
   def updatedAt  = column[Instant]("updated_at")
   def createdAt  = column[Instant]("created_at")
 

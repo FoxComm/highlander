@@ -1,9 +1,8 @@
 package payloads
 
-import org.json4s.JField
+import org.json4s.{JField, JValue}
 import org.json4s.JsonAST.JObject
 import org.json4s.JsonDSL._
-import utils.aliases._
 
 object ObjectPayloads {
   trait FormShadowFieldBuilder {
@@ -11,7 +10,7 @@ object ObjectPayloads {
     def shadowJson: JField
   }
 
-  class TypedFieldBuilder(attributeName: String, attributeType: String, attributeValue: Json)
+  class TypedFieldBuilder(attributeName: String, attributeType: String, attributeValue: JValue)
       extends FormShadowFieldBuilder {
     override def formJson: JField = attributeName → attributeValue
     override def shadowJson: JField =

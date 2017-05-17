@@ -2,25 +2,24 @@ package utils
 
 import java.time.Instant
 
-import cats.data._
+import cats.data.NonEmptyList
+import com.networknt.schema.JsonSchemaFactory
 import com.typesafe.scalalogging.LazyLogging
 import failures.Failure
 import failures.ObjectFailures._
 import models.objects._
+import org.json4s.Formats
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
-import utils.aliases._
-import utils.db._
-
-// json schema
-import scala.collection.JavaConverters._
-import com.networknt.schema.JsonSchemaFactory
 import org.json4s.jackson.JsonMethods.asJsonNode
+import utils.db._
+import scala.collection.JavaConverters._
+
+import scala.concurrent.ExecutionContext
 
 object IlluminateAlgorithm extends LazyLogging {
-  implicit val formats = JsonFormatters.phoenixFormats
 
-  def get(attr: String, form: Json, shadow: Json): Json = shadow \ attr \ "ref" match {
+  def get(attr: String, form: JValue, shadow: JValue): JValue = shadow \ attr \ "ref" match {
     case JString(key) ⇒ form \ key
     case _            ⇒ JNothing
   }
@@ -33,7 +32,7 @@ object IlluminateAlgorithm extends LazyLogging {
   }
 
   def validateObjectBySchema(schema: ObjectFullSchema, form: ObjectForm, shadow: ObjectShadow)(
-      implicit ec: EC): DbResultT[Json] = {
+      implicit ec: ExecutionContext): DbResultT[JValue] = {
     val illuminated = projectFlatAttributes(form.attributes, shadow.attributes)
     getInternalAttributes(schema).fold {
       DbResultT.good(illuminated)
@@ -46,13 +45,13 @@ object IlluminateAlgorithm extends LazyLogging {
       errorMessages.map { err ⇒
         ObjectValidationFailure(form.kind, shadow.id, err.getMessage)
       } match {
-        case head :: tail ⇒ DbResultT.failures[Json](NonEmptyList(head, tail))
+        case head :: tail ⇒ DbResultT.failures[JValue](NonEmptyList(head, tail))
         case Nil          ⇒ DbResultT.good(illuminated)
       }
     }
   }
 
-  def projectAttributes(formJson: Json, shadowJson: Json): Json =
+  def projectAttributes(formJson: JValue, shadowJson: JValue): JValue =
     (formJson, shadowJson) match {
       case (JObject(from), JObject(shadow)) ⇒
         shadow.obj.map {
@@ -68,7 +67,7 @@ object IlluminateAlgorithm extends LazyLogging {
         JNothing
     }
 
-  def projectFlatAttributes(formJson: Json, shadowJson: Json): Json =
+  def projectFlatAttributes(formJson: JValue, shadowJson: JValue): JValue =
     (formJson, shadowJson) match {
       case (JObject(from), JObject(shadow)) ⇒
         shadow.obj.map {
@@ -83,7 +82,8 @@ object IlluminateAlgorithm extends LazyLogging {
         JNothing
     }
 
-  def validateAttributes(formJson: Json, shadowJson: Json): Seq[Failure] =
+  def validateAttributes(formJson: JValue, shadowJson: JValue)(
+      implicit fmt: Formats): Seq[Failure] =
     (formJson, shadowJson) match {
       case (JObject(form), JObject(shadow)) ⇒
         shadow.obj.flatMap {
@@ -102,7 +102,9 @@ object IlluminateAlgorithm extends LazyLogging {
       case _ ⇒
         Seq(FormAttributesAreEmpty, ShadowAttributesAreEmpty)
     }
-  def validateAttributesTypes(formJson: Json, shadowJson: Json): Seq[Failure] = {
+
+  def validateAttributesTypes(formJson: JValue, shadowJson: JValue)(
+      implicit fmt: Formats): Seq[Failure] = {
     (formJson, shadowJson) match {
       case (JObject(form), JObject(shadow)) ⇒
         shadow.obj.flatMap {
@@ -118,10 +120,8 @@ object IlluminateAlgorithm extends LazyLogging {
     }
   }
 
-  private def validateAttributeType(attr: String,
-                                    key: String,
-                                    typed: JValue,
-                                    form: Json): Seq[Failure] = {
+  private def validateAttributeType(attr: String, key: String, typed: JValue, form: JValue)(
+      implicit fmt: Formats): Seq[Failure] = {
     val value = form \ key
 
     typed match {
@@ -134,10 +134,8 @@ object IlluminateAlgorithm extends LazyLogging {
     }
   }
 
-  private def validateAttribute(attr: String,
-                                key: String,
-                                typed: JValue,
-                                form: Json): Seq[Failure] = {
+  private def validateAttribute(attr: String, key: String, typed: JValue, form: JValue)(
+      implicit fmt: Formats): Seq[Failure] = {
     val value = form \ key
 
     val shadowAttributesErrors = value match {

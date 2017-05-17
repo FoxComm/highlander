@@ -1,12 +1,13 @@
 package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import models.account._
 import models.objects._
 import models.product.SimpleContext
 import models.promotion.Promotion.ApplyType
 import models.promotion.{Promotion, Promotions}
+import org.json4s.Formats
+import utils.JsonFormatters
 import utils.aliases._
 import utils.db._
 
@@ -30,6 +31,9 @@ object PromotionSeeds {
 }
 
 trait PromotionSeeds {
+
+  implicit val formats: Formats = JsonFormatters.phoenixFormats
+
   import PromotionSeeds._
 
   def createCouponPromotions(discounts: Seq[BaseDiscount])(implicit db: DB,

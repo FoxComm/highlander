@@ -2,7 +2,6 @@ package models.objects
 
 import failures.ObjectFailures.{LinkAtPositionCannotBeFound, LinkCannotBeFound}
 import models.objects.ObjectHeadLinks.{ObjectHeadLink, ObjectHeadLinkQueries, ObjectHeadLinks}
-import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
