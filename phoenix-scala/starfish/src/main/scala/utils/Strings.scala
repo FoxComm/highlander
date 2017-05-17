@@ -14,7 +14,7 @@ object Strings {
         case c if c.isUpper ⇒ s"_${c.toLower}"
         case c              ⇒ s"$c"
       }.stripPrefix("_")
-    def prettify: String                = s.split("(?=\\p{Upper})").mkString(" ")
-    def quote(escapeChar: Char): String = "\"" + s.replace("\"", s"""$escapeChar"""") + "\""
+    def prettify: String                       = s.split("(?=\\p{Upper})").mkString(" ")
+    def quote(escapeChar: Char = '\\'): String = "\"" + s.replace("\"", s"""$escapeChar"""") + "\""
   }
 }
