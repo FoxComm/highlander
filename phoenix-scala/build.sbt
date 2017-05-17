@@ -31,15 +31,13 @@ lazy val phoenixScala = (project in file("."))
       import Dependencies._
       akka ++ http ++ auth ++ json4s ++ fasterxml ++ apis ++ logging ++ test ++ misc ++ kafka
     },
-    scalaSource in Compile := baseDirectory.value / "app",
+    // TODO @anna move the rest of these settings to common when tests are moved into subprojects
     scalaSource in Test    := baseDirectory.value / "test" / "unit",
     scalaSource in IT      := baseDirectory.value / "test" / "integration",
     scalaSource in ET      := baseDirectory.value / "test" / "integration",
-    resourceDirectory in Compile := baseDirectory.value / "resources",
     resourceDirectory in Test    := baseDirectory.value / "test" / "resources",
     resourceDirectory in IT      := (resourceDirectory in Test).value,
     resourceDirectory in ET      := (resourceDirectory in Test).value,
-    Revolver.settings,
     (mainClass in Compile) := Some("server.Main"),
     initialCommands in console := fromFile("project/console_init").getLines.mkString("\n"),
     initialCommands in (Compile, consoleQuick) := "",
@@ -59,9 +57,6 @@ lazy val phoenixScala = (project in file("."))
     logBuffered in ET   := false,
     test in assembly := {},
     addCommandAlias("all", "; clean; seeder/clean; it:compile; seeder/compile; test; seeder/assembly"),
-    scalafmtConfig := Some(file(".scalafmt")),
-    reformatOnCompileWithItSettings, // scalafmt
-    Revolver.settings,
     assemblyMergeStrategy in assembly := {
       case PathList("org", "joda", "time", xs @ _ *) ⇒
         MergeStrategy.first
@@ -84,9 +79,6 @@ lazy val seeder = (project in file("seeder"))
     commonSettings,
     libraryDependencies ++= Dependencies.gatling,
     cleanFiles += baseDirectory.value / "results",
-    scalafmtConfig := Some(file(".scalafmt")),
-    reformatOnCompileSettings, // scalafmt,
-    Revolver.settings,
     // we cannot fork and set javaOptions simply, as it causes some weird issue with db schema creation
     initialize ~= (_ => System.setProperty("phoenix.env", "test" )),
     assemblyMergeStrategy in assembly := {
@@ -114,8 +106,6 @@ lazy val objectframework = (project in file("objectframework"))
   .dependsOn(starfish)
   .settings(
     commonSettings,
-    scalafmtConfig := Some(file(".scalafmt")),
-    reformatOnCompileSettings, // scalafmt,
     libraryDependencies ++= {
       import Dependencies._
       cats ++ shapeless ++ db ++ slick ++ json4s ++ logging :+
@@ -126,8 +116,6 @@ lazy val objectframework = (project in file("objectframework"))
 lazy val starfish = (project in file("starfish"))
   .settings(
     commonSettings,
-    scalafmtConfig := Some(file(".scalafmt")),
-    reformatOnCompileSettings, // scalafmt,
     libraryDependencies ++= {
       import Dependencies._
       cats ++ shapeless ++ db ++ slick ++ json4s
