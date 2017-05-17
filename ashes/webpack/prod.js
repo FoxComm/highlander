@@ -1,3 +1,4 @@
+const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
@@ -5,6 +6,13 @@ const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 module.exports = {
   module: {
     rules: [
+      {
+        test: /\.jsx?$/,
+        include: [
+          path.resolve(__dirname, '../src'),
+        ],
+        use: [ 'babel-loader' ],
+      },
       {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
@@ -22,7 +30,14 @@ module.exports = {
 
   plugins: [
     new webpack.optimize.UglifyJsPlugin({
-      compress: { warnings: false }
+      compress: { warnings: false },
+      sourceMap: false
+    }),
+
+    new webpack.optimize.CommonsChunkPlugin({
+      filename: '[name].js',
+      name: 'vendor',
+      minChunks: module => module.resource && module.resource.indexOf(path.resolve('node_modules')) >= 0,
     }),
 
     new ExtractTextPlugin('styles.css'),

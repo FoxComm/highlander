@@ -4,6 +4,9 @@ header = $(call baseheader, $(1), ashes)
 export PATH := $(CURDIR)/node_modules/.bin:$(PATH)
 SHELL := env PATH=$(PATH) /bin/bash
 
+GIT_REVISION = $(shell git describe --always)
+WEBPACK_PORT = 4001
+
 # Docker stuff ###
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
@@ -74,20 +77,17 @@ install i:
 	yarn cache clean
 	yarn --pure-lockfile
 
-.PHONY: rev
-rev:
-	git describe --always | cat > .git-rev
-
 # Development ###
 
 .PHONY: nodemon
-nodemon: rev
+nodemon:
 	test -f .env && export eval `cat .env` || true &&\
-	nodemon --watch server --watch config -e js,tmpl ./server/index.js
+	WEBPACK_PORT=$(WEBPACK_PORT) nodemon --watch server --watch config -e js,tmpl ./server/index.js
 
 .PHONY: build-dev
 build-dev:
-	webpack --progress --colors --watch
+	GIT_REVISION=$(GIT_REVISION) webpack-dev-server \
+	--inline --watch --hot --progress --content-base=build/ --port $(WEBPACK_PORT)
 
 .PHONY: dev d
 dev d:
@@ -97,7 +97,7 @@ dev d:
 
 .PHONY: build-prod
 build-prod: clean
-	NODE_ENV=production webpack
+	GIT_REVISION=$(GIT_REVISION) NODE_ENV=production webpack
 
 .PHONY: prod p
 prod p: build-prod
@@ -108,7 +108,6 @@ prod p: build-prod
 .PHONY: build
 build:
 	$(call header, Building)
-	make rev
 	make install
 	BEHIND_NGINX=true make build-prod
 ifeq ($(ASHES_BUILD_STYLEGUIDE), true)

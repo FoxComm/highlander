@@ -11,23 +11,29 @@ const publicDir = path.resolve(__dirname + './../public');
 const buildDir = path.resolve(__dirname + './../build');
 
 app.init = co.wrap(function *(env) {
-  if (env) { app.env = env; }
+  if (env) {
+    app.env = env;
+  }
+
   app.config = new Config(app.env);
+
   app.use(serve(buildDir));
   app.use(serve(publicDir));
   app.use(favicon(path.resolve('public/admin/favicon.ico')));
+
   if (app.env.environment !== 'production') {
+    require('./hmr')(app);
     app.use(require('koa-logger')());
   }
 
-  require(`${__dirname}/middleware`)(app);
+  require(`./middleware`)(app);
 
   // Without nginx we use `api` middleware to proxy api requests to API_URL
   if (!process.env.BEHIND_NGINX) {
-    require(`${__dirname}/api`)(app);
+    require(`./api`)(app);
   }
 
-  require(`${__dirname}/cms`)(app);
+  require(`./cms`)(app);
   app.server = app.listen(app.config.server.port);
 });
 

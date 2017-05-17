@@ -10,12 +10,12 @@ const prodConfig = require('./webpack/prod');
 
 const baseConfig = {
   entry: [
-    // 'babel-polyfill',
     path.resolve(__dirname, './src/client.js')
   ],
 
   output: {
     path: path.resolve(__dirname, './build/admin'),
+    publicPath: '/admin/',
     filename: '[name].js',
   },
 
@@ -24,13 +24,6 @@ const baseConfig = {
       {
         test: /\.json$/,
         use: [ 'json-loader' ]
-      },
-      {
-        test: /\.js(x)?$/,
-        include: [
-          path.resolve(__dirname, './src'),
-        ],
-        use: [ 'babel-loader' ],
       },
       {
         test: /\.(png|woff|woff2)$/,
@@ -48,17 +41,10 @@ const baseConfig = {
   },
 
   plugins: [
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify(process.env.NODE_ENV),
-        BEHIND_NGINX: JSON.stringify(process.env.BEHIND_NGINX),
-        GIT_REVISION: JSON.stringify(process.env.GIT_REVISION),
-      },
-    }),
-    new webpack.optimize.CommonsChunkPlugin({
-      filename:  '[name].js',
-      name:      'vendor',
-      minChunks: module => module.resource && module.resource.indexOf(path.resolve('node_modules')) >= 0,
+    new webpack.EnvironmentPlugin({
+      NODE_ENV: 'development',
+      BEHIND_NGINX: false,
+      GIT_REVISION: 'unknown'
     }),
 
     new SvgStore(),
