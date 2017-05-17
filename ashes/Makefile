@@ -54,6 +54,14 @@ test: flow lint
 t: flow lint
 	@NODE_ENV=$(NODE_ENV) gulp test
 
+.PHONY: mocha-main
+mocha-main:
+	gulp mocha.main
+
+.PHONY: mocha-unit
+mocha-unit:
+	gulp mocha.unit
+
 .PHONY: lint
 lint:
 	 eslint --ext .js --ext .jsx ./
@@ -66,8 +74,8 @@ flow:
 build-styleguide:
 	styleguidist build --config styleguide/config.styleguide.js
 
-.PHONY: styleguide
-styleguide:
+.PHONY: styleguide sg
+styleguide sg:
 	styleguidist server --config styleguide/config.styleguide.js
 
 # Base ###

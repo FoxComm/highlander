@@ -1,8 +1,5 @@
-/**
- * @flow
- */
+// @flow
 
-import noop from 'lodash/noop';
 import classNames from 'classnames';
 import React from 'react';
 
@@ -20,7 +17,7 @@ type Props = {
   pillId?: string,
 };
 
-const RoundedPill = (props: Props) => {
+export const RoundedPill = (props: Props) => {
   const { className, onClick, onClose, value, text, inProgress, pillId } = props;
 
   let closeButton = null;
@@ -36,7 +33,11 @@ const RoundedPill = (props: Props) => {
     [s._loading]: inProgress,
   }, className);
 
-  const handleClick = onClick && value ? () => onClick(value) : noop;
+  function handleClick() {
+    if (onClick && value) {
+      onClick(value);
+    }
+  }
 
   return (
     <div className={cls} key={value} id={pillId}>
@@ -45,5 +46,3 @@ const RoundedPill = (props: Props) => {
     </div>
   );
 };
-
-export default RoundedPill;

@@ -8,7 +8,7 @@ import _ from 'lodash';
 import { activeStatus } from '../../paragons/common';
 
 // components
-import RoundedPill from '../rounded-pill/rounded-pill';
+import { RoundedPill } from 'components/core/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
 
 // helpers
