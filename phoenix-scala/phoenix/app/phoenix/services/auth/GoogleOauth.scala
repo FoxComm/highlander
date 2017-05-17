@@ -1,19 +1,17 @@
-package services.auth
+package phoenix.services.auth
 
-import services.account._
-import services.customers.CustomerManager
-import payloads.CustomerPayloads._
-import payloads.StoreAdminPayloads._
-import responses.CustomerResponse._
-import services.StoreAdminManager
 import cats.implicits._
-import libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth, UserInfo}
-import models.auth.{Token, UserToken}
-import models.account._
-import failures.UserFailures._
-import utils.FoxConfig
-import utils.FoxConfig.config
-import utils.aliases._
+import phoenix.failures.UserFailures._
+import phoenix.libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth, UserInfo}
+import phoenix.models.account._
+import phoenix.models.auth.{Token, UserToken}
+import phoenix.payloads.CustomerPayloads._
+import phoenix.payloads.StoreAdminPayloads._
+import phoenix.services.StoreAdminManager
+import phoenix.services.account._
+import phoenix.services.customers.CustomerManager
+import phoenix.utils.FoxConfig
+import phoenix.utils.aliases._
 import utils.db._
 
 class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB, ac: AC)

@@ -1,13 +1,13 @@
-package services
+package phoenix.services
 
-import models.cord.CordPaymentState._
-import models.cord.{OrderPayment, OrderPayments}
-import models.payment.PaymentMethod
-import models.payment.creditcard.CreditCardCharges
-import models.payment.giftcard.GiftCardAdjustments
-import models.payment.storecredit.StoreCreditAdjustments
+import phoenix.models.cord.CordPaymentState._
+import phoenix.models.cord.{OrderPayment, OrderPayments}
+import phoenix.models.payment.PaymentMethod
+import phoenix.models.payment.creditcard.CreditCardCharges
+import phoenix.models.payment.giftcard.GiftCardAdjustments
+import phoenix.models.payment.storecredit.StoreCreditAdjustments
+import phoenix.utils.aliases.EC
 import slick.dbio.DBIO
-import utils.aliases.EC
 import utils.db.ExPostgresDriver.api._
 
 trait CordQueries {

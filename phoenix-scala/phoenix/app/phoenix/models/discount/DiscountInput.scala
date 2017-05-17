@@ -1,10 +1,10 @@
-package models.discount
+package phoenix.models.discount
 
-import models.cord.Cart
-import models.cord.lineitems._
 import models.objects.ObjectShadow
-import models.product.Mvp
-import models.shipping.ShippingMethod
+import phoenix.models.cord.Cart
+import phoenix.models.cord.lineitems._
+import phoenix.models.product.Mvp
+import phoenix.models.shipping.ShippingMethod
 
 /*
  * Gift card line items must be excluded from any kind or discount application, which means:

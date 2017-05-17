@@ -1,27 +1,26 @@
-package services
+package phoenix.services
 
 import cats.implicits._
-import failures.CartFailures._
-import failures.OrderFailures.OrderLineItemNotFound
-import failures.ProductFailures.SkuNotFoundForContext
-import failures.ArchiveFailures.LinkInactiveSkuFailure
-import models.account._
-import models.activity.Activity
-import models.cord._
-import models.cord.lineitems.CartLineItems.scope._
-import models.cord.lineitems._
-import models.inventory.{IlluminatedSku, Sku, Skus}
-import models.objects._
-import models.product.VariantValueSkuLinks
-import payloads.LineItemPayloads._
-import responses.TheResponse
-import responses.cord.{CartResponse, OrderResponse}
-import services.carts.{CartPromotionUpdater, CartTotaler}
+import phoenix.failures.CartFailures._
+import phoenix.failures.OrderFailures.OrderLineItemNotFound
+import phoenix.failures.ProductFailures.SkuNotFoundForContext
+import phoenix.models.account._
+import phoenix.models.activity.Activity
+import phoenix.models.cord._
+import phoenix.models.cord.lineitems.CartLineItems.scope._
+import phoenix.models.cord.lineitems._
+import phoenix.models.inventory.{IlluminatedSku, Sku, Skus}
+import phoenix.models.objects._
+import phoenix.models.product.VariantValueSkuLinks
+import phoenix.payloads.LineItemPayloads._
+import phoenix.responses.TheResponse
+import phoenix.responses.cord.{CartResponse, OrderResponse}
+import phoenix.services.carts.{CartPromotionUpdater, CartTotaler}
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import services.objects.ObjectManager
 import slick.jdbc.PostgresProfile.api._
-import utils.JsonFormatters
-import utils.aliases._
-import utils.apis.Apis
 import utils.db._
 
 object LineItemUpdater {

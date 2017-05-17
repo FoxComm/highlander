@@ -1,7 +1,5 @@
-package utils.http
+package phoenix.utils.http
 
-import scala.collection.immutable
-import scala.util.control.NonFatal
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
@@ -9,10 +7,14 @@ import akka.http.scaladsl.server._
 import akka.stream.scaladsl.Flow
 import akka.util.ByteString
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import scala.concurrent.ExecutionException
+import phoenix.utils.Environment
+import phoenix.utils.http.Http._
 import utils._
 import utils.db.FoxFailureException
-import utils.http.Http._
+
+import scala.collection.immutable
+import scala.concurrent.ExecutionException
+import scala.util.control.NonFatal
 
 object CustomHandlers {
 

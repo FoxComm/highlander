@@ -1,12 +1,12 @@
-package utils.seeds
+package phoenix.utils.seeds
+
+import phoenix.models.account.Scope
+import phoenix.models.payment.storecredit._
+import phoenix.utils.aliases._
+import utils.Money.Currency
+import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
-import models.account.Scope
-import models.payment.storecredit._
-import utils.Money.Currency
-import utils.aliases._
-import utils.db._
 
 trait StoreCreditSeeds {
 

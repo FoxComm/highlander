@@ -1,9 +1,9 @@
-package responses
+package phoenix.responses
 
 import java.time.Instant
 
-import models.payment.InStorePaymentStates
-import models.payment.storecredit.StoreCreditAdjustment
+import phoenix.models.payment.InStorePaymentStates
+import phoenix.models.payment.storecredit.StoreCreditAdjustment
 
 object StoreCreditAdjustmentsResponse {
   case class Root(id: Int,

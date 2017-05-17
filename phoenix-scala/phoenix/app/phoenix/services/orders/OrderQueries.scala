@@ -1,14 +1,14 @@
-package services.orders
+package phoenix.services.orders
 
 import cats.implicits._
 import failures.NotFoundFailure404
-import models.account.{User, Users}
-import models.cord._
-import responses.TheResponse
-import responses.cord.{AllOrders, OrderResponse}
-import services.CordQueries
+import phoenix.models.account.{User, Users}
+import phoenix.models.cord._
+import phoenix.responses.TheResponse
+import phoenix.responses.cord.{AllOrders, OrderResponse}
+import phoenix.services.CordQueries
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db._
 
 object OrderQueries extends CordQueries {

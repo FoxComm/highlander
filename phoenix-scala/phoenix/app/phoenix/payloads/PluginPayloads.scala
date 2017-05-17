@@ -1,14 +1,11 @@
-package payloads
-
-import java.time.Instant
+package phoenix.payloads
 
 import cats.data.ValidatedNel
 import cats.implicits._
 import failures.Failure
+import phoenix.models.plugins.PluginSettings._
 import utils.Validation
 import utils.Validation._
-import utils.aliases._
-import models.plugins.PluginSettings._
 
 object PluginPayloads {
 

@@ -1,27 +1,28 @@
-package services.promotion
+package phoenix.services.promotion
 
 import java.time.Instant
 
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
-import failures.PromotionFailures._
-import models.account._
-import models.coupon.Coupons
-import models.discount._
+import phoenix.failures.PromotionFailures._
+import phoenix.models.account._
+import phoenix.models.coupon.Coupons
+import phoenix.models.discount._
 import models.objects.ObjectUtils._
 import models.objects._
-import models.promotion._
+import phoenix.models.promotion._
 import org.json4s.Formats
-import payloads.DiscountPayloads._
-import payloads.PromotionPayloads._
-import responses.PromotionResponses._
-import services.LogActivity
-import services.discount.DiscountManager
+import phoenix.payloads.DiscountPayloads._
+import phoenix.payloads.PromotionPayloads._
+import phoenix.responses.PromotionResponses._
+import phoenix.services.LogActivity
+import phoenix.services.discount.DiscountManager
 import services.objects.ObjectManager
 import slick.jdbc.PostgresProfile.api._
-import utils.JsonFormatters
-import utils.aliases._
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
 import utils.db._
+import phoenix.models.objects._
 
 object PromotionManager {
 

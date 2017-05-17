@@ -1,3 +1,3 @@
-package responses
+package phoenix.responses
 
 trait ResponseItem {}

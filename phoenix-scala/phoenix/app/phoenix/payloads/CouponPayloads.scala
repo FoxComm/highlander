@@ -1,6 +1,6 @@
-package payloads
+package phoenix.payloads
 
-import utils.aliases._
+import phoenix.utils.aliases._
 
 object CouponPayloads {
 

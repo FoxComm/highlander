@@ -1,19 +1,20 @@
-package utils.seeds.generators
+package phoenix.utils.seeds.generators
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import models.objects._
 import models.objects.ObjectUtils._
-import models.product.SimpleContext
+import models.objects._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import payloads.CouponPayloads._
-import services.coupon.CouponManager
-import utils.aliases._
+import phoenix.models.coupon.Coupon
+import phoenix.models.product.SimpleContext
+import phoenix.payloads.CouponPayloads._
+import phoenix.services.coupon.CouponManager
+import phoenix.utils.aliases._
+import phoenix.utils.seeds.generators.SimpleCoupon._
 import utils.db._
-import utils.seeds.generators.SimpleCoupon._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object SimpleCoupon {
   type Percent = Int
@@ -69,7 +70,7 @@ trait CouponGenerator {
                  val couponForm   = SimpleCouponForm(source.percentOff, source.totalAmount)
                  val couponShadow = SimpleCouponShadow(couponForm)
                  def couponFS: FormAndShadow = {
-                   (ObjectForm(kind = models.coupon.Coupon.kind, attributes = couponForm.form),
+                   (ObjectForm(kind = Coupon.kind, attributes = couponForm.form),
                     ObjectShadow(attributes = couponShadow.shadow))
                  }
 

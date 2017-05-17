@@ -1,19 +1,19 @@
-package utils.http
+package phoenix.utils.http
 
-import scala.concurrent.Future
 import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.model.{HttpEntity, HttpRequest, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.RouteResult.{Complete, Rejected}
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.{DebuggingDirectives, LogEntry, LoggingMagnet}
 import akka.stream.scaladsl.Sink
-
 import cats.implicits._
 import org.json4s.JsonAST.{JField, JString}
 import org.json4s._
 import org.json4s.jackson.{Serialization, parseJson}
-import utils.JsonFormatters
-import utils.aliases._
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
+
+import scala.concurrent.Future
 
 object HttpLogger {
 

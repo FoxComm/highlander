@@ -1,16 +1,16 @@
-package services.account
+package phoenix.services.account
 
 import cats.implicits._
-import failures.AuthFailures._
+import phoenix.failures.AuthFailures._
 import failures.NotFoundFailure404
-import failures.UserFailures._
+import phoenix.failures.UserFailures._
 import java.time.Instant
-import models.account._
-import models.customer.CustomersData
-import responses.UserResponse._
-import services._
+import phoenix.models.account._
+import phoenix.models.customer.CustomersData
+import phoenix.responses.UserResponse._
+import phoenix.services._
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db._
 
 case class AccountCreateContext(roles: List[String], org: String, scopeId: Int)

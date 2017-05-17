@@ -1,12 +1,12 @@
-package responses.cord
+package phoenix.responses.cord
 
 import java.time.Instant
 
-import scala.concurrent.Future
+import phoenix.models.account.User
+import phoenix.models.cord.{CordPaymentState, Order}
+import phoenix.responses.ResponseItem
 
-import models.account.User
-import models.cord.{CordPaymentState, Order}
-import responses.ResponseItem
+import scala.concurrent.Future
 
 object AllOrders {
   type Response = Future[Seq[Root]]

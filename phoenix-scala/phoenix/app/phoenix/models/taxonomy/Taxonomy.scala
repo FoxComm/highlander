@@ -1,12 +1,12 @@
-package models.taxonomy
+package phoenix.models.taxonomy
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
 import models.objects._
 import shapeless._
-import utils.db.ExPostgresDriver.api._
 import slick.lifted.Tag
 import utils.Validation
+import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 object Taxonomy {

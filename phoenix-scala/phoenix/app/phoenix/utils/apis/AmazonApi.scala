@@ -1,19 +1,18 @@
-package utils.apis
+package phoenix.utils.apis
+
+import java.io.File
 
 import cats.implicits._
+import com.amazonaws.AmazonClientException
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.{AmazonS3Exception, CannedAccessControlList, PutObjectRequest}
+import com.typesafe.scalalogging.LazyLogging
 import failures._
-import java.io.File
+import phoenix.utils.FoxConfig.config
+import utils.db._
 
 import scala.concurrent.Future
-
-import com.amazonaws.AmazonClientException
-import com.typesafe.scalalogging.LazyLogging
-import utils.FoxConfig.config
-import utils.aliases._
-import utils.db._
 
 trait AmazonApi {
 

@@ -1,19 +1,19 @@
-package models.sharedsearch
+package phoenix.models.sharedsearch
 
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
-import models.account._
-import models.sharedsearch.SharedSearch._
-import payloads.SharedSearchPayloads.SharedSearchPayload
+import phoenix.models.account._
+import phoenix.models.sharedsearch.SharedSearch._
+import phoenix.payloads.SharedSearchPayloads.SharedSearchPayload
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{ADT, JsonFormatters}
+import phoenix.utils.{ADT, JsonFormatters}
 
 case class SharedSearch(id: Int = 0,
                         code: String = "",

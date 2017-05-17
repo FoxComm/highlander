@@ -1,13 +1,13 @@
-package utils
+package phoenix.utils
 
 import cats.Show
 import org.json4s.JsonAST.JString
-import org.json4s.jackson.Serialization.{write ⇒ jsonWrite}
-import org.json4s.{CustomKeySerializer, CustomSerializer, DefaultFormats, Formats, jackson}
+import org.json4s.{CustomKeySerializer, CustomSerializer, Formats}
 import slick.ast.BaseTypedType
-import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.JdbcType
+import slick.jdbc.PostgresProfile.api._
 import utils.Strings._
+import utils._
 
 trait Read[F] { self ⇒
   def read(f: String): Option[F]

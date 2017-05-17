@@ -1,12 +1,13 @@
-package utils.http
+package phoenix.utils.http
 
 import akka.http.scaladsl.unmarshalling._
 import cats.data.Validated.{Invalid, Valid}
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import failures._
 import org.json4s.{Formats, Serialization}
-import scala.concurrent.Future
 import utils.Validation
+
+import scala.concurrent.Future
 
 case class FoxValidationException(failures: Failures) extends Exception
 

@@ -1,4 +1,6 @@
-package failures
+package phoenix.failures
+
+import failures.Failure
 
 object MiddlewarehouseFailures {
 

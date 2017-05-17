@@ -1,10 +1,9 @@
-package services
+package phoenix.services
 
-import failures.InvalidReasonTypeFailure
-import models.Reason.ReasonType
-import models.{Reason, Reasons}
+import phoenix.failures.InvalidReasonTypeFailure
+import phoenix.models.Reason.ReasonType
+import phoenix.models.{Reason, Reasons}
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
 import utils.db._
 
 object ReasonService {

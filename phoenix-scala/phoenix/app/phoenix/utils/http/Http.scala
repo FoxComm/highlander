@@ -1,16 +1,16 @@
-package utils.http
+package phoenix.utils.http
 
 import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, ResponseEntity, StatusCode, StatusCodes}
+import akka.http.scaladsl.model._
 import failures.{Failures, NotFoundFailure404}
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import org.json4s.{Formats, jackson}
-import responses.{BatchMetadata, TheResponse}
+import phoenix.responses.{BatchMetadata, TheResponse}
 import utils.db.MetaResponse
 
 object Http {
-  import utils.JsonFormatters._
+  import phoenix.utils.JsonFormatters._
 
   implicit lazy val serialization: Serialization.type = jackson.Serialization
   implicit lazy val formats: Formats                  = phoenixFormats

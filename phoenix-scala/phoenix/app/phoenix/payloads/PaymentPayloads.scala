@@ -1,13 +1,13 @@
-package payloads
+package phoenix.payloads
 
 import cats.data.ValidatedNel
 import cats.implicits._
 import failures.Failure
 import org.json4s.JsonAST.JObject
-import payloads.AddressPayloads.CreateAddressPayload
+import phoenix.payloads.AddressPayloads.CreateAddressPayload
+import phoenix.utils.aliases._
 import utils.Money.Currency
 import utils._
-import utils.aliases._
 
 object PaymentPayloads {
 

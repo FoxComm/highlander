@@ -1,12 +1,12 @@
-package utils.seeds
+package phoenix.utils.seeds
 
-import models.Reason
-import models.Reason.{Cancellation, GiftCardCreation, StoreCreditCreation}
-import models.cord.{OrderPayment, OrderShippingAddress}
-import models.payment.creditcard.CreditCardCharge
+import phoenix.models.Reason
+import phoenix.models.Reason.{Cancellation, GiftCardCreation, StoreCreditCreation}
+import phoenix.models.cord.{OrderPayment, OrderShippingAddress}
+import phoenix.models.payment.creditcard.CreditCardCharge
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.JsonFormatters
-import utils.aliases._
 
 object Factories
     extends CustomerSeeds

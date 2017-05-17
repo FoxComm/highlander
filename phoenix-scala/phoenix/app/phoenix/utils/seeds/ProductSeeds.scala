@@ -1,12 +1,12 @@
-package utils.seeds
-
-import scala.concurrent.ExecutionContext.Implicits.global
+package phoenix.utils.seeds
 
 import models.objects.ObjectContexts
-import models.product.{Mvp, SimpleContext, SimpleProductData}
+import phoenix.models.product.{Mvp, SimpleContext, SimpleProductData}
+import phoenix.utils.aliases._
 import utils.Money.Currency
-import utils.aliases._
 import utils.db._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 trait ProductSeeds extends {
 

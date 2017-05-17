@@ -1,9 +1,8 @@
-package responses.cord.base
+package phoenix.responses.cord.base
 
-import models.shipping.ShippingMethods
-import responses.{AddressResponse, ShippingMethodsResponse}
+import phoenix.models.shipping.ShippingMethods
+import phoenix.responses.{AddressResponse, ShippingMethodsResponse}
 import slick.dbio.DBIO
-import utils.aliases._
 import utils.db._
 
 object CordResponseShipping {

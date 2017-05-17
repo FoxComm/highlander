@@ -1,16 +1,15 @@
-package utils.seeds
+package phoenix.utils.seeds
 
-import java.io.File
-import scala.concurrent.ExecutionContext.Implicits.global
 import cats.implicits._
 import com.github.tototoshi.csv._
-import models.account._
-import models.admin._
-import services.StoreAdminManager
-import failures.UserFailures._
+import phoenix.models.account._
+import phoenix.models.admin._
+import phoenix.payloads.StoreAdminPayloads.CreateStoreAdminPayload
+import phoenix.services.StoreAdminManager
+import phoenix.utils.aliases._
 import utils.db._
-import utils.aliases._
-import payloads.StoreAdminPayloads.CreateStoreAdminPayload
+
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.io.Source
 
 trait StoreAdminSeeds {

@@ -1,8 +1,9 @@
-package utils
+package phoenix.utils
 
-import scala.util.Try
 import com.lambdaworks.crypto.SCryptUtil
 import com.pellucid.sealerate
+
+import scala.util.Try
 
 trait HashPasswords {
   def generateHash(password: String): String

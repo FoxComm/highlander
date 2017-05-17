@@ -1,14 +1,15 @@
-package utils.seeds
+package phoenix.utils.seeds
+
+import models.objects._
+import org.json4s.Formats
+import phoenix.models.account._
+import phoenix.models.coupon._
+import phoenix.models.product.SimpleContext
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
+import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import models.coupon._
-import models.account._
-import models.objects._
-import models.product.SimpleContext
-import org.json4s.Formats
-import utils.JsonFormatters
-import utils.aliases._
-import utils.db._
 
 object CouponSeeds {
   // TODO: migrate to new payloads. // narma  22.09.16

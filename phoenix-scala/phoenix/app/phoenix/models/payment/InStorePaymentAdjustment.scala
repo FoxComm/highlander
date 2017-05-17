@@ -1,13 +1,13 @@
-package models.payment
+package phoenix.models.payment
 
 import java.time.Instant
 
 import com.pellucid.sealerate
-import models.cord.OrderPayments
-import models.payment.InStorePaymentStates._
+import phoenix.models.cord.OrderPayments
+import phoenix.models.payment.InStorePaymentStates._
+import phoenix.utils.ADT
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.ADT
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

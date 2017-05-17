@@ -1,12 +1,6 @@
-package failures
+package phoenix.failures
 
-import models.Assignment
-import models.activity.Dimension
-import models.cord.{Cart, Cord, Order}
-import models.inventory.Sku
-import models.payment.giftcard.GiftCard
-import models.returns.Return
-import models.sharedsearch.SharedSearch
+import failures._
 
 object Util {
 

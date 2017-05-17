@@ -1,17 +1,18 @@
-package models
+package phoenix.models
 
 import cats.data.ValidatedNel
 import cats.implicits._
 import com.pellucid.sealerate
 import failures.Failure
-import models.Reason.{General, ReasonType}
-import models.account._
+import phoenix.models.Reason.{General, ReasonType}
+import phoenix.models.account._
+import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
-import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.JdbcType
+import slick.jdbc.PostgresProfile.api._
+import utils.Validation
 import utils.db._
-import utils.{ADT, Validation}
 
 case class Reason(id: Int = 0,
                   reasonType: ReasonType = General,

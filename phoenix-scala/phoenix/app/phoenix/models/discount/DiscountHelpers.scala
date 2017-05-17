@@ -1,7 +1,7 @@
-package models.discount
+package phoenix.models.discount
 
 import models.objects._
-import utils.aliases._
+import phoenix.utils.aliases._
 
 object DiscountHelpers {
 

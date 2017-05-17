@@ -1,28 +1,28 @@
-package routes
+package phoenix.routes
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import models.cord.Cord.cordRefNumRegex
-import models.inventory.Sku.skuCodeRegex
-import models.payment.giftcard.GiftCard
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import payloads.AddressPayloads._
-import payloads.CartPayloads.CheckoutCart
-import payloads.CustomerPayloads._
-import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.PaymentPayloads._
-import payloads.UpdateShippingMethod
-import services.Authenticator.{UserAuthenticator, requireCustomerAuth}
-import services._
-import services.carts._
-import services.customers.CustomerManager
-import services.orders.OrderQueries
-import services.product.ProductManager
-import utils.aliases._
-import utils.apis.Apis
-import utils.http.CustomDirectives._
-import utils.http.Http._
-import utils.http.JsonSupport._
+import phoenix.models.cord.Cord.cordRefNumRegex
+import phoenix.models.inventory.Sku.skuCodeRegex
+import phoenix.models.payment.giftcard.GiftCard
+import phoenix.payloads.AddressPayloads._
+import phoenix.payloads.CartPayloads.CheckoutCart
+import phoenix.payloads.CustomerPayloads._
+import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
+import phoenix.payloads.PaymentPayloads._
+import phoenix.payloads.UpdateShippingMethod
+import phoenix.services.Authenticator.{UserAuthenticator, requireCustomerAuth}
+import phoenix.services._
+import phoenix.services.carts._
+import phoenix.services.customers.CustomerManager
+import phoenix.services.orders.OrderQueries
+import phoenix.services.product.ProductManager
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
+import phoenix.utils.http.CustomDirectives._
+import phoenix.utils.http.Http._
+import phoenix.utils.http.JsonSupport._
 
 object Customer {
   def routes(implicit ec: EC, db: DB, auth: UserAuthenticator, apis: Apis): Route = {

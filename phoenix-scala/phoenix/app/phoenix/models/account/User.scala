@@ -1,15 +1,15 @@
-package models.account
+package phoenix.models.account
+
+import java.time.Instant
 
 import cats.data.{Validated, ValidatedNel}
 import cats.implicits._
-import failures.UserFailures._
 import failures._
-import java.time.Instant
-import models.customer.CustomersData
+import phoenix.failures.UserFailures._
+import phoenix.models.customer.CustomersData
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import utils.Validation
-import utils.aliases._
 import utils.db._
 
 case class User(id: Int = 0,

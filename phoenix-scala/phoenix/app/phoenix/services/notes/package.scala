@@ -1,15 +1,15 @@
-package services
+package phoenix.services
 
 import java.time.Instant
 
 import failures.NotFoundFailure404
-import models.{Note, Notes}
-import models.account._
-import payloads.NotePayloads._
-import responses.AdminNotes
-import responses.AdminNotes.Root
+import phoenix.models.{Note, Notes}
+import phoenix.models.account._
+import phoenix.payloads.NotePayloads._
+import phoenix.responses.AdminNotes
+import phoenix.responses.AdminNotes.Root
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db._
 
 package object notes {

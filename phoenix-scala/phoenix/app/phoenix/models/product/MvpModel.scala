@@ -1,29 +1,30 @@
-package models.product
+package phoenix.models.product
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import cats.implicits._
-import failures.ImageFailures._
+import com.github.tminglei.slickpg.LTree
 import failures.ObjectFailures._
-import failures.ProductFailures._
-import models.image._
-import models.inventory._
 import models.objects._
-import models.account._
 import org.json4s.JsonAST.{JNothing, JString}
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import payloads.ImagePayloads._
-import services.image.ImageManager
-import services.inventory.SkuManager
-import com.github.tminglei.slickpg.LTree
+import phoenix.failures.ImageFailures._
+import phoenix.failures.ProductFailures._
+import phoenix.models.account._
+import phoenix.models.image._
+import phoenix.models.inventory._
+import phoenix.models.objects._
+import phoenix.payloads.ImagePayloads._
+import phoenix.services.image.ImageManager
+import phoenix.services.inventory.SkuManager
+import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 import utils.Money.Currency
-import utils.aliases._
 import utils.db._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object SimpleContext {
   val id      = 1

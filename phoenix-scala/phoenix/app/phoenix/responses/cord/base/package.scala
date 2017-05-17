@@ -1,9 +1,9 @@
-package responses.cord
+package phoenix.responses.cord
 
-import models.cord.OrderPayment
-import models.location.Region
-import models.payment.creditcard.CreditCard
-import responses.PromotionResponses.PromotionResponse
+import phoenix.models.cord.OrderPayment
+import phoenix.models.location.Region
+import phoenix.models.payment.creditcard.CreditCard
+import phoenix.responses.PromotionResponses.PromotionResponse
 
 package object base {
 

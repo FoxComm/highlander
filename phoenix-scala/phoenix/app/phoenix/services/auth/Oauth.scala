@@ -1,18 +1,18 @@
-package services.auth
+package phoenix.services.auth
 
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import cats.implicits._
 import failures.GeneralFailure
-import libs.oauth.{Oauth, UserInfo}
-import models.account._
-import models.auth.Token
-import services.Authenticator
+import phoenix.libs.oauth.{Oauth, UserInfo}
+import phoenix.models.account._
+import phoenix.models.auth.Token
+import phoenix.services.Authenticator
+import phoenix.utils.aliases._
+import phoenix.utils.http.Http._
 import slick.jdbc.PostgresProfile.api.DBIO
-import utils.aliases._
 import utils.db._
-import utils.http.Http._
 
 case class OauthCallbackResponse(code: Option[String] = None, error: Option[String] = None) {
 

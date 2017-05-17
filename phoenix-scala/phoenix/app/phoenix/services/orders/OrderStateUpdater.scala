@@ -1,20 +1,22 @@
-package services.orders
+package phoenix.services.orders
 
 import cats.implicits._
-import failures.{NotFoundFailure400, StateTransitionNotAllowed}
-import models.account._
-import models.cord.Order._
-import models.cord._
-import models.cord.lineitems._
-import models.payment.giftcard.GiftCardAdjustments
-import models.payment.giftcard.GiftCardAdjustments.scope._
-import models.payment.storecredit.StoreCreditAdjustments
-import models.payment.storecredit.StoreCreditAdjustments.scope._
-import responses.cord.{AllOrders, OrderResponse}
-import responses.{BatchMetadata, BatchMetadataSource, BatchResponse}
-import services.LogActivity
+import failures.NotFoundFailure400
+import phoenix.failures.StateTransitionNotAllowed
+import phoenix.models.account._
+import phoenix.models.cord.Order._
+import phoenix.models.cord._
+import phoenix.models.cord.lineitems._
+import phoenix.models.payment.giftcard.GiftCardAdjustments
+import phoenix.models.payment.giftcard.GiftCardAdjustments.scope._
+import phoenix.models.payment.storecredit.StoreCreditAdjustments
+import phoenix.models.payment.storecredit.StoreCreditAdjustments.scope._
+import phoenix.responses.cord.{AllOrders, OrderResponse}
+import phoenix.responses.{BatchMetadata, BatchMetadataSource}
+import phoenix.services.LogActivity
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
+import phoenix.utils.aliases._
+import responses.BatchResponse
 import utils.db._
 
 object OrderStateUpdater {

@@ -1,7 +1,7 @@
-package utils
+package phoenix.utils
 
 object aliases {
-  type AC           = models.activity.ActivityContext
+  type AC           = phoenix.models.activity.ActivityContext
   type EC           = scala.concurrent.ExecutionContext
   type DB           = utils.db.DB
   type OC           = models.objects.ObjectContext
@@ -10,7 +10,7 @@ object aliases {
   type Mat          = akka.stream.Materializer
   type Json         = org.json4s.JsonAST.JValue
   type ActivityType = String
-  type AU           = services.Authenticator.AuthData[models.account.User]
+  type AU           = phoenix.services.Authenticator.AuthData[phoenix.models.account.User]
 
   object stripe {
     import com.stripe.model._

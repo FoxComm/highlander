@@ -1,23 +1,25 @@
-package models.auth
+package phoenix.models.auth
 
-import cats.implicits._
-import failures.AuthFailures._
-import failures.{Failures, GeneralFailure}
 import java.io.{FileInputStream, InputStream}
 import java.security.spec.{PKCS8EncodedKeySpec, X509EncodedKeySpec}
 import java.security.{KeyFactory, PrivateKey, PublicKey}
-import models.account.{Account, User}
+
+import cats.implicits._
+import failures.{Failures, GeneralFailure}
 import org.jose4j.jwa.AlgorithmConstraints
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.consumer.JwtConsumerBuilder
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
+import phoenix.failures.AuthFailures._
+import phoenix.models.account.{Account, User}
+import phoenix.utils.FoxConfig
+import phoenix.utils.FoxConfig.config
+import utils.db._
+
 import scala.collection.JavaConverters._
 import scala.util.{Failure, Success, Try}
-import utils.FoxConfig
-import utils.FoxConfig.config
-import utils.db._
 
 object Keys {
 

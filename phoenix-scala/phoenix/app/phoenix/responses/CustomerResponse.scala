@@ -1,12 +1,11 @@
-package responses
+package phoenix.responses
 
 import java.time.Instant
 
-import models.account._
-import models.customer.CustomerRank
-import models.customer.CustomerData
-import models.location.Region
-import responses.StoreCreditResponse.Totals
+import phoenix.models.account._
+import phoenix.models.customer.{CustomerData, CustomerRank}
+import phoenix.models.location.Region
+import phoenix.responses.StoreCreditResponse.Totals
 
 object CustomerResponse {
   case class Root(id: Int = 0,

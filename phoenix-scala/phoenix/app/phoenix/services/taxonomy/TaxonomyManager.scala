@@ -1,25 +1,28 @@
-package services.taxonomy
+package phoenix.services.taxonomy
 
 import java.time.Instant
 
 import cats.data.ValidatedNel
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.TaxonomyFailures._
-import failures.{Failure, TaxonomyFailures}
-import models.account._
+import failures.Failure
 import models.objects._
-import models.product.{ProductReference, Products}
-import models.taxonomy.TaxonomyTaxonLinks.scope._
-import models.taxonomy.{TaxonLocation ⇒ _, _}
 import org.json4s.Formats
-import payloads.TaxonomyPayloads._
-import payloads.TaxonPayloads._
-import responses.TaxonomyResponses._
-import responses.TaxonResponses._
+import phoenix.failures.TaxonomyFailures
+import phoenix.failures.TaxonomyFailures._
+import phoenix.models.account._
+import phoenix.models.objects.ProductTaxonLinks
+import phoenix.models.product.{Product, ProductReference, Products}
+import phoenix.models.taxonomy.TaxonomyTaxonLinks.scope._
+import phoenix.models.taxonomy._
+import phoenix.payloads.TaxonPayloads._
+import phoenix.payloads.TaxonomyPayloads._
+import phoenix.responses.TaxonResponses._
+import phoenix.responses.TaxonomyResponses._
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
 import services.objects.ObjectManager
-import utils.{JsonFormatters, Validation}
-import utils.aliases._
+import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
@@ -156,7 +159,7 @@ object TaxonomyManager {
     } yield response
   }
 
-  private def validateLocation(taxonomy: Taxonomy, taxon: Taxon, location: TaxonLocation)(
+  private def validateLocation(taxonomy: Taxonomy, taxon: Taxon, location: TaxonLocationPayload)(
       implicit ec: EC,
       oc: OC): DbResultT[Option[TaxonomyTaxonLink]] =
     for {
@@ -206,8 +209,10 @@ object TaxonomyManager {
                      .getOrElse(lift(None))
     } yield FullTaxonResponse.build(taxonFull, taxonomy.formId, parentTaxon.map(_.formId))
 
-  private def updateTaxonomyHierarchy(taxon: Taxon,
-                                      location: TaxonLocation)(implicit ec: EC, db: DB, oc: OC) =
+  private def updateTaxonomyHierarchy(taxon: Taxon, location: TaxonLocationPayload)(
+      implicit ec: EC,
+      db: DB,
+      oc: OC) =
     for {
       taxonomy   ← * <~ mustFindSingleTaxonomyForTaxon(taxon)
       parentLink ← * <~ validateLocation(taxonomy.model, taxon, location)
@@ -311,10 +316,9 @@ object TaxonomyManager {
       assigned ← * <~ getAssignedTaxons(product)
     } yield assigned
 
-  def getAssignedTaxons(product: models.product.Product)(
-      implicit ec: EC,
-      oc: OC,
-      db: DB): DbResultT[Seq[AssignedTaxonsResponse]] = {
+  def getAssignedTaxons(product: Product)(implicit ec: EC,
+                                          oc: OC,
+                                          db: DB): DbResultT[Seq[AssignedTaxonsResponse]] = {
 
     val assignedTaxons = ProductTaxonLinks.filterLeft(product).flatMap(_.right)
 

@@ -1,4 +1,4 @@
-package utils.http
+package phoenix.utils.http
 
 import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model._
@@ -10,19 +10,20 @@ import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures._
-import models.activity.ActivityContext
 import models.objects.{ObjectContext, ObjectContexts}
-import models.product.{ProductReference, SimpleContext}
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import payloads.AuthPayload
-import scala.concurrent.Future
-import scala.util.{Failure, Success}
-import services.JwtCookie
+import phoenix.models.activity.ActivityContext
+import phoenix.models.product.{ProductReference, SimpleContext}
+import phoenix.payloads.AuthPayload
+import phoenix.services.JwtCookie
+import phoenix.utils.aliases._
+import phoenix.utils.http.Http._
 import slick.jdbc.PostgresProfile.api._
 import utils._
-import utils.aliases._
 import utils.db._
-import utils.http.Http._
+
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 object CustomDirectives {
 

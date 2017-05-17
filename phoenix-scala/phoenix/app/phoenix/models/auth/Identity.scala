@@ -1,7 +1,7 @@
-package models.auth
+package phoenix.models.auth
 
 import com.pellucid.sealerate
-import utils.ADT
+import phoenix.utils.ADT
 
 object Identity {
   sealed trait IdentityKind

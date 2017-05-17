@@ -1,25 +1,26 @@
-package services.image
+package phoenix.services.image
 
 import java.time.Instant
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.ImageFailures._
+import phoenix.failures.ImageFailures._
 import failures.{NotFoundFailure400, NotFoundFailure404}
-import models.account._
-import models.image._
-import models.inventory.Sku
+import phoenix.models.account._
+import phoenix.models.image._
+import phoenix.models.inventory.Sku
 import models.objects.ObjectUtils.InsertResult
 import models.objects._
-import models.product._
+import phoenix.models.objects._
+import phoenix.models.product._
 import org.json4s.JsonAST.JString
-import payloads.ImagePayloads._
-import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
-import responses.AlbumResponses._
-import services.inventory.SkuManager
+import phoenix.payloads.ImagePayloads._
+import phoenix.responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
+import phoenix.responses.AlbumResponses._
+import phoenix.services.inventory.SkuManager
 import services.objects.ObjectManager
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db._
 
 object ImageManager {

@@ -1,7 +1,7 @@
-package responses.cord.base
+package phoenix.responses.cord.base
 
-import models.cord.{Cart, Order}
-import responses.ResponseItem
+import phoenix.models.cord.{Cart, Order}
+import phoenix.responses.ResponseItem
 
 case class OrderResponseTotals(subTotal: Int,
                                taxes: Int,

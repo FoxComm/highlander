@@ -1,8 +1,7 @@
-package failures
+package phoenix.failures
 
-import java.time.Instant
-
-import models.product.{Product, ProductReference}
+import failures.{Failure, NotFoundFailure404}
+import phoenix.models.product.Product
 
 object ProductFailures {
 

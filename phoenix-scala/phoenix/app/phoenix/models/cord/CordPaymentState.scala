@@ -1,10 +1,10 @@
-package models.cord
+package phoenix.models.cord
 
 import cats.implicits._
 import com.pellucid.sealerate
-import models.payment.InStorePaymentStates
-import models.payment.creditcard.CreditCardCharge
-import utils.ADT
+import phoenix.models.payment.InStorePaymentStates
+import phoenix.models.payment.creditcard.CreditCardCharge
+import phoenix.utils.ADT
 
 object CordPaymentState {
   sealed trait State
@@ -19,7 +19,7 @@ object CordPaymentState {
   }
 
   def fromInStoreState(inStorePaymentState: InStorePaymentStates.State): State = {
-    import models.payment.{InStorePaymentStates ⇒ InStore}
+    import phoenix.models.payment.{InStorePaymentStates ⇒ InStore}
 
     inStorePaymentState match {
       case InStore.Auth    ⇒ Auth
@@ -29,7 +29,7 @@ object CordPaymentState {
   }
 
   def fromCCState(ccPaymentState: CreditCardCharge.State): State = {
-    import models.payment.creditcard.{CreditCardCharge ⇒ CC}
+    import phoenix.models.payment.creditcard.{CreditCardCharge ⇒ CC}
 
     ccPaymentState match {
       case CC.Auth          ⇒ Auth

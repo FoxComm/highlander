@@ -1,4 +1,4 @@
-package payloads
+package phoenix.payloads
 
 object CapturePayloads {
 

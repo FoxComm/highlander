@@ -1,24 +1,25 @@
-package services.carts
+package phoenix.services.carts
 
 import cats.implicits._
-import failures.GiftCardFailures._
-import failures.OrderFailures._
-import failures.StoreCreditFailures._
+import phoenix.failures.GiftCardFailures._
+import phoenix.failures.OrderFailures._
+import phoenix.failures.StoreCreditFailures._
 import failures._
-import models.cord.OrderPayments.scope._
-import models.cord._
-import models.location.Regions
-import models.payment.PaymentMethod
-import models.payment.creditcard._
-import models.payment.giftcard._
-import models.payment.storecredit._
-import models.account.User
-import payloads.PaymentPayloads._
-import responses.TheResponse
-import responses.cord.CartResponse
-import services.{CartValidator, LogActivity}
+import phoenix.failures.OpenTransactionsFailure
+import phoenix.models.cord.OrderPayments.scope._
+import phoenix.models.cord._
+import phoenix.models.location.Regions
+import phoenix.models.payment.PaymentMethod
+import phoenix.models.payment.creditcard._
+import phoenix.models.payment.giftcard._
+import phoenix.models.payment.storecredit._
+import phoenix.models.account.User
+import phoenix.payloads.PaymentPayloads._
+import phoenix.responses.TheResponse
+import phoenix.responses.cord.CartResponse
+import phoenix.services.{CartValidator, LogActivity}
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db._
 
 object CartPaymentUpdater {

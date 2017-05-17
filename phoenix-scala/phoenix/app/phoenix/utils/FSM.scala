@@ -1,7 +1,8 @@
-package utils
+package phoenix.utils
 
 import cats.implicits._
-import failures.{Failures, StateTransitionNotAllowed}
+import failures.Failures
+import phoenix.failures.StateTransitionNotAllowed
 import shapeless._
 
 trait FSM[S, M <: FSM[S, M]] { self: M ⇒

@@ -1,22 +1,21 @@
-package routes
+package phoenix.routes
 
-import cats.implicits._
 import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-
+import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import payloads.LoginPayload
-import payloads.UserPayloads._
-import services.Authenticator
-import services.account.AccountManager
-import services.auth.GoogleOauth.oauthServiceFromConfig
-import services.auth.OauthDirectives._
-import utils.FoxConfig.config
-import utils.aliases._
-import utils.http.CustomDirectives._
-import utils.http.Http._
-import utils.http.JsonSupport._
+import phoenix.payloads.LoginPayload
+import phoenix.payloads.UserPayloads._
+import phoenix.services.Authenticator
+import phoenix.services.account.AccountManager
+import phoenix.services.auth.GoogleOauth.oauthServiceFromConfig
+import phoenix.services.auth.OauthDirectives._
+import phoenix.utils.FoxConfig.config
+import phoenix.utils.aliases._
+import phoenix.utils.http.CustomDirectives._
+import phoenix.utils.http.Http._
+import phoenix.utils.http.JsonSupport._
 
 object AuthRoutes {
 

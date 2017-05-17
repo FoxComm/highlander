@@ -1,13 +1,13 @@
-package services.discount.compilers
+package phoenix.services.discount.compilers
 
 import cats.data.NonEmptyList
 import cats.implicits._
-import failures.DiscountCompilerFailures._
+import phoenix.failures.DiscountCompilerFailures._
 import failures._
-import models.discount.qualifiers._
+import phoenix.models.discount.qualifiers._
 import org.json4s._
-import utils.JsonFormatters
-import utils.aliases._
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
 
 case class QualifierAstCompiler(data: Json) {
 

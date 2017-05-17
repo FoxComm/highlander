@@ -1,19 +1,20 @@
-package services.assignments
+package phoenix.services.assignments
 
 import failures.NotFoundFailure404
-import models.coupon.Coupon
+import phoenix.models.coupon.Coupon
 import models.objects.{ObjectForm, ObjectForms}
-import models.{Assignment, NotificationSubscription}
-import responses.CouponResponses.CouponFormResponse._
+import phoenix.models.activity.Dimension
+import phoenix.models.{Assignment, NotificationSubscription}
+import phoenix.responses.CouponResponses.CouponFormResponse._
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db._
 
 object CouponAssignmentsManager extends AssignmentsManager[Int, ObjectForm] {
 
   val assignmentType  = Assignment.Assignee
   val referenceType   = Assignment.Coupon
-  val notifyDimension = models.activity.Dimension.coupon
+  val notifyDimension = Dimension.coupon
   val notifyReason    = NotificationSubscription.Assigned
 
   def buildResponse(model: ObjectForm): Root = build(model)

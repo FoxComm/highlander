@@ -1,7 +1,7 @@
-package payloads
+package phoenix.payloads
 
-import payloads.ImagePayloads.AlbumPayload
-import utils.aliases._
+import phoenix.payloads.ImagePayloads.AlbumPayload
+import phoenix.utils.aliases._
 
 object SkuPayloads {
   case class SkuPayload(scope: Option[String] = None,

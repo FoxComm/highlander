@@ -1,4 +1,6 @@
-package failures
+package phoenix.failures
+
+import failures.NotFoundFailure404
 
 object CategoryFailures {
 

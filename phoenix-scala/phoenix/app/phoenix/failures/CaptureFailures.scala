@@ -1,8 +1,7 @@
-package failures
+package phoenix.failures
 
-import utils.friendlyClassName
-
-import models.payment.creditcard._
+import failures.Failure
+import phoenix.models.payment.creditcard._
 
 object CaptureFailures {
 

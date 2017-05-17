@@ -1,5 +1,5 @@
 import org.json4s.{DefaultFormats, Extraction}
-import utils.aliases._
+import phoenix.utils.aliases._
 
 package object payloads {
   implicit lazy val formats = DefaultFormats

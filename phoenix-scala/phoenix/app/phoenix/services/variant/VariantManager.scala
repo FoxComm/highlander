@@ -1,19 +1,19 @@
-package services.variant
+package phoenix.services.variant
 
-import failures.NotFoundFailure404
-import failures.ProductFailures._
-import models.account._
 import models.objects._
-import models.product._
 import org.json4s.Formats
-import payloads.VariantPayloads._
-import responses.VariantResponses.IlluminatedVariantResponse
-import responses.VariantValueResponses.IlluminatedVariantValueResponse
-import services.inventory.SkuManager
+import phoenix.failures.ProductFailures._
+import phoenix.models.account._
+import phoenix.models.objects._
+import phoenix.models.product._
+import phoenix.payloads.VariantPayloads._
+import phoenix.responses.VariantResponses.IlluminatedVariantResponse
+import phoenix.responses.VariantValueResponses.IlluminatedVariantValueResponse
+import phoenix.services.inventory.SkuManager
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
 import services.objects.ObjectManager
 import slick.jdbc.PostgresProfile.api._
-import utils.JsonFormatters
-import utils.aliases._
 import utils.db._
 
 object VariantManager {

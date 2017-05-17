@@ -1,6 +1,6 @@
-package responses
+package phoenix.responses
 
-import models.shipping.ShippingMethod
+import phoenix.models.shipping.ShippingMethod
 
 object ShippingMethodsResponse {
   case class Root(id: Int, name: String, code: String, price: Int, isEnabled: Boolean)

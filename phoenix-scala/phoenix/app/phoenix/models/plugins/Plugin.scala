@@ -1,22 +1,21 @@
-package models.plugins
+package phoenix.models.plugins
 
 import java.time.Instant
 
 import cats.data._
+import cats.implicits._
 import failures.Failure
+import org.json4s.Extraction
 import org.json4s.JsonAST._
-import payloads.PluginPayloads.RegisterPluginPayload
+import phoenix.models.plugins.PluginSettings._
+import phoenix.payloads.PluginPayloads.RegisterPluginPayload
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
 import shapeless._
-import utils.{JsonFormatters, Validation}
-import utils.aliases._
+import slick.jdbc.PostgresProfile.api.MappedColumnType
+import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import cats.implicits._
-import PluginSettings._
-import com.github.tminglei.slickpg.utils.SimpleArrayUtils
-import org.json4s.jackson.JsonMethods._
-import slick.jdbc.PostgresProfile.api.MappedColumnType
-import org.json4s.Extraction
 
 case class Plugin(id: Int = 0,
                   name: String,
@@ -77,7 +76,7 @@ object PluginOrmTypeMapper {
 
 }
 
-import PluginOrmTypeMapper._
+import phoenix.models.plugins.PluginOrmTypeMapper._
 
 class Plugins(tag: Tag) extends FoxTable[Plugin](tag, "plugins") {
   def id             = column[Int]("id", O.PrimaryKey, O.AutoInc)

@@ -1,11 +1,12 @@
-package utils.seeds
+package phoenix.utils.seeds
 
-import models.account.Scope
-import models.returns._
-import models.{Note, Notes}
-import scala.concurrent.ExecutionContext.Implicits.global
-import utils.aliases._
+import phoenix.models.account.Scope
+import phoenix.models.returns._
+import phoenix.models.{Note, Notes}
+import phoenix.utils.aliases._
 import utils.db._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 trait ReturnSeeds {
 

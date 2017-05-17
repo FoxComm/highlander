@@ -1,16 +1,16 @@
-package services.tree
+package phoenix.services.tree
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.DatabaseFailure
-import failures.TreeFailures._
+import phoenix.failures.TreeFailures._
 import models.objects._
-import models.tree._
-import payloads.GenericTreePayloads._
-import responses.GenericTreeResponses.FullTreeResponse._
-import responses.GenericTreeResponses._
+import phoenix.models.tree._
+import phoenix.payloads.GenericTreePayloads._
+import phoenix.responses.GenericTreeResponses.FullTreeResponse._
+import phoenix.responses.GenericTreeResponses._
 import services.objects.ObjectManager
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

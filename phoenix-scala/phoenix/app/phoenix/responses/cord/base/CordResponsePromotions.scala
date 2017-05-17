@@ -1,19 +1,20 @@
-package responses.cord.base
+package phoenix.responses.cord.base
 
 import cats.implicits._
-import failures.CouponFailures._
-import failures.PromotionFailures.PromotionNotFound
-import models.cord.{OrderPromotion, OrderPromotions}
-import models.coupon._
-import models.discount.IlluminatedDiscount
 import models.objects._
-import models.promotion.Promotions.scope._
-import models.promotion._
-import responses.CouponResponses.CouponResponse
-import responses.PromotionResponses.PromotionResponse
-import responses.ResponseItem
+import phoenix.failures.CouponFailures._
+import phoenix.failures.PromotionFailures.PromotionNotFound
+import phoenix.models.cord.{OrderPromotion, OrderPromotions}
+import phoenix.models.coupon._
+import phoenix.models.discount.IlluminatedDiscount
+import phoenix.models.objects.PromotionDiscountLinks
+import phoenix.models.promotion.Promotions.scope._
+import phoenix.models.promotion._
+import phoenix.responses.CouponResponses.CouponResponse
+import phoenix.responses.PromotionResponses.PromotionResponse
+import phoenix.responses.ResponseItem
+import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
 import utils.db._
 
 case class CordResponseCouponPair(coupon: CouponResponse.Root, code: String) extends ResponseItem

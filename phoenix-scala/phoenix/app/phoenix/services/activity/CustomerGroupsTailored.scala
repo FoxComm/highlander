@@ -1,11 +1,11 @@
-package services.activity
+package phoenix.services.activity
 
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
-import models.account.User
-import models.customer.CustomerGroup
-import models.customer.CustomerGroup.GroupType
+import phoenix.models.account.User
+import phoenix.models.customer.CustomerGroup
+import phoenix.models.customer.CustomerGroup.GroupType
 
 object CustomerGroupsTailored {
 

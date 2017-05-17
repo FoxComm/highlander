@@ -1,4 +1,4 @@
-package models.account
+package phoenix.models.account
 
 import shapeless._
 import slick.jdbc.PostgresProfile.api._

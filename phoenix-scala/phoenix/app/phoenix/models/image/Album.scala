@@ -1,16 +1,18 @@
-package models.image
+package phoenix.models.image
+
+import java.time.Instant
 
 import cats.implicits._
-import failures.ArchiveFailures._
 import failures._
-import java.time.Instant
 import models.objects._
+import phoenix.failures.ArchiveFailures._
 import shapeless._
 import slick.lifted.Tag
+import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{JsonFormatters, Validation}
 import com.github.tminglei.slickpg._
+import phoenix.utils.JsonFormatters
 
 object Album {
   val kind = "album"

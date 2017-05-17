@@ -1,4 +1,4 @@
-package models.payment.storecredit
+package phoenix.models.payment.storecredit
 
 import shapeless._
 import slick.jdbc.PostgresProfile.api._

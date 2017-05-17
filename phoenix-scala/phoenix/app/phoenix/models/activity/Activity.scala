@@ -1,33 +1,27 @@
-package models.activity
+package phoenix.models.activity
 
-import java.io.ByteArrayOutputStream
 import java.time.Instant
-import scala.concurrent.blocking
 import java.time.format.DateTimeFormatter
 import java.util.Properties
-import scala.concurrent.Future
-import scala.util.{Failure, Success}
+
 import com.github.tminglei.slickpg.LTree
 import com.typesafe.scalalogging.LazyLogging
-import models.account.Scope
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
-import org.apache.avro.generic.GenericRecord
-import org.apache.avro.specific.SpecificDatumWriter
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
-import org.apache.avro.io._
-
 import org.json4s.Extraction
 import org.json4s.jackson.Serialization.{write ⇒ render}
-import shapeless._
+import phoenix.models.account.Scope
+import phoenix.utils.{Environment, JsonFormatters}
+import phoenix.utils.FoxConfig.config
+import phoenix.utils.aliases._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import slick.lifted._
-import utils.FoxConfig.config
-import utils.{Environment, JsonFormatters}
-import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
+
+import scala.concurrent.{Future, blocking}
+import scala.util.{Failure, Success}
 
 case class ActivityContext(userId: Int, userType: String, transactionId: String, scope: LTree) {
   def withCurrentScope(implicit au: AU): ActivityContext = withScope(Scope.current)

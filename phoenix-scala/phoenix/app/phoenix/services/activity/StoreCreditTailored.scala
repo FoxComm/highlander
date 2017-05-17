@@ -1,9 +1,9 @@
-package services.activity
+package phoenix.services.activity
 
-import models.cord.Order
-import models.cord.Cart
-import payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
-import responses.{GiftCardResponse, UserResponse, StoreCreditResponse}
+import phoenix.models.cord.Order
+import phoenix.models.cord.Cart
+import phoenix.payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
+import phoenix.responses.{GiftCardResponse, UserResponse, StoreCreditResponse}
 
 object StoreCreditTailored {
   case class StoreCreditCreated(admin: UserResponse.Root,

@@ -1,10 +1,11 @@
-package libs
+package phoenix.libs
 
 import cats.data.EitherT
 import cats.implicits._
 import org.json4s.DefaultFormats
+import phoenix.utils.aliases._
+
 import scala.concurrent.Future
-import utils.aliases._
 
 package object oauth {
 

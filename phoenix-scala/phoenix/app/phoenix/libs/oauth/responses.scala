@@ -1,4 +1,4 @@
-package libs.oauth
+package phoenix.libs.oauth
 
 case class AccessTokenResponse(
     access_token: String,

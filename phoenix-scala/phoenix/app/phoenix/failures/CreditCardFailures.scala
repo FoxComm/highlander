@@ -1,6 +1,7 @@
-package failures
+package phoenix.failures
 
-import models.payment.creditcard.CreditCard
+import failures.{Failure, NotFoundFailure404}
+import phoenix.models.payment.creditcard.CreditCard
 
 object CreditCardFailures {
 

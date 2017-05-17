@@ -1,18 +1,20 @@
-package utils.seeds
+package phoenix.utils.seeds
+
+import org.json4s.Formats
+import org.json4s.jackson.JsonMethods._
+import phoenix.models.location.Country.unitedStatesId
+import phoenix.models.rules._
+import phoenix.models.shipping.ShippingMethod._
+import phoenix.models.shipping._
+import phoenix.utils.JsonFormatters
+import slick.jdbc.PostgresProfile.api._
+import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.location.Country.unitedStatesId
-import models.rules._
-import models.shipping._
-import org.json4s.jackson.JsonMethods._
-import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
-import utils.db._
-import utils.seeds.Factories._
-import models.shipping.ShippingMethod._
-
 trait ShipmentSeeds {
+
+  implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   type ShippingMethods =
     (ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id)

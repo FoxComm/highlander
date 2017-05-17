@@ -1,10 +1,10 @@
-package responses
+package phoenix.responses
 
 import models.objects.FullObject
-import models.taxonomy.Taxonomy
-import responses.TaxonResponses._
-import utils.{IlluminateAlgorithm}
-import utils.aliases.Json
+import org.json4s.JsonAST.JValue
+import phoenix.models.taxonomy.Taxonomy
+import phoenix.responses.TaxonResponses._
+import utils.IlluminateAlgorithm
 
 object TaxonomyResponses {
 
@@ -17,7 +17,7 @@ object TaxonomyResponses {
 
   case class FullTaxonomyResponse(id: Int,
                                   hierarchical: Boolean,
-                                  attributes: Json,
+                                  attributes: JValue,
                                   taxons: Seq[TaxonTreeResponse])
       extends ResponseItem
 

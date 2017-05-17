@@ -1,7 +1,7 @@
-package models.discount
+package phoenix.models.discount
 
-import models.cord.lineitems.LineItemProductData
-import models.product.Mvp
+import phoenix.models.cord.lineitems.LineItemProductData
+import phoenix.models.product.Mvp
 
 /**
   * Methods, used across offers and qualifiers

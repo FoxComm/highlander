@@ -1,8 +1,9 @@
-package responses
+package phoenix.responses
 
 import java.time.Instant
-import models.Note
-import models.account.User
+
+import phoenix.models.Note
+import phoenix.models.account.User
 
 object AdminNotes {
   case class Root(id: Int, body: String, author: Author, createdAt: Instant) extends ResponseItem

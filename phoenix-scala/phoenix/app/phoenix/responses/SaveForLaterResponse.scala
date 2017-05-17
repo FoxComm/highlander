@@ -1,14 +1,13 @@
-package responses
+package phoenix.responses
 
 import java.time.Instant
 
 import failures.NotFoundFailure404
-import models.inventory.{Sku, Skus}
 import models.objects._
-import models.product.Mvp
-import models.{SaveForLater, SaveForLaters}
+import phoenix.models.inventory.{Sku, Skus}
+import phoenix.models.product.Mvp
+import phoenix.models.{SaveForLater, SaveForLaters}
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
 import utils.db._
 
 object SaveForLaterResponse {

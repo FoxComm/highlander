@@ -1,13 +1,13 @@
-package responses.cord.base
+package phoenix.responses.cord.base
 
 import java.time.Instant
 
-import models.cord.OrderPayments
-import models.payment.PaymentMethod._
-import models.payment.creditcard.CreditCards
-import responses.AddressResponse
+import phoenix.models.cord.OrderPayments
+import phoenix.models.payment.PaymentMethod._
+import phoenix.models.payment.creditcard.CreditCards
+import phoenix.responses.AddressResponse
+import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
 
 sealed trait CordResponsePayments {
   def `type`: Type

@@ -1,9 +1,9 @@
-package payloads
+package phoenix.payloads
 
 import java.time.Instant
-import models.auth.Identity.IdentityKind
-import models.activity.{Activity, ActivityContext}
-import utils.aliases._
+
+import phoenix.models.activity.ActivityContext
+import phoenix.utils.aliases._
 
 case class LoginPayload(email: String, password: String, org: String)
 

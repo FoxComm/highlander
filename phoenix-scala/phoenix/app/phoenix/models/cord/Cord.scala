@@ -1,4 +1,4 @@
-package models.cord
+package phoenix.models.cord
 
 import shapeless._
 import slick.jdbc.PostgresProfile.api._

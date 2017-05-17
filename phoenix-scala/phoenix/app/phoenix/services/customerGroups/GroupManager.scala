@@ -1,21 +1,20 @@
-package services.customerGroups
+package phoenix.services.customerGroups
 
 import java.time.Instant
 
 import failures.NotFoundFailure404
-import models.account.{Scope, User}
-import models.customer.CustomerGroup.Manual
-import models.customer._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import org.json4s.JsonDSL._
-import payloads.CustomerGroupPayloads.CustomerGroupPayload
-import responses.GroupResponses.GroupResponse.{Root, build}
-import services.LogActivity
-import utils.aliases._
-import utils.db._
+import phoenix.models.account.{Scope, User}
+import phoenix.models.customer.CustomerGroup.Manual
+import phoenix.models.customer._
+import phoenix.payloads.CustomerGroupPayloads.CustomerGroupPayload
+import phoenix.responses.GroupResponses.GroupResponse.{Root, build}
+import phoenix.services.LogActivity
+import phoenix.utils.aliases._
+import phoenix.utils.time._
 import utils.db.ExPostgresDriver.api._
-import utils.time._
+import utils.db._
 
 object GroupManager {
 

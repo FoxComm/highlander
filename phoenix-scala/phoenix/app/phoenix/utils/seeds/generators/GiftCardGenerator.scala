@@ -1,15 +1,15 @@
-package utils.seeds.generators
+package phoenix.utils.seeds.generators
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
-import models.account.Scope
-import models.cord.{Cart, Carts, Order, Orders}
+import phoenix.models.account.Scope
+import phoenix.models.cord.{Cart, Carts, Order, Orders}
 import models.objects.ObjectContext
-import models.payment.giftcard._
-import payloads.GiftCardPayloads.GiftCardCreateByCsr
+import phoenix.models.payment.giftcard._
+import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
 import utils.Money.Currency
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db._
 
 trait GiftCardGenerator {

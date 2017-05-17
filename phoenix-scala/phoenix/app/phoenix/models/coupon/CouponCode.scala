@@ -1,13 +1,13 @@
-package models.coupon
+package phoenix.models.coupon
 
 import java.time.Instant
-
-import scala.annotation.tailrec
-import scala.util.Random
 
 import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
+
+import scala.annotation.tailrec
+import scala.util.Random
 
 /**
   * A coupon code is a way to reference a coupon from the outside world.

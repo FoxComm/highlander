@@ -1,4 +1,4 @@
-package services
+package phoenix.services
 
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.{HttpChallenge, HttpCookie, RawHeader}
@@ -10,19 +10,19 @@ import akka.http.scaladsl.server.directives.RespondWithDirectives.respondWithHea
 import akka.http.scaladsl.server.directives.SecurityDirectives.AuthenticationResult
 import akka.http.scaladsl.server.directives.{AuthenticationDirective, AuthenticationResult}
 import cats.implicits._
-import failures.AuthFailures._
 import failures._
-import models.account._
-import models.admin._
-import models.auth._
-import payloads.{AuthPayload, LoginPayload}
-import scala.concurrent.Future
-import services.account._
-import services.customers.CustomerManager
+import phoenix.failures.AuthFailures._
+import phoenix.models.account._
+import phoenix.models.admin._
+import phoenix.models.auth._
+import phoenix.payloads.{AuthPayload, LoginPayload}
+import phoenix.services.account._
+import phoenix.services.customers.CustomerManager
+import phoenix.utils.FoxConfig.config
 import slick.jdbc.PostgresProfile.api._
-import utils.FoxConfig.config
-import utils.aliases._
 import utils.db._
+
+import scala.concurrent.Future
 
 // TODO: Implement real session-based authentication with JWT
 // TODO: Probably abstract this out so that we use one for both AdminUsers and Customers

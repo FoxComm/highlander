@@ -1,8 +1,8 @@
-package responses
+package phoenix.responses
 
 import java.time.Instant
 
-import models.payment.storecredit.StoreCredit
+import phoenix.models.payment.storecredit.StoreCredit
 import utils.Money.Currency
 
 object StoreCreditResponse {

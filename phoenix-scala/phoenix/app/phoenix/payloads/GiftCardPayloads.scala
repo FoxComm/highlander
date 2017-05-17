@@ -1,13 +1,12 @@
-package payloads
+package phoenix.payloads
 
 import cats.data._
 import cats.implicits._
 import failures.Failure
-import models.payment.giftcard.GiftCard
+import phoenix.models.payment.giftcard.GiftCard
 import utils.Money._
 import utils.Validation
 import utils.Validation._
-import utils.aliases.Json
 
 object GiftCardPayloads {
 

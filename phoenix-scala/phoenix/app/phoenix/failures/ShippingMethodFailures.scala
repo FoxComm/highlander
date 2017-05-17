@@ -1,6 +1,6 @@
-package failures
+package phoenix.failures
 
-import com.github.tminglei.slickpg.LTree
+import failures.{Failure, NotFoundFailure404}
 
 object ShippingMethodFailures {
 

@@ -1,19 +1,18 @@
-package models.returns
+package phoenix.models.returns
 
-import cats.data.{State ⇒ _}
+import java.time.Instant
+
 import com.pellucid.sealerate
 import failures.NotFoundFailure404
-import java.time.Instant
-import models.account._
-import models.cord.{Order, Orders}
-import models.returns.Return._
+import phoenix.models.account._
+import phoenix.models.cord.{Order, Orders}
+import phoenix.models.returns.Return._
+import phoenix.utils.{ADT, FSM}
 import shapeless._
 import slick.ast.BaseTypedType
-import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.JdbcType
-import utils.aliases._
+import slick.jdbc.PostgresProfile.api._
 import utils.db._
-import utils.{ADT, FSM}
 
 case class Return(id: Int = 0,
                   referenceNumber: String = "",

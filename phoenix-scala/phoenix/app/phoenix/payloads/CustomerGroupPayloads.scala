@@ -1,7 +1,7 @@
-package payloads
+package phoenix.payloads
 
-import models.customer.CustomerGroup._
-import utils.aliases._
+import phoenix.models.customer.CustomerGroup._
+import phoenix.utils.aliases._
 
 object CustomerGroupPayloads {
 

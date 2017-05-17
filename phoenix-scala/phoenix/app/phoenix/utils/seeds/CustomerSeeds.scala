@@ -1,16 +1,16 @@
-package utils.seeds
-
-import scala.concurrent.ExecutionContext.Implicits.global
+package phoenix.utils.seeds
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import models.account._
-import models.{Note, Notes}
-import payloads.CustomerPayloads.CreateCustomerPayload
-import services.account._
-import services.customers._
-import utils.aliases._
+import phoenix.models.account._
+import phoenix.models.{Note, Notes}
+import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
+import phoenix.services.account._
+import phoenix.services.customers._
+import phoenix.utils.aliases._
 import utils.db._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 trait CustomerSeeds {
 

@@ -1,37 +1,38 @@
-package utils.seeds.generators
+package phoenix.utils.seeds.generators
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.Random
-
 import cats.implicits._
-import failures.CreditCardFailures.CustomerHasNoCreditCard
-import failures.CustomerFailures.CustomerHasNoDefaultAddress
 import failures.NotFoundFailure400
 import faker._
-import models.Note
-import models.account.Scope
-import models.cord.Order._
-import models.cord._
-import models.cord.lineitems._
-import models.inventory.Skus
-import models.location.Addresses
 import models.objects.ObjectContext
-import models.payment.InStorePaymentStates
-import models.payment.creditcard.CreditCardCharge.FullCapture
-import models.payment.creditcard._
-import models.payment.giftcard._
-import models.payment.storecredit._
-import models.product.Mvp
-import models.shipping._
-import services.carts.CartTotaler
-import services.orders.OrderTotaler
+import phoenix.failures.CreditCardFailures.CustomerHasNoCreditCard
+import phoenix.failures.CustomerFailures.CustomerHasNoDefaultAddress
+import phoenix.models.Note
+import phoenix.models.account.Scope
+import phoenix.models.cord.Order._
+import phoenix.models.cord._
+import phoenix.models.cord.lineitems._
+import phoenix.models.inventory.Skus
+import phoenix.models.location.Addresses
+import phoenix.models.payment.InStorePaymentStates
+import phoenix.models.payment.creditcard.CreditCardCharge.FullCapture
+import phoenix.models.payment.creditcard._
+import phoenix.models.payment.giftcard._
+import phoenix.models.payment.storecredit._
+import phoenix.models.product.Mvp
+import phoenix.models.shipping._
+import phoenix.services.carts.CartTotaler
+import phoenix.services.orders.OrderTotaler
+import phoenix.utils.aliases._
+import phoenix.utils.seeds.ShipmentSeeds
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
 import utils.db._
-import utils.seeds.ShipmentSeeds
 import utils.time
+import phoenix.utils
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Random
 
 trait OrderGenerator extends ShipmentSeeds {
 
@@ -74,7 +75,7 @@ trait OrderGenerator extends ShipmentSeeds {
     } yield {}
   }
 
-  private val yesterday: Instant = time.yesterday.toInstant
+  private val yesterday: Instant = utils.time.yesterday.toInstant
 
   def manualHoldOrder(accountId: Int,
                       context: ObjectContext,

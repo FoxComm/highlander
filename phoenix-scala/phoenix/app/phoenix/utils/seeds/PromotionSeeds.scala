@@ -1,19 +1,21 @@
-package utils.seeds
+package phoenix.utils.seeds
+
+import models.objects._
+import org.json4s.Formats
+import phoenix.models.account._
+import phoenix.models.objects.{PromotionDiscountLink, PromotionDiscountLinks}
+import phoenix.models.product.SimpleContext
+import phoenix.models.promotion.Promotion.ApplyType
+import phoenix.models.promotion.{Promotion, Promotions}
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
+import phoenix.utils.seeds.DiscountSeeds.{CreateDiscountForm, CreateDiscountShadow}
+import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import models.account._
-import models.objects._
-import models.product.SimpleContext
-import models.promotion.Promotion.ApplyType
-import models.promotion.{Promotion, Promotions}
-import org.json4s.Formats
-import utils.JsonFormatters
-import utils.aliases._
-import utils.db._
 
 object PromotionSeeds {
   // TODO: migrate to new payloads. // narma  22.09.16
-  import utils.seeds.DiscountSeeds._
 
   case class UpdatePromoDiscountForm(id: Int, attributes: Json)
   case class UpdatePromoDiscountShadow(id: Int, attributes: Json)

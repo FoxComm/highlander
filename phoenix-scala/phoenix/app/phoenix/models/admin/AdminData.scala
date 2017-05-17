@@ -1,21 +1,18 @@
-package models.admin
+package phoenix.models.admin
 
 import java.time.Instant
 
-import cats.data.ValidatedNel
-import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
-import failures.Failure
-import failures.UserFailures._
+import phoenix.failures.UserFailures._
+import phoenix.models.admin.AdminData._
+import phoenix.utils.{ADT, FSM}
 import shapeless._
 import slick.ast.BaseTypedType
-import utils.db.ExPostgresDriver.api._
 import slick.jdbc.JdbcType
-import utils.aliases._
+import utils.Validation
+import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{ADT, FSM, Validation}
-import models.admin.AdminData._
 
 case class AdminData(id: Int = 0,
                      userId: Int,
@@ -28,8 +25,6 @@ case class AdminData(id: Int = 0,
     extends FoxModel[AdminData]
     with Validation[AdminData]
     with FSM[AdminData.State, AdminData] {
-
-  import Validation._
 
   def stateLens = lens[AdminData].state
 

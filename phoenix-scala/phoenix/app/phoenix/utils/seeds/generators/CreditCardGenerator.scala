@@ -1,12 +1,12 @@
-package utils.seeds.generators
+package phoenix.utils.seeds.generators
 
 import java.time.{Instant, ZoneId}
 
 import scala.util.Random
 
 import faker._
-import models.account.User
-import models.payment.creditcard.{BillingAddress, CreditCard};
+import phoenix.models.account.User
+import phoenix.models.payment.creditcard.{BillingAddress, CreditCard};
 
 trait CreditCardGenerator extends AddressGenerator {
 

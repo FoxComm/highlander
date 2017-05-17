@@ -1,4 +1,4 @@
-package models.payment.giftcard
+package phoenix.models.payment.giftcard
 
 import shapeless._
 import slick.jdbc.PostgresProfile.api._

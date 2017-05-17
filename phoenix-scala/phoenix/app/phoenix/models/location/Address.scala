@@ -1,12 +1,13 @@
-package models.location
+package phoenix.models.location
+
+import java.time.Instant
 
 import cats.implicits._
 import failures.{Failures, NotFoundFailure404}
-import java.time.Instant
-import models.cord.OrderShippingAddress
-import models.payment.creditcard.CreditCard
-import models.traits.Addressable
-import payloads.AddressPayloads.CreateAddressPayload
+import phoenix.models.cord.OrderShippingAddress
+import phoenix.models.payment.creditcard.CreditCard
+import phoenix.models.traits.Addressable
+import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import utils.Validation

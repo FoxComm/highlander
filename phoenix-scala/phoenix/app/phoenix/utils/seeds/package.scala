@@ -1,14 +1,14 @@
-package utils
+package phoenix.utils
 
 import java.time.Instant
 
-import models.discount.offers.{Offer, OfferType}
-import models.discount.qualifiers.{Qualifier, QualifierType}
 import models.objects.ObjectUtils
-import models.promotion.Promotion
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization._
-import utils.JsonFormatters.phoenixFormats
+import phoenix.models.discount.offers.{Offer, OfferType}
+import phoenix.models.discount.qualifiers.{Qualifier, QualifierType}
+import phoenix.models.promotion.Promotion
+import phoenix.utils.JsonFormatters.phoenixFormats
 
 package object seeds {
   case class BaseDiscount(title: String, discountId: Int = 0, formId: Int = 0, shadowId: Int = 0)

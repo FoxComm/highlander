@@ -1,10 +1,9 @@
-package responses
+package phoenix.responses
 
 import java.time.Instant
 
-import models.payment.giftcard._
+import phoenix.models.payment.giftcard._
 import utils.Money._
-import utils.aliases.Json
 
 object GiftCardResponse {
 
@@ -53,6 +52,6 @@ object GiftCardResponse {
         senderName = gc.senderName,
         recipientName = gc.recipientName,
         recipientEmail = gc.recipientEmail,
-        message = (gc.message)
+        message = gc.message
     )
 }

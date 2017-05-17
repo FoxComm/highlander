@@ -1,9 +1,9 @@
-package services.activity
+package phoenix.services.activity
 
-import models.cord.Order
-import models.cord.Cart
-import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
-import responses.{GiftCardResponse, UserResponse, StoreCreditResponse}
+import phoenix.models.cord.Order
+import phoenix.models.cord.Cart
+import phoenix.payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
+import phoenix.responses.{GiftCardResponse, UserResponse, StoreCreditResponse}
 
 object GiftCardTailored {
   case class GiftCardCreated(admin: UserResponse.Root, giftCard: GiftCardResponse.Root)

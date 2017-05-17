@@ -1,6 +1,6 @@
-package failures
+package phoenix.failures
 
-import failures.Util._
+import failures.Failure
 import utils.friendlyClassName
 
 object AssignmentFailures {

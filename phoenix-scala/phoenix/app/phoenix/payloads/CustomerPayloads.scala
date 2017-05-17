@@ -1,4 +1,4 @@
-package payloads
+package phoenix.payloads
 
 import cats.data._
 import cats.implicits._

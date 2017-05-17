@@ -1,18 +1,18 @@
-package services.category
+package phoenix.services.category
 
-import failures.CategoryFailures._
 import failures.ObjectFailures._
-import models.account._
-import models.category._
 import models.objects._
 import org.json4s.Formats
-import payloads.CategoryPayloads._
-import responses.CategoryResponses._
+import phoenix.failures.CategoryFailures._
+import phoenix.models.account._
+import phoenix.models.category._
+import phoenix.payloads.CategoryPayloads._
+import phoenix.responses.CategoryResponses._
+import phoenix.services.LogActivity
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
 import responses.ObjectResponses.ObjectContextResponse
-import services.LogActivity
 import slick.jdbc.PostgresProfile.api._
-import utils.JsonFormatters
-import utils.aliases._
 import utils.db._
 
 object CategoryManager {

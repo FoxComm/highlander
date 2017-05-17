@@ -1,17 +1,16 @@
-package services
+package phoenix.services
 
 import cats.implicits._
-import failures.ProductFailures.NoProductFoundForSku
-import models.cord.lineitems._
-import models.image.Albums
-import models.inventory.Sku
-import models.objects._
-import models.product._
-import services.image.ImageManager
-import services.inventory.SkuManager
-import services.product.ProductManager
+import phoenix.failures.ProductFailures.NoProductFoundForSku
+import phoenix.models.cord.lineitems._
+import phoenix.models.image.Albums
+import phoenix.models.inventory.Sku
+import phoenix.models.objects._
+import phoenix.models.product._
+import phoenix.services.image.ImageManager
+import phoenix.services.inventory.SkuManager
+import phoenix.services.product.ProductManager
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
 import utils.db._
 
 object LineItemManager {

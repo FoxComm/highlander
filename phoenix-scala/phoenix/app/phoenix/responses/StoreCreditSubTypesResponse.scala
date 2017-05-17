@@ -1,6 +1,6 @@
-package responses
+package phoenix.responses
 
-import models.payment.storecredit.{StoreCredit, StoreCreditSubtype}
+import phoenix.models.payment.storecredit.{StoreCredit, StoreCreditSubtype}
 
 object StoreCreditSubTypesResponse {
   case class Root(originType: StoreCredit.OriginType, subTypes: Seq[StoreCreditSubtype])

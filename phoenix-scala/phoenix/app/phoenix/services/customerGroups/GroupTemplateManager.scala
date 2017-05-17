@@ -1,9 +1,9 @@
-package services.customerGroups
+package phoenix.services.customerGroups
 
-import models.account.Scope
-import models.customer._
-import responses.GroupResponses.GroupTemplateResponse._
-import utils.aliases._
+import phoenix.models.account.Scope
+import phoenix.models.customer._
+import phoenix.responses.GroupResponses.GroupTemplateResponse._
+import phoenix.utils.aliases._
 import utils.db._
 import utils.db.ExPostgresDriver.api._
 

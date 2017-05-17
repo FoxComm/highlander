@@ -1,13 +1,13 @@
-package responses
+package phoenix.responses
 
 import java.time.Instant
 
 import cats.implicits._
-import models.inventory._
 import models.objects._
-import responses.AlbumResponses.AlbumResponse
+import phoenix.models.inventory._
+import phoenix.responses.AlbumResponses.AlbumResponse
+import phoenix.utils.aliases._
 import responses.ObjectResponses.ObjectContextResponse
-import utils.aliases._
 
 object SkuResponses {
 

@@ -1,10 +1,10 @@
-package utils.time
+package phoenix.utils.time
 
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
-import org.json4s._
 import org.json4s.JsonAST.JString
+import org.json4s._
 
 /** Since this works on instants, the time zone information is honored, but thrown away. */
 object JavaTimeJson4sSerializer {

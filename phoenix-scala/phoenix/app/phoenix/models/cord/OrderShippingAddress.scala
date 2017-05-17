@@ -1,13 +1,12 @@
-package models.cord
+package phoenix.models.cord
 
 import java.time.Instant
 
-import models.location.{Address, Addresses, Region, Regions}
-import models.traits.Addressable
-import payloads.AddressPayloads.UpdateAddressPayload
+import phoenix.models.location.{Address, Addresses, Region, Regions}
+import phoenix.models.traits.Addressable
+import phoenix.payloads.AddressPayloads.UpdateAddressPayload
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
 import utils.db._
 
 case class OrderShippingAddress(id: Int = 0,

@@ -1,12 +1,13 @@
-package models.payment.storecredit
+package phoenix.models.payment.storecredit
+
+import java.time.Instant
 
 import failures.Failures
-import java.time.Instant
-import models.payment.InStorePaymentStates._
-import models.payment._
+import phoenix.models.payment.InStorePaymentStates._
+import phoenix.models.payment._
+import phoenix.utils.FSM
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.FSM
 import utils.db._
 
 case class StoreCreditAdjustment(id: Int = 0,

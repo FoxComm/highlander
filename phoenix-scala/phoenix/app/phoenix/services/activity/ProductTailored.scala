@@ -1,7 +1,7 @@
-package services.activity
+package phoenix.services.activity
 
-import responses.UserResponse
-import responses.ProductResponses.ProductResponse
+import phoenix.responses.UserResponse
+import phoenix.responses.ProductResponses.ProductResponse
 import responses.ObjectResponses.ObjectContextResponse
 
 object ProductTailored {

@@ -1,8 +1,8 @@
-package services
+package phoenix.services
 
-import models.account.User
-import responses.TheResponse
-import utils.aliases._
+import phoenix.models.account.User
+import phoenix.responses.TheResponse
+import phoenix.utils.aliases._
 import utils.db._
 
 package object assignments {

@@ -1,8 +1,8 @@
-package models.customer
+package phoenix.models.customer
 
+import phoenix.utils.aliases._
 import shapeless._
 import slick.lifted.Tag
-import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

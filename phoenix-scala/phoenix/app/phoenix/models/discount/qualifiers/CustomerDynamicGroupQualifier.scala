@@ -1,10 +1,10 @@
-package models.discount.qualifiers
+package phoenix.models.discount.qualifiers
 
 import cats.implicits._
-import failures.DiscountFailures._
-import models.discount.{CustomerSearch, DiscountInput}
-import utils.aliases._
-import utils.apis.Apis
+import phoenix.failures.DiscountFailures._
+import phoenix.models.discount.{CustomerSearch, DiscountInput}
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import utils.db._
 
 case class CustomerDynamicGroupQualifier(search: CustomerSearch) extends Qualifier {

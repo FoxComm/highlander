@@ -1,22 +1,21 @@
-package routes
+package phoenix.routes
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-
 import com.github.tminglei.slickpg.LTree
-import models.Reason.reasonTypeRegex
-import payloads.CustomerPayloads.CreateCustomerPayload
-import services.PublicService._
-import services.account.AccountCreateContext
-import services.customers.CustomerManager
-import services.giftcards.GiftCardService
-import services.product.ProductManager
-import services.{PublicService, ReasonService, StoreCreditService}
-import utils.aliases._
-import utils.apis.Apis
-import utils.http.CustomDirectives._
-import utils.http.Http._
-import utils.http.JsonSupport._
+import phoenix.models.Reason.reasonTypeRegex
+import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
+import phoenix.services.PublicService._
+import phoenix.services.account.AccountCreateContext
+import phoenix.services.customers.CustomerManager
+import phoenix.services.giftcards.GiftCardService
+import phoenix.services.product.ProductManager
+import phoenix.services.{ReasonService, StoreCreditService}
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
+import phoenix.utils.http.CustomDirectives._
+import phoenix.utils.http.Http._
+import phoenix.utils.http.JsonSupport._
 
 object Public {
   def routes(customerCreateContext: AccountCreateContext,

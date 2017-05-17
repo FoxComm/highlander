@@ -1,4 +1,4 @@
-package payloads
+package phoenix.payloads
 
 object GenericTreePayloads {
   case class NodePayload(kind: String, objectId: Int, children: List[NodePayload])

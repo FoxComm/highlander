@@ -1,18 +1,16 @@
-package utils.seeds
-
-import models.cord.{Cord, Cords}
+package phoenix.utils.seeds
 
 import com.github.tminglei.slickpg.LTree
-
-import models.account.Scope
-import scala.concurrent.ExecutionContext.Implicits.global
-import models.payment.giftcard.GiftCard.{buildAppeasement ⇒ build}
-import models.payment.giftcard._
-import models.cord._
-import models.{Note, Notes}
-import payloads.GiftCardPayloads.{GiftCardCreateByCsr ⇒ payload}
-import utils.aliases._
+import phoenix.models.account.Scope
+import phoenix.models.cord.{Cord, Cords}
+import phoenix.models.payment.giftcard.GiftCard.{buildAppeasement ⇒ build}
+import phoenix.models.payment.giftcard._
+import phoenix.models.{Note, Notes}
+import phoenix.payloads.GiftCardPayloads.{GiftCardCreateByCsr ⇒ payload}
+import phoenix.utils.aliases._
 import utils.db._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 trait GiftCardSeeds {
 

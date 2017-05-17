@@ -1,4 +1,4 @@
-package models.discount
+package phoenix.models.discount
 
 /**
   * Some of our discount have parameter `search: Seq[T <: SearchReference]`

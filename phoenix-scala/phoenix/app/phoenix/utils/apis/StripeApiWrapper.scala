@@ -1,8 +1,7 @@
-package utils.apis
+package phoenix.utils.apis
 
 import com.stripe.model.{DeletedCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
-import services._
-import utils.aliases.stripe._
+import phoenix.utils.aliases.stripe._
 import utils.db._
 
 /**

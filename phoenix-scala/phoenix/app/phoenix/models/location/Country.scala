@@ -1,4 +1,4 @@
-package models.location
+package phoenix.models.location
 
 import shapeless._
 import utils.Money._

@@ -1,14 +1,14 @@
-package services.carts
+package phoenix.services.carts
 
 import cats.implicits._
-import models.account._
-import models.customer._
-import models.cord.{Cart, Carts}
-import payloads.CartPayloads.CreateCart
-import responses.cord.CartResponse
-import services._
-import utils.aliases._
-import utils.apis.Apis
+import phoenix.models.account._
+import phoenix.models.customer._
+import phoenix.models.cord.{Cart, Carts}
+import phoenix.payloads.CartPayloads.CreateCart
+import phoenix.responses.cord.CartResponse
+import phoenix.services._
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import utils.db._
 
 object CartCreator {

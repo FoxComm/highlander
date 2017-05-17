@@ -1,8 +1,8 @@
-package services.activity
+package phoenix.services.activity
 
-import models.coupon.Coupon
-import responses.CouponResponses.CouponResponse
-import responses.UserResponse
+import phoenix.models.coupon.Coupon
+import phoenix.responses.CouponResponses.CouponResponse
+import phoenix.responses.UserResponse
 
 object CouponsTailored {
   case class CouponCreated(coupon: CouponResponse.Root, admin: Option[UserResponse.Root])

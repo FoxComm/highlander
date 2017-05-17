@@ -1,19 +1,20 @@
-package services.assignments
+package phoenix.services.assignments
 
 import failures.NotFoundFailure404
 import models.objects.{ObjectForm, ObjectForms}
-import models.coupon.Coupon
-import models.{Assignment, NotificationSubscription}
-import responses.CouponResponses.CouponFormResponse._
+import phoenix.models.activity.Dimension
+import phoenix.models.coupon.Coupon
+import phoenix.models.{Assignment, NotificationSubscription}
+import phoenix.responses.CouponResponses.CouponFormResponse._
 import slick.jdbc.PostgresProfile.api._
 import utils.db._
-import utils.aliases._
+import phoenix.utils.aliases._
 
 object CouponWatchersManager extends AssignmentsManager[Int, ObjectForm] {
 
   val assignmentType  = Assignment.Watcher
   val referenceType   = Assignment.Coupon
-  val notifyDimension = models.activity.Dimension.coupon
+  val notifyDimension = Dimension.coupon
   val notifyReason    = NotificationSubscription.Watching
 
   def buildResponse(model: ObjectForm): Root = build(model)

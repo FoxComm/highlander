@@ -1,9 +1,9 @@
-package services.notes
+package phoenix.services.notes
 
-import models.Note
+import phoenix.models.Note
 import models.objects._
-import services.inventory.SkuManager
-import utils.aliases._
+import phoenix.services.inventory.SkuManager
+import phoenix.utils.aliases._
 import utils.db._
 
 object SkuNoteManager extends NoteManager[String, IlluminatedObject] {

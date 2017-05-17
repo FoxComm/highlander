@@ -1,6 +1,6 @@
-package responses
+package phoenix.responses
 
-import models.payment.giftcard.{GiftCard, GiftCardSubtype}
+import phoenix.models.payment.giftcard.{GiftCard, GiftCardSubtype}
 
 object GiftCardSubTypesResponse {
   case class Root(originType: GiftCard.OriginType, subTypes: Seq[GiftCardSubtype])

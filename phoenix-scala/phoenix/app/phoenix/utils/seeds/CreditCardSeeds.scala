@@ -1,10 +1,10 @@
-package utils.seeds
+package phoenix.utils.seeds
+
+import phoenix.models.payment.creditcard._
+import phoenix.utils.seeds.generators.CreditCardGenerator
+import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
-import models.payment.creditcard._
-import utils.db._
-import utils.seeds.generators.CreditCardGenerator
 
 trait CreditCardSeeds extends CreditCardGenerator {
 

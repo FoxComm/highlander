@@ -1,4 +1,4 @@
-package responses
+package phoenix.responses
 
 import failures.Failures
 

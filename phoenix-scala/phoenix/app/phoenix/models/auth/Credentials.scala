@@ -1,4 +1,4 @@
-package models.auth
+package phoenix.models.auth
 
 import akka.http.scaladsl.model.headers.{GenericHttpCredentials, HttpCredentials}
 import failures.Failures

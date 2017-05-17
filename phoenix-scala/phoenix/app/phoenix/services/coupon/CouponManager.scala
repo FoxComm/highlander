@@ -1,24 +1,24 @@
-package services.coupon
+package phoenix.services.coupon
 
 import java.time.Instant
 
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
-import failures.PromotionFailures._
-import failures.CouponFailures._
-import models.account._
-import models.coupon._
 import models.objects._
-import models.promotion._
 import org.json4s.Formats
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
-import payloads.CouponPayloads._
-import responses.CouponResponses._
-import services.LogActivity
+import phoenix.failures.CouponFailures._
+import phoenix.failures.PromotionFailures._
+import phoenix.models.account._
+import phoenix.models.coupon._
+import phoenix.models.promotion._
+import phoenix.payloads.CouponPayloads._
+import phoenix.responses.CouponResponses._
+import phoenix.services.LogActivity
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.JsonFormatters
-import utils.aliases._
 import utils.db._
 
 object CouponManager {

@@ -1,6 +1,7 @@
-package models.account
+package phoenix.models.account
 
 import java.time.Instant
+
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import utils.db._

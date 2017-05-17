@@ -1,31 +1,22 @@
-package facades
+package phoenix.facades
+
+import akka.actor.{ActorRef, ActorSystem, InvalidActorNameException}
+import akka.pattern.ask
+import akka.stream.actor.ActorPublisher
+import akka.stream.scaladsl.Source
+import com.typesafe.scalalogging.LazyLogging
+import de.heikoseeberger.akkasse.{EventStreamElement, ServerSentEvent ⇒ SSE}
+import org.json4s.jackson.Serialization.write
+import phoenix.models.account.{Scope, Users}
+import phoenix.models.{LastSeenNotification, LastSeenNotifications, Notification, Notifications}
+import phoenix.responses.NotificationResponse
+import phoenix.utils.aliases._
+import phoenix.utils.{JsonFormatters, NotificationListener}
+import slick.jdbc.PostgresProfile.api._
+import utils.db._
 
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
-import akka.actor.{ActorRef, ActorSystem, InvalidActorNameException, Props}
-import akka.stream.{ActorAttributes, OverflowStrategy, Supervision}
-import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
-import akka.pattern.{ask, pipe}
-
-import scala.concurrent.duration._
-
-import de.heikoseeberger.akkasse.{EventStreamElement, ServerSentEvent ⇒ SSE}
-import slick.jdbc.PostgresProfile.api._
-import models.account.Scope
-import models.account.Users
-import models.activity.{Activities, Activity}
-import models.{LastSeenNotification, LastSeenNotifications, Notification, Notifications}
-import org.json4s.jackson.Serialization.write
-import responses.NotificationResponse
-import utils.aliases._
-import utils.db._
-import utils.{JsonFormatters, NotificationListener}
-import scala.collection.mutable.{Map ⇒ MutableMap}
-import scala.collection.concurrent.Map
-import scala.util.{Failure, Success, Try}
-import com.typesafe.scalalogging.LazyLogging
-
-import akka.stream.actor.ActorPublisher
 
 /**
   * TODO: Create a new notificatons table that store notifications for an admin.

@@ -1,18 +1,18 @@
-package utils.seeds
+package phoenix.utils.seeds
+
+import models.objects._
+import org.json4s.Formats
+import phoenix.models.account._
+import phoenix.models.discount._
+import phoenix.models.discount.offers._
+import phoenix.models.discount.qualifiers._
+import phoenix.models.product.SimpleContext
+import phoenix.models.sharedsearch.SharedSearch
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
+import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import models.account._
-import models.discount._
-import models.discount.offers._
-import models.discount.qualifiers._
-import models.objects._
-import models.product.SimpleContext
-import models.sharedsearch.SharedSearch
-import org.json4s.Formats
-import payloads.DiscountPayloads._
-import utils.JsonFormatters
-import utils.aliases._
-import utils.db._
 
 // TODO: migrate to new payloads. // narma  22.09.16
 object DiscountSeeds {

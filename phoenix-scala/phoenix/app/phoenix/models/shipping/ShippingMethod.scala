@@ -1,10 +1,10 @@
-package models.shipping
+package phoenix.models.shipping
 
 import cats.implicits._
 import failures.Failures
-import failures.ShippingMethodFailures.ShippingMethodIsNotActive
-import models.cord.OrderShippingMethods
-import models.rules.QueryStatement
+import phoenix.failures.ShippingMethodFailures.ShippingMethodIsNotActive
+import phoenix.models.cord.OrderShippingMethods
+import phoenix.models.rules.QueryStatement
 import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.db._

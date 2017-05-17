@@ -1,6 +1,6 @@
-package payloads
+package phoenix.payloads
 
-import models.traits.Addressable
+import phoenix.models.traits.Addressable
 import shapeless._
 
 object AddressPayloads {

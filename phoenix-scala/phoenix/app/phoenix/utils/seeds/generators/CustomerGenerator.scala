@@ -1,6 +1,6 @@
-package utils.seeds.generators
+package phoenix.utils.seeds.generators
 
-import models.account.User
+import phoenix.models.account.User
 
 import cats.implicits._
 import faker._

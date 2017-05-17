@@ -1,23 +1,23 @@
-package routes.admin
+package phoenix.routes.admin
 
 import cats.implicits._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import utils.http.JsonSupport._
-import models.account.User
-import models.location.Address
-import payloads.AddressPayloads.CreateAddressPayload
-import payloads.OrderPayloads.OrderTimeMachine
-import services.Authenticator.AuthData
-import services.orders.TimeMachine
+import phoenix.utils.http.JsonSupport._
+import phoenix.models.account.User
+import phoenix.models.location.Address
+import phoenix.payloads.AddressPayloads.CreateAddressPayload
+import phoenix.payloads.OrderPayloads.OrderTimeMachine
+import phoenix.services.Authenticator.AuthData
+import phoenix.services.orders.TimeMachine
 import utils._
-import utils.aliases._
-import utils.http.CustomDirectives._
-import utils.http.Http._
-
+import phoenix.utils.aliases._
+import phoenix.utils.http.CustomDirectives._
+import phoenix.utils.http.Http._
 import org.slf4j.LoggerFactory
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.{Logger ⇒ LogBackLogger}
+import phoenix.utils.TestStripeSupport
 
 object DevRoutes {
 
@@ -92,7 +92,7 @@ case class CreditCardTokenResponse(token: String, brand: String, lastFour: Strin
 /**
   *
   * @param logger is fully qualified name of class where logger are used
-  *               for example utils.ElasticsearchApi
+  *               for example phoenix.utils.ElasticsearchApi
   * @param level Log Level from LogBack, for example DEBUG, INFO, ALL, etc.
   *              In case of invalid level no changes will be applied.
   */

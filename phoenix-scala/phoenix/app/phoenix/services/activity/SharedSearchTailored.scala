@@ -1,7 +1,7 @@
-package services.activity
+package phoenix.services.activity
 
-import models.sharedsearch.SharedSearch
-import responses.UserResponse
+import phoenix.models.sharedsearch.SharedSearch
+import phoenix.responses.UserResponse
 
 object SharedSearchTailored {
   case class AssociatedWithSearch(admin: UserResponse.Root,

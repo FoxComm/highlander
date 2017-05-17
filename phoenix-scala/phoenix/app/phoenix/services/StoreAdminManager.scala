@@ -1,15 +1,15 @@
-package services
+package phoenix.services
 
 import cats.implicits._
 import failures.NotFoundFailure404
-import failures.UserFailures._
-import models.account._
-import models.admin.{AdminData, AdminsData}
-import payloads.StoreAdminPayloads._
-import responses.StoreAdminResponse
-import services.account._
+import phoenix.failures.UserFailures._
+import phoenix.models.account._
+import phoenix.models.admin.{AdminData, AdminsData}
+import phoenix.payloads.StoreAdminPayloads._
+import phoenix.responses.StoreAdminResponse
+import phoenix.services.account._
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db._
 
 object StoreAdminManager {

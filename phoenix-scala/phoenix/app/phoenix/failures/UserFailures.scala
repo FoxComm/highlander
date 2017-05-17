@@ -1,6 +1,7 @@
-package failures
+package phoenix.failures
 
-import models.account._
+import failures.{Failure, NotFoundFailure404}
+import phoenix.models.account._
 
 object UserFailures {
 

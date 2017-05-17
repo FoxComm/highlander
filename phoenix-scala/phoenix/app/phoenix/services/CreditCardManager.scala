@@ -1,23 +1,23 @@
-package services
+package phoenix.services
 
 import cats.implicits._
-import failures.CreditCardFailures.CannotUseInactiveCreditCard
-import failures.GiftCardFailures.CreditCardMustHaveAddress
+import phoenix.failures.CreditCardFailures.CannotUseInactiveCreditCard
+import phoenix.failures.GiftCardFailures.CreditCardMustHaveAddress
 import failures.{Failures, NotFoundFailure404}
 import java.time.Instant
-import models.account._
-import models.cord.OrderPayments.scope._
-import models.cord._
-import models.location._
-import models.payment.creditcard.{CreditCard, CreditCards}
-import payloads.AddressPayloads.CreateAddressPayload
-import payloads.PaymentPayloads._
-import responses.CreditCardsResponse
+import phoenix.models.account._
+import phoenix.models.cord.OrderPayments.scope._
+import phoenix.models.cord._
+import phoenix.models.location._
+import phoenix.models.payment.creditcard.{CreditCard, CreditCards}
+import phoenix.payloads.AddressPayloads.CreateAddressPayload
+import phoenix.payloads.PaymentPayloads._
+import phoenix.responses.CreditCardsResponse
 import scala.concurrent.Future
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
-import utils.aliases.stripe._
-import utils.apis.Apis
+import phoenix.utils.aliases._
+import phoenix.utils.aliases.stripe._
+import phoenix.utils.apis.Apis
 import utils.db._
 
 object CreditCardManager {

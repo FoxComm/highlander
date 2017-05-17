@@ -1,26 +1,21 @@
-package utils.seeds.generators
+package phoenix.utils.seeds.generators
+
+import faker.Faker
+import models.objects.ObjectContexts
+import phoenix.models.account._
+import phoenix.models.coupon._
+import phoenix.models.customer._
+import phoenix.models.inventory._
+import phoenix.models.location.{Address, Addresses}
+import phoenix.models.payment.creditcard.CreditCards
+import phoenix.models.product.SimpleContext
+import phoenix.models.promotion._
+import phoenix.utils.aliases._
+import slick.jdbc.PostgresProfile.api._
+import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
-
-import cats.implicits._
-import faker.Faker
-import models.account._
-import models.cord._
-import models.coupon._
-import models.customer._
-import models.inventory._
-import models.location.{Address, Addresses}
-import models.objects.{ObjectContext, ObjectContexts}
-import models.payment.PaymentMethod
-import models.payment.creditcard.{CreditCard, CreditCards}
-import models.product.SimpleContext
-import models.promotion._
-import org.json4s.JObject
-import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
-import utils.db._
-import utils.seeds.Factories
 
 object SeedsGenerator
     extends CustomerGenerator

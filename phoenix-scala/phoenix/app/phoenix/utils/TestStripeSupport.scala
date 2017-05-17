@@ -1,15 +1,16 @@
-package utils
+package phoenix.utils
 
 import java.time.ZonedDateTime
 
-import scala.collection.JavaConversions._
 import com.stripe.model.{DeletedCustomer, Token}
 import faker.Lorem
-import models.location.Address
-import utils.aliases.stripe.StripeCustomer
-import utils.apis.StripeWrapper
+import phoenix.models.location.Address
+import phoenix.utils.aliases.stripe.StripeCustomer
+import phoenix.utils.apis.StripeWrapper
+import phoenix.utils.seeds.Factories
 import utils.db._
-import utils.seeds.Factories
+
+import scala.collection.JavaConversions._
 
 object TestStripeSupport {
 

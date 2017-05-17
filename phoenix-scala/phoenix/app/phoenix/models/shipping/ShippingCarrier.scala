@@ -1,4 +1,4 @@
-package models.shipping
+package phoenix.models.shipping
 
 import shapeless._
 import slick.jdbc.PostgresProfile.api._

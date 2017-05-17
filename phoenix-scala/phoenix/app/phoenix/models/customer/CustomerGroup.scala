@@ -1,19 +1,20 @@
-package models.customer
+package phoenix.models.customer
+
+import java.time.Instant
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
-import failures.CustomerGroupFailures.CustomerGroupTypeIsWrong
 import failures.Failures
-import java.time.Instant
-import models.customer.CustomerGroup._
-import payloads.CustomerGroupPayloads.CustomerGroupPayload
+import phoenix.failures.CustomerGroupFailures.CustomerGroupTypeIsWrong
+import phoenix.models.customer.CustomerGroup._
+import phoenix.payloads.CustomerGroupPayloads.CustomerGroupPayload
+import phoenix.utils.ADT
+import phoenix.utils.aliases._
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.lifted.Tag
-import utils.ADT
-import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

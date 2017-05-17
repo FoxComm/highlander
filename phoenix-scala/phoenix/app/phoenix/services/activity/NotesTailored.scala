@@ -1,7 +1,7 @@
-package services.activity
+package phoenix.services.activity
 
-import models.Note
-import responses.UserResponse
+import phoenix.models.Note
+import phoenix.responses.UserResponse
 
 object NotesTailored {
   /* Notes */

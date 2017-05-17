@@ -1,9 +1,9 @@
-package utils.seeds
+package phoenix.utils.seeds
 
-import models.customer.{CustomerGroupTemplate, CustomerGroupTemplates}
 import org.json4s.JObject
 import org.json4s.jackson.JsonMethods.parse
-import utils.aliases._
+import phoenix.models.customer.{CustomerGroupTemplate, CustomerGroupTemplates}
+import phoenix.utils.aliases._
 import utils.db._
 
 trait GroupTemplatesSeeds {

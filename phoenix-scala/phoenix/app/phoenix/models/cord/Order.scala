@@ -1,22 +1,23 @@
-package models.cord
+package phoenix.models.cord
+
+import java.time.Instant
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import failures.{Failures, GeneralFailure}
-import java.time.Instant
-import models.account._
-import models.cord.lineitems.{CartLineItems, OrderLineItem, OrderLineItems}
-import models.inventory.Skus
+import phoenix.models.account._
+import phoenix.models.cord.lineitems._
+import phoenix.models.inventory.Skus
+import phoenix.utils.aliases._
+import phoenix.utils.time._
+import phoenix.utils.{ADT, FSM}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils.Money.Currency
-import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.time._
-import utils.{ADT, FSM}
 
 case class Order(id: Int = 0,
                  scope: LTree,

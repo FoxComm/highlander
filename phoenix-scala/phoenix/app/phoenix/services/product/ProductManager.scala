@@ -1,41 +1,43 @@
-package services.product
+package phoenix.services.product
 
-import cats.data.{ValidatedNel, _}
-import cats.implicits._
-import com.typesafe.scalalogging.LazyLogging
-import failures.ArchiveFailures._
-import failures.ProductFailures._
-import failures._
 import java.time.Instant
 
-import models.account._
-import models.inventory._
+import cats.data._
+import cats.implicits._
+import com.typesafe.scalalogging.LazyLogging
+import failures._
 import models.objects._
-import models.product._
 import org.json4s.JsonDSL._
 import org.json4s._
-import payloads.ImagePayloads.AlbumPayload
-import payloads.ProductPayloads._
-import payloads.SkuPayloads._
-import payloads.VariantPayloads._
-import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
-import responses.AlbumResponses._
+import phoenix.failures.ArchiveFailures._
+import phoenix.failures.ProductFailures
+import phoenix.failures.ProductFailures._
+import phoenix.models.account._
+import phoenix.models.inventory._
+import phoenix.models.objects._
+import phoenix.models.product._
+import phoenix.payloads.ImagePayloads.AlbumPayload
+import phoenix.payloads.ProductPayloads._
+import phoenix.payloads.SkuPayloads._
+import phoenix.payloads.VariantPayloads._
+import phoenix.responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
+import phoenix.responses.AlbumResponses._
+import phoenix.responses.ProductResponses._
+import phoenix.responses.SkuResponses._
+import phoenix.responses.VariantResponses.IlluminatedVariantResponse
+import phoenix.services.LogActivity
+import phoenix.services.image.ImageManager
+import phoenix.services.image.ImageManager.FullAlbumWithImages
+import phoenix.services.inventory.SkuManager
+import phoenix.services.taxonomy.TaxonomyManager
+import phoenix.services.variant.VariantManager
+import phoenix.services.variant.VariantManager._
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
 import responses.ObjectResponses.ObjectContextResponse
-import responses.ProductResponses._
-import responses.SkuResponses._
-import responses.VariantResponses.IlluminatedVariantResponse
-import services.LogActivity
-import services.image.ImageManager
-import services.image.ImageManager.FullAlbumWithImages
-import services.inventory.SkuManager
 import services.objects.ObjectManager
-import services.taxonomy.TaxonomyManager
-import services.variant.VariantManager
-import services.variant.VariantManager._
 import slick.jdbc.PostgresProfile.api._
-import utils.JsonFormatters
 import utils.Validation._
-import utils.aliases._
 import utils.db._
 
 object ProductManager extends LazyLogging {

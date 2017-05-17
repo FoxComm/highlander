@@ -1,11 +1,11 @@
-package models.tree
+package phoenix.models.tree
 
-import _root_.utils.aliases.EC
 import slick.lifted.Tag
+import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{JsonFormatters, Validation}
 import com.github.tminglei.slickpg._
+import phoenix.utils.JsonFormatters
 import shapeless._
 
 case class GenericTreeNode(id: Int,

@@ -1,12 +1,11 @@
-package responses
+package phoenix.responses
 
 import java.time.Instant
 
-import models.coupon._
 import models.objects._
+import phoenix.models.coupon._
+import phoenix.utils.aliases._
 import responses.ObjectResponses.ObjectContextResponse
-import utils.IlluminateAlgorithm
-import utils.aliases._
 
 object CouponResponses {
 

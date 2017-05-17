@@ -1,6 +1,7 @@
-package failures
+package phoenix.failures
 
 import com.stripe.exception.StripeException
+import failures.Failure
 
 object StripeFailures {
 

@@ -1,9 +1,9 @@
-package responses
+package phoenix.responses
 
 import cats.{Functor, Monad}
 import failures._
-import responses.BatchMetadata._
-import services.CartValidatorResponse
+import phoenix.responses.BatchMetadata._
+import phoenix.services.CartValidatorResponse
 import utils.friendlyClassName
 
 case class TheResponse[A](result: A,

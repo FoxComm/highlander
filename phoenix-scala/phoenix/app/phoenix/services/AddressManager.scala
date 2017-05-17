@@ -1,15 +1,15 @@
-package services
+package phoenix.services
 
 import java.time.Instant
 
 import cats.implicits._
 import failures.NotFoundFailure404
-import models.account._
-import models.location.{Address, Addresses}
-import payloads.AddressPayloads._
-import responses.AddressResponse
+import phoenix.models.account._
+import phoenix.models.location.{Address, Addresses}
+import phoenix.payloads.AddressPayloads._
+import phoenix.responses.AddressResponse
+import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
 import utils.db._
 
 object AddressManager {

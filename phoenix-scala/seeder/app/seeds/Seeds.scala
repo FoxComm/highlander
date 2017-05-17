@@ -4,28 +4,33 @@ import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import com.typesafe.config.Config
-import failures.UserFailures._
+import phoenix.failures.UserFailures._
 import failures.{Failures, FailuresOps, NotFoundFailure404}
 import java.time.{Instant, ZoneId}
-import models.Reasons
-import models.account._
-import models.activity.ActivityContext
-import models.auth.UserToken
+
+import phoenix.models.Reasons
+import phoenix.models.account._
+import phoenix.models.activity.ActivityContext
+import phoenix.models.auth.UserToken
 import models.objects.ObjectContexts
-import models.product.SimpleContext
+import phoenix.models.product.SimpleContext
 import org.postgresql.ds.PGSimpleDataSource
+import phoenix.models.activity.ActivityContext
+import phoenix.utils.ADT
+
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import services.Authenticator.AuthData
-import services.account.AccountManager
+import phoenix.services.Authenticator.AuthData
+import phoenix.services.account.AccountManager
 import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.PostgresProfile.backend.DatabaseDef
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db._
-import utils.db.flyway.newFlyway
-import utils.seeds.generators.SeedsGenerator
-import utils.{ADT, FoxConfig}
+import phoenix.utils.db.flyway.newFlyway
+import phoenix.utils.seeds.Factories
+import phoenix.utils.seeds.generators.SeedsGenerator
+import phoenix.utils.{ADT, FoxConfig}
 
 object Seeds {
 

@@ -1,6 +1,6 @@
-package payloads
+package phoenix.payloads
 
-import models.cord.lineitems._
+import phoenix.models.cord.lineitems._
 
 object LineItemPayloads {
 

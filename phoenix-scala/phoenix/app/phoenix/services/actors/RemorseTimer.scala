@@ -1,15 +1,15 @@
-package services.actors
+package phoenix.services.actors
 
 import akka.actor.{Actor, ActorLogging}
 import cats.implicits._
 import faker.Lorem.letterify
 import java.time.Instant
-import models.activity.ActivityContext
-import models.cord.Order._
-import models.cord.{Order, Orders}
+import phoenix.models.activity.ActivityContext
+import phoenix.models.cord.Order._
+import phoenix.models.cord.{Order, Orders}
 import scala.util.Success
-import services.LogActivity
-import utils.aliases._
+import phoenix.services.LogActivity
+import phoenix.utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

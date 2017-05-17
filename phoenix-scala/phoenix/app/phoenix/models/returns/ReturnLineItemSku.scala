@@ -1,8 +1,9 @@
-package models.returns
+package phoenix.models.returns
 
 import java.time.Instant
-import models.inventory.Skus
+
 import models.objects._
+import phoenix.models.inventory.Skus
 import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.db._

@@ -1,19 +1,20 @@
-package utils.seeds.generators
+package phoenix.utils.seeds.generators
+
+import models.objects.ObjectUtils._
+import models.objects._
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
+import phoenix.models.discount.Discount
+import phoenix.models.product.SimpleContext
+import phoenix.payloads.DiscountPayloads._
+import phoenix.responses.DiscountResponses.DiscountResponse
+import phoenix.services.discount.DiscountManager
+import phoenix.utils.aliases._
+import phoenix.utils.seeds.generators.SimpleDiscount._
+import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
-
-import models.objects._
-import models.objects.ObjectUtils._
-import models.product.SimpleContext
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
-import payloads.DiscountPayloads._
-import responses.DiscountResponses.DiscountResponse
-import services.discount.DiscountManager
-import utils.aliases._
-import utils.db._
-import utils.seeds.generators.SimpleDiscount._
 
 object SimpleDiscount {
   type Percent = Int
@@ -76,8 +77,7 @@ trait DiscountGenerator {
                    val discountForm   = SimpleDiscountForm(source.percentOff, source.totalAmount)
                    val discountShadow = SimpleDiscountShadow(discountForm)
                    def discountFS: FormAndShadow = {
-                     (ObjectForm(kind = models.discount.Discount.kind,
-                                 attributes = discountForm.form),
+                     (ObjectForm(kind = Discount.kind, attributes = discountForm.form),
                       ObjectShadow(attributes = discountShadow.shadow))
                    }
                    val payload = CreateDiscount(attributes = discountFS.toPayload)

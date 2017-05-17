@@ -1,9 +1,8 @@
-package responses
+package phoenix.responses
 
 import java.time.Instant
 
-import models.account._
-import models.location.Region
+import phoenix.models.account._
 
 object UserResponse {
   case class Root(id: Int = 0,

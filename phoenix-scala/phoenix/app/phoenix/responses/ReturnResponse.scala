@@ -1,18 +1,18 @@
-package responses
+package phoenix.responses
 
 import java.time.Instant
-import models.account.Users
-import models.admin.AdminsData
-import models.customer.CustomersData
-import models.payment.giftcard.GiftCard
-import models.returns.ReturnPayments.scope._
-import models.returns._
-import responses.CustomerResponse.{Root ⇒ Customer}
-import responses.StoreAdminResponse.{Root ⇒ User}
-import services.carts.CartTotaler
-import services.returns.{ReturnLineItemManager, ReturnTotaler}
+
+import phoenix.models.account.Users
+import phoenix.models.admin.AdminsData
+import phoenix.models.customer.CustomersData
+import phoenix.models.payment.giftcard.GiftCard
+import phoenix.models.returns.ReturnPayments.scope._
+import phoenix.models.returns._
+import phoenix.responses.CustomerResponse.{Root ⇒ Customer}
+import phoenix.responses.StoreAdminResponse.{Root ⇒ User}
+import phoenix.services.carts.CartTotaler
+import phoenix.services.returns.{ReturnLineItemManager, ReturnTotaler}
 import utils.Money._
-import utils.aliases._
 import utils.db._
 
 object ReturnResponse {

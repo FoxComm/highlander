@@ -1,13 +1,12 @@
-package models.objects
+package phoenix.models.objects
 
 import java.time.Instant
 
-import shapeless._
-
-import models.product._
-import utils.db._
-import utils.db.ExPostgresDriver.api._
 import models.objects.ObjectHeadLinks._
+import phoenix.models.product._
+import shapeless._
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 case class VariantValueLink(id: Int = 0,
                             leftId: Int,

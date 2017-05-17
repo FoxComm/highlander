@@ -1,14 +1,13 @@
-package models.product
+package phoenix.models.product
 
 import java.time.Instant
 
 import models.objects._
 import shapeless._
-import utils.db.ExPostgresDriver.api._
 import slick.lifted.Tag
+import utils.Validation
+import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{JsonFormatters, Validation}
-
 import com.github.tminglei.slickpg._
 
 object Variant {

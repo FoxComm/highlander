@@ -1,10 +1,10 @@
-package models.cord
+package phoenix.models.cord
 
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import cats.implicits._
 import failures.Failure
-import models.payment.giftcard.GiftCard.giftCardCodeRegex
-import payloads.AddressPayloads.CreateAddressPayload
+import phoenix.models.payment.giftcard.GiftCard.giftCardCodeRegex
+import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import utils.Validation
 import utils.Validation._
 

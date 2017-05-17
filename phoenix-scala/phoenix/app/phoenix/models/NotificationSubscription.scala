@@ -1,17 +1,17 @@
-package models
+package phoenix.models
 
 import java.time.Instant
 
 import com.pellucid.sealerate
-import models.activity.Dimensions
-import models.account._
+import phoenix.models.account._
+import phoenix.models.activity.Dimensions
+import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
-import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.JdbcType
+import slick.jdbc.PostgresProfile.api._
 import slick.lifted.Tag
 import utils.db._
-import utils.ADT
 
 case class NotificationSubscription(id: Int = 0,
                                     adminId: Int,

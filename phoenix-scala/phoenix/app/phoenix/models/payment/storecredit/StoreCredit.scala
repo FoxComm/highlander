@@ -1,24 +1,26 @@
-package models.payment.storecredit
+package phoenix.models.payment.storecredit
+
+import java.time.Instant
 
 import cats.data.Validated._
 import cats.data.ValidatedNel
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
-import failures.{Failure, Failures, GeneralFailure, StoreCreditFailures}
-import java.time.Instant
-import models.account._
-import models.cord.OrderPayment
-import models.payment.storecredit.StoreCredit._
-import models.payment.storecredit.{StoreCreditAdjustment ⇒ Adj, StoreCreditAdjustments ⇒ Adjs}
-import models.payment.{InStorePaymentStates, PaymentMethod}
+import failures.{Failure, Failures, GeneralFailure}
+import phoenix.failures.StoreCreditFailures
+import phoenix.models.account._
+import phoenix.models.cord.OrderPayment
+import phoenix.models.payment.storecredit.StoreCredit._
+import phoenix.models.payment.storecredit.{StoreCreditAdjustment ⇒ Adj, StoreCreditAdjustments ⇒ Adjs}
+import phoenix.models.payment.{InStorePaymentStates, PaymentMethod}
+import phoenix.utils.{ADT, FSM}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils.Money._
 import utils.Validation._
 import utils._
-import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
@@ -192,9 +194,7 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
       auth ← * <~ StoreCreditAdjustments
               .authorizedOrderPayment(orderPaymentId)
               .mustFindOneOr(StoreCreditFailures.StoreCreditAuthAdjustmentNotFound(orderPaymentId))
-      _ ← * <~ (
-             require(amount <= auth.debit)
-         )
+      _ ← * <~ require(amount <= auth.debit)
       cap ← * <~ StoreCreditAdjustments
              .update(auth, auth.copy(debit = amount, state = InStorePaymentStates.Capture))
     } yield cap

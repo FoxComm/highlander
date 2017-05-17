@@ -1,4 +1,4 @@
-package models.coupon
+package phoenix.models.coupon
 
 case class CouponUsageRules(isUnlimitedPerCode: Boolean = false,
                             usesPerCode: Option[Int] = None,

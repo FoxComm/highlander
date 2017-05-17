@@ -1,15 +1,15 @@
-package routes.admin
+package phoenix.routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import utils.http.JsonSupport._
-import models.account.User
-import payloads.StoreCreditPayloads._
-import services.StoreCreditService
-import services.Authenticator.AuthData
-import utils.aliases._
-import utils.http.CustomDirectives._
-import utils.http.Http._
+import phoenix.utils.http.JsonSupport._
+import phoenix.models.account.User
+import phoenix.payloads.StoreCreditPayloads._
+import phoenix.services.StoreCreditService
+import phoenix.services.Authenticator.AuthData
+import phoenix.utils.aliases._
+import phoenix.utils.http.CustomDirectives._
+import phoenix.utils.http.Http._
 
 object StoreCreditRoutes {
   private[admin] def storeCreditRoutes(implicit ec: EC,

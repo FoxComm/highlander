@@ -1,11 +1,10 @@
-package models.coupon
-
-import shapeless._
-import utils.Validation
-import utils.db._
-import utils.db.ExPostgresDriver.api._
+package phoenix.models.coupon
 
 import java.time.Instant
+
+import shapeless._
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 /**
   * This keeps track of how many times a particular coupon was used by a customer.

@@ -1,17 +1,15 @@
-package models.account
+package phoenix.models.account
 
 import java.time.Instant
 
-import models.account._
-
 import com.pellucid.sealerate
+import phoenix.models.account.UserPasswordReset.{Initial, State}
+import phoenix.utils.ADT
 import shapeless._
-import slick.jdbc.PostgresProfile.api._
-import utils.ADT
-import utils.db._
-import UserPasswordReset.{Initial, State}
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
+import slick.jdbc.PostgresProfile.api._
+import utils.db._
 import utils.generateUuid
 
 case class UserPasswordReset(id: Int = 0,

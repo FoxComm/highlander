@@ -1,12 +1,12 @@
-package responses
+package phoenix.responses
 
 import java.time.Instant
 
-import models.returns.Return.{ReturnType, Standard}
-import models.returns.ReturnReason
-import models.returns.ReturnReason.{BaseReason, ReasonType}
-import responses.CustomerResponse.{Root ⇒ Customer}
-import responses.StoreAdminResponse.{Root ⇒ User}
+import phoenix.models.returns.Return.{ReturnType, Standard}
+import phoenix.models.returns.ReturnReason
+import phoenix.models.returns.ReturnReason.{BaseReason, ReasonType}
+import phoenix.responses.CustomerResponse.{Root ⇒ Customer}
+import phoenix.responses.StoreAdminResponse.{Root ⇒ User}
 
 object ReturnReasonsResponse {
 

@@ -1,15 +1,15 @@
-package services
+package phoenix.services
 
 import failures.NotFoundFailure404
-import failures.SharedSearchFailures._
-import failures.Util.diffToFailures
+import phoenix.failures.SharedSearchFailures._
+import phoenix.failures.Util.diffToFailures
 import java.time.Instant
-import models.account._
-import models.sharedsearch._
-import payloads.SharedSearchPayloads._
-import responses.{TheResponse, UserResponse}
+import phoenix.models.account._
+import phoenix.models.sharedsearch._
+import phoenix.payloads.SharedSearchPayloads._
+import phoenix.responses.{TheResponse, UserResponse}
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db._
 
 object SharedSearchService {

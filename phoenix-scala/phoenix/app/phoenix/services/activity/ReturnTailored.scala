@@ -1,16 +1,16 @@
-package services.activity
+package phoenix.services.activity
 
-import models.Note
-import models.account.User
-import models.cord.OrderPayment
-import models.payment.PaymentMethod
-import models.payment.giftcard.GiftCard
-import models.payment.storecredit.StoreCredit
-import models.returns._
-import payloads.ReturnPayloads.{ReturnLineItemPayload, ReturnShippingCostLineItemPayload, ReturnSkuLineItemPayload}
-import responses.{GiftCardResponse, ReturnResponse}
-import responses.ReturnResponse.{Root ⇒ ReturnResponse}
-import responses.UserResponse.{Root ⇒ UserResponse}
+import phoenix.models.Note
+import phoenix.models.account.User
+import phoenix.models.cord.OrderPayment
+import phoenix.models.payment.PaymentMethod
+import phoenix.models.payment.giftcard.GiftCard
+import phoenix.models.payment.storecredit.StoreCredit
+import phoenix.models.returns._
+import phoenix.payloads.ReturnPayloads.{ReturnLineItemPayload, ReturnShippingCostLineItemPayload, ReturnSkuLineItemPayload}
+import phoenix.responses.{GiftCardResponse, ReturnResponse}
+import phoenix.responses.ReturnResponse.{Root ⇒ ReturnResponse}
+import phoenix.responses.UserResponse.{Root ⇒ UserResponse}
 
 object ReturnTailored {
 

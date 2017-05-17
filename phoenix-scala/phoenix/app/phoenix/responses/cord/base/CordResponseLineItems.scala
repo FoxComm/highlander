@@ -1,11 +1,10 @@
-package responses.cord.base
+package phoenix.responses.cord.base
 
-import models.cord.lineitems._
-import models.product.Mvp
-import responses.ResponseItem
-import services.LineItemManager
+import phoenix.models.cord.lineitems._
+import phoenix.models.product.Mvp
+import phoenix.responses.ResponseItem
+import phoenix.services.LineItemManager
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
 import utils.db._
 
 case class CordResponseLineItem(imagePath: String,

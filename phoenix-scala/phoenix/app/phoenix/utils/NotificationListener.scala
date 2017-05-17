@@ -1,15 +1,14 @@
-package utils
+package phoenix.utils
 
-import com.github.mauricio.async.db.Configuration
-import com.github.mauricio.async.db.postgresql.PostgreSQLConnection
-import models.Notification._
-import org.postgresql.Driver
-import utils.aliases._
 import akka.actor._
 import akka.stream.actor.ActorPublisherMessage.Cancel
-
+import com.github.mauricio.async.db.Configuration
+import com.github.mauricio.async.db.postgresql.PostgreSQLConnection
 import com.typesafe.scalalogging.LazyLogging
 import de.heikoseeberger.akkasse.{ServerSentEvent ⇒ SSE}
+import org.postgresql.Driver
+import phoenix.models.Notification._
+import phoenix.utils.aliases._
 
 object NotificationListener {
 

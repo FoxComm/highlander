@@ -1,17 +1,18 @@
-package services.assignments
+package phoenix.services.assignments
 
-import models.{Assignment, NotificationSubscription}
-import models.inventory.{Sku, Skus}
-import responses.SkuResponses.SkuHeadResponse.{Root, build}
+import phoenix.models.activity.Dimension
+import phoenix.models.{Assignment, NotificationSubscription}
+import phoenix.models.inventory.{Sku, Skus}
+import phoenix.responses.SkuResponses.SkuHeadResponse.{Root, build}
 import slick.jdbc.PostgresProfile.api._
 import utils.db._
-import utils.aliases._
+import phoenix.utils.aliases._
 
 object SkuWatchersManager extends AssignmentsManager[String, Sku] {
 
   val assignmentType  = Assignment.Watcher
   val referenceType   = Assignment.Sku
-  val notifyDimension = models.activity.Dimension.sku
+  val notifyDimension = Dimension.sku
   val notifyReason    = NotificationSubscription.Watching
 
   def buildResponse(model: Sku): Root = build(model)

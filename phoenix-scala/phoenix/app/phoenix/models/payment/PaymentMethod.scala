@@ -1,9 +1,9 @@
-package models.payment
+package phoenix.models.payment
 
 import com.pellucid.sealerate
+import phoenix.utils.ADT
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.ADT
 
 abstract class PaymentMethod {}
 

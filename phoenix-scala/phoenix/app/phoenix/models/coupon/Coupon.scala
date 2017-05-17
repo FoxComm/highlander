@@ -1,4 +1,4 @@
-package models.coupon
+package phoenix.models.coupon
 
 import java.time.Instant
 
@@ -8,7 +8,6 @@ import slick.lifted.Tag
 import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-
 import com.github.tminglei.slickpg._
 
 object Coupon {

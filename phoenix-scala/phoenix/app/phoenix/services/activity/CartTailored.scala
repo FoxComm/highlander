@@ -1,12 +1,12 @@
-package services.activity
+package phoenix.services.activity
 
-import models.Note
-import models.cord.Cart
-import models.coupon.CouponCode
-import models.payment.PaymentMethod
-import models.shipping.ShippingMethod
-import responses.cord.CartResponse
-import responses.{AddressResponse, CreditCardsResponse, GiftCardResponse, UserResponse}
+import phoenix.models.Note
+import phoenix.models.cord.Cart
+import phoenix.models.coupon.CouponCode
+import phoenix.models.payment.PaymentMethod
+import phoenix.models.shipping.ShippingMethod
+import phoenix.responses.cord.CartResponse
+import phoenix.responses.{AddressResponse, CreditCardsResponse, GiftCardResponse, UserResponse}
 
 object CartTailored {
 

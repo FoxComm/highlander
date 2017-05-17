@@ -1,37 +1,39 @@
-package services.carts
+package phoenix.services.carts
 
 import cats._
 import cats.implicits._
-import failures.CouponFailures._
-import failures.DiscountCompilerFailures._
 import failures.Failures
-import failures.OrderFailures._
-import failures.PromotionFailures._
-import failures.UserFailures.UserWithAccountNotFound
-import models.account.{User, Users}
-import models.cord.OrderPromotions.scope._
-import models.cord._
-import models.cord.lineitems._
-import models.coupon._
-import models.discount.DiscountHelpers._
-import models.discount._
-import models.discount.offers._
-import models.discount.qualifiers._
 import models.objects._
-import models.promotion.Promotions.scope._
-import models.promotion._
-import models.shipping
 import org.json4s.JsonAST._
-import responses.TheResponse
-import responses.cord.CartResponse
-import services.customerGroups.GroupMemberManager
-import services.discount.compilers._
-import services.{CartValidator, LineItemManager, LogActivity}
+import phoenix.failures.CouponFailures._
+import phoenix.failures.DiscountCompilerFailures._
+import phoenix.failures.OrderFailures._
+import phoenix.failures.PromotionFailures._
+import phoenix.failures.UserFailures.UserWithAccountNotFound
+import phoenix.models.account.{User, Users}
+import phoenix.models.cord.OrderPromotions.scope._
+import phoenix.models.cord._
+import phoenix.models.cord.lineitems._
+import phoenix.models.coupon._
+import phoenix.models.discount.DiscountHelpers._
+import phoenix.models.discount._
+import phoenix.models.discount.offers._
+import phoenix.models.discount.qualifiers._
+import phoenix.models.promotion.Promotions.scope._
+import phoenix.models.promotion._
+import phoenix.models.shipping
+import phoenix.responses.TheResponse
+import phoenix.responses.cord.CartResponse
+import phoenix.services.customerGroups.GroupMemberManager
+import phoenix.services.discount.compilers._
+import phoenix.services.{CartValidator, LineItemManager, LogActivity}
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import slick.jdbc.PostgresProfile.api._
-import utils.JsonFormatters
-import utils.aliases._
-import utils.apis.Apis
 import utils.db._
+import models.objects._
+import phoenix.models.objects.PromotionDiscountLinks
 
 object CartPromotionUpdater {
 

@@ -1,11 +1,11 @@
-package services.activity
+package phoenix.services.activity
 
 import java.time.Instant
 
-import models.Note
-import models.cord.Order
-import responses.UserResponse
-import responses.cord.OrderResponse
+import phoenix.models.Note
+import phoenix.models.cord.Order
+import phoenix.responses.UserResponse
+import phoenix.responses.cord.OrderResponse
 import utils.Money.Currency
 
 object OrderTailored {

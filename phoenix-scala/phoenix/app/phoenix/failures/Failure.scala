@@ -1,7 +1,7 @@
-package failures
+package phoenix.failures
 
-import failures.Util._
-import models.cord.Order
+import failures.Failure
+import phoenix.models.cord.Order
 import utils.friendlyClassName
 
 case class ElasticsearchFailure(message: String) extends Failure {

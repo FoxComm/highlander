@@ -1,17 +1,17 @@
-package responses.cord
+package phoenix.responses.cord
 
 import cats.implicits._
-import models.account.{User, _}
-import models.cord._
-import models.cord.lineitems.CartLineItems
-import models.cord.OrderPayments.scope._
-import models.customer.{CustomerData, CustomersData}
-import responses.PromotionResponses.PromotionResponse
-import responses._
-import responses.cord.base._
-import services.carts.CartQueries
+import phoenix.models.account.{User, _}
+import phoenix.models.cord.OrderPayments.scope._
+import phoenix.models.cord._
+import phoenix.models.cord.lineitems.CartLineItems
+import phoenix.models.customer.{CustomerData, CustomersData}
+import phoenix.responses.PromotionResponses.PromotionResponse
+import phoenix.responses._
+import phoenix.responses.cord.base._
+import phoenix.services.carts.CartQueries
+import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
 import utils.db._
 
 case class CartResponse(referenceNumber: String,

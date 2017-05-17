@@ -1,16 +1,16 @@
-package models.payment.creditcard
+package phoenix.models.payment.creditcard
 
 import com.pellucid.sealerate
 import failures.Failures
 import java.time.Instant
-import models.cord.{OrderPayment, OrderPayments}
+import phoenix.models.cord.{OrderPayment, OrderPayments}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.JdbcType
 import utils.Money.Currency
-import utils._
-import utils.aliases.stripe._
+import phoenix.utils._
+import phoenix.utils.aliases.stripe._
 import utils.db._
 
 case class CreditCardCharge(id: Int = 0,

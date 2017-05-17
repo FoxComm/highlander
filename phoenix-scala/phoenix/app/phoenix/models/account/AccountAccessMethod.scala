@@ -1,14 +1,15 @@
-package models.account
+package phoenix.models.account
+
+import java.time.Instant
 
 import com.typesafe.scalalogging.LazyLogging
-import java.time.Instant
+import phoenix.utils.FoxConfig.config
+import phoenix.utils.HashPasswords
+import phoenix.utils.HashPasswords.HashAlgorithm
 import shapeless._
 import slick.ast.BaseTypedType
-import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.JdbcType
-import utils.FoxConfig.config
-import utils.HashPasswords
-import utils.HashPasswords.HashAlgorithm
+import slick.jdbc.PostgresProfile.api._
 import utils.db._
 
 case class AccountAccessMethod(id: Int = 0,

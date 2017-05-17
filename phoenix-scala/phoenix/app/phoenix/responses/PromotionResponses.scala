@@ -1,13 +1,13 @@
-package responses
+package phoenix.responses
 
 import java.time.Instant
 
-import models.discount._
 import models.objects._
-import models.promotion._
-import responses.DiscountResponses._
+import phoenix.models.discount._
+import phoenix.models.promotion._
+import phoenix.responses.DiscountResponses._
+import phoenix.utils.aliases._
 import responses.ObjectResponses.ObjectContextResponse
-import utils.aliases._
 
 object PromotionResponses {
 

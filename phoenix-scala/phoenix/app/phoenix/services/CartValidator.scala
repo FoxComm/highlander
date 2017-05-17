@@ -1,22 +1,16 @@
-package services
+package phoenix.services
 
-import java.time.Instant
-
-import cats._
 import cats.implicits._
-import failures.CartFailures._
 import failures.{Failure, Failures}
-import failures.ArchiveFailures.LinkInactiveSkuFailure
-import models.cord._
-import models.traits.IlluminatedModel
-import models.cord.lineitems.CartLineItems
-import models.inventory.{IlluminatedSku, Sku, Skus}
-import models.payment.giftcard.{GiftCardAdjustments, GiftCards}
-import models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
+import phoenix.failures.CartFailures._
+import phoenix.models.cord._
+import phoenix.models.cord.lineitems.CartLineItems
+import phoenix.models.inventory.{IlluminatedSku, Skus}
+import phoenix.models.payment.giftcard.{GiftCardAdjustments, GiftCards}
+import phoenix.models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
+import phoenix.utils.aliases._
 import services.objects.ObjectManager
-import utils.IlluminateAlgorithm
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
 import utils.db._
 
 trait CartValidation {

@@ -1,4 +1,4 @@
-package models.promotion
+package phoenix.models.promotion
 
 import java.time.Instant
 
@@ -7,11 +7,11 @@ import models.objects._
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
+import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{ADT, Validation}
 import com.github.tminglei.slickpg._
-import models.shipping.ShippingMethod
+import phoenix.utils.ADT
 
 object Promotion {
   val kind = "promotion"

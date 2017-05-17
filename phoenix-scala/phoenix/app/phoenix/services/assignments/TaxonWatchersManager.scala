@@ -1,16 +1,17 @@
-package services.assignments
+package phoenix.services.assignments
 
-import models.taxonomy._
-import models.{Assignment, NotificationSubscription}
-import responses.TaxonResponses.TaxonResponse._
+import phoenix.models.activity.Dimension
+import phoenix.models.taxonomy._
+import phoenix.models.{Assignment, NotificationSubscription}
+import phoenix.responses.TaxonResponses.TaxonResponse._
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db._
 
 object TaxonWatchersManager extends AssignmentsManager[Int, Taxon] {
   val assignmentType  = Assignment.Watcher
   val referenceType   = Assignment.Taxon
-  val notifyDimension = models.activity.Dimension.taxon
+  val notifyDimension = Dimension.taxon
   val notifyReason    = NotificationSubscription.Watching
 
   def buildResponse(model: Taxon): Root = build(model)

@@ -1,10 +1,11 @@
-package models.traits
+package phoenix.models.traits
+
+import java.time.Instant
 
 import cats.implicits._
 import failures.{Failure, Failures}
-import java.time.Instant
-import utils.JsonFormatters
-import utils.aliases.Json
+import org.json4s.JsonAST.JValue
+import phoenix.utils.JsonFormatters
 
 trait IlluminatedModel[T] {
 
@@ -12,7 +13,7 @@ trait IlluminatedModel[T] {
 
   def archivedAt: Option[Instant]
 
-  def attributes: Json
+  def attributes: JValue
 
   def inactiveError: Failure
 

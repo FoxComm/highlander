@@ -1,17 +1,18 @@
-package services.assignments
+package phoenix.services.assignments
 
-import models.{Assignment, NotificationSubscription}
-import models.payment.giftcard._
-import responses.GiftCardResponse.{Root, build}
+import phoenix.models.activity.Dimension
+import phoenix.models.{Assignment, NotificationSubscription}
+import phoenix.models.payment.giftcard._
+import phoenix.responses.GiftCardResponse.{Root, build}
 import slick.jdbc.PostgresProfile.api._
 import utils.db._
-import utils.aliases._
+import phoenix.utils.aliases._
 
 object GiftCardAssignmentsManager extends AssignmentsManager[String, GiftCard] {
 
   val assignmentType  = Assignment.Assignee
   val referenceType   = Assignment.GiftCard
-  val notifyDimension = models.activity.Dimension.giftCard
+  val notifyDimension = Dimension.giftCard
   val notifyReason    = NotificationSubscription.Assigned
 
   def buildResponse(model: GiftCard): Root = build(model)

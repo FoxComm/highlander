@@ -1,6 +1,7 @@
-package failures
+package phoenix.failures
 
-import models.payment.giftcard.GiftCard
+import failures.Failure
+import phoenix.models.payment.giftcard.GiftCard
 
 object GiftCardFailures {
 

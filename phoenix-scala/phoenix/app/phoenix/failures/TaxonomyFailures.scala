@@ -1,7 +1,9 @@
-package failures
+package phoenix.failures
 
+import failures.Failure
 import models.objects.ObjectForm
-import models.taxonomy._
+import phoenix.models.product.Product
+import phoenix.models.taxonomy._
 
 object TaxonomyFailures {
 
@@ -41,8 +43,7 @@ object TaxonomyFailures {
     override def description: String = "cannot move parent taxon under itself or one of its child"
   }
 
-  case class CannotUnassignProduct(taxonId: Taxon#Id, productId: models.product.Product#Id)
-      extends Failure {
+  case class CannotUnassignProduct(taxonId: Taxon#Id, productId: Product#Id) extends Failure {
     override def description: String =
       s"Cannot delete taxon-product link. TaxonId:$taxonId, productId: $productId"
   }

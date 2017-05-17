@@ -1,12 +1,12 @@
-package responses
+package phoenix.responses
 
 import java.time.Instant
 
 import cats.implicits._
-import models.discount._
 import models.objects._
+import phoenix.models.discount._
+import phoenix.utils.aliases._
 import responses.ObjectResponses.ObjectContextResponse
-import utils.aliases._
 
 object DiscountResponses {
 

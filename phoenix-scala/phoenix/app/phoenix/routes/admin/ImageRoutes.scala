@@ -1,4 +1,4 @@
-package routes.admin
+package phoenix.routes.admin
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
@@ -6,18 +6,18 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.unmarshalling.Unmarshaller
 
-import facades.ImageFacade
-import facades.ImageHelpers
-import failures.ImageFailures.ImageNotFoundInPayload
-import models.account.User
-import payloads.ImagePayloads._
-import services.image.ImageManager
-import services.Authenticator.AuthData
-import utils.aliases._
-import utils.apis.Apis
-import utils.http.CustomDirectives._
-import utils.http.Http._
-import utils.http.JsonSupport._
+import phoenix.facades.ImageFacade
+import phoenix.facades.ImageHelpers
+import phoenix.failures.ImageFailures.ImageNotFoundInPayload
+import phoenix.models.account.User
+import phoenix.payloads.ImagePayloads._
+import phoenix.services.image.ImageManager
+import phoenix.services.Authenticator.AuthData
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
+import phoenix.utils.http.CustomDirectives._
+import phoenix.utils.http.Http._
+import phoenix.utils.http.JsonSupport._
 import akka.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers._
 
 object ImageRoutes {

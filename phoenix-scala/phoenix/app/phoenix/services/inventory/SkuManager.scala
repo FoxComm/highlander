@@ -1,29 +1,28 @@
-package services.inventory
+package phoenix.services.inventory
 
-import cats.instances.all._
-import cats.syntax.all._
-import failures.ProductFailures._
-import failures.{Failures, GeneralFailure, NotFoundFailure400}
 import java.time.Instant
-import models.account._
-import models.inventory._
+
+import cats.syntax.all._
+import failures.{Failures, GeneralFailure}
 import models.objects._
-import models.product.{ProductId, Products}
-import payloads.ImagePayloads.AlbumPayload
-import payloads.SkuPayloads._
-import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
-import responses.AlbumResponses._
+import phoenix.failures.ProductFailures._
+import phoenix.models.account._
+import phoenix.models.inventory._
+import phoenix.payloads.ImagePayloads.AlbumPayload
+import phoenix.payloads.SkuPayloads._
+import phoenix.responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
+import phoenix.responses.AlbumResponses._
+import phoenix.responses.SkuResponses._
+import phoenix.services.LogActivity
+import phoenix.services.image.ImageManager
+import phoenix.services.image.ImageManager.FullAlbumWithImages
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
 import responses.ObjectResponses.ObjectContextResponse
-import responses.SkuResponses._
-import services.LogActivity
-import services.image.ImageManager
-import services.image.ImageManager.FullAlbumWithImages
 import services.objects.ObjectManager
-import services.product.ProductManager
 import slick.jdbc.PostgresProfile.api._
-import utils.JsonFormatters
-import utils.aliases._
 import utils.db._
+import phoenix.models.objects._
 
 object SkuManager {
   implicit val formats = JsonFormatters.DefaultFormats

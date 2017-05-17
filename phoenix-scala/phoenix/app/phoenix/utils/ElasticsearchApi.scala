@@ -1,7 +1,5 @@
-package utils
+package phoenix.utils
 
-import scala.collection.JavaConverters._
-import scala.concurrent.Future
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri, IndexAndType, RichSearchResponse}
 import com.typesafe.scalalogging.LazyLogging
@@ -10,9 +8,12 @@ import org.elasticsearch.search.aggregations.bucket.filter.InternalFilter
 import org.elasticsearch.search.aggregations.bucket.terms.{StringTerms, Terms}
 import org.json4s.JsonAST.{JArray, JObject, JString}
 import org.json4s.jackson.JsonMethods.{compact, parse, render}
-import utils.ElasticsearchApi._
-import utils.FoxConfig.ESConfig
-import utils.aliases._
+import phoenix.utils.ElasticsearchApi._
+import phoenix.utils.FoxConfig.ESConfig
+import phoenix.utils.aliases._
+
+import scala.collection.JavaConverters._
+import scala.concurrent.Future
 
 case class ElasticsearchApi(config: ESConfig)(implicit ec: EC) extends LazyLogging {
 

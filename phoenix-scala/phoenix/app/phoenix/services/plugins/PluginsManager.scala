@@ -1,17 +1,17 @@
-package services.plugins
+package phoenix.services.plugins
 
 import scala.concurrent.Future
 
 import dispatch.{Http, as, host, url ⇒ request}
 import failures.{GeneralFailure, NotFoundFailure404}
-import models.plugins._
-import models.plugins.PluginSettings.{SettingsSchema, SettingsValues}
-import models.plugins.PluginSettings.SettingsValues._
+import phoenix.models.plugins._
+import phoenix.models.plugins.PluginSettings.{SettingsSchema, SettingsValues}
+import phoenix.models.plugins.PluginSettings.SettingsValues._
 import org.json4s.jackson.JsonMethods._
-import payloads.PluginPayloads._
-import responses.plugins.PluginCommonResponses._
+import phoenix.payloads.PluginPayloads._
+import phoenix.responses.plugins.PluginCommonResponses._
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db._
 import org.json4s.Formats
 import com.typesafe.scalalogging.LazyLogging

@@ -1,15 +1,15 @@
-package routes.admin
+package phoenix.routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import utils.http.JsonSupport._
-import models.account.User
-import payloads.PluginPayloads._
-import services.plugins.PluginsManager._
-import services.Authenticator.AuthData
-import utils.aliases._
-import utils.http.CustomDirectives._
-import utils.http.Http._
+import phoenix.utils.http.JsonSupport._
+import phoenix.models.account.User
+import phoenix.payloads.PluginPayloads._
+import phoenix.services.plugins.PluginsManager._
+import phoenix.services.Authenticator.AuthData
+import phoenix.utils.aliases._
+import phoenix.utils.http.CustomDirectives._
+import phoenix.utils.http.Http._
 
 object PluginRoutes {
 

@@ -1,19 +1,20 @@
-package services.assignments
+package phoenix.services.assignments
 
 import failures.NotFoundFailure404
 import models.objects.{ObjectForm, ObjectForms}
-import models.promotion.Promotion
-import models.{Assignment, NotificationSubscription}
-import responses.PromotionResponses.PromotionFormResponse._
+import phoenix.models.activity.Dimension
+import phoenix.models.promotion.Promotion
+import phoenix.models.{Assignment, NotificationSubscription}
+import phoenix.responses.PromotionResponses.PromotionFormResponse._
+import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 import utils.db._
-import utils.aliases._
 
 object PromotionAssignmentsManager extends AssignmentsManager[Int, ObjectForm] {
 
   val assignmentType  = Assignment.Assignee
   val referenceType   = Assignment.Promotion
-  val notifyDimension = models.activity.Dimension.promotion
+  val notifyDimension = Dimension.promotion
   val notifyReason    = NotificationSubscription.Assigned
 
   def buildResponse(model: ObjectForm): Root = build(model)

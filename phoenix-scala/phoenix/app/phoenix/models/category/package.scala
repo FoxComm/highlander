@@ -1,4 +1,4 @@
-package models
+package phoenix.models
 
 import models.objects.{ObjectContext, ObjectForm, ObjectShadow}
 

@@ -1,23 +1,23 @@
-package services
+package phoenix.services
 
 import de.heikoseeberger.akkasse.{ServerSentEvent ⇒ SSE}
 import failures._
-import models.{Notification, Notifications}
-import models.{LastSeenNotification, LastSeenNotifications}
-import models.Notification._
-import models.activity._
-import models.account._
-import models.{NotificationSubscription ⇒ Sub, NotificationSubscriptions ⇒ Subs}
+import phoenix.models.{Notification, Notifications}
+import phoenix.models.{LastSeenNotification, LastSeenNotifications}
+import phoenix.models.Notification._
+import phoenix.models.activity._
+import phoenix.models.account._
+import phoenix.models.{NotificationSubscription ⇒ Sub, NotificationSubscriptions ⇒ Subs}
 import org.json4s.Extraction.decompose
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization.write
 import org.postgresql.core.{Utils ⇒ PgjdbcUtils}
-import payloads.ActivityTrailPayloads.AppendActivity
-import payloads.CreateNotification
-import responses.{ActivityResponse, LastSeenNotificationResponse, NotificationResponse, TheResponse}
+import phoenix.payloads.ActivityTrailPayloads.AppendActivity
+import phoenix.payloads.CreateNotification
+import phoenix.responses.{ActivityResponse, LastSeenNotificationResponse, NotificationResponse, TheResponse}
 import slick.jdbc.PostgresProfile.api._
-import utils.JsonFormatters
-import utils.aliases._
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
 import utils.db._
 
 object NotificationManager {

@@ -1,14 +1,14 @@
-package utils.seeds
+package phoenix.utils.seeds
+
+import org.json4s.jackson.JsonMethods._
+import phoenix.models.account._
+import phoenix.models.admin._
+import phoenix.models.sharedsearch.{SharedSearch, SharedSearchAssociation, SharedSearchAssociations, SharedSearches}
+import phoenix.utils.aliases.AU
+import slick.jdbc.PostgresProfile.api._
+import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
-import models.account._
-import models.admin._
-import models.sharedsearch.{SharedSearch, SharedSearchAssociation, SharedSearchAssociations, SharedSearches}
-import org.json4s.jackson.JsonMethods._
-import utils.db._
-import slick.jdbc.PostgresProfile.api._
-import utils.aliases.AU
 
 trait SharedSearchSeeds {
 

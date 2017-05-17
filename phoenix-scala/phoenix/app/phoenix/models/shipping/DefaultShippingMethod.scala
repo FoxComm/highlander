@@ -1,8 +1,7 @@
-package models.shipping
+package phoenix.models.shipping
 
 import com.github.tminglei.slickpg.LTree
 import shapeless._
-import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

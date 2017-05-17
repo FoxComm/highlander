@@ -1,4 +1,4 @@
-package utils.db
+package phoenix.utils.db
 
 import javax.sql.DataSource
 

@@ -1,13 +1,14 @@
-package models.returns
+package phoenix.models.returns
+
+import java.time.Instant
 
 import com.pellucid.sealerate
-import java.time.Instant
-import models.returns.ReturnLineItem._
+import phoenix.models.returns.ReturnLineItem._
+import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
-import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.JdbcType
-import utils.ADT
+import slick.jdbc.PostgresProfile.api._
 import utils.db._
 
 case class ReturnLineItem(id: Int = 0,

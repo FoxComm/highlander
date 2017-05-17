@@ -1,6 +1,6 @@
-package models.payment.giftcard
+package phoenix.models.payment.giftcard
 
-import models.payment.giftcard.GiftCard.OriginType
+import phoenix.models.payment.giftcard.GiftCard.OriginType
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import utils.db._

@@ -1,17 +1,18 @@
-package services.assignments
+package phoenix.services.assignments
 
-import models.{Assignment, NotificationSubscription}
-import models.account._
-import responses.UserResponse.{Root, build}
+import phoenix.models.{Assignment, NotificationSubscription}
+import phoenix.models.account._
+import phoenix.models.activity.Dimension
+import phoenix.responses.UserResponse.{Root, build}
 import slick.jdbc.PostgresProfile.api._
 import utils.db._
-import utils.aliases._
+import phoenix.utils.aliases._
 
 object CustomerAssignmentsManager extends AssignmentsManager[Int, User] {
 
   val assignmentType  = Assignment.Assignee
   val referenceType   = Assignment.Customer
-  val notifyDimension = models.activity.Dimension.customer
+  val notifyDimension = Dimension.customer
   val notifyReason    = NotificationSubscription.Assigned
 
   def buildResponse(model: User): Root = build(model)

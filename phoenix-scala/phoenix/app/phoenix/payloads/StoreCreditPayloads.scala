@@ -1,9 +1,9 @@
-package payloads
+package phoenix.payloads
 
 import cats.data._
 import cats.implicits._
 import failures.Failure
-import models.payment.storecredit.StoreCredit
+import phoenix.models.payment.storecredit.StoreCredit
 import utils.Validation
 import utils.Validation._
 

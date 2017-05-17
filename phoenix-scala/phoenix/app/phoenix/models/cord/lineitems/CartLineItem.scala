@@ -1,13 +1,13 @@
-package models.cord.lineitems
+package phoenix.models.cord.lineitems
 
 import cats.implicits._
-import models.inventory.{Sku, Skus}
 import models.objects._
 import org.json4s.Extraction.decompose
 import org.json4s.Formats
+import phoenix.models.inventory.{Sku, Skus}
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
 import shapeless._
-import utils.JsonFormatters
-import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

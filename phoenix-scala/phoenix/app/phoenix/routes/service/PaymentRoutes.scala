@@ -1,16 +1,16 @@
-package routes.service
+package phoenix.routes.service
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import models.account.User
-import payloads.CapturePayloads
-import services.Authenticator.AuthData
-import services.Capture
-import utils.aliases._
-import utils.apis.Apis
-import utils.http.CustomDirectives._
-import utils.http.Http._
-import utils.http.JsonSupport._
+import phoenix.models.account.User
+import phoenix.payloads.CapturePayloads
+import phoenix.services.Authenticator.AuthData
+import phoenix.services.Capture
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
+import phoenix.utils.http.CustomDirectives._
+import phoenix.utils.http.Http._
+import phoenix.utils.http.JsonSupport._
 
 object PaymentRoutes {
 

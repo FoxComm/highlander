@@ -1,16 +1,16 @@
-package routes.service
+package phoenix.routes.service
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.account.User
-import payloads.CustomerGroupPayloads.CustomerGroupMemberServiceSyncPayload
-import services.Authenticator.AuthData
-import services.customerGroups.{GroupManager, GroupMemberManager}
-import utils.aliases._
-import utils.apis.Apis
-import utils.http.CustomDirectives.{activityContext, _}
-import utils.http.Http._
+import phoenix.models.account.User
+import phoenix.payloads.CustomerGroupPayloads.CustomerGroupMemberServiceSyncPayload
+import phoenix.services.Authenticator.AuthData
+import phoenix.services.customerGroups.{GroupManager, GroupMemberManager}
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
+import phoenix.utils.http.CustomDirectives.{activityContext, _}
+import phoenix.utils.http.Http._
 
 object CustomerGroupRoutes {
 

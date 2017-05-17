@@ -1,6 +1,7 @@
-package failures
+package phoenix.failures
 
-import models.image.{Album, Image}
+import failures.{Failure, NotFoundFailure404}
+import phoenix.models.image.{Album, Image}
 
 object ImageFailures {
 

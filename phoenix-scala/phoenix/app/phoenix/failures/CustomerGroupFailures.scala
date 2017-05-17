@@ -1,6 +1,7 @@
-package failures
+package phoenix.failures
 
-import models.customer.CustomerGroup.GroupType
+import failures.Failure
+import phoenix.models.customer.CustomerGroup.GroupType
 
 object CustomerGroupFailures {
 

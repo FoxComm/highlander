@@ -1,15 +1,15 @@
-package models.returns
+package phoenix.models.returns
 
-import com.pellucid.sealerate
 import java.time.Instant
 
-import models.returns.Return._
-import models.returns.ReturnReason._
+import com.pellucid.sealerate
+import phoenix.models.returns.Return._
+import phoenix.models.returns.ReturnReason._
+import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
-import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.JdbcType
-import utils.ADT
+import slick.jdbc.PostgresProfile.api._
 import utils.db._
 
 case class ReturnReason(id: Int = 0,

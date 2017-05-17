@@ -1,4 +1,4 @@
-package models
+package phoenix.models
 
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType

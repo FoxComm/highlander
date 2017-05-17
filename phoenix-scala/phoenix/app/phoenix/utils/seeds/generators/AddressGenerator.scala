@@ -1,10 +1,10 @@
-package utils.seeds.generators
+package phoenix.utils.seeds.generators
 
 import scala.util.Random
 
 import faker._
-import models.location.Address;
-import models.account._;
+import phoenix.models.location.Address;
+import phoenix.models.account._;
 
 trait AddressGenerator {
 

@@ -1,14 +1,14 @@
-package services
+package phoenix.services
 
 import cats.implicits._
-import failures.{AlreadySavedForLater, Failures, NotFoundFailure404}
-import models.account.{User, Users}
+import failures.NotFoundFailure404
 import models.objects.ObjectContext
-import models.{SaveForLater, SaveForLaters}
-import responses.{SaveForLaterResponse, TheResponse}
-import services.inventory.SkuManager
+import phoenix.failures.AlreadySavedForLater
+import phoenix.models.account.{User, Users}
+import phoenix.models.{SaveForLater, SaveForLaters}
+import phoenix.responses.SaveForLaterResponse
+import phoenix.services.inventory.SkuManager
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
 import utils.db._
 
 object SaveForLaterManager {

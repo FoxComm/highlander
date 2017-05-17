@@ -1,10 +1,7 @@
-package models.customer
-
-import scala.concurrent.Future
+package phoenix.models.customer
 
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
 import utils.db._
 
 case class CustomerRank(id: Int = 0, revenue: Int = 0, rank: Option[Int] = Some(0))

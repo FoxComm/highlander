@@ -1,11 +1,11 @@
-package models.image
+package phoenix.models.image
 
 import java.time.Instant
-import models.objects.ObjectHeadLinks._
-import models.objects.{OrderedObjectHeadLinkQueries, OrderedObjectHeadLinks, OrderedObjectHeadLink}
+
+import models.objects.{OrderedObjectHeadLink, OrderedObjectHeadLinkQueries, OrderedObjectHeadLinks}
 import shapeless._
-import utils.db._
 import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 case class AlbumImageLink(id: Int = 0,
                           leftId: Int,

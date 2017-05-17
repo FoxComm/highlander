@@ -1,13 +1,11 @@
-package utils.seeds
+package phoenix.utils.seeds
 
 import com.github.tminglei.slickpg.LTree
-import models.Note
-import models.account.Scope
-import models.cord.Order._
-import models.cord._
-import utils.aliases._
-
-import com.github.tminglei.slickpg.LTree
+import phoenix.models.Note
+import phoenix.models.account.Scope
+import phoenix.models.cord.Order._
+import phoenix.models.cord._
+import phoenix.utils.aliases._
 
 trait OrderSeeds {
 

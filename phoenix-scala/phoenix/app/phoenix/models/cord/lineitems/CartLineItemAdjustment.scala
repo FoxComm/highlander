@@ -1,12 +1,12 @@
-package models.cord.lineitems
+package phoenix.models.cord.lineitems
 
 import java.time.Instant
 
 import com.pellucid.sealerate
+import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.ADT
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

@@ -1,13 +1,13 @@
-package models.objects
+package phoenix.models.objects
 
 import java.time.Instant
 
-import models.image.{Album, Albums}
-import models.inventory._
-import models.objects.ObjectHeadLinks._
+import models.objects._
+import phoenix.models.image.{Album, Albums}
+import phoenix.models.inventory._
 import shapeless._
-import utils.db._
 import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 case class SkuAlbumLink(id: Int = 0,
                         leftId: Int,

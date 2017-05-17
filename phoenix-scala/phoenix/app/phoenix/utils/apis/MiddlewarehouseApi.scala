@@ -1,16 +1,16 @@
-package utils.apis
+package phoenix.utils.apis
 
 import cats.implicits._
 import com.ning.http.client
 import com.typesafe.scalalogging.LazyLogging
 import dispatch._
-import failures.MiddlewarehouseFailures.{MiddlewarehouseError, SkusOutOfStockFailure}
-import failures.{Failures, MiddlewarehouseFailures}
+import failures.Failures
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import payloads.AuthPayload
-import utils.JsonFormatters
-import utils.aliases._
+import phoenix.failures.MiddlewarehouseFailures._
+import phoenix.payloads.AuthPayload
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
 import utils.db._
 
 case class SkuInventoryHold(sku: String, qty: Int)
@@ -44,7 +44,7 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
         Some(SkusOutOfStockFailure(errors.map(_.sku)).single)
       case _ ⇒
         logger.warn("No errors in failed Middlewarehouse response!")
-        Some(MiddlewarehouseFailures.UnableToHoldLineItems.single)
+        Some(UnableToHoldLineItems.single)
     }
   }
 
@@ -77,7 +77,7 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
       case Right(MwhResponse(_, message))                     ⇒ Either.left(parseMwhErrors(message))
       case Left(error) ⇒ {
         logger.error(error.getMessage)
-        Either.left(MiddlewarehouseFailures.UnableToHoldLineItems.single)
+        Either.left(UnableToHoldLineItems.single)
       }
     }
     Result.fromFEither(f)
@@ -92,7 +92,7 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     logger.info(s"middlewarehouse cancel hold: ${orderRefNum}")
     val f = Http(req.DELETE OK as.String).either.map {
       case Right(_)    ⇒ Either.right(())
-      case Left(error) ⇒ Either.left(MiddlewarehouseFailures.UnableToCancelHoldLineItems.single)
+      case Left(error) ⇒ Either.left(UnableToCancelHoldLineItems.single)
     }
     Result.fromFEither(f)
   }

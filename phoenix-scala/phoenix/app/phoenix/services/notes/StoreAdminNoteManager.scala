@@ -1,9 +1,9 @@
-package services.notes
+package phoenix.services.notes
 
 import failures.NotFoundFailure404
-import models.Note
-import models.account._
-import utils.aliases._
+import phoenix.models.Note
+import phoenix.models.account._
+import phoenix.utils.aliases._
 import utils.db._
 import slick.jdbc.PostgresProfile.api._
 

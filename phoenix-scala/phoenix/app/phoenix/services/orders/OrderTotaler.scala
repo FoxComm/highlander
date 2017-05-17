@@ -1,9 +1,9 @@
-package services.orders
+package phoenix.services.orders
 
-import models.cord.lineitems._
-import models.cord.{Order, OrderShippingMethods, Orders, Cart}
+import phoenix.models.cord.lineitems._
+import phoenix.models.cord.{Order, OrderShippingMethods, Orders, Cart}
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db._
 
 // TODO: Use utils.Money

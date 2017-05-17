@@ -1,11 +1,10 @@
-package responses.plugins
+package phoenix.responses.plugins
 
-import models.plugins.Plugin
 import java.time.Instant
 
-import models.plugins.PluginSettings.{SettingsSchema, SettingsValues}
+import phoenix.models.plugins.Plugin
+import phoenix.models.plugins.PluginSettings.{SettingsSchema, SettingsValues}
 import utils.db
-import utils.aliases._
 
 object PluginCommonResponses {
 

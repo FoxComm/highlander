@@ -1,35 +1,36 @@
-package facades
+package phoenix.facades
 
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 import java.nio.file.{Files, Path}
 import java.time.ZonedDateTime
 
-import scala.concurrent.Future
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Multipart, StatusCodes}
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
-
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
 import failures.Failures
-import failures.ImageFailures._
-import models.image._
 import models.objects.FullObject
-import payloads.ImagePayloads._
-import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
-import services.image.ImageManager._
+import phoenix.failures.ImageFailures._
+import phoenix.models.image._
+import phoenix.payloads.ImagePayloads._
+import phoenix.responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
+import phoenix.services.image.ImageManager._
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import services.objects.ObjectManager
 import slick.dbio.DBIO
-import utils.aliases._
-import utils.apis.Apis
+import utils.IlluminateAlgorithm
 import utils.db._
-import utils.{IlluminateAlgorithm, JsonFormatters}
+
+import scala.concurrent.Future
 
 object ImageFacade extends ImageHelpers {
-  implicit def formats = JsonFormatters.phoenixFormats
+  implicit val formats = JsonFormatters.phoenixFormats
 
   case class ImageFacadeException(underlyingFailure: failures.Failure) extends Throwable
 

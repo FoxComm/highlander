@@ -1,8 +1,8 @@
-package services.activity
+package phoenix.services.activity
 
 import responses.ObjectResponses.ObjectContextResponse
-import responses.SkuResponses.SkuResponse
-import responses.UserResponse
+import phoenix.responses.SkuResponses.SkuResponse
+import phoenix.responses.UserResponse
 
 object SkuTailored {
   case class FullSkuCreated(admin: Option[UserResponse.Root],

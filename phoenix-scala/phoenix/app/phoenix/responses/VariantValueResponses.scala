@@ -1,8 +1,9 @@
-package responses
+package phoenix.responses
 
 import models.objects._
-import models.product._
-import utils.{IlluminateAlgorithm, JsonFormatters}
+import phoenix.models.product._
+import phoenix.utils.JsonFormatters
+import utils.IlluminateAlgorithm
 
 object VariantValueResponses {
   implicit val formats = JsonFormatters.phoenixFormats

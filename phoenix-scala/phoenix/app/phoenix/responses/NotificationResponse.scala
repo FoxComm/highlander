@@ -1,12 +1,12 @@
-package responses
+package phoenix.responses
 
 import java.time.Instant
 
-import models.Notification
-import models.activity.{Activity, ActivityContext}
-import utils.JsonFormatters
-import utils.aliases._
-import payloads.NotificationActivity
+import phoenix.models.Notification
+import phoenix.models.activity.ActivityContext
+import phoenix.payloads.NotificationActivity
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
 
 object NotificationResponse {
   implicit val formats = JsonFormatters.phoenixFormats

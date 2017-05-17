@@ -1,8 +1,8 @@
-package payloads
+package phoenix.payloads
 
-import models.promotion.Promotion.ApplyType
-import payloads.DiscountPayloads.CreateDiscount
-import utils.aliases._
+import phoenix.models.promotion.Promotion.ApplyType
+import phoenix.payloads.DiscountPayloads.CreateDiscount
+import phoenix.utils.aliases._
 
 object PromotionPayloads {
 

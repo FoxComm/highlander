@@ -1,10 +1,8 @@
-package services
+package phoenix.services
 
-import failures.CartFailures.CustomerHasNoCart
-import failures.OrderFailures.EmptyRefNumFailure
-import models.cord._
-import models.account.User
-import utils.aliases._
+import phoenix.failures.CartFailures.CustomerHasNoCart
+import phoenix.models.account.User
+import phoenix.models.cord._
 import utils.db._
 
 package object carts {

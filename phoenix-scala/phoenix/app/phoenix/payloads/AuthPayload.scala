@@ -1,11 +1,11 @@
-package payloads
+package phoenix.payloads
 
 import cats.implicits._
 import failures._
-import models.auth.Token
 import org.jose4j.jwt.JwtClaims
 import org.json4s.CustomSerializer
 import org.json4s.jackson.{compactJson, parseJson}
+import phoenix.models.auth.Token
 
 case class AuthPayload(claims: JwtClaims, jwt: String)
 

@@ -1,5 +1,6 @@
-package failures
+package phoenix.failures
 
+import failures.{Failure, NotFoundFailure400}
 import utils.friendlyClassName
 
 object OrderFailures {

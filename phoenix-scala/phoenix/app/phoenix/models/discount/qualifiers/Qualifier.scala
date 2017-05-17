@@ -1,13 +1,13 @@
-package models.discount.qualifiers
+package phoenix.models.discount.qualifiers
 
 import cats.implicits._
-import failures.DiscountCompilerFailures.QualifierRejectionFailure
-import failures.DiscountFailures.SearchFailure
 import failures._
-import models.discount.{DiscountBase, DiscountInput, ProductSearch}
-import utils.ElasticsearchApi.Buckets
-import utils.aliases._
-import utils.apis.Apis
+import phoenix.failures.DiscountCompilerFailures.QualifierRejectionFailure
+import phoenix.failures.DiscountFailures.SearchFailure
+import phoenix.models.discount.{DiscountBase, DiscountInput, ProductSearch}
+import phoenix.utils.ElasticsearchApi.Buckets
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import utils.db._
 
 trait Qualifier extends DiscountBase {

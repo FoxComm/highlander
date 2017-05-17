@@ -1,10 +1,10 @@
-package services.notes
+package phoenix.services.notes
 
-import models.Note
+import phoenix.models.Note
 import models.objects.IlluminatedObject
 import services.objects.ObjectManager
-import services.product.ProductManager
-import utils.aliases._
+import phoenix.services.product.ProductManager
+import phoenix.utils.aliases._
 import utils.db._
 
 object ProductNoteManager extends NoteManager[Int, IlluminatedObject] {

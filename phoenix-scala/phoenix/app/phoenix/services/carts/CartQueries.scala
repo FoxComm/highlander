@@ -1,14 +1,14 @@
-package services.carts
+package phoenix.services.carts
 
 import failures.NotFoundFailure404
-import models.account._
-import models.cord._
+import phoenix.models.account._
+import phoenix.models.cord._
 import models.objects.ObjectContext
-import responses.TheResponse
-import responses.cord.CartResponse
-import services.{CordQueries, LineItemUpdater, LogActivity}
-import utils.aliases._
-import utils.apis.Apis
+import phoenix.responses.TheResponse
+import phoenix.responses.cord.CartResponse
+import phoenix.services.{CordQueries, LineItemUpdater, LogActivity}
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import utils.db._
 
 object CartQueries extends CordQueries {

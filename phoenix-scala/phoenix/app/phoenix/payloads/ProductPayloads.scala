@@ -1,9 +1,10 @@
-package payloads
+package phoenix.payloads
 
-import payloads.ImagePayloads.AlbumPayload
-import payloads.SkuPayloads._
-import payloads.VariantPayloads.VariantPayload
-import utils.aliases._
+import payloads.ObjectSchemaValidation
+import phoenix.payloads.ImagePayloads.AlbumPayload
+import phoenix.payloads.SkuPayloads._
+import phoenix.payloads.VariantPayloads.VariantPayload
+import phoenix.utils.aliases._
 
 object ProductPayloads {
   case class CreateProductPayload(scope: Option[String] = None,

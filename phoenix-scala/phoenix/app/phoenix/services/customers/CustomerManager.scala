@@ -1,30 +1,30 @@
-package services.customers
+package phoenix.services.customers
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.AuthFailures.ChangePasswordFailed
-import failures.CustomerFailures._
-import failures.UserFailures.AccessMethodNotFound
+import phoenix.failures.AuthFailures.ChangePasswordFailed
+import phoenix.failures.CustomerFailures._
+import phoenix.failures.UserFailures.AccessMethodNotFound
 import failures.{NotFoundFailure400, NotFoundFailure404}
-import models.account._
-import models.auth.UserToken
-import models.cord.{OrderShippingAddresses, Orders}
-import models.customer.CustomersData.scope._
-import models.customer._
-import models.location.Addresses
-import models.shipping.Shipments
-import payloads.AuthPayload
-import payloads.CustomerPayloads._
-import responses.CustomerResponse._
-import responses.GroupResponses.CustomerGroupResponse
-import services._
-import services.account._
+import phoenix.models.account._
+import phoenix.models.auth.UserToken
+import phoenix.models.cord.{OrderShippingAddresses, Orders}
+import phoenix.models.customer.CustomersData.scope._
+import phoenix.models.customer._
+import phoenix.models.location.Addresses
+import phoenix.models.shipping.Shipments
+import phoenix.payloads.AuthPayload
+import phoenix.payloads.CustomerPayloads._
+import phoenix.responses.CustomerResponse._
+import phoenix.responses.GroupResponses.CustomerGroupResponse
+import phoenix.services._
+import phoenix.services.account._
 import slick.jdbc.PostgresProfile.api._
-import utils.JsonFormatters._
-import utils.aliases._
+import phoenix.utils.JsonFormatters._
+import phoenix.utils.aliases._
 import utils.db._
 
 object CustomerManager {

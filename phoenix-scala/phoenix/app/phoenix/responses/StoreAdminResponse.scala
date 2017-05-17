@@ -1,8 +1,7 @@
-package responses
+package phoenix.responses
 
-import cats.implicits._
-import models.account.User
-import models.admin.AdminData
+import phoenix.models.account.User
+import phoenix.models.admin.AdminData
 
 object StoreAdminResponse {
   case class Root(id: Int = 0,

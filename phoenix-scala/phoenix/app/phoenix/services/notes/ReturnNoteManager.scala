@@ -1,8 +1,8 @@
-package services.notes
+package phoenix.services.notes
 
-import models.returns._
-import models.Note
-import utils.aliases._
+import phoenix.models.returns._
+import phoenix.models.Note
+import phoenix.utils.aliases._
 import utils.db._
 
 object ReturnNoteManager extends NoteManager[String, Return] {

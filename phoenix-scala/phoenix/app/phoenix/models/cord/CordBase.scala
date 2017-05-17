@@ -1,4 +1,4 @@
-package models.cord
+package phoenix.models.cord
 
 import utils.Money.Currency
 import utils.db.FoxModel

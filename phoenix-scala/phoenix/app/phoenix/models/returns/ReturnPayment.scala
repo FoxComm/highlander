@@ -1,8 +1,8 @@
-package models.returns
+package phoenix.models.returns
 
-import models.payment.PaymentMethod
-import models.payment.giftcard.{GiftCard, GiftCards}
-import models.payment.storecredit.{StoreCredit, StoreCredits}
+import phoenix.models.payment.PaymentMethod
+import phoenix.models.payment.giftcard.{GiftCard, GiftCards}
+import phoenix.models.payment.storecredit.{StoreCredit, StoreCredits}
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import utils.Money._

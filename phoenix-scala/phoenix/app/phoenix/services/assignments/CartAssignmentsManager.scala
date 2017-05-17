@@ -1,18 +1,19 @@
-package services.assignments
+package phoenix.services.assignments
 
-import models.cord._
-import models.{Assignment, NotificationSubscription}
-import responses.cord.CartResponse
-import responses.cord.CartResponse.buildEmpty
+import phoenix.models.activity.Dimension
+import phoenix.models.cord._
+import phoenix.models.{Assignment, NotificationSubscription}
+import phoenix.responses.cord.CartResponse
+import phoenix.responses.cord.CartResponse.buildEmpty
+import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
 import utils.db._
 
 object CartAssignmentsManager extends AssignmentsManager[String, Cart] {
 
   val assignmentType  = Assignment.Assignee
   val referenceType   = Assignment.Cart
-  val notifyDimension = models.activity.Dimension.cart
+  val notifyDimension = Dimension.cart
   val notifyReason    = NotificationSubscription.Assigned
 
   def buildResponse(model: Cart): CartResponse = buildEmpty(model)

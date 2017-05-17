@@ -1,8 +1,9 @@
-package utils.seeds
+package phoenix.utils.seeds
 
 import models.objects._
 import org.json4s.JValue
 import org.json4s.jackson.JsonMethods._
+import phoenix.utils.JsonFormatters
 import slick.jdbc.PostgresProfile.api._
 import utils.db._
 
@@ -72,7 +73,7 @@ trait ObjectSchemaSeeds {
   }
 
   private def getDependencies(schema: JValue): Set[String] = {
-    implicit val formats = utils.JsonFormatters.phoenixFormats
+    implicit val formats = JsonFormatters.phoenixFormats
 
     val depValue = (s: String) ⇒ s.drop("#/definitions/".length)
     schema.foldField(Set.empty[String]) {

@@ -1,10 +1,10 @@
-package models.promotion
+package phoenix.models.promotion
 
 import failures.Failure
 import models.objects._
 import org.json4s.Formats
-import org.json4s.jackson.Serialization.{write ⇒ render}
-import utils.{IlluminateAlgorithm, JsonFormatters}
+import phoenix.utils.JsonFormatters
+import utils.IlluminateAlgorithm
 
 /**
   * An PromotionValidator checks to make sure a promotion shadow is valid

@@ -1,59 +1,60 @@
-package services
+package phoenix.services
 
 import java.time.Instant
+
 import com.github.tminglei.slickpg.LTree
-import models.Assignment._
-import models.Note
-import models.account.User
-import models.activity.{Activities, Activity}
-import models.admin.AdminData
-import models.cord.{Cart, Order}
-import models.coupon.{Coupon, CouponCode}
-import models.customer.CustomerGroup
-import models.location.Region
-import models.payment.PaymentMethod
-import models.payment.creditcard.{CreditCard, CreditCardCharge}
-import models.payment.giftcard.GiftCard
-import models.payment.storecredit.StoreCredit
-import models.returns.Return.State
-import models.returns._
-import models.sharedsearch.SharedSearch
-import models.shipping.ShippingMethod
-import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
-import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.ReturnPayloads.{ReturnLineItemPayload, ReturnShippingCostLineItemPayload, ReturnSkuLineItemPayload}
-import payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
-import responses.CategoryResponses.FullCategoryResponse
-import responses.CouponResponses.CouponResponse
-import responses.CreditCardsResponse.{buildSimple ⇒ buildCc}
-import responses.CustomerResponse.{Root ⇒ CustomerResponse}
+import phoenix.models.Assignment._
+import phoenix.models.Note
+import phoenix.models.account.User
+import phoenix.models.activity.{Activities, Activity}
+import phoenix.models.admin.AdminData
+import phoenix.models.cord.{Cart, Order}
+import phoenix.models.coupon.{Coupon, CouponCode}
+import phoenix.models.customer.CustomerGroup
+import phoenix.models.location.Region
+import phoenix.models.payment.PaymentMethod
+import phoenix.models.payment.creditcard.{CreditCard, CreditCardCharge}
+import phoenix.models.payment.giftcard.GiftCard
+import phoenix.models.payment.storecredit.StoreCredit
+import phoenix.models.returns.Return.State
+import phoenix.models.returns._
+import phoenix.models.sharedsearch.SharedSearch
+import phoenix.models.shipping.ShippingMethod
+import phoenix.payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
+import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
+import phoenix.payloads.ReturnPayloads.{ReturnShippingCostLineItemPayload, ReturnSkuLineItemPayload}
+import phoenix.payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
+import phoenix.responses.CategoryResponses.FullCategoryResponse
+import phoenix.responses.CouponResponses.CouponResponse
+import phoenix.responses.CreditCardsResponse.{buildSimple ⇒ buildCc}
+import phoenix.responses.CustomerResponse.{Root ⇒ CustomerResponse}
+import phoenix.responses.ProductResponses.ProductResponse
+import phoenix.responses.PromotionResponses.PromotionResponse
+import phoenix.responses.SkuResponses.SkuResponse
+import phoenix.responses.UserResponse.{Root ⇒ UserResponse, build ⇒ buildUser}
+import phoenix.responses._
+import phoenix.responses.cord.{CartResponse, OrderResponse}
+import phoenix.services.LineItemUpdater.foldQuantityPayload
+import phoenix.services.activity.AssignmentsTailored._
+import phoenix.services.activity.CartTailored._
+import phoenix.services.activity.CategoryTailored._
+import phoenix.services.activity.CouponsTailored._
+import phoenix.services.activity.CustomerGroupsTailored._
+import phoenix.services.activity.CustomerTailored._
+import phoenix.services.activity.GiftCardTailored._
+import phoenix.services.activity.MailTailored._
+import phoenix.services.activity.NotesTailored._
+import phoenix.services.activity.OrderTailored._
+import phoenix.services.activity.ProductTailored._
+import phoenix.services.activity.PromotionTailored._
+import phoenix.services.activity.ReturnTailored._
+import phoenix.services.activity.SharedSearchTailored._
+import phoenix.services.activity.SkuTailored._
+import phoenix.services.activity.StoreAdminsTailored._
+import phoenix.services.activity.StoreCreditTailored._
+import phoenix.services.activity.UserTailored._
+import phoenix.utils.aliases._
 import responses.ObjectResponses.ObjectContextResponse
-import responses.ProductResponses.ProductResponse
-import responses.PromotionResponses.PromotionResponse
-import responses.SkuResponses.SkuResponse
-import responses.UserResponse.{Root ⇒ UserResponse, build ⇒ buildUser}
-import responses._
-import responses.cord.{CartResponse, OrderResponse}
-import services.LineItemUpdater.foldQuantityPayload
-import services.activity.AssignmentsTailored._
-import services.activity.CartTailored._
-import services.activity.CategoryTailored._
-import services.activity.CouponsTailored._
-import services.activity.CustomerGroupsTailored._
-import services.activity.CustomerTailored._
-import services.activity.GiftCardTailored._
-import services.activity.MailTailored._
-import services.activity.NotesTailored._
-import services.activity.OrderTailored._
-import services.activity.ProductTailored._
-import services.activity.PromotionTailored._
-import services.activity.ReturnTailored._
-import services.activity.SharedSearchTailored._
-import services.activity.SkuTailored._
-import services.activity.StoreAdminsTailored._
-import services.activity.StoreCreditTailored._
-import services.activity.UserTailored._
-import utils.aliases._
 import utils.db._
 
 case class LogActivity(implicit ac: AC) {

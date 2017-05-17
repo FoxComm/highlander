@@ -1,15 +1,15 @@
-package routes.admin
+package phoenix.routes.admin
 
 import akka.http.scaladsl.server._
-import models.account.User
-import models.cord.Cord.cordRefNumRegex
-import services.Authenticator.AuthData
-import services.ShippingManager
-import utils.aliases._
-import utils.http.CustomDirectives._
+import phoenix.models.account.User
+import phoenix.models.cord.Cord.cordRefNumRegex
+import phoenix.services.Authenticator.AuthData
+import phoenix.services.ShippingManager
+import phoenix.utils.aliases._
+import phoenix.utils.http.CustomDirectives._
 import akka.http.scaladsl.server.Directives._
-import models.location.Country
-import utils.http.Http._
+import phoenix.models.location.Country
+import phoenix.utils.http.Http._
 
 object ShippingMethodRoutes {
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {

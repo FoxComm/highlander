@@ -1,21 +1,21 @@
-package routes.admin
+package phoenix.routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import utils.http.JsonSupport._
-import models.account.User
-import models.product.ProductReference
 import payloads.ContextPayloads._
-import payloads.ImagePayloads.{AlbumPayload, UpdateAlbumPositionPayload}
-import payloads.ProductPayloads._
-import services.image.ImageManager
+import phoenix.models.account.User
+import phoenix.models.product.ProductReference
+import phoenix.payloads.ImagePayloads.{AlbumPayload, UpdateAlbumPositionPayload}
+import phoenix.payloads.ProductPayloads._
+import phoenix.services.Authenticator.AuthData
+import phoenix.services.image.ImageManager
+import phoenix.services.product.ProductManager
+import phoenix.services.taxonomy.TaxonomyManager
+import phoenix.utils.aliases._
+import phoenix.utils.http.CustomDirectives._
+import phoenix.utils.http.Http._
+import phoenix.utils.http.JsonSupport._
 import services.objects.ObjectManager
-import services.product.ProductManager
-import services.Authenticator.AuthData
-import services.taxonomy.TaxonomyManager
-import utils.aliases._
-import utils.http.CustomDirectives._
-import utils.http.Http._
 
 object ProductRoutes {
 

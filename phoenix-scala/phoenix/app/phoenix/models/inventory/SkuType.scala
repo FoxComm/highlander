@@ -1,7 +1,7 @@
-package models.inventory
+package phoenix.models.inventory
 
 import com.pellucid.sealerate
-import utils.ADT
+import phoenix.utils.ADT
 
 sealed trait SkuType
 

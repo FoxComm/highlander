@@ -1,4 +1,4 @@
-package server
+package phoenix.server
 
 import akka.actor.{ActorSystem, Props}
 import akka.agent.Agent
@@ -11,20 +11,20 @@ import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
 import com.stripe.Stripe
 import com.typesafe.scalalogging.LazyLogging
-import models.account.{AccountAccessMethod, Scope, Scopes}
 import org.json4s._
 import org.json4s.jackson._
-import services.Authenticator
-import services.Authenticator.{UserAuthenticator, requireAdminAuth}
-import services.account.AccountCreateContext
-import services.actors._
+import phoenix.models.account.{AccountAccessMethod, Scope, Scopes}
+import phoenix.services.Authenticator
+import phoenix.services.Authenticator.{UserAuthenticator, requireAdminAuth}
+import phoenix.services.account.AccountCreateContext
+import phoenix.services.actors._
+import phoenix.utils.FoxConfig.config
+import phoenix.utils.apis._
+import phoenix.utils.http.CustomHandlers
+import phoenix.utils.http.HttpLogger.logFailedRequests
+import phoenix.utils.{ElasticsearchApi, Environment, FoxConfig}
 import slick.jdbc.PostgresProfile.api._
-import utils.FoxConfig.config
-import utils.apis._
 import utils.db._
-import utils.http.CustomHandlers
-import utils.http.HttpLogger.logFailedRequests
-import utils.{ElasticsearchApi, Environment, FoxConfig}
 
 import scala.collection.immutable
 import scala.concurrent.duration._
@@ -85,7 +85,7 @@ class Service(
     addRoutes: immutable.Seq[Route] = immutable.Seq.empty)(implicit val env: Environment) {
 
   import FoxConfig.config
-  import utils.JsonFormatters._
+  import phoenix.utils.JsonFormatters._
 
   implicit val serialization: Serialization.type = jackson.Serialization
   implicit val formats: Formats                  = phoenixFormats
@@ -116,37 +116,37 @@ class Service(
 
   val defaultRoutes: Route = {
     pathPrefix("v1") {
-      routes.AuthRoutes.routes(scope.ltree) ~
-      routes.Public.routes(customerCreateContext, scope.ltree) ~
-      routes.Customer.routes ~
+      phoenix.routes.AuthRoutes.routes(scope.ltree) ~
+      phoenix.routes.Public.routes(customerCreateContext, scope.ltree) ~
+      phoenix.routes.Customer.routes ~
       requireAdminAuth(userAuth) { implicit auth ⇒
-        routes.admin.AdminRoutes.routes ~
-        routes.admin.NotificationRoutes.routes ~
-        routes.admin.AssignmentsRoutes.routes ~
-        routes.admin.OrderRoutes.routes ~
-        routes.admin.CartRoutes.routes ~
-        routes.admin.CustomerRoutes.routes ~
-        routes.admin.CustomerGroupsRoutes.routes ~
-        routes.admin.GiftCardRoutes.routes ~
-        routes.admin.ReturnRoutes.routes ~
-        routes.admin.ProductRoutes.routes ~
-        routes.admin.SkuRoutes.routes ~
-        routes.admin.VariantRoutes.routes ~
-        routes.admin.DiscountRoutes.routes ~
-        routes.admin.PromotionRoutes.routes ~
-        routes.admin.ImageRoutes.routes ~
-        routes.admin.CouponRoutes.routes ~
-        routes.admin.CategoryRoutes.routes ~
-        routes.admin.GenericTreeRoutes.routes ~
-        routes.admin.StoreAdminRoutes.routes ~
-        routes.admin.ObjectRoutes.routes ~
-        routes.admin.PluginRoutes.routes ~
-        routes.admin.TaxonomyRoutes.routes ~
-        routes.admin.ShippingMethodRoutes.routes ~
-        routes.service.MigrationRoutes.routes(customerCreateContext, scope.ltree) ~
+        phoenix.routes.admin.AdminRoutes.routes ~
+        phoenix.routes.admin.NotificationRoutes.routes ~
+        phoenix.routes.admin.AssignmentsRoutes.routes ~
+        phoenix.routes.admin.OrderRoutes.routes ~
+        phoenix.routes.admin.CartRoutes.routes ~
+        phoenix.routes.admin.CustomerRoutes.routes ~
+        phoenix.routes.admin.CustomerGroupsRoutes.routes ~
+        phoenix.routes.admin.GiftCardRoutes.routes ~
+        phoenix.routes.admin.ReturnRoutes.routes ~
+        phoenix.routes.admin.ProductRoutes.routes ~
+        phoenix.routes.admin.SkuRoutes.routes ~
+        phoenix.routes.admin.VariantRoutes.routes ~
+        phoenix.routes.admin.DiscountRoutes.routes ~
+        phoenix.routes.admin.PromotionRoutes.routes ~
+        phoenix.routes.admin.ImageRoutes.routes ~
+        phoenix.routes.admin.CouponRoutes.routes ~
+        phoenix.routes.admin.CategoryRoutes.routes ~
+        phoenix.routes.admin.GenericTreeRoutes.routes ~
+        phoenix.routes.admin.StoreAdminRoutes.routes ~
+        phoenix.routes.admin.ObjectRoutes.routes ~
+        phoenix.routes.admin.PluginRoutes.routes ~
+        phoenix.routes.admin.TaxonomyRoutes.routes ~
+        phoenix.routes.admin.ShippingMethodRoutes.routes ~
+        phoenix.routes.service.MigrationRoutes.routes(customerCreateContext, scope.ltree) ~
         pathPrefix("service") {
-          routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
-          routes.service.CustomerGroupRoutes.routes
+          phoenix.routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
+          phoenix.routes.service.CustomerGroupRoutes.routes
         }
       }
     }
@@ -155,7 +155,7 @@ class Service(
   lazy val devRoutes: Route = {
     pathPrefix("v1") {
       requireAdminAuth(userAuth) { implicit auth ⇒
-        routes.admin.DevRoutes.routes
+        phoenix.routes.admin.DevRoutes.routes
       }
     }
   }
@@ -202,7 +202,7 @@ class Service(
   def performSelfCheck(): Unit = {
     logger.info("Performing self check")
     if (config.auth.method == FoxConfig.AuthMethod.Jwt) {
-      import models.auth.Keys
+      import phoenix.models.auth.Keys
       assert(Keys.loadPrivateKey.isSuccess, "Can't load private key")
       assert(Keys.loadPublicKey.isSuccess, "Can't load public key")
     }

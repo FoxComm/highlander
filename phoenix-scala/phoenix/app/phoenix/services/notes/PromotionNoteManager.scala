@@ -1,10 +1,10 @@
-package services.notes
+package phoenix.services.notes
 
-import failures.PromotionFailures.PromotionNotFoundForContext
-import models.Note
+import phoenix.failures.PromotionFailures.PromotionNotFoundForContext
+import phoenix.models.Note
 import models.objects.{IlluminatedObject, ObjectForms, ObjectShadows}
-import models.promotion.Promotions
-import utils.aliases._
+import phoenix.models.promotion.Promotions
+import phoenix.utils.aliases._
 import utils.db._
 
 object PromotionNoteManager extends NoteManager[Int, IlluminatedObject] {

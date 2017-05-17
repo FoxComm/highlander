@@ -1,7 +1,7 @@
-package models.promotion
+package phoenix.models.promotion
 
 import models.objects._
-import utils.aliases._
+import phoenix.utils.aliases._
 
 object PromotionHelpers {
 

@@ -1,26 +1,25 @@
-package services
+package phoenix.services
 
-import com.github.tminglei.slickpg.LTree
-import failures.{GeneralFailure, NotFoundFailure404}
-import failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
-import models.account._
-import models.cord._
-import models.cord.lineitems._
-import models.inventory.Sku
-import models.location.{Countries, Region}
-import models.objects._
-import models.rules.{Condition, QueryStatement}
-import models.shipping.{DefaultShippingMethod, DefaultShippingMethods, ShippingMethod, ShippingMethods}
-import services.carts.getCartByOriginator
-import utils.JsonFormatters
-import utils.aliases._
-import utils.db._
-import slick.jdbc.PostgresProfile.api._
-import org.json4s.JsonAST._
-import responses.ShippingMethodsResponse
 import cats.implicits._
-import failures.AddressFailures.NoCountryFound
-import responses.ShippingMethodsResponse.Root
+import com.github.tminglei.slickpg.LTree
+import failures.NotFoundFailure404
+import models.objects._
+import org.json4s.JsonAST._
+import phoenix.failures.AddressFailures.NoCountryFound
+import phoenix.failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
+import phoenix.models.account._
+import phoenix.models.cord._
+import phoenix.models.cord.lineitems._
+import phoenix.models.location.{Countries, Region}
+import phoenix.models.rules.{Condition, QueryStatement}
+import phoenix.models.shipping._
+import phoenix.responses.ShippingMethodsResponse
+import phoenix.responses.ShippingMethodsResponse.Root
+import phoenix.services.carts.getCartByOriginator
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
+import slick.jdbc.PostgresProfile.api._
+import utils.db._
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
@@ -55,7 +54,7 @@ object ShippingManager {
   def getActive(implicit ec: EC): DbResultT[Seq[Root]] =
     for {
       shippingMethods ← * <~ ShippingMethods.findActive.result
-    } yield shippingMethods.map(responses.ShippingMethodsResponse.build(_))
+    } yield shippingMethods.map(ShippingMethodsResponse.build(_))
 
   def getShippingMethodsForCart(originator: User)(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
     for {
@@ -114,7 +113,7 @@ object ShippingManager {
     shipMethods.collect {
       case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
         val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
-        responses.ShippingMethodsResponse.build(sm, isEnabled = !restricted)
+        ShippingMethodsResponse.build(sm, isEnabled = !restricted)
     }
 
   private def getShippingData(cart: Cart)(implicit ec: EC, db: DB): DbResultT[ShippingData] =

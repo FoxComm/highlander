@@ -1,19 +1,19 @@
-package routes.admin
+package phoenix.routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import utils.http.JsonSupport._
-import models.account.User
-import models.cord.Cord.cordRefNumRegex
-import models.inventory.Sku.skuCodeRegex
-import models.payment.giftcard.GiftCard.giftCardCodeRegex
-import models.returns.Return.returnRefNumRegex
-import payloads.AssignmentPayloads._
-import services.assignments._
-import services.Authenticator.AuthData
-import utils.aliases._
-import utils.http.CustomDirectives._
-import utils.http.Http._
+import phoenix.utils.http.JsonSupport._
+import phoenix.models.account.User
+import phoenix.models.cord.Cord.cordRefNumRegex
+import phoenix.models.inventory.Sku.skuCodeRegex
+import phoenix.models.payment.giftcard.GiftCard.giftCardCodeRegex
+import phoenix.models.returns.Return.returnRefNumRegex
+import phoenix.payloads.AssignmentPayloads._
+import phoenix.services.assignments._
+import phoenix.services.Authenticator.AuthData
+import phoenix.utils.aliases._
+import phoenix.utils.http.CustomDirectives._
+import phoenix.utils.http.Http._
 
 object AssignmentsRoutes {
 

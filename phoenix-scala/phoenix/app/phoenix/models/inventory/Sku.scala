@@ -1,17 +1,17 @@
-package models.inventory
+package phoenix.models.inventory
 
 import cats.implicits._
-import failures.ArchiveFailures.{LinkInactiveSkuFailure, SkuIsPresentInCarts}
+import phoenix.failures.ArchiveFailures.{LinkInactiveSkuFailure, SkuIsPresentInCarts}
 import failures.Failures
 import java.time.Instant
 import models.objects._
 import shapeless._
-import utils.JsonFormatters
-import utils.aliases._
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import com.github.tminglei.slickpg._
-import models.cord.lineitems.CartLineItems
+import phoenix.models.cord.lineitems.CartLineItems
 
 object Sku {
   val kind         = "sku"

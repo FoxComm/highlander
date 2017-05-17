@@ -1,15 +1,14 @@
-package models.category
+package phoenix.models.category
 
 import java.time.Instant
 
-import models.objects.{ObjectHead, ObjectHeads}
 import models.objects.ObjectUtils.InsertResult
+import models.objects.{ObjectHead, ObjectHeads}
 import shapeless._
 import slick.lifted.Tag
 import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-
 import com.github.tminglei.slickpg._
 
 object Category {

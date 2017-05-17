@@ -1,11 +1,11 @@
-package services.activity
+package phoenix.services.activity
 
-import models.activity.OpaqueActivity
-import org.json4s.{Extraction, DefaultFormats}
+import org.json4s.Extraction
+import phoenix.models.activity.OpaqueActivity
+import phoenix.utils.JsonFormatters
+import utils.snakeCaseName
 
 import scala.language.implicitConversions
-
-import utils.{JsonFormatters, snakeCaseName}
 
 trait ActivityBase[A] { self: A ⇒
 

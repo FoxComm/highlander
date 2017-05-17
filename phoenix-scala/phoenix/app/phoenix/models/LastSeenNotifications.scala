@@ -1,19 +1,11 @@
-package models
-
-import java.time.Instant
+package phoenix.models
 
 import com.github.tminglei.slickpg.LTree
-
-import com.pellucid.sealerate
-import models.activity.Dimensions
-import models.account._
+import phoenix.models.account._
 import shapeless._
-import slick.ast.BaseTypedType
-import utils.db.ExPostgresDriver.api._
-import slick.jdbc.JdbcType
 import slick.lifted.Tag
+import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.ADT
 
 case class LastSeenNotification(id: Int = 0, scope: LTree, accountId: Int, notificationId: Int)
     extends FoxModel[LastSeenNotification] {}

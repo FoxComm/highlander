@@ -1,10 +1,10 @@
-package models.sharedsearch
+package phoenix.models.sharedsearch
 
 import java.time.Instant
 
-import models.cord.Carts
-import models.sharedsearch.SharedSearches.scope._
-import models.account._
+import phoenix.models.cord.Carts
+import phoenix.models.sharedsearch.SharedSearches.scope._
+import phoenix.models.account._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.Tag

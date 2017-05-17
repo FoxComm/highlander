@@ -1,19 +1,24 @@
-package models.product
+package phoenix.models.product
+
+import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
-import failures.ArchiveFailures.ProductIsPresentInCarts
-import failures.ProductFailures._
 import failures._
-import java.time.Instant
-import models.cord.lineitems.CartLineItems
 import models.objects._
-import scala.util.matching.Regex
+import phoenix.failures.ArchiveFailures.ProductIsPresentInCarts
+import phoenix.failures.ProductFailures
+import phoenix.failures.ProductFailures._
+import phoenix.models.cord.lineitems.CartLineItems
+import phoenix.models.objects.ProductSkuLinks
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
 import services.objects.ObjectManager
 import shapeless._
-import utils.aliases._
+import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.{JsonFormatters, Validation}
+
+import scala.util.matching.Regex
 
 object Product {
   val kind = "product"

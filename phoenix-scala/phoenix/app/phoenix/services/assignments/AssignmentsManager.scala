@@ -1,21 +1,21 @@
-package services.assignments
+package phoenix.services.assignments
 
 import cats.implicits._
-import failures.AssignmentFailures._
 import failures.NotFoundFailure404
-import failures.Util._
-import models.Assignment._
-import models._
-import models.account._
-import payloads.AssignmentPayloads._
-import responses.AssignmentResponse.{Root, build ⇒ buildAssignment}
-import responses.BatchMetadata._
-import responses.UserResponse.{build ⇒ buildUser}
-import responses._
-import services._
+import phoenix.failures.AssignmentFailures._
+import phoenix.failures.Util._
+import phoenix.models.Assignment._
+import phoenix.models._
+import phoenix.models.account._
+import phoenix.payloads.AssignmentPayloads._
+import phoenix.responses.AssignmentResponse.{Root, build ⇒ buildAssignment}
+import phoenix.responses.BatchMetadata._
+import phoenix.responses.UserResponse.{build ⇒ buildUser}
+import phoenix.responses._
+import phoenix.services._
+import phoenix.utils.FoxConfig.config
+import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.FoxConfig.config
-import utils.aliases._
 import utils.db._
 
 trait AssignmentsManager[K, M <: FoxModel[M]] {

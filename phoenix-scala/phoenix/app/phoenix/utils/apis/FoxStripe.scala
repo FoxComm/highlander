@@ -1,17 +1,16 @@
-package utils.apis
-
-import scala.collection.JavaConversions._
+package phoenix.utils.apis
 
 import cats.implicits._
 import com.stripe.model.DeletedCard
-import failures.CustomerFailures.CustomerMustHaveCredentials
-import models.location.Address
-import models.payment.creditcard.CreditCard
-import payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
+import phoenix.failures.CustomerFailures.CustomerMustHaveCredentials
+import phoenix.models.location.Address
+import phoenix.models.payment.creditcard.CreditCard
+import phoenix.payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
+import phoenix.utils.aliases.stripe._
 import utils.Money._
-import utils.aliases._
-import utils.aliases.stripe._
 import utils.db._
+
+import scala.collection.JavaConversions._
 
 /**
   * Fox Stripe API implementation

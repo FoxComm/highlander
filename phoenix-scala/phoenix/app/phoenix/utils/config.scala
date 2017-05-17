@@ -1,4 +1,4 @@
-package utils
+package phoenix.utils
 
 import cats.Show
 import cats.implicits._
@@ -6,13 +6,16 @@ import com.pellucid.sealerate
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.StrictLogging
 import pureconfig._
+import shapeless._
+import utils.friendlyClassName
+
 import scala.reflect._
 import scala.util.{Failure, Success, Try}
-import shapeless._
 
 sealed trait Environment {
   def isProd: Boolean = false
 }
+
 object Environment {
   case object Test        extends Environment
   case object Development extends Environment

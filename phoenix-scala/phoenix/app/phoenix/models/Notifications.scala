@@ -1,20 +1,14 @@
-package models
+package phoenix.models
 
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
-
-import com.pellucid.sealerate
-import models.activity.Dimensions
-import models.account._
+import phoenix.models.account._
+import phoenix.utils.aliases._
 import shapeless._
-import slick.ast.BaseTypedType
-import utils.db.ExPostgresDriver.api._
-import slick.jdbc.JdbcType
 import slick.lifted.Tag
+import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.aliases._
-import utils.ADT
 
 case class Notification(id: Int = 0,
                         scope: LTree,

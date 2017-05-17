@@ -1,16 +1,16 @@
-package services.carts
+package phoenix.services.carts
 
 import cats.implicits._
-import failures.CartFailures.NoShipMethod
-import models.account.User
-import models.cord._
-import models.shipping.{Shipments, ShippingMethods}
-import responses.TheResponse
-import responses.cord.CartResponse
-import services.{CartValidator, LogActivity, ShippingManager}
+import phoenix.failures.CartFailures.NoShipMethod
+import phoenix.models.account.User
+import phoenix.models.cord._
+import phoenix.models.shipping.{Shipments, ShippingMethods}
+import phoenix.responses.TheResponse
+import phoenix.responses.cord.CartResponse
+import phoenix.services.{CartValidator, LogActivity, ShippingManager}
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
-import utils.apis.Apis
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import utils.db._
 
 object CartShippingMethodUpdater {

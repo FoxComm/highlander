@@ -1,11 +1,11 @@
-package services.coupon
+package phoenix.services.coupon
 
-import failures.CouponFailures._
-import models.coupon._
-import models.account.User
+import phoenix.failures.CouponFailures._
+import phoenix.models.coupon._
+import phoenix.models.account.User
 import models.objects.{ObjectContexts, ObjectForms}
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db._
 
 object CouponUsageService {

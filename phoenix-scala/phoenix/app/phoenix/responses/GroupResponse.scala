@@ -1,10 +1,10 @@
-package responses
+package phoenix.responses
 
 import java.time.Instant
 
-import models.customer.{CustomerGroup, CustomerGroupTemplate}
-import models.customer.CustomerGroup._
-import utils.aliases._
+import phoenix.models.customer.CustomerGroup._
+import phoenix.models.customer.{CustomerGroup, CustomerGroupTemplate}
+import phoenix.utils.aliases._
 
 object GroupResponses {
 

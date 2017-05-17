@@ -1,6 +1,6 @@
-package models.returns
+package phoenix.models.returns
 
-import models.payment.creditcard.CreditCardCharges
+import phoenix.models.payment.creditcard.CreditCardCharges
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import utils.Money.Currency

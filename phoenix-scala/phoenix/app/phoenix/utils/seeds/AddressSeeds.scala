@@ -1,10 +1,10 @@
-package utils.seeds
-
-import scala.concurrent.ExecutionContext.Implicits.global
+package phoenix.utils.seeds
 
 import cats.implicits._
-import models.location.{Address, Addresses}
+import phoenix.models.location.{Address, Addresses}
 import utils.db._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 trait AddressSeeds {
 

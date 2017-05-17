@@ -1,10 +1,10 @@
-package services.notes
+package phoenix.services.notes
 
-import failures.CouponFailures._
-import models.Note
-import models.coupon.Coupons
+import phoenix.failures.CouponFailures._
+import phoenix.models.Note
+import phoenix.models.coupon.Coupons
 import models.objects.{IlluminatedObject, ObjectForms, ObjectShadows}
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db._
 
 object CouponNoteManager extends NoteManager[Int, IlluminatedObject] {

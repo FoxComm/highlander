@@ -1,13 +1,13 @@
-package models.account
+package phoenix.models.account
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.ScopeFailures._
-import failures.UserFailures.OrganizationNotFoundByName
 import failures._
+import phoenix.failures.ScopeFailures._
+import phoenix.failures.UserFailures.OrganizationNotFoundByName
+import phoenix.utils.aliases._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
 import utils.db._
 
 case class Scope(id: Int = 0, source: String, parentPath: Option[String]) extends FoxModel[Scope] {

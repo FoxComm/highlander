@@ -1,14 +1,14 @@
-package responses
+package phoenix.responses
 
 import java.time.Instant
 
-import models.product._
-import responses.AlbumResponses._
+import phoenix.models.product._
+import phoenix.responses.AlbumResponses._
+import phoenix.responses.SkuResponses._
+import phoenix.responses.TaxonResponses.AssignedTaxonsResponse
+import phoenix.responses.VariantResponses._
+import phoenix.utils.aliases._
 import responses.ObjectResponses._
-import responses.SkuResponses._
-import responses.TaxonResponses.AssignedTaxonsResponse
-import responses.VariantResponses._
-import utils.aliases._
 
 object ProductResponses {
 

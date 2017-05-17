@@ -1,12 +1,11 @@
-package models.customer
+package phoenix.models.customer
 
 import java.time.Instant
 
-import shapeless._
-import utils.db._
-import utils.aliases._
 import com.github.tminglei.slickpg.LTree
+import shapeless._
 import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 case class GroupTemplateInstance(id: Int = 0,
                                  groupTemplateId: Int,

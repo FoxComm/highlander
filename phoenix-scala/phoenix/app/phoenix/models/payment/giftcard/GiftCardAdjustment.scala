@@ -1,13 +1,14 @@
-package models.payment.giftcard
+package phoenix.models.payment.giftcard
+
+import java.time.Instant
 
 import failures.Failures
-import java.time.Instant
-import models.cord.OrderPayment
-import models.payment.InStorePaymentStates._
-import models.payment._
+import phoenix.models.cord.OrderPayment
+import phoenix.models.payment.InStorePaymentStates._
+import phoenix.models.payment._
+import phoenix.utils.FSM
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.FSM
 import utils.db._
 
 case class GiftCardAdjustment(id: Int = 0,

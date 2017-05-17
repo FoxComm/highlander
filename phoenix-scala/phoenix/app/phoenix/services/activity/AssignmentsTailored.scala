@@ -1,7 +1,7 @@
-package services.activity
+package phoenix.services.activity
 
-import models.Assignment._
-import responses.UserResponse.{Root ⇒ UserRoot}
+import phoenix.models.Assignment._
+import phoenix.responses.UserResponse.{Root ⇒ UserRoot}
 
 object AssignmentsTailored {
 

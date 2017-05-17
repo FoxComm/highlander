@@ -1,19 +1,20 @@
-package services
+package phoenix.services
 
 import cats.implicits._
-import failures.{NotFoundFailure400, NotFoundFailure404, OpenTransactionsFailure}
-import models.account.{Scope, User, Users}
-import models.payment.storecredit.StoreCredit.Canceled
-import models.payment.storecredit.StoreCreditSubtypes.scope._
-import models.payment.storecredit._
-import models.{Reason, Reasons}
-import payloads.PaymentPayloads._
-import payloads.StoreCreditPayloads._
-import responses.StoreCreditBulkResponse._
-import responses.StoreCreditResponse._
-import responses.{StoreCreditResponse, StoreCreditSubTypesResponse}
+import failures.{NotFoundFailure400, NotFoundFailure404}
+import phoenix.failures.OpenTransactionsFailure
+import phoenix.models.account.{Scope, User, Users}
+import phoenix.models.payment.storecredit.StoreCredit.Canceled
+import phoenix.models.payment.storecredit.StoreCreditSubtypes.scope._
+import phoenix.models.payment.storecredit._
+import phoenix.models.{Reason, Reasons}
+import phoenix.payloads.PaymentPayloads._
+import phoenix.payloads.StoreCreditPayloads._
+import phoenix.responses.StoreCreditBulkResponse._
+import phoenix.responses.StoreCreditResponse._
+import phoenix.responses.{StoreCreditResponse, StoreCreditSubTypesResponse}
+import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
 import utils.db._
 
 object StoreCreditService {

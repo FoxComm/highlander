@@ -1,9 +1,9 @@
-package models.payment.storecredit
+package phoenix.models.payment.storecredit
 
 import java.time.Instant
 
 import shapeless._
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

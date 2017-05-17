@@ -1,9 +1,9 @@
-package responses
+package phoenix.responses
 
 import java.time.Instant
 
-import models.activity.{Activity, ActivityContext}
-import utils.aliases._
+import phoenix.models.activity.{Activity, ActivityContext}
+import phoenix.utils.aliases._
 
 object ActivityResponse {
   case class Root(id: String,

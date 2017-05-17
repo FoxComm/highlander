@@ -1,11 +1,11 @@
-package responses
+package phoenix.responses
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import models.objects.FullObject
-import models.taxonomy._
+import org.json4s.JsonAST.JValue
+import phoenix.models.taxonomy._
 import utils.IlluminateAlgorithm
-import utils.aliases.Json
 
 object TaxonResponses {
 
@@ -24,7 +24,7 @@ object TaxonResponses {
 
   case class AssignedTaxonsResponse(taxonomyId: Int,
                                     hierarchical: Boolean,
-                                    attributes: Json,
+                                    attributes: JValue,
                                     taxons: Seq[FullTaxonResponse])
       extends ResponseItem
 
@@ -53,7 +53,7 @@ object TaxonResponses {
   case class FullTaxonResponse(id: Int,
                                taxonomyId: Int,
                                location: TaxonLocationResponse,
-                               attributes: Json)
+                               attributes: JValue)
       extends ResponseItem
 
   object FullTaxonResponse {

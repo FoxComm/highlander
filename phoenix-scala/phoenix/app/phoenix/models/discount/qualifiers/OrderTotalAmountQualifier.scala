@@ -1,8 +1,8 @@
-package models.discount.qualifiers
+package phoenix.models.discount.qualifiers
 
-import models.discount._
-import utils.aliases._
-import utils.apis.Apis
+import phoenix.models.discount._
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import utils.db._
 
 case class OrderTotalAmountQualifier(totalAmount: Int) extends Qualifier {

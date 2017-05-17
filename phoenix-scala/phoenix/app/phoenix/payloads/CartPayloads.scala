@@ -1,11 +1,11 @@
-package payloads
+package phoenix.payloads
 
 import cats.data.ValidatedNel
 import cats.implicits._
 import failures.Failure
+import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
 import utils.Validation
-import Validation._
-import payloads.LineItemPayloads.UpdateLineItemsPayload
+import utils.Validation._
 
 object CartPayloads {
 

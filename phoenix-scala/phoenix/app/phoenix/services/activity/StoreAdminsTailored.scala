@@ -1,7 +1,7 @@
-package services.activity
+package phoenix.services.activity
 
-import models.account.User
-import models.admin.AdminData
+import phoenix.models.account.User
+import phoenix.models.admin.AdminData
 
 object StoreAdminsTailored {
 

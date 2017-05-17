@@ -1,22 +1,22 @@
-package services.returns
+package phoenix.services.returns
 
 import cats.implicits._
-import failures.ReturnFailures._
-import models.cord.Orders
-import models.cord.lineitems.OrderLineItems
-import models.cord.lineitems.OrderLineItems.scope._
+import phoenix.failures.ReturnFailures._
+import phoenix.models.cord.Orders
+import phoenix.models.cord.lineitems.OrderLineItems
+import phoenix.models.cord.lineitems.OrderLineItems.scope._
 import models.objects._
-import models.product.Mvp
-import models.returns.ReturnLineItem.OriginType
-import models.returns._
-import models.shipping.ShippingMethods
-import payloads.ReturnPayloads._
-import responses.ReturnResponse
-import responses.cord.base.CordResponseLineItems
-import services.{LineItemManager, LogActivity}
-import services.inventory.SkuManager
+import phoenix.models.product.Mvp
+import phoenix.models.returns.ReturnLineItem.OriginType
+import phoenix.models.returns._
+import phoenix.models.shipping.ShippingMethods
+import phoenix.payloads.ReturnPayloads._
+import phoenix.responses.ReturnResponse
+import phoenix.responses.cord.base.CordResponseLineItems
+import phoenix.services.{LineItemManager, LogActivity}
+import phoenix.services.inventory.SkuManager
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db._
 
 object ReturnLineItemManager {

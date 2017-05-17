@@ -1,10 +1,10 @@
-package models.discount.offers
+package phoenix.models.discount.offers
 
-import models.cord.lineitems.CartLineItemAdjustment._
-import models.discount.DiscountInput
-import models.discount.offers.Offer.OfferResult
-import utils.aliases._
-import utils.apis.Apis
+import phoenix.models.cord.lineitems.CartLineItemAdjustment._
+import phoenix.models.discount.DiscountInput
+import phoenix.models.discount.offers.Offer.OfferResult
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 
 case object FreeShippingOffer extends Offer {
 

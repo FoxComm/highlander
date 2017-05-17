@@ -1,27 +1,26 @@
-package routes.admin
+package phoenix.routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import utils.http.JsonSupport._
-import models.account.User
-import payloads.AddressPayloads.CreateAddressPayload
-import payloads.CartPayloads.CheckoutCart
-import payloads.CustomerGroupPayloads.AddCustomerToGroups
-import payloads.CustomerPayloads._
-import payloads.UserPayloads._
-import payloads.PaymentPayloads._
-import services.carts.CartQueries
-import services.customers._
-import services.account._
-import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditService}
-import services.Authenticator.AuthData
-import services.customerGroups.GroupMemberManager
-import services.Checkout
-import utils.aliases._
-import utils.apis.Apis
-import utils.http.CustomDirectives._
-import utils.http.Http._
-import utils.FoxConfig.config
+import phoenix.models.account.User
+import phoenix.payloads.AddressPayloads.CreateAddressPayload
+import phoenix.payloads.CartPayloads.CheckoutCart
+import phoenix.payloads.CustomerGroupPayloads.AddCustomerToGroups
+import phoenix.payloads.CustomerPayloads._
+import phoenix.payloads.PaymentPayloads._
+import phoenix.payloads.UserPayloads._
+import phoenix.services.Authenticator.AuthData
+import phoenix.services.account._
+import phoenix.services.carts.CartQueries
+import phoenix.services.customerGroups.GroupMemberManager
+import phoenix.services.customers._
+import phoenix.services._
+import phoenix.utils.FoxConfig.config
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
+import phoenix.utils.http.CustomDirectives._
+import phoenix.utils.http.Http._
+import phoenix.utils.http.JsonSupport._
 
 object CustomerRoutes {
 

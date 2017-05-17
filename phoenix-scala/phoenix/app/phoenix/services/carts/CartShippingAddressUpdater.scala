@@ -1,18 +1,18 @@
-package services.carts
+package phoenix.services.carts
 
-import failures.CartFailures.NoShipAddress
+import phoenix.failures.CartFailures.NoShipAddress
 import failures.NotFoundFailure404
-import models.account._
-import models.cord._
-import models.location.Addresses.scope._
-import models.location._
-import payloads.AddressPayloads._
-import responses.AddressResponse.buildOneShipping
-import responses.TheResponse
-import responses.cord.CartResponse
-import services.{CartValidator, LogActivity}
+import phoenix.models.account._
+import phoenix.models.cord._
+import phoenix.models.location.Addresses.scope._
+import phoenix.models.location._
+import phoenix.payloads.AddressPayloads._
+import phoenix.responses.AddressResponse.buildOneShipping
+import phoenix.responses.TheResponse
+import phoenix.responses.cord.CartResponse
+import phoenix.services.{CartValidator, LogActivity}
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db._
 
 object CartShippingAddressUpdater {

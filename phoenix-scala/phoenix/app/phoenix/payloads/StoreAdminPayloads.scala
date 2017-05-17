@@ -1,9 +1,9 @@
-package payloads
+package phoenix.payloads
 
 import cats.data._
 import cats.implicits._
 import failures.Failure
-import models.admin.AdminData.State
+import phoenix.models.admin.AdminData.State
 import utils.Validation
 import utils.Validation._
 

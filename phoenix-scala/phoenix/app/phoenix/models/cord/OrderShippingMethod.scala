@@ -1,6 +1,6 @@
-package models.cord
+package phoenix.models.cord
 
-import models.shipping.{ShippingMethod, ShippingMethods}
+import phoenix.models.shipping.{ShippingMethod, ShippingMethods}
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import utils.db._

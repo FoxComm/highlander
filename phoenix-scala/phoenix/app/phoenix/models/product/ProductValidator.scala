@@ -1,10 +1,10 @@
-package models.product
+package phoenix.models.product
 
 import failures.Failure
 import models.objects._
 import org.json4s.Formats
-import org.json4s.jackson.Serialization.{write ⇒ render}
-import utils.{IlluminateAlgorithm, JsonFormatters}
+import phoenix.utils.JsonFormatters
+import utils.IlluminateAlgorithm
 
 /**
   * An ProductValidator checks to make sure a product shadow is valid

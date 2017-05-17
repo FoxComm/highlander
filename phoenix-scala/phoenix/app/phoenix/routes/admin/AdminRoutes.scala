@@ -1,23 +1,23 @@
-package routes.admin
+package phoenix.routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import utils.http.JsonSupport._
-import failures.SharedSearchFailures.SharedSearchInvalidQueryFailure
-import models.account.User
-import models.cord.Cord.cordRefNumRegex
-import models.inventory.Sku
-import models.payment.giftcard.GiftCard
-import models.returns.Return
-import models.sharedsearch.SharedSearch
-import payloads.NotePayloads._
-import payloads.SharedSearchPayloads._
-import services.notes._
-import services.{SaveForLaterManager, SharedSearchService, ShippingManager}
-import services.Authenticator.AuthData
-import utils.aliases._
-import utils.http.CustomDirectives._
-import utils.http.Http._
+import phoenix.utils.http.JsonSupport._
+import phoenix.failures.SharedSearchFailures.SharedSearchInvalidQueryFailure
+import phoenix.models.account.User
+import phoenix.models.cord.Cord.cordRefNumRegex
+import phoenix.models.inventory.Sku
+import phoenix.models.payment.giftcard.GiftCard
+import phoenix.models.returns.Return
+import phoenix.models.sharedsearch.SharedSearch
+import phoenix.payloads.NotePayloads._
+import phoenix.payloads.SharedSearchPayloads._
+import phoenix.services.notes._
+import phoenix.services.{SaveForLaterManager, SharedSearchService, ShippingManager}
+import phoenix.services.Authenticator.AuthData
+import phoenix.utils.aliases._
+import phoenix.utils.http.CustomDirectives._
+import phoenix.utils.http.Http._
 
 object AdminRoutes {
 

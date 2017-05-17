@@ -1,4 +1,4 @@
-package utils.seeds.generators
+package phoenix.utils.seeds.generators
 import scala.util.Random
 
 object GeneratorUtils {

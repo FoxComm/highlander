@@ -1,7 +1,7 @@
-package models.discount.offers
+package phoenix.models.discount.offers
 
 import com.pellucid.sealerate
-import utils.ADT
+import phoenix.utils.ADT
 
 // Offer types
 sealed trait OfferType

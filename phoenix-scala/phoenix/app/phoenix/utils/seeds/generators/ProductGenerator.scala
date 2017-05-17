@@ -1,4 +1,4 @@
-package utils.seeds.generators
+package phoenix.utils.seeds.generators
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -7,9 +7,9 @@ import scala.util.Random
 
 import faker._
 import models.objects.ObjectContexts
-import models.product.{Mvp, SimpleContext, SimpleProductData}
+import phoenix.models.product.{Mvp, SimpleContext, SimpleProductData}
 import org.conbere.markov.MarkovChain
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db._
 
 object ProductGenerator {

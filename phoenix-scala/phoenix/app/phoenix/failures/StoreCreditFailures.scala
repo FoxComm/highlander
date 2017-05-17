@@ -1,6 +1,7 @@
-package failures
+package phoenix.failures
 
-import models.payment.storecredit.StoreCredit
+import failures.Failure
+import phoenix.models.payment.storecredit.StoreCredit
 
 object StoreCreditFailures {
 

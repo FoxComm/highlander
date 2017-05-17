@@ -1,10 +1,9 @@
-package models.plugins
+package phoenix.models.plugins
 
 import com.pellucid.sealerate
-import org.json4s.JsonAST.JValue
-import utils.ADT
 import org.json4s.Extraction
-import utils.JsonFormatters
+import org.json4s.JsonAST.JValue
+import phoenix.utils.{ADT, JsonFormatters}
 
 object PluginSettings {
   sealed trait SettingType

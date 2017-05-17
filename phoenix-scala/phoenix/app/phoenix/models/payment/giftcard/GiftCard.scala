@@ -1,26 +1,29 @@
-package models.payment.giftcard
+package phoenix.models.payment.giftcard
 
 import cats.data.Validated._
 import cats.data.ValidatedNel
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
-import failures.GiftCardFailures._
+import phoenix.failures.GiftCardFailures._
 import failures._
 import java.time.Instant
-import models.account._
-import models.cord.OrderPayment
-import models.payment.giftcard.GiftCard._
-import models.payment.giftcard.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
-import models.payment.{InStorePaymentStates, PaymentMethod}
-import payloads.GiftCardPayloads.{GiftCardCreateByCsr, GiftCardCreatedByCustomer}
+
+import phoenix.failures.EmptyCancellationReasonFailure
+import phoenix.models.account._
+import phoenix.models.cord.OrderPayment
+import phoenix.models.payment.giftcard.GiftCard._
+import phoenix.models.payment.giftcard.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
+import phoenix.models.payment.{InStorePaymentStates, PaymentMethod}
+import phoenix.payloads.GiftCardPayloads.{GiftCardCreateByCsr, GiftCardCreatedByCustomer}
+import phoenix.utils.{ADT, FSM}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils.Money._
 import utils.Validation._
 import utils._
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

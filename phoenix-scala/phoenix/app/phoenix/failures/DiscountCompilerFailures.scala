@@ -1,9 +1,10 @@
-package failures
+package phoenix.failures
 
-import models.discount.DiscountInput
-import models.discount.offers.{Offer, OfferType}
-import models.discount.qualifiers.QualifierType.show
-import models.discount.qualifiers.{Qualifier, QualifierType}
+import failures.Failure
+import phoenix.models.discount.DiscountInput
+import phoenix.models.discount.offers.{Offer, OfferType}
+import phoenix.models.discount.qualifiers.QualifierType.show
+import phoenix.models.discount.qualifiers.{Qualifier, QualifierType}
 import utils.friendlyClassName
 
 object DiscountCompilerFailures {

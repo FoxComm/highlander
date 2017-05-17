@@ -1,9 +1,10 @@
-package responses
+package phoenix.responses
 
 import java.time.Instant
-import models.Assignment
-import models.account.User
-import responses.UserResponse.{build ⇒ buildUser}
+
+import phoenix.models.Assignment
+import phoenix.models.account.User
+import phoenix.responses.UserResponse.{build ⇒ buildUser}
 
 object AssignmentResponse {
 

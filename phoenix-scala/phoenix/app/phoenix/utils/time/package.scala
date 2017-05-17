@@ -1,6 +1,6 @@
-package utils
+package phoenix.utils
 
-import java.time.{ZonedDateTime, Duration, ZoneId, Instant}
+import java.time.{Duration, Instant, ZoneId, ZonedDateTime}
 
 package object time {
   val UTC = ZoneId.of("UTC")

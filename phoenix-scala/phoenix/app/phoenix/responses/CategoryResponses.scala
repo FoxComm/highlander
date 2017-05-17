@@ -1,12 +1,12 @@
-package responses
+package phoenix.responses
 
 import java.time.Instant
 
 import cats.implicits._
-import models.category._
 import models.objects._
+import phoenix.models.category._
+import phoenix.utils.aliases._
 import responses.ObjectResponses.ObjectContextResponse
-import utils.aliases._
 
 object CategoryResponses {
 

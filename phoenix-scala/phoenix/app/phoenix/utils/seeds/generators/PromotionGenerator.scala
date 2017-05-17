@@ -1,22 +1,22 @@
-package utils.seeds.generators
+package phoenix.utils.seeds.generators
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.Random
-
-import models.objects._
 import models.objects.ObjectUtils._
-import models.product.SimpleContext
-import models.promotion._
+import models.objects._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import payloads.DiscountPayloads._
-import payloads.PromotionPayloads._
-import services.promotion.PromotionManager
-import utils.aliases._
+import phoenix.models.product.SimpleContext
+import phoenix.models.promotion._
+import phoenix.payloads.DiscountPayloads._
+import phoenix.payloads.PromotionPayloads._
+import phoenix.services.promotion.PromotionManager
+import phoenix.utils.aliases._
+import phoenix.utils.seeds.generators.SimplePromotion._
 import utils.db._
-import utils.seeds.generators.SimplePromotion._
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Random
 
 object SimplePromotion {
   type Percent = Int

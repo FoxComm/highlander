@@ -1,12 +1,12 @@
-package responses
+package phoenix.responses
 
-import scala.collection.immutable.Seq
-
-import models.location.{Country, Region}
 import org.json4s.JsonAST.{JField, JObject}
 import org.json4s.{CustomSerializer, Extraction}
-import utils.JsonFormatters
-import utils.aliases._
+import phoenix.models.location.{Country, Region}
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
+
+import scala.collection.immutable.Seq
 
 object PublicResponses {
 

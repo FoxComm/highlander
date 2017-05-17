@@ -1,30 +1,31 @@
-package utils
+package phoenix.utils
 
 import com.github.tminglei.slickpg.LTree
-import models.admin.AdminData
-import models.auth.Identity.IdentityKind
-import models.cord.{CordPaymentState, Order}
-import models.cord.lineitems._
-import models.customer.CustomerGroup
-import models.discount.offers.OfferType
-import models.discount.qualifiers.QualifierType
-import models.inventory.SkuType
-import models.payment.creditcard.CreditCardCharge
-import models.payment.giftcard.GiftCard
-import models.payment.storecredit.StoreCredit
-import models.payment.{InStorePaymentStates, PaymentMethod}
-import models.plugins.PluginSettings
-import models.promotion.Promotion
-import models.returns._
-import models.rules.{Condition, QueryStatement}
-import models.sharedsearch.SharedSearch
-import models.shipping.Shipment
-import models.{Assignment, Note, Reason}
 import org.json4s.JsonAST.JString
-import org.json4s.{CustomSerializer, JNull, TypeHints, jackson}
-import payloads.AuthPayload
-import payloads.ReturnPayloads.ReturnLineItemPayload
-import responses.PublicResponses.CountryWithRegions
+import org.json4s.{CustomSerializer, Formats, JNull, TypeHints, jackson}
+import phoenix.models.admin.AdminData
+import phoenix.models.auth.Identity.IdentityKind
+import phoenix.models.cord.lineitems._
+import phoenix.models.cord.{CordPaymentState, Order}
+import phoenix.models.customer.CustomerGroup
+import phoenix.models.discount.offers.OfferType
+import phoenix.models.discount.qualifiers.QualifierType
+import phoenix.models.inventory.SkuType
+import phoenix.models.payment.creditcard.CreditCardCharge
+import phoenix.models.payment.giftcard.GiftCard
+import phoenix.models.payment.storecredit.StoreCredit
+import phoenix.models.payment.{InStorePaymentStates, PaymentMethod}
+import phoenix.models.plugins.PluginSettings
+import phoenix.models.promotion.Promotion
+import phoenix.models.returns._
+import phoenix.models.rules.{Condition, QueryStatement}
+import phoenix.models.sharedsearch.SharedSearch
+import phoenix.models.shipping.Shipment
+import phoenix.models.{Assignment, Note, Reason}
+import phoenix.payloads.AuthPayload
+import phoenix.payloads.ReturnPayloads.ReturnLineItemPayload
+import phoenix.responses.PublicResponses.CountryWithRegions
+import utils.Money
 
 /**
   * [[TypeHints]] implementation for json4s that supports
@@ -67,7 +68,7 @@ object JsonFormatters {
 
   val TypeHintFieldName = "payloadType"
 
-  val phoenixFormats =
+  val phoenixFormats: Formats =
     DefaultFormats.withTypeHintFieldName(TypeHintFieldName) +
       Note.ReferenceType.jsonFormat + QualifierType.jsonFormat +
       OfferType.jsonFormat + Assignment.AssignmentType.jsonFormat +

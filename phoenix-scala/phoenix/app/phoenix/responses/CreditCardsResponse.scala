@@ -1,8 +1,7 @@
-package responses
+package phoenix.responses
 
-import models.location.{Region, Regions}
-import models.payment.creditcard.CreditCard
-import utils.aliases._
+import phoenix.models.location.{Region, Regions}
+import phoenix.models.payment.creditcard.CreditCard
 import utils.db._
 
 object CreditCardsResponse {

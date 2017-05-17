@@ -1,11 +1,11 @@
-package models.traits
+package phoenix.models.traits
 
 import cats.data.Validated.valid
 import cats.data.ValidatedNel
 import cats.implicits._
-import models.location.{Address, Region}
-import shapeless._
 import failures.Failure
+import phoenix.models.location.{Address, Region}
+import shapeless._
 import utils.Validation
 
 trait Addressable[M] { self: M ⇒

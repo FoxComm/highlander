@@ -1,12 +1,12 @@
-package models.customer
+package phoenix.models.customer
+
+import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
-import failures.UserFailures._
-import java.time.Instant
-import models.location._
-import models.payment.creditcard.CreditCards
+import phoenix.failures.UserFailures._
+import phoenix.models.location._
+import phoenix.models.payment.creditcard.CreditCards
 import shapeless._
-import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

@@ -1,17 +1,17 @@
-package routes.admin
+package phoenix.routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import utils.http.JsonSupport._
+import phoenix.utils.http.JsonSupport._
 import de.heikoseeberger.akkasse.EventStreamMarshalling._
-import facades.NotificationFacade
-import models.account.User
-import payloads.CreateNotification
-import services.NotificationManager
-import services.Authenticator.AuthData
-import utils.aliases._
-import utils.http.CustomDirectives._
-import utils.http.Http._
+import phoenix.facades.NotificationFacade
+import phoenix.models.account.User
+import phoenix.payloads.CreateNotification
+import phoenix.services.NotificationManager
+import phoenix.services.Authenticator.AuthData
+import phoenix.utils.aliases._
+import phoenix.utils.http.CustomDirectives._
+import phoenix.utils.http.Http._
 
 object NotificationRoutes {
 

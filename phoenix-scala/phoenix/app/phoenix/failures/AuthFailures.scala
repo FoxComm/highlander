@@ -1,4 +1,6 @@
-package failures
+package phoenix.failures
+
+import failures.Failure
 
 object AuthFailures {
   case object LoginFailed extends Failure {

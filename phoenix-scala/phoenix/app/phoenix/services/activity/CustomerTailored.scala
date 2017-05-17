@@ -1,6 +1,6 @@
-package services.activity
+package phoenix.services.activity
 
-import responses.{AddressResponse, CreditCardsResponse, UserResponse, CustomerResponse}
+import phoenix.responses.{AddressResponse, CreditCardsResponse, UserResponse, CustomerResponse}
 
 object CustomerTailored {
   case class CustomerCreated(admin: UserResponse.Root, user: CustomerResponse.Root)

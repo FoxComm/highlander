@@ -1,7 +1,7 @@
-package responses
+package phoenix.responses
 
-import models.payment.InStorePaymentStates
-import models.payment.giftcard.GiftCardAdjustment
+import phoenix.models.payment.InStorePaymentStates
+import phoenix.models.payment.giftcard.GiftCardAdjustment
 
 object GiftCardAdjustmentsResponse {
   case class Root(id: Int,

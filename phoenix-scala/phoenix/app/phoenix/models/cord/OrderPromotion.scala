@@ -1,12 +1,12 @@
-package models.cord
+package phoenix.models.cord
 
 import java.time.Instant
 
 import cats.implicits._
-import models.coupon.CouponCode
 import models.objects._
-import models.promotion.Promotion
-import models.promotion.Promotion._
+import phoenix.models.coupon.CouponCode
+import phoenix.models.promotion.Promotion
+import phoenix.models.promotion.Promotion._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import utils.db._

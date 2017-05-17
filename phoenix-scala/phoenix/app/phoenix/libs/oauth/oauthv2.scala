@@ -1,10 +1,11 @@
-package libs.oauth
+package phoenix.libs.oauth
 
 import cats.data.EitherT
 import dispatch.{Http, as, url ⇒ request}
 import org.json4s._
+import phoenix.utils.aliases._
+
 import scala.concurrent.Future
-import utils.aliases._
 
 case class UserInfo(name: String, email: String)
 

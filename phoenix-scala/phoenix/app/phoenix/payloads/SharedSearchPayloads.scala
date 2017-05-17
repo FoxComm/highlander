@@ -1,7 +1,7 @@
-package payloads
+package phoenix.payloads
 
-import models.sharedsearch.SharedSearch
-import utils.aliases._
+import phoenix.models.sharedsearch.SharedSearch
+import phoenix.utils.aliases._
 
 object SharedSearchPayloads {
 

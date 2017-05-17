@@ -1,9 +1,5 @@
-package responses
+package phoenix.responses
 
-import java.time.Instant
-
-import models.cord.Order
-import models.location.Region
 import utils.Money.Currency
 
 case class CaptureResponse(order: String,

@@ -1,8 +1,8 @@
-package services.activity
+package phoenix.services.activity
 
 import responses.ObjectResponses.ObjectContextResponse
-import responses.CategoryResponses.FullCategoryResponse
-import responses.UserResponse
+import phoenix.responses.CategoryResponses.FullCategoryResponse
+import phoenix.responses.UserResponse
 
 object CategoryTailored {
   case class FullCategoryCreated(admin: Option[UserResponse.Root],

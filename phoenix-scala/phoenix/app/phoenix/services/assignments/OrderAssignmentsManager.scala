@@ -1,17 +1,18 @@
-package services.assignments
+package phoenix.services.assignments
 
-import models.cord._
-import models.{Assignment, NotificationSubscription}
-import responses.cord.AllOrders._
+import phoenix.models.activity.Dimension
+import phoenix.models.cord._
+import phoenix.models.{Assignment, NotificationSubscription}
+import phoenix.responses.cord.AllOrders._
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
+import phoenix.utils.aliases._
 import utils.db._
 
 object OrderAssignmentsManager extends AssignmentsManager[String, Order] {
 
   val assignmentType  = Assignment.Assignee
   val referenceType   = Assignment.Order
-  val notifyDimension = models.activity.Dimension.order
+  val notifyDimension = Dimension.order
   val notifyReason    = NotificationSubscription.Assigned
 
   def buildResponse(model: Order): Root = build(model)

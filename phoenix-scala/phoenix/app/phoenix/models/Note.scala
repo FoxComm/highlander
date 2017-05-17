@@ -1,19 +1,19 @@
-package models
+package phoenix.models
 
 import java.time.Instant
 
-import models.account._
 import cats.data.ValidatedNel
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
-import shapeless._
 import failures.Failure
-import payloads.NotePayloads.CreateNote
+import phoenix.models.account._
+import phoenix.utils.ADT
+import shapeless._
 import slick.ast.BaseTypedType
-import utils.db.ExPostgresDriver.api._
 import slick.jdbc.JdbcType
-import utils.{ADT, Validation}
+import utils.Validation
+import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 case class Note(id: Int = 0,

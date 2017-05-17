@@ -1,10 +1,11 @@
-package payloads
+package phoenix.payloads
 
 import models.objects.ObjectUtils._
 import models.objects.{FormAndShadow, ObjectForm, ObjectShadow}
-import models.product.VariantValue
+import payloads.ObjectPayloads
 import payloads.ObjectPayloads._
-import utils.aliases._
+import phoenix.models.product.VariantValue
+import phoenix.utils.aliases._
 
 object VariantPayloads {
   case class VariantPayload(id: Option[Int] = None,

@@ -1,6 +1,6 @@
-package utils.apis
+package phoenix.utils.apis
 
-import utils.ElasticsearchApi
+import phoenix.utils.ElasticsearchApi
 
 case class Apis(stripe: FoxStripeApi,
                 amazon: AmazonApi,

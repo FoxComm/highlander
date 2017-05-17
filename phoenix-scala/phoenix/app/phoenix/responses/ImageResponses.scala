@@ -1,8 +1,9 @@
-package responses
+package phoenix.responses
 
-import models.image.Image
 import models.objects.FullObject
-import utils.{IlluminateAlgorithm, JsonFormatters}
+import phoenix.models.image.Image
+import phoenix.utils.JsonFormatters
+import utils.IlluminateAlgorithm
 
 object ImageResponses {
   implicit val formats = JsonFormatters.phoenixFormats

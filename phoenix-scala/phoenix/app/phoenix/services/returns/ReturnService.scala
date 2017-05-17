@@ -1,23 +1,22 @@
-package services.returns
+package phoenix.services.returns
 
-import failures.InvalidCancellationReasonFailure
-import failures.ReturnFailures.OrderMustBeShippedForReturn
-import models.Reason.Cancellation
-import models.account._
-import models.admin.AdminsData
-import models.cord.{Order, Orders}
-import models.customer.CustomersData
-import models.returns._
-import models.{Reason, Reasons}
-import payloads.ReturnPayloads._
-import responses.ReturnResponse._
-import responses.{CustomerResponse, ReturnResponse, StoreAdminResponse}
-import services.LogActivity
+import phoenix.failures.InvalidCancellationReasonFailure
+import phoenix.failures.ReturnFailures.OrderMustBeShippedForReturn
+import phoenix.models.Reason.Cancellation
+import phoenix.models.account._
+import phoenix.models.admin.AdminsData
+import phoenix.models.cord.{Order, Orders}
+import phoenix.models.customer.CustomersData
+import phoenix.models.returns._
+import phoenix.models.{Reason, Reasons}
+import phoenix.payloads.ReturnPayloads._
+import phoenix.responses.ReturnResponse._
+import phoenix.responses.{CustomerResponse, ReturnResponse, StoreAdminResponse}
+import phoenix.services.LogActivity
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
-import utils.apis.Apis
 import utils.db._
-import cats.implicits._
 
 object ReturnService {
 

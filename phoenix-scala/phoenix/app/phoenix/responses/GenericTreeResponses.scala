@@ -1,6 +1,6 @@
-package responses
+package phoenix.responses
 
-import models.tree.{GenericTree, GenericTreeNode}
+import phoenix.models.tree.{GenericTree, GenericTreeNode}
 
 object GenericTreeResponses {
 

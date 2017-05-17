@@ -1,15 +1,14 @@
-package services
+package phoenix.services
+
+import phoenix.models.location.Country._
+import phoenix.models.location.Region._
+import phoenix.models.location._
+import phoenix.responses.PublicResponses.CountryWithRegions
+import slick.jdbc.PostgresProfile.api._
+import utils.db._
 
 import scala.collection.immutable.Seq
 import scala.concurrent.Future
-
-import models.location.Country._
-import models.location.Region._
-import models.location._
-import responses.PublicResponses.CountryWithRegions
-import slick.jdbc.PostgresProfile.api._
-import utils.aliases._
-import utils.db._
 
 object PublicService {
 

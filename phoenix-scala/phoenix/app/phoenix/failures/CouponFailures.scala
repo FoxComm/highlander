@@ -1,6 +1,7 @@
-package failures
+package phoenix.failures
 
-import models.coupon.CouponCodes
+import failures.{Failure, NotFoundFailure404}
+import phoenix.models.coupon.CouponCodes
 
 object CouponFailures {
 

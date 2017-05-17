@@ -1,9 +1,9 @@
-package models.shipping
+package phoenix.models.shipping
 
 import shapeless._
 import slick.ast.BaseTypedType
-import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.JdbcType
+import slick.jdbc.PostgresProfile.api._
 import utils.db._
 
 case class ShippingRestriction(id: Int = 0,

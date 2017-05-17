@@ -1,23 +1,23 @@
-package services
+package phoenix.services
 
 import cats.implicits._
-import failures.CaptureFailures
-import failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
-import models.account.{User, Users}
-import models.cord._
-import models.cord.lineitems._
-import models.payment.creditcard._
-import models.payment.giftcard._
-import models.payment.storecredit._
-import models.product.Mvp
-import models.shipping.{ShippingMethod, ShippingMethods}
-import payloads.CapturePayloads
-import responses.CaptureResponse
-import services.orders.OrderQueries
+import phoenix.failures.CaptureFailures
+import phoenix.failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
+import phoenix.models.account.{User, Users}
+import phoenix.models.cord._
+import phoenix.models.cord.lineitems._
+import phoenix.models.payment.creditcard._
+import phoenix.models.payment.giftcard._
+import phoenix.models.payment.storecredit._
+import phoenix.models.product.Mvp
+import phoenix.models.shipping.{ShippingMethod, ShippingMethods}
+import phoenix.payloads.CapturePayloads
+import phoenix.responses.CaptureResponse
+import phoenix.services.orders.OrderQueries
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import slick.jdbc.PostgresProfile.api._
 import utils.Money.Currency
-import utils.aliases._
-import utils.apis.Apis
 import utils.db._
 
 //

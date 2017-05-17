@@ -1,12 +1,12 @@
-package models.inventory
+package phoenix.models.inventory
 
 import java.time.Instant
 
 import failures.{Failure, NotFoundFailure404}
 import models.objects._
-import models.traits.IlluminatedModel
+import phoenix.models.traits.IlluminatedModel
 import utils.IlluminateAlgorithm
-import utils.aliases._
+import phoenix.utils.aliases._
 
 /**
   * An IlluminatedSku is what you get when you combine the sku shadow and

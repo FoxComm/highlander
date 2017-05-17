@@ -1,12 +1,11 @@
-package utils.apis
+package phoenix.utils.apis
 
 import com.stripe.model.DeletedCard
-import models.location.Address
-import models.payment.creditcard.CreditCard
-import payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
+import phoenix.models.location.Address
+import phoenix.models.payment.creditcard.CreditCard
+import phoenix.payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
+import phoenix.utils.aliases.stripe._
 import utils.Money._
-import utils.aliases._
-import utils.aliases.stripe._
 import utils.db._
 
 /**

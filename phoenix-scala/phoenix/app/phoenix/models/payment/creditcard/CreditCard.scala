@@ -1,20 +1,20 @@
-package models.payment.creditcard
+package phoenix.models.payment.creditcard
+
+import java.time.Instant
 
 import cats.data.ValidatedNel
 import cats.implicits._
-import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures._
-import java.time.Instant
-import models.account._
-import models.location._
-import models.payment.PaymentMethod
-import models.traits.Addressable
-import payloads.PaymentPayloads.{CreateCreditCardFromSourcePayload, CreateCreditCardFromTokenPayload}
+import phoenix.failures.CreditCardFailures.CannotUseInactiveCreditCard
+import phoenix.models.account._
+import phoenix.models.location._
+import phoenix.models.payment.PaymentMethod
+import phoenix.models.traits.Addressable
+import phoenix.payloads.PaymentPayloads._
+import phoenix.utils.aliases.stripe._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import utils._
-import utils.aliases._
-import utils.aliases.stripe._
 import utils.db._
 
 case class BillingAddress(

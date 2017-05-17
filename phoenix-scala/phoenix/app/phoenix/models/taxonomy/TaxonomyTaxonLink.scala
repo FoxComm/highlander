@@ -1,16 +1,15 @@
-package models.taxonomy
+package phoenix.models.taxonomy
 
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
-import failures.TaxonomyFailures
-import failures.TaxonomyFailures.NoTermInTaxonomy
 import models.objects.ObjectForm
 import models.objects.ObjectHeadLinks._
+import phoenix.failures.TaxonomyFailures.NoTermInTaxonomy
+import phoenix.utils.aliases.{EC, OC}
 import shapeless._
 import slick.lifted.Tag
 import utils.Validation
-import utils.aliases.{EC, OC}
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
