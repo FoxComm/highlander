@@ -24,3 +24,30 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+a,
+a:visited {
+  text-decoration: none;
+
+  &[disabled] {
+    cursor: default;
+  }
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+ul {
+  list-style-type: none;
+}
+
+.fc-float-list > li {
+  display: inline-block;
+  vertival-align: top;
+}
+
+table {
+  width: 100%;
+}
