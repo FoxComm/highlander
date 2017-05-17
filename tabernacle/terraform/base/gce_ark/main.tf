@@ -111,19 +111,3 @@ module "ark_production" {
   search_image       = "trial-search-170517-000959"
   frontend_image     = "trial-frontend-170517-001738"
 }
-
-##############################################
-# DNS Records
-##############################################
-provider "dnsimple" {
-  token   = "${var.dnsimple_token}"
-  account = "${var.dnsimple_account}"
-}
-
-resource "dnsimple_record" "docker-registry-dns-record" {
-  domain = "foxcommerce.com"
-  name   = "docker-ark"
-  value  = "${module.ark_production.amigo_address}"
-  type   = "A"
-  ttl    = 3600
-}
