@@ -16,6 +16,7 @@ shortcuts:
       target_dev: inventory/static/target_dev
       topdrawer: inventory/static/topdrawer
       tpg: inventory/static/tpg
+      trial: inventory/static/trial
 
   - name: Private Key Files
     flag: "--private-key"
@@ -163,6 +164,7 @@ shortcuts:
       staging: packer/envs/staging/config.json
       topdrawer: packer/envs/topdrawer/config.json
       tpg-prod: packer/envs/tpg-prod/config.json
+      trial: packer/envs/trial/config.json
 
   targets:
   # Base Images
@@ -177,6 +179,31 @@ shortcuts:
   - name: Base Buildkite Agent Image
     alias: agent.json
     target: packer/buildkite/agent.json
+
+  # Trial
+  - name: Trial Base Image
+    alias: trial_base.json
+    target: packer/trial/base.json
+
+  - name: Trial Amigo Image
+    alias: trial_amigo.json
+    target: packer/trial/amigo.json
+
+  - name: Trial Amigo Leader Image
+    alias: trial_amigo_leader.json
+    target: packer/trial/amigo_leader.json
+
+  - name: Trial Database Image
+    alias: trial_database.json
+    target: packer/trial/database.json
+
+  - name: Trial Search Image
+    alias: trial_search.json
+    target: packer/trial/search.json
+
+  - name: Trial Frontend Image
+    alias: trial_frontend.json
+    target: packer/trial/frontend.json
 
   # Tinystack
   - name: Tinystack Amigo
@@ -212,6 +239,7 @@ shortcuts:
       target: terraform/envs/aws_target/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
+      trial: terraform/envs/gce_trial/terraform.tfstate
 
   - name: Variable Files
     flag: "-var-file"
@@ -225,6 +253,7 @@ shortcuts:
       target: terraform/envs/aws_target/target.tfvars
       topdrawer: terraform/envs/gce_td/td.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
+      trial: terraform/envs/gce_trial/trial.tfvars
 
   targets:
   - name: FoxCommerce Cloud
@@ -258,3 +287,7 @@ shortcuts:
   - name: TPG Production
     alias: tpg
     target: terraform/base/gce_tpg
+
+  - name: Trial Production
+    alias: trial
+    target: terraform/base/gce_trial
