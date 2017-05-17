@@ -6,7 +6,6 @@ import akka.http.scaladsl.server.{PathMatcher, Route}
 import failures.SharedSearchFailures.SharedSearchInvalidQueryFailure
 import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku
-import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard
 import models.returns.Return
 import models.sharedsearch.SharedSearch
@@ -22,7 +21,7 @@ import utils.http.Http._
 import utils.http.JsonSupport._
 
 object AdminRoutes {
-  val ExportableEntityMatcher = PathMatcher(ExportableEntity.typeMap)
+  val ExportableEntityMatcher = PathMatcher(ExportableEntity)
 
   def routes(implicit ec: EC, db: DB, auth: AU, apis: Apis, system: ActorSystem): Route = {
 

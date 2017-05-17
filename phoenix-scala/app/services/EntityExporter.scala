@@ -17,6 +17,7 @@ import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.util.control.Exception._
 import utils.Chunkable
+import utils.Strings._
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.Http
@@ -30,7 +31,7 @@ import utils.http.Http
 object EntityExporter {
   private val formatter = DateTimeFormatter.ISO_LOCAL_DATE.withZone(ZoneId.of("UTC"))
 
-  private val FieldMatcher = "(\\w+)(\\[\\d+\\])?".r
+  private val FieldMatcher = "(\\w+)(\\[-?\\d+\\])?".r
 
   private object ArrayElement {
     def unapply(field: String): Option[Int] =
@@ -95,11 +96,13 @@ object EntityExporter {
     (path, acc) match {
       case (h :: t, Some(jobj: JObject)) ⇒ extractValue(t, jobj.obj.toMap.get(h))
       case (ArrayElement(i) :: t, Some(jarr: JArray)) ⇒
-        extractValue(t, catching(classOf[IndexOutOfBoundsException]).opt(jarr(i)))
+        extractValue(t,
+                     catching(classOf[IndexOutOfBoundsException])
+                       .opt(if (i >= 0) jarr(i) else jarr(jarr.arr.length + i)))
       case (Nil, _) ⇒
         acc.collect {
           case jn @ (_: JNumber | _: JBool) ⇒ jn.values.toString
-          case jv: JString                  ⇒ "\"" + jv.values.replace("\"", "\"\"") + "\""
+          case jv: JString                  ⇒ jv.values.quote('"')
         }
       case (_, _) ⇒ None
     }

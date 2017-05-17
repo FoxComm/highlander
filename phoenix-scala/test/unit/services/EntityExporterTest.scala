@@ -2,7 +2,7 @@ package services
 
 import cats.implicits._
 import org.json4s.JsonAST._
-import org.scalacheck.Gen
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.PrivateMethodTester
 import org.scalatest.prop.PropertyChecks
 import scala.collection.JavaConverters._
@@ -12,7 +12,7 @@ class EntityExporterTest extends TestBase with PropertyChecks with PrivateMethod
   val fieldsGen: Gen[List[String]] =
     Gen.listOf(Gen.alphaStr.suchThat(s ⇒ !s.contains(".") && s.nonEmpty))
 
-  val arrayIdxGen: Gen[String] = Gen.chooseNum(0, Int.MaxValue).map(idx ⇒ s"[$idx]")
+  val arrayIdxGen: Gen[String] = Arbitrary.arbitrary[Int].map(idx ⇒ s"[$idx]")
 
   val fullFieldsGen: Gen[List[(String, Option[String])]] = fieldsGen
     .flatMap(fs ⇒ Gen.sequence(fs.map(f ⇒ Gen.option(arrayIdxGen).map(i ⇒ f → i))))
@@ -52,8 +52,10 @@ class EntityExporterTest extends TestBase with PropertyChecks with PrivateMethod
                    JObject("whatever" → JString("""text with '"' """)).some).value must === (
           """"text with '""' """")
 
-      extractValue(getPath("whatever[0]", false),
-                   JObject("whatever" → JArray(JBool(true) :: Nil)).some).value must === ("true")
+      extractValue(
+          getPath("whatever[-1].x", false),
+          JObject("whatever" → JArray(JObject("x" → JBool(true)) :: Nil)).some).value must === (
+          "true")
     }
 
     "returns None for extracted value if path does not exist in json" in {
@@ -71,9 +73,7 @@ class EntityExporterTest extends TestBase with PropertyChecks with PrivateMethod
       extractValue(List("whatever"), JObject("whatever" → JNull).some) mustBe 'empty
     }
 
-    "returns None for extracted value if array indeix is out of range" in {
-      extractValue(getPath("whatever[-1]", false),
-                   JObject("whatever" → JArray(JInt(42) :: Nil)).some) mustBe 'empty
+    "returns None for extracted value if array index is out of range" in {
       extractValue(getPath("whatever[1]", false),
                    JObject("whatever" → JArray(JInt(42) :: Nil)).some) mustBe 'empty
     }

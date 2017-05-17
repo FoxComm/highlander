@@ -1,14 +1,16 @@
 package utils
 
+import scala.language.implicitConversions
 import akka.NotUsed
 import akka.http.scaladsl.model.{ContentType, ContentTypes}
+import akka.http.scaladsl.server.{PathMatcher, PathMatcher1}
 import akka.stream.scaladsl.{Concat, Source}
 import akka.util.ByteString
 import cats.Show
 import org.json4s.JsonAST.JString
-import org.json4s.jackson.Serialization.{write ⇒ jsonWrite}
 import org.json4s.jackson.compactJson
 import org.json4s.{CustomKeySerializer, CustomSerializer, Formats}
+import scala.collection.immutable.TreeMap
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -64,9 +66,14 @@ trait ADT[F] extends Read[F] with Show[F] { self ⇒
     }, {
       case f ⇒ read(f).getOrError(s"No such element: $f")
     })
+
+  lazy val pathMatcher: PathMatcher1[F] = PathMatcher(
+      TreeMap(typeMap.toList: _*)(Ordering[String].reverse))
 }
 object ADT {
   @inline def apply[T](implicit adt: ADT[T]): ADT[T] = adt
+
+  implicit def pathMatcher[T](adt: ADT[T]): PathMatcher1[T] = adt.pathMatcher
 }
 
 trait Chunkable[T] {
