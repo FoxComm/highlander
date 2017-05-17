@@ -1,4 +1,6 @@
 import cats.implicits._
+import phoenix.failures.OrderFailures.OnlyOneExternalPaymentIsAllowed
+import phoenix.failures.ReturnFailures._
 import core.failures._
 import org.scalatest.prop.PropertyChecks
 import faker.Lorem

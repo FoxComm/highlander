@@ -3,6 +3,9 @@ package phoenix.services
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import core.failures.GeneralFailure
+import failures.GeneralFailure
+import phoenix.failures.PromotionFailures.PromotionNotFoundForContext
+import phoenix.failures.ShippingMethodFailures.NoDefaultShippingMethod
 import objectframework.ObjectUtils
 import objectframework.models._
 import org.json4s.JsonAST._
@@ -26,6 +29,7 @@ import phoenix.models.shipping.DefaultShippingMethods
 import phoenix.payloads.CartPayloads.CheckoutCart
 import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
 import phoenix.responses.cord.OrderResponse
+
 import phoenix.services.carts._
 import phoenix.services.coupon.CouponUsageService
 import phoenix.services.inventory.SkuManager
@@ -347,6 +351,10 @@ case class Checkout(
   // do only one external payment. Check AP first, pay if it present otherwise try CC charge
   private def doExternalPayment(orderTotal: Int, internalPaymentTotal: Int): DbResultT[Unit] = {
     for {
+      // make sure that exactly one external payment is found, funds sufficiency check will be running later on
+      pmtCount ← * <~ OrderPayments.findAllExternalPayments(cart.refNum).size.result
+      _        ← * <~ failIfNot(pmtCount == 1, OnlyOneExternalPaymentIsAllowed)
+
       ap ← * <~ authApplePay(orderTotal, internalPaymentTotal)
       _  ← * <~ doOrMeh(ap.isEmpty, authCreditCard(orderTotal, internalPaymentTotal))
     } yield ()

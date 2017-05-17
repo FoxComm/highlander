@@ -1,6 +1,7 @@
 package phoenix.services
 
 import cats.implicits._
+import phoenix.failures.CaptureFailures.ExternalPaymentNotFound
 import phoenix.failures.CaptureFailures
 import phoenix.failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
 import phoenix.models.account.{User, Users}
@@ -19,9 +20,9 @@ import phoenix.utils.apis.Apis
 import slick.jdbc.PostgresProfile.api._
 import core.utils.Money.Currency
 import core.db._
-import models.payment.{ExternalCharge, ExternalChargeVals}
-import models.payment.ExternalCharge._
-import models.payment.applepay.ApplePayCharges
+import phoenix.models.payment.{ExternalCharge, ExternalChargeVals}
+import phoenix.models.payment.ExternalCharge._
+import phoenix.models.payment.applepay.ApplePayCharges
 
 //
 //TODO: Create order state InsufficientFundHold
@@ -151,23 +152,22 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
     } yield {}
 
   private def externalCapture(total: Int, order: Order): DbResultT[Unit] = {
-    val paymentNotFound = CaptureFailures.ExternalPaymentNotFound(order.refNum)
     def capture(charge: ExternalCharge[_]) = captureFromStripe(total, charge, order)
 
     for {
       pmt ← * <~ OrderPayments
              .findAllExternalPayments(payload.order)
-             .mustFindOneOr(paymentNotFound)
+             .mustFindOneOr(ExternalPaymentNotFound(order.refNum))
 
       // we must find one the following charges
       apCharge ← * <~ ApplePayCharges.filter(_.orderPaymentId === pmt.id).one
       ccCharge ← * <~ CreditCardCharges.filter(_.orderPaymentId === pmt.id).one
+      externalCharges = Set(apCharge, ccCharge)
 
-      // make sure that smth was found
-      _ ← * <~ failIf(apCharge.isEmpty && ccCharge.isEmpty, paymentNotFound)
+      _ ← * <~ failIf(externalCharges.forall(_.isEmpty), ExternalPaymentNotFound(order.refNum))
 
-      _ ← * <~ ccCharge.map(capture)
-      _ ← * <~ apCharge.map(capture)
+      // capture one of external charges
+      _ ← * <~ externalCharges.foreach(_ map capture)
     } yield ()
   }
 

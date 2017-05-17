@@ -1,5 +1,6 @@
 import cats.implicits._
 import failures.GeneralFailure
+import failures.OrderFailures.OnlyOneExternalPaymentIsAllowed
 import faker.Lorem
 import models.location.Region
 import models.shipping._
@@ -8,13 +9,13 @@ import payloads.CapturePayloads.{Capture, CaptureLineItem, ShippingCost}
 import payloads.CartPayloads.CreateCart
 import payloads.CustomerPayloads.CreateCustomerPayload
 import payloads.LineItemPayloads._
-import payloads.PaymentPayloads.CreateApplePayPayment
+import payloads.PaymentPayloads.{CreateApplePayPayment, CreditCardPayment}
 import payloads.UpdateShippingMethod
-import responses.{CaptureResponse, CustomerResponse}
 import responses.cord._
-import services.StripeTest
+import responses.{CaptureResponse, CreditCardsResponse, CustomerResponse}
 import testutils._
 import testutils.apis.PhoenixStorefrontApi
+import testutils.fixtures.PaymentFixtures.CreditCardsFixture
 import testutils.fixtures.api._
 import utils.MockedApis
 import utils.seeds.{Factories, ShipmentSeeds}
@@ -61,8 +62,40 @@ class ApplePayIntegrationTest
       .mustFailWith400(GeneralFailure("stripeTokenId should start with 'tok_'"))
   }
 
-  "Capture Apple Pay" - {
-    "Capture authorized payments" in new ApplePayFixture {
+  "Capture of Apple Pay payments" - {
+
+    "Should capture cc payments if cc payment was authorized" in new ApplePayFixture
+    with CreditCardsFixture {
+      withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
+        val cc = storefrontPaymentsApi.creditCards.create(ccPayload).as[CreditCardsResponse.Root]
+        cartsApi(refNum).payments.creditCard.add(CreditCardPayment(cc.id)).mustBeOk()
+
+        val orderResponse = cartsApi(refNum).checkout().as[OrderResponse]
+        val skuInCart     = orderResponse.lineItems.skus
+
+        val capturePayload =
+          Capture(orderResponse.referenceNumber,
+                  skuInCart.map(sku ⇒ CaptureLineItem(sku.referenceNumbers.head, sku.sku)),
+                  ShippingCost(400, "USD"))
+
+        captureApi.capture(capturePayload).mustBeOk()
+      }
+    }
+
+    "Only one external payment should be found" in new ApplePayFixture with CreditCardsFixture {
+      val payment = CreateApplePayPayment(stripeToken = apToken)
+
+      withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
+        // adding both apple pay and CC payment
+        storefrontPaymentsApi.applePay.create(payment).mustBeOk()
+        val cc = storefrontPaymentsApi.creditCards.create(ccPayload).as[CreditCardsResponse.Root]
+        cartsApi(refNum).payments.creditCard.add(CreditCardPayment(cc.id)).mustBeOk()
+
+        cartsApi(refNum).checkout().mustFailWith400(OnlyOneExternalPaymentIsAllowed)
+      }
+    }
+
+    "Capture authorized Apple Pay payments" in new ApplePayFixture {
       val payment = CreateApplePayPayment(stripeToken = apToken)
 
       withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒

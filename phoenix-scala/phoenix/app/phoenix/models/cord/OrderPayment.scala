@@ -7,7 +7,7 @@ import core.failures.Failure
 import core.utils.Money._
 import core.utils.Validation._
 import failures.Failure
-import models.cord.OrderPayments.filter
+import phoenix.models.cord.OrderPayments.filter
 import phoenix.models.payment.PaymentMethod
 import phoenix.models.payment.PaymentMethod.ExternalPayment
 import phoenix.models.payment.creditcard.{CreditCard, CreditCards}

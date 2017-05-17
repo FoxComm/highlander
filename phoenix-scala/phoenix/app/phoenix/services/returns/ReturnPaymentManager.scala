@@ -3,7 +3,7 @@ package phoenix.services.returns
 import cats.implicits._
 import core.db._
 import failures.GeneralFailure
-import phoenix.failures.OrderFailures.OrderPaymentNotFoundFailure
+import phoenix.failures.OrderFailures.{OnlyOneExternalPaymentIsAllowed, OrderPaymentNotFoundFailure}
 import phoenix.failures.ReturnFailures._
 import phoenix.models.account.{Scope, User, Users}
 import phoenix.models.cord.OrderPayments.scope._
@@ -22,7 +22,7 @@ import phoenix.utils.apis.{Apis, RefundReason}
 import slick.jdbc.PostgresProfile.api._
 import scala.annotation.tailrec
 import utils.db._
-import models.payment.applepay.ApplePayments
+import phoenix.models.payment.applepay.ApplePayments
 
 object ReturnPaymentManager {
   def updatePayments(refNum: String, payments: Map[PaymentMethod.Type, Int], overwrite: Boolean)(

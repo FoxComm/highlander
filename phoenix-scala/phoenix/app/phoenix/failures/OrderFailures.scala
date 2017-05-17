@@ -15,6 +15,10 @@ object OrderFailures {
       NotFoundFailure400(s"${friendlyClassName(m)} payment not found")
   }
 
+  case object OnlyOneExternalPaymentIsAllowed extends Failure {
+    def description: String = "Only one external payment is allowed!"
+  }
+
   case class OrderUpdateFailure(referenceNumber: String, reason: String) extends Failure {
     override def description = reason
   }
