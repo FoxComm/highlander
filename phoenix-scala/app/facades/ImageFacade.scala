@@ -12,7 +12,7 @@ import scala.concurrent.Future
 import scala.util.Try
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Multipart, StatusCodes, Uri}
+import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Multipart, StatusCodes, Uri, MediaTypes}
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 
@@ -94,14 +94,17 @@ object ImageFacade extends ImageHelpers {
 
   object ImageUploader {
 
+    val allowedImageTypes: List[String] =
+      List(MediaTypes.`image/gif`, MediaTypes.`image/png`, MediaTypes.`image/jpeg`).map(_.value)
+
     implicit object ImagePayloadUploader extends ImageUploader[ImagePayload] {
 
       def shouldBeValidImage(imageData: ByteBuffer): Either[Failures, Unit] = {
-        guessContentType(imageData) match {
-          case Some("image/gif") | Some("image/png") | Some("image/jpeg") ⇒ Either.right({})
-          case Some(e)                                                    ⇒ Either.left(UnsupportedImageType(e).single)
-          case _                                                          ⇒ Either.left(UnknownImageType.single)
-        }
+        guessContentType(imageData).map { contentType ⇒
+          if (allowedImageTypes.contains(contentType)) Either.right({})
+          else Either.left(UnsupportedImageType(contentType).single)
+        }.getOrElse(Either.left(UnknownImageType.single))
+
       }
 
       def shouldBeValidUrl(url: String): Either[Failures, Uri] = {
@@ -123,7 +126,7 @@ object ImageFacade extends ImageHelpers {
           imageData ← * <~ fetchImageData(url)
           _         ← * <~ shouldBeValidImage(imageData)
           url ← * <~ saveBufferAndThen[String](imageData) { path ⇒
-                 val fileName = extractFileNameFromUrl(payload.src)
+                 val fileName = extractFileNameFromUri(url)
                  val s3Path   = S3Path.get(maybeAlbum, fileName = fileName)
                  DbResultT.fromResult(apis.amazon.uploadFile(s3Path.absPath, path.toFile))
                }
@@ -308,7 +311,7 @@ object ImageFacade extends ImageHelpers {
 
 trait ImageHelpers extends LazyLogging {
 
-  protected def extractFileNameFromUrl(url: String): String = {
+  protected def extractFileNameFromUri(uri: Uri): String = {
 
     @tailrec
     def latestSegment(path: Uri.Path): Option[String] = {
@@ -319,7 +322,7 @@ trait ImageHelpers extends LazyLogging {
       }
     }
 
-    val revPath = Uri(url).path.reverse
+    val revPath = uri.path.reverse
     latestSegment(revPath).getOrElse(s"${utils.generateUuid}.jpg")
   }
 
