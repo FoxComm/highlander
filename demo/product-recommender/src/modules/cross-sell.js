@@ -35,14 +35,6 @@ const _fetchRelatedProducts = createAsyncActions('relatedProducts',
 // actions - public
 export const clearRelatedProducts = createAction('CROSS_SELL_CLEAR_RELATED_PRODUCTS');
 
-export const train = (customerId: number, channelId: number, cartLineItemsSkus: Array<any>) => {
-  const crossSellPoints = _.map(_(cartLineItemsSkus).map('productFormId').value(), (productFormId) => {
-    return { custID: customerId, prodID: productFormId, chanID: channelId };
-  });
-
-  return foxApi.crossSell.crossSellTrain({ points: crossSellPoints });
-};
-
 export const fetchRelatedProducts = _fetchRelatedProducts.perform;
 
 // redux
