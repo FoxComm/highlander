@@ -7,7 +7,7 @@
     user: ubuntu
     packing: true
     join_type: join
-    mesos_quorum: 3
+    mesos_quorum: 2
     consul_expect: 3
 
   roles:
