@@ -20,7 +20,7 @@ supported_apps:
     - stock-items-consumer
     - customer-groups-consumer
     - shipstation
-    - marketplace
+    - onboarding_service
     - hyperion
 
 # Mapping canonical app name to application path
@@ -43,7 +43,7 @@ app_template_paths:
     shipments-consumer: dev/marathon_consumers/templates/shipments.json
     stock-items-consumer: dev/marathon_consumers/templates/stock-items-consumer.json
     customer-groups-consumer: dev/marathon_consumers/templates/customer-groups-consumer.json
-    marketplace-ui: ext/tgt/marketplace-ui/templates/marketplace-ui.json
+    onboarding_service-ui: ext/tgt/onboarding_service-ui/templates/onboarding_service-ui.json
 
 # Mapping canonical app name to Marathon app name
 app_marathon_names:
@@ -97,8 +97,8 @@ docker_tags:
     customer_groups_consumer: "{{tag_name}}"
     storefront_td: "{{tag_name}}"
     storefront_tpg: "{{tag_name}}"
-    marketplace: "{{tag_name}}"
-    marketplace_ui: "{{tag_name}}"
+    onboarding_service: "{{tag_name}}"
+    onboarding_ui: "{{tag_name}}"
     product_search: "{{tag_name}}"
     demo_search: "{{tag_name}}"
     hyperion: "{{tag_name}}"

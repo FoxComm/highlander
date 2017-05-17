@@ -31,9 +31,9 @@
 - name: Setup Middlewarehouse Database Backup Cron
   cron: name="middlewarehouse db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh {{db_backup_filename_mwh}} {{middlewarehouse_db_name}}"
 
-- name: Setup Marketplace Database Backup Cron
-  cron: name="marketplace db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh {{db_backup_filename_marketplace}} {{marketplace_db_name}}"
-  when: with_marketplace
+- name: Setup Onboarding Database Backup Cron
+  cron: name="onboarding_service db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh {{db_backup_filename_onboarding_service}} {{onboarding_service_db_name}}"
+  when: with_onboarding
 
 - name: Reload Systemd for Backup DB Service
   command: systemctl daemon-reload
