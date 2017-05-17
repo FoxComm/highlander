@@ -351,9 +351,10 @@ case class Checkout(
   // do only one external payment. Check AP first, pay if it present otherwise try CC charge
   private def doExternalPayment(orderTotal: Int, internalPaymentTotal: Int): DbResultT[Unit] = {
     for {
-      // make sure that exactly one external payment is found, funds sufficiency check will be running later on
-      pmtCount ← * <~ OrderPayments.findAllExternalPayments(cart.refNum).size.result
-      _        ← * <~ failIfNot(pmtCount == 1, OnlyOneExternalPaymentIsAllowed)
+      // make sure that exactly one external payment (grouped by type) is found, funds sufficiency check will be running later on
+      orderPayments ← * <~ OrderPayments.findAllExternalPayments(cart.refNum).result
+      _ ← * <~ failIfNot(orderPayments.groupBy(_.paymentMethodType).size == 1,
+                         OnlyOneExternalPaymentIsAllowed)
 
       ap ← * <~ authApplePay(orderTotal, internalPaymentTotal)
       _  ← * <~ doOrMeh(ap.isEmpty, authCreditCard(orderTotal, internalPaymentTotal))
