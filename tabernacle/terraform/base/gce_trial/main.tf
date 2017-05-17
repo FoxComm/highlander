@@ -106,7 +106,7 @@ module "trial_production" {
   network            = "${google_compute_network.trial.name}"
   datacenter         = "trial"
   amigo_image        = "trial-amigo-170516-231235"
-  logstash_image     = ""
+  logstash_image     = "trial-logstash-170517-173120"
   database_image     = "trial-database-170516-235144"
   search_image       = "trial-search-170517-000959"
   frontend_image     = "trial-frontend-170517-001738"
