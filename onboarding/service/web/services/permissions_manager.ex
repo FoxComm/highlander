@@ -232,9 +232,12 @@ defmodule OnboardingService.PermissionManager do
   end
 
   defp full_perm_path() do
-    solomon_url = Application.get_env(:onboarding_service, OnboardingService.MerchantAccount)[:solomon_url]
-    solomon_port = Application.get_env(:onboarding_service, OnboardingService.MerchantAccount)[:solomon_port]
+    
+    service = Application.get_env(:onboarding_service, OnboardingService.MerchantAccount)[:solomon_service]
+    host = Application.get_env(:onboarding_service, OnboardingService.MerchantAccount)[:solomon_host]
 
-    full_perm_path = "#{solomon_url}:#{solomon_port}"
+    [{host, port}] = :srv.get_servers(service, '', host, 80)
+
+    full_perm_path = "http://#{host}:#{port}"
   end
 end

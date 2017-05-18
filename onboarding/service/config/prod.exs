@@ -29,10 +29,8 @@ config :onboarding_service, OnboardingService.Repo,
   pool_size: 10
 
 config :onboarding_service, OnboardingService.MerchantAccount,
-  phoenix_url: System.get_env("PHOENIX_URL"),
-  phoenix_port: System.get_env("PHOENIX_PORT"),
-  solomon_url: System.get_env("SOLOMON_URL"),
-  solomon_port: System.get_env("SOLOMON_PORT"),
+  solomon_service: System.get_env("SOLOMON_SERVICE"),
+  solomon_host: System.get_env("SOLOMON_HOST"),
   stripe_private_key: System.get_env("STRIPE_API_KEY")
 
 # configure jwt auth

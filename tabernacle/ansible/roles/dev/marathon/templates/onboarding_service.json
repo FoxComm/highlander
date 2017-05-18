@@ -1,5 +1,5 @@
 {
-  "id": "/onboarding_service",
+  "id": "/onboarding-service",
   "cmd": null,
   "cpus": 1,
   "mem": 256,
@@ -13,13 +13,11 @@
   },
   "env": {
     "DB_NAME": "{{onboarding_service_db_name}}",
-    "PHOENIX_URL": "{{phoenix_host}}",
-    "PHOENIX_PORT": "{{phoenix_port}}",
-    "SOLOMON_URL": "{{solomon_host}}",
     "DB_HOST": "{{docker_db_host}}",
     "DB_USER": "{{onboarding_service_db_user}}",
     "DB_PASSWORD": "",
-    "SOLOMON_PORT": "{{solomon_port}}",
+    "SOLOMON_SERVICE": "{{solomon_service_name}}",
+    "SOLOMON_HOST": "{{consul_suffix}}",
     "PUBLIC_KEY": "{{public_keys_dest_dir}}/public_key.pem",
     "STRIPE_API_KEY": "{{stripe_api_key}}"
   },
@@ -33,7 +31,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/onboarding_service:{{docker_tags.onboarding_service}}",
+      "image": "{{docker_registry}}:5000/onboarding-service:{{docker_tags.onboarding_service}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
