@@ -8,7 +8,7 @@ let webpackManifest = {
 };
 
 if (process.env.NODE_ENV === 'production') {
-  webpackManifest['vendor.js'] = 'vendor.js';
+  webpackManifest = require('../build/admin/manifest.json');
 }
 
 function loadPublicKey(config) {
@@ -60,15 +60,15 @@ module.exports = function(app) {
     }
   }
 
-  app.verifyToken = function *(next) {
-    this.state.token = getToken(this);
+  app.injectToken = async function(ctx, next) {
+    ctx.state.token = getToken(ctx);
 
-    yield next;
+    next();
   };
 
-  app.jsonError = function *(next) {
+  app.jsonError = function(next) {
     try {
-      yield next;
+      return next();
     } catch(err) {
       this.status = err.status || 500;
 
@@ -83,18 +83,18 @@ module.exports = function(app) {
     }
   };
 
-  app.renderLayout = function *() {
+  app.renderLayout = async function(ctx, next) {
     const layoutData = _.defaults({
       manifest: webpackManifest,
-      tokenOk: !!this.state.token,
+      tokenOk: !!ctx.state.token,
       stylesheet: process.env.NODE_ENV === 'production' && `/admin/styles.css`,
       // use GA_LOCAL=1 gulp dev command for enable tracking events in google analytics from localhost
       gaEnableLocal: 'GA_LOCAL' in process.env,
-      JWT: JSON.stringify(this.state.jwt || null),
+      JWT: JSON.stringify(ctx.state.jwt || null),
       stripeApiKey: JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY || null),
       GA_TRACKING_ID: process.env.GA_TRACKING_ID,
     });
 
-    this.body = layout(layoutData);
+    ctx.body = layout(layoutData);
   };
 };

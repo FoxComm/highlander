@@ -5,11 +5,14 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="icon" href="/admin/favicon.ico">
+  <link rel="apple-touch-icon" href="/admin/apple-touch-icon.png">
+
   <title>FoxCommerce</title>
   <% if (typeof stylesheet == 'string') { %>
-  <link rel="stylesheet" href="<%= stylesheet %>" />
+  <link rel="stylesheet" href="/admin/<%= manifest['main.css'] %>" />
   <% } %>
-  <link rel="icon" type="image/png" href="/admin/favicon.png">
+
   <script>
     <% if (typeof GA_TRACKING_ID == 'string') { %>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

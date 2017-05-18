@@ -1,14 +1,14 @@
 const path = require('path');
 const koa = require('koa');
 const co = require('co');
-const favicon = require('koa-favicon');
 const serve = require('koa-better-static');
+const convert = require('koa-convert');
 const Config  = require(path.resolve('config'));
 
-const app = koa();
+const app = new koa();
 
-const publicDir = path.resolve(__dirname + './../public');
-const buildDir = path.resolve(__dirname + './../build');
+const publicDir = path.resolve(__dirname, '../public');
+const buildDir = path.resolve(__dirname, '../build');
 
 app.init = co.wrap(function *(env) {
   if (env) {
@@ -17,9 +17,11 @@ app.init = co.wrap(function *(env) {
 
   app.config = new Config(app.env);
 
-  app.use(serve(buildDir));
-  app.use(serve(publicDir));
-  app.use(favicon(path.resolve('public/admin/favicon.ico')));
+  if (process.env.NODE_ENV === 'production') {
+    app.use(convert(serve(buildDir)));
+  }
+
+  app.use(convert(serve(publicDir)));
 
   if (app.env.environment !== 'production') {
     require('./hmr')(app);
@@ -33,7 +35,10 @@ app.init = co.wrap(function *(env) {
     require(`./api`)(app);
   }
 
-  require(`./cms`)(app);
+  app
+    .use(app.injectToken)
+    .use(app.renderLayout);
+
   app.server = app.listen(app.config.server.port);
 });
 

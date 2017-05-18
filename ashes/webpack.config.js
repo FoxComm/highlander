@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const merge = require('webpack-merge');
 const SvgStore = require('webpack-svgstore-plugin');
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -26,7 +27,7 @@ const baseConfig = {
         use: [ 'json-loader' ]
       },
       {
-        test: /\.(png|woff|woff2)$/,
+        test: /\.(png|ico|woff|woff2)$/,
         use: [
           {
             loader: 'file-loader',
@@ -48,6 +49,9 @@ const baseConfig = {
     }),
 
     new SvgStore(),
+
+    // Uncomment it and relaunch (make p or make d): stats will be opened in your default browser
+    // new BundleAnalyzerPlugin(),
   ],
 
   resolve: {
