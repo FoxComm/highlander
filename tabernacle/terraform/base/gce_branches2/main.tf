@@ -36,18 +36,3 @@ module "styleguide" {
   dnsimple_account = "${var.dnsimple_account}"
   dnsimple_token   = "${var.dnsimple_token}"
 }
-
-##############################################
-# Setup Stage Marathon groups Instance
-##############################################
-module "stagegroup" {
-  source           = "../../modules/gce/appliance"
-  instance_name    = "stagegroup"
-  dns_record       = "stagegroup"
-  appliance_image  = "${var.appliance_image}"
-  consul_leader    = "${var.consul_leader}"
-  ssh_user         = "${var.ssh_user}"
-  ssh_private_key  = "${var.ssh_private_key}"
-  dnsimple_account = "${var.dnsimple_account}"
-  dnsimple_token   = "${var.dnsimple_token}"
-}
