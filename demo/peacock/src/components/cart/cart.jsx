@@ -8,9 +8,11 @@ import { connect } from 'react-redux';
 import { browserHistory } from 'lib/history';
 import { autobind } from 'core-decorators';
 import * as tracking from 'lib/analytics';
-
-// localization
 import localized from 'lib/i18n';
+
+// actions
+import * as actions from 'modules/cart';
+import { checkApplePay, beginApplePay } from 'modules/checkout';
 
 // components
 import Currency from 'ui/currency';
@@ -22,28 +24,27 @@ import { parseError } from '@foxcomm/api-js';
 import Overlay from 'ui/overlay/overlay';
 import ActionLink from 'ui/action-link/action-link';
 
-// styles
-import styles from './cart.css';
-
 // types
 import type { Totals } from 'modules/cart';
 
-// actions
-import * as actions from 'modules/cart';
+// styles
+import styles from './cart.css';
 
 type Props = {
-  fetch: Function,
-  deleteLineItem: Function,
-  updateLineItemQuantity: Function,
-  toggleCart: Function,
-  hideCart: Function,
-  skus: Array<any>,
+  fetch: Function, // signature
+  deleteLineItem: Function, // siganture
+  updateLineItemQuantity: Function, // signature
+  toggleCart: Function, // signature
+  hideCart: Function, // signature
+  skus: Array<mixed>,
   coupon: ?Object,
   promotion: ?Object,
   totals: Totals,
   user?: ?Object,
   isVisible: boolean,
   t: any,
+  applePayAvailable: boolean,
+  checkApplePay: Function, // signature
 };
 
 type State = {
@@ -58,6 +59,7 @@ class Cart extends Component {
   };
 
   componentDidMount() {
+    this.props.checkApplePay();
     if (this.props.user) {
       this.props.fetch(this.props.user);
     } else {
@@ -139,6 +141,48 @@ class Cart extends Component {
     ;
   }
 
+  @autobind
+  beginApplePay() {
+    console.log('starting the apple pay inside the checkout.jsx');
+    const total = this.props.cart.totals.total;
+    console.log('the total from the cart -> ', total);
+    const amount = (parseFloat(total)/100).toFixed(2);
+    console.log('amount -> ', amount);
+    const paymentRequest = {
+      countryCode: 'US',
+      currencyCode: 'USD',
+      total: {
+        label: 'Pure',
+        amount: amount.toString(),
+      },
+      'requiredShippingContactFields': [
+        'postalAddress',
+        'name',
+        'phone',
+      ],
+      'requiredBillingContactFields': [
+        'postalAddress',
+        'name',
+      ],
+    };
+    console.log('payment request obj -> ', paymentRequest);
+    this.props.beginApplePay(paymentRequest).then(() => {
+      console.log('redirecting to the order confirmation page...');
+       browserHistory.push('/checkout/done')
+     });
+  }
+
+  get applePayButton() {
+    if (!this.props.applePayAvailable) return null;
+
+    return (
+      <Button
+        styleName="apple-pay checkout-button"
+        onClick={this.beginApplePay}
+      />
+    );
+  }
+
   render() {
     const {
       t,
@@ -146,6 +190,7 @@ class Cart extends Component {
       toggleCart,
       skus,
       isVisible,
+      applePayAvailable,
     } = this.props;
 
     const cartClass = classNames({
@@ -154,6 +199,13 @@ class Cart extends Component {
     });
 
     const checkoutDisabled = _.size(skus) < 1;
+    const footerClasses = classNames(styles['cart-footer'], {
+      [styles['with-apple-pay']]: applePayAvailable,
+    });
+
+    const contentClasses = classNames(styles['cart-content'], {
+      [styles['with-apple-pay']]: applePayAvailable,
+    });
 
     return (
       <div styleName={cartClass}>
@@ -168,20 +220,21 @@ class Cart extends Component {
             />
           </div>
 
-          <div styleName="cart-content">
+          <div className={contentClasses}>
             <div styleName="line-items">
               {this.lineItems}
             </div>
             {this.errorsLine}
           </div>
 
-          <div styleName="cart-footer">
+          <div className={footerClasses}>
             <Button onClick={this.onCheckout} disabled={checkoutDisabled} styleName="checkout-button">
               <span>{t('Checkout')}</span>
               <span styleName="subtotal-price">
                 <Currency value={totals.subTotal} />
               </span>
             </Button>
+            {this.applePayButton}
           </div>
         </div>
       </div>
@@ -189,8 +242,16 @@ class Cart extends Component {
   }
 }
 
-const mapStateToProps = state => ({ ...state.cart, ...state.auth });
+const mapStateToProps = (state) => {
+  return {
+    ...state.cart,
+    ...state.auth,
+    applePayAvailable: _.get(state.checkout, 'applePayAvailable', false),
+  };
+};
 
 export default connect(mapStateToProps, {
   ...actions,
+  checkApplePay,
+  beginApplePay,
 })(localized(Cart));

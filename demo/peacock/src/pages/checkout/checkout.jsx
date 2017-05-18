@@ -73,8 +73,6 @@ class Checkout extends Component {
       tracking.checkoutStart(cart.lineItems);
     });
 
-    this.props.checkApplePay();
-
     if (!this.isEmailSetForCheckout()) {
       this.props.fetchUser();
     }
@@ -172,7 +170,6 @@ class Checkout extends Component {
   checkout() {
     return this.props.checkout()
       .then(() => {
-        this.props.setEditStage(EditStages.FINISHED);
         browserHistory.push('/checkout/done');
       });
   }
@@ -181,35 +178,6 @@ class Checkout extends Component {
   isEmailSetForCheckout() {
     const user = _.get(this.props, ['auth', 'user'], null);
     return emailIsSet(user);
-  }
-
-  @autobind beginApplePay() {
-    console.log('starting the apple pay inside the checkout.jsx');
-    const total = this.props.cart.totals.total;
-    console.log('the total from the cart -> ', total);
-    const amount = (parseFloat(total)/100).toFixed(2);
-    console.log('amount -> ', amount);
-    const paymentRequest = {
-      countryCode: 'US',
-      currencyCode: 'USD',
-      total: {
-        label: 'Stripe.com',
-        amount: amount.toString(),
-      },
-    };
-    console.log('payment request obj -> ', paymentRequest);
-    this.props.beginApplePay(paymentRequest);
-  }
-
-  get applePayButton() {
-    if (!this.props.applePayAvailable) return null;
-
-    return (
-      <Button
-        styleName="apple-pay"
-        onClick={this.beginApplePay}
-      />
-    );
   }
 
   get orderTotals() {
@@ -235,7 +203,6 @@ class Checkout extends Component {
           >
             Place order
           </Button>
-          {this.applePayButton}
         </div>
       </div>
     );
