@@ -1,8 +1,6 @@
 const path = require('path');
 const { camelCase, upperFirst } = require('lodash');
 
-console.log(path.resolve(__dirname, 'src/components/code/button', 'index.js'));
-
 module.exports = {
   title: 'Ashes Components Style Guide',
   showCode: false,

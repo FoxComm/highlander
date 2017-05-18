@@ -70,7 +70,7 @@ class NavDropdown extends Component {
         </Transition>
       </li>
     );
-  };
+  }
 }
 
 export default NavDropdown;
