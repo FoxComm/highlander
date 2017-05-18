@@ -18,7 +18,7 @@ import s from './page-nav.css';
 
 type Props = {
   /** List of links */
-  children: Array<ReactElement<any>>,
+    children: Array<ReactElement<any>>,
 };
 
 /**
@@ -51,7 +51,7 @@ class PageNav extends Component {
 
   @autobind
   handleResize() {
-    const items = this.itemElements;
+    const items = React.Children.count(this.props.children);
 
     if (items.length < 3) {
       return;
@@ -91,7 +91,18 @@ class PageNav extends Component {
     // find element who's right side is further then nav width
     const from = this._itemsRightEdges.findIndex(right => right > this._nav.offsetWidth);
 
-    return from > -1 ? from - 1 : React.Children.count(this.props.children);
+    // If all items fit inside parent return number of children
+    if (from === -1) {
+      return React.Children.count(this.props.children);
+    }
+
+    // If first or second item do not fit, collapse from second (always show first item)
+    if (from <= 1) {
+      return 1;
+    }
+
+    // Otherwise collapse on previous item (otherwise dropdown label can overflow parent)
+    return from - 1;
   }
 
   get items() {

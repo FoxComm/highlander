@@ -5,7 +5,7 @@ export PATH := $(CURDIR)/node_modules/.bin:$(PATH)
 SHELL := env PATH=$(PATH) /bin/bash
 
 GIT_REVISION = $(shell git describe --always)
-GIT_COMMIT = $(shell git log --pretty=format:'%h' -n 1)
+GIT_COMMIT = $(shell git rev-parse --short HEAD)
 WEBPACK_PORT = 4001
 
 # Docker stuff ###

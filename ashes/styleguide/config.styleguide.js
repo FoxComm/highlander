@@ -78,8 +78,8 @@ module.exports = {
     },
   ],
   require: [
-    path.join(__dirname, 'styleguide.less'),
     path.join(__dirname, '../src/css/base.css'),
     path.join(__dirname, '../src/images/favicons/favicon.ico'),
+    path.join(__dirname, 'styleguide.less'),
   ]
 };

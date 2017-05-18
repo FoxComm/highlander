@@ -2,6 +2,8 @@
 
 .block {
   position: relative;
+  display: flex;
+  align-items: flex-end;
   border-bottom: 2px solid var(--nav-item-underline);
   margin: 20px 1.85%; /* because of grid system :( */
   white-space: nowrap;
@@ -28,6 +30,7 @@
     display: inline-flex;
     color: inherit;
     padding: 0 20px 10px;
+    transition: color .2s;
 
     &:after {
       content: '';

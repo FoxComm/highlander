@@ -25,7 +25,7 @@ const App = (props) => (
   <div>
     <PageNav>
       <Link to="styles">Styles</Link>
-      <Link to="flow">Flow</Link>
+      <Link to="flow">Flow Type<br />Multiline</Link>
     </PageNav>
     {props.children}
   </div>

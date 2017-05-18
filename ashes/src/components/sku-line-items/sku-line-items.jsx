@@ -4,7 +4,7 @@ import _ from 'lodash';
 import classNames from 'classnames';
 import React, { Element } from 'react';
 
-import Link from 'components/link';
+import { Link } from 'components/link';
 import TableView from 'components/table/tableview';
 import SkuLineItemAttributes from '../sku-line-items/sku-line-item-attributes';
 
