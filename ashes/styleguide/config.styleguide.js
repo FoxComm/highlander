@@ -5,7 +5,7 @@ module.exports = {
   showCode: true,
   ignore: [path.join(__dirname, '../src/components/core/**/*.spec.jsx')],
   webpackConfig: require('./webpack.styleguide.js'),
-  styleguideDir: path.resolve('public/admin/styleguide'),
+  styleguideDir: path.resolve('build/admin/styleguide'),
   sections: [
     {
       name: 'Documentation',
