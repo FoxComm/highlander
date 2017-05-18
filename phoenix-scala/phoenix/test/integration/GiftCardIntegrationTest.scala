@@ -1,19 +1,20 @@
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.GiftCardFailures.GiftCardConvertFailure
-import failures.ScopeFailures._
 import failures._
-import models.Reason
-import models.account._
-import models.payment.giftcard.GiftCard._
-import models.payment.giftcard._
-import models.payment.storecredit.StoreCredit
-import models.payment.{InStorePaymentStates, storecredit}
-import payloads.GiftCardPayloads._
-import responses.GiftCardAdjustmentsResponse.{Root ⇒ GcAdjRoot}
-import responses.GiftCardResponse.{Root ⇒ GcRoot}
-import responses.StoreCreditResponse.{Root ⇒ ScRoot}
-import responses._
+import phoenix.failures.GiftCardFailures.GiftCardConvertFailure
+import phoenix.failures.ScopeFailures._
+import phoenix.failures.{EmptyCancellationReasonFailure, OpenTransactionsFailure}
+import phoenix.models.Reason
+import phoenix.models.account._
+import phoenix.models.payment.giftcard.GiftCard._
+import phoenix.models.payment.giftcard._
+import phoenix.models.payment.storecredit.StoreCredit
+import phoenix.models.payment.{InStorePaymentStates, storecredit}
+import phoenix.payloads.GiftCardPayloads._
+import phoenix.responses.GiftCardAdjustmentsResponse.{Root => GcAdjRoot}
+import phoenix.responses.GiftCardResponse.{Root => GcRoot}
+import phoenix.responses.StoreCreditResponse.{Root => ScRoot}
+import phoenix.responses._
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi

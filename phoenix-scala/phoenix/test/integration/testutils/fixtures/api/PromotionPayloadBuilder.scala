@@ -1,13 +1,14 @@
 package testutils.fixtures.api
 
 import java.time.Instant
-import models.promotion.Promotion.ApplyType
+
 import org.json4s.JsonAST.{JArray, JNull}
 import org.json4s.jackson.parseJson
-import payloads.DiscountPayloads.CreateDiscount
-import payloads.PromotionPayloads.CreatePromotion
+import phoenix.models.promotion.Promotion.ApplyType
+import phoenix.payloads.DiscountPayloads.CreateDiscount
+import phoenix.payloads.PromotionPayloads.CreatePromotion
+import phoenix.utils.aliases.Json
 import testutils.PayloadHelpers._
-import utils.aliases.Json
 
 object PromotionPayloadBuilder {
 

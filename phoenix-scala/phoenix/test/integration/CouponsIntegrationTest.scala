@@ -3,27 +3,25 @@ import java.time.Instant.now
 import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
-import failures.CartFailures.OrderAlreadyPlaced
-import failures.CouponFailures.CouponIsNotActive
 import failures.NotFoundFailure404
-import failures.ObjectFailures._
-import models.cord.{Carts, Orders}
-import models.coupon.Coupon
+import failures.ObjectFailures.ObjectContextNotFound
 import models.objects.ObjectContext
-import models.traits.IlluminatedModel
 import org.json4s.JsonAST._
-import payloads.CouponPayloads._
-import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.CartPayloads.CreateCart
-import responses.CouponResponses.CouponResponse
-import responses.cord.CartResponse
-import testutils.PayloadHelpers._
+import phoenix.failures.CartFailures.OrderAlreadyPlaced
+import phoenix.failures.CouponFailures.CouponIsNotActive
+import phoenix.models.cord.{Carts, Orders}
+import phoenix.models.coupon.Coupon
+import phoenix.models.traits.IlluminatedModel
+import phoenix.payloads.CartPayloads.CreateCart
+import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
+import phoenix.responses.CouponResponses.CouponResponse
+import phoenix.responses.cord.CartResponse
+import phoenix.utils.time.RichInstant
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
 import utils.db._
-import utils.time.RichInstant
 
 class CouponsIntegrationTest
     extends IntegrationTestBase

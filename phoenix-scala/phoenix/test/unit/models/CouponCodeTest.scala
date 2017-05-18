@@ -1,9 +1,9 @@
 package models
 
-import scala.util.Random
-
-import models.coupon._
+import phoenix.models.coupon._
 import testutils.TestBase
+
+import scala.util.Random
 
 class CouponCodeTest extends TestBase {
 

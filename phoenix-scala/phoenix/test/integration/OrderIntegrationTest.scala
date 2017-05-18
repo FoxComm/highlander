@@ -1,15 +1,16 @@
-import failures.{NotFoundFailure404, StateTransitionNotAllowed}
-import models.cord.Order._
-import models.cord._
-import models.shipping.ShippingMethods
-import payloads.OrderPayloads.UpdateOrderPayload
-import responses.cord.OrderResponse
+import failures.NotFoundFailure404
+import phoenix.failures.StateTransitionNotAllowed
+import phoenix.models.cord.Order._
+import phoenix.models.cord._
+import phoenix.models.shipping.ShippingMethods
+import phoenix.payloads.OrderPayloads.UpdateOrderPayload
+import phoenix.responses.cord.OrderResponse
+import phoenix.utils.seeds.Factories
+import phoenix.utils.time._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Factories
-import utils.time._
 
 class OrderIntegrationTest
     extends IntegrationTestBase

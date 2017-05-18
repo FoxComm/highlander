@@ -1,19 +1,17 @@
 import java.time.Instant
 
-import cats.implicits._
 import failures.NotFoundFailure404
-import models._
-import models.payment.giftcard._
-import payloads.NotePayloads._
-import responses.AdminNotes
-import responses.AdminNotes.Root
-import services.notes.GiftCardNoteManager
+import phoenix.models._
+import phoenix.models.payment.giftcard._
+import phoenix.payloads.NotePayloads._
+import phoenix.responses.AdminNotes
+import phoenix.responses.AdminNotes.Root
+import phoenix.utils.seeds.Factories
+import phoenix.utils.time.RichInstant
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Factories
-import utils.time.RichInstant
 
 class GiftCardNotesIntegrationTest
     extends IntegrationTestBase

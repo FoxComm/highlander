@@ -4,14 +4,14 @@ import java.time.{Instant, ZoneId}
 
 import cats.implicits._
 import com.stripe.Stripe
-import failures.CreditCardFailures.CardDeclined
+import phoenix.failures.CreditCardFailures.CardDeclined
+import phoenix.utils.TestStripeSupport._
+import phoenix.utils.apis._
+import phoenix.utils.seeds.Factories
 import testutils._
 import utils.Money.Currency.USD
 import utils.RealStripeApi
-import utils.TestStripeSupport._
-import utils.apis._
 import utils.db._
-import utils.seeds.Factories
 
 class StripeTest extends IntegrationTestBase with RealStripeApi {
   // Mutate Stripe state, set real key

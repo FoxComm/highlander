@@ -1,21 +1,21 @@
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import models.account.Scope
-import models.image._
-import models.objects._
-import models.product._
+import models.objects.ObjectUtils
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import payloads.ImagePayloads._
-import services.image.ImageManager
+import phoenix.models.account.Scope
+import phoenix.models.image._
+import phoenix.models.objects._
+import phoenix.models.product._
+import phoenix.payloads.ImagePayloads._
+import phoenix.services.image.ImageManager
+import phoenix.utils.aliases.Json
 import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.SQLActionBuilder
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.MockedApis
 import utils.Money.Currency
-import utils.aliases.Json
 import utils.db._
 
 object ProductsCatalogViewIntegrationTest {

@@ -2,20 +2,19 @@ import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
-import failures.TaxonomyFailures._
-import models.objects.ObjectForm
-import models.taxonomy.{Taxon ⇒ ModelTaxon, _}
+import models.objects._
 import org.json4s.JsonDSL._
 import org.json4s._
-import payloads.TaxonomyPayloads._
-import payloads.TaxonPayloads._
-import responses.TaxonomyResponses._
-import responses.TaxonResponses._
+import phoenix.failures.TaxonomyFailures._
+import phoenix.models.taxonomy.{Taxon => ModelTaxon, _}
+import phoenix.payloads.TaxonPayloads._
+import phoenix.payloads.TaxonomyPayloads._
+import phoenix.responses.TaxonResponses._
+import phoenix.responses.TaxonomyResponses._
 import slick.jdbc.GetResult
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.aliases.Json
 import utils.db.ExPostgresDriver.api._
 
 class TaxonomyIntegrationTest
@@ -133,7 +132,7 @@ class TaxonomyIntegrationTest
       val response = taxonomiesApi(taxonomy.formId)
         .createTaxon(
             CreateTaxonPayload(taxonAttributes,
-                               location = TaxonLocation(parent = None, position = 1.some).some))
+                               location = TaxonLocationPayload(parent = None, position = 1.some).some))
         .as[FullTaxonResponse]
 
       val newTaxons = queryGetTaxonomy(taxonomy.formId).taxons
@@ -147,7 +146,7 @@ class TaxonomyIntegrationTest
       val response = taxonomiesApi(taxonomy.formId)
         .createTaxon(
             CreateTaxonPayload(taxonAttributes,
-                               location = TaxonLocation(parent = None, position = None).some))
+                               location = TaxonLocationPayload(parent = None, position = None).some))
         .as[FullTaxonResponse]
 
       val newTaxons = queryGetTaxonomy(taxonomy.formId).taxons
@@ -167,7 +166,7 @@ class TaxonomyIntegrationTest
 
       val response = taxonomiesApi(taxonomy.formId)
         .createTaxon(
-            CreateTaxonPayload(taxonAttributes, TaxonLocation(parentFormId.some, Some(0)).some))
+            CreateTaxonPayload(taxonAttributes, TaxonLocationPayload(parentFormId.some, Some(0)).some))
         .as[FullTaxonResponse]
 
       val newTaxons      = queryGetTaxonomy(taxonomy.formId).taxons
@@ -184,7 +183,7 @@ class TaxonomyIntegrationTest
 
       val resp = taxonomiesApi(taxonomy.formId).createTaxon(
           CreateTaxonPayload(taxonAttributes,
-                             Some(TaxonLocation(Some(parentFormId), Some(Integer.MAX_VALUE)))))
+                             Some(TaxonLocationPayload(Some(parentFormId), Some(Integer.MAX_VALUE)))))
 
       resp.status must === (StatusCodes.BadRequest)
       resp.error must === (NoTaxonAtPosition(parentFormId.some, Integer.MAX_VALUE).description)
@@ -200,7 +199,7 @@ class TaxonomyIntegrationTest
       val newParentId       = right.node.id
 
       val resp = taxonsApi(taxonToMoveId).update(
-          UpdateTaxonPayload(Map(), TaxonLocation(newParentId.some, Some(0)).some))
+          UpdateTaxonPayload(Map(), TaxonLocationPayload(newParentId.some, Some(0)).some))
       resp.status must === (StatusCodes.OK)
 
       val taxonsAfter = queryGetTaxonomy(taxonomy.formId).taxons
@@ -220,7 +219,7 @@ class TaxonomyIntegrationTest
       val taxonToMoveId = left.node.id
 
       val resp = taxonsApi(taxonToMoveId).update(
-          UpdateTaxonPayload(Map(), TaxonLocation(newParentId.some, Some(0)).some))
+          UpdateTaxonPayload(Map(), TaxonLocationPayload(newParentId.some, Some(0)).some))
       resp.status must === (StatusCodes.BadRequest)
       resp.error must === (CannotMoveParentTaxonUnderChild.description)
     }

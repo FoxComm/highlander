@@ -2,10 +2,10 @@ package testutils.apis
 
 import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.model.headers.Cookie
-import payloads.LoginPayload
-import payloads.UserPayloads._
-import testutils._
 import cats.implicits._
+import phoenix.payloads.LoginPayload
+import phoenix.payloads.UserPayloads._
+import testutils._
 
 trait PhoenixPublicApi extends HttpSupport { self: FoxSuite ⇒
 

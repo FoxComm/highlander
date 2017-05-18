@@ -1,9 +1,10 @@
-import failures.UserFailures.UserEmailNotUnique
-import failures.{NotFoundFailure404, StateTransitionNotAllowed}
-import models.account._
-import models.admin.AdminData
-import payloads.StoreAdminPayloads._
-import responses.StoreAdminResponse.Root
+import failures.NotFoundFailure404
+import phoenix.failures.StateTransitionNotAllowed
+import phoenix.failures.UserFailures.UserEmailNotUnique
+import phoenix.models.account._
+import phoenix.models.admin.AdminData
+import phoenix.payloads.StoreAdminPayloads._
+import phoenix.responses.StoreAdminResponse.Root
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

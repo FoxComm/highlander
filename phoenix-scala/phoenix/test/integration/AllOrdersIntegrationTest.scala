@@ -1,18 +1,17 @@
-import cats.syntax.order
-import failures.{NotFoundFailure404, StateTransitionNotAllowed}
-import models.account._
-import models.cord.Order._
-import models.cord._
-import models.customer._
-import payloads.OrderPayloads.BulkUpdateOrdersPayload
+import failures.NotFoundFailure404
+import phoenix.failures.StateTransitionNotAllowed
+import phoenix.models.account._
+import phoenix.models.cord.Order._
+import phoenix.models.cord._
+import phoenix.models.customer._
+import phoenix.payloads.OrderPayloads.BulkUpdateOrdersPayload
+import phoenix.responses.cord._
+import phoenix.utils.seeds.Factories
 import responses.BatchResponse
-import responses.cord._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.aliases._
 import utils.db._
-import utils.seeds.Factories
 
 class AllOrdersIntegrationTest
     extends IntegrationTestBase

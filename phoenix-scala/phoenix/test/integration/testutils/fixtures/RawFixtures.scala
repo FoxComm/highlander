@@ -2,23 +2,22 @@ package testutils.fixtures
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import models.Reason.Cancellation
-import models._
-import models.account._
-import models.cord._
-import models.inventory.Sku
-import models.location._
-import models.payment.giftcard.GiftCard
-import models.product._
-import payloads.CartPayloads.CreateCart
-import payloads.PaymentPayloads.GiftCardPayment
-import services.carts._
+import phoenix.models.Reason.Cancellation
+import phoenix.models._
+import phoenix.models.account._
+import phoenix.models.cord._
+import phoenix.models.inventory.Sku
+import phoenix.models.location._
+import phoenix.models.payment.giftcard.GiftCard
+import phoenix.models.product._
+import phoenix.payloads.CartPayloads.CreateCart
+import phoenix.payloads.PaymentPayloads.GiftCardPayment
+import phoenix.services.carts._
+import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.raw._
 import utils.Money.Currency
-import utils.apis.Apis
 import utils.db._
-import utils.seeds.Factories
 
 /**
   * Raw fixtures are cake-pattern definitions.

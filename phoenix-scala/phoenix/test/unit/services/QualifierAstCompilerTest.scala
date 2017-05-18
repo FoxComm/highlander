@@ -1,9 +1,9 @@
 package services
 
-import failures.DiscountCompilerFailures._
-import models.discount.qualifiers._
 import org.json4s.jackson.JsonMethods._
-import services.discount.compilers.QualifierAstCompiler
+import phoenix.failures.DiscountCompilerFailures._
+import phoenix.models.discount.qualifiers._
+import phoenix.services.discount.compilers.QualifierAstCompiler
 import testutils.TestBase
 
 class QualifierAstCompilerTest extends TestBase {

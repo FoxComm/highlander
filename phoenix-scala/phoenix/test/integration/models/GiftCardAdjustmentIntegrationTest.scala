@@ -1,17 +1,15 @@
 package models
 
-import models.payment.giftcard._
+import cats.implicits._
+import phoenix.models.payment.giftcard._
 import testutils._
 import testutils.fixtures.BakedFixtures
-import cats.implicits._
 import utils.db._
 
 class GiftCardAdjustmentIntegrationTest
     extends IntegrationTestBase
     with BakedFixtures
     with TestObjectContext {
-
-  import api._
 
   "GiftCardAdjustment" - {
     "neither credit nor debit can be negative" in new Fixture {

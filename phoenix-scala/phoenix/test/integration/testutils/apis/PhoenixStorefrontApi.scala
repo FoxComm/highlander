@@ -2,9 +2,9 @@ package testutils.apis
 
 import akka.http.scaladsl.model.HttpResponse
 import cats.implicits._
-import payloads.CartPayloads.CheckoutCart
-import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.PaymentPayloads.CreateCreditCardFromTokenPayload
+import phoenix.payloads.CartPayloads.CheckoutCart
+import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
+import phoenix.payloads.PaymentPayloads.CreateCreditCardFromTokenPayload
 import testutils._
 
 trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒

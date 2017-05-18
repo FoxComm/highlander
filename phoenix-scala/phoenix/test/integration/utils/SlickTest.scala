@@ -1,12 +1,12 @@
 package utils
 
 import cats.implicits._
-import models.account._
+import phoenix.models.account._
+import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import utils.db.UpdateReturning._
 import utils.db._
-import utils.seeds.Factories
 
 class SlickTest extends IntegrationTestBase {
 

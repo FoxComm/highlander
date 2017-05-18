@@ -1,8 +1,8 @@
 package testutils
 
 import models.objects.{ObjectContext, ObjectContexts}
-import models.product.SimpleContext
 import org.scalatest.{SuiteMixin, TestSuite}
+import phoenix.models.product.SimpleContext
 
 trait TestObjectContext extends SuiteMixin with GimmeSupport with DbTestSupport {
   this: TestSuite ⇒

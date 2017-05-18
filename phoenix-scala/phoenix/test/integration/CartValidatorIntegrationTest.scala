@@ -1,31 +1,29 @@
 import akka.http.scaladsl.model.HttpResponse
-
 import cats.implicits._
-import failures.CartFailures._
 import failures.Failure
-import models.account.Scope
-import models.cord._
-import models.inventory.Skus
-import models.location.Addresses
 import models.objects.ObjectContexts
-import models.payment.creditcard.CreditCards
-import models.payment.giftcard._
-import models.payment.storecredit._
-import models.product.{Mvp, SimpleContext}
-import models.shipping.ShippingMethods
 import org.scalatest.AppendedClues
-import payloads.AddressPayloads._
-import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.PaymentPayloads._
-import payloads.UpdateShippingMethod
-import responses.cord.CartResponse
+import phoenix.failures.CartFailures._
+import phoenix.models.account.Scope
+import phoenix.models.cord._
+import phoenix.models.inventory.Skus
+import phoenix.models.location.Addresses
+import phoenix.models.payment.creditcard.CreditCards
+import phoenix.models.payment.giftcard._
+import phoenix.models.payment.storecredit._
+import phoenix.models.product.{Mvp, SimpleContext}
+import phoenix.models.shipping.ShippingMethods
+import phoenix.payloads.AddressPayloads._
+import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
+import phoenix.payloads.PaymentPayloads._
+import phoenix.payloads.UpdateShippingMethod
+import phoenix.responses.cord.CartResponse
+import phoenix.utils.aliases._
+import phoenix.utils.seeds.{CouponSeeds, Factories}
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.aliases._
 import utils.db._
-import utils.seeds.CouponSeeds
-import utils.seeds.Factories
 
 class CartValidatorIntegrationTest
     extends IntegrationTestBase

@@ -5,14 +5,14 @@ import java.util.Locale
 import javax.sql.DataSource
 
 import models.objects.ObjectContexts
-import models.product.SimpleContext
 import org.scalatest._
+import phoenix.models.product.SimpleContext
+import phoenix.utils.aliases.EC
+import phoenix.utils.db.flyway.newFlyway
+import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
-import utils.aliases.EC
 import utils.db._
-import utils.db.flyway.newFlyway
-import utils.seeds.Factories
 
 import scala.annotation.tailrec
 

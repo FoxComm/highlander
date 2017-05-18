@@ -1,10 +1,9 @@
 package models
 
-import models.payment.creditcard.CreditCards
+import phoenix.models.payment.creditcard.CreditCards
+import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.db._
-import utils.seeds.Factories
 
 class CreditCardIntegrationTest
     extends IntegrationTestBase

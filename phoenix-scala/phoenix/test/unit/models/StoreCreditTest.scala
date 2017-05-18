@@ -2,13 +2,13 @@ package models
 
 import cats.data.{NonEmptyList ⇒ NEL}
 import failures.GeneralFailure
-import models.account.User
-import models.auth.UserToken
-import models.payment.storecredit.StoreCredit
-import services.Authenticator.AuthData
+import phoenix.models.account.User
+import phoenix.models.auth.UserToken
+import phoenix.models.payment.storecredit.StoreCredit
+import phoenix.services.Authenticator.AuthData
+import phoenix.utils.aliases._
+import phoenix.utils.seeds.Factories
 import testutils.TestBase
-import utils.aliases._
-import utils.seeds.Factories
 
 class StoreCreditTest extends TestBase {
 

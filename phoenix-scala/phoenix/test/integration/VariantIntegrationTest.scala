@@ -1,20 +1,17 @@
 import java.time.Instant
 
-import com.github.tminglei.slickpg.LTree
-import failures.ArchiveFailures.LinkInactiveSkuFailure
-import failures.ProductFailures.VariantNotFoundForContext
-import models.account.Scope
-import models.inventory.Skus
-import models.product._
 import org.json4s.JsonDSL._
-import payloads.VariantPayloads._
-import responses.VariantResponses.IlluminatedVariantResponse.{Root ⇒ VariantRoot}
-import responses.VariantValueResponses.IlluminatedVariantValueResponse.{Root ⇒ ValueRoot}
-import services.product.ProductManager
+import phoenix.failures.ArchiveFailures.LinkInactiveSkuFailure
+import phoenix.failures.ProductFailures.VariantNotFoundForContext
+import phoenix.models.account.Scope
+import phoenix.models.inventory.Skus
+import phoenix.models.product._
+import phoenix.payloads.VariantPayloads._
+import phoenix.responses.VariantResponses.IlluminatedVariantResponse.{Root => VariantRoot}
+import phoenix.responses.VariantValueResponses.IlluminatedVariantValueResponse.{Root => ValueRoot}
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.MockedApis
 import utils.Money.Currency
 import utils.db._
 

@@ -6,10 +6,10 @@ import cats.data.NonEmptyList
 import cats.implicits._
 import failures.GeneralFailure
 import org.scalatest.prop.TableDrivenPropertyChecks._
-import payloads.PaymentPayloads._
+import phoenix.payloads.PaymentPayloads._
+import phoenix.utils.seeds.Factories
 import testutils.CustomMatchers._
 import testutils.TestBase
-import utils.seeds.Factories
 
 class PaymentPayloadsTest extends TestBase {
   val today = ZonedDateTime.now()

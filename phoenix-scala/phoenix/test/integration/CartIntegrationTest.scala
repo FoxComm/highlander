@@ -1,37 +1,34 @@
-import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
-import failures.CartFailures._
-import failures.ShippingMethodFailures._
 import failures.{NotFoundFailure400, NotFoundFailure404}
 import faker.Lorem
-import models.cord._
-import models.cord.lineitems._
-import models.location._
-import models.payment.creditcard._
-import models.product.Mvp
-import models.rules.QueryStatement
-import models.shipping._
 import org.json4s.jackson.JsonMethods._
-import payloads.AddressPayloads.{CreateAddressPayload, UpdateAddressPayload}
-import payloads.CustomerPayloads.CreateCustomerPayload
-import payloads.LineItemPayloads._
-import payloads.CartPayloads.CreateCart
-import payloads.UpdateShippingMethod
-import responses.cord.CartResponse
-import responses.cord.base.CordResponseLineItem
-import responses._
-import models.cord.CordPaymentState
-import payloads.GiftCardPayloads.GiftCardCreateByCsr
-import payloads.PaymentPayloads._
-import services.carts.CartTotaler
+import phoenix.failures.CartFailures._
+import phoenix.failures.ShippingMethodFailures._
+import phoenix.models.cord.{CordPaymentState, _}
+import phoenix.models.cord.lineitems._
+import phoenix.models.location._
+import phoenix.models.payment.creditcard._
+import phoenix.models.product.Mvp
+import phoenix.models.rules.QueryStatement
+import phoenix.models.shipping._
+import phoenix.payloads.AddressPayloads.{CreateAddressPayload, UpdateAddressPayload}
+import phoenix.payloads.CartPayloads.CreateCart
+import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
+import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
+import phoenix.payloads.LineItemPayloads._
+import phoenix.payloads.PaymentPayloads._
+import phoenix.payloads.UpdateShippingMethod
+import phoenix.responses._
+import phoenix.responses.cord.CartResponse
+import phoenix.responses.cord.base.CordResponseLineItem
+import phoenix.services.carts.CartTotaler
+import phoenix.utils.seeds.{Factories, ShipmentSeeds}
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtures
 import utils.db._
-import utils.seeds.Factories
-import utils.seeds.ShipmentSeeds
 
 class CartIntegrationTest
     extends IntegrationTestBase

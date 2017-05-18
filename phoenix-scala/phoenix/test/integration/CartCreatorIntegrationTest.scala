@@ -1,9 +1,8 @@
 import cats.implicits._
 import failures.NotFoundFailure404
-import models.account._
-import payloads.CartPayloads.CreateCart
-import responses.cord.CartResponse
-import services.carts.CartCreator
+import phoenix.models.account._
+import phoenix.payloads.CartPayloads.CreateCart
+import phoenix.responses.cord.CartResponse
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

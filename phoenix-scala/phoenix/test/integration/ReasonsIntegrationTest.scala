@@ -1,12 +1,12 @@
-import failures.InvalidReasonTypeFailure
-import models.returns.ReturnReasons
-import models.{Reason, Reasons}
+import phoenix.failures.InvalidReasonTypeFailure
+import phoenix.models.returns.ReturnReasons
+import phoenix.models.{Reason, Reasons}
+import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixPublicApi
 import testutils.fixtures.BakedFixtures
 import utils.Strings._
 import utils.db._
-import utils.seeds.Factories
 
 class ReasonsIntegrationTest
     extends IntegrationTestBase

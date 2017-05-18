@@ -1,17 +1,17 @@
 package testutils.fixtures.api
 
 import cats.implicits._
-import faker.Internet.{email ⇒ randomEmail}
-import faker.Name.{name ⇒ randomName}
-import payloads.CartPayloads.CreateCart
-import payloads.CustomerPayloads.CreateCustomerPayload
-import payloads.GiftCardPayloads.GiftCardCreateByCsr
-import payloads.PaymentPayloads.{CreateCreditCardFromTokenPayload, CreateManualStoreCredit}
-import responses.cord.CartResponse
-import responses.{CreditCardsResponse, CustomerResponse, GiftCardResponse, StoreCreditResponse}
+import faker.Internet.{email => randomEmail}
+import faker.Name.{name => randomName}
+import phoenix.payloads.CartPayloads.CreateCart
+import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
+import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
+import phoenix.payloads.PaymentPayloads.{CreateCreditCardFromTokenPayload, CreateManualStoreCredit}
+import phoenix.responses.cord.CartResponse
+import phoenix.responses.{CreditCardsResponse, CustomerResponse, GiftCardResponse, StoreCreditResponse}
+import phoenix.utils.aliases._
 import testutils._
 import testutils.apis.PhoenixAdminApi
-import utils.aliases._
 
 trait ApiFixtureHelpers extends PhoenixAdminApi with ApiFixtures { self: FoxSuite ⇒
   def api_newCustomer()(implicit sl: SL, sf: SF): CustomerResponse.Root = {

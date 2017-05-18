@@ -1,10 +1,11 @@
 package models
 
-import models.account.Scope
+import phoenix.models.account.Scope
+import phoenix.models.{Note, Notes}
+import phoenix.utils.seeds.Factories
 import testutils.CustomMatchers._
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.seeds.Factories
 
 class NoteIntegrationTest extends IntegrationTestBase with BakedFixtures with TestObjectContext {
 

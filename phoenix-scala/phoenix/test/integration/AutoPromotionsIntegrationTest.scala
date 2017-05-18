@@ -1,56 +1,35 @@
-import java.time.Instant
-
 import cats.implicits._
-import failures.NotFoundFailure404
-import failures.ObjectFailures._
-import models.Reasons
-import models.customer.CustomerGroup
-import models.customer.CustomerGroup.GroupType
-import models.objects.ObjectContext
-import models.promotion.Promotion.{Auto, Coupon}
-import models.promotion._
-import models.rules.QueryStatement
-import models.shipping.{ShippingMethod, ShippingMethods}
 import org.json4s.JsonAST._
-import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
-import org.mockito.ArgumentMatcher
 import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito._
-import org.mockito.invocation.InvocationOnMock
-import org.mockito.stubbing.Answer
-import org.scalatest.mockito.MockitoSugar
-import org.mockito.Mockito
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{when, _}
 import org.scalactic.TolerantNumerics
-import payloads.AddressPayloads.CreateAddressPayload
-import payloads.CartPayloads.CreateCart
-import payloads.CouponPayloads.CreateCoupon
-import payloads.CustomerGroupPayloads.{CustomerGroupMemberSyncPayload, CustomerGroupPayload}
-import payloads.DiscountPayloads.CreateDiscount
-import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.PaymentPayloads.{CreateManualStoreCredit, StoreCreditPayment}
-import payloads.PromotionPayloads._
-import payloads.UpdateShippingMethod
-import responses.CouponResponses.CouponResponse
-import responses.PromotionResponses.PromotionResponse
-import responses.cord.base.CartResponseTotals
-import responses.cord.{CartResponse, OrderResponse}
-import responses.{CustomerResponse, GroupResponses, PromotionResponses, StoreCreditResponse}
-import services.objects.ObjectManager
-import services.promotion.PromotionManager
+import phoenix.models.Reasons
+import phoenix.models.customer.CustomerGroup
+import phoenix.models.customer.CustomerGroup.GroupType
+import phoenix.models.promotion._
+import phoenix.models.rules.QueryStatement
+import phoenix.models.shipping.{ShippingMethod, ShippingMethods}
+import phoenix.payloads.AddressPayloads.CreateAddressPayload
+import phoenix.payloads.CartPayloads.CreateCart
+import phoenix.payloads.CustomerGroupPayloads.{CustomerGroupMemberSyncPayload, CustomerGroupPayload}
+import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
+import phoenix.payloads.PaymentPayloads.{CreateManualStoreCredit, StoreCreditPayment}
+import phoenix.payloads.PromotionPayloads._
+import phoenix.payloads.UpdateShippingMethod
+import phoenix.responses.PromotionResponses.PromotionResponse
+import phoenix.responses.cord.base.CartResponseTotals
+import phoenix.responses.cord.{CartResponse, OrderResponse}
+import phoenix.responses.{CustomerResponse, GroupResponses, PromotionResponses, StoreCreditResponse}
+import phoenix.utils.ElasticsearchApi
+import phoenix.utils.aliases._
+import phoenix.utils.seeds.Factories
 import testutils.PayloadHelpers.tv
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
 import testutils.fixtures.api._
 import testutils.fixtures.{BakedFixtures, PromotionFixtures}
-import utils.{ElasticsearchApi, IlluminateAlgorithm}
-import utils.aliases._
-import utils.apis.Apis
-import utils.db._
-import utils.seeds.Factories
-import utils.time.RichInstant
 
 import scala.concurrent.Future
 

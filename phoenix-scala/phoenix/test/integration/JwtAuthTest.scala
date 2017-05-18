@@ -1,8 +1,8 @@
 import cats.implicits._
-import payloads.CustomerPayloads.CreateCustomerPayload
-import payloads.LineItemPayloads.UpdateLineItemsPayload
-import responses.cord.CartResponse
-import responses.{CustomerResponse, StoreAdminResponse}
+import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
+import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
+import phoenix.responses.cord.CartResponse
+import phoenix.responses.{CustomerResponse, StoreAdminResponse}
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
 import testutils.fixtures.api.ApiFixtureHelpers

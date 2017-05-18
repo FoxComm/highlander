@@ -2,7 +2,8 @@ package utils.apis
 
 import cats.data.NonEmptyList
 import failures.Failures
-import failures.MiddlewarehouseFailures.{MiddlewarehouseError, SkusOutOfStockFailure}
+import phoenix.failures.MiddlewarehouseFailures._
+import phoenix.utils.apis.Middlewarehouse
 import testutils.TestBase
 
 class MiddlewarehouseApiTest extends TestBase {

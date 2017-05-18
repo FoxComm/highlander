@@ -1,21 +1,20 @@
 package models
 
 import cats.implicits._
-import models.cord.OrderPayments
-import models.payment.storecredit._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
+import phoenix.models.Reasons
+import phoenix.models.cord.OrderPayments
+import phoenix.models.payment.storecredit._
+import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Factories
 
 class StoreCreditAdjustmentIntegrationTest
     extends IntegrationTestBase
     with BakedFixtures
     with TestObjectContext {
-
-  import api._
 
   "StoreCreditAdjustment" - {
     "debit must be greater than zero" in new Fixture {

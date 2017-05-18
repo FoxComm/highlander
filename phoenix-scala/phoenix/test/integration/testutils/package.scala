@@ -1,12 +1,12 @@
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse, StatusCode, StatusCodes}
+import akka.http.scaladsl.model.{HttpResponse, StatusCode, StatusCodes}
 import failures.Failure
 import org.json4s.Formats
 import org.json4s.jackson.JsonMethods._
 import org.scalatest._
 import org.scalatest.concurrent.PatienceConfiguration
-import responses.TheResponse
-import utils.JsonFormatters
-import utils.aliases._
+import phoenix.responses.TheResponse
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
 
 import scala.concurrent.Await._
 import scala.concurrent.duration._

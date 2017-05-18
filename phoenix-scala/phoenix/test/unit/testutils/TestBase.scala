@@ -1,14 +1,15 @@
 package testutils
 
+import java.util.concurrent.TimeUnit
+
 import akka.util.Timeout
 import com.typesafe.config.Config
 import failures.Failures
-import java.util.concurrent.TimeUnit
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.concurrent.{AbstractPatienceConfiguration, ScalaFutures}
 import org.scalatest.time.{Milliseconds, Seconds, Span}
 import org.scalatest.{FreeSpecLike, MustMatchers, OptionValues, Tag}
-import utils.FoxConfig
+import phoenix.utils.FoxConfig
 
 trait TestBase
     extends FreeSpecLike

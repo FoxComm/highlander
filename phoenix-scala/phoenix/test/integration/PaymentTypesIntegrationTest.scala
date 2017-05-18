@@ -1,12 +1,12 @@
-import models.Reasons
-import models.payment.giftcard._
-import models.payment.storecredit._
-import responses.{GiftCardSubTypesResponse, StoreCreditSubTypesResponse}
+import phoenix.models.Reasons
+import phoenix.models.payment.giftcard._
+import phoenix.models.payment.storecredit._
+import phoenix.responses.{GiftCardSubTypesResponse, StoreCreditSubTypesResponse}
+import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixPublicApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Factories
 
 class PaymentTypesIntegrationTest
     extends IntegrationTestBase

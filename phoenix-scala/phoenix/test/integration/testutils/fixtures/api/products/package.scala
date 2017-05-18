@@ -1,11 +1,11 @@
 package testutils.fixtures.api
 
 import faker.Lorem
-import payloads.ImagePayloads.AlbumPayload
-import payloads.SkuPayloads.SkuPayload
+import phoenix.payloads.ImagePayloads.AlbumPayload
+import phoenix.payloads.SkuPayloads.SkuPayload
+import phoenix.utils.aliases.Json
+import phoenix.utils.time.yesterday
 import testutils.PayloadHelpers._
-import utils.aliases.Json
-import utils.time.yesterday
 
 package object products {
 

@@ -1,10 +1,10 @@
 package models
 
-import models.account.User
 import org.scalatest.prop.TableDrivenPropertyChecks._
+import phoenix.models.account.User
+import phoenix.utils.seeds.Factories
 import testutils.CustomMatchers._
 import testutils.TestBase
-import utils.seeds.Factories
 
 class CustomerTest extends TestBase {
   "Customer" - {

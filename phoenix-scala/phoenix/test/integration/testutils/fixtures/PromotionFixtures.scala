@@ -1,19 +1,19 @@
 package testutils.fixtures
 
 import failures.NotFoundFailure404
-import models.account.User
-import models.promotion.{Promotion, Promotions}
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
-import payloads.CouponPayloads._
-import payloads.DiscountPayloads._
-import payloads.PromotionPayloads.CreatePromotion
-import responses.PromotionResponses.PromotionResponse
-import services.Authenticator.AuthData
-import services.coupon.CouponManager
-import services.promotion.PromotionManager
+import phoenix.models.account.User
+import phoenix.models.promotion.{Promotion, Promotions}
+import phoenix.payloads.CouponPayloads._
+import phoenix.payloads.DiscountPayloads._
+import phoenix.payloads.PromotionPayloads.CreatePromotion
+import phoenix.responses.PromotionResponses.PromotionResponse
+import phoenix.services.Authenticator.AuthData
+import phoenix.services.coupon.CouponManager
+import phoenix.services.promotion.PromotionManager
+import phoenix.utils.aliases._
 import testutils.PayloadHelpers._
-import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

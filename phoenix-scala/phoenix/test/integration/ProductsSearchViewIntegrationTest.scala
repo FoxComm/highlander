@@ -1,11 +1,9 @@
 import java.time.Instant
 
-import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import phoenix.utils.aliases.Json
 import testutils._
 import testutils.apis.PhoenixAdminApi
-import utils.aliases.Json
-import utils.db._
 
 object ProductsSearchViewIntegrationTest {
 

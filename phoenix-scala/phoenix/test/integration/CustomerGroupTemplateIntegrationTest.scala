@@ -1,14 +1,14 @@
-import models.customer.CustomerGroup._
-import models.customer.{CustomerGroupTemplate, CustomerGroupTemplates}
+import cats.implicits._
 import org.json4s.JObject
 import org.scalatest.mockito.MockitoSugar
-import payloads.CustomerGroupPayloads.CustomerGroupPayload
-import responses.GroupResponses.GroupResponse.Root
+import phoenix.models.customer.CustomerGroup._
+import phoenix.models.customer.{CustomerGroupTemplate, CustomerGroupTemplates}
+import phoenix.payloads.CustomerGroupPayloads.CustomerGroupPayload
+import phoenix.responses.GroupResponses.GroupResponse.Root
+import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.seeds.Factories
-import cats.implicits._
 
 class CustomerGroupTemplateIntegrationTest
     extends IntegrationTestBase

@@ -1,15 +1,15 @@
-import failures.CartFailures.OrderAlreadyPlaced
-import failures.CreditCardFailures.CannotUseInactiveCreditCard
-import failures.OrderFailures.OrderPaymentNotFoundFailure
 import failures.{NotFoundFailure400, NotFoundFailure404}
-import models.account._
-import models.cord.Cart
-import models.customer._
-import models.payment.creditcard._
-import payloads.PaymentPayloads.CreditCardPayment
+import phoenix.failures.CartFailures.OrderAlreadyPlaced
+import phoenix.failures.CreditCardFailures.CannotUseInactiveCreditCard
+import phoenix.failures.OrderFailures.OrderPaymentNotFoundFailure
+import phoenix.models.account._
+import phoenix.models.cord.Cart
+import phoenix.models.customer._
+import phoenix.models.payment.creditcard._
+import phoenix.payloads.PaymentPayloads.CreditCardPayment
+import phoenix.utils.seeds.Factories
 import testutils._
 import utils.db._
-import utils.seeds.Factories
 
 class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBase {
 

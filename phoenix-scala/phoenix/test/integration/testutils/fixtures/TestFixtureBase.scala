@@ -1,8 +1,8 @@
 package testutils.fixtures
 
+import phoenix.utils.aliases._
 import testutils._
 import utils.MockedApis
-import utils.aliases._
 
 trait TestFixtureBase extends GimmeSupport with TestActivityContext.AdminAC with MockedApis {
 

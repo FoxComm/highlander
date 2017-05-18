@@ -1,17 +1,14 @@
 import com.github.tminglei.slickpg.LTree
-import failures.TreeFailures._
-import models.objects._
-import models.tree._
+import models.objects.{ObjectContexts, ObjectForm, ObjectForms}
 import org.json4s.JsonDSL._
-import org.scalatest.Matchers._
-import payloads.GenericTreePayloads._
-import responses.GenericTreeResponses.FullTreeResponse.Root
-import responses.GenericTreeResponses.TreeResponse
+import phoenix.failures.TreeFailures._
+import phoenix.models.tree._
+import phoenix.payloads.GenericTreePayloads._
+import phoenix.responses.GenericTreeResponses.FullTreeResponse.Root
+import phoenix.responses.GenericTreeResponses.TreeResponse
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
-import utils.MockedApis
-import utils.aliases._
 import utils.db._
 
 class GenericTreeIntegrationTest
@@ -64,8 +61,8 @@ class GenericTreeIntegrationTest
 
         val overriddenNode = nodeByPath(treeResponse.nodes, Seq(1, 3, 4))
 
-        overriddenNode.get.children.size shouldEqual 2
-        overriddenNode.get.children.foreach(_.children.size shouldEqual 0)
+        overriddenNode.get.children must have size 2
+        overriddenNode.get.children.foreach(_.children must have size 0)
       }
 
       "fails if subtree doesn't exits" in new TestTree {
@@ -86,12 +83,12 @@ class GenericTreeIntegrationTest
           genericTreesApi(tree.name).moveNode(MoveNodePayload(Some(2), 4)).as[Root].tree
 
         treeResponse must not be null
-        treeResponse.nodes.objectId mustEqual testObjects.head.id
-        treeResponse.nodes.children.map(_.index) should contain allOf (2, 3)
+        treeResponse.nodes.objectId must === (testObjects.head.id)
+        treeResponse.nodes.children.map(_.index) must contain allOf (2, 3)
 
         nodeByPath(treeResponse.nodes, Seq(1, 2)).get.children.map(_.index) mustEqual Seq(4)
         nodeByPath(treeResponse.nodes, Seq(1, 3)).get.children
-          .map(_.index) should contain allOf (5, 6)
+          .map(_.index) must contain allOf (5, 6)
       }
 
       "fails to make node to be child of its child" in new TestTree {

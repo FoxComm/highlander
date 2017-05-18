@@ -3,11 +3,11 @@ package models
 import java.time.Instant.now
 
 import cats.implicits._
-import models.cord.Order._
-import models.cord._
+import phoenix.models.cord.Order._
+import phoenix.models.cord._
+import phoenix.utils.time._
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.time._
 
 class OrdersIntegrationTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 

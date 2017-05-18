@@ -1,6 +1,6 @@
 package models
 
-import models.payment.giftcard._
+import phoenix.models.payment.giftcard._
 import testutils._
 import testutils.fixtures.BakedFixtures
 

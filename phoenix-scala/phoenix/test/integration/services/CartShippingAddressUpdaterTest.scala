@@ -1,11 +1,11 @@
 package services
 
-import models.location.Addresses
-import payloads.AddressPayloads._
-import services.carts.CartShippingAddressUpdater._
+import phoenix.models.location.Addresses
+import phoenix.payloads.AddressPayloads._
+import phoenix.services.carts.CartShippingAddressUpdater._
+import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.seeds.Factories
 
 class CartShippingAddressUpdaterTest
     extends IntegrationTestBase

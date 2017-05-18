@@ -1,13 +1,13 @@
 import failures.NotFoundFailure404
-import models._
-import models.cord._
-import payloads.NotePayloads._
-import responses.AdminNotes
-import responses.AdminNotes.Root
+import phoenix.models._
+import phoenix.models.cord._
+import phoenix.payloads.NotePayloads._
+import phoenix.responses.AdminNotes
+import phoenix.responses.AdminNotes.Root
+import phoenix.utils.time._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.time._
 
 class OrderNotesIntegrationTest
     extends IntegrationTestBase

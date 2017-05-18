@@ -1,16 +1,16 @@
 import java.time.Instant
 
 import failures.NotFoundFailure404
-import models.Notes
-import models.account._
-import payloads.NotePayloads._
-import responses.AdminNotes
-import responses.AdminNotes.Root
+import phoenix.models.Notes
+import phoenix.models.account._
+import phoenix.payloads.NotePayloads._
+import phoenix.responses.AdminNotes
+import phoenix.responses.AdminNotes.Root
+import phoenix.utils.time.RichInstant
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.time.RichInstant
 
 class StoreAdminNotesIntegrationTest
     extends IntegrationTestBase

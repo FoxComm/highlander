@@ -1,11 +1,10 @@
 package models
 
-import models.account.Scope
-import models.cord._
+import phoenix.models.account.Scope
+import phoenix.models.cord._
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.aliases._
 
 class CordsIntegrationTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 

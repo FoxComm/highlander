@@ -1,17 +1,18 @@
+import java.time.Instant
+
 import akka.stream.scaladsl.Source
 import com.github.tminglei.slickpg.LTree
 import failures._
-import java.time.Instant
-import models.NotificationSubscription._
-import models.{Notification, NotificationSubscriptions}
-import models.account._
-import models.activity._
 import org.json4s.Extraction
 import org.json4s.JsonAST._
 import org.json4s.jackson.Serialization.write
-import payloads.{CreateNotification, NotificationActivity}
-import responses.{ActivityResponse, LastSeenNotificationResponse, NotificationResponse}
-import services.NotificationManager
+import phoenix.models.NotificationSubscription._
+import phoenix.models.account._
+import phoenix.models.activity._
+import phoenix.models.{Notification, NotificationSubscriptions}
+import phoenix.payloads.{CreateNotification, NotificationActivity}
+import phoenix.responses.{ActivityResponse, LastSeenNotificationResponse, NotificationResponse}
+import phoenix.services.NotificationManager
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

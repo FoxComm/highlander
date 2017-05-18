@@ -1,7 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import testutils._
-import utils.MockedApis
 
 class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase with HttpSupport {
 

@@ -1,24 +1,23 @@
 package services
 
 import cats.implicits._
-import models.account._
-import models.cord.lineitems._
-import models.cord.{Carts, OrderShippingAddresses}
-import models.customer._
-import models.location.Addresses
-import models.objects._
-import models.product.{Mvp, SimpleContext}
-import models.rules.QueryStatement
-import models.shipping.ShippingMethods
-import services.ShippingManager.getShippingMethodsForCart
-import services.carts.CartTotaler
+import models.objects.ObjectContexts
+import phoenix.models.account._
+import phoenix.models.cord.lineitems._
+import phoenix.models.cord.{Carts, OrderShippingAddresses}
+import phoenix.models.customer._
+import phoenix.models.location.Addresses
+import phoenix.models.product.{Mvp, SimpleContext}
+import phoenix.models.rules.QueryStatement
+import phoenix.models.shipping.ShippingMethods
+import phoenix.services.ShippingManager.getShippingMethodsForCart
+import phoenix.services.carts.CartTotaler
+import phoenix.utils.seeds.{Factories, ShipmentSeeds}
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils._
 import utils.db.ExPostgresDriver.api._
 import utils.db.ExPostgresDriver.jsonMethods._
 import utils.db._
-import utils.seeds.{Factories, ShipmentSeeds}
 
 class ShippingManagerTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 

@@ -1,17 +1,16 @@
-package utils.apis
+package phoenix.utils.apis
 
 import cats.implicits._
+import com.stripe.exception.StripeException
+import phoenix.failures.StripeFailures.StripeFailure
+import testutils.TestBase
+
 import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration.Inf
 import scala.util.control.NoStackTrace
 
-import com.stripe.exception.StripeException
-import failures.StripeFailures.StripeFailure
-import testutils.TestBase
-
-class StripeApiErrorHandlingTest extends TestBase {
-
-  import scala.concurrent.ExecutionContext.Implicits.global // for Monad[Future]
+class StripeApiErrorHandlingTest extends TestBase { // for Monad[Future]
 
   "Stripe API" - {
     "catches StripeException and returns a Result.failure" in {

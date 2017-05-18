@@ -1,36 +1,30 @@
 import java.time.Instant
+import java.time.temporal.ChronoUnit.DAYS
 
 import akka.http.scaladsl.model.StatusCodes
-import cats._
 import cats.implicits._
-import failures.CouponFailures.{CouponNotFound, CouponWithCodeCannotBeFound}
 import failures.NotFoundFailure404
-import failures.ObjectFailures._
-import failures.PromotionFailures.PromotionIsNotActive
-import models.Reasons
-import models.objects.{ObjectContext, ObjectUtils}
-import models.promotion.Promotion.{Auto, Coupon}
-import models.promotion._
-import models.rules.QueryStatement
-import models.shipping.{ShippingMethod, ShippingMethods}
+import failures.ObjectFailures.ObjectContextNotFound
+import models.objects.ObjectContext
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
-import org.json4s.jackson.JsonMethods._
 import org.scalactic.TolerantNumerics
-import payloads.AddressPayloads.CreateAddressPayload
-import payloads.CouponPayloads.CreateCoupon
-import payloads.DiscountPayloads.CreateDiscount
-import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.CartPayloads.CreateCart
-import payloads.PaymentPayloads.{CreateManualStoreCredit, StoreCreditPayment}
-import payloads.PromotionPayloads._
-import payloads.UpdateShippingMethod
-import responses.CouponResponses.CouponResponse
-import responses.{CustomerResponse, StoreCreditResponse}
-import responses.PromotionResponses.PromotionResponse
-import responses.cord.{CartResponse, OrderResponse}
+import phoenix.failures.CouponFailures.CouponWithCodeCannotBeFound
+import phoenix.failures.PromotionFailures.PromotionIsNotActive
+import phoenix.models.promotion.Promotion.{Auto, Coupon}
+import phoenix.models.promotion._
+import phoenix.payloads.CartPayloads.CreateCart
+import phoenix.payloads.CouponPayloads.CreateCoupon
+import phoenix.payloads.DiscountPayloads.CreateDiscount
+import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
+import phoenix.payloads.PromotionPayloads._
+import phoenix.responses.CouponResponses.CouponResponse
+import phoenix.responses.PromotionResponses.PromotionResponse
+import phoenix.responses.cord.CartResponse
+import phoenix.services.promotion.PromotionManager
+import phoenix.utils.aliases._
+import phoenix.utils.time.RichInstant
 import services.objects.ObjectManager
-import services.promotion.PromotionManager
 import testutils.PayloadHelpers.tv
 import testutils._
 import testutils.apis._
@@ -38,11 +32,7 @@ import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQ
 import testutils.fixtures.api._
 import testutils.fixtures.{BakedFixtures, PromotionFixtures}
 import utils.IlluminateAlgorithm
-import utils.aliases._
 import utils.db._
-import utils.seeds.{Factories, ShipmentSeeds}
-import utils.time.RichInstant
-import java.time.temporal.ChronoUnit.DAYS
 
 class PromotionsIntegrationTest
     extends IntegrationTestBase

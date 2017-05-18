@@ -3,36 +3,36 @@ import java.time.temporal.ChronoUnit
 
 import cats.implicits._
 import com.stripe.exception.CardException
-import failures.CreditCardFailures.CannotUseInactiveCreditCard
-import failures.CustomerFailures._
 import failures.NotFoundFailure404
-import failures.StripeFailures.StripeFailure
-import models.account._
-import models.cord.OrderPayments.scope._
-import models.cord._
-import models.customer._
-import models.location.{Addresses, Regions}
-import models.payment.creditcard._
-import models.shipping.Shipment.Shipped
-import models.shipping.{Shipment, Shipments}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import payloads.AddressPayloads.CreateAddressPayload
-import payloads.CustomerPayloads._
-import payloads.PaymentPayloads._
-import payloads.UserPayloads._
-import responses.CreditCardsResponse.{Root ⇒ CardResponse}
-import responses.CustomerResponse.Root
-import responses.cord.CartResponse
-import responses.{CreditCardsResponse, CustomerResponse}
-import services.carts.CartPaymentUpdater
+import phoenix.failures.CreditCardFailures.CannotUseInactiveCreditCard
+import phoenix.failures.CustomerFailures._
+import phoenix.failures.StripeFailures.StripeFailure
+import phoenix.models.account._
+import phoenix.models.cord.OrderPayments.scope._
+import phoenix.models.cord._
+import phoenix.models.customer._
+import phoenix.models.location.{Addresses, Regions}
+import phoenix.models.payment.creditcard._
+import phoenix.models.shipping.Shipment.Shipped
+import phoenix.models.shipping.{Shipment, Shipments}
+import phoenix.payloads.AddressPayloads.CreateAddressPayload
+import phoenix.payloads.CustomerPayloads._
+import phoenix.payloads.PaymentPayloads._
+import phoenix.payloads.UserPayloads._
+import phoenix.responses.CreditCardsResponse.{Root => CardResponse}
+import phoenix.responses.CustomerResponse.Root
+import phoenix.responses.cord.CartResponse
+import phoenix.responses.{CreditCardsResponse, CustomerResponse}
+import phoenix.services.carts.CartPaymentUpdater
+import phoenix.utils.aliases.stripe.StripeCard
+import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
 import testutils.fixtures.BakedFixtures
-import utils.aliases.stripe.StripeCard
 import utils.db._
-import utils.seeds.Factories
 
 class CustomerIntegrationTest
     extends IntegrationTestBase

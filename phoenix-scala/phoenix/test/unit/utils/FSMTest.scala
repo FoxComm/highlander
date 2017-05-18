@@ -2,6 +2,7 @@ package utils
 
 import failures.Failures
 import org.scalatest.prop.TableDrivenPropertyChecks._
+import phoenix.utils.FSM
 import shapeless._
 import testutils.TestBase
 import utils.db._

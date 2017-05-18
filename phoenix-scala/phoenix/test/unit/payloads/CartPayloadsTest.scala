@@ -3,10 +3,10 @@ package payloads
 import java.time.ZonedDateTime
 
 import cats.implicits._
-import payloads.CartPayloads.CreateCart
+import phoenix.payloads.CartPayloads.CreateCart
+import phoenix.utils.seeds.Factories
 import testutils.CustomMatchers._
 import testutils.TestBase
-import utils.seeds.Factories
 
 class CartPayloadsTest extends TestBase {
   val today = ZonedDateTime.now()

@@ -4,8 +4,9 @@ import cats.data.NonEmptyList
 import failures.GeneralFailure
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
+import phoenix.models.Reason
+import phoenix.utils.seeds.Factories
 import testutils.TestBase
-import utils.seeds.Factories
 
 class ReasonTest extends TestBase {
   "Reason" - {

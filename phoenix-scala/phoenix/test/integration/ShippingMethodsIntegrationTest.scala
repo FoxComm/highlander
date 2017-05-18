@@ -1,21 +1,20 @@
-import models.cord.OrderShippingAddresses
-import models.cord.lineitems._
-import models.location.Addresses
-import models.objects._
-import models.product.{Mvp, SimpleContext}
-import models.rules.QueryStatement
-import models.shipping
-import models.shipping.ShippingMethods
+import models.objects.ObjectContexts
 import org.json4s.jackson.JsonMethods._
-import responses.ShippingMethodsResponse.Root
-import services.carts.CartTotaler
+import phoenix.failures.AddressFailures.NoCountryFound
+import phoenix.models.cord.OrderShippingAddresses
+import phoenix.models.cord.lineitems._
+import phoenix.models.location.Addresses
+import phoenix.models.product.{Mvp, SimpleContext}
+import phoenix.models.rules.QueryStatement
+import phoenix.models.shipping
+import phoenix.models.shipping.ShippingMethods
+import phoenix.responses.ShippingMethodsResponse.Root
+import phoenix.services.carts.CartTotaler
+import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Factories
-import cats.implicits._
-import failures.AddressFailures.NoCountryFound
 
 class ShippingMethodsIntegrationTest
     extends IntegrationTestBase

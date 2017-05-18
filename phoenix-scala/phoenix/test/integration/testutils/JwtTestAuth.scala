@@ -2,20 +2,20 @@ package testutils
 
 import akka.http.scaladsl.model.headers.Cookie
 import cats.implicits._
-import models.account.{Accounts, Users}
-import models.auth.UserToken
 import org.scalatest._
-import payloads.CustomerPayloads.CreateCustomerPayload
-import payloads.LoginPayload
-import payloads.StoreAdminPayloads.CreateStoreAdminPayload
-import responses.StoreAdminResponse.Root
-import responses.{CustomerResponse, StoreAdminResponse}
-import services.StoreAdminManager
-import services.account.AccountManager
+import phoenix.models.account.{Accounts, Users}
+import phoenix.models.auth.UserToken
+import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
+import phoenix.payloads.LoginPayload
+import phoenix.payloads.StoreAdminPayloads.CreateStoreAdminPayload
+import phoenix.responses.StoreAdminResponse.Root
+import phoenix.responses.{CustomerResponse, StoreAdminResponse}
+import phoenix.services.StoreAdminManager
+import phoenix.services.account.AccountManager
+import phoenix.utils.aliases.{SF, SL}
+import phoenix.utils.seeds.generators.GeneratorUtils.randomString
 import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
-import utils.aliases.{SF, SL}
 import utils.db._
-import utils.seeds.generators.GeneratorUtils.randomString
 
 case class TestLoginData(email: String, password: String)
 object TestLoginData {

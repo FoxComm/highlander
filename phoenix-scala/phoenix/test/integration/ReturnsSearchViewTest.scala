@@ -1,9 +1,9 @@
 import cats.implicits._
-import models.payment.PaymentMethod
-import models.returns.Return
-import models.returns.Return.{Pending, Processing, ReturnType}
-import payloads.ReturnPayloads.{ReturnMessageToCustomerPayload, ReturnPaymentPayload, ReturnUpdateStatePayload}
-import responses.ReturnResponse
+import phoenix.models.payment.PaymentMethod
+import phoenix.models.returns.Return
+import phoenix.models.returns.Return.{Pending, Processing, ReturnType}
+import phoenix.payloads.ReturnPayloads.{ReturnMessageToCustomerPayload, ReturnPaymentPayload, ReturnUpdateStatePayload}
+import phoenix.responses.ReturnResponse
 import testutils._
 import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
 

@@ -1,11 +1,10 @@
 package services
 
-import failures._
-import failures.DiscountCompilerFailures.OfferSearchIsEmpty
-import models.discount.offers.ItemsPercentOff
 import org.json4s._
 import org.json4s.jackson.JsonMethods.parse
-import services.discount.compilers.OfferCompiler
+import phoenix.failures.DiscountCompilerFailures.OfferSearchIsEmpty
+import phoenix.models.discount.offers.ItemsPercentOff
+import phoenix.services.discount.compilers.OfferCompiler
 import testutils._
 
 class SearchBasedOfferCompilerTest extends TestBase {

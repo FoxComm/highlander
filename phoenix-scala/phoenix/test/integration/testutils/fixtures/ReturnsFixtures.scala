@@ -2,26 +2,26 @@ package testutils.fixtures
 
 import cats.data.NonEmptyList
 import cats.implicits._
-import models.cord.Order
-import models.payment.PaymentMethod
-import models.product.{Mvp, SimpleProductData}
-import models.returns._
-import models.shipping.{ShippingMethod, ShippingMethods}
 import org.scalatest.OptionValues
 import org.scalatest.prop.Tables._
-import payloads.AddressPayloads.CreateAddressPayload
-import payloads.GiftCardPayloads.GiftCardCreateByCsr
-import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.OrderPayloads.UpdateOrderPayload
-import payloads.PaymentPayloads._
-import payloads.ReturnPayloads._
-import payloads.UpdateShippingMethod
-import responses._
-import responses.cord.OrderResponse
+import phoenix.models.cord.Order
+import phoenix.models.payment.PaymentMethod
+import phoenix.models.product.{Mvp, SimpleProductData}
+import phoenix.models.returns._
+import phoenix.models.shipping.{ShippingMethod, ShippingMethods}
+import phoenix.payloads.AddressPayloads.CreateAddressPayload
+import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
+import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
+import phoenix.payloads.OrderPayloads.UpdateOrderPayload
+import phoenix.payloads.PaymentPayloads._
+import phoenix.payloads.ReturnPayloads._
+import phoenix.payloads.UpdateShippingMethod
+import phoenix.responses._
+import phoenix.responses.cord.OrderResponse
+import phoenix.utils.aliases._
+import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.api.ApiFixtureHelpers
-import utils.aliases._
-import utils.seeds.Factories
 
 trait ReturnsFixtures
     extends TestFixtureBase

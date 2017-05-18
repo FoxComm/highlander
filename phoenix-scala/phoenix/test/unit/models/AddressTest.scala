@@ -2,8 +2,8 @@ package models
 
 import cats.data.NonEmptyList
 import failures.{Failure, GeneralFailure}
-import models.location.{Address, Region}
 import org.scalatest.prop.TableDrivenPropertyChecks._
+import phoenix.models.location.{Address, Region}
 import testutils.CustomMatchers._
 import testutils.TestBase
 

@@ -1,26 +1,27 @@
+import java.time.ZonedDateTime
+
 import cats.implicits._
 import failures.{GeneralFailure, NotFoundFailure400, NotFoundFailure404}
-import java.time.ZonedDateTime
-import models.account._
-import models.location.{Addresses, Region}
-import models.payment.creditcard.{BillingAddress, CreditCard, CreditCards}
 import org.mockito.Mockito._
-import org.mockito.{ArgumentMatchers ⇒ m, _}
+import org.mockito.{ArgumentMatchers => m, _}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
-import payloads.AddressPayloads.CreateAddressPayload
-import payloads.PaymentPayloads.CreateCreditCardFromTokenPayload
-import responses.CreditCardsResponse
-import responses.CreditCardsResponse.Root
+import phoenix.models.account._
+import phoenix.models.location.{Addresses, Region}
+import phoenix.models.payment.creditcard.{BillingAddress, CreditCard, CreditCards}
+import phoenix.payloads.AddressPayloads.CreateAddressPayload
+import phoenix.payloads.PaymentPayloads.CreateCreditCardFromTokenPayload
+import phoenix.responses.CreditCardsResponse
+import phoenix.responses.CreditCardsResponse.Root
+import phoenix.utils.TestStripeSupport
+import phoenix.utils.aliases.stripe.StripeCustomer
+import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis._
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtureHelpers
-import utils.TestStripeSupport
-import utils.aliases.stripe.StripeCustomer
 import utils.db._
-import utils.seeds.Factories
 
 class CreditCardsIntegrationTest
     extends IntegrationTestBase

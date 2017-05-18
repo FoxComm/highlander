@@ -3,34 +3,35 @@ import java.time.temporal.ChronoUnit
 
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import cats.implicits._
-import failures.ArchiveFailures._
+import failures.NotFoundFailure404
 import failures.ObjectFailures.ObjectContextNotFound
-import failures.ProductFailures._
-import failures.{NotFoundFailure404, ProductFailures}
-import models.account.Scope
-import models.inventory.Skus
-import models.objects._
-import models.product._
+import models.objects.ObjectContext
 import org.json4s.JsonDSL._
 import org.json4s._
-import payloads.CartPayloads.CreateCart
-import payloads.ImagePayloads._
-import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.ProductPayloads._
-import payloads.SkuPayloads.SkuPayload
-import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
-import responses.ProductResponses.ProductResponse
-import responses.ProductResponses.ProductResponse.Root
-import responses.cord.CartResponse
+import phoenix.failures.ArchiveFailures._
+import phoenix.failures.ProductFailures._
+import phoenix.models.account.Scope
+import phoenix.models.inventory.Skus
+import phoenix.models.objects._
+import phoenix.models.product._
+import phoenix.payloads.CartPayloads.CreateCart
+import phoenix.payloads.ImagePayloads._
+import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
+import phoenix.payloads.ProductPayloads._
+import phoenix.payloads.SkuPayloads.SkuPayload
+import phoenix.payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
+import phoenix.responses.ProductResponses.ProductResponse
+import phoenix.responses.ProductResponses.ProductResponse.Root
+import phoenix.responses.cord.CartResponse
+import phoenix.utils.JsonFormatters
+import phoenix.utils.aliases._
+import phoenix.utils.time.RichInstant
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtures
-import utils.JsonFormatters
 import utils.Money.Currency
-import utils.aliases._
 import utils.db._
-import utils.time.RichInstant
 
 object ProductTestExtensions {
 
@@ -421,7 +422,7 @@ class ProductIntegrationTest
         for (slug ← invalidSlugValues) {
           productsApi
             .create(productPayload.copy(slug = slug))
-            .mustFailWith400(ProductFailures.SlugShouldHaveLetters(slug))
+            .mustFailWith400(SlugShouldHaveLetters(slug))
             .withClue(s" slug = $slug")
         }
       }
@@ -748,7 +749,7 @@ class ProductIntegrationTest
                                          slug = Some(slug),
                                          skus = None,
                                          variants = None))
-            .mustFailWith400(ProductFailures.SlugShouldHaveLetters(slug))
+            .mustFailWith400(SlugShouldHaveLetters(slug))
             .withClue(s" slug = $slug")
         }
       }

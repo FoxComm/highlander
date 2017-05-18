@@ -1,10 +1,9 @@
-import scala.collection.immutable
 import akka.http.scaladsl.model.StatusCodes.ClientError
 import akka.http.scaladsl.model.{ContentTypes, ErrorInfo, IllegalRequestException, StatusCodes}
 import akka.http.scaladsl.server.Directives._
-
 import testutils._
-import utils.MockedApis
+
+import scala.collection.immutable
 
 class JsonExceptionHandlerIntegrationTest
     extends IntegrationTestBase

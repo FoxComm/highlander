@@ -1,14 +1,14 @@
 import java.time.Instant
 
 import failures.{GeneralFailure, NotFoundFailure404}
-import models._
-import models.returns._
-import payloads.NotePayloads._
-import responses.AdminNotes
+import phoenix.models._
+import phoenix.models.returns._
+import phoenix.payloads.NotePayloads._
+import phoenix.responses.AdminNotes
+import phoenix.utils.time.RichInstant
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
-import utils.time.RichInstant
 
 class ReturnNotesIntegrationTest
     extends IntegrationTestBase

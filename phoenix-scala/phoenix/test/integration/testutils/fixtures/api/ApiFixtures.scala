@@ -1,26 +1,26 @@
 package testutils.fixtures.api
 
-import cats.data.NonEmptyList
 import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 
+import cats.data.NonEmptyList
 import faker.Lorem
-import models.promotion.Promotion
 import org.json4s.JsonAST.JNull
 import org.json4s.JsonDSL._
 import org.scalatest.SuiteMixin
-import payloads.CouponPayloads.CreateCoupon
-import payloads.ProductPayloads.CreateProductPayload
-import payloads.SkuPayloads.SkuPayload
-import responses.CouponResponses.CouponResponse
-import responses.ProductResponses.ProductResponse.{Root ⇒ ProductRoot}
-import responses.PromotionResponses.PromotionResponse
-import responses.SkuResponses.SkuResponse
+import phoenix.models.promotion.Promotion
+import phoenix.payloads.CouponPayloads.CreateCoupon
+import phoenix.payloads.ProductPayloads.CreateProductPayload
+import phoenix.payloads.SkuPayloads.SkuPayload
+import phoenix.responses.CouponResponses.CouponResponse
+import phoenix.responses.ProductResponses.ProductResponse.{Root => ProductRoot}
+import phoenix.responses.PromotionResponses.PromotionResponse
+import phoenix.responses.SkuResponses.SkuResponse
+import phoenix.utils.aliases.Json
 import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
-import utils.aliases.Json
 
 import scala.util.Random
 

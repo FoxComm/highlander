@@ -2,8 +2,8 @@ package testutils.fixtures
 
 import cats.implicits._
 import faker.Lorem
-import models.cord.lineitems.{GiftCardLineItemAttributes, LineItemAttributes}
-import payloads.AddressPayloads.CreateAddressPayload
+import phoenix.models.cord.lineitems.{GiftCardLineItemAttributes, LineItemAttributes}
+import phoenix.payloads.AddressPayloads.CreateAddressPayload
 
 import scala.util.Random
 

@@ -1,15 +1,15 @@
 package services
 
-import models.cord.lineitems._
-import models.cord.{OrderShippingMethod, OrderShippingMethods}
-import models.objects._
-import models.product.{Mvp, SimpleContext}
-import models.shipping.ShippingMethods
-import services.carts.CartTotaler
+import models.objects.ObjectContexts
+import phoenix.models.cord.lineitems._
+import phoenix.models.cord.{OrderShippingMethod, OrderShippingMethods}
+import phoenix.models.product.{Mvp, SimpleContext}
+import phoenix.models.shipping.ShippingMethods
+import phoenix.services.carts.CartTotaler
+import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Factories
 
 class CartTotalerTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 

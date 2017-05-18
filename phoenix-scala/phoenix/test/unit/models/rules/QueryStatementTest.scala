@@ -2,8 +2,9 @@ package models.rules
 
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
+import phoenix.models.rules.{Condition, QueryStatement}
+import phoenix.utils.JsonFormatters._
 import testutils.TestBase
-import utils.JsonFormatters._
 
 class QueryStatementTest extends TestBase {
   implicit val formats = phoenixFormats

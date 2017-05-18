@@ -1,23 +1,18 @@
+import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
-import models.customer.CustomerGroup._
-import models.customer._
 import org.json4s._
-import org.json4s.jackson.JsonMethods._
-import org.json4s.JsonDSL._
 import org.scalatest.mockito.MockitoSugar
-import payloads.CustomerGroupPayloads.CustomerGroupPayload
-import responses.GroupResponses.GroupResponse.{Root, build}
+import phoenix.models.customer.CustomerGroup._
+import phoenix.models.customer._
+import phoenix.payloads.CustomerGroupPayloads.CustomerGroupPayload
+import phoenix.responses.GroupResponses.GroupResponse.{Root, build}
+import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-
-import shapeless._
-import utils.db._
-import utils.aliases._
 import utils.db.ExPostgresDriver.api._
-import cats.implicits._
-import utils.seeds.Factories
+import utils.db._
 
 class CustomerGroupIntegrationTest
     extends IntegrationTestBase

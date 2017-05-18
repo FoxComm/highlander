@@ -1,16 +1,16 @@
 import java.time.ZonedDateTime
 
-import failures.CartFailures.OrderAlreadyPlaced
 import failures.NotFoundFailure404
-import failures.StoreCreditFailures.CustomerHasInsufficientStoreCredit
-import models.Reasons
-import models.cord.Cart
-import models.payment.storecredit._
-import payloads.PaymentPayloads.StoreCreditPayment
+import phoenix.failures.CartFailures.OrderAlreadyPlaced
+import phoenix.failures.StoreCreditFailures.CustomerHasInsufficientStoreCredit
+import phoenix.models.Reasons
+import phoenix.models.cord.Cart
+import phoenix.models.payment.storecredit._
+import phoenix.payloads.PaymentPayloads.StoreCreditPayment
+import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import utils.db._
-import utils.seeds.Factories
 
 class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTestBase {
 

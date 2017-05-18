@@ -1,45 +1,40 @@
-import akka.http.scaladsl.model.HttpResponse
-import cats.implicits._
-import failures.AddressFailures.NoDefaultAddressForCustomer
-import failures.CreditCardFailures.NoDefaultCreditCardForCustomer
-import failures.NotFoundFailure404
-import failures.ArchiveFailures.LinkInactiveSkuFailure
-import failures.ShippingMethodFailures._
-import failures.UserFailures._
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-import models.account._
-import models.cord.Order.RemorseHold
-import models.cord._
-import models.cord.lineitems._
-import models.customer._
-import models.inventory._
-import models.location.{Address, Addresses, Region}
-import models.payment.giftcard._
-import models.payment.{InStorePaymentStates, PaymentMethod}
-import models.product.Mvp
-import models.shipping._
-import models.{Reason, Reasons}
-import payloads.AddressPayloads.CreateAddressPayload
-import payloads.CartPayloads.{CheckoutCart, CreateCart}
-import payloads.GiftCardPayloads.GiftCardCreateByCsr
-import payloads.LineItemPayloads._
-import payloads.PaymentPayloads._
-import payloads.SkuPayloads.SkuPayload
-import payloads.UpdateShippingMethod
-import payloads.UserPayloads.ToggleUserBlacklisted
-import responses.SkuResponses.SkuResponse
-import responses.{AddressResponse, GiftCardResponse}
-import responses.cord._
+import akka.http.scaladsl.model.HttpResponse
+import cats.implicits._
+import failures.NotFoundFailure404
+import phoenix.failures.AddressFailures.NoDefaultAddressForCustomer
+import phoenix.failures.CreditCardFailures.NoDefaultCreditCardForCustomer
+import phoenix.failures.ShippingMethodFailures._
+import phoenix.failures.UserFailures._
+import phoenix.models.Reasons
+import phoenix.models.cord.Order.RemorseHold
+import phoenix.models.cord._
+import phoenix.models.inventory._
+import phoenix.models.location.Region
+import phoenix.models.payment.giftcard._
+import phoenix.models.payment.{InStorePaymentStates, PaymentMethod}
+import phoenix.models.shipping._
+import phoenix.payloads.AddressPayloads.CreateAddressPayload
+import phoenix.payloads.CartPayloads.CheckoutCart
+import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
+import phoenix.payloads.LineItemPayloads._
+import phoenix.payloads.PaymentPayloads._
+import phoenix.payloads.SkuPayloads.SkuPayload
+import phoenix.payloads.UpdateShippingMethod
+import phoenix.payloads.UserPayloads.ToggleUserBlacklisted
+import phoenix.responses.SkuResponses.SkuResponse
+import phoenix.responses.cord._
+import phoenix.responses.{AddressResponse, GiftCardResponse}
+import phoenix.utils.aliases._
+import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis._
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
-import utils.aliases._
 import utils.db._
-import utils.seeds.Factories
 
 class CheckoutIntegrationTest
     extends IntegrationTestBase
@@ -208,7 +203,7 @@ class CheckoutIntegrationTest
     "fails when some SKUs in cart are inactive" in new Fixture {
       val cartApi = prepareCheckout()
       deactivateSku(skuCode)
-      val expectedFailure = NotFoundFailure404(models.inventory.Sku, skuCode)
+      val expectedFailure = NotFoundFailure404(Sku, skuCode)
       cartApi.checkout().mustFailWith404(expectedFailure)
     }
 

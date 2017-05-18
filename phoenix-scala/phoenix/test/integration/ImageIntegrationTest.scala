@@ -3,31 +3,29 @@ import java.time.Instant
 
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model._
-
 import cats.implicits._
-import com.github.tminglei.slickpg.LTree
-import failures.ArchiveFailures.AddImagesToArchivedAlbumFailure
-import failures.ImageFailures._
 import failures.ObjectFailures._
-import models.account.Scope
-import models.image._
-import models.inventory._
-import models.objects._
-import models.product._
+import models.objects.{ObjectContext, ObjectForm, ObjectShadow, ObjectUtils, _}
 import org.json4s.JsonAST.JNothing
 import org.json4s.JsonDSL._
-import payloads.ImagePayloads._
-import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
-import responses.ProductResponses._
-import responses.SkuResponses._
-import services.image.ImageManager
+import phoenix.failures.ArchiveFailures.AddImagesToArchivedAlbumFailure
+import phoenix.failures.ImageFailures._
+import phoenix.models.account.Scope
+import phoenix.models.image._
+import phoenix.models.inventory._
+import phoenix.models.objects._
+import phoenix.models.product._
+import phoenix.payloads.ImagePayloads._
+import phoenix.responses.AlbumResponses.AlbumResponse.{Root => AlbumRoot}
+import phoenix.responses.ProductResponses._
+import phoenix.responses.SkuResponses._
+import phoenix.services.image.ImageManager
+import phoenix.utils.time.RichInstant
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.Money.Currency
-import utils._
 import utils.db._
-import utils.time.RichInstant
 
 class ImageIntegrationTest
     extends IntegrationTestBase

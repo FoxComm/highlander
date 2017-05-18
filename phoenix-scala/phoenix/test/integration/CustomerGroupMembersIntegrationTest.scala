@@ -1,20 +1,18 @@
-import akka.http.scaladsl.model.{StatusCode, StatusCodes}
+import akka.http.scaladsl.model.StatusCodes
 import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
-import models.account._
-import models.customer._
 import org.scalatest.mockito.MockitoSugar
-import payloads.CustomerGroupPayloads._
+import phoenix.failures.CustomerGroupFailures._
+import phoenix.models.account._
+import phoenix.models.customer.CustomerGroup._
+import phoenix.models.customer._
+import phoenix.payloads.CustomerGroupPayloads._
+import phoenix.responses.CustomerResponse.Root
+import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Factories
-import cats.implicits._
-import failures.CustomerGroupFailures._
-import models.customer.CustomerGroup._
-import responses.CustomerResponse.Root
-import utils.db.ExPostgresDriver.api._
 
 class CustomerGroupMembersIntegrationTest
     extends IntegrationTestBase

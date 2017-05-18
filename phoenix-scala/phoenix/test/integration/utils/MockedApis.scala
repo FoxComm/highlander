@@ -2,8 +2,6 @@ package utils
 
 import java.io.File
 
-import scala.concurrent.Future
-
 import cats.implicits._
 import com.stripe.model.DeletedCard
 import org.mockito.ArgumentMatcher
@@ -12,19 +10,21 @@ import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.scalatest.mockito.MockitoSugar
-import utils.TestStripeSupport.randomStripeishId
-import utils.aliases._
-import utils.aliases.stripe._
-import utils.apis._
+import phoenix.utils.ElasticsearchApi
+import phoenix.utils.TestStripeSupport.randomStripeishId
+import phoenix.utils.aliases._
+import phoenix.utils.aliases.stripe._
+import phoenix.utils.apis._
 import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.util.{Random, Try}
 
 trait RealStripeApi extends MockedApis {
 
   override implicit def apisOverride: Option[Apis] =
-    Apis(server.Setup.defaultApis.stripe, amazonApiMock, middlewarehouseApiMock, elasticSearchMock).some
+    Apis(phoenix.server.Setup.defaultApis.stripe, amazonApiMock, middlewarehouseApiMock, elasticSearchMock).some
 }
 
 object MockedApis extends MockedApis {

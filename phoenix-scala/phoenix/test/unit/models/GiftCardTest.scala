@@ -1,13 +1,13 @@
 package models
 
-import models.account.User
-import models.auth.UserToken
-import models.payment.giftcard.GiftCard
-import services.Authenticator.AuthData
+import phoenix.models.account.User
+import phoenix.models.auth.UserToken
+import phoenix.models.payment.giftcard.GiftCard
+import phoenix.services.Authenticator.AuthData
+import phoenix.utils.aliases.AU
+import phoenix.utils.seeds.Factories
 import testutils.CustomMatchers._
 import testutils.TestBase
-import utils.aliases.AU
-import utils.seeds.Factories
 
 class GiftCardTest extends TestBase {
 

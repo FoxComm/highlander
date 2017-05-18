@@ -2,19 +2,19 @@ package testutils
 
 import cats.implicits._
 import failures.GeneralFailure
-import failures.UserFailures._
-import models.account._
-import models.admin._
-import models.auth._
-import models.customer._
-import models.payment.giftcard._
-import services.Authenticator.AuthData
-import services.account.AccountManager
+import phoenix.failures.UserFailures._
+import phoenix.models.account._
+import phoenix.models.admin._
+import phoenix.models.auth._
+import phoenix.models.customer._
+import phoenix.models.payment.giftcard._
+import phoenix.services.Authenticator.AuthData
+import phoenix.services.account.AccountManager
+import phoenix.utils.aliases._
+import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils.fixtures.TestFixtureBase
-import utils.aliases._
 import utils.db._
-import utils.seeds.Factories
 
 /**
   * Seeds are simple values that can be created without any external dependencies.

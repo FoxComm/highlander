@@ -1,11 +1,11 @@
 import cats.implicits._
 import failures.NotFoundFailure404
-import models.account._
-import models.cord.OrderShippingAddresses
-import models.location.{Address, Addresses, Country}
-import payloads.AddressPayloads.CreateAddressPayload
-import responses.AddressResponse
-import responses.PublicResponses.CountryWithRegions
+import phoenix.models.account._
+import phoenix.models.cord.OrderShippingAddresses
+import phoenix.models.location.{Address, Addresses, Country}
+import phoenix.payloads.AddressPayloads.CreateAddressPayload
+import phoenix.responses.AddressResponse
+import phoenix.responses.PublicResponses.CountryWithRegions
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
 import testutils.fixtures.BakedFixtures

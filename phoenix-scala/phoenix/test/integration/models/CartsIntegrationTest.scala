@@ -1,11 +1,9 @@
 package models
 
-import models.account.Scope
-import models.cord.{Cart, Carts}
+import phoenix.models.account.Scope
+import phoenix.models.cord.{Cart, Carts}
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.aliases._
-import utils.db._
 
 class CartsIntegrationTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 

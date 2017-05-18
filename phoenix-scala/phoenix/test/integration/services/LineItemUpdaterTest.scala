@@ -1,16 +1,16 @@
 package services
 
-import models.cord.lineitems._
-import models.objects._
-import models.product.{Mvp, SimpleContext, SimpleProductData}
-import payloads.LineItemPayloads.{UpdateLineItemsPayload ⇒ Payload}
+import models.objects.{ObjectContext, ObjectContexts}
+import phoenix.models.cord.lineitems._
+import phoenix.models.product.{Mvp, SimpleContext, SimpleProductData}
+import phoenix.payloads.LineItemPayloads.{UpdateLineItemsPayload => Payload}
+import phoenix.services.LineItemUpdater
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
+import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.MockedApis
-import utils.aliases._
-import utils.apis.Apis
 import utils.db._
-import utils.seeds.Factories
 
 class LineItemUpdaterTest
     extends IntegrationTestBase

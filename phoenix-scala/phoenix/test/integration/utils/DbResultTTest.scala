@@ -2,10 +2,11 @@ package utils
 
 import cats.implicits._
 import failures.GeneralFailure
-import scala.concurrent.ExecutionContext
+import phoenix.utils.seeds.Factories
 import testutils._
 import utils.db._
-import utils.seeds.Factories
+
+import scala.concurrent.ExecutionContext
 
 class DbResultTTest extends TestBase with DbTestSupport with CatsHelpers with GimmeSupport {
 

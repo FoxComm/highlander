@@ -1,14 +1,12 @@
 import org.json4s.JsonAST.{JObject, JString}
 import org.json4s.JsonDSL._
-import org.json4s._
-
-import payloads.CategoryPayloads._
-import responses.CategoryResponses._
-import services.category.CategoryManager
+import phoenix.payloads.CategoryPayloads._
+import phoenix.responses.CategoryResponses._
+import phoenix.services.category.CategoryManager
+import phoenix.utils.aliases._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.aliases._
 
 class CategoryIntegrationTest
     extends IntegrationTestBase

@@ -6,9 +6,9 @@ import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.testkit.{TestActorRef, TestKit}
 import cats.implicits._
-import models.cord._
 import org.scalatest.BeforeAndAfterAll
-import services.actors._
+import phoenix.models.cord._
+import phoenix.services.actors._
 import testutils._
 import testutils.fixtures.BakedFixtures
 

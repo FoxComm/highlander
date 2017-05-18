@@ -1,7 +1,7 @@
 package testutils
 
 import com.github.tminglei.slickpg.LTree
-import models.activity.ActivityContext
+import phoenix.models.activity.ActivityContext
 
 object TestActivityContext {
 

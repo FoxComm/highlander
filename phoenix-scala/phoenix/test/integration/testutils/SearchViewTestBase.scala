@@ -2,10 +2,9 @@ package testutils
 
 import org.json4s.jackson.parseJson
 import org.scalatest.AppendedClues
+import phoenix.utils.aliases.{SF, SL}
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api._
-import utils.MockedApis
-import utils.aliases.{SF, SL}
 import utils.db.ExPostgresDriver.api._
 
 trait SearchViewTestBase

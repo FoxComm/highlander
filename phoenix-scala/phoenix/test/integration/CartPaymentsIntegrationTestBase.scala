@@ -1,6 +1,6 @@
-import models.cord.OrderPayments.scope._
-import models.cord._
-import models.payment.PaymentMethod
+import phoenix.models.cord.OrderPayments.scope._
+import phoenix.models.cord._
+import phoenix.models.payment.PaymentMethod
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi

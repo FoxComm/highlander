@@ -2,6 +2,7 @@ package testutils
 
 import cats.data.Validated
 import org.scalatest.Assertions
+
 import scala.reflect.runtime.universe._
 
 trait CatsHelpers extends Assertions {

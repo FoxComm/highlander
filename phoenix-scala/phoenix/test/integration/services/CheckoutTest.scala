@@ -1,36 +1,36 @@
 package services
 
+import java.util.concurrent.atomic.AtomicBoolean
+
 import cats.implicits._
 import failures.GeneralFailure
 import faker.Lorem
-import java.util.concurrent.atomic.AtomicBoolean
-
-import models.Reasons
-import models.account.Scope
-import models.cord._
-import models.inventory.Skus
 import models.objects.ObjectContexts
-import models.payment.InStorePaymentStates
-import models.payment.giftcard._
-import models.payment.storecredit._
-import models.product.{Mvp, SimpleContext}
-import models.shipping.ShippingMethods
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalacheck.Prop.BooleanOperators
-import org.scalacheck.{Gen, Prop, Test ⇒ QTest}
+import org.scalacheck.{Gen, Prop, Test => QTest}
 import org.scalatest.mockito.MockitoSugar
-import payloads.LineItemPayloads.UpdateLineItemsPayload
-
-import scala.concurrent.Future
+import phoenix.models.Reasons
+import phoenix.models.account.Scope
+import phoenix.models.cord._
+import phoenix.models.inventory.Skus
+import phoenix.models.payment.InStorePaymentStates
+import phoenix.models.payment.giftcard._
+import phoenix.models.payment.storecredit._
+import phoenix.models.product.{Mvp, SimpleContext}
+import phoenix.models.shipping.ShippingMethods
+import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
+import phoenix.services.{CartValidation, CartValidatorResponse, Checkout, LineItemUpdater}
+import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
+import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.MockedApis
-import utils.aliases._
-import utils.apis.Apis
 import utils.db._
-import utils.seeds.Factories
+
+import scala.concurrent.Future
 
 class CheckoutTest
     extends IntegrationTestBase
@@ -105,8 +105,6 @@ class CheckoutTest
           adjustments ← * <~ GiftCardAdjustments.filter(_.giftCardId.inSet(ids)).result
         } yield adjustments).gimme
 
-        import GiftCardAdjustment._
-
         adjustments.map(_.state).toSet must === (
             Set[InStorePaymentStates.State](InStorePaymentStates.Auth))
         adjustments.map(_.debit) must === (List(gcAmount, cart.grandTotal - gcAmount))
@@ -124,8 +122,6 @@ class CheckoutTest
           _           ← * <~ Checkout(cart, cartValidator()).checkout
           adjustments ← * <~ StoreCreditAdjustments.filter(_.storeCreditId.inSet(ids)).result
         } yield adjustments).gimme
-
-        import StoreCreditAdjustment._
 
         adjustments.map(_.state).toSet must === (
             Set[InStorePaymentStates.State](InStorePaymentStates.Auth))
@@ -183,7 +179,6 @@ class CheckoutTest
                                                             lineItemPayload(total))
 
             c ← * <~ Carts.refresh(cart)
-            _ = println(c.grandTotal)
 
             _ ← * <~ OrderShippingMethods.create(
                    OrderShippingMethod.build(cart.refNum, shipMethod))

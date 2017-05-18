@@ -1,7 +1,6 @@
 package testutils
 
 import cats.data._
-import cats.implicits._
 import failures.{Failure, GeneralFailure}
 import org.scalatest.matchers._
 

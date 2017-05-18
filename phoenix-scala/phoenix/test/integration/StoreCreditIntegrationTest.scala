@@ -1,22 +1,23 @@
-import failures.StoreCreditFailures.StoreCreditConvertFailure
 import failures._
-import models.Reason
-import models.account._
-import models.cord.OrderPayments
-import models.payment.giftcard.GiftCard
-import models.payment.storecredit.StoreCredit._
-import models.payment.storecredit._
-import models.payment.{PaymentMethod, InStorePaymentStates, giftcard}
-import payloads.PaymentPayloads.CreateManualStoreCredit
-import payloads.StoreCreditPayloads._
-import responses.StoreCreditResponse.Root
-import responses.{GiftCardResponse, StoreCreditResponse}
+import phoenix.failures.StoreCreditFailures.StoreCreditConvertFailure
+import phoenix.failures.{EmptyCancellationReasonFailure, OpenTransactionsFailure}
+import phoenix.models.Reason
+import phoenix.models.account._
+import phoenix.models.cord.OrderPayments
+import phoenix.models.payment.giftcard.GiftCard
+import phoenix.models.payment.storecredit.StoreCredit._
+import phoenix.models.payment.storecredit._
+import phoenix.models.payment.{InStorePaymentStates, PaymentMethod, giftcard}
+import phoenix.payloads.PaymentPayloads.CreateManualStoreCredit
+import phoenix.payloads.StoreCreditPayloads._
+import phoenix.responses.StoreCreditResponse.Root
+import phoenix.responses.{GiftCardResponse, StoreCreditResponse}
+import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Factories
 
 class StoreCreditIntegrationTest
     extends IntegrationTestBase

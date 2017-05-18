@@ -2,6 +2,7 @@ package responses
 
 import cats.laws.MonadLaws
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import phoenix.responses.TheResponse
 import testutils.TestBase
 
 class TheResponseTest extends TestBase with GeneratorDrivenPropertyChecks {

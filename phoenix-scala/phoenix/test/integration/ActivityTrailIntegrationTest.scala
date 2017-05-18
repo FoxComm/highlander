@@ -1,4 +1,4 @@
-import models.activity.Activities
+import phoenix.models.activity.Activities
 import testutils._
 
 class ActivityTrailIntegrationTest extends IntegrationTestBase {

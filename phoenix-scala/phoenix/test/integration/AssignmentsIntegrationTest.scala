@@ -1,18 +1,18 @@
 import cats.implicits._
-import failures.AssignmentFailures._
 import failures.NotFoundFailure404
-import models._
-import models.account._
-import models.admin._
-import models.cord._
-import payloads.AssignmentPayloads._
-import responses._
-import responses.cord.AllOrders
+import phoenix.failures.AssignmentFailures._
+import phoenix.models._
+import phoenix.models.account._
+import phoenix.models.admin._
+import phoenix.models.cord._
+import phoenix.payloads.AssignmentPayloads._
+import phoenix.responses._
+import phoenix.responses.cord.AllOrders
+import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Factories
 
 class AssignmentsIntegrationTest
     extends IntegrationTestBase

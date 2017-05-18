@@ -4,13 +4,13 @@ import java.time.Instant
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import models.account.{Scope, User}
-import models.objects.{ObjectForm, ObjectShadow, ObjectUtils}
-import models.taxonomy._
+import models.objects._
 import org.json4s.JsonDSL._
-import services.Authenticator.AuthData
+import phoenix.models.account.{Scope, User}
+import phoenix.models.taxonomy._
+import phoenix.services.Authenticator.AuthData
+import phoenix.utils.aliases.Json
 import testutils.fixtures.TestFixtureBase
-import utils.aliases.Json
 import utils.db._
 
 trait TaxonomySeeds extends TestFixtureBase {

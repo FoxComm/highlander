@@ -1,7 +1,8 @@
 package models.rules
 
+import phoenix.models.rules.Condition
+import phoenix.utils.seeds.Factories
 import testutils.TestBase
-import utils.seeds.Factories
 
 class ConditionTest extends TestBase {
   "Condition" - {

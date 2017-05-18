@@ -1,21 +1,22 @@
 package services
 
 import cats.implicits._
-import failures.CartFailures._
-import models.Reasons
-import models.cord._
-import models.cord.lineitems._
-import models.inventory.Skus
 import models.objects._
-import models.payment.creditcard.CreditCards
-import models.payment.giftcard._
-import models.payment.storecredit._
-import models.product._
-import services.carts.CartTotaler
+import phoenix.failures.CartFailures._
+import phoenix.models.Reasons
+import phoenix.models.cord._
+import phoenix.models.cord.lineitems._
+import phoenix.models.inventory.Skus
+import phoenix.models.payment.creditcard.CreditCards
+import phoenix.models.payment.giftcard._
+import phoenix.models.payment.storecredit._
+import phoenix.models.product._
+import phoenix.services.CartValidator
+import phoenix.services.carts.CartTotaler
+import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Factories
 
 class CartValidatorTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 

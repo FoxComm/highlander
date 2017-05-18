@@ -1,12 +1,12 @@
 package testutils.fixtures.raw
 
-import models._
-import models.account._
-import models.payment.giftcard._
-import payloads.GiftCardPayloads.GiftCardCreateByCsr
-import services.giftcards.GiftCardService
+import phoenix.models._
+import phoenix.models.account._
+import phoenix.models.payment.giftcard._
+import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
+import phoenix.services.giftcards.GiftCardService
+import phoenix.utils.aliases._
 import testutils.fixtures.TestFixtureBase
-import utils.aliases._
 
 trait RawPaymentFixtures extends TestFixtureBase {
 

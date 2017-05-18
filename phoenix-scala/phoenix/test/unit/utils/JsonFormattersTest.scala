@@ -2,15 +2,16 @@ package utils
 
 import java.time.{Instant, ZonedDateTime}
 
-import models.admin.AdminData
-import models.cord.Order
-import models.payment.creditcard.CreditCardCharge
-import models.payment.giftcard.GiftCard
 import org.json4s.Formats
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization.write
+import phoenix.models.admin.AdminData
+import phoenix.models.cord.Order
+import phoenix.models.payment.creditcard.CreditCardCharge
+import phoenix.models.payment.giftcard.GiftCard
+import phoenix.utils.JsonFormatters._
+import phoenix.utils.time.UTC
 import testutils.TestBase
-import utils.JsonFormatters._
 import utils.Money.Currency
 
 class JsonFormattersTest extends TestBase {
@@ -45,7 +46,7 @@ class JsonFormattersTest extends TestBase {
   }
 
   "(de)serializes java.time.Instant" in {
-    val instant = ZonedDateTime.of(2015, 9, 14, 15, 38, 46, 0, time.UTC).toInstant
+    val instant = ZonedDateTime.of(2015, 9, 14, 15, 38, 46, 0, UTC).toInstant
 
     write("hello" → instant) must === ("""{"hello":"2015-09-14T15:38:46Z"}""")
     (parse("""{"hello":"2015-09-14T15:38:46Z"}""") \ "hello").extract[Instant] must === (instant)

@@ -1,7 +1,6 @@
 package testutils
 
 import utils.MockedApis
-import utils.apis.Apis
 
 import scala.concurrent.ExecutionContextExecutor
 

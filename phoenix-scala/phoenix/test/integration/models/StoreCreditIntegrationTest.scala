@@ -1,11 +1,12 @@
 package models
 
-import models.cord.OrderPayments
-import models.payment.storecredit._
+import phoenix.models.Reasons
+import phoenix.models.cord.OrderPayments
+import phoenix.models.payment.storecredit._
+import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Factories
 
 class StoreCreditIntegrationTest
     extends IntegrationTestBase
