@@ -41,7 +41,7 @@ lazy val phoenix = (project in file("phoenix"))
   )
 
 lazy val root = (project in file("."))
-  .aggregate(phoenix, objectframework, starfish)
+  .aggregate(phoenix, seeder)
   .settings(commonSettings)
   .settings(
     name := "phoenix-scala",
@@ -50,21 +50,7 @@ lazy val root = (project in file("."))
     writeVersion := sh.toTask(fromFile("project/write_version").getLines.mkString).value,
     unmanagedResources in Compile += file("version"),
     test in assembly := {},
-    addCommandAlias("all", "; clean; seeder/clean; it:compile; seeder/compile; test; seeder/assembly"),
-    assemblyMergeStrategy in assembly := {
-      case PathList("org", "joda", "time", xs @ _ *) ⇒
-        MergeStrategy.first
-      case PathList("org", "slf4j", xs @ _ *) ⇒
-        MergeStrategy.first
-      case PathList("ch", "qos", "logback", xs @ _ *) ⇒
-        MergeStrategy.first
-      case PathList("scala", xs @ _ *) ⇒ // FIXME: investigate what’s still pulling in Lightbend Scala?
-        MergeStrategy.first
-      case PathList("library.properties", xs @ _ *) ⇒ // FIXME: investigate what’s still pulling in Lightbend Scala?
-        MergeStrategy.first
-      case x ⇒
-        (assemblyMergeStrategy in assembly).value.apply(x)
-    }
+    addCommandAlias("all", "; clean; phoenix/it:compile; test; assembly")
   )
 
 lazy val seeder = (project in file("seeder"))
@@ -75,20 +61,6 @@ lazy val seeder = (project in file("seeder"))
     cleanFiles += baseDirectory.value / "results",
     // we cannot fork and set javaOptions simply, as it causes some weird issue with db schema creation
     initialize ~= (_ => System.setProperty("phoenix.env", "test" )),
-    assemblyMergeStrategy in assembly := {
-      case PathList("org", "joda", "time", xs @ _ *) ⇒
-        MergeStrategy.first
-      case PathList("org", "slf4j", xs @ _ *) ⇒
-        MergeStrategy.first
-      case PathList("ch", "qos", "logback", xs @ _ *) ⇒
-        MergeStrategy.first
-      case PathList("io", "netty", xs @ _ *) ⇒
-        MergeStrategy.first
-      case PathList("META-INF", "io.netty.versions.properties") ⇒
-        MergeStrategy.first
-      case x ⇒
-        (assemblyMergeStrategy in assembly).value.apply(x)
-    },
     fullClasspath in assembly := { // thanks sbt for that hacky way of excluding inter-project dependencies
       val phoenixClasses = (crossTarget in compile in phoenix).value.getAbsolutePath
       (fullClasspath in assembly).value.filterNot(_.data.getAbsolutePath.startsWith(phoenixClasses))

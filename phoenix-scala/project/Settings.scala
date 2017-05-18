@@ -3,6 +3,9 @@ import org.scalafmt.sbt.ScalaFmtPlugin
 import org.scalafmt.sbt.ScalaFmtPlugin.autoImport._
 import sbt.Keys._
 import sbt._
+import sbtassembly.AssemblyKeys._
+import sbtassembly.AssemblyPlugin.autoImport.assemblyMergeStrategy
+import sbtassembly.{MergeStrategy, PathList}
 import spray.revolver.RevolverPlugin.Revolver
 
 object Settings {
@@ -29,11 +32,28 @@ object Settings {
       "-Ywarn-nullary-unit",
       "-Ywarn-infer-any"
     ),
-    // Work around SBT warning for multiple dependencies
-    dependencyOverrides += "org.scala-lang" % "scala-library" % scalaVersion.value,
     dependencyOverrides ++= Dependencies.slick.toSet,
     dependencyOverrides ++= Dependencies.json4s.toSet,
     ivyScala := ivyScala.value.map(_.copy(overrideScalaVersion = true)),
+    // Exclude vanilla Scala to avoid assembly collisions with typelevel
+    assemblyExcludedJars in assembly := {
+      val cp = (fullClasspath in assembly).value
+      cp.filter(_.data.getName == "scala-library-" + scalaVersion.value + ".jar")
+    },
+    assemblyMergeStrategy in assembly := {
+      case PathList("org", "joda", "time", xs @ _ *) ⇒
+        MergeStrategy.first
+      case PathList("org", "slf4j", xs @ _ *) ⇒
+        MergeStrategy.first
+      case PathList("ch", "qos", "logback", xs @ _ *) ⇒
+        MergeStrategy.first
+      case PathList("io", "netty", xs @ _ *) ⇒
+        MergeStrategy.first
+      case PathList("META-INF", "io.netty.versions.properties") ⇒
+        MergeStrategy.first
+      case x ⇒
+        (assemblyMergeStrategy in assembly).value.apply(x)
+    },
     resolvers ++= Seq(
       "hseeberger bintray" at "http://dl.bintray.com/hseeberger/maven",
       "pellucid bintray"   at "http://dl.bintray.com/pellucid/maven",
