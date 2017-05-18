@@ -14,10 +14,29 @@ import { prefix } from 'lib/text-utils';
 //components
 import { Dropdown, DropdownItem } from 'components/dropdown';
 
+type Props = {
+  criterions: Array<Object>,
+  getCriterion: Function,
+  getOperators: Function,
+  getWidget: Function,
+  index: number,
+  field: string,
+  operator: string,
+  mainCondition: string,
+  conditionsLength: number,
+  value: any,
+  changeField: Function,
+  changeOperator: Function,
+  changeValue: Function,
+  remove: Function,
+  omitDeleteIcon: boolean,
+};
+
 const prefixed = prefix('fc-query-builder');
 const fields = criterions.map(({ field,label }) => [ field, label ]);
 
 class Criterion extends Component {
+  props: Props;
 
   shouldComponentUpdate(nextProps, nextState) {
     const { field, operator, value, conditionsLength, mainCondition } = this.props;
@@ -109,24 +128,6 @@ const renderValue = (criterion, operator, value, changeValue, getWidget) => {
     changeValue,
     className: 'fc-query-builder',
   });
-};
-
-Criterion.propTypes = {
-  criterions: PropTypes.array.isRequired,
-  getCriterion: PropTypes.func.isRequired,
-  getOperators: PropTypes.func.isRequired,
-  getWidget: PropTypes.func.isRequired,
-  index: PropTypes.number,
-  field: PropTypes.string,
-  operator: PropTypes.string,
-  mainCondition: PropTypes.string,
-  conditionsLength: PropTypes.number,
-  value: PropTypes.any,
-  changeField: PropTypes.func.isRequired,
-  changeOperator: PropTypes.func.isRequired,
-  changeValue: PropTypes.func.isRequired,
-  remove: PropTypes.func.isRequired,
-  omitDeleteIcon: PropTypes.bool,
 };
 
 export default Criterion;

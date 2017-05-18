@@ -16,6 +16,20 @@ import { Dropdown } from 'components/dropdown';
 import QueryBuilder from './query-builder';
 
 
+type Props = {
+  omitMainCondition?: boolean,
+  itemName: string,
+  criterions: Array<Object>,
+  getCriterion: Function,
+  getOperators: Function,
+  getWidget: Function,
+  mainCondition: string,
+  conditions: Array<Array>,
+  setMainCondition: Function,
+  setElasticQuery: Function,
+  setConditions: Function,
+};
+
 const requestAdapter = (criterions, mainCondition, conditions) => {
   const request = new Request(criterions);
   request.query = mainCondition === operators.and ? new query.ConditionAnd() : new query.ConditionOr();
@@ -38,20 +52,7 @@ const SELECT_CRITERIA = [
 const prefixed = prefix('fc-query-builder-edit');
 
 class QueryBuilderContainer extends React.Component {
-
-  static propTypes = {
-    omitMainCondition: PropTypes.bool,
-    itemName: PropTypes.string,
-    criterions: PropTypes.array.isRequired,
-    getCriterion: PropTypes.func.isRequired,
-    getOperators: PropTypes.func.isRequired,
-    getWidget: PropTypes.func.isRequired,
-    mainCondition: PropTypes.string.isRequired,
-    conditions: PropTypes.arrayOf(PropTypes.array).isRequired,
-    setMainCondition: PropTypes.func.isRequired,
-    setElasticQuery: PropTypes.func.isRequired,
-    setConditions: PropTypes.func.isRequired,
-  };
+  props: Props;
 
   constructor(props) {
     super(props);

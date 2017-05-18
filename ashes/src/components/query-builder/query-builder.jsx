@@ -1,3 +1,5 @@
+//@flow
+
 //libs
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
@@ -12,19 +14,21 @@ import Criterion from './criterion-edit';
 
 const prefixed = prefix('fc-query-builder');
 
-export default class QueryBuilder extends React.Component {
+// types
+type Props = {
+  criterions: Array<Object>,
+  getCriterion: Function,
+  getOperators: Function,
+  getWidget: Function,
+  conditions: Array<Array>,
+  setConditions: Function,
+  mainCondition: string,
+  omitAddButton: boolean,
+  itemName: string,
+};
 
-  static propTypes = {
-    criterions: PropTypes.array.isRequired,
-    getCriterion: PropTypes.func.isRequired,
-    getOperators: PropTypes.func.isRequired,
-    getWidget: PropTypes.func.isRequired,
-    conditions: PropTypes.arrayOf(PropTypes.array).isRequired,
-    setConditions: PropTypes.func.isRequired,
-    mainCondition: PropTypes.string.isRequired,
-    omitAddButton: PropTypes.bool.isRequired,
-    itemName: PropTypes.string,
-  };
+export default class QueryBuilder extends React.Component {
+  props: Props;
 
   updateCondition(index, value) {
     const {conditions, setConditions, criterions, mainCondition, setElasticQuery} = this.props;
