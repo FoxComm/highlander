@@ -1,6 +1,4 @@
-FROM mhart/alpine-node:7.7.1
-
-RUN npm install -g gulp
+FROM mhart/alpine-node:7.10.0
 
 RUN mkdir -p /ashes
 WORKDIR /ashes

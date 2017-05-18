@@ -27,10 +27,14 @@
   & a,
   & a:visited {
     position: relative;
-    display: inline-flex;
+    display: block;
+    max-width: 200px;
     color: inherit;
     padding: 0 20px 10px;
     transition: color .2s;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 
     &:after {
       content: '';
@@ -100,8 +104,8 @@
 
 .dropdown .item a {
   display: block;
-  line-height: 44px;
-  padding: 0 20px;
+  padding: 11px 20px;
+  line-height: 18px;
 }
 
 .dropdown .item a:hover {

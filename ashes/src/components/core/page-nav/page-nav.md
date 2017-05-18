@@ -26,6 +26,7 @@ const App = (props) => (
     <PageNav>
       <Link to="styles">Styles</Link>
       <Link to="flow">Flow Type<br />Multiline</Link>
+      <Link to="long">Longlonglonglonglonglonglonglonglongtext</Link>
     </PageNav>
     {props.children}
   </div>
@@ -35,6 +36,7 @@ const routes = (
   <Route path="/" component={App}>
     <Route path="/styles" name="styles" component={Page} />
     <Route path="/flow" name="flow" component={Page} />
+    <Route path="/long" name="long" component={Page} />
     <Route path="*" name="not-found" component={Page} />
   </Route>
 );
