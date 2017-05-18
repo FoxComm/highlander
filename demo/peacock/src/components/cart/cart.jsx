@@ -144,7 +144,9 @@ class Cart extends Component {
   @autobind
   beginApplePay() {
     console.log('starting the apple pay inside the checkout.jsx');
-    const total = this.props.cart.totals.total;
+    const total = this.props.totals.total;
+    console.log('total -> ', total);
+    console.log('subTotal -> ', this.props.totals.subTotal);
     console.log('the total from the cart -> ', total);
     const amount = (parseFloat(total)/100).toFixed(2);
     console.log('amount -> ', amount);

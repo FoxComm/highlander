@@ -137,14 +137,26 @@
 }
 
 @media (--large) {
+  .cart-content {
+    height: calc(100% - 130px);
+
+    &.with-apple-pay {
+      height: calc(100% - 206px);
+    }
+  }
+
   .cart-footer {
+    height: 80px;
     width: 100%;
     position: absolute;
     bottom: 0;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: flex-start;
     flex-direction: column;
+    &.with-apple-pay {
+      height: 156px;
+    }
   }
 
   .checkout-button {
