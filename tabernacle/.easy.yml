@@ -114,6 +114,10 @@ shortcuts:
     alias: provision_appliance.yml
     target: ansible/provision_appliance.yml
 
+  - name: Deploy Ark Apps
+    alias: deploy_ark.yml
+    target: ansible/deploy_ark.yml
+
   # Cloud
   - name: Provision Cloud Central
     alias: cloud_central.yml
