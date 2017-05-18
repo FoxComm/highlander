@@ -1,7 +1,6 @@
 import os
 
-from flask import Flask, request, jsonify
-from flask_cors import cross_origin
+from flask import Flask, request, jsonify, make_response
 from managers.Prod_Prod_Manager import Prod_Prod_Manager
 from util.ES_Client import ES_Client
 from util.InvalidUsage import InvalidUsage
@@ -41,7 +40,6 @@ def rec_prod_prod(prod_id):
     return jsonify(resp)
 
 @APP.route('/public/prod-prod/full/<int:prod_id>', methods=['GET'])
-@cross_origin()
 def rec_prod_prod_full(prod_id):
     """rec_prod_prod_full
     returns a list of full products from elasticsearch
@@ -50,7 +48,9 @@ def rec_prod_prod_full(prod_id):
     size_param = int(request.args.get('size', 10))
     from_param = int(request.args.get('from', 0))
     full_resp = PP_MANAGER.recommend_full(prod_id, channel_id, from_param, size_param)
-    return jsonify(full_resp)
+    resp = make_response(jsonify(full_resp))
+    resp.headers['Allow-Control-Allow-Origin'] = '*'
+    return resp
 
 @APP.route('/public/cust-prod/<int:cust_id>', methods=['GET'])
 def rec_cust_prod(cust_id):
