@@ -56,11 +56,11 @@ t: flow lint
 
 .PHONY: mocha-main
 mocha-main:
-	gulp mocha.main
+	@NODE_ENV=$(NODE_ENV) gulp mocha.main
 
 .PHONY: mocha-unit
 mocha-unit:
-	gulp mocha.unit
+	@NODE_ENV=$(NODE_ENV) gulp mocha.unit
 
 .PHONY: lint
 lint:
