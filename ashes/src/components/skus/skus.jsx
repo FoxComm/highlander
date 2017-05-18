@@ -128,7 +128,7 @@ export class Skus extends Component {
           emptyMessage="No SKUs found."
           list={list}
           renderRow={this.renderRow}
-          tableColumns={Skus.tableColumns}
+          tableColumns={tableColumns}
           searchActions={searchActions}
           predicate={({skuCode}) => skuCode}
         />

@@ -65,8 +65,8 @@ export class TaxonProductsPage extends Component {
 
   componentDidMount() {
     this.props.actions.setExtraFilters([
-      dsl.nestedTermFilter('taxonomies.taxonomy', get(this.props.taxonomy, 'attributes.name.v')),
-      dsl.nestedTermFilter('taxonomies.taxons', get(this.props.object, 'attributes.name.v')),
+      dsl.nestedTermFilter('taxonomies.taxonomy', _.get(this.props.taxonomy, 'attributes.name.v')),
+      dsl.nestedTermFilter('taxonomies.taxons', _.get(this.props.object, 'attributes.name.v')),
     ]);
 
     this.props.actions.fetch();

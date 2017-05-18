@@ -2,7 +2,7 @@
 
 // libs
 import _ from 'lodash';
-import React from 'react';
+import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
