@@ -192,7 +192,7 @@ trait ReturnsFixtures
         .addOrReplace(ReturnPaymentsPayload(payments))(defaultAdminAuth)
         .as[ReturnResponse.Root]
 
-    def createReturnPayment(payment: PaymentMethod.Type, amount: Int, refNum: String)(
+    def createReturnPayment(payment: PaymentMethod.Type, amount: Long, refNum: String)(
         implicit sl: SL,
         sf: SF): ReturnResponse.Root =
       returnsApi(refNum).paymentMethods

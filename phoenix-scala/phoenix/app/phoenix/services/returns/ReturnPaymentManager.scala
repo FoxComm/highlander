@@ -23,7 +23,7 @@ import phoenix.utils.apis.{Apis, RefundReason}
 import utils.db._
 
 object ReturnPaymentManager {
-  def updatePayments(refNum: String, payments: Map[PaymentMethod.Type, Int], overwrite: Boolean)(
+  def updatePayments(refNum: String, payments: Map[PaymentMethod.Type, Long], overwrite: Boolean)(
       implicit ec: EC,
       db: DB,
       ac: AC,

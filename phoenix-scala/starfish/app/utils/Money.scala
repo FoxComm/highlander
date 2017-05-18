@@ -16,7 +16,7 @@ import scala.language.implicitConversions
 // Note: type aliases for simple types wont work with json4s https://github.com/json4s/json4s/issues/397 @aafa
 object Money {
   type Currency = CurrencyUnit
-  type Price    = (Long, Currency) // todo might be a good idea to use it everywhere @aafa
+  type Price    = (Long, Currency)
 
   implicit class RichLong(val value: Long) extends AnyVal {
     def zeroMax: Long                 = Math.max(0L, value)

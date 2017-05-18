@@ -113,7 +113,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB, ctx: OC) extends C
   private def sufficientPayments(response: CartValidatorResponse,
                                  isCheckout: Boolean): DBIO[CartValidatorResponse] = {
 
-    def cartFunds(payments: Seq[OrderPayment]): DBIO[Option[Int]] = {
+    def cartFunds(payments: Seq[OrderPayment]): DBIO[Option[Long]] = {
       if (isCheckout) {
         val paymentIds = payments.map(_.id)
 

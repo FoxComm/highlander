@@ -35,6 +35,7 @@ class ReturnIntegrationTest
   "Returns header" - {
     val refNotExist = "ABC-666"
 
+
     "successfully creates new Return" in new ReturnFixture with OrderDefaults {
       val rmaCreated = returnsApi
         .create(ReturnCreatePayload(cordRefNum = order.referenceNumber, returnType = Standard))
@@ -259,7 +260,7 @@ class ReturnIntegrationTest
   }
 
   "Return reasons" - {
-    pending
+
     "add new return reason" in new ReturnReasonFixture {
       val payload = ReturnReasonPayload(name = "Simple reason")
       returnsApi.reasons.add(payload).as[ReturnReasonsResponse.Root].name must === (payload.name)
@@ -284,7 +285,7 @@ class ReturnIntegrationTest
   }
 
   "Return line items" - {
-    pending
+
     "POST /v1/returns/:refNum/line-items" - {
       "successfully adds shipping cost line item" in new ReturnDefaults with ReturnReasonDefaults {
         val payload = ReturnShippingCostLineItemPayload(amount = order.totals.shipping,
@@ -474,22 +475,8 @@ class ReturnIntegrationTest
     }
   }
 
-  "Test Long" - {
-    "should work" in new ReturnPaymentDefaults {
-      val payload =
-        ReturnPaymentsPayload(Map(PaymentMethod.CreditCard → 100, PaymentMethod.StoreCredit → 120))
-      val payments = returnsApi(rma.referenceNumber).paymentMethods
-        .add(payload)
-        .as[ReturnResponse.Root]
-        .payments
-        .asMap
-
-      payments must have size 2
-      payments.mapValues(_.amount) must === (payload.payments)
-    }
-  }
-
   "Return payment methods" - {
+
     "POST /v1/returns/:ref/payment-methods" - {
       "succeeds for any supported payment" in new ReturnPaymentFixture with ReturnDefaults
       with ReturnReasonDefaults {
@@ -522,7 +509,7 @@ class ReturnIntegrationTest
           .payments
           .asMap
           .mapValues(_.amount) must === (
-            Map[PaymentMethod.Type, Int](PaymentMethod.GiftCard → 130))
+            Map[PaymentMethod.Type, Long](PaymentMethod.GiftCard → 130))
 
         val payload = ReturnPaymentsPayload(
             Map(PaymentMethod.CreditCard → 100, PaymentMethod.StoreCredit → 120))
@@ -538,7 +525,7 @@ class ReturnIntegrationTest
           .as[ReturnResponse.Root]
           .payments
           .asMap
-          .mapValues(_.amount) must === (payload.payments + (PaymentMethod.StoreCredit → 50))
+          .mapValues(_.amount) must === (payload.payments + (PaymentMethod.StoreCredit → 50L))
 
         api
           .add(PaymentMethod.GiftCard, ReturnPaymentPayload(80))
@@ -556,7 +543,7 @@ class ReturnIntegrationTest
           val response =
             returnsApi(createReturn(order.referenceNumber).referenceNumber).paymentMethods
               .add(paymentType, payload)
-          response.mustFailWithMessage("Long got -42, expected more than 0")
+          response.mustFailWithMessage("Amount got -42, expected more than 0")
         }
       }
 

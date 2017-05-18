@@ -1,15 +1,10 @@
 package phoenix.services.returns
 
-import phoenix.models.cord.lineitems.{CartLineItemAdjustments, OrderLineItems}
-import phoenix.models.inventory.Skus
 import models.objects.{ObjectForms, ObjectShadows}
-import phoenix.models.payment.giftcard.GiftCards
 import phoenix.models.returns._
-import phoenix.utils.aliases._
-import utils.db._
-import utils.Money._
 import utils.db.ExPostgresDriver.api._
-import Predef.{any2stringadd ⇒ _, _}
+import utils.db._
+import models.returns._
 
 object ReturnTotaler {
   def adjustmentsTotal(rma: Return)(implicit ec: EC): DbResultT[Long] = DbResultT.pure(0)
@@ -24,5 +19,5 @@ object ReturnTotaler {
 
       total = ((form.attributes +> ((shadow.attributes +> "salePrice") +>> "ref")) +>> "value")
         .asColumnOf[Long]
-    } yield total).sum.filter(_ > 0).getOrElse(0L).result.dbresult
+    } yield total).sum.filter(_ > 0L).getOrElse(0L).result.dbresult
 }

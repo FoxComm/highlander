@@ -68,8 +68,8 @@ object ReturnLineItemManager {
     }
   }
 
-  private def validateMaxShippingCost(rma: Return, amount: Int)(implicit ec: EC,
-                                                                db: DB): DbResultT[Unit] =
+  private def validateMaxShippingCost(rma: Return, amount: Long)(implicit ec: EC,
+                                                                 db: DB): DbResultT[Unit] =
     for {
       order ← * <~ Orders.mustFindByRefNum(rma.orderRef)
       orderShippingTotal = order.shippingTotal
@@ -79,7 +79,7 @@ object ReturnLineItemManager {
                                 .on(_.id === _.returnId)
                                 .map { case (_, shippingCost) ⇒ shippingCost.amount }
                                 .sum
-                                .getOrElse(0)
+                                .getOrElse(0L)
                                 .result
       maxAmount = orderShippingTotal - previouslyReturnedCost
       _ ← * <~ failIf(amount > maxAmount,

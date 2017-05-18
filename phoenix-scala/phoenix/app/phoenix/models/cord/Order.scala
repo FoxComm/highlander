@@ -19,7 +19,6 @@ import utils.Money.Currency
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
-
 case class Order(id: Int = 0,
                  scope: LTree,
                  referenceNumber: String = "",

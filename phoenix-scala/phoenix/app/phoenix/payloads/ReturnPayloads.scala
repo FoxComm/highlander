@@ -49,7 +49,7 @@ object ReturnPayloads {
   case class ReturnShippingCostLineItemPayload(amount: Long, reasonId: Int)
       extends ReturnLineItemPayload {
     def validate: ValidatedNel[Failure, ReturnLineItemPayload] =
-      greaterThan(amount, 0L, "Long").map(_ ⇒ this)
+      greaterThan(amount, 0L, "Amount").map(_ ⇒ this)
   }
 
   /* Payment payloads */
@@ -66,7 +66,7 @@ object ReturnPayloads {
 
   case class ReturnPaymentPayload(amount: Long) extends Validation[ReturnPaymentPayload] {
     def validate: ValidatedNel[Failure, ReturnPaymentPayload] = {
-      greaterThan(amount, 0L, "Long").map(_ ⇒ this)
+      greaterThan(amount, 0L, "Amount").map(_ ⇒ this)
     }
   }
 

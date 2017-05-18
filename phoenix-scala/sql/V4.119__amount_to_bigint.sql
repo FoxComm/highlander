@@ -44,7 +44,7 @@ alter table carts alter column taxes_total type money_amount;
 alter table carts alter column grand_total type money_amount;
 alter table carts alter column shipping_total type money_amount;
 alter table carts alter column sub_total type money_amount;
-alter table order_line_item_adjustments alter column subtract type money_amount;
+alter table cart_line_item_adjustments alter column subtract type money_amount;
 alter table returns alter column total_refund type money_amount;
 
 -- restore depended objects

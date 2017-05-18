@@ -16,7 +16,11 @@ import utils.Money._
 import utils.db._
 
 object ReturnResponse {
-  case class ReturnTotals(subTotal: Long, taxes: Long, shipping: Long, adjustments: Long, total: Long)
+  case class ReturnTotals(subTotal: Long,
+                          taxes: Long,
+                          shipping: Long,
+                          adjustments: Long,
+                          total: Long)
       extends ResponseItem
 
   sealed trait LineItem extends ResponseItem {
@@ -115,7 +119,7 @@ object ReturnResponse {
       // Totals
       adjustments ← * <~ ReturnTotaler.adjustmentsTotal(rma)
       subTotal    ← * <~ ReturnTotaler.subTotal(rma)
-      shipping = shippingCosts.map(_.amount).getOrElse(0  : Long)
+      shipping = shippingCosts.map(_.amount).getOrElse(0L)
       taxes ← * <~ CartTotaler.taxesTotal(rma.orderRef,
                                           subTotal = subTotal,
                                           shipping = shipping,

@@ -57,11 +57,13 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
 
     private val aeternalActivity = Map(
         "activeFrom" → (("t" → "datetime") ~ ("v" → Instant.ofEpochMilli(1).toString)),
-        "activeTo"   → (("t" → "datetime") ~ ("v" → JNull)))private val skuPayload = SkuPayload(
+        "activeTo"   → (("t" → "datetime") ~ ("v" → JNull)))
+
+    private val skuPayload = SkuPayload(
         attributes = Map("code"        → tv(skuCode),
                          "title"       → tv(skuCode.capitalize),
-                         "salePrice"   → usdPrice( skuPrice),
-                         "retailPrice" → usdPrice( skuPrice))++ aeternalActivity)
+                         "salePrice"   → usdPrice(skuPrice),
+                         "retailPrice" → usdPrice(skuPrice)) ++ aeternalActivity)
 
     val productPayload =
       CreateProductPayload(attributes =
