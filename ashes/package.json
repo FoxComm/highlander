@@ -38,6 +38,7 @@
     "crypto-js": "^3.1.9-1",
     "currency-symbol-map": "^2.1.0",
     "d3": "^3.5.0",
+    "dotenv": "^4.0.0",
     "draft-js": "^0.7.0",
     "draft-js-export-html": "^0.2.2",
     "draft-js-export-markdown": "^0.2.0",
