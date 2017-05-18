@@ -18,6 +18,7 @@ import { searchGiftCards } from 'modules/products';
 import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-details';
 import { addLineItem, toggleCart } from 'modules/cart';
 import { fetchRelatedProducts, clearRelatedProducts } from 'modules/cross-sell';
+import { fetchReviewsForSku, clearReviews } from 'modules/reviews';
 
 // styles
 import styles from './pdp.css';
@@ -34,6 +35,7 @@ import GiftCardForm from 'components/gift-card-form';
 import ImagePlaceholder from 'components/products-item/image-placeholder';
 import RelatedProductsList,
   { LoadingBehaviors } from 'components/related-products-list/related-products-list';
+import ProductReviewsList from 'components/product-reviews-list/product-reviews-list';
 
 // types
 import type { ProductResponse, Sku } from 'modules/product-details';
@@ -54,6 +56,8 @@ type Actions = {
   toggleCart: Function,
   fetchRelatedProducts: Function,
   clearRelatedProducts: Function,
+  fetchReviewsForSku: Function,
+  clearReviews: Function,
 };
 
 type Props = Localized & RoutesParams & {
@@ -75,15 +79,20 @@ type State = {
 const mapStateToProps = (state) => {
   const product = state.productDetails.product;
   const relatedProducts = state.crossSell.relatedProducts;
+  const productReviews = state.reviews.list;
 
   return {
     product,
     relatedProducts,
+    productReviews,
     fetchError: _.get(state.asyncActions, 'pdp.err', null),
     notFound: !product && _.get(state.asyncActions, 'pdp.err.response.status') == 404,
     isLoading: _.get(state.asyncActions, ['pdp', 'inProgress'], true),
     isCartLoading: _.get(state.asyncActions, ['cartChange', 'inProgress'], false),
     isRelatedProductsLoading: _.get(state.asyncActions, ['relatedProducts', 'inProgress'], false),
+    isProductReviewsLoading: _.get(state.asyncActions,
+      ['fetchReviewsForSku', 'inProgress'], false
+    ),
   };
 };
 
@@ -97,6 +106,8 @@ const mapDispatchToProps = dispatch => ({
     toggleCart,
     fetchRelatedProducts,
     clearRelatedProducts,
+    fetchReviewsForSku,
+    clearReviews,
   }, dispatch),
 });
 
@@ -120,10 +131,17 @@ class Pdp extends Component {
 
   componentDidMount() {
     this.productPromise.then(() => {
-      const { product, isRelatedProductsLoading, actions } = this.props;
+      const { product, isRelatedProductsLoading, isProductReviewsLoading, actions } = this.props;
+
       tracking.viewDetails(this.productView);
+
       if (!isRelatedProductsLoading) {
         actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
+      }
+
+      if (!isProductReviewsLoading) {
+        const currentSkuCode = _.get(this.currentSku, ['attributes', 'code', 'v'], '');
+        actions.fetchReviewsForSku(currentSkuCode).catch(_.noop);
       }
     });
   }
@@ -131,6 +149,7 @@ class Pdp extends Component {
   componentWillUnmount() {
     this.props.actions.resetProduct();
     this.props.actions.clearRelatedProducts();
+    this.props.actions.clearReviews();
   }
 
   componentWillUpdate(nextProps) {
@@ -140,6 +159,7 @@ class Pdp extends Component {
       this.setState({ currentSku: null });
       this.props.actions.resetProduct();
       this.props.actions.clearRelatedProducts();
+      this.props.actions.clearReviews();
       this.fetchProduct(nextProps, nextId);
     }
   }
@@ -374,6 +394,21 @@ class Pdp extends Component {
     );
   }
 
+  get productReviewsList(): ?Element<*> {
+    const { productReviews, isProductReviewsLoading } = this.props;
+
+    return (
+      <ProductReviewsList
+        title="Reviews"
+        emptyContentTitle="There are no reviews for this product"
+        listItems={productReviews}
+        isLoading={isProductReviewsLoading}
+        loadingBehavior={LoadingBehaviors.ShowWrapper}
+        paginationSize={4}
+      />
+    );
+  }
+
   get productPrice(): ?Element<any> {
     if (this.isGiftCard()) return null;
     const {
@@ -466,6 +501,7 @@ class Pdp extends Component {
           <img styleName="share-image" src="/images/pdp/style.jpg" />
         </div>
         {this.relatedProductsList}
+        {this.productReviewsList}
       </div>
     );
   }

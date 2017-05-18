@@ -1,20 +1,43 @@
 /* @flow */
 
-import { createReducer } from 'redux-act';
+// libs
+import { createReducer, createAction } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 
+// actions - private
 const _fetchReviews = createAsyncActions(
   'fetchReviews',
   function() {
     const body = {
-      query: { match_all: {} }
+      query: { match_all: {} },
     };
     return this.api.reviews.search(body, 5); // placeholder api call until we have list reviews endpoint
   }
 );
 
-export const fetchReviews = _fetchReviews.perform;
+const _fetchReviewsForSku = createAsyncActions(
+  'fetchReviewsForSku',
+  function(sku: string) {
+    const body = {
+      query: {
+        bool: {
+          must: [{
+            match: { sku },
+          }],
+        },
+      },
+    };
 
+    return this.api.reviews.search(body, 5);
+  }
+);
+
+// actions - public
+export const fetchReviews = _fetchReviews.perform;
+export const fetchReviewsForSku = _fetchReviewsForSku.perform;
+export const clearReviews = createAction('REVIEWS_CLEAR');
+
+// redux
 const initialState = {
   current: null,
   list: {},
@@ -24,7 +47,20 @@ const reducer = createReducer({
   [_fetchReviews.succeeded]: (state, response) => {
     return {
       ...state,
-      list: response.result
+      list: response.result,
+    };
+  },
+  [_fetchReviewsForSku.succeeded]: (state, response) => {
+    return {
+      ...state,
+      list: response.result,
+    };
+  },
+  [clearReviews]: (state) => {
+    return {
+      ...state,
+      current: initialState.current,
+      list: initialState.list,
     };
   },
 }, initialState);
