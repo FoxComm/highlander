@@ -163,7 +163,8 @@ middlewarehouse_host: "middlewarehouse.{{consul_suffix}}"
 middlewarehouse_port: 9292
 middlewarehouse_server: "{{middlewarehouse_host}}:{{middlewarehouse_port}}"
 
-solomon_host: "solomon.{{consul_suffix}}"
+solomon_service_name = "solomon"
+solomon_host: "{{solomon_service_name}}.{{consul_suffix}}"
 solomon_port: 4002
 solomon_server: "{{solomon_host}}:{{solomon_port}}"
 
