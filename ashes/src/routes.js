@@ -21,6 +21,7 @@ const indexRedirect = `${rootPath}/orders`;
 export default function makeRoutes(jwtToken) {
   const claims = getClaims(jwtToken);
 
+  console.log(claims);
   return (
     <Route path={rootPath}>
       <IndexRedirect to={indexRedirect}/>

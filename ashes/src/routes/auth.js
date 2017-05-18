@@ -16,6 +16,10 @@ const getRoutes = (jwt: JWT) => {
     router.read('auth', { component: AuthPages }, [
       router.create('login', { path: 'login', component: Login }),
       router.create('set-password', { path: 'signup', component: SetPassword }),
+      // request password reset
+      router.create('restore-password', { path: 'restore-password', component: SetPassword }),
+      // create new password after request
+      router.create('reset-password', { path: 'reset-password', component: SetPassword }),
     ]);
 
   return authRoutes;

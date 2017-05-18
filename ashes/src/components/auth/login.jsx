@@ -96,7 +96,7 @@ export default class Login extends Component {
 
   @autobind
   onForgotClick() {
-    // @todo: restore password
+    transitionTo('restore-password');
   }
 
   @autobind
