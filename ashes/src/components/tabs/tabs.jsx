@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import s from './tabs.css';
 
 const TabListView = props => {
-  const cls = classNames('fc-tab-list', { s._loading: props.isLoading });
+  const cls = classNames('fc-tab-list', { [s._loading]: props.isLoading });
 
   return (
     <div className={cls}>

@@ -27,7 +27,7 @@ const baseConfig = {
         use: [ 'json-loader' ]
       },
       {
-        test: /\.(png|ico|woff|woff2)$/,
+        test: /\.(svg|png|ico|woff|woff2)$/,
         use: [
           {
             loader: 'file-loader',

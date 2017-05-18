@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import styles from './css/password-input.css';
 import loadScript from 'load-script';
 import { autobind } from 'core-decorators';
+import zxcvbn from 'zxcvbn';
 
 type State = {
   scriptLoaded: boolean,
@@ -17,16 +18,6 @@ export default class PasswordInput extends Component {
     score: -1,
     feedback: '',
   };
-
-  componentDidMount() {
-    loadScript('/static/zxcvbn.js', (err) => {
-      if (!err) {
-        this.setState({
-          scriptLoaded: true,
-        });
-      }
-    });
-  }
 
   checkStength(value: string) {
     if (this.state.scriptLoaded) {
