@@ -143,14 +143,10 @@
 
   .place-order-block {
     margin: 20px 0;
-  }
-
-  .place-order-button {
-    border-radius: 4px;
     height: 58px;
   }
 
-  .apple-pay {
+  .place-order-button {
     border-radius: 4px;
     height: 58px;
   }
