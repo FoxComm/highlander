@@ -6,12 +6,12 @@ import ProductImage from '../../image/image';
 
 import styles from '../profile.css';
 
-const renderActions = (isNew) => {
+const renderActions: (boolean, Number) => Element = (isNew: boolean, id: Number) => {
   let actionsContent;
   if (isNew) {
     actionsContent = (
       <div styleName="actions-block">
-        <Link styleName="link" to={'/profile'}>ADD</Link>
+        <Link styleName="link" to={`/profile/reviews/${String(id)}`}>ADD</Link>
         &nbsp;|&nbsp;
         <Link styleName="link" to={'/profile'}>IGNORE</Link>
       </div>
@@ -19,7 +19,7 @@ const renderActions = (isNew) => {
   } else {
     actionsContent = (
       <div styleName="actions-block">
-        <Link styleName="link" to={'/profile'}>EDIT</Link>
+        <Link styleName="link" to={`/profile/reviews/${String(id)}`}>EDIT</Link>
         &nbsp;|&nbsp;
         <Link styleName="link" to={'/profile'}>REMOVE</Link>
       </div>
@@ -41,7 +41,7 @@ const ReviewRow = (props) => {
             <div styleName="product-variant">{/* TODO: variant info must be here */}</div>
           </div>
         </div>
-        {renderActions(true)}
+        {renderActions(true, props.id)}
       </div>
     </div>
   );

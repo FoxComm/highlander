@@ -40,7 +40,7 @@ class MyReviews extends Component {
 
   @autobind
   renderReview(review) {
-    return <ReviewRow {...review} />;
+    return <ReviewRow {...review} key={`review-${review.id}`} />;
   }
 
   get content() {
