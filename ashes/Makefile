@@ -5,6 +5,7 @@ export PATH := $(CURDIR)/node_modules/.bin:$(PATH)
 SHELL := env PATH=$(PATH) /bin/bash
 
 GIT_REVISION = $(shell git describe --always)
+GIT_COMMIT = $(shell git log --pretty=format:'%h' -n 1)
 WEBPACK_PORT = 4001
 
 # Docker stuff ###
@@ -72,11 +73,11 @@ flow:
 
 .PHONY: build-styleguide
 build-styleguide:
-	styleguidist build --config styleguide/config.styleguide.js
+	GIT_COMMIT=$(GIT_COMMIT) styleguidist build --config styleguide/config.styleguide.js
 
 .PHONY: styleguide sg
 styleguide sg:
-	styleguidist server --config styleguide/config.styleguide.js
+	GIT_COMMIT=$(GIT_COMMIT) styleguidist server --config styleguide/config.styleguide.js
 
 # Base ###
 

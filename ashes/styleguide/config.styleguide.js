@@ -2,7 +2,8 @@ const path = require('path');
 const { camelCase, upperFirst } = require('lodash');
 
 module.exports = {
-  title: 'Ashes Components Style Guide',
+  title: `Version: <span class="hash">${process.env.GIT_COMMIT}</span>`,
+  template: path.join(__dirname, 'template.html'),
   showCode: false,
   ignore: [path.join(__dirname, '../src/components/core/**/*.spec.jsx')],
   webpackConfig: require('./webpack.styleguide.js'),
@@ -65,6 +66,12 @@ module.exports = {
                 path.resolve(__dirname, '../src/components/core/swatch-input/swatch-input.jsx'),
               ]),
             },
+            {
+              name: 'Other',
+              components: () => ([
+                path.resolve(__dirname, '../src/components/core/rounded-pill/rounded-pill.jsx'),
+              ]),
+            },
           ],
         },
       ],
@@ -73,5 +80,6 @@ module.exports = {
   require: [
     path.join(__dirname, 'styleguide.less'),
     path.join(__dirname, '../src/css/base.css'),
+    path.join(__dirname, '../src/images/favicons/favicon.ico'),
   ]
 };
