@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ItemCardContainer from './item-card-container';
 import { Button, EditButton, DeleteButton } from 'components/core/button';
-import { Checkbox } from '../checkbox/checkbox';
+import { Checkbox } from '../core/checkbox/checkbox';
 
 export default class EditableItemCardContainer extends React.Component {
 

@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { Checkbox } from '../checkbox/checkbox';
+import { Checkbox } from '../core/checkbox/checkbox';
 
 type Props = {
   customer: {
