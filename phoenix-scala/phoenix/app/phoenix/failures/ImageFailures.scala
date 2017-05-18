@@ -48,4 +48,16 @@ object ImageFailures {
   case object ErrorReceivingImage extends Failure {
     override def description = "Error reading uploaded image from payload"
   }
+
+  case class UnsupportedImageType(contentType: String) extends Failure {
+    override def description: String = s"Unsupported image format: $contentType"
+  }
+
+  case object UnknownImageType extends Failure {
+    override def description: String = "Can't recognize image format"
+  }
+
+  case class InvalidImageUrl(url: String) extends Failure {
+    override def description: String = s"Invalid image url: $url"
+  }
 }
