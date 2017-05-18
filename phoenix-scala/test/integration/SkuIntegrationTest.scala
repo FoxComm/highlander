@@ -1,4 +1,5 @@
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
@@ -27,6 +28,26 @@ import utils.Money.Currency
 import utils.aliases._
 import utils.db._
 import utils.time.RichInstant
+
+trait SkuOps { self: PhoenixAdminApi with DefaultJwtAdminAuth =>
+
+  def deactivateSku(skuCode: String): Unit = {
+    import org.json4s.JsonDSL._
+    import org.json4s._
+    val skuResponse = skusApi(skuCode).get().as[SkuResponse.Root]
+    val activeFromJson: Json = ("t" → "date") ~ ("v" → (Instant.now
+      .minus(2, ChronoUnit.DAYS))
+      .toString)
+    val activeToJson: Json = ("t" → "date") ~ ("v" → (Instant.now
+      .minus(1, ChronoUnit.DAYS))
+      .toString)
+    skusApi(skuCode)
+      .update(SkuPayload(attributes = skuResponse.attributes.extract[Map[String, Json]] ++
+        Map("activeFrom" → activeFromJson, "activeTo" → activeToJson)))
+      .mustBeOk()
+  }
+
+}
 
 class SkuIntegrationTest
     extends IntegrationTestBase

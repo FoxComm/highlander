@@ -7,6 +7,7 @@ import models.product._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import payloads.ImagePayloads._
+import responses.SkuResponses.SkuResponse
 import services.image.ImageManager
 import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.SQLActionBuilder
@@ -52,7 +53,7 @@ class ProductsCatalogViewIntegrationTest
     with IntegrationTestBase
     with PhoenixAdminApi
     with DefaultJwtAdminAuth
-    with BakedFixtures {
+    with BakedFixtures with SkuOps {
 
   import ProductsCatalogViewIntegrationTest._
 
@@ -60,15 +61,21 @@ class ProductsCatalogViewIntegrationTest
   val searchViewName: String = "products_catalog_view"
   val searchKeyName: String  = "id"
 
-  "Products with no SKUs left are not visible" in {
-    val product = new ProductSku_ApiFixture {}.product
-    val psv     = new ProductsSearchViewIntegrationTest
+  "Products with no active SKUs are not visible" - {
     def skuCode(skuAttrs: Json): String = (skuAttrs \ "code" \ "v").extractOpt[String].value
-    psv.viewOne(product.id).archivedAt mustBe 'empty
-    findOne(product.id) mustBe 'defined
-    product.skus.foreach(sku ⇒ skusApi(skuCode(sku.attributes)).archive().mustBeOk)
-    findOne(product.id) mustBe 'empty
-    psv.viewOne(product.id).archivedAt mustBe 'empty
+
+    "after archival" in go(sku => skusApi(skuCode(sku.attributes)).archive().mustBeOk)
+    "after deactivation" in go(sku => deactivateSku(skuCode(sku.attributes)))
+
+    def go(deactivate: SkuResponse.Root => Unit): Unit = {
+      val product = new ProductSku_ApiFixture {}.product
+      val psv = new ProductsSearchViewIntegrationTest
+      psv.viewOne(product.id).archivedAt mustBe 'empty
+      findOne(product.id) mustBe 'defined
+      product.skus.foreach(deactivate)
+      findOne(product.id) mustBe 'empty
+      psv.viewOne(product.id).archivedAt mustBe 'empty
+    }
   }
 
   case class ProductAlbumsFromDatabase(product: Product) {
