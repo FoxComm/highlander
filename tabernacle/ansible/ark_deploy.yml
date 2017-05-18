@@ -6,10 +6,19 @@
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     api_server: api.foxcommerce.com
+    docker_tags:
+        phoenix_seeder: admins
     storefront_server_name: api.foxcommerce.com
-    phoenix_api_user: "api@foxcommerce.com"
-    phoenix_api_password: ""
     seeds_cmd: utils.seeds.Seeds seed --seedAdmins
+  vars_prompt:
+    - name: "phoenix_api_user"
+      prompt: "Enter Phoenix API username"
+      default: "api@foxcommerce.com"
+      private: no
+    - name: "phoenix_api_password"
+      prompt: "Enter Phoenix API password"
+      default: ""
+      private: no
   roles:
     - { role: dev/seed_system }
     - { role: dev/marathon }
@@ -17,7 +26,6 @@
     - { role: dev/ic }
     - { role: dev/balancer }
     - { role: demo/balancer }
-    # - { role: dev/seeder }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
