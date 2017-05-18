@@ -218,10 +218,9 @@ export default class CustomProperties extends Component {
   get addCustomProperty() {
     if (this.props.canAddProperty) {
       return (
-        <div className="fc-object-form__add-custom-property">
-          Custom Property
-          <a id="fct-add-btn__custom-property" className="fc-object-form__add-custom-property-icon"
-             onClick={this.handleAddProperty}>
+        <div className={s.addProperty} onClick={this.handleAddProperty}>
+          <span className={s.buttonTitle}>Custom Property</span>
+          <a className={s.icon}>
             <i className="icon-add" />
           </a>
         </div>

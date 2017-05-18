@@ -15,6 +15,9 @@ import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
 import renderers from 'components/object-form/renderers';
 
+//style
+import s from './custom-property-modal.css';
+
 const propertyTypes = {
   string: 'Text',
   richText: 'Rich Text',
@@ -130,7 +133,7 @@ class CustomPropertyModal extends Component<void, Props, State> {
     const title = this.props.currentEdit ? 'Edit Custom Property' : 'New Custom Property';
 
     return (
-      <div className="fc-product-details__custom-property">
+      <div className={s.modal}>
         <div className="fc-modal-container" onKeyDown={this.handleKeyPress}>
           <ContentBox title={title} actionBlock={this.closeAction}>
             <FormField

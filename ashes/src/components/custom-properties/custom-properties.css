@@ -22,3 +22,29 @@
     background-color: transparent;
   }
 }
+
+.addProperty{
+  display: flex;
+  margin: 30px -20px -20px -20px;
+  padding: 20px;
+  border-top: 1px solid #d9d9d9;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f7f7f7;
+  }
+}
+
+.buttonTitle {
+  color: #484848;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.icon {
+  margin-left: 10px;
+  padding-top: 2px;
+  font-size: 10px;
+}
+
+
