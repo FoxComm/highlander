@@ -24,7 +24,7 @@ func NewValidation(model string) *Validation {
 
 func (v *Validation) ToError() error {
 	if v.err.Length() > 0 {
-		return v.err
+		return &v.err
 	}
 
 	return nil

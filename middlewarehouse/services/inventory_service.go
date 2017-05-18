@@ -1,13 +1,13 @@
 package services
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
+	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 	"github.com/FoxComm/highlander/middlewarehouse/common/async"
 	commonErrors "github.com/FoxComm/highlander/middlewarehouse/common/errors"
-	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
+	"github.com/FoxComm/highlander/middlewarehouse/common/logging"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/jinzhu/gorm"
@@ -128,12 +128,17 @@ func (service *inventoryService) HoldItems(payload *payloads.Reservation) error 
 	unitRepo := repositories.NewStockItemUnitRepository(txn)
 	summaryService := NewSummaryService(txn)
 
+	aggregateErr := commonErrors.AggregateError{}
+
 	statusShift := models.StatusChange{From: models.StatusOnHand, To: models.StatusOnHold}
 	for skuCode, qty := range skuQuantities {
 		var sku models.SKU
 		if err := txn.Where("code = ?", skuCode).First(&sku).Error; err != nil {
-			txn.Rollback()
-			return err
+			msg := fmt.Sprintf("Entry in table stock_item_units not found for sku=%s.", skuCode)
+			logging.Log.Warnf(msg)
+			logging.Log.Errorf(err.Error())
+			aggregateErr.Add(&responses.InvalidSKUItemError{Sku: skuCode, Debug: msg})
+			continue
 		}
 
 		if sku.RequiresInventoryTracking {
@@ -145,14 +150,16 @@ func (service *inventoryService) HoldItems(payload *payloads.Reservation) error 
 			}
 
 			if uint(len(units)) != qty {
-				txn.Rollback()
-				return fmt.Errorf(
+				defer txn.Rollback()
+				debugMessage := fmt.Sprintf(
 					"Expected to hold %d units of SKU %s for order %s, but was only able to hold %d",
 					qty,
 					skuCode,
 					payload.RefNum,
 					len(units),
 				)
+				aggregateErr.Add(&responses.InvalidSKUItemError{Sku: skuCode, Debug: debugMessage})
+				continue
 			}
 
 			// Group the stock items and update the summary.
@@ -175,7 +182,10 @@ func (service *inventoryService) HoldItems(payload *payloads.Reservation) error 
 			}
 		}
 	}
-
+	if aggregateErr.Length() > 0 {
+		txn.Rollback()
+		return &aggregateErr
+	}
 	return txn.Commit().Error
 }
 
@@ -211,62 +221,15 @@ func (service *inventoryService) DeleteItems(refNum string) error {
 	}, service.txn)
 }
 
-func (service *inventoryService) getStockItemsBySKUs(skusList []string) ([]*models.StockItem, error) {
-	// get stock items associated with SKUs
-	items, err := service.stockItemRepo.GetStockItemsBySKUs(skusList)
-	if err != nil {
-		return nil, err
-	}
-
-	// grab found SKU list from repo
-	skusListRepo := []string{}
-	for _, item := range items {
-		skusListRepo = append(skusListRepo, item.SKU)
-	}
-
-	// compare expectations with reality
-	aggregateErr := commonErrors.AggregateError{}
-	diff := utils.DiffSlices(skusList, skusListRepo)
-	if len(diff) > 0 {
-		for _, sku := range diff {
-			msg := fmt.Sprintf("Can't hold items for %s - no stock items found", sku)
-			aggregateErr.Add(errors.New(msg))
-		}
-
-		return nil, aggregateErr
-	}
-
-	return items, nil
-}
-
-func (service *inventoryService) getUnitsForOrder(items []*models.StockItem, skus map[string]int) ([]uint, error) {
-	aggregateErr := commonErrors.AggregateError{}
-	unitsIds := []uint{}
-	for _, si := range items {
-		ids, err := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SKU])
-		if err != nil {
-			aggregateErr.Add(err)
-		}
-
-		unitsIds = append(unitsIds, ids...)
-	}
-
-	if aggregateErr.Length() > 0 {
-		return nil, aggregateErr
-	}
-
-	return unitsIds, nil
-}
-
 func (service *inventoryService) checkItemsStatus(refNum string, statusShift models.StatusChange) error {
 	units, err := service.unitRepo.GetUnitsInOrder(refNum)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	for _, unit := range units {
 		if unit.Status != statusShift.From {
-			return fmt.Errorf("Order: %s. Status turn: \"%s\" -> \"%s\". Units in \"%s\" status found.",
+			return fmt.Errorf("Order: %s. Status turn: \"%s\" -> \"%s\". Units in \"%s\" status found",
 				refNum,
 				statusShift.From,
 				statusShift.To,

@@ -73,7 +73,7 @@ func getFailure(err error) failures.Failure {
 
 func logFailure(fail failures.Failure) {
 	messages := []string{}
-	for _, err := range fail.ToJSON().Errors {
+	for _, err := range fail.ToJSON().GetAllErrors() {
 		messages = append(messages, fmt.Sprintf("ServiceError: %s", err))
 	}
 

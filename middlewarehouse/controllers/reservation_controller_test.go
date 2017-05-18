@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
@@ -10,6 +11,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
@@ -99,6 +101,7 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems() {
 	}
 
 	res := suite.Post("/reservations/hold", payload)
+
 	suite.Equal(http.StatusNoContent, res.Code)
 
 	units := []*models.StockItemUnit{}
@@ -113,20 +116,37 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems() {
 	suite.Equal(2, len(units))
 }
 
-func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongSKUs() {
+func reserveItemBadRequestExpected(suite *reservationControllerTestSuite, res *httptest.ResponseRecorder, expectedMessage string) {
+	suite.Equal(http.StatusBadRequest, res.Code)
+	suite.Contains(res.Body.String(), "errors")
+	suite.Contains(res.Body.String(), expectedMessage)
+}
+
+func reserveItemTest(suite *reservationControllerTestSuite, sku payloads.ItemReservation) (*httptest.ResponseRecorder, payloads.Reservation) {
 	payload := payloads.Reservation{
 		RefNum: "BR10001",
-		Items: []payloads.ItemReservation{
-			payloads.ItemReservation{
-				Qty: 2,
-				SKU: "TEST-SKEW",
-			},
-		},
+		Items:  []payloads.ItemReservation{sku},
 	}
 
-	res := suite.Post("/reservations/hold", payload)
-	suite.Equal(http.StatusNotFound, res.Code)
+	return suite.Post("/reservations/hold", payload), payload
+}
+
+func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongSKUs() {
+	res, _ := reserveItemTest(suite, payloads.ItemReservation{
+		Qty: 2,
+		SKU: "TEST-SKEW",
+	})
+	suite.Equal(http.StatusBadRequest, res.Code)
 	suite.Contains(res.Body.String(), "errors")
+}
+
+func (suite *reservationControllerTestSuite) Test_ReserveItems_OutOfStock() {
+	res, _ := reserveItemTest(suite, payloads.ItemReservation{
+		Qty: 100,
+		SKU: "TEST-SKU",
+	})
+
+	reserveItemBadRequestExpected(suite, res, `"sku":"TEST-SKU","debug":"Expected to hold 100 units of SKU TEST-SKU for order BR10001, but was only able to hold 10"`)
 }
 
 func (suite *reservationControllerTestSuite) Test_ReserveItems_EmptySKUsList() {
@@ -137,23 +157,14 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems_EmptySKUsList() {
 
 	res := suite.Post("/reservations/hold", payload)
 
-	suite.Equal(http.StatusBadRequest, res.Code)
-	suite.Contains(res.Body.String(), "errors")
-	suite.Contains(res.Body.String(), "Reservation must have at least one SKU")
+	reserveItemBadRequestExpected(suite, res, "Reservation must have at least one SKU")
 }
 
 func (suite *reservationControllerTestSuite) Test_ReleaseItems() {
-	payload := payloads.Reservation{
-		RefNum: "BR10001",
-		Items: []payloads.ItemReservation{
-			payloads.ItemReservation{
-				Qty: 2,
-				SKU: "TEST-SKU",
-			},
-		},
-	}
-
-	res := suite.Post("/reservations/hold", payload)
+	res, payload := reserveItemTest(suite, payloads.ItemReservation{
+		Qty: 2,
+		SKU: "TEST-SKU",
+	})
 	suite.Equal(http.StatusNoContent, res.Code)
 
 	res = suite.Delete("/reservations/hold/BR10001")

@@ -6,6 +6,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
+	commonErrors "github.com/FoxComm/highlander/middlewarehouse/common/errors"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
@@ -224,6 +225,9 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_NoSKU() {
 
 	err := suite.service.HoldItems(payload)
 	suite.NotNil(err)
+	expectedErr := commonErrors.AggregateError{}
+	suite.IsType(&expectedErr, err)
+	suite.Contains(err.Error(), "Entry in table stock_item_units not found for sku=NO-SKU.")
 }
 
 func (suite *InventoryServiceTestSuite) Test_ReleaseItems_NoReservedSKUs() {
