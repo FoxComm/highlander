@@ -10,7 +10,7 @@ import { transitionTo } from 'browserHistory';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import ErrorAlerts from '../alerts/error-alerts';
-import { PrimaryButton, Button } from 'components/core/button';
+import { PrimaryButton } from 'components/core/button';
 import PasswordInput from '../forms/password-input';
 import WaitAnimation from '../common/wait-animation';
 
@@ -44,31 +44,11 @@ class RestorePassword extends Component {
 
   state: State = {
     email: '',
-    password1: '',
-    password2: '',
   };
-
-  get username(): string {
-    return this.props.location.query.username;
-  }
-
-  get email(): string {
-    return this.props.location.query.email;
-  }
-
-  get token(): string {
-    return this.props.location.query.token;
-  }
 
   @autobind
   handleSubmit() {
-    const payload = {
-      password: this.state.password2,
-      token: this.token,
-    };
-    this.props.signUp(payload).then(() => {
-      transitionTo('home');
-    });
+
   }
 
   @autobind
@@ -79,17 +59,14 @@ class RestorePassword extends Component {
     });
   }
 
-  @autobind
-  validatePassword2(value) {
-    if (this.state.password1 != value) {
-      return 'Passwords does not match';
-    }
-  }
-
-  get errorMessage() {
+  get errorMessage(): Element<*> {
     const err = this.props.signUpState.err;
     if (!err) return null;
     return <ErrorAlerts error={err} />;
+  }
+
+  get email(): string {
+    return this.state.email;
   }
 
   get content() {
@@ -98,12 +75,7 @@ class RestorePassword extends Component {
     }
 
     return (
-      <div>
-        <div styleName="message">
-          Hey, {this.username}! You’ve been invited to create an account with
-          FoxCommerce. All you need to do is choose your method
-          to sign up.
-        </div>
+      <div styleName="main">
         <Form styleName="form" onSubmit={this.handleSubmit}>
           {this.errorMessage}
           <FormField styleName="signup-email" label="Email">
@@ -111,27 +83,6 @@ class RestorePassword extends Component {
               name="email"
               value={this.email}
               type="email"
-              disabled
-              className="fc-input"
-            />
-          </FormField>
-          <FormField styleName="password" label="Create Password">
-            <PasswordInput
-              name="password1"
-              onChange={this.handleInputChange}
-              value={this.state.password1}
-              type="password"
-              required
-              className="fc-input"
-            />
-          </FormField>
-          <FormField styleName="password" label="Confirm Password" validator={this.validatePassword2}>
-            <PasswordInput
-              name="password2"
-              onChange={this.handleInputChange}
-              value={this.state.password2}
-              type="password"
-              required
               className="fc-input"
             />
           </FormField>
@@ -140,7 +91,7 @@ class RestorePassword extends Component {
             type="submit"
             isLoading={this.props.signUpState.inProgress}
           >
-            Sign Up
+            Restore Password
           </PrimaryButton>
         </Form>
       </div>

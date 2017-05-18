@@ -10,7 +10,7 @@ import { transitionTo } from 'browserHistory';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import ErrorAlerts from '../alerts/error-alerts';
-import { PrimaryButton, Button } from 'components/core/button';
+import { PrimaryButton } from 'components/core/button';
 import PasswordInput from '../forms/password-input';
 import WaitAnimation from '../common/wait-animation';
 
@@ -86,6 +86,11 @@ class ResetPassword extends Component {
     }
   }
 
+  @autobind
+  goBack() {
+
+  }
+
   get errorMessage() {
     const err = this.props.signUpState.err;
     if (!err) return null;
@@ -98,12 +103,7 @@ class ResetPassword extends Component {
     }
 
     return (
-      <div>
-        <div styleName="message">
-          Hey, {this.username}! You’ve been invited to create an account with
-          FoxCommerce. All you need to do is choose your method
-          to sign up.
-        </div>
+      <div styleName="main">
         <Form styleName="form" onSubmit={this.handleSubmit}>
           {this.errorMessage}
           <FormField styleName="signup-email" label="Email">
@@ -115,7 +115,7 @@ class ResetPassword extends Component {
               className="fc-input"
             />
           </FormField>
-          <FormField styleName="password" label="Create Password">
+          <FormField styleName="password" label="New Password">
             <PasswordInput
               name="password1"
               onChange={this.handleInputChange}
@@ -140,7 +140,7 @@ class ResetPassword extends Component {
             type="submit"
             isLoading={this.props.signUpState.inProgress}
           >
-            Sign Up
+            Reset Password
           </PrimaryButton>
         </Form>
       </div>
