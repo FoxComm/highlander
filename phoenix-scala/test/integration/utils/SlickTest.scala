@@ -2,7 +2,7 @@ package utils
 
 import cats.implicits._
 import models.account._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import testutils._
 import utils.db.UpdateReturning._
 import utils.db._
@@ -42,7 +42,7 @@ class SlickTest extends IntegrationTestBase {
                          .filter(_.id === 1)
                          .map(_.name)
                          .updateReturningHead(Users.map(identity), "Sally".some)
-    } yield (customer, updatedCustomer.value)).gimme
+    } yield (customer, updatedCustomer)).gimme
 
     customer must !==(updatedCustomer)
     updatedCustomer.name must === ("Sally".some)
@@ -57,7 +57,7 @@ class SlickTest extends IntegrationTestBase {
                          .filter(_.id === 1)
                          .map(_.name)
                          .updateReturningHead(Users.map(identity), "Sally".some)
-    } yield (customer, updatedCustomer.value)).gimme
+    } yield (customer, updatedCustomer)).gimme
 
     customer must !==(updatedCustomer)
     updatedCustomer.name must === ("Sally".some)

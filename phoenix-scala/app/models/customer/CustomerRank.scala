@@ -3,7 +3,7 @@ package models.customer
 import scala.concurrent.Future
 
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

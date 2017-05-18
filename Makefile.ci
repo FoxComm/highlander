@@ -31,4 +31,7 @@ docker-push: $(DOCKERPUSHDIRS)
 $(DOCKERPUSHDIRS):
 	$(MAKE) -C $(@:docker-push-%=%) docker-push
 
-.PHONY: build test clean docker docker-push $(SUBDIRS) $(BUILDDIRS)
+publish:
+	$(MAKE) -C developer-portal publish
+
+.PHONY: build publish test clean docker docker-push $(SUBDIRS) $(BUILDDIRS)

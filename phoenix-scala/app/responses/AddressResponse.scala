@@ -8,7 +8,7 @@ import models.cord.{OrderShippingAddress, OrderShippingAddresses}
 import models.location._
 import models.account._
 import models.payment.creditcard.CreditCard
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

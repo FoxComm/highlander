@@ -6,7 +6,7 @@ import models.cord.Carts
 import models.sharedsearch.SharedSearches.scope._
 import models.account._
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import slick.lifted.Tag
 import utils.db._
 

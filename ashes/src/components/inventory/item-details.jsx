@@ -2,7 +2,6 @@
 
 import _ from 'lodash';
 import React, { Component } from 'react';
-import { haveType } from '../../modules/state-helpers';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 

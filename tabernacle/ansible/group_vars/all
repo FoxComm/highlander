@@ -126,8 +126,9 @@ isaac_port: 9190
 isaac_server: "{{isaac_host}}:{{isaac_port}}"
 
 search_host: "elasticsearch.{{consul_suffix}}"
+es_5_host: "elasticsearch-5.{{consul_suffix}}"
 es_logs_port: 9201
-log_host: "{{search_host}}:{{es_logs_port}}"
+log_host: "{{es_5_host}}:{{es_logs_port}}"
 search_server_http: "{{search_host}}:9200"
 search_server: "{{search_host}}:9300"
 
@@ -311,6 +312,7 @@ neo4j_http_port: "7474"
 # suggester
 suggester_host: "suggester.{{consul_suffix}}"
 suggester_server: "{{suggester_host}}"
+dexter_base_url: "https://bots.rundexter.com/api/v2/bot/"
 
 # Elasticsearch 2.x
 es_version: elasticsearch-2.1.2

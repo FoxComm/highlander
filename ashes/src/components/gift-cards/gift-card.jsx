@@ -11,7 +11,6 @@ import { IndexLink, Link } from '../link';
 import GiftCardCode from './gift-card-code';
 import { DateTime } from '../common/datetime';
 import Currency from '../common/currency';
-import { PrimaryButton } from 'components/core/button';
 import WaitAnimation from '../common/wait-animation';
 import { PageTitle } from '../section-title';
 import Panel from '../panel/panel';
@@ -24,7 +23,7 @@ import State, { formattedStatus } from '../common/state';
 // data
 import * as GiftCardActions from '../../modules/gift-cards/details';
 import * as ReasonsActions from '../../modules/reasons';
-import { states, stateTitles, stateActionTitles, getStateTransitions, typeTitles } from '../../paragons/gift-card';
+import { stateTitles, stateActionTitles, getStateTransitions, typeTitles } from '../../paragons/gift-card';
 
 @connect((state, props) => ({
   ...state.giftCards.details[props.params.giftCard],

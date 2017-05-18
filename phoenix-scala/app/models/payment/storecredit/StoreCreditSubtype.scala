@@ -2,7 +2,7 @@ package models.payment.storecredit
 
 import models.payment.storecredit.StoreCredit.OriginType
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.db._
 
 case class StoreCreditSubtype(id: Int = 0, title: String, originType: OriginType)

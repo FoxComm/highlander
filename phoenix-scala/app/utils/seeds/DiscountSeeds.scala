@@ -1,7 +1,6 @@
 package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import models.account._
 import models.discount._
 import models.discount.offers._
@@ -9,7 +8,9 @@ import models.discount.qualifiers._
 import models.objects._
 import models.product.SimpleContext
 import models.sharedsearch.SharedSearch
+import org.json4s.Formats
 import payloads.DiscountPayloads._
+import utils.JsonFormatters
 import utils.aliases._
 import utils.db._
 
@@ -30,6 +31,8 @@ object DiscountSeeds {
 
 trait DiscountSeeds {
   import DiscountSeeds._
+
+  implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   def createDiscounts(search: SharedSearch)(implicit db: DB,
                                             au: AU): DbResultT[Seq[BaseDiscount]] =

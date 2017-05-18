@@ -20,7 +20,7 @@ import services.image.ImageManager
 import services.image.ImageManager.FullAlbumWithImages
 import services.objects.ObjectManager
 import services.product.ProductManager
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.JsonFormatters
 import utils.aliases._
 import utils.db._

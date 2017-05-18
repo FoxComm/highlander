@@ -22,7 +22,7 @@ import responses.CustomerResponse._
 import responses.GroupResponses.CustomerGroupResponse
 import services._
 import services.account._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.JsonFormatters._
 import utils.aliases._
 import utils.db._

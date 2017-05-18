@@ -13,7 +13,7 @@ import responses.BatchMetadata._
 import responses.UserResponse.{build ⇒ buildUser}
 import responses._
 import services._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.FoxConfig.config
 import utils.aliases._
 import utils.db._

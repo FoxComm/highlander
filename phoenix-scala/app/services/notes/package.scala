@@ -8,7 +8,7 @@ import models.account._
 import payloads.NotePayloads._
 import responses.AdminNotes
 import responses.AdminNotes.Root
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

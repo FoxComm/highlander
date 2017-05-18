@@ -8,7 +8,7 @@ import models.Reason.{General, ReasonType}
 import models.account._
 import shapeless._
 import slick.ast.BaseTypedType
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.JdbcType
 import utils.db._
 import utils.{ADT, Validation}

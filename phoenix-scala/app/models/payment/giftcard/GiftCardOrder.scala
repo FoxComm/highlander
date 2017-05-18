@@ -1,7 +1,7 @@
 package models.payment.giftcard
 
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.db._
 
 case class GiftCardOrder(id: Int = 0, cordRef: String) extends FoxModel[GiftCardOrder]

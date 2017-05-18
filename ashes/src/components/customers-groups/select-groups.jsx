@@ -4,7 +4,6 @@ import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import { trackEvent } from 'lib/analytics';
 
 import styles from './select-groups.css';
 

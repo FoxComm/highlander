@@ -19,10 +19,6 @@
   cursor: pointer;
   transition: background .2s;
 
-  &:active {
-    box-shadow: 1px 1px 3px rgba(0, 0, 0, .2) inset;
-  }
-
   &:focus {
     outline: 0;
   }
@@ -39,19 +35,24 @@
     background-color: #ced2d5;
   }
 
-  &.stretch {
+  &.onlyIcon {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  &.fullWidth {
     display: block;
     width: 100%;
+  }
+
+  &.small {
+    padding: 4px 5px;
   }
 }
 
 .button[class*="icon-"] {
   padding: 0;
   width: 40px;
-}
-
-.button i[class*="icon-"]:only-child {
-  margin: 0 -10px;
 }
 
 .button i[class*="icon-"] {
@@ -103,4 +104,22 @@ span + i[class*="icon-"] {
  */
 .close {
   cursor: pointer;
+}
+
+/*
+ * Social Buttons Styles
+ */
+.socialButton {
+  &.google {
+    background-color: #f65554;
+    color: #f2f2f2;
+
+    &:hover {
+      background-color: #f66564;
+    }
+
+    &:disabled {
+      color: #ddd;
+    }
+  }
 }

@@ -3,9 +3,11 @@ import cats.implicits._
 import failures.AddressFailures.NoDefaultAddressForCustomer
 import failures.CreditCardFailures.NoDefaultCreditCardForCustomer
 import failures.NotFoundFailure404
+import failures.ArchiveFailures.LinkInactiveSkuFailure
 import failures.ShippingMethodFailures._
 import failures.UserFailures._
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 import models.account._
 import models.cord.Order.RemorseHold
@@ -24,15 +26,18 @@ import payloads.CartPayloads.{CheckoutCart, CreateCart}
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.LineItemPayloads._
 import payloads.PaymentPayloads._
+import payloads.SkuPayloads.SkuPayload
 import payloads.UpdateShippingMethod
 import payloads.UserPayloads.ToggleUserBlacklisted
+import responses.SkuResponses.SkuResponse
 import responses.{AddressResponse, GiftCardResponse}
 import responses.cord._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis._
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
+import utils.aliases._
 import utils.db._
 import utils.seeds.Factories
 
@@ -199,6 +204,29 @@ class CheckoutIntegrationTest
     "fails if customer is blacklisted" in new BlacklistedFixture {
       doCheckout().mustFailWith400(UserIsBlacklisted(customer.id))
     }
+
+    "fails when some SKUs in cart are inactive" in new Fixture {
+      val cartApi = prepareCheckout()
+      deactivateSku(skuCode)
+      val expectedFailure = NotFoundFailure404(models.inventory.Sku, skuCode)
+      cartApi.checkout().mustFailWith404(expectedFailure)
+    }
+
+    def deactivateSku(skuCode: String): Unit = {
+      import org.json4s.JsonDSL._
+      import org.json4s._
+      val skuResponse = skusApi(skuCode).get().as[SkuResponse.Root]
+      val activeFromJson: Json = ("t" → "date") ~ ("v" → (Instant.now
+              .minus(2, ChronoUnit.DAYS))
+              .toString)
+      val activeToJson: Json = ("t" → "date") ~ ("v" → (Instant.now
+              .minus(1, ChronoUnit.DAYS))
+              .toString)
+      skusApi(skuCode)
+        .update(SkuPayload(attributes = skuResponse.attributes.extract[Map[String, Json]] ++
+                    Map("activeFrom" → activeFromJson, "activeTo" → activeToJson)))
+        .mustBeOk()
+    }
   }
 
   trait OneClickCheckoutFixture extends Fixture {
@@ -245,7 +273,7 @@ class CheckoutIntegrationTest
 
     val skuCode = new ProductSku_ApiFixture {}.skuCode
 
-    def doCheckout(): HttpResponse = {
+    def prepareCheckout(): cartsApi = {
       val _cartApi = cartsApi(api_newCustomerCart(customer.id).referenceNumber)
 
       _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 2))).mustBeOk()
@@ -265,8 +293,10 @@ class CheckoutIntegrationTest
 
       _cartApi.payments.giftCard.add(GiftCardPayment(gcCode, grandTotal.some)).mustBeOk()
 
-      _cartApi.checkout()
+      _cartApi
     }
+
+    def doCheckout(): HttpResponse = prepareCheckout().checkout()
 
   }
 

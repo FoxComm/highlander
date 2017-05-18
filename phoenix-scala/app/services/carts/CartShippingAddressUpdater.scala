@@ -11,7 +11,7 @@ import responses.AddressResponse.buildOneShipping
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.{CartValidator, LogActivity}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

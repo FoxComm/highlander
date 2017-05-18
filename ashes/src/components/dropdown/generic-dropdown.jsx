@@ -1,5 +1,6 @@
 /* @flow */
 
+// libs
 import _ from 'lodash';
 import React, { Element, Component } from 'react';
 import createFragment from 'react-addons-create-fragment';
@@ -11,16 +12,18 @@ import Overlay from '../overlay/overlay';
 import { Button } from 'components/core/button';
 import BodyPortal from '../body-portal/body-portal';
 
+// styles
+import s from './generic-dropdown.css';
+
 export type ValueType = ?string | number;
 
 export type DropdownItemType = [ValueType, string | Element<*>, ?boolean];
 
 export type MouseHandler = (e: MouseEvent) => void;
 
-export type RenderDropdownFunction = (value: any,
-                                      title: ?string | Element<*>,
-                                      props: Props,
-                                      handleToggleClick: MouseHandler) => Element<*>
+export type RenderDropdownFunction = (
+  value: any, title: ?string | Element<*>, props: Props, handleToggleClick: MouseHandler
+) => Element<*>;
 
 export type Props = {
   id?: string,
@@ -192,10 +195,11 @@ export default class GenericDropdown extends Component {
   get dropdownButton() {
     const icon = this.state.open ? 'chevron-up' : 'chevron-down';
 
+    // @todo consider to not use <Button> component here, too specific styles
     return (
       <Button
         icon={icon}
-        className="_dropdown-size"
+        className={s.downArrowBtn}
         disabled={this.props.disabled}
         onClick={this.handleToggleClick}
         {...this.props.dropdownProps}

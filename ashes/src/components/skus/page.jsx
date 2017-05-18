@@ -28,11 +28,17 @@ type Props = {
   children: Element<*>,
 };
 
+const getCode = object => _.get(object, 'attributes.code.v', '');
+
 class SkuPage extends ObjectPage {
   props: Props;
 
+  getObjectId(object) {
+    return getCode(object);
+  }
+
   get code(): string {
-    return _.get(this.props.originalObject, 'attributes.code.v', '');
+    return getCode(this.props.originalObject);
   }
 
   get pageTitle(): string {

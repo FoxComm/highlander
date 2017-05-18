@@ -3,12 +3,12 @@ import utils.friendlyClassName
 
 object ArchiveFailures {
 
-  case class LinkArchivedSkuFailure(description: String) extends Failure
+  case class LinkInactiveSkuFailure(description: String) extends Failure
 
-  object LinkArchivedSkuFailure {
-    def apply[T](target: T, targetId: Any, code: String): LinkArchivedSkuFailure = {
-      LinkArchivedSkuFailure(
-          s"Cannot attach archived sku with code $code to ${friendlyClassName(target)} with id $targetId")
+  object LinkInactiveSkuFailure {
+    def apply[T](target: T, targetId: Any, code: String): LinkInactiveSkuFailure = {
+      LinkInactiveSkuFailure(
+          s"Cannot attach inactive sku with code $code to ${friendlyClassName(target)} with id $targetId")
     }
   }
 

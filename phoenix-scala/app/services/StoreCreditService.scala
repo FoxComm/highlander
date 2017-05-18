@@ -12,7 +12,7 @@ import payloads.StoreCreditPayloads._
 import responses.StoreCreditBulkResponse._
 import responses.StoreCreditResponse._
 import responses.{StoreCreditResponse, StoreCreditSubTypesResponse}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

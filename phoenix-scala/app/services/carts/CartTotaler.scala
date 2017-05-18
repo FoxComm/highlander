@@ -2,7 +2,7 @@ package services.carts
 
 import models.cord.lineitems._
 import models.cord._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 import utils.FoxConfig.config

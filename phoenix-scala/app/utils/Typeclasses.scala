@@ -12,7 +12,7 @@ import org.json4s.jackson.compactJson
 import org.json4s.{CustomKeySerializer, CustomSerializer, Formats}
 import scala.collection.immutable.TreeMap
 import slick.ast.BaseTypedType
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.JdbcType
 import utils.Strings._
 import utils.aliases._

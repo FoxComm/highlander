@@ -20,6 +20,7 @@ case class Country(id: Int = 0,
 
 object Country {
   val unitedStatesId: Int = 234
+  val countryCodeRegex    = """([a-zA-Z]{2,3})""".r
 }
 
 class Countries(tag: Tag) extends FoxTable[Country](tag, "countries") {
@@ -53,4 +54,9 @@ object Countries
     extends FoxTableQuery[Country, Countries](new Countries(_))
     with ReturningId[Country, Countries] {
   val returningLens: Lens[Country, Int] = lens[Country].id
+
+  // Query for both 2- and 3-lettered code for convenience @aafa
+  def findByCode(code: String): QuerySeq =
+    filter(
+        c ⇒ c.alpha2.toUpperCase === code.toUpperCase || c.alpha3.toUpperCase === code.toUpperCase)
 }

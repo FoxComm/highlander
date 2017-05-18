@@ -4,7 +4,7 @@ import failures.CouponFailures._
 import models.coupon._
 import models.account.User
 import models.objects.{ObjectContexts, ObjectForms}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

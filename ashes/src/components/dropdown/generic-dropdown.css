@@ -1,0 +1,13 @@
+.downArrowBtn {
+  /* @todo!important something about priority for core components */
+  padding: 0 10px !important;
+
+  &:active {
+    box-shadow: none !important;
+  }
+
+  :global(.fc-rich-text-editor__command-headers) & {
+    /* @todo!important something about priority for core components */
+    background-color: transparent !important;
+  }
+}

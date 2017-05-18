@@ -14,7 +14,7 @@ import responses.GiftCardAdjustmentsResponse.{Root ⇒ GcAdjRoot}
 import responses.GiftCardResponse.{Root ⇒ GcRoot}
 import responses.StoreCreditResponse.{Root ⇒ ScRoot}
 import responses._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

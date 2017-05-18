@@ -9,7 +9,7 @@ import Alert from '../alerts/alert';
 import ErrorAlerts from '../alerts/error-alerts';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
-import { PrimaryButton, Button } from 'components/core/button';
+import { PrimaryButton, SocialButton, Button } from 'components/core/button';
 import WrapToLines from './wrap-to-lines';
 import WaitAnimation from '../common/wait-animation';
 
@@ -137,14 +137,13 @@ export default class Login extends Component {
     return (
       <div className={s.content}>
         {this.infoMessage}
-        <Button
-          type="button"
-          icon="google"
+        <SocialButton
+          type="google"
           onClick={this.onGoogleSignIn}
-          stretch
+          fullWidth
         >
           Sign In with Google
-        </Button>
+        </SocialButton>
         <Form className={s.form} onSubmit={this.submitLogin}>
           <WrapToLines className={s['or-line']}>or</WrapToLines>
           {this.errorMessage}
@@ -160,7 +159,7 @@ export default class Login extends Component {
           <PrimaryButton
             onClick={this.clearMessage}
             className={s['submit-button']}
-            stretch={true}
+            fullWidth
             type="submit"
             isLoading={this.props.authenticationState.inProgress}>
             Sign In

@@ -19,7 +19,7 @@ import payloads.{AuthPayload, LoginPayload}
 import scala.concurrent.Future
 import services.account._
 import services.customers.CustomerManager
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.FoxConfig.config
 import utils.aliases._
 import utils.db._

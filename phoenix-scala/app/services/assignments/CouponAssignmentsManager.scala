@@ -5,7 +5,7 @@ import models.coupon.Coupon
 import models.objects.{ObjectForm, ObjectForms}
 import models.{Assignment, NotificationSubscription}
 import responses.CouponResponses.CouponFormResponse._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 import utils.db._
 

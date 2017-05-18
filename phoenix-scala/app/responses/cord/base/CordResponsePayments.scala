@@ -6,7 +6,7 @@ import models.cord.OrderPayments
 import models.payment.PaymentMethod._
 import models.payment.creditcard.CreditCards
 import responses.AddressResponse
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import utils.aliases._
 
 sealed trait CordResponsePayments {
