@@ -17,7 +17,7 @@
       private: no
 
   roles:
-    # - { role: dev/db }
+    - { role: dev/db }
     - { role: dev/db_ic }
 
   handlers:
