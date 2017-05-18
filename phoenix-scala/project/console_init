@@ -4,9 +4,9 @@ import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import slick.driver.PostgresDriver.api._
 
-import models._
-import models.activity.ActivityContext
-import models.account.{AccountAccessMethod, Scope, Scopes}
+import phoenix.models._
+import phoenix.models.activity.ActivityContext
+import phoenix.models.account.{AccountAccessMethod, Scope, Scopes}
 import services.account.AccountCreateContext
 import services.Authenticator
 import utils.db._
