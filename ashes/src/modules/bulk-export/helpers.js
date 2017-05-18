@@ -50,17 +50,18 @@ export const getPropsByIds = (
   entity: string,
   ids: Array<number>,
   props: Array<string>,
-  state: any
+  state: any,
+  field: string = 'list',
 ): Object => {
   const sameProps = props.length === 1;
   const prop1 = props[0];
   const prop2 = sameProps ? prop1 : props[1];
 
   return flow(
-    invoke(`${entity}.list.currentSearch`),
+    invoke(`${entity}.${field}.currentSearch`),
     getOr([], 'results.rows'),
     filter(entry => ids.indexOf(entry.id) !== -1),
-    reduce((obj, entry) => set(entry[prop1], entry[prop2], obj), {})
+    reduce((obj, entry) => set(_.get(entry, prop1), _.get(entry, prop2), obj), {})
   )(state);
 };
 
@@ -97,13 +98,20 @@ export const renderExportModal = (
 };
 
 const checkField = (fieldName) => {
-  if (fieldName === 'shipRegion') {
-    return 'shippingAddresses[0].region';
-  } else if (fieldName === 'billRegion') {
-    return 'billingAddresses[0].region';
+  switch(fieldName) {
+    case 'shipRegion':
+      return 'shippingAddresses[0].region';
+    case 'billRegion':
+      return 'billingAddresses[0].region';
+    case 'transaction':
+      return 'originType';
+    case 'assignee':
+      return 'assignees[-1].name';
+    case 'image':
+      return 'albums[0].images[0].src';
+    default:
+      return fieldName;
   }
-
-  return fieldName;
 };
 
 /**
@@ -112,8 +120,13 @@ const checkField = (fieldName) => {
 export const columnsToPayload = (tableColumns: Array<Object>): Array<Object> => {
   const fields = _.reduce(tableColumns, (acc, field) => {
     const currentField = field.field;
-    const name = checkField(currentField);
+    if (_.isEmpty(currentField)) {
+      return [
+        ...acc,
+      ];
+    }
 
+    const name = checkField(currentField);
     return [
       ...acc,
       {
@@ -121,6 +134,7 @@ export const columnsToPayload = (tableColumns: Array<Object>): Array<Object> => 
         displayName: field.text,
       },
     ];
+
   }, []);
 
   return fields;

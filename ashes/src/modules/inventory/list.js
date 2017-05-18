@@ -52,8 +52,6 @@ const searchTerms = [
   }
 ];
 
-export const rawSorts = ['product'];
-
 const { reducer, actions } = makeLiveSearch(
   'inventory.list',
   searchTerms,
@@ -61,7 +59,7 @@ const { reducer, actions } = makeLiveSearch(
   'inventoryScope',
   {
     initialState: { sortBy: '-createdAt' },
-    rawSorts,
+    rawSorts: ['product'],
   }
 );
 

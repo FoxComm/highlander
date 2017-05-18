@@ -11,7 +11,7 @@ import { bulkExportBulkAction, renderExportModal, getIdsByProps } from 'modules/
 
 // actions
 import { stateTitles } from 'paragons/order';
-import { actions, rawSorts } from 'modules/orders/list';
+import { actions } from 'modules/orders/list';
 import { actions as bulkActions } from 'modules/orders/bulk';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
 
@@ -26,8 +26,16 @@ import { Link } from '../link';
 type Props = {
   list: Object,
   actions: Object,
-  bulkActions: Object,
-  bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
+  bulkActions: {
+    cancelOrders: (referenceNumbers: Array<string>, reasonId: number) => Promise<*>,
+    changeOrdersState: (referenceNumbers: Array<string>, state: string) => Promise<*>,
+    exportByIds: (
+      ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
+    ) => void,
+  },
+  bulkExportAction: (
+    fields: Array<string>, entity: string, identifier: string, description: string
+  ) => Promise<*>,
 };
 
 const tableColumns = [
@@ -150,7 +158,6 @@ class Orders extends Component {
           watchActions={true}
           actions={this.bulkActions}>
           <SelectableSearchList
-            rawSorts={rawSorts}
             entity="orders.list"
             exportEntity="orders"
             exportTitle="Orders"

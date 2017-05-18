@@ -19,7 +19,7 @@ import CustomerRow from './customer-row';
 
 // actions
 import { actions as bulkActions } from 'modules/customers/bulk';
-import { actions, rawSorts } from 'modules/customers/list';
+import { actions } from 'modules/customers/list';
 import { suggestGroups } from 'modules/customer-groups/suggest';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
 
@@ -37,19 +37,15 @@ type Props = {
       ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
     ) => void,
   },
-  bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
+  bulkExportAction: (
+    fields: Array<string>, entity: string, identifier: string, description: string
+  ) => Promise<*>,
 };
 
 type State = {
   addToGroupModalShown: boolean,
   customerIds: Array<number>,
 };
-
-function renderRow(row, index, columns, params) {
-  return (
-    <CustomerRow key={row.id} customer={row} columns={columns} params={params} />
-  );
-}
 
 class Customers extends Component {
   props: Props;
@@ -85,6 +81,19 @@ class Customers extends Component {
       bulkExportBulkAction(this.bulkExport, 'Customers'),
       this.addToGroupAction,
     ];
+  }
+
+  renderRow(row: Object, index: number, columns: Columns, params: Object) {
+    const key = `customer-${row.id}`;
+
+    return (
+      <CustomerRow
+        key={key}
+        customer={row}
+        columns={columns}
+        params={params}
+      />
+    );
   }
 
   @autobind
@@ -151,7 +160,6 @@ class Customers extends Component {
           actions={this.bulkActions}
         >
           <SelectableSearchList
-            rawSorts={rawSorts}
             exportEntity="customers"
             exportTitle="Customers"
             bulkExport
@@ -159,7 +167,7 @@ class Customers extends Component {
             entity="customers.list"
             emptyMessage="No customers found."
             list={list}
-            renderRow={renderRow}
+            renderRow={this.renderRow}
             tableColumns={tableColumns}
             searchActions={actions}
             searchOptions={{singleSearch: true}}

@@ -3,8 +3,6 @@
 import makeLiveSearch from '../live-search';
 import searchTerms from './search-terms';
 
-export const rawSorts = ['name'];
-
 const { reducer, actions } = makeLiveSearch(
   'taxonomies.list',
   searchTerms,
@@ -12,7 +10,7 @@ const { reducer, actions } = makeLiveSearch(
   'taxonomiesScope',
   {
     initialState: { sortBy: 'name' },
-    rawSorts,
+    rawSorts: ['name'],
   }
 );
 

@@ -29,11 +29,11 @@ export type Props = {
   value: ValueType,
   className?: string,
   listClassName?: string,
-  placeholder?: string,
+  placeholder?: string | Element<*>,
   emptyMessage?: string | Element<*>,
   open?: bool,
   children?: Element<*>,
-  items?: Array<DropdownItemType>,
+  items?: Array<any>,
   primary?: bool,
   editable?: bool,
   changeable?: bool,
@@ -152,7 +152,7 @@ export default class GenericDropdown extends Component {
     });
   }
 
-  renderNullTitle(value: ?number | string, placeholder: ?string): ?string | Element<*> {
+  renderNullTitle(value: ?number | string, placeholder: ?string | Element<*>): ?string | Element<*> {
     if (this.props.renderNullTitle) {
       return this.props.renderNullTitle(value, placeholder);
     }

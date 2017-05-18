@@ -17,7 +17,7 @@ import BulkMessages from 'components/bulk-actions/bulk-messages';
 import { Link } from 'components/link';
 
 // actions
-import { actions, rawSorts } from 'modules/carts/list';
+import { actions } from 'modules/carts/list';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
 import { actions as bulkActions } from 'modules/carts/bulk';
 
@@ -32,13 +32,14 @@ const tableColumns = [
 type Props = {
   list: Object,
   actions: Object,
-  bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
+  bulkExportAction: (
+    fields: Array<string>, entity: string, identifier: string, description: string, sort: Array<Object>
+  ) => Promise<*>,
   bulkActions: {
     exportByIds: (
       ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
     ) => void,
   },
-
 }
 
 class Carts extends Component {
@@ -60,7 +61,7 @@ class Carts extends Component {
   }
 
   @autobind
-  bulkExport(allChecked: boolean, toggledIds: Array<number>) {
+  bulkExport(allChecked: boolean, toggledIds: Array<string>) {
     const { list } = this.props;
     const { exportByIds } = this.props.bulkActions;
     const modalTitle = 'Carts';
@@ -71,13 +72,13 @@ class Carts extends Component {
     return renderExportModal(tableColumns, entity, modalTitle, exportByIds, ids);
   }
 
-  get bulkActions() {
+  get bulkActions(): Array<any> {
     return [
       bulkExportBulkAction(this.bulkExport, 'Carts'),
     ];
   }
 
-  renderBulkDetails(message, cart) {
+  renderBulkDetails(message: string, cart: string) {
     return (
       <span key={cart}>
         Cart <Link to="cart-details" params={{ cart }}>{cart}</Link>
@@ -102,7 +103,6 @@ class Carts extends Component {
           actions={this.bulkActions}
         >
           <SelectableSearchList
-            rawSorts={rawSorts}
             exportEntity="carts"
             exportTitle="Carts"
             bulkExport

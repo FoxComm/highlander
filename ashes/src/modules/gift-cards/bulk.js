@@ -11,6 +11,7 @@ import { getPropsByIds } from 'modules/bulk-export/helpers';
 
 // data
 import { reducers, createExportByIds } from '../bulk';
+
 const getCodes = (getState: Function, ids: Array<number>): Object => {
   return getPropsByIds('giftCards', ids, ['code'], getState());
 };

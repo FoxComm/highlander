@@ -4,10 +4,10 @@ import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 // import { ReasonType } from '../lib/reason-utils'; - needs flow
 
-const reasonsRequested = createAction('REASONS_REQUESTED');
-const reasonsReceived = createAction('REASONS_RECEIVED',
+export const reasonsRequested = createAction('REASONS_REQUESTED');
+export const reasonsReceived = createAction('REASONS_RECEIVED',
                                      (payload, reasonType) => [payload, reasonType]);
-const reasonsFailed = createAction('REASONS_FAILED');
+export const reasonsFailed = createAction('REASONS_FAILED');
 
 /**
  * loads reasons from API by type

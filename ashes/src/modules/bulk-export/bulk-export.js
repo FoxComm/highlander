@@ -5,6 +5,7 @@ import { createAsyncActions } from '@foxcomm/wings';
 import localStorage from 'localStorage';
 import _ from 'lodash';
 import { columnsToPayload } from './helpers';
+import { createAction, createReducer } from 'redux-act';
 
 type Payload = {
   ids?: Array<number>,
@@ -12,6 +13,8 @@ type Payload = {
   fields: Array<Object>,
   description?: string,
 };
+
+export const saveRawQuery = createAction('SAVE_RAW_QUERY');
 
 const getFields = (allFields: Array<Object>, identifier: string): Array<Object> => {
   const columns = localStorage.getItem('columns') ? JSON.parse(localStorage.getItem('columns')) : {};
@@ -24,18 +27,17 @@ const getFields = (allFields: Array<Object>, identifier: string): Array<Object> 
   return columnsToPayload(selectedFields);
 };
 
-const getQuery = (raw: Object, sort: Array<Object>): Object => {
-  if (_.isEmpty(raw)) {
+const getQuery = (raw: Object): Object => {
+  if (_.isEmpty(raw.query)) {
     return {
       query: {
         bool: {},
       },
-      sort,
+      sort: raw.sort,
     };
   }
   return {
-    query: raw.query,
-    sort,
+    ...raw,
   };
 };
 
@@ -49,12 +51,11 @@ const genDownloadLink = (response: Object) => {
 
 export const bulkExport = createAsyncActions(
   'bulkExport',
-  function(fields, entity, identifier, description, sort) {
+  function(fields, entity, identifier, description) {
     const { getState } = this;
     const queryFields = getFields(fields, identifier);
-    const selectedSearch = getState()[entity].list.selectedSearch;
-    const savedSearch = getState()[entity].list.savedSearches[selectedSearch];
-    const queries = getQuery(savedSearch.rawQuery, sort);
+    const rawQuery = _.get(getState().bulkExport, 'rawQuery', {});
+    const queries = getQuery(rawQuery);
 
     const payload: Payload = {
       fields: queryFields,
@@ -89,3 +90,18 @@ export const bulkExportByIds = createAsyncActions(
     });
   }
 ).perform;
+
+const initialState = {
+  rawQuery: {},
+};
+
+const reducer = createReducer({
+  [saveRawQuery]: (state, rawQuery) => {
+    return {
+      ...state,
+      rawQuery,
+    };
+  },
+}, initialState);
+
+export default reducer;

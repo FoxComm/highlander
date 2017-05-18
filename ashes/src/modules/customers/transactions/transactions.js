@@ -1,4 +1,4 @@
-import makeLiveSearch from '../live-search';
+import makeLiveSearch from 'modules/live-search';
 
 const searchTerms = [
   {
@@ -98,7 +98,7 @@ const searchTerms = [
 ];
 
 const { reducer, actions } = makeLiveSearch(
-  'customers.transactions',
+  'customers.transactions.list',
   searchTerms,
   'orders_search_view/_search',
   'customerTransactionsScope', {

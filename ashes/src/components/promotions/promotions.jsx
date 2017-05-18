@@ -22,7 +22,9 @@ import { actions as bulkActions } from 'modules/promotions/bulk';
 type Props = {
   list: Object,
   actions: Object,
-  bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
+  bulkExportAction: (
+    fields: Array<string>, entity: string, identifier: string, description: string
+  ) => Promise<*>,
   bulkActions: {
     exportByIds: (
       ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
@@ -48,8 +50,9 @@ class Promotions extends Component {
     return this.props.actions.addSearchFilters(filterArchived(filters), initial);
   }
 
-  renderRow(row: Object, index: number, columns: Array<any>, params: any): Element<*> {
+  renderRow(row: Object, index: number, columns: Columns, params: any): Element<*> {
     const key = `promotion-${row.id}`;
+
     return (
       <PromotionRow
         promotion={row}

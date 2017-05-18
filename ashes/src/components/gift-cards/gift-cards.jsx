@@ -33,7 +33,9 @@ type Props = {
       ids: Array<number>, description: string, fields: Array<string>, entity: string, identifier: string
     ) => void,
   },
-  bulkExportAction: (fields: Array<string>, entity: string, identifier: string) => Promise<*>,
+  bulkExportAction: (
+    fields: Array<string>, entity: string, identifier: string, description: string
+  ) => Promise<*>,
 };
 
 const tableColumns = [
@@ -124,13 +126,16 @@ class GiftCards extends Component {
     );
   }
 
-  renderRow(row, index, columns, params) {
+  renderRow(row: Object, index: number, columns: Columns, params: Object) {
     const key = `gift-card-${row.code}`;
+
     return (
-      <GiftCardRow key={key}
-                   giftCard={row}
-                   columns={columns}
-                   params={params} />
+      <GiftCardRow
+        key={key}
+        giftCard={row}
+        columns={columns}
+        params={params}
+      />
     );
   }
 
