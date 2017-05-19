@@ -2,10 +2,14 @@ package controllers
 
 import (
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
+	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
+	commonErrors "github.com/FoxComm/highlander/middlewarehouse/common/errors"
 	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
 
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
@@ -36,23 +40,44 @@ func (suite *reservationControllerTestSuite) TearDownTest() {
 	suite.service.Calls = []mock.Call{}
 }
 
-func (suite *reservationControllerTestSuite) Test_ReserveItems() {
-	suite.service.On("HoldItems", "BR10001", map[string]int{"SKU": 2}).Return(nil).Once()
+func reserveItemTest(suite *reservationControllerTestSuite, holdItemsResult interface{}) *httptest.ResponseRecorder {
+	suite.service.On("HoldItems", "BR10001", map[string]int{"SKU": 2}).Return(holdItemsResult).Once()
 
 	jsonStr := `{"refNum":"BR10001","items":[{ "sku": "SKU", "qty": 2 }]}`
 
-	res := suite.Post("/reservations/hold", jsonStr)
+	return suite.Post("/reservations/hold", jsonStr)
+}
 
+func reserveItemBadRequestExpected(suite *reservationControllerTestSuite, res *httptest.ResponseRecorder, expectedMessage string) {
+	suite.Equal(http.StatusBadRequest, res.Code)
+	suite.Contains(res.Body.String(), "errors")
+	suite.Contains(res.Body.String(), expectedMessage)
+}
+
+func (suite *reservationControllerTestSuite) Test_ReserveItems() {
+	res := reserveItemTest(suite, nil)
 	suite.Equal(http.StatusNoContent, res.Code)
 	suite.service.AssertExpectations(suite.T())
 }
 
+func (suite *reservationControllerTestSuite) Test_ReserveItems_AggregateError() {
+	aggregateErr := commonErrors.AggregateError{}
+	err := responses.InvalidSKUItemError{Sku: "SKU", Debug: "boom"}
+	aggregateErr.Add(&err)
+
+	res := reserveItemTest(suite, &aggregateErr)
+
+	reserveItemBadRequestExpected(suite, res, `"sku":"SKU","debug":"boom"`)
+}
+
+func (suite *reservationControllerTestSuite) Test_ReserveItems_OutOfStock() {
+	res := reserveItemTest(suite, errors.New("boom"))
+
+	reserveItemBadRequestExpected(suite, res, "boom")
+}
+
 func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongSKUs() {
-	suite.service.On("HoldItems", "BR10001", map[string]int{"SKU": 2}).Return(gorm.ErrRecordNotFound).Once()
-
-	jsonStr := `{"refNum": "BR10001","items": [{ "sku": "SKU", "qty": 2 }]}`
-
-	res := suite.Post("/reservations/hold", jsonStr)
+	res := reserveItemTest(suite, gorm.ErrRecordNotFound)
 
 	suite.Equal(http.StatusNotFound, res.Code)
 	suite.Contains(res.Body.String(), "errors")
@@ -65,9 +90,7 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems_EmptySKUsList() {
 
 	res := suite.Post("/reservations/hold", jsonStr)
 
-	suite.Equal(http.StatusBadRequest, res.Code)
-	suite.Contains(res.Body.String(), "errors")
-	suite.Contains(res.Body.String(), "Reservation must have at least one SKU")
+	reserveItemBadRequestExpected(suite, res, "Reservation must have at least one SKU")
 }
 
 func (suite *reservationControllerTestSuite) Test_ReleaseItems() {

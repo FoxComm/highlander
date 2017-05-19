@@ -34,27 +34,28 @@ shortcuts:
       ubuntu: ubuntu
 
   targets:
-  # Bootstrappers
-  - name: Bootstrap Consul Alerts
-    alias: consul_alerts.yml
-    target: ansible/bootstrap_consul_alerts.yml
+  # Interactive playbooks
+  - name: Setup Annabelle
+    alias: annabelle.yml
+    target: ansible/ops_annabelle.yml
 
-  - name: Bootstrap Marathon Alerts
-    alias: marathon_alerts.yml
-    target: ansible/bootstrap_marathon_alerts.yml
-
-  - name: Bootstrap Database
-    alias: bootstrap_db.yml
-    target: ansible/bootstrap_db.yml
-
-  - name: Bootstrap DB Backup Script
+  - name: Setup Database Backup
     alias: backup_db.yml
-    target: ansible/bootstrap_backup_db.yml
+    target: ansible/ops_backup_db.yml
 
-  - name: Bootstrap ZK Backup Script
+  - name: Setup Zookeeper Backup
     alias: backup_zk.yml
-    target: ansible/bootstrap_backup_zk.yml
+    target: ansible/ops_backup_zk.yml
 
+  - name: Setup Consul Alerts
+    alias: consul_alerts.yml
+    target: ansible/ops_consul_alerts.yml
+
+  - name: Setup Marathon Alerts
+    alias: marathon_alerts.yml
+    target: ansible/ops_marathon_alerts.yml
+
+<<<<<<< HEAD
   - name: Bootstrap Marathon Consul
     alias: marathon_consul.yml
     target: ansible/bootstrap_marathon_consul.yml
@@ -64,25 +65,35 @@ shortcuts:
     target: ansible/bootstrap_openvpn.yml
 
   - name: Bootstrap OpenVPN Key
+=======
+  - name: Generate OpenVPN Key
+>>>>>>> 03b4e1d6f6669c707a63fc0a230a58b7772d1038
     alias: openvpn_key.yml
-    target: ansible/bootstrap_openvpn_key.yml
+    target: ansible/ops_openvpn_key.yml
 
-  - name: Bootstrap Store Admin User
+  - name: Revoke OpenVPN Key
+    alias: openvpn_revoke_key.yml
+    target: ansible/ops_openvpn_revoke_key.yml
+
+  - name: Setup OpenVPN Server
+    alias: openvpn_server.yml
+    target: ansible/ops_openvpn_server.yml
+
+  - name: Restore Database
+    alias: restore_db.yml
+    target: ansible/ops_restore_db.yml
+
+  - name: Setup Sinopia
+    alias: sinopia.yml
+    target: ansible/ops_sinopia.yml
+
+  - name: Create Store Admin User
     alias: store_admin.yml
-    target: ansible/bootstrap_store_admin.yml
+    target: ansible/ops_store_admin.yml
 
   - name: Update UI Testing Software
     alias: selenium.yml
-    target: ansible/bootstrap_selenium.yml
-
-  # Custom
-  - name: Bootstrap Annabelle
-    alias: annabelle.yml
-    target: ansible/bootstrap_annabelle.yml
-
-  - name: Bootstrap Sinopia
-    alias: sinopia.yml
-    target: ansible/bootstrap_sinopia.yml
+    target: ansible/ops_selenium.yml
 
   # Goldrush
   - name: Generate Goldrush Configuration
@@ -101,14 +112,18 @@ shortcuts:
     alias: update_app.yml
     target: ansible/goldrush_update_app.yml
 
-  # Test Machines
-  - name: Provision FoxComm Test
-    alias: test_stage.yml
-    target: ansible/test_stage.yml
+  # Provisioning
+  - name: Deploy Storefront
+    alias: deploy_storefront.yml
+    target: ansible/deploy_storefront.yml
 
   - name: Provision FoxComm Demo
     alias: demo.yml
     target: ansible/demo.yml
+
+  - name: Provision FoxComm Test
+    alias: test_stage.yml
+    target: ansible/test_stage.yml
 
   - name: Provision Appliance
     alias: provision_appliance.yml
@@ -122,17 +137,24 @@ shortcuts:
   - name: Deploy Ark Keys
     alias: ark_keys.yml
     target: ansible/ark_keys.yml
+<<<<<<< HEAD
 
   # Cloud
   - name: Provision Cloud Central
     alias: cloud_central.yml
     target: ansible/provision_cloud_central.yml
+=======
+>>>>>>> 03b4e1d6f6669c707a63fc0a230a58b7772d1038
 
-  - name: Provision Cloud Demo
-    alias: cloud_demo.yml
-    target: ansible/provision_cloud_demo.yml
+  - name: Setup Ark Database
+    alias: ark_db.yml
+    target: ansible/ark_db.yml
 
-  # Migration
+  - name: Setup Ark Marathon Consul
+    alias: ark_marathon_consul.yml
+    target: ansible/ark_marathon_consul.yml
+
+  # Migrations
   - name: Migrate Phoenix DB
     alias: migrate_phoenix_db.yml
     target: ansible/migrate_phoenix_db.yml
@@ -161,11 +183,6 @@ shortcuts:
   - name: Run Data Import Seeder
     alias: seed_data_import.yml
     target: ansible/seed_data_import.yml
-
-  # Deploy
-  - name: Deploy TopDrawer Storefront
-    alias: deploy_storefront.yml
-    target: ansible/deploy_storefront.yml
 
 # Packer shortcuts
 - type: snowflake

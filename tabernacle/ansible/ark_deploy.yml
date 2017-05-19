@@ -15,6 +15,8 @@
     docker_tags:
         phoenix_seeder: admins
     seeds_cmd: utils.seeds.Seeds seed --seedAdmins
+    ashes_ga_tracking_id: UA-99593691-1
+    ga_tracking_id: UA-99619124-1
     s3_bucket: foxcomm-production-images
     s3_region: us-west-1
   vars_prompt:

@@ -11,8 +11,7 @@
       default: "backend"
       private: no
   roles:
-    - { role: dev/db_ic}
-
+    - { role: dev/db_ic }
 
 - name: Migrate Amigo
   hosts: '{{hostname_a}}'
@@ -24,9 +23,8 @@
       prompt: "Enter a hostname for the amigo"
       default: "amigo"
       private: no
-
   roles:
-    - { role: base/mesos_master}
+    - { role: base/mesos_master }
 
 - name: Migrate Frontend
   hosts: '{{hostname_f}}'
@@ -38,6 +36,5 @@
       prompt: "Enter a hostname for the frontend"
       default: "frontend"
       private: no
-
   roles:
-    - { role: base/rsyslog}
+    - { role: base/rsyslog }

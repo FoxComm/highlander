@@ -110,11 +110,12 @@ object ShippingManager {
     }
   }
 
-  def filterMethods(shipMethods: Seq[ShippingMethod], shipData: ShippingData) = shipMethods.collect {
-    case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
-      val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
-      responses.ShippingMethodsResponse.build(sm, isEnabled = !restricted)
-  }
+  def filterMethods(shipMethods: Seq[ShippingMethod], shipData: ShippingData) =
+    shipMethods.collect {
+      case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
+        val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
+        responses.ShippingMethodsResponse.build(sm, isEnabled = !restricted)
+    }
 
   private def getShippingData(cart: Cart)(implicit ec: EC, db: DB): DbResultT[ShippingData] =
     for {

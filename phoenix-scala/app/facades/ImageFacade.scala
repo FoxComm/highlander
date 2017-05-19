@@ -1,14 +1,18 @@
 package facades
 
+import java.io.{InputStream, ByteArrayInputStream}
+import java.net.URLConnection
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 import java.nio.file.{Files, Path}
 import java.time.ZonedDateTime
 
+import scala.annotation.tailrec
 import scala.concurrent.Future
+import scala.util.Try
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Multipart, StatusCodes}
+import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Multipart, StatusCodes, Uri, MediaTypes}
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 
@@ -90,7 +94,25 @@ object ImageFacade extends ImageHelpers {
 
   object ImageUploader {
 
+    val allowedImageTypes: List[String] =
+      List(MediaTypes.`image/gif`, MediaTypes.`image/png`, MediaTypes.`image/jpeg`).map(_.value)
+
     implicit object ImagePayloadUploader extends ImageUploader[ImagePayload] {
+
+      def shouldBeValidImage(imageData: ByteBuffer): Either[Failures, Unit] = {
+        guessContentType(imageData).map { contentType ⇒
+          if (allowedImageTypes.contains(contentType)) Either.right({})
+          else Either.left(UnsupportedImageType(contentType).single)
+        }.getOrElse(Either.left(UnknownImageType.single))
+
+      }
+
+      def shouldBeValidUrl(url: String): Either[Failures, Uri] = {
+        val uri = Uri(url)
+        if (uri.isRelative || uri.isEmpty) Either.left(InvalidImageUrl(url).single)
+        else Either.right(uri)
+      }
+
       def uploadImagesR(payload: ImagePayload, context: OC, maybeAlbum: Option[Album])(
           implicit ec: EC,
           db: DB,
@@ -100,9 +122,11 @@ object ImageFacade extends ImageHelpers {
           apis: Apis): DbResultT[Seq[ImagePayload]] = {
 
         for {
-          imageData ← * <~ fetchImageData(payload.src)
+          url       ← * <~ shouldBeValidUrl(payload.src)
+          imageData ← * <~ fetchImageData(url)
+          _         ← * <~ shouldBeValidImage(imageData)
           url ← * <~ saveBufferAndThen[String](imageData) { path ⇒
-                 val fileName = extractFileNameFromUrl(payload.src)
+                 val fileName = extractFileNameFromUri(url)
                  val s3Path   = S3Path.get(maybeAlbum, fileName = fileName)
                  DbResultT.fromResult(apis.amazon.uploadFile(s3Path.absPath, path.toFile))
                }
@@ -287,16 +311,23 @@ object ImageFacade extends ImageHelpers {
 
 trait ImageHelpers extends LazyLogging {
 
-  protected def extractFileNameFromUrl(url: String): String = {
-    val i = url.lastIndexOf('/')
-    if (i > 0)
-      url.substring(i + 1)
-    else
-      s"${utils.generateUuid}.jpg"
+  protected def extractFileNameFromUri(uri: Uri): String = {
+
+    @tailrec
+    def latestSegment(path: Uri.Path): Option[String] = {
+      path match {
+        case Uri.Path.Slash(tail)      ⇒ latestSegment(tail)
+        case Uri.Path.Segment(head, _) ⇒ Some(head)
+        case Uri.Path.Empty            ⇒ None
+      }
+    }
+
+    val revPath = uri.path.reverse
+    latestSegment(revPath).getOrElse(s"${utils.generateUuid}.jpg")
   }
 
-  def fetchImageData(url: String)(implicit ec: EC, sys: ActorSystem, am: Mat): Result[ByteBuffer] = {
-    val r = Http().singleRequest(HttpRequest(uri = url)).flatMap {
+  def fetchImageData(uri: Uri)(implicit ec: EC, sys: ActorSystem, am: Mat): Result[ByteBuffer] = {
+    val r = Http().singleRequest(HttpRequest(uri = uri)).flatMap {
       case HttpResponse(StatusCodes.OK, _, entity, _) ⇒
         entity.dataBytes.runFold(ByteString(""))(_ ++ _).map { body ⇒
           Either.right[Failures, ByteBuffer](body.asByteBuffer)
@@ -326,5 +357,19 @@ trait ImageHelpers extends LazyLogging {
       result ← * <~ block(path)
       _      ← * <~ Files.deleteIfExists(path)
     } yield result
+
+  private def asInputStream(buffer: ByteBuffer): InputStream = {
+    if (buffer.hasArray) { // use heap buffer; no array is created; only the reference is used
+      new ByteArrayInputStream(buffer.array)
+    }
+    new utils.io.ByteBufferInputStream(buffer)
+  }
+
+  protected def guessContentType(byteBuffer: ByteBuffer): Option[String] = {
+    Try {
+      // can return null or throw exception
+      Option(URLConnection.guessContentTypeFromStream(asInputStream(byteBuffer)))
+    }.toOption.flatten
+  }
 
 }
