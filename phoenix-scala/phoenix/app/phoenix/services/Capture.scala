@@ -18,6 +18,7 @@ import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import slick.jdbc.PostgresProfile.api._
 import utils.Money.Currency
+import utils.Money._
 import utils.db._
 
 //

@@ -21,7 +21,6 @@ import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.api.ApiFixtureHelpers
 import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
-import utils.JsonFormatters.phoenixFormats
 import utils.Money._
 
 class ReturnIntegrationTest
@@ -34,7 +33,6 @@ class ReturnIntegrationTest
 
   "Returns header" - {
     val refNotExist = "ABC-666"
-
 
     "successfully creates new Return" in new ReturnFixture with OrderDefaults {
       val rmaCreated = returnsApi

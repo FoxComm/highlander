@@ -5,7 +5,6 @@ import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import models.objects._
 import org.json4s.JsonAST._
-import phoenix.failures.AddressFailures.NoCountryFound
 import phoenix.failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
 import phoenix.models.account._
 import phoenix.models.cord._
@@ -13,17 +12,14 @@ import phoenix.models.cord.lineitems._
 import phoenix.models.location.{Countries, Region}
 import phoenix.models.rules.{Condition, QueryStatement}
 import phoenix.models.shipping._
-import phoenix.responses.ShippingMethodsResponse
-import phoenix.responses.ShippingMethodsResponse.Root
 import phoenix.services.carts.getCartByOriginator
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 import utils.db._
-import utils.Money._
-import responses.ShippingMethodsResponse
-import responses.ShippingMethodsResponse.Root
-import failures.AddressFailures.NoCountryFound
+import phoenix.responses.ShippingMethodsResponse
+import phoenix.responses.ShippingMethodsResponse.Root
+import phoenix.failures.AddressFailures.NoCountryFound
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats

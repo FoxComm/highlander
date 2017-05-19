@@ -4,13 +4,13 @@ import java.time.Instant
 
 import com.pellucid.sealerate
 import failures.NotFoundFailure404
-import phoenix. models.account._
+import phoenix.models.account._
 import phoenix.models.cord.{Order, Orders}
-import phoenix.models.returns.Return._import phoenix.utils.{ADT, FSM}
+import phoenix.models.returns.Return._
+import phoenix.utils.{ADT, FSM}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.Money._
 import slick.jdbc.PostgresProfile.api._
 import utils.db._
 

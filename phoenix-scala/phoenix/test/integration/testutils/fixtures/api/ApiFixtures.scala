@@ -21,10 +21,6 @@ import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
-import utils.JsonFormatters
-import utils.Money._
-
-import utils.aliases.Json
 
 import scala.util.Random
 

@@ -1,6 +1,5 @@
 package phoenix.models.customer
 
-
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import utils.Money._

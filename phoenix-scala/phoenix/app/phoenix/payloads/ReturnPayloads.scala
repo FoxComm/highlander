@@ -7,7 +7,7 @@ import phoenix.failures.{EmptyCancellationReasonFailure, NonEmptyCancellationRea
 import phoenix.models.payment.PaymentMethod
 import phoenix.models.returns.{Return, ReturnLineItem}
 import phoenix.utils.ADTTypeHints
-import utils.{ADTTypeHints, Validation}
+import utils.Validation
 import utils.Validation._
 
 object ReturnPayloads {
