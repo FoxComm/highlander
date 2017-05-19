@@ -22,3 +22,29 @@
     background-color: transparent;
   }
 }
+
+.addProperty {
+  display: flex;
+  align-items: center;
+  margin: 30px -20px -20px -20px;
+  padding: 20px;
+  border-top: 1px solid #d9d9d9;
+  cursor: pointer;
+  transition: all .2s;
+
+  &:hover {
+    background-color: #f7f7f7;
+  }
+}
+
+.buttonTitle {
+  margin-right: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.icon {
+  font-size: 10px;
+}
+
+

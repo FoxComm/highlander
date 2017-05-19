@@ -1,0 +1,12 @@
+.modal {
+  min-width: 575px;
+}
+
+:global .fc-dropdown {
+  max-width: 100%;
+  margin-bottom: 10px;
+}
+
+:global .fc-content-box {
+  margin-bottom: 0;
+}
