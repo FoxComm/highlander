@@ -1,6 +1,6 @@
 ---
 
-- name: Bootstrap Marathon Consul
+- name: Setup Ark Marathon Consul
   hosts: '{{hostname}}'
   become: true
   vars:
@@ -8,7 +8,7 @@
   vars_prompt:
     - name: "hostname"
       prompt: "Enter hostname"
-      default: "amigo-1"
+      default: "amigo"
       private: no
 
   roles:

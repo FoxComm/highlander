@@ -126,6 +126,14 @@ shortcuts:
     alias: ark_keys.yml
     target: ansible/ark_keys.yml
 
+  - name: Setup Ark Database
+    alias: ark_db.yml
+    target: ansible/ark_db.yml
+
+  - name: Setup Ark Marathon Consul
+    alias: ark_marathon_consul.yml
+    target: ansible/ark_marathon_consul.yml
+
   # Migrations
   - name: Migrate Phoenix DB
     alias: migrate_phoenix_db.yml

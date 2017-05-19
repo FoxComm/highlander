@@ -1,6 +1,6 @@
 ---
 
-- name: Bootstrap Database
+- name: Setup Ark Databases
   hosts: '{{hostname}}'
   become: true
   vars:
@@ -13,7 +13,7 @@
   vars_prompt:
     - name: "hostname"
       prompt: "Enter hostname for database setup"
-      default: "vanilla-db"
+      default: "backend"
       private: no
 
   roles:
