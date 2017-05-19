@@ -12,6 +12,8 @@ import { FormField, Form } from 'ui/forms';
 import { TextInput } from 'ui/text-input';
 import { TextArea } from 'ui/textarea';
 
+import * as actions from 'modules/reviews';
+
 import styles from '../profile.css';
 
 type Review = {
@@ -38,7 +40,7 @@ type State = {
 };
 
 type ReviewFormProps = {
-  review: FullReview | EmptyReview
+  review: FullReview | EmptyReview,
 };
 
 function mapStateToProps(state, props) {
@@ -79,10 +81,32 @@ class ReviewForm extends Component {
     });
   }
 
+  @autobind
+  submitForm() {
+    const payload = {
+      sku: this.props.review.sku,
+      attributes: {
+        title: {
+          t: 'string',
+          v: this.state.title,
+        },
+        body: {
+          t: 'string',
+          v: this.state.body,
+        },
+        status: {
+          t: 'string',
+          v: 'submitted',
+        },
+      },
+    };
+    return this.props.updateReview(this.props.review.id, payload);
+  }
+
   render() {
     return (
       <Block title={ReviewForm.title}>
-        <Form onSubmit={_.noop}>
+        <Form onSubmit={this.submitForm}>
           <div styleName="section">Submit your review of {this.props.review.productName}</div>
           <FormField styleName="form-field">
             <TextInput
@@ -110,4 +134,4 @@ class ReviewForm extends Component {
   }
 }
 
-export default connect(mapStateToProps)(ReviewForm);
+export default connect(mapStateToProps, actions)(ReviewForm);

@@ -32,9 +32,17 @@ const _fetchReviewsForSku = createAsyncActions(
   }
 );
 
+const _updateReview = createAsyncActions(
+  'updateReview',
+  function(reviewId: Number, payload: Object) {
+    return this.api.reviews.update(reviewId, payload);
+  }
+);
+
 // actions - public
 export const fetchReviews = _fetchReviews.perform;
 export const fetchReviewsForSku = _fetchReviewsForSku.perform;
+export const updateReview = _updateReview.perform;
 export const clearReviews = createAction('REVIEWS_CLEAR');
 
 // redux
@@ -55,6 +63,9 @@ const reducer = createReducer({
       ...state,
       list: response.result,
     };
+  },
+  [_updateReview.succeeded]: (state) => {
+    return state;
   },
   [clearReviews]: (state) => {
     return {
