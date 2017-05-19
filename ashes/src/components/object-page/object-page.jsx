@@ -219,7 +219,8 @@ export class ObjectPage extends Component {
         });
     }
 
-    this.props.actions.fetchAmazonStatus();
+    this.props.actions.fetchAmazonStatus()
+      .catch(() => {}); // pass
   }
 
   get unsaved(): boolean {

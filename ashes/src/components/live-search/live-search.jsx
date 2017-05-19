@@ -645,7 +645,7 @@ export default class LiveSearch extends React.Component {
                 formatPill={this.formatPill}
                 icon={null}
                 pills={this.state.pills}>
-              {/* @todo get back MaskedInput */}
+              {/* @todo get back MaskedInput prepend={this.state.searchPrepend} */}
                 <input
                   className="fc-pilled-input__input-field _no-fc-behavior"
                   mask={this.state.inputMask}
@@ -654,7 +654,7 @@ export default class LiveSearch extends React.Component {
                   onBlur={this.blur}
                   onKeyDown={this.keyDown}
                   placeholder={this.props.placeholder}
-                  prepend={this.state.searchPrepend}
+
                   value={this.state.searchDisplay}
                   disabled={this.isDisabled}
                   ref={i => this._input = i} />
