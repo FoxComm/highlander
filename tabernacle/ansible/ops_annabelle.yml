@@ -1,6 +1,6 @@
 ---
 
-- name: Bootstrap Annabelle
+- name: Setup Annabelle
   hosts: api-docs
   become: true
   vars:
@@ -23,9 +23,8 @@
       prompt: "Enter Slack incoming webhook URL"
       default: "https://hooks.slack.com/services/XXX/YYY/ZZZ"
       private: no
-
   roles:
-    - { role: dev/annabelle }
+    - { role: ops/annabelle }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
