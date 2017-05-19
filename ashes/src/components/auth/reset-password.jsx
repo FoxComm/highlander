@@ -7,12 +7,13 @@ import styles from './css/auth.css';
 import { autobind } from 'core-decorators';
 import { transitionTo } from 'browserHistory';
 
-import Form from '../forms/form';
-import FormField from '../forms/formfield';
-import ErrorAlerts from '../alerts/error-alerts';
+import Form from 'components/forms/form';
+import FormField from 'components/forms/formfield';
+import ErrorAlerts from 'components/alerts/error-alerts';
 import { PrimaryButton } from 'components/core/button';
-import PasswordInput from '../forms/password-input';
-import WaitAnimation from '../common/wait-animation';
+import PasswordInput from 'components/forms/password-input';
+import WaitAnimation from 'components/common/wait-animation';
+import Link from 'components/link/link';
 
 import type { SignupPayload } from 'modules/user';
 import * as userActions from 'modules/user';
@@ -21,7 +22,7 @@ type State = {
   email: string,
   password1: string,
   password2: string,
-}
+};
 
 type Props = {
   signUpState: {
@@ -135,13 +136,21 @@ class ResetPassword extends Component {
               className="fc-input"
             />
           </FormField>
-          <PrimaryButton
-            styleName="submit-button"
-            type="submit"
-            isLoading={this.props.signUpState.inProgress}
-          >
-            Reset Password
-          </PrimaryButton>
+          <div styleName="button-block">
+            <PrimaryButton
+              styleName="submit-button"
+              type="submit"
+              isLoading={this.props.signUpState.inProgress}
+            >
+              Reset Password
+            </PrimaryButton>
+            <Link
+              to='login'
+              styleName="back-button"
+            >
+              Back to Login
+            </Link>
+          </div>
         </Form>
       </div>
     );

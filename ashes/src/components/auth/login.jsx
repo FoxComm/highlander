@@ -1,21 +1,22 @@
-/** @flow */
+/* @flow */
+
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
-import Alert from '../alerts/alert';
-import ErrorAlerts from '../alerts/error-alerts';
-import Form from '../forms/form';
-import FormField from '../forms/formfield';
+import Alert from 'components/alerts/alert';
+import ErrorAlerts from 'components/alerts/error-alerts';
+import Form from 'components/forms/form';
+import FormField from 'components/forms/formfield';
 import { PrimaryButton, SocialButton } from 'components/core/button';
 import WrapToLines from './wrap-to-lines';
-import WaitAnimation from '../common/wait-animation';
+import WaitAnimation from 'components/common/wait-animation';
 
 import * as userActions from 'modules/user';
 
-import s from './css/auth.css';
+import styles from './css/auth.css';
 
 // types
 import type {
@@ -112,7 +113,7 @@ export default class Login extends Component {
   }
 
   get iForgot() {
-    return <a onClick={this.onForgotClick} className={s['forgot-link']}>i forgot</a>;
+    return <a onClick={this.onForgotClick} styleName="forgot-link" >i forgot</a>;
   }
 
   get infoMessage() {
@@ -135,7 +136,7 @@ export default class Login extends Component {
     const { org, email, password } = this.state;
 
     return (
-      <div className={s.content}>
+      <div styleName="content">
         {this.infoMessage}
         <SocialButton
           type="google"
@@ -144,8 +145,8 @@ export default class Login extends Component {
         >
           Sign In with Google
         </SocialButton>
-        <Form className={s.form} onSubmit={this.submitLogin}>
-          <WrapToLines className={s['or-line']}>or</WrapToLines>
+        <Form styleName="form" onSubmit={this.submitLogin}>
+          <WrapToLines styleName="or-line">or</WrapToLines>
           {this.errorMessage}
           <FormField label="Organization" required>
             <input onChange={this.onOrgChange} value={org} type="text" className="fc-input" />
@@ -156,14 +157,17 @@ export default class Login extends Component {
           <FormField label="Password" labelAtRight={this.iForgot} required>
             <input onChange={this.onPasswordChange} value={password} type="password" className="fc-input" />
           </FormField>
-          <PrimaryButton
-            onClick={this.clearMessage}
-            className={s['submit-button']}
-            fullWidth
-            type="submit"
-            isLoading={this.props.authenticationState.inProgress}>
-            Sign In
-          </PrimaryButton>
+          <div styleName="button-block">
+            <PrimaryButton
+              onClick={this.clearMessage}
+              styleName="submit-button"
+              fullWidth
+              type="submit"
+              isLoading={this.props.authenticationState.inProgress}
+            >
+              Sign In
+            </PrimaryButton>
+          </div>
         </Form>
       </div>
     );
@@ -171,8 +175,8 @@ export default class Login extends Component {
 
   render() {
     return (
-      <div className={s.main}>
-        <div className={s.title}>Sign In</div>
+      <div styleName="main">
+        <div styleName="title">Sign In</div>
         {this.content}
       </div>
     );

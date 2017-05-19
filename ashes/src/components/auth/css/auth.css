@@ -40,6 +40,12 @@
   }
 }
 
+.button-block {
+  margin-top: 20px;
+  vertical-align: baseline;
+  display: flex;
+}
+
 .form {
   width: 100%;
   margin-top: 20px;
@@ -56,7 +62,20 @@
 }
 
 .submit-button {
-  margin-top: 20px;
+}
+
+.back-button {
+  display: block;
+  padding: 10px 20px;
+  color: #9ba3a7;
+  text-decoration: none;
+  margin-left: 20px;
+  font-size: 14px;
+
+  &:hover {
+    color: #484848;
+    text-decoration: underline;
+  }
 }
 
 .password-label {
