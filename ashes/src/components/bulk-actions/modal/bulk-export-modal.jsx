@@ -86,7 +86,7 @@ class BulkExportModal extends Component {
     const { entity, count } = this.props;
     const entityForm = numberize(entity, count);
     return (
-      <span>Are you sure you want to export <b>{count} {entityForm}</b>?</span>
+      <span>Are you sure you want to export <b>{count ? count : 'all'} {entityForm}</b>?</span>
     );
   }
 
