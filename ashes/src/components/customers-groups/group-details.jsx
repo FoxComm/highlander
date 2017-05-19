@@ -9,14 +9,12 @@ import { bindActionCreators } from 'redux';
 import { autobind, debounce } from 'core-decorators';
 import moment from 'moment';
 import classNames from 'classnames';
-import criterions from 'paragons/customer-groups/criterions';
 import operators from 'paragons/customer-groups/operators';
 import { transitionTo } from 'browserHistory';
 import { prefix, numberize } from 'lib/text-utils';
 import { bulkExportBulkAction, renderExportModal } from 'modules/bulk-export/helpers';
 
 // actions
-import requestAdapter from 'modules/customer-groups/utils/request-adapter';
 import {
   fetchGroupStats,
   GROUP_TYPE_MANUAL,

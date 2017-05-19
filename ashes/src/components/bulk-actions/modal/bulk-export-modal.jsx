@@ -86,13 +86,14 @@ class BulkExportModal extends Component {
     const { entity, count } = this.props;
     const entityForm = numberize(entity, count);
     return (
-      <span>Are you sure you want to export <b>{count} {entityForm}</b>?</span>
+      <span>Are you sure you want to export <b>{count ? count : 'all'} {entityForm}</b>?</span>
     );
   }
 
   render() {
     const { inBulk, title } = this.props;
     const modalTitle = inBulk ? `Export All ${title}` : `Export Selected ${title}`;
+    const fileName = title.toLowerCase().replace(' ', '_');
 
     return (
       <ContentBox
@@ -102,13 +103,17 @@ class BulkExportModal extends Component {
         className="fc-bulk-action-modal"
       >
         <div className="fc-modal-body">{this.label}</div>
-        <TextInput
-          onChange={this.handleChange}
-          onKeyDown={this.handleKeyDown}
-          placeholder="Short description (optional)"
-          value={this.state.value}
-          className={styles['export-modal-description']}
-        />
+        <div styleName="custom-title">
+          <span>{`${fileName}-`}</span>
+          <TextInput
+            onChange={this.handleChange}
+            onKeyDown={this.handleKeyDown}
+            placeholder="Custom Title (optional)"
+            value={this.state.value}
+            className={styles['export-modal-description']}
+          />
+          <span>.csv</span>
+        </div>
       </ContentBox>
     );
   }

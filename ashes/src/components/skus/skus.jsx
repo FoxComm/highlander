@@ -121,17 +121,9 @@ export class Skus extends Component {
             renderRow={this.renderRow}
             tableColumns={tableColumns}
             searchActions={searchActions}
-            predicate={({skuCode}) => skuCode} />
-          </BulkActions>
-        <SelectableSearchList
-          entity="skus.list"
-          emptyMessage="No SKUs found."
-          list={list}
-          renderRow={this.renderRow}
-          tableColumns={tableColumns}
-          searchActions={searchActions}
-          predicate={({skuCode}) => skuCode}
-        />
+            predicate={({skuCode}) => skuCode}
+          />
+        </BulkActions>
       </div>
     );
   }
