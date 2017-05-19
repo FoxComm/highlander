@@ -31,7 +31,7 @@ type Props = {
   title: string,
   emptyContentTitle: string,
   paginationSize: number,
-  handleLoadMore: Function,
+  onLoadMoreReviews: Function,
   showLoadMore: ?boolean
 };
 
