@@ -2,7 +2,7 @@
 
 // libs
 import React, { Component, Element } from 'react';
-import { noop, isEmpty } from 'lodash';
+import { isEmpty, first, get, noop } from 'lodash';
 import { autobind } from 'core-decorators';
 
 // components
@@ -10,7 +10,7 @@ import Upload from 'components/upload/upload';
 import Image from 'components/images/image';
 
 // helpers
-import { uploadImage } from '../../../paragons/image';
+import { uploadImages } from 'paragons/image';
 
 // style
 import s from './image.css';
@@ -20,7 +20,7 @@ import type { FieldErrors, ChangeHandler } from './index';
 import type { ImageFile } from '../../../modules/images';
 
 export default function renderImage(errors: FieldErrors = {}, onChange: ChangeHandler = noop) {
-  return function( name: string, value: any, options: AttrOptions ) {
+  return function (name: string, value: any, options: AttrOptions) {
     return (
       <ImageRenderer name={name} value={value} onChange={onChange} />
     );
@@ -37,27 +37,32 @@ class ImageRenderer extends Component {
   props: Props;
 
   @autobind
-  addFile(image: Array<ImageFile>) {
+  addFile(images: Array<ImageFile>) {
     const { name, onChange } = this.props;
-    onChange(name, 'image', { loading: true });
 
-    const newImage = image.map((file: ImageFile) => ({
-      title: file.file.name,
-      alt: file.file.name,
-      src: file.src,
-      file: file.file,
-      key: file.key,
+    // upload just one image
+    const image = first(images);
+
+    const newImage = {
+      title: get(image, 'file.name'),
+      alt: get(image, 'file.name'),
+      src: get(image, 'src'),
+      file: get(image, 'file'),
+      key: get(image, 'key'),
       loading: true,
-    }));
+    };
 
-    uploadImage(newImage).then(res => {
+    onChange(name, 'image', newImage);
+
+    uploadImages([newImage]).then(res => {
       onChange(name, 'image', res[0]);
     });
   }
 
   @autobind
-  deleteFile(): Promise<*>  {
+  deleteFile(): Promise<*> {
     const { name, onChange } = this.props;
+
     return Promise.resolve(onChange(name, 'image', ''));
   }
 

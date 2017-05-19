@@ -1,21 +1,23 @@
 .upload {
   transition: border-color .3s;
-  padding: 15px 5px;
   margin: -15px -5px;
 
   &:global(._empty) {
     border: 3px dashed #CED2D5;
-    margin: -18px -8px;
+    padding: 15px 5px;
+    margin: -18px 0;
+
+    & .container {
+      min-height: 372px;
+    }
   }
 
   &:global(._dragPossible) {
     border: 3px dashed #9bc1ca;
-    margin: -18px -8px;
   }
 
   &:global(._dragActive) {
     border: 3px dashed #49C2CA;
-    margin: -18px -8px;
   }
 
   &:global(._disabled) {
@@ -28,18 +30,20 @@
     display: flex;
     align-items: center;
   }
+
+  & .drag-label {
+    margin: 10px 0;
+  }
 }
 
 .container {
-  min-height: 420px;
 }
 
 .empty {
   text-align: center;
   margin: 0 auto;
   font-weight: bold;
-  color: #CED2D5;
-  opacity: .5;
+  color: #E6E8EA;
   display: flex;
   flex-direction: column;
 

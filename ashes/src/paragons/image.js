@@ -6,7 +6,7 @@ import Api from 'lib/api';
 // types
 import type { ImageFile } from '../modules/images';
 
-export const uploadImage = (files: Array<ImageFile>) => {
+export const uploadImages = (files: Array<ImageFile>) => {
 
   const formData = new FormData();
 
