@@ -10,14 +10,14 @@ import _ from 'lodash';
 import EditEmail from './edit-email';
 import EditName from './edit-name';
 import ChangePassword from './change-password';
-import DetailsBlock from './details-block';
+import DetailsBlock from '../details-block';
 
 // actions
 import * as actions from 'modules/profile';
 
 import type { AccountDetailsProps } from 'types/profile';
 
-import styles from './account-details.css';
+import styles from '../profile.css';
 
 type Props = AccountDetailsProps & {
   fetchAccount: () => Promise<*>,

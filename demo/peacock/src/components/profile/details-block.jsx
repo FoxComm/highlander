@@ -7,7 +7,7 @@ import _ from 'lodash';
 import ActionLink from 'ui/action-link/action-link';
 import Modal from 'ui/modal/modal';
 
-import styles from './account-details.css';
+import styles from './profile.css';
 
 type Props = {
   data?: string,

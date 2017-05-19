@@ -1,5 +1,15 @@
 @import "colors.css";
 
+.default-address {
+  font-weight: 900;
+  margin-left: 5px;
+}
+
+.name-line {
+  display: flex;
+  align-items: baseline;
+}
+
 .address-details {
   list-style-type: none;
   margin: 0;

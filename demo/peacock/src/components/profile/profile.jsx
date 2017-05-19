@@ -4,18 +4,22 @@ import styles from './profile.css';
 
 import AccountDetails from './account-details/account-details';
 // import MyOrders from './blocks/my-orders';
-// import MyShippingAddresses from './blocks/shipping-addresses';
+import AddressBlock from './shipping-addresses/address-block';
 
 const Profile = () => {
   /* to be added later
-  <MyShippingAddresses />
   <MyOrders />
   */
   return (
     <div styleName="profile">
-      <AccountDetails
-        styleName="account-details"
-      />
+      <div styleName="details-addresses">
+        <AccountDetails
+          styleName="account-details"
+        />
+        <AddressBlock
+          styleName="shipping-addresses"
+        />
+      </div>
     </div>
   );
 };
