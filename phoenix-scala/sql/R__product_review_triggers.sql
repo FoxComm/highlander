@@ -7,8 +7,9 @@ begin
                                             pr.scope,
                                             skus.code,
                                             users.name,
+                                            users.id,
                                             pr.content -> 'title' ->> 'v' as title,
-                                            pr.content -> 'body' ->> 'v'  as body,
+                                            pr.content,
                                             to_char(pr.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
                                             to_char(pr.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
                                             to_char(pr.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
@@ -32,7 +33,7 @@ as $$
 begin
   update product_reviews_search_view
   set title     = new.content -> 'title' ->> 'v',
-    body        = new.content -> 'body' ->> 'v',
+    attributes  = new.content,
     updated_at  = to_char(new.updated_at,'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
     archived_at = to_char(new.archived_at,'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
   where product_reviews_search_view.id = new.id;

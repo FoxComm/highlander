@@ -12,12 +12,13 @@ create table product_reviews (
 create table product_reviews_search_view
 (
   id          integer,
-  scope       ltree  not null,
+  scope       exts.ltree  not null,
   sku         generic_string,
   user_name   generic_string,
+  user_id     generic_string,
   title       generic_string,
-  body        generic_string,
-  created_at  generic_string,
+  attributes  jsonb,
+  created_at  generic1_string,
   updated_at  generic_string,
   archived_at generic_string
 );

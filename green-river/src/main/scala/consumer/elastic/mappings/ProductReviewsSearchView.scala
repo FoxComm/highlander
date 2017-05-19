@@ -10,15 +10,18 @@ final case class ProductReviewsSearchView()(implicit ec: EC) extends AvroTransfo
   def mapping() = esMapping(topic()).fields(
       field("id", LongType),
       field("sku", StringType).index("not_analyzed"),
+      field("userId", LongType),
       field("userName", StringType)
         .analyzer("autocomplete")
         .fields(field("raw", StringType).index("not_analyzed")),
       field("title", StringType)
         .analyzer("autocomplete")
         .fields(field("raw", StringType).index("not_analyzed")),
-      field("body", StringType).analyzer("autocomplete"),
+      field("attributes", ObjectType),
       field("createdAt", DateType).format(dateFormat),
       field("updatedAt", DateType).format(dateFormat),
       field("archivedAt", DateType).format(dateFormat)
   )
+
+  override def nestedFields(): List[String] = List("attributes")
 }
