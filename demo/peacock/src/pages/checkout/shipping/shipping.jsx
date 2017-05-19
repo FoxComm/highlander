@@ -9,7 +9,7 @@ import { autobind } from 'core-decorators';
 
 // components
 import { AddressDetails } from 'ui/address';
-import AddressList from './address-list';
+import AddressList from 'ui/address/address-list';
 import Modal from 'ui/modal/modal';
 import ActionLink from 'ui/action-link/action-link';
 import Loader from 'ui/loader';
