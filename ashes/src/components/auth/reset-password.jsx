@@ -22,6 +22,7 @@ type State = {
   email: string,
   password1: string,
   password2: string,
+  dataSent: boolean,
 };
 
 type Props = {
@@ -47,6 +48,7 @@ class ResetPassword extends Component {
     email: '',
     password1: '',
     password2: '',
+    dataSent: false,
   };
 
   get username(): string {
@@ -63,12 +65,8 @@ class ResetPassword extends Component {
 
   @autobind
   handleSubmit() {
-    const payload = {
-      password: this.state.password2,
-      token: this.token,
-    };
-    this.props.signUp(payload).then(() => {
-      transitionTo('home');
+    Promise.resolve(true).then(() => {
+      this.setState({ dataSent: true });
     });
   }
 
@@ -89,13 +87,31 @@ class ResetPassword extends Component {
 
   @autobind
   goBack() {
-
+    transitionTo('login');
   }
 
   get errorMessage() {
     const err = this.props.signUpState.err;
     if (!err) return null;
     return <ErrorAlerts error={err} />;
+  }
+
+  get confirmation() {
+    return (
+      <div styleName="main">
+        <div styleName="message">
+          Your password was successfully reset.
+        </div>
+        <div styleName="button-block">
+          <Link
+            to='login'
+            styleName="back-button"
+          >
+            Back to Login
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   get content() {
@@ -161,7 +177,7 @@ class ResetPassword extends Component {
     return (
       <div styleName="main">
         <div className="fc-auth__title">Reset Password</div>
-        {this.content}
+        {!this.state.dataSent ? this.content : this.confirmation}
       </div>
     );
   }
