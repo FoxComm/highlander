@@ -68,7 +68,6 @@
 .product-review-load-more {
   margin-top: 28px;
   display: block;
-  width: 100%;
   text-align: center;
   color: var(--link-color);
   cursor: pointer;

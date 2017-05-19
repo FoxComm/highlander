@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@foxcomm/api-js@^1.1.7":
+"@foxcomm/api-js@git+ssh://git@github.com/FoxComm/api-js.git#feature/product-review-api":
   version "1.1.8"
-  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fapi-js/-/api-js-1.1.8.tgz#9d8189731f22a354dad1f6ad3538880a1feb3ead"
+  resolved "git+ssh://git@github.com/FoxComm/api-js.git#4212c7bb272bd77f3d392fbd09a6786cb7ee3796"
   dependencies:
     debug "^2.2.0"
     jwt-decode "^2.0.1"

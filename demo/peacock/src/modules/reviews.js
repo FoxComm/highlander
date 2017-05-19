@@ -17,18 +17,20 @@ const _fetchReviews = createAsyncActions(
 
 const _fetchReviewsForSku = createAsyncActions(
   'fetchReviewsForSku',
-  function(sku: string) {
+  function(skuCodes: Array<string>, size: number, from: number) {
     const body = {
       query: {
         bool: {
-          must: [{
-            match: { sku },
+          filter: [{
+            terms: {
+              sku: skuCodes,
+            },
           }],
         },
       },
     };
 
-    return this.api.reviews.search(body, 5);
+    return this.api.reviews.search(body, size, from);
   }
 );
 
@@ -40,7 +42,8 @@ export const clearReviews = createAction('REVIEWS_CLEAR');
 // redux
 const initialState = {
   current: null,
-  list: {},
+  list: [],
+  paginationTotal: 0,
 };
 
 const reducer = createReducer({
@@ -51,9 +54,15 @@ const reducer = createReducer({
     };
   },
   [_fetchReviewsForSku.succeeded]: (state, response) => {
+    const currentList = state.list;
+    const mergedList = (Object.getOwnPropertyNames(response.result).length === 0)
+      ? currentList
+      : currentList.concat(response.result);
+
     return {
       ...state,
-      list: response.result,
+      list: mergedList,
+      paginationTotal: response.pagination.total,
     };
   },
   [clearReviews]: (state) => {
@@ -61,6 +70,7 @@ const reducer = createReducer({
       ...state,
       current: initialState.current,
       list: initialState.list,
+      paginationTotal: initialState.paginationTotal,
     };
   },
 }, initialState);

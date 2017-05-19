@@ -86,6 +86,7 @@ function apiCall(
     });
   }
 
+  console.log(JSON.stringify(toLoad));
   const promise = this.api.post(`/search/public/products_catalog_view/_search?size=${toLoad}`, payload);
 
   const chained = promise.then((response) => {

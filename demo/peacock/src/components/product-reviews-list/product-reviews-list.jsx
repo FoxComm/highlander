@@ -31,11 +31,17 @@ type Props = {
   title: string,
   emptyContentTitle: string,
   paginationSize: number,
+  handleLoadMore: Function,
+  showLoadMore: ?boolean
 };
+
+type State = {
+  page: number,
+}
 
 export const LoadingBehaviors = {
   ShowLoader: 1,
-  ShowWrapper: 1,
+  ShowWrapper: 0,
 };
 
 const ReviewBody = (props): Element<*> => {
@@ -68,9 +74,18 @@ const ReviewBody = (props): Element<*> => {
   );
 };
 
+function incrementPage(nextPage) {
+  return function update(state) {
+    return { page: nextPage };
+  };
+}
+
 class ProductReviewsList extends Component {
 
   props: Props;
+  state: State = {
+    page: 0,
+  };
 
   get reviewsEmptyContentTitle(): ?Element<*> {
     const { listItems, emptyContentTitle } = this.props;
@@ -87,7 +102,8 @@ class ProductReviewsList extends Component {
   }
 
   get displayReviews(): ?Element<*> {
-    const { listItems } = this.props;
+    const { listItems, onLoadMoreReviews, paginationSize, showLoadMore } = this.props;
+    const { page } = this.state;
 
     if (!_.isEmpty(listItems)) {
       const reviews = _.map(listItems, (review) => {
@@ -103,14 +119,20 @@ class ProductReviewsList extends Component {
         );
       });
 
+      const loadMoreActionLink = (showLoadMore)
+      ? (
+        <ActionLink
+          action={this.handleLoadMoreReviews}
+          title="LOAD MORE REVIEWS"
+          styleName="product-review-load-more"
+        />
+      )
+      : null;
+
       return (
         <div>
           {reviews}
-          <ActionLink
-            action={_.noop}
-            title="LOAD MORE REVIEWS"
-            styleName="product-review-load-more"
-          />
+          {loadMoreActionLink}
         </div>
       );
     } else {
@@ -118,8 +140,17 @@ class ProductReviewsList extends Component {
     }
   }
 
+  handleLoadMoreReviews = () => {
+    const { onLoadMoreReviews, paginationSize } = this.props;
+    const { page } = this.state;
+
+    const nextPage = page + 1;
+    this.setState(incrementPage(nextPage));
+    onLoadMoreReviews(paginationSize * nextPage);
+  }
+
   render(): Element<*> {
-    const { title, loadingBehavior = LoadingBehaviors.ShowLoader, isLoading, listItems } = this.props;
+    const { title, loadingBehavior, isLoading, listItems } = this.props;
 
     if (loadingBehavior == LoadingBehaviors.ShowLoader && isLoading) {
       return <Loader styleName="" />;

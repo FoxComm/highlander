@@ -79,7 +79,7 @@ type State = {
 const mapStateToProps = (state) => {
   const product = state.productDetails.product;
   const relatedProducts = state.crossSell.relatedProducts;
-  const productReviews = state.reviews.list;
+  const productReviews = state.reviews;
 
   return {
     product,
@@ -111,6 +111,8 @@ const mapDispatchToProps = dispatch => ({
   }, dispatch),
 });
 
+const REVIEWS_PAGE_SIZE = 2;
+
 class Pdp extends Component {
   props: Props;
   productPromise: Promise<*>;
@@ -140,8 +142,7 @@ class Pdp extends Component {
       }
 
       if (!isProductReviewsLoading) {
-        const currentSkuCode = _.get(this.currentSku, ['attributes', 'code', 'v'], '');
-        actions.fetchReviewsForSku(currentSkuCode).catch(_.noop);
+        actions.fetchReviewsForSku(this.productSkuCodes, REVIEWS_PAGE_SIZE, 0).catch(_.noop);
       }
     });
   }
@@ -394,6 +395,11 @@ class Pdp extends Component {
     );
   }
 
+  fetchMoreReviews = (from: number): ?Element<*> => {
+    const { product, actions } = this.props;
+    actions.fetchReviewsForSku(this.productSkuCodes, REVIEWS_PAGE_SIZE, from).catch(_.noop);
+  }
+
   get productReviewsList(): ?Element<*> {
     const { productReviews, isProductReviewsLoading } = this.props;
 
@@ -401,10 +407,12 @@ class Pdp extends Component {
       <ProductReviewsList
         title="Reviews"
         emptyContentTitle="There are no reviews for this product"
-        listItems={productReviews}
+        listItems={productReviews.list}
         isLoading={isProductReviewsLoading}
-        loadingBehavior={LoadingBehaviors.ShowWrapper}
-        paginationSize={4}
+        loadingBehavior={_.isEmpty(productReviews.list)}
+        paginationSize={REVIEWS_PAGE_SIZE}
+        onLoadMoreReviews={this.fetchMoreReviews}
+        showLoadMore={_.size(productReviews.list) < productReviews.paginationTotal}
       />
     );
   }
@@ -442,6 +450,16 @@ class Pdp extends Component {
         <Currency value={price} currency={currency} />
       </div>
     );
+  }
+
+  get productSkuCodes(): Array<any> {
+    const { product } = this.props;
+
+    const skuCodes = _.map(product.skus, (sku) => {
+      return _.get(sku, ['attributes', 'code', 'v'], '');
+    }, []);
+
+    return skuCodes;
   }
 
   render(): Element<any> {
