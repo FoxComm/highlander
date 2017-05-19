@@ -125,10 +125,14 @@ export default class Image extends Component<void, Props, State> {
   get editImageDialog(): ?Element<*> {
     const { editAlbumState = {} } = this.props;
 
+    if (!this.state.editMode) {
+      return null;
+    }
+
     return (
       <BodyPortal className={styles.modal}>
         <EditImage
-          isVisible={this.state.editMode}
+          isVisible={true}
           image={this.props.image}
           onCancel={this.handleCancelEditImage}
           onSave={this.handleConfirmEditImage}
