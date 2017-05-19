@@ -20,6 +20,7 @@ import * as userActions from 'modules/user';
 
 type State = {
   email: string,
+  dataSent: boolean,
 };
 
 type Props = {
@@ -43,11 +44,14 @@ class RestorePassword extends Component {
 
   state: State = {
     email: '',
+    dataSent: false,
   };
 
   @autobind
   handleSubmit() {
-
+    Promise.resolve(true).then(() => {
+      this.setState({ dataSent: true });
+    });
   }
 
   @autobind
@@ -68,6 +72,26 @@ class RestorePassword extends Component {
     return this.state.email;
   }
 
+  get confirmation(): Element<*> {
+    return (
+      <div styleName="main">
+        <div styleName="message">
+          An email with reset instructions was successfully sent to&nbsp;
+          <strong>{this.email}</strong>
+          .
+        </div>
+        <div styleName="button-block">
+          <Link
+            to='login'
+            styleName="back-button"
+          >
+            Back to Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   get content() {
     if (!this.props.isMounted) {
       return <WaitAnimation />;
@@ -75,11 +99,15 @@ class RestorePassword extends Component {
 
     return (
       <div styleName="main">
+        <div styleName="message">
+          No worries! We’ll email you instructions on how to reset your password.
+        </div>
         <Form styleName="form" onSubmit={this.handleSubmit}>
           {this.errorMessage}
-          <FormField styleName="signup-email" label="Email">
+          <FormField styleName="signup-email" label="Email" required>
             <input
               name="email"
+              onChange={this.handleInputChange}
               value={this.email}
               type="email"
               className="fc-input"
@@ -109,7 +137,7 @@ class RestorePassword extends Component {
     return (
       <div styleName="main">
         <div className="fc-auth__title">Restore Password</div>
-        {this.content}
+        {!this.state.dataSent ? this.content : this.confirmation}
       </div>
     );
   }

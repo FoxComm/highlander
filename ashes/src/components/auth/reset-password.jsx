@@ -111,6 +111,7 @@ class ResetPassword extends Component {
             <input
               name="email"
               value={this.email}
+              onChange={this.handleInputChange}
               type="email"
               disabled
               className="fc-input"
