@@ -10,7 +10,7 @@ import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 
 // components
-import Image from '../image/image';
+import ImageLoader from '../image/image';
 
 export type Action = {
   name: string,
@@ -97,13 +97,16 @@ export default class ImageCard extends Component {
     );
   }
 
-  render() {
-    const { id, src, className, imageComponent } = this.props;
+  get imageLoader(): ?Element<*> {
+    const { id, src, imageComponent, loading } = this.props;
+    return !loading ? <ImageLoader id={id} src={src} imageComponent={imageComponent} /> : null;
+  }
 
+  render() {
     return (
-      <div className={classNames(styles.card, className)}>
+      <div className={classNames(styles.card, this.props.className)}>
         <div className={styles.image} onMouseOver={this.showActions} onMouseOut={this.hideActions}>
-          <Image id={id} src={src} imageComponent={imageComponent} />
+          { this.imageLoader }
         </div>
         {this.actions}
         {this.description}

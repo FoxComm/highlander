@@ -156,7 +156,7 @@ export default class Upload extends Component {
     return (
       <div className={styles.empty}>
         <i className="icon-upload" />
-        Drag & Drop to upload
+        <span styleName="drag-label">Drag & Drop to upload</span>
         <Button onClick={() => this.openUploadDialog()}>or select file</Button>
       </div>
     );
