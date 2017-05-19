@@ -17,8 +17,9 @@ create table product_reviews_search_view
   user_name   generic_string,
   user_id     generic_string,
   title       generic_string,
+  rating      int,
   attributes  jsonb,
-  created_at  generic1_string,
+  created_at  generic_string,
   updated_at  generic_string,
   archived_at generic_string
 );

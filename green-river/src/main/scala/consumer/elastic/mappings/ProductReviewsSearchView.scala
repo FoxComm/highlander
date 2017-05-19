@@ -17,6 +17,7 @@ final case class ProductReviewsSearchView()(implicit ec: EC) extends AvroTransfo
       field("title", StringType)
         .analyzer("autocomplete")
         .fields(field("raw", StringType).index("not_analyzed")),
+      field("rating", IntegerType).index("not_analyzed"),
       field("attributes", ObjectType),
       field("createdAt", DateType).format(dateFormat),
       field("updatedAt", DateType).format(dateFormat),

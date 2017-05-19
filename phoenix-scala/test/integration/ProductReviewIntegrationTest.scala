@@ -60,8 +60,9 @@ class ProductReviewIntegrationTest
                                             scope: String,
                                             sku: String,
                                             userName: String,
+                                            userId: Int,
                                             title: String,
-                                            body: String,
+                                            attributes: String,
                                             createdAt: Option[String],
                                             updatedAt: Option[String],
                                             archivedAt: Option[String])
@@ -72,6 +73,7 @@ class ProductReviewIntegrationTest
                                        r.nextObject().toString,
                                        r.nextString(),
                                        r.nextString(),
+                                       r.nextInt(),
                                        r.nextString(),
                                        r.nextString(),
                                        r.nextStringOption(),
@@ -96,17 +98,17 @@ class ProductReviewIntegrationTest
     }
 
     "updates record on review update" in new ProductReviewApiFixture {
-      private val body: String = "body"
+      private val title: String = "newTitle"
 
-      private val newBody: JObject = "body" → tv(body)
-      val newAttributes            = reviewAttributes.merge(newBody)
-      val payload                  = UpdateProductReviewPayload(newAttributes)
-      val reviewResp               = productReviewApi(productReview.id).update(payload).as[ProductReviewResponse]
+      private val newTitle: JObject = "title" → tv(title)
+      val newAttributes             = reviewAttributes.merge(newTitle)
+      val payload                   = UpdateProductReviewPayload(newAttributes)
+      val reviewResp                = productReviewApi(productReview.id).update(payload).as[ProductReviewResponse]
 
       val values = selectById(reviewResp.id)
       values.size must === (1)
       values(0).id must === (reviewResp.id)
-      values(0).body must === (body)
+      values(0).title must === (title)
     }
 
   }
