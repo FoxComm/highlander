@@ -1,4 +1,5 @@
-// @flow
+/* @flow */
+
 import React, { Component } from 'react';
 
 // libs
@@ -6,10 +7,12 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 
 // components
-import Name from './name';
-import Email from './email';
-import Password from './password';
+import EditEmail from './edit-email';
+import EditName from './edit-name';
+import ChangePassword from './change-password';
+import DetailsBlock from './details-block';
 
+// actions
 import * as actions from 'modules/profile';
 
 import type { AccountDetailsProps } from 'types/profile';
@@ -29,24 +32,54 @@ class AccountDetails extends Component {
     this.props.fetchAccount();
   }
 
+  get nameModalContent() {
+    return (
+      <EditName />
+    );
+  }
+
+  get emailModalContent() {
+    return (
+      <EditEmail />
+    );
+  }
+
+  get passwordModalContent() {
+    const { account } = this.props;
+
+    return (
+      <ChangePassword
+        account={account}
+      />
+    );
+  }
+
   render() {
     const { props } = this;
     return (
       <div className={props.className}>
-        <Name
-          name={props.account.name}
+        <DetailsBlock
+          data={props.account.name}
           toggleModal={props.toggleNameModal}
           modalVisible={props.nameModalVisible}
+          actionTitle="Edit"
+          modalContent={this.nameModalContent}
+          blockTitle="First and last name"
         />
-        <Email
-          email={props.account.email}
+        <DetailsBlock
+          data={props.account.email}
           toggleModal={props.toggleEmailModal}
           modalVisible={props.emailModalVisible}
+          actionTitle="Edit"
+          modalContent={this.emailModalContent}
+          blockTitle="Email"
         />
-        <Password
-          account={props.account}
+        <DetailsBlock
           toggleModal={props.togglePasswordModal}
           modalVisible={props.passwordModalVisible}
+          actionTitle="Change"
+          modalContent={this.passwordModalContent}
+          blockTitle="Password"
         />
       </div>
     );
