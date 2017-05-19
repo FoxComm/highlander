@@ -19,7 +19,7 @@ object CartTotaler {
              taxes = taxes,
              shipping = shipping,
              adjustments = adjustments,
-             total = (subTotal + taxes + shipping - adjustments).zeroMax)
+             total = (subTotal + taxes + shipping - adjustments).zeroIfNegative)
     }
 
     def empty: Totals = Totals(0, 0, 0, 0, 0)

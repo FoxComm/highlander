@@ -19,7 +19,7 @@ object Money {
   type Price    = (Long, Currency)
 
   implicit class RichLong(val value: Long) extends AnyVal {
-    def zeroMax: Long                 = Math.max(0L, value)
+    def zeroIfNegative: Long          = Math.max(0L, value)
     def applyTaxes(tax: Double): Long = (value.toDouble * tax).toLong
   }
 

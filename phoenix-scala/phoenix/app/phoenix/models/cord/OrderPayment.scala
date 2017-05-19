@@ -30,7 +30,7 @@ case class OrderPayment(id: Int = 0,
   override def validate: ValidatedNel[Failure, OrderPayment] = {
     val amountOk = paymentMethodType match {
       case PaymentMethod.StoreCredit | PaymentMethod.GiftCard ⇒
-        validExpr(amount.getOrElse(0) > 0, s"amount must be > 0 for $paymentMethodType")
+        validExpr(amount.getOrElse(0L) > 0, s"amount must be > 0 for $paymentMethodType")
       case PaymentMethod.CreditCard ⇒
         validExpr(amount.isEmpty, "amount must be empty for creditCard")
     }

@@ -1,7 +1,5 @@
 package phoenix.payloads
 
-import utils.Money._
-
 object CapturePayloads {
 
   case class CaptureLineItem(ref: String, sku: String)

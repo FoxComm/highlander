@@ -7,7 +7,6 @@ import phoenix.models.payment.PaymentMethod
 import phoenix.models.shipping.ShippingMethod
 import phoenix.responses.cord.CartResponse
 import phoenix.responses.{AddressResponse, CreditCardsResponse, GiftCardResponse, UserResponse}
-import utils.Money._
 
 object CartTailored {
 

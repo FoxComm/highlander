@@ -55,7 +55,7 @@ object PaymentHelper {
       val amounts: Seq[Long] = payments.map { case (payment, _) ⇒ payment.getAmount() }
       val limitedAmounts = amounts
         .scan(maxPaymentAmount) {
-          case (maxAmount, paymentAmount) ⇒ (maxAmount - paymentAmount).zeroMax
+          case (maxAmount, paymentAmount) ⇒ (maxAmount - paymentAmount).zeroIfNegative
         }
         .zip(amounts)
         .map { case (max, amount) ⇒ Math.min(max, amount) }

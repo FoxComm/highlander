@@ -188,13 +188,15 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   private def subtractGcPayments(total: Long,
                                  gcPayments: Seq[(OrderPayment, GiftCard)],
                                  currency: Currency): Long = {
-    (total - gcPayments.foldLeft(0L)((a, op) ⇒ a + getPaymentAmount(op._1, currency))).zeroMax
+    (total - gcPayments
+          .foldLeft(0L)((a, op) ⇒ a + getPaymentAmount(op._1, currency))).zeroIfNegative
   } ensuring (remaining ⇒ remaining >= 0 && remaining <= total)
 
   private def subtractScPayments(total: Long,
                                  scPayments: Seq[(OrderPayment, StoreCredit)],
                                  currency: Currency): Long = {
-    (total - scPayments.foldLeft(0L)((a, op) ⇒ a + getPaymentAmount(op._1, currency))).zeroMax
+    (total - scPayments
+          .foldLeft(0L)((a, op) ⇒ a + getPaymentAmount(op._1, currency))).zeroIfNegative
   } ensuring (remaining ⇒ remaining >= 0 && remaining <= total)
 
   private def getPaymentAmount(op: OrderPayment, currency: Currency): Long = {
@@ -226,7 +228,9 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
     adjustments.headOption match {
       case Some(adjustment) ⇒ {
         require(adjustment.subtract >= 0)
-        Math.min(shippingMethod.price - adjustment.subtract, requestedShippingCost.total).zeroMax
+        Math
+          .min(shippingMethod.price - adjustment.subtract, requestedShippingCost.total)
+          .zeroIfNegative
       }
       case None ⇒
         Math.min(shippingMethod.price, requestedShippingCost.total)

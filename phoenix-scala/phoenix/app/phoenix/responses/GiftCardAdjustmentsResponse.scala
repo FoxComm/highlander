@@ -2,7 +2,6 @@ package phoenix.responses
 
 import phoenix.models.payment.InStorePaymentStates
 import phoenix.models.payment.giftcard.GiftCardAdjustment
-import utils.Money._
 
 object GiftCardAdjustmentsResponse {
   case class Root(id: Int,
