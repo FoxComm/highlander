@@ -6,9 +6,14 @@
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     api_server: api.foxcommerce.com
+    storefront_server_name: api.foxcommerce.com
+    db_name: phoenix
+    phoenix_db_name: phoenix
+    middlewarehouse_db_name: middlewarehouse
+    hyperion_db_name: hyperion
+    docker_registry: ark.foxcommerce.com
     docker_tags:
         phoenix_seeder: admins
-    storefront_server_name: api.foxcommerce.com
     seeds_cmd: utils.seeds.Seeds seed --seedAdmins
   vars_prompt:
     - name: "phoenix_api_user"
@@ -20,7 +25,7 @@
       default: ""
       private: no
   roles:
-    - { role: dev/seed_system }
+    # - { role: dev/seed_system }
     - { role: dev/marathon }
     - { role: dev/marathon_consumers }
     - { role: dev/ic }

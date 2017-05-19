@@ -119,6 +119,10 @@ shortcuts:
     alias: ark_deploy.yml
     target: ansible/ark_deploy.yml
 
+  - name: Deploy Ark Keys
+    alias: ark_keys.yml
+    target: ansible/ark_keys.yml
+
   # Cloud
   - name: Provision Cloud Central
     alias: cloud_central.yml
