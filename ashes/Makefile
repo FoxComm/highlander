@@ -12,7 +12,7 @@ CFLAGS = -c -g -D $(NODE_ENV)
 # Get version number from package.json, need this for tagging.
 version = $(shell iojs -e "console.log(JSON.parse(require('fs').readFileSync('package.json')).version)")
 
-clean: clean-build
+clean:
 	rm -rf ./node_modules
 
 test:
