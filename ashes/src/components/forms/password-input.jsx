@@ -2,7 +2,6 @@
 
 import React, { Component } from 'react';
 import styles from './css/password-input.css';
-import loadScript from 'load-script';
 import { autobind } from 'core-decorators';
 
 let zxcvbn;
