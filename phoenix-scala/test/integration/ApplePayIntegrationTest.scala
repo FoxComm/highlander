@@ -59,7 +59,7 @@ class ApplePayIntegrationTest
     val api = cartsApi(api_newCustomerCart(customer.id).referenceNumber)
     api.payments.applePay
       .add(payment)(defaultAdminAuth)
-      .mustFailWith400(GeneralFailure("stripeTokenId should start with 'tok_'"))
+      .mustFailWith400(GeneralFailure("Stripe token should start with 'tok_'"))
   }
 
   "Capture of Apple Pay payments" - {

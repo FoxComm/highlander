@@ -20,6 +20,10 @@ object CartFailures {
     override def description = s"order with referenceNumber=$refNum is an empty cart"
   }
 
+  case class NoCartFound(customerId: Int) extends Failure {
+    override def description = s"no cart was found for a customer with id=$customerId"
+  }
+
   case class NoShipAddress(refNum: String) extends Failure {
     override def description = s"order with referenceNumber=$refNum has no shipping address"
   }

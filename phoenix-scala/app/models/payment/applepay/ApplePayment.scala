@@ -25,7 +25,7 @@ case class ApplePayment(
   import Validation._
 
   override def validate: ValidatedNel[Failure, ApplePayment] = {
-    (validExpr(stripeTokenId.startsWith("tok_"), "stripeTokenId should start with 'tok_'") |@| super.validate).map {
+    (validExpr(stripeTokenId.startsWith("tok_"), "Stripe token should start with 'tok_'") |@| super.validate).map {
       case _ ⇒ this
     }
   }

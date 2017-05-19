@@ -127,7 +127,7 @@ object Checkout {
       cart ← * <~ Carts
               .findByAccountId(customer.accountId)
               .one
-              .mustFindOr(GeneralFailure("Cart not found!"))
+              .mustFindOr(NoCartFound(customer.accountId))
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
     } yield order
 
