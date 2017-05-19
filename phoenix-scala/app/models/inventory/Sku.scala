@@ -1,7 +1,7 @@
 package models.inventory
 
 import cats.implicits._
-import failures.ArchiveFailures.{LinkArchivedSkuFailure, SkuIsPresentInCarts}
+import failures.ArchiveFailures.{LinkInactiveSkuFailure, SkuIsPresentInCarts}
 import failures.Failures
 import java.time.Instant
 import models.objects._
@@ -42,7 +42,7 @@ case class Sku(id: Int = 0,
 
   def mustNotBeArchived[T](target: T, targetId: Any): Either[Failures, Sku] = {
     if (archivedAt.isEmpty) Either.right(this)
-    else Either.left(LinkArchivedSkuFailure(target, targetId, code).single)
+    else Either.left(LinkInactiveSkuFailure(target, targetId, code).single)
   }
 
   def mustNotBePresentInCarts(implicit ec: EC, db: DB): DbResultT[Unit] =

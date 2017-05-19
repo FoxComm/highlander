@@ -8,14 +8,18 @@ import models.discount.DiscountHelpers.{offer, qualifier}
 import models.discount._
 import models.objects._
 import models.account._
+import org.json4s.Formats
 import payloads.DiscountPayloads._
 import responses.DiscountResponses._
 import services.discount.compilers.{OfferAstCompiler, QualifierAstCompiler}
 import slick.jdbc.PostgresProfile.api._
+import utils.JsonFormatters
 import utils.aliases._
 import utils.db._
 
 object DiscountManager {
+
+  implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   def getForm(id: Int)(implicit ec: EC, db: DB): DbResultT[DiscountFormResponse.Root] =
     for {

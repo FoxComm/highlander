@@ -71,7 +71,7 @@ class ActivityProcessor(
 
   implicit val formats: DefaultFormats.type = DefaultFormats
 
-  val activityJsonFields = List("id", "activityType", "data", "context", "createdAt")
+  val activityJsonFields = List("data", "context", "createdAt")
   val phoenix            = Phoenix(conn)
   val kafkaProps = {
     val props = new Properties()

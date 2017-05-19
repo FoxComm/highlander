@@ -1,11 +1,12 @@
 package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import models.coupon._
 import models.account._
 import models.objects._
 import models.product.SimpleContext
+import org.json4s.Formats
+import utils.JsonFormatters
 import utils.aliases._
 import utils.db._
 
@@ -20,6 +21,8 @@ object CouponSeeds {
 }
 
 trait CouponSeeds {
+
+  implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   val codePrefix = "BASE"
   val codeLength = 15

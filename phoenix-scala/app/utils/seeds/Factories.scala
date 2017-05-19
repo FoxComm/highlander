@@ -27,7 +27,7 @@ object Factories
     with CouponSeeds
     with SharedSearchSeeds {
 
-  implicit val formats = JsonFormatters.phoenixFormats
+  override implicit val formats = JsonFormatters.phoenixFormats
 
   def orderPayment = OrderPayment.build(creditCard)
 

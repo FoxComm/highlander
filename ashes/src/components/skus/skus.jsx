@@ -1,14 +1,13 @@
-/**
- * @flow
- */
+/* @flow */
 
 // libs
 import React, { Component, Element } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import _ from 'lodash';
 
-// data
+// actions
 import { actions } from 'modules/skus/list';
 
 // components
@@ -40,7 +39,14 @@ export class Skus extends Component {
 
   renderRow(row: SkuSearchItem, index: number, columns: Columns, params: Object) {
     const key = `skus-${row.id}`;
-    return <SkuRow key={key} sku={row} columns={columns} params={params} />;
+    return (
+      <SkuRow
+        key={key}
+        sku={row}
+        columns={columns}
+        params={params}
+      />
+    );
   }
 
   render() {
@@ -60,20 +66,23 @@ export class Skus extends Component {
           renderRow={this.renderRow}
           tableColumns={Skus.tableColumns}
           searchActions={searchActions}
-          predicate={({code}) => code} />
+          predicate={({skuCode}) => skuCode}
+        />
       </div>
     );
   }
 }
 
-function mapStateToProps({ skus: { list } }) {
-  return { list };
-}
+const mapStateToProps = (state) => {
+  return {
+    list: _.get(state.skus, 'list', {}),
+  };
+};
 
-function mapDispatchToProps(dispatch) {
+const mapDispatchToProps = (dispatch) => {
   return {
     actions: bindActionCreators(actions, dispatch),
   };
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Skus);

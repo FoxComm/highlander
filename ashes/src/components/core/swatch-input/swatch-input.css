@@ -10,12 +10,10 @@
     color: #BFBFBF;
   }
 
-  & :global(input[type=text].fc-text-input) {
+  & .input {
     width: 130px;
+    height: 40px;
     padding-left: 30px;
-  }
-
-  & input {
     text-transform: uppercase;
   }
 }

@@ -13,9 +13,8 @@ import org.apache.avro.io.EncoderFactory
 import org.apache.kafka.common.errors.SerializationException
 import org.apache.avro.Schema
 import org.apache.avro.Schema.Parser
-
-import org.json4s.JsonAST.{JValue, JObject, JField, JString}
-import org.json4s.jackson.JsonMethods.{render, compact, parse}
+import org.json4s.JsonAST.{JField, JObject, JString, JValue}
+import org.json4s.jackson.JsonMethods.{compact, parse, render}
 
 import scala.util.control.NonFatal
 
@@ -24,9 +23,9 @@ object AvroProcessor {
   //Make sure the scoped_activities avro schema is registered
   val activityAvroSchema = """
       |{
-      |  "type":"record",
-      |  "name":"scoped_activities",
-      |  "fields":[
+      |  "type": "record",
+      |  "name": "scoped_activities",
+      |  "fields": [
       |    {
       |      "name":"id",
       |      "type":["null","string"]

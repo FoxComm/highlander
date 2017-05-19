@@ -19,7 +19,7 @@ case class IlluminatedSku(id: Int,
                           attributes: Json)
     extends IlluminatedModel[IlluminatedSku] {
 
-  override protected def inactiveError: Failure = NotFoundFailure404(Sku, code)
+  override def inactiveError: Failure = NotFoundFailure404(Sku, code)
 }
 
 object IlluminatedSku {

@@ -1,8 +1,8 @@
 package models.activity
 
 import java.io.ByteArrayOutputStream
-import java.nio.ByteBuffer;
 import java.time.Instant
+import scala.concurrent.blocking
 import java.time.format.DateTimeFormatter
 import java.util.Properties
 import scala.concurrent.Future
@@ -154,28 +154,32 @@ object Activities extends LazyLogging {
     record.put("scope", activity.context.scope.toString())
 
     val key = new GenericData.Record(keySchema)
-    key.put("id", activity.id.toString)
 
     for {
       id ← * <~ nextActivityId()
       phoenixId = s"phoenix-$id"
       _         = record.put("id", phoenixId)
-      _         = sendActivity(activity, record)
+      _         = key.put("id", phoenixId)
+      _         = sendActivity(activity, key, record)
     } yield activity.copy(id = phoenixId)
   }
 
   def nextActivityId()(implicit ec: EC): DbResultT[Int] =
     sql"select nextval('activities_id_seq');".as[Int].head.dbresult
 
-  def sendActivity(a: Activity, record: GenericData.Record)(implicit activityContext: AC, ec: EC) {
-    val msg = new ProducerRecord[GenericData.Record, GenericData.Record](topic, record)
+  def sendActivity(a: Activity, key: GenericData.Record, record: GenericData.Record)(
+      implicit activityContext: AC,
+      ec: EC) {
+    val msg = new ProducerRecord[GenericData.Record, GenericData.Record](topic, key, record)
 
     // Workaround until we decide how to test Phoenix => Kafka service integration
     producer match {
 
       case Some(p) ⇒ {
         val kafkaSendFuture = Future {
-          p.send(msg)
+          blocking {
+            p.send(msg).get()
+          }
         }
 
         kafkaSendFuture onComplete {
