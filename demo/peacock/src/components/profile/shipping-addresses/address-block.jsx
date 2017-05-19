@@ -1,4 +1,4 @@
-// @flow weak
+/* @flow */
 
 // libs
 import _ from 'lodash';
@@ -8,12 +8,14 @@ import localized from 'lib/i18n';
 import { connect } from 'react-redux';
 import { browserHistory } from 'lib/history';
 
+// actions
+import * as checkoutActions from 'modules/checkout';
+import * as actions from 'modules/profile';
+
 // components
-import { Link } from 'react-router';
-import EditableBlock from 'ui/editable-block';
-import RadioButton from 'ui/radiobutton/radiobutton';
 import { AddressDetails } from 'ui/address';
 import DetailsBlock from '../details-block';
+import AddressList from 'pages/checkout/shipping/address-list';
 
 // styles
 import addressStyles from 'pages/checkout/shipping/address-list.css';
@@ -22,8 +24,6 @@ import profileStyles from '../profile.css';
 import type { Address } from 'types/address';
 
 const styles = {...addressStyles, ...profileStyles};
-
-import * as checkoutActions from 'modules/checkout';
 
 type Props = {
   fetchAddresses: () => Promise<*>,
@@ -147,6 +147,12 @@ class AddressBlock extends Component {
     );
   }
 
+  get addressesModalContent() {
+    return (
+      <AddressList {...this.props}  />
+    );
+  }
+
   render() {
     const { className, toggleAddressesModal, addressesModalVisible } = this.props;
 
@@ -157,7 +163,7 @@ class AddressBlock extends Component {
           toggleModal={toggleAddressesModal}
           modalVisible={addressesModalVisible}
           actionTitle="Edit"
-          modalContent={this.nameModalContent}
+          modalContent={this.addressesModalContent}
           blockTitle="Shipping addresses"
         />
       </div>
@@ -168,9 +174,11 @@ class AddressBlock extends Component {
 const mapStateToProps = (state) => {
   return {
     addresses: _.get(state.checkout, 'addresses', []),
+    addressesModalVisible: _.get(state.profile, 'addressesModalVisible', false),
   };
 }
 
 export default connect(mapStateToProps, {
   ...checkoutActions,
+  ...actions,
 })(localized(AddressBlock))
