@@ -5,12 +5,19 @@ import classNames from 'classnames';
 import React from 'react';
 
 type Props = {
+  /** ID for input */
   id: string,
+  /** Styling for DefaultCheckbox */
   className?: string,
+  /** Label text */
   children?: any,
+  /** Inline mode */
   inline?: boolean,
+  /** Align checkbox left/right */
   docked?: string,
+  /** If checkbox is half checked. Sign: ("-")  */
   halfChecked?: boolean,
+  /** If checkbox is checked Sign ("✔") */
   checked?: boolean,
 }
 
