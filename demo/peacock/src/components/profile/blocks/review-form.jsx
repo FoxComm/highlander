@@ -41,6 +41,7 @@ type State = {
 
 type ReviewFormProps = {
   review: FullReview | EmptyReview,
+  updateReview: Function,
 };
 
 function mapStateToProps(state, props) {
