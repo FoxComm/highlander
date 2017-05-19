@@ -20,9 +20,7 @@ import * as userActions from 'modules/user';
 
 type State = {
   email: string,
-  password1: string,
-  password2: string,
-}
+};
 
 type Props = {
   signUpState: {
@@ -32,7 +30,7 @@ type Props = {
   signUp: (payload: SignupPayload) => Promise<*>,
   isMounted: boolean,
   location: Location,
-}
+};
 
 function mapStateToProps(state) {
   return {
@@ -60,7 +58,7 @@ class RestorePassword extends Component {
     });
   }
 
-  get errorMessage(): Element<*> {
+  get errorMessage(): ?Element<*> {
     const err = this.props.signUpState.err;
     if (!err) return null;
     return <ErrorAlerts error={err} />;

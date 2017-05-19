@@ -10,7 +10,7 @@ export type LinkProps = {
   actualClaims: Claims,
   children?: Element<*>|Array<Element<*>>,
   expectedClaims: Claims,
-  params: Object,
+  params?: Object,
   to: string,
   activeClassName?: string,
 };
