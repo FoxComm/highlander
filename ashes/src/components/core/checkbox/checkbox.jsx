@@ -13,7 +13,7 @@ type Props = {
   /** Styling for DefaultCheckbox */
   className?: string,
   /** Label text */
-  children?: any,
+  children?: string,
   /** Inline mode */
   inline?: boolean,
   /** Align checkbox left/right */
