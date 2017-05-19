@@ -1,52 +1,61 @@
 /* @flow */
 
 import React, { Component } from 'react';
+import _ from 'lodash';
 
+// components
 import ActionLink from 'ui/action-link/action-link';
 import Modal from 'ui/modal/modal';
-import EditEmail from './edit-email';
 
 import styles from './account-details.css';
 
 type Props = {
-  email: string,
+  data?: string,
   toggleModal: () => void,
   modalVisible: boolean,
+  actionTitle: string,
+  blockTitle: string,
+  modalContent: React$Element,
 };
 
-class Email extends Component {
+class DetailsBlock extends Component {
   props: Props;
 
   get action() {
+    const { actionTitle } = this.props;
+
     return (
       <ActionLink
         action={this.props.toggleModal}
-        title="Edit"
+        title={actionTitle}
         styleName="action-link"
       />
     );
   }
 
   get content() {
-    const { email, toggleModal, modalVisible } = this.props;
+    const { data, toggleModal, modalVisible, modalContent } = this.props;
+
     return (
       <div styleName="content">
-        {email}
+        {data}
         <Modal
           show={modalVisible}
           toggle={toggleModal}
         >
-          <EditEmail />
+          {modalContent}
         </Modal>
       </div>
     );
   }
 
   render() {
+    const { blockTitle } = this.props;
+
     return (
-      <div styleName="email-block">
+      <div styleName="details-block">
         <div styleName="header">
-          <div styleName="title">Email</div>
+          <div styleName="title">{blockTitle}</div>
           {this.action}
         </div>
         {this.content}
@@ -55,4 +64,4 @@ class Email extends Component {
   }
 }
 
-export default Email;
+export default DetailsBlock;
