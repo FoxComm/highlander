@@ -8,6 +8,7 @@ import styles from './images.css';
 // libs
 import { autobind } from 'core-decorators';
 import React, { Component, Element, PropTypes } from 'react';
+import { isEqual } from 'lodash';
 
 // components
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
@@ -139,13 +140,18 @@ export default class Album extends Component {
   handleSortImages(order: Array<number>): Promise<*> {
     const album = { ...this.props.album };
 
-    const newOrder = [];
+    const nextImages = [];
 
     order.forEach((pos: number) => {
-      newOrder.push(album.images[pos]);
+      nextImages.push(album.images[pos]);
     });
 
-    album.images = newOrder;
+    // If nothing changed, dont edit
+    if (isEqual(album.images, nextImages)) {
+      return Promise.resolve(false);
+    }
+
+    album.images = nextImages;
 
     return this.props.editAlbum(album);
   }

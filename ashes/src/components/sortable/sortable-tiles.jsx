@@ -3,7 +3,7 @@
 // libs
 import _ from 'lodash';
 import classNames from 'classnames';
-import { autobind } from 'core-decorators';
+import { autobind, debounce } from 'core-decorators';
 import React, { Component, Element } from 'react';
 import { Motion, spring } from 'react-motion';
 
@@ -212,14 +212,19 @@ class SortableTiles extends Component {
     });
   }
 
+  @debounce(300)
+  enableTiles() {
+    this.setState({ dragging: false });
+  }
+
   @autobind
   handleMouseUp() {
     if (this.state.isPressed) {
       this.props.onSort(this.state.order).then(() => {
-        this.setState({ dragging: false });
+        this.enableTiles();
       });
     } else {
-      this.setState({ dragging: false });
+      this.enableTiles();
     }
 
     this.setState({
