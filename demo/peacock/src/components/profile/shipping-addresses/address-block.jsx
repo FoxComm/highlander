@@ -15,15 +15,14 @@ import * as actions from 'modules/profile';
 // components
 import { AddressDetails } from 'ui/address';
 import DetailsBlock from '../details-block';
-import AddressList from 'pages/checkout/shipping/address-list';
+import AddressList from 'ui/address/address-list';
 
 // styles
-import addressStyles from 'pages/checkout/shipping/address-list.css';
-import profileStyles from '../profile.css';
+// import addressStyles from 'ui/address-list.css';
 
 import type { Address } from 'types/address';
 
-const styles = {...addressStyles, ...profileStyles};
+import styles from '../profile.css';
 
 type Props = {
   fetchAddresses: () => Promise<*>,
