@@ -10,7 +10,7 @@ import { stripTags } from 'lib/text-utils';
 import { isDefined } from 'lib/utils';
 
 import { FormField, FormFieldError } from '../forms';
-import { SliderCheckbox } from '../core/checkbox/checkbox';
+import { SliderCheckbox } from 'components/core/checkbox';
 import CurrencyInput from '../forms/currency-input';
 import CustomProperty from '../products/custom-property';
 import DatePicker from '../datepicker/datepicker';

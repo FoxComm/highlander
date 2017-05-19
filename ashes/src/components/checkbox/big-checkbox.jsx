@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import _ from 'lodash';
 
-import { Checkbox } from '../core/checkbox/checkbox';
+import { Checkbox } from 'components/core/checkbox';
 
 const BigCheckbox = props => {
   const checkboxClass = classNames('fc-big-checkbox__visible-box', {

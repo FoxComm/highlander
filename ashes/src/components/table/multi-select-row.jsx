@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { transitionTo } from 'browserHistory';
 
 // components
-import { Checkbox } from '../core/checkbox/checkbox';
+import { Checkbox } from 'components/core/checkbox';
 import TableCell from '../table/cell';
 import TableRow from '../table/row';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import ContentBox from '../content-box/content-box';
-import { SliderCheckbox } from '../core/checkbox/checkbox';
+import { SliderCheckbox } from 'components/core/checkbox';
 
 export default class CustomerNotificationSettings extends React.Component {
 

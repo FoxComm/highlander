@@ -2,7 +2,7 @@
 
 import React, { Element } from 'react';
 
-import { Checkbox } from '../core/checkbox/checkbox';
+import { Checkbox } from 'components/core/checkbox';
 
 import styles from './selectable-list.css';
 

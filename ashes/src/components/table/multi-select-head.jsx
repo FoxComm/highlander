@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 
 // components
-import { HalfCheckbox } from '../core/checkbox/checkbox';
+import { HalfCheckbox } from 'components/core/checkbox';
 
 export const selectionState = {
   None: 0,

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ContentBox from '../content-box/content-box';
-import { SliderCheckbox } from '../core/checkbox/checkbox';
+import { SliderCheckbox } from 'components/core/checkbox';
 import { connect } from 'react-redux';
 import * as CustomersActions from '../../modules/customers/details';
 import ConfirmationDialog from '../modal/confirmation-dialog';

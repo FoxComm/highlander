@@ -6,7 +6,7 @@
 import React from 'react';
 
 // components
-import { Checkbox } from '../core/checkbox/checkbox';
+import { Checkbox } from 'components/core/checkbox';
 
 // styles
 import styles from './static-column-selector.css';

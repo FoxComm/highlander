@@ -6,7 +6,7 @@ import { Dropdown } from '../../dropdown';
 import Currency from './currency';
 import Counter from './counter';
 import styles from './discounts.css';
-import { Checkbox } from '../../core/checkbox/checkbox';
+import { Checkbox } from '../../components/core/checkbox';
 import { FormField } from '../../forms';
 
 const QUALIFIERS = [

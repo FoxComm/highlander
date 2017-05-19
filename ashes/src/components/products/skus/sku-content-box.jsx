@@ -12,7 +12,7 @@ import { assoc, dissoc } from 'sprout-data';
 import ContentBox from 'components/content-box/content-box';
 import SkuList from './sku-list';
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
-import { Checkbox } from 'components/core/checkbox/checkbox';
+import { Checkbox } from 'components/core/checkbox';
 
 // helpers
 import { availableVariantsValues, variantsWithMultipleOptions } from 'paragons/variants';

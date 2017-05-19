@@ -12,7 +12,7 @@ import { bindActionCreators } from 'redux';
 import { detectCardType, cardMask, cvvLength, isCardNumberValid, isCvvValid } from '@foxcomm/wings/lib/payment-cards';
 
 // components
-import { Checkbox } from '../core/checkbox/checkbox';
+import { Checkbox } from 'components/core/checkbox';
 import FormField from '../forms/formfield';
 import Form from '../forms/form';
 import AddressDetails from '../addresses/address-details';
