@@ -1,5 +1,5 @@
 [Service]
-WorkingDirectory={{prometheus_dir}}
+WorkingDirectory={{prometheus_location}}
 ExecStart=/usr/local/bin/run_prometheus.sh
 Restart=always
 StandardOutput=syslog

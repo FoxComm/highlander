@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-{{prometheus_dir}}/prometheus -config.file=prometheus.yml
+{{prometheus_location}}/prometheus -config.file=prometheus.yml
