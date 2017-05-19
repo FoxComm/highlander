@@ -72,10 +72,9 @@ Checkbox.defaultProps = {
   docked: 'left'
 };
 
-
 const HalfCheckbox = (props: Props)=> {
   return (
-    <Checkbox {...props} />
+    <Checkbox {...props} halfChecked={props.checked && props.halfChecked} />
   );
 };
 
