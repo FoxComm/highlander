@@ -38,6 +38,7 @@
     "crypto-js": "^3.1.9-1",
     "currency-symbol-map": "^2.1.0",
     "d3": "^3.5.0",
+    "dotenv": "^4.0.0",
     "draft-js": "^0.7.0",
     "draft-js-export-html": "^0.2.2",
     "draft-js-export-markdown": "^0.2.0",
@@ -57,7 +58,6 @@
     "koa-convert": "^1.2.0",
     "koa-json": "^1.1.1",
     "koa-proxy": "^0.8.0",
-    "load-script": "^1.0.0",
     "lodash": "^4.15.0",
     "moment": "^2.17.1",
     "normalize.css": "^3.0.3",
@@ -86,7 +86,8 @@
     "thunkify-wrap": "^1.0.4",
     "use-named-routes": "^0.3.2",
     "victory": "^0.15.0",
-    "zipcodes-regex": "^1.0.0"
+    "zipcodes-regex": "^1.0.0",
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
@@ -118,7 +119,7 @@
     "eslint-plugin-react": "^6.10.3",
     "extract-text-webpack-plugin": "^2.1.0",
     "file-loader": "^0.11.1",
-    "flow-bin": "^0.45.0",
+    "flow-bin": "^0.46.0",
     "gulp": "^3.9.0",
     "gulp-load-plugins": "^1.0.0-rc.1",
     "gulp-mocha": "^2.1.2",
@@ -130,7 +131,6 @@
     "less": "^2.7.2",
     "less-loader": "^4.0.3",
     "localStorage": "^1.0.3",
-    "lost": "^6.7.2",
     "mocha": "^2.3.0",
     "nock": "^9.0.10",
     "node-notifier": "^4.2.3",

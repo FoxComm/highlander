@@ -3,12 +3,19 @@ const path = require('path');
 const _ = require('lodash');
 const jwt = require('jsonwebtoken');
 
-let webpackManifest = {
-  'main.js': 'main.js'
-};
+let startImage;
+let webpackManifest;
 
 if (process.env.NODE_ENV === 'production') {
+  startImage = '<img src="/admin/start.svg" width="137" height="76" />';
+  // production webpack generated manifest
   webpackManifest = require('../build/admin/manifest.json');
+} else {
+  startImage = fs.readFileSync(path.resolve(__dirname, '../src/images/logo/start.svg'), 'utf8');
+  // development hardcoded manifest: no css or vendor.js, only main chunk
+  webpackManifest = {
+    'app.js': 'app.js'
+  };
 }
 
 function loadPublicKey(config) {
@@ -86,6 +93,7 @@ module.exports = function(app) {
   app.renderLayout = async function(ctx, next) {
     const layoutData = _.defaults({
       manifest: webpackManifest,
+      startImage,
       tokenOk: !!ctx.state.token,
       stylesheet: process.env.NODE_ENV === 'production' && `/admin/styles.css`,
       // use GA_LOCAL=1 gulp dev command for enable tracking events in google analytics from localhost

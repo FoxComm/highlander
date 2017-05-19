@@ -1,4 +1,6 @@
+node_modules
 build
+server/.env
 
 # Logs
 logs
@@ -17,20 +19,9 @@ lib-cov
 coverage
 coverage.*
 
-# Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
-.grunt
-
-# Compiled binary addons (http://nodejs.org/api/addons.html)
-build/Release
-
 # IDEs
 .idea
 .iml
-
-# Dependency directory
-# Commenting this out is preferred by some people, see
-# https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git-
-/node_modules
 
 # Users Environment Variables & settings
 .lock-wscript
@@ -51,6 +42,3 @@ build/Release
 
 # Package
 ashes.tar.bz2
-
-# Styleguide
-styleguide/styleguide

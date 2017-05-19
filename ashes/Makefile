@@ -57,11 +57,11 @@ t: flow lint
 
 .PHONY: mocha-main
 mocha-main:
-	gulp mocha.main
+	@NODE_ENV=$(NODE_ENV) gulp mocha.main
 
 .PHONY: mocha-unit
 mocha-unit:
-	gulp mocha.unit
+	@NODE_ENV=$(NODE_ENV) gulp mocha.unit
 
 .PHONY: lint
 lint:
@@ -90,8 +90,8 @@ install i:
 
 .PHONY: nodemon
 nodemon:
-	test -f .env && export eval `cat .env` || true &&\
-	WEBPACK_PORT=$(WEBPACK_PORT) nodemon --watch server --watch config -e js,tmpl ./server/index.js
+	WEBPACK_PORT=$(WEBPACK_PORT)  nodemon --watch server --watch .env --watch config -e js,tmpl,env \
+	--exec "node -r dotenv/config" ./server/index.js
 
 .PHONY: build-dev
 build-dev:
@@ -106,11 +106,11 @@ dev d:
 
 .PHONY: build-prod
 build-prod: clean
-	GIT_REVISION=$(GIT_REVISION) NODE_ENV=production webpack
+	GIT_REVISION=$(GIT_REVISION) NODE_ENV=production webpack --progress
 
 .PHONY: prod p
 prod p: build-prod
-	test -f .env && export eval `cat .env` || true && NODE_ENV=production node ./server/index.js
+	NODE_ENV=production node -r dotenv/config ./server/index.js
 
 # Buildkite ###
 

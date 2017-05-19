@@ -2,8 +2,9 @@
 // @flow
 
 import React, { Element, Component } from 'react';
+import Icon from 'components/icon/icon';
 
-import styles from './auth-pages.css';
+import s from './auth-pages.css';
 
 type Props = {
   children: Element<*>,
@@ -37,10 +38,10 @@ export default class AuthPages extends Component {
 
   render() {
     return (
-      <div styleName="body">
-        <img styleName="logo" src="/admin/images/fc-logo-v.svg" />
+      <div className={s.body}>
+        <Icon name="start" className={s.logo}/>
         {this.body}
-        <div styleName="copyright">
+        <div className={s.copyright}>
           © 2016 FoxCommerce. All rights reserved. Privacy Policy. Terms of Use.
         </div>
       </div>

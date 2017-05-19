@@ -9,8 +9,8 @@
   <link rel="apple-touch-icon" href="/admin/apple-touch-icon.png">
 
   <title>FoxCommerce</title>
-  <% if (typeof stylesheet == 'string') { %>
-  <link rel="stylesheet" href="/admin/<%= manifest['main.css'] %>" />
+  <% if (typeof manifest['app.css'] == 'string') { %>
+  <link rel="stylesheet" href="/admin/<%= manifest['app.css'] %>" />
   <% } %>
 
   <script>
@@ -78,10 +78,12 @@
     ._start_image_container {
       display: flex;
       justify-content: center;
+      align-items: center;
       height: 100%;
-    }
-    ._start_image {
       animation: _start_image_blink 4s linear infinite;
+    }
+    ._start_image_container > svg {
+      width: 274px;
     }
     @keyframes _start_image_blink {
       0% { opacity: .2; transform: scale(.95); }
@@ -93,15 +95,19 @@
 <body>
   <div id="foxcom">
     <div class="_start_image_container">
-      <img class="_start_image" src="/admin/images/fc-logo-v.svg" />
+      <!-- leave it here to show before bundle loaded, e.g. on dev build in progress -->
+      <%= startImage %>
     </div>
   </div>
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,Intl.~locale.en"></script>
   <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+  <% if (typeof manifest['manifest.js'] == 'string') { %>
+  <script src="/admin/<%= manifest['manifest.js'] %>"></script>
+  <% } %>
   <% if (typeof manifest['vendor.js'] == 'string') { %>
   <script src="/admin/<%= manifest['vendor.js'] %>"></script>
   <% } %>
-  <script src="/admin/<%= manifest['main.js'] %>"></script>
+  <script src="/admin/<%= manifest['app.js'] %>"></script>
   <script>
     ga('send', 'timing', 'JS Dependencies', 'load_time', getHMTime() - headEndTime);
   </script>

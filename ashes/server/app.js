@@ -7,7 +7,6 @@ const Config  = require(path.resolve('config'));
 
 const app = new koa();
 
-const publicDir = path.resolve(__dirname, '../public');
 const buildDir = path.resolve(__dirname, '../build');
 
 app.init = co.wrap(function *(env) {
@@ -20,8 +19,6 @@ app.init = co.wrap(function *(env) {
   if (process.env.NODE_ENV === 'production') {
     app.use(convert(serve(buildDir)));
   }
-
-  app.use(convert(serve(publicDir)));
 
   if (app.env.environment !== 'production') {
     require('./hmr')(app);

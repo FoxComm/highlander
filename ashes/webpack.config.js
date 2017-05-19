@@ -10,9 +10,9 @@ const devConfig = require('./webpack/dev');
 const prodConfig = require('./webpack/prod');
 
 const baseConfig = {
-  entry: [
-    path.resolve(__dirname, './src/client.js')
-  ],
+  entry: {
+    app: path.resolve(__dirname, './src/client.js')
+  },
 
   output: {
     path: path.resolve(__dirname, './build/admin'),
@@ -27,7 +27,7 @@ const baseConfig = {
         use: [ 'json-loader' ]
       },
       {
-        test: /\.(png|ico|woff|woff2)$/,
+        test: /\.(svg|png|ico|woff|woff2)$/,
         use: [
           {
             loader: 'file-loader',
