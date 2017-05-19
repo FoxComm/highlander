@@ -2,6 +2,12 @@
   margin: 50px 20px 20px;
 }
 .export-modal-description {
-  width: 100%;
-  margin-top: 15px;
+  flex-grow: 1;
+  margin: 15px 5px 0;
+}
+
+.custom-title {
+  display: flex;
+  justify-content: space-around;
+  align-items: baseline;
 }
