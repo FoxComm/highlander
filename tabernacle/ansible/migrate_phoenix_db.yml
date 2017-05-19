@@ -2,6 +2,7 @@
 
 - name: Migrate DB
   hosts: '{{hostname}}'
+  become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     clean_flyway_phoenix: "{{perform_cleanup}}"
@@ -20,5 +21,5 @@
       private: no
 
   roles:
-    - { role: base/flyway, become: true }
-    - { role: prod/migrate_phoenix_db, become: true }
+    - { role: base/flyway }
+    - { role: prod/migrate_phoenix_db }

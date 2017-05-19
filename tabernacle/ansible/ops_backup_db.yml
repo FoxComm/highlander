@@ -1,6 +1,6 @@
 ---
 
-- name: Bootstrap Database Backup Script
+- name: Setup Database Backup
   hosts: '{{hostname}}'
   become: true
   vars:
@@ -18,6 +18,5 @@
       prompt: "Enter storage bucket name"
       default: "test-backups"
       private: no
-
   roles:
-      - { role: dev/backup_db }
+      - { role: ops/backup_db }

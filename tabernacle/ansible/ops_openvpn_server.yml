@@ -1,6 +1,6 @@
 ---
 
-- name: Bootstrap OpenVPN
+- name: Setup OpenVPN Server
   hosts: '{{hostname}}'
   become: true
   vars:
@@ -13,6 +13,5 @@
       prompt: "Enter a hostname with a VPN to configure"
       default: "vpn"
       private: no
-
   roles:
-      - { role: base/openvpn }
+      - { role: ops/openvpn_server }

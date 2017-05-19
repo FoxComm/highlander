@@ -1,6 +1,6 @@
 ---
 
-- name: OpenVPN Revoke Key
+- name: Generate OpenVPN Key
   hosts: '{{hostname}}'
   become: true
   vars:
@@ -11,9 +11,13 @@
       prompt: "Enter a hostname of OpenVPN service"
       default: "vpn"
       private: no
-    - name: "vpn_user"
-      prompt: "Enter a username to revoke key for"
-      default: "vpn_user"
+    - name: "username"
+      prompt: "Enter a username to generate key for"
+      default: "pavel"
+      private: no
+    - name: "download_dir"
+      prompt: "Enter a directory to download"
+      default: "~/Downloads"
       private: no
   roles:
-      - { role: dev/openvpn_revoke_key }
+      - { role: ops/openvpn_key }
