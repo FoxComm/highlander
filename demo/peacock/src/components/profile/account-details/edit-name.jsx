@@ -19,7 +19,7 @@ import * as actions from 'modules/profile';
 import type { AsyncStatus } from 'types/async-actions';
 import type { AccountDetailsProps } from 'types/profile';
 
-import styles from './account-details.css';
+import styles from '../profile.css';
 
 type Props = AccountDetailsProps & {
   fetchAccount: () => Promise<*>,
