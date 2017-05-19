@@ -30,7 +30,6 @@ import { Button } from 'components/core/button'
   <Button.Button isLoading>Loading...</Button.Button>
   <Button.Button disabled>Disabled</Button.Button>
   <Button.Button fullWidth>Stretched button</Button.Button>
-  <Button.Button google>Google</Button.Button>
   <Button.Button icon="add">Add</Button.Button>
   <Button.Button icon="add" />
   <Button.Button small>Small</Button.Button>

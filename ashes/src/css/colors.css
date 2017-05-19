@@ -4,6 +4,7 @@
    * http://chir.ag/projects/name-that-color
    */
   --white: #ffffff;
+  --alabaster: #f7f7f7;
   --iron: #ced2d5;
   --silver-sand: #bdc3c6;
   --stone: #797c7d;
@@ -13,10 +14,6 @@
   --green: #49cab9;
   --dark-green: #1dbfaa;
   --pink: #fc54a6;
-
-  --nav-main: #1a2534;
-  --nav-active: #25334a;
-  --nav-pink: #fc54a6;
 
   /*
    * Buttons
@@ -35,8 +32,16 @@
   --primary-button-bg-disabled: var(--dark-green);
   --primary-button-bg-loading: var(--green);
 
-  --grey-buttons: #ced2d5;
-  --grey-background: #f9f9f9;
+  /*
+   * Page Nav
+   */
+  --nav-item-underline: var(--iron);
+  --nav-item-underline-active: var(--pink);
+
+  /*
+   * Dropdowns
+   */
+  --dd-item-bg-active: var(--alabaster);
 
   --black: #000000;
   --decor0: #f2f2f2;

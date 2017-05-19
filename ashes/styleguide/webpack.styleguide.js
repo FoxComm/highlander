@@ -4,7 +4,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(js|jsx)$/,
+        test: /\.jsx?$/,
         exclude: /node_modules/,
         use: ['babel-loader'],
       },
@@ -21,5 +21,10 @@ module.exports = {
         use: 'file-loader?name=public/[name].[ext]'
       },
     ]
+  },
+  resolve: {
+    alias: {
+      'rsg-components/Logo': path.join(__dirname, 'rsg-components/Logo')
+    }
   },
 };

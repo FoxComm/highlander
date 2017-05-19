@@ -12,12 +12,12 @@ import { actions } from '../../modules/gift-cards/list';
 import { actions as bulkActions } from '../../modules/gift-cards/bulk';
 
 // components
+import { Link } from 'components/link';
 import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
 import GiftCardRow from './gift-card-row';
 import { ChangeStateModal, CancelModal } from '../bulk-actions/modal';
 import { SelectableSearchList } from '../list-page';
-import { Link } from '../link';
 
 
 const mapStateToProps = state => ({list: state.giftCards.list});

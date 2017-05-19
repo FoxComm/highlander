@@ -6,38 +6,51 @@ import { Link as ReactRouterLink } from 'react-router';
 import { isPermitted } from 'lib/claims';
 import type { Claims } from 'lib/claims';
 
-export type LinkProps = {
-  actualClaims: Claims,
-  children?: Element<*>|Array<Element<*>>,
-  expectedClaims: Claims,
-  params: Object,
+export type Props = {
+  /** Route name to link to */
   to: string,
-  activeClassName?: string,
+  /** Route params */
+  params: Object,
+  /** User claims */
+  actualClaims: Claims,
+  /** Claims required to render link */
+  expectedClaims: Claims,
+  /** Children */
+  children?: Element<any> | Array<Element<any>>,
 };
 
-export default class Link extends Component {
-  props: LinkProps;
-
-  static defaultProps = {
-    actualClaims: {},
-    expectedClaims: {},
-  };
+/**
+ * react-router's Link wrapper to support Fox claims
+ * Implemented as class to use it in PageNav with refs(not supported for functional components)
+ *
+ * @function Link
+ */
+export class Link extends Component {
+  props: Props;
 
   render() {
-    const { to, params, children, actualClaims, expectedClaims, activeClassName = '', ...otherProps } = this.props;
+    const { to, params, children, actualClaims = {}, expectedClaims = {}, ...otherProps } = this.props;
     const location = {
       name: to,
       params,
     };
 
-    if (isPermitted(expectedClaims, actualClaims)) {
-      return (
-        <ReactRouterLink activeClassName={activeClassName} {...otherProps} to={location}>
-          {children}
-        </ReactRouterLink>
-      );
+    if (!isPermitted(expectedClaims, actualClaims)) {
+      return null;
     }
 
-    return null;
+    return (
+      <ReactRouterLink {...otherProps} to={location}>
+        {children}
+      </ReactRouterLink>
+    );
+  }
+}
+
+export class IndexLink extends Component {
+  props: Props;
+
+  render() {
+    return React.createElement(Link, { ...this.props, onlyActiveOnIndex: true });
   }
 }

@@ -42,6 +42,8 @@ const baseConfig = {
   },
 
   plugins: [
+    new webpack.NamedModulesPlugin(),
+
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development',
       BEHIND_NGINX: false,
