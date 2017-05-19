@@ -1,3 +1,6 @@
+include ../makelib
+header = $(call baseheader, $(1), developer-portal)
+
 SUBDIRS := content
 BUILDDIRS := $(SUBDIRS:%=build-%)
 
@@ -9,18 +12,24 @@ prep:
 	npm install
 	cd node_modules/aglio-theme-fox && npm install
 
-build: prep $(BUILDDIRS)
+build: 
+	$(call header, Building)
+	make prep 
+	$(BUILDDIRS)
 
 $(BUILDDIRS):
 	$(MAKE) -C $(@:build-%=%) build
 
 test:
+	$(call header, Testing)
 	true
 
 docker: 
+	$(call header, Dockerizing)
 	true
 
 docker-push:
+	$(call header, Registering)
 	true
 
 publish: build
