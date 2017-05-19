@@ -3,7 +3,15 @@ const path = require('path');
 const _ = require('lodash');
 const jwt = require('jsonwebtoken');
 
-const webpackManifest = require('../build/admin/manifest.json');
+// development hardcoded manifest: no css or vendor.js, only main chunk
+let webpackManifest = {
+  'app.js': 'app.js'
+};
+
+if (process.env.NODE_ENV === 'production') {
+  // production webpack generated manifest
+  webpackManifest = require('../build/admin/manifest.json');
+}
 
 function loadPublicKey(config) {
   try {

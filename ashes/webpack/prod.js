@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const ManifestPlugin = require('webpack-manifest-plugin');
 
 module.exports = {
   output: {
@@ -48,6 +49,8 @@ module.exports = {
       compress: { warnings: false },
       sourceMap: false
     }),
+
+    new ManifestPlugin(),
 
     new ExtractTextPlugin('app.[contenthash:6].css'),
     new OptimizeCssAssetsPlugin(),
