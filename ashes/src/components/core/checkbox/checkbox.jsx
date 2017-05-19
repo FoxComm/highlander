@@ -4,6 +4,9 @@
 import classNames from 'classnames';
 import React from 'react';
 
+// styles
+import s from './checkbox.css';
+
 type Props = {
   /** ID for input */
   id: string,
@@ -19,12 +22,12 @@ type Props = {
   halfChecked?: boolean,
   /** If checkbox is checked Sign ("✔") */
   checked?: boolean,
-}
+};
 
 const DefaultCheckbox = (props: Props)=> {
   const { className, children, id, ...rest } = props;
 
-  const label = children ? <span className="fc-checkbox__label">{children}</span> : null;
+  const label = children ? <span className={ classNames(s.checkbox, {[s.label]: true }) }>{children}</span> : null;
 
   return (
     <div className={ className }>
@@ -39,17 +42,23 @@ const DefaultCheckbox = (props: Props)=> {
 const SliderCheckbox = (props: Props) => {
   return (
     <DefaultCheckbox {...props}
-      className={ classNames('fc-slide-checkbox', props.className) } />
+      className={ classNames(s.slideCheckbox, props.className) } />
   );
 };
 
-const Checkbox = ({inline, docked, ...props}: Props) => {
+const Checkbox = ({inline, docked, halfChecked,...props}: Props) => {
   const className = classNames(
-    'fc-checkbox',
-    {'_inline': inline},
-    {'_docked-left': docked && docked === 'left'},
-    {'_docked-right': docked && docked === 'right'},
-    props.className,
+    s.checkbox,
+    {
+      [s.halfChecked]: halfChecked,
+      [s.inline]: inline,
+      [s.dockedLeft]: docked === 'left',
+      [s.dockedRight]: docked === 'right'
+    }
+    // {'_inline': inline},
+    // {'_docked-left': docked && docked === 'left'},
+    // {'_docked-right': docked && docked === 'right'},
+    // props.className,
   );
 
   return (
@@ -65,14 +74,8 @@ Checkbox.defaultProps = {
 
 
 const HalfCheckbox = (props: Props)=> {
-  const { halfChecked, ...rest } = props;
-  const className = classNames(
-    {'_half-checked': props.checked && halfChecked},
-    props.className,
-  );
-
   return (
-    <Checkbox {...rest} className={ className } />
+    <Checkbox {...props} />
   );
 };
 
