@@ -1,6 +1,6 @@
 /* @flow weak */
 
-//libs
+// libs
 import React, { Component, Element } from 'react';
 import _ from 'lodash';
 
@@ -48,21 +48,21 @@ const ReviewBody = (props): Element<*> => {
   const { title, userName, updatedAt, sku, body } = props;
 
   return (
-    <div styleName='product-review-container'>
-      <div styleName='product-review-content'>
-        <div styleName='product-review-title'>
+    <div styleName="product-review-container">
+      <div styleName="product-review-content">
+        <div styleName="product-review-title">
           {title}
         </div>
-        <div styleName='product-review-name-date'>
+        <div styleName="product-review-name-date">
           From: {userName} on {updatedAt}
         </div>
-        <div styleName='product-review-variant'>
+        <div styleName="product-review-variant">
           SKU: {sku}
         </div>
-        <div styleName='product-review-body'>
+        <div styleName="product-review-body">
           {body}
         </div>
-        <div styleName='product-review-flag'>
+        <div styleName="product-review-flag">
           <ActionLink
             action={_.noop}
             title="Report Offensive Review"
@@ -93,12 +93,11 @@ class ProductReviewsList extends Component {
     if (_.isEmpty(listItems)) {
       return (
         <div styleName="product-reviews-subtitle">
-          {emptyContentTitle} 
+          {emptyContentTitle}
         </div>
       );
-    } else {
-      return null;
     }
+    return null;
   }
 
   get displayReviews(): ?Element<*> {
@@ -135,9 +134,8 @@ class ProductReviewsList extends Component {
           {loadMoreActionLink}
         </div>
       );
-    } else {
-      return null;
     }
+    return null;
   }
 
   handleLoadMoreReviews = () => {
@@ -150,7 +148,7 @@ class ProductReviewsList extends Component {
   }
 
   render(): Element<*> {
-    const { title, loadingBehavior, isLoading, listItems } = this.props;
+    const { title, loadingBehavior = LoadingBehaviors.ShowLoader, isLoading } = this.props;
 
     if (loadingBehavior == LoadingBehaviors.ShowLoader && isLoading) {
       return <Loader styleName="" />;
