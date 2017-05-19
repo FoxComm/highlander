@@ -7,7 +7,7 @@ import { findDOMNode } from 'react-dom';
 import { DragSource, DropTarget } from 'react-dnd';
 
 // components
-import { Checkbox } from '../checkbox/checkbox';
+import { Checkbox } from '../core/checkbox/checkbox';
 
 // styles
 import styles from './column-selector.css';

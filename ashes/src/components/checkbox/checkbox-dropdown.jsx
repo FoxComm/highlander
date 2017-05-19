@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 
 // components
-import { HalfCheckbox } from './checkbox';
+import { HalfCheckbox } from '../core/checkbox/checkbox';
 import GenericDropdown from '../dropdown/generic-dropdown';
 
 export default class CheckboxDropdown extends Component {
