@@ -122,21 +122,11 @@ shortcuts:
     alias: ark_deploy.yml
     target: ansible/ark_deploy.yml
 
-  # Migrations
   - name: Deploy Ark Keys
     alias: ark_keys.yml
     target: ansible/ark_keys.yml
 
-  # Cloud
-  - name: Provision Cloud Central
-    alias: cloud_central.yml
-    target: ansible/provision_cloud_central.yml
-
-  - name: Provision Cloud Demo
-    alias: cloud_demo.yml
-    target: ansible/provision_cloud_demo.yml
-
-  # Migration
+  # Migrations
   - name: Migrate Phoenix DB
     alias: migrate_phoenix_db.yml
     target: ansible/migrate_phoenix_db.yml
