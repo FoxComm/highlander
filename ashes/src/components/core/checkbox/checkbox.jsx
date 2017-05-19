@@ -27,7 +27,8 @@ type Props = {
 const DefaultCheckbox = (props: Props)=> {
   const { className, children, id, ...rest } = props;
 
-  const label = children ? <span className={ classNames(s.checkbox, {[s.label]: true }) }>{children}</span> : null;
+  const labelCls = classNames(s.checkbox, {[s.label]: true });
+  const label = children ? <span className={labelCls}>{children}</span> : null;
 
   return (
     <div className={ className }>
@@ -46,7 +47,8 @@ const SliderCheckbox = (props: Props) => {
   );
 };
 
-const Checkbox = ({inline, docked, halfChecked,...props}: Props) => {
+const Checkbox = (props: Props) => {
+  const { inline, docked, halfChecked } = props;
   const className = classNames(
     s.checkbox,
     {
@@ -55,10 +57,6 @@ const Checkbox = ({inline, docked, halfChecked,...props}: Props) => {
       [s.dockedLeft]: docked === 'left',
       [s.dockedRight]: docked === 'right'
     }
-    // {'_inline': inline},
-    // {'_docked-left': docked && docked === 'left'},
-    // {'_docked-right': docked && docked === 'right'},
-    // props.className,
   );
 
   return (
