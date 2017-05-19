@@ -34,7 +34,7 @@ scrape_configs:
           group: stage
 
   # Buildkite Agents
-  - job_name: demo
+  - job_name: buildkite-agents
     scrape_interval: 5s
     static_configs:
       - targets:

@@ -70,6 +70,10 @@ shortcuts:
     alias: prometheus.yml
     target: ansible/ops_prometheus.yml
 
+  - name: Setup Node Exporter
+    alias: node_exporter.yml
+    target: ansible/ops_node_exporter.yml
+
   - name: Restore Database
     alias: restore_db.yml
     target: ansible/ops_restore_db.yml
