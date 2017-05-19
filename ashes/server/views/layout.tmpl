@@ -9,7 +9,7 @@
   <link rel="apple-touch-icon" href="/admin/apple-touch-icon.png">
 
   <title>FoxCommerce</title>
-  <% if (typeof stylesheet == 'string') { %>
+  <% if (typeof manifest['app.css'] == 'string') { %>
   <link rel="stylesheet" href="/admin/<%= manifest['app.css'] %>" />
   <% } %>
 

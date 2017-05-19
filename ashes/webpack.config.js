@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const merge = require('webpack-merge');
 const SvgStore = require('webpack-svgstore-plugin');
+const ManifestPlugin = require('webpack-manifest-plugin');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -10,9 +11,9 @@ const devConfig = require('./webpack/dev');
 const prodConfig = require('./webpack/prod');
 
 const baseConfig = {
-  entry: [
-    path.resolve(__dirname, './src/client.js')
-  ],
+  entry: {
+    app: path.resolve(__dirname, './src/client.js')
+  },
 
   output: {
     path: path.resolve(__dirname, './build/admin'),
@@ -51,6 +52,10 @@ const baseConfig = {
     }),
 
     new SvgStore(),
+
+    new ManifestPlugin({
+      writeToFileEmit: true,
+    }),
 
     // Uncomment it and relaunch (make p or make d): stats will be opened in your default browser
     // new BundleAnalyzerPlugin(),

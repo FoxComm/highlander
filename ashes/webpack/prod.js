@@ -2,13 +2,8 @@ const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const ManifestPlugin = require('webpack-manifest-plugin');
 
 module.exports = {
-  entry: {
-    app: path.resolve(__dirname, '../src/client.js')
-  },
-
   output: {
     filename: '[name].[chunkhash:6].js'
   },
@@ -56,8 +51,6 @@ module.exports = {
 
     new ExtractTextPlugin('app.[contenthash:6].css'),
     new OptimizeCssAssetsPlugin(),
-
-    new ManifestPlugin(),
   ],
 
   // https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/35

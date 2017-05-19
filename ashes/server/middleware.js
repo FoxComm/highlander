@@ -3,13 +3,7 @@ const path = require('path');
 const _ = require('lodash');
 const jwt = require('jsonwebtoken');
 
-let webpackManifest = {
-  'main.js': 'main.js'
-};
-
-if (process.env.NODE_ENV === 'production') {
-  webpackManifest = require('../build/admin/manifest.json');
-}
+const webpackManifest = require('../build/admin/manifest.json');
 
 function loadPublicKey(config) {
   try {
