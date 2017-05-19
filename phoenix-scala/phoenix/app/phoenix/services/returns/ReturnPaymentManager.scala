@@ -85,7 +85,7 @@ object ReturnPaymentManager {
                                             subTotal = subTotal,
                                             shipping = shipping,
                                             adjustments = adjustments)
-        maxAmount = Math.max(0L, subTotal + taxes + shipping - adjustments)
+        maxAmount = (subTotal + taxes + shipping - adjustments).zeroMax
         amount    = payments.valuesIterator.sum
 
         _ ← * <~ failIf(amount > maxAmount,

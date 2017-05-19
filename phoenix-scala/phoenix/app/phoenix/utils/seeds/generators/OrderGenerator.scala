@@ -410,5 +410,5 @@ trait OrderGenerator extends ShipmentSeeds {
       .max(1,
            Math.min(Random.nextInt(Math.max(1, availableBalance.toInt)),
                     Random.nextInt(Math.max(1, totalCost.toInt))))
-      .asInstanceOf[Long]
+      .toLong
 }
