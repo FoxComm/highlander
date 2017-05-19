@@ -6,12 +6,12 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getStore } from '../../lib/store-creator';
 
+import { Link } from 'components/link';
 import { ChangeStateModal } from '../bulk-actions/modal';
 import { DeleteModal } from '../bulk-actions/modal';
 import SchedulerModal from './scheduler-modal';
 import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
-import { Link } from '../link';
 
 type RefId = string|number;
 

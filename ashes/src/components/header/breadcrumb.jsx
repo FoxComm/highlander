@@ -6,7 +6,7 @@ import { filter, map, join, flow } from 'lodash/fp';
 import React, { Component, Element } from 'react';
 
 // components
-import { Link, IndexLink } from '../link/index';
+import { Link, IndexLink } from 'components/link';
 
 // styles
 import s from './breadcrumb.css';
