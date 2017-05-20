@@ -29,7 +29,7 @@ class Site extends Component {
   get footer() {
     return (
       <footer className={styles.footer}>
-        Any questions? Contact our <a href="http://support.gf.com" target="blank">Support Team</a>
+        Any questions? Contact our <a href="mailto:support@foxcommerce.com" target="blank">Support Team</a>
       </footer>
     );
   }

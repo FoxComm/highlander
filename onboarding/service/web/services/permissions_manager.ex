@@ -14,7 +14,7 @@ defmodule OnboardingService.PermissionManager do
         parent_id: 1
       }}
     |> Poison.encode!
-    post_headers = conn.req_headers
+    post_headers = [jwt_header() | conn.req_headers]
     post_cookies = cookies(conn)
 
     case HTTPoison.post("#{full_perm_path}/scopes",
@@ -43,7 +43,7 @@ defmodule OnboardingService.PermissionManager do
     HTTPoison.start
     post_body = %{}
     |> Poison.encode!
-    post_headers = conn.req_headers
+    post_headers = [jwt_header() | conn.req_headers]
     post_cookies = cookies(conn)
 
     case HTTPoison.post("#{full_perm_path}/scopes/#{scope_id}/admin_role",
@@ -70,7 +70,7 @@ defmodule OnboardingService.PermissionManager do
   # find the role named "admin" for the with the scope_id and return role_id
   def get_admin_role_from_scope_id(conn, scope_id) do
     HTTPoison.start
-    get_headers = conn.req_headers
+    get_headers = [jwt_header() | conn.req_headers]
     get_cookies = cookies(conn)
 
     case HTTPoison.get("#{full_perm_path}/roles",
@@ -104,7 +104,7 @@ defmodule OnboardingService.PermissionManager do
       }
     }
     |> Poison.encode!
-    post_headers = conn.req_headers
+    post_headers = [jwt_header() | conn.req_headers]
     post_cookies = cookies(conn)
 
     case HTTPoison.post("#{full_perm_path}/accounts/#{account_id}/granted_roles",
@@ -144,7 +144,7 @@ defmodule OnboardingService.PermissionManager do
         password: password
       }}
     |> Poison.encode!
-    post_headers = conn.req_headers
+    post_headers = [jwt_header() | conn.req_headers]
     post_cookies = cookies(conn)
 
     case HTTPoison.post("#{full_perm_path}/users",
@@ -177,7 +177,7 @@ defmodule OnboardingService.PermissionManager do
         parent_id: 1
       }}
     |> Poison.encode!
-    post_headers = conn.req_headers
+    post_headers = [jwt_header() | conn.req_headers]
     post_cookies = cookies(conn)
 
     case HTTPoison.post("#{full_perm_path}/organizations",
@@ -209,7 +209,7 @@ defmodule OnboardingService.PermissionManager do
       }
     }
     |> Poison.encode!
-    post_headers = [{'content-type', 'application/json'}]
+    post_headers = [jwt_header(), {'content-type', 'application/json'}]
 
     case HTTPoison.post("#{full_perm_path}/sign_in",
                         post_body,
@@ -231,12 +231,17 @@ defmodule OnboardingService.PermissionManager do
     |> Enum.reduce("orig=onboarding_service", fn (c1, c2) -> c1 <> "; " <> c2 end)
   end
 
+  defp jwt_header() do
+    jwt = Application.get_env(:onboarding_service, OnboardingService.MerchantAccount)[:solomon_jwt]
+    {'JWT', jwt}
+  end
+
   defp full_perm_path() do
     
     service = Application.get_env(:onboarding_service, OnboardingService.MerchantAccount)[:solomon_service]
     host = Application.get_env(:onboarding_service, OnboardingService.MerchantAccount)[:solomon_host]
 
-    [{host, port}] = :srv.get_servers(service, '', host, 80)
+    [{host, port}] = :srv.get_servers(to_charlist(service), '', to_charlist(host), 80)
 
     full_perm_path = "http://#{host}:#{port}"
   end

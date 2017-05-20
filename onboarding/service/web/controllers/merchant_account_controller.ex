@@ -55,11 +55,7 @@ defmodule OnboardingService.MerchantAccountController do
 
     txn = Multi.new
           |> Multi.insert(:merchant_account, changeset)
-          |> Multi.run(:stripe_account_id, fn %{merchant_account: merchant_account} ->
-            Stripe.create_account(merchant_account, merchant_account_params) end)
-          |> Multi.run(:ma_with_stripe, fn %{merchant_account: ma, stripe_account_id: stripe} ->
-            relate_stripe_account_id(ma, stripe) end)
-          |> Multi.run(:full_ma, fn %{ma_with_stripe: ma} ->
+          |> Multi.run(:full_ma, fn %{merchant_account: ma} ->
             solomon_id = PermissionManager.create_user_from_merchant_account(conn, merchant_account_params)
             relate_solomon_id(ma, solomon_id) end)
 

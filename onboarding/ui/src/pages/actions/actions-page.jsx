@@ -23,25 +23,10 @@ class ActionsPage extends Component {
     return (
       <div className={styles.actions}>
         <Card
-          title="Create a product"
-          description={`In a few easy steps you can create a product and be selling using FoxCommerce in minutes.
-          Manage Inventory & Orders withing from your dashboard.`}
-          button="Select"
+          title="Login"
+          description={`You are now ready to log into FoxCommerce Admin.`}
+          button="Go to Admin"
           onSelect={() => window.location.replace(window.__ASHES_URL__)}
-        />
-        <Card
-          title="Add product feed"
-          description={`Use existing product data to populate products in FoxCommerce.
-          Manage Inventory & Orders withing from your dashboard.`}
-          button="Select"
-          onSelect={() => this.props.push(`/application/${this.props.params.ref}/feed`)}
-        />
-        <Card
-          title="Integrate Platform"
-          description={`Integrate your eCommerce store with FoxCommerce with Onboarding apps or via API to use your
-          exising tools to import products and receive orders.`}
-          button="Select"
-          onSelect={() => this.props.push(`/application/${this.props.params.ref}/integration`)}
         />
       </div>
     );
@@ -51,8 +36,8 @@ class ActionsPage extends Component {
     return (
       <div className={styles.info}>
         <Header
-          title="What works for you?"
-          legend={'We have a variety of tools to help you add products swiftly and scale.'}
+          title="Welcome to FoxCommerce"
+          legend={''}
         />
         {this.actions}
       </div>

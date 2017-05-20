@@ -21,34 +21,10 @@ export const skuEmptyAttributes = {
   unitCost: t.price({ currency: 'USD', value: 0 }),
 };
 
-// HACK
-function isMerchant(): boolean {
-  const jwt = getJWT();
-  if (jwt != null && jwt.scope == '1') {
-    return false;
-  }
-
-  return true;
-}
-
 export function createEmptySku(): Sku {
-  let merchantAttributes = {};
-
-  if (isMerchant()) {
-    merchantAttributes = {
-      externalId: t.string(''),
-      mpn: t.string(''),
-      gtin: t.string(''),
-      weight: t.string(''),
-      height: t.string(''),
-      width: t.string(''),
-      depth: t.string(''),
-    };
-  }
-
   return {
     id: null,
-    attributes: { ...cloneDeep(skuEmptyAttributes), ...merchantAttributes },
+    attributes: { ...cloneDeep(skuEmptyAttributes) },
     context: {
       name: 'default',
     }

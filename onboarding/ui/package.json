@@ -7,7 +7,7 @@
     "lint": "./node_modules/.bin/eslint --ext .js --ext .jsx .",
     "flow": "./node_modules/.bin/flow check",
     "run": "./node_modules/.bin/gulp dev",
-    "dev": "API_URL=http://localhost:4003 ASHES_URL=https://stage.foxcommerce.com/admin ./node_modules/.bin/gulp dev",
+    "dev": "./node_modules/.bin/gulp dev",
     "build": "NODE_ENV=production gulp build",
     "test": "./node_modules/.bin/mocha"
   },

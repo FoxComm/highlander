@@ -43,6 +43,7 @@ config :onboarding_service, OnboardingService.Repo,
 config :onboarding_service, OnboardingService.MerchantAccount,
   solomon_service: System.get_env("SOLOMON_SERVICE"),
   solomon_host: System.get_env("SOLOMON_HOST"),
+  solomon_jwt: System.get_env("SOLOMON_JWT"),
   stripe_private_key: System.get_env("STRIPE_API_KEY")
 
 # configure jwt auth

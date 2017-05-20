@@ -2,16 +2,6 @@
 
 import type { FormField } from '../../core/types/fields';
 
-const LIST_AUDIENCE = [
-  'Men', 'Women', 'Both', 'Kids',
-];
-
-const LIST_CATEGORIES = [
-  'Accessories', 'Action', 'Sports', 'Activewear', 'Apparel', 'Beauty', 'Bridal', 'Eyewear',
-  'Grooming', 'Handbags', 'Home', 'Intimates', 'Jeans', 'Jewelry', 'Kids', 'Shoes',
-  'Sleepwear', 'Swimwear', 'Tech', 'Vintage',
-];
-
 export const fields: Array<FormField> = [
   {
     name: 'business_name',
@@ -35,34 +25,9 @@ export const fields: Array<FormField> = [
     normalize: value => value.replace(/[()]/g, '').replace(/\s/g, '-'),
   },
   {
-    name: 'monthly_sales_volume',
-    type: 'text',
-    placeholder: 'Monthly Sales Volume',
-    validation: 'required',
-  },
-  {
-    name: 'twitter_handle',
-    type: 'text',
-    placeholder: 'Twitter Handle',
-  },
-  {
     name: 'site_url',
     type: 'url',
     placeholder: 'Site URL',
     validation: 'required format.uri',
-  },
-  {
-    name: 'target_audience',
-    type: 'tags',
-    placeholder: 'Audience',
-    validation: 'required',
-    values: LIST_AUDIENCE,
-  },
-  {
-    name: 'categories',
-    type: 'tags',
-    placeholder: 'Category',
-    validation: 'required',
-    values: LIST_CATEGORIES,
   },
 ];

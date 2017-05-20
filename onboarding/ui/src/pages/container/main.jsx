@@ -74,7 +74,7 @@ const steps = (pathname) => [
   {
     key: STEP_INFO,
     active: /\/info|actions|feed|shipping|integration\/?$/.test(pathname),
-    title: 'More Info',
+    title: 'Finish',
   },
 ];
 
@@ -120,17 +120,7 @@ class Main extends Component {
     }
 
     if (accountsFetched && !isEmpty(accounts)) {
-      /** accounts fetched and not empty - fetching shipping solutions */
-      fetchShipping(get(application, 'merchant.id'));
-    }
-
-    /** shipping solutions fetched but empty - shipping solutions page */
-    if (shippingFetched && isEmpty(shipping)) {
-      this.replace(`/application/${ref}/shipping`);
-    }
-
-    /** shipping solutions fetched and not empty - actions page */
-    if (shippingFetched && !isEmpty(shipping)) {
+      /** accounts fetched and not empty - actions page*/
       this.replace(`/application/${ref}/actions`);
     }
   }

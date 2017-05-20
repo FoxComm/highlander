@@ -2,7 +2,7 @@
 
 .actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   margin: 70px 0 50px;
 
   @media (--small-viewport) {

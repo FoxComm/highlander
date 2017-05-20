@@ -18,9 +18,6 @@ const routes = (
       <Route path=":ref" component={ApplicationPage} />
       <Route path=":ref/account" component={AccountPage} />
       <Route path=":ref/actions" component={ActionsPage} />
-      <Route path=":ref/feed" component={FeedPage} />
-      <Route path=":ref/shipping" component={ShippingPage} />
-      <Route path=":ref/integration" component={ShopifyPage} />
     </Route>
   </Route>
 );

@@ -18,7 +18,6 @@ import {
 
 import { submitAccount as submit } from '../../core/modules/merchant-account';
 import { fields as accountFields } from '../../forms/account/account-fields';
-import { fields as infoFields } from '../../forms/info/info-fields';
 
 import styles from './account-page.css';
 
@@ -36,14 +35,14 @@ type Props = {
   replace: (path: string) => void;
 }
 
-const fields = [...accountFields, ...infoFields];
+const fields = [...accountFields];
 
 class MerchantAccountPage extends Component {
   props: Props;
 
   componentWillReceiveProps(nextProps: Props) {
     if (this.props.accounts.length !== nextProps.accounts.length) {
-      this.props.replace(`/application/${this.props.params.ref}/shipping`);
+      this.props.replace(`/application/${this.props.params.ref}/actions`);
     }
   }
 
