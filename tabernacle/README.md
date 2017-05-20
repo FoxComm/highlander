@@ -33,7 +33,7 @@ All of our DevOps tools for deploying the application to both development and pr
 * [`ops`](ansible/roles/ops) - Roles requiring interactive input, usually applied manually.
 * [`prod`](ansible/roles/prod) - Roles that are usually applied to production systems.
 
-### `systemd` Services Hierarchy
+### Appliance Services Hierarchy
 
 * `consul_agent`
     * `consul_template`
