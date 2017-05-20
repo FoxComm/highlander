@@ -33,3 +33,22 @@ All of our DevOps tools for deploying the application to both development and pr
 * [`ops`](ansible/roles/ops) - Roles requiring interactive input, usually applied manually.
 * [`prod`](ansible/roles/prod) - Roles that are usually applied to production systems.
 
+### `systemd` Services Hierarchy
+
+* `consul_agent`
+    * `consul_template`
+    * `demo_consul_template`
+    * `zookeeper`
+        * `kafka`
+            * `schema_registry`
+        * `mesos_master`
+            * `marathon`
+        * `mesos_worker`
+* `elasticsearch`
+* `elasticseach_5`
+    * `kibana`
+* `postgresql`
+    * `bottledwater_phoenix`
+    * `bottledwater_middlewarehouse`
+    * `bottledwater_onboarding`
+    * `pgweb`
