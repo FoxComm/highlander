@@ -1,7 +1,6 @@
 ---
 
 # Phoenix
-
 - name: Get Latest Phoenix Seeder Image
   shell: docker pull {{docker_registry}}:5000/phoenix-seeder:{{docker_tags.phoenix_seeder}}
   when: with_base_seeds is defined and with_base_seeds

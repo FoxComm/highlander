@@ -66,7 +66,7 @@
 <<<<<<< HEAD
 
 =======
->>>>>>> 03b4e1d6f6669c707a63fc0a230a58b7772d1038
+>>>>>>> master
 - name: Setup Phoenix Flyway Config
   template: src=flyway.phoenix.conf dest="{{phoenix_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
 

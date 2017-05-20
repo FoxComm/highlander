@@ -9,12 +9,6 @@
 - name: Copy Config
   template: src=agent.json dest="/etc/consul.d/agent.json"
 
-- name: Reload Systemd for Consul Server
-  command: systemctl daemon-reload
-
-- name: Restart Consul Agent
-  service: name=consul_agent state=restarted enabled=yes
-
 - name: Install Dnsmasq
   apt: name=dnsmasq state=latest force=yes
 
@@ -23,6 +17,3 @@
 
 - name: Add Consul to Dnsmasq Config
   lineinfile: dest="/etc/dnsmasq.d/10-consul" line="server=/consul/127.0.0.1#8600"
-
-- name: Restart Dnsmasq
-  service: name=dnsmasq state=restarted enabled=yes

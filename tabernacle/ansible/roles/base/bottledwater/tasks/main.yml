@@ -9,7 +9,7 @@
     - cmake
     - build-essential
     - libpq-dev
-    - libcurl4-openssl-dev
+    - libcurl4-nss-dev
     - libjansson-dev
     - pkg-config
     - librdkafka-dev
