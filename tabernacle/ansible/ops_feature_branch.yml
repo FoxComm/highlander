@@ -1,6 +1,6 @@
 ---
 
-- name: Initial Feature Branch Appliance Provision
+- name: Feature Branch Instance Setup
   hosts: '{{hostname}}'
   become: true
   vars:
