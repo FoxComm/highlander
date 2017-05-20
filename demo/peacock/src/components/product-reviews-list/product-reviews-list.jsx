@@ -75,9 +75,7 @@ const ReviewBody = (props): Element<*> => {
 };
 
 function incrementPage(nextPage) {
-  return function update(state) {
-    return { page: nextPage };
-  };
+  return { page: nextPage };
 }
 
 class ProductReviewsList extends Component {
@@ -101,8 +99,7 @@ class ProductReviewsList extends Component {
   }
 
   get displayReviews(): ?Element<*> {
-    const { listItems, onLoadMoreReviews, paginationSize, showLoadMore } = this.props;
-    const { page } = this.state;
+    const { listItems, showLoadMore } = this.props;
 
     if (!_.isEmpty(listItems)) {
       const reviews = _.map(listItems, (review) => {

@@ -396,7 +396,7 @@ class Pdp extends Component {
   }
 
   fetchMoreReviews = (from: number): ?Element<*> => {
-    const { product, actions } = this.props;
+    const { actions } = this.props;
     actions.fetchReviewsForSku(this.productSkuCodes, REVIEWS_PAGE_SIZE, from).catch(_.noop);
   }
 
