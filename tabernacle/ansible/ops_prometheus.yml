@@ -24,5 +24,6 @@
       default: ""
       private: yes
   roles:
+    - { role: base/ssl_certs }
     - { role: ops/prometheus }
     - { role: ops/grafana }

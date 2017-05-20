@@ -21,6 +21,7 @@
     # Private Keys
     - { role: base/ssh_keys }
     - { role: base/secret_keys }
+    - { role: base/ssl_certs }
     # Logging
     - { role: base/rsyslog }
     # Consul

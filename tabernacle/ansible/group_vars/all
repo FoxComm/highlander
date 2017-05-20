@@ -391,6 +391,7 @@ stripe_publishable_key: pk_test_1H2C9nTZpy8szPmboOEDwdwN
 
 # Certificates path
 cert_path: test/fox
+cert_type: docker
 
 # Mesos
 mesos_quorum: 1
