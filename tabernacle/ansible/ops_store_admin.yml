@@ -17,7 +17,7 @@
       private: no
     - name: "store_admin_password"
       prompt: "Enter a password for new admin"
-      private: no
+      private: yes
     - name: "store_admin_org"
       prompt: "Enter an organization for new admin"
       default: "tenant"

@@ -1,9 +1,28 @@
 ---
 
-- name: Setup Prometheus
+- name: Setup Prometheus & Grafana
   hosts: prometheus
   become: true
   vars:
+    cert_path: test/fox
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  vars_prompt:
+    - name: "grafana_domain_name"
+      prompt: "Enter Grafana domain name"
+      default: "monitoring.foxcommerce.com"
+      private: no
+    - name: "grafana_admin_password"
+      prompt: "Enter Grafana domain name"
+      default: ""
+      private: yes
+    - name: "grafana_oauth_client_id"
+      prompt: "Enter Grafana OAuth Client ID"
+      default: ""
+      private: yes
+    - name: "grafana_oauth_client_secret"
+      prompt: "Enter Grafana OAuth Client Secret"
+      default: ""
+      private: yes
   roles:
     - { role: ops/prometheus }
+    - { role: ops/grafana }
