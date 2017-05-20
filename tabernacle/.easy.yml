@@ -55,19 +55,7 @@ shortcuts:
     alias: marathon_alerts.yml
     target: ansible/ops_marathon_alerts.yml
 
-<<<<<<< HEAD
-  - name: Bootstrap Marathon Consul
-    alias: marathon_consul.yml
-    target: ansible/bootstrap_marathon_consul.yml
-
-  - name: Bootstrap OpenVPN Server
-    alias: openvpn_server.yml
-    target: ansible/bootstrap_openvpn.yml
-
-  - name: Bootstrap OpenVPN Key
-=======
   - name: Generate OpenVPN Key
->>>>>>> 03b4e1d6f6669c707a63fc0a230a58b7772d1038
     alias: openvpn_key.yml
     target: ansible/ops_openvpn_key.yml
 
@@ -137,14 +125,6 @@ shortcuts:
   - name: Deploy Ark Keys
     alias: ark_keys.yml
     target: ansible/ark_keys.yml
-<<<<<<< HEAD
-
-  # Cloud
-  - name: Provision Cloud Central
-    alias: cloud_central.yml
-    target: ansible/provision_cloud_central.yml
-=======
->>>>>>> 03b4e1d6f6669c707a63fc0a230a58b7772d1038
 
   - name: Setup Ark Database
     alias: ark_db.yml
