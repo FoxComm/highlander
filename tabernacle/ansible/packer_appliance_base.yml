@@ -5,6 +5,7 @@
   become: true
   vars:
     user: ubuntu
+    is_appliance: true
     db_host: localhost
     bernardo_db_host: localhost
     phoenix_db_host: localhost
