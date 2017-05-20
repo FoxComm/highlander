@@ -1,6 +1,6 @@
 ---
 
-- name: Update Application Docker Tag in Developer Appliance
+- name: Goldrush Deploy Helper
   hosts: localhost
   connection: local
   vars:

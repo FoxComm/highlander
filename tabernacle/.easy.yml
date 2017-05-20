@@ -99,23 +99,11 @@ shortcuts:
     alias: goldrush_cfg.yml
     target: ansible/goldrush_config_gen.yml
 
-  - name: Update Application Docker Tag
+  - name: Goldrush Deploy Helper
     alias: update_app.yml
     target: ansible/goldrush_update_app.yml
 
-  # Provisioning
-  - name: Deploy Storefront
-    alias: deploy_storefront.yml
-    target: ansible/deploy_storefront.yml
-
-  - name: Provision FoxComm Demo
-    alias: demo.yml
-    target: ansible/demo.yml
-
-  - name: Provision FoxComm Test
-    alias: test_stage.yml
-    target: ansible/test_stage.yml
-
+  # Provision
   - name: Provision Appliance
     alias: provision_appliance.yml
     target: ansible/provision_appliance.yml
@@ -125,9 +113,13 @@ shortcuts:
     alias: migrate_phoenix_db.yml
     target: ansible/migrate_phoenix_db.yml
 
-  - name: Migrate MWH DB
+  - name: Migrate Middlewarehouse DB
     alias: migrate_middlewarehouse_db.yml
     target: ansible/migrate_middlewarehouse_db.yml
+
+  - name: Migrate Hyperion DB
+    alias: migrate_hyperion_db.yml
+    target: ansible/migrate_hyperion_db.yml
 
   - name: Update Object Schemas
     alias: update_object_schemas.yml

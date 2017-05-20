@@ -8,15 +8,15 @@
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a database to restore"
-      default: "vanilla-db"
+      default: "backend"
       private: no
     - name: "phoenix_db_name"
       prompt: "Enter name of phoenix db to restore"
-      default: "phoenix_development"
+      default: "phoenix"
       private: no
     - name: "middlewarehouse_db_name"
       prompt: "Enter name of middlewarehouse db to restore"
-      default: "middlewarehouse_development"
+      default: "middlewarehouse"
       private: no
   roles:
     - { role: ops/restore_db }
