@@ -15,8 +15,8 @@
 - name: Install Bernardo Dependencies
   include: bernardo.yml
 
-- name: Install Terraform
-  include: terraform.yml
+- name: Install HashiCorp Tools
+  include: hashicorp.yml
 
 - name: Restart Buildkite Agent
   command: systemctl restart buildkite-agent
