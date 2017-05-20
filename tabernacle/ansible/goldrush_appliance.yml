@@ -9,7 +9,7 @@
     is_ci: "{{ lookup('env', 'CI') }}"
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
   roles:
-    - { role: appliance/instance }
+    - { role: app/instance }
 
 - name: Provision Developer Appliance
   hosts: gce_instances_ips
@@ -29,9 +29,7 @@
         storefront_server_name: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
         api_server: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
   roles:
-    - { role: dev/systemd }
-    - { role: dev/db }
-    - { role: dev/db_ic }
+    - { role: dev/dashboard }
     - { role: dev/marathon_consul }
     - { role: dev/seed_system }
     - { role: dev/marathon }
@@ -39,8 +37,7 @@
     - { role: dev/ic }
     - { role: ext/td/storefront }
     - { role: ext/tpg/storefront }
-    - { role: appliance/dashboard }
     - { role: demo/balancer }
     - { role: dev/seeder, when: with_appliance_seeding }
-    - { role: dev/healthcheck }
-    - { role: appliance/dnsimple }
+    - { role: app/healthcheck }
+    - { role: app/dnsimple }

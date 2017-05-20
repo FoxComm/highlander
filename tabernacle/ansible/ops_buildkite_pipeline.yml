@@ -20,4 +20,4 @@
       private: no
 
   roles:
-    - { role: ci/branches }
+    - { role: ops/buildkite_pipeline }

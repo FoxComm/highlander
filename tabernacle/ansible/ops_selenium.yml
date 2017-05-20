@@ -21,4 +21,4 @@
       default: "2.27"
       private: no
   roles:
-    - { role: test/selenium }
+    - { role: base/selenium }
