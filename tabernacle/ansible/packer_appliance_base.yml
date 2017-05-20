@@ -5,6 +5,11 @@
   become: true
   vars:
     user: ubuntu
+    db_host: localhost
+    bernardo_db_host: localhost
+    phoenix_db_host: localhost
+    middlewarehouse_db_host: localhost
+    hyperion_db_host: localhost
     packing: true
   roles:
     - { role: base/common }
