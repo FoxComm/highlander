@@ -46,9 +46,17 @@ shortcuts:
     alias: backup_zk.yml
     target: ansible/ops_backup_zk.yml
 
+  - name: Create Feature Branch Pipeline
+    alias: buildkite_pipeline.yml
+    target: ansible/ops_buildkite_pipeline.yml
+
   - name: Setup Consul Alerts
     alias: consul_alerts.yml
     target: ansible/ops_consul_alerts.yml
+
+  - name: Feature Branch Instance Setup
+    alias: ops_feature_branch.yml
+    target: ansible/ops_feature_branch.yml
 
   - name: Setup Marathon Alerts
     alias: marathon_alerts.yml
@@ -95,47 +103,26 @@ shortcuts:
     alias: goldrush_cfg.yml
     target: ansible/goldrush_config_gen.yml
 
-  - name: Debug Goldrush Configuration
-    alias: goldrush_debug.yml
-    target: ansible/goldrush_debug.yml
-
-  - name: Create Feature Branch Pipeline
-    alias: feature_branch.yml
-    target: ansible/goldrush_feature_branch.yml
-
-  - name: Update Application Docker Tag
+  - name: Goldrush Deploy Helper
     alias: update_app.yml
     target: ansible/goldrush_update_app.yml
-
-  # Provisioning
-  - name: Deploy Storefront
-    alias: deploy_storefront.yml
-    target: ansible/deploy_storefront.yml
-
-  - name: Provision FoxComm Demo
-    alias: demo.yml
-    target: ansible/demo.yml
-
-  - name: Provision FoxComm Test
-    alias: test_stage.yml
-    target: ansible/test_stage.yml
-
-  - name: Provision Appliance
-    alias: provision_appliance.yml
-    target: ansible/provision_appliance.yml
 
   # Migrations
   - name: Migrate Phoenix DB
     alias: migrate_phoenix_db.yml
     target: ansible/migrate_phoenix_db.yml
 
-  - name: Migrate MWH DB
+  - name: Migrate Middlewarehouse DB
     alias: migrate_middlewarehouse_db.yml
     target: ansible/migrate_middlewarehouse_db.yml
 
-  - name: Update Object Schemas
-    alias: update_object_schemas.yml
-    target: ansible/update_object_schemas.yml
+  - name: Migrate Hyperion DB
+    alias: migrate_hyperion_db.yml
+    target: ansible/migrate_hyperion_db.yml
+
+  - name: Migrate Object Schemas
+    alias: migrate_object_schemas.yml
+    target: ansible/migrate_object_schemas.yml
 
   # Seeders
   - name: Run Phoenix Seeder
