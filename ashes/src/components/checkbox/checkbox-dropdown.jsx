@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 
 // components
-import { HalfCheckbox } from 'components/core/checkbox';
+import { Checkbox } from 'components/core/checkbox';
 import GenericDropdown from '../dropdown/generic-dropdown';
 
 export default class CheckboxDropdown extends Component {
@@ -32,7 +32,7 @@ export default class CheckboxDropdown extends Component {
   renderCheckbox() {
     const { id, halfChecked, onToggle, checked, disabled } = this.props;
     return (
-      <HalfCheckbox
+      <Checkbox
         inline={true}
         id={id}
         docked="left"

@@ -18,10 +18,52 @@ type Props = {
   inline?: boolean,
   /** Align checkbox left/right */
   docked?: string,
-  /** If checkbox is half checked. Sign: ("-")  */
+  /** If true - sets ("-") in checkbox  */
   halfChecked?: boolean,
-  /** If checkbox is checked Sign ("✔") */
+  /** If true - sets ("✔") in checkbox */
   checked?: boolean,
+};
+
+/**
+ * Checkbox and SliderCheckbox are simple components build on the top of DefaultCheckbox
+ * and serve to show true/false data
+ *
+ * [Mockups](https://zpl.io/Z39JBU)
+ *
+ * @function Checkbox
+ */
+
+export const Checkbox = (props: Props) => {
+  const { inline, docked, halfChecked, checked } = props;
+
+  const className = classNames(
+    s.checkbox,
+    {
+      [s.halfChecked]: checked && halfChecked,
+      [s.inline]: inline,
+      [s.dockedLeft]: docked === 'left',
+      [s.dockedRight]: docked === 'right'
+    }
+  );
+
+  return (
+    <DefaultCheckbox {...props}
+      className={ className } />
+  );
+};
+
+Checkbox.defaultProps = {
+  inline: false,
+  docked: 'left',
+  halfChecked: false,
+  checked: false,
+};
+
+export const SliderCheckbox = (props: Props) => {
+  return (
+    <DefaultCheckbox {...props}
+      className={ classNames(s.slideCheckbox, props.className) } />
+  );
 };
 
 const DefaultCheckbox = (props: Props)=> {
@@ -38,52 +80,4 @@ const DefaultCheckbox = (props: Props)=> {
       </label>
     </div>
   );
-};
-
-const SliderCheckbox = (props: Props) => {
-  return (
-    <DefaultCheckbox {...props}
-      className={ classNames(s.slideCheckbox, props.className) } />
-  );
-};
-
-const Checkbox = (props: Props) => {
-  const { inline, docked, halfChecked } = props;
-  const className = classNames(
-    s.checkbox,
-    {
-      [s.halfChecked]: halfChecked,
-      [s.inline]: inline,
-      [s.dockedLeft]: docked === 'left',
-      [s.dockedRight]: docked === 'right'
-    }
-  );
-
-  return (
-    <DefaultCheckbox {...props}
-      className={ className } />
-  );
-};
-
-Checkbox.defaultProps = {
-  inline: false,
-  docked: 'left'
-};
-
-const HalfCheckbox = (props: Props)=> {
-  return (
-    <Checkbox {...props} halfChecked={props.checked && props.halfChecked} />
-  );
-};
-
-HalfCheckbox.defaultProps = {
-  halfChecked: false,
-  checked: false,
-};
-
-
-export {
-  SliderCheckbox,
-  Checkbox,
-  HalfCheckbox,
 };
