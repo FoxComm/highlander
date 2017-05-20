@@ -5,7 +5,7 @@
     account_email: "{{dnsimple_email}}"
     account_api_token: "{{dnsimple_token}}"
     domain: "{{foxcomm_domain}}"
-    record: "{{dns_record}}"
+    record: "appliance-{{ansible_default_ipv4.address}}"
     value: "{{ansible_default_ipv4.address}}"
     type: A
     ttl: 3600
