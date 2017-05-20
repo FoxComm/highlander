@@ -18,5 +18,5 @@
     google_instance_name: "{{appliance_prefix}}-{{user}}-{{999999|random}}"
   when: google_instance_name == ""
 
-- name: Overwrite Highlander .env.local
+- name: Save Goldrush Configuration
   template: src=goldrush.cfg.j2 dest="{{highlander_path_out.stdout}}/goldrush.cfg"
