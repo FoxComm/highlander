@@ -9,9 +9,6 @@
 - name: Remove Unattended Upgrades
   apt: name=unattended-upgrades state=absent
 
-- name: Copy logrotate to cron.hourly
-  shell: mv /etc/cron.daily/logrotate /etc/cron.hourly || true
-
 - name: Install Core Packages
   apt: name={{item}} state=latest force=yes
   with_items:
@@ -47,6 +44,9 @@
 - name: Install AWS Bootstrap Script
   copy: src=bootstrap_consul_aws.sh dest=/usr/local/bin mode=775
   when: is_aws
+
+- name: Copy logrotate to cron.hourly
+  shell: mv /etc/cron.daily/logrotate /etc/cron.hourly || true
 
 - name: Install Docker
   include: docker.yml

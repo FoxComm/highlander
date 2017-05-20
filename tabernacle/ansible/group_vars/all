@@ -115,6 +115,7 @@ consul_data_dir: /var/consul
 consul_suffix: service.consul
 consul_port: 8500
 consul_server: "{{self_host}}:{{consul_port}}"
+join_type: join
 
 db_host: "db.{{consul_suffix}}"
 docker_db_host: "db.{{consul_suffix}}"

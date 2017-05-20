@@ -6,7 +6,6 @@
   vars:
     user: ubuntu
     packing: true
-    join_type: join
   roles:
     - { role: base/common }
     - { role: base/languages }

@@ -32,11 +32,7 @@
     - { role: dev/ic, when: with_ic }
     - { role: ext/td/storefront, when: marathon_restart.storefront_td }
     - { role: ext/tpg/storefront, when: marathon_restart.storefront_td }
-    - { role: dev/balancer }
+    - { role: dev/nginx }
     - { role: demo/balancer }
     - { role: dev/seeder, when: with_appliance_seeding }
     - { role: app/healthcheck }
-    - { role: app/dnsimple }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml

@@ -37,7 +37,7 @@
     - { role: dev/ic }
     - { role: ext/td/storefront }
     - { role: ext/tpg/storefront }
-    - { role: dev/balancer }
+    - { role: dev/nginx }
     - { role: demo/balancer }
     - { role: dev/seeder, when: with_appliance_seeding }
     - { role: app/healthcheck }

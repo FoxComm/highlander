@@ -6,7 +6,6 @@
   vars:
     user: ubuntu
     packing: true
-    join_type: join
     consul_expect: 1
   roles:
     - { role: base/consul_server }
