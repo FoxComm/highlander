@@ -40,32 +40,19 @@
         storefront_server_name: "{{dns_record}}.{{foxcomm_domain}}"
         api_server: "{{dns_record}}.{{foxcomm_domain}}"
   roles:
-    # Core
-    - { role: dev/appliance }
+    # Dashboard client side
     - { role: dev/dashboard }
-    # Services
-    - { role: dev/consul_agent }
-    - { role: dev/zookeeper }
-    - { role: dev/elasticsearch }
-    - { role: hotfix/elasticsearch }
-    - { role: hotfix/rsyslog }
-    - { role: hotfix/kibana }
-    - { role: hotfix/replace_mesos_consul }
-    - { role: hotfix/marathon_consul }
-    - { role: dev/db }
-    - { role: dev/db_ic, when: with_ic }
-    # Marathon
-    - { role: dev/seed_system }
+
     - { role: dev/marathon }
     - { role: dev/marathon_consumers }
+
     - { role: dev/ic }
+
+    # Storefronts
     - { role: ext/td/storefront }
     - { role: ext/tpg/storefront }
-    # Nginx
-    - { role: dev/balancer }
     - { role: demo/balancer }
     # Seed
     - { role: dev/seeder, when: with_appliance_seeding }
-    # Finale
+
     - { role: dev/healthcheck }
-    - { role: dev/appliance_dns }
