@@ -21,8 +21,8 @@
     - materialized_views
     - pgweb
 
-- name: Enable Onboarding Services
-  service: name=bottledwater_onboarding enabled=yes
+- name: Enable Marketplace Services
+  service: name=bottledwater_marketplace enabled=yes
   when: with_marketplace
 
 - name: Reload Systemd Daemon
