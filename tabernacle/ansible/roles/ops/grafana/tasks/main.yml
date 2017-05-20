@@ -1,11 +1,5 @@
 ---
 
-- name: Copy SSL Certificate
-  copy: src="{{role_path}}/../../base/secret_keys/files/certs/{{cert_path}}/docker/domain.crt" dest=/certs/domain.crt
-
-- name: Copy SSL Key
-  copy: src="{{role_path}}/../../base/secret_keys/files/certs/{{cert_path}}/docker/domain.key" dest=/certs/domain.key
-
 - name: Download Grafana
   get_url: url={{grafana_url}} dest={{home}}
 

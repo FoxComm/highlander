@@ -8,6 +8,7 @@
     sinopia_webui_title: FoxCommerce Private NPM Registry
     sinopia_max_body_size: 2mb
   roles:
+      - { role: dev/ssl_certs }
       - { role: ops/sinopia }
 
   handlers:
