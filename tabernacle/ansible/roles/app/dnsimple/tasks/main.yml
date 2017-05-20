@@ -6,7 +6,7 @@
     account_api_token: "{{dnsimple_token}}"
     domain: "{{foxcomm_domain}}"
     record: "{{dns_record}}"
-    value: "{{private_ip}}"
+    value: "{{ansible_default_ipv4.address}}"
     type: A
     ttl: 3600
     state: present
