@@ -6,7 +6,6 @@
     gce_service_account_email: "{{ lookup('env', 'GOOGLE_SERVICE_ACCOUNT_EMAIL') }}"
     gce_credentials_file: "{{ lookup('env', 'GOOGLE_JSON_KEY_LOCATION') }}"
     gce_instance_name: "{{ lookup('env', 'GOOGLE_INSTANCE_NAME') }}"
-    is_ci: "{{ lookup('env', 'CI') }}"
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
   roles:
     - { role: app/instance }
@@ -19,7 +18,6 @@
     first_run: "{{ FIRST_RUN | default(false) }}"
     is_appliance: true
     is_amigo: true
-    is_ci: "{{ lookup('env', 'CI') }}"
     url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
