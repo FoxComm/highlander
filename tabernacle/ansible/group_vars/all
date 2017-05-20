@@ -10,6 +10,7 @@ appliance_prefix: appliance
 
 # Keys
 cert_path: test/fox
+cert_type: docker
 install_private_keys: true
 install_public_keys: true
 public_keys_dest_dir: /etc/keys

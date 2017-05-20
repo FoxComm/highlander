@@ -12,15 +12,6 @@
 - name: Copy Sinopia Logo
   copy: src=logo_small.png dest={{sinopia_base_dir}}/logo.png mode="u+x,g+x,o+x"
 
-- name: Make SSL Certs Directory
-  file: path=/certs state=directory mode="600"
-
-- name: Copy SSL Certificate
-  copy: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.crt" dest=/certs/domain.crt
-
-- name: Copy SSL Key
-  copy: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.key" dest=/certs/domain.key
-
 - name: Install Sinopia Run Script
   template: src=run_sinopia.sh.j2 dest="{{sinopia_base_dir}}/run_sinopia.sh" mode="u=rwx,g=rwx,o=r"
 
