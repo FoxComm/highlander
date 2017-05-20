@@ -13,6 +13,7 @@
     - { role: base/devkit }
     - { role: base/ssh_keys }
     - { role: base/secret_keys }
+    - { role: base/ssl_certs }
     - { role: base/consul }
     - { role: base/consul_agent }
     - { role: base/mesos }

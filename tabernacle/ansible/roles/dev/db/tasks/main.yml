@@ -63,10 +63,6 @@
   file: path="{{phoenix_dir}}/log" state=directory owner="{{user}}" mode="0777"
 
 # Flyway on Phoenix
-<<<<<<< HEAD
-
-=======
->>>>>>> master
 - name: Setup Phoenix Flyway Config
   template: src=flyway.phoenix.conf dest="{{phoenix_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
 
