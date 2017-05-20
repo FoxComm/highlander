@@ -31,5 +31,5 @@ All of our DevOps tools for deploying the application to both development and pr
 * [`ext`](ansible/roles/ext) - Customer environment-specific roles.
 * [`hotfix`](ansible/roles/hotfix) - Roles that will be merge into `base` roles after repack.
 * [`ops`](ansible/roles/ops) - Roles requiring interactive input, usually applied manually.
-* [`prod`](ansible/roles/hotfix) - Roles that are usually applied to production systems.
+* [`prod`](ansible/roles/prod) - Roles that are usually applied to production systems.
 

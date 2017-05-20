@@ -28,4 +28,4 @@
       private: no
 
   roles:
-    - { role: dev/goldrush_cfg }
+    - { role: app/config_gen }

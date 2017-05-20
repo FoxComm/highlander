@@ -1,6 +1,6 @@
 ---
 
-- name: Fat Base Image
+- name: Fat Base Image Test
   hosts: pavel-test
   become: true
   vars:
