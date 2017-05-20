@@ -439,6 +439,7 @@ data_import_max_count: 100
 
 # Various flags
 first_run: false
+is_aws: false
 is_ci: false
 is_amigo: false
 is_appliance: false

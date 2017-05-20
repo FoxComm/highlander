@@ -10,9 +10,9 @@
   apt: name=unattended-upgrades state=absent
 
 - name: Copy logrotate to cron.hourly
-  shell: mv /etc/cron.daily/logrotate /etc/cron.hourly
+  shell: mv /etc/cron.daily/logrotate /etc/cron.hourly || true
 
-- name: Install Core Packages 1
+- name: Install Core Packages
   apt: name={{item}} state=latest force=yes
   with_items:
     - apt-transport-https
@@ -43,7 +43,10 @@
   with_items:
     - bootstrap.sh
     - bootstrap_consul.sh
-    - bootstrap_consul_aws.sh
+
+- name: Install AWS Bootstrap Script
+  copy: src=bootstrap_consul_aws.sh dest=/usr/local/bin mode=775
+  when: is_aws
 
 - name: Install Docker
   include: docker.yml
@@ -52,10 +55,7 @@
   include: swap.yml
 
 - name: Configure VM limits
-  include: vm.yml
+  include: limits.yml
 
-- name: Remove Unattended Upgrades
-  apt: name=unattended-upgrades state=absent
-
-- name: Remove Daily Apt
-  file: path=/etc/cron.daily/apt-compat state=absent
+- name: Cleanup
+  include: cleanup.yml
