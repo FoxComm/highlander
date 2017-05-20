@@ -4,14 +4,10 @@
   hosts: '{{hostname}}'
   become: true
   vars:
-    cert_path: test/fox
     docker_db_host: 172.17.0.1
     first_run: true
-    install_public_keys: true
-    install_private_keys: true
     is_appliance: true
     is_amigo: true
-    mesos_quorum: 1
     with_base_seeds: true
     with_mwh_seeder: true
     with_hyperion_seeder: true

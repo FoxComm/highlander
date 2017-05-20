@@ -6,13 +6,7 @@
   vars:
     user: ubuntu
     packing: true
-    cert_path: test/fox
-    install_public_keys: true
-    install_private_keys: true
     join_type: join
-    consul_expect: 1
-    mesos_quorum: 1
-    mesos_ip: "$(hostname -i)"
   roles:
     - { role: base/common }
     - { role: base/languages }

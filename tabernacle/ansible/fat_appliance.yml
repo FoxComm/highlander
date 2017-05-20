@@ -4,13 +4,7 @@
   hosts: pavel-test
   become: true
   vars:
-    cert_path: test/fox
-    consul_expect: 1
-    install_public_keys: true
-    install_private_keys: true
     is_appliance: true
-    join_type: join
-    mesos_quorum: 1
     packing: true
     user: ubuntu
   roles:
