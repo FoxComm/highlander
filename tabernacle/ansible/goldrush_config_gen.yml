@@ -26,6 +26,10 @@
       prompt: "Should we provision instance with IC apps?"
       default: yes
       private: no
+    - name: "with_seeding_input"
+      prompt: "Should we seed instance immediately?"
+      default: yes
+      private: no
 
   roles:
     - { role: app/config_gen }

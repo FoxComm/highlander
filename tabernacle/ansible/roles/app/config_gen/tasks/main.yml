@@ -13,6 +13,15 @@
     with_ic_value: true
   when: with_ic_input
 
+- name: Set Seeding Default Fact
+  set_fact:
+    with_seeding_value: false
+
+- name: Set Seeding Fact
+  set_fact:
+    with_seeding_value: true
+  when: with_seeding_input
+
 - name: Set Default Appliance Name
   set_fact:
     google_instance_name: "{{appliance_prefix}}-{{user}}-{{999999|random}}"

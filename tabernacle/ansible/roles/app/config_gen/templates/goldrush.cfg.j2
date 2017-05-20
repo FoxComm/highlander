@@ -8,10 +8,10 @@ export GOOGLE_JSON_KEY_LOCATION={{google_json_key_location}}
 export GOOGLE_INSTANCE_NAME={{google_instance_name}}
 
 # Should we include IC?
-export WITH_INTELLIGENT_COMMERCE={{with_ic_value}}
+export WITH_INTELLIGENT_COMMERCE={{with_ic_value | bool | lower}}
 
 # Should we seed?
-export WITH_APPLIANCE_SEEDING=true
+export WITH_APPLIANCE_SEEDING={{with_seeding_value | bool | lower}}
 
 ####################################################################
 # Docker Tags                                                      #
