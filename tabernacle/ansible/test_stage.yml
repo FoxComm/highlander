@@ -12,6 +12,10 @@
   hosts: foxcomm-stage-backend
   become: true
   vars:
+    db_name: phoenix_development
+    phoenix_db_name: phoenix_development
+    middlewarehouse_db_name: middlewarehouse_development
+    hyperion_db_name: hyperion_development
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
   roles:
     - { role: dev/stage_mesos, when: first_run }
@@ -35,6 +39,10 @@
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     api_server: stage.foxcommerce.com
     storefront_server_name: stage.foxcommerce.com
+    db_name: phoenix_development
+    phoenix_db_name: phoenix_development
+    middlewarehouse_db_name: middlewarehouse_development
+    hyperion_db_name: hyperion_development
     url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"
   roles:

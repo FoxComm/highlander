@@ -13,6 +13,10 @@
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    db_name: phoenix_development
+    phoenix_db_name: phoenix_development
+    middlewarehouse_db_name: middlewarehouse_development
+    hyperion_db_name: hyperion_development
   roles:
     - { role: dev/stage_mesos, when: first_run }
     - { role: dev/elasticsearch, when: first_run }
@@ -34,6 +38,10 @@
     storefront_server_name: demo1.foxcommerce.com
     seeds_cmd: utils.seeds.Seeds seed --seedAdmins --seedShippingRules
     data_import_max_count: 1000
+    db_name: phoenix_development
+    phoenix_db_name: phoenix_development
+    middlewarehouse_db_name: middlewarehouse_development
+    hyperion_db_name: hyperion_development
     url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"
   roles:
