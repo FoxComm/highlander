@@ -147,6 +147,10 @@ shortcuts:
     alias: fat_appliance.yml
     target: ansible/fat_appliance.yml
 
+  - name: Fat Provision
+    alias: fat_provision.yml
+    target: ansible/fat_provision.yml
+
 # Packer shortcuts
 - type: snowflake
   process: packer build

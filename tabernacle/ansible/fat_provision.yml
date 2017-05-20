@@ -1,0 +1,37 @@
+---
+
+- name: Provision Developer Appliance
+  hosts: pavel-test
+  become: true
+  vars:
+    docker_db_host: 172.17.0.1
+    first_run: "{{ FIRST_RUN | default(false) }}"
+    db_name: phoenix_development
+    phoenix_db_name: phoenix_development
+    middlewarehouse_db_name: middlewarehouse_development
+    hyperion_db_name: hyperion_development
+    is_appliance: true
+    is_amigo: true
+    with_appliance_seeding: false
+    url_prefix_perfectgourmet: "/perfect-gourmet"
+    url_prefix_topdrawer: "/top-drawer"
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  pre_tasks:
+    - name: Override hostnames
+      set_fact:
+        storefront_server_name: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
+        api_server: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
+  roles:
+    # - { role: dev/dashboard }
+    # - { role: dev/marathon_consul }
+    - { role: dev/seed_system }
+    - { role: dev/marathon }
+    - { role: dev/marathon_consumers }
+    - { role: dev/ic }
+    - { role: ext/td/storefront }
+    - { role: ext/tpg/storefront }
+    - { role: dev/nginx }
+    - { role: demo/balancer }
+    - { role: dev/seeder, when: with_appliance_seeding }
+    - { role: app/healthcheck }
+    - { role: app/dnsimple }

@@ -8,7 +8,6 @@
     first_run: true
     is_appliance: true
     is_amigo: true
-    with_base_seeds: true
     with_mwh_seeder: true
     with_hyperion_seeder: true
     with_data_import: true
@@ -23,13 +22,12 @@
       default: "feature-branch"
       private: no
   roles:
-    # Core
     - { role: dev/dashboard }
     - { role: dev/marathon_consul }
     - { role: dev/seed_system }
     - { role: dev/marathon }
     - { role: dev/marathon_consumers }
-    - { role: dev/ic, when: with_ic }
+    - { role: dev/ic }
     - { role: ext/td/storefront, when: marathon_restart.storefront_td }
     - { role: ext/tpg/storefront, when: marathon_restart.storefront_td }
     - { role: dev/nginx }

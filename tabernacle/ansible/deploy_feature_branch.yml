@@ -18,7 +18,7 @@
     - { role: prod/migrate_middlewarehouse_db }
     - { role: dev/marathon }
     - { role: dev/marathon_consumers }
-    - { role: dev/ic, when: with_ic }
+    - { role: dev/ic }
     - { role: ext/td/storefront, when: marathon_restart.storefront_td }
     - { role: ext/tpg/storefront, when: marathon_restart.storefront_tpg }
     - { role: dev/nginx }
