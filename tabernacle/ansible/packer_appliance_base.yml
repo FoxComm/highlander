@@ -23,20 +23,20 @@
     - { role: base/consul_agent }
     - { role: base/zookeeper }
     - { role: base/confluent_platform }
+    - { role: base/flyway }
+    - { role: base/db }
+    - { role: base/bottledwater }
     - { role: base/mesos }
     - { role: base/mesos_master }
     - { role: base/mesos_worker }
     - { role: base/marathon_consul }
-    - { role: base/flyway }
-    - { role: base/db }
-    - { role: base/bottledwater }
-    - { role: base/pgweb }
     - { role: base/elasticsearch }
     - { role: base/elasticsearch-5 }
     - { role: base/kibana }
     - { role: base/nginx }
     - { role: base/consul_template }
     - { role: base/dashboard }
+    - { role: base/pgweb }
     - { role: dev/db }
     - { role: dev/db_ic }
     - { role: app/systemd }
