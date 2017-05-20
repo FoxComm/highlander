@@ -37,6 +37,7 @@ All of our DevOps tools for deploying the application to both development and pr
 
 * `consul_agent`
     * `consul_template`
+    * `dashboard`
     * `demo_consul_template`
     * `zookeeper`
         * `kafka`
@@ -51,4 +52,5 @@ All of our DevOps tools for deploying the application to both development and pr
     * `bottledwater_phoenix`
     * `bottledwater_middlewarehouse`
     * `bottledwater_onboarding`
+    * `materialized_views`
     * `pgweb`
