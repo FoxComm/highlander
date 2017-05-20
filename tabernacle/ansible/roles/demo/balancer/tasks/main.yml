@@ -20,3 +20,6 @@
 
 - name: Restart Demo Consul Template
   service: name=demo_consul_template state=restarted
+
+- name: Pause for 10 seconds
+  pause: seconds=10

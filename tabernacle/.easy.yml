@@ -142,15 +142,6 @@ shortcuts:
     alias: seed_data_import.yml
     target: ansible/seed_data_import.yml
 
-  # Test
-  - name: Fat Appliance
-    alias: fat_appliance.yml
-    target: ansible/fat_appliance.yml
-
-  - name: Fat Provision
-    alias: fat_provision.yml
-    target: ansible/fat_provision.yml
-
 # Packer shortcuts
 - type: snowflake
   process: packer build
