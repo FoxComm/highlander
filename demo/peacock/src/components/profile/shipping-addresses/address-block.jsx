@@ -63,7 +63,9 @@ class AddressBlock extends Component {
     if (_.isEmpty(defaultAddress)) return true;
 
     const { addresses, shippingAddress } = this.props;
-    if (defaultAddress.id === lookupAddressId(addresses, shippingAddress)) return false;
+    const defaultSameAsShipping = defaultAddress.id === lookupAddressId(addresses, shippingAddress);
+
+    return !defaultSameAsShipping;
   }
 
   get shippingAddressDetails() {
@@ -112,9 +114,9 @@ class AddressBlock extends Component {
 
     return (
       <div>
-        <div styleName="divider" />
+        <div styleName="divider top" />
         {defaultAddress}
-        {shippingAddress ? <div styleName="divider" /> : null}
+        {shippingAddress ? <div styleName="divider addresses" /> : null}
         {shippingAddress}
       </div>
     );
@@ -137,8 +139,25 @@ class AddressBlock extends Component {
     );
   }
 
+  get actionDetails() {
+    const { addresses } = this.props;
+
+    if (addresses.length > 0) return {
+      title: 'Edit',
+    };
+
+    return {
+      title: 'Add new',
+      icon: {
+        name: 'fc-plus',
+        className: styles.plus,
+      }
+    };
+  }
+
   render() {
     const { className, toggleAddressesModal, addressesModalVisible } = this.props;
+    const actionDetails = this.actionDetails;
 
     return (
       <div className={className}>
@@ -146,7 +165,8 @@ class AddressBlock extends Component {
           data={this.addressDetails}
           toggleModal={toggleAddressesModal}
           modalVisible={addressesModalVisible}
-          actionTitle="Edit"
+          actionTitle={actionDetails.title}
+          actionIcon={actionDetails.icon}
           modalContent={this.addressesModalContent}
           blockTitle="Shipping addresses"
         />

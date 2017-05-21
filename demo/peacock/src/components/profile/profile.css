@@ -44,7 +44,20 @@
   height: 1px;
   width: 100%;
   background: var(--border-color);
-  margin: 10px 0;
+  margin-bottom: 8px;
+
+  &.top {
+    margin-top: 12px;
+  }
+
+  &.addresses {
+    margin-top: 10px;
+  }
+}
+
+.plus {
+  composes: plus-icon from "ui/css/plus-icon.css";
+  margin-right: 8px;
 }
 
 .subtitle {
@@ -153,7 +166,7 @@
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: flex-start;
 }
 
 .title {
@@ -169,6 +182,8 @@
 
 .action-link {
   composes: action-link from "ui/action-link/action-link.css";
+  display: flex;
+  align-items: center;
   font-size: 14px;
 }
 
