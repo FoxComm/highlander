@@ -29,7 +29,6 @@ type Props = {
   collapsed: boolean,
   saveShippingAddress: (id: number) => Promise<*>,
   updateAddress: (address: Address, id?: number) => Promise<*>,
-  editAction: Function,
   onComplete: () => void,
   saveState: AsyncStatus,
   updateAddressState: AsyncStatus,
@@ -39,6 +38,8 @@ type Props = {
   applyAction: (id: number) => Promise<*>,
   inProfile: boolean,
   buttonLabel: string,
+  deleteAddress: (id: number) => Promise<*>,
+  restoreAddress: (id: number) => Promise<*>,
 };
 
 type State = {
