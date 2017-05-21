@@ -25,6 +25,11 @@
   justify-content: space-between;
 }
 
+.orders {
+  lost-column: 7/11;
+  margin-top: 50px;
+}
+
 .link-button {
   composes: button from "ui/css/buttons.css";
   border: 1px solid var(--link-color);
@@ -99,15 +104,12 @@
   margin-bottom: 10px;
 }
 
-.simple-table {
+.orders-table {
   border-collapse: collapse;
-  font-family: var(--font-main);
-  font-size: 15px;
-  color: var(--text-color);
-  line-height: 20px;
+  font-size: 12px;
 
   & > thead {
-    border-bottom: 1px solid var(--text-color);
+    border-bottom: 1px solid var(--border-color);
   }
   & th {
     padding-bottom: 20px;
@@ -125,7 +127,7 @@
     }
 
     & > tr {
-      border-bottom: 1px solid var(--text-color);
+      border-bottom: 1px solid var(--border-color);
     }
   }
 }
