@@ -22,4 +22,8 @@
   service: name=demo_consul_template state=restarted
 
 - name: Pause for 10 seconds
-  pause: seconds=20
+  pause: seconds=10
+
+- name: Additional CI pause
+  pause: seconds=30
+  when: is_ci
