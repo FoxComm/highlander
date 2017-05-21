@@ -90,7 +90,6 @@ class AddressBlock extends Component {
     return (
       <AddressDetails
         address={shippingAddress}
-        styleName="shippingAddress"
       />
     );
   }
@@ -107,7 +106,6 @@ class AddressBlock extends Component {
     return (
       <AddressDetails
         address={defaultAddress}
-        styleName="shippingAddress"
       />
     );
   }
