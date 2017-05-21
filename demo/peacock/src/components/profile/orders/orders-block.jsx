@@ -4,10 +4,9 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
 
 // actions
-import * as actions from 'modules/orders';
+import { fetchOrders } from 'modules/orders';
 
 // components
 import OrderRow from './order-row';
@@ -22,6 +21,7 @@ type State = {
 type Props = {
   auth: Object,
   orders: Array<Object>,
+  fetchOrders: () => Promise<*>,
 };
 
 class OrdersBlock extends Component {
@@ -32,7 +32,8 @@ class OrdersBlock extends Component {
   };
 
   componentWillMount() {
-    if (_.get(this.props.auth, 'jwt')) {
+    const { auth } = this.props;
+    if (_.get(auth, 'jwt')) {
       this.props.fetchOrders().catch((ex) => {
         this.setState({
           error: ex.toString(),
@@ -56,8 +57,6 @@ class OrdersBlock extends Component {
   }
 
   get content() {
-    const { props } = this;
-
     if (this.state.error) {
       return (
         <ErrorAlerts error={this.state.error} />
@@ -91,5 +90,5 @@ const mapStateToProps = (state) => {
 };
 
 export default connect(mapStateToProps, {
-  ...actions,
+  fetchOrders,
 })(OrdersBlock);
