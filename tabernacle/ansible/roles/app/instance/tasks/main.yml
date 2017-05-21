@@ -45,3 +45,8 @@
     state: started
     timeout: 600
   with_items: "{{gce.instance_data}}"
+
+- name: Pausing for a bit...
+  pause: seconds=30
+  when: is_ci
+
