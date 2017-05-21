@@ -7,6 +7,7 @@ import { autobind } from 'core-decorators';
 import localized from 'lib/i18n';
 import { connect } from 'react-redux';
 import { browserHistory } from 'lib/history';
+import { lookupAddressId } from 'paragons/address';
 
 // actions
 import * as checkoutActions from 'modules/checkout';
@@ -16,23 +17,27 @@ import * as actions from 'modules/profile';
 import { AddressDetails } from 'ui/address';
 import DetailsBlock from '../details-block';
 import AddressList from 'ui/address/address-list';
+import Loader from 'ui/loader';
 
-// styles
-// import addressStyles from 'ui/address-list.css';
-
+// types
 import type { Address } from 'types/address';
+import type { AsyncStatus } from 'types/async-actions';
 
 import styles from '../profile.css';
 
 type Props = {
   fetchAddresses: () => Promise<*>,
   addresses: Array<Address>,
+  shippingAddress: Address,
   deleteAddress: (id: number) => Promise<*>,
   restoreAddress: (id: number) => Promise<*>,
   setAddressAsDefault: (id: number) => Promise<*>,
   cleanDeletedAddresses: () => void,
   t: any,
   className: string,
+  setAsDefaultState: AsyncStatus,
+  updateAddressState: AsyncStatus,
+  cartState: boolean,
 };
 
 class AddressBlock extends Component {
@@ -46,97 +51,48 @@ class AddressBlock extends Component {
     this.props.cleanDeletedAddresses();
   }
 
-  // @autobind
-  // addAddress() {
-  //   browserHistory.push('/profile/addresses/new');
-  // }
-  //
-  // @autobind
-  // deleteAddress(address) {
-  //   this.props.deleteAddress(address.id);
-  // }
-  //
-  // @autobind
-  // handleSelectAddress(address) {
-  //   this.props.setAddressAsDefault(address.id);
-  // }
-  //
-  // renderAddresses() {
-  //   const { props } = this;
-  //   const seenAddressNames = {};
-  //   const items = _.map(props.addresses, (address: Address) => {
-  //     const contentAttrs = address.isDeleted ? {className: styles['deleted-content']} : {};
-  //     const content = <AddressDetails address={address} hideName {...contentAttrs} />;
-  //     const checked = address.isDefault;
-  //     const key = address.name in seenAddressNames ? address.id : address.name;
-  //     seenAddressNames[address.name] = 1;
-  //
-  //     let actionsContent;
-  //     let title;
-  //
-  //     if (address.isDeleted) {
-  //       actionsContent = (
-  //         <div styleName="actions-block">
-  //           <div styleName="link" onClick={() => this.props.restoreAddress(address.id)}>{props.t('RESTORE')}</div>
-  //         </div>
-  //       );
-  //       title = <span styleName="deleted-content">{address.name}</span>;
-  //     } else {
-  //       actionsContent = (
-  //         <div styleName="actions-block">
-  //           <Link styleName="link" to={`/profile/addresses/${address.id}`}>{props.t('EDIT')}</Link>
-  //           &nbsp;|&nbsp;
-  //           <div styleName="link" onClick={() => this.deleteAddress(address)}>
-  //             {props.t('REMOVE')}
-  //           </div>
-  //         </div>
-  //       );
-  //       title = address.name;
-  //     }
-  //
-  //     return (
-  //       <li styleName="list-item" key={`address-radio-${key}`}>
-  //         <RadioButton
-  //           id={`address-radio-${key}`}
-  //           name={`address-radio-${key}`}
-  //           checked={checked}
-  //           disabled={address.isDeleted}
-  //           onChange={() => this.handleSelectAddress(address)}
-  //           styleName="shipping-row"
-  //         >
-  //           <EditableBlock
-  //             styleName="item-content"
-  //             title={title}
-  //             content={content}
-  //             editAllowed={false}
-  //           />
-  //         </RadioButton>
-  //         {actionsContent}
-  //       </li>
-  //     );
-  //   });
-  //
-  //   return (
-  //     <div>
-  //       <ul styleName="list">{items}</ul>
-  //       <div styleName="buttons-footer">
-  //         <button styleName="link-button" type="button" onClick={this.addAddress}>
-  //           Add Address
-  //         </button>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
   get defaultAddress() {
     const { addresses } = this.props;
     return _.filter(addresses, (address) => address.isDefault);
   }
 
-  get addressDetails() {
+  @autobind
+  displayShippingAddress() {
     const defaultAddress = this.defaultAddress[0];
 
-    if (_.isEmpty(defaultAddress)) return 'No default address found.';
+    if (_.isEmpty(defaultAddress)) return true;
+
+    const { addresses, shippingAddress } = this.props;
+    if (defaultAddress.id === lookupAddressId(addresses, shippingAddress)) return false;
+  }
+
+  get shippingAddressDetails() {
+    const { shippingAddress } = this.props;
+
+    if (_.isEmpty(shippingAddress)) {
+      return (
+        <div>No shipping address found.</div>
+      );
+    }
+
+    if (!this.displayShippingAddress()) return null;
+
+    return (
+      <AddressDetails
+        address={shippingAddress}
+        styleName="shippingAddress"
+      />
+    );
+  }
+
+  get defaultAddressDetails() {
+    const defaultAddress = this.defaultAddress[0];
+
+    if (_.isEmpty(defaultAddress)) {
+      return (
+        <div>No default address found.</div>
+      );
+    }
 
     return (
       <AddressDetails
@@ -146,9 +102,38 @@ class AddressBlock extends Component {
     );
   }
 
-  get addressesModalContent() {
+  get addressDetails() {
+    const { cartState } = this.props;
+
+    if (!cartState) return <Loader size="m" />;
+
+    const defaultAddress = this.defaultAddressDetails;
+    const shippingAddress = this.shippingAddressDetails;
+
     return (
-      <AddressList {...this.props}  />
+      <div>
+        <div styleName="divider" />
+        {defaultAddress}
+        {shippingAddress ? <div styleName="divider" /> : null}
+        {shippingAddress}
+      </div>
+    );
+  }
+
+  get addressesModalContent() {
+    const { toggleAddressesModal, setAsDefaultState } = this.props;
+
+    return (
+      <AddressList
+        actionHandler={toggleAddressesModal}
+        actionTitle="Close"
+        applyAction={this.props.setAddressAsDefault}
+        onComplete={toggleAddressesModal}
+        saveState={setAsDefaultState}
+        buttonLabel="Set as default"
+        inProfile
+        {...this.props}
+      />
     );
   }
 
@@ -173,7 +158,11 @@ class AddressBlock extends Component {
 const mapStateToProps = (state) => {
   return {
     addresses: _.get(state.checkout, 'addresses', []),
+    shippingAddress: _.get(state.cart, 'shippingAddress', {}),
     addressesModalVisible: _.get(state.profile, 'addressesModalVisible', false),
+    setAsDefaultState: _.get(state.asyncActions, 'setAddressAsDefault', {}),
+    updateAddressState: _.get(state.asyncActions, 'updateAddress', false),
+    cartState: _.get(state.asyncActions, 'cart.finished', false),
   };
 }
 
