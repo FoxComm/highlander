@@ -23,7 +23,3 @@
 
 - name: Pause for 10 seconds
   pause: seconds=10
-
-- name: Additional CI pause
-  pause: seconds=30
-  when: is_ci
