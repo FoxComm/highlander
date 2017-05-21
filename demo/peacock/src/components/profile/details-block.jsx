@@ -16,19 +16,24 @@ type Props = {
   actionTitle: string,
   blockTitle: string,
   modalContent: React$Element,
+  actionIcon?: {
+    name: string,
+    className: string,
+  },
 };
 
 class DetailsBlock extends Component {
   props: Props;
 
   get action() {
-    const { actionTitle } = this.props;
+    const { actionTitle, actionIcon } = this.props;
 
     return (
       <ActionLink
         action={this.props.toggleModal}
         title={actionTitle}
         styleName="action-link"
+        icon={actionIcon}
       />
     );
   }
