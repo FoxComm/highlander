@@ -21,5 +21,9 @@
 - name: Restart Demo Consul Template
   service: name=demo_consul_template state=restarted
 
-- name: Wait For Consul Template
-  wait_for: host="consul-template.{{consul_suffix}}"
+- name: Wait before consul-template service will be registered
+  shell: 'ping -c 1 consul-template.{{consul_suffix}}'
+  register: consul_template_host_ex
+  until: consul_template_host_ex.rc == 0
+  retries: "{{marathon_retries}}"
+  delay: 2
