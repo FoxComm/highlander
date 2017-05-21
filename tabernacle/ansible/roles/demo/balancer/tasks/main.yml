@@ -22,4 +22,4 @@
   service: name=demo_consul_template state=restarted
 
 - name: Wait For Consul Template
-  wait_for: host="consul_template.{{consul_suffix}}"
+  wait_for: host="consul-template.{{consul_suffix}}"
