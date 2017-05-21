@@ -1,7 +1,6 @@
 /* @flow */
 
-import React, { Component } from 'react';
-import _ from 'lodash';
+import React, { Component, Element } from 'react';
 
 // components
 import ActionLink from 'ui/action-link/action-link';
@@ -10,12 +9,12 @@ import Modal from 'ui/modal/modal';
 import styles from './profile.css';
 
 type Props = {
-  data?: string,
+  data?: string | Element<*>,
   toggleModal: () => void,
   modalVisible: boolean,
   actionTitle: string,
   blockTitle: string,
-  modalContent: React$Element,
+  modalContent: Element<*>,
   actionIcon?: {
     name: string,
     className: string,

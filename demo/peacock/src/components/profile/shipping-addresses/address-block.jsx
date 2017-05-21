@@ -6,7 +6,6 @@ import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import localized from 'lib/i18n';
 import { connect } from 'react-redux';
-import { browserHistory } from 'lib/history';
 import { lookupAddressId } from 'paragons/address';
 
 // actions
@@ -25,6 +24,13 @@ import type { AsyncStatus } from 'types/async-actions';
 
 import styles from '../profile.css';
 
+type ActionDetails = {
+  title: string,
+  icon?: {
+    name: string,
+    className: string,
+  },
+};
 type Props = {
   fetchAddresses: () => Promise<*>,
   addresses: Array<Address>,
@@ -38,6 +44,8 @@ type Props = {
   setAsDefaultState: AsyncStatus,
   updateAddressState: AsyncStatus,
   cartState: boolean,
+  toggleAddressesModal: () => void,
+  addressesModalVisible: boolean,
 };
 
 class AddressBlock extends Component {
@@ -53,7 +61,7 @@ class AddressBlock extends Component {
 
   get defaultAddress() {
     const { addresses } = this.props;
-    return _.filter(addresses, (address) => address.isDefault);
+    return _.filter(addresses, address => address.isDefault);
   }
 
   @autobind
@@ -142,22 +150,24 @@ class AddressBlock extends Component {
   get actionDetails() {
     const { addresses } = this.props;
 
-    if (addresses.length > 0) return {
-      title: 'Edit',
-    };
+    if (addresses.length > 0) {
+      return {
+        title: 'Edit',
+      };
+    }
 
     return {
       title: 'Add new',
       icon: {
         name: 'fc-plus',
         className: styles.plus,
-      }
+      },
     };
   }
 
   render() {
     const { className, toggleAddressesModal, addressesModalVisible } = this.props;
-    const actionDetails = this.actionDetails;
+    const actionDetails: ActionDetails = this.actionDetails;
 
     return (
       <div className={className}>
@@ -184,9 +194,9 @@ const mapStateToProps = (state) => {
     updateAddressState: _.get(state.asyncActions, 'updateAddress', false),
     cartState: _.get(state.asyncActions, 'cart.finished', false),
   };
-}
+};
 
 export default connect(mapStateToProps, {
   ...checkoutActions,
   ...actions,
-})(localized(AddressBlock))
+})(localized(AddressBlock));
