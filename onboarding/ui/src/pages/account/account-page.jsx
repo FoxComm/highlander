@@ -61,12 +61,13 @@ class MerchantAccountPage extends Component {
 
   render(): HTMLElement {
     const { inProgress, submitFailed } = this.props;
+    const title = `Welcome ${this.props.application.business_name}!`;
 
     return (
       <div className={styles.account}>
         <Header
-          title="Let’s get you started"
-          legend="Create an Account to start!"
+          title={title}
+          legend="Create an Admin Account"
         />
         <Form
           form="account"

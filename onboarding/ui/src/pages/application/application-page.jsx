@@ -8,6 +8,8 @@ import { replace } from 'react-router-redux';
 import Header from '../../components/header/header';
 import Form from '../../components/form/form';
 import ThanksOrNot from '../../components/thanks-or-not/thanks-or-not';
+import Button from '../../components/button/button';
+import styles from './application-page.css';
 
 import {
   getApplication,
@@ -85,8 +87,9 @@ class MerchantApplicationPage extends Component {
           title="Apply to Sell"
           legend="Apply to be a merchant on the Fox Platform."
         />
-        {this.thank}
-        {this.form}
+        <div className={styles.apply}>
+          <Button className={styles.button} onClick={() => window.location.replace("mailto:apply@foxcommerce.com")}>Apply Now</Button>
+        </div>
       </div>
     );
   }
