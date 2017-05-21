@@ -5,11 +5,19 @@
 }
 
 .item {
-  padding: 10px;
+  padding: 5px 10px 10px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
   margin-bottom: 10px;
   font-size: 12px;
+  line-height: 2;
+}
+
+.profile-item {
+  composes: item;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
 }
 
 .chosen {
@@ -19,6 +27,16 @@
 
 .deleted-content {
   opacity: 0.5;
+}
+
+.actions-block {
+  color: var(--link-color);
+  display: flex;
+  justify-content: space-between;
+}
+
+.separator {
+  margin: 0 5px;
 }
 
 .item-content {
@@ -36,6 +54,19 @@
   align-items: center;
   margin-left: 15px;
   font-size: 14px;
+}
+
+.link {
+  display: inline-block;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--link-color);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+    color: var(--link-hover-color);
+  }
 }
 
 .plus-icon {

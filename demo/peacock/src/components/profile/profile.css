@@ -40,24 +40,11 @@
   }
 }
 
-.link {
-  display: inline-block;
-  cursor: pointer;
-  font-family: var(--font-main);
-  font-weight: 400;
-  font-size: 13px;
-  color: var(--link-color);
-  line-height: 20px;
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
-    color: var(--link-hover-color);
-  }
-}
-
-.actions-block {
-  color: var(--link-color);
+.divider {
+  height: 1px;
+  width: 100%;
+  background: var(--border-color);
+  margin: 10px 0;
 }
 
 .subtitle {
@@ -150,10 +137,6 @@
 
 .order-summary {
   margin-top: 20px;
-}
-
-.list-item {
-  display: flex;
 }
 
 .shipping-row {

@@ -31,10 +31,14 @@ type Props = {
   updateAddress: (address: Address, id?: number) => Promise<*>,
   editAction: Function,
   onComplete: () => void,
-  toggleShippingModal: Function,
-  saveShippingState: AsyncStatus,
+  saveState: AsyncStatus,
   updateAddressState: AsyncStatus,
   t: any,
+  actionHandler: () => void,
+  actionTitle: string,
+  applyAction: (id: number) => Promise<*>,
+  inProfile: boolean,
+  buttonLabel: string,
 };
 
 type State = {
@@ -124,12 +128,15 @@ class AddressList extends Component {
   @autobind
   finishEditingAddress(id) {
     const newAddress = this.state.newAddress || this.state.addressToEdit;
+    const { activeAddressId } = this.state;
+    const newActiveId = newAddress.isDefault ? id : activeAddressId;
     this.props.updateAddress(newAddress, id)
       .then(() => {
         this.setState({
           addressToEdit: {},
           isEditFormActive: false,
           newAddress: null,
+          activeAddressId: newActiveId,
         });
       })
       .catch((err) => {
@@ -160,35 +167,105 @@ class AddressList extends Component {
   @autobind
   saveAndContinue() {
     if (this.state.activeAddressId != null) {
-      this.props.saveShippingAddress(this.state.activeAddressId).then(this.props.onComplete);
+      this.props.applyAction(this.state.activeAddressId).then(this.props.onComplete);
     }
   }
 
+  @autobind
+  deleteAddress(address) {
+    this.props.deleteAddress(address.id);
+  }
+
+  @autobind
+  getActionsContent(address) {
+    const { t } = this.props;
+
+    if (address.isDeleted) {
+      return (
+        <div styleName="actions-block">
+          <div styleName="link" onClick={() => this.props.restoreAddress(address.id)}>
+            {t('Restore')}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div styleName="actions-block">
+        <div styleName="link" onClick={() => this.editAddress(address)}>
+          {t('Edit')}
+        </div>
+        <span styleName="separator">|</span>
+        <div styleName="link" onClick={() => this.deleteAddress(address)}>
+          {t('Remove')}
+        </div>
+      </div>
+    );
+  }
+
   renderAddresses() {
+    const { inProfile } = this.props;
+
     const items = _.map(this.props.addresses, (address, key) => {
       const title = address.isDefault ? `${address.name} (Default)` : address.name;
-      const content = <AddressDetails address={address} hideName />;
+      const deletedClass = classNames({
+        [styles['deleted-content']]: address.isDeleted && inProfile,
+      });
+      const content = (
+        <AddressDetails
+          address={address}
+          hideName
+          className={deletedClass}
+        />
+      );
       const checked = address.id === this.state.activeAddressId;
       const itemClasses = classNames(styles.item, {
         [styles.chosen]: checked,
       });
 
+      if (!inProfile) {
+        return (
+          <li className={itemClasses} key={`address-radio-${key}`}>
+            <RadioButton
+              id={`address-radio-${key}`}
+              name={`address-radio-${key}`}
+              checked={checked}
+              onChange={() => this.changeAddressOption(address.id)}
+            >
+              <EditableBlock
+                isEditing={!_.isEmpty(this.state.addressToEdit)}
+                styleName="item-content"
+                title={title}
+                content={content}
+                editAction={() => this.editAddress(address)}
+              />
+            </RadioButton>
+          </li>
+        );
+      }
+
+      const profileItemClasses = classNames(styles['profile-item'], {
+        [styles.chosen]: checked,
+      });
+      const itemTitle = address.isDeleted ? <span styleName="deleted-content">{title}</span> : title;
+
       return (
-        <li className={itemClasses} key={`address-radio-${key}`}>
+        <li className={profileItemClasses} key={`address-radio-${address.id}`}>
           <RadioButton
-            id={`address-radio-${key}`}
-            name={`address-radio-${key}`}
+            id={`address-radio-${address.id}`}
+            name={`address-radio-${address.id}`}
             checked={checked}
+            disabled={address.isDeleted}
             onChange={() => this.changeAddressOption(address.id)}
           >
             <EditableBlock
-              isEditing={!_.isEmpty(this.state.addressToEdit)}
               styleName="item-content"
-              title={title}
+              title={itemTitle}
               content={content}
-              editAction={() => this.editAddress(address)}
+              editAllowed={false}
             />
           </RadioButton>
+          {this.getActionsContent(address)}
         </li>
       );
     });
@@ -229,12 +306,12 @@ class AddressList extends Component {
   }
 
   renderEditingForm(address) {
-    const { addresses, toggleShippingModal } = this.props;
+    const { addresses, actionHandler } = this.props;
     const isAdd = _.isEmpty(this.state.addressToEdit);
     const isRequired = _.isEmpty(addresses);
     const id = _.get(address, 'id');
     const action = {
-      handler: isRequired ? toggleShippingModal : this.cancelEditing,
+      handler: isRequired ? actionHandler : this.cancelEditing,
       title: isRequired ? 'Close' : 'Cancel',
     };
     const title = isAdd ? 'Add Address' : 'Edit Address';
@@ -259,17 +336,17 @@ class AddressList extends Component {
   renderList() {
     const { props } = this;
     const action = {
-      handler: props.toggleShippingModal,
-      title: 'Close',
+      handler: props.actionHandler,
+      title: props.actionTitle,
     };
 
     return (
       <CheckoutForm
         submit={this.saveAndContinue}
-        title="Shipping address"
-        error={_.get(props.saveShippingState, 'err')}
-        inProgress={_.get(props.saveShippingState, 'inProgress', false)}
-        buttonLabel="Apply"
+        title="Shipping Addresses"
+        error={_.get(props.saveState, 'err', null)}
+        inProgress={_.get(props.saveState, 'inProgress', false)}
+        buttonLabel={props.buttonLabel}
         action={action}
       >
         {this.renderAddresses()}
