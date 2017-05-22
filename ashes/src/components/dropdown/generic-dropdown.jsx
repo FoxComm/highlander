@@ -50,6 +50,7 @@ export type Props = {
   dropdownProps?: Object,
   detached?: boolean,
   noControls?: boolean,
+  toggleColumnsBtn?: boolean,
 };
 
 type State = {
@@ -194,12 +195,16 @@ export default class GenericDropdown extends Component {
 
   get dropdownButton() {
     const icon = this.state.open ? 'chevron-up' : 'chevron-down';
+    const { toggleColumnsBtn } = this.props;
 
+    const className = classNames(s.downArrowBtn, {
+      [s.toggleBtn]: toggleColumnsBtn != null,
+    });
     // @todo consider to not use <Button> component here, too specific styles
     return (
       <Button
         icon={icon}
-        className={s.downArrowBtn}
+        className={className}
         disabled={this.props.disabled}
         onClick={this.handleToggleClick}
         {...this.props.dropdownProps}

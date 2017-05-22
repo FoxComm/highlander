@@ -14,7 +14,7 @@ import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
 import TextInput from 'components/forms/text-input';
 
-import styles from './bulk-export-modal.css';
+import s from './bulk-export-modal.css';
 
 type Props = {
   entity: string,
@@ -61,7 +61,7 @@ class BulkExportModal extends Component {
     const { onCancel } = this.props;
     const className = classNames(
       'fc-modal-footer',
-      styles['export-modal-footer'],
+      s.exportModalFooter,
     );
     return (
       <SaveCancel
@@ -103,14 +103,14 @@ class BulkExportModal extends Component {
         className="fc-bulk-action-modal"
       >
         <div className="fc-modal-body">{this.label}</div>
-        <div styleName="custom-title">
+        <div className={s.customTitle}>
           <span>{`${fileName}-`}</span>
           <TextInput
             onChange={this.handleChange}
             onKeyDown={this.handleKeyDown}
             placeholder="Custom Title (optional)"
             value={this.state.value}
-            className={styles['export-modal-description']}
+            className={s.exportModalDescription}
           />
           <span>.csv</span>
         </div>
