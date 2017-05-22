@@ -1,6 +1,6 @@
 ---
 
-- name: Setup Sinopia
+- name: Setup Sinopia Server
   hosts: sinopia
   become: true
   vars:

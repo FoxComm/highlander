@@ -9,6 +9,10 @@ scala_version: scala-2.11
 logrotate_dir: /etc/logrotate.d
 foxcomm_domain: foxcommerce.com
 
+# Sinopia
+sinopia_base_dir: /sinopia
+sinopia_url: https://npm.foxcommerce.com:4873
+
 # Appliance-related things
 appliance_prefix: appliance
 appliance_hostname: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.{{foxcomm_domain}}"
