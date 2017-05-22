@@ -1,25 +1,25 @@
 // libs
 import _ from 'lodash';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 
 // components
 import { PartialCheckbox } from 'components/core/checkbox';
-import GenericDropdown from '../dropdown/generic-dropdown';
+import GenericDropdown from 'components/dropdown/generic-dropdown';
+
+type Props = {
+  id: string,
+  className?: string,
+  disabled?: boolean,
+  checked?: boolean,
+  halfChecked?: boolean,
+  onToggle?: Function,
+  onSelect?: Function,
+  children?: Element<*>,
+};
 
 export default class CheckboxDropdown extends Component {
-
-  static propTypes = {
-    id: PropTypes.string.isRequired,
-    className: PropTypes.string,
-    disabled: PropTypes.bool,
-    checked: PropTypes.bool,
-    halfChecked: PropTypes.bool,
-    onToggle: PropTypes.func,
-    onSelect: PropTypes.func,
-    children: PropTypes.node,
-  };
+  props: Props;
 
   static defaultProps = {
     checked: false,
