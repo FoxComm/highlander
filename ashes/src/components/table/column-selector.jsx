@@ -24,6 +24,7 @@ type Props = {
   onChange: Function,
   setColumns: Function,
   identifier: string,
+  toggleColumnsBtn?: boolean,
 }
 
 type State = {
@@ -151,6 +152,7 @@ export default class ColumnSelector extends React.Component {
                   dropdownProps={{ icon: 'settings-col' }}
                   renderAppend={this.renderActions}
                   ref={d => this._dropdown = d}
+                  toggleColumnsBtn={this.props.toggleColumnsBtn}
         >
           {this.renderSelectorItems()}
         </Dropdown>

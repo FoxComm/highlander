@@ -14,7 +14,7 @@ import TablePageSize from './pagesize';
 import ColumnSelector from './column-selector';
 import { Button } from 'components/core/button';
 
-import styles from './tableview.css';
+import s from './tableview.css';
 
 class TableView extends Component {
   state = {
@@ -61,7 +61,7 @@ class TableView extends Component {
 
     return (
       <Button
-         styleName="bulk-export"
+         className={s.bulkExport}
          icon="export"
          onClick={this.handleExport}
        />
@@ -76,6 +76,7 @@ class TableView extends Component {
         setColumns={this.props.setColumnSelected}
         columns={this.props.selectableColumns}
         identifier={this.props.tableIdentifier}
+        toggleColumnsBtn
       />
     );
   }
