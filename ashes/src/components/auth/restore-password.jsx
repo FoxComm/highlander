@@ -40,6 +40,13 @@ function mapStateToProps(state) {
   };
 }
 
+function sanitize(err: string): string {
+  if (err.startsWith('user with key=') && err.endsWith('not found')) {
+    return 'We don’t have a user with that email. Please check your entry and try again.';
+  }
+  return err;
+}
+
 class RestorePassword extends Component {
   props: Props;
 
@@ -66,7 +73,7 @@ class RestorePassword extends Component {
   get errorMessage(): ?Element<*> {
     const err = this.props.restoreState.err;
     if (!err) return null;
-    return <ErrorAlerts error={err} />;
+    return <ErrorAlerts error={err} sanitizeError={sanitize} />;
   }
 
   get email(): string {

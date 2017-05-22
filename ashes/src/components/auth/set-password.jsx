@@ -41,6 +41,10 @@ function mapStateToProps(state) {
   };
 }
 
+function sanitize(): string {
+  return 'Passwords do not match or security code is invalid.';
+}
+
 class SetPassword extends Component {
   props: Props;
 
@@ -91,7 +95,7 @@ class SetPassword extends Component {
   get errorMessage() {
     const err = this.props.signUpState.err;
     if (!err) return null;
-    return <ErrorAlerts error={err} />;
+    return <ErrorAlerts error={err} sanitizeError={sanitize} />;
   }
 
   get content() {
