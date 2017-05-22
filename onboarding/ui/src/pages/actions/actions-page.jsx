@@ -10,6 +10,7 @@ import Card from '../../components/card/card';
 import styles from './actions-page.css';
 
 import type { HTMLElement } from '../../core/types';
+import Button from '../../components/button/button';
 
 type Props = {
   params: Object;

@@ -159,7 +159,6 @@ location /api/v1/inventory/ {
 
 {% if with_onboarding %}
 location /api/v1/onboarding/ {
-    #auth_request /internal-auth;
     default_type 'application/json';
     proxy_pass http://onboarding-service/;
     proxy_http_version 1.1;

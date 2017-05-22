@@ -80,6 +80,19 @@ class MerchantApplicationPage extends Component {
     );
   }
 
+  get applyMessage(): HTMLElement {
+    if (!isEmpty(this.props.application)) {
+      return;
+    }
+    return (
+      <div className={styles.apply}>
+        <div className={styles.applybutton}>
+          <Button onClick={() => window.location.replace("mailto:apply@foxcommerce.com")}>Apply Now</Button>
+        </div>
+      </div>);
+
+  }
+
   render(): HTMLElement {
     return (
       <div>
@@ -87,11 +100,8 @@ class MerchantApplicationPage extends Component {
           title="Apply to Sell"
           legend="Apply to be a merchant on the Fox Platform."
         />
-        <div className={styles.apply}>
-          <div className={styles.applybutton}>
-            <Button onClick={() => window.location.replace("mailto:apply@foxcommerce.com")}>Apply Now</Button>
-          </div>
-        </div>
+      {this.thank}
+      {this.applyMessage}
       </div>
     );
   }

@@ -77,6 +77,8 @@ docker_tags:
     neo4j: "{{ lookup('env', 'DOCKER_TAG_NEO4J') | default('master', true) }}"
     suggester: "{{ lookup('env', 'DOCKER_TAG_SUGGESTER') | default('master', true) }}"
     data_import: "{{ lookup('env', 'DOCKER_TAG_DATA_IMPORT') | default('master', true) }}"
+    onboarding_service: "{{ lookup('env', 'DOCKER_TAG_ONBOARING_SERVICE') | default('master', true) }}"
+    onboarding_ui: "{{ lookup('env', 'DOCKER_TAG_ONBOARING_UI') | default('master', true) }}"
 
 # Configurable Marathon re-deploys
 marathon_restart:
@@ -95,7 +97,8 @@ marathon_restart:
     shipstation_consumer: "{{ lookup('env', 'MARATHON_SHIPSTATION_CONSUMER') | default(true, true) | bool }}"
     stock_items_consumer: "{{ lookup('env', 'MARATHON_STOCK_ITEMS_CONSUMER') | default(true, true) | bool }}"
     customer_groups_consumer: "{{ lookup('env', 'MARATHON_CUSTOMER_GROUPS_CONSUMER') | default(true, true) | bool }}"
-    onboarding_service: "{{ lookup('env', 'MARATHON_ONBOARDING') | default(true, true) | bool }}"
+    onboarding_service: "{{ lookup('env', 'MARATHON_ONBOARDING_SERVICE') | default(true, true) | bool }}"
+    onboarding_ui: "{{ lookup('env', 'MARATHON_ONBOARDING_UI') | default(true, true) | bool }}"
     storefront_td: "{{ lookup('env', 'MARATHON_STOREFRONT_TD') | default(true, true) | bool }}"
     storefront_tpg: "{{ lookup('env', 'MARATHON_STOREFRONT_TPG') | default(true, true) | bool }}"
     hyperion: "{{ lookup('env', 'MARATHON_HYPERION') | default(true, true) | bool }}"
