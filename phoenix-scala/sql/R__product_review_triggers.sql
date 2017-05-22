@@ -7,8 +7,10 @@ begin
                                             pr.scope,
                                             skus.code,
                                             users.name,
+                                            users.id,
                                             pr.content -> 'title' ->> 'v' as title,
-                                            pr.content -> 'body' ->> 'v'  as body,
+                                            cast(pr.content -> 'rating' ->> 'v' as integer) as rating ,
+                                            pr.content,
                                             to_char(pr.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
                                             to_char(pr.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
                                             to_char(pr.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
@@ -31,10 +33,12 @@ create or replace function update_product_reviews_search_view_from_update_fn()
 as $$
 begin
   update product_reviews_search_view
-  set title     = new.content -> 'title' ->> 'v',
-    body        = new.content -> 'body' ->> 'v',
-    updated_at  = to_char(new.updated_at,'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
-    archived_at = to_char(new.archived_at,'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+  set
+    title       = new.content -> 'title' ->> 'v',
+    rating      = cast(new.content -> 'rating' ->> 'v' as integer),
+    attributes  = new.content,
+    updated_at  = to_char(new.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+    archived_at = to_char(new.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
   where product_reviews_search_view.id = new.id;
 
   return null;

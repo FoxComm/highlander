@@ -48,11 +48,13 @@ object ProductReviewManager {
       au: AU): DbResultT[ProductReviewResponse] = {
 
     for {
-      review   ← * <~ ProductReviews.mustFindById404(reviewId)
-      _        ← * <~ failIf(review.archivedAt.isDefined, ProductReviewIsArchived(reviewId))
-      _        ← * <~ failIf(au.model.id != review.userId, ProductReviewUserMismatch(reviewId))
-      newValue ← * <~ ProductReviews.update(review, review.copy(content = payload.attributes))
-      sku      ← * <~ Skus.mustFindById404(review.skuId)
+      review ← * <~ ProductReviews.mustFindById404(reviewId)
+      _      ← * <~ failIf(review.archivedAt.isDefined, ProductReviewIsArchived(reviewId))
+      _      ← * <~ failIf(au.model.id != review.userId, ProductReviewUserMismatch(reviewId))
+      newValue ← * <~ ProductReviews.update(
+                    review,
+                    review.copy(content = payload.attributes, updatedAt = Instant.now))
+      sku ← * <~ Skus.mustFindById404(review.skuId)
     } yield ProductReviewResponses.build(newValue, sku.code)
   }
 
