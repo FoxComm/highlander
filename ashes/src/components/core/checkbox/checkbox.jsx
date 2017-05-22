@@ -38,10 +38,10 @@ export const Checkbox = (props: Props) => {
 
   const className = classNames(
     s.checkbox,
-    props.className,
     { [s.inline]: inline },
     { [s.dockedLeft]: docked === 'left' },
     { [s.dockedRight]: docked === 'right' },
+    props.className
   );
 
   return (
