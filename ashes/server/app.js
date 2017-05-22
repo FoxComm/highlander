@@ -16,11 +16,11 @@ app.init = co.wrap(function *(env) {
 
   app.config = new Config(app.env);
 
-  if (process.env.NODE_ENV === 'production') {
+  if (app.env === 'production') {
     app.use(convert(serve(buildDir)));
   }
 
-  if (app.env.environment !== 'production') {
+  if (app.env !== 'production') {
     require('./hmr')(app);
     app.use(require('koa-logger')());
   }
@@ -54,7 +54,7 @@ process.on('message', function(msg) {
   }
 });
 
-if (!process.env.GA_TRACKING_ID && process.env.NODE_ENV === 'production') {
+if (!process.env.GA_TRACKING_ID && app.env === 'production') {
   console.warn('WARNING. There is no google analytics tracking id configured.' +
     'Use GA_TRACKING_ID env variable for that.');
 }
