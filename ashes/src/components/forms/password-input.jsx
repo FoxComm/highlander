@@ -9,7 +9,7 @@ type State = {
   scriptLoaded: boolean,
   score: number,
   feedback: string,
-}
+};
 
 export default class PasswordInput extends Component {
   state: State = {
@@ -19,7 +19,7 @@ export default class PasswordInput extends Component {
   };
 
   componentDidMount() {
-    loadScript('/static/zxcvbn.js', (err) => {
+    loadScript('/admin/static/zxcvbn.js', (err) => {
       if (!err) {
         this.setState({
           scriptLoaded: true,
