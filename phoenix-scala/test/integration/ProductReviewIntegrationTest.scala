@@ -1,14 +1,15 @@
-import akka.http.scaladsl.model.StatusCodes
-
 import models.review.ProductReviews
-import org.json4s._
+import org.json4s.JsonAST.JObject
+import org.json4s.JsonDSL._
 import payloads.ProductReviewPayloads.{CreateProductReviewPayload, UpdateProductReviewPayload}
 import responses.ProductReviewResponses.ProductReviewResponse
+import slick.jdbc.GetResult
 import testutils.PayloadHelpers.tv
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtures
+import utils.db.ExPostgresDriver.api._
 
 class ProductReviewIntegrationTest
     extends IntegrationTestBase
@@ -27,31 +28,88 @@ class ProductReviewIntegrationTest
 
   "POST v1/review/:contextName" - {
     "creates product review" in new ProductSku_ApiFixture {
-      val payload = CreateProductReviewPayload(attributes = Map("title" → tv("title")),
-                                               sku = skuCode,
-                                               scope = None)
+      val payload =
+        CreateProductReviewPayload(attributes = "title" → tv("title"), sku = skuCode, scope = None)
       val reviewResp    = productReviewApi.create(payload).as[ProductReviewResponse]
       val getReviewResp = productReviewApi(reviewResp.id).get().as[ProductReviewResponse]
       getReviewResp must === (reviewResp)
-      reviewResp.attributes must === (JObject(payload.attributes.toList: _*))
+      reviewResp.attributes must === (payload.attributes)
     }
   }
 
   "PATCH v1/review/:contextName/:reviewFormId" - {
     "updates product review" in new ProductReviewApiFixture {
-      val newAttributes = reviewAttributes + ("testValue" → tv("test"))
+      val newAttributes = reviewAttributes ++ ("body" → tv("test"))
       val payload       = UpdateProductReviewPayload(newAttributes)
       val reviewResp    = productReviewApi(productReview.id).update(payload).as[ProductReviewResponse]
-      reviewResp.attributes must === (JObject(payload.attributes.toList: _*))
+      reviewResp.attributes must === (payload.attributes)
     }
   }
 
   "DELETE v1/review/:contextName/:reviewFormId" - {
     "deletes product review" in new ProductReviewApiFixture {
-      val resp = productReviewApi(productReview.id).delete
-      resp.status must === (StatusCodes.NoContent)
-      val updatedReview = ProductReviews.mustFindByFormId404(productReview.id).gimme
+      productReviewApi(productReview.id).delete.mustBeEmpty()
+      val updatedReview = ProductReviews.mustFindById404(productReview.id).gimme
       updatedReview.archivedAt mustBe defined
     }
+  }
+
+  "product_reviews_search_view" - {
+
+    case class ProductReviewsSearchViewItem(id: Int,
+                                            scope: String,
+                                            sku: String,
+                                            userName: String,
+                                            userId: Int,
+                                            title: String,
+                                            attributes: String,
+                                            createdAt: Option[String],
+                                            updatedAt: Option[String],
+                                            archivedAt: Option[String])
+
+    implicit val getProductReviewsSearchViewResult = GetResult(
+        r ⇒
+          ProductReviewsSearchViewItem(r.nextInt(),
+                                       r.nextObject().toString,
+                                       r.nextString(),
+                                       r.nextString(),
+                                       r.nextInt(),
+                                       r.nextString(),
+                                       r.nextString(),
+                                       r.nextStringOption(),
+                                       r.nextStringOption(),
+                                       r.nextStringOption()))
+
+    def selectById(id: Int) = {
+      sql"""select * from product_reviews_search_view where id = ${id}"""
+        .as[ProductReviewsSearchViewItem]
+        .gimme
+    }
+
+    "inserts new record on review insert" in new ProductSku_ApiFixture {
+      private val title: String = "title"
+      val payload =
+        CreateProductReviewPayload(attributes = "title" → tv(title), sku = skuCode, scope = None)
+      val reviewResp = productReviewApi.create(payload).as[ProductReviewResponse]
+      val values     = selectById(reviewResp.id)
+      values.size must === (1)
+      values(0).id must === (reviewResp.id)
+      values(0).title must === (title)
+    }
+
+    "updates record on review update" in new ProductReviewApiFixture {
+      private val title: String = "newTitle"
+
+      private val newTitle: JObject = "title" → tv(title)
+      val newAttributes             = reviewAttributes.merge(newTitle)
+      val payload                   = UpdateProductReviewPayload(newAttributes)
+      val reviewResp                = productReviewApi(productReview.id).update(payload).as[ProductReviewResponse]
+
+      val values = selectById(reviewResp.id)
+      values.size must === (1)
+      values(0).id must === (reviewResp.id)
+      values(0).title must === (title)
+    }
+
   }
 }

@@ -1,0 +1,14 @@
+:root {
+  --vw-no-scrollbar: calc(100vw - 15px);
+  --vw-no-scrollbar-half: calc((100vw - 8px) / 2 - 3px);
+  --vw-no-scrollbar-left: calc(var(--vw-no-scrollbar-half) * -1 + 50%);
+}
+
+.half {
+  /*flex-basis: 50%;*/
+  flex-basis: 100%;
+}
+
+.quarter {
+  flex-basis: 25%;
+}

@@ -8,18 +8,12 @@ import shapeless._
 import utils.db.ExPostgresDriver.api._
 import slick.lifted.Tag
 import utils.Validation
+import utils.aliases.Json
 import utils.db._
-
-object ProductReview {
-  val kind = "product-review"
-}
 
 case class ProductReview(id: Int = 0,
                          scope: LTree,
-                         contextId: Int,
-                         shadowId: Int,
-                         formId: Int,
-                         commitId: Int,
+                         content: Json,
                          userId: Int,
                          skuId: Int,
                          updatedAt: Instant = Instant.now,
@@ -27,32 +21,24 @@ case class ProductReview(id: Int = 0,
                          archivedAt: Option[Instant] = None)
     extends FoxModel[ProductReview]
     with Validation[ProductReview]
-    with ObjectHead[ProductReview] {
 
-  def withNewShadowAndCommit(shadowId: Int, commitId: Int): ProductReview =
-    this.copy(shadowId = shadowId, commitId = commitId)
-}
+class ProductReviews(tag: Tag) extends FoxTable[ProductReview](tag, "product_reviews") {
 
-class ProductReviews(tag: Tag) extends ObjectHeads[ProductReview](tag, "product_reviews") {
+  def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def scope      = column[LTree]("scope")
+  def content    = column[Json]("content")
+  def userId     = column[Int]("user_id")
+  def skuId      = column[Int]("sku_id")
+  def updatedAt  = column[Instant]("updated_at")
+  def createdAt  = column[Instant]("created_at")
+  def archivedAt = column[Option[Instant]]("archived_at")
 
-  def userId = column[Int]("user_id")
-  def skuId  = column[Int]("sku_id")
   def * =
-    (id,
-     scope,
-     contextId,
-     shadowId,
-     formId,
-     commitId,
-     userId,
-     skuId,
-     updatedAt,
-     createdAt,
-     archivedAt) <> ((ProductReview.apply _).tupled, ProductReview.unapply)
+    (id, scope, content, userId, skuId, updatedAt, createdAt, archivedAt) <> ((ProductReview.apply _).tupled, ProductReview.unapply)
 }
 
 object ProductReviews
-    extends ObjectHeadsQueries[ProductReview, ProductReviews](new ProductReviews(_))
+    extends FoxTableQuery[ProductReview, ProductReviews](new ProductReviews(_))
     with ReturningId[ProductReview, ProductReviews] {
 
   val returningLens: Lens[ProductReview, Int] = lens[ProductReview].id

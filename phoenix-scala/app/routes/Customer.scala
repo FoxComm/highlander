@@ -316,7 +316,7 @@ object Customer {
                 (path(IntNumber) & patch & entity(as[UpdateProductReviewPayload]) & pathEnd) {
                   (reviewId, payload) ⇒
                     mutateOrFailures {
-                      ProductReviewManager.updateProductReview(auth.account.id, reviewId, payload)
+                      ProductReviewManager.updateProductReview(reviewId, payload)
                     }
                 } ~
                 (delete & path(IntNumber) & pathEnd) { id ⇒

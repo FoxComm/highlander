@@ -17,7 +17,7 @@ import type { Localized } from 'lib/i18n';
 import { searchGiftCards } from 'modules/products';
 import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-details';
 import { addLineItem, toggleCart } from 'modules/cart';
-import { fetchRelatedProducts, clearRelatedProducts } from 'modules/cross-sell';
+import { fetchReviewsForSku, clearReviews } from 'modules/reviews';
 
 // styles
 import styles from './pdp.css';
@@ -32,12 +32,10 @@ import ErrorAlerts from 'ui/alerts/error-alerts';
 import ProductVariants from 'components/product-variants/product-variants';
 import GiftCardForm from 'components/gift-card-form';
 import ImagePlaceholder from 'components/products-item/image-placeholder';
-import RelatedProductsList,
-  { LoadingBehaviors } from 'components/related-products-list/related-products-list';
+import ProductReviewsList from 'components/product-reviews-list/product-reviews-list';
 
 // types
 import type { ProductResponse, Sku } from 'modules/product-details';
-import type { RelatedProductResponse } from 'modules/cross-sell';
 import type { RoutesParams } from 'types';
 import type { TProductView } from './types';
 
@@ -52,8 +50,8 @@ type Actions = {
   resetProduct: Function,
   addLineItem: Function,
   toggleCart: Function,
-  fetchRelatedProducts: Function,
-  clearRelatedProducts: Function,
+  fetchReviewsForSku: Function,
+  clearReviews: Function,
 };
 
 type Props = Localized & RoutesParams & {
@@ -63,7 +61,6 @@ type Props = Localized & RoutesParams & {
   isLoading: boolean,
   isCartLoading: boolean,
   notFound: boolean,
-  relatedProducts: ?RelatedProductResponse,
 };
 
 type State = {
@@ -74,16 +71,18 @@ type State = {
 
 const mapStateToProps = (state) => {
   const product = state.productDetails.product;
-  const relatedProducts = state.crossSell.relatedProducts;
+  const productReviews = state.reviews;
 
   return {
     product,
-    relatedProducts,
+    productReviews,
     fetchError: _.get(state.asyncActions, 'pdp.err', null),
     notFound: !product && _.get(state.asyncActions, 'pdp.err.response.status') == 404,
     isLoading: _.get(state.asyncActions, ['pdp', 'inProgress'], true),
     isCartLoading: _.get(state.asyncActions, ['cartChange', 'inProgress'], false),
-    isRelatedProductsLoading: _.get(state.asyncActions, ['relatedProducts', 'inProgress'], false),
+    isProductReviewsLoading: _.get(state.asyncActions,
+      ['fetchReviewsForSku', 'inProgress'], false
+    ),
   };
 };
 
@@ -95,10 +94,12 @@ const mapDispatchToProps = dispatch => ({
     resetProduct,
     addLineItem,
     toggleCart,
-    fetchRelatedProducts,
-    clearRelatedProducts,
+    fetchReviewsForSku,
+    clearReviews,
   }, dispatch),
 });
+
+const REVIEWS_PAGE_SIZE = 2;
 
 class Pdp extends Component {
   props: Props;
@@ -116,21 +117,29 @@ class Pdp extends Component {
     } else {
       this.productPromise = Promise.resolve();
     }
+
+    if (typeof document !== 'undefined') {
+      // $FlowFixMe: there is product-recommender in node_modules
+      const renderProductRecommender = require('product-recommender').default;
+      renderProductRecommender(this.props.product.id, 'product-recommender');
+    }
   }
 
   componentDidMount() {
     this.productPromise.then(() => {
-      const { product, isRelatedProductsLoading, actions } = this.props;
+      const { isProductReviewsLoading, actions } = this.props;
+
       tracking.viewDetails(this.productView);
-      if (!isRelatedProductsLoading) {
-        actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
+
+      if (!isProductReviewsLoading) {
+        actions.fetchReviewsForSku(this.productSkuCodes, REVIEWS_PAGE_SIZE, 0).catch(_.noop);
       }
     });
   }
 
   componentWillUnmount() {
     this.props.actions.resetProduct();
-    this.props.actions.clearRelatedProducts();
+    this.props.actions.clearReviews();
   }
 
   componentWillUpdate(nextProps) {
@@ -139,22 +148,16 @@ class Pdp extends Component {
     if (this.productId !== nextId) {
       this.setState({ currentSku: null });
       this.props.actions.resetProduct();
-      this.props.actions.clearRelatedProducts();
+      this.props.actions.clearReviews();
       this.fetchProduct(nextProps, nextId);
     }
   }
 
   safeFetch(id) {
     return this.props.actions.fetch(id)
-      .then((product) => {
-        this.props.actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
-      })
       .catch(() => {
         const { params } = this.props;
-        this.props.actions.fetch(params.productSlug)
-        .then((product) => {
-          this.props.actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
-        });
+        this.props.actions.fetch(params.productSlug);
       });
   }
 
@@ -359,17 +362,24 @@ class Pdp extends Component {
     );
   }
 
-  get relatedProductsList(): ?Element<*> {
-    const { relatedProducts, isRelatedProductsLoading } = this.props;
+  fetchMoreReviews = (from: number): ?Element<*> => {
+    const { actions } = this.props;
+    actions.fetchReviewsForSku(this.productSkuCodes, REVIEWS_PAGE_SIZE, from).catch(_.noop);
+  }
 
-    if (_.isEmpty(relatedProducts.products)) return null;
+  get productReviewsList(): ?Element<*> {
+    const { productReviews, isProductReviewsLoading } = this.props;
 
     return (
-      <RelatedProductsList
-        title="You Might Also Like"
-        list={relatedProducts.products}
-        isLoading={isRelatedProductsLoading}
-        loadingBehavior={LoadingBehaviors.ShowWrapper}
+      <ProductReviewsList
+        title="Reviews"
+        emptyContentTitle="There are no reviews for this product"
+        listItems={productReviews.list}
+        isLoading={isProductReviewsLoading}
+        loadingBehavior={_.isEmpty(productReviews.list)}
+        paginationSize={REVIEWS_PAGE_SIZE}
+        onLoadMoreReviews={this.fetchMoreReviews}
+        showLoadMore={_.size(productReviews.list) < productReviews.paginationTotal}
       />
     );
   }
@@ -407,6 +417,16 @@ class Pdp extends Component {
         <Currency value={price} currency={currency} />
       </div>
     );
+  }
+
+  get productSkuCodes(): Array<any> {
+    const { product } = this.props;
+
+    const skuCodes = _.map(product.skus, (sku) => {
+      return _.get(sku, ['attributes', 'code', 'v'], '');
+    }, []);
+
+    return skuCodes;
   }
 
   render(): Element<any> {
@@ -465,7 +485,8 @@ class Pdp extends Component {
           </p>
           <img styleName="share-image" src="/images/pdp/style.jpg" />
         </div>
-        {this.relatedProductsList}
+        {this.productReviewsList}
+        <div id="product-recommender" />
       </div>
     );
   }

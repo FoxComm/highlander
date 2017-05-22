@@ -146,10 +146,9 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
   }
 
   trait ProductReviewApiFixture extends ProductSku_ApiFixture {
-    val reviewAttributes: Map[String, Json] = Map("title" → tv("title"), "body" → tv("body"))
-    private val payload = CreateProductReviewPayload(attributes = Map("title" → tv("title")),
-                                                     sku = skuCode,
-                                                     scope = None)
+    val reviewAttributes: Json = ("title" → tv("title")) ~ ("body" → tv("body"))
+    private val payload =
+      CreateProductReviewPayload(attributes = reviewAttributes, sku = skuCode, scope = None)
     val productReview =
       productReviewApi.create(payload)(implicitly, defaultAdminAuth).as[ProductReviewResponse]
   }
