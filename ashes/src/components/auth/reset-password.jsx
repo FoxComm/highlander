@@ -3,7 +3,6 @@
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
-import styles from './css/auth.css';
 import { autobind } from 'core-decorators';
 import { transitionTo } from 'browserHistory';
 
@@ -17,6 +16,8 @@ import Link from 'components/link/link';
 
 import type { TResetPayload } from 'modules/user';
 import * as userActions from 'modules/user';
+
+import s from './css/auth.css';
 
 type State = {
   email: string,
@@ -104,14 +105,14 @@ class ResetPassword extends Component {
 
   get confirmation() {
     return (
-      <div styleName="main">
-        <div styleName="message">
+      <div className={s.main}>
+        <div className={s.message}>
           Your password was successfully reset.
         </div>
-        <div styleName="button-block">
+        <div className={s['button-block']}>
           <Link
             to='login'
-            styleName="back-button"
+            className={s['back-button']}
           >
             Back to Login
           </Link>
@@ -126,10 +127,10 @@ class ResetPassword extends Component {
     }
 
     return (
-      <div styleName="main">
-        <Form styleName="form" onSubmit={this.handleSubmit}>
+      <div className={s.main}>
+        <Form className={s.form} onSubmit={this.handleSubmit}>
           {this.errorMessage}
-          <FormField styleName="signup-email" label="Email">
+          <FormField className={s['signup-email']} label="Email">
             <input
               name="email"
               value={this.email}
@@ -139,7 +140,7 @@ class ResetPassword extends Component {
               className="fc-input"
             />
           </FormField>
-          <FormField styleName="password" label="New Password">
+          <FormField className={s.password} label="New Password">
             <PasswordInput
               name="password1"
               onChange={this.handleInputChange}
@@ -149,7 +150,7 @@ class ResetPassword extends Component {
               className="fc-input"
             />
           </FormField>
-          <FormField styleName="password" label="Confirm Password" validator={this.validatePassword2}>
+          <FormField className={s.password} label="Confirm Password" validator={this.validatePassword2}>
             <PasswordInput
               name="password2"
               onChange={this.handleInputChange}
@@ -159,9 +160,9 @@ class ResetPassword extends Component {
               className="fc-input"
             />
           </FormField>
-          <div styleName="button-block">
+          <div className={s['button-block']}>
             <PrimaryButton
-              styleName="submit-button"
+              className={s['submit-button']}
               type="submit"
               isLoading={this.props.resetState.inProgress}
             >
@@ -169,7 +170,7 @@ class ResetPassword extends Component {
             </PrimaryButton>
             <Link
               to='login'
-              styleName="back-button"
+              className={s['back-button']}
             >
               Back to Login
             </Link>
@@ -181,7 +182,7 @@ class ResetPassword extends Component {
 
   render() {
     return (
-      <div styleName="main">
+      <div className={s.main}>
         <div className="fc-auth__title">Reset Password</div>
         {!this.state.dataSent ? this.content : this.confirmation}
       </div>

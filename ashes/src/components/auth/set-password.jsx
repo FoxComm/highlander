@@ -3,7 +3,6 @@
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
-import styles from './css/auth.css';
 import { autobind } from 'core-decorators';
 import { transitionTo } from 'browserHistory';
 
@@ -17,6 +16,8 @@ import Link from 'components/link/link';
 
 import type { TResetPayload } from 'modules/user';
 import * as userActions from 'modules/user';
+
+import s from './css/auth.css';
 
 type State = {
   email: string,
@@ -105,14 +106,14 @@ class SetPassword extends Component {
 
     return (
       <div>
-        <div styleName="message">
+        <div className={s.message}>
           Hey, {this.username}! You’ve been invited to create an account with
           FoxCommerce. All you need to do is choose your method
           to sign up.
         </div>
-        <Form styleName="form" onSubmit={this.handleSubmit}>
+        <Form className={s.form} onSubmit={this.handleSubmit}>
           {this.errorMessage}
-          <FormField styleName="signup-email" label="Email">
+          <FormField className={s['signup-email']} label="Email">
             <input
               name="email"
               value={this.email}
@@ -121,7 +122,7 @@ class SetPassword extends Component {
               className="fc-input"
             />
           </FormField>
-          <FormField styleName="password" label="Create Password">
+          <FormField className={s.password} label="Create Password">
             <PasswordInput
               name="password1"
               onChange={this.handleInputChange}
@@ -131,7 +132,7 @@ class SetPassword extends Component {
               className="fc-input"
             />
           </FormField>
-          <FormField styleName="password" label="Confirm Password" validator={this.validatePassword2}>
+          <FormField className={s.password} label="Confirm Password" validator={this.validatePassword2}>
             <PasswordInput
               name="password2"
               onChange={this.handleInputChange}
@@ -141,9 +142,9 @@ class SetPassword extends Component {
               className="fc-input"
             />
           </FormField>
-          <div styleName="button-block">
+          <div className={s['button-block']}>
             <PrimaryButton
-              styleName="submit-button"
+              className={s['submit-button']}
               type="submit"
               isLoading={this.props.signUpState.inProgress}
             >
@@ -151,7 +152,7 @@ class SetPassword extends Component {
             </PrimaryButton>
             <Link
               to='login'
-              styleName="back-button"
+              className={s['back-button']}
             >
               Back to Login
             </Link>
@@ -163,7 +164,7 @@ class SetPassword extends Component {
 
   render() {
     return (
-      <div styleName="main">
+      <div className={s.main}>
         <div className="fc-auth__title">Create Account</div>
         {this.content}
       </div>

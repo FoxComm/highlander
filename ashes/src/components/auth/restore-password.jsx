@@ -3,7 +3,6 @@
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
-import styles from './css/auth.css';
 import { autobind } from 'core-decorators';
 import { transitionTo } from 'browserHistory';
 
@@ -17,6 +16,8 @@ import Link from 'components/link/link';
 
 import type { TResetPayload } from 'modules/user';
 import * as userActions from 'modules/user';
+
+import s from './css/auth.css';
 
 type State = {
   email: string,
@@ -82,16 +83,16 @@ class RestorePassword extends Component {
 
   get confirmation(): Element<*> {
     return (
-      <div styleName="main">
-        <div styleName="message">
+      <div className={s.main}>
+        <div className={s.message}>
           An email with reset instructions was successfully sent to&nbsp;
           <strong>{this.email}</strong>
           .
         </div>
-        <div styleName="button-block">
+        <div className={s['button-block']}>
           <Link
             to='login'
-            styleName="back-button"
+            className={s['back-button']}
           >
             Back to Login
           </Link>
@@ -106,13 +107,13 @@ class RestorePassword extends Component {
     }
 
     return (
-      <div styleName="main">
-        <div styleName="message">
+      <div className={s.main}>
+        <div className={s.message}>
           No worries! We’ll email you instructions on how to reset your password.
         </div>
-        <Form styleName="form" onSubmit={this.handleSubmit}>
+        <Form className={s.form} onSubmit={this.handleSubmit}>
           {this.errorMessage}
-          <FormField styleName="signup-email" label="Email" required>
+          <FormField className={s['signup-email']} label="Email" required>
             <input
               name="email"
               onChange={this.handleInputChange}
@@ -121,9 +122,9 @@ class RestorePassword extends Component {
               className="fc-input"
             />
           </FormField>
-          <div styleName="button-block">
+          <div className={s['button-block']}>
             <PrimaryButton
-              styleName="submit-button"
+              className={s['submit-button']}
               type="submit"
               isLoading={this.props.restoreState.inProgress}
             >
@@ -131,7 +132,7 @@ class RestorePassword extends Component {
             </PrimaryButton>
             <Link
               to='login'
-              styleName="back-button"
+              className={s['back-button']}
             >
               Back to Login
             </Link>
@@ -143,7 +144,7 @@ class RestorePassword extends Component {
 
   render() {
     return (
-      <div styleName="main">
+      <div className={s.main}>
         <div className="fc-auth__title">Restore Password</div>
         {!this.state.dataSent ? this.content : this.confirmation}
       </div>
