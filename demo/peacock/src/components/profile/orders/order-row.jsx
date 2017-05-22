@@ -7,17 +7,20 @@ import { stateTitles } from 'paragons/order';
 
 // components
 import Currency from 'ui/currency';
-import { Link } from 'react-router';
+import Modal from 'ui/modal/modal';
+import CheckoutForm from 'pages/checkout/checkout-form';
 
 import styles from '../profile.css';
 
 type Props = {
   order: Object,
   showDetailsLink: boolean,
+  toggleOrderDetails: () => void,
+  orderDetailsVisible: boolean,
 };
 
 const OrderRow = (props: Props) => {
-  const { showDetailsLink } = props;
+  const { showDetailsLink, toggleOrderDetails, orderDetailsVisible } = props;
 
   const convertOrderData = (orderDetails: Object): Object => {
     if (!orderDetails.grandTotal) {
@@ -35,11 +38,35 @@ const OrderRow = (props: Props) => {
   const getDetailsColumn = (): Element<*> | null => {
     if (showDetailsLink) {
       return (
-        <div styleName="action-link">View details</div>
+        <div styleName="action-link" onClick={toggleOrderDetails}>
+          View details
+        </div>
       );
     }
 
     return null;
+  };
+
+  const getOrderDetailsModal = () => {
+    const action = {
+      handler: toggleOrderDetails,
+      title: 'Close',
+    };
+
+    return (
+      <Modal
+        show={orderDetailsVisible}
+        toggle={toggleOrderDetails}
+      >
+        <CheckoutForm
+          submit={toggleOrderDetails}
+          buttonLabel="Got it"
+          title="Order details"
+          action={action}
+        >
+        </CheckoutForm>
+      </Modal>
+    );
   };
 
   const order = convertOrderData(props.order);
@@ -58,13 +85,14 @@ const OrderRow = (props: Props) => {
       <div styleName="order-cell">
         {stateTitles[order.state]}
       </div>
-      <div styleName="order-cell">
+      <div styleName="order-cell total">
         <Currency
           value={order.grandTotal}
           currency={order.currency}
         />
       </div>
       {getDetailsColumn()}
+      {getOrderDetailsModal()}
     </div>
   );
 };

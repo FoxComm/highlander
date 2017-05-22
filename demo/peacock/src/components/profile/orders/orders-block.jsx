@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 
 // actions
 import { fetchOrders } from 'modules/orders';
+import { toggleOrderDetails } from 'modules/profile';
 
 // components
 import OrderRow from './order-row';
@@ -51,6 +52,8 @@ class OrdersBlock extends Component {
           order={order}
           showDetailsLink
           key={`order-row-${i}`}
+          toggleOrderDetails={this.props.toggleOrderDetails}
+          orderDetailsVisible={this.props.orderDetailsVisible}
         />
       );
     });
@@ -85,9 +88,11 @@ const mapStateToProps = (state) => {
   return {
     orders: _.get(state.orders, 'list.result', []),
     auth: _.get(state, 'auth', {}),
+    orderDetailsVisible: _.get(state.profile, 'orderDetailsVisible', false),
   };
 };
 
 export default connect(mapStateToProps, {
   fetchOrders,
+  toggleOrderDetails,
 })(OrdersBlock);
