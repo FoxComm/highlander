@@ -10,7 +10,7 @@ import org.json4s.jackson.JsonMethods._
 import responses.ShippingMethodsResponse.Root
 import services.carts.CartTotaler
 import testutils._
-import testutils.apis.PhoenixAdminApi
+import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
 import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Factories
@@ -20,6 +20,7 @@ import failures.AddressFailures.NoCountryFound
 class ShippingMethodsIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
+    with PhoenixStorefrontApi
     with DefaultJwtAdminAuth
     with BakedFixtures {
 
@@ -105,22 +106,28 @@ class ShippingMethodsIntegrationTest
     }
   }
 
-  "Search /v1/shipping-methods" - {
+  "Search /v1/my/cart/shipping-methods" - {
 
     "Has active methods" in new UsShipping {
       shippingMethodsApi.active().as[Seq[Root]].size mustBe >(0)
     }
 
     "Get shipping method by country code" in new UsShipping {
-      shippingMethodsApi.searchByRegion("us").as[Seq[Root]].size mustBe >(0)
+      withNewCustomerAuth(TestLoginData.random) { implicit auth ⇒
+        storefrontCartsApi.shippingMethods.searchByRegion("us").as[Seq[Root]].size mustBe >(0)
+      }
     }
 
     "No shipping to Russia ;(" in new UsShipping {
-      shippingMethodsApi.searchByRegion("rus").as[Seq[Root]].size must === (0)
+      withNewCustomerAuth(TestLoginData.random) { implicit auth ⇒
+        storefrontCartsApi.shippingMethods.searchByRegion("rus").as[Seq[Root]].size must ===(0)
+      }
     }
 
     "No shipping methods for non existent country" in {
-      shippingMethodsApi.searchByRegion("uss").mustFailWith400(NoCountryFound("uss"))
+      withNewCustomerAuth(TestLoginData.random) { implicit auth ⇒
+        storefrontCartsApi.shippingMethods.searchByRegion("uss").mustFailWith400(NoCountryFound("uss"))
+      }
     }
   }
 

@@ -4,6 +4,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku.skuCodeRegex
+import models.location.Country
 import models.payment.giftcard.GiftCard
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.AddressPayloads._
@@ -146,6 +147,11 @@ object Customer {
                 (get & pathEnd) {
                   getOrFailures {
                     ShippingManager.getShippingMethodsForCart(auth.model)
+                  }
+                } ~
+                (get & path(Country.countryCodeRegex) & pathEnd) { countryCode ⇒
+                  getOrFailures {
+                    ShippingManager.getShippingMethodsForRegion(countryCode)
                   }
                 }
               } ~

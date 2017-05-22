@@ -37,11 +37,6 @@ object ShippingMethodRoutes {
             ShippingManager.getActive
           }
         } ~
-        (get & path(Country.countryCodeRegex) & pathEnd) { countryCode ⇒
-          getOrFailures {
-            ShippingManager.getShippingMethodsForRegion(countryCode)
-          }
-        } ~
         path(cordRefNumRegex) { refNum ⇒
           (get & pathEnd) {
             getOrFailures {
