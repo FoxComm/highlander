@@ -1,0 +1,9 @@
+---
+
+- name: Register Sinopia User
+  hosts: sinopia
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  roles:
+      - { role: ops/sinopia_user }

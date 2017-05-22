@@ -86,9 +86,13 @@ shortcuts:
     alias: restore_db.yml
     target: ansible/ops_restore_db.yml
 
-  - name: Setup Sinopia
-    alias: sinopia.yml
-    target: ansible/ops_sinopia.yml
+  - name: Setup Sinopia Server
+    alias: sinopia_server.yml
+    target: ansible/ops_sinopia_server.yml
+
+  - name: Register Sinopia User
+    alias: sinopia_user.yml
+    target: ansible/ops_sinopia_user.yml
 
   - name: Create Store Admin User
     alias: store_admin.yml

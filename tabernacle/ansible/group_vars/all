@@ -8,6 +8,7 @@ private_keys_dest_dir: /etc/keys
 scala_version: scala-2.11
 logrotate_dir: /etc/logrotate.d
 foxcomm_domain: foxcommerce.com
+sinopia_base_dir: /sinopia
 
 # Appliance-related things
 appliance_prefix: appliance
