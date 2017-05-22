@@ -83,6 +83,7 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
 
   def authorizeAmount(customerId: String,
                       creditCardId: String,
+                      orderRef: String,
                       amount: Int,
                       currency: Currency): Result[StripeCharge] = {
     val chargeMap: Map[String, Object] = Map(
@@ -90,7 +91,8 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
         "currency" → currency.toString,
         "customer" → customerId,
         "source"   → creditCardId,
-        "capture"  → (false: java.lang.Boolean)
+        "capture"  → (false: java.lang.Boolean),
+        "metadata" → ("order_ref" → orderRef)
     )
 
     stripe.createCharge(chargeMap)
