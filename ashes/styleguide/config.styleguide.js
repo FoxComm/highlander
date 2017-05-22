@@ -15,7 +15,7 @@ module.exports = {
 
     const importPath = dirname.split(/\/src\//).pop();
 
-    return `import { ${componentName} } from ${importPath}`;
+    return `import ${componentName} from ${importPath}`;
   },
   sections: [
     {

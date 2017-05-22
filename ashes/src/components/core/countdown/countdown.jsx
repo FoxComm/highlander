@@ -29,7 +29,7 @@ type State = {
   difference: string,
 };
 
-export class Countdown extends Component {
+export default class Countdown extends Component {
   props: Props;
   state: State = {
     ending: false,

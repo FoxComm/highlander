@@ -1,7 +1,7 @@
 #### Basic usage
 
 ```javascript
-import { Countdown } from 'components/core/countdown';
+import Countdown from 'components/core/countdown';
 
 <Countdown
   endDate={moment().add(5, 'm').utc().format()}
@@ -10,58 +10,34 @@ import { Countdown } from 'components/core/countdown';
 
 ### States
 
-#### Default state
-
 ```
 const moment = require('moment');
 
-<Countdown.Countdown
-  endDate={moment().add(5, 'm').utc().format()}
-/>
-```
+<div className="demo">
+  <Countdown
+    endDate={moment().add(5, 'm').utc().format()}
+  />
 
-#### Ending
+  <Countdown
+    endDate={moment().add(5, 'm').utc().format()}
+    endingThreshold={moment.duration(10, 'm')}
+  />
 
-```
-const moment = require('moment');
+  <Countdown
+    endDate={moment().add(5, 'm').utc().format()}
+    endingThreshold={moment.duration(1, 'm')}
+    frozen
+  />
 
-<Countdown.Countdown
-  endDate={moment().add(5, 'm').utc().format()}
-  endingThreshold={moment.duration(10, 'm')}
-/>
-```
+  <Countdown
+    endDate={moment().add(5, 'm').utc().format()}
+    format="HH-mm-ss-SSS"
+  />
 
-#### Frozen
-
-```
-const moment = require('moment');
-
-<Countdown.Countdown
-  endDate={moment().add(5, 'm').utc().format()}
-  endingThreshold={moment.duration(1, 'm')}
-  frozen
-/>
-```
-
-#### Other format
-
-```
-const moment = require('moment');
-
-<Countdown.Countdown
-  endDate={moment().add(5, 'm').utc().format()}
-  format="HH-mm-ss-SSS"
-/>
-```
-
-#### Custom tick interval
-
-```
-const moment = require('moment');
-
-<Countdown.Countdown
-  endDate={moment().add(5, 'm').utc().format()}
-  format="HH-mm-ss-SSS"
-  tickInterval={1}
-/>
+  <Countdown
+    endDate={moment().add(5, 'm').utc().format()}
+    format="HH-mm-ss-SSS"
+    tickInterval={1}
+  />
+</div>
 ```

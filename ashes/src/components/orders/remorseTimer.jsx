@@ -5,7 +5,7 @@ import React, { Component, Element } from 'react';
 
 // components
 import { AddButton } from 'components/core/button';
-import { Countdown } from 'components/core/countdown';
+import Countdown from 'components/core/countdown';
 
 type Props = {
   initialEndDate: string,

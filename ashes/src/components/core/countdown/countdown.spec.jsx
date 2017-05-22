@@ -2,7 +2,7 @@ import React from 'react';
 import moment from 'moment';
 import { shallow } from 'enzyme';
 
-import { Countdown } from './countdown';
+import Countdown from './countdown';
 
 describe('Countdown', function () {
 
