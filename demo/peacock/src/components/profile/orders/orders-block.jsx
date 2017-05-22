@@ -47,13 +47,11 @@ class OrdersBlock extends Component {
 
     return _.map(orders, (order, i) => {
       return (
-        <div  styleName="order-row">
-          <OrderRow
-            order={order}
-            showDetailsLink
-            key={`order-row-${i}`}
-          />
-        </div>
+        <OrderRow
+          order={order}
+          showDetailsLink
+          key={`order-row-${i}`}
+        />
       );
     });
   }
