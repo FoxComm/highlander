@@ -40,6 +40,7 @@ object Settings {
       val cp = (fullClasspath in assembly).value
       cp.filter(_.data.getName == "scala-library-" + scalaVersion.value + ".jar")
     },
+    test in assembly := {},
     assemblyMergeStrategy in assembly := {
       case PathList("org", "joda", "time", xs @ _ *) ⇒
         MergeStrategy.first

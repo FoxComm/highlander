@@ -51,7 +51,6 @@ lazy val root = (project in file("."))
     initialCommands in (Compile, consoleQuick) := "",
     writeVersion := sh.toTask(fromFile("project/write_version").getLines.mkString).value,
     unmanagedResources in Compile += file("version"),
-    test in assembly := {},
     addCommandAlias("all", "; clean; phoenix/it:compile; test; assembly")
   )
 
