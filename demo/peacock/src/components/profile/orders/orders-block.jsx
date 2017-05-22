@@ -47,11 +47,13 @@ class OrdersBlock extends Component {
 
     return _.map(orders, (order, i) => {
       return (
-        <OrderRow
-          order={order}
-          showDetailsLink
-          key={`order-row-${i}`}
-        />
+        <div  styleName="order-row">
+          <OrderRow
+            order={order}
+            showDetailsLink
+            key={`order-row-${i}`}
+          />
+        </div>
       );
     });
   }
@@ -64,11 +66,9 @@ class OrdersBlock extends Component {
     }
 
     return (
-      <table styleName="orders-table">
-        <tbody>
-          {this.renderOrders}
-        </tbody>
-      </table>
+      <div styleName="orders-table">
+        {this.renderOrders}
+      </div>
     );
   }
 
@@ -76,6 +76,7 @@ class OrdersBlock extends Component {
     return (
       <div>
         <div styleName="title">My orders</div>
+        <div styleName="divider table" />
         {this.content}
       </div>
     );
