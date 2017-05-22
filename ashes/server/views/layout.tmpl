@@ -61,34 +61,6 @@
   <%= fcsprite %>
   <div id="foxcom"><%= rootHTML %></div>
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,Intl.~locale.en"></script>
-  <script>
-    /* str.startsWith polyfill */
-    if (!String.prototype.startsWith) {
-      Object.defineProperty(String.prototype, 'startsWith', {
-        enumerable: false,
-        configurable: false,
-        writable: false,
-        value: function(searchString, position) {
-          position = position || 0;
-          return this.lastIndexOf(searchString, position) === position;
-        }
-      });
-    }
-    /* str.endsWith polyfill */
-    if (!String.prototype.endsWith) {
-      Object.defineProperty(String.prototype, 'endsWith', {
-        value: function(searchString, position) {
-          var subjectString = this.toString();
-          if (position === undefined || position > subjectString.length) {
-            position = subjectString.length;
-          }
-          position -= searchString.length;
-          var lastIndex = subjectString.indexOf(searchString, position);
-          return lastIndex !== -1 && lastIndex === position;
-        }
-      });
-    }
-  </script>
   <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
   <script src="<%= javascript %>"></script>
   <script>
