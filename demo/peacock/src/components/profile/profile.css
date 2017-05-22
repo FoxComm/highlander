@@ -116,9 +116,14 @@
 .order-row {
   display: flex;
   justify-content: space-between;
+  align-items: baseline;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 16px;
   margin-bottom: 16px;
+}
+
+.order-cell {
+  lost-column: 1/7;
 }
 
 .payment-icon {

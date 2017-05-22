@@ -1,54 +1,71 @@
+/* @flow */
 
-import React from 'react';
+// libs
+import React, { Element } from 'react';
 import moment from 'moment';
 import { stateTitles } from 'paragons/order';
 
+// components
 import Currency from 'ui/currency';
 import { Link } from 'react-router';
 
-function convertOrderData(orderDetails) {
-  if (!orderDetails.grandTotal) {
-    return {
-      ...orderDetails,
-      grandTotal: orderDetails.total,
-      currency: 'USD',
-      state: orderDetails.orderState,
-    };
-  }
+import styles from '../profile.css';
 
-  return orderDetails;
-}
+type Props = {
+  order: Object,
+  showDetailsLink: boolean,
+};
 
-const OrderRow = (props) => {
+const OrderRow = (props: Props) => {
   const { showDetailsLink } = props;
+
+  const convertOrderData = (orderDetails: Object): Object => {
+    if (!orderDetails.grandTotal) {
+      return {
+        ...orderDetails,
+        grandTotal: orderDetails.total,
+        currency: 'USD',
+        state: orderDetails.orderState,
+      };
+    }
+
+    return orderDetails;
+  };
+
+  const getDetailsColumn = (): Element<*> | null => {
+    if (showDetailsLink) {
+      return (
+        <div styleName="action-link">View details</div>
+      );
+    }
+
+    return null;
+  };
+
   const order = convertOrderData(props.order);
 
-  let detailsColumn = null;
-  if (showDetailsLink) {
-    detailsColumn = (
-      <td>
-        <Link to={`/profile/orders/${order.referenceNumber}`}>View Details</Link>
-      </td>
-    );
-  }
-
   return (
-    <tr key={order.referenceNumber}>
-      <td>
-        {moment(order.placedAt).format('L')}
-      </td>
-      <td>{order.referenceNumber}</td>
-      <td>
-        <Currency value={order.grandTotal} currency={order.currency} />
-      </td>
-      <td>
-        <span>{stateTitles[order.state]}</span>
-      </td>
-      <td>
-        TRACKING ID
-      </td>
-      {detailsColumn}
-    </tr>
+    <div styleName="order-row">
+      <div styleName="order-cell">
+        {`#${order.referenceNumber}`}
+      </div>
+      <div styleName="order-cell">
+        {moment(order.placedAt).format('LLL')}
+      </div>
+      <div styleName="order-cell">
+        Tracking is not available
+      </div>
+      <div styleName="order-cell">
+        {stateTitles[order.state]}
+      </div>
+      <div styleName="order-cell">
+        <Currency
+          value={order.grandTotal}
+          currency={order.currency}
+        />
+      </div>
+      {getDetailsColumn()}
+    </div>
   );
 };
 
