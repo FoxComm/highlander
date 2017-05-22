@@ -17,6 +17,7 @@ import type { Localized } from 'lib/i18n';
 import { searchGiftCards } from 'modules/products';
 import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-details';
 import { addLineItem, toggleCart } from 'modules/cart';
+import { fetchReviewsForSku, clearReviews } from 'modules/reviews';
 
 // styles
 import styles from './pdp.css';
@@ -31,6 +32,7 @@ import ErrorAlerts from 'ui/alerts/error-alerts';
 import ProductVariants from 'components/product-variants/product-variants';
 import GiftCardForm from 'components/gift-card-form';
 import ImagePlaceholder from 'components/products-item/image-placeholder';
+import ProductReviewsList from 'components/product-reviews-list/product-reviews-list';
 
 // types
 import type { ProductResponse, Sku } from 'modules/product-details';
@@ -48,6 +50,8 @@ type Actions = {
   resetProduct: Function,
   addLineItem: Function,
   toggleCart: Function,
+  fetchReviewsForSku: Function,
+  clearReviews: Function,
 };
 
 type Props = Localized & RoutesParams & {
@@ -67,13 +71,18 @@ type State = {
 
 const mapStateToProps = (state) => {
   const product = state.productDetails.product;
+  const productReviews = state.reviews;
 
   return {
     product,
+    productReviews,
     fetchError: _.get(state.asyncActions, 'pdp.err', null),
     notFound: !product && _.get(state.asyncActions, 'pdp.err.response.status') == 404,
     isLoading: _.get(state.asyncActions, ['pdp', 'inProgress'], true),
     isCartLoading: _.get(state.asyncActions, ['cartChange', 'inProgress'], false),
+    isProductReviewsLoading: _.get(state.asyncActions,
+      ['fetchReviewsForSku', 'inProgress'], false
+    ),
   };
 };
 
@@ -85,8 +94,12 @@ const mapDispatchToProps = dispatch => ({
     resetProduct,
     addLineItem,
     toggleCart,
+    fetchReviewsForSku,
+    clearReviews,
   }, dispatch),
 });
+
+const REVIEWS_PAGE_SIZE = 2;
 
 class Pdp extends Component {
   props: Props;
@@ -114,12 +127,19 @@ class Pdp extends Component {
 
   componentDidMount() {
     this.productPromise.then(() => {
+      const { isProductReviewsLoading, actions } = this.props;
+
       tracking.viewDetails(this.productView);
+
+      if (!isProductReviewsLoading) {
+        actions.fetchReviewsForSku(this.productSkuCodes, REVIEWS_PAGE_SIZE, 0).catch(_.noop);
+      }
     });
   }
 
   componentWillUnmount() {
     this.props.actions.resetProduct();
+    this.props.actions.clearReviews();
   }
 
   componentWillUpdate(nextProps) {
@@ -128,6 +148,7 @@ class Pdp extends Component {
     if (this.productId !== nextId) {
       this.setState({ currentSku: null });
       this.props.actions.resetProduct();
+      this.props.actions.clearReviews();
       this.fetchProduct(nextProps, nextId);
     }
   }
@@ -341,6 +362,28 @@ class Pdp extends Component {
     );
   }
 
+  fetchMoreReviews = (from: number): ?Element<*> => {
+    const { actions } = this.props;
+    actions.fetchReviewsForSku(this.productSkuCodes, REVIEWS_PAGE_SIZE, from).catch(_.noop);
+  }
+
+  get productReviewsList(): ?Element<*> {
+    const { productReviews, isProductReviewsLoading } = this.props;
+
+    return (
+      <ProductReviewsList
+        title="Reviews"
+        emptyContentTitle="There are no reviews for this product"
+        listItems={productReviews.list}
+        isLoading={isProductReviewsLoading}
+        loadingBehavior={_.isEmpty(productReviews.list)}
+        paginationSize={REVIEWS_PAGE_SIZE}
+        onLoadMoreReviews={this.fetchMoreReviews}
+        showLoadMore={_.size(productReviews.list) < productReviews.paginationTotal}
+      />
+    );
+  }
+
   get productPrice(): ?Element<any> {
     if (this.isGiftCard()) return null;
     const {
@@ -374,6 +417,16 @@ class Pdp extends Component {
         <Currency value={price} currency={currency} />
       </div>
     );
+  }
+
+  get productSkuCodes(): Array<any> {
+    const { product } = this.props;
+
+    const skuCodes = _.map(product.skus, (sku) => {
+      return _.get(sku, ['attributes', 'code', 'v'], '');
+    }, []);
+
+    return skuCodes;
   }
 
   render(): Element<any> {
@@ -432,6 +485,7 @@ class Pdp extends Component {
           </p>
           <img styleName="share-image" src="/images/pdp/style.jpg" />
         </div>
+        {this.productReviewsList}
         <div id="product-recommender" />
       </div>
     );

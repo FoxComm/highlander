@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@foxcomm/api-js@^1.1.7":
-  version "1.1.8"
-  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fapi-js/-/api-js-1.1.8.tgz#9d8189731f22a354dad1f6ad3538880a1feb3ead"
+"@foxcomm/api-js@^1.1.9":
+  version "1.1.9"
+  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fapi-js/-/api-js-1.1.9.tgz#b1e550cdbb058f10dbbfb7c7d4d13abf0da07cc5"
   dependencies:
     debug "^2.2.0"
     jwt-decode "^2.0.1"
