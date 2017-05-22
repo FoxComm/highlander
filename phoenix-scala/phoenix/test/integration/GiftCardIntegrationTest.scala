@@ -11,9 +11,9 @@ import phoenix.models.payment.giftcard._
 import phoenix.models.payment.storecredit.StoreCredit
 import phoenix.models.payment.{InStorePaymentStates, storecredit}
 import phoenix.payloads.GiftCardPayloads._
-import phoenix.responses.GiftCardAdjustmentsResponse.{Root => GcAdjRoot}
-import phoenix.responses.GiftCardResponse.{Root => GcRoot}
-import phoenix.responses.StoreCreditResponse.{Root => ScRoot}
+import phoenix.responses.GiftCardAdjustmentsResponse.{Root ⇒ GcAdjRoot}
+import phoenix.responses.GiftCardResponse.{Root ⇒ GcRoot}
+import phoenix.responses.StoreCreditResponse.{Root ⇒ ScRoot}
 import phoenix.responses._
 import slick.jdbc.PostgresProfile.api._
 import testutils._

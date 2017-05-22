@@ -4,10 +4,10 @@ import org.json4s.jackson.JsonMethods._
 import phoenix.failures.SharedSearchFailures._
 import phoenix.models.account._
 import phoenix.models.sharedsearch.SharedSearch._
-import phoenix.models.sharedsearch.SharedSearchAssociation.{build => buildAssociation}
+import phoenix.models.sharedsearch.SharedSearchAssociation.{build ⇒ buildAssociation}
 import phoenix.models.sharedsearch._
 import phoenix.payloads.SharedSearchPayloads._
-import phoenix.responses.UserResponse.{Root => UserRoot, build => buildUser}
+import phoenix.responses.UserResponse.{Root ⇒ UserRoot, build ⇒ buildUser}
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

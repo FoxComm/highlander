@@ -21,7 +21,7 @@ import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import phoenix.payloads.CustomerPayloads._
 import phoenix.payloads.PaymentPayloads._
 import phoenix.payloads.UserPayloads._
-import phoenix.responses.CreditCardsResponse.{Root => CardResponse}
+import phoenix.responses.CreditCardsResponse.{Root ⇒ CardResponse}
 import phoenix.responses.CustomerResponse.Root
 import phoenix.responses.cord.CartResponse
 import phoenix.responses.{CreditCardsResponse, CustomerResponse}

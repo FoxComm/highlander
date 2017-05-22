@@ -13,7 +13,7 @@ import phoenix.payloads.CouponPayloads.CreateCoupon
 import phoenix.payloads.ProductPayloads.CreateProductPayload
 import phoenix.payloads.SkuPayloads.SkuPayload
 import phoenix.responses.CouponResponses.CouponResponse
-import phoenix.responses.ProductResponses.ProductResponse.{Root => ProductRoot}
+import phoenix.responses.ProductResponses.ProductResponse.{Root ⇒ ProductRoot}
 import phoenix.responses.PromotionResponses.PromotionResponse
 import phoenix.responses.SkuResponses.SkuResponse
 import phoenix.utils.aliases.Json

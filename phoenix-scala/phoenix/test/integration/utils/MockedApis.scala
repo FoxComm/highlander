@@ -24,7 +24,10 @@ import scala.util.{Random, Try}
 trait RealStripeApi extends MockedApis {
 
   override implicit def apisOverride: Option[Apis] =
-    Apis(phoenix.server.Setup.defaultApis.stripe, amazonApiMock, middlewarehouseApiMock, elasticSearchMock).some
+    Apis(phoenix.server.Setup.defaultApis.stripe,
+         amazonApiMock,
+         middlewarehouseApiMock,
+         elasticSearchMock).some
 }
 
 object MockedApis extends MockedApis {

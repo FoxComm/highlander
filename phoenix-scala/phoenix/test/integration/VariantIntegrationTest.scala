@@ -7,8 +7,8 @@ import phoenix.models.account.Scope
 import phoenix.models.inventory.Skus
 import phoenix.models.product._
 import phoenix.payloads.VariantPayloads._
-import phoenix.responses.VariantResponses.IlluminatedVariantResponse.{Root => VariantRoot}
-import phoenix.responses.VariantValueResponses.IlluminatedVariantValueResponse.{Root => ValueRoot}
+import phoenix.responses.VariantResponses.IlluminatedVariantResponse.{Root ⇒ VariantRoot}
+import phoenix.responses.VariantValueResponses.IlluminatedVariantValueResponse.{Root ⇒ ValueRoot}
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

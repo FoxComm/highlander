@@ -16,7 +16,7 @@ import phoenix.models.inventory._
 import phoenix.models.objects._
 import phoenix.models.product._
 import phoenix.payloads.ImagePayloads._
-import phoenix.responses.AlbumResponses.AlbumResponse.{Root => AlbumRoot}
+import phoenix.responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import phoenix.responses.ProductResponses._
 import phoenix.responses.SkuResponses._
 import phoenix.services.image.ImageManager

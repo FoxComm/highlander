@@ -20,7 +20,7 @@ import com.typesafe.config.ConfigFactory
 import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
 import de.heikoseeberger.akkasse.ServerSentEvent
 import org.json4s.Formats
-import org.json4s.jackson.Serialization.{write => writeJson}
+import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import phoenix.server.Service

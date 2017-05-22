@@ -3,7 +3,7 @@ import java.time.ZonedDateTime
 import cats.implicits._
 import failures.{GeneralFailure, NotFoundFailure400, NotFoundFailure404}
 import org.mockito.Mockito._
-import org.mockito.{ArgumentMatchers => m, _}
+import org.mockito.{ArgumentMatchers ⇒ m, _}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
 import phoenix.models.account._

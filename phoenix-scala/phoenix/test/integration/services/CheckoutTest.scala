@@ -9,7 +9,7 @@ import models.objects.ObjectContexts
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalacheck.Prop.BooleanOperators
-import org.scalacheck.{Gen, Prop, Test => QTest}
+import org.scalacheck.{Gen, Prop, Test ⇒ QTest}
 import org.scalatest.mockito.MockitoSugar
 import phoenix.models.Reasons
 import phoenix.models.account.Scope

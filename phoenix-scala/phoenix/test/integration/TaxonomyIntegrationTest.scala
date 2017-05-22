@@ -6,7 +6,7 @@ import models.objects._
 import org.json4s.JsonDSL._
 import org.json4s._
 import phoenix.failures.TaxonomyFailures._
-import phoenix.models.taxonomy.{Taxon => ModelTaxon, _}
+import phoenix.models.taxonomy.{Taxon ⇒ ModelTaxon, _}
 import phoenix.payloads.TaxonPayloads._
 import phoenix.payloads.TaxonomyPayloads._
 import phoenix.responses.TaxonResponses._
@@ -130,9 +130,9 @@ class TaxonomyIntegrationTest
 
     "creates taxon at position" in new FlatTaxonsFixture {
       val response = taxonomiesApi(taxonomy.formId)
-        .createTaxon(
-            CreateTaxonPayload(taxonAttributes,
-                               location = TaxonLocationPayload(parent = None, position = 1.some).some))
+        .createTaxon(CreateTaxonPayload(taxonAttributes,
+                                        location = TaxonLocationPayload(parent = None,
+                                                                        position = 1.some).some))
         .as[FullTaxonResponse]
 
       val newTaxons = queryGetTaxonomy(taxonomy.formId).taxons
@@ -144,9 +144,9 @@ class TaxonomyIntegrationTest
 
     "creates taxon at last position" in new FlatTaxonsFixture {
       val response = taxonomiesApi(taxonomy.formId)
-        .createTaxon(
-            CreateTaxonPayload(taxonAttributes,
-                               location = TaxonLocationPayload(parent = None, position = None).some))
+        .createTaxon(CreateTaxonPayload(taxonAttributes,
+                                        location = TaxonLocationPayload(parent = None,
+                                                                        position = None).some))
         .as[FullTaxonResponse]
 
       val newTaxons = queryGetTaxonomy(taxonomy.formId).taxons
@@ -165,8 +165,8 @@ class TaxonomyIntegrationTest
       val parentFormId  = Taxons.mustFindById404(parent.taxonId).gimme.formId
 
       val response = taxonomiesApi(taxonomy.formId)
-        .createTaxon(
-            CreateTaxonPayload(taxonAttributes, TaxonLocationPayload(parentFormId.some, Some(0)).some))
+        .createTaxon(CreateTaxonPayload(taxonAttributes,
+                                        TaxonLocationPayload(parentFormId.some, Some(0)).some))
         .as[FullTaxonResponse]
 
       val newTaxons      = queryGetTaxonomy(taxonomy.formId).taxons
@@ -182,8 +182,9 @@ class TaxonomyIntegrationTest
       val parentFormId = Taxons.mustFindById404(parent.taxonId).gimme.formId
 
       val resp = taxonomiesApi(taxonomy.formId).createTaxon(
-          CreateTaxonPayload(taxonAttributes,
-                             Some(TaxonLocationPayload(Some(parentFormId), Some(Integer.MAX_VALUE)))))
+          CreateTaxonPayload(
+              taxonAttributes,
+              Some(TaxonLocationPayload(Some(parentFormId), Some(Integer.MAX_VALUE)))))
 
       resp.status must === (StatusCodes.BadRequest)
       resp.error must === (NoTaxonAtPosition(parentFormId.some, Integer.MAX_VALUE).description)
