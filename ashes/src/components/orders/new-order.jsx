@@ -11,7 +11,7 @@ import * as newOrderActions from '../../modules/orders/new-order';
 import { email } from '../../lib/validators';
 
 import { PrimaryButton } from 'components/core/button';
-import BigCheckbox from '../checkbox/big-checkbox';
+import { BigCheckbox } from 'components/core/checkbox';
 import ChooseCustomer from './choose-customer';
 import ChooseCustomerRow from './choose-customer-row';
 import Errors from 'components/utils/errors';
