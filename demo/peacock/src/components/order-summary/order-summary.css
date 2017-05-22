@@ -7,19 +7,12 @@
   color: var(--text-color);
 }
 
-.divider {
-  height: 1px;
-  width: 100%;
-  background-color: var(--input-border-color);
-}
-
 .title {
   width: 100%;
 }
 
 .content {
   font-size: 12px;
-  border-top: 1px solid var(--border-color);
 }
 
 .price-summary {

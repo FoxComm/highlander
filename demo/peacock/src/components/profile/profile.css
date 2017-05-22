@@ -144,10 +144,14 @@
 .shipping-address,
 .shipping-method,
 .payment-method {
-  margin-top: 15px;
-  padding-left: 15px;
-  padding-right: 10px;
+  margin: 15px 15px 0 10px;
+  padding-bottom: 10px;
   font-size: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.payment-method {
+  padding-bottom: 0;
 }
 
 .shipping-method-data {
