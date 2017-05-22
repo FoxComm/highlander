@@ -130,14 +130,6 @@
   }
 }
 
-.payment-icon {
-  /*composes: payment-icon from '../../pages/checkout/billing/view-billing.css';*/
-}
-
-.payment-method {
-  margin-bottom: 20px;
-}
-
 .order-service {
   & tr:first-child {
     border-bottom: 0 none;
@@ -148,7 +140,10 @@
   padding-bottom: 10px;
 }
 
-.order-summary, .shipping-address, .shipping-method {
+.order-summary,
+.shipping-address,
+.shipping-method,
+.payment-method {
   margin-top: 15px;
   padding-left: 15px;
   padding-right: 10px;
