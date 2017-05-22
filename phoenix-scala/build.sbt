@@ -13,6 +13,7 @@ lazy val phoenix = (project in file("phoenix"))
   .configs(IT, ET)
   .settings(itSettings, etSettings)
   .settings(commonSettings)
+  .settings(reformatOnCompileWithItSettings)
   .settings(
     libraryDependencies ++= {
       import Dependencies._
