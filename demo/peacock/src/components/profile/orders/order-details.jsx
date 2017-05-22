@@ -58,6 +58,23 @@ class Order extends Component {
     );
   }
 
+  get shippingMethod() {
+    const { order } = this.props;
+
+    return (
+      <div styleName="shipping-method">
+        <div styleName="title">Shipping method</div>
+        <div styleName="shipping-method-data">
+          <div>{order.shippingMethod.name}</div>
+          <Currency
+            value={order.shippingMethod.price}
+            styleName="currency"
+          />
+        </div>
+      </div>
+    );
+  }
+
   get orderSummary() {
     const { order } = this.props;
 
@@ -79,6 +96,7 @@ class Order extends Component {
     return (
       <div>
         {this.shippingAddress}
+        {this.shippingMethod}
         {this.orderSummary}
       </div>
     );
