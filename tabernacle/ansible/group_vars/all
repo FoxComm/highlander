@@ -272,8 +272,7 @@ hyperion_db_name: hyperion
 hyperion_db_test_name: hyperion_test
 hyperion_db_user: hyperion
 hyperion_db_password: hyperion
-hyperion_db_host: "{{db_host}}"
-hyperion_db_connection_string: "postgresql://{{hyperion_db_user}}@{{hyperion_db_host}}/{{hyperion_db_name}}"
+hyperion_db_connection_string: "postgresql://{{hyperion_db_user}}@{{db_host}}/{{hyperion_db_name}}"
 hyperion_test_db_name: hyperion_test
 hyperion_push_check_interval: 5
 hyperion_create_plugin_in_ashes_on_start: true
@@ -287,7 +286,6 @@ bernardo_dir: /bernardo
 bernardo_src: ../../intelligence/bernardo/
 bernardo_db_name: ic
 bernardo_db_user: ic
-bernardo_db_host: "db.{{consul_suffix}}"
 bernardo_port: "9290"
 bernardo_host: bernardo.service.consul
 bernardo_server: "{{bernardo_host}}:{{bernardo_port}}"
