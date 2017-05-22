@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 
 // components
-import { Checkbox } from 'components/core/checkbox';
+import { PartialCheckbox } from 'components/core/checkbox';
 
 export const selectionState = {
   None: 0,
@@ -35,7 +35,7 @@ export default class MultiSelectHead extends React.Component {
     const { pageChecked, disabled } = this.props;
 
     return (
-      <Checkbox
+      <PartialCheckbox
         inline={true}
         id="multi-select"
         disabled={disabled}

@@ -34,16 +34,14 @@ type Props = {
  */
 
 export const Checkbox = (props: Props) => {
-  const { inline, docked, halfChecked, checked } = props;
+  const { inline, docked } = props;
 
   const className = classNames(
     s.checkbox,
-    {
-      [s.halfChecked]: checked && halfChecked,
-      [s.inline]: inline,
-      [s.dockedLeft]: docked === 'left',
-      [s.dockedRight]: docked === 'right'
-    }
+    props.className,
+    { [s.inline]: inline },
+    { [s.dockedLeft]: docked === 'left' },
+    { [s.dockedRight]: docked === 'right' },
   );
 
   return (
@@ -55,6 +53,19 @@ export const Checkbox = (props: Props) => {
 Checkbox.defaultProps = {
   inline: false,
   docked: 'left',
+};
+
+export const PartialCheckbox = (props: Props) => {
+  const className = classNames(
+    { [s.halfChecked]: props.checked && props.halfChecked },
+  );
+
+  return (
+    <Checkbox { ...props } className={ className }/>
+  );
+};
+
+PartialCheckbox.defaultProps = {
   halfChecked: false,
   checked: false,
 };
