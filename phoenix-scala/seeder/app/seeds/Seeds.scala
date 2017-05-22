@@ -27,7 +27,7 @@ import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.PostgresProfile.backend.DatabaseDef
 import phoenix.utils.aliases._
 import utils.db._
-import phoenix.utils.db.flyway.newFlyway
+import phoenix.utils.db.flyway.{newFlyway, rootProjectSqlLocation}
 import phoenix.utils.seeds.Factories
 import phoenix.utils.seeds.generators.SeedsGenerator
 import phoenix.utils.{ADT, FoxConfig}
@@ -306,7 +306,7 @@ object Seeds {
     } yield {}
 
   private def flyWayMigrate(config: Config): Unit = {
-    val flyway = newFlyway(jdbcDataSourceFromConfig("db", config))
+    val flyway = newFlyway(jdbcDataSourceFromConfig("db", config), rootProjectSqlLocation)
 
     flyway.clean()
     flyway.migrate()

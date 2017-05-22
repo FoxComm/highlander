@@ -8,7 +8,7 @@ import models.objects.ObjectContexts
 import org.scalatest._
 import phoenix.models.product.SimpleContext
 import phoenix.utils.aliases.EC
-import phoenix.utils.db.flyway.newFlyway
+import phoenix.utils.db.flyway.{newFlyway, subprojectSqlLocation}
 import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
@@ -44,7 +44,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
   override protected def beforeAll(): Unit = {
     if (!migrated) {
       Locale.setDefault(Locale.US)
-      val flyway = newFlyway(dataSource)
+      val flyway = newFlyway(dataSource, subprojectSqlLocation)
 
       flyway.clean()
       flyway.migrate()

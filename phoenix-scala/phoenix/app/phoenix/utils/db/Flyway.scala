@@ -7,8 +7,10 @@ import org.flywaydb.core.internal.util.logging.{LogCreator, LogFactory}
 
 object flyway {
 
-  def newFlyway(dataSource: DataSource,
-                locations: Seq[String] = Seq("filesystem:../sql")): Flyway = {
+  val rootProjectSqlLocation: List[String] = List("filesystem:./sql")
+  val subprojectSqlLocation: List[String]  = List("filesystem:../sql")
+
+  def newFlyway(dataSource: DataSource, locations: List[String]): Flyway = {
     LogFactory.setLogCreator(FlywayLogCreator)
 
     val flyway = new Flyway
