@@ -148,11 +148,21 @@
   padding-bottom: 10px;
 }
 
-.order-summary, .shipping-address {
-  margin-top: 20px;
+.order-summary, .shipping-address, .shipping-method {
+  margin-top: 15px;
   padding-left: 15px;
   padding-right: 10px;
   font-size: 12px;
+}
+
+.shipping-method-data {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.currency {
+  font-weight: 900;
 }
 
 .shipping-row {
