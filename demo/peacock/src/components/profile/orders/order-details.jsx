@@ -45,20 +45,41 @@ class Order extends Component {
     this.props.clearOrder();
   }
 
+  get shippingAddress() {
+    const { shippingAddress } = this.props.order;
+
+    return (
+      <div styleName="shipping-address">
+        <div styleName="title">Shipping address</div>
+        <AddressDetails
+          address={shippingAddress}
+        />
+      </div>
+    );
+  }
+
+  get orderSummary() {
+    const { order } = this.props;
+
+    return (
+      <OrderSummary
+        embedded
+        styleName="order-summary"
+        {...order}
+        skus={order.lineItems.skus}
+      />
+    );
+  }
+
   get content() {
     const { fetchOrderState } = this.props;
-    console.log('fetchOrderState -> ', fetchOrderState);
+
     if (!fetchOrderState) return <Loader />;
 
-    const { order } = this.props;
     return (
       <div>
-        <OrderSummary
-          embedded
-          styleName="order-summary"
-          {...order}
-          skus={order.lineItems.skus}
-        />
+        {this.shippingAddress}
+        {this.orderSummary}
       </div>
     );
   }
