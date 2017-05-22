@@ -24,7 +24,7 @@ type State = {
 };
 
 type Props = {
-  signUpState: {
+  restoreState: {
     err?: any,
     inProgress?: boolean,
   },
@@ -36,7 +36,7 @@ type Props = {
 
 function mapStateToProps(state) {
   return {
-    signUpState: _.get(state.asyncActions, 'signup', {})
+    restoreState: _.get(state.asyncActions, 'requestPasswordReset', {})
   };
 }
 
@@ -64,7 +64,7 @@ class RestorePassword extends Component {
   }
 
   get errorMessage(): ?Element<*> {
-    const err = this.props.signUpState.err;
+    const err = this.props.restoreState.err;
     if (!err) return null;
     return <ErrorAlerts error={err} />;
   }
@@ -118,7 +118,7 @@ class RestorePassword extends Component {
             <PrimaryButton
               styleName="submit-button"
               type="submit"
-              isLoading={this.props.signUpState.inProgress}
+              isLoading={this.props.restoreState.inProgress}
             >
               Restore Password
             </PrimaryButton>

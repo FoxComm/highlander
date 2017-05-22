@@ -37,7 +37,7 @@ type Props = {
 
 function mapStateToProps(state) {
   return {
-    signUpState: _.get(state.asyncActions, 'signup', {})
+    signUpState: _.get(state.asyncActions, 'resetPassword', {})
   };
 }
 
