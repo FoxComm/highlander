@@ -108,6 +108,7 @@ marathon_restart:
 with_ic: "{{ lookup('env', 'WITH_INTELLIGENT_COMMERCE') | default(true, true) | bool }}"
 
 # Should we do seeding for appliance
+detach_seeders: "{{ lookup('env', 'DETACH_SEEDERS') | default(false, true) | bool }}"
 with_appliance_seeding: "{{ lookup('env', 'WITH_APPLIANCE_SEEDING') | default(true, true) | bool }}"
 
 # Consul Service Discovery
@@ -449,8 +450,3 @@ jmx_enabled: false
 packing: false
 with_marketplace: false
 with_shipstation: false
-with_base_seeds: true
-with_gatling_seeder: false
-with_mwh_seeder: true
-with_hyperion_seeder: true
-with_data_import: true
