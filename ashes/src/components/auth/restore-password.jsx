@@ -15,7 +15,7 @@ import PasswordInput from 'components/forms/password-input';
 import WaitAnimation from 'components/common/wait-animation';
 import Link from 'components/link/link';
 
-import type { SignupPayload } from 'modules/user';
+import type { TResetPayload } from 'modules/user';
 import * as userActions from 'modules/user';
 
 type State = {
@@ -28,7 +28,8 @@ type Props = {
     err?: any,
     inProgress?: boolean,
   },
-  signUp: (payload: SignupPayload) => Promise<*>,
+  requestPasswordReset: (email: string) => Promise<*>,
+  resetPassword: (payload: TResetPayload) => Promise<*>,
   isMounted: boolean,
   location: Location,
 };

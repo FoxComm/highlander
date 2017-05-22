@@ -15,7 +15,7 @@ import PasswordInput from 'components/forms/password-input';
 import WaitAnimation from 'components/common/wait-animation';
 import Link from 'components/link/link';
 
-import type { SignupPayload } from 'modules/user';
+import type { TResetPayload } from 'modules/user';
 import * as userActions from 'modules/user';
 
 type State = {
@@ -29,7 +29,8 @@ type Props = {
     err?: any,
     inProgress?: boolean,
   },
-  signUp: (payload: SignupPayload) => Promise<*>,
+  requestPasswordReset: (email: string) => Promise<*>,
+  resetPassword: (payload: TResetPayload) => Promise<*>,
   isMounted: boolean,
   location: Location,
 };
@@ -64,7 +65,7 @@ class SetPassword extends Component {
   @autobind
   handleSubmit() {
     const payload = {
-      password: this.state.password2,
+      newPassword: this.state.password2,
       code: this.token,
     };
     this.props.resetPassword(payload).then(() => {
