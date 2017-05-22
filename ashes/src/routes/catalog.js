@@ -4,7 +4,6 @@ import React, { Component, Element } from 'react';
 import FoxRouter from 'lib/fox-router';
 import { frn } from 'lib/frn';
 
-import Analytics from 'components/analytics/analytics';
 import ActivityTrailPage from 'components/activity-trail/activity-trail-page';
 import Notes from 'components/notes/notes';
 
@@ -75,7 +74,10 @@ const getRoutes = (jwt: Object) => {
         router.read('product-analytics', {
           title: 'Analytics',
           path: 'analytics',
-          component: Analytics,
+          getComponent: (location, callback) => {
+            import('../components/analytics/analytics')
+              .then(({ Analytics }) => callback(null, Analytics));
+          },
           frn: frn.activity.product,
         }),
       ]),

@@ -155,7 +155,7 @@ percentDifferenceFromAvg(percentValue: number, avgPercentValue: number): number 
 }
 
 @connect((state, props) => ({analytics: state.analytics}), AnalyticsActions)
-export default class Analytics extends React.Component {
+export class Analytics extends React.Component {
 
   static defaultProps: {
     questionBoxes: Array<QuestionBoxType>,

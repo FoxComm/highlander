@@ -21,12 +21,14 @@ module.exports = {
       {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
           use: [ 'css-loader', 'postcss-loader' ]
         })
       },
       {
         test: /\.less$/,
         use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
           use: [ 'css-loader', 'less-loader' ]
         })
       },
@@ -52,7 +54,7 @@ module.exports = {
 
     new ManifestPlugin(),
 
-    new ExtractTextPlugin('app.[contenthash:6].css'),
+    new ExtractTextPlugin('[name].[contenthash:6].css'),
     new OptimizeCssAssetsPlugin(),
   ],
 
