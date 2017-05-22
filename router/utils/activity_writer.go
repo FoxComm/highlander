@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 // ActivityWriter implements the http.ResponseWriter interface and is used to
@@ -59,18 +60,27 @@ func (a *ActivityWriter) StatusCode() int {
 	return a.statusCode
 }
 
-// Copy writes the results of this writer back to the default http.ResponseWriter.
-func (a *ActivityWriter) Copy(rw http.ResponseWriter) error {
-	// Copy headers
-	for k, v := range a.header {
-		rw.Header()[k] = append(rw.Header()[k], v...)
+// CopyWithRewrite copies the results of this writer back to the default
+// http.ResponseWriter after replacing all instances of old with new in the body
+// of the original response.
+func (a *ActivityWriter) CopyWithRewrite(rw http.ResponseWriter, old string, new string) error {
+	a.copyHeaders(rw)
+	rw.Header().Del("Content-Encoding")
+
+	bodyString, err := a.BodyString()
+	if err != nil {
+		return err
 	}
 
-	rw.Header().Set("Content-Length", strconv.Itoa(a.body.Len()))
-	rw.WriteHeader(a.statusCode)
+	updated := strings.Replace(bodyString, old, new, -1)
+	updatedBytes := bytes.NewBufferString(updated)
+	return a.copyBody(rw, updatedBytes)
+}
 
-	_, err := io.Copy(rw, a.body)
-	return err
+// Copy writes the results of this writer back to the default http.ResponseWriter.
+func (a *ActivityWriter) Copy(rw http.ResponseWriter) error {
+	a.copyHeaders(rw)
+	return a.copyBody(rw, a.body)
 }
 
 func (a *ActivityWriter) Header() http.Header {
@@ -87,4 +97,18 @@ func (a *ActivityWriter) Write(buf []byte) (int, error) {
 
 func (a *ActivityWriter) WriteHeader(code int) {
 	a.statusCode = code
+}
+
+func (a *ActivityWriter) copyHeaders(rw http.ResponseWriter) {
+	for k, v := range a.header {
+		rw.Header()[k] = append(rw.Header()[k], v...)
+	}
+}
+
+func (a *ActivityWriter) copyBody(rw http.ResponseWriter, body *bytes.Buffer) error {
+	rw.Header().Set("Content-Length", strconv.Itoa(body.Len()))
+	rw.WriteHeader(a.statusCode)
+
+	_, err := io.Copy(rw, body)
+	return err
 }

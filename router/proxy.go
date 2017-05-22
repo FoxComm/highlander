@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -68,16 +66,7 @@ func (router *RouterProxy) handle(w http.ResponseWriter, r *http.Request) {
 
 	ct := aw.Header().Get("Content-Type")
 	if strings.HasPrefix(ct, "text/html") {
-		bodyString, err := aw.BodyString()
-		if err != nil {
-			e := fmt.Errorf("Enable to parse response body with error: %s", err.Error())
-			log.Panic(e)
-		}
-
-		updatedBodyString := strings.Replace(bodyString, router.origin.Host, router.host.Host, -1)
-		b := bytes.NewBufferString(updatedBodyString)
-
-		io.Copy(w, b)
+		aw.CopyWithRewrite(w, router.origin.Host, router.host.Host)
 	} else {
 		aw.Copy(w)
 	}
