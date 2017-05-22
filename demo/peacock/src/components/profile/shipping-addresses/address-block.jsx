@@ -190,7 +190,7 @@ const mapStateToProps = (state) => {
     shippingAddress: _.get(state.cart, 'shippingAddress', {}),
     addressesModalVisible: _.get(state.profile, 'addressesModalVisible', false),
     setAsDefaultState: _.get(state.asyncActions, 'setAddressAsDefault', {}),
-    updateAddressState: _.get(state.asyncActions, 'updateAddress', false),
+    updateAddressState: _.get(state.asyncActions, 'updateAddress', {}),
     cartState: _.get(state.asyncActions, 'cart.finished', false),
   };
 };

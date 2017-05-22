@@ -47,7 +47,7 @@ export default class Form extends Component {
     };
 
     if (isValid && props.onSubmit) {
-      const willResolved = props.onSubmit(event) || Promise.resolve(null);
+      const willResolved = Promise.resolve(props.onSubmit(event));
       willResolved.then(() => setErrors(null), setErrors);
     }
   }

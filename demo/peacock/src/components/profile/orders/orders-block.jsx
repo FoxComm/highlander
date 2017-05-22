@@ -4,6 +4,7 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
 
 // actions
 import { fetchOrders } from 'modules/orders';
@@ -12,17 +13,23 @@ import { toggleOrderDetails } from 'modules/profile';
 // components
 import OrderRow from './order-row';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import Modal from 'ui/modal/modal';
+import CheckoutForm from 'pages/checkout/checkout-form';
+import OrderDetails from './order-details';
 
 import styles from '../profile.css';
 
 type State = {
-  error: ?string;
+  error: ?string,
+  referenceNumber: ?string,
 };
 
 type Props = {
   auth: Object,
   orders: Array<Object>,
   fetchOrders: () => Promise<*>,
+  orderDetailsVisible: boolean,
+  toggleOrderDetails: () => void,
 };
 
 class OrdersBlock extends Component {
@@ -30,6 +37,7 @@ class OrdersBlock extends Component {
 
   state: State = {
     error: null,
+    referenceNumber: null,
   };
 
   componentWillMount() {
@@ -43,6 +51,11 @@ class OrdersBlock extends Component {
     }
   }
 
+  @autobind
+  handleViewDetails(referenceNumber) {
+    this.setState({ referenceNumber }, () => this.props.toggleOrderDetails());
+  }
+
   get renderOrders() {
     const { orders } = this.props;
 
@@ -52,11 +65,53 @@ class OrdersBlock extends Component {
           order={order}
           showDetailsLink
           key={`order-row-${i}`}
-          toggleOrderDetails={this.props.toggleOrderDetails}
-          orderDetailsVisible={this.props.orderDetailsVisible}
+          handleViewDetails={this.handleViewDetails}
         />
       );
     });
+  }
+
+  get modalContent() {
+    const { referenceNumber } = this.state;
+
+    if (referenceNumber == null) {
+      return (
+        <div>
+          Sorry, no details were found.
+        </div>
+      );
+    }
+
+    const action = {
+      handler: this.props.toggleOrderDetails,
+      title: 'Close',
+    };
+
+    return (
+      <CheckoutForm
+        submit={() => this.props.toggleOrderDetails()}
+        buttonLabel="Got it"
+        title={`Order #${referenceNumber}`}
+        action={action}
+      >
+        <OrderDetails
+          referenceNumber={referenceNumber}
+        />
+      </CheckoutForm>
+    );
+  }
+
+  get orderdDetailsModal() {
+    const { orderDetailsVisible } = this.props;
+
+    return (
+      <Modal
+        show={orderDetailsVisible}
+        toggle={this.props.toggleOrderDetails}
+      >
+        {this.modalContent}
+      </Modal>
+    );
   }
 
   get content() {
@@ -79,6 +134,7 @@ class OrdersBlock extends Component {
         <div styleName="title">My orders</div>
         <div styleName="divider table" />
         {this.content}
+        {this.orderdDetailsModal}
       </div>
     );
   }
