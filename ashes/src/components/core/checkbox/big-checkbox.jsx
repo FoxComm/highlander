@@ -12,12 +12,21 @@ import { Checkbox } from 'components/core/checkbox';
 import s from './big-checkbox.css';
 
 type Props = {
+  /** ID for checkbox input */
   id: string,
-  label?: string,
+  /** name for checkbox input */
   name?: string,
+  /** action performed on toggle*/
   onToggle?: Function,
+  /** if true - sets checkbox to 'checked' */
   value?: boolean,
 };
+
+/**
+ * BigCheckbox is the component built on top of Checkbox.
+ *
+ * @function BigCheckbox
+ */
 
 export const BigCheckbox = (props: Props) => {
   const onToggle = get(props, 'onToggle');
@@ -41,7 +50,6 @@ export const BigCheckbox = (props: Props) => {
 };
 
 BigCheckbox.defaultProps = {
-  label: '',
   onToggle: noop,
   value: false,
 };
