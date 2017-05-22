@@ -164,6 +164,10 @@
   font-weight: 900;
 }
 
+.promo-line {
+  padding-bottom: 10px;
+}
+
 .shipping-row {
   flex-grow: 1;
 }

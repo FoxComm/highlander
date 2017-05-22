@@ -84,10 +84,12 @@ class Order extends Component {
     if (_.isEmpty(methods)) return null;
 
     return (
-      <PromoCode
-        giftCards={methods}
-        allowDelete={false}
-      />
+      <div styleName="promo-line">
+        <PromoCode
+          giftCards={methods}
+          allowDelete={false}
+        />
+      </div>
     );
   }
 
