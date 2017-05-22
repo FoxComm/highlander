@@ -26,6 +26,8 @@ lazy val phoenix = (project in file("phoenix"))
     resourceDirectory in Test    := baseDirectory.value / "test" / "resources",
     resourceDirectory in IT      := (resourceDirectory in Test).value,
     resourceDirectory in ET      := (resourceDirectory in Test).value,
+    test := Def.sequential(compile in Test, compile in IT, compile in ET,
+                           test    in Test, test    in IT, test    in ET).value,
     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
     javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC", "-Dphoenix.env=test"),
     parallelExecution in Compile := true,
@@ -115,7 +117,3 @@ scalafmtTestAll := Def.task().dependsOn(scalafmtTest in Compile in phoenix,
                                         scalafmtTest in Compile in objectframework,
                                         scalafmtTest in Compile in starfish,
                                         scalafmtTest in Compile in seeder).value
-
-// Test
-test := Def.sequential(compile in Test, compile in IT, compile in ET,
-                        test   in Test, test    in IT, test    in ET).value
