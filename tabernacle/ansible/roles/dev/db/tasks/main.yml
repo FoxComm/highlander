@@ -62,8 +62,8 @@
 - name: Create Phoenix Log Directory
   file: path="{{phoenix_dir}}/log" state=directory owner="{{user}}" mode="0777"
 
-- name: Setup Flyway Config
-  template: src=flyway.conf dest="{{phoenix_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
+- name: Setup Phoenix Flyway Config
+  template: src=flyway.phoenix.conf dest="{{phoenix_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
 
 - name: Clean Phoenix Database
   shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
@@ -75,6 +75,9 @@
   args:
     chdir: "{{phoenix_dir}}"
 
+- name: Setup Middlewarehouse Flyway Config
+  template: src=flyway.middlewarehouse.conf dest="{{middlewarehouse_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
+
 - name: Clean Middlewarehouse Database
   shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
   args:
@@ -84,6 +87,9 @@
   shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
   args:
     chdir: "{{middlewarehouse_dir}}"
+
+- name: Setup Hyperion Flyway Config
+  template: src=flyway.hyperion.conf dest="{{hyperion_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
 
 - name: Clean Hyperion Database
   shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} clean

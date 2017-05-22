@@ -6,11 +6,6 @@
   vars:
     user: ubuntu
     packing: true
-    middlewarehouse_src: "{{ lookup('env', 'GOPATH') }}/src/github.com/FoxComm/highlander/middlewarehouse"
-  post_tasks:
-    - name: Sweet Dreams
-      pause: seconds=5
-
   roles:
     - { role: base/scala }
     - { role: base/ssh_keys }
