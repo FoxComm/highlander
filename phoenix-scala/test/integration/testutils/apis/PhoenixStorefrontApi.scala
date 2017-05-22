@@ -34,7 +34,7 @@ trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒
         POST(lineItemsPath, payload, ca.jwtCookie.some)
     }
 
-    object shippingMethods{
+    object shippingMethods {
       val shippingMethods = s"$cartPath/shipping-methods"
 
       def searchByRegion(countryCode: String)(implicit aa: TestCustomerAuth): HttpResponse =

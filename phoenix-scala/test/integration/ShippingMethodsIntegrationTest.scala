@@ -120,13 +120,15 @@ class ShippingMethodsIntegrationTest
 
     "No shipping to Russia ;(" in new UsShipping {
       withNewCustomerAuth(TestLoginData.random) { implicit auth ⇒
-        storefrontCartsApi.shippingMethods.searchByRegion("rus").as[Seq[Root]].size must ===(0)
+        storefrontCartsApi.shippingMethods.searchByRegion("rus").as[Seq[Root]].size must === (0)
       }
     }
 
     "No shipping methods for non existent country" in {
       withNewCustomerAuth(TestLoginData.random) { implicit auth ⇒
-        storefrontCartsApi.shippingMethods.searchByRegion("uss").mustFailWith400(NoCountryFound("uss"))
+        storefrontCartsApi.shippingMethods
+          .searchByRegion("uss")
+          .mustFailWith400(NoCountryFound("uss"))
       }
     }
   }
