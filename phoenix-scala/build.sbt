@@ -19,7 +19,7 @@ lazy val phoenix = (project in file("phoenix"))
       import Dependencies._
       akka ++ http ++ auth ++ json4s ++ fasterxml ++ apis ++ logging ++ test ++ misc ++ kafka
     },
-    (mainClass in Compile) := Some("server.Main"),
+    (mainClass in Compile) := Some("phoenix.server.Main"),
     // TODO @anna move the rest of location settings to common when tests are moved into subprojects
     scalaSource in Test    := baseDirectory.value / "test" / "unit",
     scalaSource in IT      := baseDirectory.value / "test" / "integration",
