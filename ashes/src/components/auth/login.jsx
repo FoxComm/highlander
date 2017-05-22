@@ -47,13 +47,7 @@ type LoginProps = {
   isMounted: boolean,
 };
 
-/* ::`*/
-@connect((state) => ({
-  user: state.user,
-  authenticationState: _.get(state.asyncActions, 'authenticate', {})
-}), userActions)
-/* ::`*/
-export default class Login extends Component {
+class Login extends Component {
   state: TState = {
     org: '',
     email: '',
@@ -182,3 +176,8 @@ export default class Login extends Component {
     );
   }
 }
+
+export default connect((state) => ({
+  user: state.user,
+  authenticationState: _.get(state.asyncActions, 'authenticate', {})
+}), userActions)(Login);

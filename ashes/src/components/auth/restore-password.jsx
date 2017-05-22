@@ -49,7 +49,7 @@ class RestorePassword extends Component {
 
   @autobind
   handleSubmit() {
-    Promise.resolve(true).then(() => {
+    this.props.requestPasswordReset(this.state.email).then(() => {
       this.setState({ dataSent: true });
     });
   }

@@ -65,10 +65,10 @@ class SetPassword extends Component {
   handleSubmit() {
     const payload = {
       password: this.state.password2,
-      token: this.token,
+      code: this.token,
     };
-    this.props.signUp(payload).then(() => {
-      transitionTo('home');
+    this.props.resetPassword(payload).then(() => {
+      transitionTo('login');
     });
   }
 

@@ -65,7 +65,8 @@ class ResetPassword extends Component {
 
   @autobind
   handleSubmit() {
-    Promise.resolve(true).then(() => {
+    const payload = { newPassword: this.state.password1, code: this.token };
+    this.props.resetPassword(payload).then(() => {
       this.setState({ dataSent: true });
     });
   }
