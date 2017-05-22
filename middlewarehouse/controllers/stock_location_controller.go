@@ -5,6 +5,7 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
@@ -69,7 +70,7 @@ func (controller *stockLocationController) CreateLocation() gin.HandlerFunc {
 			return
 		}
 
-		model := payload.Model()
+		model := models.NewStockLocationFromPayload(payload)
 		location, err := controller.service.CreateLocation(model)
 		if err != nil {
 			handleServiceError(context, err)
@@ -92,7 +93,7 @@ func (controller *stockLocationController) UpdateLocation() gin.HandlerFunc {
 			return
 		}
 
-		model := payload.Model()
+		model := models.NewStockLocationFromPayload(payload)
 		model.ID = id
 
 		location, err := controller.service.UpdateLocation(model)

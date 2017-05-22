@@ -1,12 +1,10 @@
 package payloads
 
-import "github.com/FoxComm/highlander/middlewarehouse/models"
-
 // OrderLineItem is the representation a SKU that is part of an order.
 type OrderLineItem struct {
 	SKU              string      `json:"sku" binding:"required"`
 	Name             string      `json:"name" binding:"required"`
-	Price            uint        `json:"price"`
+	Price            uint        `json:"price" binding:"required"`
 	State            string      `json:"state" binding:"required"`
 	ReferenceNumbers []string    `json:"referenceNumbers" binding:"required"`
 	ImagePath        string      `json:"image_path" binding:"required"`
@@ -16,7 +14,7 @@ type OrderLineItem struct {
 }
 
 type OrderLineItems struct {
-	SKUs []OrderLineItem `json:"skus"`
+	SKUs []OrderLineItem `json:"skus" binding:"required"`
 }
 
 type UpdateOrderLineItem struct {
@@ -30,15 +28,5 @@ func NewUpdateOrderLineItem(lineItem OrderLineItem, refNum string) *UpdateOrderL
 		State:           lineItem.State,
 		Attributes:      lineItem.Attributes,
 		ReferenceNumber: refNum,
-	}
-}
-
-func (payload *OrderLineItem) Model() *models.ShipmentLineItem {
-	return &models.ShipmentLineItem{
-		ReferenceNumbers: payload.ReferenceNumbers,
-		SKU:              payload.SKU,
-		Name:             payload.Name,
-		Price:            payload.Price,
-		ImagePath:        payload.ImagePath,
 	}
 }

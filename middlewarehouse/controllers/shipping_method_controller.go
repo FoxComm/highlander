@@ -5,6 +5,7 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
 	"github.com/gin-gonic/gin"
@@ -89,7 +90,7 @@ func (controller *shippingMethodController) createShippingMethod() gin.HandlerFu
 		}
 
 		//try create
-		model, err := payload.Model()
+		model, err := models.NewShippingMethodFromPayload(payload)
 		if err != nil {
 			handleServiceError(context, err)
 			return
@@ -126,7 +127,7 @@ func (controller *shippingMethodController) updateShippingMethod() gin.HandlerFu
 		}
 
 		//try update
-		model, err := payload.Model()
+		model, err := models.NewShippingMethodFromPayload(payload)
 		if err != nil {
 			handleServiceError(context, err)
 			return
