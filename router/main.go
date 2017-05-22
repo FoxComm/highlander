@@ -3,13 +3,13 @@ package main
 import "log"
 
 func main() {
-	port := ":9090"
-	url := "http://10.240.0.28:8079"
+	host := "http://localhost:9090"
+	origin := "http://10.240.0.28:8079"
 
-	proxy, err := NewRouterProxy(url)
+	proxy, err := NewRouterProxy(host, origin)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	proxy.Run(port)
+	proxy.Run()
 }

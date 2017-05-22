@@ -1,11 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 
 	"github.com/FoxComm/highlander/router/utils"
 )
@@ -14,29 +17,36 @@ import (
 // records the request/response pair for analysis.
 type RouterProxy struct {
 	origin *url.URL
+	host   *url.URL
 	proxy  *httputil.ReverseProxy
 }
 
 // NewRouterProxy creates a new instance of the RouterProxy.
-func NewRouterProxy(origin string) (*RouterProxy, error) {
-	url, err := url.Parse(origin)
+func NewRouterProxy(host, origin string) (*RouterProxy, error) {
+	hostURL, err := url.Parse(host)
+	if err != nil {
+		return nil, err
+	}
+
+	originURL, err := url.Parse(origin)
 	if err != nil {
 		return nil, err
 	}
 
 	return &RouterProxy{
-		origin: url,
-		proxy:  httputil.NewSingleHostReverseProxy(url),
+		host:   hostURL,
+		origin: originURL,
+		proxy:  httputil.NewSingleHostReverseProxy(originURL),
 	}, nil
 }
 
-func (router *RouterProxy) Run(port string) {
+func (router *RouterProxy) Run() {
 	log.Println("Starting router proxy")
 	log.Printf("Directing to %s", router.origin)
-	log.Printf("Listening on %s", port)
+	log.Printf("Listening on %s", router.host)
 
 	http.HandleFunc("/", router.handle)
-	http.ListenAndServe(port, nil)
+	http.ListenAndServe(router.host.Host, nil)
 }
 
 func (router *RouterProxy) handle(w http.ResponseWriter, r *http.Request) {
@@ -56,15 +66,21 @@ func (router *RouterProxy) handle(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Response status code: %d", aw.StatusCode())
 	log.Printf("Response headers: %+v", aw.Header())
 
-	bodyString, err := aw.BodyString()
-	if err != nil {
-		e := fmt.Errorf("Enable to parse response body with error: %s", err.Error())
-		log.Panic(e)
+	ct := aw.Header().Get("Content-Type")
+	if strings.HasPrefix(ct, "text/html") {
+		bodyString, err := aw.BodyString()
+		if err != nil {
+			e := fmt.Errorf("Enable to parse response body with error: %s", err.Error())
+			log.Panic(e)
+		}
+
+		updatedBodyString := strings.Replace(bodyString, router.origin.Host, router.host.Host, -1)
+		b := bytes.NewBufferString(updatedBodyString)
+
+		io.Copy(w, b)
+	} else {
+		aw.Copy(w)
 	}
-
-	log.Printf("Response body: %s", bodyString)
-
-	aw.Copy(w)
 }
 
 func xForwardedFor(r *http.Request) string {
