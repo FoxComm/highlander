@@ -5,6 +5,7 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
 	"github.com/gin-gonic/gin"
@@ -76,7 +77,7 @@ func (controller *carrierController) createCarrier() gin.HandlerFunc {
 		}
 
 		//try create
-		carrier, err := controller.service.CreateCarrier(payload.Model())
+		carrier, err := controller.service.CreateCarrier(models.NewCarrierFromPayload(payload))
 		if err == nil {
 			context.JSON(http.StatusCreated, responses.NewCarrierFromModel(carrier))
 		} else {
@@ -100,7 +101,7 @@ func (controller *carrierController) updateCarrier() gin.HandlerFunc {
 		}
 
 		//try update
-		model := payload.Model()
+		model := models.NewCarrierFromPayload(payload)
 		model.ID = id
 		carrier, err := controller.service.UpdateCarrier(model)
 

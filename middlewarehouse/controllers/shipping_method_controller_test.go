@@ -110,7 +110,7 @@ func (suite *shippingMethodControllerTestSuite) Test_CreateShippingMethod_Return
 	//arrange
 	shippingMethod1 := fixtures.GetShippingMethod(uint(1), uint(1), fixtures.GetCarrier(uint(1)))
 	payload := fixtures.ToShippingMethodPayload(shippingMethod1)
-	model, err := payload.Model()
+	model, err := models.NewShippingMethodFromPayload(payload)
 	suite.Nil(err)
 
 	suite.service.On("CreateShippingMethod", model).Return(shippingMethod1, nil).Once()
