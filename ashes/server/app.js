@@ -3,7 +3,7 @@ const koa = require('koa');
 const co = require('co');
 const serve = require('koa-better-static');
 const convert = require('koa-convert');
-const Config  = require(path.resolve('config'));
+const Config = require(path.resolve('config'));
 
 const app = new koa();
 
@@ -17,7 +17,7 @@ app.init = co.wrap(function *(env) {
   app.config = new Config(app.env);
 
   if (app.env === 'production') {
-    app.use(convert(serve(buildDir)));
+    app.use(convert(serve(buildDir, { index: 'index.html' })));
   }
 
   if (app.env !== 'production') {
@@ -46,9 +46,9 @@ if (!module.parent) {
   });
 }
 
-process.on('message', function(msg) {
+process.on('message', function (msg) {
   if (msg === 'shutdown') {
-    app.server.close(function() {
+    app.server.close(function () {
       process.exit(0);
     });
   }
