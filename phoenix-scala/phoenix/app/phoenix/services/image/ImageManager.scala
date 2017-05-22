@@ -128,12 +128,14 @@ object ImageManager {
                 payload.id match {
                   case None ⇒
                     for {
+                      _ ← * <~ payload.validate
                       inserted ← * <~ ObjectUtils.insertFullObject(
                                     payload.formAndShadow,
                                     ins ⇒ createImageHeadFromInsert(context, ins, payload.scope))
                     } yield inserted
                   case Some(id) ⇒
                     for {
+                      _     ← * <~ payload.validate
                       image ← * <~ ObjectManager.getFullObject(Images.mustFindById404(id))
                       (newForm, newShadow) = payload.formAndShadow.tupled
                       updated ← * <~ ObjectUtils.commitUpdate(image,
@@ -154,6 +156,7 @@ object ImageManager {
     payload.id match {
       case None ⇒
         for {
+          _ ← * <~ payload.validate
           inserted ← * <~ ObjectUtils.insertFullObject(
                         payload.formAndShadow,
                         ins ⇒ createImageHeadFromInsert(context, ins, payload.scope))
@@ -164,6 +167,7 @@ object ImageManager {
         } yield inserted
       case Some(id) ⇒
         for {
+          _     ← * <~ payload.validate
           image ← * <~ ObjectManager.getFullObject(Images.mustFindById404(id))
           link  ← * <~ mustFindAlbumImageLink404(album.id, id)
           _     ← * <~ AlbumImageLinks.update(link, link.copy(position = position))

@@ -98,6 +98,7 @@ object ImageFacade extends ImageHelpers {
 
     val allowedImageTypes: List[String] =
       List(MediaTypes.`image/gif`, MediaTypes.`image/png`, MediaTypes.`image/jpeg`).map(_.value)
+    val allowedSchemes: List[String] = List("http", "https")
 
     implicit object ImagePayloadUploader extends ImageUploader[ImagePayload] {
 
@@ -111,7 +112,8 @@ object ImageFacade extends ImageHelpers {
 
       def shouldBeValidUrl(url: String): Either[Failures, Uri] = {
         val uri = Uri(url)
-        if (uri.isRelative || uri.isEmpty) Either.left(InvalidImageUrl(url).single)
+        if (uri.isRelative || uri.isEmpty || !allowedSchemes.contains(uri.scheme))
+          Either.left(InvalidImageUrl(url).single)
         else Either.right(uri)
       }
 
