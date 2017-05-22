@@ -17,6 +17,7 @@ import Currency from 'ui/currency';
 import Icon from 'ui/icon';
 import OrderSummary from 'components/order-summary/order-summary';
 import ViewBilling from 'pages/checkout/billing/view-billing';
+import PromoCode from 'components/promo-code/promo-code';
 
 import styles from '../profile.css';
 
@@ -76,22 +77,39 @@ class Order extends Component {
     );
   }
 
-  get paymentMethod() {
+  get giftCards() {
+    const { order } = this.props;
+    const methods = _.filter(order.paymentMethods, { type: 'giftCard' });
+
+    if (_.isEmpty(methods)) return null;
+
+    return (
+      <PromoCode
+        giftCards={methods}
+        allowDelete={false}
+      />
+    );
+  }
+
+  get creditCard() {
     const { order } = this.props;
     const paymentMethod = _.filter(order.paymentMethods, { type: 'creditCard' })[0];
-    const methodEmpty = _.isEmpty(paymentMethod);
 
+    if (_.isEmpty(paymentMethod)) return null;
+
+    return (
+      <ViewBilling
+        billingData={paymentMethod}
+      />
+    );
+  }
+
+  get paymentMethods() {
     return (
       <div styleName="payment-method">
         <div styleName="title">Payment</div>
-        {
-          methodEmpty ?
-          <div>No credit card found</div>
-          :
-          <ViewBilling
-            billingData={paymentMethod}
-          />
-        }
+        {this.creditCard}
+        {this.giftCards}
       </div>
     );
   }
@@ -118,7 +136,7 @@ class Order extends Component {
       <div>
         {this.shippingAddress}
         {this.shippingMethod}
-        {this.paymentMethod}
+        {this.paymentMethods}
         {this.orderSummary}
       </div>
     );
