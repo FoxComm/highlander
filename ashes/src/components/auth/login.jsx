@@ -16,7 +16,7 @@ import WaitAnimation from 'components/common/wait-animation';
 
 import * as userActions from 'modules/user';
 
-import styles from './css/auth.css';
+import s from './css/auth.css';
 
 // types
 import type {
@@ -107,7 +107,7 @@ class Login extends Component {
   }
 
   get iForgot() {
-    return <a onClick={this.onForgotClick} styleName="forgot-link" >i forgot</a>;
+    return <a onClick={this.onForgotClick} className={s['forgot-link']} >i forgot</a>;
   }
 
   get infoMessage() {
@@ -130,7 +130,7 @@ class Login extends Component {
     const { org, email, password } = this.state;
 
     return (
-      <div styleName="content">
+      <div className={s.content}>
         {this.infoMessage}
         <SocialButton
           type="google"
@@ -139,8 +139,8 @@ class Login extends Component {
         >
           Sign In with Google
         </SocialButton>
-        <Form styleName="form" onSubmit={this.submitLogin}>
-          <WrapToLines styleName="or-line">or</WrapToLines>
+        <Form className={s.form} onSubmit={this.submitLogin}>
+          <WrapToLines className={s['or-line']}>or</WrapToLines>
           {this.errorMessage}
           <FormField label="Organization" required>
             <input onChange={this.onOrgChange} value={org} type="text" className="fc-input" />
@@ -151,10 +151,10 @@ class Login extends Component {
           <FormField label="Password" labelAtRight={this.iForgot} required>
             <input onChange={this.onPasswordChange} value={password} type="password" className="fc-input" />
           </FormField>
-          <div styleName="button-block">
+          <div className={s['button-block']}>
             <PrimaryButton
               onClick={this.clearMessage}
-              styleName="submit-button"
+              className={s['submit-button']}
               fullWidth
               type="submit"
               isLoading={this.props.authenticationState.inProgress}
@@ -169,8 +169,8 @@ class Login extends Component {
 
   render() {
     return (
-      <div styleName="main">
-        <div styleName="title">Sign In</div>
+      <div className={s.main}>
+        <div className={s.title}>Sign In</div>
         {this.content}
       </div>
     );
