@@ -118,7 +118,7 @@ export default class Order extends React.Component {
         <RemorseTimer
           initialEndDate={this.order.remorsePeriodEnd}
           onIncreaseClick={handleIncreaseClick}
-          onCountdownFinished={() => this.onRemorseCountdownFinish()}
+          onCountdownFinished={this.onRemorseCountdownFinish}
         />
       );
     }
