@@ -22,11 +22,22 @@ import { Checkbox } from 'components/core/checkbox'
     <Checkbox.Checkbox checked>checked</Checkbox.Checkbox>
   </div>
   <div>
-    <Checkbox.Checkbox halfChecked checked>half checked</Checkbox.Checkbox>
+    <Checkbox.Checkbox>not checked</Checkbox.Checkbox>
   </div>
-  <div>
-    <Checkbox.Checkbox/>
-  </div>
+</div>
+```
+
+### PartialCheckbox
+
+```javascript
+import { PartialCheckbox } from 'components/core/checkbox'
+```
+
+```
+<div className='demo'>
+  <Checkbox.PartialCheckbox checked>checked</Checkbox.PartialCheckbox>
+  <Checkbox.PartialCheckbox checked halfChecked>partially checked</Checkbox.PartialCheckbox>
+  <Checkbox.PartialCheckbox>not checked</Checkbox.PartialCheckbox>
 </div>
 ```
 
