@@ -6,7 +6,7 @@ These are the basic steps that you should take to get the application running:
   * This application shares a database with phoenix.  *Be sure to run phoenix migrations*: ``flyway migrate -X -locations=filesystem:`pwd` ``
   * Start Phoenix endpoint with `source .env && mix phoenix.server`
 
-Now you can visit [`localhost:4002`](http://localhost:4002) from your browser.
+Now you can visit [localhost:4002](http://localhost:4002) from your browser.
 
 ## JWT signing and verifying
 

@@ -1,4 +1,0 @@
----
-
-- name: Download Terraform
-  unarchive: src={{terraform_download_url}} dest=/usr/local/bin remote_src=true mode="u+x,g+x,o+x"

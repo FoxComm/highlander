@@ -119,7 +119,6 @@ export default class LiveSearch extends React.Component {
   componentWillReceiveProps(nextProps) {
     const search = currentSearch(nextProps);
     const searchOptions = _.get(nextProps, ['searches', 'searchOptions'], []);
-    const isVisible = this.state.isFocused && searchOptions.length > 0;
 
     const isRefreshed = _.get(search, ['results', 'refreshed'], false);
     if (!isRefreshed) {
@@ -129,7 +128,7 @@ export default class LiveSearch extends React.Component {
         inputMask: null,
         pills: this.queryToPills(search.query),
         searchDisplay: search.searchValue,
-        optionsVisible: isVisible,
+        optionsVisible: false,
         searchOptions: searchOptions,
       });
     }

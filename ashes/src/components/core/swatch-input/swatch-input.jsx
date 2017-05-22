@@ -6,6 +6,9 @@
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 
+// components
+import TextInput from 'components/forms/text-input';
+
 // styles
 import s from './swatch-input.css';
 
@@ -37,8 +40,8 @@ class SwatchInput extends Component {
   };
 
   @autobind
-  handleChange({ target }: EventTarget) {
-    this.props.onChange(target.value);
+  handleChange(value: string) {
+    this.props.onChange(value);
   }
 
   render() {
@@ -49,11 +52,11 @@ class SwatchInput extends Component {
 
     return (
       <div className={s.swatchInput}>
-        <input
+        <TextInput
           id="swatch-fld"
           type="text"
           maxLength="6"
-          className="fc-text-input"
+          className={s.input}
           onChange={this.handleChange}
           value={hexCode}
         />

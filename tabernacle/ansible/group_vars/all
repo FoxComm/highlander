@@ -6,9 +6,13 @@ usr_local: /usr/local/
 public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
 scala_version: scala-2.11
-foxcomm_domain: foxcommerce.com
 logrotate_dir: /etc/logrotate.d
+foxcomm_domain: foxcommerce.com
+
+# Appliance-related things
 appliance_prefix: appliance
+appliance_hostname: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.{{foxcomm_domain}}"
+dashboard_assets_location: /usr/local/dashboard
 
 # Prompt answers
 prompt_yes:
@@ -29,8 +33,7 @@ docker_logs_host_dir: /var/log/docker
 
 # Google Cloud defaults
 gce_disk_size: 40
-gce_image: appliance-base-170328-215629
-
+gce_image: appliance-base-170520-095342
 gce_machine_type: n1-standard-4
 gce_project_id: "foxcomm-staging"
 gce_zone: "us-central1-a"
@@ -105,6 +108,7 @@ marathon_restart:
 with_ic: "{{ lookup('env', 'WITH_INTELLIGENT_COMMERCE') | default(true, true) | bool }}"
 
 # Should we do seeding for appliance
+detach_seeders: "{{ lookup('env', 'DETACH_SEEDERS') | default(false, true) | bool }}"
 with_appliance_seeding: "{{ lookup('env', 'WITH_APPLIANCE_SEEDING') | default(true, true) | bool }}"
 
 # Consul Service Discovery
@@ -112,6 +116,7 @@ consul_data_dir: /var/consul
 consul_suffix: service.consul
 consul_port: 8500
 consul_server: "{{self_host}}:{{consul_port}}"
+join_type: join
 
 db_host: "db.{{consul_suffix}}"
 docker_db_host: "db.{{consul_suffix}}"
@@ -126,8 +131,9 @@ isaac_port: 9190
 isaac_server: "{{isaac_host}}:{{isaac_port}}"
 
 search_host: "elasticsearch.{{consul_suffix}}"
+es_5_host: "elasticsearch-5.{{consul_suffix}}"
 es_logs_port: 9201
-log_host: "{{search_host}}:{{es_logs_port}}"
+log_host: "{{es_5_host}}:{{es_logs_port}}"
 search_server_http: "{{search_host}}:9200"
 search_server: "{{search_host}}:9300"
 
@@ -206,8 +212,8 @@ hyperion_server: "{{hyperion_host}}:{{hyperion_port}}"
 
 # Database & bottledwater
 db_user: phoenix
-db_name: phoenix_development
-db_connection_string: "postgresql://{{db_host}}/phoenix_development?user={{db_user}}"
+db_name: phoenix
+db_connection_string: "postgresql://{{db_host}}/{{db_name}}?user={{db_user}}"
 bottledwater_slot_phoenix: bottledwater_phoenix
 bottledwater_slot_middlewarehouse: bottledwater_middlewarehouse
 bottledwater_slot_marketplace: bottledwater_marketplace
@@ -226,7 +232,7 @@ phoenix_src: ../../phoenix-scala/
 phoenix_dir: /phoenix
 phoenix_jar: "{{phoenix_dir}}/phoenix.jar"
 phoenix_seeder_jar: "{{phoenix_dir}}/phoenix-seeder.jar"
-phoenix_db_name: phoenix_development
+phoenix_db_name: phoenix
 phoenix_db_user: phoenix
 phoenix_test_db_name: phoenix_test
 phoenix_tracing: "false"
@@ -254,7 +260,7 @@ middlewarehouse_env: staging
 middlewarehouse_src: ../../middlewarehouse/
 middlewarehouse_dir: /middlewarehouse
 middlewarehouse_bin: "{{middlewarehouse_dir}}/middlewarehouse"
-middlewarehouse_db_name: middlewarehouse_development
+middlewarehouse_db_name: middlewarehouse
 middlewarehouse_db_user: middlewarehouse
 middlewarehouse_db_connection_string: "postgresql://{{middlewarehouse_db_user}}@{{db_host}}/{{middlewarehouse_db_name}}"
 middlewarehouse_test_db_name: middlewarehouse_test
@@ -263,12 +269,11 @@ middlewarehouse_test_db_name: middlewarehouse_test
 hyperion_env: prod
 hyperion_src: ../../hyperion/
 hyperion_dir: /hyperion
-hyperion_db_name: hyperion_development
+hyperion_db_name: hyperion
 hyperion_db_test_name: hyperion_test
 hyperion_db_user: hyperion
 hyperion_db_password: hyperion
-hyperion_db_host: "{{db_host}}"
-hyperion_db_connection_string: "postgresql://{{hyperion_db_user}}@{{hyperion_db_host}}/{{hyperion_db_name}}"
+hyperion_db_connection_string: "postgresql://{{hyperion_db_user}}@{{db_host}}/{{hyperion_db_name}}"
 hyperion_test_db_name: hyperion_test
 hyperion_push_check_interval: 5
 hyperion_create_plugin_in_ashes_on_start: true
@@ -282,7 +287,6 @@ bernardo_dir: /bernardo
 bernardo_src: ../../intelligence/bernardo/
 bernardo_db_name: ic
 bernardo_db_user: ic
-bernardo_db_host: "db.{{consul_suffix}}"
 bernardo_port: "9290"
 bernardo_host: bernardo.service.consul
 bernardo_server: "{{bernardo_host}}:{{bernardo_port}}"
@@ -363,7 +367,7 @@ messaging_jmx_port: 39012
 loyalty_jmx_port: 39013
 
 # Seeds
-seeds_cmd: utils.seeds.Seeds seed --seedAdmins --seedDemo 1
+seeds_cmd: utils.seeds.Seeds seed --seedAdmins
 gatling_oneshot_seeds_cmd: gatling.seeds.OneshotSeeds
 gatling_continuous_seeds_cmd: gatling.seeds.ContinuousSeeds
 
@@ -390,13 +394,16 @@ stripe_publishable_key: pk_test_1H2C9nTZpy8szPmboOEDwdwN
 
 # Certificates path
 cert_path: test/fox
+cert_type: docker
+install_public_keys: true
+install_private_keys: true
 
 # Mesos
 mesos_quorum: 1
 mesos_ip: "$(hostname -i)"
 
 # Marketplace
-marketplace_db_name: marketplace_development
+marketplace_db_name: marketplace
 marketplace_db_user: marketplace
 marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{db_host}}/{{marketplace_db_name}}"
 
@@ -434,7 +441,8 @@ data_import_max_count: 100
 
 # Various flags
 first_run: false
-is_ci: false
+is_aws: false
+is_ci: "{{ lookup('env', 'CI') }}"
 is_amigo: false
 is_appliance: false
 is_redeploy: false
@@ -442,8 +450,3 @@ jmx_enabled: false
 packing: false
 with_marketplace: false
 with_shipstation: false
-with_base_seeds: true
-with_gatling_seeder: false
-with_mwh_seeder: true
-with_hyperion_seeder: true
-with_data_import: true

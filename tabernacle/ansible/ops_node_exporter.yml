@@ -1,0 +1,31 @@
+---
+
+- name: Setup Node Exporter
+  hosts:
+    - buildkite-agent-0
+    - buildkite-agent-1
+    - buildkite-agent-2
+    - buildkite-agent-3
+    - buildkite-agent-4
+    - buildkite-agent-5
+    - demo1-amigo
+    - demo1-backend
+    - demo1-frontend
+    - demo2-amigo
+    - demo2-backend
+    - demo2-frontend
+    - dev-amigo-server-0
+    - dev-amigo-server-1
+    - dev-amigo-server-2
+    - foxcomm-stage-backend
+    - foxcomm-stage-consul-server
+    - foxcomm-stage-frontend
+    - stage2
+    - stage3
+    - tumi
+    - tumi2
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  roles:
+    - { role: ops/node_exporter }
