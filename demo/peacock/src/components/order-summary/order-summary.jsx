@@ -57,7 +57,11 @@ class OrderSummary extends Component {
       <li>
         <TermValueLine>
           <span>{t('Gift card')}</span>
-          <Currency prefix="– " value={amount} />
+          <Currency
+            prefix="– "
+            value={amount}
+            styleName="currency"
+          />
         </TermValueLine>
       </li>
     );
@@ -70,7 +74,11 @@ class OrderSummary extends Component {
       <li>
         <TermValueLine>
           <span>{t('Promo code')}</span>
-          <Currency prefix="– " value={amount} />
+          <Currency
+            prefix="– "
+            value={amount}
+            styleName="currency"
+          />
         </TermValueLine>
       </li>
     );
