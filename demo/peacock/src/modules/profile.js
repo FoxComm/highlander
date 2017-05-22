@@ -9,6 +9,7 @@ export const toggleNameModal = createAction('TOGGLE_NAME_MODAL');
 export const toggleEmailModal = createAction('TOGGLE_EMAIL_MODAL');
 export const togglePasswordModal = createAction('TOGGLE_PASSWORD_MODAL');
 export const toggleAddressesModal = createAction('TOGGLE_ADDRESSES_MODAL');
+export const toggleOrderDetails = createAction('TOGGLE_ORDER_DETAILS');
 
 const _fetchAccount = createAsyncActions(
   'fetchAccount',
@@ -46,6 +47,7 @@ const initialState = {
   emailModalVisible: false,
   passwordModalVisible: false,
   addressesModalVisible: false,
+  orderDetailsVisible: false,
 };
 
 function updateAccountInState(state, account) {
@@ -84,6 +86,13 @@ const reducer = createReducer({
     return {
       ...state,
       addressesModalVisible: !current,
+    };
+  },
+  [toggleOrderDetails]: (state) => {
+    const current = _.get(state, 'orderDetailsVisible', false);
+    return {
+      ...state,
+      orderDetailsVisible: !current,
     };
   },
 }, initialState);

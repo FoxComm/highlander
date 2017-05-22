@@ -124,6 +124,10 @@
 
 .order-cell {
   lost-column: 1/7;
+
+  &.total {
+    font-weight: 900;
+  }
 }
 
 .payment-icon {
