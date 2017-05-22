@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+
+	"github.com/FoxComm/highlander/router/utils"
 )
 
 // RouterProxy is the meat of this application. It directs to the origin and
@@ -38,14 +40,31 @@ func (router *RouterProxy) Run(port string) {
 }
 
 func (router *RouterProxy) handle(w http.ResponseWriter, r *http.Request) {
+	aw := utils.NewActivityWriter()
+
 	// Set basic headers.
-	w.Header().Set("X-Forwarded-For", xForwardedFor(r))
-	w.Header().Set("X-Forwarded-Proto", xForwardedProto(r))
-	w.Header().Set("X-Forwarded-Port", router.origin.Port())
-	w.Header().Set("Host", router.origin.Host)
+	aw.Header().Set("X-Forwarded-For", xForwardedFor(r))
+	aw.Header().Set("X-Forwarded-Proto", xForwardedProto(r))
+	aw.Header().Set("X-Forwarded-Port", router.origin.Port())
+	aw.Header().Set("Host", router.origin.Host)
 
 	// Handle request.
-	router.proxy.ServeHTTP(w, r)
+	router.proxy.ServeHTTP(aw, r)
+
+	// Log the output
+	log.Printf("Request URL: %s", r.RequestURI)
+	log.Printf("Response status code: %d", aw.StatusCode())
+	log.Printf("Response headers: %+v", aw.Header())
+
+	bodyString, err := aw.BodyString()
+	if err != nil {
+		e := fmt.Errorf("Enable to parse response body with error: %s", err.Error())
+		log.Panic(e)
+	}
+
+	log.Printf("Response body: %s", bodyString)
+
+	aw.Copy(w)
 }
 
 func xForwardedFor(r *http.Request) string {
