@@ -1,6 +1,6 @@
 package gatling.seeds
 
-import utils.JsonFormatters
+import phoenix.utils.JsonFormatters
 
 package object requests {
 
