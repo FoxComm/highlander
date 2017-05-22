@@ -8,7 +8,7 @@
   "labels": {
     "LAYER": "backend",
     "LANG": "elixir",
-    "consul": "onboarding_service",
+    "consul": "onboarding-service",
     "TAG": "{{docker_tags.onboarding_service}}"
   },
   "env": {

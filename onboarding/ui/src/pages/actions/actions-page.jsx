@@ -19,26 +19,18 @@ type Props = {
 class ActionsPage extends Component {
   props: Props;
 
-  get actions() {
-    return (
-      <div className={styles.actions}>
-        <Card
-          title="Login"
-          description={`You are now ready to log into FoxCommerce Admin.`}
-          button="Go to Admin"
-          onSelect={() => window.location.replace(window.__ASHES_URL__)}
-        />
-      </div>
-    );
-  }
-
   render(): HTMLElement {
     return (
       <div className={styles.info}>
         <Header
           title="Welcome to FoxCommerce"
-          legend={''}
+          legend={'Log into the Admin'}
         />
+        <div className={styles.gotoadmin}>
+          <div className={styles.gotobutton}>
+            <Button className={styles.button} onClick={() => window.location.replace(window.__ASHES_URL__)}>Go to Admin</Button>
+          </div>
+        </div>
         {this.actions}
       </div>
     );

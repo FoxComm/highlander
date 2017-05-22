@@ -42,8 +42,12 @@ button {
   }
 
   &::before {
-    background: url("/images/bg-nano.jpg") center center;
-    background-size: cover;
+    background-image: url("/images/logo.svg");
+    background-size: 30%;
+    background-position-x: left;
+    background-position-y: top;
+    background-repeat: no-repeat;
+    background-color: #273349;
     filter: blur(10px);
     transition: filter .5s;
   }
@@ -59,7 +63,12 @@ button {
 }
 
 .siteLoaded:before {
-  background-image: url("/images/bg.jpg");
+  background-image: url("/images/logo.svg");
+  background-size: 30%;
+  background-position-x: left;
+  background-position-y: top;
+  background-repeat: no-repeat;
+  background-color: #273349;
   //animation: sharpen 1s both;
   filter: blur(0);
 }
