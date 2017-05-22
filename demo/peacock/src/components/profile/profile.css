@@ -150,6 +150,8 @@
 
 .order-summary {
   margin-top: 20px;
+  padding-left: 15px;
+  padding-right: 10px;
 }
 
 .shipping-row {
