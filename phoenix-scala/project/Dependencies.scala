@@ -2,10 +2,6 @@ import sbt._
 
 object Versions {
   val scala = "2.11.8"
-  // This is a patched version found here:
-  // https://github.com/kwark/slick/blob/3.1-deadlock/README.md
-  // Fixes a critical deadlock in slick.
-  // Change once lands in mainline.
   val slick     = "3.2.0"
   val json4s    = "3.4.0"
   val akka      = "2.4.7"
