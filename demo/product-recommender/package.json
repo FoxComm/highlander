@@ -1,8 +1,8 @@
 {
-  "name": "peacock",
+  "name": "product-recommender",
   "version": "1.0.0",
-  "description": "FoxCommerce Demo Storefront",
-  "main": "index.js",
+  "description": "FoxCommerce Demo Storefront Product Recommender",
+  "main": "public/app.js",
   "scripts": {
     "lint": "eslint --ext .js --ext .jsx .",
     "flow": "flow check",
@@ -11,9 +11,6 @@
     "precompile": "babel src -d lib",
     "watch-precompile": "babel src -d lib -w --skip-initial-build",
     "storybook": "start-storybook -p 9001 -s ./public -c .storybook"
-  },
-  "engines": {
-    "yarn": "0.23.2"
   },
   "author": "FoxCommerce",
   "license": "ISC",
@@ -46,6 +43,7 @@
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "^4.0.0",
     "eslint-plugin-react": "^6.10.3",
+    "event-stream": "^3.3.4",
     "evil-icons": "^1.8.0",
     "flow-bin": "0.42.0",
     "glob-watcher": "^3.1.0",
@@ -76,7 +74,6 @@
     "postcss-cssnext": "^2.4.0",
     "postcss-devtools": "^1.0.0",
     "postcss-import": "^8.0.2",
-    "product-recommender": "file:../product-recommender",
     "react-proxy": "^1.1.2",
     "react-router-sitemap": "github:nitinan59/react-router-sitemap#2680a01b6fef016bd55b082d63bbd8fcf232d8c9",
     "redux-thunk": "^1.0.3",
