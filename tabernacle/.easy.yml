@@ -33,95 +33,96 @@ shortcuts:
       ubuntu: ubuntu
 
   targets:
-  # Bootstrappers
-  - name: Bootstrap Consul Alerts
-    alias: consul_alerts.yml
-    target: ansible/bootstrap_consul_alerts.yml
+  # Interactive playbooks
+  - name: Setup Annabelle
+    alias: annabelle.yml
+    target: ansible/ops_annabelle.yml
 
-  - name: Bootstrap Marathon Alerts
-    alias: marathon_alerts.yml
-    target: ansible/bootstrap_marathon_alerts.yml
-
-  - name: Bootstrap DB Backup Script
+  - name: Setup Database Backup
     alias: backup_db.yml
-    target: ansible/bootstrap_backup_db.yml
+    target: ansible/ops_backup_db.yml
 
-  - name: Bootstrap ZK Backup Script
+  - name: Setup Zookeeper Backup
     alias: backup_zk.yml
-    target: ansible/bootstrap_backup_zk.yml
+    target: ansible/ops_backup_zk.yml
 
-  - name: Bootstrap OpenVPN Key
+  - name: Create Feature Branch Pipeline
+    alias: buildkite_pipeline.yml
+    target: ansible/ops_buildkite_pipeline.yml
+
+  - name: Setup Consul Alerts
+    alias: consul_alerts.yml
+    target: ansible/ops_consul_alerts.yml
+
+  - name: Feature Branch Instance Setup
+    alias: ops_feature_branch.yml
+    target: ansible/ops_feature_branch.yml
+
+  - name: Setup Marathon Alerts
+    alias: marathon_alerts.yml
+    target: ansible/ops_marathon_alerts.yml
+
+  - name: Generate OpenVPN Key
     alias: openvpn_key.yml
-    target: ansible/bootstrap_openvpn_key.yml
+    target: ansible/ops_openvpn_key.yml
 
-  - name: Bootstrap Store Admin User
+  - name: Revoke OpenVPN Key
+    alias: openvpn_revoke_key.yml
+    target: ansible/ops_openvpn_revoke_key.yml
+
+  - name: Setup OpenVPN Server
+    alias: openvpn_server.yml
+    target: ansible/ops_openvpn_server.yml
+
+  - name: Setup Prometheus
+    alias: prometheus.yml
+    target: ansible/ops_prometheus.yml
+
+  - name: Setup Node Exporter
+    alias: node_exporter.yml
+    target: ansible/ops_node_exporter.yml
+
+  - name: Restore Database
+    alias: restore_db.yml
+    target: ansible/ops_restore_db.yml
+
+  - name: Setup Sinopia
+    alias: sinopia.yml
+    target: ansible/ops_sinopia.yml
+
+  - name: Create Store Admin User
     alias: store_admin.yml
-    target: ansible/bootstrap_store_admin.yml
+    target: ansible/ops_store_admin.yml
 
   - name: Update UI Testing Software
     alias: selenium.yml
-    target: ansible/bootstrap_selenium.yml
-
-  # Custom
-  - name: Bootstrap Annabelle
-    alias: annabelle.yml
-    target: ansible/bootstrap_annabelle.yml
-
-  - name: Bootstrap Sinopia
-    alias: sinopia.yml
-    target: ansible/bootstrap_sinopia.yml
+    target: ansible/ops_selenium.yml
 
   # Goldrush
   - name: Generate Goldrush Configuration
     alias: goldrush_cfg.yml
     target: ansible/goldrush_config_gen.yml
 
-  - name: Debug Goldrush Configuration
-    alias: goldrush_debug.yml
-    target: ansible/goldrush_debug.yml
-
-  - name: Create Feature Branch Pipeline
-    alias: feature_branch.yml
-    target: ansible/goldrush_feature_branch.yml
-
-  - name: Update Application Docker Tag
+  - name: Goldrush Deploy Helper
     alias: update_app.yml
     target: ansible/goldrush_update_app.yml
 
-  # Test Machines
-  - name: Provision FoxComm Test
-    alias: test_stage.yml
-    target: ansible/test_stage.yml
-
-  - name: Provision FoxComm Demo
-    alias: demo.yml
-    target: ansible/demo.yml
-
-  - name: Provision Appliance
-    alias: provision_appliance.yml
-    target: ansible/provision_appliance.yml
-
-  # Cloud
-  - name: Provision Cloud Central
-    alias: cloud_central.yml
-    target: ansible/provision_cloud_central.yml
-
-  - name: Provision Cloud Demo
-    alias: cloud_demo.yml
-    target: ansible/provision_cloud_demo.yml
-
-  # Migration
+  # Migrations
   - name: Migrate Phoenix DB
     alias: migrate_phoenix_db.yml
     target: ansible/migrate_phoenix_db.yml
 
-  - name: Migrate MWH DB
+  - name: Migrate Middlewarehouse DB
     alias: migrate_middlewarehouse_db.yml
     target: ansible/migrate_middlewarehouse_db.yml
 
-  - name: Update Object Schemas
-    alias: update_object_schemas.yml
-    target: ansible/update_object_schemas.yml
+  - name: Migrate Hyperion DB
+    alias: migrate_hyperion_db.yml
+    target: ansible/migrate_hyperion_db.yml
+
+  - name: Migrate Object Schemas
+    alias: migrate_object_schemas.yml
+    target: ansible/migrate_object_schemas.yml
 
   # Seeders
   - name: Run Phoenix Seeder
@@ -139,11 +140,6 @@ shortcuts:
   - name: Run Data Import Seeder
     alias: seed_data_import.yml
     target: ansible/seed_data_import.yml
-
-  # Deploy
-  - name: Deploy TopDrawer Storefront
-    alias: deploy_storefront.yml
-    target: ansible/deploy_storefront.yml
 
 # Packer shortcuts
 - type: snowflake

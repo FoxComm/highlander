@@ -26,7 +26,6 @@
 (defn decode-embed-json
   [^String s]
   (some-> s
-          (string/replace #"\\" "")
           json/parse-string))
 
 (defn decode-activity-json
