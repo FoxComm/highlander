@@ -57,9 +57,11 @@ import phoenix.utils.aliases._
 import responses.ObjectResponses.ObjectContextResponse
 import utils.db._
 
-case class LogActivity(implicit ac: AC) {
+class LogActivity(val ac: AC) extends AnyVal {
 
-  def withScope(scope: LTree): LogActivity = copy()(ac = ac.copy(scope = scope))
+  @inline implicit private def ctx: AC = ac
+
+  def withScope(scope: LTree): LogActivity = new LogActivity(ac = ac.copy(scope = scope))
 
   /* Assignments */
   def assigned[T](admin: User,
@@ -573,16 +575,16 @@ case class LogActivity(implicit ac: AC) {
     Activities.log(StoreAdminStateChanged(entity, oldState, newState, admin))
 
   /* Customer Groups */
-  def customerGroupCreated(customerGroup: CustomerGroup,
-                           admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+  def customerGroupCreated(customerGroup: CustomerGroup, admin: User)(
+      implicit ec: EC): DbResultT[Activity] =
     Activities.log(CustomerGroupCreated(CustomerGroupActivity(customerGroup), admin))
 
-  def customerGroupUpdated(customerGroup: CustomerGroup,
-                           admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+  def customerGroupUpdated(customerGroup: CustomerGroup, admin: User)(
+      implicit ec: EC): DbResultT[Activity] =
     Activities.log(CustomerGroupUpdated(CustomerGroupActivity(customerGroup), admin))
 
-  def customerGroupArchived(customerGroup: CustomerGroup,
-                            admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+  def customerGroupArchived(customerGroup: CustomerGroup, admin: User)(
+      implicit ec: EC): DbResultT[Activity] =
     Activities.log(CustomerGroupArchived(CustomerGroupActivity(customerGroup), admin))
 
   /* Mail stuff */
@@ -594,4 +596,8 @@ case class LogActivity(implicit ac: AC) {
   /* Helpers */
   private def buildOriginator(originator: User): Option[UserResponse] =
     Some(buildUser(originator))
+}
+
+object LogActivity {
+  def apply()(implicit ac: AC): LogActivity = new LogActivity(ac)
 }
