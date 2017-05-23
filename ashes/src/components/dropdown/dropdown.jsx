@@ -137,6 +137,7 @@ export default class Dropdown extends Component {
 
     return (
       <GenericDropdown
+        placeholder="- Select -"
         {...restProps}
         renderDropdownInput={this.buildInput}
       >
