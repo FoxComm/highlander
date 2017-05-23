@@ -1,9 +1,8 @@
-// @flow
+/* @flow */
 
-// libs
 import React, { Element } from 'react';
 
-// helpers
+// libs
 import { activeStatus, isArchived } from 'paragons/common';
 
 // components
@@ -12,21 +11,24 @@ import RoundedPill from 'components/rounded-pill/rounded-pill';
 
 type Props = {
   taxonomy: TaxonomyResult,
-  columns?: Array<Object>,
+  columns?: Columns,
   params: Object,
-};
-
-const setCellContents = (taxonomy: TaxonomyResult, field: string) => {
-  switch(field) {
-    case 'state':
-      return <RoundedPill text={activeStatus(taxonomy)} />;
-    default:
-      return taxonomy[field];
-  }
 };
 
 const TaxonomyRow = (props: Props) => {
   const { taxonomy, columns, params } = props;
+
+  const setCellContents = (taxonomy: TaxonomyResult, field: string) => {
+    switch(field) {
+      case 'state':
+        return (
+          <RoundedPill text={activeStatus(taxonomy)} />
+        );
+      default:
+        return taxonomy[field];
+    }
+  };
+
   const commonParams = {
     columns,
     row: taxonomy,

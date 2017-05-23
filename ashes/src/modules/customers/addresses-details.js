@@ -1,6 +1,5 @@
-
 import _ from 'lodash';
-import { assoc, update, merge, dissoc } from 'sprout-data';
+import { assoc, update, dissoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 
 const _createAction = (description, ...args) => {

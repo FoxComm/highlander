@@ -1,6 +1,4 @@
-/**
- * @flow
- */
+/* @flow */
 
 //libs
 import React, { Element } from 'react';
@@ -16,7 +14,7 @@ import MultiSelectRow from '../table/multi-select-row';
 
 type CouponRowProps = {
   coupon: Object,
-  columns: Array<string>,
+  columns: Columns,
   params: Object,
   promotionId: Number
 };
@@ -45,7 +43,6 @@ const setCellContents = (coupon: Object, field: string) => {
 
 const CouponRow = (props: CouponRowProps) => {
   const { coupon, columns, params, promotionId } = props;
-  const key = `coupon-${coupon.id}`;
   const commonParams = {
     columns,
     row: coupon,

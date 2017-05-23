@@ -1,0 +1,9 @@
+.bulkExport {
+  margin-right: 10px;
+  width: 40px;
+  height: 40px;
+
+  & :global(.icon-export) {
+    font-size: 17px;
+  }
+}

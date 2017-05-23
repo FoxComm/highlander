@@ -1,5 +1,5 @@
 
-import makeLiveSearch from '../live-search';
+import makeLiveSearch from 'modules/live-search';
 
 const searchTerms = [
   {
@@ -79,7 +79,7 @@ const searchTerms = [
 ];
 
 const { reducer, actions } = makeLiveSearch(
-  'customers.storeCreditTransactions',
+  'customers.storeCreditTransactions.list',
   searchTerms,
   'store_credit_transactions_search_view/_search',
   'customerStoreCreditTransactionsScope', {
