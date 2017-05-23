@@ -63,7 +63,6 @@ class OrdersBlock extends Component {
       return (
         <OrderRow
           order={order}
-          showDetailsLink
           key={`order-row-${i}`}
           handleViewDetails={this.handleViewDetails}
         />
