@@ -4,17 +4,14 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
 
 // actions
 import { fetchOrder, clearOrder } from 'modules/orders';
 
 // components
-import OrderRow from './order-row';
 import Loader from 'ui/loader';
 import AddressDetails from 'ui/address/address-details';
 import Currency from 'ui/currency';
-import Icon from 'ui/icon';
 import OrderSummary from 'components/order-summary/order-summary';
 import ViewBilling from 'pages/checkout/billing/view-billing';
 import PromoCode from 'components/promo-code/promo-code';

@@ -4,7 +4,6 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import localized from 'lib/i18n';
 

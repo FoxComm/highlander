@@ -52,7 +52,7 @@ class OrdersBlock extends Component {
   }
 
   @autobind
-  handleViewDetails(referenceNumber) {
+  handleViewDetails(referenceNumber: string) {
     this.setState({ referenceNumber }, () => this.props.toggleOrderDetails());
   }
 
@@ -89,6 +89,7 @@ class OrdersBlock extends Component {
 
     return (
       <CheckoutForm
+        error={null}
         submit={() => this.props.toggleOrderDetails()}
         buttonLabel="Got it"
         title={`Order #${referenceNumber}`}
@@ -141,6 +142,7 @@ class OrdersBlock extends Component {
       </div>
     );
   }
+
   render() {
     return (
       this.body
