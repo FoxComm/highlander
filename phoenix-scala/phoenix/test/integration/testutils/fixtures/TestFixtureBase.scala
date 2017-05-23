@@ -6,7 +6,7 @@ import utils.MockedApis
 
 trait TestFixtureBase extends GimmeSupport with TestActivityContext.AdminAC with MockedApis {
 
-  implicit val db: DB
-  implicit val ctx: OC
-  implicit val ec: EC
+  implicit def db: DB
+  implicit def ctx: OC
+  implicit def ec: EC
 }
