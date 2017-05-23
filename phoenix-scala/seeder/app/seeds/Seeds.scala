@@ -1,4 +1,4 @@
-package utils.seeds
+package seeds
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
