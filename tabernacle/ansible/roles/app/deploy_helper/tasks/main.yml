@@ -4,10 +4,10 @@
   include_vars: file={{item}}
   with_items:
     - "{{role_path}}/../../base/secret_keys/files/aws/aws.yml"
-    - "{{role_path}}/../marathon/vars/main.yml"
-    - "{{role_path}}/../marathon/vars/stripe.yml"
-    - "{{role_path}}/../marathon/vars/hyperion.yml"
-    - "{{role_path}}/../marathon/vars/solomon.yml"
+    - "{{role_path}}/../../dev/marathon/vars/main.yml"
+    - "{{role_path}}/../../dev/marathon/vars/stripe.yml"
+    - "{{role_path}}/../../dev/marathon/vars/hyperion.yml"
+    - "{{role_path}}/../../dev/marathon/vars/solomon.yml"
 
 - include: validate.yml
 
