@@ -121,6 +121,10 @@ shortcuts:
     alias: migrate_hyperion_db.yml
     target: ansible/migrate_hyperion_db.yml
 
+  - name: Migrate Bernardo DB
+    alias: migrate_bernardo_db.yml
+    target: ansible/migrate_bernardo_db.yml
+
   - name: Migrate Object Schemas
     alias: migrate_object_schemas.yml
     target: ansible/migrate_object_schemas.yml
