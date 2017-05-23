@@ -3,8 +3,6 @@ home: /home/{{user}}
 self_host: 127.0.0.1
 dest_services: /etc/systemd/system
 usr_local: /usr/local/
-public_keys_dest_dir: /etc/keys
-private_keys_dest_dir: /etc/keys
 scala_version: scala-2.11
 logrotate_dir: /etc/logrotate.d
 foxcomm_domain: foxcommerce.com
@@ -17,6 +15,14 @@ sinopia_url: https://npm.foxcommerce.com:4873
 appliance_prefix: appliance
 appliance_hostname: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.{{foxcomm_domain}}"
 dashboard_assets_location: /usr/local/dashboard
+
+# Keys
+cert_path: test/fox
+cert_type: docker
+install_private_keys: true
+install_public_keys: true
+public_keys_dest_dir: /etc/keys
+private_keys_dest_dir: /etc/keys
 
 # Prompt answers
 prompt_yes:
@@ -48,6 +54,7 @@ docker_tags:
     firebrand: "{{ lookup('env', 'DOCKER_TAG_FIREBRAND') | default('master', true) }}"
     peacock: "{{ lookup('env', 'DOCKER_TAG_PEACOCK') | default('master', true) }}"
     phoenix: "{{ lookup('env', 'DOCKER_TAG_PHOENIX') | default('master', true) }}"
+    phoenix_seeder: "{{ lookup('env', 'DOCKER_TAG_PHOENIX_SEEDER') | default('master', true) }}"
     greenriver: "{{ lookup('env', 'DOCKER_TAG_GREENRIVER') | default('master', true) }}"
     middlewarehouse: "{{ lookup('env', 'DOCKER_TAG_MIDDLEWAREHOUSE') | default('master', true) }}"
     messaging: "{{ lookup('env', 'DOCKER_TAG_MESSAGING') | default('master', true) }}"
@@ -74,6 +81,8 @@ docker_tags:
     neo4j: "{{ lookup('env', 'DOCKER_TAG_NEO4J') | default('master', true) }}"
     suggester: "{{ lookup('env', 'DOCKER_TAG_SUGGESTER') | default('master', true) }}"
     data_import: "{{ lookup('env', 'DOCKER_TAG_DATA_IMPORT') | default('master', true) }}"
+    onboarding_service: "{{ lookup('env', 'DOCKER_TAG_ONBOARING_SERVICE') | default('master', true) }}"
+    onboarding_ui: "{{ lookup('env', 'DOCKER_TAG_ONBOARING_UI') | default('master', true) }}"
 
 # Configurable Marathon re-deploys
 marathon_restart:
@@ -92,7 +101,8 @@ marathon_restart:
     shipstation_consumer: "{{ lookup('env', 'MARATHON_SHIPSTATION_CONSUMER') | default(true, true) | bool }}"
     stock_items_consumer: "{{ lookup('env', 'MARATHON_STOCK_ITEMS_CONSUMER') | default(true, true) | bool }}"
     customer_groups_consumer: "{{ lookup('env', 'MARATHON_CUSTOMER_GROUPS_CONSUMER') | default(true, true) | bool }}"
-    marketplace: "{{ lookup('env', 'MARATHON_MARKETPLACE') | default(true, true) | bool }}"
+    onboarding_service: "{{ lookup('env', 'MARATHON_ONBOARDING_SERVICE') | default(true, true) | bool }}"
+    onboarding_ui: "{{ lookup('env', 'MARATHON_ONBOARDING_UI') | default(true, true) | bool }}"
     storefront_td: "{{ lookup('env', 'MARATHON_STOREFRONT_TD') | default(true, true) | bool }}"
     storefront_tpg: "{{ lookup('env', 'MARATHON_STOREFRONT_TPG') | default(true, true) | bool }}"
     hyperion: "{{ lookup('env', 'MARATHON_HYPERION') | default(true, true) | bool }}"
@@ -172,7 +182,8 @@ middlewarehouse_host: "middlewarehouse.{{consul_suffix}}"
 middlewarehouse_port: 9292
 middlewarehouse_server: "{{middlewarehouse_host}}:{{middlewarehouse_port}}"
 
-solomon_host: "solomon.{{consul_suffix}}"
+solomon_service_name: "solomon"
+solomon_host: "{{solomon_service_name}}.{{consul_suffix}}"
 solomon_port: 4002
 solomon_server: "{{solomon_host}}:{{solomon_port}}"
 
@@ -184,13 +195,13 @@ marathon_host: "marathon.{{consul_suffix}}"
 marathon_port: 8080
 marathon_server: "{{marathon_host}}:{{marathon_port}}"
 
-marketplace_host: "marketplace.{{consul_suffix}}"
-marketplace_port: 4003
-marketplace_server: "{{marketplace_host}}:{{marketplace_port}}"
+onboarding_service_host: "onboarding_service.{{consul_suffix}}"
+onboarding_service_port: 4003
+onboarding_service_server: "{{onboarding_service_host}}:{{onboarding_service_port}}"
 
-marketplace_ui_host: "marketplace_ui.{{consul_suffix}}"
-marketplace_ui_port: 4042
-marketplace_ui_server: "{{marketplace_ui_host}}:{{marketplace_ui_port}}"
+onboarding_ui_host: "onboarding_ui.{{consul_suffix}}"
+onboarding_ui_port: 4042
+onboarding_ui_server: "{{onboarding_ui_host}}:{{onboarding_ui_port}}"
 
 product_search_host: "product_search.{{consul_suffix}}"
 product_search_port: 5492
@@ -220,7 +231,7 @@ db_name: phoenix
 db_connection_string: "postgresql://{{db_host}}/{{db_name}}?user={{db_user}}"
 bottledwater_slot_phoenix: bottledwater_phoenix
 bottledwater_slot_middlewarehouse: bottledwater_middlewarehouse
-bottledwater_slot_marketplace: bottledwater_marketplace
+bottledwater_slot_onboarding_service: bottledwater_onboarding_service
 
 # Flyway
 flyway_vers: 4.0.3
@@ -396,20 +407,14 @@ zipkin_collector: localhost
 stripe_api_key: sk_test_13rnEgvA4DGHgv4f2GMCDtes
 stripe_publishable_key: pk_test_1H2C9nTZpy8szPmboOEDwdwN
 
-# Certificates path
-cert_path: test/fox
-cert_type: docker
-install_public_keys: true
-install_private_keys: true
-
 # Mesos
 mesos_quorum: 1
 mesos_ip: "$(hostname -i)"
 
-# Marketplace
-marketplace_db_name: marketplace
-marketplace_db_user: marketplace
-marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{db_host}}/{{marketplace_db_name}}"
+# Onboarding
+onboarding_service_db_name: onboarding
+onboarding_service_db_user: onboarding
+onboarding_service_db_connection_string: "postgresql://{{onboarding_service_db_user}}@{{db_host}}/{{onboarding_service_db_name}}"
 
 # Messaging
 retailer_name: "FoxCommerce"
@@ -452,5 +457,5 @@ is_appliance: false
 is_redeploy: false
 jmx_enabled: false
 packing: false
-with_marketplace: false
+with_onboarding: false
 with_shipstation: false
