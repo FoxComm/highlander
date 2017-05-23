@@ -40,7 +40,7 @@ class EditName extends Component {
     name: this.props.name || '',
   };
 
-  componentWillReceiveProps(nextProps: props) {
+  componentWillReceiveProps(nextProps: Props) {
     if (this.props.name !== nextProps.name) {
       this.setState({ name: nextProps.name });
     }

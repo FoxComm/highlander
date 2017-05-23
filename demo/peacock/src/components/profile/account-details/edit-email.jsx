@@ -12,6 +12,7 @@ import { TextInput } from 'ui/text-input';
 import { FormField } from 'ui/forms';
 import CheckoutForm from 'pages/checkout/checkout-form';
 
+// actions
 import * as actions from 'modules/profile';
 
 // types
@@ -42,7 +43,7 @@ class EditEmail extends Component {
     this.props.clearAccountErrors();
   }
 
-  componentWillReceiveProps(nextProps: props) {
+  componentWillReceiveProps(nextProps: Props) {
     if (this.props.email !== nextProps.email) {
       this.setState({ email: nextProps.email });
     }
