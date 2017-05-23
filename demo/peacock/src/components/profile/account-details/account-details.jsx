@@ -16,7 +16,9 @@ import Loader from 'ui/loader';
 // actions
 import * as actions from 'modules/profile';
 
+// types
 import type { AccountDetailsProps } from 'types/profile';
+import type { AsyncStatus } from 'types/async-actions';
 
 import styles from '../profile.css';
 
@@ -24,6 +26,9 @@ type Props = AccountDetailsProps & {
   fetchAccount: () => Promise<*>,
   className?: string,
   nameModalVisible: boolean,
+  emailModalVisible: boolean,
+  passwordModalVisible: boolean,
+  fetchAccountState: AsyncStatus,
 }
 
 class AccountDetails extends Component {

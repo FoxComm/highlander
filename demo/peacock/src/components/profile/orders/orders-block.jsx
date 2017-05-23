@@ -91,7 +91,7 @@ class OrdersBlock extends Component {
       <CheckoutForm
         error={null}
         submit={() => this.props.toggleOrderDetails()}
-        buttonLabel="Got it"
+        buttonLabel="Close"
         title={`Order #${referenceNumber}`}
         action={action}
       >

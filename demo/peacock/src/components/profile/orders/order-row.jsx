@@ -38,7 +38,7 @@ const OrderRow = (props: Props) => {
     if (showDetailsLink) {
       return (
         <div styleName="action-link" onClick={() => handleViewDetails(order.referenceNumber)}>
-          View details
+          Details
         </div>
       );
     }
