@@ -67,4 +67,3 @@
 
 - name: Update Syslog Rotation
   lineinfile: dest="{{logrotate_dir}}/rsyslog" regexp='^daily' line='size=100M'
-
