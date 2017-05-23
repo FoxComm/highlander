@@ -46,6 +46,12 @@ module.exports = {
           name: 'Core',
           sections: [
             {
+              name: 'Alerts',
+              components: () => ([
+                path.resolve(__dirname, '../src/components/core/alert/alert.jsx'),
+              ]),
+            },
+            {
               name: 'Buttons',
               components: () => ([
                 path.resolve(__dirname, '../src/components/core/button/button.jsx'),

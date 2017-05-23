@@ -1,0 +1,50 @@
+@import "colors.css";
+
+.alert {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 10px;
+  color: #484848;
+  border-radius: 3px;
+
+  &.closable {
+    padding: 3px 10px;
+  }
+}
+
+.message {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  line-height: 1;
+
+  & > i {
+    display: inline-flex; /* fixes extra pixel in height */
+    margin-right: 5px;
+    font-size: 22px;
+  }
+}
+
+.close {
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+  transition: opacity .2s;
+
+  &:hover {
+    opacity: .7;
+  }
+}
+
+.success {
+  background: var(--alert-success);
+}
+
+.warning {
+  background: var(--alert-warning);
+}
+
+.error {
+  background: var(--alert-error);
+}
