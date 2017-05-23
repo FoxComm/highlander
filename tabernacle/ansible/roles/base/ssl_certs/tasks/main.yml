@@ -1,0 +1,10 @@
+---
+
+- name: Make SSL Certs Directory
+  file: path=/certs state=directory mode="600"
+
+- name: Copy SSL Certificate
+  copy: src="{{role_path}}/files/certs/{{cert_path}}/{{cert_type}}/domain.crt" dest=/certs/domain.crt
+
+- name: Copy SSL Key
+  copy: src="{{role_path}}/files/certs/{{cert_path}}/{{cert_type}}/domain.key" dest=/certs/domain.key

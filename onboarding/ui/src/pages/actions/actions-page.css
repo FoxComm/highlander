@@ -1,0 +1,22 @@
+@import "media-queries.css";
+
+.gotoadmin {
+  display: flex;
+  justify-content: center;
+  margin: 70px 0 50px;
+
+  @media (--small-viewport) {
+    flex-direction: column;
+  }
+}
+
+.gotobutton {
+  width: 45%;
+  margin: 20px 0 0;
+  font-size: 18px;
+  line-height: 46px;
+
+  @media(--small-viewport) {
+    width: 100%;
+  }
+}

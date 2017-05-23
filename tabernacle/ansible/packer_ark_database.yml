@@ -1,0 +1,23 @@
+---
+
+- name: Packer Ark Database
+  hosts: all
+  become: true
+  vars:
+    user: ubuntu
+    packing: true
+    db_name: phoenix
+    middlewarehouse_db_name: middlewarehouse
+    onboarding_service_db_name: onboarding
+    phoenix_db_name: phoenix
+    with_onboarding: true
+
+  roles:
+    - { role: base/mesos_worker }
+    - { role: base/rsyslog }
+    - { role: base/confluent_platform }
+    - { role: base/db }
+    - { role: base/bottledwater }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

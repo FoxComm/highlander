@@ -32,11 +32,8 @@
 - name: Copy Elasticsearch Config
   template: src=elasticsearch.yml dest={{es_path}}/config/elasticsearch.yml
 
-- name: Reload Systemd for Elastic Search
-  command: systemctl daemon-reload
-
-- name: Setup Service
-  service: name=elasticsearch state=restarted enabled=yes
+- name: Copy Elasticsearch Logging Config
+  template: src=logging.yml dest={{es_path}}/config/logging.yml force=yes
 
 - name: Copy Consul Service File
   template: src=elastic.json dest="/etc/consul.d/elastic.json"

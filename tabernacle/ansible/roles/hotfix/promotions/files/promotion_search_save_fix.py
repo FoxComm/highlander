@@ -7,7 +7,7 @@ import json
 import urllib2
 import psycopg2
 
-# CONN_STR = "dbname='phoenix_development' user='phoenix' host='localhost'"
+# CONN_STR = "dbname='phoenix' user='phoenix' host='localhost'"
 # PHOENIX_URL = 'http://localhost:9090'
 
 CONN_STR = os.environ['DB_CONN_STRING']
@@ -37,8 +37,8 @@ sqlFindBugDiscounts = """select
 
 
 # [
-# (56, 201, 
-# {u'itemsPercentOff': {u'discount': 15, u'references': [{u'referenceType': u'SavedProductSearch', u'referenceId': 4}]}}, 
+# (56, 201,
+# {u'itemsPercentOff': {u'discount': 15, u'references': [{u'referenceType': u'SavedProductSearch', u'referenceId': 4}]}},
 # {u'itemsAny': {u'references': [{u'referenceType': u'SavedProductSearch', u'referenceId': 4}]}})]
 
 def do_phoenix_req(path, method = None, data = None):
@@ -105,7 +105,7 @@ def fix_search_reference(did, ref, subtype):
                 return
             new_searches.append(new_search)
 
-        
+
         newRef[k] = val
         del newRef[k]['references']
         newRef[k]['search'] = new_searches

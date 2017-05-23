@@ -9,7 +9,6 @@
     join_type: join-wan
     mesos_quorum: 1
     consul_expect: 1
-
   roles:
     - { role: base/java }
     - { role: base/consul_server }

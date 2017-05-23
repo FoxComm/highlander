@@ -1,7 +1,9 @@
 package util
 
 import (
+	"log"
 	"os"
+	"strings"
 
 	"github.com/FoxComm/highlander/intelligence/suggester/src/payloads"
 	"github.com/FoxComm/highlander/intelligence/suggester/src/responses"
@@ -16,6 +18,8 @@ var (
 )
 
 func DexterSuggestionToSMS(phoneNumber string, command string, product responses.ProductInstance) (responses.RunDexterResponse, error) {
+	log.Printf("Suggesting a product to Dexter %+v", product)
+
 	// Set endpoint url
 	dexterPostApiEndpoint := runDexterBaseURL + runDexterBotID + "/command/" + command + "/platform/twilio/" + phoneNumber + "/?api_key=" + runDexterApiKey
 
@@ -29,7 +33,7 @@ func DexterSuggestionToSMS(phoneNumber string, command string, product responses
 
 	// Build payload
 	productData := payloads.RunDexterProductData{
-		Title:    product.Title,
+		Title:    strings.Replace(product.Title, " ", "", -1),
 		ImageURL: productImageURL,
 		Price:    retailPriceUSD,
 	}

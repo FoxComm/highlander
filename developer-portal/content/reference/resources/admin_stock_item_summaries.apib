@@ -1,0 +1,129 @@
+## Stock Item Summaries [/v1/inventory/summary/{code}]
+
+Stock Level Summaries allows a user to see levels of inventory available across
+various inventory types and stock locations.
+
+_Inventory Types_
+
+- **Sellable**: the standard inventory type. Units in this state are considered to
+  be in-stock and available in a stock location.
+- **Non-sellable**: inventory that is in a stock location but not allowed to sold.
+  One example would be inventory that has been received in a warehouse from a
+  manufacturer, but is not yet put in to bins.
+- **Backorder**: the amount of inventory that is either available for backorder or
+  has already been backordered.
+- **Preorder**: the amount of inventory that is either available for preorder or
+  has already been preordered.
+
+_Inventory Count Definitions_
+
+- **On Hand**: refers to the number of units that are sitting within a given stock
+  location. Depending on other states, these may or may not be available for
+  sale.
+- **Hold**: units that have been purchased, but are in one of the hold order states
+  (Manual Hold, Fraud Hold, Remorse Hold). If an outside WMS or 3PL is
+  connected to FoxCommerce, these units will not show up as purchased in that
+  system. Units that are in this state cannot be purchased by other customers.
+- **Reserved**: units that are in the process of being fulfilled.
+- **AFS**: the number of units that are available for sale. This is a calculated
+  field (afs = on hand - hold - reserved).
+
+
+### View [GET]
+
++ Parameters
+    + code: `TEST-SKU` (required, string) - The code representing the SKU who's inventory should be viewed.
+
++ Response 200 (application/json)
+
+        {
+          "summary": [
+            {
+              "sku": "TEST-SKU",
+              "stockItem": {
+                "id": 1,
+                "sku": "TEST-SKU",
+                "stockLocationId": 1,
+                "defaultUnitCost": 999
+              },
+              "stockLocation": {
+                "id": 1,
+                "name": "default",
+                "type": "Warehouse"
+              },
+              "type": "Sellable",
+              "onHand": 100,
+              "onHold": 12,
+              "reserved": 15,
+              "afs": 73,
+              "afsCost": 72927,
+              "createdAt": "2016-10-03T06:10:20.464687Z"
+            },
+            {
+              "sku": "TEST-SKU",
+              "stockItem": {
+                "id": 1,
+                "sku": "TEST-SKU",
+                "stockLocationId": 1,
+                "defaultUnitCost": 999
+              },
+              "stockLocation": {
+                "id": 1,
+                "name": "default",
+                "type": "Warehouse"
+              },
+              "type": "Non-sellable",
+              "onHand": 0,
+              "onHold": 0,
+              "reserved": 0,
+              "shipped": 0,
+              "afs": 0,
+              "afsCost": 0,
+              "createdAt": "2016-10-03T06:10:20.469778Z"
+            },
+            {
+              "sku": "TEST-SKU",
+              "stockItem": {
+                "id": 1,
+                "sku": "TEST-SKU",
+                "stockLocationId": 1,
+                "defaultUnitCost": 999
+              },
+              "stockLocation": {
+                "id": 1,
+                "name": "default",
+                "type": "Warehouse"
+              },
+              "type": "Backorder",
+              "onHand": 100,
+              "onHold": 0,
+              "reserved": 0,
+              "shipped": 0,
+              "afs": 100,
+              "afsCost": 99900,
+              "createdAt": "2016-10-03T06:10:20.470854Z"
+            },
+            {
+              "sku": "TEST-SKU",
+              "stockItem": {
+                "id": 1,
+                "sku": "TEST-SKU",
+                "stockLocationId": 1,
+                "defaultUnitCost": 999
+              },
+              "stockLocation": {
+                "id": 1,
+                "name": "default",
+                "type": "Warehouse"
+              },
+              "type": "Preorder",
+              "onHand": 0,
+              "onHold": 0,
+              "reserved": 0,
+              "shipped": 0,
+              "afs": 0,
+              "afsCost": 0,
+              "createdAt": "2016-10-03T06:10:20.471925Z"
+            }
+          ]
+        }
