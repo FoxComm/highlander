@@ -1,8 +1,8 @@
-package models.objects
+package objectframework.models
 
 import java.time.Instant
 
-import services.objects.ObjectManager
+import objectframework.services.ObjectManager
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

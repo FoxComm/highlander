@@ -1,8 +1,8 @@
-package responses
+package objectframework
 
 import java.time.Instant
 
-import models.objects._
+import objectframework.models._
 import org.json4s.JValue
 
 object ObjectResponses {

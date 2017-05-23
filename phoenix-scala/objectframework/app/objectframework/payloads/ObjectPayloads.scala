@@ -1,8 +1,8 @@
-package payloads
+package objectframework.payloads
 
-import org.json4s.{JField, JValue}
 import org.json4s.JsonAST.JObject
 import org.json4s.JsonDSL._
+import org.json4s.{JField, JValue}
 
 object ObjectPayloads {
   trait FormShadowFieldBuilder {

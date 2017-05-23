@@ -1,7 +1,7 @@
-package models.objects
+package objectframework.models
 
+import objectframework.IlluminateAlgorithm
 import org.json4s.JValue
-import utils.IlluminateAlgorithm
 import utils.db.Identity
 
 case class IlluminatedContext(name: String, attributes: JValue)

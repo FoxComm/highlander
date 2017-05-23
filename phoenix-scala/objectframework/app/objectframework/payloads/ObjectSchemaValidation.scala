@@ -1,12 +1,12 @@
-package payloads
+package objectframework.payloads
 
 import cats.data.NonEmptyList
 import com.networknt.schema.JsonSchemaFactory
-import failures.ObjectFailures._
-import models.objects._
-import org.json4s.{Extraction, Formats}
+import objectframework.ObjectFailures._
+import objectframework.models._
 import org.json4s.JsonAST._
 import org.json4s.jackson.JsonMethods._
+import org.json4s.{Extraction, Formats}
 import utils.db._
 
 import scala.collection.JavaConverters._
