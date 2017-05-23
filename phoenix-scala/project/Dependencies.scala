@@ -95,7 +95,6 @@ object Dependencies {
   )
 
   val misc = Seq(
-    "com.networknt"         % "json-schema-validator"   % "0.1.1",
     "com.github.scopt"      %% "scopt"                  % "3.5.0", // CLI args
     "com.pellucid"          %% "sealerate"              % "0.0.3",
     "it.justwrote"          %% "scala-faker"            % "0.3",

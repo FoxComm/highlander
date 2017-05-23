@@ -53,20 +53,24 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
     val skuCode: String     = s"$productCode-sku_${Lorem.letterify("????").toUpperCase}"
     def skuPrice: Int = Random.nextInt(20000) + 100
 
-    private val skuPayload = SkuPayload(
-        attributes = Map("code"        → tv(skuCode),
-                         "title"       → tv(skuCode.capitalize),
-                         "salePrice"   → tv(("currency" → "USD") ~ ("value" → skuPrice), "price"),
-                         "retailPrice" → tv(("currency" → "USD") ~ ("value" → skuPrice), "price")))
+    private val aeternalActivity = Map(
+        "activeFrom" → (("t" → "datetime") ~ ("v" → Instant.ofEpochMilli(1).toString)),
+        "activeTo"   → (("t" → "datetime") ~ ("v" → JNull)))
 
-    val productPayload = CreateProductPayload(
-        attributes =
-          Map("name"       → tv(productCode.capitalize),
-              "title"      → tv(productCode.capitalize),
-              "activeFrom" → (("t" → "datetime") ~ ("v" → Instant.ofEpochMilli(1).toString)),
-              "activeTo"   → (("t" → "datetime") ~ ("v" → JNull))),
-        skus = Seq(skuPayload),
-        variants = None)
+    private val skuPayload =
+      SkuPayload(
+          attributes = Map("code"      → tv(skuCode),
+                           "title"     → tv(skuCode.capitalize),
+                           "salePrice" → tv(("currency" → "USD") ~ ("value" → skuPrice), "price"),
+                           "retailPrice" → tv(("currency" → "USD") ~ ("value" → skuPrice),
+                                              "price")) ++ aeternalActivity)
+
+    val productPayload =
+      CreateProductPayload(attributes =
+                             Map("name"  → tv(productCode.capitalize),
+                                 "title" → tv(productCode.capitalize)) ++ aeternalActivity,
+                           skus = Seq(skuPayload),
+                           variants = None)
 
     val product: ProductRoot =
       productsApi.create(productPayload)(implicitly, defaultAdminAuth).as[ProductRoot]

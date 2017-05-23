@@ -12,17 +12,20 @@ import models.objects._
 import models.product.{ProductReference, Products}
 import models.taxonomy.TaxonomyTaxonLinks.scope._
 import models.taxonomy.{TaxonLocation ⇒ _, _}
+import org.json4s.Formats
 import payloads.TaxonomyPayloads._
 import payloads.TaxonPayloads._
 import responses.TaxonomyResponses._
 import responses.TaxonResponses._
 import services.objects.ObjectManager
-import utils.Validation
+import utils.{JsonFormatters, Validation}
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 object TaxonomyManager {
+
+  implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   case class MoveSpec(taxon: TaxonomyTaxonLink,
                       parent: Option[TaxonomyTaxonLink],

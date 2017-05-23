@@ -41,12 +41,6 @@
 - name: Set Max Virtual Memory Areas
   command: sysctl -w vm.max_map_count=262145
 
-- name: Reload Systemd for Elastic Search
-  command: systemctl daemon-reload
-
-- name: Setup Service
-  service: name=elasticsearch_5 state=restarted enabled=yes
-
 - name: Copy Consul Service File
   template: src=elastic.json dest="/etc/consul.d/elastic_5.json"
 

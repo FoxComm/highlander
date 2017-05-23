@@ -20,7 +20,7 @@ case class IlluminatedProduct(id: Int,
                               archivedAt: Option[Instant])
     extends IlluminatedModel[IlluminatedProduct] {
 
-  override protected def inactiveError: Failure = NotFoundFailure404(Product, slug)
+  override def inactiveError: Failure = NotFoundFailure404(Product, slug)
 
 }
 

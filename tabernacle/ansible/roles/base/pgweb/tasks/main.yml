@@ -9,11 +9,5 @@
 - name: Copy Service
   template: src=pgweb.service dest="{{dest_services}}/pgweb.service"
 
-- name: Reload Systemd for Pgweb
-  command: systemctl daemon-reload
-
-- name: Restart Pgweb
-  service: name=pgweb state=restarted enabled=yes
-
 - name: Copy Consul Service File
   template: src=pgweb.json dest=/etc/consul.d/pgweb.json

@@ -1,0 +1,22 @@
+---
+
+- name: Create Node Exporter Directory
+  file: path={{exporter_base_dir}} state=directory
+
+- name: Download Node Exporter
+  unarchive: src={{exporter_url}} dest={{exporter_base_dir}} remote_src=true mode="u+x,g+x,o+x"
+
+- name: Make Node Exporter Executable
+  file: path={{exporter_location}}/node_exporter mode=750
+
+- name: Copy Execution File
+  template: src=run_node_exporter.sh dest=/usr/local/bin/run_node_exporter.sh mode=750
+
+- name: Copy Service
+  template: src=node_exporter.service dest="{{dest_services}}/node_exporter.service"
+
+- name: Reload Systemd
+  command: systemctl daemon-reload
+
+- name: Restart Service
+  service: name=node_exporter state=restarted enabled=yes

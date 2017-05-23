@@ -5,15 +5,19 @@ import failures.ObjectFailures._
 import models.account._
 import models.category._
 import models.objects._
+import org.json4s.Formats
 import payloads.CategoryPayloads._
 import responses.CategoryResponses._
 import responses.ObjectResponses.ObjectContextResponse
 import services.LogActivity
 import slick.jdbc.PostgresProfile.api._
+import utils.JsonFormatters
 import utils.aliases._
 import utils.db._
 
 object CategoryManager {
+
+  implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   def getForm(id: Int)(implicit ec: EC, db: DB): DbResultT[CategoryFormResponse.Root] =
     for {
