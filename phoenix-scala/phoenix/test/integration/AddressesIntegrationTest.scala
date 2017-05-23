@@ -191,7 +191,7 @@ class AddressesIntegrationTest
   }
 
   "GET region by short name" - {
-    "Make sure that we have region short name provided" in {
+    "Must return existed region for a given short name" in {
       publicApi.getRegionByShortName("CO").as[Seq[Region]].map { region ⇒
         (region.abbreviation, region.name)
       } must === (
@@ -200,7 +200,7 @@ class AddressesIntegrationTest
           ))
     }
 
-    "Make sure that we it works for lower case short name input" in {
+    "Make sure that it works for lower case input" in {
       publicApi.getRegionByShortName("mo").as[Seq[Region]].map { region ⇒
         (region.abbreviation, region.name)
       } must === (
