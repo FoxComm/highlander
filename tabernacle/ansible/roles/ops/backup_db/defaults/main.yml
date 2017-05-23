@@ -1,0 +1,4 @@
+gce_service_key: /etc/keys/gce_backup_service_key.json
+db_backup_filename: /mnt/backups/{{ansible_hostname}}_{{db_name}}_$(date +\%F_\%H_\%M)
+db_backup_filename_mwh: /mnt/backups/{{ansible_hostname}}_{{middlewarehouse_db_name}}_$(date +\%F_\%H_\%M)
+db_backup_filename_onboarding_service: /mnt/backups/{{ansible_hostname}}_{{onboarding_service_db_name}}_$(date +\%F_\%H_\%M)

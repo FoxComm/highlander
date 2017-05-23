@@ -12,10 +12,11 @@ DOCKER_TAG ?= master
 
 prepare:
 	$(call header, Prepare)
-	rm $(BUILD_ROOT_PATH) || true
+	rm -rf $(BUILD_ROOT_PATH) || true
 	mkdir -p $(GOPATH)/src/github.com/FoxComm
 	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH) || true
 	go get github.com/labstack/echo
+	go get github.com/stretchr/testify
 
 build: prepare
 	GOOS=linux CGO_ENABLED=0 go build -o suggester src/server.go

@@ -1,0 +1,25 @@
+---
+
+- name: Create Prometheus Directory
+  file: path={{prometheus_base_dir}} state=directory
+
+- name: Download Prometheus
+  unarchive: src={{prometheus_url}} dest={{prometheus_base_dir}} remote_src=true mode="u+x,g+x,o+x"
+
+- name: Make Prometheus Executable
+  file: path={{prometheus_location}}/prometheus mode=750
+
+- name: Copy Execution File
+  template: src=run_prometheus.sh dest=/usr/local/bin/run_prometheus.sh mode=750
+
+- name: Copy Service
+  template: src=prometheus.service dest="{{dest_services}}/prometheus.service"
+
+- name: Copy Configuration File
+  template: src=config.staging.yml dest="{{prometheus_location}}/prometheus.yml"
+
+- name: Reload Systemd
+  command: systemctl daemon-reload
+
+- name: Restart Service
+  service: name=prometheus state=restarted enabled=yes
