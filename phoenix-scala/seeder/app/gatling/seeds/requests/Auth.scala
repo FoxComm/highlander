@@ -4,8 +4,8 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import payloads.LoginPayload
-import utils.JsonFormatters
+import phoenix.payloads.LoginPayload
+import phoenix.utils.JsonFormatters
 
 object Auth {
 
