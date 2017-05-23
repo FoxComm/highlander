@@ -1,7 +1,7 @@
 import sbt._
 
 object Versions {
-  val scala = "2.11.8"
+  val scala = "2.11.11-bin-typelevel-4"
   val slick     = "3.2.0"
   val json4s    = "3.4.0"
   val akka      = "2.4.7"
