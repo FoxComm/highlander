@@ -21,6 +21,7 @@ type Props = {
   actions: Array<Action>,
   loading: boolean,
   disabled?: boolean,
+  failed?: boolean,
   className?: string,
   onImageClick?: Function,
 };
@@ -34,10 +35,10 @@ export default class ImageCard extends Component {
     onImageClick: () => {},
   };
 
-  shouldComponentUpdate({ src: nextSrc, disabled: nextDisabled }: Props) {
-    const { src, disabled } = this.props;
+  shouldComponentUpdate({ src: nextSrc, disabled: nextDisabled, failed: nextFailed }: Props) {
+    const { src, disabled, failed } = this.props;
 
-    return src !== nextSrc || disabled !== nextDisabled;
+    return src !== nextSrc || disabled !== nextDisabled || failed !== nextFailed;
   }
 
   get actions(): ?Element<*> {
@@ -62,11 +63,15 @@ export default class ImageCard extends Component {
   }
 
   render() {
-    const { id, src, className, disabled } = this.props;
-    const cls = classNames(s.card, s.image, className, { [s.disabled]: disabled });
+    const { id, src, className, disabled, loading, failed } = this.props;
+    const cls = classNames(s.card, s.image, className, {
+      [s.disabled]: disabled,
+      [s.loading]: loading,
+    });
 
     return (
       <div className={cls} onClick={this.props.onImageClick}>
+        {failed && <i className={classNames('icon-error', s.icon)} />}
         <Image id={id} src={src} size="cover" />
         {this.actions}
       </div>

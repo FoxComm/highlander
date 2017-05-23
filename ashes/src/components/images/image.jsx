@@ -173,6 +173,7 @@ export default class Image extends Component<void, Props, State> {
           actions={this.getImageActions()}
           onImageClick={this.handleEditImage}
           loading={image.loading}
+          failed={image.failed}
           key={imagePid}
           disabled={disabled}
         />

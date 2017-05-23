@@ -41,3 +41,11 @@
     margin-bottom: 20px;
   }
 }
+
+.uploadErrBtns {
+  margin-top: 10px;
+}
+
+.uploadErrBtn {
+  margin: 0 10px 0 0;
+}

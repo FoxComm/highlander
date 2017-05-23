@@ -127,11 +127,13 @@ export default class Images extends Component {
               editAlbum={(album: TAlbum) => this.props.editAlbum(context, album.id, album)}
               moveAlbum={(position: number) => this.props.moveAlbum(context, entityId, album.id, position)}
               archiveAlbum={(id: number) => this.props.archiveAlbum(context, id)}
+              clearFailedMedia={() => this.props.clearFailedMedia(album.id)}
               position={i}
               albumsCount={albums.length}
               key={album.id}
               fetchAlbums={() => this.props.fetchAlbums(context, entityId)}
               editAlbumState={asyncActionsState.editAlbum}
+              uploadMediaState={asyncActionsState.uploadMedia}
               uploadMediaByUrlState={asyncActionsState.uploadMediaByUrl}
               archiveAlbumState={asyncActionsState.archiveAlbum}
             />

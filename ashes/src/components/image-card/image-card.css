@@ -2,6 +2,9 @@
 @import "common.css";
 
 .card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: relative;
   width: 286px;
   height: 286px;
@@ -16,8 +19,17 @@
   }
 
   @media (min-resolution: 120dpi) {
-    box-shadow: 0 0 0.5px #999 inset;
-    border: none;
+    border-width: 0.5px;
+  }
+
+  &.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    @apply --loading-caramel;
   }
 }
 
@@ -30,9 +42,8 @@
   width: 100%;
   height: 100%;
   background: rgba(37, 51, 74, 0.86);
-  opacity: 0;
-  pointer-events: none;
   transition: opacity .3s;
+  opacity: 0;
 
   & i {
     color: #fff;
@@ -43,13 +54,20 @@
       color: var(--green-buttons);
     }
   }
+
+  .card:hover & {
+    opacity: 1;
+  }
+
+  .card.disabled &,
+  .card.loading & {
+    opacity: 0;
+    pointer-events: none;
+  }
 }
 
-.card:not(.disabled):hover > .actions {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-._loading {
-  @apply --loading-caramel;
+.icon {
+  position: absolute;
+  font-size: 70px;
+  color: red;
 }

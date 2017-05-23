@@ -11,18 +11,21 @@ import Images from 'components/images/images';
 export function connectImages(namespace, actions) {
   const plural = `${namespace}s`;
 
-  const mapStateToProps = (state) => ({
-    namespace,
-    albums: _.get(state, [plural, 'images', 'albums'], []),
-    isLoading: _.get(state, ['asyncActions', `${plural}FetchAlbums`, 'inProgress'], true),
-    asyncActionsState: {
-      addAlbum: state.asyncActions[`${plural}AddAlbum`],
-      editAlbum: state.asyncActions[`${plural}EditAlbum`],
-      uploadMedia: state.asyncActions[`${plural}UploadMedia`],
-      uploadMediaByUrl: state.asyncActions[`${plural}UploadMediaByUrl`],
-      archiveAlbum: state.asyncActions[`${plural}ArchiveAlbum`],
+  const mapStateToProps = (state) => {
+    console.log('mapStateToProps');
+    return {
+      namespace,
+      albums: _.get(state, [plural, 'images', 'albums'], []),
+      isLoading: _.get(state, ['asyncActions', `${plural}FetchAlbums`, 'inProgress'], true),
+      asyncActionsState: {
+        addAlbum: state.asyncActions[`${plural}AddAlbum`],
+        editAlbum: state.asyncActions[`${plural}EditAlbum`],
+        uploadMedia: state.asyncActions[`${plural}UploadMedia`],
+        uploadMediaByUrl: state.asyncActions[`${plural}UploadMediaByUrl`],
+        archiveAlbum: state.asyncActions[`${plural}ArchiveAlbum`],
+      }
     }
-  });
+  };
 
   return ImagesPage => {
     return connect(mapStateToProps, actions)(ImagesPage);
@@ -44,6 +47,7 @@ export default class ImagesPage extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    console.log('nextProps', nextProps);
     if (nextProps.albums != this.props.albums) {
       this.props.syncEntity({
         albums: nextProps.albums,

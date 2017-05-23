@@ -3,14 +3,15 @@
 // parent: `./images`
 
 // styles
-import styles from './images.css';
+import s from './images.css';
 
 // libs
 import { autobind } from 'core-decorators';
 import React, { Component, Element, PropTypes } from 'react';
-import { isEqual } from 'lodash';
+import { isEqual, get } from 'lodash';
 
 // components
+import { Button } from 'components/core/button';
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import Alert from 'components/alerts/alert';
 import AlbumWrapper from './album-wrapper/album-wrapper';
@@ -36,7 +37,9 @@ export type Props = {
   moveAlbum: (position: number) => Promise<*>;
   archiveAlbum: (id: number) => Promise<*>;
   fetchAlbums: () => Promise<*>;
+  clearFailedMedia: () => Promise<*>;
   editAlbumState?: AsyncState;
+  uploadMediaState?: AsyncState;
   uploadMediaByUrlState?: AsyncState;
   archiveAlbumState?: AsyncState;
 };
@@ -78,8 +81,13 @@ export default class Album extends Component {
       key: file.key,
       loading: true,
     }));
+    // debugger
 
-    this.props.uploadFiles(newImages);
+    this.props
+      .uploadFiles(newImages)
+      .catch(() => {
+        console.log('ololo');
+      });
   }
 
   @autobind
@@ -163,12 +171,31 @@ export default class Album extends Component {
     return this.props.moveAlbum(position);
   }
 
+  get errorMsg(): Element<*> {
+    const { uploadMediaState, clearFailedMedia } = this.props;
+    const errMsg = get(uploadMediaState, 'err.message');
+
+    if (!errMsg) {
+      return null;
+    }
+
+    return (
+      <Alert type="error">
+        {errMsg}
+        <div className={s.uploadErrBtns}>
+          <Button className={s.uploadErrBtn} onClick={clearFailedMedia}>Cancel</Button>
+          <Button>Retry</Button>
+        </div>
+      </Alert>
+    );
+  }
+
   get editAlbumDialog(): ?Element<*> {
     const { album, editAlbumState = {} } = this.props;
 
     return (
       <EditAlbum
-        className={styles.modal}
+        className={s.modal}
         isVisible={this.state.editMode}
         album={album}
         inProgress={editAlbumState.inProgress}
@@ -184,7 +211,7 @@ export default class Album extends Component {
 
     return (
       <UploadByUrl
-        className={styles.modal}
+        className={s.modal}
         isVisible={this.state.uploadUrlMode}
         inProgress={uploadMediaByUrlState.inProgress}
         error={uploadMediaByUrlState.err}
@@ -211,7 +238,7 @@ export default class Album extends Component {
 
     return (
       <ConfirmationDialog
-        className={styles.modal}
+        className={s.modal}
         isVisible={this.state.archiveMode}
         header='Archive Album'
         body={body}
@@ -239,7 +266,7 @@ export default class Album extends Component {
     const albumContent = (
       <Upload
         ref={c => this._uploadRef = c}
-        className={styles.upload}
+        className={s.upload}
         onDrop={this.handleNewFiles}
         empty={album.images.length == 0}
       >
@@ -269,6 +296,7 @@ export default class Album extends Component {
 
     return (
       <div>
+        {this.errorMsg}
         {this.editAlbumDialog}
         {this.uploadByUrlDialog}
         {this.archiveAlbumDialog}
@@ -277,7 +305,7 @@ export default class Album extends Component {
           titleWrapper={(title: string) => this.renderTitle(title, album.images.length)}
           position={position}
           albumsCount={albumsCount}
-          contentClassName={styles.albumContent}
+          contentClassName={s.albumContent}
           onSort={this.handleMove}
           actions={this.getAlbumActions()}
           onAddFile={this.handleAddFiles}
@@ -291,6 +319,6 @@ export default class Album extends Component {
 
   @autobind
   renderTitle(title: string, count: number): Element<*> {
-    return <span className={styles.albumTitleText}>{title}</span>;
+    return <span className={s.albumTitleText}>{title}</span>;
   }
 }
