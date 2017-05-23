@@ -72,7 +72,7 @@ class ProductsCatalogViewIntegrationTest
       val psv = new ProductsSearchViewIntegrationTest
       psv.viewOne(product.id).archivedAt mustBe 'empty
       findOne(product.id) mustBe 'defined
-      product.skus.foreach(deactivate)
+      product.skus.foreach(deactivate) // FIXME: why does it take 0.4 seconds? :P @michalrus
       findOne(product.id) mustBe 'empty
       psv.viewOne(product.id).archivedAt mustBe 'empty
     }
