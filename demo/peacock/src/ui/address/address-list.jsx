@@ -204,71 +204,90 @@ class AddressList extends Component {
     );
   }
 
+  @autobind
+  getAddressInProfile(address: Object, checked: boolean, title: string) {
+    const profileItemClasses = classNames(styles['profile-item'], {
+      [styles.chosen]: checked,
+    });
+    const itemTitle = address.isDeleted ? <span styleName="deleted-content">{title}</span> : title;
+
+    const deletedClass = classNames({
+      [styles['deleted-content']]: address.isDeleted,
+    });
+    const content = (
+      <AddressDetails
+        address={address}
+        hideName
+        className={deletedClass}
+      />
+    );
+
+    return (
+      <li className={profileItemClasses} key={`address-radio-profile-${address.id}`}>
+        <RadioButton
+          id={`address-radio-profile-${address.id}`}
+          name={`address-radio-profile-${address.id}`}
+          checked={checked}
+          disabled={address.isDeleted}
+          onChange={() => this.changeAddressOption(address.id)}
+        >
+          <EditableBlock
+            styleName="item-content"
+            title={itemTitle}
+            content={content}
+            editAllowed={false}
+          />
+        </RadioButton>
+        {this.getActionsContent(address)}
+      </li>
+    );
+  }
+
+  @autobind
+  getAddress(address: Object, checked: boolean, title: string) {
+    const itemClasses = classNames(styles.item, {
+      [styles.chosen]: checked,
+    });
+
+    const content = (
+      <AddressDetails
+        address={address}
+        hideName
+      />
+    );
+
+    return (
+      <li className={itemClasses} key={`address-radio-${address.id}`}>
+        <RadioButton
+          id={`address-radio-${address.id}`}
+          name={`address-radio-${address.id}`}
+          checked={checked}
+          onChange={() => this.changeAddressOption(address.id)}
+        >
+          <EditableBlock
+            isEditing={!_.isEmpty(this.state.addressToEdit)}
+            styleName="item-content"
+            title={title}
+            content={content}
+            editAction={() => this.editAddress(address)}
+          />
+        </RadioButton>
+      </li>
+    );
+  }
+
   renderAddresses() {
     const { inProfile } = this.props;
 
-    const items = _.map(this.props.addresses, (address, key) => {
+    const items = _.map(this.props.addresses, (address) => {
       const title = address.isDefault ? `${address.name} (Default)` : address.name;
-      const deletedClass = classNames({
-        [styles['deleted-content']]: address.isDeleted && inProfile,
-      });
-      const content = (
-        <AddressDetails
-          address={address}
-          hideName
-          className={deletedClass}
-        />
-      );
       const checked = address.id === this.state.activeAddressId;
-      const itemClasses = classNames(styles.item, {
-        [styles.chosen]: checked,
-      });
 
-      if (!inProfile) {
-        return (
-          <li className={itemClasses} key={`address-radio-${key}`}>
-            <RadioButton
-              id={`address-radio-${key}`}
-              name={`address-radio-${key}`}
-              checked={checked}
-              onChange={() => this.changeAddressOption(address.id)}
-            >
-              <EditableBlock
-                isEditing={!_.isEmpty(this.state.addressToEdit)}
-                styleName="item-content"
-                title={title}
-                content={content}
-                editAction={() => this.editAddress(address)}
-              />
-            </RadioButton>
-          </li>
-        );
+      if (inProfile) {
+        return this.getAddressInProfile(address, checked, title);
       }
 
-      const profileItemClasses = classNames(styles['profile-item'], {
-        [styles.chosen]: checked,
-      });
-      const itemTitle = address.isDeleted ? <span styleName="deleted-content">{title}</span> : title;
-
-      return (
-        <li className={profileItemClasses} key={`address-radio-${address.id}`}>
-          <RadioButton
-            id={`address-radio-${address.id}`}
-            name={`address-radio-${address.id}`}
-            checked={checked}
-            disabled={address.isDeleted}
-            onChange={() => this.changeAddressOption(address.id)}
-          >
-            <EditableBlock
-              styleName="item-content"
-              title={itemTitle}
-              content={content}
-              editAllowed={false}
-            />
-          </RadioButton>
-          {this.getActionsContent(address)}
-        </li>
-      );
+      return this.getAddress(address, checked, title);
     });
 
     const icon = {
