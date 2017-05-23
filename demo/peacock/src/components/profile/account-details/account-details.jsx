@@ -95,6 +95,7 @@ class AccountDetails extends Component {
           actionTitle="Edit"
           modalContent={this.nameModalContent}
           blockTitle="First and last name"
+          hideAction={!props.fetchAccountState}
         />
         <DetailsBlock
           data={this.emailData}
@@ -103,6 +104,7 @@ class AccountDetails extends Component {
           actionTitle="Edit"
           modalContent={this.emailModalContent}
           blockTitle="Email"
+          hideAction={!props.fetchAccountState}
         />
         <DetailsBlock
           toggleModal={props.togglePasswordModal}
@@ -110,6 +112,7 @@ class AccountDetails extends Component {
           actionTitle="Change"
           modalContent={this.passwordModalContent}
           blockTitle="Password"
+          hideAction={!props.fetchAccountState}
         />
       </div>
     );
