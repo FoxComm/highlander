@@ -26,12 +26,19 @@ type Props = {
   clearOrder: () => void,
 };
 
+type State = {
+  orderFetched: boolean,
+};
+
 class Order extends Component {
   props: Props;
+  state: State = {
+    orderFetched: false,
+  };
 
   componentWillMount() {
     const { referenceNumber } = this.props;
-    this.props.fetchOrder(referenceNumber);
+    this.props.fetchOrder(referenceNumber).then(() => this.setState({ orderFetched: true }));
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -127,9 +134,10 @@ class Order extends Component {
   }
 
   get content() {
+    const { orderFetched } = this.state;
     const { fetchOrderState } = this.props;
 
-    if (!fetchOrderState) return <Loader />;
+    if (!orderFetched || !fetchOrderState) return <Loader />;
 
     return (
       <div>
