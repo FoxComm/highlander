@@ -556,8 +556,9 @@ case class LogActivity(implicit ac: AC) {
     Activities.log(MultipleCouponCodesGenerated(coupon, admin.map(buildUser(_))))
 
   /* Store Admin */
-  def storeAdminCreated(entity: User, admin: Option[User])(implicit ec: EC): DbResultT[Activity] =
-    Activities.log(StoreAdminCreated(entity, admin))
+  def storeAdminCreated(entity: User, admin: Option[User], code: Option[String])(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(StoreAdminCreated(entity, admin, code))
 
   def storeAdminUpdated(entity: User, admin: User)(implicit ec: EC): DbResultT[Activity] =
     Activities.log(StoreAdminUpdated(entity, admin))

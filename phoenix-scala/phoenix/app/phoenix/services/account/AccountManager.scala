@@ -6,6 +6,7 @@ import failures.NotFoundFailure404
 import phoenix.failures.UserFailures._
 import java.time.Instant
 import phoenix.models.account._
+import phoenix.models.admin.{AdminData, AdminsData}
 import phoenix.models.customer.CustomersData
 import phoenix.responses.UserResponse._
 import phoenix.services._
@@ -39,13 +40,9 @@ object AccountManager {
       _ ← * <~ LogActivity().userBlacklisted(blacklisted, user, actor)
     } yield build(updated)
 
-  def resetPasswordSend(
-      email: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[ResetPasswordSendAnswer] =
+  def sendResetPassword(user: User, email: String)(implicit ec: EC,
+                                                   db: DB): DbResultT[UserPasswordReset] =
     for {
-      user ← * <~ Users
-              .activeUserByEmail(Option(email))
-              .mustFindOneOr(NotFoundFailure404(User, email))
-
       isGuestMaybe ← * <~
                       CustomersData.findOneByAccountId(user.accountId).map(_.map(_.isGuest))
       _ ← * <~ failIf(isGuestMaybe.getOrElse(false), ResetPasswordsForbiddenForGuests)
@@ -63,7 +60,16 @@ object AccountManager {
                               UserPasswordResets.update(resetPw, resetPw.updateCode())
                             case Created ⇒ DbResultT.good(resetPw)
                           })
-      _ ← * <~ LogActivity().userRemindPassword(user, updatedResetPw.code)
+    } yield updatedResetPw
+
+  def resetPasswordSend(
+      email: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[ResetPasswordSendAnswer] =
+    for {
+      user ← * <~ Users
+              .activeUserByEmail(Option(email))
+              .mustFindOneOr(NotFoundFailure404(User, email))
+      updatedResetPw ← * <~ sendResetPassword(user, email)
+      _              ← * <~ LogActivity().userRemindPassword(user, updatedResetPw.code)
     } yield ResetPasswordSendAnswer(status = "ok")
 
   def resetPassword(
@@ -83,9 +89,13 @@ object AccountManager {
       _ ← * <~ UserPasswordResets.update(remind,
                                          remind.copy(state = UserPasswordReset.PasswordRestored,
                                                      activatedAt = Instant.now.some))
-      updatedAccess ← * <~ AccountAccessMethods.update(accessMethod,
-                                                       accessMethod.updatePassword(newPassword))
-      _ ← * <~ LogActivity().userPasswordReset(user)
+      _ ← * <~ AccountAccessMethods.update(accessMethod, accessMethod.updatePassword(newPassword))
+      adminCreated ← * <~ AdminsData
+                      .findByAccountId(account.id)
+                      .filter(_.state === (AdminData.Invited: AdminData.State))
+                      .one
+      _ ← * <~ adminCreated.map(ad ⇒ AdminsData.update(ad, ad.copy(state = AdminData.Active)))
+      _ ← * <~ doOrMeh(adminCreated.isEmpty, LogActivity().userPasswordReset(user))
     } yield ResetPasswordDoneAnswer(status = "ok")
   }
 

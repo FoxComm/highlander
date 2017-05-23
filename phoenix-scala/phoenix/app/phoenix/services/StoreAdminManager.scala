@@ -43,8 +43,12 @@ object StoreAdminManager {
                                userId = admin.id,
                                state = AdminData.Invited,
                                scope = scope))
+      pwReset ← * <~ doOrGood(
+                   payload.password.isEmpty,
+                   AccountManager.sendResetPassword(admin, payload.email).map(Option(_)),
+                   None)
 
-      _ ← * <~ LogActivity().storeAdminCreated(admin, author)
+      _ ← * <~ LogActivity().storeAdminCreated(admin, author, pwReset.map(_.code))
     } yield StoreAdminResponse.build(admin, adminUser)
   }
 
@@ -68,6 +72,7 @@ object StoreAdminManager {
       _ ← * <~ AdminsData
            .deleteById(adminUser.id, DbResultT.unit, i ⇒ NotFoundFailure404(AdminData, i))
       admin  ← * <~ Users.mustFindByAccountId(accountId)
+      _      ← * <~ UserPasswordResets.filter(_.accountId === accountId).delete
       result ← * <~ Users.deleteById(admin.id, DbResultT.unit, i ⇒ NotFoundFailure404(User, i))
       _      ← * <~ AccountAccessMethods.findByAccountId(accountId).delete
       _      ← * <~ AccountRoles.findByAccountId(accountId).delete

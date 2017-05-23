@@ -74,6 +74,15 @@
                            :template_content []
                            :message template}))
 
+(defn extract-password-link
+  [activity]
+  (let [reset-code (get-in activity [:data "code"])
+        reset-pw-link (format (settings/get :reset_password_link_format) reset-code)
+        full-reset-password-link (format "%s/%s" (settings/get :shop_base_url) reset-pw-link)]
+
+    {:reset_password_link full-reset-password-link
+     :reset_code reset-code}))
+
 
 (defn dispatch-activity
   [activity]
@@ -161,14 +170,11 @@
 (defmethod handle-activity :user_remind_password
   [activity]
   (let [email (get-in activity [:data "user" "email"])
-              reset-code (get-in activity [:data "code"])
-              reset-pw-link (format (settings/get :reset_password_link_format) reset-code)
-              full-reset-password-link (format "%s/%s" (settings/get :shop_base_url) reset-pw-link)
-              customer-name (get-in activity [:data "user" "name"])]
+        reset-pw (extract-password-link activity)
+        customer-name (get-in activity [:data "user" "name"])]
        (send-template! (settings/get :customer_remind_password_template)
            (gen-msg [{:email email :name customer-name}]
-               {:reset_password_link full-reset-password-link
-                :reset_code reset-code}
+               reset-pw
                {:subject (settings/get :customer_remind_password_subject)}))))
 
 
@@ -243,10 +249,13 @@
         email (get-in data ["storeAdmin" "email"])
         new-admin-name (get-in data ["storeAdmin" "name"])
         store-admin-name (get-in data ["admin" "name"])
+        reset-pw (extract-password-link activity)
         msg (gen-msg [{:email email :name new-admin-name}]
+                     (merge
                      {:user_being_invited new-admin-name
                       :name_of_retailer (settings/get :retailer_name)
                       :user_that_invited_you store-admin-name}
+                      reset-pw)
 
                      {:subject (settings/get :admin_invitation_subject)})]
 
