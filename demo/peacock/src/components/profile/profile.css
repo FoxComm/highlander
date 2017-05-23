@@ -30,21 +30,6 @@
   margin-top: 50px;
 }
 
-.link-button {
-  composes: button from "ui/css/buttons.css";
-  border: 1px solid var(--link-color);
-  background-color: var(--body-background);
-  font-size: 13px;
-  font-weight: 300;
-  color: var(--text-color);
-  text-transform: uppercase;
-
-  &:hover {
-    border: 1px solid var(--link-hover-color);
-    color: var(--body-background)
-  }
-}
-
 .divider {
   height: 1px;
   width: 100%;
@@ -70,45 +55,6 @@
   margin-right: 8px;
 }
 
-.subtitle {
-  font-family: var(--font-main);
-  font-weight: 500;
-  font-size: 14px;
-  color: var(--text-color);
-  line-height: 20px;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-
-.value {
-  font-family: var(--font-main);
-  font-weight: 300;
-  font-size: 13px;
-  color: var(--text-color);
-  line-height: 20px;
-}
-
-.buttons-footer {
-  margin: 30px 0 10px;
-  display: flex;
-  align-items: center;
-
-  & > .link, & > button {
-    &:not(:first-child) {
-      margin-left: 30px;
-    }
-  }
-}
-
-.save-button {
-  text-transform: uppercase;
-  width: 100px;
-}
-
-.form-field {
-  margin-bottom: 10px;
-}
-
 .orders-table {
   font-size: 12px;
 }
@@ -128,16 +74,6 @@
   &.total {
     font-weight: 900;
   }
-}
-
-.order-service {
-  & tr:first-child {
-    border-bottom: 0 none;
-  }
-}
-
-.delivery-name {
-  padding-bottom: 10px;
 }
 
 .order-summary,
@@ -166,10 +102,6 @@
 
 .promo-line {
   padding-bottom: 10px;
-}
-
-.shipping-row {
-  flex-grow: 1;
 }
 
 .details-block {

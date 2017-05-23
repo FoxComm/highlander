@@ -13,7 +13,7 @@ import styles from '../profile.css';
 type Props = {
   order: Object,
   showDetailsLink: boolean,
-  handleViewDetails: (order: Object) => void,
+  handleViewDetails: (order: string) => void,
 };
 
 const OrderRow = (props: Props) => {
