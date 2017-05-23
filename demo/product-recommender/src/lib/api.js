@@ -52,7 +52,7 @@ function createApi(options) {
 }
 
 export const api = createApi({
-  api_url: isServer ? `${process.env.API_URL}/api` : `${env.API_URL}/api`,
+  api_url: isServer ? `${process.env.API_URL}/api` : env.API_URL ? `${env.API_URL}/api` : '/api',
 });
 
 export const nodeApi = createApi({
