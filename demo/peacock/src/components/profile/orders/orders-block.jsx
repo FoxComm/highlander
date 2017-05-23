@@ -128,7 +128,10 @@ class OrdersBlock extends Component {
     );
   }
 
-  render() {
+  get body() {
+    const { orders } = this.props;
+    if (_.isEmpty(orders)) return null;
+
     return (
       <div>
         <div styleName="title">My orders</div>
@@ -136,6 +139,11 @@ class OrdersBlock extends Component {
         {this.content}
         {this.orderdDetailsModal}
       </div>
+    );
+  }
+  render() {
+    return (
+      this.body
     );
   }
 }
