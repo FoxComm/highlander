@@ -31,6 +31,7 @@ type ActionDetails = {
     className: string,
   },
 };
+
 type Props = {
   fetchAddresses: () => Promise<*>,
   addresses: Array<Address>,
