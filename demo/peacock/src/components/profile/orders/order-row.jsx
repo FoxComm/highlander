@@ -1,7 +1,7 @@
 /* @flow */
 
 // libs
-import React, { Element } from 'react';
+import React from 'react';
 import moment from 'moment';
 import { stateTitles } from 'paragons/order';
 
@@ -12,12 +12,11 @@ import styles from '../profile.css';
 
 type Props = {
   order: Object,
-  showDetailsLink: boolean,
   handleViewDetails: (order: string) => void,
 };
 
 const OrderRow = (props: Props) => {
-  const { showDetailsLink, handleViewDetails } = props;
+  const { handleViewDetails } = props;
 
   const convertOrderData = (orderDetails: Object): Object => {
     if (!orderDetails.grandTotal) {
@@ -33,18 +32,6 @@ const OrderRow = (props: Props) => {
   };
 
   const order = convertOrderData(props.order);
-
-  const getDetailsColumn = (): Element<*> | null => {
-    if (showDetailsLink) {
-      return (
-        <div styleName="action-link" onClick={() => handleViewDetails(order.referenceNumber)}>
-          Details
-        </div>
-      );
-    }
-
-    return null;
-  };
 
   return (
     <div styleName="order-row">
@@ -66,7 +53,9 @@ const OrderRow = (props: Props) => {
           currency={order.currency}
         />
       </div>
-      {getDetailsColumn()}
+      <div styleName="action-link" onClick={() => handleViewDetails(order.referenceNumber)}>
+        Details
+      </div>
     </div>
   );
 };
