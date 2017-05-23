@@ -11,6 +11,7 @@ import EditEmail from './edit-email';
 import EditName from './edit-name';
 import ChangePassword from './change-password';
 import DetailsBlock from '../details-block';
+import Loader from 'ui/loader';
 
 // actions
 import * as actions from 'modules/profile';
@@ -33,14 +34,22 @@ class AccountDetails extends Component {
   }
 
   get nameModalContent() {
+    const { account } = this.props;
+
     return (
-      <EditName />
+      <EditName
+        name={account.name}
+      />
     );
   }
 
   get emailModalContent() {
+    const { account } = this.props;
+
     return (
-      <EditEmail />
+      <EditEmail
+        email={account.email}
+      />
     );
   }
 
@@ -54,12 +63,28 @@ class AccountDetails extends Component {
     );
   }
 
+  get nameData() {
+    const { account, fetchAccountState } = this.props;
+
+    if (!fetchAccountState) return <Loader size="m" />;
+
+    return account.name;
+  }
+
+  get emailData() {
+    const { account, fetchAccountState } = this.props;
+
+    if (!fetchAccountState) return <Loader size="m" />;
+
+    return account.email;
+  }
+
   render() {
     const { props } = this;
     return (
       <div className={props.className}>
         <DetailsBlock
-          data={props.account.name}
+          data={this.nameData}
           toggleModal={props.toggleNameModal}
           modalVisible={props.nameModalVisible}
           actionTitle="Edit"
@@ -67,7 +92,7 @@ class AccountDetails extends Component {
           blockTitle="First and last name"
         />
         <DetailsBlock
-          data={props.account.email}
+          data={this.emailData}
           toggleModal={props.toggleEmailModal}
           modalVisible={props.emailModalVisible}
           actionTitle="Edit"
@@ -92,6 +117,7 @@ const mapStateToProps = (state) => {
     nameModalVisible: _.get(state.profile, 'nameModalVisible', false),
     emailModalVisible: _.get(state.profile, 'emailModalVisible', false),
     passwordModalVisible: _.get(state.profile, 'passwordModalVisible', false),
+    fetchAccountState: _.get(state.asyncActions, 'fetchAccount.finished', false),
   };
 };
 
