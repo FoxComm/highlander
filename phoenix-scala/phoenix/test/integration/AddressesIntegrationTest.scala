@@ -1,5 +1,6 @@
 import cats.implicits._
 import failures.NotFoundFailure404
+import phoenix.failures.AddressFailures.NoRegionFound
 import phoenix.models.account._
 import phoenix.models.cord.OrderShippingAddresses
 import phoenix.models.location.{Address, Addresses, Country, Region}
@@ -191,26 +192,16 @@ class AddressesIntegrationTest
   }
 
   "GET region by short name" - {
-    "Make sure that we have region short name provided" in {
-      publicApi.getRegionByShortName("CO").as[Seq[Region]].map { region ⇒
-        (region.abbreviation, region.name)
-      } must === (
-          List(
-              ("CO".some, "Colorado")
-          ))
+    "Must return existed region for a given short name" in {
+      publicApi.getRegionByShortName("CO").as[Region].name must === ("Colorado")
     }
 
-    "Make sure that we it works for lower case short name input" in {
-      publicApi.getRegionByShortName("mo").as[Seq[Region]].map { region ⇒
-        (region.abbreviation, region.name)
-      } must === (
-          List(
-              ("MO".some, "Missouri")
-          ))
+    "Make sure that it works for lower case input" in {
+      publicApi.getRegionByShortName("mo").as[Region].name must === ("Missouri")
     }
 
     "Should not contain absent or non-existent regions" in {
-      publicApi.getRegionByShortName("xx").as[Seq[Region]] mustBe empty
+      publicApi.getRegionByShortName("xx").mustFailWith400(NoRegionFound("xx"))
     }
 
   }

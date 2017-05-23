@@ -71,8 +71,8 @@ object Public {
             }
           } ~
           (get & path(Region.regionCodeRegex) & pathEnd) { shortName ⇒
-            good {
-              listRegionsByShortName(shortName)
+            getOrFailures {
+              findRegionByShortName(shortName)
             }
           }
         } ~

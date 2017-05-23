@@ -3,7 +3,7 @@
 + Request (application/json)
    + Attributes (LoginPayload)
 + Response 200 (application/json)
-    + Attributes (LoginResponse)
+   + Attributes (LoginResponse)
 
 ### Logout [POST /v1/public/logout]
 
@@ -24,10 +24,10 @@
     + Attributes (array[Region])
 
 
-### Search (US) regions by their short name [GET /v1/public/regions/{regionShortName}]
+### Get (US) region by a short name [GET /v1/public/regions/{regionShortName}]
 
 + Include BaseCountry
 + Attribute
    + regionShortName:`default` (required, string) - Region short name (2-letters)
 + Response 200 (application/json)
-    + Attributes (array[Region])
+    + Attributes (Region)

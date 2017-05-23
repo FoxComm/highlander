@@ -32,4 +32,7 @@ object Regions
     extends FoxTableQuery[Region, Regions](new Regions(_))
     with ReturningId[Region, Regions] {
   val returningLens: Lens[Region, Int] = lens[Region].id
+
+  def findOneByShortName(regionShortName: String) =
+    filter(_.abbreviation.toUpperCase === regionShortName.toUpperCase)
 }
