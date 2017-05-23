@@ -11,9 +11,11 @@ import org.scalatest.SuiteMixin
 import phoenix.models.promotion.Promotion
 import phoenix.payloads.CouponPayloads.CreateCoupon
 import phoenix.payloads.ProductPayloads.CreateProductPayload
+import phoenix.payloads.ProductReviewPayloads.CreateProductReviewPayload
 import phoenix.payloads.SkuPayloads.SkuPayload
 import phoenix.responses.CouponResponses.CouponResponse
 import phoenix.responses.ProductResponses.ProductResponse.{Root ⇒ ProductRoot}
+import phoenix.responses.ProductReviewResponses.ProductReviewResponse
 import phoenix.responses.PromotionResponses.PromotionResponse
 import phoenix.responses.SkuResponses.SkuResponse
 import phoenix.utils.aliases.Json
@@ -23,9 +25,6 @@ import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
 
 import scala.util.Random
-
-import payloads.ProductReviewPayloads.CreateProductReviewPayload
-import responses.ProductReviewResponses.ProductReviewResponse
 
 trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with JwtTestAuth {
   self: FoxSuite ⇒
