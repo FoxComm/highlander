@@ -9,10 +9,10 @@ export function lookupAddressId(addresses: Array<Address>, address: ?Address): n
   let addressId = null;
 
   if (address) {
-    const sample = _.omit(address, 'id');
+    const sample = _.omit(address, 'id', 'isDefault');
 
     _.some(addresses, (nextAddress) => {
-      if (_.isEqual(_.omit(nextAddress, 'id'), sample)) {
+      if (_.isEqual(_.omit(nextAddress, 'id', 'isDefault'), sample)) {
         addressId = nextAddress.id;
         return true;
       }

@@ -9,7 +9,7 @@ import { autobind } from 'core-decorators';
 
 // components
 import { AddressDetails } from 'ui/address';
-import AddressList from './address-list';
+import AddressList from 'ui/address/address-list';
 import Modal from 'ui/modal/modal';
 import ActionLink from 'ui/action-link/action-link';
 import Loader from 'ui/loader';
@@ -37,6 +37,7 @@ type Props = {
   toggleShippingModal: Function,
   shippingModalVisible: boolean,
   saveShippingState: AsyncStatus,
+  updateAddressState: AsyncStatus,
   cartChangeState: AsyncStatus,
   updateAddress: (address: Address, id?: number) => Promise<*>,
   auth: ?Object,
@@ -123,7 +124,15 @@ class Shipping extends Component {
             show={shippingModalVisible}
             toggle={toggleShippingModal}
           >
-            <AddressList {...this.props} activeAddress={shippingAddress} />
+            <AddressList
+              activeAddress={shippingAddress}
+              actionTitle="Close"
+              actionHandler={this.props.toggleShippingModal}
+              applyAction={this.props.saveShippingAddress}
+              saveState={this.props.saveShippingState}
+              buttonLabel="Apply"
+              {...this.props}
+            />
           </Modal>
         </div>
       );
