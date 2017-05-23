@@ -47,7 +47,7 @@ trait FormAndShadow {
            shadow.copy(attributes = newShadowAttributes))
   }
 
-  def projectAttributes(): Json =
+  def projectAttributes(): JValue =
     IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes)
 
   def update(form: ObjectForm, shadow: ObjectShadow): FormAndShadow

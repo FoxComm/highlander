@@ -2,13 +2,13 @@ package gatling.seeds.requests
 
 import java.time.{Instant, LocalDateTime, ZoneId}
 
-import scala.util.Random
-
 import faker.Lorem
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import payloads.PaymentPayloads._
+import phoenix.payloads.PaymentPayloads._
+
+import scala.util.Random
 
 object CreditCards {
 
