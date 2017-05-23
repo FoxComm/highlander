@@ -24,6 +24,7 @@ type Props = AccountDetailsProps & {
   fetchAccount: () => Promise<*>,
   updateAccount: (payload: Object) => Promise<*>,
   updateState: AsyncStatus,
+  email: string,
 }
 
 type State = {
@@ -34,15 +35,17 @@ class EditEmail extends Component {
   props: Props;
 
   state: State = {
-    email: this.props.account.email || '',
+    email: this.props.email || '',
   };
-
-  componentWillMount() {
-    this.props.fetchAccount();
-  }
 
   componentWillUnmount() {
     this.props.clearAccountErrors();
+  }
+
+  componentWillReceiveProps(nextProps: props) {
+    if (this.props.email !== nextProps.email) {
+      this.setState({ email: nextProps.email });
+    }
   }
 
   @autobind
@@ -64,7 +67,7 @@ class EditEmail extends Component {
 
   @autobind
   handleCancel() {
-    const email = this.props.account.email;
+    const email = this.props.email;
     this.setState({ email });
     this.props.toggleEmailModal();
     this.props.clearAccountErrors();
@@ -105,7 +108,6 @@ class EditEmail extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    account: state.profile.account,
     updateState: _.get(state.asyncActions, 'updateAccount', {}),
   };
 };

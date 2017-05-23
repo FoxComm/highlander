@@ -26,6 +26,7 @@ type Props = AccountDetailsProps & {
   updateAccount: (payload: Object) => Promise<*>,
   updateState: AsyncStatus,
   clearErrorsFor: (...args: Array<string>) => void,
+  name: string,
 }
 
 type State = {
@@ -36,11 +37,13 @@ class EditName extends Component {
   props: Props;
 
   state: State = {
-    name: this.props.account.name || '',
+    name: this.props.name || '',
   };
 
-  componentWillMount() {
-    this.props.fetchAccount();
+  componentWillReceiveProps(nextProps: props) {
+    if (this.props.name !== nextProps.name) {
+      this.setState({ name: nextProps.name });
+    }
   }
 
   componentWillUnmount() {
@@ -66,7 +69,7 @@ class EditName extends Component {
 
   @autobind
   handleCancel() {
-    const name = this.props.account.name;
+    const name = this.props.name;
     this.setState({ name });
     this.props.toggleNameModal();
     this.props.clearAccountErrors();
@@ -77,6 +80,7 @@ class EditName extends Component {
       title: 'Cancel',
       handler: this.handleCancel,
     };
+
     return (
       <CheckoutForm
         submit={this.handleSave}
@@ -106,7 +110,6 @@ class EditName extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    account: state.profile.account,
     updateState: _.get(state.asyncActions, 'updateAccount', {}),
   };
 };
