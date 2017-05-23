@@ -24,6 +24,9 @@ import { Checkbox } from 'components/core/checkbox'
   <div>
     <Checkbox.Checkbox>not checked</Checkbox.Checkbox>
   </div>
+  <div>
+      <Checkbox.Checkbox disabled>disabled</Checkbox.Checkbox>
+  </div>
 </div>
 ```
 
@@ -46,7 +49,7 @@ import { PartialCheckbox } from 'components/core/checkbox'
   </div>
   <div>
       <Checkbox.PartialCheckbox disabled>disabled</Checkbox.PartialCheckbox>
-    </div>
+  </div>
 </div>
 ```
 

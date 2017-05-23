@@ -25,7 +25,8 @@ type Props = {
 };
 
 /**
- * Checkbox, PartialCheckbox and SliderCheckbox - are simple components build on the top of generic DefaultCheckbox
+ * *Checkbox*, *PartialCheckbox*, *BigCheckbox* and *SliderCheckbox* -
+ * are simple components build on the top of generic DefaultCheckbox
  * and serve to show true/false data
  *
  * [Mockups](https://zpl.io/Z39JBU)
