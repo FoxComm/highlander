@@ -35,9 +35,38 @@ import { PartialCheckbox } from 'components/core/checkbox'
 
 ```
 <div className='demo'>
-  <Checkbox.PartialCheckbox checked>checked</Checkbox.PartialCheckbox>
-  <Checkbox.PartialCheckbox checked halfChecked>partially checked</Checkbox.PartialCheckbox>
-  <Checkbox.PartialCheckbox>not checked</Checkbox.PartialCheckbox>
+  <div>
+    <Checkbox.PartialCheckbox checked>checked</Checkbox.PartialCheckbox>
+  </div>
+  <div>
+    <Checkbox.PartialCheckbox checked halfChecked>partially checked</Checkbox.PartialCheckbox>
+  </div>
+  <div>
+    <Checkbox.PartialCheckbox>not checked</Checkbox.PartialCheckbox>
+  </div>
+  <div>
+      <Checkbox.PartialCheckbox disabled>disabled</Checkbox.PartialCheckbox>
+    </div>
+</div>
+```
+
+### BigCheckbox
+
+```javascript
+import { BigCheckbox } from 'components/core/checkbox'
+```
+
+```
+<div className='demo'>
+  <div>
+    <Checkbox.BigCheckbox checked>checked</Checkbox.BigCheckbox>
+  </div>
+  <div>
+    <Checkbox.BigCheckbox>not checked</Checkbox.BigCheckbox>
+  </div>
+  <div>
+    <Checkbox.BigCheckbox disabled>disabled</Checkbox.BigCheckbox>
+  </div>
 </div>
 ```
 

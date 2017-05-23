@@ -61,13 +61,24 @@ export const PartialCheckbox = (props: Props) => {
   );
 
   return (
-    <Checkbox { ...props } className={ className }/>
+    <Checkbox { ...props } className={ className } />
   );
 };
 
 PartialCheckbox.defaultProps = {
   halfChecked: false,
   checked: false,
+};
+
+export const BigCheckbox = (props: Props) => {
+  const className = classNames(
+    s.bigCheckbox,
+    props.className
+  );
+  return (
+    <DefaultCheckbox {...props}
+      className={ className } />
+  );
 };
 
 export const SliderCheckbox = (props: Props) => {
@@ -77,7 +88,7 @@ export const SliderCheckbox = (props: Props) => {
   );
 };
 
-const DefaultCheckbox = (props: Props)=> {
+export const DefaultCheckbox = (props: Props) => {
   const { className, children, id, ...rest } = props;
 
   const labelCls = classNames(s.checkbox, {[s.label]: true });

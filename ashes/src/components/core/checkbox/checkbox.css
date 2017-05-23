@@ -3,7 +3,6 @@
 
   &.label {
     padding-left: 7px;
-    line-height: 24px;
   }
 
   &.halfChecked {
@@ -60,6 +59,7 @@
   & input[type=checkbox]:hover + label:before {
     border-color: #3a4350;
     background: #ffffff;
+    cursor: pointer;
   }
 
   & input[type=checkbox]:checked + label:before {
@@ -78,6 +78,7 @@
   & input[type=checkbox]:checked:hover + label:before {
     border-color: #828e9f;
     background: #828e9f;
+    cursor: pointer;
   }
 
   & input[type=checkbox][disabled] + label:before {
@@ -169,5 +170,32 @@
       color: transparent;
       left: 51px;
     }
+  }
+}
+
+.bigCheckbox {
+  composes: checkbox;
+
+  & input[type=checkbox] + label:before {
+    width: 40px;
+    height: 40px;
+    margin: 0;
+  }
+
+  & input[type=checkbox]:checked + label:before {
+    font-family: "fontello";
+    content: "\e827";
+    border: 2px solid #3a4350;
+    border-radius: 3px;
+    background: #3a4350;
+    font-size: 24px;
+    line-height: 36px;
+    text-align: center;
+    font-weight: 400;
+    color: #ffffff;
+  }
+
+  & input[type=checkbox] + label {
+    line-height: 40px;
   }
 }
