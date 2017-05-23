@@ -1,6 +1,8 @@
 node_modules
 build
 server/.env
+lib
+public/admin
 
 # Logs
 logs
