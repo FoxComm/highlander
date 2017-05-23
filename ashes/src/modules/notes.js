@@ -2,8 +2,7 @@ import _ from 'lodash';
 import Api from '../lib/api';
 import reduceReducers from 'reduce-reducers';
 import { createAction, createReducer } from 'redux-act';
-import { assoc, dissoc, update, get } from 'sprout-data';
-import { updateItems } from './state-helpers';
+import { assoc, dissoc, update } from 'sprout-data';
 import makeLiveSearch from './live-search';
 import processQuery from '../elastic/notes';
 
