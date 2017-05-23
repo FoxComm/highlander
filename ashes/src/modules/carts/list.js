@@ -17,7 +17,7 @@ const { reducer, actions } = makeLiveSearch(
       ]);
     },
     initialState: { sortBy: '-createdAt' },
-    rawSorts: ['customer.name', 'customer.email']
+    rawSorts: ['customer.name', 'customer.email'],
   }
 );
 

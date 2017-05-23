@@ -23,6 +23,7 @@ import phoenix.models.sharedsearch.SharedSearch
 import phoenix.models.shipping.Shipment
 import phoenix.models.{Assignment, Note, Reason}
 import phoenix.payloads.AuthPayload
+import phoenix.payloads.EntityExportPayloads._
 import phoenix.payloads.ReturnPayloads.ReturnLineItemPayload
 import phoenix.responses.PublicResponses.CountryWithRegions
 import utils.Money
@@ -86,7 +87,9 @@ object JsonFormatters {
       IdentityKind.jsonFormat + AdminData.State.jsonFormat + PluginSettings.SettingType.jsonFormat +
       CustomerGroup.GroupType.jsonFormat +
       AuthPayload.JwtClaimsSerializer + LTreeFormat +
-      ReturnLineItemPayload.typeHints + PaymentMethod.Type.jsonKeyFormat
+      ReturnLineItemPayload.typeHints + PaymentMethod.Type.jsonKeyFormat +
+      ExportableEntity.jsonFormat + ExportEntity.Type.jsonFormat +
+      ExportEntity.typeHints + RawSortDefinition.jsonFormat
 
   object LTreeFormat
       extends CustomSerializer[LTree](format ⇒

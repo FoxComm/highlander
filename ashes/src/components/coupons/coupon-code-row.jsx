@@ -1,4 +1,3 @@
-
 /* @flow */
 
 import React, { Element } from 'react';
@@ -9,7 +8,7 @@ import MultiSelectRow from '../table/multi-select-row';
 
 type CouponCodeRowProps = {
   couponCode: Object,
-  columns: Array<string>,
+  columns: Columns,
   params: Object,
 };
 

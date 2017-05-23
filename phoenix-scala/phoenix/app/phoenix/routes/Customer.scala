@@ -2,6 +2,7 @@ package phoenix.routes
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+import phoenix.models.location.Country
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import phoenix.models.cord.Cord.cordRefNumRegex
 import phoenix.models.inventory.Sku.skuCodeRegex
@@ -146,6 +147,11 @@ object Customer {
                 (get & pathEnd) {
                   getOrFailures {
                     ShippingManager.getShippingMethodsForCart(auth.model)
+                  }
+                } ~
+                (get & path(Country.countryCodeRegex) & pathEnd) { countryCode ⇒
+                  getOrFailures {
+                    ShippingManager.getShippingMethodsForRegion(countryCode)
                   }
                 }
               } ~
