@@ -1,0 +1,13 @@
+---
+
+- name: Create Middlewarehouse Seeder directory
+  file: path="{{middlewarehouse_dir}}/seeder" state=directory
+
+- name: Copy Middlewarehouse Seeder .env
+  template: src=middlewarehouse.env dest="{{middlewarehouse_dir}}/seeder/.env"
+
+- name: Get Latest Middlewarehouse Image
+  shell: docker pull {{docker_registry}}:5000/middlewarehouse-seeder:{{docker_tags.middlewarehouse}}
+
+- name: Run Middlewarehouse Seeder docker container
+  command: docker run -d={{detach}} --env-file "{{middlewarehouse_dir}}/seeder/.env" --network host {{docker_registry}}:5000/middlewarehouse-seeder:{{docker_tags.middlewarehouse}}

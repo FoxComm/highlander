@@ -8,9 +8,6 @@
     first_run: true
     is_appliance: true
     is_amigo: true
-    with_mwh_seeder: true
-    with_hyperion_seeder: true
-    with_data_import: true
     dns_record: "{{hostname}}"
     appliance_hostname: "{{dns_record}}.foxcommerce.com"
     api_server: "{{dns_record}}.foxcommerce.com"

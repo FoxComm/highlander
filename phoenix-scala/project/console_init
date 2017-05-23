@@ -2,13 +2,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 
 import phoenix.models._
 import phoenix.models.activity.ActivityContext
 import phoenix.models.account.{AccountAccessMethod, Scope, Scopes}
-import services.account.AccountCreateContext
-import services.Authenticator
+import phoenix.services.account.AccountCreateContext
+import phoenix.services.Authenticator
+import phoenix.utils.FoxConfig
 import utils.db._
 
 final implicit class ConsoleEnrichedFuture[A](val future: Future[A]) extends AnyVal {
@@ -16,7 +17,7 @@ final implicit class ConsoleEnrichedFuture[A](val future: Future[A]) extends Any
 }
 
 
-val (_, config: com.typesafe.config.Config) = utils.FoxConfig.loadConfigWithEnv().get
+val (_, config: com.typesafe.config.Config) = FoxConfig.loadConfigWithEnv().get
 implicit val db = Database.forConfig("db", config)
 
 val customerCreateContext        = AccountCreateContext(List("admin"), "tenant", 1)

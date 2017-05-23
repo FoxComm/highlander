@@ -19,7 +19,7 @@ lazy val phoenix = (project in file("phoenix"))
       import Dependencies._
       akka ++ http ++ auth ++ json4s ++ fasterxml ++ apis ++ logging ++ test ++ misc ++ kafka
     },
-    (mainClass in Compile) := Some("server.Main"),
+    (mainClass in Compile) := Some("phoenix.server.Main"),
     // TODO @anna move the rest of location settings to common when tests are moved into subprojects
     scalaSource in Test    := baseDirectory.value / "test" / "unit",
     scalaSource in IT      := baseDirectory.value / "test" / "integration",
@@ -27,6 +27,8 @@ lazy val phoenix = (project in file("phoenix"))
     resourceDirectory in Test    := baseDirectory.value / "test" / "resources",
     resourceDirectory in IT      := (resourceDirectory in Test).value,
     resourceDirectory in ET      := (resourceDirectory in Test).value,
+    initialCommands in console := fromFile("project/console_init").getLines.mkString("\n"),
+    initialCommands in (Compile, consoleQuick) := "",
     test := Def.sequential(compile in Test, compile in IT, compile in ET,
                            test    in Test, test    in IT, test    in ET).value,
     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
@@ -48,11 +50,10 @@ lazy val root = (project in file("."))
   .settings(commonSettings)
   .settings(
     name := "phoenix-scala",
-    initialCommands in console := fromFile("project/console_init").getLines.mkString("\n"),
-    initialCommands in (Compile, consoleQuick) := "",
     writeVersion := sh.toTask(fromFile("project/write_version").getLines.mkString).value,
     unmanagedResources in Compile += file("version"),
-    addCommandAlias("all", "; clean; phoenix/it:compile; test; assembly")
+    addCommandAlias("all", "; clean; phoenix/it:compile; test; assembly"),
+    addCommandAlias("console", "phoenix/console")
   )
 
 lazy val seeder = (project in file("seeder"))
