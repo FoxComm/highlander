@@ -4,6 +4,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.github.tminglei.slickpg.LTree
 import phoenix.models.Reason.reasonTypeRegex
+import phoenix.models.location.Region
 import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
 import phoenix.services.PublicService._
 import phoenix.services.account.AccountCreateContext
@@ -67,6 +68,11 @@ object Public {
           (get & pathEnd) {
             good {
               listRegions
+            }
+          } ~
+          (get & path(Region.regionCodeRegex) & pathEnd) { shortName ⇒
+            good {
+              listRegionsByShortName(shortName)
             }
           }
         } ~

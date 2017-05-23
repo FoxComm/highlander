@@ -36,5 +36,8 @@ trait PhoenixPublicApi extends HttpSupport { self: FoxSuite ⇒
     def getCountryById(cId: Int): HttpResponse =
       GET(s"$rootPrefix/countries/$cId", jwtCookie = None)
 
+    def getRegionByShortName(shortName: String): HttpResponse =
+      GET(s"$rootPrefix/regions/$shortName", jwtCookie = None)
+
   }
 }

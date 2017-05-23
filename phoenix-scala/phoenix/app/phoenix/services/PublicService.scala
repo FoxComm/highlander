@@ -28,6 +28,14 @@ object PublicService {
   def listRegions(implicit ec: EC, db: DB): Future[Seq[Region]] =
     db.run(Regions.result.map(rs ⇒ sortRegions(rs.to[Seq])))
 
+  def listRegionsByShortName(regionShortName: String)(implicit ec: EC,
+                                                      db: DB): Future[Seq[Region]] =
+    db.run(
+        Regions
+          .filter(_.abbreviation.toUpperCase === regionShortName.toUpperCase)
+          .result
+          .map(_.to[Seq]))
+
   private def sortRegions(regions: Seq[Region]): Seq[Region] = {
     regions.filter(r ⇒ regularUsRegions.contains(r.id)).sortBy(_.name) ++
     regions.filter(r ⇒ armedRegions.contains(r.id)).sortBy(_.name) ++

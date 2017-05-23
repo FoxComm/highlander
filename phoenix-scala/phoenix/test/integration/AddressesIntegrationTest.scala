@@ -2,7 +2,7 @@ import cats.implicits._
 import failures.NotFoundFailure404
 import phoenix.models.account._
 import phoenix.models.cord.OrderShippingAddresses
-import phoenix.models.location.{Address, Addresses, Country}
+import phoenix.models.location.{Address, Addresses, Country, Region}
 import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import phoenix.responses.AddressResponse
 import phoenix.responses.PublicResponses.CountryWithRegions
@@ -188,6 +188,31 @@ class AddressesIntegrationTest
               ("MO".some, "Moscow Oblast")
           ))
     }
+  }
+
+  "GET region by short name" - {
+    "Make sure that we have region short name provided" in {
+      publicApi.getRegionByShortName("CO").as[Seq[Region]].map { region ⇒
+        (region.abbreviation, region.name)
+      } must === (
+          List(
+              ("CO".some, "Colorado")
+          ))
+    }
+
+    "Make sure that we it works for lower case short name input" in {
+      publicApi.getRegionByShortName("mo").as[Seq[Region]].map { region ⇒
+        (region.abbreviation, region.name)
+      } must === (
+          List(
+              ("MO".some, "Missouri")
+          ))
+    }
+
+    "Should not contain absent or non-existent regions" in {
+      publicApi.getRegionByShortName("xx").as[Seq[Region]] mustBe empty
+    }
+
   }
 
   trait ShippingAddressFixture extends EmptyCartWithShipAddress_Baked
