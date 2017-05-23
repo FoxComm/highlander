@@ -30,7 +30,7 @@ type State = {
   orderFetched: boolean,
 };
 
-class Order extends Component {
+class OrderDetails extends Component {
   props: Props;
   state: State = {
     orderFetched: false,
@@ -168,4 +168,4 @@ const mapStateToProps = (state) => {
 export default connect(mapStateToProps, {
   fetchOrder,
   clearOrder,
-})(Order);
+})(OrderDetails);
