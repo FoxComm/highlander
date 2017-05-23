@@ -24,13 +24,13 @@ server {
   }
   {% if storefront_fixed_language %}set $accept_language {{storefront_default_language}};{% endif %}
 
-  # Proxy to marketplace-ui
+  # Proxy to onboarding-ui
   location / {
-      proxy_pass http://marketplace-ui;
+      proxy_pass http://onboarding-ui;
   }
 
-  location @marketplace-ui {
-      proxy_pass http://marketplace-ui;
+  location @onboarding-ui {
+      proxy_pass http://onboarding-ui;
   }
 
   include /etc/nginx/service_locations.conf;

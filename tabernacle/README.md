@@ -21,6 +21,36 @@ All of our DevOps tools for deploying the application to both development and pr
 - [easy](https://github.com/kpashka/easy)
 - [shellcheck](https://www.shellcheck.net)
 
-### Description
+### Ansible Roles Hierarchy
 
-TBD.
+* [`app`](ansible/roles/app) - Roles related to developer appliance launch.
+* [`base`](ansible/roles/base) - Roles used during base images packing.
+* [`cloud`](ansible/roles/cloud) - Frozen attempt to build a FoxCommerce Cloud.
+* [`dev`](ansible/roles/dev) - Roles applied over `base` roles during instance runtime.
+* [`demo`](ansible/roles/demo) - Everything related to demo/showcase projects.
+* [`ext`](ansible/roles/ext) - Customer environment-specific roles.
+* [`hotfix`](ansible/roles/hotfix) - Roles that will be merge into `base` roles after repack.
+* [`ops`](ansible/roles/ops) - Roles requiring interactive input, usually applied manually.
+* [`prod`](ansible/roles/prod) - Roles that are usually applied to production systems.
+
+### Appliance Services Hierarchy
+
+* `consul_agent`
+    * `consul_template`
+    * `dashboard`
+    * `demo_consul_template`
+    * `zookeeper`
+        * `kafka`
+            * `schema_registry`
+        * `mesos_master`
+            * `marathon`
+        * `mesos_worker`
+* `elasticsearch`
+* `elasticseach_5`
+    * `kibana`
+* `postgresql`
+    * `bottledwater_phoenix`
+    * `bottledwater_middlewarehouse`
+    * `bottledwater_onboarding`
+    * `materialized_views`
+    * `pgweb`

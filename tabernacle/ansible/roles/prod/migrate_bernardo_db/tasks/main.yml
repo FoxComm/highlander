@@ -1,0 +1,25 @@
+---
+
+- name: Synchronize Bernardo SQL
+  synchronize: src="{{bernardo_src}}/sql" dest="{{bernardo_dir}}" delete=yes recursive=yes
+
+- name: Copy Flyway Config
+  template: src=flyway.conf.j2 dest="{{bernardo_dir}}/sql/flyway.conf"
+
+- name: Clean Flyway Schema
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
+  args:
+    chdir: "{{hyperion}}"
+  when: clean_flyway_bernardo in prompt_yes
+
+- name: Repair Flyway Schema
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} repair
+  args:
+    chdir: "{{bernardo_dir}}"
+  when: clean_flyway_bernardo not in prompt_yes
+
+- name: Migrate Database
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
+  become: true
+  args:
+    chdir: "{{bernardo_dir}}"

@@ -1,0 +1,27 @@
+{
+    "builders" : [
+        {
+            "name": "google",
+            "type": "googlecompute",
+            "account_file": "{{user `account_file`}}",
+            "project_id" : "{{user `project_id`}}",
+            "source_image": "{{user `base_ubuntu_image`}}",
+            "network": "{{user `network`}}",
+            "zone": "{{user `zone`}}",
+            "image_name": "ark-base-{{isotime \"060102-150405\"}}",
+            "image_description": "Ark Base Image",
+            "instance_name": "packer-ark-base-{{uuid}}",
+            "machine_type": "n1-standard-2",
+            "tags": ["ssh", "no-ip"],
+            "use_internal_ip": true,
+            "ssh_username" : "{{user `ssh_username`}}"
+        }
+    ],
+    "provisioners" : [
+        {
+            "type": "ansible",
+            "playbook_file" : "ansible/packer_ark_base.yml",
+            "extra_arguments": ["-v"]
+        }
+    ]
+}

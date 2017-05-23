@@ -1,16 +1,16 @@
 package gatling.seeds.requests
 
-import scala.util.Random
-
+import gatling.seeds.dbFeeder
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import models.Reason
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import payloads.GiftCardPayloads._
-import payloads.PaymentPayloads.GiftCardPayment
-import gatling.seeds.dbFeeder
+import phoenix.models.Reason
+import phoenix.payloads.GiftCardPayloads._
+import phoenix.payloads.PaymentPayloads.GiftCardPayment
 import utils.Money.Currency
 import utils.Strings._
+
+import scala.util.Random
 
 object GiftCards {
 
