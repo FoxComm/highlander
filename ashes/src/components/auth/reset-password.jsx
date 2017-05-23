@@ -109,10 +109,10 @@ class ResetPassword extends Component {
         <div className={s.message}>
           Your password was successfully reset.
         </div>
-        <div className={s['button-block']}>
+        <div className={s.buttonBlock}>
           <Link
             to='login'
-            className={s['back-button']}
+            className={s.backButton}
           >
             Back to Login
           </Link>
@@ -130,7 +130,7 @@ class ResetPassword extends Component {
       <div className={s.main}>
         <Form className={s.form} onSubmit={this.handleSubmit}>
           {this.errorMessage}
-          <FormField className={s['signup-email']} label="Email">
+          <FormField className={s.signupEmail} label="Email">
             <input
               name="email"
               value={this.email}
@@ -160,9 +160,9 @@ class ResetPassword extends Component {
               className="fc-input"
             />
           </FormField>
-          <div className={s['button-block']}>
+          <div className={s.buttonBlock}>
             <PrimaryButton
-              className={s['submit-button']}
+              className={s.submitButton}
               type="submit"
               isLoading={this.props.resetState.inProgress}
             >
@@ -170,7 +170,7 @@ class ResetPassword extends Component {
             </PrimaryButton>
             <Link
               to='login'
-              className={s['back-button']}
+              className={s.backButton}
             >
               Back to Login
             </Link>

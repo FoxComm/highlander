@@ -107,7 +107,7 @@ class Login extends Component {
   }
 
   get iForgot() {
-    return <a onClick={this.onForgotClick} className={s['forgot-link']} >i forgot</a>;
+    return <a onClick={this.onForgotClick} className={s.forgotLink} >i forgot</a>;
   }
 
   get infoMessage() {
@@ -140,7 +140,7 @@ class Login extends Component {
           Sign In with Google
         </SocialButton>
         <Form className={s.form} onSubmit={this.submitLogin}>
-          <WrapToLines className={s['or-line']}>or</WrapToLines>
+          <WrapToLines className={s.orLine}>or</WrapToLines>
           {this.errorMessage}
           <FormField label="Organization" required>
             <input
@@ -167,10 +167,10 @@ class Login extends Component {
               className="fc-input"
             />
           </FormField>
-          <div className={s['button-block']}>
+          <div className={s.buttonBlock}>
             <PrimaryButton
               onClick={this.clearMessage}
-              className={s['submit-button']}
+              className={s.submitButton}
               fullWidth
               type="submit"
               isLoading={this.props.authenticationState.inProgress}

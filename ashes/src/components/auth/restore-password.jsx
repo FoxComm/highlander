@@ -89,10 +89,10 @@ class RestorePassword extends Component {
           <strong>{this.email}</strong>
           .
         </div>
-        <div className={s['button-block']}>
+        <div className={s.buttonBlock}>
           <Link
             to='login'
-            className={s['back-button']}
+            className={s.backButton}
           >
             Back to Login
           </Link>
@@ -113,7 +113,7 @@ class RestorePassword extends Component {
         </div>
         <Form className={s.form} onSubmit={this.handleSubmit}>
           {this.errorMessage}
-          <FormField className={s['signup-email']} label="Email" required>
+          <FormField className={s.signupEmail} label="Email" required>
             <input
               name="email"
               onChange={this.handleInputChange}
@@ -122,9 +122,9 @@ class RestorePassword extends Component {
               className="fc-input"
             />
           </FormField>
-          <div className={s['button-block']}>
+          <div className={s.buttonBlock}>
             <PrimaryButton
-              className={s['submit-button']}
+              className={s.submitButton}
               type="submit"
               isLoading={this.props.restoreState.inProgress}
             >
@@ -132,7 +132,7 @@ class RestorePassword extends Component {
             </PrimaryButton>
             <Link
               to='login'
-              className={s['back-button']}
+              className={s.backButton}
             >
               Back to Login
             </Link>

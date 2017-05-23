@@ -113,7 +113,7 @@ class SetPassword extends Component {
         </div>
         <Form className={s.form} onSubmit={this.handleSubmit}>
           {this.errorMessage}
-          <FormField className={s['signup-email']} label="Email">
+          <FormField className={s.signupEmail} label="Email">
             <input
               name="email"
               value={this.email}
@@ -142,9 +142,9 @@ class SetPassword extends Component {
               className="fc-input"
             />
           </FormField>
-          <div className={s['button-block']}>
+          <div className={s.buttonBlock}>
             <PrimaryButton
-              className={s['submit-button']}
+              className={s.submitButton}
               type="submit"
               isLoading={this.props.signUpState.inProgress}
             >
@@ -152,7 +152,7 @@ class SetPassword extends Component {
             </PrimaryButton>
             <Link
               to='login'
-              className={s['back-button']}
+              className={s.backButton}
             >
               Back to Login
             </Link>

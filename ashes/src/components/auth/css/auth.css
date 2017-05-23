@@ -4,7 +4,7 @@
   margin-top: 40px;
 }
 
-.or-line {
+.orLine {
   margin-top: 20px;
   font-size: 16px;
   line-height: 22px;
@@ -40,7 +40,7 @@
   }
 }
 
-.button-block {
+.buttonBlock {
   margin-top: 20px;
   vertical-align: baseline;
   display: flex;
@@ -61,10 +61,10 @@
   }
 }
 
-.submit-button {
+.submitButton {
 }
 
-.back-button {
+.backButton {
   display: block;
   padding: 10px 20px;
   color: #9ba3a7;
@@ -78,11 +78,11 @@
   }
 }
 
-.password-label {
+.passwordLabel {
   display: flex;
 }
 
-.forgot-link {
+.forgotLink {
   margin-left: auto;
   font-size: 13px;
   line-height: 18px;
@@ -91,6 +91,6 @@
   }
 }
 
-.signup-email input[type=email]:disabled {
+.signupEmail input[type=email]:disabled {
   background-color: #F2F2F2 !important;
 }
