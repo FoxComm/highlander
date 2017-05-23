@@ -143,13 +143,29 @@ class Login extends Component {
           <WrapToLines className={s['or-line']}>or</WrapToLines>
           {this.errorMessage}
           <FormField label="Organization" required>
-            <input onChange={this.onOrgChange} value={org} type="text" className="fc-input" />
+            <input
+              onChange={this.onOrgChange}
+              value={org}
+              type="text"
+              className="fc-input"
+              autoFocus={true}
+            />
           </FormField>
           <FormField label="Email" required>
-            <input onChange={this.onEmailChange} value={email} type="text" className="fc-input" />
+            <input
+              onChange={this.onEmailChange}
+              value={email}
+              type="text"
+              className="fc-input"
+            />
           </FormField>
           <FormField label="Password" labelAtRight={this.iForgot} required>
-            <input onChange={this.onPasswordChange} value={password} type="password" className="fc-input" />
+            <input
+              onChange={this.onPasswordChange}
+              value={password}
+              type="password"
+              className="fc-input"
+            />
           </FormField>
           <div className={s['button-block']}>
             <PrimaryButton
