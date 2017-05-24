@@ -1,6 +1,6 @@
 package phoenix.responses
 
-import phoenix.models.account.User
+import phoenix.models.account.{Organization, User}
 import phoenix.models.admin.AdminData
 
 object StoreAdminResponse {
@@ -8,10 +8,11 @@ object StoreAdminResponse {
                   email: Option[String] = None,
                   name: Option[String] = None,
                   phoneNumber: Option[String] = None,
+                  org: String,
                   state: AdminData.State)
       extends ResponseItem
 
-  def build(admin: User, adminData: AdminData): Root = {
+  def build(admin: User, adminData: AdminData, organization: Organization): Root = {
 
     require(admin.accountId == adminData.accountId)
     require(admin.id == adminData.userId)
@@ -20,6 +21,7 @@ object StoreAdminResponse {
          email = admin.email,
          name = admin.name,
          phoneNumber = admin.phoneNumber,
+         org = organization.name,
          state = adminData.state)
   }
 }

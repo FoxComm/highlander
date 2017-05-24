@@ -16,9 +16,10 @@ object StoreAdminManager {
 
   def getById(accountId: Int)(implicit ec: EC, db: DB): DbResultT[StoreAdminResponse.Root] =
     for {
-      admin     ← * <~ Users.mustFindByAccountId(accountId)
-      adminData ← * <~ AdminsData.mustFindByAccountId(accountId)
-    } yield StoreAdminResponse.build(admin, adminData)
+      admin        ← * <~ Users.mustFindByAccountId(accountId)
+      adminData    ← * <~ AdminsData.mustFindByAccountId(accountId)
+      organization ← * <~ Organizations.mustFindByAccountId(accountId)
+    } yield StoreAdminResponse.build(admin, adminData, organization)
 
   def create(payload: CreateStoreAdminPayload, author: Option[User])(
       implicit ec: EC,
@@ -49,7 +50,7 @@ object StoreAdminManager {
                    None)
 
       _ ← * <~ LogActivity().storeAdminCreated(admin, author, pwReset.map(_.code))
-    } yield StoreAdminResponse.build(admin, adminUser)
+    } yield StoreAdminResponse.build(admin, adminUser, organization)
   }
 
   def update(accountId: Int,
@@ -62,9 +63,10 @@ object StoreAdminManager {
                                 admin.copy(name = Some(payload.name),
                                            phoneNumber = payload.phoneNumber,
                                            email = Some(payload.email)))
-      adminData ← * <~ AdminsData.mustFindByAccountId(accountId)
-      _         ← * <~ LogActivity().storeAdminUpdated(saved, author)
-    } yield StoreAdminResponse.build(saved, adminData)
+      adminData    ← * <~ AdminsData.mustFindByAccountId(accountId)
+      organization ← * <~ Organizations.mustFindByAccountId(accountId)
+      _            ← * <~ LogActivity().storeAdminUpdated(saved, author)
+    } yield StoreAdminResponse.build(saved, adminData, organization)
 
   def delete(accountId: Int, author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Unit] =
     for {
@@ -76,7 +78,7 @@ object StoreAdminManager {
       result ← * <~ Users.deleteById(admin.id, DbResultT.unit, i ⇒ NotFoundFailure404(User, i))
       _      ← * <~ AccountAccessMethods.findByAccountId(accountId).delete
       _      ← * <~ AccountRoles.findByAccountId(accountId).delete
-      _      ← * <~ AccountOrganizations.findByAccountId(accountId).delete
+      _      ← * <~ AccountOrganizations.filterByAccountId(accountId).delete
       _      ← * <~ Accounts.deleteById(accountId, DbResultT.unit, i ⇒ NotFoundFailure404(Account, i))
       _      ← * <~ LogActivity().storeAdminDeleted(admin, author)
     } yield result
@@ -86,10 +88,11 @@ object StoreAdminManager {
       db: DB,
       ac: AC): DbResultT[StoreAdminResponse.Root] =
     for {
-      admin     ← * <~ Users.mustFindByAccountId(id)
-      adminUser ← * <~ AdminsData.mustFindByAccountId(id)
-      _         ← * <~ adminUser.transitionState(payload.state)
-      result    ← * <~ AdminsData.update(adminUser, adminUser.copy(state = payload.state))
-      _         ← * <~ LogActivity().storeAdminStateChanged(admin, adminUser.state, result.state, author)
-    } yield StoreAdminResponse.build(admin, result)
+      admin        ← * <~ Users.mustFindByAccountId(id)
+      adminUser    ← * <~ AdminsData.mustFindByAccountId(id)
+      organization ← * <~ Organizations.mustFindByAccountId(id)
+      _            ← * <~ adminUser.transitionState(payload.state)
+      result       ← * <~ AdminsData.update(adminUser, adminUser.copy(state = payload.state))
+      _            ← * <~ LogActivity().storeAdminStateChanged(admin, adminUser.state, result.state, author)
+    } yield StoreAdminResponse.build(admin, result, organization)
 }

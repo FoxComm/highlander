@@ -1,8 +1,7 @@
 package phoenix.responses
 
 import java.time.Instant
-
-import phoenix.models.account.Users
+import phoenix.models.account.{Organization, Organizations, Users}
 import phoenix.models.admin.AdminsData
 import phoenix.models.customer.CustomersData
 import phoenix.models.payment.giftcard.GiftCard
@@ -105,6 +104,7 @@ object ReturnResponse {
       customerData ← * <~ CustomersData.findOneByAccountId(rma.accountId)
       storeAdmin   ← * <~ rma.storeAdminId.map(Users.findOneByAccountId).getOrElse(lift(None))
       adminData    ← * <~ rma.storeAdminId.map(AdminsData.findOneByAccountId).getOrElse(lift(None))
+      organization ← * <~ rma.storeAdminId.map(Organizations.mustFindById404)
       // Payment methods
       ccPayment ← * <~ ReturnPayments.findAllByReturnId(rma.id).creditCards.one
       gcPayment ← * <~ ReturnPayments.findGiftCards(rma.id).one
@@ -128,9 +128,10 @@ object ReturnResponse {
             cu ← customerData
           } yield CustomerResponse.build(c, cu),
           storeAdmin = for {
-            a  ← storeAdmin
-            au ← adminData
-          } yield StoreAdminResponse.build(a, au),
+            a   ← storeAdmin
+            ad  ← adminData
+            org ← organization
+          } yield StoreAdminResponse.build(a, ad, org),
           payments =
             buildPayments(creditCard = ccPayment, giftCard = gcPayment, storeCredit = scPayment),
           lineItems = LineItems(skus = lineItems, shippingCosts = shippingCosts),
