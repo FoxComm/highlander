@@ -9,7 +9,7 @@ DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
 DOCKER_IMAGE ?= hyperion
 DOCKER_TAG ?= master
 
-DB=hyperion_development
+DB=hyperion
 DB_TEST=hyperion_test
 DB_USER=hyperion
 ALIAS_IP=203.0.113.1
