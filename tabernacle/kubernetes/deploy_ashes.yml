@@ -29,7 +29,7 @@ spec:
         - name: GA_TRACKING_ID
           valueFrom:
             configMapKeyRef:
-              name: core-secrets
+              name: core-config
               key: ashes.ga_tracking_id
         - name: NODE_ENV
           valueFrom:
