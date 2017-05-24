@@ -4,7 +4,7 @@ import cats.implicits._
 import core.failures.GeneralFailure
 import phoenix.utils.seeds.Factories
 import testutils._
-import utils.db._
+import core.db._
 
 import scala.concurrent.ExecutionContext
 

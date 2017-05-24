@@ -5,7 +5,7 @@ import org.scalatest.prop.TableDrivenPropertyChecks._
 import phoenix.utils.FSM
 import shapeless._
 import testutils.TestBase
-import utils.db._
+import core.db._
 
 class FSMTest extends TestBase {
 

@@ -10,6 +10,7 @@ import akka.http.scaladsl.server.directives.RespondWithDirectives.respondWithHea
 import akka.http.scaladsl.server.directives.SecurityDirectives.AuthenticationResult
 import akka.http.scaladsl.server.directives.{AuthenticationDirective, AuthenticationResult}
 import cats.implicits._
+import core.db._
 import core.failures._
 import phoenix.failures.AuthFailures._
 import phoenix.models.account._
@@ -20,7 +21,6 @@ import phoenix.services.account._
 import phoenix.services.customers.CustomerManager
 import phoenix.utils.FoxConfig.config
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 import scala.concurrent.Future
 

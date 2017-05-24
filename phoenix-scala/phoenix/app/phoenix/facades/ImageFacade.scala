@@ -14,7 +14,9 @@ import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
-import core.failures.Failures
+import core.db.{DbResultT, _}
+import core.failures.{Failure, Failures}
+import core.utils.generateUuid
 import objectframework.IlluminateAlgorithm
 import objectframework.models.FullObject
 import objectframework.services.ObjectManager
@@ -27,7 +29,6 @@ import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import slick.dbio.DBIO
-import utils.db._
 
 import scala.annotation.tailrec
 import scala.concurrent.Future
@@ -36,7 +37,7 @@ import scala.util.Try
 object ImageFacade extends ImageHelpers {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  case class ImageFacadeException(underlyingFailure: failures.Failure) extends Throwable
+  case class ImageFacadeException(underlyingFailure: Failure) extends Throwable
 
   trait ImageUploader[T] {
 
@@ -324,7 +325,7 @@ trait ImageHelpers extends LazyLogging {
     }
 
     val revPath = uri.path.reverse
-    latestSegment(revPath).getOrElse(s"${utils.generateUuid}.jpg")
+    latestSegment(revPath).getOrElse(s"${generateUuid}.jpg")
   }
 
   def fetchImageData(uri: Uri)(implicit ec: EC, sys: ActorSystem, am: Mat): Result[ByteBuffer] = {

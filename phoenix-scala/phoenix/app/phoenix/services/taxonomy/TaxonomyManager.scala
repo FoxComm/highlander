@@ -24,8 +24,8 @@ import phoenix.responses.TaxonResponses._
 import phoenix.responses.TaxonomyResponses._
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.db.ExPostgresDriver.api._
+import core.db._
 
 object TaxonomyManager {
 

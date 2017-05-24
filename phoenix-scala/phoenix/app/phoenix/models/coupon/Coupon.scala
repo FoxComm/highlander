@@ -5,8 +5,8 @@ import java.time.Instant
 import objectframework.models._
 import shapeless._
 import slick.lifted.Tag
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.db.ExPostgresDriver.api._
+import core.db._
 import com.github.tminglei.slickpg._
 import core.utils.Validation
 

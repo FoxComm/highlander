@@ -1,9 +1,9 @@
 package phoenix.failures
 
 import core.failures.{Failure, NotFoundFailure400}
-import phoenix.models.cord.Order
 import core.utils.Money.Currency
-import utils.friendlyClassName
+import core.utils.friendlyClassName
+import phoenix.models.cord.Order
 
 object ReturnFailures {
 

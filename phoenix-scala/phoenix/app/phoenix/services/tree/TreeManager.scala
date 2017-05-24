@@ -2,6 +2,8 @@ package phoenix.services.tree
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import core.db.ExPostgresDriver.api._
+import core.db._
 import core.failures.DatabaseFailure
 import objectframework.models._
 import objectframework.services.ObjectManager
@@ -10,8 +12,6 @@ import phoenix.models.tree._
 import phoenix.payloads.GenericTreePayloads._
 import phoenix.responses.GenericTreeResponses.FullTreeResponse._
 import phoenix.responses.GenericTreeResponses._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 object TreeManager {
 

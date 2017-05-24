@@ -15,7 +15,7 @@ import phoenix.utils.TestStripeSupport.randomStripeishId
 import phoenix.utils.aliases._
 import phoenix.utils.aliases.stripe._
 import phoenix.utils.apis._
-import utils.db._
+import core.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

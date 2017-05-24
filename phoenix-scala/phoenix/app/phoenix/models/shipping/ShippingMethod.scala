@@ -1,13 +1,13 @@
 package phoenix.models.shipping
 
 import cats.implicits._
+import core.db.ExPostgresDriver.api._
+import core.db._
 import core.failures.Failures
 import phoenix.failures.ShippingMethodFailures.ShippingMethodIsNotActive
 import phoenix.models.cord.OrderShippingMethods
 import phoenix.models.rules.QueryStatement
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class ShippingMethod(id: Int = 0,
                           parentId: Option[Int] = None,

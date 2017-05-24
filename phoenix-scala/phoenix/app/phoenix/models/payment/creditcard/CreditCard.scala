@@ -15,8 +15,8 @@ import phoenix.payloads.PaymentPayloads._
 import phoenix.utils.aliases.stripe._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils._
-import utils.db._
+import core.utils._
+import core.db._
 
 case class BillingAddress(
     regionId: Int,

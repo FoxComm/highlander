@@ -31,7 +31,7 @@ import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtures
 import core.utils.Money.Currency
-import utils.db._
+import core.db._
 
 object ProductTestExtensions {
 

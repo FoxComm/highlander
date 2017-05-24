@@ -11,7 +11,7 @@ import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class SaveForLaterIntegrationTest
     extends IntegrationTestBase

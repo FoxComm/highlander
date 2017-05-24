@@ -3,15 +3,15 @@ package phoenix.models.location
 import java.time.Instant
 
 import cats.implicits._
-import core.utils.Validation
+import core.db._
 import core.failures.{Failures, NotFoundFailure404}
+import core.utils.Validation
 import phoenix.models.cord.OrderShippingAddress
 import phoenix.models.payment.creditcard.CreditCard
 import phoenix.models.traits.Addressable
 import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class Address(id: Int = 0,
                    accountId: Int,

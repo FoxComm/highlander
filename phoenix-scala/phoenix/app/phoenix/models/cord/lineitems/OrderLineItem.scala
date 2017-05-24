@@ -2,6 +2,8 @@ package phoenix.models.cord.lineitems
 
 import cats.implicits._
 import com.pellucid.sealerate
+import core.db.ExPostgresDriver.api._
+import core.db._
 import core.failures.Failures
 import objectframework.models._
 import org.json4s.Extraction.decompose
@@ -13,8 +15,6 @@ import phoenix.utils.{ADT, FSM, JsonFormatters}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 trait LineItemProductData[LI] {
   def sku: Sku

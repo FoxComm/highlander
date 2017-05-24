@@ -3,6 +3,7 @@ package phoenix.services.inventory
 import java.time.Instant
 
 import cats.syntax.all._
+import core.db._
 import core.failures.{Failures, GeneralFailure}
 import objectframework.ObjectResponses.ObjectContextResponse
 import objectframework.ObjectUtils
@@ -23,7 +24,6 @@ import phoenix.services.image.ImageManager.FullAlbumWithImages
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 object SkuManager {
   implicit val formats = JsonFormatters.DefaultFormats

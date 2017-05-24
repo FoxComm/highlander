@@ -3,10 +3,10 @@ package phoenix.payloads
 import cats.data._
 import cats.implicits._
 import core.failures.Failure
-import phoenix.models.payment.giftcard.GiftCard
 import core.utils.Money._
 import core.utils.Validation
-import utils.Validation._
+import core.utils.Validation._
+import phoenix.models.payment.giftcard.GiftCard
 
 object GiftCardPayloads {
 

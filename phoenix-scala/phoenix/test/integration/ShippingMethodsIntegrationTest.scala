@@ -14,7 +14,7 @@ import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class ShippingMethodsIntegrationTest
     extends IntegrationTestBase

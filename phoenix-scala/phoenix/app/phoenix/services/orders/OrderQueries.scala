@@ -1,15 +1,15 @@
 package phoenix.services.orders
 
 import cats.implicits._
+import core.db._
 import core.failures.NotFoundFailure404
 import phoenix.models.account.{User, Users}
 import phoenix.models.cord._
 import phoenix.responses.TheResponse
 import phoenix.responses.cord.{AllOrders, OrderResponse}
 import phoenix.services.CordQueries
-import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
-import utils.db._
+import slick.jdbc.PostgresProfile.api._
 
 object OrderQueries extends CordQueries {
 

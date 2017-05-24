@@ -2,13 +2,13 @@ package phoenix.utils.apis
 
 import cats.implicits._
 import com.stripe.model.DeletedCard
+import core.db._
+import core.utils.Money._
 import phoenix.failures.CustomerFailures.CustomerMustHaveCredentials
 import phoenix.models.location.Address
 import phoenix.models.payment.creditcard.CreditCard
 import phoenix.payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
 import phoenix.utils.aliases.stripe._
-import core.utils.Money._
-import utils.db._
 
 import scala.collection.JavaConversions._
 

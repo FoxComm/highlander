@@ -34,7 +34,7 @@ import testutils._
 import testutils.apis._
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
-import utils.db._
+import core.db._
 
 class CheckoutIntegrationTest
     extends IntegrationTestBase

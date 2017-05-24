@@ -2,6 +2,7 @@ package phoenix.services
 
 import java.time.Instant
 
+import core.db._
 import core.failures.NotFoundFailure404
 import phoenix.failures.SharedSearchFailures._
 import phoenix.failures.Util.diffToFailures
@@ -11,7 +12,6 @@ import phoenix.payloads.SharedSearchPayloads._
 import phoenix.responses.{TheResponse, UserResponse}
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 object SharedSearchService {
   def getAll(admin: User, rawScope: Option[String])(implicit ec: EC,

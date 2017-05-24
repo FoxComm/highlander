@@ -6,7 +6,7 @@ import testutils._
 import testutils.apis.PhoenixPublicApi
 import testutils.fixtures.BakedFixtures
 import core.utils.Strings._
-import utils.db._
+import core.db._
 
 class ReasonsIntegrationTest
     extends IntegrationTestBase

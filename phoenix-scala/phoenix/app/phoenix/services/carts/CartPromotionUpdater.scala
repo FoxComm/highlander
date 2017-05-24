@@ -32,7 +32,7 @@ import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.db._
 
 object CartPromotionUpdater {
 

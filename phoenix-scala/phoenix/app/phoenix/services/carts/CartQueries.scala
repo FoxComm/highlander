@@ -1,5 +1,6 @@
 package phoenix.services.carts
 
+import core.db._
 import core.failures.NotFoundFailure404
 import objectframework.models.ObjectContext
 import phoenix.models.account._
@@ -9,7 +10,6 @@ import phoenix.responses.cord.CartResponse
 import phoenix.services.{CordQueries, LineItemUpdater, LogActivity}
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
-import utils.db._
 
 object CartQueries extends CordQueries {
 

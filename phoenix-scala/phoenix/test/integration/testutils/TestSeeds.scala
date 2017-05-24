@@ -14,7 +14,7 @@ import phoenix.utils.aliases._
 import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils.fixtures.TestFixtureBase
-import utils.db._
+import core.db._
 
 /**
   * Seeds are simple values that can be created without any external dependencies.

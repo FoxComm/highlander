@@ -1,4 +1,4 @@
-package utils.db
+package core.db
 
 import cats._
 import cats.data._

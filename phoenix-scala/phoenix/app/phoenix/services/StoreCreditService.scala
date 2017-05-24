@@ -1,6 +1,7 @@
 package phoenix.services
 
 import cats.implicits._
+import core.db._
 import core.failures.{NotFoundFailure400, NotFoundFailure404}
 import phoenix.failures.OpenTransactionsFailure
 import phoenix.models.account.{Scope, User, Users}
@@ -15,7 +16,6 @@ import phoenix.responses.StoreCreditResponse._
 import phoenix.responses.{StoreCreditResponse, StoreCreditSubTypesResponse}
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 object StoreCreditService {
   type QuerySeq = StoreCredits.QuerySeq

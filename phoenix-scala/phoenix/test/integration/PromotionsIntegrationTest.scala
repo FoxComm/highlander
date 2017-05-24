@@ -32,7 +32,7 @@ import testutils.apis._
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
 import testutils.fixtures.api._
 import testutils.fixtures.{BakedFixtures, PromotionFixtures}
-import utils.db._
+import core.db._
 
 class PromotionsIntegrationTest
     extends IntegrationTestBase

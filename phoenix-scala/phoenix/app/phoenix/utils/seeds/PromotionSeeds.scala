@@ -1,5 +1,6 @@
 package phoenix.utils.seeds
 
+import core.db._
 import objectframework.ObjectUtils
 import objectframework.models._
 import org.json4s.Formats
@@ -11,7 +12,6 @@ import phoenix.models.promotion.{Promotion, Promotions}
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import phoenix.utils.seeds.DiscountSeeds.{CreateDiscountForm, CreateDiscountShadow}
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

@@ -1,4 +1,4 @@
-package utils.db
+package core.db
 
 import cats.data.Validated.Valid
 import cats.data.ValidatedNel

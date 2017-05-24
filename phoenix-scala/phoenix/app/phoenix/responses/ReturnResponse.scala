@@ -2,6 +2,8 @@ package phoenix.responses
 
 import java.time.Instant
 
+import core.db._
+import core.utils.Money._
 import phoenix.models.account.Users
 import phoenix.models.admin.AdminsData
 import phoenix.models.customer.CustomersData
@@ -12,8 +14,6 @@ import phoenix.responses.CustomerResponse.{Root ⇒ Customer}
 import phoenix.responses.StoreAdminResponse.{Root ⇒ User}
 import phoenix.services.carts.CartTotaler
 import phoenix.services.returns.{ReturnLineItemManager, ReturnTotaler}
-import core.utils.Money._
-import utils.db._
 
 object ReturnResponse {
   case class ReturnTotals(subTotal: Int, taxes: Int, shipping: Int, adjustments: Int, total: Int)

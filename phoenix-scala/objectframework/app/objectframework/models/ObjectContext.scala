@@ -2,11 +2,11 @@ package objectframework.models
 
 import java.time.Instant
 
+import core.db.ExPostgresDriver.api._
+import core.db._
 import core.utils.Validation
 import org.json4s.JValue
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 /**
   * A ObjectContext stores information to determine which object shadow to show.

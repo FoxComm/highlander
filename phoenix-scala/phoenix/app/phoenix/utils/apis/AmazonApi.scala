@@ -8,9 +8,9 @@ import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.{AmazonS3Exception, CannedAccessControlList, PutObjectRequest}
 import com.typesafe.scalalogging.LazyLogging
+import core.db._
 import core.failures._
 import phoenix.utils.FoxConfig.config
-import utils.db._
 
 import scala.concurrent.Future
 

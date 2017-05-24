@@ -15,8 +15,8 @@ import phoenix.models.objects.ProductSkuLinks
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.db.ExPostgresDriver.api._
+import core.db._
 
 import scala.util.matching.Regex
 

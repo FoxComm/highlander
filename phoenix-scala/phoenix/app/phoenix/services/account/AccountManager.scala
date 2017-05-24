@@ -11,7 +11,7 @@ import phoenix.responses.UserResponse._
 import phoenix.services._
 import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
-import utils.db._
+import core.db._
 
 case class AccountCreateContext(roles: List[String], org: String, scopeId: Int)
 

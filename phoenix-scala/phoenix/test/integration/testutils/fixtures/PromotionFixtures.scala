@@ -14,8 +14,8 @@ import phoenix.services.coupon.CouponManager
 import phoenix.services.promotion.PromotionManager
 import phoenix.utils.aliases._
 import testutils.PayloadHelpers._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.db.ExPostgresDriver.api._
+import core.db._
 
 trait PromotionFixtures extends TestFixtureBase {
 

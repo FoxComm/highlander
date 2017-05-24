@@ -2,12 +2,12 @@ package objectframework.models
 
 import java.time.Instant
 
+import core.db.ExPostgresDriver.api._
+import core.db._
 import core.failures.NotFoundFailure404
 import core.utils.Validation
 import org.json4s.{JObject, JValue}
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 /**
   Represent json-schema for views: ObjectForm applied to ObjectShadow.

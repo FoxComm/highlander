@@ -32,7 +32,7 @@ import phoenix.services.inventory.SkuManager
 import phoenix.utils.aliases._
 import phoenix.utils.apis.{Apis, OrderInventoryHold, SkuInventoryHold}
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.db._
 
 import scala.util.Random
 

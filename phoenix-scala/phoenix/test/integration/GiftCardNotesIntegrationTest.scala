@@ -11,7 +11,7 @@ import phoenix.utils.time.RichInstant
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class GiftCardNotesIntegrationTest
     extends IntegrationTestBase

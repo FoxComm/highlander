@@ -18,7 +18,7 @@ import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import slick.jdbc.PostgresProfile.api._
 import core.utils.Money.Currency
-import utils.db._
+import core.db._
 
 //
 //TODO: Create order state InsufficientFundHold

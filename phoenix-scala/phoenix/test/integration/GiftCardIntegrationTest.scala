@@ -21,7 +21,7 @@ import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtureHelpers
 import core.utils.Money._
-import utils.db._
+import core.db._
 
 class GiftCardIntegrationTest
     extends IntegrationTestBase

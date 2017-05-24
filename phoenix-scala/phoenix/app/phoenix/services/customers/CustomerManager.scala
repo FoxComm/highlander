@@ -5,10 +5,11 @@ import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import core.db._
+import core.failures.{NotFoundFailure400, NotFoundFailure404}
 import phoenix.failures.AuthFailures.ChangePasswordFailed
 import phoenix.failures.CustomerFailures._
 import phoenix.failures.UserFailures.AccessMethodNotFound
-import core.failures.{NotFoundFailure400, NotFoundFailure404}
 import phoenix.models.account._
 import phoenix.models.auth.UserToken
 import phoenix.models.cord.{OrderShippingAddresses, Orders}
@@ -22,10 +23,9 @@ import phoenix.responses.CustomerResponse._
 import phoenix.responses.GroupResponses.CustomerGroupResponse
 import phoenix.services._
 import phoenix.services.account._
-import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.JsonFormatters._
 import phoenix.utils.aliases._
-import utils.db._
+import slick.jdbc.PostgresProfile.api._
 
 object CustomerManager {
 

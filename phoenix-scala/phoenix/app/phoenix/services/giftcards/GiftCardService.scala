@@ -16,7 +16,7 @@ import phoenix.responses.{CustomerResponse, GiftCardResponse, GiftCardSubTypesRe
 import phoenix.services._
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.db._
 
 object GiftCardService {
   type QuerySeq = GiftCards.QuerySeq

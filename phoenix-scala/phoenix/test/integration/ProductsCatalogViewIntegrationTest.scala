@@ -16,7 +16,7 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import core.utils.Money.Currency
-import utils.db._
+import core.db._
 
 object ProductsCatalogViewIntegrationTest {
 

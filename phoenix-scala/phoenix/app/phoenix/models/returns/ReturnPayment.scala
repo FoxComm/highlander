@@ -1,12 +1,12 @@
 package phoenix.models.returns
 
+import core.db._
+import core.utils.Money._
 import phoenix.models.payment.PaymentMethod
 import phoenix.models.payment.giftcard.{GiftCard, GiftCards}
 import phoenix.models.payment.storecredit.{StoreCredit, StoreCredits}
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import core.utils.Money._
-import utils.db._
 
 case class ReturnPayment(id: Int = 0,
                          returnId: Int = 0,

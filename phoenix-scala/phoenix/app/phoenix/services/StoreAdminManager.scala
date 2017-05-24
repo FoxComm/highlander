@@ -10,7 +10,7 @@ import phoenix.responses.StoreAdminResponse
 import phoenix.services.account._
 import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
-import utils.db._
+import core.db._
 
 object StoreAdminManager {
 

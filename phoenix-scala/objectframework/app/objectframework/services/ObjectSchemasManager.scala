@@ -1,11 +1,11 @@
 package objectframework.services
 
+import core.db._
 import core.failures.NotFoundFailure404
 import objectframework.ObjectResponses.ObjectSchemaResponse._
 import objectframework.models._
 import objectframework.payloads.ObjectSchemaPayloads._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 object ObjectSchemasManager {
 

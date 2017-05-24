@@ -6,7 +6,7 @@ import phoenix.models.{Assignment, NotificationSubscription}
 import phoenix.responses.TaxonResponses.TaxonResponse._
 import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
-import utils.db._
+import core.db._
 
 object TaxonWatchersManager extends AssignmentsManager[Int, Taxon] {
   val assignmentType  = Assignment.Watcher

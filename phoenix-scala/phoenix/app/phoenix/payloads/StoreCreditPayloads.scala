@@ -2,10 +2,10 @@ package phoenix.payloads
 
 import cats.data._
 import cats.implicits._
-import core.utils.Validation
 import core.failures.Failure
+import core.utils.Validation
+import core.utils.Validation._
 import phoenix.models.payment.storecredit.StoreCredit
-import utils.Validation._
 
 object StoreCreditPayloads {
 

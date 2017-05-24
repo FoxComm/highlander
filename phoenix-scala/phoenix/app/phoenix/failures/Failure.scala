@@ -1,8 +1,8 @@
 package phoenix.failures
 
 import core.failures.Failure
+import core.utils.friendlyClassName
 import phoenix.models.cord.Order
-import utils.friendlyClassName
 
 case class ElasticsearchFailure(message: String) extends Failure {
   override def description = s"Elasticsearch communication error: $message"

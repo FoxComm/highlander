@@ -1,13 +1,13 @@
 package phoenix.models.activity
 
 import cats.data.ValidatedNel
-import core.utils.Validation
+import core.db.ExPostgresDriver.api._
+import core.db._
 import core.failures.Failure
+import core.utils.Validation
+import core.utils.Validation._
 import shapeless._
 import slick.lifted.Tag
-import utils.Validation._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 /**
   * An activity dimension has a set of activity trails. It is used as a logical grouping

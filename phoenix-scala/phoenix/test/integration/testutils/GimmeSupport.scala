@@ -7,7 +7,7 @@ import org.scalatest.concurrent.ScalaFutures
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.Query
-import utils.db._
+import core.db._
 
 import scala.language.implicitConversions
 import scala.reflect.runtime.universe.TypeTag

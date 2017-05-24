@@ -10,7 +10,7 @@ import phoenix.utils.time._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class OrderIntegrationTest
     extends IntegrationTestBase

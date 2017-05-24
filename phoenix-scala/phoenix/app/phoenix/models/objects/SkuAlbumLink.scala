@@ -2,12 +2,12 @@ package phoenix.models.objects
 
 import java.time.Instant
 
+import core.db.ExPostgresDriver.api._
+import core.db._
 import objectframework.models._
 import phoenix.models.image.{Album, Albums}
 import phoenix.models.inventory._
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class SkuAlbumLink(id: Int = 0,
                         leftId: Int,

@@ -1,8 +1,9 @@
 package phoenix.services.plugins
 
 import com.typesafe.scalalogging.LazyLogging
+import core.db._
 import core.failures.{GeneralFailure, NotFoundFailure404}
-import dispatch.{Http, as, host, url => request}
+import dispatch.{Http, as, host, url ⇒ request}
 import org.json4s.Formats
 import org.json4s.jackson.JsonMethods._
 import phoenix.models.plugins.PluginSettings.SettingsValues._
@@ -12,7 +13,6 @@ import phoenix.payloads.PluginPayloads._
 import phoenix.responses.plugins.PluginCommonResponses._
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 import scala.concurrent.Future
 

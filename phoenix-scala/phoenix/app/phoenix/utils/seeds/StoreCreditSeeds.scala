@@ -1,10 +1,10 @@
 package phoenix.utils.seeds
 
+import core.db._
+import core.utils.Money.Currency
 import phoenix.models.account.Scope
 import phoenix.models.payment.storecredit._
 import phoenix.utils.aliases._
-import core.utils.Money.Currency
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

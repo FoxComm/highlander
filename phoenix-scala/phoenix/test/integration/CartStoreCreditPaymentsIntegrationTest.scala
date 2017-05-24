@@ -10,7 +10,7 @@ import phoenix.payloads.PaymentPayloads.StoreCreditPayment
 import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
-import utils.db._
+import core.db._
 
 class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTestBase {
 

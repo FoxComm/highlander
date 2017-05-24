@@ -1,4 +1,4 @@
-package utils.db
+package core.db
 
 import core.failures.Failures
 

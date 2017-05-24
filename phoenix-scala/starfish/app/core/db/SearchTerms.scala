@@ -1,4 +1,4 @@
-package utils.db
+package core.db
 
 import core.failures.{Failure, NotFoundFailure400, NotFoundFailure404}
 import core.utils.Strings._

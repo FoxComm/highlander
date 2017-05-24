@@ -9,7 +9,7 @@ import phoenix.models.payment.creditcard._
 import phoenix.payloads.PaymentPayloads.CreditCardPayment
 import phoenix.utils.seeds.Factories
 import testutils._
-import utils.db._
+import core.db._
 
 class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBase {
 

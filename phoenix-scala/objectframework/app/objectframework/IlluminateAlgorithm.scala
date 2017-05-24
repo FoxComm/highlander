@@ -5,6 +5,7 @@ import java.time.Instant
 import cats.data.NonEmptyList
 import com.networknt.schema.JsonSchemaFactory
 import com.typesafe.scalalogging.LazyLogging
+import core.db._
 import core.failures.Failure
 import objectframework.ObjectFailures._
 import objectframework.models._
@@ -12,7 +13,6 @@ import org.json4s.Formats
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods.asJsonNode
-import utils.db._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext

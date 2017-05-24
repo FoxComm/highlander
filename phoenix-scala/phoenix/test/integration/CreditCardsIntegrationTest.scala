@@ -21,7 +21,7 @@ import testutils._
 import testutils.apis._
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtureHelpers
-import utils.db._
+import core.db._
 
 class CreditCardsIntegrationTest
     extends IntegrationTestBase

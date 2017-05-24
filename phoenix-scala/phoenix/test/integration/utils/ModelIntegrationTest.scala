@@ -10,7 +10,7 @@ import phoenix.models.location.Addresses
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 

@@ -17,7 +17,7 @@ import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.raw._
 import core.utils.Money.Currency
-import utils.db._
+import core.db._
 
 /**
   * Raw fixtures are cake-pattern definitions.

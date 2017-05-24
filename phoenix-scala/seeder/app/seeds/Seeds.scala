@@ -26,7 +26,7 @@ import phoenix.services.account.AccountManager
 import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.PostgresProfile.backend.DatabaseDef
 import phoenix.utils.aliases._
-import utils.db._
+import core.db._
 import phoenix.utils.db.flyway.{newFlyway, rootProjectSqlLocation}
 import phoenix.utils.seeds.Factories
 import phoenix.utils.seeds.generators.SeedsGenerator
