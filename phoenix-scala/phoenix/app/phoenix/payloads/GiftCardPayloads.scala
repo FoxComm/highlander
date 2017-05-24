@@ -2,11 +2,11 @@ package phoenix.payloads
 
 import cats.data._
 import cats.implicits._
-import failures.Failure
+import core.failures.Failure
+import core.utils.Money._
+import core.utils.Validation
+import core.utils.Validation._
 import phoenix.models.payment.giftcard.GiftCard
-import utils.Money._
-import utils.Validation
-import utils.Validation._
 
 object GiftCardPayloads {
 

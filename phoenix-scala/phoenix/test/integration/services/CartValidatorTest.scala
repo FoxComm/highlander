@@ -16,7 +16,7 @@ import phoenix.services.carts.CartTotaler
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class CartValidatorTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 

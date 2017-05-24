@@ -11,7 +11,7 @@ import phoenix.models.payment.storecredit._
 import phoenix.responses.{GiftCardResponse, StoreCreditResponse, UserResponse}
 import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
-import utils.db._
+import core.db._
 
 object CustomerCreditConverter {
 

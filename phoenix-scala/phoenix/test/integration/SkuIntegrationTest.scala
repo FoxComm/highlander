@@ -24,8 +24,8 @@ import phoenix.utils.time.RichInstant
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.Money.Currency
-import utils.db._
+import core.utils.Money.Currency
+import core.db._
 
 trait SkuOps { self: PhoenixAdminApi with DefaultJwtAdminAuth ⇒
 

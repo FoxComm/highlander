@@ -3,7 +3,7 @@ import java.time.temporal.ChronoUnit
 
 import cats.implicits._
 import com.stripe.exception.CardException
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import phoenix.failures.CreditCardFailures.CannotUseInactiveCreditCard
@@ -32,7 +32,7 @@ import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class CustomerIntegrationTest
     extends IntegrationTestBase

@@ -11,7 +11,7 @@ import phoenix.services.image.ImageManager
 import phoenix.services.inventory.SkuManager
 import phoenix.services.product.ProductManager
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.db._
 
 object LineItemManager {
   def getCartLineItems(refNum: String)(implicit ec: EC,

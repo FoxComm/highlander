@@ -1,6 +1,7 @@
 package phoenix.services.returns
 
 import cats.implicits._
+import core.db._
 import objectframework.models._
 import phoenix.failures.ReturnFailures._
 import phoenix.models.cord.Orders
@@ -17,7 +18,6 @@ import phoenix.services.inventory.SkuManager
 import phoenix.services.{LineItemManager, LogActivity}
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 object ReturnLineItemManager {
 

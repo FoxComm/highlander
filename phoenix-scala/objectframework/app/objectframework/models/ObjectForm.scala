@@ -2,11 +2,11 @@ package objectframework.models
 
 import java.time.Instant
 
+import core.db.ExPostgresDriver.api._
+import core.db._
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class ObjectForm(id: Int = 0,
                       kind: String,

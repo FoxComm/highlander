@@ -9,7 +9,7 @@ scalaVersion in ThisBuild := Versions.scala
 scalaOrganization in ThisBuild := "org.typelevel"
 
 lazy val phoenix = (project in file("phoenix"))
-  .dependsOn(starfish, objectframework)
+  .dependsOn(core, objectframework)
   .configs(IT, ET)
   .settings(itSettings, etSettings)
   .settings(commonSettings)
@@ -72,7 +72,7 @@ lazy val seeder = (project in file("seeder"))
   )
 
 lazy val objectframework = (project in file("objectframework"))
-  .dependsOn(starfish)
+  .dependsOn(core)
   .settings(
     commonSettings,
     libraryDependencies ++= {
@@ -82,7 +82,7 @@ lazy val objectframework = (project in file("objectframework"))
     }
   )
 
-lazy val starfish = (project in file("starfish"))
+lazy val core = (project in file("core"))
   .settings(
     commonSettings,
     libraryDependencies ++= {
@@ -108,7 +108,7 @@ scalafmtAll := Def.task().dependsOn(scalafmt in Compile in phoenix,
                                     scalafmt in IT      in phoenix,
                                     scalafmt in ET      in phoenix,
                                     scalafmt in Compile in objectframework,
-                                    scalafmt in Compile in starfish,
+                                    scalafmt in Compile in core,
                                     scalafmt in Compile in seeder).value
 
 scalafmtTestAll := Def.task().dependsOn(scalafmtTest in Compile in phoenix,
@@ -116,5 +116,5 @@ scalafmtTestAll := Def.task().dependsOn(scalafmtTest in Compile in phoenix,
                                         scalafmtTest in IT      in phoenix,
                                         scalafmtTest in ET      in phoenix,
                                         scalafmtTest in Compile in objectframework,
-                                        scalafmtTest in Compile in starfish,
+                                        scalafmtTest in Compile in core,
                                         scalafmtTest in Compile in seeder).value

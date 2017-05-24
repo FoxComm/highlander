@@ -3,12 +3,12 @@ package phoenix.models.taxonomy
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.utils.Validation
 import objectframework.models._
 import shapeless._
 import slick.lifted.Tag
-import utils.Validation
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 object Taxon {
   val kind = "taxon"

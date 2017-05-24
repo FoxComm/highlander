@@ -1,6 +1,6 @@
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures._
+import core.failures._
 import phoenix.failures.GiftCardFailures.GiftCardConvertFailure
 import phoenix.failures.ScopeFailures._
 import phoenix.failures.{EmptyCancellationReasonFailure, OpenTransactionsFailure}
@@ -20,8 +20,8 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtureHelpers
-import utils.Money._
-import utils.db._
+import core.utils.Money._
+import core.db._
 
 class GiftCardIntegrationTest
     extends IntegrationTestBase

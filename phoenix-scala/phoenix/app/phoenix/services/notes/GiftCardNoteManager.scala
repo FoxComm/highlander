@@ -1,9 +1,9 @@
 package phoenix.services.notes
 
-import phoenix.models.payment.giftcard.{GiftCard, GiftCards}
+import core.db._
 import phoenix.models.Note
+import phoenix.models.payment.giftcard.{GiftCard, GiftCards}
 import phoenix.utils.aliases._
-import utils.db._
 
 object GiftCardNoteManager extends NoteManager[String, GiftCard] {
 

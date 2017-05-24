@@ -11,7 +11,7 @@ import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.Tag
-import utils.db._
+import core.db._
 
 case class NotificationSubscription(id: Int = 0,
                                     adminId: Int,

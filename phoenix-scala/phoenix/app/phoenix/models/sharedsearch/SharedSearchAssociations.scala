@@ -8,7 +8,7 @@ import phoenix.models.account._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.Tag
-import utils.db._
+import core.db._
 
 case class SharedSearchAssociation(id: Int = 0,
                                    sharedSearchId: Int,

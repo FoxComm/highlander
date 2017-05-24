@@ -1,8 +1,8 @@
 package phoenix.models.location
 
+import core.db._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class Region(id: Int = 0, countryId: Int, name: String, abbreviation: Option[String] = None)
     extends FoxModel[Region] {

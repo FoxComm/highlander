@@ -1,5 +1,6 @@
 package phoenix.utils.seeds.generators
 
+import core.db._
 import objectframework.ObjectUtils
 import objectframework.ObjectUtils._
 import objectframework.models._
@@ -12,7 +13,6 @@ import phoenix.responses.DiscountResponses.DiscountResponse
 import phoenix.services.discount.DiscountManager
 import phoenix.utils.aliases._
 import phoenix.utils.seeds.generators.SimpleDiscount._
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random

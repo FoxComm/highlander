@@ -1,11 +1,11 @@
 package phoenix.utils.seeds.generators
 
+import core.db._
 import faker._
 import objectframework.models.ObjectContexts
 import org.conbere.markov.MarkovChain
 import phoenix.models.product.{Mvp, SimpleContext, SimpleProductData}
 import phoenix.utils.aliases._
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.io.Source

@@ -3,7 +3,8 @@ package phoenix.models.product
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
-import failures._
+import core.utils.Validation
+import core.failures._
 import objectframework.models._
 import objectframework.services.ObjectManager
 import phoenix.failures.ArchiveFailures.ProductIsPresentInCarts
@@ -14,9 +15,8 @@ import phoenix.models.objects.ProductSkuLinks
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import shapeless._
-import utils.Validation
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.db.ExPostgresDriver.api._
+import core.db._
 
 import scala.util.matching.Regex
 

@@ -9,7 +9,9 @@ import akka.http.scaladsl.server._
 import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures._
+import core.db._
+import core.failures._
+import core.utils._
 import objectframework.models.{ObjectContext, ObjectContexts}
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import phoenix.models.activity.ActivityContext
@@ -19,11 +21,8 @@ import phoenix.services.JwtCookie
 import phoenix.utils.aliases._
 import phoenix.utils.http.Http._
 import slick.jdbc.PostgresProfile.api._
-import utils._
-import utils.db._
 
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
 
 object CustomDirectives {
 
@@ -83,7 +82,8 @@ object CustomDirectives {
   }
 
   def adminObjectContext(contextName: String)(route: ObjectContext ⇒ Route)(implicit db: DB,
-                                                                            ec: EC): Route =
+                                                                            ec: EC): Route = {
+    import scala.util.{Failure, Success}
     onComplete(tryGetContextByName(contextName)) {
       case Success(Right(ctx)) ⇒
         route(ctx)
@@ -92,6 +92,7 @@ object CustomDirectives {
       case Failure(ex) ⇒
         complete(renderFailure(GeneralFailure(ex.getMessage()).single))
     }
+  }
 
   private def getContextByName(name: String)(implicit db: DB, ec: EC) =
     db.run(ObjectContexts.filterByName(name).result.headOption).map {
@@ -150,9 +151,12 @@ object CustomDirectives {
   def doOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute = // TODO: rethink discarding warnings here @michalrus
     complete(a.runTxn().runEmptyA.value.map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
 
-  def entityOr[T](um: FromRequestUnmarshaller[T], failure: failures.Failure): Directive1[T] =
+  def entityOr[T](um: FromRequestUnmarshaller[T], failure: Failure): Directive1[T] =
     extractRequestContext.flatMap[Tuple1[T]] { ctx ⇒
       import ctx.{executionContext, materializer}
+
+      import scala.util.{Failure, Success}
+
       onComplete(um(ctx.request)).flatMap {
         case Success(value) ⇒
           provide(value)
