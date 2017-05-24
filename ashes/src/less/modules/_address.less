@@ -10,23 +10,11 @@
   min-height: 278px;
   position: relative;
 
-  &-controls {
-    position: absolute;
-    top: 12px;
-    right: 10px;
-
-    button {
-      float: right;
-      .font-spec(14px, 26px);
-      margin-left: 10px;
-    }
-  }
-
   .fc-card-default-control {
+    display: flex;
+    align-items: center;
     color: @color-decor31;
-    .font-spec(13px, 28px);
-    .inline-block();
-    margin-bottom: 30px;
+    .font-spec(13px);
 
     input {
       .size(16px);
@@ -34,7 +22,7 @@
     }
 
     &-label {
-      .padding-left(5px);
+      .padding-left(10px);
     }
   }
 
