@@ -1,6 +1,7 @@
 package phoenix.services.returns
 
 import cats.implicits._
+import objectframework.FormShadowGet
 import objectframework.models._
 import phoenix.failures.ReturnFailures._
 import phoenix.models.cord.Orders
@@ -204,8 +205,8 @@ object ReturnLineItemManager {
       skus.flatMap {
         case (image, (id, reason, quantity, sku, form, shadow)) ⇒
           for {
-            (price, currency) ← Mvp.price(form, shadow)
-            title             ← Mvp.title(form, shadow)
+            (price, currency) ← FormShadowGet.price(form, shadow)
+            title             ← FormShadowGet.title(form, shadow)
           } yield
             ReturnResponse.LineItem.Sku(
                 id = id,

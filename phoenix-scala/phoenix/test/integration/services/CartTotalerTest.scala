@@ -1,5 +1,6 @@
 package services
 
+import objectframework.FormShadowGet
 import objectframework.models.ObjectContexts
 import phoenix.models.cord.lineitems._
 import phoenix.models.cord.{OrderShippingMethod, OrderShippingMethods}
@@ -75,7 +76,7 @@ class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Ba
       simpleProduct  ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
       tup            ← * <~ Mvp.getProductTuple(simpleProduct)
       _              ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = tup.sku.id))
-      skuPrice       ← * <~ Mvp.priceAsInt(tup.skuForm, tup.skuShadow)
+      skuPrice       ← * <~ FormShadowGet.priceAsInt(tup.skuForm, tup.skuShadow)
     } yield
       (productContext, tup.product, tup.productShadow, tup.sku, tup.skuShadow, skuPrice)).gimme
   }

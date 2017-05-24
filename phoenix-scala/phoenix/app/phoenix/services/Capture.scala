@@ -1,6 +1,7 @@
 package phoenix.services
 
 import cats.implicits._
+import objectframework.FormShadowGet
 import phoenix.failures.CaptureFailures
 import phoenix.failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
 import phoenix.models.account.{User, Users}
@@ -9,7 +10,6 @@ import phoenix.models.cord.lineitems._
 import phoenix.models.payment.creditcard._
 import phoenix.models.payment.giftcard._
 import phoenix.models.payment.storecredit._
-import phoenix.models.product.Mvp
 import phoenix.models.shipping.{ShippingMethod, ShippingMethods}
 import phoenix.payloads.CapturePayloads
 import phoenix.responses.CaptureResponse
@@ -279,7 +279,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
     }.toList)
 
   private def getPrice(item: OrderLineItemProductData): DbResultT[LineItemPrice] =
-    Mvp.price(item.skuForm, item.skuShadow) match {
+    FormShadowGet.price(item.skuForm, item.skuShadow) match {
       case Some((price, currency)) ⇒
         DbResultT.pure(
             LineItemPrice(item.lineItem.referenceNumber, item.sku.code, price, currency))
