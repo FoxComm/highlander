@@ -1,0 +1,67 @@
+---
+# Isaac
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: isaac-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: isaac
+        language: cpp
+        tag: master
+        tier: backend
+    spec:
+      containers:
+      - name: isaac
+        image: docker-stage.foxcommerce.com:5000/isaac:master
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: consul.db
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: phoenix.db_name
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: phoenix.db_user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: phoenix.db_password
+        - name: PUBLIC_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: jwt.public_key
+        ports:
+         - name: liveness-port
+           containerPort: 9190
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: liveness-port
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+---
+# Isaac Load Balancer
+apiVersion: v1
+kind: Service
+metadata:
+  name: isaac-lb
+spec:
+  ports:
+  - port: 9190
+    protocol: TCP
+  selector:
+    app: isaac
+---
