@@ -59,6 +59,7 @@ Checkbox.defaultProps = {
 export const PartialCheckbox = (props: Props) => {
   const className = classNames(
     { [s.halfChecked]: props.checked && props.halfChecked },
+    props.className
   );
 
   return (
@@ -87,6 +88,10 @@ export const SliderCheckbox = (props: Props) => {
     <DefaultCheckbox {...props}
       className={ classNames(s.slideCheckbox, props.className) } />
   );
+};
+
+SliderCheckbox.defaultProps = {
+  checked: false
 };
 
 export const DefaultCheckbox = (props: Props) => {
