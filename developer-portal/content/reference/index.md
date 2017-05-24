@@ -251,6 +251,7 @@ in the `5xx` range indicate an error with Fox's platform.
 <!-- include(objects/stock_location.apib) -->
 <!-- include(objects/stock_item.apib) -->
 <!-- include(objects/shipment.apib) -->
+<!-- include(objects/export.apib) -->
 
 <!-- include(public.apib) -->
 <!-- include(customers.apib) -->

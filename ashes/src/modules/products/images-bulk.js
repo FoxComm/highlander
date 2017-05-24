@@ -1,13 +1,10 @@
-/**
- * @flow
- */
+// @flow
 
 // helpers
 import createStore from '../../lib/store-creator';
 
 // data
 import { reducers } from '../bulk';
-
 
 const openNewWindow = () => dispatch => {
   dispatch(actions.bulkRequest());

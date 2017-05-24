@@ -62,7 +62,7 @@ defmodule Solomon.UserController do
             |> String.downcase
     pass = Map.fetch!(user_params, "password")
     user = Repo.all(User)
-           |> Enum.find(fn u -> String.downcase(u.email) == email end)
+           |> Enum.find(fn u -> u.email != nil && String.downcase(u.email) == email end)
     account_id = user.account_id
     hash = Repo.one!(
       from aam in AccountAccessMethod,
@@ -88,6 +88,8 @@ defmodule Solomon.UserController do
   end
 
   defp insert_and_relate(user_params) do
+    IO.inspect("USER!!!")
+    IO.inspect(user_params)
     account_cs = Account.changeset(%Account{}, %{
       "ratchet" => 0
     })

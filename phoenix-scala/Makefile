@@ -11,13 +11,13 @@ build:
 	sbt 'fullAssembly'
 
 build-phoenix:
-	sbt 'phoenixScala/assembly'
+	sbt 'phoenix/assembly'
 
 build-seeder:
 	sbt 'seeder/assembly'
 
 clean:
-	sbt '; phoenixScala/clean; seeder/clean'
+	sbt '; clean; phoenix/clean; seeder/clean'
 
 test:
 	$(call header, Testing)
@@ -47,7 +47,7 @@ docker-push-seeder:
 	docker tag phoenix-seeder $(DOCKER_REPO)/phoenix-seeder:$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/phoenix-seeder:$(DOCKER_TAG)
 
-update-app:	
+update-app:
 	cd ../tabernacle && ansible-playbook -v -i inventory/static/dev ansible/goldrush_update_app.yml --extra-vars "app_name=phoenix branch_name='$(GIT_BRANCH)' auto_build=y instance_ip=$(INSTANCE)"
 
 .PHONY: build test clean docker docker-push update-app

@@ -83,11 +83,19 @@ export function superAdmin(): Claims {
 }
 
 export function merchant(): Claims {
-  return {
-    ...readAction(frn.pim.product),
-    ...readAction(frn.pim.sku),
-    ...readAction(frn.pim.album),
-    ...readAction(frn.mdl.summary),
-    ...readAction(frn.oms.order),
-  };
+  return _.reduce(frn, (claimsList, systemClaims) => {
+    const leaves = _.reduce(systemClaims, (systemList, resourceClaim) => {
+      // Dirty hack for feature switches. Just remove the permission to the module.
+      switch (resourceClaim) {
+        case frn.settings.plugin:
+          return systemList;
+        case frn.settings.application:
+          return systemList;
+        default:
+          return { ...systemList, [resourceClaim]: ['c', 'r', 'u', 'd'] };
+      }
+    }, {});
+
+    return { ...claimsList, ...leaves };
+  }, {});
 }

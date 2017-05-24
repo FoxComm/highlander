@@ -1,10 +1,9 @@
 /* @flow */
 
-// libs
 import React from 'react';
-import _ from 'lodash';
 
-// helpers
+// libs
+import _ from 'lodash';
 import { activeStatus, isArchived } from 'paragons/common';
 
 // components
@@ -16,25 +15,26 @@ import styles from './product-row.css';
 
 type Props = {
   product: Product,
-  columns?: Array<Object>,
+  columns?: Columns,
   params: Object,
 };
 
-function setCellContents(product, field) {
-  switch (field) {
-    case 'skus':
-      return _.size(_.get(product, 'skus'));
-    case 'image':
-      return _.get(product, ['albums', 0, 'images', 0, 'src']);
-    case 'state':
-      return <RoundedPill text={activeStatus(product)} />;
-    default:
-      return _.get(product, field);
-  }
-}
-
 const ProductRow = (props: Props) => {
   const { product, columns, params } = props;
+
+  const setCellContents = (product: Object, field: string) => {
+    switch (field) {
+      case 'skus':
+        return _.size(_.get(product, 'skus'));
+      case 'image':
+        return _.get(product, ['albums', 0, 'images', 0, 'src']);
+      case 'state':
+        return <RoundedPill text={activeStatus(product)} />;
+      default:
+        return _.get(product, field);
+    }
+  };
+
   const commonParams = {
     columns,
     row: product,

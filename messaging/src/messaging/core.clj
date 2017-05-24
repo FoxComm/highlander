@@ -12,6 +12,7 @@
    [messaging.mail :as mail]
    ;; kafka & other libs
    [franzy.clients.consumer.client :as consumer]
+   [franzy.clients.consumer.callbacks :refer [consumer-rebalance-listener]]
    [franzy.clients.consumer.protocols :refer :all]
    [cheshire.core :as json]
    [environ.core :refer [env]]))
@@ -59,6 +60,29 @@
 
 (def stop (atom false))
 
+(defn start-from-last-commit [consumer]
+  (consumer-rebalance-listener
+    ;; on assign
+    (fn [topic-partitions]
+      (doseq [tp topic-partitions
+              :let [offset (committed-offsets consumer tp)]]
+        (if (nil? offset)
+          (do
+            (log/info "No offset commited. Consuming from latest for topic "
+                    (:topic tp) "using partition" (:partition tp))
+            ;; use old behaviour
+            (seek-to-end-offset! consumer tp))
+          (do
+            (log/info "Consuming from" (:offset offset)
+                    "for topic" (:topic tp)
+                    "using partition" (:partition tp))
+            (seek-to-offset! consumer tp (:offset offset))))))
+
+    ;; on revoked
+    (fn [topic-partitions]
+      (commit-offsets-sync! consumer))))
+
+
 (defn start-app
   [react-app]
   (log/infof "Start consumer, with kafka=%s schema=%s"
@@ -67,32 +91,32 @@
   (reset! stop false)
   (let [cc {:bootstrap.servers       [@kafka-broker]
             :group.id                "fc-messaging"
-            :auto.offset.reset       :latest
             :key.deserializer        "org.apache.kafka.common.serialization.ByteArrayDeserializer"
             :schema.registry.url     @schema-registry-url
             :value.deserializer      "io.confluent.kafka.serializers.KafkaAvroDeserializer"
             :enable.auto.commit      false}]
     (with-open [c (consumer/make-consumer cc)]
-      (subscribe-to-partitions! c topics)
-      (log/info "Partitions subscribed to:" (partition-subscriptions c))
-      (loop []
-        (let [cr (poll! c)]
-          (doseq [record cr]
-            (try
-              (let [msg (decode record)]
-                (log/debug msg)
-                (mail/handle-activity msg)
-                (commit-offsets-sync! c {(select-keys record [:topic :partition])
-                                         {:offset (:offset record) :metadata ""}}))
-              (catch Exception e
-                (let [record-info (safe-decode-minimal record)]
-                  (log/errorf "Caught exception: %s\n\tDuring processing %s" e
-                            record-info)
-                  (throw (ex-info "Caught exception" {:record record-info} e)))))))
+      (let [rebalance-listener (start-from-last-commit c)]
+        (subscribe-to-partitions! c topics {:rebalance-listener-callback rebalance-listener})
+        (log/info "Partitions subscribed to:" (partition-subscriptions c))
+        (loop []
+          (let [cr (poll! c)]
+            (doseq [record cr]
+              (try
+                (let [msg (decode record)]
+                  (log/debug msg)
+                  (mail/handle-activity msg)
+                  (commit-offsets-sync! c {(select-keys record [:topic :partition])
+                                           {:offset (inc (:offset record)) :metadata ""}}))
+                (catch Exception e
+                  (let [record-info (safe-decode-minimal record)]
+                    (log/errorf "Caught exception: %s\n\tDuring processing %s" e
+                              record-info)
+                    (throw (ex-info "Caught exception" {:record record-info} e)))))))
 
-       (when-not @stop
-        (recur))))
-    (log/info "stop polling kafka activities")))
+         (when-not @stop
+          (recur))))
+      (log/info "stop polling kafka activities"))))
 
 (defn stop-app []
   (reset! stop true))
