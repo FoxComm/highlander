@@ -8,6 +8,11 @@ An attempt to launch Fox Platform on [Kubernetes](https://kubernetes.io).
 * [minikube](https://github.com/kubernetes/minikube)
 * [VirtualBox](https://virtualbox.org)
 
+## Configuration
+
+* https://superuser.com/a/722670
+* https://github.com/kubernetes/minikube/issues/352#issuecomment-237615642
+
 ## Running
 
 Start Minikube:
