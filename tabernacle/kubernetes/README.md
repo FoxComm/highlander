@@ -40,5 +40,5 @@ Create Deployments:
 
 DNS cluster addon test:
 
-    $ kubectl run curl --image=radial/busyboxplus:curl -i --tty
+    $ kubectl run curl --image=radial/busyboxplus:curl -i --tty --restart=Never
     $ nslookup peacock-lb
