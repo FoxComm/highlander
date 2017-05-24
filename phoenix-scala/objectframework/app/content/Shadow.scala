@@ -26,7 +26,7 @@ class Shadows(tag: Tag) extends FoxTable[Shadow](tag, "shadows") {
     (id, formId, attributes, relations, createdAt) <> ((Shadow.apply _).tupled, Shadow.unapply)
 }
 
-object Shadow
+object Shadows
     extends FoxTableQuery[Shadow, Shadows](new Shadows(_))
     with ReturningId[Shadow, Shadows] {
   val returningLens: Lens[Shadow, Int] = lens[Shadow].id
