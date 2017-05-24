@@ -4,7 +4,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 
 import phoenix.models.account.User
-import phoenix.payloads.ProductReviewPayloads.{CreateProductReviewPayload, UpdateProductReviewPayload}
+import phoenix.payloads.ProductReviewPayloads.{CreateProductReviewByAdminPayload, UpdateProductReviewPayload}
 import phoenix.services.Authenticator.AuthData
 import phoenix.services.review.ProductReviewManager
 import phoenix.utils.aliases._
@@ -25,9 +25,10 @@ object ProductReviewRoutes {
                 ProductReviewManager.getReview(reviewId)
               }
             } ~
-            (post & entity(as[CreateProductReviewPayload]) & pathEnd) { payload ⇒
+            (post & entity(as[CreateProductReviewByAdminPayload]) & pathEnd) { payload ⇒
               mutateOrFailures {
-                ProductReviewManager.createProductReview(auth.account.id, payload)
+                ProductReviewManager.createProductReview(payload.userId.getOrElse(auth.account.id),
+                                                         payload)
               }
             } ~
             (path(IntNumber) & patch & entity(as[UpdateProductReviewPayload]) & pathEnd) {

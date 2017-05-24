@@ -313,7 +313,7 @@ object Customer {
             } ~
             pathPrefix("review") {
               determineObjectContext(db, ec) { implicit ctx ⇒
-                (post & entity(as[CreateProductReviewPayload]) & pathEnd) { payload ⇒
+                (post & entity(as[CreateProductReviewByCustomerPayload]) & pathEnd) { payload ⇒
                   mutateOrFailures {
                     ProductReviewManager.createProductReview(auth.account.id, payload)
                   }
