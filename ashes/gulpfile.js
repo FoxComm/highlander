@@ -21,7 +21,7 @@ for (let task of fs.readdirSync(opts.taskDir)) {
 gulp.task('clean', () => del(['build/**/*', 'lib/**/*']));
 
 gulp.task('build', function(cb) {
-  let tasks = ['imagemin', 'less', 'sprites', 'precompile', 'browserify', 'css'];
+  let tasks = ['less', 'sprites', 'precompile', 'browserify', 'css'];
 
   if (process.env.NODE_ENV === 'production') {
     tasks = ['clean', ...tasks];
