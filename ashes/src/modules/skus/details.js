@@ -14,6 +14,18 @@ import { pushStockItemChanges } from '../inventory/warehouses';
 
 const defaultContext = 'default';
 
+function cleanSkuPayload(payload) {
+  const nextAlbums = payload.albums.map(album => ({
+    ...album,
+    images: album.images.filter(img => (img.src && img.src.length < 4000))
+  }));
+
+  return {
+    ...payload,
+    albums: nextAlbums,
+  };
+}
+
 export const skuNew = createAction('SKU_NEW');
 const skuClear = createAction('SKU_CLEAR');
 export const syncSku = createAction('SKU_SYNC');
@@ -38,7 +50,7 @@ const _fetchSku = createAsyncActions(
 const _createSku = createAsyncActions(
   'createSku',
   (sku: Sku, context: string = defaultContext) => {
-    return Api.post(`/skus/${context}`, sku);
+    return Api.post(`/skus/${context}`, cleanSkuPayload(sku));
   }
 );
 
@@ -49,7 +61,7 @@ const _updateSku = createAsyncActions(
     const oldSku = _.get(getState(), ['skus', 'details', 'sku', 'attributes', 'code', 'v']);
     if (oldSku) {
       const stockItemsPromise = dispatch(pushStockItemChanges(oldSku));
-      const updatePromise = Api.patch(`/skus/${context}/${oldSku}`, sku);
+      const updatePromise = Api.patch(`/skus/${context}/${oldSku}`, cleanSkuPayload(sku));
       return Promise.all([updatePromise, stockItemsPromise]).then(([updateResponse]) => {
         return updateResponse;
       });
