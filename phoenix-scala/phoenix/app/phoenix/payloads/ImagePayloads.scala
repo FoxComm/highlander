@@ -11,12 +11,11 @@ import objectframework.models._
 import objectframework.payloads.ObjectPayloads._
 import phoenix.failures.ImageFailures.InvalidImageUrl
 import phoenix.models.image._
+import phoenix.facades.ImageFacade.allowedUrlSchemes
 
 object ImagePayloads {
 
   type Images = Option[Seq[ImagePayload]]
-
-  val allowedSchemes: List[String] = List("http", "https")
 
   case class ImagePayload(id: Option[Int] = None,
                           src: String,
@@ -37,9 +36,9 @@ object ImagePayloads {
        ObjectShadow(attributes = jsonBuilder.objectShadow))
     }
 
-    def validateImageSrc(): ValidatedNel[Failure, Unit] = {
+    private def validateImageSrc(): ValidatedNel[Failure, Unit] = {
       val uri = Uri(src)
-      invalidExpr(uri.isEmpty || uri.isRelative || !allowedSchemes.contains(uri.scheme),
+      invalidExpr(uri.isEmpty || uri.isRelative || !allowedUrlSchemes.contains(uri.scheme),
                   InvalidImageUrl(src).description)
     }
 

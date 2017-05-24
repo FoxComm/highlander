@@ -37,7 +37,9 @@ import scala.util.Try
 object ImageFacade extends ImageHelpers {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  case class ImageFacadeException(underlyingFailure: Failure) extends Throwable
+  val allowedUrlSchemes: Set[String] = Set("http", "https")
+
+  case class ImageFacadeException(underlyingFailure: core.failures.Failure) extends Throwable
 
   trait ImageUploader[T] {
 
@@ -98,7 +100,6 @@ object ImageFacade extends ImageHelpers {
 
     val allowedImageTypes: List[String] =
       List(MediaTypes.`image/gif`, MediaTypes.`image/png`, MediaTypes.`image/jpeg`).map(_.value)
-    val allowedSchemes: List[String] = List("http", "https")
 
     implicit object ImagePayloadUploader extends ImageUploader[ImagePayload] {
 
@@ -112,7 +113,7 @@ object ImageFacade extends ImageHelpers {
 
       def shouldBeValidUrl(url: String): Either[Failures, Uri] = {
         val uri = Uri(url)
-        if (uri.isRelative || uri.isEmpty || !allowedSchemes.contains(uri.scheme))
+        if (uri.isRelative || uri.isEmpty || !allowedUrlSchemes.contains(uri.scheme))
           Either.left(InvalidImageUrl(url).single)
         else Either.right(uri)
       }
