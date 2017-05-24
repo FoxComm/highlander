@@ -1,5 +1,5 @@
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import phoenix.failures.AssignmentFailures._
 import phoenix.models._
 import phoenix.models.account._

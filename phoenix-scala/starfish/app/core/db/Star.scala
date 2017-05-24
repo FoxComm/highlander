@@ -3,10 +3,11 @@ package utils.db
 import cats._
 import cats.data._
 import cats.implicits._
-import failures.Failures
-import scala.concurrent.Future
+import core.failures.Failures
 import slick.dbio._
 import slick.sql.SqlAction
+
+import scala.concurrent.Future
 
 object * {
   def <~[A](v: DBIO[Either[Failures, A]])(implicit M: Monad[DBIO]): DbResultT[A] =

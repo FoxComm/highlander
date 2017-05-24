@@ -1,11 +1,11 @@
 package phoenix.models.cord
 
 import com.github.tminglei.slickpg.LTree
-import failures.{Failure, NotFoundFailure404}
+import core.failures.{Failure, NotFoundFailure404}
 import phoenix.failures.CartFailures.OrderAlreadyPlaced
 import phoenix.models.account.Account
 import shapeless._
-import utils.Money.Currency
+import core.utils.Money.Currency
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

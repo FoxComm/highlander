@@ -1,12 +1,12 @@
 package phoenix.payloads
 
 import cats.data.{Validated, ValidatedNel}
-import failures.Failure
+import core.utils.Validation
+import core.failures.Failure
 import objectframework.ObjectUtils._
 import objectframework.models._
 import objectframework.payloads.ObjectPayloads._
 import phoenix.models.image._
-import utils.Validation
 import utils.Validation._
 
 object ImagePayloads {

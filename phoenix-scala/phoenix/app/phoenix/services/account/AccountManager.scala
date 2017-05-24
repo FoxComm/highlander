@@ -2,7 +2,7 @@ package phoenix.services.account
 
 import cats.implicits._
 import phoenix.failures.AuthFailures._
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import phoenix.failures.UserFailures._
 import java.time.Instant
 import phoenix.models.account._

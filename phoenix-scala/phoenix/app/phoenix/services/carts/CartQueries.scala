@@ -1,6 +1,6 @@
 package phoenix.services.carts
 
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import objectframework.models.ObjectContext
 import phoenix.models.account._
 import phoenix.models.cord._

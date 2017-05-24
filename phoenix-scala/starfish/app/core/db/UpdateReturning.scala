@@ -1,16 +1,17 @@
 package utils.db
 
 import cats.implicits._
-import failures.Failure
-import scala.util.matching.Regex
+import core.failures.Failure
 import slick.ast.{CompiledStatement, ResultSetMapping}
 import slick.dbio.Effect
 import slick.jdbc.PostgresProfile._
 import slick.jdbc.{GetResult, JdbcResultConverterDomain, SQLActionBuilder, SetParameter}
 import slick.lifted.Query
-import slick.sql.SqlStreamingAction
 import slick.relational.{CompiledMapping, ResultConverter}
+import slick.sql.SqlStreamingAction
 import slick.util.SQLBuilder
+
+import scala.util.matching.Regex
 
 /*
  * Provides an implicit conversion to allow for UPDATE _ RETURNING _ queries

@@ -3,7 +3,7 @@ package phoenix.utils.seeds
 import objectframework.models.ObjectContexts
 import phoenix.models.product.{Mvp, SimpleContext, SimpleProductData}
 import phoenix.utils.aliases._
-import utils.Money.Currency
+import core.utils.Money.Currency
 import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global

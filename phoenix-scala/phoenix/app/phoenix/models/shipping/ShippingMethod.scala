@@ -1,7 +1,7 @@
 package phoenix.models.shipping
 
 import cats.implicits._
-import failures.Failures
+import core.failures.Failures
 import phoenix.failures.ShippingMethodFailures.ShippingMethodIsNotActive
 import phoenix.models.cord.OrderShippingMethods
 import phoenix.models.rules.QueryStatement

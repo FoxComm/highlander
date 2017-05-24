@@ -3,7 +3,7 @@ package phoenix.models.returns
 import java.time.Instant
 
 import com.pellucid.sealerate
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import phoenix.models.account._
 import phoenix.models.cord.{Order, Orders}
 import phoenix.models.returns.Return._

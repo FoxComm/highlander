@@ -14,7 +14,7 @@ import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
-import failures.Failures
+import core.failures.Failures
 import objectframework.IlluminateAlgorithm
 import objectframework.models.FullObject
 import objectframework.services.ObjectManager

@@ -3,7 +3,7 @@ package phoenix.services
 import cats.implicits._
 import phoenix.failures.CreditCardFailures.CannotUseInactiveCreditCard
 import phoenix.failures.GiftCardFailures.CreditCardMustHaveAddress
-import failures.{Failures, NotFoundFailure404}
+import core.failures.{Failures, NotFoundFailure404}
 import java.time.Instant
 import phoenix.models.account._
 import phoenix.models.cord.OrderPayments.scope._

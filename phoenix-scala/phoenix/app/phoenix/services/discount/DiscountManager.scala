@@ -1,7 +1,7 @@
 package phoenix.services.discount
 
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import objectframework.ObjectFailures._
 import objectframework.ObjectUtils
 import objectframework.models._

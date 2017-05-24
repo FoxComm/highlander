@@ -1,6 +1,7 @@
 package phoenix.utils
 
 import com.github.tminglei.slickpg.LTree
+import core.utils.Money
 import org.json4s.JsonAST.JString
 import org.json4s.{CustomSerializer, Formats, JNull, TypeHints, jackson}
 import phoenix.models.admin.AdminData
@@ -26,7 +27,6 @@ import phoenix.payloads.AuthPayload
 import phoenix.payloads.EntityExportPayloads._
 import phoenix.payloads.ReturnPayloads.ReturnLineItemPayload
 import phoenix.responses.PublicResponses.CountryWithRegions
-import utils.Money
 
 /**
   * [[TypeHints]] implementation for json4s that supports

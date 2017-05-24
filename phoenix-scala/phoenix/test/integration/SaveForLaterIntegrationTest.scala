@@ -1,4 +1,4 @@
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import objectframework.models.ObjectContexts
 import phoenix.failures.AlreadySavedForLater
 import phoenix.failures.ProductFailures.SkuNotFoundForContext

@@ -3,7 +3,7 @@ package phoenix.utils.seeds
 import phoenix.models.account.Scope
 import phoenix.models.payment.storecredit._
 import phoenix.utils.aliases._
-import utils.Money.Currency
+import core.utils.Money.Currency
 import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global

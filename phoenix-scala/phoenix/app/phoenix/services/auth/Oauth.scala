@@ -4,7 +4,7 @@ import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import cats.implicits._
-import failures.GeneralFailure
+import core.failures.GeneralFailure
 import phoenix.libs.oauth.{Oauth, UserInfo}
 import phoenix.models.account._
 import phoenix.models.auth.Token

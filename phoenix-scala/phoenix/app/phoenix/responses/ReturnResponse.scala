@@ -12,7 +12,7 @@ import phoenix.responses.CustomerResponse.{Root ⇒ Customer}
 import phoenix.responses.StoreAdminResponse.{Root ⇒ User}
 import phoenix.services.carts.CartTotaler
 import phoenix.services.returns.{ReturnLineItemManager, ReturnTotaler}
-import utils.Money._
+import core.utils.Money._
 import utils.db._
 
 object ReturnResponse {

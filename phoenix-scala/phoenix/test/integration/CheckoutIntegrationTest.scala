@@ -3,7 +3,7 @@ import java.time.temporal.ChronoUnit
 
 import akka.http.scaladsl.model.HttpResponse
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import phoenix.failures.AddressFailures.NoDefaultAddressForCustomer
 import phoenix.failures.CreditCardFailures.NoDefaultCreditCardForCustomer
 import phoenix.failures.ShippingMethodFailures._

@@ -3,9 +3,9 @@ package utils.db
 import cats.data.Validated.Valid
 import cats.data.ValidatedNel
 import cats.implicits._
-import failures.{Failure, Failures, GeneralFailure}
-import utils.Strings._
-import utils.{Validation, friendlyClassName}
+import core.failures.{Failure, Failures, GeneralFailure}
+import core.utils.Strings._
+import core.utils.{Validation, friendlyClassName}
 
 trait Identity[A] { self: A ⇒
   type Id = Int

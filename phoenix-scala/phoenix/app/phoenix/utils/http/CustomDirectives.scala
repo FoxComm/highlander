@@ -9,7 +9,7 @@ import akka.http.scaladsl.server._
 import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures._
+import core.failures._
 import objectframework.models.{ObjectContext, ObjectContexts}
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import phoenix.models.activity.ActivityContext

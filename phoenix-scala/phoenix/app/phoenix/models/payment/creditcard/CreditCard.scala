@@ -4,7 +4,8 @@ import java.time.Instant
 
 import cats.data.ValidatedNel
 import cats.implicits._
-import failures._
+import core.utils.Validation
+import core.failures._
 import phoenix.failures.CreditCardFailures.CannotUseInactiveCreditCard
 import phoenix.models.account._
 import phoenix.models.location._

@@ -1,7 +1,7 @@
 package testutils
 
 import cats.implicits._
-import failures.Failures
+import core.failures.Failures
 import org.scalatest.AppendedClues
 import org.scalatest.concurrent.ScalaFutures
 import phoenix.utils.aliases._

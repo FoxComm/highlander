@@ -5,7 +5,7 @@ import phoenix.models.payment.giftcard.{GiftCard, GiftCards}
 import phoenix.models.payment.storecredit.{StoreCredit, StoreCredits}
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.Money._
+import core.utils.Money._
 import utils.db._
 
 case class ReturnPayment(id: Int = 0,

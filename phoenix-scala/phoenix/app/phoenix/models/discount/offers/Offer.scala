@@ -1,7 +1,7 @@
 package phoenix.models.discount.offers
 
 import cats.implicits._
-import failures._
+import core.failures._
 import phoenix.failures.DiscountFailures.SearchFailure
 import phoenix.models.cord.lineitems.CartLineItemAdjustment._
 import phoenix.models.cord.lineitems.{CartLineItemAdjustment ⇒ Adjustment}

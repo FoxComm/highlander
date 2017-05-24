@@ -3,14 +3,15 @@ package utils
 import cats._
 import cats.data._
 import cats.implicits._
-import failures._
-import scala.concurrent.{ExecutionContext, Future}
-
+import core.failures.{Failure, Failures, _}
+import core.utils.Money
+import core.utils.time.JavaTimeSlickMapper
 import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.SQLActionBuilder
 import slick.lifted.Query
 import slick.sql.SqlAction
-import utils.time.JavaTimeSlickMapper
+
+import scala.concurrent.{ExecutionContext, Future}
 
 /*_*/ // <- this little guy will disable IJ lint for the code below
 package object db {

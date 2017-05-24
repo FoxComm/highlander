@@ -2,7 +2,7 @@ package phoenix.services.customerGroups
 
 import java.time.Instant
 
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import phoenix.models.account.{Scope, User}

@@ -1,7 +1,7 @@
 package utils
 
 import cats.implicits._
-import failures.GeneralFailure
+import core.failures.GeneralFailure
 import phoenix.utils.seeds.Factories
 import testutils._
 import utils.db._

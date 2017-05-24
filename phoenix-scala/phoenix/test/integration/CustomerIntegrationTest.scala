@@ -3,7 +3,7 @@ import java.time.temporal.ChronoUnit
 
 import cats.implicits._
 import com.stripe.exception.CardException
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import phoenix.failures.CreditCardFailures.CannotUseInactiveCreditCard

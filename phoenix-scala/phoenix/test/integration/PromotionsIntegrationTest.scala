@@ -3,7 +3,7 @@ import java.time.temporal.ChronoUnit.DAYS
 
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import objectframework.IlluminateAlgorithm
 import objectframework.ObjectFailures.ObjectContextNotFound
 import objectframework.models.ObjectContext

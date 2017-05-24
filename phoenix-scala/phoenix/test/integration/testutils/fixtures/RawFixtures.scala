@@ -16,7 +16,7 @@ import phoenix.services.carts._
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.raw._
-import utils.Money.Currency
+import core.utils.Money.Currency
 import utils.db._
 
 /**

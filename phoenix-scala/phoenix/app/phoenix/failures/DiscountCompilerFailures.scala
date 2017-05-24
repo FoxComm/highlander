@@ -1,6 +1,6 @@
 package phoenix.failures
 
-import failures.Failure
+import core.failures.Failure
 import phoenix.models.discount.DiscountInput
 import phoenix.models.discount.offers.{Offer, OfferType}
 import phoenix.models.discount.qualifiers.QualifierType.show

@@ -2,7 +2,7 @@ package phoenix.services.promotion
 
 import java.time.Instant
 
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import objectframework.ObjectFailures._
 import objectframework.ObjectUtils
 import objectframework.ObjectUtils._

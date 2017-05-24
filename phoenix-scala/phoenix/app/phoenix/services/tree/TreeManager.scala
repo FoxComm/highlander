@@ -2,7 +2,7 @@ package phoenix.services.tree
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.DatabaseFailure
+import core.failures.DatabaseFailure
 import objectframework.models._
 import objectframework.services.ObjectManager
 import phoenix.failures.TreeFailures._

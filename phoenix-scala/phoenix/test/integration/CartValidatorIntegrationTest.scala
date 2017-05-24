@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.HttpResponse
 import cats.implicits._
-import failures.Failure
+import core.failures.Failure
 import objectframework.models.ObjectContexts
 import org.scalatest.AppendedClues
 import phoenix.failures.CartFailures._

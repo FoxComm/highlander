@@ -2,10 +2,10 @@ package objectframework.models
 
 import java.time.Instant
 
+import core.utils.Validation
 import org.json4s.JsonAST.{JNothing, JValue}
 import org.json4s.JsonDSL._
 import shapeless._
-import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

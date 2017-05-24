@@ -1,7 +1,7 @@
 package phoenix.services
 
 import cats.implicits._
-import failures.{Failure, Failures}
+import core.failures.{Failure, Failures}
 import objectframework.services.ObjectManager
 import phoenix.failures.CartFailures._
 import phoenix.models.cord._

@@ -1,4 +1,4 @@
-import failures._
+import core.failures._
 import phoenix.failures.StoreCreditFailures.StoreCreditConvertFailure
 import phoenix.failures.{EmptyCancellationReasonFailure, OpenTransactionsFailure}
 import phoenix.models.Reason

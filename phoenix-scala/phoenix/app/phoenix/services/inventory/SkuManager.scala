@@ -3,7 +3,7 @@ package phoenix.services.inventory
 import java.time.Instant
 
 import cats.syntax.all._
-import failures.{Failures, GeneralFailure}
+import core.failures.{Failures, GeneralFailure}
 import objectframework.ObjectResponses.ObjectContextResponse
 import objectframework.ObjectUtils
 import objectframework.models._

@@ -4,13 +4,13 @@ import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
+import core.utils.Validation
 import phoenix.failures.UserFailures._
 import phoenix.models.admin.AdminData._
 import phoenix.utils.{ADT, FSM}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

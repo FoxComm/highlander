@@ -1,6 +1,6 @@
 package phoenix.services.returns
 
-import failures.{Failure, Failures}
+import core.failures.{Failure, Failures}
 import phoenix.failures.ReturnFailures.EmptyReturn
 import phoenix.models.returns._
 import slick.jdbc.PostgresProfile.api._

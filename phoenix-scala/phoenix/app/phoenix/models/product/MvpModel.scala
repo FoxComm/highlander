@@ -22,7 +22,7 @@ import phoenix.services.image.ImageManager
 import phoenix.services.inventory.SkuManager
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.Money.Currency
+import core.utils.Money.Currency
 import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global

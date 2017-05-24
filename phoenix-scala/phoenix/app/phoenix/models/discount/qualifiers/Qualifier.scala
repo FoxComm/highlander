@@ -1,7 +1,7 @@
 package phoenix.models.discount.qualifiers
 
 import cats.implicits._
-import failures._
+import core.failures._
 import phoenix.failures.DiscountCompilerFailures.QualifierRejectionFailure
 import phoenix.failures.DiscountFailures.SearchFailure
 import phoenix.models.discount.{DiscountBase, DiscountInput, ProductSearch}

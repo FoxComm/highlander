@@ -1,6 +1,6 @@
 package utils
 
-import failures.GeneralFailure
+import core.failures.GeneralFailure
 import phoenix.models.location._
 import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._

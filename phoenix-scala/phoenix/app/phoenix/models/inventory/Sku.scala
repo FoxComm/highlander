@@ -3,7 +3,7 @@ package phoenix.models.inventory
 import java.time.Instant
 
 import cats.implicits._
-import failures.Failures
+import core.failures.Failures
 import objectframework.models._
 import phoenix.failures.ArchiveFailures.{LinkInactiveSkuFailure, SkuIsPresentInCarts}
 import phoenix.utils.JsonFormatters

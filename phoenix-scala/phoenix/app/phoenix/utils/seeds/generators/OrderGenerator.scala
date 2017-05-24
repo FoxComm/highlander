@@ -3,7 +3,7 @@ package phoenix.utils.seeds.generators
 import java.time.Instant
 
 import cats.implicits._
-import failures.NotFoundFailure400
+import core.failures.NotFoundFailure400
 import faker._
 import objectframework.models.ObjectContext
 import phoenix.failures.CreditCardFailures.CustomerHasNoCreditCard

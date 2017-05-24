@@ -1,7 +1,7 @@
 package phoenix.services
 
 import de.heikoseeberger.akkasse.{ServerSentEvent ⇒ SSE}
-import failures._
+import core.failures._
 import phoenix.models.{Notification, Notifications}
 import phoenix.models.{LastSeenNotification, LastSeenNotifications}
 import phoenix.models.Notification._

@@ -8,7 +8,7 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.{ContentDispositionTypes, `Content-Disposition`}
 import akka.http.scaladsl.unmarshalling.Unmarshaller
 import akka.stream.scaladsl.Source
-import failures.{Failures, NotFoundFailure404}
+import core.failures.{Failures, NotFoundFailure404}
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import org.json4s.{Formats, jackson}

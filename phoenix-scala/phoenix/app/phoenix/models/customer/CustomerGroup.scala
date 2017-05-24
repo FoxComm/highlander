@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
-import failures.Failures
+import core.failures.Failures
 import phoenix.failures.CustomerGroupFailures.CustomerGroupTypeIsWrong
 import phoenix.models.customer.CustomerGroup._
 import phoenix.payloads.CustomerGroupPayloads.CustomerGroupPayload

@@ -1,10 +1,10 @@
 package phoenix.models.activity
 
 import cats.data.ValidatedNel
-import failures.Failure
+import core.utils.Validation
+import core.failures.Failure
 import shapeless._
 import slick.lifted.Tag
-import utils.Validation
 import utils.Validation._
 import utils.db.ExPostgresDriver.api._
 import utils.db._

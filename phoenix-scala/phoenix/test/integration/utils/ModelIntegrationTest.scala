@@ -1,6 +1,6 @@
 package utils
 
-import failures.{DatabaseFailure, GeneralFailure}
+import core.failures.{DatabaseFailure, GeneralFailure}
 import phoenix.failures.StateTransitionNotAllowed
 import phoenix.models.account._
 import phoenix.models.cord.Order.Shipped

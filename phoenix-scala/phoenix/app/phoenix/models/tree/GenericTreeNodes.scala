@@ -1,10 +1,10 @@
 package phoenix.models.tree
 
 import slick.lifted.Tag
-import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import com.github.tminglei.slickpg._
+import core.utils.Validation
 import phoenix.utils.JsonFormatters
 import shapeless._
 

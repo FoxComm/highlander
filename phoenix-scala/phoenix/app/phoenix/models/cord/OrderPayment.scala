@@ -1,14 +1,14 @@
 package phoenix.models.cord
 
 import cats.data.ValidatedNel
-import failures.Failure
+import core.failures.Failure
 import phoenix.models.payment.PaymentMethod
 import phoenix.models.payment.creditcard.{CreditCard, CreditCards}
 import phoenix.models.payment.giftcard.{GiftCard, GiftCards}
 import phoenix.models.payment.storecredit.{StoreCredit, StoreCredits}
 import phoenix.utils.aliases.stripe.StripeCustomer
 import shapeless._
-import utils.Money._
+import core.utils.Money._
 import utils.Validation._
 import utils.db.ExPostgresDriver.api._
 import utils.db._

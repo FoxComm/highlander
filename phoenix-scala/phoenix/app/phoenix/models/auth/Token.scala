@@ -5,7 +5,7 @@ import java.security.spec.{PKCS8EncodedKeySpec, X509EncodedKeySpec}
 import java.security.{KeyFactory, PrivateKey, PublicKey}
 
 import cats.implicits._
-import failures.{Failures, GeneralFailure}
+import core.failures.{Failures, GeneralFailure}
 import org.jose4j.jwa.AlgorithmConstraints
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims

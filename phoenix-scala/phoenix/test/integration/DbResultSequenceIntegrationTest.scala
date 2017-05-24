@@ -1,6 +1,6 @@
 import cats.data._
 import cats.implicits._
-import failures._
+import core.failures._
 import phoenix.models.account._
 import testutils._
 import utils.db._

@@ -1,9 +1,9 @@
 package phoenix.models.tree
 
+import core.utils.Validation
 import phoenix.utils.JsonFormatters
 import shapeless._
 import slick.lifted.Tag
-import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

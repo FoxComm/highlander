@@ -3,13 +3,13 @@ package phoenix.models.taxonomy
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
+import core.utils.Validation
 import objectframework.models.ObjectForm
 import objectframework.models.ObjectHeadLinks._
 import phoenix.failures.TaxonomyFailures.NoTermInTaxonomy
 import phoenix.utils.aliases.{EC, OC}
 import shapeless._
 import slick.lifted.Tag
-import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

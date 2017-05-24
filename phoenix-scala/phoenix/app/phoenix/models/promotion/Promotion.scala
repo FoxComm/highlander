@@ -7,10 +7,10 @@ import objectframework.models._
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import com.github.tminglei.slickpg._
+import core.utils.Validation
 import phoenix.utils.ADT
 
 object Promotion {

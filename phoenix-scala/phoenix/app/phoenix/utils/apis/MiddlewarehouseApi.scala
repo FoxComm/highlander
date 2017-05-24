@@ -4,7 +4,7 @@ import cats.implicits._
 import com.ning.http.client
 import com.typesafe.scalalogging.LazyLogging
 import dispatch._
-import failures.Failures
+import core.failures.Failures
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import phoenix.failures.MiddlewarehouseFailures._

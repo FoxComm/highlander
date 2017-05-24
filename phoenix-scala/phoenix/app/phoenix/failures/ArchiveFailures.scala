@@ -1,6 +1,6 @@
 package phoenix.failures
 
-import failures.Failure
+import core.failures.Failure
 import utils.friendlyClassName
 
 object ArchiveFailures {

@@ -6,7 +6,7 @@ import cats.implicits._
 import com.stripe.exception.{CardException, StripeException}
 import com.stripe.model.{DeletedCard, ExternalAccount, Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
 import com.typesafe.scalalogging.LazyLogging
-import failures.{Failures, GeneralFailure}
+import core.failures.{Failures, GeneralFailure}
 import phoenix.failures.StripeFailures.{CardNotFoundForNewCustomer, StripeFailure}
 import utils.db._
 import StripeMappings.cardExceptionMap

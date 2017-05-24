@@ -2,7 +2,7 @@ package phoenix.services
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.GeneralFailure
+import core.failures.GeneralFailure
 import objectframework.ObjectUtils
 import objectframework.models._
 import org.json4s.JsonAST._

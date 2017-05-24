@@ -1,7 +1,7 @@
 package phoenix.services
 
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import objectframework.models.ObjectContext
 import phoenix.failures.AlreadySavedForLater
 import phoenix.models.account.{User, Users}

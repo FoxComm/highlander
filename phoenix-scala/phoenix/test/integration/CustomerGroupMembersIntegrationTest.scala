@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 import com.github.tminglei.slickpg.LTree
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import org.scalatest.mockito.MockitoSugar
 import phoenix.failures.CustomerGroupFailures._
 import phoenix.models.account._

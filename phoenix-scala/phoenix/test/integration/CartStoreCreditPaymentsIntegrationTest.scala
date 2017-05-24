@@ -1,6 +1,6 @@
 import java.time.ZonedDateTime
 
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import phoenix.failures.CartFailures.OrderAlreadyPlaced
 import phoenix.failures.StoreCreditFailures.CustomerHasInsufficientStoreCredit
 import phoenix.models.Reasons

@@ -1,7 +1,7 @@
 package phoenix.responses
 
 import cats.{Functor, Monad}
-import failures._
+import core.failures._
 import phoenix.responses.BatchMetadata._
 import phoenix.services.CartValidatorResponse
 import utils.friendlyClassName

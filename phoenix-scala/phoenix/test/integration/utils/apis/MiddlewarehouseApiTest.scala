@@ -1,7 +1,7 @@
 package utils.apis
 
 import cats.data.NonEmptyList
-import failures.Failures
+import core.failures.Failures
 import phoenix.failures.MiddlewarehouseFailures._
 import phoenix.utils.apis.Middlewarehouse
 import testutils.TestBase

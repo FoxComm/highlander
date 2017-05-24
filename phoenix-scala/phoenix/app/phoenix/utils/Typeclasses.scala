@@ -15,7 +15,7 @@ import scala.collection.immutable.TreeMap
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
-import utils.Strings._
+import core.utils.Strings._
 import utils._
 
 trait Read[F] { self ⇒

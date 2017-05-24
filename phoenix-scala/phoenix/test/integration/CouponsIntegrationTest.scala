@@ -3,7 +3,7 @@ import java.time.Instant.now
 import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import objectframework.ObjectFailures.ObjectContextNotFound
 import objectframework.models.ObjectContext
 import org.json4s.JsonAST._

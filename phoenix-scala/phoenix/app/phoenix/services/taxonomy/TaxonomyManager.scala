@@ -5,7 +5,8 @@ import java.time.Instant
 import cats.data.ValidatedNel
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.Failure
+import core.utils.Validation
+import core.failures.Failure
 import objectframework.ObjectUtils
 import objectframework.models._
 import objectframework.services.ObjectManager
@@ -23,7 +24,6 @@ import phoenix.responses.TaxonResponses._
 import phoenix.responses.TaxonomyResponses._
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

@@ -2,7 +2,7 @@ package phoenix.services.customerGroups
 
 import cats.implicits._
 import phoenix.failures.CustomerGroupFailures.CustomerGroupMemberPayloadContainsSameIdsInBothSections
-import failures.{NotFoundFailure400, NotFoundFailure404}
+import core.failures.{NotFoundFailure400, NotFoundFailure404}
 import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 import phoenix.models.account.{User, Users}

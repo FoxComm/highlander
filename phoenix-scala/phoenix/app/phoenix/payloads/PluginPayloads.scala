@@ -2,9 +2,9 @@ package phoenix.payloads
 
 import cats.data.ValidatedNel
 import cats.implicits._
-import failures.Failure
+import core.utils.Validation
+import core.failures.Failure
 import phoenix.models.plugins.PluginSettings._
-import utils.Validation
 import utils.Validation._
 
 object PluginPayloads {

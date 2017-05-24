@@ -2,7 +2,7 @@ package phoenix.responses
 
 import java.time.Instant
 
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import objectframework.models._
 import phoenix.models.inventory.{Sku, Skus}
 import phoenix.models.product.Mvp

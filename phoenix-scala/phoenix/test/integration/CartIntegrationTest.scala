@@ -1,5 +1,5 @@
 import cats.implicits._
-import failures.{NotFoundFailure400, NotFoundFailure404}
+import core.failures.{NotFoundFailure400, NotFoundFailure404}
 import faker.Lorem
 import org.json4s.jackson.JsonMethods._
 import phoenix.failures.CartFailures._

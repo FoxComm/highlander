@@ -1,6 +1,6 @@
 package objectframework.services
 
-import failures._
+import core.failures._
 import objectframework.ObjectFailures._
 import objectframework.ObjectResponses._
 import objectframework.models._

@@ -5,7 +5,7 @@ import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import com.typesafe.config.Config
 import phoenix.failures.UserFailures._
-import failures.{Failures, FailuresOps, NotFoundFailure404}
+import core.failures.{Failures, FailuresOps, NotFoundFailure404}
 import java.time.{Instant, ZoneId}
 
 import phoenix.models.Reasons

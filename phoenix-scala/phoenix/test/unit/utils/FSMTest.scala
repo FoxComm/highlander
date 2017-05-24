@@ -1,6 +1,6 @@
 package utils
 
-import failures.Failures
+import core.failures.Failures
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import phoenix.utils.FSM
 import shapeless._

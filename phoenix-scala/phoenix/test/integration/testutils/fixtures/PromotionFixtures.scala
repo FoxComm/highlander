@@ -1,6 +1,6 @@
 package testutils.fixtures
 
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
 import phoenix.models.account.User

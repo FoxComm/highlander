@@ -1,12 +1,12 @@
 package phoenix.utils.seeds.generators
 
+import core.utils.Money.Currency
 import objectframework.models.ObjectContext
 import phoenix.models.account.Scope
 import phoenix.models.cord.{Cart, Carts, Order, Orders}
 import phoenix.models.payment.giftcard._
 import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
 import phoenix.utils.aliases._
-import utils.Money.Currency
 import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global

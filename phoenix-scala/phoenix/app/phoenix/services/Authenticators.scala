@@ -10,7 +10,7 @@ import akka.http.scaladsl.server.directives.RespondWithDirectives.respondWithHea
 import akka.http.scaladsl.server.directives.SecurityDirectives.AuthenticationResult
 import akka.http.scaladsl.server.directives.{AuthenticationDirective, AuthenticationResult}
 import cats.implicits._
-import failures._
+import core.failures._
 import phoenix.failures.AuthFailures._
 import phoenix.models.account._
 import phoenix.models.admin._

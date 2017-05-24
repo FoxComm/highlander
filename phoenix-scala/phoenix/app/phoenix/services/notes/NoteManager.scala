@@ -2,7 +2,7 @@ package phoenix.services.notes
 
 import java.time.Instant
 
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import phoenix.models.Notes.scope._
 import phoenix.models.{Note, Notes}
 import phoenix.models.account._

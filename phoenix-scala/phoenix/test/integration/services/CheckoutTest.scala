@@ -3,7 +3,7 @@ package services
 import java.util.concurrent.atomic.AtomicBoolean
 
 import cats.implicits._
-import failures.GeneralFailure
+import core.failures.GeneralFailure
 import faker.Lorem
 import objectframework.models.ObjectContexts
 import org.mockito.ArgumentMatchers._

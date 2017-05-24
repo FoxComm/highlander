@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.data.NonEmptyList
 import com.networknt.schema.JsonSchemaFactory
 import com.typesafe.scalalogging.LazyLogging
-import failures.Failure
+import core.failures.Failure
 import objectframework.ObjectFailures._
 import objectframework.models._
 import org.json4s.Formats

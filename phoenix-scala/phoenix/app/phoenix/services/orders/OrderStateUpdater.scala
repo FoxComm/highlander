@@ -1,7 +1,7 @@
 package phoenix.services.orders
 
 import cats.implicits._
-import failures.NotFoundFailure400
+import core.failures.NotFoundFailure400
 import phoenix.failures.StateTransitionNotAllowed
 import phoenix.models.account._
 import phoenix.models.cord.Order._

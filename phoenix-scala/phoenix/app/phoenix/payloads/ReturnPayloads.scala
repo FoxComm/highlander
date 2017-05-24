@@ -2,12 +2,12 @@ package phoenix.payloads
 
 import cats.data._
 import cats.implicits._
-import failures.Failure
+import core.utils.Validation
+import core.failures.Failure
 import phoenix.failures.{EmptyCancellationReasonFailure, NonEmptyCancellationReasonFailure}
 import phoenix.models.payment.PaymentMethod
 import phoenix.models.returns.{Return, ReturnLineItem}
 import phoenix.utils.ADTTypeHints
-import utils.Validation
 import utils.Validation._
 
 object ReturnPayloads {

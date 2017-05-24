@@ -5,10 +5,10 @@ import java.time.Instant
 import objectframework.models._
 import shapeless._
 import slick.lifted.Tag
-import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import com.github.tminglei.slickpg._
+import core.utils.Validation
 
 object Variant {
   val kind = "variant"

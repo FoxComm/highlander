@@ -2,7 +2,7 @@ package phoenix.models.discount.qualifiers
 
 import cats.implicits._
 import phoenix.failures.DiscountFailures._
-import failures._
+import core.failures._
 import phoenix.models.discount._
 import phoenix.utils.ElasticsearchApi._
 import phoenix.utils.aliases._

@@ -2,7 +2,7 @@ package phoenix.services
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import objectframework.ObjectUtils
 import org.json4s.JsonAST._
 import phoenix.failures.AddressFailures.NoCountryFound

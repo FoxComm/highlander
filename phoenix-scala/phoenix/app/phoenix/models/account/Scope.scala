@@ -2,7 +2,7 @@ package phoenix.models.account
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures._
+import core.failures._
 import phoenix.failures.ScopeFailures._
 import phoenix.failures.UserFailures.OrganizationNotFoundByName
 import phoenix.utils.aliases._

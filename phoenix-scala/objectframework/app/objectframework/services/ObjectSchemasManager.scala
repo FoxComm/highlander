@@ -1,6 +1,6 @@
 package objectframework.services
 
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import objectframework.ObjectResponses.ObjectSchemaResponse._
 import objectframework.models._
 import objectframework.payloads.ObjectSchemaPayloads._
@@ -29,7 +29,7 @@ object ObjectSchemasManager {
   private def mustGetEmptySchema()(implicit ec: EC): DbResultT[ObjectFullSchema] =
     ObjectFullSchemas
       .filter(_.name === "empty")
-      .mustFindOneOr(failures.NotFoundFailure404(ObjectFullSchema, "empty"))
+      .mustFindOneOr(NotFoundFailure404(ObjectFullSchema, "empty"))
 
   def getSchemaByOptNameOrKind(schema: Option[String], kind: String)(
       implicit ec: EC): DbResultT[Option[ObjectFullSchema]] = {

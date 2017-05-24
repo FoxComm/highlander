@@ -1,6 +1,6 @@
 package phoenix.services.assignments
 
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import objectframework.models.{ObjectForm, ObjectForms}
 import phoenix.models.activity.Dimension
 import phoenix.models.promotion.Promotion

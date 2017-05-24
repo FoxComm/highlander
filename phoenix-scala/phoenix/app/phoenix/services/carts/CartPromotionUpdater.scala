@@ -2,7 +2,7 @@ package phoenix.services.carts
 
 import cats._
 import cats.implicits._
-import failures.Failures
+import core.failures.Failures
 import objectframework.models._
 import org.json4s.JsonAST._
 import phoenix.failures.CouponFailures._

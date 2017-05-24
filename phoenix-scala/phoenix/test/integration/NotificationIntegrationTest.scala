@@ -2,7 +2,7 @@ import java.time.Instant
 
 import akka.stream.scaladsl.Source
 import com.github.tminglei.slickpg.LTree
-import failures._
+import core.failures._
 import org.json4s.Extraction
 import org.json4s.JsonAST._
 import org.json4s.jackson.Serialization.write

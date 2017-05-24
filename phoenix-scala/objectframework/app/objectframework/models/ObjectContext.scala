@@ -2,9 +2,9 @@ package objectframework.models
 
 import java.time.Instant
 
+import core.utils.Validation
 import org.json4s.JValue
 import shapeless._
-import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

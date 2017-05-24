@@ -17,7 +17,7 @@ import phoenix.services.orders.OrderQueries
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import slick.jdbc.PostgresProfile.api._
-import utils.Money.Currency
+import core.utils.Money.Currency
 import utils.db._
 
 //

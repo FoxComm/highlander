@@ -2,7 +2,7 @@ package phoenix.models.payment.giftcard
 
 import java.time.Instant
 
-import failures.Failures
+import core.failures.Failures
 import phoenix.models.cord.OrderPayment
 import phoenix.models.payment.InStorePaymentStates._
 import phoenix.models.payment._

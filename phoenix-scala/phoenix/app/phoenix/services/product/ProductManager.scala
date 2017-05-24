@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.data._
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
-import failures._
+import core.failures._
 import objectframework.ObjectResponses.ObjectContextResponse
 import objectframework.ObjectUtils
 import objectframework.models._

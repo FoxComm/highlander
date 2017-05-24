@@ -2,10 +2,10 @@ package phoenix.models.taxonomy
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
+import core.utils.Validation
 import objectframework.models._
 import shapeless._
 import slick.lifted.Tag
-import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

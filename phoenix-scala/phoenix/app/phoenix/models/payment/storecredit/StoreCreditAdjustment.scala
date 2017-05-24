@@ -2,7 +2,7 @@ package phoenix.models.payment.storecredit
 
 import java.time.Instant
 
-import failures.Failures
+import core.failures.Failures
 import phoenix.models.payment.InStorePaymentStates._
 import phoenix.models.payment._
 import phoenix.utils.FSM

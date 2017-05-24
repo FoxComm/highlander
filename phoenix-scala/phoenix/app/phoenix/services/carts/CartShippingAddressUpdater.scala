@@ -1,7 +1,7 @@
 package phoenix.services.carts
 
 import phoenix.failures.CartFailures.NoShipAddress
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import phoenix.models.account._
 import phoenix.models.cord._
 import phoenix.models.location.Addresses.scope._

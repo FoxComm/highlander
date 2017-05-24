@@ -1,4 +1,4 @@
-import failures.{NotFoundFailure400, NotFoundFailure404}
+import core.failures.{NotFoundFailure400, NotFoundFailure404}
 import phoenix.failures.CartFailures.OrderAlreadyPlaced
 import phoenix.failures.CreditCardFailures.CannotUseInactiveCreditCard
 import phoenix.failures.OrderFailures.OrderPaymentNotFoundFailure

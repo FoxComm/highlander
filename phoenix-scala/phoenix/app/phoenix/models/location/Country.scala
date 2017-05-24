@@ -1,7 +1,7 @@
 package phoenix.models.location
 
 import shapeless._
-import utils.Money._
+import core.utils.Money._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

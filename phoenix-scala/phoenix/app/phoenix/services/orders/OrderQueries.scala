@@ -1,7 +1,7 @@
 package phoenix.services.orders
 
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import phoenix.models.account.{User, Users}
 import phoenix.models.cord._
 import phoenix.responses.TheResponse

@@ -1,5 +1,5 @@
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import org.json4s.jackson.JsonMethods._
 import phoenix.failures.SharedSearchFailures._
 import phoenix.models.account._

@@ -1,7 +1,7 @@
 package phoenix.services.assignments
 
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import phoenix.failures.AssignmentFailures._
 import phoenix.failures.Util._
 import phoenix.models.Assignment._

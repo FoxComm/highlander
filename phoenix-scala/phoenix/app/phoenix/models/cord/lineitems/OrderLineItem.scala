@@ -2,7 +2,7 @@ package phoenix.models.cord.lineitems
 
 import cats.implicits._
 import com.pellucid.sealerate
-import failures.Failures
+import core.failures.Failures
 import objectframework.models._
 import org.json4s.Extraction.decompose
 import org.json4s.Formats

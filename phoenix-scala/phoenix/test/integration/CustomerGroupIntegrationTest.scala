@@ -1,6 +1,6 @@
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import org.json4s._
 import org.scalatest.mockito.MockitoSugar
 import phoenix.models.customer.CustomerGroup._

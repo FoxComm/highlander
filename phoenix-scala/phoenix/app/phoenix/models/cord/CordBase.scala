@@ -1,6 +1,6 @@
 package phoenix.models.cord
 
-import utils.Money.Currency
+import core.utils.Money.Currency
 import utils.db.FoxModel
 
 trait CordBase[A <: FoxModel[A]] extends FoxModel[A] { self: A ⇒

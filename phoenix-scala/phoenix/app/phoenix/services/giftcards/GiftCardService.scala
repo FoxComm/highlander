@@ -1,7 +1,7 @@
 package phoenix.services.giftcards
 
 import cats.implicits._
-import failures.NotFoundFailure400
+import core.failures.NotFoundFailure400
 import phoenix.failures.OpenTransactionsFailure
 import phoenix.models.Reasons
 import phoenix.models.account._

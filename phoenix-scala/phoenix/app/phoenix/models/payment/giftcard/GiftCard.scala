@@ -6,7 +6,7 @@ import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import phoenix.failures.GiftCardFailures._
-import failures._
+import core.failures._
 import java.time.Instant
 
 import phoenix.failures.EmptyCancellationReasonFailure
@@ -20,7 +20,8 @@ import phoenix.utils.{ADT, FSM}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.Money._
+import core.utils.Money._
+import core.utils.Validation
 import utils.Validation._
 import utils._
 import phoenix.utils.aliases._

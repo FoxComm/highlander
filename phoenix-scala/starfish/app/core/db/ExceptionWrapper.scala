@@ -2,9 +2,8 @@ package utils.db
 
 import cats.data.EitherT
 import cats.implicits._
-import failures.{DatabaseFailure, Failures}
+import core.failures.{DatabaseFailure, Failures}
 import slick.dbio.DBIO
-import scala.concurrent.ExecutionContext
 
 object ExceptionWrapper {
 

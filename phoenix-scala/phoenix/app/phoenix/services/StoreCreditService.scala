@@ -1,7 +1,7 @@
 package phoenix.services
 
 import cats.implicits._
-import failures.{NotFoundFailure400, NotFoundFailure404}
+import core.failures.{NotFoundFailure400, NotFoundFailure404}
 import phoenix.failures.OpenTransactionsFailure
 import phoenix.models.account.{Scope, User, Users}
 import phoenix.models.payment.storecredit.StoreCredit.Canceled

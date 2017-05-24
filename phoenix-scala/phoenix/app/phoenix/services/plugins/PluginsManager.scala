@@ -1,20 +1,20 @@
 package phoenix.services.plugins
 
-import scala.concurrent.Future
-
-import dispatch.{Http, as, host, url ⇒ request}
-import failures.{GeneralFailure, NotFoundFailure404}
-import phoenix.models.plugins._
-import phoenix.models.plugins.PluginSettings.{SettingsSchema, SettingsValues}
-import phoenix.models.plugins.PluginSettings.SettingsValues._
+import com.typesafe.scalalogging.LazyLogging
+import core.failures.{GeneralFailure, NotFoundFailure404}
+import dispatch.{Http, as, host, url => request}
+import org.json4s.Formats
 import org.json4s.jackson.JsonMethods._
+import phoenix.models.plugins.PluginSettings.SettingsValues._
+import phoenix.models.plugins.PluginSettings.{SettingsSchema, SettingsValues}
+import phoenix.models.plugins._
 import phoenix.payloads.PluginPayloads._
 import phoenix.responses.plugins.PluginCommonResponses._
-import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
+import slick.jdbc.PostgresProfile.api._
 import utils.db._
-import org.json4s.Formats
-import com.typesafe.scalalogging.LazyLogging
+
+import scala.concurrent.Future
 
 object PluginsManager extends LazyLogging {
 

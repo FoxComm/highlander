@@ -12,7 +12,7 @@ import phoenix.responses.VariantValueResponses.IlluminatedVariantValueResponse.{
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.Money.Currency
+import core.utils.Money.Currency
 import utils.db._
 
 class VariantIntegrationTest

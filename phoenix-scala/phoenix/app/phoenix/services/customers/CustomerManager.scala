@@ -8,7 +8,7 @@ import com.github.tminglei.slickpg.LTree
 import phoenix.failures.AuthFailures.ChangePasswordFailed
 import phoenix.failures.CustomerFailures._
 import phoenix.failures.UserFailures.AccessMethodNotFound
-import failures.{NotFoundFailure400, NotFoundFailure404}
+import core.failures.{NotFoundFailure400, NotFoundFailure404}
 import phoenix.models.account._
 import phoenix.models.auth.UserToken
 import phoenix.models.cord.{OrderShippingAddresses, Orders}

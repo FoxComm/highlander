@@ -5,7 +5,7 @@ import phoenix.models.location.Address
 import phoenix.models.payment.creditcard.CreditCard
 import phoenix.payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
 import phoenix.utils.aliases.stripe._
-import utils.Money._
+import core.utils.Money._
 import utils.db._
 
 /**
