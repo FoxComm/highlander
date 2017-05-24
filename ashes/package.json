@@ -110,7 +110,7 @@
     "babel-runtime": "^6.5.0",
     "chai": "^3.0.0",
     "co-mocha": "^1.1.2",
-    "css-loader": "^0.28.0",
+    "css-loader": "^0.28.2",
     "css-modules-require-hook": "^4.0.6",
     "cssnano": "^3.7.3",
     "enzyme": "^2.8.2",
