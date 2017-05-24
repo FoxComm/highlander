@@ -14,13 +14,16 @@ Start Minikube:
 
     $ minikube start
 
-Import configuration:
+Import [configuration](https://kubernetes.io/docs/tasks/configure-pod-container/configmap/):
 
     $ kubectl create -f kubernetes/config.yml
+
+Decrypt and import [secrets](https://kubernetes.io/docs/concepts/configuration/secret/):
+
     $ ansible-vault decrypt kubernetes/secrets.yml
     $ kubectl create -f kubernetes/deploy_ashes.yml
 
-Create [Deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment):
+Create [deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment):
 
     # Backend
     $ kubectl create -f kubernetes/deploy_isaac.yml
