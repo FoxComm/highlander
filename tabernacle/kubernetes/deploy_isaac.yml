@@ -63,5 +63,5 @@ spec:
       volumes:
         - name: secret-keys
           hostPath:
-            path: /Users/pavel/Downloads/keys
+            path: /Users/pavel/secret_keys
 ---

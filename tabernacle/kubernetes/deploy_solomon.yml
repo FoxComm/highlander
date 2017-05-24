@@ -50,7 +50,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: core-config
-              key: jwt.public_key
+              key: jwt.frontend_public_key
         - name: SOLOMON_SECRET
           valueFrom:
             secretKeyRef:
@@ -73,6 +73,6 @@ spec:
       volumes:
         - name: secret-keys
           hostPath:
-            path: /etc/keys
+            path: /Users/pavel/secret_keys
 
 ---
