@@ -107,4 +107,5 @@
   .icon-hierarchy-rotated:before { content: '\e854'; } /* '' */
   .icon-clear-formatting:before { content: '\e892'; } /* '' */
   .icon-markdown:before { content: '\e893'; } /* '' */
+  .icon-export:before { content: '\e896'; } /* '' */
 }

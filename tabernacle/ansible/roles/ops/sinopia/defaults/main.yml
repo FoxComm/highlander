@@ -1,4 +1,3 @@
-sinopia_base_dir: /sinopia
 sinopia_storage_dir: "{{sinopia_base_dir}}/storage"
 sinopia_htpasswd_file: "{{sinopia_base_dir}}/.htpasswd"
 sinopia_webui_title: Sinopia

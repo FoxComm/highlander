@@ -89,6 +89,13 @@ endpoints modify which shipping method is used by the cart.
 + Response 200 (application/json)
     + Attributes (array[ShippingMethod])
 
+### Search Shipping Methods by Country code [GET /v1/my/cart/shipping-methods/{countryCode}]
+
++ Parameters
+    + countryCode: `default` (required, string) - Short country code of 2 or 3 letters.
++ Response 200 (application/json)
+    + Attributes (array[ShippingMethod])
+
 ### Update [PATCH]
 
 Changes the shipping method to a cart.

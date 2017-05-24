@@ -1,0 +1,47 @@
+## Export [/v1/export/{entity}]
+
++ Parameters
+    + entity: `products` (required, enum[string]) - Entity type
+        + Members
+            + `carts`
+            + `couponCodes`
+            + `coupons`
+            + `customerGroups`
+            + `customerItems`
+            + `customers`
+            + `giftCards`
+            + `giftCardTransactions`
+            + `inventory`
+            + `inventoryTransactions`
+            + `notes`
+            + `orders`
+            + `products`
+            + `promotions`
+            + `skus`
+            + `storeAdmins`
+            + `storeCredits`
+            + `storeCreditTransactions`
+            + `taxonomies`
+            + `taxons`
+
+### Export [POST]
+
++ Request By IDs (application/json)
+    + Attributes
+        + payloadType: `ids` (required, fixed) - Payload discriminator.
+        + Include ExportEntityByIds
++ Request By Query (application/json)
+    + Attributes
+        + payloadType: `query` (required, fixed) - Payload discriminator.
+        + Include ExportEntityByQuery
++ Response 200 (text/csv)
+    + Headers
+    
+            Content-Disposition: attachment
+
+    + Body
+
+            id
+            1
+            2
+            

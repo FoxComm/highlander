@@ -2,7 +2,6 @@ package responses
 
 import (
 	"encoding/json"
-	"errors"
 )
 
 type ErrorResponse interface {
@@ -40,18 +39,4 @@ func (err ReservationError) GetAllErrors() []string {
 		result = append(result, err.Error())
 	}
 	return result
-}
-
-func NewReservationError(aggregateErrors []error) (*ReservationError, error) {
-	var errArray []InvalidSKUItemError
-
-	for _, err := range aggregateErrors {
-		if skuErr, ok := err.(*InvalidSKUItemError); ok {
-			errArray = append(errArray, *skuErr)
-		} else {
-			return nil, errors.New("Not all errors are related to invalid SKU")
-		}
-	}
-
-	return &ReservationError{Errors: errArray}, nil
 }

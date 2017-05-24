@@ -33,6 +33,9 @@ deploy-tpg-stage:
 deploy-feature-branch:
 	ansible-playbook -v -i inventory/gce/ ansible/deploy_feature_branch.yml
 
+deploy-feature-branch-legacy:
+	ansible-playbook -v -i inventory/gce/ ansible/deploy_feature_branch_legacy.yml
+
 update-demo1:
 	ansible-playbook -v -i inventory/gce/ ansible/demo.yml --extra-vars='{ "with_data_import": false, "application_hostname": "demo1" }'
 

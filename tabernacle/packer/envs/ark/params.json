@@ -1,0 +1,13 @@
+{
+    "cert_path": "test/fox",
+    "consul_expect": 3,
+    "join_type": "join-wan",
+    "docker_registry_bucket": "ark-docker",
+    "docker_registry": "https://docker-ark.foxcommerce.com",
+    "mesos_quorum": 3,
+    "mesos_cluster_name": "foxcommerce-ark",
+    "zookeeper_1": "10.0.0.3",
+    "zookeeper_2": "10.0.0.4",
+    "zookeeper_3": "10.0.0.5",
+    "zookeepers" : "zk://10.0.0.3:2181,10.0.0.4:2181,10.0.0.5:2181",
+}

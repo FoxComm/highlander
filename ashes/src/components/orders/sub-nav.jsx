@@ -12,7 +12,7 @@ const notesClaims = readAction(frn.note.order);
 const shippingClaims = readAction(frn.mdl.shipment);
 const activityClaims = readAction(frn.activity.order);
 
-const SubNav = props => {
+const SubNav = (props) => {
   const { order } = props;
   const params = {order: order.referenceNumber};
   const claims = getClaims();
