@@ -63,6 +63,11 @@ class ProductsCatalogViewIntegrationTest
   val searchKeyName: String  = "id"
 
   "Products with no active SKUs are not visible" - {
+    val product   = new ProductSku_ApiFixture {}.product
+    val currentDb = implicitly[DB]
+    val psv = new ProductsSearchViewIntegrationTest {
+      override def dbOverride(): Option[DB] = Some(currentDb)
+    }
     def skuCode(skuAttrs: Json): String = (skuAttrs \ "code" \ "v").extractOpt[String].value
 
     "after archival" in go(sku ⇒ skusApi(skuCode(sku.attributes)).archive().mustBeOk)

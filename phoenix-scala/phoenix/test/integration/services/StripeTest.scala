@@ -26,11 +26,11 @@ class StripeTest extends IntegrationTestBase with RealStripeApi {
   val okExpMonth = today.getMonthValue
   val theAddress = Factories.address
 
-  val token = createToken(cardNumber = successfulCard,
-                          expYear = okExpYear,
-                          expMonth = okExpMonth,
-                          cvv = 123,
-                          address = theAddress).gimme
+  lazy val token = createToken(cardNumber = successfulCard,
+                               expYear = okExpYear,
+                               expMonth = okExpMonth,
+                               cvv = 123,
+                               address = theAddress).gimme
 
   val customerEmail = faker.Internet.email
 
