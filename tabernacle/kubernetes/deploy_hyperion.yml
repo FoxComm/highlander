@@ -65,7 +65,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: core-config
-              key: jwt.public_key
+              key: jwt.frontend_public_key
         - name: PUSH_CHECK_INTERVAL
           valueFrom:
             configMapKeyRef:

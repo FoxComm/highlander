@@ -25,12 +25,17 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: core-config
-              key: river_rock.bernardo_host
+              key: bernardo.host
+        - name: BERNARDO_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: bernardo.port
         - name: DB_HOST
           valueFrom:
-            secretKeyRef:
-              name: core-secrets
-              key: bernardo.db_host
+            configMapKeyRef:
+              name: core-config
+              key: consul.db_host
         - name: DB_NAME
           valueFrom:
             secretKeyRef:
@@ -41,6 +46,11 @@ spec:
             secretKeyRef:
               name: core-secrets
               key: bernardo.db_user
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: bernardo.db_password
         - name: PORT
           valueFrom:
             configMapKeyRef:
@@ -49,7 +59,7 @@ spec:
         - name: UPSTREAM_URL
           valueFrom:
             configMapKeyRef:
-              name: core-secrets
+              name: core-config
               key: river_rock.upstream_url
         ports:
          - name: liveness-port

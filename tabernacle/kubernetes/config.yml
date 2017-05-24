@@ -10,6 +10,8 @@ data:
   ashes.behind_nginx: "true"
   ashes.ga_tracking_id: UA-79356556-1
   ashes.node_env: production
+  bernardo.host: localhost
+  bernardo.port: "6666"
   consumers.topic: scoped_activities
   consul.db_host: route-db.default.svc.cluster.local
   consul.elasticsearch_url: elasticsearch://elasticsearch.service.consul:9300
@@ -40,7 +42,7 @@ data:
   phoenix.s3_bucket_region: us-west-1
   phoenix.tax_rule_rate: "7.5"
   phoenix.tax_rule_region: "4129"
-  river_rock.bernardo_host: bernardo.service.consul
+  river_rock.bernardo_host: route-db.default.svc.cluster.local
   river_rock.port: "31895"
   river_rock.upstream_url: http://balancer.service.consul:8888
   solomon.port: "4002"
