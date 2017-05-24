@@ -27,11 +27,5 @@
 - name: Copy Kibana service
   template: src=kibana.service.j2 dest={{dest_services}}/kibana.service
 
-- name: Reload Systemd for Kibana
-  command: systemctl daemon-reload
-
-- name: Restart Kibana
-  service: name=kibana state=restarted enabled=yes use=service
-
 - name: Copy Consul Service File
   template: src=kibana.json dest=/etc/consul.d

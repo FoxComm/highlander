@@ -1,6 +1,0 @@
-{
-    "constant": true,
-    "variable": {{create_ashes_plugin}},
-    "variable_with_boolean_filter": {{create_ashes_plugin | bool}},
-    "variable_with_boolean_and_lowercase_filter": {{create_ashes_plugin | bool | lower}}
-}

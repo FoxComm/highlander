@@ -1,9 +1,8 @@
-// @flow
+/* @flow */
 
-// libs
 import React from 'react';
 
-// helpers
+// libs
 import { activeStatus } from 'paragons/common';
 
 // components
@@ -16,18 +15,20 @@ type Props = {
   params: Object,
 };
 
-const setCellContents = (taxon: TaxonResult, field: string) => {
-  switch (field) {
-    case 'state':
-      return <RoundedPill text={activeStatus(taxon)} />;
-    case 'productsCount':
-      return 0; // TODO: fix after ES mapping update
-    default:
-      return taxon[field];
-  }
-};
+const TaxonRow = (props: Props) => {
+  const { taxon, ...rest } = props;
 
-const TaxonRow = ({ taxon, ...rest }: Props) => {
+  const setCellContents = (taxon: TaxonResult, field: string) => {
+    switch (field) {
+      case 'state':
+        return <RoundedPill text={activeStatus(taxon)} />;
+      case 'productsCount':
+        return 0; // TODO: fix after ES mapping update
+      default:
+        return taxon[field];
+    }
+  };
+
   return (
     <MultiSelectRow
       {...rest}

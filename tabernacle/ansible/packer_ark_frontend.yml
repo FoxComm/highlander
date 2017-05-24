@@ -1,0 +1,16 @@
+---
+
+- name: Packer Ark Frontend
+  hosts: all
+  become: true
+  vars:
+    user: ubuntu
+    packing: true
+
+  roles:
+    - { role: base/mesos_worker }
+    - { role: base/rsyslog }
+    - { role: base/balancer }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

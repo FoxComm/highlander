@@ -1,15 +1,15 @@
 package gatling.seeds.requests
 
-import scala.util.Random
-
 import faker.Lorem.numerify
-import io.gatling.core.Predef._
-import io.gatling.http.Predef._
-import org.json4s.jackson.Serialization.{write ⇒ json}
-import payloads.AddressPayloads.CreateAddressPayload
 import gatling.seeds._
 import gatling.seeds.requests.Auth._
 import gatling.seeds.simulations._
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
+import org.json4s.jackson.Serialization.{write ⇒ json}
+import phoenix.payloads.AddressPayloads.CreateAddressPayload
+
+import scala.util.Random
 
 object Addresses {
 

@@ -1,11 +1,7 @@
 import sbt._
 
 object Versions {
-  val scala = "2.11.8"
-  // This is a patched version found here:
-  // https://github.com/kwark/slick/blob/3.1-deadlock/README.md
-  // Fixes a critical deadlock in slick.
-  // Change once lands in mainline.
+  val scala = "2.11.11-bin-typelevel-4"
   val slick     = "3.2.0"
   val json4s    = "3.4.0"
   val akka      = "2.4.7"
@@ -13,6 +9,7 @@ object Versions {
   val gatling   = "2.2.1"
   val dispatch  = "0.11.3"
   val fasterxml = "2.8.2"
+  val elastic4s = "2.3.0"
   val scalatest = "3.0.1"
   val scalacheck = "1.13.4"
 }
@@ -62,7 +59,7 @@ object Dependencies {
   )
 
   val apis = Seq(
-    "com.sksamuel.elastic4s" %% "elastic4s-core" % "2.3.0",
+    "com.sksamuel.elastic4s" %% "elastic4s-core" % Versions.elastic4s,
     "com.amazonaws"          % "aws-java-sdk"    % "1.11.15",
     "com.stripe"             % "stripe-java"     % "2.7.0"
   )
@@ -100,7 +97,8 @@ object Dependencies {
     "it.justwrote"          %% "scala-faker"            % "0.3",
     "org.conbere"           % "markov_2.10"             % "0.2.0",
     "com.github.tototoshi"  %% "scala-csv"              % "1.3.3",
-    "com.github.melrief"    %% "pureconfig"             % "0.5.1"
+    "com.github.melrief"    %% "pureconfig"             % "0.5.1",
+    "com.sksamuel.elastic4s"%% "elastic4s-streams"      % Versions.elastic4s
   )
 
   val cats = Seq(

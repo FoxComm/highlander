@@ -6,10 +6,6 @@
   vars:
     user: ubuntu
     packing: true
-  post_tasks:
-    - name: Sweet Dreams
-      pause: seconds=5
-
   roles:
     - { role: base/ssh_keys }
     - { role: base/scala }
