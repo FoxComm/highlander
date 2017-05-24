@@ -5,13 +5,11 @@ import java.sql.{Connection, PreparedStatement}
 import java.util.Locale
 import javax.sql.DataSource
 
-import scala.concurrent.Future
-
 import objectframework.models.ObjectContexts
 import org.scalatest._
 import phoenix.models.product.SimpleContext
 import phoenix.utils.aliases.{EC, SF, SL}
-import phoenix.utils.db.flyway.{newFlyway, rootProjectSqlLocation, subprojectSqlLocation}
+import phoenix.utils.db.flyway.{newFlyway, rootProjectSqlLocation}
 import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile
 import slick.jdbc.PostgresProfile.api._
@@ -22,17 +20,6 @@ import scala.annotation.tailrec
 trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport { self: TestSuite ⇒
 
   def dbOverride(): Option[DB] = None
-
-  private def time[R](what: String)(block: ⇒ R): R = {
-    System.out.print(s"$what....")
-    System.out.flush()
-    val t0     = System.nanoTime()
-    val result = block
-    val ms     = (System.nanoTime() - t0) / 10e5.toInt
-    System.out.println(s"... $what completed. Time elapsed: ${ms}ms")
-    System.out.flush()
-    result
-  }
 
   def dbConfig: Config =
     ConfigFactory.parseString(s"""db.name = "$dbName"
@@ -55,12 +42,9 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
         }
       }
     }
-    System.out.println(s"ACQUIRE DB for $dbName")
-    System.out.flush()
+
     require(DbTestSupport.migrated, "Create test db before migration has completed")
-    time(s"createDb $dbName") {
-      DbTestSupport.createDB(dbName)
-    }
+    DbTestSupport.createDB(dbName)
     Database.forConfig("db", dbConfig)
   }
 
@@ -164,13 +148,12 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
 }
 
 object DbTestSupport {
-  val db: DB = Database.forConfig("db", TestBase.bareConfig)
-  val conn   = db.source.createConnection()
+  val db: DB           = Database.forConfig("db", TestBase.bareConfig)
+  val conn: Connection = db.source.createConnection()
 
   def api: PostgresProfile.API = slick.jdbc.PostgresProfile.api
 
-  @volatile var migrated               = false
-  @volatile var sqlTables: Seq[String] = _
+  @volatile var migrated = false
 
   val DB_TEMPLATE: String = "phoenix_test_tpl"
 
