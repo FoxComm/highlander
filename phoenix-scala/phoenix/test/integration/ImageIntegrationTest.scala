@@ -59,7 +59,7 @@ class ImageIntegrationTest
       }
 
       "Retrieves multiple images in correct order" in new Fixture {
-        val imageSources = Seq("1", "2")
+        val imageSources = Seq("http://a1.org/1", "http://a2.org/2")
 
         albumsApi(album.formId)
           .update(AlbumPayload(name = "Name 2.0".some,
@@ -126,7 +126,8 @@ class ImageIntegrationTest
 
     "PATCH v1/albums/:context/:id" - {
       "Update the album to have another image" in new Fixture {
-        val payload = AlbumPayload(images = Seq(testPayload, ImagePayload(src = "foo")).some)
+        val payload =
+          AlbumPayload(images = Seq(testPayload, ImagePayload(src = "http://foo.org/1")).some)
 
         val albumResponse = albumsApi(album.formId).update(payload).as[AlbumRoot]
 
@@ -329,7 +330,7 @@ class ImageIntegrationTest
 
         val uploadedImage = responseAlbum.images.last
 
-        uploadedImage.src must === ("amazon-image-url")
+        uploadedImage.src must === ("http://amazon-image.url/1")
         uploadedImage.title must === ("foxy.jpg".some)
         uploadedImage.alt must === ("foxy.jpg".some)
       }
@@ -347,7 +348,7 @@ class ImageIntegrationTest
 
         val uploadedImage = responseAlbum.images.last
 
-        uploadedImage.src must === ("amazon-image-url")
+        uploadedImage.src must === ("http://amazon-image.url/1")
         uploadedImage.title must === ("foxy.jpg".some)
         uploadedImage.alt must === ("foxy.jpg".some)
       }
