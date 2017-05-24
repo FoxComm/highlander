@@ -51,3 +51,7 @@ ul {
 table {
   width: 100%;
 }
+
+textarea {
+  resize: none;
+}
