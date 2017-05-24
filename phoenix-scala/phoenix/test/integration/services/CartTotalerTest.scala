@@ -1,6 +1,6 @@
 package services
 
-import models.objects.ObjectContexts
+import objectframework.models.ObjectContexts
 import phoenix.models.cord.lineitems._
 import phoenix.models.cord.{OrderShippingMethod, OrderShippingMethods}
 import phoenix.models.product.{Mvp, SimpleContext}

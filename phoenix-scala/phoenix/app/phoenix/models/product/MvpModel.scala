@@ -4,8 +4,9 @@ import java.time.Instant
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.ObjectFailures._
-import models.objects._
+import objectframework.ObjectFailures._
+import objectframework.ObjectUtils
+import objectframework.models._
 import org.json4s.JsonAST.{JNothing, JString}
 import org.json4s.JsonDSL._
 import org.json4s._

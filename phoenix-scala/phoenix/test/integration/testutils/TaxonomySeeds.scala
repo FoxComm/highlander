@@ -4,7 +4,8 @@ import java.time.Instant
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import models.objects._
+import objectframework.ObjectUtils
+import objectframework.models._
 import org.json4s.JsonDSL._
 import phoenix.models.account.{Scope, User}
 import phoenix.models.taxonomy._

@@ -1,9 +1,9 @@
-package services.objects
+package objectframework.services
 
 import failures.NotFoundFailure404
-import models.objects._
-import payloads.ObjectSchemaPayloads._
-import responses.ObjectResponses.ObjectSchemaResponse._
+import objectframework.ObjectResponses.ObjectSchemaResponse._
+import objectframework.models._
+import objectframework.payloads.ObjectSchemaPayloads._
 import slick.jdbc.PostgresProfile.api._
 import utils.db._
 

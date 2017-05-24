@@ -1,7 +1,9 @@
 package phoenix.services.category
 
-import failures.ObjectFailures._
-import models.objects._
+import objectframework.ObjectFailures._
+import objectframework.ObjectResponses.ObjectContextResponse
+import objectframework.ObjectUtils
+import objectframework.models._
 import org.json4s.Formats
 import phoenix.failures.CategoryFailures._
 import phoenix.models.account._
@@ -11,7 +13,6 @@ import phoenix.responses.CategoryResponses._
 import phoenix.services.LogActivity
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-import responses.ObjectResponses.ObjectContextResponse
 import slick.jdbc.PostgresProfile.api._
 import utils.db._
 

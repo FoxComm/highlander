@@ -1,4 +1,4 @@
-package models.objects
+package objectframework.models
 
 import java.time.Instant
 

@@ -1,9 +1,9 @@
 package phoenix.services.notes
 
+import objectframework.models.{IlluminatedObject, ObjectForms, ObjectShadows}
 import phoenix.failures.CouponFailures._
 import phoenix.models.Note
 import phoenix.models.coupon.Coupons
-import models.objects.{IlluminatedObject, ObjectForms, ObjectShadows}
 import phoenix.utils.aliases._
 import utils.db._
 

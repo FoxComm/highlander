@@ -4,8 +4,8 @@ import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
 import failures.NotFoundFailure404
-import failures.ObjectFailures.ObjectContextNotFound
-import models.objects.ObjectContext
+import objectframework.ObjectFailures.ObjectContextNotFound
+import objectframework.models.ObjectContext
 import org.json4s.JsonAST._
 import phoenix.failures.CartFailures.OrderAlreadyPlaced
 import phoenix.failures.CouponFailures.CouponIsNotActive

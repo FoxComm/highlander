@@ -2,12 +2,12 @@ package phoenix.responses
 
 import java.time.Instant
 
-import models.objects._
+import objectframework.ObjectResponses.ObjectContextResponse
+import objectframework.models._
 import phoenix.models.discount._
 import phoenix.models.promotion._
 import phoenix.responses.DiscountResponses._
 import phoenix.utils.aliases._
-import responses.ObjectResponses.ObjectContextResponse
 
 object PromotionResponses {
 

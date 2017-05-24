@@ -1,6 +1,6 @@
 package testutils
 
-import models.objects.{ObjectContext, ObjectContexts}
+import objectframework.models.{ObjectContext, ObjectContexts}
 import org.scalatest.{SuiteMixin, TestSuite}
 import phoenix.models.product.SimpleContext
 

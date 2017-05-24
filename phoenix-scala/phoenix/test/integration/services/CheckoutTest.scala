@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import cats.implicits._
 import failures.GeneralFailure
 import faker.Lorem
-import models.objects.ObjectContexts
+import objectframework.models.ObjectContexts
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalacheck.Prop.BooleanOperators

@@ -2,8 +2,8 @@ package phoenix.models.category
 
 import java.time.Instant
 
-import models.objects.ObjectUtils.InsertResult
-import models.objects.{ObjectHead, ObjectHeads}
+import objectframework.ObjectUtils.InsertResult
+import objectframework.models.{ObjectHead, ObjectHeads}
 import shapeless._
 import slick.lifted.Tag
 import utils.Validation

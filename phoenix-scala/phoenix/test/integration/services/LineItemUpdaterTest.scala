@@ -1,6 +1,6 @@
 package services
 
-import models.objects.{ObjectContext, ObjectContexts}
+import objectframework.models.{ObjectContext, ObjectContexts}
 import phoenix.models.cord.lineitems._
 import phoenix.models.product.{Mvp, SimpleContext, SimpleProductData}
 import phoenix.payloads.LineItemPayloads.{UpdateLineItemsPayload ⇒ Payload}

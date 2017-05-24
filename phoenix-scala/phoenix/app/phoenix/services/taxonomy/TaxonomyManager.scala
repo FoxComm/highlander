@@ -6,7 +6,9 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.Failure
-import models.objects._
+import objectframework.ObjectUtils
+import objectframework.models._
+import objectframework.services.ObjectManager
 import org.json4s.Formats
 import phoenix.failures.TaxonomyFailures
 import phoenix.failures.TaxonomyFailures._
@@ -21,7 +23,6 @@ import phoenix.responses.TaxonResponses._
 import phoenix.responses.TaxonomyResponses._
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-import services.objects.ObjectManager
 import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._

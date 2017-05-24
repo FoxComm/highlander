@@ -3,10 +3,10 @@ package phoenix.models.product
 import java.time.Instant
 
 import failures.{Failure, NotFoundFailure404}
-import models.objects._
+import objectframework.IlluminateAlgorithm
+import objectframework.models._
 import phoenix.models.traits.IlluminatedModel
 import phoenix.utils.aliases._
-import utils.IlluminateAlgorithm
 
 /**
   * An IlluminatedProduct is what you get when you combine the product shadow and

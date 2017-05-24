@@ -1,6 +1,7 @@
-package failures
+package objectframework
 
-import models.objects.ObjectForm
+import failures.{Failure, NotFoundFailure404}
+import objectframework.models.ObjectForm
 
 object ObjectFailures {
 

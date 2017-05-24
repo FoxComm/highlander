@@ -4,7 +4,7 @@ import java.sql.PreparedStatement
 import java.util.Locale
 import javax.sql.DataSource
 
-import models.objects.ObjectContexts
+import objectframework.models.ObjectContexts
 import org.scalatest._
 import phoenix.models.product.SimpleContext
 import phoenix.utils.aliases.EC

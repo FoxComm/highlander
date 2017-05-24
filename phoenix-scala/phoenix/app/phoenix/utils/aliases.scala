@@ -4,7 +4,7 @@ object aliases {
   type AC           = phoenix.models.activity.ActivityContext
   type EC           = scala.concurrent.ExecutionContext
   type DB           = utils.db.DB
-  type OC           = models.objects.ObjectContext
+  type OC           = objectframework.models.ObjectContext
   type SL           = sourcecode.Line
   type SF           = sourcecode.File
   type Mat          = akka.stream.Materializer

@@ -1,10 +1,10 @@
-package services.objects
+package objectframework.services
 
-import failures.ObjectFailures._
 import failures._
-import models.objects._
-import payloads.ContextPayloads._
-import responses.ObjectResponses._
+import objectframework.ObjectFailures._
+import objectframework.ObjectResponses._
+import objectframework.models._
+import objectframework.payloads.ContextPayloads._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

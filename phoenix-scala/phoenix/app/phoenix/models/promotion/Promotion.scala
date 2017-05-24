@@ -3,7 +3,7 @@ package phoenix.models.promotion
 import java.time.Instant
 
 import com.pellucid.sealerate
-import models.objects._
+import objectframework.models._
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType

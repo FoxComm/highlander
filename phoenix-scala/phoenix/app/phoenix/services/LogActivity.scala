@@ -3,6 +3,7 @@ package phoenix.services
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
+import objectframework.ObjectResponses.ObjectContextResponse
 import phoenix.models.Assignment._
 import phoenix.models.Note
 import phoenix.models.account.User
@@ -54,7 +55,6 @@ import phoenix.services.activity.StoreAdminsTailored._
 import phoenix.services.activity.StoreCreditTailored._
 import phoenix.services.activity.UserTailored._
 import phoenix.utils.aliases._
-import responses.ObjectResponses.ObjectContextResponse
 import utils.db._
 
 case class LogActivity(implicit ac: AC) {
