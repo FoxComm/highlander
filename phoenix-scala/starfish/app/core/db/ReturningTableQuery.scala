@@ -1,4 +1,4 @@
-package utils.db
+package core.db
 
 import shapeless._
 import slick.jdbc.PostgresProfile.api._

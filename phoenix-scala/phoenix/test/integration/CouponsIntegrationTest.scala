@@ -3,7 +3,7 @@ import java.time.Instant.now
 import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import objectframework.ObjectFailures.ObjectContextNotFound
 import objectframework.models.ObjectContext
 import org.json4s.JsonAST._
@@ -21,7 +21,7 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
-import utils.db._
+import core.db._
 
 class CouponsIntegrationTest
     extends IntegrationTestBase

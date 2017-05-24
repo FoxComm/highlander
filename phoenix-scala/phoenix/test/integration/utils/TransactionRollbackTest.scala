@@ -1,11 +1,11 @@
 package utils
 
-import failures.GeneralFailure
+import core.failures.GeneralFailure
 import phoenix.models.location._
 import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
-import utils.db._
+import core.db._
 
 class TransactionRollbackTest extends IntegrationTestBase {
 

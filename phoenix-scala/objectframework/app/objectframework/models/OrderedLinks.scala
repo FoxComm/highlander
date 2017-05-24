@@ -1,9 +1,9 @@
 package objectframework.models
 
+import core.db.ExPostgresDriver.api._
+import core.db._
 import objectframework.ObjectFailures.{LinkAtPositionCannotBeFound, LinkCannotBeFound}
 import objectframework.models.ObjectHeadLinks.{ObjectHeadLink, ObjectHeadLinkQueries, ObjectHeadLinks}
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 trait OrderedObjectHeadLink[M <: OrderedObjectHeadLink[M]] extends ObjectHeadLink[M] { self: M ⇒
   def position: Int

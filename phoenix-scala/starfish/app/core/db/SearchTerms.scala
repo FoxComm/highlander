@@ -1,8 +1,8 @@
-package utils.db
+package core.db
 
-import failures.{Failure, NotFoundFailure400, NotFoundFailure404}
+import core.failures.{Failure, NotFoundFailure400, NotFoundFailure404}
+import core.utils.Strings._
 import slick.jdbc.PostgresProfile.api._
-import utils.Strings._
 
 trait SearchById[M <: FoxModel[M], T <: FoxTable[M]] {
 

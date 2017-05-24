@@ -2,7 +2,8 @@ package phoenix.services
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.NotFoundFailure404
+import core.db._
+import core.failures.NotFoundFailure404
 import objectframework.ObjectUtils
 import org.json4s.JsonAST._
 import phoenix.failures.AddressFailures.NoCountryFound
@@ -19,7 +20,6 @@ import phoenix.services.carts.getCartByOriginator
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats

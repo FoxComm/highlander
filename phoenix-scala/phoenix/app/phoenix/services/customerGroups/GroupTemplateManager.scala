@@ -4,8 +4,8 @@ import phoenix.models.account.Scope
 import phoenix.models.customer._
 import phoenix.responses.GroupResponses.GroupTemplateResponse._
 import phoenix.utils.aliases._
-import utils.db._
-import utils.db.ExPostgresDriver.api._
+import core.db._
+import core.db.ExPostgresDriver.api._
 
 object GroupTemplateManager {
 

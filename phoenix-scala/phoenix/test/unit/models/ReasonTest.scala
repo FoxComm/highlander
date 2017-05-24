@@ -1,7 +1,7 @@
 package models
 
 import cats.data.NonEmptyList
-import failures.GeneralFailure
+import core.failures.GeneralFailure
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
 import phoenix.models.Reason

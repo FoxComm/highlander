@@ -2,9 +2,9 @@ package objectframework.models
 
 import java.time.Instant
 
+import core.db.ExPostgresDriver.api._
+import core.db._
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 /**
   * A ObjectCommit is a tree of commits, each pointing to a form shadow.

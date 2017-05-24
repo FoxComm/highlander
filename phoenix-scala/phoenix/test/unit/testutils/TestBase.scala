@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import akka.util.Timeout
 import com.typesafe.config.Config
-import failures.Failures
+import core.failures.Failures
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.concurrent.{AbstractPatienceConfiguration, ScalaFutures}
 import org.scalatest.time.{Milliseconds, Seconds, Span}

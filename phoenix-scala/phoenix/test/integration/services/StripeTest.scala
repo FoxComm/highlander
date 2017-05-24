@@ -9,9 +9,9 @@ import phoenix.utils.TestStripeSupport._
 import phoenix.utils.apis._
 import phoenix.utils.seeds.Factories
 import testutils._
-import utils.Money.Currency.USD
+import core.utils.Money.Currency.USD
 import utils.RealStripeApi
-import utils.db._
+import core.db._
 
 class StripeTest extends IntegrationTestBase with RealStripeApi {
   // Mutate Stripe state, set real key

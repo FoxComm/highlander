@@ -3,7 +3,7 @@ package phoenix.utils
 object aliases {
   type AC           = phoenix.models.activity.ActivityContext
   type EC           = scala.concurrent.ExecutionContext
-  type DB           = utils.db.DB
+  type DB           = core.db.DB
   type OC           = objectframework.models.ObjectContext
   type SL           = sourcecode.Line
   type SF           = sourcecode.File

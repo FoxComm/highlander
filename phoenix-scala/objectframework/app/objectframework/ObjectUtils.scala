@@ -4,14 +4,14 @@ import java.time.Instant
 
 import cats.data.NonEmptyList
 import cats.implicits._
-import failures.Failure
+import core.db._
+import core.failures.Failure
 import objectframework.models._
 import objectframework.services.ObjectSchemasManager
 import org.json4s.JsonAST.{JNothing, JNull, JObject, JString}
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import utils.db._
 
 object ObjectUtils {
 

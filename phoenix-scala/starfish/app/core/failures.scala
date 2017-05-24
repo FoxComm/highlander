@@ -1,8 +1,9 @@
-import cats.data._
-import cats.implicits._
-import utils.friendlyClassName
+package core
 
-package object failures {
+import cats.data._
+import core.utils.friendlyClassName
+
+object failures {
 
   trait Failure {
     def description: String

@@ -3,15 +3,15 @@ package phoenix.models.inventory
 import java.time.Instant
 
 import cats.implicits._
-import failures.Failures
+import com.github.tminglei.slickpg._
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.failures.Failures
 import objectframework.models._
 import phoenix.failures.ArchiveFailures.{LinkInactiveSkuFailure, SkuIsPresentInCarts}
+import phoenix.models.cord.lineitems.CartLineItems
 import phoenix.utils.JsonFormatters
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
-import com.github.tminglei.slickpg._
-import phoenix.models.cord.lineitems.CartLineItems
 
 object Sku {
   val kind         = "sku"

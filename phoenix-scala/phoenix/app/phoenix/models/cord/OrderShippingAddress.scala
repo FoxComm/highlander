@@ -2,12 +2,12 @@ package phoenix.models.cord
 
 import java.time.Instant
 
+import core.db._
 import phoenix.models.location.{Address, Addresses, Region, Regions}
 import phoenix.models.traits.Addressable
 import phoenix.payloads.AddressPayloads.UpdateAddressPayload
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class OrderShippingAddress(id: Int = 0,
                                 // FIXME @anna This default is just wrong

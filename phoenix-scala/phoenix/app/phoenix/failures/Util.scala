@@ -1,6 +1,6 @@
 package phoenix.failures
 
-import failures._
+import core.failures._
 
 object Util {
 

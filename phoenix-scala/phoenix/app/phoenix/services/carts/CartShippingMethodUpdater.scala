@@ -11,7 +11,7 @@ import phoenix.services.{CartValidator, LogActivity, ShippingManager}
 import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
-import utils.db._
+import core.db._
 
 object CartShippingMethodUpdater {
 

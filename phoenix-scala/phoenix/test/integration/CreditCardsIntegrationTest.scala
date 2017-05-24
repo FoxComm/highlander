@@ -1,7 +1,7 @@
 import java.time.ZonedDateTime
 
 import cats.implicits._
-import failures.{GeneralFailure, NotFoundFailure400, NotFoundFailure404}
+import core.failures.{GeneralFailure, NotFoundFailure400, NotFoundFailure404}
 import org.mockito.Mockito._
 import org.mockito.{ArgumentMatchers ⇒ m, _}
 import org.scalatest.BeforeAndAfterEach
@@ -21,7 +21,7 @@ import testutils._
 import testutils.apis._
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtureHelpers
-import utils.db._
+import core.db._
 
 class CreditCardsIntegrationTest
     extends IntegrationTestBase

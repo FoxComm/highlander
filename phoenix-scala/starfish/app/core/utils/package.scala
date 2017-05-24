@@ -1,5 +1,8 @@
+package core
+
+import core.utils.Strings._
+
 import scala.language.implicitConversions
-import utils.Strings._
 
 package object utils {
   def generateUuid: String = java.util.UUID.randomUUID.toString // FIXME: please… @michalrus

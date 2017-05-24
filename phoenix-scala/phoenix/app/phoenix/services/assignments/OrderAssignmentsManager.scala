@@ -6,7 +6,7 @@ import phoenix.models.{Assignment, NotificationSubscription}
 import phoenix.responses.cord.AllOrders._
 import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
-import utils.db._
+import core.db._
 
 object OrderAssignmentsManager extends AssignmentsManager[String, Order] {
 
