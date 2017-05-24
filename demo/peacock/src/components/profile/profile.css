@@ -116,6 +116,12 @@
   margin: 15px 10px 15px 15px;
 }
 
+@media (--medium-only) {
+  .profile {
+    padding: 16px;
+  }
+}
+
 @media (--large) {
   .profile {
     margin-top: 20px;
@@ -151,25 +157,14 @@
   }
 
   .order-row {
-    border-bottom: 1px solid var(--border-color);
     padding-bottom: 16px;
     margin-bottom: 16px;
-  }
-
-  .mobile-row {
-
   }
 
   .left-block {
     display: flex;
     justify-content: space-between;
     width: 60%;
-  }
-
-  .order-cell {
-    &.total {
-      font-weight: 900;
-    }
   }
 
   .content {
