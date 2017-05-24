@@ -1,13 +1,13 @@
 package phoenix.services.returns
 
 import cats.implicits._
+import core.db._
 import objectframework.FormShadowGet
 import objectframework.models._
 import phoenix.failures.ReturnFailures._
 import phoenix.models.cord.Orders
 import phoenix.models.cord.lineitems.OrderLineItems
 import phoenix.models.cord.lineitems.OrderLineItems.scope._
-import phoenix.models.product.Mvp
 import phoenix.models.returns.ReturnLineItem.OriginType
 import phoenix.models.returns._
 import phoenix.models.shipping.ShippingMethods
@@ -18,7 +18,6 @@ import phoenix.services.inventory.SkuManager
 import phoenix.services.{LineItemManager, LogActivity}
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 object ReturnLineItemManager {
 

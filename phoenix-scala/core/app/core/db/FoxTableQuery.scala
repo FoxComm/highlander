@@ -1,11 +1,11 @@
-package utils.db
+package core.db
 
 import cats.implicits._
-import failures.{Failure, Failures}
+import core.db.UpdateReturning._
+import core.failures.{Failure, Failures}
 import slick.dbio.DBIO
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.{TableQuery, Tag}
-import utils.db.UpdateReturning._
 
 abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag ⇒ T)
     extends TableQuery[T](construct)

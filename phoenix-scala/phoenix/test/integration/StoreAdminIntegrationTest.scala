@@ -1,4 +1,4 @@
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import phoenix.failures.StateTransitionNotAllowed
 import phoenix.failures.UserFailures.UserEmailNotUnique
 import phoenix.models.account._

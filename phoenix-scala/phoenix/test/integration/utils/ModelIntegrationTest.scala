@@ -1,6 +1,6 @@
 package utils
 
-import failures.{DatabaseFailure, GeneralFailure}
+import core.failures.{DatabaseFailure, GeneralFailure}
 import phoenix.failures.StateTransitionNotAllowed
 import phoenix.models.account._
 import phoenix.models.cord.Order.Shipped
@@ -10,7 +10,7 @@ import phoenix.models.location.Addresses
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 

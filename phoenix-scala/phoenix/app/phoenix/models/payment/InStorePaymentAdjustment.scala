@@ -3,13 +3,13 @@ package phoenix.models.payment
 import java.time.Instant
 
 import com.pellucid.sealerate
+import core.db.ExPostgresDriver.api._
+import core.db._
 import phoenix.models.cord.OrderPayments
 import phoenix.models.payment.InStorePaymentStates._
 import phoenix.utils.ADT
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 /*
 Base trait for GiftCardAdjustment and CreditCardAdjustment.

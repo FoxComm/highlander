@@ -10,7 +10,7 @@ import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.db._
 
 case class ReturnReason(id: Int = 0,
                         name: String,

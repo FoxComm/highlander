@@ -4,7 +4,7 @@ import cats.implicits._
 import phoenix.models.payment.giftcard._
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class GiftCardAdjustmentIntegrationTest
     extends IntegrationTestBase

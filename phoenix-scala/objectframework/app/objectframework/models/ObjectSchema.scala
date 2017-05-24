@@ -2,11 +2,12 @@ package objectframework.models
 
 import java.time.Instant
 
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.failures.NotFoundFailure404
+import core.utils.Validation
 import org.json4s.{JObject, JValue}
 import shapeless._
-import utils.Validation
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 /**
   Represent json-schema for views: ObjectForm applied to ObjectShadow.
@@ -81,8 +82,7 @@ object ObjectFullSchemas
     filter(_.kind === kind)
 
   def mustFindByName404(name: String)(implicit ec: EC): DbResultT[ObjectFullSchema] =
-    filter(_.name === name)
-      .mustFindOneOr(failures.NotFoundFailure404(ObjectFullSchemas, "name", name))
+    filter(_.name === name).mustFindOneOr(NotFoundFailure404(ObjectFullSchemas, "name", name))
 
   def findOneByName(name: String): DBIO[Option[ObjectFullSchema]] =
     filter(_.name === name).one

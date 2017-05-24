@@ -1,5 +1,5 @@
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import phoenix.failures.AddressFailures.NoRegionFound
 import phoenix.models.account._
 import phoenix.models.cord.OrderShippingAddresses

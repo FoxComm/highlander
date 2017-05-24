@@ -1,12 +1,12 @@
 package phoenix.services.returns
 
-import failures.NotFoundFailure404
+import core.db._
+import core.failures.NotFoundFailure404
 import phoenix.models.returns._
 import phoenix.payloads.ReturnPayloads.ReturnReasonPayload
 import phoenix.responses.ReturnReasonsResponse._
-import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases.{DB, EC}
-import utils.db._
+import slick.jdbc.PostgresProfile.api._
 
 object ReturnReasonsManager {
 

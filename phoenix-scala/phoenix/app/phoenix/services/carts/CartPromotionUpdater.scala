@@ -2,7 +2,7 @@ package phoenix.services.carts
 
 import cats._
 import cats.implicits._
-import failures.Failures
+import core.failures.Failures
 import objectframework.models._
 import org.json4s.JsonAST._
 import phoenix.failures.CouponFailures._
@@ -32,7 +32,7 @@ import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.db._
 
 object CartPromotionUpdater {
 

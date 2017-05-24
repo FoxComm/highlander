@@ -1,9 +1,9 @@
 package objectframework
 
 import cats.implicits._
+import core.utils.Money.Currency
 import objectframework.models.{ObjectForm, ObjectShadow}
 import org.json4s._
-import utils.Money.Currency
 
 object FormShadowGet {
 

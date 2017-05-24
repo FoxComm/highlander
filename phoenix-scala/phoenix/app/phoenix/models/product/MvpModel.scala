@@ -4,7 +4,8 @@ import java.time.Instant
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import objectframework.FormShadowGet._
+import core.db._
+import core.utils.Money.Currency
 import objectframework.ObjectFailures._
 import objectframework.ObjectUtils
 import objectframework.models._
@@ -23,8 +24,6 @@ import phoenix.services.image.ImageManager
 import phoenix.services.inventory.SkuManager
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.Money.Currency
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -532,4 +531,43 @@ object Mvp {
     for {
       results ← * <~ ps.map(p ⇒ insertProductNewContext(oldContextId, contextId, p))
     } yield results
+
+  def priceFromJson(p: Json): Option[(Int, Currency)] = {
+    val price = for {
+      JInt(value)       ← p \ "value"
+      JString(currency) ← p \ "currency"
+    } yield (value.toInt, Currency(currency))
+    if (price.isEmpty) None else price.headOption
+  }
+
+  def price(f: ObjectForm, s: ObjectShadow): Option[(Int, Currency)] = {
+    ObjectUtils.get("salePrice", f, s) match {
+      case JNothing ⇒ None
+      case v        ⇒ priceFromJson(v)
+    }
+  }
+
+  def priceAsInt(f: ObjectForm, s: ObjectShadow): Int =
+    price(f, s).map { case (value, _) ⇒ value }.getOrElse(0)
+
+  def title(f: ObjectForm, s: ObjectShadow): Option[String] = {
+    ObjectUtils.get("title", f, s) match {
+      case JString(title) ⇒ title.some
+      case _              ⇒ None
+    }
+  }
+
+  def externalId(f: ObjectForm, s: ObjectShadow): Option[String] = {
+    ObjectUtils.get("externalId", f, s) match {
+      case JString(externalId) ⇒ externalId.some
+      case _                   ⇒ None
+    }
+  }
+
+  def trackInventory(f: ObjectForm, s: ObjectShadow): Boolean = {
+    ObjectUtils.get("trackInventory", f, s) match {
+      case JBool(trackInventory) ⇒ trackInventory
+      case _                     ⇒ true
+    }
+  }
 }

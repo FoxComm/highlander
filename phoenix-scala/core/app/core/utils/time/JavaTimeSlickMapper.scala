@@ -1,4 +1,4 @@
-package utils.time
+package core.utils.time
 
 import java.sql.Timestamp
 import java.time.{ZoneId, ZoneOffset}

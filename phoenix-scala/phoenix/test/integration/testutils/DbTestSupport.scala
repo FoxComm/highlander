@@ -12,7 +12,7 @@ import phoenix.utils.db.flyway.{newFlyway, subprojectSqlLocation}
 import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
-import utils.db._
+import core.db._
 
 import scala.annotation.tailrec
 

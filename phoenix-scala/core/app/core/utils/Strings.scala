@@ -1,6 +1,5 @@
-package utils
+package core.utils
 
-import scala.language.implicitConversions
 import mojolly.inflector.InflectorImports._
 
 object Strings {

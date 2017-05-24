@@ -3,7 +3,7 @@ package phoenix.models.promotion
 import java.time.Instant
 
 import cats.implicits._
-import failures._
+import core.failures._
 import objectframework.IlluminateAlgorithm
 import objectframework.models._
 import org.json4s.JsonAST.JNothing

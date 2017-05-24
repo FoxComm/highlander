@@ -11,6 +11,7 @@ import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
 import com.stripe.Stripe
 import com.typesafe.scalalogging.LazyLogging
+import core.db._
 import org.json4s._
 import org.json4s.jackson._
 import phoenix.models.account.{AccountAccessMethod, Scope, Scopes}
@@ -24,7 +25,6 @@ import phoenix.utils.http.CustomHandlers
 import phoenix.utils.http.HttpLogger.logFailedRequests
 import phoenix.utils.{ElasticsearchApi, Environment, FoxConfig}
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 import scala.collection.immutable
 import scala.concurrent.duration._

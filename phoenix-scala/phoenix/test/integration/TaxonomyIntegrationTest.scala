@@ -15,7 +15,7 @@ import slick.jdbc.GetResult
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.db.ExPostgresDriver.api._
+import core.db.ExPostgresDriver.api._
 
 class TaxonomyIntegrationTest
     extends IntegrationTestBase

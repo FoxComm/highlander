@@ -5,6 +5,7 @@ import akka.pattern.ask
 import akka.stream.actor.ActorPublisher
 import akka.stream.scaladsl.Source
 import com.typesafe.scalalogging.LazyLogging
+import core.db._
 import de.heikoseeberger.akkasse.{EventStreamElement, ServerSentEvent ⇒ SSE}
 import org.json4s.jackson.Serialization.write
 import phoenix.models.account.{Scope, Users}
@@ -13,7 +14,6 @@ import phoenix.responses.NotificationResponse
 import phoenix.utils.aliases._
 import phoenix.utils.{JsonFormatters, NotificationListener}
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt

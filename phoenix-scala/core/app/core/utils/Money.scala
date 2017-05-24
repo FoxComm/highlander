@@ -1,12 +1,12 @@
-package utils
+package core.utils
 
 import cats.implicits._
 import org.joda.money.CurrencyUnit
 import org.json4s.CustomSerializer
 import org.json4s.JsonAST.JString
 import slick.ast.BaseTypedType
-import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.JdbcType
+import slick.jdbc.PostgresProfile.api._
 
 // ALWAYS use BigMoney
 object Money {

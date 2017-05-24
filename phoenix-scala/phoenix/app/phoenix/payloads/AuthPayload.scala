@@ -1,7 +1,7 @@
 package phoenix.payloads
 
 import cats.implicits._
-import failures._
+import core.failures._
 import org.jose4j.jwt.JwtClaims
 import org.json4s.CustomSerializer
 import org.json4s.jackson.{compactJson, parseJson}

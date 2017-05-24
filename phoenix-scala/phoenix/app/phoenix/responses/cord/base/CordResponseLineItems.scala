@@ -1,11 +1,11 @@
 package phoenix.responses.cord.base
 
+import core.db._
 import objectframework.FormShadowGet
 import phoenix.models.cord.lineitems._
 import phoenix.responses.ResponseItem
 import phoenix.services.LineItemManager
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class CordResponseLineItem(imagePath: String,
                                 referenceNumbers: Seq[String],
