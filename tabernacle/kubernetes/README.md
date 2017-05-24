@@ -8,11 +8,6 @@ An attempt to launch Fox Platform on [Kubernetes](https://kubernetes.io).
 * [minikube](https://github.com/kubernetes/minikube)
 * [VirtualBox](https://virtualbox.org)
 
-## Configuration
-
-* https://superuser.com/a/722670
-* https://github.com/kubernetes/minikube/issues/352#issuecomment-237615642
-
 ## Running
 
 Start Minikube:
@@ -48,6 +43,12 @@ Create Deployments:
     # Consumers
     $ kubectl create -f kubernetes/deploy_greenriver.yml
     $ kubectl create -f kubernetes/deploy_messaging.yml
+
+## Troubleshooting
+
+* DNS: https://superuser.com/a/722670
+* Hosts: https://github.com/kubernetes/minikube/issues/352#issuecomment-237615642
+* Volumes: https://github.com/razius/minikube/pull/1/files
 
 ## Snippets
 
