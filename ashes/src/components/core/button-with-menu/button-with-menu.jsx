@@ -147,13 +147,9 @@ export default class ButtonWithMenu extends Component {
       [s.opened]: open,
     }, className);
 
-    const actionButtonClassName = classNames(s.actionButton, buttonClassName, {
-      [s._disabled]: buttonDisabled,
-    });
+    const actionButtonClassName = classNames(s.actionButton, buttonClassName);
 
-    const menuButtonClassName = classNames(s.dropdownButton, menuClassName, {
-      [s._disabled]: menuDisabled,
-    });
+    const menuButtonClassName = classNames(s.dropdownButton, menuClassName);
 
     return (
       <div className={cls} onBlur={this.handleBlur} tabIndex="0">

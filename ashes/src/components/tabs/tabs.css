@@ -1,6 +1,6 @@
 @import "common.css";
 
-._loading {
+.loading {
   &::before {
     content: '';
     position: absolute;
