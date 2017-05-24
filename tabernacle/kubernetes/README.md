@@ -1,6 +1,6 @@
 # Kubernetes
 
-An attempt to launch Fox Platform on Kubernetes.
+An attempt to launch Fox Platform on [Kubernetes](https://kubernetes.io).
 
 ## Pre-requisites
 
