@@ -1,7 +1,7 @@
 package phoenix.failures
 
-import failures.Failure
-import utils.friendlyClassName
+import core.failures.Failure
+import core.utils.friendlyClassName
 
 object AssignmentFailures {
 

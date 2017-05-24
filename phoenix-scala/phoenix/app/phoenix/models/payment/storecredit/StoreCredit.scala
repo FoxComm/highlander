@@ -7,7 +7,12 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
-import failures.{Failure, Failures, GeneralFailure}
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.failures.{Failure, Failures, GeneralFailure}
+import core.utils.Money._
+import core.utils.Validation
+import core.utils.Validation._
 import phoenix.failures.StoreCreditFailures
 import phoenix.models.account._
 import phoenix.models.cord.OrderPayment
@@ -18,11 +23,6 @@ import phoenix.utils.{ADT, FSM}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.Money._
-import utils.Validation._
-import utils._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class StoreCredit(id: Int = 0,
                        scope: LTree,

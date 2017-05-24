@@ -1,6 +1,9 @@
 package phoenix.services.variant
 
-import models.objects._
+import core.db._
+import objectframework.ObjectUtils
+import objectframework.models._
+import objectframework.services.ObjectManager
 import org.json4s.Formats
 import phoenix.failures.ProductFailures._
 import phoenix.models.account._
@@ -12,9 +15,7 @@ import phoenix.responses.VariantValueResponses.IlluminatedVariantValueResponse
 import phoenix.services.inventory.SkuManager
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-import services.objects.ObjectManager
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 object VariantManager {
   type FullVariant = (FullObject[Variant], Seq[FullObject[VariantValue]])

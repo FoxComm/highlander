@@ -1,10 +1,10 @@
 package phoenix.responses
 
 import cats.{Functor, Monad}
-import failures._
+import core.failures._
+import core.utils.friendlyClassName
 import phoenix.responses.BatchMetadata._
 import phoenix.services.CartValidatorResponse
-import utils.friendlyClassName
 
 case class TheResponse[A](result: A,
                           alerts: Option[List[String]] = None,

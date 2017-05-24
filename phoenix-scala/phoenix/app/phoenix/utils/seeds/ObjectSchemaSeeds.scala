@@ -1,11 +1,11 @@
 package phoenix.utils.seeds
 
-import models.objects._
+import core.db._
+import objectframework.models._
 import org.json4s.JValue
 import org.json4s.jackson.JsonMethods._
 import phoenix.utils.JsonFormatters
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

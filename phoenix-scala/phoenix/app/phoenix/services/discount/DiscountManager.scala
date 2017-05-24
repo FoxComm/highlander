@@ -1,9 +1,11 @@
 package phoenix.services.discount
 
 import cats.implicits._
-import failures.NotFoundFailure404
-import failures.ObjectFailures._
-import models.objects._
+import core.db._
+import core.failures.NotFoundFailure404
+import objectframework.ObjectFailures._
+import objectframework.ObjectUtils
+import objectframework.models._
 import org.json4s.Formats
 import phoenix.failures.DiscountFailures._
 import phoenix.models.account._
@@ -13,7 +15,6 @@ import phoenix.responses.DiscountResponses._
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 object DiscountManager {
 

@@ -1,7 +1,7 @@
 package testutils
 
 import cats.implicits._
-import failures.GeneralFailure
+import core.failures.GeneralFailure
 import phoenix.failures.UserFailures._
 import phoenix.models.account._
 import phoenix.models.admin._
@@ -14,7 +14,7 @@ import phoenix.utils.aliases._
 import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils.fixtures.TestFixtureBase
-import utils.db._
+import core.db._
 
 /**
   * Seeds are simple values that can be created without any external dependencies.

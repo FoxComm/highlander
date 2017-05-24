@@ -2,11 +2,11 @@ package phoenix.models.discount
 
 import java.time.Instant
 
-import models.objects._
+import objectframework.models._
 import shapeless._
 import slick.lifted.Tag
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.db.ExPostgresDriver.api._
+import core.db._
 import com.github.tminglei.slickpg._
 
 object Discount {

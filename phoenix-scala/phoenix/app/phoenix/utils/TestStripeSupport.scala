@@ -3,12 +3,12 @@ package phoenix.utils
 import java.time.ZonedDateTime
 
 import com.stripe.model.{DeletedCustomer, Token}
+import core.db._
 import faker.Lorem
 import phoenix.models.location.Address
 import phoenix.utils.aliases.stripe.StripeCustomer
 import phoenix.utils.apis.StripeWrapper
 import phoenix.utils.seeds.Factories
-import utils.db._
 
 import scala.collection.JavaConversions._
 

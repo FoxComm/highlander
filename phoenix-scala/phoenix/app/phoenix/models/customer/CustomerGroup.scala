@@ -5,7 +5,9 @@ import java.time.Instant
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
-import failures.Failures
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.failures.Failures
 import phoenix.failures.CustomerGroupFailures.CustomerGroupTypeIsWrong
 import phoenix.models.customer.CustomerGroup._
 import phoenix.payloads.CustomerGroupPayloads.CustomerGroupPayload
@@ -15,8 +17,6 @@ import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.lifted.Tag
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class CustomerGroup(id: Int = 0,
                          scope: LTree,

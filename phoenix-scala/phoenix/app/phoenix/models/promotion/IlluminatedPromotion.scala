@@ -3,15 +3,15 @@ package phoenix.models.promotion
 import java.time.Instant
 
 import cats.implicits._
-import failures._
-import models.objects._
+import core.failures._
+import objectframework.IlluminateAlgorithm
+import objectframework.models._
 import org.json4s.JsonAST.JNothing
 import org.json4s.JsonDSL._
 import phoenix.failures.PromotionFailures._
 import phoenix.models.promotion.Promotion._
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-import utils.IlluminateAlgorithm
 
 /**
   * An IlluminatedPromotion is what you get when you combine the promotion shadow and

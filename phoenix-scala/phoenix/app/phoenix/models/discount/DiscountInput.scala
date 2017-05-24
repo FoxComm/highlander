@@ -1,6 +1,6 @@
 package phoenix.models.discount
 
-import models.objects.ObjectShadow
+import objectframework.models.ObjectShadow
 import phoenix.models.cord.Cart
 import phoenix.models.cord.lineitems._
 import phoenix.models.product.Mvp

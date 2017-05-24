@@ -1,14 +1,14 @@
 package phoenix.models.discount.qualifiers
 
 import cats.implicits._
-import failures._
+import core.db._
+import core.failures._
 import phoenix.failures.DiscountCompilerFailures.QualifierRejectionFailure
 import phoenix.failures.DiscountFailures.SearchFailure
 import phoenix.models.discount.{DiscountBase, DiscountInput, ProductSearch}
 import phoenix.utils.ElasticsearchApi.Buckets
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
-import utils.db._
 
 trait Qualifier extends DiscountBase {
 

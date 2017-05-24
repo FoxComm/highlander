@@ -1,6 +1,6 @@
 package phoenix.services.activity
 
-import responses.ObjectResponses.ObjectContextResponse
+import objectframework.ObjectResponses.ObjectContextResponse
 import phoenix.responses.CategoryResponses.FullCategoryResponse
 import phoenix.responses.UserResponse
 

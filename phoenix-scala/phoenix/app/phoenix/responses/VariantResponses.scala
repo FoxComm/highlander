@@ -1,11 +1,11 @@
 package phoenix.responses
 
 import cats.implicits._
-import models.objects._
+import objectframework.ObjectResponses.ObjectContextResponse
+import objectframework.models._
 import phoenix.models.product._
 import phoenix.responses.VariantValueResponses.IlluminatedVariantValueResponse
 import phoenix.utils.aliases._
-import responses.ObjectResponses.ObjectContextResponse
 
 object VariantResponses {
 

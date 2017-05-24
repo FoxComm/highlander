@@ -1,8 +1,8 @@
 package phoenix.utils.seeds
 
 import cats.implicits._
+import core.db._
 import phoenix.models.location.{Address, Addresses}
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

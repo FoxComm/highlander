@@ -15,7 +15,7 @@ import phoenix.services.account.AccountManager
 import phoenix.utils.aliases.{SF, SL}
 import phoenix.utils.seeds.generators.GeneratorUtils.randomString
 import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
-import utils.db._
+import core.db._
 
 case class TestLoginData(email: String, password: String)
 object TestLoginData {

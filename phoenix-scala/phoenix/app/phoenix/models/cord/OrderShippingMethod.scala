@@ -3,7 +3,7 @@ package phoenix.models.cord
 import phoenix.models.shipping.{ShippingMethod, ShippingMethods}
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.db._
 
 case class OrderShippingMethod(id: Int = 0, cordRef: String, shippingMethodId: Int, price: Int)
     extends FoxModel[OrderShippingMethod]

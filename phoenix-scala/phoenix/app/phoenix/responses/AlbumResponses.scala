@@ -2,12 +2,12 @@ package phoenix.responses
 
 import java.time.Instant
 
-import models.objects._
+import objectframework.IlluminateAlgorithm
+import objectframework.models._
 import phoenix.models.image._
 import phoenix.responses.ImageResponses.ImageResponse
 import phoenix.services.image.ImageManager.FullAlbumWithImages
 import phoenix.utils.JsonFormatters
-import utils.IlluminateAlgorithm
 
 object AlbumResponses {
   implicit val formats = JsonFormatters.phoenixFormats

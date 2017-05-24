@@ -3,7 +3,7 @@ package phoenix.responses
 import java.time.Instant
 
 import phoenix.models.payment.storecredit.StoreCredit
-import utils.Money.Currency
+import core.utils.Money.Currency
 
 object StoreCreditResponse {
   case class Root(id: Int,

@@ -3,9 +3,9 @@ import java.time.temporal.ChronoUnit
 
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import cats.implicits._
-import failures.NotFoundFailure404
-import failures.ObjectFailures.ObjectContextNotFound
-import models.objects.ObjectContext
+import core.failures.NotFoundFailure404
+import objectframework.ObjectFailures.ObjectContextNotFound
+import objectframework.models.ObjectContext
 import org.json4s.JsonDSL._
 import org.json4s._
 import phoenix.failures.ArchiveFailures._
@@ -30,8 +30,8 @@ import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtures
-import utils.Money.Currency
-import utils.db._
+import core.utils.Money.Currency
+import core.db._
 
 object ProductTestExtensions {
 

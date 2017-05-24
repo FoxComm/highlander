@@ -2,7 +2,9 @@ package phoenix.services.customerGroups
 
 import java.time.Instant
 
-import failures.NotFoundFailure404
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.failures.NotFoundFailure404
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import phoenix.models.account.{Scope, User}
@@ -13,8 +15,6 @@ import phoenix.responses.GroupResponses.GroupResponse.{Root, build}
 import phoenix.services.LogActivity
 import phoenix.utils.aliases._
 import phoenix.utils.time._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 object GroupManager {
 

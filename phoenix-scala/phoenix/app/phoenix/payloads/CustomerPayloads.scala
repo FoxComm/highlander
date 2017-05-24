@@ -2,9 +2,9 @@ package phoenix.payloads
 
 import cats.data._
 import cats.implicits._
-import failures.Failure
-import utils.Validation
-import utils.Validation._
+import core.failures.Failure
+import core.utils.Validation
+import core.utils.Validation._
 
 object CustomerPayloads {
 
