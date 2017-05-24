@@ -10,7 +10,7 @@ import utils.db._
 
 case class Head(id: Int = 0,
                 kind: String,
-                viewId: Int,
+                viewId: View#Id,
                 commitId: Commit#Id,
                 createdAt: Instant = Instant.now,
                 updatedAt: Instant = Instant.now,
