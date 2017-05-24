@@ -1,12 +1,12 @@
-package models.payment
+package phoenix.models.payment
 
 import com.pellucid.sealerate
 import failures.Failures
-import models.payment.ExternalCharge.State
+import phoenix.models.payment.ExternalCharge.State
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils.db.FoxModel
-import utils.{ADT, FSM}
+import phoenix.utils.{ADT, FSM}
 
 trait ExternalChargeVals {
   val stripeChargeId: String

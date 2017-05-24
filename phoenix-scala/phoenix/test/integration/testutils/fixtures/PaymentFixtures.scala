@@ -3,10 +3,10 @@ package testutils.fixtures
 import java.time.ZonedDateTime
 
 import cats.implicits._
-import payloads.AddressPayloads.CreateAddressPayload
-import payloads.PaymentPayloads.CreateCreditCardFromTokenPayload
-import utils.TestStripeSupport
-import utils.seeds.Factories
+import phoenix.payloads.AddressPayloads.CreateAddressPayload
+import phoenix.payloads.PaymentPayloads.CreateCreditCardFromTokenPayload
+import phoenix.utils.TestStripeSupport
+import phoenix.utils.seeds.Factories
 
 object PaymentFixtures {
 

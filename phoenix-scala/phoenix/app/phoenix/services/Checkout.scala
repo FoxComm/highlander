@@ -10,10 +10,11 @@ import objectframework.ObjectUtils
 import objectframework.models._
 import org.json4s.JsonAST._
 import phoenix.failures.AddressFailures.NoDefaultAddressForCustomer
+import phoenix.failures.CartFailures.NoCartFound
 import phoenix.failures.CouponFailures.CouponWithCodeCannotBeFound
 import phoenix.failures.CreditCardFailures.NoDefaultCreditCardForCustomer
+import phoenix.failures.OrderFailures.OnlyOneExternalPaymentIsAllowed
 import phoenix.failures.PromotionFailures.PromotionNotFoundForContext
-import phoenix.failures.ShippingMethodFailures.NoDefaultShippingMethod
 import phoenix.models.account._
 import phoenix.models.cord._
 import phoenix.models.cord.lineitems.CartLineItems
@@ -21,6 +22,7 @@ import phoenix.models.cord.lineitems.CartLineItems.scope._
 import phoenix.models.coupon._
 import phoenix.models.inventory.Skus
 import phoenix.models.location.Addresses
+import phoenix.models.payment.applepay.{ApplePayCharge, ApplePayCharges}
 import phoenix.models.payment.creditcard._
 import phoenix.models.payment.giftcard._
 import phoenix.models.payment.storecredit._
@@ -28,8 +30,8 @@ import phoenix.models.promotion._
 import phoenix.models.shipping.DefaultShippingMethods
 import phoenix.payloads.CartPayloads.CheckoutCart
 import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
+import phoenix.payloads.PaymentPayloads.CreateApplePayPayment
 import phoenix.responses.cord.OrderResponse
-
 import phoenix.services.carts._
 import phoenix.services.coupon.CouponUsageService
 import phoenix.services.inventory.SkuManager

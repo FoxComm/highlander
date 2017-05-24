@@ -1,15 +1,15 @@
-package models.payment.applepay
+package phoenix.models.payment.applepay
 
 import java.time.Instant
 
-import models.cord.OrderPayment
-import models.payment.ExternalCharge
-import models.payment.ExternalCharge._
+import phoenix.models.cord.OrderPayment
+import phoenix.models.payment.ExternalCharge._
+import phoenix.models.payment.ExternalCharge
+import phoenix.utils.aliases.stripe.StripeCharge
 import shapeless.{Lens, lens}
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted._
 import utils.Money.Currency
-import utils.aliases.stripe.StripeCharge
 import utils.db._
 
 case class ApplePayCharge(id: Int = 0,

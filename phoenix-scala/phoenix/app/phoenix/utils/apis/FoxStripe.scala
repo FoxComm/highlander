@@ -1,6 +1,5 @@
 package phoenix.utils.apis
 
-
 import cats.implicits._
 import core.db._
 import core.utils.Money._

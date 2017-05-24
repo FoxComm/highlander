@@ -7,6 +7,7 @@ import phoenix.failures.ShippingMethodFailures._
 import phoenix.models.cord.{CordPaymentState, _}
 import phoenix.models.cord.lineitems._
 import phoenix.models.location._
+import phoenix.models.payment.ExternalCharge
 import phoenix.models.payment.creditcard._
 import phoenix.models.product.Mvp
 import phoenix.models.rules.QueryStatement

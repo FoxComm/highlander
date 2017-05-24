@@ -10,7 +10,7 @@ import failures.Failure
 import phoenix.models.cord.OrderPayments.filter
 import phoenix.models.payment.PaymentMethod
 import phoenix.models.payment.PaymentMethod.ExternalPayment
-import phoenix.models.payment.creditcard.{CreditCard, CreditCards}
+import phoenix.models.payment.creditcard.{CreditCard, CreditCardCharges, CreditCards}
 import phoenix.models.payment.applepay.{ApplePayCharge, ApplePayCharges, ApplePayment, ApplePayments}
 import phoenix.models.payment.giftcard.{GiftCard, GiftCards}
 import phoenix.models.payment.storecredit.{StoreCredit, StoreCredits}
@@ -54,6 +54,10 @@ case class OrderPayment(id: Int = 0,
     amountLimit.fold(paymentAmount)(_.min(paymentAmount))
   }
 }
+
+case class StripeOrderPayment(stripeChargeId: String,
+                              amount: Int,
+                              currency: Currency = Currency.USD)
 
 object OrderPayment {
   def fromStripeCustomer(stripeCustomer: StripeCustomer, cart: Cart): OrderPayment =

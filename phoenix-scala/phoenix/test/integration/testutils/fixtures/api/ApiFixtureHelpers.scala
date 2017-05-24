@@ -12,7 +12,6 @@ import phoenix.responses.{CreditCardsResponse, CustomerResponse, GiftCardRespons
 import phoenix.utils.aliases._
 import testutils._
 import testutils.apis.PhoenixAdminApi
-import utils.aliases._
 
 trait ApiFixtureHelpers extends PhoenixAdminApi with ApiFixtures { self: FoxSuite ⇒
   def api_newCustomer()(implicit sl: SL, sf: SF): CustomerResponse.Root = {

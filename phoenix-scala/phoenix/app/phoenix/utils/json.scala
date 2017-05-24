@@ -15,7 +15,7 @@ import phoenix.models.inventory.SkuType
 import phoenix.models.payment.creditcard.CreditCardCharge
 import phoenix.models.payment.giftcard.GiftCard
 import phoenix.models.payment.storecredit.StoreCredit
-import phoenix.models.payment.{InStorePaymentStates, PaymentMethod}
+import phoenix.models.payment.{ExternalCharge, InStorePaymentStates, PaymentMethod}
 import phoenix.models.plugins.PluginSettings
 import phoenix.models.promotion.Promotion
 import phoenix.models.returns._

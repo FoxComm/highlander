@@ -2,7 +2,7 @@ package phoenix.failures
 
 import core.failures.Failure
 import phoenix.models.payment.creditcard._
-import models.payment.{ExternalCharge, ExternalChargeVals}
+import phoenix.models.payment.{ExternalCharge, ExternalChargeVals}
 
 object CaptureFailures {
 

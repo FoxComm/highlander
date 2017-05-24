@@ -8,7 +8,7 @@ import phoenix.models.payment.creditcard.CreditCardCharges
 import phoenix.models.payment.giftcard.GiftCardAdjustments
 import phoenix.models.payment.storecredit.StoreCreditAdjustments
 import phoenix.utils.aliases.EC
-import models.payment.applepay.ApplePayCharges
+import phoenix.models.payment.applepay.ApplePayCharges
 import slick.dbio.DBIO
 import utils.db._
 

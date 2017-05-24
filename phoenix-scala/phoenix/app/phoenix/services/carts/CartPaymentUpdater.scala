@@ -20,11 +20,10 @@ import phoenix.responses.cord.CartResponse
 import phoenix.services.{CartValidator, LogActivity}
 import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
-import utils.apis.Apis
+import phoenix.utils.apis.Apis
 import core.db._
-import failures.ApplePayFailures._
-import models.payment.PaymentMethod.ApplePay
-import models.payment.applepay._
+import phoenix.models.payment.PaymentMethod.ApplePay
+import phoenix.models.payment.applepay._
 
 object CartPaymentUpdater {
 

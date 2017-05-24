@@ -1,11 +1,11 @@
-package models.payment.applepay
+package phoenix.models.payment.applepay
 
 import java.time.Instant
 
 import cats.implicits._
 import cats.data.ValidatedNel
 import failures.Failure
-import models.payment.PaymentMethod
+import phoenix.models.payment.PaymentMethod
 import shapeless.{Lens, lens}
 import slick.jdbc.PostgresProfile.api._
 import utils.Validation

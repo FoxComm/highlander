@@ -1,24 +1,26 @@
 import cats.implicits._
 import failures.GeneralFailure
-import failures.OrderFailures.OnlyOneExternalPaymentIsAllowed
+import phoenix.failures.OrderFailures.OnlyOneExternalPaymentIsAllowed
+import phoenix.models.location.Region
+import phoenix.models.shipping._
+import phoenix.payloads.AddressPayloads.CreateAddressPayload
+import phoenix.payloads.CapturePayloads.{Capture, CaptureLineItem, ShippingCost}
+import phoenix.payloads.CartPayloads.CreateCart
+import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
+import phoenix.payloads.LineItemPayloads._
+import phoenix.payloads.PaymentPayloads.{CreateApplePayPayment, CreditCardPayment}
+import phoenix.payloads.UpdateShippingMethod
+import phoenix.responses.cord._
+import phoenix.responses.{CaptureResponse, CreditCardsResponse, CustomerResponse}
+import testutils.apis._
+import utils.MockedApis
+import phoenix.utils.seeds.{Factories, ShipmentSeeds}
+import testutils.{DefaultJwtAdminAuth, IntegrationTestBase, TestLoginData}
+import testutils.fixtures.api.{ApiFixtureHelpers, ApiFixtures}
 import faker.Lorem
-import models.location.Region
-import models.shipping._
-import payloads.AddressPayloads.CreateAddressPayload
-import payloads.CapturePayloads.{Capture, CaptureLineItem, ShippingCost}
-import payloads.CartPayloads.CreateCart
-import payloads.CustomerPayloads.CreateCustomerPayload
-import payloads.LineItemPayloads._
-import payloads.PaymentPayloads.{CreateApplePayPayment, CreditCardPayment}
-import payloads.UpdateShippingMethod
-import responses.cord._
-import responses.{CaptureResponse, CreditCardsResponse, CustomerResponse}
 import testutils._
-import testutils.apis.PhoenixStorefrontApi
 import testutils.fixtures.PaymentFixtures.CreditCardsFixture
 import testutils.fixtures.api._
-import utils.MockedApis
-import utils.seeds.{Factories, ShipmentSeeds}
 
 class ApplePayIntegrationTest
     extends IntegrationTestBase

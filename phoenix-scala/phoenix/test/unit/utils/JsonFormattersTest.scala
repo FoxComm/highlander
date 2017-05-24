@@ -7,6 +7,7 @@ import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization.write
 import phoenix.models.admin.AdminData
 import phoenix.models.cord.Order
+import phoenix.models.payment.ExternalCharge
 import phoenix.models.payment.creditcard.CreditCardCharge
 import phoenix.models.payment.giftcard.GiftCard
 import phoenix.utils.JsonFormatters._

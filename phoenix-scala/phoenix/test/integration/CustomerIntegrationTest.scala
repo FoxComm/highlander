@@ -14,6 +14,7 @@ import phoenix.models.cord.OrderPayments.scope._
 import phoenix.models.cord._
 import phoenix.models.customer._
 import phoenix.models.location.{Addresses, Regions}
+import phoenix.models.payment.ExternalCharge
 import phoenix.models.payment.creditcard._
 import phoenix.models.shipping.Shipment.Shipped
 import phoenix.models.shipping.{Shipment, Shipments}

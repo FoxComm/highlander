@@ -6,7 +6,7 @@ import core.failures.{Failure, Failures}
 import objectframework.services.ObjectManager
 import phoenix.failures.CartFailures._
 import phoenix.models.cord._
-import models.payment.applepay.ApplePayCharges
+import phoenix.models.payment.applepay.ApplePayCharges
 import phoenix.models.cord.lineitems.CartLineItems
 import phoenix.models.inventory.{IlluminatedSku, Skus}
 import phoenix.models.payment.giftcard.{GiftCardAdjustments, GiftCards}

@@ -7,8 +7,8 @@ import core.db._
 import core.failures.Failures
 import core.utils.Money.Currency
 import phoenix.models.cord.{OrderPayment, OrderPayments}
-import models.payment.ExternalCharge
-import models.payment.ExternalCharge._
+import phoenix.models.payment.ExternalCharge
+import phoenix.models.payment.ExternalCharge._
 import phoenix.utils._
 import phoenix.utils.aliases.stripe._
 import shapeless._
