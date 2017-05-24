@@ -1,6 +1,7 @@
 package phoenix.services
 
 import cats.implicits._
+import objectframework.services.ObjectManager
 import phoenix.failures.CartFailures._
 import phoenix.failures.OrderFailures.OrderLineItemNotFound
 import phoenix.failures.ProductFailures.SkuNotFoundForContext
@@ -19,7 +20,6 @@ import phoenix.services.carts.{CartPromotionUpdater, CartTotaler}
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
-import services.objects.ObjectManager
 import slick.jdbc.PostgresProfile.api._
 import utils.db._
 

@@ -1,13 +1,13 @@
 package phoenix.models.inventory
 
-import cats.implicits._
-import phoenix.failures.ArchiveFailures.{LinkInactiveSkuFailure, SkuIsPresentInCarts}
-import failures.Failures
 import java.time.Instant
-import models.objects._
-import shapeless._
+
+import cats.implicits._
+import failures.Failures
+import objectframework.models._
+import phoenix.failures.ArchiveFailures.{LinkInactiveSkuFailure, SkuIsPresentInCarts}
 import phoenix.utils.JsonFormatters
-import phoenix.utils.aliases._
+import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import com.github.tminglei.slickpg._

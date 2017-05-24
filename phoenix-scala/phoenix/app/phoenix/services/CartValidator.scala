@@ -2,6 +2,7 @@ package phoenix.services
 
 import cats.implicits._
 import failures.{Failure, Failures}
+import objectframework.services.ObjectManager
 import phoenix.failures.CartFailures._
 import phoenix.models.cord._
 import phoenix.models.cord.lineitems.CartLineItems
@@ -9,7 +10,6 @@ import phoenix.models.inventory.{IlluminatedSku, Skus}
 import phoenix.models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import phoenix.models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
 import phoenix.utils.aliases._
-import services.objects.ObjectManager
 import slick.jdbc.PostgresProfile.api._
 import utils.db._
 

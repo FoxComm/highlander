@@ -2,7 +2,7 @@ package phoenix.models.product
 
 import java.time.Instant
 
-import models.objects._
+import objectframework.models._
 import shapeless._
 import slick.lifted.Tag
 import utils.Validation

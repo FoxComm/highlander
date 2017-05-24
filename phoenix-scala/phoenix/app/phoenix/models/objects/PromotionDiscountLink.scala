@@ -2,7 +2,7 @@ package phoenix.models.objects
 
 import java.time.Instant
 
-import models.objects.ObjectHeadLinks._
+import objectframework.models.ObjectHeadLinks._
 import phoenix.models.discount.{Discount, Discounts}
 import phoenix.models.promotion._
 import shapeless._

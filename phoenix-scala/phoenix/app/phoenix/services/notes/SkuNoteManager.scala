@@ -1,7 +1,7 @@
 package phoenix.services.notes
 
+import objectframework.models._
 import phoenix.models.Note
-import models.objects._
 import phoenix.services.inventory.SkuManager
 import phoenix.utils.aliases._
 import utils.db._

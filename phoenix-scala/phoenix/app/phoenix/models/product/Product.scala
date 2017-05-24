@@ -4,7 +4,8 @@ import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
 import failures._
-import models.objects._
+import objectframework.models._
+import objectframework.services.ObjectManager
 import phoenix.failures.ArchiveFailures.ProductIsPresentInCarts
 import phoenix.failures.ProductFailures
 import phoenix.failures.ProductFailures._
@@ -12,7 +13,6 @@ import phoenix.models.cord.lineitems.CartLineItems
 import phoenix.models.objects.ProductSkuLinks
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-import services.objects.ObjectManager
 import shapeless._
 import utils.Validation
 import utils.db.ExPostgresDriver.api._

@@ -2,10 +2,9 @@ package phoenix.payloads
 
 import cats.data.{Validated, ValidatedNel}
 import failures.Failure
-import models.objects.ObjectUtils._
-import models.objects._
-import payloads.ObjectPayloads
-import payloads.ObjectPayloads.{AttributesBuilder, StringField}
+import objectframework.ObjectUtils._
+import objectframework.models._
+import objectframework.payloads.ObjectPayloads._
 import phoenix.models.image._
 import utils.Validation
 import utils.Validation._
@@ -22,7 +21,7 @@ object ImagePayloads {
                           scope: Option[String] = None) {
 
     def formAndShadow: FormAndShadow = {
-      val jsonBuilder: AttributesBuilder = ObjectPayloads.optionalAttributes(
+      val jsonBuilder: AttributesBuilder = optionalAttributes(
           Some(StringField("src", src)),
           title.map(StringField("title", _)),
           alt.map(StringField("alt", _)),
@@ -41,8 +40,7 @@ object ImagePayloads {
       extends Validation[AlbumPayload] {
 
     def formAndShadow: FormAndShadow = {
-      val jsonBuilder: AttributesBuilder =
-        ObjectPayloads.optionalAttributes(name.map(StringField("name", _)))
+      val jsonBuilder: AttributesBuilder = optionalAttributes(name.map(StringField("name", _)))
 
       (ObjectForm(kind = Album.kind, attributes = jsonBuilder.objectForm),
        ObjectShadow(attributes = jsonBuilder.objectShadow))

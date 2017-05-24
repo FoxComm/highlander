@@ -1,5 +1,5 @@
 import com.github.tminglei.slickpg.LTree
-import models.objects.{ObjectContexts, ObjectForm, ObjectForms}
+import objectframework.models.{ObjectContexts, ObjectForm, ObjectForms}
 import org.json4s.JsonDSL._
 import phoenix.failures.TreeFailures._
 import phoenix.models.tree._

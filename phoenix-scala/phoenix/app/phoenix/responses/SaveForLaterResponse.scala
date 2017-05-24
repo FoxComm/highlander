@@ -3,7 +3,7 @@ package phoenix.responses
 import java.time.Instant
 
 import failures.NotFoundFailure404
-import models.objects._
+import objectframework.models._
 import phoenix.models.inventory.{Sku, Skus}
 import phoenix.models.product.Mvp
 import phoenix.models.{SaveForLater, SaveForLaters}

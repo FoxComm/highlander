@@ -1,10 +1,10 @@
 package phoenix.responses
 
-import models.objects.FullObject
+import objectframework.IlluminateAlgorithm
+import objectframework.models.FullObject
 import org.json4s.JsonAST.JValue
 import phoenix.models.taxonomy.Taxonomy
 import phoenix.responses.TaxonResponses._
-import utils.IlluminateAlgorithm
 
 object TaxonomyResponses {
 

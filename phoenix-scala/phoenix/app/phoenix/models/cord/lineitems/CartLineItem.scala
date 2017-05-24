@@ -1,7 +1,7 @@
 package phoenix.models.cord.lineitems
 
 import cats.implicits._
-import models.objects._
+import objectframework.models._
 import org.json4s.Extraction.decompose
 import org.json4s.Formats
 import phoenix.models.inventory.{Sku, Skus}

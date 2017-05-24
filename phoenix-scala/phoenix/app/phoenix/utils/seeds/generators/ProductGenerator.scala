@@ -1,16 +1,15 @@
 package phoenix.utils.seeds.generators
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import scala.io.Source
-import scala.util.Random
-
 import faker._
-import models.objects.ObjectContexts
-import phoenix.models.product.{Mvp, SimpleContext, SimpleProductData}
+import objectframework.models.ObjectContexts
 import org.conbere.markov.MarkovChain
+import phoenix.models.product.{Mvp, SimpleContext, SimpleProductData}
 import phoenix.utils.aliases._
 import utils.db._
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.io.Source
+import scala.util.Random
 
 object ProductGenerator {
 

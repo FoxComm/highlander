@@ -1,11 +1,11 @@
 package phoenix.models.discount
 
-import models.objects._
+import objectframework.IlluminateAlgorithm
+import objectframework.models._
 import org.json4s.Formats
 import phoenix.models.discount.DiscountHelpers.{offer, qualifier}
 import phoenix.services.discount.compilers.{OfferAstCompiler, QualifierAstCompiler}
 import phoenix.utils.JsonFormatters
-import utils.IlluminateAlgorithm
 import utils.db._
 
 /**

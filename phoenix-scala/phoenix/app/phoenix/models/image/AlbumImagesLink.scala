@@ -2,7 +2,7 @@ package phoenix.models.image
 
 import java.time.Instant
 
-import models.objects.{OrderedObjectHeadLink, OrderedObjectHeadLinkQueries, OrderedObjectHeadLinks}
+import objectframework.models._
 import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.db._

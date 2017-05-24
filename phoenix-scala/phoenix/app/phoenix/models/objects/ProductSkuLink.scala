@@ -2,7 +2,7 @@ package phoenix.models.objects
 
 import java.time.Instant
 
-import models.objects.ObjectHeadLinks._
+import objectframework.models.ObjectHeadLinks._
 import phoenix.models.inventory._
 import phoenix.models.product._
 import shapeless._

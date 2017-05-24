@@ -3,7 +3,7 @@ package phoenix.models.taxonomy
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
-import models.objects._
+import objectframework.models._
 import shapeless._
 import slick.lifted.Tag
 import utils.Validation

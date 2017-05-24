@@ -1,6 +1,6 @@
 package phoenix.utils.seeds
 
-import models.objects._
+import objectframework.models._
 import org.json4s.JValue
 import org.json4s.jackson.JsonMethods._
 import phoenix.utils.JsonFormatters

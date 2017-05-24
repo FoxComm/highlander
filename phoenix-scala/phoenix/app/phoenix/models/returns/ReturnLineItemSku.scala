@@ -2,7 +2,7 @@ package phoenix.models.returns
 
 import java.time.Instant
 
-import models.objects._
+import objectframework.models._
 import phoenix.models.inventory.Skus
 import shapeless._
 import utils.db.ExPostgresDriver.api._

@@ -1,8 +1,8 @@
 package phoenix.models.product
 
-import models.objects._
+import objectframework.IlluminateAlgorithm
+import objectframework.models._
 import phoenix.utils.aliases._
-import utils.IlluminateAlgorithm
 
 case class IlluminatedVariant(id: Int, context: IlluminatedContext, attributes: Json)
 

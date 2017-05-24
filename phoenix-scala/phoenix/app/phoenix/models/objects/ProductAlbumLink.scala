@@ -2,7 +2,7 @@ package phoenix.models.objects
 
 import java.time.Instant
 
-import models.objects._
+import objectframework.models._
 import phoenix.models.image.{Album, Albums}
 import phoenix.models.product._
 import shapeless._

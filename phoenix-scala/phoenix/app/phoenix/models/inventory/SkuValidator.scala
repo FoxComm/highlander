@@ -1,10 +1,10 @@
 package phoenix.models.inventory
 
 import failures.Failure
-import models.objects._
+import objectframework.IlluminateAlgorithm
+import objectframework.models._
 import org.json4s.Formats
 import phoenix.utils.JsonFormatters
-import utils.IlluminateAlgorithm
 
 /**
   * An SkuValidator checks to make sure a sku shadow is valid
