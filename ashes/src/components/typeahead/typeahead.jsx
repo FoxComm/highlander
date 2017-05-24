@@ -246,10 +246,10 @@ export default class Typeahead extends React.Component {
     const className = classNames(s.block, { [s._active]: this.state.active }, this.props.className);
 
     const listClass = classNames(s.list, {
-      [s._visible]: this.state.showMenu,
-      [s._modal]: this.props.view == 'modal',
-      [s._search]: this.props.view != 'no-search' && this.props.view != 'users',
-      [s._users]: this.props.view == 'users',
+      [s.visible]: this.state.showMenu,
+      [s.modal]: this.props.view == 'modal',
+      [s.search]: this.props.view != 'no-search' && this.props.view != 'users',
+      [s.users]: this.props.view == 'users',
     });
 
     return (
