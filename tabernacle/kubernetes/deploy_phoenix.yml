@@ -50,12 +50,12 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: core-config
-              key: jwt.private_key
+              key: jwt.backend_private_key
         - name: PHOENIX_PUBLIC_KEY
           valueFrom:
             configMapKeyRef:
               name: core-config
-              key: jwt.public_key
+              key: jwt.backend_public_key
         - name: PORT
           valueFrom:
             configMapKeyRef:

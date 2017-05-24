@@ -40,7 +40,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: core-config
-              key: jwt.public_key
+              key: jwt.frontend_public_key
         - name: STRIPE_PUBLISHABLE_KEY
           valueFrom:
             configMapKeyRef:
