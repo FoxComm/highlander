@@ -42,7 +42,7 @@
 
         &::before,
         &::after {
-          content: initial;
+          content: none !important; /* @todo refactor radio and remove less */
         }
       }
 
