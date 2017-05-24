@@ -46,9 +46,9 @@ object NotificationFacade extends LazyLogging {
     }
   }
 
-  private def subscribeToDbListenerActor(adminId: Int, retries: Int)(
-      implicit ec: EC,
-      system: ActorSystem): Future[ActorRef] = {
+  private def subscribeToDbListenerActor(
+      adminId: Int,
+      retries: Int)(implicit ec: EC, db: DB, system: ActorSystem): Future[ActorRef] = {
     if (retries == 0)
       throw new RuntimeException(s"Can't subscribe for events for user $adminId")
 
@@ -72,8 +72,10 @@ object NotificationFacade extends LazyLogging {
       }
   }
 
-  private def newNotifications(
-      adminId: Int)(implicit ec: EC, mat: Mat, system: ActorSystem): Future[Source[SSE, Any]] = {
+  private def newNotifications(adminId: Int)(implicit ec: EC,
+                                             db: DB,
+                                             mat: Mat,
+                                             system: ActorSystem): Future[Source[SSE, Any]] = {
 
     val listenerFutureRef = subscribeToDbListenerActor(adminId, retriesToFindListenerActor)
     listenerFutureRef.flatMap { ref ⇒

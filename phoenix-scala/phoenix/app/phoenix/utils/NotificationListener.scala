@@ -9,6 +9,7 @@ import de.heikoseeberger.akkasse.{ServerSentEvent ⇒ SSE}
 import org.postgresql.Driver
 import phoenix.models.Notification._
 import phoenix.utils.aliases._
+import slick.jdbc.hikaricp.HikariCPJdbcDataSource
 
 object NotificationListener {
 
@@ -25,9 +26,16 @@ object NotificationListener {
   case object NewClientConnected
 
   protected case class NotifyClients(payload: String)
+
+  private def getDbUrl()(implicit db: DB): String =
+    db.source match {
+      case source: HikariCPJdbcDataSource ⇒ source.hconf.getJdbcUrl
+      case _                              ⇒ FoxConfig.config.db.url
+    }
 }
 
-class NotificationListener(adminId: Int, action: (String, ActorRef) ⇒ Unit)(implicit ec: EC)
+class NotificationListener(adminId: Int, action: (String, ActorRef) ⇒ Unit)(implicit ec: EC,
+                                                                            db: DB)
     extends Actor
     with LazyLogging {
 
@@ -84,8 +92,9 @@ class NotificationListener(adminId: Int, action: (String, ActorRef) ⇒ Unit)(im
                   database = Some(props("PGDBNAME")))
   }
 
-  private def createConnection() = {
-    val configuration = parseUrl(FoxConfig.config.db.url)
+  private def createConnection()(implicit db: DB) = {
+    val dbUrl         = getDbUrl()
+    val configuration = parseUrl(dbUrl)
     new PostgreSQLConnection(configuration)
   }
 }
