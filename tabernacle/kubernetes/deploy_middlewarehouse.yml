@@ -67,12 +67,12 @@ spec:
           valueFrom:
             secretKeyRef:
               name: core-secrets
-              key: phoenix.api_password              
+              key: phoenix.api_password
         - name: SCHEMA_REGISTRY_URL
           valueFrom:
             configMapKeyRef:
               name: core-config
-              key: consul.schema_registry 
+              key: consul.schema_registry_url
         - name: ZOOKEEPER_URL
           valueFrom:
             configMapKeyRef:

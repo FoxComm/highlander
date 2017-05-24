@@ -12,6 +12,7 @@ data:
   ashes.node_env: production
   consumers.topic: scoped_activities
   consul.db_host: db.service.consul
+  consul.elasticsearch_url: elasticsearch://elasticsearch.service.consul:9300
   consul.kafka_address: kafka.service.consul:9092
   consul.schema_registry_url: http://schema-registry.service.consul:8081
   consul.zookeeper_address: zookeeper.service.consul:2181
@@ -27,6 +28,17 @@ data:
   middlewarehouse.log_level: info
   peacock.contact_email: pavel@foxcommerce.com
   peacock.node_env: production
+  phoenix.auth_method: jwt
+  phoenix.cookie_secure: off
+  phoenix.java_opts: -Dphoenix.env=staging -Dhttp.interface=0.0.0.0 -Ddb.host=db.service.consul -Ddb.url=jdbc:postgresql://db.service.consul/phoenix?user=phoenix -Ddb.name=phoenix -Dakka.tracing.host=localhost -Dakka.tracing.enabled=false -Dauth.tokenTTL=525600
+  phoenix.port: 9090
+  phoenix.s3_bucket_name: foxcomm-images
+  phoenix.s3_bucket_region: us-west-1
+  phoenix.tax_rule_rate: 7.5
+  phoenix.tax_rule_region: 4129
+  river_rock.bernardo_host: bernardo.service.consul
+  river_rock.port: 31895
+  river_rock.upstream_url: http://balancer.service.consul:8888
   solomon.token_ttl: 365
   stripe.publishable_key: pk_test_1H2C9nTZpy8szPmboOEDwdwN
 ---

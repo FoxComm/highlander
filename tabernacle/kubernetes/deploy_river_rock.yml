@@ -1,0 +1,79 @@
+---
+# River Rock
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: ashes-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ashes
+        language: javascript
+        tag: master
+        tier: frontend
+    spec:
+      containers:
+      - name: ashes
+        image: docker-stage.foxcommerce.com:5000/ashes:master
+        volumeMounts:
+        - mountPath: /keys
+          name: secret-keys
+        env:
+        - name: BERNARDO_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: river_rock.bernardo_host
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: bernardo.db_host
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: bernardo.db_name
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: bernardo.db_user
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: river_rock.port
+        - name: UPSTREAM_URL
+          valueFrom:
+            configMapKeyRef:
+              name: core-secrets
+              key: river_rock.upstream_url
+        ports:
+         - name: liveness-port
+           containerPort: 31895
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: liveness-port
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+      volumes:
+        - name: secret-keys
+          hostPath:
+            path: /etc/keys
+---
+# River Rock Load Balancer
+apiVersion: v1
+kind: Service
+metadata:
+  name: river-rock-lb
+spec:
+  ports:
+  - port: 31895
+    protocol: TCP
+  selector:
+    app: river-rock
+---

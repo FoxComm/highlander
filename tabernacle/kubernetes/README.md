@@ -24,9 +24,11 @@ Create Deployments:
 
     # Backend
     $ kubectl create -f kubernetes/deploy_isaac.yml
+    $ kubectl create -f kubernetes/deploy_phoenix.yml
     $ kubectl create -f kubernetes/deploy_solomon.yml
     $ kubectl create -f kubernetes/deploy_middlewarehouse.yml
     $ kubectl create -f kubernetes/deploy_hyperion.yml
+    $ kubectl create -f kubernetes/deploy_river_rock.yml
 
     # Frontend
     $ kubectl create -f kubernetes/deploy_ashes.yml

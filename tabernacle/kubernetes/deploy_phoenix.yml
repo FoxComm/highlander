@@ -1,2 +1,125 @@
 ---
-# TBD
+# Phoenix
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: phoenix-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: scala
+        language: elixir
+        tag: master
+        tier: backend
+    spec:
+      containers:
+      - name: phoenix
+        image: docker-stage.foxcommerce.com:5000/phoenix:master
+        volumeMounts:
+        - mountPath: /keys
+          name: secret-keys
+        env:
+        - name: AWS_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: s3.aws_access_key
+        - name: AWS_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: s3.aws_secret_key
+        - name: JAVA_OPTS
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: phoenix.java_opts
+        - name: KAFKA_BROKER
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: consul.kafka_address
+        - name: MIDDLEWAREHOUSE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: lb.middlewarehouse_url
+        - name: PHOENIX_PRIVATE_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: jwt.private_key
+        - name: PHOENIX_PUBLIC_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: jwt.public_key
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: phoenix.port
+        - name: S3_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: phoenix.s3_bucket_name
+        - name: S3_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: phoenix.s3_bucket_region
+        - name: SCHEMA_REGISTRY_URL
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: consul.schema_registry_url
+        - name: SEARCH_SERVER
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: consul.elasticsearch_url
+        - name: STRIPE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: stripe.api_key
+        - name: TAX_RULE_RATE
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: phoenix.tax_rule_rate
+        - name: TAX_RULE_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: phoenix.tax_rule_region
+        ports:
+         - name: liveness-port
+           containerPort: 9090
+        livenessProbe:
+          httpGet:
+            path: /v1/public/ping
+            port: liveness-port
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+      volumes:
+        - name: secret-keys
+          hostPath:
+            path: /etc/keys
+
+---
+# Phoenix Load Balancer
+apiVersion: v1
+kind: Service
+metadata:
+  name: phoenix-lb
+spec:
+  ports:
+  - port: 9090
+    protocol: TCP
+  selector:
+    app: phoenix
+---
