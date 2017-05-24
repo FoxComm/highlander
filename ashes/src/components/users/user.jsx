@@ -8,7 +8,8 @@ import { connect } from 'react-redux';
 import { transitionTo } from 'browserHistory';
 
 // actions
-import * as UserActions from 'modules/users/details';
+import * as userActions from 'modules/users/details';
+import { requestPasswordReset } from 'modules/user';
 
 // components
 import WaitAnimation from '../common/wait-animation';
@@ -34,6 +35,11 @@ type Props = {
   userNew: Function,
   createUser: Function,
   updateUser: Function,
+  requestPasswordReset: (email: string) => Promise<*>,
+  restoreState: {
+    err?: any,
+    inProgress?: boolean,
+  },
 };
 
 type State = {
@@ -94,6 +100,8 @@ class User extends Component {
       onChange: this.handleFormChange,
       isNew: this.isNew,
       entity: this.activityEntity,
+      requestPasswordReset: this.props.requestPasswordReset,
+      restoreState: this.props.restoreState,
     });
   }
 
@@ -161,11 +169,13 @@ class User extends Component {
   }
 }
 
-export default connect(
-  state => ({
+function mapState(state) {
+  return {
     details: state.users.details,
     isFetching: _.get(state.asyncActions, 'getUser.inProgress', null),
     fetchError: _.get(state.asyncActions, 'getUser.err', null),
-  }),
-  UserActions
-)(User);
+    restoreState: _.get(state.asyncActions, 'requestPasswordReset', {}),
+  };
+}
+
+export default connect(mapState, { ...userActions, requestPasswordReset })(User);

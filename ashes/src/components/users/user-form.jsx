@@ -16,12 +16,17 @@ import { Button } from 'components/core/button';
 import AccountState from './account-state';
 
 // styles
-import styles from './user-form.css';
+import s from './user-form.css';
 
 type Props = {
   user: Object,
   onChange: Function,
   isNew: boolean,
+  requestPasswordReset: (email: string) => Promise<*>,
+  restoreState: {
+    err?: any,
+    inProgress?: boolean,
+  },
 };
 
 export default class UserForm extends Component {
@@ -31,6 +36,27 @@ export default class UserForm extends Component {
   handleFormChange(attributes: Object) {
     const data = assoc(this.props.user, ['form', 'attributes'], attributes);
     this.props.onChange(data);
+  }
+
+  get changePasswordButton() {
+    if (this.props.isNew) return null;
+
+
+    return (
+      <Button
+        type="button"
+        onClick={this.resetPassword}
+        isLoading={this.props.restoreState.inProgress}
+      >
+        Change Password
+      </Button>
+    );
+  }
+
+  @autobind
+  resetPassword() {
+    const email = _.get(this.props, 'user.form.attributes.emailAddress.v', null);
+    this.props.requestPasswordReset(email);
   }
 
   @autobind
@@ -67,7 +93,7 @@ export default class UserForm extends Component {
   }
 
   renderGeneralForm() {
-    const { options } = this.props.user;
+    const { options, schema } = this.props.user;
     const { attributes } = this.props.user.form;
 
     return (
@@ -78,8 +104,9 @@ export default class UserForm extends Component {
             onChange={this.handleFormChange}
             attributes={attributes}
             options={options}
+            schema={schema}
           />
-          {!this.props.isNew && <Button type="button">Change Password</Button>}
+          {this.changePasswordButton}
         </ContentBox>
       </Form>
     );
@@ -87,15 +114,15 @@ export default class UserForm extends Component {
 
   render() {
     return (
-      <div styleName="user-form">
-        <section styleName="main">
+      <div className={s.userForm}>
+        <section className={s.main}>
           {this.renderGeneralForm()}
         </section>
 
-        <aside styleName="aside">
+        <aside className={s.aside}>
           {!this.props.isNew && this.renderAccountState()}
 
-          <ContentBox title="Roles">
+          <ContentBox title="Roles" className={s.roles} >
             <RoundedPill text="Super Admin"/>
           </ContentBox>
         </aside>

@@ -9,7 +9,7 @@ import {
   configureUserData,
   createEmptyUser,
   configureStateData
-} from '../../paragons/user';
+} from 'paragons/user';
 
 const _getUser = createAsyncActions(
   'getUser',
