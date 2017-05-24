@@ -36,6 +36,41 @@ spec:
             configMapKeyRef:
               name: core-config
               key: phoenix.java_opts
+        - name: GOOGLE_OAUTH_ADMIN_CLIENT_ID
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: google.oauth.admin_client_id
+        - name: GOOGLE_OAUTH_ADMIN_CLIENT_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: google.oauth.admin_client_secret
+        - name: GOOGLE_OAUTH_ADMIN_HOSTED_DOMAIN
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: google.oauth.admin_hosted_domain
+        - name: GOOGLE_OAUTH_ADMIN_REDIRECT_URI
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: google.oauth.admin_redirect_uri
+        - name: GOOGLE_OAUTH_CUSTOMER_CLIENT_ID
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: google.oauth.customer_client_id
+        - name: GOOGLE_OAUTH_CUSTOMER_CLIENT_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: google.oauth.customer_client_secret
+        - name: GOOGLE_OAUTH_CUSTOMER_REDIRECT_URI
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: google.oauth.customer_redirect_uri
         - name: KAFKA_BROKER
           valueFrom:
             configMapKeyRef:
