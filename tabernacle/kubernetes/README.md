@@ -24,6 +24,7 @@ Import configuration:
 Create Services:
 
     $ kubectl create -f kubernetes/services.yml
+    $ kubectl create -f kubernetes/services_external.yml
 
 Create Deployments:
 
@@ -49,3 +50,5 @@ DNS cluster addon test:
 
     $ kubectl run curl --image=radial/busyboxplus:curl -i --tty --restart=Never
     $ nslookup peacock-lb
+    $ kubectl delete po/curl
+

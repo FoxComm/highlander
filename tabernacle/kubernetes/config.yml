@@ -20,6 +20,7 @@ data:
   greenriver.java_opts: -Denv=localhost -Dlocalhost.kafka.broker=kafka.service.consul:9092 -Dlocalhost.elastic.host=elasticsearch://elasticsearch.service.consul:9300 -Dlocalhost.activity.phoenix.url=http://phoenix.service.consul:9090/v1 -Dlocalhost.avro.schemaRegistryUrl=http://schema-registry.service.consul:8081 -Dlocalhost.consume.restart=false
   hyperion.create_ashes_plugin: "true"
   hyperion.push_check_interval: "5"
+  isaac.port: "9190"
   jwt.backend_private_key: /keys/private_key.der
   jwt.backend_public_key: /keys/public_key.der
   jwt.frontend_private_key: /keys/private_key.pem
