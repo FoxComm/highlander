@@ -3,7 +3,7 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: messaging-deployment
+  name: messaging
 spec:
   replicas: 1
   template:

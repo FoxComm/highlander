@@ -3,20 +3,20 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: ashes-deployment
+  name: river-rock
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: ashes
-        language: javascript
+        app: river-rock
+        language: go
         tag: master
-        tier: frontend
+        tier: backend
     spec:
       containers:
-      - name: ashes
-        image: docker-stage.foxcommerce.com:5000/ashes:master
+      - name: river-rock
+        image: docker-stage.foxcommerce.com:5000/river-rock:master
         volumeMounts:
         - mountPath: /keys
           name: secret-keys

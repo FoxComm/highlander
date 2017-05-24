@@ -3,7 +3,7 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: greenriver-deployment
+  name: greenriver
 spec:
   replicas: 1
   template:

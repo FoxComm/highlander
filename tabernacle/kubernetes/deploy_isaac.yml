@@ -3,7 +3,7 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: isaac-deployment
+  name: isaac
 spec:
   replicas: 1
   template:
