@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.data._
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
-import failures._
+import core.failures._
 import objectframework.ObjectResponses.ObjectContextResponse
 import objectframework.ObjectUtils
 import objectframework.models._
@@ -38,8 +38,8 @@ import phoenix.services.variant.VariantManager._
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.Validation._
-import utils.db._
+import core.utils.Validation._
+import core.db._
 
 object ProductManager extends LazyLogging {
 

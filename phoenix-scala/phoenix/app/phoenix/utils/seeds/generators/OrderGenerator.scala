@@ -3,7 +3,8 @@ package phoenix.utils.seeds.generators
 import java.time.Instant
 
 import cats.implicits._
-import failures.NotFoundFailure400
+import core.db._
+import core.failures.NotFoundFailure400
 import faker._
 import objectframework.models.ObjectContext
 import phoenix.failures.CreditCardFailures.CustomerHasNoCreditCard
@@ -24,11 +25,10 @@ import phoenix.models.product.Mvp
 import phoenix.models.shipping._
 import phoenix.services.carts.CartTotaler
 import phoenix.services.orders.OrderTotaler
+import phoenix.utils
 import phoenix.utils.aliases._
 import phoenix.utils.seeds.ShipmentSeeds
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
-import phoenix.utils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random

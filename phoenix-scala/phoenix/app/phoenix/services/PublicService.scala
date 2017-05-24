@@ -1,12 +1,12 @@
 package phoenix.services
 
+import core.db._
 import phoenix.failures.AddressFailures.NoRegionFound
 import phoenix.models.location.Country._
 import phoenix.models.location.Region._
 import phoenix.models.location._
 import phoenix.responses.PublicResponses.CountryWithRegions
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 import scala.collection.immutable.Seq
 import scala.concurrent.Future

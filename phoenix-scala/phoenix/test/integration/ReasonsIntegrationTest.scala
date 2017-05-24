@@ -5,8 +5,8 @@ import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixPublicApi
 import testutils.fixtures.BakedFixtures
-import utils.Strings._
-import utils.db._
+import core.utils.Strings._
+import core.db._
 
 class ReasonsIntegrationTest
     extends IntegrationTestBase

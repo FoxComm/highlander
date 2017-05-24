@@ -1,6 +1,7 @@
 package phoenix.utils.seeds
 
 import com.github.tminglei.slickpg.LTree
+import core.db._
 import phoenix.models.account.Scope
 import phoenix.models.cord.{Cord, Cords}
 import phoenix.models.payment.giftcard.GiftCard.{buildAppeasement ⇒ build}
@@ -8,7 +9,6 @@ import phoenix.models.payment.giftcard._
 import phoenix.models.{Note, Notes}
 import phoenix.payloads.GiftCardPayloads.{GiftCardCreateByCsr ⇒ payload}
 import phoenix.utils.aliases._
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

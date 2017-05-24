@@ -1,6 +1,6 @@
 package phoenix.models.product
 
-import failures.Failure
+import core.failures.Failure
 import objectframework.IlluminateAlgorithm
 import objectframework.models._
 import org.json4s.Formats

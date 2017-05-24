@@ -12,7 +12,7 @@ import phoenix.services.account._
 import phoenix.services.customers.CustomerManager
 import phoenix.utils.FoxConfig
 import phoenix.utils.aliases._
-import utils.db._
+import core.db._
 
 class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB, ac: AC)
     extends Oauth(options)

@@ -3,7 +3,7 @@ import java.time.temporal.ChronoUnit
 
 import akka.http.scaladsl.model.HttpResponse
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import phoenix.failures.AddressFailures.NoDefaultAddressForCustomer
 import phoenix.failures.CreditCardFailures.NoDefaultCreditCardForCustomer
 import phoenix.failures.ShippingMethodFailures._
@@ -34,7 +34,7 @@ import testutils._
 import testutils.apis._
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
-import utils.db._
+import core.db._
 
 class CheckoutIntegrationTest
     extends IntegrationTestBase

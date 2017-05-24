@@ -9,7 +9,7 @@ import phoenix.models.promotion.Promotion
 import phoenix.models.promotion.Promotion._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.db._
 
 final case class OrderPromotion(id: Int = 0,
                                 cordRef: String,

@@ -3,12 +3,12 @@ package phoenix.models
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
+import core.db.ExPostgresDriver.api._
+import core.db._
 import phoenix.models.account._
 import phoenix.utils.aliases._
 import shapeless._
 import slick.lifted.Tag
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class Notification(id: Int = 0,
                         scope: LTree,

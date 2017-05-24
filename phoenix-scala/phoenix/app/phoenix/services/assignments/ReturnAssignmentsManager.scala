@@ -1,12 +1,12 @@
 package phoenix.services.assignments
 
+import core.db._
 import phoenix.models.activity.Dimension
 import phoenix.models.returns._
 import phoenix.models.{Assignment, NotificationSubscription}
 import phoenix.responses.ReturnResponse._
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 object ReturnAssignmentsManager extends AssignmentsManager[String, Return] {
 

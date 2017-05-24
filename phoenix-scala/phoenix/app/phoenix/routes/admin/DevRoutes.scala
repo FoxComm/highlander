@@ -1,23 +1,21 @@
 package phoenix.routes.admin
 
-import cats.implicits._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import phoenix.utils.http.JsonSupport._
+import cats.implicits._
+import ch.qos.logback.classic.{Level, Logger ⇒ LogBackLogger}
+import org.slf4j.LoggerFactory
 import phoenix.models.account.User
 import phoenix.models.location.Address
 import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import phoenix.payloads.OrderPayloads.OrderTimeMachine
 import phoenix.services.Authenticator.AuthData
 import phoenix.services.orders.TimeMachine
-import utils._
+import phoenix.utils.TestStripeSupport
 import phoenix.utils.aliases._
 import phoenix.utils.http.CustomDirectives._
 import phoenix.utils.http.Http._
-import org.slf4j.LoggerFactory
-import ch.qos.logback.classic.Level
-import ch.qos.logback.classic.{Logger ⇒ LogBackLogger}
-import phoenix.utils.TestStripeSupport
+import phoenix.utils.http.JsonSupport._
 
 object DevRoutes {
 

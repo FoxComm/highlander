@@ -1,12 +1,12 @@
 package objectframework.services
 
-import failures._
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.failures._
 import objectframework.ObjectFailures._
 import objectframework.ObjectResponses._
 import objectframework.models._
 import objectframework.payloads.ContextPayloads._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 object ObjectManager {
 

@@ -6,7 +6,7 @@ import phoenix.models.Note
 import phoenix.models.cord.Order
 import phoenix.responses.UserResponse
 import phoenix.responses.cord.OrderResponse
-import utils.Money.Currency
+import core.utils.Money.Currency
 
 object OrderTailored {
 

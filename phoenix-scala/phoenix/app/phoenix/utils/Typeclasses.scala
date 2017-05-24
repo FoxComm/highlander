@@ -1,22 +1,23 @@
 package phoenix.utils
 
-import scala.language.implicitConversions
 import akka.NotUsed
 import akka.http.scaladsl.model.{ContentType, ContentTypes}
 import akka.http.scaladsl.server.{PathMatcher, PathMatcher1}
 import akka.stream.scaladsl.{Concat, Source}
 import akka.util.ByteString
 import cats.Show
+import core.utils.Strings._
+import core.utils._
 import org.json4s.JsonAST.JString
 import org.json4s.jackson.compactJson
 import org.json4s.{CustomKeySerializer, CustomSerializer, Formats}
 import phoenix.utils.aliases._
-import scala.collection.immutable.TreeMap
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
-import utils.Strings._
-import utils._
+
+import scala.collection.immutable.TreeMap
+import scala.language.implicitConversions
 
 trait Read[F] { self ⇒
   def read(f: String): Option[F]

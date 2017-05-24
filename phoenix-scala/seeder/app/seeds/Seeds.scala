@@ -5,7 +5,7 @@ import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import com.typesafe.config.Config
 import phoenix.failures.UserFailures._
-import failures.{Failures, FailuresOps, NotFoundFailure404}
+import core.failures.{Failures, FailuresOps, NotFoundFailure404}
 import java.time.{Instant, ZoneId}
 
 import phoenix.models.Reasons
@@ -26,7 +26,7 @@ import phoenix.services.account.AccountManager
 import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.PostgresProfile.backend.DatabaseDef
 import phoenix.utils.aliases._
-import utils.db._
+import core.db._
 import phoenix.utils.db.flyway.{newFlyway, rootProjectSqlLocation}
 import phoenix.utils.seeds.Factories
 import phoenix.utils.seeds.generators.SeedsGenerator

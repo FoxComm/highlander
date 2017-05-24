@@ -5,7 +5,7 @@ import phoenix.models.{Assignment, NotificationSubscription}
 import phoenix.models.payment.giftcard._
 import phoenix.responses.GiftCardResponse._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.db._
 import phoenix.utils.aliases._
 
 object GiftCardWatchersManager extends AssignmentsManager[String, GiftCard] {

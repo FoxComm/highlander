@@ -1,5 +1,5 @@
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import phoenix.failures.AssignmentFailures._
 import phoenix.models._
 import phoenix.models.account._
@@ -12,7 +12,7 @@ import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class AssignmentsIntegrationTest
     extends IntegrationTestBase

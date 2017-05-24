@@ -12,7 +12,7 @@ import phoenix.models.taxonomy._
 import phoenix.services.Authenticator.AuthData
 import phoenix.utils.aliases.Json
 import testutils.fixtures.TestFixtureBase
-import utils.db._
+import core.db._
 
 trait TaxonomySeeds extends TestFixtureBase {
 

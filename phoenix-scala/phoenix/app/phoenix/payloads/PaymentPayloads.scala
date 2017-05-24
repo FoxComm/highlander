@@ -2,12 +2,12 @@ package phoenix.payloads
 
 import cats.data.ValidatedNel
 import cats.implicits._
-import failures.Failure
+import core.failures.Failure
+import core.utils.Money.Currency
+import core.utils.Validation
 import org.json4s.JsonAST.JObject
 import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import phoenix.utils.aliases._
-import utils.Money.Currency
-import utils._
 
 object PaymentPayloads {
 

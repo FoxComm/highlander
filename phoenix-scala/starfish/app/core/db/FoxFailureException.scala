@@ -1,6 +1,6 @@
-package utils.db
+package core.db
 
-import failures.Failures
+import core.failures.Failures
 
 case class FoxFailureException(failures: Failures)
     extends Exception(failures.flatten.mkString("\n"))
