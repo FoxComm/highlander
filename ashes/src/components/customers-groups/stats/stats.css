@@ -4,7 +4,7 @@
   margin-bottom: 40px;
 }
 
-._loading {
+.loading {
   @apply --loading-caramel;
 
   & > * {
@@ -42,7 +42,7 @@
 
         &::before,
         &::after {
-          content: initial;
+          content: none !important; /* @todo refactor radio and remove less */
         }
       }
 

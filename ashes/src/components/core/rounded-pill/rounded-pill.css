@@ -12,7 +12,7 @@
   border-radius: 16px;
 }
 
-._loading {
+.loading {
   @apply --loading-caramel;
   background-color: rgba(58, 67, 80, .8);
 }
@@ -27,11 +27,11 @@
   border-radius: 0 17px 17px 0;
 }
 
-.main:not(._loading) .button {
+.main:not(.loading) .button {
   transition: background .2s;
 }
 
-.main:not(._loading) .button:hover {
+.main:not(.loading) .button:hover {
   background-color: #141f31;
 }
 
@@ -45,7 +45,7 @@
   }
 }
 
-.main.clickable:not(._loading) .label:hover {
+.main.clickable:not(.loading) .label:hover {
   background: #141f31;
   cursor: pointer;
 }

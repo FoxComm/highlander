@@ -30,7 +30,7 @@ export const RoundedPill = (props: Props) => {
   const cls = classNames(s.main, {
     [s.clickable]: onClick,
     [s.closable]: onClose,
-    [s._loading]: inProgress,
+    [s.loading]: inProgress,
   }, className);
 
   function handleClick() {
