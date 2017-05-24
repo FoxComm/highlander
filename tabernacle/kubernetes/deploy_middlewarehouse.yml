@@ -22,7 +22,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: core-config
-              key: consul.db
+              key: consul.db_host
         - name: DB_NAME
           valueFrom:
             secretKeyRef:
@@ -92,16 +92,4 @@ spec:
             port: liveness-port
           initialDelaySeconds: 15
           timeoutSeconds: 1
----
-# Middlewarehouse Load Balancer
-apiVersion: v1
-kind: Service
-metadata:
-  name: middlewarehouse-lb
-spec:
-  ports:
-  - port: 9292
-    protocol: TCP
-  selector:
-    app: middlewarehouse
 ---

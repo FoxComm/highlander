@@ -85,15 +85,3 @@ spec:
           hostPath:
             path: /etc/keys
 ---
-# Hyperion Load Balancer
-apiVersion: v1
-kind: Service
-metadata:
-  name: hyperion-lb
-spec:
-  ports:
-  - port: 8880
-    protocol: TCP
-  selector:
-    app: hyperion
----

@@ -60,15 +60,3 @@ spec:
           hostPath:
             path: /etc/keys
 ---
-# Ashes Load Balancer
-apiVersion: v1
-kind: Service
-metadata:
-  name: ashes-lb
-spec:
-  ports:
-  - port: 4000
-    protocol: TCP
-  selector:
-    app: ashes
----

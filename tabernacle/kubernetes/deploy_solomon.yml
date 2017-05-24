@@ -25,7 +25,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: core-config
-              key: consul.db
+              key: consul.db_host
         - name: DB_NAME
           valueFrom:
             secretKeyRef:
@@ -75,16 +75,4 @@ spec:
           hostPath:
             path: /etc/keys
 
----
-# Solomon Load Balancer
-apiVersion: v1
-kind: Service
-metadata:
-  name: solomon-lb
-spec:
-  ports:
-  - port: 4002
-    protocol: TCP
-  selector:
-    app: solomon
 ---

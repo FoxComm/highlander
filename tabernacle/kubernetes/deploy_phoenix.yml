@@ -111,15 +111,3 @@ spec:
             path: /etc/keys
 
 ---
-# Phoenix Load Balancer
-apiVersion: v1
-kind: Service
-metadata:
-  name: phoenix-lb
-spec:
-  ports:
-  - port: 9090
-    protocol: TCP
-  selector:
-    app: phoenix
----

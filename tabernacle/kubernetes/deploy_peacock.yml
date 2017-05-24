@@ -55,15 +55,3 @@ spec:
           hostPath:
             path: /etc/keys
 ---
-# Peacock Load Balancer
-apiVersion: v1
-kind: Service
-metadata:
-  name: peacock-lb
-spec:
-  ports:
-  - port: 4041
-    protocol: TCP
-  selector:
-    app: peacock
----

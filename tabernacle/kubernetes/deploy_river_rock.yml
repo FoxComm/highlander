@@ -65,15 +65,3 @@ spec:
           hostPath:
             path: /etc/keys
 ---
-# River Rock Load Balancer
-apiVersion: v1
-kind: Service
-metadata:
-  name: river-rock-lb
-spec:
-  ports:
-  - port: 31895
-    protocol: TCP
-  selector:
-    app: river-rock
----

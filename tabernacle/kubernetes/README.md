@@ -18,7 +18,12 @@ Import configuration:
 
     $ kubectl create -f kubernetes/config.yml
     $ ansible-vault decrypt kubernetes/secrets.yml
-    $ kubectl create -f kubernetes/deploy_ashes.yml
+    $ kubectl create -f kubernetes/secrets.yml
+    $ ansible-vault encrypt kubernetes/secrets.yml
+
+Create Services:
+
+    $ kubectl create -f kubernetes/services.yml
 
 Create Deployments:
 

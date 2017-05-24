@@ -1,0 +1,97 @@
+---
+# Ashes Load Balancer
+apiVersion: v1
+kind: Service
+metadata:
+  name: lb-ashes
+spec:
+  ports:
+  - port: 4000
+    protocol: TCP
+  selector:
+    app: ashes
+---
+# Hyperion Load Balancer
+apiVersion: v1
+kind: Service
+metadata:
+  name: lb-hyperion
+spec:
+  ports:
+  - port: 8880
+    protocol: TCP
+  selector:
+    app: hyperion
+---
+# Isaac Load Balancer
+apiVersion: v1
+kind: Service
+metadata:
+  name: lb-isaac
+spec:
+  ports:
+  - port: 9190
+    protocol: TCP
+  selector:
+    app: isaac
+---
+# Middlewarehouse Load Balancer
+apiVersion: v1
+kind: Service
+metadata:
+  name: lb-middlewarehouse
+spec:
+  ports:
+  - port: 9292
+    protocol: TCP
+  selector:
+    app: middlewarehouse
+---
+# Peacock Load Balancer
+apiVersion: v1
+kind: Service
+metadata:
+  name: lb-peacock
+spec:
+  ports:
+  - port: 4041
+    protocol: TCP
+  selector:
+    app: peacock
+---
+# Phoenix Load Balancer
+apiVersion: v1
+kind: Service
+metadata:
+  name: lb-phoenix
+spec:
+  ports:
+  - port: 9090
+    protocol: TCP
+  selector:
+    app: phoenix
+---
+# River Rock Load Balancer
+apiVersion: v1
+kind: Service
+metadata:
+  name: lb-river-rock
+spec:
+  ports:
+  - port: 31895
+    protocol: TCP
+  selector:
+    app: river-rock
+---
+# Solomon Load Balancer
+apiVersion: v1
+kind: Service
+metadata:
+  name: lb-solomon
+spec:
+  ports:
+  - port: 4002
+    protocol: TCP
+  selector:
+    app: solomon
+---
