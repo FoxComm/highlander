@@ -19,12 +19,16 @@ type Props = {
     name: string,
     className: string,
   },
+  hideAction: boolean,
 };
 
 class DetailsBlock extends Component {
   props: Props;
 
   get action() {
+    const { hideAction } = this.props;
+    if (hideAction) return null;
+
     const { actionTitle, actionIcon } = this.props;
 
     return (

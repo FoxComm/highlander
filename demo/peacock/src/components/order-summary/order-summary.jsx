@@ -4,10 +4,7 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
-import classNames from 'classnames/dedupe';
-
-// localization
+import classNames from 'classnames';
 import localized from 'lib/i18n';
 
 // components
@@ -31,18 +28,10 @@ type Props = {
   skus: Array<any>,
   paymentMethods?: Object,
   t: any,
-  isScrolled: boolean,
-  isCollapsed: boolean,
-  header?: any,
   className?: string,
   embedded?: boolean,
-  totalTitle?: string,
   orderPlaced?: ?boolean,
   referenceNumber: string,
-};
-
-type State = {
-  isCollapsed: boolean,
 };
 
 class OrderSummary extends Component {
@@ -50,14 +39,6 @@ class OrderSummary extends Component {
 
   static defaultProps = {
     paymentMethods: {},
-    isCollapsed: true,
-    isScrolled: false,
-    embedded: false,
-    totalTitle: 'GRAND TOTAL',
-  };
-
-  state: State = {
-    isCollapsed: this.props.isCollapsed,
   };
 
   get giftCards() {
@@ -74,8 +55,12 @@ class OrderSummary extends Component {
     return (
       <li>
         <TermValueLine>
-          <span>{t('GIFT CARD')}</span>
-          <Currency prefix="– " value={amount} />
+          <span>{t('Gift card')}</span>
+          <Currency
+            prefix="– "
+            value={amount}
+            styleName="currency"
+          />
         </TermValueLine>
       </li>
     );
@@ -87,18 +72,15 @@ class OrderSummary extends Component {
     return (
       <li>
         <TermValueLine>
-          <span>{t('PROMO CODE')}</span>
-          <Currency prefix="– " value={amount} />
+          <span>{t('Promo code')}</span>
+          <Currency
+            prefix="– "
+            value={amount}
+            styleName="currency"
+          />
         </TermValueLine>
       </li>
     );
-  }
-
-  @autobind
-  toggleCollapsed() {
-    this.setState({
-      isCollapsed: !this.state.isCollapsed,
-    });
   }
 
   getOrderPlacedTrackingCode(grandTotal) {
@@ -132,23 +114,13 @@ class OrderSummary extends Component {
     const grandTotal = props.totals.total - giftCardAmount;
     const grandTotalResult = grandTotal > 0 ? grandTotal : 0;
 
-    const style = classNames({
-      [styles.collapsed]: this.state.isCollapsed,
-      [styles.scrolled]: this.props.isScrolled,
-      [styles.embedded]: this.props.embedded,
+    const className = classNames({
+      [styles['order-summary']]: !this.props.embedded,
     }, props.className);
 
-    const header = (
-      <header styleName="header" onClick={this.toggleCollapsed}>
-        <div styleName="title">{t('ORDER TOTAL')}</div>
-        <Currency styleName="price" value={grandTotalResult} />
-      </header>
-    );
-
     return (
-      <section styleName="order-summary" className={style}>
+      <section className={className}>
         {this.getOrderPlacedTrackingCode(grandTotalResult)}
-        { this.props.header !== void 0 ? this.props.header : header }
 
         <div styleName="content">
           <ProductTable skus={props.skus} />
@@ -156,28 +128,40 @@ class OrderSummary extends Component {
           <ul styleName="price-summary">
             <li>
               <TermValueLine>
-                <span>{t('SUBTOTAL')}</span>
-                <Currency value={props.totals.subTotal} />
+                <span>{t('Subtotal')}</span>
+                <Currency
+                  value={props.totals.subTotal}
+                  styleName="currency"
+                />
               </TermValueLine>
             </li>
             <li>
               <TermValueLine>
-                <span>{t('SHIPPING')}</span>
-                <Currency value={props.totals.shipping} />
+                <span>{t('Shipping')}</span>
+                <Currency
+                  value={props.totals.shipping}
+                  styleName="currency"
+                />
               </TermValueLine>
             </li>
             <li>
               <TermValueLine>
-                <span>{t('TAX')}</span>
-                <Currency value={props.totals.taxes} />
+                <span>{t('Tax')}</span>
+                <Currency
+                  value={props.totals.taxes}
+                  styleName="currency"
+                />
               </TermValueLine>
             </li>
             {this.renderGiftCard(giftCardAmount)}
             {couponBlock}
           </ul>
           <TermValueLine styleName="grand-total">
-            <span>{this.props.totalTitle}</span>
-            <Currency value={grandTotalResult} />
+            <span>{t('Total')}</span>
+            <Currency
+              value={grandTotalResult}
+              styleName="currency"
+            />
           </TermValueLine>
         </div>
       </section>

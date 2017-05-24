@@ -165,7 +165,7 @@ class AddressBlock extends Component {
   }
 
   render() {
-    const { className, toggleAddressesModal, addressesModalVisible } = this.props;
+    const { className, toggleAddressesModal, addressesModalVisible, cartState } = this.props;
     const actionDetails: ActionDetails = this.actionDetails;
 
     return (
@@ -178,6 +178,7 @@ class AddressBlock extends Component {
           actionIcon={actionDetails.icon}
           modalContent={this.addressesModalContent}
           blockTitle="Shipping addresses"
+          hideAction={!cartState}
         />
       </div>
     );
@@ -190,7 +191,7 @@ const mapStateToProps = (state) => {
     shippingAddress: _.get(state.cart, 'shippingAddress', {}),
     addressesModalVisible: _.get(state.profile, 'addressesModalVisible', false),
     setAsDefaultState: _.get(state.asyncActions, 'setAddressAsDefault', {}),
-    updateAddressState: _.get(state.asyncActions, 'updateAddress', false),
+    updateAddressState: _.get(state.asyncActions, 'updateAddress', {}),
     cartState: _.get(state.asyncActions, 'cart.finished', false),
   };
 };
