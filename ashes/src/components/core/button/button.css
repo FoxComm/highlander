@@ -57,6 +57,7 @@
 .button i[class*="icon-"],
 .button.small.onlyIcon i[class*="icon-"] {
   font-size: 10px;
+  transition: all .2s;
 }
 
 .button:not(.onlyIcon) i[class*="icon-"] {

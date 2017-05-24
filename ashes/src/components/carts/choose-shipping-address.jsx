@@ -145,7 +145,7 @@ export default class ChooseShippingAddress extends Component {
           <h3 className="fc-shipping-address-sub-title">
             Chosen Address
           </h3>
-          <ul className="fc-addresses-list">
+          <ul className="fc-float-list">
             <AddressBox
               address={this.props.selectedAddress}
               chosen={true}
