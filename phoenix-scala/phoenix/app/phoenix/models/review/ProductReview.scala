@@ -6,10 +6,10 @@ import com.github.tminglei.slickpg.LTree
 import phoenix.models.objects._
 import shapeless._
 import slick.lifted.Tag
-import utils.Validation
+import core.utils.Validation
 import phoenix.utils.aliases.Json
-import utils.db._
-import utils.db.ExPostgresDriver.api._
+import core.db._
+import core.db.ExPostgresDriver.api._
 
 case class ProductReview(id: Int = 0,
                          scope: LTree,
