@@ -1,27 +1,24 @@
 package phoenix.models.activity
 
-import java.time.Instant
-import java.time.format.DateTimeFormatter
-import java.util.Properties
-
 import com.github.tminglei.slickpg.LTree
 import com.typesafe.scalalogging.LazyLogging
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
+import org.apache.kafka.clients.producer.{Producer, ProducerRecord}
 import org.json4s.Extraction
 import org.json4s.jackson.Serialization.{write ⇒ render}
 import phoenix.models.account.Scope
-import phoenix.utils.{Environment, JsonFormatters}
-import phoenix.utils.FoxConfig.config
+import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
+import scala.concurrent.{Future, blocking}
+import scala.util.{Failure, Success}
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import core.db.ExPostgresDriver.api._
 import core.db._
-
-import scala.concurrent.{Future, blocking}
-import scala.util.{Failure, Success}
 
 case class ActivityContext(userId: Int, userType: String, transactionId: String, scope: LTree) {
   def withCurrentScope(implicit au: AU): ActivityContext = withScope(Scope.current)
@@ -39,12 +36,14 @@ object ActivityContext {
         j ⇒ j.extract[ActivityContext]
     )
   }
+}
 
-  def build(userId: Int, userType: String, scope: LTree, transactionId: String): ActivityContext =
-    ActivityContext(userId = userId,
-                    userType = userType,
-                    transactionId = transactionId,
-                    scope = scope)
+case class EnrichedActivityContext(ctx: ActivityContext,
+                                   producer: Producer[GenericData.Record, GenericData.Record])
+
+object EnrichedActivityContext {
+  implicit def enrichActivityContext(implicit ctx: ActivityContext, apis: Apis): AC =
+    EnrichedActivityContext(ctx, apis.kafka)
 }
 
 /**
@@ -65,12 +64,6 @@ case class Activity(id: String,
 case class OpaqueActivity(activityType: ActivityType, data: Json)
 
 object Activities extends LazyLogging {
-
-  val producer =
-    if (Environment.default != Environment.Test)
-      Some(new KafkaProducer[GenericData.Record, GenericData.Record](kafkaProducerProps()))
-    else None
-
   val topic  = "scoped_activities"
   val schema = new Schema.Parser().parse("""
       |{
@@ -120,23 +113,11 @@ object Activities extends LazyLogging {
 
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def kafkaProducerProps(): Properties = {
-    val props = new Properties()
-
-    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.apis.kafka.bootStrapServersConfig)
-    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, config.apis.kafka.keySerializer)
-    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, config.apis.kafka.valueSerializer)
-    props.put("schema.registry.url", config.apis.kafka.schemaRegistryURL)
-    props.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, config.apis.kafka.producerTimeout)
-
-    props
-  }
-
   def log(a: OpaqueActivity)(implicit activityContext: AC, ec: EC): DbResultT[Activity] = {
     val activity = Activity(id = "",
                             activityType = a.activityType,
                             data = a.data,
-                            context = activityContext,
+                            context = activityContext.ctx,
                             createdAt = Instant.now)
 
     val record = new GenericData.Record(schema)
@@ -161,33 +142,22 @@ object Activities extends LazyLogging {
   def nextActivityId()(implicit ec: EC): DbResultT[Int] =
     sql"select nextval('activities_id_seq');".as[Int].head.dbresult
 
-  def sendActivity(a: Activity, key: GenericData.Record, record: GenericData.Record)(
+  private def sendActivity(a: Activity, key: GenericData.Record, record: GenericData.Record)(
       implicit activityContext: AC,
       ec: EC) {
     val msg = new ProducerRecord[GenericData.Record, GenericData.Record](topic, key, record)
 
-    // Workaround until we decide how to test Phoenix => Kafka service integration
-    producer match {
-
-      case Some(p) ⇒ {
-        val kafkaSendFuture = Future {
-          blocking {
-            p.send(msg).get()
-          }
-        }
-
-        kafkaSendFuture onComplete {
-          case Success(_) ⇒
-            logger.info(
-                s"Kafka Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId} SUCCESS")
-          case Failure(_) ⇒
-            logger.info(
-                s"Kafka Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId} FAILURE")
-        }
+    Future {
+      blocking {
+        activityContext.producer.send(msg).get()
       }
-      case None ⇒
+    }.andThen {
+      case Success(_) ⇒
         logger.info(
-            s"Test Kafka Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId}")
+            s"Kafka Activity ${a.activityType} by ${activityContext.ctx.userType} ${activityContext.ctx.userId} SUCCESS")
+      case Failure(_) ⇒
+        logger.info(
+            s"Kafka Activity ${a.activityType} by ${activityContext.ctx.userType} ${activityContext.ctx.userId} FAILURE")
     }
   }
 }

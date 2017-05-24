@@ -1,10 +1,9 @@
 package services
 
-import java.util.concurrent.atomic.AtomicBoolean
-
 import cats.implicits._
 import core.failures.GeneralFailure
 import faker.Lorem
+import java.util.concurrent.atomic.AtomicBoolean
 import objectframework.models.ObjectContexts
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
@@ -23,14 +22,12 @@ import phoenix.models.shipping.ShippingMethods
 import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
 import phoenix.services.{CartValidation, CartValidatorResponse, Checkout, LineItemUpdater}
 import phoenix.utils.aliases._
-import phoenix.utils.apis.Apis
 import phoenix.utils.seeds.Factories
+import scala.concurrent.Future
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.fixtures.BakedFixtures
 import core.db._
-
-import scala.concurrent.Future
 
 class CheckoutTest
     extends IntegrationTestBase
@@ -38,9 +35,6 @@ class CheckoutTest
     with TestObjectContext
     with TestActivityContext.AdminAC
     with BakedFixtures {
-
-  // TODO remove this @anna
-  implicit val apis: Apis = apisOverride.value
 
   def cartValidator(resp: CartValidatorResponse = CartValidatorResponse()): CartValidation = {
     val m = mock[CartValidation]

@@ -1,7 +1,7 @@
 package phoenix.utils
 
 object aliases {
-  type AC           = phoenix.models.activity.ActivityContext
+  type AC           = phoenix.models.activity.EnrichedActivityContext
   type EC           = scala.concurrent.ExecutionContext
   type DB           = core.db.DB
   type OC           = objectframework.models.ObjectContext

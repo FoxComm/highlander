@@ -1,22 +1,23 @@
 package utils
 
-import java.io.File
-
 import cats.implicits._
 import com.stripe.model.DeletedCard
+import java.io.File
+import org.apache.avro.generic.GenericData
+import org.apache.kafka.clients.producer.MockProducer
 import org.mockito.ArgumentMatcher
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.scalatest.mockito.MockitoSugar
+import phoenix.server.Setup
 import phoenix.utils.ElasticsearchApi
 import phoenix.utils.TestStripeSupport.randomStripeishId
 import phoenix.utils.aliases._
 import phoenix.utils.aliases.stripe._
 import phoenix.utils.apis._
 import core.db._
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Random, Try}
@@ -24,18 +25,18 @@ import scala.util.{Random, Try}
 trait RealStripeApi extends MockedApis {
 
   override implicit def apisOverride: Option[Apis] =
-    Apis(phoenix.server.Setup.defaultApis.stripe,
+    Apis(Setup.defaultApis.stripe,
          amazonApiMock,
          middlewarehouseApiMock,
-         elasticSearchMock).some
+         elasticSearchMock,
+         kafkaMock).some
 }
 
-object MockedApis extends MockedApis {
-
-  val apis: Apis = Apis(stripeApiMock, amazonApiMock, middlewarehouseApiMock, elasticSearchMock)
-}
+object MockedApis extends MockedApis
 
 trait MockedApis extends MockitoSugar {
+  implicit def apis: Apis =
+    Apis(stripeApiMock, amazonApiMock, middlewarehouseApiMock, elasticSearchMock, kafkaMock)
 
   val stripeCustomer: StripeCustomer = newStripeCustomer
   def newStripeCustomer: StripeCustomer = {
@@ -128,7 +129,9 @@ trait MockedApis extends MockitoSugar {
 
   lazy val elasticSearchMock: ElasticsearchApi = mock[ElasticsearchApi] // TODO: fill me with some defaults?
 
-  implicit def apisOverride: Option[Apis] =
-    Apis(stripeApiMock, amazonApiMock, middlewarehouseApiMock, elasticSearchMock).some
+  lazy val kafkaMock: MockProducer[GenericData.Record, GenericData.Record] =
+    new MockProducer[GenericData.Record, GenericData.Record](true, null, null)
+
+  implicit def apisOverride: Option[Apis] = apis.some
 
 }
