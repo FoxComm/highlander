@@ -22,6 +22,11 @@ type Props = {
   user: Object,
   onChange: Function,
   isNew: boolean,
+  requestPasswordReset: (email: string) => Promise<*>,
+  restoreState: {
+    err?: any,
+    inProgress?: boolean,
+  },
 };
 
 export default class UserForm extends Component {
@@ -36,14 +41,23 @@ export default class UserForm extends Component {
   get changePasswordButton() {
     if (this.props.isNew) return null;
 
+
     return (
       <Button
         type="button"
-        onClick={console.log('reset pass')}
+        onClick={this.resetPassword}
+        isLoading={this.props.restoreState.inProgress}
       >
         Change Password
       </Button>
     );
+  }
+
+  @autobind
+  resetPassword() {
+    const email = _.get(this.props, 'user.form.attributes.emailAddress.v', null);
+    this.props.requestPasswordReset(email).then(() => {
+    });
   }
 
   @autobind
