@@ -30,12 +30,11 @@
           "./src"
         ]
       }
-    ],
-    "react-hot-loader/babel"
+    ]
   ],
   "presets": [
     "stage-0",
     "react",
-    ['env', {'modules': false }]
+    "env"
   ]
 }

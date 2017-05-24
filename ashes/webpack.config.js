@@ -11,8 +11,7 @@ const prodConfig = require('./webpack/prod');
 
 const baseConfig = {
   entry: {
-    app: ['babel-polyfill', 'react-hot-loader/patch', './src/client.js']
-    // path.resolve(__dirname, './src/client.js')
+    app: path.resolve(__dirname, './src/client.js')
   },
 
   output: {
