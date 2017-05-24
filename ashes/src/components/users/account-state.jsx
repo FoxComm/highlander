@@ -26,6 +26,7 @@ type Props = {
   currentValue: string,
   updateAccountState: Function,
   userId: number|string,
+  className?: string,
 };
 
 type State = {
