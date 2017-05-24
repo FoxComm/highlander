@@ -16,7 +16,7 @@ import { Button } from 'components/core/button';
 import AccountState from './account-state';
 
 // styles
-import styles from './user-form.css';
+import s from './user-form.css';
 
 type Props = {
   user: Object,
@@ -31,6 +31,19 @@ export default class UserForm extends Component {
   handleFormChange(attributes: Object) {
     const data = assoc(this.props.user, ['form', 'attributes'], attributes);
     this.props.onChange(data);
+  }
+
+  get changePasswordButton() {
+    if (this.props.isNew) return null;
+
+    return (
+      <Button
+        type="button"
+        onClick={console.log('reset pass')}
+      >
+        Change Password
+      </Button>
+    );
   }
 
   @autobind
@@ -67,7 +80,7 @@ export default class UserForm extends Component {
   }
 
   renderGeneralForm() {
-    const { options } = this.props.user;
+    const { options, schema } = this.props.user;
     const { attributes } = this.props.user.form;
 
     return (
@@ -78,8 +91,9 @@ export default class UserForm extends Component {
             onChange={this.handleFormChange}
             attributes={attributes}
             options={options}
+            schema={schema}
           />
-          {!this.props.isNew && <Button type="button">Change Password</Button>}
+          {this.changePasswordButton}
         </ContentBox>
       </Form>
     );
@@ -87,15 +101,15 @@ export default class UserForm extends Component {
 
   render() {
     return (
-      <div styleName="user-form">
-        <section styleName="main">
+      <div className={s.userForm}>
+        <section className={s.main}>
           {this.renderGeneralForm()}
         </section>
 
-        <aside styleName="aside">
+        <aside className={s.aside}>
           {!this.props.isNew && this.renderAccountState()}
 
-          <ContentBox title="Roles">
+          <ContentBox title="Roles" className={s.roles} >
             <RoundedPill text="Super Admin"/>
           </ContentBox>
         </aside>

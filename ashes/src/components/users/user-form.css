@@ -1,4 +1,4 @@
-.user-form {
+.userForm {
   lost-flex-container: row;
 
   & :global(.initials) {
@@ -20,4 +20,8 @@
   & :global(.fc-content-box:not(:last-child)) {
     margin-bottom: 20px;
   }
+}
+
+.roles {
+  margin-top: 20px;
 }
