@@ -68,6 +68,11 @@ spec:
             secretKeyRef:
               name: core-secrets
               key: phoenix.api_password
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: middlewarehouse.port
         - name: SCHEMA_REGISTRY_URL
           valueFrom:
             configMapKeyRef:

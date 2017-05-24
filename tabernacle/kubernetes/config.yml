@@ -26,6 +26,7 @@ data:
   lb.phoenix_host: phoenix-lb.default.svc.cluster.local
   lb.phoenix_url: http://phoenix-lb.default.svc.cluster.local:9090
   middlewarehouse.log_level: info
+  middlewarehouse.port: 9292
   peacock.contact_email: pavel@foxcommerce.com
   peacock.node_env: production
   phoenix.auth_method: jwt
