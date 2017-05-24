@@ -87,7 +87,7 @@ class MerchantApplicationPage extends Component {
     return (
       <div className={styles.apply}>
         <div className={styles.applybutton}>
-          <Button onClick={() => window.location.replace("mailto:apply@foxcommerce.com")}>Apply Now</Button>
+          <Button onClick={() => window.location.replace("http://foxcommerce.com/#join-beta")}>Apply Now</Button>
         </div>
       </div>);
 

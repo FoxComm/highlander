@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { createAction, createReducer } from 'redux-act';
+import { createReducer } from 'redux-act';
 import { updateItems as _updateItems } from '../state-helpers';
 import { createNsAction } from '../utils';
 

@@ -1,7 +1,17 @@
+/* @flow */
 
-import makeBulkActions from '../bulk';
+import _ from 'lodash';
+import makeBulkActions, { createExportByIds } from '../bulk';
 
-const { actions, reducer } = makeBulkActions('promotions.bulk');
+const getExportedIds = (getState: Function, ids: Array<number>): Object => {
+  return _.reduce(ids, (obj, entry) => _.set(obj, entry, entry), {});
+};
+
+const exportByIds = createExportByIds(getExportedIds);
+
+const { actions, reducer } = makeBulkActions('promotions.bulk', {
+  exportByIds,
+});
 
 export {
   actions,

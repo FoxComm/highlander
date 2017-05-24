@@ -2,7 +2,6 @@ package phoenix.routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{PathMatcher, Route}
-import phoenix.utils.http.JsonSupport._
 import phoenix.models.account.User
 import phoenix.models.cord.Cord
 import phoenix.models.payment.PaymentMethod
@@ -14,9 +13,10 @@ import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
 import phoenix.utils.http.Http._
+import phoenix.utils.http.JsonSupport._
 
 object ReturnRoutes {
-  val PaymentMethodMatcher = PathMatcher(PaymentMethod.Type.typeMap)
+  val PaymentMethodMatcher = PathMatcher(PaymentMethod.Type)
 
   def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
 
