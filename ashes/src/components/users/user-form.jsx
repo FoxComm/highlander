@@ -56,8 +56,7 @@ export default class UserForm extends Component {
   @autobind
   resetPassword() {
     const email = _.get(this.props, 'user.form.attributes.emailAddress.v', null);
-    this.props.requestPasswordReset(email).then(() => {
-    });
+    this.props.requestPasswordReset(email);
   }
 
   @autobind

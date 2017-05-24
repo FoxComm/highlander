@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import { transitionTo } from 'browserHistory';
 
 // actions
-import * as UserActions from 'modules/users/details';
+import * as userActions from 'modules/users/details';
 import { requestPasswordReset } from 'modules/user';
 
 // components
@@ -169,12 +169,13 @@ class User extends Component {
   }
 }
 
-export default connect(
-  state => ({
+function mapState(state) {
+  return {
     details: state.users.details,
     isFetching: _.get(state.asyncActions, 'getUser.inProgress', null),
     fetchError: _.get(state.asyncActions, 'getUser.err', null),
     restoreState: _.get(state.asyncActions, 'requestPasswordReset', {}),
-  }),
-  { ...UserActions, requestPasswordReset }
-)(User);
+  };
+}
+
+export default connect(mapState, { ...userActions, requestPasswordReset })(User);
