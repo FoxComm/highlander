@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/jinzhu/gorm"
 )
@@ -40,7 +41,7 @@ func (service *InventoryServiceStub) DecrementStockItemUnits(id uint, unitType m
 	return nil
 }
 
-func (service *InventoryServiceStub) HoldItems(refNum string, skus map[string]int) error {
+func (service *InventoryServiceStub) HoldItems(res *payloads.Reservation) error {
 	return nil
 }
 

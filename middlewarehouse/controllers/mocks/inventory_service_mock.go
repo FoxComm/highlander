@@ -1,6 +1,7 @@
 package mocks
 
 import (
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 	"github.com/jinzhu/gorm"
@@ -77,8 +78,8 @@ func (m *InventoryServiceMock) DecrementStockItemUnits(id uint, unitType models.
 	return args.Error(0)
 }
 
-func (m *InventoryServiceMock) HoldItems(refNum string, skus map[string]int) error {
-	args := m.Called(refNum, skus)
+func (m *InventoryServiceMock) HoldItems(res *payloads.Reservation) error {
+	args := m.Called(res)
 
 	return args.Error(0)
 }

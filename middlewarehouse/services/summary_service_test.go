@@ -38,13 +38,10 @@ func (suite *summaryServiceTestSuite) SetupSuite() {
 		"inventory_search_view",
 	})
 
-	stockItemRepository := repositories.NewStockItemRepository(suite.db)
 	stockLocationRepository := repositories.NewStockLocationRepository(suite.db)
-	stockItemUnitRepository := repositories.NewStockItemUnitRepository(suite.db)
 
 	suite.service = NewSummaryService(suite.db)
-
-	inventoryService := NewInventoryService(stockItemRepository, stockItemUnitRepository, suite.service)
+	inventoryService := NewInventoryService(suite.db)
 	stockLocationService := NewStockLocationService(stockLocationRepository)
 
 	sl, _ := stockLocationService.CreateLocation(fixtures.GetStockLocation())

@@ -3,9 +3,9 @@ package mocks
 import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
-	"github.com/stretchr/testify/mock"
-	"github.com/jinzhu/gorm"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
+	"github.com/jinzhu/gorm"
+	"github.com/stretchr/testify/mock"
 )
 
 type StockItemUnitRepositoryMock struct {
@@ -36,6 +36,26 @@ func (repository *StockItemUnitRepositoryMock) GetUnitsInOrder(refNum string) ([
 
 	if models, ok := args.Get(0).([]*models.StockItemUnit); ok {
 		return models, nil
+	}
+
+	return nil, args.Error(1)
+}
+
+func (repository *StockItemUnitRepositoryMock) HoldUnits(orderRefNum string, skuCode string, qty uint) ([]*models.StockItemUnit, error) {
+	args := repository.Called(orderRefNum, skuCode, qty)
+
+	if models, ok := args.Get(0).([]*models.StockItemUnit); ok {
+		return models, nil
+	}
+
+	return nil, args.Error(1)
+}
+
+func (repository *StockItemUnitRepositoryMock) ReserveUnit(orderRefNum string, skuCode string) (*models.StockItemUnit, error) {
+	args := repository.Called(orderRefNum, skuCode)
+
+	if result, ok := args.Get(0).(*models.StockItemUnit); ok {
+		return result, nil
 	}
 
 	return nil, args.Error(1)
