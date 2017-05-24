@@ -16,6 +16,15 @@ Place order from cart.
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
+### Apple pay checkout [POST /v1/my/cart/apple-pay-checkout]
+
+Place order and pay with Apple Pay
+
++ Request (application/json)
+    + Attributes (CreateApplePayPayment)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
 ## SKU Line Items [/v1/my/cart/line-items]
 
 ### Set SKU Line Items [POST]
