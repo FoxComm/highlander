@@ -132,7 +132,6 @@ const _resetPassword = createAsyncActions(
   function(payload: TResetPayload) {
     const {dispatch} = this;
 
-    console.log(payload);
     return superagent.post(Api.apiURI('/public/reset-password'), payload)
       .type('json')
       .then(response => handleAuthResponse(dispatch, response));
