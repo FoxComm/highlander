@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.implicits._
 import failures.NotFoundFailure400
 import faker._
-import models.objects.ObjectContext
+import objectframework.models.ObjectContext
 import phoenix.failures.CreditCardFailures.CustomerHasNoCreditCard
 import phoenix.failures.CustomerFailures.CustomerHasNoDefaultAddress
 import phoenix.models.Note
@@ -29,7 +29,6 @@ import phoenix.utils.seeds.ShipmentSeeds
 import slick.jdbc.PostgresProfile.api._
 import utils.Money._
 import utils.db._
-import utils.time
 import phoenix.utils
 
 import scala.concurrent.ExecutionContext.Implicits.global

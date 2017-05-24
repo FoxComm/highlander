@@ -1,6 +1,6 @@
 package phoenix.utils.seeds
 
-import models.objects.ObjectContexts
+import objectframework.models.ObjectContexts
 import phoenix.models.product.{Mvp, SimpleContext, SimpleProductData}
 import phoenix.utils.aliases._
 import utils.Money.Currency

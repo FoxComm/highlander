@@ -15,7 +15,9 @@ import akka.util.ByteString
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
 import failures.Failures
-import models.objects.FullObject
+import objectframework.IlluminateAlgorithm
+import objectframework.models.FullObject
+import objectframework.services.ObjectManager
 import phoenix.failures.ImageFailures._
 import phoenix.models.image._
 import phoenix.payloads.ImagePayloads._
@@ -24,9 +26,7 @@ import phoenix.services.image.ImageManager._
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
-import services.objects.ObjectManager
 import slick.dbio.DBIO
-import utils.IlluminateAlgorithm
 import utils.db._
 
 import scala.annotation.tailrec

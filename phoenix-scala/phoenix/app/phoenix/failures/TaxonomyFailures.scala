@@ -1,7 +1,7 @@
 package phoenix.failures
 
 import failures.Failure
-import models.objects.ObjectForm
+import objectframework.models.ObjectForm
 import phoenix.models.product.Product
 import phoenix.models.taxonomy._
 

@@ -1,16 +1,16 @@
-package models.objects
+package objectframework
 
 import java.time.Instant
 
 import cats.data.NonEmptyList
 import cats.implicits._
 import failures.Failure
+import objectframework.models._
+import objectframework.services.ObjectSchemasManager
 import org.json4s.JsonAST.{JNothing, JNull, JObject, JString}
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import services.objects.ObjectSchemasManager
-import utils.IlluminateAlgorithm
 import utils.db._
 
 object ObjectUtils {
@@ -48,7 +48,7 @@ object ObjectUtils {
     * new hash+index key is searched until we find a key with same content or
     * we reach the end of the list.
     */
-  private[objects] def key(content: JValue, alreadyExistingFields: JValue): String = {
+  private[objectframework] def key(content: JValue, alreadyExistingFields: JValue): String = {
     val hashKey = hash(content)
 
     def noHashCollision(newHash: String): Boolean = {
@@ -82,8 +82,8 @@ object ObjectUtils {
     }
   }
 
-  private[objects] def updateForm(oldForm: JValue,
-                                  humanReadableUpdatedForm: JValue): (KeyMap, JValue) = {
+  private[objectframework] def updateForm(oldForm: JValue,
+                                          humanReadableUpdatedForm: JValue): (KeyMap, JValue) = {
     val (keyMap, newForm) = createForm(humanReadableUpdatedForm, oldForm)
     (keyMap, oldForm.merge(newForm))
   }

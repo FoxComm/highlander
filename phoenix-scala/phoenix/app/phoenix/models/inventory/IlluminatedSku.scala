@@ -3,9 +3,9 @@ package phoenix.models.inventory
 import java.time.Instant
 
 import failures.{Failure, NotFoundFailure404}
-import models.objects._
+import objectframework.IlluminateAlgorithm
+import objectframework.models._
 import phoenix.models.traits.IlluminatedModel
-import utils.IlluminateAlgorithm
 import phoenix.utils.aliases._
 
 /**

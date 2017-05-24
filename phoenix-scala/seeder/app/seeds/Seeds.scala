@@ -12,7 +12,7 @@ import phoenix.models.Reasons
 import phoenix.models.account._
 import phoenix.models.activity.ActivityContext
 import phoenix.models.auth.UserToken
-import models.objects.ObjectContexts
+import objectframework.models.ObjectContexts
 import phoenix.models.product.SimpleContext
 import org.postgresql.ds.PGSimpleDataSource
 import phoenix.models.activity.ActivityContext

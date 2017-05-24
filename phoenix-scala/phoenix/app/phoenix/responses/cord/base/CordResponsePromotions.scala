@@ -1,7 +1,7 @@
 package phoenix.responses.cord.base
 
 import cats.implicits._
-import models.objects._
+import objectframework.models._
 import phoenix.failures.CouponFailures._
 import phoenix.failures.PromotionFailures.PromotionNotFound
 import phoenix.models.cord.{OrderPromotion, OrderPromotions}

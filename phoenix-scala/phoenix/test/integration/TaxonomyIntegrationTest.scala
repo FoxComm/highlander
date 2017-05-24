@@ -2,7 +2,7 @@ import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
-import models.objects._
+import objectframework.models._
 import org.json4s.JsonDSL._
 import org.json4s._
 import phoenix.failures.TaxonomyFailures._

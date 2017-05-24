@@ -1,9 +1,9 @@
-package models.objects
+package objectframework.models
 
-import models.objects.FormAndShadow._
+import objectframework.models.FormAndShadow._
+import objectframework.{IlluminateAlgorithm, ObjectUtils}
 import org.json4s.JsonAST.{JObject, JValue}
 import org.json4s.JsonDSL._
-import utils.IlluminateAlgorithm
 
 trait FormAndShadow {
   def form: ObjectForm

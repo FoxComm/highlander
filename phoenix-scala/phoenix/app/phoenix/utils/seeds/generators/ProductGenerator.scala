@@ -1,9 +1,9 @@
 package phoenix.utils.seeds.generators
 
 import faker._
-import models.objects.ObjectContexts
-import phoenix.models.product.{Mvp, SimpleContext, SimpleProductData}
+import objectframework.models.ObjectContexts
 import org.conbere.markov.MarkovChain
+import phoenix.models.product.{Mvp, SimpleContext, SimpleProductData}
 import phoenix.utils.aliases._
 import utils.db._
 

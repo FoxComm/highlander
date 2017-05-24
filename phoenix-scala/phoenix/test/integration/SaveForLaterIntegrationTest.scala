@@ -1,5 +1,5 @@
 import failures.NotFoundFailure404
-import models.objects.ObjectContexts
+import objectframework.models.ObjectContexts
 import phoenix.failures.AlreadySavedForLater
 import phoenix.failures.ProductFailures.SkuNotFoundForContext
 import phoenix.models.account._

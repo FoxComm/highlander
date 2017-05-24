@@ -1,8 +1,8 @@
-package models.objects
+package objectframework.models
 
 import java.time.Instant
 
-import failures.ObjectFailures._
+import objectframework.ObjectFailures._
 import slick.lifted.Tag
 import utils.db.ExPostgresDriver.api._
 import utils.db._

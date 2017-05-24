@@ -1,5 +1,6 @@
 package phoenix.services
 
+import phoenix.failures.AddressFailures.NoRegionFound
 import phoenix.models.location.Country._
 import phoenix.models.location.Region._
 import phoenix.models.location._
@@ -27,6 +28,13 @@ object PublicService {
 
   def listRegions(implicit ec: EC, db: DB): Future[Seq[Region]] =
     db.run(Regions.result.map(rs ⇒ sortRegions(rs.to[Seq])))
+
+  def findRegionByShortName(regionShortName: String)(implicit ec: EC, db: DB): DbResultT[Region] =
+    for {
+      region ← * <~ Regions
+                .findOneByShortName(regionShortName)
+                .mustFindOneOr(NoRegionFound(regionShortName))
+    } yield region
 
   private def sortRegions(regions: Seq[Region]): Seq[Region] = {
     regions.filter(r ⇒ regularUsRegions.contains(r.id)).sortBy(_.name) ++

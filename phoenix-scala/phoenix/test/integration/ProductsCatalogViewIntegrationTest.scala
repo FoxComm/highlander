@@ -1,6 +1,6 @@
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import models.objects.ObjectUtils
+import objectframework.ObjectUtils
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import phoenix.models.account.Scope

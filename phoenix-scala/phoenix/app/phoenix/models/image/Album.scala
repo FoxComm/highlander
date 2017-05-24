@@ -4,7 +4,7 @@ import java.time.Instant
 
 import cats.implicits._
 import failures._
-import models.objects._
+import objectframework.models._
 import phoenix.failures.ArchiveFailures._
 import shapeless._
 import slick.lifted.Tag

@@ -1,6 +1,7 @@
 package phoenix.services.returns
 
 import models.objects.{ObjectForms, ObjectShadows}
+import objectframework.models.{ObjectForms, ObjectShadows}
 import phoenix.models.returns._
 import utils.db.ExPostgresDriver.api._
 import utils.db._

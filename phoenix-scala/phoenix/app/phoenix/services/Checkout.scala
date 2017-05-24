@@ -3,7 +3,8 @@ package phoenix.services
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.GeneralFailure
-import models.objects._
+import objectframework.ObjectUtils
+import objectframework.models._
 import org.json4s.JsonAST._
 import phoenix.failures.AddressFailures.NoDefaultAddressForCustomer
 import phoenix.failures.CouponFailures.CouponWithCodeCannotBeFound

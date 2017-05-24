@@ -3,7 +3,7 @@ package phoenix.services
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
-import models.objects._
+import objectframework.ObjectUtils
 import org.json4s.JsonAST._
 import phoenix.failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
 import phoenix.models.account._

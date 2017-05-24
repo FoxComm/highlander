@@ -1,7 +1,8 @@
 package phoenix.utils.seeds.generators
 
-import models.objects.ObjectUtils._
-import models.objects._
+import objectframework.ObjectUtils
+import objectframework.ObjectUtils._
+import objectframework.models._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import phoenix.models.discount.Discount

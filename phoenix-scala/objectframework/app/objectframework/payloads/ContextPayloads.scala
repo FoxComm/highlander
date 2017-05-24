@@ -1,4 +1,4 @@
-package payloads
+package objectframework.payloads
 
 import org.json4s.JsonAST.JValue
 

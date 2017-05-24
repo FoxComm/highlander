@@ -1,7 +1,7 @@
 package phoenix.utils.seeds.generators
 
 import faker.Faker
-import models.objects.ObjectContexts
+import objectframework.models.ObjectContexts
 import phoenix.models.account._
 import phoenix.models.coupon._
 import phoenix.models.customer._
