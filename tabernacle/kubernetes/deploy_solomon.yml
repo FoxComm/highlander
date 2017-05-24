@@ -45,7 +45,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: core-config
-              key: jwt.private_key
+              key: jwt.frontend_private_key
         - name: PUBLIC_KEY
           valueFrom:
             configMapKeyRef:
