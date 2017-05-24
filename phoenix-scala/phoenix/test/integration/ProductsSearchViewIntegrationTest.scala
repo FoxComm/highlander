@@ -4,7 +4,6 @@ import com.github.tminglei.slickpg.LTree
 import phoenix.utils.aliases.Json
 import testutils._
 import testutils.apis.PhoenixAdminApi
-import utils.MockedApis
 
 object ProductsSearchViewIntegrationTest {
 
@@ -30,10 +29,7 @@ object ProductsSearchViewIntegrationTest {
 
 class ProductsSearchViewIntegrationTest
     extends SearchViewTestBase
-    with TestBase
-    with GimmeSupport
-    with JwtTestAuth
-    with MockedApis
+    with IntegrationTestBase
     with PhoenixAdminApi
     with DefaultJwtAdminAuth {
 
