@@ -3,56 +3,14 @@
 @import "variables.css";
 
 .profile {
-  margin-top: 20px;
   width: 100%;
   max-width: 1080px;
 }
 
-.details-addresses {
-  display: flex;
-  justify-content: space-between;
-  lost-column: 7/11;
-}
-
-.shipping-addresses {
-  width: 48%;
-}
-
-.account-details {
-  width: 48%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.orders {
-  lost-column: 7/11;
-  margin-top: 50px;
-}
-
-.divider {
-  height: 1px;
-  width: 100%;
-  background: var(--border-color);
-  margin-bottom: 8px;
-
-  &.top {
-    margin-top: 12px;
-  }
-
-  &.addresses {
-    margin-top: 10px;
-  }
-
-  &.table {
-    margin-top: 13px;
-    margin-bottom: 16px;
-  }
-}
-
-.plus {
-  composes: plus-icon from "ui/css/plus-icon.css";
-  margin-right: 8px;
+.details-block {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 15px;
+  margin-bottom: 11px;
 }
 
 .orders-table {
@@ -60,16 +18,19 @@
 }
 
 .order-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
   border-bottom: 1px solid var(--border-color);
-  padding-bottom: 16px;
-  margin-bottom: 16px;
+  padding-bottom: 10px;
+  margin-bottom: 10px
+}
+
+.mobile-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
 }
 
 .order-cell {
-  lost-column: 1/7;
+  margin-bottom: 5px;
 
   &.total {
     font-weight: 900;
@@ -96,19 +57,36 @@
   align-items: baseline;
 }
 
+.divider {
+  height: 1px;
+  width: 20%;
+  background: var(--border-color);
+  margin-bottom: 5px;
+
+  &.top {
+    display: none;
+  }
+
+  &.addresses {
+    margin-top: 10px;
+  }
+
+  &.table {
+    display: none;
+  }
+}
+
+.plus {
+  composes: plus-icon from "ui/css/plus-icon.css";
+  margin-right: 8px;
+}
+
 .currency {
   font-weight: 900;
 }
 
 .promo-line {
   padding-bottom: 10px;
-}
-
-.details-block {
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 12px 15px 0;
-  margin-bottom: 10px;
 }
 
 .header {
@@ -123,7 +101,6 @@
 }
 
 .content {
-  padding-bottom: 12px;
   font-size: 12px;
   line-height: 1.33;
 }
@@ -137,4 +114,81 @@
 
 .name-field, .email-field, .password-field {
   margin: 15px 10px 15px 15px;
+}
+
+@media (--large) {
+  .profile {
+    margin-top: 20px;
+  }
+
+  .details-addresses {
+    display: flex;
+    justify-content: space-between;
+    lost-column: 7/11;
+  }
+
+  .account-details {
+    width: 48%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .details-block {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 12px 15px 0;
+    margin-bottom: 10px;
+  }
+
+  .shipping-addresses {
+    width: 48%;
+  }
+
+  .orders {
+    lost-column: 7/11;
+    margin-top: 50px;
+  }
+
+  .order-row {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+  }
+
+  .mobile-row {
+
+  }
+
+  .left-block {
+    display: flex;
+    justify-content: space-between;
+    width: 60%;
+  }
+
+  .order-cell {
+    &.total {
+      font-weight: 900;
+    }
+  }
+
+  .content {
+    padding-bottom: 12px;
+  }
+
+  .divider {
+    width: 100%;
+    margin-bottom: 8px;
+
+    &.top {
+      display: block;
+      margin-top: 12px;
+    }
+
+    &.table {
+      display: block;
+      margin-top: 13px;
+      margin-bottom: 16px;
+    }
+  }
 }

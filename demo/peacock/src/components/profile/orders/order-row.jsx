@@ -35,23 +35,27 @@ const OrderRow = (props: Props) => {
 
   return (
     <div styleName="order-row">
-      <div styleName="order-cell">
-        {`#${order.referenceNumber}`}
-      </div>
-      <div styleName="order-cell">
-        {moment(order.placedAt).format('LLL')}
-      </div>
-      <div styleName="order-cell">
-        Tracking is not available
-      </div>
-      <div styleName="order-cell">
-        {stateTitles[order.state]}
-      </div>
-      <div styleName="order-cell total">
-        <Currency
-          value={order.grandTotal}
-          currency={order.currency}
-        />
+      <div styleName="mobile-row">
+        <div styleName="left-block">
+          <div styleName="order-cell">
+            {`#${order.referenceNumber}`}
+          </div>
+          <div styleName="order-cell">
+            {moment(order.placedAt).format('LLL')}
+          </div>
+          <div styleName="order-cell">
+            Tracking is not available
+          </div>
+        </div>
+        <div styleName="order-cell">
+          {stateTitles[order.state]}
+        </div>
+        <div styleName="order-cell total">
+          <Currency
+            value={order.grandTotal}
+            currency={order.currency}
+          />
+        </div>
       </div>
       <div styleName="action-link" onClick={() => handleViewDetails(order.referenceNumber)}>
         Details
