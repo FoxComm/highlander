@@ -12,7 +12,6 @@ export function connectImages(namespace, actions) {
   const plural = `${namespace}s`;
 
   const mapStateToProps = (state) => {
-    console.log('mapStateToProps');
     return {
       namespace,
       albums: _.get(state, [plural, 'images', 'albums'], []),
@@ -24,7 +23,7 @@ export function connectImages(namespace, actions) {
         uploadMediaByUrl: state.asyncActions[`${plural}UploadMediaByUrl`],
         archiveAlbum: state.asyncActions[`${plural}ArchiveAlbum`],
       }
-    }
+    };
   };
 
   return ImagesPage => {
@@ -47,7 +46,6 @@ export default class ImagesPage extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log('nextProps', nextProps);
     if (nextProps.albums != this.props.albums) {
       this.props.syncEntity({
         albums: nextProps.albums,

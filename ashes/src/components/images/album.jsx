@@ -38,6 +38,7 @@ export type Props = {
   archiveAlbum: (id: number) => Promise<*>;
   fetchAlbums: () => Promise<*>;
   clearFailedMedia: () => Promise<*>;
+  retryFailedMedia: () => Promise<*>;
   editAlbumState?: AsyncState;
   uploadMediaState?: AsyncState;
   uploadMediaByUrlState?: AsyncState;
@@ -81,13 +82,8 @@ export default class Album extends Component {
       key: file.key,
       loading: true,
     }));
-    // debugger
 
-    this.props
-      .uploadFiles(newImages)
-      .catch(() => {
-        console.log('ololo');
-      });
+    this.props.uploadFiles(newImages);
   }
 
   @autobind
@@ -171,8 +167,8 @@ export default class Album extends Component {
     return this.props.moveAlbum(position);
   }
 
-  get errorMsg(): Element<*> {
-    const { uploadMediaState, clearFailedMedia } = this.props;
+  get errorMsg(): ?Element<*> {
+    const { uploadMediaState, clearFailedMedia, retryFailedMedia } = this.props;
     const errMsg = get(uploadMediaState, 'err.message');
 
     if (!errMsg) {
@@ -184,7 +180,7 @@ export default class Album extends Component {
         {errMsg}
         <div className={s.uploadErrBtns}>
           <Button className={s.uploadErrBtn} onClick={clearFailedMedia}>Cancel</Button>
-          <Button>Retry</Button>
+          <Button onClick={retryFailedMedia}>Retry</Button>
         </div>
       </Alert>
     );

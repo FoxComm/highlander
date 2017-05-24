@@ -34,6 +34,8 @@ export type Props = {
   editAlbum: (context: string, albumId: number, album: TAlbum) => Promise<*>;
   moveAlbum: (context: string, entityId: number, albumId: number, position: number) => Promise<*>;
   archiveAlbum: (context: string, albumId: number) => Promise<*>;
+  clearFailedMedia: (context: string, albumId: number) => Promise<*>;
+  retryFailedMedia: (context: string, albumId: number) => Promise<*>;
   asyncActionsState: {
     addAlbum?: AsyncState;
     editAlbum?: AsyncState;
@@ -127,7 +129,8 @@ export default class Images extends Component {
               editAlbum={(album: TAlbum) => this.props.editAlbum(context, album.id, album)}
               moveAlbum={(position: number) => this.props.moveAlbum(context, entityId, album.id, position)}
               archiveAlbum={(id: number) => this.props.archiveAlbum(context, id)}
-              clearFailedMedia={() => this.props.clearFailedMedia(album.id)}
+              clearFailedMedia={() => this.props.clearFailedMedia(context, album.id)}
+              retryFailedMedia={() => this.props.retryFailedMedia(context, album.id)}
               position={i}
               albumsCount={albums.length}
               key={album.id}

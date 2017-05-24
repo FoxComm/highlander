@@ -25,6 +25,7 @@ export type FileInfo = {
   src: string;
   file: File;
   loading: boolean;
+  failed?: boolean;
   createdAt?: string;
 };
 
@@ -67,6 +68,7 @@ export default function createMediaModule(entity: string): Module {
   const _editImageStarted = createAction(`${entity.toUpperCase()}_EDIT_IMAGE_STARTED`, (...args) => [...args]);
 
   const _clearFailedMedia = createAction(`${entity.toUpperCase()}_CLEAR_FAILED`, (...args) => [...args]);
+  const _remarkFailedMedia = createAction(`${entity.toUpperCase()}_REMARK_FAILED`, (...args) => [...args]);
 
   const _uploadMedia = createAsyncActions(
     actionPath(entity, 'uploadMedia'),
@@ -213,10 +215,23 @@ export default function createMediaModule(entity: string): Module {
 
   const uploadMediaByUrl = _uploadMediaByUrl.perform;
 
-  const clearFailedMedia = (albumId: number) => dispatch => {
+  const clearFailedMedia = (context: string, albumId: number) => dispatch => {
     dispatch(_uploadMedia.clearErrors());
 
     return dispatch(_clearFailedMedia(albumId));
+  };
+
+  const retryFailedMedia = (context: string, albumId: number) => (dispatch, getState) => {
+    const fullState = getState();
+    const albums = get(fullState, ['products', 'images', 'albums']);
+    const album = albums.find(al => al.id === albumId) || {};
+    const images = album.images || [];
+    const failedImages = images.filter(img => img.failed);
+
+    dispatch(_uploadMedia.clearErrors());
+    dispatch(_remarkFailedMedia(albumId));
+
+    return dispatch(_uploadMedia.perform(context, albumId, failedImages));
   };
 
   /**
@@ -330,7 +345,13 @@ export default function createMediaModule(entity: string): Module {
       const album = state.albums[idx];
       const nextImages = album.images.filter(image => !image.failed);
 
-      console.log('nextImages', nextImages);
+      return assoc(state, ['albums', idx, 'images'], nextImages);
+    },
+
+    [_remarkFailedMedia]: (state, [albumId]) => {
+      const idx = _.findIndex(state.albums, (album: Album) => album.id === albumId);
+      const album = state.albums[idx];
+      const nextImages = album.images.map(image => ({ ...image, failed: false, loading: image.failed }));
 
       return assoc(state, ['albums', idx, 'images'], nextImages);
     }
@@ -342,6 +363,7 @@ export default function createMediaModule(entity: string): Module {
       uploadMedia,
       uploadMediaByUrl,
       clearFailedMedia,
+      retryFailedMedia,
       editImage,
       deleteImage,
       fetchAlbums,
