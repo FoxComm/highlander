@@ -10,7 +10,7 @@ import phoenix.models.payment.storecredit.StoreCreditAdjustments
 import phoenix.utils.aliases.EC
 import phoenix.models.payment.applepay.ApplePayCharges
 import slick.dbio.DBIO
-import utils.db._
+import core.db._
 
 trait CordQueries {
 

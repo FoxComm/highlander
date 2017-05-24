@@ -9,8 +9,8 @@ import phoenix.utils.aliases.stripe.StripeCharge
 import shapeless.{Lens, lens}
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted._
-import utils.Money.Currency
-import utils.db._
+import core.utils.Money.Currency
+import core.db._
 
 case class ApplePayCharge(id: Int = 0,
                           orderPaymentId: Int,

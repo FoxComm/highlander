@@ -7,8 +7,8 @@ import phoenix.models.location.Address
 import phoenix.models.payment.creditcard.CreditCard
 import phoenix.payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
 import phoenix.utils.aliases.stripe._
-import utils.Money.Currency
-import utils.db._
+import core.utils.Money.Currency
+import core.db._
 
 /**
   * Fox Stripe API wrapper

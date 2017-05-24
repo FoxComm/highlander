@@ -2,7 +2,7 @@ package phoenix.services.returns
 
 import cats.implicits._
 import core.db._
-import failures.GeneralFailure
+import core.failures.GeneralFailure
 import phoenix.failures.OrderFailures.{OnlyOneExternalPaymentIsAllowed, OrderPaymentNotFoundFailure}
 import phoenix.failures.ReturnFailures._
 import phoenix.models.account.{Scope, User, Users}
@@ -21,7 +21,7 @@ import phoenix.utils.aliases._
 import phoenix.utils.apis.{Apis, RefundReason}
 import slick.jdbc.PostgresProfile.api._
 import scala.annotation.tailrec
-import utils.db._
+import core.db._
 import phoenix.models.payment.applepay.ApplePayments
 
 object ReturnPaymentManager {
@@ -337,16 +337,16 @@ object ReturnPaymentManager {
       ((id: String, amount: Int) ⇒
          for {
            _ ← * <~ apis.stripe.authorizeRefund(id, amount, RefundReason.RequestedByCustomer)
-           ccPayment = ReturnCcPayment(
+           ccPayment = ReturnStripePayment(
                returnPaymentId = payment.id,
                chargeId = id,
                returnId = payment.returnId,
                amount = amount,
                currency = payment.currency
            )
-           created ← * <~ ReturnCcPayments.create(ccPayment)
+           created ← * <~ ReturnStripePayments.create(ccPayment)
          } yield created).tupled
-        .andThen(_.runTxn()) // we want to run each stripe refund in separate transaction to avoid any rollback of `ReturnCcPayments` table
+        .andThen(_.runTxn()) // we want to run each stripe refund in separate transaction to avoid any rollback of `ReturnStripePayments` table
 
     /** Splits total refund amount into order cc charges.
       *
@@ -377,7 +377,7 @@ object ReturnPaymentManager {
     for {
       previousCcRefunds ← * <~ Returns
                            .findPreviousOrCurrent(rma)
-                           .join(ReturnCcPayments)
+                           .join(ReturnStripePayments)
                            .on(_.id === _.returnId)
                            .map { case (_, ccPayment) ⇒ ccPayment.chargeId → ccPayment.amount }
                            .groupBy(_._1)

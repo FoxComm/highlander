@@ -4,8 +4,8 @@ import phoenix.models.payment.applepay.ApplePayCharges
 import phoenix.models.payment.creditcard.CreditCardCharges
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.Money.Currency
-import utils.db._
+import core.db._
+import core.utils.Money.Currency
 
 case class ReturnStripePayment(id: Int = 0,
                                returnPaymentId: Int,

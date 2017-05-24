@@ -1,7 +1,7 @@
 package phoenix.models.payment.creditcard
 
 import java.time.Instant
-import failures.Failures
+import core.failures.Failures
 import com.pellucid.sealerate
 import core.db._
 import core.failures.Failures
@@ -12,11 +12,11 @@ import phoenix.models.payment.ExternalCharge._
 import phoenix.utils._
 import phoenix.utils.aliases.stripe._
 import shapeless._
-import utils.Money.Currency
+import core.utils.Money.Currency
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.db._
 
 case class CreditCardCharge(id: Int = 0,
                             creditCardId: Int,

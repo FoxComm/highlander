@@ -3,7 +3,7 @@ package phoenix.services
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import core.failures.GeneralFailure
-import failures.GeneralFailure
+import core.failures.GeneralFailure
 import phoenix.failures.PromotionFailures.PromotionNotFoundForContext
 import phoenix.failures.ShippingMethodFailures.NoDefaultShippingMethod
 import objectframework.ObjectUtils

@@ -1,5 +1,5 @@
 import cats.implicits._
-import failures.GeneralFailure
+import core.failures.GeneralFailure
 import phoenix.failures.OrderFailures.OnlyOneExternalPaymentIsAllowed
 import phoenix.models.location.Region
 import phoenix.models.shipping._

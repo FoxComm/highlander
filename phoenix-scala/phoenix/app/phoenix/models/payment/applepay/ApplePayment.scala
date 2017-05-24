@@ -4,12 +4,12 @@ import java.time.Instant
 
 import cats.implicits._
 import cats.data.ValidatedNel
-import failures.Failure
+import core.db._
+import core.failures.Failure
+import core.utils.Validation
 import phoenix.models.payment.PaymentMethod
 import shapeless.{Lens, lens}
 import slick.jdbc.PostgresProfile.api._
-import utils.Validation
-import utils.db._
 
 case class ApplePayment(
     id: Int = 0,
