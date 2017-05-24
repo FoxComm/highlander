@@ -24,7 +24,6 @@ Create [Deployments](https://kubernetes.io/docs/concepts/workloads/controllers/d
 
     # Backend
     $ kubectl create -f kubernetes/deploy_isaac.yml
-    $ kubectl create -f kubernetes/deploy_phoenix.yml
     $ kubectl create -f kubernetes/deploy_solomon.yml
     $ kubectl create -f kubernetes/deploy_middlewarehouse.yml
     $ kubectl create -f kubernetes/deploy_hyperion.yml
