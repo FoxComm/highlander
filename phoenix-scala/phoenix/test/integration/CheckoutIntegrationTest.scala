@@ -42,7 +42,8 @@ class CheckoutIntegrationTest
     with PhoenixStorefrontApi
     with ApiFixtureHelpers
     with DefaultJwtAdminAuth
-    with BakedFixtures {
+    with BakedFixtures
+    with SkuOps {
 
   "PATCH /v1/carts/:refNum/line-items/attributes" - {
     val attributes = randomGiftCardLineItemAttributes()
@@ -207,21 +208,6 @@ class CheckoutIntegrationTest
       cartApi.checkout().mustFailWith404(expectedFailure)
     }
 
-    def deactivateSku(skuCode: String): Unit = {
-      import org.json4s.JsonDSL._
-      import org.json4s._
-      val skuResponse = skusApi(skuCode).get().as[SkuResponse.Root]
-      val activeFromJson: Json = ("t" → "date") ~ ("v" → (Instant.now
-              .minus(2, ChronoUnit.DAYS))
-              .toString)
-      val activeToJson: Json = ("t" → "date") ~ ("v" → (Instant.now
-              .minus(1, ChronoUnit.DAYS))
-              .toString)
-      skusApi(skuCode)
-        .update(SkuPayload(attributes = skuResponse.attributes.extract[Map[String, Json]] ++
-                    Map("activeFrom" → activeFromJson, "activeTo" → activeToJson)))
-        .mustBeOk()
-    }
   }
 
   trait OneClickCheckoutFixture extends Fixture {
