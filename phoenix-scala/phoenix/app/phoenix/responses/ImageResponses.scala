@@ -2,7 +2,6 @@ package phoenix.responses
 
 import java.time.Instant
 
-import models.image.Image
 import models.objects.FullObject
 import phoenix.models.image.Image
 import phoenix.utils.JsonFormatters
