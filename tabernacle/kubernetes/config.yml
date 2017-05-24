@@ -43,6 +43,7 @@ data:
   river_rock.bernardo_host: bernardo.service.consul
   river_rock.port: "31895"
   river_rock.upstream_url: http://balancer.service.consul:8888
+  solomon.port: "4002"
   solomon.token_ttl: "365"
   stripe.publishable_key: pk_test_1H2C9nTZpy8szPmboOEDwdwN
 ---

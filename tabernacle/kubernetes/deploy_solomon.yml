@@ -41,6 +41,11 @@ spec:
             secretKeyRef:
               name: core-secrets
               key: phoenix.db_password
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: solomon.port
         - name: PRIVATE_KEY
           valueFrom:
             configMapKeyRef:
