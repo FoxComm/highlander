@@ -98,6 +98,11 @@ function cleanProductPayload(product) {
     }
   }
 
+  product.albums = product.albums.map(album => ({
+    ...album,
+    images: album.images.filter(img => (img.src && img.src.length < 4000))
+  }));
+
   return assoc(product,
     'skus', skus,
     'variants', variants
