@@ -57,6 +57,7 @@ export function createEmptySku(): Object {
       retailPrice: emptyPrice,
       salePrice: emptyPrice,
     },
+    albums: [],
   };
 
   return emptySku;

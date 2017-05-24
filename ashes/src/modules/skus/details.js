@@ -14,7 +14,7 @@ import { pushStockItemChanges } from '../inventory/warehouses';
 
 const defaultContext = 'default';
 
-function cleanSkuPayload(payload) {
+function cleanSkuPayload(payload: Sku) {
   const nextAlbums = payload.albums.map(album => ({
     ...album,
     images: album.images.filter(img => (img.src && img.src.length < 4000))

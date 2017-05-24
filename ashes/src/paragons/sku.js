@@ -27,6 +27,7 @@ export function createEmptySku(): Sku {
     attributes: { ...cloneDeep(skuEmptyAttributes) },
     context: {
       name: 'default',
-    }
+    },
+    albums: [],
   };
 }
