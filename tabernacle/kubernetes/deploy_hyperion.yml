@@ -17,6 +17,9 @@ spec:
       containers:
       - name: hyperion
         image: docker-stage.foxcommerce.com:5000/hyperion:master
+        volumeMounts:
+        - mountPath: /keys
+          name: secret-keys
         env:
         - name: AWS_ACCESS_KEY_ID
           valueFrom:
@@ -27,7 +30,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: core-secrets
-              key: aws.secret_key         
+              key: aws.secret_key
         - name: HYPERION_DB_HOST
           valueFrom:
             configMapKeyRef:
@@ -77,6 +80,10 @@ spec:
             port: liveness-port
           initialDelaySeconds: 15
           timeoutSeconds: 1
+      volumes:
+        - name: secret-keys
+          hostPath:
+            path: /etc/keys
 ---
 # Hyperion Load Balancer
 apiVersion: v1

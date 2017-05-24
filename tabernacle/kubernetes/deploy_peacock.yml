@@ -17,6 +17,9 @@ spec:
       containers:
       - name: peacock
         image: docker-stage.foxcommerce.com:5000/peacock:master
+        volumeMounts:
+        - mountPath: /keys
+          name: secret-keys
         env:
         - name: CONTACT_EMAIL
           valueFrom:
@@ -28,10 +31,15 @@ spec:
             secretKeyRef:
               name: core-secrets
               key: mailchimp.api_key
+        - name: PHOENIX_PUBLIC_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: jwt.public_key
         - name: STRIPE_PUBLISHABLE_KEY
           valueFrom:
-            secretKeyRef:
-              name: core-secrets
+            configMapKeyRef:
+              name: core-config
               key: stripe.publishable_key
         ports:
          - name: liveness-port
@@ -42,6 +50,10 @@ spec:
             port: liveness-port
           initialDelaySeconds: 15
           timeoutSeconds: 1
+      volumes:
+        - name: secret-keys
+          hostPath:
+            path: /etc/keys
 ---
 # Peacock Load Balancer
 apiVersion: v1

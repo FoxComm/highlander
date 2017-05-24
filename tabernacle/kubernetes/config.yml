@@ -8,9 +8,10 @@ metadata:
   selfLink: /api/v1/namespaces/default/configmaps/core-config
 data:
   ashes.behind_nginx: true
+  ashes.ga_tracking_id: UA-79356556-1
   ashes.node_env: production
   consumers.topic: scoped_activities
-  consul.db_host: db.service.consul  
+  consul.db_host: db.service.consul
   consul.kafka_address: kafka.service.consul:9092
   consul.schema_registry_url: http://schema-registry.service.consul:8081
   consul.zookeeper_address: zookeeper.service.consul:2181
@@ -27,4 +28,5 @@ data:
   peacock.contact_email: pavel@foxcommerce.com
   peacock.node_env: production
   solomon.token_ttl: 365
+  stripe.publishable_key: pk_test_1H2C9nTZpy8szPmboOEDwdwN
 ---

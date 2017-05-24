@@ -17,6 +17,9 @@ spec:
       containers:
       - name: solomon
         image: docker-stage.foxcommerce.com:5000/solomon:master
+        volumeMounts:
+        - mountPath: /keys
+          name: secret-keys
         env:
         - name: DB_HOST
           valueFrom:
@@ -67,6 +70,11 @@ spec:
             port: liveness-port
           initialDelaySeconds: 15
           timeoutSeconds: 1
+      volumes:
+        - name: secret-keys
+          hostPath:
+            path: /etc/keys
+
 ---
 # Solomon Load Balancer
 apiVersion: v1

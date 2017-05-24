@@ -17,6 +17,9 @@ spec:
       containers:
       - name: isaac
         image: docker-stage.foxcommerce.com:5000/isaac:master
+        volumeMounts:
+        - mountPath: /keys
+          name: secret-keys
         env:
         - name: DB_HOST
           valueFrom:
@@ -52,6 +55,10 @@ spec:
             port: liveness-port
           initialDelaySeconds: 15
           timeoutSeconds: 1
+      volumes:
+        - name: secret-keys
+          hostPath:
+            path: /etc/keys
 ---
 # Isaac Load Balancer
 apiVersion: v1

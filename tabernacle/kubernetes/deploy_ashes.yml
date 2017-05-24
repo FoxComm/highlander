@@ -17,6 +17,9 @@ spec:
       containers:
       - name: ashes
         image: docker-stage.foxcommerce.com:5000/ashes:master
+        volumeMounts:
+        - mountPath: /keys
+          name: secret-keys
         env:
         - name: BEHIND_NGINX
           valueFrom:
@@ -25,7 +28,7 @@ spec:
               key: ashes.behind_nginx
         - name: GA_TRACKING_ID
           valueFrom:
-            secretKeyRef:
+            configMapKeyRef:
               name: core-secrets
               key: ashes.ga_tracking_id
         - name: NODE_ENV
@@ -40,8 +43,8 @@ spec:
               key: jwt.public_key
         - name: STRIPE_PUBLISHABLE_KEY
           valueFrom:
-            secretKeyRef:
-              name: core-secrets
+            configMapKeyRef:
+              name: core-config
               key: stripe.publishable_key
         ports:
          - name: liveness-port
@@ -52,6 +55,10 @@ spec:
             port: liveness-port
           initialDelaySeconds: 15
           timeoutSeconds: 1
+      volumes:
+        - name: secret-keys
+          hostPath:
+            path: /etc/keys
 ---
 # Ashes Load Balancer
 apiVersion: v1
