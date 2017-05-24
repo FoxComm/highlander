@@ -86,7 +86,7 @@ lazy val core = (project in file("core"))
     libraryDependencies ++= baseDependencies
   )
 
-fullAssembly := Def.task().dependsOn(writeVersion in root, assembly in root).value
+fullAssembly := Def.task().dependsOn(writeVersion in root, assembly in phoenix, assembly in seeder).value
 
 // Injected seeds
 val seedCommand = " seeds.Seeds seed --seedAdmins"
