@@ -11,7 +11,7 @@ data:
   ashes.ga_tracking_id: UA-79356556-1
   ashes.node_env: production
   consumers.topic: scoped_activities
-  consul.db_host: db.service.consul
+  consul.db_host: route-db.default.svc.cluster.local
   consul.elasticsearch_url: elasticsearch://elasticsearch.service.consul:9300
   consul.kafka_address: kafka.service.consul:9092
   consul.schema_registry_url: http://schema-registry.service.consul:8081
