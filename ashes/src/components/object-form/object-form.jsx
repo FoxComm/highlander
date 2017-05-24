@@ -1,8 +1,6 @@
-/**
- * @flow
- */
+/* @flow */
 
-import React, { Component, Element } from 'react';
+import React from 'react';
 
 import ContentBox from '../content-box/content-box';
 import ObjectFormInner from './object-form-inner';

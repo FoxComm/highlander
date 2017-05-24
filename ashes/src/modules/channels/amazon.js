@@ -1,10 +1,8 @@
-/**
- * @flow
- */
+/* @flow */
 
 import { createAction, createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
-import Api, { request } from 'lib/api';
+import Api from 'lib/api';
 import schemaFixture from './schema.fixture';
 
 const initialState = {

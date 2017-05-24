@@ -1,11 +1,11 @@
 /** Libs */
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 /**
  * User initials(avatar) box component
  */
-const UserInitials = props => {
+const UserInitials = (props) => {
   return (
     <div className="initials" style={getColor(props)}>{getInitials(props)}</div>
   );

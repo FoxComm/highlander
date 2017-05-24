@@ -94,7 +94,7 @@ lazy val starfish = (project in file("starfish"))
 fullAssembly := Def.task().dependsOn(writeVersion in root, assembly in phoenix, assembly in seeder).value
 
 // Injected seeds
-val seedCommand = " utils.seeds.Seeds seed --seedAdmins"
+val seedCommand = " seeds.Seeds seed --seedAdmins"
 seed     := (runMain in Compile in seeder).partialInput(seedCommand).evaluated
 seedDemo := (runMain in Compile in seeder).partialInput(s"$seedCommand --seedDemo 1").evaluated
 

@@ -8,28 +8,31 @@ import React from 'react';
 import MultiSelectRow from '../../table/multi-select-row';
 import OriginType from '../../common/origin-type';
 
-const setCellContents = (transaction, field) => {
-  const state = _.get(transaction, field);
-
-  switch(field) {
-    case 'debit': return (-1) * _.get(transaction, field, null);
-    case 'transaction': return <OriginType value={transaction}/>;
-    case 'state':
-      return state.charAt(0).toUpperCase() + state.slice(1);
-    default: return _.get(transaction, field, null);
-  }
-};
-
 type Props = {
   storeCreditTransaction: Object,
-  columns: Array<any>,
+  columns: Columns,
   params: Object,
 };
 
 const StoreCreditTransactionRow = (props: Props) => {
   const { storeCreditTransaction, columns, params } = props;
 
-  const key = `sc-transaction-${storeCreditTransaction.id}`;
+  const setCellContents = (transaction: Object, field: string) => {
+    const state = _.get(transaction, field);
+
+    switch(field) {
+      case 'debit':
+        return (-1) * _.get(transaction, field, null);
+      case 'transaction':
+        return (
+          <OriginType value={transaction} />
+        );
+      case 'state':
+        return state.charAt(0).toUpperCase() + state.slice(1);
+      default:
+        return _.get(transaction, field, null);
+    }
+  };
 
   return (
     <MultiSelectRow

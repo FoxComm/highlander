@@ -1,7 +1,4 @@
-
-/**
- * @flow
- */
+/* @flow */
 
 // libs
 import React, { Component, Element } from 'react';
@@ -84,7 +81,7 @@ export default class Coupons extends Component {
   }
 
   @autobind
-  renderRow(row: Object, index: number, columns: Array<any>, params: Object): Element<*> {
+  renderRow(row: Object, index: number, columns: Columns, params: Object): Element<*> {
     const key = `coupon-${row.id}`;
     return (
       <CouponRow
