@@ -281,7 +281,14 @@ export default class LiveSearch extends React.Component {
     const buttonDisabled = searchDisplay.length == 0 || searches.isSavingSearch || this.isDisabled;
 
     if (singleSearch) {
-      return <Button icon="search" onClick={this.handleSearchClick} disabled={buttonDisabled} />;
+      return (
+        <Button
+          className="fc-button-with-menu__left-button"
+          icon="search"
+          onClick={this.handleSearchClick}
+          disabled={buttonDisabled}
+        />
+      );
     }
 
     let menuItems = [];
@@ -639,12 +646,12 @@ export default class LiveSearch extends React.Component {
             <form>
               <PilledInput
                 controls={this.controls}
-                className={classNames({'_active': this.state.isFocused, '_disabled': this.isDisabled})}
+                className={classNames({ '_active': this.state.isFocused, '_disabled': this.isDisabled })}
                 onPillClose={this.handlePillClose}
                 formatPill={this.formatPill}
                 icon={null}
                 pills={this.state.pills}>
-              {/* @todo get back MaskedInput prepend={this.state.searchPrepend} */}
+                {/* @todo get back MaskedInput prepend={this.state.searchPrepend} */}
                 <input
                   className="fc-pilled-input__input-field _no-fc-behavior"
                   mask={this.state.inputMask}

@@ -48,7 +48,7 @@
 
       &:checked {
         & + label {
-          background: #4fc2c9;
+          background: #49cab9;
           color: #fff
         }
       }
