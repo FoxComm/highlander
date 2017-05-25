@@ -540,9 +540,9 @@ export default class Analytics extends React.Component {
   }
 
   isDisabledSegment(segment: SegmentControlType, dateSelectedIndex: number): boolean {
-    const isDaySegment = segment.title !== segmentTitles.day;
+    const isDaySegment = segment.title === segmentTitles.day;
     const isTodayOrYesterdayDateSelected = _.includes([datePickerType.Today, datePickerType.Yesterday], dateSelectedIndex);
-    return isDaySegment && isTodayOrYesterdayDateSelected;
+    return !isDaySegment && isTodayOrYesterdayDateSelected;
   }
 
   get chartFromQuestion() {
