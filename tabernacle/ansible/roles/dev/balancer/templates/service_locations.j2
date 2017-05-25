@@ -272,8 +272,8 @@ location /api/v1/hyperion/ {
     break;
 }
 
-location /admin/styleguide {
-    rewrite ^/.* https://{{storefront_server_name}}/admin/styleguide/ permanent;
+location = /admin/styleguide {
+    rewrite ^ https://{{storefront_server_name}}/admin/styleguide/ permanent;
 }
 
 location /admin/ {
