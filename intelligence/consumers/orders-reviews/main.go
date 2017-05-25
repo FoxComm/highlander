@@ -30,7 +30,7 @@ func main() {
 		log.Fatalf("Unable to connect to Kafka with error %s", err.Error())
 	}
 
-	phoenixClient := phoenix.NewPhoenixCliet(phoenixConfig.URL, phoenixConfig.User, phoenixConfig.Password)
+	phoenixClient := phoenix.NewPhoenixClient(phoenixConfig.URL, phoenixConfig.User, phoenixConfig.Password)
 
 	consumer.SetGroupID(groupId)
 	consumer.SetClientID(clientId)

@@ -43,10 +43,6 @@ type Activity struct {
 	Order Order `json:"order"`
 }
 
-type NewReviewPayload struct {
-	CustID int `json:"custId"`
-}
-
 type StringAttr struct {
 	T string `json:"t"`
 	V string `json:"v"`
