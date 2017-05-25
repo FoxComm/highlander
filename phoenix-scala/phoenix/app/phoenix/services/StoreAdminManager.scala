@@ -44,12 +44,11 @@ object StoreAdminManager {
                                userId = admin.id,
                                state = AdminData.Invited,
                                scope = scope))
-      pwReset ← * <~ doOrGood(
-                   payload.password.isEmpty,
-                   AccountManager.sendResetPassword(admin, payload.email).map(Option(_)),
-                   None)
+      pwSet ← * <~ doOrGood(payload.password.isEmpty,
+                            AccountManager.sendResetPassword(admin, payload.email).map(Option(_)),
+                            None)
 
-      _ ← * <~ LogActivity().storeAdminCreated(admin, author, pwReset.map(_.code))
+      _ ← * <~ LogActivity().storeAdminCreated(admin, author, pwSet.map(_.code))
     } yield StoreAdminResponse.build(admin, adminUser, organization)
   }
 

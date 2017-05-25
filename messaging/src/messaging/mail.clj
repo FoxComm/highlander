@@ -75,12 +75,17 @@
                            :message template}))
 
 (defn extract-password-link
-  [activity]
+  [activity email isAdmin]
   (let [reset-code (get-in activity [:data "code"])
-        reset-pw-link (format (settings/get :reset_password_link_format) reset-code)
-        full-reset-password-link (format "%s/%s" (settings/get :shop_base_url) reset-pw-link)]
+        trim-slash (fn [str] (if (string/ends-with? str "/") (string/join "" (drop-last str)) str))
+        [base-url reset-pw-endpoint] (if isAdmin
+                                       [(trim-slash (settings/get :admin_base_url))
+                                        (format "reset-password?token=%s&email=%s" reset-code email)]
+                                       [(trim-slash (settings/get :shop_base_url))
+                                        (format (settings/get :reset_password_link_format) reset-code)])
+        reset-password-link (format "%s/%s" base-url reset-pw-endpoint)]
 
-    {:reset_password_link full-reset-password-link
+    {:reset_password_link reset-password-link
      :reset_code reset-code}))
 
 
@@ -169,8 +174,10 @@
 
 (defmethod handle-activity :user_remind_password
   [activity]
-  (let [email (get-in activity [:data "user" "email"])
-        reset-pw (extract-password-link activity)
+  (let [data (:data activity)
+        email (get-in data ["user" "email"])
+        isAdmin (get-in activity ["isAdmin"])
+        reset-pw (extract-password-link activity email isAdmin)
         customer-name (get-in activity [:data "user" "name"])]
        (send-template! (settings/get :customer_remind_password_template)
            (gen-msg [{:email email :name customer-name}]
@@ -249,7 +256,7 @@
         email (get-in data ["storeAdmin" "email"])
         new-admin-name (get-in data ["storeAdmin" "name"])
         store-admin-name (get-in data ["admin" "name"])
-        reset-pw (extract-password-link activity)
+        reset-pw (extract-password-link activity email true)
         msg (gen-msg [{:email email :name new-admin-name}]
                      (merge
                      {:user_being_invited new-admin-name

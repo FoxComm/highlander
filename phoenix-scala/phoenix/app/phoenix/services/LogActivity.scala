@@ -184,9 +184,10 @@ class LogActivity(val ac: AC) extends AnyVal {
     }
   }
 
-  def userRemindPassword(user: User, code: String)(implicit ec: EC): DbResultT[Activity] = {
+  def userRemindPassword(user: User, code: String, isAdmin: Boolean)(
+      implicit ec: EC): DbResultT[Activity] = {
     val userResponse = buildUser(user)
-    Activities.log(UserRemindPassword(user = userResponse, code = code))
+    Activities.log(UserRemindPassword(user = userResponse, code = code, isAdmin = isAdmin))
   }
 
   def userPasswordReset(user: User)(implicit ec: EC): DbResultT[Activity] =

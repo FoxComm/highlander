@@ -69,7 +69,8 @@ object AccountManager {
               .activeUserByEmail(Option(email))
               .mustFindOneOr(NotFoundFailure404(User, email))
       updatedResetPw ← * <~ sendResetPassword(user, email)
-      _              ← * <~ LogActivity().userRemindPassword(user, updatedResetPw.code)
+      isAdmin        ← * <~ AdminsData.findByAccountId(user.accountId).one.map(_.nonEmpty)
+      _              ← * <~ LogActivity().userRemindPassword(user, updatedResetPw.code, isAdmin)
     } yield ResetPasswordSendAnswer(status = "ok")
 
   def resetPassword(
