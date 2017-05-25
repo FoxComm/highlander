@@ -10,7 +10,7 @@ import { getStore } from 'lib/store-creator';
 // components
 import SuccessNotification from '../bulk-actions/success-notification';
 import ErrorNotification from '../bulk-actions/error-notification';
-import ErrorAlerts from '../alerts/error-alerts';
+import ApiErrorAlert from 'components/core/utils/api-errors-alert';
 
 
 type Props = {
@@ -79,7 +79,7 @@ class BulkMessages extends Component {
 
     if (error) {
       notifications.push(
-        <ErrorAlerts key="general-error" error={error} closeAction={clearError} />
+        <ApiErrorAlert key="general-error" response={error} closeAction={clearError} />
       );
     }
 

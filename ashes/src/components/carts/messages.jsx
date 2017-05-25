@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import _ from 'lodash';
 
 import Alert from '../alerts/alert';
-import AutoScroll from '../common/auto-scroll';
+import AutoScroll from '../utils/auto-scroll/auto-scroll';
 
 const formatMessage = message => {
   if (message.indexOf('empty cart') != -1) {

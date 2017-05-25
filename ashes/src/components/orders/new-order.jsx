@@ -14,7 +14,7 @@ import { PrimaryButton } from 'components/core/button';
 import BigCheckbox from '../checkbox/big-checkbox';
 import ChooseCustomer from './choose-customer';
 import ChooseCustomerRow from './choose-customer-row';
-import ErrorAlerts from '../alerts/error-alerts';
+import ApiErrorAlert from 'components/core/utils/api-errors-alert';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import PilledInput from '../pilled-search/pilled-input';
@@ -201,7 +201,7 @@ export default class NewOrder extends Component {
                 <h2>Customer</h2>
               </div>
               <div className="fc-order-create__errors fc-col-md-1-1">
-                <ErrorAlerts errors={this.state.errors} />
+                <ApiErrorAlert errors={this.state.errors} />
               </div>
               <div className="fc-order-create__customer-form fc-col-md-1-1">
                 <Form

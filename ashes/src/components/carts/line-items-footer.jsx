@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 
 import SkuResult from './sku-result';
 import Typeahead from 'components/typeahead/typeahead';
-import ErrorAlerts from '../alerts/error-alerts';
+import ApiErrorAlert from 'components/core/utils/api-errors-alert';
 
 import { suggestSkus } from 'modules/skus/suggest';
 import { updateLineItemCount } from 'modules/carts/details';
@@ -77,7 +77,7 @@ export class CartLineItemsFooter extends Component {
           placeholder="Product name or SKU..."
         />
 
-        {updateLineItemErrors && <ErrorAlerts errors={updateLineItemErrors} />}
+        {updateLineItemErrors && <ApiErrorAlert errors={updateLineItemErrors} />}
       </div>
     );
   }

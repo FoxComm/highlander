@@ -12,7 +12,7 @@ import * as CustomerContactActions from '../../modules/customers/contacts';
 import ContentBox from '../content-box/content-box';
 import FormField from '../forms/formfield';
 import Form from '../forms/form';
-import ErrorAlerts from '../alerts/error-alerts';
+import ApiErrorAlert from 'components/core/utils/api-errors-alert';
 import { EditButton } from 'components/core/button';
 import SaveCancel from 'components/core/save-cancel';
 
@@ -148,7 +148,7 @@ export default class CustomerContacts extends React.Component {
       <ContentBox title='Contact Information'
                   className='fc-customer-contacts'
                   actionBlock={ this.actionBlock }>
-        <ErrorAlerts error={this.props.err} closeAction={this.props.cleanErrors} />
+        <ApiErrorAlert response={this.props.err} closeAction={this.props.cleanErrors} />
         <Form className='fc-customer-contacts-form fc-form-vertical'
               onChange={ this.onChange }
               onSubmit={ this.onSubmit }>

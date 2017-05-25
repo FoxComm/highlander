@@ -6,7 +6,7 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
 import Alert from '../alerts/alert';
-import ErrorAlerts from '../alerts/error-alerts';
+import ApiErrorAlert from 'components/core/utils/api-errors-alert';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import { PrimaryButton, SocialButton } from 'components/core/button';
@@ -124,7 +124,7 @@ export default class Login extends Component {
   get errorMessage() {
     const err = this.props.authenticationState.err;
     if (!err) return null;
-    return <ErrorAlerts error={err} />;
+    return <ApiErrorAlert response={err} />;
   }
 
   get content() {

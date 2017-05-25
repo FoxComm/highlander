@@ -4,7 +4,7 @@ import React from 'react';
 import { transitionToLazy } from 'browserHistory';
 
 import Form from 'components/forms/form';
-import ErrorAlerts from 'components/alerts/error-alerts';
+import ApiErrorAlert from 'components/core/utils/api-errors-alert';
 import SaveCancel from 'components/core/save-cancel';
 import DynamicGroupEditor from './editor/group-editor';
 
@@ -26,7 +26,7 @@ export default ({ group, title, onSave, cancelTo, cancelParams, saveInProgress, 
     <header>
       <h1 className="fc-title">{title}</h1>
     </header>
-    <ErrorAlerts error={saveError} />
+    <ApiErrorAlert response={saveError} />
     <article>
       <Form onSubmit={onSave}>
         <DynamicGroupEditor type={params.type} />

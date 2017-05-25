@@ -7,7 +7,7 @@ import _ from 'lodash';
 
 import AutoScroll from 'components/common/auto-scroll';
 import { Dropdown } from 'components/dropdown';
-import ErrorAlerts from 'components/alerts/error-alerts';
+import ApiErrorAlert from 'components/core/utils/api-errors-alert';
 import { Form, FormField } from 'components/forms';
 import NewGiftCard from './new-gift-card';
 import NewStoreCredit from './new-store-credit';
@@ -56,7 +56,7 @@ class NewPayment extends Component {
   };
 
   get errorMessages() {
-    return <ErrorAlerts error={this.props.paymentMethods.err} />;
+    return <ApiErrorAlert response={this.props.paymentMethods.err} />;
   }
 
   get newPaymentMethod() {

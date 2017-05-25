@@ -11,11 +11,11 @@ import { createSelector } from 'reselect';
 // components
 import FormField from '../../forms/formfield';
 import FoxyForm from '../../forms/foxy-form';
-import ErrorAlerts from '../../alerts/error-alerts';
+import ApiErrorAlert from 'components/core/utils/api-errors-alert';
 import SaveCancel from 'components/core/save-cancel';
 import { Dropdown } from '../../dropdown';
 import TextInput from '../../forms/text-input';
-import AutoScroll from '../../common/auto-scroll';
+import AutoScroll from '../../utils/auto-scroll/auto-scroll';
 
 // data
 import * as validators from '../../../lib/validators';
@@ -154,7 +154,7 @@ export default class AddressForm extends React.Component {
   }
 
   get errorMessages() {
-    return <ErrorAlerts error={this.props.err} />;
+    return <ApiErrorAlert error={this.props.err} />;
   }
 
   get formTitle() {

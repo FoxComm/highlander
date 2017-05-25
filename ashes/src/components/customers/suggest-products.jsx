@@ -6,7 +6,7 @@ import { Button } from 'components/core/button';
 
 import Api from 'lib/api';
 import Alert from '../alerts/alert';
-import ErrorAlerts from '../alerts/error-alerts';
+import ApiErrorAlert from 'components/core/utils/api-errors-alert';
 
 function requestSuggester(customerId, phoneNumber) {
   return Api.post(
@@ -47,7 +47,7 @@ export default class CustomerSuggestProducts extends React.Component {
       );
     }
     if(this.state.error) {
-      return <ErrorAlerts error={this.state.error} />;
+      return <ApiErrorAlert response={this.state.error} />;
     }
     return (
       <Button id="customer-suggest-products-btn" onClick={this.onSend}>Send Suggestion</Button>

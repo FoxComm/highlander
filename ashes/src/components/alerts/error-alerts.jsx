@@ -3,7 +3,7 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Alert from './alert';
-import AutoScroll from '../common/auto-scroll';
+import AutoScroll from '../utils/auto-scroll/auto-scroll';
 
 function parseError(err) {
   if (!err) return null;
@@ -11,7 +11,7 @@ function parseError(err) {
   return _.get(err, 'response.body.errors', [err.toString()]);
 }
 
-const ErrorAlerts = props => {
+const ApiErrorAlert = props => {
   let errors = props.errors || parseError(props.error);
 
   if (props.sanitizeError) {
@@ -41,11 +41,11 @@ const ErrorAlerts = props => {
   return null;
 };
 
-ErrorAlerts.propTypes = {
+ApiErrorAlert.propTypes = {
   errors: PropTypes.array,
   error: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   closeAction: PropTypes.func,
   sanitizeError: PropTypes.func,
 };
 
-export default ErrorAlerts;
+export default ApiErrorAlert;

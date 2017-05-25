@@ -8,8 +8,8 @@ import { autobind } from 'core-decorators';
 
 // components
 import ActivityTrail from './activity-trail';
-import ErrorAlerts from '../alerts/error-alerts';
 import Spinner from 'components/core/spinner';
+import ApiErrorAlert from 'components/core/utils/api-errors-alert';
 import { SectionTitle } from '../section-title';
 
 // redux
@@ -83,7 +83,7 @@ class ActivityTrailPage extends Component {
     };
 
     if (fetchState.err) {
-      return <ErrorAlerts error={fetchState.err} />;
+      return <ApiErrorAlert response={fetchState.err} />;
     }
 
     if (!activities.length && fetchState.inProgress) {
