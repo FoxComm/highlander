@@ -6,7 +6,7 @@ set -ue
 rm -rf bigbag
 
 # Clone repository
-git clone https://github.com/kpashka/bigbag.git
+git clone {{target_repo_url}}
 cd bigbag
 
 # Login to Docker Hub
@@ -22,4 +22,4 @@ sed "s/NOW/$(date +%Y-%m-%d:%H:%M:%S)/g" {{webhook_dir}}/storefront.json > {{web
 
 curl --header "Content-Type: application/json" \
     -d @{{webhook_dir}}/latest.json \
-    -XPUT http://{{cloud_demo_server}}/v2/apps/storefront
+    -XPUT http://{{marathon_address}}/v2/apps/storefront

@@ -10,5 +10,13 @@
       prompt: "Enter a hostname with a database to backup"
       default: "webhook"
       private: no
+    - name: "target_repo"
+      prompt: "Enter target repo url"
+      default: "https://github.com/FoxComm/demo-tumi.git"
+      private: no
+    - name: "marathon_address"
+      prompt: "Enter Marathon address"
+      default: "10.0.0.3:8080"
+      private: no
   roles:
     - { role: cloud/webhook }
