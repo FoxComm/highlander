@@ -3,8 +3,11 @@
 - name: Create Hyperion Seeder directory
   file: path="{{hyperion_dir}}/priv/seeds" state=directory
 
+- name: Copy Hyperion Seeder .env
+  template: src=hyperion.env dest="{{hyperion_dir}}/priv/seeds/.env"
+
 - name: Get Latest Hyperion Seeder Image
   shell: docker pull {{docker_registry}}:5000/hyperion-seeder:{{docker_tags.hyperion}}
 
 - name: Run Hyperion Seeder docker container
-  command: docker run -d={{detach}} --network host -e HYPERION_DB_HOST={{docker_db_host}} -e PUSH_CHECK_INTERVAL=100000 {{docker_registry}}:5000/hyperion-seeder:{{docker_tags.hyperion}}
+  command: docker run -d={{detach}} --network host --env-file "{{hyperion_dir}}/priv/seeds/.env" {{docker_registry}}:5000/hyperion-seeder:{{docker_tags.hyperion}}

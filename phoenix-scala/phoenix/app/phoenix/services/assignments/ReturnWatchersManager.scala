@@ -6,7 +6,7 @@ import phoenix.models.{Assignment, NotificationSubscription}
 import phoenix.responses.ReturnResponse._
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.db._
 
 object ReturnWatchersManager extends AssignmentsManager[String, Return] {
 

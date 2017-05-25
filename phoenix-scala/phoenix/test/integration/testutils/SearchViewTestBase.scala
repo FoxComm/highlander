@@ -5,7 +5,7 @@ import org.scalatest.AppendedClues
 import phoenix.utils.aliases.{SF, SL}
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api._
-import utils.db.ExPostgresDriver.api._
+import core.db.ExPostgresDriver.api._
 
 trait SearchViewTestBase
     extends IntegrationTestBase

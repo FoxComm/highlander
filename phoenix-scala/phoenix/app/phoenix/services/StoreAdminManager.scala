@@ -1,7 +1,7 @@
 package phoenix.services
 
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import phoenix.failures.UserFailures._
 import phoenix.models.account._
 import phoenix.models.admin.{AdminData, AdminsData}
@@ -10,7 +10,7 @@ import phoenix.responses.StoreAdminResponse
 import phoenix.services.account._
 import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
-import utils.db._
+import core.db._
 
 object StoreAdminManager {
 

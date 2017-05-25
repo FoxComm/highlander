@@ -1,6 +1,6 @@
 package services
 
-import models.objects.ObjectContexts
+import objectframework.models.ObjectContexts
 import phoenix.models.cord.lineitems._
 import phoenix.models.cord.{OrderShippingMethod, OrderShippingMethods}
 import phoenix.models.product.{Mvp, SimpleContext}
@@ -9,7 +9,7 @@ import phoenix.services.carts.CartTotaler
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class CartTotalerTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 

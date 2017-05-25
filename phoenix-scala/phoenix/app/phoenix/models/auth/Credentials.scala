@@ -1,8 +1,8 @@
 package phoenix.models.auth
 
 import akka.http.scaladsl.model.headers.{GenericHttpCredentials, HttpCredentials}
-import failures.Failures
-import utils.db._
+import core.db._
+import core.failures.Failures
 
 sealed trait Credentials {
   val secret: String

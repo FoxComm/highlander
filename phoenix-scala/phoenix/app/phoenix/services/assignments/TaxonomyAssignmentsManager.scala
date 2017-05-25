@@ -1,12 +1,12 @@
 package phoenix.services.assignments
 
+import core.db._
 import phoenix.models.activity.Dimension
 import phoenix.models.taxonomy._
 import phoenix.models.{Assignment, NotificationSubscription}
 import phoenix.responses.TaxonomyResponses.TaxonomyResponse._
-import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
-import utils.db._
+import slick.jdbc.PostgresProfile.api._
 
 object TaxonomyAssignmentsManager extends AssignmentsManager[Int, Taxonomy] {
   val assignmentType  = Assignment.Assignee

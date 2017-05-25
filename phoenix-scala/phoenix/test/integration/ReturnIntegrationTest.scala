@@ -1,5 +1,5 @@
 import cats.implicits._
-import failures._
+import core.failures._
 import org.scalatest.prop.PropertyChecks
 import phoenix.failures.ReturnFailures._
 import phoenix.failures._

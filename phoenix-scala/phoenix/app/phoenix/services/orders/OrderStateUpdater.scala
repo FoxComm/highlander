@@ -1,7 +1,8 @@
 package phoenix.services.orders
 
 import cats.implicits._
-import failures.NotFoundFailure400
+import core.db._
+import core.failures.NotFoundFailure400
 import phoenix.failures.StateTransitionNotAllowed
 import phoenix.models.account._
 import phoenix.models.cord.Order._
@@ -14,10 +15,9 @@ import phoenix.models.payment.storecredit.StoreCreditAdjustments.scope._
 import phoenix.responses.cord.{AllOrders, OrderResponse}
 import phoenix.responses.{BatchMetadata, BatchMetadataSource}
 import phoenix.services.LogActivity
-import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
 import responses.BatchResponse
-import utils.db._
+import slick.jdbc.PostgresProfile.api._
 
 object OrderStateUpdater {
 

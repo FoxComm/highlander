@@ -1,14 +1,14 @@
 package phoenix.services
 
+import core.db.ExPostgresDriver.api._
 import phoenix.models.cord.CordPaymentState._
-import phoenix.models.cord.{OrderPayment, OrderPayments}
+import phoenix.models.cord.{CordPaymentState, OrderPayment, OrderPayments}
 import phoenix.models.payment.PaymentMethod
 import phoenix.models.payment.creditcard.CreditCardCharges
 import phoenix.models.payment.giftcard.GiftCardAdjustments
 import phoenix.models.payment.storecredit.StoreCreditAdjustments
 import phoenix.utils.aliases.EC
 import slick.dbio.DBIO
-import utils.db.ExPostgresDriver.api._
 
 trait CordQueries {
 
@@ -16,10 +16,7 @@ trait CordQueries {
     for {
       payments  ← OrderPayments.findAllByCordRef(cordRef).result
       payStates ← DBIO.sequence(payments.map(getPaymentState)).map(_.flatten)
-    } yield {
-      if (payStates.contains(Cart) || payments.size != payStates.size || payments.isEmpty) Cart
-      else payStates.deduceCordPaymentState
-    }
+    } yield CordQueries.foldPaymentStates(payStates, payments.size)
 
   private def getPaymentState(payment: OrderPayment)(implicit ec: EC): DBIO[Option[State]] = {
     payment.paymentMethodType match {
@@ -35,5 +32,16 @@ trait CordQueries {
       case PaymentMethod.StoreCredit ⇒
         StoreCreditAdjustments.lastPaymentState(payment.id).map(_.map(fromInStoreState))
     }
+  }
+}
+
+object CordQueries {
+  def foldPaymentStates(paymentStates: Seq[CordPaymentState.State],
+                        rawPaymentsQuantity: ⇒ Int): CordPaymentState.State = {
+    lazy val paymentsQuantity = rawPaymentsQuantity
+
+    if (paymentStates
+          .contains(Cart) || paymentsQuantity == 0 || paymentsQuantity != paymentStates.size) Cart
+    else paymentStates.deduceCordPaymentState
   }
 }

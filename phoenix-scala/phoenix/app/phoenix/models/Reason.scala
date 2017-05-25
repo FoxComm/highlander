@@ -3,7 +3,9 @@ package phoenix.models
 import cats.data.ValidatedNel
 import cats.implicits._
 import com.pellucid.sealerate
-import failures.Failure
+import core.db._
+import core.failures.Failure
+import core.utils.Validation
 import phoenix.models.Reason.{General, ReasonType}
 import phoenix.models.account._
 import phoenix.utils.ADT
@@ -11,8 +13,6 @@ import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
-import utils.Validation
-import utils.db._
 
 case class Reason(id: Int = 0,
                   reasonType: ReasonType = General,

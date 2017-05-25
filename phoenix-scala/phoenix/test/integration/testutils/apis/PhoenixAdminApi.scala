@@ -2,7 +2,7 @@ package testutils.apis
 
 import akka.http.scaladsl.model.HttpResponse
 import cats.implicits._
-import models.objects.ObjectForm
+import objectframework.models.ObjectForm
 import phoenix.models.payment.PaymentMethod
 import phoenix.payloads.ActivityTrailPayloads._
 import phoenix.payloads.AddressPayloads._
@@ -515,9 +515,6 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def active()(implicit aa: TestAdminAuth): HttpResponse =
       GET(shippingMethodsPrefix, aa.jwtCookie.some)
-
-    def searchByRegion(countryCode: String)(implicit aa: TestAdminAuth): HttpResponse =
-      GET(s"$shippingMethodsPrefix/$countryCode", aa.jwtCookie.some)
 
     def forCart(refNum: String)(implicit aa: TestAdminAuth): HttpResponse =
       GET(s"$shippingMethodsPrefix/$refNum", aa.jwtCookie.some)

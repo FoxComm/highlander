@@ -3,13 +3,13 @@ package phoenix.models.shipping
 import java.time.Instant
 
 import com.pellucid.sealerate
+import core.db._
 import phoenix.models.shipping.Shipment._
 import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class Shipment(id: Int = 0,
                     cordRef: String,

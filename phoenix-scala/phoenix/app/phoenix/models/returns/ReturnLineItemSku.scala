@@ -2,11 +2,11 @@ package phoenix.models.returns
 
 import java.time.Instant
 
-import models.objects._
+import core.db.ExPostgresDriver.api._
+import core.db._
+import objectframework.models._
 import phoenix.models.inventory.Skus
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class ReturnLineItemSku(id: Int,
                              returnId: Int,

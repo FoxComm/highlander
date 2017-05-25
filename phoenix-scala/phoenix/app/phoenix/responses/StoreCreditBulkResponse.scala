@@ -1,6 +1,6 @@
 package phoenix.responses
 
-import failures.Failures
+import core.failures.Failures
 
 object StoreCreditBulkResponse {
   case class ItemResult(id: Int,

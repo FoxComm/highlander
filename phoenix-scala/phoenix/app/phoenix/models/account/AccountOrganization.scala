@@ -1,8 +1,8 @@
 package phoenix.models.account
 
+import core.db._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class AccountOrganization(id: Int = 0, accountId: Int, organizationId: Int)
     extends FoxModel[AccountOrganization]

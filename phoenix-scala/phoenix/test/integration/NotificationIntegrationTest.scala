@@ -2,7 +2,7 @@ import java.time.Instant
 
 import akka.stream.scaladsl.Source
 import com.github.tminglei.slickpg.LTree
-import failures._
+import core.failures._
 import org.json4s.Extraction
 import org.json4s.JsonAST._
 import org.json4s.jackson.Serialization.write
@@ -16,7 +16,7 @@ import phoenix.services.NotificationManager
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class NotificationIntegrationTest
     extends IntegrationTestBase

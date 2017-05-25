@@ -2,10 +2,10 @@ package phoenix.models.payment.storecredit
 
 import java.time.Instant
 
-import shapeless._
+import core.db.ExPostgresDriver.api._
+import core.db._
 import phoenix.utils.aliases._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import shapeless._
 
 case class StoreCreditCustom(id: Int = 0,
                              adminId: Int,

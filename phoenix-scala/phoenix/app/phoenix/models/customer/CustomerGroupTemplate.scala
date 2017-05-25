@@ -3,8 +3,8 @@ package phoenix.models.customer
 import phoenix.utils.aliases._
 import shapeless._
 import slick.lifted.Tag
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.db.ExPostgresDriver.api._
+import core.db._
 
 case class CustomerGroupTemplate(id: Int = 0,
                                  name: String,

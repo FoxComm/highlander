@@ -1,17 +1,18 @@
+/* @flow */
+
 // libs
 import _ from 'lodash';
-import { createAction, createReducer } from 'redux-act';
 
 // helpers
 import Api from '../../lib/api';
-import { singularize } from 'fleck';
 import createStore from '../../lib/store-creator';
+import { getPropsByIds } from 'modules/bulk-export/helpers';
 
 // data
-import { initialState, reducers } from '../bulk';
+import { reducers, createExportByIds } from '../bulk';
 
 // TODO remove when https://github.com/FoxComm/phoenix-scala/issues/763 closed
-const preprocessResponse = (results) => {
+const preprocessResponse = (results: Object): Object => {
   const successes = results
     .filter(({success}) => success)
     .map(({id}) => id);
@@ -32,7 +33,7 @@ const preprocessResponse = (results) => {
   };
 };
 
-const parseChangeStateResponse = (results) => {
+const parseChangeStateResponse = (results: Object): Object => {
   const {batch} = preprocessResponse(results);
 
   const successes = _.reduce(batch.success.storeCredit,
@@ -46,8 +47,8 @@ const parseChangeStateResponse = (results) => {
   };
 };
 
-const cancelStoreCredits = (actions, ids, reasonId) =>
-  dispatch => {
+const cancelStoreCredits = (actions: Object, ids: Array<number>, reasonId: number) =>
+  (dispatch: Function) => {
     dispatch(actions.bulkRequest());
     Api.patch('/store-credits', {
       ids,
@@ -66,8 +67,8 @@ const cancelStoreCredits = (actions, ids, reasonId) =>
       );
   };
 
-const changeStoreCreditsState = (actions, ids, state) =>
-  dispatch => {
+const changeStoreCreditsState = (actions: Object, ids: Array<number>, state: string) =>
+  (dispatch: Function) => {
     dispatch(actions.bulkRequest());
     Api.patch('/store-credits', {
       ids,
@@ -85,12 +86,18 @@ const changeStoreCreditsState = (actions, ids, state) =>
       );
   };
 
+const getSC = (getState: Function, ids: Array<number>) => {
+  return getPropsByIds('customers', ids, ['id'], getState(), 'storeCredits');
+};
+
+const exportByIds = createExportByIds(getSC);
 
 const { actions, reducer } = createStore({
   path: 'customers.store-credits.bulk',
   actions: {
     cancelStoreCredits,
     changeStoreCreditsState,
+    exportByIds,
   },
   reducers,
 });
