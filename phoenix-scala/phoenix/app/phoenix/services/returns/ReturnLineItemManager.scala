@@ -2,12 +2,12 @@ package phoenix.services.returns
 
 import cats.implicits._
 import core.db._
+import objectframework.FormShadowGet
 import objectframework.models._
 import phoenix.failures.ReturnFailures._
 import phoenix.models.cord.Orders
 import phoenix.models.cord.lineitems.OrderLineItems
 import phoenix.models.cord.lineitems.OrderLineItems.scope._
-import phoenix.models.product.Mvp
 import phoenix.models.returns.ReturnLineItem.OriginType
 import phoenix.models.returns._
 import phoenix.models.shipping.ShippingMethods
@@ -204,8 +204,8 @@ object ReturnLineItemManager {
       skus.flatMap {
         case (image, (id, reason, quantity, sku, form, shadow)) ⇒
           for {
-            (price, currency) ← Mvp.price(form, shadow)
-            title             ← Mvp.title(form, shadow)
+            (price, currency) ← FormShadowGet.price(form, shadow)
+            title             ← FormShadowGet.title(form, shadow)
           } yield
             ReturnResponse.LineItem.Sku(
                 id = id,
