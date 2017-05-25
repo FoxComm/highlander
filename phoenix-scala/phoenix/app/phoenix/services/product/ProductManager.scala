@@ -109,14 +109,6 @@ object ProductManager extends LazyLogging {
       albums ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
 
       fullSkus ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
-      _ ← * <~ failIf(
-             checkActive && fullSkus
-               .filter(sku ⇒ IlluminatedSku.illuminate(oc, sku).mustBeActive.isRight)
-               .isEmpty, {
-               logger.warn(
-                   s"Product variants for product with id=${oldProduct.model.slug} is archived or inactive")
-               NotFoundFailure404(Product, oldProduct.model.slug)
-             })
       productSkus ← * <~ fullSkus.map(SkuManager.illuminateSku)
 
       variants     ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
@@ -126,14 +118,14 @@ object ProductManager extends LazyLogging {
 
       variantAndSkus ← * <~ getVariantsWithRelatedSkus(fullVariants)
       (variantSkus, variantResponses) = variantAndSkus
-
+      skus                            = if (hasVariants) variantSkus else productSkus
+      _ ← * <~ failIf(checkActive && !skus.exists(_.isActive), {
+           logger.warn(
+               s"Product variants for product with id=${oldProduct.model.slug} is archived or inactive")
+           NotFoundFailure404(Product, oldProduct.model.slug)
+         })
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(oldProduct.model)
-    } yield
-      ProductResponse.build(illuminated,
-                            albums,
-                            if (hasVariants) variantSkus else productSkus,
-                            variantResponses,
-                            taxons)
+    } yield ProductResponse.build(illuminated, albums, skus, variantResponses, taxons)
 
   def updateProduct(productId: ProductReference, payload: UpdateProductPayload)(
       implicit ec: EC,
