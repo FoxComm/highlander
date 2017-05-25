@@ -37,13 +37,13 @@ export default class PromotionForm extends ObjectDetails {
             onChange={this.handleApplyTypeChange}
             name="auto"
             checked={promotion.applyType === 'auto'}>
-            <label htmlFor="autoApplyRadio" styleName="field-label">Promotion is automatically applied</label>
+            Promotion is automatically applied
           </RadioButton>
           <RadioButton id="couponCodeRadio"
             onChange={this.handleApplyTypeChange}
             name="coupon"
             checked={promotion.applyType === 'coupon'}>
-            <label htmlFor="couponCodeRadio" styleName="field-label">Promotion requires a coupon code</label>
+            Promotion requires a coupon code
           </RadioButton>
         </div>
       </FormField>
@@ -66,13 +66,13 @@ export default class PromotionForm extends ObjectDetails {
             onChange={this.handleUsageRulesChange}
             name="true"
             checked={isExclusive === true}>
-            <label htmlFor="isExlusiveRadio">Promotion is exclusive</label>
+            Promotion is exclusive
           </RadioButton>
           <RadioButton id="notExclusiveRadio"
             onChange={this.handleUsageRulesChange}
             name="false"
             checked={isExclusive === false}>
-            <label htmlFor="notExclusiveRadio">Promotion can be used with other promotions</label>
+           Promotion can be used with other promotions
           </RadioButton>
         </div>
       </FormField>

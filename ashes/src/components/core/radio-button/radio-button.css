@@ -70,3 +70,9 @@
     }
   }
 }
+
+.content {
+  height: 18px;
+  font-size: 13px;
+  color: #363636;
+}

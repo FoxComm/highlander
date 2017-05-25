@@ -78,7 +78,7 @@ class CustomerGroupStats extends Component {
         disabled={this.props.isLoading}
         key={period}
       >
-        <label htmlFor={period}>{capitalize(period)}</label>
+        {capitalize(period)}
       </RadioButton>
     ));
   }

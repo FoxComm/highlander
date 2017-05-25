@@ -215,18 +215,22 @@ class CouponCodes extends Component {
     return (
       <ContentBox title="Coupon Code">
         <div>
-          <RadioButton id="singleCouponCodeRadio"
-                       checked={this.props.codeGeneration.bulk === false}
-                       onChange={this.handleSingleSelect} >
-            <label htmlFor="singleCouponCodeRadio" styleName="field-label">Single coupon code</label>
+          <RadioButton
+            id="singleCouponCodeRadio"
+            checked={this.props.codeGeneration.bulk === false}
+            onChange={this.handleSingleSelect}
+          >
+            Single coupon code
           </RadioButton>
         </div>
         {this.singleCouponFormPart}
         <div>
-          <RadioButton id="bulkCouponCodeRadio"
-                       checked={this.props.codeGeneration.bulk === true}
-                       onChange={this.handleBulkSelect} >
-            <label htmlFor="bulkCouponCodeRadio" styleName="field-label">Bulk generate coupon codes</label>
+          <RadioButton
+            id="bulkCouponCodeRadio"
+            checked={this.props.codeGeneration.bulk === true}
+            onChange={this.handleBulkSelect}
+          >
+            Bulk generate coupon codes
           </RadioButton>
         </div>
         {this.bulkCouponFormPart}

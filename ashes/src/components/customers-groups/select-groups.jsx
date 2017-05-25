@@ -141,7 +141,7 @@ class SelectCustomerGroups extends Component {
           checked={this.props.qualifyAll === true}
           onChange={this.handleChangeQualifier}
         >
-          <label htmlFor="qualifyAll">All customers qualify</label>
+          All customers qualify
         </RadioButton>
         <RadioButton
           id="qualifyGroups"
@@ -149,7 +149,7 @@ class SelectCustomerGroups extends Component {
           checked={this.props.qualifyAll === false}
           onChange={this.handleChangeQualifier}
         >
-          <label htmlFor="qualifyGroups">Select customer groups qualify</label>
+          Select customer groups qualify
         </RadioButton>
         {this.customersGroups}
       </div>

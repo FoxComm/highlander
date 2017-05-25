@@ -80,12 +80,12 @@ export default class UsageRules extends Component {
               <RadioButton id="couponUnlimitedUsageTrue"
                 onChange={this.setUnlimitedUsageTrue}
                 checked={this.props.isUnlimitedPerCode}>
-                <label htmlFor="couponUnlimitedUsageTrue" styleName="field-label">Unlimited</label>
+                Unlimited
               </RadioButton>
               <RadioButton id="couponUnlimitedUsageFalse"
                 onChange={this.setUnlimitedUsageFalse}
                 checked={!this.props.isUnlimitedPerCode}>
-                <label htmlFor="couponUnlimitedUsageFalse" styleName="field-label">Limited number</label>
+                Limited number
               </RadioButton>
             </div>
             <div style={{display: this.props.isUnlimitedPerCode ? 'none' : 'block'}}>
@@ -111,12 +111,12 @@ export default class UsageRules extends Component {
               <RadioButton id="couponUnlimitedCustomerUsageTrue"
                 onChange={this.setUnlimitedCustomerUsageTrue}
                 checked={this.props.isUnlimitedPerCustomer}>
-                <label htmlFor="couponUnlimitedCustomerUsageTrue" styleName="field-label">Unlimited</label>
+                Unlimited
               </RadioButton>
               <RadioButton id="couponUnlimitedCustomerUsageFalse"
                 onChange={this.setUnlimitedCustomerUsageFalse}
                 checked={!this.props.isUnlimitedPerCustomer}>
-                <label htmlFor="couponUnlimitedCustomerUsageFalse" styleName="field-label">Limited number</label>
+                Limited number
               </RadioButton>
             </div>
             <div style={{display: this.props.isUnlimitedPerCustomer ? 'none' : 'block'}}>
