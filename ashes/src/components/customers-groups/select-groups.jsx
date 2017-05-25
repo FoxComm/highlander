@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 
 import styles from './select-groups.css';
 
-import RadioButton from '../forms/radio-button';
+import RadioButton from 'components/core/radio-button';
 import Typeahead from '../typeahead/typeahead';
 import PilledInput from '../pilled-search/pilled-input';
 import CustomerGroupRow from './customer-group-row';
