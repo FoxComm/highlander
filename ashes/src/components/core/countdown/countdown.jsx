@@ -13,7 +13,7 @@ type Props = {
   /** Date to start countdown from */
   endDate: string,
   /** Threshold when countdown is in ending state (e.g. 5 minutes till end). moment.js object */
-  endingThreshold?: Object,
+  endingThreshold: Object,
   /** Weather countdown is stopped */
   frozen?: boolean,
   /** Time format */
@@ -33,7 +33,7 @@ export default class Countdown extends Component {
   props: Props;
   state: State = {
     ending: false,
-    difference: 0,
+    difference: '',
   };
 
   static defaultProps: $Shape<Props> = {
@@ -57,22 +57,24 @@ export default class Countdown extends Component {
 
   @autobind
   tick(end: ?string): void {
+    const { endingThreshold, format, frozen, onCountdownFinished } = this.props;
+
     const endDate = end || this.props.endDate;
     const timeLeft = Math.max(0, moment(endDate).utc().diff(moment.utc()));
 
     this.setState({
-      ending: timeLeft < this.props.endingThreshold,
-      difference: moment.utc(timeLeft).format(this.props.format)
+      ending: timeLeft < endingThreshold.asMilliseconds(),
+      difference: moment.utc(timeLeft).format(format)
     });
 
-    if (!timeLeft || this.props.frozen) {
+    if (!timeLeft || frozen) {
       this.stopInterval();
     } else {
       this.startInterval();
     }
 
-    if (!timeLeft && this.props.onCountdownFinished) {
-      this.props.onCountdownFinished();
+    if (!timeLeft && onCountdownFinished) {
+      onCountdownFinished();
     }
   }
 
