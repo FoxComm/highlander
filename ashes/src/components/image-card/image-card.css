@@ -51,7 +51,7 @@
     margin: 23px 10px;
 
     &:hover {
-      color: var(--green-buttons);
+      color: var(--green);
     }
   }
 

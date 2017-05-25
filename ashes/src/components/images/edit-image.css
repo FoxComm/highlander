@@ -16,7 +16,7 @@
 .image {
   overflow: hidden;
   min-width: 50%;
-  min-height: 50%;
+  min-height: 100px;
   width: 70%;
   flex: 1 1 auto;
   margin-right: 20px;
