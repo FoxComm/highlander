@@ -174,8 +174,10 @@ class ImageIntegrationTest
     "POST /v1/albums/:context/images/byUrl" - {
 
       "fail when try to upload image with invalid url" in new Fixture {
-        val payload  = ImagePayload(src = "data:image/gif;base64,R0l//", title = "fox.jpg".some)
-        albumsApi(album.formId).uploadImageByUrl(payload).mustFailWith400(InvalidImageUrl(payload.src))
+        val payload = ImagePayload(src = "data:image/gif;base64,R0l//", title = "fox.jpg".some)
+        albumsApi(album.formId)
+          .uploadImageByUrl(payload)
+          .mustFailWith400(InvalidImageUrl(payload.src))
       }
     }
 
