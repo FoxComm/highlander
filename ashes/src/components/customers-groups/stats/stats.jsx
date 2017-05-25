@@ -94,7 +94,7 @@ class CustomerGroupStats extends Component {
 
     return (
       <div>
-        <div className={s.periods}>
+        <div className={s.periodsContainer}>
           {this.timeframes}
         </div>
         <PanelList className={classNames(s.stats, { [s.loading]: isLoading })}>
