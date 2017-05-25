@@ -4,6 +4,7 @@
   /*padding: 0 10px !important;*/
 
   padding-top: 8px !important;
+  transition: none !important;
 
   &:active {
     box-shadow: none !important;
