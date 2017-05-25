@@ -80,8 +80,9 @@ object AccountManager {
       remind ← * <~ UserPasswordResets
                 .findActiveByCode(code)
                 .mustFindOr(ResetPasswordCodeInvalid(code))
-      user    ← * <~ Users.mustFindByAccountId(remind.accountId)
-      account ← * <~ Accounts.mustFindById404(user.accountId)
+      user         ← * <~ Users.mustFindByAccountId(remind.accountId)
+      account      ← * <~ Accounts.mustFindById404(user.accountId)
+      organization ← * <~ Organizations.mustFindByAccountId(account.id)
       accessMethod ← * <~ AccountAccessMethods
                       .findOneByAccountIdAndName(account.id, "login")
                       .findOrCreate(AccountAccessMethods.create(
@@ -97,7 +98,7 @@ object AccountManager {
                       .one
       _ ← * <~ adminCreated.map(ad ⇒ AdminsData.update(ad, ad.copy(state = AdminData.Active)))
       _ ← * <~ doOrMeh(adminCreated.isEmpty, LogActivity().userPasswordReset(user))
-    } yield ResetPasswordDoneAnswer(status = "ok")
+    } yield ResetPasswordDoneAnswer(email = remind.email, org = organization.name)
   }
 
   def getById(accountId: Int)(implicit ec: EC, db: DB): DbResultT[Root] = {
