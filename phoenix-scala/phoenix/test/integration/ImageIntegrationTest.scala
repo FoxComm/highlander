@@ -172,19 +172,11 @@ class ImageIntegrationTest
     }
 
     "POST /v1/albums/:context/images/byUrl" - {
-      "successfull upload by url" in new Fixture {
-        pending // FIXME: need to mock fetchImageData
-        val payload  = ImagePayload(src = "http://amazon-image.url/1")
-        val response = albumsApi(album.formId).uploadImageByUrl(payload).as[AlbumRoot]
-
-        response.images.length must === (2)
-        response.images.last.src must === ("http://amazon-image.url/1")
-      }
 
       "fail when try to upload image with invalid url" in new Fixture {
         val payload  = ImagePayload(src = "data:image/gif;base64,R0l//", title = "fox.jpg".some)
         val response = albumsApi(album.formId).uploadImageByUrl(payload)
-        response.error must === (InvalidImageUrl(payload.src).description)
+        response.mustFailWith400(InvalidImageUrl(payload.src))
       }
     }
 
