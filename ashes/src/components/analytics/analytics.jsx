@@ -54,6 +54,7 @@ import * as AnalyticsActions from '../../modules/analytics';
 
 // types
 type State = {
+  dateSelectedIndex: number,
   dateRangeBegin: string, // Unix Timestamp
   dateRangeEnd: string, // Unix Timestamp
   dateDisplay: string,
@@ -220,6 +221,7 @@ export class Analytics extends React.Component {
   };
 
   state: State = {
+    dateSelectedIndex: 0,
     dateRangeBegin: moment().startOf('day').unix(),
     dateRangeEnd: moment().unix(),
     dateDisplay: moment().format(datePickerFormat),
@@ -368,6 +370,7 @@ export class Analytics extends React.Component {
       newDateRangeEnd, newDataFetchTimeSize } = this.onDateDropdownChange(selectionIndex);
 
     this.setState({
+      dateSelectedIndex: selectionIndex,
       dateDisplay: displayText,
       dateRangeBegin: newDateRangeBegin,
       dateRangeEnd: newDateRangeEnd,
@@ -535,8 +538,14 @@ export class Analytics extends React.Component {
     }
   }
 
+  isDisabledSegment(segment: SegmentControlType, dateSelectedIndex: number): boolean {
+    const isDaySegment = segment.title === segmentTitles.day;
+    const isTodayOrYesterdayDateSelected = _.includes([datePickerType.Today, datePickerType.Yesterday], dateSelectedIndex);
+    return !isDaySegment && isTodayOrYesterdayDateSelected;
+  }
+
   get chartFromQuestion() {
-    const { question, dataFetchTimeSize, segment, comparisonPeriod } = this.state;
+    const { question, segment, comparisonPeriod, dateSelectedIndex } = this.state;
 
     if (_.isNil(question)) {
       return false;
@@ -545,11 +554,15 @@ export class Analytics extends React.Component {
     const { analytics, segments } = this.props;
 
     if (!_.isNil(analytics.isFetching) && !analytics.isFetching) {
+      const disabledItems = _.filter(segments, segment => this.isDisabledSegment(segment, dateSelectedIndex));
+      const activeSegment = this.isDisabledSegment(segment, dateSelectedIndex) ? segments[0] : segment;
+
       const segmentCtrlList = (
         <SegmentControlList
           items={segments}
+          disabledItems={disabledItems}
           onSelect={this.onSegmentControlSelect}
-          activeSegment={segment}
+          activeSegment={activeSegment}
         />
       );
       const comparisonCancelButtonVisibility = comparisonPeriod.dataFetchTimeSize > 0

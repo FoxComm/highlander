@@ -42,7 +42,7 @@ export default class AuthPages extends Component {
         <Icon name="start" className={s.logo}/>
         {this.body}
         <div className={s.copyright}>
-          © 2016 FoxCommerce. All rights reserved. Privacy Policy. Terms of Use.
+          © 2017 FoxCommerce. All rights reserved. Privacy Policy. Terms of Use.
         </div>
       </div>
     );

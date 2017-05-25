@@ -15,6 +15,7 @@ import type { Props as SegmentControlType } from './segment-control';
 // types
 type Props = {
   items: Array<SegmentControlType>,
+  disabledItems: Array<SegmentControlType>,
   onSelect: Function,
   activeSegment: SegmentControlType,
   legend: string,
@@ -26,6 +27,7 @@ class SegmentControlList extends Component {
 
   static defaultProps = {
     items: [],
+    disabledItems: [],
     onSelect: _.noop,
     activeSegment: _.noop,
     legend: 'X axis',
@@ -34,6 +36,11 @@ class SegmentControlList extends Component {
   get legend() {
     const { legend } = this.props;
     return <div styleName="segment-control-list-legend">{legend}</div>;
+  }
+
+  isDisabled(item: SegmentControlType): boolean {
+    const { disabledItems } = this.props;
+    return _.find(disabledItems, disabledItem => disabledItem.id === item.id);
   }
 
   get segments(): Array<HTMLElement> {
@@ -47,6 +54,7 @@ class SegmentControlList extends Component {
         id={index}
         title={item.title}
         isActive={(activeSegmentId === index)}
+        isDisabled={this.isDisabled(item)}
         onClick={onSelect}
         key={`segment-control-list-${index}`}
         />
