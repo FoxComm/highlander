@@ -13,7 +13,7 @@ import phoenix.failures.AddressFailures.NoDefaultAddressForCustomer
 import phoenix.failures.CartFailures.NoCartFound
 import phoenix.failures.CouponFailures.CouponWithCodeCannotBeFound
 import phoenix.failures.CreditCardFailures.NoDefaultCreditCardForCustomer
-import phoenix.failures.OrderFailures.OnlyOneExternalPaymentIsAllowed
+import phoenix.failures.OrderFailures.{ApplePayIsNotProvided, CreditCardIsNotProvided, NoExternalPaymentsIsProvided, OnlyOneExternalPaymentIsAllowed}
 import phoenix.failures.PromotionFailures.PromotionNotFoundForContext
 import phoenix.models.account._
 import phoenix.models.cord._
@@ -22,7 +22,7 @@ import phoenix.models.cord.lineitems.CartLineItems.scope._
 import phoenix.models.coupon._
 import phoenix.models.inventory.Skus
 import phoenix.models.location.Addresses
-import phoenix.models.payment.applepay.{ApplePayCharge, ApplePayCharges}
+import phoenix.models.payment.applepay.{ApplePayCharge, ApplePayCharges, ApplePayments}
 import phoenix.models.payment.creditcard._
 import phoenix.models.payment.giftcard._
 import phoenix.models.payment.storecredit._
@@ -39,6 +39,7 @@ import phoenix.utils.aliases._
 import phoenix.utils.apis.{Apis, OrderInventoryHold, SkuInventoryHold}
 import slick.jdbc.PostgresProfile.api._
 import core.db._
+import phoenix.models.payment.PaymentMethod
 
 import scala.util.Random
 
@@ -345,64 +346,70 @@ case class Checkout(
       internalPayments = gcTotal + scTotal
       _ ← * <~ doOrMeh(
              grandTotal > internalPayments, // run external payments only if we have to pay more
-             doExternalPayment(grandTotal, internalPayments))
+             doExternalPayment(grandTotal - internalPayments))
 
       mutatingResult = externalCalls.authPaymentsSuccess = true // fixme is this flag used anywhere? @aafa
     } yield {}
 
-  // do only one external payment. Check AP first, pay if it present otherwise try CC charge
-  private def doExternalPayment(orderTotal: Int, internalPaymentTotal: Int): DbResultT[Unit] = {
-    for {
-      // make sure that exactly one external payment (grouped by type) is found, funds sufficiency check will be running later on
-      orderPayments ← * <~ OrderPayments.findAllExternalPayments(cart.refNum).result
-      _ ← * <~ failIfNot(orderPayments.groupBy(_.paymentMethodType).size == 1,
-                         OnlyOneExternalPaymentIsAllowed)
+  private def doExternalPayment(authAmount: Int): DbResultT[Unit] = {
+    require(authAmount > 0)
 
-      ap ← * <~ authApplePay(orderTotal, internalPaymentTotal)
-      _  ← * <~ doOrMeh(ap.isEmpty, authCreditCard(orderTotal, internalPaymentTotal))
-    } yield ()
+    for {
+      orderPayments ← * <~ OrderPayments.findAllExternalPayments(cart.refNum).result
+
+      _ ← * <~ failIf(orderPayments.isEmpty, NoExternalPaymentsIsProvided)
+      _ ← * <~ failIf(orderPayments.groupBy(_.paymentMethodType).size > 1,
+                      OnlyOneExternalPaymentIsAllowed)
+
+      // auth first payment we got
+    } yield (authOneExternalPayment(authAmount, orderPayments.head))
   }
 
-  private def authCreditCard(orderTotal: Int,
-                             internalPaymentTotal: Int): DbResultT[Option[CreditCardCharge]] = {
+  private def authOneExternalPayment(authAmount: Int,
+                                     orderPayment: OrderPayment): DbResultT[Unit] = {
+    orderPayment.paymentMethodType match {
+      case PaymentMethod.ApplePay   ⇒ authApplePay(authAmount, orderPayment)
+      case PaymentMethod.CreditCard ⇒ authCreditCard(authAmount, orderPayment)
+      case _                        ⇒
+    }
 
-    val authAmount   = orderTotal - internalPaymentTotal
-    val cardNotFound = GeneralFailure("Credit card not found")
+    DbResultT.unit
+  }
+
+  private def authCreditCard(authAmount: Int,
+                             orderPayment: OrderPayment): DbResultT[Option[CreditCardCharge]] = {
 
     for {
-      pmt  ← * <~ OrderPayments.findAllCreditCardsForOrder(cart.refNum).mustFindOneOr(cardNotFound)
-      card ← * <~ CreditCards.filter(_.id === pmt.paymentMethodId).mustFindOneOr(cardNotFound)
+      card ← * <~ CreditCards
+              .filter(_.id === orderPayment.paymentMethodId)
+              .mustFindOneOr(CreditCardIsNotProvided)
 
       stripeCharge ← * <~ apis.stripe.authorizeAmount(card.gatewayCardId,
                                                       authAmount,
                                                       cart.currency,
                                                       card.gatewayCustomerId.some)
 
-      ourCharge = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
+      ourCharge = CreditCardCharge.authFromStripe(card, orderPayment, stripeCharge, cart.currency)
       _       ← * <~ LogActivity().creditCardAuth(cart, ourCharge)
       created ← * <~ CreditCardCharges.create(ourCharge)
     } yield created.some
   }
 
-  private def authApplePay(orderTotal: Int,
-                           internalPaymentTotal: Int): DbResultT[Option[ApplePayCharge]] = {
+  private def authApplePay(authAmount: Int,
+                           orderPayment: OrderPayment): DbResultT[Option[ApplePayCharge]] = {
 
-    val authAmount = orderTotal - internalPaymentTotal
+    for {
+      applePay ← * <~ ApplePayments
+                  .filter(_.id === orderPayment.paymentMethodId)
+                  .mustFindOneOr(ApplePayIsNotProvided)
 
-    (for {
-      op ← OrderPayments.applePayByCordRef(cart.refNum)
-      ap ← op.applePayment
-    } yield (op, ap)).one.dbresult.flatMap {
-      case Some((orderPayment, applePay)) ⇒
-        for {
-          stripeCharge ← * <~ apis.stripe
-                          .authorizeAmount(applePay.stripeTokenId, authAmount, cart.currency)
-          ourCharge = ApplePayCharges
-            .authFromStripe(applePay, orderPayment, stripeCharge, cart.currency)
-          created ← * <~ ApplePayCharges.create(ourCharge)
-        } yield created.some
-      case _ ⇒ DbResultT.none // do nothing if apple pay is not there
-    }
+      stripeCharge ← * <~ apis.stripe
+                      .authorizeAmount(applePay.stripeTokenId, authAmount, cart.currency)
+      ourCharge = ApplePayCharges
+        .authFromStripe(applePay, orderPayment, stripeCharge, cart.currency)
+      created ← * <~ ApplePayCharges.create(ourCharge)
+    } yield created.some
+
   }
 
   //TODO: Replace with the real deal once we figure out how to do it.

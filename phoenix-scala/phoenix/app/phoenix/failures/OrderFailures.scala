@@ -19,6 +19,18 @@ object OrderFailures {
     def description: String = "Only one external payment is allowed!"
   }
 
+  case object NoExternalPaymentsIsProvided extends Failure {
+    def description: String = "No external payments is provided!"
+  }
+
+  case object ApplePayIsNotProvided extends Failure {
+    def description: String = "No Apple Pay payment is provided!"
+  }
+
+  case object CreditCardIsNotProvided extends Failure {
+    def description: String = "No credit card is provided!"
+  }
+
   case class OrderUpdateFailure(referenceNumber: String, reason: String) extends Failure {
     override def description = reason
   }
