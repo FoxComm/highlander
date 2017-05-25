@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import _ from 'lodash';
 
-import Alert from '../alerts/alert';
+import Alert from 'components/core/alert';
 import AutoScroll from 'components/utils/auto-scroll';
 
 const formatMessage = message => {

@@ -5,7 +5,7 @@ import React from 'react';
 
 // components
 import ConfirmationDialog from '../modal/confirmation-dialog';
-import Alert from '../alerts/alert';
+import Alert from 'components/core/alert';
 
 type Props = {
   title: string,

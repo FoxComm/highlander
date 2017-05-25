@@ -5,7 +5,7 @@ import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
-import Alert from '../alerts/alert';
+import Alert from 'components/core/alert';
 import { ApiErrors } from 'components/utils/errors';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';

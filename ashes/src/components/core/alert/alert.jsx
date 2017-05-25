@@ -13,7 +13,7 @@ const SUCCESS = 'success';
 
 type Props = {
   /** Alert type. error|warning|success */
-  type: ERROR | WARNING | SUCCESS,
+  type: 'error' | 'warning' | 'success', // https://github.com/facebook/flow/issues/2377
   /** Alert close callback */
   closeAction: () => any,
   /** Alert content */

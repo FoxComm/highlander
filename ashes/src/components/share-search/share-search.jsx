@@ -15,7 +15,7 @@ import ContentBox from '../content-box/content-box';
 import { PrimaryButton } from 'components/core/button';
 import Spinner from 'components/core/spinner';
 import AdminsTypeahead from '../users-typeahead/admins-typeahead';
-import Alert from '../alerts/alert';
+import Alert from 'components/core/alert';
 
 // styles
 import s from './share-search.css';

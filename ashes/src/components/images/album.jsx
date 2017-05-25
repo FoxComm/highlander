@@ -9,7 +9,7 @@ import React, { Component, Element } from 'react';
 
 // components
 import ConfirmationDialog from '../modal/confirmation-dialog';
-import Alert from '../alerts/alert';
+import Alert from 'components/core/alert';
 import AlbumWrapper from './album-wrapper/album-wrapper';
 import EditAlbum from './edit-album';
 import Upload from '../upload/upload';

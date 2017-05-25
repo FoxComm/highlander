@@ -7,16 +7,16 @@ import React from 'react';
 // components
 import Errors from './errors';
 
-type Props = ErrorAlertProps & {
+type Props = {
   /** Api response object */
   response: ?Object,
   /** Alert close callback */
-  closeAction: CloseAction,
+  closeAction: () => any,
   /** Function to process error before rendering */
-  sanitizeError: (error: Error) => any,
+  sanitizeError: (error: string) => string,
 };
 
-function getErrorsFromResponse(response: Object): Array<string> {
+function getErrorsFromResponse(response: ?Object): Array<string> {
   if (!response) return [];
 
   return get(response, 'response.body.errors', [response.toString()]);

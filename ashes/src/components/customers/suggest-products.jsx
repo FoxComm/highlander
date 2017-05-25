@@ -5,7 +5,7 @@ import ContentBox from '../content-box/content-box';
 import { Button } from 'components/core/button';
 
 import Api from 'lib/api';
-import Alert from '../alerts/alert';
+import Alert from 'components/core/alert';
 import { ApiErrors } from 'components/utils/errors';
 
 function requestSuggester(customerId, phoneNumber) {

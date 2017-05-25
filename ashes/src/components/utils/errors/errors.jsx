@@ -19,12 +19,12 @@ type Props = {
   /** Alert close callback */
   closeAction: CloseAction,
   /** Function to process error before rendering */
-  sanitizeError: (error: string) => any,
+  sanitizeError: (error: string) => string,
   /** Additional className */
   className?: string,
 };
 
-const renderError = (closeAction: CloseAction) => (error: Error, index: number) => {
+const renderError = (closeAction: CloseAction) => (error: string, index: number) => {
   const handleClose = closeAction ? () => closeAction(error) : null;
 
   return (

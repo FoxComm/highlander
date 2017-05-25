@@ -10,7 +10,7 @@ import * as PaymentMethodActions from 'modules/carts/payment-methods';
 
 import DebitCredit from 'components/payment-row/debit-credit';
 import { Form, FormField } from 'components/forms';
-import Alert from '../alerts/alert';
+import Alert from 'components/core/alert';
 
 function mapStateToProps(state) {
   return {
