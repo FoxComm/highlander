@@ -30,7 +30,8 @@ class MyReviews extends Component {
 
   componentWillMount() {
     if (_.get(this.props.auth, 'jwt')) {
-      this.props.fetchReviews().catch((ex) => {
+      const userId = this.props.auth.user.id;
+      this.props.fetchReviewsForUser(userId).catch((ex) => {
         this.setState({
           error: ex.toString(),
         });
