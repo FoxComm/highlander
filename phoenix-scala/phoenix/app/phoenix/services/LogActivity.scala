@@ -15,6 +15,7 @@ import phoenix.models.coupon.{Coupon, CouponCode}
 import phoenix.models.customer.CustomerGroup
 import phoenix.models.location.Region
 import phoenix.models.payment.PaymentMethod
+import phoenix.models.payment.applepay.{ApplePayCharge, ApplePayment}
 import phoenix.models.payment.creditcard.{CreditCard, CreditCardCharge}
 import phoenix.models.payment.giftcard.GiftCard
 import phoenix.models.payment.storecredit.StoreCredit
@@ -28,12 +29,12 @@ import phoenix.payloads.ReturnPayloads.{ReturnShippingCostLineItemPayload, Retur
 import phoenix.payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
 import phoenix.responses.CategoryResponses.FullCategoryResponse
 import phoenix.responses.CouponResponses.CouponResponse
-import phoenix.responses.CreditCardsResponse.{buildSimple ⇒ buildCc}
-import phoenix.responses.CustomerResponse.{Root ⇒ CustomerResponse}
+import phoenix.responses.CreditCardsResponse.{buildSimple => buildCc}
+import phoenix.responses.CustomerResponse.{Root => CustomerResponse}
 import phoenix.responses.ProductResponses.ProductResponse
 import phoenix.responses.PromotionResponses.PromotionResponse
 import phoenix.responses.SkuResponses.SkuResponse
-import phoenix.responses.UserResponse.{Root ⇒ UserResponse, build ⇒ buildUser}
+import phoenix.responses.UserResponse.{Root => UserResponse, build => buildUser}
 import phoenix.responses._
 import phoenix.responses.cord.{CartResponse, OrderResponse}
 import phoenix.services.LineItemUpdater.foldQuantityPayload
@@ -345,6 +346,15 @@ case class LogActivity(implicit ac: AC) {
             cordRef = cart.refNum,
             orderNum = cart.refNum,
             cardId = charge.creditCardId,
+            amount = charge.amount,
+            currency = charge.currency
+        ))
+
+  def applePayAuth(ap: ApplePayment, charge: ApplePayCharge)(implicit ec: EC): DbResultT[Activity] =
+    Activities.log(
+      ApplePayAuthCompleted(
+            accountId = ap.accountId,
+            stripeTokenId = ap.stripeTokenId,
             amount = charge.amount,
             currency = charge.currency
         ))

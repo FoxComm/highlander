@@ -407,6 +407,7 @@ case class Checkout(
                       .authorizeAmount(applePay.stripeTokenId, authAmount, cart.currency)
       ourCharge = ApplePayCharges
         .authFromStripe(applePay, orderPayment, stripeCharge, cart.currency)
+      _       ← * <~ LogActivity().applePayAuth(applePay, ourCharge)
       created ← * <~ ApplePayCharges.create(ourCharge)
     } yield created.some
 
