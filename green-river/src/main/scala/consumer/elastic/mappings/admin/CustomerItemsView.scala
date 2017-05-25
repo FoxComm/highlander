@@ -22,7 +22,7 @@ final case class CustomerItemsView()(implicit ec: EC) extends AvroTransformer {
       // Order
       field("orderReferenceNumber", StringType).analyzer("upper_cased"),
       field("orderPlacedAt", DateType).format(dateFormat),
-      field("lineItemState", String).index("not_analyzed"),
+      field("lineItemState", StringType).index("not_analyzed"),
       // Save for later
       field("savedForLaterAt", DateType).format(dateFormat)
   )

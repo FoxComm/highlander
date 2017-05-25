@@ -8,9 +8,9 @@ create table customer_items_view (
   customer_email generic_string not null,
   sku_code generic_string not null,
   sku_title generic_string not null,
-  sku_price integer not null,
+  sku_price text not null,
   order_reference_number reference_number not null,
   order_placed_at text,
   line_item_state text,
-  saved_for_later_at text,
+  saved_for_later_at text
 );
