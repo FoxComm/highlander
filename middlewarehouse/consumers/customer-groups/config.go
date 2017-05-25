@@ -13,7 +13,7 @@ const (
 )
 
 const (
-	DefaultSleepInterval = "5s"
+	DefaultSleepInterval = "100ms"
 )
 
 type agentConfig struct {
