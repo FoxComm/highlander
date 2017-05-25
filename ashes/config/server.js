@@ -1,8 +1,5 @@
 'use strict';
 
-const
-  path = require('path');
-
 module.exports = function(env) {
   function port() {
     switch(env.environment) {
@@ -12,7 +9,6 @@ module.exports = function(env) {
   }
 
   return {
-    port: port(),
-    publicDir: path.resolve('public')
+    port: port()
   };
 };

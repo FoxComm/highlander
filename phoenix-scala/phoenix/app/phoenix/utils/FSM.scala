@@ -1,7 +1,7 @@
 package phoenix.utils
 
 import cats.implicits._
-import failures.Failures
+import core.failures.Failures
 import phoenix.failures.StateTransitionNotAllowed
 import shapeless._
 

@@ -5,9 +5,9 @@ import cats.implicits._
 import com.pellucid.sealerate
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.StrictLogging
+import core.utils.friendlyClassName
 import pureconfig._
 import shapeless._
-import utils.friendlyClassName
 
 import scala.reflect._
 import scala.util.{Failure, Success, Try}

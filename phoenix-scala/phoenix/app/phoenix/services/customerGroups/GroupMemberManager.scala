@@ -2,7 +2,7 @@ package phoenix.services.customerGroups
 
 import cats.implicits._
 import phoenix.failures.CustomerGroupFailures.CustomerGroupMemberPayloadContainsSameIdsInBothSections
-import failures.{NotFoundFailure400, NotFoundFailure404}
+import core.failures.{NotFoundFailure400, NotFoundFailure404}
 import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 import phoenix.models.account.{User, Users}
@@ -20,8 +20,8 @@ import phoenix.services.customers.CustomerManager
 import phoenix.utils.ElasticsearchApi
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.db.ExPostgresDriver.api._
+import core.db._
 
 object GroupMemberManager {
 

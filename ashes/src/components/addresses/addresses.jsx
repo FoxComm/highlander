@@ -37,7 +37,7 @@ const Addresses = props => {
 
 const renderContent = (props) => {
   return (
-    <ul id="fct-customer-addresses-list" className="fc-addresses-list fc-float-list">
+    <ul id="fct-customer-addresses-list" className="fc-float-list">
       {props.processContent(
         props.addresses.map((address, idx) => props.createAddressBox(address, idx, props))
       )}

@@ -10,7 +10,15 @@ begin
       end into skus
     from product_sku_links as link
     inner join skus as sku on (sku.id = link.right_id)
-    where link.left_id = $1;
+    inner join object_forms as form on (form.id = sku.form_id)
+    inner join object_shadows as shadow on (shadow.id = sku.shadow_id)
+    where
+      link.left_id = $1
+      and ((sku.archived_at is null or (sku.archived_at)::timestamp > statement_timestamp()) and
+           ((form.attributes ->> (shadow.attributes -> 'activeFrom' ->> 'ref')) = '') is false and
+           (form.attributes->>(shadow.attributes->'activeFrom'->>'ref'))::timestamp < statement_timestamp() and
+           (((form.attributes->>(shadow.attributes->'activeTo'->>'ref')) = '') is not false or
+           ((form.attributes->>(shadow.attributes->'activeTo'->>'ref'))::timestamp >= statement_timestamp())));
   if (skus = '[]'::jsonb) then
     select
       case when count(sku) = 0

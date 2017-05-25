@@ -1,14 +1,14 @@
 package phoenix.services.assignments
 
-import failures.NotFoundFailure404
-import phoenix.models.coupon.Coupon
-import models.objects.{ObjectForm, ObjectForms}
+import core.db._
+import core.failures.NotFoundFailure404
+import objectframework.models.{ObjectForm, ObjectForms}
 import phoenix.models.activity.Dimension
+import phoenix.models.coupon.Coupon
 import phoenix.models.{Assignment, NotificationSubscription}
 import phoenix.responses.CouponResponses.CouponFormResponse._
-import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
-import utils.db._
+import slick.jdbc.PostgresProfile.api._
 
 object CouponAssignmentsManager extends AssignmentsManager[Int, ObjectForm] {
 

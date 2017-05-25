@@ -1,14 +1,14 @@
 package phoenix.models.discount
 
+import objectframework.FormShadowGet.priceAsInt
 import phoenix.models.cord.lineitems.LineItemProductData
-import phoenix.models.product.Mvp
 
 /**
   * Methods, used across offers and qualifiers
   */
 trait DiscountBase {
 
-  def price[A](data: LineItemProductData[A]): Int = Mvp.priceAsInt(data.skuForm, data.skuShadow)
+  def price[A](data: LineItemProductData[A]): Int = priceAsInt(data.skuForm, data.skuShadow)
 
   def unitsByProducts(lineItems: Seq[LineItemProductData[_]], formIds: Seq[String]): Int =
     lineItems.foldLeft(0) { (sum, data) ⇒

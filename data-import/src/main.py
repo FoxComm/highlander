@@ -104,7 +104,7 @@ class Elasticsearch:
 
         response = self.do_query('taxons_search_view')
         taxonomies = [read_item(item) for item in response["result"] if
-                      (item['context'] == 'default' and item['archivedAt'] is None)]
+                      ('context' in item and item['context'] == 'default' and item['archivedAt'] is None)]
         return taxonomies
 
     def get_products(self):

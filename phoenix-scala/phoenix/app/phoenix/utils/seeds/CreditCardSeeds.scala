@@ -1,8 +1,8 @@
 package phoenix.utils.seeds
 
+import core.db._
 import phoenix.models.payment.creditcard._
 import phoenix.utils.seeds.generators.CreditCardGenerator
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

@@ -1,9 +1,9 @@
 package phoenix.services
 
+import core.db._
 import phoenix.failures.CartFailures.CustomerHasNoCart
 import phoenix.models.account.User
 import phoenix.models.cord._
-import utils.db._
 
 package object carts {
 

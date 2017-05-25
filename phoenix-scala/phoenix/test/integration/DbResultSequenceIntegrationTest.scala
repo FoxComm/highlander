@@ -1,9 +1,9 @@
 import cats.data._
 import cats.implicits._
-import failures._
+import core.failures._
 import phoenix.models.account._
 import testutils._
-import utils.db._
+import core.db._
 
 class DbResultSequenceIntegrationTest extends IntegrationTestBase {
 

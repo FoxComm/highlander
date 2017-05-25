@@ -15,7 +15,7 @@ import phoenix.models.payment.InStorePaymentStates
 import phoenix.models.payment.creditcard.CreditCardCharge
 import phoenix.services.CordQueries
 import phoenix.utils.{ADT, ADTTypeHints, JsonFormatters}
-import utils.Strings._
+import core.utils.Strings._
 
 object EntityExportPayloads {
 

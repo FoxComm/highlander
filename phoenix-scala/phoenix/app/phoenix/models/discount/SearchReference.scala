@@ -2,13 +2,13 @@ package phoenix.models.discount
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import core.db._
 import org.json4s.JsonAST.JObject
 import phoenix.models.discount.SearchReference._
 import phoenix.models.sharedsearch.SharedSearches
 import phoenix.utils.ElasticsearchApi.{Buckets, ScopedSearchView, SearchView}
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
-import utils.db._
 
 import scala.concurrent.Future
 

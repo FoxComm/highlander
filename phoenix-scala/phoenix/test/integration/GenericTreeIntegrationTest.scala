@@ -1,5 +1,5 @@
 import com.github.tminglei.slickpg.LTree
-import models.objects.{ObjectContexts, ObjectForm, ObjectForms}
+import objectframework.models.{ObjectContexts, ObjectForm, ObjectForms}
 import org.json4s.JsonDSL._
 import phoenix.failures.TreeFailures._
 import phoenix.models.tree._
@@ -9,7 +9,7 @@ import phoenix.responses.GenericTreeResponses.TreeResponse
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
-import utils.db._
+import core.db._
 
 class GenericTreeIntegrationTest
     extends IntegrationTestBase

@@ -1,7 +1,8 @@
 package phoenix.models.discount.offers
 
 import cats.implicits._
-import failures._
+import core.db._
+import core.failures._
 import phoenix.failures.DiscountFailures.SearchFailure
 import phoenix.models.cord.lineitems.CartLineItemAdjustment._
 import phoenix.models.cord.lineitems.{CartLineItemAdjustment ⇒ Adjustment}
@@ -10,7 +11,6 @@ import phoenix.models.discount.offers.Offer.OfferResult
 import phoenix.utils.ElasticsearchApi.Buckets
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
-import utils.db._
 
 trait Offer extends DiscountBase {
 

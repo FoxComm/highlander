@@ -5,7 +5,7 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import phoenix.utils.FoxConfig
 import slick.jdbc.PostgresProfile.api._
-import utils.Money.Currency._
+import core.utils.Money.Currency._
 
 import scala.concurrent.duration._
 

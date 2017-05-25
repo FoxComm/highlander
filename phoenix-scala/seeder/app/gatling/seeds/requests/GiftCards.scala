@@ -7,8 +7,8 @@ import org.json4s.jackson.Serialization.{write ⇒ json}
 import phoenix.models.Reason
 import phoenix.payloads.GiftCardPayloads._
 import phoenix.payloads.PaymentPayloads.GiftCardPayment
-import utils.Money.Currency
-import utils.Strings._
+import core.utils.Money.Currency
+import core.utils.Strings._
 
 import scala.util.Random
 

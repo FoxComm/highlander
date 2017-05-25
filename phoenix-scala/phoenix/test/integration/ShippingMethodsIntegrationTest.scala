@@ -1,4 +1,4 @@
-import models.objects.ObjectContexts
+import objectframework.models.ObjectContexts
 import org.json4s.jackson.JsonMethods._
 import phoenix.failures.AddressFailures.NoCountryFound
 import phoenix.models.cord.OrderShippingAddresses
@@ -14,7 +14,7 @@ import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class ShippingMethodsIntegrationTest
     extends IntegrationTestBase

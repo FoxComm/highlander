@@ -9,6 +9,9 @@
   /* Fucks up the gear icon/button that toggles the columns for tables in Chrome 58.03 for linux*/
   /*padding: 0 10px !important;*/
 
+  padding-top: 8px !important;
+  transition: none !important;
+
   &:active {
     box-shadow: none !important;
   }

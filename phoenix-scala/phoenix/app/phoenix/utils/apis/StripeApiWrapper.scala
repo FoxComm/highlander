@@ -1,8 +1,8 @@
 package phoenix.utils.apis
 
 import com.stripe.model.{DeletedCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
+import core.db._
 import phoenix.utils.aliases.stripe._
-import utils.db._
 
 /**
   * Low-level wrapper for Stripe API

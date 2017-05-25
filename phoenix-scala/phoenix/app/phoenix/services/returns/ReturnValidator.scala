@@ -1,11 +1,11 @@
 package phoenix.services.returns
 
-import failures.{Failure, Failures}
+import core.failures.{Failure, Failures}
 import phoenix.failures.ReturnFailures.EmptyReturn
 import phoenix.models.returns._
 import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
-import utils.db._
+import core.db._
 
 trait ReturnValidation {
   def validate: DbResultT[ReturnValidatorResponse]

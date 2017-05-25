@@ -4,14 +4,14 @@
 
 * node
 
-5.1.0 or above is required version for Ashes.
+>= 7.0.0 is required version for Ashes.
 To install this or anothers versions of node you can use [brew](http://brew.sh), [nvm](https://github.com/creationix/nvm) or [n](https://github.com/tj/n) node version manager.
 
-If using nvm, run the following to install the version listed in `.nvmrc`. For example, if using node `v5.1.0`, follow these commands:
+If using nvm, run the following to install the version listed in `.nvmrc`. For example, if using node `v7.7.1`, follow these commands:
 
 ```
-nvm install 5.1.0
-nvm use 5.1.0
+nvm install 7.7.1
+nvm use 7.7.1
 ```
 
 For installing prerequisites for ubuntu:
