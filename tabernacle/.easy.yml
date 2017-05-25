@@ -103,6 +103,10 @@ shortcuts:
     alias: selenium.yml
     target: ansible/ops_selenium.yml
 
+  - name: Setup Webhook Server
+    alias: webhook.yml
+    target: ansible/ops_webhook.yml
+
   # Goldrush
   - name: Generate Goldrush Configuration
     alias: goldrush_cfg.yml
@@ -236,8 +240,6 @@ shortcuts:
     aliases:
       ark: terraform/envs/gce_ark/terraform.tfstate
       branches: terraform/envs/gce_branches/terraform.tfstate
-      branches2: terraform/envs/gce_branches2/terraform.tfstate
-      cloud: terraform/envs/gce_cloud/terraform.tfstate
       dev: terraform/envs/gce_dev/terraform.tfstate
       demo: terraform/envs/gce_demo/terraform.tfstate
       staging: terraform/envs/gce_staging/terraform.tfstate
@@ -249,7 +251,6 @@ shortcuts:
     aliases:
       ark: terraform/envs/gce_ark/ark.tfvars
       branches: terraform/envs/gce_branches/branches.tfvars
-      cloud: terraform/envs/gce_cloud/cloud.tfvars
       dev: terraform/envs/gce_dev/dev.tfvars
       demo: terraform/envs/gce_demo/demo.tfvars
       staging: terraform/envs/gce_staging/staging.tfvars
@@ -260,10 +261,6 @@ shortcuts:
   - name: Ark Production
     alias: ark
     target: terraform/base/gce_ark
-
-  - name: FoxCommerce Cloud
-    alias: cloud
-    target: terraform/base/gce_cloud
 
   - name: Feature Branch Instances
     alias: branches
