@@ -3,11 +3,11 @@
 set -ue
 
 # Clean checkout
-rm -rf bigbag
+rm -rf {{clone_dirname}}
 
 # Clone repository
 git clone {{target_repo_url}}
-cd bigbag
+cd {{clone_dirname}}
 
 # Login to Docker Hub
 source {{webhook_dir}}/.dockercfg

@@ -14,6 +14,10 @@
       prompt: "Enter target repo url"
       default: "https://github.com/FoxComm/demo-tumi.git"
       private: no
+    - name: "clone_dirname"
+      prompt: "Enter clone directory name"
+      default: "demo-tumi"
+      private: no
     - name: "marathon_address"
       prompt: "Enter Marathon address"
       default: "10.0.0.3:8080"
