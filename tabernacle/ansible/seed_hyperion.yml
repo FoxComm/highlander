@@ -6,9 +6,7 @@
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     with_base_seeds: false
-    with_gatling_seeder: false
     with_mwh_seeder: false
-    with_hyperion_seeder: true
     with_data_import: false
   vars_prompt:
     - name: "hostname"

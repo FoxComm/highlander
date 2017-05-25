@@ -2,18 +2,18 @@ package gatling.seeds.requests
 
 import java.time.Instant
 
-import scala.util.Random
-
-import io.gatling.core.Predef._
-import io.gatling.http.Predef._
-import org.json4s.jackson.Serialization.{write ⇒ json}
-import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.CartPayloads.CreateCart
-import payloads.OrderPayloads.OrderTimeMachine
-import payloads.UpdateShippingMethod
 import gatling.seeds.dbFeeder
 import gatling.seeds.requests.Auth._
 import gatling.seeds.requests.Payments._
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
+import org.json4s.jackson.Serialization.{write ⇒ json}
+import phoenix.payloads.CartPayloads.CreateCart
+import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
+import phoenix.payloads.OrderPayloads.OrderTimeMachine
+import phoenix.payloads.UpdateShippingMethod
+
+import scala.util.Random
 
 object Cart {
 

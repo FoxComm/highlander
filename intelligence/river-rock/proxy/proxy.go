@@ -11,6 +11,7 @@ import (
 
 	"github.com/labstack/echo"
 	//"net/http"
+	"github.com/FoxComm/highlander/intelligence/river-rock/channels"
 	"github.com/FoxComm/highlander/intelligence/river-rock/clustering"
 	"github.com/FoxComm/highlander/intelligence/river-rock/selection"
 	"github.com/FoxComm/highlander/intelligence/river-rock/utils"
@@ -90,6 +91,11 @@ func (p *RiverRock) StartProxy() error {
 
 	e := echo.New()
 
+	ch, err := channels.NewChannels(p.Db)
+	if err != nil {
+		return err
+	}
+
 	e.GET("/ping", func(c echo.Context) error {
 		return c.String(http.StatusOK, "pong")
 	})
@@ -97,6 +103,8 @@ func (p *RiverRock) StartProxy() error {
 	e.Any("/proxy/*", func(c echo.Context) error {
 		req := c.Request()
 		res := c.Response()
+
+		ch.AddChannelHeaders(req)
 
 		//strip out /proxy
 		originalPath := req.URL.Path[6:]

@@ -14,7 +14,7 @@ Rename `env.dev.template` to `.env.dev` and add all needed ENV variables:
 # DB
 HYPERION_DB_USER=hyperion
 HYPERION_DB_PASSWORD=''
-HYPERION_DB_NAME=hyperion_development
+HYPERION_DB_NAME=hyperion
 HYPERION_DB_HOST=localhost
 
 # for tests
