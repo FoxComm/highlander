@@ -1,7 +1,14 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+/* @flow */
 
-const RadioButton = props => {
+// libs
+import React from 'react';
+
+type Props = {
+  /** Button content (label) */
+  children?: Element<any>
+}
+
+const RadioButton = (props: Props) => {
   const { children, ...rest } = props;
 
   return (
@@ -10,10 +17,6 @@ const RadioButton = props => {
       {children}
     </div>
   );
-};
-
-RadioButton.propTypes = {
-  children: PropTypes.node
 };
 
 export default RadioButton;
