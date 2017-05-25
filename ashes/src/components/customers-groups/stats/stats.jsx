@@ -8,7 +8,7 @@ import React, { Component, Element } from 'react';
 // components
 import { PanelList, PanelListItem } from 'components/panel/panel-list';
 import Currency from 'components/common/currency';
-import RadioButton from 'components/forms/radio-button';
+import RadioButton from 'components/core/radio-button';
 
 // styles
 import s from './stats.css';
