@@ -11,7 +11,7 @@ import { IndexLink, Link } from 'components/link';
 import GiftCardCode from './gift-card-code';
 import { DateTime } from '../common/datetime';
 import Currency from '../common/currency';
-import WaitAnimation from '../common/wait-animation';
+import { Spinner } from 'components/core/spinner';
 import { PageTitle } from '../section-title';
 import Panel from '../panel/panel';
 import { PanelList, PanelListItem } from '../panel/panel-list';
@@ -24,6 +24,9 @@ import State, { formattedStatus } from '../common/state';
 import * as GiftCardActions from '../../modules/gift-cards/details';
 import * as ReasonsActions from '../../modules/reasons';
 import { stateTitles, stateActionTitles, getStateTransitions, typeTitles } from '../../paragons/gift-card';
+
+// styles
+import s from './gift-card.css';
 
 @connect((state, props) => ({
   ...state.giftCards.details[props.params.giftCard],
@@ -209,7 +212,7 @@ export default class GiftCard extends React.Component {
     const card = this.props.card;
 
     if (!card) {
-      return <div className="fc-gift-card-detail"><WaitAnimation /></div>;
+      return <Spinner className={s.loader} />;
     }
 
     return (

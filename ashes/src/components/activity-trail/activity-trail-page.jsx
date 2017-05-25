@@ -9,7 +9,7 @@ import { autobind } from 'core-decorators';
 // components
 import ActivityTrail from './activity-trail';
 import ErrorAlerts from '../alerts/error-alerts';
-import WaitAnimation from '../common/wait-animation';
+import { Spinner } from 'components/core/spinner';
 import { SectionTitle } from '../section-title';
 
 // redux
@@ -87,7 +87,7 @@ class ActivityTrailPage extends Component {
     }
 
     if (!activities.length && fetchState.inProgress) {
-      return <WaitAnimation />;
+      return <Spinner />;
     }
 
     return <ActivityTrail {...params} />;

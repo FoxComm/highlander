@@ -9,7 +9,7 @@ import { bindActionCreators } from 'redux';
 
 // components
 import Transition from 'react-transition-group/CSSTransitionGroup';
-import WaitAnimation from 'components/common/wait-animation';
+import { Spinner } from 'components/core/spinner';
 import { RoundedPill } from 'components/core/rounded-pill';
 import { withTaxonomy } from '../hoc';
 import TaxonomyDropdown from '../taxonomy-dropdown';
@@ -169,7 +169,7 @@ class TaxonomyWidget extends Component {
   get content() {
     // show loading only when we have no taxonomy. do not show when taxonomy is fetched in bg
     if (!this.props.taxonomy) {
-      return <WaitAnimation className={styles.waiting} />;
+      return <Spinner className={styles.waiting} />;
     }
 
     return [

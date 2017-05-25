@@ -11,7 +11,7 @@ import { fetch } from 'modules/taxonomies/flatList';
 import { getDisplayName } from 'lib/react-utils';
 
 // components
-import WaitAnimation from 'components/common/wait-animation';
+import { Spinner } from 'components/core/spinner';
 
 // styles
 import styles from './taxonomies.css';
@@ -85,7 +85,7 @@ export default function withTaxonomies(options: Options) {
         const { taxonomies, fetchState } = this.props;
 
         if (options.showLoader && (!taxonomies || fetchState.inProgress && !fetchState.err)) {
-          return <WaitAnimation className={styles.waiting} />;
+          return <Spinner className={styles.waiting} />;
         }
 
         const props = {

@@ -10,7 +10,7 @@ import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 
 // components
-import WaitAnimation from '../common/wait-animation';
+import { Spinner } from 'components/core/spinner';
 import { AddButton } from 'components/core/button';
 import EditAlbum from './edit-album';
 import Album from './album';
@@ -93,7 +93,7 @@ class Images extends Component {
 
   render() {
     if (this.props.isLoading) {
-      return <WaitAnimation />;
+      return <Spinner />;
     }
 
     const { albums, editAlbumInProgress, context, entityId } = this.props;

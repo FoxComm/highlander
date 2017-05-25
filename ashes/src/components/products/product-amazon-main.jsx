@@ -13,7 +13,7 @@ import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 
 // components
-import WaitAnimation from 'components/common/wait-animation';
+import { Spinner } from 'components/core/spinner';
 import ObjectFormInner from 'components/object-form/object-form-inner';
 import Typeahead from 'components/typeahead/typeahead';
 import { CategoryItem } from './category-item';
@@ -95,7 +95,7 @@ class ProductAmazonMain extends Component {
 
     if (!schema || !schema.properties) {
       if (categoryId) {
-        return <WaitAnimation />;
+        return <Spinner />;
       }
 
       return null;

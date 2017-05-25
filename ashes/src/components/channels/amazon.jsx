@@ -11,7 +11,7 @@ import { PageTitle } from 'components/section-title';
 import { PrimaryButton } from 'components/core/button';
 import ContentBox from 'components/content-box/content-box';
 import FormField from 'components/forms/formfield';
-import WaitAnimation from 'components/common/wait-animation';
+import { Spinner } from 'components/core/spinner';
 
 // redux
 import * as amazonActions from 'modules/channels/amazon';
@@ -125,7 +125,7 @@ class AmazonCredentials extends Component {
 
               {fetchState.inProgress &&
                 <div className={s.preloader}>
-                  <WaitAnimation className={s.waiting} size="m" />
+                  <Spinner className={s.waiting} size="m" />
                 </div>
               }
 

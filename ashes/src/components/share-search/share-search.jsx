@@ -13,7 +13,7 @@ import { ModalContainer } from '../modal/base';
 import ContentBox from '../content-box/content-box';
 
 import { PrimaryButton } from 'components/core/button';
-import WaitAnimation from '../common/wait-animation';
+import { Spinner } from 'components/core/spinner';
 import AdminsTypeahead from '../users-typeahead/admins-typeahead';
 import Alert from '../alerts/alert';
 
@@ -121,7 +121,7 @@ class ShareSearch extends Component {
     const { shares: { isFetchingAssociations = false, associations = [] }, search } = this.props;
 
     if (isFetchingAssociations) {
-      return <WaitAnimation size="s" />;
+      return <Spinner size="s" />;
     }
 
     const associationsNumber = associations.length ? associations.length : '...';
