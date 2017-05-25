@@ -11,7 +11,7 @@ type Props = {
   /** ID for input and label */
   id: string,
   /** RadioButton content (label) */
-  children?: Element<any>,
+  children?: string,
   /** Additional className */
   className?: string,
 }
