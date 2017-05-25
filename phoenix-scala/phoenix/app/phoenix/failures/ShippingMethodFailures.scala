@@ -1,6 +1,6 @@
 package phoenix.failures
 
-import failures.{Failure, NotFoundFailure404}
+import core.failures.{Failure, NotFoundFailure404}
 
 object ShippingMethodFailures {
 

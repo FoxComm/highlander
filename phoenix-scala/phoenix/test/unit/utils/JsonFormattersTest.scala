@@ -12,7 +12,7 @@ import phoenix.models.payment.giftcard.GiftCard
 import phoenix.utils.JsonFormatters._
 import phoenix.utils.time.UTC
 import testutils.TestBase
-import utils.Money.Currency
+import core.utils.Money.Currency
 
 class JsonFormattersTest extends TestBase {
 

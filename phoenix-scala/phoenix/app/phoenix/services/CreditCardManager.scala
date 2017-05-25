@@ -1,10 +1,12 @@
 package phoenix.services
 
+import java.time.Instant
+
 import cats.implicits._
+import core.db._
+import core.failures.{Failures, NotFoundFailure404}
 import phoenix.failures.CreditCardFailures.CannotUseInactiveCreditCard
 import phoenix.failures.GiftCardFailures.CreditCardMustHaveAddress
-import failures.{Failures, NotFoundFailure404}
-import java.time.Instant
 import phoenix.models.account._
 import phoenix.models.cord.OrderPayments.scope._
 import phoenix.models.cord._
@@ -13,12 +15,12 @@ import phoenix.models.payment.creditcard.{CreditCard, CreditCards}
 import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import phoenix.payloads.PaymentPayloads._
 import phoenix.responses.CreditCardsResponse
-import scala.concurrent.Future
-import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
 import phoenix.utils.aliases.stripe._
 import phoenix.utils.apis.Apis
-import utils.db._
+import slick.jdbc.PostgresProfile.api._
+
+import scala.concurrent.Future
 
 object CreditCardManager {
 

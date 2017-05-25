@@ -2,10 +2,10 @@ package phoenix.responses
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import models.objects.FullObject
+import objectframework.IlluminateAlgorithm
+import objectframework.models.FullObject
 import org.json4s.JsonAST.JValue
 import phoenix.models.taxonomy._
-import utils.IlluminateAlgorithm
 
 object TaxonResponses {
 

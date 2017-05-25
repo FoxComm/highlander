@@ -1,6 +1,6 @@
 package phoenix.models
 
-import models.objects.{ObjectContext, ObjectForm, ObjectShadow}
+import objectframework.models.{ObjectContext, ObjectForm, ObjectShadow}
 
 package object category {
 

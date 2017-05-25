@@ -1,6 +1,6 @@
 package phoenix.utils.apis
 
-import failures.Failure
+import core.failures.Failure
 import phoenix.failures.CreditCardFailures._
 
 private[utils] object StripeMappings {

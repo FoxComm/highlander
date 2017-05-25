@@ -2,10 +2,10 @@ package phoenix.models
 
 import java.time.Instant
 
+import core.db._
 import phoenix.models.account._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class SaveForLater(id: Int = 0,
                         accountId: Int = 0,

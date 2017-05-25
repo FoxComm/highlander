@@ -2,7 +2,7 @@ package phoenix.utils
 
 import java.time.Instant
 
-import models.objects.ObjectUtils
+import objectframework.ObjectUtils
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization._
 import phoenix.models.discount.offers.{Offer, OfferType}

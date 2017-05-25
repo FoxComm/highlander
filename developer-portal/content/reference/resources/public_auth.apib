@@ -1,9 +1,9 @@
 ### Login [POST /v1/public/login]
 
 + Request (application/json)
-	+ Attributes (LoginPayload)
+   + Attributes (LoginPayload)
 + Response 200 (application/json)
-    + Attributes (LoginResponse)
+   + Attributes (LoginResponse)
 
 ### Logout [POST /v1/public/logout]
 
@@ -13,6 +13,21 @@
 ### Registration [POST /v1/public/registrations/new]
 
 + Request (application/json)
-	+ Attributes (CustomerCreatePayload)
+   + Attributes (CustomerCreatePayload)
 + Response 200 (application/json)
     + Attributes (CustomerResponse)
+
+### List of (US) regions [GET /v1/public/regions]
+
++ Include BaseCountry
++ Response 200 (application/json)
+    + Attributes (array[Region])
+
+
+### Get (US) region by a short name [GET /v1/public/regions/{regionShortName}]
+
++ Include BaseCountry
++ Attribute
+   + regionShortName:`default` (required, string) - Region short name (2-letters)
++ Response 200 (application/json)
+    + Attributes (Region)

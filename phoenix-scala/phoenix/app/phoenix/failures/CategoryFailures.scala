@@ -1,6 +1,6 @@
 package phoenix.failures
 
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 
 object CategoryFailures {
 

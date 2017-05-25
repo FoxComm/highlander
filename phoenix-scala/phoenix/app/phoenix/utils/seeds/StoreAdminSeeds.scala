@@ -2,12 +2,12 @@ package phoenix.utils.seeds
 
 import cats.implicits._
 import com.github.tototoshi.csv._
+import core.db._
 import phoenix.models.account._
 import phoenix.models.admin._
 import phoenix.payloads.StoreAdminPayloads.CreateStoreAdminPayload
 import phoenix.services.StoreAdminManager
 import phoenix.utils.aliases._
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.io.Source

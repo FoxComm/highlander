@@ -1,5 +1,5 @@
 import akka.http.scaladsl.model.{HttpResponse, StatusCode, StatusCodes}
-import failures.Failure
+import core.failures.Failure
 import org.json4s.Formats
 import org.json4s.jackson.JsonMethods._
 import org.scalatest._

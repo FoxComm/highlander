@@ -1,9 +1,9 @@
 package phoenix.services
 
+import core.db._
 import phoenix.models.account.User
 import phoenix.responses.TheResponse
 import phoenix.utils.aliases._
-import utils.db._
 
 package object assignments {
   // Notification (un)subscription helpers

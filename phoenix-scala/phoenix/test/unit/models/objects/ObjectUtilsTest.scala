@@ -1,5 +1,6 @@
-package models.objects
+package objectframework.models
 
+import objectframework.ObjectUtils
 import org.json4s.JsonAST.{JNothing, JObject, JString}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import testutils.TestBase

@@ -3,9 +3,9 @@ package services
 import java.util.concurrent.atomic.AtomicBoolean
 
 import cats.implicits._
-import failures.GeneralFailure
+import core.failures.GeneralFailure
 import faker.Lorem
-import models.objects.ObjectContexts
+import objectframework.models.ObjectContexts
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalacheck.Prop.BooleanOperators
@@ -28,7 +28,7 @@ import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 import scala.concurrent.Future
 

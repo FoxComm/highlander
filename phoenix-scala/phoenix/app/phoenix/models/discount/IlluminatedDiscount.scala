@@ -1,8 +1,8 @@
 package phoenix.models.discount
 
-import models.objects._
+import objectframework.IlluminateAlgorithm
+import objectframework.models._
 import phoenix.utils.aliases._
-import utils.IlluminateAlgorithm
 
 /**
   * An IlluminatedDiscount is what you get when you combine the discount shadow and
