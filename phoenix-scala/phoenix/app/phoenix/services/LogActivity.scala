@@ -29,12 +29,12 @@ import phoenix.payloads.ReturnPayloads.{ReturnShippingCostLineItemPayload, Retur
 import phoenix.payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
 import phoenix.responses.CategoryResponses.FullCategoryResponse
 import phoenix.responses.CouponResponses.CouponResponse
-import phoenix.responses.CreditCardsResponse.{buildSimple => buildCc}
-import phoenix.responses.CustomerResponse.{Root => CustomerResponse}
+import phoenix.responses.CreditCardsResponse.{buildSimple ⇒ buildCc}
+import phoenix.responses.CustomerResponse.{Root ⇒ CustomerResponse}
 import phoenix.responses.ProductResponses.ProductResponse
 import phoenix.responses.PromotionResponses.PromotionResponse
 import phoenix.responses.SkuResponses.SkuResponse
-import phoenix.responses.UserResponse.{Root => UserResponse, build => buildUser}
+import phoenix.responses.UserResponse.{Root ⇒ UserResponse, build ⇒ buildUser}
 import phoenix.responses._
 import phoenix.responses.cord.{CartResponse, OrderResponse}
 import phoenix.services.LineItemUpdater.foldQuantityPayload
@@ -350,9 +350,10 @@ case class LogActivity(implicit ac: AC) {
             currency = charge.currency
         ))
 
-  def applePayAuth(ap: ApplePayment, charge: ApplePayCharge)(implicit ec: EC): DbResultT[Activity] =
+  def applePayAuth(ap: ApplePayment, charge: ApplePayCharge)(
+      implicit ec: EC): DbResultT[Activity] =
     Activities.log(
-      ApplePayAuthCompleted(
+        ApplePayAuthCompleted(
             accountId = ap.accountId,
             stripeTokenId = ap.stripeTokenId,
             amount = charge.amount,

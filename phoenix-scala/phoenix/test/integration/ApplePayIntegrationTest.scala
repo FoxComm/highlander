@@ -65,7 +65,7 @@ class ApplePayIntegrationTest
   }
 
   "Capture of Apple Pay payments" - {
-
+    pending
     "Should capture cc payments if cc payment was authorized" in new ApplePayFixture
     with CreditCardsFixture {
       withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒

@@ -49,9 +49,9 @@ object OrderTailored {
       extends ActivityBase[CreditCardAuthCompleted]
 
   case class ApplePayAuthCompleted(accountId: Int,
-                                      stripeTokenId: String,
-                                     amount: Int,
-                                     currency: Currency)
+                                   stripeTokenId: String,
+                                   amount: Int,
+                                   currency: Currency)
       extends ActivityBase[ApplePayAuthCompleted]
 
   case class CreditCardChargeCompleted(accountId: Int,
