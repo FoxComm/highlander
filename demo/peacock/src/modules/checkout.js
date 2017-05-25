@@ -122,8 +122,8 @@ export const checkApplePay = _checkApplePay.perform;
 
 const _beginApplePay = createAsyncActions(
   'beginApplePay',
-  function(payment) {
-    return foxApi.applePay.beginApplePay(payment)
+  function(paymentRequest, lineItems) {
+    return foxApi.applePay.beginApplePay(paymentRequest, lineItems)
       .then(() => {
         console.log('payment is successfull, from checkout.js');
       })

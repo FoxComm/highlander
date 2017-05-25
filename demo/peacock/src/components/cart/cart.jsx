@@ -144,10 +144,9 @@ class Cart extends Component {
   @autobind
   beginApplePay() {
     console.log('starting the apple pay inside the checkout.jsx');
-    const total = this.props.totals.total;
+    const { total, taxes, adjustments } = this.props.totals;
     console.log('total -> ', total);
     console.log('subTotal -> ', this.props.totals.subTotal);
-    console.log('the total from the cart -> ', total);
     const amount = (parseFloat(total)/100).toFixed(2);
     console.log('amount -> ', amount);
     const paymentRequest = {
@@ -167,8 +166,14 @@ class Cart extends Component {
         'name',
       ],
     };
+
+    const lineItems = {
+      taxes: taxes,
+      promotion: adjustments,
+    };
     console.log('payment request obj -> ', paymentRequest);
-    this.props.beginApplePay(paymentRequest).then(() => {
+    console.log('lineItems -> ', lineItems);
+    this.props.beginApplePay(paymentRequest, lineItems).then(() => {
       console.log('redirecting to the order confirmation page...');
        browserHistory.push('/checkout/done')
      });
