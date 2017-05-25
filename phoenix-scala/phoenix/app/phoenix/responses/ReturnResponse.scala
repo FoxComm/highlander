@@ -105,7 +105,7 @@ object ReturnResponse {
       customerData ← * <~ CustomersData.findOneByAccountId(rma.accountId)
       storeAdmin   ← * <~ rma.storeAdminId.map(Users.findOneByAccountId).getOrElse(lift(None))
       adminData    ← * <~ rma.storeAdminId.map(AdminsData.findOneByAccountId).getOrElse(lift(None))
-      organization ← * <~ rma.storeAdminId.map(Organizations.mustFindById404)
+      organization ← * <~ rma.storeAdminId.map(Organizations.mustFindByAccountId)
       // Payment methods
       ccPayment ← * <~ ReturnPayments.findAllByReturnId(rma.id).creditCards.one
       gcPayment ← * <~ ReturnPayments.findGiftCards(rma.id).one
