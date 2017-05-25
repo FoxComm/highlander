@@ -16,21 +16,18 @@ import * as actions from 'modules/reviews';
 
 import styles from '../profile.css';
 
-type Review = {
-  sku: string,
-  productName: string,
-  id: number,
-  status: 'pending' | 'submitted'
-};
-
-type FullReview = Review & {
-  title: string,
-  body: string,
+type ReviewAttributes = {
+  imageUrl: {t: 'string', v: string},
+  productName: {t: 'string', v: string},
+  status: {t: 'string', v: string},
+  title: {t: 'string', v: string},
+  body: {t: 'string', v: string},
 }
 
-type EmptyReview = Review & {
-  title: void,
-  body: void,
+type Review = {
+  sku: string,
+  id: number,
+  attributes: ReviewAttributes,
 };
 
 type State = {
@@ -40,7 +37,7 @@ type State = {
 };
 
 type ReviewFormProps = {
-  review: FullReview | EmptyReview,
+  review: Review,
   updateReview: Function,
 };
 
@@ -56,8 +53,8 @@ class ReviewForm extends Component {
 
   props: ReviewFormProps;
   state: State = {
-    title: this.props.review.title || '',
-    body: this.props.review.body || '',
+    title: _.get(this.props.review, 'attributes.title.v', ''),
+    body: _.get(this.props.review, 'attributes.body.v', ''),
     isHappy: true,
   }
 
@@ -87,6 +84,7 @@ class ReviewForm extends Component {
     const payload = {
       sku: this.props.review.sku,
       attributes: {
+        ...this.props.review.attributes,
         title: {
           t: 'string',
           v: this.state.title,
@@ -108,7 +106,7 @@ class ReviewForm extends Component {
     return (
       <Block title={ReviewForm.title}>
         <Form onSubmit={this.submitForm}>
-          <div styleName="section">Submit your review of {this.props.review.productName}</div>
+          <div styleName="section">Submit your review of {this.props.review.attributes.productName.v}</div>
           <FormField styleName="form-field">
             <TextInput
               required
