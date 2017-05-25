@@ -1,13 +1,48 @@
 :root {
-  --nav-main: #1a2534;
-  --nav-active: #25334a;
-  --nav-pink: #fc54a6;
-  --green-buttons: #49cab9;
-  --grey-buttons: #ced2d5;
-  --grey-headers: #f7f7f7;
-  --grey-background: #f9f9f9;
 
+  /*
+   * http://chir.ag/projects/name-that-color
+   */
   --white: #ffffff;
+  --alabaster: #f7f7f7;
+  --iron: #ced2d5;
+  --silver-sand: #bdc3c6;
+  --stone: #797c7d;
+  --grey: #363636;
+
+  --light-green: #8dddd2;
+  --green: #49cab9;
+  --dark-green: #1dbfaa;
+  --pink: #fc54a6;
+
+  /*
+   * Buttons
+   */
+  --button-color: var(--grey);
+  --button-color-disabled: var(--stone);
+  --button-bg: var(--iron);
+  --button-bg-hover: var(--silver-sand);
+  --button-bg-disabled: var(--silver-sand);
+  --button-bg-loading: var(--iron);
+
+  --primary-button-color: var(--white);
+  --primary-button-color-disabled: var(--light-green);
+  --primary-button-bg: var(--green);
+  --primary-button-bg-hover: var(--dark-green);
+  --primary-button-bg-disabled: var(--dark-green);
+  --primary-button-bg-loading: var(--green);
+
+  /*
+   * Page Nav
+   */
+  --nav-item-underline: var(--iron);
+  --nav-item-underline-active: var(--pink);
+
+  /*
+   * Dropdowns
+   */
+  --dd-item-bg-active: var(--alabaster);
+
   --black: #000000;
   --decor0: #f2f2f2;
   --decor1: #484848;

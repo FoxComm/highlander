@@ -2,34 +2,28 @@
 
 import React, { Component } from 'react';
 import styles from './css/password-input.css';
-import loadScript from 'load-script';
 import { autobind } from 'core-decorators';
 
+let zxcvbn;
+
 type State = {
-  scriptLoaded: boolean,
   score: number,
   feedback: string,
-}
+};
 
 export default class PasswordInput extends Component {
   state: State = {
-    scriptLoaded: false,
     score: -1,
     feedback: '',
   };
 
   componentDidMount() {
-    loadScript('/static/zxcvbn.js', (err) => {
-      if (!err) {
-        this.setState({
-          scriptLoaded: true,
-        });
-      }
-    });
+    // https://webpack.js.org/guides/migrating/#code-splitting-with-es2015
+    import('zxcvbn').then(m => zxcvbn = m);
   }
 
   checkStength(value: string) {
-    if (this.state.scriptLoaded) {
+    if (zxcvbn) {
       const result = zxcvbn(value);
       /*
       scores:

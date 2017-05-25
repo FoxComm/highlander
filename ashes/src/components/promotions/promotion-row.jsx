@@ -7,7 +7,7 @@ import _ from 'lodash';
 import { activeStatus, isArchived } from 'paragons/common';
 
 // components
-import RoundedPill from '../rounded-pill/rounded-pill';
+import { RoundedPill } from 'components/core/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
 
 type Props = {

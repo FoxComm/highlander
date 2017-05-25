@@ -1,4 +1,3 @@
-// @flow
 /*eslint max-len: ["error", 1000]*/
 
 // libs
@@ -68,7 +67,7 @@ type State = {
     dateRangeEnd: string,
     dataFetchTimeSize: number,
   },
-}
+};
 
 type Props = {
   entity: {
@@ -92,8 +91,8 @@ type Props = {
     },
   },
   questionBoxes: Array<QuestionBoxType>,
-  segments: Array<SegmentControlType>,
-}
+  segments: Array<SegmentControlType>
+};
 
 // consts
 const sourceDropdownColumns = [
@@ -157,7 +156,7 @@ percentDifferenceFromAvg(percentValue: number, avgPercentValue: number): number 
 }
 
 @connect((state, props) => ({analytics: state.analytics}), AnalyticsActions)
-export default class Analytics extends React.Component {
+export class Analytics extends React.Component {
 
   static defaultProps: {
     questionBoxes: Array<QuestionBoxType>,

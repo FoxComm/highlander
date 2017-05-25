@@ -1,7 +1,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from '../../../link';
+
+import { Link } from 'components/link';
 
 const SkuLink = props => {
   return (

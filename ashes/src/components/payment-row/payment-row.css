@@ -1,5 +1,6 @@
 
 .row-toggle {
+  display: inline-block;
   vertical-align: top;
   margin: 5px 15px 0 0;
   font-size: 22px;

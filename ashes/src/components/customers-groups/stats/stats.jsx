@@ -97,7 +97,7 @@ class CustomerGroupStats extends Component {
         <div className={s.periods}>
           {this.timeframes}
         </div>
-        <PanelList className={classNames(s.stats, { [s._loading]: isLoading })}>
+        <PanelList className={classNames(s.stats, { [s.loading]: isLoading })}>
           <Stats title="Total Orders" fieldName="ordersCount" />
           <Stats title="Total Sales" fieldName="totalSales" currency />
           <Stats title="Avg. Order Size" fieldName="averageOrderSize" preprocess={Math.round} />

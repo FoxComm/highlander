@@ -5,10 +5,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 // components
+import { Link, IndexLink } from 'components/link';
 import { SectionTitle } from '../section-title';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
-import { Link, IndexLink } from '../link';
 
 const InventoryItemDetailsBase = (props, context) => {
   const transactionsTabActive = context.router.isActive({name: 'sku-inventory-transactions', params: props.params});

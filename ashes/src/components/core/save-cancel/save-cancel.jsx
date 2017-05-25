@@ -29,8 +29,6 @@ type Props = {
   saveDisabled?: boolean;
   /** If provided, save button acts as a ButtonWithMenu - it provides additional actions in a menu */
   saveItems?: SaveComboItems,
-  /** Dropdown menu position. Affects animation start position (css's transform-origin). Used when 'saveItems' is not empty  */
-  saveMenuPosition?: 'left'|'right',
   /** Callback called on save button click */
   onSave?: (value: any) => void;
   /** Callback called on menu item click. Used when 'saveItems' is not empty  */
@@ -59,7 +57,6 @@ export default class SaveCancel extends Component {
     saveText: 'Save',
     saveDisabled: false,
     saveItems: [],
-    saveMenuPosition: 'right',
     onSaveSelect: noop,
     onCancel: noop,
     isLoading: false,
@@ -91,7 +88,6 @@ export default class SaveCancel extends Component {
       saveTabIndex,
       saveText,
       saveItems,
-      saveMenuPosition,
       saveDisabled,
       onSave,
       onSaveSelect,
@@ -104,7 +100,6 @@ export default class SaveCancel extends Component {
         <ButtonWithMenu
           isLoading={isLoading}
           title={saveText}
-          menuPosition={saveMenuPosition}
           items={saveItems}
           onPrimaryClick={onSave}
           onSelect={onSaveSelect}
