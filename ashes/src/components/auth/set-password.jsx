@@ -9,7 +9,7 @@ import { transitionTo } from 'browserHistory';
 
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
-import ApiErrorAlert from 'components/core/utils/api-errors-alert';
+import { ApiErrors } from 'components/utils/errors';
 import { PrimaryButton } from 'components/core/button';
 import PasswordInput from '../forms/password-input';
 import Spinner from 'components/core/spinner';
@@ -89,7 +89,7 @@ class SetPassword extends Component {
   get errorMessage() {
     const err = this.props.signUpState.err;
     if (!err) return null;
-    return <ApiErrorAlert response={err} />;
+    return <ApiErrors response={err} />;
   }
 
   get content() {

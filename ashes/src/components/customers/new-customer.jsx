@@ -12,7 +12,7 @@ import * as CustomersActions from 'modules/customers/new';
 import FormField from '../forms/formfield';
 import Form from '../forms/form';
 import SaveCancel from 'components/core/save-cancel';
-import ApiErrorAlert from 'components/core/utils/api-errors-alert';
+import { ApiErrors } from 'components/utils/errors';
 
 import type { NewCustomerPayload } from 'modules/customers/new';
 
@@ -68,7 +68,7 @@ class NewCustomer extends Component {
     if (submitStatus.err) {
       return (
         <li>
-          <ApiErrorAlert response={submitStatus.err} />
+          <ApiErrors response={submitStatus.err} />
         </li>
       );
     }

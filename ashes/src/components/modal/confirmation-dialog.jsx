@@ -9,7 +9,7 @@ import React, { Element, Component } from 'react';
 import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
 import wrapModal from 'components/modal/wrapper';
-import ApiErrorAlert from 'components/core/utils/api-errors-alert';
+import { ApiErrors } from 'components/utils/errors';
 
 type Props = {
   body: string | Element<*>,
@@ -59,7 +59,7 @@ const ConfirmationDialog = (props: Props) => {
     <div onKeyDown={handleKeyPress}>
       <ContentBox title={title} className={cls} actionBlock={actionBlock}>
         <div className='fc-modal-body'>
-          <ApiErrorAlert response={_.get(props.asyncState, 'err', null)} />
+          <ApiErrors response={_.get(props.asyncState, 'err', null)} />
           {props.body}
         </div>
 

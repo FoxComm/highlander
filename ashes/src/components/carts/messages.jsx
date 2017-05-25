@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import _ from 'lodash';
 
 import Alert from '../alerts/alert';
-import AutoScroll from '../utils/auto-scroll/auto-scroll';
+import AutoScroll from 'components/utils/auto-scroll';
 
 const formatMessage = message => {
   if (message.indexOf('empty cart') != -1) {
@@ -42,7 +42,7 @@ const Messages = props => {
   });
 
   const className = classnames('fc-order-messages', {
-    '_empty': errorAlerts.length + warningAlerts.length == 0
+    '_empty': errorAlerts.length + warningAlerts.length === 0
   });
 
   const scrollToMessages = errorAlerts.length || warningAlerts.length ? <AutoScroll /> : null;

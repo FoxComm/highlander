@@ -17,7 +17,7 @@ import styles from './object-page.css';
 // components
 import { PageTitle } from '../section-title';
 import Spinner from 'components/core/spinner';
-import ApiErrorAlert from 'components/core/utils/api-errors-alert';
+import { ApiErrors } from 'components/utils/errors';
 import ButtonWithMenu from 'components/core/button-with-menu';
 import { Button } from 'components/core/button';
 import Error from '../errors/error';
@@ -527,7 +527,7 @@ export class ObjectPage extends Component {
         {this.titleBar()}
         {this.subNav()}
         <div styleName="object-details">
-          <ApiErrorAlert
+          <ApiErrors
             response={this.props.submitError}
             closeAction={actions.clearSubmitErrors}
             sanitizeError={this.sanitizeError}

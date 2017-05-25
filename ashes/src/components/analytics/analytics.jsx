@@ -9,7 +9,7 @@ import _ from 'lodash';
 
 // components
 import Spinner from 'components/core/spinner';
-import ApiErrorAlert from 'components/core/utils/api-errors-alert';
+import { ApiErrors } from 'components/utils/errors';
 import QuestionBoxList from './question-box-list';
 import type { Props as QuestionBoxType } from './question-box';
 import Currency from '../common/currency';
@@ -691,7 +691,7 @@ export class Analytics extends React.Component {
 
         return productStats;
       } else {
-        return <ApiErrorAlert response={analytics.err} />;
+        return <ApiErrors response={analytics.err} />;
       }
     } else {
       return <Spinner />;
@@ -706,7 +706,7 @@ export class Analytics extends React.Component {
       if (!analytics.err) {
         return this.chartFromQuestion;
       } else {
-        return <ApiErrorAlert response={analytics.err} />;
+        return <ApiErrors response={analytics.err} />;
       }
     } else {
       return <Spinner />;

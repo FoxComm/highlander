@@ -9,7 +9,7 @@ import { autobind } from 'core-decorators';
 // components
 import ActivityTrail from './activity-trail';
 import Spinner from 'components/core/spinner';
-import ApiErrorAlert from 'components/core/utils/api-errors-alert';
+import { ApiErrors } from 'components/utils/errors';
 import { SectionTitle } from '../section-title';
 
 // redux
@@ -41,7 +41,7 @@ type Props = {
   },
   fetchState: AsyncState,
   resetActivities: () => void;
-  fetchActivityTrail: (params: RequestParam, from?: Activity) => Promise<*>,
+  fetchActivityTrail: (params: RequestParam, from: ?Activity) => Promise<*>,
 };
 
 class ActivityTrailPage extends Component {
@@ -83,7 +83,7 @@ class ActivityTrailPage extends Component {
     };
 
     if (fetchState.err) {
-      return <ApiErrorAlert response={fetchState.err} />;
+      return <ApiErrors response={fetchState.err} />;
     }
 
     if (!activities.length && fetchState.inProgress) {

@@ -34,6 +34,12 @@ class Alerts extends React.Component {
           Fetched successfully
         </Alert>
 
+        <Alert type={Alert.SUCCESS}>
+          Fetched successfully. Fetched successfully. Fetched successfully. Fetched successfully. Fetched successfully.
+          Fetched successfully. Fetched successfully. Fetched successfully. Fetched successfully. Fetched successfully.
+          Fetched successfully. Fetched successfully. Fetched successfully. Fetched successfully. Fetched successfully.
+        </Alert>
+
         {this.state.successVisible &&
           <Alert type={Alert.SUCCESS} closeAction={this.handleClose.bind(this, 'success')}>
             Fetched successfully
