@@ -3,7 +3,7 @@ package time
 import java.time.{Instant, ZoneId, ZonedDateTime}
 
 import testutils._
-import utils.db._
+import core.db._
 
 class JavaTimeMapperTest extends IntegrationTestBase with DbTestSupport {
 

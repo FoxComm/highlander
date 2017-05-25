@@ -4,7 +4,8 @@ import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import cats.implicits._
-import failures.GeneralFailure
+import core.db._
+import core.failures.GeneralFailure
 import phoenix.libs.oauth.{Oauth, UserInfo}
 import phoenix.models.account._
 import phoenix.models.auth.Token
@@ -12,7 +13,6 @@ import phoenix.services.Authenticator
 import phoenix.utils.aliases._
 import phoenix.utils.http.Http._
 import slick.jdbc.PostgresProfile.api.DBIO
-import utils.db._
 
 case class OauthCallbackResponse(code: Option[String] = None, error: Option[String] = None) {
 

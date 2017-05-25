@@ -2,12 +2,12 @@ package phoenix.models.objects
 
 import java.time.Instant
 
-import models.objects.ObjectHeadLinks._
+import core.db.ExPostgresDriver.api._
+import core.db._
+import objectframework.models.ObjectHeadLinks._
 import phoenix.models.product._
 import phoenix.models.taxonomy.{Taxon, Taxons}
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class ProductTaxonLink(id: Int = 0,
                             leftId: Int,

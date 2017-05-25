@@ -1,7 +1,7 @@
 package models
 
 import cats.data.NonEmptyList
-import failures.{Failure, GeneralFailure}
+import core.failures.{Failure, GeneralFailure}
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import phoenix.models.location.Address
 import phoenix.utils.seeds.Factories

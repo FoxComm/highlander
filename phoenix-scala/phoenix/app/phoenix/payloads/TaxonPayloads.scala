@@ -1,9 +1,9 @@
 package phoenix.payloads
 
 import cats.data.ValidatedNel
-import failures.Failure
+import core.utils.Validation
+import core.failures.Failure
 import phoenix.utils.aliases._
-import utils.Validation
 
 object TaxonPayloads {
   type AttributesMap = Map[String, Json]

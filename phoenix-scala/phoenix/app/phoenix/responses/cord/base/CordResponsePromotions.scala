@@ -1,7 +1,8 @@
 package phoenix.responses.cord.base
 
 import cats.implicits._
-import models.objects._
+import core.db._
+import objectframework.models._
 import phoenix.failures.CouponFailures._
 import phoenix.failures.PromotionFailures.PromotionNotFound
 import phoenix.models.cord.{OrderPromotion, OrderPromotions}
@@ -15,7 +16,6 @@ import phoenix.responses.PromotionResponses.PromotionResponse
 import phoenix.responses.ResponseItem
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class CordResponseCouponPair(coupon: CouponResponse.Root, code: String) extends ResponseItem
 

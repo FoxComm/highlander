@@ -1,9 +1,9 @@
 package phoenix.payloads
 
-import models.objects.ObjectUtils._
-import models.objects.{FormAndShadow, ObjectForm, ObjectShadow}
-import payloads.ObjectPayloads
-import payloads.ObjectPayloads._
+import objectframework.ObjectUtils._
+import objectframework.models.{FormAndShadow, ObjectForm, ObjectShadow}
+import objectframework.payloads.ObjectPayloads
+import objectframework.payloads.ObjectPayloads._
 import phoenix.models.product.VariantValue
 import phoenix.utils.aliases._
 

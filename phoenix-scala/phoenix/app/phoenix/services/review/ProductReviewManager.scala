@@ -11,7 +11,7 @@ import phoenix.payloads.ProductReviewPayloads._
 import phoenix.responses.ProductReviewResponses
 import phoenix.responses.ProductReviewResponses.ProductReviewResponse
 import phoenix.utils.aliases._
-import utils.db._
+import core.db._
 
 object ProductReviewManager {
 

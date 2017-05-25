@@ -1,7 +1,7 @@
 import phoenix.models.review.ProductReviews
 import org.json4s.JsonAST.JObject
 import org.json4s.JsonDSL._
-import phoenix.payloads.ProductReviewPayloads.{CreateProductReviewPayload, UpdateProductReviewPayload}
+import phoenix.payloads.ProductReviewPayloads._
 import phoenix.responses.ProductReviewResponses.ProductReviewResponse
 import slick.jdbc.GetResult
 import testutils.PayloadHelpers.tv
@@ -28,8 +28,9 @@ class ProductReviewIntegrationTest
 
   "POST v1/review/:contextName" - {
     "creates product review" in new ProductSku_ApiFixture {
-      val payload =
-        CreateProductReviewPayload(attributes = "title" → tv("title"), sku = skuCode, scope = None)
+      val payload = CreateProductReviewByCustomerPayload(attributes = "title" → tv("title"),
+                                                         sku = skuCode,
+                                                         scope = None)
       val reviewResp    = productReviewApi.create(payload).as[ProductReviewResponse]
       val getReviewResp = productReviewApi(reviewResp.id).get().as[ProductReviewResponse]
       getReviewResp must === (reviewResp)
@@ -88,8 +89,9 @@ class ProductReviewIntegrationTest
 
     "inserts new record on review insert" in new ProductSku_ApiFixture {
       private val title: String = "title"
-      val payload =
-        CreateProductReviewPayload(attributes = "title" → tv(title), sku = skuCode, scope = None)
+      val payload = CreateProductReviewByCustomerPayload(attributes = "title" → tv(title),
+                                                         sku = skuCode,
+                                                         scope = None)
       val reviewResp = productReviewApi.create(payload).as[ProductReviewResponse]
       val values     = selectById(reviewResp.id)
       values.size must === (1)

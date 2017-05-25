@@ -1,17 +1,18 @@
 package phoenix.services.actors
 
+import java.time.Instant
+
 import akka.actor.{Actor, ActorLogging}
 import cats.implicits._
+import core.db.ExPostgresDriver.api._
+import core.db._
 import faker.Lorem.letterify
-import java.time.Instant
 import phoenix.models.activity.ActivityContext
 import phoenix.models.cord.Order._
 import phoenix.models.cord.{Order, Orders}
-import scala.util.Success
 import phoenix.services.LogActivity
-import phoenix.utils.aliases._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+
+import scala.util.Success
 
 case object Tick
 

@@ -1,7 +1,7 @@
 package services
 
 import cats.implicits._
-import models.objects._
+import objectframework.models._
 import phoenix.failures.CartFailures._
 import phoenix.models.Reasons
 import phoenix.models.cord._
@@ -16,7 +16,7 @@ import phoenix.services.carts.CartTotaler
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class CartValidatorTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 

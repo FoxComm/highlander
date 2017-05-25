@@ -2,10 +2,10 @@ package phoenix.models.customer
 
 import java.time.Instant
 
+import core.db.ExPostgresDriver.api._
+import core.db._
 import shapeless._
 import slick.lifted.Tag
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class CustomerGroupMember(id: Int = 0,
                                customerDataId: Int,

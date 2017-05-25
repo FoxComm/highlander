@@ -1,7 +1,7 @@
 package phoenix.services.giftcards
 
 import cats.implicits._
-import failures.NotFoundFailure400
+import core.failures.NotFoundFailure400
 import phoenix.failures.OpenTransactionsFailure
 import phoenix.models.Reasons
 import phoenix.models.account._
@@ -16,7 +16,7 @@ import phoenix.responses.{CustomerResponse, GiftCardResponse, GiftCardSubTypesRe
 import phoenix.services._
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.db._
 
 object GiftCardService {
   type QuerySeq = GiftCards.QuerySeq

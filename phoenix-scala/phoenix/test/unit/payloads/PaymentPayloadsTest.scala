@@ -4,7 +4,7 @@ import java.time.ZonedDateTime
 
 import cats.data.NonEmptyList
 import cats.implicits._
-import failures.GeneralFailure
+import core.failures.GeneralFailure
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import phoenix.payloads.PaymentPayloads._
 import phoenix.utils.seeds.Factories

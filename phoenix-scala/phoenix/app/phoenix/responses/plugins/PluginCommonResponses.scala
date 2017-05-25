@@ -2,9 +2,9 @@ package phoenix.responses.plugins
 
 import java.time.Instant
 
+import core.db
 import phoenix.models.plugins.Plugin
 import phoenix.models.plugins.PluginSettings.{SettingsSchema, SettingsValues}
-import utils.db
 
 object PluginCommonResponses {
 

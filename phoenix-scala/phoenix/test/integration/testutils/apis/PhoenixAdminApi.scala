@@ -3,7 +3,7 @@ package testutils.apis
 import akka.http.scaladsl.model.HttpResponse
 
 import cats.implicits._
-import models.objects.ObjectForm
+import objectframework.models.ObjectForm
 import phoenix.models.payment.PaymentMethod
 import phoenix.payloads.ActivityTrailPayloads._
 import phoenix.payloads.AddressPayloads._

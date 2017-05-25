@@ -1,5 +1,6 @@
 package utils
 
+import core.utils._
 import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
 import phoenix.payloads.NotePayloads.CreateNote
 import testutils.TestBase

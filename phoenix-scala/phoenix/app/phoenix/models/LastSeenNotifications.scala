@@ -1,11 +1,11 @@
 package phoenix.models
 
 import com.github.tminglei.slickpg.LTree
+import core.db.ExPostgresDriver.api._
+import core.db._
 import phoenix.models.account._
 import shapeless._
 import slick.lifted.Tag
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class LastSeenNotification(id: Int = 0, scope: LTree, accountId: Int, notificationId: Int)
     extends FoxModel[LastSeenNotification] {}

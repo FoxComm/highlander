@@ -1,6 +1,7 @@
 package phoenix.services.migration
 
 import cats.implicits._
+import core.db._
 import phoenix.models.account._
 import phoenix.models.customer._
 import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
@@ -8,7 +9,6 @@ import phoenix.responses.CustomerResponse._
 import phoenix.services.LogActivity
 import phoenix.services.account.{AccountCreateContext, AccountManager}
 import phoenix.utils.aliases._
-import utils.db._
 
 object CustomerImportService {
 

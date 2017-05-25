@@ -3,7 +3,7 @@ package phoenix.responses
 import java.time.Instant
 
 import phoenix.models.payment.giftcard._
-import utils.Money._
+import core.utils.Money._
 
 object GiftCardResponse {
 

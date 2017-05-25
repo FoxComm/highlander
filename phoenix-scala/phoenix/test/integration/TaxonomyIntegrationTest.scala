@@ -2,7 +2,7 @@ import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
-import models.objects._
+import objectframework.models._
 import org.json4s.JsonDSL._
 import org.json4s._
 import phoenix.failures.TaxonomyFailures._
@@ -15,7 +15,7 @@ import slick.jdbc.GetResult
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.db.ExPostgresDriver.api._
+import core.db.ExPostgresDriver.api._
 
 class TaxonomyIntegrationTest
     extends IntegrationTestBase

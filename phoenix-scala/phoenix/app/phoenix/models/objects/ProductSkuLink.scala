@@ -2,12 +2,12 @@ package phoenix.models.objects
 
 import java.time.Instant
 
-import models.objects.ObjectHeadLinks._
+import core.db.ExPostgresDriver.api._
+import core.db._
+import objectframework.models.ObjectHeadLinks._
 import phoenix.models.inventory._
 import phoenix.models.product._
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class ProductSkuLink(id: Int = 0,
                           leftId: Int,

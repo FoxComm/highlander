@@ -1,7 +1,7 @@
 import akka.http.scaladsl.model.HttpResponse
 import cats.implicits._
-import failures.Failure
-import models.objects.ObjectContexts
+import core.failures.Failure
+import objectframework.models.ObjectContexts
 import org.scalatest.AppendedClues
 import phoenix.failures.CartFailures._
 import phoenix.models.account.Scope
@@ -23,7 +23,7 @@ import phoenix.utils.seeds.{CouponSeeds, Factories}
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class CartValidatorIntegrationTest
     extends IntegrationTestBase

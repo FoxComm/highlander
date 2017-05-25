@@ -1,9 +1,9 @@
 package phoenix.models.payment.giftcard
 
+import core.db._
 import phoenix.models.payment.giftcard.GiftCard.OriginType
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class GiftCardSubtype(id: Int = 0, title: String, originType: OriginType)
     extends FoxModel[GiftCardSubtype]

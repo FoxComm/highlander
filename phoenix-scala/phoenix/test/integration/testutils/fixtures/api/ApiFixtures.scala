@@ -11,7 +11,7 @@ import org.scalatest.SuiteMixin
 import phoenix.models.promotion.Promotion
 import phoenix.payloads.CouponPayloads.CreateCoupon
 import phoenix.payloads.ProductPayloads.CreateProductPayload
-import phoenix.payloads.ProductReviewPayloads.CreateProductReviewPayload
+import phoenix.payloads.ProductReviewPayloads.{CreateProductReviewByCustomerPayload, CreateProductReviewPayload}
 import phoenix.payloads.SkuPayloads.SkuPayload
 import phoenix.responses.CouponResponses.CouponResponse
 import phoenix.responses.ProductResponses.ProductResponse.{Root ⇒ ProductRoot}
@@ -23,7 +23,6 @@ import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
-
 import scala.util.Random
 
 trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with JwtTestAuth {
@@ -151,8 +150,9 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
 
   trait ProductReviewApiFixture extends ProductSku_ApiFixture {
     val reviewAttributes: Json = ("title" → tv("title")) ~ ("body" → tv("body"))
-    private val payload =
-      CreateProductReviewPayload(attributes = reviewAttributes, sku = skuCode, scope = None)
+    private val payload = CreateProductReviewByCustomerPayload(attributes = reviewAttributes,
+                                                               sku = skuCode,
+                                                               scope = None)
     val productReview =
       productReviewApi.create(payload)(implicitly, defaultAdminAuth).as[ProductReviewResponse]
   }

@@ -1,5 +1,5 @@
 import cats.implicits._
-import failures.{NotFoundFailure400, NotFoundFailure404}
+import core.failures.{NotFoundFailure400, NotFoundFailure404}
 import faker.Lorem
 import org.json4s.jackson.JsonMethods._
 import phoenix.failures.CartFailures._
@@ -28,7 +28,7 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtures
-import utils.db._
+import core.db._
 
 class CartIntegrationTest
     extends IntegrationTestBase
