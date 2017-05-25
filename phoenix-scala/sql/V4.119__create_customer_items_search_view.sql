@@ -11,5 +11,6 @@ create table customer_items_view (
   sku_price integer not null,
   order_reference_number reference_number not null,
   order_placed_at text,
-  saved_for_later_at text
+  line_item_state text,
+  saved_for_later_at text,
 );
