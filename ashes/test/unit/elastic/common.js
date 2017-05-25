@@ -17,7 +17,7 @@ function addQuery(searchTerm, search = baseSearch) {
       analyze_wildcard: true,
       analyzer: 'standard',
       default_operator: 'AND',
-      query: `*${searchTerm.term}*`,
+      query: `*${searchTerm.value.value}*`,
     },
   };
 
