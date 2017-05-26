@@ -117,6 +117,13 @@ object OrderPayments
       sc   ← StoreCredits if sc.id === pmts.paymentMethodId
     } yield (pmts, sc)
 
+  def findAllApplePaysByCordRef(
+      cordRef: String): Query[(OrderPayments, ApplePayments), (OrderPayment, ApplePayment), Seq] =
+    for {
+      pmts ← OrderPayments.filter(_.cordRef === cordRef)
+      ap   ← ApplePayments if ap.id === pmts.paymentMethodId
+    } yield (pmts, ap)
+
   def applePayByCordRef(cordRef: String): QuerySeq =
     findAllByCordRef(cordRef).applePays
 

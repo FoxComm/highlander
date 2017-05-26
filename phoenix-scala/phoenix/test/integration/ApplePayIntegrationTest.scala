@@ -18,6 +18,7 @@ import phoenix.utils.seeds.{Factories, ShipmentSeeds}
 import testutils.{DefaultJwtAdminAuth, IntegrationTestBase, TestLoginData}
 import testutils.fixtures.api.{ApiFixtureHelpers, ApiFixtures}
 import faker.Lorem
+import phoenix.models.payment.PaymentMethod.ApplePay
 import testutils._
 import testutils.fixtures.PaymentFixtures.CreditCardsFixture
 import testutils.fixtures.api._
@@ -72,7 +73,7 @@ class ApplePayIntegrationTest
         cartsApi(refNum).payments.creditCard.add(CreditCardPayment(cc.id)).mustBeOk()
 
         val orderResponse = cartsApi(refNum).checkout().as[OrderResponse]
-        val skuInCart     = orderResponse.lineItems.skus
+        val skuInCart = orderResponse.lineItems.skus
 
         val capturePayload =
           Capture(orderResponse.referenceNumber,
