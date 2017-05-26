@@ -168,6 +168,16 @@ class ProductIntegrationTest
         storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
       }
     }
+
+    "Successful if product has variants" in new ProductVariants_ApiFixture {
+      val slug             = "simple-product"
+      val getProductResult = productsApi(product.id).get().as[Root]
+      withRandomCustomerAuth { implicit auth ⇒
+        storefrontProductsApi(slug).get().mustBeOk()
+      }
+
+      getProductResult must === (product)
+    }
   }
 
   "POST v1/products/:context" - {

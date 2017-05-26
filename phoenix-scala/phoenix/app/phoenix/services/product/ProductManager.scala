@@ -108,7 +108,7 @@ object ProductManager extends LazyLogging {
          })
       albums ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
 
-      fullSkus ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
+      fullSkus    ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
       productSkus ← * <~ fullSkus.map(SkuManager.illuminateSku)
 
       variants     ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
