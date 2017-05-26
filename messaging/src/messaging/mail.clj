@@ -75,12 +75,12 @@
                            :message template}))
 
 (defn extract-password-link
-  [activity email isAdmin]
+  [activity email url-action is-admin]
   (let [reset-code (get-in activity [:data "code"])
         trim-slash (fn [str] (if (string/ends-with? str "/") (string/join "" (drop-last str)) str))
-        [base-url reset-pw-endpoint] (if isAdmin
+        [base-url reset-pw-endpoint] (if is-admin
                                        [(trim-slash (settings/get :admin_base_url))
-                                        (format "reset-password?token=%s&email=%s" reset-code email)]
+                                        (format "%s?token=%s&email=%s" url-action reset-code email)]
                                        [(trim-slash (settings/get :shop_base_url))
                                         (format (settings/get :reset_password_link_format) reset-code)])
         reset-password-link (format "%s/%s" base-url reset-pw-endpoint)]
@@ -177,7 +177,7 @@
   (let [data (:data activity)
         email (get-in data ["user" "email"])
         isAdmin (get-in activity ["isAdmin"])
-        reset-pw (extract-password-link activity email isAdmin)
+        reset-pw (extract-password-link activity email "reset" isAdmin)
         customer-name (get-in activity [:data "user" "name"])]
        (send-template! (settings/get :customer_remind_password_template)
            (gen-msg [{:email email :name customer-name}]
@@ -256,7 +256,7 @@
         email (get-in data ["storeAdmin" "email"])
         new-admin-name (get-in data ["storeAdmin" "name"])
         store-admin-name (get-in data ["admin" "name"])
-        reset-pw (extract-password-link activity email true)
+        reset-pw (extract-password-link activity email "signup" true)
         msg (gen-msg [{:email email :name new-admin-name}]
                      (merge
                      {:user_being_invited new-admin-name
