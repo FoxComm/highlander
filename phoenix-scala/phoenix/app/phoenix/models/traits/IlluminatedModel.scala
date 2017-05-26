@@ -23,6 +23,8 @@ trait IlluminatedModel[T] {
       val activeTo   = (attributes \ "activeTo" \ "v").extractOpt[Instant]
       val now        = Instant.now
 
+      println(s"-- activeFrom: $activeFrom ; activeTo: $activeTo")
+
       (activeFrom, activeTo) match {
         case (Some(from), Some(to)) ⇒ from.isBefore(now) && to.isAfter(now)
         case (Some(from), None)     ⇒ from.isBefore(now)

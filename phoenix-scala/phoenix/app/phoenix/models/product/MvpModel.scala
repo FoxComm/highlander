@@ -40,10 +40,11 @@ object SimpleContext {
     ObjectContext(id = id, name = name, attributes = ("modality" → modality) ~ ("lang" → lang))
 }
 
-case class SimpleProduct(title: String,
-                         description: String,
-                         active: Boolean = false,
-                         tags: Seq[String] = Seq.empty) {
+case class SimpleProduct(
+    title: String,
+    description: String,
+    active: Boolean = false, // Why default to false? Seeders don’t override. Actually nothing does.
+    tags: Seq[String] = Seq.empty) {
   val activeFrom = if (active) s""""${Instant.now}"""" else "null";
   val ts: String = compact(render(JArray(tags.map(t ⇒ JString(t)).toList)))
 
@@ -189,17 +190,18 @@ case class SimpleVariantValueShadow(v: SimpleVariantValue) {
 
 case class SimpleCompleteVariant(variant: SimpleVariant, variantValues: Seq[SimpleVariantValue])
 
-case class SimpleProductData(productId: Int = 0,
-                             skuId: Int = 0,
-                             albumId: Int = 0,
-                             title: String,
-                             description: String,
-                             image: String,
-                             code: String,
-                             price: Int,
-                             currency: Currency = Currency.USD,
-                             active: Boolean = false,
-                             tags: Seq[String] = Seq.empty)
+case class SimpleProductData(
+    productId: Int = 0,
+    skuId: Int = 0,
+    albumId: Int = 0,
+    title: String,
+    description: String,
+    image: String,
+    code: String,
+    price: Int,
+    currency: Currency = Currency.USD,
+    active: Boolean = false, // Why default to false? Seeders don’t override. Actually nothing does.
+    tags: Seq[String] = Seq.empty)
 
 case class SimpleProductTuple(product: Product,
                               sku: Sku,

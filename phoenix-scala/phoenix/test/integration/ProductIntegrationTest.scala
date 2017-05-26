@@ -55,7 +55,8 @@ class ProductIntegrationTest
     with DefaultJwtAdminAuth
     with BakedFixtures
     with ApiFixtures
-    with TaxonomySeeds {
+    with TaxonomySeeds
+    with SkuOps {
   import ProductTestExtensions._
 
   "GET v1/products/:context" - {
@@ -93,11 +94,23 @@ class ProductIntegrationTest
     }
   }
 
-  "GET v1/my/products/:ref/baked" - {
-    "404 for archived products" in new ProductSku_ApiFixture {
+  "GET v1/my/products/:ref/baked & v1/products/:ref" - {
+
+    "200 for existing product" in new Fixture {
+      withRandomCustomerAuth { implicit auth ⇒
+        storefrontProductsApi(product.formId.toString).get()
+      }.mustBeOk()
+
+      publicApi.getProducts(product.formId.toString).mustBeOk()
+    }
+
+    def go(deactivate: Fixture ⇒ Unit): Unit = {
+      val fix = new Fixture {}
+      import fix._
+
       val slug = "simple-product"
 
-      productsApi(product.id)
+      productsApi(product.formId)
         .update(
             UpdateProductPayload(productPayload.attributes,
                                  slug = slug.some,
@@ -105,68 +118,35 @@ class ProductIntegrationTest
                                  variants = None))
         .mustBeOk()
 
-      productsApi(product.id).archive().mustBeOk()
+      deactivate(fix)
 
-      withRandomCustomerAuth { implicit auth ⇒
-        storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
-      }
+      List(
+          withRandomCustomerAuth { implicit auth ⇒
+            storefrontProductsApi(slug).get()
+          },
+          publicApi.getProducts(slug)
+      ).foreach(_.mustFailWith404(NotFoundFailure404(Product, slug)))
     }
 
-    "404 for inactive products" in new Customer_Seed with Fixture {
-      val slug = "simple-product"
-
-      productsApi(product.formId)
-        .update(
-            UpdateProductPayload(attributes = inactiveAttrMap,
-                                 slug = slug.some,
-                                 skus =
-                                   allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap, None)).some,
-                                 albums = None,
-                                 variants = None))
-        .mustBeOk()
-
-      withRandomCustomerAuth { implicit auth ⇒
-        storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
-      }
+    "404 for archived products" in go { f ⇒
+      productsApi(f.product.formId).archive().mustBeOk()
     }
 
-    "404 if all SKUs are archived" in new Customer_Seed with Fixture {
-      val slug = "simple-product"
-
-      productsApi(product.formId)
-        .update(
-            UpdateProductPayload(attributes = activeAttrMap,
-                                 slug = slug.some,
-                                 skus =
-                                   allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap, None)).some,
-                                 albums = None,
-                                 variants = None))
+    "404 for inactive products" in go { f ⇒
+      productsApi(f.product.formId)
+        .update(UpdateProductPayload(attributes = f.inactiveAttrMap,
+                                     skus = None,
+                                     albums = None,
+                                     variants = None))
         .mustBeOk()
-
-      allSkus.map(sku ⇒ skusApi(sku).archive().mustBeOk())
-
-      withRandomCustomerAuth { implicit auth ⇒
-        storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
-      }
     }
 
-    "404 if all SKUs are inactive" in new Customer_Seed with Fixture {
-      val slug = "simple-product"
+    "404 if all SKUs are archived" in go { f ⇒
+      f.allSkus.foreach(sku ⇒ skusApi(sku).archive().mustBeOk())
+    }
 
-      productsApi(product.formId)
-        .update(
-            UpdateProductPayload(
-                attributes = activeAttrMap,
-                slug = slug.some,
-                skus =
-                  allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap ++ inactiveAttrMap, None)).some,
-                albums = None,
-                variants = None))
-        .mustBeOk()
-
-      withRandomCustomerAuth { implicit auth ⇒
-        storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
-      }
+    "404 if all SKUs are inactive" in go { f ⇒
+      f.allSkus.foreach(deactivateSku)
     }
   }
 
@@ -864,7 +844,8 @@ class ProductIntegrationTest
                                        code = "TEST",
                                        description = "Test product description",
                                        image = "image.png",
-                                       price = 5999)
+                                       price = 5999,
+                                       active = true)
 
     val skuRedSmallCode: String   = "SKU-RED-SMALL"
     val skuRedLargeCode: String   = "SKU-RED-LARGE"

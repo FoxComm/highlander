@@ -23,7 +23,7 @@ object ProductRoutes {
       productRef: ProductReference)(implicit ec: EC, db: DB, oc: OC, ac: AC, auth: AU): Route = {
     (get & pathEnd) {
       getOrFailures {
-        ProductManager.getProduct(productRef)
+        ProductManager.getProduct(productRef, checkActive = false)
       }
     } ~
     (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
