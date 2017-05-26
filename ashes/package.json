@@ -109,6 +109,7 @@
     "babel-register": "^6.18.0",
     "babel-runtime": "^6.5.0",
     "chai": "^3.0.0",
+    "chai-enzyme": "^0.7.1",
     "co-mocha": "^1.1.2",
     "css-loader": "^0.28.2",
     "css-modules-require-hook": "^4.0.6",

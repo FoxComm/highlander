@@ -14,6 +14,7 @@ describe('Alert', function () {
     expect(alert.hasClass('alert')).to.be.true;
     expect(alert.hasClass('success')).to.be.true;
     expect(alert.text()).to.equal('Success');
+    expect(alert.find('.close')).to.be.empty;
   });
 
   it('should render warning Alert', function () {
@@ -40,6 +41,8 @@ describe('Alert', function () {
     const alert = shallow(
       <Alert type={Alert.ERROR} closeAction={onClick}>Error</Alert>
     );
+
+    expect(alert.find('.close')).not.to.be.empty;
 
     alert.find('.close').simulate('click');
     expect(onClick.calledOnce).to.be.true;
