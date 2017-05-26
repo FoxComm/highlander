@@ -214,7 +214,7 @@ export default class GiftCard extends React.Component {
 
     return (
       <div className="fc-gift-card">
-        <PageTitle title="Gift Card" subtitle={<GiftCardCode value={card.code} />}/>
+        <PageTitle title="Gift Card" subtitle={<GiftCardCode value={card.code} />} />
         <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-3">
             <Panel title="Available Balance" featured={true}>

@@ -1,4 +1,5 @@
-{
+module.exports = {
+  "root": true,
   "ecmaFeatures": {
     "defaultParams": true,
     "classes": true,
@@ -60,7 +61,7 @@
     "no-constant-condition": 2,
     "no-alert": 2,
     "no-debugger": 2,
-    "no-unused-vars": ["warn", { "vars": "local", "args": "none", varsIgnorePattern: "styles|Element|PropTypes|_|key", ignoreRestSiblings: true }],
+    "no-unused-vars": ["error", { "vars": "local", "args": "none", varsIgnorePattern: "styles|Element|PropTypes|_|key", ignoreRestSiblings: true }],
 
     "no-dupe-args": 2,
     "no-dupe-keys": 2,
@@ -105,9 +106,14 @@
     "react/display-name": 0,
     "react/jsx-uses-react": 1,
     "react/jsx-uses-vars": 1,
+    "react/jsx-tag-spacing": [2, {
+      "closingSlash": "never",
+      "beforeSelfClosing": "always",
+      "afterOpening": "never",
+    }],
     "react/no-did-update-set-state": 1,
     "react/no-multi-comp": [
-      1,
+      0,
       {
         "ignoreStateless": true
       }
@@ -125,4 +131,4 @@
     "react", "lodash-fp"
   ],
   "parser": "babel-eslint"
-}
+};

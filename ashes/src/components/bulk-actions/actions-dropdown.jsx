@@ -4,7 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 // components
-import {Dropdown, DropdownItem} from '../dropdown';
+import { Dropdown } from '../dropdown';
 
 // styles
 import s from './actions-dropdown.css';
