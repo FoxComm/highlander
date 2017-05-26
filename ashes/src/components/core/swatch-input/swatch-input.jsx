@@ -7,7 +7,7 @@ import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
-import TextInput from 'components/forms/text-input';
+import TextInput from 'components/core/text-input';
 
 // styles
 import s from './swatch-input.css';

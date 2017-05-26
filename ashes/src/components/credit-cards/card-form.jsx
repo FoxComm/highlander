@@ -19,7 +19,7 @@ import AddressDetails from '../addresses/address-details';
 import AddressSelect from '../addresses/address-select';
 import SaveCancel from 'components/core/save-cancel';
 import { TextMask } from 'components/core/text-mask';
-import TextInput from '../forms/text-input';
+import TextInput from 'components/core/text-input';
 import AutoScroll from '../common/auto-scroll';
 import ExpirationBlock from './card-expiration-block';
 

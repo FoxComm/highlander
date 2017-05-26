@@ -14,7 +14,7 @@ import FoxyForm from '../../forms/foxy-form';
 import ErrorAlerts from '../../alerts/error-alerts';
 import SaveCancel from 'components/core/save-cancel';
 import { Dropdown } from '../../dropdown';
-import TextInput from '../../forms/text-input';
+import TextInput from 'components/core/text-input';
 import AutoScroll from '../../common/auto-scroll';
 
 // data

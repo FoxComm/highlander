@@ -12,7 +12,7 @@ import classNames from 'classnames';
 import modal from 'components/modal/wrapper';
 import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
-import TextInput from 'components/forms/text-input';
+import TextInput from 'components/core/text-input';
 
 import s from './bulk-export-modal.css';
 
