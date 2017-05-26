@@ -674,7 +674,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def uploadImageByUrl(payload: ImagePayload)(implicit ctx: OC,
                                                 aa: TestAdminAuth): HttpResponse =
-      POST(s"$albumPath/images/byUrl", payload, aa.jwtCookie.some)
+      POST(s"$albumPath/images/by-url", payload, aa.jwtCookie.some)
   }
 
   object saveForLaterApi {

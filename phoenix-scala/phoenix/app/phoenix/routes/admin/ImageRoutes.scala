@@ -69,7 +69,7 @@ object ImageRoutes {
                       ImageFacade.uploadImagesFromMultipartToAlbum(albumId, context, formData)
                     }
                 } ~
-                (path("byUrl") & post & entity(as[ImagePayload])) { payload ⇒
+                (path("by-url") & post & entity(as[ImagePayload])) { payload ⇒
                   mutateOrFailures {
                     ImageFacade.uploadImagesFromPayloadToAlbum(albumId, context, payload)
                   }
