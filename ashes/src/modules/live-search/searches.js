@@ -6,7 +6,6 @@ import Api from '../../lib/api';
 import SearchTerm from '../../paragons/search-term';
 import { createNsAction } from './../utils';
 import makeAssociations from './searches-associations';
-import { toQuery } from '../../elastic/common';
 
 const emptyState = {
   isDirty: false,
@@ -94,7 +93,6 @@ export default function makeSearches(namespace, dataActions, searchTerms, scope,
       title: search.title,
       query: search.query,
       scope: scope,
-      rawQuery: toQuery(search.query),
     };
 
     return dispatch => {
@@ -122,7 +120,6 @@ export default function makeSearches(namespace, dataActions, searchTerms, scope,
       title: search.title,
       query: search.query,
       scope: scope,
-      rawQuery: toQuery(search.query),
     };
 
     return dispatch => {
@@ -266,10 +263,9 @@ function _submitFilters(state, filters, initial) {
 
   /** not mark search as dirty on initial filters set but left it dirty if it was marked before */
   const isDirty = !initial || wasDirty;
-
   return assoc(state,
     ['savedSearches', state.selectedSearch, 'query'], filters,
-    ['savedSearches', state.selectedSearch, 'isDirty'], isDirty
+    ['savedSearches', state.selectedSearch, 'isDirty'], isDirty,
   );
 }
 
@@ -282,10 +278,9 @@ function _submitPhrase(state, phrase) {
   };
 
   const query = [...state.savedSearches[state.selectedSearch].query, filter];
-
   return assoc(state,
     ['savedSearches', state.selectedSearch, 'query'], query,
-    ['savedSearches', state.selectedSearch, 'isDirty'], true
+    ['savedSearches', state.selectedSearch, 'isDirty'], true,
   );
 }
 

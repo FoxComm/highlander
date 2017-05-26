@@ -44,7 +44,9 @@ func GetRoutes(db *gorm.DB) map[string]controllers.IController {
 		"v1/public/carriers":         controllers.NewCarrierController(carrierService),
 		"v1/public/shipping-methods": controllers.NewShippingMethodController(shippingMethodService),
 		"v1/public/shipments":        controllers.NewShipmentController(shipmentService),
+		"v1/public/skus":             controllers.NewSKUController(db),
 
 		"v1/private/reservations": controllers.NewReservationController(inventoryService),
+		"v1/private/bulk":         controllers.NewBulkActionsController(db),
 	}
 }
