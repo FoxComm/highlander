@@ -19,7 +19,7 @@ object CordResponsePayments {
     for {
       gc ← CordResponseGiftCardPayment.fetch(cordRef)
       cc ← CordResponseCreditCardPayment.fetch(cordRef)
-      sc ← CordResponseStoreCreditPayment.fetch(cordRef)
+      sc ← CordResponseStoreCreditPayment.fetch(cordRef) // todo add apple pay @aafa
     } yield cc ++ gc ++ sc
 }
 

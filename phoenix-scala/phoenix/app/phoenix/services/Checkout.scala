@@ -361,8 +361,9 @@ case class Checkout(
       _ ← * <~ failIf(orderPayments.groupBy(_.paymentMethodType).size > 1,
                       OnlyOneExternalPaymentIsAllowed)
 
-      // auth first payment we got
-    } yield (authOneExternalPayment(authAmount, orderPayments.head))
+      // authorize first payment we've got
+      _ ← * <~ authOneExternalPayment(authAmount, orderPayments.head)
+    } yield ()
   }
 
   private def authOneExternalPayment(authAmount: Int,
@@ -370,14 +371,11 @@ case class Checkout(
     orderPayment.paymentMethodType match {
       case PaymentMethod.ApplePay   ⇒ authApplePay(authAmount, orderPayment)
       case PaymentMethod.CreditCard ⇒ authCreditCard(authAmount, orderPayment)
-      case _                        ⇒
+      case _                        ⇒ DbResultT.unit
     }
-
-    DbResultT.unit
   }
 
-  private def authCreditCard(authAmount: Int,
-                             orderPayment: OrderPayment): DbResultT[Option[CreditCardCharge]] = {
+  private def authCreditCard(authAmount: Int, orderPayment: OrderPayment): DbResultT[Unit] = {
 
     for {
       card ← * <~ CreditCards
@@ -390,13 +388,12 @@ case class Checkout(
                                                       card.gatewayCustomerId.some)
 
       ourCharge = CreditCardCharge.authFromStripe(card, orderPayment, stripeCharge, cart.currency)
-      _       ← * <~ LogActivity().creditCardAuth(cart, ourCharge)
-      created ← * <~ CreditCardCharges.create(ourCharge)
-    } yield created.some
+      _ ← * <~ CreditCardCharges.create(ourCharge)
+      _ ← * <~ LogActivity().creditCardAuth(cart, ourCharge)
+    } yield ()
   }
 
-  private def authApplePay(authAmount: Int,
-                           orderPayment: OrderPayment): DbResultT[Option[ApplePayCharge]] = {
+  private def authApplePay(authAmount: Int, orderPayment: OrderPayment): DbResultT[Unit] = {
 
     for {
       applePay ← * <~ ApplePayments
@@ -407,9 +404,9 @@ case class Checkout(
                       .authorizeAmount(applePay.stripeTokenId, authAmount, cart.currency)
       ourCharge = ApplePayCharges
         .authFromStripe(applePay, orderPayment, stripeCharge, cart.currency)
-      _       ← * <~ LogActivity().applePayAuth(applePay, ourCharge)
-      created ← * <~ ApplePayCharges.create(ourCharge)
-    } yield created.some
+      _ ← * <~ ApplePayCharges.create(ourCharge)
+      _ ← * <~ LogActivity().applePayAuth(applePay, ourCharge)
+    } yield ()
 
   }
 

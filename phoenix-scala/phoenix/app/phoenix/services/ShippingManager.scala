@@ -63,6 +63,7 @@ object ShippingManager {
       shipData    ← * <~ getShippingData(cart)
     } yield filterMethods(shipMethods, shipData)
 
+  // @aafa FIXME: make sure that shipping methods are cart-total-price aware  (free shipping available if total is more than certain amount)
   def getShippingMethodsForRegion(countryCode: String)(implicit ec: EC,
                                                        db: DB): DbResultT[Seq[Root]] =
     for {
