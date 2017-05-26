@@ -81,6 +81,18 @@ module.exports = {
             },
           ],
         },
+        {
+          name: 'Utils',
+          sections: [
+            {
+              name: 'Errors',
+              components: () => ([
+                path.resolve(__dirname, '../src/components/utils/errors/errors.jsx'),
+                path.resolve(__dirname, '../src/components/utils/errors/api-errors.jsx'),
+              ]),
+            },
+          ]
+        },
       ],
     },
   ],
