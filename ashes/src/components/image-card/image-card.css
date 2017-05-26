@@ -22,7 +22,8 @@
     border-width: 0.5px;
   }
 
-  &.loading::after {
+  &.loading::after,
+  &.failed::after {
     content: '';
     position: absolute;
     top: 0;
@@ -30,6 +31,10 @@
     bottom: 0;
     left: 0;
     @apply --loading-caramel;
+  }
+
+  &.failed:not(.loading)::after {
+    animation: none;
   }
 }
 
@@ -64,10 +69,8 @@
     opacity: 0;
     pointer-events: none;
   }
-}
 
-.icon {
-  position: absolute;
-  font-size: 70px;
-  color: red;
+  .card.failed & {
+    display: none;
+  }
 }

@@ -35,10 +35,10 @@ export default class ImageCard extends Component {
     onImageClick: () => {},
   };
 
-  shouldComponentUpdate({ src: nextSrc, disabled: nextDisabled, failed: nextFailed }: Props) {
-    const { src, disabled, failed } = this.props;
+  shouldComponentUpdate({ src: nextSrc, disabled: nextDisabled, failed: nextFailed, loading: nextLoading }: Props) {
+    const { src, disabled, failed, loading } = this.props;
 
-    return src !== nextSrc || disabled !== nextDisabled || failed !== nextFailed;
+    return src !== nextSrc || disabled !== nextDisabled || failed !== nextFailed || loading !== nextLoading;
   }
 
   get actions(): ?Element<*> {
@@ -67,11 +67,11 @@ export default class ImageCard extends Component {
     const cls = classNames(s.card, s.image, className, {
       [s.disabled]: disabled,
       [s.loading]: loading,
+      [s.failed]: failed,
     });
 
     return (
       <div className={cls} onClick={this.props.onImageClick}>
-        {failed && <i className={classNames('icon-error', s.icon)} />}
         <Image id={id} src={src} size="cover" />
         {this.actions}
       </div>

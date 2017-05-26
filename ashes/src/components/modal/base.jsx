@@ -31,7 +31,7 @@ const ModalContainer = ({ children, isVisible, onCancel = noop, size }: Props) =
 
   if (isVisible) {
     content = (
-      <div className={classNames('fc-modal', s.block, { [s._big]: size === 'big' })}>
+      <div className={classNames('fc-modal', s.block, { [s.big]: size === 'big' })}>
         <Overlay shown={isVisible} onClick={onCancel} />
         <div className={classNames('fc-modal-container', s.viewport)} onKeyDown={handleEscKeyPress}>
           {children}
