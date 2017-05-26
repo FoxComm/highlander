@@ -94,7 +94,7 @@ class Cart extends Component {
     const className = classNames('fc-order', 'fc-cart');
 
     if (this.props.isFetching !== false) {
-      return <Spinner className={s.loader} />;
+      return <Spinner className={s.spinner} />;
     }
 
     if (_.isEmpty(this.cart)) {

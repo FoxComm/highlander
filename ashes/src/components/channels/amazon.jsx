@@ -124,9 +124,7 @@ class AmazonCredentials extends Component {
               </PrimaryButton>
 
               {fetchState.inProgress &&
-                <div className={s.preloader}>
-                  <Spinner className={s.waiting} size="m" />
-                </div>
+                <Spinner className={s.spinner} size="m" />
               }
 
               {updateState.err && <div>updateError</div>}

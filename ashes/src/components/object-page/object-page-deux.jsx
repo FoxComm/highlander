@@ -251,7 +251,7 @@ class ObjectPageDeux extends Component {
     }
 
     if (!object || fetchState.inProgress) {
-      return <Spinner className={styles.waiting} />;
+      return <Spinner className={styles.spinner} />;
     }
 
     return (

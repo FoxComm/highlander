@@ -1,7 +1,10 @@
 // @flow
 
+// lib
 import React from 'react';
 import classNames from 'classnames';
+
+// styles
 import s from './spinner.css';
 
 type Props = {

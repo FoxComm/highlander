@@ -17,7 +17,7 @@ type Props = {
 };
 
 const LoadingInputWrapper = (props: Props) => {
-  const animation = props.inProgress ? <Spinner className={s.loader} size="s" /> : null;
+  const animation = props.inProgress ? <Spinner className={s.spinner} size="s" /> : null;
 
   return (
     <div className={classNames(s.wrapper, props.className)}>

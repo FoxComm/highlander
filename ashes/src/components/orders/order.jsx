@@ -276,7 +276,7 @@ export default class Order extends React.Component {
 
   get body(): Element<any> {
     if (this.props.isFetching || !this.order) {
-      return <Spinner className={s.loader} />;
+      return <Spinner className={s.spinner} />;
     }
     if (this.props.fetchError) {
       return <Error notFound={`There is no order with reference number ${this.orderRefNum}`} />;

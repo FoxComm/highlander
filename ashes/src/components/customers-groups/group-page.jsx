@@ -69,7 +69,7 @@ class GroupPage extends Component {
     }
 
     if (!this.isRequestedGroup) {
-      return <Spinner className={s.loader} />;
+      return <Spinner className={s.spinner} />;
     }
 
     return (

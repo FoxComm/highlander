@@ -60,7 +60,7 @@ export default class Customer extends Component {
   }
 
   get waitAnimation() {
-    return <Spinner className={s.loader} />;
+    return <Spinner className={s.spinner} />;
   }
 
   get errorMessage() {

@@ -14,7 +14,7 @@ import { getDisplayName } from 'lib/react-utils';
 import Spinner from 'components/core/spinner';
 
 // styles
-import styles from './taxonomies.css';
+import s from './taxonomies.css';
 
 const omitProps = [
   'taxonomy',
@@ -85,7 +85,7 @@ export default function withTaxonomies(options: Options) {
         const { taxonomies, fetchState } = this.props;
 
         if (options.showLoader && (!taxonomies || fetchState.inProgress && !fetchState.err)) {
-          return <Spinner className={styles.waiting} />;
+          return <Spinner className={s.spinner} />;
         }
 
         const props = {

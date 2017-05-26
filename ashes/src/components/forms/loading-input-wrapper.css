@@ -3,7 +3,7 @@
   display: flex;
 }
 
-.loader {
+.spinner {
   position: absolute;
   right: 7px;
   bottom: 0;

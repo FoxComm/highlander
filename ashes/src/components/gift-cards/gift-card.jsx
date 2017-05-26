@@ -212,7 +212,7 @@ export default class GiftCard extends React.Component {
     const card = this.props.card;
 
     if (!card) {
-      return <Spinner className={s.loader} />;
+      return <Spinner className={s.spinner} />;
     }
 
     return (

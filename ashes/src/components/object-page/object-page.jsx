@@ -509,7 +509,7 @@ export class ObjectPage extends Component {
     const { actions, namespace } = props;
 
     if (this.isFetching) {
-      return <Spinner className={styles.waiting} />;
+      return <Spinner className={styles.spinner} />;
     }
 
     if (!object) {

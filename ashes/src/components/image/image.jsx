@@ -90,7 +90,7 @@ export default class ImageLoader extends Component {
   }
 
   get loader(): ?Element<*> {
-    return !this.state.ready ? <Spinner key="loader" size="m" /> : null;
+    return !this.state.ready ? <Spinner key="spinner" size="m" /> : null;
   }
 
   get image(): ?Element<*> {
