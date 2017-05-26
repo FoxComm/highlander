@@ -74,7 +74,7 @@ class SetPassword extends Component {
       code: this.token,
     };
     this.props.resetPassword(payload).then(() => {
-      transitionTo('login');
+      transitionTo('home');
     });
   }
 
