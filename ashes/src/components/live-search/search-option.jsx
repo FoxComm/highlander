@@ -10,6 +10,8 @@ type Props = {
   clickAction: Function;
   option: {
     selectionValue: any;
+    displayTerm: string;
+    displayAction: string;
   };
 };
 
