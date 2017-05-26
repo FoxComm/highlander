@@ -43,11 +43,11 @@ export default class CustomerSuggestProducts extends React.Component {
       .catch((err) => this.setState({ error: err.response.text }));
   }
 
-  isDisabled() {
+  isEnabled() {
     const { addresses, cards } = this.props;
     const isDefaultAddress = _.find(addresses, address => address.isDefault);
     const isDefaultCard = _.find(cards, card => card.isDefault);
-    return !isDefaultAddress || !isDefaultCard;
+    return isDefaultAddress && isDefaultCard;
   }
 
   buttonOrNot() {
@@ -62,7 +62,7 @@ export default class CustomerSuggestProducts extends React.Component {
       return <ErrorAlerts error={this.state.error} />;
     }
     return (
-      <Button id="customer-suggest-products-btn" onClick={this.onSend} disabled={this.isDisabled()}>
+      <Button id="customer-suggest-products-btn" onClick={this.onSend} disabled={!this.isEnabled()}>
         Send Suggestion
       </Button>
     );
