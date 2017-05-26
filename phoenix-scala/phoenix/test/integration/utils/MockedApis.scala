@@ -113,9 +113,9 @@ trait MockedApis extends MockitoSugar {
   lazy val amazonApiMock: AmazonApi = {
     val mocked = mock[AmazonApi]
     when(mocked.uploadFile(any[String], any[File])(any[EC]))
-      .thenReturn(Result.good("amazon-image-url"))
+      .thenReturn(Result.good("http://amazon-image.url/1"))
     when(mocked.uploadFileF(any[String], any[File])(any[EC]))
-      .thenReturn(Future.successful("amazon-image-url"))
+      .thenReturn(Future.successful("http://amazon-image.url/1"))
     mocked
   }
 

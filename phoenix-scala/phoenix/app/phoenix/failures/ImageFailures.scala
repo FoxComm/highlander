@@ -58,6 +58,10 @@ object ImageFailures {
   }
 
   case class InvalidImageUrl(url: String) extends Failure {
-    override def description: String = s"Invalid image url: $url"
+    val safeUrl =
+      if (url.length > 100)
+        s"${url.slice(0, 100)}..."
+      else url
+    override def description: String = s"Invalid image url: $safeUrl"
   }
 }
