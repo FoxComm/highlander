@@ -262,7 +262,7 @@ export class Analytics extends React.Component {
       return;
     }
 
-    const { segments, entity } = this.props;
+    const { entity } = this.props;
 
     switch(question.title) {
       case questionTitles.TotalRevenue:

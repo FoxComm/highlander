@@ -23,7 +23,7 @@ class NavDropdown extends Component {
 
     return (
       <li className={cls}>
-        <a>{title}<i className="icon-chevron-down"/></a>
+        <a>{title}<i className="icon-chevron-down" /></a>
         <ul className={s.dropdown}>
           {React.Children.map(children, item => <li className={s.item}>{item}</li>)}
         </ul>
