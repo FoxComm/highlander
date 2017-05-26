@@ -5,6 +5,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import core.db._
 import phoenix.payloads.LoginPayload
 import phoenix.payloads.UserPayloads._
 import phoenix.services.Authenticator
@@ -21,13 +22,20 @@ object AuthRoutes {
 
   def routes(defaultScope: LTree)(implicit ec: EC, db: DB): Route = {
 
+    // FIXME @kjanosz: investigate with higher akka-http version, or subsequent http server
+    // There should be a better way to do this, but making auto login on password reset
+    // does not seem to work when using akka-http route & directive combinators and conversions
+    def doLogin(payload: DbResultT[LoginPayload])(
+        routeUnwrap: DbResultT[Route] ⇒ Result[Route]): Route =
+      onSuccess(routeUnwrap(Authenticator.authenticate(payload)).runEmptyA.value) { result ⇒ // TODO: rethink discarding warnings here @michalrus
+        result.fold({ f ⇒
+          complete(renderFailure(f))
+        }, identity)
+      }
+
     pathPrefix("public") {
       (post & path("login") & entity(as[LoginPayload])) { payload ⇒
-        onSuccess(Authenticator.authenticate(payload).runEmptyA.value) { result ⇒ // TODO: rethink discarding warnings here @michalrus
-          result.fold({ f ⇒
-            complete(renderFailure(f))
-          }, identity)
-        }
+        doLogin(DbResultT.pure(payload))(_.runDBIO())
       } ~
       activityContext(defaultScope) { implicit ac ⇒
         (post & path("send-password-reset") & pathEnd & entity(as[ResetPasswordSend])) { payload ⇒
@@ -36,9 +44,16 @@ object AuthRoutes {
           }
         } ~
         (post & path("reset-password") & pathEnd & entity(as[ResetPassword])) { payload ⇒
-          mutateOrFailures {
-            AccountManager.resetPassword(code = payload.code, newPassword = payload.newPassword)
-          }
+          val doPasswordReset = AccountManager
+            .resetPassword(code = payload.code, newPassword = payload.newPassword)
+            .map(answer ⇒
+                  LoginPayload(
+                      email = answer.email,
+                      password = payload.newPassword,
+                      org = answer.org
+                ))
+
+          doLogin(doPasswordReset)(_.runTxn())
         }
       } ~
       (post & path("logout")) {

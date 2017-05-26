@@ -229,8 +229,9 @@ object Authenticator {
     })
   }
 
-  def authenticate(payload: LoginPayload)(implicit ec: EC, db: DB): Result[Route] = {
+  def authenticate(doPayload: DbResultT[LoginPayload])(implicit ec: EC, db: DB): DbResultT[Route] = {
     val tokenResult = for {
+      payload      ← * <~ doPayload
       organization ← * <~ Organizations.findByName(payload.org).mustFindOr(LoginFailed)
       user         ← * <~ Users.findNonGuestByEmail(payload.email.toLowerCase).mustFindOneOr(LoginFailed)
       _            ← * <~ user.mustNotBeMigrated
@@ -253,8 +254,8 @@ object Authenticator {
     } yield checkedToken
 
     for {
-      token ← tokenResult.runDBIO
-      route ← Result.fromEither(authTokenLoginResponse(token))
+      token ← * <~ tokenResult
+      route ← * <~ authTokenLoginResponse(token)
     } yield route
   }
 
