@@ -9,17 +9,29 @@ import { autobind } from 'core-decorators';
 import s from './text-input.css';
 
 type Props = {
+  /** Input value itself */
   value: string,
+  /** Additional className */
   className?: string,
+  /** Action performed on input's value change */
   onChange?: (value: string) => void,
-  placeholder?: string | Element<*>,
+  /** Placeholder value */
+  placeholder?: string | Element<any>,
+  /** If true - enables autofocus */
   autoFocus?: boolean,
+  /** If true - disables input */
   disabled?: boolean,
 };
 
 type State = {
   value: string,
 };
+
+/**
+ * TextInput is a wrapper over DOM's input
+ *
+ * @class TextInput
+ */
 
 export default class TextInput extends Component {
   props: Props;
@@ -47,7 +59,7 @@ export default class TextInput extends Component {
     }
   }
 
-  render(): Element<*> {
+  render(): Element<any> {
     const { className, placeholder, onChange, ...rest } = this.props;
     const inputClass = classNames(s.input, className, '__cssmodules');
 
@@ -57,8 +69,9 @@ export default class TextInput extends Component {
         className={inputClass}
         onChange={({ target }) => this.handleChange(target.value)}
         placeholder={placeholder}
+        value={onChange ? this.props.value : this.state.value}
         {...rest}
-        value={onChange ? this.props.value : this.state.value} />
+      />
     );
   }
 }
