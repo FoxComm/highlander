@@ -30,8 +30,8 @@ object StoreAdminManager {
       organization ← * <~ Organizations
                       .findByName(payload.org)
                       .mustFindOr(OrganizationNotFoundByName(payload.org))
-
-      context = AccountCreateContext(payload.roles, payload.org, organization.scopeId)
+      roles   = if (payload.roles.isEmpty) List(Authenticator.ADMIN_ROLE) else payload.roles
+      context = AccountCreateContext(roles, payload.org, organization.scopeId)
 
       admin ← * <~ AccountManager.createUser(name = payload.name.some,
                                              email = payload.email.some,
