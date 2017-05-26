@@ -1,7 +1,3 @@
-/* Consider this file as an "entry point" for all css */
-
-@import 'transitions.css';
-
 .block {
   display: flex;
   height: 100vh;

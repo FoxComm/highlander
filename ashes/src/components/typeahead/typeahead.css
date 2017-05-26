@@ -3,8 +3,8 @@
 }
 
 /* @todo remove globals from here somehow */
-.block._active :global(.fc-pilled-input__input-container),
-.block._active :global(.fc-pilled-input__input-container:hover) {
+.block.active :global(.fc-pilled-input__input-container),
+.block.active :global(.fc-pilled-input__input-container:hover) {
   border-color: #a2dee1 !important;
 }
 
@@ -21,7 +21,7 @@
   flex: 1 1 auto;
 }
 
-.list._search .input {
+.list.search .input {
   padding-left: 40px;
 }
 
@@ -33,7 +33,7 @@
   bottom: 11px;
 }
 
-.list._search .input-icon {
+.list.search .input-icon {
   display: block;
 }
 
@@ -47,7 +47,7 @@
   transition: all .2s linear;
 }
 
-.list._visible {
+.list.visible {
   visibility: visible;
   opacity: 1;
 }
@@ -64,7 +64,7 @@
   font-size: 12px;
 }
 
-.list._users .items {
+.list.users .items {
   width: 600px;
   overflow-y: auto;
 }
@@ -85,7 +85,7 @@
   cursor: pointer;
 }
 
-.list._modal .item {
+.list.modal .item {
   width: 600px;
 }
 

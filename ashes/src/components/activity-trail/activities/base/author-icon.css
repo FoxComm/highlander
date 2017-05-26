@@ -1,0 +1,10 @@
+.systemIcon {
+  width: 40px;
+  height: 40px;
+  margin-right: 12px;
+
+  :global(.fc-activity-notifications) & {
+    width: 30px;
+    height: 30px;
+  }
+}

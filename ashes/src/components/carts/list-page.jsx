@@ -9,7 +9,7 @@ import { actions } from 'modules/carts/list';
 
 type Props = {
   children: Element<*>,
-}
+};
 
 const CartListPage = (props: Props) => {
   const TotalCounter = makeTotalCounter(state => state.carts.list, actions);
@@ -22,7 +22,7 @@ const CartListPage = (props: Props) => {
   return (
     <ListPageContainer
       title="Carts"
-      subtitle={<TotalCounter/>}
+      subtitle={<TotalCounter />}
       navLinks={navLinks}
     >
       {props.children}

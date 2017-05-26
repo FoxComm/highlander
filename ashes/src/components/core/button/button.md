@@ -30,12 +30,12 @@ import { Button } from 'components/core/button'
   <Button.Button isLoading>Loading...</Button.Button>
   <Button.Button disabled>Disabled</Button.Button>
   <Button.Button fullWidth>Stretched button</Button.Button>
-  <Button.Button google>Google</Button.Button>
-  <Button.Button small>Small</Button.Button>
   <Button.Button icon="add">Add</Button.Button>
   <Button.Button icon="add" />
+  <Button.Button small>Small</Button.Button>
   <Button.Button icon="add" small>Add</Button.Button>
   <Button.Button icon="add" small />
+  <Button.Button>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</Button.Button>
 </div>
 ```
 
@@ -48,6 +48,8 @@ import { PrimaryButton } from 'components/core/button'
 ```
 <div className="demo">
   <Button.PrimaryButton>Push Me</Button.PrimaryButton>
+  <Button.PrimaryButton isLoading>Loading...</Button.PrimaryButton>
+  <Button.PrimaryButton disabled>Disabled</Button.PrimaryButton>
   <Button.PrimaryButton fullWidth icon="google">Push Me</Button.PrimaryButton>
 </div>
 ```

@@ -8,11 +8,11 @@ import { autobind, debounce } from 'core-decorators';
 import { connect } from 'react-redux';
 
 // components
+import { Link } from 'components/link';
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import Counter from 'components/forms/counter';
 import { DeleteButton } from 'components/core/button';
 import Currency from 'components/common/currency';
-import Link from 'components/link/link';
 import ProductImage from 'components/imgix/product-image';
 
 // actions
@@ -40,10 +40,6 @@ type State = {
   isDeleting: boolean;
   lastSyncedQuantity: number;
   quantity: number;
-};
-
-type DefaultProps = {
-  updateLineItemCount: Function,
 };
 
 export class CartLineItem extends Component {
