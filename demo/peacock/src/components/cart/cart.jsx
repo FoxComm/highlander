@@ -9,6 +9,7 @@ import { browserHistory } from 'lib/history';
 import { autobind } from 'core-decorators';
 import * as tracking from 'lib/analytics';
 import localized from 'lib/i18n';
+import { emailIsSet } from 'paragons/auth';
 
 // actions
 import * as actions from 'modules/cart';
@@ -23,6 +24,7 @@ import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
 import { parseError } from '@foxcomm/api-js';
 import Overlay from 'ui/overlay/overlay';
 import ActionLink from 'ui/action-link/action-link';
+import GuestAuth from 'pages/checkout/guest-auth/guest-auth';
 
 // types
 import type { Totals } from 'modules/cart';
@@ -45,17 +47,19 @@ type Props = {
   t: any,
   applePayAvailable: boolean,
   checkApplePay: Function, // signature
+  location: Object,
 };
 
 type State = {
   errors?: Array<any>,
+  guestAuth: boolean,
 };
 
 class Cart extends Component {
   props: Props;
 
   state: State = {
-
+    guestAuth: false,
   };
 
   componentDidMount() {
@@ -90,6 +94,12 @@ class Cart extends Component {
         errors: parseError(ex),
       });
     });
+  }
+
+  @autobind
+  isEmailSetForCheckout() {
+    const user = _.get(this.props, 'user', null);
+    return emailIsSet(user);
   }
 
   get lineItems() {
@@ -179,17 +189,43 @@ class Cart extends Component {
      });
   }
 
+  @autobind
+  checkAuth() {
+    const emailSet = this.isEmailSetForCheckout();
+
+    if (emailSet) {
+      this.setState({ guestAuth: false });
+      this.beginApplePay();
+    } else {
+      this.setState({ guestAuth: true });
+    }
+  }
+
   get applePayButton() {
     if (!this.props.applePayAvailable) return null;
 
+    const disabled = _.size(this.props.skus) < 1;
     return (
       <Button
         styleName="apple-pay checkout-button"
-        onClick={this.beginApplePay}
+        onClick={this.checkAuth}
+        disabled={disabled}
       />
     );
   }
 
+  get guestAuth() {
+    const { guestAuth } = this.state;
+
+    if (!guestAuth) return null;
+
+    return (
+      <GuestAuth
+        isEditing={!this.isEmailSetForCheckout()}
+        location={this.props.location}
+      />
+    );
+  }
   render() {
     const {
       t,
@@ -244,6 +280,7 @@ class Cart extends Component {
             {this.applePayButton}
           </div>
         </div>
+        {this.guestAuth}
       </div>
     );
   }
@@ -254,6 +291,7 @@ const mapStateToProps = (state) => {
     ...state.cart,
     ...state.auth,
     applePayAvailable: _.get(state.checkout, 'applePayAvailable', false),
+    location: _.get(state.routing, 'location', {}),
   };
 };
 
