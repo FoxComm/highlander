@@ -41,7 +41,7 @@ export default class CustomerSuggestProducts extends React.Component {
   buttonOrNot() {
     if(this.state.msgSent) {
       return (
-        <Alert type='success'>
+        <Alert type={Alert.SUCCESS}>
           Success! Your message has been sent.
         </Alert>
       );

@@ -19,7 +19,7 @@ type Props = {
 const ArchiveConfirmation = (props: Props) => {
   const confirmation = (
     <div>
-      <Alert type="warning">
+      <Alert type={Alert.WARNING}>
         Warning! This action cannot be undone
       </Alert>
       <p>

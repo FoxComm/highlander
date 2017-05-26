@@ -118,7 +118,7 @@ export default class Login extends Component {
   get infoMessage() {
     const { message } = this.state;
     if (!message) return null;
-    return <Alert type="success">{message}</Alert>;
+    return <Alert type={Alert.SUCCESS}>{message}</Alert>;
   }
 
   get errorMessage() {
