@@ -26,7 +26,7 @@ import { frn, readAction } from 'lib/frn';
 // redux
 import * as orderActions from 'modules/orders/details';
 
-import s from './orders.css';
+import s from './order.css';
 
 // types
 import type { StateToProps, DispatchToProps, Props, StateType, ReduxState, OrderType } from './orderTypes';
