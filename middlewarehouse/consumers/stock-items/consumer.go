@@ -68,13 +68,6 @@ func (consumer *StockItemsConsumer) Handler(m metamorphosis.AvroMessage) error {
 		log.Panicf("Error unmarshaling from Avro with error: %s", err.Error())
 	}
 
-	log.Printf("Prepare StockItem and SKU data")
-	stockItem := sku.StockItem(1)
-	b, err := json.Marshal(&stockItem)
-	if err != nil {
-		log.Panicf("Error marshaling to stock item with error: %s", err.Error())
-	}
-
 	skuReq := sku.CreateSKU()
 	skuJson, err := json.Marshal(&skuReq)
 	if err != nil {
@@ -88,7 +81,6 @@ func (consumer *StockItemsConsumer) Handler(m metamorphosis.AvroMessage) error {
 	jwt := consumer.phoenixClient.GetJwt()
 
 	log.Printf("Send requests to middlewarehouse")
-	consumer.sendRequest("v1/public/stock-items", bytes.NewBuffer(b), jwt)
 	consumer.sendRequest("v1/public/skus", bytes.NewBuffer(skuJson), jwt)
 
 	log.Printf("Message handler finished processing")
