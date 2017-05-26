@@ -65,6 +65,7 @@ export default class Upload extends Component {
   @autobind
   increaseDragCounter(): void {
     this.dragCounter += 1;
+    console.log('this.dragCounter', this.dragCounter);
     this.updateDragPossibility();
   }
 
@@ -170,10 +171,10 @@ export default class Upload extends Component {
   render() {
     const { onDrop, empty } = this.props;
     const className = classNames(s.block, this.props.className, {
-      [s._disabled]: !onDrop,
-      [s._dragOverArea]: this.state.dragOverArea,
-      [s._dragOverWindow]: this.state.dragOverWindow,
-      [s._emptyMod]: empty,
+      [s.disabled]: !onDrop,
+      [s.dragOverArea]: this.state.dragOverArea,
+      [s.dragOverWindow]: this.state.dragOverWindow,
+      [s.emptyMod]: empty,
     });
 
     return (

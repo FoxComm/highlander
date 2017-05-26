@@ -2,23 +2,23 @@
   background-clip: padding-box;
   transition: border-color .3s;
 
-  &._dragOverWindow {
+  &.dragOverWindow {
     border: 3px dashed #9bc1ca;
     margin: -10px;
     padding: 7px;
 
-    &._emptyMod {
+    &.emptyMod {
       margin: 0;
       padding: 0;
       border: dashed 2px #ced2d5;
     }
   }
 
-  &._dragOverArea {
+  &.dragOverArea {
     background-color: #e1f2ef;
   }
 
-  &._emptyMod {
+  &.emptyMod {
     border: dashed 2px #ced2d5;
   }
 }
@@ -26,12 +26,12 @@
 .container {
   min-height: 300px;
 
-  ._dragOverArea & {
+  .dragOverArea & {
     opacity: 0.3;
     pointer-events: none;
   }
 
-  ._emptyMod & {
+  .emptyMod & {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -39,7 +39,7 @@
     pointer-events: none; /* otherwise `onDragEnder` on .block will not works properly */
   }
 
-  ._disabled & {
+  .disabled & {
     cursor: no-drop;
   }
 }
