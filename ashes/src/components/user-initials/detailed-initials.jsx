@@ -27,7 +27,7 @@ export default class DetailedUserInitials extends Component {
   };
 
   get initials() {
-    const initials = <UserInitials {...this.props}/>;
+    const initials = <UserInitials {...this.props} />;
 
     if (this.props.showTooltipOnClick) {
       return (

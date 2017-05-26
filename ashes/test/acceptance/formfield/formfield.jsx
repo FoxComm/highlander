@@ -15,7 +15,7 @@ describe('FormField', function() {
   it('should validate by maxLength and validator constraints', function *() {
     formfield = yield renderIntoDocument(
       <FormField maxLength={5} validator='ascii' label="Lorem Ipsum">
-        <input type="text" value="Кошку ела собака"/>
+        <input type="text" value="Кошку ела собака" />
       </FormField>,
       true
     );
@@ -32,7 +32,7 @@ describe('FormField', function() {
   it('should validate text inputs by required constraint', function *() {
     formfield = yield renderIntoDocument(
       <FormField required label="Lorem Ipsum">
-        <input type="text" value=''/>
+        <input type="text" value='' />
       </FormField>,
       true
     );
@@ -48,7 +48,7 @@ describe('FormField', function() {
   it('should not validate checkbox inputs by required constraint', function *() {
     formfield = yield renderIntoDocument(
       <FormField required label="Lorem Ipsum">
-        <input type="checkbox"/>
+        <input type="checkbox" />
       </FormField>,
       true
     );
@@ -63,7 +63,7 @@ describe('FormField', function() {
       <FormField required label="Lorem Ipsum">
           <div>
             <article>
-              <p><input type="tel"/></p>
+              <p><input type="tel" /></p>
 
             </article>
           </div>

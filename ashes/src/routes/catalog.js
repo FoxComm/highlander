@@ -1,5 +1,5 @@
 /* @flow */
-import React, { Component, Element } from 'react';
+import React, { Element } from 'react';
 
 import FoxRouter from 'lib/fox-router';
 import { frn } from 'lib/frn';
@@ -25,8 +25,6 @@ import SkusListPage from 'components/skus/list-page';
 import SkuPage from 'components/skus/page';
 import SkuDetails from 'components/skus/details';
 import SkuImages from 'components/skus/images';
-
-import type { Claims } from 'lib/claims';
 
 const getRoutes = (jwt: Object) => {
   const router = new FoxRouter(jwt);

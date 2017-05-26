@@ -8,11 +8,7 @@ import { assoc, dissoc, update } from 'sprout-data';
 
 // helpers
 import { generateSkuCode } from './sku';
-import { getJWT } from 'lib/claims';
 import * as t from 'paragons/object-types';
-
-// types
-import type { JWT } from 'lib/claims';
 
 // we should identity sku be feCode first
 // because we want to persist sku even if code has been changes

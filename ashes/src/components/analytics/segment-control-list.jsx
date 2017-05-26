@@ -2,7 +2,6 @@
 
 // libs
 import React, { Component } from 'react';
-import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
 // styles

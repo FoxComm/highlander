@@ -1,5 +1,5 @@
 
-import React from 'react';
+// import React from 'react';
 
 describe('OrderDetails', function() {
   //const OrderDetails = requireComponent('orders/details.jsx');

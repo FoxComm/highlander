@@ -22,7 +22,7 @@ const renderRowFn = (order, updateAction, isEditingPrice, editPriceAction, cance
         editPriceAction={editPriceAction}
         cancelPriceAction={cancelPriceAction}
         submitPriceAction={submitPriceAction}
-        key={row.id}/>
+        key={row.id} />
     );
   };
 };

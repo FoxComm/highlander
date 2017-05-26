@@ -56,7 +56,7 @@ export default class Customer extends Component {
   }
 
   get waitAnimation() {
-    return <WaitAnimation/>;
+    return <WaitAnimation />;
   }
 
   get errorMessage() {
@@ -70,7 +70,7 @@ export default class Customer extends Component {
       <div>
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
-            <TitleBlock customer={details}/>
+            <TitleBlock customer={details} />
           </div>
         </div>
         <PageNav>
