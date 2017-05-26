@@ -1,7 +1,8 @@
 package phoenix.payloads
 
 object CatalogPayloads {
-  case class CreateCatalogPayload(name: String,
+  case class CreateCatalogPayload(scope: Option[String] = None,
+                                  name: String,
                                   site: Option[String],
                                   countryId: Int,
                                   defaultLanguage: String)

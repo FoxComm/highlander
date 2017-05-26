@@ -6,6 +6,7 @@ import com.github.tminglei.slickpg.LTree
 import shapeless._
 import core.db._
 import core.db.ExPostgresDriver.api._
+import phoenix.models.location._
 import phoenix.payloads.CatalogPayloads._
 
 case class Catalog(id: Int,
@@ -62,4 +63,10 @@ object Catalogs
     extends FoxTableQuery[Catalog, Catalogs](new Catalogs(_))
     with ReturningId[Catalog, Catalogs] {
   val returningLens: Lens[Catalog, Int] = lens[Catalog].id
+
+  def filterWithCountry(id: Int): Query[(Catalogs, Countries), (Catalog, Country), Seq] =
+    for {
+      catalog ← Catalogs.filter(_.id === id)
+      country ← Countries if country.id === catalog.countryId
+    } yield (catalog, country)
 }
