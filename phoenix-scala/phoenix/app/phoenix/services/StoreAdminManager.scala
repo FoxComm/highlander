@@ -73,6 +73,8 @@ object StoreAdminManager {
       adminUser ← * <~ AdminsData.mustFindByAccountId(accountId)
       _ ← * <~ AdminsData
            .deleteById(adminUser.id, DbResultT.unit, i ⇒ NotFoundFailure404(AdminData, i))
+      _ ← * <~ CustomersData
+           .deleteById(adminUser.id, DbResultT.unit, i ⇒ NotFoundFailure404(CustomersData, i))
       admin  ← * <~ Users.mustFindByAccountId(accountId)
       result ← * <~ Users.deleteById(admin.id, DbResultT.unit, i ⇒ NotFoundFailure404(User, i))
       _      ← * <~ AccountAccessMethods.findByAccountId(accountId).delete
