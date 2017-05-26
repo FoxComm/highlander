@@ -44,18 +44,29 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
 
   private def randomizeSequences(schema: String): Unit = {
     // When changing this, please, if anything, make them less predictable, not more. @michalrus
-    val sequences =
+    val allSequences =
       sql"SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema = $schema"
         .as[String]
         .gimme
+
+    // TODO: Make it possible to not filter these out… @michalrus
+    val randomizedSequences = allSequences.filterNot(
+        Set(
+            "scopes_id_seq" // FIXME: What the hell. https://foxcommerce.slack.com/archives/C06696D1R/p1495796779988723
+        ) contains _)
+
     val gap = 1000000
-    val withValues =
-      Random.shuffle(sequences).zip(Stream.from(1).map(_ * gap + Random.nextInt(gap / 10)))
-    DBIO.sequence(withValues.map {
-      case (name, value) ⇒
-        val increment = (if (Random.nextBoolean()) 1 else -1) * Random.nextInt(100)
-        sql"ALTER SEQUENCE #$name START WITH #$value INCREMENT BY #$increment RESTART".asUpdate
-    }).gimme
+    val withValues = Random
+      .shuffle(randomizedSequences)
+      .zip(Stream.from(1).map(_ * gap + Random.nextInt(gap / 10)))
+    DBIO
+      .sequence(withValues.map {
+        case (name, value) ⇒
+          val increment     = (if (Random.nextBoolean()) 1 else -1) * Random.nextInt(100)
+          val incrementNon0 = if (increment == 0) -1 else increment
+          sql"ALTER SEQUENCE #$name START WITH #$value INCREMENT BY #$incrementNon0 RESTART".asUpdate
+      })
+      .gimme
   }
 
   override protected def beforeAll(): Unit = {
