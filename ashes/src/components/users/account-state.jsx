@@ -26,6 +26,7 @@ type Props = {
   currentValue: string,
   updateAccountState: Function,
   userId: number|string,
+  className?: string,
 };
 
 type State = {
@@ -74,7 +75,7 @@ class AccountState extends Component {
     }
 
     return (
-      <div>
+      <div className={this.props.className}>
         <ContentBox title="Account State">
           <Dropdown value={this.props.currentValue}
                     onChange={(value) => this.handleDropdownChange(value)}

@@ -130,7 +130,11 @@ export const requestPasswordReset = _requestPasswordReset.perform;
 const _resetPassword = createAsyncActions(
   'resetPassword',
   function(payload: TResetPayload) {
-    return Api.post('/public/password-reset', payload);
+    const {dispatch} = this;
+
+    return superagent.post(Api.apiURI('/public/reset-password'), payload)
+      .type('json')
+      .then(response => handleAuthResponse(dispatch, response));
   }
 );
 

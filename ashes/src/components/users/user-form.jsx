@@ -74,6 +74,7 @@ export default class UserForm extends Component {
         currentValue={state}
         disabled={disabled}
         onChange={(value) => this.handleAccountStateChange(value)}
+        className={s.accountState}
       />
     );
   }

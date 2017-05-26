@@ -1,9 +1,13 @@
+import _ from 'lodash';
+
 export function configureUserData(user) {
+  const phoneNumber = user.form.attributes.phoneNumber.v;
+  const phone = _.isEmpty(phoneNumber) ? null : phoneNumber;
   return {
     id: user.id,
     name: user.form.attributes.firstAndLastName.v,
     email: user.form.attributes.emailAddress.v,
-    phoneNumber: user.form.attributes.phoneNumber.v,
+    phoneNumber: phone,
     org: user.form.attributes.org.v,
     state: user.accountState.state,
   };
