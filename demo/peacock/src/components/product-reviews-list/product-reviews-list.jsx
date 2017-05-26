@@ -12,16 +12,21 @@ import ActionLink from 'ui/action-link/action-link';
 import styles from './product-reviews-list.css';
 
 // types
+type ReviewAttributes = {
+  title: {t:'string', v: string},
+  body: {t:'string', v: string},
+  status: {t: 'string', v: string},
+}
+
 type ReviewItem = {
   sku: string,
   id: number,
   scope: string,
-  title: string,
   createdAt: string,
   updatedAt: string,
-  body: string,
   archivedAt: ?string,
   userName: string,
+  attributes: ReviewAttributes,
 }
 
 type Props = {
@@ -100,17 +105,19 @@ class ProductReviewsList extends Component {
 
   get displayReviews(): ?Element<*> {
     const { listItems, showLoadMore } = this.props;
-
-    if (!_.isEmpty(listItems)) {
+    const activeReviews = _.filter(listItems, (review) => {
+      return review.attributes.status.v == 'submitted';
+    });
+    if (!_.isEmpty(activeReviews)) {
       const reviews = _.map(listItems, (review) => {
         return (
           <ReviewBody
             key={review.id}
-            title={review.title}
+            title={review.attributes.title.v}
             userName={review.userName}
             updatedAt={review.updatedAt}
             sku={review.sku}
-            body={review.body}
+            body={review.attributes.body.v}
           />
         );
       });
