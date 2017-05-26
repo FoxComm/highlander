@@ -3,6 +3,7 @@ package testutils
 import java.sql.PreparedStatement
 import java.util.Locale
 import javax.sql.DataSource
+import scala.util.Random
 
 import objectframework.models.ObjectContexts
 import org.scalatest._
@@ -41,6 +42,22 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
                           "permissions",
                           "role_permissions")
 
+  private def randomizeSequences(schema: String): Unit = {
+    // When changing this, please, if anything, make them less predictable, not more. @michalrus
+    val sequences =
+      sql"SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema = $schema"
+        .as[String]
+        .gimme
+    val gap = 1000000
+    val withValues =
+      Random.shuffle(sequences).zip(Stream.from(1).map(_ * gap + Random.nextInt(gap / 10)))
+    DBIO.sequence(withValues.map {
+      case (name, value) ⇒
+        val increment = (if (Random.nextBoolean()) 1 else -1) * Random.nextInt(100)
+        sql"ALTER SEQUENCE #$name START WITH #$value INCREMENT BY #$increment RESTART".asUpdate
+    }).gimme
+  }
+
   override protected def beforeAll(): Unit = {
     if (!migrated) {
       Locale.setDefault(Locale.US)
@@ -49,15 +66,25 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
       flyway.clean()
       flyway.migrate()
 
+      val Schema = "public"
+
+      // TODO: it would be best if data created in *.sql migrations above had randomized sequences as well… @michalrus
+      randomizeSequences(Schema)
+
       truncateTablesStmt = {
-        val allTables =
-          persistConn.getMetaData.getTables(persistConn.getCatalog, "public", "%", Array("TABLE"))
+        // FIXME: just use Slick, it can be done IIRC @michalrus
+        val allTables: Seq[String] = {
+          val src =
+            persistConn.getMetaData.getTables(persistConn.getCatalog, Schema, "%", Array("TABLE"))
 
-        @tailrec
-        def iterate(in: Seq[String]): Seq[String] =
-          if (allTables.next()) iterate(in :+ allTables.getString(3)) else in
+          @tailrec
+          def iterate(in: Seq[String]): Seq[String] =
+            if (src.next()) iterate(in :+ src.getString(3)) else in
 
-        tables = iterate(Seq()).filterNot { t ⇒
+          iterate(Seq())
+        }
+
+        tables = allTables.filterNot { t ⇒
           t.startsWith("pg_") || t.startsWith("sql_") || doNotTruncate.contains(t)
         }
         val sqlTables = tables.mkString("{", ",", "}")
