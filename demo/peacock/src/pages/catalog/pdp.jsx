@@ -190,7 +190,7 @@ class PdpConnect extends Component {
       isLoading,
       notFound,
       fetchError,
-      product
+      product,
     } = this.props;
 
     const pdpProps = { t, isLoading, notFound, fetchError, product };
