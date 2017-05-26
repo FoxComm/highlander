@@ -37,6 +37,6 @@ describe('TextInput', function () {
     );
 
     input.simulate('change');
-    expect(onChange.called).to.be.true
+    expect(onChange.called).to.be.true;
   });
 });
