@@ -9,7 +9,7 @@ import _ from 'lodash';
 
 import DatePicker from '../datepicker/datepicker';
 import DateTimeCounter from './counter';
-import TextInput from 'components/core/text-input';;
+import TextInput from 'components/core/text-input';
 
 type Props = {
   dateTime: ?string,
