@@ -3,6 +3,7 @@
 // libs
 import React, { Component, Element } from 'react';
 import _ from 'lodash';
+import moment from 'moment';
 
 // components
 import Loader from 'ui/loader';
@@ -51,6 +52,7 @@ export const LoadingBehaviors = {
 
 const ReviewBody = (props): Element<*> => {
   const { title, userName, updatedAt, sku, body } = props;
+  const updatedAtFormatted = moment(updatedAt).format('MMM Do YYYY');
 
   return (
     <div styleName="product-review-container">
@@ -59,7 +61,7 @@ const ReviewBody = (props): Element<*> => {
           {title}
         </div>
         <div styleName="product-review-name-date">
-          From: {userName} on {updatedAt}
+          From: {userName} on {updatedAtFormatted}
         </div>
         <div styleName="product-review-variant">
           SKU: {sku}
