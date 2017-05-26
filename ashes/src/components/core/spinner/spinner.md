@@ -7,13 +7,13 @@
 ### States
 
 ```javascript
-import { Spinner } from 'components/spinner'
+import Spinner from 'components/core/spinner'
 ```
 
 ```
 <div className="demo">
-  <Spinner.Spinner />
-  <Spinner.Spinner size="m" />
-  <Spinner.Spinner size="s" />
+  <Spinner />
+  <Spinner size="m" />
+  <Spinner size="s" />
 </div>
 ```

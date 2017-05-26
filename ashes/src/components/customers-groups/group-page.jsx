@@ -12,7 +12,7 @@ import { reset, fetchGroup, archiveGroup, clearArchiveErrors } from 'modules/cus
 // components
 import ArchiveActionsSection from 'components/archive-actions/archive-actions';
 import Error from 'components/errors/error';
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 import GroupDetails from './group-details';
 
 // styles

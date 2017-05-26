@@ -11,7 +11,7 @@ import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import { PrimaryButton, SocialButton } from 'components/core/button';
 import WrapToLines from './wrap-to-lines';
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 
 import * as userActions from 'modules/user';
 

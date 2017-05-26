@@ -9,7 +9,7 @@ import { autobind } from 'core-decorators';
 
 import { PrimaryButton } from 'components/core/button';
 import OrderDetails from 'components/orders/details';
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 
 import * as cartActions from 'modules/carts/details';
 

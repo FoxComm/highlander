@@ -9,7 +9,7 @@ import { bindActionCreators } from 'redux';
 
 // components
 import Transition from 'react-transition-group/CSSTransitionGroup';
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 import { RoundedPill } from 'components/core/rounded-pill';
 import { withTaxonomy } from '../hoc';
 import TaxonomyDropdown from '../taxonomy-dropdown';

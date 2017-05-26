@@ -10,7 +10,7 @@ import styles from './plugin.css';
 import { PageTitle } from 'components/section-title';
 import ObjectFormInner from 'components/object-form/object-form-inner';
 import SaveCancel from 'components/core/save-cancel';
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 
 import * as PluginsActions from 'modules/plugins';
 import type { UpdateSettingsPayload, SettingDef } from 'modules/plugins';

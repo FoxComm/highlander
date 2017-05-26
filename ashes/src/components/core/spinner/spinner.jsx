@@ -9,7 +9,7 @@ type Props = {
   className?: string;
 };
 
-export const Spinner = (props: Props) => {
+const Spinner = (props: Props) => {
   const mod = props.size ? s[`size_${props.size}`] : null;
   const cls = classNames(s.root, mod, props.className);
 
@@ -22,3 +22,5 @@ export const Spinner = (props: Props) => {
     </div>
   );
 };
+
+export default Spinner;

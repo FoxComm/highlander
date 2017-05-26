@@ -7,7 +7,7 @@ import classNames from 'classnames';
 // components
 import { PageTitle } from 'components/section-title';
 import SubNav from './sub-nav';
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 import Error from 'components/errors/error';
 
 // redux

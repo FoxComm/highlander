@@ -13,7 +13,7 @@ import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 
 // components
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 import ObjectFormInner from 'components/object-form/object-form-inner';
 import Typeahead from 'components/typeahead/typeahead';
 import { CategoryItem } from './category-item';

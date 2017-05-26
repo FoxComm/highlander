@@ -10,7 +10,7 @@ import React, { Component, Element } from 'react';
 import Transition from 'react-transition-group/CSSTransitionGroup';
 
 // components
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 import ProductImage from 'components/imgix/product-image';
 
 type Props = {

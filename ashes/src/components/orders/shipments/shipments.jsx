@@ -9,7 +9,7 @@ import { bindActionCreators } from 'redux';
 import { getStore } from 'lib/store-creator';
 
 // components
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 import { PrimaryButton } from 'components/core/button';
 import SectionTitle from 'components/section-title/section-title';
 import Shipment from './shipment';

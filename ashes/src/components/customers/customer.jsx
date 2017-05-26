@@ -7,7 +7,7 @@ import TitleBlock from './title-block';
 import { connect } from 'react-redux';
 import * as CustomersActions from '../../modules/customers/details';
 import PageNav from 'components/core/page-nav';
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 
 // styles
 import s from './customer.css';

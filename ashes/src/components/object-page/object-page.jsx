@@ -16,7 +16,7 @@ import styles from './object-page.css';
 
 // components
 import { PageTitle } from '../section-title';
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 import ErrorAlerts from '../alerts/error-alerts';
 import ButtonWithMenu from 'components/core/button-with-menu';
 import { Button } from 'components/core/button';

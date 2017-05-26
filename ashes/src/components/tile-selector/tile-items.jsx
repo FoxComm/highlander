@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 
 const TileItems = props => {
   const { emptyMessage, isFetching, items } = props;

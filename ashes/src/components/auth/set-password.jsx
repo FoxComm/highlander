@@ -12,7 +12,7 @@ import FormField from '../forms/formfield';
 import ErrorAlerts from '../alerts/error-alerts';
 import { PrimaryButton } from 'components/core/button';
 import PasswordInput from '../forms/password-input';
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 
 import type { SignupPayload } from 'modules/user';
 import * as userActions from 'modules/user';

@@ -8,7 +8,7 @@ import { frn, readAction } from 'lib/frn';
 
 // components
 import NavigationItem from '../navigation-item';
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 import { withTaxonomies } from 'components/taxonomies/hoc';
 
 // styles

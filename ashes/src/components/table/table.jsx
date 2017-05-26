@@ -9,7 +9,7 @@ import { autobind } from 'core-decorators';
 import TableHead from './head';
 import TableRow from './row';
 import TableCell from './cell';
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 
 export function tableMessage(message: Element<*>|string, inline: boolean = false): Element<*> {
   const cls = classNames('fc-table-message', { '_inline': inline });

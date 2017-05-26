@@ -9,7 +9,7 @@ import _ from 'lodash';
 
 // components
 import ErrorAlerts from '../alerts/error-alerts';
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 import QuestionBoxList from './question-box-list';
 import type { Props as QuestionBoxType } from './question-box';
 import Currency from '../common/currency';

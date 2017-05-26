@@ -11,7 +11,7 @@ import { transitionTo } from 'browserHistory';
 import * as UserActions from 'modules/users/details';
 
 // components
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
 import { Button, PrimaryButton } from 'components/core/button';

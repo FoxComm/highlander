@@ -13,7 +13,7 @@ import { ModalContainer } from '../modal/base';
 import ContentBox from '../content-box/content-box';
 
 import { PrimaryButton } from 'components/core/button';
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 import AdminsTypeahead from '../users-typeahead/admins-typeahead';
 import Alert from '../alerts/alert';
 

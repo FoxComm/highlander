@@ -11,7 +11,7 @@ import { fetch } from 'modules/taxonomies/flatList';
 import { getDisplayName } from 'lib/react-utils';
 
 // components
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 
 // styles
 import styles from './taxonomies.css';

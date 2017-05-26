@@ -12,7 +12,7 @@ import { numberize } from 'lib/text-utils';
 import { groups } from 'paragons/participants';
 
 // components
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 import SelectAdminsModal from '../users/select-modal';
 import { AddButton, Button } from 'components/core/button';
 import DetailedInitials from '../user-initials/detailed-initials';

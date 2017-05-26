@@ -16,7 +16,7 @@ import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
 import StateComponent, { states } from '../common/state';
 import ConfirmationDialog from '../modal/confirmation-dialog';
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 import Error from 'components/errors/error';
 
 // helpers

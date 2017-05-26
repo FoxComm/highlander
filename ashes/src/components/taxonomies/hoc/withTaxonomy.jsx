@@ -13,7 +13,7 @@ import { fetchTaxonomyInternal as fetch } from 'modules/taxonomies/details';
 import { getDisplayName } from 'lib/react-utils';
 
 // components
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 
 // styles
 import styles from './taxonomies.css';

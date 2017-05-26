@@ -8,7 +8,7 @@ import React, { Element } from 'react';
 // styles
 import s from './loading-input-wrapper.css';
 
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 
 type Props = {
   children?: Element<*>,

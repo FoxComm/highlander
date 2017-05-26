@@ -9,7 +9,7 @@ import { push } from 'react-router-redux';
 import { reset, fetchGroup, saveGroup, clearFetchErrors, clearSaveErrors } from 'modules/customer-groups/details/group';
 import { fetchRegions } from 'modules/regions';
 
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 import Error from 'components/errors/error';
 
 type Props = {

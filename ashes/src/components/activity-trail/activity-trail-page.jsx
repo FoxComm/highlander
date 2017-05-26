@@ -9,7 +9,7 @@ import { autobind } from 'core-decorators';
 // components
 import ActivityTrail from './activity-trail';
 import ErrorAlerts from '../alerts/error-alerts';
-import { Spinner } from 'components/core/spinner';
+import Spinner from 'components/core/spinner';
 import { SectionTitle } from '../section-title';
 
 // redux
