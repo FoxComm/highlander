@@ -3,12 +3,11 @@ package phoenix.routes
 import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.server.util.Tuple
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import core.db._
 import phoenix.payloads.LoginPayload
 import phoenix.payloads.UserPayloads._
-import phoenix.responses.UserResponse.ResetPasswordDoneAnswer
 import phoenix.services.Authenticator
 import phoenix.services.account.AccountManager
 import phoenix.services.auth.GoogleOauth.oauthServiceFromConfig
@@ -23,8 +22,12 @@ object AuthRoutes {
 
   def routes(defaultScope: LTree)(implicit ec: EC, db: DB): Route = {
 
-    def doLogin(payload: LoginPayload): Route =
-      onSuccess(Authenticator.authenticate(payload).runEmptyA.value) { result ⇒ // TODO: rethink discarding warnings here @michalrus
+    // FIXME @kjanosz: investigate with higher akka-http version, or subsequent http server
+    // There should be a better way to do this, but making auto login on password reset
+    // does not seem to work when using akka-http route & directive combinators and conversions
+    def doLogin(payload: DbResultT[LoginPayload])(
+        routeUnwrap: DbResultT[Route] ⇒ Result[Route]): Route =
+      onSuccess(routeUnwrap(Authenticator.authenticate(payload)).runEmptyA.value) { result ⇒ // TODO: rethink discarding warnings here @michalrus
         result.fold({ f ⇒
           complete(renderFailure(f))
         }, identity)
@@ -32,7 +35,7 @@ object AuthRoutes {
 
     pathPrefix("public") {
       (post & path("login") & entity(as[LoginPayload])) { payload ⇒
-        doLogin(payload)
+        doLogin(DbResultT.pure(payload))(_.runDBIO())
       } ~
       activityContext(defaultScope) { implicit ac ⇒
         (post & path("send-password-reset") & pathEnd & entity(as[ResetPasswordSend])) { payload ⇒
@@ -41,15 +44,16 @@ object AuthRoutes {
           }
         } ~
         (post & path("reset-password") & pathEnd & entity(as[ResetPassword])) { payload ⇒
-          implicit val payloadTuple: Tuple[ResetPasswordDoneAnswer] = Tuple.yes
+          val doPasswordReset = AccountManager
+            .resetPassword(code = payload.code, newPassword = payload.newPassword)
+            .map(answer ⇒
+                  LoginPayload(
+                      email = answer.email,
+                      password = payload.newPassword,
+                      org = answer.org
+                ))
 
-          mutateOrFailures {
-            AccountManager.resetPassword(code = payload.code, newPassword = payload.newPassword)
-          }.toDirective[ResetPasswordDoneAnswer]
-            .tapply(answer ⇒
-                  doLogin(LoginPayload(email = answer.email,
-                                       password = payload.newPassword,
-                                       org = answer.org)))
+          doLogin(doPasswordReset)(_.runTxn())
         }
       } ~
       (post & path("logout")) {
