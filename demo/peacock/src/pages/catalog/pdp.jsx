@@ -21,7 +21,7 @@ import { fetchRelatedProducts, clearRelatedProducts } from 'modules/cross-sell';
 import styles from './pdp.css';
 
 // components
-import { Pdp, RelatedProductList } from '@foxcomm/sf-react';
+import { Pdp, RelatedProductList } from '@foxcomm/storefront-react';
 
 // types
 import type { Product } from '@foxcomm/api-js/types/api/product';

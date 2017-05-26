@@ -16,9 +16,9 @@
   version "3.1.0"
   resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fbabel-plugin-react-stylenames/-/babel-plugin-react-stylenames-3.1.0.tgz#34b9dc9625a502e42e86536e99548de90f1439e6"
 
-"@foxcomm/sf-react@^1.2.0":
+"@foxcomm/storefront-react@^1.2.0":
   version "1.2.0"
-  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fsf-react/-/sf-react-1.2.0.tgz#c6ffd45ecb26c25d93643baff9002ca04609f361"
+  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fstorefront-react/-/storefront-react-1.2.0.tgz#d43c27d2d3023023cd9c24e2e71400edc562c896"
   dependencies:
     "@foxcomm/api-js" "^1.2.0"
     "@foxcomm/wings" "^1.9.12"
