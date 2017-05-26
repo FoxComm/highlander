@@ -11,6 +11,10 @@ test('Can create a coupon', async (t) => {
   const newPromotion = await adminApi.promotions.create('default', $.randomCreatePromotionPayload());
   const payload = $.randomCouponPayload(newPromotion.id);
   const newCoupon = await adminApi.coupons.create('default', payload);
+
+  // activeFrom date cannot be set for coupon due to intentional decision 
+  payload.attributes.activeFrom.v = newCoupon.attributes.activeFrom.v;
+  
   t.truthy(isNumber(newCoupon.id));
   t.is(newCoupon.promotion, newPromotion.id);
   t.is(newCoupon.context.name, 'default');
@@ -31,9 +35,13 @@ test('Can update coupon details', async (t) => {
   const newCoupon = await adminApi.coupons.create('default', $.randomCouponPayload(newPromotion.id));
   const payload = $.randomCouponPayload(newPromotion.id);
   const updatedCoupon = await adminApi.coupons.update('default', newCoupon.id, payload);
+
+  // activeFrom date cannot be set for coupon due to intentional decision
+  payload.attributes.activeFrom.v = newCoupon.attributes.activeFrom.v;
+
   t.is(updatedCoupon.id, newCoupon.id);
   t.is(updatedCoupon.promotion, newPromotion.id);
-  t.is(updatedCoupon.context.name, 'default');
+  t.is(updatedCoupon.context.name, 'default');  
   t.deepEqual(updatedCoupon.attributes, payload.attributes);
 });
 
