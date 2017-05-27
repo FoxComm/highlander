@@ -7,8 +7,8 @@ object CatalogPayloads {
                                   countryId: Int,
                                   defaultLanguage: String)
 
-  case class UpdateCatalogPayload(name: Option[String],
-                                  site: Option[String],
-                                  countryId: Option[Int],
-                                  defaultLanguage: Option[String])
+  case class UpdateCatalogPayload(name: Option[String] = None,
+                                  site: Option[String] = None,
+                                  countryId: Option[Int] = None,
+                                  defaultLanguage: Option[String] = None)
 }

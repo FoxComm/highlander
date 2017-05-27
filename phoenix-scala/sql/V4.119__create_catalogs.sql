@@ -1,5 +1,5 @@
 create table catalogs (
-  id bigint primary key,
+  id serial primary key,
   scope exts.ltree not null,
   name generic_string not null,
   site generic_string,
