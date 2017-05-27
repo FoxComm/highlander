@@ -1,0 +1,7 @@
+@import "colors.css";
+
+.plus-icon {
+  margin-right: 8px;
+  width: 11px;
+  color: var(--link-color);
+}
