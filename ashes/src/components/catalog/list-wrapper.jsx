@@ -8,12 +8,12 @@ import { transitionTo } from 'browserHistory';
 import { ListPageContainer, makeTotalCounter } from '../list-page';
 
 // actions
-import { actions } from 'modules/products/list';
+import { actions } from 'modules/catalog/list';
 
 type Props = { children?: any };
 
 const CatalogsListWrapper = (props: Props) => {
-  const TotalCounter = makeTotalCounter(state => state.products.list, actions);
+  const TotalCounter = makeTotalCounter(state => state.catalogs.list, actions);
   const addAction = () => transitionTo('product-details', { productId: 'new', context: 'default' });
   const navLinks = [
     { title: 'Lists', to: 'products' },
