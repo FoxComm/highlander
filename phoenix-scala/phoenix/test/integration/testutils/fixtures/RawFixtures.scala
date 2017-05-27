@@ -1,10 +1,13 @@
 package testutils.fixtures
 
+import java.time.Instant
+
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import phoenix.models.Reason.Cancellation
 import phoenix.models._
 import phoenix.models.account._
+import phoenix.models.catalog._
 import phoenix.models.cord._
 import phoenix.models.inventory.Sku
 import phoenix.models.location._
@@ -161,5 +164,19 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
         variant ← * <~ Mvp.insertVariantWithValues(scope, ctx.id, product, simpleSizeVariant)
       } yield (product, variant, skus)
     }.gimme
+  }
+
+  trait Catalog_Raw extends StoreAdmin_Seed {
+    val catalog: Catalog = Catalogs
+      .create(
+          Catalog(id = 0,
+                  scope = Scope.current,
+                  name = "default",
+                  site = Some("stage.foxcommerce.com"),
+                  countryId = 234,
+                  defaultLanguage = "en",
+                  createdAt = Instant.now(),
+                  updatedAt = Instant.now()))
+      .gimme
   }
 }
