@@ -167,7 +167,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       _ ← * <~ failIf(externalCharges.forall(_.isEmpty), ExternalPaymentNotFound(order.refNum))
 
       // capture one of external charges
-      _ ← * <~ externalCharges.foreach(_ map capture)
+      _ ← * <~ externalCharges.map(_ map capture)
     } yield ()
   }
 
@@ -176,12 +176,9 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
                                 order: Order): DbResultT[Unit] = {
 
     for {
-      _            ← * <~ failIfNot(charge.state == Auth, CaptureFailures.ChargeNotInAuth(charge))
-      stripeCharge ← * <~ apis.stripe.captureCharge(charge.stripeChargeId, total)
-
-      _ ← * <~ ApplePayCharges.filter(_.id === charge.id).map(_.state).update(FullCapture)
-      _ ← * <~ CreditCardCharges.filter(_.id === charge.id).map(_.state).update(FullCapture)
-
+      _ ← * <~ failIfNot(charge.state == Auth, CaptureFailures.ChargeNotInAuth(charge))
+      _ ← * <~ apis.stripe.captureCharge(charge.stripeChargeId, total)
+      _ ← * <~ charge.updateModelState(FullCapture)
     } yield ()
   }
 

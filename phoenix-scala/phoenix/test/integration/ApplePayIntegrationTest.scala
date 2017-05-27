@@ -73,7 +73,7 @@ class ApplePayIntegrationTest
         cartsApi(refNum).payments.creditCard.add(CreditCardPayment(cc.id)).mustBeOk()
 
         val orderResponse = cartsApi(refNum).checkout().as[OrderResponse]
-        val skuInCart = orderResponse.lineItems.skus
+        val skuInCart     = orderResponse.lineItems.skus
 
         val capturePayload =
           Capture(orderResponse.referenceNumber,

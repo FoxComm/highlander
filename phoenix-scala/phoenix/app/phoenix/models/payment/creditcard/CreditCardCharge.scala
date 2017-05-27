@@ -1,22 +1,15 @@
 package phoenix.models.payment.creditcard
 
 import java.time.Instant
-import core.failures.Failures
-import com.pellucid.sealerate
+
 import core.db._
-import core.failures.Failures
 import core.utils.Money.Currency
 import phoenix.models.cord.{OrderPayment, OrderPayments}
 import phoenix.models.payment.ExternalCharge
 import phoenix.models.payment.ExternalCharge._
-import phoenix.utils._
 import phoenix.utils.aliases.stripe._
 import shapeless._
-import core.utils.Money.Currency
-import slick.ast.BaseTypedType
-import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
-import core.db._
 
 case class CreditCardCharge(id: Int = 0,
                             creditCardId: Int,
@@ -27,6 +20,12 @@ case class CreditCardCharge(id: Int = 0,
                             amount: Int,
                             createdAt: Instant = Instant.now)
     extends ExternalCharge[CreditCardCharge] {
+
+  override def updateModelState(s: State)(implicit ec: EC): DbResultT[Unit] =
+    for {
+      _ ← * <~ transitionState(FullCapture)
+      _ ← * <~ CreditCardCharges.filter(_.id === id).map(_.state).update(s)
+    } yield ()
 
   def stateLens = lens[CreditCardCharge].state
 

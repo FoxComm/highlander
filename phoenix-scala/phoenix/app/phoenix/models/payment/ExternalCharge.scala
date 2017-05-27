@@ -23,6 +23,8 @@ trait ExternalCharge[Model <: FoxModel[Model] with FSM[ExternalCharge.State, Mod
   override def updateTo(newModel: Model): Either[Failures, Model] =
     super.transitionModel(newModel)
 
+  def updateModelState(s: State)(implicit ec: EC): DbResultT[Unit]
+
   val fsm: Map[State, Set[State]] = Map(
       Cart →
         Set(Auth),

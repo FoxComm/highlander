@@ -22,6 +22,12 @@ case class ApplePayCharge(id: Int = 0,
                           createdAt: Instant = Instant.now())
     extends ExternalCharge[ApplePayCharge] {
 
+  override def updateModelState(s: State)(implicit ec: EC): DbResultT[Unit] =
+    for {
+      _ ← * <~ transitionState(FullCapture)
+      _ ← * <~ ApplePayCharges.filter(_.id === id).map(_.state).update(s)
+    } yield ()
+
   def stateLens = lens[ApplePayCharge].state
 }
 
