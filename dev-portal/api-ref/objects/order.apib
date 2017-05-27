@@ -1,0 +1,155 @@
+# Data Structures
+
+### LineItemState
++ state: Cart (required, enum[string]) - Line item state.
+    + Members
+        + `Cart`
+        + `Pending`
+        + `PreOrdered`
+        + `BackOrdered`
+        + `Canceled`
+        + `Shipped`
+
+### OrderState
++ orderState: Cart (required, enum[string]) - Order State.
+    + Members
+        + `Cart`
+        + `Ordered`
+        + `FraudHold`
+        + `RemorseHold`
+        + `ManualHold`
+        + `Canceled`
+        + `FulfillmentStarted`
+        + `Shipped`
+
+### OrderStatePayload
++ state: Cart (required, enum[string]) - Order State.
+    + Members
+        + `Cart`
+        + `Ordered`
+        + `FraudHold`
+        + `RemorseHold`
+        + `ManualHold`
+        + `Canceled`
+        + `FulfillmentStarted`
+        + `Shipped`
+
+### PaymentState
++ paymentState: Cart (optional, enum[string]) - Credit Card payment state.
+    + Members
+        + `Cart`
+        + `Ordered`
+        + `FraudHold`
+        + `RemorseHold`
+        + `ManualHold`
+        + `Canceled`
+        + `FulfillmentStarted`
+        + `Shipped`
+
+### ListOrder
++ referenceNumber: `ABC-123` (required, string) - Unique identifier.
++ name: `John Smith` (optional, string) - Customer full name.
++ email: `john@smith.com` (required, string) - Customer email.
++ Include OrderState
++ Include PaymentState
++ Include ShippingState
++ placedAt: `2020-01-01T12:00:00Z` (optional, string) - Timestamp of when order was placed.
++ total (required, number) - grand total value.
+
+### FullOrder
++ id: 1 (required, number) - Unique identifier.
++ referenceNumber: `ABC-123` (required, string) - Order reference number.
++ Include OrderState
++ Include ShippingState
++ Include PaymentState
++ lineItems (required, LineItems) - Line items with different types.
++ adjustments (required, array[Adjustment]) - Order adjustments.
++ fraudScore: 0 (required, number) - Fraud score.
++ customer (optional, CustomerResponse) - Associated customer.
++ totals (required, Totals) - Order totals.
++ shippingMethod (optional, ShippingMethod) - Shipping method.
++ shippingAddress (optional, OrderShippingAddress) - Shipping address.
++ remorsePeriodEnd: `2020-01-01T12:00:00Z` (optional, string) - Remorse period end.
++ paymentMethods (optional, array[DisplayPayment]) - Order payment.
++ lockedBy (optional, StoreAdminResponse) - Currently locked by.
++ warnings: `List of validation errors and warnings` (optional, array[string]) - Warnings.
+
+### OrderShippingAddress
++ id: 1 (required, number) - Unique ID.
++ region (required, Region) - Associated region.
++ name: `Home` (required, string) - Address record name.
++ address1: `38 Baker Street` (required, string) - Actual address.
++ address2: `39 Baker Street` (optional, string) - Additional address line.
++ city: `Donkeyville` (required, string) - City.
++ zip: `55555` (required, string) - Zip code.
++ isDefault: false (required, boolean) - Defines whether shipping address is default.
+
+### ShippingMethod
++ id: 1 (required, number) - Unique ID.
++ name: `UPS Ground` (optional, string) - Display name in Admin panel.
++ price: 10 (required, number) - Price of shipping.
++ isEnabled: true (required, boolean) - Defines whether shipping method is enabled in store.
+
+### DisplayPayment
++ type (required, enum[string]) - Payment method type.
+    + Members
+        + `CreditCard`
+        + `GiftCard`
+        + `StoreCredit`
+
+### Totals
++ subTotal: 100 (required, number) - Subtotal.
++ taxes: 50 (required, number) - Taxes total.
++ shipping: 5 (required, number) - Taxes total.
++ adjustments: 50 (required, number) - Adjustments total.
++ total: 100 (required, number) - Total.
+
+### LineItems
++ skus (required, array[SkuLineItem]) - SKU's as line items.
++ giftCard (required, array[GiftCard]) - Gift cards as line items.
+
+### SkuLineItem
++ imagePath: `http://lorempixel.com/75/75/fashion` (required, string) - Image URL.
++ referenceNumber: `ABC-123` (required, string) - Unique line item UUID.
++ name: `donkey product` (required, string) - Product name.
++ sku: `SKU-YAX` (required, string) - SKU.
++ price: 33 (required, number) - SKU price.
++ quantity: 1 (required, number) - Quantity.
++ Include LineItemState
++ totalPrice: 33 (required, number) - Price per item multiplied by quantity
+
+### Adjustment
++ id: 1 (required, number) - Unique identifier.
++ amount: 10 (required, number) - Amount.
++ sourceId: 1 (required, number) - Adjustment source ID.
++ sourceType: `order` (required, string) - Adjustment source type.
++ reason: `Lorem ipsum` (required, string) - Adjustment reason.
+
+### CreateCartPayload
++ customerId: 1 (optional, number) - Customer ID.
++ email: `john@smith.com` (optional, string) - Customer e-mail.
+
+### UpdateLineItemsPayload
++ sku: `SKU-YAX` (required, string) - SKU.
++ quantity: 5 (required, number) - Quantity.
+
+### UpdateShippingMethodPayload
++ shippingMethodId: 1 (required, number) - Shipping method ID.
+
+### CreditCardPaymentPayload
++ creditCardId: 1 (required, number) - Credit Card ID
+
+### GiftCardPaymentPayload
++ code: `ABC-123` (required, string) - Gift card code.
++ amount: 10 (optional, number) - Amount to pay.
+
+### StoreCreditPaymentPayload
++ amount: 10 (required, number) - Amount to pay.
+
+### OrderBulkStateUpdatePayload
++ referenceNumbers: `ABC-123` (required, array[string]) - Order reference numbers.
+- Include OrderStatePayload
++ reasonId: 1 (optional, number) - Cancellation reason.
+
+### OrderList
++ result (required, array[ListOrder]) - The resulting list of ListOrder-s.

@@ -1,0 +1,34 @@
+# Data Structures
+
+### StockItemStatus
++ status: onHand (optional, enum[string]) - Optional stock item status - defaults to onHand
+    + Members
+        + `onHand`
+        + `onHold`
+        + `reserved`
+
+### StockItemType
++ type: sellable (required, enum[string]) - Stock item type.
+    + Members
+        + `sellable`
+        + `nonsellable`
+        + `preorder`
+        + `backorder`
+
+### IncrementStockItemPayload
++ qty: 1 (required, number) - The number of units to increment
++ Include StockItemType
++ unitCost: 999 (optional, number) - The unit cost to give new stock items. If none is supplied, the stock item's default unit cost is used.
+
+### DecrementStockItemPayload
++ qty: 1 (required, number) - The number of units to decrement
++ Include StockItemType
+
+### StockItemPayload
++ sku: `TEST-SKU` (required, string) - Code representing the SKU with which to associate the Stock Item
++ stockLocationId: 1 (required, number) - ID of the Stock Location the Stock Item should be a part of.
++ defaultUnitCost: 0 (optional, number) - A default unit cost to give all new units of a Stock Item
+
+### StockItemResponse
++ id: 1 (required, number) - Unique ID.
++ Include StockItemPayload

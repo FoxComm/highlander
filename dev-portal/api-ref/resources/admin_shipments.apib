@@ -1,0 +1,60 @@
+## Shipments [/v1/inventory/shipmints]
+
+### View By Order [GET /v1/inventory/shipments/{referenceNumber}]
+
+Gets all of the shipments associated with a single order.
+
++ Parameters
+    + referenceNumber: `BR10001` (required, string) - Order reference number.
++ Response 200 (application/json)
+    + Attributes (array[ShipmentResponse])
+
+### Create [POST /v1/inventory/shipments]
+
+This is the manual shipment creation endpoint. Use this if you want to have
+precise control over how the shipments are created and the logic for splitting
+them. In order for the shipment to be created successfully, the following
+conditions must be met:
+
+1. The items that you're attempting to ship must have been reserved by the
+   order that's associated with the shipment. This step is automatically
+   performed by the OMS API when checkout occurs.
+
+   For more details on the reserved status, please see the `StockItems` API
+   in this document.
+
+2. The items that you're attempting to ship may not be a part of any other
+   shipment.
+
+3. All items that you're attempting to ship must exist in the same stock
+   location. Since a shipment represents the bundle of items leaving a stock
+   location, it's necessary that all items must be able to be shipped from the
+   same location.
+
++ Request (application/json)
+    + Attributes (CreateShipmentPayload)
++ Response 201 (application/json)
+    + Attributes (ShipmentResponse)
+
+### Create From Order [POST /v1/inventory/shipments/from-order]
+
+This is the automatic shipment creation endpoint provided about the WMS.
+It will create a set of shipments based on internal FoxCommerce WMS logic.
+
+_Note: At this time only single shipments are supported._
+
++ Request (application/json)
+    + Attributes (FullOrder)
++ Response 201 (application/json)
+    + Attributes (array[ShipmentResponse])
+
+### Update [PATCH /v1/inventory/shipments/{id}]
+
+This will update the state of a single shipment.
+
++ Parameters
+    + id: 1 (required, number) - Unique ID.
++ Request (application/json)
+    + Attributes (UpdateShipmentPayload)
++ Response 200 (application/json)
+    + Attributes (array[ShipmentResponse])

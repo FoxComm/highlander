@@ -1,0 +1,283 @@
+## SKUs [/v1/skus/{context}/{code}]
+
++ Parameters
+    + context: `default` (required, string) - The context in which a SKU is viewable.
+    + code: `SKU-TEST` (required, string) - Unique code that identifies a SKU.
+
+### View [GET]
+
++ Response 200 (application/json)
+
+        {
+          "id": 1,
+          "context": {
+            "name": "default",
+            "attributes": {
+              "lang": "en",
+              "modality": "desktop"
+            }
+          },
+          "attributes": {
+            "code": {
+              "t": "string",
+              "v": "TEST-SKU"
+            },
+            "salePrice": {
+              "t": "price",
+              "v": {
+                "currency": "USD",
+                "value": 1899
+              }
+            },
+            "retailPrice": {
+              "t": "price",
+              "v": {
+                "currency": "USD",
+                "value": 1599
+              }
+            }
+          },
+          "albums": [
+            {
+              "name": "Desktop",
+              "images": [
+                {
+                  "alt": "Test SKU",
+                  "src": "http:/some.cdn.com/skus/1/test-sku.jpg"
+                }
+              ]
+            }
+          ],
+          "variantValueIds": [1]
+        }
+
+### Create [POST /v1/skus/{context}]
+
++ Parameters
+    + context: `default` (required, string) - The context in which a SKU is viewable.
+
++ Request (application/json)
+
+        {
+          "attributes": {
+            "code": {
+              "t": "string",
+              "v": "TEST-SKU"
+            },
+            "salePrice": {
+              "t": "price",
+              "v": {
+                "currency": "USD",
+                "value": 1899
+              }
+            },
+            "retailPrice": {
+              "t": "price",
+              "v": {
+                "currency": "USD",
+                "value": 1599
+              }
+            }
+          }
+        }
+
++ Response 200 (application/json)
+
+        {
+          "id": 1,
+          "context": {
+            "name": "default",
+            "attributes": {
+              "lang": "en",
+              "modality": "desktop"
+            }
+          },
+          "attributes": {
+            "code": {
+              "t": "string",
+              "v": "TEST-SKU"
+            },
+            "salePrice": {
+              "t": "price",
+              "v": {
+                "currency": "USD",
+                "value": 1899
+              }
+            },
+            "retailPrice": {
+              "t": "price",
+              "v": {
+                "currency": "USD",
+                "value": 1599
+              }
+            }
+          },
+          "albums": [],
+          "variantValueIds": []
+        }
+
+### Update [PATCH /v1/skus/{context}/{code}]
+
++ Parameters
+    + context: `default` (required, string) - The context in which a SKU is viewable.
+    + code: `SKU-TEST` (required, string) - Unique code that identifies a SKU.
+
++ Request (application/json)
+
+        {
+          "attributes": {
+            "code": {
+              "t": "string",
+              "v": "TEST-SKU"
+            },
+            "salePrice": {
+              "t": "price",
+              "v": {
+                "currency": "USD",
+                "value": 1899
+              }
+            },
+            "retailPrice": {
+              "t": "price",
+              "v": {
+                "currency": "USD",
+                "value": 1599
+              }
+            }
+          }
+        }
+
++ Response 200 (application/json)
+
+        {
+          "id": 1,
+          "context": {
+            "name": "default",
+            "attributes": {
+              "lang": "en",
+              "modality": "desktop"
+            }
+          },
+          "attributes": {
+            "code": {
+              "t": "string",
+              "v": "TEST-SKU"
+            },
+            "salePrice": {
+              "t": "price",
+              "v": {
+                "currency": "USD",
+                "value": 1899
+              }
+            },
+            "retailPrice": {
+              "t": "price",
+              "v": {
+                "currency": "USD",
+                "value": 1599
+              }
+            }
+          },
+          "albums": [
+            {
+              "name": "Desktop",
+              "images": [
+                {
+                  "alt": "Test SKU",
+                  "src": "http:/some.cdn.com/skus/1/test-sku.jpg"
+                }
+              ]
+            }
+          ],
+          "variantValueIds": [1]
+        }
+
+### Archive [DELETE]
+
++ Response 200 (application/json)
+
+        {
+          "id": 1,
+          "context": {
+            "name": "default",
+            "attributes": {
+              "lang": "en",
+              "modality": "desktop"
+            }
+          },
+          "attributes": {
+            "code": {
+              "t": "string",
+              "v": "TEST-SKU"
+            },
+            "salePrice": {
+              "t": "price",
+              "v": {
+                "currency": "USD",
+                "value": 1899
+              }
+            },
+            "retailPrice": {
+              "t": "price",
+              "v": {
+                "currency": "USD",
+                "value": 1599
+              }
+            }
+          },
+          "albums": [
+            {
+              "name": "Desktop",
+              "images": [
+                {
+                  "alt": "Test SKU",
+                  "src": "http:/some.cdn.com/skus/1/test-sku.jpg"
+                }
+              ]
+            }
+          ],
+          "variantValueIds": [1],
+          "archivedAt": "2020-01-01T12:00:00Z"
+        }
+
+## SKU Album [/v1/skus/{context}/{code}/albums/{id}]
+
++ Parameters
+    + context: `default` (required, string) - The context in which the album will be viewable.
+    + code: `SKU-TEST` (required, string) - Unique code that identifies a SKU.
+    + id: `1` (required, number) - Album ID.
+
+### View [GET]
+
++ Response 200 (application/json)
+    + Attributes (Album)
+
+### Create [POST /v1/skus/{context}/{code}/albums]
+
+Create a new album that is not associated with a SKU.
+
++ Parameters
+    + context: `default` (required, string) - The context in which the album will be viewable.
+    + code: `SKU-TEST` (required, string) - Unique code that identifies a SKU.
++ Request (application/json)
+    + Attributes (CreateAlbumPayload)
++ Response 200 (application/json)
+    + Attributes (Album)
+
+### Update [PATCH]
+
+Update the album or any of the images inside. Any manipulation of the album should
+be done from this method. This includes adding existing images by URL, reordering
+images, or deleting images.
+
+Internally, all changes are versions, so earlier iterations can be retrieved at
+a later time.
+
++ Parameters
+    + context: `default` (required, string) - The context in which the album will be viewable.
+    + code: `SKU-TEST` (required, string) - Unique code that identifies a SKU.
+    + id: `1` (required, number) - Album ID.
++ Request (application/json)
+    + Attributes (CreateAlbumPayload)
++ Response 200 (application/json)
+    + Attributes (Album)

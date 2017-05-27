@@ -1,0 +1,15 @@
+## Store Credits [/v1/my/payment-methods/store-credits]
+
+Customer's Store Credits.
+
+### View [GET /v1/my/payment-methods/store-credits/{id}]
+
++ Parameters
+  + id: 1 (required, number) - Store Credit ID
++ Response 200 (application/json)
+  + Attributes (StoreCredit)
+
+### View Totals [GET /v1/my/payment-methods/store-credits/totals]
+
++ Response 200 (application/json)
+  + Attributes (StoreCreditTotals)

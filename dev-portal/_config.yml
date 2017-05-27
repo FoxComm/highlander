@@ -1,0 +1,65 @@
+---
+name: FoxCommerce
+description: Next Generation eCommerce.  Today.
+url: https://developers.foxcommerce.com
+baseurl: /
+permalink: /blog/:year/:month/:day/:title.html
+paginate_path: /blog/page:num/
+paginate: 5
+timezone: America/Los_Angeles
+highlighter: pygments
+defaults:
+- scope:
+    path: ''
+    type: posts
+  values:
+    layout: post
+    sectionid: blog
+- scope:
+    path: future
+    type: pages
+  values:
+    sectionid: future
+- scope:
+    path: integrating
+    type: pages
+  values:
+    layout: integrating
+    sectionid: integrating
+- scope:
+    path: docs
+    type: pages
+  values:
+    layout: docs
+    sectionid: docs
+- scope:
+    path: api-ref
+    type: pages
+  values:
+    layout: apiref
+    sectionid: api-reference
+- scope:
+    path: migrating
+    type: pages
+  values:
+    layout: migrating
+    sectionid: migrating
+exclude:
+- Gemfile
+- Gemfile.lock
+- README.md
+- Rakefile
+- vendor/bundle
+- "*.apib"
+markdown: redcarpet
+redcarpet:
+  extensions:
+  - fenced_code_blocks
+  - footnotes
+sass:
+  style: :compressed
+  sass_dir: _css
+gems:
+- jekyll-redirect-from
+- jekyll-paginate
+fox_version: 0.4.0

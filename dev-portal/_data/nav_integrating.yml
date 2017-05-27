@@ -1,0 +1,18 @@
+- title: Integrating
+  items:
+    - id: integrating-with-erps
+      title: Integrating with ERPs
+      subitems:
+      - id: integrating-with-netsuite
+        title: NetSuite with FoxCommerce
+      - id: integrating-with-oracle
+        title: Oracle with FoxCommerce
+    - id: integrating-with-avalara
+      title: Avalara with FoxCommerce
+    - id: integrating-with-logistics
+      title: Integrating with Logistics
+      subitems:
+      - id: integrating-with-shipwire
+        title: Shipwire with FoxCommerce
+      - id: integrating-with-newgistics
+        title: Newgistics with FoxCommerce

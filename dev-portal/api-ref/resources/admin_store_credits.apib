@@ -1,0 +1,25 @@
+## Store Credit [/v1/customer/{id}/payment-methods/store-credits]
+
++ Parameters
+    + id: 1 (required, number) - Customer ID
+
+### View [GET /v1/store-credits/{id}]
+
++ Parameters
+    + id: 1 (required, number) - Store Credit ID
++ Response 200 (application/json)
+    + Attributes (StoreCredit)
+
+### Update State [PATCH /v1/store-credits/{id}]
+
++ Request (application/json)
+    + Attributes (StoreCreditUpdateStatePayload)
++ Response 200 (application/json)
+    + Attributes (StoreCredit)
+
+### Bulk Update State [PATCH /v1/store-credits]
+
++ Request (application/json)
+    + Attributes (StoreCreditBulkStateUpdatePayload)
++ Response 200 (application/json)
+    + Attributes (array[StoreCreditBulkResponse])

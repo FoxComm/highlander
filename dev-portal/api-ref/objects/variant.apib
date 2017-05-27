@@ -1,0 +1,14 @@
+# Data structures
+
+### VariantPayload
++ id: 1 (optional, number) - Unique identifier.
++ attributes VariantValuePayload (optional, object) - Custom attributes.
++ values (optional, array[VariantValuePayload]) - Values to create with the variant.
+
+### VariantValuePayload
++ id: 1 (optional, number) - Unique identifier.
++ name: `Color` (optional, string) - Name of the value that's used in the UI.
++ swatch: `FF0000` (optional, string) - Hex code used to represent a color.
+
+### VariantResponse
++ id: 1 (required, number) - Unique identifier.

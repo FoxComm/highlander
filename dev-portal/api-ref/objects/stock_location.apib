@@ -1,0 +1,24 @@
+# Data Structures
+
+### AddressPayload
++ id: 1 (required, number) - Unique ID.
++ region (required, Region) - Associated region.
++ name: `Home` (required, string) - Address record name.
++ address1: `38 Baker Street` (required, string) - Actual address.
++ address2: `39 Baker Street` (optional, string) - Additional address line.
++ city: `Donkeyville` (required, string) - City.
++ zip: `55555` (required, string) - Zip code.
+
+### StockLocationType
++ type: Warehouse (required, enum[string]) - Stock location type.
+    + Members
+        + `Warehouse`
+
+### StockLocationPayload
++ name: `Memphis Warehouse` (required, string) - Name of the stock location.
++ Include StockLocationType
++ address (optional, AddressPayload) - Address of the stock location.
+
+### StockLocationResponse
++ id: 1 (required, number) - Unique ID.
++ Include StockLocationPayload

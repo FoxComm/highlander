@@ -1,0 +1,56 @@
+# Data Structures
+
+### Coupon
++ id: 1 (required, number) - Coupon ID.
++ form (required, CouponForm) - Coupon form.
++ shadow (required, CouponShadow) - Coupon shadow.
++ promotion: 1 (required, number) - Related promotion ID.
++ archivedAt: `2020-01-01T12:00:00Z` (string) - Archiving date.
+
+### CouponCode
++ code: `ABC-123` (required, string) - Coupon code.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
+
+### CouponIlluminated
++ id: 1 (required, number) - Coupon ID.
++ context (required, ObjectContext) - Related context.
++ attributes: `<json>` (required, string) - Coupon attributes.
++ promotion: 1 (required, number) - Related promotion ID.
+
+### CouponForm
++ id: 1 (required, number) - Coupon form ID.
++ attributes: `<json>` (required, string) - Coupon form attributes.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
+
+### CouponShadow
++ id: 1 (required, number) - Coupon shadow ID.
++ formId: 1 (required, number) - Related promotion form ID.
++ attributes: `<json>` (required, string) - Coupon shadow attributes.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
+
+### CreateCouponPayload
++ form (required, CreateCouponForm) - Coupon form.
++ shadow (required, CreateCouponShadow) - Coupon shadow.
++ promotion: 1 (required, number) - Related promotion ID.
+
+### CreateCouponForm
++ attributes: `<json>` (required, string) - Coupon form attributes.
+
+### CreateCouponShadow
++ attributes: `<json>` (required, string) - Coupon shadow attributes.
+
+### UpdateCouponPayload
++ form (required, UpdateCouponForm) - Coupon form.
++ shadow (required, UpdateCouponShadow) - Coupon shadow.
++ promotion: 1 (required, number) - Related promotion ID.
+
+### UpdateCouponForm
++ attributes: `<json>` (required, string) - Coupon form attributes.
+
+### UpdateCouponShadow
++ attributes: `<json>` (required, string) - Coupon shadow attributes.
+
+### GenerateCodesPayload
++ prefix: `ABC` (required, string) - Coupon codes prefix.
++ quantity: 1 (required, number) - Number of coupon codes to generate.
++ length: 10 (required, number) - Resulting coupons code length.

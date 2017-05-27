@@ -1,0 +1,100 @@
+## Stock Item Summaries [/v1/inventory/summary/{code}]
+
+### View [GET]
+
++ Parameters
+    + code: `TEST-SKU` (required, string) - The code representing the SKU who's inventory should be viewed.
+
++ Response 200 (application/json)
+
+        {
+          "summary": [
+            {
+              "sku": "TEST-SKU",
+              "stockItem": {
+                "id": 1,
+                "sku": "TEST-SKU",
+                "stockLocationId": 1,
+                "defaultUnitCost": 999
+              },
+              "stockLocation": {
+                "id": 1,
+                "name": "default",
+                "type": "Warehouse"
+              },
+              "type": "Sellable",
+              "onHand": 100,
+              "onHold": 12,
+              "reserved": 15,
+              "afs": 73,
+              "afsCost": 72927,
+              "createdAt": "2016-10-03T06:10:20.464687Z"
+            },
+            {
+              "sku": "TEST-SKU",
+              "stockItem": {
+                "id": 1,
+                "sku": "TEST-SKU",
+                "stockLocationId": 1,
+                "defaultUnitCost": 999
+              },
+              "stockLocation": {
+                "id": 1,
+                "name": "default",
+                "type": "Warehouse"
+              },
+              "type": "Non-sellable",
+              "onHand": 0,
+              "onHold": 0,
+              "reserved": 0,
+              "shipped": 0,
+              "afs": 0,
+              "afsCost": 0,
+              "createdAt": "2016-10-03T06:10:20.469778Z"
+            },
+            {
+              "sku": "TEST-SKU",
+              "stockItem": {
+                "id": 1,
+                "sku": "TEST-SKU",
+                "stockLocationId": 1,
+                "defaultUnitCost": 999
+              },
+              "stockLocation": {
+                "id": 1,
+                "name": "default",
+                "type": "Warehouse"
+              },
+              "type": "Backorder",
+              "onHand": 100,
+              "onHold": 0,
+              "reserved": 0,
+              "shipped": 0,
+              "afs": 100,
+              "afsCost": 99900,
+              "createdAt": "2016-10-03T06:10:20.470854Z"
+            },
+            {
+              "sku": "TEST-SKU",
+              "stockItem": {
+                "id": 1,
+                "sku": "TEST-SKU",
+                "stockLocationId": 1,
+                "defaultUnitCost": 999
+              },
+              "stockLocation": {
+                "id": 1,
+                "name": "default",
+                "type": "Warehouse"
+              },
+              "type": "Preorder",
+              "onHand": 0,
+              "onHold": 0,
+              "reserved": 0,
+              "shipped": 0,
+              "afs": 0,
+              "afsCost": 0,
+              "createdAt": "2016-10-03T06:10:20.471925Z"
+            }
+          ]
+        }

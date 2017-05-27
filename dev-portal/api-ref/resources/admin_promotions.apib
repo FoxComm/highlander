@@ -1,0 +1,56 @@
+## Promotions [/v1/promotions/{context}/{id}]
+
++ Parameters
+    + context: `default` (required, string) - The context in which the promotion is viewable.
+    + id: `1` (required, number) - Promotion ID.
+
+### Create [POST /v1/promotions/{context}]
+
++ Parameters
+    + context: `default` (required, string) - The context in which the promotion will be viewable.
++ Request (application/json)
+    + Attributes (CreatePromotionPayload)
++ Response 200 (application/json)
+    + Attributes (Promotion)
+
+### View [GET]
+
++ Response 200 (application/json)
+    + Attributes (Promotion)
+
+### View Illuminated [GET /v1/promotions/{context}/{id}/baked]
+
+Return illuminated version of promotion.
+
++ Parameters
+    + context: `default` (required, string) - The context in which the coupon is viewable.
+    + id: `1` (required, number) - Coupon ID.
++ Response 200 (application/json)
+    + Attributes (PromotionIlluminated)
+
+### View Form [GET /v1/promotions/forms/{id}]
+
++ Parameters
+    + id: `1` (required, number) - Promotion Form ID.
++ Response 200 (application/json)
+    + Attributes (PromotionForm)
+
+### View Shadow [GET /v1/promotions/shadows/{context}/{id}]
+
++ Parameters
+	+ context: `default` (required, string) - The context in which the promotion is viewable.
+    + id: `1` (required, number) - Promotion Form ID.
++ Response 200 (application/json)
+    + Attributes (PromotionShadow)
+
+### Update [PATCH]
+
++ Request (application/json)
+    + Attributes (UpdatePromotionPayload)
++ Response 200 (application/json)
+    + Attributes (Promotion)
+
+### Archive [DELETE]
+
++ Response 200 (application/json)
+    + Attributes (Promotion)

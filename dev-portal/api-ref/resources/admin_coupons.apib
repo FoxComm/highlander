@@ -1,0 +1,90 @@
+## Coupons [/v1/coupons/{context}/{id}]
+
++ Parameters
+    + context: `default` (required, string) - The context in which the coupon is viewable.
+    + id: `1` (required, number) - Coupon ID.
+
+### Create [POST /v1/coupons/{context}]
+
++ Parameters
+    + context: `default` (required, string) - The context in which the coupon will be viewable.
++ Request (application/json)
+    + Attributes (CreateCouponPayload)
++ Response 200 (application/json)
+    + Attributes (Coupon)
+
+### View [GET]
+
++ Response 200 (application/json)
+    + Attributes (Coupon)
+
+### View Illuminated [GET /v1/coupons/{context}/{id}/baked]
+
+Return illuminated version of coupon.
+
++ Parameters
+    + context: `default` (required, string) - The context in which the coupon is viewable.
+    + id: `1` (required, number) - Coupon ID.
++ Response 200 (application/json)
+    + Attributes (CouponIlluminated)
+
+### View Illuminated By Code [GET /v1/coupons/{context}/{code}/baked]
+
+Return illuminated version of coupon.
+
++ Parameters
+    + context: `default` (required, string) - The context in which the coupon is viewable.
+    + code: `ABC-123` (required, string) - Related coupon code.
++ Response 200 (application/json)
+    + Attributes (CouponIlluminated)
+
+### View Form [GET /v1/coupons/forms/{id}]
+
++ Parameters
+    + id: `1` (required, number) - Coupon Form ID.
++ Response 200 (application/json)
+    + Attributes (CouponForm)
+
+### View Shadow [GET /v1/coupons/shadows/{context}/{id}]
+
++ Parameters
+	+ context: `default` (required, string) - The context in which the coupon is viewable.
+    + id: `1` (required, number) - Coupon Form ID.
++ Response 200 (application/json)
+    + Attributes (CouponShadow)
+
+### Update [PATCH]
+
++ Request (application/json)
+    + Attributes (UpdateCouponPayload)
++ Response 200 (application/json)
+    + Attributes (Coupon)
+
+### Archive [DELETE]
+
++ Response 200 (application/json)
+    + Attributes (Coupon)
+
+### Generate Single Code [POST /v1/coupons/codes/generate/{id}/{code}]
+
++ Parameters
+    + id: `1` (required, number) - Related coupon ID.
+	+ code: `ABC-123` (required, string) - Preferred coupon code to generate.
++ Response 200 (application/json)
+    + Attributes (string)
+
+### Generate Multiple Codes [POST /v1/coupons/codes/generate/{id}]
+
++ Parameters
+    + id: `1` (required, number) - Related coupon ID.
++ Request (application/json)
+    + Attributes (GenerateCodesPayload)
++ Response 200 (application/json)
+    + Attributes (array[string])
+
+### Get Coupon Codes [GET /v1/coupons/codes/{id}]
+
++ Parameters
+    + id: `1` (required, number) - Related coupon ID.
++ Response 200 (application/json)
+    + Attributes (array[CouponCode])

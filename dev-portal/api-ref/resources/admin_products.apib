@@ -1,0 +1,635 @@
+## Products [/v1/products/{context}/{id}]
+
+The product is the most basic merchandising unit in FoxCommerce. A product is the
+storefront representation of one or more SKUs. It can be categorized, searched on,
+and merchandised with custom content and images.
+
++ Parameters
+    + context: `default` (required, string) - The context in which a product is viewable.
+    + id: `1` (required, number) - Product ID.
+
+### View [GET]
+
++ Response 200 (application/json)
+
+        {
+          "id": 1,
+          "context": {
+            "name": "default",
+            "attributes": {
+              "lang": "en",
+              "modality": "desktop"
+            }
+          },
+          "attributes": {
+            "name": {
+              "t": "string",
+              "v": "Fox Socks"
+            },
+            "description": {
+              "t": "string",
+              "v": "The finest fox designed socks that money can buy."
+            }
+          },
+          "albums": [
+            {
+              "name": "Desktop",
+              "images": [
+                {
+                  "alt": "Red and blue sock",
+                  "src": "http://some.cdn.com/products/1/red-blue-sock.jpg"
+                }
+              ]
+            }
+          ],
+          "skus": [
+            {
+              "attributes": {
+                "code": {
+                  "t": "string",
+                  "v": "FOX-RED"
+                },
+                "salePrice": {
+                  "t": "price",
+                  "v": {
+                    "currency": "USD",
+                    "value": 1899
+                  }
+                }
+              },
+              "albums": [
+                {
+                  "name": "Desktop",
+                  "images": [
+                    {
+                      "alt": "Red sock",
+                      "src": "http:/some.cdn.com/products/1/red-sock.jpg"
+                    }
+                  ]
+                }
+              ]
+            }, {
+              "attributes": {
+                "code": {
+                  "t": "string",
+                  "v": "FOX-BLUE"
+                },
+                "salePrice": {
+                  "t": "price",
+                  "v": {
+                    "currency": "USD",
+                    "value": 1899
+                  }
+                }
+              },
+              "albums": [
+                {
+                  "name": "Desktop",
+                  "images": [
+                    {
+                      "alt": "Blue sock",
+                      "src": "http:/some.cdn.com/products/1/blue-sock.jpg"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "variants": [
+            {
+              "attributes": {
+                "name": {
+                  "t": "string",
+                  "v": "Color"
+                }
+              },
+              "values": [
+                {
+                  "id": 1,
+                  "name": "Red",
+                  "swatch": "FF0000",
+                  "skuCodes": ["FOX-RED"]
+                }, {
+                  "id": 2,
+                  "name": "Blue",
+                  "swatch": "0000FF",
+                  "skuCodes": ["FOX-BLUE"]
+                }
+              ]
+            }
+          ]
+        }
+
+### Create [POST /v1/products/{context}]
+
++ Parameters
+    + context: `default` (required, string) - The context in which a product is viewable.
+
++ Request (application/json)
+
+        {
+          "attributes": {
+            "name": {
+              "t": "string",
+              "v": "Fox Socks"
+            },
+            "description": {
+              "t": "string",
+              "v": "The finest fox designed socks that money can buy."
+            }
+          },
+          "skus": [
+            {
+              "attributes": {
+                "code": {
+                  "t": "string",
+                  "v": "FOX-RED"
+                },
+                "salePrice": {
+                  "t": "price",
+                  "v": {
+                    "currency": "USD",
+                    "value": 1899
+                  }
+                }
+              },
+              "variantValues": ["Red"]
+            }, {
+              "attributes": {
+                "code": {
+                  "t": "string",
+                  "v": "FOX-BLUE"
+                },
+                "salePrice": {
+                  "t": "price",
+                  "v": {
+                    "currency": "USD",
+                    "value": 1899
+                  }
+                }
+              },
+              "variantValues": ["Blue"]
+            }
+          ],
+          "variants": [
+            {
+              "attributes": {
+                "name": {
+                  "t": "string",
+                  "v": "Color"
+                }
+              },
+              "values": [
+                {
+                  "name": "Red",
+                  "swatch": "FF0000",
+                  "skuCodes": ["FOX-RED"]
+                }, {
+                  "name": "Blue",
+                  "swatch": "0000FF",
+                  "skuCodes": ["FOX-BLUE"]
+                }
+              ]
+            }
+          ]
+        }
+
++ Response 200 (application/json)
+
+        {
+          "id": 1,
+          "context": {
+            "name": "default",
+            "attributes": {
+              "lang": "en",
+              "modality": "desktop"
+            }
+          },
+          "attributes": {
+            "name": {
+              "t": "string",
+              "v": "Fox Socks"
+            },
+            "description": {
+              "t": "string",
+              "v": "The finest fox designed socks that money can buy."
+            }
+          },
+          "albums": [
+            {
+              "name": "Desktop",
+              "images": [
+                {
+                  "alt": "Red and blue sock",
+                  "src": "http://some.cdn.com/products/1/red-blue-sock.jpg"
+                }
+              ]
+            }
+          ],
+          "skus": [
+            {
+              "attributes": {
+                "code": {
+                  "t": "string",
+                  "v": "FOX-RED"
+                },
+                "salePrice": {
+                  "t": "price",
+                  "v": {
+                    "currency": "USD",
+                    "value": 1899
+                  }
+                }
+              },
+              "albums": [
+                {
+                  "name": "Desktop",
+                  "images": [
+                    {
+                      "alt": "Red sock",
+                      "src": "http:/some.cdn.com/products/1/red-sock.jpg"
+                    }
+                  ]
+                }
+              ]
+            }, {
+              "attributes": {
+                "code": {
+                  "t": "string",
+                  "v": "FOX-BLUE"
+                },
+                "salePrice": {
+                  "t": "price",
+                  "v": {
+                    "currency": "USD",
+                    "value": 1899
+                  }
+                }
+              },
+              "albums": [
+                {
+                  "name": "Desktop",
+                  "images": [
+                    {
+                      "alt": "Blue sock",
+                      "src": "http:/some.cdn.com/products/1/blue-sock.jpg"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "variants": [
+            {
+              "attributes": {
+                "name": {
+                  "t": "string",
+                  "v": "Color"
+                }
+              },
+              "values": [
+                {
+                  "id": 1,
+                  "name": "Red",
+                  "swatch": "FF0000",
+                  "skuCodes": ["FOX-RED"]
+                }, {
+                  "id": 2,
+                  "name": "Blue",
+                  "swatch": "0000FF",
+                  "skuCodes": ["FOX-BLUE"]
+                }
+              ]
+            }
+          ]
+        }
+
+### Update [PATCH /v1/products/{context}/{id}]
+
++ Parameters
+    + context: `default` (required, string) - The context in which a product is viewable.
+    + id: `1` (required, number) - Product ID.
+
++ Request (application/json)
+
+        {
+          "attributes": {
+            "name": {
+              "t": "string",
+              "v": "Fox Socks"
+            },
+            "description": {
+              "t": "string",
+              "v": "The finest fox designed socks that money can buy."
+            }
+          },
+          "skus": [
+            {
+              "code": "FOX-RED",
+              "attributes": {
+                "salePrice": {
+                  "t": "price",
+                  "v": {
+                    "currency": "USD",
+                    "value": 1899
+                  }
+                }
+              },
+              "variantValues": ["Red"]
+            }, {
+              "code": "FOX-BLUE",
+              "attributes": {
+                "salePrice": {
+                  "t": "price",
+                  "v": {
+                    "currency": "USD",
+                    "value": 1899
+                  }
+                }
+              },
+              "variantValues": ["Blue"]
+            }
+          ],
+          "variants": [
+            {
+              "attributes": {
+                "name": {
+                  "t": "string",
+                  "v": "Color"
+                }
+              },
+              "values": [
+                {
+                  "id": 1,
+                  "name": "Red",
+                  "swatch": "FF0000",
+                  "skuCodes": ["FOX-RED"]
+                }, {
+                  "id": 2,
+                  "name": "Blue",
+                  "swatch": "0000FF",
+                  "skuCodes": ["FOX-BLUE"]
+                }
+              ]
+            }
+          ]
+        }
+
++ Response 200 (application/json)
+
+        {
+          "id": 1,
+          "context": {
+            "name": "default",
+            "attributes": {
+              "lang": "en",
+              "modality": "desktop"
+            }
+          },
+          "attributes": {
+            "name": {
+              "t": "string",
+              "v": "Fox Socks"
+            },
+            "description": {
+              "t": "string",
+              "v": "The finest fox designed socks that money can buy."
+            }
+          },
+          "albums": [
+            {
+              "name": "Desktop",
+              "images": [
+                {
+                  "alt": "Red and blue sock",
+                  "src": "http://some.cdn.com/products/1/red-blue-sock.jpg"
+                }
+              ]
+            }
+          ],
+          "skus": [
+            {
+              "code": "FOX-RED",
+              "attributes": {
+                "salePrice": {
+                  "t": "price",
+                  "v": {
+                    "currency": "USD",
+                    "value": 1899
+                  }
+                }
+              },
+              "albums": [
+                {
+                  "name": "Desktop",
+                  "images": [
+                    {
+                      "alt": "Red sock",
+                      "src": "http:/some.cdn.com/products/1/red-sock.jpg"
+                    }
+                  ]
+                }
+              ]
+            }, {
+              "code": "FOX-BLUE",
+              "attributes": {
+                "salePrice": {
+                  "t": "price",
+                  "v": {
+                    "currency": "USD",
+                    "value": 1899
+                  }
+                }
+              },
+              "albums": [
+                {
+                  "name": "Desktop",
+                  "images": [
+                    {
+                      "alt": "Blue sock",
+                      "src": "http:/some.cdn.com/products/1/blue-sock.jpg"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "variants": [
+            {
+              "attributes": {
+                "name": {
+                  "t": "string",
+                  "v": "Color"
+                }
+              },
+              "values": [
+                {
+                  "id": 1,
+                  "name": "Red",
+                  "swatch": "FF0000",
+                  "skuCodes": ["FOX-RED"]
+                }, {
+                  "id": 2,
+                  "name": "Blue",
+                  "swatch": "0000FF",
+                  "skuCodes": ["FOX-BLUE"]
+                }
+              ]
+            }
+          ]
+        }
+
+### Archive [DELETE]
+
++ Response 200 (application/json)
+
+        {
+          "id": 1,
+          "context": {
+            "name": "default",
+            "attributes": {
+              "lang": "en",
+              "modality": "desktop"
+            }
+          },
+          "attributes": {
+            "name": {
+              "t": "string",
+              "v": "Fox Socks"
+            },
+            "description": {
+              "t": "string",
+              "v": "The finest fox designed socks that money can buy."
+            }
+          },
+          "albums": [
+            {
+              "name": "Desktop",
+              "images": [
+                {
+                  "alt": "Red and blue sock",
+                  "src": "http://some.cdn.com/products/1/red-blue-sock.jpg"
+                }
+              ]
+            }
+          ],
+          "skus": [
+            {
+              "attributes": {
+                "code": {
+                  "t": "string",
+                  "v": "FOX-RED"
+                },
+                "salePrice": {
+                  "t": "price",
+                  "v": {
+                    "currency": "USD",
+                    "value": 1899
+                  }
+                }
+              },
+              "albums": [
+                {
+                  "name": "Desktop",
+                  "images": [
+                    {
+                      "alt": "Red sock",
+                      "src": "http:/some.cdn.com/products/1/red-sock.jpg"
+                    }
+                  ]
+                }
+              ]
+            }, {
+              "attributes": {
+                "code": {
+                  "t": "string",
+                  "v": "FOX-BLUE"
+                },
+                "salePrice": {
+                  "t": "price",
+                  "v": {
+                    "currency": "USD",
+                    "value": 1899
+                  }
+                }
+              },
+              "albums": [
+                {
+                  "name": "Desktop",
+                  "images": [
+                    {
+                      "alt": "Blue sock",
+                      "src": "http:/some.cdn.com/products/1/blue-sock.jpg"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "variants": [
+            {
+              "attributes": {
+                "name": {
+                  "t": "string",
+                  "v": "Color"
+                }
+              },
+              "values": [
+                {
+                  "id": 1,
+                  "name": "Red",
+                  "swatch": "FF0000",
+                  "skuCodes": ["FOX-RED"]
+                }, {
+                  "id": 2,
+                  "name": "Blue",
+                  "swatch": "0000FF",
+                  "skuCodes": ["FOX-BLUE"]
+                }
+              ]
+            }
+          ],
+          "archivedAt": "2020-01-01T12:00:00Z"
+        }
+
+## Product Album [/v1/products/{context}/{productId}/albums/{id}]
+
++ Parameters
+    + context: `default` (required, string) - The context in which the album will be viewable.
+    + productId: `1` (required, number) - Product ID.
+    + id: `1` (required, number) - Product ID.
+
+### View [GET]
+
++ Response 200 (application/json)
+    + Attributes (Album)
+
+### Create [POST /v1/products/{context}/{id}/albums]
+
+Create a new album that is not associated with a product.
+
++ Parameters
+    + context: `default` (required, string) - The context in which the album will be viewable.
+    + id: `1` (required, number) - Product ID.
++ Request (application/json)
+    + Attributes (CreateAlbumPayload)
++ Response 200 (application/json)
+    + Attributes (Album)
+
+### Update [PATCH]
+
+Update the album or any of the images inside. Any manipulation of the album should
+be done from this method. This includes adding existing images by URL, reordering
+images, or deleting images.
+
+Internally, all changes are versions, so earlier iterations can be retrieved at
+a later time.
+
++ Parameters
+    + context: `default` (required, string) - The context in which the album will be viewable.
+    + productId: `1` (required, number) - Product ID.
+    + id: `1` (required, number) - Album ID.
++ Request (application/json)
+    + Attributes (CreateAlbumPayload)
++ Response 200 (application/json)
+    + Attributes (Album)

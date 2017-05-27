@@ -1,0 +1,49 @@
+# Merchandising Admin
+
+The FoxCommerce Content and Merchandising system flexibly stores product and
+merchandising information. The endpoints in this section allow an administrator
+to create items for purchase and control data so that a customer is more likely
+to purchase from the store.
+
+ All information is stored in a specific **context**
+and every change is automatically versioned.
+
+Currently, Merchandising is broken down into the following core concepts:
+
+- Context
+- Products
+- SKUs
+- Variants
+- Albums
+- Taxonomies
+
+In addition, each of the core objects (Products and SKUs) may be categoried
+by tags and categories.
+
+<!-- include(objects/album.apib) -->
+<!-- include(objects/object.apib) -->
+<!-- include(objects/product.apib) -->
+<!-- include(objects/variant.apib) -->
+<!-- include(objects/taxonomy.apib) -->
+
+## Group Products
+
+<!-- include(resources/admin_products.apib) -->
+
+## Group SKUs
+
+<!-- include(resources/admin_skus.apib) -->
+
+## Group Variants
+
+<!-- include(resources/admin_variants.apib) -->
+
+## Group Taxonomies
+
+<!-- include(resources/admin_taxonomies.apib) -->
+
+## Group Albums
+
+Albums represent a way to group and share images across different entities in the system.
+
+<!-- include(resources/admin_albums.apib) -->

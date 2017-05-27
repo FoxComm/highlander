@@ -1,0 +1,25 @@
+# Data Structures
+
+### SharedSearchScope
++ scope: `CustomersScope` (required, enum[string]) - Scope of search.
+    + Members
+        + `CustomersScope`
+        + `OrdersScope`
+        + `StoreAdminsScope`
+
+### SharedSearch
++ id: 1 (required, number) - ID.
++ code: `abc123` (required, string) - Unique code.
++ title: `List of customers sorted by name` (optional, string) - Title of shared search.
++ query (required, object) - Saved query for Elasticsearch.
+- Include SharedSearchScope
++ storeAdminId: 1 (required, number) - Store Admin ID.
++ createdAt: `2015-10-28T12:20:27.794Z` (required, string) - Creation date.
+
+### SharedSearchPayload
++ title: `List of customers sorted by name` (optional, string) - Title of shared search.
++ query (required, object) - Saved query for Elasticsearch.
+- Include SharedSearchScope
+
+### SharedSearchAssociationPayload
++ associates (required, array[number]) - StoreAdmin IDs.

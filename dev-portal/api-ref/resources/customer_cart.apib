@@ -1,0 +1,133 @@
+## Cart [/v1/my/cart]
+
+Customer's current cart.
+
+### View [GET]
+
+Returns or creates new cart.
+
++ Response 200 (application/json)
+  + Attributes (FullOrder)
+
+### Checkout [POST /v1/my/cart/checkout]
+
+Place order from cart.
+
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+## SKU Line Items [/v1/my/cart/line-items]
+
+### Set SKU Line Items [POST]
+
+Set the number of line items. Upon completion, cart line items will match the quantities in this payload.
+
++ Request (application/json)
+    + Attributes (array[UpdateLineItemsPayload])
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Update SKU Line Items [PATCH]
+
+Add to or remove from the number of line items that are currently stored in your cart.
+
++ Request (application/json)
+    + Attributes (array[UpdateLineItemsPayload])
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+## Credit Card Payments [/v1/my/cart/payment-methods/credit-cards]
+
+### Add [POST]
+
++ Request (application/json)
+    + Attributes (CreditCardPaymentPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Delete [DELETE]
+
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+## Gift Card Payments [/v1/my/cart/payment-methods/gift-cards]
+
+### Add [POST]
+
++ Request (application/json)
+    + Attributes (GiftCardPaymentPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Delete [DELETE]
+
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+## Store Credit Payments [/v1/my/cart/payment-methods/store-credits]
+
+### Add [POST]
+
++ Request (application/json)
+    + Attributes (StoreCreditPaymentPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Delete [DELETE]
+
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+## Shipping Method [/v1/my/cart/shipping-method]
+
+Shipping methods are used to describe the ways that the contents of a cart can
+transported to the customer. All actions that occur against this set of
+endpoints modify which shipping method is used by the cart.
+
+### List Shipping Methods [GET /v1/my/cart/shipping-methods]
+
++ Response 200 (application/json)
+    + Attributes (array[ShippingMethod])
+
+### Update [PATCH]
+
+Changes the shipping method to a cart.
+
++ Request (application/json)
+    + Attributes (UpdateShippingMethodPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Delete [DELETE]
+
+Removes the shipping method from the cart.
+
++ Response 204
+
+## Shipping Address [/v1/my/cart/shipping-address]
+
+### Add [POST]
+
++ Request (application/json)
+    + Attributes (CreateAddressPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Add By Address ID [PATCH /v1/my/cart/shipping-address/{addressId}]
+
++ Parameters
+    + addressId: 1 (required, number) - Address ID.
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Update [PATCH]
+
++ Request (application/json)
+    + Attributes (UpdateAddressPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Delete [DELETE]
+
++ Response 200 (application/json)
+    + Attributes (FullOrder)

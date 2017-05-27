@@ -1,0 +1,28 @@
+# Data Structures
+
+### GroupType
++ type: Dynamic (required, enum[string]) - Group type.
+    + Members
+        + `dynamic`
+        + `manual`
+
+## GroupResponse
++ id: 1 (required, number) - Unique identifier.
++ name: `Super Awesome Group` (required, string) - Name of group.
++ Include LineItemState
++ email: `john@smith.com` (required, string) - E-mail.
++ clientState: `<json>` (required, string) - client json state,
++ elasticRequest: `<json> (required, string) - client json state
++ customersCount: 15 (optional, number) - Customers count in group
++ updatedAt: `2020-01-01T12:00:00Z` (required, string) - Last update time
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation time
+
+## GroupResponseList
++ result   (required, array[GroupResponse])
+
+## GroupPayload
++ name: `New group name` (required, string) - New name of group.
++ clientState: `<json>` (required, string) - client json state,
++ elasticRequest: `<json> (required, string) - client json state
++ customersCount: 15 (optional, number) - Customers count in group
++ email: `new@example.org` (optional, string)

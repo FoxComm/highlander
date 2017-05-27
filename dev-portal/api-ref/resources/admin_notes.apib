@@ -1,0 +1,154 @@
+## Customer Note [/v1/notes/customer/{customerId}/{noteId}]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID
+    + noteId: 1 (required, number) - Note ID
+
+### List [GET /v1/notes/customer/{customerId}]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID
++ Response 200 (application/json)
+    + Attributes (AdminNotes)
+
+### Create [POST /v1/notes/customer/{customerId}]
+
++ Request (application/json)
+    + Attributes (AdminNote)
++ Response 200 (application/json)
+    + Attributes (AdminNote)
+
+### Edit [PATCH]
+
++ Request (application/json)
+    + Attributes (AdminNote)
++ Response 200 (application/json)
+    + Attributes (AdminNote)
+
+### Delete [DELETE]
+
++ Response 204 (application/json)
+
+## Order Note [/v1/notes/order/{refNum}/{noteId}]
+
++ Parameters
+    + refNum: `ABCD1234-11` (required, string) - Order reference number
+    + noteId: 1 (required, number) - Note ID
+
+### List [GET /v1/notes/order/{refNum}]
+
++ Parameters
+    + refNum: `ABCD1234-11` (required, string) - Order reference number
++ Response 200 (application/json)
+    + Attributes (AdminNotes)
+
+### Create [POST /v1/notes/order/{refNum}]
+
++ Request (application/json)
+    + Attributes (AdminNote)
++ Response 200 (application/json)
+    + Attributes (AdminNote)
+
+### Edit [PATCH]
+
++ Request (application/json)
+    + Attributes (AdminNote)
++ Response 200 (application/json)
+    + Attributes (AdminNote)
+
+### Delete [DELETE]
+
++ Response 204 (application/json)
+
+## Gift Card Note [/v1/notes/gift-card/{code}/{noteId}]
+
++ Parameters
+    + code: `ABC-123` (required, string) - Gift card code
+    + noteId: 1 (required, number) - Note ID
+
+### List [GET /v1/notes/gift-card/{code}]
+
++ Parameters
+    + code: `ABC-123` (required, string) - Gift card code
++ Response 200 (application/json)
+    + Attributes (AdminNotes)
+
+### Create [POST /v1/notes/gift-card/{code}]
+
++ Request (application/json)
+    + Attributes (AdminNote)
++ Response 200 (application/json)
+    + Attributes (AdminNote)
+
+### Edit [PATCH]
+
++ Request (application/json)
+    + Attributes (AdminNote)
++ Response 200 (application/json)
+    + Attributes (AdminNote)
+
+### Delete [DELETE]
+
++ Response 204 (application/json)
+
+## Return Note [/v1/notes/return/{code}/{noteId}]
+
++ Parameters
+    + code: `ABC-123` (required, string) - Return code
+    + noteId: 1 (required, number) - Note ID
+
+### List [GET /v1/notes/return/{code}]
+
++ Parameters
+    + code: `ABC-123` (required, string) - Return code
++ Response 200 (application/json)
+    + Attributes (AdminNotes)
+
+### Create [POST /v1/notes/return/{code}]
+
++ Request (application/json)
+    + Attributes (AdminNote)
++ Response 200 (application/json)
+    + Attributes (AdminNote)
+
+### Edit [PATCH]
+
++ Request (application/json)
+    + Attributes (AdminNote)
++ Response 200 (application/json)
+    + Attributes (AdminNote)
+
+### Delete [DELETE]
+
++ Response 204 (application/json)
+
+## Store Admin Note [/v1/notes/store-admin/{id}/{noteId}]
+
++ Parameters
+    + id: `666` (required, number) - Store Admin ID
+    + noteId: 1 (required, number) - Note ID
+
+### List [GET /v1/notes/store-admin/{id}]
+
++ Parameters
+    + id: `666` (required, number) - Store Admin ID
++ Response 200 (application/json)
+    + Attributes (AdminNotes)
+
+### Create [POST /v1/notes/store-admin/{id}]
+
++ Request (application/json)
+    + Attributes (AdminNote)
++ Response 200 (application/json)
+    + Attributes (AdminNote)
+
+### Edit [PATCH]
+
++ Request (application/json)
+    + Attributes (AdminNote)
++ Response 200 (application/json)
+    + Attributes (AdminNote)
+
+### Delete [DELETE]
+
++ Response 204 (application/json)

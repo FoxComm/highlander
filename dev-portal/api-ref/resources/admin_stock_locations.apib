@@ -1,0 +1,27 @@
+## Stock Locations [/v1/inventory/stock-locations/{id}]
+
++ Parameters
+    + id: 1 (required, number) - Stock Location ID.
+
+### View [GET]
+
++ Response 200 (application/json)
+    + Attributes (StockLocationResponse)
+
+### Create [POST /v1/inventory/stock-locations]
+
++ Request (application/json)
+    + Attributes (StockLocationPayload)
++ Response 201 (application/json)
+    + Attributes (StockLocationResponse)
+
+### Update [PUT]
+
++ Request (application/json)
+    + Attributes (StockLocationPayload)
++ Response 200 (application/json)
+    + Attributes (StockLocationResponse)
+
+### Delete [DELETE]
+
++ Response 204
