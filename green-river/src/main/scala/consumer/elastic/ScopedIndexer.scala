@@ -108,6 +108,7 @@ class ScopedIndexer(uri: String,
                             document: String,
                             topic: String): Future[Unit] = {
     Console.out.println(s"Scoped Indexing $topic into $scopedIndexName")
+    Console.out.println(s"Document $document")
     val req = client.execute {
       index into scopedIndexName / topic id documentId doc PassthroughSource(document)
     }.map { _ ⇒
