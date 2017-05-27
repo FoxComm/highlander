@@ -192,11 +192,16 @@ def convert_product(product_group):
 
 
 def convert_taxonomies(dir):
+
+    def set_active_from(attributes):
+        attributes['activeFrom'] = {'t':'datetime','v':'2017-03-09T19:59:21.609Z'}
+        return attributes
+
     def create_taxonomy(name, hierarchical=False, taxons=None):
-        return {'attributes': {'name': {'t': 'string', 'v': name}}, 'hierarchical': hierarchical, 'taxons': taxons}
+        return {'attributes': set_active_from({'name': {'t': 'string', 'v': name}}), 'hierarchical': hierarchical, 'taxons': taxons}
 
     def create_taxon(name):
-        return {'attributes': {'name': {'t': 'string', 'v': name}}}
+        return {'attributes': set_active_from({'name': {'t': 'string', 'v': name},})}
 
     taxonomies = load_file_taxonomies(dir)
     return [create_taxonomy(name, taxons=[create_taxon(taxon_name) for taxon_name in values]) for (name, values) in

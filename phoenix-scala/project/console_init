@@ -10,7 +10,7 @@ import phoenix.models.account.{AccountAccessMethod, Scope, Scopes}
 import phoenix.services.account.AccountCreateContext
 import phoenix.services.Authenticator
 import phoenix.utils.FoxConfig
-import utils.db._
+import core.db._
 
 final implicit class ConsoleEnrichedFuture[A](val future: Future[A]) extends AnyVal {
   def get(): A = Await.result(future, 1.minute)

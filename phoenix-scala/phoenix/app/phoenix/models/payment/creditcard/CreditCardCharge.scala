@@ -1,17 +1,18 @@
 package phoenix.models.payment.creditcard
 
-import com.pellucid.sealerate
-import failures.Failures
 import java.time.Instant
+
+import com.pellucid.sealerate
+import core.db._
+import core.failures.Failures
+import core.utils.Money.Currency
 import phoenix.models.cord.{OrderPayment, OrderPayments}
-import shapeless._
-import slick.ast.BaseTypedType
-import slick.jdbc.PostgresProfile.api._
-import slick.jdbc.JdbcType
-import utils.Money.Currency
 import phoenix.utils._
 import phoenix.utils.aliases.stripe._
-import utils.db._
+import shapeless._
+import slick.ast.BaseTypedType
+import slick.jdbc.JdbcType
+import slick.jdbc.PostgresProfile.api._
 
 case class CreditCardCharge(id: Int = 0,
                             creditCardId: Int,

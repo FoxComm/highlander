@@ -4,13 +4,13 @@ import java.time.Instant
 
 import cats.data.{Validated, ValidatedNel}
 import cats.implicits._
-import failures._
+import core.db._
+import core.failures._
+import core.utils.Validation
 import phoenix.failures.UserFailures._
 import phoenix.models.customer.CustomersData
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.Validation
-import utils.db._
 
 case class User(id: Int = 0,
                 accountId: Int,

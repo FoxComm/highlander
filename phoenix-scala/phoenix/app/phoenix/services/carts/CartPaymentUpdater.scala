@@ -4,7 +4,7 @@ import cats.implicits._
 import phoenix.failures.GiftCardFailures._
 import phoenix.failures.OrderFailures._
 import phoenix.failures.StoreCreditFailures._
-import failures._
+import core.failures._
 import phoenix.failures.OpenTransactionsFailure
 import phoenix.models.cord.OrderPayments.scope._
 import phoenix.models.cord._
@@ -21,7 +21,7 @@ import phoenix.services.{CartValidator, LogActivity}
 import slick.jdbc.PostgresProfile.api._
 import utils.Money._
 import phoenix.utils.aliases._
-import utils.db._
+import core.db._
 
 object CartPaymentUpdater {
 

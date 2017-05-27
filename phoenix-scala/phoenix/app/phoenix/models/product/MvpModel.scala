@@ -4,10 +4,13 @@ import java.time.Instant
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import core.db._
+import core.utils.Money.Currency
+import objectframework.FormShadowGet._
 import objectframework.ObjectFailures._
 import objectframework.ObjectUtils
 import objectframework.models._
-import org.json4s.JsonAST.{JNothing, JString}
+import org.json4s.JsonAST.JString
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -23,7 +26,6 @@ import phoenix.services.inventory.SkuManager
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 import utils.Money.{Currency, Price}
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -531,43 +533,4 @@ object Mvp {
     for {
       results ← * <~ ps.map(p ⇒ insertProductNewContext(oldContextId, contextId, p))
     } yield results
-
-  def priceFromJson(p: Json): Option[Price] = {
-    val price: List[Price] = for {
-      JInt(value)       ← p \ "value"
-      JString(currency) ← p \ "currency"
-    } yield (value.toLong, Currency(currency))
-    if (price.isEmpty) None else price.headOption
-  }
-
-  def price(f: ObjectForm, s: ObjectShadow): Option[Price] = {
-    ObjectUtils.get("salePrice", f, s) match {
-      case JNothing ⇒ None
-      case v        ⇒ priceFromJson(v)
-    }
-  }
-
-  def priceAsAmount(f: ObjectForm, s: ObjectShadow): Long =
-    price(f, s).map { case (value, _) ⇒ value }.getOrElse(0L)
-
-  def title(f: ObjectForm, s: ObjectShadow): Option[String] = {
-    ObjectUtils.get("title", f, s) match {
-      case JString(title) ⇒ title.some
-      case _              ⇒ None
-    }
-  }
-
-  def externalId(f: ObjectForm, s: ObjectShadow): Option[String] = {
-    ObjectUtils.get("externalId", f, s) match {
-      case JString(externalId) ⇒ externalId.some
-      case _                   ⇒ None
-    }
-  }
-
-  def trackInventory(f: ObjectForm, s: ObjectShadow): Boolean = {
-    ObjectUtils.get("trackInventory", f, s) match {
-      case JBool(trackInventory) ⇒ trackInventory
-      case _                     ⇒ true
-    }
-  }
 }

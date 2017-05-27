@@ -14,11 +14,6 @@ export default class CartShippingAddress extends Component {
     cart: PropTypes.object.isRequired,
     id: PropTypes.string,
     status: PropTypes.string,
-    readOnly: PropTypes.bool,
-  };
-
-  static defaultProps = {
-    readOnly: false,
   };
 
   constructor(...args) {
@@ -55,7 +50,7 @@ export default class CartShippingAddress extends Component {
   }
 
   render() {
-    const { readOnly, status, id } = this.props;
+    const { status, id } = this.props;
 
     const title = <PanelHeader showStatus={true} status={status} text="Shipping Address" />;
     const isCheckingOut = _.get(this.props, 'cart.isCheckingOut', false);

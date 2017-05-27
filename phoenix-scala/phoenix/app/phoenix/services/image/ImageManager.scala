@@ -3,6 +3,7 @@ package phoenix.services.image
 import java.time.Instant
 
 import cats.implicits._
+import core.db._
 import objectframework.ObjectUtils
 import objectframework.ObjectUtils.InsertResult
 import objectframework.models._
@@ -20,7 +21,6 @@ import phoenix.responses.AlbumResponses._
 import phoenix.services.inventory.SkuManager
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 object ImageManager {
   type FullAlbum           = FullObject[Album]

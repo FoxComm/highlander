@@ -1,9 +1,9 @@
 package phoenix.models.customer
 
+import core.db._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import utils.Money._
-import utils.db._
 
 case class CustomerRank(id: Int = 0, revenue: Long = 0, rank: Option[Int] = Some(0))
     extends FoxModel[CustomerRank] {}

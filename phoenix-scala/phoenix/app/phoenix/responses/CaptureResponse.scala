@@ -1,6 +1,6 @@
 package phoenix.responses
 
-import utils.Money.Currency
+import core.utils.Money.Currency
 
 case class CaptureResponse(order: String,
                            captured: Long,

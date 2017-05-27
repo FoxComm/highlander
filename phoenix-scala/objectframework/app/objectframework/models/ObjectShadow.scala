@@ -2,12 +2,12 @@ package objectframework.models
 
 import java.time.Instant
 
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.utils.Validation
 import org.json4s.JsonAST.{JNothing, JValue}
 import org.json4s.JsonDSL._
 import shapeless._
-import utils.Validation
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 /**
   * An ObjectShadow is what you get when a context illuminates an Object.

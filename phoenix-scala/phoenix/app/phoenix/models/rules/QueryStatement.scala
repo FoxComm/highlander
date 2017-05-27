@@ -6,7 +6,7 @@ import phoenix.utils.aliases._
 import phoenix.utils.{ADT, JsonFormatters}
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.db.ExPostgresDriver.api._
+import core.db.ExPostgresDriver.api._
 
 import scala.collection.immutable.Seq
 

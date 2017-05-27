@@ -1,6 +1,7 @@
 package phoenix.services.returns
 
 import cats.implicits._
+import core.db._
 import phoenix.failures.OrderFailures.OrderPaymentNotFoundFailure
 import phoenix.failures.ReturnFailures._
 import phoenix.models.account.{Scope, User, Users}
@@ -13,14 +14,13 @@ import phoenix.models.payment.storecredit._
 import phoenix.models.returns.ReturnPayments.scope._
 import phoenix.models.returns._
 import phoenix.responses.ReturnResponse
-import scala.annotation.tailrec
 import phoenix.services.LogActivity
 import phoenix.services.carts.CartTotaler
-import slick.jdbc.PostgresProfile.api._
-import utils.Money._
 import phoenix.utils.aliases._
 import phoenix.utils.apis.{Apis, RefundReason}
-import utils.db._
+import slick.jdbc.PostgresProfile.api._
+import utils.Money._
+import scala.annotation.tailrec
 
 object ReturnPaymentManager {
   def updatePayments(refNum: String, payments: Map[PaymentMethod.Type, Long], overwrite: Boolean)(

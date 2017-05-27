@@ -2,10 +2,10 @@ package phoenix.utils.http
 
 import akka.http.scaladsl.unmarshalling._
 import cats.data.Validated.{Invalid, Valid}
+import core.utils.Validation
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
-import failures._
+import core.failures._
 import org.json4s.{Formats, Serialization}
-import utils.Validation
 
 import scala.concurrent.Future
 

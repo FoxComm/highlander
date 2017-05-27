@@ -3,7 +3,8 @@ package phoenix.models.returns
 import java.time.Instant
 
 import com.pellucid.sealerate
-import failures.NotFoundFailure404
+import core.db._
+import core.failures.NotFoundFailure404
 import phoenix.models.account._
 import phoenix.models.cord.{Order, Orders}
 import phoenix.models.returns.Return._
@@ -12,7 +13,6 @@ import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class Return(id: Int = 0,
                   referenceNumber: String = "",

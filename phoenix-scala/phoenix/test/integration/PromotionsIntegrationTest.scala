@@ -3,7 +3,7 @@ import java.time.temporal.ChronoUnit.DAYS
 
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import objectframework.IlluminateAlgorithm
 import objectframework.ObjectFailures.ObjectContextNotFound
 import objectframework.models.ObjectContext
@@ -32,7 +32,7 @@ import testutils.apis._
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
 import testutils.fixtures.api._
 import testutils.fixtures.{BakedFixtures, PromotionFixtures}
-import utils.db._
+import core.db._
 import utils.Money._
 
 class PromotionsIntegrationTest

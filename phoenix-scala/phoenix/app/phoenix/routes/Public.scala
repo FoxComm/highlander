@@ -36,7 +36,7 @@ object Public {
             pathPrefix(ProductRef) { productId ⇒
               (get & pathEnd) {
                 getOrFailures {
-                  ProductManager.getProduct(productId, checkActive = true)
+                  ProductManager.getProduct(productId)
                 }
               }
             }

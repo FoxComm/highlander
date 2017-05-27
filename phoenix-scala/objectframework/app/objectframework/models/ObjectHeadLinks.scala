@@ -2,9 +2,9 @@ package objectframework.models
 
 import java.time.Instant
 
+import core.db.ExPostgresDriver.api._
+import core.db._
 import objectframework.services.ObjectManager
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 object ObjectHeadLinks {
 

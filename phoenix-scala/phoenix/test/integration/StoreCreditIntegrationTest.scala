@@ -1,4 +1,4 @@
-import failures._
+import core.failures._
 import phoenix.failures.StoreCreditFailures.StoreCreditConvertFailure
 import phoenix.failures.{EmptyCancellationReasonFailure, OpenTransactionsFailure}
 import phoenix.models.Reason
@@ -17,7 +17,7 @@ import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 import utils.Money._
 
 class StoreCreditIntegrationTest

@@ -27,6 +27,9 @@ namespace isaac
             auto r = w.exec(query_str(table, id));
             if(r.empty()) return boost::none;
 
+            CHECK_EQUAL(r.size(), 1);
+            CHECK_EQUAL(r[0].size(), 1);
+
             int db_ratchet = 0;
             r[0][0].to(db_ratchet);
 

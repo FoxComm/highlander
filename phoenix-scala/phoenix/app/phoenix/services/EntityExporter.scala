@@ -20,7 +20,7 @@ import phoenix.utils.http.Http
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.util.control.Exception._
-import utils.Strings._
+import core.utils.Strings._
 
 /** Export entities from ElasticSearch with given path using specified search type.
   *

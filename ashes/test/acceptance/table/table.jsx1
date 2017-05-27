@@ -3,7 +3,7 @@
 require('testdom')('<html><body></body></html>');
 
 const React = require('react');
-const ReactTestUtils = require('react-addons-test-utils');
+const ReactTestUtils = require('react-dom/test-utils');
 const ReactDOM = require('react-dom');
 const path = require('path');
 

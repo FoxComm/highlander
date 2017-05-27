@@ -7,14 +7,14 @@ import React, { Component } from 'react';
 
 // components
 import { IndexLink } from 'components/link';
-import LocalNav from 'components/local-nav/local-nav';
+import PageNav from 'components/core/page-nav';
 
 export default class SubNav extends Component {
   render() {
     return (
-      <LocalNav>
+      <PageNav>
         <IndexLink to="applications">List</IndexLink>
-      </LocalNav>
+      </PageNav>
     );
   }
 }

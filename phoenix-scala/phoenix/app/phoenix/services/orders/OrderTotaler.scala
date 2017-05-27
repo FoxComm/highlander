@@ -5,7 +5,7 @@ import phoenix.models.cord.{Cart, Order, OrderShippingMethods, Orders}
 import slick.jdbc.PostgresProfile.api._
 import utils.Money._
 import phoenix.utils.aliases._
-import utils.db._
+import core.db._
 
 // TODO: Use utils.Money
 object OrderTotaler {

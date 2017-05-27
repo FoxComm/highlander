@@ -2,11 +2,11 @@ package phoenix.models.cord
 
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import cats.implicits._
-import failures.Failure
+import core.failures.Failure
+import core.utils.Validation
+import core.utils.Validation._
 import phoenix.models.payment.giftcard.GiftCard.giftCardCodeRegex
 import phoenix.payloads.AddressPayloads.CreateAddressPayload
-import utils.Validation
-import utils.Validation._
 
 package object lineitems {
 

@@ -1,8 +1,9 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+
+import { Link } from 'components/link';
 import GiftCardCode from '../../../gift-cards/gift-card-code';
-import { Link } from '../../../link';
 
 const GiftCardLink = props => {
   return (

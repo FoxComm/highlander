@@ -39,7 +39,9 @@ package object mappings {
         .analyzer("autocomplete")
         .fields(field("raw", StringType).index("not_analyzed")),
       field("zip", StringType).index("not_analyzed"),
-      field("region", StringType).index("not_analyzed"),
+      field("region", StringType)
+        .analyzer("autocomplete")
+        .fields(field("raw", StringType).index("not_analyzed")),
       field("country", StringType)
         .analyzer("autocomplete")
         .fields(field("raw", StringType).index("not_analyzed")),

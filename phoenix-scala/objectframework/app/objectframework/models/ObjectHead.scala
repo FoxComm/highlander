@@ -2,11 +2,11 @@ package objectframework.models
 
 import java.time.Instant
 
+import com.github.tminglei.slickpg._
+import core.db.ExPostgresDriver.api._
+import core.db._
 import objectframework.ObjectFailures._
 import slick.lifted.Tag
-import utils.db.ExPostgresDriver.api._
-import utils.db._
-import com.github.tminglei.slickpg._
 
 trait ObjectHead[M <: ObjectHead[M]] extends FoxModel[M] { self: M ⇒
   def scope: LTree

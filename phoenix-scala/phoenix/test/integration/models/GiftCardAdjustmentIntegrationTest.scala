@@ -5,7 +5,7 @@ import phoenix.models.payment.giftcard._
 import testutils._
 import testutils.fixtures.BakedFixtures
 import cats.implicits._
-import utils.db._
+import core.db._
 import utils.Money._
 
 class GiftCardAdjustmentIntegrationTest

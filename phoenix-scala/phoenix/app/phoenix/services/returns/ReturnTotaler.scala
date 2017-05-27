@@ -2,8 +2,8 @@ package phoenix.services.returns
 
 import objectframework.models.{ObjectForms, ObjectShadows}
 import phoenix.models.returns._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.db.ExPostgresDriver.api._
+import core.db._
 
 object ReturnTotaler {
   def adjustmentsTotal(rma: Return)(implicit ec: EC): DbResultT[Long] = DbResultT.pure(0)

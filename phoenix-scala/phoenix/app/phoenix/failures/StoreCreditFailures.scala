@@ -1,6 +1,6 @@
 package phoenix.failures
 
-import failures.Failure
+import core.failures.Failure
 import phoenix.models.payment.storecredit.StoreCredit
 
 object StoreCreditFailures {

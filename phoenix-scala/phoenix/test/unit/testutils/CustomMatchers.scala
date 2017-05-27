@@ -1,7 +1,7 @@
 package testutils
 
 import cats.data._
-import failures.{Failure, GeneralFailure}
+import core.failures.{Failure, GeneralFailure}
 import org.scalatest.matchers._
 
 object CustomMatchers {

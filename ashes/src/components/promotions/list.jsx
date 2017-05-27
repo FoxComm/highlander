@@ -26,7 +26,7 @@ const PromotionsList = (props: PromotionsListProps) => {
   return (
     <ListPageContainer
       title="Promotions"
-      subtitle={<TotalCounter/>}
+      subtitle={<TotalCounter />}
       addTitle="Promotion"
       handleAddAction={addAction}
       navLinks={navLinks}>

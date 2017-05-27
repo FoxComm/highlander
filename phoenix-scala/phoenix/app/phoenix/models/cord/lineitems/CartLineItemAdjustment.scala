@@ -3,13 +3,13 @@ package phoenix.models.cord.lineitems
 import java.time.Instant
 
 import com.pellucid.sealerate
+import core.db.ExPostgresDriver.api._
+import core.db._
 import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils.Money._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 final case class CartLineItemAdjustment(id: Int = 0,
                                         cordRef: String,

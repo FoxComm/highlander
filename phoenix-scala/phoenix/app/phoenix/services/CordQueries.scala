@@ -1,5 +1,6 @@
 package phoenix.services
 
+import core.db.ExPostgresDriver.api._
 import phoenix.models.cord.CordPaymentState._
 import phoenix.models.cord.{CordPaymentState, OrderPayment, OrderPayments}
 import phoenix.models.payment.PaymentMethod
@@ -8,7 +9,6 @@ import phoenix.models.payment.giftcard.GiftCardAdjustments
 import phoenix.models.payment.storecredit.StoreCreditAdjustments
 import phoenix.utils.aliases.EC
 import slick.dbio.DBIO
-import utils.db.ExPostgresDriver.api._
 
 trait CordQueries {
 

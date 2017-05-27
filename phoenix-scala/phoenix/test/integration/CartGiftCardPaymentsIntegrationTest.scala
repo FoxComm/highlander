@@ -1,5 +1,5 @@
 import cats.implicits._
-import failures.{NotFoundFailure400, NotFoundFailure404}
+import core.failures.{NotFoundFailure400, NotFoundFailure404}
 import phoenix.failures.CartFailures.OrderAlreadyPlaced
 import phoenix.failures.GiftCardFailures._
 import phoenix.failures.OrderFailures.OrderPaymentNotFoundFailure
@@ -10,7 +10,7 @@ import phoenix.payloads.PaymentPayloads.GiftCardPayment
 import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
-import utils.db._
+import core.db._
 import utils.Money._
 
 class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBase {

@@ -2,10 +2,10 @@ package phoenix.models.product
 
 import java.time.Instant
 
+import core.db.ExPostgresDriver.api._
+import core.db._
 import phoenix.models.inventory.Skus
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class VariantValueSkuLink(id: Int = 0,
                                leftId: Int,

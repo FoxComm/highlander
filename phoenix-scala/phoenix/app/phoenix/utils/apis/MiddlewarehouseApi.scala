@@ -3,15 +3,15 @@ package phoenix.utils.apis
 import cats.implicits._
 import com.ning.http.client
 import com.typesafe.scalalogging.LazyLogging
+import core.db._
+import core.failures.Failures
 import dispatch._
-import failures.Failures
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import phoenix.failures.MiddlewarehouseFailures._
 import phoenix.payloads.AuthPayload
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-import utils.db._
 
 case class SkuInventoryHold(sku: String, qty: Int)
 

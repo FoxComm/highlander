@@ -4,7 +4,7 @@ import java.time.Instant
 
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.db._
 
 case class Organization(id: Int = 0,
                         name: String,

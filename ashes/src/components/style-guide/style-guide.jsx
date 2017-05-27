@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { IndexLink, Link } from '../link';
+
+import { IndexLink, Link } from 'components/link';
 
 const StyleGuide = props => {
   return (

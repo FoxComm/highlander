@@ -3,8 +3,8 @@ package phoenix.models.returns
 import phoenix.models.payment.creditcard.CreditCardCharges
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.Money.Currency
-import utils.db._
+import core.utils.Money.Currency
+import core.db._
 
 case class ReturnCcPayment(id: Int = 0,
                            returnPaymentId: Int,

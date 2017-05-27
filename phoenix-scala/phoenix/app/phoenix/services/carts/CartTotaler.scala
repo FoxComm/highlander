@@ -1,12 +1,11 @@
 package phoenix.services.carts
 
-import phoenix.models.cord.lineitems._
+import core.db._
 import phoenix.models.cord._
-import slick.jdbc.PostgresProfile.api._
-import phoenix.utils.aliases._
-import utils.db._
+import phoenix.models.cord.lineitems._
 import phoenix.utils.FoxConfig.config
 import utils.Money._
+import slick.jdbc.PostgresProfile.api._
 
 // TODO: Use utils.Money
 object CartTotaler {

@@ -2,10 +2,10 @@ package phoenix.models.returns
 
 import java.time.Instant
 
+import core.db._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import utils.Money._
-import utils.db._
 
 case class ReturnLineItemShippingCost(id: Int,
                                       returnId: Int,

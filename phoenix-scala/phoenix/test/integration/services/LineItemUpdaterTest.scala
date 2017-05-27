@@ -10,7 +10,7 @@ import phoenix.utils.apis.Apis
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class LineItemUpdaterTest
     extends IntegrationTestBase

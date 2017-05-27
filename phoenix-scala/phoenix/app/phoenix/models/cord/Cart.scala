@@ -1,13 +1,13 @@
 package phoenix.models.cord
 
 import com.github.tminglei.slickpg.LTree
-import failures.{Failure, NotFoundFailure404}
+import core.failures.{Failure, NotFoundFailure404}
 import phoenix.failures.CartFailures.OrderAlreadyPlaced
 import phoenix.models.account.Account
 import shapeless._
-import utils.Money.Currency
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.utils.Money.Currency
+import core.db.ExPostgresDriver.api._
+import core.db._
 
 case class Cart(id: Int = 0,
                 scope: LTree,

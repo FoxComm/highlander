@@ -2,13 +2,13 @@ package phoenix.responses
 
 import java.time.Instant
 
-import failures.NotFoundFailure404
+import core.db._
+import core.failures.NotFoundFailure404
+import objectframework.FormShadowGet
 import objectframework.models._
 import phoenix.models.inventory.{Sku, Skus}
-import phoenix.models.product.Mvp
 import phoenix.models.{SaveForLater, SaveForLaters}
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 import utils.Money._
 
 object SaveForLaterResponse {
@@ -35,17 +35,12 @@ object SaveForLaterResponse {
       shadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
     } yield build(sfl, sku, form, shadow)
 
-  def build(sfl: SaveForLater, sku: Sku, form: ObjectForm, shadow: ObjectShadow): Root = {
-
-    val price = Mvp.priceAsAmount(form, shadow)
-    val name  = Mvp.title(form, shadow)
-
+  def build(sfl: SaveForLater, sku: Sku, form: ObjectForm, shadow: ObjectShadow): Root =
     Root(
         id = sfl.id,
-        name = name,
+        name = FormShadowGet.title(form, shadow),
         sku = sku.code,
-        price = price,
+        price = FormShadowGet.priceAsInt(form, shadow),
         createdAt = sfl.createdAt
     )
-  }
 }

@@ -9,7 +9,7 @@ import phoenix.responses.GenericTreeResponses.TreeResponse
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
-import utils.db._
+import core.db._
 
 class GenericTreeIntegrationTest
     extends IntegrationTestBase

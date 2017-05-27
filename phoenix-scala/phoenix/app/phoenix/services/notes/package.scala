@@ -2,15 +2,15 @@ package phoenix.services
 
 import java.time.Instant
 
-import failures.NotFoundFailure404
-import phoenix.models.{Note, Notes}
+import core.db._
+import core.failures.NotFoundFailure404
 import phoenix.models.account._
+import phoenix.models.{Note, Notes}
 import phoenix.payloads.NotePayloads._
 import phoenix.responses.AdminNotes
 import phoenix.responses.AdminNotes.Root
-import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
-import utils.db._
+import slick.jdbc.PostgresProfile.api._
 
 package object notes {
   def forModel[M <: FoxModel[M]](finder: Notes.QuerySeq)(implicit ec: EC): DbResultT[Seq[Root]] = {

@@ -1,7 +1,7 @@
 package phoenix.failures
 
-import failures.{Failure, NotFoundFailure400}
-import utils.friendlyClassName
+import core.failures.{Failure, NotFoundFailure400}
+import core.utils.friendlyClassName
 
 object OrderFailures {
 
