@@ -17,8 +17,8 @@ begin
         country.id as country_id,
         country.name as country_name,
         catalog.default_language as default_language,
-        catalog.created_at as created_at,
-        catalog.updated_at as updated_at
+        to_char(catalog.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
+        to_char(catalog.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as updated_at
       from catalogs as catalog
         inner join countries as country on (country.id = catalog.country_id)
       where new.id = catalog.id;
@@ -35,7 +35,7 @@ begin
       country_id = country.id,
       country_name = country.name,
       default_language = catalog.default_language,
-      updated_at = catalog.updated_at
+      updated_at = to_char(catalog.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
     from catalogs as catalog
       inner join countries as country on (country.id = catalog.country_id)
     where catalog.id = new.id and catalogs_search_view.id = new.id;
