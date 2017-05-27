@@ -24,7 +24,7 @@ case class ApplePayCharge(id: Int = 0,
 
   override def updateModelState(s: State)(implicit ec: EC): DbResultT[Unit] =
     for {
-      _ ← * <~ transitionState(FullCapture)
+      _ ← * <~ transitionState(s)
       _ ← * <~ ApplePayCharges.filter(_.id === id).map(_.state).update(s)
     } yield ()
 
