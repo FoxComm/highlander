@@ -20,7 +20,7 @@ object Money {
 
   implicit class RichLong(val value: Long) extends AnyVal {
     def zeroIfNegative: Long          = Math.max(0L, value)
-    def applyTaxes(tax: Double): Long = (value.toDouble * tax).toLong
+    def applyTaxes(tax: Double): Long = (BigDecimal(value) * tax).toLong // BigDecimal multiplication to retain precision
   }
 
   type BadCurrency = org.joda.money.IllegalCurrencyException
