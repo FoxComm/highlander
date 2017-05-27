@@ -9,7 +9,7 @@ import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.Money._
+import core.utils.Money._
 
 final case class CartLineItemAdjustment(id: Int = 0,
                                         cordRef: String,

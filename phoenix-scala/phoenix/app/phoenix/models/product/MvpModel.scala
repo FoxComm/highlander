@@ -25,7 +25,6 @@ import phoenix.services.image.ImageManager
 import phoenix.services.inventory.SkuManager
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.Money.{Currency, Price}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -508,7 +507,7 @@ object Mvp {
       sku    ← * <~ Skus.mustFindById404(skuId)
       form   ← * <~ ObjectForms.mustFindById404(sku.formId)
       shadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-      p      ← * <~ priceAsAmount(form, shadow)
+      p      ← * <~ priceAsLong(form, shadow)
     } yield p
 
   def getProductTuple(d: SimpleProductData)(implicit db: DB): DbResultT[SimpleProductTuple] =

@@ -29,7 +29,7 @@ import phoenix.utils
 import phoenix.utils.aliases._
 import phoenix.utils.seeds.ShipmentSeeds
 import slick.jdbc.PostgresProfile.api._
-import utils.Money._
+import core.utils.Money._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 

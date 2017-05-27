@@ -7,7 +7,6 @@ import org.scalatest.concurrent.PatienceConfiguration
 import phoenix.responses.TheResponse
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-import utils.Money._
 import scala.concurrent.Await._
 import scala.concurrent.duration._
 

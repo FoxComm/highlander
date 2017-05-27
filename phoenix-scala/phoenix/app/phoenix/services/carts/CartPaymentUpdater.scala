@@ -19,7 +19,7 @@ import phoenix.responses.TheResponse
 import phoenix.responses.cord.CartResponse
 import phoenix.services.{CartValidator, LogActivity}
 import slick.jdbc.PostgresProfile.api._
-import utils.Money._
+import core.utils.Money._
 import phoenix.utils.aliases._
 import core.db._
 

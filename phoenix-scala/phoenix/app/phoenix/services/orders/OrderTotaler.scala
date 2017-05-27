@@ -3,7 +3,7 @@ package phoenix.services.orders
 import phoenix.models.cord.lineitems._
 import phoenix.models.cord.{Cart, Order, OrderShippingMethods, Orders}
 import slick.jdbc.PostgresProfile.api._
-import utils.Money._
+import core.utils.Money._
 import phoenix.utils.aliases._
 import core.db._
 

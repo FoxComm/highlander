@@ -56,7 +56,7 @@ import phoenix.services.activity.StoreAdminsTailored._
 import phoenix.services.activity.StoreCreditTailored._
 import phoenix.services.activity.UserTailored._
 import phoenix.utils.aliases._
-import utils.Money._
+import core.utils.Money._
 
 case class LogActivity(implicit ac: AC) {
 

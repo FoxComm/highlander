@@ -10,7 +10,7 @@ import org.json4s.JsonDSL._
 import phoenix.payloads.ImagePayloads.{AlbumPayload, ImagePayload}
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-import utils.Money._
+import core.utils.Money._
 
 object PayloadHelpers {
   implicit val formats: Formats = JsonFormatters.phoenixFormats

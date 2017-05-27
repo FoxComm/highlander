@@ -10,7 +10,6 @@ import com.pellucid.sealerate
 import core.db.ExPostgresDriver.api._
 import core.db._
 import core.failures._
-import core.utils.Money._
 import core.utils.Validation
 import core.utils.Validation._
 import phoenix.failures.EmptyCancellationReasonFailure
@@ -26,10 +25,7 @@ import phoenix.utils.{ADT, FSM}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-
-import utils.Money._
-import Integral.Implicits._
-import utils.Validation._
+import core.utils.Money._
 
 case class GiftCard(id: Int = 0,
                     scope: LTree,

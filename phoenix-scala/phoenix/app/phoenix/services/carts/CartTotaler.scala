@@ -4,7 +4,7 @@ import core.db._
 import phoenix.models.cord._
 import phoenix.models.cord.lineitems._
 import phoenix.utils.FoxConfig.config
-import utils.Money._
+import core.utils.Money._
 import slick.jdbc.PostgresProfile.api._
 
 // TODO: Use utils.Money

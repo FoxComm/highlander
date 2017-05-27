@@ -1,6 +1,6 @@
 package phoenix.models.discount
 
-import objectframework.FormShadowGet.priceAsInt
+import objectframework.FormShadowGet.priceAsLong
 import phoenix.models.cord.lineitems.LineItemProductData
 
 /**
@@ -8,7 +8,7 @@ import phoenix.models.cord.lineitems.LineItemProductData
   */
 trait DiscountBase {
 
-  def price[A](data: LineItemProductData[A]): Long = priceAsInt(data.skuForm, data.skuShadow)
+  def price[A](data: LineItemProductData[A]): Long = priceAsLong(data.skuForm, data.skuShadow)
 
   def unitsByProducts(lineItems: Seq[LineItemProductData[_]], formIds: Seq[String]): Int =
     lineItems.foldLeft(0) { (sum, data) ⇒

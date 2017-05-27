@@ -10,7 +10,7 @@ import phoenix.models.payment._
 import phoenix.utils.FSM
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.Money._
+import core.utils.Money._
 
 case class GiftCardAdjustment(id: Int = 0,
                               giftCardId: Int,

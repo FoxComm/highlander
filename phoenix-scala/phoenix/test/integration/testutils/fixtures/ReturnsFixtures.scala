@@ -22,7 +22,7 @@ import phoenix.utils.aliases._
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.api.ApiFixtureHelpers
-import utils.Money._
+import core.utils.Money._
 
 trait ReturnsFixtures
     extends TestFixtureBase

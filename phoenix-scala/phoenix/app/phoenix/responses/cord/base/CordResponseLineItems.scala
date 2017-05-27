@@ -6,7 +6,7 @@ import phoenix.models.cord.lineitems._
 import phoenix.responses.ResponseItem
 import phoenix.services.LineItemManager
 import slick.jdbc.PostgresProfile.api._
-import utils.Money._
+import core.utils.Money._
 
 case class CordResponseLineItem(imagePath: String,
                                 referenceNumbers: Seq[String],
@@ -142,7 +142,7 @@ object CordResponseLineItems {
     val title = FormShadowGet.title(data.productForm, data.productShadow)
     val image = data.image.getOrElse(NO_IMAGE)
 
-    val price          = FormShadowGet.priceAsAmount(data.skuForm, data.skuShadow)
+    val price          = FormShadowGet.priceAsLong(data.skuForm, data.skuShadow)
     val externalId     = FormShadowGet.externalId(data.skuForm, data.skuShadow)
     val trackInventory = FormShadowGet.trackInventory(data.skuForm, data.skuShadow)
 

@@ -10,7 +10,7 @@ import phoenix.services.carts.CartTotaler
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.Money._
+import core.utils.Money._
 import core.db._
 
 class CartTotalerTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
@@ -77,7 +77,7 @@ class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Ba
       simpleProduct  ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
       tup            ← * <~ Mvp.getProductTuple(simpleProduct)
       _              ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = tup.sku.id))
-      skuPrice       ← * <~ FormShadowGet.priceAsAmount(tup.skuForm, tup.skuShadow)
+      skuPrice       ← * <~ FormShadowGet.priceAsLong(tup.skuForm, tup.skuShadow)
     } yield
       (productContext, tup.product, tup.productShadow, tup.sku, tup.skuShadow, skuPrice)).gimme
   }

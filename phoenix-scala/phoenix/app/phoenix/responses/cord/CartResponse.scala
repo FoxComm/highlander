@@ -13,7 +13,7 @@ import phoenix.responses.cord.base._
 import phoenix.services.carts.CartQueries
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.Money._
+import core.utils.Money._
 
 case class CartResponse(referenceNumber: String,
                         paymentState: CordPaymentState.State,

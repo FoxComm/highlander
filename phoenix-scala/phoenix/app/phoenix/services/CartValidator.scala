@@ -12,7 +12,7 @@ import phoenix.models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import phoenix.models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.Money._
+import core.utils.Money._
 
 trait CartValidation {
   def validate(isCheckout: Boolean = false,

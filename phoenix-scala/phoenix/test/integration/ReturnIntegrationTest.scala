@@ -21,7 +21,7 @@ import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.api.ApiFixtureHelpers
 import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
-import utils.Money._
+import core.utils.Money._
 
 class ReturnIntegrationTest
     extends IntegrationTestBase

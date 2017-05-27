@@ -16,7 +16,7 @@ import phoenix.responses.StoreCreditResponse._
 import phoenix.responses.{StoreCreditResponse, StoreCreditSubTypesResponse}
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.Money._
+import core.utils.Money._
 
 object StoreCreditService {
   type QuerySeq = StoreCredits.QuerySeq

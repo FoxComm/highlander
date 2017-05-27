@@ -21,7 +21,7 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
-import utils.Money._
+import core.utils.Money._
 import core.db._
 
 class CouponsIntegrationTest

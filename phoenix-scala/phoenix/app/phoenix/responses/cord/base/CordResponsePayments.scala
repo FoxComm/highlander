@@ -8,7 +8,7 @@ import phoenix.models.payment.creditcard.CreditCards
 import phoenix.responses.AddressResponse
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.Money._
+import core.utils.Money._
 
 sealed trait CordResponsePayments {
   def `type`: Type

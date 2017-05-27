@@ -33,7 +33,7 @@ import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQ
 import testutils.fixtures.api._
 import testutils.fixtures.{BakedFixtures, PromotionFixtures}
 import core.db._
-import utils.Money._
+import core.utils.Money._
 
 class PromotionsIntegrationTest
     extends IntegrationTestBase

@@ -9,7 +9,7 @@ import objectframework.models._
 import phoenix.models.inventory.{Sku, Skus}
 import phoenix.models.{SaveForLater, SaveForLaters}
 import slick.jdbc.PostgresProfile.api._
-import utils.Money._
+import core.utils.Money._
 
 object SaveForLaterResponse {
 
@@ -40,7 +40,7 @@ object SaveForLaterResponse {
         id = sfl.id,
         name = FormShadowGet.title(form, shadow),
         sku = sku.code,
-        price = FormShadowGet.priceAsInt(form, shadow),
+        price = FormShadowGet.priceAsLong(form, shadow),
         createdAt = sfl.createdAt
     )
 }

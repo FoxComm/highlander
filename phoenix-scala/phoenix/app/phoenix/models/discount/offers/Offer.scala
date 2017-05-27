@@ -11,7 +11,6 @@ import phoenix.models.discount.offers.Offer.OfferResult
 import phoenix.utils.ElasticsearchApi.Buckets
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
-import utils.Money._
 
 trait Offer extends DiscountBase {
 

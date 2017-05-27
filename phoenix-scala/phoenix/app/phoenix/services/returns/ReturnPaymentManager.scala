@@ -19,7 +19,7 @@ import phoenix.services.carts.CartTotaler
 import phoenix.utils.aliases._
 import phoenix.utils.apis.{Apis, RefundReason}
 import slick.jdbc.PostgresProfile.api._
-import utils.Money._
+import core.utils.Money._
 import scala.annotation.tailrec
 
 object ReturnPaymentManager {

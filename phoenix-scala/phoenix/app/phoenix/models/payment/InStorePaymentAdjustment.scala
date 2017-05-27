@@ -10,7 +10,7 @@ import phoenix.models.payment.InStorePaymentStates._
 import phoenix.utils.ADT
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.Money._
+import core.utils.Money._
 
 /*
 Base trait for GiftCardAdjustment and CreditCardAdjustment.

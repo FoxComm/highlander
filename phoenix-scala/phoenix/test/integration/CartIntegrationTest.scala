@@ -28,7 +28,7 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtures
-import utils.Money._
+import core.utils.Money._
 
 import core.db._
 

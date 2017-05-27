@@ -6,7 +6,7 @@ import phoenix.payloads.ReturnPayloads.{ReturnMessageToCustomerPayload, ReturnPa
 import phoenix.responses.ReturnResponse
 import testutils._
 import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
-import utils.Money._
+import core.utils.Money._
 
 case class ReturnsSearchViewResult(
     id: Int,
