@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Component, Element } from 'react';
+import React from 'react';
 
 const Details = (props: {}) => {
   return (

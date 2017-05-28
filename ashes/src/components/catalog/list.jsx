@@ -85,7 +85,7 @@ export class CatalogsList extends Component {
       />
     );
   }
-  
+
   render() {
     const { list, actions } = this.props;
 
