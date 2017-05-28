@@ -4,7 +4,7 @@ import createStore from 'lib/store-creator';
 import { reducers, createExportByIds } from '../bulk';
 import { getPropsByIds } from 'modules/bulk-export/helpers';
 
-const getCatalogs = (getState: Function, id: Array<number>) => {
+const getCatalogs = (getState: Function, ids: Array<number>) => {
   return getPropsByIds('catalogs', ids, ['id'], getState());
 };
 
