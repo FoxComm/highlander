@@ -38,6 +38,10 @@ object ObjectFailures {
     override def description = "Shadow attributes are empty"
   }
 
+  case object CorruptedContentObject extends Failure {
+    override def description = "Unable to parse corrupted content object"
+  }
+
   case class LinkAtPositionCannotBeFound(clazz: Class[_], left: Int, position: Int)
       extends Failure {
     override def description =
@@ -81,4 +85,5 @@ object ObjectFailures {
     def apply(tableName: String, commitId: Int): NotFoundFailure404 =
       NotFoundFailure404(s"$tableName with commit $commitId not found")
   }
+
 }
