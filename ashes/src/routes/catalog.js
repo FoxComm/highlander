@@ -28,6 +28,7 @@ import SkuImages from 'components/skus/images';
 
 import CatalogListWrapper from 'components/catalog/list-wrapper';
 import CatalogList from 'components/catalog/list';
+import CatalogDetails from 'components/catalog/details';
 
 const getRoutes = (jwt: Object) => {
   const router = new FoxRouter(jwt);
@@ -88,6 +89,13 @@ const getRoutes = (jwt: Object) => {
     router.read('catalog-base', { title: 'Catalogs', path: 'catalogs', frn: frn.pim.catalog }, [
       router.read('catalogs-list-pages', { component: CatalogListWrapper }, [
         router.read('catalogs', { component: CatalogList, isIndex: true }),
+      ]),
+      router.read('catalog', {
+        path: ':catalogId',
+        titleParam: ':catalogId',
+        component: CatalogDetails,
+      }, [
+        router.read('catalog-details', { isIndex: true }),
       ]),
     ]);
 

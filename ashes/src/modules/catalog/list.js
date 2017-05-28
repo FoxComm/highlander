@@ -7,7 +7,7 @@ const { reducer, actions } = makeLiveSearch(
   'catalogs.list',
   searchTerms,
   'catalogs_search_view/_search',
-  'productsScope',
+  'catalogsScope',
   {
     rawSorts: ['name'],
   },

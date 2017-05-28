@@ -39,7 +39,7 @@ const tableColumns: Columns = [
   { field: 'site', text: 'Site' },
   { field: 'countryName', text: 'Country' },
   { field: 'defaultLanguage', text: 'Language' },
-  { field: 'updatedAt', text: 'Last Updated' },
+  { field: 'updatedAt', text: 'Last Updated', type: 'datetime' },
 ];
 
 export class CatalogsList extends Component {
@@ -69,6 +69,7 @@ export class CatalogsList extends Component {
 
     return (
       <span key={id}>
+        Catalog <Link to="catalog-details" params={{ catalogId }}>{catalogId}</Link>
       </span>
     );
   };

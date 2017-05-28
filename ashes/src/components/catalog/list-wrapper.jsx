@@ -14,10 +14,9 @@ type Props = { children?: any };
 
 const CatalogsListWrapper = (props: Props) => {
   const TotalCounter = makeTotalCounter(state => state.catalogs.list, actions);
-  const addAction = () => transitionTo('product-details', { productId: 'new', context: 'default' });
+  const addAction = () => transitionTo('catalog-details', { catalogId: 'new' });
   const navLinks = [
-    { title: 'Lists', to: 'products' },
-    { title: 'Activity Trail', to: 'products-activity-trail' },
+    { title: 'Lists', to: 'catalogs' },
   ];
 
   return (

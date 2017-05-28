@@ -30,6 +30,8 @@ const CatalogRow = (props: Props) => {
   return (
     <MultiSelectRow
       {...commonParams}
+      linkTo="catalog-details"
+      linkParams={{ catalogId: catalog.id }}
     />
   );
 };
