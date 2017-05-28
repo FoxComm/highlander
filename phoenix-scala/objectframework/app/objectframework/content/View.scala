@@ -4,9 +4,9 @@ import java.time.Instant
 
 import org.json4s.JValue
 import shapeless._
-import utils.Validation
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.utils.Validation
+import core.db.ExPostgresDriver.api._
+import core.db._
 
 case class View(id: Int = 0, name: String, attributes: JValue, createdAt: Instant = Instant.now)
     extends FoxModel[View]
