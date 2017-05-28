@@ -78,9 +78,13 @@ object ObjectFailures {
       NotFoundFailure404(s"$tableName with id $formId not found for view $viewId")
   }
 
+  case object ObjectNotFound {
+    def apply(tableName: String, formId: Int, viewId: Int): NotFoundFailure404 =
+      NotFoundFailure404(s"$tableName with id $formId not found for view $viewId")
+  }
+
   case object ObjectNotFoundAtCommit {
     def apply(tableName: String, commitId: Int): NotFoundFailure404 =
       NotFoundFailure404(s"$tableName with commit $commitId not found")
   }
-
 }
