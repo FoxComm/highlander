@@ -74,10 +74,12 @@
                            :template_content []
                            :message template}))
 
+(defn trim-slash [str] 
+   (string/replace str #"/$" ""))
+
 (defn extract-password-link
   [activity email url-action is-admin]
   (let [reset-code (get-in activity [:data "code"])
-        trim-slash (fn [str] (if (string/ends-with? str "/") (string/join "" (drop-last str)) str))
         [base-url reset-pw-endpoint] (if is-admin
                                        [(trim-slash (settings/get :admin_base_url))
                                         (format "%s?token=%s&email=%s" url-action reset-code email)]
