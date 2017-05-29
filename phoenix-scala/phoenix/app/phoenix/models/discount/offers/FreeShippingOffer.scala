@@ -10,10 +10,7 @@ case object FreeShippingOffer extends Offer {
 
   val offerType: OfferType = FreeShipping
 
-  def adjust(input: DiscountInput)(implicit db: DB,
-                                   ec: EC,
-                                   apis: Apis,
-                                   au: AU): Result[Seq[OfferResult]] =
+  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis): Result[Seq[OfferResult]] =
     input.shippingCost match {
       case Some(sc) ⇒ buildResult(input, sc)
       case _        ⇒ pureResult()

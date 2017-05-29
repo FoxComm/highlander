@@ -18,10 +18,7 @@ case class ItemsPercentOffer(discount: Long, search: Seq[ProductSearch])
 
   val offerType: OfferType = ItemsPercentOff
 
-  def adjust(input: DiscountInput)(implicit db: DB,
-                                   ec: EC,
-                                   apis: Apis,
-                                   au: AU): Result[Seq[OfferResult]] =
+  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis): Result[Seq[OfferResult]] =
     if (discount > 0 && discount < 100) adjustInner(input)(search) else pureResult()
 
   def matchEither(input: DiscountInput)(

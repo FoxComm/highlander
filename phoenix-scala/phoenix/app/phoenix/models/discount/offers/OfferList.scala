@@ -11,10 +11,7 @@ case class OfferList(offers: Seq[Offer]) extends Offer {
 
   val offerType: OfferType = ListCombinator
 
-  def adjust(input: DiscountInput)(implicit db: DB,
-                                   ec: EC,
-                                   apis: Apis,
-                                   au: AU): Result[Seq[OfferResult]] =
+  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis): Result[Seq[OfferResult]] =
     Result.seqCollectFailures(offers.map(_.adjust(input)).toList).map(_.flatten)
 
 }
