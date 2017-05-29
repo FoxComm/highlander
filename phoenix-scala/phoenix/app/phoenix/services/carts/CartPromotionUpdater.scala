@@ -284,7 +284,14 @@ object CartPromotionUpdater {
       subTotal       ← * <~ CartTotaler.subTotal(cart)
       shipTotal      ← * <~ CartTotaler.shippingTotal(cart)
       cartWithTotalsUpdated = cart.copy(subTotal = subTotal, shippingTotal = shipTotal)
-      input                 = DiscountInput(promo, cartWithTotalsUpdated, lineItems, shippingMethod)
+      dqLineItems = lineItems.map { li ⇒
+        DqLineItem(skuCode = li.sku.code,
+                   productId = li.productForm.id,
+                   price = li.price,
+                   lineItemType = if (li.isGiftCard) DqGiftCardLineItem else DqRegularLineItem,
+                   lineItemReferenceNumber = li.lineItemReferenceNumber)
+      }
+      input = DiscountInput(promo, cartWithTotalsUpdated, dqLineItems, shippingMethod)
       _            ← * <~ qualifier.check(input)
       offerResults ← * <~ offer.adjust(input)
     } yield offerResults.map(CartLineItemAdjustment.fromOfferResult)

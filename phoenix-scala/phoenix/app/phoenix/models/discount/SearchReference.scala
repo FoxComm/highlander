@@ -78,7 +78,7 @@ case class ProductSearch(productSearchId: Int) extends SearchBuckets {
   val fieldName: String = productsSearchField
 
   def references(input: DiscountInput): Seq[String] =
-    input.lineItems.map(_.productForm.id.toString)
+    input.lineItems.map(_.productId.toString)
 }
 
 case class SkuSearch(skuSearchId: Int) extends SearchBuckets {
@@ -86,7 +86,7 @@ case class SkuSearch(skuSearchId: Int) extends SearchBuckets {
   val searchViewByScope = scopedSearchView(skuSearchView)
   val fieldName: String = skuSearchField
 
-  def references(input: DiscountInput): Seq[String] = input.lineItems.map(_.sku.code)
+  def references(input: DiscountInput): Seq[String] = input.lineItems.map(_.skuCode)
 }
 
 object SearchReference {

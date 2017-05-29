@@ -29,7 +29,7 @@ case class SetPriceOffer(setPrice: Long, numUnits: Int, search: Seq[ProductSearc
       case Right(buckets) ⇒
         val matchedFormIds = buckets.filter(_.docCount > 0).map(_.key)
         val adjustments = input.lineItems
-          .filter(data ⇒ matchedFormIds.contains(data.productForm.id.toString))
+          .filter(data ⇒ matchedFormIds.contains(data.productId.toString))
           .take(numUnits)
           .map { data ⇒
             OfferResult(input,

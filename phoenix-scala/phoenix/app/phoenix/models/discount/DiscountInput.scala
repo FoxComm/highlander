@@ -1,9 +1,7 @@
 package phoenix.models.discount
 
-import objectframework.FormShadowGet.priceAsLong
 import objectframework.models.ObjectShadow
 import phoenix.models.cord.Cart
-import phoenix.models.cord.lineitems._
 import phoenix.models.shipping.ShippingMethod
 
 /*
@@ -13,13 +11,28 @@ import phoenix.models.shipping.ShippingMethod
  * - discounts can't be applied to a cart that only has gift card line items
  */
 
+// Dq stands for "discount qualifier". To avoid naming collisions
+sealed trait DqLineItemType
+case object DqGiftCardLineItem extends DqLineItemType
+case object DqRegularLineItem  extends DqLineItemType
+
+case class DqLineItem(skuCode: String,
+                      productId: Int,
+                      price: Long,
+                      lineItemType: DqLineItemType,
+                      lineItemReferenceNumber: String) {
+
+  def isEligibleForDiscount: Boolean =
+    lineItemType == DqRegularLineItem
+}
+
 case class DiscountInput(promotion: ObjectShadow,
                          cart: Cart,
-                         lineItems: Seq[LineItemProductData[_]],
+                         lineItems: Seq[DqLineItem],
                          shippingMethod: Option[ShippingMethod]) {
 
   val eligibleForDiscountSubtotal: Long = lineItems.collect {
-    case li if li.isEligibleForDiscount ⇒ priceAsLong(li.skuForm, li.skuShadow)
+    case li if li.isEligibleForDiscount ⇒ li.price
   }.sum
 
   val eligibleForDiscountNumItems: Int = lineItems.count(_.isEligibleForDiscount)
