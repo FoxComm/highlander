@@ -32,7 +32,7 @@ trait Offer extends DiscountBase {
 
 object Offer {
   case class OfferResult(discountInput: DiscountInput,
-                         subtract: Int,
+                         subtract: Long,
                          lineItemRefNum: Option[String],
                          offerType: OfferType)
 }
