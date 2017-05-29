@@ -84,18 +84,14 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
 
       truncateTablesStmt = {
         // FIXME: just use Slick, it can be done IIRC @michalrus
-        val allTables: Seq[String] = {
-          val src =
-            persistConn.getMetaData.getTables(persistConn.getCatalog, Schema, "%", Array("TABLE"))
+        val allTables =
+          persistConn.getMetaData.getTables(persistConn.getCatalog, "public", "%", Array("TABLE"))
 
-          @tailrec
-          def iterate(in: Seq[String]): Seq[String] =
-            if (src.next()) iterate(in :+ src.getString(3)) else in
+        @tailrec
+        def iterate(in: Seq[String]): Seq[String] =
+          if (allTables.next()) iterate(in :+ allTables.getString(3)) else in
 
-          iterate(Seq())
-        }
-
-        tables = allTables.filterNot { t ⇒
+        tables = iterate(Seq()).filterNot { t ⇒
           t.startsWith("pg_") || t.startsWith("sql_") || doNotTruncate.contains(t)
         }
         val sqlTables = tables.mkString("{", ",", "}")
