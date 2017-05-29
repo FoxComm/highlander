@@ -1,6 +1,5 @@
 package phoenix.models.discount
 
-import objectframework.models.ObjectShadow
 import phoenix.models.cord.Cart
 import phoenix.models.shipping.ShippingMethod
 
@@ -26,7 +25,7 @@ case class DqLineItem(skuCode: String,
     lineItemType == DqRegularLineItem
 }
 
-case class DiscountInput(promotion: ObjectShadow,
+case class DiscountInput(promotionShadowId: Int,
                          cart: Cart,
                          lineItems: Seq[DqLineItem],
                          shippingMethod: Option[ShippingMethod]) {

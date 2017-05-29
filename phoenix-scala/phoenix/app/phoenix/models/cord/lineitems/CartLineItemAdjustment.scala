@@ -46,7 +46,7 @@ object CartLineItemAdjustment {
 
   def fromOfferResult(offerResult: OfferResult) =
     CartLineItemAdjustment(cordRef = offerResult.discountInput.cart.refNum,
-                           promotionShadowId = offerResult.discountInput.promotion.id,
+                           promotionShadowId = offerResult.discountInput.promotionShadowId,
                            adjustmentType = adjustmentTypeByOffer(offerResult.offerType),
                            subtract = offerResult.subtract,
                            lineItemRefNum = offerResult.lineItemRefNum)
