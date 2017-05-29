@@ -1,7 +1,5 @@
 package phoenix.models.discount
 
-import phoenix.models.cord.Cart
-
 /*
  * Gift card line items must be excluded from any kind or discount application, which means:
  * - they don't contribute to eligible for discount number of items
@@ -25,7 +23,8 @@ case class DqLineItem(skuCode: String,
 }
 
 case class DiscountInput(promotionShadowId: Int,
-                         cart: Cart,
+                         cartRefNum: String,
+                         customerAccountId: Int,
                          lineItems: Seq[DqLineItem],
                          shippingCost: Option[Long]) {
 

@@ -69,7 +69,7 @@ case class CustomerSearch(customerSearchId: Int) extends SearchMetrics {
   val searchViewByScope = searchView(customersSearchView)
   val fieldName: String = customersSearchField
 
-  def references(input: DiscountInput): Seq[String] = Seq(input.cart.accountId).map(_.toString)
+  def references(input: DiscountInput): Seq[String] = Seq(input.customerAccountId).map(_.toString)
 }
 
 case class ProductSearch(productSearchId: Int) extends SearchBuckets {

@@ -292,7 +292,8 @@ object CartPromotionUpdater {
                    lineItemReferenceNumber = li.lineItemReferenceNumber)
       }
       input = DiscountInput(promotionShadowId = promo.id,
-                            cart = cartWithTotalsUpdated,
+                            cartRefNum = cart.referenceNumber,
+                            customerAccountId = cart.accountId,
                             lineItems = dqLineItems,
                             shippingCost = shippingMethod.map(_.price))
       _            ← * <~ qualifier.check(input)
