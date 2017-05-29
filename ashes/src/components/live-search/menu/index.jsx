@@ -1,10 +1,11 @@
 // @flow
 
+// libs
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Transition from 'react-transition-group/CSSTransitionGroup';
 
+// styles
 import s from './menu.css';
 
 type MenuProps = {

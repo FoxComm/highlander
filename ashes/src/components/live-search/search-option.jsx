@@ -1,9 +1,10 @@
 // @flow
 
+// libs
 import React from 'react';
-import PropTypes from 'prop-types';
 import { MenuItem } from './menu';
 
+// styles
 import s from './live-search.css';
 
 type Props = {
