@@ -1,0 +1,28 @@
+{
+  "name": "dev-caching-proxy",
+  "version": "1.0.0",
+  "description": "Make backends stable again!",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "dev-caching-proxy": "./src/server.js"
+  },
+  "keywords": [
+    "proxy",
+    "cache",
+    "server"
+  ],
+  "author": "Andrey Rublev <version.ru@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "co-request": "^1.0.0",
+    "colors": "^1.1.2",
+    "fs-promise": "^1.0.0",
+    "koa": "^1.2.4",
+    "koa-better-body": "^3.0.2",
+    "koa-sendfile": "^2.0.0",
+    "yargs": "^6.6.0"
+  }
+}
