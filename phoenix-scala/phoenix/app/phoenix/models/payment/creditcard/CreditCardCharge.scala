@@ -17,7 +17,7 @@ case class CreditCardCharge(id: Int = 0,
                             stripeChargeId: String,
                             state: State = Cart,
                             currency: Currency = Currency.USD,
-                            amount: Int,
+                            amount: Long,
                             createdAt: Instant = Instant.now)
     extends ExternalCharge[CreditCardCharge] {
 
@@ -51,7 +51,7 @@ class CreditCardCharges(tag: Tag) extends FoxTable[CreditCardCharge](tag, "credi
   def stripeChargeId = column[String]("stripe_charge_id")
   def state          = column[State]("state")
   def currency       = column[Currency]("currency")
-  def amount         = column[Int]("amount")
+  def amount         = column[Long]("amount")
   def createdAt      = column[Instant]("created_at")
 
   def * =

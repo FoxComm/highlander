@@ -28,14 +28,14 @@ trait FoxStripeApi {
 
   def authorizeAmount(
       stripeTokenId: String,
-      amount: Int,
+      amount: Long,
       currency: Currency,
       customerId: Option[String] = None // Unnecessary for one time payments like Apple Pay
   ): Result[StripeCharge]
 
-  def captureCharge(chargeId: String, amount: Int): Result[StripeCharge]
+  def captureCharge(chargeId: String, amount: Long): Result[StripeCharge]
 
-  def authorizeRefund(chargeId: String, amount: Int, reason: RefundReason): Result[StripeCharge]
+  def authorizeRefund(chargeId: String, amount: Long, reason: RefundReason): Result[StripeCharge]
 
   def editCard(cc: CreditCard): Result[StripeCard]
 

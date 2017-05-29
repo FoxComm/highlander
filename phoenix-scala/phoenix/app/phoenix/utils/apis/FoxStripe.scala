@@ -81,7 +81,7 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
   }
 
   def authorizeAmount(paymentSourceId: String,
-                      amount: Int,
+                      amount: Long,
                       currency: Currency,
                       customerId: Option[String]): Result[StripeCharge] = {
     import scala.collection.mutable
@@ -99,10 +99,10 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
     stripe.createCharge(chargeMap.toMap)
   }
 
-  def captureCharge(chargeId: String, amount: Int): Result[StripeCharge] =
+  def captureCharge(chargeId: String, amount: Long): Result[StripeCharge] =
     stripe.captureCharge(chargeId, Map[String, Object]("amount" → amount.toString))
 
-  def authorizeRefund(chargeId: String, amount: Int, reason: RefundReason): Result[StripeCharge] =
+  def authorizeRefund(chargeId: String, amount: Long, reason: RefundReason): Result[StripeCharge] =
     stripe.refundCharge(
         chargeId,
         Map[String, Object]("amount" → amount.toString, "reason" → reason.apiValue))

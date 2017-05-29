@@ -32,12 +32,14 @@ import phoenix.payloads.CartPayloads.CheckoutCart
 import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
 import phoenix.payloads.PaymentPayloads.CreateApplePayPayment
 import phoenix.responses.cord.OrderResponse
+
 import phoenix.services.carts._
 import phoenix.services.coupon.CouponUsageService
 import phoenix.services.inventory.SkuManager
 import phoenix.utils.aliases._
 import phoenix.utils.apis.{Apis, OrderInventoryHold, SkuInventoryHold}
 import slick.jdbc.PostgresProfile.api._
+import core.utils.Money._
 import core.db._
 import phoenix.models.payment.PaymentMethod
 
@@ -47,21 +49,21 @@ object PaymentHelper {
 
   def paymentTransaction[Adjustment, Card](
       payments: Seq[(OrderPayment, Card)],
-      maxPaymentAmount: Int,
-      doTransaction: (Card, OrderPayment, Option[Int]) ⇒ DbResultT[Adjustment],
-      getAdjustmentAmount: (Adjustment) ⇒ Int)(implicit ec: EC,
-                                               db: DB,
-                                               apis: Apis,
-                                               ac: AC): DbResultT[Int] = {
+      maxPaymentAmount: Long,
+      doTransaction: (Card, OrderPayment, Option[Long]) ⇒ DbResultT[Adjustment],
+      getAdjustmentAmount: (Adjustment) ⇒ Long)(implicit ec: EC,
+                                                db: DB,
+                                                apis: Apis,
+                                                ac: AC): DbResultT[Long] = {
 
     if (payments.isEmpty) {
-      DbResultT.pure(0)
+      DbResultT.pure(0L)
     } else {
 
-      val amounts: Seq[Int] = payments.map { case (payment, _) ⇒ payment.getAmount() }
+      val amounts: Seq[Long] = payments.map { case (payment, _) ⇒ payment.getAmount() }
       val limitedAmounts = amounts
         .scan(maxPaymentAmount) {
-          case (maxAmount, paymentAmount) ⇒ (maxAmount - paymentAmount).max(0)
+          case (maxAmount, paymentAmount) ⇒ (maxAmount - paymentAmount).zeroIfNegative
         }
         .zip(amounts)
         .map { case (max, amount) ⇒ Math.min(max, amount) }
@@ -351,7 +353,7 @@ case class Checkout(
       mutatingResult = externalCalls.authPaymentsSuccess = true // fixme is this flag used anywhere? @aafa
     } yield {}
 
-  private def doExternalPayment(authAmount: Int): DbResultT[Unit] = {
+  private def doExternalPayment(authAmount: Long): DbResultT[Unit] = {
     require(authAmount > 0)
 
     for {

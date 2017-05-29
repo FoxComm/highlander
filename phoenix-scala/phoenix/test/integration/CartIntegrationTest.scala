@@ -29,6 +29,8 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtures
+import core.utils.Money._
+
 import core.db._
 
 class CartIntegrationTest
@@ -61,7 +63,7 @@ class CartIntegrationTest
 
       "configured" in new TaxesFixture(regionId = Region.californiaId) {
         // test section in configuration is configured for California and 7.5% rate
-        totals.taxes must === (((totals.subTotal + totals.shipping) * 0.075).toInt)
+        totals.taxes must === ((totals.subTotal + totals.shipping).applyTaxes(0.075))
       }
     }
 
@@ -92,8 +94,8 @@ class CartIntegrationTest
 
       cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
 
-      val giftCardAmount    = 2500 // ¢
-      val storeCreditAmount = 500  // ¢
+      val giftCardAmount: Long    = 2500 // ¢
+      val storeCreditAmount: Long = 500  // ¢
 
       val giftCard = giftCardsApi
         .create(GiftCardCreateByCsr(giftCardAmount, reasonId = reason.id))

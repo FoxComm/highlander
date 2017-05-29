@@ -22,6 +22,7 @@ import phoenix.utils.aliases._
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.api.ApiFixtureHelpers
+import core.utils.Money._
 
 trait ReturnsFixtures
     extends TestFixtureBase
@@ -69,7 +70,7 @@ trait ReturnsFixtures
     val product: SimpleProductData = Mvp.insertProduct(ctx.id, Factories.products.head).gimme
 
     def createOrder(lineItems: Seq[UpdateLineItemsPayload],
-                    paymentMethods: Map[PaymentMethod.Type, Option[Int]])(
+                    paymentMethods: Map[PaymentMethod.Type, Option[Long]])(
         implicit sl: SL,
         sf: SF): OrderResponse = {
       val api = cartsApi(api_newCustomerCart(customer.id).referenceNumber)
@@ -98,7 +99,7 @@ trait ReturnsFixtures
       api.checkout()(defaultAdminAuth).as[OrderResponse]
     }
 
-    def createDefaultOrder(paymentMethods: Map[PaymentMethod.Type, Option[Int]] = Map(
+    def createDefaultOrder(paymentMethods: Map[PaymentMethod.Type, Option[Long]] = Map(
                                PaymentMethod.CreditCard → None),
                            items: List[UpdateLineItemsPayload] = List(
                                UpdateLineItemsPayload(product.code, 1)),
@@ -189,13 +190,13 @@ trait ReturnsFixtures
   }
 
   trait ReturnPaymentFixture extends ReturnLineItemFixture {
-    def createReturnPayments(payments: Map[PaymentMethod.Type, Int],
+    def createReturnPayments(payments: Map[PaymentMethod.Type, Long],
                              refNum: String)(implicit sl: SL, sf: SF): ReturnResponse.Root =
       returnsApi(refNum).paymentMethods
         .addOrReplace(ReturnPaymentsPayload(payments))(defaultAdminAuth)
         .as[ReturnResponse.Root]
 
-    def createReturnPayment(payment: PaymentMethod.Type, amount: Int, refNum: String)(
+    def createReturnPayment(payment: PaymentMethod.Type, amount: Long, refNum: String)(
         implicit sl: SL,
         sf: SF): ReturnResponse.Root =
       returnsApi(refNum).paymentMethods
