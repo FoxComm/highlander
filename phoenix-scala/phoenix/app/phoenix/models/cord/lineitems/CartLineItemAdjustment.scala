@@ -5,6 +5,8 @@ import java.time.Instant
 import com.pellucid.sealerate
 import core.db.ExPostgresDriver.api._
 import core.db._
+import phoenix.models.discount.offers.Offer.OfferResult
+import phoenix.models.discount.offers._
 import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
@@ -41,6 +43,22 @@ object CartLineItemAdjustment {
   case object OrderAdjustment    extends AdjustmentType
   case object ShippingAdjustment extends AdjustmentType
   case object Combinator         extends AdjustmentType
+
+  def fromOfferResult(offerResult: OfferResult) =
+    CartLineItemAdjustment(cordRef = offerResult.discountInput.cart.refNum,
+                           promotionShadowId = offerResult.discountInput.promotion.id,
+                           adjustmentType = adjustmentTypeByOffer(offerResult.offerType),
+                           subtract = offerResult.subtract,
+                           lineItemRefNum = offerResult.lineItemRefNum)
+
+  def adjustmentTypeByOffer(offerType: OfferType): AdjustmentType = offerType match {
+    case ItemPercentOff | ItemAmountOff    ⇒ LineItemAdjustment
+    case ItemsPercentOff | ItemsAmountOff  ⇒ LineItemAdjustment
+    case SetPrice                          ⇒ LineItemAdjustment
+    case OrderPercentOff | OrderAmountOff  ⇒ OrderAdjustment
+    case FreeShipping | DiscountedShipping ⇒ ShippingAdjustment
+    case ListCombinator                    ⇒ Combinator
+  }
 
   object AdjustmentType extends ADT[AdjustmentType] {
     def types = sealerate.values[AdjustmentType]
