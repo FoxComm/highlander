@@ -116,11 +116,11 @@ case class SimpleSku(code: String,
         "code": "$code",
         "title" : "$title",
         "retailPrice" : {
-          "value" : ${price.toLong + 500},
+          "value" : ${price + 500},
           "currency" : "${currency.getCode}"
         },
         "salePrice" : {
-          "value" : ${price.toLong},
+          "value" : $price,
           "currency" : "${currency.getCode}"
         },
         "activeFrom" : $activeFrom,

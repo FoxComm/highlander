@@ -144,9 +144,9 @@ object ShippingManager {
   private def evaluateOrderCondition(shippingData: ShippingData, condition: Condition): Boolean = {
     condition.field match {
       case "subtotal" ⇒
-        Condition.matches(shippingData.cartSubTotal.toInt, condition) // FIXME  .toInt
+        Condition.matches(shippingData.cartSubTotal.toInt, condition) // FIXME @aafa .toInt
       case "grandtotal" ⇒
-        Condition.matches(shippingData.cartTotal.toInt, condition) // FIXME  .toInt
+        Condition.matches(shippingData.cartTotal.toInt, condition) // FIXME @aafa .toInt
       case _ ⇒ false
     }
   }

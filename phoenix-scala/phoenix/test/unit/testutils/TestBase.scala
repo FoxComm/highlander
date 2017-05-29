@@ -31,10 +31,12 @@ trait TestBase
   implicit val long2int = new CanEqual[Long, Int] {
     def areEqual(a: Long, b: Int): Boolean = a == b.toLong
   }
+
   implicit val long2intOpt: CanEqual[Option[Long], Some[Int]] =
     new CanEqual[Option[Long], Some[Int]] {
       def areEqual(a: Option[Long], b: Some[Int]): Boolean = a == b.map(_.toLong)
     }
+
   implicit val long2int3tuple = new CanEqual[(Long, Long, Long), (Int, Int, Int)] {
     def areEqual(a: (Long, Long, Long), b: (Int, Int, Int)): Boolean =
       a._1 == b._1 && a._2 == b._2 && a._3 == b._3
