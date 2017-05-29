@@ -15,13 +15,13 @@
   cursor: pointer;
 
   &:active {
-    background: var(--button-active-background);
+    background-color: var(--button-active-background);
   }
 
   &:focus {
     /* outline: 4px solid var(--baby-blue); */
     box-shadow: 0 0 3pt 2pt var(--baby-blue);
-    background: var(--button-focus-background);
+    background-color: var(--button-focus-background);
   }
 
   & > span {
@@ -35,7 +35,7 @@
 
   &:disabled {
     color: var(--button-disabled-color);
-    background: var(--button-disabled-background);
+    background-color: var(--button-disabled-background);
 
     &:hover {
       cursor: not-allowed;
