@@ -4,6 +4,7 @@ import java.time.Instant
 
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
+import org.json4s.jackson.JsonMethods._
 import shapeless._
 import core.db.ExPostgresDriver.api._
 import core.db._
@@ -14,6 +15,16 @@ case class Shadow(id: Int = 0,
                   relations: Option[JValue],
                   createdAt: Instant = Instant.now)
     extends FoxModel[Shadow]
+
+object Shadow {
+  def build(formId: Int, attributes: JValue, relations: Content.ContentRelations): Shadow = {
+    val relationsJson =
+      if (relations.isEmpty) None
+      else Some(render(relations))
+
+    Shadow(formId = formId, attributes = attributes, relations = relationsJson)
+  }
+}
 
 class Shadows(tag: Tag) extends FoxTable[Shadow](tag, "shadows") {
   def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)

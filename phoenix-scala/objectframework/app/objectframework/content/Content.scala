@@ -12,6 +12,7 @@ import org.json4s._
   * that are implemented on top of this model should leverage Content.
   */
 case class Content(id: Int,
+                   kind: String,
                    viewId: Option[View#Id],
                    commitId: Commit#Id,
                    attributes: Content.ContentAttributes,
@@ -29,6 +30,7 @@ object Content {
   def build(commit: Commit, form: Form, shadow: Shadow): Either[Failures, Content] =
     buildContentAttributes(form, shadow).map { attributes ⇒
       Content(id = form.id,
+              kind = form.kind,
               viewId = None,
               commitId = commit.id,
               attributes = attributes,
@@ -59,24 +61,11 @@ object Content {
     }
   }
 
-  private def buildContentRelations(rawRelations: Option[JValue]): ContentRelations = {
-    val contentRelations = Map.empty[String, Seq[Commit#Id]]
-
-    rawRelations match {
-      case Some(rels) ⇒
-        rels match {
-          case JObject(relationObj) ⇒
-            relationObj.foldLeft(contentRelations) { (relations, relation) ⇒
-              val (kind, commitList) = relation
-              relations + (kind → commitList.extract[Seq[Commit#Id]])
-            }
-          case _ ⇒
-            contentRelations
-        }
-      case None ⇒
-        contentRelations
+  private def buildContentRelations(rawRelations: Option[JValue]): ContentRelations =
+    rawRelations.flatMap(_.extract[Option[ContentRelations]]) match {
+      case Some(relations) ⇒ relations
+      case None            ⇒ Map.empty[String, Seq[Commit#Id]]
     }
-  }
 
   private def updateAttributes(attributes: ContentAttributes,
                                shadow: JField,
