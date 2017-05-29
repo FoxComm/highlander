@@ -33,7 +33,7 @@ case class ItemsAmountOffer(discount: Long, search: Seq[ProductSearch])
           .filter(data ⇒ matchedFormIds.contains(data.productForm.id.toString))
           .map { data ⇒
             OfferResult(input,
-                        subtract(price(data), discount),
+                        subtract(data.price, discount),
                         data.lineItemReferenceNumber.some,
                         offerType)
           }
