@@ -4,12 +4,14 @@ import java.time.Instant
 
 import cats.data._
 import cats.implicits._
+import com.github.tminglei.slickpg._
 import core.db.ExPostgresDriver.api._
 import core.db._
 import core.failures.Failure
 import core.utils.Validation
 import org.json4s.Extraction
 import org.json4s.JsonAST._
+import phoenix.models.account.Scope
 import phoenix.models.plugins.PluginSettings._
 import phoenix.payloads.PluginPayloads.RegisterPluginPayload
 import phoenix.utils.JsonFormatters
@@ -18,6 +20,7 @@ import shapeless._
 import slick.jdbc.PostgresProfile.api.MappedColumnType
 
 case class Plugin(id: Int = 0,
+                  scope: LTree,
                   name: String,
                   description: String,
                   isDisabled: Boolean = false,
@@ -55,9 +58,10 @@ case class Plugin(id: Int = 0,
 
 object Plugin {
 
-  def fromPayload(payload: RegisterPluginPayload): Plugin = {
+  def fromPayload(payload: RegisterPluginPayload)(implicit au: AU): Plugin = {
     Plugin(name = payload.name,
            version = payload.version,
+           scope = Scope.current,
            description = payload.description,
            apiHost = payload.apiHost,
            apiPort = payload.apiPort,
@@ -80,6 +84,7 @@ import phoenix.models.plugins.PluginOrmTypeMapper._
 
 class Plugins(tag: Tag) extends FoxTable[Plugin](tag, "plugins") {
   def id             = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def scope          = column[LTree]("scope")
   def name           = column[String]("name")
   def description    = column[String]("description")
   def isDisabled     = column[Boolean]("is_disabled")
@@ -95,6 +100,7 @@ class Plugins(tag: Tag) extends FoxTable[Plugin](tag, "plugins") {
 
   def * =
     (id,
+     scope,
      name,
      description,
      isDisabled,
@@ -115,7 +121,7 @@ object Plugins
 
   val returningLens: Lens[Plugin, Int] = lens[Plugin].id
 
-  def findByName(name: String): DBIO[Option[Plugin]] = {
-    filter(_.name === name).one
+  def findByNameForCurrentUser(name: String)(implicit au: AU): DBIO[Option[Plugin]] = {
+    filter(_.name === name).filter(_.scope === Scope.current).one
   }
 }
