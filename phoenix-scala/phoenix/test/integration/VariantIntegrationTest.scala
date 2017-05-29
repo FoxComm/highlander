@@ -135,7 +135,8 @@ class VariantIntegrationTest
                                        code = "TEST",
                                        description = "Test product description",
                                        image = "image.png",
-                                       price = 5999)
+                                       price = 5999,
+                                       active = true)
 
     val simpleSizeVariant = SimpleCompleteVariant(
         variant = SimpleVariant("Size"),

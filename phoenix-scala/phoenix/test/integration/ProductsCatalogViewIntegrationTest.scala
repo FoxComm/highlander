@@ -79,6 +79,7 @@ class ProductsCatalogViewIntegrationTest
     }
   }
 
+  // FIXME: dead code? @michalrus
   case class ProductAlbumsFromDatabase(product: Product) {
     private def parseJsonColumnValues(query: SQLActionBuilder): List[ViewAlbum] = {
       val columnValues = query.as[String].gimme
@@ -118,6 +119,7 @@ class ProductsCatalogViewIntegrationTest
     }
   }
 
+  // FIXME: dead code? @michalrus
   trait Fixture extends StoreAdmin_Seed {
     val imagePayload = ImagePayload(None, "http://lorem.png", "lorem.png".some, "Lorem Ipsum".some)
     val defaultAlbumPayload =
@@ -134,9 +136,10 @@ class ProductsCatalogViewIntegrationTest
                                                                 formId = ins.form.id,
                                                                 commitId = ins.commit.id)))
       albumImages ← * <~ ImageManager.createImagesForAlbum(fullAlbum.model, Seq(imagePayload), ctx)
-      sku ← * <~ Mvp.insertSku(scope,
-                               ctx.id,
-                               SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD))
+      sku ← * <~ Mvp.insertSku(
+               scope,
+               ctx.id,
+               SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD, active = true))
 
       product ← * <~ Mvp.insertProductWithExistingSkus(scope,
                                                        ctx.id,

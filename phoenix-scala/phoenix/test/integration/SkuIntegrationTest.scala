@@ -205,7 +205,8 @@ class SkuIntegrationTest
                                                code = "TEST",
                                                description = "Test product description",
                                                image = "image.png",
-                                               price = 5999)
+                                               price = 5999,
+                                               active = true)
 
     val product =
       Mvp.insertProductWithExistingSkus(LTree(au.token.scope), ctx.id, simpleProd, Seq(sku)).gimme

@@ -89,7 +89,8 @@ trait ProductGenerator {
                       title = title,
                       description = title,
                       price = Random.nextInt(10000),
-                      image = ProductGenerator.randomImage)
+                      image = ProductGenerator.randomImage,
+                      active = true)
   }
 
   def generateProducts(data: Seq[SimpleProductData])(implicit db: DB, au: AU) =

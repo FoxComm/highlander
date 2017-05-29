@@ -424,7 +424,7 @@ class ImageIntegrationTest
 
   trait ProductFixture extends Fixture {
     val (product, prodForm, prodShadow, sku, skuForm, skuShadow) = (for {
-      simpleSku  ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD)
+      simpleSku  ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD, active = true)
       skuForm    ← * <~ ObjectForms.create(simpleSku.create)
       sSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
       skuShadow  ← * <~ ObjectShadows.create(sSkuShadow.create.copy(formId = skuForm.id))
@@ -440,7 +440,8 @@ class ImageIntegrationTest
       _ ← * <~ SkuAlbumLinks.create(SkuAlbumLink(leftId = sku.id, rightId = album.id))
 
       simpleProd ← * <~ SimpleProduct(title = "Test Product",
-                                      description = "Test product description")
+                                      description = "Test product description",
+                                      active = true)
       prodForm    ← * <~ ObjectForms.create(simpleProd.create)
       sProdShadow ← * <~ SimpleProductShadow(simpleProd)
       prodShadow  ← * <~ ObjectShadows.create(sProdShadow.create.copy(formId = prodForm.id))
