@@ -200,6 +200,19 @@ class ProductIntegrationTest
         productResponse.skus.head.attributes.code must === (skuName)
       }
 
+      "a new SKU successfully, both active, and that is accessible for customers & publicly" in new Fixture {
+        val pp = productPayload
+        val response = doQuery(
+            pp.copy(
+                attributes = pp.attributes ++ activeAttrMap,
+                skus = pp.skus.map(sku ⇒ sku.copy(attributes = sku.attributes ++ activeAttrMap))
+            ))
+        withRandomCustomerAuth { implicit auth ⇒
+          storefrontProductsApi(product.formId.toString).get().mustBeOk()
+        }
+        publicApi.getProducts(response.id.toString).mustBeOk()
+      }
+
       "a new SKU in variant successfully" in new Fixture {
         val valuePayload = Seq(
             VariantValuePayload(skuCodes = Seq(skuName),
