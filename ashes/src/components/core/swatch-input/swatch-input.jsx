@@ -40,7 +40,7 @@ class SwatchInput extends Component {
   };
 
   @autobind
-  handleChange(value: string) {
+  handleChange({value}: string) {
     this.props.onChange(value);
   }
 

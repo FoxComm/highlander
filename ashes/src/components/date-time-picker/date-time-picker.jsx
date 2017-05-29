@@ -93,16 +93,16 @@ export default class DateTimePicker extends Component<void, Props, State> {
   }
 
   @autobind
-  handleChangeHour(hour: string) {
-    if (!_.isNull(hour.match(/^[0-9]*$/))) {
-      this.setState({ hour });
+  handleChangeHour({value}: string) {
+    if (!_.isNull(value.match(/^[0-9]*$/))) {
+      this.setState({ hour: value });
     }
   }
 
   @autobind
-  handleChangeMinutes(minutes: string) {
-    if (!_.isNull(minutes.match(/^[0-9]*$/))) {
-      this.setState({ minutes });
+  handleChangeMinutes({value}: string) {
+    if (!_.isNull(value.match(/^[0-9]*$/))) {
+      this.setState({ minutes: value });
     }
   }
 
@@ -139,8 +139,8 @@ export default class DateTimePicker extends Component<void, Props, State> {
   }
 
   @autobind
-  handleChangeAmPm(ampm: string) {
-    this.setState({ ampm });
+  handleChangeAmPm({value}: string) {
+    this.setState({ ampm: value });
   }
 
   @autobind

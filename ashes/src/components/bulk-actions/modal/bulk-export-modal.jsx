@@ -39,7 +39,7 @@ class BulkExportModal extends Component {
   };
 
   @autobind
-  handleChange(value) {
+  handleChange({value}) {
     this.setState({ value });
   }
 

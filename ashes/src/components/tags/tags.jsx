@@ -79,8 +79,8 @@ export default class Tags extends Component {
   }
 
   @autobind
-  handleChange(addingValue: string) {
-    this.setState({ addingValue });
+  handleChange({ value }: string) {
+    this.setState({ addingValue: value });
   }
 
   @autobind

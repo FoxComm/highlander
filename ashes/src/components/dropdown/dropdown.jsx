@@ -60,7 +60,7 @@ export default class Dropdown extends Component {
   };
 
   @autobind
-  handleInputChange(value: string) {
+  handleInputChange({value}) {
     this.setState({ token: value });
   }
 
