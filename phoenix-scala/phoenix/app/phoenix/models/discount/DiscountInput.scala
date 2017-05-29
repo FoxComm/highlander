@@ -1,7 +1,6 @@
 package phoenix.models.discount
 
 import phoenix.models.cord.Cart
-import phoenix.models.shipping.ShippingMethod
 
 /*
  * Gift card line items must be excluded from any kind or discount application, which means:
@@ -28,7 +27,7 @@ case class DqLineItem(skuCode: String,
 case class DiscountInput(promotionShadowId: Int,
                          cart: Cart,
                          lineItems: Seq[DqLineItem],
-                         shippingMethod: Option[ShippingMethod]) {
+                         shippingCost: Option[Long]) {
 
   val eligibleForDiscountSubtotal: Long = lineItems.collect {
     case li if li.isEligibleForDiscount ⇒ li.price

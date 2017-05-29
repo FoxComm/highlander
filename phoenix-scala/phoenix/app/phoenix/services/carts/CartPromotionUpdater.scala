@@ -291,7 +291,10 @@ object CartPromotionUpdater {
                    lineItemType = if (li.isGiftCard) DqGiftCardLineItem else DqRegularLineItem,
                    lineItemReferenceNumber = li.lineItemReferenceNumber)
       }
-      input = DiscountInput(promo.id, cartWithTotalsUpdated, dqLineItems, shippingMethod)
+      input = DiscountInput(promotionShadowId = promo.id,
+                            cart = cartWithTotalsUpdated,
+                            lineItems = dqLineItems,
+                            shippingCost = shippingMethod.map(_.price))
       _            ← * <~ qualifier.check(input)
       offerResults ← * <~ offer.adjust(input)
     } yield offerResults.map(CartLineItemAdjustment.fromOfferResult)
