@@ -160,7 +160,7 @@ class EditableSkuRow extends Component {
         <TextInput
           type="text"
           value={value}
-          onChange={({ value }) => {
+          onChange={({ target: { value } }) => {
             this.updateSku({ upc: value });
           }}
           placeholder="UPC"
@@ -273,7 +273,7 @@ class EditableSkuRow extends Component {
           className={styles.inventory}
           type="text"
           value={value}
-          onChange={({ value }) => {
+          onChange={({ target: { value } }) => {
             this.updateSku({ inventory: value });
           }}
           placeholder="QTY"
@@ -290,7 +290,7 @@ class EditableSkuRow extends Component {
         <TextInput
           type="text"
           value={value}
-          onChange={ ({ value }) => {
+          onChange={({ target: { value } }) => {
             this.updateSku({ asin: value });
           }}
           placeholder="ASIN"
@@ -375,7 +375,8 @@ class EditableSkuRow extends Component {
   }
 
   @autobind
-  handleUpdateCode({ value }: string) {
+  handleUpdateCode({ target }: Object) {
+    const { value } = target;
     this.updateSku({
       code: value,
     });

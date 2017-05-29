@@ -51,11 +51,11 @@ export default class TextInput extends Component {
   }
 
   @autobind
-  handleChange(target) {
+  handleChange(value: string) {
     if (this.props.onChange) {
-      this.props.onChange(target);
+      this.props.onChange(value);
     } else {
-      this.setState({ value: target.value });
+      this.setState({ value });
     }
   }
 
@@ -67,7 +67,7 @@ export default class TextInput extends Component {
       <input
         type="text"
         className={inputClass}
-        onChange={({ target }) => this.handleChange(target)}
+        onChange={({ target }) => this.handleChange(target.value)}
         placeholder={placeholder}
         value={onChange ? this.props.value : this.state.value}
         {...rest}
