@@ -11,7 +11,7 @@ import { Dropdown } from 'components/dropdown';
 import { PageTitle } from 'components/section-title';
 import { PrimaryButton } from 'components/core/button';
 import ContentBox from 'components/content-box/content-box';
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 
 // redux
 import * as applicationActions from 'modules/merchant-applications/details';
@@ -150,7 +150,7 @@ class MerchantApplicationDetails extends Component {
     if (!application || !businessProfile || !socialProfile) {
       return (
         <div styleName="waiting">
-          <WaitAnimation />
+          <Spinner />
         </div>
       );
     }

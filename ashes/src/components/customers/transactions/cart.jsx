@@ -9,7 +9,7 @@ import { autobind } from 'core-decorators';
 
 import { PrimaryButton } from 'components/core/button';
 import OrderDetails from 'components/orders/details';
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 
 import * as cartActions from 'modules/carts/details';
 
@@ -84,7 +84,7 @@ export default class CustomerCart extends Component {
   }
 
   get waitAnimation() {
-    return <WaitAnimation />;
+    return <Spinner />;
   }
 
   get errorMessage() {

@@ -12,7 +12,7 @@ import { IndexLink, Link } from 'components/link';
 import { PageTitle } from 'components/section-title';
 import Error from 'components/errors/error';
 import PageNav from 'components/core/page-nav';
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 import ArchiveActionsSection from 'components/archive-actions/archive-actions';
 import ButtonWithMenu from 'components/core/button-with-menu';
 
@@ -251,7 +251,7 @@ class ObjectPageDeux extends Component {
     }
 
     if (!object || fetchState.inProgress) {
-      return <WaitAnimation className={styles.waiting} />;
+      return <Spinner className={styles.spinner} />;
     }
 
     return (

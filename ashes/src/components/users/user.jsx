@@ -11,7 +11,7 @@ import { transitionTo } from 'browserHistory';
 import * as UserActions from 'modules/users/details';
 
 // components
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
 import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
 import { Button, PrimaryButton } from 'components/core/button';
@@ -148,7 +148,7 @@ class User extends Component {
     if (this.props.fetchError) {
       content = this.errorMessage;
     } else if (this.props.isFetching || !this.state.user) {
-      content = <WaitAnimation />;
+      content = <Spinner />;
     } else {
       content = this.renderContent();
     }

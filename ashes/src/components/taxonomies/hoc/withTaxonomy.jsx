@@ -13,10 +13,10 @@ import { fetchTaxonomyInternal as fetch } from 'modules/taxonomies/details';
 import { getDisplayName } from 'lib/react-utils';
 
 // components
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 
 // styles
-import styles from './taxonomies.css';
+import s from './taxonomies.css';
 
 const omitProps = [
   'taxonomy',
@@ -72,7 +72,7 @@ export default function withTaxonomy(options: Options = defaultOptions) {
         const { taxonomy, fetchState } = this.props;
 
         if (options.showLoader && (!taxonomy || fetchState.inProgress && !fetchState.err)) {
-          return <WaitAnimation className={styles.waiting} />;
+          return <Spinner className={s.spinner} />;
         }
 
         const props = {

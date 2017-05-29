@@ -9,7 +9,7 @@ import { autobind } from 'core-decorators';
 import TableHead from './head';
 import TableRow from './row';
 import TableCell from './cell';
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
 
 export function tableMessage(message: Element<*>|string, inline: boolean = false): Element<*> {
   const cls = classNames('fc-table-message', { '_inline': inline });
@@ -159,7 +159,7 @@ export default class Table extends Component {
     const showLoading = props.showLoadingOnMount && props.isLoading === null || props.isLoading;
 
     if (showLoading) {
-      return tableMessage(<WaitAnimation className="fc-table__waiting" />, this.loadingInline);
+      return tableMessage(<Spinner className="fc-table__waiting" />, this.loadingInline);
     } else if (props.failed) {
       return tableMessage(props.errorMessage);
     } else if (isEmpty) {

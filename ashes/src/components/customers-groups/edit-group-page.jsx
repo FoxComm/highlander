@@ -9,7 +9,7 @@ import { push } from 'react-router-redux';
 import { reset, fetchGroup, saveGroup, clearFetchErrors, clearSaveErrors } from 'modules/customer-groups/details/group';
 import { fetchRegions } from 'modules/regions';
 
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 import Error from 'components/errors/error';
 
 type Props = {
@@ -73,7 +73,7 @@ class NewGroupBase extends Component {
 
     // show loader if loading in progress or we have :groupId url param but have no group fetched
     if (fetchInProgress || params.groupId && !group.id) {
-      return <div><WaitAnimation /></div>;
+      return <div><Spinner /></div>;
     }
 
     return (

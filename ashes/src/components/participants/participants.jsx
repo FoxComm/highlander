@@ -12,7 +12,7 @@ import { numberize } from 'lib/text-utils';
 import { groups } from 'paragons/participants';
 
 // components
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
 import SelectAdminsModal from '../users/select-modal';
 import { AddButton, Button } from 'components/core/button';
 import DetailedInitials from '../user-initials/detailed-initials';
@@ -176,7 +176,7 @@ class Participants extends Component {
 
   get usersBlock() {
     if (this.isParticipantsLoading) {
-      return <WaitAnimation size="s" />;
+      return <Spinner size="s" />;
     }
 
     return (

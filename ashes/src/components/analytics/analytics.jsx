@@ -9,7 +9,7 @@ import _ from 'lodash';
 
 // components
 import ErrorAlerts from '../alerts/error-alerts';
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
 import QuestionBoxList from './question-box-list';
 import type { Props as QuestionBoxType } from './question-box';
 import Currency from '../common/currency';
@@ -694,7 +694,7 @@ export class Analytics extends React.Component {
         return <ErrorAlerts error={analytics.err} />;
       }
     } else {
-      return <WaitAnimation />;
+      return <Spinner />;
     }
   }
 
@@ -709,7 +709,7 @@ export class Analytics extends React.Component {
         return <ErrorAlerts error={analytics.err} />;
       }
     } else {
-      return <WaitAnimation />;
+      return <Spinner />;
     }
   }
 

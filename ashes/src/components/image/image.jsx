@@ -10,7 +10,7 @@ import React, { Component, Element } from 'react';
 import Transition from 'react-transition-group/CSSTransitionGroup';
 
 // components
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
 import ProductImage from 'components/imgix/product-image';
 
 type Props = {
@@ -90,7 +90,7 @@ export default class ImageLoader extends Component {
   }
 
   get loader(): ?Element<*> {
-    return !this.state.ready ? <WaitAnimation key="loader" size="m" /> : null;
+    return !this.state.ready ? <Spinner key="spinner" size="m" /> : null;
   }
 
   get image(): ?Element<*> {
