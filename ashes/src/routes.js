@@ -3,6 +3,7 @@ import { Route, IndexRoute, IndexRedirect } from 'react-router';
 
 import Site from './components/site/site';
 import Home from './components/home/home';
+import NotFound from './components/not-found/not-found';
 
 import authRoutes from './routes/auth';
 import catalogRoutes from './routes/catalog';
@@ -33,6 +34,7 @@ export default function makeRoutes(jwtToken) {
         {merchandisingRoutes(claims)}
         {settingsRoutes(claims)}
       </Route>
+      <Route path="*" component={NotFound} />
     </Route>
   );
 }
