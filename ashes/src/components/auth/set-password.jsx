@@ -9,7 +9,7 @@ import { transitionTo } from 'browserHistory';
 import Form from 'components/forms/form';
 import FormField from 'components/forms/formfield';
 import ErrorAlerts from 'components/alerts/error-alerts';
-import { PrimaryButton, Button } from 'components/core/button';
+import { PrimaryButton } from 'components/core/button';
 import PasswordInput from 'components/forms/password-input';
 import WaitAnimation from 'components/common/wait-animation';
 import { Link } from 'components/link';

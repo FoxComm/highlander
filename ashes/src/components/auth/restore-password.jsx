@@ -4,13 +4,11 @@ import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import { transitionTo } from 'browserHistory';
 
 import Form from 'components/forms/form';
 import FormField from 'components/forms/formfield';
 import ErrorAlerts from 'components/alerts/error-alerts';
 import { PrimaryButton } from 'components/core/button';
-import PasswordInput from 'components/forms/password-input';
 import WaitAnimation from 'components/common/wait-animation';
 import { Link } from 'components/link';
 
