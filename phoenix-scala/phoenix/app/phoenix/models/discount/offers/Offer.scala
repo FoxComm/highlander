@@ -18,11 +18,11 @@ trait Offer extends DiscountBase {
       input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis, au: AU): Result[Seq[OfferResult]]
 
   def buildEither(input: DiscountInput,
-                  subtract: Int,
+                  subtract: Long,
                   lineItemRefNum: Option[String] = None): Either[Failures, Seq[OfferResult]] =
     Either.right(Seq(OfferResult(input, subtract, lineItemRefNum, offerType)))
 
-  def buildResult(input: DiscountInput, subtract: Int, lineItemRefNum: Option[String] = None)(
+  def buildResult(input: DiscountInput, subtract: Long, lineItemRefNum: Option[String] = None)(
       implicit ec: EC): Result[Seq[OfferResult]] =
     Result.good(Seq(OfferResult(input, subtract, lineItemRefNum, offerType)))
 
@@ -32,7 +32,7 @@ trait Offer extends DiscountBase {
 
 object Offer {
   case class OfferResult(discountInput: DiscountInput,
-                         subtract: Int,
+                         subtract: Long,
                          lineItemRefNum: Option[String],
                          offerType: OfferType)
 }
@@ -43,7 +43,7 @@ object Offer {
 trait AmountOffer {
 
   // If discount amount is bigger than price - subtract price, otherwise subtract discount
-  def subtract(price: Int, discount: Int): Int = {
+  def subtract(price: Long, discount: Long): Long = {
     val delta = price - discount
     if (delta > 0) discount else price
   }
@@ -55,7 +55,8 @@ trait AmountOffer {
 trait PercentOffer {
 
   // Ceiling will give a discount bigger by one penny
-  def subtract(price: Int, discount: Int): Int = Math.ceil((price * discount) / 100.0d).toInt
+  def subtract(price: Long, discount: Long): Long =
+    Math.ceil((price * discount).toDouble / 100).toLong
 }
 
 /**
@@ -64,7 +65,7 @@ trait PercentOffer {
 trait SetOffer {
 
   // If set value is bigger than price - subtract price, otherwise subtract delta to reach desired set value
-  def subtract(price: Int, setPrice: Int): Int = {
+  def subtract(price: Long, setPrice: Long): Long = {
     val delta = price - setPrice
     if (delta > 0) delta else price
   }

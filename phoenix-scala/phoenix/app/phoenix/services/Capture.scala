@@ -19,12 +19,13 @@ import phoenix.utils.apis.Apis
 import slick.jdbc.PostgresProfile.api._
 import core.utils.Money.Currency
 import core.db._
+import core.utils.Money._
 
 //
 //TODO: Create order state InsufficientFundHold
 //TODO: Create order state PaymentErrorHold
 //
-case class LineItemPrice(referenceNumber: String, sku: String, price: Int, currency: Currency)
+case class LineItemPrice(referenceNumber: String, sku: String, price: Long, currency: Currency)
 
 object Capture {
   def capture(payload: CapturePayloads.Capture)(implicit ec: EC,
@@ -36,7 +37,6 @@ object Capture {
 }
 
 case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, apis: Apis, ac: AC) {
-
   def capture: DbResultT[CaptureResponse] =
     for {
       //get data for capture. We use the findLineItemsByCordRef function in
@@ -68,7 +68,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
 
       orderAdjustmentCost = adjustments
         .filter(_.adjustmentType == CartLineItemAdjustment.OrderAdjustment)
-        .foldLeft(0)(_ + _.subtract)
+        .foldLeft(0L)(_ + _.subtract)
 
       //find the shipping method used for the order, take the minimum between
       //shipping method and what shipping cost was passed in payload because
@@ -120,7 +120,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       //return Capture table tuple id?
     } yield resp
 
-  private def internalCapture(total: Int,
+  private def internalCapture(total: Long,
                               order: Order,
                               customer: User,
                               gcPayments: Seq[(OrderPayment, GiftCard)],
@@ -147,7 +147,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
                        LogActivity().gcFundsCaptured(customer, order, gcCodes, gcTotal))
     } yield {}
 
-  private def externalCapture(total: Int, order: Order): DbResultT[Option[CreditCardCharge]] = {
+  private def externalCapture(total: Long, order: Order): DbResultT[Option[CreditCardCharge]] = {
     require(total >= 0)
 
     if (total > 0) {
@@ -162,7 +162,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
     } else DbResultT.none
   }
 
-  private def captureFromStripe(total: Int,
+  private def captureFromStripe(total: Long,
                                 charge: CreditCardCharge,
                                 order: Order): DbResultT[Option[CreditCardCharge]] = {
 
@@ -177,37 +177,39 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       DbResultT.failure(CaptureFailures.ChargeNotInAuth(charge))
   }
 
-  private def determineExternalCapture(total: Int,
+  private def determineExternalCapture(total: Long,
                                        gcPayments: Seq[(OrderPayment, GiftCard)],
                                        scPayments: Seq[(OrderPayment, StoreCredit)],
-                                       currency: Currency): DbResultT[Int] =
+                                       currency: Currency): DbResultT[Long] =
     for {
       remaining ← * <~ subtractGcPayments(total, gcPayments, currency)
       remaining ← * <~ subtractScPayments(remaining, scPayments, currency)
     } yield remaining
 
-  private def subtractGcPayments(total: Int,
+  private def subtractGcPayments(total: Long,
                                  gcPayments: Seq[(OrderPayment, GiftCard)],
-                                 currency: Currency): Int = {
-    Math.max(0, total - gcPayments.foldLeft(0)((a, op) ⇒ a + getPaymentAmount(op._1, currency)))
+                                 currency: Currency): Long = {
+    (total - gcPayments
+          .foldLeft(0L)((a, op) ⇒ a + getPaymentAmount(op._1, currency))).zeroIfNegative
   } ensuring (remaining ⇒ remaining >= 0 && remaining <= total)
 
-  private def subtractScPayments(total: Int,
+  private def subtractScPayments(total: Long,
                                  scPayments: Seq[(OrderPayment, StoreCredit)],
-                                 currency: Currency): Int = {
-    Math.max(0, total - scPayments.foldLeft(0)((a, op) ⇒ a + getPaymentAmount(op._1, currency)))
+                                 currency: Currency): Long = {
+    (total - scPayments
+          .foldLeft(0L)((a, op) ⇒ a + getPaymentAmount(op._1, currency))).zeroIfNegative
   } ensuring (remaining ⇒ remaining >= 0 && remaining <= total)
 
-  private def getPaymentAmount(op: OrderPayment, currency: Currency): Int = {
+  private def getPaymentAmount(op: OrderPayment, currency: Currency): Long = {
     require(currency == op.currency)
-    op.amount.getOrElse(0)
+    op.amount.getOrElse(0L)
   } ensuring (_ >= 0)
 
-  private def computeTotal(lineItemTotal: Int,
-                           shippingCost: Int,
-                           orderAdjustmentCost: Int,
-                           taxes: Int,
-                           originalGrandTotal: Int): Int = {
+  private def computeTotal(lineItemTotal: Long,
+                           shippingCost: Long,
+                           orderAdjustmentCost: Long,
+                           taxes: Long,
+                           originalGrandTotal: Long): Long = {
     require(lineItemTotal >= 0)
     require(shippingCost >= 0)
     require(taxes >= 0)
@@ -219,7 +221,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
 
   private def adjustShippingCost(shippingMethod: ShippingMethod,
                                  adjustments: Seq[CartLineItemAdjustment],
-                                 requestedShippingCost: CapturePayloads.ShippingCost): Int = {
+                                 requestedShippingCost: CapturePayloads.ShippingCost): Long = {
     require(adjustments.length <= 1)
     require(requestedShippingCost.total >= 0)
     require(shippingMethod.price >= 0)
@@ -227,16 +229,17 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
     adjustments.headOption match {
       case Some(adjustment) ⇒ {
         require(adjustment.subtract >= 0)
-        Math.max(0,
-                 Math.min(shippingMethod.price - adjustment.subtract, requestedShippingCost.total))
+        Math
+          .min(shippingMethod.price - adjustment.subtract, requestedShippingCost.total)
+          .zeroIfNegative
       }
       case None ⇒
         Math.min(shippingMethod.price, requestedShippingCost.total)
     }
   } ensuring (_ >= 0)
 
-  private def aggregatePrices(adjustedPrices: Seq[LineItemPrice]): Int = {
-    val total = adjustedPrices.foldLeft(0)({ (sum, lineItem) ⇒
+  private def aggregatePrices(adjustedPrices: Seq[LineItemPrice]): Long = {
+    val total = adjustedPrices.foldLeft(0L)({ (sum, lineItem) ⇒
       require(lineItem.price >= 0)
       sum + lineItem.price
     })

@@ -19,6 +19,7 @@ import phoenix.responses.TheResponse
 import phoenix.responses.cord.CartResponse
 import phoenix.services.{CartValidator, LogActivity}
 import slick.jdbc.PostgresProfile.api._
+import core.utils.Money._
 import phoenix.utils.aliases._
 import core.db._
 
@@ -76,7 +77,7 @@ object CartPaymentUpdater {
       _ ← * <~ gc.mustHaveEnoughBalance(amount)
     } yield (gc, amount)
 
-  private def selectGiftCardAmount(payload: GiftCardPayment, gc: GiftCard): Int =
+  private def selectGiftCardAmount(payload: GiftCardPayment, gc: GiftCard): Long =
     payload.amount match {
       case Some(amount) ⇒ amount
       case _            ⇒ gc.availableBalance
@@ -87,7 +88,7 @@ object CartPaymentUpdater {
       db: DB,
       ac: AC,
       ctx: OC): TheFullCart = {
-    def updateSC(has: Int, want: Int, cart: Cart, storeCredits: List[StoreCredit]) =
+    def updateSC(has: Long, want: Long, cart: Cart, storeCredits: List[StoreCredit]) =
       if (has < want) {
         DbResultT.failure(
             CustomerHasInsufficientStoreCredit(id = cart.accountId, has = has, want = want))

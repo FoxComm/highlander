@@ -6,7 +6,7 @@ import phoenix.models.discount.offers.Offer.OfferResult
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 
-case class OrderPercentOffer(discount: Int) extends Offer with PercentOffer {
+case class OrderPercentOffer(discount: Long) extends Offer with PercentOffer {
 
   val offerType: OfferType = OrderPercentOff
 

@@ -16,13 +16,17 @@ import phoenix.services.carts.CartTotaler
 import phoenix.services.returns.{ReturnLineItemManager, ReturnTotaler}
 
 object ReturnResponse {
-  case class ReturnTotals(subTotal: Int, taxes: Int, shipping: Int, adjustments: Int, total: Int)
+  case class ReturnTotals(subTotal: Long,
+                          taxes: Long,
+                          shipping: Long,
+                          adjustments: Long,
+                          total: Long)
       extends ResponseItem
 
   sealed trait LineItem extends ResponseItem {
     def id: Int
     def reason: String
-    def price: Int
+    def price: Long
     def currency: Currency
   }
   object LineItem {
@@ -32,14 +36,14 @@ object ReturnResponse {
                    title: String,
                    sku: String,
                    quantity: Int,
-                   price: Int,
+                   price: Long,
                    currency: Currency)
         extends LineItem
     case class ShippingCost(id: Int,
                             reason: String,
                             name: String,
-                            amount: Int,
-                            price: Int,
+                            amount: Long,
+                            price: Long,
                             currency: Currency)
         extends LineItem
   }
@@ -48,13 +52,13 @@ object ReturnResponse {
 
   sealed trait Payment extends ResponseItem {
     def id: Int
-    def amount: Int
+    def amount: Long
     def currency: Currency
   }
   object Payment {
-    case class CreditCard(id: Int, amount: Int, currency: Currency)             extends Payment
-    case class GiftCard(id: Int, code: String, amount: Int, currency: Currency) extends Payment
-    case class StoreCredit(id: Int, amount: Int, currency: Currency)            extends Payment
+    case class CreditCard(id: Int, amount: Long, currency: Currency)             extends Payment
+    case class GiftCard(id: Int, code: String, amount: Long, currency: Currency) extends Payment
+    case class StoreCredit(id: Int, amount: Long, currency: Currency)            extends Payment
   }
   case class Payments(creditCard: Option[Payment.CreditCard],
                       giftCard: Option[Payment.GiftCard],
@@ -90,7 +94,7 @@ object ReturnResponse {
           storeCredit.map(sc ⇒ Payment.StoreCredit(sc.paymentMethodId, sc.amount, sc.currency))
     )
 
-  def buildTotals(subTotal: Int, shipping: Int, adjustments: Int, taxes: Int): ReturnTotals = {
+  def buildTotals(subTotal: Long, shipping: Long, adjustments: Long, taxes: Long): ReturnTotals = {
     ReturnTotals(subTotal = subTotal,
                  shipping = shipping,
                  adjustments = adjustments,
@@ -115,7 +119,7 @@ object ReturnResponse {
       // Totals
       adjustments ← * <~ ReturnTotaler.adjustmentsTotal(rma)
       subTotal    ← * <~ ReturnTotaler.subTotal(rma)
-      shipping = shippingCosts.map(_.amount).getOrElse(0)
+      shipping = shippingCosts.map(_.amount).getOrElse(0L)
       taxes ← * <~ CartTotaler.taxesTotal(rma.orderRef,
                                           subTotal = subTotal,
                                           shipping = shipping,
