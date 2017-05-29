@@ -1,11 +1,8 @@
 /* @flow */
 
 import _, { cloneDeep } from 'lodash';
-import { getJWT } from 'lib/claims';
 import * as t from 'paragons/object-types';
 
-
-import type { JWT } from 'lib/claims';
 export function generateSkuCode(): string {
   return Math.random().toString(36).substring(7).toUpperCase();
 }

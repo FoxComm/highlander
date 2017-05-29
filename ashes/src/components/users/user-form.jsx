@@ -10,7 +10,7 @@ import { assoc } from 'sprout-data';
 import ObjectFormInner from '../object-form/object-form-inner';
 import UserInitials from '../user-initials/initials';
 import ContentBox from '../content-box/content-box';
-import RoundedPill from '../rounded-pill/rounded-pill';
+import { RoundedPill } from 'components/core/rounded-pill';
 import { Form, FormField } from '../forms';
 import { Button } from 'components/core/button';
 import AccountState from './account-state';
@@ -124,7 +124,7 @@ export default class UserForm extends Component {
           {!this.props.isNew && this.renderAccountState()}
 
           <ContentBox title="Roles" className={s.roles} >
-            <RoundedPill text="Super Admin"/>
+            <RoundedPill text="Super Admin" />
           </ContentBox>
         </aside>
       </div>

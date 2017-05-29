@@ -7,7 +7,7 @@ import { activeStatus, isArchived } from 'paragons/common';
 
 // components
 import MultiSelectRow from 'components/table/multi-select-row';
-import RoundedPill from 'components/rounded-pill/rounded-pill';
+import { RoundedPill } from 'components/core/rounded-pill';
 
 type Props = {
   taxonomy: TaxonomyResult,

@@ -11,7 +11,7 @@ import PropTypes from 'prop-types';
 import { IndexLink, Link } from 'components/link';
 import { PageTitle } from 'components/section-title';
 import Error from 'components/errors/error';
-import LocalNav from 'components/local-nav/local-nav';
+import PageNav from 'components/core/page-nav';
 import WaitAnimation from 'components/common/wait-animation';
 import ArchiveActionsSection from 'components/archive-actions/archive-actions';
 import ButtonWithMenu from 'components/core/button-with-menu';
@@ -90,7 +90,7 @@ class ObjectPageDeux extends Component {
       );
     });
 
-    return <LocalNav>{links}</LocalNav>;
+    return <PageNav>{links}</PageNav>;
   }
 
   get pageTitle(): string {
@@ -203,7 +203,6 @@ class ObjectPageDeux extends Component {
       ...this.props.headerControls,
       <ButtonWithMenu
         title="Save"
-        menuPosition="right"
         onPrimaryClick={this.handleSaveButton}
         onSelect={this.handleSelectSaving}
         isLoading={this.props.saveState.inProgress}

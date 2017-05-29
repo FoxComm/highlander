@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import CreditCardDetails from './card-details';
 import EditableItemCardContainer from '../item-card-container/editable-item-card-container';
-import { autobind } from 'core-decorators';
 
 const CreditCardBox = (props) => {
   const card = props.card;

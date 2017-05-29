@@ -6,8 +6,8 @@
 import React, { Component } from 'react';
 
 // components
-import { Link, IndexLink } from '../link';
-import LocalNav from '../local-nav/local-nav';
+import { Link, IndexLink } from 'components/link';
+import PageNav from 'components/core/page-nav';
 
 type Props = {
   userId: string|number,
@@ -24,10 +24,10 @@ export default class SubNav extends Component {
     };
 
     return (
-      <LocalNav>
+      <PageNav>
         <IndexLink to="user-form" params={params}>Settings</IndexLink>
         {this.props.userId !== 'new' && <Link to="user-activity-trail" params={params}>Activity Trail</Link>}
-      </LocalNav>
+      </PageNav>
     );
   }
 }

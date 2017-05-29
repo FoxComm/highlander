@@ -1,7 +1,5 @@
 /* @flow */
 
-import React from 'react';
-
 import FoxRouter from 'lib/fox-router';
 
 import AuthPages from 'components/site/auth-pages';

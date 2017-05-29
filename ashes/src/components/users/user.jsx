@@ -140,7 +140,7 @@ class User extends Component {
     return (
       <div>
         {this.isNew ? this.renderNewUserTitle() : this.renderUserTitle()}
-        <SubNav userId={params.userId} user={details}/>
+        <SubNav userId={params.userId} user={details} />
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
             { this.renderChildren() }
@@ -156,7 +156,7 @@ class User extends Component {
     if (this.props.fetchError) {
       content = this.errorMessage;
     } else if (this.props.isFetching || !this.state.user) {
-      content = <WaitAnimation/>;
+      content = <WaitAnimation />;
     } else {
       content = this.renderContent();
     }

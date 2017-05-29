@@ -16,7 +16,7 @@ describe('Countdown', function() {
 
   it('should render', function () {
     countdown = shallowRender(
-      <Countdown endDate={moment().add(5, 'm').utc().format()}/>
+      <Countdown endDate={moment().add(5, 'm').utc().format()} />
     );
     countdown.instance.tick();
     expect(countdown.props.children).to.match(/\d{2}:\d{2}:\d{2}/);
@@ -24,7 +24,7 @@ describe('Countdown', function() {
 
   it('should create ending mode', function () {
     countdown = shallowRender(
-      <Countdown endDate={moment().add(1, 'm').utc().format()}/>
+      <Countdown endDate={moment().add(1, 'm').utc().format()} />
     );
     countdown.instance.tick();
 

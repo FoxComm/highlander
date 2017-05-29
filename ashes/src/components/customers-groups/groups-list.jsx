@@ -11,7 +11,7 @@ import { bulkExportBulkAction, renderExportModal } from 'modules/bulk-export/hel
 // components
 import { SelectableSearchList } from 'components/list-page';
 import MultiSelectRow from 'components/table/multi-select-row';
-import RoundedPill from 'components/rounded-pill/rounded-pill';
+import { RoundedPill } from 'components/core/rounded-pill';
 import BulkActions from 'components/bulk-actions/bulk-actions';
 import BulkMessages from 'components/bulk-actions/bulk-messages';
 import { Link } from 'components/link';

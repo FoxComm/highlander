@@ -10,7 +10,7 @@ type Props = {
 };
 
 const AddressFormWrapper = (props: Props) => {
-  const actionBlock = <i onClick={props.onCancel} className="fc-btn-close icon-close" title="Close"/>;
+  const actionBlock = <i onClick={props.onCancel} className="fc-btn-close icon-close" title="Close" />;
 
   return (
     <ContentBox title="Address Book" className="fc-address-form-modal" actionBlock={ actionBlock }>

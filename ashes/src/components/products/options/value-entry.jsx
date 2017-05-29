@@ -53,13 +53,13 @@ class ValueEntry extends Component {
             id={`fct-value-edit-btn__${valueName}`}
             onClick={() => this.props.editValue(id, value)}
             styleName="action-icon">
-            <i className="icon-edit"/>
+            <i className="icon-edit" />
           </a>
           <a
             id={`fct-value-delete-btn__${valueName}`}
             onClick={() => this.props.deleteValue(id)}
             styleName="action-icon">
-            <i className="icon-trash"/>
+            <i className="icon-trash" />
           </a>
         </TableCell>
       </TableRow>

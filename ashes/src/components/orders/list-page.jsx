@@ -21,7 +21,7 @@ const OrderListPage = (props) => {
   return (
     <ListPageContainer
       title="Orders"
-      subtitle={<TotalCounter/>}
+      subtitle={<TotalCounter />}
       addTitle="Order"
       handleAddAction={addAction}
       navLinks={navLinks}>

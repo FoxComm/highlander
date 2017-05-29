@@ -6,7 +6,7 @@ import React from 'react';
 import _ from 'lodash';
 
 // components
-import RoundedPill from '../rounded-pill/rounded-pill';
+import { RoundedPill } from 'components/core/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
 import UserInitials from '../user-initials/initials';
 
