@@ -151,7 +151,7 @@ object Customer {
                 } ~
                 (get & path(Country.countryCodeRegex) & pathEnd) { countryCode ⇒
                   getOrFailures {
-                    ShippingManager.getShippingMethodsForRegion(countryCode)
+                    ShippingManager.getShippingMethodsForRegion(countryCode, auth.model)
                   }
                 }
               } ~
