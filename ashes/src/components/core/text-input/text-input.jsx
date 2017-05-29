@@ -14,7 +14,7 @@ type Props = {
   /** Additional className */
   className?: string,
   /** Action performed on input's value change */
-  onChange?: (value: string) => void,
+  onChange?: (target: Target) => void,
   /** Placeholder value */
   placeholder?: string | Element<any>,
   /** If true - enables autofocus */
@@ -26,6 +26,12 @@ type Props = {
 type State = {
   value: string,
 };
+
+type Target = {
+  name: string,
+  value: string,
+};
+
 
 /**
  * TextInput is a wrapper over DOM's input
@@ -51,7 +57,7 @@ export default class TextInput extends Component {
   }
 
   @autobind
-  handleChange(target) {
+  handleChange(target: Target) {
     if (this.props.onChange) {
       this.props.onChange(target);
     } else {

@@ -375,11 +375,11 @@ class EditableSkuRow extends Component {
   }
 
   @autobind
-  handleUpdateCode({ value }: string) {
+  handleUpdateCode(target: HTMLInputElement) {
     this.updateSku({
-      code: value,
+      code: target.value,
     });
-    const promise = this.suggestSkus(value);
+    const promise = this.suggestSkus(target.value);
     if (promise) {
       promise.then(() => {
         this.updateSkuFromSuggest();

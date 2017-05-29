@@ -9,6 +9,7 @@ import { ModalContainer } from '../modal/base';
 import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
+import TextInput from 'components/core/text-input';
 
 // types
 import type { ImageInfo } from '../../modules/images';
@@ -34,7 +35,7 @@ class EditImage extends Component {
   }
 
   @autobind
-  handleUpdateField({ target }: { target: HTMLInputElement }) {
+  handleUpdateField(target: HTMLInputElement) {
     this.setState({ [target.name]: target.value });
   }
 
@@ -54,7 +55,7 @@ class EditImage extends Component {
                      className="fc-product-details__field"
                      labelClassName="fc-product-details__field-label"
           >
-            <input type="text"
+            <TextInput type="text"
                    className="fc-product-details__field-value"
                    name="title"
                    value={this.state.title}
@@ -64,7 +65,7 @@ class EditImage extends Component {
           <FormField label="Image Alt Text"
                      className="fc-product-details__field"
                      labelClassName="fc-product-details__field-label">
-            <input type="text"
+            <TextInput type="text"
                    className="fc-product-details__field-value"
                    name="alt"
                    value={this.state.alt}
@@ -74,7 +75,7 @@ class EditImage extends Component {
           <FormField label="Image URL"
                      className="fc-product-details__field"
                      labelClassName="fc-product-details__field-label">
-            <input type="text"
+            <TextInput type="text"
                    className="fc-product-details__field-value"
                    name="src"
                    value={this.state.src}

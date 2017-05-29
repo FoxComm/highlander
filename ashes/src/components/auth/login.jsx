@@ -1,10 +1,13 @@
 /** @flow */
+
+// libs
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
+// components
 import Alert from '../alerts/alert';
 import ErrorAlerts from '../alerts/error-alerts';
 import Form from '../forms/form';
@@ -12,6 +15,7 @@ import FormField from '../forms/formfield';
 import { PrimaryButton, SocialButton, Button } from 'components/core/button';
 import WrapToLines from './wrap-to-lines';
 import WaitAnimation from '../common/wait-animation';
+import TextInput from 'components/core/text-input';
 
 import * as userActions from 'modules/user';
 
@@ -80,17 +84,17 @@ export default class Login extends Component {
   }
 
   @autobind
-  onOrgChange({ target }: Object) {
+  onOrgChange(target: HTMLInputElement) {
     this.setState({ org: target.value });
   }
 
   @autobind
-  onEmailChange({ target }: Object) {
+  onEmailChange(target: HTMLInputElement) {
     this.setState({ email: target.value });
   }
 
   @autobind
-  onPasswordChange({ target }: Object) {
+  onPasswordChange({ target }: { target: HTMLInputElement }) {
     this.setState({ password: target.value });
   }
 
@@ -148,10 +152,10 @@ export default class Login extends Component {
           <WrapToLines className={s['or-line']}>or</WrapToLines>
           {this.errorMessage}
           <FormField label="Organization" required>
-            <input onChange={this.onOrgChange} value={org} type="text" className="fc-input" />
+            <TextInput onChange={this.onOrgChange} value={org} className="fc-input" />
           </FormField>
           <FormField label="Email" required>
-            <input onChange={this.onEmailChange} value={email} type="text" className="fc-input" />
+            <TextInput onChange={this.onEmailChange} value={email} className="fc-input" />
           </FormField>
           <FormField label="Password" labelAtRight={this.iForgot} required>
             <input onChange={this.onPasswordChange} value={password} type="password" className="fc-input" />

@@ -6,14 +6,15 @@ import { prefix } from 'lib/text-utils';
 
 //components
 import propTypes from '../widgets/propTypes';
+import TextInput from 'components/core/text-input';
 
 export const Input = type => ({value, className, changeValue}) => {
   const prefixed = prefix(className);
 
   return (
-    <input className={prefixed('value')}
+    <TextInput className={prefixed('value')}
            type={type}
-           onChange={({target}) => changeValue(target.value)}
+           onChange={(target) => changeValue(target.value)}
            value={value} />
   );
 };

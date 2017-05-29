@@ -19,12 +19,6 @@ type Props = {
   value: string,
 };
 
-type EventTarget = {
-  target: {
-    value: string,
-  },
-};
-
 /**
  * SwatchInput is a simple component responsible for showing a square,
  * colored according to hex code, which can be defined in component's input.
@@ -40,8 +34,8 @@ class SwatchInput extends Component {
   };
 
   @autobind
-  handleChange({value}: string) {
-    this.props.onChange(value);
+  handleChange(target: HTMLInputElement) {
+    this.props.onChange(target.value);
   }
 
   render() {
