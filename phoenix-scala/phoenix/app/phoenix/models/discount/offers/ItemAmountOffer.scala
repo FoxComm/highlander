@@ -31,7 +31,7 @@ case class ItemAmountOffer(discount: Long, search: Seq[ProductSearch])
         val matchedFormIds = buckets.filter(_.docCount > 0).map(_.key)
         input.lineItems.find(data ⇒ matchedFormIds.contains(data.productForm.id.toString)) match {
           case Some(data) ⇒
-            buildEither(input, subtract(price(data), discount), data.lineItemReferenceNumber.some)
+            buildEither(input, subtract(data.price, discount), data.lineItemReferenceNumber.some)
           case _ ⇒ pureEither()
         }
       case _ ⇒ pureEither()

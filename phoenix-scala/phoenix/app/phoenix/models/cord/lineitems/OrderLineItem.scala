@@ -5,6 +5,7 @@ import com.pellucid.sealerate
 import core.db.ExPostgresDriver.api._
 import core.db._
 import core.failures.Failures
+import objectframework.FormShadowGet
 import objectframework.models._
 import org.json4s.Extraction.decompose
 import org.json4s.Formats
@@ -32,6 +33,8 @@ trait LineItemProductData[LI] {
   def isEligibleForDiscount: Boolean = !isGiftCard
 
   def isGiftCard: Boolean = attributes.flatMap(_.giftCard).isDefined
+
+  def price: Long = FormShadowGet.priceAsLong(skuForm, skuShadow)
 }
 
 case class OrderLineItemProductData(sku: Sku,

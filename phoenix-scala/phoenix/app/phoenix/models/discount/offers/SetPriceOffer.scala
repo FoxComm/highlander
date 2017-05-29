@@ -33,7 +33,7 @@ case class SetPriceOffer(setPrice: Long, numUnits: Int, search: Seq[ProductSearc
           .take(numUnits)
           .map { data ⇒
             OfferResult(input,
-                        subtract(price(data), setPrice),
+                        subtract(data.price, setPrice),
                         data.lineItemReferenceNumber.some,
                         offerType)
           }
