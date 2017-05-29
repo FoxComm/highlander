@@ -1,10 +1,6 @@
 
 .sku-cell {
   position: relative;
-
-  & :global(.fc-text-input) {
-    width: 100%;
-  }
 }
 
 .skus-menu {
