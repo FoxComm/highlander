@@ -50,7 +50,7 @@ object OrderTailored {
 
   case class ApplePayAuthCompleted(accountId: Int,
                                    stripeTokenId: String,
-                                   amount: Int,
+                                   amount: Long,
                                    currency: Currency)
       extends ActivityBase[ApplePayAuthCompleted]
 

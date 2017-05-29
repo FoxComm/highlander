@@ -17,7 +17,7 @@ case class ApplePayCharge(id: Int = 0,
                           stripeChargeId: String,
                           state: State = Cart,
                           currency: Currency = Currency.USD,
-                          amount: Int = 0,
+                          amount: Long = 0,
                           deletedAt: Option[Instant] = None,
                           createdAt: Instant = Instant.now())
     extends ExternalCharge[ApplePayCharge] {
@@ -37,7 +37,7 @@ class ApplePayCharges(tag: Tag) extends FoxTable[ApplePayCharge](tag, "apple_pay
   def stripeChargeId = column[String]("stripe_charge_id")
   def state          = column[State]("state")
   def currency       = column[Currency]("currency")
-  def amount         = column[Int]("amount")
+  def amount         = column[Long]("amount")
   def deletedAt      = column[Option[Instant]]("deleted_at")
   def createdAt      = column[Instant]("created_at")
 
@@ -57,7 +57,7 @@ object ApplePayCharges
                    stripeChargeId = stripeCharge.getId,
                    state = Auth,
                    currency = currency,
-                   amount = stripeCharge.getAmount.toInt)
+                   amount = stripeCharge.getAmount)
 
   val returningLens: Lens[ApplePayCharge, Int] = lens[ApplePayCharge].id
 }

@@ -41,7 +41,7 @@ object CreditCardCharge {
                      stripeChargeId = stripe.getId,
                      state = Auth,
                      currency = currency,
-                     amount = stripe.getAmount.toInt) // FIXME int type shrink here
+                     amount = stripe.getAmount)
 }
 
 class CreditCardCharges(tag: Tag) extends FoxTable[CreditCardCharge](tag, "credit_card_charges") {

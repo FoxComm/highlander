@@ -526,7 +526,8 @@ class ReturnIntegrationTest
           .as[ReturnResponse.Root]
           .payments
           .asMap
-          .mapValues(_.amount) must === (Map[PaymentMethod.Type, Int](PaymentMethod.ApplePay → 50))
+          .mapValues(_.amount) must === (
+            Map[PaymentMethod.Type, Long](PaymentMethod.ApplePay → 50))
       }
 
       "bulk insert should override any existing payments, whilst single addition endpoint should append payment to existing ones" in

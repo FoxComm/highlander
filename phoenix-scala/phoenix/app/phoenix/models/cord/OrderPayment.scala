@@ -47,14 +47,14 @@ case class OrderPayment(id: Int = 0,
     amountOk.map(_ ⇒ this)
   }
 
-  def getAmount(amountLimit: Option[Long] = None) = {
+  def getAmount(amountLimit: Option[Long] = None): Long = {
     val paymentAmount: Long = amount.getOrElse(0)
     amountLimit.fold(paymentAmount)(_.min(paymentAmount))
   }
 }
 
 case class StripeOrderPayment(stripeChargeId: String,
-                              amount: Int,
+                              amount: Long,
                               currency: Currency = Currency.USD)
 
 object OrderPayment {
@@ -138,13 +138,13 @@ object OrderPayments
     def ccCharges =
       filter(_.cordRef === cordRef).join(CreditCardCharges).on(_.paymentMethodId === _.id).map {
         case (_, charge) ⇒
-          ((charge.stripeChargeId, charge.amount, charge.currency) <> (StripeOrderPayment.tupled, StripeOrderPayment.unapply _))
+          (charge.stripeChargeId, charge.amount, charge.currency) <> (StripeOrderPayment.tupled, StripeOrderPayment.unapply _)
       }
 
     def applePayCharges =
       filter(_.cordRef === cordRef).join(ApplePayCharges).on(_.paymentMethodId === _.id).map {
         case (_, charge) ⇒
-          ((charge.stripeChargeId, charge.amount, charge.currency) <> (StripeOrderPayment.tupled, StripeOrderPayment.unapply _))
+          (charge.stripeChargeId, charge.amount, charge.currency) <> (StripeOrderPayment.tupled, StripeOrderPayment.unapply _)
       }
 
     ccCharges ++ applePayCharges

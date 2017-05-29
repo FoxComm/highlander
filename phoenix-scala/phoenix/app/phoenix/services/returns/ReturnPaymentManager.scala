@@ -172,9 +172,9 @@ object ReturnPaymentManager {
                                   paymentMethodType = PaymentMethod.CreditCard))
     } yield ccRefund
 
-  private def addApplePayment(returnId: Int, payment: OrderPayment, amount: Int)(implicit ec: EC,
-                                                                                 db: DB,
-                                                                                 au: AU) =
+  private def addApplePayment(returnId: Int, payment: OrderPayment, amount: Long)(implicit ec: EC,
+                                                                                  db: DB,
+                                                                                  au: AU) =
     for {
       ap ← * <~ ApplePayments.mustFindById404(payment.paymentMethodId)
       _  ← * <~ deleteApplePayPayment(returnId)

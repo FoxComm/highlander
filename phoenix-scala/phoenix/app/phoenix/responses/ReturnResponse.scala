@@ -59,7 +59,7 @@ object ReturnResponse {
     case class CreditCard(id: Int, amount: Long, currency: Currency)             extends Payment
     case class GiftCard(id: Int, code: String, amount: Long, currency: Currency) extends Payment
     case class StoreCredit(id: Int, amount: Long, currency: Currency)            extends Payment
-    case class ApplePay(id: Int, amount: Int, currency: Currency)               extends Payment
+    case class ApplePay(id: Int, amount: Long, currency: Currency)               extends Payment
   }
   case class Payments(creditCard: Option[Payment.CreditCard],
                       applePay: Option[Payment.ApplePay],

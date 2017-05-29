@@ -368,7 +368,7 @@ case class Checkout(
     } yield ()
   }
 
-  private def authOneExternalPayment(authAmount: Int,
+  private def authOneExternalPayment(authAmount: Long,
                                      orderPayment: OrderPayment): DbResultT[Unit] = {
     orderPayment.paymentMethodType match {
       case PaymentMethod.ApplePay   ⇒ authApplePay(authAmount, orderPayment)
@@ -377,7 +377,7 @@ case class Checkout(
     }
   }
 
-  private def authCreditCard(authAmount: Int, orderPayment: OrderPayment): DbResultT[Unit] = {
+  private def authCreditCard(authAmount: Long, orderPayment: OrderPayment): DbResultT[Unit] = {
 
     for {
       card ← * <~ CreditCards
@@ -395,7 +395,7 @@ case class Checkout(
     } yield ()
   }
 
-  private def authApplePay(authAmount: Int, orderPayment: OrderPayment): DbResultT[Unit] = {
+  private def authApplePay(authAmount: Long, orderPayment: OrderPayment): DbResultT[Unit] = {
 
     for {
       applePay ← * <~ ApplePayments

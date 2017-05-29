@@ -19,7 +19,7 @@ create table apple_pay_charges(
   stripe_charge_id stripe_id_string,
   state applepay_payment_state,
   currency currency,
-  amount int,
+  amount money_amount,
   deleted_at generic_timestamp,
   created_at generic_timestamp not null
 );

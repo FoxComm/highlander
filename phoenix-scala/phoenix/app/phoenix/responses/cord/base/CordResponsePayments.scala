@@ -108,7 +108,7 @@ object CordResponseStoreCreditPayment {
       })
 
   case class CordResponseApplePayPayment(id: Int,
-                                         amount: Int,
+                                         amount: Long,
                                          createdAt: Instant,
                                          `type`: Type = ApplePay)
       extends CordResponsePayments

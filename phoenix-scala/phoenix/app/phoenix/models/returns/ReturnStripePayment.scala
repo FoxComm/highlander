@@ -11,7 +11,7 @@ case class ReturnStripePayment(id: Int = 0,
                                returnPaymentId: Int,
                                chargeId: String,
                                returnId: Int,
-                               amount: Int,
+                               amount: Long,
                                currency: Currency)
     extends FoxModel[ReturnStripePayment]
 
@@ -21,7 +21,7 @@ class ReturnStripePayments(tag: Tag)
   def returnPaymentId = column[Int]("return_payment_id")
   def chargeId        = column[String]("charge_id")
   def returnId        = column[Int]("return_id")
-  def amount          = column[Int]("amount")
+  def amount          = column[Long]("amount")
   def currency        = column[Currency]("currency")
 
   def * =
