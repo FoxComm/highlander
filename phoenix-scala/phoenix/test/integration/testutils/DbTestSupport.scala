@@ -52,7 +52,8 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
     // TODO: Make it possible to not filter these out… @michalrus
     val randomizedSequences = allSequences.filterNot(
         Set(
-            "scopes_id_seq" // FIXME: What the hell. https://foxcommerce.slack.com/archives/C06696D1R/p1495796779988723
+            "scopes_id_seq",         // FIXME: What the hell. https://foxcommerce.slack.com/archives/C06696D1R/p1495796779988723
+            "object_contexts_id_seq" // FIXME: Sigh. https://foxcommerce.slack.com/archives/C06696D1R/p1495798791447479
         ) contains _)
 
     val gap = 1000000
