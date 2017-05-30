@@ -109,7 +109,7 @@ class OptionEditDialog extends Component {
     return (
       <ConfirmationDialog
         isVisible={true}
-        header={this.title}
+        title={this.title}
         body={this.renderDialogContent()}
         cancel="Cancel"
         confirm="Save option"

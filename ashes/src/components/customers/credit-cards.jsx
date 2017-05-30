@@ -168,7 +168,7 @@ export default class CustomerCreditCards extends React.Component {
         </ul>
         <ConfirmationDialog
           isVisible={ this.showConfirm }
-          header='Confirm'
+          title='Confirm'
           body='Are you sure you want to delete this credit card?'
           cancel='Cancel'
           confirm='Yes, Delete'

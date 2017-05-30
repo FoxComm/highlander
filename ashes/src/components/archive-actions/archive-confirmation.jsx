@@ -31,7 +31,7 @@ const ArchiveConfirmation = (props: Props) => {
   return (
     <ConfirmationDialog
       isVisible={props.isVisible}
-      header={`Archive ${props.type} ?`}
+      title={`Archive ${props.type} ?`}
       body={confirmation}
       cancel="Cancel"
       confirm={`Archive ${props.type}`}

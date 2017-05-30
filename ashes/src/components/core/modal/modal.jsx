@@ -2,6 +2,7 @@
 
 // libs
 import noop from 'lodash/noop';
+import classNames from 'classnames';
 import React, { Element } from 'react';
 
 // components
@@ -16,10 +17,15 @@ type Props = {
   title: string | Element<any>,
   footer: Element<any>,
   children?: Element<any>,
-}
+  className?: string,
+};
 
-export default ({ isVisible, title, footer, children, onClose = noop }: Props) => (
-  <ModalContainer className={s.modal} isVisible={isVisible} onClose={onClose}>
+export default ({ isVisible, title, footer, children, className, onClose = noop }: Props) => (
+  <ModalContainer
+    className={classNames(s.modal, className)}
+    isVisible={isVisible}
+    onClose={onClose}
+  >
     <header className={s.header}>
       <div className={s.title}>{title}</div>
       <a className={s.close} onClick={onClose}>&times;</a>

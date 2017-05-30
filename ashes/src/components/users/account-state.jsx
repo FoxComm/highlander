@@ -85,7 +85,7 @@ class AccountState extends Component {
         </ContentBox>
         <ConfirmationDialog
           isVisible={this.state.newState != null}
-          header="Change Account State ?"
+          title="Change Account State ?"
           body={confirmation}
           cancel="Cancel"
           confirm="Yes, Change"

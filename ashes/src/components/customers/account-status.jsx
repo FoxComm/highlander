@@ -39,7 +39,7 @@ export default class CustomerAccountStatus extends React.Component {
     const customer = this.props.customer;
     if (customer.disabled) {
       return {
-        header: 'Activate Customer Account',
+        title: 'Activate Customer Account',
         body: (
           <div className="fc-customer-disable-confirm">
             <div>Are you sure you want to active the account for the following customer?</div>
@@ -52,7 +52,7 @@ export default class CustomerAccountStatus extends React.Component {
       };
     } else {
       return {
-        header: 'Deactivate Customer Account',
+        title: 'Deactivate Customer Account',
         body: (
           <div className="fc-customer-disable-confirm">
             <div>Are you sure you want to deactivate the account for the following customer?</div>
@@ -70,7 +70,7 @@ export default class CustomerAccountStatus extends React.Component {
     const customer = this.props.customer;
     if (customer.isBlacklisted) {
       return {
-        header: 'Remove Customer From Blacklist',
+        title: 'Remove Customer From Blacklist',
         body: (
           <div className="fc-customer-blacklist-confirm">
             <div>Are you sure you want to remove the following customer from the Blacklist?</div>
@@ -83,7 +83,7 @@ export default class CustomerAccountStatus extends React.Component {
       };
     } else {
       return {
-        header: 'Blacklist Customer',
+        title: 'Blacklist Customer',
         body: (
           <div className="fc-customer-blacklist-confirm">
             <div>Are you sure you want to place the following custom on the Blacklist?</div>

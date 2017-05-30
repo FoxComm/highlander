@@ -115,7 +115,7 @@ export default class SkuList extends Component {
     return (
       <ConfirmationDialog
         isVisible={this.state.isDeleteConfirmationVisible}
-        header="Remove SKU from product?"
+        title="Remove SKU from product?"
         body={confirmation}
         cancel="Cancel"
         confirm="Yes, Remove"

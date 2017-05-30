@@ -1,16 +1,19 @@
 /* @flow */
-import _ from 'lodash';
-import React, { Element, Component } from 'react';
+
+// libs
 import { autobind } from 'core-decorators';
 import { transitionTo } from 'browserHistory';
-
-import styles from './coupon-new.css';
+import React, { Element, Component } from 'react';
 
 // components
+import Modal from 'components/core/modal';
 import wrapModal from '../modal/wrapper';
 import ContentBox from '../content-box/content-box';
 import CouponPage from '../coupons/page';
 import CouponForm from '../coupons/form';
+
+// styles
+import styles from './coupon-new.css';
 
 type Props = {
   promotionId: String,
@@ -21,11 +24,12 @@ class CouponNew extends Component {
 
   @autobind
   cancelAction() {
-    transitionTo('promotion-coupons', {promotionId: this.props.promotionId});
+    transitionTo('promotion-coupons', { promotionId: this.props.promotionId });
   }
 
   render() {
     const actionBlock = <i onClick={this.cancelAction} className="fc-btn-close icon-close" title="Close" />;
+
     return (
       <div styleName="promotion-coupons-new">
         <ContentBox actionBlock={actionBlock} title="Add Coupon Code">

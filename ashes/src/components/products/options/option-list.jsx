@@ -244,7 +244,7 @@ class OptionList extends Component {
     return (
       <ConfirmationDialog
         isVisible={true}
-        header={`Remove ${removeTargetTitle} from product?`}
+        title={`Remove ${removeTargetTitle} from product?`}
         body={confirmation}
         cancel="Cancel"
         confirm="Yes, Remove"

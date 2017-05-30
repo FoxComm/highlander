@@ -103,7 +103,7 @@ class SkuContentBox extends Component {
       <ConfirmationDialog
         key="add-skus"
         isVisible={this.state.addDialogIsShown}
-        header="Add SKUs"
+        title="Add SKUs"
         body={body}
         cancel="Cancel"
         confirm="Add"

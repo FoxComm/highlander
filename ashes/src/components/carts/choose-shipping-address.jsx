@@ -171,7 +171,7 @@ export default class ChooseShippingAddress extends Component {
     return (
       <ConfirmationDialog
         isVisible={this.state.isDeleteDialogVisible}
-        header='Confirm'
+        title='Confirm'
         body={text}
         cancel='Cancel'
         confirm='Yes, Delete'

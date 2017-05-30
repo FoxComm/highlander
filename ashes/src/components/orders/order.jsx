@@ -263,7 +263,7 @@ export default class Order extends React.Component {
         </div>
         <ConfirmationDialog
           isVisible={this.state.newOrderState != null}
-          header="Change Order State ?"
+          title="Change Order State ?"
           body={`Are you sure you want to change order state to ${states.order[this.state.newOrderState]} ?`}
           cancel="Cancel"
           confirm="Yes, Change"

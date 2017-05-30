@@ -181,7 +181,7 @@ class StoreCredits extends Component {
     return (
       <ConfirmationDialog
         isVisible={shouldDisplay}
-        header="Change Store Credit State?"
+        title="Change Store Credit State?"
         body={this.confirmationMessage}
         cancel="Cancel"
         confirm="Yes, Change State"
@@ -232,7 +232,7 @@ class StoreCredits extends Component {
     return (
       <ConfirmationDialog
         isVisible={shouldDisplay}
-        header="Cancel Store Credit?"
+        title="Cancel Store Credit?"
         body={this.confirmationBody}
         cancel="Cancel"
         confirm="Yes, Cancel"

@@ -111,7 +111,7 @@ export default class NewTaxonModal extends Component {
     return (
       <ConfirmationDialog
         className={s.modal}
-        header="New value"
+        title="New value"
         body={this.body}
         confirm="Save and Add Value"
         confirmAction={this.handleConfirm}

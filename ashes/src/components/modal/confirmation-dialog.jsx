@@ -1,80 +1,84 @@
 /* @flow */
 
 // libs
-import _ from 'lodash';
+import get from 'lodash/get';
 import classNames from 'classnames';
+import { autobind } from 'core-decorators';
 import React, { Element, Component } from 'react';
 
 // components
-import ContentBox from 'components/content-box/content-box';
+import Modal from 'components/core/modal';
 import SaveCancel from 'components/core/save-cancel';
-import wrapModal from 'components/modal/wrapper';
 import { ApiErrors } from 'components/utils/errors';
 
+// styles
+import s from './confirmation-dialog.css';
+
 type Props = {
+  isVisible: boolean,
   body: string | Element<*>,
-  header: string | Element<*>,
+  title: string | Element<*>,
   cancel: string,
   confirm: string,
-  onCancel: Function,
-  confirmAction: Function,
-  icon?: string,
+  onCancel: () => any,
+  confirmAction: () => any,
   asyncState?: AsyncState,
   className?: string,
 };
 
-const ConfirmationDialog = (props: Props) => {
-  let modalIcon = null;
-  if (props.icon) {
-    modalIcon = (
-      <div className='fc-modal-icon'>
-        <i className={ `icon-${props.icon}` } />
-      </div>
+export default class ConfirmationDialog extends Component {
+  props: Props;
+
+  componentDidMount() {
+    if (this.props.isVisible) {
+      window.addEventListener('keydown', this.handleKeyPress);
+    }
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.isVisible) {
+      window.addEventListener('keydown', this.handleKeyPress);
+    } else {
+      window.removeEventListener('keydown', this.handleKeyPress);
+    }
+  }
+
+  @autobind
+  handleKeyPress(e) {
+    if (e.keyCode === 13 /*enter*/) {
+      e.preventDefault();
+
+      this.props.confirmAction();
+    }
+  }
+
+  get footer() {
+    const { confirm, confirmAction, onCancel, asyncState } = this.props;
+
+    return (
+      <SaveCancel
+        onCancel={onCancel}
+        onSave={confirmAction}
+        saveText={confirm}
+        isLoading={get(asyncState, 'inProgress', false)}
+      />
     );
   }
 
-  const title = (
-    <div>
-      {modalIcon}
-      <div className='fc-modal-title'>{props.header}</div>
-    </div>
-  );
+  render() {
+    const { title, body, isVisible, onCancel, asyncState, className } = this.props;
 
-  const actionBlock = (
-    <a className='fc-modal-close' onClick={() => props.onCancel()}>
-      <i className='icon-close' />
-    </a>
-  );
-
-  const handleKeyPress = (event) => {
-    if (event.keyCode === 13 /*enter*/) {
-      event.preventDefault();
-      props.confirmAction();
-    }
-  };
-
-  const cls = classNames('fc-confirmation-dialog', props.className);
-
-  return (
-    <div onKeyDown={handleKeyPress}>
-      <ContentBox title={title} className={cls} actionBlock={actionBlock}>
-        <div className='fc-modal-body'>
-          <ApiErrors response={_.get(props.asyncState, 'err', null)} />
-          {props.body}
-        </div>
-
-        <SaveCancel
-          className="fc-modal-footer"
-          onCancel={props.onCancel}
-          onSave={props.confirmAction}
-          saveText={props.confirm}
-          isLoading={_.get(props.asyncState, 'inProgress', false)}
-        />
-      </ContentBox>
-    </div>
-  );
-};
-
-const Wrapped: Class<Component<void, Props, any>> = wrapModal(ConfirmationDialog);
-
-export default Wrapped;
+    return (
+      <Modal
+        className={classNames(s.modal, className)}
+        title={title}
+        footer={this.footer}
+        isVisible={isVisible}
+        onClose={onCancel}
+      >
+        <ApiErrors response={_.get(asyncState, 'err', null)} />
+        {body}
+      </Modal>
+    );
+  }
+}

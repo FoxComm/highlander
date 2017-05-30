@@ -19,6 +19,13 @@ type Props = {
   children?: Element<any>,
 };
 
+const transitionProps = {
+  component: 'div',
+  transitionName: 'modal',
+  transitionEnterTimeout: 120,
+  transitionLeaveTimeout: 100,
+};
+
 export class ModalContainer extends Component {
   props: Props;
 
@@ -68,20 +75,14 @@ export class ModalContainer extends Component {
 
   render() {
     return (
-      <Transition component="div"
-                  transitionName="modal"
-                  transitionAppear={true}
-                  transitionAppearTimeout={120}
-                  transitionEnterTimeout={120}
-                  transitionLeaveTimeout={100}
-      >
+      <Transition {...transitionProps}>
         {this.content}
       </Transition>
     );
   }
 }
 
-export const withModal = (InnerComponent: Component) => ({ isVisible, onClose, ...rest}) => (
+export const withModal = (InnerComponent: Component) => ({ isVisible, onClose, ...rest }) => (
   <ModalContainer isVisible={isVisible} onClose={onClose}>
     <InnerComponent {...rest} />
   </ModalContainer>

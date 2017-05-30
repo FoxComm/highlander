@@ -33,7 +33,7 @@ const CodeCreationModal = (props: Props): Element<*> => {
   return (
     <ConfirmationDialog
       isVisible={isVisible}
-      header='Generate Codes?'
+      title='Generate Codes?'
       body={body}
       cancel='Cancel'
       confirm='Generate Codes'

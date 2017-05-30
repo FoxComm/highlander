@@ -133,7 +133,7 @@ export class CartLineItem extends Component {
           <DeleteButton onClick={this.startDelete} />
           <ConfirmationDialog
             isVisible={isDeleting}
-            header="Confirm"
+            title="Confirm"
             body="Are you sure you want to delete this item?"
             cancel="Cancel"
             confirm="Yes, Delete"

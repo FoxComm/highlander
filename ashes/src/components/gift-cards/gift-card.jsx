@@ -152,7 +152,7 @@ export default class GiftCard extends React.Component {
     return (
       <ConfirmationDialog
         isVisible={shouldDisplay}
-        header="Change Gift Card State?"
+        title="Change Gift Card State?"
         body={message}
         cancel="Cancel"
         confirm="Yes, Change State"
@@ -198,7 +198,7 @@ export default class GiftCard extends React.Component {
     return (
       <ConfirmationDialog
         isVisible={shouldDisplay}
-        header="Cancel Gift Card?"
+        title="Cancel Gift Card?"
         body={body}
         cancel="Cancel"
         confirm="Yes, Cancel"

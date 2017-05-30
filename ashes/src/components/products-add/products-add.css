@@ -28,6 +28,10 @@
     }
   }
 
+  & :global .fc-table {
+    table-layout: auto;
+  }
+
   & :global .fc-table-wrap {
     display: flex;
     flex-direction: column;
