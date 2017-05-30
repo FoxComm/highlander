@@ -8,6 +8,7 @@
     packing: true
     with_onboarding: true
   roles:
+    - { role: base/mesos_worker }
     - { role: base/rsyslog }
     - { role: base/confluent_platform }
     - { role: base/elasticsearch }
@@ -15,7 +16,6 @@
     - { role: base/db }
     - { role: base/bottledwater }
     - { role: base/pgweb }
-    - { role: base/mesos_worker }
   post_tasks:
     - name: Enable Services
       service: name={{item}} enabled=yes
