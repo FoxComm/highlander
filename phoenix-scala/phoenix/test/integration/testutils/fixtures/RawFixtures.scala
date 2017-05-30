@@ -2,6 +2,8 @@ package testutils.fixtures
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import core.db._
+import core.utils.Money.Currency
 import phoenix.models.Reason.Cancellation
 import phoenix.models._
 import phoenix.models.account._
@@ -16,8 +18,6 @@ import phoenix.services.carts._
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.raw._
-import core.utils.Money.Currency
-import core.db._
 
 /**
   * Raw fixtures are cake-pattern definitions.
@@ -55,8 +55,6 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
     def cart: Cart = _cart
 
     private val _cart = {
-      // @anna just kill this....
-      implicit val apis = utils.MockedApis.apis
       (for {
         response ← * <~ CartCreator.createCart(storeAdmin, CreateCart(customer.accountId.some))
         cart     ← * <~ Carts.mustFindByRefNum(response.referenceNumber)
