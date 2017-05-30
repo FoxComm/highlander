@@ -4,20 +4,21 @@ import core.db._
 import phoenix.models.cord._
 import phoenix.models.cord.lineitems._
 import phoenix.utils.FoxConfig.config
+import core.utils.Money._
 import slick.jdbc.PostgresProfile.api._
 
 // TODO: Use utils.Money
 object CartTotaler {
 
-  case class Totals(subTotal: Int, taxes: Int, shipping: Int, adjustments: Int, total: Int)
+  case class Totals(subTotal: Long, taxes: Long, shipping: Long, adjustments: Long, total: Long)
 
   object Totals {
-    def build(subTotal: Int, shipping: Int, adjustments: Int, taxes: Int): Totals = {
+    def build(subTotal: Long, shipping: Long, adjustments: Long, taxes: Long): Totals = {
       Totals(subTotal = subTotal,
              taxes = taxes,
              shipping = shipping,
              adjustments = adjustments,
-             total = math.max(0, subTotal + taxes + shipping - adjustments))
+             total = (subTotal + taxes + shipping - adjustments).zeroIfNegative)
     }
 
     def empty: Totals = Totals(0, 0, 0, 0, 0)
@@ -25,10 +26,10 @@ object CartTotaler {
 
   val defaultTaxRate = 0.0
 
-  def subTotal(cart: Cart)(implicit ec: EC): DBIO[Int] =
+  def subTotal(cart: Cart)(implicit ec: EC): DBIO[Long] =
     skuSubTotalForCart(cart)
 
-  def skuSubTotalForCart(cart: Cart)(implicit ec: EC): DBIO[Int] =
+  def skuSubTotalForCart(cart: Cart)(implicit ec: EC): DBIO[Long] =
     sql"""select count(*), sum(coalesce(cast(sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value' as integer), 0)) as sum
        |	from cart_line_items sli
        |	left outer join skus sku on (sku.id = sli.sku_id)
@@ -36,25 +37,25 @@ object CartTotaler {
        |	left outer join object_shadows sku_shadow on (sku_shadow.id = sku.shadow_id)
        |
        |	where sli.cord_ref = ${cart.refNum}
-       | """.stripMargin.as[(Int, Int)].headOption.map {
+       | """.stripMargin.as[(Int, Long)].headOption.map {
       case Some((count, total)) if count > 0 ⇒ total
       case _                                 ⇒ 0
     }
 
-  def shippingTotal(cart: Cart)(implicit ec: EC): DbResultT[Int] =
+  def shippingTotal(cart: Cart)(implicit ec: EC): DbResultT[Long] =
     for {
       orderShippingMethods ← * <~ OrderShippingMethods.findByOrderRef(cart.refNum).result
-      sum = orderShippingMethods.foldLeft(0)(_ + _.price)
+      sum = orderShippingMethods.foldLeft(0L)(_ + _.price)
     } yield sum
 
-  def adjustmentsTotal(cart: Cart)(implicit ec: EC): DbResultT[Int] =
+  def adjustmentsTotal(cart: Cart)(implicit ec: EC): DbResultT[Long] =
     for {
       lineItemAdjustments ← * <~ CartLineItemAdjustments.filter(_.cordRef === cart.refNum).result
-      sum = lineItemAdjustments.foldLeft(0)(_ + _.subtract)
+      sum = lineItemAdjustments.foldLeft(0L)(_ + _.subtract)
     } yield sum
 
-  def taxesTotal(cordRef: String, subTotal: Int, shipping: Int, adjustments: Int)(
-      implicit ec: EC): DbResultT[Int] =
+  def taxesTotal(cordRef: String, subTotal: Long, shipping: Long, adjustments: Long)(
+      implicit ec: EC): DbResultT[Long] =
     for {
       maybeAddress ← * <~ OrderShippingAddresses.findByOrderRef(cordRef).one
       optionalCustomRate = for {
@@ -63,7 +64,7 @@ object CartTotaler {
         taxRate     ← config.taxRules.rate
       } yield if (address.regionId == taxRegionId) taxRate / 100 else defaultTaxRate
       taxRate = optionalCustomRate.getOrElse(defaultTaxRate)
-    } yield ((subTotal - adjustments + shipping) * taxRate).toInt
+    } yield (subTotal - adjustments + shipping).applyTaxes(taxRate)
 
   def totals(cart: Cart)(implicit ec: EC): DbResultT[Totals] =
     for {

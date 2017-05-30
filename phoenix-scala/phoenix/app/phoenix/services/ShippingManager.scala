@@ -6,7 +6,6 @@ import core.db._
 import core.failures.NotFoundFailure404
 import objectframework.ObjectUtils
 import org.json4s.JsonAST._
-import phoenix.failures.AddressFailures.NoCountryFound
 import phoenix.failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
 import phoenix.models.account._
 import phoenix.models.cord._
@@ -14,19 +13,20 @@ import phoenix.models.cord.lineitems._
 import phoenix.models.location.{Countries, Region}
 import phoenix.models.rules.{Condition, QueryStatement}
 import phoenix.models.shipping._
-import phoenix.responses.ShippingMethodsResponse
-import phoenix.responses.ShippingMethodsResponse.Root
 import phoenix.services.carts.getCartByOriginator
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
+import phoenix.responses.ShippingMethodsResponse
+import phoenix.responses.ShippingMethodsResponse.Root
+import phoenix.failures.AddressFailures.NoCountryFound
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
   case class ShippingData(cart: Cart,
-                          cartTotal: Int,
-                          cartSubTotal: Int,
+                          cartTotal: Long,
+                          cartSubTotal: Long,
                           shippingAddress: Option[OrderShippingAddress] = None,
                           shippingRegion: Option[Region] = None,
                           lineItems: Seq[CartLineItemProductData] = Seq())
@@ -63,6 +63,7 @@ object ShippingManager {
       shipData    ← * <~ getShippingData(cart)
     } yield filterMethods(shipMethods, shipData)
 
+  // @aafa FIXME: make sure that shipping methods are cart-total-price aware  (free shipping available if total is more than certain amount)
   def getShippingMethodsForRegion(countryCode: String)(implicit ec: EC,
                                                        db: DB): DbResultT[Seq[Root]] =
     for {
@@ -143,9 +144,11 @@ object ShippingManager {
 
   private def evaluateOrderCondition(shippingData: ShippingData, condition: Condition): Boolean = {
     condition.field match {
-      case "subtotal"   ⇒ Condition.matches(shippingData.cartSubTotal, condition)
-      case "grandtotal" ⇒ Condition.matches(shippingData.cartTotal, condition)
-      case _            ⇒ false
+      case "subtotal" ⇒
+        Condition.matches(shippingData.cartSubTotal.toInt, condition) // FIXME @aafa .toInt
+      case "grandtotal" ⇒
+        Condition.matches(shippingData.cartTotal.toInt, condition) // FIXME @aafa .toInt
+      case _ ⇒ false
     }
   }
 

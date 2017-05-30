@@ -1,9 +1,10 @@
 package services
 
+import java.util.concurrent.atomic.AtomicBoolean
+
 import cats.implicits._
 import core.failures.GeneralFailure
 import faker.Lorem
-import java.util.concurrent.atomic.AtomicBoolean
 import objectframework.models.ObjectContexts
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
@@ -22,12 +23,14 @@ import phoenix.models.shipping.ShippingMethods
 import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
 import phoenix.services.{CartValidation, CartValidatorResponse, Checkout, LineItemUpdater}
 import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import phoenix.utils.seeds.Factories
-import scala.concurrent.Future
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.fixtures.BakedFixtures
 import core.db._
+import core.utils.Money._
+import scala.concurrent.Future
 
 class CheckoutTest
     extends IntegrationTestBase
@@ -127,10 +130,10 @@ class CheckoutTest
     "GC/SC payments limited by grand total" in new PaymentFixture {
       pending
 
-      val paymentAmountGen = Gen.choose(1, 2000)
-      val cartTotalGen     = Gen.choose(500, 1000)
+      val paymentAmountGen = Gen.choose(1L, 2000L)
+      val cartTotalGen     = Gen.choose(500L, 1000L)
 
-      case class CardPayment(cardAmount: Int, payAmount: Int)
+      case class CardPayment(cardAmount: Long, payAmount: Long)
 
       val cardWithPaymentGen = for {
         payment ← paymentAmountGen
@@ -150,11 +153,11 @@ class CheckoutTest
         if (gc.map(_.payAmount).sum + sc.map(_.payAmount).sum) >= grandTotal
       } yield (gc, sc, grandTotal)
 
-      def genGCPayment(cordRef: String, id: Int, amount: Int) =
+      def genGCPayment(cordRef: String, id: Int, amount: Long) =
         Factories.giftCardPayment
           .copy(cordRef = cordRef, paymentMethodId = id, amount = amount.some)
 
-      def genSCPayment(cordRef: String, id: Int, amount: Int) =
+      def genSCPayment(cordRef: String, id: Int, amount: Long) =
         Factories.storeCreditPayment
           .copy(cordRef = cordRef, paymentMethodId = id, amount = amount.some)
 
@@ -216,7 +219,7 @@ class CheckoutTest
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
     } yield (reason, shipMethod)).gimme
 
-    def lineItemPayload(cost: Int) = {
+    def lineItemPayload(cost: Long) = {
       val sku = (for {
         productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
         product ← * <~ Mvp.insertProduct(
@@ -227,7 +230,7 @@ class CheckoutTest
       Seq(UpdateLineItemsPayload(sku.code, 1))
     }
 
-    def generateGiftCards(amount: Seq[Int]) =
+    def generateGiftCards(amount: Seq[Long]) =
       for {
         origin ← * <~ GiftCardManuals.create(
                     GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
@@ -235,7 +238,7 @@ class CheckoutTest
                        Factories.giftCard.copy(originalBalance = gcAmount, originId = origin.id)))
       } yield ids
 
-    def generateStoreCredits(amount: Seq[Int]) =
+    def generateStoreCredits(amount: Seq[Long]) =
       for {
         origin ← * <~ StoreCreditManuals.create(
                     StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))

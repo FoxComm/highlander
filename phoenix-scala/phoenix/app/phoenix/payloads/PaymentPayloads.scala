@@ -96,20 +96,22 @@ object PaymentPayloads {
     }
   }
 
-  case class GiftCardPayment(code: String, amount: Option[Int] = None)
+  case class GiftCardPayment(code: String, amount: Option[Long] = None)
 
-  case class StoreCreditPayment(amount: Int)
+  case class StoreCreditPayment(amount: Long)
 
   case class CreditCardPayment(creditCardId: Int)
 
-  case class CreateManualStoreCredit(amount: Int,
+  case class CreateApplePayPayment(stripeToken: String)
+
+  case class CreateManualStoreCredit(amount: Long,
                                      currency: Currency = Currency.USD,
                                      reasonId: Int,
                                      subReasonId: Option[Int] = None,
                                      subTypeId: Option[Int] = None,
                                      scope: Option[String] = None)
 
-  case class CreateExtensionStoreCredit(amount: Int,
+  case class CreateExtensionStoreCredit(amount: Long,
                                         currency: Currency = Currency.USD,
                                         subTypeId: Option[Int] = None,
                                         metadata: Json = JObject(),

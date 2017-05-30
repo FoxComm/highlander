@@ -125,17 +125,23 @@ object Validation {
   def isMonth(month: Int, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(s"$constraint month", new InRangeInclusive[Int](1, 12, prefix).apply(month))
 
-  def lesserThan(value: Int, limit: Int, constraint: String): ValidatedNel[Failure, Unit] =
-    toValidatedNel(constraint, new LesserThan[Int](limit, prefix).apply(value))
+  def lesserThan[T: Numeric](value: T, limit: T, constraint: String): ValidatedNel[Failure, Unit] =
+    toValidatedNel(constraint, new LesserThan[T](limit, prefix).apply(value))
 
-  def lesserThanOrEqual(value: Int, limit: Int, constraint: String): ValidatedNel[Failure, Unit] =
-    toValidatedNel(constraint, new LesserThanOrEqual[Int](limit, prefix).apply(value))
+  def lesserThanOrEqual[T: Numeric](value: T,
+                                    limit: T,
+                                    constraint: String): ValidatedNel[Failure, Unit] =
+    toValidatedNel(constraint, new LesserThanOrEqual[T](limit, prefix).apply(value))
 
-  def greaterThan(value: Int, limit: Int, constraint: String): ValidatedNel[Failure, Unit] =
-    toValidatedNel(constraint, new GreaterThan[Int](limit, prefix).apply(value))
+  def greaterThan[T: Numeric](value: T,
+                              limit: T,
+                              constraint: String): ValidatedNel[Failure, Unit] =
+    toValidatedNel(constraint, new GreaterThan[T](limit, prefix).apply(value))
 
-  def greaterThanOrEqual(value: Int, limit: Int, constraint: String): ValidatedNel[Failure, Unit] =
-    toValidatedNel(constraint, new GreaterThanOrEqual[Int](limit, prefix).apply(value))
+  def greaterThanOrEqual[T: Numeric](value: T,
+                                     limit: T,
+                                     constraint: String): ValidatedNel[Failure, Unit] =
+    toValidatedNel(constraint, new GreaterThanOrEqual[T](limit, prefix).apply(value))
 
   private def toValidatedNel(constraint: String, r: accord.Result): ValidatedNel[Failure, Unit] =
     r match {

@@ -21,7 +21,7 @@ class QualifierAstCompilerTest extends TestBase {
 
     "fails when typo in configuration found" in new OrderTotalAmountTypoFixture {
       val cause =
-        "No usable value for totalAmount\nDid not find value which can be converted into int"
+        "No usable value for totalAmount\nDid not find value which can be converted into long"
       leftValue(compiler.compile()) must === (
           QualifierAttributesExtractionFailure(OrderTotalAmount, cause).single)
     }

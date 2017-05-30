@@ -84,7 +84,7 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
   trait CartWithGiftCardPayment_Raw extends CartWithPayments_Raw {
     def storeAdmin: User
     def giftCard: GiftCard
-    def gcPaymentAmount: Int
+    def gcPaymentAmount: Long
 
     private val payload = GiftCardPayment(code = giftCard.code, amount = gcPaymentAmount.some)
 
@@ -98,7 +98,7 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
   }
 
   trait CartWithGiftCardOnlyPayment_Raw extends CartWithGiftCardPayment_Raw {
-    override def gcPaymentAmount: Int = giftCard.availableBalance
+    override def gcPaymentAmount: Long = giftCard.availableBalance
   }
 
   trait FullCart_Raw extends EmptyCart_Raw with CartWithPayments_Raw
