@@ -23,7 +23,7 @@ object ContentManager {
       implicit ec: EC): DbResultT[Content] = {
     for {
       contentTuple ← * <~ ContentQueries
-                      .filterLatestById(id, viewId)
+                      .filterLatestById(id, viewId, kind)
                       .mustFindOneOr(ObjectNotFound(kind, id, viewId))
       (head, commit, form, shadow) = contentTuple
       content ← * <~ Content.build(head, commit, form, shadow)

@@ -9,11 +9,11 @@ object ContentQueries {
   type QuerySeq     = Query[(Commits, Forms, Shadows), (Commit, Form, Shadow), Seq]
   type HeadQuerySeq = Query[(Heads, Commits, Forms, Shadows), (Head, Commit, Form, Shadow), Seq]
 
-  def filterLatestById(id: Form#Id, viewId: View#Id): HeadQuerySeq =
+  def filterLatestById(id: Form#Id, viewId: View#Id, kind: String): HeadQuerySeq =
     for {
-      head   ← Heads.filter(h ⇒ h.id === id && h.viewId === viewId)
+      head   ← Heads.filter(h ⇒ h.id === id && h.viewId === viewId && h.kind === kind)
       commit ← Commits if commit.id === head.commitId
-      form   ← Forms if form.id === commit.formId
+      form   ← Forms if form.id === commit.formId && form.kind === kind
       shadow ← Shadows if shadow.id === commit.shadowId
     } yield (head, commit, form, shadow)
 
