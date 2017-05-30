@@ -4,7 +4,7 @@ import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import { transitionTo } from 'browserHistory';
+import { transitionToLazy } from 'browserHistory';
 
 import Form from 'components/forms/form';
 import FormField from 'components/forms/formfield';
@@ -73,9 +73,7 @@ class SetPassword extends Component {
       newPassword: this.state.password2,
       code: this.token,
     };
-    this.props.resetPassword(payload).then(() => {
-      transitionTo('home');
-    });
+    this.props.resetPassword(payload).then(transitionToLazy('home'));
   }
 
   @autobind

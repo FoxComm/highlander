@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 import _ from 'lodash';
-import { transitionTo } from 'browserHistory';
+import { transitionTo, transitionToLazy } from 'browserHistory';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
@@ -69,9 +69,7 @@ class Login extends Component {
   submitLogin() {
     const payload = _.pick(this.state, 'email', 'password', 'org');
 
-    this.props.authenticate(payload).then(() => {
-      transitionTo('home');
-    });
+    this.props.authenticate(payload).then(transitionToLazy('home'));
   }
 
   @autobind
