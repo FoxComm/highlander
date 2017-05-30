@@ -90,7 +90,8 @@ object PluginsManager extends LazyLogging {
     val pluginT = for {
       result ← * <~ Plugins
                 .findByName(payload.name)
-                .forCurrentUser.one
+                .forCurrentUser
+                .one
                 .findOrCreateExtended(Plugins.create(Plugin.fromPayload(payload)))
       (dbPlugin, foundOrCreated) = result
       plugin ← * <~ updatePlugin(dbPlugin, payload, foundOrCreated)

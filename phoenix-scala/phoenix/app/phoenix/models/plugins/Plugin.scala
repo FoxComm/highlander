@@ -124,7 +124,7 @@ object Plugins
   object scope {
     implicit class PluginsQuerySeqConversions(q: QuerySeq) {
       def forCurrentUser()(implicit au: AU): QuerySeq =
-        q.filter(_.scope === Scope.current)
+        q.filter(Scope.current.bind @> _.scope)
     }
   }
 
