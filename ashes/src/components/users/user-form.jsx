@@ -9,7 +9,7 @@ import { assoc } from 'sprout-data';
 // components
 import ObjectFormInner from '../object-form/object-form-inner';
 import UserInitials from '../user-initials/initials';
-import ContentBox from '../content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import { RoundedPill } from 'components/core/rounded-pill';
 import { Form, FormField } from '../forms';
 import { Button } from 'components/core/button';

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import ContentBox from '../content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import Currency from './currency';
 
 const TotalsFooter = props => {

@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import ContentBox from '../content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import ObjectFormInner from './object-form-inner';
 
 type Props = {

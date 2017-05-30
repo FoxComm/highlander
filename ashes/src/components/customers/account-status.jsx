@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ContentBox from '../content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import { SliderCheckbox } from 'components/core/checkbox';
 import { connect } from 'react-redux';
 import * as CustomersActions from '../../modules/customers/details';

@@ -11,7 +11,7 @@ import { expandRefs } from 'lib/object-schema';
 import { addKeys } from 'lib/react-utils';
 
 // components
-import ContentBox from '../content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import ObjectFormInner from '../object-form/object-form-inner';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import { Form } from '../forms';

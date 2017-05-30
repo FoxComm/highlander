@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 // components
-import ContentBox from '../content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import NotificationItem from '../activity-notifications/item';
 import { PrimaryButton } from 'components/core/button';
 

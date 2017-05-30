@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import ContentBox from '../content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import Addresses, { createAddressBox } from '../addresses/addresses';
 import AddressBox from '../addresses/address-box';
 import AddressForm from '../addresses/address-form';

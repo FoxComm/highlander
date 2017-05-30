@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import * as CustomerContactActions from '../../modules/customers/contacts';
 
 // components
-import ContentBox from '../content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import FormField from '../forms/formfield';
 import Form from '../forms/form';
 import { ApiErrors } from 'components/utils/errors';

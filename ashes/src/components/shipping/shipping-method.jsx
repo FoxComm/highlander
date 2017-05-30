@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import EditableContentBox from '../content-box/editable-content-box';
-import ContentBox from '../content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import TableView from '../table/tableview';
 import ShippingMethodRow from './shipping-method-row';
 

@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import TableView from '../table/tableview';
-import ContentBox from '../content-box/content-box';
+import ContentBox from 'components/core/content-box';
 
 export default class RmaPayment extends React.Component {
   render() {

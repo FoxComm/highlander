@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import ContentBox from '../content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import { Button } from 'components/core/button';
 
 import Api from 'lib/api';

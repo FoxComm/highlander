@@ -1,7 +1,7 @@
 import React from 'react';
 
 import AddressDetails from '../addresses/address-details';
-import ContentBox from '../content-box/content-box';
+import ContentBox from 'components/core/content-box';
 
 type Props = {
   order: Object,
