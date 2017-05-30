@@ -94,7 +94,7 @@ export default class AdjustQuantity extends Component {
       <div styleName="block" ref={ref => this._block = ref}>
         <Overlay shown={this.props.isPopupShown} onClick={() => this.hide()} />
         <input
-          className="_no-counters"
+          className="fc-text-input _no-counters"
           styleName="input"
           type="number"
           value={this.state.value}
