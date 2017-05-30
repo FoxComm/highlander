@@ -5,9 +5,9 @@ import core.db.Result
 import core.failures._
 import phoenix.models.discount._
 import phoenix.models.discount.offers.Offer.OfferResult
-import phoenix.utils.ElasticsearchApi._
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
+import phoenix.utils.apis.ElasticsearchApi._
 
 // Amount off single item
 case class ItemAmountOffer(discount: Long, search: Seq[ProductSearch])

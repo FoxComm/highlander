@@ -3,6 +3,7 @@ package phoenix.models.payment.creditcard
 import java.time.Instant
 
 import com.pellucid.sealerate
+import core.ADT
 import core.db._
 import core.failures.Failures
 import core.utils.Money.Currency

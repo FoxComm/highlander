@@ -6,19 +6,20 @@ import java.util.Properties
 
 import com.github.tminglei.slickpg.LTree
 import com.typesafe.scalalogging.LazyLogging
+import core.Environment
+import core.FoxConfig.config
+import core.db.ExPostgresDriver.api._
+import core.db._
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
 import org.json4s.Extraction
 import org.json4s.jackson.Serialization.{write ⇒ render}
 import phoenix.models.account.Scope
-import phoenix.utils.{Environment, JsonFormatters}
-import phoenix.utils.FoxConfig.config
+import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import core.db.ExPostgresDriver.api._
-import core.db._
 
 import scala.concurrent.{Future, blocking}
 import scala.util.{Failure, Success}

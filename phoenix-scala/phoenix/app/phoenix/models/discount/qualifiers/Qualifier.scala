@@ -6,9 +6,9 @@ import core.failures._
 import phoenix.failures.DiscountCompilerFailures.QualifierRejectionFailure
 import phoenix.failures.DiscountFailures.SearchFailure
 import phoenix.models.discount.{DiscountBase, DiscountInput, ProductSearch}
-import phoenix.utils.ElasticsearchApi.Buckets
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
+import phoenix.utils.apis.ElasticsearchApi.Buckets
 
 trait Qualifier extends DiscountBase {
 

@@ -1,12 +1,13 @@
 package phoenix.models.rules
 
 import com.pellucid.sealerate
+import core.ADT
+import core.db.ExPostgresDriver.api._
 import org.json4s.Extraction
+import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-import phoenix.utils.{ADT, JsonFormatters}
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import core.db.ExPostgresDriver.api._
 
 import scala.collection.immutable.Seq
 

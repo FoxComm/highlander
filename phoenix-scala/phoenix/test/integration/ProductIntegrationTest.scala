@@ -3,7 +3,10 @@ import java.time.temporal.ChronoUnit
 
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import cats.implicits._
+import core.db._
 import core.failures.NotFoundFailure404
+import core.utils.Money.Currency
+import core.utils.time.RichInstant
 import objectframework.ObjectFailures.ObjectContextNotFound
 import objectframework.models.ObjectContext
 import org.json4s.JsonDSL._
@@ -25,13 +28,10 @@ import phoenix.responses.ProductResponses.ProductResponse.Root
 import phoenix.responses.cord.CartResponse
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-import phoenix.utils.time.RichInstant
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtures
-import core.utils.Money.Currency
-import core.db._
 
 object ProductTestExtensions {
 

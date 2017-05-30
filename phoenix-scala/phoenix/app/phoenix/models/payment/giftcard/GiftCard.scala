@@ -7,9 +7,11 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
+import core.ADT
 import core.db.ExPostgresDriver.api._
 import core.db._
 import core.failures._
+import core.utils.Money._
 import core.utils.Validation
 import core.utils.Validation._
 import phoenix.failures.EmptyCancellationReasonFailure
@@ -20,12 +22,11 @@ import phoenix.models.payment.giftcard.GiftCard._
 import phoenix.models.payment.giftcard.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
 import phoenix.models.payment.{InStorePaymentStates, PaymentMethod}
 import phoenix.payloads.GiftCardPayloads.{GiftCardCreateByCsr, GiftCardCreatedByCustomer}
+import phoenix.utils.FSM
 import phoenix.utils.aliases._
-import phoenix.utils.{ADT, FSM}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import core.utils.Money._
 
 case class GiftCard(id: Int = 0,
                     scope: LTree,

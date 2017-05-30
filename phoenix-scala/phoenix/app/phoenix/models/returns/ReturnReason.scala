@@ -3,14 +3,14 @@ package phoenix.models.returns
 import java.time.Instant
 
 import com.pellucid.sealerate
+import core.ADT
+import core.db._
 import phoenix.models.returns.Return._
 import phoenix.models.returns.ReturnReason._
-import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
-import core.db._
 
 case class ReturnReason(id: Int = 0,
                         name: String,

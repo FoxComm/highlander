@@ -2,6 +2,7 @@ package phoenix.services.notes
 
 import java.time.Instant
 
+import core.FoxConfig.config
 import core.db._
 import core.failures.NotFoundFailure404
 import phoenix.models.Notes.scope._
@@ -11,7 +12,6 @@ import phoenix.payloads.NotePayloads._
 import phoenix.responses.AdminNotes
 import phoenix.responses.AdminNotes.Root
 import phoenix.services._
-import phoenix.utils.FoxConfig.config
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 

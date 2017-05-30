@@ -90,7 +90,7 @@ case class CreditCardTokenResponse(token: String, brand: String, lastFour: Strin
 /**
   *
   * @param logger is fully qualified name of class where logger are used
-  *               for example phoenix.utils.ElasticsearchApi
+  *               for example core.apis.ElasticsearchApi
   * @param level Log Level from LogBack, for example DEBUG, INFO, ALL, etc.
   *              In case of invalid level no changes will be applied.
   */

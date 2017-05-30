@@ -4,15 +4,16 @@ import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
+import core.ADT
+import core.db.ExPostgresDriver.api._
+import core.db._
 import core.utils.Validation
 import phoenix.failures.UserFailures._
 import phoenix.models.admin.AdminData._
-import phoenix.utils.{ADT, FSM}
+import phoenix.utils.FSM
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import core.db.ExPostgresDriver.api._
-import core.db._
 
 case class AdminData(id: Int = 0,
                      userId: Int,

@@ -5,6 +5,7 @@ import java.time.Instant
 import core.db.ExPostgresDriver.api._
 import core.db._
 import core.failures.NotFoundFailure404
+import core.utils.time._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import phoenix.models.account.{Scope, User}
@@ -14,7 +15,6 @@ import phoenix.payloads.CustomerGroupPayloads.CustomerGroupPayload
 import phoenix.responses.GroupResponses.GroupResponse.{Root, build}
 import phoenix.services.LogActivity
 import phoenix.utils.aliases._
-import phoenix.utils.time._
 
 object GroupManager {
 

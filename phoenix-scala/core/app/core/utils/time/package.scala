@@ -1,4 +1,4 @@
-package phoenix.utils
+package core.utils
 
 import java.time.{Duration, Instant, ZoneId, ZonedDateTime}
 

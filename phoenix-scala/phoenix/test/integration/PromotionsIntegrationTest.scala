@@ -3,7 +3,9 @@ import java.time.temporal.ChronoUnit.DAYS
 
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
+import core.db._
 import core.failures.NotFoundFailure404
+import core.utils.time.RichInstant
 import objectframework.IlluminateAlgorithm
 import objectframework.ObjectFailures.ObjectContextNotFound
 import objectframework.models.ObjectContext
@@ -25,15 +27,12 @@ import phoenix.responses.PromotionResponses.PromotionResponse
 import phoenix.responses.cord.CartResponse
 import phoenix.services.promotion.PromotionManager
 import phoenix.utils.aliases._
-import phoenix.utils.time.RichInstant
 import testutils.PayloadHelpers.tv
 import testutils._
 import testutils.apis._
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
 import testutils.fixtures.api._
 import testutils.fixtures.{BakedFixtures, PromotionFixtures}
-import core.db._
-import core.utils.Money._
 
 class PromotionsIntegrationTest
     extends IntegrationTestBase

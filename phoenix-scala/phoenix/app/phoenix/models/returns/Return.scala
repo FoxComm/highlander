@@ -3,12 +3,13 @@ package phoenix.models.returns
 import java.time.Instant
 
 import com.pellucid.sealerate
+import core.ADT
 import core.db._
 import core.failures.NotFoundFailure404
 import phoenix.models.account._
 import phoenix.models.cord.{Order, Orders}
 import phoenix.models.returns.Return._
-import phoenix.utils.{ADT, FSM}
+import phoenix.utils.FSM
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType

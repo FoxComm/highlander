@@ -89,17 +89,14 @@ object Dependencies {
   )
 
   val auth = Seq(
-    "org.bitbucket.b_c" % "jose4j" % "0.5.1",
-    "com.lambdaworks"   % "scrypt" % "1.4.0"
+    "org.bitbucket.b_c" % "jose4j" % "0.5.1"
   )
 
   val misc = Seq(
     "com.github.scopt"      %% "scopt"                  % "3.5.0", // CLI args
-    "com.pellucid"          %% "sealerate"              % "0.0.3",
     "it.justwrote"          %% "scala-faker"            % "0.3",
     "org.conbere"           % "markov_2.10"             % "0.2.0",
     "com.github.tototoshi"  %% "scala-csv"              % "1.3.3",
-    "com.github.melrief"    %% "pureconfig"             % "0.5.1",
     "com.sksamuel.elastic4s"%% "elastic4s-streams"      % Versions.elastic4s
   )
 

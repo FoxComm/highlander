@@ -6,9 +6,9 @@ import core.failures._
 import phoenix.failures.DiscountFailures.SearchFailure
 import phoenix.models.discount._
 import phoenix.models.discount.offers.Offer.OfferResult
-import phoenix.utils.ElasticsearchApi.Buckets
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
+import phoenix.utils.apis.ElasticsearchApi.Buckets
 
 trait Offer extends DiscountBase {
 

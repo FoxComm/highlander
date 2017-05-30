@@ -1,10 +1,10 @@
 package phoenix.services.carts
 
+import core.FoxConfig.config
 import core.db._
+import core.utils.Money._
 import phoenix.models.cord._
 import phoenix.models.cord.lineitems._
-import phoenix.utils.FoxConfig.config
-import core.utils.Money._
 import slick.jdbc.PostgresProfile.api._
 
 // TODO: Use utils.Money

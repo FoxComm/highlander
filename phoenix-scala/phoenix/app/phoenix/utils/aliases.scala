@@ -9,7 +9,6 @@ object aliases {
   type SF           = sourcecode.File
   type Mat          = akka.stream.Materializer
   type Json         = org.json4s.JsonAST.JValue
-  type CsvData      = List[(String, String)] // sequence of column name -> value
   type ActivityType = String
   type AU           = phoenix.services.Authenticator.AuthData[phoenix.models.account.User]
 

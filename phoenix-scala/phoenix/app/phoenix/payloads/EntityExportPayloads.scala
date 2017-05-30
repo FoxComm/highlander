@@ -1,21 +1,23 @@
 package phoenix.payloads
 
-import com.pellucid.sealerate
-import com.sksamuel.elastic4s.SortDefinition
 import java.nio.charset.StandardCharsets
 import java.time.Instant
+
+import com.pellucid.sealerate
+import com.sksamuel.elastic4s.SortDefinition
+import core.ADT
+import core.utils.Strings._
 import org.elasticsearch.common.bytes.BytesArray
 import org.elasticsearch.common.xcontent.{ToXContent, XContentBuilder}
 import org.elasticsearch.search.sort.{SortBuilder, SortOrder}
-import org.json4s.{CustomSerializer, Formats}
 import org.json4s.JsonAST._
 import org.json4s.jackson.JsonMethods._
+import org.json4s.{CustomSerializer, Formats}
 import phoenix.models.cord.CordPaymentState
 import phoenix.models.payment.InStorePaymentStates
 import phoenix.models.payment.creditcard.CreditCardCharge
 import phoenix.services.CordQueries
-import phoenix.utils.{ADT, ADTTypeHints, JsonFormatters}
-import core.utils.Strings._
+import phoenix.utils.{ADTTypeHints, JsonFormatters}
 
 object EntityExportPayloads {
 

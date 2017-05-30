@@ -7,6 +7,7 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
+import core.ADT
 import core.db.ExPostgresDriver.api._
 import core.db._
 import core.failures.{Failure, Failures, GeneralFailure}
@@ -19,7 +20,7 @@ import phoenix.models.cord.OrderPayment
 import phoenix.models.payment.storecredit.StoreCredit._
 import phoenix.models.payment.storecredit.{StoreCreditAdjustment ⇒ Adj, StoreCreditAdjustments ⇒ Adjs}
 import phoenix.models.payment.{InStorePaymentStates, PaymentMethod}
-import phoenix.utils.{ADT, FSM}
+import phoenix.utils.FSM
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType

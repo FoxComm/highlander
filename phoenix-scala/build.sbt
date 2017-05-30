@@ -1,9 +1,9 @@
-import scala.io.Source.fromFile
-
 import Configurations._
 import Dependencies.baseDependencies
 import Settings._
 import Tasks._
+
+import scala.io.Source.fromFile
 
 scalaVersion in ThisBuild := Versions.scala
 
@@ -83,7 +83,11 @@ lazy val objectframework = (project in file("objectframework"))
 lazy val core = (project in file("core"))
   .settings(
     commonSettings,
-    libraryDependencies ++= baseDependencies
+    libraryDependencies ++= baseDependencies ++ Seq(
+      "com.github.melrief"     %% "pureconfig"        % "0.5.1",
+      "com.pellucid"           %% "sealerate"         % "0.0.3",
+      "com.lambdaworks"        %  "scrypt"            % "1.4.0"
+    )
   )
 
 fullAssembly := Def.task().dependsOn(writeVersion in root, assembly in phoenix, assembly in seeder).value

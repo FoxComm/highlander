@@ -1,4 +1,4 @@
-package phoenix.utils.time
+package core.utils.time
 
 import java.time.Instant
 import java.time.format.DateTimeFormatter

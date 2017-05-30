@@ -4,11 +4,11 @@ import java.time.Instant
 
 import com.github.tminglei.slickpg._
 import com.pellucid.sealerate
+import core.ADT
 import core.db.ExPostgresDriver.api._
 import core.db._
 import core.utils.Validation
 import objectframework.models._
-import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType

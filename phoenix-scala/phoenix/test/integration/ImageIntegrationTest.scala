@@ -4,6 +4,9 @@ import java.time.Instant
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model._
 import cats.implicits._
+import core.db._
+import core.utils.Money.Currency
+import core.utils.time.RichInstant
 import objectframework.ObjectFailures._
 import objectframework.ObjectUtils
 import objectframework.models.{ObjectContext, ObjectForm, ObjectShadow, _}
@@ -21,12 +24,9 @@ import phoenix.responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import phoenix.responses.ProductResponses._
 import phoenix.responses.SkuResponses._
 import phoenix.services.image.ImageManager
-import phoenix.utils.time.RichInstant
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import core.utils.Money.Currency
-import core.db._
 
 class ImageIntegrationTest
     extends IntegrationTestBase

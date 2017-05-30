@@ -1,6 +1,8 @@
 package phoenix.services.auth
 
 import cats.implicits._
+import core.FoxConfig
+import core.db._
 import phoenix.failures.UserFailures._
 import phoenix.libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth, UserInfo}
 import phoenix.models.account._
@@ -10,9 +12,7 @@ import phoenix.payloads.StoreAdminPayloads._
 import phoenix.services.StoreAdminManager
 import phoenix.services.account._
 import phoenix.services.customers.CustomerManager
-import phoenix.utils.FoxConfig
 import phoenix.utils.aliases._
-import core.db._
 
 class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB, ac: AC)
     extends Oauth(options)

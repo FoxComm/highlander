@@ -5,6 +5,8 @@ import java.security.spec.{PKCS8EncodedKeySpec, X509EncodedKeySpec}
 import java.security.{KeyFactory, PrivateKey, PublicKey}
 
 import cats.implicits._
+import core.FoxConfig
+import core.FoxConfig.config
 import core.db._
 import core.failures.{Failures, GeneralFailure}
 import org.jose4j.jwa.AlgorithmConstraints
@@ -15,8 +17,6 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import phoenix.failures.AuthFailures._
 import phoenix.models.account.{Account, User}
-import phoenix.utils.FoxConfig
-import phoenix.utils.FoxConfig.config
 
 import scala.collection.JavaConverters._
 import scala.util.{Failure, Success, Try}

@@ -25,11 +25,10 @@ import phoenix.models.product.Mvp
 import phoenix.models.shipping._
 import phoenix.services.carts.CartTotaler
 import phoenix.services.orders.OrderTotaler
-import phoenix.utils
 import phoenix.utils.aliases._
 import phoenix.utils.seeds.ShipmentSeeds
 import slick.jdbc.PostgresProfile.api._
-import core.utils.Money._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
@@ -74,7 +73,7 @@ trait OrderGenerator extends ShipmentSeeds {
     } yield {}
   }
 
-  private val yesterday: Instant = utils.time.yesterday.toInstant
+  private val yesterday: Instant = core.utils.time.yesterday.toInstant
 
   def manualHoldOrder(accountId: Int,
                       context: ObjectContext,

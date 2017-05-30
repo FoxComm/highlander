@@ -3,10 +3,9 @@ package phoenix.models.account
 import java.time.Instant
 
 import com.typesafe.scalalogging.LazyLogging
+import core.FoxConfig.config
 import core.db._
-import phoenix.utils.FoxConfig.config
-import phoenix.utils.HashPasswords
-import phoenix.utils.HashPasswords.HashAlgorithm
+import core.utils.{HashAlgorithm, HashAlgorithms}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
@@ -36,7 +35,7 @@ object AccountAccessMethod extends LazyLogging {
     case Some(algo) ⇒
       logger.info(s"Switch to overridden password hash algorithm: $algo")
       algo
-    case None ⇒ HashPasswords.SCrypt
+    case None ⇒ HashAlgorithms.SCrypt
   }
 
   def build(accountId: Int,
@@ -83,9 +82,9 @@ object AccountAccessMethods
   implicit lazy val PasswordAlgorithmColumn: JdbcType[HashAlgorithm] with BaseTypedType[
       HashAlgorithm] = {
     MappedColumnType.base[HashAlgorithm, Int](c ⇒ c.code, {
-      case HashPasswords.SCrypt.code    ⇒ HashPasswords.SCrypt
-      case HashPasswords.PlainText.code ⇒ HashPasswords.PlainText
-      case j                            ⇒ HashPasswords.UnknownAlgorithm(j)
+      case HashAlgorithms.SCrypt.code    ⇒ HashAlgorithms.SCrypt
+      case HashAlgorithms.PlainText.code ⇒ HashAlgorithms.PlainText
+      case j                             ⇒ HashAlgorithms.UnknownAlgorithm(j)
     })
   }
 

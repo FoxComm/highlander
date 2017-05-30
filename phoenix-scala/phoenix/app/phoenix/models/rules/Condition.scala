@@ -1,7 +1,7 @@
 package phoenix.models.rules
 
 import com.pellucid.sealerate
-import phoenix.utils.ADT
+import core.ADT
 
 case class Condition(rootObject: String,
                      field: String,

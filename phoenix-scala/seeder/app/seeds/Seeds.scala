@@ -1,36 +1,34 @@
 package seeds
 
+import java.time.{Instant, ZoneId}
+
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import com.typesafe.config.Config
-import phoenix.failures.UserFailures._
+import core.db._
 import core.failures.{Failures, FailuresOps, NotFoundFailure404}
-import java.time.{Instant, ZoneId}
-
+import core.{ADT, FoxConfig}
+import objectframework.models.ObjectContexts
+import org.postgresql.ds.PGSimpleDataSource
+import phoenix.failures.UserFailures._
 import phoenix.models.Reasons
 import phoenix.models.account._
 import phoenix.models.activity.ActivityContext
 import phoenix.models.auth.UserToken
-import objectframework.models.ObjectContexts
 import phoenix.models.product.SimpleContext
-import org.postgresql.ds.PGSimpleDataSource
-import phoenix.models.activity.ActivityContext
-import phoenix.utils.ADT
+import phoenix.services.Authenticator.AuthData
+import phoenix.services.account.AccountManager
+import phoenix.utils.aliases._
+import phoenix.utils.db.flyway.{newFlyway, rootProjectSqlLocation}
+import phoenix.utils.seeds.Factories
+import phoenix.utils.seeds.generators.SeedsGenerator
+import slick.jdbc.PostgresProfile.api._
+import slick.jdbc.PostgresProfile.backend.DatabaseDef
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import phoenix.services.Authenticator.AuthData
-import phoenix.services.account.AccountManager
-import slick.jdbc.PostgresProfile.api._
-import slick.jdbc.PostgresProfile.backend.DatabaseDef
-import phoenix.utils.aliases._
-import core.db._
-import phoenix.utils.db.flyway.{newFlyway, rootProjectSqlLocation}
-import phoenix.utils.seeds.Factories
-import phoenix.utils.seeds.generators.SeedsGenerator
-import phoenix.utils.{ADT, FoxConfig}
 
 object Seeds {
 

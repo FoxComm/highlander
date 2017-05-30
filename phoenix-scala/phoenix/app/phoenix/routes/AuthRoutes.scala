@@ -5,13 +5,13 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import core.FoxConfig.config
 import phoenix.payloads.LoginPayload
 import phoenix.payloads.UserPayloads._
 import phoenix.services.Authenticator
 import phoenix.services.account.AccountManager
 import phoenix.services.auth.GoogleOauth.oauthServiceFromConfig
 import phoenix.services.auth.OauthDirectives._
-import phoenix.utils.FoxConfig.config
 import phoenix.utils.aliases._
 import phoenix.utils.http.CustomDirectives._
 import phoenix.utils.http.Http._

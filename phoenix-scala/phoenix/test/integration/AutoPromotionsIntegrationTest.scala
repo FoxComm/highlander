@@ -21,8 +21,8 @@ import phoenix.responses.PromotionResponses.PromotionResponse
 import phoenix.responses.cord.base.CartResponseTotals
 import phoenix.responses.cord.{CartResponse, OrderResponse}
 import phoenix.responses.{CustomerResponse, GroupResponses, PromotionResponses, StoreCreditResponse}
-import phoenix.utils.ElasticsearchApi
 import phoenix.utils.aliases._
+import phoenix.utils.apis.ElasticsearchApi
 import phoenix.utils.seeds.Factories
 import testutils.PayloadHelpers.tv
 import testutils._

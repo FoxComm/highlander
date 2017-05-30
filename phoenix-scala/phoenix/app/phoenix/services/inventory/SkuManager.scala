@@ -21,12 +21,11 @@ import phoenix.responses.SkuResponses._
 import phoenix.services.LogActivity
 import phoenix.services.image.ImageManager
 import phoenix.services.image.ImageManager.FullAlbumWithImages
-import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 
 object SkuManager {
-  implicit val formats = JsonFormatters.DefaultFormats
+  implicit val formats = core.json.DefaultFormats
 
   def createSku(admin: User, payload: SkuPayload)(implicit ec: EC,
                                                   db: DB,
