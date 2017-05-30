@@ -4,7 +4,7 @@ import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import _ from 'lodash';
 
-import { Checkbox } from './checkbox';
+import { Checkbox } from '../core/checkbox/checkbox';
 
 const BigCheckbox = props => {
   const checkboxClass = classNames('fc-big-checkbox__visible-box', {
