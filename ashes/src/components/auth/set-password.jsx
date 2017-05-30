@@ -13,6 +13,7 @@ import { PrimaryButton } from 'components/core/button';
 import PasswordInput from 'components/forms/password-input';
 import WaitAnimation from 'components/common/wait-animation';
 import { Link } from 'components/link';
+import TextInput from 'components/forms/text-input';
 
 import type { TResetPayload } from 'modules/user';
 import * as userActions from 'modules/user';
@@ -26,10 +27,7 @@ type State = {
 };
 
 type Props = {
-  signUpState: {
-    err?: any,
-    inProgress?: boolean,
-  },
+  signUpState: AsyncState,
   requestPasswordReset: (email: string) => Promise<*>,
   resetPassword: (payload: TResetPayload) => Promise<*>,
   isMounted: boolean,
@@ -38,7 +36,7 @@ type Props = {
 
 function mapStateToProps(state) {
   return {
-    signUpState: _.get(state.asyncActions, 'resetPassword', {})
+    signUpState: _.get(state.asyncActions, 'resetPassword', {}),
   };
 }
 
@@ -77,27 +75,26 @@ class SetPassword extends Component {
   }
 
   @autobind
-  handleInputChange(event: Object) {
-    const { target } = event;
+  handleInputChange({ target }: SyntheticInputEvent) {
     this.setState({
       [target.name]: target.value,
     });
   }
 
   @autobind
-  validatePassword2(value) {
+  validatePassword2(value: string) {
     if (this.state.password1 != value) {
       return 'Passwords does not match';
     }
   }
 
-  get errorMessage() {
+  get errorMessage(): ?Element<*> {
     const err = this.props.signUpState.err;
     if (!err) return null;
     return <ErrorAlerts error={err} sanitizeError={sanitize} />;
   }
 
-  get content() {
+  get content(): ?Element<*> {
     if (!this.props.isMounted) {
       return <WaitAnimation />;
     }
@@ -112,7 +109,7 @@ class SetPassword extends Component {
         <Form className={s.form} onSubmit={this.handleSubmit}>
           {this.errorMessage}
           <FormField className={s.signupEmail} label="Email">
-            <input
+            <TextInput
               name="email"
               value={this.email}
               type="email"

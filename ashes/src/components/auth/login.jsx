@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import _ from 'lodash';
 import { transitionTo, transitionToLazy } from 'browserHistory';
 import { autobind } from 'core-decorators';
@@ -13,6 +13,7 @@ import FormField from 'components/forms/formfield';
 import { PrimaryButton, SocialButton } from 'components/core/button';
 import WrapToLines from './wrap-to-lines';
 import WaitAnimation from 'components/common/wait-animation';
+import TextInput from 'components/forms/text-input';
 
 import * as userActions from 'modules/user';
 
@@ -70,18 +71,18 @@ class Login extends Component {
   }
 
   @autobind
-  onOrgChange({ target }: Object) {
-    this.setState({ org: target.value });
+  onOrgChange(value: string) {
+    this.setState({ org: value });
   }
 
   @autobind
-  onEmailChange({ target }: Object) {
-    this.setState({ email: target.value });
+  onEmailChange(value: string) {
+    this.setState({ email: value });
   }
 
   @autobind
-  onPasswordChange({ target }: Object) {
-    this.setState({ password: target.value });
+  onPasswordChange(value: string) {
+    this.setState({ password: value });
   }
 
   @autobind
@@ -101,23 +102,23 @@ class Login extends Component {
     });
   }
 
-  get iForgot() {
+  get iForgot(): Element<*> {
     return <a onClick={this.onForgotClick} className={s.forgotLink} >i forgot</a>;
   }
 
-  get infoMessage() {
+  get infoMessage(): ?Element<*> {
     const { message } = this.state;
     if (!message) return null;
     return <Alert type="success">{message}</Alert>;
   }
 
-  get errorMessage() {
+  get errorMessage(): ?Element<*> {
     const err = this.props.authenticationState.err;
     if (!err) return null;
     return <ErrorAlerts error={err} />;
   }
 
-  get content() {
+  get content(): Element<*> {
     if (!this.props.isMounted) {
       return <WaitAnimation />;
     }
@@ -138,7 +139,7 @@ class Login extends Component {
           <WrapToLines className={s.orLine}>or</WrapToLines>
           {this.errorMessage}
           <FormField label="Organization" required>
-            <input
+            <TextInput
               onChange={this.onOrgChange}
               value={org}
               type="text"
@@ -147,7 +148,7 @@ class Login extends Component {
             />
           </FormField>
           <FormField label="Email" required>
-            <input
+            <TextInput
               onChange={this.onEmailChange}
               value={email}
               type="text"
@@ -155,7 +156,7 @@ class Login extends Component {
             />
           </FormField>
           <FormField label="Password" labelAtRight={this.iForgot} required>
-            <input
+            <TextInput
               onChange={this.onPasswordChange}
               value={password}
               type="password"

@@ -13,6 +13,7 @@ import { PrimaryButton } from 'components/core/button';
 import PasswordInput from 'components/forms/password-input';
 import WaitAnimation from 'components/common/wait-animation';
 import { Link } from 'components/link';
+import TextInput from 'components/forms/text-input';
 
 import * as userActions from 'modules/user';
 
@@ -72,15 +73,14 @@ class ResetPassword extends Component {
   }
 
   @autobind
-  handleInputChange(event: Object) {
-    const { target } = event;
+  handleInputChange({ target }: SyntheticInputEvent) {
     this.setState({
       [target.name]: target.value,
     });
   }
 
   @autobind
-  validatePassword2(value) {
+  validatePassword2(value: string) {
     if (this.state.password1 != value) {
       return 'Passwords does not match';
     }
@@ -107,10 +107,9 @@ class ResetPassword extends Component {
         <Form className={s.form} onSubmit={this.handleSubmit}>
           {this.errorMessage}
           <FormField className={s.signupEmail} label="Email">
-            <input
+            <TextInput
               name="email"
               value={this.email}
-              onChange={this.handleInputChange}
               type="email"
               disabled
               className="fc-input"
