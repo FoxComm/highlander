@@ -12,7 +12,7 @@ case class View(id: Int = 0, name: String, attributes: JValue, createdAt: Instan
     extends FoxModel[View]
     with Validation[View]
 
-class Views(tag: Tag) extends FoxTable[View](tag, "views") {
+class Views(tag: Tag) extends FoxTable[View](tag, "object_context") {
   def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name       = column[String]("name")
   def attributes = column[JValue]("attributes")

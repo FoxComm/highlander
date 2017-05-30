@@ -15,7 +15,7 @@ case class Form(id: Int = 0,
                 updatedAt: Instant = Instant.now)
     extends FoxModel[Form]
 
-class Forms(tag: Tag) extends FoxTable[Form](tag, "forms") {
+class Forms(tag: Tag) extends FoxTable[Form](tag, "object_forms") {
   def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def kind       = column[String]("kind")
   def attributes = column[JValue]("attributes")
