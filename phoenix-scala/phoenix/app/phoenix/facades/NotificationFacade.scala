@@ -13,9 +13,10 @@ import phoenix.models.{LastSeenNotification, LastSeenNotifications, Notification
 import phoenix.responses.NotificationResponse
 import phoenix.utils.aliases._
 import phoenix.utils.{JsonFormatters, NotificationListener}
+import slick.jdbc.PostgresProfile.api._
+
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
-import slick.jdbc.PostgresProfile.api._
 
 /**
   * TODO: Create a new notificatons table that store notifications for an admin.

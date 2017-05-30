@@ -2,6 +2,7 @@ package phoenix.routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+import de.heikoseeberger.akkasse.EventStreamMarshalling._
 import phoenix.facades.NotificationFacade
 import phoenix.models.account.User
 import phoenix.payloads.CreateNotification
