@@ -20,22 +20,39 @@ import phoenix.utils.JsonFormatters
 
 class ContentManagerTest extends IntegrationTestBase with TestObjectContext with ApiFixtures {
 
-  "ContentManager.findLatestById" - {
+  "ContentManager.findLatest" - {
     "successfully with no relations" in new SkuFixture {
-      val content = ContentManager.findLatestById(sku.id, SimpleContext.id, sku.kind).gimme
+      val content = ContentManager.findLatest(sku.id, SimpleContext.id, sku.kind).gimme
       content.kind must === ("sku")
       content.attributes("code").v must === (JString("TEST-SKU"))
     }
 
     "fails with 404 when invalid id" in new SkuFixture {
-      val failures = ContentManager.findLatestById(2, SimpleContext.id, sku.kind).gimmeFailures
+      val failures = ContentManager.findLatest(2, SimpleContext.id, sku.kind).gimmeFailures
       failures.head must === (ObjectNotFound(sku.kind, 2, SimpleContext.id))
     }
 
     "fails with 404 when invalid kind" in new SkuFixture {
-      val failures =
-        ContentManager.findLatestById(sku.id, SimpleContext.id, "variant").gimmeFailures
+      val failures = ContentManager.findLatest(sku.id, SimpleContext.id, "variant").gimmeFailures
       failures.head must === (ObjectNotFound("variant", sku.id, SimpleContext.id))
+    }
+  }
+
+  "ContentManager.findByCommit" - {
+    "successfully with no relations" in new SkuFixture {
+      val content = ContentManager.findByCommit(sku.commitId, sku.kind).gimme
+      content.kind must === ("sku")
+      content.attributes("code").v must === (JString("TEST-SKU"))
+    }
+
+    "fails with 404 when invalid commit id" in new SkuFixture {
+      val failures = ContentManager.findByCommit(2, sku.kind).gimmeFailures
+      failures.head must === (ObjectNotFoundAtCommit(sku.kind, 2))
+    }
+
+    "fails with 404 when invalid kind" in new SkuFixture {
+      val failures = ContentManager.findByCommit(sku.commitId, "variant").gimmeFailures
+      failures.head must === (ObjectNotFoundAtCommit("variant", sku.id))
     }
   }
 
