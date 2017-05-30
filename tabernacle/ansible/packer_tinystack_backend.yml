@@ -7,8 +7,6 @@
     user: ubuntu
     packing: true
   roles:
-    - { role: base/java }
-    - { role: base/mesos_worker }
     - { role: base/rsyslog }
     - { role: base/confluent_platform }
     - { role: base/elasticsearch }
@@ -16,6 +14,4 @@
     - { role: base/db }
     - { role: base/bottledwater }
     - { role: base/pgweb }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
+    - { role: base/mesos_worker }
