@@ -1,5 +1,6 @@
 .modal {
-  min-width: 780px;
+  width: 780px;
+  color: #484848;
 }
 
 .header {
@@ -27,5 +28,16 @@
 }
 
 .body {
+  width: 100%;
   padding: 20px;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  text-align: left
+}
+
+.footer {
+  &:not(:empty) {
+    padding: 20px 20px 0;
+  }
 }

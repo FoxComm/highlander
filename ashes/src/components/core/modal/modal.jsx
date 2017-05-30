@@ -14,10 +14,11 @@ type Props = {
   isVisible: boolean,
   onCancel: () => any,
   title: string | Element<any>,
+  footer: Element<any>,
   children?: Element<any>,
 }
 
-export default ({ isVisible, onCancel = noop, title, children }: Props) => (
+export default ({ isVisible, title, footer, children, onCancel = noop }: Props) => (
   <ModalContainer className={s.modal} isVisible={isVisible} onCancel={onCancel}>
     <header className={s.header}>
       <div className={s.title}>{title}</div>
@@ -26,5 +27,8 @@ export default ({ isVisible, onCancel = noop, title, children }: Props) => (
     <div className={s.body}>
       {children}
     </div>
+    <footer classname={s.footer}>
+      {footer}
+    </footer>
   </ModalContainer>
 );

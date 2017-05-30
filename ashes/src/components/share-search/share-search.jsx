@@ -10,6 +10,7 @@ import { numberize } from 'lib/text-utils';
 
 /** Component */
 import { ModalContainer } from '../modal/base';
+import Modal from 'components/core/modal';
 import ContentBox from '../content-box/content-box';
 
 import { PrimaryButton } from 'components/core/button';

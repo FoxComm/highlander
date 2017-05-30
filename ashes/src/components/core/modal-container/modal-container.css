@@ -1,8 +1,6 @@
 .container {
   position: fixed;
   display: flex;
-  align-content: center;
-  justify-content: center;
   left: 0;
   top: 0;
   width: 100vw;

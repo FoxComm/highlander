@@ -5,6 +5,7 @@ import React, { Component, Element } from 'react';
 
 // components
 import { ModalContainer } from 'components/modal/base';
+import Modal from 'components/core/modal';
 import ContentBox from 'components/content-box/content-box';
 import ProductsAdd from './products-add';
 
@@ -18,7 +19,7 @@ type Props = {
   onAddProduct: (product: Product) => Promise<*>,
   addState: AsyncState,
   addedProducts: Array<Product>,
-  title: string|Element<*>,
+  title: string | Element<*>,
 }
 
 class ProductsAddModal extends Component {
@@ -28,33 +29,17 @@ class ProductsAddModal extends Component {
     title: 'Add Product',
   };
 
-  get actionBlock() {
-    return (
-      <a className="fc-modal-close" onClick={this.props.onCancel}>
-        <i className="icon-close" />
-      </a>
-    );
-  }
-
   render() {
     const { isVisible, title, addedProducts, addState, onAddProduct, onCancel } = this.props;
 
     return (
-      <ModalContainer isVisible={isVisible} onCancel={onCancel}>
-        <ContentBox
-          className={styles.modal}
-          title={title}
-          actionBlock={this.actionBlock}
-        >
-          <div className="fc-modal-body">
-            <ProductsAdd
-              addedProducts={addedProducts}
-              addState={addState}
-              onAddProduct={onAddProduct}
-            />
-          </div>
-        </ContentBox>
-      </ModalContainer>
+      <Modal className={styles.modal} title={title} isVisible={isVisible} onCancel={onCancel}>
+        <ProductsAdd
+          addedProducts={addedProducts}
+          addState={addState}
+          onAddProduct={onAddProduct}
+        />
+      </Modal>
     );
   }
 }
