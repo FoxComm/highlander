@@ -37,7 +37,7 @@ object OrderTotaler {
       shadow   ← ObjectShadows if shadow.id === lineItem.skuShadowId
       illuminated = (form, shadow)
       salePrice   = ((illuminated |→ "salePrice") +>> "value").asColumnOf[Long]
-    } yield salePrice).sum.result.map(_.getOrElse(0L))
+    } yield salePrice).sum.getOrElse(0L).result
 
   def shippingTotal(order: Order)(implicit ec: EC): DbResultT[Long] =
     for {
