@@ -15,6 +15,7 @@ import phoenix.models.coupon.{Coupon, CouponCode}
 import phoenix.models.customer.CustomerGroup
 import phoenix.models.location.Region
 import phoenix.models.payment.PaymentMethod
+import phoenix.models.payment.applepay.{ApplePayCharge, ApplePayment}
 import phoenix.models.payment.creditcard.{CreditCard, CreditCardCharge}
 import phoenix.models.payment.giftcard.GiftCard
 import phoenix.models.payment.storecredit.StoreCredit
@@ -56,6 +57,7 @@ import phoenix.services.activity.StoreAdminsTailored._
 import phoenix.services.activity.StoreCreditTailored._
 import phoenix.services.activity.UserTailored._
 import phoenix.utils.aliases._
+import core.utils.Money._
 
 class LogActivity(val ac: AC) extends AnyVal {
 
@@ -246,11 +248,11 @@ class LogActivity(val ac: AC) extends AnyVal {
                                        GiftCardResponse.build(gc),
                                        StoreCreditResponse.build(sc)))
 
-  def gcFundsAuthorized(user: User, cart: Cart, gcCodes: Seq[String], amount: Int)(
+  def gcFundsAuthorized(user: User, cart: Cart, gcCodes: Seq[String], amount: Long)(
       implicit ec: EC): DbResultT[Activity] =
     Activities.log(GiftCardAuthorizedFunds(buildUser(user), cart, gcCodes, amount))
 
-  def gcFundsCaptured(user: User, order: Order, gcCodes: Seq[String], amount: Int)(
+  def gcFundsCaptured(user: User, order: Order, gcCodes: Seq[String], amount: Long)(
       implicit ec: EC): DbResultT[Activity] =
     Activities.log(GiftCardCapturedFunds(buildUser(user), order, gcCodes, amount))
 
@@ -271,11 +273,11 @@ class LogActivity(val ac: AC) extends AnyVal {
                                        GiftCardResponse.build(gc),
                                        StoreCreditResponse.build(sc)))
 
-  def scFundsAuthorized(user: User, cart: Cart, scIds: Seq[Int], amount: Int)(
+  def scFundsAuthorized(user: User, cart: Cart, scIds: Seq[Int], amount: Long)(
       implicit ec: EC): DbResultT[Activity] =
     Activities.log(StoreCreditAuthorizedFunds(buildUser(user), cart, scIds, amount))
 
-  def scFundsCaptured(user: User, order: Order, scIds: Seq[Int], amount: Int)(
+  def scFundsCaptured(user: User, order: Order, scIds: Seq[Int], amount: Long)(
       implicit ec: EC): DbResultT[Activity] =
     Activities.log(StoreCreditCapturedFunds(buildUser(user), order, scIds, amount))
 
@@ -352,6 +354,16 @@ class LogActivity(val ac: AC) extends AnyVal {
             currency = charge.currency
         ))
 
+  def applePayAuth(ap: ApplePayment, charge: ApplePayCharge)(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(
+        ApplePayAuthCompleted(
+            accountId = ap.accountId,
+            stripeTokenId = ap.stripeTokenId,
+            amount = charge.amount,
+            currency = charge.currency
+        ))
+
   def creditCardCharge(order: Order, charge: CreditCardCharge)(
       implicit ec: EC): DbResultT[Activity] =
     Activities.log(
@@ -374,7 +386,7 @@ class LogActivity(val ac: AC) extends AnyVal {
                                          CreditCardsResponse.build(cc, region),
                                          buildOriginator(originator)))
 
-  def orderPaymentMethodAddedGc(originator: User, cart: CartResponse, gc: GiftCard, amount: Int)(
+  def orderPaymentMethodAddedGc(originator: User, cart: CartResponse, gc: GiftCard, amount: Long)(
       implicit ec: EC): DbResultT[Activity] =
     Activities.log(
         CartPaymentMethodAddedGiftCard(cart,
@@ -385,8 +397,8 @@ class LogActivity(val ac: AC) extends AnyVal {
   def orderPaymentMethodUpdatedGc(originator: User,
                                   cart: CartResponse,
                                   gc: GiftCard,
-                                  oldAmount: Option[Int],
-                                  amount: Int)(implicit ec: EC): DbResultT[Activity] = {
+                                  oldAmount: Option[Long],
+                                  amount: Long)(implicit ec: EC): DbResultT[Activity] = {
     val activity = CartPaymentMethodUpdatedGiftCard(cart,
                                                     GiftCardResponse.build(gc),
                                                     oldAmount,
@@ -396,7 +408,7 @@ class LogActivity(val ac: AC) extends AnyVal {
     Activities.log(activity)
   }
 
-  def orderPaymentMethodAddedSc(originator: User, cart: CartResponse, amount: Int)(
+  def orderPaymentMethodAddedSc(originator: User, cart: CartResponse, amount: Long)(
       implicit ec: EC): DbResultT[Activity] =
     Activities.log(CartPaymentMethodAddedStoreCredit(cart, amount, buildOriginator(originator)))
 

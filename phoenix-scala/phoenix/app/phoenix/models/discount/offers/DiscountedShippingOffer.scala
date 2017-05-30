@@ -6,16 +6,13 @@ import phoenix.models.discount.offers.Offer.OfferResult
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 
-case class DiscountedShippingOffer(discount: Int) extends Offer with AmountOffer {
+case class DiscountedShippingOffer(discount: Long) extends Offer with AmountOffer {
 
   val offerType: OfferType = DiscountedShipping
 
-  def adjust(input: DiscountInput)(implicit db: DB,
-                                   ec: EC,
-                                   apis: Apis,
-                                   au: AU): Result[Seq[OfferResult]] =
-    input.shippingMethod match {
-      case Some(sm) if discount > 0 ⇒ buildResult(input, subtract(sm.price, discount))
+  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis): Result[Seq[OfferResult]] =
+    input.shippingCost match {
+      case Some(sc) if discount > 0 ⇒ buildResult(input, subtract(sc, discount))
       case _                        ⇒ pureResult()
     }
 }

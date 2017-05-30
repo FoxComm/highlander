@@ -18,5 +18,6 @@ object aliases {
     type StripeCustomer = Customer
     type StripeCard     = Card
     type StripeCharge   = Charge
+    type StripeToken    = Token
   }
 }

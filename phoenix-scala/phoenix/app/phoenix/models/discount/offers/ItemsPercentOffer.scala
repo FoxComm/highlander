@@ -10,7 +10,7 @@ import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 
 // Percent off all matched items in cart
-case class ItemsPercentOffer(discount: Int, search: Seq[ProductSearch])
+case class ItemsPercentOffer(discount: Long, search: Seq[ProductSearch])
     extends Offer
     with PercentOffer
     with NonEmptySearch
@@ -18,10 +18,7 @@ case class ItemsPercentOffer(discount: Int, search: Seq[ProductSearch])
 
   val offerType: OfferType = ItemsPercentOff
 
-  def adjust(input: DiscountInput)(implicit db: DB,
-                                   ec: EC,
-                                   apis: Apis,
-                                   au: AU): Result[Seq[OfferResult]] =
+  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis): Result[Seq[OfferResult]] =
     if (discount > 0 && discount < 100) adjustInner(input)(search) else pureResult()
 
   def matchEither(input: DiscountInput)(
@@ -29,14 +26,14 @@ case class ItemsPercentOffer(discount: Int, search: Seq[ProductSearch])
     either match {
       case Right(buckets) ⇒
         val matchedFormIds = buckets.filter(_.docCount > 0).map(_.key)
-        val offerResults = input.lineItems
-          .filter(data ⇒ matchedFormIds.contains(data.productForm.id.toString))
-          .map { data ⇒
-            OfferResult(input,
-                        subtract(price(data), discount),
-                        data.lineItemReferenceNumber.some,
-                        offerType)
-          }
+        val offerResults = input.lineItems.filter { data ⇒
+          matchedFormIds.contains(data.productId.toString)
+        }.map { data ⇒
+          OfferResult(input,
+                      subtract(data.price, discount),
+                      data.lineItemReferenceNumber.some,
+                      offerType)
+        }
 
         Either.right(offerResults)
       case _ ⇒ pureEither()

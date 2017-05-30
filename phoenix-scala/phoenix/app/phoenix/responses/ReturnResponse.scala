@@ -16,13 +16,17 @@ import phoenix.services.carts.CartTotaler
 import phoenix.services.returns.{ReturnLineItemManager, ReturnTotaler}
 
 object ReturnResponse {
-  case class ReturnTotals(subTotal: Int, taxes: Int, shipping: Int, adjustments: Int, total: Int)
+  case class ReturnTotals(subTotal: Long,
+                          taxes: Long,
+                          shipping: Long,
+                          adjustments: Long,
+                          total: Long)
       extends ResponseItem
 
   sealed trait LineItem extends ResponseItem {
     def id: Int
     def reason: String
-    def price: Int
+    def price: Long
     def currency: Currency
   }
   object LineItem {
@@ -32,14 +36,14 @@ object ReturnResponse {
                    title: String,
                    sku: String,
                    quantity: Int,
-                   price: Int,
+                   price: Long,
                    currency: Currency)
         extends LineItem
     case class ShippingCost(id: Int,
                             reason: String,
                             name: String,
-                            amount: Int,
-                            price: Int,
+                            amount: Long,
+                            price: Long,
                             currency: Currency)
         extends LineItem
   }
@@ -48,15 +52,17 @@ object ReturnResponse {
 
   sealed trait Payment extends ResponseItem {
     def id: Int
-    def amount: Int
+    def amount: Long
     def currency: Currency
   }
   object Payment {
-    case class CreditCard(id: Int, amount: Int, currency: Currency)             extends Payment
-    case class GiftCard(id: Int, code: String, amount: Int, currency: Currency) extends Payment
-    case class StoreCredit(id: Int, amount: Int, currency: Currency)            extends Payment
+    case class CreditCard(id: Int, amount: Long, currency: Currency)             extends Payment
+    case class GiftCard(id: Int, code: String, amount: Long, currency: Currency) extends Payment
+    case class StoreCredit(id: Int, amount: Long, currency: Currency)            extends Payment
+    case class ApplePay(id: Int, amount: Long, currency: Currency)               extends Payment
   }
   case class Payments(creditCard: Option[Payment.CreditCard],
+                      applePay: Option[Payment.ApplePay],
                       giftCard: Option[Payment.GiftCard],
                       storeCredit: Option[Payment.StoreCredit])
       extends ResponseItem
@@ -78,11 +84,13 @@ object ReturnResponse {
       extends ResponseItem
 
   def buildPayments(creditCard: Option[ReturnPayment],
+                    applePay: Option[ReturnPayment],
                     giftCard: Option[(ReturnPayment, GiftCard)],
                     storeCredit: Option[ReturnPayment]): Payments =
     Payments(
         creditCard =
           creditCard.map(cc ⇒ Payment.CreditCard(cc.paymentMethodId, cc.amount, cc.currency)),
+        applePay = applePay.map(ap ⇒ Payment.ApplePay(ap.paymentMethodId, ap.amount, ap.currency)),
         giftCard = giftCard.map {
           case (p, gc) ⇒ Payment.GiftCard(p.paymentMethodId, gc.code, p.amount, p.currency)
         },
@@ -90,7 +98,7 @@ object ReturnResponse {
           storeCredit.map(sc ⇒ Payment.StoreCredit(sc.paymentMethodId, sc.amount, sc.currency))
     )
 
-  def buildTotals(subTotal: Int, shipping: Int, adjustments: Int, taxes: Int): ReturnTotals = {
+  def buildTotals(subTotal: Long, shipping: Long, adjustments: Long, taxes: Long): ReturnTotals = {
     ReturnTotals(subTotal = subTotal,
                  shipping = shipping,
                  adjustments = adjustments,
@@ -107,16 +115,17 @@ object ReturnResponse {
       adminData    ← * <~ rma.storeAdminId.map(AdminsData.findOneByAccountId).getOrElse(lift(None))
       organization ← * <~ rma.storeAdminId.map(Organizations.mustFindByAccountId)
       // Payment methods
-      ccPayment ← * <~ ReturnPayments.findAllByReturnId(rma.id).creditCards.one
-      gcPayment ← * <~ ReturnPayments.findGiftCards(rma.id).one
-      scPayment ← * <~ ReturnPayments.findAllByReturnId(rma.id).storeCredits.one
+      ccPayment       ← * <~ ReturnPayments.findAllByReturnId(rma.id).creditCards.one
+      applePayPayment ← * <~ ReturnPayments.findAllByReturnId(rma.id).applePays.one
+      gcPayment       ← * <~ ReturnPayments.findGiftCards(rma.id).one
+      scPayment       ← * <~ ReturnPayments.findAllByReturnId(rma.id).storeCredits.one
       // Line items of each subtype
       lineItems     ← * <~ ReturnLineItemManager.fetchSkuLineItems(rma)
       shippingCosts ← * <~ ReturnLineItemManager.fetchShippingCostLineItem(rma)
       // Totals
       adjustments ← * <~ ReturnTotaler.adjustmentsTotal(rma)
       subTotal    ← * <~ ReturnTotaler.subTotal(rma)
-      shipping = shippingCosts.map(_.amount).getOrElse(0)
+      shipping = shippingCosts.map(_.amount).getOrElse(0L)
       taxes ← * <~ CartTotaler.taxesTotal(rma.orderRef,
                                           subTotal = subTotal,
                                           shipping = shipping,
@@ -133,8 +142,10 @@ object ReturnResponse {
             ad  ← adminData
             org ← organization
           } yield StoreAdminResponse.build(a, ad, org),
-          payments =
-            buildPayments(creditCard = ccPayment, giftCard = gcPayment, storeCredit = scPayment),
+          payments = buildPayments(creditCard = ccPayment,
+                                   applePay = applePayPayment,
+                                   giftCard = gcPayment,
+                                   storeCredit = scPayment),
           lineItems = LineItems(skus = lineItems, shippingCosts = shippingCosts),
           totals = buildTotals(subTotal = subTotal,
                                shipping = shipping,
@@ -147,7 +158,7 @@ object ReturnResponse {
             customer: Option[Customer] = None,
             storeAdmin: Option[User] = None,
             lineItems: LineItems = LineItems(List.empty, Option.empty),
-            payments: Payments = Payments(Option.empty, Option.empty, Option.empty),
+            payments: Payments = Payments(Option.empty, Option.empty, Option.empty, Option.empty),
             totals: ReturnTotals = ReturnTotals(0, 0, 0, 0, 0)): Root =
     Root(id = rma.id,
          referenceNumber = rma.refNum,

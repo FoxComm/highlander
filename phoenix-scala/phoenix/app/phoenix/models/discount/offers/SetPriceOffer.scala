@@ -9,7 +9,7 @@ import phoenix.utils.ElasticsearchApi._
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 
-case class SetPriceOffer(setPrice: Int, numUnits: Int, search: Seq[ProductSearch])
+case class SetPriceOffer(setPrice: Long, numUnits: Int, search: Seq[ProductSearch])
     extends Offer
     with SetOffer
     with NonEmptySearch
@@ -17,10 +17,7 @@ case class SetPriceOffer(setPrice: Int, numUnits: Int, search: Seq[ProductSearch
 
   val offerType: OfferType = SetPrice
 
-  def adjust(input: DiscountInput)(implicit db: DB,
-                                   ec: EC,
-                                   apis: Apis,
-                                   au: AU): Result[Seq[OfferResult]] =
+  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis): Result[Seq[OfferResult]] =
     if (setPrice > 0 && numUnits < 100) adjustInner(input)(search) else pureResult()
 
   def matchEither(input: DiscountInput)(
@@ -29,11 +26,11 @@ case class SetPriceOffer(setPrice: Int, numUnits: Int, search: Seq[ProductSearch
       case Right(buckets) ⇒
         val matchedFormIds = buckets.filter(_.docCount > 0).map(_.key)
         val adjustments = input.lineItems
-          .filter(data ⇒ matchedFormIds.contains(data.productForm.id.toString))
+          .filter(data ⇒ matchedFormIds.contains(data.productId.toString))
           .take(numUnits)
           .map { data ⇒
             OfferResult(input,
-                        subtract(price(data), setPrice),
+                        subtract(data.price, setPrice),
                         data.lineItemReferenceNumber.some,
                         offerType)
           }
