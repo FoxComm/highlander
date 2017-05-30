@@ -12,6 +12,7 @@ import core.failures.Failure
 import objectframework.IlluminateAlgorithm
 import objectframework.content._
 import objectframework.db._
+import objectframework.failures._
 import objectframework.ObjectFailures._
 import objectframework.payloads.ContentPayloads._
 
@@ -45,6 +46,7 @@ object ContentManager {
     for {
       _ ← * <~ failIfErrors(IlluminateAlgorithm.validateAttributesTypes(formJson, shadowJson))
       _ ← * <~ failIfErrors(IlluminateAlgorithm.validateAttributes(formJson, shadowJson))
+      _ ← * <~ validateRelations(payload.relations)
 
       form    ← * <~ Forms.create(Form(kind = payload.kind, attributes = formJson))
       shadow  ← * <~ Shadows.create(Shadow.build(form.id, shadowJson, payload.relations))
@@ -83,9 +85,33 @@ object ContentManager {
         relations + (kind → content)
     }
 
-  private def failIfErrors(errors: Seq[Failure])(implicit ec: EC): DbResultT[Unit] =
+  private def validateRelations(relations: Content.ContentRelations)(
+      implicit ec: EC): Seq[DbResultT[Unit]] =
+    relations.foldLeft(Seq.empty[DbResultT[Unit]]) {
+      case (acc, (kind, expectedIds)) ⇒
+        acc :+ (for {
+              actualIds ← * <~ ContentQueries.filterCommitIds(kind, expectedIds).result
+              _         ← * <~ validateAllCommits(kind, expectedIds, actualIds)
+            } yield {})
+    }
+
+  private def validateAllCommits(
+      kind: String,
+      expectedCommits: Seq[Commit#Id],
+      actualCommits: Seq[Commit#Id])(implicit ec: EC): DbResultT[Unit] = {
+
+    val errors = expectedCommits.toSet.diff(actualCommits.toSet).foldLeft(Seq.empty[Failure]) {
+      (acc, commitId) ⇒
+        acc :+ RelatedContentDoesNotExist(kind, commitId)
+    }
+
+    failIfErrors(errors)
+  }
+
+  private def failIfErrors(errors: Seq[Failure])(implicit ec: EC): DbResultT[Unit] = {
     errors match {
       case head :: tail ⇒ DbResultT.failures(NonEmptyList(head, tail))
       case Nil          ⇒ DbResultT.pure(Unit)
     }
+  }
 }

@@ -14,7 +14,7 @@ case class Commit(id: Int = 0,
                   createdAt: Instant = Instant.now)
     extends FoxModel[Commit]
 
-class Commits(tag: Tag) extends FoxTable[Commit](tag, "commits") {
+class Commits(tag: Tag) extends FoxTable[Commit](tag, "object_commits") {
   def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def formId    = column[Int]("form_id")
   def shadowId  = column[Int]("shadow_id")

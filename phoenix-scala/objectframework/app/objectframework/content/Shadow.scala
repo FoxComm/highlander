@@ -26,7 +26,7 @@ object Shadow {
   }
 }
 
-class Shadows(tag: Tag) extends FoxTable[Shadow](tag, "shadows") {
+class Shadows(tag: Tag) extends FoxTable[Shadow](tag, "object_shadows") {
   def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def formId     = column[Int]("form_id")
   def attributes = column[JValue]("attributes")

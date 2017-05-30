@@ -30,4 +30,16 @@ object ContentQueries {
       form   ← Forms if form.id === commit.formId && form.kind === kind
       shadow ← Shadows if shadow.id === commit.shadowId
     } yield (commit, form, shadow)
+
+  type QueryCommitSeq = Query[Commits, Commit, Seq]
+  def filterCommits(kind: String, commits: Seq[Commit#Id]): QueryCommitSeq =
+    for {
+      commit ← Commits.filter(_.id.inSet(commits))
+      form   ← Forms if form.id === commit.formId && form.kind === kind
+    } yield commit
+
+  type IntSeq = Query[Rep[Int], Int, Seq]
+  def filterCommitIds(kind: String, commits: Seq[Commit#Id]): IntSeq =
+    filterCommits(kind, commits).map(_.id)
+
 }

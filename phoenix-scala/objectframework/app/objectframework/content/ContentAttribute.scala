@@ -5,7 +5,7 @@ import org.json4s._
 import cats.implicits._
 import core.failures.Failures
 
-import objectframework.ObjectFailures._
+import objectframework.failures._
 
 case class ContentAttribute(t: String, v: JValue)
 

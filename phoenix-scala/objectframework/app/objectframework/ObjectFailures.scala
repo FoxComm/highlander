@@ -42,7 +42,8 @@ object ObjectFailures {
     override def description = "Unable to parse corrupted content object"
   }
   
-  case class LinkAtPositionCannotBeFound(clazz: Class[_], left: Int, position: Int) extends Failure {
+  case class LinkAtPositionCannotBeFound(clazz: Class[_], left: Int, position: Int)
+      extends Failure {
     override def description =
       s"No object link ${clazz.getSimpleName} with left id $left exists at position $position"
   }
