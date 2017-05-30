@@ -2,7 +2,6 @@ package testutils
 
 import com.typesafe.config.{Config, ConfigFactory}
 import java.sql.{Connection, PreparedStatement}
-import java.util.Locale
 import javax.sql.DataSource
 
 import objectframework.models.ObjectContexts
@@ -34,7 +33,6 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
   }.stripPrefix("_")
 
   lazy val dbForTest: DB = {
-    Locale.setDefault(Locale.US)
     DbTestSupport.createDB(dbName)
     Database.forConfig("db", dbConfig)
   }
@@ -124,7 +122,7 @@ object DbTestSupport extends GimmeSupport {
     finally stmt.close()
   }
 
-  val DB_TEMPLATE: String = "phoenix_test_tpl"
+  private val DB_TEMPLATE: String = "phoenix_test_tpl"
 
   /* tables which should *not* be truncated b/c they're static and seeded by migration */
   val DoNotTruncate: Set[String] = Set("states",
