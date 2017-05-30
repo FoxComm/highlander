@@ -1,0 +1,274 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\usepackage{listings}
+%for dotex
+\usepackage[pdftex]{graphicx}
+\usepackage[pdf]{graphviz}
+\usepackage[boxed]{algorithm2e} %end for dote
+\usepackage{color}
+
+\title{Multi Tenancy to Completion}
+\begin{document}
+\maketitle
+\section{The Problem}
+
+FoxCommerce platform has been moving towards multi-tenancy and is almost there. 
+There are a couple of remaining issues that need to be addressed for the system 
+to be completely multi tenant. 
+
+\section{What We Have}
+
+\subsection{Organizations}
+
+We have a model of organizations which have roles and permissions and users.
+Organizations are associated with a specific scope. Scopes provide a way to
+organize data hierarchically and limit access.
+
+\subsection{Scopes}
+
+Almost all tables in the system have a scope column. Scopes are hierarchical 
+organization of data like a filesystem tree. Users with access to a scope do not
+have access to the parent scope.
+
+\digraph[scale=0.80]{Scopes}{
+    splines="ortho";
+    rankdir=LR;
+    node [shape=box,style=filled,fillcolor="lightblue"];
+
+    subgraph zero{
+        tenant [shape=record, label="Tenant (1)"]
+    };
+    subgraph first{
+        merchant1 [shape=record,label="{Merchant A(1.2)}"];
+        merchant2 [shape=record,label="{Merchant B(1.3)}"];
+    };
+
+    tenant -> merchant1
+    tenant -> merchant2
+}
+
+Each merchant may have one or more storefronts. The question of whether the
+data of those storefronts is scoped depends on the use cases we want to enable.
+Is a different organization managing the other store fronts? Then we probably want this
+
+\digraph[scale=0.80]{Storefronts}{
+    splines="ortho";
+    rankdir=LR;
+    node [shape=box,style=filled,fillcolor="lightblue"];
+
+    subgraph zero{
+        tenant [shape=record, label="Tenant (1)"]
+    };
+    subgraph first{
+        merchant1 [shape=record,label="{Merchant A(1.2)}"];
+        merchant2 [shape=record,label="{Merchant B(1.3)}"];
+    };
+    subgraph third {
+        storefront1 [shape=record,label="{Storefront A1(1.2.4?)}"];
+        storefront2 [shape=record,label="{Storefront A2(1.2.5?)}"];
+        storefront3 [shape=record,label="{Storefront B(1.3.6?)}"];
+    };
+
+    tenant -> merchant1
+    tenant -> merchant2
+    merchant1 -> storefront1
+    merchant1 -> storefront2
+    merchant2 -> storefront3
+}
+
+Is the same organization managing various storefronts? Then we want this.
+
+\digraph[scale=0.80]{Storefronts}{
+    splines="ortho";
+    rankdir=LR;
+    node [shape=box,style=filled,fillcolor="lightblue"];
+
+    subgraph zero{
+        tenant [shape=record, label="Tenant (1)"]
+    };
+    subgraph first{
+        merchant1 [shape=record,label="{Merchant A(1.2)}"];
+        merchant2 [shape=record,label="{Merchant B(1.3)}"];
+    };
+    subgraph third {
+        storefront1 [shape=record,label="{Storefront A1(1.2)}"];
+        storefront2 [shape=record,label="{Storefront A2(1.2)}"];
+        storefront3 [shape=record,label="{Storefront B(1.3)}"];
+    };
+
+    tenant -> merchant1
+    tenant -> merchant2
+    merchant1 -> storefront1
+    merchant1 -> storefront2
+    merchant2 -> storefront3
+}
+
+Notice that the scope of the storefronts is the same. Regardless if we have one
+organization or another we need a different organizing structure for storefront
+data that is separate from scopes. We want a model of channels.
+
+\subsection{Views (formally Context)}
+
+All merchandising information can have several views. Views provide a way to change the 
+information of a product, sku, discount, or other merchandising data for a specific
+purpose. For example, each storefront could possibly have a different view of a product.
+A review/approval flow may have it's own view.
+
+\digraph[scale=0.80]{Views}{
+    splines="ortho";
+    rankdir=LR;
+    node [shape=record,style=filled,fillcolor="lightblue"];
+
+    subgraph zero{
+        product [label="Product"]
+    };
+    subgraph first{
+        view1 [label="{View for Storefront A}"];
+        view2 [label="{View for Storefront B}"];
+        view3 [label="{View for Review/Approval}"];
+    };
+
+    product -> view1
+    product -> view2
+    product -> view3
+}
+
+\section{What We Need}
+
+\subsection{Catalogs}
+Catalogs are collections of products you want to sell.
+
+\digraph[scale=0.80]{Catalogs}{
+    splines="ortho";
+    rankdir=LR;
+    node [shape=box,style=filled,fillcolor="tan"];
+
+    subgraph zero{
+        catalog [label="Catalog"]
+    };
+    subgraph first{
+        scope [label="Scope"];
+        name [label="Name"];
+        country [label="Country"];
+        language [label="Language"];
+    };
+
+    catalog -> scope [label="belongs to"]
+    catalog -> name [label="has a"]
+    catalog -> country [label="for a"]
+    catalog -> language [label="has default"]
+}
+
+\subsection{Channels}
+
+Channels should be comprised of three key components
+
+\digraph[scale=0.80]{Channels}{
+    splines="ortho";
+    rankdir=LR;
+    node [shape=box,style=filled,fillcolor="tan"];
+
+    subgraph zero{
+        channel [label="Catalog"]
+    };
+    subgraph first{
+        scope [label="Scope"];
+        catalog [label="Catalog"];
+        view [label="View"];
+        aux [label="Auxiliary Data..."];
+    };
+
+    channel -> scope [label="belongs to"]
+    channel -> catalog [label="has a"]
+    channel -> view [label="shows a"]
+    channel -> aux [label="has"]
+}
+
+\subsection{Storefronts}
+
+One type of channel is a storefront, We can either create a first class item
+or use the auxiliary data in the channel.
+
+\digraph[scale=0.80]{StorefrontModel}{
+    splines="ortho";
+    rankdir=LR;
+    node [shape=box,style=filled,fillcolor="tan"];
+
+    subgraph zero{
+        store [label="Storefront(Channel)"]
+    };
+    subgraph first{
+        scope [label="Scope"];
+        catalog [label="Catalog"];
+        view [label="View"];
+        host [label="Host"];
+    };
+
+    store -> scope [label="belongs to"]
+    store -> catalog [label="has a"]
+    store -> view [label="shows a"]
+    store -> host [label="serves from"]
+}
+
+\subsection{Back to Organizations}
+
+Once we have these new models we can assign them to organizations
+
+\digraph[scale=0.70]{OrgModel}{
+    splines="ortho";
+    rankdir=TD;
+    node [shape=box,style=filled,fillcolor="tan"];
+
+    subgraph zero{
+        org [label="Organization"]
+    };
+    subgraph first{
+        org1 [label="Sub Org A"];
+        org2 [label="Sub Org B"];
+    };
+    subgraph second{
+        scope [label="Scope 1.2"]
+        scope1 [label="Scope 1.2.3"]
+        scope2 [label="Scope 1.2.4"]
+        catalog [label="Master Catalog"];
+        catalog1 [label="Catalog A"];
+        catalog2 [label="Catalog B"];
+        view [label="Master View"];
+        view1 [label="View A"];
+        view1 [label="View B"];
+    };
+
+    subgraph third{
+        rank=sink;
+        channel1 [label="Channel A(Storefront)"];
+        channel2 [label="Channel B(Storefront)"];
+    };
+
+    org -> scope [label="belongs to"]
+    org -> org1;
+    org -> org2;
+    scope -> scope1;
+    scope -> scope2;
+    scope -> catalog;
+    scope -> view;
+    org1 -> scope1 [label="belongs to"]
+    org2 -> scope2 [label="belongs to"]
+    catalog -> catalog1
+    catalog -> catalog2
+    scope1 -> catalog1;
+    scope1 -> view1;
+    scope1 -> channel1;
+    scope2 -> catalog2;
+    scope2 -> view2;
+    scope2 -> channel2;
+    view -> view1 [label="branch"]
+    view -> view2 [label="branch"]
+    channel1 -> catalog1 [label="uses"]
+    channel2 -> catalog2 [label="uses"]
+    channel1 -> view1 [label="uses"]
+    channel2 -> view2 [label="uses"]
+}
+
+\end{document}
