@@ -17,10 +17,8 @@ import objectframework.ObjectFailures._
 import objectframework.payloads.ContentPayloads._
 
 object ContentManager {
-  type FullContentRelations = Map[String, Seq[Content]]
 
-  def findLatestById(id: Form#Id, viewId: View#Id, kind: String)(
-      implicit ec: EC): DbResultT[Content] = {
+  def findLatest(id: Form#Id, viewId: View#Id, kind: String)(implicit ec: EC): DbResultT[Content] = {
     for {
       contentTuple ← * <~ ContentQueries
                       .filterLatestById(id, viewId, kind)
@@ -33,7 +31,7 @@ object ContentManager {
   def findByCommit(commitId: Commit#Id, kind: String)(implicit ec: EC): DbResultT[Content] =
     for {
       contentTuple ← * <~ ContentQueries
-                      .filterByCommit(commitId)
+                      .filterByCommit(commitId, kind)
                       .mustFindOneOr(ObjectNotFoundAtCommit(kind, commitId))
       (commit, form, shadow) = contentTuple
       content ← * <~ Content.build(commit, form, shadow)
@@ -56,6 +54,7 @@ object ContentManager {
     } yield created
   }
 
+  type FullContentRelations = Map[String, Seq[Content]]
   def getRelations(content: Content)(implicit ec: EC): DbResultT[FullContentRelations] = {
     val empty = DbResultT.pure(Map.empty[String, Seq[Content]])
 

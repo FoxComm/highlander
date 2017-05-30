@@ -17,10 +17,10 @@ object ContentQueries {
       shadow ← Shadows if shadow.id === commit.shadowId
     } yield (head, commit, form, shadow)
 
-  def filterByCommit(commitId: Commit#Id): QuerySeq =
+  def filterByCommit(commitId: Commit#Id, kind: String): QuerySeq =
     for {
       commit ← Commits.filter(_.id === commitId)
-      form   ← Forms if form.id === commit.formId
+      form   ← Forms if form.id === commit.formId && form.kind === kind
       shadow ← Shadows if shadow.id === commit.shadowId
     } yield (commit, form, shadow)
 
