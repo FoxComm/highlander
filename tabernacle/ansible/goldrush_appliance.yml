@@ -28,8 +28,6 @@
       set_fact:
         storefront_server_name: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
         api_server: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
-  handlers:
-    - include: roles/base/consul_agent/handlers/main.yml
   roles:
     - { role: dev/dashboard }
     - { role: dev/marathon_consul }
