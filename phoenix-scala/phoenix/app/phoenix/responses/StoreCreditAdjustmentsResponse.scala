@@ -8,8 +8,8 @@ import phoenix.models.payment.storecredit.StoreCreditAdjustment
 object StoreCreditAdjustmentsResponse {
   case class Root(id: Int,
                   createdAt: Instant,
-                  debit: Int,
-                  availableBalance: Int,
+                  debit: Long,
+                  availableBalance: Long,
                   state: InStorePaymentStates.State,
                   cordRef: Option[String])
       extends ResponseItem

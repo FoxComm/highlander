@@ -3,7 +3,7 @@ package phoenix.services.activity
 import phoenix.models.cord.Order
 import phoenix.models.cord.Cart
 import phoenix.payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
-import phoenix.responses.{GiftCardResponse, UserResponse, StoreCreditResponse}
+import phoenix.responses.{GiftCardResponse, StoreCreditResponse, UserResponse}
 
 object GiftCardTailored {
   case class GiftCardCreated(admin: UserResponse.Root, giftCard: GiftCardResponse.Root)
@@ -22,12 +22,12 @@ object GiftCardTailored {
   case class GiftCardAuthorizedFunds(user: UserResponse.Root,
                                      cart: Cart,
                                      giftCardCodes: Seq[String],
-                                     amount: Int)
+                                     amount: Long)
       extends ActivityBase[GiftCardAuthorizedFunds]
 
   case class GiftCardCapturedFunds(user: UserResponse.Root,
                                    order: Order,
                                    giftCardCodes: Seq[String],
-                                   amount: Int)
+                                   amount: Long)
       extends ActivityBase[GiftCardCapturedFunds]
 }

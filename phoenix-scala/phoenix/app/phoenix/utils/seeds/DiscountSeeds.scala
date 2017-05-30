@@ -148,7 +148,7 @@ object DiscountTitles {
     case SetPriceOffer(value, units, _) ⇒ setPrice.format(dollars(value), units)
   }
 
-  private def dollars(cents: Int): String = "$%.2f".format(cents.toDouble / 100)
+  private def dollars(cents: Long): String = "$%.2f".format(cents.toDouble / 100)
 
-  private def percents(value: Int): String = value.toString + "%"
+  private def percents(value: Long): String = value.toString + "%"
 }

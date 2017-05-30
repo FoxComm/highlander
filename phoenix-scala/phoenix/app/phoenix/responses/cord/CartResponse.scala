@@ -13,6 +13,7 @@ import phoenix.responses.cord.base._
 import phoenix.services.carts.CartQueries
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
+import core.utils.Money._
 
 case class CartResponse(referenceNumber: String,
                         paymentState: CordPaymentState.State,
@@ -53,9 +54,9 @@ object CartResponse {
       coveredByInStoreMethods ← * <~ OrderPayments
                                  .findAllByCordRef(cart.refNum)
                                  .inStoreMethods
-                                 .map(_.amount.getOrElse(0))
+                                 .map(_.amount.getOrElse(0L))
                                  .sum
-                                 .getOrElse(0)
+                                 .getOrElse(0L)
                                  .result
     } yield
       CartResponse(

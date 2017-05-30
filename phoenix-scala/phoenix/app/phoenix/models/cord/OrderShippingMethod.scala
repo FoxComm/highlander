@@ -5,7 +5,7 @@ import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import core.db._
 
-case class OrderShippingMethod(id: Int = 0, cordRef: String, shippingMethodId: Int, price: Int)
+case class OrderShippingMethod(id: Int = 0, cordRef: String, shippingMethodId: Int, price: Long)
     extends FoxModel[OrderShippingMethod]
 
 object OrderShippingMethod {
@@ -18,7 +18,7 @@ class OrderShippingMethods(tag: Tag)
   def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def cordRef          = column[String]("cord_ref")
   def shippingMethodId = column[Int]("shipping_method_id")
-  def price            = column[Int]("price")
+  def price            = column[Long]("price")
 
   def * =
     (id, cordRef, shippingMethodId, price) <> ((OrderShippingMethod.apply _).tupled, OrderShippingMethod.unapply)

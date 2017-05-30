@@ -88,7 +88,7 @@ trait ProductGenerator {
     SimpleProductData(code = code,
                       title = title,
                       description = title,
-                      price = Random.nextInt(10000),
+                      price = Random.nextInt(10000).toLong,
                       image = ProductGenerator.randomImage)
   }
 

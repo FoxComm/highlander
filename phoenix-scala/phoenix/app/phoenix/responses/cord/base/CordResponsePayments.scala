@@ -6,8 +6,10 @@ import phoenix.models.cord.OrderPayments
 import phoenix.models.payment.PaymentMethod._
 import phoenix.models.payment.creditcard.CreditCards
 import phoenix.responses.AddressResponse
+import phoenix.responses.cord.base.CordResponseStoreCreditPayment.CordResponseApplePayPayment
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
+import core.utils.Money._
 
 sealed trait CordResponsePayments {
   def `type`: Type
@@ -20,7 +22,8 @@ object CordResponsePayments {
       gc ← CordResponseGiftCardPayment.fetch(cordRef)
       cc ← CordResponseCreditCardPayment.fetch(cordRef)
       sc ← CordResponseStoreCreditPayment.fetch(cordRef)
-    } yield cc ++ gc ++ sc
+      ap ← CordResponseApplePayPayment.fetch(cordRef)
+    } yield cc ++ gc ++ sc ++ ap
 }
 
 case class CordResponseCreditCardPayment(id: Int,
@@ -58,9 +61,9 @@ object CordResponseCreditCardPayment {
 }
 
 case class CordResponseGiftCardPayment(code: String,
-                                       amount: Int,
-                                       currentBalance: Int,
-                                       availableBalance: Int,
+                                       amount: Long,
+                                       currentBalance: Long,
+                                       availableBalance: Long,
                                        createdAt: Instant,
                                        `type`: Type = GiftCard)
     extends CordResponsePayments
@@ -82,9 +85,9 @@ object CordResponseGiftCardPayment {
 }
 
 case class CordResponseStoreCreditPayment(id: Int,
-                                          amount: Int,
-                                          currentBalance: Int,
-                                          availableBalance: Int,
+                                          amount: Long,
+                                          currentBalance: Long,
+                                          availableBalance: Long,
                                           createdAt: Instant,
                                           `type`: Type = StoreCredit)
     extends CordResponsePayments
@@ -103,4 +106,25 @@ object CordResponseStoreCreditPayment {
                                          availableBalance = sc.availableBalance,
                                          createdAt = sc.createdAt)
       })
+
+  case class CordResponseApplePayPayment(id: Int,
+                                         amount: Long,
+                                         createdAt: Instant,
+                                         `type`: Type = ApplePay)
+      extends CordResponsePayments
+
+  object CordResponseApplePayPayment {
+
+    def fetch(cordRef: String)(implicit ec: EC): DBIO[Seq[CordResponseApplePayPayment]] =
+      for {
+        pmt ← OrderPayments.findAllApplePaysByCordRef(cordRef).result
+        response = pmt.map {
+          case (pmt, ap) ⇒
+            CordResponseApplePayPayment(id = ap.id,
+                                        amount = pmt.amount.getOrElse(0),
+                                        createdAt = ap.createdAt)
+        }
+      } yield response
+
+  }
 }
