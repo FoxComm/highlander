@@ -1,46 +1,50 @@
 package services
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
-	"github.com/FoxComm/highlander/middlewarehouse/services/mocks"
 
-	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/mock"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/stretchr/testify/suite"
 )
 
 type ShippingMethodServiceTestSuite struct {
 	GeneralServiceTestSuite
-	repository *mocks.ShippingMethodRepositoryMock
-	service    IShippingMethodService
+	service ShippingMethodService
+	carrier *models.Carrier
 }
 
 func TestShippingMethodServiceSuite(t *testing.T) {
 	suite.Run(t, new(ShippingMethodServiceTestSuite))
 }
 
-func (suite *ShippingMethodServiceTestSuite) SetupTest() {
-	suite.repository = &mocks.ShippingMethodRepositoryMock{}
-	suite.service = NewShippingMethodService(suite.repository)
+func (suite *ShippingMethodServiceTestSuite) SetupSuite() {
+	suite.db = config.TestConnection()
+	suite.service = NewShippingMethodService(suite.db)
 }
 
-func (suite *ShippingMethodServiceTestSuite) TearDownTest() {
-	//assert all expectations were met
-	suite.repository.AssertExpectations(suite.T())
+func (suite *ShippingMethodServiceTestSuite) SetupTest() {
+	tasks.TruncateTables(suite.db, []string{
+		"carriers",
+		"shipping_methods",
+	})
 
-	// clear service mock calls expectations after each test
-	suite.repository.ExpectedCalls = []*mock.Call{}
-	suite.repository.Calls = []mock.Call{}
+	suite.carrier = fixtures.GetCarrier(uint(0))
+	suite.Nil(suite.db.Create(suite.carrier).Error)
 }
 
 func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethods_ReturnsShippingMethodModels() {
 	//arrange
-	shippingMethod1 := fixtures.GetShippingMethod(uint(1), uint(1), fixtures.GetCarrier(uint(1)))
-	shippingMethod2 := fixtures.GetShippingMethod(uint(2), uint(2), fixtures.GetCarrier(uint(2)))
-	suite.repository.On("GetShippingMethods").Return([]*models.ShippingMethod{shippingMethod1, shippingMethod2}, nil).Once()
+	shippingMethod1 := fixtures.GetShippingMethod(uint(1), uint(1), suite.carrier)
+	shippingMethod2 := fixtures.GetShippingMethod(uint(2), uint(2), suite.carrier)
+	shippingMethod2.Code = "STANDARD"
+	suite.Nil(suite.db.Create(shippingMethod1).Error)
+	suite.Nil(suite.db.Create(shippingMethod2).Error)
 
 	//act
 	shippingMethods, err := suite.service.GetShippingMethods()
@@ -54,20 +58,17 @@ func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethods_ReturnsShip
 }
 
 func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethodByID_NotFound_ReturnsNotFoundError() {
-	//arrange
-	suite.repository.On("GetShippingMethodByID", uint(1)).Return(nil, gorm.ErrRecordNotFound).Once()
-
 	//act
 	_, err := suite.service.GetShippingMethodByID(uint(1))
 
 	//assert
-	suite.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(fmt.Errorf(repositories.ErrorShippingMethodNotFound, 1), err)
 }
 
 func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethodByID_Found_ReturnsShippingMethodModel() {
 	//arrange
-	shippingMethod1 := fixtures.GetShippingMethod(uint(1), uint(1), fixtures.GetCarrier(uint(1)))
-	suite.repository.On("GetShippingMethodByID", shippingMethod1.ID).Return(shippingMethod1, nil).Once()
+	shippingMethod1 := fixtures.GetShippingMethod(uint(1), uint(1), suite.carrier)
+	suite.Nil(suite.db.Create(shippingMethod1).Error)
 
 	//act
 	shippingMethod, err := suite.service.GetShippingMethodByID(shippingMethod1.ID)
@@ -79,8 +80,8 @@ func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethodByID_Found_Re
 
 func (suite *ShippingMethodServiceTestSuite) Test_CreateShippingMethod_ReturnsCreatedRecord() {
 	//arrange
-	shippingMethod1 := fixtures.GetShippingMethod(uint(1), uint(1), fixtures.GetCarrier(uint(1)))
-	suite.repository.On("CreateShippingMethod", shippingMethod1).Return(shippingMethod1, nil).Once()
+	shippingMethod1 := fixtures.GetShippingMethod(uint(1), uint(1), suite.carrier)
+	suite.Nil(suite.db.Create(shippingMethod1).Error)
 
 	//act
 	shippingMethod, err := suite.service.CreateShippingMethod(shippingMethod1)
@@ -93,19 +94,19 @@ func (suite *ShippingMethodServiceTestSuite) Test_CreateShippingMethod_ReturnsCr
 func (suite *ShippingMethodServiceTestSuite) Test_UpdateShippingMethod_NotFound_ReturnsNotFoundError() {
 	//arrange
 	shippingMethod1 := fixtures.GetShippingMethod(uint(1), uint(1), fixtures.GetCarrier(uint(1)))
-	suite.repository.On("UpdateShippingMethod", shippingMethod1).Return(nil, gorm.ErrRecordNotFound).Once()
 
 	//act
 	_, err := suite.service.UpdateShippingMethod(shippingMethod1)
 
 	//assert
-	suite.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(fmt.Errorf(repositories.ErrorShippingMethodNotFound, 1), err)
 }
 
 func (suite *ShippingMethodServiceTestSuite) Test_UpdateShippingMethod_Found_ReturnsUpdatedRecord() {
 	//arrange
-	shippingMethod1 := fixtures.GetShippingMethod(uint(1), uint(1), fixtures.GetCarrier(uint(1)))
-	suite.repository.On("UpdateShippingMethod", shippingMethod1).Return(shippingMethod1, nil).Once()
+	shippingMethod1 := fixtures.GetShippingMethod(uint(1), uint(1), suite.carrier)
+	suite.Nil(suite.db.Create(shippingMethod1).Error)
+	shippingMethod1.Cost = 5999
 
 	//act
 	shippingMethod, err := suite.service.UpdateShippingMethod(shippingMethod1)
@@ -116,19 +117,17 @@ func (suite *ShippingMethodServiceTestSuite) Test_UpdateShippingMethod_Found_Ret
 }
 
 func (suite *ShippingMethodServiceTestSuite) Test_DeleteShippingMethod_NotFound_ReturnsNotFoundError() {
-	//arrange
-	suite.repository.On("DeleteShippingMethod", uint(1)).Return(gorm.ErrRecordNotFound).Once()
-
 	//act
 	err := suite.service.DeleteShippingMethod(uint(1))
 
 	//assert
-	suite.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(fmt.Errorf(repositories.ErrorShippingMethodNotFound, 1), err)
 }
 
 func (suite *ShippingMethodServiceTestSuite) Test_DeleteShippingMethod_Found_ReturnsNoError() {
 	//arrange
-	suite.repository.On("DeleteShippingMethod", uint(1)).Return(nil).Once()
+	shippingMethod1 := fixtures.GetShippingMethod(uint(1), uint(1), suite.carrier)
+	suite.Nil(suite.db.Create(shippingMethod1).Error)
 
 	//act
 	err := suite.service.DeleteShippingMethod(uint(1))

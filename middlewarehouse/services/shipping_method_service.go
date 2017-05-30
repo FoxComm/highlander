@@ -3,13 +3,14 @@ package services
 import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
+	"github.com/jinzhu/gorm"
 )
 
 type shippingMethodService struct {
 	repository repositories.IShippingMethodRepository
 }
 
-type IShippingMethodService interface {
+type ShippingMethodService interface {
 	GetShippingMethods() ([]*models.ShippingMethod, error)
 	GetShippingMethodByID(id uint) (*models.ShippingMethod, error)
 	CreateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error)
@@ -17,7 +18,8 @@ type IShippingMethodService interface {
 	DeleteShippingMethod(id uint) error
 }
 
-func NewShippingMethodService(repository repositories.IShippingMethodRepository) IShippingMethodService {
+func NewShippingMethodService(db *gorm.DB) ShippingMethodService {
+	repository := repositories.NewShippingMethodRepository(db)
 	return &shippingMethodService{repository}
 }
 

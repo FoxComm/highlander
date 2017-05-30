@@ -1,6 +1,8 @@
 package services
 
 import (
+	"github.com/jinzhu/gorm"
+
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 )
@@ -9,7 +11,7 @@ type carrierService struct {
 	repository repositories.ICarrierRepository
 }
 
-type ICarrierService interface {
+type CarrierService interface {
 	GetCarriers() ([]*models.Carrier, error)
 	GetCarrierByID(id uint) (*models.Carrier, error)
 	CreateCarrier(carrier *models.Carrier) (*models.Carrier, error)
@@ -17,7 +19,8 @@ type ICarrierService interface {
 	DeleteCarrier(id uint) error
 }
 
-func NewCarrierService(repository repositories.ICarrierRepository) ICarrierService {
+func NewCarrierService(db *gorm.DB) CarrierService {
+	repository := repositories.NewCarrierRepository(db)
 	return &carrierService{repository}
 }
 

@@ -1,45 +1,43 @@
 package services
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
-	"github.com/FoxComm/highlander/middlewarehouse/models"
-	"github.com/FoxComm/highlander/middlewarehouse/services/mocks"
 
-	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/mock"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/stretchr/testify/suite"
 )
 
 type CarrierServiceTestSuite struct {
 	GeneralServiceTestSuite
-	repository *mocks.CarrierRepositoryMock
-	service    ICarrierService
+	service CarrierService
 }
 
 func TestCarrierServiceSuite(t *testing.T) {
 	suite.Run(t, new(CarrierServiceTestSuite))
 }
 
+func (suite *CarrierServiceTestSuite) SetupSuite() {
+	suite.db = config.TestConnection()
+	suite.service = NewCarrierService(suite.db)
+}
+
 func (suite *CarrierServiceTestSuite) SetupTest() {
-	suite.repository = &mocks.CarrierRepositoryMock{}
-	suite.service = NewCarrierService(suite.repository)
+	tasks.TruncateTables(suite.db, []string{
+		"carriers",
+	})
 }
 
-func (suite *CarrierServiceTestSuite) TearDownTest() {
-	//assert all expectations were met
-	suite.repository.AssertExpectations(suite.T())
-
-	// clear service mock calls expectations after each test
-	suite.repository.ExpectedCalls = []*mock.Call{}
-	suite.repository.Calls = []mock.Call{}
-}
 func (suite *CarrierServiceTestSuite) Test_GetCarriers_ReturnsCarrierModels() {
 	//arrange
 	carrier1 := fixtures.GetCarrier(uint(1))
 	carrier2 := fixtures.GetCarrier(uint(2))
-	suite.repository.On("GetCarriers").Return([]*models.Carrier{carrier1, carrier2}, nil).Once()
+	suite.Nil(suite.db.Create(carrier1).Error)
+	suite.Nil(suite.db.Create(carrier2).Error)
 
 	//act
 	carriers, err := suite.service.GetCarriers()
@@ -53,20 +51,17 @@ func (suite *CarrierServiceTestSuite) Test_GetCarriers_ReturnsCarrierModels() {
 }
 
 func (suite *CarrierServiceTestSuite) Test_GetCarrierById_NotFound_ReturnsNotFoundError() {
-	//arrange
-	suite.repository.On("GetCarrierByID", uint(1)).Return(nil, gorm.ErrRecordNotFound).Once()
-
 	//act
 	_, err := suite.service.GetCarrierByID(uint(1))
 
 	//assert
-	suite.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(fmt.Errorf(repositories.ErrorCarrierNotFound, 1), err)
 }
 
 func (suite *CarrierServiceTestSuite) Test_GetCarrierByID_Found_ReturnsCarrierModel() {
 	//arrange
 	carrier1 := fixtures.GetCarrier(uint(1))
-	suite.repository.On("GetCarrierByID", uint(1)).Return(carrier1, nil).Once()
+	suite.Nil(suite.db.Create(carrier1).Error)
 
 	//act
 	carrier, err := suite.service.GetCarrierByID(uint(1))
@@ -79,7 +74,6 @@ func (suite *CarrierServiceTestSuite) Test_GetCarrierByID_Found_ReturnsCarrierMo
 func (suite *CarrierServiceTestSuite) Test_CreateCarrier_ReturnsCreatedRecord() {
 	//arrange
 	carrier1 := fixtures.GetCarrier(uint(1))
-	suite.repository.On("CreateCarrier", carrier1).Return(carrier1, nil).Once()
 
 	//act
 	carrier, err := suite.service.CreateCarrier(carrier1)
@@ -92,19 +86,19 @@ func (suite *CarrierServiceTestSuite) Test_CreateCarrier_ReturnsCreatedRecord() 
 func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotFoundError() {
 	//arrange
 	carrier1 := fixtures.GetCarrier(uint(1))
-	suite.repository.On("UpdateCarrier", carrier1).Return(nil, gorm.ErrRecordNotFound).Once()
 
 	//act
 	_, err := suite.service.UpdateCarrier(carrier1)
 
 	//assert
-	suite.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(fmt.Errorf(repositories.ErrorCarrierNotFound, 1), err)
 }
 
 func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_Found_ReturnsUpdatedRecord() {
 	//arrange
 	carrier1 := fixtures.GetCarrier(uint(1))
-	suite.repository.On("UpdateCarrier", carrier1).Return(carrier1, nil).Once()
+	suite.Nil(suite.db.Create(carrier1).Error)
+	carrier1.Name = "Updated"
 
 	//act
 	carrier, err := suite.service.UpdateCarrier(carrier1)
@@ -115,19 +109,17 @@ func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_Found_ReturnsUpdatedRec
 }
 
 func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotFoundError() {
-	//arrange
-	suite.repository.On("DeleteCarrier", uint(1)).Return(gorm.ErrRecordNotFound).Once()
-
 	//act
 	err := suite.service.DeleteCarrier(uint(1))
 
 	//assert
-	suite.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(fmt.Errorf(repositories.ErrorCarrierNotFound, 1), err)
 }
 
 func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_Found_ReturnsNoError() {
 	//arrange
-	suite.repository.On("DeleteCarrier", uint(1)).Return(nil).Once()
+	carrier1 := fixtures.GetCarrier(uint(1))
+	suite.Nil(suite.db.Create(carrier1).Error)
 
 	//act
 	err := suite.service.DeleteCarrier(uint(1))

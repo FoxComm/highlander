@@ -61,7 +61,10 @@ func handleServiceError(context *gin.Context, err error) {
 }
 
 func getFailure(err error) failures.Failure {
+	// This is a hack that should be replaced once we have actual typed failures.
 	if err == gorm.ErrRecordNotFound {
+		return failures.NewNotFound(err)
+	} else if strings.HasSuffix(err.Error(), "not found") {
 		return failures.NewNotFound(err)
 	}
 
