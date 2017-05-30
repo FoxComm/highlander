@@ -33,26 +33,13 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
     case c              ⇒ s"$c"
   }.stripPrefix("_")
 
-  private def acquireDb(): DB = {
+  lazy val dbForTest: DB = {
     Locale.setDefault(Locale.US)
-    if (!DbTestSupport.migrated) {
-      DbTestSupport.synchronized {
-        if (!DbTestSupport.migrated) {
-          migrate()
-        }
-      }
-    }
-
-    require(DbTestSupport.migrated, "Create test db before migration has completed")
     DbTestSupport.createDB(dbName)
     Database.forConfig("db", dbConfig)
   }
 
-  implicit lazy val db: DB = {
-    dbOverride().getOrElse {
-      acquireDb()
-    }
-  }
+  implicit lazy val db: DB = dbOverride().getOrElse(dbForTest)
 
   implicit val ec: EC
 
@@ -73,50 +60,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
     conn.prepareStatement(s"select truncate_nonempty_tables('$sqlTables'::text[])")
   }
 
-  private def migrate(): Unit = {
-    if (DbTestSupport.migrated) {
-      ()
-    } else {
-      val tplName = DbTestSupport.DB_TEMPLATE
-      val conn    = DbTestSupport.db.source.createConnection()
-      val stmt1   = conn.createStatement()
-      try {
-        stmt1.execute(s"drop database if exists $tplName")
-        stmt1.execute(s"create database $tplName owner phoenix")
-      } finally stmt1.close()
-
-      val tplCfg = ConfigFactory.parseString(s"""db.name = "$tplName"
-                 |db.url = "jdbc:postgresql://localhost/$tplName?user=phoenix&prepareThreshold=0"
-         """.stripMargin).withFallback(TestBase.bareConfig)
-      val tplDb  = Database.forConfig("db", tplCfg)
-      DbTestSupport.setSearchPath(tplName, conn, List("\"$user\"", "public", "exts"))
-
-      val originDs = DbTestSupport.jdbcDataSourceFromSlickDB(api)(tplDb)
-      DbTestSupport.migrateDB(originDs)
-      Factories.createSingleMerchantSystem
-        .gimme(ec = ec, db = tplDb, line = implicitly[SL], file = implicitly[SF])
-      tplDb.close()
-      val stmt = conn.createStatement()
-      try stmt.execute(s"""select pg_terminate_backend(pid)
-                          |from pg_stat_activity
-                          |where datname = '$tplName'""".stripMargin)
-      finally stmt.close()
-
-      conn.close()
-      DbTestSupport.migrated = true
-    }
-
-  }
-
   override protected def beforeAll(): Unit = {
-    Locale.setDefault(Locale.US)
-    if (!DbTestSupport.migrated) {
-      DbTestSupport.synchronized {
-        if (!DbTestSupport.migrated) {
-          migrate()
-        }
-      }
-    }
     truncateTables // init
   }
 
@@ -147,13 +91,38 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
   }
 }
 
-object DbTestSupport {
+object DbTestSupport extends GimmeSupport {
   val db: DB           = Database.forConfig("db", TestBase.bareConfig)
   val conn: Connection = db.source.createConnection()
 
   def api: PostgresProfile.API = slick.jdbc.PostgresProfile.api
 
-  @volatile var migrated = false
+  lazy val migrated = {
+    val tplName     = DB_TEMPLATE
+    val stmt1       = conn.createStatement()
+    implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
+    try {
+      stmt1.execute(s"drop database if exists $tplName")
+      stmt1.execute(s"create database $tplName owner phoenix")
+    } finally stmt1.close()
+
+    val tplCfg = ConfigFactory.parseString(s"""db.name = "$tplName"
+                                              |db.url = "jdbc:postgresql://localhost/$tplName?user=phoenix&prepareThreshold=0"
+       """.stripMargin).withFallback(TestBase.bareConfig)
+    val tplDb  = Database.forConfig("db", tplCfg)
+    DbTestSupport.setSearchPath(tplName, conn, List("\"$user\"", "public", "exts"))
+
+    val originDs = DbTestSupport.jdbcDataSourceFromSlickDB(api)(tplDb)
+    DbTestSupport.migrateDB(originDs)
+    Factories.createSingleMerchantSystem
+      .gimme(ec = ec, db = tplDb, line = implicitly[SL], file = implicitly[SF])
+    tplDb.close()
+    val stmt = conn.createStatement()
+    try stmt.execute(s"""select pg_terminate_backend(pid)
+                        |from pg_stat_activity
+                        |where datname = '$tplName'""".stripMargin)
+    finally stmt.close()
+  }
 
   val DB_TEMPLATE: String = "phoenix_test_tpl"
 
@@ -192,6 +161,7 @@ object DbTestSupport {
   }
 
   def createDB(name: String)(implicit ec: EC): Unit = {
+    migrated // make sure db is migrated
     dropDB(name, conn)
     createDB(name, conn)
     // must be set before creation of hikari pool for IT db
