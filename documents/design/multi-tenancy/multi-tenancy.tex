@@ -271,4 +271,33 @@ Once we have these new models we can assign them to organizations
     channel2 -> view2 [label="uses"]
 }
 
+\subsection {Public Access}
+
+Our current public endpoints for searching the catalog, registering users, and
+viewing/purchasing products are not multi-tenant aware at the moment. We need to 
+modify them to understand which channel they are serving.
+
+
+\digraph[scale=0.80]{Proxy}{
+    splines="ortho";
+    rankdir=TD;
+    node [shape=record,style=filled,fillcolor="lightblue"];
+
+    client [label="Client"];
+    riverrock [label="River Rock Proxy"];
+    db [shape=note,label="DB"];
+    channel [label="Channel for host.com"];
+    catalog [label="Catalog"];
+    view [label="View"];
+
+    client -> riverrock [label="request host.com"]
+    riverrock -> db [label="find channel"]
+    db -> channel [label="found"];
+    channel -> view;
+    channel -> catalog;
+    view -> riverrock [label="serve"];
+    catalog -> riverrock [label="serve"];
+
+}
+
 \end{document}
