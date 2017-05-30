@@ -6,6 +6,7 @@ import phoenix.payloads.ReturnPayloads.{ReturnMessageToCustomerPayload, ReturnPa
 import phoenix.responses.ReturnResponse
 import testutils._
 import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
+import core.utils.Money._
 
 case class ReturnsSearchViewResult(
     id: Int,
@@ -14,7 +15,7 @@ case class ReturnsSearchViewResult(
     orderRef: String,
     createdAt: String,
     state: Return.State,
-    totalRefund: Option[Int],
+    totalRefund: Option[Long],
     messageToAccount: Option[String],
     returnType: ReturnType,
     customer: CustomerSearchViewResult
@@ -26,7 +27,7 @@ case class CustomerSearchViewResult(
     email: String,
     isBlacklisted: Boolean,
     joinedAt: String,
-    revenue: Int
+    revenue: Long
 )
 
 class ReturnsSearchViewTest

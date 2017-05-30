@@ -3,6 +3,7 @@
 // libs
 import React, { Component, Element } from 'react';
 import _ from 'lodash';
+import moment from 'moment';
 
 // components
 import Loader from 'ui/loader';
@@ -12,16 +13,21 @@ import ActionLink from 'ui/action-link/action-link';
 import styles from './product-reviews-list.css';
 
 // types
+type ReviewAttributes = {
+  title: {t:'string', v: string},
+  body: {t:'string', v: string},
+  status: {t: 'string', v: string},
+}
+
 type ReviewItem = {
   sku: string,
   id: number,
   scope: string,
-  title: string,
   createdAt: string,
   updatedAt: string,
-  body: string,
   archivedAt: ?string,
   userName: string,
+  attributes: ReviewAttributes,
 }
 
 type Props = {
@@ -46,6 +52,7 @@ export const LoadingBehaviors = {
 
 const ReviewBody = (props): Element<*> => {
   const { title, userName, updatedAt, sku, body } = props;
+  const updatedAtFormatted = moment(updatedAt).format('MMM Do YYYY');
 
   return (
     <div styleName="product-review-container">
@@ -54,7 +61,7 @@ const ReviewBody = (props): Element<*> => {
           {title}
         </div>
         <div styleName="product-review-name-date">
-          From: {userName} on {updatedAt}
+          From: {userName} on {updatedAtFormatted}
         </div>
         <div styleName="product-review-variant">
           SKU: {sku}
@@ -100,17 +107,19 @@ class ProductReviewsList extends Component {
 
   get displayReviews(): ?Element<*> {
     const { listItems, showLoadMore } = this.props;
-
-    if (!_.isEmpty(listItems)) {
+    const activeReviews = _.filter(listItems, (review) => {
+      return review.attributes.status.v == 'submitted';
+    });
+    if (!_.isEmpty(activeReviews)) {
       const reviews = _.map(listItems, (review) => {
         return (
           <ReviewBody
             key={review.id}
-            title={review.title}
+            title={review.attributes.title.v}
             userName={review.userName}
             updatedAt={review.updatedAt}
             sku={review.sku}
-            body={review.body}
+            body={review.attributes.body.v}
           />
         );
       });

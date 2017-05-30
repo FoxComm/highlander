@@ -60,9 +60,9 @@ export default class CartDetails extends Component {
             <CartLineItems id="fct-cart-items-block" status={itemsStatus} cart={cart} />
             <DiscountsPanel id="fct-cart-discounts-block" promotion={cart.promotion} />
             <CartCoupons id="fct-cart-coupons-block" cart={cart} />
-            <CartPayments id="fct-cart-payment-method-block" cart={cart} status={paymentMethodStatus} />
             <CartShippingAddress id="fct-cart-shipping-address-block" status={shippingAddressStatus} cart={cart} />
             <CartShippingMethod id="fct-cart-shipping-method-block" status={shippingMethodStatus} cart={cart} />
+            <CartPayments id="fct-cart-payment-method-block" cart={cart} status={paymentMethodStatus} />
             <Checkout cart={cart} validations={details.validations} />
           </div>
           <div className="fc-order-details-aside">

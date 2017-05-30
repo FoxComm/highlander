@@ -10,7 +10,7 @@
   margin-top: 40px;
 }
 
-.segment-control-container-inactive {
+.segment-control-container-inactive, .segment-control-container-disabled {
   width: 66px;
   max-width: 66px;
   height: 40px;
@@ -22,10 +22,18 @@
   margin-top: 40px;
 }
 
+.segment-control-container-disabled {
+  cursor: not-allowed;
+}
+
 .segment-control-title {
   margin-top: 11px;
   margin-right: auto;
   margin-left: auto;
   font-size: 14px;
   font-weight: 600;
+}
+
+.segment-control-container-disabled .segment-control-title {
+  color: #CED2D5;
 }

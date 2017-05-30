@@ -18,6 +18,7 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import core.db._
+import core.utils.Money._
 
 class StoreCreditIntegrationTest
     extends IntegrationTestBase

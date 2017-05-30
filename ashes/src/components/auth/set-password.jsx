@@ -10,7 +10,7 @@ import { transitionTo } from 'browserHistory';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import ErrorAlerts from '../alerts/error-alerts';
-import { PrimaryButton, Button } from 'components/core/button';
+import { PrimaryButton } from 'components/core/button';
 import PasswordInput from '../forms/password-input';
 import WaitAnimation from '../common/wait-animation';
 

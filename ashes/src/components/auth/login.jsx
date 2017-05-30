@@ -9,7 +9,7 @@ import Alert from '../alerts/alert';
 import ErrorAlerts from '../alerts/error-alerts';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
-import { PrimaryButton, SocialButton, Button } from 'components/core/button';
+import { PrimaryButton, SocialButton } from 'components/core/button';
 import WrapToLines from './wrap-to-lines';
 import WaitAnimation from '../common/wait-animation';
 

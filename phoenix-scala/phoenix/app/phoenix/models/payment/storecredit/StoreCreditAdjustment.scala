@@ -9,13 +9,14 @@ import phoenix.models.payment._
 import phoenix.utils.FSM
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
+import core.utils.Money._
 
 case class StoreCreditAdjustment(id: Int = 0,
                                  storeCreditId: Int,
                                  orderPaymentId: Option[Int],
                                  storeAdminId: Option[Int] = None,
-                                 debit: Int,
-                                 availableBalance: Int,
+                                 debit: Long,
+                                 availableBalance: Long,
                                  state: State = Auth,
                                  createdAt: Instant = Instant.now())
     extends FoxModel[StoreCreditAdjustment]
@@ -26,7 +27,7 @@ case class StoreCreditAdjustment(id: Int = 0,
   override def updateTo(newModel: StoreCreditAdjustment): Either[Failures, StoreCreditAdjustment] =
     super.transitionModel(newModel)
 
-  def getAmount: Int = debit
+  def getAmount: Long = debit
 
   val fsm: Map[State, Set[State]] = Map(
       Auth → Set(Canceled, Capture)

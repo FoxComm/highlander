@@ -30,7 +30,8 @@ class MyReviews extends Component {
 
   componentWillMount() {
     if (_.get(this.props.auth, 'jwt')) {
-      this.props.fetchReviews().catch((ex) => {
+      const userId = this.props.auth.user.id;
+      this.props.fetchReviewsForUser(userId).catch((ex) => {
         this.setState({
           error: ex.toString(),
         });
@@ -38,15 +39,9 @@ class MyReviews extends Component {
     }
   }
 
-  // TODO: index these field in ES and delete fakeStuff
-  fakeStuff = {
-    imageUrl: 'http://demandware.edgesuite.net/sits_pod20-adidas/dw/image/v2/aaqx_prd/on/demandware.static/-/Sites-adidas-products/en_US/dw30317f50/zoom/S75187_01_standard.jpg',
-    productName: 'Stan Smith Shoes',
-  };
-
   @autobind
   renderReview(review) {
-    return <ReviewRow {...review} {...this.fakeStuff} key={`review-${review.id}`} />;
+    return <ReviewRow {...review} key={`review-${review.id}`} />;
   }
 
   get content() {

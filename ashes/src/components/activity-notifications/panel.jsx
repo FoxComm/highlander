@@ -4,8 +4,6 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
 
 // components
 import ContentBox from '../content-box/content-box';
@@ -35,7 +33,7 @@ export default class NotificationPanel extends React.Component {
       );
     } else {
       return items.map(item => {
-        return (<NotificationItem item={item} key={`notification-item-${item.id}`}/>);
+        return (<NotificationItem item={item} key={`notification-item-${item.id}`} />);
       });
     }
   }

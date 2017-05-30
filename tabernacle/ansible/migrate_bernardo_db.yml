@@ -7,7 +7,7 @@
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a database to migrate"
-      default: "vanilla-db"
+      default: "hostname"
       private: no
     - name: "bernardo_db_name"
       prompt: "Enter name of bernardo db to migrate"

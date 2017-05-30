@@ -32,7 +32,7 @@ object GiftCardFailures {
       s"Cannot capture a Gift Card using order payment $orderPaymentId because no adjustment in auth"
   }
 
-  case class GiftCardNotEnoughBalance(gc: GiftCard, requestedAmount: Int) extends Failure {
+  case class GiftCardNotEnoughBalance(gc: GiftCard, requestedAmount: Long) extends Failure {
     override def description =
       s"Gift Card with code=${gc.code} has availableBalance=${gc.availableBalance} less than requestedAmount=$requestedAmount"
   }

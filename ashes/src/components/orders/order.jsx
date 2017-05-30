@@ -26,9 +26,6 @@ import { frn, readAction } from 'lib/frn';
 // redux
 import * as orderActions from 'modules/orders/details';
 
-// styles
-import s from './order.css';
-
 // types
 import type { StateToProps, DispatchToProps, Props, StateType, ReduxState, OrderType } from './orderTypes';
 
@@ -138,7 +135,7 @@ export default class Order extends React.Component {
   }
 
   get subNav(): Element<*> {
-    return <SubNav order={this.order} className={s.nav} />;
+    return <SubNav order={this.order} />;
   }
 
   @autobind
