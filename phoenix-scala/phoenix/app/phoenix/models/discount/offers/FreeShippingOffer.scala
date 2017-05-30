@@ -14,8 +14,8 @@ case object FreeShippingOffer extends Offer {
                                    ec: EC,
                                    apis: Apis,
                                    au: AU): Result[Seq[OfferResult]] =
-    input.shippingMethod match {
-      case Some(sm) ⇒ buildResult(input, sm.price)
+    input.shippingCost match {
+      case Some(sc) ⇒ buildResult(input, sc)
       case _        ⇒ pureResult()
     }
 }

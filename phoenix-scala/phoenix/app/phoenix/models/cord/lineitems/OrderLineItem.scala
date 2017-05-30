@@ -30,8 +30,6 @@ trait LineItemProductData[LI] {
   def lineItemState: OrderLineItem.State
   def withLineItemReferenceNumber(newLineItemRef: String): LineItemProductData[LI]
 
-  def isEligibleForDiscount: Boolean = !isGiftCard
-
   def isGiftCard: Boolean = attributes.flatMap(_.giftCard).isDefined
 
   def price: Long = FormShadowGet.priceAsLong(skuForm, skuShadow)

@@ -45,8 +45,8 @@ object CartLineItemAdjustment {
   case object Combinator         extends AdjustmentType
 
   def fromOfferResult(offerResult: OfferResult) =
-    CartLineItemAdjustment(cordRef = offerResult.discountInput.cart.refNum,
-                           promotionShadowId = offerResult.discountInput.promotion.id,
+    CartLineItemAdjustment(cordRef = offerResult.discountInput.cartRefNum,
+                           promotionShadowId = offerResult.discountInput.promotionShadowId,
                            adjustmentType = adjustmentTypeByOffer(offerResult.offerType),
                            subtract = offerResult.subtract,
                            lineItemRefNum = offerResult.lineItemRefNum)
