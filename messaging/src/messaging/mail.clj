@@ -178,7 +178,7 @@
   [activity]
   (let [data (:data activity)
         email (get-in data ["user" "email"])
-        isAdmin (get-in activity ["isAdmin"])
+        isAdmin (get-in data ["isAdmin"])
         reset-pw (extract-password-link activity email "reset" isAdmin)
         customer-name (get-in activity [:data "user" "name"])]
        (send-template! (settings/get :customer_remind_password_template)
