@@ -12,7 +12,6 @@ import Form from 'components/forms/form';
 import FormField from 'components/forms/formfield';
 import { PrimaryButton, SocialButton } from 'components/core/button';
 import WrapToLines from './wrap-to-lines';
-import WaitAnimation from 'components/common/wait-animation';
 import TextInput from 'components/forms/text-input';
 
 import * as userActions from 'modules/user';

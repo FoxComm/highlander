@@ -9,7 +9,6 @@ import Form from 'components/forms/form';
 import FormField from 'components/forms/formfield';
 import ErrorAlerts from 'components/alerts/error-alerts';
 import { PrimaryButton } from 'components/core/button';
-import WaitAnimation from 'components/common/wait-animation';
 import { Link } from 'components/link';
 
 import * as userActions from 'modules/user';
