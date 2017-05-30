@@ -10,6 +10,8 @@ RestartSec=10
 [Install]
 WantedBy=multi-user.target
 
+{% if is_appliance %}
 [Unit]
 Requires=zookeeper.service
 After=zookeeper.service
+{% endif %}

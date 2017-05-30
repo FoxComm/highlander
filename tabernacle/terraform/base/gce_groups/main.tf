@@ -23,15 +23,15 @@ provider "google" {
 }
 
 ##############################################
-# Setup Staging
+# Setup New Staging for Marathon Groups
 ##############################################
-module "foxcomm-staging" {
-  source                = "../../modules/gce/tinygroups"
-  datacenter            = "foxcomm-groups"
-  amigo_image           = "${var.amigo_image}"
-  backend_image         = "${var.backend_image}"
-  frontend_image        = "${var.frontend_image}"
-  ssh_user              = "${var.ssh_user}"
-  ssh_private_key       = "${var.ssh_private_key}"
-  consul_leader         = "${var.consul_leader}"
-}
+# module "foxcomm-staging-groups" {
+#   source                = "../../modules/gce/tinygroups"
+#   datacenter            = "foxcomm-groups"
+#   amigo_image           = "${var.amigo_image}"
+#   backend_image         = "${var.backend_image}"
+#   frontend_image        = "${var.frontend_image}"
+#   ssh_user              = "${var.ssh_user}"
+#   ssh_private_key       = "${var.ssh_private_key}"
+#   consul_leader         = "${var.consul_leader}"
+# }

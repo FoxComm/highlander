@@ -42,7 +42,7 @@ resource "google_compute_instance" "tiny-amigo" {
     inline = [
       "/usr/local/bin/bootstrap.sh",
       "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${var.consul_leader}",
-      "sudo rm -rf /var/consul/* && sudo systemctl restart consul_server.service",
+      "sudo rm -rf /var/consul/* && sudo systemctl restart consul_server",
     ]
   }
 }

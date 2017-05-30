@@ -6,6 +6,7 @@
   vars:
     user: ubuntu
     packing: true
+    with_onboarding: true
   roles:
     - { role: base/rsyslog }
     - { role: base/confluent_platform }
@@ -14,4 +15,23 @@
     - { role: base/db }
     - { role: base/bottledwater }
     - { role: base/pgweb }
+    - { role: dev/db }
     - { role: base/mesos_worker }
+  post_tasks:
+    - name: Enable Services
+      service: name={{item}} enabled=yes
+      with_items:
+        - consul_agent
+        - kafka
+        - schema-registry
+        - mesos_worker
+        - elasticsearch
+        - postgresql
+        - bottledwater_phoenix
+        - bottledwater_middlewarehouse
+        - bottledwater_onboarding
+        - materialized_views
+        - pgweb
+
+    - name: Reload Systemd Daemon
+      command: systemctl daemon-reload
