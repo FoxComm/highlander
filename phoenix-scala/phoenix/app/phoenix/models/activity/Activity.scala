@@ -2,23 +2,22 @@ package phoenix.models.activity
 
 import com.github.tminglei.slickpg.LTree
 import com.typesafe.scalalogging.LazyLogging
+import core.db.ExPostgresDriver.api._
+import core.db._
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
-import org.apache.kafka.clients.producer.{Producer, ProducerRecord}
+import org.apache.kafka.clients.producer.{Callback, Producer, ProducerRecord, RecordMetadata}
 import org.json4s.Extraction
 import org.json4s.jackson.Serialization.{write ⇒ render}
 import phoenix.models.account.Scope
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
-import scala.concurrent.{Future, blocking}
-import scala.util.{Failure, Success}
+import scala.concurrent.Future
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import core.db.ExPostgresDriver.api._
-import core.db._
 
 case class ActivityContext(userId: Int, userType: String, transactionId: String, scope: LTree) {
   def withCurrentScope(implicit au: AU): ActivityContext = withScope(Scope.current)
@@ -144,20 +143,21 @@ object Activities extends LazyLogging {
 
   private def sendActivity(a: Activity, key: GenericData.Record, record: GenericData.Record)(
       implicit activityContext: AC,
-      ec: EC) {
+      ec: EC): Unit = {
     val msg = new ProducerRecord[GenericData.Record, GenericData.Record](topic, key, record)
 
-    Future {
-      blocking {
-        activityContext.producer.send(msg).get()
+    activityContext.producer.send(msg, new Callback {
+      // we force logging to be done in `ec` execution context
+      // instead of a kafka background thread that executes callbacks
+      def onCompletion(metadata: RecordMetadata, exception: Exception): Unit = Future {
+        if (metadata ne null)
+          logger.info(
+              s"Kafka Activity ${a.activityType} by ${activityContext.ctx.userType} ${activityContext.ctx.userId} SUCCESS")
+        else
+          logger.error(
+              s"Kafka Activity ${a.activityType} by ${activityContext.ctx.userType} ${activityContext.ctx.userId} FAILURE",
+              exception)
       }
-    }.andThen {
-      case Success(_) ⇒
-        logger.info(
-            s"Kafka Activity ${a.activityType} by ${activityContext.ctx.userType} ${activityContext.ctx.userId} SUCCESS")
-      case Failure(_) ⇒
-        logger.info(
-            s"Kafka Activity ${a.activityType} by ${activityContext.ctx.userType} ${activityContext.ctx.userId} FAILURE")
-    }
+    })
   }
 }
