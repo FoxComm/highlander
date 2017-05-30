@@ -6,15 +6,19 @@ import ProductImage from '../../image/image';
 
 import styles from '../profile.css';
 
+type ReviewAttributes = {
+  imageUrl: {t: 'string', v: string},
+  productName: {t: 'string', v: string},
+  status: {t: 'string', v: string},
+}
+
 type Review = {
   sku: string,
-  imageUrl: string,
-  productName: string,
   id: number,
-  status: 'pending' | 'submitted'
+  attributes: ReviewAttributes,
 };
 
-const renderActions: (string, Number) => Element<div> = (status, id) => {
+const renderActions: (string, number) => Element<*> = (status, id) => {
   if (status == 'pending') {
     return (
       <div styleName="actions-block">
@@ -34,19 +38,21 @@ const renderActions: (string, Number) => Element<div> = (status, id) => {
 };
 
 const ReviewRow = (props: Review) => {
+  const { id } = props;
+  const { imageUrl, productName, status } = props.attributes;
   return (
     <div styleName="line-item">
       <div styleName="content">
         <div styleName="product-image">
-          <ProductImage src={props.imageUrl} width={50} height={50} />
+          <ProductImage src={imageUrl.v} width={50} height={50} />
         </div>
         <div styleName="product-data">
           <div styleName="product-info">
-            <div styleName="product-name">{props.productName}</div>
+            <div styleName="product-name">{productName.v}</div>
             <div styleName="product-variant">{/* TODO: variant info must be here */}</div>
           </div>
         </div>
-        {renderActions(props.status, props.id)}
+        {renderActions(status.v, id)}
       </div>
     </div>
   );

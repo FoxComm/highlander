@@ -5,11 +5,17 @@ import { createReducer, createAction } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 
 // actions - private
-const _fetchReviews = createAsyncActions(
+const _fetchReviewsForUser = createAsyncActions(
   'fetchReviews',
-  function() {
+  function(userId: number) {
     const body = {
-      query: { match_all: {} },
+      query: {
+        bool: {
+          filter: [
+            {term: {userId}},
+          ],
+        },
+      },
     };
     return this.api.reviews.search(body, 5); // placeholder api call until we have list reviews endpoint
   }
@@ -42,7 +48,7 @@ const _updateReview = createAsyncActions(
 );
 
 // actions - public
-export const fetchReviews = _fetchReviews.perform;
+export const fetchReviewsForUser = _fetchReviewsForUser.perform;
 export const fetchReviewsForSku = _fetchReviewsForSku.perform;
 export const updateReview = _updateReview.perform;
 export const clearReviews = createAction('REVIEWS_CLEAR');
@@ -55,7 +61,7 @@ const initialState = {
 };
 
 const reducer = createReducer({
-  [_fetchReviews.succeeded]: (state, response) => {
+  [_fetchReviewsForUser.succeeded]: (state, response) => {
     return {
       ...state,
       list: response.result,
