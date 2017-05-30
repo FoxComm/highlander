@@ -15,7 +15,6 @@
     - { role: base/db }
     - { role: base/bottledwater }
     - { role: base/pgweb }
-    - { role: dev/db }
     - { role: base/mesos_worker }
   post_tasks:
     - name: Enable Services
@@ -30,7 +29,6 @@
         - bottledwater_phoenix
         - bottledwater_middlewarehouse
         - bottledwater_onboarding
-        - materialized_views
         - pgweb
 
     - name: Reload Systemd Daemon
