@@ -91,11 +91,6 @@ export default class AddressForm extends React.Component {
   }
 
   componentDidMount() {
-    const initialFieldInput = this.refs.name;
-    if (initialFieldInput) {
-      initialFieldInput.focus();
-    }
-
     this.props.fetchCountry(this.state.countryId);
   }
 
@@ -207,6 +202,7 @@ export default class AddressForm extends React.Component {
 
   @autobind
   handleFormSubmit(data) {
+    console.log(data);
     const { submitAction } = this.props;
 
     const formData = _.reduce(data, (res, val, key) => {
@@ -245,7 +241,7 @@ export default class AddressForm extends React.Component {
               {this.formTitle}
               <li>
                 <FormField label="First & Last Name" validator="ascii" maxLength={255}>
-                  <input name="name" ref="name" type="text" defaultValue={address.name} required />
+                  <TextInput name="name" ref="name" type="text" defaultValue={address.name} required />
                 </FormField>
               </li>
               <li>
