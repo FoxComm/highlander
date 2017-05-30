@@ -12,10 +12,11 @@ import { PrimaryButton } from 'components/core/button';
 import WaitAnimation from 'components/common/wait-animation';
 import { Link } from 'components/link';
 
-import type { TResetPayload } from 'modules/user';
 import * as userActions from 'modules/user';
 
 import s from './css/auth.css';
+
+import type { TResetPayload } from 'modules/user';
 
 type State = {
   email: string,
@@ -23,10 +24,7 @@ type State = {
 };
 
 type Props = {
-  restoreState: {
-    err?: any,
-    inProgress?: boolean,
-  },
+  restoreState: AsyncState,
   requestPasswordReset: (email: string) => Promise<*>,
   resetPassword: (payload: TResetPayload) => Promise<*>,
   isMounted: boolean,
@@ -35,7 +33,7 @@ type Props = {
 
 function mapStateToProps(state) {
   return {
-    restoreState: _.get(state.asyncActions, 'requestPasswordReset', {})
+    restoreState: _.get(state.asyncActions, 'requestPasswordReset', {}),
   };
 }
 

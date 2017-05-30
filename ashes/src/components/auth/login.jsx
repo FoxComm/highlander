@@ -38,10 +38,7 @@ type LoginProps = {
   user: {
     message: String,
   },
-  authenticationState: {
-    err?: any,
-    inProgress?: boolean,
-  },
+  authenticationState: AsyncState,
   err: any,
   googleSignin: Function,
   isMounted: boolean,
@@ -191,7 +188,11 @@ class Login extends Component {
   }
 }
 
-export default connect((state) => ({
-  user: state.user,
-  authenticationState: _.get(state.asyncActions, 'authenticate', {})
-}), userActions)(Login);
+function mapStateToProps(state) {
+  return {
+    user: state.user,
+    authenticationState: _.get(state.asyncActions, 'authenticate', {})
+  };
+}
+
+export default connect(mapStateToProps, userActions)(Login);

@@ -4,7 +4,7 @@ import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import { transitionToLazy } from 'browserHistory';
+import { transitionTo, transitionToLazy } from 'browserHistory';
 
 import Form from 'components/forms/form';
 import FormField from 'components/forms/formfield';
@@ -14,10 +14,11 @@ import PasswordInput from 'components/forms/password-input';
 import WaitAnimation from 'components/common/wait-animation';
 import { Link } from 'components/link';
 
-import type { TResetPayload } from 'modules/user';
 import * as userActions from 'modules/user';
 
 import s from './css/auth.css';
+
+import type { TResetPayload } from 'modules/user';
 
 type State = {
   email: string,
@@ -26,10 +27,7 @@ type State = {
 };
 
 type Props = {
-  resetState: {
-    err?: any,
-    inProgress?: boolean,
-  },
+  resetState: AsyncState,
   requestPasswordReset: (email: string) => Promise<*>,
   resetPassword: (payload: TResetPayload) => Promise<*>,
   isMounted: boolean,
@@ -38,7 +36,7 @@ type Props = {
 
 function mapStateToProps(state) {
   return {
-    resetState: _.get(state.asyncActions, 'resetPassword', {})
+    resetState: _.get(state.asyncActions, 'resetPassword', {}),
   };
 }
 
