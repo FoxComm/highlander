@@ -16,12 +16,12 @@ import { actions as bulkActions } from 'modules/orders/bulk';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
 
 // components
+import { Link } from 'components/link';
 import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
 import { SelectableSearchList } from '../list-page';
 import OrderRow from './order-row';
 import { ChangeStateModal, CancelModal } from '../bulk-actions/modal';
-import { Link } from '../link';
 
 type Props = {
   list: Object,

@@ -4,11 +4,12 @@ import java.time.Instant
 
 import core.db._
 import core.failures.NotFoundFailure404
+import objectframework.FormShadowGet
 import objectframework.models._
 import phoenix.models.inventory.{Sku, Skus}
-import phoenix.models.product.Mvp
 import phoenix.models.{SaveForLater, SaveForLaters}
 import slick.jdbc.PostgresProfile.api._
+import core.utils.Money._
 
 object SaveForLaterResponse {
 
@@ -16,7 +17,7 @@ object SaveForLaterResponse {
       id: Int,
       name: Option[String],
       sku: String,
-      price: Int,
+      price: Long,
       createdAt: Instant,
       imageUrl: String =
         "https://s-media-cache-ak0.pinimg.com/originals/37/0b/05/370b05c49ec83cae065c36fa0b3e5ada.jpg",
@@ -34,17 +35,12 @@ object SaveForLaterResponse {
       shadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
     } yield build(sfl, sku, form, shadow)
 
-  def build(sfl: SaveForLater, sku: Sku, form: ObjectForm, shadow: ObjectShadow): Root = {
-
-    val price = Mvp.priceAsInt(form, shadow)
-    val name  = Mvp.title(form, shadow)
-
+  def build(sfl: SaveForLater, sku: Sku, form: ObjectForm, shadow: ObjectShadow): Root =
     Root(
         id = sfl.id,
-        name = name,
+        name = FormShadowGet.title(form, shadow),
         sku = sku.code,
-        price = price,
+        price = FormShadowGet.priceAsLong(form, shadow),
         createdAt = sfl.createdAt
     )
-  }
 }

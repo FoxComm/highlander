@@ -219,7 +219,8 @@ export class ObjectPage extends Component {
         });
     }
 
-    this.props.actions.fetchAmazonStatus();
+    this.props.actions.fetchAmazonStatus()
+      .catch(() => {}); // pass
   }
 
   get unsaved(): boolean {
@@ -455,7 +456,6 @@ export class ObjectPage extends Component {
       {this.renderHead()}
       <ButtonWithMenu
         title="Save"
-        menuPosition="right"
         onPrimaryClick={this.handleSubmit}
         onSelect={this.handleSelectSaving}
         isLoading={this.props.isSaving}

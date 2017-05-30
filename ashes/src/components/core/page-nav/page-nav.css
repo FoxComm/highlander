@@ -1,0 +1,113 @@
+@import "colors.css";
+
+.block {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  border-bottom: 2px solid var(--nav-item-underline);
+  margin: 20px 1.85%; /* because of grid system :( */
+  white-space: nowrap;
+}
+
+.item {
+  font-size: 14px;
+  color: #484848;
+  display: inline-block;
+  vertical-align: top;
+  margin: 0 5px -2px 0;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &:hover {
+    color: #121212;
+  }
+
+  & a,
+  & a:visited {
+    position: relative;
+    display: block;
+    max-width: 200px;
+    color: inherit;
+    padding: 0 20px 10px;
+    transition: color .2s;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+
+    &:after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2px;
+      background-color: transparent;
+      transition: all .2s;
+    }
+
+    &.activeLink:after {
+      background-color: var(--nav-item-underline-active);
+    }
+  }
+
+  & a:hover {
+    cursor: pointer;
+  }
+}
+
+.parent {
+  position: relative;
+
+  & > a > i {
+    padding-left: 10px;
+    transform: rotateX(0);
+    transform-origin: 50% 45%;
+    transition: transform 0.3s ease-in;
+
+    &:before {
+      transform: rotateX(0);
+      transform-origin: 50% 45%;
+      transition: transform 0.12s ease-in;
+    }
+  }
+
+  &.opened {
+    & > a > i:before {
+      transform: rotateX(180deg);
+      transition: transform 0.2s ease-out;
+    }
+  }
+}
+
+.dropdown {
+  position: absolute;
+  min-width: 150px;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  top: calc(100% - 2px);
+  z-index: 3;
+}
+
+.dropdown .item {
+  display: block;
+  width: 100%;
+  margin: 0;
+  font-weight: 600;
+  transition: all .2s;
+}
+
+.dropdown .item:hover {
+  background: var(--dd-item-bg-active);
+}
+
+.dropdown .item a {
+  display: block;
+  padding: 11px 20px;
+  line-height: 18px;
+}
+
+.dropdown .item a:hover {
+  color: #484848;
+}

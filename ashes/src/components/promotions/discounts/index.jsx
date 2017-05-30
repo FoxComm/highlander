@@ -25,7 +25,7 @@ const QUALIFIERS = [
         widget: 'counter',
         template: (comp) => {
           return (
-            <div>Order <Counter onChange={comp.setValue} value={comp.qualifier.widgetValue}/> or more</div>
+            <div>Order <Counter onChange={comp.setValue} value={comp.qualifier.widgetValue} /> or more</div>
           );
         }
       },
@@ -36,7 +36,7 @@ const QUALIFIERS = [
         widget: 'currency',
         template: (comp) => {
           return (
-            <div>Spend <Currency onChange={comp.setValue} value={comp.qualifier.widgetValue}/> or more</div>
+            <div>Spend <Currency onChange={comp.setValue} value={comp.qualifier.widgetValue} /> or more</div>
           );
         }
       }
@@ -59,7 +59,7 @@ const QUALIFIERS = [
           return (
             <div>
               Order <Counter onChange={comp.setValue}
-                             value={comp.qualifier.widgetValue}/>
+                             value={comp.qualifier.widgetValue} />
               or more of the following items
               </div>
           );
@@ -74,7 +74,7 @@ const QUALIFIERS = [
           return (
             <div>
               Spend <Currency onChange={comp.setValue}
-                              value={comp.qualifier.widgetValue}/>
+                              value={comp.qualifier.widgetValue} />
               or more on following items
             </div>
           );
@@ -145,7 +145,7 @@ export default class Discounts extends Component {
       className="autowidth_dd"
       items={DISCOUNT_TYPES}
       value={this.qualifier.discountType}
-      onChange={this.discountTypeChange}/>);
+      onChange={this.discountTypeChange} />);
   }
 
   @autobind
@@ -156,7 +156,7 @@ export default class Discounts extends Component {
       className="autowidth_dd"
       items={items}
       value={this.qualifier.qualifierType}
-      onChange={this.qualifierTypeChange}/>);
+      onChange={this.qualifierTypeChange} />);
   }
 
   @autobind
@@ -257,7 +257,7 @@ export default class Discounts extends Component {
           className="autowidth_dd"
           items={OFFER_TYPES}
           value={this.offer.offerType}
-          onChange={this.offerTypeChange}/>
+          onChange={this.offerTypeChange} />
       </div>
     );
   }

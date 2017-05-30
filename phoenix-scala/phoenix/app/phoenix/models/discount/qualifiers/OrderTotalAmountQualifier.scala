@@ -5,7 +5,7 @@ import phoenix.models.discount._
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 
-case class OrderTotalAmountQualifier(totalAmount: Int) extends Qualifier {
+case class OrderTotalAmountQualifier(totalAmount: Long) extends Qualifier {
 
   val qualifierType: QualifierType = OrderTotalAmount
 

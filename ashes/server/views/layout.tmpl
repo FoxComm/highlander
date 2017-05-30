@@ -5,10 +5,16 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <title><%- title %></title>
-  <link rel="stylesheet" href="<%= stylesheet %>" />
+  <link rel="icon" href="/admin/favicon.ico">
+  <link rel="apple-touch-icon" href="/admin/apple-touch-icon.png">
+
+  <title>FoxCommerce</title>
+  <% if (typeof manifest['app.css'] == 'string') { %>
+  <link rel="stylesheet" href="/admin/<%= manifest['app.css'] %>" />
+  <% } %>
+
   <script>
-    <% if (typeof analytics == 'string') { %>
+    <% if (typeof GA_TRACKING_ID == 'string') { %>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
           (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
         m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -16,7 +22,7 @@
 
       const gaOpts = <%= gaEnableLocal ? "{'cookieDomain': 'none'}" : "'auto'" %>;
 
-      ga('create', '<%- analytics %>', gaOpts);
+      ga('create', '<%- GA_TRACKING_ID %>', gaOpts);
       ga('send', 'pageview');
     <% } else { %>
       ga = function() {};
@@ -55,17 +61,55 @@
 
     window.JWTString = <%= JWT %>;
     window.STRIPE_PUBLISHABLE_KEY = <%= stripeApiKey %>;
+    window.tokenOk = <%= tokenOk %>;
   </script>
+  <style>
+    html {
+      height: 100%;
+    }
+    body {
+      height: 100%;
+      margin: 0;
+    }
+    #foxcom {
+      height: 100%;
+      background: #f2f2f2;
+    }
+    ._start_image_container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      animation: _start_image_blink 4s linear infinite;
+    }
+    ._start_image_container > svg {
+      width: 274px;
+    }
+    @keyframes _start_image_blink {
+      0% { opacity: .2; transform: scale(.95); }
+      50% { opacity: 1; transform: scale(1); }
+      100% { opacity: .2; transform: scale(.95); }
+    }
+  </style>
 </head>
 <body>
-  <%= fcsprite %>
-  <div id="foxcom"><%= rootHTML %></div>
+  <div id="foxcom">
+    <div class="_start_image_container">
+      <!-- leave it here to show before bundle loaded, e.g. on dev build in progress -->
+      <%= startImage %>
+    </div>
+  </div>
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,Intl.~locale.en"></script>
   <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
-  <script src="<%= javascript %>"></script>
+  <% if (typeof manifest['manifest.js'] == 'string') { %>
+  <script src="/admin/<%= manifest['manifest.js'] %>"></script>
+  <% } %>
+  <% if (typeof manifest['vendor.js'] == 'string') { %>
+  <script src="/admin/<%= manifest['vendor.js'] %>"></script>
+  <% } %>
+  <script src="/admin/<%= manifest['app.js'] %>"></script>
   <script>
     ga('send', 'timing', 'JS Dependencies', 'load_time', getHMTime() - headEndTime);
-    <%= appStart %>
   </script>
 </body>
 </html>

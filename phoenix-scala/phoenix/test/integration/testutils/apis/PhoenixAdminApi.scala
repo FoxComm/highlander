@@ -157,15 +157,6 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     }
   }
 
-  // todo delete me? not used anywhere @aafa
-  object activityTrailsApi {
-    val activityTrailPrefix = s"$rootPrefix/trails"
-
-    def appendActivity(dimension: String, objectId: Int, payload: AppendActivity)(
-        implicit aa: TestAdminAuth): HttpResponse =
-      POST(s"$activityTrailPrefix/$dimension/$objectId", payload, aa.jwtCookie.some)
-  }
-
   object giftCardsApi {
     val giftCardsPrefix   = s"$rootPrefix/gift-cards"
     val customerGiftCards = s"$rootPrefix/customer-gift-cards"
@@ -389,6 +380,13 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     object payments {
       val paymentPrefix = s"$cartPath/payment-methods"
+
+      object applePay {
+        val applePayPrefix = s"$paymentPrefix/apple-pay"
+
+        def add(payload: CreateApplePayPayment)(implicit aa: TestAdminAuth): HttpResponse =
+          POST(applePayPrefix, payload, aa.jwtCookie.some)
+      }
 
       object creditCard {
         val creditCardPrefix = s"$paymentPrefix/credit-cards"
@@ -897,5 +895,12 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def updateLastSeen(activityId: Int)(implicit aa: TestAdminAuth): HttpResponse =
       POST(s"$notificationsPrefix/last-seen/$activityId", aa.jwtCookie.some)
+  }
+
+  object captureApi {
+    val productPath = s"$rootPrefix/service/capture"
+
+    def capture(payload: CapturePayloads.Capture)(implicit ca: TestAdminAuth): HttpResponse =
+      POST(productPath, payload, ca.jwtCookie.some)
   }
 }

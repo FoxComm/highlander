@@ -1,6 +1,6 @@
 [Service]
 WorkingDirectory=/usr/local/share
-ExecStart=/usr/bin/kafka-server-start /etc/kafka/server.properties
+ExecStart=/usr/local/bin/run_kafka.sh
 Restart=always
 StandardOutput=syslog
 StandardError=syslog

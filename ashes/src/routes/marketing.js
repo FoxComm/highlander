@@ -20,9 +20,6 @@ import PromotionForm from 'components/promotions/promotion-form';
 import PromoCouponsPage from 'components/promotions/promotion-coupons';
 import PromoCouponNewModal from 'components/promotions/promotion-coupon-modal-new';
 
-import CouponPage from 'components/coupons/page';
-import CouponForm from 'components/coupons/form';
-
 const getRoutes = (jwt: Object) => {
   const router = new FoxRouter(jwt);
 

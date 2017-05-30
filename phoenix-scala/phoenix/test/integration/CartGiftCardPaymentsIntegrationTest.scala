@@ -11,6 +11,7 @@ import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import core.db._
+import core.utils.Money._
 
 class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBase {
 
@@ -36,7 +37,7 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
 
     "fails if the cart is not found" in new CartWithGcFixture {
       cartsApi("NOPE").payments.giftCard
-        .add(GiftCardPayment(code = "foo", amount = 1.some))
+        .add(GiftCardPayment(code = "foo", amount = 1L.some))
         .mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
 
       giftCardPayments(cart) mustBe 'empty
@@ -44,7 +45,7 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
 
     "fails if the giftCard is not found" in new CartWithGcFixture {
       cartsApi(cart.refNum).payments.giftCard
-        .add(GiftCardPayment(code = "NOPE", amount = 1.some))
+        .add(GiftCardPayment(code = "NOPE", amount = 1L.some))
         .mustFailWith400(NotFoundFailure404(GiftCard, "NOPE"))
 
       giftCardPayments(cart) mustBe 'empty
@@ -71,7 +72,7 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
 
     "fails if the giftCard is inactive" in new CartWithGcFixture {
       GiftCards.findByCode(giftCard.code).map(_.state).update(GiftCard.Canceled).gimme
-      val payload = GiftCardPayment(code = giftCard.code, amount = 1.some)
+      val payload = GiftCardPayment(code = giftCard.code, amount = 1L.some)
       cartsApi(cart.refNum).payments.giftCard
         .add(payload)
         .mustFailWith400(GiftCardIsInactive(giftCard))
@@ -105,7 +106,7 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
     }
 
     "fails if the giftCard is not found" in new CartWithGcFixture {
-      val payload = GiftCardPayment(code = "NOPE", amount = 1.some)
+      val payload = GiftCardPayment(code = "NOPE", amount = 1L.some)
       cartsApi(cart.refNum).payments.giftCard
         .update(payload)
         .mustFailWith400(NotFoundFailure400(GiftCard, "NOPE"))

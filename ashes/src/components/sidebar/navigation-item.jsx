@@ -4,7 +4,7 @@ import _ from 'lodash';
 import React from 'react';
 import classNames from 'classnames';
 
-import { IndexLink } from '../link';
+import { IndexLink } from 'components/link';
 import type { Claims } from 'lib/claims';
 
 import Icon from 'components/icon/icon';

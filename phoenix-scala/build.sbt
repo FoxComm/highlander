@@ -1,6 +1,7 @@
 import scala.io.Source.fromFile
 
 import Configurations._
+import Dependencies.baseDependencies
 import Settings._
 import Tasks._
 
@@ -17,7 +18,7 @@ lazy val phoenix = (project in file("phoenix"))
   .settings(
     libraryDependencies ++= {
       import Dependencies._
-      akka ++ http ++ auth ++ json4s ++ fasterxml ++ apis ++ logging ++ test ++ misc ++ kafka
+      baseDependencies ++ akka ++ http ++ auth ++ fasterxml ++ apis ++ test ++ misc ++ kafka
     },
     (mainClass in Compile) := Some("phoenix.server.Main"),
     // TODO @anna move the rest of location settings to common when tests are moved into subprojects
@@ -75,20 +76,14 @@ lazy val objectframework = (project in file("objectframework"))
   .dependsOn(core)
   .settings(
     commonSettings,
-    libraryDependencies ++= {
-      import Dependencies._
-      cats ++ shapeless ++ db ++ slick ++ json4s ++ logging :+
-      "com.networknt"         % "json-schema-validator"   % "0.1.1"
-    }
+    libraryDependencies ++= baseDependencies,
+    libraryDependencies += "com.networknt" % "json-schema-validator" % "0.1.1"
   )
 
 lazy val core = (project in file("core"))
   .settings(
     commonSettings,
-    libraryDependencies ++= {
-      import Dependencies._
-      cats ++ shapeless ++ db ++ slick ++ json4s
-    }
+    libraryDependencies ++= baseDependencies
   )
 
 fullAssembly := Def.task().dependsOn(writeVersion in root, assembly in phoenix, assembly in seeder).value

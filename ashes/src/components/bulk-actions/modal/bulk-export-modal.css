@@ -1,5 +1,5 @@
 .exportModalFooter {
-  margin: 50px 20px 20px;
+  margin: 50px 20px 20px !important; /* @todo get rid of less */
 }
 .exportModalDescription {
   flex-grow: 1;

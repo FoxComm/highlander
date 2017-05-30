@@ -5,9 +5,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import styles from './plugins-list.css';
 
+import { Link } from 'components/link';
 import { PageTitle } from 'components/section-title';
 import Table from '../table/table';
-import Link from '../link/link';
 
 import * as PluginsActions from 'modules/plugins';
 
