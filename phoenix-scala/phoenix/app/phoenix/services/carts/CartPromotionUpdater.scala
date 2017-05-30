@@ -2,6 +2,7 @@ package phoenix.services.carts
 
 import cats._
 import cats.implicits._
+import core.db._
 import core.failures.Failures
 import objectframework.models._
 import org.json4s.JsonAST._
@@ -32,7 +33,6 @@ import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import slick.jdbc.PostgresProfile.api._
-import core.db._
 
 object CartPromotionUpdater {
 
@@ -285,7 +285,7 @@ object CartPromotionUpdater {
       shipTotal      ← * <~ CartTotaler.shippingTotal(cart)
       cartWithTotalsUpdated = cart.copy(subTotal = subTotal, shippingTotal = shipTotal)
       input                 = DiscountInput(promo, cartWithTotalsUpdated, lineItems, shippingMethod)
-      _           ← * <~ qualifier.check(input)
-      adjustments ← * <~ offer.adjust(input)
-    } yield adjustments
+      _            ← * <~ qualifier.check(input)
+      offerResults ← * <~ offer.adjust(input)
+    } yield offerResults.map(CartLineItemAdjustment.fromOfferResult)
 }

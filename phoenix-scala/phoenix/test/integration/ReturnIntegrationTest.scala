@@ -21,6 +21,7 @@ import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.api.ApiFixtureHelpers
 import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
+import core.utils.Money._
 
 class ReturnIntegrationTest
     extends IntegrationTestBase
@@ -257,6 +258,7 @@ class ReturnIntegrationTest
   }
 
   "Return reasons" - {
+
     "add new return reason" in new ReturnReasonFixture {
       val payload = ReturnReasonPayload(name = "Simple reason")
       returnsApi.reasons.add(payload).as[ReturnReasonsResponse.Root].name must === (payload.name)
@@ -281,6 +283,7 @@ class ReturnIntegrationTest
   }
 
   "Return line items" - {
+
     "POST /v1/returns/:refNum/line-items" - {
       "successfully adds shipping cost line item" in new ReturnDefaults with ReturnReasonDefaults {
         val payload = ReturnShippingCostLineItemPayload(amount = order.totals.shipping,
@@ -471,6 +474,7 @@ class ReturnIntegrationTest
   }
 
   "Return payment methods" - {
+
     "POST /v1/returns/:ref/payment-methods" - {
       "succeeds for any supported payment" in new ReturnPaymentFixture with ReturnDefaults
       with ReturnReasonDefaults {
@@ -503,7 +507,7 @@ class ReturnIntegrationTest
           .payments
           .asMap
           .mapValues(_.amount) must === (
-            Map[PaymentMethod.Type, Int](PaymentMethod.GiftCard → 130))
+            Map[PaymentMethod.Type, Long](PaymentMethod.GiftCard → 130))
 
         val payload = ReturnPaymentsPayload(
             Map(PaymentMethod.CreditCard → 100, PaymentMethod.StoreCredit → 120))
@@ -519,7 +523,7 @@ class ReturnIntegrationTest
           .as[ReturnResponse.Root]
           .payments
           .asMap
-          .mapValues(_.amount) must === (payload.payments + (PaymentMethod.StoreCredit → 50))
+          .mapValues(_.amount) must === (payload.payments + (PaymentMethod.StoreCredit → 50L))
 
         api
           .add(PaymentMethod.GiftCard, ReturnPaymentPayload(80))
@@ -562,7 +566,7 @@ class ReturnIntegrationTest
 
       "fails if cc payment exceeds order cc payment minus any previously returned cc payments" in new ReturnPaymentFixture
       with OrderDefaults with ReturnReasonDefaults {
-        val maxCCAmount = (0.5 * shippingMethod.price).toInt
+        val maxCCAmount = shippingMethod.price.applyTaxes(0.5)
         val scAmount    = product.price + shippingMethod.price - maxCCAmount
         override val storeCredit =
           api_newStoreCredit(customer.id,
@@ -570,7 +574,7 @@ class ReturnIntegrationTest
         override val order = createDefaultOrder(
             Map(PaymentMethod.CreditCard → None, PaymentMethod.StoreCredit → Some(scAmount)))
 
-        def createPayload(amount: Int) =
+        def createPayload(amount: Long) =
           ReturnShippingCostLineItemPayload(amount = amount, reasonId = returnReason.id)
 
         val payload = createPayload(amount = maxCCAmount)

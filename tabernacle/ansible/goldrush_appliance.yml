@@ -27,7 +27,6 @@
         storefront_server_name: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
         api_server: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
   roles:
-    - { role: hotfix/kafka }
     - { role: dev/dashboard }
     - { role: dev/marathon_consul }
     - { role: dev/seed_system }

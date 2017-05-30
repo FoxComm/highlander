@@ -26,7 +26,7 @@ object GiftCards {
               json(GiftCardCreateByCsr(
                       reasonId = session.get("reasonId").as[Int],
                       currency = Currency.USD,
-                      balance = Random.nextInt(9500) + 500 // from $5 to $100
+                      balance = Random.nextInt(9500).toLong + 500 // from $5 to $100
                   ))))
     .check(jsonPath("$.code").ofType[String].saveAs("giftCardCode"))
 

@@ -8,6 +8,7 @@ import phoenix.models.payment.creditcard.CreditCards
 import phoenix.responses.AddressResponse
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
+import core.utils.Money._
 
 sealed trait CordResponsePayments {
   def `type`: Type
@@ -58,9 +59,9 @@ object CordResponseCreditCardPayment {
 }
 
 case class CordResponseGiftCardPayment(code: String,
-                                       amount: Int,
-                                       currentBalance: Int,
-                                       availableBalance: Int,
+                                       amount: Long,
+                                       currentBalance: Long,
+                                       availableBalance: Long,
                                        createdAt: Instant,
                                        `type`: Type = GiftCard)
     extends CordResponsePayments
@@ -82,9 +83,9 @@ object CordResponseGiftCardPayment {
 }
 
 case class CordResponseStoreCreditPayment(id: Int,
-                                          amount: Int,
-                                          currentBalance: Int,
-                                          availableBalance: Int,
+                                          amount: Long,
+                                          currentBalance: Long,
+                                          availableBalance: Long,
                                           createdAt: Instant,
                                           `type`: Type = StoreCredit)
     extends CordResponsePayments

@@ -12,6 +12,7 @@ import phoenix.models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import phoenix.models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
+import core.utils.Money._
 
 trait CartValidation {
   def validate(isCheckout: Boolean = false,
@@ -112,7 +113,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB, ctx: OC) extends C
   private def sufficientPayments(response: CartValidatorResponse,
                                  isCheckout: Boolean): DBIO[CartValidatorResponse] = {
 
-    def cartFunds(payments: Seq[OrderPayment]): DBIO[Option[Int]] = {
+    def cartFunds(payments: Seq[OrderPayment]): DBIO[Option[Long]] = {
       if (isCheckout) {
         val paymentIds = payments.map(_.id)
 
@@ -146,7 +147,8 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB, ctx: OC) extends C
       }
     }
 
-    def availableFunds(grandTotal: Int, payments: Seq[OrderPayment]): DBIO[CartValidatorResponse] = {
+    def availableFunds(grandTotal: Long,
+                       payments: Seq[OrderPayment]): DBIO[CartValidatorResponse] = {
       // we'll find out if the CC doesn't auth at checkout but we presume sufficient funds if we have a
       // credit card regardless of GC/SC funds availability
       if (payments.exists(_.isCreditCard)) {

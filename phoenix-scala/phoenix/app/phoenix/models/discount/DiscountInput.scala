@@ -1,9 +1,9 @@
 package phoenix.models.discount
 
+import objectframework.FormShadowGet.priceAsLong
 import objectframework.models.ObjectShadow
 import phoenix.models.cord.Cart
 import phoenix.models.cord.lineitems._
-import phoenix.models.product.Mvp
 import phoenix.models.shipping.ShippingMethod
 
 /*
@@ -18,9 +18,8 @@ case class DiscountInput(promotion: ObjectShadow,
                          lineItems: Seq[LineItemProductData[_]],
                          shippingMethod: Option[ShippingMethod]) {
 
-  val eligibleForDiscountSubtotal: Int = lineItems.collect {
-    case li if li.isEligibleForDiscount ⇒
-      Mvp.priceAsInt(li.skuForm, li.skuShadow)
+  val eligibleForDiscountSubtotal: Long = lineItems.collect {
+    case li if li.isEligibleForDiscount ⇒ priceAsLong(li.skuForm, li.skuShadow)
   }.sum
 
   val eligibleForDiscountNumItems: Int = lineItems.count(_.isEligibleForDiscount)

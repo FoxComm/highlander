@@ -24,7 +24,7 @@ const DropdownItem = ({ children, className = '', isHidden = false, value, onSel
 
   const classnames = classNames(className, {
     [s.item]: true,
-    [s._hidden]: isHidden,
+    [s.hidden]: isHidden,
   });
 
   return (
