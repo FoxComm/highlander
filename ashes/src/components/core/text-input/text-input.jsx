@@ -36,13 +36,20 @@ type State = {
 export default class TextInput extends Component {
   props: Props;
 
-  static defaultProps = {
-    value: ''
-  };
+  // static defaultProps = {
+  //   value: ''
+  // };
 
   state: State = {
-    value: this.props.value
+    value: this.props.value || this.props.defaultValue || ""
   };
+
+  componentWillReceiveProps(nextProps) {
+    console.log(nextProps)
+    if (nextProps.value !== this.props.value) {
+      this.setState({ value: nextProps.value })
+    }
+  }
 
   componentWillUpdate(nextProps: Props) {
     if (this.state.value != nextProps.value) {
@@ -61,7 +68,7 @@ export default class TextInput extends Component {
   }
 
   render(): Element<any> {
-    const { className, placeholder, onChange, ...rest } = this.props;
+    const { className, placeholder, onChange, defaultValue, ...rest } = this.props;
     const inputClass = classNames(s.input, className, '__cssmodules');
 
     return (
@@ -70,7 +77,7 @@ export default class TextInput extends Component {
         className={inputClass}
         onChange={this.handleChange}
         placeholder={placeholder}
-        value={onChange ? this.props.value : this.state.value}
+        value={this.state.value}
         {...rest}
       />
     );

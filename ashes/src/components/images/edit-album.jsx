@@ -10,6 +10,7 @@ import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
 import wrapModal from '../modal/wrapper';
+import TextInput from 'components/core/text-input';
 
 // types
 import type { NewAlbum } from '../../modules/images';
@@ -54,8 +55,8 @@ class EditAlbum extends Component {
   }
 
   @autobind
-  handleUpdateField({ target }: { target: HTMLInputElement }) {
-    this.setState({ [target.name]: target.value });
+  handleUpdateField(value, name) {
+    this.setState({ [name]: value });
   }
 
   @autobind
@@ -81,7 +82,7 @@ class EditAlbum extends Component {
             <FormField label="Album Name"
                        className="fc-product-details__field"
                        labelClassName="fc-product-details__field-label">
-              <input type="text"
+              <TextInput
                      name="name"
                      className="fc-product-details__field-value"
                      value={this.state.name}

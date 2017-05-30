@@ -1,13 +1,16 @@
 // @flow
 
+// libs
 import _ from 'lodash';
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
+// components
 import Counter from './counter';
 import BodyPortal from '../body-portal/body-portal';
 import Overlay from '../overlay/overlay';
+import TextInput from 'components/core/text-input';
 
 import styles from './css/adjust-quantity.css';
 
@@ -68,8 +71,8 @@ export default class AdjustQuantity extends Component {
   }
 
   @autobind
-  handleChange({ target }: Object) {
-    const quantity = Number(target.value);
+  handleChange(value: string) {
+    const quantity = Number(value);
     if (!_.isNaN(quantity)) {
       this.adjustValue(quantity);
     }
@@ -93,8 +96,8 @@ export default class AdjustQuantity extends Component {
     return (
       <div styleName="block" ref={ref => this._block = ref}>
         <Overlay shown={this.props.isPopupShown} onClick={() => this.hide()} />
-        <input
-          className="fc-text-input _no-counters"
+        <TextInput
+          className="_no-counters"
           styleName="input"
           type="number"
           value={this.state.value}

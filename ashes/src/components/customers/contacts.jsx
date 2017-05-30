@@ -15,6 +15,7 @@ import Form from '../forms/form';
 import ErrorAlerts from '../alerts/error-alerts';
 import { EditButton } from 'components/core/button';
 import SaveCancel from 'components/core/save-cancel';
+import TextInput from 'components/core/text-input';
 
 function mapDispatchToProps(dispatch, props) {
   return _.transform(CustomerContactActions, (result, action, key) => {
@@ -79,14 +80,16 @@ export default class CustomerContacts extends React.Component {
 
     return (
       <FormField validator={ CustomerContacts.validateName }>
-        <input id='nameField'
-               className='fc-customer-form-input'
-               name='Name'
-               maxLength='255'
-               type='text'
-               required
-               onChange={ ({target}) => this.setState({name: target.value}) }
-               value={ this.state.name } />
+        <TextInput
+         id='nameField'
+         className='fc-customer-form-input'
+         name='Name'
+         maxLength='255'
+         type='text'
+         required
+         onChange={ (value) => this.setState({name: value}) }
+         value={ this.state.name }
+        />
       </FormField>
     );
   }
@@ -98,14 +101,16 @@ export default class CustomerContacts extends React.Component {
 
     return (
       <FormField validator={ CustomerContacts.validateEmail }>
-        <input id='emailField'
-               className='fc-customer-form-input'
-               name='Email'
-               maxLength='255'
-               type='text'
-               required
-               onChange={ ({target}) => this.setState({email: target.value}) }
-               value={ this.state.email } />
+        <TextInput
+         id='emailField'
+         className='fc-customer-form-input'
+         name='Email'
+         maxLength='255'
+         type='text'
+         required
+         onChange={ (value) => this.setState({email: value}) }
+         value={ this.state.email }
+        />
       </FormField>
     );
   }
@@ -117,14 +122,16 @@ export default class CustomerContacts extends React.Component {
 
     return (
       <FormField validator='ascii'>
-        <input id='phoneField'
-               className='fc-customer-form-input'
-               name='Phone'
-               maxLength='255'
-               type='text'
-               required
-               onChange={ ({target}) => this.setState({phoneNumber: target.value}) }
-               value={ this.state.phoneNumber } />
+        <TextInput
+         id='phoneField'
+         className='fc-customer-form-input'
+         name='Phone'
+         maxLength='255'
+         type='text'
+         required
+         onChange={ (value) => this.setState({phoneNumber: value}) }
+         value={ this.state.phoneNumber }
+        />
       </FormField>
     );
   }
