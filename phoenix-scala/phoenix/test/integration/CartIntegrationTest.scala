@@ -86,8 +86,10 @@ class CartIntegrationTest
 
     "calculates customer’s expenses considering in-store payments" in new StoreAdmin_Seed
     with Customer_Seed with ProductSku_ApiFixture with Reason_Baked {
-      val refNum =
-        cartsApi.create(CreateCart(customerId = customer.id.some)).as[CartResponse].referenceNumber
+      val refNum = cartsApi
+        .create(CreateCart(customerId = customer.accountId.some))
+        .as[CartResponse]
+        .referenceNumber
 
       cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
 
@@ -102,7 +104,7 @@ class CartIntegrationTest
         .add(GiftCardPayment(giftCard.code, giftCardAmount.some))
         .asTheResult[CartResponse]
 
-      customersApi(customer.id).payments.storeCredit
+      customersApi(customer.accountId).payments.storeCredit
         .create(CreateManualStoreCredit(amount = storeCreditAmount, reasonId = reason.id))
         .as[StoreCreditResponse.Root]
 
