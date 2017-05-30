@@ -79,13 +79,13 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
     val productCode: String = s"testprod_${Lorem.numerify("####")}"
     val skuCodes: Seq[String] =
       (1 to 2).map(_ ⇒ s"$productCode-sku_${Lorem.letterify("????").toUpperCase}")
-    def skuPrice: Int = Random.nextInt(20000) + 100
+    def skuPrice: Long = Random.nextInt(20000).toLong + 100
 
     private val skuPayloads = skuCodes.map { skuCode ⇒
       SkuPayload(
-          attributes = Map("code"      → tv(skuCode),
-                           "title"     → tv(skuCode.capitalize),
-                           "salePrice" → usdPrice(skuPrice),
+          attributes = Map("code"        → tv(skuCode),
+                           "title"       → tv(skuCode.capitalize),
+                           "salePrice"   → usdPrice(skuPrice),
                            "retailPrice" → usdPrice(skuPrice)) ++ eternalActivity())
     }
     private val variantValues = skuCodes.map { skuCode ⇒
