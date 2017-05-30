@@ -21,7 +21,7 @@ clean:
 
 test:
 	$(call header, Testing)
-	sbt '; scalafmtTestAll ; test; seedDemo'
+	sbt -mem 3072 '; scalafmtTestAll ; test; seedDemo'
 
 docker:
 	$(call header, Dockerizing)
