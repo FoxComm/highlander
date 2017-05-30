@@ -121,7 +121,14 @@ object Plugins
 
   val returningLens: Lens[Plugin, Int] = lens[Plugin].id
 
-  def findByNameForCurrentUser(name: String)(implicit au: AU): DBIO[Option[Plugin]] = {
-    filter(_.name === name).filter(_.scope === Scope.current).one
+  object scope {
+    implicit class PluginsQuerySeqConversions(q: QuerySeq) {
+      def forCurrentUser()(implicit au: AU): QuerySeq =
+        q.filter(_.scope === Scope.current)
+    }
   }
+
+  def findByName(name: String): QuerySeq =
+    filter(_.name === name)
+
 }

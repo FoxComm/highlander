@@ -11,6 +11,7 @@ import org.json4s.jackson.JsonMethods._
 import phoenix.models.plugins.PluginSettings.SettingsValues._
 import phoenix.models.plugins.PluginSettings.{SettingsSchema, SettingsValues}
 import phoenix.models.plugins._
+import phoenix.models.plugins.Plugins.scope._
 import phoenix.payloads.PluginPayloads._
 import phoenix.responses.plugins.PluginCommonResponses._
 import phoenix.utils.aliases._
@@ -78,7 +79,7 @@ object PluginsManager extends LazyLogging {
 
   def listPlugins()(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[ListPluginsAnswer] = {
     for {
-      plugins ← * <~ Plugins.filter(_.scope === Scope.current).result
+      plugins ← * <~ Plugins.forCurrentUser.result
     } yield plugins.map(PluginInfo.fromPlugin)
   }
 
@@ -88,7 +89,8 @@ object PluginsManager extends LazyLogging {
                                                      ac: AC): DbResultT[RegisterAnswer] = {
     val pluginT = for {
       result ← * <~ Plugins
-                .findByNameForCurrentUser(payload.name)
+                .findByName(payload.name)
+                .forCurrentUser.one
                 .findOrCreateExtended(Plugins.create(Plugin.fromPayload(payload)))
       (dbPlugin, foundOrCreated) = result
       plugin ← * <~ updatePlugin(dbPlugin, payload, foundOrCreated)
@@ -109,8 +111,9 @@ object PluginsManager extends LazyLogging {
       ac: AC): DbResultT[SettingsUpdated] = {
     val updated = for {
       plugin ← * <~ Plugins
-                .findByNameForCurrentUser(name)
-                .mustFindOr(NotFoundFailure404(Plugin, name))
+                .findByName(name)
+                .forCurrentUser
+                .mustFindOneOr(NotFoundFailure404(Plugin, name))
       newSettings = plugin.settings merge payload.settings
       updated ← * <~ Plugins.update(plugin, plugin.copy(settings = newSettings))
     } yield updated
@@ -128,8 +131,9 @@ object PluginsManager extends LazyLogging {
       name: String)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[SettingsValues] = {
     for {
       plugin ← * <~ Plugins
-                .findByNameForCurrentUser(name)
-                .mustFindOr(NotFoundFailure404(Plugin, name))
+                .findByName(name)
+                .forCurrentUser
+                .mustFindOneOr(NotFoundFailure404(Plugin, name))
     } yield plugin.settings
   }
 
@@ -137,8 +141,9 @@ object PluginsManager extends LazyLogging {
       name: String)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[PluginSettingsResponse] = {
     for {
       plugin ← * <~ Plugins
-                .findByNameForCurrentUser(name)
-                .mustFindOr(NotFoundFailure404(Plugin, name))
+                .findByName(name)
+                .forCurrentUser
+                .mustFindOneOr(NotFoundFailure404(Plugin, name))
     } yield PluginSettingsResponse.fromPlugin(plugin)
   }
 
