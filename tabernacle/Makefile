@@ -18,6 +18,9 @@ test:
 deploy-stage:
 	ansible-playbook -v -i inventory/gce/ ansible/test_stage.yml
 
+deploy-groups:
+	ansible-playbook -v -i inventory/gce/ ansible/deploy_groups.yml
+
 deploy-demo1:
 	ansible-playbook -v -i inventory/gce/ ansible/demo.yml --extra-vars='{ "first_run": true, "application_hostname": "demo1" }'
 
