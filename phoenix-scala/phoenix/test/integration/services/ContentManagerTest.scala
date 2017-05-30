@@ -5,9 +5,9 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import objectframework.content._
 import objectframework.failures._
-import objectframework.ObjectFailures._
 import objectframework.payloads.ContentPayloads._
 import objectframework.services._
+import objectframework.ObjectFailures._
 import phoenix.models.product.SimpleContext
 import phoenix.utils.JsonFormatters
 
