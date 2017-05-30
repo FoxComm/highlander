@@ -91,17 +91,15 @@ class ResetPassword extends Component {
     transitionTo('login');
   }
 
-  get errorMessage() {
+  get errorMessage(): ?Element<*> {
     const err = this.props.resetState.err;
+
     if (!err) return null;
+
     return <ErrorAlerts error={err} sanitizeError={sanitize} />;
   }
 
-  get content() {
-    if (!this.props.isMounted) {
-      return <WaitAnimation />;
-    }
-
+  get content(): Element<*> {
     return (
       <div className={s.main}>
         <Form className={s.form} onSubmit={this.handleSubmit}>

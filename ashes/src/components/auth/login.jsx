@@ -119,10 +119,6 @@ class Login extends Component {
   }
 
   get content(): Element<*> {
-    if (!this.props.isMounted) {
-      return <WaitAnimation />;
-    }
-
     const { org, email, password } = this.state;
 
     return (

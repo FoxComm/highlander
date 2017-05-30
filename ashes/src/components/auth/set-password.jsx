@@ -90,15 +90,13 @@ class SetPassword extends Component {
 
   get errorMessage(): ?Element<*> {
     const err = this.props.signUpState.err;
+
     if (!err) return null;
+
     return <ErrorAlerts error={err} sanitizeError={sanitize} />;
   }
 
   get content(): ?Element<*> {
-    if (!this.props.isMounted) {
-      return <WaitAnimation />;
-    }
-
     return (
       <div>
         <div className={s.message}>

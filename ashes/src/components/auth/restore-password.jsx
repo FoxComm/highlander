@@ -69,7 +69,9 @@ class RestorePassword extends Component {
 
   get errorMessage(): ?Element<*> {
     const err = this.props.restoreState.err;
+
     if (!err) return null;
+
     return <ErrorAlerts error={err} sanitizeError={sanitize} />;
   }
 
@@ -97,11 +99,7 @@ class RestorePassword extends Component {
     );
   }
 
-  get content() {
-    if (!this.props.isMounted) {
-      return <WaitAnimation />;
-    }
-
+  get content(): Element<*> {
     return (
       <div className={s.main}>
         <div className={s.message}>
