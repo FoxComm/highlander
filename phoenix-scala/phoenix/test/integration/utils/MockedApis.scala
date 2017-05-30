@@ -32,11 +32,7 @@ import shapeless.syntax.typeable._
 trait RealStripeApi extends MockedApis {
 
   override implicit def apisOverride: Option[Apis] =
-    Apis(Setup.defaultApis.stripe,
-         amazonApiMock,
-         middlewarehouseApiMock,
-         elasticSearchMock,
-         kafkaMock).some
+    Apis(Setup.setupStripe(), amazonApiMock, middlewarehouseApiMock, elasticSearchMock, kafkaMock).some
 }
 
 trait MockedApis extends MockitoSugar with MustMatchers with OptionValues with AppendedClues {
