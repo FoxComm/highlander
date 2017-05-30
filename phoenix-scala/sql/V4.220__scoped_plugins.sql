@@ -7,4 +7,6 @@ update plugins set scope = exts.text2ltree(get_scope_path((
           where u.email = 'api@foxcommerce.com'
       ))::text);
 
+update plugins set scope = exts.text2ltree('1'::text) where scope is null;
+
 alter table plugins alter column scope set not null;
