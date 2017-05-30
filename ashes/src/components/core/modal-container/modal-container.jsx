@@ -15,7 +15,7 @@ import s from './modal-container.css';
 
 type Props = {
   isVisible: boolean,
-  onCancel?: () => void,
+  onClose?: () => void,
   children?: Element<any>,
 };
 
@@ -23,7 +23,7 @@ export class ModalContainer extends Component {
   props: Props;
 
   static defaultProps: $Shape<Props> = {
-    onCancel: noop,
+    onClose: noop,
   };
 
   componentDidMount() {
@@ -45,7 +45,7 @@ export class ModalContainer extends Component {
     if (e.keyCode === 27 /*esc*/) {
       e.preventDefault();
 
-      this.props.onCancel();
+      this.props.onClose();
     }
   }
 
@@ -54,11 +54,11 @@ export class ModalContainer extends Component {
       return null;
     }
 
-    const { children, isVisible, onCancel, className } = this.props;
+    const { children, isVisible, onClose, className } = this.props;
 
     return (
       <div className={s.container}>
-        <Overlay shown={isVisible} onClick={onCancel} />
+        <Overlay shown={isVisible} onClick={onClose} />
         <div className={classNames(s.modal, className)} onKeyDown={this.handleKeyPress}>
           {children}
         </div>
@@ -81,8 +81,8 @@ export class ModalContainer extends Component {
   }
 }
 
-export const withModal = (InnerComponent: Component) => ({ isVisible, onCancel, ...rest}) => (
-  <ModalContainer isVisible={isVisible} onCancel={onCancel}>
+export const withModal = (InnerComponent: Component) => ({ isVisible, onClose, ...rest}) => (
+  <ModalContainer isVisible={isVisible} onClose={onClose}>
     <InnerComponent {...rest} />
   </ModalContainer>
 );

@@ -5,9 +5,12 @@ import Modal from 'components/core/modal';
 
 <Modal
   isVisible={this.state.modalVisible}
-  onCancel={this.handleClose}
+  onClose={this.handleClose}
   title="Base Modal"
-/>
+  footer={<Button>CLose</Button>}
+>
+  Modal Content
+</Modal>
 ```
 
 ### Examples
@@ -32,8 +35,9 @@ class ModalExample extends React.Component {
       <div>
         <Modal
           isVisible={this.state.visible}
-          onCancel={() => this.setState({ visible: false })}
+          onClose={() => this.setState({ visible: false })}
           title="Modal Example"
+          footer="Footer Content"
         >
           ModalContainer Content
         </Modal>

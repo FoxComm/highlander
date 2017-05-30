@@ -4,13 +4,8 @@
 import React, { Component, Element } from 'react';
 
 // components
-import { ModalContainer } from 'components/modal/base';
 import Modal from 'components/core/modal';
-import ContentBox from 'components/content-box/content-box';
 import ProductsAdd from './products-add';
-
-// styles
-import styles from './products-add.css';
 
 type Props = {
   isVisible: boolean,
@@ -33,7 +28,11 @@ class ProductsAddModal extends Component {
     const { isVisible, title, addedProducts, addState, onAddProduct, onCancel } = this.props;
 
     return (
-      <Modal className={styles.modal} title={title} isVisible={isVisible} onCancel={onCancel}>
+      <Modal
+        title={title}
+        isVisible={isVisible}
+        onClose={onCancel}
+      >
         <ProductsAdd
           addedProducts={addedProducts}
           addState={addState}

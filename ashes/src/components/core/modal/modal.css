@@ -1,5 +1,5 @@
 .modal {
-  width: 780px;
+  width: 640px;
   color: #484848;
 }
 
@@ -37,7 +37,10 @@
 }
 
 .footer {
+  display: flex;
+  justify-content: flex-end;
+
   &:not(:empty) {
-    padding: 20px 20px 0;
+    padding: 30px 20px 20px;
   }
 }

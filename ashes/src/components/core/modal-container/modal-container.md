@@ -5,7 +5,7 @@ import Modal from 'components/core/modal';
 
 <Modal
   isVisible={this.state.modalVisible}
-  onCancel={this.handleClose}
+  onClose={this.handleClose}
 />
 ```
 
@@ -35,7 +35,7 @@ class ModalExample extends React.Component {
       <div>
         <ModalContainer.ModalContainer
           isVisible={this.state.visible}
-          onCancel={() => this.setState({ visible: false })}
+          onClose={() => this.setState({ visible: false })}
         >
           ModalContainer Content
         </ModalContainer.ModalContainer>
@@ -82,7 +82,7 @@ class ModalExample extends React.Component {
       <div>
         <ModalContent
           isVisible={this.state.visible}
-          onCancel={() => this.setState({ visible: false })}
+          onClose={() => this.setState({ visible: false })}
         />
 
         <Button onClick={() => this.setState({ visible: true })}>

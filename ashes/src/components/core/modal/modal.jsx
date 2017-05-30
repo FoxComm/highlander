@@ -12,22 +12,22 @@ import s from './modal.css';
 
 type Props = {
   isVisible: boolean,
-  onCancel: () => any,
+  onClose: () => any,
   title: string | Element<any>,
   footer: Element<any>,
   children?: Element<any>,
 }
 
-export default ({ isVisible, title, footer, children, onCancel = noop }: Props) => (
-  <ModalContainer className={s.modal} isVisible={isVisible} onCancel={onCancel}>
+export default ({ isVisible, title, footer, children, onClose = noop }: Props) => (
+  <ModalContainer className={s.modal} isVisible={isVisible} onClose={onClose}>
     <header className={s.header}>
       <div className={s.title}>{title}</div>
-      <a className={s.close} onClick={onCancel}>&times;</a>
+      <a className={s.close} onClick={onClose}>&times;</a>
     </header>
     <div className={s.body}>
       {children}
     </div>
-    <footer classname={s.footer}>
+    <footer className={s.footer}>
       {footer}
     </footer>
   </ModalContainer>
