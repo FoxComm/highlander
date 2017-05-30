@@ -60,8 +60,7 @@ class RestorePassword extends Component {
   }
 
   @autobind
-  handleInputChange(event: Object) {
-    const { target } = event;
+  handleInputChange({ target }: SyntheticInputEvent) {
     this.setState({
       [target.name]: target.value,
     });
