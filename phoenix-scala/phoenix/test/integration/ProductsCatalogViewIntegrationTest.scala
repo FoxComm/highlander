@@ -63,19 +63,17 @@ class ProductsCatalogViewIntegrationTest
   val searchKeyName: String  = "id"
 
   "Products with no active SKUs are not visible" - {
-    val product   = new ProductSku_ApiFixture {}.product
-    val currentDb = implicitly[DB]
-    val psv = new ProductsSearchViewIntegrationTest {
-      override def dbOverride(): Option[DB] = Some(currentDb)
-    }
     def skuCode(skuAttrs: Json): String = (skuAttrs \ "code" \ "v").extractOpt[String].value
 
     "after archival" in go(sku ⇒ skusApi(skuCode(sku.attributes)).archive().mustBeOk)
     "after deactivation" in go(sku ⇒ deactivateSku(skuCode(sku.attributes)))
 
     def go(deactivate: SkuResponse.Root ⇒ Unit): Unit = {
-      val product = new ProductSku_ApiFixture {}.product
-      val psv     = new ProductsSearchViewIntegrationTest
+      val product   = new ProductSku_ApiFixture {}.product
+      val currentDb = implicitly[DB]
+      val psv = new ProductsSearchViewIntegrationTest {
+        override def dbOverride(): Option[DB] = Some(currentDb)
+      }
       psv.viewOne(product.id).archivedAt mustBe 'empty
       findOne(product.id) mustBe 'defined
       product.skus.foreach(deactivate) // FIXME: why does it take 0.4 seconds? :P @michalrus
