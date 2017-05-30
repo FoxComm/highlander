@@ -12,7 +12,6 @@ import { PrimaryButton } from 'components/core/button';
 import ContentBox from 'components/content-box/content-box';
 import FormField from 'components/forms/formfield';
 import WaitAnimation from 'components/common/wait-animation';
-import TextInput from 'components/core/text-input';
 
 // redux
 import * as amazonActions from 'modules/channels/amazon';
@@ -89,20 +88,20 @@ class AmazonCredentials extends Component {
                 <li className={s.entry}>
                   <FormField label="Seller ID" validator="ascii" maxLength={255}>
                     <div>
-                      <TextInput
+                      <input
                         type="text"
                         value={this.state.seller_id}
-                        onChange={this._handleSellerId} />
+                        onChange={(e) => this._handleSellerId(e)} />
                     </div>
                   </FormField>
                 </li>
                 <li className={s.entry}>
                   <FormField label="Auth token" validator="ascii" maxLength={255}>
                     <div>
-                      <TextInput
+                      <input
                         type="text"
                         value={this.state.mws_auth_token}
-                        onChange={this._handleAuthToken} />
+                        onChange={(e) => this._handleAuthToken(e)} />
                     </div>
                   </FormField>
                 </li>
@@ -157,11 +156,11 @@ class AmazonCredentials extends Component {
     });
   }
 
-  _handleSellerId(target) {
+  _handleSellerId({ target }) {
     this.setState({ seller_id: target.value });
   }
 
-  _handleAuthToken(target) {
+  _handleAuthToken({ target }) {
     this.setState({ mws_auth_token: target.value });
   }
 }

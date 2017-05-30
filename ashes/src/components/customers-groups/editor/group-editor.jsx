@@ -22,7 +22,6 @@ import { prefix } from 'lib/text-utils';
 import FormField from 'components/forms/formfield';
 import { Dropdown } from 'components/dropdown';
 import QueryBuilder from './query-builder';
-import TextInput from 'components/core/text-input';
 
 const SELECT_CRITERIA = [
   [operators.and, 'all'],
@@ -74,13 +73,13 @@ class GroupEditor extends React.Component {
     return (
       <FormField label="Group Name"
                  labelClassName={classNames(prefixed('title'), prefixed('name'))}>
-        <TextInput id="nameField"
+        <input id="nameField"
                className={prefixed('form-name')}
                name="Name"
                maxLength="255"
                type="text"
                required
-               onChange={(target) => setName(target.value)}
+               onChange={({target}) => setName(target.value)}
                value={name} />
       </FormField>
     );
