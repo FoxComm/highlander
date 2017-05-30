@@ -1,32 +1,17 @@
 package phoenix.models.discount
 
-import objectframework.FormShadowGet.priceAsLong
-import phoenix.models.cord.lineitems.LineItemProductData
-
 /**
   * Methods, used across offers and qualifiers
   */
 trait DiscountBase {
 
-  def price[A](data: LineItemProductData[A]): Long = priceAsLong(data.skuForm, data.skuShadow)
-
-  def unitsByProducts(lineItems: Seq[LineItemProductData[_]], formIds: Seq[String]): Int =
+  def unitsByProducts(lineItems: Seq[DqLineItem], productIds: Seq[String]): Int =
     lineItems.foldLeft(0) { (sum, data) ⇒
-      if (formIds.contains(data.productForm.id.toString)) sum + 1 else sum
+      if (productIds.contains(data.productId.toString)) sum + 1 else sum
     }
 
-  def totalByProducts(lineItems: Seq[LineItemProductData[_]], formIds: Seq[String]): Long =
+  def totalByProducts(lineItems: Seq[DqLineItem], productIds: Seq[String]): Long =
     lineItems.foldLeft(0L) { (sum, data) ⇒
-      if (formIds.contains(data.productForm.id.toString)) sum + price(data) else sum
-    }
-
-  def unitsBySku(lineItems: Seq[LineItemProductData[_]], codes: Seq[String]): Int =
-    lineItems.foldLeft(0) { (sum, data) ⇒
-      if (codes.contains(data.sku.code)) sum + 1 else sum
-    }
-
-  def totalBySku(lineItems: Seq[LineItemProductData[_]], codes: Seq[String]): Long =
-    lineItems.foldLeft(0L) { (sum, data) ⇒
-      if (codes.contains(data.sku.code)) sum + price(data) else sum
+      if (productIds.contains(data.productId.toString)) sum + data.price else sum
     }
 }

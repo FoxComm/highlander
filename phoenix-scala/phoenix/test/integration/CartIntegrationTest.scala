@@ -7,6 +7,7 @@ import phoenix.failures.ShippingMethodFailures._
 import phoenix.models.cord.{CordPaymentState, _}
 import phoenix.models.cord.lineitems._
 import phoenix.models.location._
+import phoenix.models.payment.ExternalCharge
 import phoenix.models.payment.creditcard._
 import phoenix.models.product.Mvp
 import phoenix.models.rules.QueryStatement
@@ -48,7 +49,7 @@ class CartIntegrationTest
       }
 
       "displays 'auth' payment state" in new PaymentStateFixture {
-        CreditCardCharges.findById(ccc.id).extract.map(_.state).update(CreditCardCharge.Auth).gimme
+        CreditCardCharges.findById(ccc.id).extract.map(_.state).update(ExternalCharge.Auth).gimme
 
         val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
         fullCart.paymentState must === (CordPaymentState.Auth)
