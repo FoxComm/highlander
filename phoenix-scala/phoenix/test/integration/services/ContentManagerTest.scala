@@ -5,6 +5,7 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import objectframework.content._
 import objectframework.failures._
+import objectframework.ObjectFailures._
 import objectframework.payloads.ContentPayloads._
 import objectframework.services._
 import phoenix.models.product.SimpleContext
@@ -18,6 +19,25 @@ import phoenix.utils.JsonFormatters
 // -- Jeff
 
 class ContentManagerTest extends IntegrationTestBase with TestObjectContext with ApiFixtures {
+
+  "ContentManager.findLatestById" - {
+    "successfully with no relations" in new SkuFixture {
+      val content = ContentManager.findLatestById(sku.id, SimpleContext.id, sku.kind).gimme
+      content.kind must === ("sku")
+      content.attributes("code").v must === (JString("TEST-SKU"))
+    }
+
+    "fails with 404 when invalid id" in new SkuFixture {
+      val failures = ContentManager.findLatestById(2, SimpleContext.id, sku.kind).gimmeFailures
+      failures.head must === (ObjectNotFound(sku.kind, 2, SimpleContext.id))
+    }
+
+    "fails with 404 when invalid kind" in new SkuFixture {
+      val failures =
+        ContentManager.findLatestById(sku.id, SimpleContext.id, "variant").gimmeFailures
+      failures.head must === (ObjectNotFound("variant", sku.id, SimpleContext.id))
+    }
+  }
 
   "ContentManager.create" - {
     implicit val formats: Formats = JsonFormatters.phoenixFormats
@@ -88,7 +108,7 @@ class ContentManagerTest extends IntegrationTestBase with TestObjectContext with
     val skuRelations  = Map.empty[String, Seq[Commit#Id]]
 
     val skuPayload =
-      CreateContentPayload(kind = "sku", attributes = attributes, relations = relations)
+      CreateContentPayload(kind = "sku", attributes = skuAttributes, relations = skuRelations)
 
     val sku = ContentManager.create(SimpleContext.id, skuPayload).gimme
   }
