@@ -70,19 +70,19 @@ object CartTailored {
 
   case class CartPaymentMethodAddedGiftCard(cart: CartResponse,
                                             giftCard: GiftCardResponse.Root,
-                                            amount: Int,
+                                            amount: Long,
                                             admin: Option[UserResponse.Root])
       extends ActivityBase[CartPaymentMethodAddedGiftCard]
 
   case class CartPaymentMethodUpdatedGiftCard(cart: CartResponse,
                                               giftCard: GiftCardResponse.Root,
-                                              oldAmount: Option[Int],
-                                              amount: Int,
+                                              oldAmount: Option[Long],
+                                              amount: Long,
                                               admin: Option[UserResponse.Root])
       extends ActivityBase[CartPaymentMethodUpdatedGiftCard]
 
   case class CartPaymentMethodAddedStoreCredit(cart: CartResponse,
-                                               amount: Int,
+                                               amount: Long,
                                                admin: Option[UserResponse.Root])
       extends ActivityBase[CartPaymentMethodAddedStoreCredit]
 

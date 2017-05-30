@@ -31,27 +31,33 @@ object OrderTailored {
 
   case class OrderCaptured(accountId: Int,
                            orderNum: String,
-                           captured: Int,
-                           external: Int,
-                           internal: Int,
-                           lineItems: Int,
-                           taxes: Int,
-                           shipping: Int,
+                           captured: Long,
+                           external: Long,
+                           internal: Long,
+                           lineItems: Long,
+                           taxes: Long,
+                           shipping: Long,
                            currency: Currency)
       extends ActivityBase[OrderCaptured]
 
   case class CreditCardAuthCompleted(accountId: Int,
                                      cordRef: String,
                                      orderNum: String,
-                                     amount: Int,
+                                     amount: Long,
                                      currency: Currency,
                                      cardId: Int)
       extends ActivityBase[CreditCardAuthCompleted]
 
+  case class ApplePayAuthCompleted(accountId: Int,
+                                   stripeTokenId: String,
+                                   amount: Long,
+                                   currency: Currency)
+      extends ActivityBase[ApplePayAuthCompleted]
+
   case class CreditCardChargeCompleted(accountId: Int,
                                        cordRef: String,
                                        orderNum: String,
-                                       amount: Int,
+                                       amount: Long,
                                        currency: Currency,
                                        cardId: Int)
       extends ActivityBase[CreditCardChargeCompleted]

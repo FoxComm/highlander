@@ -1,28 +1,28 @@
 package objectframework
 
 import cats.implicits._
-import core.utils.Money.Currency
+import core.utils.Money._
 import objectframework.models.{ObjectForm, ObjectShadow}
 import org.json4s._
 
 object FormShadowGet {
 
-  def priceFromJson(p: JValue): Option[(Int, Currency)] = {
-    val price = for {
+  def priceFromJson(p: JValue): Option[Price] = {
+    val price: List[Price] = for {
       JInt(value)       ← p \ "value"
       JString(currency) ← p \ "currency"
-    } yield (value.toInt, Currency(currency))
+    } yield (value.toLong, Currency(currency))
     if (price.isEmpty) None else price.headOption
   }
 
-  def price(f: ObjectForm, s: ObjectShadow): Option[(Int, Currency)] = {
+  def price(f: ObjectForm, s: ObjectShadow): Option[Price] = {
     ObjectUtils.get("salePrice", f, s) match {
       case JNothing ⇒ None
       case v        ⇒ priceFromJson(v)
     }
   }
 
-  def priceAsInt(f: ObjectForm, s: ObjectShadow): Int =
+  def priceAsLong(f: ObjectForm, s: ObjectShadow): Long =
     price(f, s).map { case (value, _) ⇒ value }.getOrElse(0)
 
   def title(f: ObjectForm, s: ObjectShadow): Option[String] = {

@@ -103,7 +103,7 @@ case class SimpleAlbumShadow(album: SimpleAlbum) {
 
 case class SimpleSku(code: String,
                      title: String,
-                     price: Int,
+                     price: Long,
                      currency: Currency = Currency.USD,
                      active: Boolean = false,
                      tags: Seq[String] = Seq.empty) {
@@ -197,7 +197,7 @@ case class SimpleProductData(productId: Int = 0,
                              description: String,
                              image: String,
                              code: String,
-                             price: Int,
+                             price: Long,
                              currency: Currency = Currency.USD,
                              active: Boolean = false,
                              tags: Seq[String] = Seq.empty)
@@ -502,12 +502,12 @@ object Mvp {
     } yield album
   }
 
-  def getPrice(skuId: Int)(implicit db: DB): DbResultT[Int] =
+  def getPrice(skuId: Int)(implicit db: DB): DbResultT[Long] =
     for {
       sku    ← * <~ Skus.mustFindById404(skuId)
       form   ← * <~ ObjectForms.mustFindById404(sku.formId)
       shadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-      p      ← * <~ priceAsInt(form, shadow)
+      p      ← * <~ priceAsLong(form, shadow)
     } yield p
 
   def getProductTuple(d: SimpleProductData)(implicit db: DB): DbResultT[SimpleProductTuple] =

@@ -6,14 +6,15 @@ import phoenix.models.cord.lineitems._
 import phoenix.responses.ResponseItem
 import phoenix.services.LineItemManager
 import slick.jdbc.PostgresProfile.api._
+import core.utils.Money._
 
 case class CordResponseLineItem(imagePath: String,
                                 referenceNumbers: Seq[String],
                                 name: Option[String],
                                 sku: String,
-                                price: Int,
+                                price: Long,
                                 quantity: Int = 1,
-                                totalPrice: Int,
+                                totalPrice: Long,
                                 productFormId: Int,
                                 externalId: Option[String],
                                 trackInventory: Boolean,
@@ -141,7 +142,7 @@ object CordResponseLineItems {
     val title = FormShadowGet.title(data.productForm, data.productShadow)
     val image = data.image.getOrElse(NO_IMAGE)
 
-    val price          = FormShadowGet.priceAsInt(data.skuForm, data.skuShadow)
+    val price          = FormShadowGet.priceAsLong(data.skuForm, data.skuShadow)
     val externalId     = FormShadowGet.externalId(data.skuForm, data.skuShadow)
     val trackInventory = FormShadowGet.trackInventory(data.skuForm, data.skuShadow)
 
@@ -162,7 +163,7 @@ object CordResponseLineItems {
 
 case class CordResponseLineItemAdjustment(
     adjustmentType: CartLineItemAdjustment.AdjustmentType,
-    subtract: Int,
+    subtract: Long,
     lineItemRefNum: Option[String]
 ) extends ResponseItem
 
