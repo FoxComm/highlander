@@ -60,6 +60,8 @@ trait ReturnsFixtures
                         ))
     }
 
+    val applePayPayment = CreateApplePayPayment(stripeToken = "tok_1A9YBQJVm1XvTUrO3V8caBvF")
+
     val giftCard = api_newGiftCard(GiftCardCreateByCsr(balance = 1000, reasonId = reason.id))
 
     val storeCredit =
@@ -83,6 +85,8 @@ trait ReturnsFixtures
           api.payments.creditCard
             .add(CreditCardPayment(creditCard.id))(defaultAdminAuth)
             .mustBeOk()
+        case (PaymentMethod.ApplePay, None) ⇒
+          api.payments.applePay.add(applePayPayment)(defaultAdminAuth).mustBeOk()
         case (PaymentMethod.GiftCard, amount) if amount.exists(_ <= giftCard.availableBalance) ⇒
           api.payments.giftCard
             .add(GiftCardPayment(giftCard.code, amount))(defaultAdminAuth)
@@ -208,6 +212,7 @@ trait ReturnsFixtures
       def asMap: Map[PaymentMethod.Type, ReturnResponse.Payment] =
         Map.empty[PaymentMethod.Type, ReturnResponse.Payment] ++
           payments.creditCard.map(PaymentMethod.CreditCard   → _) ++
+          payments.applePay.map(PaymentMethod.ApplePay       → _) ++
           payments.giftCard.map(PaymentMethod.GiftCard       → _) ++
           payments.storeCredit.map(PaymentMethod.StoreCredit → _)
     }

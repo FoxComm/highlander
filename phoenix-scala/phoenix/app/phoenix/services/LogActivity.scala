@@ -15,6 +15,7 @@ import phoenix.models.coupon.{Coupon, CouponCode}
 import phoenix.models.customer.CustomerGroup
 import phoenix.models.location.Region
 import phoenix.models.payment.PaymentMethod
+import phoenix.models.payment.applepay.{ApplePayCharge, ApplePayment}
 import phoenix.models.payment.creditcard.{CreditCard, CreditCardCharge}
 import phoenix.models.payment.giftcard.GiftCard
 import phoenix.models.payment.storecredit.StoreCredit
@@ -346,6 +347,16 @@ case class LogActivity(implicit ac: AC) {
             cordRef = cart.refNum,
             orderNum = cart.refNum,
             cardId = charge.creditCardId,
+            amount = charge.amount,
+            currency = charge.currency
+        ))
+
+  def applePayAuth(ap: ApplePayment, charge: ApplePayCharge)(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(
+        ApplePayAuthCompleted(
+            accountId = ap.accountId,
+            stripeTokenId = ap.stripeTokenId,
             amount = charge.amount,
             currency = charge.currency
         ))

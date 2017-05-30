@@ -1,6 +1,9 @@
 import cats.implicits._
+import phoenix.failures.OrderFailures.OnlyOneExternalPaymentIsAllowed
+import phoenix.failures.ReturnFailures._
 import core.failures._
 import org.scalatest.prop.PropertyChecks
+import faker.Lorem
 import phoenix.failures.ReturnFailures._
 import phoenix.failures._
 import phoenix.models.Reason.Cancellation
@@ -495,6 +498,36 @@ class ReturnIntegrationTest
           pm must === (paymentMethod)
           payment.amount must === (payload.amount)
         }
+      }
+
+      "Make sure that only one external payment is allowed" in new ReturnPaymentDefaults {
+        val api = returnsApi(rma.referenceNumber).paymentMethods
+
+        val payload =
+          ReturnPaymentsPayload(Map(PaymentMethod.ApplePay → 50, PaymentMethod.CreditCard → 100))
+
+        api.addOrReplace(payload).mustFailWith400(OnlyOneExternalPaymentIsAllowed)
+
+      }
+
+      "Apple Pay charges should be taken into account" in new ReturnPaymentDefaults {
+        val apRma = createReturn(
+            createDefaultOrder(
+                paymentMethods = Map(PaymentMethod.ApplePay → None)
+            ).referenceNumber)
+
+        createReturnLineItem(shippingCostPayload, apRma.referenceNumber)
+        createReturnLineItem(skuPayload, apRma.referenceNumber)
+
+        val api = returnsApi(apRma.referenceNumber).paymentMethods
+
+        api
+          .add(PaymentMethod.ApplePay, ReturnPaymentPayload(50))
+          .as[ReturnResponse.Root]
+          .payments
+          .asMap
+          .mapValues(_.amount) must === (
+            Map[PaymentMethod.Type, Long](PaymentMethod.ApplePay → 50))
       }
 
       "bulk insert should override any existing payments, whilst single addition endpoint should append payment to existing ones" in

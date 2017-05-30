@@ -1,9 +1,9 @@
 package phoenix.utils.apis
 
 import cats.implicits._
-import com.stripe.model.DeletedCard
 import core.db._
 import core.utils.Money._
+import com.stripe.model.{DeletedCard, Token}
 import phoenix.failures.CustomerFailures.CustomerMustHaveCredentials
 import phoenix.models.location.Address
 import phoenix.models.payment.creditcard.CreditCard
@@ -80,19 +80,23 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
     stripeCustomerId.fold(newCustomer)(existingCustomer)
   }
 
-  def authorizeAmount(customerId: String,
-                      creditCardId: String,
+  def authorizeAmount(paymentSourceId: String,
                       amount: Long,
-                      currency: Currency): Result[StripeCharge] = {
-    val chargeMap: Map[String, Object] = Map(
+                      currency: Currency,
+                      customerId: Option[String]): Result[StripeCharge] = {
+    import scala.collection.mutable
+
+    val chargeMap: mutable.Map[String, AnyRef] = mutable.Map(
         "amount"   → amount.toString,
         "currency" → currency.toString,
-        "customer" → customerId,
-        "source"   → creditCardId,
+        "source"   → paymentSourceId,
         "capture"  → (false: java.lang.Boolean)
     )
 
-    stripe.createCharge(chargeMap)
+    // we must pass customer.id for cc and must not for Apple Pay
+    customerId map (cid ⇒ chargeMap += ("customer" → cid))
+
+    stripe.createCharge(chargeMap.toMap)
   }
 
   def captureCharge(chargeId: String, amount: Long): Result[StripeCharge] =
@@ -136,4 +140,7 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
       updated    ← stripe.deleteCard(stripeCard)
     } yield updated
   }
+
+  def retrieveToken(t: String): Result[StripeToken] =
+    stripe.retrieveToken(t)
 }

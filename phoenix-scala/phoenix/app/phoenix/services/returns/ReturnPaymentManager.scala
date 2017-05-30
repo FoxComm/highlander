@@ -2,7 +2,8 @@ package phoenix.services.returns
 
 import cats.implicits._
 import core.db._
-import phoenix.failures.OrderFailures.OrderPaymentNotFoundFailure
+import core.failures.GeneralFailure
+import phoenix.failures.OrderFailures.{OnlyOneExternalPaymentIsAllowed, OrderPaymentNotFoundFailure}
 import phoenix.failures.ReturnFailures._
 import phoenix.models.account.{Scope, User, Users}
 import phoenix.models.cord.OrderPayments.scope._
@@ -21,6 +22,8 @@ import phoenix.utils.apis.{Apis, RefundReason}
 import slick.jdbc.PostgresProfile.api._
 import core.utils.Money._
 import scala.annotation.tailrec
+import core.db._
+import phoenix.models.payment.applepay.ApplePayments
 
 object ReturnPaymentManager {
   def updatePayments(refNum: String, payments: Map[PaymentMethod.Type, Long], overwrite: Boolean)(
@@ -49,8 +52,11 @@ object ReturnPaymentManager {
       } yield response
     else
       for {
+        _ ← * <~ failIf(
+               paymentsToAdd.filter { case (pt, _) ⇒ pt.isExternal }.groupBy(_._1).size > 1,
+               OnlyOneExternalPaymentIsAllowed)
         rma     ← * <~ Returns.mustFindActiveByRefNum404(refNum)
-        payment ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
+        payment ← * <~ mustFindExternalPaymentsByOrderRef(rma.orderRef)
         _       ← * <~ validateMaxAllowedPayments(rma, paymentsToAdd, sumOther = !overwrite)
         _       ← * <~ paymentsToAdd.map(addPayment(rma, payment, _)).toList
         _       ← * <~ updateTotalsReturn(rma)
@@ -132,11 +138,11 @@ object ReturnPaymentManager {
     } yield ()
   }
 
-  private def mustFindCcPaymentsByOrderRef(cordRef: String)(
+  private def mustFindExternalPaymentsByOrderRef(cordRef: String)(
       implicit ec: EC): DbResultT[OrderPayment] =
     OrderPayments
       .findAllByCordRef(cordRef)
-      .creditCards
+      .externalPayments
       .mustFindOneOr(OrderPaymentNotFoundFailure(Order))
 
   private def processAddPayment(
@@ -147,6 +153,7 @@ object ReturnPaymentManager {
     method match {
       case PaymentMethod.CreditCard ⇒ addCreditCard(rma.id, payment, amount)
       case PaymentMethod.GiftCard   ⇒ addGiftCard(rma.id, payment, amount)
+      case PaymentMethod.ApplePay   ⇒ addApplePayment(rma.id, payment, amount)
       case PaymentMethod.StoreCredit ⇒
         addStoreCredit(returnId = rma.id, accountId = rma.accountId, payment, amount)
     }
@@ -164,6 +171,20 @@ object ReturnPaymentManager {
                                   paymentMethodId = cc.id,
                                   paymentMethodType = PaymentMethod.CreditCard))
     } yield ccRefund
+
+  private def addApplePayment(returnId: Int, payment: OrderPayment, amount: Long)(implicit ec: EC,
+                                                                                  db: DB,
+                                                                                  au: AU) =
+    for {
+      ap ← * <~ ApplePayments.mustFindById404(payment.paymentMethodId)
+      _  ← * <~ deleteApplePayPayment(returnId)
+      applePayRefund ← * <~ ReturnPayments.create(
+                          ReturnPayment(returnId = returnId,
+                                        amount = amount,
+                                        currency = payment.currency,
+                                        paymentMethodId = ap.id,
+                                        paymentMethodType = PaymentMethod.ApplePay))
+    } yield applePayRefund
 
   private def addGiftCard(returnId: Int, payment: OrderPayment, amount: Long)(
       implicit ec: EC,
@@ -247,13 +268,17 @@ object ReturnPaymentManager {
   private def processDeletePayment(returnId: Int, paymentMethod: PaymentMethod.Type)(
       implicit ec: EC): DbResultT[Boolean] =
     paymentMethod match {
-      case PaymentMethod.CreditCard  ⇒ deleteCcPayment(returnId)
       case PaymentMethod.GiftCard    ⇒ deleteGcPayment(returnId)
       case PaymentMethod.StoreCredit ⇒ deleteScPayment(returnId)
+      case PaymentMethod.CreditCard  ⇒ deleteCcPayment(returnId)
+      case PaymentMethod.ApplePay    ⇒ deleteApplePayPayment(returnId)
     }
 
   private def deleteCcPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] =
     ReturnPayments.findAllByReturnId(returnId).creditCards.deleteAllWithRowsBeingAffected
+
+  private def deleteApplePayPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] =
+    ReturnPayments.findAllByReturnId(returnId).applePays.deleteAllWithRowsBeingAffected
 
   private def deleteGcPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] = {
     val gcQuery = ReturnPayments.findAllByReturnId(returnId).giftCards
@@ -314,16 +339,16 @@ object ReturnPaymentManager {
       ((id: String, amount: Long) ⇒
          for {
            _ ← * <~ apis.stripe.authorizeRefund(id, amount, RefundReason.RequestedByCustomer)
-           ccPayment = ReturnCcPayment(
+           ccPayment = ReturnStripePayment(
                returnPaymentId = payment.id,
                chargeId = id,
                returnId = payment.returnId,
                amount = amount,
                currency = payment.currency
            )
-           created ← * <~ ReturnCcPayments.create(ccPayment)
+           created ← * <~ ReturnStripePayments.create(ccPayment)
          } yield created).tupled
-        .andThen(_.runTxn()) // we want to run each stripe refund in separate transaction to avoid any rollback of `ReturnCcPayments` table
+        .andThen(_.runTxn()) // we want to run each stripe refund in separate transaction to avoid any rollback of `ReturnStripePayments` table
 
     /** Splits total refund amount into order cc charges.
       *
@@ -335,9 +360,9 @@ object ReturnPaymentManager {
                     charges: Seq[CreditCardCharge],
                     acc: Vector[(String, Long)]): Vector[(String, Long)] = charges match {
       case c +: cs if amount > c.amount ⇒
-        splitAmount(amount - c.amount, cs, acc :+ (c.chargeId → c.amount))
+        splitAmount(amount - c.amount, cs, acc :+ (c.stripeChargeId → c.amount))
       case c +: cs if amount <= c.amount ⇒
-        acc :+ (c.chargeId → amount)
+        acc :+ (c.stripeChargeId → amount)
       case _ ⇒ acc
     }
 
@@ -354,7 +379,7 @@ object ReturnPaymentManager {
     for {
       previousCcRefunds ← * <~ Returns
                            .findPreviousOrCurrent(rma)
-                           .join(ReturnCcPayments)
+                           .join(ReturnStripePayments)
                            .on(_.id === _.returnId)
                            .map { case (_, ccPayment) ⇒ ccPayment.chargeId → ccPayment.amount }
                            .groupBy(_._1)
@@ -372,7 +397,7 @@ object ReturnPaymentManager {
                    .result
       _ ← * <~ checkCurrency(ccCharges)
       adjustedCcCharges = ccCharges
-        .map(c ⇒ c.copy(amount = c.amount - previousCcRefunds.getOrElse(c.chargeId, 0L)))
+        .map(c ⇒ c.copy(amount = c.amount - previousCcRefunds.getOrElse(c.stripeChargeId, 0L)))
         .filter(_.amount > 0L)
       amountToRefund = splitAmount(payment.amount, adjustedCcCharges, Vector.empty)
       refunds ← * <~ amountToRefund.map(authorizeRefund).sequenceU
