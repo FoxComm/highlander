@@ -96,5 +96,3 @@ module "stage3" {
   dnsimple_account = "${var.dnsimple_account}"
   dnsimple_token   = "${var.dnsimple_token}"
 }
-
-

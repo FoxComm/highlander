@@ -34,7 +34,8 @@
     - { role: dev/dashboard }
     - { role: dev/marathon_consul }
     - { role: dev/seed_system }
-    - { role: dev/marathon_groups }
+    - { role: dev/marathon }
+    - { role: dev/marathon_consumers }
     - { role: dev/ic }
     - { role: ext/td/storefront }
     - { role: ext/tpg/storefront }
