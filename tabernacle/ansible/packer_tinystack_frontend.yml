@@ -9,4 +9,5 @@
   roles:
     - { role: base/mesos_worker }
     - { role: base/rsyslog }
-    - { role: base/balancer }
+    - { role: base/nginx }
+    - { role: base/consul_template }
