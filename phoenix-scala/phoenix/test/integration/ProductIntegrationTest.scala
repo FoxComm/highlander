@@ -65,11 +65,8 @@ class ProductIntegrationTest
       product.taxons.flatMap(_.taxons.map(_.id)) must contain(taxons.head.formId)
     }
 
-    "queries product by slug" in new ProductSku_ApiFixture {
-      val slug          = "simple-product"
-      val simpleProduct = Products.mustFindById404(product.id).gimme
-
-      val updated = simpleProduct.copy(slug = slug)
+    "queries product by slug (incl. ignoring case)" in new ProductSku_ApiFixture {
+      val slug = "simple-product"
 
       productsApi(product.id)
         .update(
@@ -79,17 +76,9 @@ class ProductIntegrationTest
                                  variants = None))
         .mustBeOk()
 
-      productsApi(slug).get().as[ProductResponse.Root].id must === (updated.formId)
-    }
-
-    "queries product by slug ignoring case" in new ProductSku_ApiFixture {
-      val slug          = "Simple-Product"
-      val simpleProduct = Products.mustFindById404(product.id).gimme
-      val updated       = simpleProduct.copy(slug = slug.toLowerCase)
-
-      Products.update(simpleProduct, updated).gimme
-
-      productsApi(slug).get().as[ProductResponse.Root].id must === (updated.formId)
+      List(slug, "Simple-Product").foreach { slugToQuery ⇒
+        productsApi(slugToQuery).get().as[ProductResponse.Root].id must === (product.id)
+      }
     }
   }
 
@@ -394,13 +383,13 @@ class ProductIntegrationTest
         productsApi
           .create(newProductPayload)
           .mustFailWithMessage(
-              """Object sku with id=13 doesn't pass validation: $.code: must be at least 1 characters long""")
+              """Object sku with id=%ANY% doesn't pass validation: $.code: must be at least 1 characters long""")
       }
 
       "trying to create a product with archived SKU" in new ArchivedSkuFixture {
         productsApi
           .create(archivedSkuProductPayload)
-          .mustFailWith400(LinkInactiveSkuFailure(Product, 2, archivedSkuCode))
+          .mustFailWith400(LinkInactiveSkuFailure(Product, "%ANY%", archivedSkuCode))
       }
 
       "trying to create a product with string price" in new Fixture {
