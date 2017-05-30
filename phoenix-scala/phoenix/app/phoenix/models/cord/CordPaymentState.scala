@@ -2,9 +2,9 @@ package phoenix.models.cord
 
 import cats.implicits._
 import com.pellucid.sealerate
+import core.ADT
 import phoenix.models.payment.InStorePaymentStates
 import phoenix.models.payment.creditcard.CreditCardCharge
-import phoenix.utils.ADT
 
 object CordPaymentState {
   sealed trait State

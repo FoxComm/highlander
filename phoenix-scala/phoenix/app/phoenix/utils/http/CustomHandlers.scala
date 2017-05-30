@@ -6,10 +6,10 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.stream.scaladsl.Flow
 import akka.util.ByteString
+import core.Environment
 import core.db.FoxFailureException
 import core.utils._
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import phoenix.utils.Environment
 import phoenix.utils.http.Http._
 
 import scala.collection.immutable

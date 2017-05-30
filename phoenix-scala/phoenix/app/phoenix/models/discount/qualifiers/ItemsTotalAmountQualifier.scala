@@ -5,9 +5,9 @@ import core.db._
 import core.failures._
 import phoenix.failures.DiscountFailures._
 import phoenix.models.discount._
-import phoenix.utils.ElasticsearchApi._
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
+import phoenix.utils.apis.ElasticsearchApi._
 
 case class ItemsTotalAmountQualifier(totalAmount: Long, search: Seq[ProductSearch])
     extends Qualifier

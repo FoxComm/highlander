@@ -2,6 +2,7 @@ package phoenix.models.cord.lineitems
 
 import cats.implicits._
 import com.pellucid.sealerate
+import core.ADT
 import core.db.ExPostgresDriver.api._
 import core.db._
 import core.failures.Failures
@@ -12,7 +13,7 @@ import org.json4s.Formats
 import phoenix.models.cord.lineitems.{OrderLineItem ⇒ OLI}
 import phoenix.models.inventory.{Sku, Skus}
 import phoenix.utils.aliases._
-import phoenix.utils.{ADT, FSM, JsonFormatters}
+import phoenix.utils.{FSM, JsonFormatters}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
@@ -29,8 +30,6 @@ trait LineItemProductData[LI] {
   def lineItemReferenceNumber: String
   def lineItemState: OrderLineItem.State
   def withLineItemReferenceNumber(newLineItemRef: String): LineItemProductData[LI]
-
-  def isEligibleForDiscount: Boolean = !isGiftCard
 
   def isGiftCard: Boolean = attributes.flatMap(_.giftCard).isDefined
 

@@ -6,15 +6,15 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
-import core.utils.Validation
+import core.ADT
+import core.db.ExPostgresDriver.api._
+import core.db._
 import core.failures.Failure
+import core.utils.Validation
 import phoenix.models.account._
-import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import core.db.ExPostgresDriver.api._
-import core.db._
 
 case class Note(id: Int = 0,
                 scope: LTree,

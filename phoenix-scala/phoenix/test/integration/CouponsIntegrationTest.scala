@@ -3,7 +3,9 @@ import java.time.Instant.now
 import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
+import core.db._
 import core.failures.NotFoundFailure404
+import core.utils.time.RichInstant
 import objectframework.ObjectFailures.ObjectContextNotFound
 import objectframework.models.ObjectContext
 import org.json4s.JsonAST._
@@ -16,13 +18,10 @@ import phoenix.payloads.CartPayloads.CreateCart
 import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
 import phoenix.responses.CouponResponses.CouponResponse
 import phoenix.responses.cord.CartResponse
-import phoenix.utils.time.RichInstant
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
-import core.utils.Money._
-import core.db._
 
 class CouponsIntegrationTest
     extends IntegrationTestBase

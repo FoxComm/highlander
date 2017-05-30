@@ -1,4 +1,6 @@
+import core.db._
 import core.failures.NotFoundFailure404
+import core.utils.time._
 import phoenix.failures.StateTransitionNotAllowed
 import phoenix.models.cord.Order._
 import phoenix.models.cord._
@@ -6,11 +8,9 @@ import phoenix.models.shipping.ShippingMethods
 import phoenix.payloads.OrderPayloads.UpdateOrderPayload
 import phoenix.responses.cord.OrderResponse
 import phoenix.utils.seeds.Factories
-import phoenix.utils.time._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import core.db._
 
 class OrderIntegrationTest
     extends IntegrationTestBase

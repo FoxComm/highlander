@@ -5,13 +5,13 @@ import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.{ContentDispositionTypes, `Content-Disposition`}
 import akka.stream.scaladsl.Source
+import core.Chunkable
 import core.db.MetaResponse
 import core.failures.{Failures, NotFoundFailure404}
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import org.json4s.{Formats, jackson}
 import phoenix.responses.{BatchMetadata, TheResponse}
-import phoenix.utils.Chunkable
 
 object Http {
   import phoenix.utils.JsonFormatters._

@@ -1,11 +1,11 @@
-package phoenix.utils
+package core
 
 import cats.Show
 import cats.implicits._
 import com.pellucid.sealerate
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.StrictLogging
-import core.utils.friendlyClassName
+import core.utils.{HashAlgorithm, friendlyClassName}
 import pureconfig._
 import shapeless._
 
@@ -60,8 +60,7 @@ object FoxConfig extends StrictLogging {
         },
         ADT[T].show)
 
-  case class App(defaultContextId: Int,
-                 overrideHashPasswordAlgorithm: Option[HashPasswords.HashAlgorithm])
+  case class App(defaultContextId: Int, overrideHashPasswordAlgorithm: Option[HashAlgorithm])
 
   // auth
   case class Auth(cookie: Cookie,

@@ -1,6 +1,7 @@
 package phoenix.services.assignments
 
 import cats.implicits._
+import core.FoxConfig.config
 import core.db._
 import core.failures.NotFoundFailure404
 import phoenix.failures.AssignmentFailures._
@@ -14,7 +15,6 @@ import phoenix.responses.BatchMetadata._
 import phoenix.responses.UserResponse.{build ⇒ buildUser}
 import phoenix.responses._
 import phoenix.services._
-import phoenix.utils.FoxConfig.config
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 

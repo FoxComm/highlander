@@ -1,7 +1,7 @@
 package phoenix.models.discount.qualifiers
 
 import com.pellucid.sealerate
-import phoenix.utils.ADT
+import core.ADT
 
 // Qualifier types
 sealed trait QualifierType

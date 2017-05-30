@@ -3,15 +3,14 @@ package phoenix.models.cord.lineitems
 import java.time.Instant
 
 import com.pellucid.sealerate
+import core.ADT
 import core.db.ExPostgresDriver.api._
 import core.db._
 import phoenix.models.discount.offers.Offer.OfferResult
 import phoenix.models.discount.offers._
-import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import core.utils.Money._
 
 final case class CartLineItemAdjustment(id: Int = 0,
                                         cordRef: String,
@@ -45,8 +44,8 @@ object CartLineItemAdjustment {
   case object Combinator         extends AdjustmentType
 
   def fromOfferResult(offerResult: OfferResult) =
-    CartLineItemAdjustment(cordRef = offerResult.discountInput.cart.refNum,
-                           promotionShadowId = offerResult.discountInput.promotion.id,
+    CartLineItemAdjustment(cordRef = offerResult.discountInput.cartRefNum,
+                           promotionShadowId = offerResult.discountInput.promotionShadowId,
                            adjustmentType = adjustmentTypeByOffer(offerResult.offerType),
                            subtract = offerResult.subtract,
                            lineItemRefNum = offerResult.lineItemRefNum)

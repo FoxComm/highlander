@@ -3,10 +3,10 @@ package phoenix.models.account
 import java.time.Instant
 
 import com.pellucid.sealerate
+import core.ADT
 import core.db._
 import core.utils.generateUuid
 import phoenix.models.account.UserPasswordReset.{Initial, State}
-import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType

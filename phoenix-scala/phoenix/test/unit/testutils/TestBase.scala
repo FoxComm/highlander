@@ -4,13 +4,12 @@ import java.util.concurrent.TimeUnit
 
 import akka.util.Timeout
 import com.typesafe.config.Config
+import core.FoxConfig
 import core.failures.Failures
 import org.scalactic.{CanEqual, TypeCheckedTripleEquals}
 import org.scalatest.concurrent.{AbstractPatienceConfiguration, ScalaFutures}
 import org.scalatest.time.{Milliseconds, Seconds, Span}
 import org.scalatest.{FreeSpecLike, MustMatchers, OptionValues, Tag}
-
-import phoenix.utils.FoxConfig
 
 trait TestBase
     extends FreeSpecLike

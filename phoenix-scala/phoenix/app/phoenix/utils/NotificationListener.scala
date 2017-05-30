@@ -5,6 +5,7 @@ import akka.stream.actor.ActorPublisherMessage.Cancel
 import com.github.mauricio.async.db.Configuration
 import com.github.mauricio.async.db.postgresql.PostgreSQLConnection
 import com.typesafe.scalalogging.LazyLogging
+import core.FoxConfig
 import de.heikoseeberger.akkasse.{ServerSentEvent ⇒ SSE}
 import org.postgresql.Driver
 import phoenix.models.Notification._

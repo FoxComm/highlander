@@ -11,7 +11,9 @@ import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
 import com.stripe.Stripe
 import com.typesafe.scalalogging.LazyLogging
+import core.FoxConfig.config
 import core.db._
+import core.{Environment, FoxConfig}
 import org.json4s._
 import org.json4s.jackson._
 import phoenix.models.account.{AccountAccessMethod, Scope, Scopes}
@@ -19,11 +21,9 @@ import phoenix.services.Authenticator
 import phoenix.services.Authenticator.{UserAuthenticator, requireAdminAuth}
 import phoenix.services.account.AccountCreateContext
 import phoenix.services.actors._
-import phoenix.utils.FoxConfig.config
-import phoenix.utils.apis._
+import phoenix.utils.apis.{ElasticsearchApi, _}
 import phoenix.utils.http.CustomHandlers
 import phoenix.utils.http.HttpLogger.logFailedRequests
-import phoenix.utils.{ElasticsearchApi, Environment, FoxConfig}
 import slick.jdbc.PostgresProfile.api._
 
 import scala.collection.immutable

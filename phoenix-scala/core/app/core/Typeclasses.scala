@@ -1,4 +1,4 @@
-package phoenix.utils
+package core
 
 import akka.NotUsed
 import akka.http.scaladsl.model.{ContentType, ContentTypes}
@@ -8,10 +8,9 @@ import akka.util.ByteString
 import cats.Show
 import core.utils.Strings._
 import core.utils._
-import org.json4s.JsonAST.JString
+import org.json4s.JsonAST.{JString, JValue}
 import org.json4s.jackson.compactJson
 import org.json4s.{CustomKeySerializer, CustomSerializer, Formats}
-import phoenix.utils.aliases._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
@@ -24,7 +23,7 @@ trait Read[F] { self ⇒
 }
 
 trait ADT[F] extends Read[F] with Show[F] { self ⇒
-  implicit lazy val jsonFormats: Formats = JsonFormatters.DefaultFormats
+  implicit lazy val jsonFormats: Formats = core.json.DefaultFormats
 
   def types: Set[F]
 
@@ -85,13 +84,14 @@ trait Chunkable[T] {
 
   def contentType: ContentType
 }
+
 object Chunkable {
   @inline def apply[T]()(implicit c: Chunkable[T]): Chunkable[T] = c
 
-  implicit val jsonChunkable: Chunkable[Json] = new Chunkable[Json] {
-    def bytes(t: Json): ByteString = ByteString(compactJson(t))
+  implicit val jsonChunkable: Chunkable[JValue] = new Chunkable[JValue] {
+    def bytes(t: JValue): ByteString = ByteString(compactJson(t))
 
-    override def bytes(s: Source[Json, NotUsed]): Source[ByteString, NotUsed] = {
+    override def bytes(s: Source[JValue, NotUsed]): Source[ByteString, NotUsed] = {
       val elSep          = ByteString(",")
       val streamStart    = Source.single(ByteString("""{"result": ["""))
       val streamElements = super.bytes(s).grouped(2).map(_.reduceLeft(_ ++ elSep ++ _))
@@ -102,6 +102,8 @@ object Chunkable {
 
     def contentType: ContentType = ContentTypes.`application/json`
   }
+
+  type CsvData = List[(String, String)] // sequence of column name -> value
 
   def csvChunkable(fields: List[String]): Chunkable[CsvData] =
     new Chunkable[CsvData] {

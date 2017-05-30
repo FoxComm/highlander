@@ -5,9 +5,9 @@ import core.db.Result
 import core.failures._
 import phoenix.models.discount._
 import phoenix.models.discount.offers.Offer.OfferResult
-import phoenix.utils.ElasticsearchApi._
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
+import phoenix.utils.apis.ElasticsearchApi._
 
 case class SetPriceOffer(setPrice: Long, numUnits: Int, search: Seq[ProductSearch])
     extends Offer
@@ -17,10 +17,7 @@ case class SetPriceOffer(setPrice: Long, numUnits: Int, search: Seq[ProductSearc
 
   val offerType: OfferType = SetPrice
 
-  def adjust(input: DiscountInput)(implicit db: DB,
-                                   ec: EC,
-                                   apis: Apis,
-                                   au: AU): Result[Seq[OfferResult]] =
+  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis): Result[Seq[OfferResult]] =
     if (setPrice > 0 && numUnits < 100) adjustInner(input)(search) else pureResult()
 
   def matchEither(input: DiscountInput)(
@@ -29,7 +26,7 @@ case class SetPriceOffer(setPrice: Long, numUnits: Int, search: Seq[ProductSearc
       case Right(buckets) ⇒
         val matchedFormIds = buckets.filter(_.docCount > 0).map(_.key)
         val adjustments = input.lineItems
-          .filter(data ⇒ matchedFormIds.contains(data.productForm.id.toString))
+          .filter(data ⇒ matchedFormIds.contains(data.productId.toString))
           .take(numUnits)
           .map { data ⇒
             OfferResult(input,

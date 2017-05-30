@@ -6,16 +6,15 @@ import core.failures._
 import phoenix.failures.DiscountFailures.SearchFailure
 import phoenix.models.discount._
 import phoenix.models.discount.offers.Offer.OfferResult
-import phoenix.utils.ElasticsearchApi.Buckets
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
+import phoenix.utils.apis.ElasticsearchApi.Buckets
 
 trait Offer extends DiscountBase {
 
   val offerType: OfferType
 
-  def adjust(
-      input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis, au: AU): Result[Seq[OfferResult]]
+  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis): Result[Seq[OfferResult]]
 
   def buildEither(input: DiscountInput,
                   subtract: Long,
@@ -79,8 +78,7 @@ trait ItemsOffer {
   def adjustInner(input: DiscountInput)(search: Seq[ProductSearch])(
       implicit db: DB,
       ec: EC,
-      apis: Apis,
-      au: AU): Result[Seq[OfferResult]] = {
+      apis: Apis): Result[Seq[OfferResult]] = {
     val inAnyOf = search.map(_.query(input).mapEither(matchEither(input)))
     Result.onlySuccessful(inAnyOf.toList).map(_.headOption.getOrElse(Seq.empty))
   }

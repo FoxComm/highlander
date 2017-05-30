@@ -17,6 +17,8 @@ import akka.stream.testkit.TestSubscriber.Probe
 import akka.stream.testkit.scaladsl.TestSink
 import akka.util.ByteString
 import com.typesafe.config.ConfigFactory
+import core.FoxConfig
+import core.FoxConfig.config
 import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
 import de.heikoseeberger.akkasse.ServerSentEvent
 import org.json4s.Formats
@@ -24,9 +26,8 @@ import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import phoenix.server.Service
-import phoenix.utils.FoxConfig.config
+import phoenix.utils.JsonFormatters
 import phoenix.utils.apis.Apis
-import phoenix.utils.{FoxConfig, JsonFormatters}
 
 import scala.collection.immutable
 import scala.concurrent.Await

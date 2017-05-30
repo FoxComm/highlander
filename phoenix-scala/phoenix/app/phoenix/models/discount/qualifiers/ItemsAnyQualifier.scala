@@ -1,13 +1,13 @@
 package phoenix.models.discount.qualifiers
 
 import cats.implicits._
-import phoenix.failures.DiscountFailures._
+import core.db._
 import core.failures._
+import phoenix.failures.DiscountFailures._
 import phoenix.models.discount._
-import phoenix.utils.ElasticsearchApi._
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
-import core.db._
+import phoenix.utils.apis.ElasticsearchApi._
 
 case class ItemsAnyQualifier(search: Seq[ProductSearch])
     extends Qualifier

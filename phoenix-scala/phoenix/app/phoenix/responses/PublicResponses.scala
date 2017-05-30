@@ -3,14 +3,13 @@ package phoenix.responses
 import org.json4s.JsonAST.{JField, JObject}
 import org.json4s.{CustomSerializer, Extraction}
 import phoenix.models.location.{Country, Region}
-import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 
 import scala.collection.immutable.Seq
 
 object PublicResponses {
 
-  implicit val formats = JsonFormatters.DefaultFormats
+  implicit val formats = core.json.DefaultFormats
 
   case class CountryWithRegions(country: Country, regions: Seq[Region])
 

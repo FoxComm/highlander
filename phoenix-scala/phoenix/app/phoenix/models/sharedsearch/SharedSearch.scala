@@ -4,13 +4,14 @@ import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
+import core.ADT
 import core.db.ExPostgresDriver.api._
 import core.db._
 import phoenix.models.account._
 import phoenix.models.sharedsearch.SharedSearch._
 import phoenix.payloads.SharedSearchPayloads.SharedSearchPayload
+import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-import phoenix.utils.{ADT, JsonFormatters}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType

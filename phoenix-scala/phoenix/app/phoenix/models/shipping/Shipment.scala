@@ -3,9 +3,9 @@ package phoenix.models.shipping
 import java.time.Instant
 
 import com.pellucid.sealerate
+import core.ADT
 import core.db._
 import phoenix.models.shipping.Shipment._
-import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType

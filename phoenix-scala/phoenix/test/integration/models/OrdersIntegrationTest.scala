@@ -3,9 +3,9 @@ package models
 import java.time.Instant.now
 
 import cats.implicits._
+import core.utils.time._
 import phoenix.models.cord.Order._
 import phoenix.models.cord._
-import phoenix.utils.time._
 import testutils._
 import testutils.fixtures.BakedFixtures
 

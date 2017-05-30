@@ -5,9 +5,9 @@ import core.db.Result
 import core.failures._
 import phoenix.models.discount._
 import phoenix.models.discount.offers.Offer.OfferResult
-import phoenix.utils.ElasticsearchApi._
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
+import phoenix.utils.apis.ElasticsearchApi._
 
 // Percent off single item
 case class ItemPercentOffer(discount: Long, search: Seq[ProductSearch])
@@ -18,10 +18,7 @@ case class ItemPercentOffer(discount: Long, search: Seq[ProductSearch])
 
   val offerType: OfferType = ItemPercentOff
 
-  def adjust(input: DiscountInput)(implicit db: DB,
-                                   ec: EC,
-                                   apis: Apis,
-                                   au: AU): Result[Seq[OfferResult]] =
+  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis): Result[Seq[OfferResult]] =
     if (discount > 0 && discount < 100) adjustInner(input)(search) else pureResult()
 
   def matchEither(input: DiscountInput)(
@@ -29,7 +26,7 @@ case class ItemPercentOffer(discount: Long, search: Seq[ProductSearch])
     either match {
       case Right(buckets) ⇒
         val matchedFormIds = buckets.filter(_.docCount > 0).map(_.key)
-        input.lineItems.find(data ⇒ matchedFormIds.contains(data.productForm.id.toString)) match {
+        input.lineItems.find(data ⇒ matchedFormIds.contains(data.productId.toString)) match {
           case Some(data) ⇒
             buildEither(input, subtract(data.price, discount), data.lineItemReferenceNumber.some)
           case _ ⇒ pureEither()

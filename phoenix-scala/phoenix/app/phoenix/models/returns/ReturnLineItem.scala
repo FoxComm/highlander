@@ -3,9 +3,9 @@ package phoenix.models.returns
 import java.time.Instant
 
 import com.pellucid.sealerate
+import core.ADT
 import core.db._
 import phoenix.models.returns.ReturnLineItem._
-import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType

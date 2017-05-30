@@ -1,5 +1,8 @@
 package phoenix.services
 
+import java.time.format.DateTimeFormatter
+import java.time.{Instant, ZoneId}
+
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.HttpResponse
@@ -7,20 +10,19 @@ import akka.stream.scaladsl.Source
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.IndexAndTypes
 import com.sksamuel.elastic4s.streams.ReactiveElastic._
-import java.time.{Instant, ZoneId}
-import java.time.format.DateTimeFormatter
+import core.Chunkable
+import core.utils.Strings._
 import org.elasticsearch.search.fetch.source.FetchSourceContext
 import org.json4s.JsonAST._
 import org.json4s.jackson.JsonMethods._
 import phoenix.payloads.EntityExportPayloads._
-import phoenix.utils.Chunkable
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import phoenix.utils.http.Http
+
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.util.control.Exception._
-import core.utils.Strings._
 
 /** Export entities from ElasticSearch with given path using specified search type.
   *

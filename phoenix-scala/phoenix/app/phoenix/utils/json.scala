@@ -1,7 +1,7 @@
 package phoenix.utils
 
 import com.github.tminglei.slickpg.LTree
-import core.utils.Money
+import core.ADT
 import org.json4s.JsonAST.JString
 import org.json4s.{CustomSerializer, Formats, JNull, TypeHints, jackson}
 import phoenix.models.admin.AdminData
@@ -64,13 +64,10 @@ case class ADTTypeHints[T: ADT](adtHints: Map[T, Class[_]]) extends TypeHints {
 object JsonFormatters {
   val serialization = jackson.Serialization
 
-  val DefaultFormats =
-    org.json4s.DefaultFormats + time.JavaTimeJson4sSerializer.jsonFormat + Money.jsonFormat
-
   val TypeHintFieldName = "payloadType"
 
   val phoenixFormats: Formats =
-    DefaultFormats.withTypeHintFieldName(TypeHintFieldName) +
+    core.json.DefaultFormats.withTypeHintFieldName(TypeHintFieldName) +
       Note.ReferenceType.jsonFormat + QualifierType.jsonFormat +
       OfferType.jsonFormat + Assignment.AssignmentType.jsonFormat +
       Assignment.ReferenceType.jsonFormat + Order.State.jsonFormat + Promotion.ApplyType.jsonFormat +

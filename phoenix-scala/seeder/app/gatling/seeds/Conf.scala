@@ -1,11 +1,11 @@
 package gatling.seeds
 
 import com.typesafe.config.Config
+import core.FoxConfig
+import core.utils.Money.Currency._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import phoenix.utils.FoxConfig
 import slick.jdbc.PostgresProfile.api._
-import core.utils.Money.Currency._
 
 import scala.concurrent.duration._
 

@@ -4,18 +4,17 @@ import java.io.File
 
 import cats.implicits._
 import com.stripe.model.DeletedCard
+import core.db._
 import org.mockito.ArgumentMatcher
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.scalatest.mockito.MockitoSugar
-import phoenix.utils.ElasticsearchApi
 import phoenix.utils.TestStripeSupport.randomStripeishId
 import phoenix.utils.aliases._
 import phoenix.utils.aliases.stripe._
-import phoenix.utils.apis._
-import core.db._
+import phoenix.utils.apis.{ElasticsearchApi, _}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
