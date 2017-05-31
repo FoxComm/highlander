@@ -71,6 +71,7 @@ module.exports = {
               components: () => ([
                 path.resolve(__dirname, '../src/components/core/rounded-pill/rounded-pill.jsx'),
                 path.resolve(__dirname, '../src/components/core/spinner/spinner.jsx'),
+                path.resolve(__dirname, '../src/components/core/countdown/countdown.jsx'),
               ]),
             },
           ],
