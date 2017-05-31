@@ -1,12 +1,15 @@
 #### Basic usage
 
 ```javascript
-import Modal from 'components/core/modal';
+import ModalContainer from 'components/core/modal-container';
 
-<Modal
+<ModalContainer
   isVisible={this.state.modalVisible}
-  onClose={this.handleClose}
-/>
+  onClose={this.setState({ modalVisible: false })}
+  className={s.customModalClassName}
+>
+  Modal Content
+</ModalContainer>
 ```
 
 ### Examples
@@ -15,13 +18,11 @@ import Modal from 'components/core/modal';
 
 ```javascript
 
-import { ModalContainer } from 'components/core/modal';
+import ModalContainer from 'components/core/modal-container';
 ```
 
 ```
 const { Button } = require('../button/button.jsx');
-
-const ModalContent = ModalContainer.withModal(() => <div>ModalWrapper Content</div>)
 
 class ModalExample extends React.Component {
   constructor(props) {
@@ -33,57 +34,12 @@ class ModalExample extends React.Component {
   render() {
     return (
       <div>
-        <ModalContainer.ModalContainer
+        <ModalContainer
           isVisible={this.state.visible}
           onClose={() => this.setState({ visible: false })}
         >
           ModalContainer Content
-        </ModalContainer.ModalContainer>
-
-        <Button onClick={() => this.setState({ visible: true })}>
-          Show modal
-        </Button>
-      </div>
-    )
-  }
-}
-
-<ModalExample />
-```
-
-#### withModal
-
-```javascript
-
-import { withModal } from 'components/core/modal';
-
-// General component
-const Content = (props: Props) => <div>Content</div>;
-
-// Wrapaped in ModalContainer
-export withModal(Content);
-
-```
-
-```
-const { Button } = require('../button/button.jsx');
-
-const ModalContent = ModalContainer.withModal(() => <div>ModalWrapper Content</div>)
-
-class ModalExample extends React.Component {
-  constructor(props) {
-    this.state = {
-      visible: false,
-    };
-  }
-
-  render() {
-    return (
-      <div>
-        <ModalContent
-          isVisible={this.state.visible}
-          onClose={() => this.setState({ visible: false })}
-        />
+        </ModalContainer>
 
         <Button onClick={() => this.setState({ visible: true })}>
           Show modal

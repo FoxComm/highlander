@@ -14,9 +14,13 @@ import Overlay from 'components/overlay/overlay';
 import s from './modal-container.css';
 
 type Props = {
+  /** If modal is active or not */
   isVisible: boolean,
+  /** Callback to handle close events (overlay/esc click) */
   onClose: () => any,
+  /** Modal content */
   children?: Element<any>,
+  /** Additional className */
   className?: string,
 };
 
@@ -29,7 +33,15 @@ const transitionProps = {
   transitionLeaveTimeout: 100,
 };
 
-export class ModalContainer extends Component {
+/**
+ * ModalContainer purpose is to provide base means for constructing modal windows.
+ * It represents clear modal window with no styles and overlay and used to create custom-styled modal windows.
+ *
+ * To use project-wide styled modal use `components/core/modal` instead.
+ *
+ * @class ModalContainer
+ */
+export default class ModalContainer extends Component {
   props: Props;
 
   static defaultProps: $Shape<Props> = {
@@ -83,12 +95,4 @@ export class ModalContainer extends Component {
       </Transition>
     );
   }
-}
-
-export function withModal<P:Object, S:Object>(InnerComponent: Class<Component<any, P, S>>) {
-  return ({ isVisible, onClose, ...rest }: { isVisible: boolean, onClose: () => any }) => (
-    <ModalContainer isVisible={isVisible} onClose={onClose}>
-      <InnerComponent {...rest} />
-    </ModalContainer>
-  );
 }

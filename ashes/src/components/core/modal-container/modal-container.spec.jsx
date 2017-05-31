@@ -4,7 +4,7 @@ import sinon from 'sinon';
 import simulant from 'simulant';
 import { mount } from 'enzyme';
 
-import { ModalContainer } from './modal-container';
+import ModalContainer from './modal-container';
 
 describe('ModalContainer', function () {
 

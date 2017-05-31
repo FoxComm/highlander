@@ -5,9 +5,9 @@ import Modal from 'components/core/modal';
 
 <Modal
   isVisible={this.state.modalVisible}
-  onClose={this.handleClose}
+  onClose={this.setState({ modalVisible: false })}
   title="Base Modal"
-  footer={<Button>CLose</Button>}
+  footer={<Button>Close</Button>}
 >
   Modal Content
 </Modal>
