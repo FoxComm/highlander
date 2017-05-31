@@ -19,7 +19,7 @@ import { TextInput } from 'components/core/text-input'
     <TextInput onChange={(e) => {input.value = e.target.value}} placeholder='i am placeholder'/>
   </div>
   <div>
-    <TextInput value="input with value"/>
+    <TextInput defaultValue="input with default value"/>
   </div>
   <div>
     <TextInput value="disabled input" disabled/>
