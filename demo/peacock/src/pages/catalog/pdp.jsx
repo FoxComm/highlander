@@ -15,6 +15,7 @@ import type { Localized } from 'lib/i18n';
 import { searchGiftCards } from 'modules/products';
 import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-details';
 import { addLineItem, toggleCart } from 'modules/cart';
+import { fetchRelatedProducts, clearRelatedProducts } from 'modules/cross-sell';
 import { fetchReviewsForSku, clearReviews } from 'modules/reviews';
 
 // styles
@@ -58,9 +59,11 @@ type Props = Localized & RoutesParams & {
 const mapStateToProps = (state) => {
   const product = state.productDetails.product;
   const productReviews = state.reviews;
+  const relatedProducts = state.crossSell.relatedProducts;
 
   return {
     product,
+    relatedProducts,
     productReviews,
     fetchError: _.get(state.asyncActions, 'pdp.err', null),
     notFound: !product && _.get(state.asyncActions, 'pdp.err.response.status') == 404,
@@ -78,6 +81,8 @@ const mapDispatchToProps = dispatch => ({
     resetProduct,
     addLineItem,
     toggleCart,
+    fetchRelatedProducts,
+    clearRelatedProducts,
     fetchReviewsForSku,
     clearReviews,
   }, dispatch),
