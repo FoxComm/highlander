@@ -109,7 +109,7 @@ class ValueEditDialog extends Component {
         isVisible
         title={this.title}
         body={this.renderDialogContent()}
-        confirm="Save value"
+        confirmLabel="Save value"
         onCancel={this.props.cancelAction}
         onConfirm={this.handleConfirm}
       />

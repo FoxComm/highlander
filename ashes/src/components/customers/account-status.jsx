@@ -47,8 +47,7 @@ export default class CustomerAccountStatus extends React.Component {
             <div>You can deactivate this account at anytime.</div>
           </div>
         ),
-        confirm: 'Yes, Activate Account',
-        cancel: 'Cancel'
+        confirmLabel: 'Yes, Activate Account',
       };
     } else {
       return {
@@ -60,8 +59,7 @@ export default class CustomerAccountStatus extends React.Component {
             <div>You can reactivate this account at anytime.</div>
           </div>
         ),
-        confirm: 'Yes, Deactivate Account',
-        cancel: 'Cancel'
+        confirmLabel: 'Yes, Deactivate Account',
       };
     }
   }
@@ -78,8 +76,7 @@ export default class CustomerAccountStatus extends React.Component {
             <div>You can place this customer on the Blacklist at anytime.</div>
           </div>
         ),
-        confirm: 'Yes, Remove',
-        cancel: 'Cancel'
+        confirmLabel: 'Yes, Remove',
       };
     } else {
       return {
@@ -91,8 +88,7 @@ export default class CustomerAccountStatus extends React.Component {
             <div>You can take this customer off the Blacklist at anytime.</div>
           </div>
         ),
-        confirm: 'Yes, Blacklist',
-        cancel: 'Cancel'
+        confirmLabel: 'Yes, Blacklist',
       };
     }
   }
@@ -123,7 +119,6 @@ export default class CustomerAccountStatus extends React.Component {
         <ConfirmationModal
           {...this.disableOptions}
           isVisible={this.props.isDisablingStarted}
-
           onConfirm={() => {
             const customer = this.props.customer;
             this.props.toggleDisableStatus(customer.id, !customer.disabled);

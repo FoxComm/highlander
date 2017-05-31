@@ -52,8 +52,8 @@ export default class Notes extends React.Component {
   static deleteOptions = {
     title: 'Confirm',
     body: 'Are you sure you want to delete this note?',
-    confirm: 'Yes',
-    cancel: 'No'
+    confirmLabel: 'Yes',
+    cancelLabel: 'No'
   };
 
   static propTypes = {

@@ -183,8 +183,7 @@ class StoreCredits extends Component {
         isVisible={shouldDisplay}
         title="Change Store Credit State?"
         body={this.confirmationMessage}
-        cancel="Cancel"
-        confirm="Yes, Change State"
+        confirmLabel="Yes, Change State"
         onConfirm={ () => stateActions.saveStateChange(this.customerId) }
         onCancel={ () => stateActions.cancelChange(this.customerId) }
       />
@@ -234,8 +233,7 @@ class StoreCredits extends Component {
         isVisible={shouldDisplay}
         title="Cancel Store Credit?"
         body={this.confirmationBody}
-        cancel="Cancel"
-        confirm="Yes, Cancel"
+        confirmLabel="Yes, Cancel"
         onConfirm={ () => props.stateActions.saveStateChange(this.customerId) }
         onCancel={ () => props.stateActions.cancelChange(this.customerId) }
       />

@@ -246,8 +246,7 @@ class OptionList extends Component {
         isVisible
         title={`Remove ${removeTargetTitle} from product?`}
         body={confirmation}
-        cancel="Cancel"
-        confirm="Yes, Remove"
+        confirmLabel="Yes, Remove"
         onCancel={() => this.closeDeleteDialog()}
         confirmAction={() => this.confirmDeletion()}
       />

@@ -79,7 +79,7 @@ export default class Image extends Component<void, Props, State> {
           isVisible={this.state.deleteMode}
           title="Delete Image"
           body={'Are you sure you want to delete this image?'}
-          confirm="Yes, Delete"
+          confirmLabel="Yes, Delete"
           onCancel={this.handleCancelDeleteImage}
           onConfirm={this.handleConfirmDeleteImage}
         />

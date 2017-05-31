@@ -166,14 +166,14 @@ export default class CustomerCreditCards extends React.Component {
               onChange={ this.onChangeNewFormValue }
               isNew={ true } /> : null}
         </ul>
+
         <ConfirmationModal
           isVisible={ this.showConfirm }
-          title='Confirm'
-          body='Are you sure you want to delete this credit card?'
-          cancel='Cancel'
-          confirm='Yes, Delete'
+          body="Are you sure you want to delete this credit card?"
+          confirmLabel="Yes, Delete"
           onConfirm={ this.onDeleteConfirm }
-          onCancel={ this.onDeleteCancel } />
+          onCancel={ this.onDeleteCancel }
+        />
       </ContentBox>
     );
   }

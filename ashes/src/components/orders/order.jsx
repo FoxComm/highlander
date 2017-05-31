@@ -81,24 +81,6 @@ export default class Order extends React.Component {
     }
   }
 
-  get changeOptions(): Object {
-    return {
-      header: 'Confirm',
-      body: 'Are you sure you want to change the order state?',
-      cancel: 'Cancel',
-      proceed: 'Yes'
-    };
-  }
-
-  get cancelOptions(): Object {
-    return {
-      header: 'Confirm',
-      body: 'Are you sure you want to cancel the order?',
-      cancel: 'No, Don\'t Cancel',
-      proceed: 'Yes, Cancel Order'
-    };
-  }
-
   get orderRefNum(): string {
     return orderRefNum(this.props);
   }
@@ -265,7 +247,7 @@ export default class Order extends React.Component {
           isVisible={this.state.newOrderState != null}
           title="Change Order State ?"
           body={`Are you sure you want to change order state to ${states.order[this.state.newOrderState]} ?`}
-          confirm="Yes, Change"
+          confirmLabel="Yes, Change"
           onCancel={this.cancelStateChange}
           onConfirm={this.confirmStateChange}
         />

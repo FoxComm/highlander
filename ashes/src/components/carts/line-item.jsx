@@ -33,7 +33,7 @@ type Props = {
 };
 
 type Target = {
-  value: string|number,
+  value: string | number,
 };
 
 type State = {
@@ -93,7 +93,7 @@ export class CartLineItem extends Component {
   }
 
   @autobind
-  handleInputChange({ target: { value } }: {target: Target}) {
+  handleInputChange({ target: { value } }: { target: Target }) {
     const quantity = value ? parseInt(value, 10) : null;
 
     if (!quantity || quantity < 1) {
@@ -133,12 +133,11 @@ export class CartLineItem extends Component {
           <DeleteButton onClick={this.startDelete} />
           <ConfirmationModal
             isVisible={isDeleting}
-            title="Confirm"
             body="Are you sure you want to delete this item?"
-            confirm="Yes, Delete"
-            cancel="Cancel"
+            confirmLabel="Yes, Delete"
             onConfirm={this.confirmDelete}
-            onCancel={this.cancelDelete} />
+            onCancel={this.cancelDelete}
+          />
         </td>
       </tr>
     );

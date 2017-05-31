@@ -106,7 +106,7 @@ class SkuContentBox extends Component {
         isVisible={this.state.addDialogIsShown}
         title="Add SKUs"
         body={body}
-        confirm="Add"
+        confirmLabel="Add"
         onCancel={() => this.closeAction()}
         onConfirm={() => this.addNewSkus()}
       />

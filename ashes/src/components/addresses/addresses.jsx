@@ -17,10 +17,8 @@ const Addresses = props => {
       {content}
       <ConfirmationModal
         isVisible={ props.deletingId != null } /* null and undefined */
-        header='Confirm'
-        body='Are you sure you want to delete this address?'
-        cancel='Cancel'
-        confirm='Yes, Delete'
+        body="Are you sure you want to delete this address?"
+        confirmLabel="Yes, Delete"
         onCancel={() => props.stopDeletingAddress(props.customerId) }
         onConfirm={() => {
           props.stopDeletingAddress();

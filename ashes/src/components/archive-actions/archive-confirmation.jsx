@@ -31,12 +31,11 @@ const ArchiveConfirmation = (props: Props) => {
   return (
     <ConfirmationModal
       isVisible={props.isVisible}
-      title={`Archive ${props.type} ?`}
+      title={`Archive ${props.type}?`}
       body={confirmation}
-      cancel="Cancel"
-      confirm={`Archive ${props.type}`}
-      onConfirm={props.archive}
+      confirmLabel={`Archive ${props.type}`}
       onCancel={props.closeConfirmation}
+      onConfirm={props.archive}
       asyncState={props.archiveState}
     />
   );

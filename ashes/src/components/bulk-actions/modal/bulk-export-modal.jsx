@@ -75,7 +75,7 @@ export default class BulkExportModal extends Component {
     return (
       <ConfirmationModal
         title={modalTitle}
-        confirm="Yes, Export"
+        confirmLabel="Yes, Export"
         onConfirm={this.handleSave}
         onCancel={onCancel}
         isVisible

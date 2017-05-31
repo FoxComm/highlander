@@ -169,7 +169,7 @@ export default class Album extends Component {
         isVisible={this.state.archiveMode}
         title='Archive Album'
         body={body}
-        confirm='Yes, Archive'
+        confirmLabel='Yes, Archive'
         onCancel={this.handleCancelArchiveAlbum}
         onConfirm={this.handleConfirmArchiveAlbum}
       />

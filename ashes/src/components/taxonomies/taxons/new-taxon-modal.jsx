@@ -113,7 +113,7 @@ export default class NewTaxonModal extends Component {
         className={s.modal}
         title="New value"
         body={this.body}
-        confirm="Save and Add Value"
+        confirmLabel="Save and Add Value"
         onConfirm={this.handleConfirm}
         {...props}
       />

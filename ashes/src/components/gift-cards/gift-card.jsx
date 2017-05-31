@@ -154,7 +154,7 @@ export default class GiftCard extends React.Component {
         isVisible={shouldDisplay}
         title="Change Gift Card State?"
         body={message}
-        confirm="Yes, Change State"
+        confirmLabel="Yes, Change State"
         onCancel={() => this.props.cancelChangeGiftCardStatus(this.props.params.giftCard)}
         onConfirm={() => this.props.saveGiftCardStatus(this.props.params.giftCard)}
       />
@@ -199,7 +199,7 @@ export default class GiftCard extends React.Component {
         isVisible={shouldDisplay}
         title="Cancel Gift Card?"
         body={body}
-        confirm="Yes, Cancel"
+        confirmLabel="Yes, Cancel"
         onCancel={() => this.props.cancelChangeGiftCardStatus(this.props.params.giftCard)}
         onConfirm={() => this.props.saveGiftCardStatus(this.props.params.giftCard)}
       />

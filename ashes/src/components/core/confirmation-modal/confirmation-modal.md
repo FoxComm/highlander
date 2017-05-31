@@ -68,8 +68,8 @@ class ModalExample extends React.Component {
           isVisible={this.state.visible}
           onCancel={() => this.setState({ visible: false })}
           onConfirm={() => this.setState({ visible: false })}
-          cancel="Noooooooooooooöóoooo!!!!!"
-          confirm="😀"
+          cancelLabel="Noooooooooooooöóoooo!!!!!"
+          confirmLabel="😀"
         >
           Really sure?
         </ConfirmationModal>

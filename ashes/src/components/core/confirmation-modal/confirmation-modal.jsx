@@ -16,10 +16,10 @@ import s from './confirmation-modal.css';
 
 type Props = {
   isVisible: boolean,
-  title: string | Element<any>,
+  title?: string | Element<any>,
   body?: string | Element<any>,
-  cancel?: string,
-  confirm?: string,
+  cancelLabel?: string,
+  confirmLabel?: string,
   onCancel: () => any,
   onConfirm: () => any,
   saveDisabled?: boolean,
@@ -30,6 +30,12 @@ type Props = {
 
 export default class ConfirmationModal extends Component {
   props: Props;
+
+  static defaultProps: $Shape<Props> = {
+    title: 'Confirm',
+    cancelLabel: 'Cancel',
+    confirmLabel: 'Confirm',
+  };
 
   componentDidMount() {
     if (this.props.isVisible) {
@@ -55,12 +61,12 @@ export default class ConfirmationModal extends Component {
   }
 
   get footer() {
-    const { confirm, cancel, onConfirm, onCancel, saveDisabled, asyncState } = this.props;
+    const { confirmLabel, cancelLabel, onConfirm, onCancel, saveDisabled, asyncState } = this.props;
 
     return (
       <SaveCancel
-        saveLabel={confirm}
-        cancelLabel={cancel}
+        saveLabel={confirmLabel}
+        cancelLabel={cancelLabel}
         onSave={onConfirm}
         onCancel={onCancel}
         isLoading={get(asyncState, 'inProgress', false)}

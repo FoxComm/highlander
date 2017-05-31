@@ -87,7 +87,7 @@ class AccountState extends Component {
           isVisible={this.state.newState != null}
           title="Change Account State ?"
           body={confirmation}
-          confirm="Yes, Change"
+          confirmLabel="Yes, Change"
           onCancel={this.restoreState}
           onConfirm={this.confirmStateChange}
         />

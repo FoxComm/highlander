@@ -28,8 +28,8 @@ export default (props: Props) => {
   return (
     <ConfirmationModal
       title={`Delete ${_.capitalize(entityForm)}?`}
-      confirm="Yes, Delete"
-      cancel="No"
+      confirmLabel="Yes, Delete"
+      cancelLabel="No"
       onConfirm={onConfirm}
       onCancel={onCancel}
       isVisible

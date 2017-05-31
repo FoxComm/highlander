@@ -171,10 +171,8 @@ export default class ChooseShippingAddress extends Component {
     return (
       <ConfirmationModal
         isVisible={this.state.isDeleteDialogVisible}
-        title='Confirm'
         body={text}
-        confirm='Yes, Delete'
-        cancel='Cancel'
+        confirmLabel="Yes, Delete"
         onConfirm={deleteAction}
         onCancel={this.handleStopDeletingAddress} />
     );
