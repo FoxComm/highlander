@@ -64,7 +64,7 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
     val catalog: CatalogResponse.Root =
       catalogsApi.create(createPayload)(defaultAdminAuth).as[CatalogResponse.Root]
   }
-  
+
   trait ProductSku_ApiFixture {
     val productCode: String = s"testprod_${Lorem.numerify("####")}"
     val skuCode: String     = s"$productCode-sku_${Lorem.letterify("????").toUpperCase}"
