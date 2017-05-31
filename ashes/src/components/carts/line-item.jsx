@@ -133,7 +133,7 @@ export class CartLineItem extends Component {
           <DeleteButton onClick={this.startDelete} />
           <ConfirmationModal
             isVisible={isDeleting}
-            body="Are you sure you want to delete this item?"
+            label="Are you sure you want to delete this item?"
             confirmLabel="Yes, Delete"
             onConfirm={this.confirmDelete}
             onCancel={this.cancelDelete}

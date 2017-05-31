@@ -25,7 +25,7 @@ type Props = {
   onChange: Function,
   currentValue: string,
   updateAccountState: Function,
-  userId: number|string,
+  userId: number | string,
 };
 
 type State = {
@@ -84,13 +84,14 @@ class AccountState extends Component {
           />
         </ContentBox>
         <ConfirmationModal
-          isVisible={this.state.newState != null}
+          isVisible={this.state.newState !== null}
           title="Change Account State ?"
-          body={confirmation}
           confirmLabel="Yes, Change"
           onCancel={this.restoreState}
           onConfirm={this.confirmStateChange}
-        />
+        >
+          {confirmation}
+        </ConfirmationModal>
       </div>
     );
   }

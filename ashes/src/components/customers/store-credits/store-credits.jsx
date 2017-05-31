@@ -182,11 +182,12 @@ class StoreCredits extends Component {
       <ConfirmationModal
         isVisible={shouldDisplay}
         title="Change Store Credit State?"
-        body={this.confirmationMessage}
         confirmLabel="Yes, Change State"
         onConfirm={ () => stateActions.saveStateChange(this.customerId) }
         onCancel={ () => stateActions.cancelChange(this.customerId) }
-      />
+      >
+        {this.confirmationMessage}
+      </ConfirmationModal>
     );
   }
 
@@ -232,11 +233,12 @@ class StoreCredits extends Component {
       <ConfirmationModal
         isVisible={shouldDisplay}
         title="Cancel Store Credit?"
-        body={this.confirmationBody}
         confirmLabel="Yes, Cancel"
         onConfirm={ () => props.stateActions.saveStateChange(this.customerId) }
         onCancel={ () => props.stateActions.cancelChange(this.customerId) }
-      />
+      >
+        {this.confirmationBody}
+      </ConfirmationModal>
     );
   }
 

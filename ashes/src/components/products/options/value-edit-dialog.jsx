@@ -58,11 +58,18 @@ class ValueEditDialog extends Component {
     this.handleChange(newValue, 'swatch');
   }
 
+  @autobind
+  handleConfirm() {
+    if (this.refs.form.checkValidity()) {
+      this.save();
+    }
+  }
+
   save() {
     this.props.confirmAction(this.state.value, this.props.value.id);
   }
 
-  renderDialogContent() {
+  get content() {
     const name = _.get(this.state, 'value.name', '');
     const swatch = _.get(this.state, 'value.swatch', '');
 
@@ -96,23 +103,17 @@ class ValueEditDialog extends Component {
     );
   }
 
-  @autobind
-  handleConfirm() {
-    if (this.refs.form.checkValidity()) {
-      this.save();
-    }
-  }
-
   render() {
     return (
       <ConfirmationModal
         isVisible
         title={this.title}
-        body={this.renderDialogContent()}
         confirmLabel="Save value"
         onCancel={this.props.cancelAction}
         onConfirm={this.handleConfirm}
-      />
+      >
+        {this.content}
+      </ConfirmationModal>
     );
   }
 }

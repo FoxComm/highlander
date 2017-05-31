@@ -31,12 +31,11 @@ class ModalExample extends React.Component {
       <div>
         <ConfirmationModal
           title="Are you sure?"
+          label="Really sure?"
           isVisible={this.state.visible}
           onCancel={() => this.setState({ visible: false })}
           onConfirm={() => this.setState({ visible: false })}
-        >
-          Really sure?
-        </ConfirmationModal>
+        />
 
         <Button onClick={() => this.setState({ visible: true })}>
           Delete

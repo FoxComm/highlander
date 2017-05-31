@@ -33,7 +33,7 @@ type Props = {
 
 type State = {
   addDialogIsShown: boolean,
-  selectedOptions: {[key: string]: Array<OptionValue>},
+  selectedOptions: { [key: string]: Array<OptionValue> },
 };
 
 class SkuContentBox extends Component {
@@ -91,25 +91,22 @@ class SkuContentBox extends Component {
       );
     });
 
-    const body = (
-      <div styleName="add-dialog">
-        <div styleName="dialog-subtitle">Available options:</div>
-        <ul styleName="dialog-items">
-          {list}
-        </ul>
-      </div>
-    );
-
     return (
       <ConfirmationModal
         key="add-skus"
         isVisible={this.state.addDialogIsShown}
         title="Add SKUs"
-        body={body}
         confirmLabel="Add"
         onCancel={() => this.closeAction()}
         onConfirm={() => this.addNewSkus()}
-      />
+      >
+        <div styleName="add-dialog">
+          <div styleName="dialog-subtitle">Available options:</div>
+          <ul styleName="dialog-items">
+            {list}
+          </ul>
+        </div>
+      </ConfirmationModal>
     );
   }
 

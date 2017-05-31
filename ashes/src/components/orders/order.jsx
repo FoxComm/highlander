@@ -246,7 +246,7 @@ export default class Order extends React.Component {
         <ConfirmationModal
           isVisible={this.state.newOrderState != null}
           title="Change Order State ?"
-          body={`Are you sure you want to change order state to ${states.order[this.state.newOrderState]} ?`}
+          label={`Are you sure you want to change order state to ${states.order[this.state.newOrderState]} ?`}
           confirmLabel="Yes, Change"
           onCancel={this.cancelStateChange}
           onConfirm={this.confirmStateChange}

@@ -51,7 +51,7 @@ function mapDispatchToProps(dispatch, props) {
 export default class Notes extends React.Component {
   static deleteOptions = {
     title: 'Confirm',
-    body: 'Are you sure you want to delete this note?',
+    label: 'Are you sure you want to delete this note?',
     confirmLabel: 'Yes',
     cancelLabel: 'No'
   };

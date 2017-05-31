@@ -15,26 +15,43 @@ import ErrorAlerts from 'components/alerts/error-alerts';
 import s from './confirmation-modal.css';
 
 type Props = {
+  /** If modal is active or not */
   isVisible: boolean,
+  /** Header string */
   title?: string | Element<any>,
-  body?: string | Element<any>,
+  /** Confirmation text (use children if markup needed) */
+  label?: string,
+  /** Cancel button label */
   cancelLabel?: string,
+  /** Confirm button label */
   confirmLabel?: string,
+  /** Callback called on close (overlay/esc/cancel click) */
   onCancel: () => any,
+  /** Callback called on confirmation */
   onConfirm: () => any,
+  /** If confirm button is disabled */
   saveDisabled?: boolean,
+  /** AsyncState object that represents confirmation state (inProgress/failed/etc) */
   asyncState?: AsyncState,
+  /** Additional className */
   className?: string,
+  /** Modal content (in case of plain string `label` can be used instead) */
   children?: Element<any>,
 };
 
+/**
+ * ConfirmationModal modal represents modal window that provide `Cancel|OK` buttons in footer.
+ * It's main purpose is to show confirmation warning for some action (e.g. delete/update/save entity)
+ *
+ * @class ConfirmationModal
+ */
 export default class ConfirmationModal extends Component {
   props: Props;
 
   static defaultProps: $Shape<Props> = {
     title: 'Confirm',
     cancelLabel: 'Cancel',
-    confirmLabel: 'Confirm',
+    confirmLabel: 'OK',
   };
 
   componentDidMount() {
@@ -76,7 +93,7 @@ export default class ConfirmationModal extends Component {
   }
 
   render() {
-    const { title, body, isVisible, onCancel, asyncState, className, children } = this.props;
+    const { title, label, isVisible, onCancel, asyncState, className, children } = this.props;
 
     return (
       <Modal
@@ -87,7 +104,7 @@ export default class ConfirmationModal extends Component {
         onClose={onCancel}
       >
         <ErrorAlerts error={get(asyncState, 'err', null)} />
-        {body || children}
+        {label || children}
       </Modal>
     );
   }

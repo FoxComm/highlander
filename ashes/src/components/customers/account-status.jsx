@@ -40,7 +40,7 @@ export default class CustomerAccountStatus extends React.Component {
     if (customer.disabled) {
       return {
         title: 'Activate Customer Account',
-        body: (
+        children: (
           <div className="fc-customer-disable-confirm">
             <div>Are you sure you want to active the account for the following customer?</div>
             {this.customerInfo}
@@ -52,7 +52,7 @@ export default class CustomerAccountStatus extends React.Component {
     } else {
       return {
         title: 'Deactivate Customer Account',
-        body: (
+        children: (
           <div className="fc-customer-disable-confirm">
             <div>Are you sure you want to deactivate the account for the following customer?</div>
             {this.customerInfo}
@@ -96,9 +96,9 @@ export default class CustomerAccountStatus extends React.Component {
   render() {
     let customer = this.props.customer;
     return (
-    <div>
-      <ContentBox title="Account Status" className="fc-customer-account-status">
-        <div className="fc-grid fc-customer-status-row">
+      <div>
+        <ContentBox title="Account Status" className="fc-customer-account-status">
+          <div className="fc-grid fc-customer-status-row">
             <div className="fc-col-md-2-3">
               <strong>Active Account</strong>
             </div>
@@ -106,8 +106,8 @@ export default class CustomerAccountStatus extends React.Component {
               <SliderCheckbox className="fc-right" onChange={this.props.startDisablingCustomer}
                               id="customerDisabled" checked={ !customer.disabled } />
             </div>
-        </div>
-        <div className="fc-grid fc-customer-status-row">
+          </div>
+          <div className="fc-grid fc-customer-status-row">
             <div className="fc-col-md-2-3">
               <strong>Blacklist Customer</strong>
             </div>
@@ -115,25 +115,29 @@ export default class CustomerAccountStatus extends React.Component {
               <SliderCheckbox className="fc-right" onChange={this.props.startBlacklistCustomer}
                               id="customerBlacklisted" checked={ customer.isBlacklisted } />
             </div>
-        </div>
-        <ConfirmationModal
-          {...this.disableOptions}
-          isVisible={this.props.isDisablingStarted}
-          onConfirm={() => {
-            const customer = this.props.customer;
-            this.props.toggleDisableStatus(customer.id, !customer.disabled);
-          }}
-          onCancel={this.props.stopDisablingCustomer} />
-        <ConfirmationModal
-          {...this.blacklistedOptions}
-          isVisible={this.props.isBlacklistedStarted}
-          onConfirm={() => {
-            const customer = this.props.customer;
-            this.props.toggleBlacklisted(customer.id, !customer.isBlacklisted);
-          }}
-          onCancel={this.props.stopBlacklistCustomer} />
-      </ContentBox>
-    </div>
+          </div>
+
+          <ConfirmationModal
+            {...this.disableOptions}
+            isVisible={this.props.isDisablingStarted}
+            onConfirm={() => {
+              const customer = this.props.customer;
+              this.props.toggleDisableStatus(customer.id, !customer.disabled);
+            }}
+            onCancel={this.props.stopDisablingCustomer}
+          />
+
+          <ConfirmationModal
+            {...this.blacklistedOptions}
+            isVisible={this.props.isBlacklistedStarted}
+            onConfirm={() => {
+              const customer = this.props.customer;
+              this.props.toggleBlacklisted(customer.id, !customer.isBlacklisted);
+            }}
+            onCancel={this.props.stopBlacklistCustomer}
+          />
+        </ContentBox>
+      </div>
     );
   }
 }

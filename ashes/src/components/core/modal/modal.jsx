@@ -14,12 +14,12 @@ import s from './modal.css';
 type Props = {
   /** If modal is active or not */
   isVisible: boolean,
-  /** Callback to handle close events (overlay/esc click) */
-  onClose: () => any,
   /** Header string */
   title: string | Element<any>,
   /** Footer content */
   footer?: Element<any>,
+  /** Callback to handle close events (overlay/esc click) */
+  onClose: () => any,
   /** Modal content */
   children?: Element<any>,
   /** Additional className */

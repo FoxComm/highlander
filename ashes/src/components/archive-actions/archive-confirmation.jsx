@@ -16,29 +16,20 @@ type Props = {
   archiveState: AsyncState,
 };
 
-const ArchiveConfirmation = (props: Props) => {
-  const confirmation = (
-    <div>
-      <Alert type={Alert.WARNING}>
-        Warning! This action cannot be undone
-      </Alert>
-      <p>
-        Are you sure you want to archive <strong>{props.title}</strong> ?
-      </p>
-    </div>
-  );
-
-  return (
-    <ConfirmationModal
-      isVisible={props.isVisible}
-      title={`Archive ${props.type}?`}
-      body={confirmation}
-      confirmLabel={`Archive ${props.type}`}
-      onCancel={props.closeConfirmation}
-      onConfirm={props.archive}
-      asyncState={props.archiveState}
-    />
-  );
-};
-
-export default ArchiveConfirmation;
+export default (props: Props) => (
+  <ConfirmationModal
+    isVisible={props.isVisible}
+    title={`Archive ${props.type}?`}
+    confirmLabel={`Archive ${props.type}`}
+    onCancel={props.closeConfirmation}
+    onConfirm={props.archive}
+    asyncState={props.archiveState}
+  >
+    <Alert type={Alert.WARNING}>
+      Warning! This action cannot be undone
+    </Alert>
+    <p>
+      Are you sure you want to archive <strong>{props.title}</strong>?
+    </p>
+  </ConfirmationModal>
+);

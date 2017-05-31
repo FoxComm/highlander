@@ -92,19 +92,6 @@ export default class NewTaxonModal extends Component {
     );
   }
 
-  get body() {
-    return (
-      <div>
-        <ObjectFormInner
-          onChange={this.handleTaxonUpdate}
-          fieldsToRender={['name']}
-          attributes={this.state.taxon.attributes}
-        />
-        {this.parentInput}
-      </div>
-    );
-  }
-
   render() {
     const props = omit(this.props, omitProps);
 
@@ -112,11 +99,17 @@ export default class NewTaxonModal extends Component {
       <ConfirmationModal
         className={s.modal}
         title="New value"
-        body={this.body}
         confirmLabel="Save and Add Value"
         onConfirm={this.handleConfirm}
         {...props}
-      />
+      >
+        <ObjectFormInner
+          onChange={this.handleTaxonUpdate}
+          fieldsToRender={['name']}
+          attributes={this.state.taxon.attributes}
+        />
+        {this.parentInput}
+      </ConfirmationModal>
     );
   }
 }

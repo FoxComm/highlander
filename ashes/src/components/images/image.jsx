@@ -78,7 +78,7 @@ export default class Image extends Component<void, Props, State> {
         <ConfirmationModal
           isVisible={this.state.deleteMode}
           title="Delete Image"
-          body={'Are you sure you want to delete this image?'}
+          label="Are you sure you want to delete this image?"
           confirmLabel="Yes, Delete"
           onCancel={this.handleCancelDeleteImage}
           onConfirm={this.handleConfirmDeleteImage}

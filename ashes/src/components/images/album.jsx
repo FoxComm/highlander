@@ -151,28 +151,21 @@ export default class Album extends Component {
   get archiveAlbumDialog(): ?Element<*> {
     const album = this.props.album;
 
-    const body = (
-      <div>
-        <Alert type={Alert.WARNING}>
-          Archiving this album will remove <strong>{album.images.length} images</strong> from the product.
-          <strong> This action cannot be undone</strong>
-        </Alert>
-        <span>
-          Are you sure you want to archive <strong>{album.name}</strong> album?
-        </span>
-      </div>
-    );
-
     return (
       <ConfirmationModal
         className={s.modal}
         isVisible={this.state.archiveMode}
         title='Archive Album'
-        body={body}
         confirmLabel='Yes, Archive'
         onCancel={this.handleCancelArchiveAlbum}
         onConfirm={this.handleConfirmArchiveAlbum}
-      />
+      >
+        <Alert type={Alert.WARNING}>
+          Archiving this album will remove <strong>{album.images.length} images</strong> from the product.
+          <strong> This action cannot be undone</strong>
+        </Alert>
+        <p>Are you sure you want to archive <strong>{album.name}</strong> album?</p>
+      </ConfirmationModal>
     );
   }
 
