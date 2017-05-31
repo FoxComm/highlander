@@ -114,7 +114,7 @@ export default class SaveCancel extends Component {
         id="fct-modal-confirm-btn"
         type={onSave ? 'button' : 'submit'}
         onClick={onSave}
-        className="fc-save-cancel__save"
+        className={classNames(s.save, 'fc-save-cancel__save')}
         tabIndex={saveTabIndex}
         isLoading={isLoading}
         disabled={saveDisabled}

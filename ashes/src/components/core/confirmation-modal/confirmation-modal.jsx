@@ -50,6 +50,7 @@ export default class ConfirmationModal extends Component {
 
   static defaultProps: $Shape<Props> = {
     title: 'Confirm',
+    label: 'Are you sure?',
     cancelLabel: 'Cancel',
     confirmLabel: 'OK',
   };
@@ -104,7 +105,9 @@ export default class ConfirmationModal extends Component {
         onClose={onCancel}
       >
         <ErrorAlerts error={get(asyncState, 'err', null)} />
-        {label || children}
+        <div className={s.label}>
+          {children || label}
+        </div>
       </Modal>
     );
   }

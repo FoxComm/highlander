@@ -7,7 +7,7 @@ import Modal from './modal';
 
 describe('Modal', function () {
 
-  it('should render empty Modal', function () {
+  it('should render empty Modal if not active', function () {
     const modal = mount(
       <Modal title="Modal title" onClose={noop}>Modal Content</Modal>
     );
@@ -15,7 +15,7 @@ describe('Modal', function () {
     expect(modal).to.be.empty;
   });
 
-  it('should render Modal content', function () {
+  it('should render Modal content if active', function () {
     const modal = mount(
       <Modal title="Title" onClose={noop}>Modal Content</Modal>
     );
