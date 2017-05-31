@@ -10,7 +10,6 @@ import products from './products';
 import productDetails from './product-details';
 import countries from './countries';
 import auth from './auth';
-import usermenu from './usermenu';
 import profile from './profile';
 import orders from './orders';
 import reviews from './reviews';
@@ -30,7 +29,6 @@ const reducer = combineReducers({
   productDetails,
   countries,
   auth,
-  usermenu,
   profile,
   orders,
   reviews,
