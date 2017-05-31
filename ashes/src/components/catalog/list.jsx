@@ -61,15 +61,10 @@ export class CatalogsList extends Component {
     return renderExportModal(tableColumns, entity, modalTitle, exportByIds, toggledIds);
   };
 
-  renderBulkDetails = (id: number) => {
-    const { list } = this.props;
-    const results = list.currentSearch().results.rows;
-    const filteredCatalog = _.filter(results, (catalog) => catalog.id.toString() === id)[0];
-    const catalogId = filteredCatalog.id;
-
+  renderBulkDetails(id: number) {
     return (
       <span key={id}>
-        Catalog <Link to="catalog-details" params={{ catalogId }}>{catalogId}</Link>
+        Catalog <Link to="catalog-details" params={{ id }}>{id}</Link>
       </span>
     );
   };
