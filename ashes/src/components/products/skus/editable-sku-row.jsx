@@ -9,7 +9,6 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
-import classNames from 'classnames';
 
 // components
 import { FormField } from 'components/forms';

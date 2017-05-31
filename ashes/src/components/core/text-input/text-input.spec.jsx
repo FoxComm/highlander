@@ -8,7 +8,7 @@ describe('TextInput', function () {
 
   it('should render TextInput', function () {
     const input = shallow(
-      <TextInput value="test value"/>
+      <TextInput value="test value" />
     );
 
     expect(input.hasClass('input')).to.be.true;
@@ -16,7 +16,7 @@ describe('TextInput', function () {
 
   it('should render TextInput with value', function () {
     const input = shallow(
-      <TextInput value="test value"/>
+      <TextInput value="test value" />
     );
 
     expect(input.find('input').prop('value')).to.equal('test value');
@@ -24,7 +24,7 @@ describe('TextInput', function () {
 
   it('should render className in TextInput', function () {
     const input = shallow(
-      <TextInput className="super-input"/>
+      <TextInput className="super-input" />
     );
 
     expect(input.hasClass('super-input')).to.be.true;
@@ -33,7 +33,7 @@ describe('TextInput', function () {
   it('should handle onChange', function () {
     const onChange = sinon.spy();
     const input = mount(
-      <TextInput onChange={onChange}/>
+      <TextInput onChange={onChange} />
     );
 
     input.simulate('change');

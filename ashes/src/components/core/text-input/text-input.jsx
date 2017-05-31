@@ -4,7 +4,6 @@
 import React, { Component, Element } from 'react';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
-import { get } from 'lodash';
 
 // styles
 import s from './text-input.css';
