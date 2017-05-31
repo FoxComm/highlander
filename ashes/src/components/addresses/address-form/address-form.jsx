@@ -202,7 +202,6 @@ export default class AddressForm extends React.Component {
 
   @autobind
   handleFormSubmit(data) {
-    console.log(data);
     const { submitAction } = this.props;
 
     const formData = _.reduce(data, (res, val, key) => {
@@ -256,17 +255,17 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label="Street Address" validator="ascii" maxLength={255}>
-                  <input name="address1" type="text" defaultValue={address.address1} required />
+                  <TextInput name="address1" type="text" defaultValue={address.address1} required />
                 </FormField>
               </li>
               <li>
                 <FormField label="Street Address 2" validator="ascii" maxLength={255} optional>
-                  <input name="address2" type="text" defaultValue={address.address2} />
+                  <TextInput name="address2" type="text" defaultValue={address.address2} />
                 </FormField>
               </li>
               <li>
                 <FormField label="City" validator="ascii" maxLength={255}>
-                  <input name="city" type="text" defaultValue={address.city} required />
+                  <TextInput name="city" type="text" defaultValue={address.city} required />
                 </FormField>
               </li>
               <li>
@@ -281,7 +280,7 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label={zipName(countryCode)} validator={this.validateZipCode}>
-                  <input type="text" name="zip"
+                  <TextInput type="text" name="zip"
                          placeholder={zipExample(countryCode)}
                          defaultValue={address.zip} className='control' required />
                 </FormField>

@@ -1,10 +1,13 @@
+// libs
 import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
+// components
 import TabView from './tab';
+import TextInput from 'components/core/text-input';
 
 export default class EditableTabView extends React.Component {
 
@@ -57,10 +60,9 @@ export default class EditableTabView extends React.Component {
     if (this.props.editMode) {
       return (
         <div className="fc-editable-tab__content fc-form-field">
-          <input
+          <TextInput
             autoFocus
             className="fc-editable-tab__content-input"
-            type="text"
             onBlur={this.endEditName}
             onChange={this.changeInput}
             onClick={this.preventAction}
@@ -84,8 +86,8 @@ export default class EditableTabView extends React.Component {
   }
 
   @autobind
-  changeInput({ target }) {
-    this.setState({ editValue: target.value });
+  changeInput(value) {
+    this.setState({ editValue: value });
   }
 
   @autobind

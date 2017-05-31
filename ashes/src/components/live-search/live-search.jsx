@@ -2,7 +2,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
-
 import _ from 'lodash';
 import classNames from 'classnames';
 import { trackEvent } from 'lib/analytics';
@@ -20,6 +19,7 @@ import ShareSearch from '../share-search/share-search';
 import { Button } from 'components/core/button';
 import ButtonWithMenu from 'components/core/button-with-menu';
 import Alert from '../alerts/alert';
+import TextInput from 'components/core/text-input';
 
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
 
@@ -401,8 +401,8 @@ export default class LiveSearch extends React.Component {
   }
 
   @autobind
-  change({ target }) {
-    this.submitFilter(target.value);
+  change(value) {
+    this.submitFilter(value);
   }
 
   @autobind
@@ -637,6 +637,12 @@ export default class LiveSearch extends React.Component {
       '_no-gutter': this.props.noGutter
     });
 
+    const inputClass = classNames(
+      'fc-pilled-input__input-field',
+      '_no-fc-behaviour',
+      '_solid-input'
+    );
+
     return (
       <div className="fc-live-search">
         {this.shareSearch}
@@ -652,15 +658,14 @@ export default class LiveSearch extends React.Component {
                 icon={null}
                 pills={this.state.pills}>
                 {/* @todo get back MaskedInput prepend={this.state.searchPrepend} */}
-                <input
-                  className="fc-pilled-input__input-field _no-fc-behavior"
+                <TextInput
+                  className={inputClass}
                   mask={this.state.inputMask}
                   onChange={this.change}
                   onFocus={this.inputFocus}
                   onBlur={this.blur}
                   onKeyDown={this.keyDown}
                   placeholder={this.props.placeholder}
-
                   value={this.state.searchDisplay}
                   disabled={this.isDisabled}
                   ref={i => this._input = i} />

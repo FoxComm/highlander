@@ -42,10 +42,6 @@ class EditAlbum extends Component {
 
   _input: HTMLInputElement;
 
-  componentDidMount() {
-    this._input ? this._input.focus() : _.noop();
-  }
-
   get closeAction() {
     return <a onClick={this.props.onCancel}>&times;</a>;
   }
@@ -84,10 +80,9 @@ class EditAlbum extends Component {
                        labelClassName="fc-product-details__field-label">
               <TextInput
                      name="name"
-                     className="fc-product-details__field-value"
                      value={this.state.name}
                      onChange={this.handleUpdateField}
-                     ref={(i) => this._input = i}/>
+                     autoFocus />
             </FormField>
             <SaveCancel onCancel={this.props.onCancel}
                         onSave={this.handleSave}

@@ -13,6 +13,7 @@ import { FormField } from '../forms';
 import wrapModal from '../modal/wrapper';
 import ContentBox from '../content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
+import TextInput from 'components/core/text-input';
 
 const propertyTypes = {
   string: 'Text',
@@ -44,13 +45,6 @@ class CustomProperty extends Component<void, Props, State> {
     };
   }
 
-  componentDidMount() {
-    const fieldLabelInput = this.refs.field;
-    if (fieldLabelInput) {
-      fieldLabelInput.focus();
-    }
-  }
-
   get closeAction(): Element<*> {
     return <a onClick={this.props.onCancel}>&times;</a>;
   }
@@ -64,8 +58,8 @@ class CustomProperty extends Component<void, Props, State> {
   }
 
   @autobind
-  handleUpdateLabel({target}) {
-    this.setState({ fieldLabel: target.value });
+  handleUpdateLabel(value) {
+    this.setState({ fieldLabel: value });
   }
 
   @autobind
@@ -96,14 +90,14 @@ class CustomProperty extends Component<void, Props, State> {
               className="fc-product-details__field"
               label="Field Label"
               labelClassName="fc-product-details__field-label">
-              <input
+              <TextInput
                 id="fct-field-label-fld"
-                type="text"
                 ref="field"
-                className="fc-product-details__field-value"
                 name="field"
                 value={this.state.fieldLabel}
-                onChange={this.handleUpdateLabel} />
+                onChange={this.handleUpdateLabel}
+                autoFocus
+              />
             </FormField>
             <FormField
               className="fc-product-details__field"

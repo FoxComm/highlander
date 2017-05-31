@@ -124,7 +124,7 @@ class SelectCustomerGroups extends Component {
         solid={true}
         value={state.term}
         disabled={props.groups == null}
-        onChange={({target}) => this.setTerm(target.value)}
+        onChange={ value => this.setTerm(value)}
         pills={pills}
         icon={null}
         onPillClose={(name, index) => this.deselectItem(index)}

@@ -56,7 +56,6 @@ class EditImage extends Component {
                      labelClassName="fc-product-details__field-label"
           >
             <TextInput
-                   className="fc-product-details__field-value"
                    name="title"
                    value={this.state.title}
                    onChange={this.handleUpdateField}
@@ -66,7 +65,6 @@ class EditImage extends Component {
                      className="fc-product-details__field"
                      labelClassName="fc-product-details__field-label">
             <TextInput
-                   className="fc-product-details__field-value"
                    name="alt"
                    value={this.state.alt}
                    onChange={this.handleUpdateField}
@@ -76,7 +74,6 @@ class EditImage extends Component {
                      className="fc-product-details__field"
                      labelClassName="fc-product-details__field-label">
             <TextInput
-                   className="fc-product-details__field-value"
                    name="src"
                    value={this.state.src}
                    placeholder="http://"

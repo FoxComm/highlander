@@ -157,11 +157,9 @@ class EditableSkuRow extends Component {
 
     return (
       <FormField>
-        <input
-          className="fc-text-input"
-          type="text"
+        <TextInput
           value={value}
-          onChange={({ target: { value } }) => {
+          onChange={(value) => {
             this.updateSku({ upc: value });
           }}
           placeholder="UPC"
