@@ -10,6 +10,7 @@ import FormField from 'components/forms/formfield';
 import ErrorAlerts from 'components/alerts/error-alerts';
 import { PrimaryButton } from 'components/core/button';
 import { Link } from 'components/link';
+import TextInput from 'components/forms/text-input';
 
 import * as userActions from 'modules/user';
 
@@ -59,9 +60,9 @@ class RestorePassword extends Component {
   }
 
   @autobind
-  handleInputChange({ target }: SyntheticInputEvent) {
+  handleInputChange(value: string) {
     this.setState({
-      [target.name]: target.value,
+      email: value,
     });
   }
 
@@ -106,7 +107,7 @@ class RestorePassword extends Component {
         <Form className={s.form} onSubmit={this.handleSubmit}>
           {this.errorMessage}
           <FormField className={s.signupEmail} label="Email" required>
-            <input
+            <TextInput
               name="email"
               onChange={this.handleInputChange}
               value={this.email}

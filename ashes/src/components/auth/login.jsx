@@ -187,7 +187,7 @@ class Login extends Component {
 function mapStateToProps(state) {
   return {
     user: state.user,
-    authenticationState: _.get(state.asyncActions, 'authenticate', {})
+    authenticationState: _.get(state.asyncActions, 'authenticate', {}),
   };
 }
 
