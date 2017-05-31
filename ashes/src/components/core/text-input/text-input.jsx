@@ -4,6 +4,7 @@
 import React, { Component, Element } from 'react';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
+import { get } from 'lodash';
 
 // styles
 import s from './text-input.css';
@@ -11,6 +12,8 @@ import s from './text-input.css';
 type Props = {
   /** Input value itself */
   value: string,
+  /** Input default value for uncontrolled */
+  defaultValue: string,
   /** Additional className */
   className?: string,
   /** Action performed on input's value change */
@@ -36,29 +39,19 @@ type State = {
 export default class TextInput extends Component {
   props: Props;
 
-  // static defaultProps = {
-  //   value: ''
-  // };
-
   state: State = {
-    value: this.props.value || this.props.defaultValue || ""
+    value: this.props.value || this.props.defaultValue || ''
   };
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: Props) {
     if (nextProps.value != this.props.value) {
-      this.setState({ value: nextProps.value})
-    }
-  }
-
-  componentWillUpdate(nextProps: Props) {
-    if (this.state.value != nextProps.value) {
       this.setState({ value: nextProps.value });
     }
   }
 
   @autobind
-  handleChange(e: SyntheticEvent) {
-    const { target: {value, name} } = e;
+  handleChange(e: SyntheticInputEvent) {
+    const {value, name} = e.target;
     if (this.props.onChange) {
       this.props.onChange(value, name, e);
     } else {
