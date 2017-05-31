@@ -39,6 +39,6 @@
     - { role: ext/tpg/storefront }
     - { role: dev/nginx }
     - { role: demo/balancer }
-    - { role: dev/seeder, when: with_appliance_seeding }
+    - { role: dev/seeder, when: with_appliance_seeding and not first_run }
     - { role: app/healthcheck }
     - { role: app/dnsimple, when: not first_run }
