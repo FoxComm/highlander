@@ -93,7 +93,6 @@ class Sidebar extends React.Component {
         <Link
           to="/profile"
           styleName="session-link"
-          activeClassName={styles['active-link']}
           children="Profile"
         />
       );

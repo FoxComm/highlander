@@ -77,7 +77,3 @@
   margin-right: 5px;
   font-size: 16px;
 }
-
-.active-link {
-  box-shadow: 0 2px var(--input-border-color);
-}
