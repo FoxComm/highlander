@@ -138,19 +138,17 @@ class SelectCustomerGroups extends Component {
         <RadioButton
           id="qualifyAll"
           name="qualifyAll"
+          label="All customers qualify"
           checked={this.props.qualifyAll === true}
           onChange={this.handleChangeQualifier}
-        >
-          All customers qualify
-        </RadioButton>
+        />
         <RadioButton
           id="qualifyGroups"
           name="qualifyGroups"
+          label="Select customer groups qualify"
           checked={this.props.qualifyAll === false}
           onChange={this.handleChangeQualifier}
-        >
-          Select customer groups qualify
-        </RadioButton>
+        />
         {this.customersGroups}
       </div>
     );

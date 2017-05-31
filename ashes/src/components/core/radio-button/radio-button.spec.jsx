@@ -15,9 +15,7 @@ describe('RadioButton', function () {
 
   it('should render RadioButton with label content', function () {
     const button = shallow(
-      <RadioButton id="id">
-        Test Content
-      </RadioButton>
+      <RadioButton id="id" label="Test Content" />
     );
 
     expect(button.find('.content').text()).to.equal('Test Content');

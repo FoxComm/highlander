@@ -10,8 +10,8 @@ import s from './radio-button.css';
 type Props = {
   /** ID for input and label */
   id: string,
-  /** RadioButton content (label) */
-  children?: string,
+  /** RadioButton label */
+  label: string,
   /** Additional className */
   className?: string,
 }
@@ -25,15 +25,12 @@ type Props = {
  */
 
 const RadioButton = (props: Props) => {
-  const { id, children, className, ...rest } = props;
-  const content = children ? <span className={s.content}>{children}</span> : null;
+  const { id, label, className, ...rest } = props;
 
   return (
     <div className={ classNames(s.radio, className) }>
       <input type="radio" id={id} {...rest} />
-      <label htmlFor={id}>
-        {content}
-      </label>
+      <label htmlFor={id} className={s.label}>{label}</label>
     </div>
   );
 };

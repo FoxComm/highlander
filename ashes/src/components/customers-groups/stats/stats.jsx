@@ -72,14 +72,13 @@ class CustomerGroupStats extends Component {
     return Object.keys(this.props.stats).map((period: string) => (
       <RadioButton
         id={period}
+        label={capitalize(period)}
         className={s.period}
         checked={this.state.period === period}
         onChange={() => this.setState({ period })}
         disabled={this.props.isLoading}
         key={period}
-      >
-        {capitalize(period)}
-      </RadioButton>
+      />
     ));
   }
 

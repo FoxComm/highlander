@@ -54,13 +54,12 @@ const ShippingMethodRow = props => {
     <TableRow {...rest} >
       <TableCell>
         <RadioButton
+          id={inputId}
+          label={shippingMethod.name}
           className="fc-shipping-method-row-name-control"
           checked={shippingMethod.isSelected}
-          id={inputId}
           onChange={updateAction}
-        >
-          {shippingMethod.name}
-        </RadioButton>
+        />
       </TableCell>
       <TableCell>
         {editBlock(shippingMethod, isEditingPrice, editPriceAction, cancelPriceAction, submitPriceAction)}

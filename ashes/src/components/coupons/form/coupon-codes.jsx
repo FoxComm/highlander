@@ -217,21 +217,19 @@ class CouponCodes extends Component {
         <div>
           <RadioButton
             id="singleCouponCodeRadio"
+            label="Single coupon code"
             checked={this.props.codeGeneration.bulk === false}
             onChange={this.handleSingleSelect}
-          >
-            Single coupon code
-          </RadioButton>
+          />
         </div>
         {this.singleCouponFormPart}
         <div>
           <RadioButton
             id="bulkCouponCodeRadio"
+            label="Bulk generate coupon codes"
             checked={this.props.codeGeneration.bulk === true}
             onChange={this.handleBulkSelect}
-          >
-            Bulk generate coupon codes
-          </RadioButton>
+          />
         </div>
         {this.bulkCouponFormPart}
         <CodeCreationModal

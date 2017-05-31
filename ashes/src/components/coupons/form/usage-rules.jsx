@@ -77,18 +77,20 @@ export default class UsageRules extends Component {
               <label>Max uses per coupon</label>
             </div>
             <div styleName="form-group">
-              <RadioButton id="couponUnlimitedUsageTrue"
+              <RadioButton
+                id="couponUnlimitedUsageTrue"
+                label="Unlimited"
                 onChange={this.setUnlimitedUsageTrue}
-                checked={this.props.isUnlimitedPerCode}>
-                Unlimited
-              </RadioButton>
-              <RadioButton id="couponUnlimitedUsageFalse"
+                checked={this.props.isUnlimitedPerCode}
+              />
+              <RadioButton
+                id="couponUnlimitedUsageFalse"
+                label="Limited number"
                 onChange={this.setUnlimitedUsageFalse}
-                checked={!this.props.isUnlimitedPerCode}>
-                Limited number
-              </RadioButton>
+                checked={!this.props.isUnlimitedPerCode}
+              />
             </div>
-            <div style={{display: this.props.isUnlimitedPerCode ? 'none' : 'block'}}>
+            <div style={{ display: this.props.isUnlimitedPerCode ? 'none' : 'block' }}>
               <Counter
                 counterId="uses-per-coupon-counter"
                 id="couponUsesForCode"
@@ -96,7 +98,7 @@ export default class UsageRules extends Component {
                 disabled={this.props.isUnlimitedPerCode}
                 decreaseAction={() => this.handleUsesPerCodeChange(this.props.usesPerCode - 1)}
                 increaseAction={() => this.handleUsesPerCodeChange(this.props.usesPerCode + 1)}
-                onChange={({target}) => this.handleUsesPerCodeChange(parseInt(target.value))}
+                onChange={({ target }) => this.handleUsesPerCodeChange(parseInt(target.value))}
                 min={1}
               />
             </div>
@@ -108,18 +110,20 @@ export default class UsageRules extends Component {
               <label>Max uses per customer</label>
             </div>
             <div styleName="form-group">
-              <RadioButton id="couponUnlimitedCustomerUsageTrue"
+              <RadioButton
+                id="couponUnlimitedCustomerUsageTrue"
+                label="Unlimited"
                 onChange={this.setUnlimitedCustomerUsageTrue}
-                checked={this.props.isUnlimitedPerCustomer}>
-                Unlimited
-              </RadioButton>
-              <RadioButton id="couponUnlimitedCustomerUsageFalse"
+                checked={this.props.isUnlimitedPerCustomer}
+              />
+              <RadioButton
+                id="couponUnlimitedCustomerUsageFalse"
+                label="Limited number"
                 onChange={this.setUnlimitedCustomerUsageFalse}
-                checked={!this.props.isUnlimitedPerCustomer}>
-                Limited number
-              </RadioButton>
+                checked={!this.props.isUnlimitedPerCustomer}
+              />
             </div>
-            <div style={{display: this.props.isUnlimitedPerCustomer ? 'none' : 'block'}}>
+            <div style={{ display: this.props.isUnlimitedPerCustomer ? 'none' : 'block' }}>
               <Counter
                 counterId="uses-per-customer-counter"
                 id="couponUsesNumberForCustomer"
@@ -127,7 +131,7 @@ export default class UsageRules extends Component {
                 disabled={this.props.isUnlimitedPerCustomer}
                 decreaseAction={() => this.handleUsesPerCustomerChange(this.props.usesPerCustomer - 1)}
                 increaseAction={() => this.handleUsesPerCustomerChange(this.props.usesPerCustomer + 1)}
-                onChange={({target}) => this.handleUsesPerCustomerChange(parseInt(target.value))}
+                onChange={({ target }) => this.handleUsesPerCustomerChange(parseInt(target.value))}
                 min={1}
               />
             </div>
