@@ -2,17 +2,17 @@ import phoenix.payloads.CatalogPayloads._
 import phoenix.responses.CatalogResponse
 import testutils._
 import testutils.apis.PhoenixAdminApi
-import testutils.fixtures.BakedFixtures
+import testutils.fixtures.api._
 
 class CatalogIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with DefaultJwtAdminAuth
     with TestObjectContext
-    with BakedFixtures {
+    with ApiFixtures {
 
   "GET /v1/catalogs/:id" - {
-    "succeeeds" in new Catalog_Baked {
+    "succeeeds" in new Catalog_ApiFixture {
       val response = catalogsApi(catalog.id).get().as[CatalogResponse.Root]
       response.name must === ("default")
       response.countryName must === ("United States")
@@ -20,7 +20,7 @@ class CatalogIntegrationTest
   }
 
   "POST /v1/catalogs" - {
-    "succeeds with simple payload" in new Catalog_Baked {
+    "succeeds with simple payload" in new Catalog_ApiFixture {
       val payload = CreateCatalogPayload(name = "Japan",
                                          site = Some("stage.foxcommerce.jp"),
                                          countryId = 115,
@@ -31,7 +31,7 @@ class CatalogIntegrationTest
       response.countryName must === ("Japan")
     }
 
-    "succeeds even with a duplicate name" in new Catalog_Baked {
+    "succeeds even with a duplicate name" in new Catalog_ApiFixture {
       val payload = CreateCatalogPayload(name = "default",
                                          site = None,
                                          countryId = 234,
@@ -42,7 +42,7 @@ class CatalogIntegrationTest
       response.countryName must === ("United States")
     }
 
-    "fails with an invalid country" in new Catalog_Baked {
+    "fails with an invalid country" in new Catalog_ApiFixture {
       val payload = CreateCatalogPayload(name = "will fail",
                                          site = None,
                                          countryId = 10001,
@@ -54,7 +54,7 @@ class CatalogIntegrationTest
   }
 
   "PATCH /v1/catalogs/:id" - {
-    "succeeds in changing the name" in new Catalog_Baked {
+    "succeeds in changing the name" in new Catalog_ApiFixture {
       val payload  = UpdateCatalogPayload(name = Some("revised"))
       val response = catalogsApi(catalog.id).update(payload).as[CatalogResponse.Root]
 
@@ -63,13 +63,13 @@ class CatalogIntegrationTest
       response.defaultLanguage === (catalog.defaultLanguage)
     }
 
-    "succeeds in changing the site" in new Catalog_Baked {
+    "succeeds in changing the site" in new Catalog_ApiFixture {
       val payload  = UpdateCatalogPayload(site = Some("tumi.foxcommerce.com"))
       val response = catalogsApi(catalog.id).update(payload).as[CatalogResponse.Root]
       response.site must === (Some("tumi.foxcommerce.com"))
     }
 
-    "succeeds in deleting the site" in new Catalog_Baked {
+    "succeeds in deleting the site" in new Catalog_ApiFixture {
       val payload  = UpdateCatalogPayload(site = Some(""))
       val response = catalogsApi(catalog.id).update(payload).as[CatalogResponse.Root]
       response.site must === (None)

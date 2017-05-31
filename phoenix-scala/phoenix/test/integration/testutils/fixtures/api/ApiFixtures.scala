@@ -8,10 +8,13 @@ import faker.Lorem
 import org.json4s.JsonAST.JNull
 import org.json4s.JsonDSL._
 import org.scalatest.SuiteMixin
+import phoenix.models.catalog.Catalog
 import phoenix.models.promotion.Promotion
 import phoenix.payloads.CouponPayloads.CreateCoupon
 import phoenix.payloads.ProductPayloads.CreateProductPayload
 import phoenix.payloads.SkuPayloads.SkuPayload
+import phoenix.payloads.CatalogPayloads._
+import phoenix.responses.CatalogResponse
 import phoenix.responses.CouponResponses.CouponResponse
 import phoenix.responses.ProductResponses.ProductResponse.{Root ⇒ ProductRoot}
 import phoenix.responses.PromotionResponses.PromotionResponse
@@ -44,6 +47,16 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
       getState(updated) must === (state)
       updated
     }
+  }
+
+  trait Catalog_ApiFixture {
+    private val createPayload = CreateCatalogPayload(name = "default",
+                                                     site = Some("stage.foxcommerce.com"),
+                                                     countryId = 234,
+                                                     defaultLanguage = "en")
+
+    val catalog: CatalogResponse.Root =
+      catalogsApi.create(createPayload)(defaultAdminAuth).as[CatalogResponse.Root]
   }
 
   trait ProductSku_ApiFixture {
