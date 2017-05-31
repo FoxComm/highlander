@@ -26,6 +26,25 @@ We have a model of organizations which have roles and permissions and users.
 Organizations are associated with a specific scope. Scopes provide a way to
 organize data hierarchically and limit access.
 
+\subsubsection{Capabilities and Constraints}
+
+\paragraph{Organizations can...}
+
+\begin{enumerate}
+    \item Control roles and permissions.
+    \item Control how a scope is accessed.
+    \item Have sub organizations that belong to subscopes.
+    \item Control subscopes.
+\end{enumerate}
+
+\paragraph{Organizations cannot...}
+
+\begin{enumerate}
+    \item Cross sibling scopes.
+    \item Have unscoped data.
+    \item Users cannot log into multiple scopes at same time.
+\end{enumerate}
+
 \subsection{Scopes}
 
 Almost all tables in the system have a scope column. Scopes are hierarchical 
@@ -109,6 +128,23 @@ Notice that the scope of the storefronts is the same. Regardless if we have one
 organization or another we need a different organizing structure for storefront
 data that is separate from scopes. We want a model of channels.
 
+\subsubsection{Capabilities and Constraints}
+
+\paragraph{Scopes can...}
+
+\begin{enumerate}
+    \item Group data like a directory in a filesystem.
+    \item Control access to data via roles/permissions that are in that scope.
+\end{enumerate}
+
+\paragraph{Scopes cannot...}
+
+\begin{enumerate}
+    \item Share data with sibling scopes.
+    \item Provide semantic relationships between data in a scope.
+    \item Provide semantic relationships between data in different scopes.
+\end{enumerate}
+
 \subsection{Views (formally Context)}
 
 All merchandising information can have several views. Views provide a way to change the 
@@ -135,6 +171,26 @@ A review/approval flow may have it's own view.
     product -> view3
 }
 
+\subsubsection{Capabilities and Constraints}
+
+\paragraph{Views can...}
+
+\begin{itemize}
+    \item Control which versions of data in the object store are displayed.
+    \item Act as a git branch on the merchandising data.
+    \item Commits provide branching history between views.
+\end{itemize}
+
+
+\paragraph{Views cannot...}
+
+\begin{itemize}
+    \item Control access to data.
+    \item Shared between sibling scopes.
+    \item Cannot control versions of parts of objects.
+    \item Cannot describe semantic relationships between views.
+\end{itemize}
+
 \section{What We Need}
 
 \subsection{Catalogs}
@@ -150,15 +206,26 @@ Catalogs are collections of products you want to sell.
     };
     subgraph first{
         scope [label="Scope"];
+        products [label="Products"];
+        stock [label="Stock"];
+        discounts [label="Discounts"];
         name [label="Name"];
         country [label="Country"];
         language [label="Language"];
+        live [label="Live View"];
+        stage [label="Stage View"];
     };
 
     catalog -> scope [label="belongs to"]
     catalog -> name [label="has a"]
+    catalog -> products [label="has"]
+    catalog -> discounts [label="has"]
+    catalog -> stock [label="has"]
+    catalog -> payment [label="has"]
     catalog -> country [label="for a"]
     catalog -> language [label="has default"]
+    catalog -> live [label="points to"]
+    catalog -> stage [label="points to"]
 }
 
 \subsection{Channels}
@@ -171,25 +238,26 @@ Channels should be comprised of three key components
     node [shape=box,style=filled,fillcolor="tan"];
 
     subgraph zero{
-        channel [label="Catalog"]
+        channel [label="Channel"]
     };
     subgraph first{
         scope [label="Scope"];
         catalog [label="Catalog"];
-        view [label="View"];
+        payment [label="Payment Methods"];
+        payment [label="Payment Methods"];
         aux [label="Auxiliary Data..."];
     };
 
     channel -> scope [label="belongs to"]
     channel -> catalog [label="has a"]
-    channel -> view [label="shows a"]
+    channel -> payment [label="uses"]
     channel -> aux [label="has"]
 }
 
 \subsection{Storefronts}
 
-One type of channel is a storefront, We can either create a first class item
-or use the auxiliary data in the channel.
+A storefront is a website that can sell products from a catalog. A storefront
+uses a channel in addition to data from the CMS.
 
 \digraph[scale=0.80]{StorefrontModel}{
     splines="ortho";
@@ -201,74 +269,77 @@ or use the auxiliary data in the channel.
     };
     subgraph first{
         scope [label="Scope"];
-        catalog [label="Catalog"];
-        view [label="View"];
+        channel [label="Channel"];
+        live [label="Live CMS View"];
+        stage [label="Stage CMS View"];
         host [label="Host"];
     };
 
     store -> scope [label="belongs to"]
-    store -> catalog [label="has a"]
-    store -> view [label="shows a"]
+    store -> channel [label="uses"]
+    store -> live [label="shows"]
+    store -> stage [label="points to"]
     store -> host [label="serves from"]
 }
 
+\newpage
 \subsection{Back to Organizations}
 
 Once we have these new models we can assign them to organizations
 
-\digraph[scale=0.70]{OrgModel}{
+\digraph[scale=0.80]{OrgModel}{
     splines="ortho";
     rankdir=TD;
     node [shape=box,style=filled,fillcolor="tan"];
 
     subgraph zero{
+        rank=source;
         org [label="Organization"]
     };
+
     subgraph first{
-        org1 [label="Sub Org A"];
-        org2 [label="Sub Org B"];
-    };
-    subgraph second{
         scope [label="Scope 1.2"]
-        scope1 [label="Scope 1.2.3"]
-        scope2 [label="Scope 1.2.4"]
+    };
+
+    subgraph second{
+        rank=same;
         catalog [label="Master Catalog"];
-        catalog1 [label="Catalog A"];
-        catalog2 [label="Catalog B"];
         view [label="Master View"];
+    };
+    subgraph third{
         view1 [label="View A"];
         view2 [label="View B"];
     };
 
-    subgraph third{
+    subgraph fourth{
+        catalog1 [label="Catalog A"];
+        catalog2 [label="Catalog B"];
+    };
+
+    subgraph fifth{
+        channel1 [label="Channel A"];
+        channel2 [label="Channel B"];
+    };
+
+    subgraph sixth {
         rank=sink;
-        channel1 [label="Channel A(Storefront)"];
-        channel2 [label="Channel B(Storefront)"];
+        store1 [label="Storefront A"];
+        store2 [label="Storefront B"];
     };
 
     org -> scope [label="belongs to"]
-    org -> org1;
-    org -> org2;
-    scope -> scope1;
-    scope -> scope2;
     scope -> catalog;
     scope -> view;
-    org1 -> scope1 [label="belongs to"]
-    org2 -> scope2 [label="belongs to"]
     catalog -> catalog1
     catalog -> catalog2
-    scope1 -> catalog1;
-    scope1 -> view1;
-    scope1 -> channel1;
-    scope2 -> catalog2;
-    scope2 -> view2;
-    scope2 -> channel2;
-    view -> view1 [label="branch"]
-    view -> view2 [label="branch"]
-    channel1 -> catalog1 [label="uses"]
-    channel2 -> catalog2 [label="uses"]
-    channel1 -> view1 [label="uses"]
-    channel2 -> view2 [label="uses"]
+    view -> view1 [label="branch"];
+    view -> view2 [label="branch"];
+    view1 -> catalog1
+    view2 -> catalog2
+    catalog1 -> channel1 [label="uses"];
+    catalog2 -> channel2 [label="uses"];
+    store1 -> channel1 [label="used by"];
+    store2 -> channel2 [label="used by"];
 }
 
 \subsection {Public Access}
@@ -299,5 +370,9 @@ modify them to understand which channel they are serving.
     catalog -> riverrock [label="serve"];
 
 }
+
+\subsection{Example Story}
+
+TODO: Give example of single merchant with multi storefronts
 
 \end{document}
