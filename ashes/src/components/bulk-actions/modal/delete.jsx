@@ -6,9 +6,7 @@ import React from 'react';
 import { numberize } from 'lib/text-utils';
 
 // components
-import wrapModal from '../../modal/wrapper';
-import ContentBox from '../../content-box/content-box';
-import SaveCancel from 'components/core/save-cancel';
+import ConfirmationDialog from 'components/modal/confirmation-dialog';
 
 type Props = {
   entity: string;
@@ -19,9 +17,8 @@ type Props = {
   onConfirm: Function;
 };
 
-const ChangeStateModal = (props: Props) => {
-  const {entity, stateTitle, count, label: rawLabel, onCancel, onConfirm} = props;
-  const actionBlock = <i onClick={onCancel} className="fc-btn-close icon-close" title="Close" />;
+export default (props: Props) => {
+  const { entity, stateTitle, count, label: rawLabel, onCancel, onConfirm } = props;
   const entityForm = numberize(entity, count);
 
   const label = rawLabel
@@ -29,23 +26,15 @@ const ChangeStateModal = (props: Props) => {
     : <span>Are you sure you want to <b>{stateTitle} {count} {entityForm}</b>?</span>;
 
   return (
-    <ContentBox title={`Delete ${_.capitalize(entityForm)}?`}
-                className="fc-bulk-action-modal"
-                actionBlock={actionBlock}>
-      <div className="fc-modal-body">
-        {label}
-      </div>
-      <SaveCancel className="fc-modal-footer"
-                  cancelTabIndex="2"
-                  cancelText="No"
-                  onCancel={onCancel}
-                  saveTabIndex="1"
-                  onSave={onConfirm}
-                  saveText="Yes, Delete" />
-    </ContentBox>
+    <ConfirmationDialog
+      title={`Delete ${_.capitalize(entityForm)}?`}
+      confirm="Yes, Delete"
+      cancel="No"
+      confirmAction={onConfirm}
+      onCancel={onCancel}
+      isVisible
+    >
+      {label}
+    </ConfirmationDialog>
   );
 };
-
-const Wrapped: Class<React.Component<void, Props, any>> = wrapModal(ChangeStateModal);
-
-export default Wrapped;

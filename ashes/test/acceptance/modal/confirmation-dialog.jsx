@@ -24,7 +24,7 @@ describe('ConfirmationDialog', function() {
 
   it('should render if isVisible is truly', function *() {
     const { container } = yield renderIntoDocument(
-      <ConfirmationDialog {...defaultProps} isVisible={true} />
+      <ConfirmationDialog {...defaultProps} isVisible />
     );
 
     expect(container.querySelector('.fc-modal')).to.be.ok;

@@ -16,14 +16,16 @@ import s from './confirmation-dialog.css';
 
 type Props = {
   isVisible: boolean,
-  body: string | Element<*>,
   title: string | Element<*>,
-  cancel: string,
-  confirm: string,
+  body?: string | Element<*>,
+  cancel?: string,
+  confirm?: string,
   onCancel: () => any,
   confirmAction: () => any,
+  saveDisabled?: boolean,
   asyncState?: AsyncState,
   className?: string,
+  children?: Element<any>,
 };
 
 export default class ConfirmationDialog extends Component {
@@ -44,7 +46,7 @@ export default class ConfirmationDialog extends Component {
   }
 
   @autobind
-  handleKeyPress(e) {
+  handleKeyPress(e: KeyboardEvent) {
     if (e.keyCode === 13 /*enter*/) {
       e.preventDefault();
 
@@ -53,14 +55,16 @@ export default class ConfirmationDialog extends Component {
   }
 
   get footer() {
-    const { confirm, confirmAction, onCancel, asyncState } = this.props;
+    const { confirm, cancel, confirmAction, onCancel, saveDisabled, asyncState } = this.props;
 
     return (
       <SaveCancel
-        onCancel={onCancel}
-        onSave={confirmAction}
         saveText={confirm}
+        cancelText={cancel}
+        onSave={confirmAction}
+        onCancel={onCancel}
         isLoading={get(asyncState, 'inProgress', false)}
+        saveDisabled={saveDisabled}
       />
     );
   }
@@ -76,7 +80,7 @@ export default class ConfirmationDialog extends Component {
         isVisible={isVisible}
         onClose={onCancel}
       >
-        <ApiErrors response={_.get(asyncState, 'err', null)} />
+        <ApiErrors response={get(asyncState, 'err', null)} />
         {body}
       </Modal>
     );

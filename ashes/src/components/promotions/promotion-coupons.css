@@ -9,11 +9,6 @@
   margin-right: -1.85%;
 }
 
-.promotion-coupons-page :global .fc-content-box{
-  width: 800px;
-  max-width: 100%;
-}
-
 .promotion-coupons-page :global .fc-save-cancel{
   display: flex;
   justify-content: flex-end;

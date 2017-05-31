@@ -80,7 +80,7 @@ export default class Image extends Component<void, Props, State> {
     return (
       <BodyPortal className={styles.modal}>
         <ConfirmationDialog
-          isVisible={true}
+          isVisible
           title='Delete Image'
           body={'Are you sure you want to delete this image?'}
           cancel='Cancel'

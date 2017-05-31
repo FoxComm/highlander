@@ -15,13 +15,16 @@ import s from './modal-container.css';
 
 type Props = {
   isVisible: boolean,
-  onClose?: () => void,
+  onClose: () => any,
   children?: Element<any>,
+  className?: string,
 };
 
 const transitionProps = {
   component: 'div',
   transitionName: 'modal',
+  transitionAppear: true,
+  transitionAppearTimeout: 120,
   transitionEnterTimeout: 120,
   transitionLeaveTimeout: 100,
 };
@@ -48,7 +51,7 @@ export class ModalContainer extends Component {
   }
 
   @autobind
-  handleKeyPress(e) {
+  handleKeyPress(e: KeyboardEvent) {
     if (e.keyCode === 27 /*esc*/) {
       e.preventDefault();
 
@@ -82,8 +85,10 @@ export class ModalContainer extends Component {
   }
 }
 
-export const withModal = (InnerComponent: Component) => ({ isVisible, onClose, ...rest }) => (
-  <ModalContainer isVisible={isVisible} onClose={onClose}>
-    <InnerComponent {...rest} />
-  </ModalContainer>
-);
+export function withModal<P:Object, S:Object>(InnerComponent: Class<Component<any, P, S>>) {
+  return ({ isVisible, onClose, ...rest }: { isVisible: boolean, onClose: () => any }) => (
+    <ModalContainer isVisible={isVisible} onClose={onClose}>
+      <InnerComponent {...rest} />
+    </ModalContainer>
+  );
+}

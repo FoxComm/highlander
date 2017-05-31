@@ -108,7 +108,7 @@ class OptionEditDialog extends Component {
   render() {
     return (
       <ConfirmationDialog
-        isVisible={true}
+        isVisible
         title={this.title}
         body={this.renderDialogContent()}
         cancel="Cancel"

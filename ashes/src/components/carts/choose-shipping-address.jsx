@@ -8,7 +8,7 @@ import * as AddressActions from 'modules/customers/addresses';
 import * as CartActions from 'modules/carts/details';
 
 import AddressBox from 'components/addresses/address-box';
-import AddressForm from 'components/addresses/address-form/modal';
+import AddressFormModal from 'components/addresses/address-form/modal';
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import TileSelector from 'components/tile-selector/tile-selector';
 
@@ -126,7 +126,7 @@ export default class ChooseShippingAddress extends Component {
     const saveTitle = _.isNull(this.state.address) ? 'Save and Choose' : 'Save';
 
     return (
-      <AddressForm
+      <AddressFormModal
         isVisible={this.state.isFormVisible}
         address={this.state.address}
         submitAction={this.handleFormSubmit}

@@ -55,18 +55,19 @@ export default class CustomProperty extends Component<void, Props, State> {
   }
 
   @autobind
-  handleUpdateLabel({ target }) {
+  handleUpdateLabel({ target }: { target: HTMLInputElement }) {
     this.setState({ fieldLabel: target.value });
   }
 
   @autobind
-  handleUpdateType(value) {
+  handleUpdateType(value: string) {
     this.setState({ propertyType: value });
   }
 
   @autobind
-  handleSave(event) {
+  handleSave(event: Event) {
     event.preventDefault();
+
     this.props.onSave(this.state);
   }
 

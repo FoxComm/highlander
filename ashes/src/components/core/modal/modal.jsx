@@ -28,7 +28,7 @@ export default ({ isVisible, title, footer, children, className, onClose = noop 
   >
     <header className={s.header}>
       <div className={s.title}>{title}</div>
-      <a className={s.close} onClick={onClose}>&times;</a>
+      <a className={s.close} onClick={onClose} title="Close">&times;</a>
     </header>
     <div className={s.body}>
       {children}

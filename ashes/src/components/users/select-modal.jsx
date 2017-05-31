@@ -43,7 +43,6 @@ class SelectAdminsModal extends Component {
 
     return (
       <SaveCancel
-        className="fc-modal-footer fc-add-watcher-modal__footer"
         onCancel={props.onCancel}
         onSave={this.handleSave}
         saveDisabled={this.isSaveDisabled}
@@ -63,7 +62,11 @@ class SelectAdminsModal extends Component {
     const { props } = this;
 
     return (
-      <Modal isVisible={props.isVisible} title={props.title} footer={this.footer}>
+      <Modal
+        isVisible={props.isVisible}
+        title={props.title}
+        footer={this.footer}
+      >
         <AdminsTypeahead
           hideOnBlur
           onSelect={this.handleAdminsSelected}
