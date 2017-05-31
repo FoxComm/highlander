@@ -3,7 +3,7 @@ package phoenix.services.activity
 import phoenix.models.cord.Order
 import phoenix.models.cord.Cart
 import phoenix.payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
-import phoenix.responses.{GiftCardResponse, UserResponse, StoreCreditResponse}
+import phoenix.responses.{GiftCardResponse, StoreCreditResponse, UserResponse}
 
 object StoreCreditTailored {
   case class StoreCreditCreated(admin: UserResponse.Root,
@@ -24,12 +24,12 @@ object StoreCreditTailored {
   case class StoreCreditAuthorizedFunds(user: UserResponse.Root,
                                         cart: Cart,
                                         storeCreditIds: Seq[Int],
-                                        amount: Int)
+                                        amount: Long)
       extends ActivityBase[StoreCreditAuthorizedFunds]
 
   case class StoreCreditCapturedFunds(user: UserResponse.Root,
                                       order: Order,
                                       storeCreditIds: Seq[Int],
-                                      amount: Int)
+                                      amount: Long)
       extends ActivityBase[StoreCreditCapturedFunds]
 }

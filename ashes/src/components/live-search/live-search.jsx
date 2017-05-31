@@ -8,8 +8,7 @@ import { trackEvent } from 'lib/analytics';
 
 // components
 // import MaskedInput from '../masked-input/masked-input'; // @todo get back
-import Menu from '../menu/menu';
-import MenuItem from '../menu/menu-item';
+import { Menu, MenuItem } from './menu';
 import PilledInput from '../pilled-search/pilled-input';
 import SearchOption from './search-option';
 import TabListView from '../tabs/tabs';
@@ -22,6 +21,9 @@ import Alert from '../alerts/alert';
 import TextInput from 'components/core/text-input';
 
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
+
+// styles
+import s from './live-search.css';
 
 const SEARCH_MENU_ACTION_SHARE = 'share';
 const SEARCH_MENU_ACTION_SAVE = 'save';
@@ -191,10 +193,10 @@ export default class LiveSearch extends React.Component {
           return [
             ...result,
             <SearchOption
-              className={classNames({ '_active': selectedIdx == idx, '_first': idx == 0 })}
               key={`search-option-${option.displayTerm}`}
               option={option}
               clickAction={handleClick}
+              active={selectedIdx == idx}
             />
           ];
         }, []);
@@ -633,6 +635,7 @@ export default class LiveSearch extends React.Component {
     const gridClass = classNames('fc-list-page-content', {
       '_no-gutter': this.props.noGutter
     });
+    const tableWrapClass = classNames(gridClass, s.table);
     const tableClass = classNames('fc-live-search__table', {
       '_no-gutter': this.props.noGutter
     });
@@ -672,12 +675,12 @@ export default class LiveSearch extends React.Component {
               </PilledInput>
             </form>
 
-            <div>
+            <div className={s.dropdown}>
               {this.dropdownContent}
             </div>
           </div>
         </div>
-        <div className={gridClass}>
+        <div className={tableWrapClass}>
           <div className={tableClass}>
             {this.props.children}
           </div>

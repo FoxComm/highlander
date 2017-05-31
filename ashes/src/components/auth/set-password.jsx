@@ -10,9 +10,9 @@ import { transitionTo } from 'browserHistory';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import ErrorAlerts from '../alerts/error-alerts';
-import { PrimaryButton, Button } from 'components/core/button';
+import { PrimaryButton } from 'components/core/button';
 import PasswordInput from '../forms/password-input';
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
 
 import type { SignupPayload } from 'modules/user';
 import * as userActions from 'modules/user';
@@ -94,7 +94,7 @@ class SetPassword extends Component {
 
   get content() {
     if (!this.props.isMounted) {
-      return <WaitAnimation />;
+      return <Spinner />;
     }
 
     return (

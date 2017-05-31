@@ -10,7 +10,6 @@ import _ from 'lodash';
 // components
 import { SelectableSearchList } from '../list-page';
 import CouponRow from './coupon-row';
-import { ChangeStateModal } from '../bulk-actions/modal';
 
 import BulkWrapper from '../discounts/bulk';
 

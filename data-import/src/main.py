@@ -5,6 +5,7 @@ import itertools
 import json
 import os.path
 import urllib.request
+import ssl
 from collections import defaultdict
 from urllib.error import HTTPError
 
@@ -87,7 +88,9 @@ class Elasticsearch:
         req = urllib.request.Request(endpoint, headers={"Content-Type": "application/json", "JWT": self.jwt})
 
         try:
-            response = urllib.request.urlopen(req)
+            context = ssl.create_default_context()
+            context.check_hostname = False
+            response = urllib.request.urlopen(req, context=context)
         except HTTPError as err:
             print(repr(err))
             raise
@@ -139,7 +142,9 @@ class Phoenix:
                                      method=method)
 
         try:
-            response = urllib.request.urlopen(req)
+            context = ssl.create_default_context()
+            context.check_hostname = False
+            response = urllib.request.urlopen(req, context=context)
         except HTTPError as err:
             print("HTTP error. code: {}. message: {}".format(err.code, err.read()))
             raise
@@ -152,10 +157,12 @@ class Phoenix:
 
     def do_login(self):
         payload = json.dumps({'email': self.user, 'password': self.password, 'org': self.org}).encode()
+        context = ssl.create_default_context()
+        context.check_hostname = False
         req = urllib.request.Request(self.login_endpoint(), payload)
         req.add_header('Content-Type', 'application/json')
 
-        response = urllib.request.urlopen(req)
+        response = urllib.request.urlopen(req, context=context)
 
         content = json.loads(response.read().decode('utf-8'))
         self.jwt = dict(response.info())['Jwt']

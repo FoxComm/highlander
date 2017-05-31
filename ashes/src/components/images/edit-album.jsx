@@ -88,7 +88,7 @@ class EditAlbum extends Component {
                         onSave={this.handleSave}
                         saveDisabled={this.saveDisabled}
                         isLoading={this.props.loading}
-                        saveText="Save and Apply"/>
+                        saveText="Save and Apply" />
           </ContentBox>
         </div>
     );

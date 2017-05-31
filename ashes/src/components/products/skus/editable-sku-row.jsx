@@ -342,7 +342,7 @@ class EditableSkuRow extends Component {
 
     if (!_.isEmpty(this.props.variants) || skuValue) {
       return (
-        <DeleteButton onClick={() => this.props.onDeleteClick(skuCode)}/>
+        <DeleteButton onClick={() => this.props.onDeleteClick(skuCode)} />
       );
     }
   }

@@ -88,7 +88,7 @@ export default class TablePaginator extends React.Component {
               data={_.range(1, pagesCount + 1).map(page => ({id: page, label: String(page)}))}
               value={currentPage}
               minQueryLength={0}
-              onSelect={this.onSelect}/>
+              onSelect={this.onSelect} />
     );
   }
 

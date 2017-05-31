@@ -7,7 +7,7 @@
   margin-bottom: 15px;
 }
 
-.waiting {
+.spinner {
   width: 40px;
   height: 40px;
   margin: 0 auto;
@@ -15,9 +15,4 @@
 
 .remove {
   margin-left: 4px;
-}
-
-.preloader {
-  display: inline-block;
-  margin: -5px 0 0 10px;
 }

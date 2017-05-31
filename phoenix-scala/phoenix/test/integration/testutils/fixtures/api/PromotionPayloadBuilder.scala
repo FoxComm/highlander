@@ -45,9 +45,9 @@ object PromotionPayloadBuilder {
       def payloadJson: Json = tv(parseJson("""{ "orderAny": {} }"""), "qualifier")
     }
 
-    case class CartTotalAmount(qualifiedSubtotal: Int) extends PromoQualifierBuilder {
+    case class CartTotalAmount(qualifiedSubtotal: Long) extends PromoQualifierBuilder {
       def payloadJson: Json =
-        tv(parseJson(s"""{ "orderTotalAmount": { "totalAmount" : $qualifiedSubtotal } }"""),
+        tv(parseJson(s"""{ "orderTotalAmount": { "totalAmount" : ${qualifiedSubtotal} } }"""),
            "qualifier")
     }
 

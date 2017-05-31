@@ -12,9 +12,9 @@ import Alert from '../alerts/alert';
 import ErrorAlerts from '../alerts/error-alerts';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
-import { PrimaryButton, SocialButton, Button } from 'components/core/button';
+import { PrimaryButton, SocialButton } from 'components/core/button';
 import WrapToLines from './wrap-to-lines';
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
 import TextInput from 'components/core/text-input';
 
 import * as userActions from 'modules/user';
@@ -133,7 +133,7 @@ export default class Login extends Component {
 
   get content() {
     if (!this.props.isMounted) {
-      return <WaitAnimation />;
+      return <Spinner />;
     }
 
     const { org, email, password } = this.state;

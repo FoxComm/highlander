@@ -1,6 +1,5 @@
 
 import React from 'react';
-import ReactTestUtils from 'react-dom/test-utils';
 import * as ShallowTestUtils from 'react-shallow-testutils';
 
 describe('Title', function() {

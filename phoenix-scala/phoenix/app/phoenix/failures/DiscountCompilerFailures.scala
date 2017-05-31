@@ -88,13 +88,13 @@ object DiscountCompilerFailures {
       extends Failure {
     val qName = friendlyClassName(qualifier)
     override def description =
-      s"qualifier $qName rejected order with refNum=${input.cart.refNum}, reason: $reason"
+      s"qualifier $qName rejected order with refNum=${input.cartRefNum}, reason: $reason"
   }
 
   case class OfferRejectionFailure[T <: Offer](offer: T, input: DiscountInput, reason: String)
       extends Failure {
     val oName = friendlyClassName(offer)
     override def description =
-      s"offer $oName rejected order with refNum=${input.cart.refNum}, reason: $reason"
+      s"offer $oName rejected order with refNum=${input.cartRefNum}, reason: $reason"
   }
 }

@@ -195,7 +195,7 @@ export default class CreditCardForm extends React.Component {
                      name="cvv"
                      maxLength={cvvLength(this.cardType)}
                      required
-                     value={this.cardCVV}/>
+                     value={this.cardCVV} />
             </FormField>
           </div>
         </div>

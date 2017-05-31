@@ -14,7 +14,7 @@ import {
   GROUP_TYPE_MANUAL
 } from 'modules/customer-groups/details/group';
 
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 import Error from 'components/errors/error';
 import Template from '../group-template';
 
@@ -72,7 +72,7 @@ class NewGroupWizardPage extends Component {
     }
 
     if (!fetchFinished) {
-      return <div><WaitAnimation /></div>;
+      return <div><Spinner /></div>;
     }
 
     return (

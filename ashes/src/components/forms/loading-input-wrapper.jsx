@@ -8,7 +8,7 @@ import React, { Element } from 'react';
 // styles
 import s from './loading-input-wrapper.css';
 
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
 
 type Props = {
   children?: Element<*>,
@@ -17,7 +17,7 @@ type Props = {
 };
 
 const LoadingInputWrapper = (props: Props) => {
-  const animation = props.inProgress ? <WaitAnimation className={s.loader} size="s" /> : null;
+  const animation = props.inProgress ? <Spinner className={s.spinner} size="s" /> : null;
 
   return (
     <div className={classNames(s.wrapper, props.className)}>
