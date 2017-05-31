@@ -30,7 +30,7 @@ export default (props: Props) => {
       title={`Delete ${_.capitalize(entityForm)}?`}
       confirm="Yes, Delete"
       cancel="No"
-      confirmAction={onConfirm}
+      onConfirm={onConfirm}
       onCancel={onCancel}
       isVisible
     >

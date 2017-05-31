@@ -99,16 +99,16 @@ class SkuContentBox extends Component {
         </ul>
       </div>
     );
+
     return (
       <ConfirmationModal
         key="add-skus"
         isVisible={this.state.addDialogIsShown}
         title="Add SKUs"
         body={body}
-        cancel="Cancel"
         confirm="Add"
         onCancel={() => this.closeAction()}
-        confirmAction={() => this.addNewSkus()}
+        onConfirm={() => this.addNewSkus()}
       />
     );
   }

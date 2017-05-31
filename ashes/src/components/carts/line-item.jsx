@@ -135,10 +135,10 @@ export class CartLineItem extends Component {
             isVisible={isDeleting}
             title="Confirm"
             body="Are you sure you want to delete this item?"
-            cancel="Cancel"
             confirm="Yes, Delete"
-            onCancel={this.cancelDelete}
-            confirmAction={this.confirmDelete} />
+            cancel="Cancel"
+            onConfirm={this.confirmDelete}
+            onCancel={this.cancelDelete} />
         </td>
       </tr>
     );

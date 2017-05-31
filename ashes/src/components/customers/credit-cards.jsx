@@ -51,7 +51,7 @@ export default class CustomerCreditCards extends React.Component {
   }
 
   @autobind
-  onChangeNewFormValue({target}) {
+  onChangeNewFormValue({ target }) {
     this.props.changeNewCustomerCreditCardFormData(target.name, target.value || target.checked);
   }
 
@@ -91,7 +91,7 @@ export default class CustomerCreditCards extends React.Component {
   }
 
   @autobind
-  onEditFormChange({target}) {
+  onEditFormChange({ target }) {
     this.props.changeEditCustomerCreditCardFormData(target.name, target.value || target.checked);
   }
 
@@ -146,8 +146,8 @@ export default class CustomerCreditCards extends React.Component {
   ////
   // Rendering
   render() {
-    const {props} = this;
-    const {cards} = props;
+    const { props } = this;
+    const { cards } = props;
 
     return (
       <ContentBox title="Credit Cards"
@@ -172,8 +172,8 @@ export default class CustomerCreditCards extends React.Component {
           body='Are you sure you want to delete this credit card?'
           cancel='Cancel'
           confirm='Yes, Delete'
-          onCancel={ this.onDeleteCancel }
-          confirmAction={ this.onDeleteConfirm } />
+          onConfirm={ this.onDeleteConfirm }
+          onCancel={ this.onDeleteCancel } />
       </ContentBox>
     );
   }

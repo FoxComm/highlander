@@ -124,7 +124,7 @@ export default class CustomerAccountStatus extends React.Component {
           {...this.disableOptions}
           isVisible={this.props.isDisablingStarted}
 
-          confirmAction={() => {
+          onConfirm={() => {
             const customer = this.props.customer;
             this.props.toggleDisableStatus(customer.id, !customer.disabled);
           }}
@@ -132,7 +132,7 @@ export default class CustomerAccountStatus extends React.Component {
         <ConfirmationModal
           {...this.blacklistedOptions}
           isVisible={this.props.isBlacklistedStarted}
-          confirmAction={() => {
+          onConfirm={() => {
             const customer = this.props.customer;
             this.props.toggleBlacklisted(customer.id, !customer.isBlacklisted);
           }}

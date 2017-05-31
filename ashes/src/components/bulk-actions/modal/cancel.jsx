@@ -56,10 +56,10 @@ export default class CancelModal extends Component {
       <ConfirmationModal
         isVisible
         title={`Cancel ${_.capitalize(entityForm)}?`}
-        confirmAction={() => onConfirm(this.state.reason)}
         confirm="Yes, Cancel"
-        saveDisabled={this.state.reason === null}
+        onConfirm={() => onConfirm(this.state.reason)}
         onCancel={onCancel}
+        saveDisabled={this.state.reason === null}
       >
         {body}
       </ConfirmationModal>

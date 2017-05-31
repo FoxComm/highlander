@@ -172,8 +172,8 @@ export default class Notes extends React.Component {
         <ConfirmationModal
           {...Notes.deleteOptions}
           isVisible={this.props.noteIdToDelete != null}
-          confirmAction={() => this.props.deleteNote(this.props.noteIdToDelete)}
           onCancel={() => this.props.stopDeletingNote(this.props.noteIdToDelete)}
+          onConfirm={() => this.props.deleteNote(this.props.noteIdToDelete)}
         />
       </div>
     );

@@ -50,7 +50,6 @@ export default (props: Props) => {
   const footer = (
     <SaveCancel
       saveText="Confirm changes"
-      cancelText="Cancel"
       onSave={confirmChanges}
       onCancel={onCancel}
     />

@@ -35,8 +35,8 @@ const ArchiveConfirmation = (props: Props) => {
       body={confirmation}
       cancel="Cancel"
       confirm={`Archive ${props.type}`}
+      onConfirm={props.archive}
       onCancel={props.closeConfirmation}
-      confirmAction={props.archive}
       asyncState={props.archiveState}
     />
   );

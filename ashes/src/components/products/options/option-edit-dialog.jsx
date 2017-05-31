@@ -111,10 +111,9 @@ class OptionEditDialog extends Component {
         isVisible
         title={this.title}
         body={this.renderDialogContent()}
-        cancel="Cancel"
         confirm="Save option"
         onCancel={this.props.cancelAction}
-        confirmAction={this.handleConfirm}
+        onConfirm={this.handleConfirm}
       />
     );
   }

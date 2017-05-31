@@ -185,8 +185,8 @@ class StoreCredits extends Component {
         body={this.confirmationMessage}
         cancel="Cancel"
         confirm="Yes, Change State"
+        onConfirm={ () => stateActions.saveStateChange(this.customerId) }
         onCancel={ () => stateActions.cancelChange(this.customerId) }
-        confirmAction={ () => stateActions.saveStateChange(this.customerId) }
       />
     );
   }
@@ -236,8 +236,9 @@ class StoreCredits extends Component {
         body={this.confirmationBody}
         cancel="Cancel"
         confirm="Yes, Cancel"
+        onConfirm={ () => props.stateActions.saveStateChange(this.customerId) }
         onCancel={ () => props.stateActions.cancelChange(this.customerId) }
-        confirmAction={ () => props.stateActions.saveStateChange(this.customerId) } />
+      />
     );
   }
 

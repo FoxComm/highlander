@@ -117,10 +117,9 @@ export default class SkuList extends Component {
         isVisible={this.state.isDeleteConfirmationVisible}
         title="Remove SKU from product?"
         body={confirmation}
-        cancel="Cancel"
         confirm="Yes, Remove"
         onCancel={() => this.closeDeleteConfirmation()}
-        confirmAction={() => this.deleteSku()}
+        onConfirm={() => this.deleteSku()}
       />
     );
   }

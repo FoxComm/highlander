@@ -77,12 +77,11 @@ export default class Image extends Component<void, Props, State> {
       <BodyPortal className={styles.modal}>
         <ConfirmationModal
           isVisible={this.state.deleteMode}
-          title='Delete Image'
+          title="Delete Image"
           body={'Are you sure you want to delete this image?'}
-          cancel='Cancel'
-          confirm='Yes, Delete'
+          confirm="Yes, Delete"
           onCancel={this.handleCancelDeleteImage}
-          confirmAction={this.handleConfirmDeleteImage}
+          onConfirm={this.handleConfirmDeleteImage}
         />
       </BodyPortal>
     );

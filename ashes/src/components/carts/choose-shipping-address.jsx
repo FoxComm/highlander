@@ -173,10 +173,10 @@ export default class ChooseShippingAddress extends Component {
         isVisible={this.state.isDeleteDialogVisible}
         title='Confirm'
         body={text}
-        cancel='Cancel'
         confirm='Yes, Delete'
-        onCancel={this.handleStopDeletingAddress}
-        confirmAction={deleteAction} />
+        cancel='Cancel'
+        onConfirm={deleteAction}
+        onCancel={this.handleStopDeletingAddress} />
     );
   }
 

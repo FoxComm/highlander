@@ -114,7 +114,7 @@ export default class NewTaxonModal extends Component {
         title="New value"
         body={this.body}
         confirm="Save and Add Value"
-        confirmAction={this.handleConfirm}
+        onConfirm={this.handleConfirm}
         {...props}
       />
     );

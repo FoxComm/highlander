@@ -21,7 +21,7 @@ type Props = {
   cancel?: string,
   confirm?: string,
   onCancel: () => any,
-  confirmAction: () => any,
+  onConfirm: () => any,
   saveDisabled?: boolean,
   asyncState?: AsyncState,
   className?: string,
@@ -50,18 +50,18 @@ export default class ConfirmationModal extends Component {
     if (e.keyCode === 13 /*enter*/) {
       e.preventDefault();
 
-      this.props.confirmAction();
+      this.props.onConfirm();
     }
   }
 
   get footer() {
-    const { confirm, cancel, confirmAction, onCancel, saveDisabled, asyncState } = this.props;
+    const { confirm, cancel, onConfirm, onCancel, saveDisabled, asyncState } = this.props;
 
     return (
       <SaveCancel
         saveText={confirm}
         cancelText={cancel}
-        onSave={confirmAction}
+        onSave={onConfirm}
         onCancel={onCancel}
         isLoading={get(asyncState, 'inProgress', false)}
         saveDisabled={saveDisabled}

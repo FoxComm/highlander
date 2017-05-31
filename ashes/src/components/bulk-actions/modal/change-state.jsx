@@ -31,7 +31,7 @@ export default (props: Props) => {
     <ConfirmationModal
       title={`Change ${capitalize(entityForm)} state to ${stateTitle}?`}
       confirm="Yes, Change State"
-      confirmAction={onConfirm}
+      onConfirm={onConfirm}
       onCancel={onCancel}
       isVisible
     >

@@ -37,7 +37,7 @@ const CodeCreationModal = (props: Props): Element<*> => {
       body={body}
       cancel='Cancel'
       confirm='Generate Codes'
-      confirmAction={confirmAction}
+      onConfirm={confirmAction}
       onCancel={cancelAction}
     />
   );
