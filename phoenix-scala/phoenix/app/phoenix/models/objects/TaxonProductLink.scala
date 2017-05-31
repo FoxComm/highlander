@@ -13,7 +13,8 @@ case class ProductTaxonLink(id: Int = 0,
                             leftId: Int,
                             rightId: Int,
                             createdAt: Instant = Instant.now,
-                            updatedAt: Instant = Instant.now)
+                            updatedAt: Instant = Instant.now,
+                            archivedAt: Option[Instant] = None)
     extends FoxModel[ProductTaxonLink]
     with ObjectHeadLink[ProductTaxonLink]
 
@@ -21,7 +22,7 @@ class ProductTaxonLinks(tag: Tag)
     extends ObjectHeadLinks[ProductTaxonLink](tag, "product_taxon_links") {
 
   def * =
-    (id, leftId, rightId, createdAt, updatedAt) <> ((ProductTaxonLink.apply _).tupled, ProductTaxonLink.unapply)
+    (id, leftId, rightId, createdAt, updatedAt, archivedAt) <> ((ProductTaxonLink.apply _).tupled, ProductTaxonLink.unapply)
 
   def left  = foreignKey(Products.tableName, leftId, Products)(_.id)
   def right = foreignKey(Taxons.tableName, rightId, Taxons)(_.id)
