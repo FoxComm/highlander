@@ -43,3 +43,11 @@ func (s SKU) CreateSKU() payloads.CreateSKU {
 		TaxClass:         "default",
 	}
 }
+
+func (s SKU) StockItem(stockLocationID uint) payloads.StockItem {
+	return payloads.StockItem{
+		SKU:             s.Code,
+		StockLocationID: stockLocationID,
+		DefaultUnitCost: 0,
+	}
+}
