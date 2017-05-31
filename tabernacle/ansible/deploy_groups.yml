@@ -13,7 +13,6 @@
     url_prefix_topdrawer: "/top-drawer"
   roles:
     - { role: dev/marathon_groups }
-    - { role: dev/ic }
     - { role: dev/balancer }
     - { role: demo/balancer }
     - { role: dev/seeder, when: first_run }
