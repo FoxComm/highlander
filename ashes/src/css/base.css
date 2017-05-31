@@ -1,5 +1,4 @@
 /* Some components independent styles */
-
 @import 'fontello.css';
 @import 'transitions.css';
 @import 'normalize.css';
@@ -7,7 +6,9 @@
 * {
   outline: 0;
   box-sizing: border-box;
-  &:before, &:after { box-sizing: border-box; }
+  &:before, &:after {
+    box-sizing: border-box;
+  }
 }
 
 html {
@@ -52,6 +53,7 @@ ul {
 
 table {
   width: 100%;
+  text-align: left;
 }
 
 textarea {
