@@ -9,15 +9,15 @@ import React, { Element, Component } from 'react';
 // components
 import Modal from 'components/core/modal';
 import SaveCancel from 'components/core/save-cancel';
-import { ApiErrors } from 'components/utils/errors';
+import ErrorAlerts from 'components/alerts/error-alerts';
 
 // styles
 import s from './confirmation-modal.css';
 
 type Props = {
   isVisible: boolean,
-  title: string | Element<*>,
-  body?: string | Element<*>,
+  title: string | Element<any>,
+  body?: string | Element<any>,
   cancel?: string,
   confirm?: string,
   onCancel: () => any,
@@ -70,7 +70,7 @@ export default class ConfirmationModal extends Component {
   }
 
   render() {
-    const { title, body, isVisible, onCancel, asyncState, className } = this.props;
+    const { title, body, isVisible, onCancel, asyncState, className, children } = this.props;
 
     return (
       <Modal
@@ -80,8 +80,8 @@ export default class ConfirmationModal extends Component {
         isVisible={isVisible}
         onClose={onCancel}
       >
-        <ApiErrors response={get(asyncState, 'err', null)} />
-        {body}
+        <ErrorAlerts error={get(asyncState, 'err', null)} />
+        {body || children}
       </Modal>
     );
   }

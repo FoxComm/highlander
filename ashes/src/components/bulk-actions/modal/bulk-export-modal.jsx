@@ -9,7 +9,7 @@ import React, { Component } from 'react';
 import { numberize } from 'lib/text-utils';
 
 // components
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import TextInput from 'components/forms/text-input';
 
 import s from './modal.css';
@@ -73,7 +73,7 @@ export default class BulkExportModal extends Component {
     const fileName = title.toLowerCase().replace(' ', '_');
 
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         title={modalTitle}
         confirm="Yes, Export"
         confirmAction={this.handleSave}
@@ -92,7 +92,7 @@ export default class BulkExportModal extends Component {
           />
           <span>.csv</span>
         </div>
-      </ConfirmationDialog>
+      </ConfirmationModal>
     );
   }
 }

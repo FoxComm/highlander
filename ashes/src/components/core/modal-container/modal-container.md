@@ -16,11 +16,6 @@ import ModalContainer from 'components/core/modal-container';
 
 #### ModalContainer
 
-```javascript
-
-import ModalContainer from 'components/core/modal-container';
-```
-
 ```
 const { Button } = require('../button/button.jsx');
 

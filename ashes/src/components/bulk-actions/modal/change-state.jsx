@@ -8,7 +8,7 @@ import React, { Element } from 'react';
 import { numberize } from 'lib/text-utils';
 
 // components
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 
 type Props = {
   entity: string,
@@ -28,7 +28,7 @@ export default (props: Props) => {
     : <span>Are you sure you want to change the state to <b>{stateTitle}</b> for <b>{count} {entityForm}</b>?</span>;
 
   return (
-    <ConfirmationDialog
+    <ConfirmationModal
       title={`Change ${capitalize(entityForm)} state to ${stateTitle}?`}
       confirm="Yes, Change State"
       confirmAction={onConfirm}
@@ -36,6 +36,6 @@ export default (props: Props) => {
       isVisible
     >
       {label}
-    </ConfirmationDialog>
+    </ConfirmationModal>
   );
 };

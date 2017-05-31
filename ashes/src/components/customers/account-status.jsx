@@ -4,7 +4,7 @@ import ContentBox from '../content-box/content-box';
 import { SliderCheckbox } from '../checkbox/checkbox';
 import { connect } from 'react-redux';
 import * as CustomersActions from '../../modules/customers/details';
-import ConfirmationDialog from '../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 
 
 @connect((state, props) => ({
@@ -120,7 +120,7 @@ export default class CustomerAccountStatus extends React.Component {
                               id="customerBlacklisted" checked={ customer.isBlacklisted } />
             </div>
         </div>
-        <ConfirmationDialog
+        <ConfirmationModal
           {...this.disableOptions}
           isVisible={this.props.isDisablingStarted}
 
@@ -129,7 +129,7 @@ export default class CustomerAccountStatus extends React.Component {
             this.props.toggleDisableStatus(customer.id, !customer.disabled);
           }}
           onCancel={this.props.stopDisablingCustomer} />
-        <ConfirmationDialog
+        <ConfirmationModal
           {...this.blacklistedOptions}
           isVisible={this.props.isBlacklistedStarted}
           confirmAction={() => {

@@ -15,7 +15,7 @@ import { PanelList, PanelListItem } from '../panel/panel-list';
 import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
 import StateComponent, { states } from '../common/state';
-import ConfirmationDialog from '../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import Spinner from 'components/core/spinner';
 import Error from 'components/errors/error';
 
@@ -261,7 +261,7 @@ export default class Order extends React.Component {
           {this.subNav}
           {this.renderDetails}
         </div>
-        <ConfirmationDialog
+        <ConfirmationModal
           isVisible={this.state.newOrderState != null}
           title="Change Order State ?"
           body={`Are you sure you want to change order state to ${states.order[this.state.newOrderState]} ?`}

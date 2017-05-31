@@ -26,7 +26,7 @@ import BulkActions from 'components/bulk-actions/bulk-actions';
 import BulkMessages from 'components/bulk-actions/bulk-messages';
 import { ChangeStateModal, CancelModal } from 'components/bulk-actions/modal';
 import Dropdown from 'components/dropdown/dropdown';
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import SelectableSearchList from 'components/list-page/selectable-search-list';
 import StoreCreditRow from './storecredit-row';
 
@@ -179,7 +179,7 @@ class StoreCredits extends Component {
     const shouldDisplay = states && states.storeCreditToChange && states.storeCreditToChange.state !== 'canceled';
 
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         isVisible={shouldDisplay}
         title="Change Store Credit State?"
         body={this.confirmationMessage}
@@ -230,7 +230,7 @@ class StoreCredits extends Component {
     const shouldDisplay = _.isEqual(_.get(props, ['states', 'storeCreditToChange', 'state']), 'canceled');
 
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         isVisible={shouldDisplay}
         title="Cancel Store Credit?"
         body={this.confirmationBody}

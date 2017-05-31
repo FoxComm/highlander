@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 
 // components
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import ObjectFormInner from 'components/object-form/object-form-inner';
 import FormField from 'components/forms/formfield';
 import TaxonsDropdown from '../taxons-dropdown';
@@ -109,7 +109,7 @@ export default class NewTaxonModal extends Component {
     const props = omit(this.props, omitProps);
 
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         className={s.modal}
         title="New value"
         body={this.body}

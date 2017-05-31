@@ -78,6 +78,7 @@ module.exports = {
               components: () => ([
                 path.resolve(__dirname, '../src/components/core/modal-container/modal-container.jsx'),
                 path.resolve(__dirname, '../src/components/core/modal/modal.jsx'),
+                path.resolve(__dirname, '../src/components/core/confirmation-modal/confirmation-modal.jsx'),
               ]),
             },
             {

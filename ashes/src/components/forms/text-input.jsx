@@ -39,7 +39,8 @@ export default class TextInput extends Component {
   }
 
   @autobind
-  handleChange(value: string) {
+  handleChange(event: SyntheticInputEvent) {
+    const { value, name } = event.target;
     if (this.props.onChange) {
       this.props.onChange(value);
     } else {

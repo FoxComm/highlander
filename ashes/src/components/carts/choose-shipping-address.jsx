@@ -9,7 +9,7 @@ import * as CartActions from 'modules/carts/details';
 
 import AddressBox from 'components/addresses/address-box';
 import AddressFormModal from 'components/addresses/address-form/modal';
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import TileSelector from 'components/tile-selector/tile-selector';
 
 function mapStateToProps(state, props) {
@@ -169,7 +169,7 @@ export default class ChooseShippingAddress extends Component {
       : () => this.props.actions.deleteAddress(this.state.address.id);
 
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         isVisible={this.state.isDeleteDialogVisible}
         title='Confirm'
         body={text}

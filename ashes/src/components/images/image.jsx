@@ -10,7 +10,7 @@ import moment from 'moment';
 
 // components
 import BodyPortal from '../body-portal/body-portal';
-import ConfirmationDialog from '../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import ImageCard from '../image-card/image-card';
 import EditImage from './edit-image';
 
@@ -73,14 +73,10 @@ export default class Image extends Component<void, Props, State> {
   }
 
   get deleteImageDialog(): ?Element<*> {
-    if (!this.state.deleteMode) {
-      return;
-    }
-
     return (
       <BodyPortal className={styles.modal}>
-        <ConfirmationDialog
-          isVisible
+        <ConfirmationModal
+          isVisible={this.state.deleteMode}
           title='Delete Image'
           body={'Are you sure you want to delete this image?'}
           cancel='Cancel'

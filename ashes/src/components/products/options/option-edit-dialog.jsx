@@ -8,7 +8,7 @@ import { assoc } from 'sprout-data';
 import _ from 'lodash';
 
 // components
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import { FormField, Form } from 'components/forms';
 
 // styles
@@ -107,7 +107,7 @@ class OptionEditDialog extends Component {
 
   render() {
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         isVisible
         title={this.title}
         body={this.renderDialogContent()}

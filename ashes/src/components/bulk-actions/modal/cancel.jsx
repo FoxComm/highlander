@@ -7,7 +7,7 @@ import { ReasonType } from '../../../lib/reason-utils';
 import { numberize } from '../../../lib/text-utils';
 
 // components
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import { CancelReason } from '../../fields';
 
 // styles
@@ -53,7 +53,7 @@ export default class CancelModal extends Component {
     ];
 
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         isVisible
         title={`Cancel ${_.capitalize(entityForm)}?`}
         confirmAction={() => onConfirm(this.state.reason)}
@@ -62,7 +62,7 @@ export default class CancelModal extends Component {
         onCancel={onCancel}
       >
         {body}
-      </ConfirmationDialog>
+      </ConfirmationModal>
     );
   }
 }

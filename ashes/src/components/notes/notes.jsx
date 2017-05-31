@@ -10,7 +10,7 @@ import { createSelector } from 'reselect';
 import { bindActionCreators } from 'redux';
 
 // components
-import ConfirmationDialog from '../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import { PrimaryButton } from 'components/core/button';
 import SectionTitle from '../section-title/section-title';
 import TableView from '../table/tableview';
@@ -169,7 +169,7 @@ export default class Notes extends React.Component {
             processRows={this.injectAddingForm}
           />
         </LiveSearchAdapter>
-        <ConfirmationDialog
+        <ConfirmationModal
           {...Notes.deleteOptions}
           isVisible={this.props.noteIdToDelete != null}
           confirmAction={() => this.props.deleteNote(this.props.noteIdToDelete)}

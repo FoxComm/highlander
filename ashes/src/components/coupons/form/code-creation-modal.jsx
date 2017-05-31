@@ -5,7 +5,7 @@
 import React, { Element } from 'react';
 
 // components
-import ConfirmationDialog from '../../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 
 type Props = {
   isVisible: bool,
@@ -31,7 +31,7 @@ const CodeCreationModal = (props: Props): Element<*> => {
   );
 
   return (
-    <ConfirmationDialog
+    <ConfirmationModal
       isVisible={isVisible}
       title='Generate Codes?'
       body={body}

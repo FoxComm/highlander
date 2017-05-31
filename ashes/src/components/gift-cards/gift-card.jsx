@@ -17,7 +17,7 @@ import Panel from '../panel/panel';
 import { PanelList, PanelListItem } from '../panel/panel-list';
 import { Dropdown } from '../dropdown';
 import PageNav from 'components/core/page-nav';
-import ConfirmationDialog from '../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import State, { formattedStatus } from '../common/state';
 
 // data
@@ -150,7 +150,7 @@ export default class GiftCard extends React.Component {
       </span>
     );
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         isVisible={shouldDisplay}
         title="Change Gift Card State?"
         body={message}
@@ -196,7 +196,7 @@ export default class GiftCard extends React.Component {
     );
 
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         isVisible={shouldDisplay}
         title="Cancel Gift Card?"
         body={body}

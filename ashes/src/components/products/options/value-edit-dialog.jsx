@@ -8,7 +8,7 @@ import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
 
 // components
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import { FormField, Form } from 'components/forms';
 import SwatchInput from 'components/core/swatch-input';
 
@@ -105,7 +105,7 @@ class ValueEditDialog extends Component {
 
   render() {
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         isVisible
         title={this.title}
         body={this.renderDialogContent()}

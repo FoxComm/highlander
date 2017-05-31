@@ -11,7 +11,7 @@ import styles from './sku-list.css';
 // components
 import EditableSkuRow from './editable-sku-row';
 import MultiSelectTable from 'components/table/multi-select-table';
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 
 import { mapSkusToVariants } from 'paragons/variants';
 
@@ -113,7 +113,7 @@ export default class SkuList extends Component {
       </span>
     );
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         isVisible={this.state.isDeleteConfirmationVisible}
         title="Remove SKU from product?"
         body={confirmation}

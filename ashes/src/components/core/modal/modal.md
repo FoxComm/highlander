@@ -15,11 +15,6 @@ import Modal from 'components/core/modal';
 
 ### Examples
 
-```javascript
-
-import Modal from 'components/core/modal';
-```
-
 ```
 const { Button } = require('../button/button.jsx');
 

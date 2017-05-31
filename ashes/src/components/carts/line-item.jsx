@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 
 // components
 import { Link } from 'components/link';
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import Counter from 'components/forms/counter';
 import { DeleteButton } from 'components/core/button';
 import Currency from 'components/common/currency';
@@ -131,7 +131,7 @@ export class CartLineItem extends Component {
         <td><Currency className="item-total-price" value={item.totalPrice} /></td>
         <td>
           <DeleteButton onClick={this.startDelete} />
-          <ConfirmationDialog
+          <ConfirmationModal
             isVisible={isDeleting}
             title="Confirm"
             body="Are you sure you want to delete this item?"

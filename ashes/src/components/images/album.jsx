@@ -5,7 +5,7 @@ import { autobind, debounce } from 'core-decorators';
 import React, { Component, Element } from 'react';
 
 // components
-import ConfirmationDialog from '../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import Alert from 'components/core/alert';
 import AlbumWrapper from './album-wrapper/album-wrapper';
 import EditAlbumModal from './edit-album';
@@ -164,7 +164,7 @@ export default class Album extends Component {
     );
 
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         className={s.modal}
         isVisible={this.state.archiveMode}
         title='Archive Album'

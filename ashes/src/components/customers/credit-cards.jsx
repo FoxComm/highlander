@@ -9,7 +9,7 @@ import * as CustomerCreditCardActions from '../../modules/customers/credit-cards
 import ContentBox from '../content-box/content-box';
 import EmptyText from '../content-box/empty-text';
 import CreditCardBox from '../credit-cards/card-box';
-import ConfirmationDialog from '../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import CustomerCreditCardForm from './credit-card-form';
 import { AddButton } from 'components/core/button';
 
@@ -166,7 +166,7 @@ export default class CustomerCreditCards extends React.Component {
               onChange={ this.onChangeNewFormValue }
               isNew={ true } /> : null}
         </ul>
-        <ConfirmationDialog
+        <ConfirmationModal
           isVisible={ this.showConfirm }
           title='Confirm'
           body='Are you sure you want to delete this credit card?'

@@ -4,7 +4,7 @@
 import React from 'react';
 
 // components
-import ConfirmationDialog from '../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import Alert from 'components/core/alert';
 
 type Props = {
@@ -29,7 +29,7 @@ const ArchiveConfirmation = (props: Props) => {
   );
 
   return (
-    <ConfirmationDialog
+    <ConfirmationModal
       isVisible={props.isVisible}
       title={`Archive ${props.type} ?`}
       body={confirmation}
