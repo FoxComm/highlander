@@ -99,7 +99,7 @@ class OrderDetails extends Component {
 
   get creditCard() {
     const { order } = this.props;
-    const paymentMethod = _.filter(order.paymentMethods, { type: 'creditCard' })[0];
+    const paymentMethod = _.find(order.paymentMethods, { type: 'creditCard' });
 
     if (_.isEmpty(paymentMethod)) return null;
 
@@ -112,7 +112,7 @@ class OrderDetails extends Component {
 
   get applePay() {
     const { order } = this.props;
-    const paymentMethod = _.filter(order.paymentMethods, { type: 'applePay' })[0];
+    const paymentMethod = _.find(order.paymentMethods, { type: 'applePay' });
 
     if (_.isEmpty(paymentMethod)) return null;
 
