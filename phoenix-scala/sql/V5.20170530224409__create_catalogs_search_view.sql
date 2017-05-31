@@ -6,6 +6,6 @@ create table catalogs_search_view (
   country_id integer not null,
   country_name generic_string not null,
   default_language generic_string not null,
-  created_at generic_string,
-  updated_at generic_string
+  created_at json_timestamp,
+  updated_at json_timestamp
 );

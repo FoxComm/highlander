@@ -17,8 +17,8 @@ begin
         country.id as country_id,
         country.name as country_name,
         catalog.default_language as default_language,
-        to_char(catalog.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
-        to_char(catalog.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as updated_at
+        to_json_timestamp(catalog.created_at) as created_at,
+        to_json_timestamp(catalog.updated_at) as updated_at
       from catalogs as catalog
         inner join countries as country on (country.id = catalog.country_id)
       where new.id = catalog.id;

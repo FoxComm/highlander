@@ -32,9 +32,9 @@ object Catalog {
 
   def build(existing: Catalog, payload: UpdateCatalogPayload): Catalog = {
     val site = payload.site match {
-      case Some(site) if site != "" ⇒ payload.site
-      case Some(site) if site == "" ⇒ None
-      case None                     ⇒ existing.site
+      case Some(site) if site.trim.nonEmpty ⇒ payload.site
+      case Some(site) if site.trim.isEmpty  ⇒ None
+      case None                             ⇒ existing.site
     }
 
     existing.copy(name = payload.name.getOrElse(existing.name),
