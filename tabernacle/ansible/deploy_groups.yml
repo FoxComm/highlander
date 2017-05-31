@@ -26,12 +26,6 @@
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     api_server: groups.foxcommerce.com
     storefront_server_name: groups.foxcommerce.com
-    seeds_cmd: "{{ seeds_class }} seed --seedAdmins --seedShippingRules"
-    data_import_max_count: 1000
-    with_storefront_td: true
-    with_storefront_tpg: true
-    url_prefix_perfectgourmet: "/perfect-gourmet"
-    url_prefix_topdrawer: "/top-drawer"
   roles:
     - { role: dev/marathon_groups }
     - { role: dev/balancer }

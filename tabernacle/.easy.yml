@@ -154,6 +154,11 @@ shortcuts:
     alias: seed_data_import.yml
     target: ansible/seed_data_import.yml
 
+  # Stage
+  - name: Deploy Marathon Groups
+    alias: deploy_groups.yml
+    target: ansible/deploy_groups.yml
+
 # Packer shortcuts
 - type: snowflake
   process: packer build
