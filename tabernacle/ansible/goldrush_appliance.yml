@@ -21,6 +21,8 @@
     url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    with_storefront_td: true
+    with_storefront_tpg: true
   pre_tasks:
     - name: Override hostnames
       set_fact:

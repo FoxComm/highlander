@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Packer Tinystack Frontend
+- name: Packing Tinystack Frontend
   hosts: all
   become: true
   vars:
@@ -9,4 +9,15 @@
   roles:
     - { role: base/mesos_worker }
     - { role: base/rsyslog }
-    - { role: base/balancer }
+    - { role: base/nginx }
+    - { role: base/consul_template }
+  post_tasks:
+    - name: Enable Services
+      service: name={{item}} enabled=yes
+      with_items:
+        - consul_agent
+        - consul_template
+        - mesos_worker
+
+    - name: Reload Systemd Daemon
+      command: systemctl daemon-reload

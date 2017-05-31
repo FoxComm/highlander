@@ -3,6 +3,7 @@ package testutils.fixtures.api
 import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 
+import cats.implicits._
 import cats.data.NonEmptyList
 import faker.Lorem
 import org.json4s.JsonAST.JNull
@@ -24,8 +25,9 @@ import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
-
 import scala.util.Random
+
+import phoenix.payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
 
 trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with JwtTestAuth {
   self: FoxSuite ⇒
@@ -49,6 +51,10 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
     }
   }
 
+  def eternalActivity(): Map[String, Json] =
+    Map("activeFrom" → (("t" → "datetime") ~ ("v" → Instant.ofEpochMilli(1).toString)),
+        "activeTo"   → (("t" → "datetime") ~ ("v" → JNull)))
+
   trait Catalog_ApiFixture {
     private val createPayload = CreateCatalogPayload(name = "default",
                                                      site = Some("stage.foxcommerce.com"),
@@ -58,32 +64,64 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
     val catalog: CatalogResponse.Root =
       catalogsApi.create(createPayload)(defaultAdminAuth).as[CatalogResponse.Root]
   }
-
+  
   trait ProductSku_ApiFixture {
     val productCode: String = s"testprod_${Lorem.numerify("####")}"
     val skuCode: String     = s"$productCode-sku_${Lorem.letterify("????").toUpperCase}"
     def skuPrice: Long = Random.nextInt(20000).toLong + 100
 
-    private val aeternalActivity = Map(
-        "activeFrom" → (("t" → "datetime") ~ ("v" → Instant.ofEpochMilli(1).toString)),
-        "activeTo"   → (("t" → "datetime") ~ ("v" → JNull)))
-
     private val skuPayload = SkuPayload(
         attributes = Map("code"        → tv(skuCode),
                          "title"       → tv(skuCode.capitalize),
                          "salePrice"   → usdPrice(skuPrice),
-                         "retailPrice" → usdPrice(skuPrice)) ++ aeternalActivity)
+                         "retailPrice" → usdPrice(skuPrice)) ++ eternalActivity())
 
     val productPayload =
       CreateProductPayload(attributes =
                              Map("name"  → tv(productCode.capitalize),
-                                 "title" → tv(productCode.capitalize)) ++ aeternalActivity,
+                                 "title" → tv(productCode.capitalize)) ++ eternalActivity(),
                            skus = Seq(skuPayload),
                            variants = None)
 
     val product: ProductRoot =
       productsApi.create(productPayload)(implicitly, defaultAdminAuth).as[ProductRoot]
     val sku: SkuResponse.Root = product.skus.onlyElement
+  }
+
+  trait ProductVariants_ApiFixture {
+    val productCode: String = s"testprod_${Lorem.numerify("####")}"
+    val skuCodes: Seq[String] =
+      (1 to 2).map(_ ⇒ s"$productCode-sku_${Lorem.letterify("????").toUpperCase}")
+    def skuPrice: Long = Random.nextInt(20000).toLong + 100
+
+    private val skuPayloads = skuCodes.map { skuCode ⇒
+      SkuPayload(
+          attributes = Map("code"        → tv(skuCode),
+                           "title"       → tv(skuCode.capitalize),
+                           "salePrice"   → usdPrice(skuPrice),
+                           "retailPrice" → usdPrice(skuPrice)) ++ eternalActivity())
+    }
+    private val variantValues = skuCodes.map { skuCode ⇒
+      VariantValuePayload(name = s"""productCode-variantValue${Lorem.letterify("???")}""".some,
+                          skuCodes = Seq(skuCode),
+                          swatch = None,
+                          image = None)
+    }
+
+    private val variant = VariantPayload(values = Some(variantValues),
+                                         attributes =
+                                           Map("name" → (("t" → "string") ~ ("v" → "Color"))))
+
+    val productPayload =
+      CreateProductPayload(attributes =
+                             Map("name"  → tv(productCode.capitalize),
+                                 "title" → tv(productCode.capitalize)) ++ eternalActivity(),
+                           skus = skuPayloads,
+                           slug = "simple-product",
+                           variants = Some(Seq(variant)))
+
+    val product: ProductRoot =
+      productsApi.create(productPayload)(implicitly, defaultAdminAuth).as[ProductRoot]
   }
 
   trait Coupon_AnyQualifier_PercentOff extends CouponFixtureBase {

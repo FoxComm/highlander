@@ -3,8 +3,6 @@
 - name: Install Bottledwater Packages
   apt: name={{item}} state=latest force=yes
   with_items:
-    - make
-    - jq
     - debconf-utils
     - cmake
     - build-essential
