@@ -147,7 +147,7 @@ export default class Order extends React.Component {
   }
 
   get subNav(): Element<*> {
-    return <SubNav order={this.order} className={s.nav} isAmazon={this.props.route.amazon} />;
+    return <SubNav order={this.order} isAmazon={this.props.route.amazon} />;
   }
 
   @autobind
