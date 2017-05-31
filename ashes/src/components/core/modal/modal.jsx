@@ -15,7 +15,7 @@ type Props = {
   isVisible: boolean,
   onClose: () => any,
   title: string | Element<any>,
-  footer: Element<any>,
+  footer?: Element<any>,
   children?: Element<any>,
   className?: string,
 };
@@ -33,8 +33,6 @@ export default ({ isVisible, title, footer, children, className, onClose = noop 
     <div className={s.body}>
       {children}
     </div>
-    <footer className={s.footer}>
-      {footer}
-    </footer>
+    {footer && <footer className={s.footer}>{footer}</footer>}
   </ModalContainer>
 );

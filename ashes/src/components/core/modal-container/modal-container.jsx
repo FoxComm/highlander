@@ -64,11 +64,11 @@ export class ModalContainer extends Component {
       return null;
     }
 
-    const { children, isVisible, onClose, className } = this.props;
+    const { children, onClose, className } = this.props;
 
     return (
       <div className={s.container}>
-        <Overlay shown={isVisible} onClick={onClose} />
+        <Overlay shown onClick={onClose} />
         <div className={classNames(s.modal, className)} onKeyDown={this.handleKeyPress}>
           {children}
         </div>

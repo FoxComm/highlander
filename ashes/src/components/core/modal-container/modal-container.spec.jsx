@@ -2,18 +2,18 @@ import noop from 'lodash/noop';
 import React from 'react';
 import sinon from 'sinon';
 import simulant from 'simulant';
-import { shallow, mount } from 'enzyme';
+import { mount } from 'enzyme';
 
 import { ModalContainer } from './modal-container';
 
 describe('ModalContainer', function () {
 
   it('should render empty ModalContainer', function () {
-    const modal = shallow(
+    const modal = mount(
       <ModalContainer isVisible={false} onClose={noop}>Modal Content</ModalContainer>
     );
 
-    expect(modal).to.be.blank();
+    expect(modal).to.be.empty;
   });
 
   it('should render modal with overlay and content', function () {
@@ -21,11 +21,11 @@ describe('ModalContainer', function () {
       <ModalContainer isVisible={false} onClose={noop}>Modal Content</ModalContainer>
     );
 
-    expect(modal).to.be.blank();
+    expect(modal).to.be.empty;
 
     modal.setProps({ isVisible: true });
 
-    expect(modal).not.to.be.blank();
+    expect(modal).not.to.be.empty;
     expect(modal.find('.overlay')).to.exist;
     expect(modal.find('.container')).to.exist;
     expect(modal.find('.modal')).to.exist;
@@ -35,7 +35,7 @@ describe('ModalContainer', function () {
   it('should handle close on overlay', function () {
     const onClose = sinon.spy();
     const modal = mount(
-      <ModalContainer isVisible={true} onClose={onClose}>Modal Content</ModalContainer>
+      <ModalContainer isVisible onClose={onClose}>Modal Content</ModalContainer>
     );
 
     modal.find('.overlay').simulate('click');
@@ -60,7 +60,7 @@ describe('ModalContainer', function () {
   it('should handle escape click when shown', function () {
     const onClose = sinon.spy();
     mount(
-      <ModalContainer isVisible={true} onClose={onClose}>Modal Content</ModalContainer>
+      <ModalContainer isVisible onClose={onClose}>Modal Content</ModalContainer>
       , { attachTo: createContainer() }
     );
 
