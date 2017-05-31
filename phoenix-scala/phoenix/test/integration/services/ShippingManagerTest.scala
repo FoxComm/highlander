@@ -1,7 +1,7 @@
 package services
 
 import cats.implicits._
-import models.objects.ObjectContexts
+import objectframework.models.ObjectContexts
 import phoenix.models.account._
 import phoenix.models.cord.lineitems._
 import phoenix.models.cord.{Carts, OrderShippingAddresses}
@@ -15,9 +15,9 @@ import phoenix.services.carts.CartTotaler
 import phoenix.utils.seeds.{Factories, ShipmentSeeds}
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.db.ExPostgresDriver.api._
-import utils.db.ExPostgresDriver.jsonMethods._
-import utils.db._
+import core.db.ExPostgresDriver.api._
+import core.db.ExPostgresDriver.jsonMethods._
+import core.db._
 
 class ShippingManagerTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 

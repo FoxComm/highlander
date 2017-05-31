@@ -1,14 +1,14 @@
 package phoenix.utils.apis
 
 import cats.implicits._
-import com.stripe.model.DeletedCard
+import core.db._
+import core.utils.Money._
+import com.stripe.model.{DeletedCard, Token}
 import phoenix.failures.CustomerFailures.CustomerMustHaveCredentials
 import phoenix.models.location.Address
 import phoenix.models.payment.creditcard.CreditCard
 import phoenix.payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
 import phoenix.utils.aliases.stripe._
-import utils.Money._
-import utils.db._
 
 import scala.collection.JavaConversions._
 
@@ -80,25 +80,29 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
     stripeCustomerId.fold(newCustomer)(existingCustomer)
   }
 
-  def authorizeAmount(customerId: String,
-                      creditCardId: String,
-                      amount: Int,
-                      currency: Currency): Result[StripeCharge] = {
-    val chargeMap: Map[String, Object] = Map(
+  def authorizeAmount(paymentSourceId: String,
+                      amount: Long,
+                      currency: Currency,
+                      customerId: Option[String]): Result[StripeCharge] = {
+    import scala.collection.mutable
+
+    val chargeMap: mutable.Map[String, AnyRef] = mutable.Map(
         "amount"   → amount.toString,
         "currency" → currency.toString,
-        "customer" → customerId,
-        "source"   → creditCardId,
+        "source"   → paymentSourceId,
         "capture"  → (false: java.lang.Boolean)
     )
 
-    stripe.createCharge(chargeMap)
+    // we must pass customer.id for cc and must not for Apple Pay
+    customerId map (cid ⇒ chargeMap += ("customer" → cid))
+
+    stripe.createCharge(chargeMap.toMap)
   }
 
-  def captureCharge(chargeId: String, amount: Int): Result[StripeCharge] =
+  def captureCharge(chargeId: String, amount: Long): Result[StripeCharge] =
     stripe.captureCharge(chargeId, Map[String, Object]("amount" → amount.toString))
 
-  def authorizeRefund(chargeId: String, amount: Int, reason: RefundReason): Result[StripeCharge] =
+  def authorizeRefund(chargeId: String, amount: Long, reason: RefundReason): Result[StripeCharge] =
     stripe.refundCharge(
         chargeId,
         Map[String, Object]("amount" → amount.toString, "reason" → reason.apiValue))
@@ -136,4 +140,7 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
       updated    ← stripe.deleteCard(stripeCard)
     } yield updated
   }
+
+  def retrieveToken(t: String): Result[StripeToken] =
+    stripe.retrieveToken(t)
 }

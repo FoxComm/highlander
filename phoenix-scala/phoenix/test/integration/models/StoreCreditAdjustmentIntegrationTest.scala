@@ -9,7 +9,7 @@ import phoenix.models.payment.storecredit._
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class StoreCreditAdjustmentIntegrationTest
     extends IntegrationTestBase
@@ -95,7 +95,7 @@ class StoreCreditAdjustmentIntegrationTest
                        .copy(cordRef = cart.refNum, paymentMethodId = sc.id, amount = Some(500)))
       } yield (sc, payment)).gimme
 
-      val debits = List(50, 25, 15, 10)
+      val debits = List[Long](50, 25, 15, 10)
       val auths = DbResultT
         .seqCollectFailures(debits.map { amount ⇒
           StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = amount)

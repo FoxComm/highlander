@@ -1,10 +1,6 @@
 .column-selector {
   position: relative;
   margin-right: 10px;
-
-  & :global(.icon-settings-col) {
-    font-size: 17px;
-  }
 }
 
 .control {
@@ -88,5 +84,14 @@
   & :global(.fc-checkbox),
   & :global(.icon-drag-drop) {
     opacity: 0;
+  }
+}
+
+/* @todo do not use button in generic dropdown */
+.button {
+  padding: 10px !important;
+
+  & > i {
+    font-size: 17px !important;
   }
 }

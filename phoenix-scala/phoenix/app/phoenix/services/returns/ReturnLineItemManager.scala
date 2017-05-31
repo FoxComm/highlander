@@ -1,23 +1,23 @@
 package phoenix.services.returns
 
 import cats.implicits._
+import core.db._
+import objectframework.FormShadowGet
+import objectframework.models._
 import phoenix.failures.ReturnFailures._
 import phoenix.models.cord.Orders
 import phoenix.models.cord.lineitems.OrderLineItems
 import phoenix.models.cord.lineitems.OrderLineItems.scope._
-import models.objects._
-import phoenix.models.product.Mvp
 import phoenix.models.returns.ReturnLineItem.OriginType
 import phoenix.models.returns._
 import phoenix.models.shipping.ShippingMethods
 import phoenix.payloads.ReturnPayloads._
 import phoenix.responses.ReturnResponse
 import phoenix.responses.cord.base.CordResponseLineItems
-import phoenix.services.{LineItemManager, LogActivity}
 import phoenix.services.inventory.SkuManager
-import slick.jdbc.PostgresProfile.api._
+import phoenix.services.{LineItemManager, LogActivity}
 import phoenix.utils.aliases._
-import utils.db._
+import slick.jdbc.PostgresProfile.api._
 
 object ReturnLineItemManager {
 
@@ -68,8 +68,8 @@ object ReturnLineItemManager {
     }
   }
 
-  private def validateMaxShippingCost(rma: Return, amount: Int)(implicit ec: EC,
-                                                                db: DB): DbResultT[Unit] =
+  private def validateMaxShippingCost(rma: Return, amount: Long)(implicit ec: EC,
+                                                                 db: DB): DbResultT[Unit] =
     for {
       order ← * <~ Orders.mustFindByRefNum(rma.orderRef)
       orderShippingTotal = order.shippingTotal
@@ -79,7 +79,7 @@ object ReturnLineItemManager {
                                 .on(_.id === _.returnId)
                                 .map { case (_, shippingCost) ⇒ shippingCost.amount }
                                 .sum
-                                .getOrElse(0)
+                                .getOrElse(0L)
                                 .result
       maxAmount = orderShippingTotal - previouslyReturnedCost
       _ ← * <~ failIf(amount > maxAmount,
@@ -204,8 +204,8 @@ object ReturnLineItemManager {
       skus.flatMap {
         case (image, (id, reason, quantity, sku, form, shadow)) ⇒
           for {
-            (price, currency) ← Mvp.price(form, shadow)
-            title             ← Mvp.title(form, shadow)
+            (price, currency) ← FormShadowGet.price(form, shadow)
+            title             ← FormShadowGet.title(form, shadow)
           } yield
             ReturnResponse.LineItem.Sku(
                 id = id,

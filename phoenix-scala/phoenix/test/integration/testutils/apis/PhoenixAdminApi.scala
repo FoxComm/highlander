@@ -2,7 +2,7 @@ package testutils.apis
 
 import akka.http.scaladsl.model.HttpResponse
 import cats.implicits._
-import models.objects.ObjectForm
+import objectframework.models.ObjectForm
 import phoenix.models.payment.PaymentMethod
 import phoenix.payloads.ActivityTrailPayloads._
 import phoenix.payloads.AddressPayloads._
@@ -153,15 +153,6 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       def syncGroups(payload: AddCustomerToGroups)(implicit aa: TestAdminAuth): HttpResponse =
         POST(customerGroupsPath, payload, aa.jwtCookie.some)
     }
-  }
-
-  // todo delete me? not used anywhere @aafa
-  object activityTrailsApi {
-    val activityTrailPrefix = s"$rootPrefix/trails"
-
-    def appendActivity(dimension: String, objectId: Int, payload: AppendActivity)(
-        implicit aa: TestAdminAuth): HttpResponse =
-      POST(s"$activityTrailPrefix/$dimension/$objectId", payload, aa.jwtCookie.some)
   }
 
   object giftCardsApi {
@@ -387,6 +378,13 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     object payments {
       val paymentPrefix = s"$cartPath/payment-methods"
+
+      object applePay {
+        val applePayPrefix = s"$paymentPrefix/apple-pay"
+
+        def add(payload: CreateApplePayPayment)(implicit aa: TestAdminAuth): HttpResponse =
+          POST(applePayPrefix, payload, aa.jwtCookie.some)
+      }
 
       object creditCard {
         val creditCardPrefix = s"$paymentPrefix/credit-cards"
@@ -877,5 +875,12 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def updateLastSeen(activityId: Int)(implicit aa: TestAdminAuth): HttpResponse =
       POST(s"$notificationsPrefix/last-seen/$activityId", aa.jwtCookie.some)
+  }
+
+  object captureApi {
+    val productPath = s"$rootPrefix/service/capture"
+
+    def capture(payload: CapturePayloads.Capture)(implicit ca: TestAdminAuth): HttpResponse =
+      POST(productPath, payload, ca.jwtCookie.some)
   }
 }

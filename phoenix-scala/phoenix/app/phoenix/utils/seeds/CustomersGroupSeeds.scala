@@ -1,12 +1,12 @@
 package phoenix.utils.seeds
 
 import com.github.tminglei.slickpg.LTree
+import core.db._
 import org.json4s.JObject
 import phoenix.models.account.Scopes
 import phoenix.models.customer.CustomerGroup.Dynamic
 import phoenix.models.customer._
 import phoenix.utils.aliases._
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

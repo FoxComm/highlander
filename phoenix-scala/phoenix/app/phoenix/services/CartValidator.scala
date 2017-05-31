@@ -1,17 +1,19 @@
 package phoenix.services
 
 import cats.implicits._
-import failures.{Failure, Failures}
+import core.db._
+import core.failures.{Failure, Failures}
+import objectframework.services.ObjectManager
 import phoenix.failures.CartFailures._
 import phoenix.models.cord._
+import phoenix.models.payment.applepay.ApplePayCharges
 import phoenix.models.cord.lineitems.CartLineItems
 import phoenix.models.inventory.{IlluminatedSku, Skus}
 import phoenix.models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import phoenix.models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
 import phoenix.utils.aliases._
-import services.objects.ObjectManager
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.utils.Money._
 
 trait CartValidation {
   def validate(isCheckout: Boolean = false,
@@ -112,7 +114,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB, ctx: OC) extends C
   private def sufficientPayments(response: CartValidatorResponse,
                                  isCheckout: Boolean): DBIO[CartValidatorResponse] = {
 
-    def cartFunds(payments: Seq[OrderPayment]): DBIO[Option[Int]] = {
+    def cartFunds(payments: Seq[OrderPayment]): DBIO[Option[Long]] = {
       if (isCheckout) {
         val paymentIds = payments.map(_.id)
 
@@ -146,10 +148,11 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB, ctx: OC) extends C
       }
     }
 
-    def availableFunds(grandTotal: Int, payments: Seq[OrderPayment]): DBIO[CartValidatorResponse] = {
-      // we'll find out if the CC doesn't auth at checkout but we presume sufficient funds if we have a
-      // credit card regardless of GC/SC funds availability
-      if (payments.exists(_.isCreditCard)) {
+    def availableFunds(grandTotal: Long,
+                       payments: Seq[OrderPayment]): DBIO[CartValidatorResponse] = {
+      // we'll find out if the `ExternalFunds` doesn't auth at checkout but we presume sufficient funds if we have a
+      // `ExternalFunds` regardless of GC/SC funds availability
+      if (payments.exists(_.isExternalFunds)) {
         lift(response)
       } else if (payments.nonEmpty) {
         cartFunds(payments).map {

@@ -1,0 +1,19 @@
+.table {
+  position: relative;
+  z-index: 0;
+}
+
+.dropdown {
+  position: absolute;
+  z-index: 1;
+}
+
+.action {
+  color: #989898;
+}
+
+.term {
+  color: #484848;
+  font-size: 14px;
+  font-weight: 600;
+}

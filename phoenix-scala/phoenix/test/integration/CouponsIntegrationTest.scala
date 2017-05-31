@@ -3,9 +3,9 @@ import java.time.Instant.now
 import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
-import failures.NotFoundFailure404
-import failures.ObjectFailures.ObjectContextNotFound
-import models.objects.ObjectContext
+import core.failures.NotFoundFailure404
+import objectframework.ObjectFailures.ObjectContextNotFound
+import objectframework.models.ObjectContext
 import org.json4s.JsonAST._
 import phoenix.failures.CartFailures.OrderAlreadyPlaced
 import phoenix.failures.CouponFailures.CouponIsNotActive
@@ -21,7 +21,8 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
-import utils.db._
+import core.utils.Money._
+import core.db._
 
 class CouponsIntegrationTest
     extends IntegrationTestBase
@@ -104,7 +105,7 @@ class CouponsIntegrationTest
 
         "for cart total qualifier" in new Coupon_TotalQualifier_PercentOff
         with RegularAndGiftCardLineItemFixture {
-          override def qualifiedSubtotal: Int = 2000
+          override def qualifiedSubtotal: Long = 2000
 
           cartsApi(cartRef).coupon
             .add(couponCode)
@@ -154,7 +155,7 @@ class CouponsIntegrationTest
 
         "for `cart total` qualifier" in new Coupon_TotalQualifier_PercentOff
         with RegularAndGiftCardLineItemFixture {
-          override def qualifiedSubtotal: Int = 4000
+          override def qualifiedSubtotal: Long = 4000
 
           val message = "qualifier orderTotalAmountQualifier rejected order with refNum=BR10001, " +
               "reason: Order subtotal is less than 4000"
@@ -178,8 +179,8 @@ class CouponsIntegrationTest
       with Coupon_TotalQualifier_PercentOff
       with ProductSku_ApiFixture {
 
-    override def skuPrice: Int          = 3100
-    override def qualifiedSubtotal: Int = 3000
+    override def skuPrice: Long          = 3100
+    override def qualifiedSubtotal: Long = 3000
 
     val cartRef: String = {
       val cartRef = cartsApi

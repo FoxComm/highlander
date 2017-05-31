@@ -16,7 +16,7 @@ import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
 import StateComponent, { states } from '../common/state';
 import ConfirmationDialog from '../modal/confirmation-dialog';
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
 import Error from 'components/errors/error';
 
 // helpers
@@ -26,7 +26,6 @@ import { frn, readAction } from 'lib/frn';
 // redux
 import * as orderActions from 'modules/orders/details';
 
-// styles
 import s from './order.css';
 
 // types
@@ -277,7 +276,7 @@ export default class Order extends React.Component {
 
   get body(): Element<any> {
     if (this.props.isFetching || !this.order) {
-      return <WaitAnimation />;
+      return <Spinner className={s.spinner} />;
     }
     if (this.props.fetchError) {
       return <Error notFound={`There is no order with reference number ${this.orderRefNum}`} />;

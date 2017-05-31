@@ -13,7 +13,7 @@ trait RawPaymentFixtures extends TestFixtureBase {
   trait GiftCard_Raw {
     implicit def au: AU
 
-    def giftCardBalance: Int
+    def giftCardBalance: Long
     def storeAdmin: User
     def reason: Reason
 

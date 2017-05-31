@@ -1,13 +1,13 @@
 package phoenix.responses
 
-import utils.Money.Currency
+import core.utils.Money.Currency
 
 case class CaptureResponse(order: String,
-                           captured: Int,
-                           external: Int,
-                           internal: Int,
-                           lineItems: Int,
-                           taxes: Int,
-                           shipping: Int,
+                           captured: Long,
+                           external: Long,
+                           internal: Long,
+                           lineItems: Long,
+                           taxes: Long,
+                           shipping: Long,
                            currency: Currency)
     extends ResponseItem

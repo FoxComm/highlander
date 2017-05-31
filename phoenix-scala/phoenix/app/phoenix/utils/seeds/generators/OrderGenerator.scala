@@ -3,9 +3,10 @@ package phoenix.utils.seeds.generators
 import java.time.Instant
 
 import cats.implicits._
-import failures.NotFoundFailure400
+import core.db._
+import core.failures.NotFoundFailure400
 import faker._
-import models.objects.ObjectContext
+import objectframework.models.ObjectContext
 import phoenix.failures.CreditCardFailures.CustomerHasNoCreditCard
 import phoenix.failures.CustomerFailures.CustomerHasNoDefaultAddress
 import phoenix.models.Note
@@ -16,7 +17,7 @@ import phoenix.models.cord.lineitems._
 import phoenix.models.inventory.Skus
 import phoenix.models.location.Addresses
 import phoenix.models.payment.InStorePaymentStates
-import phoenix.models.payment.creditcard.CreditCardCharge.FullCapture
+import phoenix.models.payment.ExternalCharge.FullCapture
 import phoenix.models.payment.creditcard._
 import phoenix.models.payment.giftcard._
 import phoenix.models.payment.storecredit._
@@ -24,13 +25,11 @@ import phoenix.models.product.Mvp
 import phoenix.models.shipping._
 import phoenix.services.carts.CartTotaler
 import phoenix.services.orders.OrderTotaler
+import phoenix.utils
 import phoenix.utils.aliases._
 import phoenix.utils.seeds.ShipmentSeeds
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
-import utils.time
-import phoenix.utils
-
+import core.utils.Money._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
@@ -234,7 +233,7 @@ trait OrderGenerator extends ShipmentSeeds {
       ccc ← * <~ CreditCardCharges.create(
                CreditCardCharge(creditCardId = cc.id,
                                 orderPaymentId = op.id,
-                                chargeId = s"${cc.id}_${op.id}",
+                                stripeChargeId = s"${cc.id}_${op.id}",
                                 state = FullCapture,
                                 amount = op.amount.getOrElse(0)))
       addr ← * <~ getDefaultAddress(accountId)
@@ -316,7 +315,7 @@ trait OrderGenerator extends ShipmentSeeds {
     }
   }
 
-  private def total(skuIds: Seq[Int])(implicit db: DB) =
+  private def total(skuIds: Seq[Int])(implicit db: DB): DbResultT[Long] =
     for {
       prices ← * <~ skuIds.map(Mvp.getPrice)
       t      ← * <~ prices.sum
@@ -330,13 +329,13 @@ trait OrderGenerator extends ShipmentSeeds {
                CreditCardCharges.create(
                    CreditCardCharge(creditCardId = cc.id,
                                     orderPaymentId = op.id,
-                                    chargeId = s"${cc.id}_${op.id}",
+                                    stripeChargeId = s"${cc.id}_${op.id}",
                                     state = FullCapture,
                                     amount = op.amount.getOrElse(0)))
            }
       gcr ← * <~ gcs.map {
              case (gc, op) ⇒
-               val amount = op.amount.getOrElse(0)
+               val amount = op.amount.getOrElse(0L)
                GiftCardAdjustments.create(
                    GiftCardAdjustment(giftCardId = gc.id,
                                       orderPaymentId = op.id.some,
@@ -352,7 +351,7 @@ trait OrderGenerator extends ShipmentSeeds {
       order: Order,
       cc: CreditCard,
       gc: GiftCard,
-      deductFromGc: Int): DbResultT[(Option[OrderPayment], OrderPayment)] = {
+      deductFromGc: Long): DbResultT[(Option[OrderPayment], OrderPayment)] = {
     if (gc.availableBalance > 0)
       for {
         op1 ← * <~ OrderPayments.create(
@@ -370,7 +369,7 @@ trait OrderGenerator extends ShipmentSeeds {
   private def generateCartPayments(cart: Cart,
                                    cc: CreditCard,
                                    gc: GiftCard,
-                                   deductFromGc: Int): DbResultT[Unit] = {
+                                   deductFromGc: Long): DbResultT[Unit] = {
     if (gc.availableBalance > 0)
       for {
         op1 ← * <~ OrderPayments.create(
@@ -404,8 +403,10 @@ trait OrderGenerator extends ShipmentSeeds {
       case (pmt, m) ⇒ GiftCards.authOrderPayment(m, pmt)
     }.toList)
 
-  private def deductAmount(availableBalance: Int, totalCost: Int): Int =
-    Math.max(1,
-             Math.min(Random.nextInt(Math.max(1, availableBalance)),
-                      Random.nextInt(Math.max(1, totalCost))))
+  private def deductAmount(availableBalance: Long, totalCost: Long): Long =
+    Math
+      .max(1,
+           Math.min(Random.nextInt(Math.max(1, availableBalance.toInt)),
+                    Random.nextInt(Math.max(1, totalCost.toInt))))
+      .toLong
 }

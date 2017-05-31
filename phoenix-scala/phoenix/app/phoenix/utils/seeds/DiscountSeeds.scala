@@ -1,6 +1,8 @@
 package phoenix.utils.seeds
 
-import models.objects._
+import core.db._
+import objectframework.ObjectUtils
+import objectframework.models._
 import org.json4s.Formats
 import phoenix.models.account._
 import phoenix.models.discount._
@@ -10,7 +12,6 @@ import phoenix.models.product.SimpleContext
 import phoenix.models.sharedsearch.SharedSearch
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -147,7 +148,7 @@ object DiscountTitles {
     case SetPriceOffer(value, units, _) ⇒ setPrice.format(dollars(value), units)
   }
 
-  private def dollars(cents: Int): String = "$%.2f".format(cents.toDouble / 100)
+  private def dollars(cents: Long): String = "$%.2f".format(cents.toDouble / 100)
 
-  private def percents(value: Int): String = value.toString + "%"
+  private def percents(value: Long): String = value.toString + "%"
 }

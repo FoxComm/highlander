@@ -11,7 +11,7 @@ import EditableContentBox from 'components/content-box/editable-content-box';
 import PanelHeader from 'components/panel-header/panel-header';
 import PaymentsPanel from 'components/payments-panel/payments-panel';
 
-import type { Cart, PaymentMethod } from 'paragons/order';
+import type { Cart } from 'paragons/order';
 
 type Props = {
   cart: Cart,

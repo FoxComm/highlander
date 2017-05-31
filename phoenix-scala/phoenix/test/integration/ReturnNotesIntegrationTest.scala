@@ -1,6 +1,6 @@
 import java.time.Instant
 
-import failures.{GeneralFailure, NotFoundFailure404}
+import core.failures.{GeneralFailure, NotFoundFailure404}
 import phoenix.models._
 import phoenix.models.returns._
 import phoenix.payloads.NotePayloads._

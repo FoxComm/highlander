@@ -4,7 +4,10 @@ import java.time.Instant
 
 import cats.data._
 import cats.implicits._
-import failures.Failure
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.failures.Failure
+import core.utils.Validation
 import org.json4s.Extraction
 import org.json4s.JsonAST._
 import phoenix.models.plugins.PluginSettings._
@@ -13,9 +16,6 @@ import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import shapeless._
 import slick.jdbc.PostgresProfile.api.MappedColumnType
-import utils.Validation
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class Plugin(id: Int = 0,
                   name: String,

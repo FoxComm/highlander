@@ -1,16 +1,16 @@
 package phoenix.models.returns
 
+import core.db._
+import core.utils.Money._
 import phoenix.models.payment.PaymentMethod
 import phoenix.models.payment.giftcard.{GiftCard, GiftCards}
 import phoenix.models.payment.storecredit.{StoreCredit, StoreCredits}
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.Money._
-import utils.db._
 
 case class ReturnPayment(id: Int = 0,
                          returnId: Int = 0,
-                         amount: Int = 0,
+                         amount: Long = 0,
                          currency: Currency = Currency.USD,
                          paymentMethodId: Int,
                          paymentMethodType: PaymentMethod.Type)
@@ -21,7 +21,7 @@ class ReturnPayments(tag: Tag) extends FoxTable[ReturnPayment](tag, "return_paym
   def returnId          = column[Int]("return_id")
   def paymentMethodId   = column[Int]("payment_method_id")
   def paymentMethodType = column[PaymentMethod.Type]("payment_method_type")
-  def amount            = column[Int]("amount")
+  def amount            = column[Long]("amount")
   def currency          = column[Currency]("currency")
 
   def * =
@@ -60,8 +60,12 @@ object ReturnPayments
   object scope {
     implicit class RmaPaymentsQuerySeqConversions(private val q: QuerySeq) extends AnyVal {
       def giftCards: QuerySeq    = q.byType(PaymentMethod.GiftCard)
-      def creditCards: QuerySeq  = q.byType(PaymentMethod.CreditCard)
       def storeCredits: QuerySeq = q.byType(PaymentMethod.StoreCredit)
+      def creditCards: QuerySeq  = q.byType(PaymentMethod.CreditCard)
+      def applePays: QuerySeq    = q.byType(PaymentMethod.ApplePay)
+
+      def externalPayments: QuerySeq =
+        q.filter(_.paymentMethodType.inSet(PaymentMethod.Type.externalPayments))
 
       def paymentMethodIds: Query[Rep[Int], Int, Set] = q.map(_.paymentMethodId).to[Set]
 

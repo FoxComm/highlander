@@ -42,10 +42,6 @@ type State = {
   quantity: number;
 };
 
-type DefaultProps = {
-  updateLineItemCount: Function,
-};
-
 export class CartLineItem extends Component {
   props: Props;
 

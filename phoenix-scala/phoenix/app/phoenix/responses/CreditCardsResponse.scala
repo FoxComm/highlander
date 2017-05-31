@@ -1,8 +1,8 @@
 package phoenix.responses
 
+import core.db._
 import phoenix.models.location.{Region, Regions}
 import phoenix.models.payment.creditcard.CreditCard
-import utils.db._
 
 object CreditCardsResponse {
   case class Root(id: Int,

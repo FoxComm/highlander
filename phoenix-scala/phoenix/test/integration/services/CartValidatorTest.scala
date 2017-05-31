@@ -1,7 +1,8 @@
 package services
 
 import cats.implicits._
-import models.objects._
+import objectframework.FormShadowGet
+import objectframework.models._
 import phoenix.failures.CartFailures._
 import phoenix.models.Reasons
 import phoenix.models.cord._
@@ -16,7 +17,8 @@ import phoenix.services.carts.CartTotaler
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.utils.Money._
+import core.db._
 
 class CartValidatorTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 
@@ -53,8 +55,8 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
 
       "if the cart has no credit card and insufficient GC/SC available balances" in new LineItemsFixture
       with StoreAdmin_Seed {
-        val skuPrice       = Mvp.priceAsInt(skuForm, skuShadow)
-        val notEnoughFunds = skuPrice - 1
+        val skuPrice             = FormShadowGet.priceAsLong(skuForm, skuShadow)
+        val notEnoughFunds: Long = skuPrice - 1
 
         (for {
           reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))

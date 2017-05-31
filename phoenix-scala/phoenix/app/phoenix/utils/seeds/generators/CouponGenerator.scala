@@ -2,8 +2,10 @@ package phoenix.utils.seeds.generators
 
 import java.time.Instant
 
-import models.objects.ObjectUtils._
-import models.objects._
+import core.db._
+import objectframework.ObjectUtils
+import objectframework.ObjectUtils._
+import objectframework.models._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import phoenix.models.coupon.Coupon
@@ -12,7 +14,6 @@ import phoenix.payloads.CouponPayloads._
 import phoenix.services.coupon.CouponManager
 import phoenix.utils.aliases._
 import phoenix.utils.seeds.generators.SimpleCoupon._
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

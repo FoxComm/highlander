@@ -1,8 +1,8 @@
 package phoenix.services.activity
 
-import phoenix.responses.UserResponse
+import objectframework.ObjectResponses.ObjectContextResponse
 import phoenix.responses.ProductResponses.ProductResponse
-import responses.ObjectResponses.ObjectContextResponse
+import phoenix.responses.UserResponse
 
 object ProductTailored {
   case class FullProductCreated(admin: Option[UserResponse.Root],

@@ -3,7 +3,7 @@ import java.time.temporal.ChronoUnit
 
 import cats.implicits._
 import com.stripe.exception.CardException
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import phoenix.failures.CreditCardFailures.CannotUseInactiveCreditCard
@@ -14,6 +14,7 @@ import phoenix.models.cord.OrderPayments.scope._
 import phoenix.models.cord._
 import phoenix.models.customer._
 import phoenix.models.location.{Addresses, Regions}
+import phoenix.models.payment.ExternalCharge
 import phoenix.models.payment.creditcard._
 import phoenix.models.shipping.Shipment.Shipped
 import phoenix.models.shipping.{Shipment, Shipments}
@@ -32,7 +33,7 @@ import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class CustomerIntegrationTest
     extends IntegrationTestBase
@@ -648,8 +649,8 @@ class CustomerIntegrationTest
                              CreditCardCharge(
                                  creditCardId = creditCard.id,
                                  orderPaymentId = orderPayment.id,
-                                 chargeId = "asd1",
-                                 state = CreditCardCharge.FullCapture,
+                                 stripeChargeId = "asd1",
+                                 state = ExternalCharge.FullCapture,
                                  amount = 100
                              ))
       orderPayment2 ← * <~ OrderPayments.create(
@@ -660,8 +661,8 @@ class CustomerIntegrationTest
                              CreditCardCharge(
                                  creditCardId = creditCard.id,
                                  orderPaymentId = orderPayment2.id,
-                                 chargeId = "asd2",
-                                 state = CreditCardCharge.FullCapture,
+                                 stripeChargeId = "asd2",
+                                 state = ExternalCharge.FullCapture,
                                  amount = 1000000
                              ))
       order  ← * <~ Orders.update(order, order.copy(state = Order.FulfillmentStarted))

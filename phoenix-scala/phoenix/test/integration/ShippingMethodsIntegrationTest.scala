@@ -1,4 +1,4 @@
-import models.objects.ObjectContexts
+import objectframework.models.ObjectContexts
 import org.json4s.jackson.JsonMethods._
 import phoenix.failures.AddressFailures.NoCountryFound
 import phoenix.models.cord.OrderShippingAddresses
@@ -7,21 +7,28 @@ import phoenix.models.location.Addresses
 import phoenix.models.product.{Mvp, SimpleContext}
 import phoenix.models.rules.QueryStatement
 import phoenix.models.shipping
-import phoenix.models.shipping.ShippingMethods
+import phoenix.models.shipping.{ShippingMethod, ShippingMethods}
 import phoenix.responses.ShippingMethodsResponse.Root
 import phoenix.services.carts.CartTotaler
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
+import phoenix.payloads.CartPayloads.CreateCart
+import phoenix.responses.cord.CartResponse
+import cats.implicits._
+import faker.Lorem
+import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
+import testutils.fixtures.api.ApiFixtures
 
 class ShippingMethodsIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with PhoenixStorefrontApi
     with DefaultJwtAdminAuth
-    with BakedFixtures {
+    with BakedFixtures
+    with ApiFixtures {
 
   "GET /v1/shipping-methods/:refNum" - {
 
@@ -113,18 +120,41 @@ class ShippingMethodsIntegrationTest
 
     "Get shipping method by country code" in new UsShipping {
       withNewCustomerAuth(TestLoginData.random) { implicit auth ⇒
+        cartsApi.create(CreateCart(customerId = auth.customerId.some)).as[CartResponse]
         storefrontCartsApi.shippingMethods.searchByRegion("us").as[Seq[Root]].size mustBe >(0)
+      }
+    }
+
+    "Make sure that searchByRegion is aware of a cart content" in new UsShipping {
+      withNewCustomerAuth(TestLoginData.random) { implicit auth ⇒
+        val cart = cartsApi.create(CreateCart(customerId = auth.customerId.some)).as[CartResponse]
+
+        storefrontCartsApi.shippingMethods
+          .searchByRegion("us")
+          .as[Seq[Root]]
+          .exists(_.price == 0) mustBe false // no free shipping
+
+        cartsApi(cart.referenceNumber).lineItems
+          .add(Seq(UpdateLineItemsPayload(skuCode, 50))) // over 50 bucks
+          .mustBeOk()
+
+        storefrontCartsApi.shippingMethods
+          .searchByRegion("us")
+          .as[Seq[Root]]
+          .exists(_.price == 0) mustBe true // YES! free shipping
       }
     }
 
     "No shipping to Russia ;(" in new UsShipping {
       withNewCustomerAuth(TestLoginData.random) { implicit auth ⇒
+        cartsApi.create(CreateCart(customerId = auth.customerId.some)).as[CartResponse]
         storefrontCartsApi.shippingMethods.searchByRegion("rus").as[Seq[Root]].size must === (0)
       }
     }
 
     "No shipping methods for non existent country" in {
       withNewCustomerAuth(TestLoginData.random) { implicit auth ⇒
+        cartsApi.create(CreateCart(customerId = auth.customerId.some)).as[CartResponse]
         storefrontCartsApi.shippingMethods
           .searchByRegion("uss")
           .mustFailWith400(NoCountryFound("uss"))
@@ -269,13 +299,10 @@ class ShippingMethodsIntegrationTest
     } yield shippingMethod).gimme
   }
 
-  trait UsShipping {
-    val usShippingMethod = (for {
-      usShippingMethod ← shipping.ShippingMethods.create(
-                            Factories.shippingMethods
-                              .filter(_.conditions == Some(Factories.usOnly))
-                              .head)
+  trait UsShipping extends ProductSku_ApiFixture {
+    val shippingMethods: Seq[ShippingMethod] =
+      Factories.shippingMethods.map(sm ⇒ shipping.ShippingMethods.create(sm).gimme)
 
-    } yield usShippingMethod).gimme
+    require(shippingMethods.length > 0)
   }
 }

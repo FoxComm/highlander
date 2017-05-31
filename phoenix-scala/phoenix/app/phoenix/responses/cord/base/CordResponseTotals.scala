@@ -3,11 +3,11 @@ package phoenix.responses.cord.base
 import phoenix.models.cord.{Cart, Order}
 import phoenix.responses.ResponseItem
 
-case class OrderResponseTotals(subTotal: Int,
-                               taxes: Int,
-                               shipping: Int,
-                               adjustments: Int,
-                               total: Int)
+case class OrderResponseTotals(subTotal: Long,
+                               taxes: Long,
+                               shipping: Long,
+                               adjustments: Long,
+                               total: Long)
     extends ResponseItem
 
 object OrderResponseTotals {
@@ -21,19 +21,19 @@ object OrderResponseTotals {
 
 }
 
-case class CartResponseTotals(subTotal: Int,
-                              taxes: Int,
-                              shipping: Int,
-                              adjustments: Int,
-                              total: Int,
-                              customersExpenses: Int)
+case class CartResponseTotals(subTotal: Long,
+                              taxes: Long,
+                              shipping: Long,
+                              adjustments: Long,
+                              total: Long,
+                              customersExpenses: Long)
     extends ResponseItem
 
 object CartResponseTotals {
 
   def empty: CartResponseTotals = CartResponseTotals(0, 0, 0, 0, 0, 0)
 
-  def build(cart: Cart, coveredByInStoreMethods: Int): CartResponseTotals =
+  def build(cart: Cart, coveredByInStoreMethods: Long): CartResponseTotals =
     CartResponseTotals(subTotal = cart.subTotal,
                        shipping = cart.shippingTotal,
                        adjustments = cart.adjustmentsTotal,

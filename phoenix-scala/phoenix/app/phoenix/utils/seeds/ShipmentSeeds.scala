@@ -1,5 +1,6 @@
 package phoenix.utils.seeds
 
+import core.db._
 import org.json4s.Formats
 import org.json4s.jackson.JsonMethods._
 import phoenix.models.location.Country.unitedStatesId
@@ -8,7 +9,6 @@ import phoenix.models.shipping.ShippingMethod._
 import phoenix.models.shipping._
 import phoenix.utils.JsonFormatters
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -64,6 +64,17 @@ trait ShipmentSeeds {
                        isActive = true,
                        conditions = Some(usOnly))
     )
+
+  def lowConditions: QueryStatement =
+    parse(
+        """
+      | {
+      |   "comparison": "and",
+      |   "conditions": [{
+      |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 25
+      |   }]
+      | }
+    """.stripMargin).extract[QueryStatement]
 
   def usOnly = parse(s"""
     | {

@@ -2,10 +2,10 @@ package phoenix.services
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.NotFoundFailure404
-import models.objects._
+import core.db._
+import core.failures.NotFoundFailure404
+import objectframework.ObjectUtils
 import org.json4s.JsonAST._
-import phoenix.failures.AddressFailures.NoCountryFound
 import phoenix.failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
 import phoenix.models.account._
 import phoenix.models.cord._
@@ -13,20 +13,20 @@ import phoenix.models.cord.lineitems._
 import phoenix.models.location.{Countries, Region}
 import phoenix.models.rules.{Condition, QueryStatement}
 import phoenix.models.shipping._
-import phoenix.responses.ShippingMethodsResponse
-import phoenix.responses.ShippingMethodsResponse.Root
 import phoenix.services.carts.getCartByOriginator
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import phoenix.responses.ShippingMethodsResponse
+import phoenix.responses.ShippingMethodsResponse.Root
+import phoenix.failures.AddressFailures.NoCountryFound
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
   case class ShippingData(cart: Cart,
-                          cartTotal: Int,
-                          cartSubTotal: Int,
+                          cartTotal: Long,
+                          cartSubTotal: Long,
                           shippingAddress: Option[OrderShippingAddress] = None,
                           shippingRegion: Option[Region] = None,
                           lineItems: Seq[CartLineItemProductData] = Seq())
@@ -63,17 +63,17 @@ object ShippingManager {
       shipData    ← * <~ getShippingData(cart)
     } yield filterMethods(shipMethods, shipData)
 
-  def getShippingMethodsForRegion(countryCode: String)(implicit ec: EC,
-                                                       db: DB): DbResultT[Seq[Root]] =
+  def getShippingMethodsForRegion(countryCode: String, originator: User)(
+      implicit ec: EC,
+      db: DB): DbResultT[Seq[Root]] =
     for {
-      shipMethods ← * <~ ShippingMethods.findActive.result
-      country     ← * <~ Countries.findByCode(countryCode).mustFindOneOr(NoCountryFound(countryCode))
+      cart     ← * <~ getCartByOriginator(originator, None)
+      shipData ← * <~ getShippingData(cart)
+      country  ← * <~ Countries.findByCode(countryCode).mustFindOneOr(NoCountryFound(countryCode))
 
-      shipToRegion = ShippingData(cart = Cart(scope = LTree(""), accountId = 0),
-                                  cartTotal = 0,
-                                  cartSubTotal = 0,
-                                  shippingRegion =
-                                    Region(countryId = country.id, name = country.name).some)
+      shipMethods ← * <~ ShippingMethods.findActive.result
+      shipToRegion = shipData.copy(
+          shippingRegion = Region(countryId = country.id, name = country.name).some)
     } yield filterMethods(shipMethods, shipToRegion)
 
   def getShippingMethodsForCart(refNum: String, customer: Option[User] = None)(
@@ -109,7 +109,7 @@ object ShippingManager {
     }
   }
 
-  def filterMethods(shipMethods: Seq[ShippingMethod], shipData: ShippingData) =
+  def filterMethods(shipMethods: Seq[ShippingMethod], shipData: ShippingData): Seq[Root] =
     shipMethods.collect {
       case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
         val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
@@ -143,9 +143,11 @@ object ShippingManager {
 
   private def evaluateOrderCondition(shippingData: ShippingData, condition: Condition): Boolean = {
     condition.field match {
-      case "subtotal"   ⇒ Condition.matches(shippingData.cartSubTotal, condition)
-      case "grandtotal" ⇒ Condition.matches(shippingData.cartTotal, condition)
-      case _            ⇒ false
+      case "subtotal" ⇒
+        Condition.matches(shippingData.cartSubTotal.toInt, condition) // FIXME @aafa .toInt
+      case "grandtotal" ⇒
+        Condition.matches(shippingData.cartTotal.toInt, condition) // FIXME @aafa .toInt
+      case _ ⇒ false
     }
   }
 

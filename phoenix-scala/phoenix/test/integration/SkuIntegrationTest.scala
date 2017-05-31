@@ -1,10 +1,11 @@
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.ObjectFailures.ObjectContextNotFound
-import models.objects._
+import objectframework.ObjectFailures.ObjectContextNotFound
+import objectframework.models._
 import org.json4s.JsonAST.JNothing
 import org.json4s.JsonDSL._
 import phoenix.failures.ArchiveFailures.SkuIsPresentInCarts
@@ -23,8 +24,28 @@ import phoenix.utils.time.RichInstant
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.Money.Currency
-import utils.db._
+import core.utils.Money.Currency
+import core.db._
+
+trait SkuOps { self: PhoenixAdminApi with DefaultJwtAdminAuth ⇒
+
+  def deactivateSku(skuCode: String): Unit = {
+    import org.json4s.JsonDSL._
+    import org.json4s._
+    val skuResponse = skusApi(skuCode).get().as[SkuResponse.Root]
+    val activeFromJson: Json = ("t" → "date") ~ ("v" → (Instant.now
+            .minus(2, ChronoUnit.DAYS))
+            .toString)
+    val activeToJson: Json = ("t" → "date") ~ ("v" → (Instant.now
+            .minus(1, ChronoUnit.DAYS))
+            .toString)
+    skusApi(skuCode)
+      .update(SkuPayload(attributes = skuResponse.attributes.extract[Map[String, Json]] ++
+                  Map("activeFrom" → activeFromJson, "activeTo" → activeToJson)))
+      .mustBeOk()
+  }
+
+}
 
 class SkuIntegrationTest
     extends IntegrationTestBase

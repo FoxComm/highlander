@@ -1,5 +1,5 @@
 import cats.implicits._
-import failures.{NotFoundFailure400, NotFoundFailure404}
+import core.failures.{NotFoundFailure400, NotFoundFailure404}
 import faker.Lorem
 import org.json4s.jackson.JsonMethods._
 import phoenix.failures.CartFailures._
@@ -7,6 +7,7 @@ import phoenix.failures.ShippingMethodFailures._
 import phoenix.models.cord.{CordPaymentState, _}
 import phoenix.models.cord.lineitems._
 import phoenix.models.location._
+import phoenix.models.payment.ExternalCharge
 import phoenix.models.payment.creditcard._
 import phoenix.models.product.Mvp
 import phoenix.models.rules.QueryStatement
@@ -28,7 +29,9 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtures
-import utils.db._
+import core.utils.Money._
+
+import core.db._
 
 class CartIntegrationTest
     extends IntegrationTestBase
@@ -46,7 +49,7 @@ class CartIntegrationTest
       }
 
       "displays 'auth' payment state" in new PaymentStateFixture {
-        CreditCardCharges.findById(ccc.id).extract.map(_.state).update(CreditCardCharge.Auth).gimme
+        CreditCardCharges.findById(ccc.id).extract.map(_.state).update(ExternalCharge.Auth).gimme
 
         val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
         fullCart.paymentState must === (CordPaymentState.Auth)
@@ -60,7 +63,7 @@ class CartIntegrationTest
 
       "configured" in new TaxesFixture(regionId = Region.californiaId) {
         // test section in configuration is configured for California and 7.5% rate
-        totals.taxes must === (((totals.subTotal + totals.shipping) * 0.075).toInt)
+        totals.taxes must === ((totals.subTotal + totals.shipping).applyTaxes(0.075))
       }
     }
 
@@ -91,8 +94,8 @@ class CartIntegrationTest
 
       cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
 
-      val giftCardAmount    = 2500 // ¢
-      val storeCreditAmount = 500  // ¢
+      val giftCardAmount: Long    = 2500 // ¢
+      val storeCreditAmount: Long = 500  // ¢
 
       val giftCard = giftCardsApi
         .create(GiftCardCreateByCsr(giftCardAmount, reasonId = reason.id))

@@ -1,7 +1,8 @@
 package phoenix.services.assignments
 
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.db._
+import core.failures.NotFoundFailure404
 import phoenix.failures.AssignmentFailures._
 import phoenix.failures.Util._
 import phoenix.models.Assignment._
@@ -16,7 +17,6 @@ import phoenix.services._
 import phoenix.utils.FoxConfig.config
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 trait AssignmentsManager[K, M <: FoxModel[M]] {
   val defaultContextId: Int = config.app.defaultContextId

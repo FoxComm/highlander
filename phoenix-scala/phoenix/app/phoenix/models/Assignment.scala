@@ -3,6 +3,7 @@ package phoenix.models
 import java.time.Instant
 
 import com.pellucid.sealerate
+import core.db._
 import phoenix.models.Assignment.{AssignmentType, ReferenceType}
 import phoenix.models.account._
 import phoenix.utils.ADT
@@ -10,7 +11,6 @@ import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class Assignment(id: Int = 0,
                       assignmentType: AssignmentType,

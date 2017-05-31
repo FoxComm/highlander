@@ -1,12 +1,14 @@
 package phoenix.utils.apis
 
-import com.stripe.model.DeletedCard
+import core.db._
+import core.utils.Money._
+import com.stripe.model.{DeletedCard, Token}
 import phoenix.models.location.Address
 import phoenix.models.payment.creditcard.CreditCard
 import phoenix.payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
 import phoenix.utils.aliases.stripe._
-import utils.Money._
-import utils.db._
+import core.utils.Money.Currency
+import core.db._
 
 /**
   * Fox Stripe API wrapper
@@ -24,18 +26,22 @@ trait FoxStripeApi {
                            stripeCustomerId: Option[String],
                            address: Address)(implicit ec: EC): Result[(StripeCustomer, StripeCard)]
 
-  def authorizeAmount(customerId: String,
-                      creditCardId: String,
-                      amount: Int,
-                      currency: Currency): Result[StripeCharge]
+  def authorizeAmount(
+      stripeTokenId: String,
+      amount: Long,
+      currency: Currency,
+      customerId: Option[String] = None // Unnecessary for one time payments like Apple Pay
+  ): Result[StripeCharge]
 
-  def captureCharge(chargeId: String, amount: Int): Result[StripeCharge]
+  def captureCharge(chargeId: String, amount: Long): Result[StripeCharge]
 
-  def authorizeRefund(chargeId: String, amount: Int, reason: RefundReason): Result[StripeCharge]
+  def authorizeRefund(chargeId: String, amount: Long, reason: RefundReason): Result[StripeCharge]
 
   def editCard(cc: CreditCard): Result[StripeCard]
 
   def deleteCard(cc: CreditCard): Result[DeletedCard]
+
+  def retrieveToken(t: String): Result[StripeToken]
 
 }
 

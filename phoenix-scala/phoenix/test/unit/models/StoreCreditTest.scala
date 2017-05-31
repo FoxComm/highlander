@@ -1,7 +1,7 @@
 package models
 
 import cats.data.{NonEmptyList ⇒ NEL}
-import failures.GeneralFailure
+import core.failures.GeneralFailure
 import phoenix.models.account.User
 import phoenix.models.auth.UserToken
 import phoenix.models.payment.storecredit.StoreCredit

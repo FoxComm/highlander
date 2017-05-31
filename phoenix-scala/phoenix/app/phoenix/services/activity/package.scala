@@ -3,7 +3,7 @@ package phoenix.services.activity
 import org.json4s.Extraction
 import phoenix.models.activity.OpaqueActivity
 import phoenix.utils.JsonFormatters
-import utils.snakeCaseName
+import core.utils.snakeCaseName
 
 import scala.language.implicitConversions
 

@@ -1,3 +1,6 @@
+// LESS styles must be first in output css file
+import './less/base.less'; // @todo get rid of
+
 import get from 'lodash/get';
 import React from 'react';
 import { render } from 'react-dom';
@@ -16,7 +19,6 @@ import { isPathRequiredAuth } from './route-rules';
 import Root from './root';
 
 // global styles
-import './less/base.less';
 import './css/base.css';
 
 // images

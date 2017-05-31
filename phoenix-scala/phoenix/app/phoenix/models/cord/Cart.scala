@@ -1,24 +1,24 @@
 package phoenix.models.cord
 
 import com.github.tminglei.slickpg.LTree
-import failures.{Failure, NotFoundFailure404}
+import core.failures.{Failure, NotFoundFailure404}
 import phoenix.failures.CartFailures.OrderAlreadyPlaced
 import phoenix.models.account.Account
 import shapeless._
-import utils.Money.Currency
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.utils.Money.Currency
+import core.db.ExPostgresDriver.api._
+import core.db._
 
 case class Cart(id: Int = 0,
                 scope: LTree,
                 referenceNumber: String = "",
                 accountId: Int,
                 currency: Currency = Currency.USD,
-                subTotal: Int = 0,
-                shippingTotal: Int = 0,
-                adjustmentsTotal: Int = 0,
-                taxesTotal: Int = 0,
-                grandTotal: Int = 0)
+                subTotal: Long = 0,
+                shippingTotal: Long = 0,
+                adjustmentsTotal: Long = 0,
+                taxesTotal: Long = 0,
+                grandTotal: Long = 0)
     extends CordBase[Cart] {
 
   override def primarySearchKey: String = referenceNumber
@@ -30,11 +30,11 @@ class Carts(tag: Tag) extends FoxTable[Cart](tag, "carts") {
   def referenceNumber  = column[String]("reference_number")
   def accountId        = column[Int]("account_id")
   def currency         = column[Currency]("currency")
-  def subTotal         = column[Int]("sub_total")
-  def shippingTotal    = column[Int]("shipping_total")
-  def adjustmentsTotal = column[Int]("adjustments_total")
-  def taxesTotal       = column[Int]("taxes_total")
-  def grandTotal       = column[Int]("grand_total")
+  def subTotal         = column[Long]("sub_total")
+  def shippingTotal    = column[Long]("shipping_total")
+  def adjustmentsTotal = column[Long]("adjustments_total")
+  def taxesTotal       = column[Long]("taxes_total")
+  def grandTotal       = column[Long]("grand_total")
 
   def * =
     (id,

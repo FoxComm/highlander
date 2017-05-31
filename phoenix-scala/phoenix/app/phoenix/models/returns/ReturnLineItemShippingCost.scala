@@ -2,13 +2,14 @@ package phoenix.models.returns
 
 import java.time.Instant
 
+import core.db._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.utils.Money._
 
 case class ReturnLineItemShippingCost(id: Int,
                                       returnId: Int,
-                                      amount: Int,
+                                      amount: Long,
                                       createdAt: Instant = Instant.now)
     extends FoxModel[ReturnLineItemShippingCost]
 
@@ -16,7 +17,7 @@ class ReturnLineItemShippingCosts(tag: Tag)
     extends FoxTable[ReturnLineItemShippingCost](tag, "return_line_item_shipping_costs") {
   def id        = column[Int]("id", O.PrimaryKey)
   def returnId  = column[Int]("return_id")
-  def amount    = column[Int]("amount")
+  def amount    = column[Long]("amount")
   def createdAt = column[Instant]("created_at")
 
   def * =

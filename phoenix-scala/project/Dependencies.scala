@@ -16,6 +16,8 @@ object Versions {
 
 object Dependencies {
 
+  lazy val baseDependencies: Seq[ModuleID] = cats ++ shapeless ++ db ++ slick ++ json4s ++ logging
+
   val akka = Seq(
     "com.typesafe.akka" %% "akka-slf4j"     % Versions.akka,
     "com.typesafe.akka" %% "akka-actor"     % Versions.akka,
@@ -61,7 +63,7 @@ object Dependencies {
   val apis = Seq(
     "com.sksamuel.elastic4s" %% "elastic4s-core" % Versions.elastic4s,
     "com.amazonaws"          % "aws-java-sdk"    % "1.11.15",
-    "com.stripe"             % "stripe-java"     % "2.7.0"
+    "com.stripe"             % "stripe-java"     % "4.0.0"
   )
 
   val logging = Seq(

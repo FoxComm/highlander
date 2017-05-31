@@ -1,10 +1,10 @@
 package phoenix.utils.seeds
 
+import core.db._
 import phoenix.models.account.Scope
 import phoenix.models.returns._
 import phoenix.models.{Note, Notes}
 import phoenix.utils.aliases._
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

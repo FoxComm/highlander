@@ -1,5 +1,5 @@
 import akka.http.scaladsl.model.{HttpResponse, StatusCode, StatusCodes}
-import failures.Failure
+import core.failures.Failure
 import org.json4s.Formats
 import org.json4s.jackson.JsonMethods._
 import org.scalatest._
@@ -7,7 +7,6 @@ import org.scalatest.concurrent.PatienceConfiguration
 import phoenix.responses.TheResponse
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-
 import scala.concurrent.Await._
 import scala.concurrent.duration._
 
@@ -33,9 +32,9 @@ package object testutils extends MustMatchers with OptionValues with AppendedClu
     def getString(field: String): String = get[String](field)
 
     // Concrete attribute extractors
-    def code: String     = getString("code")
-    def salePrice: Int   = getValue[Int]("salePrice")
-    def retailPrice: Int = getValue[Int]("retailPrice")
+    def code: String      = getString("code")
+    def salePrice: Long   = getValue[Long]("salePrice")
+    def retailPrice: Long = getValue[Long]("retailPrice")
   }
 
   implicit class RichTraversable[A](val sequence: Traversable[A]) extends AnyVal {
@@ -82,7 +81,8 @@ package object testutils extends MustMatchers with OptionValues with AppendedClu
     } withClue originalSourceClue
 
     def mustBeOk()(implicit line: SL, file: SF): Unit =
-      mustHaveStatus(StatusCodes.OK).withClue(s"\nErrors: $extractErrors!")
+      mustHaveStatus(StatusCodes.OK)
+        .withClue(s"\n Response ${response.headers} \nErrors: $extractErrors!")
 
     def mustBeEmpty()(implicit line: SL, file: SF): Unit = {
       mustHaveStatus(StatusCodes.NoContent)

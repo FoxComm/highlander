@@ -7,8 +7,8 @@ import org.json4s.jackson.Serialization.{write ⇒ json}
 import phoenix.models.Reason
 import phoenix.payloads.GiftCardPayloads._
 import phoenix.payloads.PaymentPayloads.GiftCardPayment
-import utils.Money.Currency
-import utils.Strings._
+import core.utils.Money.Currency
+import core.utils.Strings._
 
 import scala.util.Random
 
@@ -26,7 +26,7 @@ object GiftCards {
               json(GiftCardCreateByCsr(
                       reasonId = session.get("reasonId").as[Int],
                       currency = Currency.USD,
-                      balance = Random.nextInt(9500) + 500 // from $5 to $100
+                      balance = Random.nextInt(9500).toLong + 500 // from $5 to $100
                   ))))
     .check(jsonPath("$.code").ofType[String].saveAs("giftCardCode"))
 

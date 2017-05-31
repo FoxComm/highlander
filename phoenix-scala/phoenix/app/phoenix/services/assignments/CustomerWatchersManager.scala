@@ -1,12 +1,12 @@
 package phoenix.services.assignments
 
-import phoenix.models.{Assignment, NotificationSubscription}
+import core.db._
 import phoenix.models.account._
 import phoenix.models.activity.Dimension
+import phoenix.models.{Assignment, NotificationSubscription}
 import phoenix.responses.UserResponse.{Root, build}
-import slick.jdbc.PostgresProfile.api._
-import utils.db._
 import phoenix.utils.aliases._
+import slick.jdbc.PostgresProfile.api._
 
 object CustomerWatchersManager extends AssignmentsManager[Int, User] {
 

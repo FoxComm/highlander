@@ -1,22 +1,24 @@
 package phoenix.utils.seeds.generators
 
+import core.db._
+import core.utils.Money.Currency
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Random
+import objectframework.models.ObjectContext
+import phoenix.models.account.Scope
+import phoenix.models.cord.{Cart, Carts, Order, Orders}
+import phoenix.models.payment.giftcard._
+import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
+import phoenix.utils.aliases._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
-import phoenix.models.account.Scope
-import phoenix.models.cord.{Cart, Carts, Order, Orders}
-import models.objects.ObjectContext
-import phoenix.models.payment.giftcard._
-import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
-import utils.Money.Currency
-import phoenix.utils.aliases._
-import utils.db._
-
 trait GiftCardGenerator {
 
-  def nextGcBalance = {
+  def nextGcBalance: Long = {
     val prices = Seq(1000, 2500, 3000, 5000, 7500, 10000, 15000, 20000)
-    prices(Random.nextInt(prices.length))
+    prices(Random.nextInt(prices.length)).toLong
   }
 
   def generateGiftCardAppeasement(implicit db: DB, au: AU): DbResultT[GiftCard] =

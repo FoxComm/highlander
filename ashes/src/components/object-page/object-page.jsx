@@ -16,7 +16,7 @@ import styles from './object-page.css';
 
 // components
 import { PageTitle } from '../section-title';
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
 import ErrorAlerts from '../alerts/error-alerts';
 import ButtonWithMenu from 'components/core/button-with-menu';
 import { Button } from 'components/core/button';
@@ -509,7 +509,7 @@ export class ObjectPage extends Component {
     const { actions, namespace } = props;
 
     if (this.isFetching) {
-      return <WaitAnimation className={styles.waiting} />;
+      return <Spinner className={styles.spinner} />;
     }
 
     if (!object) {

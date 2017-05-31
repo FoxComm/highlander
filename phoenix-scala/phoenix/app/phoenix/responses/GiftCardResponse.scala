@@ -3,7 +3,7 @@ package phoenix.responses
 import java.time.Instant
 
 import phoenix.models.payment.giftcard._
-import utils.Money._
+import core.utils.Money._
 
 object GiftCardResponse {
 
@@ -17,10 +17,10 @@ object GiftCardResponse {
                   subTypeId: Option[Int],
                   state: GiftCard.State,
                   currency: Currency,
-                  originalBalance: Int,
-                  availableBalance: Int,
-                  currentBalance: Int,
-                  canceledAmount: Option[Int],
+                  originalBalance: Long,
+                  availableBalance: Long,
+                  currentBalance: Long,
+                  canceledAmount: Option[Long],
                   canceledReason: Option[Int],
                   customer: Option[CustomerResponse.Root],
                   storeAdmin: Option[UserResponse.Root],
