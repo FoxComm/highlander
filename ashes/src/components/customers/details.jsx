@@ -2,7 +2,6 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import CustomerContacts from './contacts';
-import CustomerAccountPassword from './account-password';
 import CustomerAddressBook from './address-book';
 import CustomerCreditCards from './credit-cards';
 import CustomerAccountStatus from './account-status';
@@ -57,7 +56,7 @@ export default class CustomerDetails extends React.Component {
         </div>
         <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-2">
-            <CustomerAccountStatus customer={customer}/>
+            <CustomerAccountStatus customer={customer} />
           </div>
         </div>
       </div>

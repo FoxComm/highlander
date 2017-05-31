@@ -72,6 +72,21 @@ export function addNativeFilters(req, filters) {
   return req;
 }
 
+export function addShouldFilters(req, filters, minMatch = 1) {
+  if (!req.query) {
+    req.query = { bool: { should: [] } };
+  }
+
+  req.query.bool.should = [
+    ...(req.query.bool.should || []),
+    ...filters,
+  ];
+
+  req.query.bool.minimum_should_match = minMatch;
+
+  return req;
+}
+
 // add additional filters to query
 export function addFilters(req, filters) {
   return addNativeFilters(req, convertFilters(filters));
@@ -91,11 +106,14 @@ function createFilter(filter) {
     case 'term':
       return rangeToFilter(term, operator, value);
     case 'string':
-      return dsl.matchQuery(term, {
-        query: value,
-        analyzer: 'standard',
-        operator: 'and'
-      });
+      return {
+        query_string: {
+          analyzer: 'standard',
+          analyze_wildcard: true,
+          query: `*${value}*`,
+          default_operator: 'AND',
+        },
+      };
     case 'phrase':
       return dsl.matchQuery(term, {
         query: value,

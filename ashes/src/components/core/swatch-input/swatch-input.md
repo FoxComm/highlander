@@ -1,7 +1,7 @@
 #### Basic usage
 
 ```javascript
-<SwatchInput onChange={handleChange} value="ff0000"/>
+<SwatchInput onChange={handleChange} value="ff0000" />
 ```
 
 ### Simple SwatchInput

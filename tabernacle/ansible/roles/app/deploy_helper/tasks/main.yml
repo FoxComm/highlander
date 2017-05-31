@@ -1,0 +1,23 @@
+---
+
+- name: Load secrets for Marathon apps
+  include_vars: file={{item}}
+  with_items:
+    - "{{role_path}}/../../base/secret_keys/files/aws/aws.yml"
+    - "{{role_path}}/../../dev/marathon/vars/main.yml"
+    - "{{role_path}}/../../dev/marathon/vars/stripe.yml"
+    - "{{role_path}}/../../dev/marathon/vars/hyperion.yml"
+    - "{{role_path}}/../../dev/marathon/vars/solomon.yml"
+  when: app_name in supported_apps
+
+- include: validate.yml
+  when: app_name in supported_apps
+
+- include: build.yml
+  when: branch_name != "master" and auto_build in prompt_yes and app_name in supported_apps
+
+- include: deploy.yml
+  when: app_name in supported_apps
+
+- include: build_after.yml
+  when: branch_name != "master" and auto_build in prompt_yes and app_name in supported_apps

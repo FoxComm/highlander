@@ -17,11 +17,5 @@
     - postgresql.conf
     - pg_hba.conf
 
-- name: Reload Systemd for Postgresql
-  command: systemctl daemon-reload
-
-- name: Restart Postgresql
-  service: name=postgresql state=restarted
-
 - name: Copy Consul Service File
   template: src=db.json dest="/etc/consul.d/db.json"

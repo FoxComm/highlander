@@ -30,6 +30,7 @@
   line-height: 17px;
   text-decoration: underline;
   color: #4fc2c9;
+  cursor: pointer;
 }
 
 .users-row {
@@ -45,20 +46,6 @@
     vertical-align: top;
     color: #fff;
     line-height: 28px;
-  }
-}
-
-.add-button {
-  width: 28px;
-  height: 28px;
-  padding: 0 10px;
-  color: #ced2d5;
-  background-color: #fff;
-  border: 2px dashed #ced2d5;
-  line-height: 24px;
-
-  &:hover {
-    border-color: #bdc3c6; /* change of color does not invoke full border redraw */
   }
 }
 

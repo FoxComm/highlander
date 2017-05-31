@@ -12,7 +12,7 @@ const { reducer, actions } = makeLiveSearch(
   'products_search_view/_search',
   'productsScope',
   {
-    rawSorts: ['title']
+    rawSorts: ['title'],
   }
 );
 

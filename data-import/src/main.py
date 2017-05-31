@@ -5,6 +5,7 @@ import itertools
 import json
 import os.path
 import urllib.request
+import ssl
 from collections import defaultdict
 from urllib.error import HTTPError
 
@@ -87,7 +88,9 @@ class Elasticsearch:
         req = urllib.request.Request(endpoint, headers={"Content-Type": "application/json", "JWT": self.jwt})
 
         try:
-            response = urllib.request.urlopen(req)
+            context = ssl.create_default_context()
+            context.check_hostname = False
+            response = urllib.request.urlopen(req, context=context)
         except HTTPError as err:
             print(repr(err))
             raise
@@ -104,7 +107,7 @@ class Elasticsearch:
 
         response = self.do_query('taxons_search_view')
         taxonomies = [read_item(item) for item in response["result"] if
-                      (item['context'] == 'default' and item['archivedAt'] is None)]
+                      ('context' in item and item['context'] == 'default' and item['archivedAt'] is None)]
         return taxonomies
 
     def get_products(self):
@@ -139,7 +142,9 @@ class Phoenix:
                                      method=method)
 
         try:
-            response = urllib.request.urlopen(req)
+            context = ssl.create_default_context()
+            context.check_hostname = False
+            response = urllib.request.urlopen(req, context=context)
         except HTTPError as err:
             print("HTTP error. code: {}. message: {}".format(err.code, err.read()))
             raise
@@ -151,11 +156,18 @@ class Phoenix:
         return code, json.loads(response.read().decode('utf-8'))
 
     def do_login(self):
+        print("logging in: host:",self.login_endpoint(), "user:", self.user, "organization:", self.org)
         payload = json.dumps({'email': self.user, 'password': self.password, 'org': self.org}).encode()
-        req = urllib.request.Request(self.login_endpoint(), payload)
+        context = ssl.create_default_context()
+        context.check_hostname = False
+        req = urllib.request.Request(self.login_endpoint(), payload, method='POST')
         req.add_header('Content-Type', 'application/json')
 
-        response = urllib.request.urlopen(req)
+        try:
+            response = urllib.request.urlopen(req, context=context)
+        except urllib.error.URLError as err:
+            print("Cannot connect to ", self.login_endpoint(), err)
+            raise
 
         content = json.loads(response.read().decode('utf-8'))
         self.jwt = dict(response.info())['Jwt']

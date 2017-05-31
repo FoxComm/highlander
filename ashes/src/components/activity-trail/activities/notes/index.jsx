@@ -16,19 +16,19 @@ function linkForNoteTarget(data) {
 
   switch(data.note.referenceType) {
     case 'customer':
-      return <CustomerLink customer={data.entity}/>;
+      return <CustomerLink customer={data.entity} />;
     case 'order':
-      return <CordLink cord={data.entity}/>;
+      return <CordLink cord={data.entity} />;
     case 'giftCard':
-      return <GiftCardLink code={data.entity.code}/>;
+      return <GiftCardLink code={data.entity.code} />;
     case 'product':
-      return <ProductLink id={data.note.referenceId} context='default' name={name}/>;
+      return <ProductLink id={data.note.referenceId} context='default' name={name} />;
     case 'sku':
-      return <SkuLink code={attrs.code.v} name={attrs.title.v}/>;
+      return <SkuLink code={attrs.code.v} name={attrs.title.v} />;
     case 'promotion':
-      return <PromotionLink id={data.note.referenceId} name={data.entity.attributes.name.v}/>;
+      return <PromotionLink id={data.note.referenceId} name={data.entity.attributes.name.v} />;
     case 'coupon':
-      return <CouponLink id={data.note.referenceId} name={data.entity.attributes.name.v}/>;
+      return <CouponLink id={data.note.referenceId} name={data.entity.attributes.name.v} />;
   }
   console.warn(`${data.note.referenceType} isn't supported yet`);
   console.dir(data);

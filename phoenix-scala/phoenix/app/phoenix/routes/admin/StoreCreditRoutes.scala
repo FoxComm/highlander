@@ -1,0 +1,39 @@
+package phoenix.routes.admin
+
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
+import phoenix.utils.http.JsonSupport._
+import phoenix.models.account.User
+import phoenix.payloads.StoreCreditPayloads._
+import phoenix.services.StoreCreditService
+import phoenix.services.Authenticator.AuthData
+import phoenix.utils.aliases._
+import phoenix.utils.http.CustomDirectives._
+import phoenix.utils.http.Http._
+
+object StoreCreditRoutes {
+  private[admin] def storeCreditRoutes(implicit ec: EC,
+                                       db: DB,
+                                       ac: AC,
+                                       auth: AuthData[User]): Route = {
+    pathPrefix("store-credits") {
+      (patch & pathEnd & entity(as[StoreCreditBulkUpdateStateByCsr])) { payload ⇒
+        mutateOrFailures {
+          StoreCreditService.bulkUpdateStateByCsr(payload, auth.model)
+        }
+      }
+    } ~
+    pathPrefix("store-credits" / IntNumber) { storeCreditId ⇒
+      (get & pathEnd) {
+        getOrFailures {
+          StoreCreditService.getById(storeCreditId)
+        }
+      } ~
+      (patch & pathEnd & entity(as[StoreCreditUpdateStateByCsr])) { payload ⇒
+        mutateOrFailures {
+          StoreCreditService.updateStateByCsr(storeCreditId, payload, auth.model)
+        }
+      }
+    }
+  }
+}

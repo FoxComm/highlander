@@ -11,6 +11,8 @@ import { prefix } from '../../lib/text-utils';
 import { LeftButton, RightButton } from 'components/core/button';
 import { Lookup } from '../lookup';
 
+import s from './paginator.css';
+
 const prefixed = prefix('fc-table-paginator');
 
 export default class TablePaginator extends React.Component {
@@ -86,7 +88,7 @@ export default class TablePaginator extends React.Component {
               data={_.range(1, pagesCount + 1).map(page => ({id: page, label: String(page)}))}
               value={currentPage}
               minQueryLength={0}
-              onSelect={this.onSelect}/>
+              onSelect={this.onSelect} />
     );
   }
 
@@ -98,11 +100,19 @@ export default class TablePaginator extends React.Component {
 
     return (
       <div className={prefixed()}>
-        <LeftButton onClick={this.onPrevPageClick} disabled={leftDisabled}/>
+        <LeftButton
+          onClick={this.onPrevPageClick}
+          disabled={leftDisabled}
+          className={s.paginatorButton}
+        />
         {this.renderCurrentPage()}
         <div className={prefixed('separator')}>of</div>
         {this.renderPagesCount()}
-        <RightButton onClick={this.onNextPageClick} disabled={rightDisabled}/>
+        <RightButton
+          onClick={this.onNextPageClick}
+          disabled={rightDisabled}
+          className={s.paginatorButton}
+        />
       </div>
     );
   }

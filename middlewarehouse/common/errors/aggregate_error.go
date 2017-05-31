@@ -5,25 +5,25 @@ import (
 )
 
 type AggregateError struct {
-	errors []error
+	Errors []error
 }
 
 func (e *AggregateError) Add(err error) {
-	e.errors = append(e.errors, err)
+	e.Errors = append(e.Errors, err)
 }
 
 func (e *AggregateError) Length() int {
-	return len(e.errors)
+	return len(e.Errors)
 }
 
-func (e AggregateError) Error() string {
+func (e *AggregateError) Error() string {
 	return strings.Join(e.Messages(), ", ")
 }
 
 func (e *AggregateError) Messages() []string {
 	result := []string{}
 
-	for _, err := range e.errors {
+	for _, err := range e.Errors {
 		result = append(result, err.Error())
 	}
 

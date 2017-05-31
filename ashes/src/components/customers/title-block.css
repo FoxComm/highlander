@@ -44,18 +44,19 @@
 }
 
 .avatar {
+  display: inline-block;
   --image-size: 84px;
   width: var(--circle-size);
   height: var(--circle-size);
   background-color: var(--white);
   border-radius: 50%;
   text-align: center;
-  display: inline-block;
   vertical-align: top;
   margin-top: var(--avatar-margin-top);
   margin-bottom: 4px;
 
   & > i {
+    display: inline-block;
     width: var(--image-size);
     height: var(--image-size);
     background-color: var(--decor15);

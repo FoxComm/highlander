@@ -1,5 +1,5 @@
 
-import { injectTimeMarks } from '../../../src/components/activity-trail/activity-trail';
+import { injectTimeMarks } from '../../../src/components/activity-trail/inject-time';
 
 describe('Activity Trail component', function() {
   context('#injectTimeMarks', function() {

@@ -1,0 +1,26 @@
+package phoenix.services.assignments
+
+import phoenix.models.cord._
+import phoenix.models.activity.Dimension
+import phoenix.models.{Assignment, NotificationSubscription}
+import phoenix.responses.cord.AmazonOrderResponse._
+import phoenix.utils.aliases._
+import slick.jdbc.PostgresProfile.api._
+import core.db._
+
+object AmazonOrderAssignmentsManager extends AssignmentsManager[String, AmazonOrder] {
+
+  val assignmentType  = Assignment.Assignee
+  val referenceType   = Assignment.AmazonOrder
+  val notifyDimension = Dimension.amazonOrder
+  val notifyReason    = NotificationSubscription.Assigned
+
+  def buildResponse(model: AmazonOrder): Root = build(model)
+
+  def fetchEntity(refNum: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[AmazonOrder] =
+    AmazonOrders.mustFindByAmazonOrderId(refNum)
+
+  def fetchSequence(
+      refNums: Seq[String])(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[AmazonOrder]] =
+    AmazonOrders.filter(_.amazonOrderId.inSetBind(refNums)).result.dbresult
+}

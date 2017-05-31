@@ -7,24 +7,23 @@ import { connect } from 'react-redux';
 import { ReasonType } from '../../lib/reason-utils';
 
 // components
-import { IndexLink, Link } from '../link';
+import { IndexLink, Link } from 'components/link';
 import GiftCardCode from './gift-card-code';
 import { DateTime } from '../common/datetime';
 import Currency from '../common/currency';
-import { PrimaryButton } from 'components/core/button';
 import WaitAnimation from '../common/wait-animation';
 import { PageTitle } from '../section-title';
 import Panel from '../panel/panel';
 import { PanelList, PanelListItem } from '../panel/panel-list';
 import { Dropdown } from '../dropdown';
-import LocalNav from '../local-nav/local-nav';
+import PageNav from 'components/core/page-nav';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import State, { formattedStatus } from '../common/state';
 
 // data
 import * as GiftCardActions from '../../modules/gift-cards/details';
 import * as ReasonsActions from '../../modules/reasons';
-import { states, stateTitles, stateActionTitles, getStateTransitions, typeTitles } from '../../paragons/gift-card';
+import { stateTitles, stateActionTitles, getStateTransitions, typeTitles } from '../../paragons/gift-card';
 
 @connect((state, props) => ({
   ...state.giftCards.details[props.params.giftCard],
@@ -95,11 +94,11 @@ export default class GiftCard extends React.Component {
 
     return (
       <div>
-        <LocalNav>
+        <PageNav>
           <IndexLink to="gift-card-transactions" params={params}>Transactions</IndexLink>
           <Link to="gift-card-notes" params={params}>Notes</Link>
           <Link to="gift-card-activity-trail" params={params}>Activity Trail</Link>
-        </LocalNav>
+        </PageNav>
         <div className="fc-gift-card-tabs">
           {content}
         </div>
@@ -215,7 +214,7 @@ export default class GiftCard extends React.Component {
 
     return (
       <div className="fc-gift-card">
-        <PageTitle title="Gift Card" subtitle={<GiftCardCode value={card.code} />}/>
+        <PageTitle title="Gift Card" subtitle={<GiftCardCode value={card.code} />} />
         <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-3">
             <Panel title="Available Balance" featured={true}>

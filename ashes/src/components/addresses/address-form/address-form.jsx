@@ -135,7 +135,7 @@ export default class AddressForm extends React.Component {
       );
     } else {
       const onChange = value => this.handlePhoneChange(value);
-      input = <TextInput {...inputAttributes} onChange={onChange} maxLength="15"/>;
+      input = <TextInput {...inputAttributes} onChange={onChange} maxLength="15" />;
     }
 
     return input;
@@ -297,7 +297,7 @@ export default class AddressForm extends React.Component {
               </li>
               <li className="fc-address-form-controls">
                 <SaveCancel onCancel={onCancel}
-                            saveText={saveTitle}/>
+                            saveText={saveTitle} />
               </li>
             </ul>
           </FoxyForm>

@@ -36,7 +36,7 @@
   margin-top: 30px;
 
   & :global(.fc-alert) {
-    margin-top: 20px;
+    margin: 20px 0;
   }
 }
 

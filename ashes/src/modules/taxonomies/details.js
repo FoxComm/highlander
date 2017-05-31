@@ -81,6 +81,6 @@ const reducer = createReducer({
   [_createTaxonomy.succeeded]: (state, taxonomy) => ({ ...state, taxonomy }),
   [_updateTaxonomy.succeeded]: (state, taxonomy) => ({ ...state, taxonomy }),
   [_archiveTaxonomy.succeeded]: (state, taxonomy) => ({ ...state, taxonomy }),
-}, initialState);
+}, initialState());
 
 export default reducer;

@@ -17,26 +17,36 @@ type Props = {
   /** Button content (label) */
   children?: Element<any>,
   /** If true — sets `width` style to 100% */
-  stretch?: boolean,
+  fullWidth?: boolean,
+  /** Small theme for button */
+  small?: boolean,
 };
 
 /**
  * Button component has a bunch of helper components built on top of generic `Button` component.
  * Usage is the same across all buttons.
  *
+ * [Mockups](https://zpl.io/Z39JBU)
+ *
  * @function Button
  */
-export const Button = ({ icon, children, isLoading = false, className = '', stretch, ...restProps }: Props) => {
+export const Button = ({ icon, children, isLoading, className, fullWidth, small, ...restProps }: Props) => {
+  const hasIcon = !!icon;
+  const content = children ? <span className={s.text}>{children}</span> : null;
+  const disabled = restProps.disabled || isLoading;
   const cls = classNames(
     s.button,
-    { [s.loading]: isLoading, [s.stretch]: stretch },
+    {
+      [s.loading]: isLoading,
+      [s.fullWidth]: fullWidth,
+      [s.small]: small,
+      [s.onlyIcon]: hasIcon && !content
+    },
     className
   );
 
-  const content = children ? <span className={s.text}>{children}</span> : null;
-
   return (
-    <button {...restProps} className={cls}>
+    <button {...restProps} className={cls} disabled={disabled}>
       {icon && <i className={`icon-${icon}`} />}
       {content}
     </button>
@@ -79,4 +89,12 @@ export const DeleteButton = ({ className, ...rest }: Props) => {
 
 export const CloseButton = ({ className, ...rest }: Props) => {
   return <Button icon='close' {...rest} className={classNames(s.close, className)} />;
+};
+
+type SocialProps = Props & {
+  type: 'google',
+};
+
+export const SocialButton = ({ className, type, ...rest }: SocialProps) => {
+  return <Button icon={type} {...rest} className={classNames(s.socialButton, s[type], className)} />;
 };

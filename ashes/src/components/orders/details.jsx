@@ -41,11 +41,11 @@ export default class OrderDetails extends Component {
             {order.channel !== 'Amazon.com' &&
               <DiscountsPanel promotion={order.promotion} />
             }
+            {order.channel !== 'Amazon.com' &&
+            <OrderCoupons isCart={false} coupon={order.coupon} />
+            }
             <OrderShippingAddress isCart={false} order={order} />
             <OrderShippingMethod isCart={false} order={order} />
-            {order.channel !== 'Amazon.com' &&
-              <OrderCoupons isCart={false} coupon={order.coupon} />
-            }
             <Payments {...this.props} />
           </div>
           <div className="fc-order-details-aside">

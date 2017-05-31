@@ -1,0 +1,18 @@
+---
+
+- name: Migrate DB
+  hosts: '{{hostname}}'
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with a database to migrate"
+      default: "hostname"
+      private: no
+    - name: "bernardo_db_name"
+      prompt: "Enter name of bernardo db to migrate"
+      default: "bernardo"
+      private: no
+
+  roles:
+      - { role: prod/migrate_bernardo_db }

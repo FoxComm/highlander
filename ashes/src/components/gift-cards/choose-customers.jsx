@@ -37,7 +37,7 @@ class ChooseCustomers extends Component {
       return null;
     }
 
-    return <CustomerRow customer={customer} key={customer.id}/>;
+    return <CustomerRow customer={customer} key={customer.id} />;
   }
 
   render() {

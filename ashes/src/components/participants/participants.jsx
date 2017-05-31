@@ -27,7 +27,7 @@ import type { EntityType } from 'types/entity';
 
 type AsyncActions = {
   fetchParticipants: AsyncState,
-}
+};
 
 type Props = {
   group: GroupType,
@@ -43,12 +43,12 @@ type Props = {
   asyncActions: AsyncActions,
   maxDisplayed: number,
   currentUser: TUser,
-}
+};
 
 type State = {
   restUsersDisplayed: boolean,
   isUsersPopupShown: boolean,
-}
+};
 
 function mapGlobalStateToProps(state) {
   return {
@@ -182,8 +182,8 @@ class Participants extends Component {
     return (
       <div styleName="users-row">
         <AddButton
-          styleName="add-button"
           onClick={this.handleAddClick}
+          small
         />
         {this.usersRow}
       </div>

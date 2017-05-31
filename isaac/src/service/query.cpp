@@ -126,7 +126,7 @@ namespace isaac
             token_data r;
 
             //try to get token from the cookie
-            auto cookie = msg.getCookie(key);
+            const auto cookie = msg.getCookie(key);
             if(!cookie.empty())
             {
                 r.data = cookie.data();

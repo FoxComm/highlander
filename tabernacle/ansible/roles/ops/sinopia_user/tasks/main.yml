@@ -1,0 +1,28 @@
+---
+
+- name: Enable Sinopia Registration
+  lineinfile:
+    dest: "{{sinopia_base_dir}}/config.yml"
+    regexp: "max_users"
+    line: "        max_users: 999"
+
+- name: Restart Sinopia
+  service: name=sinopia state=restarted enabled=yes
+
+- name: Register New User
+  expect:
+    command: "npm adduser --registry {{sinopia_url}}"
+    responses:
+      'Username': '{{sinopia_username}}'
+      'Password': '{{sinopia_password}}'
+      'Email: \(this IS public\)': '{{sinopia_email}}'
+    echo: yes
+
+- name: Disable Sinopia Registration
+  lineinfile:
+    dest: "{{sinopia_base_dir}}/config.yml"
+    regexp: "max_users"
+    line: "        max_users: -1"
+
+- name: Restart Sinopia
+  service: name=sinopia state=restarted enabled=yes

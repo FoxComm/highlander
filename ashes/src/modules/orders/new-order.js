@@ -2,7 +2,7 @@ import _ from 'lodash';
 import Api from '../../lib/api';
 import { combineReducers } from 'redux';
 import { createAction, createReducer } from 'redux-act';
-import { get, assoc } from 'sprout-data';
+import { assoc } from 'sprout-data';
 import makeQuickSearch from '../quick-search';
 
 const emptyFilters = [];

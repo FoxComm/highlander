@@ -2,7 +2,6 @@
 
 import _ from 'lodash';
 import React, { Component } from 'react';
-import { haveType } from '../../modules/state-helpers';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
@@ -89,8 +88,9 @@ class InventoryItemDetails extends Component {
   }
 
   @autobind
-  renderRow(row: WarehouseInventorySummary, index, columns, params) {
+  renderRow(row: WarehouseInventorySummary, index: number, columns: Columns, params: Object) {
     const key = `inventory-warehouse-${row.stockLocation.id}`;
+
     return (
       <InventoryWarehouseRow
         key={key}

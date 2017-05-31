@@ -12,7 +12,7 @@ import { ReasonType } from '../../lib/reason-utils';
 import { fetchReasons } from '../../modules/reasons';
 
 // components
-import { Dropdown, DropdownItem } from '../dropdown';
+import { Dropdown } from '../dropdown';
 
 
 const mapStateToProps = ({reasons}, {reasonType}) => {

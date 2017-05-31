@@ -3,13 +3,11 @@
 - name: Install Bottledwater Packages
   apt: name={{item}} state=latest force=yes
   with_items:
-    - make
-    - jq
     - debconf-utils
     - cmake
     - build-essential
     - libpq-dev
-    - libcurl4-openssl-dev
+    - libcurl4-nss-dev
     - libjansson-dev
     - pkg-config
     - librdkafka-dev
@@ -55,16 +53,16 @@
   with_items:
     - { name: phoenix, db_connection_string: "{{phoenix_db_connection_string}}", slot: "{{bottledwater_slot_phoenix}}" }
     - { name: middlewarehouse, db_connection_string: "{{middlewarehouse_db_connection_string}}", slot: "{{bottledwater_slot_middlewarehouse}}" }
-    - { name: marketplace, db_connection_string: "{{marketplace_db_connection_string}}", slot: "{{bottledwater_slot_marketplace}}" }
-  when: item.name != 'marketplace' or with_marketplace
+    - { name: onboarding, db_connection_string: "{{onboarding_service_db_connection_string}}", slot: "{{bottledwater_slot_onboarding_service}}" }
+  when: item.name != 'onboarding' or with_onboarding
 
 - name: Copy Bottledwater Services
   template: src=bottledwater.service dest="{{dest_services}}/bottledwater_{{item}}.service"
   with_items:
     - phoenix
     - middlewarehouse
-    - marketplace
-  when: item != 'marketplace' or with_marketplace
+    - onboarding
+  when: item != 'onboarding' or with_onboarding
 
 - name: Reload Systemd for Bottledwater
   command: systemctl daemon-reload
@@ -74,13 +72,13 @@
   with_items:
     - phoenix
     - middlewarehouse
-    - marketplace
-  when: item != 'marketplace' or with_marketplace
+    - onboarding
+  when: item != 'onboarding' or with_onboarding
 
 - name: Copy Bottledwater Consul Service
   template: src=bottledwater.json dest="/etc/consul.d/bottledwater_{{item}}.json"
   with_items:
     - phoenix
     - middlewarehouse
-    - marketplace
-  when: item != 'marketplace' or with_marketplace
+    - onboarding
+  when: item != 'onboarding' or with_onboarding

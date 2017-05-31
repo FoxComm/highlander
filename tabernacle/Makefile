@@ -13,13 +13,13 @@ build:
 
 test:
 	$(call header, Testing)
-	./terraform/testfmt.sh
-
-fmt:
-	terraform fmt terraform/
+	true
 
 deploy-stage:
 	ansible-playbook -v -i inventory/gce/ ansible/test_stage.yml
+
+deploy-groups:
+	ansible-playbook -v -i inventory/gce/ ansible/deploy_groups.yml
 
 deploy-demo1:
 	ansible-playbook -v -i inventory/gce/ ansible/demo.yml --extra-vars='{ "first_run": true, "application_hostname": "demo1" }'
@@ -33,6 +33,12 @@ deploy-td-stage:
 deploy-tpg-stage:
 	ansible-playbook -v -i inventory/static/tpg ansible/deploy_storefront.yml
 
+deploy-feature-branch:
+	ansible-playbook -v -i inventory/gce/ ansible/deploy_feature_branch.yml
+
+deploy-feature-branch-legacy:
+	ansible-playbook -v -i inventory/gce/ ansible/deploy_feature_branch_legacy.yml
+
 update-demo1:
 	ansible-playbook -v -i inventory/gce/ ansible/demo.yml --extra-vars='{ "with_data_import": false, "application_hostname": "demo1" }'
 
@@ -41,9 +47,6 @@ deploy-demo2:
 
 update-demo2:
 	ansible-playbook -v -i inventory/gce/ ansible/demo.yml --extra-vars='{ "with_data_import": false, "application_hostname": "demo2" }'
-
-deploy-feature-branch:
-	ansible-playbook -v -i inventory/gce/ ansible/provision_feature_branch.yml
 
 docker:
 	$(call header, Dockerizing)
