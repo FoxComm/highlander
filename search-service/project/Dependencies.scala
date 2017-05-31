@@ -32,7 +32,7 @@ object Dependencies {
   val akkaHttp = Seq(
     "com.typesafe.akka" %% "akka-http" % versions.akkaHttp,
     "de.heikoseeberger" %% 	"akka-http-circe" % "1.16.1"
-  ) ++ json
+  )
 
   val finch = Seq(
     "com.github.finagle" %% "finch-circe" % versions.finch,
@@ -40,11 +40,11 @@ object Dependencies {
     "com.github.finagle" %% "finch-generic" % versions.finch,
     "io.monix" %% "monix-eval" % versions.monix,
     "io.monix" %% "monix-reactive" % versions.monix
-  ) ++ json
+  )
 
   val http4s = Seq(
     "org.http4s" %% "http4s-dsl" % versions.http4s,
     "org.http4s" %% "http4s-blaze-server" % versions.http4s,
     "org.http4s" %% "http4s-circe" % versions.http4s
-  ) ++ json
+  )
 }

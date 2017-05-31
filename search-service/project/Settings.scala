@@ -1,4 +1,4 @@
-import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport.{scalafmtOnCompile, scalafmtVersion}
+import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport._
 import sbt.Keys._
 import sbt._
 import wartremover.WartRemover.autoImport.{Wart, Warts, wartremoverErrors}
@@ -23,7 +23,7 @@ object Settings {
     wartremoverErrors in (Compile, test) ++= Warts.allBut(Wart.NonUnitStatements),
 
     scalafmtVersion := "1.0.0-RC1",
-    scalafmtOnCompile := true,
+    compile in Compile := (compile in Compile).dependsOn(scalafmt in Compile).value,
 
     scalaSource in Compile       := baseDirectory.value / "app",
     resourceDirectory in Compile := baseDirectory.value / "resources"
