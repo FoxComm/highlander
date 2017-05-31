@@ -25,7 +25,7 @@ describe('RadioButton', function () {
 
   it('should render correct className', function () {
     const button = shallow(
-      <RadioButton id="id" className="new-cls"/>
+      <RadioButton id="id" className="new-cls" />
     );
 
     expect(button.hasClass('new-cls')).to.be.true;
@@ -34,7 +34,7 @@ describe('RadioButton', function () {
   it('should handle change', function () {
     const onChange = sinon.spy();
     const button = mount(
-      <RadioButton id="id" onChange={onChange}/>
+      <RadioButton id="id" onChange={onChange} />
     );
 
     button.find('input').simulate('change');
@@ -43,7 +43,7 @@ describe('RadioButton', function () {
 
   it('should have disabled input when props.disabled=true', function () {
     const button = mount(
-      <RadioButton id="id" disabled/>
+      <RadioButton id="id" disabled />
     );
 
     expect(button.find('input').prop('disabled')).to.be.true;
