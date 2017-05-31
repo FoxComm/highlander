@@ -27,6 +27,7 @@
   --white: #FFFFFF;
   --metallic-gray: #BABABA;
   --half-transparent-black: rgba(0, 0, 0, 0.5);
+  --dusty-gray: #9B9B9B;
 }
 
 :root {
@@ -73,6 +74,7 @@
   --label-color: var(--gray);
   --error-color: var(--cherry-red);
   --navigation-alt-color: var(--tundora);
+  --header-menu: var(--dusty-gray);
 
   /* Button colors */
   --button-default-background: var(--water-blue);

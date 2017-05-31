@@ -11,47 +11,61 @@ import { merge } from 'sprout-data';
 import { isAuthorizedUser } from 'paragons/auth';
 import localized from 'lib/i18n';
 import { Link } from 'react-router';
+import { browserHistory } from 'lib/history';
 
 // actions
-import { toggleCart } from 'modules/cart';
-import { toggleUserMenu } from 'modules/usermenu';
+import { toggleCart, fetch as fetchCart } from 'modules/cart';
+import { logout } from 'modules/auth';
 
 // components
-import UserMenu from './usermenu';
 import ActionLink from 'ui/action-link/action-link';
 
 import styles from './usertools.css';
 
 type Props = {
-  toggleCart: Function,
-  toggleUserMenu: Function,
+  toggleCart: () => void,
+  logout: () => Promise<*>,
+  fetchCart: () => void,
   path: string,
   t: any,
   query: string,
   quantity: number,
+  auth: Object,
 };
 
 class UserTools extends Component {
   props: Props;
 
   @autobind
-  handleUserClick(e) {
-    e.stopPropagation();
-    this.props.toggleUserMenu();
+  handleLogout() {
+    this.props.logout().then(() => {
+      this.props.fetchCart();
+      browserHistory.push('/');
+    });
   }
 
-  renderUserInfo() {
+  get userInfo() {
     const { t } = this.props;
     const user = _.get(this.props, ['auth', 'user'], null);
     const query = merge(this.props.query, {auth: authBlockTypes.LOGIN});
-    return !isAuthorizedUser(user) ? (
-      <Link styleName="login-link" to={{pathname: this.props.path, query}}>
-        {t('Log in')}
-      </Link>
-    ) : (
-      <div styleName="user-info">
-        <span styleName="username" onClick={this.handleUserClick}>{t('Hi')}, {user.name}</span>
-        {this.props.isMenuVisible && <UserMenu />}
+
+    if (!isAuthorizedUser(user)) {
+      return (
+        <Link styleName="login" to={{pathname: this.props.path, query}}>
+          {t('Log in')}
+        </Link>
+      );
+    }
+
+    return (
+      <div>
+        <span styleName="name">{t('Hi')}, {user.name}</span>
+        <Link to="/logout" onClick={this.handleLogout} styleName="logout">
+          {t('Log out')}
+        </Link>
+        <Link to="/profile" styleName="profile">
+          {t('Profile')}
+        </Link>
       </div>
     );
   }
@@ -69,8 +83,8 @@ class UserTools extends Component {
   render() {
     return (
       <div styleName="tools">
-        <div styleName="login">
-          {this.renderUserInfo()}
+        <div styleName="user-info">
+          {this.userInfo}
         </div>
         <ActionLink
           action={this.props.toggleCart}
@@ -84,13 +98,15 @@ class UserTools extends Component {
   }
 }
 
-const mapState = state => ({
-  auth: state.auth,
-  isMenuVisible: state.usermenu.isVisible,
-  quantity: state.cart.quantity,
-});
+const mapState = (state) => {
+  return {
+    auth: _.get(state, 'auth', {}),
+    quantity: _.get(state.cart, 'quantity', 0),
+  };
+};
 
 export default connect(mapState, {
   toggleCart,
-  toggleUserMenu,
+  logout,
+  fetchCart,
 })(localized(UserTools));
