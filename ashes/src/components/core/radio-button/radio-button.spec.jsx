@@ -18,7 +18,7 @@ describe('RadioButton', function () {
       <RadioButton id="id" label="Test Content" />
     );
 
-    expect(button.find('.content').text()).to.equal('Test Content');
+    expect(button.find('.label').text()).to.equal('Test Content');
   });
 
   it('should render correct className', function () {
