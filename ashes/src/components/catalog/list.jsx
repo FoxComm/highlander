@@ -67,7 +67,7 @@ export class CatalogsList extends Component {
         Catalog <Link to="catalog-details" params={{ id }}>{id}</Link>
       </span>
     );
-  };
+  }
 
   renderRow(row: Catalog, index: number, columns: Columns, params: Object) {
     const key = `catalogs-${_.get(row, 'id', index)}`;
