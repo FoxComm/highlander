@@ -386,7 +386,7 @@ loyalty_jmx_port: 39013
 
 # Seeds
 seeds_class: seeds.Seeds
-seeds_cmd: "{{seeds_class}} seed --seedAdmins"
+seeds_cmd: "{{seeds_class}} seed --seedAdmins --seedShippingRules"
 gatling_oneshot_seeds_cmd: gatling.seeds.OneshotSeeds
 gatling_continuous_seeds_cmd: gatling.seeds.ContinuousSeeds
 
