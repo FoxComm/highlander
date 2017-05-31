@@ -37,7 +37,7 @@ trait ReturnsFixtures
 
     val creditCard = {
       val cc = Factories.creditCard
-      api_newCreditCard(customer.id,
+      api_newCreditCard(customer.accountId,
                         CreateCreditCardFromTokenPayload(
                             token = "whatever",
                             lastFour = cc.lastFour,
@@ -61,8 +61,9 @@ trait ReturnsFixtures
 
     val giftCard = api_newGiftCard(GiftCardCreateByCsr(balance = 1000, reasonId = reason.id))
 
-    val storeCredit =
-      api_newStoreCredit(customer.id, CreateManualStoreCredit(amount = 1000, reasonId = reason.id))
+    val storeCredit = api_newStoreCredit(
+        customer.accountId,
+        CreateManualStoreCredit(amount = 1000, reasonId = reason.id))
 
     val product: SimpleProductData = Mvp.insertProduct(ctx.id, Factories.products.head).gimme
 
@@ -70,7 +71,7 @@ trait ReturnsFixtures
                     paymentMethods: Map[PaymentMethod.Type, Option[Int]])(
         implicit sl: SL,
         sf: SF): OrderResponse = {
-      val api = cartsApi(api_newCustomerCart(customer.id).referenceNumber)
+      val api = cartsApi(api_newCustomerCart(customer.accountId).referenceNumber)
 
       api.lineItems.add(lineItems)(defaultAdminAuth).mustBeOk()
       api.shippingAddress.updateFromAddress(address.id)(defaultAdminAuth).mustBeOk()
@@ -174,7 +175,7 @@ trait ReturnsFixtures
       with ReturnDefaults {
 
     val shippingCostPayload =
-      ReturnShippingCostLineItemPayload(amount = order.totals.shipping, reasonId = reason.id)
+      ReturnShippingCostLineItemPayload(amount = order.totals.shipping, reasonId = returnReason.id)
 
     val skuPayload =
       ReturnSkuLineItemPayload(sku = product.code, quantity = 1, reasonId = returnReason.id)

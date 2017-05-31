@@ -43,9 +43,11 @@ class StoreCreditIntegrationTest
 
       "succeeds with valid subTypeId" in new Fixture {
         customersApi(customer.accountId).payments.storeCredit
-          .create(CreateManualStoreCredit(amount = 25, reasonId = reason.id, subTypeId = Some(1)))
+          .create(CreateManualStoreCredit(amount = 25,
+                                          reasonId = reason.id,
+                                          subTypeId = Some(scSubType.id)))
           .as[Root]
-          .subTypeId must === (Some(1))
+          .subTypeId must === (Some(scSubType.id))
       }
 
       "fails if subtypeId is not found" in new Fixture {
@@ -115,7 +117,7 @@ class StoreCreditIntegrationTest
         StoreCreditAdjustments.cancel(adjustment.id).gimme
 
         val root = storeCreditsApi(storeCredit.id)
-          .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = Some(1)))
+          .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = Some(reason.id)))
           .as[Root]
         root.canceledAmount must === (Some(storeCredit.originalBalance))
 
@@ -132,7 +134,7 @@ class StoreCreditIntegrationTest
         StoreCredits.update(storeCredit, storeCredit.copy(availableBalance = 0)).gimme
 
         val root = storeCreditsApi(storeCredit.id)
-          .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = Some(1)))
+          .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = Some(reason.id)))
           .as[Root]
         root.canceledAmount must === (Some(0))
 

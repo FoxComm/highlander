@@ -565,7 +565,7 @@ class ReturnIntegrationTest
         val maxCCAmount = (0.5 * shippingMethod.price).toInt
         val scAmount    = product.price + shippingMethod.price - maxCCAmount
         override val storeCredit =
-          api_newStoreCredit(customer.id,
+          api_newStoreCredit(customer.accountId,
                              CreateManualStoreCredit(amount = scAmount, reasonId = reason.id))
         override val order = createDefaultOrder(
             Map(PaymentMethod.CreditCard → None, PaymentMethod.StoreCredit → Some(scAmount)))
