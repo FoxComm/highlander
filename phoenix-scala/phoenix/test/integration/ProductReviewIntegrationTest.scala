@@ -9,7 +9,7 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtures
-import utils.db.ExPostgresDriver.api._
+import core.db.ExPostgresDriver.api._
 
 class ProductReviewIntegrationTest
     extends IntegrationTestBase
