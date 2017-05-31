@@ -110,12 +110,24 @@ class OrderDetails extends Component {
     );
   }
 
+  get applePay() {
+    const { order } = this.props;
+    const paymentMethod = _.filter(order.paymentMethods, { type: 'applePay' })[0];
+
+    if (_.isEmpty(paymentMethod)) return null;
+
+    return (
+      <div styleName="apple-pay">Apple pay</div>
+    );
+  }
+
   get paymentMethods() {
     return (
       <div styleName="payment-method">
         <div styleName="title">Payment</div>
         {this.creditCard}
         {this.giftCards}
+        {this.applePay}
       </div>
     );
   }

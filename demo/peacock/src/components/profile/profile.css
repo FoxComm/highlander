@@ -51,6 +51,10 @@
   padding-bottom: 0;
 }
 
+.apple-pay {
+  padding-bottom: 10px;
+}
+
 .shipping-method-data {
   display: flex;
   justify-content: space-between;
