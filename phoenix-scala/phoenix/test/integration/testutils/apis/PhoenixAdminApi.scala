@@ -893,6 +893,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def update(payload: UpdateCatalogPayload)(implicit aa: TestAdminAuth): HttpResponse =
       PATCH(catalogPath, payload, aa.jwtCookie.some)
+  }
 
   object captureApi {
     val productPath = s"$rootPrefix/service/capture"
