@@ -118,7 +118,7 @@ class NewCustomer extends Component {
                   <li className="fc-customer-form-controls">
                     <SaveCancel
                       onCancel={transitionToLazy('customers')}
-                      saveText="Save Customer"
+                      saveLabel="Save Customer"
                       isLoading={submitStatus.inProgress}
                     />
                   </li>

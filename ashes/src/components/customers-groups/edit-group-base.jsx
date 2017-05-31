@@ -34,7 +34,7 @@ export default ({ group, title, onSave, cancelTo, cancelParams, saveInProgress, 
         <SaveCancel
           className="fc-customer-group-edit__form-submits"
           onCancel={transitionToLazy(cancelTo, cancelParams)}
-          saveText="Save Group"
+          saveLabel="Save Group"
           saveDisabled={!group.isValid}
           isLoading={saveInProgress}
         />

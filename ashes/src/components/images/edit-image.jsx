@@ -47,7 +47,7 @@ class EditImage extends Component {
         onCancel={this.props.onCancel}
         onSave={this.handleSave}
         saveDisabled={saveDisabled}
-        saveText="Save and Apply"
+        saveLabel="Save and Apply"
       />
     );
   }

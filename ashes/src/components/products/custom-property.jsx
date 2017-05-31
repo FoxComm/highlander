@@ -85,7 +85,7 @@ export default class CustomProperty extends Component<void, Props, State> {
         onCancel={this.props.onCancel}
         onSave={this.handleSave}
         saveDisabled={this.saveDisabled}
-        saveText="Save and Apply"
+        saveLabel="Save and Apply"
       />
     );
   }

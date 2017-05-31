@@ -67,7 +67,7 @@ export default class EditAlbum extends Component {
         onSave={this.handleSave}
         saveDisabled={this.saveDisabled}
         isLoading={this.props.loading}
-        saveText="Save and Apply"
+        saveLabel="Save and Apply"
       />
     );
   }

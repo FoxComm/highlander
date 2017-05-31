@@ -59,8 +59,8 @@ export default class ConfirmationModal extends Component {
 
     return (
       <SaveCancel
-        saveText={confirm}
-        cancelText={cancel}
+        saveLabel={confirm}
+        cancelLabel={cancel}
         onSave={onConfirm}
         onCancel={onCancel}
         isLoading={get(asyncState, 'inProgress', false)}

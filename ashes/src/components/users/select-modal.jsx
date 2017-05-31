@@ -46,7 +46,7 @@ class SelectAdminsModal extends Component {
         onCancel={props.onCancel}
         onSave={this.handleSave}
         saveDisabled={this.isSaveDisabled}
-        saveText={props.saveLabel}
+        saveLabel={props.saveLabel}
       />
     );
   }

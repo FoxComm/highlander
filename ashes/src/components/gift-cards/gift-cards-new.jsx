@@ -227,7 +227,7 @@ export default class NewGiftCard extends React.Component {
           <SaveCancel
             onCancel={transitionToLazy('gift-cards')}
             saveDisabled={saveDisabled}
-            saveText="Issue Gift Card"
+            saveLabel="Issue Gift Card"
           />
         </Form>
       </div>
