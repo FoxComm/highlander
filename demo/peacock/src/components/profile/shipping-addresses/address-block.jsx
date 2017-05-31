@@ -62,12 +62,12 @@ class AddressBlock extends Component {
 
   get defaultAddress() {
     const { addresses } = this.props;
-    return _.filter(addresses, address => address.isDefault);
+    return _.find(addresses, { isDefault: true });
   }
 
   @autobind
   displayShippingAddress() {
-    const defaultAddress = this.defaultAddress[0];
+    const defaultAddress = this.defaultAddress;
 
     if (_.isEmpty(defaultAddress)) return true;
 
@@ -79,7 +79,7 @@ class AddressBlock extends Component {
 
   get shippingAddressDetails() {
     const { shippingAddress } = this.props;
-    const defaultAddress = this.defaultAddress[0];
+    const defaultAddress = this.defaultAddress;
 
     if (!this.displayShippingAddress() || _.isEmpty(shippingAddress) && _.isEmpty(defaultAddress)) {
       return null;
@@ -98,7 +98,7 @@ class AddressBlock extends Component {
 
   get defaultAddressDetails() {
     const { shippingAddress } = this.props;
-    const defaultAddress = this.defaultAddress[0];
+    const defaultAddress = this.defaultAddress;
 
     if (_.isEmpty(shippingAddress) && _.isEmpty(defaultAddress)) {
       return (
