@@ -22,7 +22,7 @@ describe('Checkboxes', function () {
 
   it('should render className in DefaultCheckbox', function () {
     const checkbox = shallow(
-      <DefaultCheckbox className="test"/>
+      <DefaultCheckbox className="test" />
     );
 
     expect(checkbox.hasClass('test')).to.be.true;
@@ -31,7 +31,7 @@ describe('Checkboxes', function () {
   it('should handle input change', function () {
     const onChange = sinon.spy();
     const checkbox = mount(
-      <DefaultCheckbox id="id" onChange={onChange}/>
+      <DefaultCheckbox id="id" onChange={onChange} />
     );
 
     checkbox.find('input').simulate('change');
@@ -51,7 +51,7 @@ describe('Checkboxes', function () {
 
   it('should render className in Checkbox', function () {
     const checkbox = shallow(
-      <Checkbox className="test"/>
+      <Checkbox className="test" />
     );
 
     expect(checkbox.hasClass('test')).to.be.true;
@@ -60,7 +60,7 @@ describe('Checkboxes', function () {
 
   it('should render inline, docked in Checkbox', function () {
     const checkbox = shallow(
-      <Checkbox inline docked="right"/>
+      <Checkbox inline docked="right" />
     );
 
     expect(checkbox.hasClass('inline')).to.be.true;
@@ -72,7 +72,7 @@ describe('Checkboxes', function () {
 
   it('should render className in PartialCheckbox', function () {
     const checkbox = shallow(
-      <PartialCheckbox className="test"/>
+      <PartialCheckbox className="test" />
     );
 
     expect(checkbox.hasClass('test')).to.be.true;
@@ -80,7 +80,7 @@ describe('Checkboxes', function () {
 
   it('should render halfChecked in PartialCheckbox', function () {
     const checkbox = shallow(
-      <PartialCheckbox checked halfChecked/>
+      <PartialCheckbox checked halfChecked />
     );
 
     expect(checkbox.hasClass('halfChecked')).to.be.true;
@@ -88,7 +88,7 @@ describe('Checkboxes', function () {
 
   it('should not render halfChecked if it is just checked', function () {
     const checkbox = shallow(
-      <PartialCheckbox checked/>
+      <PartialCheckbox checked />
     );
 
     expect(checkbox.hasClass('halfChecked')).to.be.false;
@@ -99,7 +99,7 @@ describe('Checkboxes', function () {
 
   it('should render className in BigCheckbox', function () {
     const checkbox = shallow(
-      <BigCheckbox className="test"/>
+      <BigCheckbox className="test" />
     );
 
     expect(checkbox.hasClass('test')).to.be.true;
@@ -110,12 +110,11 @@ describe('Checkboxes', function () {
 
   it('should render className in SliderCheckbox', function () {
     const checkbox = shallow(
-      <SliderCheckbox className="test"/>
+      <SliderCheckbox className="test" />
     );
 
     expect(checkbox.hasClass('test')).to.be.true;
     expect(checkbox.hasClass('slideCheckbox')).to.be.true;
   });
-
 
 });
