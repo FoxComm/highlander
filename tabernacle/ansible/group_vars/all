@@ -13,7 +13,7 @@ sinopia_url: https://npm.foxcommerce.com:4873
 
 # Appliance-related things
 appliance_prefix: appliance
-appliance_hostname: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.{{foxcomm_domain}}"
+appliance_hostname: "appliance-{{inventory_hostname | replace(\".\", \"-\") }}.{{foxcomm_domain}}"
 dashboard_assets_location: /usr/local/dashboard
 
 # Keys
