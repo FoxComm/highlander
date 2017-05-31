@@ -79,14 +79,15 @@ class AddressBlock extends Component {
 
   get shippingAddressDetails() {
     const { shippingAddress } = this.props;
+    const defaultAddress = this.defaultAddress[0];
 
-    if (_.isEmpty(shippingAddress)) {
+    if (!this.displayShippingAddress() || _.isEmpty(shippingAddress) && _.isEmpty(defaultAddress)) {
+      return null;
+    } else if (_.isEmpty(shippingAddress)) {
       return (
         <div>No shipping address found.</div>
       );
     }
-
-    if (!this.displayShippingAddress()) return null;
 
     return (
       <AddressDetails
@@ -96,9 +97,14 @@ class AddressBlock extends Component {
   }
 
   get defaultAddressDetails() {
+    const { shippingAddress } = this.props;
     const defaultAddress = this.defaultAddress[0];
 
-    if (_.isEmpty(defaultAddress)) {
+    if (_.isEmpty(shippingAddress) && _.isEmpty(defaultAddress)) {
+      return (
+        <div> No address yet.</div>
+      );
+    } else if (_.isEmpty(defaultAddress)) {
       return (
         <div>No default address found.</div>
       );
