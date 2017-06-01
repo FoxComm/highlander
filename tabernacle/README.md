@@ -44,6 +44,7 @@ All of our DevOps tools for deploying the application to both development and pr
             * `schema_registry`
         * `mesos_master`
             * `marathon`
+               * `marathon_consul`
         * `mesos_worker`
 * `elasticsearch`
 * `elasticseach_5`
@@ -64,5 +65,6 @@ Two parallel pipelines:
     * `core-frontend` (ashes, any storefronts)
         * `core-integrations` (hyperion, messaging)
 * `ic-storage` (henhouse, neo4j)
-    * `ic-apps` (anthill, bernardo, river-rock)
-        * `ic-consumers` (golang IC consumers)
+    * `ic-hooks` (neo4j-reset)
+        * `ic-backend` (anthill, bernardo, river-rock)
+            * `ic-consumers` (golang IC consumers)
