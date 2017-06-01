@@ -19,6 +19,7 @@
     - { role: base/mesos_worker, when: first_run }
     - { role: dev/db, when: first_run }
     - { role: dev/db_ic, when: first_run }
+    - { role: dev/flyway }
     - { role: dev/seed_system, when: first_run }
 
 - name: Provision Stage Frontend
