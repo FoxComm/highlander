@@ -8,6 +8,7 @@
 \usepackage[pdf]{graphviz}
 \usepackage[boxed]{algorithm2e} %end for dote
 \usepackage{color}
+\usepackage{morewrites}
 
 \title{Multi Tenancy to Completion}
 \begin{document}
@@ -207,7 +208,6 @@ Catalogs are collections of products you want to sell.
     subgraph first{
         scope [label="Scope"];
         products [label="Products"];
-        stock [label="Stock"];
         discounts [label="Discounts"];
         name [label="Name"];
         country [label="Country"];
@@ -220,7 +220,6 @@ Catalogs are collections of products you want to sell.
     catalog -> name [label="has a"]
     catalog -> products [label="has"]
     catalog -> discounts [label="has"]
-    catalog -> stock [label="has"]
     catalog -> payment [label="has"]
     catalog -> country [label="for a"]
     catalog -> language [label="has default"]
@@ -244,13 +243,14 @@ Channels should be comprised of three key components
         scope [label="Scope"];
         catalog [label="Catalog"];
         payment [label="Payment Methods"];
-        payment [label="Payment Methods"];
+        stock [label="Stock"];
         aux [label="Auxiliary Data..."];
     };
 
     channel -> scope [label="belongs to"]
     channel -> catalog [label="has a"]
     channel -> payment [label="uses"]
+    channel -> stock [label="has"]
     channel -> aux [label="has"]
 }
 
@@ -373,6 +373,165 @@ modify them to understand which channel they are serving.
 
 \subsection{Example Story}
 
-TODO: Give example of single merchant with multi storefronts
+We acquired a customer which sells shoes called ShoeMe that wants to operate two
+global sites and sell products on amazon. They want to sell on two domains,
+shoeme.co.uk and shoeme.co.jp and amazon.com.
+
+\digraph[scale=0.80]{ShoeMe}{
+    splines="ortho";
+    rankdir=LR;
+    node [shape=record,style=filled,fillcolor="pink"];
+
+    subgraph zero{
+        shoeme [label="ShoeMe"]
+    };
+    subgraph first{
+        amazon [label="{amazon.com}"];
+        uk [label="{shoeme.co.jp}"];
+        jp [label="{shoeme.co.uk}"];
+    };
+
+    shoeme -> amazon;
+    shoeme -> uk;
+    shoeme -> jp;
+}
+
+We create a new \emph{Organization} called ShoeMe and \emph{Scope} with id ``1.2'' .
+Within that \emph{Organization} we create a \emph{role} called ``admin'' and a new
+\emph{user} assigned to that role. 
+
+\digraph[scale=0.80]{ShoeMeOrg}{
+    splines="ortho";
+    rankdir=TD;
+    node [shape=record,style=filled,fillcolor="pink"];
+
+    org [label="ShoeMe Org"]
+    scope [label="Scope 1.2"];
+    admin [label="{Admin Role|Admin Users}"];
+
+    scope -> org;
+    org -> admin;
+}
+
+The ShoeMe representative follows the password creation flow for their new account and
+gets access to ashes.
+
+We create for the customer four catalogs called ``master'', ``uk'', ``jp'', and ``amazon''.
+Behind the scenes with creates four views ``master'', ``uk'', ``jp'', and ``amazon''.
+They then import there products into the master catalog. They then use ashes to selectively
+assign products into the other three catalogs. This forks the products into the three other
+views. 
+
+\digraph[scale=0.80]{ShoeMeCatalogs}{
+    splines="ortho";
+    rankdir=TD;
+    node [shape=record,style=filled,fillcolor="pink"];
+
+    scope [label="{Scope 1.2}"];
+
+    master [fillcolor="green",label="{Master|{Catalog|View}}"];
+
+    subgraph catalogs { 
+        rank=same;
+        uk [fillcolor="green",label="{UK|{Catalog|View}}"];
+        jp [fillcolor="green",label="{JP|{Catalog|View}}"];
+        amazon [fillcolor="green",label="{Amazon|{Catalog|View}}"];
+    };
+
+    scope -> master;
+    master -> uk;
+    master -> jp;
+    master -> amazon;
+}
+
+We create three channels for the customer called ``uk''. ``jp''. and ``amazon'' and assign
+each appropriate catalog to the channels.
+
+\digraph[scale=0.80]{ShoeMeChannels}{
+    splines="ortho";
+    rankdir=TD;
+    node [shape=record,style=filled,fillcolor="pink"];
+
+    scope [label="{Scope 1.2}"];
+    master [fillcolor="green",label="{Master|{Catalog|View}}"];
+
+    subgraph catalogs { 
+        rank=same;
+        uk [fillcolor="green",label="{UK|{Catalog|View}}"];
+        jp [fillcolor="green",label="{JP|{Catalog|View}}"];
+        amazon [fillcolor="green",label="{Amazon|{Catalog|View}}"];
+    };
+
+    subgraph channels { 
+        rank=same;
+        ukc [fillcolor="lightblue",label="{UK|{Channel|Stock}}"];
+        jpc [fillcolor="lightblue",label="{JP|{Channel|Stock}}"];
+        amazonc [fillcolor="lightblue",label="{Amazon|{Channel|Stock}}"];
+    };
+
+    scope -> master;
+    master -> uk;
+    master -> jp;
+    master -> amazon;
+    uk -> ukc;
+    jp -> jpc;
+    amazon -> amazonc;
+}
+
+
+We then create two storefronts, ``shoeme.co.uk'' and ``shoeme.co.jp''.
+Behind the scenes these two storefronts will create two views which will be used
+by the CMS to show various content. Just like with catalogs they can first build one storefront
+and then copy over the data into the other.
+
+\digraph[scale=0.80]{ShoeMeStores}{
+    splines="ortho";
+    rankdir=TD;
+    node [shape=record,style=filled,fillcolor="pink"];
+
+    scope [label="{Scope 1.2}"];
+    master [fillcolor="green",label="{Master|{Catalog|View}}"];
+
+    subgraph catalogs { 
+        rank=same;
+        uk [fillcolor="green",label="{UK|{Catalog|View}}"];
+        jp [fillcolor="green",label="{JP|{Catalog|View}}"];
+        amazon [fillcolor="green",label="{Amazon|{Catalog|View}}"];
+    };
+
+    subgraph channels { 
+        rank=same;
+        ukc [fillcolor="lightblue",label="{UK|{Channel|Stock}}"];
+        jpc [fillcolor="lightblue",label="{JP|{Channel|Stock}}"];
+        amazonc [fillcolor="lightblue",label="{Amazon|{Channel|Stock}}"];
+    };
+
+    subgraph storefronts { 
+        rank=same;
+        uks [fillcolor="yellow",label="{shoeme.co.uk|{Storefront|CMS View}}"];
+        jps [fillcolor="yellow",label="{shoeme.co.jp|{Storefront|CMS View}}"];
+    };
+
+    scope -> master;
+    master -> uk;
+    master -> jp;
+    master -> amazon;
+    uk -> ukc;
+    jp -> jpc;
+    amazon -> amazonc;
+    ukc -> uks;
+    jpc -> jps;
+}
+
+Our API will understand how to serve traffic depending on the host of each storefront 
+by selecting the appropriate CMS views and catalog assigned to the storefront.
+
+Behind the scenes will can also provide sister views to each view for staging changing
+which await approval.
+
+Each catalog may also be assigned the same or different stock item location and
+pricing information. Each catalog can therefore share or maintain separate stock
+for the products in the catalog.
+
 
 \end{document}
