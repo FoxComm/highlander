@@ -21,8 +21,6 @@
     url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-    with_storefront_td: true
-    with_storefront_tpg: true
   pre_tasks:
     - name: Override hostnames
       set_fact:
@@ -33,11 +31,7 @@
     - { role: dev/marathon_consul }
     - { role: dev/flyway }
     - { role: dev/seed_system, when: first_run }
-    - { role: dev/marathon }
-    - { role: dev/marathon_consumers }
-    - { role: dev/ic }
-    - { role: ext/td/storefront }
-    - { role: ext/tpg/storefront }
+    - { role: dev/marathon_groups }
     - { role: dev/nginx }
     - { role: demo/balancer }
     - { role: dev/seeder, when: with_appliance_seeding and first_run }
