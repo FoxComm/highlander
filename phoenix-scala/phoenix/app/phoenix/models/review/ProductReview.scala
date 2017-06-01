@@ -3,9 +3,9 @@ package phoenix.models.review
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
-import phoenix.models.objects._
 import shapeless._
 import slick.lifted.Tag
+import slick.dbio.DBIO
 import core.utils.Validation
 import phoenix.utils.aliases.Json
 import core.db._
@@ -40,6 +40,9 @@ class ProductReviews(tag: Tag) extends FoxTable[ProductReview](tag, "product_rev
 object ProductReviews
     extends FoxTableQuery[ProductReview, ProductReviews](new ProductReviews(_))
     with ReturningId[ProductReview, ProductReviews] {
+
+  def findOneByUserAndSku(userId: Int, skuId: Int): DBIO[Option[ProductReview]] =
+    filter(_.userId === userId).filter(_.skuId === skuId).result.headOption
 
   val returningLens: Lens[ProductReview, Int] = lens[ProductReview].id
 }
