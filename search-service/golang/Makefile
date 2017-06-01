@@ -1,5 +1,5 @@
 include ../../makelib
-header = $(call baseheader, $(1), middlewarehouse)
+header = $(call baseheader, $(1), search-go)
 
 GOPATH = /tmp/go
 BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
