@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 // components
 import { Link } from 'components/link';
 import ConfirmationModal from 'components/core/confirmation-modal';
-import Counter from 'components/forms/counter';
+import Counter from 'components/core/counter';
 import { DeleteButton } from 'components/core/button';
 import Currency from 'components/common/currency';
 import ProductImage from 'components/imgix/product-image';

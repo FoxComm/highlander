@@ -5,7 +5,7 @@ import React from 'react';
 import classNames from 'classnames';
 
 // components
-import Counter from '../../forms/counter';
+import Counter from 'components/core/counter';
 
 // styles
 import s from '../attrs-edit.css';

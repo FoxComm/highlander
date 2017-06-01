@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 // components
 import ContentBox from '../../content-box/content-box';
 import RadioButton from 'components/core/radio-button';
-import Counter from '../../forms/counter';
+import Counter from 'components/core/counter';
 import FormField from '../../forms/formfield';
 import CodeCreationModal from './code-creation-modal';
 import { transitionTo } from 'browserHistory';

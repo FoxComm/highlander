@@ -8,7 +8,7 @@ import { autobind } from 'core-decorators';
 // components
 import ContentBox from '../../content-box/content-box';
 import RadioButton from 'components/core/radio-button';
-import Counter from '../../forms/counter';
+import Counter from 'components/core/counter';
 
 // styles
 import styles from './styles.css';

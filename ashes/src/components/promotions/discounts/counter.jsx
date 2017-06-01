@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import s from '../attrs-edit.css';
 
 // components
-import Counter from '../../forms/counter';
+import Counter from 'components/core/counter';
 
 // types
 import type { Context, ItemDesc } from '../types';

@@ -5,7 +5,7 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
-import Counter from './counter';
+import Counter from 'components/core/counter';
 import BodyPortal from '../body-portal/body-portal';
 import Overlay from '../overlay/overlay';
 

@@ -11,7 +11,7 @@ import { connect } from 'react-redux';
 import { transitionTo, transitionToLazy } from 'browserHistory';
 
 // components
-import Counter from '../forms/counter';
+import Counter from 'components/core/counter';
 import { Dropdown } from '../dropdown';
 import { Form } from '../forms';
 import SaveCancel from 'components/core/save-cancel';
