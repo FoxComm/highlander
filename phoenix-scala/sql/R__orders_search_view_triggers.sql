@@ -84,3 +84,20 @@ begin
     return null;
 end;
 $$ language plpgsql;
+
+create or replace function update_orders_view_from_orders_update_fn() returns trigger as $$
+begin
+    update orders_search_view set
+        state = new.state,
+        placed_at = to_char(new.placed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+        currency = new.currency,
+        sub_total = new.sub_total,
+        shipping_total = new.shipping_total,
+        adjustments_total = new.adjustments_total,
+        taxes_total = new.taxes_total,
+        grand_total = new.grand_total
+    where reference_number = new.reference_number;
+
+    return null;
+end;
+$$ language plpgsql;
