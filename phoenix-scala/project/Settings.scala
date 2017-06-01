@@ -1,6 +1,4 @@
 import Configurations._
-import org.scalafmt.sbt.ScalaFmtPlugin
-import org.scalafmt.sbt.ScalaFmtPlugin.autoImport._
 import sbt.Keys._
 import sbt._
 import sbtassembly.AssemblyKeys._
@@ -62,10 +60,7 @@ object Settings {
       "confluent"          at "http://packages.confluent.io/maven/",
       Resolver.bintrayRepo("kwark", "maven") // Slick with deadlock patch
     )
-  ) ++ scalafmtSettings ++ sourceLocationSettings ++ Revolver.settings
-
-  lazy val scalafmtSettings: Seq[Setting[_]] =
-    reformatOnCompileSettings :+ (scalafmtConfig := Some(file(".scalafmt")))
+  ) ++ sourceLocationSettings ++ Revolver.settings
 
   // Let's keep project sources in `app` directory instead of `src/scala/main`
   // I also prefer `app` over `src` because sources end up on top of list in the project tree view! -- Anna
@@ -75,7 +70,7 @@ object Settings {
   )
 
   lazy val sharedItSettings: Seq[Setting[_]] =
-    Defaults.testTasks ++ Defaults.itSettings ++ ScalaFmtPlugin.configScalafmtSettings
+    Defaults.testTasks ++ Defaults.itSettings
 
   lazy val itSettings: Seq[Setting[_]] = inConfig(IT)(sharedItSettings) ++ Seq(
       testOptions in IT := (testOptions in Test).value :+ Tests.Argument("-l", "tags.External")

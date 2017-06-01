@@ -14,7 +14,6 @@ lazy val phoenix = (project in file("phoenix"))
   .configs(IT, ET)
   .settings(itSettings, etSettings)
   .settings(commonSettings)
-  .settings(reformatOnCompileWithItSettings)
   .settings(
     libraryDependencies ++= {
       import Dependencies._
@@ -96,20 +95,3 @@ seedDemo := (runMain in Compile in seeder).partialInput(s"$seedCommand --seedDem
 // Gatling seeds
 seedOneshot    := (runMain in Compile in seeder).partialInput(" gatling.seeds.OneshotSeeds").evaluated
 seedContinuous := (runMain in Compile in seeder).partialInput(" gatling.seeds.ContinuousSeeds").evaluated
-
-// Scalafmt
-scalafmtAll := Def.task().dependsOn(scalafmt in Compile in phoenix,
-                                    scalafmt in Test    in phoenix,
-                                    scalafmt in IT      in phoenix,
-                                    scalafmt in ET      in phoenix,
-                                    scalafmt in Compile in objectframework,
-                                    scalafmt in Compile in core,
-                                    scalafmt in Compile in seeder).value
-
-scalafmtTestAll := Def.task().dependsOn(scalafmtTest in Compile in phoenix,
-                                        scalafmtTest in Test    in phoenix,
-                                        scalafmtTest in IT      in phoenix,
-                                        scalafmtTest in ET      in phoenix,
-                                        scalafmtTest in Compile in objectframework,
-                                        scalafmtTest in Compile in core,
-                                        scalafmtTest in Compile in seeder).value
