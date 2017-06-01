@@ -6,7 +6,6 @@ import phoenix.failures.ProductReviewFailures._
 import phoenix.models.account.{Scope, User}
 import phoenix.models.inventory.Skus
 import phoenix.models.review.{ProductReview, ProductReviews}
-import phoenix.models.taxonomy.{TaxonLocation ⇒ _}
 import phoenix.payloads.ProductReviewPayloads._
 import phoenix.responses.ProductReviewResponses
 import phoenix.responses.ProductReviewResponses.ProductReviewResponse
@@ -32,11 +31,13 @@ object ProductReviewManager {
     for {
       scope ← * <~ Scope.resolveOverride(payload.scope)
       sku   ← * <~ Skus.mustFindByCode(payload.sku)
-      productReview ← * <~ ProductReviews.create(
-                         ProductReview(scope = scope,
-                                       content = payload.attributes,
-                                       userId = userId,
-                                       skuId = sku.id))
+      productReview ← * <~ ProductReviews
+                       .findOneByUserAndSku(userId, sku.id)
+                       .findOrCreate(
+                           ProductReviews.create(ProductReview(scope = scope,
+                                                               content = payload.attributes,
+                                                               userId = userId,
+                                                               skuId = sku.id)))
       sku ← * <~ Skus.mustFindById404(productReview.skuId)
     } yield ProductReviewResponses.build(productReview, sku.code)
   }
