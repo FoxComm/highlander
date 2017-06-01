@@ -46,6 +46,12 @@ module.exports = {
           name: 'Core',
           sections: [
             {
+              name: 'Alerts',
+              components: () => ([
+                path.resolve(__dirname, '../src/components/core/alert/alert.jsx'),
+              ]),
+            },
+            {
               name: 'Buttons',
               components: () => ([
                 path.resolve(__dirname, '../src/components/core/button/button.jsx'),
@@ -76,6 +82,18 @@ module.exports = {
               ]),
             },
           ],
+        },
+        {
+          name: 'Utils',
+          sections: [
+            {
+              name: 'Errors',
+              components: () => ([
+                path.resolve(__dirname, '../src/components/utils/errors/errors.jsx'),
+                path.resolve(__dirname, '../src/components/utils/errors/api-errors.jsx'),
+              ]),
+            },
+          ]
         },
       ],
     },

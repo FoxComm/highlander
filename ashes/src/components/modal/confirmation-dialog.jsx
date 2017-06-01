@@ -9,11 +9,11 @@ import React, { Element, Component } from 'react';
 import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
 import wrapModal from 'components/modal/wrapper';
-import ErrorAlerts from 'components/alerts/error-alerts';
+import { ApiErrors } from 'components/utils/errors';
 
 type Props = {
-  body: string|Element<*>,
-  header: string|Element<*>,
+  body: string | Element<*>,
+  header: string | Element<*>,
   cancel: string,
   confirm: string,
   onCancel: Function,
@@ -59,7 +59,7 @@ const ConfirmationDialog = (props: Props) => {
     <div onKeyDown={handleKeyPress}>
       <ContentBox title={title} className={cls} actionBlock={actionBlock}>
         <div className='fc-modal-body'>
-          <ErrorAlerts error={_.get(props.asyncState, 'err', null)} />
+          <ApiErrors response={_.get(props.asyncState, 'err', null)} />
           {props.body}
         </div>
 

@@ -9,7 +9,7 @@ import React, { Component, Element } from 'react';
 
 // components
 import ConfirmationDialog from '../modal/confirmation-dialog';
-import Alert from '../alerts/alert';
+import Alert from 'components/core/alert';
 import AlbumWrapper from './album-wrapper/album-wrapper';
 import EditAlbum from './edit-album';
 import Upload from '../upload/upload';
@@ -152,7 +152,7 @@ export default class Album extends Component {
 
     const body = (
       <div>
-        <Alert type="warning">
+        <Alert type={Alert.WARNING}>
           Archiving this album will remove <strong>{album.images.length} images</strong> from the product.
           <strong> This action cannot be undone</strong>
         </Alert>

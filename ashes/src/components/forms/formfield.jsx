@@ -8,7 +8,7 @@ import * as validators from 'lib/validators';
 import classNames from 'classnames';
 import { isDefined } from 'lib/utils';
 
-import AutoScroll from '../common/auto-scroll';
+import AutoScroll from 'components/utils/auto-scroll';
 
 type FormFieldErrorProps = {
   error: Element<*>|string,

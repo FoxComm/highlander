@@ -5,8 +5,8 @@ import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
-import Alert from '../alerts/alert';
-import ErrorAlerts from '../alerts/error-alerts';
+import Alert from 'components/core/alert';
+import { ApiErrors } from 'components/utils/errors';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import { PrimaryButton, SocialButton } from 'components/core/button';
@@ -118,13 +118,13 @@ export default class Login extends Component {
   get infoMessage() {
     const { message } = this.state;
     if (!message) return null;
-    return <Alert type="success">{message}</Alert>;
+    return <Alert className={s.alert} type={Alert.SUCCESS}>{message}</Alert>;
   }
 
   get errorMessage() {
     const err = this.props.authenticationState.err;
     if (!err) return null;
-    return <ErrorAlerts error={err} />;
+    return <ApiErrors response={err} />;
   }
 
   get content() {

@@ -11,11 +11,11 @@ import { createSelector } from 'reselect';
 // components
 import FormField from '../../forms/formfield';
 import FoxyForm from '../../forms/foxy-form';
-import ErrorAlerts from '../../alerts/error-alerts';
+import { ApiErrors } from 'components/utils/errors';
 import SaveCancel from 'components/core/save-cancel';
 import { Dropdown } from '../../dropdown';
 import TextInput from '../../forms/text-input';
-import AutoScroll from '../../common/auto-scroll';
+import AutoScroll from 'components/utils/auto-scroll';
 
 // data
 import * as validators from '../../../lib/validators';
@@ -125,7 +125,7 @@ export default class AddressForm extends React.Component {
     let input;
 
     if (this.countryCode === 'US') {
-      const onChange = ({ target: { value }}) => this.handlePhoneChange(value);
+      const onChange = ({ target: { value } }) => this.handlePhoneChange(value);
       input = (
         <TextMask
           {...inputAttributes}
@@ -154,7 +154,7 @@ export default class AddressForm extends React.Component {
   }
 
   get errorMessages() {
-    return <ErrorAlerts error={this.props.err} />;
+    return <ApiErrors error={this.props.err} />;
   }
 
   get formTitle() {
@@ -202,7 +202,7 @@ export default class AddressForm extends React.Component {
 
   @autobind
   handlePhoneChange(phone) {
-    this.setState({phone});
+    this.setState({ phone });
   }
 
   @autobind
@@ -296,8 +296,10 @@ export default class AddressForm extends React.Component {
                 </FormField>
               </li>
               <li className="fc-address-form-controls">
-                <SaveCancel onCancel={onCancel}
-                            saveText={saveTitle} />
+                <SaveCancel
+                  onCancel={onCancel}
+                  saveText={saveTitle}
+                />
               </li>
             </ul>
           </FoxyForm>

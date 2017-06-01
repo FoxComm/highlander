@@ -10,7 +10,7 @@ import * as PaymentMethodActions from 'modules/carts/payment-methods';
 
 import DebitCredit from 'components/payment-row/debit-credit';
 import { Form, FormField } from 'components/forms';
-import Alert from '../alerts/alert';
+import Alert from 'components/core/alert';
 
 function mapStateToProps(state) {
   return {
@@ -112,12 +112,12 @@ export default class NewGiftCard extends Component {
     const { giftCardCode } = this.state;
 
     if (!isSearchingGiftCards && this.codeIsValid && !giftCard) {
-      return <Alert type="warning">{`Gift Card ${giftCardCode} not found`}</Alert>;
+      return <Alert type={Alert.WARNING}>{`Gift Card ${giftCardCode} not found`}</Alert>;
     }
 
     if (this.codeIsValid && giftCard && giftCard.state === 'onHold') {
       return (
-        <Alert type="warning">
+        <Alert type={Alert.WARNING}>
           {`Gift Card ${giftCardCode} is on hold`}
         </Alert>
       );

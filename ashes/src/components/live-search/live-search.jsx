@@ -18,7 +18,7 @@ import DatePicker from '../datepicker/datepicker';
 import ShareSearch from '../share-search/share-search';
 import { Button } from 'components/core/button';
 import ButtonWithMenu from 'components/core/button-with-menu';
-import Alert from '../alerts/alert';
+import Alert from 'components/core/alert';
 
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
 
