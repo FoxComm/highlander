@@ -48,9 +48,6 @@ gce_machine_type: n1-standard-4
 gce_project_id: "foxcomm-staging"
 gce_zone: "us-central1-a"
 
-with_storefront_td: false
-with_storefront_tpg: false
-
 # Default docker tags for containers
 docker_tags:
     ashes: "{{ lookup('env', 'DOCKER_TAG_ASHES') | default('master', true) }}"
@@ -120,9 +117,6 @@ marathon_restart:
     anthill: "{{ lookup('env', 'MARATHON_ANTHILL') | default(true, true) | bool }}"
     neo4j: "{{ lookup('env', 'MARATHON_NEO4J') | default(true, true) | bool }}"
     suggester: "{{ lookup('env', 'MARATHON_SUGGESTER') | default(true, true) | bool }}"
-
-# Should we use Intelligent Commerce
-with_ic: "{{ lookup('env', 'WITH_INTELLIGENT_COMMERCE') | default(true, true) | bool }}"
 
 # Should we do seeding for appliance
 detach_seeders: "{{ lookup('env', 'DETACH_SEEDERS') | default(false, true) | bool }}"
@@ -458,6 +452,7 @@ is_aws: false
 is_ci: "{{ lookup('env', 'CI') }}"
 is_amigo: false
 is_appliance: false
+is_staging: false
 is_redeploy: false
 jmx_enabled: false
 packing: false
