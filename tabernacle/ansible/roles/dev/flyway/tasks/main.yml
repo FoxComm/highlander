@@ -1,5 +1,19 @@
 ---
 
+- name: Create Directories
+  file: path={{item}} state=directory owner="{{user}}"
+  with_items:
+    - "{{phoenix_dir}}"
+    - "{{middlewarehouse_dir}}"
+    - "{{hyperion_dir}}"
+
+- name: Synchronize SQL
+  synchronize: src={{item.source}} dest={{item.destination}} delete=yes recursive=yes
+  with_items:
+    - { source: "{{phoenix_src}}/sql", destination: "{{phoenix_dir}}" }
+    - { source: "{{middlewarehouse_src}}/sql", destination: "{{middlewarehouse_dir}}" }
+    - { source: "{{hyperion_src}}/sql", destination: "{{hyperion_dir}}" }
+
 # Flyway on Phoenix
 - name: Setup Phoenix Flyway Config
   template: src=flyway.phoenix.conf dest="{{phoenix_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
