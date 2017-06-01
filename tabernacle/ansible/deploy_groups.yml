@@ -13,6 +13,7 @@
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    is_staging: true
     with_onboarding: true
   roles:
     - { role: base/mesos_worker, when: first_run }
