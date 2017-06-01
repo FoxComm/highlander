@@ -1,16 +1,19 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 set -ue
 
 # Reset default password
 echo "Resetting Neo4j default password..."
-curl -H "Content-Type: application/json" -X POST -d "{\"password\":\"password\"}" \
-  -u neo4j:neo4j \
-  http://neo4j.service.consul:7474/user/neo4j/password
+curl -sSL \
+    -H "Content-Type: application/json" \
+    -XPOST -d "{\"password\":\"password\"}" \
+    -u neo4j:neo4j \
+    http://neo4j.service.consul:7474/user/neo4j/password
 
 # Run endless loop
 echo "Running endless loop..."
-while true
+while [ 1 ]
 do
-  # loop infinitely
+  sleep 60 &
+  wait $!
 done

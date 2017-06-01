@@ -1,8 +1,7 @@
-FROM gliderlabs/alpine
-
-RUN sudo apt-get update
-RUN sudo apt-get -y install curl
+FROM tutum/curl:latest
 
 ADD . /usr/local/bin
+
+RUN ["chmod", "+x", "/usr/local/bin/neo4j_reset_password.sh"]
 
 CMD /usr/local/bin/neo4j_reset_password.sh

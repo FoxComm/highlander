@@ -45,26 +45,37 @@
             "id": "ic-storage",
             "dependencies": [],
             "apps": [
+                {% include "ic-storage/neo4j.json.j2" %},
                 {% include "ic-storage/henhouse.json.j2" %},
-                {% include "ic-storage/neo4j.json.j2" %}
+                {% include "ic-storage/neo4j-reset.json.j2" %},
             ]
         },
         {
             "id": "ic-backend",
             "dependencies": ["/highlander/ic-storage"],
             "apps": [
-                {% include "ic-backend/river-rock.json.j2" %},
-                {% include "ic-backend/bernardo.json.j2" %}
+                {% include "ic-backend/anthill.json.j2" %},
+                {% include "ic-backend/bernardo.json.j2" %},
+                {% include "ic-backend/eggcrate.json.j2" %},
+                {% include "ic-backend/river-rock.json.j2" %}
             ]
         },
         {
             "id": "ic-consumers",
             "dependencies": ["/highlander/ic-backend"],
             "apps": [
-                {% include "ic-consumers/eggcrate.json.j2" %},
+                {% include "ic-consumers/digger-sphex.json.j2" %},
+                {% include "ic-consumers/orders-anthill.json.j2" %},
                 {% include "ic-consumers/orders-sphex.json.j2" %},
                 {% include "ic-consumers/product-activity.json.j2" %}
             ]
-        }
+        },
+        {
+            "id": "ic-integrations",
+            "dependencies": ["/highlander/ic-backend"],
+            "apps": [
+                {% include "ic-integrations/suggester.json.j2" %}
+            ]
+        },
     ]
 }
