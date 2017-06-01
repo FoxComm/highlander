@@ -10,6 +10,7 @@
     api_server: "{{dns_record}}.foxcommerce.com"
     storefront_server_name: "{{dns_record}}.foxcommerce.com"
     with_migrations: "{{ lookup('env', 'WITH_MIGRATIONS') | default(true, true) | bool }}"
+    db_name: phoenix_development
     phoenix_db_name: phoenix_development
     middlewarehouse_db_name: middlewarehouse_development
     hyperion_db_name: hyperion_development
