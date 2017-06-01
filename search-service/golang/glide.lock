@@ -1,0 +1,45 @@
+hash: 249b48a718149a5c904d3cb8ebb73b37935a021220c0b5bc778bc9b9280bfe13
+updated: 2017-06-01T20:58:53.231701334+03:00
+imports:
+- name: github.com/gin-gonic/gin
+  version: e2212d40c62a98b388a5eb48ecbdcf88534688ba
+  subpackages:
+  - binding
+  - render
+- name: github.com/golang/protobuf
+  version: 2402d76f3d41f928c7902a765dfc872356dd3aad
+  subpackages:
+  - proto
+- name: github.com/jpfuentes2/go-env
+  version: 8e0a68de05f21bcefcd581c6b934a1d1e4390fa1
+- name: github.com/manucorporat/sse
+  version: ee05b128a739a0fb76c7ebd3ae4810c1de808d6d
+- name: github.com/mattn/go-isatty
+  version: fc9e8d8ef48496124e79ae0df75490096eccf6fe
+- name: github.com/pkg/errors
+  version: c605e284fe17294bda444b34710735b29d1a9d90
+- name: github.com/SermoDigital/jose
+  version: f6df55f235c24f236d11dbcf665249a59ac2021f
+  subpackages:
+  - crypto
+  - jws
+  - jwt
+- name: golang.org/x/net
+  version: f315505cf3349909cdf013ea56690da34e96a451
+  subpackages:
+  - context
+- name: golang.org/x/sys
+  version: b90f89a1e7a9c1f6b918820b3daa7f08488c8594
+  subpackages:
+  - unix
+- name: gopkg.in/go-playground/validator.v8
+  version: c193cecd124b5cc722d7ee5538e945bdb3348435
+- name: gopkg.in/olivere/elastic.v3
+  version: f1fd7305d0b6270192b27010fe1193568b18e4b6
+- name: gopkg.in/olivere/elastic.v5
+  version: f1fd7305d0b6270192b27010fe1193568b18e4b6
+  subpackages:
+  - uritemplates
+- name: gopkg.in/yaml.v2
+  version: cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b
+testImports: []

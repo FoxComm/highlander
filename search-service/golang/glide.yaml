@@ -1,0 +1,11 @@
+package: github.com/FoxComm/highlander/search-service/golang
+import:
+- package: github.com/gin-gonic/gin
+  version: ~1.1.4
+- package: github.com/jpfuentes2/go-env
+- package: gopkg.in/olivere/elastic.v3
+  version: ~5.0.39
+- package: github.com/SermoDigital/jose
+  version: ~1.1.0
+- package: gopkg.in/olivere/elastic.v5
+  version: ~5.0.39
