@@ -65,7 +65,6 @@ export default class Upload extends Component {
   @autobind
   increaseDragCounter(): void {
     this.dragCounter += 1;
-    console.log('this.dragCounter', this.dragCounter);
     this.updateDragPossibility();
   }
 

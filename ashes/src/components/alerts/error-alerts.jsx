@@ -8,6 +8,10 @@ import AutoScroll from '../common/auto-scroll';
 function parseError(err) {
   if (!err) return null;
 
+  if (React.isValidElement(err)) {
+    return [err];
+  }
+
   return _.get(err, 'response.body.errors', [err.toString()]);
 }
 

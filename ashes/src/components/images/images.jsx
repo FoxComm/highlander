@@ -24,7 +24,8 @@ export type Props = {
   context: string;
   albums: Array<TAlbum>;
   isLoading: boolean;
-
+  failedImagesCount: number,
+  clearErrors: () => void;
   uploadMedia: (context: string, albumId: number, files: Array<ImageFile>) => Promise<*>;
   uploadMediaByUrl: (context: string, albumId: number, url: string) => Promise<*>;
   editImage: (context: string, albumId: number, idx: number, info: ImageInfo) => Promise<*>;
@@ -34,8 +35,6 @@ export type Props = {
   editAlbum: (context: string, albumId: number, album: TAlbum) => Promise<*>;
   moveAlbum: (context: string, entityId: number, albumId: number, position: number) => Promise<*>;
   archiveAlbum: (context: string, albumId: number) => Promise<*>;
-  clearFailedMedia: (context: string, albumId: number) => Promise<*>;
-  retryFailedMedia: (context: string, albumId: number) => Promise<*>;
   asyncActionsState: {
     addAlbum?: AsyncState;
     editAlbum?: AsyncState;
@@ -105,7 +104,7 @@ export default class Images extends Component {
       return <WaitAnimation />;
     }
 
-    const { albums, context, entityId, asyncActionsState } = this.props;
+    const { albums, context, entityId, failedImagesCount, asyncActionsState } = this.props;
 
     const inProgress = _.get(asyncActionsState, 'editAlbum.inProgress', false)
       || _.get(asyncActionsState, 'uploadMedia.inProgress', false)
@@ -122,6 +121,8 @@ export default class Images extends Component {
             <Album
               album={album}
               loading={inProgress}
+              failedImagesCount={failedImagesCount}
+              clearErrors={this.props.clearErrors}
               uploadFiles={(files: Array<ImageFile>) => this.props.uploadMedia(context, album.id, files)}
               uploadByUrl={(albumId, url) => this.props.uploadMediaByUrl(context, albumId, url)}
               editImage={(idx: number, form: ImageInfo) => this.props.editImage(context, album.id, idx, form)}
@@ -129,8 +130,6 @@ export default class Images extends Component {
               editAlbum={(album: TAlbum) => this.props.editAlbum(context, album.id, album)}
               moveAlbum={(position: number) => this.props.moveAlbum(context, entityId, album.id, position)}
               archiveAlbum={(id: number) => this.props.archiveAlbum(context, id)}
-              clearFailedMedia={() => this.props.clearFailedMedia(context, album.id)}
-              retryFailedMedia={() => this.props.retryFailedMedia(context, album.id)}
               position={i}
               albumsCount={albums.length}
               key={album.id}

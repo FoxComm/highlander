@@ -24,9 +24,6 @@ import ErrorAlerts from 'components/alerts/error-alerts';
 // styles
 import s from './edit-image.css';
 
-// types
-import type { NewAlbum } from '../../modules/images';
-
 type Props = {
   onSave: (name: string) => void;
   onCancel: () => void;
@@ -78,6 +75,7 @@ class UploadByUrl extends Component {
 
     return (
       <ContentBox title="Upload From Link" actionBlock={this.closeAction}>
+        <ErrorAlerts error={error} />
         <Form onSubmit={this.handleSave}>
           <FormField
             label="Media URL"
@@ -92,7 +90,6 @@ class UploadByUrl extends Component {
               autoComplete="off"
             />
           </FormField>
-          <ErrorAlerts error={error} />
           <SaveCancel
             className={s.uploadByUrl}
             onCancel={this.props.onCancel}

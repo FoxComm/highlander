@@ -20,6 +20,7 @@
     min-width: 720px;
 
     & :global(.fc-alert) {
+      margin-top: 0;
       margin-bottom: 20px;
     }
 

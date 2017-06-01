@@ -2,7 +2,7 @@
 
 // libs
 import _ from 'lodash';
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 
 // components
@@ -16,6 +16,7 @@ export function connectImages(namespace, actions) {
       namespace,
       albums: _.get(state, [plural, 'images', 'albums'], []),
       isLoading: _.get(state, ['asyncActions', `${plural}FetchAlbums`, 'inProgress'], true),
+      failedImagesCount: _.get(state, [plural, 'images', 'failedImagesCount'], 0),
       asyncActionsState: {
         addAlbum: state.asyncActions[`${plural}AddAlbum`],
         editAlbum: state.asyncActions[`${plural}EditAlbum`],

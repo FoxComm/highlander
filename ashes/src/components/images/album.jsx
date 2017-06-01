@@ -7,7 +7,7 @@ import s from './images.css';
 
 // libs
 import { autobind } from 'core-decorators';
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
 import { isEqual, get } from 'lodash';
 
 // components
@@ -27,8 +27,10 @@ import type { Album as TAlbum, ImageFile, ImageInfo } from '../../modules/images
 export type Props = {
   album: TAlbum;
   loading: boolean;
+  failedImagesCount: number,
   position: number;
   albumsCount: number;
+  clearErrors: () => void;
   uploadFiles: (files: Array<ImageFile>) => Promise<*>;
   uploadByUrl: (idx: number, url: string) => Promise<*>;
   editImage: (idx: number, info: ImageInfo) => Promise<*>;
@@ -37,8 +39,6 @@ export type Props = {
   moveAlbum: (position: number) => Promise<*>;
   archiveAlbum: (id: number) => Promise<*>;
   fetchAlbums: () => Promise<*>;
-  clearFailedMedia: () => Promise<*>;
-  retryFailedMedia: () => Promise<*>;
   editAlbumState?: AsyncState;
   uploadMediaState?: AsyncState;
   uploadMediaByUrlState?: AsyncState;
@@ -50,6 +50,28 @@ type State = {
   archiveMode: boolean;
   uploadUrlMode: boolean;
 };
+
+function getErrorMessage(asyncState: AsyncState, failedCount: number = 1) {
+  if (!get(asyncState, 'err')) {
+    return null;
+  }
+
+  const errMsg = get(asyncState, 'err.response.body.errors[0]', '');
+  let message;
+
+  if (errMsg.indexOf('Invalid input') > -1) {
+    message = (
+      <span>
+        Oops! That’s not a valid file type. Valid file types are <b>jpg</b>, <b>jpeg</b>, <b>gif</b>, and <b>png</b>.
+      </span>
+    );
+  } else {
+    const postfix = failedCount === 1 ? 'an image' : `${failedCount} images`;
+    message = `Oops! Looks like we were unable to upload ${postfix}`;
+  }
+
+  return message;
+}
 
 export default class Album extends Component {
   props: Props;
@@ -65,7 +87,7 @@ export default class Album extends Component {
   };
 
   _uploadRef: Upload;
-  idsToKey: { [key:any]: string };
+  idsToKey: { [key: any]: string };
 
   constructor(...args: Array<any>) {
     super(...args);
@@ -114,7 +136,7 @@ export default class Album extends Component {
 
   @autobind
   handleCancelUrlUpload(): void {
-    this.setState({ uploadUrlMode: false });
+    this.setState({ uploadUrlMode: false }, this.props.clearErrors);
   }
 
   @autobind
@@ -168,21 +190,14 @@ export default class Album extends Component {
   }
 
   get errorMsg(): ?Element<*> {
-    const { uploadMediaState, clearFailedMedia, retryFailedMedia } = this.props;
-    const errMsg = get(uploadMediaState, 'err.message');
-
-    if (!errMsg) {
+    if (!this.props.failedImagesCount) {
       return null;
     }
 
+    const errorMessage = getErrorMessage(this.props.uploadMediaState, this.props.failedImagesCount);
+
     return (
-      <Alert type="error">
-        {errMsg}
-        <div className={s.uploadErrBtns}>
-          <Button className={s.uploadErrBtn} onClick={clearFailedMedia}>Cancel</Button>
-          <Button onClick={retryFailedMedia}>Retry</Button>
-        </div>
-      </Alert>
+      <Alert type="error">{errorMessage}</Alert>
     );
   }
 
@@ -210,7 +225,7 @@ export default class Album extends Component {
         className={s.modal}
         isVisible={this.state.uploadUrlMode}
         inProgress={uploadMediaByUrlState.inProgress}
-        error={uploadMediaByUrlState.err}
+        error={getErrorMessage(uploadMediaByUrlState)}
         onCancel={this.handleCancelUrlUpload}
         onSave={this.handleConfirmUrlUpload}
       />
@@ -271,7 +286,7 @@ export default class Album extends Component {
             if (image.key && image.id) this.idsToKey[image.id] = image.key;
             const imagePid = image.key || this.idsToKey[image.id] || image.id;
 
-            const func = (disabled) =>
+            const func = (disabled) => (
               <Image
                 image={image}
                 imagePid={imagePid}
@@ -280,7 +295,8 @@ export default class Album extends Component {
                 key={imagePid}
                 disabled={disabled}
                 editAlbumState={editAlbumState}
-              />;
+              />
+            );
 
             func.key = imagePid;
 
