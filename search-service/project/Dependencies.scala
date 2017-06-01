@@ -19,6 +19,7 @@ object Dependencies {
   )
 
   val es = Seq(
+    "com.fasterxml.jackson.dataformat" % "jackson-dataformat-smile" % "2.8.2",
     "com.sksamuel.elastic4s" %% "elastic4s-core" % versions.elastic4s,
     "com.sksamuel.elastic4s" %% "elastic4s-streams" % versions.elastic4s
   )
@@ -43,6 +44,7 @@ object Dependencies {
   )
 
   val http4s = Seq(
+    "com.github.zainab-ali" %% "fs2-reactive-streams" % "0.1.0",
     "org.http4s" %% "http4s-dsl" % versions.http4s,
     "org.http4s" %% "http4s-blaze-server" % versions.http4s,
     "org.http4s" %% "http4s-circe" % versions.http4s
