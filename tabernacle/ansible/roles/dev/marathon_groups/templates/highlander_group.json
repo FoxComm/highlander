@@ -2,136 +2,8 @@
     "id": "/highlander",
     "groups": [
         {
-            "id": "ic-storage",
-            "apps": [
-                {
-                    "id": "henhouse",
-                    "cmd": null,
-                    "cpus": 1,
-                    "mem": 500,
-                    "disk": 0,
-                    "instances": 1,
-                    "maxLaunchDelaySeconds": 10,
-                    "labels": {
-                        "LAYER": "backend",
-                        "LANG": "cpp",
-                        "TAG": "{{docker_tags.henhouse}}",
-                        "consul": "henhouse"
-                    },
-                    "container": {
-                        "type": "DOCKER",
-                        "volumes": [{
-                            "containerPath": "hendata",
-                            "mode": "RW",
-                            "persistent": {
-                                "type": "root",
-                                "size": 1000,
-                                "constraints": []
-                            }
-                        }],
-                        "docker": {
-                            "image": "{{docker_registry}}:5000/henhouse:{{docker_tags.henhouse}}",
-                            "network": "HOST",
-                            "privileged": false,
-                            "parameters": [],
-                            "forcePullImage": true
-                        }
-                    },
-                    "residency": {
-                        "taskLostBehavior": "WAIT_FOREVER"
-                    },
-                    "env": {
-                        "DATA": "/var/lib/sandbox/hendata"
-                    },
-                    "healthChecks": [{
-                        "path": "/summary?keys=ping",
-                        "protocol": "HTTP",
-                        "portIndex": 0,
-                        "gracePeriodSeconds": 300,
-                        "intervalSeconds": 60,
-                        "timeoutSeconds": 20,
-                        "maxConsecutiveFailures": 3,
-                        "ignoreHttp1xx": false
-                    }],
-                    "portDefinitions": [{
-                        "port": 9999,
-                        "protocol": "tcp",
-                        "labels": {}
-                    }]
-                },
-                {
-                    "id": "neo4j",
-                    "cmd": null,
-                    "cpus": 1,
-                    "mem": 2048,
-                    "disk": 0,
-                    "instances": 1,
-                    "maxLaunchDelaySeconds": 10,
-                    "labels": {
-                        "LAYER": "backend",
-                        "consul": "neo4j"
-                    },
-                    "container": {
-                        "type": "DOCKER",
-                        "volumes": [{
-                                "containerPath": "data",
-                                "mode": "RW",
-                                "persistent": {
-                                    "size": 1048
-                                }
-                            },
-                            {
-                                "containerPath": "logs",
-                                "mode": "RW",
-                                "persistent": {
-                                    "size": 1048
-                                }
-                            },
-                            {
-                                "containerPath": "/data",
-                                "hostPath": "data",
-                                "mode": "RW"
-                            },
-                            {
-                                "containerPath": "/logs",
-                                "hostPath": "logs",
-                                "mode": "RW"
-                            }
-                        ],
-                        "docker": {
-                            "image": "neo4j:3.0",
-                            "network": "HOST",
-                            "portMappings": null,
-                            "privileged": false,
-                            "parameters": [],
-                            "forcePullImage": false
-                        }
-                    },
-                    "portDefinitions": [{
-                        "port": 10011,
-                        "protocol": "tcp",
-                        "labels": {}
-                    }],
-                    "healthChecks": [{
-                        "gracePeriodSeconds": 300,
-                        "intervalSeconds": 30,
-                        "timeoutSeconds": 20,
-                        "maxConsecutiveFailures": 3,
-                        "port": 7474,
-                        "path": "/",
-                        "protocol": "HTTP",
-                        "ignoreHttp1xx": false
-                    }],
-                    "upgradeStrategy": {
-                        "minimumHealthCapacity": 0.5,
-                        "maximumOverCapacity": 0
-                    }
-                }
-            ]
-        },
-        {
-            "id": "backend",
-            "dependencies": ["/highlander/ic-storage"],
+            "id": "backend-layer-one",
+            "dependencies": [],
             "apps": [
                 {
                     "id": "phoenix",
@@ -387,7 +259,7 @@
         },
         {
             "id": "frontend",
-            "dependencies": ["/highlander/backend"],
+            "dependencies": ["/highlander/backend-layer-one"],
             "apps": [
                 {
                     "id": "ashes",
@@ -503,8 +375,80 @@
             ]
         },
         {
-            "id": "consumers-layer-one",
+            "id": "backend-layer-two",
             "dependencies": ["/highlander/frontend"],
+            "apps": [
+                {
+                    "id": "hyperion",
+                    "cmd": null,
+                    "cpus": 0.5,
+                    "mem": 256,
+                    "disk": 0,
+                    "instances": 1,
+                    "labels": {
+                        "LAYER": "backend",
+                        "LANG": "elixir",
+                        "consul": "hyperion",
+                        "TAG": "{{docker_tags.hyperion}}"
+                    },
+                    "env": {
+                        "HYPERION_DB_USER": "{{hyperion_db_user}}",
+                        "HYPERION_DB_HOST": "{{docker_db_host}}",
+                        "HYPERION_DB_NAME": "{{hyperion_db_name}}",
+                        "HYPERION_DB_TEST_NAME": "{{hyperion_db_test_name}}",
+                        "HYPERION_DB_PASSWORD": "",
+                        "AWS_ACCESS_KEY_ID": "{{hyperion_aws_access_key_id}}",
+                        "AWS_SECRET_ACCESS_KEY": "{{hyperion_aws_secret_access_key}}",
+                        "MWS_ACCESS_KEY_ID": "{{hyperion_mws_access_key_id}}",
+                        "MWS_SECRET_ACCESS_KEY": "{{hyperion_mws_secret_access_key}}",
+                        "PHOENIX_USER": "{{phoenix_api_user}}",
+                        "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
+                        "PHOENIX_ORG": "{{phoenix_api_user_org}}",
+                        "PHOENIX_URL": "https://{{storefront_server_name}}",
+                        "PUBLIC_KEY": "{{public_keys_dest_dir}}/public_key.pem",
+                        "PUSH_CHECK_INTERVAL": "{{hyperion_push_check_interval}}",
+                        "CREATE_ASHES_PLUGIN": "{{hyperion_create_plugin_in_ashes_on_start}}"
+                    },
+                    "constraints": [
+                        ["hostname", "UNIQUE"]
+                    ],
+                    "container": {
+                        "type": "DOCKER",
+                        "volumes": [{
+                                "containerPath": "{{public_keys_dest_dir}}",
+                                "hostPath": "{{public_keys_dest_dir}}",
+                                "mode": "RO"
+                            },
+                            {
+                                "containerPath": "{{docker_logs_dir}}",
+                                "hostPath": "{{docker_logs_host_dir}}",
+                                "mode": "RW"
+                            }
+                        ],
+                        "docker": {
+                            "image": "{{docker_registry}}:5000/hyperion:{{docker_tags.hyperion}}",
+                            "network": "HOST",
+                            "privileged": false,
+                            "parameters": [],
+                            "forcePullImage": true
+                        }
+                    },
+                    "healthChecks": [{
+                        "path": "/v1/public/health",
+                        "protocol": "HTTP",
+                        "gracePeriodSeconds": 300,
+                        "intervalSeconds": 30,
+                        "timeoutSeconds": 20,
+                        "maxConsecutiveFailures": 3,
+                        "ignoreHttp1xx": false,
+                        "portIndex": 0
+                    }]
+                }
+            ]
+        },
+        {
+            "id": "consumers-layer-one",
+            "dependencies": ["/highlander/backend-layer-two"],
             "apps": [
                 {
                     "id": "green-river",
@@ -862,8 +806,137 @@
             ]
         },
         {
+            "id": "ic-storage",
+            "dependencies": [],
+            "apps": [
+                {
+                    "id": "henhouse",
+                    "cmd": null,
+                    "cpus": 1,
+                    "mem": 500,
+                    "disk": 0,
+                    "instances": 1,
+                    "maxLaunchDelaySeconds": 10,
+                    "labels": {
+                        "LAYER": "backend",
+                        "LANG": "cpp",
+                        "TAG": "{{docker_tags.henhouse}}",
+                        "consul": "henhouse"
+                    },
+                    "container": {
+                        "type": "DOCKER",
+                        "volumes": [{
+                            "containerPath": "hendata",
+                            "mode": "RW",
+                            "persistent": {
+                                "type": "root",
+                                "size": 1000,
+                                "constraints": []
+                            }
+                        }],
+                        "docker": {
+                            "image": "{{docker_registry}}:5000/henhouse:{{docker_tags.henhouse}}",
+                            "network": "HOST",
+                            "privileged": false,
+                            "parameters": [],
+                            "forcePullImage": true
+                        }
+                    },
+                    "residency": {
+                        "taskLostBehavior": "WAIT_FOREVER"
+                    },
+                    "env": {
+                        "DATA": "/var/lib/sandbox/hendata"
+                    },
+                    "healthChecks": [{
+                        "path": "/summary?keys=ping",
+                        "protocol": "HTTP",
+                        "portIndex": 0,
+                        "gracePeriodSeconds": 300,
+                        "intervalSeconds": 60,
+                        "timeoutSeconds": 20,
+                        "maxConsecutiveFailures": 3,
+                        "ignoreHttp1xx": false
+                    }],
+                    "portDefinitions": [{
+                        "port": 9999,
+                        "protocol": "tcp",
+                        "labels": {}
+                    }]
+                },
+                {
+                    "id": "neo4j",
+                    "cmd": null,
+                    "cpus": 1,
+                    "mem": 2048,
+                    "disk": 0,
+                    "instances": 1,
+                    "maxLaunchDelaySeconds": 10,
+                    "labels": {
+                        "LAYER": "backend",
+                        "consul": "neo4j"
+                    },
+                    "container": {
+                        "type": "DOCKER",
+                        "volumes": [{
+                                "containerPath": "data",
+                                "mode": "RW",
+                                "persistent": {
+                                    "size": 1048
+                                }
+                            },
+                            {
+                                "containerPath": "logs",
+                                "mode": "RW",
+                                "persistent": {
+                                    "size": 1048
+                                }
+                            },
+                            {
+                                "containerPath": "/data",
+                                "hostPath": "data",
+                                "mode": "RW"
+                            },
+                            {
+                                "containerPath": "/logs",
+                                "hostPath": "logs",
+                                "mode": "RW"
+                            }
+                        ],
+                        "docker": {
+                            "image": "neo4j:3.0",
+                            "network": "HOST",
+                            "portMappings": null,
+                            "privileged": false,
+                            "parameters": [],
+                            "forcePullImage": false
+                        }
+                    },
+                    "portDefinitions": [{
+                        "port": 10011,
+                        "protocol": "tcp",
+                        "labels": {}
+                    }],
+                    "healthChecks": [{
+                        "gracePeriodSeconds": 300,
+                        "intervalSeconds": 30,
+                        "timeoutSeconds": 20,
+                        "maxConsecutiveFailures": 3,
+                        "port": 7474,
+                        "path": "/",
+                        "protocol": "HTTP",
+                        "ignoreHttp1xx": false
+                    }],
+                    "upgradeStrategy": {
+                        "minimumHealthCapacity": 0.5,
+                        "maximumOverCapacity": 0
+                    }
+                }
+            ]
+        },
+        {
             "id": "ic-layer-one",
-            "dependencies": ["/highlander/consumers-layer-two"],
+            "dependencies": ["/highlander/ic-storage"],
             "apps": [
                 {
                     "id": "bernardo",
