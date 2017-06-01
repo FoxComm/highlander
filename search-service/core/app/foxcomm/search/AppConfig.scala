@@ -7,7 +7,7 @@ final case class AppConfig(http: AppConfig.Http,
                            elasticsearch: AppConfig.ElasticSearch)
 
 object AppConfig {
-  final case class Http(port: Int)
+  final case class Http(interface: String, port: Int)
 
   final case class ElasticSearch(host: String, cluster: String)
 
