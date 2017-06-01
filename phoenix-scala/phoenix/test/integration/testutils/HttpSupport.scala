@@ -118,6 +118,17 @@ trait HttpSupport
     dispatchRequest(request, jwtCookie)
   }
 
+  def PUT(path: String, rawBody: String, jwtCookie: Option[Cookie]): HttpResponse = {
+    val request = HttpRequest(method = HttpMethods.PUT,
+                              uri = pathToAbsoluteUrl(path),
+                              entity = HttpEntity.Strict(
+                                  ContentTypes.`application/json`,
+                                  ByteString(rawBody)
+                              ))
+
+    dispatchRequest(request, jwtCookie)
+  }
+
   def POST(path: String, jwtCookie: Option[Cookie]): HttpResponse =
     dispatchRequest(HttpRequest(method = HttpMethods.POST, uri = pathToAbsoluteUrl(path)), jwtCookie)
 
@@ -140,6 +151,9 @@ trait HttpSupport
 
   def POST[T <: AnyRef](path: String, payload: T, jwtCookie: Option[Cookie]): HttpResponse =
     POST(path, writeJson(payload), jwtCookie)
+
+  def PUT[T <: AnyRef](path: String, payload: T, jwtCookie: Option[Cookie]): HttpResponse =
+    PUT(path, writeJson(payload), jwtCookie)
 
   def PATCH[T <: AnyRef](path: String, payload: T, jwtCookie: Option[Cookie]): HttpResponse =
     PATCH(path, writeJson(payload), jwtCookie)
