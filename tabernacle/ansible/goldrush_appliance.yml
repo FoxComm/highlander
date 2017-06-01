@@ -31,7 +31,7 @@
   roles:
     - { role: dev/dashboard }
     - { role: dev/marathon_consul }
-    - { role: dev/seed_system, when: not first_run }
+    - { role: dev/seed_system, when: first_run }
     - { role: dev/marathon }
     - { role: dev/marathon_consumers }
     - { role: dev/ic }
@@ -39,6 +39,6 @@
     - { role: ext/tpg/storefront }
     - { role: dev/nginx }
     - { role: demo/balancer }
-    - { role: dev/seeder, when: with_appliance_seeding and not first_run }
+    - { role: dev/seeder, when: with_appliance_seeding and first_run }
     - { role: app/healthcheck }
-    - { role: app/dnsimple, when: not first_run }
+    - { role: app/dnsimple, when: first_run }
