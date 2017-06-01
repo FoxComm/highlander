@@ -27,13 +27,14 @@
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     api_server: groups.foxcommerce.com
     storefront_server_name: groups.foxcommerce.com
+    is_staging: true
     url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"
   roles:
     - { role: base/mesos_worker, when: first_run }
     - { role: dev/marathon_groups }
-    # - { role: dev/balancer }
-    # - { role: demo/balancer }
+    - { role: dev/nginx }
+    - { role: demo/balancer }
   post_tasks:
     - name: Restart Nginx
       service: name=nginx state=restarted

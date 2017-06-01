@@ -455,6 +455,7 @@ is_aws: false
 is_ci: "{{ lookup('env', 'CI') }}"
 is_amigo: false
 is_appliance: false
+is_staging: false
 is_redeploy: false
 jmx_enabled: false
 packing: false
