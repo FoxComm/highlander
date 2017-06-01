@@ -9,6 +9,7 @@
     dns_record: "{{ lookup('env', 'APPLIANCE_DNS_RECORD') }}"
     api_server: "{{dns_record}}.foxcommerce.com"
     storefront_server_name: "{{dns_record}}.foxcommerce.com"
+    with_migrations: "{{ lookup('env', 'WITH_MIGRATIONS') | default(true, true) | bool }}"
     phoenix_db_name: phoenix_development
     middlewarehouse_db_name: middlewarehouse_development
     hyperion_db_name: hyperion_development
@@ -17,8 +18,8 @@
     url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"
   roles:
-    - { role: prod/migrate_phoenix_db }
-    - { role: prod/migrate_middlewarehouse_db }
+    - { role: prod/migrate_phoenix_db, when: with_migrations }
+    - { role: prod/migrate_middlewarehouse_db, when: with_migrations }
     - { role: dev/marathon }
     - { role: dev/marathon_consumers }
     - { role: dev/ic }
