@@ -25,10 +25,10 @@
   pause: seconds=15
 
 - name: Copy Marathon Group JSON
-  template: src=highlander_group.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+  template: src=highlander.json.j2 dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
 - name: Update Marathon Group
-  shell: 'curl -sS -XPUT -d@/marathon/applications/highlander_group.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/groups'
+  shell: 'curl -sS -XPUT -d@/marathon/applications/highlander.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/groups'
 
 - name: Wait for tasks all tasks to be healthy
   shell: curl -sS -XGET http://{{marathon_server}}/v2/apps | jq '[.apps[] | select(.tasksHealthy == 0)] | length'
