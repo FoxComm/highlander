@@ -6,7 +6,6 @@ import phoenix.models.product.{Mvp, SimpleContext, SimpleProductData}
 import phoenix.payloads.LineItemPayloads.{UpdateLineItemsPayload ⇒ Payload}
 import phoenix.services.LineItemUpdater
 import phoenix.utils.aliases._
-import phoenix.utils.apis.Apis
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
@@ -17,9 +16,6 @@ class LineItemUpdaterTest
     with TestObjectContext
     with TestActivityContext.AdminAC
     with BakedFixtures {
-
-  // TODO remove this @anna
-  implicit val apis: Apis = apisOverride.value
 
   def createProducts(num: Int)(
       implicit au: AU): DbResultT[(ObjectContext, Seq[SimpleProductData])] =
