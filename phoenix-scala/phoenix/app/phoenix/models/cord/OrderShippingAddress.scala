@@ -5,7 +5,7 @@ import java.time.Instant
 import core.db._
 import phoenix.models.location.{Address, Addresses, Region, Regions}
 import phoenix.models.traits.Addressable
-import phoenix.payloads.AddressPayloads.UpdateAddressPayload
+import phoenix.payloads.AddressPayloads.{CreateAddressPayload, UpdateAddressPayload}
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 
@@ -50,6 +50,20 @@ object OrderShippingAddress {
         address2 = p.address2.fold(a.address2)(Some(_)),
         city = p.city.getOrElse(a.city),
         zip = p.zip.getOrElse(a.zip),
+        phoneNumber = p.phoneNumber.fold(a.phoneNumber)(Some(_))
+    )
+  }
+
+  def fromCreatePatchPayload(a: OrderShippingAddress, p: CreateAddressPayload) = {
+    OrderShippingAddress(
+        id = a.id,
+        cordRef = a.cordRef,
+        regionId = p.regionId,
+        name = p.name,
+        address1 = p.address1,
+        address2 = p.address2.fold(a.address2)(Some(_)),
+        city = p.city,
+        zip = p.zip,
         phoneNumber = p.phoneNumber.fold(a.phoneNumber)(Some(_))
     )
   }

@@ -2,6 +2,7 @@ package testutils.apis
 
 import akka.http.scaladsl.model.HttpResponse
 import cats.implicits._
+import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import phoenix.payloads.CartPayloads.CheckoutCart
 import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
 import phoenix.payloads.PaymentPayloads.{CreateApplePayPayment, CreateCreditCardFromTokenPayload}
@@ -43,7 +44,14 @@ trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒
 
       def searchByRegion(countryCode: String)(implicit aa: TestCustomerAuth): HttpResponse =
         GET(s"$shippingMethods/$countryCode", aa.jwtCookie.some)
+    }
 
+    object shippingAddress {
+      val shippingAddress = s"$cartPath/shipping-address"
+
+      def createOrUpdate(payload: CreateAddressPayload)(
+          implicit ca: TestCustomerAuth): HttpResponse =
+        PUT(shippingAddress, payload, ca.jwtCookie.some)
     }
   }
 

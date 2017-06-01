@@ -143,6 +143,11 @@ object Customer {
                                                                                 payload)
                   }
                 } ~
+                (put & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
+                  mutateOrFailures {
+                    CartShippingAddressUpdater.createOrUpdateShippingAddress(auth.model, payload)
+                  }
+                } ~
                 (delete & pathEnd) {
                   deleteOrFailures {
                     CartShippingAddressUpdater.removeShippingAddress(auth.model)

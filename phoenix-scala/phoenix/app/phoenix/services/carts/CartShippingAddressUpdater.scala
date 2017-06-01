@@ -14,6 +14,7 @@ import phoenix.services.{CartValidator, LogActivity}
 import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
 import core.db._
+import cats.implicits._
 
 object CartShippingAddressUpdater {
 
@@ -22,6 +23,13 @@ object CartShippingAddressUpdater {
 
   def mustFindShipAddressForCart(cart: Cart)(implicit ec: EC): DbResultT[OrderShippingAddress] =
     OrderShippingAddresses.findByOrderRef(cart.refNum).mustFindOneOr(NoShipAddress(cart.refNum))
+
+  private def createShippingAddress(cart: Cart, payload: CreateAddressPayload)(
+      implicit ec: EC): DbResultT[OrderShippingAddress] =
+    for {
+      newAddress      ← * <~ Addresses.create(Address.fromPayload(payload, cart.accountId))
+      shippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(newAddress, cart.refNum)
+    } yield shippingAddress
 
   def createShippingAddressFromAddressId(originator: User,
                                          addressId: Int,
@@ -81,6 +89,31 @@ object CartShippingAddressUpdater {
       _ ← * <~ LogActivity().orderShippingAddressUpdated(originator,
                                                          response,
                                                          buildOneShipping(shipAddress, region))
+    } yield TheResponse.validated(response, validated)
+
+  def createOrUpdateShippingAddress(originator: User,
+                                    payload: CreateAddressPayload,
+                                    refNum: Option[String] = None)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      ctx: OC): DbResultT[TheResponse[CartResponse]] =
+    for {
+      cart ← * <~ getCartByOriginator(originator, refNum)
+      shippingAddress ← * <~ OrderShippingAddresses
+                         .findByOrderRef(cart.refNum)
+                         .one
+                         .findOrCreate(createShippingAddress(cart, payload))
+
+      region ← * <~ Regions.mustFindById404(shippingAddress.regionId)
+
+      patch = OrderShippingAddress.fromCreatePatchPayload(shippingAddress, payload)
+      _         ← * <~ OrderShippingAddresses.update(shippingAddress, patch)
+      validated ← * <~ CartValidator(cart).validate()
+      response  ← * <~ CartResponse.buildRefreshed(cart)
+      _ ← * <~ LogActivity().orderShippingAddressUpdated(originator,
+                                                         response,
+                                                         buildOneShipping(shippingAddress, region))
     } yield TheResponse.validated(response, validated)
 
   def removeShippingAddress(originator: User, refNum: Option[String] = None)(
