@@ -23,3 +23,5 @@ create table product_reviews_search_view
   updated_at  generic_string,
   archived_at generic_string
 );
+
+create unique index product_reviews_user_sku_idx on product_reviews (user_id, sku_id);
