@@ -54,3 +54,15 @@ All of our DevOps tools for deploying the application to both development and pr
     * `bottledwater_onboarding`
     * `materialized_views`
     * `pgweb`
+
+### Marathon Application Group Hierarchy
+
+Two parallel pipelines:
+
+* `core-backend` (phoenix, isaac, solomon, middlewarehouse)
+    * `core-consumers` (golang consumers)
+    * `core-frontend` (ashes, any storefronts)
+        * `core-integrations` (hyperion, messaging)
+* `ic-storage` (henhouse, neo4j)
+    * `ic-apps` (anthill, bernardo, river-rock)
+        * `ic-consumers` (golang IC consumers)
