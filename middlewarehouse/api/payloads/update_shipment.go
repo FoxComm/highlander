@@ -7,7 +7,7 @@ import (
 
 type UpdateShipment struct {
 	ShippingMethodCode string   `json:"shippingMethodCode"`
-	State              string   `json:"state""`
+	State              string   `json:"state"`
 	ShipmentDate       *string  `json:"shipmentDate"`
 	EstimatedArrival   *string  `json:"estimatedArrival"`
 	DeliveredDate      *string  `json:"deliveredDate"`
