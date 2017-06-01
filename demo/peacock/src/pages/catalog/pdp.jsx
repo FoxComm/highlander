@@ -100,14 +100,6 @@ class PdpConnect extends Component {
     } else {
       this.productPromise = Promise.resolve();
     }
-
-    this.productPromise.then(() => {
-      if (typeof document !== 'undefined') {
-        // $FlowFixMe: there is product-recommender in node_modules
-        const renderProductRecommender = require('product-recommender').default;
-        renderProductRecommender(this.props.product.id, 'product-recommender');
-      }
-    });
   }
 
   componentDidMount() {
