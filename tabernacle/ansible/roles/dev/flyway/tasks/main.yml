@@ -25,5 +25,5 @@
 - name: Run Migrations for Hyperion
   include: hyperion.yml
 
-- name: Run Migrations for Bernardo
-  include: bernardo.yml
+# - name: Run Migrations for Bernardo
+#   include: bernardo.yml
