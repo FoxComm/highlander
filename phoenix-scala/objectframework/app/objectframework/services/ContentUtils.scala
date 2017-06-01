@@ -63,4 +63,40 @@ object ContentUtils {
 
         (form.merge(formJson), shadow.merge(shadowJson))
     }
+
+  def encodeContentAttributesForUpdate(existingForm: JValue,
+                                       existingShadow: JValue,
+                                       attributes: Option[Content.ContentAttributes]): (JValue, JValue) =
+    attributes match {
+      case Some(attrs) ⇒
+        val (newForm, newShadow) = encodeContentAttributes(attrs)
+        (existingForm.merge(newForm), newShadow)
+      case None ⇒
+        (existingForm, existingShadow)
+    }
+
+  def buildRelations(rawRelations: Option[JValue])(implicit fmt: Formats): Content.ContentRelations =
+    rawRelations.flatMap(_.extract[Option[Content.ContentRelations]]) match {
+      case Some(relations) ⇒ relations
+      case None            ⇒ Map.empty[String, Seq[Commit#Id]]
+    }
+
+  def updateRelations(existingRelations: Content.ContentRelations,
+                      newRelations: Option[Content.ContentRelations]): Content.ContentRelations =
+    newRelations match {
+      case Some(relations) ⇒
+        existingRelations.foldLeft(Map.empty[String, Seq[Commit#Id]]) {
+          case (acc, (key, commits)) ⇒
+            relations.get(key) match {
+              case Some(newCommits) if newCommits.isEmpty ⇒
+                acc
+              case Some(newCommits) if newCommits.nonEmpty ⇒
+                acc + (key → newCommits)
+              case None ⇒
+                acc + (key → commits)
+            }
+        }
+      case None ⇒
+        existingRelations
+    }
 }

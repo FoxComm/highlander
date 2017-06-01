@@ -1,5 +1,7 @@
 package objectframework.services
 
+import java.time.Instant
+
 import org.json4s._
 
 import cats.data._
@@ -40,6 +42,7 @@ object ContentManager {
     val (formJson, shadowJson) = ContentUtils.encodeContentAttributes(payload.attributes)
 
     for {
+      _ ← * <~ payload.validate
       _ ← * <~ failIfErrors(IlluminateAlgorithm.validateAttributesTypes(formJson, shadowJson))
       _ ← * <~ failIfErrors(IlluminateAlgorithm.validateAttributes(formJson, shadowJson))
       _ ← * <~ validateRelations(payload.relations)
@@ -51,6 +54,36 @@ object ContentManager {
       created ← * <~ Content.build(head, commit, form, shadow)
     } yield created
   }
+
+  case class ContentComponents(head: Head, commit: Commit, form: Form, shadow: Shadow)
+  private def mustFindLatest(id: Int, viewId: Int, kind: String)(implicit ec: EC) =
+    for {
+      contentTuple ← * <~ ContentQueries
+                      .filterLatestById(id, viewId, kind)
+                      .mustFindOneOr(ObjectNotFound(kind, id, viewId))
+    } yield (ContentComponents.apply _).tupled(contentTuple)
+
+  def update(id: Int, viewId: Int, payload: UpdateContentPayload, kind: String)(
+      implicit ec: EC,
+      fmt: Formats): DbResultT[Content] =
+    for {
+      _        ← * <~ payload.validate
+      existing ← * <~ mustFindLatest(id, viewId, kind)
+      newAttrs ← * <~ ContentUtils.encodeContentAttributesForUpdate(existing.form.attributes,
+                                                                    existing.shadow.attributes,
+                                                                    payload.attributes)
+      (newFormAttrs, newShadowAttrs) = newAttrs
+      existingRelations              = ContentUtils.buildRelations(existing.shadow.relations)
+      relations                      = ContentUtils.updateRelations(existingRelations, payload.relations)
+
+      updatedForm ← * <~ Forms.update(existing.form,
+                                      existing.form.copy(attributes = newFormAttrs, updatedAt = Instant.now))
+      newShadow ← * <~ Shadows.create(Shadow.build(updatedForm.id, newShadowAttrs, relations))
+      newCommit ← * <~ Commits.create(Commit(formId = existing.form.id, shadowId = existing.shadow.id))
+      updatedHead ← * <~ Heads.update(existing.head,
+                                      existing.head.copy(commitId = newCommit.id, updatedAt = Instant.now))
+      updated ← * <~ Content.build(updatedHead, newCommit, updatedForm, newShadow)
+    } yield updated
 
   type FullContentRelations = Map[String, Seq[Content]]
   def getRelations(content: Content)(implicit ec: EC): DbResultT[FullContentRelations] = {

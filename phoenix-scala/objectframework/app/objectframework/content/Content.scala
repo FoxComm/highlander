@@ -6,6 +6,8 @@ import cats.implicits._
 import core.failures.Failures
 import org.json4s._
 
+import objectframework.services.ContentUtils
+
 /**
   * Content is an illuminated content object: it's the most primitive Object
   * Framework entity that should be used outside this library. Any objects
@@ -35,7 +37,7 @@ object Content {
         viewId = None,
         commitId = commit.id,
         attributes = attributes,
-        relations = buildContentRelations(shadow.relations),
+        relations = ContentUtils.buildRelations(shadow.relations),
         createdAt = form.createdAt,
         updatedAt = shadow.createdAt,
         archivedAt = None
@@ -60,12 +62,6 @@ object Content {
         emptyAttrs
     }
   }
-
-  private def buildContentRelations(rawRelations: Option[JValue]): ContentRelations =
-    rawRelations.flatMap(_.extract[Option[ContentRelations]]) match {
-      case Some(relations) ⇒ relations
-      case None            ⇒ Map.empty[String, Seq[Commit#Id]]
-    }
 
   private def updateAttributes(attributes: ContentAttributes,
                                shadow: JField,
