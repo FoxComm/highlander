@@ -163,14 +163,14 @@ func (s *skuService) createInner(txn *gorm.DB, payload *payloads.CreateSKU) (*re
 		return nil, err
 	}
 
-	// By default, create a stock item in each existing stock location.
-	stockLocationRepo := repositories.NewStockLocationRepository(txn)
-	locations, err := stockLocationRepo.GetLocations()
-	if err != nil {
-		return nil, err
-	}
-
 	if sku.RequiresInventoryTracking {
+		// By default, create a stock item in each existing stock location.
+		stockLocationRepo := repositories.NewStockLocationRepository(txn)
+		locations, err := stockLocationRepo.GetLocations()
+		if err != nil {
+			return nil, err
+		}
+
 		stockItemRepo := repositories.NewStockItemRepository(txn)
 		for _, location := range locations {
 			stockItem := models.StockItem{
@@ -179,13 +179,12 @@ func (s *skuService) createInner(txn *gorm.DB, payload *payloads.CreateSKU) (*re
 				DefaultUnitCost: sku.UnitCostValue,
 			}
 
-			createdStockItem, err := stockItemRepo.CreateStockItem(&stockItem)
-			if err != nil {
+			if err := stockItemRepo.UpsertStockItem(&stockItem); err != nil {
 				return nil, err
 			}
 
 			summaryService := NewSummaryService(txn)
-			if err := summaryService.CreateStockItemSummary(createdStockItem.ID); err != nil {
+			if err := summaryService.CreateStockItemSummary(stockItem.ID); err != nil {
 				return nil, err
 			}
 		}
