@@ -118,9 +118,6 @@ marathon_restart:
     neo4j: "{{ lookup('env', 'MARATHON_NEO4J') | default(true, true) | bool }}"
     suggester: "{{ lookup('env', 'MARATHON_SUGGESTER') | default(true, true) | bool }}"
 
-# Should we use Intelligent Commerce
-with_ic: "{{ lookup('env', 'WITH_INTELLIGENT_COMMERCE') | default(true, true) | bool }}"
-
 # Should we do seeding for appliance
 detach_seeders: "{{ lookup('env', 'DETACH_SEEDERS') | default(false, true) | bool }}"
 with_appliance_seeding: "{{ lookup('env', 'WITH_APPLIANCE_SEEDING') | default(true, true) | bool }}"
