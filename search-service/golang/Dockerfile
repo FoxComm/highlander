@@ -10,5 +10,4 @@ RUN go build -o search-service main.go && \
     rm -rf /go
 WORKDIR /search-service
 
-EXPOSE 9292
 CMD /search-service/search-service 2>&1 | tee /logs/search-service.log
