@@ -28,8 +28,8 @@
     storefront_server_name: groups.foxcommerce.com
   roles:
     - { role: dev/marathon_groups }
-    - { role: dev/balancer }
-    - { role: demo/balancer }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
+    # - { role: dev/balancer }
+    # - { role: demo/balancer }
+  post_tasks:
+    - name: Restart Nginx
+      service: name=nginx state=restarted

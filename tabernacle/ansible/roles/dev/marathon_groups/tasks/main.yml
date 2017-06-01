@@ -20,14 +20,19 @@
 
 - name: Kill Marathon Group Tasks in Marathon
   shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/groups/highlander?force=true'
-  when: first_run
 
 - name: Take a Nap
   pause: seconds=15
-  when: first_run
 
 - name: Copy Marathon Group JSON
   template: src=highlander_group.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
 - name: Update Marathon Group
   shell: 'curl -sS -XPUT -d@/marathon/applications/highlander_group.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/groups'
+
+- name: Wait for tasks all tasks to be healthy
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/tasks | jq '[.apps[] | select(.tasksHealthy == 0)] | length'
+  register: unhealthy_tasks
+  until: unhealthy_tasks.stdout == '0'
+  retries: "{{marathon_retries}}"
+  delay: "{{marathon_delay}}"
