@@ -10,10 +10,6 @@
   line-height: 22px;
 }
 
-.or-line + :global(.fc-alert) {
-  margin-top: 10px;
-}
-
 .message {
   margin-top: 40px;
   color: #484848;
@@ -25,8 +21,7 @@
   align-items: center;
   width: 388px;
 
-  & :global(.fc-input),
-  & :global(.fc-alert) {
+  & :global(.fc-input) {
     width: 100%;
   }
 }
@@ -34,10 +29,6 @@
 .content {
   width: 100%;
   margin-top: 30px;
-
-  & :global(.fc-alert) {
-    margin: 20px 0;
-  }
 }
 
 .form {
@@ -70,6 +61,10 @@
   &:hover {
     color: #484848;
   }
+}
+
+.alert {
+  margin: 20px 0;
 }
 
 .signup-email input[type=email]:disabled {
