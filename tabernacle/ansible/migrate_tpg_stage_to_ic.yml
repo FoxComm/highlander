@@ -26,3 +26,4 @@
   roles:
     - { role: base/rsyslog }
     - { role: dev/balancer }
+    - { role: dev/nixy }

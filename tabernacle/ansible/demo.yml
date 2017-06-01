@@ -54,6 +54,7 @@
     - { role: ext/td/storefront, when: marathon_restart.storefront_td }
     - { role: ext/tpg/storefront, when: marathon_restart.storefront_td }
     - { role: dev/balancer }
+    - { role: dev/nixy }
     - { role: demo/balancer }
     - { role: dev/seeder, when: first_run }
 

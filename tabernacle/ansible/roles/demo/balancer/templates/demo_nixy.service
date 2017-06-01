@@ -1,11 +1,11 @@
 [Service]
 WorkingDirectory=/usr/local/share
-ExecStart=/usr/local/bin/consul-template -config {{consul_data_dir}}/consul_template.conf
+ExecStart=/usr/local/bin/nixy -f /etc/demo_nixy.toml
 Restart=always
 RestartSec=10
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=consul_template
+SyslogIdentifier=demo_nixy
 
 [Install]
 WantedBy=multi-user.target

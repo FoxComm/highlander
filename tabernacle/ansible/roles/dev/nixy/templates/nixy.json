@@ -1,0 +1,14 @@
+{
+    "service" : {
+        "name": "nixy",
+        "tags": ["nixy"],
+        "checks": [
+            {
+                "name": "Check Nixy Running",
+                "script": "systemctl status nixy",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}

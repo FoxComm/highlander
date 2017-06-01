@@ -36,9 +36,8 @@ All of our DevOps tools for deploying the application to both development and pr
 ### Appliance Services Hierarchy
 
 * `consul_agent`
-    * `consul_template`
+    * `nixy`
     * `dashboard`
-    * `demo_consul_template`
     * `zookeeper`
         * `kafka`
             * `schema_registry`
