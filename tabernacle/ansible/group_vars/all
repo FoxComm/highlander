@@ -359,10 +359,6 @@ shipstation_interval: "10s"
 # Product activity daemon
 product_activity_interval: 60
 
-# Firebrand variables
-firebrand_env: production
-firebrand_default_language: en
-
 # Storefront variables
 storefront_default_language: en
 storefront_fixed_language: false
