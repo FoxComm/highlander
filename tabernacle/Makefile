@@ -8,12 +8,16 @@ GOPATH := $(CURDIR)/_vendor:$(GOPATH)
 all: build
 
 build:
-	$(call header, Building)
-	true
+	cd docker/neo4j_reset && make build
 
 test:
-	$(call header, Testing)
-	true
+	cd docker/neo4j_reset && make test
+
+docker:
+	cd docker/neo4j_reset && make docker
+
+docker-push:
+	cd docker/neo4j_reset && make docker-push
 
 deploy-groups:
 	ansible-playbook -v -i inventory/gce/ ansible/deploy_groups.yml
@@ -49,15 +53,5 @@ deploy-stage:
 deploy-feature-branch-legacy:
 	ansible-playbook -v -i inventory/gce/ ansible/legacy_deploy_feature_branch.yml
 
-docker:
-	$(call header, Dockerizing)
-	true
 
-docker-push:
-	$(call header, Registering)
-	true
-
-clean:
-	true
-
-.PHONY: all build clean test docker docker-push
+.PHONY: all build test docker docker-push
