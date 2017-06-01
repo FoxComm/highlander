@@ -33,6 +33,7 @@ $$ language plpgsql;
 create or replace function update_orders_view_from_orders_update_fn() returns trigger as $$
 begin
     update orders_search_view set
+        reference_number = new.reference_number,
         state = new.state,
         placed_at = to_char(new.placed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
         currency = new.currency,
@@ -41,7 +42,7 @@ begin
         adjustments_total = new.adjustments_total,
         taxes_total = new.taxes_total,
         grand_total = new.grand_total
-    where reference_number = new.reference_number;
+    where id = new.id;
 
     return null;
 end;
