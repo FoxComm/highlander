@@ -22,7 +22,7 @@ import { fetchReviewsForSku, clearReviews } from 'modules/reviews';
 import styles from './pdp.css';
 
 // components
-import ProductReviewsList from 'components/product-reviews-list/product-reviews-list';
+import ProductReviewsList from '@foxcomm/storefront-react/lib/components/product-reviews-list/product-reviews-list';
 import { Pdp, RelatedProductList } from '@foxcomm/storefront-react';
 
 // types
