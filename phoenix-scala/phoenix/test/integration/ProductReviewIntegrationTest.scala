@@ -36,6 +36,17 @@ class ProductReviewIntegrationTest
       getReviewResp must === (reviewResp)
       reviewResp.attributes must === (payload.attributes)
     }
+
+    "does not create duplicate reviews" in new ProductSku_ApiFixture {
+      val payload = CreateProductReviewByCustomerPayload(attributes = "title" → tv("title"),
+                                                         sku = skuCode,
+                                                         scope = None)
+      val reviewResp1    = productReviewApi.create(payload).as[ProductReviewResponse]
+      val getReviewResp1 = productReviewApi(reviewResp1.id).get().as[ProductReviewResponse]
+      val reviewResp2    = productReviewApi.create(payload).as[ProductReviewResponse]
+      val getReviewResp2 = productReviewApi(reviewResp2.id).get().as[ProductReviewResponse]
+      getReviewResp1 must === (getReviewResp2)
+    }
   }
 
   "PATCH v1/review/:contextName/:reviewFormId" - {
