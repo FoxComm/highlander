@@ -1,5 +1,0 @@
-[core]
-  hooksPath = git_hooks
-
-[include]
-  path = ../../.git/config

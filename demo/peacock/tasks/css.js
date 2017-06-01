@@ -9,7 +9,6 @@ module.exports = function(gulp, $) {
     'public/css/reset.css',
     'public/css/inputs.css',
     'node_modules/react-image-gallery/styles/css/image-gallery.css',
-    'node_modules/product-recommender/public/app.css',
     'node_modules/@foxcomm/wings/lib/bundle.css',
     'node_modules/@foxcomm/storefront-react/lib/bundle.css',
     'public/common.css',

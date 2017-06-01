@@ -22,7 +22,7 @@ import { fetchReviewsForSku, clearReviews } from 'modules/reviews';
 import styles from './pdp.css';
 
 // components
-import ProductReviewsList from 'components/product-reviews-list/product-reviews-list';
+import ProductReviewsList from '@foxcomm/storefront-react/lib/components/product-reviews-list/product-reviews-list';
 import { Pdp, RelatedProductList } from '@foxcomm/storefront-react';
 
 // types
@@ -100,14 +100,6 @@ class PdpConnect extends Component {
     } else {
       this.productPromise = Promise.resolve();
     }
-
-    this.productPromise.then(() => {
-      if (typeof document !== 'undefined') {
-        // $FlowFixMe: there is product-recommender in node_modules
-        const renderProductRecommender = require('product-recommender').default;
-        renderProductRecommender(this.props.product.id, 'product-recommender');
-      }
-    });
   }
 
   componentDidMount() {

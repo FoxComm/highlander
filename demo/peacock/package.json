@@ -76,7 +76,6 @@
     "postcss-cssnext": "^2.4.0",
     "postcss-devtools": "^1.0.0",
     "postcss-import": "^8.0.2",
-    "product-recommender": "file:../product-recommender",
     "react-proxy": "^1.1.2",
     "react-router-sitemap": "github:nitinan59/react-router-sitemap#2680a01b6fef016bd55b082d63bbd8fcf232d8c9",
     "redux-thunk": "^1.0.3",
@@ -90,7 +89,7 @@
   "dependencies": {
     "@foxcomm/api-js": "^1.2.0",
     "@foxcomm/babel-plugin-react-stylenames": "^3.1.0",
-    "@foxcomm/storefront-react": "^1.2.0",
+    "@foxcomm/storefront-react": "^1.2.1",
     "@foxcomm/wings": "^1.9.12",
     "classnames": "^2.2.3",
     "core-decorators": "^0.11.0",
