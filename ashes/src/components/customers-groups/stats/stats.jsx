@@ -8,7 +8,7 @@ import React, { Component, Element } from 'react';
 // components
 import { PanelList, PanelListItem } from 'components/panel/panel-list';
 import Currency from 'components/common/currency';
-import RadioButton from 'components/forms/radio-button';
+import RadioButton from 'components/core/radio-button';
 
 // styles
 import s from './stats.css';
@@ -72,14 +72,13 @@ class CustomerGroupStats extends Component {
     return Object.keys(this.props.stats).map((period: string) => (
       <RadioButton
         id={period}
+        label={capitalize(period)}
         className={s.period}
         checked={this.state.period === period}
         onChange={() => this.setState({ period })}
         disabled={this.props.isLoading}
         key={period}
-      >
-        <label htmlFor={period}>{capitalize(period)}</label>
-      </RadioButton>
+      />
     ));
   }
 
@@ -94,7 +93,7 @@ class CustomerGroupStats extends Component {
 
     return (
       <div>
-        <div className={s.periods}>
+        <div className={s.periodsContainer}>
           {this.timeframes}
         </div>
         <PanelList className={classNames(s.stats, { [s.loading]: isLoading })}>
