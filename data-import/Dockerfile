@@ -1,4 +1,4 @@
-FROM python:3.6-alpine
+FROM micktwomey/python3.4:latest
 
 RUN mkdir -p /data-import
 WORKDIR /data-import
