@@ -46,13 +46,19 @@
             "dependencies": [],
             "apps": [
                 {% include "ic-storage/neo4j.json.j2" %},
-                {% include "ic-storage/henhouse.json.j2" %},
+                {% include "ic-storage/henhouse.json.j2" %}
+            ]
+        },
+        {
+            "id": "ic-hooks",
+            "dependencies": ["/highlander/ic-storage"],
+            "apps": [
                 {% include "ic-storage/neo4j-reset.json.j2" %}
             ]
         },
         {
             "id": "ic-backend",
-            "dependencies": ["/highlander/ic-storage"],
+            "dependencies": ["/highlander/ic-hooks"],
             "apps": [
                 {% include "ic-backend/anthill.json.j2" %},
                 {% include "ic-backend/bernardo.json.j2" %},
