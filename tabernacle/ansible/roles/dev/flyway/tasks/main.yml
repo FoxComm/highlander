@@ -6,6 +6,7 @@
     - "{{phoenix_dir}}"
     - "{{middlewarehouse_dir}}"
     - "{{hyperion_dir}}"
+    - "{{bernardo_dir}}"
 
 - name: Synchronize SQL
   synchronize: src={{item.source}} dest={{item.destination}} delete=yes recursive=yes
@@ -13,45 +14,16 @@
     - { source: "{{phoenix_src}}/sql", destination: "{{phoenix_dir}}" }
     - { source: "{{middlewarehouse_src}}/sql", destination: "{{middlewarehouse_dir}}" }
     - { source: "{{hyperion_src}}/sql", destination: "{{hyperion_dir}}" }
+    - { source: "{{bernardo_src}}/sql", destination: "{{bernardo_dir}}" }
 
-# Flyway on Phoenix
-- name: Setup Phoenix Flyway Config
-  template: src=flyway.phoenix.conf dest="{{phoenix_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
+- name: Run Migrations for Phoenix
+  include: phoenix.yml
 
-- name: Clean Phoenix Database
-  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
-  args:
-    chdir: "{{phoenix_dir}}"
+- name: Run Migrations for Middlewarehouse
+  include: middlewarehouse.yml
 
-- name: Migrate Phoenix Database
-  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
-  args:
-    chdir: "{{phoenix_dir}}"
+- name: Run Migrations for Hyperion
+  include: hyperion.yml
 
-# Flyway on Middlewarehouse
-- name: Setup Middlewarehouse Flyway Config
-  template: src=flyway.middlewarehouse.conf dest="{{middlewarehouse_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
-
-- name: Clean Middlewarehouse Database
-  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
-  args:
-    chdir: "{{middlewarehouse_dir}}"
-
-- name: Migrate Middlewarehouse Database
-  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
-  args:
-    chdir: "{{middlewarehouse_dir}}"
-
-# Flyway on Hyperion
-- name: Setup Hyperion Flyway Config
-  template: src=flyway.hyperion.conf dest="{{hyperion_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
-
-- name: Clean Hyperion Database
-  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
-  args:
-    chdir: "{{hyperion_dir}}"
-
-- name: Migrate Hyperion Database
-  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
-  args:
-    chdir: "{{hyperion_dir}}"
+- name: Run Migrations for Bernardo
+  include: bernardo.yml
