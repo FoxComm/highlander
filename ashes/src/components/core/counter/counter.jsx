@@ -12,15 +12,32 @@ import { IncrementButton, DecrementButton } from 'components/core/button';
 import s from './counter.css';
 
 type Props = {
+  /** counter's value */
   value: number,
+  /** on value change action */
+  onChange: (value: number) => void,
+  /** min value */
   min: number,
+  /** max value */
   max: number,
+  /** increment/decrement step */
   step: number,
+  /** additional className */
   className?: string,
+  /** disables counter if true */
   disabled?: boolean,
+  /** counter's id */
   counterId?: string,
-  onChange: (value: number) => void
 };
+
+/**
+ * Counter component is a wrapper around native number input,
+ * which has increment and decrement actions
+ *
+ * [Mockups](https://zpl.io/Z39JBU)
+ *
+ * @class Counter
+ */
 
 class Counter extends Component {
   props: Props;
@@ -37,12 +54,12 @@ class Counter extends Component {
   setValue(value: number) {
     const { min, max, onChange } = this.props;
 
-    if (!value || value < min) {
-      return onChange(min);
+    if (!value && value !==0 || value < min) {
+      return onChange(min)
     }
 
     if (value > max) {
-      return onChange(max);
+      return null;
     }
 
     return onChange(value);
