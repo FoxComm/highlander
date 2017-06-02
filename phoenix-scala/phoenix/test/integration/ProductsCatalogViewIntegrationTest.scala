@@ -79,7 +79,8 @@ class ProductsCatalogViewIntegrationTest
     }
   }
 
-  case class ProductAlbumsFromDatabase(product: Product) {
+  // FIXME: dead code? @michalrus
+  case class DEAD_ProductAlbumsFromDatabase(product: Product) {
     private def parseJsonColumnValues(query: SQLActionBuilder): List[ViewAlbum] = {
       val columnValues = query.as[String].gimme
       val result       = columnValues.map(value ⇒ parse(value).extract[List[ViewAlbum]])
@@ -118,7 +119,8 @@ class ProductsCatalogViewIntegrationTest
     }
   }
 
-  trait Fixture extends StoreAdmin_Seed {
+  // FIXME: dead code? @michalrus
+  trait DEAD_Fixture extends StoreAdmin_Seed {
     val imagePayload = ImagePayload(None, "http://lorem.png", "lorem.png".some, "Lorem Ipsum".some)
     val defaultAlbumPayload =
       AlbumPayload(None, None, "Sample Album".some, Some(Seq(imagePayload)))
