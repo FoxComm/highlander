@@ -58,8 +58,6 @@ All of our DevOps tools for deploying the application to both development and pr
 
 ## Marathon Hierarchy
 
-### Core
-
 ```                                                                     
  +------------------+      +-------------------+      +-------------------+    +--------------+       
  |   core-backend   |      |   core-frontend   |      | core-integrations |    |  ic-storage  |       
