@@ -1,62 +1,96 @@
 /* @flow */
 
 // libs
-import React from 'react';
+import React, { Component } from 'react';
 import classNames from 'classnames';
+import { autobind } from 'core-decorators';
 
 // components
 import { IncrementButton, DecrementButton } from 'components/core/button';
 
+// styles
+import s from './counter.css';
+
 type Props = {
-  value?: number,
-  min?: number,
-  max?: number,
-  step?: number,
-  decreaseAction: Function,
-  increaseAction: Function,
+  value: number,
+  min: number,
+  max: number,
+  step: number,
   className?: string,
   disabled?: boolean,
   counterId?: string,
+  onChange: (value: number) => void
 };
 
-const Counter = ({
-  value = 1,
-  min = 1,
-  max = 100,
-  step = 1,
-  disabled = false,
-  decreaseAction,
-  increaseAction,
-  className,
-  counterId,
-  ...rest,
-}: Props) => {
-  return (
-    <div id={counterId} className="fc-input-group fc-counter">
-      <div className="fc-input-prepend">
+class Counter extends Component {
+  props: Props;
+
+  static defaultProps: $Shape<Props> = {
+    value: 0,
+    min: 0,
+    max: 100,
+    step: 1,
+    disabled: false,
+  };
+
+  @autobind
+  setValue(value: number) {
+    const { min, max, onChange } = this.props;
+
+    if (!value || value < min) {
+      return onChange(min);
+    }
+
+    if (value > max) {
+      return onChange(max);
+    }
+
+    return onChange(value);
+  }
+
+  @autobind
+  handleChange({ target }: { target: HTMLInputElement }) {
+    return this.setValue(parseInt(target.value, 10));
+  }
+
+  render() {
+    const {
+      value,
+      min,
+      max,
+      step,
+      disabled,
+      counterId,
+      className,
+      onChange,
+      ...rest,
+    } = this.props;
+
+    return (
+      <div id={counterId} className={ classNames(s.counter, className)}>
         <DecrementButton
           type="button"
           disabled={disabled || value === min}
-          onClick={decreaseAction}
-          className={ classNames('fc-btn-counter', 'decrement-btn') }
+          onClick={() => this.setValue(value - step)}
+          className={s.controls}
         />
-      </div>
-      <input
-        type="number"
-        value={value}
-        className={classNames('fc-counter__input', className, 'adjust-quantity-input', {disabled})}
-        disabled={disabled}
-        {...rest} />
-      <div className="fc-input-append">
+        <input
+          type="number"
+          value={value}
+          disabled={disabled}
+          className={classNames(s.input, '__cssmodules')}
+          onChange={this.handleChange}
+          {...rest}
+        />
         <IncrementButton
           type="button"
           disabled={disabled || value === max}
-          onClick={increaseAction}
-          className={ classNames('fc-btn-counter', 'increment-btn') }
+          onClick={() => this.setValue(value + step)}
+          className={s.controls}
         />
       </div>
-    </div>
-  );
-};
+    );
+  }
+}
 
 export default Counter;

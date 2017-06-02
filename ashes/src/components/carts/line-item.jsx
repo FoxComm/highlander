@@ -32,10 +32,6 @@ type Props = {
   className?: string,
 };
 
-type Target = {
-  value: string | number,
-};
-
 type State = {
   isDeleting: boolean;
   lastSyncedQuantity: number;
@@ -84,22 +80,7 @@ export class CartLineItem extends Component {
   }
 
   @autobind
-  handleButtonClick(diff: number) {
-    const quantity = this.state.quantity + diff;
-
-    if (quantity > 0) {
-      this.setState({ quantity }, this.performUpdate);
-    }
-  }
-
-  @autobind
-  handleInputChange({ target: { value } }: { target: Target }) {
-    const quantity = value ? parseInt(value, 10) : null;
-
-    if (!quantity || quantity < 1) {
-      return;
-    }
-
+  handleQuantityChange(quantity: number) {
     this.setState({ quantity }, this.performUpdate);
   }
 
@@ -121,11 +102,8 @@ export class CartLineItem extends Component {
             id={`fct-counter-input__${skuQtyInput}`}
             value={quantity}
             min={1}
-            max={1000000}
             step={1}
-            onChange={this.handleInputChange}
-            decreaseAction={() => this.handleButtonClick(-1)}
-            increaseAction={() => this.handleButtonClick(1)}
+            onChange={this.handleQuantityChange}
           />
         </td>
         <td><Currency className="item-total-price" value={item.totalPrice} /></td>

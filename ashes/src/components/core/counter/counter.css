@@ -1,0 +1,33 @@
+
+.counter {
+  display: inline-flex;
+  border: solid 1px #ced2d5;
+}
+
+.input {
+  width: 40px;
+  border: none;
+  text-align: center;
+
+  &::-webkit-inner-spin-button,
+  -webkit-outer-spin-button {
+    -webkit-appearance: none;
+  }
+
+}
+
+.controls {
+  background-color: #ffffff;
+
+  &:hover {
+    background-color: #ffffff;
+  }
+
+  &:disabled {
+    background-color: #ffffff;
+
+    &:hover {
+      background-color: #ffffff;
+    }
+  }
+}

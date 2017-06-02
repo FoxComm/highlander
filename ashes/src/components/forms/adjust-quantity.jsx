@@ -108,9 +108,8 @@ export default class AdjustQuantity extends Component {
             <Counter
               counterId={counterId}
               value={this.state.diff}
-              increaseAction={() => this.adjustValue(this.state.value + 1)}
-              decreaseAction={() => this.adjustValue(this.state.value - 1)}
               onBlur={evt => evt.stopPropagation()}
+              onChange={(quantity) => this.adjustValue(quantity)}
             />
           </div>
         </BodyPortal>
