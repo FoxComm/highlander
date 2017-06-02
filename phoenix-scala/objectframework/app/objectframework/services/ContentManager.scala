@@ -83,7 +83,71 @@ object ContentManager {
       updatedHead ← * <~ Heads.update(existing.head,
                                       existing.head.copy(commitId = newCommit.id, updatedAt = Instant.now))
       updated ← * <~ Content.build(updatedHead, newCommit, updatedForm, newShadow)
+
+      _ ← * <~ updateParents(existing.commit.id, newCommit.id, existing.head.kind)
     } yield updated
+
+  private def updateParents(oldCommitId: Commit#Id, newCommitId: Commit#Id, kind: String)(
+      implicit ec: EC,
+      fmt: Formats): DbResultT[Seq[Int]] = {
+    for {
+      parentIds ← * <~ ContentQueries.filterParentIds(oldCommitId, kind)
+      newParentIds ← * <~ parentIds.map {
+                      case (parentId, parentKind) ⇒
+                        updateParent(parentId, parentKind, oldCommitId, newCommitId, kind)
+                    }
+    } yield newParentIds
+  }
+
+  private def updateParent(parentId: Commit#Id,
+                           parentKind: String,
+                           oldChildId: Commit#Id,
+                           newChildId: Commit#Id,
+                           childKind: String)(implicit ec: EC, fmt: Formats) =
+    for {
+      parentTuple ← * <~ ContentQueries
+                     .filterByCommit(parentId, parentKind)
+                     .mustFindOneOr(ObjectNotFoundAtCommit(parentKind, parentId))
+
+      (commit, form, shadow) = parentTuple
+      oldRelations           = ContentUtils.buildRelations(shadow.relations)
+      newRelations           = updateRelations(oldRelations, childKind, oldChildId, newChildId)
+
+      newShadow ← * <~ Shadows.create(Shadow.build(form.id, shadow.attributes, newRelations))
+      newCommit ← * <~ Commits.create(Commit(formId = form.id, shadowId = newShadow.id))
+      oldHead ← * <~ Heads
+                 .filter(h ⇒ h.commitId === commit.id && h.archivedAt.isEmpty)
+                 .result
+                 .headOption
+
+      _ ← * <~ maybeUpdateHead(oldHead, newCommit.id)
+      _ ← * <~ updateParents(commit.id, newCommit.id, parentKind)
+    } yield newCommit.id
+
+  private def maybeUpdateHead(oldHead: Option[Head], newCommitId: Int)(implicit ec: EC) =
+    oldHead match {
+      case Some(head) ⇒
+        for {
+          newHead ← * <~ Heads.update(head,
+                                      head.copy(commitId = newCommitId, updatedAt = Instant.now))
+        } yield Some(newHead)
+      case None ⇒
+        DbResultT.pure(None)
+    }
+
+  private def updateRelations(relations: Content.ContentRelations,
+                              kind: String,
+                              oldRelation: Int,
+                              newRelation: Int): Content.ContentRelations = {
+    relations.get(kind).foldLeft(relations) { (acc, commits) ⇒
+      val updated = commits.foldLeft(Seq.empty[Commit#Id]) { (acc, commit) ⇒
+        if (commit == oldRelation) acc :+ newRelation
+        else acc :+ oldRelation
+      }
+
+      acc + (kind → updated)
+    }
+  }
 
   type FullContentRelations = Map[String, Seq[Content]]
   def getRelations(content: Content)(implicit ec: EC): DbResultT[FullContentRelations] = {

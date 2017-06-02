@@ -105,6 +105,55 @@ class ContentManagerTest extends IntegrationTestBase with TestObjectContext with
     }
   }
 
+  "ContentManager.update" - {
+    implicit val formats: Formats = JsonFormatters.phoenixFormats
+
+    "successfully with no relations" in new SkuFixture {
+      val newSkuAttributes = Map("code" → ContentAttribute(t = "string", v = JString("TEST-SKEW")))
+      val updatePayload =
+        UpdateContentPayload(attributes = Some(newSkuAttributes), relations = None)
+
+      val content = ContentManager.update(sku.id, SimpleContext.id, updatePayload, "sku").gimme
+      content.attributes("code").v must === (JString("TEST-SKEW"))
+    }
+
+    "successfully with relations" in new ProductFixture {
+      val newProductAttributes = attributes + ("title" → ContentAttribute(t = "string",
+                                                                          v = JString("new name")))
+      val updatePayload =
+        UpdateContentPayload(attributes = Some(newProductAttributes), relations = None)
+
+      val content =
+        ContentManager.update(product.id, SimpleContext.id, updatePayload, "product").gimme
+      content.attributes("title").v must === (JString("new name"))
+      content.attributes("description").v must === (JString("<p>A test description</p>"))
+    }
+
+    "successfully removes an attribute" in new ProductFixture {
+      val newProductAttributes =
+        Map("title" → ContentAttribute(t = "string", v = JString("new name")))
+      val updatePayload =
+        UpdateContentPayload(attributes = Some(newProductAttributes), relations = None)
+
+      val content =
+        ContentManager.update(product.id, SimpleContext.id, updatePayload, "product").gimme
+      content.attributes("title").v must === (JString("new name"))
+      content.attributes.get("description") must === (None)
+    }
+
+    "successfully updates a parent when updating a related child" in new ProductFixture {
+      val newSkuAttributes = Map("code" → ContentAttribute(t = "string", v = JString("TEST-SKEW")))
+      val updatePayload =
+        UpdateContentPayload(attributes = Some(newSkuAttributes), relations = None)
+
+      val content = ContentManager.update(sku.id, SimpleContext.id, updatePayload, "sku").gimme
+      content.attributes("code").v must === (JString("TEST-SKEW"))
+
+      val productContent = ContentManager.findLatest(product.id, SimpleContext.id, "product").gimme
+      productContent.relations("sku") must === (Seq(content.commitId))
+    }
+  }
+
   trait Fixture {
     val attributes = Map(
       "title"       → ContentAttribute(t = "string", v = JString("a test product")),
@@ -124,5 +173,13 @@ class ContentManagerTest extends IntegrationTestBase with TestObjectContext with
       CreateContentPayload(kind = "sku", attributes = skuAttributes, relations = skuRelations)
 
     val sku = ContentManager.create(SimpleContext.id, skuPayload).gimme
+  }
+
+  trait ProductFixture extends SkuFixture {
+    val productRelations = Map("sku" → Seq(sku.commitId))
+
+    val productPayload =
+      CreateContentPayload(kind = "product", attributes = attributes, relations = productRelations)
+    val product = ContentManager.create(SimpleContext.id, productPayload).gimme
   }
 }
