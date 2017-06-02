@@ -78,8 +78,8 @@ All of our DevOps tools for deploying the application to both development and pr
            |    |------------------------|     |--------------------|          |--------------|       
            +----|* green-river           |     |* digger-sphex      |          |* anthill     |       
                 |* capture-consumer      |     |* orders-anthill    |----------|* bernardo    |       
-                |* gift-card-consumer    |     |* orders-sphex      |          |* eggcrate    |       
-                |* shipments-consumer    |     |* product-activity  |          |* river-rock  |       
-                |* stock-items-consumer  |     +--------------------+          +--------------+       
-                +------------------------+                                                            
+                |* gift-card-consumer    |     |* orders-reviews    |          |* eggcrate    |       
+                |* shipments-consumer    |     |* orders-sphex      |          |* river-rock  |       
+                |* stock-items-consumer  |     |* product-activity  |          +--------------+       
+                +------------------------+     +--------------------+                                                       
 ```
