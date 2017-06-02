@@ -152,6 +152,6 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
                                                                sku = skuCode,
                                                                scope = None)
     val productReview =
-      productReviewApi.create(payload)(implicitly, defaultAdminAuth).as[ProductReviewResponse]
+      productReviewApi.create(payload)(defaultAdminAuth).as[ProductReviewResponse]
   }
 }

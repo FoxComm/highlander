@@ -15,7 +15,6 @@ import core.db._
 object ProductReviewManager {
 
   def getReview(reviewId: ProductReview#Id)(implicit ec: EC,
-                                            oc: OC,
                                             db: DB): DbResultT[ProductReviewResponse] =
     for {
       review ← * <~ ProductReviews.mustFindById404(reviewId)
@@ -24,7 +23,6 @@ object ProductReviewManager {
 
   def createProductReview(userId: User#Id, payload: CreateProductReviewPayload)(
       implicit ec: EC,
-      oc: OC,
       au: AU,
       db: DB): DbResultT[ProductReviewResponse] = {
 
@@ -44,7 +42,6 @@ object ProductReviewManager {
 
   def updateProductReview(reviewId: ProductReview#Id, payload: UpdateProductReviewPayload)(
       implicit ec: EC,
-      oc: OC,
       db: DB,
       au: AU): DbResultT[ProductReviewResponse] = {
 
@@ -59,8 +56,7 @@ object ProductReviewManager {
     } yield ProductReviewResponses.build(newValue, sku.code)
   }
 
-  def archiveByContextAndId(
-      reviewId: ProductReview#Id)(implicit ec: EC, oc: OC, db: DB): DbResultT[Unit] =
+  def archiveById(reviewId: ProductReview#Id)(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
       review   ← * <~ ProductReviews.mustFindById404(reviewId)
       archived ← * <~ ProductReviews.update(review, review.copy(archivedAt = Some(Instant.now)))

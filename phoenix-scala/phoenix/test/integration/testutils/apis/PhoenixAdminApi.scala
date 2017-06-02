@@ -5,7 +5,6 @@ import akka.http.scaladsl.model.HttpResponse
 import cats.implicits._
 import objectframework.models.ObjectForm
 import phoenix.models.payment.PaymentMethod
-import phoenix.payloads.ActivityTrailPayloads._
 import phoenix.payloads.AddressPayloads._
 import phoenix.payloads.AssignmentPayloads._
 import phoenix.payloads.CartPayloads._
@@ -819,20 +818,19 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   }
 
   object productReviewApi {
-    def create(payload: CreateProductReviewPayload)(implicit ctx: OC,
-                                                    aa: TestAdminAuth): HttpResponse =
-      POST(s"v1/review/${ctx.name}", payload, aa.jwtCookie.some)
+    def create(payload: CreateProductReviewPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"v1/review", payload, aa.jwtCookie.some)
   }
 
-  case class productReviewApi(productReviewId: Int)(implicit ctx: OC) {
+  case class productReviewApi(productReviewId: Int) {
     def get()(implicit aa: TestAdminAuth): HttpResponse =
-      GET(s"v1/review/${ctx.name}/$productReviewId", aa.jwtCookie.some)
+      GET(s"v1/review/$productReviewId", aa.jwtCookie.some)
 
     def update(payload: UpdateProductReviewPayload)(implicit aa: TestAdminAuth): HttpResponse =
-      PATCH(s"v1/review/${ctx.name}/$productReviewId", payload, aa.jwtCookie.some)
+      PATCH(s"v1/review/$productReviewId", payload, aa.jwtCookie.some)
 
     def delete()(implicit aa: TestAdminAuth): HttpResponse =
-      DELETE(s"v1/review/${ctx.name}/$productReviewId", aa.jwtCookie.some)
+      DELETE(s"v1/review/$productReviewId", aa.jwtCookie.some)
 
   }
 

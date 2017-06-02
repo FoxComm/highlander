@@ -18,30 +18,26 @@ object ProductReviewRoutes {
 
     activityContext(auth) { implicit ac ⇒
       pathPrefix("review") {
-        pathPrefix(Segment) { contextName ⇒
-          adminObjectContext(contextName) { implicit context ⇒
-            (get & path(IntNumber) & pathEnd) { reviewId ⇒
-              getOrFailures {
-                ProductReviewManager.getReview(reviewId)
-              }
-            } ~
-            (post & entity(as[CreateProductReviewByAdminPayload]) & pathEnd) { payload ⇒
-              mutateOrFailures {
-                ProductReviewManager.createProductReview(payload.userId.getOrElse(auth.account.id),
-                                                         payload)
-              }
-            } ~
-            (path(IntNumber) & patch & entity(as[UpdateProductReviewPayload]) & pathEnd) {
-              (reviewId, payload) ⇒
-                mutateOrFailures {
-                  ProductReviewManager.updateProductReview(reviewId, payload)
-                }
-            } ~
-            (delete & path(IntNumber) & pathEnd) { id ⇒
-              deleteOrFailures {
-                ProductReviewManager.archiveByContextAndId(id)
-              }
+        (get & path(IntNumber) & pathEnd) { reviewId ⇒
+          getOrFailures {
+            ProductReviewManager.getReview(reviewId)
+          }
+        } ~
+        (post & entity(as[CreateProductReviewByAdminPayload]) & pathEnd) { payload ⇒
+          mutateOrFailures {
+            ProductReviewManager.createProductReview(payload.userId.getOrElse(auth.account.id),
+                                                     payload)
+          }
+        } ~
+        (path(IntNumber) & patch & entity(as[UpdateProductReviewPayload]) & pathEnd) {
+          (reviewId, payload) ⇒
+            mutateOrFailures {
+              ProductReviewManager.updateProductReview(reviewId, payload)
             }
+        } ~
+        (delete & path(IntNumber) & pathEnd) { id ⇒
+          deleteOrFailures {
+            ProductReviewManager.archiveById(id)
           }
         }
       }

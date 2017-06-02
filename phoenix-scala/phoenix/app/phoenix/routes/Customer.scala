@@ -339,7 +339,7 @@ object Customer {
                 } ~
                 (delete & path(IntNumber) & pathEnd) { id ⇒
                   deleteOrFailures {
-                    ProductReviewManager.archiveByContextAndId(id)
+                    ProductReviewManager.archiveById(id)
                   }
                 }
               }
