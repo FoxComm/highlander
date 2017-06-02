@@ -15,6 +15,7 @@ type SKU interface {
 	CreateBulk(payload []*payloads.CreateSKU) ([]*responses.SKU, error)
 	Update(id uint, payload *payloads.UpdateSKU) (*responses.SKU, error)
 	Archive(id uint) error
+	GetAFS(id uint) (*responses.SkuAfs, error)
 }
 
 // NewSKU creates a new SKU collection.
@@ -191,4 +192,28 @@ func (s *skuService) createInner(txn *gorm.DB, payload *payloads.CreateSKU) (*re
 	}
 
 	return responses.NewSKUFromModel(sku), nil
+}
+
+func (s *skuService) GetAFS(id uint) (*responses.SkuAfs, error) {
+	repo := repositories.NewStockItemRepository(s.db)
+	afs, err := repo.GetAFSBySkuId(id)
+	if err != nil {
+		return nil, err
+	}
+	var resp responses.SkuAfs
+
+	for _, single := range *afs {
+		switch single.Type {
+		case models.Sellable:
+			resp.Sellable = single.Afs
+		case models.NonSellable:
+			resp.NonSellable = single.Afs
+		case models.Backorder:
+			resp.Backorder = single.Afs
+		case models.Preorder:
+			resp.Preorder = single.Afs
+		}
+	}
+
+	return &resp, nil
 }
