@@ -12,6 +12,13 @@ trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒
 
   val rootPrefix: String = "v1/my"
 
+  object accountApi {
+    val accountPath = s"$rootPrefix/account"
+
+    def getAccount()(implicit ca: TestCustomerAuth): HttpResponse =
+      GET(accountPath, ca.jwtCookie.some)
+  }
+
   case class storefrontProductsApi(reference: String) {
     val productPath = s"$rootPrefix/products/$reference/baked"
 
@@ -48,6 +55,9 @@ trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒
 
     object shippingAddress {
       val shippingAddress = s"$cartPath/shipping-address"
+
+      def create(payload: CreateAddressPayload)(implicit ca: TestCustomerAuth): HttpResponse =
+        POST(shippingAddress, payload, ca.jwtCookie.some)
 
       def createOrUpdate(payload: CreateAddressPayload)(
           implicit ca: TestCustomerAuth): HttpResponse =
