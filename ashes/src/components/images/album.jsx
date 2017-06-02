@@ -11,7 +11,6 @@ import React, { Component, Element } from 'react';
 import { isEqual, get } from 'lodash';
 
 // components
-import { Button } from 'components/core/button';
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import Alert from 'components/alerts/alert';
 import AlbumWrapper from './album-wrapper/album-wrapper';
@@ -51,7 +50,7 @@ type State = {
   uploadUrlMode: boolean;
 };
 
-function getErrorMessage(asyncState: AsyncState, failedCount: number = 1) {
+function getErrorMessage(asyncState?: Object, failedCount: number = 1) {
   if (!get(asyncState, 'err')) {
     return null;
   }
@@ -279,7 +278,7 @@ export default class Album extends Component {
         ref={c => this._uploadRef = c}
         className={s.upload}
         onDrop={this.handleNewFiles}
-        empty={album.images.length == 0}
+        empty={album.images.length === 0}
       >
         <SortableTiles loading={loading} onSort={this.handleSortImages}>
           {album.images.map((image: ImageFile, idx: number) => {

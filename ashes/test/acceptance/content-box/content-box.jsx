@@ -20,7 +20,7 @@ describe('ContentBox', function() {
     );
 
     expect(contentBox, 'to contain',
-      <div className="content-box⁄content-box__title">{title}</div>
+      <div className="title">{title}</div>
     );
   });
 
@@ -30,7 +30,7 @@ describe('ContentBox', function() {
       <ContentBox title="" className={ className } />
     );
 
-    expect(contentBox.props.className).to.be.equal(`content-box⁄content-box__box fc-content-box ${className}`);
+    expect(contentBox.props.className).to.be.equal(`box fc-content-box ${className}`);
   });
 
   it('should render container with action block when provided', function *() {
@@ -40,7 +40,7 @@ describe('ContentBox', function() {
     );
 
     expect(contentBox, 'to contain',
-      <div className="content-box⁄content-box__controls">
+      <div className="controls">
         {actionBlock}
       </div>
     );
@@ -52,7 +52,7 @@ describe('ContentBox', function() {
     );
 
     expect(contentBox, 'to contain exactly',
-      <div className="content-box⁄content-box__controls"></div>
+      <div className="controls"></div>
     );
   });
 });

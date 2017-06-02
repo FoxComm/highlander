@@ -56,7 +56,7 @@ class UploadByUrl extends Component {
   }
 
   get saveDisabled(): boolean {
-    return _.isEmpty(this.state.url);
+    return _.isEmpty(this.state.url) || !!this.props.inProgress;
   }
 
   @autobind
@@ -94,10 +94,9 @@ class UploadByUrl extends Component {
             className={s.uploadByUrl}
             onCancel={this.props.onCancel}
             onSave={this.handleSave}
-            saveDisabled={this.saveDisabled}
             isLoading={inProgress}
             cancelDisabled={inProgress}
-            saveDisabled={inProgress}
+            saveDisabled={this.saveDisabled}
             saveText="Upload"
           />
         </Form>

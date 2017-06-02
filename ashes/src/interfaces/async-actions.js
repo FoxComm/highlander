@@ -1,6 +1,5 @@
-
 type AsyncState = {
-   err: any,
+  err: any,
   inProgress: boolean,
   finished: boolean,
 }
