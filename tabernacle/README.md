@@ -25,7 +25,6 @@ All of our DevOps tools for deploying the application to both development and pr
 
 * [`app`](ansible/roles/app) - Roles related to developer appliance launch.
 * [`base`](ansible/roles/base) - Roles used during base images packing.
-* [`cloud`](ansible/roles/cloud) - Frozen attempt to build a FoxCommerce Cloud.
 * [`dev`](ansible/roles/dev) - Roles applied over `base` roles during instance runtime.
 * [`demo`](ansible/roles/demo) - Everything related to demo/showcase projects.
 * [`ext`](ansible/roles/ext) - Customer environment-specific roles.
