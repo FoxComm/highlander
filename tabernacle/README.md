@@ -60,10 +60,10 @@ All of our DevOps tools for deploying the application to both development and pr
 
 ### Core
 
-```                                                                
+```
   +------------------+        +------------------+        +------------------+
   |core-backend      |        |core-frontend     |        |core-integrations |
-  |                  |        |                  |        |                  |
+  |------------------|        |------------------|        |------------------|
   |* phoenix         |--------|* ashes           |--------|* hyperion        |
   |* isaac           |        |* peacock         |        |* messaging       |
   |* solomon         |        |* perfect-gourmet |        +------------------+
@@ -73,11 +73,11 @@ All of our DevOps tools for deploying the application to both development and pr
            |                            |                                     
   +-----------------------+   +---------------------+                         
   |core-consumers         |   |core-onboarding      |                         
-  |                       |   |                     |                         
+  |-----------------------|   |---------------------|                         
   |* green-river          |   |* onboarding-service |                         
   |* capture-consumer     |   |* onboarding-ui      |                         
   |* gift-card-consumer   |   +---------------------+                         
   |* shipments-consumer   |                                                   
   |* stock-items-consumer |                                                   
-  +-----------------------+ 
+  +-----------------------+                                                   
 ```
