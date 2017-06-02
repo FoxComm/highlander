@@ -12,15 +12,6 @@ const searchTerms = [
     type: 'date',
     term: 'createdAt',
   },
-  {
-    title: 'Coupon : Is Archived',
-    type: 'exists',
-    term: 'archivedAt',
-    suggestions: [
-      { display: 'Yes', operator: 'exists' },
-      { display: 'No', operator: 'missing' },
-    ],
-  },
 ];
 
 const { reducer, actions } = makeLiveSearch(
