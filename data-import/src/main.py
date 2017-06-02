@@ -156,13 +156,18 @@ class Phoenix:
         return code, json.loads(response.read().decode('utf-8'))
 
     def do_login(self):
+        print("logging in: host:",self.login_endpoint(), "user:", self.user, "organization:", self.org)
         payload = json.dumps({'email': self.user, 'password': self.password, 'org': self.org}).encode()
         context = ssl.create_default_context()
         context.check_hostname = False
-        req = urllib.request.Request(self.login_endpoint(), payload)
+        req = urllib.request.Request(self.login_endpoint(), payload, method='POST')
         req.add_header('Content-Type', 'application/json')
 
-        response = urllib.request.urlopen(req, context=context)
+        try:
+            response = urllib.request.urlopen(req, context=context)
+        except urllib.error.URLError as err:
+            print("Cannot connect to ", self.login_endpoint(), err)
+            raise
 
         content = json.loads(response.read().decode('utf-8'))
         self.jwt = dict(response.info())['Jwt']

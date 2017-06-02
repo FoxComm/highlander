@@ -7,9 +7,6 @@ export GOOGLE_SERVICE_ACCOUNT_EMAIL={{google_service_account_email}}
 export GOOGLE_JSON_KEY_LOCATION={{google_json_key_location}}
 export GOOGLE_INSTANCE_NAME={{google_instance_name}}
 
-# Should we include IC?
-export WITH_INTELLIGENT_COMMERCE={{with_ic_value | bool | lower}}
-
 # Should we seed?
 export WITH_APPLIANCE_SEEDING={{with_seeding_value | bool | lower}}
 
@@ -59,47 +56,3 @@ export DOCKER_TAG_ONBOARING_UI:=master
 
 # Data Import
 export DOCKER_TAG_DATA_IMPORT=master
-
-####################################################################
-# Marathon Flags                                                   #
-####################################################################
-
-# Core
-export MARATHON_ASHES:=true
-export MARATHON_PEACOCK:=true
-export MARATHON_PHOENIX:=true
-export MARATHON_GREENRIVER:=true
-export MARATHON_MIDDLEWAREHOUSE:=true
-export MARATHON_MESSAGING:=true
-export MARATHON_ISAAC:=true
-export MARATHON_SOLOMON:=true
-export MARATHON_HYPERION:=true
-
-# Consumers
-export MARATHON_CAPTURE_CONSUMER:=true
-export MARATHON_GIFT_CARD_CONSUMER:=true
-export MARATHON_SHIPMENTS_CONSUMER:=true
-export MARATHON_SHIPSTATION_CONSUMER:=true
-export MARATHON_STOCK_ITEMS_CONSUMER:=true
-export MARATHON_CUSTOMER_GROUPS_CONSUMER:=true
-
-# Storefronts
-export MARATHON_STOREFRONT_TOPDRAWER:=true
-export MARATHON_STOREFRONT_TPG:=true
-
-# Onboarding
-export MARATHON_ONBOARING_SERVICE:=true
-export MARATHON_ONBOARING_UI:=true
-
-# Intelligent Commerce
-export MARATHON_BERNARDO:=true
-export MARATHON_HENHOUSE:=true
-export MARATHON_EGGCRATE:=true
-export MARATHON_RIVER_ROCK:=true
-export MARATHON_DIGGER_SPHEX:=true
-export MARATHON_ORDERS_SPHEX:=true
-export MARATHON_ORDERS_ANTHILL:=true
-export MARATHON_ORDERS_REVIEWS:=true
-export MARATHON_ANTHILL:=true
-export MARATHON_NEO4J:=true
-export MARATHON_SUGGESTER:=true
