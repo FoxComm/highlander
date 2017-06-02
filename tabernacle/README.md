@@ -58,13 +58,16 @@ All of our DevOps tools for deploying the application to both development and pr
 
 ### Marathon Application Group Hierarchy
 
-Two parallel pipelines:
+Two pipelines, running in parallel:
 
 * `core-backend` (phoenix, isaac, solomon, middlewarehouse)
     * `core-consumers` (golang consumers)
     * `core-frontend` (ashes, any storefronts)
         * `core-integrations` (hyperion, messaging)
+
 * `ic-storage` (henhouse, neo4j)
     * `ic-hooks` (neo4j-reset)
         * `ic-backend` (anthill, bernardo, river-rock)
             * `ic-consumers` (golang IC consumers)
+
+**Note**: each subgroup applications are also deployed in parallel.
