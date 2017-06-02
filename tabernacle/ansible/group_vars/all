@@ -192,7 +192,7 @@ marathon_host: "marathon.{{consul_suffix}}"
 marathon_port: 8080
 marathon_server: "{{marathon_host}}:{{marathon_port}}"
 
-onboarding_service_host: "onboarding_service.{{consul_suffix}}"
+onboarding_service_host: "onboarding-service.{{consul_suffix}}"
 onboarding_service_port: 4003
 onboarding_service_server: "{{onboarding_service_host}}:{{onboarding_service_port}}"
 
