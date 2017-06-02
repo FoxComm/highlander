@@ -2,9 +2,9 @@
 
 All of our DevOps tools for deploying the application to both development and production.
 
-### Prerequisites
+## Prerequisites
 
-#### Required
+### Required
 
 - [Ansible](https://ansible.com) 2.2.x
 - [AWS CLI](https://aws.amazon.com/cli)
@@ -16,16 +16,15 @@ All of our DevOps tools for deploying the application to both development and pr
 - [Python](https://www.python.org) 2.7.x
 - [Terraform](https://terraform.io) 0.9.3 or above
 
-#### Optional
+### Optional
 
 - [easy](https://github.com/kpashka/easy)
 - [shellcheck](https://www.shellcheck.net)
 
-### Ansible Roles Hierarchy
+## Ansible Roles Hierarchy
 
 * [`app`](ansible/roles/app) - Roles related to developer appliance launch.
 * [`base`](ansible/roles/base) - Roles used during base images packing.
-* [`cloud`](ansible/roles/cloud) - Frozen attempt to build a FoxCommerce Cloud.
 * [`dev`](ansible/roles/dev) - Roles applied over `base` roles during instance runtime.
 * [`demo`](ansible/roles/demo) - Everything related to demo/showcase projects.
 * [`ext`](ansible/roles/ext) - Customer environment-specific roles.
@@ -33,7 +32,7 @@ All of our DevOps tools for deploying the application to both development and pr
 * [`ops`](ansible/roles/ops) - Roles requiring interactive input, usually applied manually.
 * [`prod`](ansible/roles/prod) - Roles that are usually applied to production systems.
 
-### Appliance Services Hierarchy
+## Appliance Services Hierarchy
 
 * `consul_agent`
     * `consul_template`
@@ -44,6 +43,7 @@ All of our DevOps tools for deploying the application to both development and pr
             * `schema_registry`
         * `mesos_master`
             * `marathon`
+               * `marathon_consul`
         * `mesos_worker`
 * `elasticsearch`
 * `elasticseach_5`
@@ -54,3 +54,32 @@ All of our DevOps tools for deploying the application to both development and pr
     * `bottledwater_onboarding`
     * `materialized_views`
     * `pgweb`
+
+## Marathon Hierarchy
+
+```                                                                                                 
+ +------------------+      +-------------------+      +-------------------+    +--------------+       
+ |   core-backend   |      |   core-frontend   |      | core-integrations |    |  ic-storage  |       
+ |------------------|      |-------------------|      |-------------------|    |--------------|--+    
+ |* phoenix         |------|* ashes            |------|* hyperion         |    |* henhouse    |  |    
+ |* isaac           |      |* peacock          |      |* messaging        |    |* neo4j       |  |    
+ |* solomon         |      |* perfect-gourmet  |      +-------------------+    +--------------+  |    
+ |* middlewarehouse |      |* top-drawer       |                                                 |    
+ +------------------+      +-------------------+                                                 |    
+           |                         |              +---------------------+           +--------------+
+           |                         |              |   core-onboarding   |           |   ic-hooks   |
+           |                         |              |---------------------|       +---|--------------|
+           |                         +--------------|* onboarding-service |       |   |* neo4j-reset |
+           |                                        |* onboarding-ui      |       |   +--------------+
+           |                                        +---------------------+       |                   
+           |                                                                      |                   
+           |    +------------------------+     +--------------------+          +--------------+       
+           |    |     core-consumers     |     |    ic-consumers    |          |  ic-backend  |       
+           |    |------------------------|     |--------------------|          |--------------|       
+           +----|* green-river           |     |* digger-sphex      |          |* anthill     |       
+                |* capture-consumer      |     |* orders-anthill    |----------|* bernardo    |       
+                |* gift-card-consumer    |     |* orders-reviews    |          |* eggcrate    |       
+                |* shipments-consumer    |     |* orders-sphex      |          |* river-rock  |       
+                |* stock-items-consumer  |     |* product-activity  |          +--------------+       
+                +------------------------+     +--------------------+                                                       
+```

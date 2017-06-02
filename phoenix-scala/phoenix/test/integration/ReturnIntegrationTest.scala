@@ -20,6 +20,7 @@ import phoenix.payloads.PaymentPayloads.CreateManualStoreCredit
 import phoenix.payloads.ReturnPayloads._
 import phoenix.responses.ReturnResponse.Root
 import phoenix.responses._
+import phoenix.services.activity.ReturnTailored._
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.api.ApiFixtureHelpers
@@ -544,12 +545,9 @@ class ReturnIntegrationTest
 
         val payload = ReturnPaymentsPayload(
             Map(PaymentMethod.CreditCard → 100, PaymentMethod.StoreCredit → 120))
-        api
-          .addOrReplace(payload)
-          .as[ReturnResponse.Root]
-          .payments
-          .asMap
-          .mapValues(_.amount) must === (payload.payments)
+        val response = api.addOrReplace(payload).as[ReturnResponse.Root]
+        response.payments.asMap.mapValues(_.amount) must === (payload.payments)
+        mustProduceActivity(ReturnPaymentsDeleted(response, List(PaymentMethod.GiftCard)))
 
         api
           .add(PaymentMethod.StoreCredit, ReturnPaymentPayload(50))

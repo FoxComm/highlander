@@ -5,7 +5,7 @@ object Versions {
   val slick     = "3.2.0"
   val json4s    = "3.4.0"
   val akka      = "2.4.7"
-  val slickPg   = "0.15.0-RC"
+  val slickPg   = "0.15.0"
   val gatling   = "2.2.1"
   val dispatch  = "0.11.3"
   val fasterxml = "2.8.2"
