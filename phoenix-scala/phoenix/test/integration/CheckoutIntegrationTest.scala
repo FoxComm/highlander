@@ -98,6 +98,9 @@ class CheckoutIntegrationTest
             order.shippingAddress.region,
             isDefault = false /* FIXME: what?! It *is* default! @kjanosz @aafa */ )
 
+        // Compare all significant fields.
+        expectedAddressResponse must === (address.copy(id = expectedAddressResponse.id))
+
         order.shippingAddress must === (expectedAddressResponse)
         order.shippingMethod.id must === (shipMethod.id)
       }
