@@ -47,9 +47,6 @@ deploy-td-stage:
 deploy-tpg-stage:
 	ansible-playbook -v -i inventory/static/tpg ansible/legacy_deploy_storefront.yml
 
-deploy-stage:
-	ansible-playbook -v -i inventory/gce/ ansible/legacy_test_stage.yml
-
 deploy-feature-branch-legacy:
 	ansible-playbook -v -i inventory/gce/ ansible/legacy_deploy_feature_branch.yml
 
