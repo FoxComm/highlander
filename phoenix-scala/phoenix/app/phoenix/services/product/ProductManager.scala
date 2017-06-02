@@ -207,17 +207,17 @@ object ProductManager extends LazyLogging {
       albumLinks ← * <~ ProductAlbumLinks.filterLeft(archiveResult).result
       _ ← * <~ albumLinks.map(l ⇒
                ProductAlbumLinks.update(l, l.copy(archivedAt = Some(Instant.now))))
-      albums          ← * <~ ImageManager.getAlbumsForProduct(ProductReference(inactive.form.id))
-      updatedSkus     ← * <~ ProductSkuLinks.queryRightByLeft(archiveResult)
-      skus            ← * <~ updatedSkus.map(SkuManager.illuminateSku)
-      _               ← * <~ skuLinks.map(l ⇒ ProductSkuLinks.update(l, l.copy(archivedAt = Some(Instant.now))))
-      skuLinks        ← * <~ ProductSkuLinks.filterLeft(archiveResult).result
-      updatedVariants ← * <~ ProductVariantLinks.queryRightByLeft(archiveResult)
-      variants        ← * <~ updatedVariants.map(VariantManager.zipVariantWithValues)
+      albums       ← * <~ ImageManager.getAlbumsForProduct(ProductReference(inactive.form.id))
+      skuLinks     ← * <~ ProductSkuLinks.filterLeft(archiveResult).result
+      _            ← * <~ skuLinks.map(l ⇒ ProductSkuLinks.update(l, l.copy(archivedAt = Some(Instant.now))))
+      updatedSkus  ← * <~ ProductSkuLinks.queryRightByLeft(archiveResult)
+      skus         ← * <~ updatedSkus.map(SkuManager.illuminateSku)
+      variantLinks ← * <~ ProductVariantLinks.filterLeft(archiveResult).result
       _ ← * <~ variantLinks.map(l ⇒
                ProductVariantLinks.update(l, l.copy(archivedAt = Some(Instant.now))))
-      variantLinks    ← * <~ ProductVariantLinks.filterLeft(archiveResult).result
-      variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
+      updatedVariants ← * <~ ProductVariantLinks.queryRightByLeft(archiveResult)
+      variants        ← * <~ updatedVariants.map(VariantManager.zipVariantWithValues)
+      variantAndSkus  ← * <~ getVariantsWithRelatedSkus(variants)
       (variantSkus, variantResponses) = variantAndSkus
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(productObject.model)
     } yield
