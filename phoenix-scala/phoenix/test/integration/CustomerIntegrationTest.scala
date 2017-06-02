@@ -49,7 +49,7 @@ class CustomerIntegrationTest
         .as[Root]
 
       val created = Users.findOneByAccountId(root.id).gimme.value
-      created.id must === (root.id)
+      created.accountId must === (root.id)
     }
 
     "fails if email is already in use" in new Customer_Seed {
@@ -299,8 +299,9 @@ class CustomerIntegrationTest
 
       customersApi(newCustomer.id).activate(ActivateCustomerPayload(name = "test")).mustBeOk()
 
-      val created: User                 = Users.findOneById(newCustomer.id).gimme.value
-      val createdCustUser: CustomerData = CustomersData.findOneByAccountId(created.id).gimme.value
+      val created: User = Users.findOneByAccountId(newCustomer.id).gimme.value
+      val createdCustUser: CustomerData =
+        CustomersData.findOneByAccountId(created.accountId).gimme.value
 
       val expectedResponse: Root = newCustomer.copy(name = "test".some, isGuest = false)
       CustomerResponse.build(created, createdCustUser) must === (expectedResponse)
