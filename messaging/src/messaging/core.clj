@@ -9,6 +9,7 @@
    ;; log
    [taoensso.timbre :as log]
    ;; internal
+   [messaging.shared :as shared]
    [messaging.mail :as mail]
    ;; kafka & other libs
    [franzy.clients.consumer.client :as consumer]
@@ -16,9 +17,6 @@
    [franzy.clients.consumer.protocols :refer :all]
    [cheshire.core :as json]
    [environ.core :refer [env]]))
-
-(def staging "staging")
-(def environment (delay (:environment env)))
 
 (def topics ["scoped_activities"])
 
@@ -85,7 +83,7 @@
 (defn start-app
   [react-app]
   (log/infof "Start consumer on %s, with kafka=%s schema=%s"
-             @environment
+             @shared/environment
              @kafka-broker
              @schema-registry-url)
   (reset! stop false)
@@ -105,7 +103,7 @@
               (try
                 (let [msg (decode record)]
                   (log/debug msg)
-                  (when (not= environment staging)
+                  (when (not= shared/environment shared/staging)
                     (mail/handle-activity msg))
                   (commit-offsets-sync! c {(select-keys record [:topic :partition])
                                            {:offset (inc (:offset record)) :metadata ""}}))

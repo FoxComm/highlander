@@ -151,7 +151,6 @@
     :type "bool"
     :default false}])
 
-
 (defonce store (atom {}))
 
 (defn update-settings
@@ -161,11 +160,9 @@
        clojure.walk/keywordize-keys
        (reset! store)))
 
-
 (defn get
   [k]
   (clojure.core/get @store (keyword k)))
-
 
 (defn add-new-customers-to-mailchimp?
   []

@@ -5,6 +5,7 @@
     [byte-streams :as bs]
     [environ.core :refer [env]]
     [clojure.string :as string]
+    [messaging.shared :as shared]
     [messaging.settings :as settings]
     [messaging.phoenix :as phoenix]
     [clojchimp.client :as mailchimp]
@@ -13,21 +14,19 @@
     [gws.mandrill.api.templates :as templates]
     [helpers.activities-transforms :as at]))
 
-
 ;; mandrill client
 (defn client []
   (let [mkey (settings/get :mandrill_key)]
-    (when (empty? mkey)
+    (when (and (not= shared/environment shared/staging) (empty? mkey))
       (throw (ex-info "Mandrill key is not defined" {})))
     (client/create mkey)))
 
 ;; mailchimp client
 (defn mclient []
   (let [mkey (settings/get :mailchimp_key)]
-    (when (empty? mkey)
+    (when (and (not= shared/environment shared/staging) (empty? mkey))
       (throw (ex-info "Mailchimp key is not defined" {})))
     (mailchimp/create-client "fox-messaging" mkey)))
-
 
 (defn make-tpl-vars
   "Convert clojure map to mandtrill template vars"
@@ -35,7 +34,6 @@
   {:pre  [(map? vars)]}
   (for [[k v] vars]
    {:name k :content v}))
-
 
 (defn gen-msg
   "Generate ready to send email message for Mandrill.
@@ -78,7 +76,6 @@
 (defn dispatch-activity
   [activity]
   (keyword (:kind activity)))
-
 
 (defmulti handle-activity dispatch-activity)
 (defmethod handle-activity :default [act] nil)
@@ -171,7 +168,6 @@
                 :reset_code reset-code}
                {:subject (settings/get :customer_remind_password_subject)}))))
 
-
 (defmethod handle-activity :gift_card_created
   [activity]
   (let [data (:data activity)
@@ -191,7 +187,6 @@
                :recipient_name recipientName
                :gift_card_number giftCardCode}
               {:subject (settings/get :gift_card_customer_subject)})))))
-
 
 (defmethod handle-activity :send_simple_mail
   [activity]
