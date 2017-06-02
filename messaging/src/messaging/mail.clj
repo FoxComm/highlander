@@ -3,6 +3,7 @@
    [aleph.http :as http]
    [cheshire.core :as json]
    [byte-streams :as bs]
+   [taoensso.timbre :as log]
    [environ.core :refer [env]]
    [clojure.string :as string]
    [messaging.shared :as shared]
@@ -17,14 +18,14 @@
 ;; mandrill client
 (defn client []
   (let [mkey (settings/get :mandrill_key)]
-    (when (and (not= shared/environment shared/staging) (empty? mkey))
+    (when (and (not= @shared/environment shared/staging) (empty? mkey))
       (throw (ex-info "Mandrill key is not defined" {})))
     (client/create mkey)))
 
 ;; mailchimp client
 (defn mclient []
   (let [mkey (settings/get :mailchimp_key)]
-    (when (and (not= shared/environment shared/staging) (empty? mkey))
+    (when (and (not= @shared/environment shared/staging) (empty? mkey))
       (throw (ex-info "Mailchimp key is not defined" {})))
     (mailchimp/create-client "fox-messaging" mkey)))
 

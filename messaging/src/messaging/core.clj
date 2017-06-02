@@ -102,7 +102,7 @@
               (try
                 (let [msg (decode record)]
                   (log/debug msg)
-                  (when (not= shared/environment shared/staging)
+                  (when (not= @shared/environment shared/staging)
                     (mail/handle-activity msg))
                   (commit-offsets-sync! c {(select-keys record [:topic :partition])
                                            {:offset (inc (:offset record)) :metadata ""}}))
