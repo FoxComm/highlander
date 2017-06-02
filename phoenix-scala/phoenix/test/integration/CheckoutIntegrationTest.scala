@@ -88,7 +88,17 @@ class CheckoutIntegrationTest
             'id (creditCard.id),
             'type (PaymentMethod.CreditCard)
         )
-        order.shippingAddress.id must === (address.id)
+
+        // FIXME: Add Address#id to OrderShippingAddress? @michalrus
+        // FIXME: And, afterwards, check just IDs. @michalrus
+        val orderShippingAddress =
+          OrderShippingAddresses.findOneById(order.shippingAddress.id).gimme.value
+        val expectedAddressResponse = AddressResponse.buildOneShipping(
+            orderShippingAddress,
+            order.shippingAddress.region,
+            isDefault = false /* FIXME: what?! It *is* default! @kjanosz @aafa */ )
+
+        order.shippingAddress must === (expectedAddressResponse)
         order.shippingMethod.id must === (shipMethod.id)
       }
     }

@@ -61,6 +61,7 @@ object AddressResponse {
   def buildMulti(records: Seq[(Address, Region)]): Seq[AddressResponse] =
     records.map((build _).tupled)
 
+  // FIXME: dead code? @michalrus
   def buildShipping(records: Seq[(Address, OrderShippingAddress, Region)]): Seq[AddressResponse] = {
     records.map {
       case (address, shippingAddress, region) ⇒
@@ -71,6 +72,7 @@ object AddressResponse {
   def buildOneShipping(address: OrderShippingAddress,
                        region: Region,
                        isDefault: Boolean = false): AddressResponse = {
+    // FIXME: so AddressResponse#id is OrderShippingAddress#id, but *sometimes* also Address#id? o_O’ @michalrus
     AddressResponse(id = address.id,
                     region = region,
                     name = address.name,
