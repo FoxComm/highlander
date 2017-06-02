@@ -16,9 +16,9 @@
   version "3.1.0"
   resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fbabel-plugin-react-stylenames/-/babel-plugin-react-stylenames-3.1.0.tgz#34b9dc9625a502e42e86536e99548de90f1439e6"
 
-"@foxcomm/storefront-react@^1.2.0":
-  version "1.2.0"
-  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fstorefront-react/-/storefront-react-1.2.0.tgz#d43c27d2d3023023cd9c24e2e71400edc562c896"
+"@foxcomm/storefront-react@^1.2.2":
+  version "1.2.2"
+  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fstorefront-react/-/storefront-react-1.2.2.tgz#6e99c3fbe87a16e4fd47698a4f43d86988114d06"
   dependencies:
     "@foxcomm/api-js" "^1.2.0"
     "@foxcomm/wings" "^1.9.12"
@@ -28,6 +28,7 @@
     dom-scroll-into-view "^1.2.1"
     hoist-non-react-statics "^1.2.0"
     lodash "^4.17.4"
+    moment "^2.18.1"
     postcss-assets "^4.1.0"
     postcss-css-variables "^0.7.0"
     postcss-import "^10.0.0"
@@ -6304,7 +6305,7 @@ module-deps@^4.0.8:
     through2 "^2.0.0"
     xtend "^4.0.0"
 
-moment@^2.15.2:
+moment@^2.15.2, moment@^2.18.1:
   version "2.18.1"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.18.1.tgz#c36193dd3ce1c2eed2adb7c802dbbc77a81b1c0f"
 
@@ -7600,52 +7601,6 @@ process-nextick-args@^1.0.6, process-nextick-args@~1.0.6:
 process@^0.11.0, process@~0.11.0:
   version "0.11.9"
   resolved "https://registry.yarnpkg.com/process/-/process-0.11.9.tgz#7bd5ad21aa6253e7da8682264f1e11d11c0318c1"
-
-"product-recommender@file:../product-recommender":
-  version "1.0.0"
-  dependencies:
-    "@foxcomm/api-js" "^1.1.9"
-    "@foxcomm/babel-plugin-react-stylenames" "^3.1.0"
-    "@foxcomm/wings" "^1.9.12"
-    classnames "^2.2.3"
-    core-decorators "^0.11.0"
-    currency-symbol-map "^2.2.0"
-    dom-scroll-into-view "^1.1.0"
-    hoist-non-react-statics "^1.2.0"
-    isomorphic-fetch "^2.2.1"
-    jsonwebtoken "^5.7.0"
-    koa "^1.1.2"
-    koa-better-static "^1.0.5"
-    koa-bodyparser "^2.3.0"
-    koa-log4 "^1.1.0"
-    koa-mount "^1.3.0"
-    koa-onerror "^1.3.1"
-    koa-proxy foxcomm/koa-proxy
-    koa-router "^5.4.0"
-    lodash "^4.3.0"
-    mandrill-api "^1.0.45"
-    moment "^2.15.2"
-    react "^15.2.0"
-    react-addons-css-transition-group "^15.3.2"
-    react-dom "^15.2.0"
-    react-gestures "^0.1.8"
-    react-image-gallery "^0.7.15"
-    react-input-mask "github:anru/react-input-mask#a7b8dc04debe9e8dfe7eee3ad31facb79b7c1826"
-    react-redux "^5.0.3"
-    react-router "^2.7.0"
-    react-router-redux "^3.0.0"
-    react-router-scroll "^0.4.2"
-    react-text-mask "^0.19.0"
-    recast "^0.11.4"
-    reduce-reducers "^0.1.2"
-    redux "^3.6.0"
-    redux-act "1.1.0"
-    redux-isomorphic-render "^1.2.1"
-    redux-logger "^2.7.4"
-    reselect "^2.1.0"
-    sprout-data "^0.2.3"
-    use-named-routes "^0.3.2"
-    zipcodes "^2.0.0"
 
 progress@^1.1.8:
   version "1.1.8"
