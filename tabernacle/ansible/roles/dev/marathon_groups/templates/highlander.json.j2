@@ -24,7 +24,7 @@
         {% if with_onboarding %}
         {
             "id": "core-onboarding",
-            "dependencies": ["/highlander/core-backend", "/highlander/core-frontend"],
+            "dependencies": ["/highlander/core-frontend"],
             "apps": [
                 {% include "core-onboarding/onboarding_service.json.j2" %},
                 {% include "core-onboarding/onboarding_ui.json.j2" %}

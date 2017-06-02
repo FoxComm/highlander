@@ -266,6 +266,7 @@ greenriver_restart: "false"
 # This is a ttl of 1 year
 phoenix_token_ttl: 525600
 solomon_token_ttl: 365
+solomon_jwt: ""
 
 # Middlewarehouse
 middlewarehouse_env: staging
