@@ -61,28 +61,28 @@ All of our DevOps tools for deploying the application to both development and pr
 ### Core
 
 ```                                                                     
- +------------------+      +-------------------+      +-------------------+
- |   core-backend   |      |   core-frontend   |      | core-integrations |
- |------------------|      |-------------------|      |-------------------|
- |* phoenix         |------|* ashes            |------|* hyperion         |
- |* isaac           |      |* peacock          |      |* messaging        |
- |* solomon         |      |* perfect-gourmet  |      +-------------------+
- |* middlewarehouse |      |* top-drawer       |                           
- +------------------+      +-------------------+                           
-           |                         |              +---------------------+
-           |                         |              |   core-onboarding   |
-           |                         |              |---------------------|
-           |                         +--------------|* onboarding-service |
-           |                                        |* onboarding-ui      |
-           |                                        +---------------------+
-           |                                                               
-           |    +------------------------+                                 
-           |    |     core-consumers     |                                 
-           |    |------------------------|                                 
-           +----|* green-river           |                                 
-                |* capture-consumer      |                                 
-                |* gift-card-consumer    |                                 
-                |* shipments-consumer    |                                 
-                |* stock-items-consumer  |                                 
-                +------------------------+                                                                                  
+ +------------------+      +-------------------+      +-------------------+    +--------------+       
+ |   core-backend   |      |   core-frontend   |      | core-integrations |    |  ic-storage  |       
+ |------------------|      |-------------------|      |-------------------|    |--------------|--+    
+ |* phoenix         |------|* ashes            |------|* hyperion         |    |* henhouse    |  |    
+ |* isaac           |      |* peacock          |      |* messaging        |    |* neo4j       |  |    
+ |* solomon         |      |* perfect-gourmet  |      +-------------------+    +--------------+  |    
+ |* middlewarehouse |      |* top-drawer       |                                                 |    
+ +------------------+      +-------------------+                                                 |    
+           |                         |              +---------------------+           +--------------+
+           |                         |              |   core-onboarding   |           |   ic-hooks   |
+           |                         |              |---------------------|       +---|--------------|
+           |                         +--------------|* onboarding-service |       |   |* neo4j-reset |
+           |                                        |* onboarding-ui      |       |   +--------------+
+           |                                        +---------------------+       |                   
+           |                                                                   +--------------+       
+           |    +------------------------+     +--------------------+          |  ic-backend  |       
+           |    |     core-consumers     |     |    ic-consumers    |          |--------------|       
+           |    |------------------------|     |--------------------|          |* anthill     |       
+           +----|* green-river           |     |* digger-sphex      |          |* bernardo    |       
+                |* capture-consumer      |     |* orders-anthill    |----------|* eggcrate    |       
+                |* gift-card-consumer    |     |* orders-sphex      |          |* river-rock  |       
+                |* shipments-consumer    |     |* product-activity  |          +--------------+       
+                |* stock-items-consumer  |     +--------------------+                                 
+                +------------------------+                                                            
 ```
