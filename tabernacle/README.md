@@ -58,7 +58,7 @@ All of our DevOps tools for deploying the application to both development and pr
 
 ## Marathon Hierarchy
 
-```                                                                     
+```                                                                                                 
  +------------------+      +-------------------+      +-------------------+    +--------------+       
  |   core-backend   |      |   core-frontend   |      | core-integrations |    |  ic-storage  |       
  |------------------|      |-------------------|      |-------------------|    |--------------|--+    
@@ -73,14 +73,14 @@ All of our DevOps tools for deploying the application to both development and pr
            |                         +--------------|* onboarding-service |       |   |* neo4j-reset |
            |                                        |* onboarding-ui      |       |   +--------------+
            |                                        +---------------------+       |                   
-           |                                                                   +--------------+       
-           |    +------------------------+     +--------------------+          |  ic-backend  |       
-           |    |     core-consumers     |     |    ic-consumers    |          |--------------|       
-           |    |------------------------|     |--------------------|          |* anthill     |       
-           +----|* green-river           |     |* digger-sphex      |          |* bernardo    |       
-                |* capture-consumer      |     |* orders-anthill    |----------|* eggcrate    |       
-                |* gift-card-consumer    |     |* orders-sphex      |          |* river-rock  |       
-                |* shipments-consumer    |     |* product-activity  |          +--------------+       
-                |* stock-items-consumer  |     +--------------------+                                 
+           |                                                                      |                   
+           |    +------------------------+     +--------------------+          +--------------+       
+           |    |     core-consumers     |     |    ic-consumers    |          |  ic-backend  |       
+           |    |------------------------|     |--------------------|          |--------------|       
+           +----|* green-river           |     |* digger-sphex      |          |* anthill     |       
+                |* capture-consumer      |     |* orders-anthill    |----------|* bernardo    |       
+                |* gift-card-consumer    |     |* orders-sphex      |          |* eggcrate    |       
+                |* shipments-consumer    |     |* product-activity  |          |* river-rock  |       
+                |* stock-items-consumer  |     +--------------------+          +--------------+       
                 +------------------------+                                                            
 ```
