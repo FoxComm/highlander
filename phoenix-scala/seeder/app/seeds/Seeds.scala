@@ -7,30 +7,28 @@ import com.typesafe.config.Config
 import phoenix.failures.UserFailures._
 import core.failures.{Failures, FailuresOps, NotFoundFailure404}
 import java.time.{Instant, ZoneId}
-
+import org.apache.avro.generic.GenericData
+import org.apache.kafka.clients.producer.MockProducer
+import org.postgresql.ds.PGSimpleDataSource
 import phoenix.models.Reasons
 import phoenix.models.account._
-import phoenix.models.activity.ActivityContext
+import phoenix.models.activity.{ActivityContext, EnrichedActivityContext}
 import phoenix.models.auth.UserToken
 import objectframework.models.ObjectContexts
 import phoenix.models.product.SimpleContext
-import org.postgresql.ds.PGSimpleDataSource
-import phoenix.models.activity.ActivityContext
-import phoenix.utils.ADT
-
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
 import phoenix.services.Authenticator.AuthData
 import phoenix.services.account.AccountManager
-import slick.jdbc.PostgresProfile.api._
-import slick.jdbc.PostgresProfile.backend.DatabaseDef
 import phoenix.utils.aliases._
 import core.db._
 import phoenix.utils.db.flyway.{newFlyway, rootProjectSqlLocation}
 import phoenix.utils.seeds.Factories
 import phoenix.utils.seeds.generators.SeedsGenerator
 import phoenix.utils.{ADT, FoxConfig}
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import slick.jdbc.PostgresProfile.api._
+import slick.jdbc.PostgresProfile.backend.DatabaseDef
 
 object Seeds {
 
@@ -136,8 +134,13 @@ object Seeds {
   def runMain(cfg: CliConfig, usage: String): Unit = {
     val config: Config           = FoxConfig.unsafe
     implicit val db: DatabaseDef = Database.forConfig("db", config)
-    implicit val ac: AC = ActivityContext
-      .build(userId = 1, userType = "user", scope = LTree("1"), transactionId = "seeds")
+    implicit val ac: AC = EnrichedActivityContext(
+        ctx = ActivityContext(userId = 1,
+                              userType = "user",
+                              scope = LTree("1"),
+                              transactionId = "seeds"),
+        producer = new MockProducer[GenericData.Record, GenericData.Record](true, null, null)
+    )
 
     cfg.mode match {
       case Seed ⇒

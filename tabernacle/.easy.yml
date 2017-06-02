@@ -154,6 +154,11 @@ shortcuts:
     alias: seed_data_import.yml
     target: ansible/seed_data_import.yml
 
+  # Stage
+  - name: Deploy Staging
+    alias: deploy_stage.yml
+    target: ansible/deploy_stage.yml
+
 # Packer shortcuts
 - type: snowflake
   process: packer build
@@ -243,7 +248,6 @@ shortcuts:
       dev: terraform/envs/gce_dev/terraform.tfstate
       demo: terraform/envs/gce_demo/terraform.tfstate
       groups: terraform/envs/gce_groups/terraform.tfstate
-      staging: terraform/envs/gce_staging/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
 
@@ -255,7 +259,6 @@ shortcuts:
       dev: terraform/envs/gce_dev/dev.tfvars
       demo: terraform/envs/gce_demo/demo.tfvars
       groups: terraform/envs/gce_groups/groups.tfvars
-      staging: terraform/envs/gce_staging/staging.tfvars
       topdrawer: terraform/envs/gce_td/td.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
 
@@ -271,10 +274,6 @@ shortcuts:
   - name: FoxCommerce Core
     alias: dev
     target: terraform/base/gce_dev
-
-  - name: FoxCommerce Stage
-    alias: staging
-    target: terraform/base/gce_staging
 
   - name: FoxCommerce Stage Groups
     alias: groups

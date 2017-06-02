@@ -1,9 +1,8 @@
 package phoenix.services
 
-import java.time.Instant
-
 import com.github.tminglei.slickpg.LTree
 import core.db._
+import java.time.Instant
 import objectframework.ObjectResponses.ObjectContextResponse
 import phoenix.models.Assignment._
 import phoenix.models.Note
@@ -61,7 +60,7 @@ import core.utils.Money._
 
 case class LogActivity(implicit ac: AC) {
 
-  def withScope(scope: LTree): LogActivity = copy()(ac = ac.copy(scope = scope))
+  def withScope(scope: LTree): LogActivity = copy()(ac = ac.copy(ctx = ac.ctx.copy(scope = scope)))
 
   /* Assignments */
   def assigned[T](admin: User,

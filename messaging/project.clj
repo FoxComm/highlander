@@ -1,7 +1,10 @@
 (defproject
   foxcomm_messaging
   "0.1.0"
-  :plugins [[lein-environ "1.1.0"]]
+  :plugins [
+    [lein-environ "1.1.0"]
+    [lein-cljfmt "0.5.6"]
+   ]
   :target-path "target/%s/"
   :compile-path "%s/classy-files"
   :clean-targets [:target-path :compile-path]

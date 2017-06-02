@@ -24,7 +24,6 @@ type IStockItemRepository interface {
 	GetAFSBySKU(sku string, unitType models.UnitType) (*models.AFS, error)
 	GetAFSBySkuId(skuId uint) (*[]models.AfsByType, error)
 
-	CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error)
 	UpsertStockItem(item *models.StockItem) error
 	DeleteStockItem(stockItemId uint) error
 }
@@ -102,14 +101,6 @@ func (repository *stockItemRepository) GetAFSBySkuId(skuId uint) (*[]models.AfsB
 	}
 
 	return &afs, nil
-}
-
-func (repository *stockItemRepository) CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error) {
-	if err := repository.db.Create(stockItem).Error; err != nil {
-		return nil, err
-	}
-
-	return repository.GetStockItemById(stockItem.ID)
 }
 
 func (repository *stockItemRepository) DeleteStockItem(stockItemId uint) error {
