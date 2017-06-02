@@ -20,8 +20,12 @@ func main() {
 }
 
 func engine() (*gin.Engine, error) {
+    r := gin.New()
+
+    r.Use(gin.Recovery())
+
     configuration := routes.RouterConfiguration{
-        Engine: gin.Default(),
+        Engine: r,
         Routes: routes.GetRoutes(),
     }
 
