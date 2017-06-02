@@ -1,5 +1,5 @@
 (ns messaging.shared
- (:require
+  (:require
    [environ.core :refer [env]]))
 
 (def staging "staging")

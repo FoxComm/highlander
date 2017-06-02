@@ -3,22 +3,21 @@
   (:require clojure.walk))
 
 (def schema
-  [
-    ;; -- Core mailchimp/Mandrill settings
-    {:name "add_new_customers_to_mailchimp"
-     :title "Add new customers to mailchimp list"
-     :type "bool"
-     :default true}
+  [;; -- Core mailchimp/Mandrill settings
+   {:name "add_new_customers_to_mailchimp"
+    :title "Add new customers to mailchimp list"
+    :type "bool"
+    :default true}
 
-    {:name "mailchimp_customers_list_id"
-     :title "Mailchimp list id for customers"
-     :type "string"
-     :default ""}
+   {:name "mailchimp_customers_list_id"
+    :title "Mailchimp list id for customers"
+    :type "string"
+    :default ""}
 
-    {:name "mandrill_key"
-     :title "Mandrill API key"
-     :type "string"
-     :default ""}
+   {:name "mandrill_key"
+    :title "Mandrill API key"
+    :type "string"
+    :default ""}
 
    {:name "mailchimp_key"
     :title "Mailchimp API key"
