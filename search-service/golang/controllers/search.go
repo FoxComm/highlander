@@ -37,8 +37,6 @@ func (controller *searchController) SetUp(router gin.IRouter) {
         var query body
         c.BindJSON(&query)
 
-        fmt.Printf("index: %s, view: %s, from: %d, size: %d\n", index, view, from, size)
-
         response := controller.esService.GetEsResponse(index, view, from, size, query.Query)
 
         c.JSON(http.StatusOK, response)
