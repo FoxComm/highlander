@@ -3,14 +3,11 @@ package objectframework.services
 import java.time.Instant
 
 import org.json4s._
-
 import cats.data._
 import cats.implicits._
-
 import core.db.ExPostgresDriver.api._
 import core.db._
-import core.failures.Failure
-
+import core.failures.{Failure, Failures}
 import objectframework.IlluminateAlgorithm
 import objectframework.content._
 import objectframework.db._
@@ -69,6 +66,7 @@ object ContentManager {
     for {
       _        ← * <~ payload.validate
       existing ← * <~ mustFindLatest(id, viewId, kind)
+      _        ← * <~ validateNoCycles(existing.commit.id, kind, payload.relations)
       newAttrs ← * <~ ContentUtils.encodeContentAttributesForUpdate(existing.form.attributes,
                                                                     existing.shadow.attributes,
                                                                     payload.attributes)
@@ -134,6 +132,63 @@ object ContentManager {
       case None ⇒
         DbResultT.pure(None)
     }
+
+  /**
+    * validateNoCycles analyzes the proposed changes to a content object's
+    * relations map and validates that no cycles get created in the content
+    * object's network. There should be more efficient algorithms to do this,
+    * but for now, this should work.
+    */
+  private def validateNoCycles(id: Commit#Id,
+                               kind: String,
+                               newRelations: Option[Content.ContentRelations])(implicit ec: EC) = {
+    newRelations match {
+      case Some(relations) ⇒
+        for {
+          parentIds ← * <~ collectParentIds(id, kind, Seq.empty[Commit#Id])
+          _         ← * <~ validateIdsNotInRelations(id, kind, relations, parentIds.toSet)
+        } yield {}
+      case None ⇒
+        DbResultT.pure(Unit)
+    }
+  }
+
+  private def validateIdsNotInRelations(entityId: Commit#Id,
+                                        entityKind: String,
+                                        relations: Content.ContentRelations,
+                                        parentIds: Set[Commit#Id]): Either[Failures, Unit] = {
+
+    val totalFailures = relations.foldLeft(Seq.empty[Failure]) {
+      case (allFailures, (relKind, relCommits)) ⇒
+        val failures = parentIds.intersect(relCommits.toSet).foldLeft(Seq.empty[Failure]) {
+          (relFailures, relCommitId) ⇒
+            relFailures :+ ImportCycleFound(entityId = entityId,
+                                            entityKind = entityKind,
+                                            relCommitId = relCommitId,
+                                            relKind = relKind)
+        }
+
+        allFailures ++ failures
+    }
+
+    totalFailures match {
+      case head :: tail ⇒ Left(NonEmptyList(head, tail))
+      case _            ⇒ Right(Unit)
+    }
+  }
+
+  private def collectParentIds(commitId: Commit#Id, kind: String, existingCommits: Seq[Commit#Id])(
+      implicit ec: EC): DbResultT[Seq[Int]] = {
+    for {
+      parents ← * <~ ContentQueries.filterParentIds(commitId, kind)
+      collectedIds ← * <~ parents.foldLeft(DbResultT.pure(existingCommits)) {
+                      case (acc, (commitId, kind)) ⇒
+                        acc.flatMap { existing ⇒
+                          collectParentIds(commitId, kind, existing :+ commitId)
+                        }
+                    }
+    } yield collectedIds
+  }
 
   private def updateRelations(relations: Content.ContentRelations,
                               kind: String,

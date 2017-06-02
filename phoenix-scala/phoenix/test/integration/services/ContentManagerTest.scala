@@ -103,6 +103,7 @@ class ContentManagerTest extends IntegrationTestBase with TestObjectContext with
       val failures = ContentManager.create(SimpleContext.id, payload).gimmeFailures
       failures.head must === (RelatedContentDoesNotExist("variant", 1))
     }
+
   }
 
   "ContentManager.update" - {
@@ -152,6 +153,14 @@ class ContentManagerTest extends IntegrationTestBase with TestObjectContext with
       val productContent = ContentManager.findLatest(product.id, SimpleContext.id, "product").gimme
       productContent.relations("sku") must === (Seq(content.commitId))
     }
+
+    "fails when trying to create content with relations cycles" in new VariantFixture {
+      val newVariantRels = Map("product" → Seq(product.commitId))
+      val updatePayload  = UpdateContentPayload(attributes = None, relations = Some(newVariantRels))
+
+      ContentManager.update(variant.id, SimpleContext.id, updatePayload, "variant").gimmeFailures
+    }
+
   }
 
   trait Fixture {
@@ -180,6 +189,27 @@ class ContentManagerTest extends IntegrationTestBase with TestObjectContext with
 
     val productPayload =
       CreateContentPayload(kind = "product", attributes = attributes, relations = productRelations)
+    val product = ContentManager.create(SimpleContext.id, productPayload).gimme
+  }
+
+  trait VariantFixture {
+    implicit val formats: Formats = JsonFormatters.phoenixFormats
+
+    val variantRels  = Map.empty[String, Seq[Commit#Id]]
+    val variantAttrs = Map("title" → ContentAttribute(t = "string", v = JString("color")))
+    val variantPayload =
+      CreateContentPayload(kind = "variant", attributes = variantAttrs, relations = variantRels)
+    val variant = ContentManager.create(SimpleContext.id, variantPayload).gimme
+
+    val skuRels    = Map("variant" → Seq(variant.commitId))
+    val skuAttrs   = Map("code" → ContentAttribute(t = "string", v = JString("TEST-SKU")))
+    val skuPayload = CreateContentPayload(kind = "sku", attributes = skuAttrs, relations = skuRels)
+    val sku        = ContentManager.create(SimpleContext.id, skuPayload).gimme
+
+    val productRels  = Map("sku"   → Seq(sku.commitId))
+    val productAttrs = Map("title" → ContentAttribute(t = "string", v = JString("test product")))
+    val productPayload =
+      CreateContentPayload(kind = "product", attributes = productAttrs, relations = productRels)
     val product = ContentManager.create(SimpleContext.id, productPayload).gimme
   }
 }
