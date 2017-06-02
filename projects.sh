@@ -54,7 +54,7 @@ if $ALL; then
     echo ${PROJECTS[@]}
 else
     if [ "$BUILDKITE_PIPELINE_SLUG" == "highlander-master" ] ; then
-        ALL_CHANGED=$(git show --name-only $BUILDKITE_COMMIT | cut -d'/' -f1 | uniq)
+        ALL_CHANGED=$(git log -m -1 --name-only --pretty="format:" $BUILDKITE_COMMIT | cut -d'/' -f1 | uniq)
     else
         ALL_CHANGED=$(git diff --name-only $BASE_BRANCH...$BUILDKITE_COMMIT | cut -d'/' -f1 | uniq)
     fi

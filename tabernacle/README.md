@@ -70,4 +70,4 @@ Two pipelines, running in parallel:
         * `ic-backend` (anthill, bernardo, river-rock)
             * `ic-consumers` (golang IC consumers)
 
-**Note**: each subgroup applications are also deployed in parallel.
+**Note**: each (sub)group applications are also deployed in parallel.
