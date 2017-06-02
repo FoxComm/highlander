@@ -5,6 +5,7 @@ import core.failures.NotFoundFailure404
 import phoenix.failures.UserFailures._
 import phoenix.models.account._
 import phoenix.models.admin.{AdminData, AdminsData}
+import phoenix.models.customer._
 import phoenix.payloads.StoreAdminPayloads._
 import phoenix.responses.StoreAdminResponse
 import phoenix.services.account._
@@ -43,6 +44,11 @@ object StoreAdminManager {
                                userId = admin.id,
                                state = AdminData.Invited,
                                scope = scope))
+      _ ← * <~ CustomersData.create(
+             CustomerData(accountId = admin.accountId,
+                          userId = admin.id,
+                          isGuest = false,
+                          scope = scope))
 
       _ ← * <~ LogActivity().storeAdminCreated(admin, author)
     } yield StoreAdminResponse.build(admin, adminUser)
@@ -67,6 +73,8 @@ object StoreAdminManager {
       adminUser ← * <~ AdminsData.mustFindByAccountId(accountId)
       _ ← * <~ AdminsData
            .deleteById(adminUser.id, DbResultT.unit, i ⇒ NotFoundFailure404(AdminData, i))
+      _ ← * <~ CustomersData
+           .deleteById(adminUser.id, DbResultT.unit, i ⇒ NotFoundFailure404(CustomersData, i))
       admin  ← * <~ Users.mustFindByAccountId(accountId)
       result ← * <~ Users.deleteById(admin.id, DbResultT.unit, i ⇒ NotFoundFailure404(User, i))
       _      ← * <~ AccountAccessMethods.findByAccountId(accountId).delete
