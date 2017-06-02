@@ -73,6 +73,7 @@ object ContentManager {
       (newFormAttrs, newShadowAttrs) = newAttrs
       existingRelations              = ContentUtils.buildRelations(existing.shadow.relations)
       relations                      = ContentUtils.updateRelations(existingRelations, payload.relations)
+      _ ← * <~ validateRelations(relations)
 
       updatedForm ← * <~ Forms.update(existing.form,
                                       existing.form.copy(attributes = newFormAttrs, updatedAt = Instant.now))

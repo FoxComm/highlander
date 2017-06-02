@@ -154,6 +154,51 @@ class ContentManagerTest extends IntegrationTestBase with TestObjectContext with
       productContent.relations("sku") must === (Seq(content.commitId))
     }
 
+    "successfully updates a parent but not child when updating an entity" in new VariantFixture {
+      val newSkuAttributes = Map("code" → ContentAttribute(t = "string", v = JString("TEST-SKEW")))
+      val updatePayload =
+        UpdateContentPayload(attributes = Some(newSkuAttributes), relations = None)
+
+      val content = ContentManager.update(sku.id, SimpleContext.id, updatePayload, "sku").gimme
+      content.attributes("code").v must === (JString("TEST-SKEW"))
+
+      val productContent = ContentManager.findLatest(product.id, SimpleContext.id, "product").gimme
+      productContent.relations("sku") must === (Seq(content.commitId))
+
+      val skuContent = ContentManager.findLatest(sku.id, SimpleContext.id, "sku").gimme
+      skuContent.commitId must === (content.commitId)
+      skuContent.relations("variant") must === (Seq(variant.commitId))
+    }
+
+    "fails if the relation does not exist" in new VariantFixture {
+      val newRelations  = Map("variant" → Seq(200))
+      val updatePayload = UpdateContentPayload(attributes = None, relations = Some(newRelations))
+
+      val failures =
+        ContentManager.update(sku.id, SimpleContext.id, updatePayload, "sku").gimmeFailures
+      failures.head must === (RelatedContentDoesNotExist("variant", 200))
+    }
+
+    "fails with 404 when invalid id" in new SkuFixture {
+      val newSkuAttributes = Map("code" → ContentAttribute(t = "string", v = JString("TEST-SKEW")))
+      val updatePayload =
+        UpdateContentPayload(attributes = Some(newSkuAttributes), relations = None)
+
+      val failures =
+        ContentManager.update(200, SimpleContext.id, updatePayload, sku.kind).gimmeFailures
+      failures.head must === (ObjectNotFound(sku.kind, 200, SimpleContext.id))
+    }
+
+    "fails with 404 when invalid kind" in new SkuFixture {
+      val newSkuAttributes = Map("code" → ContentAttribute(t = "string", v = JString("TEST-SKEW")))
+      val updatePayload =
+        UpdateContentPayload(attributes = Some(newSkuAttributes), relations = None)
+
+      val failures =
+        ContentManager.update(sku.id, SimpleContext.id, updatePayload, "variant").gimmeFailures
+      failures.head must === (ObjectNotFound("variant", sku.id, SimpleContext.id))
+    }
+
     "fails when trying to create content with relations cycles" in new VariantFixture {
       val newVariantRels = Map("product" → Seq(product.commitId))
       val updatePayload  = UpdateContentPayload(attributes = None, relations = Some(newVariantRels))
