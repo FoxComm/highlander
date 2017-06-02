@@ -27,7 +27,8 @@ type body struct {
 
 func (controller *searchController) SetUp(router gin.IRouter) {
 
-    router.POST("/search/:index/:view", func(c *gin.Context) {
+    router.POST("/search/:index/:view", func(ctx *gin.Context) {
+        c := ctx.Copy()
 
         index := c.Param("index")
         view := c.Param("view")
