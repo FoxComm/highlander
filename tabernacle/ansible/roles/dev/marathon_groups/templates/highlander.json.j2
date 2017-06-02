@@ -21,6 +21,16 @@
                 {% include "core-frontend/top-drawer.json.j2" %}
             ]
         },
+        {% if with_onboarding %}
+        {
+            "id": "core-onboarding",
+            "dependencies": ["/highlander/core-frontend"],
+            "apps": [
+                {% include "core-onboarding/onboarding_service.json.j2" %},
+                {% include "core-onboarding/onboarding_ui.json.j2" %}
+            ]
+        },
+        {% endif %}
         {
             "id": "core-consumers",
             "dependencies": ["/highlander/core-backend"],
