@@ -154,30 +154,24 @@ func (s *skuService) createInner(txn *gorm.DB, payload *payloads.CreateSKU) (*re
 
 func (s *skuService) GetAFS(id uint) (*responses.SkuAfs, error) {
 	repo := repositories.NewStockItemRepository(s.db)
-	sellable, err := repo.GetAFSByID(id, models.Sellable)
+	afs, err := repo.GetAFSBySkuId(id)
 	if err != nil {
 		return nil, err
 	}
+	var resp responses.SkuAfs
 
-	nonSellable, err := repo.GetAFSByID(id, models.NonSellable)
-	if err != nil {
-		return nil, err
+	for _, single := range *afs {
+		switch single.Type {
+		case models.Sellable:
+			resp.Sellable = single.Afs
+		case models.NonSellable:
+			resp.NonSellable = single.Afs
+		case models.Backorder:
+			resp.Backorder = single.Afs
+		case models.Preorder:
+			resp.Preorder = single.Afs
+		}
 	}
 
-	backorder, err := repo.GetAFSByID(id, models.Backorder)
-	if err != nil {
-		return nil, err
-	}
-
-	preorder, err := repo.GetAFSByID(id, models.Preorder)
-	if err != nil {
-		return nil, err
-	}
-
-	return &responses.SkuAfs{
-		Sellable:    sellable.AFS,
-		NonSellable: nonSellable.AFS,
-		Backorder:   backorder.AFS,
-		Preorder:    preorder.AFS,
-	}, nil
+	return &resp, nil
 }

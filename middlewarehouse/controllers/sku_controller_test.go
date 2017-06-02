@@ -143,6 +143,17 @@ func (suite *skuControllerTestSuite) Test_UpdateSKUTitleAndRequest_Success() {
 	suite.Equal(title, respBody.Title)
 }
 
+func (suite *skuControllerTestSuite) Test_GetSkuAfs_InvalidSkuId() {
+	url := fmt.Sprintf("/skus/%d/afs", suite.sku.ID+1)
+	res := suite.Get(url)
+	suite.Equal(http.StatusBadRequest, res.Code)
+
+	respBody := new(responses.Error)
+	err := json.NewDecoder(res.Body).Decode(respBody)
+	suite.Nil(err)
+	suite.Equal("No AFS data for SKU", respBody.Errors[0])
+}
+
 func (suite *skuControllerTestSuite) Test_GetSkuAfs_Success() {
 	url := fmt.Sprintf("/skus/%d/afs", suite.sku.ID)
 	res := suite.Get(url)
