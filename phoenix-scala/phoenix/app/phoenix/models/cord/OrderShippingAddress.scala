@@ -54,17 +54,17 @@ object OrderShippingAddress {
     )
   }
 
-  def fromCreatePatchPayload(a: OrderShippingAddress, p: CreateAddressPayload) = {
+  def fromCreatePatchPayload(existingAddress: OrderShippingAddress, incomingPayload: CreateAddressPayload) = {
     OrderShippingAddress(
-        id = a.id,
-        cordRef = a.cordRef,
-        regionId = p.regionId,
-        name = p.name,
-        address1 = p.address1,
-        address2 = p.address2.fold(a.address2)(Some(_)),
-        city = p.city,
-        zip = p.zip,
-        phoneNumber = p.phoneNumber.fold(a.phoneNumber)(Some(_))
+        id = existingAddress.id,
+        cordRef = existingAddress.cordRef,
+        regionId = incomingPayload.regionId,
+        name = incomingPayload.name,
+        address1 = incomingPayload.address1,
+        address2 = incomingPayload.address2.fold(existingAddress.address2)(Some(_)),
+        city = incomingPayload.city,
+        zip = incomingPayload.zip,
+        phoneNumber = incomingPayload.phoneNumber.fold(existingAddress.phoneNumber)(Some(_))
     )
   }
 }
