@@ -22,10 +22,10 @@ docker-push:
 deploy-groups:
 	ansible-playbook -v -i inventory/gce/ ansible/deploy_groups.yml
 
+# Instances with old base images / outdated playbooks etc.
 deploy-feature-branch:
 	ansible-playbook -v -i inventory/gce/ ansible/deploy_feature_branch.yml
 
-# Instances with old base images / outdated playbooks etc.
 deploy-demo1:
 	ansible-playbook -v -i inventory/gce/ ansible/legacy_demo.yml --extra-vars='{ "first_run": true, "application_hostname": "demo1" }'
 
