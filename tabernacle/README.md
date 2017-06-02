@@ -2,9 +2,9 @@
 
 All of our DevOps tools for deploying the application to both development and production.
 
-### Prerequisites
+## Prerequisites
 
-#### Required
+### Required
 
 - [Ansible](https://ansible.com) 2.2.x
 - [AWS CLI](https://aws.amazon.com/cli)
@@ -16,12 +16,12 @@ All of our DevOps tools for deploying the application to both development and pr
 - [Python](https://www.python.org) 2.7.x
 - [Terraform](https://terraform.io) 0.9.3 or above
 
-#### Optional
+### Optional
 
 - [easy](https://github.com/kpashka/easy)
 - [shellcheck](https://www.shellcheck.net)
 
-### Ansible Roles Hierarchy
+## Ansible Roles Hierarchy
 
 * [`app`](ansible/roles/app) - Roles related to developer appliance launch.
 * [`base`](ansible/roles/base) - Roles used during base images packing.
@@ -33,7 +33,7 @@ All of our DevOps tools for deploying the application to both development and pr
 * [`ops`](ansible/roles/ops) - Roles requiring interactive input, usually applied manually.
 * [`prod`](ansible/roles/prod) - Roles that are usually applied to production systems.
 
-### Appliance Services Hierarchy
+## Appliance Services Hierarchy
 
 * `consul_agent`
     * `consul_template`
@@ -56,17 +56,28 @@ All of our DevOps tools for deploying the application to both development and pr
     * `materialized_views`
     * `pgweb`
 
-### Marathon Application Group Hierarchy
+## Marathon Hierarchy
 
-Two pipelines, running in parallel:
+### Core
 
-* `core-backend` (phoenix, isaac, solomon, middlewarehouse)
-    * `core-consumers` (golang consumers)
-    * `core-frontend` (ashes, any storefronts)
-        * `core-integrations` (hyperion, messaging)
-        * `core-onboarding` (onboarding API and UI)
-
-* `ic-storage` (henhouse, neo4j)
-    * `ic-hooks` (neo4j-reset)
-        * `ic-backend` (anthill, bernardo, river-rock)
-            * `ic-consumers` (golang IC consumers)
+```                                                                
+  +------------------+        +------------------+        +------------------+
+  |core-backend      |        |core-frontend     |        |core-integrations |
+  |                  |        |                  |        |                  |
+  |* phoenix         |--------|* ashes           |--------|* hyperion        |
+  |* isaac           |        |* peacock         |        |* messaging       |
+  |* solomon         |        |* perfect-gourmet |        +------------------+
+  |* middlewarehouse |        |* top-drawer      |                            
+  +------------------+        +------------------+                            
+           |                            |                                     
+           |                            |                                     
+  +-----------------------+   +---------------------+                         
+  |core-consumers         |   |core-onboarding      |                         
+  |                       |   |                     |                         
+  |* green-river          |   |* onboarding-service |                         
+  |* capture-consumer     |   |* onboarding-ui      |                         
+  |* gift-card-consumer   |   +---------------------+                         
+  |* shipments-consumer   |                                                   
+  |* stock-items-consumer |                                                   
+  +-----------------------+ 
+```
