@@ -64,10 +64,9 @@ Two pipelines, running in parallel:
     * `core-consumers` (golang consumers)
     * `core-frontend` (ashes, any storefronts)
         * `core-integrations` (hyperion, messaging)
+        * `core-onboarding` (onboarding API and UI)
 
 * `ic-storage` (henhouse, neo4j)
     * `ic-hooks` (neo4j-reset)
         * `ic-backend` (anthill, bernardo, river-rock)
             * `ic-consumers` (golang IC consumers)
-
-**Note**: each (sub)group applications are also deployed in parallel.
