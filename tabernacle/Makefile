@@ -19,8 +19,8 @@ docker:
 docker-push:
 	cd docker/neo4j_reset && make docker-push
 
-deploy-groups:
-	ansible-playbook -v -i inventory/gce/ ansible/deploy_groups.yml
+deploy-stage:
+	ansible-playbook -v -i inventory/gce/ ansible/deploy_stage.yml
 
 # Instances with old base images / outdated playbooks etc.
 deploy-feature-branch:

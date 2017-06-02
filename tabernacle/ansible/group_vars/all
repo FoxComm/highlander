@@ -415,6 +415,7 @@ onboarding_service_db_connection_string: "postgresql://{{onboarding_service_db_u
 retailer_name: "FoxCommerce"
 contact_email: "pavel@foxcommerce.com"
 mailchimp_api_key: ""
+messaging_env: "production"
 
 # Materialized views
 update_materialized_views_sql: "/usr/local/share/update_materialized_views.sql"

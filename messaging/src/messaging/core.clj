@@ -17,12 +17,13 @@
    [cheshire.core :as json]
    [environ.core :refer [env]]))
 
+(def staging "staging")
+(def environment (delay (:environment env)))
 
 (def topics ["scoped_activities"])
 
 (def kafka-broker (delay (:kafka-broker env)))
 (def schema-registry-url (delay (:schema-registry-url env)))
-
 
 (defn decode-embed-json
   [^String s]
@@ -46,7 +47,6 @@
       json/parse-string
       decode-activity-json))
 
-
 (defn- safe-decode-minimal
   [message]
   (try
@@ -56,7 +56,6 @@
         (catch Exception _ msg)))
     (catch Exception _
       message)))
-
 
 (def stop (atom false))
 
@@ -85,7 +84,8 @@
 
 (defn start-app
   [react-app]
-  (log/infof "Start consumer, with kafka=%s schema=%s"
+  (log/infof "Start consumer on %s, with kafka=%s schema=%s"
+             @environment
              @kafka-broker
              @schema-registry-url)
   (reset! stop false)
@@ -105,7 +105,8 @@
               (try
                 (let [msg (decode record)]
                   (log/debug msg)
-                  (mail/handle-activity msg)
+                  (when (not= environment staging)
+                    (mail/handle-activity msg))
                   (commit-offsets-sync! c {(select-keys record [:topic :partition])
                                            {:offset (inc (:offset record)) :metadata ""}}))
                 (catch Exception e
