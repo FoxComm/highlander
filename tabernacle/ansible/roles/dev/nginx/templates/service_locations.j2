@@ -157,6 +157,19 @@ location /api/v1/inventory/ {
     break;
 }
 
+{% if with_onboarding %}
+location /api/v1/onboarding/ {
+    default_type 'application/json';
+    proxy_pass http://onboarding-service/;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    break;
+}
+{% endif %}
+
 location /api/v1/time/ {
     auth_request /internal-auth;
     default_type 'application/json';
