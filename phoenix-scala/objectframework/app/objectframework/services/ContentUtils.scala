@@ -64,15 +64,15 @@ object ContentUtils {
         (form.merge(formJson), shadow.merge(shadowJson))
     }
 
-  def encodeContentAttributesForUpdate(existingForm: JValue,
-                                       existingShadow: JValue,
-                                       attributes: Option[Content.ContentAttributes]): (JValue, JValue) =
+  def attributesForUpdate(form: Form,
+                          shadow: Shadow,
+                          attributes: Option[Content.ContentAttributes]): (JValue, JValue) =
     attributes match {
       case Some(attrs) ⇒
         val (newForm, newShadow) = encodeContentAttributes(attrs)
-        (existingForm.merge(newForm), newShadow)
+        (form.attributes.merge(newForm), newShadow)
       case None ⇒
-        (existingForm, existingShadow)
+        (form.attributes, shadow.attributes)
     }
 
   def buildRelations(rawRelations: Option[JValue])(implicit fmt: Formats): Content.ContentRelations =
@@ -81,13 +81,17 @@ object ContentUtils {
       case None            ⇒ Map.empty[String, Seq[Commit#Id]]
     }
 
-  def updateRelations(existingRelations: Content.ContentRelations,
-                      newRelations: Option[Content.ContentRelations]): Content.ContentRelations =
-    newRelations match {
-      case Some(relations) ⇒
-        existingRelations.foldLeft(Map.empty[String, Seq[Commit#Id]]) {
+  def updateRelations(existingRelations: Option[JValue], newRelations: Option[Content.ContentRelations])(
+      implicit fmt: Formats): Content.ContentRelations =
+    (buildRelations(existingRelations), newRelations) match {
+      case (existingRels, None) ⇒
+        existingRels
+      case (existingRels, Some(newRels)) if existingRels.isEmpty ⇒
+        newRels
+      case (existingRels, Some(newRels)) ⇒
+        existingRels.foldLeft(Content.emptyRelations) {
           case (acc, (key, commits)) ⇒
-            relations.get(key) match {
+            newRels.get(key) match {
               case Some(newCommits) if newCommits.isEmpty ⇒
                 acc
               case Some(newCommits) if newCommits.nonEmpty ⇒
@@ -96,7 +100,5 @@ object ContentUtils {
                 acc + (key → commits)
             }
         }
-      case None ⇒
-        existingRelations
     }
 }

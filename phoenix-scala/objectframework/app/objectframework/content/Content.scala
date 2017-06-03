@@ -29,6 +29,8 @@ object Content {
   type ContentAttributes = Map[String, ContentAttribute]
   type ContentRelations  = Map[String, Seq[Commit#Id]]
 
+  val emptyRelations: ContentRelations = Map.empty[String, Seq[Commit#Id]]
+
   def build(commit: Commit, form: Form, shadow: Shadow): Either[Failures, Content] =
     buildContentAttributes(form, shadow).map { attributes ⇒
       Content(
