@@ -10,6 +10,7 @@ import { autobind } from 'core-decorators';
 import * as tracking from 'lib/analytics';
 import localized from 'lib/i18n';
 import { emailIsSet } from 'paragons/auth';
+import sanitizeAll from 'sanitizers';
 
 // actions
 import * as actions from 'modules/cart';
@@ -146,9 +147,21 @@ class Cart extends Component {
   }
 
   get errorsLine() {
-    if (this.state.errors && !_.isEmpty(this.state.errors)) {
-      return <ErrorAlerts errors={this.state.errors} closeAction={this.closeError} />;
-    }
+    const { applePayStatus } = this.props;
+    const { errors }  = this.state;
+
+    if (!errors && _.isEmpty(errors)) return null;
+
+    console.log('errors in total -> ', errors);
+
+    return (
+      <div styleName="errors">
+        <ErrorAlerts
+          errors={errors}
+          sanitizeError={sanitizeAll}
+        />
+      </div>
+     );
   }
 
   @autobind
@@ -253,10 +266,12 @@ class Cart extends Component {
     const checkoutDisabled = _.size(skus) < 1;
     const footerClasses = classNames(styles['cart-footer'], {
       [styles['with-apple-pay']]: applePayAvailable,
+      [styles['with-errors']]: this.state.errors != null,
     });
 
     const contentClasses = classNames(styles['cart-content'], {
       [styles['with-apple-pay']]: applePayAvailable,
+      [styles['with-errors']]: this.state.errors != null,
     });
 
     return (
@@ -276,10 +291,14 @@ class Cart extends Component {
             <div styleName="line-items">
               {this.lineItems}
             </div>
+<<<<<<< HEAD
             {this.errorsLine}
+=======
+>>>>>>> 3dd25611d9... Place error messages above the checkout button + add sanitizers
           </div>
 
           <div className={footerClasses}>
+            {this.errorsLine}
             <Button onClick={this.onCheckout} disabled={checkoutDisabled} styleName="checkout-button">
               <span>{t('Checkout')}</span>
               <span styleName="subtotal-price">
