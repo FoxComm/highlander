@@ -28,4 +28,7 @@ class Forms(tag: Tag) extends FoxTable[Form](tag, "object_forms") {
 
 object Forms extends FoxTableQuery[Form, Forms](new Forms(_)) with ReturningId[Form, Forms] {
   val returningLens: Lens[Form, Int] = lens[Form].id
+
+  def updateAttributes(form: Form, attributes: JValue)(implicit ec: EC): DbResultT[Form] =
+    update(form, form.copy(attributes = attributes, updatedAt = Instant.now))
 }

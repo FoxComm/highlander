@@ -32,4 +32,7 @@ class Heads(tag: Tag) extends FoxTable[Head](tag, "heads") {
 
 object Heads extends FoxTableQuery[Head, Heads](new Heads(_)) with ReturningId[Head, Heads] {
   val returningLens: Lens[Head, Int] = lens[Head].id
+
+  def updateCommit(head: Head, commitId: Commit#Id)(implicit ec: EC): DbResultT[Head] =
+    update(head, head.copy(commitId = commitId, updatedAt = Instant.now))
 }
