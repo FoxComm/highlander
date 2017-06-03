@@ -19,22 +19,18 @@ object ContentManager {
 
   def findLatest(id: Form#Id, viewId: View#Id, kind: String)(implicit ec: EC): DbResultT[Content] = {
     for {
-      contentTuple ← * <~ ContentQueries
-                      .filterLatestById(id, viewId, kind)
-                      .mustFindOneOr(ObjectNotFound(kind, id, viewId))
-      (head, commit, form, shadow) = contentTuple
-      content ← * <~ Content.build(head, commit, form, shadow)
-    } yield content
+      content ← * <~ mustFind(ContentQueries.filterLatest(id, viewId, kind), id, viewId, kind)
+      latest  ← * <~ (Content.buildLatest _).tupled(content)
+    } yield latest
   }
 
   def findByCommit(commitId: Commit#Id, kind: String)(implicit ec: EC): DbResultT[Content] =
     for {
-      contentTuple ← * <~ ContentQueries
-                      .filterByCommit(commitId, kind)
-                      .mustFindOneOr(ObjectNotFoundAtCommit(kind, commitId))
-      (commit, form, shadow) = contentTuple
-      content ← * <~ Content.build(commit, form, shadow)
-    } yield content
+      content ← * <~ ContentQueries
+                 .filterByCommit(commitId, kind)
+                 .mustFindOneOr(ObjectNotFoundAtCommit(kind, commitId))
+      atCommit ← * <~ Content.buildCommitT(content)
+    } yield atCommit
 
   def create(viewId: Int, payload: CreateContentPayload)(implicit ec: EC,
                                                          fmt: Formats): DbResultT[Content] = {
@@ -50,7 +46,7 @@ object ContentManager {
       shadow  ← * <~ Shadows.create(Shadow.build(form.id, shadowJson, payload.relations))
       commit  ← * <~ Commits.create(Commit(formId = form.id, shadowId = shadow.id))
       head    ← * <~ Heads.create(Head(kind = payload.kind, viewId = viewId, commitId = commit.id))
-      created ← * <~ Content.build(head, commit, form, shadow)
+      created ← * <~ Content.buildLatest(head, commit, form, shadow)
     } yield created
   }
 
@@ -60,7 +56,7 @@ object ContentManager {
     for {
       // Validate the payload and retrieve the existing Content object.
       _        ← * <~ payload.validate
-      existing ← * <~ mustFindLatest(id, viewId, kind)
+      existing ← * <~ mustFind(ContentQueries.filterLatest(id, viewId, kind), id, viewId, kind)
       (head, commit, form, shadow) = existing
 
       // Update the form/shadow attributes and validate for correctness.
@@ -79,9 +75,16 @@ object ContentManager {
       newShadow   ← * <~ Shadows.create(Shadow.build(updatedForm.id, newShadowJson, relations))
       newCommit   ← * <~ Commits.create(Commit(formId = form.id, shadowId = shadow.id))
       updatedHead ← * <~ Heads.updateCommit(head, newCommit.id)
-      updated     ← * <~ Content.build(updatedHead, newCommit, updatedForm, newShadow)
+      updated     ← * <~ Content.buildLatest(updatedHead, newCommit, updatedForm, newShadow)
       _           ← * <~ updateParents(commit.id, newCommit.id, head.kind)
     } yield updated
+
+  def archive(id: Int, viewId: Int, kind: String)(implicit ec: EC, fmt: Formats): DbResultT[Unit] =
+    for {
+      head ← * <~ mustFind(ContentQueries.filterHead(id, viewId, kind), id, viewId, kind)
+      _    ← * <~ Heads.archive(head)
+      _    ← * <~ removeFromParents(head.commitId, head.kind)
+    } yield {}
 
   type FullContentRelations = Map[String, Seq[Content]]
   def getRelations(content: Content)(implicit ec: EC): DbResultT[FullContentRelations] = {
@@ -93,47 +96,43 @@ object ContentManager {
 
         for {
           rawRelations ← * <~ ContentQueries.filterRelation(kind, commits).result
-          contents ← * <~ rawRelations.map {
-                      case (commit, form, shadow) ⇒
-                        DbResultT.fromEither(Content.build(commit, form, shadow))
-                    }
+          contents     ← * <~ rawRelations.map(r ⇒ DbResultT.fromEither((Content.buildCommitT(r))))
         } yield aggregateRelation(relations, kind, contents)
       }
     }
   }
 
-  private def mustFindLatest(id: Int, viewId: Int, kind: String)(implicit ec: EC) =
-    ContentQueries
-      .filterLatestById(id, viewId, kind)
-      .mustFindOneOr(ObjectNotFound(kind, id, viewId))
+  private def mustFind[M, T](query: Query[T, M, Seq], id: Int, viewId: Int, kind: String)(
+      implicit ec: EC): DbResultT[M] =
+    query.mustFindOneOr(ObjectNotFound(kind, id, viewId))
 
-  private def updateParents(oldCommitId: Commit#Id, newCommitId: Commit#Id, kind: String)(
+  // ------------------------------------------
+
+  type UpdateParent    = (Commit#Id, String) ⇒ DbResultT[Commit#Id]
+  type UpdateRelations = (Option[JValue]) ⇒ Content.ContentRelations
+
+  private def _updateParents(commitId: Commit#Id, kind: String, updateParentFn: UpdateParent)(
       implicit ec: EC,
-      fmt: Formats): DbResultT[Seq[Int]] = {
+      fmt: Formats): DbResultT[Seq[Commit#Id]] = {
     for {
-      parentIds ← * <~ ContentQueries.filterParentIds(oldCommitId, kind)
-      newParentIds ← * <~ parentIds.map {
-                      case (parentId, parentKind) ⇒
-                        updateParent(parentId, parentKind, oldCommitId, newCommitId, kind)
-                    }
-    } yield newParentIds
+      parentIds ← * <~ ContentQueries.filterParentIds(commitId, kind)
+      newIds    ← * <~ parentIds.map(p ⇒ updateParentFn(p._1, p._2))
+    } yield newIds
   }
 
-  private def updateParent(parentId: Commit#Id,
-                           parentKind: String,
-                           oldChildId: Commit#Id,
-                           newChildId: Commit#Id,
-                           childKind: String)(implicit ec: EC, fmt: Formats) =
+  private def _updateParent(
+      parentId: Commit#Id,
+      parentKind: String,
+      updateRelationsFn: UpdateRelations)(implicit ec: EC, fmt: Formats): DbResultT[Commit#Id] = {
     for {
       parentTuple ← * <~ ContentQueries
                      .filterByCommit(parentId, parentKind)
                      .mustFindOneOr(ObjectNotFoundAtCommit(parentKind, parentId))
 
       (commit, form, shadow) = parentTuple
-      oldRelations           = ContentUtils.buildRelations(shadow.relations)
-      newRelations           = updateRelations(oldRelations, childKind, oldChildId, newChildId)
+      relations              = updateRelationsFn(shadow.relations)
 
-      newShadow ← * <~ Shadows.create(Shadow.build(form.id, shadow.attributes, newRelations))
+      newShadow ← * <~ Shadows.create(Shadow.build(form.id, shadow.attributes, relations))
       newCommit ← * <~ Commits.create(Commit(formId = form.id, shadowId = newShadow.id))
       oldHead ← * <~ Heads
                  .filter(h ⇒ h.commitId === commit.id && h.archivedAt.isEmpty)
@@ -143,6 +142,39 @@ object ContentManager {
       _ ← * <~ maybeUpdateHead(oldHead, newCommit.id)
       _ ← * <~ updateParents(commit.id, newCommit.id, parentKind)
     } yield newCommit.id
+  }
+
+  private def updateParents(oldCommitId: Commit#Id, newCommitId: Commit#Id, kind: String)(
+      implicit ec: EC,
+      fmt: Formats): DbResultT[Seq[Int]] = {
+    _updateParents(oldCommitId, kind, { (parentCommitId, parentKind) ⇒
+      updateParent(parentCommitId, parentKind, oldCommitId, newCommitId, kind)
+    })
+  }
+
+  private def removeFromParents(commitId: Commit#Id, kind: String)(implicit ec: EC, fmt: Formats) =
+    _updateParents(commitId, kind, { (parentCommitId, parentKind) ⇒
+      removeFromParent(parentCommitId, parentKind, commitId, kind)
+    })
+
+  private def removeFromParent(parentId: Commit#Id,
+                               parentKind: String,
+                               toRemoveId: Commit#Id,
+                               toRemoveKind: String)(implicit ec: EC, fmt: Formats) =
+    _updateParent(parentId, parentKind, { relations ⇒
+      ContentUtils.removeFromRelations(relations, toRemoveId, toRemoveKind)
+    })
+
+  private def updateParent(parentId: Commit#Id,
+                           parentKind: String,
+                           oldChildId: Commit#Id,
+                           newChildId: Commit#Id,
+                           childKind: String)(implicit ec: EC, fmt: Formats) =
+    _updateParent(parentId, parentKind, { relations ⇒
+      ContentUtils.updateRelatedContent(relations, childKind, oldChildId, newChildId)
+    })
+
+  // ------------------------------------------
 
   private def maybeUpdateHead(oldHead: Option[Head], newCommitId: Int)(implicit ec: EC) =
     oldHead match {
@@ -166,20 +198,6 @@ object ContentManager {
                         }
                     }
     } yield collectedIds
-  }
-
-  private def updateRelations(relations: Content.ContentRelations,
-                              kind: String,
-                              oldRelation: Int,
-                              newRelation: Int): Content.ContentRelations = {
-    relations.get(kind).foldLeft(relations) { (acc, commits) ⇒
-      val updated = commits.foldLeft(Seq.empty[Commit#Id]) { (acc, commit) ⇒
-        if (commit == oldRelation) acc :+ newRelation
-        else acc :+ oldRelation
-      }
-
-      acc + (kind → updated)
-    }
   }
 
   private def aggregateRelation(relations: Map[String, Seq[Content]],
