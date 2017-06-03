@@ -15,7 +15,7 @@ import type { Localized } from 'lib/i18n';
 import { searchGiftCards } from 'modules/products';
 import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-details';
 import { addLineItem, toggleCart } from 'modules/cart';
-import { fetchRelatedProducts, clearRelatedProducts } from 'modules/cross-sell';
+import { fetchRelatedProducts, clearRelatedProducts, MAX_CROSS_SELLS_RESULTS } from 'modules/cross-sell';
 import { fetchReviewsForSku, clearReviews } from 'modules/reviews';
 
 // styles
@@ -225,6 +225,7 @@ class PdpConnect extends Component {
         title="You Might Also Like"
         list={relatedProducts.products}
         isLoading={isRelatedProductsLoading}
+        limit={MAX_CROSS_SELLS_RESULTS}
       />
     );
   }
