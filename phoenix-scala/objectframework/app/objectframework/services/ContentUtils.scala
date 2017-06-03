@@ -101,4 +101,34 @@ object ContentUtils {
             }
         }
     }
+
+  def updateRelatedContent(relationsJson: Option[JValue],
+                           kind: String,
+                           toRemoveId: Commit#Id,
+                           toAddId: Commit#Id)(implicit fmt: Formats): Content.ContentRelations = {
+    val relations = buildRelations(relationsJson)
+    relations.get(kind).foldLeft(relations) { (acc, commits) ⇒
+      val updated = commits.foldLeft(Seq.empty[Commit#Id]) { (newCommits, commit) ⇒
+        if (commit == toRemoveId) newCommits :+ toAddId
+        else newCommits :+ commit
+      }
+
+      acc + (kind → updated)
+    }
+  }
+
+  def removeFromRelations(relations: Option[JValue], toRemoveId: Commit#Id, toRemoveKind: String)(
+      implicit fmt: Formats): Content.ContentRelations = {
+
+    val contentRelations = buildRelations(relations)
+    contentRelations.get(toRemoveKind) match {
+      case Some(commits) if commits.length > 1 ⇒
+        val newCommits = commits.filterNot(_ == toRemoveId)
+        contentRelations + (toRemoveKind → newCommits)
+      case Some(commits) if commits.length <= 1 ⇒
+        contentRelations - toRemoveKind
+      case None ⇒
+        contentRelations
+    }
+  }
 }

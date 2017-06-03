@@ -208,6 +208,34 @@ class ContentManagerTest extends IntegrationTestBase with TestObjectContext with
 
   }
 
+  "ContentManager.archive" - {
+    "successfully with no relations" in new SkuFixture {
+      ContentManager.archive(sku.id, SimpleContext.id, sku.kind).gimme
+    }
+
+    "successfully with relations" in new VariantFixture {
+      ContentManager.archive(sku.id, SimpleContext.id, sku.kind).gimme
+    }
+
+    "content is not returned by parent after being archived" in new VariantFixture {
+      ContentManager.archive(sku.id, SimpleContext.id, sku.kind).gimme
+      val productContent =
+        ContentManager.findLatest(product.id, SimpleContext.id, product.kind).gimme
+      productContent.relations.get("sku") must === (None)
+    }
+
+    "content is accessible in previous commits after being archived" in new VariantFixture {
+      ContentManager.archive(sku.id, SimpleContext.id, sku.kind).gimme
+      ContentManager.findByCommit(sku.commitId, sku.kind).gimme
+    }
+
+    "content is still accessible by previous parent commit after being archived" in new VariantFixture {
+      ContentManager.archive(sku.id, SimpleContext.id, sku.kind).gimme
+      val productContent = ContentManager.findByCommit(product.commitId, product.kind).gimme
+      productContent.relations.get("sku") must === (Some(Seq(sku.commitId)))
+    }
+  }
+
   trait Fixture {
     val attributes = Map(
       "title"       → ContentAttribute(t = "string", v = JString("a test product")),

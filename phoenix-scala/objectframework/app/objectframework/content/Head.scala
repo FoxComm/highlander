@@ -35,4 +35,7 @@ object Heads extends FoxTableQuery[Head, Heads](new Heads(_)) with ReturningId[H
 
   def updateCommit(head: Head, commitId: Commit#Id)(implicit ec: EC): DbResultT[Head] =
     update(head, head.copy(commitId = commitId, updatedAt = Instant.now))
+
+  def archive(head: Head)(implicit ec: EC): DbResultT[Head] =
+    update(head, head.copy(updatedAt = Instant.now, archivedAt = Some(Instant.now)))
 }

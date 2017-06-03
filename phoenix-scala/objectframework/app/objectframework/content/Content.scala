@@ -31,7 +31,10 @@ object Content {
 
   val emptyRelations: ContentRelations = Map.empty[String, Seq[Commit#Id]]
 
-  def build(commit: Commit, form: Form, shadow: Shadow): Either[Failures, Content] =
+  def buildCommitT(t: (Commit, Form, Shadow)): Either[Failures, Content] =
+    (buildCommit _).tupled(t)
+
+  def buildCommit(commit: Commit, form: Form, shadow: Shadow): Either[Failures, Content] =
     buildContentAttributes(form, shadow).map { attributes ⇒
       Content(
         id = form.id,
@@ -46,8 +49,8 @@ object Content {
       )
     }
 
-  def build(head: Head, commit: Commit, form: Form, shadow: Shadow): Either[Failures, Content] =
-    build(commit, form, shadow).map(_.copy(viewId = Some(head.viewId), archivedAt = head.archivedAt))
+  def buildLatest(head: Head, commit: Commit, form: Form, shadow: Shadow): Either[Failures, Content] =
+    buildCommit(commit, form, shadow).map(_.copy(viewId = Some(head.viewId), archivedAt = head.archivedAt))
 
   private def buildContentAttributes(form: Form, shadow: Shadow): Either[Failures, ContentAttributes] = {
     val emptyAttrs: Either[Failures, ContentAttributes] = Either.right(Map.empty)
