@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # A script executed on BuildKite to test developer appliance provisioning on GCE
 
+make destroy
 make up
 MAKE_UP_EXIT_CODE=$?
 make destroy
