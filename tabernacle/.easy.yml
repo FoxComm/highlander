@@ -33,6 +33,11 @@ shortcuts:
       pavel: pavel
       ubuntu: ubuntu
 
+  - name: First Run
+    flag: "-e first_run"
+    aliases:
+        first_run: "true"
+
   targets:
   # Interactive playbooks
   - name: Setup Annabelle
@@ -154,10 +159,14 @@ shortcuts:
     alias: seed_data_import.yml
     target: ansible/seed_data_import.yml
 
-  # Stage
+  # Tinystack
   - name: Deploy Staging
     alias: deploy_stage.yml
     target: ansible/deploy_stage.yml
+
+  - name: Deploy Test
+    alias: deploy_test.yml
+    target: ansible/deploy_test.yml
 
 # Packer shortcuts
 - type: snowflake
@@ -248,6 +257,7 @@ shortcuts:
       dev: terraform/envs/gce_dev/terraform.tfstate
       demo: terraform/envs/gce_demo/terraform.tfstate
       groups: terraform/envs/gce_groups/terraform.tfstate
+      test: terraform/envs/gce_test/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
 
@@ -259,6 +269,7 @@ shortcuts:
       dev: terraform/envs/gce_dev/dev.tfvars
       demo: terraform/envs/gce_demo/demo.tfvars
       groups: terraform/envs/gce_groups/groups.tfvars
+      test: terraform/envs/gce_test/test.tfvars
       topdrawer: terraform/envs/gce_td/td.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
 
@@ -278,6 +289,10 @@ shortcuts:
   - name: FoxCommerce Stage Groups
     alias: groups
     target: terraform/base/gce_groups
+
+  - name: FoxCommerce Test
+    alias: test
+    target: terraform/base/gce_test
 
   - name: TopDrawer Production
     alias: topdrawer
