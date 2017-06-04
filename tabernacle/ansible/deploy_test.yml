@@ -6,7 +6,7 @@
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
   roles:
-    - { role: dev/marathon_consul, when: first_run }
+    - { role: dev/marathon_consul }
 
 - name: Provision Test Backend
   hosts: foxcomm-test-backend

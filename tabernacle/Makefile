@@ -8,15 +8,18 @@ GOPATH := $(CURDIR)/_vendor:$(GOPATH)
 all: build
 
 build:
+	cd docker/neo4j && make build
 	cd docker/neo4j_reset && make build
 
 test:
-	cd docker/neo4j_reset && make test
+	true
 
 docker:
+	cd docker/neo4j && make docker
 	cd docker/neo4j_reset && make docker
 
 docker-push:
+	cd docker/neo4j && make docker-push
 	cd docker/neo4j_reset && make docker-push
 
 deploy-stage:

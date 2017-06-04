@@ -29,7 +29,7 @@
         api_server: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
   roles:
     - { role: dev/dashboard, when: first_run }
-    - { role: dev/marathon_consul, when: first_run }
+    - { role: dev/marathon_consul }
     - { role: dev/flyway }
     - { role: dev/seed_system, when: first_run }
     - { role: dev/marathon_groups }
