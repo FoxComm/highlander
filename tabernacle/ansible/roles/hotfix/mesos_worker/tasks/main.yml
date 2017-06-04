@@ -1,5 +1,8 @@
 ---
 
+- name: Remove Old Worker Data
+  file: path=/var/lib/mesos/meta/slaves/latest state=absent
+
 - name: Reload Systemd
   command: systemctl daemon-reload
 
