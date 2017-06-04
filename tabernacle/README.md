@@ -34,6 +34,8 @@ All of our DevOps tools for deploying the application to both development and pr
 
 ## Appliance Services Hierarchy
 
+The order, in which `systemd` launches the services:
+
 ```
 +------------+              +---------+          +------------+
 |consul_agent|--------------|zookeeper|----------|mesos_master|
