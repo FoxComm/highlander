@@ -66,7 +66,9 @@ The order, in which `systemd` launches the services:
 +----------------------------+                                                                 
 ```
 
-## Marathon Hierarchy
+## Marathon Groups Hierarchy
+
+The order, in which `highlander` subgroups are launched:
 
 ```                                                                                                 
  +------------------+      +-------------------+      +-------------------+    +--------------+       
