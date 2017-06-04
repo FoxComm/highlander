@@ -34,26 +34,35 @@ All of our DevOps tools for deploying the application to both development and pr
 
 ## Appliance Services Hierarchy
 
-* `consul_agent`
-    * `consul_template`
-    * `dashboard`
-    * `demo_consul_template`
-    * `zookeeper`
-        * `kafka`
-            * `schema_registry`
-        * `mesos_master`
-            * `marathon`
-               * `marathon_consul`
-        * `mesos_worker`
-* `elasticsearch`
-* `elasticseach_5`
-    * `kibana`
-* `postgresql`
-    * `bottledwater_phoenix`
-    * `bottledwater_middlewarehouse`
-    * `bottledwater_onboarding`
-    * `materialized_views`
-    * `pgweb`
+```
++------------+              +---------+          +------------+
+|consul_agent|              |zookeeper|----------|mesos_master|
++------------+              +---------+          |mesos_worker|
+      |                      |                   +------------+
+      |                      |                    |            
++--------------------+       |  +-----+           |  +--------+
+|consul_template     |       +--|kafka|--+        +--|marathon|
+|demo_consul_template|          +-----+  |           +--------+
+|dashboard           |                   |                |    
++--------------------+                   |                |    
+     |                                   |                |    
+     |         +-----+     +---------------+  +---------------+
+     +---------|nginx|     |schema_registry|  |marathon_consul|
+               +-----+     +---------------+  +---------------+
+                                                               
++----------+                                  +---------------+
+|postgresql|------+                 +---------|elasticsearch  |
++----------+      |                 |         |elasticsearch_5|
+                  |                 |         +---------------+
+                  |                 |                          
++----------------------------+   +------+                      
+|bottledwater_phoenix        |   |kibana|                      
+|bottledwater_middlewarehouse|   +------+                      
+|bottledwater_onboarding     |                                 
+|materialized_views          |                                 
+|pgweb                       |                                 
++----------------------------+                                 
+```
 
 ## Marathon Hierarchy
 
