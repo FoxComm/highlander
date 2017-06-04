@@ -55,7 +55,7 @@ class Counter extends Component {
     const { min, max, onChange } = this.props;
 
     if (!value && value !==0 || value < min) {
-      return onChange(min)
+      return onChange(min);
     }
 
     if (value > max) {
