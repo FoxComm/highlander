@@ -33,6 +33,11 @@ shortcuts:
       pavel: pavel
       ubuntu: ubuntu
 
+  - name: Extra Variables
+    flag: "--extra-vars"
+    aliases:
+        first_run: '{"first_run": true}'
+
   targets:
   # Interactive playbooks
   - name: Setup Annabelle
