@@ -36,7 +36,7 @@ All of our DevOps tools for deploying the application to both development and pr
 
 ```
 +------------+              +---------+          +------------+
-|consul_agent|              |zookeeper|----------|mesos_master|
+|consul_agent|--------------|zookeeper|----------|mesos_master|
 +------------+              +---------+          |mesos_worker|
       |                      |                   +------------+
       |                      |                    |            
@@ -61,7 +61,7 @@ All of our DevOps tools for deploying the application to both development and pr
 |bottledwater_onboarding     |                                 
 |materialized_views          |                                 
 |pgweb                       |                                 
-+----------------------------+                                 
++----------------------------+                                                                 
 ```
 
 ## Marathon Hierarchy
