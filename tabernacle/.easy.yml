@@ -36,7 +36,7 @@ shortcuts:
   - name: Extra Variables
     flag: "--extra-vars"
     aliases:
-        first_run: '{"first_run": true}'
+        first_run: "\'first_run=true\'"
 
   targets:
   # Interactive playbooks
