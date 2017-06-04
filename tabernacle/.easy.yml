@@ -33,10 +33,10 @@ shortcuts:
       pavel: pavel
       ubuntu: ubuntu
 
-  - name: Extra Variables
-    flag: "--extra-vars"
+  - name: First Run
+    flag: "-e first_run"
     aliases:
-        first_run: "\'first_run=true\'"
+        first_run: "true"
 
   targets:
   # Interactive playbooks

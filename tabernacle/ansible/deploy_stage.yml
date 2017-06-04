@@ -16,7 +16,8 @@
     is_staging: true
     with_onboarding: true
   roles:
-    - { role: base/mesos_worker, when: first_run } # Hotfix, to be removed
+    - { role: base/mesos_worker, when: first_run }   # Hotfix, to be removed
+    - { role: hotfix/mesos_worker, when: first_run } # Hotfix, to be removed
     - { role: dev/db, when: first_run }
     - { role: dev/db_ic, when: first_run }
     - { role: dev/flyway }
@@ -35,7 +36,8 @@
     url_prefix_topdrawer: "/top-drawer"
     with_onboarding: true
   roles:
-    - { role: base/mesos_worker, when: first_run } # Hotfix, to be removed
+    - { role: base/mesos_worker, when: first_run }   # Hotfix, to be removed
+    - { role: hotfix/mesos_worker, when: first_run } # Hotfix, to be removed
     - { role: dev/marathon_groups }
     - { role: dev/nginx }
     - { role: demo/balancer }
