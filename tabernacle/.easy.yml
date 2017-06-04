@@ -159,10 +159,14 @@ shortcuts:
     alias: seed_data_import.yml
     target: ansible/seed_data_import.yml
 
-  # Stage
+  # Tinystack
   - name: Deploy Staging
     alias: deploy_stage.yml
     target: ansible/deploy_stage.yml
+
+  - name: Deploy Test
+    alias: deploy_test.yml
+    target: ansible/deploy_test.yml
 
 # Packer shortcuts
 - type: snowflake

@@ -22,6 +22,9 @@ docker-push:
 deploy-stage:
 	ansible-playbook -v -i inventory/gce/ ansible/deploy_stage.yml
 
+deploy-test:
+	ansible-playbook -v -i inventory/gce/ ansible/deploy_test.yml
+
 # Instances with old base images / outdated playbooks etc.
 deploy-feature-branch:
 	ansible-playbook -v -i inventory/gce/ ansible/deploy_feature_branch.yml
