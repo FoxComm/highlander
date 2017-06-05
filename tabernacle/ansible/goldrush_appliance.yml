@@ -3,6 +3,7 @@
 - name: Launch Developer Appliance
   hosts: localhost
   vars:
+    first_run: "{{ FIRST_RUN | default(false) }}"
     gce_service_account_email: "{{ lookup('env', 'GOOGLE_SERVICE_ACCOUNT_EMAIL') }}"
     gce_credentials_file: "{{ lookup('env', 'GOOGLE_JSON_KEY_LOCATION') }}"
     gce_instance_name: "{{ lookup('env', 'GOOGLE_INSTANCE_NAME') }}"

@@ -5,15 +5,12 @@
     "mem": 256,
     "disk": 0,
     "instances": 1,
+    "constraints": [],
     "labels": {
         "MARATHON_SINGLE_INSTANCE_APP": "true",
         "LANG": "elixir",
         "consul": "solomon",
         "TAG": "{{docker_tags.solomon}}"
-    },
-    "upgradeStrategy": {
-        "minimumHealthCapacity": 0,
-        "maximumOverCapacity": 0
     },
     "env": {
         "PORT": "{{solomon_port}}",
@@ -27,9 +24,6 @@
         "SOLOMON_SECRET": "{{solomon_secret_token}}"
     },
     "ports": [{{solomon_port}}],
-    "constraints": [
-        ["hostname", "UNIQUE"]
-    ],
     "container": {
         "type": "DOCKER",
         "volumes": [{
