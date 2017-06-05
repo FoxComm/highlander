@@ -103,14 +103,6 @@
   &.with-apple-pay {
     height: calc(100% - 186px);
   }
-
-  &.with-apple-pay.with-errors {
-    height: calc(100% - 226px);
-  }
-
-  &.with-errors {
-    height: calc(100% - 148px);
-  }
 }
 
 .line-items {
@@ -131,20 +123,6 @@
   &.with-apple-pay {
     height: 136px;
   }
-
-  &.with-apple-pay.with-errors {
-    height: 176px;
-  }
-
-  &.with-errors {
-    height: 98px;
-  }
-}
-
-.errors {
-  height: 40px;
-  width: 100%;
-  text-align: center;
 }
 
 @media (--small-only), (--medium-only) {
@@ -166,14 +144,6 @@
     &.with-apple-pay {
       height: calc(100% - 206px);
     }
-
-    &.with-apple-pay.with-errors {
-      height: calc(100% - 246px);
-    }
-
-    &.with-errors {
-      height: calc(100% - 170px);
-    }
   }
 
   .cart-footer {
@@ -185,16 +155,9 @@
     align-items: center;
     justify-content: flex-start;
     flex-direction: column;
+
     &.with-apple-pay {
       height: 156px;
-    }
-
-    &.with-apple-pay.with-errors {
-      height: 196px;
-    }
-
-    &.with-errors {
-      height: 120px;
     }
   }
 
