@@ -1,18 +1,20 @@
 package phoenix.services.plugins
 
 import com.typesafe.scalalogging.LazyLogging
+import core.db.ExPostgresDriver.api._
 import core.db._
 import core.failures.{GeneralFailure, NotFoundFailure404}
 import dispatch.{Http, as, host, url ⇒ request}
+import phoenix.models.account.Scope
 import org.json4s.Formats
 import org.json4s.jackson.JsonMethods._
 import phoenix.models.plugins.PluginSettings.SettingsValues._
 import phoenix.models.plugins.PluginSettings.{SettingsSchema, SettingsValues}
 import phoenix.models.plugins._
+import phoenix.models.plugins.Plugins.scope._
 import phoenix.payloads.PluginPayloads._
 import phoenix.responses.plugins.PluginCommonResponses._
 import phoenix.utils.aliases._
-import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.Future
 
@@ -75,18 +77,21 @@ object PluginsManager extends LazyLogging {
       plugin ← * <~ updatePluginInfo(plugin, schema, payload)
     } yield plugin
 
-  def listPlugins()(implicit ec: EC, db: DB, ac: AC): DbResultT[ListPluginsAnswer] = {
+  def listPlugins()(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[ListPluginsAnswer] = {
     for {
-      plugins ← * <~ Plugins.result
+      plugins ← * <~ Plugins.forCurrentUser.result
     } yield plugins.map(PluginInfo.fromPlugin)
   }
 
   def registerPlugin(payload: RegisterPluginPayload)(implicit ec: EC,
                                                      db: DB,
+                                                     au: AU,
                                                      ac: AC): DbResultT[RegisterAnswer] = {
     val pluginT = for {
       result ← * <~ Plugins
                 .findByName(payload.name)
+                .forCurrentUser
+                .one
                 .findOrCreateExtended(Plugins.create(Plugin.fromPayload(payload)))
       (dbPlugin, foundOrCreated) = result
       plugin ← * <~ updatePlugin(dbPlugin, payload, foundOrCreated)
@@ -103,9 +108,13 @@ object PluginsManager extends LazyLogging {
   def updateSettings(name: String, payload: UpdateSettingsPayload)(
       implicit ec: EC,
       db: DB,
+      au: AU,
       ac: AC): DbResultT[SettingsUpdated] = {
     val updated = for {
-      plugin ← * <~ Plugins.findByName(name).mustFindOr(NotFoundFailure404(Plugin, name))
+      plugin ← * <~ Plugins
+                .findByName(name)
+                .forCurrentUser
+                .mustFindOneOr(NotFoundFailure404(Plugin, name))
       newSettings = plugin.settings merge payload.settings
       updated ← * <~ Plugins.update(plugin, plugin.copy(settings = newSettings))
     } yield updated
@@ -119,16 +128,23 @@ object PluginsManager extends LazyLogging {
     }
   }
 
-  def listSettings(name: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[SettingsValues] = {
+  def listSettings(
+      name: String)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[SettingsValues] = {
     for {
-      plugin ← * <~ Plugins.findByName(name).mustFindOr(NotFoundFailure404(Plugin, name))
+      plugin ← * <~ Plugins
+                .findByName(name)
+                .forCurrentUser
+                .mustFindOneOr(NotFoundFailure404(Plugin, name))
     } yield plugin.settings
   }
 
   def getSettingsWithSchema(
-      name: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[PluginSettingsResponse] = {
+      name: String)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[PluginSettingsResponse] = {
     for {
-      plugin ← * <~ Plugins.findByName(name).mustFindOr(NotFoundFailure404(Plugin, name))
+      plugin ← * <~ Plugins
+                .findByName(name)
+                .forCurrentUser
+                .mustFindOneOr(NotFoundFailure404(Plugin, name))
     } yield PluginSettingsResponse.fromPlugin(plugin)
   }
 

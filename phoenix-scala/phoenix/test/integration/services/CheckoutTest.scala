@@ -39,9 +39,6 @@ class CheckoutTest
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
-  // TODO remove this @anna
-  implicit val apis: Apis = apisOverride.value
-
   def cartValidator(resp: CartValidatorResponse = CartValidatorResponse()): CartValidation = {
     val m = mock[CartValidation]
     when(m.validate(isCheckout = false, fatalWarnings = true)).thenReturn(DbResultT.good(resp))

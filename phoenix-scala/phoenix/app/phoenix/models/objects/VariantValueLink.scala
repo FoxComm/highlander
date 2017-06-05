@@ -12,7 +12,8 @@ case class VariantValueLink(id: Int = 0,
                             leftId: Int,
                             rightId: Int,
                             createdAt: Instant = Instant.now,
-                            updatedAt: Instant = Instant.now)
+                            updatedAt: Instant = Instant.now,
+                            archivedAt: Option[Instant] = None)
     extends FoxModel[VariantValueLink]
     with ObjectHeadLink[VariantValueLink]
 
@@ -20,7 +21,7 @@ class VariantValueLinks(tag: Tag)
     extends ObjectHeadLinks[VariantValueLink](tag, "variant_variant_value_links") {
 
   def * =
-    (id, leftId, rightId, createdAt, updatedAt) <> ((VariantValueLink.apply _).tupled, VariantValueLink.unapply)
+    (id, leftId, rightId, createdAt, updatedAt, archivedAt) <> ((VariantValueLink.apply _).tupled, VariantValueLink.unapply)
 
   def left  = foreignKey(Variants.tableName, leftId, Variants)(_.id)
   def right = foreignKey(VariantValues.tableName, rightId, VariantValues)(_.id)

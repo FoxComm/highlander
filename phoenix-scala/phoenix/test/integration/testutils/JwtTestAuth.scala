@@ -15,6 +15,7 @@ import phoenix.services.account.AccountManager
 import phoenix.utils.aliases.{SF, SL}
 import phoenix.utils.seeds.generators.GeneratorUtils.randomString
 import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
+import utils.MockedApis
 import core.db._
 
 case class TestLoginData(email: String, password: String)
@@ -44,6 +45,7 @@ trait JwtTestAuth
     with PhoenixPublicApi
     with PhoenixAdminApi
     with AppendedClues
+    with MockedApis
     with TestActivityContext.AdminAC {
   self: FoxSuite ⇒
 

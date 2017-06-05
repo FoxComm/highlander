@@ -1,9 +1,8 @@
 package phoenix.services
 
-import java.time.Instant
-
 import com.github.tminglei.slickpg.LTree
 import core.db._
+import java.time.Instant
 import objectframework.ObjectResponses.ObjectContextResponse
 import phoenix.models.Assignment._
 import phoenix.models.Note
@@ -63,7 +62,8 @@ class LogActivity(val ac: AC) extends AnyVal {
 
   @inline implicit private def ctx: AC = ac
 
-  def withScope(scope: LTree): LogActivity = new LogActivity(ac = ac.copy(scope = scope))
+  def withScope(scope: LTree): LogActivity =
+    new LogActivity(ac = ac.copy(ctx = ac.ctx.copy(scope = scope)))
 
   /* Assignments */
   def assigned[T](admin: User,
