@@ -11,10 +11,23 @@ if (process.env.NODE_ENV !== 'test') {
   require('webpack-svgstore-plugin/src/helpers/svgxhr')({ filename: `admin/symbols.svg` });
 }
 
-const Icon = ({ name, className }: { name: string, className?: string }) => {
+type Props = {
+  /** icon type */
+  name: string,
+  /** svg optional className */
+  className?: string
+}
+
+/**
+ * Icon is a simple component for representing SVG icons.
+ *
+ * @function Icon
+ */
+
+const Icon = (props: Props) => {
   return(
-    <svg className={className}>
-      <use xlinkHref={`#icon-${name}`} />
+    <svg className={props.className}>
+      <use xlinkHref={`#icon-${props.name}`} />
     </svg>
   );
 };
