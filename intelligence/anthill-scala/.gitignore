@@ -1,0 +1,33 @@
+.env.local
+
+target/
+project/project/
+project/target/
+
+# Scala-IDE specific
+.scala_dependencies
+.worksheet
+
+# Eclipse and eclim stuff
+.classpath
+.project
+.settings
+workbench.xmi
+
+# IntelliJ specific
+.idea
+
+# Ensime
+.ensime
+.ensime_cache/
+
+# Vagrant
+.vagrant
+
+.DS_Store
+.gce
+
+version
+
+#style files
+**/codeStyleSettings.xml
