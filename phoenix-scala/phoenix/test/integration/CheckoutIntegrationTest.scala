@@ -88,7 +88,16 @@ class CheckoutIntegrationTest
             'id (creditCard.id),
             'type (PaymentMethod.CreditCard)
         )
-        order.shippingAddress.id must === (address.id)
+
+        val orderShippingAddress =
+          OrderShippingAddresses.findOneById(order.shippingAddress.id).gimme.value
+        val expectedAddressResponse = AddressResponse.buildFromOrder(
+            orderShippingAddress,
+            order.shippingAddress.region
+        )
+        expectedAddressResponse must === (
+            address.copy(id = expectedAddressResponse.id, isDefault = None))
+        order.shippingAddress must === (expectedAddressResponse)
         order.shippingMethod.id must === (shipMethod.id)
       }
     }
