@@ -1,6 +1,7 @@
 import testutils._
 import testutils.apis._
 import testutils.fixtures._
+import testutils.fixtures.api.ApiFixtureHelpers
 import phoenix.payloads.AmazonOrderPayloads._
 import phoenix.responses.cord.AmazonOrderResponse
 import phoenix.models.cord._
@@ -17,37 +18,39 @@ class AmazonOrderIntegrationTest
     with PhoenixAdminApi
     with BakedFixtures
     with DefaultJwtAdminAuth
-    with TestActivityContext.AdminAC {
+    with TestActivityContext.AdminAC
+    with ApiFixtureHelpers {
 
-  "POST /v1/amazon_orders" - {
-    "successfully creates amazonOrder from payload" in new Customer_Seed {
-      val payload = CreateAmazonOrderPayload(amazonOrderId = "111-5296499-9653859",
-                                             orderTotal = 4500,
-                                             paymentMethodDetail = "CreditCard",
-                                             orderType = "StandardOrder",
-                                             currency = Currency.USD,
-                                             orderStatus = "Shipped",
-                                             purchaseDate = Instant.now,
-                                             scope = LTree("1"),
-                                             customerEmail = customer.email.value)
-
-      val root    = amazonOrderApi.create(payload).as[AmazonOrderResponse.Root]
-      val created = AmazonOrders.findOneByAmazonOrderId(root.amazonOrderId).gimme.value
-      created.id must === (root.id)
+  "POST /v1/amazon-orders" - {
+    "successfully creates amazonOrder from payload" in new Fixture {
+      val created =
+        AmazonOrders.findOneByAmazonOrderId(amazonOrderResponse.amazonOrderId).gimme.value
+      created.id must === (amazonOrderResponse.id)
     }
   }
 
-  "PATCH /v1/amazon_orders/:amazonOrderId" - {
+  "PATCH /v1/amazon-orders/:amazonOrderId" - {
     "update existing order" in new Fixture {
-      val updPayload = UpdateAmazonOrderPayload(orderStatus = "ChangedStatus")
-      val updated =
-        amazonOrderApi.update(amazonOrder.amazonOrderId, updPayload).as[AmazonOrderResponse.Root]
-      updated.orderStatus must === (updPayload.orderStatus)
+      val updatePayload = UpdateAmazonOrderPayload(orderStatus = "ChangedStatus")
+      val updated = amazonOrdersApi(amazonOrderResponse.amazonOrderId)
+        .update(updatePayload)
+        .as[AmazonOrderResponse]
+      updated.orderStatus must === (updatePayload.orderStatus)
     }
   }
 
-  trait Fixture extends Customer_Seed {
-    val amazonOrder =
-      AmazonOrders.create(Factories.amazonOrder.copy(accountId = customer.accountId)).gimme
+  trait Fixture {
+    val customer = api_newCustomer
+    val amazonOrderPayload = CreateAmazonOrderPayload(amazonOrderId = "111-5296499-9653859",
+                                                      orderTotal = 4500,
+                                                      paymentMethodDetail = "CreditCard",
+                                                      orderType = "StandardOrder",
+                                                      currency = Currency.USD,
+                                                      orderStatus = "Shipped",
+                                                      purchaseDate = Instant.now,
+                                                      scope = LTree("1"),
+                                                      customerEmail = customer.email.value)
+
+    val amazonOrderResponse = amazonOrdersApi.create(amazonOrderPayload).as[AmazonOrderResponse]
   }
 }

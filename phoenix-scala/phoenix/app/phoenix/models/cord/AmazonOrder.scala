@@ -38,20 +38,6 @@ object AmazonOrder {
                 accountId = accountId,
                 createdAt = Instant.now,
                 updatedAt = Instant.now)
-
-  def fromExistingAmazonOrder(existingOrder: AmazonOrder): AmazonOrder =
-    AmazonOrder(id = existingOrder.id,
-                amazonOrderId = existingOrder.amazonOrderId,
-                orderTotal = existingOrder.orderTotal,
-                paymentMethodDetail = existingOrder.paymentMethodDetail,
-                orderType = existingOrder.orderType,
-                currency = existingOrder.currency,
-                orderStatus = existingOrder.orderStatus,
-                purchaseDate = existingOrder.purchaseDate,
-                scope = existingOrder.scope,
-                accountId = existingOrder.accountId,
-                createdAt = existingOrder.createdAt,
-                updatedAt = existingOrder.updatedAt)
 }
 
 object AmazonOrders

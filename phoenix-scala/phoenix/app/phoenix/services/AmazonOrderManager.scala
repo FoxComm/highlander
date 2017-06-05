@@ -17,18 +17,14 @@ object AmazonOrderManager {
       au: AU): DbResultT[AmazonOrderResponse] = {
 
     for {
+      user ← * <~ Users
+              .findByEmail(payload.customerEmail)
+              .mustFindOneOr(NotFoundFailure404(User, "email", payload.customerEmail))
+      inner = AmazonOrders.create(AmazonOrder.build(payload, user.accountId))
       amazonOrder ← * <~ AmazonOrders
                      .findOneByAmazonOrderId(payload.amazonOrderId)
-                     .findOrCreate(createInner(payload))
+                     .findOrCreate(inner)
     } yield AmazonOrderResponse.build(amazonOrder)
-
-    // val amazonOrderT =
-    //   AmazonOrders.findOneByAmazonOrderId(payload.amazonOrderId).findOrCreate(createInner(payload))
-
-    // amazonOrderT.map {
-    //   case (existingOrder) ⇒
-    //     AmazonOrderResponse.build(AmazonOrder.fromExistingAmazonOrder(existingOrder))
-    // }
   }
 
   private def createInner(
