@@ -146,6 +146,29 @@ class Cart extends Component {
     });
   }
 
+  @autobind
+  sanitize(err) {
+    if (/Following SKUs are out/.test(err)) {
+      const skus = err.split('.')[0].split(':')[1].split(',');
+
+      const products = _.reduce(skus, (acc, outOfStock) => {
+        const sku = _.find(this.props.skus, { sku: outOfStock.trim() });
+        if (sku) {
+          return [
+            ...acc,
+            sku.name,
+          ];
+        }
+
+        return acc;
+      }, []);
+
+      return `Products ${products.join(', ')} are out of stock. Please remove them to complete the checkout.`;
+    }
+
+    return sanitizeAll(err);
+  }
+
   get errorsLine() {
     const { applePayStatus } = this.props;
     const { errors }  = this.state;
@@ -158,7 +181,7 @@ class Cart extends Component {
       <div styleName="errors">
         <ErrorAlerts
           errors={errors}
-          sanitizeError={sanitizeAll}
+          sanitizeError={this.sanitize}
         />
       </div>
      );
