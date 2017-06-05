@@ -9,6 +9,7 @@ import core.db.ExPostgresDriver.api._
 import core.db._
 import core.failures.{Failure, Failures}
 import objectframework.IlluminateAlgorithm
+import objectframework.activities._
 import objectframework.content._
 import objectframework.db._
 import objectframework.failures._
@@ -32,8 +33,9 @@ object ContentManager {
       atCommit ← * <~ Content.buildCommitT(content)
     } yield atCommit
 
-  def create(viewId: Int, payload: CreateContentPayload)(implicit ec: EC,
-                                                         fmt: Formats): DbResultT[Content] = {
+  def create(viewId: Int, payload: CreateContentPayload)(
+      implicit ec: EC,
+      fmt: Formats): DbResultT[(Content, ContentCreated)] = {
     val (formJson, shadowJson) = ContentUtils.encodeContentAttributes(payload.attributes)
 
     for {
@@ -42,12 +44,13 @@ object ContentManager {
       _ ← * <~ failIfErrors(IlluminateAlgorithm.validateAttributes(formJson, shadowJson))
       _ ← * <~ validateRelations(id = None, kind = payload.kind, relations = payload.relations)
 
-      form    ← * <~ Forms.create(Form(kind = payload.kind, attributes = formJson))
-      shadow  ← * <~ Shadows.create(Shadow.build(form.id, shadowJson, payload.relations))
-      commit  ← * <~ Commits.create(Commit(formId = form.id, shadowId = shadow.id))
-      head    ← * <~ Heads.create(Head(kind = payload.kind, viewId = viewId, commitId = commit.id))
-      created ← * <~ Content.buildLatest(head, commit, form, shadow)
-    } yield created
+      form     ← * <~ Forms.create(Form(kind = payload.kind, attributes = formJson))
+      shadow   ← * <~ Shadows.create(Shadow.build(form.id, shadowJson, payload.relations))
+      commit   ← * <~ Commits.create(Commit(formId = form.id, shadowId = shadow.id))
+      head     ← * <~ Heads.create(Head(kind = payload.kind, viewId = viewId, commitId = commit.id))
+      created  ← * <~ Content.buildLatest(head, commit, form, shadow)
+      activity ← * <~ ContentCreated.build(created)
+    } yield (created, activity)
   }
 
   def update(id: Int, viewId: Int, payload: UpdateContentPayload, kind: String)(
