@@ -12,6 +12,10 @@
         "consul": "middlewarehouse",
         "TAG": "{{docker_tags.middlewarehouse}}"
     },
+    "upgradeStrategy": {
+        "minimumHealthCapacity": 0,
+        "maximumOverCapacity": 0
+    },
     "container": {
         "type": "DOCKER",
         "volumes": [{

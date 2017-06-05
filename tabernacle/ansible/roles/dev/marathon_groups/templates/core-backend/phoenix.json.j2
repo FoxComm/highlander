@@ -12,6 +12,10 @@
         "consul": "phoenix",
         "TAG": "{{docker_tags.phoenix}}"
     },
+   "upgradeStrategy": {
+        "minimumHealthCapacity": 0,
+        "maximumOverCapacity": 0
+    },
     "env": {
         "PORT": "{{phoenix_port}}",
         "SCHEMA_REGISTRY_URL": "http://{{schema_server}}",

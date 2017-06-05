@@ -12,6 +12,10 @@
         "consul": "solomon",
         "TAG": "{{docker_tags.solomon}}"
     },
+   "upgradeStrategy": {
+        "minimumHealthCapacity": 0,
+        "maximumOverCapacity": 0
+    },
     "env": {
         "PORT": "{{solomon_port}}",
         "DB_USER": "{{db_user}}",

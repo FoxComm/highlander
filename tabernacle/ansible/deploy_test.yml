@@ -38,7 +38,7 @@
   roles:
     - { role: base/mesos_worker, when: first_run }   # Hotfix, to be removed
     - { role: hotfix/mesos_worker, when: first_run } # Hotfix, to be removed
-    - { role: dev/marathon_groups }
+    - { role: dev/marathon_groups, when: first_run }
     - { role: dev/nginx }
     - { role: demo/balancer }
   post_tasks:
