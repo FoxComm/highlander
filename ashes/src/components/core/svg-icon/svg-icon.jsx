@@ -19,12 +19,12 @@ type Props = {
 }
 
 /**
- * Icon is a simple component for representing SVG icons.
+ * SvgIcon is a simple component for representing SVG icons.
  *
- * @function Icon
+ * @function SvgIcon
  */
 
-const Icon = (props: Props) => {
+const SvgIcon = (props: Props) => {
   return(
     <svg className={props.className}>
       <use xlinkHref={`#icon-${props.name}`} />
@@ -32,4 +32,4 @@ const Icon = (props: Props) => {
   );
 };
 
-export default Icon;
+export default SvgIcon;

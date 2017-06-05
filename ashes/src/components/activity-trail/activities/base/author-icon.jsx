@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 
 // components
 import DetailedInitials from '../../../user-initials/detailed-initials';
-import Icon from 'components/core/icon';
+import SvgIcon from 'components/core/svg-icon';
 
 // styles
 import s from './author-icon.css';
@@ -21,7 +21,7 @@ const AuthorIcon = props => {
       if (!_.isEmpty(adminName)) {
         return <DetailedInitials name={adminName} />;
       } else {
-        return <Icon name="fox" className={s.systemIcon} />;
+        return <SvgIcon name="fox" className={s.systemIcon} />;
       }
     case 'account':
     case 'user':
@@ -32,7 +32,7 @@ const AuthorIcon = props => {
         </div>
       );
     default:
-      return <Icon name="fox" className={s.systemIcon} />;
+      return <SvgIcon name="fox" className={s.systemIcon} />;
   }
 };
 

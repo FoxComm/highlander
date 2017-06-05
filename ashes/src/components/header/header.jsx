@@ -13,7 +13,7 @@ import Breadcrumb from './breadcrumb';
 import UserMenu from './usermenu';
 import * as userActions from 'modules/user';
 import { toggleUserMenu } from 'modules/usermenu';
-import Icon from 'components/core/icon';
+import SvgIcon from 'components/core/svg-icon';
 
 import type { TUser } from 'modules/user';
 
@@ -62,7 +62,7 @@ export default class Header extends React.Component {
     return (
       <header role='banner' styleName="header" className={className} name="">
         <div styleName="logo">
-          <Icon name="logo" className={styles['logo-icon']} />
+          <SvgIcon name="logo" className={styles['logo-icon']} />
         </div>
         <div styleName="top-nav-menu">
           <Breadcrumb routes={routes} params={params} />
