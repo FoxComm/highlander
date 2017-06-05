@@ -20,15 +20,13 @@ const CodeCreationModal = (props: Props): Element<*> => {
     <ConfirmationModal
       isVisible={isVisible}
       title='Generate Codes?'
-      body={body}
       confirmLabel='Generate Codes'
       onConfirm={confirmAction}
       onCancel={cancelAction}
     >
       <p>
-        There is a&nbsp;
-        <strong>{probability}%</strong>
-        &nbsp;chance that a coupon code could be guessed based on the quantity and character length chosen.
+        There is a&nbsp;<strong>{probability}%</strong>&nbsp;
+        chance that a coupon code could be guessed based on the quantity and character length chosen.
       </p>
       <p>
         Do you want to generate codes?

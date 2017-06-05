@@ -9,7 +9,7 @@ import React, { Element, Component } from 'react';
 // components
 import Modal from 'components/core/modal';
 import SaveCancel from 'components/core/save-cancel';
-import ErrorAlerts from 'components/alerts/error-alerts';
+import { ApiErrors } from 'components/utils/errors';
 
 // styles
 import s from './confirmation-modal.css';
@@ -104,7 +104,7 @@ export default class ConfirmationModal extends Component {
         isVisible={isVisible}
         onClose={onCancel}
       >
-        <ErrorAlerts error={get(asyncState, 'err', null)} />
+        <ApiErrors error={get(asyncState, 'err', null)} />
         <div className={s.label}>
           {children || label}
         </div>
