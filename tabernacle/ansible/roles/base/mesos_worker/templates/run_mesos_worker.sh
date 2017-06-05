@@ -8,6 +8,7 @@ LOG_DIR=/var/log/mesos
 SANDBOX_DIR=/var/lib/sandbox
 IP=`hostname -i`
 
+{% if is_appliance or is_staging %}
 mesos-slave --hostname=$IP \
     --ip=$IP \
     --master={{zookeepers}}/mesos \
@@ -16,5 +17,16 @@ mesos-slave --hostname=$IP \
     --work_dir=$WORK_DIR \
     --log_dir=$LOG_DIR \
     --sandbox_directory=$SANDBOX_DIR \
-    {% if is_appliance %}--resources=file:///var/lib/mesos/resources.json \{% endif %}
+    --resources=file:///var/lib/mesos/resources.json \
     --executor_registration_timeout=10mins
+{% else %}
+mesos-slave --hostname=$IP \
+    --ip=$IP \
+    --master={{zookeepers}}/mesos \
+    --containerizers=docker,mesos \
+    --docker_registry={{docker_registry}} \
+    --work_dir=$WORK_DIR \
+    --log_dir=$LOG_DIR \
+    --sandbox_directory=$SANDBOX_DIR \
+    --executor_registration_timeout=10mins
+{% endif %}

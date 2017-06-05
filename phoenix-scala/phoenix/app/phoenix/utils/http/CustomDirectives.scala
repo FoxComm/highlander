@@ -110,11 +110,8 @@ object CustomDirectives {
   //and multiple options.
   private def getContextByLanguage(lang: String)(implicit db: DB, ec: EC) =
     db.run(ObjectContexts.filterByLanguage(lang).result.headOption).flatMap {
-      case Some(c) ⇒
-        Future {
-          c
-        }
-      case None ⇒ getContextByName(DefaultContextName)
+      case Some(c) ⇒ Future.successful(c)
+      case None    ⇒ getContextByName(DefaultContextName)
     }
 
   def good[A <: AnyRef](a: Future[A])(implicit ec: EC): StandardRoute = // TODO: is this needed anymore? @michalrus

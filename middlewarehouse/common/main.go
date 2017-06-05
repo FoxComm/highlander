@@ -9,7 +9,7 @@ import (
 	env "github.com/jpfuentes2/go-env"
 )
 
-//Returns the value exported to GOENV in the system. Defaults to 'development'.
+// Env Returns the value exported to GOENV in the system. Defaults to 'development'.
 func Env() string {
 	env := os.Getenv("GOENV")
 
@@ -20,7 +20,7 @@ func Env() string {
 	return env
 }
 
-//helper function for cleaner boolean conditions
+// IsEnv helper function for cleaner boolean conditions
 //if isEnv("production) { ... } else { ... } //etc
 func IsEnv(name string) bool {
 	return (Env() == name)

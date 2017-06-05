@@ -20,8 +20,6 @@ upstream onboarding {
 }
 {% endif %}
 
-
-{% if with_ic %}
 upstream henhouse {
   << with index .Apps "/henhouse" >>
     << range .Tasks >>
@@ -61,7 +59,6 @@ upstream suggester {
     << end >>
   << end >>
 }
-{% endif %}
 
 upstream search {
   << with index .Apps "/search" >>

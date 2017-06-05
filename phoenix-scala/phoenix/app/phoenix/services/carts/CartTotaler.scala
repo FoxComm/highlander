@@ -1,11 +1,14 @@
 package phoenix.services.carts
 
 import core.db._
+import core.db.ExPostgresDriver.api._
+import objectframework.DbObjectUtils._
+import phoenix.models.inventory.Skus
+import objectframework.models.{ObjectForms, ObjectShadows}
 import phoenix.models.cord._
 import phoenix.models.cord.lineitems._
 import phoenix.utils.FoxConfig.config
 import core.utils.Money._
-import slick.jdbc.PostgresProfile.api._
 
 // TODO: Use utils.Money
 object CartTotaler {
@@ -30,17 +33,14 @@ object CartTotaler {
     skuSubTotalForCart(cart)
 
   def skuSubTotalForCart(cart: Cart)(implicit ec: EC): DBIO[Long] =
-    sql"""select count(*), sum(coalesce(cast(sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value' as integer), 0)) as sum
-       |	from cart_line_items sli
-       |	left outer join skus sku on (sku.id = sli.sku_id)
-       |	left outer join object_forms sku_form on (sku_form.id = sku.form_id)
-       |	left outer join object_shadows sku_shadow on (sku_shadow.id = sku.shadow_id)
-       |
-       |	where sli.cord_ref = ${cart.refNum}
-       | """.stripMargin.as[(Int, Long)].headOption.map {
-      case Some((count, total)) if count > 0 ⇒ total
-      case _                                 ⇒ 0
-    }
+    (for {
+      lineItem ← CartLineItems if lineItem.cordRef === cart.refNum
+      sku      ← Skus if sku.id === lineItem.skuId
+      form     ← ObjectForms if form.id === sku.formId
+      shadow   ← ObjectShadows if shadow.id === sku.shadowId
+      illuminated = (form, shadow)
+      salePrice   = ((illuminated |→ "salePrice") +>> "value").asColumnOf[Long]
+    } yield salePrice).sum.getOrElse(0L).result
 
   def shippingTotal(cart: Cart)(implicit ec: EC): DbResultT[Long] =
     for {

@@ -63,18 +63,17 @@ object ShippingManager {
       shipData    ← * <~ getShippingData(cart)
     } yield filterMethods(shipMethods, shipData)
 
-  // @aafa FIXME: make sure that shipping methods are cart-total-price aware  (free shipping available if total is more than certain amount)
-  def getShippingMethodsForRegion(countryCode: String)(implicit ec: EC,
-                                                       db: DB): DbResultT[Seq[Root]] =
+  def getShippingMethodsForRegion(countryCode: String, originator: User)(
+      implicit ec: EC,
+      db: DB): DbResultT[Seq[Root]] =
     for {
-      shipMethods ← * <~ ShippingMethods.findActive.result
-      country     ← * <~ Countries.findByCode(countryCode).mustFindOneOr(NoCountryFound(countryCode))
+      cart     ← * <~ getCartByOriginator(originator, None)
+      shipData ← * <~ getShippingData(cart)
+      country  ← * <~ Countries.findByCode(countryCode).mustFindOneOr(NoCountryFound(countryCode))
 
-      shipToRegion = ShippingData(cart = Cart(scope = LTree(""), accountId = 0),
-                                  cartTotal = 0,
-                                  cartSubTotal = 0,
-                                  shippingRegion =
-                                    Region(countryId = country.id, name = country.name).some)
+      shipMethods ← * <~ ShippingMethods.findActive.result
+      shipToRegion = shipData.copy(
+          shippingRegion = Region(countryId = country.id, name = country.name).some)
     } yield filterMethods(shipMethods, shipToRegion)
 
   def getShippingMethodsForCart(refNum: String, customer: Option[User] = None)(
@@ -110,7 +109,7 @@ object ShippingManager {
     }
   }
 
-  def filterMethods(shipMethods: Seq[ShippingMethod], shipData: ShippingData) =
+  def filterMethods(shipMethods: Seq[ShippingMethod], shipData: ShippingData): Seq[Root] =
     shipMethods.collect {
       case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
         val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)

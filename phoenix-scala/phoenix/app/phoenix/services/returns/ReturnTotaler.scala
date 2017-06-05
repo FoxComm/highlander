@@ -1,6 +1,7 @@
 package phoenix.services.returns
 
 import objectframework.models.{ObjectForms, ObjectShadows}
+import objectframework.DbObjectUtils._
 import phoenix.models.returns._
 import core.db.ExPostgresDriver.api._
 import core.db._
@@ -15,8 +16,7 @@ object ReturnTotaler {
       skus               ← returnLineItemSkus.sku
       form               ← ObjectForms if form.id === skus.formId
       shadow             ← ObjectShadows if shadow.id === returnLineItemSkus.skuShadowId
-
-      total = ((form.attributes +> ((shadow.attributes +> "salePrice") +>> "ref")) +>> "value")
-        .asColumnOf[Long]
+      illuminated = (form, shadow)
+      total       = ((illuminated |→ "salePrice") +>> "value").asColumnOf[Long]
     } yield total).sum.filter(_ > 0L).getOrElse(0L).result.dbresult
 }

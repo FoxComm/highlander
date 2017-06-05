@@ -10,13 +10,14 @@ import phoenix.payloads.GiftCardPayloads._
 import phoenix.services.Authenticator.AuthData
 import phoenix.services.CustomerCreditConverter
 import phoenix.services.giftcards._
+import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
 import phoenix.utils.http.Http._
 import phoenix.utils.http.JsonSupport._
 
 object GiftCardRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
 
     activityContext(auth) { implicit ac ⇒
       pathPrefix("customer-gift-cards") {

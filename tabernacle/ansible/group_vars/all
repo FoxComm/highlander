@@ -118,9 +118,6 @@ marathon_restart:
     neo4j: "{{ lookup('env', 'MARATHON_NEO4J') | default(true, true) | bool }}"
     suggester: "{{ lookup('env', 'MARATHON_SUGGESTER') | default(true, true) | bool }}"
 
-# Should we use Intelligent Commerce
-with_ic: "{{ lookup('env', 'WITH_INTELLIGENT_COMMERCE') | default(true, true) | bool }}"
-
 # Should we do seeding for appliance
 detach_seeders: "{{ lookup('env', 'DETACH_SEEDERS') | default(false, true) | bool }}"
 with_appliance_seeding: "{{ lookup('env', 'WITH_APPLIANCE_SEEDING') | default(true, true) | bool }}"
@@ -195,7 +192,7 @@ marathon_host: "marathon.{{consul_suffix}}"
 marathon_port: 8080
 marathon_server: "{{marathon_host}}:{{marathon_port}}"
 
-onboarding_service_host: "onboarding_service.{{consul_suffix}}"
+onboarding_service_host: "onboarding-service.{{consul_suffix}}"
 onboarding_service_port: 4003
 onboarding_service_server: "{{onboarding_service_host}}:{{onboarding_service_port}}"
 
@@ -269,6 +266,7 @@ greenriver_restart: "false"
 # This is a ttl of 1 year
 phoenix_token_ttl: 525600
 solomon_token_ttl: 365
+solomon_jwt: ""
 
 # Middlewarehouse
 middlewarehouse_env: staging
@@ -362,10 +360,6 @@ shipstation_interval: "10s"
 # Product activity daemon
 product_activity_interval: 60
 
-# Firebrand variables
-firebrand_env: production
-firebrand_default_language: en
-
 # Storefront variables
 storefront_default_language: en
 storefront_fixed_language: false
@@ -383,7 +377,7 @@ loyalty_jmx_port: 39013
 
 # Seeds
 seeds_class: seeds.Seeds
-seeds_cmd: "{{seeds_class}} seed --seedAdmins"
+seeds_cmd: "{{seeds_class}} seed --seedAdmins --seedShippingRules"
 gatling_oneshot_seeds_cmd: gatling.seeds.OneshotSeeds
 gatling_continuous_seeds_cmd: gatling.seeds.ContinuousSeeds
 
@@ -421,6 +415,7 @@ onboarding_service_db_connection_string: "postgresql://{{onboarding_service_db_u
 retailer_name: "FoxCommerce"
 contact_email: "pavel@foxcommerce.com"
 mailchimp_api_key: ""
+messaging_env: "production"
 
 # Materialized views
 update_materialized_views_sql: "/usr/local/share/update_materialized_views.sql"
@@ -455,6 +450,7 @@ is_aws: false
 is_ci: "{{ lookup('env', 'CI') }}"
 is_amigo: false
 is_appliance: false
+is_staging: false
 is_redeploy: false
 jmx_enabled: false
 packing: false

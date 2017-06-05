@@ -8,7 +8,7 @@ upstream storefront {
   << end >>
 }
 
-{% if is_appliance %}
+{% if is_appliance or is_staging %}
 upstream storefront-top-drawer {
   << with index .Apps "/storefront-top-drawer" >>
     << range .Tasks >>

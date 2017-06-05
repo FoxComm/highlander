@@ -13,16 +13,18 @@ object ObjectHeadLinks {
     def rightId: Int
     def createdAt: Instant
     def updatedAt: Instant
+    def archivedAt: Option[Instant]
   }
 
   abstract class ObjectHeadLinks[M <: ObjectHeadLink[M]](tag: Tag, table: String)
       extends FoxTable[M](tag, table) {
 
-    def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
-    def leftId    = column[Int]("left_id")
-    def rightId   = column[Int]("right_id")
-    def createdAt = column[Instant]("created_at")
-    def updatedAt = column[Instant]("updated_at")
+    def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
+    def leftId     = column[Int]("left_id")
+    def rightId    = column[Int]("right_id")
+    def createdAt  = column[Instant]("created_at")
+    def updatedAt  = column[Instant]("updated_at")
+    def archivedAt = column[Option[Instant]]("archived_at")
   }
 
   abstract class ObjectHeadLinkQueries[M <: ObjectHeadLink[M],
@@ -35,11 +37,13 @@ object ObjectHeadLinks {
 
     def filterLeft(left: L): QuerySeq = filterLeftId(left.id)
 
-    protected def filterLeftId(leftId: Int): QuerySeq = filter(_.leftId === leftId)
+    protected def filterLeftId(leftId: Int): QuerySeq =
+      filter(l ⇒ l.leftId === leftId && l.archivedAt.isEmpty)
 
     def filterRight(right: R): QuerySeq = filterRightId(right.id)
 
-    protected def filterRightId(rightId: Int): QuerySeq = filter(_.rightId === rightId)
+    protected def filterRightId(rightId: Int): QuerySeq =
+      filter(r ⇒ r.rightId === rightId && r.archivedAt.isEmpty)
 
     def queryLeftByRight(right: R)(implicit ec: EC, db: DB): DbResultT[Seq[FullObject[L]]] =
       queryLeftByRightIdWithLink(right.id).map(_.map(_._1))

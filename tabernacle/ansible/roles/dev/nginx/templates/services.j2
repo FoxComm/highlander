@@ -8,7 +8,13 @@ upstream river-rock {
   << end >>
 }
 
-{% if with_ic %}
+{% if with_onboarding %}
+upstream onboarding {
+  << range service "onboarding-service" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{onboarding_service_server}} fail_timeout=30s max_fails=10; << end >>
+}
+{% endif %}
+
 upstream henhouse {
   << with index .Apps "/henhouse" >>
     << range .Tasks >>
@@ -48,7 +54,6 @@ upstream suggester {
     << end >>
   << end >>
 }
-{% endif %}
 
 upstream search {
   << with index .Apps "/search" >>
