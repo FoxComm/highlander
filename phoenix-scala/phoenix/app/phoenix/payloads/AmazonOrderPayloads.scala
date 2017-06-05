@@ -1,4 +1,4 @@
-package phoenix.payloads;
+package phoenix.payloads
 
 import java.time.Instant
 
@@ -8,7 +8,7 @@ import com.github.tminglei.slickpg.LTree
 
 object AmazonOrderPayloads {
   case class CreateAmazonOrderPayload(amazonOrderId: String,
-                                      orderTotal: Int,
+                                      orderTotal: Long,
                                       paymentMethodDetail: String,
                                       orderType: String,
                                       currency: Currency = Currency.USD,

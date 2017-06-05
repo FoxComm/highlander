@@ -10,13 +10,13 @@ import core.utils.Money.Currency
 import core.failures._
 import core.db._
 
-case class AmazonOrder(id: Int = 0,
-                       amazonOrderId: String = "",
-                       orderTotal: Int = 0,
-                       paymentMethodDetail: String = "",
-                       orderType: String = "",
-                       currency: Currency = Currency.USD,
-                       orderStatus: String = "",
+case class AmazonOrder(id: Int,
+                       amazonOrderId: String,
+                       orderTotal: Long,
+                       paymentMethodDetail: String,
+                       orderType: String,
+                       currency: Currency,
+                       orderStatus: String,
                        purchaseDate: Instant,
                        scope: LTree,
                        accountId: Int,
@@ -56,23 +56,22 @@ object AmazonOrder {
 
 object AmazonOrders
     extends FoxTableQuery[AmazonOrder, AmazonOrders](new AmazonOrders(_))
-    with ReturningId[AmazonOrder, AmazonOrders]
-    with SearchByAmazonOrderId[AmazonOrder, AmazonOrders] {
+    with ReturningId[AmazonOrder, AmazonOrders] {
 
   val returningLens: Lens[AmazonOrder, Int] = lens[AmazonOrder].id
 
   def findOneByAmazonOrderId(amazonOrderId: String): DBIO[Option[AmazonOrder]] =
     filter(_.amazonOrderId === amazonOrderId).one
 
-  def mustFindOneOr404(amazonOrderId: String)(implicit ec: EC): DbResultT[AmazonOrder] =
+  def mustFindOneOr(amazonOrderId: String)(implicit ec: EC): DbResultT[AmazonOrder] =
     findOneByAmazonOrderId(amazonOrderId).mustFindOr(
-        NotFoundFailure404(s"Amazon order with id=$amazonOrderId not found"))
+        NotFoundFailure404(AmazonOrder, amazonOrderId))
 }
 
 class AmazonOrders(tag: Tag) extends FoxTable[AmazonOrder](tag, "amazon_orders") {
   def id                  = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def amazonOrderId       = column[String]("amazon_order_id")
-  def orderTotal          = column[Int]("order_total")
+  def orderTotal          = column[Long]("order_total")
   def paymentMethodDetail = column[String]("payment_method_detail")
   def orderType           = column[String]("order_type")
   def currency            = column[Currency]("currency")

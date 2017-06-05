@@ -46,19 +46,6 @@ trait SearchByRefNum[M <: FoxModel[M], T <: FoxTable[M]] extends SearchById[M, T
   }
 }
 
-trait SearchByAmazonOrderId[M <: FoxModel[M], T <: FoxTable[M]] extends SearchById[M, T] {
-
-  def findOneByAmazonOrderId(amazonOrderId: String): DBIO[Option[M]]
-
-  def mustFindByAmazonOrderId(
-      amazonOrderId: String,
-      notFoundFailure: String ⇒ Failure = notFound404K)(implicit ec: EC, db: DB): DbResultT[M] =
-    findOneByAmazonOrderId(amazonOrderId).dbresult.flatMap {
-      case Some(model) ⇒ DbResultT.good(model)
-      case None        ⇒ DbResultT.failure(notFoundFailure(amazonOrderId))
-    }
-}
-
 trait SearchByCode[M <: FoxModel[M], T <: FoxTable[M]] extends SearchById[M, T] {
 
   def findOneByCode(code: String): DBIO[Option[M]]

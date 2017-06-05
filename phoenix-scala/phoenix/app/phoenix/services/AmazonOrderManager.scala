@@ -14,15 +14,21 @@ object AmazonOrderManager {
   def createAmazonOrder(payload: CreateAmazonOrderPayload)(
       implicit ec: EC,
       db: DB,
-      au: AU): DbResultT[AmazonOrderResponse.Root] = {
+      au: AU): DbResultT[AmazonOrderResponse] = {
 
-    val amazonOrderT =
-      AmazonOrders.findOneByAmazonOrderId(payload.amazonOrderId).findOrCreate(createInner(payload))
+    for {
+      amazonOrder ← * <~ AmazonOrders
+                     .findOneByAmazonOrderId(payload.amazonOrderId)
+                     .findOrCreate(createInner(payload))
+    } yield AmazonOrderResponse.build(amazonOrder)
 
-    amazonOrderT.map {
-      case (existingOrder) ⇒
-        AmazonOrderResponse.build(AmazonOrder.fromExistingAmazonOrder(existingOrder))
-    }
+    // val amazonOrderT =
+    //   AmazonOrders.findOneByAmazonOrderId(payload.amazonOrderId).findOrCreate(createInner(payload))
+
+    // amazonOrderT.map {
+    //   case (existingOrder) ⇒
+    //     AmazonOrderResponse.build(AmazonOrder.fromExistingAmazonOrder(existingOrder))
+    // }
   }
 
   private def createInner(
@@ -37,9 +43,9 @@ object AmazonOrderManager {
   def updateAmazonOrder(amazonOrderId: String, payload: UpdateAmazonOrderPayload)(
       implicit ec: EC,
       db: DB,
-      au: AU): DbResultT[AmazonOrderResponse.Root] =
+      au: AU): DbResultT[AmazonOrderResponse] =
     for {
-      amazonOrder ← * <~ AmazonOrders.mustFindOneOr404(amazonOrderId)
+      amazonOrder ← * <~ AmazonOrders.mustFindOneOr(amazonOrderId)
       up ← * <~ AmazonOrders.update(amazonOrder,
                                     amazonOrder.copy(orderStatus = payload.orderStatus))
     } yield AmazonOrderResponse.build(up)

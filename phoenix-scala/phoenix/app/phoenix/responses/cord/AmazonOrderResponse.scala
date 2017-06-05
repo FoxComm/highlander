@@ -8,12 +8,12 @@ import phoenix.responses._
 import com.github.tminglei.slickpg.LTree
 
 case class AmazonOrderResponse(id: Int,
-                               amazonOrderId: String = "",
-                               orderTotal: Int = 0,
-                               paymentMethodDetail: String = "",
-                               orderType: String = "",
-                               currency: Currency = Currency.USD,
-                               orderStatus: String = "",
+                               amazonOrderId: String,
+                               orderTotal: Long,
+                               paymentMethodDetail: String,
+                               orderType: String,
+                               currency: Currency,
+                               orderStatus: String,
                                purchaseDate: Instant,
                                scope: LTree,
                                accountId: Int,
@@ -22,32 +22,45 @@ case class AmazonOrderResponse(id: Int,
     extends ResponseItem
 
 object AmazonOrderResponse {
+  def build(amazonOrder: AmazonOrder): AmazonOrderResponse =
+    AmazonOrderResponse(id = amazonOrder.id,
+                        amazonOrderId = amazonOrder.amazonOrderId,
+                        orderTotal = amazonOrder.orderTotal,
+                        paymentMethodDetail = amazonOrder.paymentMethodDetail,
+                        orderType = amazonOrder.orderType,
+                        currency = amazonOrder.currency,
+                        orderStatus = amazonOrder.orderStatus,
+                        purchaseDate = amazonOrder.purchaseDate,
+                        scope = amazonOrder.scope,
+                        accountId = amazonOrder.accountId,
+                        createdAt = amazonOrder.createdAt,
+                        updatedAt = amazonOrder.updatedAt)
 
-  case class Root(id: Int,
-                  amazonOrderId: String,
-                  orderTotal: Int,
-                  paymentMethodDetail: String,
-                  orderType: String,
-                  currency: Currency,
-                  orderStatus: String,
-                  purchaseDate: Instant,
-                  scope: LTree,
-                  accountId: Int,
-                  createdAt: Instant,
-                  updatedAt: Instant)
-      extends ResponseItem
+  // case class Root(id: Int,
+  //                 amazonOrderId: String,
+  //                 orderTotal: Long,
+  //                 paymentMethodDetail: String,
+  //                 orderType: String,
+  //                 currency: Currency,
+  //                 orderStatus: String,
+  //                 purchaseDate: Instant,
+  //                 scope: LTree,
+  //                 accountId: Int,
+  //                 createdAt: Instant,
+  //                 updatedAt: Instant)
+  //     extends ResponseItem
 
-  def build(amazonOrder: AmazonOrder): Root =
-    Root(id = amazonOrder.id,
-         amazonOrderId = amazonOrder.amazonOrderId,
-         orderTotal = amazonOrder.orderTotal,
-         paymentMethodDetail = amazonOrder.paymentMethodDetail,
-         orderType = amazonOrder.orderType,
-         currency = amazonOrder.currency,
-         orderStatus = amazonOrder.orderStatus,
-         purchaseDate = amazonOrder.purchaseDate,
-         scope = amazonOrder.scope,
-         accountId = amazonOrder.accountId,
-         createdAt = amazonOrder.createdAt,
-         updatedAt = amazonOrder.updatedAt)
+  // def build(amazonOrder: AmazonOrder): Root =
+  //   Root(id = amazonOrder.id,
+  //        amazonOrderId = amazonOrder.amazonOrderId,
+  //        orderTotal = amazonOrder.orderTotal,
+  //        paymentMethodDetail = amazonOrder.paymentMethodDetail,
+  //        orderType = amazonOrder.orderType,
+  //        currency = amazonOrder.currency,
+  //        orderStatus = amazonOrder.orderStatus,
+  //        purchaseDate = amazonOrder.purchaseDate,
+  //        scope = amazonOrder.scope,
+  //        accountId = amazonOrder.accountId,
+  //        createdAt = amazonOrder.createdAt,
+  //        updatedAt = amazonOrder.updatedAt)
 }
