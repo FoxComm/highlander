@@ -20,7 +20,7 @@ type Props = {
   children: Element<any>,
   /** Additional className */
   className?: string,
-}
+};
 
 const Alert = (props: Props) => {
   const className = classNames(s.alert, s[props.type], {

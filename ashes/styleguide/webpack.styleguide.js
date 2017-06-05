@@ -1,4 +1,6 @@
 const path = require('path');
+const webpack = require('webpack');
+const SvgStore = require('webpack-svgstore-plugin');
 
 module.exports = {
   module: {
@@ -22,9 +24,18 @@ module.exports = {
       },
     ]
   },
+
   resolve: {
     alias: {
       'rsg-components/Logo': path.join(__dirname, 'rsg-components/Logo')
     }
   },
+
+  plugins: [
+    new webpack.EnvironmentPlugin({
+      STYLEGUIDE: true
+    }),
+
+    new SvgStore(),
+  ],
 };

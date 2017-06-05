@@ -11,6 +11,8 @@
 }
 
 .header {
+  position: relative;
+  z-index: 1;
   color: #9ba3a7;
   background-color: #fcfcfc;
   font-weight: 400;

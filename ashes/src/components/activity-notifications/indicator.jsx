@@ -1,35 +1,41 @@
+// @flow
+
 // libs
 import _ from 'lodash';
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Transition from 'react-transition-group/CSSTransitionGroup';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
 // components
 import { Button } from 'components/core/button';
 
-export default class NotificationIndicator extends React.Component {
+// styles
+import s from './indicator.css';
 
-  static propTypes = {
-    count: PropTypes.number,
-    displayed: PropTypes.bool,
-    toggleNotifications: PropTypes.func.isRequired,
-    markAsReadAndClose: PropTypes.func.isRequired
-  };
+// types
+type Props = {
+  count?: number;
+  displayed?: boolean;
+  toggleNotifications: Function;
+  markAsReadAndClose: Function;
+};
 
-  static defaultProps = {
-    count: 0,
-    displayed: false
-  };
+export default class NotificationIndicator extends Component {
+
+  props: Props;
 
   get indicator() {
-    const count = this.props.count;
+    let count = String(this.props.count);
 
-    if (_.isNumber(count) && count > 0) {
+    if (this.props.count != null && this.props.count > 99) {
+      count = '99+';
+    }
+
+    if (this.props.count) {
       return (
-        <div className="fc-activity-notifications__indicator" key={count}>
-          <span>{count}</span>
+        <div className={s.indicator} key={count}>
+          {count}
         </div>
       );
     }
@@ -45,19 +51,19 @@ export default class NotificationIndicator extends React.Component {
   }
 
   render() {
-    const classes = classNames('fc-activity-notifications__toggle', {
-      '_active': this.props.displayed
+    const classes = classNames(s.toggle, {
+      [s.active]: this.props.displayed
     });
+
     return (
-      <div className="fc-activity-notifications">
-        <Button icon="bell"
-                className={ classes }
-                onClick={ this.toggleNotifications }>
-          <Transition transitionName="fc-activity-notifications__indicator"
-                      transitionEnterTimeout={300}
-                      transitionLeaveTimeout={300}>
-            { this.indicator }
-          </Transition>
+      <div className={s.block}>
+        <Button
+          icon="bell"
+          className={classes}
+          onClick={this.toggleNotifications}
+          fullWidth
+        >
+          {this.indicator}
         </Button>
       </div>
     );

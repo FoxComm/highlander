@@ -8,7 +8,11 @@ let __svg__ = { path: '../../images/**/*.svg', name: 'symbols.svg' };
 // Remove when mocha
 if (process.env.NODE_ENV !== 'test') {
   // Loading svg sprite to <body>
-  require('webpack-svgstore-plugin/src/helpers/svgxhr')({ filename: `admin/symbols.svg` });
+  if (process.env.STYLEGUIDE) {
+    require('webpack-svgstore-plugin/src/helpers/svgxhr')({ filename: `symbols.svg` });
+  } else {
+    require('webpack-svgstore-plugin/src/helpers/svgxhr')({ filename: `admin/symbols.svg` });
+  }
 }
 
 const Icon = ({ name, className }: { name: string, className?: string }) => {
