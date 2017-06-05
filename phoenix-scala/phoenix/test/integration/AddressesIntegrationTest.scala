@@ -167,9 +167,7 @@ class AddressesIntegrationTest
 
       countryWithRegions.regions.map { region ⇒
         (region.abbreviation, region.name)
-      } must contain
-      theSameElementsAs(
-          List(
+      } must contain theSameElementsAs (List(
               ("CA".some, "California"),
               ("CO".some, "Colorado"),
               ("DE".some, "Delaware")
