@@ -36,10 +36,9 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
     }
 
     "catches exceptions from DB" in {
-      @volatile var accountId = 0 // 🙄
+      val account = Accounts.create(Account()).gimme
+
       val result = (for {
-        account  ← * <~ Accounts.create(Account())
-        _        ← * <~ { accountId = account.id }
         customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
         scope    ← * <~ Scopes.forOrganization(TENANT)
         _ ← * <~ CustomersData.create(
@@ -50,7 +49,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       result must === (
           DatabaseFailure(
               "ERROR: duplicate key value violates unique constraint \"address_shipping_default_idx\"\n" +
-                s"  Detail: Key (account_id, is_default_shipping)=(${accountId}, t) already exists.").single)
+                s"  Detail: Key (account_id, is_default_shipping)=(${account.id}, t) already exists.").single)
     }
 
     "fails if model already exists" in {
