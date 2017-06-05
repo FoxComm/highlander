@@ -24,6 +24,7 @@ trait OauthClientOptions {
   def buildExtraAuthParams: Map[String, String] = Map.empty
 }
 
+/* implements required standard flows of Oauth used by phoenix */
 abstract class Oauth(oauthOptions: OauthClientOptions) extends OauthProvider {
 
   val authorizationParams = Map(

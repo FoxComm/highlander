@@ -113,12 +113,40 @@ object FoxConfig extends StrictLogging {
 
   // users
   case class Users(admin: User, customer: User)
-  case class User(role: String, org: String, scopeId: Int, oauth: Oauth)
-  case class Oauth(google: GoogleOauth)
+  case class User(role: String, org: String, scopeId: Int, oauth: OauthProviders)
+
+  trait OauthConfig {
+    val clientId: String
+    val clientSecret: String
+    val redirectUri: String
+  }
+
+  trait SupportedOauthProviders[T] {
+    val google: T
+    val facebook: T
+  }
+
+  object SupportedOauthProviders {
+    sealed trait OauthProvider
+    implicit object OauthProvider extends ADT[OauthProvider] {
+      case object Google   extends OauthProvider
+      case object Facebook extends OauthProvider
+
+      def types = sealerate.values[OauthProvider]
+    }
+  }
+
+  case class OauthProviders(google: GoogleOauth, facebook: FacebookOauth)
+      extends SupportedOauthProviders[OauthConfig]
+
   case class GoogleOauth(clientId: String,
                          clientSecret: String,
                          redirectUri: String,
                          hostedDomain: Option[String])
+      extends OauthConfig
+
+  case class FacebookOauth(clientId: String, clientSecret: String, redirectUri: String)
+      extends OauthConfig
 
   private def loadBareConfigWithEnv()(implicit env: Environment): Config = {
     logger.info(s"Loading configuration using ${env.show} environment")

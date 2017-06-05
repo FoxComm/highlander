@@ -3,16 +3,19 @@ package phoenix.services.auth
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
+
 import cats.implicits._
 import core.db._
 import core.failures.GeneralFailure
-import phoenix.libs.oauth.{Oauth, UserInfo}
+import phoenix.libs.oauth.{GoogleOauthOptions, Oauth, OauthProvider, UserInfo}
 import phoenix.models.account._
 import phoenix.models.auth.Token
 import phoenix.services.Authenticator
 import phoenix.utils.aliases._
 import phoenix.utils.http.Http._
-import slick.jdbc.PostgresProfile.api.DBIO
+import core.db.ExPostgresDriver.api._
+import phoenix.utils.FoxConfig
+import phoenix.utils.FoxConfig.config
 
 case class OauthCallbackResponse(code: Option[String] = None, error: Option[String] = None) {
 
@@ -97,4 +100,53 @@ trait OauthService[M] { this: Oauth ⇒
           complete(renderFailure(f))
         }, identity)
     }
+}
+
+object OauthService {
+  type OauthServiceImpl = Oauth with OauthService[User] with OauthProvider
+
+  trait PhoenixOauthService {
+    def customer(implicit ec: EC, db: DB, ac: AC): OauthServiceImpl
+    def admin(implicit ec: EC, db: DB, ac: AC): OauthServiceImpl
+  }
+}
+
+object OauthServices extends FoxConfig.SupportedOauthProviders[OauthService.PhoenixOauthService] {
+  import OauthService._
+
+  def get(p: FoxConfig.SupportedOauthProviders.OauthProvider): PhoenixOauthService = p match {
+    case FoxConfig.SupportedOauthProviders.OauthProvider.Facebook ⇒
+      facebook
+    case FoxConfig.SupportedOauthProviders.OauthProvider.Google ⇒
+      google
+  }
+
+  lazy val google: PhoenixOauthService = new PhoenixOauthService {
+    def customer(implicit ec: EC, db: DB, ac: AC) =
+      googleOauthServiceFromConfig(config.users.customer)
+    def admin(implicit ec: EC, db: DB, ac: AC) = googleOauthServiceFromConfig(config.users.admin)
+  }
+
+  lazy val facebook: PhoenixOauthService = new PhoenixOauthService {
+    def customer(implicit ec: EC, db: DB, ac: AC) =
+      googleOauthServiceFromConfig(config.users.customer)
+    def admin(implicit ec: EC, db: DB, ac: AC) = googleOauthServiceFromConfig(config.users.admin)
+  }
+
+  private def googleOauthServiceFromConfig(
+      configUser: FoxConfig.User)(implicit ec: EC, db: DB, ac: AC) = {
+
+    val opts = GoogleOauthOptions(roleName = configUser.role,
+                                  orgName = configUser.org,
+                                  scopeId = configUser.scopeId,
+                                  clientId = configUser.oauth.google.clientId,
+                                  clientSecret = configUser.oauth.google.clientSecret,
+                                  redirectUri = configUser.oauth.google.redirectUri,
+                                  hostedDomain = configUser.oauth.google.hostedDomain)
+
+    new GoogleOauthUser(opts)
+  }
+
+  private def fbOauthServiceFromConfig(
+      configUser: FoxConfig.User)(implicit ec: EC, db: DB, ac: AC) = {}
 }

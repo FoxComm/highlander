@@ -12,6 +12,7 @@ import phoenix.services.account._
 import phoenix.services.customers.CustomerManager
 import phoenix.utils.FoxConfig
 import phoenix.utils.aliases._
+import core.db.ExPostgresDriver.api._
 import core.db._
 
 class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB, ac: AC)
@@ -62,7 +63,7 @@ class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB, ac: 
     } yield user
   }
 
-  def findByEmail(email: String) = Users.findByEmail(email).one
+  def findByEmail(email: String): DBIO[Option[User]] = Users.findByEmail(email).one
 
   def createToken(user: User, account: Account, userInfo: UserInfo): DbResultT[Token] =
     for {
@@ -76,22 +77,4 @@ class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB, ac: 
     } yield token
 
   def findAccount(user: User): DbResultT[Account] = Accounts.mustFindById404(user.accountId)
-}
-
-object GoogleOauth {
-
-  def oauthServiceFromConfig(configUser: FoxConfig.User)(implicit ec: EC, db: DB, ac: AC) = {
-
-    val opts = GoogleOauthOptions(
-      roleName = configUser.role,
-      orgName = configUser.org,
-      scopeId = configUser.scopeId,
-      clientId = configUser.oauth.google.clientId,
-      clientSecret = configUser.oauth.google.clientSecret,
-      redirectUri = configUser.oauth.google.redirectUri,
-      hostedDomain = configUser.oauth.google.hostedDomain
-    )
-
-    new GoogleOauthUser(opts)
-  }
 }
