@@ -70,6 +70,7 @@ module.exports = {
               components: () => ([
                 path.resolve(__dirname, '../src/components/core/text-mask/text-mask.jsx'),
                 path.resolve(__dirname, '../src/components/core/swatch-input/swatch-input.jsx'),
+                path.resolve(__dirname, '../src/components/core/radio-button/radio-button.jsx'),
                 path.resolve(__dirname, '../src/components/core/checkbox/checkbox.jsx')
               ]),
             },

@@ -102,10 +102,10 @@ class SelectorItem extends Component {
         )}
         <Checkbox
           id={`choose-column-${this.props.id}`}
+          label={text}
           onChange={this.props.onChange}
-          checked={this.props.checked}>
-          {text}
-        </Checkbox>
+          checked={this.props.checked}
+        />
       </li>
     ));
   }

@@ -33,7 +33,7 @@ type Props = {
 
 type State = {
   addDialogIsShown: boolean,
-  selectedOptions: {[key: string]: Array<OptionValue>},
+  selectedOptions: { [key: string]: Array<OptionValue> },
 };
 
 class SkuContentBox extends Component {
@@ -82,11 +82,10 @@ class SkuContentBox extends Component {
           <Checkbox
             id={`sku-option-${i}`}
             name={`${name}-option-chbox`}
+            label={content}
             onChange={() => this.toggleAddedOption(values)}
             checked={checked}
-          >
-            {content}
-          </Checkbox>
+          />
         </li>
       );
     });

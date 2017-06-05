@@ -36,7 +36,6 @@ export default class MultiSelectHead extends React.Component {
 
     return (
       <PartialCheckbox
-        inline={true}
         id="multi-select"
         disabled={disabled}
         checked={pageChecked !== selectionState.None}

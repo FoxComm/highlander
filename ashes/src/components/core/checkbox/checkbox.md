@@ -18,15 +18,9 @@ import { Checkbox } from 'components/core/checkbox'
 
 ```
 <div>
-  <div>
-    <Checkbox.Checkbox checked>checked</Checkbox.Checkbox>
-  </div>
-  <div>
-    <Checkbox.Checkbox>not checked</Checkbox.Checkbox>
-  </div>
-  <div>
-      <Checkbox.Checkbox disabled>disabled</Checkbox.Checkbox>
-  </div>
+  <Checkbox.Checkbox id="checked" label="checked" defaultChecked /><br />
+  <Checkbox.Checkbox id="not-checked" label="not checked" /><br />
+  <Checkbox.Checkbox id="disabled" label="disabled" disabled /><br />
 </div>
 ```
 
@@ -38,18 +32,10 @@ import { PartialCheckbox } from 'components/core/checkbox'
 
 ```
 <div className='demo'>
-  <div>
-    <Checkbox.PartialCheckbox checked>checked</Checkbox.PartialCheckbox>
-  </div>
-  <div>
-    <Checkbox.PartialCheckbox checked halfChecked>partially checked</Checkbox.PartialCheckbox>
-  </div>
-  <div>
-    <Checkbox.PartialCheckbox>not checked</Checkbox.PartialCheckbox>
-  </div>
-  <div>
-      <Checkbox.PartialCheckbox disabled>disabled</Checkbox.PartialCheckbox>
-  </div>
+  <Checkbox.PartialCheckbox id="pc-checked" label="checked" defaultChecked /><br />
+  <Checkbox.PartialCheckbox id="pc-partially" label="partially checked" defaultChecked halfChecked /><br />
+  <Checkbox.PartialCheckbox id="pc-not-checked" label="not checked" /><br />
+  <Checkbox.PartialCheckbox id="pc-disabled" label="disabled" disabled /><br />
 </div>
 ```
 
@@ -61,15 +47,9 @@ import { BigCheckbox } from 'components/core/checkbox'
 
 ```
 <div className='demo'>
-  <div>
-    <Checkbox.BigCheckbox checked>checked</Checkbox.BigCheckbox>
-  </div>
-  <div>
-    <Checkbox.BigCheckbox>not checked</Checkbox.BigCheckbox>
-  </div>
-  <div>
-    <Checkbox.BigCheckbox disabled>disabled</Checkbox.BigCheckbox>
-  </div>
+  <Checkbox.BigCheckbox id="bc-checked" label="checked" defaultChecked /><br />
+  <Checkbox.BigCheckbox id="bc-not-checked" label="not checked" /><br />
+  <Checkbox.BigCheckbox id="bc-disabled" label="disabled" disabled /><br />
 </div>
 ```
 
@@ -82,7 +62,7 @@ import { SliderCheckbox } from 'components/core/checkbox'
 
 ```
 <div className='demo'>
-  <Checkbox.SliderCheckbox checked/>
-  <Checkbox.SliderCheckbox/>
+  <Checkbox.SliderCheckbox id="sc-checked" checked/><br />
+  <Checkbox.SliderCheckbox id="sc-not-checked"/><br />
 </div>
 ```

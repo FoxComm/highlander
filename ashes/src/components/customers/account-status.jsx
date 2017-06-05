@@ -100,45 +100,43 @@ export default class CustomerAccountStatus extends React.Component {
   render() {
     let customer = this.props.customer;
     return (
-    <div>
-      <ContentBox title="Account Status" className="fc-customer-account-status">
-        <div className="fc-grid fc-customer-status-row">
-            <div className="fc-col-md-2-3">
-              <strong>Active Account</strong>
-            </div>
-            <div className="fc-col-md-1-3">
-              <SliderCheckbox className="fc-right" onChange={this.props.startDisablingCustomer}
-                              id="customerDisabled" checked={ !customer.disabled } />
-            </div>
-        </div>
-        <div className="fc-grid fc-customer-status-row">
-            <div className="fc-col-md-2-3">
-              <strong>Blacklist Customer</strong>
-            </div>
-            <div className="fc-col-md-1-3">
-              <SliderCheckbox className="fc-right" onChange={this.props.startBlacklistCustomer}
-                              id="customerBlacklisted" checked={ customer.isBlacklisted } />
-            </div>
-        </div>
-        <ConfirmationDialog
-          {...this.disableOptions}
-          isVisible={this.props.isDisablingStarted}
+      <div>
+        <ContentBox title="Account Status" className="fc-customer-account-status">
+          <div className="fc-customer-status-row">
+            <strong>Active Account</strong>
+            <SliderCheckbox
+              id="customerDisabled"
+              onChange={this.props.startDisablingCustomer}
+              checked={!customer.disabled}
+            />
+          </div>
+          <div className="fc-customer-status-row">
+            <strong>Blacklist Customer</strong>
+            <SliderCheckbox
+              id="customerBlacklisted"
+              onChange={this.props.startBlacklistCustomer}
+              checked={ customer.isBlacklisted }
+            />
+          </div>
+          <ConfirmationDialog
+            {...this.disableOptions}
+            isVisible={this.props.isDisablingStarted}
 
-          confirmAction={() => {
-            const customer = this.props.customer;
-            this.props.toggleDisableStatus(customer.id, !customer.disabled);
-          }}
-          onCancel={this.props.stopDisablingCustomer} />
-        <ConfirmationDialog
-          {...this.blacklistedOptions}
-          isVisible={this.props.isBlacklistedStarted}
-          confirmAction={() => {
-            const customer = this.props.customer;
-            this.props.toggleBlacklisted(customer.id, !customer.isBlacklisted);
-          }}
-          onCancel={this.props.stopBlacklistCustomer} />
-      </ContentBox>
-    </div>
+            confirmAction={() => {
+              const customer = this.props.customer;
+              this.props.toggleDisableStatus(customer.id, !customer.disabled);
+            }}
+            onCancel={this.props.stopDisablingCustomer} />
+          <ConfirmationDialog
+            {...this.blacklistedOptions}
+            isVisible={this.props.isBlacklistedStarted}
+            confirmAction={() => {
+              const customer = this.props.customer;
+              this.props.toggleBlacklisted(customer.id, !customer.isBlacklisted);
+            }}
+            onCancel={this.props.stopBlacklistCustomer} />
+        </ContentBox>
+      </div>
     );
   }
 }

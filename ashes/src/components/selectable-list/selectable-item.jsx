@@ -35,11 +35,11 @@ const SelectableItem = ({
     <li styleName="item" key={id} onClick={handleItemClick}>
       <Checkbox
         id={listId}
+        label={content}
         checked={checked}
         onChange={() => onToggle(id)}
-        onClick={(event: SyntheticEvent) => event.stopPropagation()} >
-        {content}
-      </Checkbox>
+        onClick={(event: SyntheticEvent) => event.stopPropagation()}
+      />
     </li>
   );
 };

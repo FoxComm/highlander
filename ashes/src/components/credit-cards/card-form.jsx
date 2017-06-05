@@ -87,24 +87,17 @@ export default class CreditCardForm extends React.Component {
   get defaultCheckboxBlock() {
     const { isDefaultEnabled } = this.props;
 
-    const className = classNames('fc-credit-card-form__default', {
-      '_disabled': !isDefaultEnabled,
-    });
-
     const isDefault = _.get(this.state, 'card.isDefault', false);
 
     return (
       <li className="fc-credit-card-form__line">
-        <label className={className}>
-          <Checkbox disabled={!isDefaultEnabled}
-                    defaultChecked={isDefault}
-                    className="fc-credit-card-form__default-checkbox"
-                    name="isDefault"
-                    id="isDefault" />
-          <span className="fc-credit-card-form__default-label">
-            Default Card
-          </span>
-        </label>
+          <Checkbox
+            id="isDefault"
+            name="isDefault"
+            label="Default Card"
+            disabled={!isDefaultEnabled}
+            defaultChecked={isDefault}
+          />
       </li>
     );
   }
@@ -116,12 +109,12 @@ export default class CreditCardForm extends React.Component {
         <FormField label="Name on Card"
                    validator="ascii"
                    labelClassName="fc-credit-card-form__label">
-        <TextInput id="nameCardFormField"
-                   className="fc-credit-card-form__input"
-                   name="holderName"
-                   maxLength="255"
-                   required
-                   value={holderName} />
+          <TextInput id="nameCardFormField"
+                     className="fc-credit-card-form__input"
+                     name="holderName"
+                     maxLength="255"
+                     required
+                     value={holderName} />
         </FormField>
       </li>
     );
@@ -191,11 +184,11 @@ export default class CreditCardForm extends React.Component {
                        labelClassName="fc-credit-card-form__label"
                        validator={this.validateCvvNumber}>
               <TextInput id="cvvCardFormField"
-                     className="fc-credit-card-form__input"
-                     name="cvv"
-                     maxLength={cvvLength(this.cardType)}
-                     required
-                     value={this.cardCVV} />
+                         className="fc-credit-card-form__input"
+                         name="cvv"
+                         maxLength={cvvLength(this.cardType)}
+                         required
+                         value={this.cardCVV} />
             </FormField>
           </div>
         </div>
@@ -277,9 +270,9 @@ export default class CreditCardForm extends React.Component {
   }
 
   @autobind
-  onChange({target}) {
+  onChange({ target }) {
     const newState = assoc(this.state, ['card', target.name], target.value);
-    this.setState(newState, () => this.props.onChange({target}));
+    this.setState(newState, () => this.props.onChange({ target }));
   }
 
   @autobind

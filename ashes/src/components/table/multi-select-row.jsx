@@ -10,6 +10,9 @@ import { Checkbox } from 'components/core/checkbox';
 import TableCell from '../table/cell';
 import TableRow from '../table/row';
 
+// styles
+import s from './table.css';
+
 const MultiSelectRow = (props, context) => {
   const {
     columns,
@@ -55,7 +58,14 @@ const MultiSelectRow = (props, context) => {
     switch (col.field) {
       case 'selectColumn':
         cellClickAction = (event: MouseEvent) => event.stopPropagation();
-        cellContents = <Checkbox id={`multi-select-${row.id}`} inline={true} checked={checked} onChange={onChange} />;
+        cellContents = (
+          <Checkbox
+            id={`multi-select-${row.id}`}
+            checked={checked}
+            onChange={onChange}
+            className={s.checkbox}
+          />
+        );
         break;
       default:
         cellContents = setCellFn(row, col.field);

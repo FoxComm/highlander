@@ -215,7 +215,8 @@ export default class NewOrder extends Component {
                     <BigCheckbox
                       id="guestCheckout"
                       name="guestCheckout"
-                      onChange={this.toggleGuest} />
+                      onChange={this.toggleGuest}
+                    />
                   </FormField>
                   <div className={s.button}>
                     {this.nextButton}

@@ -2,7 +2,6 @@ import React from 'react';
 import sinon from 'sinon';
 import { shallow, mount } from 'enzyme';
 
-import { DefaultCheckbox } from './checkbox';
 import { Checkbox } from './checkbox';
 import { PartialCheckbox } from './checkbox';
 import { BigCheckbox } from './checkbox';
@@ -10,19 +9,19 @@ import { SliderCheckbox } from './checkbox';
 
 describe('Checkboxes', function () {
 
-  // DefaultCheckbox
+  // Checkbox
 
-  it('should render DefaultCheckbox with label', function () {
-    const checkbox = shallow(
-      <DefaultCheckbox>Test Label</DefaultCheckbox>
+  it('should render Checkbox with label', function () {
+    const checkbox = mount(
+      <Checkbox id="id" label="Test Label" />
     );
 
     expect(checkbox.text()).to.equal('Test Label');
   });
 
-  it('should render className in DefaultCheckbox', function () {
+  it('should render className in Checkbox', function () {
     const checkbox = shallow(
-      <DefaultCheckbox className="test" />
+      <Checkbox id="id" className="test" />
     );
 
     expect(checkbox.hasClass('test')).to.be.true;
@@ -31,7 +30,7 @@ describe('Checkboxes', function () {
   it('should handle input change', function () {
     const onChange = sinon.spy();
     const checkbox = mount(
-      <DefaultCheckbox id="id" onChange={onChange} />
+      <Checkbox id="id" onChange={onChange} />
     );
 
     checkbox.find('input').simulate('change');
@@ -40,22 +39,10 @@ describe('Checkboxes', function () {
 
   it('should have disabled input when props.disabled=true', function () {
     const checkbox = mount(
-      <DefaultCheckbox id="id" disabled />
+      <Checkbox id="id" disabled />
     );
 
     expect(checkbox.find('input').prop('disabled')).to.be.true;
-  });
-
-
-  // Checkbox
-
-  it('should render className in Checkbox', function () {
-    const checkbox = shallow(
-      <Checkbox className="test" />
-    );
-
-    expect(checkbox.hasClass('test')).to.be.true;
-    expect(checkbox.hasClass('checkbox')).to.be.true;
   });
 
   it('should render inline, docked in Checkbox', function () {
@@ -66,7 +53,6 @@ describe('Checkboxes', function () {
     expect(checkbox.hasClass('inline')).to.be.true;
     expect(checkbox.hasClass('dockedRight')).to.be.true;
   });
-
 
   // PartialCheckbox
 
@@ -93,7 +79,6 @@ describe('Checkboxes', function () {
 
     expect(checkbox.hasClass('halfChecked')).to.be.false;
   });
-
 
   // BigCheckbox
 

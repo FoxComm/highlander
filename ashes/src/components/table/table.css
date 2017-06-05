@@ -1,0 +1,5 @@
+.checkbox {
+  & input[type="checkbox"] + label::before {
+    margin: 0;
+  }
+}
