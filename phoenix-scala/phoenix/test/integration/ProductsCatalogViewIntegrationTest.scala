@@ -60,7 +60,7 @@ class ProductsCatalogViewIntegrationTest
 
   type SearchViewResult = ProductCatalogViewResult
   val searchViewName: String = "products_catalog_view"
-  val searchKeyName: String  = "id"
+  val searchKeyName: String  = "product_id"
 
   "Products with no active SKUs are not visible" - {
     def skuCode(skuAttrs: Json): String = (skuAttrs \ "code" \ "v").extractOpt[String].value
