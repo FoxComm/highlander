@@ -166,6 +166,7 @@ class Cart extends Component {
 
   @autobind
   onCheckout() {
+    this.setState({ errors: null });
     Promise.resolve(this.props.hideCart())
       .then(() => {
         browserHistory.push('/checkout');
@@ -205,10 +206,18 @@ class Cart extends Component {
     };
     console.log('payment request obj -> ', paymentRequest);
     console.log('lineItems -> ', lineItems);
-    this.props.beginApplePay(paymentRequest, lineItems).then(() => {
-      console.log('redirecting to the order confirmation page...');
-       browserHistory.push('/checkout/done')
-     });
+    this.props.beginApplePay(paymentRequest, lineItems)
+      .then(() => {
+        console.log('redirecting to the order confirmation page...');
+        this.setState({ errors: null });
+        browserHistory.push('/checkout/done')
+      })
+      .catch((err) => {
+        console.log('caught an error in cart.jsx');
+        this.setState({
+          errors: parseError(err),
+        });
+      });
   }
 
   @autobind
@@ -291,10 +300,7 @@ class Cart extends Component {
             <div styleName="line-items">
               {this.lineItems}
             </div>
-<<<<<<< HEAD
             {this.errorsLine}
-=======
->>>>>>> 3dd25611d9... Place error messages above the checkout button + add sanitizers
           </div>
 
           <div className={footerClasses}>

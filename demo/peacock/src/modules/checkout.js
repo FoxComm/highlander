@@ -123,15 +123,13 @@ export const checkApplePay = _checkApplePay.perform;
 const _beginApplePay = createAsyncActions(
   'beginApplePay',
   function(paymentRequest, lineItems) {
-    const { dispatch, getState } = this;
-    const cartState = getState().cart;
+    const { dispatch } = this;
 
     return foxApi.applePay.beginApplePay(paymentRequest, lineItems)
       .then((res) => {
         console.log('res -> ', res);
         tracking.purchase({
-          ...cartState,
-          referenceNumber: res.referenceNumber,
+          ...res,
         });
         dispatch(orderPlaced(res));
         dispatch(resetCart());
