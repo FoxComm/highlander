@@ -18,10 +18,8 @@ type BaseProps = {
 };
 
 type CheckboxProps = BaseProps & {
-  /** Inline mode */
-  inline?: boolean,
-  /** Align checkbox left/right */
-  docked?: string,
+  /** If checkbox is the only child of table cell and should cover the cell(e.g. `MultiSelectRow`) */
+  inCell?: boolean,
 };
 
 type PartialProps = CheckboxProps & {
@@ -51,11 +49,9 @@ const BaseCheckbox = (props: BaseProps) => {
  *
  * @function Checkbox
  */
-export const Checkbox = ({ className, inline = false, docked = 'left', ...rest }: CheckboxProps) => {
+export const Checkbox = ({ className, inCell = false, ...rest }: CheckboxProps) => {
   const cls = classNames(s.checkbox, {
-    [s.inline]: inline,
-    [s.dockedLeft]: docked === 'left',
-    [s.dockedRight]: docked === 'right',
+    [s.inCell]: inCell,
   }, className);
 
   return (
@@ -65,7 +61,7 @@ export const Checkbox = ({ className, inline = false, docked = 'left', ...rest }
 
 export const PartialCheckbox = ({ halfChecked, className = '', ...rest }: PartialProps) => {
   const cls = classNames(s.halfCheckbox, {
-    [s.halfChecked]: rest.checked && halfChecked,
+    [s.halfChecked]: (rest.checked || rest.defaultChecked) && halfChecked,
   }, className);
 
   return (

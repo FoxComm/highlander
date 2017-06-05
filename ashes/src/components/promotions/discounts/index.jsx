@@ -237,7 +237,6 @@ export default class Discounts extends Component {
           <Checkbox
             id="isExGiftCardQual"
             label="Exclude gift cards from quaifying criteria"
-            inline
             checked={this.qualifier.exGiftCardQual}
             onChange={this.toggleExGiftCardQual}
           />
@@ -251,7 +250,6 @@ export default class Discounts extends Component {
           <Checkbox
             id="isExGiftCardOffer"
             label="Exclude gift cards from discounted items"
-            inline
             checked={this.offer.exGiftCardOffer}
             onChange={this.toggleExGiftCardOffer}
           />

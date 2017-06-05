@@ -21,6 +21,15 @@ import { Checkbox } from 'components/core/checkbox'
   <Checkbox.Checkbox id="checked" label="checked" defaultChecked /><br />
   <Checkbox.Checkbox id="not-checked" label="not checked" /><br />
   <Checkbox.Checkbox id="disabled" label="disabled" disabled /><br />
+  
+  <h6>Checkbox in table cell</h6>
+  <table style={{ width: '60px' }}>
+    <tr>
+      <td style={{ position: 'relative', padding: '20px', border: '1px solid #ddd' }}>
+        <Checkbox.Checkbox id="in-cell" inCell />
+      </td>
+    </tr>
+  </table>
 </div>
 ```
 

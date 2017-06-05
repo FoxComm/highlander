@@ -45,13 +45,12 @@ describe('Checkboxes', function () {
     expect(checkbox.find('input').prop('disabled')).to.be.true;
   });
 
-  it('should render inline, docked in Checkbox', function () {
+  it('should render inCell', function () {
     const checkbox = shallow(
-      <Checkbox inline docked="right" />
+      <Checkbox inCell />
     );
 
-    expect(checkbox.hasClass('inline')).to.be.true;
-    expect(checkbox.hasClass('dockedRight')).to.be.true;
+    expect(checkbox.hasClass('inCell')).to.be.true;
   });
 
   // PartialCheckbox
