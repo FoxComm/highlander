@@ -2,6 +2,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
+
 import cats.implicits._
 import core.failures.NotFoundFailure404
 import objectframework.ObjectFailures.ObjectContextNotFound
@@ -27,7 +28,7 @@ import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import phoenix.utils.time.RichInstant
 import testutils._
-import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
+import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi, PhoenixStorefrontApi}
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtures
 import core.utils.Money.Currency
@@ -52,6 +53,7 @@ class ProductIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with PhoenixStorefrontApi
+    with PhoenixPublicApi
     with DefaultJwtAdminAuth
     with BakedFixtures
     with ApiFixtures
@@ -156,6 +158,21 @@ class ProductIntegrationTest
       withRandomCustomerAuth { implicit auth ⇒
         storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
       }
+    }
+
+    "Successful if product has variants" in new ProductVariants_ApiFixture {
+      val slug = "simple-product"
+
+      val getProductResult = productsApi(product.id).get().as[Root]
+      getProductResult must === (product)
+
+      val storefrontResult = withRandomCustomerAuth { implicit auth ⇒
+        storefrontProductsApi(slug).get().as[Root]
+      }
+      storefrontResult must === (product)
+
+      val publicResult = publicApi.getProduct(slug).as[Root]
+      publicResult must === (product)
     }
   }
 

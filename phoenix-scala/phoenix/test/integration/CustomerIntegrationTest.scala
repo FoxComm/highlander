@@ -14,6 +14,7 @@ import phoenix.models.cord.OrderPayments.scope._
 import phoenix.models.cord._
 import phoenix.models.customer._
 import phoenix.models.location.{Addresses, Regions}
+import phoenix.models.payment.ExternalCharge
 import phoenix.models.payment.creditcard._
 import phoenix.models.shipping.Shipment.Shipped
 import phoenix.models.shipping.{Shipment, Shipments}
@@ -649,8 +650,8 @@ class CustomerIntegrationTest
                              CreditCardCharge(
                                  creditCardId = creditCard.id,
                                  orderPaymentId = orderPayment.id,
-                                 chargeId = "asd1",
-                                 state = CreditCardCharge.FullCapture,
+                                 stripeChargeId = "asd1",
+                                 state = ExternalCharge.FullCapture,
                                  amount = 100
                              ))
       orderPayment2 ← * <~ OrderPayments.create(
@@ -661,8 +662,8 @@ class CustomerIntegrationTest
                              CreditCardCharge(
                                  creditCardId = creditCard.id,
                                  orderPaymentId = orderPayment2.id,
-                                 chargeId = "asd2",
-                                 state = CreditCardCharge.FullCapture,
+                                 stripeChargeId = "asd2",
+                                 state = ExternalCharge.FullCapture,
                                  amount = 1000000
                              ))
       order  ← * <~ Orders.update(order, order.copy(state = Order.FulfillmentStarted))

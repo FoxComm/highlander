@@ -4,6 +4,7 @@ import com.pellucid.sealerate
 import com.sksamuel.elastic4s.SortDefinition
 import java.nio.charset.StandardCharsets
 import java.time.Instant
+
 import org.elasticsearch.common.bytes.BytesArray
 import org.elasticsearch.common.xcontent.{ToXContent, XContentBuilder}
 import org.elasticsearch.search.sort.{SortBuilder, SortOrder}
@@ -11,7 +12,7 @@ import org.json4s.{CustomSerializer, Formats}
 import org.json4s.JsonAST._
 import org.json4s.jackson.JsonMethods._
 import phoenix.models.cord.CordPaymentState
-import phoenix.models.payment.InStorePaymentStates
+import phoenix.models.payment.{ExternalCharge, InStorePaymentStates}
 import phoenix.models.payment.creditcard.CreditCardCharge
 import phoenix.services.CordQueries
 import phoenix.utils.{ADT, ADTTypeHints, JsonFormatters}
@@ -78,12 +79,13 @@ object EntityExportPayloads {
     object PaymentState extends FieldCalculation {
       def extraFields: List[String] = List("payments")
 
+      // todo add apple pay here ?  (this piece was merge in on rebase to master) @aafa
       lazy val calculate: PartialFunction[(String, JObject), String] = {
         def getState(jv: JValue): Option[CordPaymentState.State] =
           (jv \ "creditCardState")
             .extractOpt[String]
-            .flatMap(CreditCardCharge.State.read)
-            .map(CordPaymentState.fromCCState) orElse
+            .flatMap(ExternalCharge.State.read)
+            .map(CordPaymentState.fromExternalState) orElse
             (jv \ "giftCardState")
               .extractOpt[String]
               .flatMap(InStorePaymentStates.State.read)

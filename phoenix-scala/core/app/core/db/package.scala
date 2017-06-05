@@ -288,14 +288,14 @@ package object db {
   def ifElse[A](condition: Boolean, ifBranch: ⇒ DbResultT[A], elseBranch: ⇒ DbResultT[A]) =
     if (condition) ifBranch else elseBranch
 
-  def doOrMeh(condition: Boolean, action: DbResultT[_])(implicit ec: EC): DbResultT[Unit] =
+  def doOrMeh(condition: Boolean, action: ⇒ DbResultT[_])(implicit ec: EC): DbResultT[Unit] =
     if (condition) action.meh else DbResultT.unit
 
-  def doOrGood[A](condition: Boolean, action: DbResultT[A], good: ⇒ A)(
+  def doOrGood[A](condition: Boolean, action: ⇒ DbResultT[A], good: ⇒ A)(
       implicit ec: EC): DbResultT[A] =
     if (condition) action else DbResultT.good(good)
 
-  def doOrFail[A](condition: Boolean, action: DbResultT[A], failure: ⇒ Failure)(
+  def doOrFail[A](condition: Boolean, action: ⇒ DbResultT[A], failure: ⇒ Failure)(
       implicit ec: EC): DbResultT[A] =
     if (condition) action else DbResultT.failure(failure)
 

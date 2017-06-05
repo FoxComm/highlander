@@ -9,7 +9,7 @@ import phoenix.utils.ElasticsearchApi._
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 
-case class ItemsTotalAmountQualifier(totalAmount: Int, search: Seq[ProductSearch])
+case class ItemsTotalAmountQualifier(totalAmount: Long, search: Seq[ProductSearch])
     extends Qualifier
     with ItemsQualifier
     with NonEmptySearch {

@@ -25,7 +25,6 @@ function notify(opts, type) {
 }
 
 var completedTasks = [];
-var notifyTimer = null;
 var notifyAboutCompletedTasks = _.debounce(function() {
   let message = `Task${completedTasks.length > 1 ? 's' : ''} ${completedTasks.join(', ')} successfully completed.`;
   notify({

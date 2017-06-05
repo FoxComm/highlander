@@ -86,13 +86,13 @@ class EditAlbum extends Component {
                      className="fc-product-details__field-value"
                      value={this.state.name}
                      onChange={this.handleUpdateField}
-                     ref={(i) => this._input = i}/>
+                     ref={(i) => this._input = i} />
             </FormField>
             <SaveCancel onCancel={this.props.onCancel}
                         onSave={this.handleSave}
                         saveDisabled={this.saveDisabled}
                         isLoading={this.props.loading}
-                        saveText="Save and Apply"/>
+                        saveText="Save and Apply" />
           </ContentBox>
         </div>
     );

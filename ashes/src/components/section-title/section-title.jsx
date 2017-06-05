@@ -13,7 +13,7 @@ import Title from './title';
 const SectionTitle = props => {
   return (
     <div className={ classNames('fc-section-title', props.className) }>
-      <Title title={ props.title } subtitle={ props.subtitle } tag={props.titleTag}/>
+      <Title title={ props.title } subtitle={ props.subtitle } tag={props.titleTag} />
       <div className="fc-section-title__actions">
         {props.onAddClick && (
           <PrimaryButton icon="add" onClick={props.onAddClick}>

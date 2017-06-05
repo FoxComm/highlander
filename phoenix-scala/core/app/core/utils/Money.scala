@@ -7,10 +7,19 @@ import org.json4s.JsonAST.JString
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
+import scala.language.implicitConversions
 
 // ALWAYS use BigMoney
+// Note: type aliases for simple types wont work with json4s https://github.com/json4s/json4s/issues/397 @aafa
 object Money {
   type Currency = CurrencyUnit
+  type Price    = (Long, Currency)
+
+  implicit class RichLong(val value: Long) extends AnyVal {
+    def zeroIfNegative: Long = Math.max(0L, value)
+    def applyTaxes(tax: Double): Long =
+      (BigDecimal(value) * tax).toLong // BigDecimal multiplication to retain precision
+  }
 
   type BadCurrency = org.joda.money.IllegalCurrencyException
 
@@ -40,4 +49,5 @@ object Money {
     }, {
       case c: Currency ⇒ JString(c.getCode)
     }))
+
 }

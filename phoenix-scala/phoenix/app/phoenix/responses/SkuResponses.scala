@@ -3,9 +3,11 @@ package phoenix.responses
 import java.time.Instant
 
 import cats.implicits._
+import core.failures.{Failure, NotFoundFailure404}
 import objectframework.ObjectResponses.ObjectContextResponse
 import objectframework.models._
 import phoenix.models.inventory._
+import phoenix.models.traits.IlluminatedModel
 import phoenix.responses.AlbumResponses.AlbumResponse
 import phoenix.utils.aliases._
 
@@ -96,6 +98,10 @@ object SkuResponses {
                     albums: Seq[AlbumResponse.Root],
                     archivedAt: Option[Instant])
         extends ResponseItem
+        with IlluminatedModel[Root] {
+      override def inactiveError: Failure =
+        NotFoundFailure404(Sku, (attributes \ "code" \ "v").extract[String])
+    }
 
     def build(sku: IlluminatedSku, albums: Seq[AlbumResponse.Root]): Root =
       Root(id = sku.id,

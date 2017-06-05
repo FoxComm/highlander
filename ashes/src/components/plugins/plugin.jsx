@@ -128,7 +128,7 @@ class Plugin extends Component {
 
   get content(): Element<*> {
     if (this.props.isFetching !== false) {
-      return <WaitAnimation/>;
+      return <WaitAnimation />;
     } else {
       return (
         <div>

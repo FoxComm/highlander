@@ -20,7 +20,7 @@ object AllOrders {
                   shippingState: Option[Order.State],
                   placedAt: Instant,
                   remorsePeriodEnd: Option[Instant] = None,
-                  total: Int)
+                  total: Long)
       extends ResponseItem
 
   def build(order: Order,

@@ -96,7 +96,7 @@ export default class UserForm extends Component {
           {!this.props.isNew && this.renderAccountState()}
 
           <ContentBox title="Roles">
-            <RoundedPill text="Super Admin"/>
+            <RoundedPill text="Super Admin" />
           </ContentBox>
         </aside>
       </div>
