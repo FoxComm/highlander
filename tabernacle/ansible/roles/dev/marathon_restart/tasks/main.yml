@@ -1,0 +1,13 @@
+---
+
+- name: Restart Applications
+  uri:
+    url: "{{base_url}}/highlander/{{item.group}}/{{item.app}}/restart"
+    method: POST
+  with_items:
+    # - { group: /core-backend, app: phoenix }
+    - { group: /core-consumers, app: capture-consumer, when: marathon_restart.capture-consumer }
+    - { group: /core-consumers, app: customer-groups-consumer, when: marathon_restart.customer-groups-consumer }
+    - { group: /core-consumers, app: gift-card-consumer, when: marathon_restart.gift-card-consumer }
+    - { group: /core-consumers, app: shipments-consumer, when: marathon_restart.shipments-consumer }
+    - { group: /core-consumers, app: stock-items-consumer, when: marathon_restart.stock-items-consumer }
