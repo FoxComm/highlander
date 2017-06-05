@@ -54,7 +54,8 @@ object OrderShippingAddress {
     )
   }
 
-  def fromCreatePatchPayload(existingAddress: OrderShippingAddress, incomingPayload: CreateAddressPayload) = {
+  def fromCreatePatchPayload(existingAddress: OrderShippingAddress,
+                             incomingPayload: CreateAddressPayload) = {
     OrderShippingAddress(
         id = existingAddress.id,
         cordRef = existingAddress.cordRef,
@@ -86,6 +87,7 @@ class OrderShippingAddresses(tag: Tag)
   def * =
     (id, cordRef, regionId, name, address1, address2, city, zip, phoneNumber, createdAt, updatedAt) <> ((OrderShippingAddress.apply _).tupled, OrderShippingAddress.unapply)
 
+  // FIXME this fk is not reflected in db schema @aafa
   def address = foreignKey(Addresses.tableName, id, Addresses)(_.id)
   def order   = foreignKey(Carts.tableName, cordRef, Carts)(_.referenceNumber)
   def region  = foreignKey(Regions.tableName, regionId, Regions)(_.id)
@@ -100,7 +102,7 @@ object OrderShippingAddresses
 
   import scope._
 
-  def copyFromAddress(address: Address, cordRef: String)(
+  def createFromAddress(address: Address, cordRef: String)(
       implicit ec: EC): DbResultT[OrderShippingAddress] =
     create(OrderShippingAddress.buildFromAddress(address).copy(cordRef = cordRef))
 
@@ -120,6 +122,14 @@ object OrderShippingAddresses
           shippingAddresses ← q
           regions           ← Regions if regions.id === shippingAddresses.regionId
         } yield (shippingAddresses, regions)
+
+      def withCustomerAddress(accountId: Int)
+        : Query[(OrderShippingAddresses, Addresses), (OrderShippingAddress, Address), Seq] =
+        for {
+          shippingAddresses ← q
+          adr               ← Addresses
+          if adr.accountId === accountId && adr.address1 === shippingAddresses.address1 && adr.name === shippingAddresses.name
+        } yield (shippingAddresses, adr) // FIXME when we have fk to Address @aafa
     }
   }
 }

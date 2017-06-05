@@ -182,8 +182,8 @@ class CheckoutTest
 
             _ ← * <~ OrderShippingMethods.create(
                    OrderShippingMethod.build(cart.refNum, shipMethod))
-            _ ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                            cordRef = cart.refNum)
+            _ ← * <~ OrderShippingAddresses.createFromAddress(address = address,
+                                                              cordRef = cart.refNum)
 
             gcIds ← * <~ generateGiftCards(gcData.map(_.cardAmount))
             scIds ← * <~ generateStoreCredits(scData.map(_.cardAmount))
@@ -257,7 +257,7 @@ class CheckoutTest
     override val cart = super.cart.copy(grandTotal = 1000)
     (for {
       _ ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(cart.refNum, shipMethod))
-      _ ← * <~ OrderShippingAddresses.copyFromAddress(address = address, cordRef = cart.refNum)
+      _ ← * <~ OrderShippingAddresses.createFromAddress(address = address, cordRef = cart.refNum)
     } yield {}).gimme
   }
 }

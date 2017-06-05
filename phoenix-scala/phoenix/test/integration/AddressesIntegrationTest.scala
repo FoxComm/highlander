@@ -157,15 +157,28 @@ class AddressesIntegrationTest
 
     "PUT shipping addresses must be idempotent" in new AddressFixture {
       withNewCustomerAuth(TestLoginData.random) { implicit auth ⇒
-        cartsApi.create(CreateCart(customerId = auth.customerId.some)).as[CartResponse]
+        val cart = cartsApi.create(CreateCart(customerId = auth.customerId.some)).as[CartResponse]
 
         storefrontCartsApi.shippingAddress.createOrUpdate(addressPayload).mustBeOk()
-        storefrontCartsApi.shippingAddress.createOrUpdate(addressPayload).mustBeOk()
+        storefrontCartsApi.shippingAddress
+          .createOrUpdate(addressPayload.copy(address1 = "My New address"))
+          .mustBeOk()
 
-        customersApi(auth.customerId).addresses.get
-          .as[Seq[AddressResponse]]
-          .onlyElement
-          .address1 must === (addressPayload.address1)
+        val shippingAddress = cartsApi(cart.referenceNumber)
+          .get()
+          .asTheResult[CartResponse]
+          .shippingAddress
+          .value match {
+          case adr ⇒ (adr.address1, adr.city, adr.zip)
+        }
+
+        val customerAddress =
+          customersApi(auth.customerId).addresses.get.as[Seq[AddressResponse]].onlyElement match {
+            case adr ⇒ (adr.address1, adr.city, adr.zip)
+          }
+
+        shippingAddress must === (("My New address", addressPayload.city, addressPayload.zip))
+        customerAddress must === (("My New address", addressPayload.city, addressPayload.zip))
       }
     }
   }
@@ -235,7 +248,7 @@ class AddressesIntegrationTest
   trait ShippingAddressFixture extends EmptyCartWithShipAddress_Baked
 
   trait NoDefaultAddressFixture extends CustomerAddress_Baked with EmptyCustomerCart_Baked {
-    val shippingAddress = OrderShippingAddresses.copyFromAddress(address, cart.refNum).gimme
+    val shippingAddress = OrderShippingAddresses.createFromAddress(address, cart.refNum).gimme
   }
 
   trait AddressFixture {
