@@ -165,27 +165,25 @@ class AddressesIntegrationTest
       countryWithRegions.country.id must === (Country.unitedStatesId)
       countryWithRegions.country.alpha2 must === ("US")
 
-      countryWithRegions.regions.map { region ⇒
+      val states = countryWithRegions.regions.map { region ⇒
         (region.abbreviation, region.name)
-      } must contain theSameElementsAs (List(
-              ("CA".some, "California"),
-              ("CO".some, "Colorado"),
-              ("DE".some, "Delaware")
-          ))
+      }
+
+      states must contain("CA".some, "California")
+      states must contain("CO".some, "Colorado")
+      states must contain("DE".some, "Delaware")
     }
 
     "Should not contain absent or non-existent regions" in {
       val countryWithRegions =
         publicApi.getCountryById(Country.unitedStatesId).as[CountryWithRegions]
 
-      countryWithRegions.regions.map { region ⇒
+      val states = countryWithRegions.regions.map { region ⇒
         (region.abbreviation, region.name)
-      } mustNot contain
-      theSameElementsAs(
-          List(
-              ("MSK".some, "Moscow"),
-              ("MO".some, "Moscow Oblast")
-          ))
+      }
+
+      states mustNot contain("MSK".some, "Moscow")
+      states mustNot contain("MO".some, "Moscow Oblast")
     }
   }
 
