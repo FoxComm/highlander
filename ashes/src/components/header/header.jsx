@@ -13,7 +13,7 @@ import Breadcrumb from './breadcrumb';
 import UserMenu from './usermenu';
 import * as userActions from 'modules/user';
 import { toggleUserMenu } from 'modules/usermenu';
-import Icon from '../icon/icon';
+import Icon from 'components/core/icon';
 
 import type { TUser } from 'modules/user';
 

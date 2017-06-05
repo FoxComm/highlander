@@ -2,7 +2,7 @@
 // @flow
 
 import React, { Element, Component } from 'react';
-import Icon from 'components/icon/icon';
+import Icon from 'components/core/icon';
 
 import s from './auth-pages.css';
 

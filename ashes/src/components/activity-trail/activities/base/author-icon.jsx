@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 
 // components
 import DetailedInitials from '../../../user-initials/detailed-initials';
-import Icon from 'components/icon/icon';
+import Icon from 'components/core/icon';
 
 // styles
 import s from './author-icon.css';

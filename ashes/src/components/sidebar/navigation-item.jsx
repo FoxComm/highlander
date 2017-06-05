@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { IndexLink } from 'components/link';
 import type { Claims } from 'lib/claims';
 
-import Icon from 'components/icon/icon';
+import Icon from 'components/core/icon';
 
 import styles from './navigation-item.css';
 
