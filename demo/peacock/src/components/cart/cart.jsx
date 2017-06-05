@@ -178,12 +178,10 @@ class Cart extends Component {
     console.log('errors in total -> ', errors);
 
     return (
-      <div styleName="errors">
-        <ErrorAlerts
-          errors={errors}
-          sanitizeError={this.sanitize}
-        />
-      </div>
+      <ErrorAlerts
+        errors={errors}
+        sanitizeError={this.sanitize}
+      />
      );
   }
 
@@ -298,12 +296,10 @@ class Cart extends Component {
     const checkoutDisabled = _.size(skus) < 1;
     const footerClasses = classNames(styles['cart-footer'], {
       [styles['with-apple-pay']]: applePayAvailable,
-      [styles['with-errors']]: this.state.errors != null,
     });
 
     const contentClasses = classNames(styles['cart-content'], {
       [styles['with-apple-pay']]: applePayAvailable,
-      [styles['with-errors']]: this.state.errors != null,
     });
 
     return (
@@ -320,6 +316,7 @@ class Cart extends Component {
           </div>
 
           <div className={contentClasses}>
+            {this.errorsLine}
             <div styleName="line-items">
               {this.lineItems}
             </div>
@@ -327,7 +324,6 @@ class Cart extends Component {
           </div>
 
           <div className={footerClasses}>
-            {this.errorsLine}
             <Button onClick={this.onCheckout} disabled={checkoutDisabled} styleName="checkout-button">
               <span>{t('Checkout')}</span>
               <span styleName="subtotal-price">
