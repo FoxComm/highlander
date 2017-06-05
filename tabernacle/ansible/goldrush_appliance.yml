@@ -31,10 +31,10 @@
   roles:
     - { role: dev/dashboard, when: first_run }
     - { role: dev/marathon_consul, when: first_run }
-    # - { role: dev/flyway }
+    - { role: dev/flyway }
     - { role: dev/seed_system, when: first_run }
-    - { role: dev/marathon_groups }
-    # - { role: dev/nginx }
-    # - { role: demo/balancer }
+    - { role: dev/marathon_groups, when: first_run }
+    - { role: dev/nginx }
+    - { role: demo/balancer }
     - { role: dev/seeder, when: with_appliance_seeding and first_run }
     - { role: app/dnsimple, when: first_run }

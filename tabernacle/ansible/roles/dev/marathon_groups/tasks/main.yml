@@ -12,12 +12,6 @@
 - name: Include Secrets
   include_vars: secrets.yml
 
-# - name: Kill Marathon Group Tasks in Marathon
-#   shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/groups/highlander?force=true'
-
-# - name: Take a Nap
-#   pause: seconds=15
-
 - name: Copy Marathon Group JSON
   template: src=highlander.json.j2 dest=/marathon/highlander.json mode="u+rw,g+rw,o+r"
 
