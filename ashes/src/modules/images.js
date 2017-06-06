@@ -18,6 +18,7 @@ export type NewAlbum = {
 
 export type Album = NewAlbum & {
   id: number;
+  failedImagesCount?: number, // UI specific stuff
 };
 
 export type FileInfo = {
@@ -42,17 +43,17 @@ export type ImageFile = FileInfo & ImageInfo;
 
 type State = {
   albums: Array<Album>;
-  failedImagesCount: number,
 };
 
 const initialState: State = {
   albums: [],
-  failedImagesCount: 0,
 };
 
 function actionPath(entity: string, action: string) {
   return `${entity}${_.upperFirst(action)}`;
 }
+
+export const omitAlbumFields = ['failedImagesCount'];
 
 /**
  * Generate module for handling images for given entity
@@ -137,6 +138,11 @@ export default function createMediaModule(entity: string): Module {
   /** External actions */
 
   /**
+   * Clear failedImagesCount for all albums
+   */
+  const clearFailedImagesCount = createAction(`${entity.toUpperCase()}_CLEAR_FAILED_IMAGES_COUNT`);
+
+  /**
    * Fetch all available albums for given context/entity
    *
    * @param {String} context System context
@@ -198,6 +204,7 @@ export default function createMediaModule(entity: string): Module {
    * Clear asyncState errors for both multipart and by-url upload
    */
   const clearErrors = () => dispatch => {
+    dispatch(clearFailedImagesCount());
     dispatch(_uploadMedia.clearErrors());
     dispatch(_uploadMediaByUrl.clearErrors());
   };
@@ -239,16 +246,21 @@ export default function createMediaModule(entity: string): Module {
 
   /** Reducers */
   const reducer = createReducer({
+    [clearFailedImagesCount]: (state) => {
+      const albums = state.albums.map((album: Album) => assoc(album, 'failedImagesCount', 0));
+
+      return assoc(state, 'albums', albums);
+    },
     [_fetchAlbums.succeeded]: (state: State, response: Array<Album>) => {
       return assoc(state, ['albums'], response);
     },
     [_addAlbum.succeeded]: (state: State, response: Album) => {
-      return assoc(state, ['albums'], [...state.albums, response], 'failedImagesCount', 0);
+      return assoc(state, ['albums'], [...state.albums, response]);
     },
     [_editAlbum.succeeded]: (state: State, response: Album) => {
       const idx = _.findIndex(state.albums, (album: Album) => album.id === response.id);
 
-      return assoc(state, ['albums', idx], response, 'failedImagesCount', 0);
+      return assoc(state, ['albums', idx], response);
     },
     [_archiveAlbum.succeeded]: (state: State) => {
       return assoc(state, ['albums'], state.albums);
@@ -259,18 +271,19 @@ export default function createMediaModule(entity: string): Module {
 
       images = images.map((image: ImageFile) => assoc(image, 'loading', true));
 
-      return assoc(state, ['albums', idx, 'images'], [...album.images, ...images], 'failedImagesCount', 0);
+      return assoc(state, ['albums', idx, 'images'], [...album.images, ...images]);
     },
     [_uploadMedia.succeeded]: (state: State, [response]) => {
       const idx = _.findIndex(state.albums, (album: Album) => album.id === response.id);
 
-      return assoc(state, ['albums', idx], response, 'failedImagesCount', 0);
+      return assoc(state, ['albums', idx], response);
     },
     [_uploadMedia.failed]: (state: State, [response, context, albumId, images]) => {
       const idx = _.findIndex(state.albums, (album: Album) => album.id === albumId);
       const album = state.albums[idx];
       const index = _.findIndex(album.images, { key: images[0].key });
       const rightIndex = index + images.length;
+      const failedCount = rightIndex - index;
 
       if (index === -1) {
         return state;
@@ -281,17 +294,13 @@ export default function createMediaModule(entity: string): Module {
         ...album.images.slice(rightIndex)
       ];
 
-      return assoc(state, ['albums', idx, 'images'], nextImages, 'failedImagesCount', rightIndex - index);
+      return assoc(state, ['albums', idx, 'images'], nextImages, ['albums', idx, 'failedImagesCount'], failedCount);
     },
 
     [_uploadMediaByUrl.succeeded]: (state: State, respAlbum: Album) => {
       const idx = _.findIndex(state.albums, (album: Album) => album.id === respAlbum.id);
 
-      return assoc(state, ['albums', idx], respAlbum, 'failedImagesCount', 0);
-    },
-
-    [_uploadMediaByUrl.failed]: (state: State) => {
-      return assoc(state, 'failedImagesCount', 0);
+      return assoc(state, ['albums', idx], respAlbum);
     },
 
     [_editImageStarted]: (state, [albumId, imageIndex]) => {

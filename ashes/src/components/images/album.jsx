@@ -26,7 +26,6 @@ import type { Album as TAlbum, ImageFile, ImageInfo } from '../../modules/images
 export type Props = {
   album: TAlbum;
   loading: boolean;
-  failedImagesCount: number,
   clearErrors: () => void;
   uploadFiles: (files: Array<ImageFile>) => Promise<*>;
   uploadByUrl: (idx: number, url: string) => Promise<*>;
@@ -48,10 +47,6 @@ type State = {
 };
 
 function getErrorMessage(asyncState?: Object, failedCount: number = 1) {
-  if (!get(asyncState, 'err')) {
-    return null;
-  }
-
   const errMsg = get(asyncState, 'err.response.body.errors[0]', '');
   let message;
 
@@ -179,14 +174,16 @@ export default class Album extends Component {
   }
 
   get errorMsg(): ?Element<*> {
-    if (!this.props.failedImagesCount) {
+    const { album, uploadMediaState } = this.props;
+
+    if (!album.failedImagesCount || !get(uploadMediaState, 'err')) {
       return null;
     }
 
-    const errorMessage = getErrorMessage(this.props.uploadMediaState, this.props.failedImagesCount);
+    const errorMessage = getErrorMessage(this.props.uploadMediaState, this.props.album.failedImagesCount);
 
     return (
-      <Alert type="error">{errorMessage}</Alert>
+      <Alert className={s.alert} type="error">{errorMessage}</Alert>
     );
   }
 
@@ -297,7 +294,6 @@ export default class Album extends Component {
 
     return (
       <div>
-        {this.errorMsg}
         {this.editAlbumDialog}
         {this.uploadByUrlDialog}
         {this.archiveAlbumDialog}
@@ -308,6 +304,7 @@ export default class Album extends Component {
           actions={this.getAlbumActions()}
           onAddFile={this.handleAddFiles}
           onAddUrl={this.handleAddUrl}
+          alert={this.errorMsg}
         >
           {albumContent}
         </AlbumWrapper>

@@ -9,6 +9,8 @@ import { createAsyncActions } from '@foxcomm/wings';
 import _ from 'lodash';
 
 import { createEmptySku } from 'paragons/sku';
+import { actions as imagesActions } from './images';
+import { omitAlbumFields } from 'modules/images';
 
 import { pushStockItemChanges } from '../inventory/warehouses';
 
@@ -16,7 +18,7 @@ const defaultContext = 'default';
 
 function cleanSkuPayload(payload: Sku) {
   const nextAlbums = payload.albums.map(album => ({
-    ...album,
+    ..._.omit(album, omitAlbumFields),
     images: album.images.filter(img => (img.src && img.src.length < 4000))
   }));
 
@@ -71,7 +73,11 @@ const _updateSku = createAsyncActions(
 
 export const fetchSku = _fetchSku.perform;
 export const createSku = _createSku.perform;
-export const updateSku = _updateSku.perform;
+export const updateSku = (sku: Sku, context: string = defaultContext) => (dispatch: Function) => {
+  dispatch(imagesActions.clearErrors());
+
+  return dispatch(_updateSku.perform(sku, context));
+};
 
 export function clearSubmitErrors() {
   return (dispatch: Function) => {

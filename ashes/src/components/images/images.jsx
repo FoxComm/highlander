@@ -103,7 +103,7 @@ export default class Images extends Component {
       return <WaitAnimation />;
     }
 
-    const { albums, context, entityId, failedImagesCount, asyncActionsState } = this.props;
+    const { albums, context, entityId, asyncActionsState } = this.props;
 
     const inProgress = _.get(asyncActionsState, 'editAlbum.inProgress', false)
       || _.get(asyncActionsState, 'uploadMedia.inProgress', false)
@@ -120,7 +120,6 @@ export default class Images extends Component {
             <Album
               album={album}
               loading={inProgress}
-              failedImagesCount={failedImagesCount}
               clearErrors={this.props.clearErrors}
               uploadFiles={(files: Array<ImageFile>) => this.props.uploadMedia(context, album.id, files)}
               uploadByUrl={(albumId, url) => this.props.uploadMediaByUrl(context, albumId, url)}

@@ -10,6 +10,9 @@ import { createEmptyProduct, configureProduct, duplicateProduct } from 'paragons
 import { createAsyncActions } from '@foxcomm/wings';
 import { dissoc, assoc, update, merge } from 'sprout-data';
 
+import { actions as imagesActions } from './images';
+import { omitAlbumFields } from 'modules/images';
+
 export type ProductDetailsState = {
   product: ?Product,
   skuVariantMap: Object,
@@ -99,7 +102,7 @@ function cleanProductPayload(product) {
   }
 
   product.albums = product.albums.map(album => ({
-    ...album,
+    ..._.omit(album, omitAlbumFields),
     images: album.images.filter(img => (img.src && img.src.length < 4000))
   }));
 
@@ -121,7 +124,11 @@ const _updateProduct = createAsyncActions(
 );
 
 export const createProduct = _createProduct.perform;
-export const updateProduct = _updateProduct.perform;
+export const updateProduct = (product: Product, context: string = defaultContext) => (dispatch: Function) => {
+  dispatch(imagesActions.clearErrors());
+
+  return dispatch(_updateProduct.perform(product, context));
+};
 
 function updateProductInState(state: ProductDetailsState, response) {
   const product = configureProduct(response);

@@ -23,6 +23,7 @@ type Props = {
   titleWrapper?: (title: string) => Element<*>;
   className?: string;
   contentClassName: ?string;
+  alert: ?Element<any>,
   children?: Array<Element<*>>|Element<*>;
 };
 
@@ -82,7 +83,7 @@ export default class AlbumWrapper extends Component {
   }
 
   render() {
-    const { className, contentClassName } = this.props;
+    const { className, contentClassName, alert } = this.props;
     const cls = classNames(s.accordion, className);
 
     return (
@@ -91,6 +92,7 @@ export default class AlbumWrapper extends Component {
           {this.title}
           {this.controls}
         </div>
+        {alert}
         <div className={classNames(s.content, contentClassName)}>
           <div className={s.menu}>
             <ButtonWithMenu

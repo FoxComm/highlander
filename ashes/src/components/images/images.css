@@ -44,10 +44,6 @@
   }
 }
 
-.uploadErrBtns {
-  margin-top: 10px;
-}
-
-.uploadErrBtn {
-  margin: 0 10px 0 0;
+.alert {
+  margin: 10px 0 30px;
 }
