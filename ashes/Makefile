@@ -25,6 +25,13 @@ CFLAGS = -c -g -D $(NODE_ENV)
 # Get version number from package.json, need this for tagging.
 version = $(shell iojs -e "console.log(JSON.parse(require('fs').readFileSync('package.json')).version)")
 
+PRETTIER_OPTIONS = --single-quote --trailing-comma es5 --print-width 120
+
+# list of js(x) files in git diff that are not formatted in Prettier style
+JS_FILES_DIFF = $(shell git diff HEAD --name-only --diff-filter=ACM | grep '\.jsx\?$$' | sed 's/ashes\///g' | tr '\n' ' ')
+JS_FILES_TO_PRETTIFY = $(shell [[ !  -z  "$(JS_FILES_DIFF)"  ]] && \
+	prettier $(PRETTIER_OPTIONS) -l $(JS_FILES_DIFF))
+
 .PHONY: docker
 docker: MSG=Dockerizing
 docker: notify
@@ -74,6 +81,17 @@ lint:
 .PHONY: flow
 flow:
 	flow check
+
+# run prettier against js(x) files in git diff that are not formatted in Prettier style
+.PHONY: prettier
+prettier:
+ifneq ($(JS_FILES_TO_PRETTIFY),)
+	prettier $(PRETTIER_OPTIONS) --write $(JS_FILES_TO_PRETTIFY)
+endif
+
+# prettierify target directory. usage: make prettier-config
+prettier-%:
+	prettier $(PRETTIER_OPTIONS) --write "$*/**/*.{js,jsx}"
 
 .PHONY: build-styleguide
 build-styleguide:
