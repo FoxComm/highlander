@@ -4,7 +4,7 @@
   template: src=demo_nixy.service dest="{{dest_services}}/demo_nixy.service"
 
 - name: Copy Demo Nixy Config File
-  template: src=demo_nixy.toml dest="{{consul_data_dir}}/demo_nixy.toml"
+  template: src=demo_nixy.toml dest="/etc/demo_nixy.toml"
 
 - name: Install Demo Service Upstreams
   template: src=demo-services.j2 dest=/etc/nginx/demo-services.template

@@ -1,10 +1,10 @@
 # Nixy listening port
-port = "6000"
+port = "6001"
 # X-Proxy header, defaults to hostname
 xproxy = ""
 
 # Marathon API
-marathon = ["{{marathon_server}}"] # add all HA cluster nodes in priority order.
+marathon = ["http://{{marathon_server}}"] # add all HA cluster nodes in priority order.
 user = "" # leave empty if no auth is required.
 pass = ""
 

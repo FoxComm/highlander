@@ -4,7 +4,7 @@ port = "6000"
 xproxy = ""
 
 # Marathon API
-marathon = ["{{marathon_server}}"] # add all HA cluster nodes in priority order.
+marathon = ["http://{{marathon_server}}"] # add all HA cluster nodes in priority order.
 user = "" # leave empty if no auth is required.
 pass = ""
 
