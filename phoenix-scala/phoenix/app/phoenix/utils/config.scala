@@ -11,7 +11,7 @@ import shapeless._
 import scala.reflect._
 import scala.util.{Failure, Success, Try}
 
-import phoenix.libs.oauth.{GoogleOauthOptions, OauthClientOptions}
+import phoenix.libs.oauth.{FacebookOauthOptions, GoogleOauthOptions, OauthClientOptions}
 
 sealed trait Environment {
   def isProd: Boolean = false
@@ -129,11 +129,8 @@ object FoxConfig extends StrictLogging {
     def types = sealerate.values[OauthProviderName]
   }
 
-  case class OauthProviders(google: GoogleOauthOptions, facebook: FacebookOauth)
+  case class OauthProviders(google: GoogleOauthOptions, facebook: FacebookOauthOptions)
       extends SupportedOauthProviders[OauthClientOptions]
-
-  case class FacebookOauth(clientId: String, clientSecret: String, redirectUri: String)
-      extends OauthClientOptions
 
   private def loadBareConfigWithEnv()(implicit env: Environment): Config = {
     logger.info(s"Loading configuration using ${env.show} environment")

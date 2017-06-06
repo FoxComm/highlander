@@ -60,9 +60,8 @@ object AuthRoutes {
           }
         } ~
           (path("signin" / OauthProviderName / OauthUserType) & get) { (provider, userType) ⇒
-            val url =
-              OauthServices(provider, userType).authorizationUri(scope = Seq("openid", "email", "profile"))
-            complete(Map("url" → url))
+            val url = OauthServices(provider, userType).authorizationUri
+            complete(Map("url" → url.toString))
           }
       }
 }

@@ -10,7 +10,7 @@ import core.db._
 import shapeless._
 import core.failures.GeneralFailure
 import phoenix.failures.UserFailures.{OrganizationNotFound, OrganizationNotFoundWithDomain}
-import phoenix.libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth, OauthProvider, UserInfo}
+import phoenix.libs.oauth.{FacebookProvider, GoogleOauthOptions, GoogleProvider, Oauth, OauthProvider, UserInfo}
 import phoenix.models.account._
 import phoenix.models.auth.{Token, UserToken}
 import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
@@ -216,10 +216,10 @@ object OauthServices extends FoxConfig.SupportedOauthProviders[OauthService.Phoe
 
   lazy val facebook: PhoenixOauthService = new PhoenixOauthService {
     def customer: OauthServiceImpl =
-      googleOauthServiceFromConfig(config.users.customer, OauthUserType.Customer)
+      fbOauthService(config.users.customer, OauthUserType.Customer)
 
     def admin: OauthServiceImpl =
-      googleOauthServiceFromConfig(config.users.admin, OauthUserType.Admin)
+      fbOauthService(config.users.admin, OauthUserType.Admin)
   }
 
   private def googleOauthServiceFromConfig(configUser: FoxConfig.User, userType: OauthUserType) =
@@ -228,6 +228,14 @@ object OauthServices extends FoxConfig.SupportedOauthProviders[OauthService.Phoe
         new Oauth(configUser.oauth.google) with GoogleProvider with OauthService with AdminOauthService
       case OauthUserType.Customer ⇒
         new Oauth(configUser.oauth.google) with GoogleProvider with OauthService with CustomerOauthService
+    }
+
+  private def fbOauthService(configUser: FoxConfig.User, userType: OauthUserType) =
+    userType match {
+      case OauthUserType.Admin ⇒
+        new Oauth(configUser.oauth.facebook) with FacebookProvider with OauthService with AdminOauthService
+      case OauthUserType.Customer ⇒
+        new Oauth(configUser.oauth.facebook) with FacebookProvider with OauthService with CustomerOauthService
     }
 
 }
