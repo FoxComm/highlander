@@ -35,6 +35,7 @@
     - { group: ic-backend, app: river-rock, id: river_rock }
     - { group: ic-consumers, app: digger-sphex, id: digger_sphex }
     - { group: ic-consumers, app: orders-anthill, id: orders_anthill }
+    - { group: ic-consumers, app: orders-reviews, id: orders_reviews }
     - { group: ic-consumers, app: orders-sphex, id: orders_sphex }
     - { group: ic-consumers, app: product-activity, id: product_activity }
     - { group: ic-integrations, app: suggester, id: suggester }
