@@ -18,12 +18,15 @@ default: test
 NODE_ENV = test
 CFLAGS = -c -g -D $(NODE_ENV)
 
-# list of changed js(x) files after latest commit
-JS_FILES_DIFF = $(shell git diff --name-only --diff-filter=ACM | grep '\.jsx\?$$' | tr '\n' ' ')
-JS_FILES_TO_PRETTIFY = $(shell prettier --single-quote --trailing-comma es5 -l $(JS_FILES_DIFF))
-
 # Get version number from package.json, need this for tagging.
 version = $(shell iojs -e "console.log(JSON.parse(require('fs').readFileSync('package.json')).version)")
+
+PRETTIER_OPTIONS = --single-quote --trailing-comma es5 --print-width 120
+
+# list of js(x) files in git diff that are not formatted in Prettier style
+JS_FILES_DIFF = $(shell git diff HEAD --name-only --diff-filter=ACM | grep '\.jsx\?$$' | sed 's/ashes\///g' | tr '\n' ' ')
+JS_FILES_TO_PRETTIFY = $(shell [[ !  -z  "$(JS_FILES_DIFF)"  ]] && \
+	prettier $(PRETTIER_OPTIONS) -l $(JS_FILES_DIFF))
 
 .PHONY: docker
 docker:
@@ -75,14 +78,16 @@ lint:
 flow:
 	flow check
 
-# run prettier agains js(x) files in diff
+# run prettier against js(x) files in git diff that are not formatted in Prettier style
 .PHONY: prettier
 prettier:
-	echo $(JS_FILES_TO_PRETTIFY)
+ifneq ($(JS_FILES_TO_PRETTIFY),)
+	prettier $(PRETTIER_OPTIONS) --write $(JS_FILES_TO_PRETTIFY)
+endif
 
-# prettierify directory. usage to apply prettier to config dir: make prettier-config
+# prettierify target directory. usage: make prettier-config
 prettier-%:
-	prettier --single-quote --trailing-comma es5 --write "$*/**/*.{js,jsx}"
+	prettier $(PRETTIER_OPTIONS) --write "$*/**/*.{js,jsx}"
 
 .PHONY: build-styleguide
 build-styleguide:
