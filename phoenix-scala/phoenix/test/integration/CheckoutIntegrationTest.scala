@@ -88,7 +88,16 @@ class CheckoutIntegrationTest
             'id (creditCard.id),
             'type (PaymentMethod.CreditCard)
         )
-        order.shippingAddress.id must === (address.id)
+
+        val orderShippingAddress =
+          OrderShippingAddresses.findOneById(order.shippingAddress.id).gimme.value
+        val expectedAddressResponse = AddressResponse.buildFromOrder(
+            orderShippingAddress,
+            order.shippingAddress.region
+        )
+        expectedAddressResponse must === (
+            address.copy(id = expectedAddressResponse.id, isDefault = None))
+        order.shippingAddress must === (expectedAddressResponse)
         order.shippingMethod.id must === (shipMethod.id)
       }
     }
@@ -208,6 +217,18 @@ class CheckoutIntegrationTest
       cartApi.checkout().mustFailWith404(expectedFailure)
     }
 
+    "succeeds even if the product has been archived after checkout" in new Fixture {
+      val order = doCheckout().as[OrderResponse]
+      productsApi(product.id).archive().mustBeOk()
+      ordersApi(order.referenceNumber).get().mustBeOk()
+    }
+
+    "succeeds even if the SKU has been archived after checkout" in new Fixture {
+      val order = doCheckout().as[OrderResponse]
+      skusApi(skuCode).archive().mustBeOk()
+      ordersApi(order.referenceNumber).get().mustBeOk()
+    }
+
   }
 
   trait OneClickCheckoutFixture extends Fixture {
@@ -252,7 +273,9 @@ class CheckoutIntegrationTest
       .create(randomAddress(regionId = Region.californiaId))
       .as[AddressResponse]
 
-    val skuCode = new ProductSku_ApiFixture {}.skuCode
+    private val apiFixture = new ProductSku_ApiFixture {}
+    val skuCode            = apiFixture.skuCode
+    val product            = apiFixture.product
 
     def prepareCheckout(): cartsApi = {
       val _cartApi = cartsApi(api_newCustomerCart(customer.id).referenceNumber)

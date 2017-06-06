@@ -2,6 +2,7 @@ package phoenix.services
 
 import cats.implicits._
 import objectframework.FormShadowGet
+import phoenix.failures.CaptureFailures.ExternalPaymentNotFound
 import phoenix.failures.CaptureFailures
 import phoenix.failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
 import phoenix.models.account.{User, Users}
@@ -20,6 +21,9 @@ import slick.jdbc.PostgresProfile.api._
 import core.utils.Money.Currency
 import core.db._
 import core.utils.Money._
+import phoenix.models.payment.{ExternalCharge, ExternalChargeVals}
+import phoenix.models.payment.ExternalCharge._
+import phoenix.models.payment.applepay.ApplePayCharges
 
 //
 //TODO: Create order state InsufficientFundHold
@@ -105,7 +109,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
                                                            order.currency)
       internalCaptureTotal = total - externalCaptureTotal
       _ ← * <~ internalCapture(internalCaptureTotal, order, customer, gcPayments, scPayments)
-      _ ← * <~ externalCapture(externalCaptureTotal, order)
+      _ ← * <~ doOrMeh(externalCaptureTotal > 0, externalCapture(externalCaptureTotal, order))
 
       resp = CaptureResponse(order = order.refNum,
                              captured = total,
@@ -147,34 +151,35 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
                        LogActivity().gcFundsCaptured(customer, order, gcCodes, gcTotal))
     } yield {}
 
-  private def externalCapture(total: Long, order: Order): DbResultT[Option[CreditCardCharge]] = {
-    require(total >= 0)
+  private def externalCapture(total: Long, order: Order): DbResultT[Unit] = {
+    def capture(charge: ExternalCharge[_]) = captureFromStripe(total, charge, order)
 
-    if (total > 0) {
-      (for {
-        pmt    ← OrderPayments.findAllCreditCardsForOrder(payload.order)
-        charge ← CreditCardCharges.filter(_.orderPaymentId === pmt.id)
-      } yield charge).one.dbresult.flatMap {
-        case Some(charge) ⇒ captureFromStripe(total, charge, order)
-        case None ⇒
-          DbResultT.failure(CaptureFailures.CreditCardNotFound(order.refNum))
-      }
-    } else DbResultT.none
+    for {
+      pmt ← * <~ OrderPayments
+             .findAllExternalPayments(payload.order)
+             .mustFindOneOr(ExternalPaymentNotFound(order.refNum))
+
+      // we must find one the following charges
+      apCharge ← * <~ ApplePayCharges.filter(_.orderPaymentId === pmt.id).one
+      ccCharge ← * <~ CreditCardCharges.filter(_.orderPaymentId === pmt.id).one
+      externalCharges = Set(apCharge, ccCharge)
+
+      _ ← * <~ failIf(externalCharges.forall(_.isEmpty), ExternalPaymentNotFound(order.refNum))
+
+      // capture one of external charges
+      _ ← * <~ externalCharges.map(_ map capture)
+    } yield ()
   }
 
   private def captureFromStripe(total: Long,
-                                charge: CreditCardCharge,
-                                order: Order): DbResultT[Option[CreditCardCharge]] = {
+                                charge: ExternalCharge[_],
+                                order: Order): DbResultT[Unit] = {
 
-    if (charge.state == CreditCardCharge.Auth) {
-      for {
-        stripeCharge ← * <~ apis.stripe.captureCharge(charge.chargeId, total)
-        updatedCharge = charge.copy(state = CreditCardCharge.FullCapture)
-        _ ← * <~ CreditCardCharges.update(charge, updatedCharge)
-        _ ← * <~ LogActivity().creditCardCharge(order, updatedCharge)
-      } yield updatedCharge.some
-    } else
-      DbResultT.failure(CaptureFailures.ChargeNotInAuth(charge))
+    for {
+      _ ← * <~ failIfNot(charge.state == Auth, CaptureFailures.ChargeNotInAuth(charge))
+      _ ← * <~ apis.stripe.captureCharge(charge.stripeChargeId, total)
+      _ ← * <~ charge.updateModelState(FullCapture)
+    } yield ()
   }
 
   private def determineExternalCapture(total: Long,

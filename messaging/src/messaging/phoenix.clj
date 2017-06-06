@@ -18,9 +18,9 @@
     (Integer/parseInt s)))
 
 (def api-port (delay (parse-int
-                       (or
-                         (:port env)
-                         15054))))
+                      (or
+                       (:port env)
+                       15054))))
 
 (def api-host (delay (:api-host env)))
 
@@ -28,18 +28,16 @@
 (def phoenix-user (delay (:phoenix-user env)))
 (def phoenix-password (delay (:phoenix-password env)))
 
-
 (def http-pool (delay (http/connection-pool
-                        {:connection-options {:insecure? true}})))
-
+                       {:connection-options {:insecure? true}})))
 
 (defroutes app
   (GET "/_settings/schema" [] (response settings/schema))
   (GET "/_ping" [] (response {:ok "pong"}))
   (POST "/_set-log-level" {body :body}
     (let [level (some-> body
-                  (get "level")
-                  keyword)]
+                        (get "level")
+                        keyword)]
       (if (log/valid-level? level)
         (do
           (log/info "Set log level to" level)
@@ -51,12 +49,11 @@
            :headers {}
            :body {:result (str "invalid log level: " level)}}))))
   (POST "/_settings/upload" {body :body}
-      (log/info "Updating Settings: " body)
-      (settings/update-settings body)
-      (response {:ok "updated"}))
+    (log/info "Updating Settings: " body)
+    (settings/update-settings body)
+    (response {:ok "updated"}))
 
   (route/not-found (response {:error {:code 404 :text "Not found"}})))
-
 
 ;; start-stop
 
@@ -66,9 +63,9 @@
   []
   (log/info (str "Start HTTP API at :" @api-port))
   (let [server (http/start-server (-> app
-                                   wrap-json-body
-                                   wrap-json-response)
-                     {:port @api-port})]
+                                      wrap-json-body
+                                      wrap-json-response)
+                                  {:port @api-port})]
     (reset! phoenix-server server)))
 
 (defn stop-phoenix
@@ -76,35 +73,32 @@
   (when @phoenix-server
     (.close @phoenix-server)))
 
-
 (defn authenticate
   []
   (-> (http/post (str @phoenix-url "/v1/public/login")
                  {:pool @http-pool
                   :body (json/generate-string
-                          {:email @phoenix-user
-                           :password @phoenix-password
-                           :org "tenant"})
+                         {:email @phoenix-user
+                          :password @phoenix-password
+                          :org "tenant"})
                   :content-type :json})
-   deref
-   :headers
-   (get "jwt")))
+      deref
+      :headers
+      (get "jwt")))
 
 (defn get-order-info
   [order-ref]
   (let [jwt (authenticate)
         request (http/get (str @phoenix-url "/v1/orders/" order-ref)
-                  {:pool @http-pool
-                   :headers {"JWT" jwt}
-                   :content-type :json})
+                          {:pool @http-pool
+                           :headers {"JWT" jwt}
+                           :content-type :json})
         resp (-> request
                  deref
                  :body
                  bs/to-string
                  json/parse-string)]
     resp))
-
-
 
 (defn register-plugin
   [schema]
@@ -120,15 +114,15 @@
                        :apiPort @api-port
                        :schemaSettings schema}
           resp (-> (http/post
-                         (str @phoenix-url "/v1/plugins/register")
-                         {:pool @http-pool
-                          :body (json/generate-string plugin-info)
-                          :content-type :json
-                          :headers {"JWT" (authenticate)}})
+                    (str @phoenix-url "/v1/plugins/register")
+                    {:pool @http-pool
+                     :body (json/generate-string plugin-info)
+                     :content-type :json
+                     :headers {"JWT" (authenticate)}})
                    deref
-                       :body
-                       bs/to-string
-                       json/parse-string)]
+                   :body
+                   bs/to-string
+                   json/parse-string)]
       (log/info "Plugin registered at phoenix, resp" resp)
       (settings/update-settings (get resp "settings")))
     (catch Exception e

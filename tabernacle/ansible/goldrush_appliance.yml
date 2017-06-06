@@ -18,6 +18,7 @@
     first_run: "{{ FIRST_RUN | default(false) }}"
     is_appliance: true
     is_amigo: true
+    messaging_env: staging
     url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
@@ -27,16 +28,12 @@
         storefront_server_name: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
         api_server: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
   roles:
-    - { role: dev/dashboard }
-    - { role: dev/marathon_consul }
-    - { role: dev/seed_system }
-    - { role: dev/marathon }
-    - { role: dev/marathon_consumers }
-    - { role: dev/ic }
-    - { role: ext/td/storefront }
-    - { role: ext/tpg/storefront }
+    - { role: dev/dashboard, when: first_run }
+    - { role: dev/marathon_consul, when: first_run }
+    - { role: dev/flyway }
+    - { role: dev/seed_system, when: first_run }
+    - { role: dev/marathon_groups }
     - { role: dev/nginx }
     - { role: demo/balancer }
-    - { role: dev/seeder, when: with_appliance_seeding }
-    - { role: app/healthcheck }
-    - { role: app/dnsimple }
+    - { role: dev/seeder, when: with_appliance_seeding and first_run }
+    - { role: app/dnsimple, when: first_run }

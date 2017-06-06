@@ -1,9 +1,8 @@
 package phoenix.services
 
-import java.time.Instant
-
 import com.github.tminglei.slickpg.LTree
 import core.db._
+import java.time.Instant
 import objectframework.ObjectResponses.ObjectContextResponse
 import phoenix.models.Assignment._
 import phoenix.models.Note
@@ -15,6 +14,7 @@ import phoenix.models.coupon.{Coupon, CouponCode}
 import phoenix.models.customer.CustomerGroup
 import phoenix.models.location.Region
 import phoenix.models.payment.PaymentMethod
+import phoenix.models.payment.applepay.{ApplePayCharge, ApplePayment}
 import phoenix.models.payment.creditcard.{CreditCard, CreditCardCharge}
 import phoenix.models.payment.giftcard.GiftCard
 import phoenix.models.payment.storecredit.StoreCredit
@@ -60,7 +60,7 @@ import core.utils.Money._
 
 case class LogActivity(implicit ac: AC) {
 
-  def withScope(scope: LTree): LogActivity = copy()(ac = ac.copy(scope = scope))
+  def withScope(scope: LTree): LogActivity = copy()(ac = ac.copy(ctx = ac.ctx.copy(scope = scope)))
 
   /* Assignments */
   def assigned[T](admin: User,
@@ -346,6 +346,16 @@ case class LogActivity(implicit ac: AC) {
             cordRef = cart.refNum,
             orderNum = cart.refNum,
             cardId = charge.creditCardId,
+            amount = charge.amount,
+            currency = charge.currency
+        ))
+
+  def applePayAuth(ap: ApplePayment, charge: ApplePayCharge)(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(
+        ApplePayAuthCompleted(
+            accountId = ap.accountId,
+            stripeTokenId = ap.stripeTokenId,
             amount = charge.amount,
             currency = charge.currency
         ))

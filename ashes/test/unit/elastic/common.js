@@ -13,12 +13,11 @@ const baseSearch = {
 
 function addQuery(searchTerm, search = baseSearch) {
   const query = {
-    match: {
-      [searchTerm.term]: {
-        analyzer: 'standard',
-        operator: 'and',
-        query: searchTerm.value.value
-      },
+    query_string: {
+      analyze_wildcard: true,
+      analyzer: 'standard',
+      default_operator: 'AND',
+      query: `*${searchTerm.value.value}*`,
     },
   };
 

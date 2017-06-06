@@ -18,6 +18,7 @@ final case class TaxonsSearchView()(implicit ec: EC) extends AvroTransformer {
         .fields(field("raw", StringType).index("not_analyzed")),
       field("context", StringType).index("not_analyzed"),
       field("scope", StringType).index("not_analyzed"),
+      field("productsCount", IntegerType).index("not_analyzed"),
       field("createdAt", DateType).format(dateFormat),
       field("updatedAt", DateType).format(dateFormat),
       field("activeFrom", DateType).format(dateFormat),
