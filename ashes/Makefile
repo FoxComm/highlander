@@ -18,6 +18,10 @@ default: test
 NODE_ENV = test
 CFLAGS = -c -g -D $(NODE_ENV)
 
+# list of changed js(x) files after latest commit
+JS_FILES_DIFF = $(shell git diff --name-only --diff-filter=ACM | grep '\.jsx\?$$' | tr '\n' ' ')
+JS_FILES_TO_PRETTIFY = $(shell prettier --single-quote --trailing-comma es5 -l $(JS_FILES_DIFF))
+
 # Get version number from package.json, need this for tagging.
 version = $(shell iojs -e "console.log(JSON.parse(require('fs').readFileSync('package.json')).version)")
 
@@ -65,11 +69,20 @@ mocha-unit:
 
 .PHONY: lint
 lint:
-	 eslint --ext .js --ext .jsx ./
+	eslint --ext .js --ext .jsx ./
 
 .PHONY: flow
 flow:
 	flow check
+
+# run prettier agains js(x) files in diff
+.PHONY: prettier
+prettier:
+	echo $(JS_FILES_TO_PRETTIFY)
+
+# prettierify directory. usage to apply prettier to config dir: make prettier-config
+prettier-%:
+	prettier --single-quote --trailing-comma es5 --write "$*/**/*.{js,jsx}"
 
 .PHONY: build-styleguide
 build-styleguide:
