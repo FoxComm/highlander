@@ -19,7 +19,7 @@ const Icon = (props: Props) => {
   const { name, className, ...rest } = props;
   const iconCls = classNames(className, `icon-${name}`);
   return(
-    <i className={iconCls} {...rest}/>
+    <i className={iconCls} {...rest} />
   );
 };
 

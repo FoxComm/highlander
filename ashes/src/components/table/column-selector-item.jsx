@@ -101,7 +101,7 @@ class SelectorItem extends Component {
       <li styleName={styleName}>
         {connectDragSource(
           <div className="icon-wrapper">
-            <Icon name='drag-drop'/>
+            <Icon name='drag-drop' />
           </div>
         )}
         <Checkbox
