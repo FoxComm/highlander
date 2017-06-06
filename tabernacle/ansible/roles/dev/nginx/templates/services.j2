@@ -1,132 +1,37 @@
-upstream river-rock {
-  << with index .Apps "/river-rock" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{river_rock_server}} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
-}
+<<- range $id, $app := .Apps >>
+  upstream <<index $app.Hosts 0 >> {
+    <<- range $app.Tasks >>
+    server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
+    <<- end >>
+  }
+  server {
+    # listen 80;
+
+    <<- range $app.Hosts >>
+    server_name << . >>;
+    <<- end >>
+
+    location / {
+      proxy_set_header HOST $host;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
+      proxy_connect_timeout 30;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection $connection_upgrade;
+      proxy_pass http://<<index $app.Hosts 0 >>;
+    }
+  }
+<<- end >>
+
 
 {% if with_onboarding %}
-upstream onboarding {
-  << range service "onboarding-service" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
-  << else >> server {{onboarding_service_server}} fail_timeout=30s max_fails=10; << end >>
-}
+# upstream onboarding {
+#   << range service "onboarding-service" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+#   << else >> server {{onboarding_service_server}} fail_timeout=30s max_fails=10; << end >>
+# }
 {% endif %}
 
-upstream henhouse {
-  << with index .Apps "/henhouse" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ henhouse_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
-}
-
-upstream eggcrate {
-  << with index .Apps "/eggcrate" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ eggcrate_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
-}
-
-upstream anthill {
-  << with index .Apps "/anthill" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ anthill_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
-}
-
-upstream suggester {
-  << with index .Apps "/suggester" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ suggester_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
-}
-
-upstream search {
-  << with index .Apps "/search" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ search_server_http }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
-}
-
-# We use port 9090 for phoenix
-upstream phoenix {
-  << with index .Apps "/phoenix" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ phoenix_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
-}
-
-upstream isaac {
-  << with index .Apps "/isaac" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ isaac_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
-}
-
-# We use port 9292 for middlewarehouse
-upstream middlewarehouse {
-  << with index .Apps "/middlewarehouse" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ middlewarehouse_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
-}
-
-# We use port 4002 for solomon
-upstream sol {
-  << with index .Apps "/sol" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ solomon_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
-}
-
-upstream hyperion {
-  << with index .Apps "/hyperion" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ hyperion_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
-}
-
-upstream ashes {
-  << with index .Apps "/ashes" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ ashes_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
-}
 
 {% if is_appliance %}
 upstream dashboard {

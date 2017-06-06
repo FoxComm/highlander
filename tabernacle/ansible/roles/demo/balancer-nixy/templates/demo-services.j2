@@ -1,5 +1,5 @@
 upstream storefront {
-  << with index .Apps "/peacock" >>
+  << with index .Apps "/highlander/core-frontend/peacock" >>
     << range .Tasks >>
       server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
     << else >>
@@ -10,7 +10,7 @@ upstream storefront {
 
 {% if is_appliance or is_staging %}
 upstream storefront-top-drawer {
-  << with index .Apps "/storefront-top-drawer" >>
+  << with index .Apps "/highlander/core-frontend/top-drawer" >>
     << range .Tasks >>
       server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
     << else >>
@@ -20,7 +20,7 @@ upstream storefront-top-drawer {
 }
 
 upstream storefront-perfect-gourmet {
-  << with index .Apps "/storefront-perfect-gourmet" >>
+  << with index .Apps "/highlander/core-frontend/perfect-gourmet" >>
     << range .Tasks >>
       server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
     << else >>
