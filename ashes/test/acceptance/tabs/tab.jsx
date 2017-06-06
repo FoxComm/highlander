@@ -1,5 +1,6 @@
 import React from 'react';
 import * as ShallowTestUtils from 'react-shallow-testutils';
+import Icon from 'components/core/icon';
 
 describe('TabView', function() {
   const TabView = requireComponent('tabs/tab.jsx');
