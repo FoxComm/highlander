@@ -72,9 +72,8 @@ class OrderShippingAddresses(tag: Tag)
   def * =
     (id, cordRef, regionId, name, address1, address2, city, zip, phoneNumber, createdAt, updatedAt) <> ((OrderShippingAddress.apply _).tupled, OrderShippingAddress.unapply)
 
-  def address = foreignKey(Addresses.tableName, id, Addresses)(_.id)
-  def order   = foreignKey(Carts.tableName, cordRef, Carts)(_.referenceNumber)
-  def region  = foreignKey(Regions.tableName, regionId, Regions)(_.id)
+  def order  = foreignKey(Carts.tableName, cordRef, Carts)(_.referenceNumber)
+  def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }
 
 object OrderShippingAddresses
