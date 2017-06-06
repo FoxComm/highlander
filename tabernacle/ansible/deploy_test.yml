@@ -1,13 +1,5 @@
 ---
 
-- name: Provision Test Amigo
-  hosts: foxcomm-test-amigo
-  become: true
-  vars:
-    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-  roles:
-    - { role: dev/marathon_consul, when: first_run }
-
 - name: Provision Test Backend
   hosts: foxcomm-test-backend
   become: true
