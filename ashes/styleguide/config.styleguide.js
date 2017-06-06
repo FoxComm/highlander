@@ -40,6 +40,10 @@ module.exports = {
       ],
     },
     {
+      name: 'Iconography',
+      content: '../docs/iconography.md'
+    },
+    {
       name: 'Components',
       sections: [
         {
