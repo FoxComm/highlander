@@ -51,7 +51,7 @@ object ProductReviewManager {
     for {
       review ← * <~ ProductReviews.mustFindById404(reviewId)
       _      ← * <~ failIf(review.archivedAt.isDefined, ProductReviewIsArchived(reviewId))
-      _      ← * <~ failIf(au.model.id != review.userId, ProductReviewUserMismatch(reviewId))
+      _      ← * <~ failIf(au.account.id != review.userId, ProductReviewUserMismatch(reviewId))
       newValue ← * <~ ProductReviews.update(
                     review,
                     review.copy(content = payload.attributes, updatedAt = Instant.now))
