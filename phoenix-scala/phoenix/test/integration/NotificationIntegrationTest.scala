@@ -170,20 +170,6 @@ class NotificationIntegrationTest
                                                   sourceObjectId = randomObjectId,
                                                   activity = newNotificationActivity)
 
-  // FIXME: dead code? @michalrus
-  def DEAD_activityJson(id: String, dimensionId: Int) = {
-    val newNotification = Notification(
-        id = 2,
-        scope = LTree("1"),
-        accountId = defaultAdmin.id,
-        dimensionId = dimensionId,
-        objectId = randomObjectId,
-        activity = Extraction.decompose(newNotificationActivity.copy(id = id)),
-        createdAt = Instant.now)
-
-    write(NotificationResponse.build(newNotification))
-  }
-
   lazy val randomObjectId = scala.util.Random.alphanumeric.take(7).mkString
 
   def subscribeToNotifications(adminIds: Seq[Int] = Seq(defaultAdmin.id),
