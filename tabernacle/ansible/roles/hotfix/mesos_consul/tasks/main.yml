@@ -1,4 +1,7 @@
 ---
 
+- name: Restart Consul Agent
+  service: name=consul_agent state=restarted enabled=yes
+
 - name: Restart Mesos Consul
   service: name=mesos_consul state=restarted enabled=yes

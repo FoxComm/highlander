@@ -69,11 +69,12 @@ object SharedSearchService {
                   .result
       associates ← * <~ SharedSearchAssociations.associatedAdmins(search).result
       newAssociations = adminIds
-        .diff(associates.map(_.id))
+        .diff(associates.map(_.accountId))
         .map(adminId ⇒ SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = adminId))
       _ ← * <~ SharedSearchAssociations.createAll(newAssociations)
       notFoundAdmins = diffToFailures(requestedAssigneeIds, adminIds, User)
-      assignedAdmins = associates.filter(a ⇒ newAssociations.map(_.storeAdminId).contains(a.id))
+      assignedAdmins = associates.filter(a ⇒
+            newAssociations.map(_.storeAdminId).contains(a.accountId))
       _ ← * <~ LogActivity().associatedWithSearch(admin, search, assignedAdmins)
     } yield TheResponse.build(search, errors = notFoundAdmins)
 
