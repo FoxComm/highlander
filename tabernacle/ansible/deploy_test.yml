@@ -28,13 +28,6 @@
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-    api_server: test.foxcommerce.com
-    storefront_server_name: test.foxcommerce.com
-    messaging_env: staging
-    is_staging: true
-    url_prefix_perfectgourmet: "/perfect-gourmet"
-    url_prefix_topdrawer: "/top-drawer"
-    with_onboarding: true
   roles:
     - { role: base/mesos_worker, when: first_run }   # Hotfix, to be removed
     - { role: hotfix/mesos_worker, when: first_run } # Hotfix, to be removed
@@ -44,6 +37,13 @@
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    api_server: test.foxcommerce.com
+    storefront_server_name: test.foxcommerce.com
+    messaging_env: staging
+    is_staging: true
+    url_prefix_perfectgourmet: "/perfect-gourmet"
+    url_prefix_topdrawer: "/top-drawer"
+    with_onboarding: true
   roles:
     - { role: dev/marathon_groups }
     # - { role: dev/marathon_restart }
@@ -53,6 +53,9 @@
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    api_server: test.foxcommerce.com
+    storefront_server_name: test.foxcommerce.com
+    with_onboarding: true
   roles:
     - { role: dev/nginx }
     - { role: demo/balancer }
