@@ -7,7 +7,7 @@ FLYWAY_TEST=flyway -configFile=sql/flyway.test.conf -locations=filesystem:sql/
 DB=middlewarehouse_development
 DB_TEST=middlewarehouse_test
 DB_USER=middlewarehouse
-GOPATH ?= /tmp/go
+GOPATH = /tmp/go
 BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
 BUILD_PATH=$(BUILD_ROOT_PATH)/middlewarehouse
 HIGHLANDER_PATH=$(CURDIR)/..
@@ -26,8 +26,8 @@ prepare:
 	rm -rf $(BUILD_ROOT_PATH) || true
 	mkdir -p $(GOPATH)/src/github.com/FoxComm
 	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH) || true
-	cd $(BUILD_PATH) && glide install
-	cd $(BUILD_PATH)/elasticmanager && glide install
+	$(GLIDE) install
+	cd $(BUILD_PATH)/elasticmanager && GOPATH=$(GOPATH) glide install
 	rm -rf $(BUILD_PATH)/vendor/github.com/FoxComm/highlander
 
 ####################################################################
