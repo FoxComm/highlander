@@ -93,14 +93,14 @@ class CheckoutIntegrationTest
         // FIXME: And, afterwards, check just IDs. @michalrus
         val orderShippingAddress =
           OrderShippingAddresses.findOneById(order.shippingAddress.id).gimme.value
-        val expectedAddressResponse = AddressResponse.buildOneShipping(
+        val expectedAddressResponse = AddressResponse.buildFromOrder(
             orderShippingAddress,
-            order.shippingAddress.region,
-            isDefault = false /* FIXME: what?! It *is* default! @kjanosz @aafa */ )
+            order.shippingAddress.region
+        )
 
         // Compare all significant fields.
-        expectedAddressResponse must === (address.copy(id = expectedAddressResponse.id))
-
+        expectedAddressResponse must === (
+            address.copy(id = expectedAddressResponse.id, isDefault = None))
         order.shippingAddress must === (expectedAddressResponse)
         order.shippingMethod.id must === (shipMethod.id)
       }
