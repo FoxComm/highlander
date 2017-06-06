@@ -9,7 +9,7 @@
     - { role: dev/marathon_consul, when: first_run }
 
 - name: Provision Stage Frontend
-  hosts: foxcomm-stage-frontend
+  hosts: foxcomm-groups-frontend
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
@@ -18,7 +18,7 @@
     - { role: hotfix/mesos_worker, when: first_run } # Hotfix, to be removed
 
 - name: Restart Marathon Group
-  hosts: foxcomm-stage-amigo
+  hosts: foxcomm-groups-amigo
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
@@ -34,7 +34,7 @@
     # - { role: dev/marathon_restart }
 
 - name: Restart Nginx
-  hosts: foxcomm-stage-frontend
+  hosts: foxcomm-groups-frontend
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
