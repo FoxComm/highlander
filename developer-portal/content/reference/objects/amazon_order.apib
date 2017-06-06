@@ -1,0 +1,25 @@
+# Data structures
+
+### AmazonOrderBase
++ amazonOrderId: `111-5296499-9653859` (required, string) - Amazon Order ID
++ orderTotal: `4500` (required, number) - Order total amount in cents
++ paymentMethodDetail: `CreditCard` (required, string) - Payment method name
++ orderType: `StandardOrder` (required, string) - Amazon Order type
++ currency: `USD` (required, string) - Order currency
++ orderStatus: `Shipped` (required, string) - Order status
++ purchaseDate: `2017-03-08T19:38:36Z` (required, string) - Timestamp of when order was placed.
++ scope: `1` (required, string) - Scope ID
+
+### AmazonOrderPayload
+- Include AmazonOrderBase
++ customerEmail: `67xlr8kb83lx0t2@marketplace.amazon.com` (required, string) - Customer email anonymized by amazon
+
+### AmazonOrderResponse
++ id: `2` (required, number) - Unique identifier
+- Include AmazonOrderBase
++ accountId: `1` (required, number) - Customer accountId
++ createdAt: `2017-06-05T10:14:46.982Z` (required, string) - Timestamp of when exact record was created.
++ updatedAt: `2017-06-05T10:14:46.982Z` (required, string) - Timestamp of when exact record was updated last time.
+
+### AmazonOrderUpdatePayload
++ orderStatus: `Shipped` (required, string) - Order status
