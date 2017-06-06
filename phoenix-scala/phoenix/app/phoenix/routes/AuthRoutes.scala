@@ -10,9 +10,9 @@ import phoenix.payloads.UserPayloads._
 import phoenix.services.Authenticator
 import phoenix.services.account.AccountManager
 import phoenix.services.auth.OauthServices
+import phoenix.services.auth.OauthService.OauthUserType
 import phoenix.services.auth.OauthDirectives._
-import phoenix.utils.FoxConfig.config
-import phoenix.utils.FoxConfig.SupportedOauthProviders.OauthProvider
+import phoenix.utils.FoxConfig.{config, OauthProviderName}
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
@@ -54,27 +54,14 @@ object AuthRoutes {
         }
       } ~
       activityContext(defaultScope) { implicit ac ⇒
-        (path("oauthtest" / OauthProvider)) { prov ⇒
-          complete(prov.show)
+        (path("oauth2callback" / OauthProviderName / OauthUserType) & get) { (provider, userType) ⇒
+          oauthResponse {
+            OauthServices(provider, userType).callback
+          }
         } ~
-          (path("oauth2callback" / OauthProvider / "admin") & get & oauthResponse) { (provider, resp) ⇒
-            OauthServices.get(provider).admin.adminCallback(resp)
-          } ~
-          (path("oauth2callback" / OauthProvider / "customer") & get & oauthResponse) { (provider, resp) ⇒
-            OauthServices.get(provider).customer.customerCallback(resp)
-          } ~
-          (path("signin" / OauthProvider / "admin") & get) { provider ⇒
-            val url = OauthServices
-              .get(provider)
-              .admin
-              .authorizationUri(scope = Seq("openid", "email", "profile"))
-            complete(Map("url" → url))
-          } ~
-          (path("signin" / OauthProvider / "customer") & get) { provider ⇒
-            val url = OauthServices
-              .get(provider)
-              .customer
-              .authorizationUri(scope = Seq("openid", "email", "profile"))
+          (path("signin" / OauthProviderName / OauthUserType) & get) { (provider, userType) ⇒
+            val url =
+              OauthServices(provider, userType).authorizationUri(scope = Seq("openid", "email", "profile"))
             complete(Map("url" → url))
           }
       }

@@ -7,7 +7,12 @@ import phoenix.utils.aliases._
 
 import scala.concurrent.Future
 
-case class UserInfo(name: String, email: String)
+case class UserInfo(name: String, email: String) {
+  def emailDomain: String = {
+    val userAtDomain = email.split("@")
+    if (userAtDomain.size == 2) userAtDomain(1) else ""
+  }
+}
 
 trait OauthProvider {
   val oauthAuthorizationUrl: String

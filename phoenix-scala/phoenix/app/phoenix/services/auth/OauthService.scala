@@ -5,17 +5,23 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 
 import cats.implicits._
+import com.pellucid.sealerate
 import core.db._
+import shapeless._
 import core.failures.GeneralFailure
-import phoenix.libs.oauth.{GoogleOauthOptions, Oauth, OauthProvider, UserInfo}
+import phoenix.failures.UserFailures.{OrganizationNotFound, OrganizationNotFoundWithDomain}
+import phoenix.libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth, OauthProvider, UserInfo}
 import phoenix.models.account._
-import phoenix.models.auth.Token
-import phoenix.services.Authenticator
+import phoenix.models.auth.{Token, UserToken}
+import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
+import phoenix.payloads.StoreAdminPayloads.CreateStoreAdminPayload
+import phoenix.services.account.{AccountCreateContext, AccountManager}
+import phoenix.services.customers.CustomerManager
+import phoenix.services.{Authenticator, StoreAdminManager}
+import phoenix.utils.{ADT, FoxConfig}
+import phoenix.utils.FoxConfig.{config, OauthProviderName}
 import phoenix.utils.aliases._
 import phoenix.utils.http.Http._
-import core.db.ExPostgresDriver.api._
-import phoenix.utils.FoxConfig
-import phoenix.utils.FoxConfig.config
 
 case class OauthCallbackResponse(code: Option[String] = None, error: Option[String] = None) {
 
@@ -35,19 +41,64 @@ object OauthDirectives {
     }
 }
 
-trait OauthService[M] { this: Oauth ⇒
+trait OauthService { this: Oauth ⇒
 
-  def createCustomerByUserInfo(info: UserInfo): DbResultT[M]
-  def createAdminByUserInfo(info: UserInfo): DbResultT[M]
-  def findByEmail(email: String): DBIO[Option[M]]
-  def createToken(user: M, account: Account, info: UserInfo): DbResultT[Token]
-  def findAccount(user: M): DbResultT[Account]
+  def createCustomerByUserInfo(userInfo: UserInfo)(implicit ec: EC, db: DB, ac: AC): DbResultT[User] = {
+    val serviceConfig = config.users.customer
+    val context = AccountCreateContext(roles = List(serviceConfig.role),
+                                       org = serviceConfig.org,
+                                       scopeId = serviceConfig.scopeId)
+
+    val payload = CreateCustomerPayload(email = userInfo.email, name = userInfo.name.some)
+
+    for {
+      result ← * <~ CustomerManager.create(payload, admin = None, context = context)
+      (response, _) = result
+      user ← * <~ Users.mustFindByAccountId(response.id)
+    } yield user
+  }
+
+  def createAdminByUserInfo(userInfo: UserInfo)(implicit ec: EC, db: DB, ac: AC): DbResultT[User] =
+    for {
+      domain ← * <~ userInfo.emailDomain
+      //We must determine the org based on the domain of the user email
+      scopeDomain ← * <~ ScopeDomains
+                     .findByDomain(domain)
+                     .mustFindOneOr(OrganizationNotFoundWithDomain(domain))
+      scope ← * <~ Scopes.mustFindById404(scopeDomain.scopeId)
+      organization ← * <~ Organizations
+                      .findByScopeId(scopeDomain.scopeId)
+                      .mustFindOr(OrganizationNotFound(domain, scope.path))
+
+      payload = CreateStoreAdminPayload(email = userInfo.email,
+                                        name = userInfo.name,
+                                        password = None,
+                                        roles = List(config.users.admin.role),
+                                        org = organization.name)
+      response ← * <~ StoreAdminManager.create(payload, author = None)
+      user     ← * <~ Users.mustFindByAccountId(response.id)
+
+    } yield user
+
+  def createToken(user: User, account: Account, userInfo: UserInfo, defaultScopeId: Int)(
+      implicit ec: EC,
+      db: DB): DbResultT[Token] =
+    for {
+      domain         ← * <~ userInfo.emailDomain
+      scopeDomainOpt ← * <~ ScopeDomains.findByDomain(domain).one
+      scope ← * <~ scopeDomainOpt.map { scopeDomain ⇒
+               Scopes.mustFindById404(scopeDomain.scopeId)
+             }
+      claims ← * <~ AccountManager.getClaims(account.id, scope.map(_.id).getOrElse(defaultScopeId))
+      token  ← * <~ UserToken.fromUserAccount(user, account, claims)
+    } yield token
 
   /*
     1. Exchange code to access token
     2. Get base user info: email and name
    */
-  def fetchUserInfoFromCode(oauthResponse: OauthCallbackResponse)(implicit ec: EC): DbResultT[UserInfo] =
+  def fetchUserInfoFromCode(oauthResponse: OauthCallbackResponse)(implicit ec: EC,
+                                                                  db: DB): DbResultT[UserInfo] =
     for {
       code ← DbResultT.fromEither(oauthResponse.getCode.leftMap(t ⇒ GeneralFailure(t.toString).single))
       accessTokenResp ← * <~ this
@@ -60,12 +111,13 @@ trait OauthService[M] { this: Oauth ⇒
               .value
     } yield info
 
-  def findOrCreateUserFromInfo(
-      userInfo: UserInfo,
-      createByUserInfo: (UserInfo) ⇒ DbResultT[M])(implicit ec: EC, db: DB, ac: AC): DbResultT[(M, Account)] =
+  def findOrCreateUserFromInfo(userInfo: UserInfo, createByUserInfo: (UserInfo) ⇒ DbResultT[User])(
+      implicit ec: EC,
+      db: DB,
+      ac: AC): DbResultT[(User, Account)] =
     for {
-      user    ← * <~ findByEmail(userInfo.email).findOrCreate(createByUserInfo(userInfo))
-      account ← * <~ findAccount(user)
+      user    ← * <~ Users.findByEmail(userInfo.email).one.findOrCreate(createByUserInfo(userInfo))
+      account ← * <~ Accounts.mustFindById404(user.accountId)
     } yield (user, account)
 
   /*
@@ -74,79 +126,108 @@ trait OauthService[M] { this: Oauth ⇒
     3. FindOrCreate<UserModel>
     4. respondWithToken
    */
-  def oauthCallback(
-      oauthResponse: OauthCallbackResponse,
-      createByUserInfo: (UserInfo) ⇒ DbResultT[M])(implicit ec: EC, db: DB, ac: AC): DbResultT[Token] =
+  private def oauthCallback(oauthResponse: OauthCallbackResponse,
+                            createByUserInfo: (UserInfo) ⇒ DbResultT[User],
+                            defaultScopeId: Int)(implicit ec: EC, db: DB, ac: AC): DbResultT[Token] =
     for {
       info        ← * <~ fetchUserInfoFromCode(oauthResponse)
       userAccount ← * <~ findOrCreateUserFromInfo(info, createByUserInfo)
       (user, account) = userAccount
-      token ← * <~ createToken(user, account, info)
+      token ← * <~ createToken(user, account, info, defaultScopeId)
     } yield token
 
-  def customerCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route =
-    commonCallback(createCustomerByUserInfo, Uri./)(oauthResponse)
+  def callback(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route
 
-  def adminCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route =
-    commonCallback(createAdminByUserInfo, Uri("/admin"))(oauthResponse)
-
-  private def commonCallback(createByUserInfo: UserInfo ⇒ DbResultT[M], redirectUri: Uri)(
+  protected def customerCallback(
       oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route =
+    commonCallback(createCustomerByUserInfo, Uri./, config.users.customer.scopeId)(oauthResponse)
+
+  protected def adminCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route =
+    commonCallback(createAdminByUserInfo, Uri("/admin"), config.users.admin.scopeId)(oauthResponse)
+
+  private def commonCallback(
+      createByUserInfo: UserInfo ⇒ DbResultT[User],
+      redirectUri: Uri,
+      defaultScopeId: Int)(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route =
     // TODO: rethink discarding warnings here @michalrus
-    onSuccess(oauthCallback(oauthResponse, createByUserInfo).runDBIO.runEmptyA.value) { tokenOrFailure ⇒
-      tokenOrFailure
-        .flatMap(Authenticator.oauthTokenLoginResponse(redirectUri))
-        .fold({ f ⇒
-          complete(renderFailure(f))
-        }, identity)
+    onSuccess(oauthCallback(oauthResponse, createByUserInfo, defaultScopeId).runDBIO.runEmptyA.value) {
+      tokenOrFailure ⇒
+        tokenOrFailure
+          .flatMap(Authenticator.oauthTokenLoginResponse(redirectUri))
+          .fold({ f ⇒
+            complete(renderFailure(f))
+          }, identity)
     }
 }
 
+trait AdminOauthService { self: OauthService ⇒
+  def callback(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route =
+    adminCallback(oauthResponse)
+}
+
+trait CustomerOauthService { self: OauthService ⇒
+  def callback(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route =
+    customerCallback(oauthResponse)
+}
+
 object OauthService {
-  type OauthServiceImpl = Oauth with OauthService[User] with OauthProvider
+  type OauthServiceImpl = Oauth with OauthService with OauthProvider
 
   trait PhoenixOauthService {
-    def customer(implicit ec: EC, db: DB, ac: AC): OauthServiceImpl
-    def admin(implicit ec: EC, db: DB, ac: AC): OauthServiceImpl
+    def customer: OauthServiceImpl
+    def admin: OauthServiceImpl
+  }
+
+  sealed trait OauthUserType
+  implicit object OauthUserType extends ADT[OauthUserType] {
+    case object Admin    extends OauthUserType
+    case object Customer extends OauthUserType
+
+    def types = sealerate.values[OauthUserType]
   }
 }
 
 object OauthServices extends FoxConfig.SupportedOauthProviders[OauthService.PhoenixOauthService] {
+
   import OauthService._
 
-  def get(p: FoxConfig.SupportedOauthProviders.OauthProvider): PhoenixOauthService = p match {
-    case FoxConfig.SupportedOauthProviders.OauthProvider.Facebook ⇒
-      facebook
-    case FoxConfig.SupportedOauthProviders.OauthProvider.Google ⇒
-      google
+  def apply(providerName: OauthProviderName, userType: OauthUserType)(implicit ec: EC): OauthServiceImpl = {
+    val provider = providerName match {
+      case OauthProviderName.Facebook ⇒
+        facebook
+      case OauthProviderName.Google ⇒
+        google
+    }
+    userType match {
+      case OauthUserType.Admin ⇒
+        provider.admin
+      case OauthUserType.Customer ⇒
+        provider.customer
+    }
   }
 
   lazy val google: PhoenixOauthService = new PhoenixOauthService {
-    def customer(implicit ec: EC, db: DB, ac: AC) =
-      googleOauthServiceFromConfig(config.users.customer)
-    def admin(implicit ec: EC, db: DB, ac: AC) = googleOauthServiceFromConfig(config.users.admin)
+    def customer: OauthServiceImpl =
+      googleOauthServiceFromConfig(config.users.customer, OauthUserType.Customer)
+
+    def admin: OauthServiceImpl =
+      googleOauthServiceFromConfig(config.users.admin, OauthUserType.Admin)
   }
 
   lazy val facebook: PhoenixOauthService = new PhoenixOauthService {
-    def customer(implicit ec: EC, db: DB, ac: AC) =
-      googleOauthServiceFromConfig(config.users.customer)
-    def admin(implicit ec: EC, db: DB, ac: AC) = googleOauthServiceFromConfig(config.users.admin)
+    def customer: OauthServiceImpl =
+      googleOauthServiceFromConfig(config.users.customer, OauthUserType.Customer)
+
+    def admin: OauthServiceImpl =
+      googleOauthServiceFromConfig(config.users.admin, OauthUserType.Admin)
   }
 
-  private def googleOauthServiceFromConfig(
-      configUser: FoxConfig.User)(implicit ec: EC, db: DB, ac: AC) = {
+  private def googleOauthServiceFromConfig(configUser: FoxConfig.User, userType: OauthUserType) =
+    userType match {
+      case OauthUserType.Admin ⇒
+        new Oauth(configUser.oauth.google) with GoogleProvider with OauthService with AdminOauthService
+      case OauthUserType.Customer ⇒
+        new Oauth(configUser.oauth.google) with GoogleProvider with OauthService with CustomerOauthService
+    }
 
-    val opts = GoogleOauthOptions(roleName = configUser.role,
-                                  orgName = configUser.org,
-                                  scopeId = configUser.scopeId,
-                                  clientId = configUser.oauth.google.clientId,
-                                  clientSecret = configUser.oauth.google.clientSecret,
-                                  redirectUri = configUser.oauth.google.redirectUri,
-                                  hostedDomain = configUser.oauth.google.hostedDomain)
-
-    new GoogleOauthUser(opts)
-  }
-
-  private def fbOauthServiceFromConfig(
-      configUser: FoxConfig.User)(implicit ec: EC, db: DB, ac: AC) = {}
 }

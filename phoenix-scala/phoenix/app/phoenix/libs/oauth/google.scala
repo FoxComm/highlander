@@ -8,9 +8,6 @@ import phoenix.utils.aliases._
 import scala.concurrent.Future
 
 case class GoogleOauthOptions(
-    roleName: String,
-    scopeId: Int, //must retrieve from db for now.
-    orgName: String,
     clientId: String,
     clientSecret: String,
     redirectUri: String,
