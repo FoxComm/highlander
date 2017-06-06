@@ -72,7 +72,8 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
 
       orderAdjustmentCost = adjustments
         .filter(_.adjustmentType == CartLineItemAdjustment.OrderAdjustment)
-        .foldLeft(0L)(_ + _.subtract)
+        .map(_.subtract)
+        .sum
 
       //find the shipping method used for the order, take the minimum between
       //shipping method and what shipping cost was passed in payload because
@@ -194,15 +195,13 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   private def subtractGcPayments(total: Long,
                                  gcPayments: Seq[(OrderPayment, GiftCard)],
                                  currency: Currency): Long = {
-    (total - gcPayments
-          .foldLeft(0L)((a, op) ⇒ a + getPaymentAmount(op._1, currency))).zeroIfNegative
+    (total - gcPayments.map(op ⇒ getPaymentAmount(op._1, currency)).sum).zeroIfNegative
   } ensuring (remaining ⇒ remaining >= 0 && remaining <= total)
 
   private def subtractScPayments(total: Long,
                                  scPayments: Seq[(OrderPayment, StoreCredit)],
                                  currency: Currency): Long = {
-    (total - scPayments
-          .foldLeft(0L)((a, op) ⇒ a + getPaymentAmount(op._1, currency))).zeroIfNegative
+    (total - scPayments.map(op ⇒ getPaymentAmount(op._1, currency)).sum).zeroIfNegative
   } ensuring (remaining ⇒ remaining >= 0 && remaining <= total)
 
   private def getPaymentAmount(op: OrderPayment, currency: Currency): Long = {
@@ -244,12 +243,10 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   } ensuring (_ >= 0)
 
   private def aggregatePrices(adjustedPrices: Seq[LineItemPrice]): Long = {
-    val total = adjustedPrices.foldLeft(0L)({ (sum, lineItem) ⇒
-      require(lineItem.price >= 0)
-      sum + lineItem.price
-    })
-
-    total
+    adjustedPrices.map { lineItem ⇒
+      require(lineItem.price >= 0) // FIXME: woot? @michalrus
+      lineItem.price
+    }.sum
   } ensuring (_ >= 0)
 
   private val NO_REF = "no_ref"
