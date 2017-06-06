@@ -80,6 +80,7 @@ module.exports = {
                 path.resolve(__dirname, '../src/components/core/spinner/spinner.jsx'),
                 path.resolve(__dirname, '../src/components/core/countdown/countdown.jsx'),
                 path.resolve(__dirname, '../src/components/core/svg-icon/svg-icon.jsx'),
+                path.resolve(__dirname, '../src/components/core/icon/icon.jsx'),
               ]),
             },
           ],
