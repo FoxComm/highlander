@@ -1,17 +1,21 @@
 package phoenix.facades
 
 import java.io.{ByteArrayInputStream, InputStream}
-import java.net.URLConnection
+import java.net.{URL, URLConnection}
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 import java.nio.file.{Files, Path}
 import java.time.ZonedDateTime
 
+import scala.annotation.tailrec
+import scala.concurrent.Future
+import scala.util.Try
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
+
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
 import core.db.{DbResultT, _}
@@ -29,10 +33,6 @@ import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import slick.dbio.DBIO
-
-import scala.annotation.tailrec
-import scala.concurrent.Future
-import scala.util.Try
 
 object ImageFacade extends ImageHelpers {
   implicit val formats = JsonFormatters.phoenixFormats
@@ -99,22 +99,25 @@ object ImageFacade extends ImageHelpers {
     val allowedImageTypes: List[String] =
       List(MediaTypes.`image/gif`, MediaTypes.`image/png`, MediaTypes.`image/jpeg`).map(_.value)
 
+    def shouldBeValidImage(imageData: InputStream): Either[Failures, Unit] =
+      guessContentType(imageData)
+        .map { contentType ⇒
+          if (allowedImageTypes.contains(contentType)) Either.right({})
+          else Either.left(UnsupportedImageType(contentType).single)
+        }
+        .getOrElse(Either.left(UnknownImageType.single))
+
     implicit object ImagePayloadUploader extends ImageUploader[ImagePayload] {
 
-      def shouldBeValidImage(imageData: ByteBuffer): Either[Failures, Unit] =
-        guessContentType(imageData)
-          .map { contentType ⇒
-            if (allowedImageTypes.contains(contentType)) Either.right({})
-            else Either.left(UnsupportedImageType(contentType).single)
-          }
-          .getOrElse(Either.left(UnknownImageType.single))
-
-      def shouldBeValidUrl(url: String): Either[Failures, Uri] = {
-        val uri = Uri(url)
-        if (uri.isRelative || uri.isEmpty || !allowedUrlSchemes.contains(uri.scheme))
-          Either.left(InvalidImageUrl(url).single)
-        else Either.right(uri)
-      }
+      def shouldBeValidUrl(url: String): Either[Failures, Uri] =
+        Try {
+          val normalized = new URL(url).toURI.toASCIIString
+          val uri        = Uri(normalized)
+          if (uri.isRelative || uri.isEmpty || !allowedUrlSchemes.contains(uri.scheme))
+            Either.left(InvalidImageUrl(url).single)
+          else
+            Either.right(uri)
+        }.getOrElse(Either.left(InvalidImageUrl(url).single))
 
       def uploadImagesR(payload: ImagePayload, context: OC, maybeAlbum: Option[Album])(
           implicit ec: EC,
@@ -126,7 +129,7 @@ object ImageFacade extends ImageHelpers {
         for {
           url       ← * <~ shouldBeValidUrl(payload.src)
           imageData ← * <~ fetchImageData(url)
-          _         ← * <~ shouldBeValidImage(imageData)
+          _         ← * <~ shouldBeValidImage(bbToInputStream(imageData))
           url ← * <~ saveBufferAndThen[String](imageData) { path ⇒
                  val fileName = extractFileNameFromUri(url)
                  val s3Path   = S3Path.get(maybeAlbum, fileName = fileName)
@@ -141,11 +144,17 @@ object ImageFacade extends ImageHelpers {
 
     implicit object MultipartUploader extends ImageUploader[Multipart.FormData] {
 
-      private def getFileFromRequest(bytes: Source[ByteString, Any])(implicit ec: EC, am: Mat) = {
+      private def getImageFromRequest(bytes: Source[ByteString, Any])(implicit ec: EC, am: Mat) = {
         val file = Files.createTempFile("tmp", ".jpg")
         bytes.runWith(FileIO.toPath(file)).map { ioResult ⇒
-          if (ioResult.wasSuccessful) Either.right(file)
-          else Either.left(ErrorReceivingImage.single)
+          if (ioResult.wasSuccessful) {
+            val is = Files.newInputStream(file)
+            try {
+              shouldBeValidImage(is).flatMap { _ ⇒
+                Either.right(file)
+              }
+            } finally is.close()
+          } else Either.left(ErrorReceivingImage.single)
         }
       }
 
@@ -169,7 +178,7 @@ object ImageFacade extends ImageHelpers {
           .filter(_.name == "upload-file")
           .mapAsyncUnordered(4) { part ⇒
             for {
-              filePathE ← getFileFromRequest(part.entity.dataBytes)
+              filePathE ← getImageFromRequest(part.entity.dataBytes)
               filePath ← filePathE.fold(_ ⇒ Future.failed[Path](ImageFacadeException(ErrorReceivingImage)),
                                         Future.successful)
               fileName ← part.filename.fold(Future.failed[String](
@@ -346,17 +355,17 @@ trait ImageHelpers extends LazyLogging {
       _      ← * <~ Files.deleteIfExists(path)
     } yield result
 
-  private def asInputStream(buffer: ByteBuffer): InputStream = {
+  protected def bbToInputStream(buffer: ByteBuffer): InputStream = {
     if (buffer.hasArray) { // use heap buffer; no array is created; only the reference is used
       new ByteArrayInputStream(buffer.array)
     }
     new utils.io.ByteBufferInputStream(buffer)
   }
 
-  protected def guessContentType(byteBuffer: ByteBuffer): Option[String] =
+  protected def guessContentType(inputStream: InputStream): Option[String] =
     Try {
       // can return null or throw exception
-      Option(URLConnection.guessContentTypeFromStream(asInputStream(byteBuffer)))
+      Option(URLConnection.guessContentTypeFromStream(inputStream))
     }.toOption.flatten
 
 }
