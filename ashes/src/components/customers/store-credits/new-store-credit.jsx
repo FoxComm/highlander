@@ -18,6 +18,7 @@ import Form from '../../forms/form';
 import Dropdown from '../../dropdown/dropdown';
 import Currency from '../../common/currency';
 import SaveCancel from 'components/core/save-cancel';
+import Icon from 'components/core/icon';
 
 // redux
 import * as CustomerActions from '../../../modules/customers/details';
@@ -210,7 +211,7 @@ export default class NewStoreCredit extends React.Component {
                            labelClassName="fc-store-credit-form__label">
                   <div className="fc-input-group fc-store-credit-form__input-group-amount-field">
                     <div className="fc-input-prepend fc-store-credit-form__amount-field-prepend">
-                      <i className="icon-usd"></i>
+                      <Icon name="usd" />
                     </div>
                     <input id="scAmountField"
                            type="hidden"

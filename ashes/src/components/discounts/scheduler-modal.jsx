@@ -1,15 +1,19 @@
 /* @flow */
 
+// libs
 import _ from 'lodash';
 import React from 'react';
 import { numberize } from 'lib/text-utils';
 
-import styles from './scheduler-modal.css';
-
+// components
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import wrapModal from '../modal/wrapper';
 import ContentBox from '../content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
+import Icon from 'components/core/icon';
+
+// styles
+import styles from './scheduler-modal.css';
 
 type Props = {
   entity: string;
@@ -21,7 +25,7 @@ type Props = {
 const SchedulerModal = (props: Props) => {
   const {entity, count, onCancel, onConfirm} = props;
 
-  const actionBlock = <i onClick={onCancel} className="fc-btn-close icon-close" title="Close" />;
+  const actionBlock = <Icon onClick={onCancel} className="fc-btn-close" name="close" title="Close" />;
   const entityForm = numberize(entity, count);
   const entityCap = _.upperFirst(entityForm);
 

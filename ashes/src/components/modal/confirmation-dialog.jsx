@@ -10,6 +10,7 @@ import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
 import wrapModal from 'components/modal/wrapper';
 import { ApiErrors } from 'components/utils/errors';
+import Icon from 'components/core/icon';
 
 type Props = {
   body: string | Element<*>,
@@ -28,7 +29,7 @@ const ConfirmationDialog = (props: Props) => {
   if (props.icon) {
     modalIcon = (
       <div className='fc-modal-icon'>
-        <i className={ `icon-${props.icon}` } />
+        <Icon name={props.icon} />
       </div>
     );
   }
@@ -42,7 +43,7 @@ const ConfirmationDialog = (props: Props) => {
 
   const actionBlock = (
     <a className='fc-modal-close' onClick={() => props.onCancel()}>
-      <i className='icon-close' />
+      <Icon name='close' />
     </a>
   );
 

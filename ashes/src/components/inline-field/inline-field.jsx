@@ -1,8 +1,11 @@
 /* @flow */
 
+// libs
 import React, { Component } from 'react';
 
+// components
 import InlineForm from './inline-form';
+import Icon from 'components/core/icon';
 
 type Props = {
   label: string,
@@ -51,7 +54,7 @@ export default class InlineField extends Component<void, Props, State> {
       valueElement = (
         <div className="fc-inline-field__value" onClick={this.handleStartEdit.bind(this)}>
           <div>{this.props.value}</div>
-          <i className="icon-edit" />
+          <Icon name="edit" />
         </div>
       );
     }

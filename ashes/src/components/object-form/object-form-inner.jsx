@@ -2,6 +2,7 @@
  * @flow
  */
 
+// libs
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
@@ -9,6 +10,7 @@ import classNames from 'classnames';
 import { stripTags } from 'lib/text-utils';
 import { isDefined } from 'lib/utils';
 
+// components
 import { FormField, FormFieldError } from '../forms';
 import { SliderCheckbox } from '../checkbox/checkbox';
 import CurrencyInput from '../forms/currency-input';
@@ -17,6 +19,7 @@ import DatePicker from '../datepicker/datepicker';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
 import { Dropdown } from '../dropdown';
 import SwatchInput from 'components/core/swatch-input';
+import Icon from 'components/core/icon';
 
 import type { AttrSchema } from 'paragons/object';
 
@@ -75,7 +78,7 @@ export default class ObjectFormInner extends Component {
           Custom Property
           <a id="fct-add-btn__custom-property" className="fc-object-form__add-custom-property-icon"
              onClick={this.handleAddProperty}>
-            <i className="icon-add" />
+            <Icon name="add" />
           </a>
         </div>
       );

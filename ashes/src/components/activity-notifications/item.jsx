@@ -11,6 +11,7 @@ import AuthorTitle from '../activity-trail/activities/base/author-title';
 import AuthorIcon from '../activity-trail/activities/base/author-icon';
 import { representatives } from '../activity-trail/activities/index';
 import { processActivity } from '../../modules/activity-trail';
+import Icon from 'components/core/icon';
 
 // cannot be stateless as it returns null
 // related issue https://github.com/facebook/react/issues/4599
@@ -20,22 +21,22 @@ export default class NotificationItem extends React.Component {
     const type = _.get(this.props, ['item', 'kind']);
     if (!_.isEmpty(type)) {
       if (type.indexOf('order') >= 0) {
-        return <i className="icon icon-orders"></i>;
+        return <Icon name="orders" />;
       } else if (type.indexOf('cart') >= 0) {
-        return <i className="icon icon-orders"></i>;
+        return <Icon name="orders" />;
       } else if (type.indexOf('user') >= 0) {
-        return <i className="icon icon-customers"></i>;
+        return <Icon name="customers" />;
       } else if (type.indexOf('customer') >= 0) {
-        return <i className="icon icon-customers"></i>;
+        return <Icon name="customers" />;
       } else if (type.indexOf('gift_card') >= 0) {
-        return <i className="icon icon-gift-cards"></i>;
+        return <Icon name="gift-cards" />;
       } else if (type.indexOf('store_credit') >= 0) {
-        return <i className="icon icon-gift-cards"></i>;
+        return <Icon name="gift-cards" />;
       } else {
-        return <i className="icon icon-bell"></i>;
+        return <Icon name="bell" />;
       }
     } else {
-      return <i className="icon icon-bell"></i>;
+      return <Icon name="bell" />;
     }
   }
 

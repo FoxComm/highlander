@@ -4,6 +4,9 @@
 import classNames from 'classnames';
 import React, { Element } from 'react';
 
+// components
+import Icon from 'components/core/icon';
+
 // styles
 import s from './button.css';
 
@@ -47,7 +50,7 @@ export const Button = ({ icon, children, isLoading, className, fullWidth, small,
 
   return (
     <button {...restProps} className={cls} disabled={disabled}>
-      {icon && <i className={`icon-${icon}`} />}
+      {icon && <Icon name={icon} />}
       {content}
     </button>
   );

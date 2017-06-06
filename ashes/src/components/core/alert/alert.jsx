@@ -4,6 +4,9 @@
 import classNames from 'classnames';
 import React from 'react';
 
+// components
+import Icon from 'components/core/icon';
+
 // styles
 import s from './alert.css';
 
@@ -35,7 +38,7 @@ const Alert = (props: Props) => {
   return (
     <div className={className}>
       <div className={s.message}>
-        <i className={`icon-${props.type}`} />
+        <Icon name={props.type} />
         {props.children}
       </div>
       {closeButton}

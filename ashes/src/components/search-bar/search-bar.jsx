@@ -1,4 +1,8 @@
+// libs
 import React from 'react';
+
+// components
+import Icon from 'components/core/icon';
 
 export default class SearchBar extends React.Component {
 
@@ -11,7 +15,7 @@ export default class SearchBar extends React.Component {
               <input className="fc-search-input-field" type="text" placeholder="Add another filter or keyword search" />
             </div>
             <div className="fc-search-icon-wrapper">
-              <i className="icon-search"></i>
+              <Icon name="search" />
             </div>
           </div>
           <div className="fc-search-btn-container">

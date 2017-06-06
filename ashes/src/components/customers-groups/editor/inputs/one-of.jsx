@@ -7,6 +7,7 @@ import { prefix } from 'lib/text-utils';
 
 //components
 import propTypes from '../widgets/propTypes';
+import Icon from 'components/core/icon';
 
 
 export const Input = ({Input: Widget}) => ({criterion, value, className, changeValue}) => {
@@ -61,7 +62,7 @@ const renderInputItem = ({Widget, criterion, values, index, className, changeVal
         }))}
       </div>
       {renderNodeOrAdd(prefixed, index < values.length - 1, add)}
-      <i className={classNames(prefixed('remove'), 'icon-close')} onClick={remove} />
+      <Icon className={prefixed('remove')} name="close" onClick={remove} />
     </div>
   );
 };

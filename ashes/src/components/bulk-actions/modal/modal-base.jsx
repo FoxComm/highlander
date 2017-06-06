@@ -17,7 +17,7 @@ export type Props = {
 
 const ModalBase = (props: Props) => {
   const { title, label, onCancel, onConfirm, cancelText = 'No', saveText = 'Yes', saveDisabled = false } = props;
-  const actionBlock = <i onClick={onCancel} className="fc-btn-close icon-close" title="Close" />;
+  const actionBlock = <Icon onClick={onCancel} className="fc-btn-close" name="close" title="Close" />;
 
   return (
     <ContentBox

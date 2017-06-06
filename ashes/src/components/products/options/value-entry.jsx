@@ -9,6 +9,7 @@ import React, { Component } from 'react';
 import TableCell from 'components/table/cell';
 import TableRow from 'components/table/row';
 import SwatchDisplay from 'components/swatch/swatch-display';
+import Icon from 'components/core/icon';
 
 // styles
 import styles from './option-list.css';
@@ -53,13 +54,13 @@ class ValueEntry extends Component {
             id={`fct-value-edit-btn__${valueName}`}
             onClick={() => this.props.editValue(id, value)}
             styleName="action-icon">
-            <i className="icon-edit" />
+            <Icon name="edit" />
           </a>
           <a
             id={`fct-value-delete-btn__${valueName}`}
             onClick={() => this.props.deleteValue(id)}
             styleName="action-icon">
-            <i className="icon-trash" />
+            <Icon name="trash" />
           </a>
         </TableCell>
       </TableRow>

@@ -2,12 +2,14 @@
  * @flow weak
  */
 
+// libs
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import { DragSource, DropTarget } from 'react-dnd';
 
 // components
 import { Checkbox } from '../checkbox/checkbox';
+import Icon from 'components/core/icon';
 
 // styles
 import styles from './column-selector.css';
@@ -98,7 +100,9 @@ class SelectorItem extends Component {
     return connectDragPreview(connectDropTarget(
       <li styleName={styleName}>
         {connectDragSource(
-          <i className='fc-tab__icon icon-drag-drop' />
+          <div className="icon-wrapper">
+            <Icon name='drag-drop'/>
+          </div>
         )}
         <Checkbox
           id={`choose-column-${this.props.id}`}

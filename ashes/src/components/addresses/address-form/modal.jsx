@@ -1,16 +1,19 @@
-
+// libs
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+
+// components
 import modalWrapper from '../../modal/wrapper';
 import AddressForm from './address-form';
 import ContentBox from '../../content-box/content-box';
+import Icon from 'components/core/icon';
 
 type Props = {
   onCancel?: Function;
 };
 
 const AddressFormWrapper = (props: Props) => {
-  const actionBlock = <i onClick={props.onCancel} className="fc-btn-close icon-close" title="Close" />;
+  const actionBlock = <Icon onClick={props.onCancel} className="fc-btn-close" name="close" title="Close" />;
 
   return (
     <ContentBox title="Address Book" className="fc-address-form-modal" actionBlock={ actionBlock }>

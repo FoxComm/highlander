@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 // components
 import DetailedInitials from '../../../user-initials/detailed-initials';
 import SvgIcon from 'components/core/svg-icon';
+import Icon from 'components/core/icon';
 
 // styles
 import s from './author-icon.css';
@@ -28,7 +29,7 @@ const AuthorIcon = props => {
     case 'customer':
       return (
         <div className="fc-activity__customer-icon">
-          <i className="icon-customer"></i>
+          <Icon name="customer" />
         </div>
       );
     default:

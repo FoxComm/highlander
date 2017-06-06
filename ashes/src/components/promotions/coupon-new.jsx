@@ -11,6 +11,7 @@ import wrapModal from '../modal/wrapper';
 import ContentBox from '../content-box/content-box';
 import CouponPage from '../coupons/page';
 import CouponForm from '../coupons/form';
+import Icon from 'components/core/icon';
 
 type Props = {
   promotionId: String,
@@ -25,7 +26,7 @@ class CouponNew extends Component {
   }
 
   render() {
-    const actionBlock = <i onClick={this.cancelAction} className="fc-btn-close icon-close" title="Close" />;
+    const actionBlock = <Icon onClick={this.cancelAction} className="fc-btn-close" name="close" title="Close" />;
     return (
       <div styleName="promotion-coupons-new">
         <ContentBox actionBlock={actionBlock} title="Add Coupon Code">

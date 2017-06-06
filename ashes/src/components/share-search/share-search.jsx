@@ -16,6 +16,7 @@ import { PrimaryButton } from 'components/core/button';
 import Spinner from 'components/core/spinner';
 import AdminsTypeahead from '../users-typeahead/admins-typeahead';
 import Alert from 'components/core/alert';
+import Icon from 'components/core/icon';
 
 // styles
 import s from './share-search.css';
@@ -86,7 +87,7 @@ class ShareSearch extends Component {
   get closeAction() {
     return (
       <a className='fc-modal-close' onClick={this.props.onClose}>
-        <i className='icon-close' />
+        <Icon name='close' />
       </a>
     );
   }

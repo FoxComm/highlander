@@ -14,6 +14,7 @@ import { RoundedPill } from 'components/core/rounded-pill';
 import { withTaxonomy } from '../hoc';
 import TaxonomyDropdown from '../taxonomy-dropdown';
 import NewTaxonModal from '../taxons/new-taxon-modal';
+import Icon from 'components/core/icon';
 
 // actions
 import { deleteProductCurried as unlinkProduct } from 'modules/taxons/details/taxon';
@@ -201,7 +202,7 @@ class TaxonomyWidget extends Component {
         <div className={s.header}>
           {this.props.title}
           <button className={s.button} onClick={this.handleShowDropdownClick}>
-            <i className="icon-add" />
+            <Icon name="add" />
           </button>
         </div>
         {this.content}

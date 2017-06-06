@@ -1,6 +1,11 @@
 /* @flow */
+
+// libs
 import _ from 'lodash';
 import React from 'react';
+
+// components
+import Icon from 'components/core/icon';
 
 // helpers
 import { numberize } from 'lib/text-utils';
@@ -21,7 +26,7 @@ type Props = {
 
 const ChangeStateModal = (props: Props) => {
   const {entity, stateTitle, count, label: rawLabel, onCancel, onConfirm} = props;
-  const actionBlock = <i onClick={onCancel} className="fc-btn-close icon-close" title="Close" />;
+  const actionBlock = <Icon onClick={onCancel} className="fc-btn-close" name="close" title="Close" />;
   const entityForm = numberize(entity, count);
 
   const label = rawLabel

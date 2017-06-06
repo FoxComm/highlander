@@ -13,6 +13,7 @@ import modal from 'components/modal/wrapper';
 import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
 import TextInput from 'components/forms/text-input';
+import Icon from 'components/core/icon';
 
 import s from './bulk-export-modal.css';
 
@@ -78,7 +79,7 @@ class BulkExportModal extends Component {
 
   get actionBlock() {
     return (
-      <i onClick={this.props.onCancel} className="fc-btn-close icon-close" title="Close" />
+      <Icon onClick={this.props.onCancel} className="fc-btn-close" name="close" title="Close" />
     );
   }
 

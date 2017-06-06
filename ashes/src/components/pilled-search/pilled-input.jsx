@@ -1,7 +1,13 @@
+// libs
 import _ from 'lodash';
 import classNames from 'classnames';
 import React from 'react';
 import PropTypes from 'prop-types';
+
+// components
+import Icon from 'components/core/icon';
+
+// paragons
 import { INPUT_ATTRS } from 'paragons/common';
 
 // These aren't actually multiple exported components, but ESLint mistakenly
@@ -44,7 +50,7 @@ const iconWrapper = (icon, onIconClick) => {
 
     return (
       <div className={cls} onClick={onIconClick}>
-        <i className={`icon-${icon}`} />
+        <Icon name={icon} />
       </div>
     );
   }

@@ -14,6 +14,7 @@ import UserMenu from './usermenu';
 import * as userActions from 'modules/user';
 import { toggleUserMenu } from 'modules/usermenu';
 import SvgIcon from 'components/core/svg-icon';
+import Icon from 'components/core/icon';
 
 import type { TUser } from 'modules/user';
 
@@ -74,7 +75,7 @@ export default class Header extends React.Component {
               <div styleName="initials">{this.initials}</div>
               <div styleName="name">{name}</div>
               <div id="fct-user-menu-btn" styleName="arrow">
-                {isMenuVisible ? <i className="icon-chevron-up" /> : <i className="icon-chevron-down" />}
+                {isMenuVisible ? <Icon name="chevron-up" /> : <Icon name="chevron-down" />}
               </div>
               {isMenuVisible && <UserMenu user={user} />}
             </div>

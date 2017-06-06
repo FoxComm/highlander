@@ -1,21 +1,25 @@
 /* @flow */
 
+// libs
 import _ from 'lodash';
 import React, { Component } from 'react';
-
 import { Link } from 'components/link';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
+//components
 import ContentBox from 'components/content-box/content-box';
 import { AddButton, DeleteButton } from 'components/core/button';
 import SearchGroupModal from './search-group-modal';
+import Icon from 'components/core/icon';
 
+// redux
 import { suggestGroups } from 'modules/customer-groups/suggest';
 import { saveGroups } from 'modules/customers/details';
 
+// styles
 import styles from './groups.css';
 
 type Props = {
@@ -87,7 +91,7 @@ class CustomerGroupsBlock extends Component {
       return (
         <div className={styles['group-container']} key={group.id}>
           <Link className={linkClass} to="customer-group" params={{groupId: group.id}}>
-            <span className={styles.name}><i className="icon icon-customers"></i> {group.name}</span>
+            <span className={styles.name}><Icon name="customers" /> {group.name}</span>
             <span className={styles.type}>{_.capitalize(group.groupType)}</span>
           </Link>
           {group.groupType == 'manual' && <DeleteButton onClick={() => this.handleDelete(group.id)} />}

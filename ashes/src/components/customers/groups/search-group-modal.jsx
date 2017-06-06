@@ -10,6 +10,7 @@ import { ModalContainer } from 'components/modal/base';
 import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
 import GroupsTypeahead from './groups-typeahead';
+import Icon from 'components/core/icon';
 
 type Props = {
   isVisible: boolean,
@@ -34,7 +35,7 @@ export default class SearchGroupModal extends Component {
   get actionBlock() {
     return (
       <a className='fc-modal-close' onClick={this.props.onCancel}>
-        <i className='icon-close'></i>
+        <Icon name='close' />
       </a>
     );
   }

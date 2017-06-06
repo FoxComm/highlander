@@ -4,6 +4,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
+// components
+import Icon from 'components/core/icon';
+
 //helpers
 import { prefix } from '../../lib/text-utils';
 
@@ -37,7 +40,7 @@ export default class PrependIconInput extends Component {
 
     return (
       <div className={classNames(prefixed(), className, {'_active': this.state.isFocused})}>
-        {icon ? <i className={classNames(prefixed('icon'),`icon-${icon}`)} /> : null}
+        {icon ? <Icon className={prefixed('icon')} name={icon} /> : null}
         {input}
       </div>
     );

@@ -7,6 +7,7 @@ import React, { Component, Element } from 'react';
 import { ModalContainer } from 'components/modal/base';
 import ContentBox from 'components/content-box/content-box';
 import ProductsAdd from './products-add';
+import Icon from 'components/core/icon';
 
 // styles
 import styles from './products-add.css';
@@ -31,7 +32,7 @@ class ProductsAddModal extends Component {
   get actionBlock() {
     return (
       <a className="fc-modal-close" onClick={this.props.onCancel}>
-        <i className="icon-close" />
+        <Icon name="close" />
       </a>
     );
   }

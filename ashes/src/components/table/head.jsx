@@ -1,11 +1,13 @@
+// libs
 import React from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
-
 import classNames from 'classnames';
 import _ from 'lodash';
 
+// components
 import TableRow from './row';
+import Icon from 'components/core/icon';
 
 class TableHead extends React.Component {
   static propTypes = {
@@ -38,7 +40,7 @@ class TableHead extends React.Component {
     if (!_.isEmpty(column.text)) {
       contents = column.text;
     } else if (!_.isEmpty(column.icon)) {
-      contents = <i className={column.icon} />;
+      contents = <Icon name={column.icon} />;
     } else if (!_.isEmpty(column.control)) {
       contents = column.control;
     }
@@ -50,8 +52,8 @@ class TableHead extends React.Component {
         {contents}
         {sortable && (
           <span className="fc-table__sorting">
-            <i className="icon-down" />
-            <i className="icon-up" />
+            <Icon name="down" />
+            <Icon name="up" />
           </span>
         )}
       </th>

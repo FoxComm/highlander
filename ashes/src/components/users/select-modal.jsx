@@ -9,6 +9,7 @@ import { ModalContainer } from '../modal/base';
 import ContentBox from '../content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
 import AdminsTypeahead from '../users-typeahead/admins-typeahead';
+import Icon from 'components/core/icon';
 
 type Props = {
   isVisible: boolean,
@@ -33,7 +34,7 @@ class SelectAdminsModal extends Component {
   get actionBlock() {
     return (
       <a className='fc-modal-close' onClick={this.props.onCancel}>
-        <i className='icon-close'></i>
+        <Icon name='close' />
       </a>
     );
   }

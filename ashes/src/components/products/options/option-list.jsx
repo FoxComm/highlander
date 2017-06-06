@@ -2,6 +2,7 @@
  * @flow
  */
 
+// libs
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
@@ -14,6 +15,7 @@ import ContentBox from 'components/content-box/content-box';
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import OptionEntry from './option-entry';
 import OptionEditDialog from './option-edit-dialog';
+import Icon from 'components/core/icon';
 
 // styles
 import styles from './option-list.css';
@@ -54,7 +56,7 @@ class OptionList extends Component {
   get actions(): Element<*> {
     return (
       <a id="fct-add-btn__new-option" styleName="action-icon" onClick={() => this.startEditOption('new')}>
-        <i className="icon-add" />
+        <Icon name="add" />
       </a>
     );
   }
