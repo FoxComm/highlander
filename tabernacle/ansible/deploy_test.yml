@@ -42,6 +42,20 @@
     # - { role: dev/marathon_restart }
     - { role: dev/nginx }
     - { role: demo/balancer }
+
+- name: Restart Marathon Consul
+  hosts: foxcomm-test-amigo
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  roles:
+    - { role: dev/marathon_consul }
+
+- name: Provision Test Frontend
+  hosts: foxcomm-test-frontend
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
   post_tasks:
     - name: Restart Nginx
       service: name=nginx state=restarted
