@@ -74,7 +74,7 @@
                            :message template}))
 
 (defn trim-slash [str]
-   (string/replace str #"/$" ""))
+  (string/replace str #"/$" ""))
 
 (defn extract-password-link
   [activity email url-action is-admin]
@@ -88,7 +88,6 @@
 
     {:reset_password_link reset-password-link
      :reset_code reset-code}))
-
 
 (defn dispatch-activity
   [activity]
@@ -253,9 +252,9 @@
         reset-pw (extract-password-link activity email "signup" true)
         msg (gen-msg [{:email email :name new-admin-name}]
                      (merge
-                     {:user_being_invited new-admin-name
-                      :name_of_retailer (settings/get :retailer_name)
-                      :user_that_invited_you store-admin-name}
+                      {:user_being_invited new-admin-name
+                       :name_of_retailer (settings/get :retailer_name)
+                       :user_that_invited_you store-admin-name}
                       reset-pw)
 
                      {:subject (settings/get :admin_invitation_subject)})]

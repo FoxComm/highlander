@@ -75,11 +75,12 @@ object StoreAdminManager {
 
   def delete(accountId: Int, author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Unit] =
     for {
-      adminUser ← * <~ AdminsData.mustFindByAccountId(accountId)
       _ ← * <~ AdminsData
-           .deleteById(adminUser.id, DbResultT.unit, i ⇒ NotFoundFailure404(AdminData, i))
+           .filter(_.accountId === accountId)
+           .deleteAll(DbResultT.unit, DbResultT.failure[Unit](UserWithAccountNotFound(accountId)))
       _ ← * <~ CustomersData
-           .deleteById(adminUser.id, DbResultT.unit, i ⇒ NotFoundFailure404(CustomersData, i))
+           .filter(_.accountId === accountId)
+           .deleteAll(DbResultT.unit, DbResultT.failure[Unit](UserWithAccountNotFound(accountId)))
       admin  ← * <~ Users.mustFindByAccountId(accountId)
       _      ← * <~ UserPasswordResets.filter(_.accountId === accountId).delete
       result ← * <~ Users.deleteById(admin.id, DbResultT.unit, i ⇒ NotFoundFailure404(User, i))
