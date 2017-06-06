@@ -11,7 +11,7 @@ import { skuId } from 'paragons/product';
 
 // components
 import ContentBox from 'components/content-box/content-box';
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import OptionEntry from './option-entry';
 import OptionEditDialog from './option-edit-dialog';
 
@@ -242,12 +242,11 @@ class OptionList extends Component {
       </div>
     );
     return (
-      <ConfirmationDialog
-        isVisible={true}
-        header={`Remove ${removeTargetTitle} from product?`}
+      <ConfirmationModal
+        isVisible
+        title={`Remove ${removeTargetTitle} from product?`}
         body={confirmation}
-        cancel="Cancel"
-        confirm="Yes, Remove"
+        confirmLabel="Yes, Remove"
         onCancel={() => this.closeDeleteDialog()}
         confirmAction={() => this.confirmDeletion()}
       />

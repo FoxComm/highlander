@@ -1,0 +1,19 @@
+.container {
+  position: fixed;
+  display: flex;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  background: rgba(0, 0, 0, 0.5);
+  backface-visibility: hidden;
+  z-index: 1000;
+}
+
+.modal {
+  position: relative;
+  margin: auto;
+  background-color: #fff;
+  z-index: 3;
+}

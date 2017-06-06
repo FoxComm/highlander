@@ -298,7 +298,7 @@ export default class AddressForm extends React.Component {
               <li className="fc-address-form-controls">
                 <SaveCancel
                   onCancel={onCancel}
-                  saveText={saveTitle}
+                  saveLabel={saveTitle}
                 />
               </li>
             </ul>

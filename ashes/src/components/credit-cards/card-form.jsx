@@ -56,13 +56,13 @@ export default class CreditCardForm extends React.Component {
     }),
     customerId: PropTypes.number,
     className: PropTypes.string,
-    saveText: PropTypes.string,
+    saveLabel: PropTypes.string,
   };
 
   static defaultProps = {
     isDefaultEnabled: true,
     onChange: _.noop,
-    saveText: 'Save',
+    saveLabel: 'Save',
   };
 
   state = {
@@ -116,12 +116,12 @@ export default class CreditCardForm extends React.Component {
         <FormField label="Name on Card"
                    validator="ascii"
                    labelClassName="fc-credit-card-form__label">
-        <TextInput id="nameCardFormField"
-                   className="fc-credit-card-form__input"
-                   name="holderName"
-                   maxLength="255"
-                   required
-                   value={holderName} />
+          <TextInput id="nameCardFormField"
+                     className="fc-credit-card-form__input"
+                     name="holderName"
+                     maxLength="255"
+                     required
+                     value={holderName} />
         </FormField>
       </li>
     );
@@ -191,11 +191,11 @@ export default class CreditCardForm extends React.Component {
                        labelClassName="fc-credit-card-form__label"
                        validator={this.validateCvvNumber}>
               <TextInput id="cvvCardFormField"
-                     className="fc-credit-card-form__input"
-                     name="cvv"
-                     maxLength={cvvLength(this.cardType)}
-                     required
-                     value={this.cardCVV} />
+                         className="fc-credit-card-form__input"
+                         name="cvv"
+                         maxLength={cvvLength(this.cardType)}
+                         required
+                         value={this.cardCVV} />
             </FormField>
           </div>
         </div>
@@ -271,15 +271,17 @@ export default class CreditCardForm extends React.Component {
 
   get submit() {
     return (
-      <SaveCancel saveText={this.props.saveText}
-                  onCancel={this.props.onCancel} />
+      <SaveCancel
+        saveLabel={this.props.saveLabel}
+        onCancel={this.props.onCancel}
+      />
     );
   }
 
   @autobind
-  onChange({target}) {
+  onChange({ target }) {
     const newState = assoc(this.state, ['card', target.name], target.value);
-    this.setState(newState, () => this.props.onChange({target}));
+    this.setState(newState, () => this.props.onChange({ target }));
   }
 
   @autobind
