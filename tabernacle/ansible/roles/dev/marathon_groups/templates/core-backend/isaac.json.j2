@@ -7,9 +7,14 @@
     "instances": 1,
     "constraints": [],
     "labels": {
+        "MARATHON_SINGLE_INSTANCE_APP": "true",
         "LANG": "cpp",
         "consul": "isaac",
         "TAG": "{{docker_tags.isaac}}"
+    },
+    "upgradeStrategy": {
+        "minimumHealthCapacity": 0,
+        "maximumOverCapacity": 0
     },
     "container": {
         "type": "DOCKER",
