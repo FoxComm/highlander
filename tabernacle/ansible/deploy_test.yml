@@ -32,7 +32,7 @@
     - { role: base/mesos_worker, when: first_run }   # Hotfix, to be removed
     - { role: hotfix/mesos_worker, when: first_run } # Hotfix, to be removed
 
-- name: Restart Marathon Consul
+- name: Restart Marathon Group
   hosts: foxcomm-test-amigo
   become: true
   vars:
@@ -48,7 +48,7 @@
     - { role: dev/marathon_groups }
     # - { role: dev/marathon_restart }
 
-- name: Provision Test Frontend
+- name: Restart Nginx
   hosts: foxcomm-test-frontend
   become: true
   vars:
