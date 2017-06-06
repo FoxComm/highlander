@@ -3,6 +3,7 @@ package testutils
 import java.sql.PreparedStatement
 import java.util.Locale
 import javax.sql.DataSource
+import scala.util.Random
 
 import objectframework.models.ObjectContexts
 import org.scalatest._
@@ -41,6 +42,34 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
                           "permissions",
                           "role_permissions")
 
+  private def randomizeSequences(schema: String): Unit = {
+    // When changing this, please, if anything, make them less predictable, not more. @michalrus
+    val allSequences =
+      sql"SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema = $schema"
+        .as[String]
+        .gimme
+
+    // TODO: Make it possible to not filter these out… @michalrus
+    val randomizedSequences = allSequences.filterNot(
+        Set(
+            "scopes_id_seq",         // FIXME: What the hell. https://foxcommerce.slack.com/archives/C06696D1R/p1495796779988723
+            "object_contexts_id_seq" // FIXME: Sigh. https://foxcommerce.slack.com/archives/C06696D1R/p1495798791447479
+        ) contains _)
+
+    val gap = 1000000
+    val withValues = Random
+      .shuffle(randomizedSequences)
+      .zip(Stream.from(1).map(_ * gap + Random.nextInt(gap / 10)))
+    DBIO
+      .sequence(withValues.map {
+        case (name, value) ⇒
+          val increment     = (if (Random.nextBoolean()) 1 else -1) * Random.nextInt(100)
+          val incrementNon0 = if (increment == 0) -1 else increment
+          sql"ALTER SEQUENCE #$name START WITH #$value INCREMENT BY #$incrementNon0 RESTART".asUpdate
+      })
+      .gimme
+  }
+
   override protected def beforeAll(): Unit = {
     if (!migrated) {
       Locale.setDefault(Locale.US)
@@ -49,7 +78,13 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
       flyway.clean()
       flyway.migrate()
 
+      val Schema = "public"
+
+      // TODO: it would be best if data created in *.sql migrations above had randomized sequences as well… @michalrus
+      randomizeSequences(Schema)
+
       truncateTablesStmt = {
+        // FIXME: just use Slick, it can be done IIRC @michalrus
         val allTables =
           persistConn.getMetaData.getTables(persistConn.getCatalog, "public", "%", Array("TABLE"))
 

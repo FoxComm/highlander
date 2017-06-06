@@ -62,6 +62,7 @@ object AddressResponse {
     records.map((build _).tupled)
 
   def buildFromOrder(address: OrderShippingAddress, region: Region): AddressResponse = {
+    // FIXME: so AddressResponse#id is OrderShippingAddress#id, but *sometimes* also Address#id? o_O’ @michalrus
     AddressResponse(id = address.id,
                     region = region,
                     name = address.name,

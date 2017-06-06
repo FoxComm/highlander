@@ -148,7 +148,7 @@ class CouponsIntegrationTest
           cartsApi(cartRef).lineItems
             .add(Seq(UpdateLineItemsPayload(skuCode, 2, randomGiftCardLineItemAttributes)))
 
-          val message = "qualifier orderAnyQualifier rejected order with refNum=BR10001, " +
+          val message = s"qualifier orderAnyQualifier rejected order with refNum=$cartRef, " +
               "reason: Items in cart are not eligible for discount"
           cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
         }
@@ -157,8 +157,8 @@ class CouponsIntegrationTest
         with RegularAndGiftCardLineItemFixture {
           override def qualifiedSubtotal: Long = 4000
 
-          val message = "qualifier orderTotalAmountQualifier rejected order with refNum=BR10001, " +
-              "reason: Order subtotal is less than 4000"
+          val message = s"qualifier orderTotalAmountQualifier rejected order with refNum=$cartRef, " +
+              s"reason: Order subtotal is less than $qualifiedSubtotal"
           cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
         }
 
@@ -166,8 +166,8 @@ class CouponsIntegrationTest
         with RegularAndGiftCardLineItemFixture {
           override def qualifiedNumItems: Int = 2
 
-          val message = "qualifier orderNumUnitsQualifier rejected order with refNum=BR10001, " +
-              "reason: Order unit count is less than 2"
+          val message = s"qualifier orderNumUnitsQualifier rejected order with refNum=$cartRef, " +
+              s"reason: Order unit count is less than $qualifiedNumItems"
           cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
         }
       }
