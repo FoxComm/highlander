@@ -27,15 +27,12 @@ export type Props = {
   album: TAlbum;
   loading: boolean;
   failedImagesCount: number,
-  position: number;
-  albumsCount: number;
   clearErrors: () => void;
   uploadFiles: (files: Array<ImageFile>) => Promise<*>;
   uploadByUrl: (idx: number, url: string) => Promise<*>;
   editImage: (idx: number, info: ImageInfo) => Promise<*>;
   deleteImage: (idx: number) => Promise<*>;
   editAlbum: (album: TAlbum) => Promise<*>;
-  moveAlbum: (position: number) => Promise<*>;
   archiveAlbum: (id: number) => Promise<*>;
   fetchAlbums: () => Promise<*>;
   editAlbumState?: AsyncState;
@@ -181,13 +178,6 @@ export default class Album extends Component {
     return this.props.editAlbum(album);
   }
 
-  @autobind
-  handleMove(direction: number): Promise<*> {
-    const position = this.props.position + direction;
-
-    return this.props.moveAlbum(position);
-  }
-
   get errorMsg(): ?Element<*> {
     if (!this.props.failedImagesCount) {
       return null;
@@ -271,7 +261,7 @@ export default class Album extends Component {
   }
 
   render() {
-    const { album, position, albumsCount, loading, editAlbumState } = this.props;
+    const { album, loading, editAlbumState } = this.props;
 
     const albumContent = (
       <Upload
@@ -314,10 +304,7 @@ export default class Album extends Component {
         <AlbumWrapper
           title={album.name}
           titleWrapper={(title: string) => this.renderTitle(title, album.images.length)}
-          position={position}
-          albumsCount={albumsCount}
           contentClassName={s.albumContent}
-          onSort={this.handleMove}
           actions={this.getAlbumActions()}
           onAddFile={this.handleAddFiles}
           onAddUrl={this.handleAddUrl}

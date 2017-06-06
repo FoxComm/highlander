@@ -33,7 +33,6 @@ export type Props = {
   fetchAlbums: (context: string, entityId: number) => Promise<*>;
   addAlbum: (context: string, entityId: number, album: NewAlbum) => Promise<*>;
   editAlbum: (context: string, albumId: number, album: TAlbum) => Promise<*>;
-  moveAlbum: (context: string, entityId: number, albumId: number, position: number) => Promise<*>;
   archiveAlbum: (context: string, albumId: number) => Promise<*>;
   asyncActionsState: {
     addAlbum?: AsyncState;
@@ -128,10 +127,7 @@ export default class Images extends Component {
               editImage={(idx: number, form: ImageInfo) => this.props.editImage(context, album.id, idx, form)}
               deleteImage={(idx: number) => this.props.deleteImage(context, album.id, idx)}
               editAlbum={(album: TAlbum) => this.props.editAlbum(context, album.id, album)}
-              moveAlbum={(position: number) => this.props.moveAlbum(context, entityId, album.id, position)}
               archiveAlbum={(id: number) => this.props.archiveAlbum(context, id)}
-              position={i}
-              albumsCount={albums.length}
               key={album.id}
               fetchAlbums={() => this.props.fetchAlbums(context, entityId)}
               editAlbumState={asyncActionsState.editAlbum}

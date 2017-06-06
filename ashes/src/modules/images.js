@@ -127,14 +127,6 @@ export default function createMediaModule(entity: string): Module {
     }
   );
 
-  const _moveAlbum = createAsyncActions(
-    actionPath(entity, 'moveAlbum'),
-    (context: string, entityId: string, albumId: number, position: number) => {
-      return Api.post(`/${entity}/${context}/${entityId}/albums/position`, { albumId, position });
-    },
-    (...args) => [...args]
-  );
-
   const _archiveAlbum = createAsyncActions(
     actionPath(entity, 'archiveAlbum'),
     (context: string, albumId: number) => {
@@ -177,18 +169,6 @@ export default function createMediaModule(entity: string): Module {
    */
   const editAlbum = (context: string, albumId: number, album: Album) => dispatch => {
     return dispatch(_editAlbum.perform(context, albumId, album));
-  };
-
-  /**
-   * Move album to new positionx
-   *
-   * @param {String} context System context
-   * @param {Number} entityId Master entity id
-   * @param {Number} albumId Album id
-   * @param {Number} position New album position index
-   */
-  const moveAlbum = (context: string, entityId: string, albumId: number, position: number) => dispatch => {
-    return dispatch(_moveAlbum.perform(context, entityId, albumId, position));
   };
 
   /**
@@ -263,22 +243,12 @@ export default function createMediaModule(entity: string): Module {
       return assoc(state, ['albums'], response);
     },
     [_addAlbum.succeeded]: (state: State, response: Album) => {
-      return assoc(state, ['albums'], [response, ...state.albums]);
+      return assoc(state, ['albums'], [...state.albums, response], 'failedImagesCount', 0);
     },
     [_editAlbum.succeeded]: (state: State, response: Album) => {
       const idx = _.findIndex(state.albums, (album: Album) => album.id === response.id);
 
-      return assoc(state, ['albums', idx], response);
-    },
-    [_moveAlbum.started]: (state: State, [context, entityId, albumId, newPosition]) => {
-      const oldPosition = _.findIndex(state.albums, { id: albumId });
-      const albums = [...state.albums];
-      const albumToMove = albums[oldPosition];
-
-      albums.splice(oldPosition, 1);
-      albums.splice(newPosition, 0, albumToMove);
-
-      return assoc(state, ['albums'], albums);
+      return assoc(state, ['albums', idx], response, 'failedImagesCount', 0);
     },
     [_archiveAlbum.succeeded]: (state: State) => {
       return assoc(state, ['albums'], state.albums);
@@ -342,7 +312,6 @@ export default function createMediaModule(entity: string): Module {
       fetchAlbums,
       addAlbum,
       editAlbum,
-      moveAlbum,
       archiveAlbum
     }
   };

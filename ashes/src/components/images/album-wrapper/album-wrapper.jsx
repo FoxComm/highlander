@@ -18,8 +18,6 @@ type Action = {
 type Props = {
   actions: Array<Action>;
   title: string;
-  position: number;
-  albumsCount: number;
   onAddFile: Function;
   onAddUrl: Function;
   titleWrapper?: (title: string) => Element<*>;
@@ -42,14 +40,6 @@ export default class AlbumWrapper extends Component {
     actions: [],
     onAddFile: () => {},
   };
-
-  get isFirstAlbum(): boolean {
-    return this.props.position === 0;
-  }
-
-  get isLastAlbum(): boolean {
-    return this.props.position === this.props.albumsCount - 1;
-  }
 
   get title() {
     const { title, titleWrapper } = this.props;
