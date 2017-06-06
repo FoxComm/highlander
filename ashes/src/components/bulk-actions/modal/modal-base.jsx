@@ -4,6 +4,7 @@ import React, { Element } from 'react';
 
 import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
+import Icon from 'components/core/icon';
 
 export type Props = {
   title: Element<*>|string,
