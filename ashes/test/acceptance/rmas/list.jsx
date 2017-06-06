@@ -13,9 +13,9 @@ describe('Rmas', function() {
         rows: [rma],
         total: 1,
         from: 0,
-        size: 50
+        size: 50,
       },
-      fetchRmas: sinon.spy()
+      fetchRmas: sinon.spy(),
     };
     const rmaList = shallowRender(<Wrapped {...props} />);
 

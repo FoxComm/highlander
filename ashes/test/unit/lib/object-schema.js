@@ -1,4 +1,3 @@
-
 const { expandRefs } = requireSource('lib/object-schema');
 
 describe('object-schema', function() {
@@ -9,29 +8,29 @@ describe('object-schema', function() {
         definitions: {
           foo: {
             type: 'number',
-            minimum: 2
-          }
+            minimum: 2,
+          },
         },
         properties: {
           foo: {
-            '$ref': '#/definitions/foo'
-          }
-        }
+            $ref: '#/definitions/foo',
+          },
+        },
       };
       const expected = {
         type: 'object',
         definitions: {
           foo: {
             type: 'number',
-            minimum: 2
-          }
+            minimum: 2,
+          },
         },
         properties: {
           foo: {
             type: 'number',
-            minimum: 2
-          }
-        }
+            minimum: 2,
+          },
+        },
       };
       expect(expandRefs(source)).to.be.deep.equal(expected);
     });
@@ -43,17 +42,17 @@ describe('object-schema', function() {
             type: 'string',
             title: 'foo',
             f: 2,
-          }
+          },
         },
         type: 'object',
         properties: {
           foo: {
             type: 'array',
             items: {
-              '$ref': '#/definitions/bars'
-            }
-          }
-        }
+              $ref: '#/definitions/bars',
+            },
+          },
+        },
       };
       const expected = {
         definitions: {
@@ -61,7 +60,7 @@ describe('object-schema', function() {
             type: 'string',
             title: 'foo',
             f: 2,
-          }
+          },
         },
         type: 'object',
         properties: {
@@ -71,9 +70,9 @@ describe('object-schema', function() {
               type: 'string',
               title: 'foo',
               f: 2,
-            }
-          }
-        }
+            },
+          },
+        },
       };
       expect(expandRefs(source)).to.be.deep.equal(expected);
     });

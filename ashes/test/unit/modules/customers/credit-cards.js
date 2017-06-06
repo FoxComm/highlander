@@ -14,11 +14,10 @@ const actions = importSource('modules/customers/credit-cards.js', [
   'closeDeleteCustomerCreditCard',
   'creditCardsUrl',
   'creditCardUrl',
-  'creditCardDefaultUrl'
+  'creditCardDefaultUrl',
 ]);
 
 describe('customers credit cards module', function() {
-
   function creditCardsUrl(customerId) {
     return `/api/v1/customers/${customerId}/payment-methods/credit-cards`;
   }
@@ -31,7 +30,6 @@ describe('customers credit cards module', function() {
   const customerId = 1;
 
   context('helper functions', function() {
-
     const customerId = Math.floor(Math.random() * 10) + 1;
     const cardId = Math.floor(Math.random() * 10) + 1;
 
@@ -49,14 +47,11 @@ describe('customers credit cards module', function() {
       const expected = `/customers/${customerId}/payment-methods/credit-cards/${cardId}/default`;
       expect(actions.creditCardDefaultUrl(customerId, cardId)).to.be.equal(expected);
     });
-
   });
 
   context('async actions', function() {
     before(function() {
-      nock(process.env.API_URL)
-        .get(creditCardsUrl(customerId))
-        .reply(200, creditCardPayload);
+      nock(process.env.API_URL).get(creditCardsUrl(customerId)).reply(200, creditCardPayload);
     });
 
     after(function() {
@@ -64,10 +59,7 @@ describe('customers credit cards module', function() {
     });
 
     it('fetchCreditCards', function*() {
-      const expectedActions = [
-        actions.requestCustomerCreditCards,
-        actions.receiveCustomerCreditCards
-      ];
+      const expectedActions = [actions.requestCustomerCreditCards, actions.receiveCustomerCreditCards];
 
       yield expect(actions.fetchCreditCards(customerId), 'to dispatch actions', expectedActions);
     });
@@ -79,7 +71,7 @@ describe('customers credit cards module', function() {
         expMonth: 11,
         expYear: 2017,
         isDefault: false,
-        addressId: 1
+        addressId: 1,
       };
 
       const stub = sinon.stub(stripe, 'addCreditCard');
@@ -87,39 +79,33 @@ describe('customers credit cards module', function() {
 
       beforeEach(function() {
         const uri = creditCardsUrl(customerId);
-        nock(process.env.API_URL)
-          .get(uri)
-          .reply(200, creditCardPayload)
-          .post(uri)
-          .reply(201, payload);
+        nock(process.env.API_URL).get(uri).reply(200, creditCardPayload).post(uri).reply(201, payload);
       });
 
       const initialState = {
         customers: {
           creditCards: {
             [customerId]: {
-              newCreditCard: payload
-            }
+              newCreditCard: payload,
+            },
           },
           addresses: {
             [customerId]: {
               addresses: [{ id: payload.addressId }],
-            }
-          }
-        }
+            },
+          },
+        },
       };
 
       it('should close form and fetch customers', function*() {
         const expectedActions = [
           actions.requestCustomerCreditCards,
           actions.closeNewCustomerCreditCard,
-          actions.receiveCustomerCreditCards
+          actions.receiveCustomerCreditCards,
         ];
 
-        yield expect(actions.createCreditCard(customerId),
-          'to dispatch actions', expectedActions, initialState);
+        yield expect(actions.createCreditCard(customerId), 'to dispatch actions', expectedActions, initialState);
       });
-
     });
 
     context('saveCreditCard', function() {
@@ -130,7 +116,7 @@ describe('customers credit cards module', function() {
         expYear: 2017,
         isDefault: false,
         addressId: 1,
-        id: 10
+        id: 10,
       };
 
       beforeEach(function() {
@@ -147,27 +133,24 @@ describe('customers credit cards module', function() {
             [customerId]: {
               cards: [],
               editingCreditCard: payload,
-              editingId: payload.id
-            }
-          }
-        }
+              editingId: payload.id,
+            },
+          },
+        },
       };
 
       it('should close form and fetch customers', function*() {
         const expectedActions = [
           actions.requestCustomerCreditCards,
           actions.closeEditCustomerCreditCard,
-          actions.receiveCustomerCreditCards
+          actions.receiveCustomerCreditCards,
         ];
 
-        yield expect(actions.saveCreditCard(customerId),
-          'to dispatch actions', expectedActions, initialState);
+        yield expect(actions.saveCreditCard(customerId), 'to dispatch actions', expectedActions, initialState);
       });
-
     });
 
     context('confirmCreditCardDeletion', function() {
-
       beforeEach(function() {
         nock(process.env.API_URL)
           .get(creditCardsUrl(customerId))
@@ -181,25 +164,26 @@ describe('customers credit cards module', function() {
           creditCards: {
             [customerId]: {
               cards: creditCardPayload,
-              deletingId: 10
-            }
-          }
-        }
+              deletingId: 10,
+            },
+          },
+        },
       };
 
       it('should close form and fetch customers', function*() {
         const expectedActions = [
           actions.requestCustomerCreditCards,
           actions.closeDeleteCustomerCreditCard,
-          actions.receiveCustomerCreditCards
+          actions.receiveCustomerCreditCards,
         ];
 
-        yield expect(actions.confirmCreditCardDeletion(customerId, 10),
-          'to dispatch actions', expectedActions, initialState);
+        yield expect(
+          actions.confirmCreditCardDeletion(customerId, 10),
+          'to dispatch actions',
+          expectedActions,
+          initialState
+        );
       });
-
     });
-
   });
-
 });

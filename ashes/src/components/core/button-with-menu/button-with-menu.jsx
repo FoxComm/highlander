@@ -18,32 +18,32 @@ type DropdownItemType = [any, string | Element<any>];
 
 type Props = {
   /** Primary button label */
-  title: string | Element<any>;
+  title: string | Element<any>,
   /** Menu items array */
-  items: Array<DropdownItemType>;
+  items: Array<DropdownItemType>,
   /** If primary button is disabled */
-  buttonDisabled?: boolean;
+  buttonDisabled?: boolean,
   /** If menu button is disabled */
-  menuDisabled?: boolean;
+  menuDisabled?: boolean,
   /** Icon name that is used to be rendered in a primary button */
-  icon?: string;
+  icon?: string,
   /** If to show loading animation */
-  isLoading?: boolean;
+  isLoading?: boolean,
   /** Additional className */
-  className?: string;
+  className?: string,
   /** Action button className */
-  buttonClassName?: string;
+  buttonClassName?: string,
   /** Menu button className */
-  menuClassName?: string;
+  menuClassName?: string,
   /** Callback called on primary button click */
-  onPrimaryClick?: Function;
+  onPrimaryClick?: Function,
   /** Callback called on menu item click */
-  onSelect?: (value: any, title: string | Element<any>) => any;
-}
+  onSelect?: (value: any, title: string | Element<any>) => any,
+};
 
 type State = {
-  open: boolean;
-}
+  open: boolean,
+};
 
 const transitionProps = {
   component: 'div',
@@ -115,15 +115,15 @@ export default class ButtonWithMenu extends Component {
       return;
     }
 
-    const ddItems = map(items, ([value, title]) => (
+    const ddItems = map(items, ([value, title]) =>
       <DropdownItem value={value} onSelect={this.handleItemClick} key={value}>
         {title}
       </DropdownItem>
-    ));
+    );
 
     return (
       <ul className={s.menu}>
-        { ddItems }
+        {ddItems}
       </ul>
     );
   }
@@ -138,14 +138,18 @@ export default class ButtonWithMenu extends Component {
       buttonClassName,
       menuClassName,
       onPrimaryClick,
-      isLoading
+      isLoading,
     } = this.props;
 
     const { open } = this.state;
 
-    const cls = classNames(s.button, {
-      [s.opened]: open,
-    }, className);
+    const cls = classNames(
+      s.button,
+      {
+        [s.opened]: open,
+      },
+      className
+    );
 
     const actionButtonClassName = classNames(s.actionButton, buttonClassName);
 
@@ -153,7 +157,7 @@ export default class ButtonWithMenu extends Component {
 
     return (
       <div className={cls} onBlur={this.handleBlur} tabIndex="0">
-        { open && <div className={s.overlay} onClick={this.handleBlur}></div> }
+        {open && <div className={s.overlay} onClick={this.handleBlur} />}
         <div className={s.controls}>
           <PrimaryButton
             id="fct-primary-save-btn"
@@ -162,7 +166,8 @@ export default class ButtonWithMenu extends Component {
             onClick={onPrimaryClick}
             isLoading={isLoading}
             onBlur={this.dontPropagate}
-            disabled={buttonDisabled}>
+            disabled={buttonDisabled}
+          >
             {title}
           </PrimaryButton>
           <PrimaryButton

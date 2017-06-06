@@ -13,8 +13,7 @@ process.env.STRIPE_PUBLISHABLE_KEY = 'key_mock'; // mock
 register(['.css']);
 
 const unexpected = require('unexpected');
-global.unexpected = unexpected
-  .use(require('./_unexpected_actions'));
+global.unexpected = unexpected.use(require('./_unexpected_actions'));
 
 global.TimeShift = require('./_timeshift');
 
@@ -27,7 +26,6 @@ global.expect = (function(expect) {
     }
   };
 })(chai.use(chaiEnzyme()).expect);
-
 
 global.later = function(func) {
   return function() {

@@ -21,7 +21,9 @@ process.env.PORT = process.env.PORT || 4000;
 
 const basePath = process.env.BEHIND_NGINX ? '/admin' : '';
 const args = [
-  `${clc.blackBright('NODE_ENV:')} ${clc.blue('%s')}, ${clc.blackBright('API_URL:')} ${clc.green('%s')}, ${clc.red('url: http://localhost:%d%s')}`,
+  `${clc.blackBright('NODE_ENV:')} ${clc.blue('%s')}, ${clc.blackBright('API_URL:')} ${clc.green('%s')}, ${clc.red(
+    'url: http://localhost:%d%s'
+  )}`,
   process.env.NODE_ENV,
   process.env.API_URL,
   process.env.PORT,
@@ -29,7 +31,6 @@ const args = [
 ];
 console.log.apply(this, args); // eslint-disable-line no-console
 
-app.init()
-  .catch(function (err) {
-    console.error(err.stack);
-  });
+app.init().catch(function(err) {
+  console.error(err.stack);
+});

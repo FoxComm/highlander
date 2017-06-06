@@ -64,7 +64,7 @@ export default class Countdown extends Component {
 
     this.setState({
       ending: timeLeft < endingThreshold.asMilliseconds(),
-      difference: moment.utc(timeLeft).format(format)
+      difference: moment.utc(timeLeft).format(format),
     });
 
     if (!timeLeft || frozen) {
@@ -94,11 +94,9 @@ export default class Countdown extends Component {
   render() {
     const cls = classNames(s.countdown, {
       [s.ending]: this.state.ending,
-      [s.frozen]: this.props.frozen
+      [s.frozen]: this.props.frozen,
     });
 
-    return (
-      <div className={cls}>{this.state.difference}</div>
-    );
+    return <div className={cls}>{this.state.difference}</div>;
   }
 }

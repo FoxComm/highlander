@@ -14,7 +14,7 @@ type Props = {
   label: string,
   /** Additional className */
   className?: string,
-}
+};
 
 /**
  * RadioButton component is a simple radio-button with optional content
@@ -28,7 +28,7 @@ const RadioButton = (props: Props) => {
   const { id, label, className, ...rest } = props;
 
   return (
-    <div className={ classNames(s.radio, className) }>
+    <div className={classNames(s.radio, className)}>
       <input type="radio" id={id} {...rest} />
       <label htmlFor={id} className={s.label}>{label}</label>
     </div>

@@ -5,7 +5,7 @@ module.exports = [
     options: [
       {
         title: 'ID',
-        type: 'string'
+        type: 'string',
       },
       {
         title: 'State',
@@ -18,36 +18,36 @@ module.exports = [
           'Fulfillment Started',
           'Shipped',
           'Partially Shipped',
-          'Canceled'
-        ]
+          'Canceled',
+        ],
       },
       {
         title: 'Date Placed',
-        type: 'date'
-      }
-    ]
-  }, {
+        type: 'date',
+      },
+    ],
+  },
+  {
     title: 'Shipment',
     type: 'object',
     options: [
       {
         title: 'State',
         type: 'enum',
-        suggestions: ['Shipped', 'Partially Shipped', 'Delivered']
+        suggestions: ['Shipped', 'Partially Shipped', 'Delivered'],
       },
       {
         title: 'Method',
-        type: 'string'
+        type: 'string',
       },
       {
         title: 'Cost',
-        type: 'number'
+        type: 'number',
       },
       {
         title: 'Total Number',
-        type: 'number'
-      }
-    ]
-  }
+        type: 'number',
+      },
+    ],
+  },
 ];
-

@@ -11,13 +11,12 @@ module.exports = function(env) {
       loginUri: loginUri,
       publicKey: env.public_key,
     };
-
   }
 
   return {
     host: process.env.API_URL,
     uri: `${process.env.API_URL}/${version}`,
     auth: auth(),
-    version: version
+    version: version,
   };
 };

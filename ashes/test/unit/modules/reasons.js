@@ -3,15 +3,13 @@ import _ from 'lodash';
 import reducer, { reasonsRequested, reasonsReceived, reasonsFailed } from 'modules/reasons';
 
 describe('reasons module', function() {
-
   const reasonsPayload = require('../../fixtures/reasons.json');
 
   context('reducers', function() {
-
     it('reasonsRequested should return proper state', function() {
       const initialState = {
         isFetching: false,
-        reasons: []
+        reasons: [],
       };
       const newState = reducer(initialState, reasonsRequested());
       expect(newState.isFetching).to.be.equal(true);
@@ -20,7 +18,7 @@ describe('reasons module', function() {
     it('reasonsReceived should return proper state', function() {
       const initialState = {
         isFetching: true,
-        reasons: []
+        reasons: [],
       };
       const payload = reasonsPayload;
       const reasonType = 'donkeyResons';
@@ -33,7 +31,7 @@ describe('reasons module', function() {
     it('reasonsFailed should return proper state', function() {
       const initialState = {
         isFetching: true,
-        reasons: []
+        reasons: [],
       };
       const err = console.error;
       console.error = _.noop;
@@ -41,7 +39,5 @@ describe('reasons module', function() {
       expect(newState.isFetching).to.be.equal(false);
       console.error = err;
     });
-
   });
-
 });

@@ -15,8 +15,12 @@ module.exports = function(app) {
     }
   });
 
-  app.use(convert(proxy({
-    host: config.host,
-    match: matchUriRegexp,
-  })));
+  app.use(
+    convert(
+      proxy({
+        host: config.host,
+        match: matchUriRegexp,
+      })
+    )
+  );
 };

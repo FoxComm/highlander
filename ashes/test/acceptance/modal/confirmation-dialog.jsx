@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 describe('ConfirmationDialog', function() {
@@ -8,11 +7,11 @@ describe('ConfirmationDialog', function() {
     body: 'body',
     cancel: 'cancel',
     confirm: 'confirm',
-    cancelAction: (f => f),
-    confirmAction: (f => f)
+    cancelAction: f => f,
+    confirmAction: f => f,
   };
 
-  it('should not render if isVisible is falsy', function *() {
+  it('should not render if isVisible is falsy', function*() {
     const { container } = yield renderIntoDocument(
       <div><ConfirmationDialog {...defaultProps} isVisible={false} /></div>
     );
@@ -21,7 +20,7 @@ describe('ConfirmationDialog', function() {
     container.unmount();
   });
 
-  it('should render if isVisible is truly', function *() {
+  it('should render if isVisible is truly', function*() {
     const { container } = yield renderIntoDocument(
       <div><ConfirmationDialog {...defaultProps} isVisible={true} /></div>
     );

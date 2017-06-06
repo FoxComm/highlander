@@ -6,15 +6,15 @@ import ReactTextMask from 'react-text-mask';
 
 type Props = {
   /** [react-text-mask#mask](https://github.com/text-mask/text-mask/blob/master/componentDocumentation.md#mask) */
-  mask: Array<RegExp>|string|false;
+  mask: Array<RegExp> | string | false,
   /** [react-text-mask#guide](https://github.com/text-mask/text-mask/blob/master/componentDocumentation.md#guide) */
-  guide?: boolean;
+  guide?: boolean,
   /** [react-text-mask#placeholderchar](https://github.com/text-mask/text-mask/blob/master/componentDocumentation.md#placeholderchar) */
-  placeholderChar?: string;
+  placeholderChar?: string,
   /** [react-text-mask#keepcharpositions](https://github.com/text-mask/text-mask/blob/master/componentDocumentation.md#keepcharpositions) */
-  keepCharPositions?: boolean;
+  keepCharPositions?: boolean,
   /** [react-text-mask#showmask](https://github.com/text-mask/text-mask/blob/master/componentDocumentation.md#showmask) */
-  showMask?: boolean;
+  showMask?: boolean,
 };
 
 // Create masks related to react-text-mask component
@@ -34,7 +34,7 @@ export function strMaskToRegExp(stringPattern: string) {
 }
 
 export const TextMask = (props: Props) => {
-  const innerProps = {...props};
+  const innerProps = { ...props };
 
   if (isEmpty(props.mask)) {
     innerProps.mask = false;

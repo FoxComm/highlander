@@ -1,15 +1,9 @@
-
 import _ from 'lodash';
 
-const { default: reducer, ...actions } = importSource('modules/site-menu.js', [
-  'toggleSiteMenu',
-  'toggleMenuItem'
-]);
+const { default: reducer, ...actions } = importSource('modules/site-menu.js', ['toggleSiteMenu', 'toggleMenuItem']);
 
 describe('reasons module', function() {
-
   context('reducers', function() {
-
     it('toggleSiteMenu should change state of menu', function() {
       const initialState = {};
       const result = reducer(initialState, actions.toggleSiteMenu());
@@ -28,7 +22,5 @@ describe('reasons module', function() {
       const thirdResult = reducer(newResult, actions.toggleMenuItem(item));
       expect(_.get(thirdResult, ['menuItems', item, 'isOpen'])).to.be.true;
     });
-
   });
-
 });

@@ -14,24 +14,18 @@ describe('TabView', function() {
     }
   });
 
-  it('should contain title text', function *() {
-    tab = shallowRender(
-      <TabView>{ titleText }</TabView>
-    );
+  it('should contain title text', function*() {
+    tab = shallowRender(<TabView>{titleText}</TabView>);
     expect(tab.props.children, 'to contain', titleText);
   });
 
-  it('should be draggable by default', function *() {
-    tab = shallowRender(
-      <TabView>{ titleText }</TabView>
-    );
+  it('should be draggable by default', function*() {
+    tab = shallowRender(<TabView>{titleText}</TabView>);
     expect(tab, 'to contain', <i className="fc-tab__icon icon-drag-drop" />);
   });
 
-  it('should be draggable when property is false', function *() {
-    tab = shallowRender(
-      <TabView draggable={ false }>{ titleText }</TabView>
-    );
+  it('should be draggable when property is false', function*() {
+    tab = shallowRender(<TabView draggable={false}>{titleText}</TabView>);
     expect(ShallowTestUtils.findAllWithClass(tab, 'fc-tab__icon icon-drag-drop')).to.be.empty;
   });
 });

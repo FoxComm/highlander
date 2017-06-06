@@ -18,7 +18,7 @@ import s from './page-nav.css';
 
 type Props = {
   /** List of links */
-    children: Array<ReactElement<any>>,
+  children: Array<ReactElement<any>>,
 };
 
 /**
@@ -112,22 +112,16 @@ class PageNav extends Component {
     const flatItems = items.slice(0, from);
     const collapsedItems = items.slice(from);
 
-    const menu = !collapsedItems.length ? null : (
-      <NavDropdown title="More" key="dropdown">
-        {collapsedItems}
-      </NavDropdown>
-    );
+    const menu = !collapsedItems.length
+      ? null
+      : <NavDropdown title="More" key="dropdown">{collapsedItems}</NavDropdown>;
 
-    return [
-      ...flatItems,
-      menu,
-    ];
+    return [...flatItems, menu];
   }
-
 
   render() {
     return (
-      <ul className={classNames(s.block, this.props.className)} ref={n => this._nav = n}>
+      <ul className={classNames(s.block, this.props.className)} ref={n => (this._nav = n)}>
         {this.items}
       </ul>
     );
