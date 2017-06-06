@@ -448,7 +448,7 @@ def read_cmd_line():
     pp = argparse.ArgumentParser(
         description='Data import')
     pp.add_argument("--host", type=str, required=True, help="host of the API to import into")
-    pp.add_argument("--max-products", "-m", nargs=1, type=int,
+    pp.add_argument("--max-products", "-m", nargs=1, type=int, default=None,
                     help="Max products. Provides a way to restrict how many products are imported")
     pp.add_argument("--input", "-i", nargs=1, type=str, default=['data'], help="input directory")
     pp.add_argument("--inventory_amount", nargs=1, type=int, default=[100], help="inventory amount")
