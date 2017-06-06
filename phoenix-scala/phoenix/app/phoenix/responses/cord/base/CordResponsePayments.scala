@@ -108,7 +108,8 @@ object CordResponseStoreCreditPayment {
       })
 
   case class CordResponseApplePayPayment(id: Int,
-                                         amount: Long,
+                                         accountId: Int,
+                                         cordRef: String,
                                          createdAt: Instant,
                                          `type`: Type = ApplePay)
       extends CordResponsePayments
@@ -117,11 +118,12 @@ object CordResponseStoreCreditPayment {
 
     def fetch(cordRef: String)(implicit ec: EC): DBIO[Seq[CordResponseApplePayPayment]] =
       for {
-        pmt ← OrderPayments.findAllApplePaysByCordRef(cordRef).result
-        response = pmt.map {
+        orderPayment ← OrderPayments.findAllApplePaysByCordRef(cordRef).result
+        response = orderPayment.map {
           case (pmt, ap) ⇒
             CordResponseApplePayPayment(id = ap.id,
-                                        amount = pmt.amount.getOrElse(0),
+                                        accountId = ap.accountId,
+                                        cordRef = pmt.cordRef,
                                         createdAt = ap.createdAt)
         }
       } yield response
