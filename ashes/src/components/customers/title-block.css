@@ -20,7 +20,7 @@
 
 .head {
   height: 91px;
-  color: var(--decor0);
+  color: var(--color-light-text);
   background-color: var(--decor3);
   border-radius: 3px 3px 0 0;
   margin: -1px -1px 0 -1px;
@@ -65,7 +65,7 @@
     margin-top: calc((var(--circle-size) - var(--image-size)) / 2);
     font-size: 60px;
     line-height: var(--image-size);
-    color: var(--decor0);
+    color: var(--color-light-text);
   }
 }
 
@@ -126,7 +126,7 @@
   vertical-align: top;
   font-size: 14px;
   line-height: 19px;
-  color: var(--decor0);
+  color: var(--color-light-text);
   background-color: var(--decor3);
   box-shadow: inset 0 -2px 3px 0 rgba(0, 0, 0, 0.50), inset 1px 1px 1px 0 rgba(255, 255, 255, 0.89);
   border-radius: 3px;
