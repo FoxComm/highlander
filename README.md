@@ -6,6 +6,10 @@ Highlander is the brand-spanking-new FoxCommerce mono-repo.
 
 Please proceed to [wiki](https://github.com/FoxComm/highlander/wiki) for more detailed info.
 
+## Development Setup
+From highlander directory:
+`git config core.hooksPath $PWD/utils/git-hooks`
+
 ## Development Environment
 
 The simplest way to get started is setup a personal developer appliance in Google Cloud that runs the entire system. It's really easy, though you'll probably want to grab a coffee the first time you run it - it has a lot to do!
