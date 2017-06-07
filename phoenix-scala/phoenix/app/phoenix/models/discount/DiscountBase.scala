@@ -6,12 +6,12 @@ package phoenix.models.discount
 trait DiscountBase {
 
   def unitsByProducts(lineItems: Seq[DqLineItem], productIds: Seq[String]): Int =
-    lineItems.foldLeft(0) { (sum, data) ⇒
-      if (productIds.contains(data.productId.toString)) sum + 1 else sum
-    }
+    byProducts(lineItems, productIds).size
 
   def totalByProducts(lineItems: Seq[DqLineItem], productIds: Seq[String]): Long =
-    lineItems.foldLeft(0L) { (sum, data) ⇒
-      if (productIds.contains(data.productId.toString)) sum + data.price else sum
-    }
+    byProducts(lineItems, productIds).map(_.price).sum
+
+  private def byProducts(lineItems: Seq[DqLineItem], productIds: Seq[String]): Seq[DqLineItem] =
+    lineItems.filter(productIds contains _.productId.toString)
+
 }

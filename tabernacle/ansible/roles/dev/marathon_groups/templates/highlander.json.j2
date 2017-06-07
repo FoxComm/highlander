@@ -37,7 +37,7 @@
             "apps": [
                 {% include "core-consumers/green-river.json.j2" %},
                 {% include "core-consumers/capture-consumer.json.j2" %},
-                {% include "core-consumers/customer-groups-consumer.json.j2" %},
+                {## {% include "core-consumers/customer-groups-consumer.json.j2" %} ,##}
                 {% include "core-consumers/gift-card-consumer.json.j2" %},
                 {% include "core-consumers/shipments-consumer.json.j2" %},
                 {% include "core-consumers/stock-items-consumer.json.j2" %}
@@ -82,6 +82,7 @@
             "apps": [
                 {% include "ic-consumers/digger-sphex.json.j2" %},
                 {% include "ic-consumers/orders-anthill.json.j2" %},
+                {% include "ic-consumers/orders-reviews.json.j2" %},
                 {% include "ic-consumers/orders-sphex.json.j2" %},
                 {% include "ic-consumers/product-activity.json.j2" %}
             ]

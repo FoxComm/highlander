@@ -75,6 +75,7 @@ object StoreAdminManager {
 
   def delete(accountId: Int, author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Unit] =
     for {
+      adminUser ← * <~ AdminsData.mustFindByAccountId(accountId)
       _ ← * <~ AdminsData
            .filter(_.accountId === accountId)
            .deleteAll(DbResultT.unit, DbResultT.failure[Unit](UserWithAccountNotFound(accountId)))

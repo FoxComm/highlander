@@ -48,3 +48,4 @@
 
 - name: Pausing for a bit...
   pause: seconds=30
+  when: first_run

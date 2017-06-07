@@ -200,7 +200,7 @@ class SharedSearchIntegrationTest
 
     "warning if store admin is not found" in new AssociateBaseFixture {
       sharedSearchApi(search.code)
-        .associate(SharedSearchAssociationPayload(Seq(1, 999)))
+        .associate(SharedSearchAssociationPayload(Seq(defaultAdmin.id, 999)))
         .asThe[SharedSearch]
         .errors
         .value must === (Seq(NotFoundFailure404(User, 999).description))
