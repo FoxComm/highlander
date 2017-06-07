@@ -2,10 +2,10 @@
 
 - name: Set Facts for Template
   set_fact:
-    consul_ui_url: "http://{{ansible_default_ipv4.address}}:{{consul_port}}"
-    mesos_ui_url: "http://{{ansible_default_ipv4.address}}:{{mesos_port}}"
+    consul_ui_url: "http://{{inventory_hostname}}:{{consul_port}}"
+    mesos_ui_url: "http://{{inventory_hostname}}:{{mesos_port}}"
     marathon_ui_url: "https://{{appliance_hostname}}/private/marathon"
-    kibana_url: "http://{{ansible_default_ipv4.address}}:{{kibana_port}}"
+    kibana_url: "http://{{inventory_hostname}}:{{kibana_port}}"
     pgweb_url: "https://{{appliance_hostname}}/private/pgweb"
 
 - name: Copy Dashboard Index Template
