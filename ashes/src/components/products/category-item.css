@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .item {
   padding: 6px 10px;
 }
@@ -10,7 +12,7 @@
 }
 
 .itemValue {
-  color: #333;
+  color: var(--color-text);
   font-size: 14px;
   line-height: 20px;
 }

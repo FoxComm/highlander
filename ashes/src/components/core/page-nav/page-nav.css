@@ -1,4 +1,4 @@
-@import "colors.css";
+@import 'colors.css';
 
 .block {
   position: relative;
@@ -11,7 +11,7 @@
 
 .item {
   font-size: 14px;
-  color: #484848;
+  color: var(--color-text);
   display: inline-block;
   vertical-align: top;
   margin: 0 5px -2px 0;
@@ -21,7 +21,7 @@
   }
 
   &:hover {
-    color: #121212;
+    color: var(--color-text);
   }
 
   & a,
@@ -109,5 +109,5 @@
 }
 
 .dropdown .item a:hover {
-  color: #484848;
+  color: var(--color-text);
 }

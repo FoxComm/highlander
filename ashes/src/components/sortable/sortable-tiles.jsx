@@ -278,7 +278,7 @@ class SortableTiles extends Component {
     const { translateX, translateY, scale } = transform;
     const transformStyles = {
       transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
-      zIndex: index === activeIndex ? 99 : 1,
+      zIndex: index === activeIndex ? 4 : 1,
     };
     const itemStyles = {
       ...transformStyles,

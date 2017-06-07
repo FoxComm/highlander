@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .block {
   display: flex;
 }
@@ -5,7 +7,7 @@
 .item {
   flex: 1 1 100%;
   text-align: center;
-  color: #363636;
+  color: var(--color-text);
   border: 1px solid #9ba3a7;
   margin-right: 20px;
 

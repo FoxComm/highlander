@@ -1,6 +1,8 @@
+@import 'colors.css';
+
 .modal {
   min-width: 640px;
-  color: #484848;
+  color: var(--color-text);
 }
 
 .header {

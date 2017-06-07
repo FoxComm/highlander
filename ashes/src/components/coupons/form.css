@@ -1,3 +1,4 @@
+@import 'colors.css';
 
 .field-label {
   font-weight: 600;
@@ -5,7 +6,7 @@
   font-size: 16px;
   margin-bottom: 10px;
   margin-top: 20px;
-  color: #484848;
+  color: var(--color-text);
   text-transform: capitalize;
 }
 

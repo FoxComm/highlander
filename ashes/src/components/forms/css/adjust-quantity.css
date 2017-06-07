@@ -1,3 +1,4 @@
+@import 'colors.css';
 
 .block {
   position: relative;
@@ -12,7 +13,7 @@
 .title {
   font-size: 14px;
   font-weight: 600;
-  color: #484848;
+  color: var(--color-text);
   margin-bottom: 10px;
   line-height: 20px;
 }

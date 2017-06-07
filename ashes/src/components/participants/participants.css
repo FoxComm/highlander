@@ -9,7 +9,7 @@
 
 .title {
   display: inline-block;
-  color: #484848;
+  color: var(--color-text);
   font-size: 14px;
   font-weight: 600;
   line-height: 19px;
@@ -24,7 +24,7 @@
   font-weight: 600;
   line-height: 17px;
   text-decoration: underline;
-  color: var(--green-buttons);
+  color: var(--color-action-text);
   cursor: pointer;
 }
 
@@ -97,6 +97,6 @@
   background-color: #fff;
 
   &:hover, &._active {
-    color: #484848;
+    color: var(--color-text);
   }
 }

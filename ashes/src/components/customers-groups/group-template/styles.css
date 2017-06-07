@@ -3,7 +3,7 @@
 .template {
   height: 300px;
   overflow: hidden;
-  color: #484848;
+  color: var(--color-text);
   background-color: #ced2d5;
   font-weight: 400;
   font-size: 18px;

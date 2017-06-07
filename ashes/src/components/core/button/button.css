@@ -1,5 +1,5 @@
 @import "common.css";
-@import "colors.css";
+@import 'colors.css';
 
 /*
  * General Button Styles
@@ -25,14 +25,14 @@
   }
 
   &:hover {
-    background-color: var(--button-bg-hover);
+    background-color: var(--grey-buttons-hover);
   }
 
   &:disabled,
   &:disabled:hover {
     cursor: default;
     color: var(--button-color-disabled);
-    background-color: var(--button-bg-disabled);
+    background-color: var(--grey-buttons-hover);
   }
 
   &.fullWidth {
@@ -128,7 +128,7 @@ span + i[class*="icon-"] {
     }
 
     &:disabled {
-      color: var(--button-bg-disabled);
+      color: var(--grey-buttons-hover);
     }
   }
 }

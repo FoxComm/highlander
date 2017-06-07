@@ -1,4 +1,4 @@
-@import "colors.css";
+@import 'colors.css';
 
 .root {
   background-color: #FFFFFF;
@@ -9,7 +9,7 @@
   text-align: left;
   font-size: 16px;
   font-weight: 600;
-  color: #484848;
+  color: var(--color-text);
   margin: 20px;
 }
 
@@ -17,7 +17,7 @@
   height: 46px;
   font-size: 13px;
   font-weight: 400;
-  color: #484848;
+  color: var(--color-text);
   padding-left: 18px;
   line-height: 46px;
 
@@ -37,11 +37,11 @@
   border-top: 1px solid #d9d9d9;
 
   & :global(.fc-btn-primary) {
-    color: #484848;
+    color: var(--color-text);
     background-color: #FFFFFF;
 
     &:hover {
-     color: #484848;
+     color: var(--color-text);
      background-color: #FFFFFF;
     }
   }

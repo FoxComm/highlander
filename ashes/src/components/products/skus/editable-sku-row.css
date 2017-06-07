@@ -1,3 +1,4 @@
+@import 'colors.css';
 
 .sku-cell {
   position: relative;
@@ -38,7 +39,7 @@
     &:first-child {
       font-size: 12px;
       font-weight: 400;
-      color: #484848;
+      color: var(--color-text);
       padding-bottom: 10px;
     }
   }

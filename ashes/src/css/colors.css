@@ -1,9 +1,20 @@
 :root {
+  /* colors blessed by @bree */
+  --color-text: #363636;
+  --color-subtitle: #abb2b6;
+  --color-additional-text: rgba(54, 54, 54, 0.5);
+  --color-light-text: #fff;
+  --color-action-text: #3fc1ab;
+  --color-error-text: #f65554;
+  /* all other colors are damned! */
+
+  /* background colors blessed by @bree */
   --nav-active: #1a2535;
   --nav-main: #25334a;
   --green-buttons: #49cab9;
   --nav-pink: #fc54a6;
   --grey-buttons: #ced2d5;
+  --grey-buttons-hover: #bdc3c6;
   --grey-outlets: #d9d9d9;
   --grey-headers: #f7f7f7;
   --grey-background: #f9f9f9;
@@ -18,7 +29,6 @@
   --iron: #ced2d5;
 
   --stone: #797c7d;
-  --grey: #363636;
 
   --light-blue: #a0e9ed;
 
@@ -29,11 +39,9 @@
   /*
    * Buttons
    */
-  --button-color: var(--grey);
+  --button-color: var(--color-text);
   --button-color-disabled: var(--stone);
   --button-bg: var(--iron);
-  --button-bg-hover: #bdc3c6;
-  --button-bg-disabled: #bdc3c6;
   --button-bg-loading: var(--iron);
 
   --primary-button-color: var(--white);
@@ -58,10 +66,7 @@
   --alert-warning: var(--light-yellow);
   --alert-error: var(--light-red);
 
-  --black: #000000;
   --decor0: #f2f2f2;
-  --decor1: #484848;
-  --decor2: #333a45;
   --decor3: #3a4350;
   --decor4: #828e9f;
   --decor5: #9ba3a7;
@@ -84,7 +89,6 @@
   --decor26: #47628d;
   --decor29: #a2dee1;
   --decor31: #959698;
-  --decor32: #3e4d61;
   --decor34: #f2f2f2;
   --decor35: #e5e7e8;
   --decor36: #333c49;
@@ -94,18 +98,14 @@
   --decor47: #F45758;
   --decor48: #D8FBFD;
   --decor49: #EAFEFF;
-  --decor50: #F7423B;
   --decor51: rgba(0,0,0,0.50);
-  --decor52: #989898;
   --decor54: #F5FEFF;
   --decor55: rgba(0,0,0,0.40);
-  --decor56: #3A434F;
   --decor58: rgba(0,0,0,.1);
   --decor59: #6a6a6a;
   --decor60: #e4e6ea;
   --decor61: #f4f5f6;
 
-  --text-gray: #adaaaa;
   --transparent: transparent;
 
   // Site colors
@@ -113,10 +113,9 @@
   --header-border: --decor9;
   --link-tab: #595959;
   --tooltip-bg: --decor3;
-  --subtitle: #abb2b6;
 
   // Default colors
-  --default-fg: --decor1;
+  --default-fg: --color-text;
   --default-bg: --decor0;
 
   // Control colors
@@ -129,7 +128,6 @@
 
   --control-secondary-fg: --default-fg;
   --control-secondary-bg: --transparent;
-  --control-secondary-hover-fg: --black;
   --control-secondary-hover-bg: --transparent;
   --control-secondary-disabled-fg: --decor31;
   --control-secondary-disabled-bg: --transparent;

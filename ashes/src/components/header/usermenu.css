@@ -22,7 +22,7 @@
     line-height: 20px;
     font-size: 14px;
     text-decoration: none;
-    color: #484848;
+    color: var(--color-text);
 
     &:hover {
       background: var(--grey-headers);

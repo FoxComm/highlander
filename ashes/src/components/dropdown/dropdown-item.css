@@ -4,7 +4,7 @@
   padding: 0 20px;
   font-size: 14px;
   line-height: 44px;
-  color: #484848;
+  color: var(--color-text);
   background: #ffffff;
   white-space: nowrap;
   cursor: pointer;

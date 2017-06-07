@@ -1,4 +1,4 @@
-@import "colors.css";
+@import 'colors.css';
 
 .block {
   display: flex;
@@ -13,11 +13,10 @@
   font-weight: 300;
   line-height: 20px;
   font-size: 15px;
-  color: #363636;
   transition: all .2s;
   margin: 0 10px 0 0;
   white-space: nowrap;
-  color: #363636;
+  color: var(--color-text);
 
   &::before {
     color: var(--grey-buttons);

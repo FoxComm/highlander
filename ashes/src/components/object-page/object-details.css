@@ -1,3 +1,4 @@
+@import 'colors.css';
 
 .object-details {
   display: flex;
@@ -27,7 +28,7 @@
 .sub-title {
   font-weight: 600;
   font-size: 14px;
-  color: #484848;
+  color: var(--color-text);
 
   margin: 1em 0 0.5em 0;
 

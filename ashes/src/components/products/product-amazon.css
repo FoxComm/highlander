@@ -1,4 +1,4 @@
-@import "colors.css";
+@import 'colors.css';
 
 .root {
   padding: 0 30px;
@@ -22,10 +22,10 @@
 .approve {
   font-size: 12px;
   padding: 2px 0;
-  color: #363636;
+  color: var(--color-text);
 }
 .approveLink {
-  color: var(--green-buttons);
+  color: var(--color-action-text);
   text-decoration: none;
 
   &:hover {
@@ -40,7 +40,7 @@
 .set {
   border: none;
   background-color: var(--grey-buttons);
-  color: #333;
+  color: var(--color-text);
   cursor: pointer;
 }
 .set._disabled {

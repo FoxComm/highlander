@@ -1,4 +1,5 @@
-@import "common.css";
+@import 'common.css';
+@import 'colors.css';
 
 .accordion {
   margin-bottom: 40px;
@@ -112,7 +113,7 @@
   transition: color .3s;
 
   &:hover {
-    color: #000;
+    color: var(--color-text);
   }
 
   & i {

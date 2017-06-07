@@ -1,4 +1,4 @@
-@import "colors.css";
+@import 'colors.css';
 
 :root {
   --header-height: 60px;
@@ -73,7 +73,7 @@
   font-size: 30px;
   font-weight: 700;
   line-height: 41px;
-  color: var(--decor1);
+  color: var(--color-text);
   padding-bottom: 7px;
 }
 
@@ -81,14 +81,14 @@
   font-size: 17px;
   font-weight: 400;
   line-height: 23px;
-  color: var(--decor1);
+  color: var(--color-text);
 }
 
 .body {
   font-size: 14px;
   font-weight: 600;
   line-height: 19px;
-  color: var(--decor1);
+  color: var(--color-text);
   padding: 9px 10px 20px 10px;
 }
 

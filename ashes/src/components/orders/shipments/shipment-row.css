@@ -1,4 +1,4 @@
-@import "colors.css";
+@import 'colors.css';
 
 .row-toggle {
   margin-right: 10px;
@@ -7,10 +7,10 @@
 }
 
 .tracking-link {
-  color: var(--decor1);
+  color: var(--color-text);
 
   &:hover {
-    color: var(--green-buttons);
+    color: var(--color-action-text);
   }
 }
 

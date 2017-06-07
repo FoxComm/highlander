@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .header,
 .sub-nav,
 .user,
@@ -68,6 +70,6 @@
 
 .name {
   margin-right: 10px;
-  color: #363636;
+  color: var(--color-text);
   font-weight: 300;
 }

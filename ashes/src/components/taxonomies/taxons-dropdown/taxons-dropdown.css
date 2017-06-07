@@ -1,4 +1,4 @@
-@import "colors.css";
+@import 'colors.css';
 
 .dropdown {
   max-width: none;
@@ -14,9 +14,9 @@
 
 .dropdown :global .fc-dropdown__item {
   font-weight: 600;
-  color: #363636;
+  color: var(--color-text);
 }
 
 .needle {
-  color: var(--green-buttons);
+  color: var(--color-action-text);
 }

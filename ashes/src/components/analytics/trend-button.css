@@ -1,4 +1,4 @@
-@import "colors.css";
+@import 'colors.css';
 
 .trend-button-container-gain {
   display: inline-block;
@@ -38,7 +38,7 @@
 
 .trend-button-content-steady {
   display: inline-block;
-  color: black;
+  color: var(--color-text);
   padding: 4px 12px;
   font-size: 12px;
   margin-bottom: 0;
