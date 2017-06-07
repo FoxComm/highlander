@@ -23,15 +23,6 @@ object AmazonOrderManager {
                      .findOrCreate(inner)
     } yield AmazonOrderResponse.build(amazonOrder)
 
-  private def createInner(
-      payload: CreateAmazonOrderPayload)(implicit ec: EC, db: DB, au: AU): DbResultT[AmazonOrder] =
-    for {
-      user ← * <~ Users
-              .findByEmail(payload.customerEmail)
-              .mustFindOneOr(NotFoundFailure404(User, "email", payload.customerEmail))
-      amazonOrder ← * <~ AmazonOrders.create(AmazonOrder.build(payload, user.accountId))
-    } yield amazonOrder
-
   def updateAmazonOrder(
       amazonOrderId: String,
       payload: UpdateAmazonOrderPayload)(implicit ec: EC, db: DB, au: AU): DbResultT[AmazonOrderResponse] =
