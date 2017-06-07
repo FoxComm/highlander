@@ -40,7 +40,7 @@
   text-align: center;
   margin: 0 auto;
   font-weight: bold;
-  color: var(--grey-buttons);
+  color: var(--color-additional-text);
   opacity: .5;
 
   & i {

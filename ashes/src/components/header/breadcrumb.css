@@ -19,7 +19,7 @@
   color: var(--color-text);
 
   &::before {
-    color: var(--grey-buttons);
+    color: var(--color-additional-text);
     margin-right: 10px;
     pointer-events: none;
   }
@@ -31,5 +31,5 @@
 
 .delimiter {
   margin: 0 10px 0 0;
-  color: var(--grey-buttons);
+  color: var(--color-additional-text);
 }

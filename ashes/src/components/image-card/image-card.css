@@ -1,4 +1,5 @@
-@import "common.css";
+@import 'common.css';
+@import 'colors.css';
 
 .card {
   position: relative;
@@ -70,7 +71,7 @@
 .secondaryTitle {
   font-size: 14px;
   font-weight: 400;
-  color: #ABB2B6;
+  color: var(--color-additional-text);
 }
 
 @keyframes caramel {

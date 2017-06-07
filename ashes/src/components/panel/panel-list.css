@@ -8,7 +8,7 @@
   flex: 1 1 100%;
   text-align: center;
   color: var(--color-text);
-  border: 1px solid #9ba3a7;
+  border: 1px solid var(--color-additional-text);
   margin-right: 20px;
 
   &:last-child {
@@ -29,6 +29,6 @@
 
 @media (min-resolution: 120dpi) {
   .item {
-    border: 0.5px solid #9ba3a7;
+    border-width: 0.5px;
   }
 }

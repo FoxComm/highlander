@@ -61,7 +61,7 @@
 }
 
 .table {
-  border: 1px solid var(--grey-buttons);
+  border: 1px solid var(--color-additional-text);
 }
 
 .box {

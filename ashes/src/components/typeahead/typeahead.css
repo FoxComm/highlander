@@ -29,7 +29,7 @@
 
 .input-icon {
   display: none;
-  color: var(--grey-buttons);
+  color: var(--color-additional-text);
   position: absolute;
   left: 13px;
   bottom: 11px;

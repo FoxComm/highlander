@@ -1,4 +1,4 @@
-@import "common.css";
+@import 'common.css';
 @import 'colors.css';
 
 /*
@@ -128,7 +128,7 @@ span + i[class*="icon-"] {
     }
 
     &:disabled {
-      color: var(--grey-buttons-hover);
+      color: var(--grey-additional-text);
     }
   }
 }

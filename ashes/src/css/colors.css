@@ -1,7 +1,6 @@
 :root {
   /* colors blessed by @bree */
   --color-text: #363636;
-  --color-subtitle: #abb2b6;
   --color-additional-text: rgba(54, 54, 54, 0.5);
   --color-light-text: #fff;
   --color-action-text: #3fc1ab;
@@ -25,7 +24,6 @@
    * https://app.zeplin.io/project/58e3cc8f1e88befbcc27121e/screen/58e3ccda94f5ae16cd341689
    */
   --white: #ffffff;
-  --iron: #ced2d5;
 
   --stone: #797c7d;
 
@@ -40,8 +38,8 @@
    */
   --button-color: var(--color-text);
   --button-color-disabled: var(--stone);
-  --button-bg: var(--iron);
-  --button-bg-loading: var(--iron);
+  --button-bg: #ced2d5;
+  --button-bg-loading: #ced2d5;
 
   --primary-button-bg: var(--green-buttons);
   --primary-button-bg-hover: #1dbfaa;
@@ -50,7 +48,7 @@
   /*
    * Page Nav
    */
-  --nav-item-underline: var(--iron);
+  --nav-item-underline: #ced2d5;
 
   /*
    * Alerts
@@ -62,7 +60,6 @@
   --decor0: #f2f2f2;
   --decor3: #3a4350;
   --decor4: #828e9f;
-  --decor5: #9ba3a7;
   --decor7: #ced2d5;
   --decor9: #d9d9d9;
   --decor10: #ebebeb;
@@ -79,12 +76,10 @@
   --decor25: #ffdd7f;
   --decor26: #47628d;
   --decor29: #a2dee1;
-  --decor31: #959698;
   --decor35: #e5e7e8;
   --decor36: #333c49;
   --decor38: #e9feff;
   --decor43: rgba(0,0,0,0.30);
-  --decor45: #7f7f7f;
   --decor48: #D8FBFD;
   --decor49: #EAFEFF;
   --decor51: rgba(0,0,0,0.50);
@@ -115,13 +110,11 @@
   --control-secondary-fg: --color-text;
   --control-secondary-bg: --transparent;
   --control-secondary-hover-bg: --transparent;
-  --control-secondary-disabled-fg: --decor31;
   --control-secondary-disabled-bg: --transparent;
 
   --control-standard-fg: --color-text;
   --control-standard-bg: --decor7;
   --control-standard-hover-fg: --color-text;
-  --control-standard-disabled-fg: --decor31;
   --control-standard-disabled-bg: --decor7;
 
   --control-yes-bg: --green-buttons;

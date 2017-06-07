@@ -9,7 +9,7 @@
     padding: 0 10px;
     line-height: 40px;
     font-size: 20px;
-    color: var(--grey-buttons);
+    color: var(--color-additional-text);
   }
 
   & .input {
@@ -23,6 +23,6 @@
 .swatch {
   width: 40px;
   height: 40px;
-  border: 1px solid var(--grey-buttons);
+  border: 1px solid var(--color-additional-text);
   border-left: none;
 }

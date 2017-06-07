@@ -6,7 +6,7 @@
   height: 179px;
   max-height: 179px;
   background-color: #FFFFFF;
-  border: 1px solid #9BA3A7;
+  border: 1px solid var(--color-additional-text);
   text-align: center;
   cursor: pointer;
 }

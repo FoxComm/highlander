@@ -48,7 +48,7 @@
   font-size: 14px;
   font-weight: 600;
   line-height: 28px;
-  color: #ced2d5;
+  color: var(--color-additional-text);
   margin-left: 5px;
 }
 
@@ -93,7 +93,7 @@
   width: 28px;
   height: 32px;
   line-height: 32px;
-  color: #ced2d5;
+  color: var(--color-additional-text);
   background-color: #fff;
 
   &:hover, &._active {

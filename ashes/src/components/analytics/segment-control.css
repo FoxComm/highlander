@@ -6,7 +6,7 @@
   height: 40px;
   max-height: 40px;
   background-color: var(--grey-buttons);
-  border: 1px solid var(--grey-buttons);
+  border: 1px solid var(--color-additional-text);
   text-align: center;
   cursor: pointer;
   margin-top: 40px;
@@ -18,7 +18,7 @@
   height: 40px;
   max-height: 40px;
   background-color: #FFFFFF;
-  border: 1px solid var(--grey-buttons);
+  border: 1px solid var(--color-additional-text);
   text-align: center;
   cursor: pointer;
   margin-top: 40px;
@@ -37,5 +37,5 @@
 }
 
 .segment-control-container-disabled .segment-control-title {
-  color: var(--grey-buttons);
+  color: var(--color-additional-text);
 }

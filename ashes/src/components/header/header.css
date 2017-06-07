@@ -13,7 +13,7 @@
 }
 
 .header {
-  color: #9ba3a7;
+  color: var(--color-additional-text);
   background-color: #fcfcfc;
   font-weight: 400;
   line-height: 20px;

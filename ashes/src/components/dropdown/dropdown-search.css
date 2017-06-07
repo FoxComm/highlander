@@ -20,6 +20,6 @@
   top: -50px;
   font-size: 20px;
   width: 20px;
-  color: var(--grey-buttons);
+  color: var(--color-additional-text);
   line-height: 35px;
 }
