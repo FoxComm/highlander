@@ -97,8 +97,7 @@ object CartTailored {
       extends ActivityBase[CartPaymentMethodDeletedGiftCard]
 
   /* Cart Coupons */
-  case class CartCouponAttached(cart: Cart, couponCode: CouponCode)
-      extends ActivityBase[CartCouponAttached]
+  case class CartCouponAttached(cart: Cart, couponCode: CouponCode) extends ActivityBase[CartCouponAttached]
 
   case class CartCouponDetached(cart: Cart) extends ActivityBase[CartCouponDetached]
 

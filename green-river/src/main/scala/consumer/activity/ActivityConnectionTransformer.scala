@@ -31,22 +31,22 @@ final case class ActivityConnectionTransformer(
   val topic = "scoped_activity_trails"
 
   def mapping() = esMapping(topic).fields(
-      field("id", LongType),
-      field("dimension", StringType),
-      field("objectId", StringType) index "not_analyzed",
-      field("activity").nested(
-          field("id", StringType),
-          field("createdAt", DateType) format dateFormat,
-          field("kind", StringType) index "not_analyzed",
-          field("context").nested(
-              field("transactionId", StringType) index "not_analyzed",
-              field("userId", IntegerType),
-              field("userType", StringType) index "not_analyzed"
-          ),
-          field("data", ObjectType)
+    field("id", LongType),
+    field("dimension", StringType),
+    field("objectId", StringType) index "not_analyzed",
+    field("activity").nested(
+      field("id", StringType),
+      field("createdAt", DateType) format dateFormat,
+      field("kind", StringType) index "not_analyzed",
+      field("context").nested(
+        field("transactionId", StringType) index "not_analyzed",
+        field("userId", IntegerType),
+        field("userType", StringType) index "not_analyzed"
       ),
-      field("scope", StringType) index "not_analyzed",
-      field("createdAt", DateType) format dateFormat
+      field("data", ObjectType)
+    ),
+    field("scope", StringType) index "not_analyzed",
+    field("createdAt", DateType) format dateFormat
   )
 
   val jsonFields = List("id", "activity", "connectedBy")

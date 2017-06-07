@@ -29,9 +29,9 @@ class AddressTest extends TestBase {
         val wrongLengthZip = valid.copy(zip = "1")
 
         val addresses = Table(
-            ("address", "errors"),
-            (badZip, zipFailure(Address.zipPattern)),
-            (wrongLengthZip, zipFailure(Address.zipPattern))
+          ("address", "errors"),
+          (badZip, zipFailure(Address.zipPattern)),
+          (wrongLengthZip, zipFailure(Address.zipPattern))
         )
 
         forAll(addresses) { (address, errors) ⇒
@@ -44,9 +44,9 @@ class AddressTest extends TestBase {
         val wrongLengthZip = valid.copy(zip = "123456")
 
         val addresses = Table(
-            ("address", "errors"),
-            (tooShortZip, zipFailure(Address.zipPatternUs)),
-            (wrongLengthZip, zipFailure(Address.zipPatternUs))
+          ("address", "errors"),
+          (tooShortZip, zipFailure(Address.zipPatternUs)),
+          (wrongLengthZip, zipFailure(Address.zipPatternUs))
         )
 
         forAll(addresses) { (address, errors) ⇒
@@ -57,21 +57,21 @@ class AddressTest extends TestBase {
       "returns errors when name or address1 is empty" in {
         val result = valid.copy(name = "", address1 = "").validate
         invalidValue(result) must === (
-            NonEmptyList.of[Failure](GeneralFailure("name must not be empty"),
-                                     GeneralFailure("address1 must not be empty")))
+          NonEmptyList.of[Failure](GeneralFailure("name must not be empty"),
+                                   GeneralFailure("address1 must not be empty")))
       }
 
       "returns errors if US address and Some(phoneNumber) < 10 digits" in {
         val result =
           valid.copy(regionId = Region.usRegions.head, phoneNumber = Some("5551234")).validate
         invalidValue(result) must includeFailure(
-            "phoneNumber must fully match regular expression '[0-9]{10}'")
+          "phoneNumber must fully match regular expression '[0-9]{10}'")
       }
 
       "returns errors if non-US address and Some(phoneNumber) > 15 digits" in {
         val result = valid.copy(regionId = 1, phoneNumber = Some("1" * 16)).validate
         invalidValue(result) must includeFailure(
-            "phoneNumber must fully match regular expression '[0-9]{0,15}'")
+          "phoneNumber must fully match regular expression '[0-9]{0,15}'")
       }
     }
   }

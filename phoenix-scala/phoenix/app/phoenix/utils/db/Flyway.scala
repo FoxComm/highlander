@@ -28,7 +28,7 @@ object flyway {
     def debug(message: String) = {}
     def info(message: String)  = {}
     def warn(message: String)  = {}
-    def error(message: String) = { Console.err.println(message) }
+    def error(message: String) = Console.err.println(message)
     def error(message: String, e: Exception) = {
       Console.err.println(message)
       Console.err.println(e.getMessage)

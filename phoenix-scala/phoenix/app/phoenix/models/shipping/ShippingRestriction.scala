@@ -18,18 +18,19 @@ object ShippingRestriction {
   case object ItemAttribute extends RestrictionType //Use SkuCriterion
 
   implicit val DestinationColumnType: JdbcType[RestrictionType] with BaseTypedType[RestrictionType] =
-    MappedColumnType.base[RestrictionType, String]({
-      case t ⇒ t.toString.toLowerCase
-    }, {
-      case "shipto"        ⇒ ShipTo
-      case "itemattribute" ⇒ ItemAttribute
-      case unknown ⇒
-        throw new IllegalArgumentException(s"cannot map destination_type column to type $unknown")
-    })
+    MappedColumnType.base[RestrictionType, String](
+      {
+        case t ⇒ t.toString.toLowerCase
+      }, {
+        case "shipto"        ⇒ ShipTo
+        case "itemattribute" ⇒ ItemAttribute
+        case unknown ⇒
+          throw new IllegalArgumentException(s"cannot map destination_type column to type $unknown")
+      }
+    )
 }
 
-class ShippingRestrictions(tag: Tag)
-    extends FoxTable[ShippingRestriction](tag, "shipping_methods") {
+class ShippingRestrictions(tag: Tag) extends FoxTable[ShippingRestriction](tag, "shipping_methods") {
   def id              = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def restrictionType = column[ShippingRestriction.RestrictionType]("restriction_type")
   def name            = column[String]("name")

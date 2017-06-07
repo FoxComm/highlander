@@ -27,8 +27,7 @@ trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒
     def checkout(payload: CheckoutCart)(implicit ca: TestCustomerAuth): HttpResponse =
       POST(s"$cartPath/checkout", payload, ca.jwtCookie.some)
 
-    def applePayCheckout(payload: CreateApplePayPayment)(
-        implicit ca: TestCustomerAuth): HttpResponse =
+    def applePayCheckout(payload: CreateApplePayPayment)(implicit ca: TestCustomerAuth): HttpResponse =
       POST(s"$cartPath/apple-pay-checkout", payload, ca.jwtCookie.some)
 
     object lineItems {
@@ -79,8 +78,7 @@ trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒
       def get()(implicit ca: TestCustomerAuth): HttpResponse =
         GET(ccPath, ca.jwtCookie.some)
 
-      def create(payload: CreateCreditCardFromTokenPayload)(
-          implicit ca: TestCustomerAuth): HttpResponse =
+      def create(payload: CreateCreditCardFromTokenPayload)(implicit ca: TestCustomerAuth): HttpResponse =
         POST(ccPath, payload, ca.jwtCookie.some)
 
       def unsetDefault()(implicit ca: TestCustomerAuth): HttpResponse =

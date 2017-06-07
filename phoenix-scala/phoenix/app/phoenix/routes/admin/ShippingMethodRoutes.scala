@@ -12,7 +12,7 @@ import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
 
 object ShippingMethodRoutes {
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("shipping-methods") {
         (post & path(IntNumber / "default") & pathEnd) { shippingMethodId ⇒
@@ -20,31 +20,30 @@ object ShippingMethodRoutes {
             ShippingManager.setDefault(shippingMethodId = shippingMethodId)
           }
         } ~
-        pathPrefix("default") {
+          pathPrefix("default") {
+            (get & pathEnd) {
+              getOrFailures {
+                ShippingManager.getDefault
+              }
+            } ~
+              (delete & pathEnd) {
+                deleteOrFailures {
+                  ShippingManager.removeDefault()
+                }
+              }
+          } ~
           (get & pathEnd) {
             getOrFailures {
-              ShippingManager.getDefault
+              ShippingManager.getActive
             }
           } ~
-          (delete & pathEnd) {
-            deleteOrFailures {
-              ShippingManager.removeDefault()
+          path(cordRefNumRegex) { refNum ⇒
+            (get & pathEnd) {
+              getOrFailures {
+                ShippingManager.getShippingMethodsForCart(refNum)
+              }
             }
           }
-        } ~
-        (get & pathEnd) {
-          getOrFailures {
-            ShippingManager.getActive
-          }
-        } ~
-        path(cordRefNumRegex) { refNum ⇒
-          (get & pathEnd) {
-            getOrFailures {
-              ShippingManager.getShippingMethodsForCart(refNum)
-            }
-          }
-        }
       }
     }
-  }
 }

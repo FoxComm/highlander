@@ -11,10 +11,7 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import core.db._
 
-class GenericTreeIntegrationTest
-    extends IntegrationTestBase
-    with PhoenixAdminApi
-    with DefaultJwtAdminAuth {
+class GenericTreeIntegrationTest extends IntegrationTestBase with PhoenixAdminApi with DefaultJwtAdminAuth {
 
   "GenericTreeIntegrationTest" - {
     "GET /v1/tree/default/test" - {
@@ -115,8 +112,7 @@ class GenericTreeIntegrationTest
     val context = ObjectContexts.filter(_.name === "default").one.run.futureValue.get
 
     val testObjects = ObjectForms
-      .createAllReturningModels(
-          0 to 2 map (index ⇒ ObjectForm(0, "testKind", s"key$index" → s"val$index")))
+      .createAllReturningModels(0 to 2 map (index ⇒ ObjectForm(0, "testKind", s"key$index" → s"val$index")))
       .gimme
   }
 
@@ -128,12 +124,12 @@ class GenericTreeIntegrationTest
       (for {
         tree ← * <~ GenericTrees.create(GenericTree(0, "testTree", context.id))
         testData = Seq(
-            GenericTreeNode(0, tree.id, 1, LTree("1"), testKind, testObjectId),
-            GenericTreeNode(0, tree.id, 2, LTree(List("1.2")), testKind, testObjectId),
-            GenericTreeNode(0, tree.id, 3, LTree(List("1.3")), testKind, testObjectId),
-            GenericTreeNode(0, tree.id, 4, LTree(List("1.3.4")), testKind, testObjectId),
-            GenericTreeNode(0, tree.id, 5, LTree(List("1.3.5")), testKind, testObjectId),
-            GenericTreeNode(0, tree.id, 6, LTree(List("1.3.6")), testKind, testObjectId)
+          GenericTreeNode(0, tree.id, 1, LTree("1"), testKind, testObjectId),
+          GenericTreeNode(0, tree.id, 2, LTree(List("1.2")), testKind, testObjectId),
+          GenericTreeNode(0, tree.id, 3, LTree(List("1.3")), testKind, testObjectId),
+          GenericTreeNode(0, tree.id, 4, LTree(List("1.3.4")), testKind, testObjectId),
+          GenericTreeNode(0, tree.id, 5, LTree(List("1.3.5")), testKind, testObjectId),
+          GenericTreeNode(0, tree.id, 6, LTree(List("1.3.6")), testKind, testObjectId)
         )
         treeNodes ← * <~ GenericTreeNodes.createAllReturningModels(testData)
       } yield (tree, treeNodes)).gimme

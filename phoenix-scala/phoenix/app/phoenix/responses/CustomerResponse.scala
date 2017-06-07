@@ -39,21 +39,23 @@ object CustomerResponse {
     require(customerData.userId == customer.id)
     require(customerData.accountId == customer.accountId)
 
-    Root(id = customer.accountId,
-         email = customer.email,
-         name = customer.name,
-         phoneNumber = customer.phoneNumber,
-         createdAt = customer.createdAt,
-         isGuest = customerData.isGuest,
-         disabled = customer.isDisabled,
-         isBlacklisted = customer.isBlacklisted,
-         rank = rank.flatMap(_.rank),
-         totalSales = rank.map(_.revenue).getOrElse(0L),
-         numOrders = numOrders,
-         storeCreditTotals = scTotals.getOrElse(Totals(0, 0)),
-         billingRegion = billingRegion,
-         shippingRegion = shippingRegion,
-         lastOrderDays = lastOrderDays,
-         groups = groups)
+    Root(
+      id = customer.accountId,
+      email = customer.email,
+      name = customer.name,
+      phoneNumber = customer.phoneNumber,
+      createdAt = customer.createdAt,
+      isGuest = customerData.isGuest,
+      disabled = customer.isDisabled,
+      isBlacklisted = customer.isBlacklisted,
+      rank = rank.flatMap(_.rank),
+      totalSales = rank.map(_.revenue).getOrElse(0L),
+      numOrders = numOrders,
+      storeCreditTotals = scTotals.getOrElse(Totals(0, 0)),
+      billingRegion = billingRegion,
+      shippingRegion = shippingRegion,
+      lastOrderDays = lastOrderDays,
+      groups = groups
+    )
   }
 }

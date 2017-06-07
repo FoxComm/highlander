@@ -104,15 +104,13 @@ object Products
   def filterByFormId(formId: Int): QuerySeq =
     filter(_.formId === formId)
 
-  def mustFindProductByContextAndFormId404(contextId: Int, formId: Int)(
-      implicit ec: EC): DbResultT[Product] =
+  def mustFindProductByContextAndFormId404(contextId: Int, formId: Int)(implicit ec: EC): DbResultT[Product] =
     Products
       .filter(_.contextId === contextId)
       .filter(_.formId === formId)
       .mustFindOneOr(ProductFormNotFoundForContext(formId, contextId))
 
-  def mustFindByReference(reference: ProductReference)(implicit oc: OC,
-                                                       ec: EC): DbResultT[Product] = {
+  def mustFindByReference(reference: ProductReference)(implicit oc: OC, ec: EC): DbResultT[Product] =
     reference match {
       case ProductId(id) ⇒
         mustFindProductByContextAndFormId404(oc.id, id)
@@ -120,7 +118,6 @@ object Products
         filter(p ⇒ p.contextId === oc.id && p.slug.toLowerCase === slug.toLowerCase())
           .mustFindOneOr(ProductFailures.ProductNotFoundForContext(slug, oc.id))
     }
-  }
 
   def mustFindFullByReference(
       ref: ProductReference)(implicit oc: OC, ec: EC, db: DB): DbResultT[FullObject[Product]] =
