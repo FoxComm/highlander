@@ -118,8 +118,26 @@ class Checkout extends Component {
 
   @autobind
   sanitizeError(error) {
-    if (error && error.startsWith('Not enough onHand units')) {
-      return 'Unable to checkout — item is out of stock';
+    if (/Following SKUs are out/.test(error)) {
+      const skus = error.split('.')[0].split(':')[1].split(',');
+
+      const products = _.reduce(skus, (acc, outOfStock) => {
+        const sku = _.find(this.props.cart.skus, { sku: outOfStock.trim() });
+        if (sku) {
+          return [
+            ...acc,
+            sku.name,
+          ];
+        }
+
+        return acc;
+      }, []);
+
+      return (
+        <span>
+          Products <strong>{products.join(', ')}</strong> are out of stock. Please remove them to complete the checkout.
+        </span>
+      );
     } else if (/is blacklisted/.test(error)) {
       return 'Your account has been blocked from making purchases on this site';
     }
@@ -293,6 +311,7 @@ class Checkout extends Component {
           <ErrorAlerts
             sanitizeError={this.sanitizeError}
             error={props.checkoutState.err}
+            styleName="error-alerts"
           />
           {this.content}
         </div>

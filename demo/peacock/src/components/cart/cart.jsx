@@ -163,7 +163,11 @@ class Cart extends Component {
         return acc;
       }, []);
 
-      return `Products ${products.join(', ')} are out of stock. Please remove them to complete the checkout.`;
+      return (
+        <span>
+          Products <strong>{products.join(', ')}</strong> are out of stock. Please remove them to complete the checkout.
+        </span>
+      );
     }
 
     return sanitizeAll(err);
