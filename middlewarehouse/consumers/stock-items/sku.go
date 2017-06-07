@@ -35,11 +35,12 @@ func NewSKUFromAvro(message metamorphosis.AvroMessage) (*SKU, error) {
 
 func (s SKU) CreateSKU() payloads.CreateSKU {
 	return payloads.CreateSKU{
-		Code:             s.Code,
-		Title:            s.Title,
-		Scopable:         payloads.Scopable{Scope: s.Scope},
-		RequiresShipping: true,
-		ShippingClass:    "default",
-		TaxClass:         "default",
+		Code:                      s.Code,
+		Title:                     s.Title,
+		Scopable:                  payloads.Scopable{Scope: s.Scope},
+		RequiresShipping:          true,
+		ShippingClass:             "default",
+		TaxClass:                  "default",
+		RequiresInventoryTracking: true,
 	}
 }

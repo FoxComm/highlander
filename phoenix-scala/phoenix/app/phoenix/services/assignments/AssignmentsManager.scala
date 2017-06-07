@@ -58,17 +58,16 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       ac: AC): DbResultT[TheResponse[Seq[Root]]] =
     for {
       // Validation + assign
-      entity ← * <~ fetchEntity(key)
-      admins ← * <~ Users.filter(_.accountId.inSetBind(payload.assignees)).result
-      adminIds = admins.map(_.id)
+      entity    ← * <~ fetchEntity(key)
+      admins    ← * <~ Users.filter(_.accountId.inSetBind(payload.assignees)).result
       assignees ← * <~ Assignments.assigneesFor(assignmentType, entity, referenceType).result
-      newAssigneeIds = adminIds.diff(assignees.map(_.id))
+      newAssigneeIds = admins.map(_.accountId).diff(assignees.map(_.accountId))
       _ ← * <~ Assignments.createAll(build(entity, newAssigneeIds))
-      assignedAdmins = admins.filter(a ⇒ newAssigneeIds.contains(a.id)).map(buildUser)
+      assignedAdmins = admins.filter(a ⇒ newAssigneeIds.contains(a.accountId)).map(buildUser)
       // Response builder
       assignments ← * <~ fetchAssignments(entity)
       response       = assignments.map((buildAssignment _).tupled)
-      notFoundAdmins = diffToFailures(payload.assignees, adminIds, User)
+      notFoundAdmins = diffToFailures(payload.assignees, admins.map(_.accountId), User)
       // Activity log + notifications subscription
       _ ← * <~ subscribe(this, assignedAdmins.map(_.id), Seq(key.toString))
       responseItem = buildResponse(entity)

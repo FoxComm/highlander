@@ -14,7 +14,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/responses"
 
-	"gopkg.in/olivere/elastic.v3"
+	elastic "gopkg.in/olivere/elastic.v3"
 )
 
 const (
@@ -34,18 +34,6 @@ type GroupsManager struct {
 }
 
 type ManagerOptionFunc func(*GroupsManager)
-
-func SetElasticTopic(topic string) ManagerOptionFunc {
-	return func(m *GroupsManager) {
-		m.esTopic = topic
-	}
-}
-
-func SetElasticQierySize(size int) ManagerOptionFunc {
-	return func(m *GroupsManager) {
-		m.esSize = size
-	}
-}
 
 func SetMailchimpListID(id string) ManagerOptionFunc {
 	return func(m *GroupsManager) {

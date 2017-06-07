@@ -12,7 +12,8 @@ case class AlbumImageLink(id: Int = 0,
                           rightId: Int,
                           position: Int = 0,
                           createdAt: Instant = Instant.now,
-                          updatedAt: Instant = Instant.now)
+                          updatedAt: Instant = Instant.now,
+                          archivedAt: Option[Instant] = None)
     extends FoxModel[AlbumImageLink]
     with OrderedObjectHeadLink[AlbumImageLink] {
   override def withPosition(newPosition: Id): AlbumImageLink = copy(position = newPosition)
@@ -22,7 +23,7 @@ class AlbumImageLinks(tag: Tag)
     extends OrderedObjectHeadLinks[AlbumImageLink](tag, "album_image_links") {
 
   def * =
-    (id, leftId, rightId, position, createdAt, updatedAt) <> ((AlbumImageLink.apply _).tupled, AlbumImageLink.unapply)
+    (id, leftId, rightId, position, createdAt, updatedAt, archivedAt) <> ((AlbumImageLink.apply _).tupled, AlbumImageLink.unapply)
 
   def left  = foreignKey(Albums.tableName, leftId, Albums)(_.id)
   def right = foreignKey(Images.tableName, rightId, Images)(_.id)
@@ -38,7 +39,7 @@ object AlbumImageLinks
   val returningLens: Lens[AlbumImageLink, Int] = lens[AlbumImageLink].id
 
   def filterLeftAndRight(leftId: Int, rightId: Int): QuerySeq =
-    filter(link ⇒ link.leftId === leftId && link.rightId === rightId)
+    filter(link ⇒ link.leftId === leftId && link.rightId === rightId && link.archivedAt.isEmpty)
 
   def buildOrdered(left: Album, right: Image, position: Int) =
     AlbumImageLink(leftId = left.id, rightId = right.id, position = position)

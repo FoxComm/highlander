@@ -13,14 +13,19 @@ import phoenix.services.image.ImageManager
 import phoenix.services.product.ProductManager
 import phoenix.services.taxonomy.TaxonomyManager
 import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
 import phoenix.utils.http.Http._
 import phoenix.utils.http.JsonSupport._
 
 object ProductRoutes {
 
-  private def productRoutes(
-      productRef: ProductReference)(implicit ec: EC, db: DB, oc: OC, ac: AC, auth: AU): Route = {
+  private def productRoutes(productRef: ProductReference)(implicit ec: EC,
+                                                          db: DB,
+                                                          oc: OC,
+                                                          ac: AC,
+                                                          apis: Apis,
+                                                          auth: AU): Route = {
     (get & pathEnd) {
       getOrFailures {
         ProductManager.getProduct(productRef)
@@ -62,7 +67,7 @@ object ProductRoutes {
     }
   }
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
 
     activityContext(auth) { implicit ac ⇒
       pathPrefix("products") {

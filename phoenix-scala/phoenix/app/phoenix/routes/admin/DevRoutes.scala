@@ -13,13 +13,14 @@ import phoenix.services.Authenticator.AuthData
 import phoenix.services.orders.TimeMachine
 import phoenix.utils.TestStripeSupport
 import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
 import phoenix.utils.http.Http._
 import phoenix.utils.http.JsonSupport._
 
 object DevRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
     activityContext(auth) { implicit ac ⇒
       pathPrefix("order-time-machine") {
         (post & pathEnd & entity(as[OrderTimeMachine])) { payload ⇒

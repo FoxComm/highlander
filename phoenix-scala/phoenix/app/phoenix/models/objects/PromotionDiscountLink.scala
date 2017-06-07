@@ -13,7 +13,8 @@ case class PromotionDiscountLink(id: Int = 0,
                                  leftId: Int,
                                  rightId: Int,
                                  createdAt: Instant = Instant.now,
-                                 updatedAt: Instant = Instant.now)
+                                 updatedAt: Instant = Instant.now,
+                                 archivedAt: Option[Instant] = None)
     extends FoxModel[PromotionDiscountLink]
     with ObjectHeadLink[PromotionDiscountLink]
 
@@ -21,7 +22,7 @@ class PromotionDiscountLinks(tag: Tag)
     extends ObjectHeadLinks[PromotionDiscountLink](tag, "promotion_discount_links") {
 
   def * =
-    (id, leftId, rightId, createdAt, updatedAt) <> ((PromotionDiscountLink.apply _).tupled, PromotionDiscountLink.unapply)
+    (id, leftId, rightId, createdAt, updatedAt, archivedAt) <> ((PromotionDiscountLink.apply _).tupled, PromotionDiscountLink.unapply)
 
   def left  = foreignKey(Promotions.tableName, leftId, Promotions)(_.id)
   def right = foreignKey(Discounts.tableName, rightId, Discounts)(_.id)

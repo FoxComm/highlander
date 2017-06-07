@@ -13,11 +13,13 @@ import phoenix.models.catalog.Catalog
 import phoenix.models.promotion.Promotion
 import phoenix.payloads.CouponPayloads.CreateCoupon
 import phoenix.payloads.ProductPayloads.CreateProductPayload
+import phoenix.payloads.ProductReviewPayloads.{CreateProductReviewByCustomerPayload, CreateProductReviewPayload}
 import phoenix.payloads.SkuPayloads.SkuPayload
 import phoenix.payloads.CatalogPayloads._
 import phoenix.responses.CatalogResponse
 import phoenix.responses.CouponResponses.CouponResponse
 import phoenix.responses.ProductResponses.ProductResponse.{Root ⇒ ProductRoot}
+import phoenix.responses.ProductReviewResponses.ProductReviewResponse
 import phoenix.responses.PromotionResponses.PromotionResponse
 import phoenix.responses.SkuResponses.SkuResponse
 import phoenix.utils.aliases.Json
@@ -194,5 +196,14 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
       activeTo.fold(commonAttrs)(act ⇒ commonAttrs + ("activeTo" → act)).asShadow
     }
 
+  }
+
+  trait ProductReviewApiFixture extends ProductSku_ApiFixture {
+    val reviewAttributes: Json = ("title" → tv("title")) ~ ("body" → tv("body"))
+    private val payload = CreateProductReviewByCustomerPayload(attributes = reviewAttributes,
+                                                               sku = skuCode,
+                                                               scope = None)
+    val productReview =
+      productReviewApi.create(payload)(implicitly, defaultAdminAuth).as[ProductReviewResponse]
   }
 }

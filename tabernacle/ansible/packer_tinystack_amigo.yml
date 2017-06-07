@@ -11,7 +11,6 @@
     consul_expect: 1
   roles:
     - { role: base/consul_server }
-    - { role: base/docker_registry }
     - { role: base/zookeeper }
     - { role: base/mesos_master }
     - { role: base/marathon_consul }
