@@ -31,7 +31,7 @@
   font-size: 14px;
   font-weight: 600;
   line-height: 19px;
-  color: #C7C9CB;
+  color: var(--grey-buttons);
 }
 
 .rank {
@@ -107,7 +107,7 @@
       font-size: 22px;
       line-height: 24px;
       text-align: center;
-      color: var(--decor6);
+      color: var(--grey-buttons);
     }
 
     &.fc-customer-info-days > i {
@@ -133,6 +133,6 @@
 }
 
 .guest {
-  color: var(--decor8);
+  color: var(--grey-buttons);
   padding-top: 5px;
 }

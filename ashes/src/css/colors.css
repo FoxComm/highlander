@@ -17,7 +17,6 @@
   --alabaster: #f7f7f7;
   --iron: #ced2d5;
 
-  --silver-sand: #bdc3c6;
   --stone: #797c7d;
   --grey: #363636;
 
@@ -38,8 +37,8 @@
   --button-color: var(--grey);
   --button-color-disabled: var(--stone);
   --button-bg: var(--iron);
-  --button-bg-hover: var(--silver-sand);
-  --button-bg-disabled: var(--silver-sand);
+  --button-bg-hover: #bdc3c6;
+  --button-bg-disabled: #bdc3c6;
   --button-bg-loading: var(--iron);
 
   --primary-button-color: var(--white);
@@ -74,9 +73,7 @@
   --decor3: #3a4350;
   --decor4: #828e9f;
   --decor5: #9ba3a7;
-  --decor6: #bdc3c6;
   --decor7: #ced2d5;
-  --decor8: #bfbfbf;
   --decor9: #d9d9d9;
   --decor10: #ebebeb;
   --decor11: #f5f5f5;
@@ -107,8 +104,6 @@
   --decor37: #37bac2;
   --decor38: #e9feff;
   --decor39: #49c2ca;
-  --decor40: #cdcccc;
-  --decor42: #b1b1b1;
   --decor43: rgba(0,0,0,0.30);
   --decor44: #dfe3ed;
   --decor45: #7f7f7f;
@@ -119,11 +114,9 @@
   --decor50: #F7423B;
   --decor51: rgba(0,0,0,0.50);
   --decor52: #989898;
-  --decor53: #B9B9B9;
   --decor54: #F5FEFF;
   --decor55: rgba(0,0,0,0.40);
   --decor56: #3A434F;
-  --decor57: #b3b3b3;
   --decor58: rgba(0,0,0,.1);
   --decor59: #6a6a6a;
   --decor60: #e4e6ea;
@@ -163,7 +156,6 @@
   --control-standard-fg: --default-fg;
   --control-standard-bg: --decor7;
   --control-standard-hover-fg: --default-fg;
-  --control-standard-hover-bg: --decor6;
   --control-standard-disabled-fg: --decor31;
   --control-standard-disabled-bg: --decor7;
 

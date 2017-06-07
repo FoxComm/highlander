@@ -1,3 +1,5 @@
+@import "colors.css";
+
 .header {
   align-items: center;
   display: flex;
@@ -50,7 +52,7 @@
 
 .optional {
   font-size: 14px;
-  color: #bdc3c6;
+  color: var(--grey-buttons);
   letter-spacing: 0;
   padding-left: 10px;
 }

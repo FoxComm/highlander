@@ -128,7 +128,7 @@ span + i[class*="icon-"] {
     }
 
     &:disabled {
-      color: #ddd;
+      color: var(--button-bg-disabled);
     }
   }
 }

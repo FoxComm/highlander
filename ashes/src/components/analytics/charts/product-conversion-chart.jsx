@@ -43,7 +43,7 @@ const comparisonBarStyles = {
     parent: { border: '1px solid #ccc' },
   },
   comparisonDataBarStyle: {
-    data: { fill: '#CED2D5', width: 28 },
+    data: { fill: '#ced3d5', width: 28 },
     labels: { fontSize: 12 },
     parent: { border: '1px solid #ccc' },
   },
@@ -325,8 +325,8 @@ class ProductConversionChart extends React.Component {
                   deltaTextDy: 3.25,
                 }}
                 deltaToolTipStyles={{
-                  borderColor: '#CED2D5',
-                  fill: '#CED2D5',
+                  borderColor: '#ced3d5',
+                  fill: '#ced3d5',
                   textColor: '3A4350',
                   fontSize: 6,
                 }}

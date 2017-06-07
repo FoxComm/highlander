@@ -1,4 +1,5 @@
 @import "common.css";
+@import "colors.css";
 
 .stats {
   margin-bottom: 40px;
@@ -38,7 +39,7 @@
       transition: all .2s;
 
       &:hover {
-        background: #bdc3c6;
+        background: var(--grey-buttons);
       }
 
       &::before,

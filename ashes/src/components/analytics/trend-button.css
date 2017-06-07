@@ -1,3 +1,5 @@
+@import "colors.css";
+
 .trend-button-container-gain {
   display: inline-block;
   background-color: #49CA8E;
@@ -12,7 +14,7 @@
 
 .trend-button-container-steady {
   display: inline-block;
-  background-color: #CED2D5;
+  background-color: var(--grey-buttons);
   border-radius: 24px;
 }
 

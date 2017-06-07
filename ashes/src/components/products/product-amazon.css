@@ -1,3 +1,5 @@
+@import "colors.css";
+
 .root {
   padding: 0 30px;
 }
@@ -37,7 +39,7 @@
 
 .set {
   border: none;
-  background-color: #ccc;
+  background-color: var(--grey-buttons);
   color: #333;
   cursor: pointer;
 }
@@ -59,7 +61,7 @@
 }
 
 .table {
-  border: 1px solid #ccc;
+  border: 1px solid var(--grey-buttons);
 }
 
 .box {
