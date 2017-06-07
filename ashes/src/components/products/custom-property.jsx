@@ -115,7 +115,8 @@ export default class CustomProperty extends Component<void, Props, State> {
             name="field"
             value={this.state.fieldLabel}
             onChange={this.handleUpdateLabel}
-            autoFocus/>
+            autoFocus
+          />
         </FormField>
         <FormField
           className="fc-product-details__field"
