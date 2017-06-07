@@ -52,10 +52,9 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       response = assignments.map((buildAssignment _).tupled)
     } yield response
 
-  def assign(key: K, payload: AssignmentPayload, originator: User)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[TheResponse[Seq[Root]]] =
+  def assign(key: K,
+             payload: AssignmentPayload,
+             originator: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[TheResponse[Seq[Root]]] =
     for {
       // Validation + assign
       entity    ← * <~ fetchEntity(key)
@@ -142,18 +141,17 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
     val failureData   = getFailureData(entityTrio, payload.storeAdminId, actionType)
     val batchMetadata = BatchMetadata(BatchMetadataSource(referenceType, successData, failureData))
 
-    (successData,
-     TheResponse(result, errors = flattenErrors(failureData), batch = batchMetadata.some))
+    (successData, TheResponse(result, errors = flattenErrors(failureData), batch = batchMetadata.some))
   }
 
   // DbResultT builders
   private def build(entity: M, newAssigneeIds: Seq[Int]): Seq[Assignment] =
     newAssigneeIds.map(
-        adminId ⇒
-          Assignment(assignmentType = assignmentType,
-                     storeAdminId = adminId,
-                     referenceType = referenceType,
-                     referenceId = entity.id))
+      adminId ⇒
+        Assignment(assignmentType = assignmentType,
+                   storeAdminId = adminId,
+                   referenceType = referenceType,
+                   referenceId = entity.id))
 
   private def buildSeq(entities: Seq[M], storeAdminId: Int): Seq[Assignment] =
     for (e ← entities)
@@ -166,9 +164,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
   // Batch metadata builders
   private def getSuccessData(trio: EntityTrio): SuccessData = searchKeys(trio.succeed)
 
-  private def getFailureData(trio: EntityTrio,
-                             storeAdminId: Int,
-                             actionType: ActionType): FailureData = {
+  private def getFailureData(trio: EntityTrio, storeAdminId: Int, actionType: ActionType): FailureData = {
 
     val notFoundFailures = trio.notFound.map { key ⇒
       (key, NotFoundFailure404(referenceType, key).description)

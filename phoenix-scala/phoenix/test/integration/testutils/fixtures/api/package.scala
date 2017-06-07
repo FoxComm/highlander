@@ -21,9 +21,9 @@ package object api {
 
   def randomGiftCardLineItemAttributes(): Option[LineItemAttributes] =
     LineItemAttributes(
-        GiftCardLineItemAttributes(recipientName = faker.Name.name,
-                                   recipientEmail = faker.Internet.email,
-                                   senderName = faker.Name.name,
-                                   message = faker.Lorem.sentence().some).some).some
+      GiftCardLineItemAttributes(recipientName = faker.Name.name,
+                                 recipientEmail = faker.Internet.email,
+                                 senderName = faker.Name.name,
+                                 message = faker.Lorem.sentence().some).some).some
 
 }

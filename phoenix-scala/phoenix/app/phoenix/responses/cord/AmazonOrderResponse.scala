@@ -23,16 +23,18 @@ case class AmazonOrderResponse(id: Int,
 
 object AmazonOrderResponse {
   def build(amazonOrder: AmazonOrder): AmazonOrderResponse =
-    AmazonOrderResponse(id = amazonOrder.id,
-                        amazonOrderId = amazonOrder.amazonOrderId,
-                        orderTotal = amazonOrder.orderTotal,
-                        paymentMethodDetail = amazonOrder.paymentMethodDetail,
-                        orderType = amazonOrder.orderType,
-                        currency = amazonOrder.currency,
-                        orderStatus = amazonOrder.orderStatus,
-                        purchaseDate = amazonOrder.purchaseDate,
-                        scope = amazonOrder.scope,
-                        accountId = amazonOrder.accountId,
-                        createdAt = amazonOrder.createdAt,
-                        updatedAt = amazonOrder.updatedAt)
+    AmazonOrderResponse(
+      id = amazonOrder.id,
+      amazonOrderId = amazonOrder.amazonOrderId,
+      orderTotal = amazonOrder.orderTotal,
+      paymentMethodDetail = amazonOrder.paymentMethodDetail,
+      orderType = amazonOrder.orderType,
+      currency = amazonOrder.currency,
+      orderStatus = amazonOrder.orderStatus,
+      purchaseDate = amazonOrder.purchaseDate,
+      scope = amazonOrder.scope,
+      accountId = amazonOrder.accountId,
+      createdAt = amazonOrder.createdAt,
+      updatedAt = amazonOrder.updatedAt
+    )
 }

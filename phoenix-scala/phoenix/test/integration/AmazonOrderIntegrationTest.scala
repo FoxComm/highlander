@@ -41,15 +41,17 @@ class AmazonOrderIntegrationTest
 
   trait Fixture {
     val customer = api_newCustomer
-    val amazonOrderPayload = CreateAmazonOrderPayload(amazonOrderId = "111-5296499-9653859",
-                                                      orderTotal = 4500,
-                                                      paymentMethodDetail = "CreditCard",
-                                                      orderType = "StandardOrder",
-                                                      currency = Currency.USD,
-                                                      orderStatus = "Shipped",
-                                                      purchaseDate = Instant.now,
-                                                      scope = LTree("1"),
-                                                      customerEmail = customer.email.value)
+    val amazonOrderPayload = CreateAmazonOrderPayload(
+      amazonOrderId = "111-5296499-9653859",
+      orderTotal = 4500,
+      paymentMethodDetail = "CreditCard",
+      orderType = "StandardOrder",
+      currency = Currency.USD,
+      orderStatus = "Shipped",
+      purchaseDate = Instant.now,
+      scope = LTree("1"),
+      customerEmail = customer.email.value
+    )
 
     val amazonOrderResponse = amazonOrdersApi.create(amazonOrderPayload).as[AmazonOrderResponse]
   }

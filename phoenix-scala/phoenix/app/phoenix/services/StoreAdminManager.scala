@@ -21,11 +21,8 @@ object StoreAdminManager {
       adminData ← * <~ AdminsData.mustFindByAccountId(accountId)
     } yield StoreAdminResponse.build(admin, adminData)
 
-  def create(payload: CreateStoreAdminPayload, author: Option[User])(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[StoreAdminResponse.Root] = {
-
+  def create(payload: CreateStoreAdminPayload,
+             author: Option[User])(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreAdminResponse.Root] =
     for {
       organization ← * <~ Organizations
                       .findByName(payload.org)
@@ -40,19 +37,15 @@ object StoreAdminManager {
       organizationScope ← * <~ Scopes.mustFindById400(organization.scopeId)
       scope             ← * <~ Scope.overwrite(organizationScope.path, payload.scope)
       adminUser ← * <~ AdminsData.create(
-                     AdminData(accountId = admin.accountId,
-                               userId = admin.id,
-                               state = AdminData.Invited,
-                               scope = scope))
+                   AdminData(accountId = admin.accountId,
+                             userId = admin.id,
+                             state = AdminData.Invited,
+                             scope = scope))
       _ ← * <~ CustomersData.create(
-             CustomerData(accountId = admin.accountId,
-                          userId = admin.id,
-                          isGuest = false,
-                          scope = scope))
+           CustomerData(accountId = admin.accountId, userId = admin.id, isGuest = false, scope = scope))
 
       _ ← * <~ LogActivity().storeAdminCreated(admin, author)
     } yield StoreAdminResponse.build(admin, adminUser)
-  }
 
   def update(accountId: Int,
              payload: UpdateStoreAdminPayload,
@@ -85,10 +78,9 @@ object StoreAdminManager {
       _      ← * <~ LogActivity().storeAdminDeleted(admin, author)
     } yield result
 
-  def changeState(id: Int, payload: StateChangeStoreAdminPayload, author: User)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[StoreAdminResponse.Root] =
+  def changeState(id: Int,
+                  payload: StateChangeStoreAdminPayload,
+                  author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreAdminResponse.Root] =
     for {
       admin     ← * <~ Users.mustFindByAccountId(id)
       adminUser ← * <~ AdminsData.mustFindByAccountId(id)

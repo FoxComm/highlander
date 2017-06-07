@@ -25,14 +25,13 @@ object Keys {
 
   case class KeyLoadException(cause: Throwable) extends Exception
 
-  private def loadKeyAsStream(fileName: String): InputStream = {
+  private def loadKeyAsStream(fileName: String): InputStream =
     config.auth.keysLocation match {
       case FoxConfig.KeysLocation.Jar ⇒
         getClass.getResourceAsStream(fileName)
       case FoxConfig.KeysLocation.File ⇒
         new FileInputStream(fileName)
     }
-  }
 
   def loadPrivateKey: Try[PrivateKey] = Try {
     val fileName = config.auth.privateKey
@@ -75,9 +74,8 @@ sealed trait Token extends Product {
   val ratchet: Int
   def encode: Either[Failures, String] = Token.encode(this)
 
-  def hasRole(test: String): Boolean = {
+  def hasRole(test: String): Boolean =
     roles.contains(test)
-  }
 
   def hasClaim(test: String, actions: List[String]): Boolean = {
     var matches = false;
@@ -91,9 +89,8 @@ sealed trait Token extends Product {
 
 object Token {
   implicit val formats = DefaultFormats
-  val algorithmConstraints = new AlgorithmConstraints(
-      AlgorithmConstraints.ConstraintType.WHITELIST,
-      config.auth.keyAlgorithm)
+  val algorithmConstraints =
+    new AlgorithmConstraints(AlgorithmConstraints.ConstraintType.WHITELIST, config.auth.keyAlgorithm)
 
   import collection.JavaConversions.seqAsJavaList
 
@@ -134,7 +131,7 @@ object Token {
     encodeJWTClaims(claims)
   }
 
-  def encodeJWTClaims(claims: JwtClaims): Either[Failures, String] = {
+  def encodeJWTClaims(claims: JwtClaims): Either[Failures, String] =
     Keys.authPrivateKey.map { privateKey ⇒
       val jws = new JsonWebSignature
       jws.setPayload(claims.toJson)
@@ -142,9 +139,8 @@ object Token {
       jws.setAlgorithmHeaderValue(config.auth.keyAlgorithm)
       jws.getCompactSerialization
     }
-  }
 
-  def fromString(rawToken: String, kind: Identity.IdentityKind): Either[Failures, Token] = {
+  def fromString(rawToken: String, kind: Identity.IdentityKind): Either[Failures, Token] =
     Keys.authPublicKey.flatMap { publicKey ⇒
       val builder = new JwtConsumerBuilder()
         .setRequireExpirationTime()
@@ -166,7 +162,6 @@ object Token {
           Either.left(AuthFailed(e.getMessage).single)
       }
     }
-  }
 }
 
 case class UserToken(id: Int,

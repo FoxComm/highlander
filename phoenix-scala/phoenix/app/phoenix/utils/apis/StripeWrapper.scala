@@ -33,14 +33,12 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
   }
 
   def findCardByCustomerId(gatewayCustomerId: String, gatewayCardId: String): Result[StripeCard] = {
-    logger.info(
-        s"Find card for customer, customer id: $gatewayCustomerId, card id: $gatewayCardId")
+    logger.info(s"Find card for customer, customer id: $gatewayCustomerId, card id: $gatewayCardId")
     inBlockingPool(StripeCustomer.retrieve(gatewayCustomerId).getSources.retrieve(gatewayCardId))
       .flatMapEither(accountToCard)
   }
 
-  def findCardForCustomer(stripeCustomer: StripeCustomer,
-                          gatewayCardId: String): Result[StripeCard] = {
+  def findCardForCustomer(stripeCustomer: StripeCustomer, gatewayCardId: String): Result[StripeCard] = {
     logger.info(s"Find card for customer, customer: $stripeCustomer, card id: $gatewayCardId")
     inBlockingPool(stripeCustomer.getSources.retrieve(gatewayCardId)).flatMapEither(accountToCard)
   }

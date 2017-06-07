@@ -14,7 +14,7 @@ import phoenix.utils.http.CustomDirectives._
 import phoenix.utils.http.Http._
 
 object AmazonOrderRoutes {
-  def routes(implicit ec: EC, db: DB, auth: AU): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AU): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("amazon-orders") {
         (post & pathEnd & entity(as[CreateAmazonOrderPayload])) { payload ⇒
@@ -22,14 +22,13 @@ object AmazonOrderRoutes {
             createAmazonOrder(payload)
           }
         } ~
-        pathPrefix(Segment) { amazonOrderId ⇒
-          (patch & pathEnd & entity(as[UpdateAmazonOrderPayload])) { payload ⇒
-            mutateOrFailures {
-              updateAmazonOrder(amazonOrderId, payload)
+          pathPrefix(Segment) { amazonOrderId ⇒
+            (patch & pathEnd & entity(as[UpdateAmazonOrderPayload])) { payload ⇒
+              mutateOrFailures {
+                updateAmazonOrder(amazonOrderId, payload)
+              }
             }
           }
-        }
       }
     }
-  }
 }

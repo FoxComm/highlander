@@ -17,8 +17,7 @@ import core.db._
 
 import scala.annotation.tailrec
 
-trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport {
-  this: TestSuite ⇒
+trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport { this: TestSuite ⇒
 
   import DbTestSupport._
 
@@ -29,18 +28,20 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
   val api = slick.jdbc.PostgresProfile.api
 
   /* tables which should *not* be truncated b/c they're static and seeded by migration */
-  val doNotTruncate = Set("states",
-                          "countries",
-                          "regions",
-                          "schema_version",
-                          "systems",
-                          "resources",
-                          "scopes",
-                          "organizations",
-                          "scope_domains",
-                          "roles",
-                          "permissions",
-                          "role_permissions")
+  val doNotTruncate = Set(
+    "states",
+    "countries",
+    "regions",
+    "schema_version",
+    "systems",
+    "resources",
+    "scopes",
+    "organizations",
+    "scope_domains",
+    "roles",
+    "permissions",
+    "role_permissions"
+  )
 
   private def randomizeSequences(schema: String): Unit = {
     // When changing this, please, if anything, make them less predictable, not more. @michalrus
@@ -51,10 +52,10 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
 
     // TODO: Make it possible to not filter these out… @michalrus
     val randomizedSequences = allSequences.filterNot(
-        Set(
-            "scopes_id_seq",         // FIXME: What the hell. https://foxcommerce.slack.com/archives/C06696D1R/p1495796779988723
-            "object_contexts_id_seq" // FIXME: Sigh. https://foxcommerce.slack.com/archives/C06696D1R/p1495798791447479
-        ) contains _)
+      Set(
+        "scopes_id_seq", // FIXME: What the hell. https://foxcommerce.slack.com/archives/C06696D1R/p1495796779988723
+        "object_contexts_id_seq" // FIXME: Sigh. https://foxcommerce.slack.com/archives/C06696D1R/p1495798791447479
+      ) contains _)
 
     val gap = 1000000
     val withValues = Random
@@ -70,7 +71,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
       .gimme
   }
 
-  override protected def beforeAll(): Unit = {
+  override protected def beforeAll(): Unit =
     if (!migrated) {
       Locale.setDefault(Locale.US)
       val flyway = newFlyway(dataSource, subprojectSqlLocation)
@@ -103,7 +104,6 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
 
       migrated = true
     }
-  }
 
   override abstract protected def withFixture(test: NoArgTest): Outcome = {
     truncateTablesStmt.executeQuery()
@@ -114,7 +114,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
     test()
   }
 
-  private def createBaseTestSeeds() = {
+  private def createBaseTestSeeds() =
     // Base test data
     (for {
       _ ← * <~ ObjectContexts.create(SimpleContext.create())
@@ -122,7 +122,6 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
       // FIXME @anna @michalrus
       _ ← * <~ Factories.FIXME_createAllButPromoSchemas
     } yield {}).gimme
-  }
 }
 
 object DbTestSupport {

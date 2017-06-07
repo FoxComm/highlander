@@ -15,6 +15,4 @@ case class NotificationActivity(id: String,
                                 context: ActivityContext,
                                 createdAt: Instant)
 
-case class CreateNotification(sourceDimension: String,
-                              sourceObjectId: String,
-                              activity: NotificationActivity)
+case class CreateNotification(sourceDimension: String, sourceObjectId: String, activity: NotificationActivity)

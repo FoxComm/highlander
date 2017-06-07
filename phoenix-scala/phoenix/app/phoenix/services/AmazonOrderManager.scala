@@ -11,11 +11,8 @@ import core.failures._
 
 object AmazonOrderManager {
 
-  def createAmazonOrder(payload: CreateAmazonOrderPayload)(
-      implicit ec: EC,
-      db: DB,
-      au: AU): DbResultT[AmazonOrderResponse] = {
-
+  def createAmazonOrder(
+      payload: CreateAmazonOrderPayload)(implicit ec: EC, db: DB, au: AU): DbResultT[AmazonOrderResponse] =
     for {
       user ← * <~ Users
               .findByEmail(payload.customerEmail)
@@ -25,7 +22,6 @@ object AmazonOrderManager {
                      .findOneByAmazonOrderId(payload.amazonOrderId)
                      .findOrCreate(inner)
     } yield AmazonOrderResponse.build(amazonOrder)
-  }
 
   private def createInner(
       payload: CreateAmazonOrderPayload)(implicit ec: EC, db: DB, au: AU): DbResultT[AmazonOrder] =
@@ -36,13 +32,11 @@ object AmazonOrderManager {
       amazonOrder ← * <~ AmazonOrders.create(AmazonOrder.build(payload, user.accountId))
     } yield amazonOrder
 
-  def updateAmazonOrder(amazonOrderId: String, payload: UpdateAmazonOrderPayload)(
-      implicit ec: EC,
-      db: DB,
-      au: AU): DbResultT[AmazonOrderResponse] =
+  def updateAmazonOrder(
+      amazonOrderId: String,
+      payload: UpdateAmazonOrderPayload)(implicit ec: EC, db: DB, au: AU): DbResultT[AmazonOrderResponse] =
     for {
       amazonOrder ← * <~ AmazonOrders.mustFindOneOr(amazonOrderId)
-      up ← * <~ AmazonOrders.update(amazonOrder,
-                                    amazonOrder.copy(orderStatus = payload.orderStatus))
+      up          ← * <~ AmazonOrders.update(amazonOrder, amazonOrder.copy(orderStatus = payload.orderStatus))
     } yield AmazonOrderResponse.build(up)
 }

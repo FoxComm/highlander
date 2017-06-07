@@ -26,18 +26,20 @@ case class AmazonOrder(id: Int,
 
 object AmazonOrder {
   def build(payload: CreateAmazonOrderPayload, accountId: Int)(implicit ec: EC): AmazonOrder =
-    AmazonOrder(id = 0,
-                amazonOrderId = payload.amazonOrderId,
-                orderTotal = payload.orderTotal,
-                paymentMethodDetail = payload.paymentMethodDetail,
-                orderType = payload.orderType,
-                currency = payload.currency,
-                orderStatus = payload.orderStatus,
-                purchaseDate = payload.purchaseDate,
-                scope = payload.scope,
-                accountId = accountId,
-                createdAt = Instant.now,
-                updatedAt = Instant.now)
+    AmazonOrder(
+      id = 0,
+      amazonOrderId = payload.amazonOrderId,
+      orderTotal = payload.orderTotal,
+      paymentMethodDetail = payload.paymentMethodDetail,
+      orderType = payload.orderType,
+      currency = payload.currency,
+      orderStatus = payload.orderStatus,
+      purchaseDate = payload.purchaseDate,
+      scope = payload.scope,
+      accountId = accountId,
+      createdAt = Instant.now,
+      updatedAt = Instant.now
+    )
 }
 
 object AmazonOrders
@@ -50,8 +52,7 @@ object AmazonOrders
     filter(_.amazonOrderId === amazonOrderId).one
 
   def mustFindOneOr(amazonOrderId: String)(implicit ec: EC): DbResultT[AmazonOrder] =
-    findOneByAmazonOrderId(amazonOrderId).mustFindOr(
-        NotFoundFailure404(AmazonOrder, amazonOrderId))
+    findOneByAmazonOrderId(amazonOrderId).mustFindOr(NotFoundFailure404(AmazonOrder, amazonOrderId))
 }
 
 class AmazonOrders(tag: Tag) extends FoxTable[AmazonOrder](tag, "amazon_orders") {

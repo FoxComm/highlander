@@ -39,9 +39,14 @@ object CustomerManager {
           shipment.shippingAddressId.isDefined
         address ← OrderShippingAddresses if address.id === shipment.shippingAddressId &&
           address.phoneNumber.isDefined
-      } yield (address.phoneNumber, shipment.updatedAt)).sortBy {
-        case (_, updatedAt)   ⇒ updatedAt.desc.nullsLast
-      }.map { case (phone, _) ⇒ phone }.one.map(_.flatten).dbresult
+      } yield (address.phoneNumber, shipment.updatedAt))
+        .sortBy {
+          case (_, updatedAt) ⇒ updatedAt.desc.nullsLast
+        }
+        .map { case (phone, _) ⇒ phone }
+        .one
+        .map(_.flatten)
+        .dbresult
 
     for {
       default ← * <~ Addresses
@@ -54,7 +59,7 @@ object CustomerManager {
     } yield shipment
   }
 
-  private def getCustomerInfo(userDbT: DbResultT[User])(implicit ec: EC, db: DB): DbResultT[Root] = {
+  private def getCustomerInfo(userDbT: DbResultT[User])(implicit ec: EC, db: DB): DbResultT[Root] =
     for {
       customer ← * <~ userDbT
       customerDatas ← * <~ CustomersData
@@ -75,15 +80,16 @@ object CustomerManager {
       groupIds = groupMembership.map(_.groupId).toSet
       groups ← * <~ CustomerGroups.findAllByIds(groupIds).result
     } yield
-      build(customer.copy(phoneNumber = customer.phoneNumber.orElse(phoneOverride)),
-            customerData,
-            shipRegion,
-            billRegion,
-            rank = rank,
-            scTotals = totals,
-            lastOrderDays = maxOrdersDate.map(DAYS.between(_, Instant.now)),
-            groups = groups.map(CustomerGroupResponse.build))
-  }
+      build(
+        customer.copy(phoneNumber = customer.phoneNumber.orElse(phoneOverride)),
+        customerData,
+        shipRegion,
+        billRegion,
+        rank = rank,
+        scTotals = totals,
+        lastOrderDays = maxOrdersDate.map(DAYS.between(_, Instant.now)),
+        groups = groups.map(CustomerGroupResponse.build)
+      )
 
   def getByAccountId(accountId: Int)(implicit ec: EC, db: DB): DbResultT[Root] = {
     val userDbByAccountId = Users.mustFindByAccountId(accountId)
@@ -97,9 +103,7 @@ object CustomerManager {
 
   def create(payload: CreateCustomerPayload,
              admin: Option[User] = None,
-             context: AccountCreateContext)(implicit ec: EC,
-                                            db: DB,
-                                            ac: AC): DbResultT[(Root, AuthPayload)] =
+             context: AccountCreateContext)(implicit ec: EC, db: DB, ac: AC): DbResultT[(Root, AuthPayload)] =
     for {
 
       contextScope ← * <~ Scopes.mustFindById400(context.scopeId)
@@ -115,10 +119,9 @@ object CustomerManager {
       auth     ← * <~ AuthPayload(token)
     } yield (result, auth)
 
-  def createFromAdmin(
-      payload: CreateCustomerPayload,
-      admin: Option[User] = None,
-      context: AccountCreateContext)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+  def createFromAdmin(payload: CreateCustomerPayload,
+                      admin: Option[User] = None,
+                      context: AccountCreateContext)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
       contextScope ← * <~ Scopes.mustFindById400(context.scopeId)
       scope        ← * <~ Scope.overwrite(contextScope.path, payload.scope)
@@ -128,11 +131,10 @@ object CustomerManager {
       _ ← * <~ LogActivity().withScope(scope).customerCreated(resp, admin)
     } yield resp
 
-  private def createCustomer(
-      payload: CreateCustomerPayload,
-      admin: Option[User] = None,
-      context: AccountCreateContext,
-      scope: LTree)(implicit ec: EC, db: DB, ac: AC): DbResultT[(User, CustomerData)] =
+  private def createCustomer(payload: CreateCustomerPayload,
+                             admin: Option[User] = None,
+                             context: AccountCreateContext,
+                             scope: LTree)(implicit ec: EC, db: DB, ac: AC): DbResultT[(User, CustomerData)] =
     for {
       user ← * <~ AccountManager.createUser(name = payload.name,
                                             email = payload.email.toLowerCase.some,
@@ -141,14 +143,13 @@ object CustomerManager {
                                             checkEmail = !payload.isGuest.getOrElse(false))
 
       custData ← * <~ CustomersData.create(
-                    CustomerData(accountId = user.accountId,
-                                 userId = user.id,
-                                 isGuest = payload.isGuest.getOrElse(false),
-                                 scope = scope))
+                  CustomerData(accountId = user.accountId,
+                               userId = user.id,
+                               isGuest = payload.isGuest.getOrElse(false),
+                               scope = scope))
     } yield (user, custData)
 
-  def createGuest(context: AccountCreateContext)(implicit ec: EC,
-                                                 db: DB): DbResultT[(User, CustomerData)] =
+  def createGuest(context: AccountCreateContext)(implicit ec: EC, db: DB): DbResultT[(User, CustomerData)] =
     for {
 
       user ← * <~ AccountManager.createUser(name = None,
@@ -158,16 +159,15 @@ object CustomerManager {
                                             checkEmail = false)
       scope ← * <~ Scopes.mustFindById400(context.scopeId)
       custData ← * <~ CustomersData.create(
-                    CustomerData(accountId = user.accountId,
-                                 userId = user.id,
-                                 isGuest = true,
-                                 scope = LTree(scope.path)))
+                  CustomerData(accountId = user.accountId,
+                               userId = user.id,
+                               isGuest = true,
+                               scope = LTree(scope.path)))
     } yield (user, custData)
 
-  def update(accountId: Int, payload: UpdateCustomerPayload, admin: Option[User] = None)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[(Root, AuthPayload)] =
+  def update(accountId: Int,
+             payload: UpdateCustomerPayload,
+             admin: Option[User] = None)(implicit ec: EC, db: DB, ac: AC): DbResultT[(Root, AuthPayload)] =
     for {
       result ← * <~ updateCustomer(accountId, payload, admin)
       (updated, custData) = result
@@ -181,19 +181,17 @@ object CustomerManager {
       auth     ← * <~ AuthPayload(token)
     } yield (build(updated, custData), auth)
 
-  def updateFromAdmin(accountId: Int, payload: UpdateCustomerPayload, admin: Option[User] = None)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[Root] =
+  def updateFromAdmin(accountId: Int,
+                      payload: UpdateCustomerPayload,
+                      admin: Option[User] = None)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
       result ← * <~ updateCustomer(accountId, payload, admin)
     } yield build(result._1, result._2)
 
-  private def updateCustomer(accountId: Int,
-                             payload: UpdateCustomerPayload,
-                             admin: Option[User] = None)(implicit ec: EC,
-                                                         db: DB,
-                                                         ac: AC): DbResultT[(User, CustomerData)] =
+  private def updateCustomer(accountId: Int, payload: UpdateCustomerPayload, admin: Option[User] = None)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC): DbResultT[(User, CustomerData)] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       custData ← * <~ CustomersData.mustFindByAccountId(accountId)
@@ -204,9 +202,9 @@ object CustomerManager {
       _       ← * <~ LogActivity().customerUpdated(customer, updated, admin)
     } yield (updated, custData)
 
-  def changePassword(
-      accountId: Int,
-      payload: ChangeCustomerPasswordPayload)(implicit ec: EC, db: DB, ac: AC): DbResultT[Unit] =
+  def changePassword(accountId: Int, payload: ChangeCustomerPasswordPayload)(implicit ec: EC,
+                                                                             db: DB,
+                                                                             ac: AC): DbResultT[Unit] =
     for {
       user    ← * <~ Users.mustFindByAccountId(accountId)
       account ← * <~ Accounts.mustFindById404(accountId)
@@ -221,28 +219,28 @@ object CustomerManager {
       _ ← * <~ LogActivity().userPasswordReset(user)
     } yield {}
 
-  def updatedUser(customer: User, payload: UpdateCustomerPayload): User = {
-    customer.copy(name = payload.name.fold(customer.name)(Some(_)),
-                  email = payload.email.map(_.toLowerCase).orElse(customer.email),
-                  phoneNumber = payload.phoneNumber.fold(customer.phoneNumber)(Some(_)))
-  }
+  def updatedUser(customer: User, payload: UpdateCustomerPayload): User =
+    customer.copy(
+      name = payload.name.fold(customer.name)(Some(_)),
+      email = payload.email.map(_.toLowerCase).orElse(customer.email),
+      phoneNumber = payload.phoneNumber.fold(customer.phoneNumber)(Some(_))
+    )
 
-  def updatedCustUser(custData: CustomerData, payload: UpdateCustomerPayload): CustomerData = {
+  def updatedCustUser(custData: CustomerData, payload: UpdateCustomerPayload): CustomerData =
     (payload.name, payload.email) match {
       case (Some(name), Some(email)) ⇒ custData.copy(isGuest = false)
       case _                         ⇒ custData
     }
-  }
 
-  def activate(accountId: Int,
-               payload: ActivateCustomerPayload,
-               admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+  def activate(accountId: Int, payload: ActivateCustomerPayload, admin: User)(implicit ec: EC,
+                                                                              db: DB,
+                                                                              ac: AC): DbResultT[Root] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       _ ← * <~ (customer.email match {
-               case None ⇒ DbResultT.failure(CustomerMustHaveCredentials)
-               case _    ⇒ DbResultT.unit
-             })
+           case None ⇒ DbResultT.failure(CustomerMustHaveCredentials)
+           case _    ⇒ DbResultT.unit
+         })
       _        ← * <~ Users.updateEmailMustBeUnique(customer.email, accountId)
       updated  ← * <~ Users.update(customer, customer.copy(name = payload.name.some))
       custData ← * <~ CustomersData.mustFindByAccountId(accountId)
@@ -260,9 +258,9 @@ object CustomerManager {
       custData ← * <~ CustomersData.mustFindByAccountId(accountId)
     } yield build(customer, custData)
 
-  def toggleBlacklisted(accountId: Int,
-                        blacklisted: Boolean,
-                        actor: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+  def toggleBlacklisted(accountId: Int, blacklisted: Boolean, actor: User)(implicit ec: EC,
+                                                                           db: DB,
+                                                                           ac: AC): DbResultT[Root] =
     for {
       r        ← * <~ AccountManager.toggleBlacklisted(accountId, blacklisted, actor)
       customer ← * <~ Users.mustFindByAccountId(accountId)

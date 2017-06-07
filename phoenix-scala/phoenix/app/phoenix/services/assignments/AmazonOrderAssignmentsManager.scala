@@ -21,7 +21,6 @@ object AmazonOrderAssignmentsManager extends AssignmentsManager[String, AmazonOr
   def fetchEntity(refNum: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[AmazonOrder] =
     AmazonOrders.mustFindOneOr(refNum)
 
-  def fetchSequence(
-      refNums: Seq[String])(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[AmazonOrder]] =
+  def fetchSequence(refNums: Seq[String])(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[AmazonOrder]] =
     AmazonOrders.filter(_.amazonOrderId.inSetBind(refNums)).result.dbresult
 }
