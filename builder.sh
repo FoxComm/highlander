@@ -134,7 +134,7 @@ if [ "$DEBUG" = false ] ; then
     do
         cd $PROJECT_DIR
         make build test
-        if [ "$DOCKER" = false ] ; then
+        if [ "$DOCKER" = true ] ; then
             make docker docker-push
         fi
         cd $HIGHLANDER_PATH
