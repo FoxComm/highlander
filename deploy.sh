@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+####################################
+# DEPRECATED                       #
+####################################
+
 # fail on unexported vars
 set -ue
 

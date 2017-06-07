@@ -1,0 +1,10 @@
+---
+
+- name: Atomic Marathon Deployments
+  hosts: "{{hostname}}"
+  vars:
+    debug_mode: false
+    hostname: "{{ lookup('env', 'HOSTNAME') }}"
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  roles:
+    - { role: dev/marathon_restart }

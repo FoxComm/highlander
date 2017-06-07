@@ -3,46 +3,10 @@
 # Fail on unexported vars
 set -ue
 
-# Define buildable projects array
-PROJECTS=(
-    'ashes'
-    'data-import'
-    'demo/peacock'
-    'developer-portal'
-    'green-river'
-    'hyperion'
-    'intelligence/anthill'
-    'intelligence/bernardo'
-    'intelligence/consumers/digger-sphex'
-    'intelligence/consumers/orders-anthill'
-    'intelligence/consumers/orders-reviews'
-    'intelligence/consumers/orders-sphex'
-    'intelligence/consumers/product-activity'
-    'intelligence/eggcrate'
-    'intelligence/river-rock'
-    'intelligence/suggester'
-    'intelligence/user-simulation'
-    'isaac'
-    'messaging'
-    'middlewarehouse'
-    'middlewarehouse/common/db/seeds'
-    'middlewarehouse/consumers/capture'
-    'middlewarehouse/consumers/customer-groups'
-    'middlewarehouse/consumers/gift-cards'
-    'middlewarehouse/consumers/shipments'
-    'middlewarehouse/consumers/shipstation'
-    'middlewarehouse/consumers/stock-items'
-    'middlewarehouse/elasticmanager'
-    'onboarding'
-    'onboarding/ui'
-    'phoenix-scala'
-    'phoenix-scala/seeder'
-    'solomon'
-    'tabernacle/docker/neo4j'
-    'tabernacle/docker/neo4j_reset'
-)
+# Include common library
+source ./common.sh
 
-# Save Highlander directory
+# Define Highlander directory
 HIGHLANDER_PATH=$PWD
 
 # Define helper functions
@@ -71,6 +35,11 @@ if [[ $# -ge 1 ]] && [[ $1 == "-debug" ]]; then
     DEBUG=true
 fi
 
+DEPLOY=false
+if [[ $# -ge 1 ]] && [[ $1 == "-deploy" ]]; then
+    DEPLOY=true
+fi
+
 DOCKER=false
 if [[ $# -ge 1 ]] && [[ $1 == "-docker" ]]; then
     DOCKER=true
@@ -91,8 +60,14 @@ fi
 # Fetch origin quietly
 git fetch origin -q
 
-# Define projects
-ALL_CHANGED=$(git diff --name-only $BASE_BRANCH...$BUILDKITE_COMMIT | xargs -I{} dirname {} | uniq)
+# Define changed projects
+if [ "$DEPLOY" = true ] ; then
+    # Changed projects defined in merge commit
+    ALL_CHANGED=$(git log -m -1 --name-only --pretty="format:" | xargs -I{} dirname {} | uniq)
+else
+    # Changed projects defined in branch comparison
+    ALL_CHANGED=$(git diff --name-only $BASE_BRANCH...$BUILDKITE_COMMIT | xargs -I{} dirname {} | uniq)
+fi
 
 # Make newlines the only separator
 IFS=$'\n'
@@ -125,7 +100,7 @@ do
 done
 
 # Build, test, dockerize, push
-if [ "$DEBUG" = false ] ; then
+if [ "$DEBUG" = false ] && [ "$DEPLOY" = false ] ; then
     write "Building subprojects..."
     for PROJECT_DIR in "${CHANGED[@]}"
     do
@@ -136,4 +111,16 @@ if [ "$DEBUG" = false ] ; then
         fi
         cd $HIGHLANDER_PATH
     done
+fi
+
+# Deploy
+if [ "$DEPLOY" = true ] ; then
+    write "Deploying subprojects..."
+    for ID in "${!CHANGED[@]}"
+    do
+        eval ${APPLICATIONS[$i]}=true
+    done
+
+    cd tabernacle
+    ansible-playbook -v -i inventory/static/dev ansible/deploy_atomic.yml --extra-vars "debug_mode=true"
 fi

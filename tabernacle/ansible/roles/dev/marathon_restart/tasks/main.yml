@@ -1,7 +1,7 @@
 ---
 
 - name: Debug Restart Flags
-  debug: msg={{marathon_restart}}
+  debug: msg={{marathon_deploy}}
 
 - name: Restart Applications
   uri:
@@ -39,11 +39,21 @@
     - { group: ic-consumers, app: orders-sphex, id: orders_sphex }
     - { group: ic-consumers, app: product-activity, id: product_activity }
     - { group: ic-integrations, app: suggester, id: suggester }
-  when: marathon_restart[item.id]
+  when: marathon_deploy[item.id] and not debug_mode
 
-- name: Wait for tasks all tasks to be healthy
-  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps | jq '[.apps[] | select(.tasksHealthy == 0)] | length'
+- name: Wait for tasks to be in correct state
+  shell: curl -sS -XGET {{base_url}} | jq -c '{{jq_query}}'
   register: unhealthy_tasks
-  until: unhealthy_tasks.stdout == '0'
+  until: unhealthy_tasks.stdout == '[[1,1,0,0]]'
   retries: "{{marathon_retries}}"
   delay: "{{marathon_delay}}"
+  when: not debug_mode
+
+- name: Wait for single-instanced services
+  wait_for: host={{item.host}} port={{item.port}}
+  with_items:
+    - { host: "{{phoenix_host}}", port: "{{phoenix_port}}", id: phoenix }
+    - { host: "{{middlewarehouse_host}}", port: "{{middlewarehouse_port}}", id: middlewarehouse }
+    - { host: "{{solomon_host}}", port: "{{solomon_port}}", id: solomon }
+    - { host: "{{isaac_host}}", port: "{{isaac_port}}", id: isaac }
+  when: marathon_deploy[item.id] and not debug_mode
