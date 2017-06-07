@@ -31,13 +31,13 @@ class CounterExample extends React.Component {
       <div>
         <Counter
           value={this.state.value1}
-          onChange={(v) => this.handleChange.bind(this, 'value1')(v)}
+          onChange={ v => this.handleChange('value1', v) }
         />
       </div>
       <div>
         <Counter
           value={this.state.value2}
-          onChange={(v) => this.handleChange.bind(this, 'value2')(v)}
+          onChange={ v => this.handleChange('value2', v) }
           step={5}
           max={1000}
         />
