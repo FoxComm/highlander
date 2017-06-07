@@ -8,7 +8,7 @@ DOCKER_TAG ?= master
 build:
 	$(call header, Building)
 	mkdir -p build
-	cd build && cmake .. && make -j4
+	# cd build && cmake .. && make -j4
 
 test:
 	$(call header, Testing)
@@ -19,11 +19,11 @@ clean:
 
 docker:
 	$(call header, Dockerizing)
-	docker build -t $(DOCKER_IMAGE) .
+	# docker build -t $(DOCKER_IMAGE) .
 
 docker-push:
 	$(call header, Registering)
-	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
-	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	# docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	# docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
 .PHONY: build clean test docker docker-push
