@@ -51,7 +51,7 @@ export default class EditAlbum extends Component {
   }
 
   @autobind
-  handleUpdateField(value, name) {
+  handleUpdateField(value: string, name: string) {
     this.setState({ [name]: value });
   }
 

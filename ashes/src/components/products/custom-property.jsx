@@ -61,7 +61,7 @@ export default class CustomProperty extends Component<void, Props, State> {
   }
 
   @autobind
-  handleUpdateLabel(value) {
+  handleUpdateLabel(value: string) {
     this.setState({ fieldLabel: value });
   }
 
