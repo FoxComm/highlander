@@ -34,7 +34,7 @@
     - { role: dev/seed_system, when: first_run }
     - { role: dev/marathon_groups }
     - { role: dev/nginx }
-    - { role: demo/balancer }
+    - { role: dev/nixy }
     - { role: dev/seeder, when: with_appliance_seeding and first_run }
     - { role: app/healthcheck }
     - { role: app/dnsimple, when: first_run }
