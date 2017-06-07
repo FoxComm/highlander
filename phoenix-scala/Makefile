@@ -8,7 +8,7 @@ INSTANCE ?= $(shell cat ../goldrush.state)
 
 build:
 	$(call header, Building)
-	sbt 'fullAssembly'
+	make build-phoenix
 
 build-phoenix:
 	sbt 'phoenix/assembly'
