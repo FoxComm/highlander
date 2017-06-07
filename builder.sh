@@ -126,7 +126,7 @@ done
 
 # Build, test, dockerize, push
 if [ "$DEBUG" = false ] ; then
-    echo "Building"
+    write "Building subprojects..."
     for PROJECT_DIR in "${CHANGED[@]}"
     do
         cd $PROJECT_DIR
