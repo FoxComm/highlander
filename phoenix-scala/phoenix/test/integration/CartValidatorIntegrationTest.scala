@@ -149,7 +149,7 @@ class CartValidatorIntegrationTest
     val (shipMethod) = (for {
       address ← * <~ Addresses.create(
                    Factories.address.copy(accountId = customer.accountId, regionId = 4129))
-      _          ← * <~ OrderShippingAddresses.copyFromAddress(address = address, cordRef = cart.refNum)
+      _          ← * <~ address.boundToCart(cart.refNum)
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
     } yield shipMethod).gimme
     val refNum = cart.refNum

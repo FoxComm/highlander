@@ -288,8 +288,8 @@ class CartIntegrationTest
       with CustomerAddress_Raw {
         cartsApi(cart.refNum).shippingAddress.updateFromAddress(address.id).mustBeOk()
 
-        val shippingAddressUpd = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
-        shippingAddressUpd.cordRef must === (cart.refNum)
+        val shippingAddressUpd = Addresses.findByOrderRef(cart.refNum).one.gimme.value
+        shippingAddressUpd.cordRef.value must === (cart.refNum)
       }
 
       "removes an existing shipping address before copying new address" in new EmptyCartWithShipAddress_Baked {
@@ -300,7 +300,7 @@ class CartIntegrationTest
           cartsApi(cart.refNum).shippingAddress.updateFromAddress(id).mustBeOk()
         }
 
-        val shippingAddressUpd = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
+        val shippingAddressUpd = Addresses.findByOrderRef(cart.refNum).one.gimme.value
         shippingAddressUpd.name must === ("Little Mary")
       }
 
@@ -326,8 +326,8 @@ class CartIntegrationTest
 
         cartsApi(cart.refNum).shippingAddress.updateFromAddress(newAddress.id).mustBeOk()
 
-        val shippingAddressUpd = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
-        shippingAddressUpd.cordRef must === (cart.refNum)
+        val shippingAddressUpd = Addresses.findByOrderRef(cart.refNum).one.gimme.value
+        shippingAddressUpd.cordRef.value must === (cart.refNum)
       }
 
       "errors if the address does not exist" in new EmptyCartWithShipAddress_Baked {
@@ -341,8 +341,7 @@ class CartIntegrationTest
           .updateFromAddress(101)
           .mustFailWith404(NotFoundFailure404(Address, 101))
 
-        OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value.cordRef must === (
-            cart.refNum)
+        Addresses.findByOrderRef(cart.refNum).one.gimme.value.cordRef.value must === (cart.refNum)
       }
     }
   }
@@ -354,8 +353,7 @@ class CartIntegrationTest
         .update(UpdateAddressPayload(name = "New name".some, city = "Queen Anne".some))
         .mustBeOk()
 
-      val updatedAddress: OrderShippingAddress =
-        OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
+      val updatedAddress: Address = Addresses.findByOrderRef(cart.refNum).one.gimme.value
       updatedAddress.name must === ("New name")
       updatedAddress.city must === ("Queen Anne")
       updatedAddress.address1 must === (address.address1)
@@ -414,7 +412,7 @@ class CartIntegrationTest
     "fails if the cart is not found" in new EmptyCartWithShipAddress_Baked {
       cartsApi("NOPE").shippingAddress.delete().mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
 
-      OrderShippingAddresses.length.result.gimme must === (1)
+      Addresses.length.result.gimme must === (1)
     }
 
     "fails if the order has already been placed" in new Order_Baked {
@@ -422,7 +420,7 @@ class CartIntegrationTest
         .delete()
         .mustFailWith400(OrderAlreadyPlaced(cart.refNum))
 
-      OrderShippingAddresses.length.result.gimme must === (1)
+      Addresses.length.result.gimme must === (1)
     }
   }
 

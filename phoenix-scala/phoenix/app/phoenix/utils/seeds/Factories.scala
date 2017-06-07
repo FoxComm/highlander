@@ -2,7 +2,8 @@ package phoenix.utils.seeds
 
 import phoenix.models.Reason
 import phoenix.models.Reason.{Cancellation, GiftCardCreation, StoreCreditCreation}
-import phoenix.models.cord.{OrderPayment, OrderShippingAddress}
+import phoenix.models.cord.OrderPayment
+import phoenix.models.location.Address
 import phoenix.models.payment.creditcard.CreditCardCharge
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
@@ -36,13 +37,14 @@ object Factories
   def storeCreditPayment(implicit au: AU) = OrderPayment.build(storeCredit)
 
   def shippingAddress =
-    OrderShippingAddress(regionId = 4174,
-                         name = "Old Yax",
-                         address1 = "9313 Olde Mill Pond Dr",
-                         address2 = None,
-                         city = "Glen Allen",
-                         zip = "23060",
-                         phoneNumber = None)
+    Address(regionId = 4174,
+            accountId = 0,
+            name = "Old Yax",
+            address1 = "9313 Olde Mill Pond Dr",
+            address2 = None,
+            city = "Glen Allen",
+            zip = "23060",
+            phoneNumber = None)
 
   def creditCardCharge =
     CreditCardCharge(creditCardId = creditCard.id,

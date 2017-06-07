@@ -150,8 +150,11 @@ object Addresses
   def findAllActiveByAccountIdWithRegions(accountId: Int): AddressesWithRegionsQuery =
     findAllActiveByAccountId(accountId).withRegions
 
-  def findOneForCartWithRegions(cordRef: String): DBIO[Option[(Address, Region)]] =
-    filter(_.cordRef === cordRef).withRegions.one
+  def findByOrderRef(cordRef: String): QuerySeq =
+    filter(_.cordRef === cordRef)
+
+  def findByOrderRefWithRegions(cordRef: String): AddressesWithRegionsQuery =
+    findByOrderRef(cordRef).withRegions
 
   def findShippingDefaultByAccountId(accountId: Int): QuerySeq =
     filter(_.accountId === accountId).filter(_.isDefaultShipping === true)

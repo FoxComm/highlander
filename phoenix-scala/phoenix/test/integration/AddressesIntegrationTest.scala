@@ -2,7 +2,6 @@ import cats.implicits._
 import core.failures.NotFoundFailure404
 import phoenix.failures.AddressFailures.NoRegionFound
 import phoenix.models.account._
-import phoenix.models.cord.OrderShippingAddresses
 import phoenix.models.location.{Address, Addresses, Country, Region}
 import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import phoenix.responses.AddressResponse
@@ -205,6 +204,6 @@ class AddressesIntegrationTest
   trait ShippingAddressFixture extends EmptyCartWithShipAddress_Baked
 
   trait NoDefaultAddressFixture extends CustomerAddress_Baked with EmptyCustomerCart_Baked {
-    val shippingAddress = OrderShippingAddresses.copyFromAddress(address, cart.refNum).gimme
+    val shippingAddress = address.boundToCart(cart.refNum)
   }
 }

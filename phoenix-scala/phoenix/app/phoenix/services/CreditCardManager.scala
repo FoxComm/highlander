@@ -227,10 +227,4 @@ object CreditCardManager {
     }
   }
 
-  private def getOptionalShippingAddress(id: Option[Int],
-                                         isShipping: Boolean): DBIO[Option[OrderShippingAddress]] =
-    id match {
-      case Some(addressId) if isShipping ⇒ OrderShippingAddresses.findById(addressId).extract.one
-      case _                             ⇒ DBIO.successful(None)
-    }
 }

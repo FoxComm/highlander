@@ -4,12 +4,9 @@ import java.time.Instant
 
 import cats.implicits._
 import core.db._
-import core.failures.NotFoundFailure404
 import phoenix.models.account._
-import phoenix.models.cord.{OrderShippingAddress, OrderShippingAddresses}
 import phoenix.models.location._
 import phoenix.models.payment.creditcard.CreditCard
-import slick.jdbc.PostgresProfile.api._
 
 case class AddressResponse(id: Int,
                            customer: Option[User] = None,
