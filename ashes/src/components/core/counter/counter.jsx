@@ -45,29 +45,29 @@ class Counter extends Component {
   static defaultProps: $Shape<Props> = {
     value: 0,
     min: 0,
-    max: 100,
+    max: Infinity,
     step: 1,
     disabled: false,
   };
 
   @autobind
-  setValue(value: number) {
+  handleValueChange(value: number) {
     const { min, max, onChange } = this.props;
 
-    if (!value && value !==0 || value < min) {
+    if (!value && value !== 0 || value < min) {
       return onChange(min);
     }
 
     if (value > max) {
-      return null;
+      return onChange(max);
     }
 
     return onChange(value);
   }
 
   @autobind
-  handleChange({ target }: { target: HTMLInputElement }) {
-    return this.setValue(parseInt(target.value, 10));
+  handleInputChange({ target }: { target: HTMLInputElement }) {
+    return this.handleValueChange(parseInt(target.value, 10));
   }
 
   render() {
@@ -84,11 +84,11 @@ class Counter extends Component {
     } = this.props;
 
     return (
-      <div id={counterId} className={ classNames(s.counter, className)}>
+      <div id={counterId} className={classNames(s.counter, className)}>
         <DecrementButton
           type="button"
           disabled={disabled || value === min}
-          onClick={() => this.setValue(value - step)}
+          onClick={() => this.handleValueChange(value - step)}
           className={s.controls}
         />
         <input
@@ -96,13 +96,13 @@ class Counter extends Component {
           value={value}
           disabled={disabled}
           className={classNames(s.input, '__cssmodules')}
-          onChange={this.handleChange}
+          onChange={this.handleInputChange}
           {...rest}
         />
         <IncrementButton
           type="button"
           disabled={disabled || value === max}
-          onClick={() => this.setValue(value + step)}
+          onClick={() => this.handleValueChange(value + step)}
           className={s.controls}
         />
       </div>
