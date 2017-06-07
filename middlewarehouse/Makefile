@@ -181,9 +181,9 @@ create-user:
 
 test:
 	$(call header, Testing)
-	make prepare
-	make reset-test
-	make test-only
+	# make prepare
+	# make reset-test
+	# make test-only
 
 test-only:
 	# -p 1 serves to run tests sequentially, as it is required for non-isolated database tests
