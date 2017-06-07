@@ -27,21 +27,18 @@ class CounterExample extends React.Component {
 
   render() {
     return  (
-    <div>
-      <div>
-        <Counter
-          value={this.state.value1}
-          onChange={ v => this.handleChange('value1', v) }
-        />
-      </div>
-      <div>
-        <Counter
-          value={this.state.value2}
-          onChange={ v => this.handleChange('value2', v) }
-          step={5}
-          max={1000}
-        />
-      </div>
+    <div className="demo-blocked">
+      <Counter
+        value={this.state.value1}
+        onChange={v => this.handleChange('value1', v)}
+      />
+      <br />
+      <Counter
+        value={this.state.value2}
+        onChange={v => this.handleChange('value2', v)}
+        step={5}
+        max={1000}
+      />
     </div>
     )
   }
