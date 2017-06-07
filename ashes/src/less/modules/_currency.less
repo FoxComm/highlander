@@ -2,10 +2,10 @@
 .fc-currency {
   display: inline-block;
   &._transaction {
-    color: @color-green-buttons;
+    color: @color-action-text;
 
     &._negative {
-      color: @color-decor22;
+      color: @color-error-text;
 
       &::first-letter {
         padding-right: 0.35em;
@@ -18,7 +18,7 @@
 
     &:before {
       content: "+";
-      color: @color-green-buttons;
+      color: @color-action-text;
       padding-right: 0.35em;
     }
   }

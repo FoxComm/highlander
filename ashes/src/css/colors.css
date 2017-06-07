@@ -82,7 +82,6 @@
   --decor19: #a0beed;
   --decor20: #c5d6ff;
   --decor21: #e1eaff;
-  --decor22: #f45758;
   --decor23: #ff9796;
   --decor24: #ffbb3c;
   --decor25: #ffdd7f;
@@ -95,7 +94,6 @@
   --decor38: #e9feff;
   --decor43: rgba(0,0,0,0.30);
   --decor45: #7f7f7f;
-  --decor47: #F45758;
   --decor48: #D8FBFD;
   --decor49: #EAFEFF;
   --decor51: rgba(0,0,0,0.50);
@@ -142,5 +140,4 @@
   --control-yes-bg: --green-buttons;
 
   --control-no-fg: --decor0;
-  --control-no-bg: --decor22;
 }

@@ -50,7 +50,7 @@
 
   .error() {
     &:not(:disabled) {
-      border-color: @color-decor22;
+      border-color: @color-error-text;
     }
   }
 
@@ -101,7 +101,7 @@
     label:after {
       content: "*";
       margin-left: .3em;
-      color: #FA6C66;
+      color: @color-error-text;
     }
   }
 }
@@ -147,7 +147,7 @@
   }
 
   &-error {
-    color: @color-decor22;
+    color: @color-error-text;
     font-size: 13px;
     line-height: 15px;
     padding-top: 8px;
