@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+####################################
+# DEPRECATED                       #
+####################################
+
 VERBOSE=false
 if [[ $# -ge 1 ]] && [[ $1 == "-verbose" ]]; then
     VERBOSE=true
