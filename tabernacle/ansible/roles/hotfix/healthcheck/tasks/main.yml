@@ -1,5 +1,0 @@
----
-
-- name: Wait For Host
-  wait_for: host="{{storefront_server_name}}"
-  delay: 10

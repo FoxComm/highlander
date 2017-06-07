@@ -60,4 +60,4 @@
   roles:
     - { role: dev/nginx }
     - { role: demo/balancer }
-    - { role: hotfix/healthcheck }
+    - { role: hotfix/nginx }
