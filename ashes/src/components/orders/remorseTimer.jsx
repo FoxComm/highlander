@@ -1,8 +1,11 @@
 /* @flow */
 
+// libs
 import React, { Component, Element } from 'react';
+
+// components
 import { AddButton } from 'components/core/button';
-import Countdown from '../countdown/countdown';
+import Countdown from 'components/core/countdown';
 
 type Props = {
   initialEndDate: string,
@@ -16,15 +19,10 @@ type State = {
 
 export default class RemorseTimer extends Component {
   props: Props;
+
   state: State = {
     frozen: false
   };
-
-  onToggleOrderEdit(): void {
-    this.setState({
-      frozen: !this.state.frozen
-    });
-  }
 
   extendButton(): Element<*> {
     return (
@@ -38,7 +36,7 @@ export default class RemorseTimer extends Component {
     );
   }
 
-  controls(): Element<*>|string {
+  controls(): Element<*> | string {
     if (this.state.frozen) {
       return 'Frozen while editing.';
     } else {

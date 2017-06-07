@@ -4,6 +4,8 @@ import 'co-mocha';
 import path from 'path';
 import rewire from 'rewire';
 import register from 'ignore-styles';
+import chai from 'chai';
+import chaiEnzyme from 'chai-enzyme';
 
 process.env.API_URL = 'http://api.foxcommerce'; // mock
 process.env.STRIPE_PUBLISHABLE_KEY = 'key_mock'; // mock
@@ -24,7 +26,7 @@ global.expect = (function(expect) {
       return expect(target);
     }
   };
-})(require('chai').expect);
+})(chai.use(chaiEnzyme()).expect);
 
 
 global.later = function(func) {

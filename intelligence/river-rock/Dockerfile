@@ -8,4 +8,3 @@ WORKDIR /river-rock
 COPY river-rock /river-rock
 
 CMD /river-rock/river-rock 2>&1 | tee /logs/river-rock.log
-

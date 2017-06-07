@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 
 // components
 import ContentBox from '../../content-box/content-box';
-import RadioButton from '../../forms/radio-button';
+import RadioButton from 'components/core/radio-button';
 import Counter from '../../forms/counter';
 import FormField from '../../forms/formfield';
 import CodeCreationModal from './code-creation-modal';
@@ -214,19 +214,21 @@ class CouponCodes extends Component {
     return (
       <ContentBox title="Coupon Code">
         <div>
-          <RadioButton id="singleCouponCodeRadio"
-                       checked={this.props.codeGeneration.bulk === false}
-                       onChange={this.handleSingleSelect} >
-            <label htmlFor="singleCouponCodeRadio" styleName="field-label">Single coupon code</label>
-          </RadioButton>
+          <RadioButton
+            id="singleCouponCodeRadio"
+            label="Single coupon code"
+            checked={this.props.codeGeneration.bulk === false}
+            onChange={this.handleSingleSelect}
+          />
         </div>
         {this.singleCouponFormPart}
         <div>
-          <RadioButton id="bulkCouponCodeRadio"
-                       checked={this.props.codeGeneration.bulk === true}
-                       onChange={this.handleBulkSelect} >
-            <label htmlFor="bulkCouponCodeRadio" styleName="field-label">Bulk generate coupon codes</label>
-          </RadioButton>
+          <RadioButton
+            id="bulkCouponCodeRadio"
+            label="Bulk generate coupon codes"
+            checked={this.props.codeGeneration.bulk === true}
+            onChange={this.handleBulkSelect}
+          />
         </div>
         {this.bulkCouponFormPart}
         <CodeCreationModal

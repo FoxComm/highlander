@@ -134,7 +134,7 @@ class CouponPage extends ObjectPage {
         cancelDisabled={this.props.isSaving}
         saveDisabled={this.props.isSaving}
         onCancel={this.props.params.modalCancelAction}
-        saveText="Generate Coupon Code(s)"
+        saveLabel="Generate Coupon Code(s)"
       />
     );
   }

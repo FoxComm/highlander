@@ -5,9 +5,8 @@ import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 
 // components
-import { ModalContainer } from '../modal/base';
+import Modal from 'components/core/modal';
 import { FormField } from '../forms';
-import ContentBox from '../content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
 import TextInput from 'components/core/text-input';
 
@@ -30,10 +29,6 @@ class EditImage extends Component {
     alt: this.props.image.alt,
   };
 
-  get closeAction() {
-    return <a onClick={this.props.onCancel}>&times;</a>;
-  }
-
   @autobind
   handleUpdateField(value: string, name: string) {
     this.setState({ [name]: value });
@@ -45,48 +40,54 @@ class EditImage extends Component {
     this.props.onSave(this.state);
   }
 
-  render() {
+  get footer() {
     const saveDisabled = !!this.state.title;
 
     return (
-      <ModalContainer isVisible={this.props.isVisible}>
-        <ContentBox title="Edit Image" actionBlock={this.closeAction}>
-          <FormField label="Image Title"
-                     className="fc-product-details__field"
-                     labelClassName="fc-product-details__field-label"
-          >
-            <TextInput
-                   name="title"
-                   value={this.state.title}
-                   onChange={this.handleUpdateField}
-            />
-          </FormField>
-          <FormField label="Image Alt Text"
-                     className="fc-product-details__field"
-                     labelClassName="fc-product-details__field-label">
-            <TextInput
-                   name="alt"
-                   value={this.state.alt}
-                   onChange={this.handleUpdateField}
-            />
-          </FormField>
-          <FormField label="Image URL"
-                     className="fc-product-details__field"
-                     labelClassName="fc-product-details__field-label">
-            <TextInput
-                   name="src"
-                   value={this.state.src}
-                   placeholder="http://"
-                   onChange={this.handleUpdateField}
-             />
-          </FormField>
-          <SaveCancel onCancel={this.props.onCancel}
-                      onSave={this.handleSave}
-                      saveDisabled={saveDisabled}
-                      saveText="Save and Apply"
+      <SaveCancel
+        onCancel={this.props.onCancel}
+        onSave={this.handleSave}
+        saveDisabled={saveDisabled}
+        saveLabel="Save and Apply"
+      />
+    );
+  }
+
+  render() {
+    return (
+      <Modal
+        title="Edit Image"
+        footer={this.footer}
+        isVisible={this.props.isVisible}
+        onClose={this.props.onCancel}
+      >
+        <FormField label="Image Title"
+                   className="fc-product-details__field"
+                   labelClassName="fc-product-details__field-label"
+        >
+          <TextInput name="title"
+                 value={this.state.title}
+                 onChange={this.handleUpdateField}
           />
-        </ContentBox>
-      </ModalContainer>
+        </FormField>
+        <FormField label="Image Alt Text"
+                   className="fc-product-details__field"
+                   labelClassName="fc-product-details__field-label">
+          <TextInput name="alt"
+                 value={this.state.alt}
+                 onChange={this.handleUpdateField}
+          />
+        </FormField>
+        <FormField label="Image URL"
+                   className="fc-product-details__field"
+                   labelClassName="fc-product-details__field-label">
+          <TextInput name="src"
+                 value={this.state.src}
+                 placeholder="http://"
+                 onChange={this.handleUpdateField}
+          />
+        </FormField>
+      </Modal>
     );
   }
 }

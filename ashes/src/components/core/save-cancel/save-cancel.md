@@ -3,8 +3,8 @@
 ```javascript
 <SaveCancel
   className={styles.button}
-  cancelText="Back"
-  saveText="Ok"
+  cancelLabel="Back"
+  saveLabel="Ok"
   onSave={saveHandler}
   onCancel={cancelHandler}
   isLoading={saveState.inProgress}
@@ -20,7 +20,7 @@ import { SaveCancel } from 'components/core/save-cancel'
 ```
 
 ```
-<SaveCancel saveText="Ok" cancelText="Back" />
+<SaveCancel saveLabel="Ok" cancelLabel="Back" />
 ```
 
 ### States

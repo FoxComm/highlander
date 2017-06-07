@@ -1,3 +1,5 @@
+import java.util.regex.Pattern
+
 import akka.http.scaladsl.model.{HttpResponse, StatusCode, StatusCodes}
 import core.failures.Failure
 import org.json4s.Formats
@@ -110,9 +112,21 @@ package object testutils extends MustMatchers with OptionValues with AppendedClu
                                                                         file: SF): Unit = {
       mustHaveStatus(statusCode)
 
-      expected.toList match {
-        case only :: Nil ⇒ response.error must === (only)
-        case _           ⇒ response.errors must contain theSameElementsAs expected
+      val expectedRegex = expected.map(
+          _.split(
+              Pattern.quote("%ANY%"),
+              -1 /* Keep trailing empty strings for "%ANY" at the end of the pattern. */ ).toList
+            .map(Pattern.quote)
+            .mkString(".*?"))
+
+      expectedRegex.toList match {
+        case only :: Nil ⇒ response.error must (fullyMatch regex only)
+        case _ ⇒
+          response.errors.foreach { error ⇒
+            withClue(s"“$error” did not match any of $expectedRegex") {
+              expectedRegex.exists(error matches _) mustBe true
+            }
+          }
       }
     } withClue originalSourceClue
 

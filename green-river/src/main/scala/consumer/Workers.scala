@@ -177,6 +177,7 @@ object Workers {
       "orders_search_view"                    → OrdersSearchView(),
       "products_catalog_view"                 → ProductsCatalogView(),
       "products_search_view"                  → ProductsSearchView(),
+      "product_reviews_search_view"           → ProductReviewsSearchView(),
       "promotions_search_view"                → PromotionsSearchView(),
       "coupons_search_view"                   → CouponsSearchView(),
       "coupon_codes_search_view"              → CouponCodesSearchView(),

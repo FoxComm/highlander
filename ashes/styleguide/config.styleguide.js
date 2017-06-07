@@ -46,6 +46,12 @@ module.exports = {
           name: 'Core',
           sections: [
             {
+              name: 'Alerts',
+              components: () => ([
+                path.resolve(__dirname, '../src/components/core/alert/alert.jsx'),
+              ]),
+            },
+            {
               name: 'Buttons',
               components: () => ([
                 path.resolve(__dirname, '../src/components/core/button/button.jsx'),
@@ -64,7 +70,16 @@ module.exports = {
               components: () => ([
                 path.resolve(__dirname, '../src/components/core/text-mask/text-mask.jsx'),
                 path.resolve(__dirname, '../src/components/core/swatch-input/swatch-input.jsx'),
+                path.resolve(__dirname, '../src/components/core/radio-button/radio-button.jsx'),
                 path.resolve(__dirname, '../src/components/core/text-input/text-input.jsx'),
+              ]),
+            },
+            {
+              name: 'Modal',
+              components: () => ([
+                path.resolve(__dirname, '../src/components/core/modal-container/modal-container.jsx'),
+                path.resolve(__dirname, '../src/components/core/modal/modal.jsx'),
+                path.resolve(__dirname, '../src/components/core/confirmation-modal/confirmation-modal.jsx'),
               ]),
             },
             {
@@ -72,9 +87,22 @@ module.exports = {
               components: () => ([
                 path.resolve(__dirname, '../src/components/core/rounded-pill/rounded-pill.jsx'),
                 path.resolve(__dirname, '../src/components/core/spinner/spinner.jsx'),
+                path.resolve(__dirname, '../src/components/core/countdown/countdown.jsx'),
               ]),
             },
           ],
+        },
+        {
+          name: 'Utils',
+          sections: [
+            {
+              name: 'Errors',
+              components: () => ([
+                path.resolve(__dirname, '../src/components/utils/errors/errors.jsx'),
+                path.resolve(__dirname, '../src/components/utils/errors/api-errors.jsx'),
+              ]),
+            },
+          ]
         },
       ],
     },

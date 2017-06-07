@@ -65,7 +65,6 @@
 }
 
 .list.users .items {
-  width: 600px;
   overflow-y: auto;
 }
 

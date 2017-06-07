@@ -15,7 +15,7 @@ import { PanelList, PanelListItem } from '../panel/panel-list';
 import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
 import StateComponent, { states } from '../common/state';
-import ConfirmationDialog from '../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import Spinner from 'components/core/spinner';
 import Error from 'components/errors/error';
 
@@ -81,24 +81,6 @@ export default class Order extends React.Component {
     }
   }
 
-  get changeOptions(): Object {
-    return {
-      header: 'Confirm',
-      body: 'Are you sure you want to change the order state?',
-      cancel: 'Cancel',
-      proceed: 'Yes'
-    };
-  }
-
-  get cancelOptions(): Object {
-    return {
-      header: 'Confirm',
-      body: 'Are you sure you want to cancel the order?',
-      cancel: 'No, Don\'t Cancel',
-      proceed: 'Yes, Cancel Order'
-    };
-  }
-
   get orderRefNum(): string {
     return orderRefNum(this.props);
   }
@@ -118,7 +100,7 @@ export default class Order extends React.Component {
         <RemorseTimer
           initialEndDate={this.order.remorsePeriodEnd}
           onIncreaseClick={handleIncreaseClick}
-          onCountdownFinished={() => this.onRemorseCountdownFinish()}
+          onCountdownFinished={this.onRemorseCountdownFinish}
         />
       );
     }
@@ -261,14 +243,13 @@ export default class Order extends React.Component {
           {this.subNav}
           {this.renderDetails}
         </div>
-        <ConfirmationDialog
+        <ConfirmationModal
           isVisible={this.state.newOrderState != null}
-          header="Change Order State ?"
-          body={`Are you sure you want to change order state to ${states.order[this.state.newOrderState]} ?`}
-          cancel="Cancel"
-          confirm="Yes, Change"
+          title="Change Order State ?"
+          label={`Are you sure you want to change order state to ${states.order[this.state.newOrderState]} ?`}
+          confirmLabel="Yes, Change"
           onCancel={this.cancelStateChange}
-          confirmAction={this.confirmStateChange}
+          onConfirm={this.confirmStateChange}
         />
       </div>
     );

@@ -11,11 +11,11 @@ import { createSelector } from 'reselect';
 // components
 import FormField from '../../forms/formfield';
 import FoxyForm from '../../forms/foxy-form';
-import ErrorAlerts from '../../alerts/error-alerts';
+import { ApiErrors } from 'components/utils/errors';
 import SaveCancel from 'components/core/save-cancel';
 import { Dropdown } from '../../dropdown';
+import AutoScroll from 'components/utils/auto-scroll';
 import TextInput from 'components/core/text-input';
-import AutoScroll from '../../common/auto-scroll';
 
 // data
 import * as validators from '../../../lib/validators';
@@ -120,7 +120,7 @@ export default class AddressForm extends React.Component {
     let input;
 
     if (this.countryCode === 'US') {
-      const onChange = ({ target: { value }}) => this.handlePhoneChange(value);
+      const onChange = ({ target: { value } }) => this.handlePhoneChange(value);
       input = (
         <TextMask
           {...inputAttributes}
@@ -149,7 +149,7 @@ export default class AddressForm extends React.Component {
   }
 
   get errorMessages() {
-    return <ErrorAlerts error={this.props.err} />;
+    return <ApiErrors error={this.props.err} />;
   }
 
   get formTitle() {
@@ -197,7 +197,7 @@ export default class AddressForm extends React.Component {
 
   @autobind
   handlePhoneChange(phone) {
-    this.setState({phone});
+    this.setState({ phone });
   }
 
   @autobind
@@ -280,7 +280,8 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label={zipName(countryCode)} validator={this.validateZipCode}>
-                  <TextInput type="text" name="zip"
+                  <TextInput
+                         name="zip"
                          placeholder={zipExample(countryCode)}
                          defaultValue={address.zip} className='control' required />
                 </FormField>
@@ -291,8 +292,10 @@ export default class AddressForm extends React.Component {
                 </FormField>
               </li>
               <li className="fc-address-form-controls">
-                <SaveCancel onCancel={onCancel}
-                            saveText={saveTitle} />
+                <SaveCancel
+                  onCancel={onCancel}
+                  saveLabel={saveTitle}
+                />
               </li>
             </ul>
           </FoxyForm>

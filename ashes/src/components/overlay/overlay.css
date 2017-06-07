@@ -1,13 +1,13 @@
-.overlay_hidden {
+.overlay {
   display: none;
-}
-
-.overlay_shown {
-  display: block;
   position: fixed;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
   z-index: 2;
+}
+
+.active {
+  display: block;
 }

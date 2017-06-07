@@ -88,7 +88,7 @@ export default class NewCreditCard extends Component {
             isNew={true}
             onCancel={() => this.setState({ showForm: false })}
             onSubmit={this.handleCreditCardSubmit}
-            saveText="Add Payment Method"
+            saveLabel="Add Payment Method"
           />
         </div>
       );
@@ -120,7 +120,7 @@ export default class NewCreditCard extends Component {
 
       return (
         <SaveCancel className="fc-new-order-payment__form-controls"
-                    saveText="Add Payment Method"
+                    saveLabel="Add Payment Method"
                     saveDisabled={saveDisabled}
                     onSave={onSave}
                     onCancel={this.props.cancelAction} />

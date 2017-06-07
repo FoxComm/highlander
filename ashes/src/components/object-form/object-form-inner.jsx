@@ -86,15 +86,13 @@ export default class ObjectFormInner extends Component {
   }
 
   get customPropertyForm() {
-    if (this.state.isAddingProperty) {
-      return (
-        <CustomProperty
-          isVisible={true}
-          onSave={this.handleCreateProperty}
-          onCancel={() => this.setState({ isAddingProperty: false })}
-        />
-      );
-    }
+    return (
+      <CustomProperty
+        isVisible={this.state.isAddingProperty}
+        onSave={this.handleCreateProperty}
+        onCancel={() => this.setState({ isAddingProperty: false })}
+      />
+    );
   }
 
   @autobind

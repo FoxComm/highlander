@@ -7,7 +7,7 @@ import createStore from 'lib/store-creator';
 import { getPropsByIds } from 'modules/bulk-export/helpers';
 
 // data
-import { reducers, createExportByIds } from 'modules/bulk';
+import { reducers, createExportByIds, initialState } from 'modules/bulk';
 
 const getCustomers = (getState: Function, ids: Array<number>): Object => {
   return getPropsByIds('customerGroups.details', ids, ['id', 'name'], getState(), 'customers');
@@ -37,6 +37,7 @@ const { actions, reducer } = createStore({
     exportByIds,
   },
   reducers,
+  initialState,
 });
 
 export {

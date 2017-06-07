@@ -1,0 +1,64 @@
+---
+
+- name: Provision Stage Amigo
+  hosts: foxcomm-groups-amigo
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  roles:
+    - { role: dev/marathon_consul, when: first_run }
+
+- name: Provision Test Backend
+  hosts: foxcomm-test-backend
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    is_staging: true
+    with_onboarding: true
+  roles:
+    - { role: base/mesos_worker, when: first_run }   # Hotfix, to be removed
+    - { role: hotfix/mesos_worker, when: first_run } # Hotfix, to be removed
+    - { role: dev/db, when: first_run }
+    - { role: dev/db_ic, when: first_run }
+    - { role: dev/flyway }
+    - { role: dev/seed_system, when: first_run }
+
+- name: Provision Test Frontend
+  hosts: foxcomm-test-frontend
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  roles:
+    - { role: base/mesos_worker, when: first_run }   # Hotfix, to be removed
+    - { role: hotfix/mesos_worker, when: first_run } # Hotfix, to be removed
+
+- name: Restart Marathon Group
+  hosts: foxcomm-test-amigo
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    api_server: test.foxcommerce.com
+    storefront_server_name: test.foxcommerce.com
+    messaging_env: staging
+    is_staging: true
+    url_prefix_perfectgourmet: "/perfect-gourmet"
+    url_prefix_topdrawer: "/top-drawer"
+    with_onboarding: true
+  roles:
+    - { role: dev/marathon_groups }
+    # - { role: dev/marathon_restart }
+
+- name: Restart Nginx
+  hosts: foxcomm-test-frontend
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    api_server: test.foxcommerce.com
+    storefront_server_name: test.foxcommerce.com
+    with_onboarding: true
+  roles:
+    - { role: dev/nginx }
+    - { role: demo/balancer }
+  post_tasks:
+    - name: Restart Nginx
+      service: name=nginx state=restarted

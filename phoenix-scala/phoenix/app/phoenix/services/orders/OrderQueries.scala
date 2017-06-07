@@ -22,7 +22,7 @@ object OrderQueries extends CordQueries {
       } yield AllOrders.build(order, customer.some, paymentState.some)
 
     for {
-      ordersCustomers ← * <~ query.join(Users).on(_.accountId === _.id).result
+      ordersCustomers ← * <~ query.join(Users).on(_.accountId === _.accountId).result
       response        ← * <~ ordersCustomers.map((build _).tupled)
     } yield TheResponse.build(response)
   }

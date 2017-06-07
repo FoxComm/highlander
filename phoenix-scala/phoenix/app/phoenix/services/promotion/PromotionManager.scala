@@ -137,7 +137,7 @@ object PromotionManager {
       model = fullObject.model
       now   = Some(Instant.now)
       archiveResult ← * <~ Promotions.update(model, model.copy(archivedAt = now))
-      coupons       ← * <~ Coupons.filterByContextAndPromotionId(context.id, archiveResult.id).result
+      coupons       ← * <~ Coupons.filterByContextAndPromotionId(context.id, archiveResult.formId).result
       _             ← * <~ coupons.map(coupon ⇒ Coupons.update(coupon, coupon.copy(archivedAt = now)))
       discounts     ← * <~ PromotionDiscountLinks.queryRightByLeft(archiveResult)
       discountForms   = discounts.map(_.form)

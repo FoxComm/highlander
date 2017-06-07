@@ -1,47 +1,39 @@
 /* @flow */
-import _ from 'lodash';
-import React, { Element, Component } from 'react';
-import { autobind } from 'core-decorators';
-import { transitionTo } from 'browserHistory';
 
-import styles from './coupon-new.css';
+// libs
+import classNames from 'classnames';
+import { transitionToLazy } from 'browserHistory';
+import React, { Element } from 'react';
 
 // components
-import wrapModal from '../modal/wrapper';
-import ContentBox from '../content-box/content-box';
+import Modal from 'components/core/modal';
 import CouponPage from '../coupons/page';
 import CouponForm from '../coupons/form';
+
+// styles
+import s from './coupon-new.css';
 
 type Props = {
   promotionId: String,
 };
 
-class CouponNew extends Component {
-  props: Props;
+export default (props: Props) => {
+  const cancelAction = transitionToLazy('promotion-coupons', { promotionId: props.promotionId });
 
-  @autobind
-  cancelAction() {
-    transitionTo('promotion-coupons', {promotionId: this.props.promotionId});
-  }
-
-  render() {
-    const actionBlock = <i onClick={this.cancelAction} className="fc-btn-close icon-close" title="Close" />;
-    return (
-      <div styleName="promotion-coupons-new">
-        <ContentBox actionBlock={actionBlock} title="Add Coupon Code">
-          <CouponPage params={{
-            couponId: 'new',
-            promotionId: this.props.promotionId,
-            modalCancelAction: this.cancelAction
-          }}>
-            <CouponForm />
-          </CouponPage>
-        </ContentBox>
-      </div>
-    );
-  }
-}
-
-const Wrapped: Class<React.Component<void, Props, any>> = wrapModal(CouponNew);
-
-export default Wrapped;
+  return (
+    <Modal
+      className={classNames(s.modal, s['promotion-coupons-new'])}
+      title="Add Coupon Code"
+      isVisible
+      onClose={cancelAction}
+    >
+      <CouponPage params={{
+        couponId: 'new',
+        promotionId: props.promotionId,
+        modalCancelAction: cancelAction
+      }}>
+        <CouponForm />
+      </CouponPage>
+    </Modal>
+  );
+};

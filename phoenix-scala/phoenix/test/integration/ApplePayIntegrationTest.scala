@@ -121,8 +121,10 @@ class ApplePayIntegrationTest
     val apToken           = "tok_1A9YBQJVm1XvTUrO3V8caBvF"
     val customerLoginData = TestLoginData(email = "test@bar.com", password = "pwd")
     val customer = customersApi
-      .create(CreateCustomerPayload(email = customerLoginData.email,
-                                    password = customerLoginData.password.some))
+      .create(
+          CreateCustomerPayload(email = customerLoginData.email,
+                                name = "Test customer".some,
+                                password = customerLoginData.password.some))
       .as[CustomerResponse.Root]
 
     val cart = cartsApi.create(CreateCart(customerId = customer.id.some)).as[CartResponse]

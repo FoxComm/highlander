@@ -1,0 +1,17 @@
+# Binaries
+eggcrate/eggcrate
+consumers/orders-anthill/orders-anthill
+consumers/orders-reviews/orders-reviews
+consumers/orders-reviews/orders-sphex
+consumers/orders-reviews/product-activity
+river-rock/river-rock
+suggester/suggester
+
+# Vendored libraries
+consumers/orders-anthill/vendor
+consumers/orders-reviews/vendor
+consumers/orders-sphex/vendor
+
+# Yarn
+user-simulation/node_modules/
+user-simulation/yarn.lock

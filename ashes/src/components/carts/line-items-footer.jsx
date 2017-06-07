@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 
 import SkuResult from './sku-result';
 import Typeahead from 'components/typeahead/typeahead';
-import ErrorAlerts from '../alerts/error-alerts';
+import { ApiErrors } from 'components/utils/errors';
 
 import { suggestSkus } from 'modules/skus/suggest';
 import { updateLineItemCount } from 'modules/carts/details';
@@ -18,7 +18,7 @@ const mapStateToProps = state => {
   return {
     suggestedSkus: _.get(state, 'skus.suggest.skus', []),
     isFetchingSkus: _.get(state.asyncActions, 'skus-suggest.inProgress', null),
-    updateLineItemErrors: _.get(state.asyncActions, 'updateLineItemCount.err.response.body.errors', null),
+    updateLineItemErrors: _.get(state.asyncActions, 'updateLineItemCount.err', null),
   };
 };
 
@@ -32,7 +32,7 @@ type Props = {
   isFetchingSkus: boolean,
   suggestSkus: (code: string, options?: SuggestOptions) => Promise<*>,
   updateLineItemCount: Function,
-  updateLineItemErrors: Array<string>
+  updateLineItemErrors: Object,
 };
 
 export class CartLineItemsFooter extends Component {
@@ -77,7 +77,7 @@ export class CartLineItemsFooter extends Component {
           placeholder="Product name or SKU..."
         />
 
-        {updateLineItemErrors && <ErrorAlerts errors={updateLineItemErrors} />}
+        {updateLineItemErrors && <ApiErrors className="fc-line-items-errors" response={updateLineItemErrors} />}
       </div>
     );
   }

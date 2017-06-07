@@ -15,6 +15,12 @@
   --dark-green: #1dbfaa;
   --pink: #fc54a6;
 
+  --light-blue: #a0e9ed;
+
+  --light-yellow: #ffdd7f;
+
+  --light-red: #ff9796;
+
   /*
    * Buttons
    */
@@ -42,6 +48,13 @@
    * Dropdowns
    */
   --dd-item-bg-active: var(--alabaster);
+
+  /*
+   * Alerts
+   */
+  --alert-success: var(--light-blue);
+  --alert-warning: var(--light-yellow);
+  --alert-error: var(--light-red);
 
   --black: #000000;
   --decor0: #f2f2f2;
