@@ -14,11 +14,9 @@ object CartPayloads {
                         scope: Option[String] = None)
       extends Validation[CreateCart] {
 
-    def validate: ValidatedNel[Failure, CreateCart] = {
-
+    def validate: ValidatedNel[Failure, CreateCart] =
       (validExpr(customerId.isDefined || email.isDefined, "customerId or email must be given") |+|
-            email.fold(ok)(notEmpty(_, "email"))).map(_ ⇒ this)
-    }
+        email.fold(ok)(notEmpty(_, "email"))).map(_ ⇒ this)
   }
 
   case class CheckoutCart(items: List[UpdateLineItemsPayload])

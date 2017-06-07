@@ -87,8 +87,8 @@ class CartIntegrationTest
       fullCart.paymentMethods.size must === (0)
     }
 
-    "calculates customer’s expenses considering in-store payments" in new StoreAdmin_Seed
-    with Customer_Seed with ProductSku_ApiFixture with Reason_Baked {
+    "calculates customer’s expenses considering in-store payments" in new StoreAdmin_Seed with Customer_Seed
+    with ProductSku_ApiFixture with Reason_Baked {
       val refNum = cartsApi
         .create(CreateCart(customerId = customer.accountId.some))
         .as[CartResponse]
@@ -115,8 +115,7 @@ class CartIntegrationTest
 
       val fullCart = cartsApi(refNum).get().asTheResult[CartResponse]
 
-      fullCart.totals.customersExpenses must === (
-          fullCart.totals.total - giftCardAmount - storeCreditAmount)
+      fullCart.totals.customersExpenses must === (fullCart.totals.total - giftCardAmount - storeCreditAmount)
     }
   }
 
@@ -135,8 +134,8 @@ class CartIntegrationTest
       sku.quantity must === (2)
     }
 
-    "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
-    with Sku_Raw with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+    "adding a SKU with no product should return an error" in new OrderShippingMethodFixture with Sku_Raw
+    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
       val payload = Seq(UpdateLineItemsPayload(simpleSku.code, 1))
       cartsApi(cart.refNum).lineItems
         .add(Seq(UpdateLineItemsPayload(simpleSku.code, 1)))
@@ -164,24 +163,24 @@ class CartIntegrationTest
     val addPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
 
     val attributes = LineItemAttributes(
-        GiftCardLineItemAttributes(senderName = "senderName",
-                                   recipientName = "recipientName",
-                                   recipientEmail = "example@example.com",
-                                   message = "message".some).some).some
+      GiftCardLineItemAttributes(senderName = "senderName",
+                                 recipientName = "recipientName",
+                                 recipientEmail = "example@example.com",
+                                 message = "message".some).some).some
 
     val attributes2 = LineItemAttributes(
-        GiftCardLineItemAttributes(senderName = "senderName2",
-                                   recipientName = "recipientName2",
-                                   recipientEmail = "example2@example.com",
-                                   message = "message2".some).some).some
+      GiftCardLineItemAttributes(senderName = "senderName2",
+                                 recipientName = "recipientName2",
+                                 recipientEmail = "example2@example.com",
+                                 message = "message2".some).some).some
 
     def addGiftCardPayload(sku: String) =
       Seq(UpdateLineItemsPayload(sku, 2, attributes), UpdateLineItemsPayload(sku, 1, attributes2))
 
     def removeGiftCardPayload(sku: String) = Seq(UpdateLineItemsPayload(sku, -2, attributes))
 
-    "should successfully add line items" in new OrderShippingMethodFixture
-    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+    "should successfully add line items" in new OrderShippingMethodFixture with EmptyCartWithShipAddress_Baked
+    with PaymentStateFixture {
       val sku = cartsApi(cart.refNum).lineItems
         .update(addPayload)
         .asTheResult[CartResponse]
@@ -201,8 +200,7 @@ class CartIntegrationTest
       updatedSku.quantity must === (6)
     }
 
-    "should successfully add a gift card line item" in new Customer_Seed
-    with ProductSku_ApiFixture {
+    "should successfully add a gift card line item" in new Customer_Seed with ProductSku_ApiFixture {
       val refNum =
         cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
 
@@ -212,12 +210,12 @@ class CartIntegrationTest
         .lineItems
         .skus
         .map(sku ⇒ (sku.sku, sku.quantity, sku.attributes)) must contain theSameElementsAs Seq(
-          (skuCode, 1, attributes2),
-          (skuCode, 2, attributes))
+        (skuCode, 1, attributes2),
+        (skuCode, 2, attributes))
     }
 
-    "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
-    with Sku_Raw with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+    "adding a SKU with no product should return an error" in new OrderShippingMethodFixture with Sku_Raw
+    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
       cartsApi(cart.refNum).lineItems
         .update(Seq(UpdateLineItemsPayload(simpleSku.code, 1)))
         .mustFailWith400(SkuWithNoProductAdded(cart.refNum, simpleSku.code))
@@ -236,20 +234,18 @@ class CartIntegrationTest
       sku.quantity must === (1)
     }
 
-    "should successfully remove gift card line item" in new Customer_Seed
-    with ProductSku_ApiFixture {
+    "should successfully remove gift card line item" in new Customer_Seed with ProductSku_ApiFixture {
       val refNum =
         cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
 
       val regSkus = cartsApi(refNum).lineItems.update(addGiftCardPayload(skuCode)).mustBeOk()
 
       val skus = cartsApi(refNum).lineItems
-          .update(removeGiftCardPayload(skuCode))
-          .asTheResult[CartResponse]
-          .lineItems
-          .skus
-          .map(sku ⇒ (sku.sku, sku.quantity, sku.attributes)) must === (
-            Seq((skuCode, 1, attributes2)))
+        .update(removeGiftCardPayload(skuCode))
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus
+        .map(sku ⇒ (sku.sku, sku.quantity, sku.attributes)) must === (Seq((skuCode, 1, attributes2)))
     }
 
     "removing too many of an item should remove all of that item" in new OrderShippingMethodFixture
@@ -284,8 +280,7 @@ class CartIntegrationTest
 
     "copying a shipping address from a customer's book" - {
 
-      "succeeds if the address exists in their book" in new EmptyCustomerCart_Baked
-      with CustomerAddress_Raw {
+      "succeeds if the address exists in their book" in new EmptyCustomerCart_Baked with CustomerAddress_Raw {
         cartsApi(cart.refNum).shippingAddress.updateFromAddress(address.id).mustBeOk()
 
         val shippingAddressUpd = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
@@ -316,12 +311,12 @@ class CartIntegrationTest
       "succeeds when the address exists" in new EmptyCartWithShipAddress_Baked {
         val newAddress = Addresses
           .create(
-              Factories.address.copy(accountId = customer.accountId,
-                                     isDefaultShipping = false,
-                                     name = "Paul P",
-                                     address1 = "29918 Kenloch Dr",
-                                     city = "Farmington Hills",
-                                     regionId = 4177))
+            Factories.address.copy(accountId = customer.accountId,
+                                   isDefaultShipping = false,
+                                   name = "Paul P",
+                                   address1 = "29918 Kenloch Dr",
+                                   city = "Farmington Hills",
+                                   regionId = 4177))
           .gimme
 
         cartsApi(cart.refNum).shippingAddress.updateFromAddress(newAddress.id).mustBeOk()
@@ -341,8 +336,7 @@ class CartIntegrationTest
           .updateFromAddress(101)
           .mustFailWith404(NotFoundFailure404(Address, 101))
 
-        OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value.cordRef must === (
-            cart.refNum)
+        OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value.cordRef must === (cart.refNum)
       }
     }
   }
@@ -464,7 +458,7 @@ class CartIntegrationTest
 
   trait ShippingMethodFixture extends EmptyCartWithShipAddress_Baked {
     val lowConditions: QueryStatement = parse(
-        """
+      """
               | {
               |   "comparison": "and",
               |   "conditions": [{
@@ -474,7 +468,7 @@ class CartIntegrationTest
             """.stripMargin).extract[QueryStatement]
 
     val highConditions: QueryStatement = parse(
-        """
+      """
               | {
               |   "comparison": "and",
               |   "conditions": [{
@@ -496,7 +490,7 @@ class CartIntegrationTest
 
         lowShippingMethod ← * <~ ShippingMethods.create(lowSm)
         inactiveShippingMethod ← * <~ ShippingMethods.create(
-                                    lowShippingMethod.copy(isActive = false, code = "INACTIVE"))
+                                  lowShippingMethod.copy(isActive = false, code = "INACTIVE"))
         highShippingMethod ← * <~ ShippingMethods.create(highSm)
 
         _ ← * <~ CartTotaler.saveTotals(cart)
@@ -507,11 +501,9 @@ class CartIntegrationTest
   trait OrderShippingMethodFixture extends ShippingMethodFixture {
     val shipment = (for {
       orderShipMethod ← * <~ OrderShippingMethods.create(
-                           OrderShippingMethod.build(cordRef = cart.refNum,
-                                                     method = highShippingMethod))
+                         OrderShippingMethod.build(cordRef = cart.refNum, method = highShippingMethod))
       shipment ← * <~ Shipments.create(
-                    Shipment(cordRef = cart.refNum,
-                             orderShippingMethodId = Some(orderShipMethod.id)))
+                  Shipment(cordRef = cart.refNum, orderShippingMethodId = Some(orderShipMethod.id)))
     } yield shipment).gimme
   }
 
@@ -520,9 +512,9 @@ class CartIntegrationTest
     val (cc, op, ccc) = (for {
       cc ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId))
       op ← * <~ OrderPayments.create(
-              Factories.orderPayment.copy(cordRef = cart.refNum, paymentMethodId = cc.id))
+            Factories.orderPayment.copy(cordRef = cart.refNum, paymentMethodId = cc.id))
       ccc ← * <~ CreditCardCharges.create(
-               Factories.creditCardCharge.copy(creditCardId = cc.id, orderPaymentId = op.id))
+             Factories.creditCardCharge.copy(creditCardId = cc.id, orderPaymentId = op.id))
     } yield (cc, op, ccc)).gimme
   }
 

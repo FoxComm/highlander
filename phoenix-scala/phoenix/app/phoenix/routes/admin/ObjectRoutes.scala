@@ -13,7 +13,7 @@ import phoenix.utils.http.Http._
 import phoenix.utils.http.JsonSupport._
 
 object ObjectRoutes {
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("object" / "schemas") {
         (get & pathEnd) {
@@ -21,26 +21,25 @@ object ObjectRoutes {
             ObjectSchemasManager.getAllSchemas()
           }
         } ~
-        pathPrefix("byKind") {
-          (get & path(Segment)) { kind ⇒
-            getOrFailures {
-              ObjectSchemasManager.getSchemasForKind(kind)
-            }
-          }
-        } ~
-        (pathPrefix("byName") & path(Segment)) { schemaName ⇒
-          (get & pathEnd) {
-            getOrFailures {
-              ObjectSchemasManager.getSchema(schemaName)
+          pathPrefix("byKind") {
+            (get & path(Segment)) { kind ⇒
+              getOrFailures {
+                ObjectSchemasManager.getSchemasForKind(kind)
+              }
             }
           } ~
-          (post & entity(as[UpdateObjectSchema])) { payload ⇒
-            mutateOrFailures {
-              ObjectSchemasManager.update(schemaName, payload)
-            }
+          (pathPrefix("byName") & path(Segment)) { schemaName ⇒
+            (get & pathEnd) {
+              getOrFailures {
+                ObjectSchemasManager.getSchema(schemaName)
+              }
+            } ~
+              (post & entity(as[UpdateObjectSchema])) { payload ⇒
+                mutateOrFailures {
+                  ObjectSchemasManager.update(schemaName, payload)
+                }
+              }
           }
-        }
       }
     }
-  }
 }

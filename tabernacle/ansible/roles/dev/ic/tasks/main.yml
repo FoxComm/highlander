@@ -31,6 +31,10 @@
   include: app_orders_anthill.yml
   when: marathon_restart.orders_anthill
 
+- name: Start Orders Reviews
+  include: app_orders_reviews.yml
+  when: with_ic and marathon_restart.orders_reviews
+
 - name: Start Product Activity
   include: app_product_activity.yml
   when: marathon_restart.product_activity

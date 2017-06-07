@@ -14,7 +14,7 @@ import phoenix.utils.http.Http._
 
 object CustomerGroupRoutes {
 
-  def routes(implicit ec: EC, db: DB, apis: Apis, auth: AuthData[User]): Route = {
+  def routes(implicit ec: EC, db: DB, apis: Apis, auth: AuthData[User]): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("customer-groups") {
         (get & pathEnd) {
@@ -23,15 +23,14 @@ object CustomerGroupRoutes {
           }
         }
       } ~
-      pathPrefix("customer-groups" / IntNumber) { groupId ⇒
-        pathPrefix("customers") {
-          (post & pathEnd & entity(as[CustomerGroupMemberServiceSyncPayload])) { payload ⇒
-            doOrFailures(
+        pathPrefix("customer-groups" / IntNumber) { groupId ⇒
+          pathPrefix("customers") {
+            (post & pathEnd & entity(as[CustomerGroupMemberServiceSyncPayload])) { payload ⇒
+              doOrFailures(
                 GroupMemberManager.sync(groupId, payload)
-            )
+              )
+            }
           }
         }
-      }
     }
-  }
 }

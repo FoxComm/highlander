@@ -51,19 +51,18 @@ object ObjectHeadLinks {
     def queryRightByLeft(left: L)(implicit ec: EC, db: DB): DbResultT[Seq[FullObject[R]]] =
       queryRightByLeftIdWithLink(left.id).map(_.map(_._1))
 
-    def queryRightByLeftWithLinks(left: L)(implicit ec: EC,
-                                           db: DB): DbResultT[Seq[(FullObject[R], M)]] =
+    def queryRightByLeftWithLinks(left: L)(implicit ec: EC, db: DB): DbResultT[Seq[(FullObject[R], M)]] =
       queryRightByLeftIdWithLink(left.id)
 
-    private def queryRightByLeftIdWithLink(
-        leftId: Int)(implicit ec: EC, db: DB): DbResultT[Seq[(FullObject[R], M)]] =
+    private def queryRightByLeftIdWithLink(leftId: Int)(implicit ec: EC,
+                                                        db: DB): DbResultT[Seq[(FullObject[R], M)]] =
       for {
         links         ← * <~ filterLeftId(leftId).result
         linkedObjects ← * <~ links.map(link ⇒ queryLinkedObject(link))
       } yield linkedObjects.zip(links)
 
-    private def queryLeftByRightIdWithLink(
-        rightId: Int)(implicit ec: EC, db: DB): DbResultT[Seq[(FullObject[L], M)]] =
+    private def queryLeftByRightIdWithLink(rightId: Int)(implicit ec: EC,
+                                                         db: DB): DbResultT[Seq[(FullObject[L], M)]] =
       for {
         links         ← * <~ filterRightId(rightId).result
         linkedObjects ← * <~ links.map(queryLeftLinkedObject)

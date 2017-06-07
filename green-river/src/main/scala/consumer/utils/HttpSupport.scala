@@ -52,7 +52,7 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
       response ← postRequest(suffix, body, jwtToken)
     } yield response
 
-  private def getJwtToken: XorT[Future, Failures, String] = {
+  private def getJwtToken: XorT[Future, Failures, String] =
     cache.sync
       .get("jwtAuth")
       .fold {
@@ -62,16 +62,16 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
           _            ← XorT.right[Future, Failures, Unit](cache.put("jwtAuth")(jwtToken, Some(7.days)))
         } yield jwtToken
       }(XorT.pure[Future, Failures, String])
-  }
 
   private def authenticate(): HttpResult = {
     val request = HttpRequest(
-        method = HttpMethods.POST,
-        uri = authUri,
-        entity = HttpEntity.Strict(
-            ContentTypes.`application/json`,
-            ByteString(authBodyTemplate.format(conn.user, conn.pass, conn.org))
-        ))
+      method = HttpMethods.POST,
+      uri = authUri,
+      entity = HttpEntity.Strict(
+        ContentTypes.`application/json`,
+        ByteString(authBodyTemplate.format(conn.user, conn.pass, conn.org))
+      )
+    )
 
     HttpResult.right(Http().singleRequest(request, settings = cp))
   }
@@ -91,8 +91,8 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
     val request = HttpRequest(method = HttpMethods.POST,
                               uri = fullUri(suffix),
                               entity = HttpEntity.Strict(
-                                  ContentTypes.`application/json`,
-                                  ByteString(body)
+                                ContentTypes.`application/json`,
+                                ByteString(body)
                               )).addHeader(RawHeader(authHeaderName, token))
 
     HttpResult.right(Http().singleRequest(request, settings = cp))

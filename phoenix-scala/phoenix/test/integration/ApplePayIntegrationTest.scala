@@ -55,7 +55,7 @@ class ApplePayIntegrationTest
 
     withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
       storefrontCartsApi.applePayCheckout(payment).as[OrderResponse].referenceNumber must === (
-          cart.referenceNumber)
+        cart.referenceNumber)
     }
   }
 
@@ -69,8 +69,7 @@ class ApplePayIntegrationTest
   }
 
   "Capture of Apple Pay payments" - {
-    "Should capture cc payments if cc payment was authorized" in new ApplePayFixture
-    with CreditCardsFixture {
+    "Should capture cc payments if cc payment was authorized" in new ApplePayFixture with CreditCardsFixture {
       withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
         val cc = storefrontPaymentsApi.creditCards.create(ccPayload).as[CreditCardsResponse.Root]
         cartsApi(refNum).payments.creditCard.add(CreditCardPayment(cc.id)).mustBeOk()
@@ -144,9 +143,9 @@ class ApplePayIntegrationTest
     val customerLoginData = TestLoginData(email = "test@bar.com", password = "pwd")
     val customer = customersApi
       .create(
-          CreateCustomerPayload(email = customerLoginData.email,
-                                name = "Test customer".some,
-                                password = customerLoginData.password.some))
+        CreateCustomerPayload(email = customerLoginData.email,
+                              name = "Test customer".some,
+                              password = customerLoginData.password.some))
       .as[CustomerResponse.Root]
 
     val cart = cartsApi.create(CreateCart(customerId = customer.id.some)).as[CartResponse]
@@ -156,9 +155,8 @@ class ApplePayIntegrationTest
     // we don't have shipping method API creation as of PR #910
     val shippingMethod: ShippingMethod = ShippingMethods
       .create(
-          Factories.shippingMethods.head.copy(conditions = lowConditions.some,
-                                              adminDisplayName =
-                                                ShippingMethod.expressShippingNameForAdmin))
+        Factories.shippingMethods.head.copy(conditions = lowConditions.some,
+                                            adminDisplayName = ShippingMethod.expressShippingNameForAdmin))
       .gimme
 
     val randomAddress = CreateAddressPayload(regionId = Region.californiaId,

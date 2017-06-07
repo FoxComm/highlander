@@ -2,7 +2,7 @@ package core.utils
 
 import java.time.LocalDateTime
 
-import cats.data.Validated.{Invalid, Valid, invalidNel, valid}
+import cats.data.Validated.{invalidNel, valid, Invalid, Valid}
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import com.wix.accord
 import com.wix.accord.RuleViolation
@@ -43,12 +43,10 @@ object Validation {
     if (expression) notEmpty(a, constraint)
     else valid({})
 
-  def nullOrNotEmpty[A <: AnyRef <% HasEmpty](a: Option[A],
-                                              constraint: String): ValidatedNel[Failure, Unit] = {
+  def nullOrNotEmpty[A <: AnyRef <% HasEmpty](a: Option[A], constraint: String): ValidatedNel[Failure, Unit] =
     a.fold(ok) { s ⇒
       notEmpty(s, constraint)
     }
-  }
 
   def emailish(maybeEmail: String, fieldName: String): ValidatedNel[Failure, Unit] =
     validExpr(maybeEmail.contains('@'), s"$fieldName must be an email")
@@ -108,19 +106,13 @@ object Validation {
   }
 
   def matches(value: String, regex: Regex, constraint: String): ValidatedNel[Failure, Unit] =
-    toValidatedNel(constraint,
-                   new MatchesRegex(regex.pattern, partialMatchAllowed = false).apply(value))
+    toValidatedNel(constraint, new MatchesRegex(regex.pattern, partialMatchAllowed = false).apply(value))
 
   def matches(value: String, regex: String, constraint: String): ValidatedNel[Failure, Unit] =
-    toValidatedNel(constraint,
-                   new MatchesRegex(regex.r.pattern, partialMatchAllowed = false).apply(value))
+    toValidatedNel(constraint, new MatchesRegex(regex.r.pattern, partialMatchAllowed = false).apply(value))
 
-  def between(value: Int,
-              lowerBound: Int,
-              upperBound: Int,
-              constraint: String): ValidatedNel[Failure, Unit] =
-    toValidatedNel(constraint,
-                   new InRangeInclusive[Int](lowerBound, upperBound, prefix).apply(value))
+  def between(value: Int, lowerBound: Int, upperBound: Int, constraint: String): ValidatedNel[Failure, Unit] =
+    toValidatedNel(constraint, new InRangeInclusive[Int](lowerBound, upperBound, prefix).apply(value))
 
   def isMonth(month: Int, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(s"$constraint month", new InRangeInclusive[Int](1, 12, prefix).apply(month))
@@ -128,19 +120,13 @@ object Validation {
   def lesserThan[T: Numeric](value: T, limit: T, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new LesserThan[T](limit, prefix).apply(value))
 
-  def lesserThanOrEqual[T: Numeric](value: T,
-                                    limit: T,
-                                    constraint: String): ValidatedNel[Failure, Unit] =
+  def lesserThanOrEqual[T: Numeric](value: T, limit: T, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new LesserThanOrEqual[T](limit, prefix).apply(value))
 
-  def greaterThan[T: Numeric](value: T,
-                              limit: T,
-                              constraint: String): ValidatedNel[Failure, Unit] =
+  def greaterThan[T: Numeric](value: T, limit: T, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new GreaterThan[T](limit, prefix).apply(value))
 
-  def greaterThanOrEqual[T: Numeric](value: T,
-                                     limit: T,
-                                     constraint: String): ValidatedNel[Failure, Unit] =
+  def greaterThanOrEqual[T: Numeric](value: T, limit: T, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new GreaterThanOrEqual[T](limit, prefix).apply(value))
 
   private def toValidatedNel(constraint: String, r: accord.Result): ValidatedNel[Failure, Unit] =
@@ -152,8 +138,7 @@ object Validation {
         }
 
         Validated.Invalid(
-            NonEmptyList(errors.headOption.getOrElse(GeneralFailure("unknown error")),
-                         errors.tail))
+          NonEmptyList(errors.headOption.getOrElse(GeneralFailure("unknown error")), errors.tail))
 
       case accord.Success ⇒
         valid({})

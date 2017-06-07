@@ -49,10 +49,8 @@ class AutoPromotionsIntegrationTest
 
     val promos = percentOffs.map { percentOff ⇒
       promotionsApi
-        .create(
-            PromotionPayloadBuilder.build(Promotion.Auto,
-                                          PromoOfferBuilder.CartPercentOff(percentOff),
-                                          PromoQualifierBuilder.CartAny))
+        .create(PromotionPayloadBuilder
+          .build(Promotion.Auto, PromoOfferBuilder.CartPercentOff(percentOff), PromoQualifierBuilder.CartAny))
         .as[PromotionResponse.Root]
     }
 
@@ -85,27 +83,25 @@ class AutoPromotionsIntegrationTest
 
     val promo = promotionsApi
       .create(
-          PromotionPayloadBuilder.build(Promotion.Auto,
-                                        PromoOfferBuilder.CartPercentOff(percentOffInitial),
-                                        PromoQualifierBuilder.CartAny))
+        PromotionPayloadBuilder.build(Promotion.Auto,
+                                      PromoOfferBuilder.CartPercentOff(percentOffInitial),
+                                      PromoQualifierBuilder.CartAny))
       .as[PromotionResponse.Root]
 
     val customerA, customerB = api_newCustomer()
 
     // FIXME: use API
     val shippingMethod = UpdateShippingMethod(
-        ShippingMethods
-          .create(
-              ShippingMethod(
-                  adminDisplayName = "a",
-                  storefrontDisplayName = "b",
-                  code = "c",
-                  price = 1000,
-                  conditions = Some(
-                      parse("""{"comparison": "and", "conditions": []}""").extract[QueryStatement])
-              ))
-          .gimme
-          .id)
+      ShippingMethods
+        .create(ShippingMethod(
+          adminDisplayName = "a",
+          storefrontDisplayName = "b",
+          code = "c",
+          price = 1000,
+          conditions = Some(parse("""{"comparison": "and", "conditions": []}""").extract[QueryStatement])
+        ))
+        .gimme
+        .id)
 
     // FIXME: use API
     val reason = Reasons.create(Factories.reason(storeAdmin.accountId)).gimme
@@ -118,20 +114,20 @@ class AutoPromotionsIntegrationTest
         .asTheResult[CartResponse]
       cartsApi(refNum).shippingAddress
         .create(
-            CreateAddressPayload(name = "Home Office",
-                                 regionId = 1,
-                                 address1 = "3000 Coolio Dr",
-                                 city = "Seattle",
-                                 zip = "55555"))
+          CreateAddressPayload(name = "Home Office",
+                               regionId = 1,
+                               address1 = "3000 Coolio Dr",
+                               city = "Seattle",
+                               zip = "55555"))
         .asTheResult[CartResponse]
       val c = cartsApi(refNum).shippingMethod.update(shippingMethod).asTheResult[CartResponse]
       import c.totals.total
       customersApi(customer.id).payments.storeCredit
         .create(
-            CreateManualStoreCredit(
-                amount = total,
-                reasonId = reason.id
-            ))
+          CreateManualStoreCredit(
+            amount = total,
+            reasonId = reason.id
+          ))
         .as[StoreCreditResponse.Root]
       cartsApi(refNum).payments.storeCredit
         .add(StoreCreditPayment(total))
@@ -144,17 +140,19 @@ class AutoPromotionsIntegrationTest
 
     // Now, let’s update the promotion and see if orderA’s one stays intact, while cartB’s is updated.
 
-    val promoUpdated = promotionsApi(promo.id).update {
-      val payload =
-        PromotionPayloadBuilder.build(Promotion.Auto,
-                                      PromoOfferBuilder.CartPercentOff(percentOffUpdated),
-                                      PromoQualifierBuilder.CartAny)
-      UpdatePromotion(
+    val promoUpdated = promotionsApi(promo.id)
+      .update {
+        val payload =
+          PromotionPayloadBuilder.build(Promotion.Auto,
+                                        PromoOfferBuilder.CartPercentOff(percentOffUpdated),
+                                        PromoQualifierBuilder.CartAny)
+        UpdatePromotion(
           applyType = payload.applyType,
           attributes = payload.attributes,
-          discounts =
-            Seq(UpdatePromoDiscount(promo.discounts.head.id, payload.discounts.head.attributes)))
-    }.as[PromotionResponse.Root]
+          discounts = Seq(UpdatePromoDiscount(promo.discounts.head.id, payload.discounts.head.attributes))
+        )
+      }
+      .as[PromotionResponse.Root]
 
     val orderA2 = ordersApi(orderA.referenceNumber).get().asTheResult[OrderResponse]
     val cartB2  = cartsApi(cartB.referenceNumber).get().asTheResult[CartResponse]
@@ -177,9 +175,8 @@ class AutoPromotionsIntegrationTest
 
     val promo = promotionsApi
       .create(
-          PromotionPayloadBuilder.build(Promotion.Auto,
-                                        PromoOfferBuilder.CartPercentOff(37),
-                                        PromoQualifierBuilder.CartAny))
+        PromotionPayloadBuilder
+          .build(Promotion.Auto, PromoOfferBuilder.CartPercentOff(37), PromoQualifierBuilder.CartAny))
       .as[PromotionResponse.Root]
 
     cartsApi(refNum).get.asTheResult[CartResponse].promotion mustBe 'defined
@@ -188,9 +185,8 @@ class AutoPromotionsIntegrationTest
   "after emptying a cart, no auto-promos are left" in new ProductSku_ApiFixture {
     val promo = promotionsApi
       .create(
-          PromotionPayloadBuilder.build(Promotion.Auto,
-                                        PromoOfferBuilder.CartPercentOff(37),
-                                        PromoQualifierBuilder.CartAny))
+        PromotionPayloadBuilder
+          .build(Promotion.Auto, PromoOfferBuilder.CartPercentOff(37), PromoQualifierBuilder.CartAny))
       .as[PromotionResponse.Root]
 
     val customer = api_newCustomer()
@@ -212,9 +208,8 @@ class AutoPromotionsIntegrationTest
   "archived auto-apply promos are not applied" in new ProductSku_ApiFixture {
     val promo = promotionsApi
       .create(
-          PromotionPayloadBuilder.build(Promotion.Auto,
-                                        PromoOfferBuilder.CartPercentOff(37),
-                                        PromoQualifierBuilder.CartAny))
+        PromotionPayloadBuilder
+          .build(Promotion.Auto, PromoOfferBuilder.CartPercentOff(37), PromoQualifierBuilder.CartAny))
       .as[PromotionResponse.Root]
 
     promotionsApi(promo.id).delete().mustBeOk()
@@ -233,26 +228,25 @@ class AutoPromotionsIntegrationTest
   "promotions narrowed down to certain customer groups are applied only for them in" - {
     val DefaultPercentOff = 37
 
-    def groupAndPromo(
-        tpe: GroupType): (GroupResponses.GroupResponse.Root, PromotionResponse.Root) = {
+    def groupAndPromo(tpe: GroupType): (GroupResponses.GroupResponse.Root, PromotionResponse.Root) = {
       val group = customerGroupsApi
         .create(
-            CustomerGroupPayload(name = faker.Lorem.sentence(),
-                                 clientState = JNull,
-                                 elasticRequest = JNull,
-                                 groupType = tpe))
+          CustomerGroupPayload(name = faker.Lorem.sentence(),
+                               clientState = JNull,
+                               elasticRequest = JNull,
+                               groupType = tpe))
         .as[GroupResponses.GroupResponse.Root]
 
       val promo = promotionsApi
         .create(
-            PromotionPayloadBuilder.build(
-                Promotion.Auto,
-                PromoOfferBuilder.CartPercentOff(DefaultPercentOff),
-                PromoQualifierBuilder.CartAny,
-                extraAttrs = Map(
-                    "customerGroupIds" → tv(List(group.id),
-                                            "tock673sjgmqbi5zlfx43o4px6jnxi7absotzjvxwir7jo2v")
-                )))
+          PromotionPayloadBuilder.build(
+            Promotion.Auto,
+            PromoOfferBuilder.CartPercentOff(DefaultPercentOff),
+            PromoQualifierBuilder.CartAny,
+            extraAttrs = Map(
+              "customerGroupIds" → tv(List(group.id), "tock673sjgmqbi5zlfx43o4px6jnxi7absotzjvxwir7jo2v")
+            )
+          ))
         .as[PromotionResponse.Root]
 
       (group, promo)
@@ -308,9 +302,9 @@ class AutoPromotionsIntegrationTest
 
         promotionsApi
           .create(
-              PromotionPayloadBuilder.build(Promotion.Auto,
-                                            PromoOfferBuilder.CartPercentOff(otherPercentOff),
-                                            PromoQualifierBuilder.CartAny))
+            PromotionPayloadBuilder.build(Promotion.Auto,
+                                          PromoOfferBuilder.CartPercentOff(otherPercentOff),
+                                          PromoQualifierBuilder.CartAny))
           .as[PromotionResponse.Root]
 
         val customer = api_newCustomer()
@@ -321,8 +315,7 @@ class AutoPromotionsIntegrationTest
           .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
           .asTheResult[CartResponse]
 
-        percentOff(finalCart.promotion.value) must === (
-            math.max(DefaultPercentOff, otherPercentOff))
+        percentOff(finalCart.promotion.value) must === (math.max(DefaultPercentOff, otherPercentOff))
       }
     }
 

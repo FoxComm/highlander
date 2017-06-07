@@ -19,7 +19,6 @@ object JsonSupport extends Json4sSupport {
 
   implicit def json4sValidationUnmarshaller[A <: Validation[_]: Manifest](
       implicit serialization: Serialization,
-      formats: Formats): FromEntityUnmarshaller[A] = {
+      formats: Formats): FromEntityUnmarshaller[A] =
     json4sUnmarshaller[A].flatMap(implicit ec ⇒ mat ⇒ validateData)
-  }
 }

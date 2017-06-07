@@ -34,7 +34,7 @@ object CouponFailures {
   }
 
   case class CouponCodeLengthIsTooSmall(prefix: String, quantity: Int) extends Failure {
-    val minSize = CouponCodes.charactersGivenQuantity(quantity) + prefix.length
+    val minSize              = CouponCodes.charactersGivenQuantity(quantity) + prefix.length
     override def description = s"Coupon code character length must be at least $minSize"
   }
 
@@ -45,8 +45,7 @@ object CouponFailures {
 
   object CouponNotFoundForContext {
     def apply(couponId: Int, contextName: String) =
-      NotFoundFailure404(
-          s"Coupon with id=$couponId with coupon context $contextName cannot be found")
+      NotFoundFailure404(s"Coupon with id=$couponId with coupon context $contextName cannot be found")
   }
 
   object CouponNotFoundForDefaultContext {
@@ -76,16 +75,15 @@ object CouponFailures {
 
   case class CouponUsageRulesAreEmpty(couponCode: String) extends Failure {
     override def description =
-      s"Coupon usage rules are not set for coupon with code: '${couponCode}'"
+      s"Coupon usage rules are not set for coupon with code: '$couponCode'"
   }
 
   case class CouponCodeCannotBeUsedAnymore(couponCode: String) extends Failure {
-    override def description = s"Coupon code '${couponCode}' cannot be used anymore"
+    override def description = s"Coupon code '$couponCode' cannot be used anymore"
   }
 
-  case class CouponCodeCannotBeUsedByCustomerAnymore(couponCode: String, accountId: Int)
-      extends Failure {
+  case class CouponCodeCannotBeUsedByCustomerAnymore(couponCode: String, accountId: Int) extends Failure {
     override def description =
-      s"Coupon code '${couponCode}' cannot be used by this customer ${accountId} anymore"
+      s"Coupon code '$couponCode' cannot be used by this customer $accountId anymore"
   }
 }
