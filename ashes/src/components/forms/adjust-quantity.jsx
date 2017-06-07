@@ -1,10 +1,12 @@
 // @flow
 
+// libs
 import _ from 'lodash';
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
+// components
 import Counter from 'components/core/counter';
 import BodyPortal from '../body-portal/body-portal';
 import Overlay from '../overlay/overlay';
@@ -53,6 +55,7 @@ export default class AdjustQuantity extends Component {
     this._popup.style.left = `${parentDim.left}px`;
   }
 
+  @autobind
   adjustValue(newValue: number) {
     if (newValue < this.props.min) {
       newValue = this.props.min;
@@ -107,9 +110,9 @@ export default class AdjustQuantity extends Component {
             <div styleName="title">Adjust Quantity</div>
             <Counter
               counterId={counterId}
-              value={this.state.diff}
+              value={this.state.value}
               onBlur={evt => evt.stopPropagation()}
-              onChange={(quantity) => this.adjustValue(quantity)}
+              onChange={this.adjustValue}
             />
           </div>
         </BodyPortal>
