@@ -12,7 +12,7 @@ import { assoc, dissoc } from 'sprout-data';
 import ContentBox from 'components/content-box/content-box';
 import SkuList from './sku-list';
 import ConfirmationModal from 'components/core/confirmation-modal';
-import { Checkbox } from 'components/checkbox/checkbox';
+import { Checkbox } from 'components/core/checkbox';
 
 // helpers
 import { availableVariantsValues, variantsWithMultipleOptions } from 'paragons/variants';
@@ -82,11 +82,10 @@ class SkuContentBox extends Component {
           <Checkbox
             id={`sku-option-${i}`}
             name={`${name}-option-chbox`}
+            label={content}
             onChange={() => this.toggleAddedOption(values)}
             checked={checked}
-          >
-            {content}
-          </Checkbox>
+          />
         </li>
       );
     });
