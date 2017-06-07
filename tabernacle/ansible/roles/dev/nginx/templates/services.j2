@@ -5,10 +5,8 @@
     <<- end >>
   }
   server {
-    # listen 80;
-
     <<- range $app.Hosts >>
-    server_name << . >>;
+    server_name << . >> << . >>.*;
     <<- end >>
 
     location / {
@@ -23,15 +21,6 @@
     }
   }
 <<- end >>
-
-
-{% if with_onboarding %}
-# upstream onboarding {
-#   << range service "onboarding-service" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
-#   << else >> server {{onboarding_service_server}} fail_timeout=30s max_fails=10; << end >>
-# }
-{% endif %}
-
 
 {% if is_appliance %}
 upstream dashboard {
