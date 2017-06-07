@@ -17,6 +17,7 @@
     - debconf-utils
     - curl
     - htop
+    - iotop
     - make
     - nmap
     - python-httplib2
