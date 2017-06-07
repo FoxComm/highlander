@@ -20,7 +20,7 @@
   position: absolute;
   top: 100%;
   width: 100%;
-  z-index: 999;
+  z-index: 29;
 
   &:global(._visible) {
     display: block;

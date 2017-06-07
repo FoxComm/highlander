@@ -1,11 +1,22 @@
 :root {
+  --nav-active: #1a2535;
+  --nav-main: #25334a;
+  --green-buttons: #49cab9;
+  --nav-pink: #fc54a6;
+  --grey-buttons: #ced2d5;
+  --grey-outlets: #d9d9d9;
+  --grey-headers: #f7f7f7;
+  --grey-background: #f9f9f9;
+
 
   /*
    * http://chir.ag/projects/name-that-color
+   * https://app.zeplin.io/project/58e3cc8f1e88befbcc27121e/screen/58e3ccda94f5ae16cd341689
    */
   --white: #ffffff;
   --alabaster: #f7f7f7;
   --iron: #ced2d5;
+
   --silver-sand: #bdc3c6;
   --stone: #797c7d;
   --grey: #363636;
@@ -97,7 +108,6 @@
   --decor38: #e9feff;
   --decor39: #49c2ca;
   --decor40: #cdcccc;
-  --decor41: #cdcdcd;
   --decor42: #b1b1b1;
   --decor43: rgba(0,0,0,0.30);
   --decor44: #dfe3ed;
