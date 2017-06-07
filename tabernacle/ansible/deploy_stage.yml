@@ -45,6 +45,4 @@
   roles:
     - { role: dev/nginx }
     - { role: demo/balancer }
-  post_tasks:
-    - name: Restart Nginx
-      service: name=nginx state=restarted
+    - { role: hotfix/healthcheck }
