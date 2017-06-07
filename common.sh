@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# Fail on unexported vars
-set -ue
-
 # Define buildable projects array
 PROJECTS=(
     'ashes'
@@ -41,26 +38,3 @@ PROJECTS=(
     'tabernacle/docker/neo4j'
     'tabernacle/docker/neo4j_reset'
 )
-
-# Save Highlander directory
-HIGHLANDER_PATH=$PWD
-
-# Define helper functions
-function write() {
-    if $DEBUG; then
-        echo -e "[BUILDER]" $1
-    fi
-}
-
-function contains() {
-    local n=$#
-    local value=${!n}
-    for ((i=1;i < $#;i++)) {
-        if [ "${!i}" == "${value}" ]; then
-            echo "y"
-            return 0
-        fi
-    }
-    echo "n"
-    return 1
-}

@@ -1,7 +1,33 @@
 #!/usr/bin/env bash
 
+# Fail on unexported vars
+set -ue
+
 # Include common library
-source common.sh
+source ./common.sh
+
+# Define Highlander directory
+HIGHLANDER_PATH=$PWD
+
+# Define helper functions
+function write() {
+    if $DEBUG; then
+        echo -e "[BUILDER]" $1
+    fi
+}
+
+function contains() {
+    local n=$#
+    local value=${!n}
+    for ((i=1;i < $#;i++)) {
+        if [ "${!i}" == "${value}" ]; then
+            echo "y"
+            return 0
+        fi
+    }
+    echo "n"
+    return 1
+}
 
 # Define command-line arguments
 DEBUG=false
