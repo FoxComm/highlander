@@ -25,7 +25,7 @@
   color: #363636;
 }
 .approveLink {
-  color: #3fc1ab;
+  color: var(--green-buttons);
   text-decoration: none;
 
   &:hover {

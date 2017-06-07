@@ -1,3 +1,5 @@
+@import "colors.css";
+
 .dropdown {
   max-width: none;
 }
@@ -16,5 +18,5 @@
 }
 
 .needle {
-  color: #3fc1ab;
+  color: var(--green-buttons);
 }

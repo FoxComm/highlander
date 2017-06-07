@@ -20,7 +20,6 @@
   --stone: #797c7d;
   --grey: #363636;
 
-  --light-green: #8dddd2;
   --green: #49cab9;
   --dark-green: #1dbfaa;
   --pink: #fc54a6;
@@ -42,10 +41,8 @@
   --button-bg-loading: var(--iron);
 
   --primary-button-color: var(--white);
-  --primary-button-color-disabled: var(--light-green);
   --primary-button-bg: var(--green);
   --primary-button-bg-hover: var(--dark-green);
-  --primary-button-bg-disabled: var(--dark-green);
   --primary-button-bg-loading: var(--green);
 
   /*
