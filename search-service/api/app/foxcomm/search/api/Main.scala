@@ -1,4 +1,4 @@
-package foxcomm.search
+package foxcomm.search.api
 
 object Main extends App {
 

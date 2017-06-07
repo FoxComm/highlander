@@ -24,7 +24,8 @@ object Settings {
       "-Xfuture"
     ),
 
-    wartremoverErrors in (Compile, compile) ++= Warts.all,
+    // PublicInterference generates false positives
+    wartremoverErrors in (Compile, compile) ++= Warts.allBut(Wart.ImplicitParameter, Wart.PublicInference),
 
     scalaSource in Compile       := baseDirectory.value / "app",
     resourceDirectory in Compile := baseDirectory.value / "resources"

@@ -16,8 +16,7 @@ object Dependencies {
 
   val es = Seq(
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-smile" % "2.8.2",
-    "com.sksamuel.elastic4s" %% "elastic4s-core" % versions.elastic4s,
-    "com.sksamuel.elastic4s" %% "elastic4s-streams" % versions.elastic4s
+    "com.sksamuel.elastic4s" %% "elastic4s-core" % versions.elastic4s
   )
 
   val json = Seq(
