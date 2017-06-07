@@ -46,7 +46,6 @@
     with_onboarding: true
   roles:
     - { role: dev/marathon_groups }
-    # - { role: dev/marathon_restart }
 
 - name: Restart Nginx
   hosts: foxcomm-test-frontend
