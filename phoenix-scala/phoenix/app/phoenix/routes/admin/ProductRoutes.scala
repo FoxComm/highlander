@@ -28,7 +28,7 @@ object ProductRoutes {
                                                           auth: AU): Route = {
     (get & pathEnd) {
       getOrFailures {
-        ProductManager.getProduct(productRef)
+        ProductManager.getProduct(productRef, checkActive = false)
       }
     } ~
     (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒

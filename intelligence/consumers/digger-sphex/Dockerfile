@@ -13,5 +13,4 @@ ADD counter.p6 /sphex/
 
 WORKDIR /sphex
 
-
 CMD ["/sphex/run_sphex.sh"]
