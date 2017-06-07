@@ -240,7 +240,7 @@ export default class AddressForm extends React.Component {
               {this.formTitle}
               <li>
                 <FormField label="First & Last Name" validator="ascii" maxLength={255}>
-                  <TextInput name="name" ref="name" type="text" defaultValue={address.name} required />
+                  <TextInput name="name" ref="name" defaultValue={address.name} required />
                 </FormField>
               </li>
               <li>
@@ -255,17 +255,17 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label="Street Address" validator="ascii" maxLength={255}>
-                  <TextInput name="address1" type="text" defaultValue={address.address1} required />
+                  <TextInput name="address1" defaultValue={address.address1} required />
                 </FormField>
               </li>
               <li>
                 <FormField label="Street Address 2" validator="ascii" maxLength={255} optional>
-                  <TextInput name="address2" type="text" defaultValue={address.address2} />
+                  <TextInput name="address2" defaultValue={address.address2} />
                 </FormField>
               </li>
               <li>
                 <FormField label="City" validator="ascii" maxLength={255}>
-                  <TextInput name="city" type="text" defaultValue={address.city} required />
+                  <TextInput name="city" defaultValue={address.city} required />
                 </FormField>
               </li>
               <li>

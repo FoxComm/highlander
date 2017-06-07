@@ -85,7 +85,6 @@ export default class CustomerContacts extends React.Component {
          className='fc-customer-form-input'
          name='Name'
          maxLength='255'
-         type='text'
          required
          onChange={ (value) => this.setState({name: value}) }
          value={ this.state.name }
@@ -106,7 +105,6 @@ export default class CustomerContacts extends React.Component {
          className='fc-customer-form-input'
          name='Email'
          maxLength='255'
-         type='text'
          required
          onChange={ (value) => this.setState({email: value}) }
          value={ this.state.email }
@@ -127,7 +125,6 @@ export default class CustomerContacts extends React.Component {
          className='fc-customer-form-input'
          name='Phone'
          maxLength='255'
-         type='text'
          required
          onChange={ (value) => this.setState({phoneNumber: value}) }
          value={ this.state.phoneNumber }

@@ -213,7 +213,6 @@ export default class ObjectFormInner extends Component {
     const stringInput = (
       <TextInput
         className={inputClass}
-        type="text"
         name={name}
         value={value || ''}
         onChange={onChange}

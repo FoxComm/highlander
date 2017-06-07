@@ -48,7 +48,6 @@ class SwatchInput extends Component {
       <div className={s.swatchInput}>
         <TextInput
           id="swatch-fld"
-          type="text"
           maxLength="6"
           className={s.input}
           onChange={this.handleChange}

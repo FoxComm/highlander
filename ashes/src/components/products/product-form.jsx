@@ -130,7 +130,6 @@ export default class ProductForm extends ObjectDetails {
         <span styleName="prefix">/products/</span>
         <TextInput
           className={fieldClass}
-          type="text"
           name="slug"
           value={value}
           onChange={this.onSlugChange}
