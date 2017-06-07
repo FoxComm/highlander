@@ -8,14 +8,20 @@ version := "0.1-SNAPSHOT"
 lazy val core = (project in file("core"))
   .settings(Settings.common)
   .settings(
-    libraryDependencies ++= Dependencies.core ++ Dependencies.es ++ Dependencies.json
+    libraryDependencies ++= Dependencies.core ++ Dependencies.es ++ Dependencies.circe
+  )
+
+lazy val finch = (project in file("finch"))
+  .settings(Settings.common)
+  .settings(
+    libraryDependencies ++= Dependencies.finch
   )
 
 lazy val api = (project in file("api"))
   .settings(Settings.common)
   .settings(Settings.deploy)
   .settings(
-    libraryDependencies ++= Dependencies.http
+    libraryDependencies ++= Dependencies.finch
   )
   .settings(
     mainClass in assembly := Some("foxcomm.search.api.Api"),
@@ -26,5 +32,5 @@ lazy val api = (project in file("api"))
       case x => (assemblyMergeStrategy in assembly).value.apply(x)
     }
   )
-  .dependsOn(core)
+  .dependsOn(core, finch)
   .enablePlugins(AssemblyPlugin, DockerPlugin)

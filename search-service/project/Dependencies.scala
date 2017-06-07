@@ -19,13 +19,13 @@ object Dependencies {
     "com.sksamuel.elastic4s" %% "elastic4s-core" % versions.elastic4s
   )
 
-  val json = Seq(
+  val circe = Seq(
     "io.circe" %% "circe-core" % versions.circe,
     "io.circe" %% "circe-generic" % versions.circe,
     "io.circe" %% "circe-parser" % versions.circe
   )
 
-  val http = Seq(
+  val finch = Seq(
     "com.github.finagle" %% "finch-circe" % versions.finch,
     "com.github.finagle" %% "finch-core" % versions.finch,
     "com.github.finagle" %% "finch-generic" % versions.finch

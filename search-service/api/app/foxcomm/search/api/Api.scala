@@ -3,6 +3,7 @@ package foxcomm.search.api
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.twitter.finagle.Http
 import com.twitter.util.Await
+import foxcomm.utils.finch._
 import foxcomm.search._
 import io.circe.generic.auto._
 import io.finch._

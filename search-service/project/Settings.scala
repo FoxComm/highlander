@@ -24,9 +24,7 @@ object Settings {
       "-Xfuture"
     ),
 
-    // PublicInterference: false positives and also finch endpoint types might got extremely long ;-)
-    // Nothing: false positives
-    wartremoverErrors in (Compile, compile) ++= Warts.allBut(Wart.ImplicitParameter, Wart.Nothing, Wart.PublicInference),
+    wartremoverErrors in (Compile, compile) ++= Warts.allBut(Wart.Any, Wart.ImplicitParameter, Wart.Nothing, Wart.PublicInference),
 
     scalaSource in Compile       := baseDirectory.value / "app",
     resourceDirectory in Compile := baseDirectory.value / "resources"
