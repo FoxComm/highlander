@@ -56,25 +56,21 @@ export default class AdjustQuantity extends Component {
   }
 
   @autobind
-  adjustValue(newValue: number) {
-    if (newValue < this.props.min) {
-      newValue = this.props.min;
-    }
-    const diff = newValue - this.props.value;
+  adjustValue(diff: number) {
+    const value = this.props.value + diff;
 
     this.setState({
-      value: newValue,
+      value,
       diff,
-    }, () => {
-      this.props.onChange(diff, newValue);
-    });
+    }, () => this.props.onChange(diff, value));
   }
 
   @autobind
   handleChange({ target }: Object) {
-    const quantity = Number(target.value);
-    if (!_.isNaN(quantity)) {
-      this.adjustValue(quantity);
+    const value = Number(target.value);
+
+    if (!_.isNaN(value)) {
+      this.adjustValue(value - this.props.value);
     }
   }
 
@@ -110,9 +106,10 @@ export default class AdjustQuantity extends Component {
             <div styleName="title">Adjust Quantity</div>
             <Counter
               counterId={counterId}
-              value={this.state.value}
+              value={this.state.diff}
               onBlur={evt => evt.stopPropagation()}
               onChange={this.adjustValue}
+              min={-this.props.value}
             />
           </div>
         </BodyPortal>
