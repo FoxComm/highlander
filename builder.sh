@@ -7,10 +7,7 @@ set -ue
 PROJECTS=(
     'ashes'
     'data-import'
-    'demo/firebrand'
     'demo/peacock'
-    'demo/product-search'
-    'demo/search'
     'developer-portal'
     'green-river'
     'hyperion'
