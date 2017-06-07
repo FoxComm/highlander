@@ -26,7 +26,6 @@ test:
 docker:
 	$(call header, Dockerizing)
 	make docker-phoenix
-	make docker-seeder
 
 docker-phoenix:
 	docker build -t phoenix .
@@ -37,7 +36,6 @@ docker-seeder:
 docker-push:
 	$(call header, Registering)
 	make docker-push-phoenix
-	make docker-push-seeder
 
 docker-push-phoenix:
 	docker tag phoenix $(DOCKER_REPO)/phoenix:$(DOCKER_TAG)
