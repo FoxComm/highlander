@@ -18,16 +18,15 @@
 
 .controls {
   background-color: #ffffff;
+  transition: all .2s;
 
-  &:hover {
+  &:hover,
+  &:disabled,
+  &:disabled:hover {
     background-color: #ffffff;
   }
 
-  &:disabled {
-    background-color: #ffffff;
-
-    &:hover {
-      background-color: #ffffff;
-    }
+  &:hover:not(:disabled) {
+    color: #797c7d;
   }
 }

@@ -79,7 +79,6 @@ class Counter extends Component {
       disabled,
       counterId,
       className,
-      onChange,
       ...rest,
     } = this.props;
 
@@ -96,8 +95,8 @@ class Counter extends Component {
           value={value}
           disabled={disabled}
           className={classNames(s.input, '__cssmodules')}
-          onChange={this.handleInputChange}
           {...rest}
+          onChange={this.handleInputChange}
         />
         <IncrementButton
           type="button"
