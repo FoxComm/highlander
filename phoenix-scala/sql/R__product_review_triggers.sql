@@ -67,7 +67,7 @@ after update on users
 for each row when (new.name is distinct from old.name)
 execute procedure update_product_reviews_search_view_from_user_update_fn();
 
-create function update_product_reviews_search_view_from_sku_update_fn()
+create or replace function update_product_reviews_search_view_from_sku_update_fn()
   returns trigger
 as $$
 begin
