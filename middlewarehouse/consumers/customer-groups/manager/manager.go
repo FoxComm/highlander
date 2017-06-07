@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/mailchimp"
@@ -31,6 +32,7 @@ type GroupsManager struct {
 	esSize        int
 	chimpListID   string
 	chimpDisabled bool
+	sleepInterval time.Duration
 }
 
 type ManagerOptionFunc func(*GroupsManager)
@@ -47,7 +49,7 @@ func SetMailchimpDisabled(disabled bool) ManagerOptionFunc {
 	}
 }
 
-func NewGroupsManager(esClient *elastic.Client, phoenixClient phoenix.PhoenixClient, chimpClient *mailchimp.ChimpClient, options ...ManagerOptionFunc) *GroupsManager {
+func NewGroupsManager(esClient *elastic.Client, phoenixClient phoenix.PhoenixClient, chimpClient *mailchimp.ChimpClient, sleepInterval time.Duration, options ...ManagerOptionFunc) *GroupsManager {
 	manager := &GroupsManager{
 		esClient,
 		phoenixClient,
@@ -56,6 +58,7 @@ func NewGroupsManager(esClient *elastic.Client, phoenixClient phoenix.PhoenixCli
 		DefaultElasticSize,
 		DefaultMailchimpListID,
 		false,
+		sleepInterval,
 	}
 
 	// set options to manager
@@ -226,6 +229,9 @@ func (m *GroupsManager) getCustomers(group *responses.CustomerGroupResponse) (ma
 
 		from += size
 		done = res.Hits.TotalHits <= int64(from)
+
+		log.Printf("Taking a nap for %s", m.sleepInterval.String())
+		time.Sleep(m.sleepInterval)
 	}
 
 	return result, nil

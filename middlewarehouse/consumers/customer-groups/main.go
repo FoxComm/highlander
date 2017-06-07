@@ -65,6 +65,7 @@ func main() {
 		esClient,
 		phoenixClient,
 		chimpClient,
+		agentConfig.SleepInterval,
 		manager.SetMailchimpListID(mailchimpListID),
 		manager.SetMailchimpDisabled(mailchimpDisabled),
 	)
