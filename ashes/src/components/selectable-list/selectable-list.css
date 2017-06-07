@@ -45,9 +45,6 @@
     background: #ebebeb;
   }
 
-  & :global(.fc-checkbox__label) {
-    cursor: pointer;
-  }
 }
 
 .item-description {

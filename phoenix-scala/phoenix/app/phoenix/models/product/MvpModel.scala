@@ -43,7 +43,7 @@ object SimpleContext {
 
 case class SimpleProduct(title: String,
                          description: String,
-                         active: Boolean = false,
+                         active: Boolean,
                          tags: Seq[String] = Seq.empty) {
   val activeFrom = if (active) s""""${Instant.now}"""" else "null";
   val ts: String = compact(render(JArray(tags.map(t ⇒ JString(t)).toList)))
@@ -105,7 +105,7 @@ case class SimpleSku(code: String,
                      title: String,
                      price: Long,
                      currency: Currency = Currency.USD,
-                     active: Boolean = false,
+                     active: Boolean,
                      tags: Seq[String] = Seq.empty) {
 
   val activeFrom = if (active) s""""${Instant.now}"""" else "null";
@@ -199,7 +199,7 @@ case class SimpleProductData(productId: Int = 0,
                              code: String,
                              price: Long,
                              currency: Currency = Currency.USD,
-                             active: Boolean = false,
+                             active: Boolean,
                              tags: Seq[String] = Seq.empty)
 
 case class SimpleProductTuple(product: Product,

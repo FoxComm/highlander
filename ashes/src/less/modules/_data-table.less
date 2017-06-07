@@ -44,22 +44,8 @@
       }
 
       .row-head-left {
-        .fc-checkbox {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          display: flex;
-
-          input[type="checkbox"] + label {
-            position: relative;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-          }
-        }
+        display: flex;
+        align-items: center;
       }
     }
   }
@@ -67,6 +53,7 @@
   .fc-table-head .row-head-left,
   .fc-table-body .row-head-left {
     position: absolute;
+    display: inline-flex;
     background: #fff;
     left: 0;
     min-width: 55px !important;

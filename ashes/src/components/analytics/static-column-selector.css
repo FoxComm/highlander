@@ -53,16 +53,6 @@
     color: #c0c0c0;
   }
 
-  & :global(.fc-checkbox) {
-    width: 100%;
-  }
-
-  & :global(.fc-checkbox label) {
-    padding: 7px 10px 7px 5px;
-    width: 100%;
-    cursor: pointer;
-  }
-
   &:global(._hasDraggingItem) {
     & li:hover {
       background: #FFFFFF;
@@ -88,7 +78,7 @@
 .isDragging {
   box-shadow: inset -1px 1px 6px rgba(0, 0, 0, 0.24);
 
-  & :global(.fc-checkbox), & :global(.icon-drag-drop) {
+  & :global(.icon-drag-drop) {
     opacity: 0;
   }
 }
