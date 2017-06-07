@@ -283,12 +283,12 @@ class TaxonomyIntegrationTest
         .gimme
 
     "should insert data on taxonomy creation" in new HierarchyTaxonsFixture {
-      val taxonomies = selectByTaxonId(taxonomy.id)
+      val taxonomies = selectByTaxonId(taxonomy.formId)
 
       taxonomies.size must === (1)
       val item = taxonomies.head
       item must === (
-          item.copy(taxonomyId = taxonomy.id,
+          item.copy(taxonomyId = taxonomy.formId,
                     context = ctx.name,
                     `type` = "hierarchical",
                     valuesCount = taxons.size,
@@ -298,12 +298,12 @@ class TaxonomyIntegrationTest
     "should update data on taxon removal" in new HierarchyTaxonsFixture {
       TaxonomyTaxonLinks.update(links.head, links.head.copy(archivedAt = Some(Instant.now))).gimme
 
-      val taxonomies = selectByTaxonId(taxonomy.id)
+      val taxonomies = selectByTaxonId(taxonomy.formId)
 
       taxonomies.size must === (1)
       val item = taxonomies.head
       item must === (
-          item.copy(taxonomyId = taxonomy.id,
+          item.copy(taxonomyId = taxonomy.formId,
                     context = ctx.name,
                     `type` = "hierarchical",
                     valuesCount = taxons.size - 1,
@@ -317,7 +317,7 @@ class TaxonomyIntegrationTest
       val resp = taxonomiesApi(taxonomy.formId).update(UpdateTaxonomyPayload(newAttributes))
       resp.status must === (StatusCodes.OK)
 
-      val taxonomies = selectByTaxonId(taxonomy.id)
+      val taxonomies = selectByTaxonId(taxonomy.formId)
 
       taxonomies.size must === (1)
       val item = taxonomies.head

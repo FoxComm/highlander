@@ -233,7 +233,7 @@ export default class NewStoreCredit extends React.Component {
               <li className="fc-store-credit-form__controls">
                 <SaveCancel
                   onCancel={transitionToLazy('customer-storecredits', {customerId: this.customerId})}
-                  saveText="Issue Store Credit"
+                  saveLabel="Issue Store Credit"
                 />
               </li>
             </ul>
@@ -321,7 +321,7 @@ export default class NewStoreCredit extends React.Component {
               <li className="fc-store-credit-form__controls">
                 <SaveCancel
                   onCancel={transitionToLazy('customer-storecredits', {customerId: this.customerId})}
-                  saveText="Transfer Gift Card to Store Credit"
+                  saveLabel="Transfer Gift Card to Store Credit"
                 />
               </li>
             </ul>

@@ -1,11 +1,10 @@
 package utils
 
-import java.time.Instant
-
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.testkit.{TestActorRef, TestKit}
 import cats.implicits._
+import java.time.Instant
 import org.scalatest.BeforeAndAfterAll
 import phoenix.models.cord._
 import phoenix.services.actors._

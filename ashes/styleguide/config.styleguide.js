@@ -78,6 +78,14 @@ module.exports = {
               ]),
             },
             {
+              name: 'Modal',
+              components: () => ([
+                path.resolve(__dirname, '../src/components/core/modal-container/modal-container.jsx'),
+                path.resolve(__dirname, '../src/components/core/modal/modal.jsx'),
+                path.resolve(__dirname, '../src/components/core/confirmation-modal/confirmation-modal.jsx'),
+              ]),
+            },
+            {
               name: 'Other',
               components: () => ([
                 path.resolve(__dirname, '../src/components/core/rounded-pill/rounded-pill.jsx'),

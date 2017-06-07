@@ -8,7 +8,7 @@ import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
 
 // components
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import { FormField, Form } from 'components/forms';
 import SwatchInput from 'components/core/swatch-input';
 
@@ -58,11 +58,18 @@ class ValueEditDialog extends Component {
     this.handleChange(newValue, 'swatch');
   }
 
+  @autobind
+  handleConfirm() {
+    if (this.refs.form.checkValidity()) {
+      this.save();
+    }
+  }
+
   save() {
     this.props.confirmAction(this.state.value, this.props.value.id);
   }
 
-  renderDialogContent() {
+  get content() {
     const name = _.get(this.state, 'value.name', '');
     const swatch = _.get(this.state, 'value.swatch', '');
 
@@ -96,24 +103,17 @@ class ValueEditDialog extends Component {
     );
   }
 
-  @autobind
-  handleConfirm() {
-    if (this.refs.form.checkValidity()) {
-      this.save();
-    }
-  }
-
   render() {
     return (
-      <ConfirmationDialog
-        isVisible={true}
-        header={this.title}
-        body={this.renderDialogContent()}
-        cancel="Cancel"
-        confirm="Save value"
+      <ConfirmationModal
+        isVisible
+        title={this.title}
+        confirmLabel="Save value"
         onCancel={this.props.cancelAction}
-        confirmAction={this.handleConfirm}
-      />
+        onConfirm={this.handleConfirm}
+      >
+        {this.content}
+      </ConfirmationModal>
     );
   }
 }

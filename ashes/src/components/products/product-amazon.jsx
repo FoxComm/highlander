@@ -158,7 +158,7 @@ class ProductAmazon extends Component {
     return (
       <SaveCancel
         onCancel={this.handleCancel}
-        saveText="Push to Amazon"
+        saveLabel="Push to Amazon"
         saveDisabled={disabled}
         isLoading={saveBtnIsLoading}
       />

@@ -1,4 +1,4 @@
-FROM clojure:latest
+FROM clojure:lein-alpine
 
 RUN mkdir -p /build
 WORKDIR /build

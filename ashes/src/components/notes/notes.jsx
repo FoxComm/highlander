@@ -10,7 +10,7 @@ import { createSelector } from 'reselect';
 import { bindActionCreators } from 'redux';
 
 // components
-import ConfirmationDialog from '../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import { PrimaryButton } from 'components/core/button';
 import SectionTitle from '../section-title/section-title';
 import TableView from '../table/tableview';
@@ -50,10 +50,10 @@ function mapDispatchToProps(dispatch, props) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class Notes extends React.Component {
   static deleteOptions = {
-    header: 'Confirm',
-    body: 'Are you sure you want to delete this note?',
-    confirm: 'Yes',
-    cancel: 'No'
+    title: 'Confirm',
+    label: 'Are you sure you want to delete this note?',
+    confirmLabel: 'Yes',
+    cancelLabel: 'No'
   };
 
   static propTypes = {
@@ -169,11 +169,11 @@ export default class Notes extends React.Component {
             processRows={this.injectAddingForm}
           />
         </LiveSearchAdapter>
-        <ConfirmationDialog
+        <ConfirmationModal
           {...Notes.deleteOptions}
           isVisible={this.props.noteIdToDelete != null}
-          confirmAction={() => this.props.deleteNote(this.props.noteIdToDelete)}
           onCancel={() => this.props.stopDeletingNote(this.props.noteIdToDelete)}
+          onConfirm={() => this.props.deleteNote(this.props.noteIdToDelete)}
         />
       </div>
     );

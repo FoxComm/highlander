@@ -1,31 +1,25 @@
+/* @flow */
+
 // libs
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 
 // components
-import modalWrapper from '../../modal/wrapper';
+import Modal from 'components/core/modal';
 import AddressForm from './address-form';
-import ContentBox from '../../content-box/content-box';
-import Icon from 'components/core/icon';
 
 type Props = {
+  isVisible: boolean,
   onCancel?: Function;
 };
 
-const AddressFormWrapper = (props: Props) => {
-  const actionBlock = <Icon onClick={props.onCancel} className="fc-btn-close" name="close" title="Close" />;
-
+export default ({ isVisible, ...rest }: Props) => {
   return (
-    <ContentBox title="Address Book" className="fc-address-form-modal" actionBlock={ actionBlock }>
-      <AddressForm {...props} />
-    </ContentBox>
+    <Modal
+      title="Address Book"
+      onClose={rest.onCancel}
+      isVisible={isVisible}
+    >
+      <AddressForm {...rest} />
+    </Modal>
   );
 };
-
-AddressFormWrapper.propTypes = {
-  onCancel: PropTypes.func.isRequired
-};
-
-const ModalAddressForm: Class<Component<void, Props, any>> = modalWrapper(AddressFormWrapper);
-
-export default ModalAddressForm;

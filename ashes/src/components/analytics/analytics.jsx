@@ -37,12 +37,7 @@ const ActionBlock = (props) => {
   );
 
   return (
-    <a
-      className='fc-modal-close'
-      onClick={onActionClick}
-    >
-      {xIconSvg}
-    </a>
+    <a onClick={onActionClick}>{xIconSvg}</a>
   );
 };
 

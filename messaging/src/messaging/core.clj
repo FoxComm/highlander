@@ -1,5 +1,5 @@
 (ns messaging.core
- (:require
+  (:require
    ;; std
    [clojure.core.async
     :as async
@@ -9,6 +9,7 @@
    ;; log
    [taoensso.timbre :as log]
    ;; internal
+   [messaging.shared :as shared]
    [messaging.mail :as mail]
    ;; kafka & other libs
    [franzy.clients.consumer.client :as consumer]
@@ -17,12 +18,10 @@
    [cheshire.core :as json]
    [environ.core :refer [env]]))
 
-
 (def topics ["scoped_activities"])
 
 (def kafka-broker (delay (:kafka-broker env)))
 (def schema-registry-url (delay (:schema-registry-url env)))
-
 
 (defn decode-embed-json
   [^String s]
@@ -30,13 +29,13 @@
           json/parse-string))
 
 (defn decode-activity-json
- "return same Activity map but with parsed :data and :context from json"
- [msg]
- (as-> msg $
-     (clojure.walk/keywordize-keys $)
-     (assoc $
-       :data (decode-embed-json (:data $))
-       :context (decode-embed-json (:context $)))))
+  "return same Activity map but with parsed :data and :context from json"
+  [msg]
+  (as-> msg $
+        (clojure.walk/keywordize-keys $)
+        (assoc $
+               :data (decode-embed-json (:data $))
+               :context (decode-embed-json (:context $)))))
 
 (defn decode
   [message]
@@ -45,7 +44,6 @@
       str
       json/parse-string
       decode-activity-json))
-
 
 (defn- safe-decode-minimal
   [message]
@@ -57,35 +55,34 @@
     (catch Exception _
       message)))
 
-
 (def stop (atom false))
 
 (defn start-from-last-commit [consumer]
   (consumer-rebalance-listener
     ;; on assign
-    (fn [topic-partitions]
-      (doseq [tp topic-partitions
-              :let [offset (committed-offsets consumer tp)]]
-        (if (nil? offset)
-          (do
-            (log/info "No offset commited. Consuming from latest for topic "
-                    (:topic tp) "using partition" (:partition tp))
+   (fn [topic-partitions]
+     (doseq [tp topic-partitions
+             :let [offset (committed-offsets consumer tp)]]
+       (if (nil? offset)
+         (do
+           (log/info "No offset commited. Consuming from latest for topic "
+                     (:topic tp) "using partition" (:partition tp))
             ;; use old behaviour
-            (seek-to-end-offset! consumer tp))
-          (do
-            (log/info "Consuming from" (:offset offset)
-                    "for topic" (:topic tp)
-                    "using partition" (:partition tp))
-            (seek-to-offset! consumer tp (:offset offset))))))
+           (seek-to-end-offset! consumer tp))
+         (do
+           (log/info "Consuming from" (:offset offset)
+                     "for topic" (:topic tp)
+                     "using partition" (:partition tp))
+           (seek-to-offset! consumer tp (:offset offset))))))
 
     ;; on revoked
-    (fn [topic-partitions]
-      (commit-offsets-sync! consumer))))
-
+   (fn [topic-partitions]
+     (commit-offsets-sync! consumer))))
 
 (defn start-app
   [react-app]
-  (log/infof "Start consumer, with kafka=%s schema=%s"
+  (log/infof "Start consumer on %s, with kafka=%s schema=%s"
+             @shared/environment
              @kafka-broker
              @schema-registry-url)
   (reset! stop false)
@@ -105,17 +102,18 @@
               (try
                 (let [msg (decode record)]
                   (log/debug msg)
-                  (mail/handle-activity msg)
+                  (when (not= @shared/environment shared/staging)
+                    (mail/handle-activity msg))
                   (commit-offsets-sync! c {(select-keys record [:topic :partition])
                                            {:offset (inc (:offset record)) :metadata ""}}))
                 (catch Exception e
                   (let [record-info (safe-decode-minimal record)]
                     (log/errorf "Caught exception: %s\n\tDuring processing %s" e
-                              record-info)
+                                record-info)
                     (throw (ex-info "Caught exception" {:record record-info} e)))))))
 
-         (when-not @stop
-          (recur))))
+          (when-not @stop
+            (recur))))
       (log/info "stop polling kafka activities"))))
 
 (defn stop-app []

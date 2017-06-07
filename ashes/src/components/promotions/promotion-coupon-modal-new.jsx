@@ -20,7 +20,7 @@ export default class PromoCouponNewModal extends Component {
     return (
       <CouponNew
         promotionId={this.props.params.promotionId}
-        isVisible={true}
+        isVisible
       />
     );
   }

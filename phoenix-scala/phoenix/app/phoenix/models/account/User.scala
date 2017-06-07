@@ -36,7 +36,7 @@ case class User(id: Int = 0,
   }
 
   def mustNotBeBlacklisted: Either[Failures, User] = {
-    if (isBlacklisted) Either.left(UserIsBlacklisted(id).single)
+    if (isBlacklisted) Either.left(UserIsBlacklisted(accountId).single)
     else Either.right(this)
   }
 

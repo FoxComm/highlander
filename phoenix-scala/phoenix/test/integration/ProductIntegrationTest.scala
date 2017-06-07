@@ -2,6 +2,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
+
 import cats.implicits._
 import core.failures.NotFoundFailure404
 import objectframework.ObjectFailures.ObjectContextNotFound
@@ -27,7 +28,7 @@ import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import phoenix.utils.time.RichInstant
 import testutils._
-import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
+import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi, PhoenixStorefrontApi}
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtures
 import core.utils.Money.Currency
@@ -52,6 +53,7 @@ class ProductIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with PhoenixStorefrontApi
+    with PhoenixPublicApi
     with DefaultJwtAdminAuth
     with BakedFixtures
     with ApiFixtures
@@ -65,11 +67,8 @@ class ProductIntegrationTest
       product.taxons.flatMap(_.taxons.map(_.id)) must contain(taxons.head.formId)
     }
 
-    "queries product by slug" in new ProductSku_ApiFixture {
-      val slug          = "simple-product"
-      val simpleProduct = Products.mustFindById404(product.id).gimme
-
-      val updated = simpleProduct.copy(slug = slug)
+    "queries product by slug (incl. ignoring case)" in new ProductSku_ApiFixture {
+      val slug = "simple-product"
 
       productsApi(product.id)
         .update(
@@ -79,17 +78,9 @@ class ProductIntegrationTest
                                  variants = None))
         .mustBeOk()
 
-      productsApi(slug).get().as[ProductResponse.Root].id must === (updated.formId)
-    }
-
-    "queries product by slug ignoring case" in new ProductSku_ApiFixture {
-      val slug          = "Simple-Product"
-      val simpleProduct = Products.mustFindById404(product.id).gimme
-      val updated       = simpleProduct.copy(slug = slug.toLowerCase)
-
-      Products.update(simpleProduct, updated).gimme
-
-      productsApi(slug).get().as[ProductResponse.Root].id must === (updated.formId)
+      List(slug, "Simple-Product").foreach { slugToQuery ⇒
+        productsApi(slugToQuery).get().as[ProductResponse.Root].id must === (product.id)
+      }
     }
   }
 
@@ -167,6 +158,21 @@ class ProductIntegrationTest
       withRandomCustomerAuth { implicit auth ⇒
         storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
       }
+    }
+
+    "Successful if product has variants" in new ProductVariants_ApiFixture {
+      val slug = "simple-product"
+
+      val getProductResult = productsApi(product.id).get().as[Root]
+      getProductResult must === (product)
+
+      val storefrontResult = withRandomCustomerAuth { implicit auth ⇒
+        storefrontProductsApi(slug).get().as[Root]
+      }
+      storefrontResult must === (product)
+
+      val publicResult = publicApi.getProduct(slug).as[Root]
+      publicResult must === (product)
     }
   }
 
@@ -394,13 +400,13 @@ class ProductIntegrationTest
         productsApi
           .create(newProductPayload)
           .mustFailWithMessage(
-              """Object sku with id=13 doesn't pass validation: $.code: must be at least 1 characters long""")
+              """Object sku with id=%ANY% doesn't pass validation: $.code: must be at least 1 characters long""")
       }
 
       "trying to create a product with archived SKU" in new ArchivedSkuFixture {
         productsApi
           .create(archivedSkuProductPayload)
-          .mustFailWith400(LinkInactiveSkuFailure(Product, 2, archivedSkuCode))
+          .mustFailWith400(LinkInactiveSkuFailure(Product, "%ANY%", archivedSkuCode))
       }
 
       "trying to create a product with string price" in new Fixture {
@@ -908,11 +914,8 @@ class ProductIntegrationTest
                              Mvp.insertVariantWithValues(scope, ctx.id, product, scv)
                            }
 
-        variants ← * <~ variantsAndValues.map(_.variant)
-        variantValues ← * <~ variantsAndValues.foldLeft(Seq.empty[SimpleVariantValueData]) {
-                         (acc, item) ⇒
-                           acc ++ item.variantValues
-                       }
+        variants      ← * <~ variantsAndValues.map(_.variant)
+        variantValues ← * <~ variantsAndValues.flatMap(_.variantValues)
 
         // Map the SKUs to the Variant Values
         skuMap ← * <~ skuValueMapping.map {

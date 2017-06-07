@@ -30,4 +30,3 @@
     - { role: dev/nginx }
     - { role: demo/balancer }
     - { role: dev/seeder, when: with_appliance_seeding }
-    - { role: app/healthcheck }
