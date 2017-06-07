@@ -9,6 +9,7 @@ import phoenix.payloads.AddressPayloads.UpdateAddressPayload
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 
+@deprecated("delete me", "")
 case class OrderShippingAddress(id: Int = 0,
                                 // FIXME @anna This default is just wrong
                                 cordRef: String = "",
@@ -31,6 +32,7 @@ case class OrderShippingAddress(id: Int = 0,
   override def validate = super.validate
 }
 
+@deprecated("delete me", "")
 object OrderShippingAddress {
   def buildFromAddress(address: Address): OrderShippingAddress =
     // FIXME: Add Address#id to OrderShippingAddress? @michalrus
@@ -42,21 +44,9 @@ object OrderShippingAddress {
                          zip = address.zip,
                          phoneNumber = address.phoneNumber)
 
-  def fromPatchPayload(a: OrderShippingAddress, p: UpdateAddressPayload) = {
-    OrderShippingAddress(
-        id = a.id,
-        cordRef = a.cordRef,
-        regionId = p.regionId.getOrElse(a.regionId),
-        name = p.name.getOrElse(a.name),
-        address1 = p.address1.getOrElse(a.address1),
-        address2 = p.address2.fold(a.address2)(Some(_)),
-        city = p.city.getOrElse(a.city),
-        zip = p.zip.getOrElse(a.zip),
-        phoneNumber = p.phoneNumber.fold(a.phoneNumber)(Some(_))
-    )
-  }
 }
 
+@deprecated("delete me", "")
 class OrderShippingAddresses(tag: Tag)
     extends FoxTable[OrderShippingAddress](tag, "order_shipping_addresses") {
   def id          = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -78,6 +68,7 @@ class OrderShippingAddresses(tag: Tag)
   def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }
 
+@deprecated("delete me", "")
 object OrderShippingAddresses
     extends FoxTableQuery[OrderShippingAddress, OrderShippingAddresses](
         new OrderShippingAddresses(_))

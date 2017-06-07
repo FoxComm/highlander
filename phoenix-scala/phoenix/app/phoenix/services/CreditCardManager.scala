@@ -82,12 +82,9 @@ object CreditCardManager {
 
     def getExistingStripeIdAndAddress =
       for {
-        stripeId        ← * <~ CreditCards.filter(_.accountId === accountId).map(_.gatewayCustomerId).one
-        shippingAddress ← * <~ getOptionalShippingAddress(payload.addressId, payload.isShipping)
-        address ← * <~ getAddressFromPayload(payload.addressId,
-                                             payload.address,
-                                             shippingAddress,
-                                             accountId).mustFindOr(CreditCardMustHaveAddress)
+        stripeId ← * <~ CreditCards.filter(_.accountId === accountId).map(_.gatewayCustomerId).one
+        address ← * <~ getAddressFromPayload(payload.addressId, payload.address, accountId)
+                   .mustFindOr(CreditCardMustHaveAddress)
         _ ← * <~ validateOptionalAddressOwnership(Some(address), accountId)
       } yield (stripeId, address)
 
@@ -178,12 +175,8 @@ object CreditCardManager {
                     .extract
                     .filter(_.accountId === accountId)
                     .mustFindOneOr(NotFoundFailure404(CreditCard, id))
-      shippingAddress ← * <~ getOptionalShippingAddress(payload.addressId, payload.isShipping)
-      address ← * <~ getAddressFromPayload(payload.addressId,
-                                           payload.address,
-                                           shippingAddress,
-                                           accountId)
-      _ ← * <~ validateOptionalAddressOwnership(address, accountId)
+      address ← * <~ getAddressFromPayload(payload.addressId, payload.address, accountId)
+      _       ← * <~ validateOptionalAddressOwnership(address, accountId)
     } yield address.fold(creditCard)(creditCard.copyFromAddress)
 
     for {
@@ -220,17 +213,13 @@ object CreditCardManager {
 
   private def getAddressFromPayload(id: Option[Int],
                                     payload: Option[CreateAddressPayload],
-                                    shippingAddress: Option[OrderShippingAddress],
                                     accountId: Int): DBIO[Option[Address]] = {
 
-    (shippingAddress, id, payload) match {
-      case (Some(osa), _, _) ⇒
-        DBIO.successful(Address.fromOrderShippingAddress(osa).some)
-
-      case (None, Some(addressId), _) ⇒
+    (id, payload) match {
+      case (Some(addressId), _) ⇒
         Addresses.findById(addressId).extract.one
 
-      case (None, _, Some(createAddress)) ⇒
+      case (_, Some(createAddress)) ⇒
         DBIO.successful(Address.fromPayload(createAddress, accountId).some)
 
       case _ ⇒

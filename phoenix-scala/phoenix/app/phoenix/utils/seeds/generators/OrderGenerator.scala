@@ -94,8 +94,6 @@ trait OrderGenerator extends ShipmentSeeds {
       shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
       shipM ← * <~ OrderShippingMethods.create(
                  OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
-      _ ← * <~ OrderShippingAddresses.create(
-             OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
 
@@ -124,8 +122,7 @@ trait OrderGenerator extends ShipmentSeeds {
       shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
       shipM ← * <~ OrderShippingMethods.create(
                  OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
-      _ ← * <~ OrderShippingAddresses.create(
-             OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
+      _ ← * <~ addr.boundToCart(cart.refNum)
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
 
@@ -145,8 +142,7 @@ trait OrderGenerator extends ShipmentSeeds {
       shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
       shipM ← * <~ OrderShippingMethods.create(
                  OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
-      _ ← * <~ OrderShippingAddresses.create(
-             OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
+      _ ← * <~ addr.boundToCart(cart.refNum)
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
 
@@ -172,8 +168,7 @@ trait OrderGenerator extends ShipmentSeeds {
       shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
       shipM ← * <~ OrderShippingMethods.create(
                  OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
-      _ ← * <~ OrderShippingAddresses.create(
-             OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
+      _ ← * <~ addr.boundToCart(cart.refNum)
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
 
@@ -192,9 +187,8 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ generateCartPayments(cart, cc, gc, deductFromGc)
       // Authorize SC payments
       addr ← * <~ getDefaultAddress(accountId)
-      _ ← * <~ OrderShippingAddresses.create(
-             OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
-      _ ← * <~ CartTotaler.saveTotals(cart)
+      _    ← * <~ addr.boundToCart(cart.refNum)
+      _    ← * <~ CartTotaler.saveTotals(cart)
     } yield cart
   }
 
@@ -209,9 +203,8 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ OrderPayments.create(
              OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = none))
       addr ← * <~ getDefaultAddress(accountId)
-      _ ← * <~ OrderShippingAddresses.create(
-             OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
-      _ ← * <~ CartTotaler.saveTotals(cart)
+      _    ← * <~ addr.boundToCart(cart.refNum)
+      _    ← * <~ CartTotaler.saveTotals(cart)
     } yield cart
 
   def shippedOrderUsingCreditCard(

@@ -1,27 +1,17 @@
 package phoenix.services.carts
 
-import phoenix.failures.CartFailures.NoShipAddress
-import core.failures.NotFoundFailure404
 import phoenix.models.account._
-import phoenix.models.cord._
-import phoenix.models.location.Addresses.scope._
 import phoenix.models.location._
 import phoenix.payloads.AddressPayloads._
-import phoenix.responses.AddressResponse.buildFromOrder
+import phoenix.responses.AddressResponse._
 import phoenix.responses.TheResponse
 import phoenix.responses.cord.CartResponse
 import phoenix.services.{CartValidator, LogActivity}
-import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
 import core.db._
+import phoenix.models.location.Address._
 
 object CartShippingAddressUpdater {
-
-  def mustFindAddressWithRegion(id: Int)(implicit ec: EC): DbResultT[(Address, Region)] =
-    Addresses.findById(id).extract.withRegions.mustFindOneOr(NotFoundFailure404(Address, id))
-
-  def mustFindShipAddressForCart(cart: Cart)(implicit ec: EC): DbResultT[OrderShippingAddress] =
-    OrderShippingAddresses.findByOrderRef(cart.refNum).mustFindOneOr(NoShipAddress(cart.refNum))
 
   def createShippingAddressFromAddressId(originator: User,
                                          addressId: Int,
@@ -32,16 +22,14 @@ object CartShippingAddressUpdater {
       ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart      ← * <~ getCartByOriginator(originator, refNum)
-      addAndReg ← * <~ mustFindAddressWithRegion(addressId)
-      _         ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).delete
-      (address, _) = addAndReg
-      _           ← * <~ address.mustBelongToAccount(cart.accountId)
-      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, cart.refNum)
-      region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
-      validated   ← * <~ CartValidator(cart).validate()
-      response    ← * <~ CartResponse.buildRefreshed(cart)
+      addAndReg ← * <~ mustFindByAddressId(addressId)
+      (address, region) = addAndReg
+      _         ← * <~ address.mustBelongToAccount(cart.accountId)
+      _         ← * <~ address.boundToCart(cart.referenceNumber)
+      validated ← * <~ CartValidator(cart).validate()
+      response  ← * <~ CartResponse.buildRefreshed(cart)
       _ ← * <~ LogActivity()
-           .orderShippingAddressAdded(originator, response, buildFromOrder(shipAddress, region))
+           .orderShippingAddressAdded(originator, response, build(address, region))
     } yield TheResponse.validated(response, validated)
 
   def createShippingAddressFromPayload(originator: User,
@@ -52,15 +40,14 @@ object CartShippingAddressUpdater {
       ac: AC,
       ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
-      cart        ← * <~ getCartByOriginator(originator, refNum)
-      newAddress  ← * <~ Addresses.create(Address.fromPayload(payload, cart.accountId))
-      _           ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).delete
-      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(newAddress, cart.refNum)
-      region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
-      validated   ← * <~ CartValidator(cart).validate()
-      response    ← * <~ CartResponse.buildRefreshed(cart)
+      cart       ← * <~ getCartByOriginator(originator, refNum)
+      newAddress ← * <~ Addresses.create(Address.fromPayload(payload, cart.accountId))
+      _          ← * <~ newAddress.boundToCart(cart.referenceNumber)
+      region     ← * <~ Regions.mustFindById404(payload.regionId)
+      validated  ← * <~ CartValidator(cart).validate()
+      response   ← * <~ CartResponse.buildRefreshed(cart)
       _ ← * <~ LogActivity()
-           .orderShippingAddressAdded(originator, response, buildFromOrder(shipAddress, region))
+           .orderShippingAddressAdded(originator, response, build(newAddress, region))
     } yield TheResponse.validated(response, validated)
 
   def updateShippingAddressFromPayload(originator: User,
@@ -71,15 +58,14 @@ object CartShippingAddressUpdater {
       ac: AC,
       ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
-      cart        ← * <~ getCartByOriginator(originator, refNum)
-      shipAddress ← * <~ mustFindShipAddressForCart(cart)
-      region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
-      patch = OrderShippingAddress.fromPatchPayload(shipAddress, payload)
-      _         ← * <~ OrderShippingAddresses.update(shipAddress, patch)
+      cart      ← * <~ getCartByOriginator(originator, refNum)
+      addAndReg ← * <~ mustFindByCordRef(cart.referenceNumber)
+      (address, region) = addAndReg
+      _         ← * <~ Addresses.update(address, Address.fromPatchPayload(address, payload))
       validated ← * <~ CartValidator(cart).validate()
       response  ← * <~ CartResponse.buildRefreshed(cart)
       _ ← * <~ LogActivity()
-           .orderShippingAddressUpdated(originator, response, buildFromOrder(shipAddress, region))
+           .orderShippingAddressUpdated(originator, response, build(address, region))
     } yield TheResponse.validated(response, validated)
 
   def removeShippingAddress(originator: User, refNum: Option[String] = None)(
@@ -88,13 +74,14 @@ object CartShippingAddressUpdater {
       ac: AC,
       ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
-      cart        ← * <~ getCartByOriginator(originator, refNum)
-      shipAddress ← * <~ mustFindShipAddressForCart(cart)
-      region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
-      _           ← * <~ OrderShippingAddresses.findById(shipAddress.id).delete
-      validated   ← * <~ CartValidator(cart).validate()
-      fullOrder   ← * <~ CartResponse.buildRefreshed(cart)
+      cart      ← * <~ getCartByOriginator(originator, refNum)
+      addAndReg ← * <~ mustFindByCordRef(cart.referenceNumber)
+      (address, region) = addAndReg
+      _         ← * <~ address.mustBelongToAccount(cart.accountId)
+      address   ← * <~ address.unboundFromCart()
+      validated ← * <~ CartValidator(cart).validate()
+      fullOrder ← * <~ CartResponse.buildRefreshed(cart)
       _ ← * <~ LogActivity()
-           .orderShippingAddressDeleted(originator, fullOrder, buildFromOrder(shipAddress, region))
+           .orderShippingAddressDeleted(originator, fullOrder, build(address, region))
     } yield TheResponse.validated(fullOrder, validated)
 }

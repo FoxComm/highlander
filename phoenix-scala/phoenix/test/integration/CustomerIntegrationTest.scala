@@ -13,7 +13,7 @@ import phoenix.models.account._
 import phoenix.models.cord.OrderPayments.scope._
 import phoenix.models.cord._
 import phoenix.models.customer._
-import phoenix.models.location.{Addresses, Regions}
+import phoenix.models.location.{Address, Addresses, Regions}
 import phoenix.models.payment.ExternalCharge
 import phoenix.models.payment.creditcard._
 import phoenix.models.shipping.Shipment.Shipped
@@ -22,7 +22,7 @@ import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import phoenix.payloads.CustomerPayloads._
 import phoenix.payloads.PaymentPayloads._
 import phoenix.payloads.UserPayloads._
-import phoenix.responses.CreditCardsResponse.{Root ⇒ CardResponse}
+import phoenix.responses.CreditCardsResponse.{Root => CardResponse}
 import phoenix.responses.CustomerResponse.Root
 import phoenix.responses.cord.CartResponse
 import phoenix.responses.{CreditCardsResponse, CustomerResponse}
@@ -144,11 +144,9 @@ class CustomerIntegrationTest
 
         val defaultAddress = Factories.address.copy(isDefaultShipping = true, phoneNumber = None)
 
-        def shippingAddresses(orders: Seq[(Order, String)]) = orders.map {
+        def shippingAddresses(orders: Seq[(Order, String)]): Seq[Address] = orders.map {
           case (order, phone) ⇒
-            OrderShippingAddress
-              .buildFromAddress(defaultAddress)
-              .copy(cordRef = order.refNum, phoneNumber = phone.some)
+            defaultAddress.copy(cordRef = order.refNum.some, phoneNumber = phone.some)
         }
 
         val (customer, region, shipments) = (for {
@@ -176,12 +174,11 @@ class CustomerIntegrationTest
           order2 ← Orders.update(order2, order2.copy(state = Order.FulfillmentStarted))
           order2 ← Orders.update(order2, order2.copy(state = Order.Shipped))
           orders = Seq(order1, order2)
-          addresses ← * <~ shippingAddresses(orders.zip(phoneNumbers)).map(a ⇒
-                           OrderShippingAddresses.create(a))
+          addresses ← * <~ shippingAddresses(orders.zip(phoneNumbers))
           shipments ← * <~ addresses.map(
                          address ⇒
                            Shipments.create(
-                               Factories.shipment.copy(cordRef = address.cordRef,
+                               Factories.shipment.copy(cordRef = address.cordRef.get,
                                                        shippingAddressId = address.id.some,
                                                        orderShippingMethodId = None,
                                                        state = Shipped)))

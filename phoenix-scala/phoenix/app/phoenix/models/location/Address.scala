@@ -6,10 +6,11 @@ import cats.implicits._
 import core.db._
 import core.failures.{Failures, NotFoundFailure404}
 import core.utils.Validation
-import phoenix.models.cord.OrderShippingAddress
+import phoenix.models.cord.Cords
+import phoenix.models.location.Addresses.scope
 import phoenix.models.payment.creditcard.CreditCard
 import phoenix.models.traits.Addressable
-import phoenix.payloads.AddressPayloads.CreateAddressPayload
+import phoenix.payloads.AddressPayloads.{CreateAddressPayload, UpdateAddressPayload}
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 
@@ -22,6 +23,7 @@ case class Address(id: Int = 0,
                    city: String,
                    zip: String,
                    isDefaultShipping: Boolean = false,
+                   cordRef: Option[String] = None,
                    phoneNumber: Option[String] = None,
                    deletedAt: Option[Instant] = None)
     extends FoxModel[Address]
@@ -36,6 +38,12 @@ case class Address(id: Int = 0,
   def mustBelongToAccount(accountId: Int): Either[Failures, Address] =
     if (this.isNew || this.accountId == accountId) Either.right(this)
     else Either.left(NotFoundFailure404(Address, this.id).single)
+
+  def boundToCart(cartRef: String)(implicit ec: EC): DbResultT[Address] =
+    Addresses.update(this, this.copy(cordRef = cartRef.some))
+
+  def unboundFromCart()(implicit ec: EC): DbResultT[Address] =
+    Addresses.update(this, this.copy(cordRef = None))
 }
 
 object Address {
@@ -50,17 +58,22 @@ object Address {
             address2 = p.address2,
             city = p.city,
             zip = p.zip,
-            phoneNumber = p.phoneNumber)
+            phoneNumber = p.phoneNumber,
+            cordRef = None)
 
-  def fromOrderShippingAddress(osa: OrderShippingAddress): Address =
-    Address(accountId = 0,
-            regionId = osa.regionId,
-            name = osa.name,
-            address1 = osa.address1,
-            address2 = osa.address2,
-            city = osa.city,
-            zip = osa.zip,
-            phoneNumber = osa.phoneNumber)
+  def fromPatchPayload(existedAddress: Address, incomingPayload: UpdateAddressPayload): Address = {
+    Address(
+        accountId = existedAddress.accountId,
+        regionId = incomingPayload.regionId.getOrElse(existedAddress.regionId),
+        name = incomingPayload.name.getOrElse(existedAddress.name),
+        address1 = incomingPayload.address1.getOrElse(existedAddress.address1),
+        address2 = incomingPayload.address2.fold(existedAddress.address2)(Some(_)),
+        city = incomingPayload.city.getOrElse(existedAddress.city),
+        zip = incomingPayload.zip.getOrElse(existedAddress.zip),
+        cordRef = existedAddress.cordRef,
+        phoneNumber = incomingPayload.phoneNumber.fold(existedAddress.phoneNumber)(Some(_))
+    )
+  }
 
   def fromCreditCard(cc: CreditCard): Address =
     Address(accountId = 0,
@@ -70,7 +83,18 @@ object Address {
             address2 = cc.address.address2,
             city = cc.address.city,
             zip = cc.address.zip,
-            phoneNumber = cc.address.phoneNumber)
+            phoneNumber = cc.address.phoneNumber,
+            cordRef = None)
+
+  import scope._
+  def mustFindByAddressId(id: Int)(implicit ec: EC): DbResultT[(Address, Region)] =
+    Addresses.findById(id).extract.withRegions.mustFindOneOr(NotFoundFailure404(Address, id))
+
+  def mustFindByCordRef(cordRef: String)(implicit ec: EC): DbResultT[(Address, Region)] =
+    Addresses
+      .filter(_.cordRef === cordRef)
+      .withRegions
+      .mustFindOneOr(NotFoundFailure404(Address, cordRef))
 }
 
 class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses") {
@@ -83,6 +107,7 @@ class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses") {
   def city              = column[String]("city")
   def zip               = column[String]("zip")
   def isDefaultShipping = column[Boolean]("is_default_shipping")
+  def cordRef           = column[Option[String]]("cord_ref")
   def phoneNumber       = column[Option[String]]("phone_number")
   def deletedAt         = column[Option[Instant]]("deleted_at")
 
@@ -96,10 +121,12 @@ class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses") {
      city,
      zip,
      isDefaultShipping,
+     cordRef,
      phoneNumber,
      deletedAt) <> ((Address.apply _).tupled, Address.unapply)
 
   def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
+  def cord   = foreignKey(Cords.tableName, cordRef, Cords)(_.referenceNumber)
 }
 
 object Addresses
@@ -122,6 +149,9 @@ object Addresses
 
   def findAllActiveByAccountIdWithRegions(accountId: Int): AddressesWithRegionsQuery =
     findAllActiveByAccountId(accountId).withRegions
+
+  def findOneForCartWithRegions(cordRef: String): DBIO[Option[(Address, Region)]] =
+    filter(_.cordRef === cordRef).withRegions.one
 
   def findShippingDefaultByAccountId(accountId: Int): QuerySeq =
     filter(_.accountId === accountId).filter(_.isDefaultShipping === true)
