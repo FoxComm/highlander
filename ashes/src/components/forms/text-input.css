@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .input {
   padding: 9px;
   border: 1px solid #ced2d5;
@@ -14,6 +16,6 @@
   }
 
   &:focus {
-    border-color: #4fc2c9;
+    border-color: var(--green-buttons);
   }
 }

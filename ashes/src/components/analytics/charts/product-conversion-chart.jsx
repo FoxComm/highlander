@@ -32,13 +32,13 @@ const xAxisStyle = {
 };
 
 const singleBarStyle = {
-  data: { fill: '#4FC2C9', width: 28 },
+  data: { fill: '#49cab9', width: 28 },
   labels: { fontSize: 12 },
   parent: { border: '1px solid #ccc' },
 };
 const comparisonBarStyles = {
   dataBarStyle:  {
-    data: { fill: '#4FC2C9', width: 28 },
+    data: { fill: '#49cab9', width: 28 },
     labels: { fontSize: 12 },
     parent: { border: '1px solid #ccc' },
   },

@@ -1,3 +1,4 @@
+@import "colors.css";
 
 .root {
   background-color: #FFFFFF;
@@ -21,13 +22,13 @@
   line-height: 46px;
 
   &:hover {
-    background-color: #F7F7F7;
+    background-color: var(--grey-headers);
     cursor: pointer;
   }
 
   &.active {
-    border-left: 3px solid #49C2CA;
-    background-color: #F7F7F7;
+    border-left: 3px solid var(--green-buttons);
+    background-color: var(--grey-headers);
   }
 
 }

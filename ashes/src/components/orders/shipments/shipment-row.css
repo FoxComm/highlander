@@ -10,7 +10,7 @@
   color: var(--decor1);
 
   &:hover {
-    color: var(--decor15);
+    color: var(--green-buttons);
   }
 }
 

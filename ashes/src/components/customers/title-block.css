@@ -59,7 +59,7 @@
     display: inline-block;
     width: var(--image-size);
     height: var(--image-size);
-    background-color: var(--decor15);
+    background-color: var(--green-buttons);
     overflow: hidden;
     border-radius: 50%;
     margin-top: calc((var(--circle-size) - var(--image-size)) / 2);

@@ -20,8 +20,6 @@
   --stone: #797c7d;
   --grey: #363636;
 
-  --green: #49cab9;
-  --dark-green: #1dbfaa;
   --pink: #fc54a6;
 
   --light-blue: #a0e9ed;
@@ -41,9 +39,9 @@
   --button-bg-loading: var(--iron);
 
   --primary-button-color: var(--white);
-  --primary-button-bg: var(--green);
-  --primary-button-bg-hover: var(--dark-green);
-  --primary-button-bg-loading: var(--green);
+  --primary-button-bg: var(--green-buttons);
+  --primary-button-bg-hover: #1dbfaa;
+  --primary-button-bg-loading: var(--green-buttons);
 
   /*
    * Page Nav
@@ -76,7 +74,6 @@
   --decor12: #f7f7f7;
   --decor13: #fcfcfc;
   --decor14: #3aacb3;
-  --decor15: #4fc2c9;
   --decor16: #99e6ea;
   --decor17: #a0e9ed;
   --decor18: #7Da0f3;
@@ -97,12 +94,9 @@
   --decor34: #f2f2f2;
   --decor35: #e5e7e8;
   --decor36: #333c49;
-  --decor37: #37bac2;
   --decor38: #e9feff;
-  --decor39: #49c2ca;
   --decor43: rgba(0,0,0,0.30);
   --decor45: #7f7f7f;
-  --decor46: #4fc2c9;
   --decor47: #F45758;
   --decor48: #D8FBFD;
   --decor49: #EAFEFF;
@@ -133,11 +127,11 @@
 
   // Control colors
   --control-primary-fg: --decor0;
-  --control-primary-bg: --decor15;
+  --control-primary-bg: --green-buttons;
   --control-primary-hover-fg: --decor0;
   --control-primary-hover-bg: --decor14;
   --control-primary-disabled-fg: --decor29;
-  --control-primary-disabled-bg: --decor15;
+  --control-primary-disabled-bg: --green-buttons;
 
   --control-secondary-fg: --default-fg;
   --control-secondary-bg: --transparent;
@@ -153,7 +147,7 @@
   --control-standard-disabled-bg: --decor7;
 
   --control-yes-fg: --decor0;
-  --control-yes-bg: --decor15;
+  --control-yes-bg: --green-buttons;
 
   --control-no-fg: --decor0;
   --control-no-bg: --decor22;

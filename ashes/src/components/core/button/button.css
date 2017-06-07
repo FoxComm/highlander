@@ -97,8 +97,8 @@ span + i[class*="icon-"] {
 .primary:disabled,
 .primary:disabled:hover {
   cursor: default;
-  color: #8dddd2;
-  background-color: #1dbfaa;
+  color: var(--primary-button-bg-hover);
+  background-color: var(--green-buttons);
 }
 
 /*
