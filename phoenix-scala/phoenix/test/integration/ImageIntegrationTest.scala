@@ -388,7 +388,7 @@ class ImageIntegrationTest
           Marshal(formData).to[RequestEntity].futureValue
         }
 
-        val uri     = pathToAbsoluteUrl(s"v1/albums/${ctx.name}/${album.id}/images")
+        val uri     = pathToAbsoluteUrl(s"v1/albums/${ctx.name}/${album.formId}/images")
         val request = HttpRequest(method = HttpMethods.POST, uri = uri, entity = entity)
         dispatchRequest(request, defaultAdminAuth.jwtCookie.some)
       }

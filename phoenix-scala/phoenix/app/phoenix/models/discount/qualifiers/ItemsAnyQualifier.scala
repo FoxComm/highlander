@@ -22,7 +22,7 @@ case class ItemsAnyQualifier(search: Seq[ProductSearch])
   def matchEither(input: DiscountInput)(
       either: Either[Failures, Buckets]): Either[Failures, Unit] = either match {
     case Right(buckets) ⇒
-      val bucketDocCount = buckets.foldLeft(0.toLong)((acc, bucket) ⇒ acc + bucket.docCount)
+      val bucketDocCount = buckets.map(_.docCount).sum
       if (bucketDocCount > 0) Either.right(Unit) else Either.left(SearchFailure.single)
     case _ ⇒
       Either.left(SearchFailure.single)

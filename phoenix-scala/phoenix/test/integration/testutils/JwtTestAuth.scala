@@ -54,7 +54,7 @@ trait JwtTestAuth
   def defaultAdmin: Root =
     Users.findByEmail(defaultAdminLoginData.email).one.gimme match {
       case Some(admin) ⇒
-        StoreAdminManager.getById(admin.id).gimme
+        StoreAdminManager.getById(admin.accountId).gimme
       case _ ⇒
         StoreAdminManager
           .create(CreateStoreAdminPayload(org = "tenant",

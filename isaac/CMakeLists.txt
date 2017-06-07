@@ -10,7 +10,7 @@ include(FindPkgConfig)
 #setup boost
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost COMPONENTS system program_options filesystem regex iostreams thread serialization REQUIRED)
+find_package(Boost COMPONENTS system program_options filesystem regex iostreams thread serialization context REQUIRED)
 link_directories(${Boost_LIBRARY_DIRS})
 include_directories(
     ${Boost_INCLUDE_DIRS})
@@ -33,6 +33,7 @@ set(MISC_LIBRARIES
     gflags
     botan-1.10
     libdouble-conversion.a
-    pqxx)
+    pqxx
+    dl)
 
 add_subdirectory(src)

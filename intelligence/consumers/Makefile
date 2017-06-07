@@ -1,4 +1,4 @@
-SUBDIRS := digger-sphex orders-sphex orders-anthill product-activity
+SUBDIRS := digger-sphex orders-sphex orders-anthill orders-reviews product-activity
 BUILDDIRS := $(SUBDIRS:%=build-%)
 CLEANDIRS := $(SUBDIRS:%=clean-%)
 TESTDIRS := $(SUBDIRS:%=test-%)

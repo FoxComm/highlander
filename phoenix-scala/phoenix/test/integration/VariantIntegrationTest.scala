@@ -44,7 +44,7 @@ class VariantIntegrationTest
     "Fails when trying to create variant with archived sku as value" in new ArchivedSkusFixture {
       variantsApi
         .create(archivedSkuVariantPayload)
-        .mustFailWith400(LinkInactiveSkuFailure(Variant, 10, archivedSkuCode))
+        .mustFailWith400(LinkInactiveSkuFailure(Variant, "%ANY%", archivedSkuCode))
     }
   }
 
