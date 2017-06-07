@@ -24,6 +24,7 @@ PROJECTS=(
     'intelligence/eggcrate'
     'intelligence/river-rock'
     'intelligence/suggester'
+    'intelligence/user-simulation'
     'isaac'
     'messaging'
     'middlewarehouse'
