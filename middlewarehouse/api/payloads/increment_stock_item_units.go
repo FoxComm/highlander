@@ -2,7 +2,6 @@ package payloads
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 )
@@ -25,8 +24,6 @@ func (r IncrementStockItemUnits) Validate() error {
 
 func (r IncrementStockItemUnits) Models(stockItemID uint) []*models.StockItemUnit {
 	units := []*models.StockItemUnit{}
-
-	fmt.Printf("The cost is: %d\n", r.UnitCost)
 
 	for i := 0; i < r.Qty; i++ {
 		item := &models.StockItemUnit{

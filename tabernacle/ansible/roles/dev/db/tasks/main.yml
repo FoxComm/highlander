@@ -39,7 +39,7 @@
     - phoenix
     - middlewarehouse
     - hyperion
-    - onboarding_service
+    - onboarding
   when: item != "onboarding_service" or with_onboarding
 
 - name: Create Directories

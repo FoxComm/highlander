@@ -41,7 +41,7 @@ class AssignmentsIntegrationTest
         .asThe[Seq[AssignmentResponse.Root]]
 
       private val assignment = response.result.onlyElement
-      assignment.assignee.id must === (storeAdmin.id)
+      assignment.assignee.id must === (storeAdmin.accountId)
       assignment.assignmentType must === (Assignment.Assignee)
 
       response.errors.value.onlyElement must === (NotFoundFailure404(User, 666).description)
@@ -75,8 +75,8 @@ class AssignmentsIntegrationTest
 
     "returns error if assignment not found" in new AssignmentFixture {
       ordersApi(order.refNum)
-        .unassign(secondAdmin.id)
-        .mustFailWith400(AssigneeNotFoundFailure(Order, order.refNum, secondAdmin.id))
+        .unassign(secondAdmin.accountId)
+        .mustFailWith400(AssigneeNotFoundFailure(Order, order.refNum, secondAdmin.accountId))
     }
   }
 

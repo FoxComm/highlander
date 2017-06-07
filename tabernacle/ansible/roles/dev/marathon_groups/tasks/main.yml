@@ -1,30 +1,37 @@
 ---
 
-- include_vars: "{{role_path}}/../../base/secret_keys/files/aws/aws.yml"
-- include_vars: stripe.yml
-- include_vars: hyperion.yml
-- include_vars: solomon.yml
-- include_vars: suggester.yml
-
 - name: Creates Marathon JSON directory
-  file: path=/marathon/applications state=directory
+  file: path=/marathon state=directory
 
 - name: Copy Mapping Command
   template: src=create_es_mappings.sh dest=/usr/local/bin/create_es_mappings.sh mode="u+x,g+x,o+x"
-  
+  when: first_run
+
 - name: Create ES Mappings
   shell: /usr/local/bin/create_es_mappings.sh
   when: first_run
 
-- name: Copy application group Marathon JSON
-  template: src=highlander_group.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+- name: Include Secrets
+  include_vars: secrets.yml
 
-- name: Copy create Neo4j command
-  template: src=create_neo4j_user.sh dest=/usr/local/bin/create_neo4j_user.sh mode="u+x,g+x,o+x"
+- name: Kill Marathon Group Tasks in Marathon
+  shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/groups/highlander?force=true'
 
-- name: Kill Highlander group Tasks in Marathon
-  shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/groups/highlander'
-  when: is_redeploy
+- name: Take a Nap
+  pause: seconds=15
 
-- name: Update Highlander group in Marathon
-  shell: 'curl -sS -XPUT -d@/marathon/applications/highlander_group.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/groups'
+- name: Restart Marathon Consul
+  service: name=marathon-consul state=restarted enabled=yes
+
+- name: Copy Marathon Group JSON
+  template: src=highlander.json.j2 dest=/marathon/highlander.json mode="u+rw,g+rw,o+r"
+
+- name: Update Marathon Group
+  shell: 'curl -sS -XPUT -d@/marathon/highlander.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/groups?force=true'
+
+- name: Wait for tasks all tasks to be healthy
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps | jq '[.apps[] | select(.tasksHealthy == 0)] | length'
+  register: unhealthy_tasks
+  until: unhealthy_tasks.stdout == '0'
+  retries: "{{marathon_retries}}"
+  delay: "{{marathon_delay}}"

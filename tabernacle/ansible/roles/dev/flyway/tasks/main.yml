@@ -1,0 +1,29 @@
+---
+
+- name: Create Directories
+  file: path={{item}} state=directory owner="{{user}}"
+  with_items:
+    - "{{phoenix_dir}}"
+    - "{{middlewarehouse_dir}}"
+    - "{{hyperion_dir}}"
+    - "{{bernardo_dir}}"
+
+- name: Synchronize SQL
+  synchronize: src={{item.source}} dest={{item.destination}} delete=yes recursive=yes
+  with_items:
+    - { source: "{{phoenix_src}}/sql", destination: "{{phoenix_dir}}" }
+    - { source: "{{middlewarehouse_src}}/sql", destination: "{{middlewarehouse_dir}}" }
+    - { source: "{{hyperion_src}}/sql", destination: "{{hyperion_dir}}" }
+    - { source: "{{bernardo_src}}/sql", destination: "{{bernardo_dir}}" }
+
+- name: Run Migrations for Phoenix
+  include: phoenix.yml
+
+- name: Run Migrations for Middlewarehouse
+  include: middlewarehouse.yml
+
+- name: Run Migrations for Hyperion
+  include: hyperion.yml
+
+- name: Run Migrations for Bernardo
+  include: bernardo.yml

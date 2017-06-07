@@ -57,7 +57,8 @@ class ProductIntegrationTest
     with DefaultJwtAdminAuth
     with BakedFixtures
     with ApiFixtures
-    with TaxonomySeeds {
+    with TaxonomySeeds
+    with SkuOps {
   import ProductTestExtensions._
 
   "GET v1/products/:context" - {
@@ -67,11 +68,8 @@ class ProductIntegrationTest
       product.taxons.flatMap(_.taxons.map(_.id)) must contain(taxons.head.formId)
     }
 
-    "queries product by slug" in new ProductSku_ApiFixture {
-      val slug          = "simple-product"
-      val simpleProduct = Products.mustFindById404(product.id).gimme
-
-      val updated = simpleProduct.copy(slug = slug)
+    "queries product by slug (incl. ignoring case)" in new ProductSku_ApiFixture {
+      val slug = "simple-product"
 
       productsApi(product.id)
         .update(
@@ -81,25 +79,29 @@ class ProductIntegrationTest
                                  variants = None))
         .mustBeOk()
 
-      productsApi(slug).get().as[ProductResponse.Root].id must === (updated.formId)
-    }
-
-    "queries product by slug ignoring case" in new ProductSku_ApiFixture {
-      val slug          = "Simple-Product"
-      val simpleProduct = Products.mustFindById404(product.id).gimme
-      val updated       = simpleProduct.copy(slug = slug.toLowerCase)
-
-      Products.update(simpleProduct, updated).gimme
-
-      productsApi(slug).get().as[ProductResponse.Root].id must === (updated.formId)
+      List(slug, "Simple-Product").foreach { slugToQuery ⇒
+        productsApi(slugToQuery).get().as[ProductResponse.Root].id must === (product.id)
+      }
     }
   }
 
-  "GET v1/my/products/:ref/baked" - {
-    "404 for archived products" in new ProductSku_ApiFixture {
+  "GET v1/my/products/:ref/baked & v1/products/:ref" - {
+
+    "200 for existing product" in new Fixture {
+      withRandomCustomerAuth { implicit auth ⇒
+        storefrontProductsApi(product.formId.toString).get()
+      }.mustBeOk()
+
+      publicApi.getProducts(product.formId.toString).mustBeOk()
+    }
+
+    def go(deactivate: Fixture ⇒ Unit): Unit = {
+      val fix = new Fixture {}
+      import fix._
+
       val slug = "simple-product"
 
-      productsApi(product.id)
+      productsApi(product.formId)
         .update(
             UpdateProductPayload(productPayload.attributes,
                                  slug = slug.some,
@@ -107,68 +109,35 @@ class ProductIntegrationTest
                                  variants = None))
         .mustBeOk()
 
-      productsApi(product.id).archive().mustBeOk()
+      deactivate(fix)
 
-      withRandomCustomerAuth { implicit auth ⇒
-        storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
-      }
+      List(
+          withRandomCustomerAuth { implicit auth ⇒
+            storefrontProductsApi(slug).get()
+          },
+          publicApi.getProducts(slug)
+      ).foreach(_.mustFailWith404(NotFoundFailure404(Product, slug)))
     }
 
-    "404 for inactive products" in new Customer_Seed with Fixture {
-      val slug = "simple-product"
-
-      productsApi(product.formId)
-        .update(
-            UpdateProductPayload(attributes = inactiveAttrMap,
-                                 slug = slug.some,
-                                 skus =
-                                   allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap, None)).some,
-                                 albums = None,
-                                 variants = None))
-        .mustBeOk()
-
-      withRandomCustomerAuth { implicit auth ⇒
-        storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
-      }
+    "404 for archived products" in go { f ⇒
+      productsApi(f.product.formId).archive().mustBeOk()
     }
 
-    "404 if all SKUs are archived" in new Customer_Seed with Fixture {
-      val slug = "simple-product"
-
-      productsApi(product.formId)
-        .update(
-            UpdateProductPayload(attributes = activeAttrMap,
-                                 slug = slug.some,
-                                 skus =
-                                   allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap, None)).some,
-                                 albums = None,
-                                 variants = None))
+    "404 for inactive products" in go { f ⇒
+      productsApi(f.product.formId)
+        .update(UpdateProductPayload(attributes = f.inactiveAttrMap,
+                                     skus = None,
+                                     albums = None,
+                                     variants = None))
         .mustBeOk()
-
-      allSkus.map(sku ⇒ skusApi(sku).archive().mustBeOk())
-
-      withRandomCustomerAuth { implicit auth ⇒
-        storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
-      }
     }
 
-    "404 if all SKUs are inactive" in new Customer_Seed with Fixture {
-      val slug = "simple-product"
+    "404 if all SKUs are archived" in go { f ⇒
+      f.allSkus.foreach(sku ⇒ skusApi(sku).archive().mustBeOk())
+    }
 
-      productsApi(product.formId)
-        .update(
-            UpdateProductPayload(
-                attributes = activeAttrMap,
-                slug = slug.some,
-                skus =
-                  allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap ++ inactiveAttrMap, None)).some,
-                albums = None,
-                variants = None))
-        .mustBeOk()
-
-      withRandomCustomerAuth { implicit auth ⇒
-        storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
-      }
+    "404 if all SKUs are inactive" in go { f ⇒
+      f.allSkus.foreach(deactivateSku)
     }
 
     "Successful if product has variants" in new ProductVariants_ApiFixture {
@@ -235,6 +204,19 @@ class ProductIntegrationTest
         val productResponse = doQuery(productPayload)
         productResponse.skus.length must === (1)
         productResponse.skus.head.attributes.code must === (skuName)
+      }
+
+      "a new SKU successfully, both active, and that is accessible for customers & publicly" in new Fixture {
+        val pp = productPayload
+        val response = doQuery(
+            pp.copy(
+                attributes = pp.attributes ++ activeAttrMap,
+                skus = pp.skus.map(sku ⇒ sku.copy(attributes = sku.attributes ++ activeAttrMap))
+            ))
+        withRandomCustomerAuth { implicit auth ⇒
+          storefrontProductsApi(product.formId.toString).get().mustBeOk()
+        }
+        publicApi.getProducts(response.id.toString).mustBeOk()
       }
 
       "a new SKU in variant successfully" in new Fixture {
@@ -411,13 +393,13 @@ class ProductIntegrationTest
         productsApi
           .create(newProductPayload)
           .mustFailWithMessage(
-              """Object sku with id=13 doesn't pass validation: $.code: must be at least 1 characters long""")
+              """Object sku with id=%ANY% doesn't pass validation: $.code: must be at least 1 characters long""")
       }
 
       "trying to create a product with archived SKU" in new ArchivedSkuFixture {
         productsApi
           .create(archivedSkuProductPayload)
-          .mustFailWith400(LinkInactiveSkuFailure(Product, 2, archivedSkuCode))
+          .mustFailWith400(LinkInactiveSkuFailure(Product, "%ANY%", archivedSkuCode))
       }
 
       "trying to create a product with string price" in new Fixture {
@@ -881,7 +863,8 @@ class ProductIntegrationTest
                                        code = "TEST",
                                        description = "Test product description",
                                        image = "image.png",
-                                       price = 5999)
+                                       price = 5999,
+                                       active = true)
 
     val skuRedSmallCode: String   = "SKU-RED-SMALL"
     val skuRedLargeCode: String   = "SKU-RED-LARGE"
@@ -891,11 +874,26 @@ class ProductIntegrationTest
     val allSkus: Seq[String] =
       Seq(skuRedSmallCode, skuRedLargeCode, skuGreenSmallCode, skuGreenLargeCode)
 
-    val simpleSkus = Seq(SimpleSku(skuRedSmallCode, "A small, red item", 9999),
-                         SimpleSku(skuRedLargeCode, "A large, red item", 9999),
-                         SimpleSku(skuGreenSmallCode, "A small, green item", 9999),
-                         SimpleSku(skuGreenLargeCode, "A large, green item", 9999))
-      .map(_.copy(currency = Currency.USD, active = true))
+    val simpleSkus = Seq(SimpleSku(skuRedSmallCode,
+                                   "A small, red item",
+                                   9999,
+                                   currency = Currency.USD,
+                                   active = true),
+                         SimpleSku(skuRedLargeCode,
+                                   "A large, red item",
+                                   9999,
+                                   currency = Currency.USD,
+                                   active = true),
+                         SimpleSku(skuGreenSmallCode,
+                                   "A small, green item",
+                                   9999,
+                                   currency = Currency.USD,
+                                   active = true),
+                         SimpleSku(skuGreenLargeCode,
+                                   "A large, green item",
+                                   9999,
+                                   currency = Currency.USD,
+                                   active = true))
 
     val variantsWithValues = Seq(
         SimpleCompleteVariant(
@@ -925,11 +923,8 @@ class ProductIntegrationTest
                              Mvp.insertVariantWithValues(scope, ctx.id, product, scv)
                            }
 
-        variants ← * <~ variantsAndValues.map(_.variant)
-        variantValues ← * <~ variantsAndValues.foldLeft(Seq.empty[SimpleVariantValueData]) {
-                         (acc, item) ⇒
-                           acc ++ item.variantValues
-                       }
+        variants      ← * <~ variantsAndValues.map(_.variant)
+        variantValues ← * <~ variantsAndValues.flatMap(_.variantValues)
 
         // Map the SKUs to the Variant Values
         skuMap ← * <~ skuValueMapping.map {

@@ -91,9 +91,7 @@ lazy val greenRiver = (project in file(".")).
             val old = (assemblyMergeStrategy in assembly).value
             old(x)
         }
-    },
-    scalafmtConfig := Some(file(".scalafmt")),
-    reformatOnCompileSettings // scalafmt
+    }
     //test in assembly := {}
 )
 

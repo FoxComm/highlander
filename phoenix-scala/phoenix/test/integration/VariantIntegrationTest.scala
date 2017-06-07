@@ -44,7 +44,7 @@ class VariantIntegrationTest
     "Fails when trying to create variant with archived sku as value" in new ArchivedSkusFixture {
       variantsApi
         .create(archivedSkuVariantPayload)
-        .mustFailWith400(LinkInactiveSkuFailure(Variant, 10, archivedSkuCode))
+        .mustFailWith400(LinkInactiveSkuFailure(Variant, "%ANY%", archivedSkuCode))
     }
   }
 
@@ -135,7 +135,8 @@ class VariantIntegrationTest
                                        code = "TEST",
                                        description = "Test product description",
                                        image = "image.png",
-                                       price = 5999)
+                                       price = 5999,
+                                       active = true)
 
     val simpleSizeVariant = SimpleCompleteVariant(
         variant = SimpleVariant("Size"),

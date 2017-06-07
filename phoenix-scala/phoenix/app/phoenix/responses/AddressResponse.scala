@@ -61,16 +61,8 @@ object AddressResponse {
   def buildMulti(records: Seq[(Address, Region)]): Seq[AddressResponse] =
     records.map((build _).tupled)
 
-  def buildShipping(records: Seq[(Address, OrderShippingAddress, Region)]): Seq[AddressResponse] = {
-    records.map {
-      case (address, shippingAddress, region) ⇒
-        build(address, region)
-    }
-  }
-
-  def buildOneShipping(address: OrderShippingAddress,
-                       region: Region,
-                       isDefault: Boolean = false): AddressResponse = {
+  def buildFromOrder(address: OrderShippingAddress, region: Region): AddressResponse = {
+    // FIXME: so AddressResponse#id is OrderShippingAddress#id, but *sometimes* also Address#id? o_O’ @michalrus
     AddressResponse(id = address.id,
                     region = region,
                     name = address.name,
@@ -78,7 +70,7 @@ object AddressResponse {
                     address2 = address.address2,
                     city = address.city,
                     zip = address.zip,
-                    isDefault = Some(isDefault),
+                    isDefault = None,
                     phoneNumber = address.phoneNumber,
                     deletedAt = None)
   }
@@ -94,7 +86,7 @@ object AddressResponse {
       (addresses, regions) = fullAddress.unzip
       response ← * <~ ((addresses.headOption, regions.headOption) match {
                       case (Some(address), Some(region)) ⇒
-                        DbResultT.good(buildOneShipping(address, region))
+                        DbResultT.good(buildFromOrder(address, region))
                       case (None, _) ⇒
                         DbResultT.failure(NotFoundFailure404(
                                 s"No addresses found for order with refNum=$cordRef"))

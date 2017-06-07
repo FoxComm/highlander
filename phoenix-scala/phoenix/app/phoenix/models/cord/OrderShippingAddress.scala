@@ -12,6 +12,7 @@ import slick.jdbc.PostgresProfile.api._
 case class OrderShippingAddress(id: Int = 0,
                                 // FIXME @anna This default is just wrong
                                 cordRef: String = "",
+                                // FIXME: Add Address#id to OrderShippingAddress? @michalrus
                                 regionId: Int,
                                 name: String,
                                 address1: String,
@@ -32,6 +33,7 @@ case class OrderShippingAddress(id: Int = 0,
 
 object OrderShippingAddress {
   def buildFromAddress(address: Address): OrderShippingAddress =
+    // FIXME: Add Address#id to OrderShippingAddress? @michalrus
     OrderShippingAddress(regionId = address.regionId,
                          name = address.name,
                          address1 = address.address1,
@@ -72,9 +74,8 @@ class OrderShippingAddresses(tag: Tag)
   def * =
     (id, cordRef, regionId, name, address1, address2, city, zip, phoneNumber, createdAt, updatedAt) <> ((OrderShippingAddress.apply _).tupled, OrderShippingAddress.unapply)
 
-  def address = foreignKey(Addresses.tableName, id, Addresses)(_.id)
-  def order   = foreignKey(Carts.tableName, cordRef, Carts)(_.referenceNumber)
-  def region  = foreignKey(Regions.tableName, regionId, Regions)(_.id)
+  def order  = foreignKey(Carts.tableName, cordRef, Carts)(_.referenceNumber)
+  def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }
 
 object OrderShippingAddresses

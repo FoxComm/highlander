@@ -12,7 +12,8 @@ case class ProductVariantLink(id: Int = 0,
                               leftId: Int,
                               rightId: Int,
                               createdAt: Instant = Instant.now,
-                              updatedAt: Instant = Instant.now)
+                              updatedAt: Instant = Instant.now,
+                              archivedAt: Option[Instant] = None)
     extends FoxModel[ProductVariantLink]
     with ObjectHeadLink[ProductVariantLink]
 
@@ -20,7 +21,7 @@ class ProductVariantLinks(tag: Tag)
     extends ObjectHeadLinks[ProductVariantLink](tag, "product_variant_links") {
 
   def * =
-    (id, leftId, rightId, createdAt, updatedAt) <> ((ProductVariantLink.apply _).tupled, ProductVariantLink.unapply)
+    (id, leftId, rightId, createdAt, updatedAt, archivedAt) <> ((ProductVariantLink.apply _).tupled, ProductVariantLink.unapply)
 
   def left  = foreignKey(Products.tableName, leftId, Products)(_.id)
   def right = foreignKey(Variants.tableName, rightId, Variants)(_.id)
