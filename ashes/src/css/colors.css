@@ -76,7 +76,6 @@
   --decor7: #ced2d5;
   --decor9: #d9d9d9;
   --decor10: #ebebeb;
-  --decor11: #f5f5f5;
   --decor12: #f7f7f7;
   --decor13: #fcfcfc;
   --decor14: #3aacb3;
@@ -105,7 +104,6 @@
   --decor38: #e9feff;
   --decor39: #49c2ca;
   --decor43: rgba(0,0,0,0.30);
-  --decor44: #dfe3ed;
   --decor45: #7f7f7f;
   --decor46: #4fc2c9;
   --decor47: #F45758;
@@ -128,8 +126,6 @@
   // Site colors
   --border: #bbbdbf;
   --header-border: --decor9;
-  --btn-bg: #f1f1f2;
-  --btn-bg-hover: #e3e3e4;
   --link-tab: #595959;
   --tooltip-bg: --decor3;
   --subtitle: #abb2b6;
