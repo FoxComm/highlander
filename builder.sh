@@ -74,6 +74,11 @@ if [[ $# -ge 1 ]] && [[ $1 == "-debug" ]]; then
     DEBUG=true
 fi
 
+DOCKER=false
+if [[ $# -ge 1 ]] && [[ $1 == "-docker" ]]; then
+    DOCKER=true
+fi
+
 # Define base branch via GitHub API
 if [ "$BUILDKITE_PULL_REQUEST" != "false" ] ; then
     write "Fetching base branch for PR#$BUILDKITE_PULL_REQUEST via Github API..."
@@ -128,7 +133,10 @@ if [ "$DEBUG" = false ] ; then
     for PROJECT_DIR in "${CHANGED[@]}"
     do
         cd $PROJECT_DIR
-        make build test docker docker-push
+        make build test
+        if [ "$DOCKER" = false ] ; then
+            make docker docker-push
+        fi
         cd $HIGHLANDER_PATH
     done
 fi
