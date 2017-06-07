@@ -14,9 +14,4 @@ nginx_template = "/etc/nginx/services.template"
 left_delimiter = '<<'
 right_delimiter = '>>'
 nginx_cmd = "nginx" # optionally "openresty" or "docker exec nginx nginx"
-
-# Statsd settings
-[statsd]
-# addr = "localhost:8125" # optional for statistics
-#namespace = "nixy.my_mesos_cluster"
-#sample_rate = 100
+subdomain_key = "consul"
