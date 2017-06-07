@@ -30,10 +30,6 @@ func (c HTTPClient) Post(url string, payload interface{}, resp interface{}) erro
 	return c.request("POST", url, payload, resp)
 }
 
-func (c HTTPClient) Put(url string, payload interface{}, resp interface{}) error {
-	return c.request("PUT", url, payload, resp)
-}
-
 func (c HTTPClient) Patch(url string, payload interface{}, resp interface{}) error {
 	return c.request("PATCH", url, payload, resp)
 }

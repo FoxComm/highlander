@@ -43,7 +43,7 @@ class GiftCardIntegrationTest
 
         // Check that proper link is created
         val manual: GiftCardManual = GiftCardManuals.findOneById(giftCard.originId).gimme.value
-        manual.reasonId must === (1)
+        manual.reasonId must === (reason.id)
         manual.adminId must === (defaultAdmin.id)
       }
 
@@ -60,7 +60,7 @@ class GiftCardIntegrationTest
                                                   reasonId = reason.id,
                                                   subTypeId = giftCardSubtype.id.some)
 
-        giftCardsApi.create(payload).as[GcRoot].subTypeId.value must === (1)
+        giftCardsApi.create(payload).as[GcRoot].subTypeId.value must === (giftCardSubtype.id)
       }
 
       "fails if subtypeId is not found" in new Reason_Baked {
@@ -114,7 +114,7 @@ class GiftCardIntegrationTest
 
     "POST /v1/customer-gift-cards" - {
       "successfully creates gift card as a customer from payload" in new Fixture {
-        val cordInsert = api_newCustomerCart(customer.id)
+        val cordInsert = api_newCustomerCart(customer.accountId)
 
         val root = giftCardsApi
           .createFromCustomer(
@@ -133,7 +133,7 @@ class GiftCardIntegrationTest
       }
 
       "successfully creates gift cards as a customer from payload" in new Fixture {
-        val cordInsert = api_newCustomerCart(customer.id)
+        val cordInsert = api_newCustomerCart(customer.accountId)
 
         val root = giftCardsApi
           .createMultipleFromCustomer(
@@ -163,7 +163,7 @@ class GiftCardIntegrationTest
       }
 
       "successfully creates gift cards with empty messages as a customer from payload" in new Fixture {
-        val cordInsert = api_newCustomerCart(customer.id)
+        val cordInsert = api_newCustomerCart(customer.accountId)
 
         val root = giftCardsApi
           .createMultipleFromCustomer(

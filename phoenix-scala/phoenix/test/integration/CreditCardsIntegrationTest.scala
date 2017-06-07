@@ -48,7 +48,7 @@ class CreditCardsIntegrationTest
 
       val cc = CreditCards.result.gimme.onlyElement
 
-      val expected = CreditCard(id = 1,
+      val expected = CreditCard(id = 0,
                                 gatewayCustomerId = stripeCustomer.getId,
                                 gatewayCardId = stripeCard.getId,
                                 accountId = customer.id,
@@ -65,7 +65,7 @@ class CreditCardsIntegrationTest
                                 expYear = expYear,
                                 createdAt = cc.createdAt)
 
-      cc must === (expected)
+      cc.copy(id = expected.id) must === (expected)
 
       // With existing Stripe customer
       Mockito.clearInvocations(stripeWrapperMock)
@@ -106,10 +106,12 @@ class CreditCardsIntegrationTest
     }
 
     "creates address if it's new" in {
-      customersApi(api_newCustomer().id).payments.creditCards
+      val accountId = api_newCustomer().id
+      customersApi(accountId).payments.creditCards
         .create(ccPayload.copy(addressIsNew = true))
         .mustBeOk()
-      Addresses.result.headOption.gimme.value must === (theAddress)
+      Addresses.result.headOption.gimme.value.copy(id = theAddress.id) must === (
+          theAddress.copy(accountId = accountId))
     }
 
     "errors 404 if wrong customer.accountId" in {
@@ -206,7 +208,7 @@ class CreditCardsIntegrationTest
 
       val cc: CreditCard = CreditCards.result.gimme.onlyElement
 
-      val expected = CreditCard(id = 1,
+      val expected = CreditCard(id = 0,
                                 gatewayCustomerId = stripeCustomer.getId,
                                 accountId = auth.customerId,
                                 address = BillingAddress(name = theAddress.name,
@@ -223,7 +225,7 @@ class CreditCardsIntegrationTest
                                 gatewayCardId = stripeCard.getId,
                                 createdAt = cc.createdAt)
 
-      cc must === (expected)
+      cc.copy(id = expected.id) must === (expected)
 
       // With existing Stripe customer
       Mockito.clearInvocations(stripeWrapperMock)
@@ -259,7 +261,8 @@ class CreditCardsIntegrationTest
 
     "creates address if it's new" in withRandomCustomerAuth { implicit auth ⇒
       storefrontPaymentsApi.creditCards.create(ccPayload.copy(addressIsNew = true)).mustBeOk()
-      Addresses.result.headOption.gimme.value must === (theAddress)
+      Addresses.result.headOption.gimme.value.copy(id = theAddress.id) must === (
+          theAddress.copy(accountId = auth.customerId))
     }
 
     "errors 400 if wrong credit card token" in withRandomCustomerAuth { implicit auth ⇒

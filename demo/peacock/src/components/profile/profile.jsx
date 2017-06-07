@@ -4,6 +4,7 @@ import styles from './profile.css';
 
 import Details from './blocks/details';
 import MyOrders from './blocks/my-orders';
+import MyReviews from './blocks/my-reviews';
 import MyShippingAddresses from './blocks/shipping-addresses';
 
 const Profile = () => {
@@ -12,6 +13,7 @@ const Profile = () => {
       <Details />
       <MyOrders />
       <MyShippingAddresses />
+      <MyReviews />
     </div>
   );
 };

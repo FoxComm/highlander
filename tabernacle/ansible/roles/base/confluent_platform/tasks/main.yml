@@ -22,7 +22,7 @@
   template: src=schema-registry.properties dest=/etc/schema-registry/schema-registry.properties
 
 - name: Copy Service Files
-  copy: src={{item}} dest={{dest_services}}
+  template: src={{item}} dest={{dest_services}}
   with_items:
     - kafka.service
     - schema-registry.service

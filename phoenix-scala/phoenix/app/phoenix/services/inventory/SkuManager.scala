@@ -75,11 +75,12 @@ object SkuManager {
       _ ← * <~ fullSku.model.mustNotBePresentInCarts
       archivedSku ← * <~ Skus.update(fullSku.model,
                                      fullSku.model.copy(archivedAt = Some(Instant.now)))
-      _      ← * <~ SkuAlbumLinks.filter(_.leftId === archivedSku.id).delete
-      albums ← * <~ ImageManager.getAlbumsForSkuInner(archivedSku.code, oc)
-      productLinksQ = ProductSkuLinks.filter(_.rightId === archivedSku.id)
-      productIds ← * <~ productLinksQ.map(_.leftId).result
-      _          ← * <~ productLinksQ.delete
+      albumLinks   ← * <~ SkuAlbumLinks.filterLeft(archivedSku).result
+      _            ← * <~ albumLinks.map(l ⇒ SkuAlbumLinks.update(l, l.copy(archivedAt = Some(Instant.now))))
+      albums       ← * <~ ImageManager.getAlbumsForSkuInner(archivedSku.code, oc)
+      productLinks ← * <~ ProductSkuLinks.filterRight(archivedSku).result
+      _ ← * <~ productLinks.map(l ⇒
+               ProductSkuLinks.update(l, l.copy(archivedAt = Some(Instant.now))))
     } yield
       SkuResponse.build(
           IlluminatedSku.illuminate(

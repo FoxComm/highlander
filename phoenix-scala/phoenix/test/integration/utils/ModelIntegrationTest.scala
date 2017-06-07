@@ -36,8 +36,9 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
     }
 
     "catches exceptions from DB" in {
+      val account = Accounts.create(Account()).gimme
+
       val result = (for {
-        account  ← * <~ Accounts.create(Account())
         customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
         scope    ← * <~ Scopes.forOrganization(TENANT)
         _ ← * <~ CustomersData.create(
@@ -48,7 +49,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       result must === (
           DatabaseFailure(
               "ERROR: duplicate key value violates unique constraint \"address_shipping_default_idx\"\n" +
-                "  Detail: Key (account_id, is_default_shipping)=(1, t) already exists.").single)
+                s"  Detail: Key (account_id, is_default_shipping)=(${account.id}, t) already exists.").single)
     }
 
     "fails if model already exists" in {
@@ -65,7 +66,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       val customer = Users.create(Factories.customer.copy(accountId = account.id)).gimme
       val success  = "Success"
       val failure  = (_: User#Id) ⇒ GeneralFailure("Should not happen")
-      val delete   = Users.deleteById(customer.accountId, DbResultT.good(success), failure).gimme
+      val delete   = Users.deleteById(customer.id, DbResultT.good(success), failure).gimme
       delete must === (success)
     }
 
@@ -99,7 +100,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       val customer = Users.create(Factories.customer.copy(accountId = account.id)).gimme
       customer.isNew must === (false)
       val updated = Users.update(customer, customer.copy(name = Some("Derp"))).gimme
-      Users.findOneById(customer.accountId).run().futureValue.value must === (updated)
+      Users.findOneById(customer.id).run().futureValue.value must === (updated)
     }
 
     "must run FSM check if applicable" in new Order_Baked {

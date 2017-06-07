@@ -165,8 +165,9 @@ object GroupMemberManager {
     else DbResultT.pure(false)
 
   private def narrowDownWithUserId(userId: Int)(elasticRequest: Json): Json = {
-    val userQuery = JObject(JField("query", JObject(JField("bool", JObject(JField("must",
-      JObject(JField("term", JObject(JField("id", JInt(userId)))))))))))
+    val term = JObject(JField("term", JObject(JField("id", JInt(userId)))))
+    val userQuery = JObject(
+        JField("query", JObject(JField("bool", JObject(JField("must", term))))))
 
     JObject(
         JField("query",

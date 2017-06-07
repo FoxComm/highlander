@@ -26,7 +26,7 @@ import BulkActions from 'components/bulk-actions/bulk-actions';
 import BulkMessages from 'components/bulk-actions/bulk-messages';
 import { ChangeStateModal, CancelModal } from 'components/bulk-actions/modal';
 import Dropdown from 'components/dropdown/dropdown';
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import SelectableSearchList from 'components/list-page/selectable-search-list';
 import StoreCreditRow from './storecredit-row';
 
@@ -179,15 +179,15 @@ class StoreCredits extends Component {
     const shouldDisplay = states && states.storeCreditToChange && states.storeCreditToChange.state !== 'canceled';
 
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         isVisible={shouldDisplay}
-        header="Change Store Credit State?"
-        body={this.confirmationMessage}
-        cancel="Cancel"
-        confirm="Yes, Change State"
+        title="Change Store Credit State?"
+        confirmLabel="Yes, Change State"
+        onConfirm={ () => stateActions.saveStateChange(this.customerId) }
         onCancel={ () => stateActions.cancelChange(this.customerId) }
-        confirmAction={ () => stateActions.saveStateChange(this.customerId) }
-      />
+      >
+        {this.confirmationMessage}
+      </ConfirmationModal>
     );
   }
 
@@ -230,14 +230,15 @@ class StoreCredits extends Component {
     const shouldDisplay = _.isEqual(_.get(props, ['states', 'storeCreditToChange', 'state']), 'canceled');
 
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         isVisible={shouldDisplay}
-        header="Cancel Store Credit?"
-        body={this.confirmationBody}
-        cancel="Cancel"
-        confirm="Yes, Cancel"
+        title="Cancel Store Credit?"
+        confirmLabel="Yes, Cancel"
+        onConfirm={ () => props.stateActions.saveStateChange(this.customerId) }
         onCancel={ () => props.stateActions.cancelChange(this.customerId) }
-        confirmAction={ () => props.stateActions.saveStateChange(this.customerId) } />
+      >
+        {this.confirmationBody}
+      </ConfirmationModal>
     );
   }
 

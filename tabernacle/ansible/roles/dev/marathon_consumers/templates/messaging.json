@@ -29,6 +29,7 @@
     }
   },
   "env": {
+    "ENVIRONMENT": "{{messaging_env}}",
     "PHOENIX_USER": "{{phoenix_api_user}}",
     "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
     "PHOENIX_URL": "http://{{phoenix_server}}",

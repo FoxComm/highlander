@@ -9,10 +9,8 @@ class CartsIntegrationTest extends IntegrationTestBase with TestObjectContext wi
 
   "Carts" - {
     "generates a referenceNumber via a cord" in new Order_Baked {
-      cart.referenceNumber must === ("BR10001")
-
       val cart2 = Carts.create(cart.copy(id = 0, referenceNumber = "")).gimme
-      cart2.referenceNumber must === ("BR10002")
+      cart2.referenceNumber must !==(cart.referenceNumber)
     }
 
     "doesn't overwrite a non-empty referenceNumber after insert" in new Customer_Seed

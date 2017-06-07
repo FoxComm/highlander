@@ -109,7 +109,7 @@ class StoreAdminIntegrationTest
         .mustFailWith400(StateTransitionNotAllowed(AdminData,
                                                    storeAdminUser.state.toString,
                                                    AdminData.Invited.toString,
-                                                   storeAdmin.accountId))
+                                                   storeAdminUser.id))
     }
 
     "respond with 404 when id does not point to valid admin" in new Fixture {

@@ -11,7 +11,7 @@ import { assoc, dissoc } from 'sprout-data';
 // components
 import ContentBox from 'components/content-box/content-box';
 import SkuList from './sku-list';
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import { Checkbox } from 'components/core/checkbox';
 
 // helpers
@@ -90,25 +90,22 @@ class SkuContentBox extends Component {
       );
     });
 
-    const body = (
-      <div styleName="add-dialog">
-        <div styleName="dialog-subtitle">Available options:</div>
-        <ul styleName="dialog-items">
-          {list}
-        </ul>
-      </div>
-    );
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         key="add-skus"
         isVisible={this.state.addDialogIsShown}
-        header="Add SKUs"
-        body={body}
-        cancel="Cancel"
-        confirm="Add"
+        title="Add SKUs"
+        confirmLabel="Add"
         onCancel={() => this.closeAction()}
-        confirmAction={() => this.addNewSkus()}
-      />
+        onConfirm={() => this.addNewSkus()}
+      >
+        <div styleName="add-dialog">
+          <div styleName="dialog-subtitle">Available options:</div>
+          <ul styleName="dialog-items">
+            {list}
+          </ul>
+        </div>
+      </ConfirmationModal>
     );
   }
 

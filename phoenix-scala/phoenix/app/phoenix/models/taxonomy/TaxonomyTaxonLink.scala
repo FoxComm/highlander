@@ -49,7 +49,6 @@ case class TaxonomyTaxonLink(id: Int = 0,
 class TaxonomyTaxonLinks(tag: Tag)
     extends ObjectHeadLinks[TaxonomyTaxonLink](tag, "taxonomy_taxon_links") {
 
-  def archivedAt = column[Option[Instant]]("archived_at")
   def index      = column[Int]("index")
   def position   = column[Int]("position")
   def path       = column[LTree]("path")

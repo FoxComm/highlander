@@ -56,13 +56,13 @@ export default class CreditCardForm extends React.Component {
     }),
     customerId: PropTypes.number,
     className: PropTypes.string,
-    saveText: PropTypes.string,
+    saveLabel: PropTypes.string,
   };
 
   static defaultProps = {
     isDefaultEnabled: true,
     onChange: _.noop,
-    saveText: 'Save',
+    saveLabel: 'Save',
   };
 
   state = {
@@ -264,8 +264,10 @@ export default class CreditCardForm extends React.Component {
 
   get submit() {
     return (
-      <SaveCancel saveText={this.props.saveText}
-                  onCancel={this.props.onCancel} />
+      <SaveCancel
+        saveLabel={this.props.saveLabel}
+        onCancel={this.props.onCancel}
+      />
     );
   }
 
