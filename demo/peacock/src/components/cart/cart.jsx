@@ -47,12 +47,13 @@ type Props = {
   isVisible: boolean,
   t: any,
   applePayAvailable: boolean,
-  checkApplePay: Function, // signature
+  checkApplePay: () => void,
   location: Object,
+  beginApplePay: (paymentRequest: Object, lineItems: Object) => Promise<*>,
 };
 
 type State = {
-  errors?: Array<any>,
+  errors?: ?Array<any>,
   guestAuth: boolean,
 };
 
@@ -174,19 +175,16 @@ class Cart extends Component {
   }
 
   get errorsLine() {
-    const { applePayStatus } = this.props;
-    const { errors }  = this.state;
+    const { errors } = this.state;
 
     if (!errors && _.isEmpty(errors)) return null;
-
-    console.log('errors in total -> ', errors);
 
     return (
       <ErrorAlerts
         errors={errors}
         sanitizeError={this.sanitize}
       />
-     );
+    );
   }
 
   @autobind
@@ -201,48 +199,40 @@ class Cart extends Component {
 
   @autobind
   beginApplePay() {
-    console.log('starting the apple pay inside the checkout.jsx');
     const { total, taxes, adjustments } = this.props.totals;
-    console.log('total -> ', total);
-    console.log('subTotal -> ', this.props.totals.subTotal);
-    const amount = (parseFloat(total)/100).toFixed(2);
-    console.log('amount -> ', amount);
+    const amount = (parseFloat(total) / 100).toFixed(2);
     const paymentRequest = {
       countryCode: 'US',
       currencyCode: 'USD',
       total: {
         label: 'Pure',
-        amount: amount.toString(),
+        amount,
       },
-      'requiredShippingContactFields': [
+      requiredShippingContactFields: [
         'postalAddress',
         'name',
         'phone',
       ],
-      'requiredBillingContactFields': [
+      requiredBillingContactFields: [
         'postalAddress',
         'name',
       ],
     };
 
     const lineItems = {
-      taxes: taxes,
+      taxes,
       promotion: adjustments,
     };
-    console.log('payment request obj -> ', paymentRequest);
-    console.log('lineItems -> ', lineItems);
-    this.props.beginApplePay(paymentRequest, lineItems)
-      .then(() => {
-        console.log('redirecting to the order confirmation page...');
-        this.setState({ errors: null });
-        browserHistory.push('/checkout/done')
-      })
-      .catch((err) => {
-        console.log('caught an error in cart.jsx');
-        this.setState({
-          errors: parseError(err),
-        });
+
+    this.props.beginApplePay(paymentRequest, lineItems).then(() => {
+      this.setState({ errors: null });
+      browserHistory.push('/checkout/done');
+    })
+    .catch((err) => {
+      this.setState({
+        errors: parseError(err),
       });
+    });
   }
 
   @autobind

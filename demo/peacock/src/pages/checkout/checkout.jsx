@@ -13,7 +13,6 @@ import classNames from 'classnames';
 
 // actions
 import * as actions from 'modules/checkout';
-import { EditStages } from 'modules/checkout';
 import { fetch as fetchCart, hideCart } from 'modules/cart';
 import { fetchUser } from 'modules/auth';
 

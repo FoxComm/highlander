@@ -127,17 +127,11 @@ const _beginApplePay = createAsyncActions(
 
     return foxApi.applePay.beginApplePay(paymentRequest, lineItems)
       .then((res) => {
-        console.log('res -> ', res);
         tracking.purchase({
           ...res,
         });
         dispatch(orderPlaced(res));
         dispatch(resetCart());
-        console.log('payment is successfull, from checkout.js');
-      })
-      .catch((err) => {
-        console.log('error occurred in checkout.js, _beginApplePay');
-        throw new Error(err);
       });
   }
 );
