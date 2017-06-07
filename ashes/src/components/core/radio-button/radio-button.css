@@ -6,8 +6,7 @@
     opacity: 0;
 
     &:disabled {
-      & + .label:before,
-      &:hover + .label:before {
+      & + .label:before, &:hover + .label:before {
         border-color: #d9d9d9;
         background: #f7f7f7;
       }
@@ -46,7 +45,6 @@
     vertical-align: middle;
     transition: all .2s;
   }
-
 
   &:after {
     content: '';

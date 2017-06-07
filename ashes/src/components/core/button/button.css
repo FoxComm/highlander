@@ -28,8 +28,7 @@
     background-color: var(--button-bg-hover);
   }
 
-  &:disabled,
-  &:disabled:hover {
+  &:disabled, &:disabled:hover {
     cursor: default;
     color: var(--button-color-disabled);
     background-color: var(--button-bg-disabled);
@@ -54,8 +53,7 @@
   }
 }
 
-.button i[class*="icon-"],
-.button.small.onlyIcon i[class*="icon-"] {
+.button i[class*="icon-"], .button.small.onlyIcon i[class*="icon-"] {
   font-size: 10px;
   transition: all .2s;
 }
@@ -69,13 +67,11 @@
   margin: 0 auto;
 }
 
-.button i[class*="icon-"] + span,
-span + i[class*="icon-"] {
+.button i[class*="icon-"] + span, span + i[class*="icon-"] {
   margin-left: 8px;
 }
 
 .text {
-
 }
 
 .loading {
@@ -94,8 +90,7 @@ span + i[class*="icon-"] {
   background-color: var(--primary-button-bg-hover);
 }
 
-.primary:disabled,
-.primary:disabled:hover {
+.primary:disabled, .primary:disabled:hover {
   cursor: default;
   color: var(--primary-button-color-disabled);
   background-color: var(--primary-button-bg-disabled);
