@@ -18,7 +18,7 @@ lazy val api = (project in file("api"))
     libraryDependencies ++= Dependencies.http
   )
   .settings(
-    mainClass in assembly := Some("foxcomm.search.api.Main"),
+    mainClass in assembly := Some("foxcomm.search.api.Api"),
     assemblyJarName in assembly := "search-service.jar",
     assemblyMergeStrategy in assembly := {
       case PathList("BUILD") ⇒ MergeStrategy.discard
