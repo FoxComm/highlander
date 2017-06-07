@@ -31,7 +31,6 @@ PROJECTS=(
     'middlewarehouse/consumers/gift-cards'
     'middlewarehouse/consumers/shipments'
     'middlewarehouse/consumers/shipstation'
-    'middlewarehouse/consumers/stock-items'
     'middlewarehouse/elasticmanager'
     'onboarding'
     'onboarding/ui'

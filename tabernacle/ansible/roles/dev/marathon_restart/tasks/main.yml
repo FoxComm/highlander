@@ -23,7 +23,6 @@
     - { group: core-consumers, app: customer-groups-consumer, id: customer_groups_consumer }
     - { group: core-consumers, app: gift-card-consumer, id: gift_card_consumer }
     - { group: core-consumers, app: shipments-consumer, id: shipments_consumer }
-    - { group: core-consumers, app: stock-items-consumer, id: stock_items_consumer }
     - { group: core-integrations, app: hyperion, id: hyperion }
     - { group: core-integrations, app: messaging, id: messaging }
     - { group: ic-storage, app: henhouse, id: henhouse }
