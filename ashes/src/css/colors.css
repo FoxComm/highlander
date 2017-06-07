@@ -20,8 +20,6 @@
   --stone: #797c7d;
   --grey: #363636;
 
-  --pink: #fc54a6;
-
   --light-blue: #a0e9ed;
 
   --light-yellow: #ffdd7f;
@@ -47,7 +45,6 @@
    * Page Nav
    */
   --nav-item-underline: var(--iron);
-  --nav-item-underline-active: var(--pink);
 
   /*
    * Dropdowns
@@ -85,12 +82,9 @@
   --decor24: #ffbb3c;
   --decor25: #ffdd7f;
   --decor26: #47628d;
-  --decor27: #b98bdc;
-  --decor28: #dd63b9;
   --decor29: #a2dee1;
   --decor31: #959698;
   --decor32: #3e4d61;
-  --decor33: #f2595c;
   --decor34: #f2f2f2;
   --decor35: #e5e7e8;
   --decor36: #333c49;
