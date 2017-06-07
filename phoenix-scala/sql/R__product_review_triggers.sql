@@ -50,7 +50,7 @@ after update on product_reviews
 for each row
 execute procedure update_product_reviews_search_view_from_update_fn();
 
-
+drop trigger if exists update_product_reviews_search_view_from_user_update_fn on product_reviews;
 create function update_product_reviews_search_view_from_user_update_fn()
   returns trigger
 as $$
@@ -66,7 +66,6 @@ create trigger update_product_reviews_search_view_from_user_update
 after update on users
 for each row when (new.name is distinct from old.name)
 execute procedure update_product_reviews_search_view_from_user_update_fn();
-
 
 create function update_product_reviews_search_view_from_sku_update_fn()
   returns trigger
