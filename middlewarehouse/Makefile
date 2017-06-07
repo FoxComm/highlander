@@ -71,7 +71,6 @@ build-customer-groups-consumer:
 docker:
 	$(call header, Dockerizing)
 	make docker-middlewarehouse
-	make docker-middlewarehouse-seeder
 
 docker-middlewarehouse:
 	$(DOCKER) build -t $(DOCKER_IMAGE) .
@@ -106,7 +105,6 @@ docker-elasticmanager:
 docker-push:
 	$(call header, Registering)
 	make push-middlewarehouse
-	make push-middlewarehouse-seeder
 
 push-middlewarehouse:
 	$(DOCKER) tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
