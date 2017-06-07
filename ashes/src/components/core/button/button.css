@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: center;
   padding: 11px 20px;
-  color: var(--button-color);
+  color: var(--color-text);
   background-color: var(--button-bg);
   font-size: 14px;
   font-weight: 600;
@@ -31,7 +31,7 @@
   &:disabled,
   &:disabled:hover {
     cursor: default;
-    color: var(--button-color-disabled);
+    color: var(--color-additional-text);
     background-color: var(--grey-buttons-hover);
   }
 
@@ -128,7 +128,7 @@ span + i[class*="icon-"] {
     }
 
     &:disabled {
-      color: var(--grey-additional-text);
+      color: var(--color-additional-text);
     }
   }
 }

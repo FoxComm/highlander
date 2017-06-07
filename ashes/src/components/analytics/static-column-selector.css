@@ -76,7 +76,7 @@
   justify-content: center;
   align-items: center;
   height: 60px;
-  border-top: 1px solid #D9D9D9;
+  border-top: 1px solid var(--color-border);
   padding-left: 10px;
   padding-right: 10px;
 

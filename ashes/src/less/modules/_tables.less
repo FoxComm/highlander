@@ -5,9 +5,6 @@
 @color-th-fg: @color-default-fg;
 @color-th-bg: @color-decor12;
 @color-th-bg-hover: @color-decor35;
-@color-th-border: @color-decor9;
-
-@color-border-td: @color-decor9;
 
 @keyframes fc-new-row {
   from {
@@ -20,7 +17,7 @@
 
 .fc-table-wrap {
   position: relative;
-  border: 1px solid @color-border-td;
+  border: 1px solid @color-border;
 
   &::before, &::after {
     content: " ";
@@ -65,8 +62,8 @@
       font-size: 13px;
       font-weight: 600;
       line-height: 14px;
-      border-right: 1px solid @color-th-border;
-      border-bottom: 1px solid @color-th-border;
+      border-right: 1px solid @color-border;
+      border-bottom: 1px solid @color-border;
       height: 62px;
       user-select: none;
       background-clip: padding-box;
@@ -163,7 +160,7 @@
       color: @color-text;
       vertical-align: middle;
       background-clip: padding-box;
-      border-bottom: 1px solid @color-decor9;
+      border-bottom: 1px solid @color-border;
 
       transition: background-color 500ms;
 

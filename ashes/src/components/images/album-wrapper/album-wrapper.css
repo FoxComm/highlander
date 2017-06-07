@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .accordion {
   margin-bottom: 40px;
 }
@@ -20,7 +22,7 @@
 
   &::before {
     content: "";
-    border-top: 1px solid var(--color-additional-text);
+    border-top: 1px solid var(--color-border);
     margin: 0 auto;
     position: absolute;
     top: 20px;

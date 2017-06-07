@@ -6,7 +6,7 @@
   height: 179px;
   max-height: 179px;
   background-color: #FFFFFF;
-  border: 1px solid var(--color-additional-text);
+  border: 1px solid var(--color-border);
   text-align: center;
   cursor: pointer;
 }
@@ -17,7 +17,7 @@
   height: 179px;
   max-height: 179px;
   background-color: #F2F2F2;
-  border: 1px solid #D9D9D9;
+  border: 1px solid var(--color-border);
   text-align: center;
   cursor: pointer;
 }

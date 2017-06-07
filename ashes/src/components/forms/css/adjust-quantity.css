@@ -21,7 +21,7 @@
 .popup {
   position: absolute;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
-  border: 1px solid var(--color-additional-text);
+  border: 1px solid var(--color-border);
   background: #fff;
   padding: 20px;
   display: none;

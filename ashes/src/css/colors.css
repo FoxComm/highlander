@@ -5,6 +5,8 @@
   --color-light-text: #fff;
   --color-action-text: #3fc1ab;
   --color-error-text: #f65554;
+
+  --color-border: #d9d9d9;
   /* all other colors are damned! */
 
   /* background colors blessed by @bree */
@@ -14,7 +16,6 @@
   --nav-pink: #fc54a6;
   --grey-buttons: #ced2d5;
   --grey-buttons-hover: #bdc3c6;
-  --grey-outlets: #d9d9d9;
   --grey-headers: #f7f7f7;
   --grey-background: #f9f9f9;
 
@@ -61,7 +62,6 @@
   --decor3: #3a4350;
   --decor4: #828e9f;
   --decor7: #ced2d5;
-  --decor9: #d9d9d9;
   --decor10: #ebebeb;
   --decor13: #fcfcfc;
   --decor14: #3aacb3;
@@ -93,8 +93,6 @@
   --transparent: transparent;
 
   // Site colors
-  --border: #bbbdbf;
-  --header-border: --decor9;
   --link-tab: #595959;
   --tooltip-bg: --decor3;
 
