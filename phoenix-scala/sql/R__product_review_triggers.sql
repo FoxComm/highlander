@@ -7,7 +7,7 @@ begin
                                             pr.scope,
                                             skus.code,
                                             users.name,
-                                            users.id,
+                                            users.account_id,
                                             pr.content -> 'title' ->> 'v' as title,
                                             cast(pr.content -> 'rating' ->> 'v' as integer) as rating ,
                                             pr.content,
@@ -15,7 +15,7 @@ begin
                                             to_char(pr.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
                                             to_char(pr.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
                                           from product_reviews as pr
-                                            inner join users on pr.user_id = users.id
+                                            inner join users on pr.user_id = users.account_id
                                             inner join skus on pr.sku_id = skus.id
                                           where pr.id = new.id;
 
