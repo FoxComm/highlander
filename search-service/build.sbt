@@ -14,7 +14,7 @@ lazy val core = (project in file("core"))
 lazy val finch = (project in file("finch"))
   .settings(Settings.common)
   .settings(
-    libraryDependencies ++= Dependencies.finch
+    libraryDependencies ++= Dependencies.finch ++ Dependencies.circe :+ Dependencies.jwt
   )
 
 lazy val api = (project in file("api"))

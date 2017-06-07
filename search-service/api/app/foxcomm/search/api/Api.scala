@@ -3,8 +3,8 @@ package foxcomm.search.api
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.twitter.finagle.Http
 import com.twitter.util.Await
-import foxcomm.utils.finch._
 import foxcomm.search._
+import foxcomm.utils.finch._
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
@@ -12,14 +12,9 @@ import scala.concurrent.ExecutionContext
 
 
 object Api extends App {
-  def intParam(name: String): Endpoint[Int] = param(name).as[Int]
-
-  def optIntParam(name: String): Endpoint[Option[Int]] =
-    paramOption(name).as[Int]
-
   def endpoint(searchService: SearchService)(implicit ec: ExecutionContext) =
-    post("search" :: string :: string :: intParam("size") :: optIntParam(
-      "from") :: jsonBody[SearchQuery]) {
+    post("search" :: string :: string :: param("size").as[Int] :: paramOption(
+      "from").as[Int] :: jsonBody[SearchQuery]) {
       (searchIndex: String,
         searchType: String,
         size: Int,

@@ -30,4 +30,6 @@ object Dependencies {
     "com.github.finagle" %% "finch-core" % versions.finch,
     "com.github.finagle" %% "finch-generic" % versions.finch
   )
+
+  val jwt = "com.pauldijou" %% "jwt-core" % "0.12.1"
 }
