@@ -76,7 +76,7 @@ class CouponCodes extends Component {
   }
 
   @autobind
-  handleCounterChange(num, name): void {
+  handleCounterChange(name, num): void {
     this.props.couponsGenerationChange(name, num);
   }
 
@@ -148,7 +148,7 @@ class CouponCodes extends Component {
                 id="codesQuantity"
                 name="codesQuantity"
                 value={codesQuantity}
-                onChange={(value) => this.handleCounterChange(value, 'codesQuantity')}
+                onChange={(value) => this.handleCounterChange('codesQuantity', value)}
                 min={1}
               />
             </div>
@@ -175,7 +175,7 @@ class CouponCodes extends Component {
                 id="codesLength"
                 name="codesLength"
                 value={this.props.codeGeneration.codesLength}
-                onChange={(value) => this.handleCounterChange(value, 'codesLength')}
+                onChange={(value) => this.handleCounterChange('codesLength', value)}
                 min={1}
               />
             </div>
