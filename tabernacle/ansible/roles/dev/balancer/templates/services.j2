@@ -1,136 +1,71 @@
 upstream river-rock {
-  << with index .Apps "/river-rock" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{river_rock_server}} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
+  << range service "river-rock" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{river_rock_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
 {% if with_onboarding %}
 upstream onboarding {
-  << with index .Apps "/onboarding-service" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{onboarding_service_server}} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
+  << range service "onboarding-service" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{onboarding_service_server}} fail_timeout=30s max_fails=10; << end >>
 }
 {% endif %}
 
 upstream henhouse {
-  << with index .Apps "/henhouse" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ henhouse_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
+  << range service "henhouse" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{henhouse_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
 upstream eggcrate {
-  << with index .Apps "/eggcrate" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ eggcrate_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
+  << range service "eggcrate" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{eggcrate_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
 upstream anthill {
-  << with index .Apps "/anthill" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ anthill_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
+  << range service "anthill" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{anthill_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
 upstream suggester {
-  << with index .Apps "/suggester" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ suggester_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
+  << range service "suggester" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{suggester_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
 upstream search {
-  << with index .Apps "/search" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ search_server_http }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
+  << range service "elasticsearch" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{search_server_http}} fail_timeout=30s max_fails=10; << end >>
 }
 
 # We use port 9090 for phoenix
 upstream phoenix {
-  << with index .Apps "/phoenix" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ phoenix_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
+  << range service "phoenix" >> server << .Address >>:9090 max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{phoenix_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
 upstream isaac {
-  << with index .Apps "/isaac" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ isaac_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
+  << range service "isaac" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{isaac_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
 # We use port 9292 for middlewarehouse
 upstream middlewarehouse {
-  << with index .Apps "/middlewarehouse" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ middlewarehouse_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
+  << range service "middlewarehouse" >> server << .Address >>:9292 max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{middlewarehouse_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
 # We use port 4002 for solomon
 upstream sol {
-  << with index .Apps "/sol" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ solomon_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
+  << range service "solomon" >> server << .Address >>:4002 max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{solomon_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
 upstream hyperion {
-  << with index .Apps "/hyperion" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ hyperion_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
+  << range service "hyperion" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{hyperion_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
 upstream ashes {
-  << with index .Apps "/ashes" >>
-    << range .Tasks >>
-      server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
-    << else >>
-      server {{ ashes_server }} fail_timeout=30s max_fails=10;
-    << end >>
-  << end >>
+  << range service "ashes" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{ashes_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
 {% if is_appliance %}
