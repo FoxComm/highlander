@@ -6,5 +6,5 @@ ROOT_DIR="$(git rev-parse --show-toplevel)"
 # When calling with scalafmt, this needs an eval, e.g.
 # eval "scalafmt.sh $(scala_files_in_last_commit)"
 function scala_files_in_last_commit {
-  git diff-tree --no-commit-id --name-only -r HEAD | grep -E '\.scala$|\.sbt$'
+  git diff-tree --no-commit-id --name-only --diff-filter=d -r HEAD | grep -E '\.scala$|\.sbt$'
 }
