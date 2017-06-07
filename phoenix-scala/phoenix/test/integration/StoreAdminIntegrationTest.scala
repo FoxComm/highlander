@@ -106,10 +106,11 @@ class StoreAdminIntegrationTest
     "respond with 400 when cannot apply new state" in new Fixture {
       storeAdminsApi(storeAdmin.accountId)
         .updateState(StateChangeStoreAdminPayload(state = AdminData.Invited))
-        .mustFailWith400(StateTransitionNotAllowed(AdminData,
-                                                   storeAdminUser.state.toString,
-                                                   AdminData.Invited.toString,
-                                                   storeAdminUser.id))
+        .mustFailWith400(
+          StateTransitionNotAllowed(AdminData,
+                                    storeAdminUser.state.toString,
+                                    AdminData.Invited.toString,
+                                    storeAdminUser.id))
     }
 
     "respond with 404 when id does not point to valid admin" in new Fixture {

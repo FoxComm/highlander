@@ -29,10 +29,10 @@ class PromotionDiscountLinks(tag: Tag)
 }
 
 object PromotionDiscountLinks
-    extends ObjectHeadLinkQueries[PromotionDiscountLink,
-                                  PromotionDiscountLinks,
-                                  Promotion,
-                                  Discount](new PromotionDiscountLinks(_), Promotions, Discounts)
+    extends ObjectHeadLinkQueries[PromotionDiscountLink, PromotionDiscountLinks, Promotion, Discount](
+      new PromotionDiscountLinks(_),
+      Promotions,
+      Discounts)
     with ReturningId[PromotionDiscountLink, PromotionDiscountLinks] {
 
   val returningLens: Lens[PromotionDiscountLink, Int] = lens[PromotionDiscountLink].id

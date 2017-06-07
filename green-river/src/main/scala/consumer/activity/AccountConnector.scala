@@ -5,7 +5,7 @@ import scala.concurrent.Future
 import consumer.aliases._
 import consumer.utils.JsonTransformers.extractStringSeq
 
-import org.json4s.JsonAST.{JInt, JString, JNothing}
+import org.json4s.JsonAST.{JInt, JNothing, JString}
 
 object AccountConnector extends ActivityConnector {
   val dimension = "account"
@@ -14,30 +14,26 @@ object AccountConnector extends ActivityConnector {
     Future {
       val accountIds =
         byContextType(activity) ++:
-        byNoteData(activity) ++:
-        byData(activity, "account") ++:
-        byData(activity, "user") ++:
-        byData(activity, "admin") ++:
-        byData(activity, "customer") ++:
-        byData(activity, "assignee") ++:
-        byId(activity, "accountId") ++:
-        byId(activity, "userId") ++:
-        byId(activity, "customerId") ++:
-        byId(activity, "adminId") ++:
-        byUpdatedActivity(activity) ++:
-        byAssignmentSingleData(activity) ++:
-        byAssignmentBulkData(activity) ++:
-        byAssigneesData(activity)
+          byNoteData(activity) ++:
+          byData(activity, "account") ++:
+          byData(activity, "user") ++:
+          byData(activity, "admin") ++:
+          byData(activity, "customer") ++:
+          byData(activity, "assignee") ++:
+          byId(activity, "accountId") ++:
+          byId(activity, "userId") ++:
+          byId(activity, "customerId") ++:
+          byId(activity, "adminId") ++:
+          byUpdatedActivity(activity) ++:
+          byAssignmentSingleData(activity) ++:
+          byAssignmentBulkData(activity) ++:
+          byAssigneesData(activity)
 
       accountIds.distinct.map(createConnection(_, activity.id))
     }
 
-  def createConnection(accountId: String, activityId: String): Connection = {
-    Connection(dimension = dimension,
-               objectId = accountId,
-               data = JNothing,
-               activityId = activityId)
-  }
+  def createConnection(accountId: String, activityId: String): Connection =
+    Connection(dimension = dimension, objectId = accountId, data = JNothing, activityId = activityId)
 
   private def byContextType(activity: Activity): Seq[String] =
     activity.context.userType match {
@@ -48,12 +44,11 @@ object AccountConnector extends ActivityConnector {
       case _          ⇒ Seq.empty
     }
 
-  private def byNoteData(activity: Activity): Seq[String] = {
+  private def byNoteData(activity: Activity): Seq[String] =
     activity.data \ "note" \ "referenceId" match {
       case JInt(id) ⇒ Seq(id.toString)
       case _        ⇒ Seq.empty
     }
-  }
 
   private def byData(activity: Activity, fieldName: String): Seq[String] =
     activity.data \ fieldName \ "id" match {
@@ -67,29 +62,26 @@ object AccountConnector extends ActivityConnector {
       case _               ⇒ Seq.empty
     }
 
-  private def byUpdatedActivity(activity: Activity): Seq[String] = {
+  private def byUpdatedActivity(activity: Activity): Seq[String] =
     (activity.kind, activity.data \ "oldInfo" \ "id") match {
       case ("user_updated", JInt(accountId))      ⇒ Seq(accountId.toString)
       case ("customer_updated", JInt(customerId)) ⇒ Seq(customerId.toString)
       case _                                      ⇒ Seq.empty
     }
-  }
 
-  private def byAssignmentSingleData(activity: Activity): Seq[String] = {
+  private def byAssignmentSingleData(activity: Activity): Seq[String] =
     (activity.kind, activity.data \ "entity" \ "id") match {
       case ("assigned", JInt(accountId))   ⇒ Seq(accountId.toString)
       case ("unassigned", JInt(accountId)) ⇒ Seq(accountId.toString)
       case _                               ⇒ Seq.empty
     }
-  }
 
-  private def byAssignmentBulkData(activity: Activity): Seq[String] = {
+  private def byAssignmentBulkData(activity: Activity): Seq[String] =
     (activity.kind, activity.data \ "referenceType") match {
       case ("bulk_assigned", JString(entity))   ⇒ extractStringSeq(activity.data, "entityIds")
       case ("bulk_unassigned", JString(entity)) ⇒ extractStringSeq(activity.data, "entityIds")
       case _                                    ⇒ Seq.empty
     }
-  }
 
   private def byAssigneesData(activity: Activity): Seq[String] =
     extractStringSeq(activity.data, "assignees")

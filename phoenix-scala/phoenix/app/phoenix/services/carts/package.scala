@@ -7,9 +7,8 @@ import phoenix.models.cord._
 
 package object carts {
 
-  def getCartByOriginator(originator: User, refNum: Option[String] = None)(
-      implicit ec: EC,
-      db: DB): DbResultT[Cart] =
+  def getCartByOriginator(originator: User, refNum: Option[String] = None)(implicit ec: EC,
+                                                                           db: DB): DbResultT[Cart] =
     (originator, refNum) match {
       case (_, Some(ref)) ⇒
         Carts.mustFindByRefNum(ref)

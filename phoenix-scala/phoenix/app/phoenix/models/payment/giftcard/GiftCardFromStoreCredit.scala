@@ -4,8 +4,7 @@ import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import core.db._
 
-case class GiftCardFromStoreCredit(id: Int = 0, storeCreditId: Int)
-    extends FoxModel[GiftCardFromStoreCredit]
+case class GiftCardFromStoreCredit(id: Int = 0, storeCreditId: Int) extends FoxModel[GiftCardFromStoreCredit]
 
 object GiftCardFromStoreCredit
 
@@ -19,8 +18,7 @@ class GiftCardFromStoreCredits(tag: Tag)
 }
 
 object GiftCardFromStoreCredits
-    extends FoxTableQuery[GiftCardFromStoreCredit, GiftCardFromStoreCredits](
-        new GiftCardFromStoreCredits(_))
+    extends FoxTableQuery[GiftCardFromStoreCredit, GiftCardFromStoreCredits](new GiftCardFromStoreCredits(_))
     with ReturningId[GiftCardFromStoreCredit, GiftCardFromStoreCredits] {
   val returningLens: Lens[GiftCardFromStoreCredit, Int] = lens[GiftCardFromStoreCredit].id
 }

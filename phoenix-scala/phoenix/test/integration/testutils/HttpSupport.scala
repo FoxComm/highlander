@@ -48,8 +48,7 @@ trait HttpSupport
     with ScalaFutures
     with MustMatchers
     with BeforeAndAfterAll
-    with TestObjectContext {
-  self: FoxSuite ⇒
+    with TestObjectContext { self: FoxSuite ⇒
 
   import HttpSupport._
 
@@ -76,10 +75,11 @@ trait HttpSupport
 
     serverBinding = service
       .bind(
-          FoxConfig.http.modify(config)(_.copy(
-                  interface = "127.0.0.1",
-                  port = getFreePort
-              )))
+        FoxConfig.http.modify(config)(
+          _.copy(
+            interface = "127.0.0.1",
+            port = getFreePort
+          )))
       .futureValue
   }
 
@@ -110,35 +110,32 @@ trait HttpSupport
     val request = HttpRequest(method = HttpMethods.POST,
                               uri = pathToAbsoluteUrl(path),
                               entity = HttpEntity.Strict(
-                                  ContentTypes.`application/json`,
-                                  ByteString(rawBody)
+                                ContentTypes.`application/json`,
+                                ByteString(rawBody)
                               ))
 
     dispatchRequest(request, jwtCookie)
   }
 
   def POST(path: String, jwtCookie: Option[Cookie]): HttpResponse =
-    dispatchRequest(HttpRequest(method = HttpMethods.POST, uri = pathToAbsoluteUrl(path)),
-                    jwtCookie)
+    dispatchRequest(HttpRequest(method = HttpMethods.POST, uri = pathToAbsoluteUrl(path)), jwtCookie)
 
   def PATCH(path: String, rawBody: String, jwtCookie: Option[Cookie]): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.PATCH,
                               uri = pathToAbsoluteUrl(path),
                               entity = HttpEntity.Strict(
-                                  ContentTypes.`application/json`,
-                                  ByteString(rawBody)
+                                ContentTypes.`application/json`,
+                                ByteString(rawBody)
                               ))
 
     dispatchRequest(request, jwtCookie)
   }
 
   def PATCH(path: String, jwtCookie: Option[Cookie]): HttpResponse =
-    dispatchRequest(HttpRequest(method = HttpMethods.PATCH, uri = pathToAbsoluteUrl(path)),
-                    jwtCookie)
+    dispatchRequest(HttpRequest(method = HttpMethods.PATCH, uri = pathToAbsoluteUrl(path)), jwtCookie)
 
   def GET(path: String, jwtCookie: Option[Cookie]): HttpResponse =
-    dispatchRequest(HttpRequest(method = HttpMethods.GET, uri = pathToAbsoluteUrl(path)),
-                    jwtCookie)
+    dispatchRequest(HttpRequest(method = HttpMethods.GET, uri = pathToAbsoluteUrl(path)), jwtCookie)
 
   def POST[T <: AnyRef](path: String, payload: T, jwtCookie: Option[Cookie]): HttpResponse =
     POST(path, writeJson(payload), jwtCookie)
@@ -194,8 +191,8 @@ trait HttpSupport
 
     def sseProbe(path: String, jwtCookie: Cookie, skipHeartbeat: Boolean = true): Probe[String] =
       probe(
-          if (skipHeartbeat) skipHeartbeatsAndAdminCreated(sseSource(path, jwtCookie))
-          else sseSource(path, jwtCookie))
+        if (skipHeartbeat) skipHeartbeatsAndAdminCreated(sseSource(path, jwtCookie))
+        else sseSource(path, jwtCookie))
 
     def sseSource(path: String, jwtCookie: Cookie): Source[String, Any] = {
       val localAddress = serverBinding.localAddress

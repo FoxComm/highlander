@@ -20,8 +20,7 @@ import phoenix.utils.http.JsonSupport._
 
 object AuthRoutes {
 
-  def routes(defaultScope: LTree)(implicit ec: EC, db: DB, apis: Apis): Route = {
-
+  def routes(defaultScope: LTree)(implicit ec: EC, db: DB, apis: Apis): Route =
     pathPrefix("public") {
       (post & path("login") & entity(as[LoginPayload])) { payload ⇒
         onSuccess(Authenticator.authenticate(payload).runEmptyA.value) { result ⇒ // TODO: rethink discarding warnings here @michalrus
@@ -30,42 +29,41 @@ object AuthRoutes {
           }, identity)
         }
       } ~
-      activityContext(defaultScope) { implicit ac ⇒
-        (post & path("send-password-reset") & pathEnd & entity(as[ResetPasswordSend])) { payload ⇒
-          mutateOrFailures {
-            AccountManager.resetPasswordSend(payload.email)
+        activityContext(defaultScope) { implicit ac ⇒
+          (post & path("send-password-reset") & pathEnd & entity(as[ResetPasswordSend])) { payload ⇒
+            mutateOrFailures {
+              AccountManager.resetPasswordSend(payload.email)
+            }
+          } ~
+            (post & path("reset-password") & pathEnd & entity(as[ResetPassword])) { payload ⇒
+              mutateOrFailures {
+                AccountManager.resetPassword(code = payload.code, newPassword = payload.newPassword)
+              }
+            }
+        } ~
+        (post & path("logout")) {
+          deleteCookie("JWT", path = "/") {
+            redirect(Uri("/"), StatusCodes.Found)
           }
         } ~
-        (post & path("reset-password") & pathEnd & entity(as[ResetPassword])) { payload ⇒
-          mutateOrFailures {
-            AccountManager.resetPassword(code = payload.code, newPassword = payload.newPassword)
-          }
-        }
-      } ~
-      (post & path("logout")) {
-        deleteCookie("JWT", path = "/") {
-          redirect(Uri("/"), StatusCodes.Found)
-        }
-      } ~
-      activityContext(defaultScope) { implicit ac ⇒
-        lazy val customerGoogleOauth = oauthServiceFromConfig(config.users.customer)
-        lazy val adminGoogleOauth    = oauthServiceFromConfig(config.users.admin)
+        activityContext(defaultScope) { implicit ac ⇒
+          lazy val customerGoogleOauth = oauthServiceFromConfig(config.users.customer)
+          lazy val adminGoogleOauth    = oauthServiceFromConfig(config.users.admin)
 
-        (path("oauth2callback" / "google" / "admin") & get & oauthResponse) {
-          adminGoogleOauth.adminCallback
-        } ~
-        (path("oauth2callback" / "google" / "customer") & get & oauthResponse) {
-          customerGoogleOauth.customerCallback
-        } ~
-        (path("signin" / "google" / "admin") & get) {
-          val url = adminGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
-          complete(Map("url" → url))
-        } ~
-        (path("signin" / "google" / "customer") & get) {
-          val url = customerGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
-          complete(Map("url" → url))
+          (path("oauth2callback" / "google" / "admin") & get & oauthResponse) {
+            adminGoogleOauth.adminCallback
+          } ~
+            (path("oauth2callback" / "google" / "customer") & get & oauthResponse) {
+              customerGoogleOauth.customerCallback
+            } ~
+            (path("signin" / "google" / "admin") & get) {
+              val url = adminGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
+              complete(Map("url" → url))
+            } ~
+            (path("signin" / "google" / "customer") & get) {
+              val url = customerGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
+              complete(Map("url" → url))
+            }
         }
-      }
     }
-  }
 }

@@ -14,8 +14,7 @@ import phoenix.responses.UserResponse.{Root ⇒ UserResponse}
 
 object ReturnTailored {
 
-  case class ReturnCreated(admin: UserResponse, rma: ReturnResponse)
-      extends ActivityBase[ReturnCreated]
+  case class ReturnCreated(admin: UserResponse, rma: ReturnResponse) extends ActivityBase[ReturnCreated]
 
   case class ReturnStateChanged(admin: UserResponse, rma: ReturnResponse, oldState: Return.State)
       extends ActivityBase[ReturnStateChanged]
@@ -25,16 +24,13 @@ object ReturnTailored {
                                          payload: ReturnShippingCostLineItemPayload)
       extends ActivityBase[ReturnShippingCostItemAdded]
 
-  case class ReturnSkuLineItemAdded(rma: Return,
-                                    reason: ReturnReason,
-                                    payload: ReturnSkuLineItemPayload)
+  case class ReturnSkuLineItemAdded(rma: Return, reason: ReturnReason, payload: ReturnSkuLineItemPayload)
       extends ActivityBase[ReturnSkuLineItemAdded]
 
   case class ReturnShippingCostItemDeleted(li: ReturnLineItem)
       extends ActivityBase[ReturnShippingCostItemDeleted]
 
-  case class ReturnSkuLineItemDeleted(li: ReturnLineItem)
-      extends ActivityBase[ReturnSkuLineItemDeleted]
+  case class ReturnSkuLineItemDeleted(li: ReturnLineItem) extends ActivityBase[ReturnSkuLineItemDeleted]
 
   case class ReturnSkuLineItemsDropped(skus: List[ReturnLineItemSku])
       extends ActivityBase[ReturnSkuLineItemsDropped]

@@ -26,10 +26,7 @@ class GiftCardAdjustmentIntegrationTest
     "only one of credit or debit can be greater than zero" in new Fixture {
       override def gcPaymentAmount = giftCard.availableBalance
       val failure = GiftCards
-        .adjust(giftCard = giftCard,
-                orderPaymentId = orderPayments.head.id.some,
-                debit = 50,
-                credit = 50)
+        .adjust(giftCard = giftCard, orderPaymentId = orderPayments.head.id.some, debit = 50, credit = 50)
         .gimmeTxnFailures
       failure.getMessage must include("""violates check constraint "valid_entry"""")
     }
@@ -95,8 +92,7 @@ class GiftCardAdjustmentIntegrationTest
       }
 
       val finalGc = GiftCards.refresh(giftCard).gimme
-      (finalGc.originalBalance, finalGc.availableBalance, finalGc.currentBalance) must === (
-          (500, 500, 500))
+      (finalGc.originalBalance, finalGc.availableBalance, finalGc.currentBalance) must === ((500, 500, 500))
     }
   }
 

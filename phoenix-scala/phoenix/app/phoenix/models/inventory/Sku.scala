@@ -40,10 +40,9 @@ case class Sku(id: Int = 0,
   def withNewShadowAndCommit(shadowId: Int, commitId: Int): Sku =
     this.copy(shadowId = shadowId, commitId = commitId)
 
-  def mustNotBeArchived[T](target: T, targetId: Any): Either[Failures, Sku] = {
+  def mustNotBeArchived[T](target: T, targetId: Any): Either[Failures, Sku] =
     if (archivedAt.isEmpty) Either.right(this)
     else Either.left(LinkInactiveSkuFailure(target, targetId, code).single)
-  }
 
   def mustNotBePresentInCarts(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {

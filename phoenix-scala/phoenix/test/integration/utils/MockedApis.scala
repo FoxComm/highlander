@@ -137,25 +137,24 @@ trait MockedApis extends MockitoSugar with MustMatchers with OptionValues with A
 
   implicit def apisOverride: Option[Apis] = apis.some
 
-  def assertActivities(assertion: List[OpaqueActivity] ⇒ Assertion): Assertion = {
+  def assertActivities(assertion: List[OpaqueActivity] ⇒ Assertion): Assertion =
     assertion(
-        kafkaMock
-          .history()
-          .asScala
-          .map { record ⇒
-        val activityKind = Option(record.value().get("kind"))
-          .flatMap(_.cast[String])
-          .value
-          .withClue("Failed to find activity kind inside kafka record")
-        val data = Option(record.value().get("data"))
-          .flatMap(_.cast[String])
-          .flatMap(parseOpt(_))
-          .value
-          .withClue("Failed to find activity data inside kafka record")
+      kafkaMock
+        .history()
+        .asScala
+        .map { record ⇒
+          val activityKind = Option(record.value().get("kind"))
+            .flatMap(_.cast[String])
+            .value
+            .withClue("Failed to find activity kind inside kafka record")
+          val data = Option(record.value().get("data"))
+            .flatMap(_.cast[String])
+            .flatMap(parseOpt(_))
+            .value
+            .withClue("Failed to find activity data inside kafka record")
 
-        OpaqueActivity(activityKind, data)
-      }(collection.breakOut))
-  }
+          OpaqueActivity(activityKind, data)
+        }(collection.breakOut))
 
   def mustProduceActivity[A <: ActivityBase[A]: Manifest](entity: A): Assertion =
     assertActivities(_ must contain(entity.toOpaque))

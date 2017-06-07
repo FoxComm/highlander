@@ -44,6 +44,6 @@ object OrderFailures {
   }
 
   case class OrderLineItemNotFound(refNum: String) extends Failure {
-    override def description = s"Order line item with referenceNumber=${refNum} not found"
+    override def description = s"Order line item with referenceNumber=$refNum not found"
   }
 }

@@ -36,16 +36,15 @@ object CouponResponses {
         extends ResponseItem
 
     def build(coupon: IlluminatedCoupon, originalCoupon: Coupon): Root =
-      Root(id = coupon.id,
-           context = ObjectContextResponse.build(coupon.context),
-           attributes = coupon.attributes,
-           promotion = coupon.promotion,
-           archivedAt = originalCoupon.archivedAt)
+      Root(
+        id = coupon.id,
+        context = ObjectContextResponse.build(coupon.context),
+        attributes = coupon.attributes,
+        promotion = coupon.promotion,
+        archivedAt = originalCoupon.archivedAt
+      )
 
-    def build(context: ObjectContext,
-              coupon: Coupon,
-              form: ObjectForm,
-              shadow: ObjectShadow): Root =
+    def build(context: ObjectContext, coupon: Coupon, form: ObjectForm, shadow: ObjectShadow): Root =
       build(IlluminatedCoupon.illuminate(context, coupon, form, shadow), coupon)
 
   }

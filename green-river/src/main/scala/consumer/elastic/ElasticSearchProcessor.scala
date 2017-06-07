@@ -24,12 +24,11 @@ import org.json4s.JsonAST.JInt
   * id and uses it as the _id in elasticsearch for that item. This is important so that
   * we don't duplicate entries in ES.
   */
-class ElasticSearchProcessor(
-    uri: String,
-    cluster: String,
-    indexName: String,
-    topics: Seq[String],
-    jsonTransformers: Map[String, JsonTransformer])(implicit ec: ExecutionContext)
+class ElasticSearchProcessor(uri: String,
+                             cluster: String,
+                             indexName: String,
+                             topics: Seq[String],
+                             jsonTransformers: Map[String, JsonTransformer])(implicit ec: ExecutionContext)
     extends JsonProcessor {
 
   val settings = Settings.settingsBuilder().put("cluster.name", cluster).build()
@@ -45,7 +44,7 @@ class ElasticSearchProcessor(
   def process(offset: Long, topic: String, key: String, inputJson: String): Future[Unit] =
     getDocumentId(key, inputJson).fold {
       Console.err.println(
-          s"Can't find ID for document $inputJson and key $key for topic $topic, offset = $offset")
+        s"Can't find ID for document $inputJson and key $key for topic $topic, offset = $offset")
       futureUnit
     } { id ⇒
       inputJson match {
@@ -58,7 +57,7 @@ class ElasticSearchProcessor(
                 save(json, topic, id)
               }
             case None ⇒
-              Console.out.println(s"Skipping information from topic $topic with key ${key}")
+              Console.out.println(s"Skipping information from topic $topic with key $key")
               futureUnit
           }
       }
@@ -80,7 +79,7 @@ class ElasticSearchProcessor(
 
   private val idFields = List("id")
 
-  private def getDocumentId(keyJson: String, dataJson: String): Option[BigInt] = {
+  private def getDocumentId(keyJson: String, dataJson: String): Option[BigInt] =
     if (keyJson.isEmpty) getIntKey(dataJson)
     else {
       getIntKey(keyJson) match {
@@ -88,7 +87,6 @@ class ElasticSearchProcessor(
         case someId ⇒ someId
       }
     }
-  }
 
   private def getIntKey(rawJson: String): Option[BigInt] = {
     val idJson = AvroJsonHelper.transformJsonRaw(rawJson, idFields)
@@ -118,9 +116,13 @@ class ElasticSearchProcessor(
     Console.out.println("Creating index and type mappings...")
     try {
       // Define analyzer in mapping
-      val jsonMappings = jsonTransformers.filter {
-        case (key, _) ⇒ topics.contains(key)
-      }.mapValues(_.mapping()).values.toSeq
+      val jsonMappings = jsonTransformers
+        .filter {
+          case (key, _) ⇒ topics.contains(key)
+        }
+        .mapValues(_.mapping())
+        .values
+        .toSeq
 
       // Execute Elasticsearch query
       client.execute {

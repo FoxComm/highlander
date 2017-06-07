@@ -33,8 +33,9 @@ class NotificationIntegrationTest
       val notifications =
         skipHeartbeatsAndAdminCreated(sseSource(s"v1/notifications", defaultAdminAuth.jwtCookie))
       val requests = Source(2 to 3).map { activityId ⇒
-        val response = notificationsApi.create(newNotificationPayload.copy(
-                activity = newNotificationPayload.activity.copy(id = activityId.toString)))
+        val response = notificationsApi.create(
+          newNotificationPayload.copy(
+            activity = newNotificationPayload.activity.copy(id = activityId.toString)))
         s"notification $activityId: ${response.status}"
       }
     }
@@ -47,7 +48,7 @@ class NotificationIntegrationTest
 
       val requests = Source.single(2).map { activityId ⇒
         val response = notificationsApi.create(newNotificationPayload.copy(
-                activity = newNotificationPayload.activity.copy(id = activityId.toString)))
+          activity = newNotificationPayload.activity.copy(id = activityId.toString)))
         s"notification $activityId: ${response.status}"
       }
     }
@@ -81,8 +82,7 @@ class NotificationIntegrationTest
       data.lastSeenNotificationId must === (notificationId)
 
       notificationsApi
-        .create(newNotificationPayload.copy(
-                activity = newNotificationPayload.activity.copy(id = "test2")))
+        .create(newNotificationPayload.copy(activity = newNotificationPayload.activity.copy(id = "test2")))
         .mustBeOk()
     }
   }
@@ -159,12 +159,11 @@ class NotificationIntegrationTest
   }
 
   val newNotificationActivity = NotificationActivity(
-      id = "test",
-      kind = "test",
-      data = JNothing,
-      context =
-        ActivityContext(userId = 1, userType = "x", transactionId = "y", scope = LTree("1")),
-      createdAt = Instant.now)
+    id = "test",
+    kind = "test",
+    data = JNothing,
+    context = ActivityContext(userId = 1, userType = "x", transactionId = "y", scope = LTree("1")),
+    createdAt = Instant.now)
 
   val newNotificationPayload = CreateNotification(sourceDimension = Dimension.order,
                                                   sourceObjectId = randomObjectId,
@@ -177,10 +176,7 @@ class NotificationIntegrationTest
                                objectIds: Seq[String] = Seq(randomObjectId),
                                reason: Reason = Watching) =
     NotificationManager
-      .subscribe(adminIds = adminIds,
-                 dimension = dimension,
-                 objectIds = objectIds,
-                 reason = reason)
+      .subscribe(adminIds = adminIds, dimension = dimension, objectIds = objectIds, reason = reason)
       .gimme
 
   def unsubscribeFromNotifications() =
