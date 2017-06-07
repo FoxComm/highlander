@@ -49,7 +49,7 @@ describe('Counter', function () {
     );
 
     counter.find('DecrementButton').simulate('click');
-    expect(onChange.called).to.be.true;
+    expect(onChange.calledWith(0)).to.be.true;
   });
 
   it('should handle click on IncrementButton', function () {
@@ -63,7 +63,7 @@ describe('Counter', function () {
     );
 
     counter.find('IncrementButton').simulate('click');
-    expect(onChange.called).to.be.true;
+    expect(onChange.calledWith(2)).to.be.true;
   });
 
 });
