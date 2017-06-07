@@ -20,8 +20,7 @@ object ObjectManager {
       shadow ← * <~ ObjectShadows.mustFindById404(shadowId)
     } yield ObjectShadowResponse.build(shadow)
 
-  def getContextByName(name: String)(implicit ec: EC,
-                                     db: DB): DbResultT[ObjectContextResponse.Root] =
+  def getContextByName(name: String)(implicit ec: EC, db: DB): DbResultT[ObjectContextResponse.Root] =
     for {
       context ← * <~ mustFindByName404(name)
     } yield ObjectContextResponse.build(context)
@@ -30,7 +29,7 @@ object ObjectManager {
                                                   db: DB): DbResultT[ObjectContextResponse.Root] =
     for {
       context ← * <~ ObjectContexts.create(
-                   ObjectContext(name = payload.name, attributes = payload.attributes))
+                 ObjectContext(name = payload.name, attributes = payload.attributes))
     } yield ObjectContextResponse.build(context)
 
   def updateContextByName(name: String, payload: UpdateObjectContext)(
@@ -38,9 +37,8 @@ object ObjectManager {
       db: DB): DbResultT[ObjectContextResponse.Root] =
     for {
       context ← * <~ mustFindByName404(name)
-      update ← * <~ ObjectContexts.update(
-                  context,
-                  context.copy(name = payload.name, attributes = payload.attributes))
+      update ← * <~ ObjectContexts.update(context,
+                                          context.copy(name = payload.name, attributes = payload.attributes))
     } yield ObjectContextResponse.build(update)
 
   def mustFindByName404(name: String)(implicit ec: EC): DbResultT[ObjectContext] =
@@ -53,8 +51,8 @@ object ObjectManager {
     ObjectShadows.findOneById(id).mustFindOr(NotFoundFailure404(ObjectShadow, id))
 
   // FIXME: functions should not be taking `M[A]`, `A` will do @michalrus
-  def getFullObject[T <: ObjectHead[T]](
-      readHead: ⇒ DbResultT[T])(implicit ec: EC, db: DB): DbResultT[FullObject[T]] =
+  def getFullObject[T <: ObjectHead[T]](readHead: ⇒ DbResultT[T])(implicit ec: EC,
+                                                                  db: DB): DbResultT[FullObject[T]] =
     for {
       modelHead ← * <~ readHead
       form      ← * <~ ObjectForms.mustFindById404(modelHead.formId)
@@ -80,9 +78,7 @@ object ObjectManager {
 
     def buildFullObject(model: T) =
       for {
-        form ← * <~ getByIdOrFail(formsMap,
-                                  model.formId,
-                                  ObjectForms.notFound404K(model.formId).single)
+        form ← * <~ getByIdOrFail(formsMap, model.formId, ObjectForms.notFound404K(model.formId).single)
 
         shadow ← * <~ getByIdOrFail(shadowsMap,
                                     model.shadowId,

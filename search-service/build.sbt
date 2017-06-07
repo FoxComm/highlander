@@ -27,9 +27,9 @@ lazy val api = (project in file("api"))
     mainClass in assembly := Some("foxcomm.search.api.Api"),
     assemblyJarName in assembly := "search-service.jar",
     assemblyMergeStrategy in assembly := {
-      case PathList("BUILD") ⇒ MergeStrategy.discard
+      case PathList("BUILD")                                    ⇒ MergeStrategy.discard
       case PathList("META-INF", "io.netty.versions.properties") ⇒ MergeStrategy.discard
-      case x => (assemblyMergeStrategy in assembly).value.apply(x)
+      case x                                                    => (assemblyMergeStrategy in assembly).value.apply(x)
     }
   )
   .dependsOn(core, finch)

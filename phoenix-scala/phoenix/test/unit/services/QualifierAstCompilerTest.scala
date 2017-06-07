@@ -15,15 +15,14 @@ class QualifierAstCompilerTest extends TestBase {
     }
 
     "succeeds for case class with valid attributes" in new OrderTotalAmountValidFixture {
-      rightValue(compiler.compile()) must === (
-          AndQualifier(Seq(OrderTotalAmountQualifier(totalAmount = 1))))
+      rightValue(compiler.compile()) must === (AndQualifier(Seq(OrderTotalAmountQualifier(totalAmount = 1))))
     }
 
     "fails when typo in configuration found" in new OrderTotalAmountTypoFixture {
       val cause =
         "No usable value for totalAmount\nDid not find value which can be converted into long"
       leftValue(compiler.compile()) must === (
-          QualifierAttributesExtractionFailure(OrderTotalAmount, cause).single)
+        QualifierAttributesExtractionFailure(OrderTotalAmount, cause).single)
     }
   }
 

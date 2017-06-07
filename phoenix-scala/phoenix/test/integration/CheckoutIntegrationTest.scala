@@ -54,9 +54,10 @@ class CheckoutIntegrationTest
       val lineItemToUpdate = order.lineItems.skus.head
       val updatedOrder = cartsApi(order.referenceNumber)
         .updateCartLineItem(
-            Seq(UpdateOrderLineItemsPayload(lineItemToUpdate.state,
-                                            attributes,
-                                            lineItemToUpdate.referenceNumbers.head)))
+          Seq(
+            UpdateOrderLineItemsPayload(lineItemToUpdate.state,
+                                        attributes,
+                                        lineItemToUpdate.referenceNumbers.head)))
         .as[OrderResponse]
 
       updatedOrder.lineItems.skus
@@ -81,12 +82,12 @@ class CheckoutIntegrationTest
           .checkout(CheckoutCart(items = List(UpdateLineItemsPayload(skuCode, 1))))
           .as[OrderResponse]
         order.lineItems.skus.onlyElement must have(
-            'sku (skuCode),
-            'quantity (1)
+          'sku (skuCode),
+          'quantity (1)
         )
         order.billingCreditCardInfo.value must have(
-            'id (creditCard.id),
-            'type (PaymentMethod.CreditCard)
+          'id (creditCard.id),
+          'type (PaymentMethod.CreditCard)
         )
 
         // FIXME: Add Address#id to OrderShippingAddress? @michalrus
@@ -94,13 +95,12 @@ class CheckoutIntegrationTest
         val orderShippingAddress =
           OrderShippingAddresses.findOneById(order.shippingAddress.id).gimme.value
         val expectedAddressResponse = AddressResponse.buildFromOrder(
-            orderShippingAddress,
-            order.shippingAddress.region
+          orderShippingAddress,
+          order.shippingAddress.region
         )
 
         // Compare all significant fields.
-        expectedAddressResponse must === (
-            address.copy(id = expectedAddressResponse.id, isDefault = None))
+        expectedAddressResponse must === (address.copy(id = expectedAddressResponse.id, isDefault = None))
         order.shippingAddress must === (expectedAddressResponse)
         order.shippingMethod.id must === (shipMethod.id)
       }
@@ -122,8 +122,8 @@ class CheckoutIntegrationTest
           .lineItems
           .skus
           .onlyElement must have(
-            'sku (otherSkuCode),
-            'quantity (2)
+          'sku (otherSkuCode),
+          'quantity (2)
         )
 
         storefrontCartsApi
@@ -132,13 +132,13 @@ class CheckoutIntegrationTest
           .lineItems
           .skus
           .onlyElement must have(
-            'sku (skuCode),
-            'quantity (1)
+          'sku (skuCode),
+          'quantity (1)
         )
 
         storefrontCartsApi.get().as[CartResponse].lineItems.skus.onlyElement must have(
-            'sku (otherSkuCode),
-            'quantity (2)
+          'sku (otherSkuCode),
+          'quantity (2)
         )
       }
     }
@@ -238,26 +238,28 @@ class CheckoutIntegrationTest
   trait OneClickCheckoutFixture extends Fixture {
     val creditCard = {
       val cc = Factories.creditCard
-      api_newCreditCard(customer.id,
-                        CreateCreditCardFromTokenPayload(
-                            token = "whatever",
-                            lastFour = cc.lastFour,
-                            expYear = cc.expYear,
-                            expMonth = cc.expMonth,
-                            brand = cc.brand,
-                            holderName = cc.holderName,
-                            billingAddress = CreateAddressPayload(
-                                name = cc.address.name,
-                                regionId = cc.address.regionId,
-                                address1 = cc.address.address1,
-                                address2 = cc.address.address2,
-                                city = cc.address.city,
-                                zip = cc.address.zip,
-                                isDefault = false,
-                                phoneNumber = cc.address.phoneNumber
-                            ),
-                            addressIsNew = true
-                        ))
+      api_newCreditCard(
+        customer.id,
+        CreateCreditCardFromTokenPayload(
+          token = "whatever",
+          lastFour = cc.lastFour,
+          expYear = cc.expYear,
+          expMonth = cc.expMonth,
+          brand = cc.brand,
+          holderName = cc.holderName,
+          billingAddress = CreateAddressPayload(
+            name = cc.address.name,
+            regionId = cc.address.regionId,
+            address1 = cc.address.address1,
+            address2 = cc.address.address2,
+            city = cc.address.city,
+            zip = cc.address.zip,
+            isDefault = false,
+            phoneNumber = cc.address.phoneNumber
+          ),
+          addressIsNew = true
+        )
+      )
     }
   }
 

@@ -3,7 +3,6 @@ package foxcomm.search
 import com.typesafe.config.ConfigFactory
 import pureconfig._
 
-
 final case class AppConfig(http: AppConfig.Http, elasticsearch: AppConfig.ElasticSearch)
 
 object AppConfig {

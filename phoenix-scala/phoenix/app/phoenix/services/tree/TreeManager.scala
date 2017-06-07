@@ -15,17 +15,15 @@ import phoenix.responses.GenericTreeResponses._
 
 object TreeManager {
 
-  def getFullTree(treeName: String, contextName: String)(implicit ec: EC,
-                                                         db: DB): DbResultT[Root] =
+  def getFullTree(treeName: String, contextName: String)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {
       context  ← * <~ ObjectManager.mustFindByName404(contextName)
       response ← * <~ getFullTree(treeName, context)
     } yield response
 
-  def updateTree(treeName: String,
-                 contextName: String,
-                 newTree: NodePayload,
-                 path: Option[String] = None)(implicit ec: EC, db: DB): DbResultT[Root] =
+  def updateTree(treeName: String, contextName: String, newTree: NodePayload, path: Option[String] = None)(
+      implicit ec: EC,
+      db: DB): DbResultT[Root] =
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       tree    ← * <~ getOrCreateDbTree(treeName, context, path.isEmpty)
@@ -43,9 +41,8 @@ object TreeManager {
       resultTree ← * <~ getFullTree(treeName, context)
     } yield resultTree
 
-  def moveNode(treeName: String, contextName: String, moveSpec: MoveNodePayload)(
-      implicit ec: EC,
-      db: DB): DbResultT[Root] =
+  def moveNode(treeName: String, contextName: String, moveSpec: MoveNodePayload)(implicit ec: EC,
+                                                                                 db: DB): DbResultT[Root] =
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       tree    ← * <~ getOrCreateDbTree(treeName, context)
@@ -55,11 +52,11 @@ object TreeManager {
       shouldBeDeleted = moveSpec.index.isEmpty
       _ ← * <~ (if (shouldBeDeleted)
                   GenericTreeNodes.deleteById(
-                      newChildNode.id,
-                      DbResultT.unit,
-                      _ ⇒
-                        DatabaseFailure(
-                            s"cannot delete node: index=${newChildNode.index}, tree=$treeName, context=$contextName"))
+                    newChildNode.id,
+                    DbResultT.unit,
+                    _ ⇒
+                      DatabaseFailure(
+                        s"cannot delete node: index=${newChildNode.index}, tree=$treeName, context=$contextName"))
                 else moveNode(tree.id, moveSpec.index.get, newChildNode))
       resultTree ← * <~ getFullTree(treeName, context)
     } yield resultTree
@@ -78,8 +75,7 @@ object TreeManager {
       result ← * <~ getFullTree(treeName, context)
     } yield result
 
-  def getByNameAndContext(name: String, context: ObjectContext)(
-      implicit ec: EC): DbResultT[GenericTree] =
+  def getByNameAndContext(name: String, context: ObjectContext)(implicit ec: EC): DbResultT[GenericTree] =
     GenericTrees
       .filterByNameAndContext(name, context.id)
       .mustFindOneOr(TreeNotFound(name, context.name))
@@ -95,10 +91,9 @@ object TreeManager {
       fullTreeResponse = build(response, List())
     } yield fullTreeResponse
 
-  private def getOrCreateDbTree(
-      treeName: String,
-      context: ObjectContext,
-      createIfNotFound: Boolean = false)(implicit ec: EC, db: DB): DbResultT[GenericTree] = {
+  private def getOrCreateDbTree(treeName: String, context: ObjectContext, createIfNotFound: Boolean = false)(
+      implicit ec: EC,
+      db: DB): DbResultT[GenericTree] = {
 
     val ifEmptyAction: DbResultT[GenericTree] =
       if (createIfNotFound) GenericTrees.create(GenericTree(0, treeName, context.id))
@@ -110,9 +105,8 @@ object TreeManager {
     } yield tree
   }
 
-  private def moveNode(treeId: Int, parentIndex: Int, childNode: GenericTreeNode)(
-      implicit ec: EC,
-      db: DB): DbResultT[Int] =
+  private def moveNode(treeId: Int, parentIndex: Int, childNode: GenericTreeNode)(implicit ec: EC,
+                                                                                  db: DB): DbResultT[Int] =
     for {
       parentNode ← * <~ GenericTreeNodes
                     .findNodesByIndex(treeId, parentIndex)

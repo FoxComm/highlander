@@ -53,13 +53,12 @@ case class StoreCredit(id: Int = 0,
         case _ ⇒ valid({})
       }
 
-    (canceledWithReason |@| invalidExpr(
-            originalBalance < currentBalance,
-            "originalBalance cannot be less than currentBalance") |@| invalidExpr(
-            originalBalance < availableBalance,
-            "originalBalance cannot be less than availableBalance") |@| invalidExpr(
-            originalBalance < 0,
-            "originalBalance must be greater than zero")).map {
+    (canceledWithReason |@| invalidExpr(originalBalance < currentBalance,
+                                        "originalBalance cannot be less than currentBalance") |@| invalidExpr(
+      originalBalance < availableBalance,
+      "originalBalance cannot be less than availableBalance") |@| invalidExpr(
+      originalBalance < 0,
+      "originalBalance must be greater than zero")).map {
       case _ ⇒ this
     }
   }
@@ -69,8 +68,8 @@ case class StoreCredit(id: Int = 0,
     super.transitionModel(newModel)
 
   val fsm: Map[State, Set[State]] = Map(
-      OnHold → Set(Active, Canceled),
-      Active → Set(OnHold, Canceled)
+    OnHold → Set(Active, Canceled),
+    Active → Set(OnHold, Canceled)
   )
 
   def isActive: Boolean = state == Active
@@ -98,13 +97,12 @@ object StoreCredit {
     def publicTypes = types.--(Seq(Custom))
   }
 
-  def validateStateReason(state: State, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
+  def validateStateReason(state: State, reason: Option[Int]): ValidatedNel[Failure, Unit] =
     if (state == Canceled) {
       validExpr(reason.isDefined, "Please provide valid cancellation reason")
     } else {
       valid({})
     }
-  }
 
   implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
   implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] =
@@ -172,21 +170,13 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
           amount = amount,
           state = InStorePaymentStates.Auth)
 
-  def authOrderPayment(
-      storeCredit: StoreCredit,
-      pmt: OrderPayment,
-      maxPaymentAmount: Option[Long] = None)(implicit ec: EC): DbResultT[StoreCreditAdjustment] =
-    auth(storeCredit = storeCredit,
-         orderPaymentId = pmt.id,
-         amount = pmt.getAmount(maxPaymentAmount))
+  def authOrderPayment(storeCredit: StoreCredit, pmt: OrderPayment, maxPaymentAmount: Option[Long] = None)(
+      implicit ec: EC): DbResultT[StoreCreditAdjustment] =
+    auth(storeCredit = storeCredit, orderPaymentId = pmt.id, amount = pmt.getAmount(maxPaymentAmount))
 
-  def captureOrderPayment(
-      storeCredit: StoreCredit,
-      pmt: OrderPayment,
-      maxPaymentAmount: Option[Long] = None)(implicit ec: EC): DbResultT[StoreCreditAdjustment] =
-    capture(storeCredit = storeCredit,
-            orderPaymentId = pmt.id,
-            amount = pmt.getAmount(maxPaymentAmount))
+  def captureOrderPayment(storeCredit: StoreCredit, pmt: OrderPayment, maxPaymentAmount: Option[Long] = None)(
+      implicit ec: EC): DbResultT[StoreCreditAdjustment] =
+    capture(storeCredit = storeCredit, orderPaymentId = pmt.id, amount = pmt.getAmount(maxPaymentAmount))
 
   def capture(storeCredit: StoreCredit, orderPaymentId: Int, amount: Long)(
       implicit ec: EC): DbResultT[StoreCreditAdjustment] =
@@ -201,23 +191,27 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
 
   def cancelByCsr(storeCredit: StoreCredit, storeAdmin: User)(
       implicit ec: EC): DbResultT[StoreCreditAdjustment] = {
-    val adjustment = Adj(storeCreditId = storeCredit.id,
-                         orderPaymentId = None,
-                         storeAdminId = storeAdmin.accountId.some,
-                         debit = storeCredit.availableBalance,
-                         availableBalance = 0,
-                         state = InStorePaymentStates.CancellationCapture)
+    val adjustment = Adj(
+      storeCreditId = storeCredit.id,
+      orderPaymentId = None,
+      storeAdminId = storeAdmin.accountId.some,
+      debit = storeCredit.availableBalance,
+      availableBalance = 0,
+      state = InStorePaymentStates.CancellationCapture
+    )
     Adjs.create(adjustment)
   }
 
   def redeemToGiftCard(storeCredit: StoreCredit, storeAdmin: User)(
       implicit ec: EC): DbResultT[StoreCreditAdjustment] = {
-    val adjustment = Adj(storeCreditId = storeCredit.id,
-                         orderPaymentId = None,
-                         storeAdminId = storeAdmin.accountId.some,
-                         debit = storeCredit.availableBalance,
-                         availableBalance = 0,
-                         state = InStorePaymentStates.Capture)
+    val adjustment = Adj(
+      storeCreditId = storeCredit.id,
+      orderPaymentId = None,
+      storeAdminId = storeAdmin.accountId.some,
+      debit = storeCredit.availableBalance,
+      availableBalance = 0,
+      state = InStorePaymentStates.Capture
+    )
     Adjs.create(adjustment)
   }
 

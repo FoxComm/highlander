@@ -32,12 +32,11 @@ object GiftCardPayloads {
                                  scope: Option[String] = None)
       extends Validation[GiftCardCreateByCsr] {
 
-    def validate: ValidatedNel[Failure, GiftCardCreateByCsr] = {
+    def validate: ValidatedNel[Failure, GiftCardCreateByCsr] =
       (greaterThan(balance, 0L, "Balance") |@| scope.fold[ValidatedNel[Failure, Unit]](ok)(s ⇒
-                notEmpty(s, "scope"))).map {
+        notEmpty(s, "scope"))).map {
         case _ ⇒ this
       }
-    }
   }
 
   case class GiftCardBulkCreateByCsr(quantity: Int,
@@ -50,20 +49,18 @@ object GiftCardPayloads {
 
     val bulkCreateLimit = 20
 
-    def validate: ValidatedNel[Failure, GiftCardBulkCreateByCsr] = {
+    def validate: ValidatedNel[Failure, GiftCardBulkCreateByCsr] =
       (greaterThan(balance, 0L, "Balance") |@| greaterThan(quantity, 0, "Quantity") |@| lesserThanOrEqual(
-              quantity,
-              bulkCreateLimit,
-              "Quantity") |@| scope.fold(ok)(s ⇒ notEmpty(s, "scope"))).map { case _ ⇒ this }
-    }
+        quantity,
+        bulkCreateLimit,
+        "Quantity") |@| scope.fold(ok)(s ⇒ notEmpty(s, "scope"))).map { case _ ⇒ this }
   }
 
   case class GiftCardUpdateStateByCsr(state: GiftCard.State, reasonId: Option[Int] = None)
       extends Validation[GiftCardUpdateStateByCsr] {
 
-    def validate: ValidatedNel[Failure, GiftCardUpdateStateByCsr] = {
+    def validate: ValidatedNel[Failure, GiftCardUpdateStateByCsr] =
       GiftCard.validateStateReason(state, reasonId).map(_ ⇒ this)
-    }
   }
 
   case class GiftCardBulkUpdateStateByCsr(codes: Seq[String],
@@ -73,13 +70,11 @@ object GiftCardPayloads {
 
     val bulkUpdateLimit = 20
 
-    def validate: ValidatedNel[Failure, GiftCardBulkUpdateStateByCsr] = {
+    def validate: ValidatedNel[Failure, GiftCardBulkUpdateStateByCsr] =
       (GiftCard.validateStateReason(state, reasonId) |@| validExpr(
-              codes.nonEmpty,
-              "Please provide at least one code to update") |@| lesserThanOrEqual(
-              codes.length,
-              bulkUpdateLimit,
-              "Quantity")).map { case _ ⇒ this }
-    }
+        codes.nonEmpty,
+        "Please provide at least one code to update") |@| lesserThanOrEqual(codes.length,
+                                                                            bulkUpdateLimit,
+                                                                            "Quantity")).map { case _ ⇒ this }
   }
 }

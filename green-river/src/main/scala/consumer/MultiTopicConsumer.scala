@@ -19,63 +19,54 @@ import scala.language.postfixOps
 import org.elasticsearch.client.transport.NoNodeAvailableException
 
 private object Sync {
-  def commit[A, B](consumer: KafkaConsumer[A, B]): Unit = {
+  def commit[A, B](consumer: KafkaConsumer[A, B]): Unit =
     try {
       consumer.commitSync()
     } catch {
       case e: CommitFailedException ⇒ Console.err.println(s"Failed to commit: $e")
       case e: KafkaException        ⇒ Console.err.println(s"Unexpectedly to commit: $e")
     }
-  }
 
-  def commit[A, B](
-      consumer: KafkaConsumer[A, B], offsets: Map[TopicPartition, OffsetAndMetadata]): Unit = {
+  def commit[A, B](consumer: KafkaConsumer[A, B], offsets: Map[TopicPartition, OffsetAndMetadata]): Unit =
     try {
       consumer.commitSync(offsets)
     } catch {
       case e: CommitFailedException ⇒ Console.err.println(s"Failed to commit: $e")
       case e: KafkaException        ⇒ Console.err.println(s"Unexpectedly to commit: $e")
     }
-  }
 }
 
-private case class StartFromBeginning[A, B](consumer: KafkaConsumer[A, B])
-    extends ConsumerRebalanceListener {
+private case class StartFromBeginning[A, B](consumer: KafkaConsumer[A, B]) extends ConsumerRebalanceListener {
 
-  def onPartitionsRevoked(partitions: Collection[TopicPartition]): Unit = {
+  def onPartitionsRevoked(partitions: Collection[TopicPartition]): Unit =
     Sync.commit(consumer)
-  }
 
-  def onPartitionsAssigned(partitions: Collection[TopicPartition]): Unit = {
+  def onPartitionsAssigned(partitions: Collection[TopicPartition]): Unit =
     partitions.foreach { p ⇒
-      Console.out.println(
-          s"Consuming from beggining for topic ${p.topic} using partition ${p.partition}")
+      Console.out.println(s"Consuming from beggining for topic ${p.topic} using partition ${p.partition}")
       consumer.seekToBeginning(p)
     }
-  }
 }
 
 private case class StartFromLastCommit[A, B](consumer: KafkaConsumer[A, B])
     extends ConsumerRebalanceListener {
 
-  def onPartitionsRevoked(partitions: Collection[TopicPartition]): Unit = {
+  def onPartitionsRevoked(partitions: Collection[TopicPartition]): Unit =
     Sync.commit(consumer)
-  }
 
-  def onPartitionsAssigned(partitions: Collection[TopicPartition]): Unit = {
+  def onPartitionsAssigned(partitions: Collection[TopicPartition]): Unit =
     partitions.foreach { p ⇒
       val offsetMetadata = consumer.committed(p)
       if (offsetMetadata == null) {
         Console.out.println(
-            s"No offset commited. Consuming from beggining for topic ${p.topic} using partition ${p.partition}")
+          s"No offset commited. Consuming from beggining for topic ${p.topic} using partition ${p.partition}")
         consumer.seekToBeginning(p)
       } else {
         Console.out.println(
-            s"Consuming from offset ${offsetMetadata.offset} for topic ${p.topic} using partition ${p.partition}")
+          s"Consuming from offset ${offsetMetadata.offset} for topic ${p.topic} using partition ${p.partition}")
         consumer.seek(p, offsetMetadata.offset)
       }
     }
-  }
 }
 
 case class ProcessOffsetsResult(ok: Map[TopicPartition, OffsetAndMetadata] = Map.empty,
@@ -106,7 +97,7 @@ class MultiTopicConsumer(topics: Seq[String],
   val consumer = new RawConsumer(props)
   subscribe(topics, startFromBeginning)
 
-  def readForever(): Unit = {
+  def readForever(): Unit =
     while (true) {
       val records = consumer.poll(timeout)
 
@@ -152,8 +143,7 @@ class MultiTopicConsumer(topics: Seq[String],
         case Some(e) if e.isInstanceOf[NoNodeAvailableException] ⇒
           result.errorTopicAndOffset.foreach {
             case (tp, offset) ⇒
-              Console.err.println(
-                  s"NoNodeAvailableException workaround, seek to offset $offset again")
+              Console.err.println(s"NoNodeAvailableException workaround, seek to offset $offset again")
               consumer.seek(tp, offset)
           }
         case Some(e) if e.isInstanceOf[TryAgainLater] ⇒
@@ -164,7 +154,6 @@ class MultiTopicConsumer(topics: Seq[String],
         case _ ⇒
       }
     }
-  }
 
   def subscribe(topics: Seq[String], startFromBeginning: Boolean): Unit = {
     Console.out.println(s"Subscribing to topics: $topics")

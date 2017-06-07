@@ -19,11 +19,10 @@ object CustomerPayloads {
                                    phoneNumber: Option[String] = None)
       extends Validation[UpdateCustomerPayload] {
 
-    def validate: ValidatedNel[Failure, UpdateCustomerPayload] = {
-      (nullOrNotEmpty(name, "name") |@| nullOrNotEmpty(email, "email") |@| nullOrNotEmpty(
-              phoneNumber,
-              "phoneNumber")).map { case _ ⇒ this }
-    }
+    def validate: ValidatedNel[Failure, UpdateCustomerPayload] =
+      (nullOrNotEmpty(name, "name") |@| nullOrNotEmpty(email, "email") |@| nullOrNotEmpty(phoneNumber,
+                                                                                          "phoneNumber"))
+        .map { case _ ⇒ this }
   }
 
   case class ChangeCustomerPasswordPayload(oldPassword: String, newPassword: String)
@@ -38,8 +37,7 @@ object CustomerPayloads {
       notEmpty(name, "name").map { case _ ⇒ this }
   }
 
-  case class CustomerSearchForNewOrder(term: String)
-      extends Validation[CustomerSearchForNewOrder] {
+  case class CustomerSearchForNewOrder(term: String) extends Validation[CustomerSearchForNewOrder] {
 
     def validate: ValidatedNel[Failure, CustomerSearchForNewOrder] =
       greaterThan(term.length, 1, "term size").map { case _ ⇒ this }

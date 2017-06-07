@@ -10,9 +10,7 @@ import core.utils.Money.Currency
 
 object OrderTailored {
 
-  case class OrderStateChanged(admin: UserResponse.Root,
-                               order: OrderResponse,
-                               oldState: Order.State)
+  case class OrderStateChanged(admin: UserResponse.Root, order: OrderResponse, oldState: Order.State)
       extends ActivityBase[OrderStateChanged]
 
   case class OrderRemorsePeriodIncreased(admin: UserResponse.Root,
@@ -26,8 +24,7 @@ object OrderTailored {
       extends ActivityBase[OrderBulkStateChanged]
 
   /* Order checkout & order payments */
-  case class OrderCheckoutCompleted(order: OrderResponse)
-      extends ActivityBase[OrderCheckoutCompleted]
+  case class OrderCheckoutCompleted(order: OrderResponse) extends ActivityBase[OrderCheckoutCompleted]
 
   case class OrderCaptured(accountId: Int,
                            orderNum: String,
@@ -48,10 +45,7 @@ object OrderTailored {
                                      cardId: Int)
       extends ActivityBase[CreditCardAuthCompleted]
 
-  case class ApplePayAuthCompleted(accountId: Int,
-                                   stripeTokenId: String,
-                                   amount: Long,
-                                   currency: Currency)
+  case class ApplePayAuthCompleted(accountId: Int, stripeTokenId: String, amount: Long, currency: Currency)
       extends ActivityBase[ApplePayAuthCompleted]
 
   case class CreditCardChargeCompleted(accountId: Int,

@@ -21,10 +21,12 @@ object VariantResponses {
     def build(variant: IlluminatedVariant,
               variantValues: Seq[FullObject[VariantValue]],
               variantValueSkus: VariantValueSkuLinks): Root =
-      Root(id = variant.id,
-           attributes = variant.attributes,
-           context = ObjectContextResponse.build(variant.context).some,
-           values = illuminateValues(variantValues, variantValueSkus))
+      Root(
+        id = variant.id,
+        attributes = variant.attributes,
+        context = ObjectContextResponse.build(variant.context).some,
+        values = illuminateValues(variantValues, variantValueSkus)
+      )
 
     def buildLite(variant: IlluminatedVariant,
                   variantValues: Seq[FullObject[VariantValue]],
@@ -34,12 +36,11 @@ object VariantResponses {
            context = None,
            values = illuminateValues(variantValues, variantValueSkus))
 
-    def illuminateValues(
-        variantValues: Seq[FullObject[VariantValue]],
-        variantValueSkus: VariantValueSkuLinks): Seq[IlluminatedVariantValueResponse.Root] =
+    def illuminateValues(variantValues: Seq[FullObject[VariantValue]],
+                         variantValueSkus: VariantValueSkuLinks): Seq[IlluminatedVariantValueResponse.Root] =
       variantValues.map(
-          vv ⇒
-            IlluminatedVariantValueResponse
-              .build(vv, variantValueSkus.getOrElse(vv.model.id, Seq.empty)))
+        vv ⇒
+          IlluminatedVariantValueResponse
+            .build(vv, variantValueSkus.getOrElse(vv.model.id, Seq.empty)))
   }
 }
