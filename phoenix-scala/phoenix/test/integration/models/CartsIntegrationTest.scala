@@ -9,19 +9,13 @@ class CartsIntegrationTest extends IntegrationTestBase with TestObjectContext wi
 
   "Carts" - {
     "generates a referenceNumber via a cord" in new Order_Baked {
-      cart.referenceNumber must === ("BR10001")
-
       val cart2 = Carts.create(cart.copy(id = 0, referenceNumber = "")).gimme
-      cart2.referenceNumber must === ("BR10002")
+      cart2.referenceNumber must !==(cart.referenceNumber)
     }
 
-    "doesn't overwrite a non-empty referenceNumber after insert" in new Customer_Seed
-    with StoreAdmin_Seed {
+    "doesn't overwrite a non-empty referenceNumber after insert" in new Customer_Seed with StoreAdmin_Seed {
       val cart = Carts
-        .create(
-            Cart(accountId = customer.accountId,
-                 scope = Scope.current,
-                 referenceNumber = "R123456"))
+        .create(Cart(accountId = customer.accountId, scope = Scope.current, referenceNumber = "R123456"))
         .gimme
       cart.referenceNumber must === ("R123456")
     }
@@ -31,16 +25,14 @@ class CartsIntegrationTest extends IntegrationTestBase with TestObjectContext wi
 
       val failure =
         Carts.create(cart.copy(id = 0, referenceNumber = cart.refNum + "ZZZ")).gimmeFailures
-      failure.getMessage must include(
-          """value violates unique constraint "customer_has_only_one_cart"""")
+      failure.getMessage must include("""value violates unique constraint "customer_has_only_one_cart"""")
     }
 
     "has a unique index on referenceNumber" in new Customer_Seed with StoreAdmin_Seed {
       val cart = Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)).gimme
 
       val failure = Carts.create(cart.copy(id = 0).copy(subTotal = 123)).gimmeFailures
-      failure.getMessage must include(
-          """value violates unique constraint "cords_reference_number_key"""")
+      failure.getMessage must include("""value violates unique constraint "cords_reference_number_key"""")
     }
   }
 }

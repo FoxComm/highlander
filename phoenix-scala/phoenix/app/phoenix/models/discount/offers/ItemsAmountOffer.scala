@@ -26,14 +26,13 @@ case class ItemsAmountOffer(discount: Long, search: Seq[ProductSearch])
     either match {
       case Right(buckets) ⇒
         val matchedFormIds = buckets.filter(_.docCount > 0).map(_.key)
-        val offerResults = input.lineItems.filter { data ⇒
-          matchedFormIds.contains(data.productId.toString)
-        }.map { data ⇒
-          OfferResult(input,
-                      subtract(data.price, discount),
-                      data.lineItemReferenceNumber.some,
-                      offerType)
-        }
+        val offerResults = input.lineItems
+          .filter { data ⇒
+            matchedFormIds.contains(data.productId.toString)
+          }
+          .map { data ⇒
+            OfferResult(input, subtract(data.price, discount), data.lineItemReferenceNumber.some, offerType)
+          }
 
         Either.right(offerResults)
       case _ ⇒ pureEither()

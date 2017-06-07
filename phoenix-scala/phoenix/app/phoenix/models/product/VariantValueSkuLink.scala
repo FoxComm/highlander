@@ -15,8 +15,7 @@ case class VariantValueSkuLink(id: Int = 0,
                                archivedAt: Option[Instant] = None)
     extends FoxModel[VariantValueSkuLink]
 
-class VariantValueSkuLinks(tag: Tag)
-    extends FoxTable[VariantValueSkuLink](tag, "variant_value_sku_links") {
+class VariantValueSkuLinks(tag: Tag) extends FoxTable[VariantValueSkuLink](tag, "variant_value_sku_links") {
   def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def leftId     = column[Int]("left_id")
   def rightId    = column[Int]("right_id")
@@ -42,10 +41,9 @@ object VariantValueSkuLinks
   def filterLeft(leftIds: Seq[Int]): QuerySeq = filter(_.leftId.inSet(leftIds))
 
   def findSkusForVariantValues(
-      variantValueHeadIds: Seq[Int]): Query[(Rep[Int], Rep[String]), (Int, String), Seq] = {
+      variantValueHeadIds: Seq[Int]): Query[(Rep[Int], Rep[String]), (Int, String), Seq] =
     for {
       link ← filterLeft(variantValueHeadIds)
       sku  ← Skus if link.rightId === sku.id
     } yield (link.leftId, sku.code)
-  }
 }

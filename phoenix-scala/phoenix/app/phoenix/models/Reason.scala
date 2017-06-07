@@ -24,11 +24,10 @@ case class Reason(id: Int = 0,
 
   import Validation._
 
-  override def validate: ValidatedNel[Failure, Reason] = {
+  override def validate: ValidatedNel[Failure, Reason] =
     (notEmpty(body, "body") |@| lesserThanOrEqual(body.length, 255, "bodySize")).map {
       case _ ⇒ this
     }
-  }
 
   def isSubReason: Boolean = parentId.isDefined
 }
@@ -63,9 +62,7 @@ class Reasons(tag: Tag) extends FoxTable[Reason](tag, "reasons") {
   def author = foreignKey(Users.tableName, storeAdminId, Users)(_.accountId)
 }
 
-object Reasons
-    extends FoxTableQuery[Reason, Reasons](new Reasons(_))
-    with ReturningId[Reason, Reasons] {
+object Reasons extends FoxTableQuery[Reason, Reasons](new Reasons(_)) with ReturningId[Reason, Reasons] {
 
   val returningLens: Lens[Reason, Int] = lens[Reason].id
 

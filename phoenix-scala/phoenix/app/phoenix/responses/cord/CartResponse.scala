@@ -33,10 +33,9 @@ object CartResponse {
   def buildRefreshed(cart: Cart)(implicit db: DB, ec: EC, ctx: OC): DbResultT[CartResponse] =
     Carts.refresh(cart).dbresult.flatMap(c ⇒ fromCart(c, grouped = true))
 
-  def fromCart(cart: Cart, grouped: Boolean, isGuest: Boolean = false)(
-      implicit db: DB,
-      ec: EC,
-      ctx: OC): DbResultT[CartResponse] =
+  def fromCart(cart: Cart, grouped: Boolean, isGuest: Boolean = false)(implicit db: DB,
+                                                                       ec: EC,
+                                                                       ctx: OC): DbResultT[CartResponse] =
     for {
       lineItemAdj    ← * <~ CordResponseLineItemAdjustments.fetch(cart.refNum)
       lineItemsSku   ← * <~ CartLineItems.byCordRef(cart.refNum).result
@@ -60,36 +59,34 @@ object CartResponse {
                                  .result
     } yield
       CartResponse(
-          referenceNumber = cart.refNum,
-          lineItems = lineItems,
-          lineItemAdjustments = lineItemAdj,
-          promotion = promo.map { case (promotion, _) ⇒ promotion },
-          coupon = promo.flatMap { case (_, coupon)   ⇒ coupon },
-          totals =
-            CartResponseTotals.build(cart, coveredByInStoreMethods = coveredByInStoreMethods),
-          customer = for {
-            c  ← customer
-            cu ← customerData
-          } yield CustomerResponse.build(c, cu),
-          shippingMethod = shippingMethod,
-          shippingAddress = shippingAddress,
-          paymentMethods = paymentMethods,
-          paymentState = paymentState
-      )
-
-  def buildEmpty(cart: Cart,
-                 customer: Option[User] = None,
-                 customerData: Option[CustomerData] = None): CartResponse = {
-    CartResponse(
         referenceNumber = cart.refNum,
-        lineItems = CordResponseLineItems(),
+        lineItems = lineItems,
+        lineItemAdjustments = lineItemAdj,
+        promotion = promo.map { case (promotion, _) ⇒ promotion },
+        coupon = promo.flatMap { case (_, coupon)   ⇒ coupon },
+        totals = CartResponseTotals.build(cart, coveredByInStoreMethods = coveredByInStoreMethods),
         customer = for {
           c  ← customer
           cu ← customerData
         } yield CustomerResponse.build(c, cu),
-        totals = CartResponseTotals.empty,
-        paymentState = CordPaymentState.Cart
+        shippingMethod = shippingMethod,
+        shippingAddress = shippingAddress,
+        paymentMethods = paymentMethods,
+        paymentState = paymentState
+      )
+
+  def buildEmpty(cart: Cart,
+                 customer: Option[User] = None,
+                 customerData: Option[CustomerData] = None): CartResponse =
+    CartResponse(
+      referenceNumber = cart.refNum,
+      lineItems = CordResponseLineItems(),
+      customer = for {
+        c  ← customer
+        cu ← customerData
+      } yield CustomerResponse.build(c, cu),
+      totals = CartResponseTotals.empty,
+      paymentState = CordPaymentState.Cart
     )
-  }
 
 }

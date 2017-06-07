@@ -16,13 +16,12 @@ object CartTotaler {
   case class Totals(subTotal: Long, taxes: Long, shipping: Long, adjustments: Long, total: Long)
 
   object Totals {
-    def build(subTotal: Long, shipping: Long, adjustments: Long, taxes: Long): Totals = {
+    def build(subTotal: Long, shipping: Long, adjustments: Long, taxes: Long): Totals =
       Totals(subTotal = subTotal,
              taxes = taxes,
              shipping = shipping,
              adjustments = adjustments,
              total = (subTotal + taxes + shipping - adjustments).zeroIfNegative)
-    }
 
     def empty: Totals = Totals(0, 0, 0, 0, 0)
   }
@@ -45,13 +44,13 @@ object CartTotaler {
   def shippingTotal(cart: Cart)(implicit ec: EC): DbResultT[Long] =
     for {
       orderShippingMethods ← * <~ OrderShippingMethods.findByOrderRef(cart.refNum).result
-      sum = orderShippingMethods.foldLeft(0L)(_ + _.price)
+      sum = orderShippingMethods.map(_.price).sum
     } yield sum
 
   def adjustmentsTotal(cart: Cart)(implicit ec: EC): DbResultT[Long] =
     for {
       lineItemAdjustments ← * <~ CartLineItemAdjustments.filter(_.cordRef === cart.refNum).result
-      sum = lineItemAdjustments.foldLeft(0L)(_ + _.subtract)
+      sum = lineItemAdjustments.map(_.subtract).sum
     } yield sum
 
   def taxesTotal(cordRef: String, subTotal: Long, shipping: Long, adjustments: Long)(
@@ -71,10 +70,7 @@ object CartTotaler {
       sub  ← * <~ subTotal(cart)
       ship ← * <~ shippingTotal(cart)
       adj  ← * <~ adjustmentsTotal(cart)
-      tax ← * <~ taxesTotal(cordRef = cart.refNum,
-                            subTotal = sub,
-                            shipping = ship,
-                            adjustments = adj)
+      tax  ← * <~ taxesTotal(cordRef = cart.refNum, subTotal = sub, shipping = ship, adjustments = adj)
     } yield Totals.build(subTotal = sub, shipping = ship, adjustments = adj, taxes = tax)
 
   def saveTotals(cart: Cart)(implicit ec: EC): DbResultT[Cart] =

@@ -26,9 +26,8 @@ trait ApiFixtureHelpers extends PhoenixAdminApi with ApiFixtures { self: FoxSuit
     val loginData = TestLoginData(randomEmail(name))
     val customer = customersApi
       .create(
-          CreateCustomerPayload(name = name.some,
-                                email = loginData.email,
-                                password = loginData.password.some))(defaultAdminAuth)
+        CreateCustomerPayload(name = name.some, email = loginData.email, password = loginData.password.some))(
+        defaultAdminAuth)
       .as[CustomerResponse.Root]
     (customer, loginData)
   }
@@ -46,8 +45,7 @@ trait ApiFixtureHelpers extends PhoenixAdminApi with ApiFixtures { self: FoxSuit
       .create(payload)(defaultAdminAuth)
       .as[CreditCardsResponse.Root]
 
-  def api_newGiftCard(payload: GiftCardCreateByCsr)(implicit sl: SL,
-                                                    sf: SF): GiftCardResponse.Root =
+  def api_newGiftCard(payload: GiftCardCreateByCsr)(implicit sl: SL, sf: SF): GiftCardResponse.Root =
     giftCardsApi.create(payload)(defaultAdminAuth).as[GiftCardResponse.Root]
 
   def api_newStoreCredit(customerId: Int, payload: CreateManualStoreCredit)(

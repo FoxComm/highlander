@@ -6,7 +6,7 @@ import phoenix.models.cord.OrderPayment
 import phoenix.models.payment.ExternalCharge._
 import phoenix.models.payment.ExternalCharge
 import phoenix.utils.aliases.stripe.StripeCharge
-import shapeless.{Lens, lens}
+import shapeless.{lens, Lens}
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted._
 import core.utils.Money.Currency
@@ -49,10 +49,7 @@ object ApplePayCharges
     extends FoxTableQuery[ApplePayCharge, ApplePayCharges](new ApplePayCharges(_))
     with ReturningId[ApplePayCharge, ApplePayCharges] {
 
-  def authFromStripe(ap: ApplePayment,
-                     pmt: OrderPayment,
-                     stripeCharge: StripeCharge,
-                     currency: Currency) =
+  def authFromStripe(ap: ApplePayment, pmt: OrderPayment, stripeCharge: StripeCharge, currency: Currency) =
     ApplePayCharge(orderPaymentId = pmt.id,
                    stripeChargeId = stripeCharge.getId,
                    state = Auth,

@@ -28,9 +28,7 @@ trait ADT[F] extends Read[F] with Show[F] { self ⇒
 
   def types: Set[F]
 
-  val typeMap: Map[String, F] = types.foldLeft(Map[String, F]()) {
-    case (m, f) ⇒ m.updated(show(f), f)
-  }
+  val typeMap: Map[String, F] = types.map(f ⇒ show(f) → f).toMap
 
   def read(s: String): Option[F] = typeMap.get(s)
 
@@ -41,7 +39,7 @@ trait ADT[F] extends Read[F] with Show[F] { self ⇒
     */
   def jsonFormat(implicit m: Manifest[F]): CustomSerializer[F] =
     new CustomSerializer[F](format ⇒
-          ({
+      ({
         case JString(str) ⇒
           read(str)
             .getOrError(s"No such element: $str") // if we cannot deserialize then we throw. Yes, I know it's not *pure*.
@@ -54,7 +52,7 @@ trait ADT[F] extends Read[F] with Show[F] { self ⇒
   // thanks json4s!
   def jsonKeyFormat(implicit m: Manifest[F]): CustomKeySerializer[F] =
     new CustomKeySerializer[F](format ⇒
-          ({
+      ({
         case str ⇒
           read(str)
             .getOrError(s"No such element: $str") // if we cannot deserialize then we throw. Yes, I know it's not *pure*.
@@ -69,8 +67,7 @@ trait ADT[F] extends Read[F] with Show[F] { self ⇒
       case f ⇒ read(f).getOrError(s"No such element: $f")
     })
 
-  lazy val pathMatcher: PathMatcher1[F] = PathMatcher(
-      TreeMap(typeMap.toList: _*)(Ordering[String].reverse))
+  lazy val pathMatcher: PathMatcher1[F] = PathMatcher(TreeMap(typeMap.toList: _*)(Ordering[String].reverse))
 }
 object ADT {
   @inline def apply[T](implicit adt: ADT[T]): ADT[T] = adt
@@ -108,9 +105,11 @@ object Chunkable {
       private[this] val fieldsSet = fields.toSet
 
       def bytes(t: CsvData): ByteString =
-        ByteString(t.collect {
-          case (field, value) if fieldsSet.contains(field) ⇒ value
-        }.mkString(","))
+        ByteString(
+          t.collect {
+              case (field, value) if fieldsSet.contains(field) ⇒ value
+            }
+            .mkString(","))
 
       override def bytes(s: Source[CsvData, NotUsed]): Source[ByteString, NotUsed] = {
         val elSep          = ByteString("\n")

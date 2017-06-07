@@ -45,35 +45,29 @@ object LineItemUpdater {
     } yield response
   }
 
-  def updateOrderLineItems(admin: User, payload: Seq[UpdateOrderLineItemsPayload], refNum: String)(
-      implicit ec: EC,
-      apis: Apis,
-      db: DB,
-      ac: AC,
-      ctx: OC): DbResultT[OrderResponse] =
+  def updateOrderLineItems(
+      admin: User,
+      payload: Seq[UpdateOrderLineItemsPayload],
+      refNum: String)(implicit ec: EC, apis: Apis, db: DB, ac: AC, ctx: OC): DbResultT[OrderResponse] =
     for {
       _             ← * <~ runOrderLineItemUpdates(payload)
       orderUpdated  ← * <~ Orders.mustFindByRefNum(refNum)
       orderResponse ← * <~ OrderResponse.fromOrder(orderUpdated, grouped = true)
     } yield orderResponse
 
-  private def runOrderLineItemUpdates(payload: Seq[UpdateOrderLineItemsPayload])(implicit ec: EC,
-                                                                                 apis: Apis,
-                                                                                 db: DB,
-                                                                                 ac: AC,
-                                                                                 ctx: OC) =
+  private def runOrderLineItemUpdates(
+      payload: Seq[UpdateOrderLineItemsPayload])(implicit ec: EC, apis: Apis, db: DB, ac: AC, ctx: OC) =
     DbResultT.seqCollectFailures(
-        payload
-          .map(updatePayload ⇒
-                for {
-          orderLineItem ← * <~ OrderLineItems
-                           .filter(_.referenceNumber === updatePayload.referenceNumber)
-                           .mustFindOneOr(OrderLineItemNotFound(updatePayload.referenceNumber))
-          patch = orderLineItem.copy(state = updatePayload.state,
-                                     attributes = updatePayload.attributes)
-          updatedItem ← * <~ OrderLineItems.update(orderLineItem, patch)
-        } yield updatedItem)
-          .toList)
+      payload
+        .map(updatePayload ⇒
+          for {
+            orderLineItem ← * <~ OrderLineItems
+                             .filter(_.referenceNumber === updatePayload.referenceNumber)
+                             .mustFindOneOr(OrderLineItemNotFound(updatePayload.referenceNumber))
+            patch = orderLineItem.copy(state = updatePayload.state, attributes = updatePayload.attributes)
+            updatedItem ← * <~ OrderLineItems.update(orderLineItem, patch)
+          } yield updatedItem)
+        .toList)
 
   def updateQuantitiesOnCustomersCart(customer: User, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
@@ -139,8 +133,7 @@ object LineItemUpdater {
     } yield response
   }
 
-  def runUpdates(cart: Cart,
-                 logAct: Option[(CartResponse, Map[String, Int]) ⇒ DbResultT[Activity]])(
+  def runUpdates(cart: Cart, logAct: Option[(CartResponse, Map[String, Int]) ⇒ DbResultT[Activity]])(
       implicit ec: EC,
       apis: Apis,
       db: DB,
@@ -154,7 +147,7 @@ object LineItemUpdater {
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ CartResponse.buildRefreshed(cart)
       li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
-      _     ← * <~ logAct.traverse(_ (res, li)).void
+      _     ← * <~ logAct.traverse(_(res, li)).void
     } yield TheResponse.validated(res, valid)
 
   def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] =
@@ -163,10 +156,9 @@ object LineItemUpdater {
       acc.updated(item.sku, quantity + item.quantity)
     }
 
-  private def updateQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload])(
-      implicit ec: EC,
-      ctx: OC,
-      db: DB): DbResultT[Seq[CartLineItem]] =
+  private def updateQuantities(
+      cart: Cart,
+      payload: Seq[UpdateLineItemsPayload])(implicit ec: EC, ctx: OC, db: DB): DbResultT[Seq[CartLineItem]] =
     for {
       _ ← * <~ CartLineItems
            .byCordRef(cart.referenceNumber)
@@ -184,11 +176,8 @@ object LineItemUpdater {
       fullSku ← ObjectManager.getFullObject(DbResultT.pure(sku))
       _       ← * <~ IlluminatedSku.illuminate(ctx, fullSku).mustBeActive
       // TODO: check if that SKU’s Product is not archived/deactivated @michalrus
-      _ ← * <~ mustFindProductIdForSku(sku, cart.refNum)
-      updateResult ← * <~ createLineItems(sku.id,
-                                          lineItem.quantity,
-                                          cart.refNum,
-                                          lineItem.attributes)
+      _            ← * <~ mustFindProductIdForSku(sku, cart.refNum)
+      updateResult ← * <~ createLineItems(sku.id, lineItem.quantity, cart.refNum, lineItem.attributes)
     } yield updateResult
 
   private def createLineItems(skuId: Int,
@@ -200,9 +189,8 @@ object LineItemUpdater {
     CartLineItems.createAllReturningModels(List.fill(quantity)(lineItem))
   }
 
-  private def addQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload])(
-      implicit ec: EC,
-      ctx: OC): DbResultT[Unit] = {
+  private def addQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload])(implicit ec: EC,
+                                                                              ctx: OC): DbResultT[Unit] = {
     val lineItemUpdActions = payload.map { lineItem ⇒
       for {
         sku ← * <~ Skus
@@ -219,7 +207,7 @@ object LineItemUpdater {
     DbResultT.seqCollectFailures(lineItemUpdActions.toList).meh
   }
 
-  private def mustFindProductIdForSku(sku: Sku, refNum: String)(implicit ec: EC, oc: OC) = {
+  private def mustFindProductIdForSku(sku: Sku, refNum: String)(implicit ec: EC, oc: OC) =
     for {
       link ← * <~ ProductSkuLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
               case Some(productLink) ⇒
@@ -238,13 +226,11 @@ object LineItemUpdater {
                 } yield productLink.leftId
             }
     } yield link
-  }
 
-  private def removeLineItems(
-      skuId: Int,
-      delta: Int,
-      cordRef: String,
-      requestedAttrs: Option[LineItemAttributes])(implicit ec: EC): DbResultT[Unit] =
+  private def removeLineItems(skuId: Int,
+                              delta: Int,
+                              cordRef: String,
+                              requestedAttrs: Option[LineItemAttributes])(implicit ec: EC): DbResultT[Unit] =
     CartLineItems
       .byCordRef(cordRef)
       .filter(_.skuId === skuId)

@@ -33,14 +33,16 @@ trait AddressGenerator {
     val hasPhone    = Random.nextBoolean()
     val phoneNumber = if (hasPhone) Some(Name.numerify("##########")) else None
 
-    Address(accountId = customer.accountId,
-            regionId = 4177,
-            name = customer.name.getOrElse(Name.name),
-            address1 = streetName,
-            address2 = address2,
-            city = city,
-            zip = zip,
-            isDefaultShipping = isDefault,
-            phoneNumber = phoneNumber)
+    Address(
+      accountId = customer.accountId,
+      regionId = 4177,
+      name = customer.name.getOrElse(Name.name),
+      address1 = streetName,
+      address2 = address2,
+      city = city,
+      zip = zip,
+      isDefaultShipping = isDefault,
+      phoneNumber = phoneNumber
+    )
   }
 }

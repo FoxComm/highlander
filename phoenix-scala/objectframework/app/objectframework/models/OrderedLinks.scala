@@ -43,8 +43,7 @@ abstract class OrderedObjectHeadLinkQueries[M <: OrderedObjectHeadLink[M],
               .mustFindOneOr(LinkCannotBeFound(baseTableRow.getClass, left.id, right.id))
       replacedLink ← * <~ allLefts
                       .filter(_.position === newPosition)
-                      .mustFindOneOr(
-                          LinkAtPositionCannotBeFound(baseTableRow.getClass, left.id, newPosition))
+                      .mustFindOneOr(LinkAtPositionCannotBeFound(baseTableRow.getClass, left.id, newPosition))
       newLinks ← * <~ (if (link.position == newPosition) DbResultT.good((link, replacedLink))
                        else swapLinkPositions(link, replacedLink))
       (updatedLink, _) = newLinks

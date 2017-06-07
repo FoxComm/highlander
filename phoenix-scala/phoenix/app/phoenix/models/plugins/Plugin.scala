@@ -36,17 +36,15 @@ case class Plugin(id: Int = 0,
     with Validation[Plugin] {
   import Validation._
 
-  override def validate: ValidatedNel[Failure, Plugin] = {
-
+  override def validate: ValidatedNel[Failure, Plugin] =
     (notEmpty(name, "name")
-          |@| notEmpty(version, "version")
-          |@| apiPort.fold(ok) { port ⇒
-            greaterThan(port, 1, "Api port must be greater than 1")
-          }
-          |@| nullOrNotEmpty(apiHost, "apiHost")).map {
+      |@| notEmpty(version, "version")
+      |@| apiPort.fold(ok) { port ⇒
+        greaterThan(port, 1, "Api port must be greater than 1")
+      }
+      |@| nullOrNotEmpty(apiHost, "apiHost")).map {
       case _ ⇒ this
     }
-  }
 
   // TODO: change me to field @narma
   def apiUrl(): Option[String] =
@@ -58,15 +56,16 @@ case class Plugin(id: Int = 0,
 
 object Plugin {
 
-  def fromPayload(payload: RegisterPluginPayload)(implicit au: AU): Plugin = {
-    Plugin(name = payload.name,
-           version = payload.version,
-           scope = Scope.current,
-           description = payload.description,
-           apiHost = payload.apiHost,
-           apiPort = payload.apiPort,
-           schemaSettings = payload.schemaSettings.getOrElse(List.empty[SettingDef]))
-  }
+  def fromPayload(payload: RegisterPluginPayload)(implicit au: AU): Plugin =
+    Plugin(
+      name = payload.name,
+      version = payload.version,
+      scope = Scope.current,
+      description = payload.description,
+      apiHost = payload.apiHost,
+      apiPort = payload.apiPort,
+      schemaSettings = payload.schemaSettings.getOrElse(List.empty[SettingDef])
+    )
 }
 
 object PluginOrmTypeMapper {
@@ -115,9 +114,7 @@ class Plugins(tag: Tag) extends FoxTable[Plugin](tag, "plugins") {
       ((Plugin.apply _).tupled, Plugin.unapply)
 }
 
-object Plugins
-    extends FoxTableQuery[Plugin, Plugins](new Plugins(_))
-    with ReturningId[Plugin, Plugins] {
+object Plugins extends FoxTableQuery[Plugin, Plugins](new Plugins(_)) with ReturningId[Plugin, Plugins] {
 
   val returningLens: Lens[Plugin, Int] = lens[Plugin].id
 
