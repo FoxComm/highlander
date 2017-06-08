@@ -12,7 +12,7 @@ import { isDefined } from 'lib/utils';
 
 // components
 import { FormField, FormFieldError } from '../forms';
-import { SliderCheckbox } from '../checkbox/checkbox';
+import { SliderCheckbox } from 'components/core/checkbox';
 import CurrencyInput from '../forms/currency-input';
 import CustomProperty from '../products/custom-property';
 import DatePicker from '../datepicker/datepicker';

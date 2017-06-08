@@ -8,8 +8,8 @@ import { findDOMNode } from 'react-dom';
 import { DragSource, DropTarget } from 'react-dnd';
 
 // components
-import { Checkbox } from '../checkbox/checkbox';
 import Icon from 'components/core/icon';
+import { Checkbox } from 'components/core/checkbox';
 
 // styles
 import styles from './column-selector.css';
@@ -106,10 +106,10 @@ class SelectorItem extends Component {
         )}
         <Checkbox
           id={`choose-column-${this.props.id}`}
+          label={text}
           onChange={this.props.onChange}
-          checked={this.props.checked}>
-          {text}
-        </Checkbox>
+          checked={this.props.checked}
+        />
       </li>
     ));
   }

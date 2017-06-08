@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ContentBox from '../content-box/content-box';
-import { SliderCheckbox } from '../checkbox/checkbox';
+import { SliderCheckbox } from 'components/core/checkbox';
 import { connect } from 'react-redux';
 import * as CustomersActions from '../../modules/customers/details';
 import ConfirmationModal from 'components/core/confirmation-modal';
@@ -98,23 +98,21 @@ export default class CustomerAccountStatus extends React.Component {
     return (
       <div>
         <ContentBox title="Account Status" className="fc-customer-account-status">
-          <div className="fc-grid fc-customer-status-row">
-            <div className="fc-col-md-2-3">
+          <div className="fc-customer-status-row">
               <strong>Active Account</strong>
-            </div>
-            <div className="fc-col-md-1-3">
-              <SliderCheckbox className="fc-right" onChange={this.props.startDisablingCustomer}
-                              id="customerDisabled" checked={ !customer.disabled } />
-            </div>
+              <SliderCheckbox
+                id="customerDisabled"
+                onChange={this.props.startDisablingCustomer}
+                checked={ !customer.disabled }
+              />
           </div>
-          <div className="fc-grid fc-customer-status-row">
-            <div className="fc-col-md-2-3">
+          <div className="fc-customer-status-row">
               <strong>Blacklist Customer</strong>
-            </div>
-            <div className="fc-col-md-1-3">
-              <SliderCheckbox className="fc-right" onChange={this.props.startBlacklistCustomer}
-                              id="customerBlacklisted" checked={ customer.isBlacklisted } />
-            </div>
+              <SliderCheckbox
+                id="customerBlacklisted"
+                onChange={this.props.startBlacklistCustomer}
+                checked={ customer.isBlacklisted }
+              />
           </div>
 
           <ConfirmationModal
