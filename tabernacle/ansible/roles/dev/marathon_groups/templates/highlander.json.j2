@@ -46,6 +46,9 @@
             "id": "core-integrations",
             "dependencies": ["/highlander/core-frontend"],
             "apps": [
+                {% if with_shipstation %}
+                    {% include "core-integrations/shipstation.json.j2" %},
+                {% endif %}
                 {% include "core-integrations/messaging.json.j2" %},
                 {% include "core-integrations/hyperion.json.j2" %}
             ]
