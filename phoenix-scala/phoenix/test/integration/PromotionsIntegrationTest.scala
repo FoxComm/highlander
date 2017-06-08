@@ -80,8 +80,7 @@ class PromotionsIntegrationTest
       val disablePromoPayload =
         UpdatePromotion(applyType = promotion.applyType,
                         attributes = promoAttributes,
-                        discounts =
-                          Seq(UpdatePromoDiscount(formDiscount.id, attributes = newDiscountAttrs)))
+                        discounts = Seq(UpdatePromoDiscount(formDiscount.id, attributes = newDiscountAttrs)))
 
       promotionsApi(promotion.formId).update(disablePromoPayload).as[PromotionResponse.Root]
     }
@@ -102,8 +101,7 @@ class PromotionsIntegrationTest
       fullPromotion.getAttribute("activeFrom") must === (JNothing)
 
       val attributes: List[(String, JValue)] =
-        IlluminateAlgorithm.projectAttributes(fullPromotion.form.attributes,
-                                              fullPromotion.shadow.attributes) match {
+        IlluminateAlgorithm.projectAttributes(fullPromotion.form.attributes, fullPromotion.shadow.attributes) match {
           case JObject(f) ⇒ f
           case _          ⇒ List()
         }
@@ -112,8 +110,7 @@ class PromotionsIntegrationTest
         .update(promotion.formId, UpdatePromotion(Coupon, attributes.toMap, Seq()), ctx.name, None)
         .gimme
 
-      fullPromotion =
-        ObjectManager.getFullObject(Promotions.mustFindById400(fullPromotion.model.id)).gimme
+      fullPromotion = ObjectManager.getFullObject(Promotions.mustFindById400(fullPromotion.model.id)).gimme
       fullPromotion.getAttribute("activeFrom") must !==(JNothing)
     }
   }
@@ -133,8 +130,8 @@ class PromotionsIntegrationTest
           val discountPayload = {
             val discountAttrs = {
               val qualifier = JObject(JField("orderAny", JObject(("", JNothing))))
-              val offer = JObject(
-                  JField("orderPercentOff", JObject(JField("discount", DefaultDiscountPercent))))
+              val offer =
+                JObject(JField("orderPercentOff", JObject(JField("discount", DefaultDiscountPercent))))
               Map("qualifier" → tv(qualifier, "qualifier"), "offer" → tv(offer, "offer"))
             }
 
@@ -154,17 +151,21 @@ class PromotionsIntegrationTest
 
       val coupon = {
         val couponPayload = {
-          val usageRules = JObject(JField("isExclusive", false),
-                                   JField("isUnlimitedPerCode", false),
-                                   JField("usesPerCode", 1),
-                                   JField("isUnlimitedPerCustomer", false),
-                                   JField("usesPerCustomer", 1))
+          val usageRules = JObject(
+            JField("isExclusive", false),
+            JField("isUnlimitedPerCode", false),
+            JField("usesPerCode", 1),
+            JField("isUnlimitedPerCustomer", false),
+            JField("usesPerCustomer", 1)
+          )
 
-          val attrs = Map("usageRules" → tv(usageRules, "usageRules"),
-                          "name"           → tv("testyCoupon"),
-                          "storefrontName" → tv("<p>Testy coupon</p>", "richText"),
-                          "activeFrom"     → tv(Instant.now, "datetime"),
-                          "activeTo"       → tv(JNull, "datetime"))
+          val attrs = Map(
+            "usageRules"     → tv(usageRules, "usageRules"),
+            "name"           → tv("testyCoupon"),
+            "storefrontName" → tv("<p>Testy coupon</p>", "richText"),
+            "activeFrom"     → tv(Instant.now, "datetime"),
+            "activeTo"       → tv(JNull, "datetime")
+          )
           CreateCoupon(promotion = promoId, attributes = attrs)
         }
         couponsApi.create(couponPayload).as[CouponResponse.Root]
@@ -191,10 +192,8 @@ class PromotionsIntegrationTest
       cartWithCoupon.promotion mustBe 'defined
       cartWithCoupon.coupon mustBe 'defined
 
-      cartWithCoupon.totals.adjustments.toDouble must === (
-          cartTotal * (DefaultDiscountPercent / 100.0))
-      cartWithCoupon.totals.total.toDouble must === (
-          cartTotal * (1.0 - (DefaultDiscountPercent / 100.0)))
+      cartWithCoupon.totals.adjustments.toDouble must === (cartTotal * (DefaultDiscountPercent / 100.0))
+      cartWithCoupon.totals.total.toDouble must === (cartTotal * (1.0 - (DefaultDiscountPercent / 100.0)))
     }
 
     "from storefront UI" in new StoreAdmin_Seed with ProductAndSkus_Baked {
@@ -212,15 +211,12 @@ class PromotionsIntegrationTest
         cartWithCoupon.promotion mustBe 'defined
         cartWithCoupon.coupon mustBe 'defined
 
-        cartWithCoupon.totals.adjustments.toDouble must === (
-            cartTotal * (DefaultDiscountPercent / 100.0))
-        cartWithCoupon.totals.total.toDouble must === (
-            cartTotal * (1.0 - (DefaultDiscountPercent / 100.0)))
+        cartWithCoupon.totals.adjustments.toDouble must === (cartTotal * (DefaultDiscountPercent / 100.0))
+        cartWithCoupon.totals.total.toDouble must === (cartTotal * (1.0 - (DefaultDiscountPercent / 100.0)))
       }
     }
 
-    "should update coupon discount when cart becomes clean" in new Fixture
-    with ProductSku_ApiFixture {
+    "should update coupon discount when cart becomes clean" in new Fixture with ProductSku_ApiFixture {
       private val (_, couponCode) = setupPromoAndCoupon()
 
       withRandomCustomerAuth { implicit auth ⇒
@@ -284,10 +280,8 @@ class PromotionsIntegrationTest
       val percentOff = 37
 
       val autoPromo = promotionsApi
-        .create(
-            PromotionPayloadBuilder.build(Promotion.Auto,
-                                          PromoOfferBuilder.CartPercentOff(percentOff),
-                                          PromoQualifierBuilder.CartAny))
+        .create(PromotionPayloadBuilder
+          .build(Promotion.Auto, PromoOfferBuilder.CartPercentOff(percentOff), PromoQualifierBuilder.CartAny))
         .as[PromotionResponse.Root]
 
       val (coupon, couponCode) = setupPromoAndCoupon()

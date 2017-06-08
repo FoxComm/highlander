@@ -17,8 +17,7 @@ object UserTailored {
   case class UserRemovedFromBlacklist(admin: UserResponse.Root, user: UserResponse.Root)
       extends ActivityBase[UserRemovedFromBlacklist]
 
-  case class UserEnabled(admin: UserResponse.Root, user: UserResponse.Root)
-      extends ActivityBase[UserEnabled]
+  case class UserEnabled(admin: UserResponse.Root, user: UserResponse.Root) extends ActivityBase[UserEnabled]
 
   case class UserDisabled(admin: UserResponse.Root, user: UserResponse.Root)
       extends ActivityBase[UserDisabled]

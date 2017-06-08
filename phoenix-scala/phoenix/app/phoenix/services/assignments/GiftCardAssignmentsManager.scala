@@ -4,7 +4,7 @@ import core.db._
 import phoenix.models.activity.Dimension
 import phoenix.models.payment.giftcard._
 import phoenix.models.{Assignment, NotificationSubscription}
-import phoenix.responses.GiftCardResponse.{Root, build}
+import phoenix.responses.GiftCardResponse.{build, Root}
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 
@@ -20,7 +20,6 @@ object GiftCardAssignmentsManager extends AssignmentsManager[String, GiftCard] {
   def fetchEntity(code: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[GiftCard] =
     GiftCards.mustFindByCode(code)
 
-  def fetchSequence(
-      codes: Seq[String])(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[GiftCard]] =
+  def fetchSequence(codes: Seq[String])(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[GiftCard]] =
     GiftCards.filter(_.code.inSetBind(codes)).result.dbresult
 }

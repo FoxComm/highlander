@@ -38,8 +38,7 @@ object ObjectFailures {
     override def description = "Shadow attributes are empty"
   }
 
-  case class LinkAtPositionCannotBeFound(clazz: Class[_], left: Int, position: Int)
-      extends Failure {
+  case class LinkAtPositionCannotBeFound(clazz: Class[_], left: Int, position: Int) extends Failure {
     override def description =
       s"No object link ${clazz.getSimpleName} with left id $left exists at position $position"
   }
@@ -62,13 +61,11 @@ object ObjectFailures {
 
   case object ObjectHeadCannotBeFoundByFormId {
     def apply(tableName: String, formId: ObjectForm#Id, contextName: String): NotFoundFailure404 =
-      NotFoundFailure404(
-          s"Object '$tableName' with id $formId cannot be found in context '$contextName'")
+      NotFoundFailure404(s"Object '$tableName' with id $formId cannot be found in context '$contextName'")
   }
 
   case object ObjectHeadCannotBeFoundForContext {
     def apply(tableName: String, contextId: Int, formId: Int): NotFoundFailure404 =
-      NotFoundFailure404(
-          s"Object '$tableName' with id $formId cannot be found for context $contextId")
+      NotFoundFailure404(s"Object '$tableName' with id $formId cannot be found for context $contextId")
   }
 }

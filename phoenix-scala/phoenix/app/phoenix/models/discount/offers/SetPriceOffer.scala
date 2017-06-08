@@ -20,8 +20,7 @@ case class SetPriceOffer(setPrice: Long, numUnits: Int, search: Seq[ProductSearc
   def adjust(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis): Result[Seq[OfferResult]] =
     if (setPrice > 0 && numUnits < 100) adjustInner(input)(search) else pureResult()
 
-  def matchEither(input: DiscountInput)(
-      xor: Either[Failures, Buckets]): Either[Failures, Seq[OfferResult]] =
+  def matchEither(input: DiscountInput)(xor: Either[Failures, Buckets]): Either[Failures, Seq[OfferResult]] =
     xor match {
       case Right(buckets) ⇒
         val matchedFormIds = buckets.filter(_.docCount > 0).map(_.key)
@@ -29,10 +28,7 @@ case class SetPriceOffer(setPrice: Long, numUnits: Int, search: Seq[ProductSearc
           .filter(data ⇒ matchedFormIds.contains(data.productId.toString))
           .take(numUnits)
           .map { data ⇒
-            OfferResult(input,
-                        subtract(data.price, setPrice),
-                        data.lineItemReferenceNumber.some,
-                        offerType)
+            OfferResult(input, subtract(data.price, setPrice), data.lineItemReferenceNumber.some, offerType)
           }
 
         Either.right(adjustments)

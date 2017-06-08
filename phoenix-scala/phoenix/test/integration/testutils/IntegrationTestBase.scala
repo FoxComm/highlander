@@ -14,7 +14,6 @@ trait IntegrationTestBase
 
   implicit val ec: ExecutionContextExecutor = scala.concurrent.ExecutionContext.Implicits.global
 
-  override protected def beforeEach(): Unit = {
+  override protected def beforeEach(): Unit =
     kafkaMock.clear()
-  }
 }

@@ -110,8 +110,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
         def get()(implicit aa: TestAdminAuth): HttpResponse =
           GET(creditCardsPrefix, aa.jwtCookie.some)
 
-        def create(payload: CreateCreditCardFromTokenPayload)(
-            implicit aa: TestAdminAuth): HttpResponse =
+        def create(payload: CreateCreditCardFromTokenPayload)(implicit aa: TestAdminAuth): HttpResponse =
           POST(creditCardsPrefix, payload, aa.jwtCookie.some)
 
         def unsetDefault()(implicit aa: TestAdminAuth): HttpResponse =
@@ -164,8 +163,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def create(payload: GiftCardCreateByCsr)(implicit aa: TestAdminAuth): HttpResponse =
       POST(giftCardsPrefix, payload, aa.jwtCookie.some)
 
-    def createFromCustomer(payload: GiftCardCreatedByCustomer)(
-        implicit aa: TestAdminAuth): HttpResponse =
+    def createFromCustomer(payload: GiftCardCreatedByCustomer)(implicit aa: TestAdminAuth): HttpResponse =
       POST(customerGiftCards, payload, aa.jwtCookie.some)
 
     def createMultipleFromCustomer(payload: Seq[GiftCardCreatedByCustomer])(
@@ -175,8 +173,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def createBulk(payload: GiftCardBulkCreateByCsr)(implicit aa: TestAdminAuth): HttpResponse =
       POST(s"$giftCardsPrefix/bulk", payload, aa.jwtCookie.some)
 
-    def updateBulk(payload: GiftCardBulkUpdateStateByCsr)(
-        implicit aa: TestAdminAuth): HttpResponse =
+    def updateBulk(payload: GiftCardBulkUpdateStateByCsr)(implicit aa: TestAdminAuth): HttpResponse =
       PATCH(s"$giftCardsPrefix/bulk", payload, aa.jwtCookie.some)
   }
 
@@ -243,15 +240,13 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def unlock()(implicit aa: TestAdminAuth): HttpResponse =
       POST(s"$requestPath/unlock", aa.jwtCookie.some)
 
-    def message(payload: ReturnMessageToCustomerPayload)(
-        implicit aa: TestAdminAuth): HttpResponse =
+    def message(payload: ReturnMessageToCustomerPayload)(implicit aa: TestAdminAuth): HttpResponse =
       POST(s"$requestPath/message", payload, aa.jwtCookie.some)
 
     object lineItems {
       val requestPath = s"${returns.requestPath}/line-items"
 
-      def addOrReplace(payload: List[ReturnSkuLineItemPayload])(
-          implicit aa: TestAdminAuth): HttpResponse =
+      def addOrReplace(payload: List[ReturnSkuLineItemPayload])(implicit aa: TestAdminAuth): HttpResponse =
         POST(s"$requestPath/skus", payload, aa.jwtCookie.some)
 
       def add(payload: ReturnLineItemPayload)(implicit aa: TestAdminAuth): HttpResponse =
@@ -285,8 +280,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def assign(payload: BulkAssignmentPayload[String])(implicit aa: TestAdminAuth): HttpResponse =
       POST(s"$ordersPrefix/assignees", payload, aa.jwtCookie.some)
 
-    def unassign(payload: BulkAssignmentPayload[String])(
-        implicit aa: TestAdminAuth): HttpResponse =
+    def unassign(payload: BulkAssignmentPayload[String])(implicit aa: TestAdminAuth): HttpResponse =
       POST(s"$ordersPrefix/assignees/delete", payload, aa.jwtCookie.some)
   }
 
@@ -322,9 +316,8 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     val updateLIAttr = s"$cartPath/line-items/attributes"
 
     def updateCartLineItem(payload: Seq[UpdateOrderLineItemsPayload])(
-        implicit aa: TestAdminAuth): HttpResponse = {
+        implicit aa: TestAdminAuth): HttpResponse =
       PATCH(updateLIAttr, payload, aa.jwtCookie.some)
-    }
 
     def get()(implicit aa: TestAdminAuth): HttpResponse =
       GET(cartPath, aa.jwtCookie.some)
@@ -471,8 +464,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   case class customerGroupsMembersApi(groupId: Int) {
     val customerGroupMembersPrefix = s"$rootPrefix/customer-groups/$groupId/customers"
 
-    def syncCustomers(payload: CustomerGroupMemberSyncPayload)(
-        implicit aa: TestAdminAuth): HttpResponse =
+    def syncCustomers(payload: CustomerGroupMemberSyncPayload)(implicit aa: TestAdminAuth): HttpResponse =
       POST(s"$customerGroupMembersPrefix", payload, aa.jwtCookie.some)
   }
 
@@ -498,15 +490,13 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def create(payload: NodePayload)(implicit aa: TestAdminAuth): HttpResponse =
       POST(genericTreePath, payload, aa.jwtCookie.some)
 
-    def createInPath(path: String, payload: NodePayload)(
-        implicit aa: TestAdminAuth): HttpResponse =
+    def createInPath(path: String, payload: NodePayload)(implicit aa: TestAdminAuth): HttpResponse =
       POST(s"$genericTreePath/$path", payload, aa.jwtCookie.some)
 
     def moveNode(payload: MoveNodePayload)(implicit aa: TestAdminAuth): HttpResponse =
       PATCH(genericTreePath, payload, aa.jwtCookie.some)
 
-    def moveNodeInPath(path: String, payload: NodeValuesPayload)(
-        implicit aa: TestAdminAuth): HttpResponse =
+    def moveNodeInPath(path: String, payload: NodeValuesPayload)(implicit aa: TestAdminAuth): HttpResponse =
       PATCH(s"$genericTreePath/$path", payload, aa.jwtCookie.some)
   }
 
@@ -532,7 +522,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   }
 
   case object skusApi {
-    val skusPrefix = s"$rootPrefix/skus"
+    val skusPrefix                 = s"$rootPrefix/skus"
     def skusPath(implicit ctx: OC) = s"$skusPrefix/${ctx.name}"
 
     def create(payload: SkuPayload)(implicit ctx: OC, aa: TestAdminAuth): HttpResponse =
@@ -597,8 +587,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
         POST(albumsPrefix, payload, aa.jwtCookie.some)
 
       // Why not PATCH?
-      def updatePosition(payload: UpdateAlbumPositionPayload)(
-          implicit aa: TestAdminAuth): HttpResponse =
+      def updatePosition(payload: UpdateAlbumPositionPayload)(implicit aa: TestAdminAuth): HttpResponse =
         POST(s"$albumsPrefix/position", payload, aa.jwtCookie.some)
     }
 
@@ -624,8 +613,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def update(payload: UpdateStoreAdminPayload)(implicit aa: TestAdminAuth): HttpResponse =
       PATCH(storeAdminPath, payload, aa.jwtCookie.some)
 
-    def updateState(payload: StateChangeStoreAdminPayload)(
-        implicit aa: TestAdminAuth): HttpResponse =
+    def updateState(payload: StateChangeStoreAdminPayload)(implicit aa: TestAdminAuth): HttpResponse =
       PATCH(s"$storeAdminPath/state", payload, aa.jwtCookie.some)
 
     def delete()(implicit aa: TestAdminAuth): HttpResponse =
@@ -648,8 +636,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def update(payload: VariantPayload)(implicit ctx: OC, aa: TestAdminAuth): HttpResponse =
       PATCH(variantPath, payload, aa.jwtCookie.some)
 
-    def createValues(payload: VariantValuePayload)(implicit ctx: OC,
-                                                   aa: TestAdminAuth): HttpResponse =
+    def createValues(payload: VariantValuePayload)(implicit ctx: OC, aa: TestAdminAuth): HttpResponse =
       POST(s"$variantPath/values", payload, aa.jwtCookie.some)
   }
 
@@ -721,8 +708,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def delete()(implicit aa: TestAdminAuth): HttpResponse =
       DELETE(sharedSearchPath, aa.jwtCookie.some)
 
-    def associate(payload: SharedSearchAssociationPayload)(
-        implicit aa: TestAdminAuth): HttpResponse =
+    def associate(payload: SharedSearchAssociationPayload)(implicit aa: TestAdminAuth): HttpResponse =
       POST(s"$sharedSearchPath/associate", payload, aa.jwtCookie.some)
 
     def associates()(implicit aa: TestAdminAuth): HttpResponse =
@@ -809,18 +795,15 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def delete()(implicit aa: TestAdminAuth): HttpResponse =
       DELETE(s"v1/taxons/${ctx.name}/$taxonId", aa.jwtCookie.some)
 
-    def assignProduct(productFormId: ObjectForm#Id)(implicit ctx: OC,
-                                                    aa: TestAdminAuth): HttpResponse =
+    def assignProduct(productFormId: ObjectForm#Id)(implicit ctx: OC, aa: TestAdminAuth): HttpResponse =
       PATCH(s"v1/taxons/${ctx.name}/$taxonId/product/$productFormId", aa.jwtCookie.some)
 
-    def unassignProduct(productFormId: ObjectForm#Id)(implicit ctx: OC,
-                                                      aa: TestAdminAuth): HttpResponse =
+    def unassignProduct(productFormId: ObjectForm#Id)(implicit ctx: OC, aa: TestAdminAuth): HttpResponse =
       DELETE(s"v1/taxons/${ctx.name}/$taxonId/product/$productFormId", aa.jwtCookie.some)
   }
 
   object productReviewApi {
-    def create(payload: CreateProductReviewPayload)(implicit ctx: OC,
-                                                    aa: TestAdminAuth): HttpResponse =
+    def create(payload: CreateProductReviewPayload)(implicit ctx: OC, aa: TestAdminAuth): HttpResponse =
       POST(s"v1/review/${ctx.name}", payload, aa.jwtCookie.some)
   }
 
@@ -872,8 +855,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   object storeCreditsApi {
     val storeCreditsPrefix = s"$rootPrefix/store-credits"
 
-    def update(payload: StoreCreditBulkUpdateStateByCsr)(
-        implicit aa: TestAdminAuth): HttpResponse =
+    def update(payload: StoreCreditBulkUpdateStateByCsr)(implicit aa: TestAdminAuth): HttpResponse =
       PATCH(storeCreditsPrefix, payload, aa.jwtCookie.some)
   }
 

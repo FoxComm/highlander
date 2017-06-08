@@ -39,14 +39,16 @@ object ProductResponses {
               skus: Seq[SkuResponse.Root],
               variants: Seq[IlluminatedVariantResponse.Root],
               taxons: Seq[AssignedTaxonsResponse]): Root =
-      Root(id = product.id,
-           slug = product.slug,
-           attributes = product.attributes,
-           context = ObjectContextResponse.build(product.context),
-           albums = albums,
-           skus = skus,
-           variants = variants,
-           archivedAt = product.archivedAt,
-           taxons = taxons)
+      Root(
+        id = product.id,
+        slug = product.slug,
+        attributes = product.attributes,
+        context = ObjectContextResponse.build(product.context),
+        albums = albums,
+        skus = skus,
+        variants = variants,
+        archivedAt = product.archivedAt,
+        taxons = taxons
+      )
   }
 }

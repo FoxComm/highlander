@@ -10,8 +10,7 @@ case class StoreCreditSubtype(id: Int = 0, title: String, originType: OriginType
 
 object StoreCreditSubtype {}
 
-class StoreCreditSubtypes(tag: Tag)
-    extends FoxTable[StoreCreditSubtype](tag, "store_credit_subtypes") {
+class StoreCreditSubtypes(tag: Tag) extends FoxTable[StoreCreditSubtype](tag, "store_credit_subtypes") {
 
   def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def title      = column[String]("title")

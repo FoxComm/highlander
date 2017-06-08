@@ -16,11 +16,7 @@ import phoenix.services.carts.CartTotaler
 import phoenix.services.returns.{ReturnLineItemManager, ReturnTotaler}
 
 object ReturnResponse {
-  case class ReturnTotals(subTotal: Long,
-                          taxes: Long,
-                          shipping: Long,
-                          adjustments: Long,
-                          total: Long)
+  case class ReturnTotals(subTotal: Long, taxes: Long, shipping: Long, adjustments: Long, total: Long)
       extends ResponseItem
 
   sealed trait LineItem extends ResponseItem {
@@ -88,25 +84,22 @@ object ReturnResponse {
                     giftCard: Option[(ReturnPayment, GiftCard)],
                     storeCredit: Option[ReturnPayment]): Payments =
     Payments(
-        creditCard =
-          creditCard.map(cc ⇒ Payment.CreditCard(cc.paymentMethodId, cc.amount, cc.currency)),
-        applePay = applePay.map(ap ⇒ Payment.ApplePay(ap.paymentMethodId, ap.amount, ap.currency)),
-        giftCard = giftCard.map {
-          case (p, gc) ⇒ Payment.GiftCard(p.paymentMethodId, gc.code, p.amount, p.currency)
-        },
-        storeCredit =
-          storeCredit.map(sc ⇒ Payment.StoreCredit(sc.paymentMethodId, sc.amount, sc.currency))
+      creditCard = creditCard.map(cc ⇒ Payment.CreditCard(cc.paymentMethodId, cc.amount, cc.currency)),
+      applePay = applePay.map(ap ⇒ Payment.ApplePay(ap.paymentMethodId, ap.amount, ap.currency)),
+      giftCard = giftCard.map {
+        case (p, gc) ⇒ Payment.GiftCard(p.paymentMethodId, gc.code, p.amount, p.currency)
+      },
+      storeCredit = storeCredit.map(sc ⇒ Payment.StoreCredit(sc.paymentMethodId, sc.amount, sc.currency))
     )
 
-  def buildTotals(subTotal: Long, shipping: Long, adjustments: Long, taxes: Long): ReturnTotals = {
+  def buildTotals(subTotal: Long, shipping: Long, adjustments: Long, taxes: Long): ReturnTotals =
     ReturnTotals(subTotal = subTotal,
                  shipping = shipping,
                  adjustments = adjustments,
                  taxes = taxes,
                  total = subTotal + shipping + taxes - adjustments)
-  }
 
-  def fromRma(rma: Return)(implicit ec: EC, db: DB): DbResultT[Root] = {
+  def fromRma(rma: Return)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {
       // Either customer or storeAdmin as creator
       customer     ← * <~ Users.findOneByAccountId(rma.accountId)
@@ -132,27 +125,24 @@ object ReturnResponse {
                                           adjustments = adjustments)
     } yield
       build(
-          rma = rma,
-          customer = for {
-            c  ← customer
-            cu ← customerData
-          } yield CustomerResponse.build(c, cu),
-          storeAdmin = for {
-            a   ← storeAdmin
-            ad  ← adminData
-            org ← organization
-          } yield StoreAdminResponse.build(a, ad, org),
-          payments = buildPayments(creditCard = ccPayment,
-                                   applePay = applePayPayment,
-                                   giftCard = gcPayment,
-                                   storeCredit = scPayment),
-          lineItems = LineItems(skus = lineItems, shippingCosts = shippingCosts),
-          totals = buildTotals(subTotal = subTotal,
-                               shipping = shipping,
-                               adjustments = adjustments,
-                               taxes = taxes)
+        rma = rma,
+        customer = for {
+          c  ← customer
+          cu ← customerData
+        } yield CustomerResponse.build(c, cu),
+        storeAdmin = for {
+          a   ← storeAdmin
+          ad  ← adminData
+          org ← organization
+        } yield StoreAdminResponse.build(a, ad, org),
+        payments = buildPayments(creditCard = ccPayment,
+                                 applePay = applePayPayment,
+                                 giftCard = gcPayment,
+                                 storeCredit = scPayment),
+        lineItems = LineItems(skus = lineItems, shippingCosts = shippingCosts),
+        totals =
+          buildTotals(subTotal = subTotal, shipping = shipping, adjustments = adjustments, taxes = taxes)
       )
-  }
 
   def build(rma: Return,
             customer: Option[Customer] = None,
@@ -160,18 +150,20 @@ object ReturnResponse {
             lineItems: LineItems = LineItems(List.empty, Option.empty),
             payments: Payments = Payments(Option.empty, Option.empty, Option.empty, Option.empty),
             totals: ReturnTotals = ReturnTotals(0, 0, 0, 0, 0)): Root =
-    Root(id = rma.id,
-         referenceNumber = rma.refNum,
-         orderRefNum = rma.orderRef,
-         rmaType = rma.returnType,
-         state = rma.state,
-         customer = customer,
-         storeAdmin = storeAdmin,
-         payments = payments,
-         lineItems = lineItems,
-         messageToCustomer = rma.messageToAccount,
-         canceledReasonId = rma.canceledReasonId,
-         createdAt = rma.createdAt,
-         updatedAt = rma.updatedAt,
-         totals = totals)
+    Root(
+      id = rma.id,
+      referenceNumber = rma.refNum,
+      orderRefNum = rma.orderRef,
+      rmaType = rma.returnType,
+      state = rma.state,
+      customer = customer,
+      storeAdmin = storeAdmin,
+      payments = payments,
+      lineItems = lineItems,
+      messageToCustomer = rma.messageToAccount,
+      canceledReasonId = rma.canceledReasonId,
+      createdAt = rma.createdAt,
+      updatedAt = rma.updatedAt,
+      totals = totals
+    )
 }

@@ -88,9 +88,8 @@ object ObjectFullSchemas
     filter(_.name === name).one
 
   // test method
-  def getDefaultOrEmptySchemaForForm(form: ObjectForm)(implicit ec: EC): DBIO[ObjectFullSchema] = {
+  def getDefaultOrEmptySchemaForForm(form: ObjectForm)(implicit ec: EC): DBIO[ObjectFullSchema] =
     findOneByName(form.kind).map { o ⇒
       o.getOrElse(ObjectFullSchema.emptySchema)
     }
-  }
 }
