@@ -27,11 +27,11 @@ object AuthRoutes {
     // There should be a better way to do this, but making auto login on password reset
     // does not seem to work when using akka-http route & directive combinators and conversions
     def doLogin(payload: DbResultT[LoginPayload])(routeUnwrap: DbResultT[Route] ⇒ Result[Route]): Route =
-      onSuccess(routeUnwrap(Authenticator.authenticate(payload)).runEmptyA.value) { result ⇒ // TODO: rethink discarding warnings here @michalrus
-        result.fold({ f ⇒
-          complete(renderFailure(f))
-        }, identity)
-      }
+    onSuccess(routeUnwrap(Authenticator.authenticate(payload)).runEmptyA.value) { result ⇒ // TODO: rethink discarding warnings here @michalrus
+      result.fold({ f ⇒
+        complete(renderFailure(f))
+      }, identity)
+    }
 
     pathPrefix("public") {
       (post & path("login") & entity(as[LoginPayload])) { payload ⇒
@@ -52,7 +52,7 @@ object AuthRoutes {
                       email = answer.email,
                       password = payload.newPassword,
                       org = answer.org
-                  ))
+                    ))
 
               doLogin(doPasswordReset)(_.runTxn())
             }
@@ -64,7 +64,7 @@ object AuthRoutes {
         } ~
         activityContext(defaultScope) { implicit ac ⇒
           lazy val customerGoogleOauth = oauthServiceFromConfig(config.users.customer)
-          lazy val adminGoogleOauth    = oauthServiceFromConfig(config.users.admin)
+          lazy val adminGoogleOauth = oauthServiceFromConfig(config.users.admin)
 
           (path("oauth2callback" / "google" / "admin") & get & oauthResponse) {
             adminGoogleOauth.adminCallback
