@@ -240,7 +240,7 @@ export default class AddressForm extends React.Component {
               {this.formTitle}
               <li>
                 <FormField label="First & Last Name" validator="ascii" maxLength={255}>
-                  <TextInput name="name" ref="name" defaultValue={address.name} required />
+                  <TextInput name="name" defaultValue={address.name} required />
                 </FormField>
               </li>
               <li>

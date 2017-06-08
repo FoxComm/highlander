@@ -75,7 +75,7 @@ export default class CustomerContacts extends React.Component {
 
   get nameField() {
     if (!this.props.isContactsEditing) {
-      return <dd id="customer-contacts-name">{ this.props.details.name }</dd>;
+      return <dd id="customer-contacts-name">{this.props.details.name}</dd>;
     }
 
     return (
@@ -86,7 +86,7 @@ export default class CustomerContacts extends React.Component {
          name='Name'
          maxLength='255'
          required
-         onChange={ (value) => this.setState({name: value}) }
+         onChange={(value) => this.setState({name: value})}
          value={ this.state.name }
         />
       </FormField>
@@ -95,7 +95,7 @@ export default class CustomerContacts extends React.Component {
 
   get emailField() {
     if (!this.props.isContactsEditing) {
-      return <dd id="customer-contacts-email">{ this.props.details.email }</dd>;
+      return <dd id="customer-contacts-email">{this.props.details.email}</dd>;
     }
 
     return (
@@ -106,8 +106,8 @@ export default class CustomerContacts extends React.Component {
          name='Email'
          maxLength='255'
          required
-         onChange={ (value) => this.setState({email: value}) }
-         value={ this.state.email }
+         onChange={(value) => this.setState({email: value})}
+         value={this.state.email}
         />
       </FormField>
     );
@@ -115,7 +115,7 @@ export default class CustomerContacts extends React.Component {
 
   get phoneField() {
     if (!this.props.isContactsEditing) {
-      return <dd id="customer-contacts-phone">{ this.props.details.phoneNumber }</dd>;
+      return <dd id="customer-contacts-phone">{this.props.details.phoneNumber}</dd>;
     }
 
     return (
@@ -126,8 +126,8 @@ export default class CustomerContacts extends React.Component {
          name='Phone'
          maxLength='255'
          required
-         onChange={ (value) => this.setState({phoneNumber: value}) }
-         value={ this.state.phoneNumber }
+         onChange={(value) => this.setState({phoneNumber: value})}
+         value={this.state.phoneNumber}
         />
       </FormField>
     );
@@ -135,7 +135,7 @@ export default class CustomerContacts extends React.Component {
 
   get formActions() {
     if (this.props.isContactsEditing) {
-      return <SaveCancel onCancel={ this.props.toggleEditCustomer } />;
+      return <SaveCancel onCancel={this.props.toggleEditCustomer} />;
     }
   }
 

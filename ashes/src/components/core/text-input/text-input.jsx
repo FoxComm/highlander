@@ -35,7 +35,6 @@ type State = {
  *
  * @class TextInput
  */
-
 export default class TextInput extends Component {
   props: Props;
 
