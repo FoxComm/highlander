@@ -47,7 +47,7 @@
   line-height: 23px;
   height: 22px;
   width: 22px;
-  background: #ff9796;
+  background: var(--bg-message-error);
   border-radius: 50%;
 }
 

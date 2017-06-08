@@ -15,6 +15,6 @@
   }
 
   &.ending {
-    background-color: #f2595c;
+    background-color: var(--bg-field-error);
   }
 }

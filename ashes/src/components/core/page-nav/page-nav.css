@@ -48,7 +48,7 @@
     }
 
     &.activeLink:after {
-      background-color: var(--color-pink);
+      background-color: var(--bg-nav-pink);
     }
   }
 

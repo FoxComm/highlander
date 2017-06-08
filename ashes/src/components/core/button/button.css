@@ -104,7 +104,7 @@ span + i[class*="icon-"] {
  * Delete Button Styles
  */
 .delete:hover {
-  background-color: #ff9796;
+  background-color: var(--bg-message-error);
 }
 
 /*
@@ -119,11 +119,11 @@ span + i[class*="icon-"] {
  */
 .socialButton {
   &.google {
-    background-color: #f65554;
+    background-color: #f65554; /* exception color */
     color: var(--color-light-text);
 
     &:hover {
-      background-color: #f66564;
+      background-color: var(--bg-field-error);
     }
 
     &:disabled {

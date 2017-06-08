@@ -167,7 +167,7 @@
     top: -2px;
     width: 80px;
     height: 34px;
-    background: #F45758;
+    background: var(--bg-field-error);
     border-radius: 17px;
     transition: all .4s ease;
     padding: 0 10px;

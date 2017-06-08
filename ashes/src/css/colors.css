@@ -14,14 +14,15 @@
   --bg-nav-main: #25334a;
   --bg-nav-active: #1a2535;
   --bg-nav-disabled: #99a9c4;
+  --bg-nav-pink: #fc54a6;
+  --bg-field-error: var(--color-error-text);
   --bg-green-buttons: #49cab9;
   --bg-green-buttons-hover: #1dbfaa;
   --bg-message-success: #adf2e9;
-  --bg-warning-success: #fff9a0;
-  --bg-error-success: #ffb1b1;
+  --bg-message-warning: #fff9a0;
+  --bg-message-error: #ffb1b1;
 
 
-  --color-pink: #fc54a6;
   --grey-buttons: #ced2d5;
   --grey-buttons-hover: #bdc3c6;
   --grey-headers: #f7f7f7;
@@ -36,8 +37,6 @@
 
   --light-yellow: #ffdd7f;
 
-  --light-red: #ff9796;
-
   /*
    * Buttons
    */
@@ -49,7 +48,6 @@
    * Alerts
    */
   --alert-warning: var(--light-yellow);
-  --alert-error: var(--light-red);
 
   --decor0: #f2f2f2;
   --decor4: #828e9f;
