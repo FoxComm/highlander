@@ -77,15 +77,14 @@ object Address {
     )
 
   def fromCreditCard(cc: CreditCard): Address =
-    Address(
-      accountId = 0,
-      regionId = cc.address.regionId,
-      name = cc.address.name,
-      address1 = cc.address.address1,
-      address2 = cc.address.address2,
-      city = cc.address.city,
-      zip = cc.address.zip,
-      phoneNumber = cc.address.phoneNumber,
+    Address(accountId = 0,
+            regionId = cc.address.regionId,
+            name = cc.address.name,
+            address1 = cc.address.address1,
+            address2 = cc.address.address2,
+            city = cc.address.city,
+            zip = cc.address.zip,
+            phoneNumber = cc.address.phoneNumber,
       cordRef = None
     )
 
@@ -124,8 +123,7 @@ class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses") {
      city,
      zip,
      isDefaultShipping,
-     cordRef,
-     phoneNumber,
+    cordRef, phoneNumber,
      deletedAt) <> ((Address.apply _).tupled, Address.unapply)
 
   def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)

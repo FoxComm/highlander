@@ -78,9 +78,12 @@ object CreditCardManager {
 
     def getExistingStripeIdAndAddress =
       for {
-        stripeId ← * <~ CreditCards.filter(_.accountId === accountId).map(_.gatewayCustomerId).one
-        address ← * <~ getAddressFromPayload(payload.addressId, payload.address, accountId)
-                   .mustFindOr(CreditCardMustHaveAddress)
+        stripeId        ← * <~ CreditCards.filter(_.accountId === accountId).map(_.gatewayCustomerId).one
+
+        address ← * <~ getAddressFromPayload(payload.addressId,
+                                             payload.address,
+
+                                             accountId).mustFindOr(CreditCardMustHaveAddress)
         _ ← * <~ validateOptionalAddressOwnership(Some(address), accountId)
       } yield (stripeId, address)
 
@@ -171,8 +174,12 @@ object CreditCardManager {
                     .extract
                     .filter(_.accountId === accountId)
                     .mustFindOneOr(NotFoundFailure404(CreditCard, id))
-      address ← * <~ getAddressFromPayload(payload.addressId, payload.address, accountId)
-      _       ← * <~ validateOptionalAddressOwnership(address, accountId)
+
+      address ← * <~ getAddressFromPayload(payload.addressId,
+                                           payload.address,
+
+                                           accountId)
+      _ ← * <~ validateOptionalAddressOwnership(address, accountId)
     } yield address.fold(creditCard)(creditCard.copyFromAddress)
 
     for {
@@ -207,9 +214,11 @@ object CreditCardManager {
 
   private def getAddressFromPayload(id: Option[Int],
                                     payload: Option[CreateAddressPayload],
+
                                     accountId: Int): DBIO[Option[Address]] =
-    (id, payload) match {
-      case (Some(addressId), _) ⇒
+
+    ( id, payload) match {
+      case ( Some(addressId), _) ⇒
         Addresses.findById(addressId).extract.one
 
       case (_, Some(createAddress)) ⇒
