@@ -9,7 +9,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
-import ContentBox from 'components/content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import { AddButton, DeleteButton } from 'components/core/button';
 import SearchGroupModal from './search-group-modal';
 

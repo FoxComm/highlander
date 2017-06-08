@@ -39,7 +39,7 @@ export default (props: Props) => {
         <div className={s.controls}>{props.actionBlock}</div>
       </header>
       <div className={classNames(s.body, props.bodyClassName)}>
-        { body }
+        {body}
       </div>
       {props.footer}
     </div>

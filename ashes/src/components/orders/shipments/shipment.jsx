@@ -6,7 +6,7 @@ import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
-import ContentBox from 'components/content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import TableView from 'components/table/tableview';
 import ShipmentRow from './shipment-row';
 

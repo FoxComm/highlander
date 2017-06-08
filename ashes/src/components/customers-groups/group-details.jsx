@@ -34,7 +34,7 @@ import BulkMessages from 'components/bulk-actions/bulk-messages';
 import { SelectableSearchList, makeTotalCounter } from 'components/list-page';
 import { PrimaryButton, Button } from 'components/core/button';
 import MultiSelectRow from 'components/table/multi-select-row';
-import ContentBox from 'components/content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import Criterion from './editor/criterion-view';
 import CustomerGroupStats from './stats';
 import SearchCustomersModal from './customers/search-modal';

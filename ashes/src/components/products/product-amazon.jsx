@@ -22,7 +22,7 @@ import * as schemaActions from 'modules/object-schema';
 
 // components
 import Spinner from 'components/core/spinner';
-import ContentBox from 'components/content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import SaveCancel from 'components/core/save-cancel';
 import Form from 'components/forms/form';
 import ProductAmazonMain from './product-amazon-main';

@@ -9,7 +9,7 @@ import { autobind } from 'core-decorators';
 import { itemStateTitles, itemReasonsTitles } from 'paragons/shipment';
 
 // components
-import ContentBox from 'components/content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import TableView from 'components/table/tableview';
 import TableRow from 'components/table/row';
 import TableCell from 'components/table/cell';
