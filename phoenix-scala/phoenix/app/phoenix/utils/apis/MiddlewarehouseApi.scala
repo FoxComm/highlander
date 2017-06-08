@@ -19,7 +19,11 @@ case class SkuInventoryHold(sku: String, qty: Int)
 
 case class OrderInventoryHold(refNum: String, items: Seq[SkuInventoryHold])
 
-case class CreateSku(code: String, taxClass: String = "default")
+case class CreateSku(code: String,
+                     taxClass: String = "default",
+                     requiresShipping: Boolean = true,
+                     shippingClass: String = "default",
+                     requiresInventoryTracking: Boolean = true)
 
 trait MiddlewarehouseApi {
 
