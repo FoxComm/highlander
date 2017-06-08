@@ -1,0 +1,15 @@
+[Service]
+WorkingDirectory=/usr/local/share
+ExecStart=/usr/local/bin/nixy -f /etc/nixy.toml
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=nixy
+
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+Requires=consul_agent.service
+After=consul_agent.service

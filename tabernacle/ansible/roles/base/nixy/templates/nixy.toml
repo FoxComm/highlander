@@ -1,0 +1,17 @@
+# Nixy listening port
+port = "6000"
+# X-Proxy header, defaults to hostname
+xproxy = ""
+
+# Marathon API
+marathon = ["http://{{marathon_server}}"] # add all HA cluster nodes in priority order.
+user = "" # leave empty if no auth is required.
+pass = ""
+
+# Nginx
+nginx_config = "/etc/nginx/sites-enabled/services"
+nginx_template = "/etc/nginx/services.template"
+left_delimiter = '<<'
+right_delimiter = '>>'
+nginx_cmd = "nginx" # optionally "openresty" or "docker exec nginx nginx"
+subdomain_key = "consul"
