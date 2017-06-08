@@ -27,7 +27,7 @@
   }
 
   &.active {
-    border-left: 3px solid var(--green-buttons);
+    border-left: 3px solid var(--bg-green-buttons);
     background-color: var(--grey-headers);
   }
 

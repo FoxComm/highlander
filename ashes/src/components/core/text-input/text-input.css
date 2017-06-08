@@ -16,6 +16,6 @@
   }
 
   &:focus {
-    border-color: var(--green-buttons);
+    border-color: var(--bg-green-buttons);
   }
 }

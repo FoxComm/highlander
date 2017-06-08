@@ -17,7 +17,7 @@
       top: 0;
       bottom: 0;
       width: 3px;
-      background: var(--green-buttons);
+      background: var(--bg-green-buttons);
     }
   }
 }

@@ -16,7 +16,7 @@
   transition: all .2s;
 
   &:hover {
-    background-color: var(--green-buttons);
+    background-color: var(--bg-green-buttons);
     color: #fff;
   }
 }

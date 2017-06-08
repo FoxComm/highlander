@@ -50,7 +50,7 @@
 
     &:checked {
       & + label {
-        background: #49cab9;
+        background: var(--bg-green-buttons);
         color: #fff
       }
     }

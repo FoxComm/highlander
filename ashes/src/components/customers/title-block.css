@@ -58,7 +58,7 @@
     display: inline-block;
     width: 84px;
     height: 84px;
-    background-color: var(--green-buttons);
+    background-color: var(--bg-green-buttons);
     overflow: hidden;
     border-radius: 50%;
     margin-top: calc((var(--circle-size) - 84px) / 2);

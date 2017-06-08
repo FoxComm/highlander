@@ -14,8 +14,13 @@
   --bg-nav-main: #25334a;
   --bg-nav-active: #1a2535;
   --bg-nav-disabled: #99a9c4;
+  --bg-green-buttons: #49cab9;
+  --bg-green-buttons-hover: #1dbfaa;
+  --bg-message-success: #adf2e9;
+  --bg-warning-success: #fff9a0;
+  --bg-error-success: #ffb1b1;
 
-  --green-buttons: #49cab9;
+
   --color-pink: #fc54a6;
   --grey-buttons: #ced2d5;
   --grey-buttons-hover: #bdc3c6;
@@ -29,8 +34,6 @@
    */
   --white: #ffffff;
 
-  --light-blue: #a0e9ed;
-
   --light-yellow: #ffdd7f;
 
   --light-red: #ff9796;
@@ -42,14 +45,9 @@
   --button-bg: #ced2d5;
   --button-bg-loading: #ced2d5;
 
-  --primary-button-bg: var(--green-buttons);
-  --primary-button-bg-hover: #1dbfaa;
-  --primary-button-bg-loading: var(--green-buttons);
-
   /*
    * Alerts
    */
-  --alert-success: var(--light-blue);
   --alert-warning: var(--light-yellow);
   --alert-error: var(--light-red);
 
@@ -57,23 +55,12 @@
   --decor4: #828e9f;
   --decor10: #ebebeb;
   --decor13: #fcfcfc;
-  --decor14: #3aacb3;
-  --decor16: #99e6ea;
-  --decor17: #a0e9ed;
-  --decor18: #7Da0f3;
-  --decor19: #a0beed;
-  --decor20: #c5d6ff;
-  --decor21: #e1eaff;
-  --decor23: #ff9796;
   --decor24: #ffbb3c;
   --decor25: #ffdd7f;
-  --decor26: #47628d;
-  --decor29: #a2dee1;
   --decor35: #e5e7e8;
   --decor36: #333c49;
   --decor38: #e9feff;
   --decor43: rgba(0,0,0,0.30);
-  --decor48: #D8FBFD;
   --decor49: #EAFEFF;
   --decor51: rgba(0,0,0,0.50);
   --decor54: #F5FEFF;
@@ -92,8 +79,6 @@
 
   // Control colors
   --control-primary-bg: --green-buttons;
-  --control-primary-hover-bg: --decor14;
-  --control-primary-disabled-fg: --decor29;
   --control-primary-disabled-bg: --green-buttons;
 
   --control-secondary-fg: --color-text;
