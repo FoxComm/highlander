@@ -27,6 +27,7 @@
     - { role: base/mesos_master }
     - { role: base/mesos_worker }
     - { role: base/marathon_consul }
+    - { role: dev/nixy }
     - { role: base/elasticsearch }
     - { role: base/elasticsearch-5 }
     - { role: base/kibana }

@@ -37,6 +37,5 @@
     - { role: dev/marathon_groups }
     # - { role: dev/marathon_restart }
     - { role: dev/nginx }
-    - { role: dev/nixy }
     - { role: dev/seeder, when: with_appliance_seeding and first_run }
     - { role: app/dnsimple, when: first_run }
