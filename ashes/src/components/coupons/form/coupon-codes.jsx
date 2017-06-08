@@ -40,11 +40,6 @@ type Props = {
   codeIsOfValidLength: Function,
 };
 
-type Target = {
-  name: string,
-  value: string,
-};
-
 class CouponCodes extends Component {
   props: Props;
 
