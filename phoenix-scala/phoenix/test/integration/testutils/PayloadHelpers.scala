@@ -51,5 +51,5 @@ object PayloadHelpers {
 
   val imageSrc: String = "http://lorempixel/test.png"
   val someAlbums: Option[Seq[AlbumPayload]] = Seq(
-      AlbumPayload(name = "Default".some, images = Seq(ImagePayload(src = imageSrc)).some)).some
+    AlbumPayload(name = "Default".some, images = Seq(ImagePayload(src = imageSrc)).some)).some
 }

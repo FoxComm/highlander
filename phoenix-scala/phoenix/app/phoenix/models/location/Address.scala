@@ -51,40 +51,43 @@ object Address {
   val zipPatternUs = "^\\d{5}(?:\\d{4})?$"
 
   def fromPayload(p: CreateAddressPayload, accountId: Int): Address =
-    Address(accountId = accountId,
-            regionId = p.regionId,
-            name = p.name,
-            address1 = p.address1,
-            address2 = p.address2,
-            city = p.city,
-            zip = p.zip,
-            phoneNumber = p.phoneNumber,
-            cordRef = None)
-
-  def fromPatchPayload(existedAddress: Address, incomingPayload: UpdateAddressPayload): Address = {
     Address(
-        accountId = existedAddress.accountId,
-        regionId = incomingPayload.regionId.getOrElse(existedAddress.regionId),
-        name = incomingPayload.name.getOrElse(existedAddress.name),
-        address1 = incomingPayload.address1.getOrElse(existedAddress.address1),
-        address2 = incomingPayload.address2.fold(existedAddress.address2)(Some(_)),
-        city = incomingPayload.city.getOrElse(existedAddress.city),
-        zip = incomingPayload.zip.getOrElse(existedAddress.zip),
-        cordRef = existedAddress.cordRef,
-        phoneNumber = incomingPayload.phoneNumber.fold(existedAddress.phoneNumber)(Some(_))
+      accountId = accountId,
+      regionId = p.regionId,
+      name = p.name,
+      address1 = p.address1,
+      address2 = p.address2,
+      city = p.city,
+      zip = p.zip,
+      phoneNumber = p.phoneNumber,
+      cordRef = None
     )
-  }
+
+  def fromPatchPayload(existedAddress: Address, incomingPayload: UpdateAddressPayload): Address =
+    Address(
+      accountId = existedAddress.accountId,
+      regionId = incomingPayload.regionId.getOrElse(existedAddress.regionId),
+      name = incomingPayload.name.getOrElse(existedAddress.name),
+      address1 = incomingPayload.address1.getOrElse(existedAddress.address1),
+      address2 = incomingPayload.address2.fold(existedAddress.address2)(Some(_)),
+      city = incomingPayload.city.getOrElse(existedAddress.city),
+      zip = incomingPayload.zip.getOrElse(existedAddress.zip),
+      cordRef = existedAddress.cordRef,
+      phoneNumber = incomingPayload.phoneNumber.fold(existedAddress.phoneNumber)(Some(_))
+    )
 
   def fromCreditCard(cc: CreditCard): Address =
-    Address(accountId = 0,
-            regionId = cc.address.regionId,
-            name = cc.address.name,
-            address1 = cc.address.address1,
-            address2 = cc.address.address2,
-            city = cc.address.city,
-            zip = cc.address.zip,
-            phoneNumber = cc.address.phoneNumber,
-            cordRef = None)
+    Address(
+      accountId = 0,
+      regionId = cc.address.regionId,
+      name = cc.address.name,
+      address1 = cc.address.address1,
+      address2 = cc.address.address2,
+      city = cc.address.city,
+      zip = cc.address.zip,
+      phoneNumber = cc.address.phoneNumber,
+      cordRef = None
+    )
 
   import scope._
   def mustFindByAddressId(id: Int)(implicit ec: EC): DbResultT[(Address, Region)] =

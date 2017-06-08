@@ -30,11 +30,10 @@ case class Note(id: Int = 0,
 
   import Validation._
 
-  override def validate: ValidatedNel[Failure, Note] = {
+  override def validate: ValidatedNel[Failure, Note] =
     (notEmpty(body, "body") |@| lesserThanOrEqual(body.length, 1000, "bodySize")).map {
       case _ ⇒ this
     }
-  }
 }
 
 object Note {

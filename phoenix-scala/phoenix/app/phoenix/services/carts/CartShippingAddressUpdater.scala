@@ -13,9 +13,7 @@ import phoenix.models.location.Address._
 
 object CartShippingAddressUpdater {
 
-  def createShippingAddressFromAddressId(originator: User,
-                                         addressId: Int,
-                                         refNum: Option[String] = None)(
+  def createShippingAddressFromAddressId(originator: User, addressId: Int, refNum: Option[String] = None)(
       implicit ec: EC,
       db: DB,
       ac: AC,

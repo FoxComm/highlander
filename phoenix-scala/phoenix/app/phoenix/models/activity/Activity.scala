@@ -31,8 +31,8 @@ object ActivityContext {
   implicit val ActivityContextColumn: JdbcType[ActivityContext] with BaseTypedType[ActivityContext] = {
     implicit val formats = JsonFormatters.phoenixFormats
     MappedColumnType.base[ActivityContext, Json](
-        c ⇒ Extraction.decompose(c),
-        j ⇒ j.extract[ActivityContext]
+      c ⇒ Extraction.decompose(c),
+      j ⇒ j.extract[ActivityContext]
     )
   }
 }
@@ -146,18 +146,21 @@ object Activities extends LazyLogging {
       ec: EC): Unit = {
     val msg = new ProducerRecord[GenericData.Record, GenericData.Record](topic, key, record)
 
-    activityContext.producer.send(msg, new Callback {
-      // we force logging to be done in `ec` execution context
-      // instead of a kafka background thread that executes callbacks
-      def onCompletion(metadata: RecordMetadata, exception: Exception): Unit = Future {
-        if (metadata ne null)
-          logger.info(
+    activityContext.producer.send(
+      msg,
+      new Callback {
+        // we force logging to be done in `ec` execution context
+        // instead of a kafka background thread that executes callbacks
+        def onCompletion(metadata: RecordMetadata, exception: Exception): Unit = Future {
+          if (metadata ne null)
+            logger.info(
               s"Kafka Activity ${a.activityType} by ${activityContext.ctx.userType} ${activityContext.ctx.userId} SUCCESS")
-        else
-          logger.error(
+          else
+            logger.error(
               s"Kafka Activity ${a.activityType} by ${activityContext.ctx.userType} ${activityContext.ctx.userId} FAILURE",
               exception)
+        }
       }
-    })
+    )
   }
 }

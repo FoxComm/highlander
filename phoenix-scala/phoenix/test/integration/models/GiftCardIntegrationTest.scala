@@ -4,10 +4,7 @@ import phoenix.models.payment.giftcard._
 import testutils._
 import testutils.fixtures.BakedFixtures
 
-class GiftCardIntegrationTest
-    extends IntegrationTestBase
-    with BakedFixtures
-    with TestObjectContext {
+class GiftCardIntegrationTest extends IntegrationTestBase with BakedFixtures with TestObjectContext {
 
   "GiftCardTest" - {
     "generates a unique alpha-numeric code of size 16 upon insert" in new SimpleFixture {
@@ -37,8 +34,5 @@ class GiftCardIntegrationTest
     override def giftCardBalance = 50
   }
 
-  trait Fixture
-      extends SimpleFixture
-      with EmptyCustomerCart_Baked
-      with CartWithGiftCardOnlyPayment_Raw
+  trait Fixture extends SimpleFixture with EmptyCustomerCart_Baked with CartWithGiftCardOnlyPayment_Raw
 }

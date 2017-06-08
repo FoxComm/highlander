@@ -52,16 +52,16 @@ object FoxConfig extends StrictLogging {
 
   implicit def configConvertADT[T: ADT: ClassTag]: ConfigConvert[T] =
     ConfigConvert.nonEmptyStringConvert(
-        s ⇒
-          ADT[T].read(s).map(Success(_)).getOrElse {
-            val err =
-              s"Could not interpret '$s' as a member of ${classTag[T].runtimeClass.getSimpleName}."
-            Failure(new IllegalArgumentException(err))
-        },
-        ADT[T].show)
+      s ⇒
+        ADT[T].read(s).map(Success(_)).getOrElse {
+          val err =
+            s"Could not interpret '$s' as a member of ${classTag[T].runtimeClass.getSimpleName}."
+          Failure(new IllegalArgumentException(err))
+      },
+      ADT[T].show
+    )
 
-  case class App(defaultContextId: Int,
-                 overrideHashPasswordAlgorithm: Option[HashPasswords.HashAlgorithm])
+  case class App(defaultContextId: Int, overrideHashPasswordAlgorithm: Option[HashPasswords.HashAlgorithm])
 
   // auth
   case class Auth(cookie: Cookie,
@@ -91,11 +91,7 @@ object FoxConfig extends StrictLogging {
   case class Cookie(domain: Option[String], ttl: Option[Long], secure: Boolean = true)
 
   // apis
-  case class Apis(aws: AWS,
-                  elasticsearch: ESConfig,
-                  middlewarehouse: MWH,
-                  stripe: Stripe,
-                  kafka: Kafka)
+  case class Apis(aws: AWS, elasticsearch: ESConfig, middlewarehouse: MWH, stripe: Stripe, kafka: Kafka)
   case class AWS(accessKey: String, secretKey: String, s3Bucket: String, s3Region: String)
   case class ESConfig(host: String, cluster: String, index: String)
   case class MWH(url: String)

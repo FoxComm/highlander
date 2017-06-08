@@ -33,35 +33,38 @@ object AddressResponse {
     Regions.mustFindById400(address.regionId).map(region ⇒ build(address, region))
 
   def build(address: Address, region: Region): AddressResponse =
-    AddressResponse(id = address.id,
-                    region = region,
-                    name = address.name,
-                    address1 = address.address1,
-                    address2 = address.address2,
-                    city = address.city,
-                    zip = address.zip,
-                    isDefault = address.isDefaultShipping.some,
-                    phoneNumber = address.phoneNumber,
-                    deletedAt = address.deletedAt)
+    AddressResponse(
+      id = address.id,
+      region = region,
+      name = address.name,
+      address1 = address.address1,
+      address2 = address.address2,
+      city = address.city,
+      zip = address.zip,
+      isDefault = address.isDefaultShipping.some,
+      phoneNumber = address.phoneNumber,
+      deletedAt = address.deletedAt
+    )
 
   def buildFromCreditCard(cc: CreditCard, region: Region): AddressResponse =
-    AddressResponse(id = 0,
-                    region = region,
-                    name = cc.address.name,
-                    address1 = cc.address.address1,
-                    address2 = cc.address.address2,
-                    city = cc.address.city,
-                    zip = cc.address.zip,
-                    isDefault = None,
-                    phoneNumber = cc.address.phoneNumber)
+    AddressResponse(
+      id = 0,
+      region = region,
+      name = cc.address.name,
+      address1 = cc.address.address1,
+      address2 = cc.address.address2,
+      city = cc.address.city,
+      zip = cc.address.zip,
+      isDefault = None,
+      phoneNumber = cc.address.phoneNumber
+    )
 
   def buildMulti(records: Seq[(Address, Region)]): Seq[AddressResponse] =
     records.map((build _).tupled)
 
-  def forCordRef(cordRef: String)(implicit ec: EC): DbResultT[AddressResponse] = {
+  def forCordRef(cordRef: String)(implicit ec: EC): DbResultT[AddressResponse] =
     for {
       fullAddress ← * <~ Address.mustFindByCordRef(cordRef)
       (address, region) = fullAddress
     } yield build(address, region)
-  }
 }

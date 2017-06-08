@@ -17,13 +17,12 @@ object CartTotaler {
   case class Totals(subTotal: Long, taxes: Long, shipping: Long, adjustments: Long, total: Long)
 
   object Totals {
-    def build(subTotal: Long, shipping: Long, adjustments: Long, taxes: Long): Totals = {
+    def build(subTotal: Long, shipping: Long, adjustments: Long, taxes: Long): Totals =
       Totals(subTotal = subTotal,
              taxes = taxes,
              shipping = shipping,
              adjustments = adjustments,
              total = (subTotal + taxes + shipping - adjustments).zeroIfNegative)
-    }
 
     def empty: Totals = Totals(0, 0, 0, 0, 0)
   }
@@ -72,10 +71,7 @@ object CartTotaler {
       sub  ← * <~ subTotal(cart)
       ship ← * <~ shippingTotal(cart)
       adj  ← * <~ adjustmentsTotal(cart)
-      tax ← * <~ taxesTotal(cordRef = cart.refNum,
-                            subTotal = sub,
-                            shipping = ship,
-                            adjustments = adj)
+      tax  ← * <~ taxesTotal(cordRef = cart.refNum, subTotal = sub, shipping = ship, adjustments = adj)
     } yield Totals.build(subTotal = sub, shipping = ship, adjustments = adj, taxes = tax)
 
   def saveTotals(cart: Cart)(implicit ec: EC): DbResultT[Cart] =

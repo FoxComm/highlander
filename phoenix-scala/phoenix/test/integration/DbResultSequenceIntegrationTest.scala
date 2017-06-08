@@ -42,10 +42,9 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
 
       val failures = cool.gimmeFailures
       val expectedFailure = DatabaseFailure(
-          "ERROR: duplicate key value violates unique constraint \"users_account_idx\"\n" +
-            s"  Detail: Key (account_id)=(${account.id}) already exists.")
-      failures must === (
-          NonEmptyList.fromList(List.fill[Failure](numTries - 1)(expectedFailure)).value)
+        "ERROR: duplicate key value violates unique constraint \"users_account_idx\"\n" +
+          s"  Detail: Key (account_id)=(${account.id}) already exists.")
+      failures must === (NonEmptyList.fromList(List.fill[Failure](numTries - 1)(expectedFailure)).value)
 
       Users.gimme.onlyElement.accountId must === (account.id)
     }

@@ -76,14 +76,10 @@ object Assignments
   def byType(assignType: AssignmentType, refType: ReferenceType): QuerySeq =
     filter(_.assignmentType === assignType).filter(_.referenceType === refType)
 
-  def byAdmin[T <: FoxModel[T]](assignType: AssignmentType,
-                                refType: ReferenceType,
-                                admin: User): QuerySeq =
+  def byAdmin[T <: FoxModel[T]](assignType: AssignmentType, refType: ReferenceType, admin: User): QuerySeq =
     byType(assignType, refType).filter(_.storeAdminId === admin.accountId)
 
-  def byEntity[T <: FoxModel[T]](assignType: AssignmentType,
-                                 model: T,
-                                 refType: ReferenceType): QuerySeq =
+  def byEntity[T <: FoxModel[T]](assignType: AssignmentType, model: T, refType: ReferenceType): QuerySeq =
     byType(assignType, refType).filter(_.referenceId === model.id)
 
   def byEntityAndAdmin[T <: FoxModel[T]](assignType: AssignmentType,

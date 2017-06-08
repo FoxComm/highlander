@@ -21,11 +21,10 @@ import slick.jdbc.PostgresProfile.api._
 
 object ReturnLineItemManager {
 
-  def addLineItem(refNum: String, payload: ReturnLineItemPayload)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      oc: OC): DbResultT[ReturnResponse.Root] =
+  def addLineItem(refNum: String, payload: ReturnLineItemPayload)(implicit ec: EC,
+                                                                  db: DB,
+                                                                  ac: AC,
+                                                                  oc: OC): DbResultT[ReturnResponse.Root] =
     for {
       rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
       reason   ← * <~ ReturnReasons.mustFindById400(payload.reasonId)
@@ -50,26 +49,22 @@ object ReturnLineItemManager {
               .map { case (_, sku) ⇒ sku }
               .to[List]
               .result
-      _ ← * <~ skusLiQuery.deleteAll
-      _ ← * <~ doOrMeh(skus.nonEmpty, LogActivity().returnSkuLineItemsDropped(skus))
-      _ ← * <~ payload.map(p ⇒
-               ReturnReasons.mustFindById400(p.reasonId).flatMap(addSkuLineItem(rma, _, p)))
+      _        ← * <~ skusLiQuery.deleteAll
+      _        ← * <~ doOrMeh(skus.nonEmpty, LogActivity().returnSkuLineItemsDropped(skus))
+      _        ← * <~ payload.map(p ⇒ ReturnReasons.mustFindById400(p.reasonId).flatMap(addSkuLineItem(rma, _, p)))
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response
 
-  private def processAddLineItem(
-      rma: Return,
-      reason: ReturnReason,
-      payload: ReturnLineItemPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC) = {
+  private def processAddLineItem(rma: Return,
+                                 reason: ReturnReason,
+                                 payload: ReturnLineItemPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC) =
     payload match {
       case shipping: ReturnShippingCostLineItemPayload ⇒ addShippingCostItem(rma, reason, shipping)
       case sku: ReturnSkuLineItemPayload               ⇒ addSkuLineItem(rma, reason, sku)
     }
-  }
 
-  private def validateMaxShippingCost(rma: Return, amount: Long)(implicit ec: EC,
-                                                                 db: DB): DbResultT[Unit] =
+  private def validateMaxShippingCost(rma: Return, amount: Long)(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
       order ← * <~ Orders.mustFindByRefNum(rma.orderRef)
       orderShippingTotal = order.shippingTotal
@@ -82,10 +77,9 @@ object ReturnLineItemManager {
                                 .getOrElse(0L)
                                 .result
       maxAmount = orderShippingTotal - previouslyReturnedCost
-      _ ← * <~ failIf(amount > maxAmount,
-                      ReturnShippingCostExceeded(refNum = rma.referenceNumber,
-                                                 amount = amount,
-                                                 maxAmount = maxAmount))
+      _ ← * <~ failIf(
+           amount > maxAmount,
+           ReturnShippingCostExceeded(refNum = rma.referenceNumber, amount = amount, maxAmount = maxAmount))
     } yield ()
 
   private def addShippingCostItem(rma: Return,
@@ -102,20 +96,19 @@ object ReturnLineItemManager {
              .one
       _ ← * <~ oli.map(li ⇒ ReturnLineItems.filter(_.id === li.id).deleteAll)
       li ← * <~ ReturnLineItems.create(
-              ReturnLineItem(
-                  returnId = rma.id,
-                  reasonId = reason.id,
-                  originType = ReturnLineItem.ShippingCost
-              ))
+            ReturnLineItem(
+              returnId = rma.id,
+              reasonId = reason.id,
+              originType = ReturnLineItem.ShippingCost
+            ))
       _ ← * <~ ReturnLineItemShippingCosts.create(
-             ReturnLineItemShippingCost(id = li.id, returnId = rma.id, amount = payload.amount))
+           ReturnLineItemShippingCost(id = li.id, returnId = rma.id, amount = payload.amount))
       _ ← * <~ LogActivity().returnShippingCostItemAdded(rma, reason, payload)
     } yield li
 
-  private def validateMaxQuantity(rma: Return, sku: String, quantity: Int)(
-      implicit ec: EC,
-      db: DB,
-      oc: OC): DbResultT[Unit] =
+  private def validateMaxQuantity(rma: Return, sku: String, quantity: Int)(implicit ec: EC,
+                                                                           db: DB,
+                                                                           oc: OC): DbResultT[Unit] =
     for {
       order ← * <~ Orders.mustFindByRefNum(rma.orderRef)
       orderedQuantity ← * <~ OrderLineItems
@@ -138,11 +131,10 @@ object ReturnLineItemManager {
                                                     maxQuantity = maxQuantity))
     } yield ()
 
-  private def addSkuLineItem(rma: Return, reason: ReturnReason, payload: ReturnSkuLineItemPayload)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      oc: OC): DbResultT[ReturnLineItem] =
+  private def addSkuLineItem(
+      rma: Return,
+      reason: ReturnReason,
+      payload: ReturnSkuLineItemPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC): DbResultT[ReturnLineItem] =
     for {
       _         ← * <~ validateMaxQuantity(rma, payload.sku, payload.quantity)
       sku       ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, payload.sku)
@@ -155,37 +147,38 @@ object ReturnLineItemManager {
              .one
       _ ← * <~ oli.map(li ⇒ ReturnLineItems.filter(_.id === li.id).deleteAll)
       li ← * <~ ReturnLineItems.create(
-              ReturnLineItem(
-                  returnId = rma.id,
-                  reasonId = reason.id,
-                  originType = ReturnLineItem.SkuItem
-              ))
+            ReturnLineItem(
+              returnId = rma.id,
+              reasonId = reason.id,
+              originType = ReturnLineItem.SkuItem
+            ))
       _ ← * <~ ReturnLineItemSkus.create(
-             ReturnLineItemSku(id = li.id,
-                               returnId = rma.id,
-                               quantity = payload.quantity,
-                               skuId = sku.id,
-                               skuShadowId = skuShadow.id))
+           ReturnLineItemSku(id = li.id,
+                             returnId = rma.id,
+                             quantity = payload.quantity,
+                             skuId = sku.id,
+                             skuShadowId = skuShadow.id))
       _ ← * <~ LogActivity().returnSkuLineItemAdded(rma, reason, payload)
     } yield li
 
-  def deleteLineItem(refNum: String, lineItemId: Int)(implicit ec: EC,
-                                                      ac: AC,
-                                                      db: DB): DbResultT[ReturnResponse.Root] =
+  def deleteLineItem(refNum: String,
+                     lineItemId: Int)(implicit ec: EC, ac: AC, db: DB): DbResultT[ReturnResponse.Root] =
     for {
       rma     ← * <~ Returns.mustFindActiveByRefNum404(refNum)
       li      ← * <~ ReturnLineItems.mustFindById404(lineItemId)
       deleted ← * <~ ReturnLineItems.filter(_.id === li.id).deleteAllWithRowsBeingAffected
-      _ ← * <~ doOrMeh(deleted, li.originType match {
-           case ReturnLineItem.ShippingCost ⇒ LogActivity().returnShippingCostItemDeleted(li)
-           case ReturnLineItem.SkuItem      ⇒ LogActivity().returnSkuLineItemDeleted(li)
-         })
+      _ ← * <~ doOrMeh(
+           deleted,
+           li.originType match {
+             case ReturnLineItem.ShippingCost ⇒ LogActivity().returnShippingCostItemDeleted(li)
+             case ReturnLineItem.SkuItem      ⇒ LogActivity().returnSkuLineItemDeleted(li)
+           }
+         )
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response
 
-  def fetchSkuLineItems(rma: Return)(implicit ec: EC,
-                                     db: DB): DbResultT[Seq[ReturnResponse.LineItem.Sku]] = {
+  def fetchSkuLineItems(rma: Return)(implicit ec: EC, db: DB): DbResultT[Seq[ReturnResponse.LineItem.Sku]] = {
     val skusQuery = (for {
       liSku  ← ReturnLineItemSkus.findByRmaId(rma.id)
       li     ← ReturnLineItems if liSku.id === li.id
@@ -208,20 +201,20 @@ object ReturnLineItemManager {
             title             ← FormShadowGet.title(form, shadow)
           } yield
             ReturnResponse.LineItem.Sku(
-                id = id,
-                reason = reason,
-                imagePath = image.getOrElse(CordResponseLineItems.NO_IMAGE),
-                title = title,
-                sku = sku.code,
-                quantity = quantity,
-                price = price,
-                currency = currency)
+              id = id,
+              reason = reason,
+              imagePath = image.getOrElse(CordResponseLineItems.NO_IMAGE),
+              title = title,
+              sku = sku.code,
+              quantity = quantity,
+              price = price,
+              currency = currency
+            )
       }
   }
 
-  def fetchShippingCostLineItem(rma: Return)(
-      implicit ec: EC,
-      db: DB): DbResultT[Option[ReturnResponse.LineItem.ShippingCost]] = {
+  def fetchShippingCostLineItem(
+      rma: Return)(implicit ec: EC, db: DB): DbResultT[Option[ReturnResponse.LineItem.ShippingCost]] = {
     val shippingCostsQuery = (for {
       liSc   ← ReturnLineItemShippingCosts.findByRmaId(rma.id)
       li     ← liSc.li

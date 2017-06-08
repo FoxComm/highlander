@@ -20,17 +20,18 @@ object CustomerGroupsTailored {
                                    deletedAt: Option[Instant] = None)
 
   object CustomerGroupActivity {
-    def apply(group: CustomerGroup): CustomerGroupActivity = {
-      CustomerGroupActivity(id = group.id,
-                            scope = group.scope,
-                            createdBy = group.createdBy,
-                            name = group.name,
-                            customersCount = group.customersCount,
-                            groupType = group.groupType,
-                            updatedAt = group.updatedAt,
-                            createdAt = group.createdAt,
-                            deletedAt = group.deletedAt)
-    }
+    def apply(group: CustomerGroup): CustomerGroupActivity =
+      CustomerGroupActivity(
+        id = group.id,
+        scope = group.scope,
+        createdBy = group.createdBy,
+        name = group.name,
+        customersCount = group.customersCount,
+        groupType = group.groupType,
+        updatedAt = group.updatedAt,
+        createdAt = group.createdAt,
+        deletedAt = group.deletedAt
+      )
   }
 
   case class CustomerGroupCreated(customerGroup: CustomerGroupActivity, admin: User)

@@ -13,7 +13,7 @@ import phoenix.utils.http.Http._
 import phoenix.utils.http.JsonSupport._
 
 object PromotionRoutes {
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("promotions") {
         pathPrefix(Segment) { (context) ⇒
@@ -22,25 +22,24 @@ object PromotionRoutes {
               PromotionManager.create(payload, context, Some(auth.model))
             }
           } ~
-          pathPrefix(IntNumber) { id ⇒
-            (get & pathEnd) {
-              getOrFailures {
-                PromotionManager.getIlluminated(id, context)
-              }
-            } ~
-            (patch & pathEnd & entity(as[UpdatePromotion])) { payload ⇒
-              mutateOrFailures {
-                PromotionManager.update(id, payload, context, Some(auth.model))
-              }
-            } ~
-            (delete & pathEnd) {
-              mutateOrFailures {
-                PromotionManager.archiveByContextAndId(context, id)
-              }
+            pathPrefix(IntNumber) { id ⇒
+              (get & pathEnd) {
+                getOrFailures {
+                  PromotionManager.getIlluminated(id, context)
+                }
+              } ~
+                (patch & pathEnd & entity(as[UpdatePromotion])) { payload ⇒
+                  mutateOrFailures {
+                    PromotionManager.update(id, payload, context, Some(auth.model))
+                  }
+                } ~
+                (delete & pathEnd) {
+                  mutateOrFailures {
+                    PromotionManager.archiveByContextAndId(context, id)
+                  }
+                }
             }
-          }
         }
       }
     }
-  }
 }

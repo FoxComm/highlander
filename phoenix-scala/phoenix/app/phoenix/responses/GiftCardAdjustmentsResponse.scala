@@ -11,11 +11,10 @@ object GiftCardAdjustmentsResponse {
                   cordRef: Option[String])
       extends ResponseItem
 
-  def build(adj: GiftCardAdjustment, cordRef: Option[String] = None): Root = {
+  def build(adj: GiftCardAdjustment, cordRef: Option[String] = None): Root =
     Root(id = adj.id,
          amount = adj.getAmount,
          availableBalance = adj.availableBalance,
          state = adj.state,
          cordRef = cordRef)
-  }
 }

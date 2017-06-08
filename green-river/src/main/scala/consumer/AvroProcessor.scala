@@ -119,8 +119,7 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
     extends AbstractKafkaAvroDeserializer
     with MessageProcessor {
 
-  this.schemaRegistry = new CachedSchemaRegistryClient(
-      schemaRegistryUrl, DEFAULT_MAX_SCHEMAS_PER_SUBJECT)
+  this.schemaRegistry = new CachedSchemaRegistryClient(schemaRegistryUrl, DEFAULT_MAX_SCHEMAS_PER_SUBJECT)
   val encoderFactory = EncoderFactory.get()
 
   register("scoped_activities-value", AvroProcessor.activitySchema)
@@ -129,13 +128,13 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
   register("scoped_activities-key", AvroProcessor.keySchema)
   register("scoped_activity_trails-key", AvroProcessor.keySchema)
 
-  def process(offset: Long, topic: String, key: Array[Byte], message: Array[Byte]): Future[Unit] = {
+  def process(offset: Long, topic: String, key: Array[Byte], message: Array[Byte]): Future[Unit] =
     try {
 
       val keyJson =
         if (key == null || key.isEmpty) {
           Console.err.println(
-              s"Warning, message has no key for topic ${topic}: ${new String(message, "UTF-8")}")
+            s"Warning, message has no key for topic $topic: ${new String(message, "UTF-8")}")
           ""
         } else {
           deserializeAvro(key)
@@ -150,12 +149,11 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
           val readableKey     = new String(key, "UTF-8")
           val readableMessage = new String(message, "UTF-8")
           Console.err.println(
-              s"Error deserializing avro message with key $readableKey: error $e\n\t$readableMessage")
+            s"Error deserializing avro message with key $readableKey: error $e\n\t$readableMessage")
           e
         }
       case e: Throwable ⇒ Future.failed(e)
     }
-  }
 
   def deserializeAvro(v: Array[Byte]): String = {
     val obj     = deserialize(v)
@@ -177,13 +175,11 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
   */
 object AvroJsonHelper {
 
-  def transformJson(json: String, fields: List[String] = List.empty): String = {
+  def transformJson(json: String, fields: List[String] = List.empty): String =
     compact(render(transformJsonRaw(json, fields)))
-  }
 
-  def transformJsonRaw(json: String, fields: List[String] = List.empty): JValue = {
+  def transformJsonRaw(json: String, fields: List[String] = List.empty): JValue =
     JsonTransformers.camelCase(stringToJson(deannotateAvroTypes(parse(json)), fields))
-  }
 
   private def convertType(typeName: String, value: JValue): JValue =
     typeName match {
@@ -192,26 +188,24 @@ object AvroJsonHelper {
       case _ ⇒ value
     }
 
-  private def deannotateAvroTypes(input: JValue): JValue = {
+  private def deannotateAvroTypes(input: JValue): JValue =
     input.transformField {
       case JField(name, (JObject(JField(typeName, value) :: Nil))) ⇒ {
-          (name, convertType(typeName, value))
-        }
+        (name, convertType(typeName, value))
+      }
     }
-  }
 
-  private def stringToJson(input: JValue, fields: List[String]): JValue = {
+  private def stringToJson(input: JValue, fields: List[String]): JValue =
     input.transformField {
       case JField(name, JString(text)) if fields.contains(name) ⇒ {
-          // Try to parse the text as json, otherwise treat it as text
-          try {
-            (name, parse(text))
-          } catch {
-            case NonFatal(e) ⇒
-              Console.println(s"Error during parsing field $name: ${e.getMessage}")
-              (name, JString(text))
-          }
+        // Try to parse the text as json, otherwise treat it as text
+        try {
+          (name, parse(text))
+        } catch {
+          case NonFatal(e) ⇒
+            Console.println(s"Error during parsing field $name: ${e.getMessage}")
+            (name, JString(text))
         }
+      }
     }
-  }
 }
