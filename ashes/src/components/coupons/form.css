@@ -13,7 +13,7 @@
 .field-comment {
   margin-top: 8px;
   font-size: 13px;
-  color: #909090;
+  color: var(--color-additional-text);
 }
 
 .full-width {
@@ -25,7 +25,7 @@
 }
 
 .text-gray {
-  color: #909090;
+  color: var(--color-additional-text);
 }
 
 :global(.fc-coupon-codes .fc-live-search) {

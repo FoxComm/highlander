@@ -2,6 +2,7 @@
   /* colors blessed by @bree */
   --color-text: #363636;
   --color-additional-text: rgba(54, 54, 54, 0.5);
+  --color-subtitle-text: #abb2b6;
   --color-light-text: #fff;
   --color-action-text: #3fc1ab;
   --color-error-text: #f65554;
@@ -10,10 +11,11 @@
   /* all other colors are damned! */
 
   /* background colors blessed by @bree */
+
   --nav-active: #1a2535;
   --nav-main: #25334a;
   --green-buttons: #49cab9;
-  --nav-pink: #fc54a6;
+  --color-pink: #fc54a6;
   --grey-buttons: #ced2d5;
   --grey-buttons-hover: #bdc3c6;
   --grey-headers: #f7f7f7;
@@ -47,11 +49,6 @@
   --primary-button-bg-loading: var(--green-buttons);
 
   /*
-   * Page Nav
-   */
-  --nav-item-underline: #ced2d5;
-
-  /*
    * Alerts
    */
   --alert-success: var(--light-blue);
@@ -61,7 +58,6 @@
   --decor0: #f2f2f2;
   --decor3: #3a4350;
   --decor4: #828e9f;
-  --decor7: #ced2d5;
   --decor10: #ebebeb;
   --decor13: #fcfcfc;
   --decor14: #3aacb3;
@@ -86,7 +82,6 @@
   --decor54: #F5FEFF;
   --decor55: rgba(0,0,0,0.40);
   --decor58: rgba(0,0,0,.1);
-  --decor59: #6a6a6a;
   --decor60: #e4e6ea;
   --decor61: #f4f5f6;
 
@@ -111,9 +106,9 @@
   --control-secondary-disabled-bg: --transparent;
 
   --control-standard-fg: --color-text;
-  --control-standard-bg: --decor7;
+  --control-standard-bg: #ced2d5;
   --control-standard-hover-fg: --color-text;
-  --control-standard-disabled-bg: --decor7;
+  --control-standard-disabled-bg: #ced2d5;
 
   --control-yes-bg: --green-buttons;
 }

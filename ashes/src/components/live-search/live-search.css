@@ -11,7 +11,7 @@
 }
 
 .action {
-  color: #989898;
+  color: var(--color-additional-text);
 }
 
 .term {

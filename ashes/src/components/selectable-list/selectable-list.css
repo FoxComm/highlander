@@ -25,7 +25,7 @@
 }
 
 .items-list {
-  border-bottom: 1px solid #adadad;
+  border-bottom: 1px solid var(--color-border);
   max-height: 256px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -48,7 +48,7 @@
 }
 
 .item-description {
-  color: #adadad;
+  color: var(--color-additional-text);
   padding-left: 10px;
   text-transform: capitalize;
 

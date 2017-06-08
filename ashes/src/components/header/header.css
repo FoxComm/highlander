@@ -42,7 +42,7 @@
 }
 
 .arrow {
-  color: #888;
+  color: var(--color-additional-text);
 }
 
 .name,

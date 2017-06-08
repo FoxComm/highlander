@@ -6,7 +6,7 @@
 
 .itemPrefix {
   display: inline;
-  color: #999;
+  color: var(--color-additional-text);
   font-size: 12px;
   line-height: 16px;
 }

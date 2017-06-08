@@ -45,7 +45,6 @@
 
 .avatar {
   display: inline-block;
-  --image-size: 84px;
   width: var(--circle-size);
   height: var(--circle-size);
   background-color: var(--white);
@@ -57,14 +56,14 @@
 
   & > i {
     display: inline-block;
-    width: var(--image-size);
-    height: var(--image-size);
+    width: 84px;
+    height: 84px;
     background-color: var(--green-buttons);
     overflow: hidden;
     border-radius: 50%;
-    margin-top: calc((var(--circle-size) - var(--image-size)) / 2);
+    margin-top: calc((var(--circle-size) - 84px) / 2);
     font-size: 60px;
-    line-height: var(--image-size);
+    line-height: 84px;
     color: var(--color-light-text);
   }
 }

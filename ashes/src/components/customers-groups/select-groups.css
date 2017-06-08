@@ -45,7 +45,7 @@
 }
 
 .group-description {
-  color: #adadad;
+  color: var(--color-additional-text);
   padding-left: 10px;
   text-transform: capitalize;
 

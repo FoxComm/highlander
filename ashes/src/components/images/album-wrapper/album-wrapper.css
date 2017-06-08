@@ -86,7 +86,7 @@
   &:global(._disabled),
   &:global(._disabled):hover {
     cursor: default;
-    color: #999;
+    color: var(--color-additional-text);
   }
 }
 

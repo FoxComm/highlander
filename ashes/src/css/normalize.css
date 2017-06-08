@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
 
 /**
@@ -245,8 +247,8 @@ input,
 optgroup,
 select,
 textarea {
-  color: inherit; /* 1 */
-  font: inherit; /* 2 */
+  font: inherit;
+  color: inherit;
   margin: 0; /* 3 */
 }
 
@@ -365,7 +367,7 @@ input[type="search"]::-webkit-search-decoration {
  */
 
 fieldset {
-  border: 1px solid #c0c0c0;
+  border: 1px solid var(--color-border);
   margin: 0 2px;
   padding: 0.35em 0.625em 0.75em;
 }

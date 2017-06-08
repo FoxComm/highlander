@@ -50,7 +50,7 @@
     padding: 7px 2px 7px 4px;
     font-size: 18px;
     cursor: move;
-    color: #c0c0c0;
+    color: var(--color-additional-text);
   }
 
   &:global(._hasDraggingItem) {

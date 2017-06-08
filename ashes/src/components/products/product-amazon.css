@@ -44,7 +44,7 @@
   cursor: pointer;
 }
 .set._disabled {
-  color: #999;
+  color: var(--color-additional-text);
   cursor: default;
 }
 
