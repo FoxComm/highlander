@@ -43,5 +43,4 @@
     with_onboarding: true
   roles:
     - { role: dev/nginx }
-    - { role: demo/balancer }
     - { role: hotfix/nginx }
