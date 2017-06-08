@@ -1,6 +1,7 @@
 /* @flow */
 
 // libs
+import omit from 'lodash/omit';
 import React, { Component, Element } from 'react';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
@@ -43,14 +44,14 @@ export default class TextInput extends Component {
   };
 
   componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.value != this.props.value) {
+    if (nextProps.value !== this.props.value) {
       this.setState({ value: nextProps.value });
     }
   }
 
   @autobind
   handleChange(e: SyntheticInputEvent) {
-    const {value, name} = e.target;
+    const { value, name } = e.target;
     if (this.props.onChange) {
       this.props.onChange(value, name, e);
     } else {
@@ -59,17 +60,19 @@ export default class TextInput extends Component {
   }
 
   render(): Element<any> {
-    const { className, placeholder, onChange, defaultValue, ...rest } = this.props;
+    const { className, placeholder, ...rest } = this.props;
     const inputClass = classNames(s.input, className, '__cssmodules');
+
+    const inputProps = omit(rest, ['value', 'onChange', 'defaultValue']);
 
     return (
       <input
         type="text"
         className={inputClass}
-        onChange={this.handleChange}
         placeholder={placeholder}
         value={this.state.value}
-        {...rest}
+        onChange={this.handleChange}
+        {...inputProps}
       />
     );
   }
