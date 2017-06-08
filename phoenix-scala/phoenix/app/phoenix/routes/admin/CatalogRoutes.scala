@@ -12,7 +12,7 @@ import phoenix.utils.http.CustomDirectives._
 import phoenix.utils.http.Http._
 
 object CatalogRoutes {
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AU): Route = {
     activityContext(auth) { implicit ac ⇒
       pathPrefix("catalogs") {
         (post & pathEnd & entity(as[CreateCatalogPayload])) { payload ⇒
