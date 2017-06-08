@@ -1,14 +1,12 @@
 #### Basic usage
 
 ```javascript
-<TextInput onChange={handleChange} value="some value"/>
+import { TextInput } from 'components/core/text-input'
+
+<TextInput onChange={handleChange} value="some value" />
 ```
 
 ### States
-
-```javascript
-import { TextInput } from 'components/core/text-input'
-```
 
 ```
 <div className="demo">
