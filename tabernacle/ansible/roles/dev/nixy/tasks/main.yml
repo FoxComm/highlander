@@ -1,24 +1,26 @@
 ---
 
-- name: Get Nixy
-  get_url: url={{nixy_url}} dest=/tmp/nixy.tar.gz
+- name: Install Service Locations Upstreams
+  template: src=service_locations.j2 dest=/etc/nginx/service_locations.conf
 
-- name: Unpack Nixy
-  unarchive: src="/tmp/nixy.tar.gz" dest="/usr/local/bin/" copy=no
-  args:
-    creates: "/usr/local/bin/nixy"
+- name: Install Service Upstreams
+  template: src=services.j2 dest=/etc/nginx/services.template
 
-- name: Install Nixy Service
-  template: src=nixy.service dest="{{dest_services}}/nixy.service"
+- name: Install Web UI Hosts
+  template: src=web-ui.j2 dest=/etc/nginx/sites-available/web-ui
 
-- name: Copy Nixy Config File
-  template: src=nixy.toml dest="/etc/nixy.toml"
-
-- name: Copy Nixy Service File
-  template: src=nixy.json dest=/etc/consul.d/nixy.json
+- name: Enable Web UI Hosts
+  file: src=/etc/nginx/sites-available/web-ui dest=/etc/nginx/sites-enabled/web-ui owner=root group=root state=link force=true
 
 - name: Restart Nixy
   service: name=nixy state=restarted
 
 - name: Restart Consul Agent
   service: name=consul_agent state=restarted enabled=yes
+
+- name: Wait for nixy service to be up
+  uri: http://localhost:6000/
+  register: result
+  until: result.status == 200
+  retries: 5
+  delay: 2

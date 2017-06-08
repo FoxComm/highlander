@@ -57,5 +57,5 @@
     is_staging: true
     with_onboarding: true
   roles:
-    - { role: dev/nginx }
+    - { role: dev/nixy }
     - { role: hotfix/nginx }
