@@ -64,10 +64,10 @@ const _changeItemUnits = createAsyncActions(
   (stockItemId: number, qty: number, type: string) => {
     let payload, action;
     if (qty >= 0) {
-      payload = {qty: qty, type, status: 'onHand'};
+      payload = { qty: qty, type, status: 'onHand' };
       action = 'increment';
     } else {
-      payload = {qty: -qty, type, status: 'onHand'};
+      payload = { qty: -qty, type, status: 'onHand' };
       action = 'decrement';
     }
     return Api.patch(`/inventory/stock-items/${stockItemId}/${action}`, payload);
@@ -133,8 +133,24 @@ const reducer = createReducer({
     );
   },
   [updateSkuItemsCount]: (state, [sku, stockItem, diff]) => {
+    // get item onHand count value
+    const itemPath = ['details', sku, stockItem.stockLocationId, 'stockItems'];
+    const itemIndex = _.findIndex(_.get(state, itemPath), { type: stockItem.type }, []);
+    const itemOnHandPath = [...itemPath, itemIndex, 'onHand'];
+    const itemOnHandCount = _.get(state, itemOnHandPath, 0);
+
+    // get item onHand diff
+    const itemChangesPath = ['stockItemChanges', sku, `${stockItem.type}-${stockItem.id}`];
+    const itemChangesDiff = _.get(state, [...itemChangesPath, 'diff'], 0);
+
+    if (itemIndex === -1) {
+      return state;
+    }
+
+    // update item onHand absolute value and its diff from origin value
     return assoc(state,
-      ['stockItemChanges', sku, `${stockItem.type}-${stockItem.id}`], {diff, type: stockItem.type, id: stockItem.id}
+      itemOnHandPath, itemOnHandCount + diff,
+      itemChangesPath, { diff: itemChangesDiff + diff, type: stockItem.type, id: stockItem.id }
     );
   },
   [clearSkuItemsChanges]: (state, sku) => {
