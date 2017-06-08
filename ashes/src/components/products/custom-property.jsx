@@ -48,10 +48,6 @@ export default class CustomProperty extends Component<void, Props, State> {
     };
   }
 
-  get closeAction(): Element<*> {
-    return <a onClick={this.props.onCancel}>&times;</a>;
-  }
-
   get propertyTypes(): Array<Element<*>> {
     return _.map(propertyTypes, (type, key) => [key, type]);
   }
@@ -75,14 +71,6 @@ export default class CustomProperty extends Component<void, Props, State> {
     event.preventDefault();
 
     this.props.onSave(this.state);
-  }
-
-  get propertyTypes(): Array<Element<*>> {
-    return _.map(propertyTypes, (type, key) => [key, type]);
-  }
-
-  get saveDisabled(): boolean {
-    return _.isEmpty(this.state.fieldLabel) || _.isEmpty(this.state.propertyType);
   }
 
   get footer() {

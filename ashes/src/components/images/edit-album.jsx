@@ -40,12 +40,6 @@ export default class EditAlbum extends Component {
     isNew: false,
   };
 
-  _input: HTMLInputElement;
-
-  get closeAction() {
-    return <a onClick={this.props.onCancel}>&times;</a>;
-  }
-
   get saveDisabled(): boolean {
     return _.isEmpty(this.state.name) || this.state.name === this.props.album.name;
   }

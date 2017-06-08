@@ -79,7 +79,8 @@ class OptionEditDialog extends Component {
             id="fct-option-name-fld"
             ref="nameInput"
             value={name}
-            onChange={(value) => this.handleChange(value, 'name')}
+            name="name"
+            onChange={this.handleChange}
             autoFocus
           />
         </FormField>
@@ -91,7 +92,8 @@ class OptionEditDialog extends Component {
           <TextInput
             id="option-display-type-fld"
             value={type}
-            onChange={(value) => this.handleChange(value, 'type')}
+            name="type"
+            onChange={this.handleChange}
           />
         </FormField>
       </Form>

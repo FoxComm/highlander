@@ -89,7 +89,7 @@ export default class NewOrder extends Component {
       <PilledInput
         solid={true}
         value={this.state.query}
-        onChange={ value => this.setState({query: value})}
+        onChange={value => this.setState({query: value})}
         pills={this.customers}
         onPillClose={this.clearCustomer} />
     );

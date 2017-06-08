@@ -91,7 +91,7 @@ export default class UsersTypeahead extends Component {
         autoFocus={true}
         value={state.term}
         disabled={state.selected.length >= props.maxUsers}
-        onChange={ value => this.setTerm(value)}
+        onChange={this.setTerm}
         pills={pills}
         icon={null}
         onPillClose={(name, index) => this.deselectItem(index)}
