@@ -1,8 +1,9 @@
 /* @flow */
 
 // libs
-import React from 'react';
+import invariant from 'invariant';
 import classNames from 'classnames';
+import React from 'react';
 
 // styles
 import s from './radio-button.css';
@@ -27,8 +28,10 @@ type Props = {
 const RadioButton = (props: Props) => {
   const { id, label, className, ...rest } = props;
 
+  invariant(!!id, 'id prop should be provided for RadioButton');
+
   return (
-    <div className={ classNames(s.radio, className) }>
+    <div className={classNames(s.radio, className)}>
       <input type="radio" id={id} {...rest} />
       <label htmlFor={id} className={s.label}>{label}</label>
     </div>

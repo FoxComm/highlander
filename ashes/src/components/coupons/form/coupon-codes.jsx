@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 // components
 import ContentBox from '../../content-box/content-box';
 import RadioButton from 'components/core/radio-button';
-import Counter from '../../forms/counter';
+import Counter from 'components/core/counter';
 import FormField from '../../forms/formfield';
 import CodeCreationModal from './code-creation-modal';
 import { transitionTo } from 'browserHistory';
@@ -76,16 +76,8 @@ class CouponCodes extends Component {
   }
 
   @autobind
-  handleCounterChange({target}: {target: Target}): void {
-    const num = Number(target.value);
-    this.props.couponsGenerationChange(target.name, num);
-  }
-
-  @autobind
-  setCounterValue(name: string, value: string|number): void {
-    let num = Number(value);
-    num = isNaN(num) ? 1 : num;
-    this.props.couponsGenerationChange(name, Math.max(1, num));
+  handleCounterChange(name, num): void {
+    this.props.couponsGenerationChange(name, num);
   }
 
   @autobind
@@ -156,9 +148,7 @@ class CouponCodes extends Component {
                 id="codesQuantity"
                 name="codesQuantity"
                 value={codesQuantity}
-                decreaseAction={() => this.setCounterValue('codesQuantity', codesQuantity - 1)}
-                increaseAction={() => this.setCounterValue('codesQuantity', codesQuantity + 1)}
-                onChange={this.handleCounterChange}
+                onChange={(value) => this.handleCounterChange('codesQuantity', value)}
                 min={1}
               />
             </div>
@@ -184,9 +174,7 @@ class CouponCodes extends Component {
                 id="codesLength"
                 name="codesLength"
                 value={this.props.codeGeneration.codesLength}
-                decreaseAction={() => this.setCounterValue('codesLength', this.props.codeGeneration.codesLength - 1)}
-                increaseAction={() => this.setCounterValue('codesLength', this.props.codeGeneration.codesLength + 1)}
-                onChange={this.handleCounterChange}
+                onChange={(value) => this.handleCounterChange('codesLength', value)}
                 min={1}
               />
             </div>

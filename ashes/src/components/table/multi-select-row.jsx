@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { transitionTo } from 'browserHistory';
 
 // components
-import { Checkbox } from '../checkbox/checkbox';
+import { Checkbox } from 'components/core/checkbox';
 import TableCell from '../table/cell';
 import TableRow from '../table/row';
 
@@ -55,7 +55,7 @@ const MultiSelectRow = (props, context) => {
     switch (col.field) {
       case 'selectColumn':
         cellClickAction = (event: MouseEvent) => event.stopPropagation();
-        cellContents = <Checkbox id={`multi-select-${row.id}`} inline={true} checked={checked} onChange={onChange} />;
+        cellContents = <Checkbox id={`multi-select-${row.id}`} checked={checked} onChange={onChange} inCell />;
         break;
       default:
         cellContents = setCellFn(row, col.field);
