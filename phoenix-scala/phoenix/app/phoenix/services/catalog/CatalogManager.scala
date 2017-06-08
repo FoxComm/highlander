@@ -38,6 +38,6 @@ object CatalogManager extends LazyLogging {
       catalog  ← * <~ Catalogs.update(existing, Catalog.build(existing, payload))
       country  ← * <~ Countries.mustFindById400(catalog.countryId)
       response = build(catalog, country)
-      _ ← * <~ LogActivity().withScope(ac.scope).catalogUpdated(au.model, response)
+      _ ← * <~ LogActivity().withScope(ac.ctx.scope).catalogUpdated(au.model, response)
     } yield response
 }
