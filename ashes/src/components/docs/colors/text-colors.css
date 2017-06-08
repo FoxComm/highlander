@@ -23,7 +23,7 @@
   color: var(--color-text);
 
   & > .value::before {
-    content: 'var(--color-text)';
+    content: '--color-text';
   }
 
   & > .desc::before {
@@ -35,7 +35,7 @@
   color: var(--color-additional-text);
 
   & > .value::before {
-    content: 'var(--color-additional-text)';
+    content: '--color-additional-text';
   }
 
   & > .desc::before {
@@ -47,7 +47,7 @@
   color: var(--color-subtitle-text);
 
   & > .value::before {
-    content: 'var(--color-subtitle-text)';
+    content: '--color-subtitle-text';
   }
 
   & > .desc::before {
@@ -60,7 +60,7 @@
   background-color: #363636;
 
   & > .value::before {
-    content: 'var(--color-light-text)';
+    content: '--color-light-text';
   }
 
   & > .desc::before {
@@ -72,7 +72,7 @@
   color: var(--color-action-text);
 
   & > .value::before {
-    content: 'var(--color-action-text)';
+    content: '--color-action-text';
   }
 
   & > .desc::before {
@@ -84,7 +84,7 @@
   color: var(--color-error-text);
 
   & > .value::before {
-    content: 'var(--color-error-text)';
+    content: '--color-error-text';
   }
 
   & > .desc::before {
