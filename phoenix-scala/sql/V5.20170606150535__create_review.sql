@@ -2,7 +2,7 @@ create table product_reviews (
   id          serial primary key,
   scope       ltree not null,
   content     json  not null,
-  user_id     int   not null references users (id) on update restrict on delete restrict,
+  user_id     int   not null references users (account_id) on update restrict on delete restrict,
   sku_id      int   not null references skus (id) on update restrict on delete restrict,
   updated_at  generic_timestamp,
   created_at  generic_timestamp,

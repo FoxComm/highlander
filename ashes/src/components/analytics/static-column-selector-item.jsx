@@ -1,17 +1,11 @@
-/**
- * @flow weak
- */
+/* @flow weak */
 
 // libs
 import React from 'react';
 
 // components
-import { Checkbox } from '../checkbox/checkbox';
+import { Checkbox } from 'components/core/checkbox';
 
-// styles
-import styles from './static-column-selector.css';
-
-// types
 type Props = {
   onChange?: ?Function,
   index: number,
@@ -34,10 +28,10 @@ export default class StaticColumnSelectorItem extends React.Component {
       <li>
         <Checkbox
           id={`choose-column-${id}`}
+          label={text}
           onChange={onChange}
-          checked={checked}>
-          {text}
-        </Checkbox>
+          checked={checked}
+        />
       </li>
     );
   }

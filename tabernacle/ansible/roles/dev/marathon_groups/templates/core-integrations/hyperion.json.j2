@@ -5,6 +5,7 @@
     "mem": 256,
     "disk": 0,
     "instances": 1,
+    "constraints": [],
     "labels": {
         "LANG": "elixir",
         "consul": "hyperion",
@@ -28,9 +29,6 @@
         "PUSH_CHECK_INTERVAL": "{{hyperion_push_check_interval}}",
         "CREATE_ASHES_PLUGIN": "{{hyperion_create_plugin_in_ashes_on_start}}"
     },
-    "constraints": [
-        ["hostname", "UNIQUE"]
-    ],
     "container": {
         "type": "DOCKER",
         "volumes": [{

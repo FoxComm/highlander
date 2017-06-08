@@ -1,0 +1,233 @@
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+
+  & input {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    padding: 0;
+    font-size: 1rem;
+    opacity: 0;
+  }
+
+  & .label {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-size: 13px;
+    color: #363636;
+  }
+
+  & .label::before {
+    content: '';
+    width: 24px;
+    height: 24px;
+    border-radius: 3px;
+    border: 2px solid #d9d9d9;
+    transition: all .2s;
+    cursor: pointer;
+  }
+
+  & .label:not(:empty)::before {
+    margin-right: 7px;
+  }
+
+  & .label::after {
+    content: '\E829';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 20px;
+    text-align: center;
+    font-family: "fontello";
+    background: #3a4350;
+    color: #ffffff;
+    opacity: 0;
+    transform: scale(0);
+    transition: all .12s;
+    cursor: pointer;
+  }
+
+  & input:hover + .label::before {
+    border-color: #3a4350;
+  }
+
+  & input:checked + .label::before {
+    border-color: #3a4350;
+  }
+
+  & input:checked + .label::after {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  & input:checked:hover + .label::after {
+    background-color: #828e9f;
+  }
+
+  & input[disabled] + .label::before,
+  & input[disabled] + .label::after {
+    cursor: default;
+  }
+
+  & input[disabled] + .label::before {
+    border-color: #d9d9d9;
+    background: #f7f7f7;
+  }
+
+  & input[disabled]:checked + .label::before {
+    color: #d9d9d9;
+  }
+
+  & input[disabled]:checked:hover + .label::before {
+    border-color: #d9d9d9;
+    background: #f7f7f7;
+  }
+
+  &.inCell {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    & .label::after {
+      position: relative;
+      margin-left: -22px;
+      left: 0;
+      top: 0;
+    }
+  }
+}
+
+.halfCheckbox {
+  composes: checkbox;
+
+  &.halfChecked {
+    & .label::after {
+      content: '\e832';
+    }
+  }
+}
+
+.bigCheckbox {
+  composes: checkbox;
+
+  & .label::before {
+    width: 40px;
+    height: 40px;
+  }
+
+  & .label::after {
+    content: '\e827';
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    width: 36px;
+    height: 36px;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 36px;
+    color: #ffffff;
+    transform: scale(1);
+  }
+
+  & input:checked + .label::after {
+    background: #3a4350;
+  }
+
+  & .label {
+    line-height: 40px;
+  }
+}
+
+.slideCheckbox {
+  width: 80px;
+  height: 34px;
+  transition: all .4s ease;
+  position: relative;
+
+  & .label {
+    position: absolute;
+    right: 0;
+    top: -2px;
+    width: 80px;
+    height: 34px;
+    background: #F45758;
+    border-radius: 17px;
+    transition: all .4s ease;
+    padding: 0 10px;
+    text-align: right;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 34px;
+    user-select: none;
+    cursor: pointer;
+  }
+
+  & .label::before {
+    content: 'YES';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80px;
+    height: 34px;
+    background: #4fc2c9;
+    opacity: 0;
+    border: none;
+    border-radius: 17px;
+    transition: all .4s ease;
+    padding: 0 10px;
+    text-indent: -42px;
+    text-align: left;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 34px;
+  }
+
+  & .label::after {
+    content: 'NO';
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    width: 24px;
+    height: 24px;
+    background: #ffffff;
+    border-radius: 17px;
+    transition: all .4s ease;
+    text-indent: 42px;
+    line-height: 24px;
+  }
+
+  & input {
+    visibility: hidden;
+  }
+
+  & input:checked + .label {
+    background: rgba(244, 87, 88, 0);
+
+    &:before {
+      text-indent: 0;
+      opacity: 1;
+    }
+
+    &:after {
+      color: transparent;
+      left: 51px;
+    }
+  }
+}

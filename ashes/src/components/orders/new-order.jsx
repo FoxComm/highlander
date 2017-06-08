@@ -11,7 +11,7 @@ import * as newOrderActions from '../../modules/orders/new-order';
 import { email } from '../../lib/validators';
 
 import { PrimaryButton } from 'components/core/button';
-import BigCheckbox from '../checkbox/big-checkbox';
+import { BigCheckbox } from 'components/core/checkbox';
 import ChooseCustomer from './choose-customer';
 import ChooseCustomerRow from './choose-customer-row';
 import Errors from 'components/utils/errors';
@@ -186,8 +186,8 @@ export default class NewOrder extends Component {
   }
 
   @autobind
-  toggleGuest(value) {
-    this.setState({ checkoutAsGuest: value });
+  toggleGuest() {
+    this.setState({ checkoutAsGuest: !this.state.checkoutAsGuest });
   }
 
   render() {
@@ -215,8 +215,8 @@ export default class NewOrder extends Component {
                     <BigCheckbox
                       id="guestCheckout"
                       name="guestCheckout"
-                      value={this.state.checkoutAsGuest}
-                      onToggle={this.toggleGuest} />
+                      onChange={this.toggleGuest}
+                    />
                   </FormField>
                   <div className={s.button}>
                     {this.nextButton}

@@ -8,7 +8,7 @@ import { autobind } from 'core-decorators';
 // components
 import ContentBox from '../../content-box/content-box';
 import RadioButton from 'components/core/radio-button';
-import Counter from '../../forms/counter';
+import Counter from 'components/core/counter';
 
 // styles
 import styles from './styles.css';
@@ -54,14 +54,12 @@ export default class UsageRules extends Component {
 
   @autobind
   handleUsesPerCodeChange(value: number): void {
-    const checkedValue = value < 1 ? 1 : value;
-    this.props.onChange('usesPerCode', checkedValue);
+    this.props.onChange('usesPerCode', value);
   }
 
   @autobind
   handleUsesPerCustomerChange(value: number): void {
-    const checkedValue = value < 1 ? 1 : value;
-    this.props.onChange('usesPerCustomer', checkedValue);
+    this.props.onChange('usesPerCustomer', value);
   }
 
   shouldComponentUpdate(nextProps: UsageRuleProps): boolean {
@@ -96,9 +94,7 @@ export default class UsageRules extends Component {
                 id="couponUsesForCode"
                 value={this.props.usesPerCode}
                 disabled={this.props.isUnlimitedPerCode}
-                decreaseAction={() => this.handleUsesPerCodeChange(this.props.usesPerCode - 1)}
-                increaseAction={() => this.handleUsesPerCodeChange(this.props.usesPerCode + 1)}
-                onChange={({ target }) => this.handleUsesPerCodeChange(parseInt(target.value))}
+                onChange={this.handleUsesPerCodeChange}
                 min={1}
               />
             </div>
@@ -129,9 +125,7 @@ export default class UsageRules extends Component {
                 id="couponUsesNumberForCustomer"
                 value={this.props.usesPerCustomer}
                 disabled={this.props.isUnlimitedPerCustomer}
-                decreaseAction={() => this.handleUsesPerCustomerChange(this.props.usesPerCustomer - 1)}
-                increaseAction={() => this.handleUsesPerCustomerChange(this.props.usesPerCustomer + 1)}
-                onChange={({ target }) => this.handleUsesPerCustomerChange(parseInt(target.value))}
+                onChange={this.handleUsesPerCustomerChange}
                 min={1}
               />
             </div>
