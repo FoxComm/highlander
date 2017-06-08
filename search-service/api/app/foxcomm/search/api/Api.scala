@@ -2,12 +2,14 @@ package foxcomm.search.api
 
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.twitter.finagle.Http
+import com.twitter.finagle.http.Status
 import com.twitter.util.Await
 import foxcomm.search._
 import foxcomm.utils.finch._
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
+import org.elasticsearch.common.ValidationException
 import scala.concurrent.ExecutionContext
 
 object Api extends App {
@@ -22,6 +24,12 @@ object Api extends App {
           .map(Ok)
     }
 
+  def errorHandler[A]: PartialFunction[Throwable, Output[A]] = {
+    case ex: ValidationException => Output.failure(ex, Status.BadRequest)
+    case ex: Exception           => Output.failure(ex, Status.InternalServerError)
+    case ex                      => Output.failure(new RuntimeException(ex), Status.InternalServerError)
+  }
+
   implicit val ec: ExecutionContext = ExecutionContext.global
   val config                        = AppConfig.load()
   val svc                           = SearchService.fromConfig(config)
@@ -29,5 +37,6 @@ object Api extends App {
   Await.result(
     Http.server
       .withStreaming(enabled = true)
-      .serve(s"${config.http.interface}:${config.http.port}", endpoint(svc).toServiceAs[Application.Json]))
+      .serve(s"${config.http.interface}:${config.http.port}",
+             endpoint(svc).handle(errorHandler).toServiceAs[Application.Json]))
 }
