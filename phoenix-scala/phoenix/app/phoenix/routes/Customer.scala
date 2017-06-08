@@ -12,6 +12,7 @@ import phoenix.payloads.CartPayloads.CheckoutCart
 import phoenix.payloads.CustomerPayloads._
 import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
 import phoenix.payloads.PaymentPayloads._
+import phoenix.payloads.ProductReviewPayloads._
 import phoenix.payloads.UpdateShippingMethod
 import phoenix.services.Authenticator.{UserAuthenticator, requireCustomerAuth}
 import phoenix.services._
@@ -19,6 +20,7 @@ import phoenix.services.carts._
 import phoenix.services.customers.CustomerManager
 import phoenix.services.orders.OrderQueries
 import phoenix.services.product.ProductManager
+import phoenix.services.review.ProductReviewManager
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
@@ -318,6 +320,26 @@ object Customer {
                 (delete & path(IntNumber) & pathEnd) { id ⇒
                   deleteOrFailures {
                     SaveForLaterManager.deleteSaveForLater(id)
+                  }
+                }
+              }
+            } ~
+            pathPrefix("review") {
+              determineObjectContext(db, ec) { implicit ctx ⇒
+                (post & entity(as[CreateProductReviewByCustomerPayload]) & pathEnd) { payload ⇒
+                  mutateOrFailures {
+                    ProductReviewManager.createProductReview(auth.account.id, payload)
+                  }
+                } ~
+                (path(IntNumber) & patch & entity(as[UpdateProductReviewPayload]) & pathEnd) {
+                  (reviewId, payload) ⇒
+                    mutateOrFailures {
+                      ProductReviewManager.updateProductReview(reviewId, payload)
+                    }
+                } ~
+                (delete & path(IntNumber) & pathEnd) { id ⇒
+                  deleteOrFailures {
+                    ProductReviewManager.archiveByContextAndId(id)
                   }
                 }
               }

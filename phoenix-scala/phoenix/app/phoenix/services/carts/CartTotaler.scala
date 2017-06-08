@@ -46,13 +46,13 @@ object CartTotaler {
   def shippingTotal(cart: Cart)(implicit ec: EC): DbResultT[Long] =
     for {
       orderShippingMethods ← * <~ OrderShippingMethods.findByOrderRef(cart.refNum).result
-      sum = orderShippingMethods.foldLeft(0L)(_ + _.price)
+      sum = orderShippingMethods.map(_.price).sum
     } yield sum
 
   def adjustmentsTotal(cart: Cart)(implicit ec: EC): DbResultT[Long] =
     for {
       lineItemAdjustments ← * <~ CartLineItemAdjustments.filter(_.cordRef === cart.refNum).result
-      sum = lineItemAdjustments.foldLeft(0L)(_ + _.subtract)
+      sum = lineItemAdjustments.map(_.subtract).sum
     } yield sum
 
   def taxesTotal(cordRef: String, subTotal: Long, shipping: Long, adjustments: Long)(

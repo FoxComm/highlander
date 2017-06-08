@@ -89,10 +89,9 @@ object ProductManager extends LazyLogging {
 
   }
 
-  def getProduct(productId: ProductReference, checkActive: Boolean = false)(
-      implicit ec: EC,
-      db: DB,
-      oc: OC): DbResultT[ProductResponse.Root] =
+  def getProduct(
+      productId: ProductReference,
+      checkActive: Boolean)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] =
     for {
       oldProduct ← * <~ Products.mustFindFullByReference(productId)
       illuminated = IlluminatedProduct
