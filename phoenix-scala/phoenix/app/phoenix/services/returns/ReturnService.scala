@@ -26,7 +26,7 @@ object ReturnService {
     for {
       rma ← * <~ Returns.mustFindActiveByRefNum404(refNum)
       newMessage = if (payload.message.length > 0) Some(payload.message) else None
-      _   ← * <~ Returns.update(rma, rma.copy(messageToAccount = newMessage))
+      _        ← * <~ Returns.update(rma, rma.copy(messageToAccount = newMessage))
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response
