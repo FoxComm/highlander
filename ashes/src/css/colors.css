@@ -28,8 +28,6 @@
    */
   --white: #ffffff;
 
-  --stone: #797c7d;
-
   --light-blue: #a0e9ed;
 
   --light-yellow: #ffdd7f;
@@ -40,7 +38,6 @@
    * Buttons
    */
   --button-color: var(--color-text);
-  --button-color-disabled: var(--stone);
   --button-bg: #ced2d5;
   --button-bg-loading: #ced2d5;
 
