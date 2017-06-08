@@ -19,8 +19,7 @@ case class AlbumImageLink(id: Int = 0,
   override def withPosition(newPosition: Id): AlbumImageLink = copy(position = newPosition)
 }
 
-class AlbumImageLinks(tag: Tag)
-    extends OrderedObjectHeadLinks[AlbumImageLink](tag, "album_image_links") {
+class AlbumImageLinks(tag: Tag) extends OrderedObjectHeadLinks[AlbumImageLink](tag, "album_image_links") {
 
   def * =
     (id, leftId, rightId, position, createdAt, updatedAt, archivedAt) <> ((AlbumImageLink.apply _).tupled, AlbumImageLink.unapply)
@@ -31,9 +30,9 @@ class AlbumImageLinks(tag: Tag)
 
 object AlbumImageLinks
     extends OrderedObjectHeadLinkQueries[AlbumImageLink, AlbumImageLinks, Album, Image](
-        new AlbumImageLinks(_),
-        Albums,
-        Images)
+      new AlbumImageLinks(_),
+      Albums,
+      Images)
     with ReturningId[AlbumImageLink, AlbumImageLinks] {
 
   val returningLens: Lens[AlbumImageLink, Int] = lens[AlbumImageLink].id

@@ -36,20 +36,7 @@ prepare:
 build:
 	$(call header, Building)
 	make prepare
-	make build-only
-
-build-only:
-	# We don't need to build consumers in CI, they're being built inside Docker, see PR #753
-	# But we can keep generic `build` target that builds only Middlewarehouse for convenience
 	make build-middlewarehouse
-	# make build-middlewarehouse-seeder
-	# make build-capture-consumer
-	# make build-gift-card-consumer
-	# make build-shipments-consumer
-	# make build-shipstation-consumer
-	# make build-stock-items-consumer
-	# make build-customer-groups-consumer
-	make build-elasticmanager
 
 build-middlewarehouse:
 	$(GO) build -o middlewarehouse main.go
@@ -84,13 +71,6 @@ build-customer-groups-consumer:
 docker:
 	$(call header, Dockerizing)
 	make docker-middlewarehouse
-	make docker-middlewarehouse-seeder
-	make docker-capture-consumer
-	make docker-gift-card-consumer
-	make docker-shipments-consumer
-	make docker-shipstation-consumer
-	make docker-stock-items-consumer
-	make docker-customer-groups-consumer
 
 docker-middlewarehouse:
 	$(DOCKER) build -t $(DOCKER_IMAGE) .
@@ -116,19 +96,15 @@ docker-stock-items-consumer:
 docker-customer-groups-consumer:
 	$(DOCKER) build -t customer-groups-consumer -f Dockerfile.customer-groups .
 
+docker-elasticmanager:
+	true
+
 ####################################################################
 # Docker push targets                                              #
 ####################################################################
 docker-push:
 	$(call header, Registering)
 	make push-middlewarehouse
-	make push-middlewarehouse-seeder
-	make push-capture-consumer
-	make push-gift-card-consumer
-	make push-shipments-consumer
-	make push-shipstation-consumer
-	make push-stock-items-consumer
-	make push-customer-groups-consumer
 
 push-middlewarehouse:
 	$(DOCKER) tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
@@ -161,6 +137,9 @@ push-stock-items-consumer:
 push-customer-groups-consumer:
 	$(DOCKER) tag customer-groups-consumer $(DOCKER_REPO)/customer-groups-consumer:$(DOCKER_TAG)
 	$(DOCKER) push $(DOCKER_REPO)/customer-groups-consumer:$(DOCKER_TAG)
+
+push-elasticmanager:
+	true
 
 ####################################################################
 # Miscellaneous targets                                            #
@@ -200,9 +179,9 @@ create-user:
 
 test:
 	$(call header, Testing)
-	make prepare
-	make reset-test
-	make test-only
+	# make prepare
+	# make reset-test
+	# make test-only
 
 test-only:
 	# -p 1 serves to run tests sequentially, as it is required for non-isolated database tests

@@ -24,12 +24,11 @@ object IlluminateAlgorithm extends LazyLogging {
     case _            ⇒ JNothing
   }
 
-  private def getInternalAttributes(schema: ObjectFullSchema): Option[JObject] = {
+  private def getInternalAttributes(schema: ObjectFullSchema): Option[JObject] =
     schema.schema \ "properties" \ "attributes" match {
       case JObject(s) ⇒ Some(s)
       case _          ⇒ None
     }
-  }
 
   def validateObjectBySchema(schema: ObjectFullSchema, form: ObjectForm, shadow: ObjectShadow)(
       implicit ec: ExecutionContext): DbResultT[JValue] = {
@@ -82,8 +81,7 @@ object IlluminateAlgorithm extends LazyLogging {
         JNothing
     }
 
-  def validateAttributes(formJson: JValue, shadowJson: JValue)(
-      implicit fmt: Formats): Seq[Failure] =
+  def validateAttributes(formJson: JValue, shadowJson: JValue)(implicit fmt: Formats): Seq[Failure] =
     (formJson, shadowJson) match {
       case (JObject(form), JObject(shadow)) ⇒
         shadow.obj.flatMap {
@@ -103,8 +101,7 @@ object IlluminateAlgorithm extends LazyLogging {
         Seq(FormAttributesAreEmpty, ShadowAttributesAreEmpty)
     }
 
-  def validateAttributesTypes(formJson: JValue, shadowJson: JValue)(
-      implicit fmt: Formats): Seq[Failure] = {
+  def validateAttributesTypes(formJson: JValue, shadowJson: JValue)(implicit fmt: Formats): Seq[Failure] =
     (formJson, shadowJson) match {
       case (JObject(form), JObject(shadow)) ⇒
         shadow.obj.flatMap {
@@ -118,7 +115,6 @@ object IlluminateAlgorithm extends LazyLogging {
         }
       case _ ⇒ Seq.empty[Failure]
     }
-  }
 
   private def validateAttributeType(attr: String, key: String, typed: JValue, form: JValue)(
       implicit fmt: Formats): Seq[Failure] = {

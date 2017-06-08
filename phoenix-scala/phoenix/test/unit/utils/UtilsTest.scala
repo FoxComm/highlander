@@ -18,8 +18,7 @@ class UtilsTest extends TestBase {
   "camelToUnderscores" - {
     "should convert camelCase class to snake_case string" in {
       snakeCaseName(CreateNote(body = "test")) must === ("create_note")
-      snakeCaseName(GiftCardCreateByCsr(balance = 10, reasonId = 1)) must === (
-          "gift_card_create_by_csr")
+      snakeCaseName(GiftCardCreateByCsr(balance = 10, reasonId = 1)) must === ("gift_card_create_by_csr")
     }
   }
 

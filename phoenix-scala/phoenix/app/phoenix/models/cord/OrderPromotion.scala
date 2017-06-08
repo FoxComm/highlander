@@ -22,9 +22,7 @@ final case class OrderPromotion(id: Int = 0,
 object OrderPromotion {
 
   def buildAuto(cart: Cart, promo: Promotion): OrderPromotion =
-    OrderPromotion(cordRef = cart.refNum,
-                   promotionShadowId = promo.shadowId,
-                   applyType = Promotion.Auto)
+    OrderPromotion(cordRef = cart.refNum, promotionShadowId = promo.shadowId, applyType = Promotion.Auto)
 
   def buildCoupon(cart: Cart, promo: Promotion, code: CouponCode): OrderPromotion =
     OrderPromotion(cordRef = cart.refNum,
@@ -43,7 +41,7 @@ class OrderPromotions(tag: Tag) extends FoxTable[OrderPromotion](tag, "order_pro
 
   def * =
     (id, cordRef, promotionShadowId, applyType, couponCodeId, createdAt) <> ((OrderPromotion.apply _).tupled,
-        OrderPromotion.unapply)
+    OrderPromotion.unapply)
 
   def order           = foreignKey(Carts.tableName, cordRef, Carts)(_.referenceNumber)
   def promotionShadow = foreignKey(ObjectShadows.tableName, promotionShadowId, ObjectShadows)(_.id)

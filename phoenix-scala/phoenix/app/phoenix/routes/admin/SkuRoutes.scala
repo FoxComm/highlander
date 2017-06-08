@@ -16,8 +16,7 @@ import phoenix.utils.http.JsonSupport._
 
 object SkuRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
-
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("skus") {
         pathPrefix(Segment) { contextName ⇒
@@ -27,38 +26,37 @@ object SkuRoutes {
                 SkuManager.createSku(auth.model, payload)
               }
             } ~
-            pathPrefix(Segment) { code ⇒
-              (get & pathEnd) {
-                getOrFailures {
-                  SkuManager.getSku(code)
-                }
-              } ~
-              (patch & pathEnd & entity(as[SkuPayload])) { payload ⇒
-                mutateOrFailures {
-                  SkuManager.updateSku(auth.model, code, payload)
-                }
-              } ~
-              (delete & pathEnd) {
-                mutateOrFailures {
-                  SkuManager.archiveByCode(code)
-                }
-              } ~
-              pathPrefix("albums") {
+              pathPrefix(Segment) { code ⇒
                 (get & pathEnd) {
                   getOrFailures {
-                    ImageManager.getAlbumsForSku(code)
+                    SkuManager.getSku(code)
                   }
                 } ~
-                (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
-                  mutateOrFailures {
-                    ImageManager.createAlbumForSku(auth.model, code, payload)
+                  (patch & pathEnd & entity(as[SkuPayload])) { payload ⇒
+                    mutateOrFailures {
+                      SkuManager.updateSku(auth.model, code, payload)
+                    }
+                  } ~
+                  (delete & pathEnd) {
+                    mutateOrFailures {
+                      SkuManager.archiveByCode(code)
+                    }
+                  } ~
+                  pathPrefix("albums") {
+                    (get & pathEnd) {
+                      getOrFailures {
+                        ImageManager.getAlbumsForSku(code)
+                      }
+                    } ~
+                      (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
+                        mutateOrFailures {
+                          ImageManager.createAlbumForSku(auth.model, code, payload)
+                        }
+                      }
                   }
-                }
               }
-            }
           }
         }
       }
     }
-  }
 }

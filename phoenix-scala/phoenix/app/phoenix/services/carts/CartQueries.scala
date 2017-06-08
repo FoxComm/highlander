@@ -36,24 +36,22 @@ object CartQueries extends CordQueries {
       resp ← * <~ LineItemUpdater.runUpdates(cart, None) // FIXME: so costly… @michalrus
     } yield resp
 
-  def findOrCreateCartByAccount(customer: User,
-                                context: ObjectContext,
-                                admin: Option[User] = None)(implicit ec: EC,
-                                                            db: DB,
-                                                            ac: AC,
-                                                            ctx: OC,
-                                                            apis: Apis,
-                                                            au: AU): DbResultT[CartResponse] =
+  def findOrCreateCartByAccount(customer: User, context: ObjectContext, admin: Option[User] = None)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      ctx: OC,
+      apis: Apis,
+      au: AU): DbResultT[CartResponse] =
     findOrCreateCartByAccountInner(customer, admin)
 
-  def findOrCreateCartByAccountId(accountId: Int,
-                                  context: ObjectContext,
-                                  admin: Option[User] = None)(implicit ec: EC,
-                                                              db: DB,
-                                                              ac: AC,
-                                                              ctx: OC,
-                                                              apis: Apis,
-                                                              au: AU): DbResultT[CartResponse] =
+  def findOrCreateCartByAccountId(accountId: Int, context: ObjectContext, admin: Option[User] = None)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      ctx: OC,
+      apis: Apis,
+      au: AU): DbResultT[CartResponse] =
     for {
       customer  ← * <~ Users.mustFindByAccountId(accountId)
       fullOrder ← * <~ findOrCreateCartByAccountInner(customer, admin)
@@ -71,13 +69,12 @@ object CartQueries extends CordQueries {
                 .findByAccountId(customer.accountId)
                 .one
                 .findOrCreateExtended(
-                    Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)))
+                  Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)))
       (cart, foundOrCreated) = result
       resp ← if (foundOrCreated == Created) for {
               fullCart ← * <~ CartResponse.fromCart(cart, grouped, au.isGuest)
               _        ← * <~ LogActivity().cartCreated(admin, fullCart)
             } yield TheResponse(fullCart)
             else LineItemUpdater.runUpdates(cart, None) // FIXME: so costly… @michalrus
-    } yield
-      resp.result // FIXME: discarding warnings until we get rid of TheResponse completely @michalrus
+    } yield resp.result // FIXME: discarding warnings until we get rid of TheResponse completely @michalrus
 }

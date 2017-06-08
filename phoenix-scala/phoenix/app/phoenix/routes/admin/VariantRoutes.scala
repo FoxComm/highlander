@@ -14,8 +14,7 @@ import phoenix.utils.http.JsonSupport._
 
 object VariantRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
-
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("variants") {
         pathPrefix(Segment) { context ⇒
@@ -24,27 +23,26 @@ object VariantRoutes {
               VariantManager.createVariant(context, payload)
             }
           } ~
-          pathPrefix(IntNumber) { variantId ⇒
-            (get & pathEnd) {
-              getOrFailures {
-                VariantManager.getVariant(context, variantId)
-              }
-            } ~
-            (patch & pathEnd & entity(as[VariantPayload])) { payload ⇒
-              mutateOrFailures {
-                VariantManager.updateVariant(context, variantId, payload)
-              }
-            } ~
-            pathPrefix("values") {
-              (post & pathEnd & entity(as[VariantValuePayload])) { payload ⇒
-                mutateOrFailures {
-                  VariantManager.createVariantValue(context, variantId, payload)
+            pathPrefix(IntNumber) { variantId ⇒
+              (get & pathEnd) {
+                getOrFailures {
+                  VariantManager.getVariant(context, variantId)
                 }
-              }
+              } ~
+                (patch & pathEnd & entity(as[VariantPayload])) { payload ⇒
+                  mutateOrFailures {
+                    VariantManager.updateVariant(context, variantId, payload)
+                  }
+                } ~
+                pathPrefix("values") {
+                  (post & pathEnd & entity(as[VariantValuePayload])) { payload ⇒
+                    mutateOrFailures {
+                      VariantManager.createVariantValue(context, variantId, payload)
+                    }
+                  }
+                }
             }
-          }
         }
       }
     }
-  }
 }

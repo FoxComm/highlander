@@ -40,22 +40,22 @@ object MainConfig {
     val scopedIndexTopics = getIndexMap(conf, "kafka.scoped.indices");
 
     MainConfig(
-        activityTopic = conf.getString(s"$env.activity.kafka.topic"),
-        avroSchemaRegistryUrl = conf.getString(s"$env.avro.schemaRegistryUrl"),
-        elasticSearchCluster = conf.getString(s"$env.elastic.cluster"),
-        elasticSearchIndex = conf.getString(s"$env.elastic.index"),
-        elasticSearchUrl = conf.getString(s"$env.elastic.host"),
-        kafkaBroker = conf.getString(s"$env.kafka.broker"),
-        kafkaGroupId = conf.getString(s"$env.kafka.groupId"),
-        indexTopics = indexTopics,
-        scopedIndexTopics = scopedIndexTopics,
-        phoenixPass = conf.getString(s"$env.activity.phoenix.pass"),
-        phoenixUri = conf.getString(s"$env.activity.phoenix.url"),
-        phoenixUser = conf.getString(s"$env.activity.phoenix.user"),
-        phoenixOrg = conf.getString(s"$env.activity.phoenix.org"),
-        maxConnections = conf.getInt(s"$env.max.connections"),
-        startFromBeginning = conf.getBoolean(s"$env.consume.restart"),
-        doSetup = conf.getBoolean(s"$env.elastic.setup")
+      activityTopic = conf.getString(s"$env.activity.kafka.topic"),
+      avroSchemaRegistryUrl = conf.getString(s"$env.avro.schemaRegistryUrl"),
+      elasticSearchCluster = conf.getString(s"$env.elastic.cluster"),
+      elasticSearchIndex = conf.getString(s"$env.elastic.index"),
+      elasticSearchUrl = conf.getString(s"$env.elastic.host"),
+      kafkaBroker = conf.getString(s"$env.kafka.broker"),
+      kafkaGroupId = conf.getString(s"$env.kafka.groupId"),
+      indexTopics = indexTopics,
+      scopedIndexTopics = scopedIndexTopics,
+      phoenixPass = conf.getString(s"$env.activity.phoenix.pass"),
+      phoenixUri = conf.getString(s"$env.activity.phoenix.url"),
+      phoenixUser = conf.getString(s"$env.activity.phoenix.user"),
+      phoenixOrg = conf.getString(s"$env.activity.phoenix.org"),
+      maxConnections = conf.getInt(s"$env.max.connections"),
+      startFromBeginning = conf.getBoolean(s"$env.consume.restart"),
+      doSetup = conf.getBoolean(s"$env.elastic.setup")
     )
   }
 
@@ -63,8 +63,8 @@ object MainConfig {
     val topicConf = conf.getConfig(key)
     topicConf.entrySet.foldLeft(Map[String, Seq[String]]()) {
       case (m, entry) ⇒ {
-          m + (entry.getKey → topicConf.getStringList(entry.getKey).toSeq)
-        }
+        m + (entry.getKey → topicConf.getStringList(entry.getKey).toSeq)
+      }
     }
   }
 }

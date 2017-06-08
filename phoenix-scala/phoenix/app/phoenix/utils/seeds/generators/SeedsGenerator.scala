@@ -27,14 +27,13 @@ object SeedsGenerator
     with PromotionGenerator
     with CouponGenerator {
 
-  def generateAddresses(customers: Seq[User]): Seq[Address] = {
+  def generateAddresses(customers: Seq[User]): Seq[Address] =
     customers.flatMap { c ⇒
       generateAddress(customer = c, isDefault = true) +:
-      ((0 to Random.nextInt(2)) map { i ⇒
-            generateAddress(customer = c, isDefault = false)
-          })
+        ((0 to Random.nextInt(2)) map { i ⇒
+        generateAddress(customer = c, isDefault = false)
+      })
     }
-  }
 
   def makePromotions(promotionCount: Int) =
     (1 to promotionCount).par.map { i ⇒

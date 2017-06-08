@@ -43,22 +43,22 @@ class RemorseTimer(implicit db: DB, ec: EC, apis: Apis) extends Actor {
   private def logAcitvity(newState: Order.State, orders: Seq[Order]): DbResultT[Unit] =
     DbResultT
       .seqCollectFailures(
-          orders
-            .groupBy(_.scope)
-            .map {
-          case (scope, scopeOrders) ⇒
-            val refNums = scopeOrders.map(_.referenceNumber)
+        orders
+          .groupBy(_.scope)
+          .map {
+            case (scope, scopeOrders) ⇒
+              val refNums = scopeOrders.map(_.referenceNumber)
 
-            implicit val ac = EnrichedActivityContext(ctx = ActivityContext(userId = 1,
-                                                                            userType = "admin",
-                                                                            scope = scope,
-                                                                            transactionId =
-                                                                              letterify("?" * 5)),
-                                                      producer = apis.kafka)
+              implicit val ac = EnrichedActivityContext(ctx = ActivityContext(userId = 1,
+                                                                              userType = "admin",
+                                                                              scope = scope,
+                                                                              transactionId =
+                                                                                letterify("?" * 5)),
+                                                        producer = apis.kafka)
 
-            LogActivity().withScope(scope).orderBulkStateChanged(newState, refNums)
-        }
-            .toList)
+              LogActivity().withScope(scope).orderBulkStateChanged(newState, refNums)
+          }
+          .toList)
       .meh
 }
 

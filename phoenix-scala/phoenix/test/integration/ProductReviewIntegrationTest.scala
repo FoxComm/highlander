@@ -28,9 +28,8 @@ class ProductReviewIntegrationTest
 
   "POST v1/review/:contextName" - {
     "creates product review" in new ProductSku_ApiFixture {
-      val payload = CreateProductReviewByCustomerPayload(attributes = "title" → tv("title"),
-                                                         sku = skuCode,
-                                                         scope = None)
+      val payload =
+        CreateProductReviewByCustomerPayload(attributes = "title" → tv("title"), sku = skuCode, scope = None)
       val reviewResp    = productReviewApi.create(payload).as[ProductReviewResponse]
       val getReviewResp = productReviewApi(reviewResp.id).get().as[ProductReviewResponse]
       getReviewResp must === (reviewResp)
@@ -38,9 +37,8 @@ class ProductReviewIntegrationTest
     }
 
     "does not create duplicate reviews" in new ProductSku_ApiFixture {
-      val payload = CreateProductReviewByCustomerPayload(attributes = "title" → tv("title"),
-                                                         sku = skuCode,
-                                                         scope = None)
+      val payload =
+        CreateProductReviewByCustomerPayload(attributes = "title" → tv("title"), sku = skuCode, scope = None)
       val reviewResp1    = productReviewApi.create(payload).as[ProductReviewResponse]
       val getReviewResp1 = productReviewApi(reviewResp1.id).get().as[ProductReviewResponse]
       val reviewResp2    = productReviewApi.create(payload).as[ProductReviewResponse]
@@ -80,29 +78,29 @@ class ProductReviewIntegrationTest
                                             archivedAt: Option[String])
 
     implicit val getProductReviewsSearchViewResult = GetResult(
-        r ⇒
-          ProductReviewsSearchViewItem(r.nextInt(),
-                                       r.nextObject().toString,
-                                       r.nextString(),
-                                       r.nextString(),
-                                       r.nextInt(),
-                                       r.nextString(),
-                                       r.nextString(),
-                                       r.nextStringOption(),
-                                       r.nextStringOption(),
-                                       r.nextStringOption()))
+      r ⇒
+        ProductReviewsSearchViewItem(
+          r.nextInt(),
+          r.nextObject().toString,
+          r.nextString(),
+          r.nextString(),
+          r.nextInt(),
+          r.nextString(),
+          r.nextString(),
+          r.nextStringOption(),
+          r.nextStringOption(),
+          r.nextStringOption()
+      ))
 
-    def selectById(id: Int) = {
-      sql"""select * from product_reviews_search_view where id = ${id}"""
+    def selectById(id: Int) =
+      sql"""select * from product_reviews_search_view where id = $id"""
         .as[ProductReviewsSearchViewItem]
         .gimme
-    }
 
     "inserts new record on review insert" in new ProductSku_ApiFixture {
       private val title: String = "title"
-      val payload = CreateProductReviewByCustomerPayload(attributes = "title" → tv(title),
-                                                         sku = skuCode,
-                                                         scope = None)
+      val payload =
+        CreateProductReviewByCustomerPayload(attributes = "title" → tv(title), sku = skuCode, scope = None)
       val reviewResp = productReviewApi.create(payload).as[ProductReviewResponse]
       val values     = selectById(reviewResp.id)
       values.size must === (1)

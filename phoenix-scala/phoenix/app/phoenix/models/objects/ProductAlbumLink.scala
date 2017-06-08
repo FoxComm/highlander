@@ -33,9 +33,9 @@ class ProductAlbumLinks(tag: Tag)
 
 object ProductAlbumLinks
     extends OrderedObjectHeadLinkQueries[ProductAlbumLink, ProductAlbumLinks, Product, Album](
-        new ProductAlbumLinks(_),
-        Products,
-        Albums)
+      new ProductAlbumLinks(_),
+      Products,
+      Albums)
     with ReturningId[ProductAlbumLink, ProductAlbumLinks] {
 
   val returningLens: Lens[ProductAlbumLink, Int] = lens[ProductAlbumLink].id

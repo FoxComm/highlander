@@ -36,7 +36,7 @@ class RemorseTimerTest(_system: ActorSystem)
     }
   }
 
-  def tick(): Unit = {
+  def tick(): Unit =
     // Response received
     (timer ? Tick).futureValue match {
       case r: RemorseTimerResponse ⇒
@@ -45,5 +45,4 @@ class RemorseTimerTest(_system: ActorSystem)
       case _ ⇒
         fail("Remorse timer had to reply with Future but something went wrong")
     }
-  }
 }
