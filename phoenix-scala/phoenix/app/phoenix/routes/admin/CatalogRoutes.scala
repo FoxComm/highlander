@@ -8,11 +8,12 @@ import phoenix.payloads.CatalogPayloads.{CreateCatalogPayload, UpdateCatalogPayl
 import phoenix.services.Authenticator.AuthData
 import phoenix.services.catalog.CatalogManager
 import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
 import phoenix.utils.http.Http._
 
 object CatalogRoutes {
-  def routes(implicit ec: EC, db: DB, auth: AU): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AU, apis: Apis): Route = {
     activityContext(auth) { implicit ac ⇒
       pathPrefix("catalogs") {
         (post & pathEnd & entity(as[CreateCatalogPayload])) { payload ⇒
