@@ -9,13 +9,13 @@
   font-size: 12px;
   line-height: 16px;
   color: #fff;
-  background-color: var(--nav-main);
+  background-color: var(--bg-nav-main);
   border-radius: 16px;
 }
 
 .loading {
   @apply --loading-caramel;
-  background-color: rgba(58, 67, 80, .8);
+  background-color: var(--bg-nav-disabled);
 }
 
 .button {
@@ -33,7 +33,7 @@
 }
 
 .main:not(.loading) .button:hover {
-  background-color: #141f31;
+  background-color: var(--bg-nav-active);
 }
 
 .label {
@@ -47,7 +47,7 @@
 }
 
 .main.clickable:not(.loading) .label:hover {
-  background: #141f31;
+  background-color: var(--bg-nav-active);
   cursor: pointer;
 }
 

@@ -12,7 +12,7 @@
   }
 
   &:hover {
-    border-color: #3a4350;
+    border-color: var(--bg-nav-main);
   }
 
   &:focus {

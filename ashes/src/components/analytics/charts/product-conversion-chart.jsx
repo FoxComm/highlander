@@ -240,7 +240,7 @@ class ProductConversionChart extends React.Component {
                 y: 26,
               }}
               conversionToolTipStyles={{
-                textColor: '#3A4350',
+                textColor: '#3a4350',
                 fontSize: 6,
               }}
               toolTipColor="#363636"
@@ -300,7 +300,7 @@ class ProductConversionChart extends React.Component {
                   y: 26,
                 }}
                 conversionToolTipStyles={{
-                  textColor: '#3A4350',
+                  textColor: '#3a4350',
                   fontSize: 6,
                 }}
                 toolTipColor="#363636"
@@ -335,7 +335,7 @@ class ProductConversionChart extends React.Component {
                   y: 26,
                 }}
                 conversionToolTipStyles={{
-                  textColor: '#3A4350',
+                  textColor: '#3a4350',
                   fontSize: 6,
                 }}
                 toolTipColor="#9B9B9B"

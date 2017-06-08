@@ -51,7 +51,7 @@
     line-height: 20px;
     text-align: center;
     font-family: "fontello";
-    background: #3a4350;
+    background: var(--bg-nav-main);
     color: #ffffff;
     opacity: 0;
     transform: scale(0);
@@ -60,11 +60,11 @@
   }
 
   & input:hover + .label::before {
-    border-color: #3a4350;
+    border-color: var(--bg-nav-main);
   }
 
   & input:checked + .label::before {
-    border-color: #3a4350;
+    border-color: var(--bg-nav-main);
   }
 
   & input:checked + .label::after {
@@ -147,7 +147,7 @@
   }
 
   & input:checked + .label::after {
-    background: #3a4350;
+    background: var(--bg-nav-main);
   }
 
   & .label {

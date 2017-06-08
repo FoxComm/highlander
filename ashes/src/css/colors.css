@@ -11,9 +11,10 @@
   /* all other colors are damned! */
 
   /* background colors blessed by @bree */
+  --bg-nav-main: #25334a;
+  --bg-nav-active: #1a2535;
+  --bg-nav-disabled: #99a9c4;
 
-  --nav-active: #1a2535;
-  --nav-main: #25334a;
   --green-buttons: #49cab9;
   --color-pink: #fc54a6;
   --grey-buttons: #ced2d5;
@@ -53,7 +54,6 @@
   --alert-error: var(--light-red);
 
   --decor0: #f2f2f2;
-  --decor3: #3a4350;
   --decor4: #828e9f;
   --decor10: #ebebeb;
   --decor13: #fcfcfc;
@@ -86,7 +86,6 @@
 
   // Site colors
   --link-tab: #595959;
-  --tooltip-bg: --decor3;
 
   // Default colors
   --default-bg: --decor0;
