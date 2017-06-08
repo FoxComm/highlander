@@ -20,8 +20,7 @@ object CatalogManager extends LazyLogging {
       catalogWithCountry ← * <~ Catalogs.filterWithCountry(id).mustFindOneOr(CatalogNotFound(id))
     } yield (build _).tupled(catalogWithCountry)
 
-  def createCatalog(
-      payload: CreateCatalogPayload)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[Root] =
+  def createCatalog(payload: CreateCatalogPayload)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[Root] =
     for {
       scope   ← * <~ Scope.resolveOverride(payload.scope)
       catalog ← * <~ Catalogs.create(Catalog.build(payload, scope))
@@ -30,9 +29,8 @@ object CatalogManager extends LazyLogging {
       _ ← * <~ LogActivity().withScope(scope).catalogCreated(au.model, response)
     } yield response
 
-  def updateCatalog(
-      catalogId: Int,
-      payload: UpdateCatalogPayload)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[Root] =
+  def updateCatalog(catalogId: Int,
+                    payload: UpdateCatalogPayload)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[Root] =
     for {
       existing ← * <~ Catalogs.mustFindById404(catalogId)
       catalog  ← * <~ Catalogs.update(existing, Catalog.build(existing, payload))

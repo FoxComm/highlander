@@ -21,14 +21,16 @@ case class Catalog(id: Int,
 
 object Catalog {
   def build(payload: CreateCatalogPayload, scope: LTree): Catalog =
-    Catalog(id = 0,
-            scope = scope,
-            name = payload.name,
-            site = payload.site,
-            countryId = payload.countryId,
-            defaultLanguage = payload.defaultLanguage,
-            createdAt = Instant.now,
-            updatedAt = Instant.now)
+    Catalog(
+      id = 0,
+      scope = scope,
+      name = payload.name,
+      site = payload.site,
+      countryId = payload.countryId,
+      defaultLanguage = payload.defaultLanguage,
+      createdAt = Instant.now,
+      updatedAt = Instant.now
+    )
 
   def build(existing: Catalog, payload: UpdateCatalogPayload): Catalog = {
     val site = payload.site match {
@@ -37,11 +39,13 @@ object Catalog {
       case None                             ⇒ existing.site
     }
 
-    existing.copy(name = payload.name.getOrElse(existing.name),
-                  site = site,
-                  countryId = payload.countryId.getOrElse(existing.countryId),
-                  defaultLanguage = payload.defaultLanguage.getOrElse(existing.defaultLanguage),
-                  updatedAt = Instant.now)
+    existing.copy(
+      name = payload.name.getOrElse(existing.name),
+      site = site,
+      countryId = payload.countryId.getOrElse(existing.countryId),
+      defaultLanguage = payload.defaultLanguage.getOrElse(existing.defaultLanguage),
+      updatedAt = Instant.now
+    )
   }
 }
 

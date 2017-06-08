@@ -32,10 +32,8 @@ class CatalogIntegrationTest
     }
 
     "succeeds even with a duplicate name" in new Catalog_ApiFixture {
-      val payload = CreateCatalogPayload(name = "default",
-                                         site = None,
-                                         countryId = 234,
-                                         defaultLanguage = "en")
+      val payload =
+        CreateCatalogPayload(name = "default", site = None, countryId = 234, defaultLanguage = "en")
 
       val response = catalogsApi.create(payload).as[CatalogResponse.Root]
       response.name must === ("default")
@@ -43,10 +41,8 @@ class CatalogIntegrationTest
     }
 
     "fails with an invalid country" in new Catalog_ApiFixture {
-      val payload = CreateCatalogPayload(name = "will fail",
-                                         site = None,
-                                         countryId = 10001,
-                                         defaultLanguage = "en")
+      val payload =
+        CreateCatalogPayload(name = "will fail", site = None, countryId = 10001, defaultLanguage = "en")
 
       // TODO: Jeff - Add validation for the error message. Right now, it's a terribly ugly database error.
       catalogsApi.create(payload).mustHaveStatus(400)

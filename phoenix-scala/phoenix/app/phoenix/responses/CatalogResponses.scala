@@ -16,12 +16,14 @@ object CatalogResponse {
                   updatedAt: Instant)
 
   def build(catalog: Catalog, country: Country): Root =
-    Root(id = catalog.id,
-         name = catalog.name,
-         site = catalog.site,
-         countryId = country.id,
-         countryName = country.name,
-         defaultLanguage = catalog.defaultLanguage,
-         createdAt = catalog.createdAt,
-         updatedAt = catalog.updatedAt)
+    Root(
+      id = catalog.id,
+      name = catalog.name,
+      site = catalog.site,
+      countryId = country.id,
+      countryName = country.name,
+      defaultLanguage = catalog.defaultLanguage,
+      createdAt = catalog.createdAt,
+      updatedAt = catalog.updatedAt
+    )
 }
