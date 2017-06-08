@@ -6,8 +6,7 @@ import scala.concurrent.{ExecutionContext, Future => SFuture, Promise => SPromis
 import scala.util.{Failure, Success}
 import Conversions._
 
-@SuppressWarnings(
-  Array("org.wartremover.warts.ImplicitConversion", "org.wartremover.warts.NonUnitStatements"))
+@SuppressWarnings(Array("org.wartremover.warts.ImplicitConversion"))
 trait Conversions {
   implicit def toRichSFuture[A](future: SFuture[A]): RichSFuture[A] = new RichSFuture(future)
 
