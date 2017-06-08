@@ -10,6 +10,7 @@ import phoenix.services.{CartValidator, LogActivity}
 import phoenix.utils.aliases._
 import core.db._
 import phoenix.models.location.Address._
+import cats.implicits._
 
 object CartShippingAddressUpdater {
 
@@ -39,8 +40,8 @@ object CartShippingAddressUpdater {
       ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart       ← * <~ getCartByOriginator(originator, refNum)
-      newAddress ← * <~ Addresses.create(Address.fromPayload(payload, cart.accountId))
-      _          ← * <~ newAddress.boundToCart(cart.referenceNumber)
+      _          ← * <~ Addresses.findByOrderRef(cart.refNum).deleteAll
+      newAddress ← * <~ Addresses.create(Address.fromPayload(payload, cart.accountId, cart.refNum.some))
       region     ← * <~ Regions.mustFindById404(payload.regionId)
       validated  ← * <~ CartValidator(cart).validate()
       response   ← * <~ CartResponse.buildRefreshed(cart)

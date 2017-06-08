@@ -50,7 +50,7 @@ object Address {
   val zipPattern   = "(?i)^[a-z0-9][a-z0-9\\- ]{0,10}[a-z0-9]$"
   val zipPatternUs = "^\\d{5}(?:\\d{4})?$"
 
-  def fromPayload(p: CreateAddressPayload, accountId: Int): Address =
+  def fromPayload(p: CreateAddressPayload, accountId: Int, cordRef: Option[String]) =
     Address(
       accountId = accountId,
       regionId = p.regionId,
@@ -60,7 +60,7 @@ object Address {
       city = p.city,
       zip = p.zip,
       phoneNumber = p.phoneNumber,
-      cordRef = None
+      cordRef = cordRef
     )
 
   def fromPatchPayload(existedAddress: Address, incomingPayload: UpdateAddressPayload): Address =
@@ -77,14 +77,15 @@ object Address {
     )
 
   def fromCreditCard(cc: CreditCard): Address =
-    Address(accountId = 0,
-            regionId = cc.address.regionId,
-            name = cc.address.name,
-            address1 = cc.address.address1,
-            address2 = cc.address.address2,
-            city = cc.address.city,
-            zip = cc.address.zip,
-            phoneNumber = cc.address.phoneNumber,
+    Address(
+      accountId = 0,
+      regionId = cc.address.regionId,
+      name = cc.address.name,
+      address1 = cc.address.address1,
+      address2 = cc.address.address2,
+      city = cc.address.city,
+      zip = cc.address.zip,
+      phoneNumber = cc.address.phoneNumber,
       cordRef = None
     )
 
@@ -123,7 +124,8 @@ class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses") {
      city,
      zip,
      isDefaultShipping,
-    cordRef, phoneNumber,
+     cordRef,
+     phoneNumber,
      deletedAt) <> ((Address.apply _).tupled, Address.unapply)
 
   def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
