@@ -104,7 +104,7 @@ module.exports = {
               ]),
             },
             {
-              name: 'Activity Not',
+              name: 'Activity Notifications',
               components: () => ([
                 path.resolve(__dirname, '../src/components/activity-notifications/item.jsx'),
                 path.resolve(__dirname, '../src/components/activity-notifications/panel.jsx'),

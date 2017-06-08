@@ -3,7 +3,6 @@
 // libs
 import _ from 'lodash';
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 // components
@@ -56,7 +55,7 @@ const NotificationItem = (props: Props) => {
   const title = desc.title(activity.data, activity);
 
   return (
-    <div className={ classes }>
+    <div className={classes}>
       <div className={s.time}>
         <DateTime value={props.item.createdAt} />
       </div>

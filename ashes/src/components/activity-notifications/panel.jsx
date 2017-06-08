@@ -3,11 +3,10 @@
 // libs
 import _ from 'lodash';
 import React from 'react';
-import PropTypes from 'prop-types';
 
 // components
 import ContentBox from '../content-box/content-box';
-import NotificationItem from '../activity-notifications/item';
+import NotificationItem from './item';
 import { PrimaryButton } from 'components/core/button';
 
 // styles
@@ -15,10 +14,15 @@ import s from './panel.css';
 
 // types
 type Props = {
-  notifications: Array<*>;
+  /** An array of objects, each object is a notification */
+  notifications: Array<any>;
+  /** If true, shows popup with a notifications list */
   displayed: boolean;
+  /** A callback, which is supposed to mark all notifications as read outside the component */
   markAsRead: Function;
+  /** A callback, which is supposed to mark all notifications as read + switch off `displayed` outside the component */
   markAsReadAndClose: Function;
+  /** Custom css className for root html element of Panel component */
   className?: string;
 };
 
@@ -35,23 +39,20 @@ export default class NotificationPanel extends React.Component {
           Nothing to see here yet!
         </div>
       );
-    } else {
-      return items.map(item => {
-        return <NotificationItem item={item} key={`notification-item-${item.id}`} />;
-      });
     }
+
+    return items.map(item => {
+      return <NotificationItem item={item} key={`notification-item-${item.id}`} />;
+    });
   }
 
   get footer() {
-    const items = this.props.notifications;
-    const shouldBeDisabled = _.isEmpty(items);
-
     return (
       <div className={s.footer}>
         <PrimaryButton
           onClick={this.props.markAsReadAndClose}
           className={s.markAll}
-          disabled={shouldBeDisabled}
+          disabled={_.isEmpty(this.props.notifications)}
         >
           Mark All As Read
         </PrimaryButton>
@@ -60,18 +61,18 @@ export default class NotificationPanel extends React.Component {
   }
 
   render() {
-    if (this.props.displayed) {
-      return (
-        <ContentBox
-          className={this.props.className}
-          title="Notifications"
-          footer={this.footer}
-        >
-          {this.items}
-        </ContentBox>
-      );
+    if (!this.props.displayed) {
+      return null;
     }
 
-    return null;
+    return (
+      <ContentBox
+        className={this.props.className}
+        title="Notifications"
+        footer={this.footer}
+      >
+        {this.items}
+      </ContentBox>
+    );
   }
 }

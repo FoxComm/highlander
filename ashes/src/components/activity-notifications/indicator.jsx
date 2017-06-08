@@ -3,7 +3,6 @@
 // libs
 import _ from 'lodash';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
@@ -15,9 +14,13 @@ import s from './indicator.css';
 
 // types
 type Props = {
+  /** The number of available notifications */
   count?: number;
+  /** If true, shows popup with a notifications list */
   displayed?: boolean;
+  /** A callback, which supposed to switch `displayed` shmewhere outside the component */
   toggleNotifications: Function;
+  /** A callback, which supposed to mark all notifications as read outside the component */
   markAsReadAndClose: Function;
 };
 
@@ -28,17 +31,19 @@ export default class NotificationIndicator extends Component {
   get indicator() {
     let count = String(this.props.count);
 
-    if (this.props.count != null && this.props.count > 99) {
+    if (this.props.count == null) {
+      return null;
+    }
+
+    if (this.props.count > 99) {
       count = '99+';
     }
 
-    if (this.props.count) {
-      return (
-        <div className={s.indicator} key={count}>
-          {count}
-        </div>
-      );
-    }
+    return (
+      <div className={s.indicator} key={count}>
+        {count}
+      </div>
+    );
   }
 
   @autobind

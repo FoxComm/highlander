@@ -1,7 +1,7 @@
 #### Basic usage
 
 ```javascript
-<NotificationItem />
+<NotificationItem displayed count={2} />
 ```
 
 ### States
