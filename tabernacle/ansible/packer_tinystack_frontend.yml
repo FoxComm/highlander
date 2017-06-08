@@ -16,7 +16,7 @@
       service: name={{item}} enabled=yes
       with_items:
         - consul_agent
-        - consul_template
+        - nixy
         - mesos_worker
 
     - name: Reload Systemd Daemon
