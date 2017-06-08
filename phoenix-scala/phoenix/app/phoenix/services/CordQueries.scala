@@ -20,7 +20,7 @@ trait CordQueries {
       payStates ← DBIO.sequence(payments.map(getPaymentState)).map(_.flatten)
     } yield CordQueries.foldPaymentStates(payStates, payments.size)
 
-  private def getPaymentState(payment: OrderPayment)(implicit ec: EC): DBIO[Option[State]] = {
+  private def getPaymentState(payment: OrderPayment)(implicit ec: EC): DBIO[Option[State]] =
     payment.paymentMethodType match {
       case PaymentMethod.CreditCard ⇒
         CreditCardCharges
@@ -39,7 +39,6 @@ trait CordQueries {
           .one
           .map(_.map(fromExternalState))
     }
-  }
 }
 
 object CordQueries {

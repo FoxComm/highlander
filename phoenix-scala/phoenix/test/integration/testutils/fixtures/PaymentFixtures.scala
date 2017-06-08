@@ -15,13 +15,15 @@ object PaymentFixtures {
     val theAddress = Factories.address.copy(id = 1, accountId = 2, isDefaultShipping = false)
     val expYear    = ZonedDateTime.now.getYear + 3
 
-    val theAddressPayload = CreateAddressPayload(name = theAddress.name,
-                                                 address1 = theAddress.address1,
-                                                 address2 = theAddress.address2,
-                                                 zip = theAddress.zip,
-                                                 city = theAddress.city,
-                                                 regionId = theAddress.regionId,
-                                                 phoneNumber = theAddress.phoneNumber)
+    val theAddressPayload = CreateAddressPayload(
+      name = theAddress.name,
+      address1 = theAddress.address1,
+      address2 = theAddress.address2,
+      zip = theAddress.zip,
+      city = theAddress.city,
+      regionId = theAddress.regionId,
+      phoneNumber = theAddress.phoneNumber
+    )
 
     val tokenStripeId = s"tok_${TestStripeSupport.randomStripeishId}"
 

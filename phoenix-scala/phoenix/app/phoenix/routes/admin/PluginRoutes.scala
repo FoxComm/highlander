@@ -12,7 +12,7 @@ import phoenix.utils.http.JsonSupport._
 
 object PluginRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AU, apis: Apis): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AU, apis: Apis): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("plugins") {
         (get & pathEnd) {
@@ -20,31 +20,30 @@ object PluginRoutes {
             listPlugins()
           }
         } ~
-        pathPrefix("register") {
-          (post & pathEnd & entity(as[RegisterPluginPayload])) { payload ⇒
-            mutateOrFailures {
-              registerPlugin(payload)
-            }
-          }
-        } ~
-        (pathPrefix("settings") & pathPrefix(Segment)) { pluginName ⇒
-          (get & pathEnd) {
-            getOrFailures {
-              listSettings(pluginName)
+          pathPrefix("register") {
+            (post & pathEnd & entity(as[RegisterPluginPayload])) { payload ⇒
+              mutateOrFailures {
+                registerPlugin(payload)
+              }
             }
           } ~
-          (get & path("detailed")) {
-            getOrFailures {
-              getSettingsWithSchema(pluginName)
-            }
-          } ~
-          (post & pathEnd & entity(as[UpdateSettingsPayload])) { payload ⇒
-            mutateOrFailures {
-              updateSettings(pluginName, payload)
-            }
+          (pathPrefix("settings") & pathPrefix(Segment)) { pluginName ⇒
+            (get & pathEnd) {
+              getOrFailures {
+                listSettings(pluginName)
+              }
+            } ~
+              (get & path("detailed")) {
+                getOrFailures {
+                  getSettingsWithSchema(pluginName)
+                }
+              } ~
+              (post & pathEnd & entity(as[UpdateSettingsPayload])) { payload ⇒
+                mutateOrFailures {
+                  updateSettings(pluginName, payload)
+                }
+              }
           }
-        }
       }
     }
-  }
 }

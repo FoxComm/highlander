@@ -28,15 +28,14 @@ object EntityExportPayloads {
     * Order in list matters, as if there are more than one `FieldCalculation` that reacts to the same field name,
     * only the last one will be taken into account.
     */
-  sealed abstract class ExportableEntity(dynamicCalculations: List[FieldCalculation]) {
-    this: Product ⇒
+  sealed abstract class ExportableEntity(dynamicCalculations: List[FieldCalculation]) { this: Product ⇒
     def this(dynamicCalculations: FieldCalculation*) = this(dynamicCalculations.toList)
 
-    lazy val (extraFields, calculateFields) = dynamicCalculations.foldLeft(
-        List.empty[String] → PartialFunction.empty[(String, JObject), String]) {
-      case ((accFields, accCalc), fc) ⇒
-        (fc.extraFields ::: accFields, fc.calculate.orElse(accCalc))
-    }
+    lazy val (extraFields, calculateFields) =
+      dynamicCalculations.foldLeft(List.empty[String] → PartialFunction.empty[(String, JObject), String]) {
+        case ((accFields, accCalc), fc) ⇒
+          (fc.extraFields ::: accFields, fc.calculate.orElse(accCalc))
+      }
 
     def entity: String = productPrefix.underscore
 
@@ -151,10 +150,10 @@ object EntityExportPayloads {
   object ExportEntity {
     def typeHints =
       ADTTypeHints(
-          Map(
-              Type.Ids   → classOf[ByIDs],
-              Type.Query → classOf[BySearchQuery]
-          ))
+        Map(
+          Type.Ids   → classOf[ByIDs],
+          Type.Query → classOf[BySearchQuery]
+        ))
 
     sealed trait Type extends Product with Serializable
     implicit object Type extends ADT[Type] {
@@ -175,8 +174,7 @@ object EntityExportPayloads {
 
   case class RawSortDefinition(field: String, json: JObject) extends SortDefinition {
     lazy val builder: SortBuilder = new SortBuilder {
-      private[this] lazy val bytes = new BytesArray(
-          compact(render(json)).getBytes(StandardCharsets.UTF_8))
+      private[this] lazy val bytes = new BytesArray(compact(render(json)).getBytes(StandardCharsets.UTF_8))
 
       def missing(missing: Any): SortBuilder = this // no need to support this operation
 
@@ -188,7 +186,7 @@ object EntityExportPayloads {
   }
   object RawSortDefinition {
     val jsonFormat = new CustomSerializer[RawSortDefinition](_ ⇒
-          ({
+      ({
         case JString(field) ⇒ RawSortDefinition(field, JObject())
         case JObject((field, order @ JString(_)) :: Nil) ⇒
           RawSortDefinition(field, JObject("order" → order))

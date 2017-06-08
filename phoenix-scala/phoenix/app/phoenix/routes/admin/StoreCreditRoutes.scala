@@ -17,7 +17,7 @@ object StoreCreditRoutes {
                                        db: DB,
                                        ac: AC,
                                        apis: Apis,
-                                       auth: AuthData[User]): Route = {
+                                       auth: AuthData[User]): Route =
     pathPrefix("store-credits") {
       (patch & pathEnd & entity(as[StoreCreditBulkUpdateStateByCsr])) { payload ⇒
         mutateOrFailures {
@@ -25,17 +25,16 @@ object StoreCreditRoutes {
         }
       }
     } ~
-    pathPrefix("store-credits" / IntNumber) { storeCreditId ⇒
-      (get & pathEnd) {
-        getOrFailures {
-          StoreCreditService.getById(storeCreditId)
-        }
-      } ~
-      (patch & pathEnd & entity(as[StoreCreditUpdateStateByCsr])) { payload ⇒
-        mutateOrFailures {
-          StoreCreditService.updateStateByCsr(storeCreditId, payload, auth.model)
-        }
+      pathPrefix("store-credits" / IntNumber) { storeCreditId ⇒
+        (get & pathEnd) {
+          getOrFailures {
+            StoreCreditService.getById(storeCreditId)
+          }
+        } ~
+          (patch & pathEnd & entity(as[StoreCreditUpdateStateByCsr])) { payload ⇒
+            mutateOrFailures {
+              StoreCreditService.updateStateByCsr(storeCreditId, payload, auth.model)
+            }
+          }
       }
-    }
-  }
 }

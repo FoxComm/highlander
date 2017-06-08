@@ -5,6 +5,7 @@
     "mem": 512,
     "disk": 0,
     "instances": 1,
+    "constraints": [],
     "labels": {
         "LANG": "python",
         "TAG": "{{docker_tags.anthill}}",
@@ -33,9 +34,6 @@
         "NEO4J_HOST": "{{neo4j_host}}",
         "NEO4J_PORT": "{{neo4j_port}}"
     },
-    "constraints": [
-        ["hostname", "UNIQUE"]
-    ],
     "healthChecks": [{
         "path": "/public/ping",
         "protocol": "HTTP",

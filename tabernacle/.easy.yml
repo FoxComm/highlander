@@ -160,6 +160,10 @@ shortcuts:
     target: ansible/seed_data_import.yml
 
   # Tinystack
+  - name: Deploy Atomic
+    alias: deploy_atomic.yml
+    target: ansible/deploy_atomic.yml
+
   - name: Deploy Staging
     alias: deploy_stage.yml
     target: ansible/deploy_stage.yml

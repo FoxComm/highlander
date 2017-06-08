@@ -1,13 +1,12 @@
 package phoenix.services.activity
 
-import phoenix.responses.{AddressResponse, CreditCardsResponse, UserResponse, CustomerResponse}
+import phoenix.responses.{AddressResponse, CreditCardsResponse, CustomerResponse, UserResponse}
 
 object CustomerTailored {
   case class CustomerCreated(admin: UserResponse.Root, user: CustomerResponse.Root)
       extends ActivityBase[CustomerCreated]
 
-  case class CustomerRegistered(user: CustomerResponse.Root)
-      extends ActivityBase[CustomerRegistered]
+  case class CustomerRegistered(user: CustomerResponse.Root) extends ActivityBase[CustomerRegistered]
 
   case class CustomerActivated(admin: UserResponse.Root, user: CustomerResponse.Root)
       extends ActivityBase[CustomerActivated]

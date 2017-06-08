@@ -71,8 +71,7 @@ class SharedSearchIntegrationTest
 
     "returns associated scopes created by different admins" in new SharedSearchAssociationFixture {
       SharedSearchAssociations
-        .create(
-            SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = defaultAdmin.id))
+        .create(SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = defaultAdmin.id))
         .gimme
 
       getByScope("customersScope") must === (Seq(search))
@@ -200,7 +199,7 @@ class SharedSearchIntegrationTest
 
     "warning if store admin is not found" in new AssociateBaseFixture {
       sharedSearchApi(search.code)
-        .associate(SharedSearchAssociationPayload(Seq(1, 999)))
+        .associate(SharedSearchAssociationPayload(Seq(defaultAdmin.id, 999)))
         .asThe[SharedSearch]
         .errors
         .value must === (Seq(NotFoundFailure404(User, 999).description))
@@ -217,8 +216,7 @@ class SharedSearchIntegrationTest
 
   "GET v1/shared-search/:code/associates" - {
     "returns associates by code" in new AssociateSecondaryFixture {
-      sharedSearchApi(search.code).associates().as[Seq[UserRoot]].onlyElement.id must === (
-          defaultAdmin.id)
+      sharedSearchApi(search.code).associates().as[Seq[UserRoot]].onlyElement.id must === (defaultAdmin.id)
     }
 
     "returns multiple associates by code" in new AssociateSecondaryFixture {
@@ -339,12 +337,12 @@ class SharedSearchIntegrationTest
     }
     val search = (for {
       search ← * <~ SharedSearches.create(
-                  SharedSearch(title = "Test",
-                               query = dummyJVal,
-                               rawQuery = dummyJVal,
-                               scope = CustomersScope,
-                               storeAdminId = secondAdminId,
-                               accessScope = scope))
+                SharedSearch(title = "Test",
+                             query = dummyJVal,
+                             rawQuery = dummyJVal,
+                             scope = CustomersScope,
+                             storeAdminId = secondAdminId,
+                             accessScope = scope))
       secondAdmin ← * <~ Users.mustFindByAccountId(secondAdminId)
       _           ← * <~ SharedSearchAssociations.create(buildAssociation(search, secondAdmin))
     } yield search).gimme

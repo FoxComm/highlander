@@ -1,19 +1,14 @@
 package consumer.elastic
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import scala.collection.mutable.Buffer
-import scala.util.control.NonFatal
 
-import consumer.{AvroJsonHelper, JsonProcessor}
-import consumer.PassthroughSource
-import consumer.MainConfig.IndexTopicMap
-import consumer.elastic.mappings._
-import consumer.aliases._
-import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
+import consumer.MainConfig.IndexTopicMap
+import consumer.aliases._
+import consumer.elastic.mappings._
+import consumer.{AvroJsonHelper, JsonProcessor}
 import org.elasticsearch.common.settings.Settings
-import org.elasticsearch.client.transport.NoNodeAvailableException
 import org.elasticsearch.indices.IndexAlreadyExistsException
 import org.elasticsearch.transport.RemoteTransportException
 import org.json4s.DefaultFormats
@@ -30,11 +25,11 @@ final case class Scope(id: Int = 0, parentPath: Option[String]) {
   * This is a JsonProcessor which listens to scope creation and creates ES mappings
   * for the new scope.
   */
-class ScopeProcessor(uri: String,
-                     cluster: String,
-                     indexTopics: IndexTopicMap,
-                     jsonTransformers: Map[String, JsonTransformer])(
-    implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC)
+class ScopeProcessor(
+    uri: String,
+    cluster: String,
+    indexTopics: IndexTopicMap,
+    jsonTransformers: Map[String, JsonTransformer])(implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC)
     extends JsonProcessor {
 
   implicit val formats: DefaultFormats.type = DefaultFormats
@@ -57,26 +52,32 @@ class ScopeProcessor(uri: String,
   private def createIndex(scope: Scope): Future[Unit] = {
     val futures: Iterable[Future[Unit]] = indexTopics.map {
       case (indexName, topics) ⇒ {
-          val scopedIndexName = s"${indexName}_${scope.path}"
-          Console.out.println(s"Creating type mappings for index: ${scopedIndexName}")
-          //get json mappings for topics
-          val jsonMappings = jsonTransformers.filter {
+        val scopedIndexName = s"${indexName}_${scope.path}"
+        Console.out.println(s"Creating type mappings for index: $scopedIndexName")
+        //get json mappings for topics
+        val jsonMappings = jsonTransformers
+          .filter {
             case (key, _) ⇒ topics.contains(key)
-          }.mapValues(_.mapping()).values.toSeq
+          }
+          .mapValues(_.mapping())
+          .values
+          .toSeq
 
-          // create index with scope in the
-          client.execute {
+        // create index with scope in the
+        client
+          .execute {
             create index scopedIndexName mappings (jsonMappings: _*) analysis (autocompleteAnalyzer, lowerCasedAnalyzer, upperCasedAnalyzer)
-          }.map { _ ⇒
+          }
+          .map { _ ⇒
             ()
-          }.recover {
-            case e: RemoteTransportException
-                if e.getCause.isInstanceOf[IndexAlreadyExistsException] ⇒
+          }
+          .recover {
+            case e: RemoteTransportException if e.getCause.isInstanceOf[IndexAlreadyExistsException] ⇒
               Console.out.println(s"Index $scopedIndexName already exists, skip")
             case other ⇒
               Console.println(s"Creation of index $scopedIndexName failed with error: $other")
           }
-        }
+      }
     }
     Future.sequence(futures).map(_ ⇒ ())
   }

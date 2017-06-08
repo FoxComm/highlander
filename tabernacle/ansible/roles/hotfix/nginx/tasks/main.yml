@@ -1,0 +1,7 @@
+---
+
+- name: Take a nap for Consul Template
+  pause: seconds=15
+
+- name: Restart Nginx
+  service: name=nginx state=restarted enabled=yes

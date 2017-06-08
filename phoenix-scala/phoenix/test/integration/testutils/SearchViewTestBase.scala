@@ -38,21 +38,16 @@ trait SearchViewTestBase
     results.headOption
   } withClue originalSourceClue
 
-  def viewOne(queryParam: AnyVal)(implicit sl: SL,
-                                  sf: SF,
-                                  mf: Manifest[SearchViewResult]): SearchViewResult =
+  def viewOne(queryParam: AnyVal)(implicit sl: SL, sf: SF, mf: Manifest[SearchViewResult]): SearchViewResult =
     findOne(queryParam).value withClue originalSourceClue
 
   // As the name suggests, use this to debug view tests. Only to debug.
-  def DEBUG_rawViewResult(implicit sl: SL,
-                          sf: SF,
-                          mf: Manifest[SearchViewResult]): Vector[String] =
+  def DEBUG_rawViewResult(implicit sl: SL, sf: SF, mf: Manifest[SearchViewResult]): Vector[String] =
     sql"select array_to_json(array_agg(sv)) from #$searchViewName as sv".as[String].gimme
 
-  private def queryView(queryParam: AnyVal)(
-      implicit sl: SL,
-      sf: SF,
-      mf: Manifest[SearchViewResult]): Option[Seq[SearchViewResult]] = {
+  private def queryView(queryParam: AnyVal)(implicit sl: SL,
+                                            sf: SF,
+                                            mf: Manifest[SearchViewResult]): Option[Seq[SearchViewResult]] = {
     // Select all search view rows as JSON array, just because it's easier to implement it this way rather than
     // wreste with complex Slick's type definitions
     val query =

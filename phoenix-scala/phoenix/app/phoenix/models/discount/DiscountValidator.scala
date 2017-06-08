@@ -17,10 +17,9 @@ object DiscountValidator {
 
   def validate(fs: FormAndShadow)(implicit ec: EC): DbResultT[Unit] =
     for {
-      failures ← * <~ IlluminateAlgorithm.validateAttributes(fs.form.attributes,
-                                                             fs.shadow.attributes)
-      _ ← * <~ failIfFailures(failures)
-      _ ← * <~ QualifierAstCompiler(qualifier(fs.form, fs.shadow)).compile()
-      _ ← * <~ OfferAstCompiler(offer(fs.form, fs.shadow)).compile()
+      failures ← * <~ IlluminateAlgorithm.validateAttributes(fs.form.attributes, fs.shadow.attributes)
+      _        ← * <~ failIfFailures(failures)
+      _        ← * <~ QualifierAstCompiler(qualifier(fs.form, fs.shadow)).compile()
+      _        ← * <~ OfferAstCompiler(offer(fs.form, fs.shadow)).compile()
     } yield None
 }

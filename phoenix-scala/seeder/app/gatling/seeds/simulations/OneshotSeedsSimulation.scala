@@ -8,10 +8,10 @@ import gatling.seeds.requests.Auth._
 
 class OneshotSeedsSimulation extends Simulation {
   setUp(
-      scenario("Base data")
-        .step(loginAsRandomAdmin)
-        // Add seeds here
-        .inject(atOnceUsers(1)))
+    scenario("Base data")
+      .step(loginAsRandomAdmin)
+      // Add seeds here
+      .inject(atOnceUsers(1)))
     .assertions(global.failedRequests.percent.lessThan(99))
     .protocols(httpConf)
 }

@@ -21,7 +21,7 @@ begin
       inner join object_forms as f on (f.id = t.form_id)
       inner join object_shadows as s on (s.id = t.shadow_id)
       left join (select count(left_id) as count, right_id as taxon_id
-                 from product_taxon_links where archived_at is not null group by right_id) as products
+                 from product_taxon_links where archived_at is null group by right_id) as products
         on products.taxon_id = t.id
     where t.id = new.id;
   return null;
@@ -44,7 +44,7 @@ create or replace function update_taxons_search_view_products_count_fn()
         products_count = coalesce(products.count, 0)
       from taxons as t
         left join (select count(left_id) as count, right_id as taxon_id
-                    from product_taxon_links where archived_at is not null group by right_id)
+                    from product_taxon_links where archived_at is null group by right_id)
           as products on products.taxon_id = t.id
       where t.id = any(taxon_ids) and taxons_search_view.id = t.id;
 

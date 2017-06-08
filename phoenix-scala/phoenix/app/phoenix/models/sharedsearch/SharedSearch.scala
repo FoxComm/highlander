@@ -53,12 +53,12 @@ object SharedSearch {
 
   def byAdmin(admin: User, payload: SharedSearchPayload, scope: LTree): SharedSearch =
     SharedSearch(
-        title = payload.title,
-        query = payload.query,
-        rawQuery = payload.rawQuery,
-        storeAdminId = admin.accountId,
-        scope = payload.scope,
-        accessScope = scope
+      title = payload.title,
+      query = payload.query,
+      rawQuery = payload.rawQuery,
+      storeAdminId = admin.accountId,
+      scope = payload.scope,
+      accessScope = scope
     )
 
   implicit val scopeColumnType: JdbcType[Scope] with BaseTypedType[Scope] = Scope.slickColumn
@@ -78,17 +78,7 @@ class SharedSearches(tag: Tag) extends FoxTable[SharedSearch](tag, "shared_searc
   def deletedAt    = column[Option[Instant]]("deleted_at")
 
   def * =
-    (id,
-     code,
-     accessScope,
-     title,
-     query,
-     rawQuery,
-     scope,
-     storeAdminId,
-     isSystem,
-     createdAt,
-     deletedAt) <> ((SharedSearch.apply _).tupled, SharedSearch.unapply)
+    (id, code, accessScope, title, query, rawQuery, scope, storeAdminId, isSystem, createdAt, deletedAt) <> ((SharedSearch.apply _).tupled, SharedSearch.unapply)
 }
 
 object SharedSearches

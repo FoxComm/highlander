@@ -84,15 +84,15 @@ The order, in which `highlander` subgroups are launched:
            |                         |              |---------------------|       +---|--------------|
            |                         +--------------|* onboarding-service |       |   |* neo4j-reset |
            |                                        |* onboarding-ui      |       |   +--------------+
-           |                                        +---------------------+       |
-           |                                                                      |
-           |    +------------------------+     +--------------------+          +--------------+
-           |    |     core-consumers     |     |    ic-consumers    |          |  ic-backend  |
-           |    |------------------------|     |--------------------|          |--------------|
-           +----|* green-river           |     |* digger-sphex      |          |* anthill     |
-                |* capture-consumer      |     |* orders-anthill    |----------|* bernardo    |
-                |* gift-card-consumer    |     |* orders-sphex      |          |* eggcrate    |
-                |* shipments-consumer    |     |* product-activity  |          |* river-rock  |
-                |* stock-items-consumer  |     +--------------------+          +--------------+
-                +------------------------+
+           |                                        +---------------------+       |                   
+           |                                                                      |                   
+           |    +------------------------+     +--------------------+          +--------------+       
+           |    |     core-consumers     |     |    ic-consumers    |          |  ic-backend  |       
+           |    |------------------------|     |--------------------|          |--------------|       
+           +----|* green-river           |     |* digger-sphex      |          |* anthill     |       
+                |* capture-consumer      |     |* orders-anthill    |----------|* bernardo    |       
+                |* gift-card-consumer    |     |* orders-reviews    |          |* eggcrate    |       
+                |* shipments-consumer    |     |* orders-sphex      |          |* river-rock  |       
+                |* stock-items-consumer  |     |* product-activity  |          +--------------+       
+                +------------------------+     +--------------------+                                                       
 ```

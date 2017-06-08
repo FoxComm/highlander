@@ -26,10 +26,7 @@ class GiftCardAdjustmentIntegrationTest
     "only one of credit or debit can be greater than zero" in new Fixture {
       override def gcPaymentAmount = giftCard.availableBalance
       val failure = GiftCards
-        .adjust(giftCard = giftCard,
-                orderPaymentId = orderPayments.head.id.some,
-                debit = 50,
-                credit = 50)
+        .adjust(giftCard = giftCard, orderPaymentId = orderPayments.head.id.some, debit = 50, credit = 50)
         .gimmeTxnFailures
       failure.getMessage must include("""violates check constraint "valid_entry"""")
     }
@@ -40,13 +37,13 @@ class GiftCardAdjustmentIntegrationTest
       val adjustment = (for {
         auth ← * <~ GiftCards.auth(giftCard = giftCard,
                                    orderPaymentId = orderPayments.head.id,
-                                   debit = 50)
+                                   debit = gcPaymentAmount)
         adjustment ← * <~ GiftCards.capture(giftCard = giftCard,
                                             orderPaymentId = orderPayments.head.id,
-                                            debit = 50)
+                                            debit = gcPaymentAmount)
       } yield adjustment).gimme
 
-      adjustment.id must === (1)
+      adjustment.debit must === (gcPaymentAmount)
     }
 
     "updates the GiftCard's currentBalance and availableBalance before insert" in new Fixture {
@@ -95,8 +92,7 @@ class GiftCardAdjustmentIntegrationTest
       }
 
       val finalGc = GiftCards.refresh(giftCard).gimme
-      (finalGc.originalBalance, finalGc.availableBalance, finalGc.currentBalance) must === (
-          (500, 500, 500))
+      (finalGc.originalBalance, finalGc.availableBalance, finalGc.currentBalance) must === ((500, 500, 500))
     }
   }
 

@@ -37,6 +37,6 @@ class ProductsSearchViewIntegrationTest
 
   type SearchViewResult = ProductSearchViewResult
   val searchViewName: String = "products_search_view"
-  val searchKeyName: String  = "id"
+  val searchKeyName: String  = "product_id"
 
 }

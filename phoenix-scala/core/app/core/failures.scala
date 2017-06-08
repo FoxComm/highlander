@@ -37,18 +37,16 @@ object failures {
   }
 
   object NotFoundFailure404 {
-    def apply[A](a: A, searchKey: Any): NotFoundFailure404 = {
+    def apply[A](a: A, searchKey: Any): NotFoundFailure404 =
       NotFoundFailure404(s"${friendlyClassName(a)} with key=$searchKey not found")
-    }
 
     // TODO: get rid of this usage @michalrus
     def apply[A](a: A, searchTerm: String, searchKey: Any): NotFoundFailure404 =
       NotFoundFailure404(s"${friendlyClassName(a)} with key=$searchKey not found")
 
     // TODO: get rid of this usage @michalrus
-    def apply(className: String, searchTerm: String, searchKey: Any): NotFoundFailure404 = {
+    def apply(className: String, searchTerm: String, searchKey: Any): NotFoundFailure404 =
       NotFoundFailure404(s"$className with $searchTerm=$searchKey not found")
-    }
   }
 
   case class NotFoundFailure400(message: String) extends Failure {
@@ -56,9 +54,8 @@ object failures {
   }
 
   object NotFoundFailure400 {
-    def apply[A](a: A, searchKey: Any): NotFoundFailure400 = {
+    def apply[A](a: A, searchKey: Any): NotFoundFailure400 =
       NotFoundFailure400(s"${friendlyClassName(a)} with key=$searchKey not found")
-    }
   }
 
 }
