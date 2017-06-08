@@ -48,8 +48,7 @@ export default class DropdownSearch extends Component {
   }
 
   @autobind
-  onTokenChange(event: SyntheticEvent) {
-    const token = _.get(event, 'target.value', '');
+  onTokenChange(token: string) {
     this.setState({ token }, () => {
       this.fetchOptions(token);
     });
