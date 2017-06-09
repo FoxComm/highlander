@@ -1,8 +1,6 @@
 const path = require('path');
 const SvgStore = require('webpack-svgstore-plugin');
 
-const SvgStore = require('webpack-svgstore-plugin');
-
 module.exports = {
   module: {
     rules: [
