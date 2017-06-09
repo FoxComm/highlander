@@ -117,7 +117,7 @@ if [[ ${#ALL_CHANGED[@]} -gt 0 ]]; then
     done
 fi
 
-# Build everything if script goes wrong
+# Prematurely quit if nothing to build
 if [[ ${#CHANGED[@]} == 0 ]]; then
     write "No projects changed, nothing to build"
     exit 0;
