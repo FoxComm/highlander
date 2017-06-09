@@ -1,0 +1,50 @@
+Warming up service
+Benchmarking fetching of the entire document's source
+Running 20s test @ http://10.240.0.50:9000/search/admin_1/sku_search_view?size=100
+  4 threads and 32 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    65.84ms   40.17ms 531.05ms   90.15%
+    Req/Sec   129.54     29.18   210.00     67.64%
+  10191 requests in 20.03s, 250.51MB read
+Requests/sec:    508.90
+Transfer/sec:     12.51MB
+Running 20s test @ http://10.240.0.50:9000/search/admin_1/sku_search_view?size=100
+  4 threads and 64 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   110.73ms   31.99ms 353.55ms   79.68%
+    Req/Sec   145.29     36.82   240.00     74.19%
+  11570 requests in 20.02s, 284.41MB read
+Requests/sec:    577.99
+Transfer/sec:     14.21MB
+Running 20s test @ http://10.240.0.50:9000/search/admin_1/sku_search_view?size=100
+  4 threads and 92 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   150.33ms   34.29ms 457.06ms   80.94%
+    Req/Sec   153.60     39.03   292.00     71.80%
+  12223 requests in 20.02s, 300.46MB read
+Requests/sec:    610.69
+Transfer/sec:     15.01MB
+Running 20s test @ http://10.240.0.50:9000/search/admin_1/sku_search_view?size=100
+  4 threads and 128 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   206.65ms   35.25ms 440.80ms   76.56%
+    Req/Sec   153.20     47.95   290.00     68.60%
+  12145 requests in 20.02s, 298.55MB read
+Requests/sec:    606.69
+Transfer/sec:     14.91MB
+Running 20s test @ http://10.240.0.50:9000/search/admin_1/sku_search_view?size=100
+  4 threads and 160 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   262.74ms   52.15ms 520.95ms   79.70%
+    Req/Sec   148.92     56.18   370.00     69.77%
+  11799 requests in 20.01s, 290.04MB read
+Requests/sec:    589.58
+Transfer/sec:     14.49MB
+Running 20s test @ http://10.240.0.50:9000/search/admin_1/sku_search_view?size=100
+  4 threads and 192 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   308.34ms   43.79ms 632.53ms   77.38%
+    Req/Sec   153.19     60.43   383.00     68.56%
+  12107 requests in 20.02s, 297.61MB read
+Requests/sec:    604.72
+Transfer/sec:     14.87MB
