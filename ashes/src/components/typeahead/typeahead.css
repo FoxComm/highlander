@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .block {
   position: relative;
 }
@@ -27,7 +29,7 @@
 
 .input-icon {
   display: none;
-  color: #bfbfbf;
+  color: var(--color-additional-text);
   position: absolute;
   left: 13px;
   bottom: 11px;

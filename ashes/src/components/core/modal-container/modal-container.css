@@ -8,7 +8,7 @@
   overflow: auto;
   background: rgba(0, 0, 0, 0.5);
   backface-visibility: hidden;
-  z-index: 1000;
+  z-index: 30;
 }
 
 .modal {

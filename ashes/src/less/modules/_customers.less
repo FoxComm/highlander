@@ -1,11 +1,6 @@
 .fc-customer {
   width: 100%;
 
-  .fc-comment {
-    color: @color-text-gray;
-    font-weight: bold;
-  }
-
   .fc-float-list {
     display: flex;
     flex-wrap: wrap;
@@ -74,11 +69,11 @@
   .fc-customer-notification-settings {
     .fc-customer-settings-title-row {
       padding: 10px 0;
-      border-bottom: 2px solid @color-text-gray;
+      border-bottom: 2px solid @color-additional-text;
     }
 
     .fc-customer-notification-title-comment {
-      color: @color-text-gray;
+      color: @color-additional-text;
       font-weight: 600;
     }
   }
@@ -91,7 +86,7 @@
 
     dt {
       font-size: 16px;
-      font-weight: @semibold;
+      font-weight: 600;
       line-height: 24px;
     }
 
@@ -112,13 +107,13 @@
   &-contacts-form {
     dt {
       font-size: 16px;
-      font-weight: @semibold;
+      font-weight: 600;
       line-height: 22px;
     }
     .fc-form-field {
       margin-top: 10px;
       font-size: 14px;
-      font-weight: @normal;
+      font-weight: 400;
       line-height: 19px;
       input {
         width: 100%;
@@ -164,8 +159,8 @@
 
   .fc-customer__empty-messages {
     line-height: 5.2rem;
-    .font-spec(2rem, @normal, 5.2rem);
-    color: @color-text-gray;
+    .font-spec(2rem, 400, 5.2rem);
+    color: @color-additional-text;
     text-align: center;
     padding: 20px;
   }

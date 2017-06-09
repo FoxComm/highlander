@@ -1,8 +1,10 @@
+@import 'colors.css';
+
 .item {
   padding: 0 20px;
   font-size: 14px;
   line-height: 44px;
-  color: #484848;
+  color: var(--color-text);
   background: #ffffff;
   white-space: nowrap;
   cursor: pointer;
@@ -11,7 +13,7 @@
 
 .item._active,
 .item:hover {
-  background-color: #f5f5f5;
+  background-color: var(--grey-headers);
 }
 
 .hidden {

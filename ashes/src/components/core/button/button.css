@@ -1,5 +1,5 @@
-@import "common.css";
-@import "colors.css";
+@import 'common.css';
+@import 'colors.css';
 
 /*
  * General Button Styles
@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: center;
   padding: 11px 20px;
-  color: var(--button-color);
+  color: var(--color-text);
   background-color: var(--button-bg);
   font-size: 14px;
   font-weight: 600;
@@ -25,14 +25,14 @@
   }
 
   &:hover {
-    background-color: var(--button-bg-hover);
+    background-color: var(--grey-buttons-hover);
   }
 
   &:disabled,
   &:disabled:hover {
     cursor: default;
-    color: var(--button-color-disabled);
-    background-color: var(--button-bg-disabled);
+    color: var(--color-additional-text);
+    background-color: var(--grey-buttons-hover);
   }
 
   &.onlyIcon {
@@ -85,7 +85,7 @@ span + i[class*="icon-"] {
  * Primary Button Styles
  */
 .primary {
-  color: var(--primary-button-color);
+  color: var(--color-light-text);
   background-color: var(--primary-button-bg);
 }
 
@@ -96,8 +96,8 @@ span + i[class*="icon-"] {
 .primary:disabled,
 .primary:disabled:hover {
   cursor: default;
-  color: var(--primary-button-color-disabled);
-  background-color: var(--primary-button-bg-disabled);
+  color: var(--color-additional-text);
+  background-color: var(--green-buttons);
 }
 
 /*
@@ -120,14 +120,14 @@ span + i[class*="icon-"] {
 .socialButton {
   &.google {
     background-color: #f65554;
-    color: #f2f2f2;
+    color: var(--color-light-text);
 
     &:hover {
       background-color: #f66564;
     }
 
     &:disabled {
-      color: #ddd;
+      color: var(--color-additional-text);
     }
   }
 }

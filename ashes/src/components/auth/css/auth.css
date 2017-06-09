@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .title {
   font-size: 20px;
   line-height: 27px;
@@ -12,7 +14,7 @@
 
 .message {
   margin-top: 40px;
-  color: #484848;
+  color: var(--color-text);
 }
 
 .main {
@@ -59,7 +61,7 @@
   font-size: 13px;
   line-height: 18px;
   &:hover {
-    color: #484848;
+    color: var(--color-text);
   }
 }
 

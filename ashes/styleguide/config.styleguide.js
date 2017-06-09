@@ -22,6 +22,16 @@ module.exports = {
       name: 'Documentation',
       sections: [
         {
+          name: 'Colors and Typo',
+          sections: [{
+            content: '../docs/colors-and-typos.md',
+          }, {
+            components: () => ([
+              path.resolve(__dirname, '../src/components/docs/colors/text-colors.jsx'),
+            ]),
+          }]
+        },
+        {
           name: 'Components',
           content: '../docs/components.md',
         },

@@ -1,3 +1,4 @@
+@import 'colors.css';
 
 .sku-cell {
   position: relative;
@@ -20,7 +21,7 @@
   position: absolute;
   top: 100%;
   width: 100%;
-  z-index: 999;
+  z-index: 29;
 
   &:global(._visible) {
     display: block;
@@ -38,7 +39,7 @@
     &:first-child {
       font-size: 12px;
       font-weight: 400;
-      color: #484848;
+      color: var(--color-text);
       padding-bottom: 10px;
     }
   }
@@ -46,7 +47,7 @@
 
 .no-image-text {
   font-weight: 600;
-  color: #9BA3A7;
+  color: var(--color-additional-text);
 }
 
 .image-cell {
@@ -59,7 +60,7 @@
 
 .variant-value {
   background-color: #d9d9d9;
-  border: 1px solid #ced2d5;
+  border: 1px solid var(--color-border);
   padding: 10px;
   white-space: nowrap;
 }

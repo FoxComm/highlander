@@ -1,11 +1,11 @@
-@import "colors.css";
+@import 'colors.css';
 
 .alert {
   position: relative;
   display: flex;
   justify-content: space-between;
   padding: 9px 10px;
-  color: #484848;
+  color: var(--color-text);
   border-radius: 3px;
 }
 
