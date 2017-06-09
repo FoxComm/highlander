@@ -1,7 +1,7 @@
 # Development environment Makefile
 include makelib
 -include goldrush.cfg
-header = $(call baseheader, $(1), root)
+header = $(call baseheader, $(1), highlander)
 
 prepare:
 	sudo pip install -r tabernacle/requirements.txt
