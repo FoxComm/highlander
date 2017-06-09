@@ -15,8 +15,8 @@ export default class TotalRevenueToolTip extends React.Component {
       return 0;
     };
     const toolTipFlyoutStyle = {
-      stroke: '#3a434f',
-      fill: '#3a434f',
+      stroke: '#25334a',
+      fill: '#25334a',
     };
     const toolTipStyle = {
       fill: '#FFFFFF',

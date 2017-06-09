@@ -21,7 +21,7 @@ const colors = {
   gray: '#808080',
   teal: '#008080',
   white: '#FFFFFF',
-  darkBlue: '#3a434f',
+  darkBlue: '#25334a',
   lightGray: '#abb2b6'
 };
 
