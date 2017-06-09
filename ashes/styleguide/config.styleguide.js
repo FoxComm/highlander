@@ -41,7 +41,20 @@ module.exports = {
     },
     {
       name: 'Iconography',
-      content: '../docs/iconography.md'
+      sections: [
+        {
+          name: 'Icons',
+          content: '../docs/iconography/icons.md'
+        },
+        {
+          name: 'SVG Icons',
+          content: '../docs/iconography/icons-svg.md'
+        },
+        {
+          name: 'Logos',
+          content: '../docs/iconography/logos.md'
+        },
+      ]
     },
     {
       name: 'Components',
