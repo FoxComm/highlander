@@ -119,10 +119,8 @@ fi
 
 # Build everything if script goes wrong
 if [[ ${#CHANGED[@]} == 0 ]]; then
-    write "No projects changed, building all by default"
-    for PROJECT in ${PROJECTS[@]}; do
-        CHANGED+=($PROJECT)
-    done
+    write "No projects changed, nothing to build"
+    exit 0;
 fi
 
 # Debug output

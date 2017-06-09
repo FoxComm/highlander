@@ -1,7 +1,7 @@
 ---
 
 - name: Setup Database
-  hosts: foxcomm-groups-backend
+  hosts: foxcomm-stage-backend
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
@@ -14,7 +14,7 @@
     - { role: dev/seed_system, when: first_run }
 
 - name: Restart Highlander Group
-  hosts: foxcomm-groups-frontend
+  hosts: foxcomm-stage-frontend
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
