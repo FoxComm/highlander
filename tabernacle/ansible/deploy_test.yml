@@ -1,7 +1,7 @@
 ---
 
 - name: Provision Stage Amigo
-  hosts: foxcomm-groups-amigo
+  hosts: foxcomm-test-amigo
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
