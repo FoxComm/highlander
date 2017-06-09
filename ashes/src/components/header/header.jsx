@@ -7,8 +7,8 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
 // components
-import NotificationBlock from '../activity-notifications/notification-block';
-import DetailedInitials from '../user-initials/detailed-initials';
+import NotificationBlock from 'components/activity-notifications';
+import DetailedInitials from 'components/user-initials/detailed-initials';
 import Breadcrumb from './breadcrumb';
 import UserMenu from './usermenu';
 import * as userActions from 'modules/user';
@@ -67,9 +67,7 @@ export default class Header extends React.Component {
         <div styleName="top-nav-menu">
           <Breadcrumb routes={routes} params={params} />
           <div styleName="sub-nav">
-            <div styleName="notifications">
-              <NotificationBlock />
-            </div>
+            <NotificationBlock />
             <div styleName="user" onClick={this.handleUserClick}>
               <div styleName="initials">{this.initials}</div>
               <div styleName="name">{name}</div>

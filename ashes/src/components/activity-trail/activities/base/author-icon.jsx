@@ -3,6 +3,7 @@
 import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 // components
 import DetailedInitials from '../../../user-initials/detailed-initials';
@@ -12,27 +13,27 @@ import Icon from 'components/icon/icon';
 import s from './author-icon.css';
 
 const AuthorIcon = props => {
-  const { activity } = props;
+  const { activity, className } = props;
   const userType = _.get(activity, ['context', 'userType'], 'system');
   const adminName = _.get(activity, ['data', 'admin', 'name']);
 
   switch (userType) {
     case 'admin':
       if (!_.isEmpty(adminName)) {
-        return <DetailedInitials name={adminName} />;
+        return <DetailedInitials name={adminName} className={className} />;
       } else {
-        return <Icon name="fox" className={s.systemIcon} />;
+        return <Icon name="fox" className={classNames(s.systemIcon, className)} />;
       }
     case 'account':
     case 'user':
     case 'customer':
       return (
-        <div className="fc-activity__customer-icon">
+        <div className={classNames('fc-activity__customer-icon', className)}>
           <i className="icon-customer"></i>
         </div>
       );
     default:
-      return <Icon name="fox" className={s.systemIcon} />;
+      return <Icon name="fox" className={classNames(s.systemIcon, className)} />;
   }
 };
 

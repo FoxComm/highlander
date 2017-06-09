@@ -104,6 +104,14 @@ module.exports = {
                 path.resolve(__dirname, '../src/components/utils/errors/api-errors.jsx'),
               ]),
             },
+            {
+              name: 'Activity Notifications',
+              components: () => ([
+                path.resolve(__dirname, '../src/components/activity-notifications/item.jsx'),
+                path.resolve(__dirname, '../src/components/activity-notifications/panel.jsx'),
+                path.resolve(__dirname, '../src/components/activity-notifications/indicator.jsx'),
+              ]),
+            },
           ]
         },
       ],

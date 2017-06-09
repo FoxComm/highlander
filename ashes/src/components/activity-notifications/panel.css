@@ -1,0 +1,20 @@
+.markAll {
+  width: 310px;
+  margin: 10px 30px;
+}
+
+.empty {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 22px;
+  color: #b3b3b3;
+  background-color: #f7f7f7;
+  padding: 20px;
+}
+
+.footer {
+  width: 100%;
+  height: 60px;
+  border-top: 1px solid #d9d9d9;
+  background: white;
+}

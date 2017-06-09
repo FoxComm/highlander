@@ -18,14 +18,14 @@ import { resetActivities, fetchActivityTrail } from 'modules/activity-trail';
 type RequestParam = {
   dimension: string,
   objectId?: string | number,
-}
+};
 
 type Activity = {
   id: number,
   kind: string,
   createdAt: string,
   data: Object,
-}
+};
 
 type Props = {
   entity: {
