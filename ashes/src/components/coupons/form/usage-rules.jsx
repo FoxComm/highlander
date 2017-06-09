@@ -6,7 +6,7 @@ import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
-import ContentBox from '../../content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import RadioButton from 'components/core/radio-button';
 import Counter from 'components/core/counter';
 

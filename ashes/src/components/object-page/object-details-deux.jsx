@@ -14,7 +14,7 @@ import { addKeys } from 'lib/react-utils';
 
 // components
 import { Form } from 'components/forms';
-import ContentBox from 'components/content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import ObjectFormInner from 'components/object-form/object-form-inner';
 import ObjectScheduler from 'components/object-scheduler/object-scheduler';
 import Tags from 'components/tags/tags';

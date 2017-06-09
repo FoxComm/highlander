@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import ContentBox from 'components/content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import SkuLineItems from 'components/sku-line-items/sku-line-items';
 
 import OrderParagon from 'paragons/order';

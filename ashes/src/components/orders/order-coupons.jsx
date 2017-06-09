@@ -3,7 +3,7 @@
 import React, { Component, Element } from 'react';
 import _ from 'lodash';
 
-import ContentBox from 'components/content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import CouponsPanel from 'components/coupons-panel/coupons-panel';
 import PanelHeader from 'components/panel-header/panel-header';
 

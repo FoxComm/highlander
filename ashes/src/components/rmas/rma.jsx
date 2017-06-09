@@ -8,7 +8,7 @@ import { PageTitle } from '../section-title';
 import { PrimaryButton } from 'components/core/button';
 import PageNav from 'components/core/page-nav';
 import { PanelList, PanelListItem } from '../panel/panel-list';
-import ContentBox from '../content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import State from '../common/state';
 
 import * as rmaActions from '../../modules/rmas/details';

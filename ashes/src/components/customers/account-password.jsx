@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ContentBox from '../content-box/content-box';
+import ContentBox from 'components/core/content-box';
 
 export default class CustomerAccountPassword extends React.Component {
 

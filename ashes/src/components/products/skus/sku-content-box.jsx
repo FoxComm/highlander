@@ -9,7 +9,7 @@ import _ from 'lodash';
 import { assoc, dissoc } from 'sprout-data';
 
 // components
-import ContentBox from 'components/content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import SkuList from './sku-list';
 import ConfirmationModal from 'components/core/confirmation-modal';
 import { Checkbox } from 'components/core/checkbox';

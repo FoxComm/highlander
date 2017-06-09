@@ -6,7 +6,7 @@ import { autobind } from 'core-decorators';
 
 import * as CustomerCreditCardActions from '../../modules/customers/credit-cards';
 
-import ContentBox from '../content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import EmptyText from '../content-box/empty-text';
 import CreditCardBox from '../credit-cards/card-box';
 import ConfirmationModal from 'components/core/confirmation-modal';

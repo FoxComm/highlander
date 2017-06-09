@@ -7,8 +7,8 @@ import { connect } from 'react-redux';
 
 // components
 import { Dropdown } from '../dropdown';
-import ContentBox from '../content-box/content-box';
 import ConfirmationModal from 'components/core/confirmation-modal';
+import ContentBox from 'components/core/content-box';
 
 // actions
 import * as UserActions from '../../modules/users/details';

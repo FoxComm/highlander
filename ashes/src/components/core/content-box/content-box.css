@@ -1,0 +1,32 @@
+.box {
+  color: #484848;
+  position: relative;
+  border: 1px solid #d9d9d9;
+  margin-bottom: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: 22px 20px 21px;
+
+  background-color: #f7f7f7;
+  border-bottom: 1px solid #d9d9d9;
+
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.title {
+  flex: 1;
+}
+
+.controls {
+
+}
+
+.body {
+  padding: 20px;
+  background-color: #fff;
+}

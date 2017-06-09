@@ -9,7 +9,7 @@ import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
 
 // components
-import ContentBox from 'components/content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import ValueEntry from './value-entry';
 import ValueEditDialog from './value-edit-dialog';
 

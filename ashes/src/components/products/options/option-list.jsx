@@ -10,7 +10,7 @@ import { autoAssignVariants } from 'paragons/variants';
 import { skuId } from 'paragons/product';
 
 // components
-import ContentBox from 'components/content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import ConfirmationModal from 'components/core/confirmation-modal';
 import OptionEntry from './option-entry';
 import OptionEditDialog from './option-edit-dialog';

@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
 // components
-import ContentBox from '../../content-box/content-box';
+import ContentBox from 'components/core/content-box';
 import RadioButton from 'components/core/radio-button';
 import Counter from 'components/core/counter';
 import FormField from '../../forms/formfield';
