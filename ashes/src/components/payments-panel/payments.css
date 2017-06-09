@@ -1,3 +1,4 @@
+@import 'colors.css';
 
 .row-toggle {
   vertical-align: top;
@@ -68,7 +69,7 @@
 }
 
 :global .fc-order-payment .fc-table-body:nth-child(odd) .fc-table-tr {
-  background: #f7f7f7;
+  background: var(--bg-grey-headers);
 }
 
 :global .fc-order-payment .fc-credit-card-form {

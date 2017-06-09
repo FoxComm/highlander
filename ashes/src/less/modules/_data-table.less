@@ -8,7 +8,7 @@
     .scroll-shadow(#e3e3e3, #fff, 12px);
 
     &.inner-head {
-      .scroll-shadow(#e3e3e3, #f7f7f7, 12px);
+      .scroll-shadow(#e3e3e3, @bg-grey-headers, 12px);
     }
   }
 
@@ -24,7 +24,7 @@
         background: initial;
 
         &.row-head-left {
-          background: @color-decor12;
+          background: @bg-grey-headers;
         }
 
         &:nth-child(2),
@@ -64,7 +64,7 @@
 
   .fc-table-head .row-head-left {
     z-index: 1;
-    background-color: #f7f7f7;
+    background-color: @bg-grey-headers;
   }
 
   .fc-btn {

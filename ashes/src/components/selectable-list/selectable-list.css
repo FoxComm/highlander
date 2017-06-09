@@ -42,7 +42,7 @@
   padding: 7px 5px;
 
   &:hover {
-    background: #ebebeb;
+    background: var(--color-border);
   }
 
 }

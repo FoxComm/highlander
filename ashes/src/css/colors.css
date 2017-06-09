@@ -16,16 +16,15 @@
   --bg-nav-disabled: #99a9c4;
   --bg-nav-pink: #fc54a6;
   --bg-field-error: var(--color-error-text);
+  --bg-grey: #f9f9f9;
   --bg-grey-buttons: #ced2d5;
+  --bg-grey-headers: #f7f7f7;
   --bg-green-buttons: #49cab9;
   --bg-green-buttons-hover: #1dbfaa;
   --bg-message-success: #adf2e9;
   --bg-message-warning: #fff9a0;
   --bg-message-error: #ffb1b1;
 
-
-  --grey-headers: #f7f7f7;
-  --grey-background: #f9f9f9;
 
 
   /*
@@ -35,29 +34,19 @@
   --white: #ffffff;
 
 
-  --decor0: #f2f2f2;
   --decor4: #828e9f;
-  --decor10: #ebebeb;
-  --decor13: #fcfcfc;
   --decor24: #ffbb3c;
   --decor25: #ffdd7f;
   --decor36: #333c49;
   --decor38: #e9feff;
-  --decor43: rgba(0,0,0,0.30);
   --decor49: #EAFEFF;
-  --decor51: rgba(0,0,0,0.50);
   --decor54: #F5FEFF;
-  --decor55: rgba(0,0,0,0.40);
-  --decor58: rgba(0,0,0,.1);
-  --decor61: #f4f5f6;
 
   --transparent: transparent;
 
   // Site colors
   --link-tab: #595959;
 
-  // Default colors
-  --default-bg: --decor0;
 
   // Control colors
 

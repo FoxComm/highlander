@@ -18,7 +18,7 @@ import {
 import ProductConversionToolTip from './product-conversion-tooltip';
 
 // styles
-const axisTickColor = '#9BA3A7';
+const axisTickColor = '#9ba3a7';
 const gridLineColor = '#abb2b6';
 
 const yAxisStyle = {

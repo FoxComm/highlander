@@ -16,7 +16,7 @@
   position: relative;
   z-index: 1;
   color: var(--color-additional-text);
-  background-color: #fcfcfc;
+  background-color: var(--bg-grey-headers);
   font-weight: 400;
   line-height: 20px;
   font-size: 15px;

@@ -82,7 +82,7 @@
 }
 
 .item:hover {
-  background-color: #f7f7f7;
+  background-color: var(--bg-grey-headers);
   cursor: pointer;
 }
 

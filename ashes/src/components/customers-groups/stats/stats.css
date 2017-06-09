@@ -38,14 +38,14 @@
       cursor: pointer;
       transition: all .2s;
 
-      &:hover {
-        background: var(--bg-grey-buttons);
-      }
-
       &::before,
       &::after {
         content: none !important; /* @todo refactor radio and remove less */
       }
+    }
+
+    & + label:hover {
+      background: var(--bg-grey-buttons);
     }
 
     &:checked {

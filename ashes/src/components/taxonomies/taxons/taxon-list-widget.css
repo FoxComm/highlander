@@ -22,13 +22,13 @@
   line-height: 46px;
 
   &:hover {
-    background-color: var(--grey-headers);
+    background-color: var(--bg-grey-headers);
     cursor: pointer;
   }
 
   &.active {
     border-left: 3px solid var(--bg-green-buttons);
-    background-color: var(--grey-headers);
+    background-color: var(--bg-grey-headers);
   }
 
 }

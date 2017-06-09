@@ -83,7 +83,7 @@
 
   & input[disabled] + .label::before {
     border-color: var(--color-border);
-    background: #f7f7f7;
+    background: var(--bg-grey-headers);
   }
 
   & input[disabled]:checked + .label::before {
@@ -92,7 +92,7 @@
 
   & input[disabled]:checked:hover + .label::before {
     border-color: var(--color-border);
-    background: #f7f7f7;
+    background: var(--bg-grey-headers);
   }
 
   &.inCell {
@@ -220,7 +220,7 @@
   }
 
   & input:checked + .label {
-    background: rgba(244, 87, 88, 0);
+    background: transparent;
 
     &:before {
       text-indent: 0;

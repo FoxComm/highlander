@@ -42,7 +42,7 @@
     background: #fff;
 
     &:hover {
-      background: var(--grey-headers);
+      background: var(--bg-grey-headers);
     }
   }
 

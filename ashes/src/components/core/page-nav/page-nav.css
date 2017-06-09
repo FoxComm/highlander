@@ -99,7 +99,7 @@
 }
 
 .dropdown .item:hover {
-  background: #f7f7f7;
+  background: var(--bg-grey-headers);
 }
 
 .dropdown .item a {

@@ -12,7 +12,7 @@
       & + .label:before,
       &:hover + .label:before {
         border-color: var(--color-border);
-        background: #f7f7f7;
+        background: var(--bg-grey-headers);
       }
     }
 
@@ -45,7 +45,7 @@
     margin: 0.25em 0.5em 0.25em 0.25em;
     border: 2px solid var(--color-border);
     border-radius: 13px;
-    background: #f2f2f2;
+    background: var(--bg-grey-headers);
     vertical-align: middle;
     transition: all .2s;
   }

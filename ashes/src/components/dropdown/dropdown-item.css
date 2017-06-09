@@ -13,7 +13,7 @@
 
 .item._active,
 .item:hover {
-  background-color: var(--grey-headers);
+  background-color: var(--bg-grey-headers);
 }
 
 .hidden {

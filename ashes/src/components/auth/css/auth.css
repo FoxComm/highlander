@@ -70,5 +70,5 @@
 }
 
 .signup-email input[type=email]:disabled {
-  background-color: #F2F2F2 !important;
+  background-color: var(--bg-grey-headers) !important;
 }
