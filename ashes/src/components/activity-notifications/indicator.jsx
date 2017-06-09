@@ -35,7 +35,7 @@ export default class NotificationIndicator extends Component {
 
     let count = String(this.props.count);
 
-    if (this.props.count > 99) {
+    if (Number(this.props.count) > 99) {
       count = '99+';
     }
 
