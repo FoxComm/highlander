@@ -22,7 +22,7 @@
     width: 100%;
     height: 100%;
     font-size: 13px;
-    color: #363636;
+    color: var(--color-text);
   }
 
   & .label::before {
@@ -208,7 +208,7 @@
     top: 5px;
     width: 24px;
     height: 24px;
-    background: #ffffff;
+    background: var(--bg-white);
     border-radius: 17px;
     transition: all .4s ease;
     text-indent: 42px;

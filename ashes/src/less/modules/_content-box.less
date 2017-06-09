@@ -1,5 +1,5 @@
 .fc-content-box {
-  .colors(@fg: @color-text, @bg: @color-white);
+  .colors(@fg: @color-text, @bg: @bg-white);
   position: relative;
 
   border: 1px solid @color-border;
@@ -29,7 +29,7 @@
   &-notice {
     padding: 20px;
     text-align: center;
-    background: @color-white;
+    background: @bg-white;
     color: @color-additional-text;
     .font-spec(15px, 600, 60px);
   }
@@ -52,7 +52,7 @@
 
     // .messages for fc-error & fc-success & fc-warning blocks
   .messages {
-    box-shadow: inset 0 2px 3px 0 @color-white;
+    box-shadow: inset 0 2px 3px 0 @bg-white;
   }
 
   &-indent {
@@ -78,7 +78,7 @@
   &__empty-text {
     padding: 20px;
     text-align: center;
-    background: @color-white;
+    background: @bg-white;
     color: @color-additional-text;
     .font-spec(15px, 600, 60px);
   }

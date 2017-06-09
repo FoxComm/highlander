@@ -1,5 +1,5 @@
 // Tables
-@color-tr-odd-bg: @color-white;
+@color-tr-odd-bg: @bg-white;
 @color-tr-even-bg: @bg-grey-headers;
 
 @color-th-bg: @bg-grey-headers;
@@ -29,7 +29,7 @@
   .fc-table-message {
     padding: 10px 15px;
     z-index: 2;
-    background: #fff;
+    background: @bg-white;
 
     &._inline {
       position: absolute;
@@ -265,7 +265,7 @@
   }
 
   &__current-page-selector {
-    background-color: @color-white;
+    background-color: @bg-white;
     position: absolute;
     width: 50px;
     overflow-y: scroll;

@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .container {
   position: fixed;
   display: flex;
@@ -13,6 +15,6 @@
 .modal {
   position: relative;
   margin: auto;
-  background-color: #fff;
+  background-color: var(--bg-white);
   z-index: 3;
 }

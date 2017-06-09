@@ -5,10 +5,10 @@
     overflow-x: auto;
     overflow-y: hidden;
 
-    .scroll-shadow(#e3e3e3, #fff, 12px);
+    .scroll-shadow(@bg-grey-headers, @bg-white, 12px);
 
     &.inner-head {
-      .scroll-shadow(#e3e3e3, @bg-grey-headers, 12px);
+      .scroll-shadow(@color-border, @bg-grey-headers, 12px);
     }
   }
 
@@ -52,7 +52,7 @@
   .fc-table-body .row-head-left {
     position: absolute;
     display: inline-flex;
-    background: #fff;
+    background: @bg-white;
     left: 0;
     min-width: 55px !important;
     max-width: 55px !important;

@@ -13,7 +13,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
-  background: #fff;
+  background: var(--bg-white);
   font-size: 14px;
   line-height: 18px;
 

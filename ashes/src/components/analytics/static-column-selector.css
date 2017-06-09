@@ -39,7 +39,7 @@
     display: flex;
     line-height: 30px;
     font-size: 14px;
-    background: #fff;
+    background: var(--bg-white);
 
     &:hover {
       background: var(--bg-grey-headers);
@@ -55,7 +55,7 @@
 
   &:global(._hasDraggingItem) {
     & li:hover {
-      background: #ffffff;
+      background: var(--bg-white);
     }
   }
 }

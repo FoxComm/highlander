@@ -24,7 +24,7 @@
   font-weight: bold;
   background: none;
   border: none;
-  border-left: 1px solid #7D848E;
+  border-left: 1px solid var(--bg-grey-buttons);
   border-radius: 0 17px 17px 0;
 }
 

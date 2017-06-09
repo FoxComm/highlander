@@ -15,6 +15,7 @@
   /* all other colors are damned! */
 
   /* background colors blessed by @bree */
+  --bg-white: #fff;
   --bg-nav-main: #25334a;
   --bg-nav-active: #1a2535;
   --bg-nav-disabled: #99a9c4;
@@ -35,5 +36,4 @@
 
 
   --decor24: #ffbb3c;
-  --decor38: #e9feff;
 }

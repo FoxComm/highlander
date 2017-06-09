@@ -84,7 +84,7 @@
 .dropdown {
   position: absolute;
   min-width: 150px;
-  background: #fff;
+  background: var(--bg-white);
   border: 1px solid var(--color-border);
   top: calc(100% - 2px);
   z-index: 3;

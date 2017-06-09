@@ -11,7 +11,7 @@
   }
 
   &:global(._dragPossible) {
-    border: 3px dashed #9bc1ca;
+    border: 3px dashed var(--bg-message-success);
     margin: -18px -8px;
   }
 

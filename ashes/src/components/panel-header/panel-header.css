@@ -33,7 +33,7 @@
   /* ↓ triangle ↓ */
   border-style: solid;
   border-width: 0 13px 22.5px 13px;
-  border-color: transparent transparent #ffdd7f transparent;
+  border-color: transparent transparent var(--bg-message-warning) transparent;
 }
 
 .icon-background-warning {

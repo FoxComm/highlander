@@ -3,7 +3,7 @@
 .empty-message {
   padding: 20px;
   text-align: center;
-  background: #fff;
+  background: var(--bg-white);
   color: var(--color-additional-text);
   font-size: 15px;
   font-weight: 600;

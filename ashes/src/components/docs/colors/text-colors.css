@@ -57,7 +57,7 @@
 
 .color-4 {
   color: var(--color-light-text);
-  background-color: #363636;
+  background-color: var(--bg-nav-main);
 
   & > .value::before {
     content: '--color-light-text';

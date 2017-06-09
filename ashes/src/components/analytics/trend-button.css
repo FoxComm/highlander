@@ -2,13 +2,13 @@
 
 .trend-button-container-gain {
   display: inline-block;
-  background-color: #49CA8E;
+  background-color: var(--bg-green-buttons);
   border-radius: 24px;
 }
 
 .trend-button-container-loss {
   display: inline-block;
-  background-color: #F65554;
+  background-color: var(--bg-field-error);
   border-radius: 24px;
 }
 

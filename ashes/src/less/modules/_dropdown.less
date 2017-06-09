@@ -33,7 +33,7 @@
     position: absolute;
     min-width: 100%;
     z-index: 20;
-    background-color: @color-white;
+    background-color: @bg-white;
     border: 1px solid @color-border;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1);
     user-select: none;
@@ -58,7 +58,7 @@
   &__item,
   &__blank-item {
     height: 44px;
-    .colors(@color-text, @color-white);
+    .colors(@color-text, @bg-white);
     .font-spec(14px, 400, 44px);
     padding: 0 20px;
     cursor: pointer;
@@ -81,7 +81,7 @@
     text-align: center;
 
     &:hover {
-      background-color: @color-white;
+      background-color: @bg-white;
     }
   }
 
@@ -113,7 +113,7 @@
       input {
         .size(100%);
         padding: 0 10px;
-        .colors(@color-text, @color-white);
+        .colors(@color-text, @bg-white);
       }
     }
   }
