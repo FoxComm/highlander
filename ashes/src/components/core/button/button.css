@@ -8,12 +8,10 @@
   display: inline-flex; /* not just `flex` because of legacy */
   align-items: center;
   justify-content: center;
-  padding: 11px 20px;
+  padding: 10px 20px;
   color: var(--color-text);
   background: var(--bg-grey-buttons);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 18px;
+  font: var(--font-labels);
   border: none;
   vertical-align: top;
   user-select: none;
@@ -37,7 +35,7 @@
 
   &.onlyIcon {
     width: 40px;
-    padding: 11px 0;
+    padding: 10px 0;
   }
 
   &.fullWidth {
@@ -46,7 +44,7 @@
   }
 
   &.small {
-    padding: 4px 5px;
+    padding: 3px 5px;
   }
 
   &.small.onlyIcon {

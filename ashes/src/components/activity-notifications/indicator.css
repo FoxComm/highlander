@@ -35,10 +35,14 @@
 
 
 .toggle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: relative;
   color: var(--color-additional-text);
   background-color: transparent;
   height: 100%;
+  cursor: pointer;
 
   & i {
     vertical-align: sub;
