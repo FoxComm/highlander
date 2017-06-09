@@ -5,7 +5,6 @@ import React, { Component } from 'react';
 
 //components
 import { Link } from 'components/link';
-import TextFit from 'components/text-fit/text-fit';
 import Icon from 'components/core/icon';
 
 import styles from 'components/customers/title-block.css';
