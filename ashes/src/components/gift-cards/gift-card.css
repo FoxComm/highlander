@@ -1,0 +1,5 @@
+.stateDropdown {
+  & .fc-dropdown__items {
+    right: 0;
+  }
+}
