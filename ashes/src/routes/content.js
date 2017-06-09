@@ -37,12 +37,12 @@ const getRoutes = (jwt: Object) => {
         router.read('content-type-notes', {
           path: 'notes',
           component: Notes,
-          frn: frn.note.ContentType,
+          frn: frn.note.contentType,
         }),
         router.read('content-type-activity-trail', {
           path: 'activity-trail',
           component: ActivityTrailPage,
-          frn: frn.activity.ContentType,
+          frn: frn.activity.contentType,
         }),
       ]),
     ]);

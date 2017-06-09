@@ -8,6 +8,7 @@ export const frn = {
     coupon: 'frn:activity:coupon',
     customer: 'frn:activity:customer',
     giftCard: 'frn:activity:giftCard',
+    contentType: 'frn:activity:contentType',
     inventory: 'frn:activity:inventory',
     order: 'frn:activity:order',
     product: 'frn:activity:product',
@@ -23,6 +24,8 @@ export const frn = {
     coupon: 'frn:mkt:coupon',
     giftCard: 'frn:mkt:giftCard',
     giftCardTransaction: 'frn:mkt:giftCardTransaction',
+    contentType: 'frn:mkt:contentType',
+    contentTypeTransaction: 'frn:mkt:contentTypeTransaction',
     promotion: 'frn:mkt:promotion',
   },
   mdl: {
@@ -33,6 +36,7 @@ export const frn = {
   note: {
     customer: 'frn:note:customer',
     giftCard: 'frn:note:giftCard',
+    contentType: 'frn:note:contentType',
     product: 'frn:note:product',
     promotion: 'frn:note:promotion',
     sku: 'frn:order:sku',
