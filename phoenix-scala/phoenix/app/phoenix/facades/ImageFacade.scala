@@ -1,6 +1,6 @@
 package phoenix.facades
 
-import java.io.{ByteArrayInputStream, InputStream}
+import java.io.{BufferedInputStream, ByteArrayInputStream, FileInputStream, InputStream}
 import java.net.{URL, URLConnection}
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
@@ -18,7 +18,7 @@ import akka.util.ByteString
 
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
-import core.db.{DbResultT, _}
+import core.db._
 import core.failures.{Failure, Failures}
 import core.utils.generateUuid
 import objectframework.IlluminateAlgorithm
@@ -44,7 +44,7 @@ object ImageFacade extends ImageHelpers {
   trait ImageUploader[T] {
 
     case class S3Path(dir: String, fileName: String) {
-      def absPath(): String =
+      def absPath: String =
         s"$dir/$fileName"
     }
 
@@ -96,11 +96,49 @@ object ImageFacade extends ImageHelpers {
 
   object ImageUploader {
 
+    sealed trait ContentTypeGuess[T] {
+      protected def unsafeGuessContentType(src: T): String
+
+      def guessContentType(src: T): Option[String] =
+        Try {
+          Option(unsafeGuessContentType(src))
+        }.toOption.flatten
+    }
+
+    object ContentTypeGuess {
+
+      implicit object BBContentTypeGuess extends ContentTypeGuess[ByteBuffer] {
+
+        private def asInputStream(buffer: ByteBuffer): InputStream = {
+          if (buffer.hasArray) { // use heap buffer; no array is created; only the reference is used
+            new ByteArrayInputStream(buffer.array)
+          }
+          new utils.io.ByteBufferInputStream(buffer)
+        }
+
+        def unsafeGuessContentType(bb: ByteBuffer): String =
+          URLConnection.guessContentTypeFromStream(asInputStream(bb))
+      }
+
+      implicit object ISContentTypeGuess extends ContentTypeGuess[InputStream] {
+        def unsafeGuessContentType(is: InputStream): String =
+          URLConnection.guessContentTypeFromStream(is)
+      }
+
+      implicit object PathContentTypeGuess extends ContentTypeGuess[Path] {
+        def unsafeGuessContentType(path: Path): String = {
+          val is = new BufferedInputStream(new FileInputStream(path.toAbsolutePath.toString))
+          try URLConnection.guessContentTypeFromStream(is)
+          finally is.close()
+        }
+      }
+    }
+
     val allowedImageTypes: List[String] =
       List(MediaTypes.`image/gif`, MediaTypes.`image/png`, MediaTypes.`image/jpeg`).map(_.value)
 
-    def shouldBeValidImage(imageData: InputStream): Either[Failures, Unit] =
-      guessContentType(imageData)
+    def shouldBeValidImage[T](imageData: T)(implicit ct: ContentTypeGuess[T]): Either[Failures, Unit] =
+      ct.guessContentType(imageData)
         .map { contentType ⇒
           if (allowedImageTypes.contains(contentType)) Either.right({})
           else Either.left(UnsupportedImageType(contentType).single)
@@ -129,7 +167,7 @@ object ImageFacade extends ImageHelpers {
         for {
           url       ← * <~ shouldBeValidUrl(payload.src)
           imageData ← * <~ fetchImageData(url)
-          _         ← * <~ shouldBeValidImage(bbToInputStream(imageData))
+          _         ← * <~ shouldBeValidImage(imageData)
           url ← * <~ saveBufferAndThen[String](imageData) { path ⇒
                  val fileName = extractFileNameFromUri(url)
                  val s3Path   = S3Path.get(maybeAlbum, fileName = fileName)
@@ -146,14 +184,12 @@ object ImageFacade extends ImageHelpers {
 
       private def getImageFromRequest(bytes: Source[ByteString, Any])(implicit ec: EC, am: Mat) = {
         val file = Files.createTempFile("tmp", ".jpg")
+
         bytes.runWith(FileIO.toPath(file)).map { ioResult ⇒
           if (ioResult.wasSuccessful) {
-            val is = Files.newInputStream(file)
-            try {
-              shouldBeValidImage(is).flatMap { _ ⇒
-                Either.right(file)
-              }
-            } finally is.close()
+            shouldBeValidImage(file).map { _ ⇒
+              file
+            }
           } else Either.left(ErrorReceivingImage.single)
         }
       }
@@ -179,7 +215,7 @@ object ImageFacade extends ImageHelpers {
           .mapAsyncUnordered(4) { part ⇒
             for {
               filePathE ← getImageFromRequest(part.entity.dataBytes)
-              filePath ← filePathE.fold(_ ⇒ Future.failed[Path](ImageFacadeException(ErrorReceivingImage)),
+              filePath ← filePathE.fold(x ⇒ Future.failed[Path](ImageFacadeException(x.head)),
                                         Future.successful)
               fileName ← part.filename.fold(Future.failed[String](
                           ImageFacadeException(ImageFilenameNotFoundInPayload)))(Future.successful)
@@ -354,18 +390,4 @@ trait ImageHelpers extends LazyLogging {
       result ← * <~ block(path)
       _      ← * <~ Files.deleteIfExists(path)
     } yield result
-
-  protected def bbToInputStream(buffer: ByteBuffer): InputStream = {
-    if (buffer.hasArray) { // use heap buffer; no array is created; only the reference is used
-      new ByteArrayInputStream(buffer.array)
-    }
-    new utils.io.ByteBufferInputStream(buffer)
-  }
-
-  protected def guessContentType(inputStream: InputStream): Option[String] =
-    Try {
-      // can return null or throw exception
-      Option(URLConnection.guessContentTypeFromStream(inputStream))
-    }.toOption.flatten
-
 }

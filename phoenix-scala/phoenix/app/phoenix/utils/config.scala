@@ -106,7 +106,7 @@ object FoxConfig extends StrictLogging {
   case class DB(url: String)
 
   // http
-  case class HttpUpload(maxContentSize: Long)
+  case class HttpUpload(maxContentSize: Long, requestTimeout: Int)
   case class Http(interface: String, port: Int, upload: HttpUpload)
 
   // tax
