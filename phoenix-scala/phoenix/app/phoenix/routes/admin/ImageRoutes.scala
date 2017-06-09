@@ -16,18 +16,21 @@ import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
 import phoenix.utils.http.Http._
 import phoenix.utils.http.JsonSupport._
+import phoenix.utils.FoxConfig
 
 object ImageRoutes {
   def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis, sys: ActorSystem): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("images" / Segment) { context ⇒
-        extractRequestContext { ctx ⇒
-          implicit val materializer = ctx.materializer
-          implicit val ec           = ctx.executionContext
+        withSizeLimit(FoxConfig.config.http.upload.maxContentSize) {
+          extractRequestContext { ctx ⇒
+            implicit val materializer = ctx.materializer
+            implicit val ec           = ctx.executionContext
 
-          (post & pathEnd & entityOr(as[Multipart.FormData], ImageNotFoundInPayload)) { formData ⇒
-            mutateOrFailures {
-              ImageFacade.uploadImagesFromMultiPart(context, formData)
+            (post & pathEnd & entityOr(as[Multipart.FormData], ImageNotFoundInPayload)) { formData ⇒
+              mutateOrFailures {
+                ImageFacade.uploadImagesFromMultiPart(context, formData)
+              }
             }
           }
         }
@@ -55,21 +58,29 @@ object ImageRoutes {
                       ImageManager.archiveByContextAndId(albumId, context)
                     }
                   } ~
+                  (delete & pathEnd) {
+                    mutateOrFailures {
+                      ImageManager.archiveByContextAndId(albumId, context)
+                    }
+                  } ~
                   pathPrefix("images") {
-                    extractRequestContext { ctx ⇒
-                      implicit val materializer = ctx.materializer
-                      implicit val ec           = ctx.executionContext
+                    withSizeLimit(FoxConfig.config.http.upload.maxContentSize) {
+                      extractRequestContext { ctx ⇒
+                        implicit val materializer = ctx.materializer
+                        implicit val ec           = ctx.executionContext
 
-                      (post & pathEnd & entityOr(as[Multipart.FormData], ImageNotFoundInPayload)) { formData ⇒
-                        mutateOrFailures {
-                          ImageFacade.uploadImagesFromMultipartToAlbum(albumId, context, formData)
-                        }
-                      } ~
-                        (path("by-url") & post & entity(as[ImagePayload])) { payload ⇒
-                          mutateOrFailures {
-                            ImageFacade.uploadImagesFromPayloadToAlbum(albumId, context, payload)
+                        (post & pathEnd & entityOr(as[Multipart.FormData], ImageNotFoundInPayload)) {
+                          formData ⇒
+                            mutateOrFailures {
+                              ImageFacade.uploadImagesFromMultipartToAlbum(albumId, context, formData)
+                            }
+                        } ~
+                          (path("by-url") & post & entity(as[ImagePayload])) { payload ⇒
+                            mutateOrFailures {
+                              ImageFacade.uploadImagesFromPayloadToAlbum(albumId, context, payload)
+                            }
                           }
-                        }
+                      }
                     }
                   }
               }
