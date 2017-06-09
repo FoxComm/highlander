@@ -1,5 +1,5 @@
 .stateDropdown {
-  & .fc-dropdown__items {
+  & :global .fc-dropdown__items {
     right: 0;
   }
 }
