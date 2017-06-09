@@ -70,11 +70,11 @@
 
   &:hover {
     &:before {
-      border-color: #828e9f;
+      border-color: var(--bg-nav-disabled);
     }
 
     &:after {
-      background: #828e9f;
+      background: var(--bg-nav-disabled);
     }
   }
 

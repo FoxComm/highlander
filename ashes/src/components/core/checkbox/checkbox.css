@@ -73,7 +73,7 @@
   }
 
   & input:checked:hover + .label::after {
-    background-color: #828e9f;
+    background-color: var(--bg-nav-disabled);
   }
 
   & input[disabled] + .label::before,
@@ -228,7 +228,7 @@
     }
 
     &:after {
-      opacity: 0;
+      opacity: 1;
       left: 51px;
     }
   }

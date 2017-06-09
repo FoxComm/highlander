@@ -24,7 +24,7 @@
 .actions {
   position: absolute;
   width: 100%;
-  background: #333a44;
+  background: var(--bg-nav-main);
   opacity: .86;
   text-align: right;
   transition: transform .32s cubic-bezier(0.4, 0, 0.2, 1);
