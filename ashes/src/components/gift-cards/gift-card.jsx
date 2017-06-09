@@ -121,6 +121,7 @@ export default class GiftCard extends React.Component {
 
           this.setState({ error });
         } catch (e) {
+          this.setState({ error: null });
         }
       });
   }

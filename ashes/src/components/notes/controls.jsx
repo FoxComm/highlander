@@ -12,7 +12,7 @@ import s from './notes.css';
 
 type Props = {
   model: {
-    author: object,
+    author: Object,
   },
   onEditClick: Function,
   onDeleteClick: Function,
