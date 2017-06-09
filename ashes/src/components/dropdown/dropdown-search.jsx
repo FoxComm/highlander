@@ -7,6 +7,7 @@ import { autobind } from 'core-decorators';
 
 import GenericDropdown from './generic-dropdown';
 import DropdownItem from './dropdownItem';
+import TextInput from 'components/core/text-input';
 
 import styles from './dropdown-search.css';
 
@@ -47,8 +48,7 @@ export default class DropdownSearch extends Component {
   }
 
   @autobind
-  onTokenChange(event: any) {
-    const token = _.get(event, 'target.value', '');
+  onTokenChange(token: string) {
     this.setState({ token }, () => {
       this.fetchOptions(token);
     });
@@ -60,8 +60,7 @@ export default class DropdownSearch extends Component {
       <div styleName="searchbar" onClick={doNothing} >
         <div styleName="searchbar-wrapper" >
           <div className="fc-form-field" styleName="searchbar-input-wrapper" >
-            <input
-              type="text"
+            <TextInput
               placeholder={this.props.searchbarPlaceholder}
               styleName="searchbar-input"
               value={this.state.token}

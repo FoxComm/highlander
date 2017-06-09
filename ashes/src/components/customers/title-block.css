@@ -73,7 +73,10 @@
   font-weight: 700;
   line-height: 41px;
   color: var(--color-text);
-  padding-bottom: 7px;
+  padding: 0 10px 7px 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .email {
@@ -81,6 +84,10 @@
   font-weight: 400;
   line-height: 23px;
   color: var(--color-text);
+  padding: 0 20px 7px 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .body {

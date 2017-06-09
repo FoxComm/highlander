@@ -13,6 +13,8 @@
 }
 
 .header {
+  position: relative;
+  z-index: 1;
   color: var(--color-additional-text);
   background-color: #fcfcfc;
   font-weight: 400;

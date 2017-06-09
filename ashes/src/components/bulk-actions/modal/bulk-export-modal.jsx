@@ -10,7 +10,7 @@ import { numberize } from 'lib/text-utils';
 
 // components
 import ConfirmationModal from 'components/core/confirmation-modal';
-import TextInput from 'components/forms/text-input';
+import TextInput from 'components/core/text-input';
 
 import s from './modal.css';
 

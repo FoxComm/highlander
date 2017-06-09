@@ -11,6 +11,7 @@ import { assoc } from 'sprout-data';
 import ConfirmationModal from 'components/core/confirmation-modal';
 import { FormField, Form } from 'components/forms';
 import SwatchInput from 'components/core/swatch-input';
+import TextInput from 'components/core/text-input';
 
 // styles
 import styles from './option-list.css';
@@ -34,13 +35,6 @@ class ValueEditDialog extends Component {
   state: State = {
     value: this.props.value.value,
   };
-
-  componentDidMount() {
-    const { nameInput } = this.refs;
-    if (nameInput) {
-      nameInput.focus();
-    }
-  }
 
   get title(): string {
     return this.props.value.id === 'new' ? 'New value' : 'Edit value';
@@ -81,12 +75,12 @@ class ValueEditDialog extends Component {
           key={`object-form-attribute-name`}
           required
         >
-          <input
+          <TextInput
             id="fct-value-name-fld"
-            type="text"
             value={name}
             ref="nameInput"
-            onChange={({target}) => this.handleChange(target.value, 'name')}
+            onChange={(value) => this.handleChange(value, 'name')}
+            autoFocus
           />
         </FormField>
         <FormField

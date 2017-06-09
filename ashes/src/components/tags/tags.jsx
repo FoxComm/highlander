@@ -8,7 +8,7 @@ import _ from 'lodash';
 import { trackEvent } from 'lib/analytics';
 
 import { RoundedPill } from 'components/core/rounded-pill';
-import TextInput from '../forms/text-input';
+import TextInput from 'components/core/text-input';
 
 import styles from './tags.css';
 

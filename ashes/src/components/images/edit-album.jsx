@@ -9,6 +9,7 @@ import React, { Component } from 'react';
 import Modal from 'components/core/modal';
 import { FormField } from 'components/forms';
 import SaveCancel from 'components/core/save-cancel';
+import TextInput from 'components/core/text-input';
 
 // types
 import type { NewAlbum } from '../../modules/images';
@@ -39,19 +40,13 @@ export default class EditAlbum extends Component {
     isNew: false,
   };
 
-  _input: HTMLInputElement;
-
-  componentDidMount() {
-    this._input ? this._input.focus() : _.noop();
-  }
-
   get saveDisabled(): boolean {
     return _.isEmpty(this.state.name) || this.state.name === this.props.album.name;
   }
 
   @autobind
-  handleUpdateField({ target }: { target: HTMLInputElement }) {
-    this.setState({ [target.name]: target.value });
+  handleUpdateField(value: string, name: string) {
+    this.setState({ [name]: value });
   }
 
   @autobind
@@ -88,13 +83,11 @@ export default class EditAlbum extends Component {
           className="fc-product-details__field"
           labelClassName="fc-product-details__field-label"
         >
-          <input
-            type="text"
+          <TextInput
             name="name"
-            className="fc-product-details__field-value"
             value={this.state.name}
             onChange={this.handleUpdateField}
-            ref={(i) => this._input = i}
+            autoFocus
           />
         </FormField>
       </Modal>

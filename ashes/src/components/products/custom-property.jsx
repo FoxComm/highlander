@@ -12,6 +12,7 @@ import Modal from 'components/core/modal';
 import { Dropdown } from 'components/dropdown';
 import { FormField } from 'components/forms';
 import SaveCancel from 'components/core/save-cancel';
+import TextInput from 'components/core/text-input';
 
 // styles
 import s from './custom-property.css';
@@ -47,16 +48,17 @@ export default class CustomProperty extends Component<void, Props, State> {
     };
   }
 
-  componentDidMount() {
-    const fieldLabelInput = this.refs.field;
-    if (fieldLabelInput) {
-      fieldLabelInput.focus();
-    }
+  get propertyTypes(): Array<Element<*>> {
+    return _.map(propertyTypes, (type, key) => [key, type]);
+  }
+
+  get saveDisabled(): boolean {
+    return _.isEmpty(this.state.fieldLabel) || _.isEmpty(this.state.propertyType);
   }
 
   @autobind
-  handleUpdateLabel({ target }: { target: HTMLInputElement }) {
-    this.setState({ fieldLabel: target.value });
+  handleUpdateLabel(value: string) {
+    this.setState({ fieldLabel: value });
   }
 
   @autobind
@@ -69,14 +71,6 @@ export default class CustomProperty extends Component<void, Props, State> {
     event.preventDefault();
 
     this.props.onSave(this.state);
-  }
-
-  get propertyTypes(): Array<Element<*>> {
-    return _.map(propertyTypes, (type, key) => [key, type]);
-  }
-
-  get saveDisabled(): boolean {
-    return _.isEmpty(this.state.fieldLabel) || _.isEmpty(this.state.propertyType);
   }
 
   get footer() {
@@ -103,14 +97,14 @@ export default class CustomProperty extends Component<void, Props, State> {
           className="fc-product-details__field"
           label="Field Label"
           labelClassName="fc-product-details__field-label">
-          <input
+          <TextInput
             id="fct-field-label-fld"
-            type="text"
             ref="field"
-            className="fc-product-details__field-value"
             name="field"
             value={this.state.fieldLabel}
-            onChange={this.handleUpdateLabel} />
+            onChange={this.handleUpdateLabel}
+            autoFocus
+          />
         </FormField>
         <FormField
           className="fc-product-details__field"
