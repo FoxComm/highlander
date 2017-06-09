@@ -29,11 +29,11 @@ export default class NotificationIndicator extends Component {
   props: Props;
 
   get indicator() {
-    let count = String(this.props.count);
-
-    if (this.props.count == null) {
+    if (!this.props.count) {
       return null;
     }
+
+    let count = String(this.props.count);
 
     if (this.props.count > 99) {
       count = '99+';
