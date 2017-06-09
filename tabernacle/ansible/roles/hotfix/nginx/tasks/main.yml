@@ -1,7 +1,7 @@
 ---
 
 - name: Restart Nginx Multiple Attempts
-  shell: systemctl restart nginx
+  shell: service nginx restart
   register: nginx_restart
   until: nginx_restart.rc == 0
   retries: 60
