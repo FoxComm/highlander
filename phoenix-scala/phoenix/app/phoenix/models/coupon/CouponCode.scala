@@ -48,7 +48,7 @@ object CouponCodes
     requestedLimit >= prefixSize + minSuffixSize
   }
 
-  def generateCodes(prefix: String, codeCharacterLength: Int, quantity: Int, attempt: Int = 0): Seq[String] = {
+  def generateCodes(prefix: String, codeCharacterLength: Int, quantity: Int): Seq[String] = {
     require(quantity > 0)
 
     val minNumericLength = charactersGivenQuantity(quantity)

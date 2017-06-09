@@ -48,13 +48,6 @@ object SeedsGenerator
       generateCoupon(p)
     }.toList
 
-  def makeCouponCodes(promotions: Seq[SimpleCoupon]) =
-    promotions.flatMap { c ⇒
-      CouponCodes.generateCodes("CP", 12, 1 + Random.nextInt(5)).map { d ⇒
-        CouponCode(couponFormId = c.formId, code = d)
-      }
-    }.toList
-
   def pickOne[T](vals: Seq[T]): T = vals(Random.nextInt(vals.length))
 
   def insertRandomizedSeeds(customersCount: Int,
@@ -91,8 +84,6 @@ object SeedsGenerator
       promotions     ← * <~ generatePromotions(unsavedPromotions)
       unsavedCoupons ← * <~ makeCoupons(promotions.filter(_.applyType == Promotion.Coupon))
       coupons        ← * <~ generateCoupons(unsavedCoupons)
-      unsavedCodes   ← * <~ makeCouponCodes(coupons)
-      _              ← * <~ CouponCodes.createAll(unsavedCodes)
       _ ← * <~ randomSubset(customerIds, customerIds.length).map { id ⇒
            generateOrders(id, context, skuIds, pickOne(giftCards))
          }

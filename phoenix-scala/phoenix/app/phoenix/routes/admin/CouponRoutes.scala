@@ -19,29 +19,14 @@ object CouponRoutes {
       pathPrefix("coupons") {
 
         pathPrefix("codes") {
-          pathPrefix("generate") {
-            pathPrefix(IntNumber / Segment) { (id, code) ⇒
-              (post & pathEnd) {
-                mutateOrFailures {
-                  CouponManager.generateCode(id, code, auth.model)
-                }
-              }
-            } ~
-              pathPrefix(IntNumber) { id ⇒
-                (post & pathEnd & entity(as[GenerateCouponCodes])) { payload ⇒
-                  mutateOrFailures {
-                    CouponManager.generateCodes(id, payload, auth.model)
-                  }
-                }
-              }
-          } ~
-            pathPrefix(IntNumber) { id ⇒
-              (get & pathEnd) {
-                mutateOrFailures {
-                  CouponManager.getCodes(id)
-                }
+          // TODO: get rid of this route → code is already provided in CouponResponse.Root @michalrus
+          pathPrefix(IntNumber) { id ⇒
+            (get & pathEnd) {
+              mutateOrFailures {
+                CouponManager.getCodes(id)
               }
             }
+          }
         } ~
           pathPrefix(Segment) { (context) ⇒
             (post & pathEnd & entity(as[CreateCoupon])) { payload ⇒
@@ -55,11 +40,12 @@ object CouponRoutes {
                     CouponManager.getIlluminated(id, context)
                   }
                 } ~
-                  (patch & pathEnd & entity(as[UpdateCoupon])) { payload ⇒
-                    mutateOrFailures {
-                      CouponManager.update(id, payload, context, auth.model)
-                    }
-                  } ~
+                  // FIXME: unused? @michalrus
+//            (patch & pathEnd & entity(as[UpdateCoupon])) { payload ⇒
+//              mutateOrFailures {
+//                CouponManager.update(id, payload, context, auth.model)
+//              }
+//            } ~
                   (delete & pathEnd) {
                     mutateOrFailures {
                       CouponManager.archiveByContextAndId(context, id)

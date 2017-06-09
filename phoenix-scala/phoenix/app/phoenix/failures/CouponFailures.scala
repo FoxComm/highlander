@@ -13,6 +13,10 @@ object CouponFailures {
     def apply(id: Int) = NotFoundFailure404(s"Coupon code with id=$id not found")
   }
 
+  object CouponCodeNotFoundForCoupon {
+    def apply(id: Int) = NotFoundFailure404(s"Coupon code for coupon with id=$id not found")
+  }
+
   object CouponWithCodeCannotBeFound {
     def apply(code: String) = NotFoundFailure404(s"Coupon with code $code not found")
   }
@@ -61,6 +65,9 @@ object CouponFailures {
     override def description = s"Coupon shadow attribute $key must be a string"
   }
 
+  case object CouponCreationNoCodes extends Failure {
+    override def description = "Coupon creation needs either ‘singleCode’ or ‘generateCodes’"
+  }
   case object CouponAttributesAreEmpty extends Failure {
     override def description = "Coupon attributes are empty"
   }

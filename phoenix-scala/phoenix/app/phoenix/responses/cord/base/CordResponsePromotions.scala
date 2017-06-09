@@ -109,7 +109,7 @@ object CordResponsePromotions {
       theCoupon = IlluminatedCoupon.illuminate(ctx, coupon, couponForm, couponShadow)
       // Responses
       respPromo ← * <~ renderPromotionResponse(promotion)
-      respCoupon     = CouponResponse.build(theCoupon, coupon)
+      respCoupon     = CouponResponse.build(theCoupon, couponCode.code, coupon)
       respCouponPair = CordResponseCouponPair(coupon = respCoupon, code = couponCode.code)
     } yield (respPromo, respCouponPair)
 
