@@ -6,3 +6,21 @@
 
 [sinopia]
 10.240.0.37
+
+[foxcomm-stage-amigo]
+10.240.0.33
+
+[foxcomm-stage-backend]
+10.240.0.34
+
+[foxcomm-stage-frontend]
+10.240.0.35
+
+[foxcomm-test-amigo]
+10.240.0.6
+
+[foxcomm-test-backend]
+10.240.0.36
+
+[foxcomm-test-frontend]
+10.240.0.31

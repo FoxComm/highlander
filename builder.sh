@@ -100,6 +100,13 @@ IFS=$'\n'
 ALL_CHANGED=($ALL_CHANGED)
 unset IFS
 
+# Debug output
+write "Changed directories (${#ALL_CHANGED[@]}):"
+for item in "${ALL_CHANGED[@]}"
+do
+    write "\t ${item}"
+done
+
 # Detect changed projects
 CHANGED=()
 if [[ ${#ALL_CHANGED[@]} -gt 0 ]]; then
@@ -110,12 +117,10 @@ if [[ ${#ALL_CHANGED[@]} -gt 0 ]]; then
     done
 fi
 
-# Build everything if script goes wrong
+# Prematurely quit if nothing to build
 if [[ ${#CHANGED[@]} == 0 ]]; then
-    write "No projects changed, building all by default"
-    for PROJECT in ${PROJECTS[@]}; do
-        CHANGED+=($PROJECT)
-    done
+    write "No projects changed, nothing to build"
+    exit 0;
 fi
 
 # Debug output
