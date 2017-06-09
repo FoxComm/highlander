@@ -22,7 +22,7 @@
   position: relative;
   flex: 1;
   line-height: 50px;
-  background: #ced2d5;
+  background: var(--bg-grey-buttons);
   text-align: center;
   margin: 1px;
 
@@ -39,7 +39,7 @@
       transition: all .2s;
 
       &:hover {
-        background: var(--grey-buttons);
+        background: var(--bg-grey-buttons);
       }
 
       &::before,

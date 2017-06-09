@@ -22,7 +22,7 @@ const colors = {
   teal: '#008080',
   white: '#FFFFFF',
   darkBlue: '#3a434f',
-  lightGray: '#ABB2B6'
+  lightGray: '#abb2b6'
 };
 
 const areaStyle = {

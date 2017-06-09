@@ -6,7 +6,7 @@
   margin: -15px -5px;
 
   &:global(._empty) {
-    border: 3px dashed var(--grey-buttons);
+    border: 3px dashed var(--bg-grey-buttons);
     margin: -18px -8px;
   }
 

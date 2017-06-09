@@ -31,7 +31,7 @@
   font-size: 15px;
 
   &:hover {
-    background-color: #e5e7e8;
+    background-color: var(--color-border);
   }
 }
 

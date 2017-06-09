@@ -4,7 +4,7 @@
   height: 300px;
   overflow: hidden;
   color: var(--color-text);
-  background-color: #ced2d5;
+  background-color: var(--bg-grey-buttons);
   font-weight: 400;
   font-size: 18px;
   line-height: 40px;

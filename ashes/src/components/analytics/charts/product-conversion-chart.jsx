@@ -19,7 +19,7 @@ import ProductConversionToolTip from './product-conversion-tooltip';
 
 // styles
 const axisTickColor = '#9BA3A7';
-const gridLineColor = '#ABB2B6';
+const gridLineColor = '#abb2b6';
 
 const yAxisStyle = {
   axis: { stroke: axisTickColor },

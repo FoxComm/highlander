@@ -5,7 +5,7 @@
   max-width: 66px;
   height: 40px;
   max-height: 40px;
-  background-color: var(--grey-buttons);
+  background-color: var(--bg-grey-buttons);
   border: 1px solid var(--color-border);
   text-align: center;
   cursor: pointer;

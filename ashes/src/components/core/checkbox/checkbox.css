@@ -187,7 +187,7 @@
     top: 0;
     width: 80px;
     height: 34px;
-    background: #4fc2c9;
+    background: var(--bg-green-buttons);
     opacity: 0;
     border: none;
     border-radius: 17px;

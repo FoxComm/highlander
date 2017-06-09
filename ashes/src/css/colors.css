@@ -16,6 +16,7 @@
   --bg-nav-disabled: #99a9c4;
   --bg-nav-pink: #fc54a6;
   --bg-field-error: var(--color-error-text);
+  --bg-grey-buttons: #ced2d5;
   --bg-green-buttons: #49cab9;
   --bg-green-buttons-hover: #1dbfaa;
   --bg-message-success: #adf2e9;
@@ -23,8 +24,6 @@
   --bg-message-error: #ffb1b1;
 
 
-  --grey-buttons: #ced2d5;
-  --grey-buttons-hover: #bdc3c6;
   --grey-headers: #f7f7f7;
   --grey-background: #f9f9f9;
 
@@ -35,19 +34,6 @@
    */
   --white: #ffffff;
 
-  --light-yellow: #ffdd7f;
-
-  /*
-   * Buttons
-   */
-  --button-color: var(--color-text);
-  --button-bg: #ced2d5;
-  --button-bg-loading: #ced2d5;
-
-  /*
-   * Alerts
-   */
-  --alert-warning: var(--light-yellow);
 
   --decor0: #f2f2f2;
   --decor4: #828e9f;
@@ -55,7 +41,6 @@
   --decor13: #fcfcfc;
   --decor24: #ffbb3c;
   --decor25: #ffdd7f;
-  --decor35: #e5e7e8;
   --decor36: #333c49;
   --decor38: #e9feff;
   --decor43: rgba(0,0,0,0.30);
@@ -64,7 +49,6 @@
   --decor54: #F5FEFF;
   --decor55: rgba(0,0,0,0.40);
   --decor58: rgba(0,0,0,.1);
-  --decor60: #e4e6ea;
   --decor61: #f4f5f6;
 
   --transparent: transparent;
@@ -76,8 +60,6 @@
   --default-bg: --decor0;
 
   // Control colors
-  --control-primary-bg: --green-buttons;
-  --control-primary-disabled-bg: --green-buttons;
 
   --control-secondary-fg: --color-text;
   --control-secondary-bg: --transparent;
@@ -85,9 +67,6 @@
   --control-secondary-disabled-bg: --transparent;
 
   --control-standard-fg: --color-text;
-  --control-standard-bg: #ced2d5;
-  --control-standard-hover-fg: --color-text;
-  --control-standard-disabled-bg: #ced2d5;
 
   --control-yes-bg: --green-buttons;
 }

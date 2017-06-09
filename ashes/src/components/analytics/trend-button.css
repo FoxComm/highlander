@@ -14,7 +14,7 @@
 
 .trend-button-container-steady {
   display: inline-block;
-  background-color: var(--grey-buttons);
+  background-color: var(--bg-grey-buttons);
   border-radius: 24px;
 }
 

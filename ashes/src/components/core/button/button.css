@@ -10,7 +10,7 @@
   justify-content: center;
   padding: 11px 20px;
   color: var(--color-text);
-  background-color: var(--button-bg);
+  background: var(--bg-grey-buttons);
   font-size: 14px;
   font-weight: 600;
   line-height: 18px;
@@ -25,14 +25,14 @@
   }
 
   &:hover {
-    background-color: var(--grey-buttons-hover);
+    background-color: var(--color-border);
   }
 
   &:disabled,
   &:disabled:hover {
     cursor: default;
     color: var(--color-additional-text);
-    background-color: var(--grey-buttons-hover);
+    background-color: var(--color-border);
   }
 
   &.onlyIcon {
