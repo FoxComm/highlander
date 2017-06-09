@@ -13,6 +13,7 @@ import Counter from 'components/core/counter';
 import FormField from '../../forms/formfield';
 import CodeCreationModal from './code-creation-modal';
 import { transitionTo } from 'browserHistory';
+import TextInput from 'components/core/text-input';
 
 // styles
 import styles from './styles.css';
@@ -39,11 +40,6 @@ type Props = {
   codeIsOfValidLength: Function,
 };
 
-type Target = {
-  name: string,
-  value: string,
-};
-
 class CouponCodes extends Component {
   props: Props;
 
@@ -55,8 +51,7 @@ class CouponCodes extends Component {
     return (
       <div styleName="form-subset">
         <div className="fc-form-field" styleName="form-group">
-          <input
-            type="text"
+          <TextInput
             styleName="full-width-field"
             name="singleCode"
             value={this.props.codeGeneration.singleCode}
@@ -71,8 +66,8 @@ class CouponCodes extends Component {
   }
 
   @autobind
-  handleFormChange({target}: {target: Target}): void {
-    this.props.couponsGenerationChange(target.name, target.value);
+  handleFormChange(value: string, name: string): void {
+    this.props.couponsGenerationChange(name, value);
   }
 
   @autobind
@@ -157,11 +152,10 @@ class CouponCodes extends Component {
         <div styleName="form-group" className="fc-coupon-inline-row">
           <FormField label="Code Prefix">
             <div>
-              <input
+              <TextInput
                 styleName="full-width-field"
                 value={this.props.codeGeneration.codesPrefix}
                 onChange={this.handleFormChange}
-                type="text"
                 name="codesPrefix"
               />
             </div>

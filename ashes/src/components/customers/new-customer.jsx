@@ -13,6 +13,7 @@ import FormField from '../forms/formfield';
 import Form from '../forms/form';
 import SaveCancel from 'components/core/save-cancel';
 import { ApiErrors } from 'components/utils/errors';
+import TextInput from 'components/core/text-input';
 
 import type { NewCustomerPayload } from 'modules/customers/new';
 
@@ -94,22 +95,20 @@ class NewCustomer extends Component {
                 <ul className="fc-customer-form-fields">
                   <li>
                     <FormField label="Name" validator="ascii">
-                      <input id="nameCustomerFormField"
+                      <TextInput id="nameCustomerFormField"
                              className="fc-customer-form-input"
                              name="name"
                              maxLength="255"
-                             type="text"
                              value={name}
                              required />
                     </FormField>
                   </li>
                   <li>
                     <FormField label="Email Address" validator="ascii">
-                      <input id="emailCustomerFormField"
+                      <TextInput id="emailCustomerFormField"
                              className="fc-customer-form-input"
                              name="email"
                              maxLength="255"
-                             type="text"
                              value={email}
                              required />
                     </FormField>

@@ -8,6 +8,7 @@ import _ from 'lodash';
 // components
 import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 import { INPUT_ATTRS } from 'paragons/common';
+import TextInput from 'components/core/text-input';
 
 // styles
 import s from './typeahead.css';
@@ -24,7 +25,7 @@ const TypeaheadInput = ({ className, isFetching = false, ...rest }: Props) => {
   return (
     <LoadingInputWrapper className={className} inProgress={isFetching}>
       <i className={classNames(s['input-icon'], 'icon-search')} />
-      <input
+      <TextInput
         className={classNames('fc-input', s.input)}
         type="text"
         {...attrs}

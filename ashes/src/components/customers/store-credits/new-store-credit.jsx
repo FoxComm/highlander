@@ -18,6 +18,7 @@ import Form from '../../forms/form';
 import Dropdown from '../../dropdown/dropdown';
 import Currency from '../../common/currency';
 import SaveCancel from 'components/core/save-cancel';
+import TextInput from 'components/core/text-input';
 
 // redux
 import * as CustomerActions from '../../../modules/customers/details';
@@ -299,9 +300,8 @@ export default class NewStoreCredit extends React.Component {
                 <FormField label="Gift Card Number"
                            labelClassName="fc-store-credit-form__label"
                            validator={validateCardCode}>
-                  <input id="gcNumberField"
+                  <TextInput id="gcNumberField"
                          name="code"
-                         type="text"
                          placeholder="1111 1111 1111 1111"
                          className="fc-customer-form-input"
                          value={form.code}

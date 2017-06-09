@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { prefix } from '../../lib/text-utils';
 
 //components
-import TextInput from '../../components/forms/text-input';
+import TextInput from 'components/core/text-input';
 
 const prefixed = prefix('fc-lookup');
 
