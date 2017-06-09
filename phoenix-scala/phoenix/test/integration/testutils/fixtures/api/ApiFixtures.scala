@@ -9,11 +9,14 @@ import faker.Lorem
 import org.json4s.JsonAST.JNull
 import org.json4s.JsonDSL._
 import org.scalatest.SuiteMixin
+import phoenix.models.catalog.Catalog
 import phoenix.models.promotion.Promotion
 import phoenix.payloads.CouponPayloads.CreateCoupon
 import phoenix.payloads.ProductPayloads.CreateProductPayload
 import phoenix.payloads.ProductReviewPayloads.{CreateProductReviewByCustomerPayload, CreateProductReviewPayload}
 import phoenix.payloads.SkuPayloads.SkuPayload
+import phoenix.payloads.CatalogPayloads._
+import phoenix.responses.CatalogResponse
 import phoenix.responses.CouponResponses.CouponResponse
 import phoenix.responses.ProductResponses.ProductResponse.{Root ⇒ ProductRoot}
 import phoenix.responses.ProductReviewResponses.ProductReviewResponse
@@ -54,6 +57,16 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
   def eternalActivity(): Map[String, Json] =
     Map("activeFrom" → (("t" → "datetime") ~ ("v" → Instant.ofEpochMilli(1).toString)),
         "activeTo"   → (("t" → "datetime") ~ ("v" → JNull)))
+
+  trait Catalog_ApiFixture {
+    private val createPayload = CreateCatalogPayload(name = "default",
+                                                     site = Some("stage.foxcommerce.com"),
+                                                     countryId = 234,
+                                                     defaultLanguage = "en")
+
+    val catalog: CatalogResponse.Root =
+      catalogsApi.create(createPayload)(defaultAdminAuth).as[CatalogResponse.Root]
+  }
 
   trait ProductSku_ApiFixture {
     val productCode: String = s"testprod_${Lorem.numerify("####")}"

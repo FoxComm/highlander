@@ -60,10 +60,6 @@ shortcuts:
     alias: consul_alerts.yml
     target: ansible/ops_consul_alerts.yml
 
-  - name: Feature Branch Instance Setup
-    alias: ops_feature_branch.yml
-    target: ansible/ops_feature_branch.yml
-
   - name: Setup Marathon Alerts
     alias: marathon_alerts.yml
     target: ansible/ops_marathon_alerts.yml
