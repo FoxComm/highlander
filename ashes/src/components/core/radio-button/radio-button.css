@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .radio {
   input[type=radio]:not(old) {
     width: 24px;
@@ -9,7 +11,7 @@
     &:disabled {
       & + .label:before,
       &:hover + .label:before {
-        border-color: #d9d9d9;
+        border-color: var(--color-border);
         background: #f7f7f7;
       }
     }
@@ -33,7 +35,7 @@
   margin-left: -24px;
   line-height: 24px;
   font-size: 13px;
-  color: #363636;
+  color: var(--color-text);
 
   &:before {
     content: '';
@@ -41,7 +43,7 @@
     height: 24px;
     width: 24px;
     margin: 0.25em 0.5em 0.25em 0.25em;
-    border: 2px solid #d9d9d9;
+    border: 2px solid var(--color-border);
     border-radius: 13px;
     background: #f2f2f2;
     vertical-align: middle;

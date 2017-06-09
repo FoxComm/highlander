@@ -2,16 +2,12 @@
 @color-tr-odd-bg: @color-white;
 @color-tr-even-bg: @color-decor12;
 
-@color-th-fg: @color-default-fg;
 @color-th-bg: @color-decor12;
 @color-th-bg-hover: @color-decor35;
-@color-th-border: @color-decor9;
-
-@color-border-td: @color-decor9;
 
 @keyframes fc-new-row {
   from {
-    background-color: @color-decor44;
+    background-color: @color-grey-buttons;
   }
 
   to {
@@ -20,7 +16,7 @@
 
 .fc-table-wrap {
   position: relative;
-  border: 1px solid @color-border-td;
+  border: 1px solid @color-border;
 
   &::before, &::after {
     content: " ";
@@ -59,14 +55,14 @@
       display: table-cell;
       position: relative;
       vertical-align: middle;
-      color: @color-th-fg;
+      color: @color-text;
       background: @color-th-bg;
       padding: 10px 15px;
       font-size: 13px;
       font-weight: 600;
       line-height: 14px;
-      border-right: 1px solid @color-th-border;
-      border-bottom: 1px solid @color-th-border;
+      border-right: 1px solid @color-border;
+      border-bottom: 1px solid @color-border;
       height: 62px;
       user-select: none;
       background-clip: padding-box;
@@ -165,18 +161,18 @@
       padding: 10px 15px;
       font-size: 13px;
       line-height: 18px;
-      color: @color-decor1;
+      color: @color-text;
       vertical-align: middle;
       background-clip: padding-box;
-      border-bottom: 1px solid @color-decor9;
+      border-bottom: 1px solid @color-border;
 
       transition: background-color 500ms;
 
       &._no-results {
-        font-weight: @semibold;
+        font-weight: 600;
         font-size: 18px;
         line-height: 24px;
-        color: @color-decor8;
+        color: @color-additional-text;
         padding-top: 40px;
         padding-bottom: 40px;
       }
@@ -188,7 +184,7 @@
   position: absolute;
   top: 0;
   right: 10px;
-  color: @color-decor1;
+  color: @color-text;
   .font-spec(16px, 700, 62px);
 
   .icon-down,
@@ -266,7 +262,7 @@
 
   .fc-form-field input.fc-table-paginator__current-page-field._disabled {
     background-color: @color-decor12;
-    border: 1px solid @color-decor7;
+    border: 1px solid @color-border;
   }
 
   &__current-page-selector {
@@ -280,7 +276,7 @@
     font-weight: 400;
     line-height: 6rem;
     font-size: 12px;
-    z-index: 100;
+    z-index: 20;
     display: none;
 
     &._shown {

@@ -4,7 +4,7 @@
 .fc-sidebar {
 
   &__navigation-list {
-    border-top: 1px solid @color-decor2;
+    border-top: 1px solid @color-text;
     margin-bottom: 70px;
   }
 
@@ -13,7 +13,7 @@
 
     &._active {
       background-color: rgba(0, 0, 0, 0.27);
-      border-left-color: #49cab9;
+      border-left-color: @color-action-text;
       & svg {
         opacity: 1;
       }
@@ -70,7 +70,7 @@
 
     &__sublink {
       font-size: 13px;
-      font-weight: @normal;
+      font-weight: 400;
       line-height: 18px;
       margin-bottom: 20px;
       .padding-left(70px);

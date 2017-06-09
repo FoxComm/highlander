@@ -8,6 +8,7 @@ import React, { Component } from 'react';
 import Modal from 'components/core/modal';
 import { FormField } from '../forms';
 import SaveCancel from 'components/core/save-cancel';
+import TextInput from 'components/core/text-input';
 
 // types
 import type { ImageInfo } from '../../modules/images';
@@ -29,8 +30,8 @@ class EditImage extends Component {
   };
 
   @autobind
-  handleUpdateField({ target }: { target: HTMLInputElement }) {
-    this.setState({ [target.name]: target.value });
+  handleUpdateField(value: string, name: string) {
+    this.setState({ [name]: value });
   }
 
   @autobind
@@ -64,9 +65,7 @@ class EditImage extends Component {
                    className="fc-product-details__field"
                    labelClassName="fc-product-details__field-label"
         >
-          <input type="text"
-                 className="fc-product-details__field-value"
-                 name="title"
+          <TextInput name="title"
                  value={this.state.title}
                  onChange={this.handleUpdateField}
           />
@@ -74,9 +73,7 @@ class EditImage extends Component {
         <FormField label="Image Alt Text"
                    className="fc-product-details__field"
                    labelClassName="fc-product-details__field-label">
-          <input type="text"
-                 className="fc-product-details__field-value"
-                 name="alt"
+          <TextInput name="alt"
                  value={this.state.alt}
                  onChange={this.handleUpdateField}
           />
@@ -84,9 +81,7 @@ class EditImage extends Component {
         <FormField label="Image URL"
                    className="fc-product-details__field"
                    labelClassName="fc-product-details__field-label">
-          <input type="text"
-                 className="fc-product-details__field-value"
-                 name="src"
+          <TextInput name="src"
                  value={this.state.src}
                  placeholder="http://"
                  onChange={this.handleUpdateField}

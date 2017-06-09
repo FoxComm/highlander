@@ -1,6 +1,7 @@
+@import 'colors.css';
 
 .product-description {
-  color: #909090;
+  color: var(--color-additional-text);
 }
 
 .full-width {

@@ -10,6 +10,9 @@ import Icon from 'components/core/icon';
 // paragons
 import { INPUT_ATTRS } from 'paragons/common';
 
+// components
+import TextInput from 'components/core/text-input';
+
 // These aren't actually multiple exported components, but ESLint mistakenly
 // thinks that they are.
 
@@ -71,9 +74,8 @@ const PilledInput = props => {
   const attrs = _.pick(rest, INPUT_ATTRS);
 
   const input = children || (
-      <input
+      <TextInput
         className={inputClass}
-        type="text"
         autoFocus={props.autoFocus}
         disabled={disabled}
         {...attrs} />

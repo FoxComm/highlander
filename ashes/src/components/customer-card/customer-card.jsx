@@ -79,14 +79,10 @@ export default class CustomerInfo extends Component {
             {avatar}
           </div>
           <div styleName="name">
-            <TextFit fontSize={3} maxFontSize={3}>
-              {this.customerLink(customer.name)}
-            </TextFit>
+            {this.customerLink(customer.name)}
           </div>
           <div styleName="email">
-            <TextFit fontSize={1.7}>
-              {this.customerLink(customer.email)}
-            </TextFit>
+            {this.customerLink(customer.email)}
           </div>
         </div>
         <article styleName="body">

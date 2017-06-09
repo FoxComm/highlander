@@ -20,8 +20,8 @@
     &:after {
       content: "";
       height: @sep-line-height;
-      border-top: 2px solid #ced2d5;
-      border-right: 2px solid #ced2d5;
+      border-top: 2px solid @color-additional-text;
+      border-right: 2px solid @color-additional-text;
       width: @line-width;
       position: absolute;
       left: 100%;
@@ -65,14 +65,14 @@
 
   &-or {
     font-size: 14px;
-    font-weight: @bold;
+    font-weight: 700;
   }
 
   &-add {
     padding: 0;
     line-height: @b-size;
     &:hover {
-      background: #bdc3c6;
+      background: @color-grey-buttons;
     }
   }
 
@@ -83,7 +83,7 @@
     align-self: flex-start;
     cursor: pointer;
     &:hover {
-      color: #f45758;
+      color: @color-error-text;
     }
   }
 }

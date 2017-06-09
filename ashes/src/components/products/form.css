@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .slug-field-container {
   position: relative;
   width: 100%;
@@ -7,7 +9,7 @@
   position: absolute;
   top: 10px;
   left: 10px;
-  color: #909090;
+  color: var(--color-additional-text);
 }
 
 .slug-field {
@@ -18,5 +20,5 @@
 .field-comment {
   margin-top: 8px;
   font-size: 13px;
-  color: #909090;
+  color: var(--color-additional-text);
 }

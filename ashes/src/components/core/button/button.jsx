@@ -37,20 +37,26 @@ export const Button = ({ icon, children, isLoading, className, fullWidth, small,
   const hasIcon = !!icon;
   const content = children ? <span className={s.text}>{children}</span> : null;
   const disabled = restProps.disabled || isLoading;
+  const onlyIcon = hasIcon && !content;
   const cls = classNames(
     s.button,
     {
       [s.loading]: isLoading,
       [s.fullWidth]: fullWidth,
       [s.small]: small,
-      [s.onlyIcon]: hasIcon && !content
+      [s.onlyIcon]: onlyIcon
     },
     className
   );
+  const postfix = icon || '';
+  const iconCls = classNames(s.icon, {
+    [`icon-${postfix}`]: hasIcon,
+    [s.only]: onlyIcon,
+  });
 
   return (
     <button {...restProps} className={cls} disabled={disabled}>
-      {icon && <Icon name={icon} />}
+      {hasIcon && <Icon name={iconCls} />}
       {content}
     </button>
   );

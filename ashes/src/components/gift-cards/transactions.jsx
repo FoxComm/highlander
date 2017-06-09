@@ -4,7 +4,6 @@ import React, { Component } from 'react';
 
 // libs
 import _ from 'lodash';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';

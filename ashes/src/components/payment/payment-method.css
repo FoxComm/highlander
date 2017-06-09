@@ -1,3 +1,4 @@
+@import 'colors.css';
 
 .payment-method {
   display: inline-block;
@@ -16,7 +17,7 @@
 
   & > strong {
     font-size: 13px;
-    color: #1C1C1C;
+    color: var(--color-text);
     line-height: 18px;
   }
 }

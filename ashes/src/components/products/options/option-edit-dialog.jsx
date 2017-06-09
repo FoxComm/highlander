@@ -10,6 +10,7 @@ import _ from 'lodash';
 // components
 import ConfirmationModal from 'components/core/confirmation-modal';
 import { FormField, Form } from 'components/forms';
+import TextInput from 'components/core/text-input';
 
 // styles
 import styles from './option-list.css';
@@ -38,13 +39,6 @@ class OptionEditDialog extends Component {
 
   get title(): string {
     return _.get(this.props, 'option.id') === 'new' ? 'New option' : 'Edit option';
-  }
-
-  componentDidMount() {
-    const { nameInput } = this.refs;
-    if (nameInput) {
-      nameInput.focus();
-    }
   }
 
   @autobind
@@ -81,12 +75,13 @@ class OptionEditDialog extends Component {
           key={`object-form-attribute-name`}
           required
         >
-          <input
+          <TextInput
             id="fct-option-name-fld"
-            type="text"
             ref="nameInput"
             value={name}
-            onChange={({target}) => this.handleChange(target.value, 'name')}
+            name="name"
+            onChange={this.handleChange}
+            autoFocus
           />
         </FormField>
         <FormField
@@ -94,11 +89,11 @@ class OptionEditDialog extends Component {
           label="Display Type"
           key={`object-form-attribute-type`}
         >
-          <input
+          <TextInput
             id="option-display-type-fld"
-            type="text"
             value={type}
-            onChange={({target}) => this.handleChange(target.value, 'type')}
+            name="type"
+            onChange={this.handleChange}
           />
         </FormField>
       </Form>

@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .checkbox {
   display: inline-flex;
   align-items: center;
@@ -28,7 +30,7 @@
     width: 24px;
     height: 24px;
     border-radius: 3px;
-    border: 2px solid #d9d9d9;
+    border: 2px solid var(--color-border);
     transition: all .2s;
     cursor: pointer;
   }
@@ -80,16 +82,16 @@
   }
 
   & input[disabled] + .label::before {
-    border-color: #d9d9d9;
+    border-color: var(--color-border);
     background: #f7f7f7;
   }
 
   & input[disabled]:checked + .label::before {
-    color: #d9d9d9;
+    color: var(--color-additional-text);
   }
 
   & input[disabled]:checked:hover + .label::before {
-    border-color: #d9d9d9;
+    border-color: var(--color-border);
     background: #f7f7f7;
   }
 
@@ -226,7 +228,7 @@
     }
 
     &:after {
-      color: transparent;
+      opacity: 0;
       left: 51px;
     }
   }

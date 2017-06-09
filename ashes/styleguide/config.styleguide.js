@@ -22,6 +22,16 @@ module.exports = {
       name: 'Documentation',
       sections: [
         {
+          name: 'Colors and Typo',
+          sections: [{
+            content: '../docs/colors-and-typos.md',
+          }, {
+            components: () => ([
+              path.resolve(__dirname, '../src/components/docs/colors/text-colors.jsx'),
+            ]),
+          }]
+        },
+        {
           name: 'Components',
           content: '../docs/components.md',
         },
@@ -90,6 +100,7 @@ module.exports = {
                 path.resolve(__dirname, '../src/components/core/radio-button/radio-button.jsx'),
                 path.resolve(__dirname, '../src/components/core/checkbox/checkbox.jsx'),
                 path.resolve(__dirname, '../src/components/core/counter/counter.jsx'),
+                path.resolve(__dirname, '../src/components/core/text-input/text-input.jsx'),
               ]),
             },
             {
@@ -120,6 +131,14 @@ module.exports = {
               components: () => ([
                 path.resolve(__dirname, '../src/components/utils/errors/errors.jsx'),
                 path.resolve(__dirname, '../src/components/utils/errors/api-errors.jsx'),
+              ]),
+            },
+            {
+              name: 'Activity Notifications',
+              components: () => ([
+                path.resolve(__dirname, '../src/components/activity-notifications/item.jsx'),
+                path.resolve(__dirname, '../src/components/activity-notifications/panel.jsx'),
+                path.resolve(__dirname, '../src/components/activity-notifications/indicator.jsx'),
               ]),
             },
           ]

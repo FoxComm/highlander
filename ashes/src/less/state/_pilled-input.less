@@ -8,12 +8,12 @@
 
     .fc-pilled-input__pill-value._clickable:hover {
       cursor: pointer;
-      background-color: @color-decor62;
+      background-color: @color-nav-main;
     }
 
     .fc-pilled-input__pill-close {
       &:hover {
-        background-color: @color-decor62;
+        background-color: @color-nav-main;
       }
     }
   }
@@ -32,25 +32,25 @@
   &._disabled {
     .fc-pilled-input__pill {
       background: @color-decor4;
-      color: @color-decor0;
+      color: @color-light-text;
       cursor: default;
       transition: all .1s;
     }
 
     .fc-pilled-input__icon-wrapper {
-      color: @color-decor7;
+      color: @color-additional-text;
       cursor: default;
     }
 
     .fc-pilled-input__input-field {
-      .placeholder({ color: @color-decor7 });
+      .placeholder({ color: @color-additional-text });
     }
   }
 
   &__controls-container {
     ._disabled,
     :disabled {
-      color: @color-decor7;
+      color: @color-additional-text;
       cursor: default;
     }
   }

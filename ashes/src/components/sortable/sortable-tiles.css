@@ -1,6 +1,8 @@
+@import 'colors.css';
+
 .title {
   margin-top: 1.25em;
-  color: #eee;
+  color: var(--color-light-text);
   text-align: center;
   text-shadow: 1px 1px 0 black;
 }

@@ -41,7 +41,7 @@
     }
     padding: 0 10px;
     height: 40px;
-    border: 1px solid @color-decor7;
+    border: 1px solid @color-border;
     &:not(:disabled) {
       background-color: @color-white;
       .highlight-border-behaviour();
@@ -50,7 +50,7 @@
 
   .error() {
     &:not(:disabled) {
-      border-color: @color-decor22;
+      border-color: @color-error-text;
     }
   }
 
@@ -101,7 +101,7 @@
     label:after {
       content: "*";
       margin-left: .3em;
-      color: #FA6C66;
+      color: @color-error-text;
     }
   }
 }
@@ -140,14 +140,14 @@
 
 .fc-form-field {
   &-optional {
-    color: @color-decor6;
+    color: @color-additional-text;
     font-size: 14px;
     line-height: 20px;
     padding-left: 0.5em;
   }
 
   &-error {
-    color: @color-decor22;
+    color: @color-error-text;
     font-size: 13px;
     line-height: 15px;
     padding-top: 8px;

@@ -11,7 +11,7 @@ import _ from 'lodash';
 // components
 import DatePicker from '../datepicker/datepicker';
 import DateTimeCounter from './counter';
-import TextInput from '../forms/text-input';
+import TextInput from 'components/core/text-input';
 import Icon from 'components/core/icon';
 
 type Props = {

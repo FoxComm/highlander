@@ -10,7 +10,7 @@ import { trackEvent } from 'lib/analytics';
 
 // components
 import { RoundedPill } from 'components/core/rounded-pill';
-import TextInput from '../forms/text-input';
+import TextInput from 'components/core/text-input';
 import Icon from 'components/core/icon';
 
 // styles
