@@ -3,6 +3,7 @@ import { combineReducers } from 'redux';
 
 import { reducer as asyncReducer } from '@foxcomm/wings/lib/redux/async-utils';
 import giftCards from './gift-cards';
+import contentTypes from './content-types';
 import customers from './customers';
 import customerGroups from './customer-groups';
 import carts from './carts';
@@ -40,6 +41,7 @@ const rootReducer = combineReducers({
   asyncActions: asyncReducer,
   bulkExport,
   giftCards,
+  contentTypes,
   customers,
   carts,
   channels,
