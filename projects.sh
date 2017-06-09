@@ -33,6 +33,7 @@ PROJECTS=(
     'tabernacle'
     'solomon'
     'hyperion'
+    'search-service'
 )
 
 # Define base branch via GitHub API
