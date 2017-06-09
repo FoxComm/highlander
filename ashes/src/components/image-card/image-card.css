@@ -34,7 +34,7 @@
   }
 
   & i {
-    color: #fff;
+    color: var(--color-light-text);
     opacity: .76;
     font-size: 18px;
     margin: 23px 10px;

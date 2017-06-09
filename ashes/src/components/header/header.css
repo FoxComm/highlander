@@ -67,7 +67,7 @@
 .initials {
   margin-right: 10px;
   width: 35px;
-  color: #ffffff;
+  color: var(--color-light-text);
 }
 
 .name {

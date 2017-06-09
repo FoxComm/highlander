@@ -18,7 +18,7 @@
   &__value {
     height: @dropdown-height;
     padding-left: 10px;
-    .colors(@color-text, @color-control-standard-bg);
+    .colors(@color-text, @bg-grey-buttons);
     .font-spec(14px, 400, @dropdown-height);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -58,7 +58,7 @@
   &__item,
   &__blank-item {
     height: 44px;
-    .colors(@color-control-standard-fg, @color-white);
+    .colors(@color-text, @color-white);
     .font-spec(14px, 400, 44px);
     padding: 0 20px;
     cursor: pointer;
@@ -113,7 +113,7 @@
       input {
         .size(100%);
         padding: 0 10px;
-        .colors(@color-control-standard-fg, @color-white);
+        .colors(@color-text, @color-white);
       }
     }
   }

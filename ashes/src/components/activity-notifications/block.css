@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .popup {
   position: absolute;
   right: 100px;
@@ -16,12 +18,12 @@
 
   & :global .fc-content-box-header {
     height: 44px;
-    color: #484848;
-    background-color: #f7f7f7;
+    color: var(--color-text);
+    background-color: var(--bg-grey-headers);
     font-size: 14px;
     font-weight: 600;
     line-height: 19px;
-    border-bottom: 1px solid #d9d9d9;
+    border-bottom: 1px solid var(--color-border);
     margin-bottom: 0;
   }
 

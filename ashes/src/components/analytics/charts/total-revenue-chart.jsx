@@ -20,7 +20,7 @@ const colors = {
   tealGreenish: '#78CFD4',
   gray: '#808080',
   teal: '#008080',
-  white: '#FFFFFF',
+  white: '#ffffff',
   darkBlue: '#25334a',
   lightGray: '#abb2b6'
 };

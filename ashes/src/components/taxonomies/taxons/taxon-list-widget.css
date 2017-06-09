@@ -1,7 +1,7 @@
 @import 'colors.css';
 
 .root {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   border: 1px solid var(--color-border);
 }
 
@@ -38,11 +38,11 @@
 
   & :global(.fc-btn-primary) {
     color: var(--color-text);
-    background-color: #FFFFFF;
+    background-color: #ffffff;
 
     &:hover {
      color: var(--color-text);
-     background-color: #FFFFFF;
+     background-color: #ffffff;
     }
   }
 

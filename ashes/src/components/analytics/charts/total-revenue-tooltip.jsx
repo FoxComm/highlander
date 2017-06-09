@@ -19,7 +19,7 @@ export default class TotalRevenueToolTip extends React.Component {
       fill: '#25334a',
     };
     const toolTipStyle = {
-      fill: '#FFFFFF',
+      fill: '#ffffff',
       fontSize: 6
     };
 

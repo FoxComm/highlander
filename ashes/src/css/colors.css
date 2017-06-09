@@ -1,4 +1,8 @@
 :root {
+  /*
+   * https://app.zeplin.io/project/58e3cc8f1e88befbcc27121e/screen/58e3ccda94f5ae16cd341689
+   */
+
   /* colors blessed by @bree */
   --color-text: #363636;
   --color-additional-text: rgba(54, 54, 54, 0.5);
@@ -24,36 +28,12 @@
   --bg-message-success: #adf2e9;
   --bg-message-warning: #fff9a0;
   --bg-message-error: #ffb1b1;
+  /* all other background colors are damned! */
 
 
 
-  /*
-   * http://chir.ag/projects/name-that-color
-   * https://app.zeplin.io/project/58e3cc8f1e88befbcc27121e/screen/58e3ccda94f5ae16cd341689
-   */
-  --white: #ffffff;
 
 
   --decor24: #ffbb3c;
-  --decor25: #ffdd7f;
-  --decor36: #333c49;
   --decor38: #e9feff;
-  --decor49: #EAFEFF;
-
-  --transparent: transparent;
-
-  // Site colors
-  --link-tab: #595959;
-
-
-  // Control colors
-
-  --control-secondary-fg: --color-text;
-  --control-secondary-bg: --transparent;
-  --control-secondary-hover-bg: --transparent;
-  --control-secondary-disabled-bg: --transparent;
-
-  --control-standard-fg: --color-text;
-
-  --control-yes-bg: --green-buttons;
 }

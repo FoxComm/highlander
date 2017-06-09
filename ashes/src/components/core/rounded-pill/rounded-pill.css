@@ -8,7 +8,7 @@
   min-height: 32px;
   font-size: 12px;
   line-height: 16px;
-  color: #fff;
+  color: var(--color-light-text);
   background-color: var(--bg-nav-main);
   border-radius: 16px;
 }

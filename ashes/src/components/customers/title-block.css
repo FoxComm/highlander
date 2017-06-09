@@ -11,7 +11,7 @@
 
 .block {
   margin: 40px 0;
-  background-color: var(--white);
+  background-color: #fff;
 }
 
 .header {
@@ -47,7 +47,7 @@
   display: inline-block;
   width: var(--circle-size);
   height: var(--circle-size);
-  background-color: var(--white);
+  background-color: #fff;
   border-radius: 50%;
   text-align: center;
   vertical-align: top;

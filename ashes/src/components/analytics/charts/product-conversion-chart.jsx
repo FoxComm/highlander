@@ -232,7 +232,7 @@ class ProductConversionChart extends React.Component {
               deltaToolTipStyles={{
                 borderColor: '#363636',
                 fill: '#3A4350',
-                textColor: '#FFFFFF',
+                textColor: '#ffffff',
                 fontSize: 6,
               }}
               conversionToolTipOffsetCoordinates={{

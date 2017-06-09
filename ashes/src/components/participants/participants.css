@@ -39,7 +39,7 @@
     width: 28px;
     height: auto;
     vertical-align: top;
-    color: #fff;
+    color: var(--color-light-text);
     line-height: 28px;
   }
 }

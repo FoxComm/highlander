@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .block {
   padding: 10px;
   border-bottom: 1px solid #d9d9d9;
@@ -20,12 +22,12 @@
   font-size: 14px;
   font-weight: 400;
   line-height: 19px;
-  color: #484848;
+  color: var(--color-text);
 }
 
 .type {
   width: 24px;
-  color: #9ba3a7;
+  color: var(--color-additional-text);
   font-size: 24px;
   line-height: 30px;
   text-align: center;
@@ -41,7 +43,7 @@
   font-size: 13px;
   font-weight: 400;
   line-height: 16px;
-  color: #b9b9b9;
+  color: var(--color-additional-text);
   margin: 5px 0;
 }
 
