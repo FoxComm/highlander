@@ -100,6 +100,13 @@ IFS=$'\n'
 ALL_CHANGED=($ALL_CHANGED)
 unset IFS
 
+# Debug output
+write "Changed directories (${#ALL_CHANGED[@]}):"
+for item in "${ALL_CHANGED[@]}"
+do
+    write "\t ${item}"
+done
+
 # Detect changed projects
 CHANGED=()
 if [[ ${#ALL_CHANGED[@]} -gt 0 ]]; then
