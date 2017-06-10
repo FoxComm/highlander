@@ -115,6 +115,7 @@ fi
 # Build everything if on master, quit if on branch
 if [[ ${#CHANGED[@]} == 0 ]]; then
     if [ "$BUILDKITE_PIPELINE_SLUG" == "highlander-master" ] ; then
+        write "Rebuilding everything"
         for PROJECT in ${PROJECTS[@]}; do
             CHANGED+=($PROJECT)
         done
