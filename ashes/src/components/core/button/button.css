@@ -52,7 +52,7 @@
   }
 }
 
-.icon {
+.icon:not(.only) {
   font-size: 10px;
   transition: all .2s;
 }
@@ -62,7 +62,6 @@
 }
 
 .only {
-  font-size: 14px;
   margin: 0 auto;
 }
 

@@ -12,8 +12,7 @@
 .message {
   display: flex;
   align-items: center;
-  font-size: 13px;
-  line-height: 18px;
+  font: var(--font-body);
 
   & > i {
     display: inline-flex; /* fixes extra pixel in height */
