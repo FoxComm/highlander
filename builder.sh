@@ -100,18 +100,13 @@ IFS=$'\n'
 ALL_CHANGED=($ALL_CHANGED)
 unset IFS
 
-# Debug output
-write "Changed directories (${#ALL_CHANGED[@]}):"
-for item in "${ALL_CHANGED[@]}"
-do
-    write "\t ${item}"
-done
-
 # Detect changed projects
 CHANGED=()
 if [[ ${#ALL_CHANGED[@]} -gt 0 ]]; then
+    write "List of changed projects:"
     for CHANGE in ${ALL_CHANGED[@]}; do
         if [ $(contains "${PROJECTS[@]}" "$CHANGE") == "y" ]; then
+            write "\t${CHANGE}"
             CHANGED+=($CHANGE)
         fi
     done
@@ -122,13 +117,6 @@ if [[ ${#CHANGED[@]} == 0 ]]; then
     write "No projects changed, nothing to build"
     exit 0;
 fi
-
-# Debug output
-write "Changed projects (${#CHANGED[@]}):"
-for item in "${CHANGED[@]}"
-do
-    write "\t ${item}"
-done
 
 # Build, test, dockerize, push
 if [ "$DEBUG" = false ] ; then
