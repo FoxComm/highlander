@@ -112,10 +112,16 @@ if [[ ${#ALL_CHANGED[@]} -gt 0 ]]; then
     done
 fi
 
-# Prematurely quit if nothing to build
+# Build everything if on master, quit if on branch
 if [[ ${#CHANGED[@]} == 0 ]]; then
-    write "No projects changed, nothing to build"
-    exit 0;
+    if [ "$BUILDKITE_PIPELINE_SLUG" == "highlander-master" ] ; then
+        for PROJECT in ${PROJECTS[@]}; do
+            CHANGED+=($PROJECT)
+        done
+    else
+        write "No projects changed, nothing to build"
+        exit 0;
+    fi
 fi
 
 # Build, test, dockerize, push
