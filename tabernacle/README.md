@@ -40,29 +40,29 @@ The order, in which `systemd` launches the services:
 |consul_agent|--------------|zookeeper|----------|mesos_master|
 +------------+              +---------+          |mesos_worker|
       |                      |                   +------------+
-      |                      |                    |
-+--------------------+       |  +-----+           |  +--------+
-|consul_template     |       +--|kafka|--+        +--|marathon|
-|demo_consul_template|          +-----+  |           +--------+
-|dashboard           |                   |                |
-+--------------------+                   |                |
-     |                                   |                |
-     |         +-----+     +---------------+  +---------------+
-     +---------|nginx|     |schema_registry|  |marathon_consul|
-               +-----+     +---------------+  +---------------+
-
+      |                      |                     |         | 
++--------------------+       |  +-----+            |         | 
+|consul_template     |       +--|kafka|--+       +--------+  | 
+|demo_consul_template|          +-----+  |       |marathon|  | 
+|dashboard           |                   |       +--------+  | 
++--------------------+                   |                   | 
+     |                                   |                   | 
+     |         +-----+     +---------------+  +------------+ | 
+     +---------|nginx|     |schema_registry|  |mesos_consul|-+ 
+               +-----+     +---------------+  +------------+   
+                                                               
 +----------+                                  +---------------+
 |postgresql|------+                 +---------|elasticsearch  |
 +----------+      |                 |         |elasticsearch_5|
                   |                 |         +---------------+
-                  |                 |
-+----------------------------+   +------+
-|bottledwater_phoenix        |   |kibana|
-|bottledwater_middlewarehouse|   +------+
-|bottledwater_onboarding     |
-|materialized_views          |
-|pgweb                       |
-+----------------------------+
+                  |                 |                          
++----------------------------+   +------+                      
+|bottledwater_phoenix        |   |kibana|                      
+|bottledwater_middlewarehouse|   +------+                      
+|bottledwater_onboarding     |                                 
+|materialized_views          |                                 
+|pgweb                       |                                 
++----------------------------+                                 
 ```
 
 ## Marathon Groups Hierarchy
