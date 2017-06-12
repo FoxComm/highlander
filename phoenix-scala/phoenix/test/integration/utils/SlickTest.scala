@@ -38,9 +38,8 @@ class SlickTest extends IntegrationTestBase {
 
   "supports update with returning query for mapping to a new model" in {
     val (customer, updatedCustomer) = (for {
-      account ← * <~ Accounts.create(Account())
-      customer ← * <~ Users.create(
-                    Factories.customer.copy(accountId = account.id, name = "Jane".some))
+      account  ← * <~ Accounts.create(Account())
+      customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id, name = "Jane".some))
       updatedCustomer ← * <~ Users
                          .filter(_.id === customer.id)
                          .map(_.name)
@@ -53,9 +52,8 @@ class SlickTest extends IntegrationTestBase {
 
   "supports update with returning query for mapping to a new model for multiple columns" in {
     val (customer, updatedCustomer) = (for {
-      account ← * <~ Accounts.create(Account())
-      customer ← * <~ Users.create(
-                    Factories.customer.copy(accountId = account.id, name = "Jane".some))
+      account  ← * <~ Accounts.create(Account())
+      customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id, name = "Jane".some))
       updatedCustomer ← * <~ Users
                          .filter(_.id === customer.id)
                          .map(_.name)

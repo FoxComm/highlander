@@ -10,7 +10,7 @@ import phoenix.responses.PublicResponses.CountryWithRegions
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
 import testutils.fixtures.BakedFixtures
-import testutils.fixtures.api.{ApiFixtureHelpers, randomAddress}
+import testutils.fixtures.api.{randomAddress, ApiFixtureHelpers}
 
 class AddressesIntegrationTest
     extends IntegrationTestBase

@@ -14,8 +14,7 @@ import phoenix.utils.http.JsonSupport._
 
 object ProductReviewRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
-
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("review") {
         pathPrefix(Segment) { contextName ⇒
@@ -25,26 +24,24 @@ object ProductReviewRoutes {
                 ProductReviewManager.getReview(reviewId)
               }
             } ~
-            (post & entity(as[CreateProductReviewByAdminPayload]) & pathEnd) { payload ⇒
-              mutateOrFailures {
-                ProductReviewManager.createProductReview(payload.userId.getOrElse(auth.account.id),
-                                                         payload)
-              }
-            } ~
-            (path(IntNumber) & patch & entity(as[UpdateProductReviewPayload]) & pathEnd) {
-              (reviewId, payload) ⇒
+              (post & entity(as[CreateProductReviewByAdminPayload]) & pathEnd) { payload ⇒
                 mutateOrFailures {
-                  ProductReviewManager.updateProductReview(reviewId, payload)
+                  ProductReviewManager.createProductReview(payload.userId.getOrElse(auth.account.id), payload)
                 }
-            } ~
-            (delete & path(IntNumber) & pathEnd) { id ⇒
-              deleteOrFailures {
-                ProductReviewManager.archiveByContextAndId(id)
+              } ~
+              (path(IntNumber) & patch & entity(as[UpdateProductReviewPayload]) & pathEnd) {
+                (reviewId, payload) ⇒
+                  mutateOrFailures {
+                    ProductReviewManager.updateProductReview(reviewId, payload)
+                  }
+              } ~
+              (delete & path(IntNumber) & pathEnd) { id ⇒
+                deleteOrFailures {
+                  ProductReviewManager.archiveByContextAndId(id)
+                }
               }
-            }
           }
         }
       }
     }
-  }
 }

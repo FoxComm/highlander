@@ -34,27 +34,28 @@ case class OrderShippingAddress(id: Int = 0,
 object OrderShippingAddress {
   def buildFromAddress(address: Address): OrderShippingAddress =
     // FIXME: Add Address#id to OrderShippingAddress? @michalrus
-    OrderShippingAddress(regionId = address.regionId,
-                         name = address.name,
-                         address1 = address.address1,
-                         address2 = address.address2,
-                         city = address.city,
-                         zip = address.zip,
-                         phoneNumber = address.phoneNumber)
-
-  def fromPatchPayload(a: OrderShippingAddress, p: UpdateAddressPayload) = {
     OrderShippingAddress(
-        id = a.id,
-        cordRef = a.cordRef,
-        regionId = p.regionId.getOrElse(a.regionId),
-        name = p.name.getOrElse(a.name),
-        address1 = p.address1.getOrElse(a.address1),
-        address2 = p.address2.fold(a.address2)(Some(_)),
-        city = p.city.getOrElse(a.city),
-        zip = p.zip.getOrElse(a.zip),
-        phoneNumber = p.phoneNumber.fold(a.phoneNumber)(Some(_))
+      regionId = address.regionId,
+      name = address.name,
+      address1 = address.address1,
+      address2 = address.address2,
+      city = address.city,
+      zip = address.zip,
+      phoneNumber = address.phoneNumber
     )
-  }
+
+  def fromPatchPayload(a: OrderShippingAddress, p: UpdateAddressPayload) =
+    OrderShippingAddress(
+      id = a.id,
+      cordRef = a.cordRef,
+      regionId = p.regionId.getOrElse(a.regionId),
+      name = p.name.getOrElse(a.name),
+      address1 = p.address1.getOrElse(a.address1),
+      address2 = p.address2.fold(a.address2)(Some(_)),
+      city = p.city.getOrElse(a.city),
+      zip = p.zip.getOrElse(a.zip),
+      phoneNumber = p.phoneNumber.fold(a.phoneNumber)(Some(_))
+    )
 }
 
 class OrderShippingAddresses(tag: Tag)
@@ -79,16 +80,14 @@ class OrderShippingAddresses(tag: Tag)
 }
 
 object OrderShippingAddresses
-    extends FoxTableQuery[OrderShippingAddress, OrderShippingAddresses](
-        new OrderShippingAddresses(_))
+    extends FoxTableQuery[OrderShippingAddress, OrderShippingAddresses](new OrderShippingAddresses(_))
     with ReturningId[OrderShippingAddress, OrderShippingAddresses] {
 
   val returningLens: Lens[OrderShippingAddress, Int] = lens[OrderShippingAddress].id
 
   import scope._
 
-  def copyFromAddress(address: Address, cordRef: String)(
-      implicit ec: EC): DbResultT[OrderShippingAddress] =
+  def copyFromAddress(address: Address, cordRef: String)(implicit ec: EC): DbResultT[OrderShippingAddress] =
     create(OrderShippingAddress.buildFromAddress(address).copy(cordRef = cordRef))
 
   def findByOrderRef(cordRef: String): QuerySeq =

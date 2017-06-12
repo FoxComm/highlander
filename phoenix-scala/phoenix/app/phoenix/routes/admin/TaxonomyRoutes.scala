@@ -15,8 +15,7 @@ import phoenix.utils.http.JsonSupport._
 
 object TaxonomyRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
-
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("taxonomies") {
         pathPrefix(Segment) { contextName ⇒
@@ -24,65 +23,64 @@ object TaxonomyRoutes {
             (post & pathEnd & entity(as[CreateTaxonomyPayload])) { payload ⇒
               mutateOrFailures(TaxonomyManager.createTaxonomy(payload))
             } ~
-            pathPrefix(IntNumber) { taxonomyFormId ⇒
-              (get & pathEnd) {
-                getOrFailures {
-                  TaxonomyManager.getTaxonomy(taxonomyFormId)
-                }
-              } ~
-              (patch & pathEnd & entity(as[UpdateTaxonomyPayload])) { (payload) ⇒
-                mutateOrFailures {
-                  TaxonomyManager.updateTaxonomy(taxonomyFormId, payload)
-                }
-              } ~
-              (delete & pathEnd) {
-                deleteOrFailures {
-                  TaxonomyManager.archiveByContextAndId(taxonomyFormId)
-                }
-              } ~
-              pathPrefix("taxons") {
-                (post & pathEnd & entity(as[CreateTaxonPayload])) { payload ⇒
-                  mutateOrFailures {
-                    TaxonomyManager.createTaxon(taxonomyFormId, payload)
+              pathPrefix(IntNumber) { taxonomyFormId ⇒
+                (get & pathEnd) {
+                  getOrFailures {
+                    TaxonomyManager.getTaxonomy(taxonomyFormId)
                   }
-                }
+                } ~
+                  (patch & pathEnd & entity(as[UpdateTaxonomyPayload])) { (payload) ⇒
+                    mutateOrFailures {
+                      TaxonomyManager.updateTaxonomy(taxonomyFormId, payload)
+                    }
+                  } ~
+                  (delete & pathEnd) {
+                    deleteOrFailures {
+                      TaxonomyManager.archiveByContextAndId(taxonomyFormId)
+                    }
+                  } ~
+                  pathPrefix("taxons") {
+                    (post & pathEnd & entity(as[CreateTaxonPayload])) { payload ⇒
+                      mutateOrFailures {
+                        TaxonomyManager.createTaxon(taxonomyFormId, payload)
+                      }
+                    }
+                  }
               }
-            }
           }
         }
       } ~
-      pathPrefix("taxons") {
+        pathPrefix("taxons") {
 
-        pathPrefix(Segment) { contextName ⇒
-          adminObjectContext(contextName) { implicit context ⇒
-            pathPrefix(IntNumber) { taxonFormId ⇒
-              (get & pathEnd) {
-                getOrFailures {
-                  TaxonomyManager.getTaxon(taxonFormId)
-                }
-              } ~
-              (patch & pathEnd & entity(as[UpdateTaxonPayload])) { payload ⇒
-                mutateOrFailures {
-                  TaxonomyManager.updateTaxon(taxonFormId, payload)
-                }
-              } ~
-              (delete & pathEnd) {
-                deleteOrFailures {
-                  TaxonomyManager.archiveTaxonByContextAndId(taxonFormId)
-                }
-              } ~
-              pathPrefix("product" / IntNumber) { productFormId ⇒
-                (patch & pathEnd) {
-                  mutateOrFailures(TaxonomyManager.assignProduct(taxonFormId, productFormId))
+          pathPrefix(Segment) { contextName ⇒
+            adminObjectContext(contextName) { implicit context ⇒
+              pathPrefix(IntNumber) { taxonFormId ⇒
+                (get & pathEnd) {
+                  getOrFailures {
+                    TaxonomyManager.getTaxon(taxonFormId)
+                  }
                 } ~
-                (delete & pathEnd) {
-                  mutateOrFailures(TaxonomyManager.unassignProduct(taxonFormId, productFormId))
-                }
+                  (patch & pathEnd & entity(as[UpdateTaxonPayload])) { payload ⇒
+                    mutateOrFailures {
+                      TaxonomyManager.updateTaxon(taxonFormId, payload)
+                    }
+                  } ~
+                  (delete & pathEnd) {
+                    deleteOrFailures {
+                      TaxonomyManager.archiveTaxonByContextAndId(taxonFormId)
+                    }
+                  } ~
+                  pathPrefix("product" / IntNumber) { productFormId ⇒
+                    (patch & pathEnd) {
+                      mutateOrFailures(TaxonomyManager.assignProduct(taxonFormId, productFormId))
+                    } ~
+                      (delete & pathEnd) {
+                        mutateOrFailures(TaxonomyManager.unassignProduct(taxonFormId, productFormId))
+                      }
+                  }
               }
             }
           }
         }
-      }
     }
-  }
 }

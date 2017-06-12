@@ -11,9 +11,7 @@ object ProductReviewPayloads {
     def scope: Option[String]
   }
 
-  case class CreateProductReviewByCustomerPayload(attributes: Json,
-                                                  sku: String,
-                                                  scope: Option[String] = None)
+  case class CreateProductReviewByCustomerPayload(attributes: Json, sku: String, scope: Option[String] = None)
       extends CreateProductReviewPayload
 
   case class CreateProductReviewByAdminPayload(userId: Option[Int],

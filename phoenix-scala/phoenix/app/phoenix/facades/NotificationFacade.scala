@@ -29,12 +29,11 @@ object NotificationFacade extends LazyLogging {
   val retriesToFindListenerActor              = 5
   implicit val akkaTimeout: akka.util.Timeout = akka.util.Timeout(500.millisecond)
 
-  def streamByAdminId(adminId: Int)(
-      implicit au: AU,
-      ec: EC,
-      db: DB,
-      mat: Mat,
-      system: ActorSystem): Future[Source[EventStreamElement, Any]] = {
+  def streamByAdminId(adminId: Int)(implicit au: AU,
+                                    ec: EC,
+                                    db: DB,
+                                    mat: Mat,
+                                    system: ActorSystem): Future[Source[EventStreamElement, Any]] =
     Users.findOneByAccountId(adminId).run().flatMap {
       case Some(admin) ⇒
         newNotifications(adminId).map { newNotificator ⇒
@@ -44,7 +43,6 @@ object NotificationFacade extends LazyLogging {
       case None ⇒
         Future.successful(Source.single(SSE(s"Error! User with account id=$adminId not found")))
     }
-  }
 
   private def subscribeToDbListenerActor(adminId: Int, retries: Int)(
       implicit ec: EC,
@@ -61,8 +59,8 @@ object NotificationFacade extends LazyLogging {
         case _ ⇒
           try {
             val ref = system.actorOf(
-                akka.actor.Props(new NotificationListener(adminId, (msg, ref) ⇒ ref ! SSE(msg))),
-                listenerActorName
+              akka.actor.Props(new NotificationListener(adminId, (msg, ref) ⇒ ref ! SSE(msg))),
+              listenerActorName
             )
             Future.successful(ref)
           } catch {
@@ -76,13 +74,15 @@ object NotificationFacade extends LazyLogging {
       adminId: Int)(implicit ec: EC, mat: Mat, system: ActorSystem): Future[Source[SSE, Any]] = {
 
     val listenerFutureRef = subscribeToDbListenerActor(adminId, retriesToFindListenerActor)
-    listenerFutureRef.flatMap { ref ⇒
-      (ref ? NotificationListener.NewClientConnected).mapTo[ActorRef]
+    listenerFutureRef
+      .flatMap { ref ⇒
+        (ref ? NotificationListener.NewClientConnected).mapTo[ActorRef]
 
-    }.map { childRef ⇒
-      val ssePublisher = ActorPublisher[SSE](childRef)
-      Source.fromPublisher(ssePublisher)
-    }
+      }
+      .map { childRef ⇒
+        val ssePublisher = ActorPublisher[SSE](childRef)
+        Source.fromPublisher(ssePublisher)
+      }
   }
 
   private def oldNotifications(adminId: Int)(implicit au: AU, db: DB): Source[SSE, Any] = {

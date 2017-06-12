@@ -8,10 +8,9 @@ object ArchiveFailures {
   case class LinkInactiveSkuFailure(description: String) extends Failure
 
   object LinkInactiveSkuFailure {
-    def apply[T](target: T, targetId: Any, code: String): LinkInactiveSkuFailure = {
+    def apply[T](target: T, targetId: Any, code: String): LinkInactiveSkuFailure =
       LinkInactiveSkuFailure(
-          s"Cannot attach inactive sku with code $code to ${friendlyClassName(target)} with id $targetId")
-    }
+        s"Cannot attach inactive sku with code $code to ${friendlyClassName(target)} with id $targetId")
   }
 
   case class AddImagesToArchivedAlbumFailure(albumId: Int) extends Failure {

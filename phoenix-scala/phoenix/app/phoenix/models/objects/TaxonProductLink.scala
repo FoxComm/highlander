@@ -18,8 +18,7 @@ case class ProductTaxonLink(id: Int = 0,
     extends FoxModel[ProductTaxonLink]
     with ObjectHeadLink[ProductTaxonLink]
 
-class ProductTaxonLinks(tag: Tag)
-    extends ObjectHeadLinks[ProductTaxonLink](tag, "product_taxon_links") {
+class ProductTaxonLinks(tag: Tag) extends ObjectHeadLinks[ProductTaxonLink](tag, "product_taxon_links") {
 
   def * =
     (id, leftId, rightId, createdAt, updatedAt, archivedAt) <> ((ProductTaxonLink.apply _).tupled, ProductTaxonLink.unapply)
@@ -30,9 +29,9 @@ class ProductTaxonLinks(tag: Tag)
 
 object ProductTaxonLinks
     extends ObjectHeadLinkQueries[ProductTaxonLink, ProductTaxonLinks, Product, Taxon](
-        new ProductTaxonLinks(_),
-        Products,
-        Taxons)
+      new ProductTaxonLinks(_),
+      Products,
+      Taxons)
     with ReturningId[ProductTaxonLink, ProductTaxonLinks] {
 
   val returningLens: Lens[ProductTaxonLink, Int] = lens[ProductTaxonLink].id
