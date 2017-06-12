@@ -76,9 +76,9 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
 
       "Is true when the order total is $27 and shipped to CA" in new StateAndPriceCondition {
         val (address) = (for {
-          address ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId,
-
-                                                                             cordRef = cart.refNum.some,
+          address ← * <~ Addresses.create(
+                     Factories.address.copy(accountId = customer.accountId,
+                                            cordRef = cart.refNum.some,
                                             regionId = washingtonId))
         } yield (address)).gimme
 
@@ -88,9 +88,8 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
 
       "Is false when the order total is $27 and shipped to MI" in new StateAndPriceCondition {
         val (address) = (for {
-          address ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId,
-
-                                                                             cordRef = cart.refNum.some, regionId = michiganId))
+          address ← * <~ Addresses.create(Factories.address
+                     .copy(accountId = customer.accountId, cordRef = cart.refNum.some, regionId = michiganId))
         } yield (address)).gimme
 
         val matchingMethods = getShippingMethodsForCart(cart.refNum).gimme
@@ -101,7 +100,10 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
     "Evaluates rule: order total is greater than $10 and is not shipped to a P.O. Box" - {
 
       "Is true when the order total is greater than $10 and no address field contains a P.O. Box" in new POCondition {
-
+        val address = Addresses
+          .create(Factories.address
+            .copy(accountId = customer.accountId, regionId = washingtonId, cordRef = cart.refNum.some))
+          .gimme
         val matchingMethods = getShippingMethodsForCart(cart.refNum).gimme
         matchingMethods.headOption.value.name must === (shippingMethod.adminDisplayName)
       }
@@ -109,9 +111,10 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
       "Is false when the order total is greater than $10 and address1 contains a P.O. Box" in new POCondition {
         val (address) = (for {
           address ← * <~ Addresses.create(
-                       Factories.address.copy(accountId = customer.accountId,
-                                              regionId = washingtonId,
-                                              cordRef = cart.refNum.some,address1 = "P.O. Box 1234"))
+                     Factories.address.copy(accountId = customer.accountId,
+                                            regionId = washingtonId,
+                                            cordRef = cart.refNum.some,
+                                            address1 = "P.O. Box 1234"))
 
         } yield (address)).gimme
 
@@ -122,9 +125,10 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
       "Is false when the order total is greater than $10 and address2 contains a P.O. Box" in new POCondition {
         val (address) = (for {
           address ← * <~ Addresses.create(
-                       Factories.address.copy(accountId = customer.accountId,
-                                              regionId = washingtonId,
-                                              cordRef = cart.refNum.some,address2 = Some("P.O. Box 1234")))
+                     Factories.address.copy(accountId = customer.accountId,
+                                            regionId = washingtonId,
+                                            cordRef = cart.refNum.some,
+                                            address2 = Some("P.O. Box 1234")))
 
         } yield (address)).gimme
 
@@ -153,8 +157,8 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
   trait OrderFixture extends Fixture {
     val (address) = (for {
       address ← * <~ Addresses.create(
-                   Factories.address.copy(accountId = customer.accountId,
-                                                                    cordRef = cart.refNum.some, regionId = californiaId))
+                 Factories.address
+                   .copy(accountId = customer.accountId, cordRef = cart.refNum.some, regionId = californiaId))
     } yield (address)).gimme
   }
 
@@ -267,9 +271,8 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
       _ ← * <~ CartLineItems.create(CartLineItem(cordRef = cheapCart.refNum, skuId = cheapProduct.skuId))
 
       cheapAddress ← * <~ Addresses.create(
-                        Factories.address.copy(accountId = customer.accountId,
-
-                                                      cordRef = cheapCart.refNum.some,
+                      Factories.address.copy(accountId = customer.accountId,
+                                             cordRef = cheapCart.refNum.some,
                                              isDefaultShipping = false))
       account2 ← * <~ Accounts.create(Account())
       customer2 ← * <~ Users.create(
@@ -287,9 +290,8 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
       _ ← * <~ CartLineItems.create(
            CartLineItem(cordRef = expensiveCart.refNum, skuId = expensiveProduct.skuId))
       expensiveAddress ← * <~ Addresses.create(
-                            Factories.address.copy(accountId = customer.accountId,
-
-                                                      cordRef = expensiveCart.refNum.some,
+                          Factories.address.copy(accountId = customer.accountId,
+                                                 cordRef = expensiveCart.refNum.some,
                                                  isDefaultShipping = false))
 
       cheapCart     ← * <~ CartTotaler.saveTotals(cheapCart)

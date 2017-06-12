@@ -357,16 +357,6 @@ class CartIntegrationTest
       updatedAddress.zip must === (address.zip)
     }
 
-    "does not update the address book" in new EmptyCartWithShipAddress_Baked {
-      cartsApi(cart.refNum).shippingAddress
-        .update(UpdateAddressPayload(name = "Another name".some, city = "Fremont".some))
-        .mustBeOk()
-
-      val addressBook: Address = Addresses.findOneById(address.id).gimme.value
-      addressBook.name must === (address.name)
-      addressBook.city must === (address.city)
-    }
-
     "full cart returns updated shipping address" in new EmptyCartWithShipAddress_Baked {
       val updateResponse: CartResponse = cartsApi(cart.refNum).shippingAddress
         .update(UpdateAddressPayload(name = "Even newer name".some, city = "Queen Max".some))
@@ -401,7 +391,7 @@ class CartIntegrationTest
       noAddressCart.warnings.value must contain(NoShipAddress(cart.refNum).description)
 
       //fails if the cart does not have shipping address
-      cartsApi(cart.refNum).shippingAddress.delete().mustFailWith400(NoShipAddress(cart.refNum))
+      cartsApi(cart.refNum).shippingAddress.delete().mustFailWith404(NotFoundFailure404(Address, cart.refNum))
     }
 
     "fails if the cart is not found" in new EmptyCartWithShipAddress_Baked {

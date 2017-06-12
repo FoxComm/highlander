@@ -21,7 +21,7 @@ object Settings {
       "-feature",
       "-unchecked",
       "-deprecation",
-//      "-Xfatal-warnings",
+      "-Xfatal-warnings",
       "-language:higherKinds",
       "-language:existentials",
       "-Ypartial-unification",

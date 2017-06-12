@@ -100,7 +100,9 @@ class CheckoutIntegrationTest
         )
 
         // Compare all significant fields.
-        expectedAddressResponse must === (address.copy(id = expectedAddressResponse.id, isDefault = None))
+        expectedAddressResponse must === (
+          address.copy(id = expectedAddressResponse.id,
+                       isDefault = orderShippingAddress.isDefaultShipping.some))
         order.shippingAddress must === (expectedAddressResponse)
         order.shippingMethod.id must === (shipMethod.id)
       }

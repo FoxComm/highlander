@@ -39,8 +39,12 @@ case class Address(id: Int = 0,
     if (this.isNew || this.accountId == accountId) Either.right(this)
     else Either.left(NotFoundFailure404(Address, this.id).single)
 
+  // we gonna have only one address bounded to an order for now
   def boundToCart(cartRef: String)(implicit ec: EC): DbResultT[Address] =
-    Addresses.update(this, this.copy(cordRef = cartRef.some))
+    for {
+      _       ← * <~ Addresses.findByOrderRef(cartRef).map(_.cordRef).update(None)
+      address ← * <~ Addresses.update(this, this.copy(cordRef = cartRef.some))
+    } yield address
 
   def unboundFromCart()(implicit ec: EC): DbResultT[Address] =
     Addresses.update(this, this.copy(cordRef = None))
@@ -65,6 +69,7 @@ object Address {
 
   def fromPatchPayload(existedAddress: Address, incomingPayload: UpdateAddressPayload): Address =
     Address(
+      id = existedAddress.id,
       accountId = existedAddress.accountId,
       regionId = incomingPayload.regionId.getOrElse(existedAddress.regionId),
       name = incomingPayload.name.getOrElse(existedAddress.name),
@@ -129,7 +134,7 @@ class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses") {
      deletedAt) <> ((Address.apply _).tupled, Address.unapply)
 
   def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
-  def cord   = foreignKey(Cords.tableName, cordRef, Cords)(_.referenceNumber)
+  def cord   = foreignKey(Cords.tableName, cordRef, Cords)(_.referenceNumber.?)
 }
 
 object Addresses

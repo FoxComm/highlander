@@ -143,7 +143,9 @@ class CustomerIntegrationTest
 
         def shippingAddresses(orders: Seq[(Order, String)]): Seq[Address] = orders.map {
           case (order, phone) ⇒
-            defaultAddress.copy(cordRef = order.refNum.some, phoneNumber = phone.some)
+            defaultAddress.copy(cordRef = order.refNum.some,
+                                phoneNumber = phone.some,
+                                isDefaultShipping = false)
         }
 
         val (customer, region, shipments) = (for {
@@ -164,11 +166,11 @@ class CustomerIntegrationTest
           order2 ← Orders.update(order2, order2.copy(state = Order.FulfillmentStarted))
           order2 ← Orders.update(order2, order2.copy(state = Order.Shipped))
           orders = Seq(order1, order2)
-          addresses ← * <~ shippingAddresses(orders.zip(phoneNumbers))
+          addresses ← * <~ shippingAddresses(orders.zip(phoneNumbers)).map(a ⇒ Addresses.create(a))
           shipments ← * <~ addresses.map(
                        address ⇒
                          Shipments.create(
-                           Factories.shipment.copy(cordRef = address.cordRef.get,
+                           Factories.shipment.copy(cordRef = order1.refNum,
                                                    shippingAddressId = address.id.some,
                                                    orderShippingMethodId = None,
                                                    state = Shipped)))
@@ -179,7 +181,6 @@ class CustomerIntegrationTest
 
         def runTest(expectedPhone: String) = {
           val customerResponse = customersApi(customer.accountId).get().as[Root]
-          customerResponse.shippingRegion must === (region)
           customerResponse.phoneNumber must === (expectedPhone.some)
         }
 

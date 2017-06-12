@@ -1,6 +1,8 @@
 package services
 
-import phoenix.models.location.Addresses
+import cats.implicits._
+import core.failures.NotFoundFailure404
+import phoenix.models.location.{Address, Addresses}
 import phoenix.payloads.AddressPayloads._
 import phoenix.services.carts.CartShippingAddressUpdater._
 import phoenix.utils.seeds.Factories
@@ -10,6 +12,7 @@ import testutils.fixtures.BakedFixtures
 class CartShippingAddressUpdaterTest
     extends IntegrationTestBase
     with TestObjectContext
+    with DefaultJwtAdminAuth
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
@@ -67,6 +70,16 @@ class CartShippingAddressUpdaterTest
       val cartAddress = fullCart.result.shippingAddress.value
 
       cartAddress.name must === ("Don Keyhote")
+    }
+
+    "Delete existing shipping address that was updated" in new UpdateAddressFixture {
+      val api     = cartsApi(cart.refNum).shippingAddress
+      val payload = UpdateAddressPayload(name = faker.Name.name.some)
+      api.update(payload).mustBeOk()
+
+      api.delete().mustBeOk()
+
+      api.update(payload).mustFailWith404(NotFoundFailure404(Address, cart.refNum))
     }
   }
 
