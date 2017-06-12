@@ -10,6 +10,9 @@ import ExpandableTable from '../table/expandable-table';
 import InventoryWarehouseRow from './inventory-warehouse-row';
 import WarehouseDrawer from './inventory-warehouse-drawer';
 
+// style
+import s from './item-details.css';
+
 // redux
 import * as WarehousesActions from 'modules/inventory/warehouses';
 import type { WarehouseInventorySummary, WarehouseInventoryMap } from 'modules/inventory/warehouses';
@@ -30,6 +33,10 @@ type Props = {
   }
 }
 
+type State = {
+  diff: number
+}
+
 function array2tableData(rows) {
   return {
     rows,
@@ -42,6 +49,10 @@ function array2tableData(rows) {
 class InventoryItemDetails extends Component {
   props: Props;
 
+  state: State = {
+    diff: 0
+  };
+
   componentDidMount() {
     this.props.fetchSummary(this.props.params.skuCode);
   }
@@ -49,13 +60,14 @@ class InventoryItemDetails extends Component {
   componentWillReceiveProps(nextProps: Props) {
     if (!this.props.inventoryUpdated && nextProps.inventoryUpdated) {
       this.props.fetchSummary(this.props.params.skuCode);
+      this.setState({ diff: 0 });
     }
   }
 
   get tableColumns() {
     return [
       { field: 'stockLocation.name', text: 'Warehouse' },
-      { field: 'onHand', text: 'On Hand' },
+      { field: 'onHand', text: 'On Hand', render: this.onHandRender },
       { field: 'onHold', text: 'Hold' },
       { field: 'reserved', text: 'Reserved' },
       { field: 'afs', text: 'AFS' },
@@ -75,6 +87,13 @@ class InventoryItemDetails extends Component {
   }
 
   @autobind
+  onChange(value) {
+    this.setState({
+      diff: this.state.diff + value
+    });
+  }
+
+  @autobind
   renderDrawer(row: WarehouseInventorySummary, index, params) {
     return (
       <WarehouseDrawer
@@ -83,8 +102,20 @@ class InventoryItemDetails extends Component {
         isLoading={_.get(this.props, ['fetchState', 'inProgress'], true)}
         failed={!!_.get(this.props, ['fetchState', 'err'])}
         params={params}
+        onValueChange={this.onChange}
       />
     );
+  }
+
+  @autobind
+  onHandRender(onHandValue) {
+    return this.state.diff !== 0
+      ? <div className={s.onHand}>
+          {onHandValue}
+          <i className="icon-chevron-right" />
+          <span>{onHandValue + this.state.diff}</span>
+        </div>
+      : <div className={s.onHand}>{onHandValue}</div>;
   }
 
   @autobind

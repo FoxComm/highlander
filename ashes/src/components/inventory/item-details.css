@@ -1,0 +1,12 @@
+@import "colors.css";
+
+.onHand {
+
+  & > span {
+    color: var(--color-action-text)
+  }
+
+  i {
+    color: var(--color-subtitle-text)
+  }
+}
