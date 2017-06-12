@@ -74,9 +74,6 @@ class Cart extends Component {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    console.log('receiving props');
-    console.log('applePayAvailable from next ->', nextProps.applePayAvailable);
-    console.log('applePayAvailable -> ', this.props.applePayAvailable);
     if (this.props.applePayAvailable !== nextProps.applePayAvailable) {
       this.props.checkApplePay();
     }
