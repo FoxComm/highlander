@@ -8,7 +8,7 @@ import s from './images.css';
 // libs
 import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
-import { isEqual, get } from 'lodash';
+import { isEmpty, isEqual, get } from 'lodash';
 
 // components
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
@@ -46,11 +46,17 @@ type State = {
   uploadUrlMode: boolean;
 };
 
+const INVALID_TYPE_RESPONSE = 'image format';
+
 function getErrorMessage(asyncState?: Object, failedCount: number = 1) {
   const errMsg = get(asyncState, 'err.response.body.errors[0]', '');
   let message;
 
-  if (errMsg.indexOf('Invalid input') > -1) {
+  if (isEmpty(errMsg)) {
+    return null;
+  }
+
+  if (errMsg.indexOf(INVALID_TYPE_RESPONSE) > -1) {
     message = (
       <span>
         Oops! That’s not a valid file type. Valid file types are <b>jpg</b>, <b>jpeg</b>, <b>gif</b>, and <b>png</b>.
