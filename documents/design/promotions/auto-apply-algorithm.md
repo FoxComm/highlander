@@ -5,7 +5,8 @@ Iterate over all auto-apply promos in parallel, run the following:
 1. filter eligible qualifiers by type — if a promo requires some customer groups and metadata has none, discard promo immediately
 2. group qualifiers by type and fix the "upper boundary" — i.e. if there are multiple promos with "cart total" qualifier of $100, $200, $300, discard $200 and $300 qualified promos if cart total is $150 
 
-   > [@michalrus] I’m not sure if such optimizations would be necessary, if we kept all the rules & the whole cart in RAM. After all these are some simple arithmetics. Hmm.
+   > [@michalrus] I’m not sure if such optimizations would be necessary, if we kept all the rules & the whole cart in RAM. After all these are some simple arithmetics. Hmm.    
+   > [@anna] Well, why would you want to run arithmetics if cart metadata isn't qualified for the promo?
 3. apply offers from resulting promos to metadata and collect results
 
 After this, stop parallel computation
