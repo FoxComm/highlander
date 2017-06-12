@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Strict mode
 set -ue
 
 # Reset default password

@@ -43,7 +43,7 @@ docker_logs_host_dir: /var/log/docker
 
 # Google Cloud defaults
 gce_disk_size: 40
-gce_image: appliance-base-170527-002600
+gce_image: appliance-base-170609-213643
 gce_machine_type: n1-standard-4
 gce_project_id: "foxcomm-staging"
 gce_zone: "us-central1-a"
@@ -235,7 +235,7 @@ bottledwater_slot_middlewarehouse: bottledwater_middlewarehouse
 bottledwater_slot_onboarding_service: bottledwater_onboarding_service
 
 # Flyway
-flyway_vers: 4.0.3
+flyway_vers: 4.2.0
 flyway_dir: "/usr/local/share/flyway-{{flyway_vers}}"
 flyway_url: "https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{flyway_vers}}/flyway-commandline-{{flyway_vers}}-linux-x64.tar.gz"
 flyway: "{{flyway_dir}}/flyway -locations=filesystem:sql/ -configFile=sql/flyway.conf"

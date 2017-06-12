@@ -47,6 +47,6 @@ object * {
   def <~[A](v: DbResultT[A]): DbResultT[A] =
     v
 
-  def <~[A](v: Option[DbResultT[A]])(implicit ec: EC): DbResultT[Option[A]] = // TODO: sequence? @michalrus
+  def <~[A](v: Option[DbResultT[A]])(implicit ec: EC): DbResultT[Option[A]] = // TODO: sequence? @michalrus - yes, please! @aafa
     v.fold(DbResultT.none[A])(_.map(Some(_)))
 }

@@ -8,11 +8,12 @@ import core.utils.Validation._
 
 object CustomerPayloads {
 
-  case class CreateCustomerPayload(email: String,
-                                   name: Option[String] = None,
-                                   password: Option[String] = None,
-                                   isGuest: Option[Boolean] = Some(false),
-                                   scope: Option[String] = None)
+  case class CreateCustomerPayload(
+      email: String,
+      name: Option[String] = None, // @aafa FIXME: customer name should be non optional here
+      password: Option[String] = None,
+      isGuest: Option[Boolean] = Some(false),
+      scope: Option[String] = None)
 
   case class UpdateCustomerPayload(name: Option[String] = None,
                                    email: Option[String] = None,

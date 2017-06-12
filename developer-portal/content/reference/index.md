@@ -236,7 +236,6 @@ in the `5xx` range indicate an error with Fox's platform.
 <!-- include(objects/notifications.apib) -->
 <!-- include(objects/notes.apib) -->
 <!-- include(objects/order.apib) -->
-<!-- include(objects/product.apib) -->
 <!-- include(objects/promotions.apib) -->
 <!-- include(objects/reasons.apib) -->
 <!-- include(objects/returns.apib) -->
