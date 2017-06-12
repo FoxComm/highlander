@@ -1,0 +1,3 @@
+sealed trait LineItemType
+case object RegularLineItem extends LineItemType
+case object GiftCardLineItem extends LineItemType
