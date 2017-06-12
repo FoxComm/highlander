@@ -28,9 +28,8 @@ case class FacebookOauthOptions(clientId: String,
                                 scopes: Seq[String])
     extends OauthClientOptions {
 
-//  override def buildExtraAuthParams: Map[String, String] = {
-//    Map.empty[String, String].+?("auth_type", authType.map(_.show))
-//  }
+  override def buildExtraAuthParams: Map[String, String] =
+    Map.empty[String, String].+?("auth_type", authType.map(AuthType.show))
 }
 
 trait FacebookProvider extends OauthProvider {
@@ -43,7 +42,7 @@ trait FacebookProvider extends OauthProvider {
 
   def userInfo(accessToken: String)(implicit ec: EC): EitherT[Future, Throwable, UserInfo] =
     eitherTryFuture {
-      val req = request(oauthInfoUrl).GET.addHeader("Authorization", s"Bearer ${accessToken}")
+      val req = request(oauthInfoUrl).GET.addHeader("Authorization", s"Bearer $accessToken")
       Http(req OK as.json4s.Json).map(_.extract[UserInfo])
     }
 
