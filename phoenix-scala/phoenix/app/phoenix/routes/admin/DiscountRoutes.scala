@@ -14,8 +14,7 @@ import phoenix.utils.http.JsonSupport._
 
 object DiscountRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
-
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("discounts") {
         pathPrefix("forms" / IntNumber) { id ⇒
@@ -25,38 +24,37 @@ object DiscountRoutes {
             }
           }
         } ~
-        pathPrefix("shadows" / Segment / IntNumber) { (context, id) ⇒
-          (get & pathEnd) {
-            getOrFailures {
-              DiscountManager.getShadow(id, context)
-            }
-          }
-        } ~
-        pathPrefix(Segment) { (context) ⇒
-          (post & pathEnd & entity(as[CreateDiscount])) { payload ⇒
-            mutateOrFailures {
-              DiscountManager.create(payload, context)
-            }
-          } ~
-          pathPrefix(IntNumber) { id ⇒
-            (get & path("baked")) {
-              getOrFailures {
-                DiscountManager.getIlluminated(id, context)
-              }
-            } ~
+          pathPrefix("shadows" / Segment / IntNumber) { (context, id) ⇒
             (get & pathEnd) {
               getOrFailures {
-                DiscountManager.get(id, context)
-              }
-            } ~
-            (patch & pathEnd & entity(as[UpdateDiscount])) { payload ⇒
-              mutateOrFailures {
-                DiscountManager.update(id, payload, context)
+                DiscountManager.getShadow(id, context)
               }
             }
+          } ~
+          pathPrefix(Segment) { (context) ⇒
+            (post & pathEnd & entity(as[CreateDiscount])) { payload ⇒
+              mutateOrFailures {
+                DiscountManager.create(payload, context)
+              }
+            } ~
+              pathPrefix(IntNumber) { id ⇒
+                (get & path("baked")) {
+                  getOrFailures {
+                    DiscountManager.getIlluminated(id, context)
+                  }
+                } ~
+                  (get & pathEnd) {
+                    getOrFailures {
+                      DiscountManager.get(id, context)
+                    }
+                  } ~
+                  (patch & pathEnd & entity(as[UpdateDiscount])) { payload ⇒
+                    mutateOrFailures {
+                      DiscountManager.update(id, payload, context)
+                    }
+                  }
+              }
           }
-        }
       }
     }
-  }
 }

@@ -36,9 +36,8 @@ object PublicService {
                 .mustFindOneOr(NoRegionFound(regionShortName))
     } yield region
 
-  private def sortRegions(regions: Seq[Region]): Seq[Region] = {
+  private def sortRegions(regions: Seq[Region]): Seq[Region] =
     regions.filter(r ⇒ regularUsRegions.contains(r.id)).sortBy(_.name) ++
-    regions.filter(r ⇒ armedRegions.contains(r.id)).sortBy(_.name) ++
-    regions.filterNot(r ⇒ usRegions.contains(r.id)).sortBy(_.name)
-  }
+      regions.filter(r ⇒ armedRegions.contains(r.id)).sortBy(_.name) ++
+      regions.filterNot(r ⇒ usRegions.contains(r.id)).sortBy(_.name)
 }

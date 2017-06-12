@@ -23,9 +23,7 @@ object CartShippingAddressUpdater {
   def mustFindShipAddressForCart(cart: Cart)(implicit ec: EC): DbResultT[OrderShippingAddress] =
     OrderShippingAddresses.findByOrderRef(cart.refNum).mustFindOneOr(NoShipAddress(cart.refNum))
 
-  def createShippingAddressFromAddressId(originator: User,
-                                         addressId: Int,
-                                         refNum: Option[String] = None)(
+  def createShippingAddressFromAddressId(originator: User, addressId: Int, refNum: Option[String] = None)(
       implicit ec: EC,
       db: DB,
       ac: AC,

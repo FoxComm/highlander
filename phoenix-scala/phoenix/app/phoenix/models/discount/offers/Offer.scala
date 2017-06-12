@@ -72,13 +72,10 @@ trait SetOffer {
 
 trait ItemsOffer {
 
-  def matchEither(input: DiscountInput)(either: Either[Failures, Buckets])
-    : Either[Failures, Seq[OfferResult]] // FIXME: why use matchEither instead of .map, if *never* do anything with Left? @michalrus
+  def matchEither(input: DiscountInput)(either: Either[Failures, Buckets]): Either[Failures, Seq[OfferResult]] // FIXME: why use matchEither instead of .map, if *never* do anything with Left? @michalrus
 
-  def adjustInner(input: DiscountInput)(search: Seq[ProductSearch])(
-      implicit db: DB,
-      ec: EC,
-      apis: Apis): Result[Seq[OfferResult]] = {
+  def adjustInner(input: DiscountInput)(
+      search: Seq[ProductSearch])(implicit db: DB, ec: EC, apis: Apis): Result[Seq[OfferResult]] = {
     val inAnyOf = search.map(_.query(input).mapEither(matchEither(input)))
     Result.onlySuccessful(inAnyOf.toList).map(_.headOption.getOrElse(Seq.empty))
   }

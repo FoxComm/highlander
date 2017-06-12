@@ -20,55 +20,49 @@ import phoenix.utils.http.JsonSupport._
 
 object ProductRoutes {
 
-  private def productRoutes(productRef: ProductReference)(implicit ec: EC,
-                                                          db: DB,
-                                                          oc: OC,
-                                                          ac: AC,
-                                                          apis: Apis,
-                                                          auth: AU): Route = {
+  private def productRoutes(
+      productRef: ProductReference)(implicit ec: EC, db: DB, oc: OC, ac: AC, apis: Apis, auth: AU): Route =
     (get & pathEnd) {
       getOrFailures {
         ProductManager.getProduct(productRef, checkActive = false)
       }
     } ~
-    (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
-      mutateOrFailures {
-        ProductManager.updateProduct(productRef, payload)
-      }
-    } ~
-    (delete & pathEnd) {
-      mutateOrFailures {
-        ProductManager.archiveByContextAndId(productRef)
-      }
-    } ~
-    (pathPrefix("taxons") & get & pathEnd) {
-      getOrFailures {
-        TaxonomyManager.getAssignedTaxons(productRef)
-      }
-    } ~
-    pathPrefix("albums") {
-      (get & pathEnd) {
-        getOrFailures {
-          ImageManager.getAlbumsForProduct(productRef)
-        }
-      } ~
-      (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
+      (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
         mutateOrFailures {
-          ImageManager.createAlbumForProduct(auth.model, productRef, payload)
+          ProductManager.updateProduct(productRef, payload)
         }
       } ~
-      pathPrefix("position") {
-        (post & pathEnd & entity(as[UpdateAlbumPositionPayload])) { payload ⇒
-          mutateOrFailures {
-            ImageManager.updateProductAlbumPosition(payload.albumId, productRef, payload.position)
-          }
+      (delete & pathEnd) {
+        mutateOrFailures {
+          ProductManager.archiveByContextAndId(productRef)
         }
+      } ~
+      (pathPrefix("taxons") & get & pathEnd) {
+        getOrFailures {
+          TaxonomyManager.getAssignedTaxons(productRef)
+        }
+      } ~
+      pathPrefix("albums") {
+        (get & pathEnd) {
+          getOrFailures {
+            ImageManager.getAlbumsForProduct(productRef)
+          }
+        } ~
+          (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
+            mutateOrFailures {
+              ImageManager.createAlbumForProduct(auth.model, productRef, payload)
+            }
+          } ~
+          pathPrefix("position") {
+            (post & pathEnd & entity(as[UpdateAlbumPositionPayload])) { payload ⇒
+              mutateOrFailures {
+                ImageManager.updateProductAlbumPosition(payload.albumId, productRef, payload.position)
+              }
+            }
+          }
       }
-    }
-  }
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
-
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("products") {
         pathPrefix(Segment) { contextName ⇒
@@ -78,38 +72,37 @@ object ProductRoutes {
                 ProductManager.createProduct(auth.model, payload)
               }
             } ~
-            pathPrefix(ProductRef) { productId ⇒
-              productRoutes(productId)
-            }
+              pathPrefix(ProductRef) { productId ⇒
+                productRoutes(productId)
+              }
           }
         } ~
-        pathPrefix("contexts" / Segment) { name ⇒
-          (get & pathEnd) {
-            getOrFailures {
-              ObjectManager.getContextByName(name)
+          pathPrefix("contexts" / Segment) { name ⇒
+            (get & pathEnd) {
+              getOrFailures {
+                ObjectManager.getContextByName(name)
+              }
+            } ~
+              (patch & pathEnd & entity(as[UpdateObjectContext])) { payload ⇒
+                mutateOrFailures {
+                  ObjectManager.updateContextByName(name, payload)
+                }
+              }
+          } ~
+          pathPrefix("contexts") {
+            (post & pathEnd & entity(as[CreateObjectContext])) { payload ⇒
+              mutateOrFailures {
+                ObjectManager.createContext(payload)
+              }
             }
           } ~
-          (patch & pathEnd & entity(as[UpdateObjectContext])) { payload ⇒
-            mutateOrFailures {
-              ObjectManager.updateContextByName(name, payload)
+          pathPrefix(IntNumber / "contexts") { formId ⇒
+            (get & pathEnd) {
+              getOrFailures {
+                ProductManager.getContextsForProduct(formId)
+              }
             }
           }
-        } ~
-        pathPrefix("contexts") {
-          (post & pathEnd & entity(as[CreateObjectContext])) { payload ⇒
-            mutateOrFailures {
-              ObjectManager.createContext(payload)
-            }
-          }
-        } ~
-        pathPrefix(IntNumber / "contexts") { formId ⇒
-          (get & pathEnd) {
-            getOrFailures {
-              ProductManager.getContextsForProduct(formId)
-            }
-          }
-        }
       }
     }
-  }
 }

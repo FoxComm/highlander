@@ -59,8 +59,8 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
 
         val payments = storeCreditPayments(cart)
         payments.map(_.paymentMethodId) must contain noneOf (
-            storeCredits(1 - 1).id,
-            storeCredits(2 - 1).id
+          storeCredits(1 - 1).id,
+          storeCredits(2 - 1).id
         )
         payments must have size 2
       }

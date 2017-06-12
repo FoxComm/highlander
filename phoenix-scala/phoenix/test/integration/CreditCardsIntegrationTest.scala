@@ -35,9 +35,8 @@ class CreditCardsIntegrationTest
     with BeforeAndAfterEach
     with CreditCardsFixture {
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     initStripeApiMock(stripeWrapperMock)
-  }
 
   "POST /v1/customers/:id/payment-methods/credit-cards (admin auth)" - {
     "creates a new credit card" in {
@@ -48,22 +47,24 @@ class CreditCardsIntegrationTest
 
       val cc = CreditCards.result.gimme.onlyElement
 
-      val expected = CreditCard(id = 0,
-                                gatewayCustomerId = stripeCustomer.getId,
-                                gatewayCardId = stripeCard.getId,
-                                accountId = customer.id,
-                                address = BillingAddress(name = theAddress.name,
-                                                         address1 = theAddress.address1,
-                                                         address2 = theAddress.address2,
-                                                         city = theAddress.city,
-                                                         zip = theAddress.zip,
-                                                         regionId = theAddress.regionId),
-                                brand = "Mona Visa",
-                                holderName = "Leo",
-                                lastFour = "1234",
-                                expMonth = 1,
-                                expYear = expYear,
-                                createdAt = cc.createdAt)
+      val expected = CreditCard(
+        id = 0,
+        gatewayCustomerId = stripeCustomer.getId,
+        gatewayCardId = stripeCard.getId,
+        accountId = customer.id,
+        address = BillingAddress(name = theAddress.name,
+                                 address1 = theAddress.address1,
+                                 address2 = theAddress.address2,
+                                 city = theAddress.city,
+                                 zip = theAddress.zip,
+                                 regionId = theAddress.regionId),
+        brand = "Mona Visa",
+        holderName = "Leo",
+        lastFour = "1234",
+        expMonth = 1,
+        expYear = expYear,
+        createdAt = cc.createdAt
+      )
 
       cc.copy(id = expected.id) must === (expected)
 
@@ -111,7 +112,7 @@ class CreditCardsIntegrationTest
         .create(ccPayload.copy(addressIsNew = true))
         .mustBeOk()
       Addresses.result.headOption.gimme.value.copy(id = theAddress.id) must === (
-          theAddress.copy(accountId = accountId))
+        theAddress.copy(accountId = accountId))
     }
 
     "errors 404 if wrong customer.accountId" in {
@@ -187,8 +188,8 @@ class CreditCardsIntegrationTest
   "GET /v1/my/payment-methods/credit-cards" - {
     "returns valid phone number" in withRandomCustomerAuth { implicit auth ⇒
       val testPhoneNumber = "1234567890"
-      val payloadWithPhoneNumber = ccPayload.copy(
-          billingAddress = ccPayload.billingAddress.copy(phoneNumber = testPhoneNumber.some))
+      val payloadWithPhoneNumber =
+        ccPayload.copy(billingAddress = ccPayload.billingAddress.copy(phoneNumber = testPhoneNumber.some))
       storefrontPaymentsApi.creditCards.create(payloadWithPhoneNumber).mustBeOk()
 
       storefrontPaymentsApi.creditCards
@@ -208,22 +209,24 @@ class CreditCardsIntegrationTest
 
       val cc: CreditCard = CreditCards.result.gimme.onlyElement
 
-      val expected = CreditCard(id = 0,
-                                gatewayCustomerId = stripeCustomer.getId,
-                                accountId = auth.customerId,
-                                address = BillingAddress(name = theAddress.name,
-                                                         address1 = theAddress.address1,
-                                                         address2 = theAddress.address2,
-                                                         city = theAddress.city,
-                                                         zip = theAddress.zip,
-                                                         regionId = theAddress.regionId),
-                                holderName = "Leo",
-                                brand = "Mona Visa",
-                                lastFour = "1234",
-                                expMonth = 1,
-                                expYear = expYear,
-                                gatewayCardId = stripeCard.getId,
-                                createdAt = cc.createdAt)
+      val expected = CreditCard(
+        id = 0,
+        gatewayCustomerId = stripeCustomer.getId,
+        accountId = auth.customerId,
+        address = BillingAddress(name = theAddress.name,
+                                 address1 = theAddress.address1,
+                                 address2 = theAddress.address2,
+                                 city = theAddress.city,
+                                 zip = theAddress.zip,
+                                 regionId = theAddress.regionId),
+        holderName = "Leo",
+        brand = "Mona Visa",
+        lastFour = "1234",
+        expMonth = 1,
+        expYear = expYear,
+        gatewayCardId = stripeCard.getId,
+        createdAt = cc.createdAt
+      )
 
       cc.copy(id = expected.id) must === (expected)
 
@@ -262,7 +265,7 @@ class CreditCardsIntegrationTest
     "creates address if it's new" in withRandomCustomerAuth { implicit auth ⇒
       storefrontPaymentsApi.creditCards.create(ccPayload.copy(addressIsNew = true)).mustBeOk()
       Addresses.result.headOption.gimme.value.copy(id = theAddress.id) must === (
-          theAddress.copy(accountId = auth.customerId))
+        theAddress.copy(accountId = auth.customerId))
     }
 
     "errors 400 if wrong credit card token" in withRandomCustomerAuth { implicit auth ⇒

@@ -4,7 +4,7 @@ import core.db._
 import phoenix.models.account._
 import phoenix.models.activity.Dimension
 import phoenix.models.{Assignment, NotificationSubscription}
-import phoenix.responses.UserResponse.{Root, build}
+import phoenix.responses.UserResponse.{build, Root}
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 

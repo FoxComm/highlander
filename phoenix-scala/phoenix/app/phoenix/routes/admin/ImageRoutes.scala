@@ -18,7 +18,7 @@ import phoenix.utils.http.Http._
 import phoenix.utils.http.JsonSupport._
 
 object ImageRoutes {
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis, sys: ActorSystem): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis, sys: ActorSystem): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("images" / Segment) { context ⇒
         extractRequestContext { ctx ⇒
@@ -32,50 +32,48 @@ object ImageRoutes {
           }
         }
       } ~
-      pathPrefix("albums") {
-        pathPrefix(Segment) { context ⇒
-          (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
-            mutateOrFailures {
-              ImageManager.createAlbum(payload, context)
-            }
-          } ~
-          pathPrefix(IntNumber) { albumId ⇒
-            (get & pathEnd) {
-              getOrFailures {
-                ImageManager.getAlbum(albumId, context)
-              }
-            } ~
-            (patch & pathEnd & entity(as[AlbumPayload])) { payload ⇒
+        pathPrefix("albums") {
+          pathPrefix(Segment) { context ⇒
+            (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
               mutateOrFailures {
-                ImageManager.updateAlbum(albumId, payload, context)
+                ImageManager.createAlbum(payload, context)
               }
             } ~
-            (delete & pathEnd) {
-              mutateOrFailures {
-                ImageManager.archiveByContextAndId(albumId, context)
-              }
-            } ~
-            pathPrefix("images") {
-              extractRequestContext { ctx ⇒
-                implicit val materializer = ctx.materializer
-                implicit val ec           = ctx.executionContext
-
-                (post & pathEnd & entityOr(as[Multipart.FormData], ImageNotFoundInPayload)) {
-                  formData ⇒
-                    mutateOrFailures {
-                      ImageFacade.uploadImagesFromMultipartToAlbum(albumId, context, formData)
-                    }
-                } ~
-                (path("byUrl") & post & entity(as[ImagePayload])) { payload ⇒
-                  mutateOrFailures {
-                    ImageFacade.uploadImagesFromPayloadToAlbum(albumId, context, payload)
+              pathPrefix(IntNumber) { albumId ⇒
+                (get & pathEnd) {
+                  getOrFailures {
+                    ImageManager.getAlbum(albumId, context)
                   }
-                }
+                } ~
+                  (patch & pathEnd & entity(as[AlbumPayload])) { payload ⇒
+                    mutateOrFailures {
+                      ImageManager.updateAlbum(albumId, payload, context)
+                    }
+                  } ~
+                  (delete & pathEnd) {
+                    mutateOrFailures {
+                      ImageManager.archiveByContextAndId(albumId, context)
+                    }
+                  } ~
+                  pathPrefix("images") {
+                    extractRequestContext { ctx ⇒
+                      implicit val materializer = ctx.materializer
+                      implicit val ec           = ctx.executionContext
+
+                      (post & pathEnd & entityOr(as[Multipart.FormData], ImageNotFoundInPayload)) { formData ⇒
+                        mutateOrFailures {
+                          ImageFacade.uploadImagesFromMultipartToAlbum(albumId, context, formData)
+                        }
+                      } ~
+                        (path("byUrl") & post & entity(as[ImagePayload])) { payload ⇒
+                          mutateOrFailures {
+                            ImageFacade.uploadImagesFromPayloadToAlbum(albumId, context, payload)
+                          }
+                        }
+                    }
+                  }
               }
-            }
           }
         }
-      }
     }
-  }
 }
