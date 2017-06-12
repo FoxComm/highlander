@@ -54,75 +54,75 @@ PROJECTS = (
 )
 
 for p in PROJECTS:
-	d = os.path.join(ROOT_DIR, p)
-	assert os.path.exists(d), "Project directory {} doesn't exist".format(p)
+    d = os.path.join(ROOT_DIR, p)
+    assert os.path.exists(d), "Project directory {} doesn't exist".format(p)
 
 def str_env(msg):
-	subst = re.sub(r"\$(?P<param>\w+)", r"{\g<1>}", msg)
-	return subst.format(**os.environ)
+    subst = re.sub(r"\$(?P<param>\w+)", r"{\g<1>}", msg)
+    return subst.format(**os.environ)
 
 def log(*args):
-	new_args = map(str_env, args)
-	print("[BUILDER]", *new_args)
+    new_args = map(str_env, args)
+    print("[BUILDER]", *new_args)
 
 def get_base_branch():
-	if os.environ.get("BUILDKITE_PULL_REQUEST") != "false":
-		github_base_url = "https://api.github.com/repos/FoxComm/highlander/pulls"
-		log("Fetching base branch for PR#$BUILDKITE_PULL_REQUEST via Github API...")
-		url = github_base_url + str_env("/$BUILDKITE_PULL_REQUEST?access_token=$GITHUB_API_TOKEN")
-		with request.urlopen(url) as resp:
+    if os.environ.get("BUILDKITE_PULL_REQUEST") != "false":
+        github_base_url = "https://api.github.com/repos/FoxComm/highlander/pulls"
+        log("Fetching base branch for PR#$BUILDKITE_PULL_REQUEST via Github API...")
+        url = github_base_url + str_env("/$BUILDKITE_PULL_REQUEST?access_token=$GITHUB_API_TOKEN")
+        with request.urlopen(url) as resp:
             str_response = resp.readall().decode('utf-8')
-			answer = json.loads(str_response)
-			return "origin/" + answer['base']['ref']
-	else:
-		log("No pull request created, setting base branch to master")
-		return "master"
+            answer = json.loads(str_response)
+            return "origin/" + answer['base']['ref']
+    else:
+        log("No pull request created, setting base branch to master")
+        return "master"
 
 def all_changed_dirs(base_branch):
-	commit = os.environ['BUILDKITE_COMMIT']
-	args = ["git", "diff", "--name-only", "{base_branch}...{commit}".format(**locals())]
-	result = sp.run(args, stdout=sp.PIPE, check=True, encoding="UTF-8")
-	return {os.path.dirname(x) for x in result.stdout.split("\n") if x}
+    commit = os.environ['BUILDKITE_COMMIT']
+    args = ["git", "diff", "--name-only", "{base_branch}...{commit}".format(**locals())]
+    result = sp.run(args, stdout=sp.PIPE, check=True, encoding="UTF-8")
+    return {os.path.dirname(x) for x in result.stdout.split("\n") if x}
 
 def changed_projects(changed_dirs):
-	projects = set()
-	for d in changed_dirs:
-		all_affected = [p for p in PROJECTS if d.startswith(p)]
-		if all_affected:
-			# return project with max overlap in dirs
-			detected = max(all_affected, key=lambda v: len(v))
-			projects.add(detected)
-	return projects
+    projects = set()
+    for d in changed_dirs:
+        all_affected = [p for p in PROJECTS if d.startswith(p)]
+        if all_affected:
+            # return project with max overlap in dirs
+            detected = max(all_affected, key=lambda v: len(v))
+            projects.add(detected)
+    return projects
 
 def main():
-	base_branch = get_base_branch()
-	changed_dirs = all_changed_dirs(base_branch)
-	affected_projects = changed_projects(changed_dirs)
+    base_branch = get_base_branch()
+    changed_dirs = all_changed_dirs(base_branch)
+    affected_projects = changed_projects(changed_dirs)
 
-	log("Changed projects ({}):".format(len(affected_projects)))
-	for p in affected_projects:
-		log("\t", p)
+    log("Changed projects ({}):".format(len(affected_projects)))
+    for p in affected_projects:
+        log("\t", p)
 
-	if len(affected_projects) == 0:
-		if os.environ.get("BUILDKITE_PIPELINE_SLUG") == "highlander-master":
-			log("Rebuilding everything")
-			affected_projects = PROJECTS
-		else:
-			log("No projects changed, nothing to build")
-			sys.exit(0)
+    if len(affected_projects) == 0:
+        if os.environ.get("BUILDKITE_PIPELINE_SLUG") == "highlander-master":
+            log("Rebuilding everything")
+            affected_projects = PROJECTS
+        else:
+            log("No projects changed, nothing to build")
+            sys.exit(0)
 
-	# don't do anything else
-	if global_args.debug:
-		sys.exit(0)
+    # don't do anything else
+    if global_args.debug:
+        sys.exit(0)
 
-	sp.run("git fetch origin -q".split(" "), check=True)
+    sp.run("git fetch origin -q".split(" "), check=True)
 
-	log("Building subprojects...")
-	for project_dir in affected_projects:
-		absdir = os.path.join(ROOT_DIR, project_dir)
-		sp.Popen(["make", "build", "test"], cwd=absdir).wait()
-		if global_args.docker:
-			sp.Popen(["make", "docker", "docker-push"], cwd=absdir).wait()
+    log("Building subprojects...")
+    for project_dir in affected_projects:
+        absdir = os.path.join(ROOT_DIR, project_dir)
+        sp.Popen(["make", "build", "test"], cwd=absdir).wait()
+        if global_args.docker:
+            sp.Popen(["make", "docker", "docker-push"], cwd=absdir).wait()
 
 if __name__ == "__main__":
-	main()
+    main()
