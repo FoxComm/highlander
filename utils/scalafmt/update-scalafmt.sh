@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
-ROOT_DIR="$(git rev-parse --show-toplevel)"
-SCALAFMT="${ROOT_DIR}/$(dirname $0)/scalafmt.sh"
+ROOT_DIR="$(cd -P -- "$(dirname "$0")" && git rev-parse --show-toplevel)"
+SCALAFMT="$(cd -P -- "$(dirname "$0")" && pwd -P)/scalafmt.sh"
 
 echo "Hey there! We're moving to a new approach with scalafmt!"
 echo "From now on, it won't ship as SBT plugin, but as a standalone executable."
@@ -17,12 +17,12 @@ echo
 echo "This script installs scalafmt with dependencies, configures git hooks and triggers initial formatting."
 echo "Running scalafmt before you pull master is important to ensure you have no formatting-only merge conflicts between scalafmt updates and configuration changes."
 echo
-read -p "Press enter to continue!"
+read -rp "Press enter to continue!"
 echo
 echo
 
 "${SCALAFMT}" --version
-echo "This is your current scalafmt version. Expected version: $(cat ${ROOT_DIR}/$(dirname $0)/scalafmt-version)"
+echo "This is your current scalafmt version. Expected version: $(cat "$(dirname "$SCALAFMT")"/scalafmt-version)"
 echo "Please report if versions don't match!"
 echo
 

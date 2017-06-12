@@ -21,7 +21,7 @@ prepare:
 
 build: prepare
 	$(call header, Building)
-	go build
+	cd $(BUILD_PATH) && GOOS=linux CGO_ENABLED=0 go build -o river-rock ./*.go
 
 test:
 	$(call header, Testing)

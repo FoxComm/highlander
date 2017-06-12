@@ -9,6 +9,7 @@ import NavigationItem from '../navigation-item';
 
 import styles from './entries.css';
 
+const catalogClaims = readAction(frn.pim.catalog);
 const productClaims = readAction(frn.pim.product);
 const skuClaims = readAction(frn.pim.sku);
 const inventoryClaims = readAction(frn.mdl.summary);
@@ -23,6 +24,16 @@ const CatalogEntry = ({ claims, routes }: TMenuEntry) => {
   return (
     <div styleName="fc-entries-wrapper">
       <h3>CATALOG</h3>
+      <li>
+        <NavigationItem
+          to="catalogs"
+          icon="catalog"
+          title="Catalogs"
+          routes={routes}
+          actualClaims={claims}
+          expectedClaims={catalogClaims}
+        />
+      </li>
       <li>
         <NavigationItem
           to="products"
@@ -46,7 +57,7 @@ const CatalogEntry = ({ claims, routes }: TMenuEntry) => {
       <li>
         <NavigationItem
           to="inventory"
-          icon="skus"
+          icon="inventory"
           title="Inventory"
           routes={routes}
           actualClaims={claims}

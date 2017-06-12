@@ -29,13 +29,10 @@
         storefront_server_name: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
         api_server: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
   roles:
-    - { role: hotfix/sshguard, when: first_run }
     - { role: dev/dashboard, when: first_run }
-    - { role: dev/marathon_consul, when: first_run }
     - { role: dev/flyway }
     - { role: dev/seed_system, when: first_run }
     - { role: dev/marathon_groups }
-    # - { role: dev/marathon_restart }
     - { role: dev/nginx }
     - { role: demo/balancer }
     - { role: dev/seeder, when: with_appliance_seeding and first_run }

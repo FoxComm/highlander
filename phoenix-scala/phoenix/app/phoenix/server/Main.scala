@@ -156,6 +156,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
             phoenix.routes.admin.ObjectRoutes.routes ~
             phoenix.routes.admin.PluginRoutes.routes ~
             phoenix.routes.admin.TaxonomyRoutes.routes ~
+            phoenix.routes.admin.CatalogRoutes.routes ~
             phoenix.routes.admin.ProductReviewRoutes.routes ~
             phoenix.routes.admin.ShippingMethodRoutes.routes ~
             phoenix.routes.service.MigrationRoutes.routes(customerCreateContext, scope.ltree) ~
