@@ -62,7 +62,6 @@ def str_env(msg):
 	subst = re.sub(r"\$(?P<param>\w+)", r"{\g<1>}", msg)
 	return subst.format(**os.environ)
 
-
 def log(*args):
 	new_args = map(str_env, args)
 	print("[BUILDER]", *new_args)
@@ -85,7 +84,6 @@ def all_changed_dirs(base_branch):
 	result = sp.run(args, stdout=sp.PIPE, check=True, encoding="UTF-8")
 	return {os.path.dirname(x) for x in result.stdout.split("\n") if x}
 
-
 def changed_projects(changed_dirs):
 	projects = set()
 	for d in changed_dirs:
@@ -95,9 +93,8 @@ def changed_projects(changed_dirs):
 			detected = max(all_affected, key=lambda v: len(v))
 			projects.add(detected)
 	return projects
-	
 
-if __name__ == "__main__":
+def main():
 	base_branch = get_base_branch()
 	changed_dirs = all_changed_dirs(base_branch)
 	affected_projects = changed_projects(changed_dirs)
@@ -126,3 +123,6 @@ if __name__ == "__main__":
 		sp.Popen(["make", "build", "test"], cwd=absdir).wait()
 		if global_args.docker:
 			sp.Popen(["make", "docker", "docker-push"], cwd=absdir).wait()
+
+if __name__ == "__main__":
+	main()
