@@ -86,9 +86,16 @@ def all_changed_dirs(base_branch):
 	return {os.path.dirname(x) for x in result.stdout.split("\n") if x}
 
 
-def changed_projects(dirs):
-	return [project for project in PROJECTS if 
-					[True for d in dirs if d.startswith(project)]]
+def changed_projects(changed_dirs):
+	projects = set()
+	for d in changed_dirs:
+		all_affected = [p for p in PROJECTS if d.startswith(p)]
+		if all_affected:
+			# return project with max overlap in dirs
+			detected = max(all_affected, key=lambda v: len(v))
+			projects.add(detected)
+	return projects
+	
 
 if __name__ == "__main__":
 	base_branch = get_base_branch()
@@ -119,7 +126,3 @@ if __name__ == "__main__":
 		sp.Popen(["make", "build", "test"], cwd=absdir).wait()
 		if global_args.docker:
 			sp.Popen(["make", "docker", "docker-push"], cwd=absdir).wait()
-
-
-
-
