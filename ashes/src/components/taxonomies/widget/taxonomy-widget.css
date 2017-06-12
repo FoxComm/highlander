@@ -7,7 +7,7 @@
 
 .taxonomies {
   border: 1px solid var(--color-border);
-  background-color: #f7f7f7;
+  background-color: var(--bg-grey-headers);
   margin-bottom: 20px;
   padding: 20px;
   position: relative;

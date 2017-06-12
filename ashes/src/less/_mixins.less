@@ -172,7 +172,7 @@
   vertical-align: @valign;
 }
 
-.colors(@fg: @color-text, @bg: @color-default-bg) {
+.colors(@fg: @color-text, @bg: @bg-grey-headers) {
   color: @fg;
   background-color: @bg;
 }
@@ -196,12 +196,12 @@
   transition: border .20s ease-out;
 
   &:hover {
-    border-color: @color-nav-main;
+    border-color: @bg-nav-main;
   }
 
   &:active,
   &:focus {
-    border-color: @color-control-primary-bg;
+    border-color: @bg-green-buttons;
   }
 
   &:invalid:not(:required),

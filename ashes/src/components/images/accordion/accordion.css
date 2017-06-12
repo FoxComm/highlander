@@ -57,7 +57,7 @@
 
   & .titleWrapper {
     display: inline-block;
-    background: #f2f2f2;
+    background: var(--bg-grey-headers);
     padding: 0 15px;
     cursor: default;
   }
@@ -87,7 +87,7 @@
   & .left,
   & .right {
     display: flex;
-    background: #f2f2f2;
+    background: var(--bg-grey-headers);
     pointer-events: auto;
   }
 

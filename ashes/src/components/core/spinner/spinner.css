@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .root {
   position: relative;
   width: 72px;
@@ -14,7 +16,7 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 8px solid #828e9f;
+  border: 8px solid var(--bg-nav-disabled);
   animation: ripple 2s linear infinite;
 }
 

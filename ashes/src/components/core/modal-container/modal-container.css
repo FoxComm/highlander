@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .container {
   position: fixed;
   display: flex;
@@ -6,7 +8,6 @@
   width: 100vw;
   height: 100vh;
   overflow: auto;
-  background: rgba(0, 0, 0, 0.5);
   backface-visibility: hidden;
   z-index: 30;
 }
@@ -14,6 +15,6 @@
 .modal {
   position: relative;
   margin: auto;
-  background-color: #fff;
+  background-color: var(--bg-white);
   z-index: 3;
 }

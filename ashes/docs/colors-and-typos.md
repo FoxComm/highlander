@@ -9,10 +9,13 @@ To use variables, just import them to your css file:
   color: #123456; /* prohibited! */
 
   color: var(--color-text); /* allowed */
+  background-color: var(--bg-grey);
 }
 
 .label {
   color: var(--color-additional-text);
+  background: var(--bg-white);
+  border: 1px solid var(--color-border);
 }
 
 .clickableText {

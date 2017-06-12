@@ -2,7 +2,7 @@
 
 .counter {
   display: inline-flex;
-  border: solid 1px #ced2d5;
+  border: solid 1px var(--bg-grey-buttons);;
 }
 
 .input {
@@ -18,13 +18,13 @@
 }
 
 .controls {
-  background-color: #ffffff;
+  background-color: var(--bg-white);
   transition: all .2s;
 
   &:hover,
   &:disabled,
   &:disabled:hover {
-    background-color: #ffffff;
+    background-color: var(--bg-white);
   }
 
   &:hover:not(:disabled) {

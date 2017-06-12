@@ -1,7 +1,7 @@
 @import 'colors.css';
 
 .root {
-  background-color: #FFFFFF;
+  background-color: var(--bg-white);
   border: 1px solid var(--color-border);
 }
 
@@ -22,13 +22,13 @@
   line-height: 46px;
 
   &:hover {
-    background-color: var(--grey-headers);
+    background-color: var(--bg-grey-headers);
     cursor: pointer;
   }
 
   &.active {
-    border-left: 3px solid var(--green-buttons);
-    background-color: var(--grey-headers);
+    border-left: 3px solid var(--bg-green-buttons);
+    background-color: var(--bg-grey-headers);
   }
 
 }
@@ -38,11 +38,11 @@
 
   & :global(.fc-btn-primary) {
     color: var(--color-text);
-    background-color: #FFFFFF;
+    background-color: var(--bg-white);
 
     &:hover {
      color: var(--color-text);
-     background-color: #FFFFFF;
+     background-color: var(--bg-white);
     }
   }
 

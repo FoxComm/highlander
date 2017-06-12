@@ -39,7 +39,7 @@
 
 .set {
   border: none;
-  background-color: var(--grey-buttons);
+  background-color: var(--bg-grey-buttons);
   color: var(--color-text);
   cursor: pointer;
 }

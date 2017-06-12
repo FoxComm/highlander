@@ -18,8 +18,8 @@ import {
 import ProductConversionToolTip from './product-conversion-tooltip';
 
 // styles
-const axisTickColor = '#9BA3A7';
-const gridLineColor = '#ABB2B6';
+const axisTickColor = '#9ba3a7';
+const gridLineColor = '#abb2b6';
 
 const yAxisStyle = {
   axis: { stroke: axisTickColor },
@@ -232,7 +232,7 @@ class ProductConversionChart extends React.Component {
               deltaToolTipStyles={{
                 borderColor: '#363636',
                 fill: '#3A4350',
-                textColor: '#FFFFFF',
+                textColor: '#ffffff',
                 fontSize: 6,
               }}
               conversionToolTipOffsetCoordinates={{
@@ -240,7 +240,7 @@ class ProductConversionChart extends React.Component {
                 y: 26,
               }}
               conversionToolTipStyles={{
-                textColor: '#3A4350',
+                textColor: '#3a4350',
                 fontSize: 6,
               }}
               toolTipColor="#363636"
@@ -300,7 +300,7 @@ class ProductConversionChart extends React.Component {
                   y: 26,
                 }}
                 conversionToolTipStyles={{
-                  textColor: '#3A4350',
+                  textColor: '#3a4350',
                   fontSize: 6,
                 }}
                 toolTipColor="#363636"
@@ -335,7 +335,7 @@ class ProductConversionChart extends React.Component {
                   y: 26,
                 }}
                 conversionToolTipStyles={{
-                  textColor: '#3A4350',
+                  textColor: '#3a4350',
                   fontSize: 6,
                 }}
                 toolTipColor="#9B9B9B"

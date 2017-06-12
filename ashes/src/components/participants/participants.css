@@ -39,7 +39,7 @@
     width: 28px;
     height: auto;
     vertical-align: top;
-    color: #fff;
+    color: var(--color-light-text);
     line-height: 28px;
   }
 }
@@ -60,7 +60,7 @@
 .rest-block {
   display: none;
   position: absolute;
-  background: #fff;
+  background: var(--bg-white);
   border: 1px solid var(--color-border);
   border-radius: 3px;
   box-shadow: 0 3px 4px 0 rgba(0,0,0,0.50);
@@ -94,7 +94,7 @@
   height: 32px;
   line-height: 32px;
   color: var(--color-additional-text);
-  background-color: #fff;
+  background-color: var(--bg-white);
 
   &:hover, &._active {
     color: var(--color-text);

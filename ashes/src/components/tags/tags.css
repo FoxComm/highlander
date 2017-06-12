@@ -3,7 +3,7 @@
 .main {
   margin-bottom: 20px;
   padding: 20px;
-  background: #f7f7f7;
+  background: var(--bg-grey-headers);
   border: 1px solid var(--color-border);
 }
 

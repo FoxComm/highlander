@@ -8,14 +8,14 @@
   font-size: 15px;
 
   &[disabled] {
-    background-color: #f7f7f7;
+    background-color: var(--bg-grey-headers);
   }
 
   &:hover {
-    border-color: #3a4350;
+    border-color: var(--bg-nav-main);
   }
 
   &:focus {
-    border-color: var(--green-buttons);
+    border-color: var(--bg-green-buttons);
   }
 }
