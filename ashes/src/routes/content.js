@@ -7,38 +7,38 @@ import { frn } from 'lib/frn';
 import ActivityTrailPage from 'components/activity-trail/activity-trail-page';
 import Notes from 'components/notes/notes';
 
-import PromotionsListPage from 'components/promotions/list';
-import Promotions from 'components/promotions/promotions';
-import PromotionPage from 'components/promotions/promotion-page';
-import PromotionForm from 'components/promotions/promotion-form';
-import PromoCouponsPage from 'components/promotions/promotion-coupons';
-import PromoCouponNewModal from 'components/promotions/promotion-coupon-modal-new';
+import ContentTypesListPage from 'components/content-types/list';
+import ContentTypes from 'components/content-types/content-types';
+import ContentTypePage from 'components/content-types/content-type-page';
+import ContentTypeForm from 'components/content-types/content-type-form';
+import PromoCouponsPage from 'components/content-types/content-type-coupons';
+import PromoCouponNewModal from '../components/content-types/content-type-coupon-modal-new';
 
 const getRoutes = (jwt: Object) => {
   const router = new FoxRouter(jwt);
 
-  const promotionsRoutes =
-    router.read('promotions-base', { path: 'promotions', frn: frn.mkt.promotion }, [
-      router.read('promotions-list-page', { component: PromotionsListPage }, [
-        router.read('promotions', { component: Promotions, isIndex: true }),
-        router.read('promotions-activity-trail', {
+  const contentRoutes =
+    router.read('content-types-base', { path: 'content-types', frn: frn.mkt.promotion }, [
+      router.read('content-types-list-page', { component: ContentTypesListPage }, [
+        router.read('content-types', { component: ContentTypes, isIndex: true }),
+        router.read('content-types-activity-trail', {
           path: 'activity-trail',
-          dimension: 'promotion',
+          dimension: 'content-type',
           component: ActivityTrailPage,
           frn: frn.mkt.promotion,
         }),
       ]),
-      router.read('promotion', { path: ':promotionId', component: PromotionPage }, [
-        router.read('promotion-details', { component: PromotionForm, isIndex: true }),
-        router.read('promotion-notes', {
+      router.read('content-type', { path: ':promotionId', component: ContentTypePage }, [
+        router.read('content-type-details', { component: ContentTypeForm, isIndex: true }),
+        router.read('content-type-notes', {
           path: 'notes',
           component: Notes,
           frn: frn.note.promotion,
         }),
-        router.read('promotion-coupons', { path: 'coupons', component: PromoCouponsPage }, [
-          router.read('promotion-coupon-new', { path: 'new', component: PromoCouponNewModal })
+        router.read('content-type-coupons', { path: 'coupons', component: PromoCouponsPage }, [
+          router.read('content-type-coupon-new', { path: 'new', component: PromoCouponNewModal })
         ]),
-        router.read('promotion-activity-trail', {
+        router.read('content-type-activity-trail', {
           path: 'activity-trail',
           component: ActivityTrailPage,
           frn: frn.activity.promotion,
@@ -48,7 +48,7 @@ const getRoutes = (jwt: Object) => {
 
   return (
     <div>
-      {promotionsRoutes}
+      {contentRoutes}
     </div>
   );
 };
