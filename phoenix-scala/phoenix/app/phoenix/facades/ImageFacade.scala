@@ -119,7 +119,7 @@ object ImageFacade extends ImageHelpers {
         }.toOption.flatten
     }
 
-    object ContentTypeGuess {
+    private object ContentTypeGuess {
 
       implicit object BBContentTypeGuess extends ContentTypeGuess[ByteBuffer] {
 
@@ -130,17 +130,17 @@ object ImageFacade extends ImageHelpers {
           new utils.io.ByteBufferInputStream(buffer)
         }
 
-        def unsafeGuessContentType(bb: ByteBuffer): String =
+        protected def unsafeGuessContentType(bb: ByteBuffer): String =
           URLConnection.guessContentTypeFromStream(asInputStream(bb))
       }
 
       implicit object ISContentTypeGuess extends ContentTypeGuess[InputStream] {
-        def unsafeGuessContentType(is: InputStream): String =
+        protected def unsafeGuessContentType(is: InputStream): String =
           URLConnection.guessContentTypeFromStream(is)
       }
 
       implicit object PathContentTypeGuess extends ContentTypeGuess[Path] {
-        def unsafeGuessContentType(path: Path): String = {
+        protected def unsafeGuessContentType(path: Path): String = {
           val is = new BufferedInputStream(new FileInputStream(path.toAbsolutePath.toString))
           try URLConnection.guessContentTypeFromStream(is)
           finally is.close()
