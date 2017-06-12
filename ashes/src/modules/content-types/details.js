@@ -6,26 +6,26 @@ import { createEmptyPromotion } from 'paragons/promotion';
 import { createAsyncActions } from '@foxcomm/wings';
 import Api from 'lib/api';
 
-export const promotionNew = createAction('PROMOTIONS_NEW');
-const clearPromotion = createAction('PROMOTION_CLEAR');
+export const contentTypeNew = createAction('CONTENT_TYPES_NEW');
+const clearContentType = createAction('CONTENT_TYPE_CLEAR');
 const defaultContext = 'default';
 
-const _fetchPromotion = createAsyncActions(
-  'fetchPromotion',
+const _fetchContentType = createAsyncActions(
+  'fetchContentType',
   (id: string, context) => {
     return Api.get(`/promotions/${context}/${id}`);
   }
 );
 
-const _createPromotion = createAsyncActions(
-  'createPromotion',
+const _createContentType = createAsyncActions(
+  'createContentType',
   (promotion, context = defaultContext) => {
     return Api.post(`/promotions/${context}`, promotion);
   }
 );
 
-const _updatePromotion = createAsyncActions(
-  'updatePromotion',
+const _updateConentType = createAsyncActions(
+  'updateConentType',
   (promotion, context = defaultContext) => {
     const id = promotion.id;
     return Api.patch(`/promotions/${context}/${id}`, promotion);
@@ -34,43 +34,43 @@ const _updatePromotion = createAsyncActions(
 
 export function clearSubmitErrors() {
   return dispatch => {
-    dispatch(_createPromotion.clearErrors());
-    dispatch(_updatePromotion.clearErrors());
+    dispatch(_createContentType.clearErrors());
+    dispatch(_updateConentType.clearErrors());
   };
 }
 
-export function fetchPromotion(id: string, context: string = defaultContext) {
+export function fetchContentType(id: string, context: string = defaultContext) {
   return dispatch => {
     if (id.toLowerCase() == 'new') {
-      dispatch(promotionNew());
+      dispatch(contentTypeNew());
     } else {
-      return dispatch(_fetchPromotion.perform(id, context));
+      return dispatch(_fetchContentType.perform(id, context));
     }
   };
 }
 
-const _archivePromotion = createAsyncActions(
-  'archivePromotion',
+const _archiveContentType = createAsyncActions(
+  'archiveContentType',
   (id, context = defaultContext) => {
     return Api.delete(`/promotions/${context}/${id}`);
   }
 );
 
-export const clearArchiveErrors = _archivePromotion.clearErrors;
-export const archivePromotion = _archivePromotion.perform;
-export const createPromotion = _createPromotion.perform;
-export const updatePromotion = _updatePromotion.perform;
-export const clearFetchErrors = _fetchPromotion.clearErrors;
+export const clearArchiveErrors = _archiveContentType.clearErrors;
+export const archiveContentType = _archiveContentType.perform;
+export const createContentType = _createContentType.perform;
+export const updateConentType = _updateConentType.perform;
+export const clearFetchErrors = _fetchContentType.clearErrors;
 
 export function reset() {
   return dispatch => {
-    dispatch(clearPromotion());
+    dispatch(clearContentType());
     dispatch(clearSubmitErrors());
     dispatch(clearFetchErrors());
   };
 }
 
-function updatePromotionInState(state, response) {
+function updateConentTypeInState(state, response) {
   return {
     ...state,
     promotion: response
@@ -82,18 +82,18 @@ const initialState = {
 };
 
 const reducer = createReducer({
-  [promotionNew]: state => {
+  [contentTypeNew]: state => {
     return {
       ...state,
       promotion: createEmptyPromotion(),
     };
   },
-  [clearPromotion]: state => {
+  [clearContentType]: state => {
     return dissoc(state, 'promotion');
   },
-  [_fetchPromotion.succeeded]: updatePromotionInState,
-  [_createPromotion.succeeded]: updatePromotionInState,
-  [_updatePromotion.succeeded]: updatePromotionInState,
+  [_fetchContentType.succeeded]: updateConentTypeInState,
+  [_createContentType.succeeded]: updateConentTypeInState,
+  [_updateConentType.succeeded]: updateConentTypeInState,
 }, initialState);
 
 export default reducer;

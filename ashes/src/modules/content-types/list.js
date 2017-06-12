@@ -42,7 +42,7 @@ const searchTerms = [
 ];
 
 const { reducer, actions } = makeLiveSearch(
-  'promotions.list',
+  'contentTypes.list',
   searchTerms,
   'promotions_search_view/_search',
   'promotionsScope',

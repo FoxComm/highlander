@@ -9,7 +9,7 @@ const getExportedIds = (getState: Function, ids: Array<number>): Object => {
 
 const exportByIds = createExportByIds(getExportedIds);
 
-const { actions, reducer } = makeBulkActions('promotions.bulk', {
+const { actions, reducer } = makeBulkActions('contentTypes.bulk', {
   exportByIds,
 });
 
