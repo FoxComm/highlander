@@ -25,9 +25,10 @@ type Props = {
  */
 
 const SvgIcon = (props: Props) => {
+  const { name, className, ...rest } = props;
   return(
-    <svg className={props.className}>
-      <use xlinkHref={`#icon-${props.name}`} />
+    <svg className={className} {...rest} >
+      <use xlinkHref={`#icon-${name}`} />
     </svg>
   );
 };
