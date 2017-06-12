@@ -19,6 +19,7 @@ import { Button } from 'components/core/button';
 import ButtonWithMenu from 'components/core/button-with-menu';
 import Alert from 'components/core/alert';
 import TextInput from 'components/core/text-input';
+import Icon from 'components/core/icon';
 
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
 
@@ -208,7 +209,7 @@ export default class LiveSearch extends React.Component {
 
       goBack = (
         <MenuItem className={menuClass} clickAction={this.goBack}>
-          <i className="icon-back" />
+          <Icon name="back" />
           Back
         </MenuItem>
       );
@@ -392,7 +393,7 @@ export default class LiveSearch extends React.Component {
         key={`pill-${this.currentSearch.title}-${idx}`}
         onClick={() => props.onPillClick(pill, idx)}
         title={pill.display}>
-        <i className={icon} />
+        <Icon name={icon} />
         <span className="fc-pilled-input__pill-value">{pill.display}</span>
         <a onClick={() => props.onPillClose(pill, idx)}
            className="fc-pilled-input__pill-close">

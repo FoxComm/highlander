@@ -1,12 +1,15 @@
 /* @flow */
 
-// styles
-import styles from './accordion.css';
-
 // libs
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import React, { Component, Element } from 'react';
+
+// components
+import Icon from 'components/core/icon';
+
+// styles
+import styles from './accordion.css';
 
 type Action = {
   name: string;
@@ -200,15 +203,15 @@ export default class Accordion extends Component {
       <div className={styles.controls}>
         <div className={styles.left}>
           <span className={styles.controlItem} onClick={this.toggle}>
-            <i className="icon-down" />
-            <i className="icon-up" />
+            <Icon name="down" />
+            <Icon name="up" />
           </span>
         </div>
         <div className={styles.right}>
           {this.props.actions.map(({ name, handler }) => {
             return (
               <span className={styles.controlItem} key={name}>
-                <i className={`icon-${name}`} onClick={handler} />
+                <Icon name={name} onClick={handler} />
               </span>
             );
           })}

@@ -1,8 +1,11 @@
 /* @flow */
 
+// libs
 import React, { Component } from 'react';
 
+//components
 import { Link } from 'components/link';
+import Icon from 'components/core/icon';
 
 import styles from 'components/customers/title-block.css';
 
@@ -60,7 +63,7 @@ export default class CustomerInfo extends Component {
     if (customer.avatarUrl) {
       avatar = <img src={customer.avatarUrl} />;
     } else {
-      avatar = <i className="icon-customer"></i>;
+      avatar = <Icon name="customer" />;
     }
 
     return (
@@ -84,19 +87,19 @@ export default class CustomerInfo extends Component {
         <article styleName="body">
           <ul styleName="fields">
             <li>
-              <i className="icon-customer"></i>
+              <Icon name="customer" />
               <div>{this.ensureNotEmpty(customer.id)}</div>
             </li>
             <li>
-              <i className="icon-phone"></i>
+              <Icon name="phone" />
               <div>{this.ensureNotEmpty(customer.phoneNumber)}</div>
             </li>
             <li>
-              <i className="icon-location"></i>
+              <Icon name="location" />
               <div>{this.ensureNotEmpty(customer.location)}</div>
             </li>
             <li styleName="groups">
-              <i className="icon-customers"></i>
+              <Icon name="customers" />
               {this.customerGroups}
             </li>
           </ul>

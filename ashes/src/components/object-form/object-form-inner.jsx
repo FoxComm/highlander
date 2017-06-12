@@ -20,6 +20,7 @@ import RichTextEditor from '../rich-text-editor/rich-text-editor';
 import { Dropdown } from '../dropdown';
 import SwatchInput from 'components/core/swatch-input';
 import TextInput from 'components/core/text-input';
+import Icon from 'components/core/icon';
 
 import type { AttrSchema } from 'paragons/object';
 
@@ -78,7 +79,7 @@ export default class ObjectFormInner extends Component {
           Custom Property
           <a id="fct-add-btn__custom-property" className="fc-object-form__add-custom-property-icon"
              onClick={this.handleAddProperty}>
-            <i className="icon-add" />
+            <Icon name="add" />
           </a>
         </div>
       );

@@ -3,6 +3,11 @@ import _ from 'lodash';
 import classNames from 'classnames';
 import React from 'react';
 import PropTypes from 'prop-types';
+
+// components
+import Icon from 'components/core/icon';
+
+// paragons
 import { INPUT_ATTRS } from 'paragons/common';
 
 // components
@@ -48,7 +53,7 @@ const iconWrapper = (icon, onIconClick) => {
 
     return (
       <div className={cls} onClick={onIconClick}>
-        <i className={`icon-${icon}`} />
+        <Icon name={icon} />
       </div>
     );
   }

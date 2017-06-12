@@ -13,6 +13,7 @@ import { findNode, updateNodes } from 'paragons/tree';
 // components
 import MultiSelectTable from 'components/table/multi-select-table';
 import { Button } from 'components/core/button';
+import Icon from 'components/core/icon';
 
 // styles
 import styles from './tree-table.css';
@@ -150,14 +151,14 @@ class TreeTable extends Component {
 
       if (col.field === this.props.collapseField) {
         const iconClassName = classNames(({
-          'icon-category': !collapsible,
-          'icon-category-expand': collapsible && collapsed,
-          'icon-category-collapse': collapsible && !collapsed,
+          'category': !collapsible,
+          'category-expand': collapsible && collapsed,
+          'category-collapse': collapsible && !collapsed,
         }));
 
         cellContents = (
           <span className="fc-collapse" style={{ paddingLeft: `${level * 20}px` }}>
-              <i className={iconClassName} onClick={this.handleCollapse.bind(this, node)} />
+              <Icon className={iconClassName} onClick={this.handleCollapse.bind(this, node)} />
             {content}
             </span>
         );

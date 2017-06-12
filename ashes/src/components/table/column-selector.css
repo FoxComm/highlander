@@ -41,13 +41,13 @@
     &:hover {
       background: var(--bg-grey-headers);
     }
-  }
 
-  & :global(.icon-drag-drop) {
-    padding: 7px 2px 7px 4px;
-    font-size: 18px;
-    cursor: move;
-    color: var(--color-additional-text);
+    & :global(.icon-wrapper) {
+      padding: 9px 2px 7px 4px;
+      font-size: 18px;
+      cursor: move;
+      color: var(--color-additional-text);
+    }
   }
 
   &:global(._hasDraggingItem) {

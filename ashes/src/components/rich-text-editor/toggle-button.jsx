@@ -2,9 +2,13 @@
  * @flow
  */
 
+// libs
 import React, { Component, Element } from 'react';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
+
+// components
+import Icon from 'components/core/icon';
 
 type Props = {
   className?: string,
@@ -41,7 +45,7 @@ export default class ToggleButton extends Component {
         onClick={this.handleClick}
         onMouseDown={stop}
         onMouseUp={stop}>
-        <i className={this.props.labelIcon} />
+        <Icon name={this.props.labelIcon} />
       </button>
     );
   }

@@ -17,6 +17,7 @@ import Spinner from 'components/core/spinner';
 import ObjectFormInner from 'components/object-form/object-form-inner';
 import Typeahead from 'components/typeahead/typeahead';
 import { CategoryItem } from './category-item';
+import Icon from 'components/core/icon';
 
 // types
 import type { SuggestItem } from './selector';
@@ -178,7 +179,7 @@ class ProductAmazonMain extends Component {
           />
           <div className={s.approve}>
             <span>
-              <i className="icon icon-warning" />
+              <Icon name="warning" />
               {' '}
               You must be approved from Amazon to sell in the Clothing & Accesories category.
               {' '}
