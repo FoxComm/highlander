@@ -50,12 +50,12 @@ object ImageFacade extends ImageHelpers {
 
     object S3Path {
       private def fixExtension(fileName: String, mediaType: MediaType): String = {
-        val extFromMedia = mediaType.fileExtensions.head
+        val extFromMedia = mediaType.fileExtensions.last
         fileName.lastIndexOf('.') match {
           case -1 ⇒ s"$fileName.$extFromMedia"
           case idx ⇒
             val ext = fileName.substring(idx)
-            if (ext == extFromMedia)
+            if (MediaTypes.forExtension(ext) == mediaType)
               fileName
             else
               s"${fileName.slice(0, idx)}.$extFromMedia"
