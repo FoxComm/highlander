@@ -11,13 +11,13 @@ import _ from 'lodash';
 
 // components
 import { SelectableSearchList } from '../list-page';
-import PromotionRow from './promotion-row';
+import ContentTypeRow from './content-type-row';
 import BulkWrapper from '../discounts/bulk';
 
 // actions
-import { actions } from 'modules/promotions/list';
+import { actions } from 'modules/content-types/list';
 import { bulkExport } from 'modules/bulk-export/bulk-export';
-import { actions as bulkActions } from 'modules/promotions/bulk';
+import { actions as bulkActions } from 'modules/content-types/bulk';
 
 type Props = {
   list: Object,
@@ -51,10 +51,10 @@ class Promotions extends Component {
   }
 
   renderRow(row: Object, index: number, columns: Columns, params: any): Element<*> {
-    const key = `promotion-${row.id}`;
+    const key = `content-type-${row.id}`;
 
     return (
-      <PromotionRow
+      <ContentTypeRow
         promotion={row}
         columns={columns}
         key={key}
@@ -66,7 +66,7 @@ class Promotions extends Component {
   @autobind
   bulkExport(allChecked: boolean, toggledIds: Array<number>) {
     const { exportByIds } = this.props.bulkActions;
-    const modalTitle = 'Promotions';
+    const modalTitle = 'Content Types';
     const entity = 'promotions';
 
     return renderExportModal(tableColumns, entity, modalTitle, exportByIds, toggledIds);
@@ -74,7 +74,7 @@ class Promotions extends Component {
 
   get bulkActions() {
     return [
-      bulkExportBulkAction(this.bulkExport, 'Promotions'),
+      bulkExportBulkAction(this.bulkExport, 'Content Types'),
     ];
   }
 
@@ -95,11 +95,11 @@ class Promotions extends Component {
         >
           <SelectableSearchList
             exportEntity="promotions"
-            exportTitle="Promotions"
+            exportTitle="Content Types"
             bulkExport
             bulkExportAction={this.props.bulkExportAction}
             entity="promotions.list"
-            emptyMessage="No promotions found."
+            emptyMessage="No content types found."
             list={list}
             renderRow={this.renderRow}
             tableColumns={tableColumns}

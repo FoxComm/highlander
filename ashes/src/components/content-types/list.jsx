@@ -8,26 +8,26 @@ import { transitionTo } from 'browserHistory';
 import { ListPageContainer, makeTotalCounter } from '../list-page';
 
 // redux
-import { actions } from '../../modules/promotions/list';
+import { actions } from '../../modules/content-types/list';
 
-type PromotionsListProps = {
+type ContentTypesListProps = {
   children: Element<*>,
 };
 
-const PromotionsList = (props: PromotionsListProps) => {
+const ContentTypesList = (props: ContentTypesListProps) => {
   const TotalCounter = makeTotalCounter(state => state.promotions.list, actions);
-  const addAction = () => transitionTo('promotion-details', {promotionId: 'new'});
+  const addAction = () => transitionTo('content-type-details', {promotionId: 'new'});
 
   const navLinks = [
-    { title: 'Lists', to: 'promotions' },
-    { title: 'Activity Trail', to: 'promotions-activity-trail' }
+    { title: 'Lists', to: 'content-types' },
+    { title: 'Activity Trail', to: 'content-types-activity-trail' }
   ];
 
   return (
     <ListPageContainer
-      title="Promotions"
+      title="Content Types"
       subtitle={<TotalCounter />}
-      addTitle="Promotion"
+      addTitle="Content Type"
       handleAddAction={addAction}
       navLinks={navLinks}>
       {props.children}
@@ -35,8 +35,8 @@ const PromotionsList = (props: PromotionsListProps) => {
   );
 };
 
-PromotionsList.propTypes = {
+ContentTypesList.propTypes = {
   children: PropTypes.node,
 };
 
-export default PromotionsList;
+export default ContentTypesList;
