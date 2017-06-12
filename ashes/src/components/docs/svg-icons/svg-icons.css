@@ -14,11 +14,11 @@
 }
 
 .iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 120px;
   height: 120px;
-  text-align: center;
-  line-height: 120px;
-  font-size: 28px;
   background-color: var(--grey-buttons)
 }
 
@@ -30,5 +30,6 @@
 }
 
 .svgStyle {
-  margin: 42px;
+  width: 20px;
+  height: 20px;
 }

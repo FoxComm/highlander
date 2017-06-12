@@ -1,5 +1,3 @@
-/* @flow */
-
 // libs
 import React from 'react';
 
@@ -9,16 +7,28 @@ import SvgIcon from 'components/core/svg-icon';
 // styles
 import s from './svg-icons.css';
 
-type Props = {
-  iconSet: Array<string>
-};
+const iconSet = [
+  'applications',
+  'carts',
+  'categories',
+  'channels',
+  'customers',
+  'gift-cards',
+  'groups',
+  'orders',
+  'plugins',
+  'products',
+  'promotions',
+  'skus',
+  'tags',
+  'taxonomies',
+];
 
-const SvgIcons = (props: Props) => {
-  const { iconSet, ...rest } = props;
+const SvgIcons = () => {
   const icons = iconSet.map((iconType) => (
     <div key={iconType} className={s.box}>
       <div className={s.iconWrapper}>
-        <SvgIcon name={iconType} {...rest} className={s.svgStyle} />
+        <SvgIcon name={iconType} className={s.svgStyle} />
       </div>
       <span className={s.text}>{iconType}</span>
     </div>

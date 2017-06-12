@@ -1,5 +1,3 @@
-/* @flow */
-
 // libs
 import React from 'react';
 
@@ -9,16 +7,17 @@ import SvgIcon from 'components/core/svg-icon';
 // styles
 import s from './logos.css';
 
-type Props = {
-  logoSet: Array<string>
-};
+const logoSet = [
+  'fox',
+  'start',
+  'logo',
+];
 
-const Logos = (props: Props) => {
-  const { logoSet, ...rest } = props;
+const Logos = () => {
   const icons = logoSet.map((logoType) => (
     <div key={logoType} className={s.box}>
       <div className={s.iconWrapper}>
-        <SvgIcon name={logoType} {...rest} className={s.svgStyle} />
+        <SvgIcon name={logoType} className={s.svgStyle} />
       </div>
       <span className={s.text}>{logoType}</span>
     </div>

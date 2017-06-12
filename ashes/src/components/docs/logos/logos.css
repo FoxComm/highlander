@@ -14,6 +14,7 @@
 }
 
 .iconWrapper {
+  display: flex;
   width: 200px;
   height: 200px;
   border: 1px dashed var(--color-subtitle-text);
@@ -30,6 +31,7 @@
 }
 
 .svgStyle {
+  width: 180px;
   fill: #6d859e;
   margin: 10px;
 }
