@@ -10,7 +10,7 @@ import { connectPage, ObjectPage } from '../object-page/object-page';
 import { transitionTo } from 'browserHistory';
 
 // actions
-import * as PromotionActions from 'modules/promotions/details';
+import * as ContentTypeActions from 'modules/content-types/details';
 
 class PromotionPage extends ObjectPage {
   save(): ?Promise<*> {
@@ -20,7 +20,7 @@ class PromotionPage extends ObjectPage {
     if (willBePromo && isNew) {
       willBePromo.then((data) => {
         if (data.applyType === 'coupon') {
-          transitionTo('promotion-coupon-new',{promotionId: data.id});
+          transitionTo('content-type-coupon-new',{promotionId: data.id});
         }
       });
     }
@@ -29,8 +29,8 @@ class PromotionPage extends ObjectPage {
   }
 
   subNav(): Element<*> {
-    return <SubNav applyType={_.get(this.props, 'details.promotion.applyType')} promotionId={this.entityId} />;
+    return <SubNav applyType={_.get(this.props, 'details.contentType.applyType')} promotionId={this.entityId} />;
   }
 }
 
-export default connectPage('promotion', PromotionActions)(PromotionPage);
+export default connectPage('content-type', ContentTypeActions)(PromotionPage);

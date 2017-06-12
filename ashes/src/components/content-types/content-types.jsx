@@ -113,7 +113,7 @@ class Promotions extends Component {
 
 const mapStateToProps = (state: Object) => {
   return {
-    list: _.get(state.promotions, 'list', {}),
+    list: _.get(state.contentTypes, 'list', {}),
   };
 };
 
