@@ -4,7 +4,7 @@ set -e
 # Once coursier is installed, you can use binary directly if you need it.
 # If calling from other scripts, call this one to ensure binary is installed.
 
-COURSIER="$(dirname $0)/coursier"
+COURSIER="$(cd -P -- "$(dirname "$0")" && pwd -P)/coursier"
 URL="https://github.com/coursier/coursier/raw/v1.0.0-RC3/coursier"
 
 # if binary already exists,

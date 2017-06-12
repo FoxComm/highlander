@@ -35,7 +35,7 @@ object Settings {
   def deploy: Seq[Def.Setting[_]] = Seq(
     assemblyMergeStrategy in assembly := {
       case PathList("org", "joda", "time", _ @_ *) ⇒ MergeStrategy.first
-      case x                                       => (assemblyMergeStrategy in assembly).value.apply(x)
+      case x                                       ⇒ (assemblyMergeStrategy in assembly).value.apply(x)
     },
     test in assembly := {},
     dockerfile in docker := {
