@@ -2,7 +2,7 @@
 import { dissoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 
-import { createEmptyPromotion } from 'paragons/promotion';
+import { createEmptyContentType } from 'paragons/content-type';
 import { createAsyncActions } from '@foxcomm/wings';
 import Api from 'lib/api';
 
@@ -19,23 +19,23 @@ const _fetchContentType = createAsyncActions(
 
 const _createContentType = createAsyncActions(
   'createContentType',
-  (promotion, context = defaultContext) => {
-    return Api.post(`/promotions/${context}`, promotion);
+  (contentType, context = defaultContext) => {
+    return Api.post(`/promotions/${context}`, contentType);
   }
 );
 
-const _updateConentType = createAsyncActions(
-  'updateConentType',
-  (promotion, context = defaultContext) => {
-    const id = promotion.id;
-    return Api.patch(`/promotions/${context}/${id}`, promotion);
+const _updateContentType = createAsyncActions(
+  'updateContentType',
+  (contentType, context = defaultContext) => {
+    const id = contentType.id;
+    return Api.patch(`/promotions/${context}/${id}`, contentType);
   }
 );
 
 export function clearSubmitErrors() {
   return dispatch => {
     dispatch(_createContentType.clearErrors());
-    dispatch(_updateConentType.clearErrors());
+    dispatch(_updateContentType.clearErrors());
   };
 }
 
@@ -59,7 +59,7 @@ const _archiveContentType = createAsyncActions(
 export const clearArchiveErrors = _archiveContentType.clearErrors;
 export const archiveContentType = _archiveContentType.perform;
 export const createContentType = _createContentType.perform;
-export const updateConentType = _updateConentType.perform;
+export const updateContentType = _updateContentType.perform;
 export const clearFetchErrors = _fetchContentType.clearErrors;
 
 export function reset() {
@@ -70,30 +70,30 @@ export function reset() {
   };
 }
 
-function updateConentTypeInState(state, response) {
+function updateContentTypeInState(state, response) {
   return {
     ...state,
-    promotion: response
+    contentType: response
   };
 }
 
 const initialState = {
-  promotion: null,
+  contentType: null,
 };
 
 const reducer = createReducer({
   [contentTypeNew]: state => {
     return {
       ...state,
-      promotion: createEmptyPromotion(),
+      contentType: createEmptyContentType(),
     };
   },
   [clearContentType]: state => {
-    return dissoc(state, 'promotion');
+    return dissoc(state, 'contentType');
   },
-  [_fetchContentType.succeeded]: updateConentTypeInState,
-  [_createContentType.succeeded]: updateConentTypeInState,
-  [_updateConentType.succeeded]: updateConentTypeInState,
+  [_fetchContentType.succeeded]: updateContentTypeInState,
+  [_createContentType.succeeded]: updateContentTypeInState,
+  [_updateContentType.succeeded]: updateContentTypeInState,
 }, initialState);
 
 export default reducer;

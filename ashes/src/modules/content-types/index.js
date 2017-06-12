@@ -4,10 +4,10 @@ import list from './list';
 import bulk from './bulk';
 import details from './details';
 
-const promotionsReducer = combineReducers({
+const contentTypesReducer = combineReducers({
   list,
   bulk,
   details,
 });
 
-export default promotionsReducer;
+export default contentTypesReducer;

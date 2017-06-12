@@ -12,7 +12,7 @@ import { transitionTo } from 'browserHistory';
 // actions
 import * as ContentTypeActions from 'modules/content-types/details';
 
-class PromotionPage extends ObjectPage {
+class ContentTypePage extends ObjectPage {
   save(): ?Promise<*> {
     let isNew = this.isNew;
     let willBePromo = super.save();
@@ -33,4 +33,4 @@ class PromotionPage extends ObjectPage {
   }
 }
 
-export default connectPage('content-type', ContentTypeActions)(PromotionPage);
+export default connectPage('contentType', ContentTypeActions)(ContentTypePage);
