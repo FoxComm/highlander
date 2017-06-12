@@ -335,7 +335,7 @@ class ImageIntegrationTest
           .createOrUpdateImagesForAlbum(album, Seq(testPayload, testPayload), ctx)
           .gimme
 
-        val responseAlbum = uploadImage(album).as[AlbumRoot]
+        val responseAlbum = uploadImages(album, List("foxy.jpg")).as[AlbumRoot]
         responseAlbum.images.size must === (updatedAlbumImages.size + 1)
 
         val uploadedImage = responseAlbum.images.last
@@ -353,14 +353,28 @@ class ImageIntegrationTest
           .createOrUpdateImagesForAlbum(album, Seq(testPayload, testPayload), ctx)
           .gimme
 
-        val responseAlbum = uploadImage(album, 2).as[AlbumRoot]
-        responseAlbum.images.size must === (updatedAlbumImages.size + 2)
+        val images          = List("foxy.jpg", "fo xy.jpg", "withoutext")
+        val resultFileNames = List("foxy.jpg", "fo xy.jpg", "withoutext.jpg")
+        val responseAlbum   = uploadImages(album, images).as[AlbumRoot]
+        responseAlbum.images.size must === (updatedAlbumImages.size + 3)
 
-        val uploadedImage = responseAlbum.images.last
+        val uploadedImages = responseAlbum.images.takeRight(3)
+        resultFileNames.zip(uploadedImages).foreach {
+          case (imgFileName, uploadedImage) ⇒
+            uploadedImage.src must === ("amazon-image-url")
+            uploadedImage.title must === (imgFileName.some)
+            uploadedImage.alt must === (imgFileName.some)
+        }
+      }
 
-        uploadedImage.src must === ("http://amazon-image.url/1")
-        uploadedImage.title must === ("foxy.jpg".some)
-        uploadedImage.alt must === ("foxy.jpg".some)
+      "fails if it's not image" in new Fixture {
+        val response = POST(s"/v1/albums/ru/${ctx.name}/images", defaultAdminAuth.jwtCookie.some)
+        val updatedAlbumImages = ImageManager
+          .createOrUpdateImagesForAlbum(album, Seq(testPayload, testPayload), ctx)
+          .gimme
+
+        val responseAlbum = uploadImages(album, List("invalid_image.jpg"))
+        responseAlbum.error must === (UnknownImageType.description)
       }
 
       "fails if uploading no images" in new Fixture {
@@ -371,24 +385,25 @@ class ImageIntegrationTest
           .createOrUpdateImagesForAlbum(album, Seq(testPayload, testPayload), ctx)
           .gimme
 
-        val responseAlbum = uploadImage(album, 0)
+        val responseAlbum = uploadImages(album, List.empty[String])
         responseAlbum.error must === (ImageNotFoundInPayload.description)
       }
 
       "fail when uploading to archived album" in new ArchivedAlbumFixture {
-        uploadImage(archivedAlbum).mustFailWith400(AddImagesToArchivedAlbumFailure(archivedAlbum.id))
+        uploadImages(archivedAlbum, List("foxy.jpg"))
+          .mustFailWith400(AddImagesToArchivedAlbumFailure(archivedAlbum.id))
       }
 
-      def uploadImage(album: Album, count: Int = 1): HttpResponse = {
-        val image = Paths.get("test/resources/foxy.jpg")
-        image.toFile.exists mustBe true
+      def uploadImages(album: Album, images: List[String]): HttpResponse = {
+        val paths = images.map(img ⇒ Paths.get(s"test/resources/images_tests/$img"))
+        paths.foreach(image ⇒ image.toFile.exists mustBe true)
 
-        val entity = if (count == 0) {
+        val entity = if (paths.isEmpty) {
           Marshal(Multipart.FormData(Multipart.FormData.BodyPart.apply("test", HttpEntity.Empty)))
             .to[RequestEntity]
             .futureValue
         } else {
-          val bodyParts = 1 to count map { _ ⇒
+          val bodyParts = paths.map { image ⇒
             Multipart.FormData.BodyPart.fromPath(name = "upload-file",
                                                  contentType = MediaTypes.`application/octet-stream`,
                                                  file = image)

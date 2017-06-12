@@ -4,7 +4,7 @@ object Versions {
   val scala      = "2.11.11-bin-typelevel-4"
   val slick      = "3.2.0"
   val json4s     = "3.4.0"
-  val akka       = "2.4.7"
+  val akka       = "2.4.8"
   val slickPg    = "0.15.0"
   val gatling    = "2.2.1"
   val dispatch   = "0.11.3"
@@ -40,7 +40,7 @@ object Dependencies {
     "org.json4s"        %% "json4s-core"      % Versions.json4s,
     "org.json4s"        %% "json4s-jackson"   % Versions.json4s,
     "org.json4s"        %% "json4s-ext"       % Versions.json4s,
-    "de.heikoseeberger" %% "akka-http-json4s" % "1.7.0"
+    "de.heikoseeberger" %% "akka-http-json4s" % "1.8.0"
   )
 
   val gatling = Seq(
