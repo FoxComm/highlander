@@ -24,7 +24,7 @@ version = $(shell iojs -e "console.log(JSON.parse(require('fs').readFileSync('pa
 .PHONY: docker
 docker:
 	$(call header, Dockerizing)
-	docker build -t $(DOCKER_IMAGE) .
+	docker build --squash --compress -t $(DOCKER_IMAGE) .
 
 .PHONY: docker-push
 docker-push:
