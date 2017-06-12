@@ -71,8 +71,7 @@ def get_base_branch():
         log("Fetching base branch for PR#$BUILDKITE_PULL_REQUEST via Github API...")
         url = github_base_url + str_env("/$BUILDKITE_PULL_REQUEST?access_token=$GITHUB_API_TOKEN")
         with request.urlopen(url) as resp:
-            str_response = resp.readall().decode('utf-8')
-            answer = json.loads(str_response)
+            answer = json.loads(resp.read())
             return "origin/" + answer['base']['ref']
     else:
         log("No pull request created, setting base branch to master")
@@ -81,8 +80,9 @@ def get_base_branch():
 def all_changed_dirs(base_branch):
     commit = os.environ['BUILDKITE_COMMIT']
     args = ["git", "diff", "--name-only", "{base_branch}...{commit}".format(**locals())]
-    result = sp.run(args, stdout=sp.PIPE, check=True, encoding="UTF-8")
-    return {os.path.dirname(x) for x in result.stdout.split("\n") if x}
+    result = sp.run(args, stdout=sp.PIPE, check=True)
+    stdout = result.stdout.decode('UTF-8')
+    return {os.path.dirname(x) for x in stdout.split("\n") if x}
 
 def changed_projects(changed_dirs):
     projects = set()
