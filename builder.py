@@ -10,8 +10,8 @@ import argparse
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--docker", help="Build docker containers also", action="store_true")
-parser.add_argument("--debug", help="Don't take any action", action="store_true")
+parser.add_argument("-docker", help="Build docker containers also", action="store_true")
+parser.add_argument("-debug", help="Don't take any action", action="store_true")
 global_args = parser.parse_args()
 
 ROOT_DIR=os.path.abspath(os.path.dirname(os.path.basename(__file__)))
@@ -63,8 +63,9 @@ def str_env(msg):
 	return subst.format(**os.environ)
 
 
-def log(msg):
-	print(str_env(msg))
+def log(*args):
+	new_args = map(str_env, args)
+	print("[BUILDER]", *new_args)
 
 def get_base_branch():
 	if os.environ.get("BUILDKITE_PULL_REQUEST") != "false":
@@ -93,23 +94,31 @@ if __name__ == "__main__":
 	base_branch = get_base_branch()
 	changed_dirs = all_changed_dirs(base_branch)
 	affected_projects = changed_projects(changed_dirs)
-	if len(affected_projects) == 0:
-		print("No projects changed, building all by default")
-		affected_projects = PROJECTS
 
-	print("Changed projects ({}):".format(len(affected_projects)))
+	log("Changed projects ({}):".format(len(affected_projects)))
 	for p in affected_projects:
-		print("\t", p)
+		log("\t", p)
+
+	if len(affected_projects) == 0:
+		if os.environ.get("BUILDKITE_PIPELINE_SLUG") == "highlander-master":
+			log("Rebuilding everything")
+			affected_projects = PROJECTS
+		else:
+			log("No projects changed, nothing to build")
+			sys.exit(0)
+
+	# don't do anything else
+	if global_args.debug:
+		sys.exit(0)
 
 	sp.run("git fetch origin -q".split(" "), check=True)
 
-	if not global_args.debug:
-		print("Building subprojects...")
-		for project_dir in affected_projects:
-			absdir = os.path.join(ROOT_DIR, project_dir)
-			sp.Popen(["make", "build", "test"], cwd=absdir).wait()
-			if global_args.docker:
-				sp.Popen(["make", "docker", "docker-push"], cwd=absdir).wait()
+	log("Building subprojects...")
+	for project_dir in affected_projects:
+		absdir = os.path.join(ROOT_DIR, project_dir)
+		sp.Popen(["make", "build", "test"], cwd=absdir).wait()
+		if global_args.docker:
+			sp.Popen(["make", "docker", "docker-push"], cwd=absdir).wait()
 
 
 
