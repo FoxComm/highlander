@@ -28,7 +28,7 @@ const getRoutes = (jwt: Object) => {
           frn: frn.mkt.promotion,
         }),
       ]),
-      router.read('content-type', { path: ':promotionId', component: ContentTypePage }, [
+      router.read('content-type', { path: ':contentTypeId', component: ContentTypePage }, [
         router.read('content-type-details', { component: ContentTypeForm, isIndex: true }),
         router.read('content-type-notes', {
           path: 'notes',

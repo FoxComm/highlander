@@ -29,7 +29,7 @@ class ContentTypePage extends ObjectPage {
   }
 
   subNav(): Element<*> {
-    return <SubNav applyType={_.get(this.props, 'details.contentType.applyType')} promotionId={this.entityId} />;
+    return <SubNav applyType={_.get(this.props, 'details.contentType.applyType')} contentTypeId={this.entityId} />;
   }
 }
 

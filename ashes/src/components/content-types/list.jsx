@@ -16,7 +16,7 @@ type ContentTypesListProps = {
 
 const ContentTypesList = (props: ContentTypesListProps) => {
   const TotalCounter = makeTotalCounter(state => state.contentTypes.list, actions);
-  const addAction = () => transitionTo('content-type-details', {promotionId: 'new'});
+  const addAction = () => transitionTo('content-type-details', {contentTypeId: 'new'});
 
   const navLinks = [
     { title: 'Lists', to: 'content-types' },
