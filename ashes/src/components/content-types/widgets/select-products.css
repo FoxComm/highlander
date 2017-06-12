@@ -1,0 +1,25 @@
+
+.products {
+  display: flex;
+
+  & > * {
+    margin-right: 24px;
+
+    &:last-child {
+      flex-grow: 1;
+    }
+  }
+}
+
+.label {
+  padding-top: 0.5em;
+  white-space: nowrap;
+}
+
+.wide-dropdown {
+  max-width: initial;
+}
+
+.mode-dropdown {
+  height: 100%;
+}
