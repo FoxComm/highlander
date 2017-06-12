@@ -99,14 +99,16 @@ export default class GenericDropdown extends Component {
 
   _menu: HTMLElement;
   _items: HTMLElement;
-  _container: HTMLElement;
+  _block: HTMLElement;
 
   componentDidMount() {
     window.addEventListener('keydown', this.handleKeyPress, true);
+    window.addEventListener('click', this.handleClickOutside, true);
   }
 
   componentWillUnmount() {
     window.removeEventListener('keydown', this.handleKeyPress, true);
+    window.removeEventListener('click', this.handleClickOutside, true);
   }
 
   componentWillReceiveProps(newProps: Props) {
@@ -122,14 +124,21 @@ export default class GenericDropdown extends Component {
     }
   }
 
+  @autobind
+  handleClickOutside(e) {
+    if (this._block && !this._block.contains(e.target) && this.state.open) {
+      this.closeMenu();
+    }
+  }
+
   setMenuPosition() {
     if (!this.props.detached) {
       return;
     }
 
-    const parentDim = this._container.getBoundingClientRect();
+    const parentDim = this._block.getBoundingClientRect();
 
-    this._menu.style.minWidth = `${this._container.offsetWidth}px`;
+    this._menu.style.minWidth = `${this._block.offsetWidth}px`;
     this._menu.style.top = `${parentDim.top + parentDim.height + window.scrollY}px`;
     this._menu.style.left = `${parentDim.left}px`;
   }
@@ -137,7 +146,7 @@ export default class GenericDropdown extends Component {
   setMenuOrientation() {
     const viewportHeight = window.innerHeight;
 
-    const containerPos = this._container.getBoundingClientRect();
+    const containerPos = this._block.getBoundingClientRect();
     const spaceAtTop = containerPos.top;
     const spaceAtBottom = viewportHeight - containerPos.bottom;
 
@@ -417,9 +426,9 @@ export default class GenericDropdown extends Component {
   render() {
     const { editable, id } = this.props;
 
+    // <Overlay shown={this.state.open} onClick={this.handleToggleClick} />
     return (
-      <div id={id} className={this.dropdownClassName} ref={c => this._container = c} tabIndex="0">
-        <Overlay shown={this.state.open} onClick={this.handleToggleClick} />
+      <div id={id} className={this.dropdownClassName} ref={c => this._block = c} tabIndex="0">
         <div className="fc-dropdown__controls" onClick={editable ? this.handleToggleClick : null}>
           {this.controls}
         </div>

@@ -1,9 +1,4 @@
 // Tables
-@color-tr-odd-bg: @bg-white;
-@color-tr-even-bg: @bg-grey-headers;
-
-@color-th-bg: @bg-grey-headers;
-
 @keyframes fc-new-row {
   from {
     background-color: @bg-grey-buttons;
@@ -55,7 +50,6 @@
       position: relative;
       vertical-align: middle;
       color: @color-text;
-      background: @color-th-bg;
       padding: 10px 15px;
       font-size: 13px;
       font-weight: 600;
@@ -141,12 +135,12 @@
 
       &:nth-child(odd),
       &.odd {
-        background-color: @color-tr-odd-bg;
+        background-color: @bg-white;
       }
 
       &:nth-child(even),
       &.even {
-        background-color: @color-tr-even-bg;
+        background-color: @bg-grey-headers;
       }
 
       &.is-new {
