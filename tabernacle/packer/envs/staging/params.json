@@ -5,5 +5,6 @@
     "docker_registry":"https://docker-stage.foxcommerce.com",
     "db_host": "db.service.consul",
     "consul_expect": 1,
-    "is_staging": true
+    "is_staging": true,
+    "with_onboarding": true
 }
