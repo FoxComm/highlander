@@ -14,8 +14,7 @@ import phoenix.utils.http.JsonSupport._
 
 object GenericTreeRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
-
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("tree" / Segment / Segment) { (context, name) ⇒
         (get & pathEnd) {
@@ -23,34 +22,33 @@ object GenericTreeRoutes {
             TreeManager.getFullTree(name, context)
           }
         } ~
-        (post & pathEnd & entity(as[NodePayload])) { payload ⇒
-          mutateOrFailures {
-            TreeManager.updateTree(name, context, payload)
-          }
-        } ~
-        pathPrefix(Segment) { (path) ⇒
           (post & pathEnd & entity(as[NodePayload])) { payload ⇒
             mutateOrFailures {
-              TreeManager.updateTree(name, context, payload, Some(path))
+              TreeManager.updateTree(name, context, payload)
             }
           } ~
-          (patch & pathEnd & entity(as[NodeValuesPayload])) { payload ⇒
+          pathPrefix(Segment) { (path) ⇒
+            (post & pathEnd & entity(as[NodePayload])) { payload ⇒
+              mutateOrFailures {
+                TreeManager.updateTree(name, context, payload, Some(path))
+              }
+            } ~
+              (patch & pathEnd & entity(as[NodeValuesPayload])) { payload ⇒
+                mutateOrFailures {
+                  TreeManager.editNode(name, context, path, payload)
+                }
+              }
+          } ~
+          (patch & pathEnd & entity(as[MoveNodePayload])) { payload ⇒
             mutateOrFailures {
-              TreeManager.editNode(name, context, path, payload)
+              TreeManager.moveNode(name, context, payload)
+            }
+          } ~
+          (patch & pathEnd & entity(as[MoveNodePayload])) { payload ⇒
+            mutateOrFailures {
+              TreeManager.moveNode(name, context, payload)
             }
           }
-        } ~
-        (patch & pathEnd & entity(as[MoveNodePayload])) { payload ⇒
-          mutateOrFailures {
-            TreeManager.moveNode(name, context, payload)
-          }
-        } ~
-        (patch & pathEnd & entity(as[MoveNodePayload])) { payload ⇒
-          mutateOrFailures {
-            TreeManager.moveNode(name, context, payload)
-          }
-        }
       }
     }
-  }
 }

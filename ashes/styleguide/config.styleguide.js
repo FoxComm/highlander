@@ -28,6 +28,7 @@ module.exports = {
           }, {
             components: () => ([
               path.resolve(__dirname, '../src/components/docs/colors/text-colors.jsx'),
+              path.resolve(__dirname, '../src/components/docs/colors/bg-colors.jsx'),
             ]),
           }]
         },

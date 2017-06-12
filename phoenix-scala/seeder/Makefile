@@ -15,6 +15,6 @@ docker:
 
 docker-push:
 	$(call header, Registering)
-	cd ../ && make push-seeder
+	cd ../ && make docker-push-seeder
 
 .PHONY: build test true docker

@@ -19,7 +19,7 @@ case class ReturnLineItem(id: Int = 0,
     extends FoxModel[ReturnLineItem]
 
 object ReturnLineItem {
-  sealed trait OriginType extends Product with Serializable
+  sealed trait OriginType  extends Product with Serializable
   case object SkuItem      extends OriginType
   case object ShippingCost extends OriginType
 

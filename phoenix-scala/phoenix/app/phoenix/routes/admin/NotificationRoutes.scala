@@ -21,7 +21,7 @@ object NotificationRoutes {
              mat: Mat,
              auth: AuthData[User],
              apis: Apis,
-             system: akka.actor.ActorSystem): Route = {
+             system: akka.actor.ActorSystem): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("notifications") {
         (get & pathEnd) {
@@ -29,17 +29,16 @@ object NotificationRoutes {
             NotificationFacade.streamByAdminId(auth.account.id)
           }
         } ~
-        (post & pathEnd & entity(as[CreateNotification])) { payload ⇒
-          mutateOrFailures {
-            NotificationManager.createNotification(payload)
+          (post & pathEnd & entity(as[CreateNotification])) { payload ⇒
+            mutateOrFailures {
+              NotificationManager.createNotification(payload)
+            }
+          } ~
+          (post & path("last-seen" / IntNumber) & pathEnd) { notificationId ⇒
+            mutateOrFailures {
+              NotificationManager.updateLastSeen(auth.account.id, notificationId)
+            }
           }
-        } ~
-        (post & path("last-seen" / IntNumber) & pathEnd) { notificationId ⇒
-          mutateOrFailures {
-            NotificationManager.updateLastSeen(auth.account.id, notificationId)
-          }
-        }
       }
     }
-  }
 }

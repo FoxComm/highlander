@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .overlay {
   display: none;
   position: fixed;
@@ -6,6 +8,8 @@
   left: 0;
   right: 0;
   z-index: 2;
+  opacity: 0.5;
+  background: var(--bg-nav-main);
 }
 
 .active {

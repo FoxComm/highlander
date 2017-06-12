@@ -45,11 +45,13 @@ object CartLineItemAdjustment {
   case object Combinator         extends AdjustmentType
 
   def fromOfferResult(offerResult: OfferResult) =
-    CartLineItemAdjustment(cordRef = offerResult.discountInput.cartRefNum,
-                           promotionShadowId = offerResult.discountInput.promotionShadowId,
-                           adjustmentType = adjustmentTypeByOffer(offerResult.offerType),
-                           subtract = offerResult.subtract,
-                           lineItemRefNum = offerResult.lineItemRefNum)
+    CartLineItemAdjustment(
+      cordRef = offerResult.discountInput.cartRefNum,
+      promotionShadowId = offerResult.discountInput.promotionShadowId,
+      adjustmentType = adjustmentTypeByOffer(offerResult.offerType),
+      subtract = offerResult.subtract,
+      lineItemRefNum = offerResult.lineItemRefNum
+    )
 
   def adjustmentTypeByOffer(offerType: OfferType): AdjustmentType = offerType match {
     case ItemPercentOff | ItemAmountOff    ⇒ LineItemAdjustment
@@ -64,13 +66,12 @@ object CartLineItemAdjustment {
     def types = sealerate.values[AdjustmentType]
   }
 
-  implicit val adjustmentTypeColumnType: JdbcType[AdjustmentType] with BaseTypedType[
-      AdjustmentType] = AdjustmentType.slickColumn
+  implicit val adjustmentTypeColumnType: JdbcType[AdjustmentType] with BaseTypedType[AdjustmentType] =
+    AdjustmentType.slickColumn
 }
 
 object CartLineItemAdjustments
-    extends FoxTableQuery[CartLineItemAdjustment, CartLineItemAdjustments](
-        new CartLineItemAdjustments(_))
+    extends FoxTableQuery[CartLineItemAdjustment, CartLineItemAdjustments](new CartLineItemAdjustments(_))
     with ReturningId[CartLineItemAdjustment, CartLineItemAdjustments] {
 
   val returningLens: Lens[CartLineItemAdjustment, Int] = lens[CartLineItemAdjustment].id

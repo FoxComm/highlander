@@ -9,7 +9,7 @@ import akka.stream.scaladsl.Sink
 import cats.implicits._
 import org.json4s.JsonAST.{JField, JString}
 import org.json4s._
-import org.json4s.jackson.{Serialization, parseJson}
+import org.json4s.jackson.{parseJson, Serialization}
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 
@@ -42,22 +42,22 @@ object HttpLogger {
     DebuggingDirectives.logRequestResult(LoggingMagnet(_ ⇒ loggingFn(logger)))(route)
   }
 
-  private def logError(request: HttpRequest, response: HttpResponse)(
-      implicit mat: Mat,
-      ec: EC): Future[Option[LogEntry]] = {
+  private def logError(request: HttpRequest, response: HttpResponse)(implicit mat: Mat,
+                                                                     ec: EC): Future[Option[LogEntry]] =
     for {
       requestEntity  ← entityToString(request.entity)
       responseEntity ← entityToString(response.entity)
     } yield {
       val requestJson  = maskSensitiveData(parseJson(requestEntity))
       val responseJson = parseJson(responseEntity)
-      LogEntry(s"""|${request.method.name} ${request.uri}: ${response.status}
+      LogEntry(
+        s"""|${request.method.name} ${request.uri}: ${response.status}
             |Request entity:  ${Serialization.write(requestJson)}
             |Response entity: ${Serialization.write(responseJson)}""".stripMargin,
-               marker,
-               errorLevel).some
+        marker,
+        errorLevel
+      ).some
     }
-  }
 
   private def maskSensitiveData(json: Json): Json = json.transformField {
 

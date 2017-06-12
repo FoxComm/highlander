@@ -30,7 +30,7 @@ class ErrorsExample extends React.Component {
     return (
       <div className="demo-blocked">
         <Errors
-          errors={['not found', 'not found', 'not found', 'not found']}
+          errors={['Bad gateway', 'Good gateway', 'not found', 'not found']}
           sanitizeError={error => error + '!'}
         />
 

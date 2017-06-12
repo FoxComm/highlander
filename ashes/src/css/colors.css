@@ -1,4 +1,8 @@
 :root {
+  /*
+   * https://app.zeplin.io/project/58e3cc8f1e88befbcc27121e/screen/58e3ccda94f5ae16cd341689
+   */
+
   /* colors blessed by @bree */
   --color-text: #363636;
   --color-additional-text: rgba(54, 54, 54, 0.5);
@@ -11,101 +15,25 @@
   /* all other colors are damned! */
 
   /* background colors blessed by @bree */
+  --bg-white: #fff;
+  --bg-nav-main: #25334a;
+  --bg-nav-active: #1a2535;
+  --bg-nav-disabled: #99a9c4;
+  --bg-nav-pink: #fc54a6;
+  --bg-field-error: var(--color-error-text);
+  --bg-grey: #f9f9f9;
+  --bg-grey-buttons: #ced2d5;
+  --bg-grey-headers: #f7f7f7;
+  --bg-green-buttons: #49cab9;
+  --bg-green-buttons-hover: #1dbfaa;
+  --bg-message-success: #adf2e9;
+  --bg-message-warning: #fff9a0;
+  --bg-message-error: #ffb1b1;
+  /* all other background colors are damned! */
 
-  --nav-active: #1a2535;
-  --nav-main: #25334a;
-  --green-buttons: #49cab9;
-  --color-pink: #fc54a6;
-  --grey-buttons: #ced2d5;
-  --grey-buttons-hover: #bdc3c6;
-  --grey-headers: #f7f7f7;
-  --grey-background: #f9f9f9;
 
 
-  /*
-   * http://chir.ag/projects/name-that-color
-   * https://app.zeplin.io/project/58e3cc8f1e88befbcc27121e/screen/58e3ccda94f5ae16cd341689
-   */
-  --white: #ffffff;
 
-  --light-blue: #a0e9ed;
 
-  --light-yellow: #ffdd7f;
-
-  --light-red: #ff9796;
-
-  /*
-   * Buttons
-   */
-  --button-color: var(--color-text);
-  --button-bg: #ced2d5;
-  --button-bg-loading: #ced2d5;
-
-  --primary-button-bg: var(--green-buttons);
-  --primary-button-bg-hover: #1dbfaa;
-  --primary-button-bg-loading: var(--green-buttons);
-
-  /*
-   * Alerts
-   */
-  --alert-success: var(--light-blue);
-  --alert-warning: var(--light-yellow);
-  --alert-error: var(--light-red);
-
-  --decor0: #f2f2f2;
-  --decor3: #3a4350;
-  --decor4: #828e9f;
-  --decor10: #ebebeb;
-  --decor13: #fcfcfc;
-  --decor14: #3aacb3;
-  --decor16: #99e6ea;
-  --decor17: #a0e9ed;
-  --decor18: #7Da0f3;
-  --decor19: #a0beed;
-  --decor20: #c5d6ff;
-  --decor21: #e1eaff;
-  --decor23: #ff9796;
   --decor24: #ffbb3c;
-  --decor25: #ffdd7f;
-  --decor26: #47628d;
-  --decor29: #a2dee1;
-  --decor35: #e5e7e8;
-  --decor36: #333c49;
-  --decor38: #e9feff;
-  --decor43: rgba(0,0,0,0.30);
-  --decor48: #D8FBFD;
-  --decor49: #EAFEFF;
-  --decor51: rgba(0,0,0,0.50);
-  --decor54: #F5FEFF;
-  --decor55: rgba(0,0,0,0.40);
-  --decor58: rgba(0,0,0,.1);
-  --decor60: #e4e6ea;
-  --decor61: #f4f5f6;
-
-  --transparent: transparent;
-
-  // Site colors
-  --link-tab: #595959;
-  --tooltip-bg: --decor3;
-
-  // Default colors
-  --default-bg: --decor0;
-
-  // Control colors
-  --control-primary-bg: --green-buttons;
-  --control-primary-hover-bg: --decor14;
-  --control-primary-disabled-fg: --decor29;
-  --control-primary-disabled-bg: --green-buttons;
-
-  --control-secondary-fg: --color-text;
-  --control-secondary-bg: --transparent;
-  --control-secondary-hover-bg: --transparent;
-  --control-secondary-disabled-bg: --transparent;
-
-  --control-standard-fg: --color-text;
-  --control-standard-bg: #ced2d5;
-  --control-standard-hover-fg: --color-text;
-  --control-standard-disabled-bg: #ced2d5;
-
-  --control-yes-bg: --green-buttons;
 }

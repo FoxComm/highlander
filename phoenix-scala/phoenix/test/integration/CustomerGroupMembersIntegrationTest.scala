@@ -85,8 +85,7 @@ class CustomerGroupMembersIntegrationTest
         (updatedMemberships.contains(group3.id)) must === (true)
       }
 
-      withClue(
-          s"Group ${groupDynamic.id} is dynamic and must not be deleted from group member list: ") {
+      withClue(s"Group ${groupDynamic.id} is dynamic and must not be deleted from group member list: ") {
         (updatedMemberships.contains(groupDynamic.id)) must === (true)
       }
     }
@@ -139,9 +138,10 @@ class CustomerGroupMembersIntegrationTest
     "400 if payload contains same ids for addition and deletion" in new FixtureForCustomerGroups {
       customerGroupsMembersApi(group1.id)
         .syncCustomers(CustomerGroupMemberSyncPayload(Seq(account2.id), Seq(account2.id)))
-        .mustFailWith400(CustomerGroupMemberPayloadContainsSameIdsInBothSections(group1.id,
-                                                                                 Set(account2.id),
-                                                                                 Set(account2.id)))
+        .mustFailWith400(
+          CustomerGroupMemberPayloadContainsSameIdsInBothSections(group1.id,
+                                                                  Set(account2.id),
+                                                                  Set(account2.id)))
     }
   }
 
@@ -155,25 +155,24 @@ class CustomerGroupMembersIntegrationTest
         account1 ← * <~ Accounts.create(Account())
         user1    ← * <~ Users.create(Factories.customer.copy(accountId = account1.id))
         custData1 ← * <~ CustomersData.create(
-                       CustomerData(userId = user1.id, accountId = account1.id, scope = scope))
+                     CustomerData(userId = user1.id, accountId = account1.id, scope = scope))
 
         account2 ← * <~ Accounts.create(Account())
         user2    ← * <~ Users.create(Factories.customer.copy(accountId = account2.id))
         custData2 ← * <~ CustomersData.create(
-                       CustomerData(userId = user2.id, accountId = account2.id, scope = scope))
+                     CustomerData(userId = user2.id, accountId = account2.id, scope = scope))
 
         account3 ← * <~ Accounts.create(Account())
         user3    ← * <~ Users.create(Factories.customer.copy(accountId = account3.id))
         custData3 ← * <~ CustomersData.create(
-                       CustomerData(userId = user3.id, accountId = account3.id, scope = scope))
+                     CustomerData(userId = user3.id, accountId = account3.id, scope = scope))
 
         _ ← * <~ CustomerGroupMembers.create(
-               CustomerGroupMember(groupId = group.id, customerDataId = custData1.id))
+             CustomerGroupMember(groupId = group.id, customerDataId = custData1.id))
         _ ← * <~ CustomerGroupMembers.create(
-               CustomerGroupMember(groupId = group.id, customerDataId = custData2.id))
+             CustomerGroupMember(groupId = group.id, customerDataId = custData2.id))
 
-      } yield
-        (group, account1, custData1, account2, custData2, account3, custData3, manualGroup)).gimmeTxn
+      } yield (group, account1, custData1, account2, custData2, account3, custData3, manualGroup)).gimmeTxn
   }
 
   trait FixtureForCustomerGroups extends StoreAdmin_Seed {
@@ -197,24 +196,24 @@ class CustomerGroupMembersIntegrationTest
       account       ← * <~ Accounts.create(Account())
       user          ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
       custData ← * <~ CustomersData.create(
-                    CustomerData(userId = user.id, accountId = account.id, scope = scope))
+                  CustomerData(userId = user.id, accountId = account.id, scope = scope))
 
       account2 ← * <~ Accounts.create(Account())
       user2    ← * <~ Users.create(Factories.customer.copy(accountId = account2.id))
       custData2 ← * <~ CustomersData.create(
-                     CustomerData(userId = user2.id, accountId = account2.id, scope = scope))
+                   CustomerData(userId = user2.id, accountId = account2.id, scope = scope))
 
       account3 ← * <~ Accounts.create(Account())
       user3    ← * <~ Users.create(Factories.customer.copy(accountId = account3.id))
       custData3 ← * <~ CustomersData.create(
-                     CustomerData(userId = user3.id, accountId = account3.id, scope = scope))
+                   CustomerData(userId = user3.id, accountId = account3.id, scope = scope))
 
       _ ← * <~ CustomerGroupMembers.create(
-             CustomerGroupMember(groupId = group1.id, customerDataId = custData.id))
+           CustomerGroupMember(groupId = group1.id, customerDataId = custData.id))
       _ ← * <~ CustomerGroupMembers.create(
-             CustomerGroupMember(groupId = group2.id, customerDataId = custData.id))
+           CustomerGroupMember(groupId = group2.id, customerDataId = custData.id))
       _ ← * <~ CustomerGroupMembers.create(
-             CustomerGroupMember(groupId = groupDynamic.id, customerDataId = custData.id))
+           CustomerGroupMember(groupId = groupDynamic.id, customerDataId = custData.id))
     } yield
       (group1,
        group2,

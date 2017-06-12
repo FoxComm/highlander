@@ -3,8 +3,9 @@
 .block {
   display: flex;
   flex-wrap: wrap;
-  /*flex-direction: column;*/
   justify-content: space-between;
+  font-size: 12px;
+  line-height: 16px;
 }
 
 .color {
@@ -14,6 +15,7 @@
 
 .sample {
   font-size: 60px;
+  line-height: 1.4;
   font-weight: 600;
   font-family: '-apple-system', BlinkMacSystemFont, 'Helvetica Neue', Helvetica, sans-serif;
   text-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
@@ -57,7 +59,7 @@
 
 .color-4 {
   color: var(--color-light-text);
-  background-color: #363636;
+  background-color: var(--bg-nav-main);
 
   & > .value::before {
     content: '--color-light-text';

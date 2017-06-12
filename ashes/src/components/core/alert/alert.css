@@ -35,13 +35,13 @@
 }
 
 .success {
-  background: var(--alert-success);
+  background: var(--bg-message-success);
 }
 
 .warning {
-  background: var(--alert-warning);
+  background: var(--bg-message-warning);
 }
 
 .error {
-  background: var(--alert-error);
+  background: var(--bg-message-error);
 }

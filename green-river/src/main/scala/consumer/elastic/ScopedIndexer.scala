@@ -33,7 +33,7 @@ class ScopedIndexer(uri: String,
   val settings = Settings.settingsBuilder().put("cluster.name", cluster).build()
   val client   = ElasticClient.transport(settings, ElasticsearchClientUri(uri))
 
-  def process(offset: Long, topic: String, key: String, inputJson: String): Future[Unit] = {
+  def process(offset: Long, topic: String, key: String, inputJson: String): Future[Unit] =
     // Find json transformer
     jsonTransformers get topic match {
       case Some(t) ⇒
@@ -44,7 +44,6 @@ class ScopedIndexer(uri: String,
         Console.out.println(s"Skipping information from topic $topic")
         Future { () }
     }
-  }
 
   //This save will index into several indices based on scope. Scopes are
   //constructured as a path with '.' seperating the elements. We want to index
@@ -66,7 +65,7 @@ class ScopedIndexer(uri: String,
           // if no scope found, just save the good old way
           case _ ⇒
             Console.out.println(
-                s"No scope found for document ID $jid from $topic, performing unscoped indexing...")
+              s"No scope found for document ID $jid from $topic, performing unscoped indexing...")
             indexDocument(indexName, jid, document, topic)
         }
       case _ ⇒
@@ -86,37 +85,39 @@ class ScopedIndexer(uri: String,
     }.distinct
   }
 
-  private def indexScopes(
-      scopes: Seq[String], documentId: BigInt, document: String, topic: String): Future[Unit] = {
+  private def indexScopes(scopes: Seq[String],
+                          documentId: BigInt,
+                          document: String,
+                          topic: String): Future[Unit] =
     Future
-      .sequence(
-          scopes.map { scope ⇒
+      .sequence(scopes.map { scope ⇒
         if (!scope.isEmpty()) {
-          val scopedIndexName = s"${indexName}_${scope}"
+          val scopedIndexName = s"${indexName}_$scope"
           indexDocument(scopedIndexName, documentId, document, topic)
         } else {
-          Console.out.println(
-              s"Skipping document with empty scope on topic $topic...\r\n$document")
+          Console.out.println(s"Skipping document with empty scope on topic $topic...\r\n$document")
           Future { () }
         }
       })
       .map(_ ⇒ ())
-  }
 
   private def indexDocument(scopedIndexName: String,
                             documentId: BigInt,
                             document: String,
                             topic: String): Future[Unit] = {
     Console.out.println(s"Scoped Indexing $topic into $scopedIndexName")
-    val req = client.execute {
-      index into scopedIndexName / topic id documentId doc PassthroughSource(document)
-    }.map { _ ⇒
-      ()
-    }.recover {
-      case e: RemoteTransportException if e.getCause.isInstanceOf[IndexNotFoundException] ⇒
-        Console.out.println(s"Index $scopedIndexName not found, let's try later")
-        throw ErrorTryAgainLater(s"Index $scopedIndexName not found")
-    }
+    val req = client
+      .execute {
+        index into scopedIndexName / topic id documentId doc PassthroughSource(document)
+      }
+      .map { _ ⇒
+        ()
+      }
+      .recover {
+        case e: RemoteTransportException if e.getCause.isInstanceOf[IndexNotFoundException] ⇒
+          Console.out.println(s"Index $scopedIndexName not found, let's try later")
+          throw ErrorTryAgainLater(s"Index $scopedIndexName not found")
+      }
 
     req onFailure {
       case NonFatal(e) ⇒ Console.err.println(s"Error while indexing: $e")

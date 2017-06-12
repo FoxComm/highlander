@@ -22,7 +22,7 @@
 .promotion-coupons-new :global .fc-content-box .fc-content-box-indent .fc-content-box-header{
   height: 60px;
   margin: 0;
-  background: #f7f7f7;
+  background: var(--bg-grey-headers);
   padding-bottom: 0;
 }
 

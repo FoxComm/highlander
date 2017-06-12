@@ -2,13 +2,13 @@
   display: flex;
 
   &__input-container {
-    background-color: @color-grey-headers;
+    background-color: @bg-grey-headers;
     display: flex;
     flex-grow: 1;
     border: 1px solid @color-border;
 
     &._solid {
-      background-color: @color-white;
+      background-color: @bg-white;
     }
   }
 
@@ -35,7 +35,7 @@
   }
 
   input.fc-pilled-input__input-field._solid-input {
-    background-color: @color-transparent;
+    background-color: transparent;
     border: none;
   }
 
@@ -55,8 +55,8 @@
     border-radius: 17px;
     height: 34px;
     margin: 3px 0 0 5px;
-    background: @color-nav-main;
-    color: @color-white;
+    background: @bg-nav-main;
+    color: @bg-white;
     display: flex;
     transition: all .2s;
 
@@ -79,7 +79,7 @@
       .font-spec(16px, 700, 34px);
       display: inline-block;
       padding: 0 12px 0 8px;
-      border-left: 1px solid #7D848E;
+      border-left: 1px solid @color-border;
       cursor: pointer;
       border-radius: 0 17px 17px 0;
       transition: all .1s;

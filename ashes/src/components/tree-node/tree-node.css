@@ -8,7 +8,7 @@
   color: var(--color-text);
 
   &.active {
-    background-color: var(--grey-headers);
+    background-color: var(--bg-grey-headers);
 
     &::before {
       content: '';
@@ -17,7 +17,7 @@
       top: 0;
       bottom: 0;
       width: 3px;
-      background: var(--green-buttons);
+      background: var(--bg-green-buttons);
     }
   }
 }
@@ -28,7 +28,7 @@
 }
 
 .item:hover {
-  background: var(--grey-headers);
+  background: var(--bg-grey-headers);
 }
 
 .text {

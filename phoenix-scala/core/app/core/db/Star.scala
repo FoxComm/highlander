@@ -22,8 +22,7 @@ object * {
   def <~[A](v: Either[Failures, A])(implicit ec: EC): DbResultT[A] =
     DbResultT.fromEither(v)
 
-  def <~[A](v: Future[Either[Failures, A]])(implicit M1: Monad[DBIO],
-                                            M2: Monad[Future]): DbResultT[A] =
+  def <~[A](v: Future[Either[Failures, A]])(implicit M1: Monad[DBIO], M2: Monad[Future]): DbResultT[A] =
     DbResultT.fromResult(Result.fromFEither(v))
 
   def <~[A](v: Future[A])(implicit ec: EC): DbResultT[A] =
@@ -48,6 +47,6 @@ object * {
   def <~[A](v: DbResultT[A]): DbResultT[A] =
     v
 
-  def <~[A](v: Option[DbResultT[A]])(implicit ec: EC): DbResultT[Option[A]] = // TODO: sequence? @michalrus
+  def <~[A](v: Option[DbResultT[A]])(implicit ec: EC): DbResultT[Option[A]] = // TODO: sequence? @michalrus - yes, please! @aafa
     v.fold(DbResultT.none[A])(_.map(Some(_)))
 }
