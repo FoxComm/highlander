@@ -71,12 +71,18 @@ defmodule Solomon.UserController do
 
     case Scrypt.check(pass, hash) do
       {:ok, true} ->
-        claims = token_claim(account_id, scope_id)
-        signed_token = sign(claims)
-        conn
-        |> put_resp_cookie("JWT", signed_token)
-        |> put_resp_header("JWT", signed_token)
-        |> render(Solomon.TokenView, "show.json", token: claims)
+        case token_claim(account_id, scope_id) do
+          {:ok, claims} ->
+            signed_token = sign(claims)
+            conn
+            |> put_resp_cookie("JWT", signed_token)
+            |> put_resp_header("JWT", signed_token)
+            |> render(Solomon.TokenView, "show.json", token: claims)
+          {:error, errors} ->
+            conn
+            |> put_status(:bad_request)
+            |> render(Solomon.ErrorView, "error.json", %{errors: errors})
+        end
       {:ok, false} ->
         conn
         |> put_status(:unauthorized)
@@ -84,7 +90,7 @@ defmodule Solomon.UserController do
       {:error, errors} ->
         conn
         |> put_status(:bad_request)
-        |> render(Solomon.ErrorView, "errors.json", errors)
+        |> render(Solomon.ErrorView, "error.json", errors)
     end
   end
 
