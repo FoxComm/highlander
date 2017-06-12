@@ -32,6 +32,14 @@ module.exports = {
           }]
         },
         {
+          name: 'Iconography',
+          components: () => ([
+            path.resolve(__dirname, '../src/components/docs/icons/icons.jsx'),
+            path.resolve(__dirname, '../src/components/docs/svg-icons/svg-icons.jsx'),
+            path.resolve(__dirname, '../src/components/docs/logos/logos.jsx'),
+          ]),
+        },
+        {
           name: 'Components',
           content: '../docs/components.md',
         },
@@ -48,23 +56,6 @@ module.exports = {
           content: '../docs/tests.md',
         },
       ],
-    },
-    {
-      name: 'Iconography',
-      sections: [
-        {
-          name: 'Icons',
-          content: '../docs/iconography/icons.md'
-        },
-        {
-          name: 'SVG Icons',
-          content: '../docs/iconography/icons-svg.md'
-        },
-        {
-          name: 'Logos',
-          content: '../docs/iconography/logos.md'
-        },
-      ]
     },
     {
       name: 'Components',

@@ -1,35 +1,5 @@
 ```
-const container = { 
-  display: 'flex',
-  flexWrap: 'wrap',
-  justifyContent: 'center',
-};
-
-const box =  {
-  display: 'flex',
-  flexDirection: 'column',
-  margin: '10px',
-  color: '#6d859e'
-}
-
-const iconWrapper =  {
-  width: '120px',
-  height: '120px',
-  border: '1px dashed #bdc9d6',
-  textAlign: 'center',
-  lineHeight: '120px',
-  fontSize: '28px'
-  
-}
-
-const text = {
-  marginTop: '5px',
-  fontSize: '12px',
-  textAlign: 'center',
-  lineHeight: '15px'
-}
-
-const names = [
+const iconSet = [
   "add",
   "bell",
   "chevron-right",
@@ -120,22 +90,5 @@ const names = [
   "export",
 ];
 
-const Iconography = () => {
-    const icons = names.map((name) => (
-    <div key={name} style={box}>
-      <div style={iconWrapper}> 
-        <Icon name={name}/>
-      </div>
-      <span style={text}>{name}</span>
-    </div>
-  ));
-
-  return(
-    <div style={container}>
-      {icons}
-    </div>
-  );
-};
-
-<Iconography />
+<Icons iconSet={iconSet}/>
 ```
