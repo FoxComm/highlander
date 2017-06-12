@@ -1,14 +1,6 @@
 ---
 
-- name: Provision Stage Amigo
-  hosts: foxcomm-groups-amigo
-  become: true
-  vars:
-    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-  roles:
-    - { role: dev/marathon_consul, when: first_run }
-
-- name: Provision Test Backend
+- name: Setup Database
   hosts: foxcomm-test-backend
   become: true
   vars:
@@ -16,24 +8,13 @@
     is_staging: true
     with_onboarding: true
   roles:
-    - { role: base/mesos_worker, when: first_run }   # Hotfix, to be removed
-    - { role: hotfix/mesos_worker, when: first_run } # Hotfix, to be removed
     - { role: dev/db, when: first_run }
     - { role: dev/db_ic, when: first_run }
     - { role: dev/flyway }
     - { role: dev/seed_system, when: first_run }
 
-- name: Provision Test Frontend
+- name: Restart Highlander Group
   hosts: foxcomm-test-frontend
-  become: true
-  vars:
-    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-  roles:
-    - { role: base/mesos_worker, when: first_run }   # Hotfix, to be removed
-    - { role: hotfix/mesos_worker, when: first_run } # Hotfix, to be removed
-
-- name: Restart Marathon Group
-  hosts: foxcomm-test-amigo
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
@@ -46,17 +27,6 @@
     with_onboarding: true
   roles:
     - { role: dev/marathon_groups }
-
-- name: Restart Nginx
-  hosts: foxcomm-test-frontend
-  become: true
-  vars:
-    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-    api_server: test.foxcommerce.com
-    storefront_server_name: test.foxcommerce.com
-    is_staging: true
-    with_onboarding: true
-  roles:
     - { role: dev/nginx }
     - { role: demo/balancer }
     - { role: hotfix/nginx }

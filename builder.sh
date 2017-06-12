@@ -32,10 +32,11 @@ PROJECTS=(
     'middlewarehouse/consumers/shipments'
     'middlewarehouse/consumers/shipstation'
     'middlewarehouse/elasticmanager'
-    'onboarding'
+    'onboarding/service'
     'onboarding/ui'
     'phoenix-scala'
     'phoenix-scala/seeder'
+    'search-service'
     'solomon'
     'tabernacle/docker/neo4j'
     'tabernacle/docker/neo4j_reset'
@@ -101,27 +102,27 @@ unset IFS
 # Detect changed projects
 CHANGED=()
 if [[ ${#ALL_CHANGED[@]} -gt 0 ]]; then
+    write "List of changed projects:"
     for CHANGE in ${ALL_CHANGED[@]}; do
         if [ $(contains "${PROJECTS[@]}" "$CHANGE") == "y" ]; then
+            write "\t${CHANGE}"
             CHANGED+=($CHANGE)
         fi
     done
 fi
 
-# Build everything if script goes wrong
+# Build everything if on master, quit if on branch
 if [[ ${#CHANGED[@]} == 0 ]]; then
-    write "No projects changed, building all by default"
-    for PROJECT in ${PROJECTS[@]}; do
-        CHANGED+=($PROJECT)
-    done
+    if [ "$BUILDKITE_PIPELINE_SLUG" == "highlander-master" ] ; then
+        write "Rebuilding everything"
+        for PROJECT in ${PROJECTS[@]}; do
+            CHANGED+=($PROJECT)
+        done
+    else
+        write "No projects changed, nothing to build"
+        exit 0;
+    fi
 fi
-
-# Debug output
-write "Changed projects (${#CHANGED[@]}):"
-for item in "${CHANGED[@]}"
-do
-    write "\t ${item}"
-done
 
 # Build, test, dockerize, push
 if [ "$DEBUG" = false ] ; then

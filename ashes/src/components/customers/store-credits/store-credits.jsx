@@ -364,9 +364,9 @@ class StoreCredits extends Component {
 const mapStateToProps = (state, props) => {
   return {
     list: _.get(state.customers, 'storeCredits', {}),
-    storeCreditTotals: _.get(state.customers, 'storeCreditTotals[props.params.customerId]', {}),
+    storeCreditTotals: _.get(state.customers, `storeCreditTotals[${props.params.customerId}]`, {}),
     reasons: _.get(state, 'reasons', {}),
-    states: _.get(state.customers, 'storeCreditStates[props.params.customerId]', {}),
+    states: _.get(state.customers, `storeCreditStates[${props.params.customerId}]`, {}),
   };
 };
 
