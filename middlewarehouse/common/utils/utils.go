@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"os"
 	"regexp"
 )
 
@@ -63,4 +64,14 @@ func ReplaceAllMatchingGroup(in, repl string, r *regexp.Regexp) string {
 	buffer.WriteString(in[lastMatchTo:])
 
 	return buffer.String()
+}
+
+func IsDebug() bool {
+	isDebug := os.Getenv("DEBUG")
+
+	if len(isDebug) == 0 && isDebug != "TRUE" && isDebug != "true" && isDebug != "1" {
+		return false
+	}
+
+	return true
 }
