@@ -20,7 +20,7 @@ import { checkApplePay, beginApplePay } from 'modules/checkout';
 import Currency from 'ui/currency';
 import LineItem from './line-item';
 import Button from 'ui/buttons';
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from 'ui/alerts/error-alerts';
 import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
 import { parseError } from '@foxcomm/api-js';
 import Overlay from 'ui/overlay/overlay';
