@@ -22,25 +22,15 @@ const MarketingEntry = ({ claims, routes }: TMenuEntry) => {
 
   return (
     <div styleName="fc-entries-wrapper">
-      <h3>MARKETING</h3>
+      <h3>CONTENT</h3>
       <li>
         <NavigationItem
-          to="gift-cards"
-          icon="gift-cards"
-          title="Gift Cards"
+          to="content-types"
+          icon="content-types"
+          title="Content Types"
           routes={routes}
           actualClaims={claims}
           expectedClaims={giftCardClaims}
-        />
-      </li>
-      <li>
-        <NavigationItem
-          to="promotions"
-          icon="promotions"
-          title="Promotions"
-          routes={routes}
-          actualClaims={claims}
-          expectedClaims={promotionClaims}
         />
       </li>
     </div>
