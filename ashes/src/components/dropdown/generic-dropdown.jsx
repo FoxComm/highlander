@@ -8,7 +8,6 @@ import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 
 import DropdownItem from './dropdownItem';
-import Overlay from '../overlay/overlay';
 import { Button } from 'components/core/button';
 import BodyPortal from '../body-portal/body-portal';
 
@@ -125,8 +124,8 @@ export default class GenericDropdown extends Component {
   }
 
   @autobind
-  handleClickOutside(e) {
-    if (this._block && !this._block.contains(e.target) && this.state.open) {
+  handleClickOutside({ target }: { target: HTMLElement }) {
+    if (this._block && !this._block.contains(target) && this.state.open) {
       this.closeMenu();
     }
   }
