@@ -6,7 +6,7 @@ import com.twitter.finagle.http.Status
 import com.twitter.util.Await
 import foxcomm.search._
 import foxcomm.utils.finch._
-import io.circe.generic.auto._
+import io.circe.generic.extras.auto._
 import io.finch._
 import io.finch.circe._
 import org.elasticsearch.common.ValidationException

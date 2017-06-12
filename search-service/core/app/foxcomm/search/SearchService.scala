@@ -16,12 +16,14 @@ class SearchService(private val client: ElasticClient) extends AnyVal {
                 searchQuery: SearchQuery,
                 searchSize: Int,
                 searchFrom: Option[Int])(implicit ec: ExecutionContext): Future[SearchResult] = {
-    val baseQuery = search in searchIndex size searchSize rawQuery Json
-      .fromJsonObject(searchQuery.query)
-      .noSpaces
-    val query = searchQuery.fields.fold(baseQuery)(fields ⇒ baseQuery sourceInclude (fields.toList: _*))
+    val withQuery = searchQuery match {
+      case SearchQuery.ES(query, _) ⇒ (_: SearchDefinition) rawQuery Json.fromJsonObject(query).noSpaces
+      case SearchQuery.FC(query, _) ⇒ ??? // TODO
+    }
+    val baseSearch = withQuery(search in searchIndex size searchSize)
+    val limitedSearch = searchQuery.fields.fold(baseSearch)(fields ⇒ baseSearch sourceInclude (fields.toList: _*))
     client
-      .execute(searchFrom.fold(query)(query from))
+      .execute(searchFrom.fold(limitedSearch)(limitedSearch from))
       .map(response ⇒
         SearchResult(result = response.hits.collect {
           case ExtractJsonObject(obj) ⇒ obj
