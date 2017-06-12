@@ -1,8 +1,10 @@
 /* @flow */
 
+import _ from 'lodash';
 import React from 'react';
 
 import Content from 'components/core/content/content';
+import { Dropdown } from 'components/dropdown';
 import Form from 'components/forms/form';
 import SaveCancel from 'components/core/save-cancel';
 import TextInput from 'components/forms/text-input';
@@ -14,17 +16,32 @@ type Props = {
   name: string,
   defaultLanguage: string,
   site: string,
+  countryId: ?number,
+  countries: Array<Country>,
   onChange: Function,
+  onCancel: Function,
+  onSubmit: Function,
 };
 
 const NewCatalogForm = (props: Props) => {
-  const { defaultLanguage, name, site, onChange } = props;
+  const { defaultLanguage, name, site, countryId, countries } = props;
+  const { onCancel, onChange, onSubmit } = props;
+  
+  const country = _.find(countries, { 'id': countryId });
+
+  let languages = _.get(country, 'languages', []);
+  if (_.indexOf('en') == -1) {
+    languages = ['en', ...languages];
+  }
+
+  const countryItems = countries.map((country) => [country.id, country.name]);
+  const languageItems = languages.map((lang) => [lang, lang]);
   
   return (
     <Content>
       <div styleName="form-content">
       <h1>New Catalog</h1>
-        <Form onSubmit={(e) => console.log(e)}>
+        <Form onSubmit={onSubmit}>
           <VerticalFormField
             controlId= "name"
             label="Name"
@@ -36,16 +53,6 @@ const NewCatalogForm = (props: Props) => {
             />
           </VerticalFormField>
           <VerticalFormField
-            controlId="defaultLanguage"
-            label="Default Language"
-            required
-          >
-            <TextInput
-              onChange={(v) => onChange('defaultLanguage', v)}
-              value={defaultLanguage}
-            />
-          </VerticalFormField>
-          <VerticalFormField
             controlId="site"
             label="Site URL"
           >
@@ -54,8 +61,35 @@ const NewCatalogForm = (props: Props) => {
               value={site}
             />
           </VerticalFormField>
+          <VerticalFormField
+            controlId="countryId"
+            label="Country"
+            required
+          >
+            <Dropdown
+              name="countryId"
+              value={countryId}
+              items={countryItems}
+              onChange={(c) => onChange('countryId', c)}
+            />
+          </VerticalFormField>
+          <VerticalFormField
+            controlId="defaultLanguage"
+            label="Default Language"
+            required
+          >
+            <Dropdown
+              name="defaultLanguage"
+              value={defaultLanguage}
+              items={languageItems}
+              onChange={(l) => onChange('defaultLanguage', l)}
+            />
+          </VerticalFormField>
           <div styleName="submit-block">
-            <SaveCancel saveText="Save Catalog" />
+            <SaveCancel
+              onCancel={onCancel}
+              saveText="Save Catalog"
+            />
           </div>
         </Form>
       </div>
