@@ -22,10 +22,6 @@
       prompt: "Enter preferred development instance name (optional)"
       default: ""
       private: no
-    - name: "with_ic_input"
-      prompt: "Should we provision instance with IC apps?"
-      default: yes
-      private: no
     - name: "with_seeding_input"
       prompt: "Should we seed instance immediately?"
       default: yes

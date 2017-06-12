@@ -1,6 +1,10 @@
 package payloads
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/FoxComm/highlander/middlewarehouse/models"
+)
 
 type Reservation struct {
 	RefNum string            `json:"refNum" binding:"required"`
@@ -19,4 +23,11 @@ func (r Reservation) Validate() error {
 	}
 
 	return nil
+}
+
+func (r Reservation) Model() *models.Reservation {
+	return &models.Reservation{
+		RefNum: r.RefNum,
+		Scope:  r.Scope,
+	}
 }

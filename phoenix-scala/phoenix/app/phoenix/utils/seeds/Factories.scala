@@ -47,7 +47,7 @@ object Factories
   def creditCardCharge =
     CreditCardCharge(creditCardId = creditCard.id,
                      orderPaymentId = orderPayment.id,
-                     chargeId = "foo",
+                     stripeChargeId = "foo",
                      amount = 25)
 
   def reason(storeAdminId: Int) =
@@ -55,37 +55,31 @@ object Factories
 
   def reasons: Seq[Reason] =
     Seq(
-        // Gift card creation reasons
-        Reason(body = "Gift to loyal customer",
-               reasonType = GiftCardCreation,
-               parentId = None,
-               storeAdminId = 0),
-        Reason(body = "New year GC giveaway",
-               reasonType = GiftCardCreation,
-               parentId = None,
-               storeAdminId = 0),
-        // Store credit creation reasons
-        Reason(body = "Gift to loyal customer",
-               reasonType = StoreCreditCreation,
-               parentId = None,
-               storeAdminId = 0),
-        Reason(body = "New year SC giveaway",
-               reasonType = StoreCreditCreation,
-               parentId = None,
-               storeAdminId = 0),
-        // Cancellation reasons
-        Reason(body = "Cancelled by customer request",
-               reasonType = Cancellation,
-               parentId = None,
-               storeAdminId = 0),
-        Reason(body = "Cancelled because duplication",
-               reasonType = Cancellation,
-               parentId = None,
-               storeAdminId = 0),
-        Reason(body = "Other cancellation reason",
-               reasonType = Cancellation,
-               parentId = None,
-               storeAdminId = 0)
+      // Gift card creation reasons
+      Reason(body = "Gift to loyal customer",
+             reasonType = GiftCardCreation,
+             parentId = None,
+             storeAdminId = 0),
+      Reason(body = "New year GC giveaway", reasonType = GiftCardCreation, parentId = None, storeAdminId = 0),
+      // Store credit creation reasons
+      Reason(body = "Gift to loyal customer",
+             reasonType = StoreCreditCreation,
+             parentId = None,
+             storeAdminId = 0),
+      Reason(body = "New year SC giveaway",
+             reasonType = StoreCreditCreation,
+             parentId = None,
+             storeAdminId = 0),
+      // Cancellation reasons
+      Reason(body = "Cancelled by customer request",
+             reasonType = Cancellation,
+             parentId = None,
+             storeAdminId = 0),
+      Reason(body = "Cancelled because duplication",
+             reasonType = Cancellation,
+             parentId = None,
+             storeAdminId = 0),
+      Reason(body = "Other cancellation reason", reasonType = Cancellation, parentId = None, storeAdminId = 0)
     )
 
   def createSingleMerchantSystem(implicit ec: EC) =

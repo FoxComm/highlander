@@ -7,7 +7,7 @@ import phoenix.models.location.Addresses
 import phoenix.models.product.{Mvp, SimpleContext}
 import phoenix.models.rules.QueryStatement
 import phoenix.models.shipping
-import phoenix.models.shipping.ShippingMethods
+import phoenix.models.shipping.{ShippingMethod, ShippingMethods}
 import phoenix.responses.ShippingMethodsResponse.Root
 import phoenix.services.carts.CartTotaler
 import phoenix.utils.seeds.Factories
@@ -15,21 +15,28 @@ import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
 import testutils.fixtures.BakedFixtures
 import core.db._
+import phoenix.payloads.CartPayloads.CreateCart
+import phoenix.responses.cord.CartResponse
+import cats.implicits._
+import faker.Lorem
+import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
+import testutils.fixtures.api.ApiFixtures
 
 class ShippingMethodsIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with PhoenixStorefrontApi
     with DefaultJwtAdminAuth
-    with BakedFixtures {
+    with BakedFixtures
+    with ApiFixtures {
 
   "GET /v1/shipping-methods/:refNum" - {
 
     "Evaluates shipping rule: order total is greater than $25" - {
 
       "Shipping method is returned when actual order total is greater than $25" in new ShippingMethodsFixture {
-        val conditions = parse(
-            """
+        val conditions =
+          parse("""
             | {
             |   "comparison": "and",
             |   "conditions": [{
@@ -52,8 +59,8 @@ class ShippingMethodsIntegrationTest
     "Evaluates shipping rule: order total is greater than $100" - {
 
       "No shipping rules found when order total is less than $100" in new ShippingMethodsFixture {
-        val conditions = parse(
-            """
+        val conditions =
+          parse("""
             | {
             |   "comparison": "and",
             |   "conditions": [{
@@ -113,18 +120,41 @@ class ShippingMethodsIntegrationTest
 
     "Get shipping method by country code" in new UsShipping {
       withNewCustomerAuth(TestLoginData.random) { implicit auth ⇒
+        cartsApi.create(CreateCart(customerId = auth.customerId.some)).as[CartResponse]
         storefrontCartsApi.shippingMethods.searchByRegion("us").as[Seq[Root]].size mustBe >(0)
+      }
+    }
+
+    "Make sure that searchByRegion is aware of a cart content" in new UsShipping {
+      withNewCustomerAuth(TestLoginData.random) { implicit auth ⇒
+        val cart = cartsApi.create(CreateCart(customerId = auth.customerId.some)).as[CartResponse]
+
+        storefrontCartsApi.shippingMethods
+          .searchByRegion("us")
+          .as[Seq[Root]]
+          .exists(_.price == 0) mustBe false // no free shipping
+
+        cartsApi(cart.referenceNumber).lineItems
+          .add(Seq(UpdateLineItemsPayload(skuCode, 50))) // over 50 bucks
+          .mustBeOk()
+
+        storefrontCartsApi.shippingMethods
+          .searchByRegion("us")
+          .as[Seq[Root]]
+          .exists(_.price == 0) mustBe true // YES! free shipping
       }
     }
 
     "No shipping to Russia ;(" in new UsShipping {
       withNewCustomerAuth(TestLoginData.random) { implicit auth ⇒
+        cartsApi.create(CreateCart(customerId = auth.customerId.some)).as[CartResponse]
         storefrontCartsApi.shippingMethods.searchByRegion("rus").as[Seq[Root]].size must === (0)
       }
     }
 
     "No shipping methods for non existent country" in {
       withNewCustomerAuth(TestLoginData.random) { implicit auth ⇒
+        cartsApi.create(CreateCart(customerId = auth.customerId.some)).as[CartResponse]
         storefrontCartsApi.shippingMethods
           .searchByRegion("uss")
           .mustFailWith400(NoCountryFound("uss"))
@@ -143,9 +173,8 @@ class ShippingMethodsIntegrationTest
     val (address, orderShippingAddress) = (for {
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       address ← * <~ Addresses.create(
-                   Factories.address.copy(accountId = customer.accountId, regionId = californiaId))
-      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                                cordRef = cart.refNum)
+                 Factories.address.copy(accountId = customer.accountId, regionId = californiaId))
+      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, cordRef = cart.refNum)
       product ← * <~ Mvp.insertProduct(productContext.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
       _ ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
@@ -264,18 +293,15 @@ class ShippingMethodsIntegrationTest
 
     val shippingMethod = (for {
       shippingMethod ← shipping.ShippingMethods.create(
-                          Factories.shippingMethods.head.copy(conditions = Some(conditions),
-                                                              restrictions = Some(restrictions)))
+                        Factories.shippingMethods.head.copy(conditions = Some(conditions),
+                                                            restrictions = Some(restrictions)))
     } yield shippingMethod).gimme
   }
 
-  trait UsShipping {
-    val usShippingMethod = (for {
-      usShippingMethod ← shipping.ShippingMethods.create(
-                            Factories.shippingMethods
-                              .filter(_.conditions == Some(Factories.usOnly))
-                              .head)
+  trait UsShipping extends ProductSku_ApiFixture {
+    val shippingMethods: Seq[ShippingMethod] =
+      Factories.shippingMethods.map(sm ⇒ shipping.ShippingMethods.create(sm).gimme)
 
-    } yield usShippingMethod).gimme
+    require(shippingMethods.length > 0)
   }
 }

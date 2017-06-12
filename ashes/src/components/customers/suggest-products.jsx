@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import ContentBox from '../content-box/content-box';
@@ -20,6 +21,10 @@ function prependCountryCode(phoneNumber) {
   return phoneNumber && phoneNumber.length == 10 ? '1'+phoneNumber : phoneNumber;
 }
 
+@connect((state, props) => ({
+  addresses: _.get(state.customers.addresses, [props.customer.id, 'addresses'], []),
+  cards: _.get(state.customers.creditCards, [props.customer.id, 'cards'], []),
+}))
 export default class CustomerSuggestProducts extends React.Component {
 
   static propTypes = {
@@ -38,6 +43,13 @@ export default class CustomerSuggestProducts extends React.Component {
       .catch((err) => this.setState({ error: err.response.text }));
   }
 
+  isEnabled() {
+    const { addresses, cards } = this.props;
+    const isDefaultAddress = _.find(addresses, address => address.isDefault);
+    const isDefaultCard = _.find(cards, card => card.isDefault);
+    return isDefaultAddress && isDefaultCard;
+  }
+
   buttonOrNot() {
     if(this.state.msgSent) {
       return (
@@ -50,7 +62,9 @@ export default class CustomerSuggestProducts extends React.Component {
       return <ErrorAlerts error={this.state.error} />;
     }
     return (
-      <Button id="customer-suggest-products-btn" onClick={this.onSend}>Send Suggestion</Button>
+      <Button id="customer-suggest-products-btn" onClick={this.onSend} disabled={!this.isEnabled()}>
+        Send Suggestion
+      </Button>
     );
   }
 

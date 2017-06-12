@@ -15,6 +15,7 @@ import phoenix.services.account.AccountManager
 import phoenix.utils.aliases.{SF, SL}
 import phoenix.utils.seeds.generators.GeneratorUtils.randomString
 import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
+import utils.MockedApis
 import core.db._
 
 case class TestLoginData(email: String, password: String)
@@ -44,23 +45,25 @@ trait JwtTestAuth
     with PhoenixPublicApi
     with PhoenixAdminApi
     with AppendedClues
-    with TestActivityContext.AdminAC {
-  self: FoxSuite ⇒
+    with MockedApis
+    with TestActivityContext.AdminAC { self: FoxSuite ⇒
 
   val defaultAdminLoginData: TestLoginData = TestLoginData("default@admin.com")
 
   def defaultAdmin: Root =
     Users.findByEmail(defaultAdminLoginData.email).one.gimme match {
       case Some(admin) ⇒
-        StoreAdminManager.getById(admin.id).gimme
+        StoreAdminManager.getById(admin.accountId).gimme
       case _ ⇒
         StoreAdminManager
-          .create(CreateStoreAdminPayload(org = "tenant",
-                                          name = faker.Name.name,
-                                          email = defaultAdminLoginData.email,
-                                          password = defaultAdminLoginData.password.some,
-                                          roles = List("admin")),
-                  author = None)
+          .create(
+            CreateStoreAdminPayload(org = "tenant",
+                                    name = faker.Name.name,
+                                    email = defaultAdminLoginData.email,
+                                    password = defaultAdminLoginData.password.some,
+                                    roles = List("admin")),
+            author = None
+          )
           .gimme
     }
 
@@ -72,15 +75,15 @@ trait JwtTestAuth
   def withRandomAdminAuth[Out](testCode: TestAdminAuth ⇒ Out)(implicit sl: SL, sf: SF): Out =
     withNewAdminAuth(TestLoginData.random)(testCode)
 
-  def withNewAdminAuth[Out](loginData: TestLoginData)(
-      testCode: TestAdminAuth ⇒ Out)(implicit sl: SL, sf: SF): Out = {
+  def withNewAdminAuth[Out](loginData: TestLoginData)(testCode: TestAdminAuth ⇒ Out)(implicit sl: SL,
+                                                                                     sf: SF): Out = {
     val adminId = storeAdminsApi
       .create(
-          CreateStoreAdminPayload(org = "tenant",
-                                  email = loginData.email,
-                                  password = loginData.password.some,
-                                  name = faker.Name.name,
-                                  roles = List("admin")))(defaultAdminAuth)
+        CreateStoreAdminPayload(org = "tenant",
+                                email = loginData.email,
+                                password = loginData.password.some,
+                                name = faker.Name.name,
+                                roles = List("admin")))(defaultAdminAuth)
       .as[StoreAdminResponse.Root]
       .id
     withAdminAuth(loginData, adminId)(testCode)
@@ -93,8 +96,7 @@ trait JwtTestAuth
     val jwtCookie = bakeJwtCookie(adminId)
 
     val userId = publicApi
-      .login(LoginPayload(org = "tenant", email = loginData.email, password = loginData.password),
-             jwtCookie)
+      .login(LoginPayload(org = "tenant", email = loginData.email, password = loginData.password), jwtCookie)
       .as[UserToken]
       .id
     testCode(TestAdminAuth(adminId = userId, jwtCookie = jwtCookie, loginData = loginData))
@@ -103,13 +105,13 @@ trait JwtTestAuth
   def withRandomCustomerAuth[Out](testCode: TestCustomerAuth ⇒ Out)(implicit sl: SL, sf: SF): Out =
     withNewCustomerAuth(TestLoginData.random)(testCode)
 
-  def withNewCustomerAuth[Out](loginData: TestLoginData)(
-      testCode: TestCustomerAuth ⇒ Out)(implicit sl: SL, sf: SF): Out = {
+  def withNewCustomerAuth[Out](loginData: TestLoginData)(testCode: TestCustomerAuth ⇒ Out)(implicit sl: SL,
+                                                                                           sf: SF): Out = {
     val customerId = customersApi
       .create(
-          CreateCustomerPayload(email = loginData.email,
-                                password = loginData.password.some,
-                                name = faker.Name.name.some))(defaultAdminAuth)
+        CreateCustomerPayload(email = loginData.email,
+                              password = loginData.password.some,
+                              name = faker.Name.name.some))(defaultAdminAuth)
       .as[CustomerResponse.Root]
       .id
 
@@ -123,9 +125,8 @@ trait JwtTestAuth
     val jwtCookie = bakeJwtCookie(customerId)
 
     val userId = publicApi
-      .login(
-          LoginPayload(org = "merchant", email = loginData.email, password = loginData.password),
-          jwtCookie)
+      .login(LoginPayload(org = "merchant", email = loginData.email, password = loginData.password),
+             jwtCookie)
       .as[UserToken]
       .id
     testCode(TestCustomerAuth(customerId = userId, jwtCookie = jwtCookie, loginData = loginData))

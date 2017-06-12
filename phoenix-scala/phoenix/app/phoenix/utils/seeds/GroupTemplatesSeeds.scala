@@ -14,8 +14,9 @@ trait GroupTemplatesSeeds {
     } yield DbResultT.unit
 
   private def abandonedCartsTemplate() =
-    CustomerGroupTemplate(name = "Abandoned Carts",
-                          elasticRequest = parse("""{
+    CustomerGroupTemplate(
+      name = "Abandoned Carts",
+      elasticRequest = parse("""{
               |  "query": {
               |    "bool": {
               |      "filter": [
@@ -43,7 +44,8 @@ trait GroupTemplatesSeeds {
               |    }
               |  }
               |}""".stripMargin),
-                          clientState = fakeQuery)
+      clientState = fakeQuery
+    )
 
   type GroupTemplates = (CustomerGroupTemplate#Id, CustomerGroupTemplate#Id)
 
@@ -59,13 +61,9 @@ trait GroupTemplatesSeeds {
       }
 
   private def template_1() =
-    CustomerGroupTemplate(name = "Donkies Group",
-                          elasticRequest = fakeQuery,
-                          clientState = fakeQuery)
+    CustomerGroupTemplate(name = "Donkies Group", elasticRequest = fakeQuery, clientState = fakeQuery)
   private def template_2() =
-    CustomerGroupTemplate(name = "Foxes Group",
-                          elasticRequest = fakeQuery,
-                          clientState = fakeQuery)
+    CustomerGroupTemplate(name = "Foxes Group", elasticRequest = fakeQuery, clientState = fakeQuery)
 
   def templates: Seq[CustomerGroupTemplate] = Seq(template_1, template_2)
   def template: CustomerGroupTemplate       = template_1

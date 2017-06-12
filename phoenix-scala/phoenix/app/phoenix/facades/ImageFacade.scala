@@ -44,9 +44,8 @@ object ImageFacade extends ImageHelpers {
   trait ImageUploader[T] {
 
     case class S3Path(dir: String, fileName: String) {
-      def absPath(): String = {
+      def absPath(): String =
         s"$dir/$fileName"
-      }
     }
 
     object S3Path {
@@ -65,13 +64,12 @@ object ImageFacade extends ImageHelpers {
       }
     }
 
-    def uploadImages(imageSource: T, contextName: String)(
-        implicit ec: EC,
-        db: DB,
-        au: AU,
-        am: Mat,
-        sys: ActorSystem,
-        apis: Apis): DbResultT[Seq[ImagePayload]] =
+    def uploadImages(imageSource: T, contextName: String)(implicit ec: EC,
+                                                          db: DB,
+                                                          au: AU,
+                                                          am: Mat,
+                                                          sys: ActorSystem,
+                                                          apis: Apis): DbResultT[Seq[ImagePayload]] =
       for {
         context ← * <~ ObjectManager.mustFindByName404(contextName)
         result  ← * <~ uploadImagesR(imageSource, context, album = None)
@@ -103,13 +101,13 @@ object ImageFacade extends ImageHelpers {
 
     implicit object ImagePayloadUploader extends ImageUploader[ImagePayload] {
 
-      def shouldBeValidImage(imageData: ByteBuffer): Either[Failures, Unit] = {
-        guessContentType(imageData).map { contentType ⇒
-          if (allowedImageTypes.contains(contentType)) Either.right({})
-          else Either.left(UnsupportedImageType(contentType).single)
-        }.getOrElse(Either.left(UnknownImageType.single))
-
-      }
+      def shouldBeValidImage(imageData: ByteBuffer): Either[Failures, Unit] =
+        guessContentType(imageData)
+          .map { contentType ⇒
+            if (allowedImageTypes.contains(contentType)) Either.right({})
+            else Either.left(UnsupportedImageType(contentType).single)
+          }
+          .getOrElse(Either.left(UnknownImageType.single))
 
       def shouldBeValidUrl(url: String): Either[Failures, Uri] = {
         val uri = Uri(url)
@@ -124,8 +122,7 @@ object ImageFacade extends ImageHelpers {
           au: AU,
           am: Mat,
           sys: ActorSystem,
-          apis: Apis): DbResultT[Seq[ImagePayload]] = {
-
+          apis: Apis): DbResultT[Seq[ImagePayload]] =
         for {
           url       ← * <~ shouldBeValidUrl(payload.src)
           imageData ← * <~ fetchImageData(url)
@@ -140,7 +137,6 @@ object ImageFacade extends ImageHelpers {
           payloads ← * <~ attachImageTo(newPayload, context, maybeAlbum)
 
         } yield payloads.map(imageToPayload)
-      }
     }
 
     implicit object MultipartUploader extends ImageUploader[Multipart.FormData] {
@@ -154,12 +150,11 @@ object ImageFacade extends ImageHelpers {
       }
 
       private def uploadPathToS3(filePath: java.nio.file.Path,
-                                 s3Path: S3Path)(implicit ec: EC, am: Mat, apis: Apis) = {
+                                 s3Path: S3Path)(implicit ec: EC, am: Mat, apis: Apis) =
         for {
           url ← apis.amazon.uploadFileF(s3Path.absPath, filePath.toFile)
           _ = Files.deleteIfExists(filePath)
         } yield ImageUploaded(url = url, fileName = s3Path.fileName)
-      }
 
       def uploadImagesR(formData: Multipart.FormData, context: OC, maybeAlbum: Option[Album])(
           implicit ec: EC,
@@ -175,11 +170,10 @@ object ImageFacade extends ImageHelpers {
           .mapAsyncUnordered(4) { part ⇒
             for {
               filePathE ← getFileFromRequest(part.entity.dataBytes)
-              filePath ← filePathE.fold(
-                            _ ⇒ Future.failed[Path](ImageFacadeException(ErrorReceivingImage)),
-                            Future.successful)
-              fileName ← part.filename.fold(Future.failed[String](ImageFacadeException(
-                                    ImageFilenameNotFoundInPayload)))(Future.successful)
+              filePath ← filePathE.fold(_ ⇒ Future.failed[Path](ImageFacadeException(ErrorReceivingImage)),
+                                        Future.successful)
+              fileName ← part.filename.fold(Future.failed[String](
+                          ImageFacadeException(ImageFilenameNotFoundInPayload)))(Future.successful)
             } yield (filePath, fileName)
           }
           .mapAsyncUnordered(4) {
@@ -188,9 +182,8 @@ object ImageFacade extends ImageHelpers {
               uploadPathToS3(filePath, s3path)
           }
           .map { srcInfo ⇒
-            val payload = ImagePayload(src = srcInfo.url,
-                                       title = srcInfo.fileName.some,
-                                       alt = srcInfo.fileName.some)
+            val payload =
+              ImagePayload(src = srcInfo.url, title = srcInfo.fileName.some, alt = srcInfo.fileName.some)
 
             attachImageTo(payload, context, maybeAlbum).map(_.map(imageToPayload))
 
@@ -244,23 +237,17 @@ object ImageFacade extends ImageHelpers {
       au: AU,
       am: Mat,
       sys: ActorSystem,
-      apis: Apis): DbResultT[AlbumRoot] = {
-
+      apis: Apis): DbResultT[AlbumRoot] =
     uploadImagesToAlbum[ImagePayload](albumId, contextName, payload)
-  }
 
-  def uploadImagesFromMultipartToAlbum(albumId: Int,
-                                       contextName: String,
-                                       formData: Multipart.FormData)(
+  def uploadImagesFromMultipartToAlbum(albumId: Int, contextName: String, formData: Multipart.FormData)(
       implicit ec: EC,
       db: DB,
       au: AU,
       am: Mat,
       sys: ActorSystem,
-      apis: Apis): DbResultT[AlbumRoot] = {
-
+      apis: Apis): DbResultT[AlbumRoot] =
     uploadImagesToAlbum[Multipart.FormData](albumId, contextName, formData)
-  }
 
   def uploadImagesFromMultiPart(contextName: String, formData: Multipart.FormData)(
       implicit ec: EC,
@@ -268,18 +255,14 @@ object ImageFacade extends ImageHelpers {
       au: AU,
       am: Mat,
       sys: ActorSystem,
-      apis: Apis): DbResultT[Seq[ImagePayload]] = {
-
+      apis: Apis): DbResultT[Seq[ImagePayload]] =
     ImageUploader.MultipartUploader.uploadImages(formData, contextName)
-  }
 
   // - endpoints
 
-  def attachImageToAlbum(album: Album, payload: ImagePayload)(
-      implicit ec: EC,
-      db: DB,
-      au: AU,
-      oc: OC): DbResultT[Seq[FullObject[Image]]] =
+  def attachImageToAlbum(
+      album: Album,
+      payload: ImagePayload)(implicit ec: EC, db: DB, au: AU, oc: OC): DbResultT[Seq[FullObject[Image]]] =
     for {
       existingImages ← * <~ AlbumImageLinks.queryRightByLeft(album)
       newPayloads = existingImages.map(imageToPayload) :+ payload
@@ -319,16 +302,15 @@ trait ImageHelpers extends LazyLogging {
   protected def extractFileNameFromUri(uri: Uri): String = {
 
     @tailrec
-    def latestSegment(path: Uri.Path): Option[String] = {
+    def latestSegment(path: Uri.Path): Option[String] =
       path match {
         case Uri.Path.Slash(tail)      ⇒ latestSegment(tail)
         case Uri.Path.Segment(head, _) ⇒ Some(head)
         case Uri.Path.Empty            ⇒ None
       }
-    }
 
     val revPath = uri.path.reverse
-    latestSegment(revPath).getOrElse(s"${generateUuid}.jpg")
+    latestSegment(revPath).getOrElse(s"$generateUuid.jpg")
   }
 
   def fetchImageData(uri: Uri)(implicit ec: EC, sys: ActorSystem, am: Mat): Result[ByteBuffer] = {
@@ -338,22 +320,23 @@ trait ImageHelpers extends LazyLogging {
           Either.right[Failures, ByteBuffer](body.asByteBuffer)
         }
       case HttpResponse(code, _, _, _) ⇒
-        Future.successful(
-            Either.left[Failures, ByteBuffer](ImageFetchFailed(code.intValue()).single))
+        Future.successful(Either.left[Failures, ByteBuffer](ImageFetchFailed(code.intValue()).single))
     }
 
     Result.fromFEither(r)
   }
 
   private def saveByteBuffer(b: ByteBuffer): Either[Failures, Path] =
-    Either.catchNonFatal {
-      val path = Files.createTempFile("s3tmp", ".img")
-      val ch   = FileChannel.open(path, java.nio.file.StandardOpenOption.WRITE)
-      ch.write(b)
-      ch.force(false)
-      ch.close()
-      path
-    }.leftMap(ImageTemporarySaveFailed(_).single)
+    Either
+      .catchNonFatal {
+        val path = Files.createTempFile("s3tmp", ".img")
+        val ch   = FileChannel.open(path, java.nio.file.StandardOpenOption.WRITE)
+        ch.write(b)
+        ch.force(false)
+        ch.close()
+        path
+      }
+      .leftMap(ImageTemporarySaveFailed(_).single)
 
   protected def saveBufferAndThen[R](b: ByteBuffer)(block: Path ⇒ DbResultT[R])(
       implicit ec: EC): DbResultT[R] =
@@ -370,11 +353,10 @@ trait ImageHelpers extends LazyLogging {
     new utils.io.ByteBufferInputStream(buffer)
   }
 
-  protected def guessContentType(byteBuffer: ByteBuffer): Option[String] = {
+  protected def guessContentType(byteBuffer: ByteBuffer): Option[String] =
     Try {
       // can return null or throw exception
       Option(URLConnection.guessContentTypeFromStream(asInputStream(byteBuffer)))
     }.toOption.flatten
-  }
 
 }

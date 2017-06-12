@@ -27,7 +27,7 @@ case class Return(id: Int = 0,
                   createdAt: Instant = Instant.now,
                   updatedAt: Instant = Instant.now,
                   deletedAt: Option[Instant] = None,
-                  totalRefund: Option[Int] = None)
+                  totalRefund: Option[Long] = None)
     extends FoxModel[Return]
     with FSM[Return.State, Return] {
 
@@ -38,17 +38,17 @@ case class Return(id: Int = 0,
   override def primarySearchKey: String = referenceNumber
 
   val fsm: Map[State, Set[State]] = Map(
-      Pending →
-        Set(Processing, Canceled),
-      Processing →
-        Set(Review, Complete, Canceled),
-      Review →
-        Set(Complete, Canceled)
+    Pending →
+      Set(Processing, Canceled),
+    Processing →
+      Set(Review, Complete, Canceled),
+    Review →
+      Set(Complete, Canceled)
   )
 }
 
 object Return {
-  sealed trait State extends Product with Serializable
+  sealed trait State     extends Product with Serializable
   case object Pending    extends State
   case object Processing extends State
   case object Review     extends State
@@ -75,15 +75,14 @@ object Return {
   val returnRefNumRegex         = """([a-zA-Z0-9-_.]*)""".r // normally it's "[Order.refNumber].#"
   val messageToAccountMaxLength = 1000
 
-  def build(order: Order, admin: User, rmaType: ReturnType = Return.Standard): Return = {
+  def build(order: Order, admin: User, rmaType: ReturnType = Return.Standard): Return =
     Return(
-        orderId = order.id,
-        orderRef = order.refNum,
-        returnType = rmaType,
-        accountId = order.accountId,
-        storeAdminId = Some(admin.accountId)
+      orderId = order.id,
+      orderRef = order.refNum,
+      returnType = rmaType,
+      accountId = order.accountId,
+      storeAdminId = Some(admin.accountId)
     )
-  }
 
 }
 
@@ -101,7 +100,7 @@ class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
   def createdAt        = column[Instant]("created_at")
   def updatedAt        = column[Instant]("updated_at")
   def deletedAt        = column[Option[Instant]]("deleted_at")
-  def totalRefund      = column[Option[Int]]("total_refund")
+  def totalRefund      = column[Option[Long]]("total_refund")
 
   def * =
     (id,
@@ -143,12 +142,11 @@ object Returns
   def findByOrderRefNum(refNum: String): QuerySeq = filter(_.orderRef === refNum)
 
   def findPrevious(rma: Return): QuerySeq =
-    findByOrderRefNum(rma.orderRef).filter(r ⇒
-          r.id =!= rma.id && r.state === (Return.Complete: Return.State))
+    findByOrderRefNum(rma.orderRef).filter(r ⇒ r.id =!= rma.id && r.state === (Return.Complete: Return.State))
 
   def findPreviousOrCurrent(rma: Return): QuerySeq =
     findByOrderRefNum(rma.orderRef).filter(r ⇒
-          (r.id =!= rma.id && r.state === (Return.Complete: Return.State)) || r.id === rma.id)
+      (r.id =!= rma.id && r.state === (Return.Complete: Return.State)) || r.id === rma.id)
 
   def findOneByRefNum(refNum: String): DBIO[Option[Return]] =
     findByRefNum(refNum).one

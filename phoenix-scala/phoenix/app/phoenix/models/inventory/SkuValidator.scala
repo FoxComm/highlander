@@ -13,7 +13,6 @@ object SkuValidator {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
-  def validate(form: ObjectForm, shadow: ObjectShadow): Seq[Failure] = {
+  def validate(form: ObjectForm, shadow: ObjectShadow): Seq[Failure] =
     IlluminateAlgorithm.validateAttributes(form.attributes, shadow.attributes)
-  }
 }

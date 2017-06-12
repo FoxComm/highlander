@@ -14,6 +14,7 @@ import phoenix.models.cord.OrderPayments.scope._
 import phoenix.models.cord._
 import phoenix.models.customer._
 import phoenix.models.location.{Addresses, Regions}
+import phoenix.models.payment.ExternalCharge
 import phoenix.models.payment.creditcard._
 import phoenix.models.shipping.Shipment.Shipped
 import phoenix.models.shipping.{Shipment, Shipments}
@@ -49,7 +50,7 @@ class CustomerIntegrationTest
         .as[Root]
 
       val created = Users.findOneByAccountId(root.id).gimme.value
-      created.id must === (root.id)
+      created.accountId must === (root.id)
     }
 
     "fails if email is already in use" in new Customer_Seed {
@@ -92,7 +93,7 @@ class CustomerIntegrationTest
       Addresses.filter(_.id === address.id).map(_.isDefaultShipping).update(false).gimme
 
       customersApi(customer.accountId).get().as[Root] must === (
-          CustomerResponse.build(customer, customerData))
+        CustomerResponse.build(customer, customerData))
     }
 
     "customer info shows valid billingRegion" in new CreditCardFixture {
@@ -116,17 +117,14 @@ class CustomerIntegrationTest
         val defaultPhoneNumber: String = "1111111111"
 
         val (customer, customerData, region) = (for {
-          account ← * <~ Accounts.create(Account())
-          customer ← * <~ Users.create(
-                        Factories.customer.copy(accountId = account.id, phoneNumber = None))
+          account  ← * <~ Accounts.create(Account())
+          customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id, phoneNumber = None))
           customerData ← * <~ CustomersData.create(
-                            CustomerData(accountId = account.id,
-                                         userId = customer.id,
-                                         scope = Scope.current))
+                          CustomerData(accountId = account.id, userId = customer.id, scope = Scope.current))
           address ← * <~ Addresses.create(
-                       Factories.address.copy(accountId = customer.accountId,
-                                              isDefaultShipping = true,
-                                              phoneNumber = defaultPhoneNumber.some))
+                     Factories.address.copy(accountId = customer.accountId,
+                                            isDefaultShipping = true,
+                                            phoneNumber = defaultPhoneNumber.some))
           region ← * <~ Regions.findOneById(address.regionId)
         } yield (customer, customerData, region)).gimme
 
@@ -151,39 +149,32 @@ class CustomerIntegrationTest
         }
 
         val (customer, region, shipments) = (for {
-          account ← * <~ Accounts.create(Account())
-          customer ← * <~ Users.create(
-                        Factories.customer.copy(accountId = account.id, phoneNumber = None))
+          account  ← * <~ Accounts.create(Account())
+          customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id, phoneNumber = None))
           custData ← * <~ CustomersData.create(
-                        CustomerData(userId = customer.id,
-                                     accountId = account.id,
-                                     scope = Scope.current))
+                      CustomerData(userId = customer.id, accountId = account.id, scope = Scope.current))
           address ← * <~ Addresses.create(defaultAddress.copy(accountId = customer.accountId))
           region  ← * <~ Regions.findOneById(address.regionId)
           cart1 ← * <~ Carts.create(
-                     Cart(referenceNumber = "ABC-1",
-                          scope = Scope.current,
-                          accountId = customer.accountId))
+                   Cart(referenceNumber = "ABC-1", scope = Scope.current, accountId = customer.accountId))
           order1 ← * <~ Orders.createFromCart(cart1, None)
           order1 ← * <~ Orders.update(order1, order1.copy(state = Order.FulfillmentStarted))
           order1 ← * <~ Orders.update(order1, order1.copy(state = Order.Shipped))
           cart2 ← * <~ Carts.create(
-                     Cart(referenceNumber = "ABC-2",
-                          scope = Scope.current,
-                          accountId = customer.accountId))
+                   Cart(referenceNumber = "ABC-2", scope = Scope.current, accountId = customer.accountId))
           order2 ← * <~ Orders.createFromCart(cart2, None)
           order2 ← Orders.update(order2, order2.copy(state = Order.FulfillmentStarted))
           order2 ← Orders.update(order2, order2.copy(state = Order.Shipped))
           orders = Seq(order1, order2)
           addresses ← * <~ shippingAddresses(orders.zip(phoneNumbers)).map(a ⇒
-                           OrderShippingAddresses.create(a))
+                       OrderShippingAddresses.create(a))
           shipments ← * <~ addresses.map(
-                         address ⇒
-                           Shipments.create(
-                               Factories.shipment.copy(cordRef = address.cordRef,
-                                                       shippingAddressId = address.id.some,
-                                                       orderShippingMethodId = None,
-                                                       state = Shipped)))
+                       address ⇒
+                         Shipments.create(
+                           Factories.shipment.copy(cordRef = address.cordRef,
+                                                   shippingAddressId = address.id.some,
+                                                   orderShippingMethodId = None,
+                                                   state = Shipped)))
         } yield (customer, region, shipments)).gimme
 
         def updateShipmentTime(s: Shipment, newTime: Instant ⇒ Instant): Unit =
@@ -259,11 +250,11 @@ class CustomerIntegrationTest
                                                   email = "newemail@example.org".some,
                                                   phoneNumber = "555 555 55".some)
       (payload.name, payload.email, payload.phoneNumber) must !==(
-          (customer.name, customer.email, customer.phoneNumber))
+        (customer.name, customer.email, customer.phoneNumber))
 
       val updated: Root = customersApi(customer.accountId).update(payload).as[Root]
       (updated.name, updated.email, updated.phoneNumber) must === (
-          (payload.name, payload.email, payload.phoneNumber))
+        (payload.name, payload.email, payload.phoneNumber))
     }
 
     "fails if email is already in use" in new Fixture {
@@ -299,8 +290,9 @@ class CustomerIntegrationTest
 
       customersApi(newCustomer.id).activate(ActivateCustomerPayload(name = "test")).mustBeOk()
 
-      val created: User                 = Users.findOneById(newCustomer.id).gimme.value
-      val createdCustUser: CustomerData = CustomersData.findOneByAccountId(created.id).gimme.value
+      val created: User = Users.findOneByAccountId(newCustomer.id).gimme.value
+      val createdCustUser: CustomerData =
+        CustomersData.findOneByAccountId(created.accountId).gimme.value
 
       val expectedResponse: Root = newCustomer.copy(name = "test".some, isGuest = false)
       CustomerResponse.build(created, createdCustUser) must === (expectedResponse)
@@ -492,8 +484,7 @@ class CustomerIntegrationTest
         val numAddresses = Addresses.length.result.gimme
 
         numAddresses must === (1)
-        (newVersion.address.zip, newVersion.address.regionId) must === (
-            (address.zip, address.regionId))
+        (newVersion.address.zip, newVersion.address.regionId) must === ((address.zip, address.regionId))
       }
 
       "creates a new address book entry if a full address was given" in new CreditCardFixture {
@@ -514,10 +505,8 @@ class CustomerIntegrationTest
         val newAddress = addresses.last
 
         addresses must have size 2
-        (newVersion.address.zip, newVersion.address.regionId) must === (
-            ("54321", address.regionId + 1))
-        (newVersion.address.zip, newVersion.address.regionId) must === (
-            (newAddress.zip, newAddress.regionId))
+        (newVersion.address.zip, newVersion.address.regionId) must === (("54321", address.regionId + 1))
+        (newVersion.address.zip, newVersion.address.regionId) must === ((newAddress.zip, newAddress.regionId))
       }
     }
 
@@ -627,43 +616,36 @@ class CustomerIntegrationTest
     val (order, orderPayment, customer2, charge1, charge2) = (for {
       account ← * <~ Accounts.create(Account())
       customer2 ← * <~ Users.create(
-                     Factories.customer.copy(accountId = account.id,
-                                             email = "second@example.org".some,
-                                             name = "second".some))
+                   Factories.customer
+                     .copy(accountId = account.id, email = "second@example.org".some, name = "second".some))
       custData2 ← * <~ CustomersData.create(
-                     CustomerData(userId = customer2.id,
-                                  accountId = account.id,
-                                  scope = Scope.current))
+                   CustomerData(userId = customer2.id, accountId = account.id, scope = Scope.current))
       cart2 ← * <~ Carts.create(
-                 Cart(accountId = customer2.accountId,
-                      scope = Scope.current,
-                      referenceNumber = "ABC-456"))
+               Cart(accountId = customer2.accountId, scope = Scope.current, referenceNumber = "ABC-456"))
       order  ← * <~ Orders.createFromCart(cart, None)
       order2 ← * <~ Orders.createFromCart(cart2, None)
       orderPayment ← * <~ OrderPayments.create(
-                        Factories.orderPayment.copy(cordRef = order.refNum,
-                                                    paymentMethodId = creditCard.id,
-                                                    amount = None))
+                      Factories.orderPayment
+                        .copy(cordRef = order.refNum, paymentMethodId = creditCard.id, amount = None))
       creditCardCharge1 ← * <~ CreditCardCharges.create(
-                             CreditCardCharge(
-                                 creditCardId = creditCard.id,
-                                 orderPaymentId = orderPayment.id,
-                                 chargeId = "asd1",
-                                 state = CreditCardCharge.FullCapture,
-                                 amount = 100
-                             ))
+                           CreditCardCharge(
+                             creditCardId = creditCard.id,
+                             orderPaymentId = orderPayment.id,
+                             stripeChargeId = "asd1",
+                             state = ExternalCharge.FullCapture,
+                             amount = 100
+                           ))
       orderPayment2 ← * <~ OrderPayments.create(
-                         Factories.orderPayment.copy(cordRef = order2.refNum,
-                                                     paymentMethodId = creditCard.id,
-                                                     amount = None))
+                       Factories.orderPayment
+                         .copy(cordRef = order2.refNum, paymentMethodId = creditCard.id, amount = None))
       creditCardCharge2 ← * <~ CreditCardCharges.create(
-                             CreditCardCharge(
-                                 creditCardId = creditCard.id,
-                                 orderPaymentId = orderPayment2.id,
-                                 chargeId = "asd2",
-                                 state = CreditCardCharge.FullCapture,
-                                 amount = 1000000
-                             ))
+                           CreditCardCharge(
+                             creditCardId = creditCard.id,
+                             orderPaymentId = orderPayment2.id,
+                             stripeChargeId = "asd2",
+                             state = ExternalCharge.FullCapture,
+                             amount = 1000000
+                           ))
       order  ← * <~ Orders.update(order, order.copy(state = Order.FulfillmentStarted))
       order  ← * <~ Orders.update(order, order.copy(state = Order.Shipped))
       order2 ← * <~ Orders.update(order2, order2.copy(state = Order.FulfillmentStarted))

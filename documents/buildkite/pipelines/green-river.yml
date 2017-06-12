@@ -1,5 +1,5 @@
 steps:
-  - command: "sbt '; clean; scalafmtTest; assembly'\n\n"
+  - command: "../utils/scalafmt/scalafmt.sh --test && sbt '; clean; assembly'\n\n"
     label: build and package
     agents:
       - queue=core

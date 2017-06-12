@@ -10,8 +10,7 @@ package object assignments {
   def subscribe[K, M <: FoxModel[M]](
       manager: AssignmentsManager[K, M],
       adminIds: Seq[Int],
-      objectIds: Seq[String])(implicit ec: EC): DbResultT[TheResponse[Option[Int]]] = {
-
+      objectIds: Seq[String])(implicit ec: EC): DbResultT[TheResponse[Option[Int]]] =
     if (objectIds.nonEmpty)
       NotificationManager.subscribe(adminIds = adminIds,
                                     dimension = manager.notifyDimension,
@@ -19,13 +18,10 @@ package object assignments {
                                     objectIds = objectIds)
     else
       DbResultT.good(TheResponse(None))
-  }
 
-  def unsubscribe[K, M <: FoxModel[M]](
-      manager: AssignmentsManager[K, M],
-      adminIds: Seq[Int],
-      objectIds: Seq[String])(implicit ec: EC): DbResultT[Unit] = {
-
+  def unsubscribe[K, M <: FoxModel[M]](manager: AssignmentsManager[K, M],
+                                       adminIds: Seq[Int],
+                                       objectIds: Seq[String])(implicit ec: EC): DbResultT[Unit] =
     if (objectIds.nonEmpty)
       NotificationManager.unsubscribe(adminIds = adminIds,
                                       dimension = manager.notifyDimension,
@@ -33,30 +29,25 @@ package object assignments {
                                       objectIds = objectIds)
     else
       DbResultT.unit
-  }
 
   // Activity logger helpers
   def logBulkAssign[K, M <: FoxModel[M]](manager: AssignmentsManager[K, M],
                                          originator: User,
                                          admin: User,
-                                         keys: Seq[String])(implicit ec: EC, ac: AC) = {
-
+                                         keys: Seq[String])(implicit ec: EC, ac: AC) =
     if (keys.nonEmpty)
       LogActivity()
         .bulkAssigned(originator, admin, keys, manager.assignmentType, manager.referenceType)
     else
       DbResultT.unit
-  }
 
   def logBulkUnassign[K, M <: FoxModel[M]](manager: AssignmentsManager[K, M],
                                            originator: User,
                                            admin: User,
-                                           keys: Seq[String])(implicit ec: EC, ac: AC) = {
-
+                                           keys: Seq[String])(implicit ec: EC, ac: AC) =
     if (keys.nonEmpty)
       LogActivity()
         .bulkUnassigned(originator, admin, keys, manager.assignmentType, manager.referenceType)
     else
       DbResultT.unit
-  }
 }

@@ -17,7 +17,7 @@ object CustomerResponse {
                   isGuest: Boolean,
                   isBlacklisted: Boolean,
                   rank: Option[Int] = None,
-                  totalSales: Int = 0,
+                  totalSales: Long = 0,
                   storeCreditTotals: Totals,
                   numOrders: Option[Int] = None,
                   billingRegion: Option[Region] = None,
@@ -39,21 +39,23 @@ object CustomerResponse {
     require(customerData.userId == customer.id)
     require(customerData.accountId == customer.accountId)
 
-    Root(id = customer.accountId,
-         email = customer.email,
-         name = customer.name,
-         phoneNumber = customer.phoneNumber,
-         createdAt = customer.createdAt,
-         isGuest = customerData.isGuest,
-         disabled = customer.isDisabled,
-         isBlacklisted = customer.isBlacklisted,
-         rank = rank.flatMap(_.rank),
-         totalSales = rank.map(_.revenue).getOrElse(0),
-         numOrders = numOrders,
-         storeCreditTotals = scTotals.getOrElse(Totals(0, 0)),
-         billingRegion = billingRegion,
-         shippingRegion = shippingRegion,
-         lastOrderDays = lastOrderDays,
-         groups = groups)
+    Root(
+      id = customer.accountId,
+      email = customer.email,
+      name = customer.name,
+      phoneNumber = customer.phoneNumber,
+      createdAt = customer.createdAt,
+      isGuest = customerData.isGuest,
+      disabled = customer.isDisabled,
+      isBlacklisted = customer.isBlacklisted,
+      rank = rank.flatMap(_.rank),
+      totalSales = rank.map(_.revenue).getOrElse(0L),
+      numOrders = numOrders,
+      storeCreditTotals = scTotals.getOrElse(Totals(0, 0)),
+      billingRegion = billingRegion,
+      shippingRegion = shippingRegion,
+      lastOrderDays = lastOrderDays,
+      groups = groups
+    )
   }
 }

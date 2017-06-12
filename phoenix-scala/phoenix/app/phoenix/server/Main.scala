@@ -12,11 +12,14 @@ import akka.stream.ActorMaterializer
 import com.stripe.Stripe
 import com.typesafe.scalalogging.LazyLogging
 import core.db._
+import java.util.Properties
+import org.apache.avro.generic.GenericData
+import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig}
 import org.json4s._
 import org.json4s.jackson._
 import phoenix.models.account.{AccountAccessMethod, Scope, Scopes}
 import phoenix.services.Authenticator
-import phoenix.services.Authenticator.{UserAuthenticator, requireAdminAuth}
+import phoenix.services.Authenticator.{requireAdminAuth, UserAuthenticator}
 import phoenix.services.account.AccountCreateContext
 import phoenix.services.actors._
 import phoenix.utils.FoxConfig.config
@@ -24,11 +27,10 @@ import phoenix.utils.apis._
 import phoenix.utils.http.CustomHandlers
 import phoenix.utils.http.HttpLogger.logFailedRequests
 import phoenix.utils.{ElasticsearchApi, Environment, FoxConfig}
-import slick.jdbc.PostgresProfile.api._
-
 import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
+import slick.jdbc.PostgresProfile.api._
 
 object Main extends App with LazyLogging {
   logger.info("Starting phoenix server")
@@ -57,7 +59,7 @@ object Setup extends LazyLogging {
     ExecutionContext.fromExecutor(java.util.concurrent.Executors.newCachedThreadPool())
 
   lazy val defaultApis: Apis =
-    Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse(), setupElasticSearch())
+    Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse(), setupElasticSearch(), setupKafka())
 
   def setupStripe(): FoxStripe = {
     logger.info("Loading Stripe API key")
@@ -73,16 +75,28 @@ object Setup extends LazyLogging {
 
   def setupElasticSearch(): ElasticsearchApi = {
     logger.info("Setting up Elastic Search")
-    ElasticsearchApi.fromConfig(FoxConfig.config)
+    ElasticsearchApi.fromConfig(config)
+  }
+
+  def setupKafka(): KafkaProducer[GenericData.Record, GenericData.Record] = {
+    logger.info("Setting up Kafka producer for activities")
+
+    val props = new Properties()
+    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.apis.kafka.bootStrapServersConfig)
+    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, config.apis.kafka.keySerializer)
+    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, config.apis.kafka.valueSerializer)
+    props.put("schema.registry.url", config.apis.kafka.schemaRegistryURL)
+    props.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, config.apis.kafka.producerTimeout)
+
+    new KafkaProducer[GenericData.Record, GenericData.Record](props)
   }
 }
 
-class Service(
-    systemOverride: Option[ActorSystem] = None,
-    dbOverride: Option[Database] = None,
-    apisOverride: Option[Apis] = None,
-    esOverride: Option[ElasticsearchApi] = None,
-    addRoutes: immutable.Seq[Route] = immutable.Seq.empty)(implicit val env: Environment) {
+class Service(systemOverride: Option[ActorSystem] = None,
+              dbOverride: Option[Database] = None,
+              apisOverride: Option[Apis] = None,
+              esOverride: Option[ElasticsearchApi] = None,
+              addRoutes: immutable.Seq[Route] = immutable.Seq.empty)(implicit val env: Environment) {
 
   import FoxConfig.config
   import phoenix.utils.JsonFormatters._
@@ -117,38 +131,40 @@ class Service(
   val defaultRoutes: Route = {
     pathPrefix("v1") {
       phoenix.routes.AuthRoutes.routes(scope.ltree) ~
-      phoenix.routes.Public.routes(customerCreateContext, scope.ltree) ~
-      phoenix.routes.Customer.routes ~
-      requireAdminAuth(userAuth) { implicit auth ⇒
-        phoenix.routes.admin.AdminRoutes.routes ~
-        phoenix.routes.admin.NotificationRoutes.routes ~
-        phoenix.routes.admin.AssignmentsRoutes.routes ~
-        phoenix.routes.admin.OrderRoutes.routes ~
-        phoenix.routes.admin.CartRoutes.routes ~
-        phoenix.routes.admin.CustomerRoutes.routes ~
-        phoenix.routes.admin.CustomerGroupsRoutes.routes ~
-        phoenix.routes.admin.GiftCardRoutes.routes ~
-        phoenix.routes.admin.ReturnRoutes.routes ~
-        phoenix.routes.admin.ProductRoutes.routes ~
-        phoenix.routes.admin.SkuRoutes.routes ~
-        phoenix.routes.admin.VariantRoutes.routes ~
-        phoenix.routes.admin.DiscountRoutes.routes ~
-        phoenix.routes.admin.PromotionRoutes.routes ~
-        phoenix.routes.admin.ImageRoutes.routes ~
-        phoenix.routes.admin.CouponRoutes.routes ~
-        phoenix.routes.admin.CategoryRoutes.routes ~
-        phoenix.routes.admin.GenericTreeRoutes.routes ~
-        phoenix.routes.admin.StoreAdminRoutes.routes ~
-        phoenix.routes.admin.ObjectRoutes.routes ~
-        phoenix.routes.admin.PluginRoutes.routes ~
-        phoenix.routes.admin.TaxonomyRoutes.routes ~
-        phoenix.routes.admin.ShippingMethodRoutes.routes ~
-        phoenix.routes.service.MigrationRoutes.routes(customerCreateContext, scope.ltree) ~
-        pathPrefix("service") {
-          phoenix.routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
-          phoenix.routes.service.CustomerGroupRoutes.routes
+        phoenix.routes.Public.routes(customerCreateContext, scope.ltree) ~
+        phoenix.routes.Customer.routes ~
+        requireAdminAuth(userAuth) { implicit auth ⇒
+          phoenix.routes.admin.AdminRoutes.routes ~
+            phoenix.routes.admin.NotificationRoutes.routes ~
+            phoenix.routes.admin.AssignmentsRoutes.routes ~
+            phoenix.routes.admin.OrderRoutes.routes ~
+            phoenix.routes.admin.CartRoutes.routes ~
+            phoenix.routes.admin.CustomerRoutes.routes ~
+            phoenix.routes.admin.CustomerGroupsRoutes.routes ~
+            phoenix.routes.admin.GiftCardRoutes.routes ~
+            phoenix.routes.admin.ReturnRoutes.routes ~
+            phoenix.routes.admin.ProductRoutes.routes ~
+            phoenix.routes.admin.SkuRoutes.routes ~
+            phoenix.routes.admin.VariantRoutes.routes ~
+            phoenix.routes.admin.DiscountRoutes.routes ~
+            phoenix.routes.admin.PromotionRoutes.routes ~
+            phoenix.routes.admin.ImageRoutes.routes ~
+            phoenix.routes.admin.CouponRoutes.routes ~
+            phoenix.routes.admin.CategoryRoutes.routes ~
+            phoenix.routes.admin.GenericTreeRoutes.routes ~
+            phoenix.routes.admin.StoreAdminRoutes.routes ~
+            phoenix.routes.admin.ObjectRoutes.routes ~
+            phoenix.routes.admin.PluginRoutes.routes ~
+            phoenix.routes.admin.TaxonomyRoutes.routes ~
+            phoenix.routes.admin.CatalogRoutes.routes ~
+            phoenix.routes.admin.ProductReviewRoutes.routes ~
+            phoenix.routes.admin.ShippingMethodRoutes.routes ~
+            phoenix.routes.service.MigrationRoutes.routes(customerCreateContext, scope.ltree) ~
+            pathPrefix("service") {
+              phoenix.routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
+                phoenix.routes.service.CustomerGroupRoutes.routes
+            }
         }
-      }
     }
   }
 

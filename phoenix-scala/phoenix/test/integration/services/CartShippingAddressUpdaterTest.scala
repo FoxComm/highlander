@@ -75,9 +75,9 @@ class CartShippingAddressUpdaterTest
   trait UpdateAddressFixture extends Fixture {
     val newAddress = Addresses
       .create(
-          Factories.address.copy(accountId = customer.accountId,
-                                 name = customer.name.getOrElse(faker.Name.name),
-                                 isDefaultShipping = false))
+        Factories.address.copy(accountId = customer.accountId,
+                               name = customer.name.getOrElse(faker.Name.name),
+                               isDefaultShipping = false))
       .gimme
   }
 }

@@ -1,0 +1,58 @@
+{
+    "id": "peacock",
+    "cmd": null,
+    "cpus": 1,
+    "mem": 1024,
+    "disk": 0,
+    "instances": 1,
+    "constraints": [],
+    "labels": {
+        "LANG": "js",
+        "consul": "peacock",
+        "TAG": "{{docker_tags.peacock}}",
+        "overrideTaskName": "peacock"
+    },
+    "env": {
+        "API_URL": "https://{{storefront_server_name}}",
+        "NODE_ENV": "production",
+        "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",
+        "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}",
+        "MAILCHIMP_API_KEY": "{{mailchimp_api_key}}",
+        "CONTACT_EMAIL": "{{contact_email}}",
+        "GA_TRACKING_ID": "{{ga_tracking_id}}",
+        "IMGIX_PRODUCTS_SOURCE": "{{imgix_products_source}}",
+        "S3_BUCKET_NAME": "{{imgix_s3_bucket_name}}",
+        "S3_BUCKET_PREFIX": "{{imgix_s3_bucket_prefix}}"
+    },
+    "healthChecks": [{
+        "path": "/",
+        "protocol": "HTTP",
+        "gracePeriodSeconds": 300,
+        "intervalSeconds": 30,
+        "timeoutSeconds": 20,
+        "maxConsecutiveFailures": 3,
+        "ignoreHttp1xx": false,
+        "portIndex": 0
+    }],
+    "container": {
+        "type": "DOCKER",
+        "volumes": [{
+                "containerPath": "/keys",
+                "hostPath": "{{public_keys_dest_dir}}",
+                "mode": "RO"
+            },
+            {
+                "containerPath": "{{docker_logs_dir}}",
+                "hostPath": "{{docker_logs_host_dir}}",
+                "mode": "RW"
+            }
+        ],
+        "docker": {
+            "image": "{{docker_registry}}:5000/peacock:{{docker_tags.peacock}}",
+            "network": "HOST",
+            "privileged": false,
+            "parameters": [],
+            "forcePullImage": true
+        }
+    }
+}

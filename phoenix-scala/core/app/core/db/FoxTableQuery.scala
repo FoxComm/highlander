@@ -42,8 +42,8 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
 
   def createAllReturningModels(unsaved: Iterable[M])(implicit ec: EC): DbResultT[Seq[M]] =
     for {
-      prepared          ← * <~ beforeSaveBatch(unsaved)
-      returned          ← * <~ wrapDbio(returningTable ++= prepared)
+      prepared ← * <~ beforeSaveBatch(unsaved)
+      returned ← * <~ wrapDbio(returningTable ++= prepared)
     } yield for ((m, r) ← prepared.zip(returned)) yield returningLens.set(m)(r)
 
   def create(unsaved: M)(implicit ec: EC): DbResultT[M] =
@@ -93,8 +93,7 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
   implicit class EnrichedTableQuery(q: QuerySeq) {
     def deleteAll(implicit ec: EC): DbResultT[Int] = wrapDbio(q.delete)
 
-    def deleteAll[A](onSuccess: ⇒ DbResultT[A], onFailure: ⇒ DbResultT[A])(
-        implicit ec: EC): DbResultT[A] = {
+    def deleteAll[A](onSuccess: ⇒ DbResultT[A], onFailure: ⇒ DbResultT[A])(implicit ec: EC): DbResultT[A] = {
       val deleteResult = q.delete.dbresult.flatMap {
         case 0 ⇒ onFailure
         case _ ⇒ onSuccess

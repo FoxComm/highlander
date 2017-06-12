@@ -38,13 +38,11 @@ object HashPasswords {
   }
 
   case class SCryptImpl(cpuCost: Int, memCost: Int, parallelization: Int) extends HashPasswords {
-    def generateHash(password: String): String = {
+    def generateHash(password: String): String =
       SCryptUtil.scrypt(password, cpuCost, memCost, parallelization)
-    }
 
-    def checkHash(password: String, hash: String): Boolean = {
+    def checkHash(password: String, hash: String): Boolean =
       Try { SCryptUtil.check(password, hash) }.getOrElse(false)
-    }
   }
 
   case class UnknownAlgorithm(code: Int = 65535) extends HashAlgorithm with HashPasswords {

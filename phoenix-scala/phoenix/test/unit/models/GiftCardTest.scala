@@ -25,8 +25,7 @@ class GiftCardTest extends TestBase {
       "returns errors when balances >= 0" in {
         val gc     = Factories.giftCard.copy(originalBalance = 0, currentBalance = -1)
         val result = gc.validate
-        invalidValue(result) must includeFailure(
-            "currentBalance should be greater or equal than zero")
+        invalidValue(result) must includeFailure("currentBalance should be greater or equal than zero")
       }
     }
   }

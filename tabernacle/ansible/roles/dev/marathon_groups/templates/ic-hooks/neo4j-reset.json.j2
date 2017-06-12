@@ -1,0 +1,36 @@
+{
+    "id": "neo4j-reset",
+    "cmd": null,
+    "cpus": 0.1,
+    "mem": 32,
+    "disk": 0,
+    "instances": 1,
+    "constraints": [],
+    "labels": {
+        "LANG": "shell",
+        "consul": "neo4j-reset",
+        "overrideTaskName": "neo4j-reset"
+    },
+    "container": {
+        "type": "DOCKER",
+        "docker": {
+            "image": "{{docker_registry}}:5000/neo4j-reset:master",
+            "network": "HOST",
+            "portMappings": null,
+            "privileged": false,
+            "parameters": [],
+            "forcePullImage": true
+        }
+    },
+    "healthChecks": [{
+        "protocol": "COMMAND",
+        "command": {
+            "value": "ps -ef | grep -v grep | grep neo4j_reset_password.sh"
+        },
+        "gracePeriodSeconds": 10,
+        "intervalSeconds": 30,
+        "timeoutSeconds": 20,
+        "maxConsecutiveFailures": 3,
+        "ignoreHttp1xx": false
+    }]
+}

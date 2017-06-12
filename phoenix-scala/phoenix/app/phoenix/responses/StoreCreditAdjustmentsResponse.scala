@@ -8,18 +8,17 @@ import phoenix.models.payment.storecredit.StoreCreditAdjustment
 object StoreCreditAdjustmentsResponse {
   case class Root(id: Int,
                   createdAt: Instant,
-                  debit: Int,
-                  availableBalance: Int,
+                  debit: Long,
+                  availableBalance: Long,
                   state: InStorePaymentStates.State,
                   cordRef: Option[String])
       extends ResponseItem
 
-  def build(adj: StoreCreditAdjustment, cordRef: Option[String] = None): Root = {
+  def build(adj: StoreCreditAdjustment, cordRef: Option[String] = None): Root =
     Root(id = adj.id,
          createdAt = adj.createdAt,
          debit = adj.debit,
          availableBalance = adj.availableBalance,
          state = adj.state,
          cordRef = cordRef)
-  }
 }

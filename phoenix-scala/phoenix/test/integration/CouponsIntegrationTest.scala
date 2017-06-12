@@ -21,6 +21,7 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
+import core.utils.Money._
 import core.db._
 
 class CouponsIntegrationTest
@@ -37,8 +38,7 @@ class CouponsIntegrationTest
       coupon
     }
 
-    "created coupon should always be active" in new StoreAdmin_Seed
-    with Coupon_TotalQualifier_PercentOff {
+    "created coupon should always be active" in new StoreAdmin_Seed with Coupon_TotalQualifier_PercentOff {
       override def couponActiveFrom = Instant.now.plus(10, DAYS)
       override def couponActiveTo   = Some(Instant.now.plus(20, DAYS))
 
@@ -104,7 +104,7 @@ class CouponsIntegrationTest
 
         "for cart total qualifier" in new Coupon_TotalQualifier_PercentOff
         with RegularAndGiftCardLineItemFixture {
-          override def qualifiedSubtotal: Int = 2000
+          override def qualifiedSubtotal: Long = 2000
 
           cartsApi(cartRef).coupon
             .add(couponCode)
@@ -147,17 +147,17 @@ class CouponsIntegrationTest
           cartsApi(cartRef).lineItems
             .add(Seq(UpdateLineItemsPayload(skuCode, 2, randomGiftCardLineItemAttributes)))
 
-          val message = "qualifier orderAnyQualifier rejected order with refNum=BR10001, " +
-              "reason: Items in cart are not eligible for discount"
+          val message = s"qualifier orderAnyQualifier rejected order with refNum=$cartRef, " +
+            "reason: Items in cart are not eligible for discount"
           cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
         }
 
         "for `cart total` qualifier" in new Coupon_TotalQualifier_PercentOff
         with RegularAndGiftCardLineItemFixture {
-          override def qualifiedSubtotal: Int = 4000
+          override def qualifiedSubtotal: Long = 4000
 
-          val message = "qualifier orderTotalAmountQualifier rejected order with refNum=BR10001, " +
-              "reason: Order subtotal is less than 4000"
+          val message = s"qualifier orderTotalAmountQualifier rejected order with refNum=$cartRef, " +
+            s"reason: Order subtotal is less than $qualifiedSubtotal"
           cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
         }
 
@@ -165,8 +165,8 @@ class CouponsIntegrationTest
         with RegularAndGiftCardLineItemFixture {
           override def qualifiedNumItems: Int = 2
 
-          val message = "qualifier orderNumUnitsQualifier rejected order with refNum=BR10001, " +
-              "reason: Order unit count is less than 2"
+          val message = s"qualifier orderNumUnitsQualifier rejected order with refNum=$cartRef, " +
+            s"reason: Order unit count is less than $qualifiedNumItems"
           cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
         }
       }
@@ -178,8 +178,8 @@ class CouponsIntegrationTest
       with Coupon_TotalQualifier_PercentOff
       with ProductSku_ApiFixture {
 
-    override def skuPrice: Int          = 3100
-    override def qualifiedSubtotal: Int = 3000
+    override def skuPrice: Long          = 3100
+    override def qualifiedSubtotal: Long = 3000
 
     val cartRef: String = {
       val cartRef = cartsApi

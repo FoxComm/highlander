@@ -3,8 +3,7 @@ package phoenix.responses
 import phoenix.models.shipping.ShippingMethod
 
 object ShippingMethodsResponse {
-  case class Root(id: Int, name: String, code: String, price: Int, isEnabled: Boolean)
-      extends ResponseItem
+  case class Root(id: Int, name: String, code: String, price: Long, isEnabled: Boolean) extends ResponseItem
 
   def build(record: ShippingMethod, isEnabled: Boolean = true): Root =
     Root(id = record.id,

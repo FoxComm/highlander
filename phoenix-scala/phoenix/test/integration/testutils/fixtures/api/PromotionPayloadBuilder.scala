@@ -21,20 +21,22 @@ object PromotionPayloadBuilder {
             description: String = faker.Lorem.sentence()): CreatePromotion = {
 
     val discountAttrs = Map[String, Json](
-        "title"       → tv(title),
-        "description" → tv(description),
-        "tags"        → tags.payloadJson,
-        "qualifier"   → qualifier.payloadJson,
-        "offer"       → offer.payloadJson
+      "title"       → tv(title),
+      "description" → tv(description),
+      "tags"        → tags.payloadJson,
+      "qualifier"   → qualifier.payloadJson,
+      "offer"       → offer.payloadJson
     )
 
-    CreatePromotion(applyType = applyType,
-                    attributes = Map(
-                          "name"       → tv(faker.Lorem.sentence(1)),
-                          "activeFrom" → tv(Instant.now, "datetime"),
-                          "activeTo"   → tv(JNull, "datetime")
-                      ) ++ extraAttrs,
-                    discounts = Seq(CreateDiscount(discountAttrs)))
+    CreatePromotion(
+      applyType = applyType,
+      attributes = Map(
+        "name"       → tv(faker.Lorem.sentence(1)),
+        "activeFrom" → tv(Instant.now, "datetime"),
+        "activeTo"   → tv(JNull, "datetime")
+      ) ++ extraAttrs,
+      discounts = Seq(CreateDiscount(discountAttrs))
+    )
   }
 
   sealed trait PromoQualifierBuilder extends Jsonable
@@ -45,10 +47,9 @@ object PromotionPayloadBuilder {
       def payloadJson: Json = tv(parseJson("""{ "orderAny": {} }"""), "qualifier")
     }
 
-    case class CartTotalAmount(qualifiedSubtotal: Int) extends PromoQualifierBuilder {
+    case class CartTotalAmount(qualifiedSubtotal: Long) extends PromoQualifierBuilder {
       def payloadJson: Json =
-        tv(parseJson(s"""{ "orderTotalAmount": { "totalAmount" : $qualifiedSubtotal } }"""),
-           "qualifier")
+        tv(parseJson(s"""{ "orderTotalAmount": { "totalAmount" : $qualifiedSubtotal } }"""), "qualifier")
     }
 
     case class CartNumUnits(qualifiedNumUnits: Int) extends PromoQualifierBuilder {

@@ -6,8 +6,10 @@ import phoenix.models.cord.OrderPayments
 import phoenix.models.payment.PaymentMethod._
 import phoenix.models.payment.creditcard.CreditCards
 import phoenix.responses.AddressResponse
+import phoenix.responses.cord.base.CordResponseStoreCreditPayment.CordResponseApplePayPayment
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
+import core.utils.Money._
 
 sealed trait CordResponsePayments {
   def `type`: Type
@@ -20,7 +22,8 @@ object CordResponsePayments {
       gc ← CordResponseGiftCardPayment.fetch(cordRef)
       cc ← CordResponseCreditCardPayment.fetch(cordRef)
       sc ← CordResponseStoreCreditPayment.fetch(cordRef)
-    } yield cc ++ gc ++ sc
+      ap ← CordResponseApplePayPayment.fetch(cordRef)
+    } yield cc ++ gc ++ sc ++ ap
 }
 
 case class CordResponseCreditCardPayment(id: Int,
@@ -44,23 +47,24 @@ object CordResponseCreditCardPayment {
       region     ← creditCard.region
     } yield (creditCard, region)).result.map(_.map {
       case (creditCard, region) ⇒
-        CordResponseCreditCardPayment(id = creditCard.id,
-                                      customerId = creditCard.accountId,
-                                      holderName = creditCard.holderName,
-                                      lastFour = creditCard.lastFour,
-                                      expMonth = creditCard.expMonth,
-                                      expYear = creditCard.expYear,
-                                      brand = creditCard.brand,
-                                      createdAt = creditCard.createdAt,
-                                      address =
-                                        AddressResponse.buildFromCreditCard(creditCard, region))
+        CordResponseCreditCardPayment(
+          id = creditCard.id,
+          customerId = creditCard.accountId,
+          holderName = creditCard.holderName,
+          lastFour = creditCard.lastFour,
+          expMonth = creditCard.expMonth,
+          expYear = creditCard.expYear,
+          brand = creditCard.brand,
+          createdAt = creditCard.createdAt,
+          address = AddressResponse.buildFromCreditCard(creditCard, region)
+        )
     })
 }
 
 case class CordResponseGiftCardPayment(code: String,
-                                       amount: Int,
-                                       currentBalance: Int,
-                                       availableBalance: Int,
+                                       amount: Long,
+                                       currentBalance: Long,
+                                       availableBalance: Long,
                                        createdAt: Instant,
                                        `type`: Type = GiftCard)
     extends CordResponsePayments
@@ -82,9 +86,9 @@ object CordResponseGiftCardPayment {
 }
 
 case class CordResponseStoreCreditPayment(id: Int,
-                                          amount: Int,
-                                          currentBalance: Int,
-                                          availableBalance: Int,
+                                          amount: Long,
+                                          currentBalance: Long,
+                                          availableBalance: Long,
                                           createdAt: Instant,
                                           `type`: Type = StoreCredit)
     extends CordResponsePayments
@@ -103,4 +107,27 @@ object CordResponseStoreCreditPayment {
                                          availableBalance = sc.availableBalance,
                                          createdAt = sc.createdAt)
       })
+
+  case class CordResponseApplePayPayment(id: Int,
+                                         accountId: Int,
+                                         cordRef: String,
+                                         createdAt: Instant,
+                                         `type`: Type = ApplePay)
+      extends CordResponsePayments
+
+  object CordResponseApplePayPayment {
+
+    def fetch(cordRef: String)(implicit ec: EC): DBIO[Seq[CordResponseApplePayPayment]] =
+      for {
+        orderPayment ← OrderPayments.findAllApplePaysByCordRef(cordRef).result
+        response = orderPayment.map {
+          case (pmt, ap) ⇒
+            CordResponseApplePayPayment(id = ap.id,
+                                        accountId = ap.accountId,
+                                        cordRef = pmt.cordRef,
+                                        createdAt = ap.createdAt)
+        }
+      } yield response
+
+  }
 }

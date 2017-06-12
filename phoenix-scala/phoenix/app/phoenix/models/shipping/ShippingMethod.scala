@@ -15,7 +15,7 @@ case class ShippingMethod(id: Int = 0,
                           storefrontDisplayName: String,
                           code: String,
                           shippingCarrierId: Option[Int] = None,
-                          price: Int,
+                          price: Long,
                           isActive: Boolean = true,
                           conditions: Option[QueryStatement] = None,
                           restrictions: Option[QueryStatement] = None)
@@ -46,7 +46,7 @@ class ShippingMethods(tag: Tag) extends FoxTable[ShippingMethod](tag, "shipping_
   def storefrontDisplayName = column[String]("storefront_display_name")
   def code                  = column[String]("code")
   def shippingCarrierId     = column[Option[Int]]("shipping_carrier_id")
-  def price                 = column[Int]("price")
+  def price                 = column[Long]("price")
   def isActive              = column[Boolean]("is_active")
   def conditions            = column[Option[QueryStatement]]("conditions")
   def restrictions          = column[Option[QueryStatement]]("restrictions")

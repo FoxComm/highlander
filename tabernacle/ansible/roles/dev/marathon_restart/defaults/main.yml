@@ -1,0 +1,2 @@
+base_url: http://{{marathon_server}}/v2/apps
+jq_query: "[.apps[] | [.tasksRunning, .tasksHealthy, .tasksUnhealthy, .tasksStaged]] | unique"

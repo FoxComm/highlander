@@ -14,8 +14,7 @@ import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 
 object SharedSearchService {
-  def getAll(admin: User, rawScope: Option[String])(implicit ec: EC,
-                                                    db: DB): DbResultT[Seq[SharedSearch]] =
+  def getAll(admin: User, rawScope: Option[String])(implicit ec: EC, db: DB): DbResultT[Seq[SharedSearch]] =
     for {
       scope ← * <~ rawScope.toEither(SharedSearchScopeNotFound.single)
       searchScope ← * <~ SharedSearch.Scope
@@ -33,18 +32,16 @@ object SharedSearchService {
       associates ← * <~ SharedSearchAssociations.associatedAdmins(search).result
     } yield associates.map(UserResponse.build)
 
-  def create(admin: User, payload: SharedSearchPayload)(implicit ec: EC,
-                                                        db: DB,
-                                                        au: AU): DbResultT[SharedSearch] =
+  def create(admin: User,
+             payload: SharedSearchPayload)(implicit ec: EC, db: DB, au: AU): DbResultT[SharedSearch] =
     for {
       search ← * <~ SharedSearches.create(SharedSearch.byAdmin(admin, payload, Scope.current))
       _ ← * <~ SharedSearchAssociations.create(
-             SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = admin.accountId))
+           SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = admin.accountId))
     } yield search
 
-  def update(admin: User, code: String, payload: SharedSearchPayload)(
-      implicit ec: EC,
-      db: DB): DbResultT[SharedSearch] =
+  def update(admin: User, code: String, payload: SharedSearchPayload)(implicit ec: EC,
+                                                                      db: DB): DbResultT[SharedSearch] =
     for {
       search ← * <~ mustFindActiveByCode(code)
       updated ← * <~ SharedSearches
@@ -69,11 +66,11 @@ object SharedSearchService {
                   .result
       associates ← * <~ SharedSearchAssociations.associatedAdmins(search).result
       newAssociations = adminIds
-        .diff(associates.map(_.id))
+        .diff(associates.map(_.accountId))
         .map(adminId ⇒ SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = adminId))
       _ ← * <~ SharedSearchAssociations.createAll(newAssociations)
       notFoundAdmins = diffToFailures(requestedAssigneeIds, adminIds, User)
-      assignedAdmins = associates.filter(a ⇒ newAssociations.map(_.storeAdminId).contains(a.id))
+      assignedAdmins = associates.filter(a ⇒ newAssociations.map(_.storeAdminId).contains(a.accountId))
       _ ← * <~ LogActivity().associatedWithSearch(admin, search, assignedAdmins)
     } yield TheResponse.build(search, errors = notFoundAdmins)
 

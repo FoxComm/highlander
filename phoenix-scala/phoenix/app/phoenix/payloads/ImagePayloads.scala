@@ -26,11 +26,10 @@ object ImagePayloads {
       extends Validation[ImagePayload] {
 
     def formAndShadow: FormAndShadow = {
-      val jsonBuilder: AttributesBuilder = optionalAttributes(
-          Some(StringField("src", src)),
-          title.map(StringField("title", _)),
-          alt.map(StringField("alt", _)),
-          baseUrl.map(StringField("baseUrl", _)))
+      val jsonBuilder: AttributesBuilder = optionalAttributes(Some(StringField("src", src)),
+                                                              title.map(StringField("title", _)),
+                                                              alt.map(StringField("alt", _)),
+                                                              baseUrl.map(StringField("baseUrl", _)))
 
       (ObjectForm(kind = Image.kind, attributes = jsonBuilder.objectForm),
        ObjectShadow(attributes = jsonBuilder.objectShadow))

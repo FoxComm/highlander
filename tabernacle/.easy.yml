@@ -33,6 +33,11 @@ shortcuts:
       pavel: pavel
       ubuntu: ubuntu
 
+  - name: First Run
+    flag: "-e first_run"
+    aliases:
+        first_run: "true"
+
   targets:
   # Interactive playbooks
   - name: Setup Annabelle
@@ -54,10 +59,6 @@ shortcuts:
   - name: Setup Consul Alerts
     alias: consul_alerts.yml
     target: ansible/ops_consul_alerts.yml
-
-  - name: Feature Branch Instance Setup
-    alias: ops_feature_branch.yml
-    target: ansible/ops_feature_branch.yml
 
   - name: Setup Marathon Alerts
     alias: marathon_alerts.yml
@@ -154,6 +155,19 @@ shortcuts:
     alias: seed_data_import.yml
     target: ansible/seed_data_import.yml
 
+  # Tinystack
+  - name: Deploy Atomic
+    alias: deploy_atomic.yml
+    target: ansible/deploy_atomic.yml
+
+  - name: Deploy Staging
+    alias: deploy_stage.yml
+    target: ansible/deploy_stage.yml
+
+  - name: Deploy Test
+    alias: deploy_test.yml
+    target: ansible/deploy_test.yml
+
 # Packer shortcuts
 - type: snowflake
   process: packer build
@@ -242,7 +256,8 @@ shortcuts:
       branches: terraform/envs/gce_branches/terraform.tfstate
       dev: terraform/envs/gce_dev/terraform.tfstate
       demo: terraform/envs/gce_demo/terraform.tfstate
-      staging: terraform/envs/gce_staging/terraform.tfstate
+      stage: terraform/envs/gce_stage/terraform.tfstate
+      test: terraform/envs/gce_test/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
 
@@ -253,7 +268,8 @@ shortcuts:
       branches: terraform/envs/gce_branches/branches.tfvars
       dev: terraform/envs/gce_dev/dev.tfvars
       demo: terraform/envs/gce_demo/demo.tfvars
-      staging: terraform/envs/gce_staging/staging.tfvars
+      stage: terraform/envs/gce_stage/stage.tfvars
+      test: terraform/envs/gce_test/test.tfvars
       topdrawer: terraform/envs/gce_td/td.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
 
@@ -270,9 +286,13 @@ shortcuts:
     alias: dev
     target: terraform/base/gce_dev
 
+  - name: FoxCommerce Stage
+    alias: stage
+    target: terraform/base/gce_stage
+
   - name: FoxCommerce Test
-    alias: staging
-    target: terraform/base/gce_staging
+    alias: test
+    target: terraform/base/gce_test
 
   - name: TopDrawer Production
     alias: topdrawer

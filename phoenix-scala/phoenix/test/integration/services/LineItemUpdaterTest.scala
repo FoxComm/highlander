@@ -6,7 +6,6 @@ import phoenix.models.product.{Mvp, SimpleContext, SimpleProductData}
 import phoenix.payloads.LineItemPayloads.{UpdateLineItemsPayload ⇒ Payload}
 import phoenix.services.LineItemUpdater
 import phoenix.utils.aliases._
-import phoenix.utils.apis.Apis
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
@@ -18,11 +17,7 @@ class LineItemUpdaterTest
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
-  // TODO remove this @anna
-  implicit val apis: Apis = apisOverride.value
-
-  def createProducts(num: Int)(
-      implicit au: AU): DbResultT[(ObjectContext, Seq[SimpleProductData])] =
+  def createProducts(num: Int)(implicit au: AU): DbResultT[(ObjectContext, Seq[SimpleProductData])] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       products ← * <~ Mvp.insertProducts((1 to num).map { i ⇒
@@ -36,8 +31,8 @@ class LineItemUpdaterTest
       val (context, products) = createProducts(2).gimme
 
       val payload = Seq[Payload](
-          Payload(sku = "1", quantity = 3),
-          Payload(sku = "2", quantity = 0)
+        Payload(sku = "1", quantity = 3),
+        Payload(sku = "2", quantity = 0)
       )
 
       val root =
@@ -52,21 +47,21 @@ class LineItemUpdaterTest
           fail("Should have found sku 1")
       }
 
-      root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (CartLineItems.size.gimme)
+      root.lineItems.skus.map(_.quantity).sum must === (CartLineItems.size.gimme)
     }
 
     "Updates line items when the Sku already is in cart" in new Fixture {
       val (context, products) = createProducts(3).gimme
-      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId ⇒
-        CartLineItem(cordRef = cart.refNum, skuId = skuId)
+      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { idx ⇒
+        CartLineItem(cordRef = cart.refNum, skuId = products(idx - 1).skuId)
       }
 
       CartLineItems.createAll(seedItems).gimme
 
       val payload = Seq[Payload](
-          Payload(sku = "1", quantity = 3),
-          Payload(sku = "2", quantity = 0),
-          Payload(sku = "3", quantity = 1)
+        Payload(sku = "1", quantity = 3),
+        Payload(sku = "2", quantity = 0),
+        Payload(sku = "3", quantity = 1)
       )
 
       val root =
@@ -82,7 +77,7 @@ class LineItemUpdaterTest
           fail("Should have found sku 1")
       }
 
-      root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (CartLineItems.gimme.size)
+      root.lineItems.skus.map(_.quantity).sum must === (CartLineItems.gimme.size)
     }
   }
 

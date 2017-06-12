@@ -20,8 +20,7 @@ import phoenix.utils.http.JsonSupport._
 
 object Public {
   def routes(customerCreateContext: AccountCreateContext,
-             defaultScope: LTree)(implicit ec: EC, db: DB, apis: Apis): Route = {
-
+             defaultScope: LTree)(implicit ec: EC, db: DB, apis: Apis): Route =
     activityContext(defaultScope) { implicit ac ⇒
       pathPrefix("public") {
         pathPrefix("registrations") {
@@ -31,70 +30,69 @@ object Public {
             }
           }
         } ~
-        pathPrefix("products") {
-          determineObjectContext(db, ec) { implicit productContext ⇒
-            pathPrefix(ProductRef) { productId ⇒
-              (get & pathEnd) {
-                getOrFailures {
-                  ProductManager.getProduct(productId)
+          pathPrefix("products") {
+            determineObjectContext(db, ec) { implicit productContext ⇒
+              pathPrefix(ProductRef) { productId ⇒
+                (get & pathEnd) {
+                  getOrFailures {
+                    ProductManager.getProduct(productId, checkActive = true)
+                  }
                 }
               }
             }
-          }
-        } ~
-        pathPrefix("gift-cards" / "types") {
-          (get & pathEnd) {
-            getOrFailures {
-              GiftCardService.getOriginTypes
-            }
-          }
-        } ~
-        pathPrefix("store-credits" / "types") {
-          (get & pathEnd) {
-            getOrFailures {
-              StoreCreditService.getOriginTypes
-            }
-          }
-        } ~
-        pathPrefix("reasons" / reasonTypeRegex) { reasonType ⇒
-          (get & pathEnd) {
-            getOrFailures {
-              ReasonService.listReasonsByType(reasonType)
-            }
-          }
-        } ~
-        // TODO move to ES
-        pathPrefix("regions") {
-          (get & pathEnd) {
-            good {
-              listRegions
+          } ~
+          pathPrefix("gift-cards" / "types") {
+            (get & pathEnd) {
+              getOrFailures {
+                GiftCardService.getOriginTypes
+              }
             }
           } ~
-          (get & path(Region.regionCodeRegex) & pathEnd) { shortName ⇒
-            getOrFailures {
-              findRegionByShortName(shortName)
-            }
-          }
-        } ~
-        // TODO move to ES
-        pathPrefix("countries") {
-          (get & pathEnd) {
-            good {
-              listCountries
+          pathPrefix("store-credits" / "types") {
+            (get & pathEnd) {
+              getOrFailures {
+                StoreCreditService.getOriginTypes
+              }
             }
           } ~
-          (get & path(IntNumber) & pathEnd) { countryId ⇒
-            mutateOrFailures {
-              findCountry(countryId)
+          pathPrefix("reasons" / reasonTypeRegex) { reasonType ⇒
+            (get & pathEnd) {
+              getOrFailures {
+                ReasonService.listReasonsByType(reasonType)
+              }
+            }
+          } ~
+          // TODO move to ES
+          pathPrefix("regions") {
+            (get & pathEnd) {
+              good {
+                listRegions
+              }
+            } ~
+              (get & path(Region.regionCodeRegex) & pathEnd) { shortName ⇒
+                getOrFailures {
+                  findRegionByShortName(shortName)
+                }
+              }
+          } ~
+          // TODO move to ES
+          pathPrefix("countries") {
+            (get & pathEnd) {
+              good {
+                listCountries
+              }
+            } ~
+              (get & path(IntNumber) & pathEnd) { countryId ⇒
+                mutateOrFailures {
+                  findCountry(countryId)
+                }
+              }
+          } ~
+          pathPrefix("ping") {
+            (get & pathEnd) {
+              complete(renderPlain("pong"))
             }
           }
-        } ~
-        pathPrefix("ping") {
-          (get & pathEnd) {
-            complete(renderPlain("pong"))
-          }
-        }
       }
     }
-  }
 }
