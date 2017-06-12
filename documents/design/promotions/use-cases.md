@@ -39,7 +39,7 @@ Cart
 | beer pack      |  8  |      -    |
 | cheap vodka    |  2  |      -    |
 | corkscrew      |  1  |   -100%   |
-| ice            |  2  |  - / -50% |
+| ice            |  2  | - / -100% |
 |                |     |           |
 | shipping       |     |   -100%   |
 | total          |     |    -10%   |
@@ -48,7 +48,6 @@ Thoughts:
 - do all of these promos apply?
 - how to let user know that they can get free corkscrew and ice? Do we bother to do that via API?
 - discount for ice is denoted as `- / -50%` because we need to apply 50% discount to half of items in line item. Needs tech design
-  > [@michalrus] Isn’t it `- / -100%`? Since one bag of ice is free.
 - with `bundle` application level, this fits "one cart-level promo per cart" concept
 - qualifiers like "all wine" are category-based; we probably should have category-based qualifier instead of saved search, for clarity. Categories should be identified by id.
 
@@ -86,6 +85,9 @@ Otherwise, if we want to solve the above cases, we'd need to offer to choose whi
 > * When there are more (incl. when they add a coupon), tell the customer “Hey, we have several promotions available for you. Which one would you like to choose?”
 >
 > This way there are no (negative) surprises and they know best what’s best for them.
+>
+> [@anna] Yes, I agree, I've been thinking about this too, like "semi-automatic" promos or "coupons without code" :) Autosuggested promos?.. We should iterate over this
+>
 
 ## Case 4: Tearing apart multi-tier
 
