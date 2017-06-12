@@ -19,7 +19,7 @@ Not sure if this information will be a part of our model, but helps to reason ab
   - O: AND
     - shipping | free
     - li | free if category = "corkscrews" AND price < 10, applied to one
-      > [@michalrus] Re: `applied to one` — could I define “get such a corkscrew for each `{5 glasses + 1 bottle}`”? If not, what else can there be, instead of `applied to one`? Is case 3.1 like that?
+      > [@michalrus] Re: `applied to one` — could I define “get such a corkscrew for each `{5 glasses + 1 bottle}`”? If not, what else can there be, instead of `applied to one`? Is case 3.1 like that?    
       > [@anna] I rather meant that if customer adds second corkscrew to cart, it must be at full price
 1. **Order beer and get a free bag of ice if order total is over $50** [auto] [nex]
   - bundle
