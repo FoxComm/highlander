@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 import os, sys
 import os.path
@@ -71,7 +72,7 @@ def get_base_branch():
         log("Fetching base branch for PR#$BUILDKITE_PULL_REQUEST via Github API...")
         url = github_base_url + str_env("/$BUILDKITE_PULL_REQUEST?access_token=$GITHUB_API_TOKEN")
         with request.urlopen(url) as resp:
-            answer = json.loads(resp.read())
+            answer = json.loads(resp.read().decode('utf-8'))
             return "origin/" + answer['base']['ref']
     else:
         log("No pull request created, setting base branch to master")
