@@ -22,6 +22,7 @@ Something along
 
 # General considerations
 - to optimize for performance, auto-apply promo data must be kept in memory and backed up to db. Use `State` monad?
+  > [@michalrus] I think invalidating all of RAM cache would be safest. So if any admin changes anything regarding promotions → invalidate RAM → re-read the rules from the DB. This way we don’t have to maintain both fresh reading & updating code, the first one suffices. =)
 - use `.par` (Scala parallel collection processing) when iterating through auto-apply promo data
 
 _this document is to be filled after some design decisions are made_
