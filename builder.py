@@ -8,7 +8,6 @@ import subprocess as sp
 import urllib.request as request
 import argparse
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument("-docker", help="Build docker containers also", action="store_true")
 parser.add_argument("-debug", help="Don't take any action", action="store_true")
@@ -72,7 +71,8 @@ def get_base_branch():
 		log("Fetching base branch for PR#$BUILDKITE_PULL_REQUEST via Github API...")
 		url = github_base_url + str_env("/$BUILDKITE_PULL_REQUEST?access_token=$GITHUB_API_TOKEN")
 		with request.urlopen(url) as resp:
-			answer = json.loads(resp.read())
+            str_response = resp.readall().decode('utf-8')
+			answer = json.loads(str_response)
 			return "origin/" + answer['base']['ref']
 	else:
 		log("No pull request created, setting base branch to master")
