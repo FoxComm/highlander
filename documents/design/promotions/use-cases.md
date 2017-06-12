@@ -47,7 +47,7 @@ Cart
 Thoughts:
 - do all of these promos apply?
 - how to let user know that they can get free corkscrew and ice? Do we bother to do that via API?
-- discount for ice is denoted as `- / -50%` because we need to apply 50% discount to half of items in line item. Needs tech design
+- discount for ice is denoted as `- / -100%` because we need to apply 50% discount to half of items in line item. Needs tech design
 - with `bundle` application level, this fits "one cart-level promo per cart" concept
 - qualifiers like "all wine" are category-based; we probably should have category-based qualifier instead of saved search, for clarity. Categories should be identified by id.
 
