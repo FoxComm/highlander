@@ -9,6 +9,7 @@ import { createSelector } from 'reselect';
 import { transitionTo, transitionToLazy } from 'browserHistory';
 
 // data
+import * as CatalogActions from 'modules/catalog/details';
 import * as CountryActions from 'modules/countries';
 
 const sortCountries = createSelector(
@@ -19,10 +20,21 @@ const sortCountries = createSelector(
 function mapStateToProps(state, props) {
   return {
     countries: sortCountries(state),
+    createStatus: _.get(state, 'asyncActions.createCatalog'),
   };
 }
 
+const mapDispatchToProps = {
+  ...CatalogActions,
+  ...CountryActions,
+};
+
 type Props = {
+  createCatalog: Function,
+  createStatus: ?{
+    err: any,
+    inProgress: bool,
+  },
   countries: Array<Country>,
 };
 
@@ -55,15 +67,21 @@ class NewCatalog extends Component {
   };
 
   handleSubmit = () => {
-    console.log('submitting!');
+    this.props.createCatalog(this.state).then((resp) => {
+      transitionTo('catalog-details', { catalogId: resp.id });
+    });
   };
     
   render() {
     const { countries } = this.props;
     const { name, defaultLanguage, site, countryId } = this.state;
+    const isLoading = _.get(this.props, 'createStatus.inProgress', false);
+    const err = _.get(this.props, 'createStatus.err');
     
     return (
       <NewCatalogForm
+        err={err}
+        isLoading={isLoading}
         name={name}
         defaultLanguage={defaultLanguage}
         site={site}
@@ -77,4 +95,4 @@ class NewCatalog extends Component {
   }
 }
 
-export default connect(mapStateToProps, CountryActions)(NewCatalog);
+export default connect(mapStateToProps, mapDispatchToProps)(NewCatalog);

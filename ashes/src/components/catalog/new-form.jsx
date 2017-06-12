@@ -5,6 +5,7 @@ import React from 'react';
 
 import Content from 'components/core/content/content';
 import { Dropdown } from 'components/dropdown';
+import ErrorAlerts from 'components/alerts/error-alerts';
 import Form from 'components/forms/form';
 import SaveCancel from 'components/core/save-cancel';
 import TextInput from 'components/forms/text-input';
@@ -18,6 +19,8 @@ type Props = {
   site: string,
   countryId: ?number,
   countries: Array<Country>,
+  err: ?any,
+  isLoading: boolean,
   onChange: Function,
   onCancel: Function,
   onSubmit: Function,
@@ -26,6 +29,7 @@ type Props = {
 const NewCatalogForm = (props: Props) => {
   const { defaultLanguage, name, site, countryId, countries } = props;
   const { onCancel, onChange, onSubmit } = props;
+  const { err, isLoading } = props;
   
   const country = _.find(countries, { 'id': countryId });
 
@@ -36,11 +40,16 @@ const NewCatalogForm = (props: Props) => {
 
   const countryItems = countries.map((country) => [country.id, country.name]);
   const languageItems = languages.map((lang) => [lang, lang]);
-  
+
   return (
     <Content>
       <div styleName="form-content">
-      <h1>New Catalog</h1>
+        <h1>New Catalog</h1>
+        {err && (
+          <div>
+            <ErrorAlerts error={err} />
+          </div>
+        )}
         <Form onSubmit={onSubmit}>
           <VerticalFormField
             controlId= "name"
@@ -89,6 +98,7 @@ const NewCatalogForm = (props: Props) => {
             <SaveCancel
               onCancel={onCancel}
               saveText="Save Catalog"
+              isLoading={isLoading}
             />
           </div>
         </Form>
