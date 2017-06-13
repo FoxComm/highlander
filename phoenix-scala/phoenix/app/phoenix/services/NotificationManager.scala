@@ -2,7 +2,7 @@ package phoenix.services
 
 import core.db._
 import core.failures._
-import de.heikoseeberger.akkasse.{ServerSentEvent ⇒ SSE}
+import de.heikoseeberger.akkasse.scaladsl.model.{ServerSentEvent ⇒ SSE}
 import org.json4s.Extraction.decompose
 import org.json4s.jackson.JsonMethods._
 import org.postgresql.core.{Utils ⇒ PgjdbcUtils}
