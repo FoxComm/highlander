@@ -37,7 +37,9 @@ func main() {
 	}
 
 	// new ES client
-	esClient, err := elastic.NewClient(elastic.SetURL(agentConfig.ElasticURL))
+	esClient, err := elastic.NewClient(
+		elastic.SetURL(agentConfig.ElasticURL),
+	)
 	if err != nil {
 		log.Panicf("Unable to create ES client with error %s", err.Error())
 	}

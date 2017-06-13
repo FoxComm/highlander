@@ -58,12 +58,10 @@ func Request(method string, url string, headers map[string]string, payload inter
             return nil, fmt.Errorf("Unable to marshal payload: %s", err.Error())
         }
 
-        log.Printf("HTTP --> %s %s %s", method, url, utils.SanitizePassword(payloadBytes))
-
         req, err = http.NewRequest(method, url, bytes.NewBuffer(payloadBytes))
     }
 
-    log.Printf("HTTP --> %s %s %s", method, url, payloadBytes)
+    log.Printf("HTTP --> %s %s %s", method, url, utils.SanitizePassword(payloadBytes))
 
     if err != nil {
         return nil, fmt.Errorf("Unable to create %s request: %s", method, err.Error())
