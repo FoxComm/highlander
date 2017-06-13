@@ -38,6 +38,7 @@ import ContentBox from 'components/content-box/content-box';
 import Criterion from './editor/criterion-view';
 import CustomerGroupStats from './stats';
 import SearchCustomersModal from './customers/search-modal';
+import Icon from 'components/core/icon';
 
 type State = {
   criteriaOpen: boolean,
@@ -223,7 +224,7 @@ class GroupDetails extends Component {
     const icon = criteriaOpen ? 'icon-chevron-up' : 'icon-chevron-down';
 
     return (
-      <i className={icon} onClick={() => this.setState({ criteriaOpen: !criteriaOpen })} />
+      <Icon name={icon} onClick={() => this.setState({ criteriaOpen: !criteriaOpen })} />
     );
   }
 

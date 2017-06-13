@@ -35,7 +35,7 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     strings.flatMap(errors ⇒ Failures(errors.map(MiddlewarehouseError): _*))
 
   private def parseListOfMwhInfoErrors(
-      maybeErrors: Option[List[MiddlewarehouseErrorInfo]]): Option[Failures] = {
+      maybeErrors: Option[List[MiddlewarehouseErrorInfo]]): Option[Failures] =
     maybeErrors match {
       case Some(errors) ⇒
         logger.info("Middlewarehouse errors:")
@@ -46,7 +46,6 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
         logger.warn("No errors in failed Middlewarehouse response!")
         Some(UnableToHoldLineItems.single)
     }
-  }
 
   //NOTE: This is public only for test purposes
   def parseMwhErrors(message: String): Failures = {
@@ -86,10 +85,10 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
   //Note cart ref becomes order ref num after cart turns into order
   override def cancelHold(orderRefNum: String)(implicit ec: EC, au: AU): Result[Unit] = {
 
-    val reqUrl = dispatch.url(s"$url/v1/private/reservations/hold/${orderRefNum}")
+    val reqUrl = dispatch.url(s"$url/v1/private/reservations/hold/$orderRefNum")
     val jwt    = AuthPayload.jwt(au.token)
     val req    = reqUrl.setContentType("application/json", "UTF-8") <:< Map("JWT" → jwt)
-    logger.info(s"middlewarehouse cancel hold: ${orderRefNum}")
+    logger.info(s"middlewarehouse cancel hold: $orderRefNum")
     val f = Http(req.DELETE OK as.String).either.map {
       case Right(_)    ⇒ Either.right(())
       case Left(error) ⇒ Either.left(UnableToCancelHoldLineItems.single)

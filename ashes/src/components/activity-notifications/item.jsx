@@ -11,6 +11,7 @@ import AuthorTitle from '../activity-trail/activities/base/author-title';
 import AuthorIcon from '../activity-trail/activities/base/author-icon';
 import { representatives } from '../activity-trail/activities/index';
 import { processActivity } from '../../modules/activity-trail';
+import Icon from 'components/core/icon';
 
 // styles
 import s from './item.css';
@@ -20,26 +21,26 @@ type Props = {
 };
 
 function getIcon(type) {
-  let postfix = '';
+  let iconType = '';
 
   switch (true) {
     case type.includes('order'):
     case type.includes('cart'):
-      postfix = 'orders';
+      iconType = 'orders';
       break;
     case type.includes('user'):
     case type.includes('customer'):
-      postfix = 'customers';
+      iconType = 'customers';
       break;
     case type.includes('gift_card'):
     case type.includes('store_credit'):
-      postfix = 'gift-cards';
+      iconType = 'gift-cards';
       break;
     default:
-      postfix = 'bell';
+      iconType = 'bell';
   }
 
-  return <i className={`icon icon-${postfix}`} />;
+  return <Icon name={iconType} />;
 }
 
 const NotificationItem = (props: Props) => {

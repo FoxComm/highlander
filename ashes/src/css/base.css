@@ -22,7 +22,7 @@ body {
   font-family: 'Open Sans', sans-serif;
   font-size: 15px;
   color: var(--color-text);
-  background-color: #f2f2f2;
+  background-color: var(--bg-grey-headers);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

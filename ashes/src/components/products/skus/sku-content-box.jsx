@@ -13,6 +13,7 @@ import ContentBox from 'components/content-box/content-box';
 import SkuList from './sku-list';
 import ConfirmationModal from 'components/core/confirmation-modal';
 import { Checkbox } from 'components/core/checkbox';
+import Icon from 'components/core/icon';
 
 // helpers
 import { availableVariantsValues, variantsWithMultipleOptions } from 'paragons/variants';
@@ -54,7 +55,7 @@ class SkuContentBox extends Component {
 
     return (
       <a id="fct-add-sku-btn__skus-block" styleName="add-icon" onClick={this.addAction}>
-        <i className="icon-add" />
+        <Icon name="add" />
       </a>
     );
   }

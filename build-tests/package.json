@@ -1,0 +1,50 @@
+{
+  "name": "build-tests",
+  "version": "1.0.0",
+  "description": "Build Verification Tests for Highlander",
+  "scripts": {
+    "test": "ava --verbose || true",
+    "test-auth": "ava --verbose tests/auth.test.js || true",
+    "test-store-admin": "ava --verbose tests/store-admin.test.js || true",
+    "test-customer": "ava --verbose tests/customer.test.js || true",
+    "test-sku": "ava --verbose tests/sku.test.js || true",
+    "test-product": "ava --verbose tests/product.test.js || true",
+    "test-gift-card": "ava --verbose tests/gift-card.test.js || true",
+    "test-promotion": "ava --verbose tests/promotion.test.js || true",
+    "test-coupon": "ava --verbose tests/coupon.test.js || true",
+    "test-cart": "ava --verbose tests/cart.test.js || true",
+    "test-carts": "ava --verbose tests/carts.test.js || true",
+    "test-order": "ava --verbose tests/order.test.js || true",
+    "test-storefront": "ava --verbose tests/storefront.test.js || true",
+    "test-shared-search": "ava --verbose tests/shared-search.test.js || true",
+    "test-dev": "ava --verbose tests/dev.test.js || true"
+  },
+  "dependencies": {
+    "@foxcomm/admin-api-js": "^0.0.1",
+    "@foxcomm/api-js": "^1.1.5",
+    "allure-js-commons": "^1.2.1",
+    "ava": "^0.18.2",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-es2015": "^6.22.0",
+    "babel-preset-stage-2": "^6.22.0",
+    "cookie": "^0.3.1",
+    "faker": "^3.1.0",
+    "stripcolorcodes": "^0.1.0",
+    "superagent": "^3.4.1"
+  },
+  "devDependencies": {
+    "babel-eslint": "^7.1.1",
+    "eslint": "^3.14.1",
+    "eslint-config-airbnb": "^14.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^3.0.2",
+    "eslint-plugin-react": "^6.9.0"
+  },
+  "ava": {
+    "require": [
+      "babel-register"
+    ],
+    "babel": "inherit",
+    "powerAssert": false
+  }
+}

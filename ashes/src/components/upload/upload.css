@@ -6,12 +6,12 @@
   margin: -15px -5px;
 
   &:global(._empty) {
-    border: 3px dashed var(--grey-buttons);
+    border: 3px dashed var(--bg-grey-buttons);
     margin: -18px -8px;
   }
 
   &:global(._dragPossible) {
-    border: 3px dashed #9bc1ca;
+    border: 3px dashed var(--bg-message-success);
     margin: -18px -8px;
   }
 

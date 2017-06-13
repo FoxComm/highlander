@@ -1,13 +1,7 @@
 // Tables
-@color-tr-odd-bg: @color-white;
-@color-tr-even-bg: @color-decor12;
-
-@color-th-bg: @color-decor12;
-@color-th-bg-hover: @color-decor35;
-
 @keyframes fc-new-row {
   from {
-    background-color: @color-grey-buttons;
+    background-color: @bg-grey-buttons;
   }
 
   to {
@@ -30,7 +24,7 @@
   .fc-table-message {
     padding: 10px 15px;
     z-index: 2;
-    background: #fff;
+    background: @bg-white;
 
     &._inline {
       position: absolute;
@@ -38,7 +32,7 @@
       top: 62px;
       bottom: 0;
       padding-top: 40px;
-      background: rgba(255, 255, 255, .72);
+      opacity: 0.8;
     }
   }
 }
@@ -56,7 +50,6 @@
       position: relative;
       vertical-align: middle;
       color: @color-text;
-      background: @color-th-bg;
       padding: 10px 15px;
       font-size: 13px;
       font-weight: 600;
@@ -76,7 +69,7 @@
         cursor: pointer;
 
         &:hover {
-          background-color: @color-th-bg-hover;
+          background-color: @color-border;
 
           .icon-up {
             display: block;
@@ -142,12 +135,12 @@
 
       &:nth-child(odd),
       &.odd {
-        background-color: @color-tr-odd-bg;
+        background-color: @bg-white;
       }
 
       &:nth-child(even),
       &.even {
-        background-color: @color-tr-even-bg;
+        background-color: @bg-grey-headers;
       }
 
       &.is-new {
@@ -261,12 +254,12 @@
   }
 
   .fc-form-field input.fc-table-paginator__current-page-field._disabled {
-    background-color: @color-decor12;
+    background-color: @bg-grey-headers;
     border: 1px solid @color-border;
   }
 
   &__current-page-selector {
-    background-color: @color-white;
+    background-color: @bg-white;
     position: absolute;
     width: 50px;
     overflow-y: scroll;
@@ -298,7 +291,7 @@
   }
 
   &__selector-option:hover {
-    background-color: @color-decor12;
+    background-color: @bg-grey-headers;
   }
 }
 

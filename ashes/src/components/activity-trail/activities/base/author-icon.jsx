@@ -7,7 +7,8 @@ import classNames from 'classnames';
 
 // components
 import DetailedInitials from '../../../user-initials/detailed-initials';
-import Icon from 'components/icon/icon';
+import SvgIcon from 'components/core/svg-icon';
+import Icon from 'components/core/icon';
 
 // styles
 import s from './author-icon.css';
@@ -22,18 +23,18 @@ const AuthorIcon = props => {
       if (!_.isEmpty(adminName)) {
         return <DetailedInitials name={adminName} className={className} />;
       } else {
-        return <Icon name="fox" className={classNames(s.systemIcon, className)} />;
+        return <SvgIcon name="fox" className={classNames(s.systemIcon, className)} />;
       }
     case 'account':
     case 'user':
     case 'customer':
       return (
         <div className={classNames('fc-activity__customer-icon', className)}>
-          <i className="icon-customer"></i>
+          <Icon className="icon-customer"></Icon>
         </div>
       );
     default:
-      return <Icon name="fox" className={classNames(s.systemIcon, className)} />;
+      return <SvgIcon name="fox" className={classNames(s.systemIcon, className)} />;
   }
 };
 

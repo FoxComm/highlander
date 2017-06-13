@@ -1,8 +1,12 @@
 /* @flow */
 
-import classNames from 'classnames';
+// libs
 import React from 'react';
 
+// components
+import Icon from 'components/core/icon';
+
+// styles
 import styles from './styles.css';
 
 type Props = {
@@ -14,7 +18,7 @@ type Props = {
 
 export default ({ id, name, onClick, icon = '' }: Props) => (
   <button className={styles.template} onClick={() => onClick(id)}>
-    {icon && <i className={classNames(styles.icon, `icon-${icon}`)} />}
+    {icon && <Icon className={styles.icon} name={icon} />}
     {name}
   </button>
 );

@@ -4,9 +4,6 @@
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 
-// styles
-import styles from './shipment-row.css';
-
 // components
 import TableRow from 'components/table/row';
 import TableCell from 'components/table/cell';
@@ -14,6 +11,10 @@ import { DateTime } from 'components/common/datetime';
 import AddressDetails from 'components/addresses/address-details';
 import ShippedItem from './shipped-item';
 import Transaction from './transaction';
+import Icon from 'components/core/icon';
+
+// styles
+import styles from './shipment-row.css';
 
 // types
 import type { TShippingMethod, TShipmentLineItem } from 'paragons/shipment';
@@ -76,8 +77,8 @@ export default class ShipmentRow extends Component {
     return (
       <TableRow styleName="summary-row">
         <TableCell>
-          <i styleName="row-toggle"
-             className={`icon-chevron-${toggleAction}`}
+          <Icon styleName="row-toggle"
+             name={`chevron-${toggleAction}`}
              onClick={this.toggleExpanded}
           />
           {props.shippingMethod.name}

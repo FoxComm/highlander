@@ -1,13 +1,13 @@
 import React from 'react';
 import sinon from 'sinon';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 
 import Alert from './alert';
 
 describe('Alert', function () {
 
   it('should render success Alert', function () {
-    const alert = shallow(
+    const alert = mount(
       <Alert type={Alert.SUCCESS}>Success</Alert>
     );
 
@@ -18,7 +18,7 @@ describe('Alert', function () {
   });
 
   it('should render warning Alert', function () {
-    const alert = shallow(
+    const alert = mount(
       <Alert type={Alert.WARNING}>Warning</Alert>
     );
 
@@ -27,7 +27,7 @@ describe('Alert', function () {
   });
 
   it('should render error Alert', function () {
-    const alert = shallow(
+    const alert = mount(
       <Alert type={Alert.ERROR}>Error</Alert>
     );
 

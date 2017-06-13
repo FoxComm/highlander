@@ -109,12 +109,13 @@ class PdpConnect extends Component {
         isRelatedProductsLoading,
         product,
         actions,
+        isLoading,
       } = this.props;
 
-      if (!isProductReviewsLoading) {
+      if (!isLoading && !isProductReviewsLoading) {
         actions.fetchReviewsForSku(this.productSkuCodes, REVIEWS_PAGE_SIZE, 0).catch(_.noop);
       }
-      if (!isRelatedProductsLoading) {
+      if (!isLoading && !isRelatedProductsLoading) {
         actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
       }
     });

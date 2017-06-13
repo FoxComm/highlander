@@ -31,7 +31,7 @@ class Notifications(tag: Tag) extends FoxTable[Notification](tag, "notifications
 
   def * =
     (id, scope, accountId, dimensionId, objectId, activity, createdAt) <> ((Notification.apply _).tupled,
-        Notification.unapply)
+    Notification.unapply)
 
   def account = foreignKey(Accounts.tableName, accountId, Accounts)(_.id)
 }

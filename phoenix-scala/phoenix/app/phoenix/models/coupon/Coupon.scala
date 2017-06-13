@@ -40,21 +40,10 @@ class Coupons(tag: Tag) extends ObjectHeads[Coupon](tag, "coupons") {
   def promotionId = column[Int]("promotion_id")
 
   def * =
-    (id,
-     scope,
-     promotionId,
-     contextId,
-     shadowId,
-     formId,
-     commitId,
-     updatedAt,
-     createdAt,
-     archivedAt) <> ((Coupon.apply _).tupled, Coupon.unapply)
+    (id, scope, promotionId, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Coupon.apply _).tupled, Coupon.unapply)
 }
 
-object Coupons
-    extends ObjectHeadsQueries[Coupon, Coupons](new Coupons(_))
-    with ReturningId[Coupon, Coupons] {
+object Coupons extends ObjectHeadsQueries[Coupon, Coupons](new Coupons(_)) with ReturningId[Coupon, Coupons] {
 
   val returningLens: Lens[Coupon, Int] = lens[Coupon].id
 

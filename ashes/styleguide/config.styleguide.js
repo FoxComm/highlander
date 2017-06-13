@@ -28,8 +28,17 @@ module.exports = {
           }, {
             components: () => ([
               path.resolve(__dirname, '../src/components/docs/colors/text-colors.jsx'),
+              path.resolve(__dirname, '../src/components/docs/colors/bg-colors.jsx'),
             ]),
           }]
+        },
+        {
+          name: 'Iconography',
+          components: () => ([
+            path.resolve(__dirname, '../src/components/docs/icons/icons.jsx'),
+            path.resolve(__dirname, '../src/components/docs/svg-icons/svg-icons.jsx'),
+            path.resolve(__dirname, '../src/components/docs/logos/logos.jsx'),
+          ]),
         },
         {
           name: 'Components',
@@ -100,6 +109,8 @@ module.exports = {
                 path.resolve(__dirname, '../src/components/core/rounded-pill/rounded-pill.jsx'),
                 path.resolve(__dirname, '../src/components/core/spinner/spinner.jsx'),
                 path.resolve(__dirname, '../src/components/core/countdown/countdown.jsx'),
+                path.resolve(__dirname, '../src/components/core/svg-icon/svg-icon.jsx'),
+                path.resolve(__dirname, '../src/components/core/icon/icon.jsx'),
               ]),
             },
           ],

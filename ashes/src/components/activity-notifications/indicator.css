@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .block {
   width: 85px;
   text-align: center;
@@ -31,14 +33,14 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  color: #fff;
-  background-color: #fc54a6;
+  color: var(--color-light-text);
+  background-color: var(--bg-nav-pink);
 }
 
 
 .toggle {
   position: relative;
-  color: #bbb;
+  color: var(--color-additional-text);
   background-color: transparent;
   height: 100%;
 
@@ -48,11 +50,10 @@
   }
 
   &:hover {
-    color: #3e4d61;
-    background-color: #f2f2f2;
+    background-color: var(--bg-grey-headers);
   }
 
   &.active {
-    color: #3e4d61;
+    color: var(--color-text);
   }
 }

@@ -22,7 +22,7 @@
     width: 100%;
     height: 100%;
     font-size: 13px;
-    color: #363636;
+    color: var(--color-text);
   }
 
   & .label::before {
@@ -51,8 +51,8 @@
     line-height: 20px;
     text-align: center;
     font-family: "fontello";
-    background: #3a4350;
-    color: #ffffff;
+    background: var(--bg-nav-main);
+    color: var(--color-light-text);
     opacity: 0;
     transform-origin: center top;
     transform: scale(0) translateY(-50%);
@@ -61,11 +61,11 @@
   }
 
   & input:hover + .label::before {
-    border-color: #3a4350;
+    border-color: var(--bg-nav-main);
   }
 
   & input:checked + .label::before {
-    border-color: #3a4350;
+    border-color: var(--bg-nav-main);
   }
 
   & input:checked + .label::after {
@@ -74,7 +74,7 @@
   }
 
   & input:checked:hover + .label::after {
-    background-color: #828e9f;
+    background-color: var(--bg-nav-disabled);
   }
 
   & input[disabled] + .label::before,
@@ -84,7 +84,7 @@
 
   & input[disabled] + .label::before {
     border-color: var(--color-border);
-    background: #f7f7f7;
+    background: var(--bg-grey-headers);
   }
 
   & input[disabled]:checked + .label::before {
@@ -93,7 +93,7 @@
 
   & input[disabled]:checked:hover + .label::before {
     border-color: var(--color-border);
-    background: #f7f7f7;
+    background: var(--bg-grey-headers);
   }
 
   &.inCell {
@@ -149,12 +149,12 @@
     font-size: 24px;
     font-weight: 400;
     line-height: 36px;
-    color: #ffffff;
+    color: var(--color-light-text);
     transform: scale(1) translateY(-50%);
   }
 
   & input:checked + .label::after {
-    background: #3a4350;
+    background: var(--bg-nav-main);
   }
 
   & .label {
@@ -174,12 +174,12 @@
     top: -2px;
     width: 80px;
     height: 34px;
-    background: #F45758;
+    background: var(--bg-field-error);
     border-radius: 17px;
     transition: all .4s ease;
     padding: 0 10px;
     text-align: right;
-    color: #ffffff;
+    color: var(--color-light-text);
     font-size: 16px;
     font-weight: 500;
     line-height: 34px;
@@ -194,7 +194,7 @@
     top: 0;
     width: 80px;
     height: 34px;
-    background: #4fc2c9;
+    background: var(--bg-green-buttons);
     opacity: 0;
     border: none;
     border-radius: 17px;
@@ -202,7 +202,7 @@
     padding: 0 10px;
     text-indent: -42px;
     text-align: left;
-    color: #ffffff;
+    color: var(--color-light-text);
     font-size: 16px;
     font-weight: 500;
     line-height: 34px;
@@ -215,7 +215,7 @@
     top: 5px;
     width: 24px;
     height: 24px;
-    background: #ffffff;
+    background: var(--bg-white);
     border-radius: 17px;
     transition: all .4s ease;
     text-indent: 42px;
@@ -227,7 +227,7 @@
   }
 
   & input:checked + .label {
-    background: rgba(244, 87, 88, 0);
+    background: transparent;
 
     &:before {
       text-indent: 0;
@@ -235,7 +235,7 @@
     }
 
     &:after {
-      opacity: 0;
+      opacity: 1;
       left: 51px;
     }
   }

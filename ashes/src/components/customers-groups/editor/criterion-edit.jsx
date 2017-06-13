@@ -12,6 +12,7 @@ import { prefix } from 'lib/text-utils';
 
 //components
 import { Dropdown } from 'components/dropdown';
+import Icon from 'components/core/icon';
 
 const prefixed = prefix('fc-customer-group-builder');
 const fields = criterions.map(({ field,label }) => [ field, label ]);
@@ -38,7 +39,7 @@ class Criterion extends Component {
         />
         {renderOperator(criterion, operator, changeOperator)}
         {renderValue(criterion, operator, value, changeValue)}
-        <i onClick={remove} className={classNames(prefixed('remove-criterion'), 'icon-close')} />
+        <Icon onClick={remove} className={prefixed('remove-criterion')} name="close" />
       </div>
     );
   }

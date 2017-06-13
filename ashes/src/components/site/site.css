@@ -34,6 +34,6 @@
 
 .sidebar {
   width: 206px;
-  background-color: var(--nav-main);
+  background-color: var(--bg-nav-main);
   overflow-y: auto;
 }

@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #f7f7f7;
+  background-color: var(--bg-grey-headers);
   border-bottom: 1px solid var(--color-border);
   padding: 18px 20px 17px;
   font-size: 16px;

@@ -1,6 +1,6 @@
 .fc-inventory-item {
   &__summary {
-    background: @color-decor0;
+    background: @bg-grey-headers;
     overflow: hidden;
   }
 
@@ -9,7 +9,7 @@
   }
 
   .fc-inventory-item-notes {
-    background-color: @color-decor0;
+    background-color: @bg-grey-headers;
   }
 
   .fc-notes-section-title {
@@ -21,7 +21,7 @@
   margin: 0 -1.85%;
 
   &__summary {
-    background: @color-decor0;
+    background: @bg-grey-headers;
   }
 
   &__tab-link {
@@ -41,7 +41,7 @@
   .fc-table__table > .fc-table-wrap {
     padding: 40px 20px 60px;
     border-top: none;
-    background: #fff;
+    background: @bg-white;
 
     .fc-table-wrap {
       padding: 0;
@@ -67,7 +67,7 @@
     }
 
     .fc-table-body .fc-table-tr.fc-expandable-table__drawer {
-      background: #fff !important;
+      background: @bg-white !important;
     }
   }
 
@@ -75,15 +75,15 @@
     .fc-table-head .fc-table-tr,
     .fc-table-head .fc-table-tr th {
       border-top: none !important;
-      background: #e4e6ea;
+      background: @color-border;
     }
 
     .fc-table-body {
       .fc-table-tr:nth-child(odd) {
-        background: #f4f5f6;
+        background: @bg-grey-headers;
       }
       .fc-table-tr:nth-child(even) {
-        background: #e4e6ea;
+        background: @color-border;
       }
     }
   }

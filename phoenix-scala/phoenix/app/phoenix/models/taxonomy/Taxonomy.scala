@@ -36,16 +36,7 @@ class Taxonomies(tag: Tag) extends ObjectHeads[Taxonomy](tag, "taxonomies") {
   def hierarchical = column[Boolean]("hierarchical")
 
   def * =
-    (id,
-     scope,
-     hierarchical,
-     contextId,
-     formId,
-     shadowId,
-     commitId,
-     updatedAt,
-     createdAt,
-     archivedAt) <> ((Taxonomy.apply _).tupled, Taxonomy.unapply)
+    (id, scope, hierarchical, contextId, formId, shadowId, commitId, updatedAt, createdAt, archivedAt) <> ((Taxonomy.apply _).tupled, Taxonomy.unapply)
 }
 
 object Taxonomies

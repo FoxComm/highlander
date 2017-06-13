@@ -1,0 +1,22 @@
+{
+  "extends": "airbnb",
+  "rules": {
+    "max-len": [2, 120, 4,
+      {
+        "ignoreComments": true,
+        "ignoreUrls": true,
+        "ignorePattern": "^\\s*var\\s.+=\\s*require\\s*\\("
+      }
+    ],
+    "no-restricted-syntax": [0],
+    "no-await-in-loop": [0],
+    "no-bitwise": [0],
+    "no-continue": [0],
+    "quote-props": [0],
+    "dot-notation": [0]
+  },
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaVersion": 8
+  }
+}

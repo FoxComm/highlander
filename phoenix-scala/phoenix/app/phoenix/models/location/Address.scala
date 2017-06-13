@@ -63,14 +63,16 @@ object Address {
             phoneNumber = osa.phoneNumber)
 
   def fromCreditCard(cc: CreditCard): Address =
-    Address(accountId = 0,
-            regionId = cc.address.regionId,
-            name = cc.address.name,
-            address1 = cc.address.address1,
-            address2 = cc.address.address2,
-            city = cc.address.city,
-            zip = cc.address.zip,
-            phoneNumber = cc.address.phoneNumber)
+    Address(
+      accountId = 0,
+      regionId = cc.address.regionId,
+      name = cc.address.name,
+      address1 = cc.address.address1,
+      address2 = cc.address.address2,
+      city = cc.address.city,
+      zip = cc.address.zip,
+      phoneNumber = cc.address.phoneNumber
+    )
 }
 
 class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses") {
@@ -87,17 +89,7 @@ class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses") {
   def deletedAt         = column[Option[Instant]]("deleted_at")
 
   def * =
-    (id,
-     accountId,
-     regionId,
-     name,
-     address1,
-     address2,
-     city,
-     zip,
-     isDefaultShipping,
-     phoneNumber,
-     deletedAt) <> ((Address.apply _).tupled, Address.unapply)
+    (id, accountId, regionId, name, address1, address2, city, zip, isDefaultShipping, phoneNumber, deletedAt) <> ((Address.apply _).tupled, Address.unapply)
 
   def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }

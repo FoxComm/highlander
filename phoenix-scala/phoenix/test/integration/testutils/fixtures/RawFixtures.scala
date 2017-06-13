@@ -1,5 +1,7 @@
 package testutils.fixtures
 
+import java.time.Instant
+
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import core.db._
@@ -133,9 +135,7 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
   trait Sku_Raw extends StoreAdmin_Seed {
 
     val simpleSku: Sku = Mvp
-      .insertSku(Scope.current,
-                 ctx.id,
-                 SimpleSku("BY-ITSELF", "A lonely item", 9999, active = true))
+      .insertSku(Scope.current, ctx.id, SimpleSku("BY-ITSELF", "A lonely item", 9999, active = true))
       .gimme
   }
 
@@ -148,10 +148,10 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
       val testSkus = Seq(SimpleSku("SKU-TST", "SKU test", 1000, Currency.USD, active = true),
                          SimpleSku("SKU-TS2", "SKU test 2", 1000, Currency.USD, active = true))
 
-      val simpleSizeVariant = SimpleCompleteVariant(
-          variant = SimpleVariant("Size"),
-          variantValues = Seq(SimpleVariantValue("Small", "", Seq("SKU-TST")),
-                              SimpleVariantValue("Large", "", Seq("SKU-TS2"))))
+      val simpleSizeVariant = SimpleCompleteVariant(variant = SimpleVariant("Size"),
+                                                    variantValues =
+                                                      Seq(SimpleVariantValue("Small", "", Seq("SKU-TST")),
+                                                          SimpleVariantValue("Large", "", Seq("SKU-TS2"))))
 
       for {
         skus    ← * <~ Mvp.insertSkus(scope, ctx.id, testSkus)

@@ -15,7 +15,7 @@ describe('Buttons', function () {
   });
 
   it('should render Button with icon and text', function () {
-    const button = shallow(
+    const button = mount(
       <Buttons.Button icon="fake">Done</Buttons.Button>
     );
 

@@ -10,6 +10,7 @@ import classNames from 'classnames';
 import * as newOrderActions from '../../modules/orders/new-order';
 import { email } from '../../lib/validators';
 
+// components
 import { PrimaryButton } from 'components/core/button';
 import { BigCheckbox } from 'components/core/checkbox';
 import ChooseCustomer from './choose-customer';
@@ -20,6 +21,7 @@ import FormField from '../forms/formfield';
 import PilledInput from '../pilled-search/pilled-input';
 import PageTitle from '../section-title/page-title';
 import Typeahead from '../typeahead/typeahead';
+import Icon from 'components/core/icon';
 
 // styles
 import s from './new-order.css';
@@ -101,7 +103,7 @@ export default class NewOrder extends Component {
                      onClick={this.submitAction}
                      className="fc-order-create__submit fc-btn fc-btn-primary fc-right" >
         <span>Next</span>
-        <i className="icon-chevron-right" />
+        <Icon name="chevron-right" />
       </PrimaryButton>
     );
   }
