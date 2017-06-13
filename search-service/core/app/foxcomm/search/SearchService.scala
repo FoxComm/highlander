@@ -4,7 +4,7 @@ import scala.language.postfixOps
 import cats.implicits._
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s._
-import foxcomm.search.dsl.query.QueryFunction
+import foxcomm.search.dsl.query._
 import io.circe._
 import io.circe.jawn.parseByteBuffer
 import org.elasticsearch.common.settings.Settings
@@ -23,9 +23,12 @@ class SearchService(private val client: ElasticClient) extends AnyVal {
         (_: SearchDefinition) bool {
           query.query.foldLeft(new BoolQueryDefinition) {
             case (bool, QueryFunction.eq(in, value)) ⇒
-              bool.filter(in.toList.map(termsQuery(_, value.fold(QueryFunction.listOfAnyValueF): _*)))
+              bool.filter(in.toList.map(termsQuery(_, value.toList: _*)))
             case (bool, QueryFunction.neq(in, value)) ⇒
-              bool.not(in.toList.map(termsQuery(_, value.fold(QueryFunction.listOfAnyValueF): _*)))
+              bool.not(in.toList.map(termsQuery(_, value.toList: _*)))
+            case (bool, QueryFunction.matches(in, value)) ⇒
+              val fields = in.toList
+              bool.must(value.toList.map(q ⇒ multiMatchQuery(q).fields(fields)))
             case (bool, _) ⇒ bool // TODO: implement rest of cases
           }
         }

@@ -9,11 +9,6 @@
     "value": "all"
   },
   {
-    "type": "contains",
-    "in": [ "tags" ],
-    "value": "gift"
-  },
-  {
     "type": "matches",
     "in": [ "title", "description" ],
     "value": [ "food", "drink" ]

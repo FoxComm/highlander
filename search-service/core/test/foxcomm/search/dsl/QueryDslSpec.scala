@@ -21,20 +21,16 @@ class QueryDslSpec extends FlatSpec with Matchers {
     val queries = json.as[FCQuery].right.value.query.toList
     assertQueryFunction[QueryFunction.eq](queries.head) { is ⇒
       is.in.toList should === (List("slug"))
-      is.value.fold(QueryFunction.listOfAnyValueF) should === (List("awesome", "whatever"))
+      is.value.toList should === (List("awesome", "whatever"))
     }
     assertQueryFunction[QueryFunction.state](queries(1)) { state ⇒
       state.value should === (EntityState.all)
     }
-    assertQueryFunction[QueryFunction.contains](queries(2)) { contains ⇒
-      contains.in.toList should === (List("tags"))
-      contains.value.fold(QueryFunction.listOfAnyValueF) should === (List("gift"))
-    }
-    assertQueryFunction[QueryFunction.matches](queries(3)) { matches ⇒
+    assertQueryFunction[QueryFunction.matches](queries(2)) { matches ⇒
       matches.in.toList should === (List("title", "description"))
-      matches.value.fold(QueryFunction.listOfAnyValueF) should === (List("food", "drink"))
+      matches.value.toList should === (List("food", "drink"))
     }
-    assertQueryFunction[QueryFunction.range](queries(4)) { range ⇒
+    assertQueryFunction[QueryFunction.range](queries(3)) { range ⇒
       range.in.toList should === (List("price"))
       range.value.unify.cast[Map[RangeFunction, JsonNumber]].value.mapValues(_.toString) should === (
         Map(
