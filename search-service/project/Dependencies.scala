@@ -32,4 +32,11 @@ object Dependencies {
   )
 
   val jwt = "com.pauldijou" %% "jwt-core" % "0.12.1"
+
+  object test {
+    def core =
+      Seq(
+        "org.scalatest" %% "scalatest" % "3.0.3"
+      ).map(_ % "test")
+  }
 }
