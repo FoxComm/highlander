@@ -1,17 +1,24 @@
 package phoenix.libs.oauth
 
 import cats.data.EitherT
+import cats.implicits._
 import dispatch.{Http, as, url ⇒ request}
 import akka.http.scaladsl.model.Uri
+
 import org.json4s._
 import phoenix.utils.aliases._
-
 import scala.concurrent.Future
 
+import core.failures.Failures
+import phoenix.failures.AuthFailures._
+
 case class UserInfo(name: String, email: String) {
-  def emailDomain: String = {
+  def emailDomain: Either[Failures, String] = {
     val userAtDomain = email.split("@")
-    if (userAtDomain.size == 2) userAtDomain(1) else ""
+    if (userAtDomain.size == 2)
+      Either.right(userAtDomain(1))
+    else
+      Either.left(InvalidEmailInOauthUserInfo.single)
   }
 }
 
