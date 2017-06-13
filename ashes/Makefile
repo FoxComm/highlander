@@ -29,6 +29,10 @@ docker: MSG=Dockerizing
 docker: notify
 	docker build -t $(DOCKER_IMAGE) .
 
+.PHONY: docker-run
+docker-run:
+	docker run -it -p 4000:4000 ashes:latest
+
 .PHONY: docker-push
 docker-push: MSG=Registering
 docker-push: notify
