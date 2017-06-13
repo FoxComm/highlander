@@ -1,10 +1,14 @@
 package phoenix.services.customerGroups
 
+import cats._
+import cats.data._
 import cats.implicits._
 import phoenix.failures.CustomerGroupFailures.CustomerGroupMemberPayloadContainsSameIdsInBothSections
-import core.failures.{NotFoundFailure400, NotFoundFailure404}
+import core.failures.{Failures, NotFoundFailure400, NotFoundFailure404}
 import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
+
+import cats.data.EitherT
 import phoenix.models.account.{User, Users}
 import phoenix.models.cord.Orders
 import phoenix.models.customer.CustomerGroup._
@@ -151,11 +155,15 @@ object GroupMemberManager {
              .result
              .dbresult
     } yield (num > 0)
-    else if (group.groupType == Dynamic) for {
-      num ← * <~ apis.elasticSearch.numResults(
-             ElasticsearchApi.SearchView(SearchReference.customersSearchView),
-             narrowDownWithUserId(customer.id)(group.elasticRequest))
-    } yield (num > 0)
+    else if (group.groupType == Dynamic)
+      for {
+        num ← (* <~ apis.elasticSearch.numResults(
+               ElasticsearchApi.SearchView(SearchReference.customersSearchView),
+               narrowDownWithUserId(customer.id)(group.elasticRequest))).failuresToWarnings(0) {
+               case _ ⇒ true
+             }
+        // FIXME: make sure the warning bubbles up to the final response — monad stack order should be different, we don’t want to lose warnings when a Failure happens @michalrus
+      } yield (num > 0)
     else DbResultT.pure(false)
 
   private def narrowDownWithUserId(userId: Int)(elasticRequest: Json): Json = {

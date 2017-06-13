@@ -43,7 +43,7 @@ class ReturnIntegrationTest
         .create(ReturnCreatePayload(cordRefNum = order.referenceNumber, returnType = Standard))
         .as[ReturnResponse.Root]
       rmaCreated.referenceNumber must === (s"${order.referenceNumber}.1")
-      rmaCreated.customer.head.id must === (customer.accountId)
+      rmaCreated.customer.head.id must === (customer.id)
       rmaCreated.storeAdmin.head.id must === (defaultAdmin.id)
 
       val getRmaRoot = returnsApi(rmaCreated.referenceNumber).get().as[ReturnResponse.Root]
@@ -198,7 +198,7 @@ class ReturnIntegrationTest
     "GET /v1/returns/customer/:id" - {
       "should return list of Returns of existing customer" in new ReturnFixture with OrderDefaults {
         val expected = createReturn(order.referenceNumber)
-        val root     = returnsApi.getByCustomer(customer.accountId).as[Seq[ReturnResponse.Root]]
+        val root     = returnsApi.getByCustomer(customer.id).as[Seq[ReturnResponse.Root]]
         root.size must === (1)
         root.head.referenceNumber must === (expected.referenceNumber)
       }
@@ -584,8 +584,7 @@ class ReturnIntegrationTest
         val maxCCAmount = shippingMethod.price.applyTaxes(0.5)
         val scAmount    = product.price + shippingMethod.price - maxCCAmount
         override val storeCredit =
-          api_newStoreCredit(customer.accountId,
-                             CreateManualStoreCredit(amount = scAmount, reasonId = reason.id))
+          api_newStoreCredit(customer.id, CreateManualStoreCredit(amount = scAmount, reasonId = reason.id))
         override val order =
           createDefaultOrder(Map(PaymentMethod.CreditCard → None, PaymentMethod.StoreCredit → Some(scAmount)))
 
