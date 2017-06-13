@@ -28,7 +28,7 @@ const SvgIcons = () => {
   const icons = iconSet.map((iconType) => (
     <div key={iconType} className={s.box}>
       <div className={s.iconWrapper}>
-        <SvgIcon name={iconType} className={s.svgStyle} viewBox='0 0 19 19'/>
+        <SvgIcon name={iconType} className={s.svgStyle} viewBox='0 0 19 19' />
       </div>
       <span className={s.text}>{iconType}</span>
     </div>
