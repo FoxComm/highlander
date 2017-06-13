@@ -291,6 +291,27 @@ class AutoPromotionsIntegrationTest
     "dynamic CGs with a match" in { dynamicCGCartPromo(1L) mustBe 'defined }
     "dynamic CGs w/o matches" in { dynamicCGCartPromo(0L) mustBe 'empty }
 
+    "dynamic CGs, when ES fails" in {
+      reset(elasticSearchMock)
+      when(elasticSearchMock.numResults(any[ElasticsearchApi.SearchView], any[Json]))
+        .thenReturn(Future.failed(new RuntimeException("ES failed!")))
+
+      groupAndPromo(CustomerGroup.Dynamic)
+
+      val customer = api_newCustomer()
+      val refNum   = api_newCustomerCart(customer.id).referenceNumber
+      val skuCode  = new ProductSku_ApiFixture {}.skuCode
+
+      val response = cartsApi(refNum).lineItems
+        .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+        .asThe[CartResponse]
+
+      // FIXME: make sure the warning bubbles up to the final response — monad stack order should be different, we don’t want to lose warnings when a Failure happens @michalrus
+      /* response.warnings should contain "ES failed!" */
+
+      response.result.promotion mustBe 'empty
+    }
+
     "and still the best promo is chosen among CG/non-CG ones" - {
       "lt" in bestIsApplied(DefaultPercentOff - 13)
       "gt" in bestIsApplied(DefaultPercentOff + 11)
