@@ -138,6 +138,20 @@
 
 .color-9 {
   & > .sample {
+    background-color: var(--bg-grey-buttons-disabled);
+  }
+
+  & > .value::before {
+    content: '--bg-grey-buttons-disabled';
+  }
+
+  & > .desc::before {
+    content: 'Buttons.';
+  }
+}
+
+.color-10 {
+  & > .sample {
     background-color: var(--bg-grey-headers);
   }
 
@@ -150,7 +164,7 @@
   }
 }
 
-.color-10 {
+.color-11 {
   & > .sample {
     background-color: var(--bg-green-buttons);
   }
@@ -164,7 +178,7 @@
   }
 }
 
-.color-11 {
+.color-12 {
   & > .sample {
     background-color: var(--bg-green-buttons-hover);
   }
@@ -178,7 +192,7 @@
   }
 }
 
-.color-12 {
+.color-13 {
   & > .sample {
     background-color: var(--bg-message-success);
   }
@@ -192,7 +206,7 @@
   }
 }
 
-.color-13 {
+.color-14 {
   & > .sample {
     background-color: var(--bg-message-warning);
   }
@@ -206,7 +220,7 @@
   }
 }
 
-.color-14 {
+.color-15 {
   & > .sample {
     background-color: var(--bg-message-error);
   }
