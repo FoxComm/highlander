@@ -44,7 +44,7 @@ class AutoPromotionsIntegrationTest
     with ApiFixtureHelpers
     with PromotionFixtures {
 
-  "with many available, the best one is chosen" in new ProductSku_ApiFixture {
+  "with many available, the best one is chosen" in {
     val percentOffs = List.fill(11)(scala.util.Random.nextInt(100))
     val percentOff  = percentOffs.max
 
@@ -55,13 +55,11 @@ class AutoPromotionsIntegrationTest
         .as[PromotionResponse.Root]
     }
 
-    val customer = api_newCustomer()
-
-    val refNum =
-      cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
+    val refNum = api_newCustomerCart(api_newCustomer().id).referenceNumber
+    val sku    = ProductSku_ApiFixture().sku
 
     val cartWithProduct = cartsApi(refNum).lineItems
-      .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+      .add(Seq(UpdateLineItemsPayload(sku.attributes.code, 1)))
       .asTheResult[CartResponse]
 
     cartWithProduct.promotion mustBe 'defined
@@ -77,8 +75,7 @@ class AutoPromotionsIntegrationTest
     (p.discounts.head.attributes \ "offer" \ "v" \ "orderPercentOff" \ "discount").extract[Int]
 
   // FIXME: un-ignore this test when you get historical promotions working for OrderResponse… @michalrus
-  "keep correct promo versions for Carts & Orders after admin updates" ignore new ProductSku_ApiFixture
-  with StoreAdmin_Seed {
+  "keep correct promo versions for Carts & Orders after admin updates" ignore {
     val percentOffInitial = 33
     val percentOffUpdated = 17
 
@@ -105,7 +102,8 @@ class AutoPromotionsIntegrationTest
         .id)
 
     // FIXME: use API
-    val reason = Reasons.create(Factories.reason(storeAdmin.accountId)).gimme
+    val reason  = Reasons.create(Factories.reason(defaultAdmin.id)).gimme
+    val skuCode = ProductSku_ApiFixture().skuCode
 
     def cartPreCheckout(customer: CustomerResponse): CartResponse = {
       val refNum =
@@ -162,11 +160,9 @@ class AutoPromotionsIntegrationTest
     percentOff(cartB2.promotion.value) must === (percentOffUpdated)
   }
 
-  "should be applied retroactively" in new ProductSku_ApiFixture {
-    val customer = api_newCustomer()
-
-    val refNum =
-      cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
+  "should be applied retroactively" in {
+    val refNum  = api_newCustomerCart(api_newCustomer().id).referenceNumber
+    val skuCode = ProductSku_ApiFixture().skuCode
 
     val cartWithProduct = cartsApi(refNum).lineItems
       .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
@@ -183,15 +179,15 @@ class AutoPromotionsIntegrationTest
     cartsApi(refNum).get.asTheResult[CartResponse].promotion mustBe 'defined
   }
 
-  "after emptying a cart, no auto-promos are left" in new ProductSku_ApiFixture {
+  "after emptying a cart, no auto-promos are left" in {
     val promo = promotionsApi
       .create(
         PromotionPayloadBuilder
           .build(Promotion.Auto, PromoOfferBuilder.CartPercentOff(37), PromoQualifierBuilder.CartAny))
       .as[PromotionResponse.Root]
 
-    val customer = api_newCustomer()
-    val refNum   = api_newCustomerCart(customer.id).referenceNumber
+    val refNum  = api_newCustomerCart(api_newCustomer().id).referenceNumber
+    val skuCode = ProductSku_ApiFixture().skuCode
 
     cartsApi(refNum).lineItems
       .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
@@ -206,7 +202,7 @@ class AutoPromotionsIntegrationTest
     finl.totals must === (CartResponseTotals(0, 0, 0, 0, 0, 0))
   }
 
-  "archived auto-apply promos are not applied" in new ProductSku_ApiFixture {
+  "archived auto-apply promos are not applied" in {
     val promo = promotionsApi
       .create(
         PromotionPayloadBuilder
@@ -215,10 +211,8 @@ class AutoPromotionsIntegrationTest
 
     promotionsApi(promo.id).delete().mustBeOk()
 
-    val customer = api_newCustomer()
-
-    val refNum =
-      cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
+    val refNum  = api_newCustomerCart(api_newCustomer().id).referenceNumber
+    val skuCode = ProductSku_ApiFixture().skuCode
 
     cartsApi(refNum).lineItems
       .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
@@ -258,7 +252,7 @@ class AutoPromotionsIntegrationTest
 
       val customer = api_newCustomer()
       val refNum   = api_newCustomerCart(customer.id).referenceNumber
-      val skuCode  = new ProductSku_ApiFixture {}.skuCode
+      val skuCode  = ProductSku_ApiFixture().skuCode
 
       cartsApi(refNum).lineItems
         .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
@@ -281,7 +275,7 @@ class AutoPromotionsIntegrationTest
 
       val customer = api_newCustomer()
       val refNum   = api_newCustomerCart(customer.id).referenceNumber
-      val skuCode  = new ProductSku_ApiFixture {}.skuCode
+      val skuCode  = ProductSku_ApiFixture().skuCode
 
       cartsApi(refNum).lineItems
         .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
@@ -301,7 +295,7 @@ class AutoPromotionsIntegrationTest
 
       val customer = api_newCustomer()
       val refNum   = api_newCustomerCart(customer.id).referenceNumber
-      val skuCode  = new ProductSku_ApiFixture {}.skuCode
+      val skuCode  = ProductSku_ApiFixture().skuCode
 
       val response = cartsApi(refNum).lineItems
         .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
@@ -331,7 +325,7 @@ class AutoPromotionsIntegrationTest
 
         val customer = api_newCustomer()
         val refNum   = api_newCustomerCart(customer.id).referenceNumber
-        val skuCode  = new ProductSku_ApiFixture {}.skuCode
+        val skuCode  = ProductSku_ApiFixture().skuCode
 
         val finalCart = cartsApi(refNum).lineItems
           .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
