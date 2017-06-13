@@ -1,0 +1,116 @@
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "term": {
+            "context": "default"
+          }
+        }
+      ],
+      "must": [
+        {
+          "nested": {
+            "path": "taxonomies",
+            "query": {
+              "bool": {
+                "must": [
+                  {
+                    "query": {
+                      "bool": {
+                        "should": {
+                          "term": {
+                            "taxonomies.taxons": "MEN"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "nested": {
+            "path": "taxonomies",
+            "query": {
+              "bool": {
+                "must": [
+                  {
+                    "query": {
+                      "bool": {
+                        "should": {
+                          "term": {
+                            "taxonomies.taxons": "SHOES"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "nested": {
+            "path": "taxonomies",
+            "query": {
+              "bool": {
+                "must": [
+                  {
+                    "query": {
+                      "bool": {
+                        "should": {
+                          "term": {
+                            "taxonomies.taxons": "OUTDOOR"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "must_not": [
+        {
+          "term": {
+            "tags": "GIFT-CARD"
+          }
+        }
+      ]
+    }
+  },
+  "sort": [
+    {
+      "salePrice": {
+        "order": "asc"
+      }
+    }
+  ],
+  "aggs": {
+    "taxonomies": {
+      "nested": {
+        "path": "taxonomies"
+      },
+      "aggs": {
+        "taxonomy": {
+          "terms": {
+            "field": "taxonomies.taxonomy"
+          },
+          "aggs": {
+            "taxon": {
+              "terms": {
+                "field": "taxonomies.taxons"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

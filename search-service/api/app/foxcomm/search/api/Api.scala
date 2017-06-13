@@ -16,8 +16,8 @@ object Api extends App {
   def endpoint(searchService: SearchService)(implicit ec: ExecutionContext) =
     post(
       "search" :: string :: string :: param("size")
-        .as[Int] :: paramOption("from").as[Int] :: jsonBody[SearchQuery]) {
-      (searchIndex: String, searchType: String, size: Int, from: Option[Int], searchQuery: SearchQuery) ⇒
+        .as[Int] :: paramOption("from").as[Int] :: jsonBody[SearchPayload]) {
+      (searchIndex: String, searchType: String, size: Int, from: Option[Int], searchQuery: SearchPayload) ⇒
         searchService
           .searchFor(searchIndex / searchType, searchQuery, searchSize = size, searchFrom = from)
           .toTwitterFuture

@@ -4,6 +4,7 @@ import scala.language.postfixOps
 import cats.implicits._
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s._
+import foxcomm.search.dsl.query.QueryFunction
 import io.circe._
 import io.circe.jawn.parseByteBuffer
 import org.elasticsearch.common.settings.Settings
@@ -13,12 +14,12 @@ class SearchService(private val client: ElasticClient) extends AnyVal {
   import SearchService.ExtractJsonObject
 
   def searchFor(searchIndex: IndexAndTypes,
-                searchQuery: SearchQuery,
+                searchQuery: SearchPayload,
                 searchSize: Int,
                 searchFrom: Option[Int])(implicit ec: ExecutionContext): Future[SearchResult] = {
     val withQuery = searchQuery match {
-      case SearchQuery.es(query, _) ⇒ (_: SearchDefinition) rawQuery Json.fromJsonObject(query).noSpaces
-      case SearchQuery.fc(query, _) ⇒
+      case SearchPayload.es(query, _) ⇒ (_: SearchDefinition) rawQuery Json.fromJsonObject(query).noSpaces
+      case SearchPayload.fc(query, _) ⇒
         (_: SearchDefinition) bool {
           query.query.foldLeft(new BoolQueryDefinition) {
             case (bool, QueryFunction.eq(in, value)) ⇒

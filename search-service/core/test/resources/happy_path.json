@@ -1,33 +1,29 @@
-{
-  "type": "fc",
-  "fields": [ "id" ],
-  "query": [
-    {
-      "type": "eq",
-      "in": "slug",
-      "value": [ "awesome", "whatever" ]
-    },
-    {
-      "type": "state",
-      "value": "all"
-    },
-    {
-      "type": "contains",
-      "in": [ "tags" ],
-      "value": "gift"
-    },
-    {
-      "type": "matches",
-      "in": [ "title", "description" ],
-      "value": [ "food", "drink" ]
-    },
-    {
-      "type": "range",
-      "in": "price",
-      "value": {
-        "<": 5000,
-        "gte": 1000
-      }
+[
+  {
+    "type": "eq",
+    "in": "slug",
+    "value": [ "awesome", "whatever" ]
+  },
+  {
+    "type": "state",
+    "value": "all"
+  },
+  {
+    "type": "contains",
+    "in": [ "tags" ],
+    "value": "gift"
+  },
+  {
+    "type": "matches",
+    "in": [ "title", "description" ],
+    "value": [ "food", "drink" ]
+  },
+  {
+    "type": "range",
+    "in": "price",
+    "value": {
+      "<": 5000,
+      "gte": 1000
     }
-  ]
-}
+  }
+]
