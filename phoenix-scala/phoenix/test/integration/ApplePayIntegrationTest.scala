@@ -114,6 +114,8 @@ class ApplePayIntegrationTest
         val cc = storefrontPaymentsApi.creditCards.create(ccPayload).as[CreditCardsResponse.Root]
         cartsApi(refNum).payments.creditCard.add(CreditCardPayment(cc.id)).mustBeOk()
 
+        // additional check to make sure only one failure has arrived
+        cartsApi(refNum).checkout().errors.onlyElement must === (OnlyOneExternalPaymentIsAllowed.description)
         cartsApi(refNum).checkout().mustFailWith400(OnlyOneExternalPaymentIsAllowed)
       }
     }
