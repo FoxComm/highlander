@@ -9,7 +9,7 @@ COPY ./yarn.lock /ashes/yarn.lock
 COPY ./.npmrc-docker /ashes/.npmrc
 COPY ./src/opt /ashes/src/opt
 
-RUN yarn --production && yarn cache clean
+RUN yarn --production --ignore-scripts --ignore-engines && yarn cache clean
 
 # All other src must be copyed AFTER `yarn`, otherwise it breaks caching
 COPY ./config /ashes/config

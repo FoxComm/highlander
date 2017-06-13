@@ -75,4 +75,4 @@ Where `SECRET_TOKEN` – an auth token for private packages, like `@foxcomm/wing
 
 4. Build docker with `make docker`
 
-Thats it! You can run it locally: `docker run -it -p 4000:4000 ashes` or push it with `make docker-push`. After having running it you can also explore it filesystem with `docker exec -t -i d138d762ff3d /bin/sh`.
+Thats it! You can run it locally: `docker run -it -p 4000:4000 ashes:latest` (or the same `make docker-run`) or push it with `make docker-push`. After having running it you can also explore it filesystem with `docker exec -t -i d138d762ff3d /bin/sh`.
