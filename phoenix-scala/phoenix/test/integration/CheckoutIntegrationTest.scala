@@ -1,8 +1,8 @@
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 import akka.http.scaladsl.model.HttpResponse
 import cats.implicits._
+import core.db._
 import core.failures.NotFoundFailure404
 import phoenix.failures.AddressFailures.NoDefaultAddressForCustomer
 import phoenix.failures.CreditCardFailures.NoDefaultCreditCardForCustomer
@@ -16,25 +16,20 @@ import phoenix.models.location.Region
 import phoenix.models.payment.giftcard._
 import phoenix.models.payment.{InStorePaymentStates, PaymentMethod}
 import phoenix.models.shipping._
-import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import phoenix.payloads.CartPayloads.CheckoutCart
 import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
 import phoenix.payloads.LineItemPayloads._
 import phoenix.payloads.PaymentPayloads._
-import phoenix.payloads.SkuPayloads.SkuPayload
 import phoenix.payloads.UpdateShippingMethod
 import phoenix.payloads.UserPayloads.ToggleUserBlacklisted
-import phoenix.responses.SkuResponses.SkuResponse
 import phoenix.responses.cord._
 import phoenix.responses.{AddressResponse, GiftCardResponse}
-import phoenix.utils.aliases._
 import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis._
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
-import core.db._
 
 class CheckoutIntegrationTest
     extends IntegrationTestBase
@@ -236,36 +231,12 @@ class CheckoutIntegrationTest
   }
 
   trait OneClickCheckoutFixture extends Fixture {
-    val creditCard = {
-      val cc = Factories.creditCard
-      api_newCreditCard(
-        customer.id,
-        CreateCreditCardFromTokenPayload(
-          token = "whatever",
-          lastFour = cc.lastFour,
-          expYear = cc.expYear,
-          expMonth = cc.expMonth,
-          brand = cc.brand,
-          holderName = cc.holderName,
-          billingAddress = CreateAddressPayload(
-            name = cc.address.name,
-            regionId = cc.address.regionId,
-            address1 = cc.address.address1,
-            address2 = cc.address.address2,
-            city = cc.address.city,
-            zip = cc.address.zip,
-            isDefault = false,
-            phoneNumber = cc.address.phoneNumber
-          ),
-          addressIsNew = true
-        )
-      )
-    }
+    val creditCard = api_newCreditCard(customer.id, customer.name.value, addressPayload)
   }
 
   trait Fixture {
     val (shipMethod, reason) = (for {
-      _ ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
+      _ ← * <~ ShippingMethods.createAll(Factories.shippingMethods)
       shipMethodName = ShippingMethod.expressShippingNameForAdmin
       shipMethod ← * <~ ShippingMethods
                     .filter(_.adminDisplayName === shipMethodName)
@@ -275,8 +246,9 @@ class CheckoutIntegrationTest
 
     val (customer, customerLoginData) = api_newCustomerWithLogin()
 
+    val addressPayload = randomAddress(regionId = Region.californiaId)
     val address = customersApi(customer.id).addresses
-      .create(randomAddress(regionId = Region.californiaId))
+      .create(addressPayload)
       .as[AddressResponse]
 
     private val apiFixture = new ProductSku_ApiFixture {}

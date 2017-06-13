@@ -9,7 +9,6 @@ import phoenix.models.payment.PaymentMethod
 import phoenix.models.product.{Mvp, SimpleProductData}
 import phoenix.models.returns._
 import phoenix.models.shipping.{ShippingMethod, ShippingMethods}
-import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
 import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
 import phoenix.payloads.OrderPayloads.UpdateOrderPayload
@@ -21,59 +20,38 @@ import phoenix.responses.cord.OrderResponse
 import phoenix.utils.aliases._
 import phoenix.utils.seeds.Factories
 import testutils._
-import testutils.fixtures.api.ApiFixtureHelpers
-import core.utils.Money._
+import testutils.fixtures.api.{randomAddress, ApiFixtureHelpers}
 
 trait ReturnsFixtures
     extends TestFixtureBase
     with BakedFixtures
     with ApiFixtureHelpers
-    with JwtTestAuth
+    with DefaultJwtAdminAuth
     with OptionValues { self: FoxSuite ⇒
 
-  trait OrderDefaults extends EmptyCartWithShipAddress_Baked with Reason_Baked {
+  trait OrderDefaults extends Reason_Baked {
     val shippingMethod: ShippingMethod =
       ShippingMethods.create(Factories.shippingMethods.last.copy(price = 300)).gimme
 
-    val creditCard = {
-      val cc = Factories.creditCard
-      api_newCreditCard(
-        customer.accountId,
-        CreateCreditCardFromTokenPayload(
-          token = "whatever",
-          lastFour = cc.lastFour,
-          expYear = cc.expYear,
-          expMonth = cc.expMonth,
-          brand = cc.brand,
-          holderName = cc.holderName,
-          billingAddress = CreateAddressPayload(
-            name = cc.address.name,
-            regionId = cc.address.regionId,
-            address1 = cc.address.address1,
-            address2 = cc.address.address2,
-            city = cc.address.city,
-            zip = cc.address.zip,
-            isDefault = false,
-            phoneNumber = cc.address.phoneNumber
-          ),
-          addressIsNew = true
-        )
-      )
-    }
+    val customer       = api_newCustomer()
+    val addressPayload = randomAddress()
+    val address        = customersApi(customer.id).addresses.create(addressPayload).as[AddressResponse]
+
+    val creditCard = api_newCreditCard(customer.id, customer.name.value, addressPayload)
 
     val applePayPayment = CreateApplePayPayment(stripeToken = "tok_1A9YBQJVm1XvTUrO3V8caBvF")
 
     val giftCard = api_newGiftCard(GiftCardCreateByCsr(balance = 1000, reasonId = reason.id))
 
     val storeCredit =
-      api_newStoreCredit(customer.accountId, CreateManualStoreCredit(amount = 1000, reasonId = reason.id))
+      api_newStoreCredit(customer.id, CreateManualStoreCredit(amount = 1000, reasonId = reason.id))
 
     val product: SimpleProductData = Mvp.insertProduct(ctx.id, Factories.products.head).gimme
 
     def createOrder(
         lineItems: Seq[UpdateLineItemsPayload],
         paymentMethods: Map[PaymentMethod.Type, Option[Long]])(implicit sl: SL, sf: SF): OrderResponse = {
-      val api = cartsApi(api_newCustomerCart(customer.accountId).referenceNumber)
+      val api = cartsApi(api_newCustomerCart(customer.id).referenceNumber)
 
       api.lineItems.add(lineItems)(defaultAdminAuth).mustBeOk()
       api.shippingAddress.updateFromAddress(address.id)(defaultAdminAuth).mustBeOk()
