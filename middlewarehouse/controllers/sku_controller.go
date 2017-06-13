@@ -106,7 +106,17 @@ func (controller *skuController) ArchiveSKU() gin.HandlerFunc {
 
 func (controller *skuController) GetAFS() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		resp := map[string]int{"afs": 10}
+		id, failure := paramUint(context, "id")
+		if failure != nil {
+			return
+		}
+
+		resp, err := controller.skuService.GetAFS(id)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
 		context.JSON(http.StatusOK, resp)
 	}
 }

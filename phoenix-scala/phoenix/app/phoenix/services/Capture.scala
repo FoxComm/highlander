@@ -35,9 +35,8 @@ object Capture {
   def capture(payload: CapturePayloads.Capture)(implicit ec: EC,
                                                 db: DB,
                                                 apis: Apis,
-                                                ac: AC): DbResultT[CaptureResponse] = {
+                                                ac: AC): DbResultT[CaptureResponse] =
     Capture(payload).capture
-  }
 }
 
 case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, apis: Apis, ac: AC) {
@@ -65,14 +64,14 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       //get total line item price.
       linePrices  ← * <~ getPrices(lineItemData)
       adjustments ← * <~ CartLineItemAdjustments.findByCordRef(payload.order).result
-      lineItemAdjustments = adjustments.filter(
-          _.adjustmentType == CartLineItemAdjustment.LineItemAdjustment)
+      lineItemAdjustments = adjustments.filter(_.adjustmentType == CartLineItemAdjustment.LineItemAdjustment)
       adjustedPrices     ← * <~ adjust(linePrices, lineItemAdjustments)
       totalLineItemPrice ← * <~ aggregatePrices(adjustedPrices)
 
       orderAdjustmentCost = adjustments
         .filter(_.adjustmentType == CartLineItemAdjustment.OrderAdjustment)
-        .foldLeft(0L)(_ + _.subtract)
+        .map(_.subtract)
+        .sum
 
       //find the shipping method used for the order, take the minimum between
       //shipping method and what shipping cost was passed in payload because
@@ -82,11 +81,9 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
                         .forCordRef(payload.order)
                         .mustFindOneOr(ShippingMethodNotFoundInOrder(payload.order))
       shippingAdjustments = adjustments.filter(a ⇒
-            a.adjustmentType == CartLineItemAdjustment.ShippingAdjustment)
+        a.adjustmentType == CartLineItemAdjustment.ShippingAdjustment)
 
-      adjustedShippingCost ← * <~ adjustShippingCost(shippingMethod,
-                                                     shippingAdjustments,
-                                                     payload.shipping)
+      adjustedShippingCost ← * <~ adjustShippingCost(shippingMethod, shippingAdjustments, payload.shipping)
 
       //we compute the total by adding the three price components together. The
       //actual total should be less than or equal to the original grandTotal.
@@ -103,22 +100,21 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       gcPayments ← * <~ OrderPayments.findAllGiftCardsByCordRef(payload.order).result
       scPayments ← * <~ OrderPayments.findAllStoreCreditsByCordRef(payload.order).result
 
-      externalCaptureTotal ← * <~ determineExternalCapture(total,
-                                                           gcPayments,
-                                                           scPayments,
-                                                           order.currency)
+      externalCaptureTotal ← * <~ determineExternalCapture(total, gcPayments, scPayments, order.currency)
       internalCaptureTotal = total - externalCaptureTotal
       _ ← * <~ internalCapture(internalCaptureTotal, order, customer, gcPayments, scPayments)
       _ ← * <~ doOrMeh(externalCaptureTotal > 0, externalCapture(externalCaptureTotal, order))
 
-      resp = CaptureResponse(order = order.refNum,
-                             captured = total,
-                             external = externalCaptureTotal,
-                             internal = internalCaptureTotal,
-                             lineItems = totalLineItemPrice,
-                             taxes = order.taxesTotal,
-                             shipping = adjustedShippingCost,
-                             currency = order.currency)
+      resp = CaptureResponse(
+        order = order.refNum,
+        captured = total,
+        external = externalCaptureTotal,
+        internal = internalCaptureTotal,
+        lineItems = totalLineItemPrice,
+        taxes = order.taxesTotal,
+        shipping = adjustedShippingCost,
+        currency = order.currency
+      )
 
       _ ← * <~ LogActivity().orderCaptured(order, resp)
       //return Capture table tuple id?
@@ -132,10 +128,10 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
     for {
 
       scTotal ← * <~ PaymentHelper.paymentTransaction(
-                   scPayments,
-                   total,
-                   StoreCredits.captureOrderPayment,
-                   (a: StoreCreditAdjustment) ⇒ a.getAmount.abs
+                 scPayments,
+                 total,
+                 StoreCredits.captureOrderPayment,
+                 (a: StoreCreditAdjustment) ⇒ a.getAmount.abs
                )
 
       gcTotal ← * <~ PaymentHelper.paymentTransaction(gcPayments,
@@ -147,8 +143,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       gcCodes = gcPayments.map { case (_, gc) ⇒ gc.code }.distinct
 
       _ ← * <~ doOrMeh(scTotal > 0, LogActivity().scFundsCaptured(customer, order, scIds, scTotal))
-      _ ← * <~ doOrMeh(gcTotal > 0,
-                       LogActivity().gcFundsCaptured(customer, order, gcCodes, gcTotal))
+      _ ← * <~ doOrMeh(gcTotal > 0, LogActivity().gcFundsCaptured(customer, order, gcCodes, gcTotal))
     } yield {}
 
   private def externalCapture(total: Long, order: Order): DbResultT[Unit] = {
@@ -167,20 +162,18 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       _ ← * <~ failIf(externalCharges.forall(_.isEmpty), ExternalPaymentNotFound(order.refNum))
 
       // capture one of external charges
-      _ ← * <~ externalCharges.map(_ map capture)
+      // todo here we need to fold Set[Option[DbResultT]]
+      _ ← * <~ (apCharge map capture)
+      _ ← * <~ (ccCharge map capture)
     } yield ()
   }
 
-  private def captureFromStripe(total: Long,
-                                charge: ExternalCharge[_],
-                                order: Order): DbResultT[Unit] = {
-
+  private def captureFromStripe(total: Long, charge: ExternalCharge[_], order: Order): DbResultT[Unit] =
     for {
       _ ← * <~ failIfNot(charge.state == Auth, CaptureFailures.ChargeNotInAuth(charge))
       _ ← * <~ apis.stripe.captureCharge(charge.stripeChargeId, total)
       _ ← * <~ charge.updateModelState(FullCapture)
     } yield ()
-  }
 
   private def determineExternalCapture(total: Long,
                                        gcPayments: Seq[(OrderPayment, GiftCard)],
@@ -194,15 +187,13 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   private def subtractGcPayments(total: Long,
                                  gcPayments: Seq[(OrderPayment, GiftCard)],
                                  currency: Currency): Long = {
-    (total - gcPayments
-          .foldLeft(0L)((a, op) ⇒ a + getPaymentAmount(op._1, currency))).zeroIfNegative
+    (total - gcPayments.map(op ⇒ getPaymentAmount(op._1, currency)).sum).zeroIfNegative
   } ensuring (remaining ⇒ remaining >= 0 && remaining <= total)
 
   private def subtractScPayments(total: Long,
                                  scPayments: Seq[(OrderPayment, StoreCredit)],
                                  currency: Currency): Long = {
-    (total - scPayments
-          .foldLeft(0L)((a, op) ⇒ a + getPaymentAmount(op._1, currency))).zeroIfNegative
+    (total - scPayments.map(op ⇒ getPaymentAmount(op._1, currency)).sum).zeroIfNegative
   } ensuring (remaining ⇒ remaining >= 0 && remaining <= total)
 
   private def getPaymentAmount(op: OrderPayment, currency: Currency): Long = {
@@ -244,12 +235,10 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   } ensuring (_ >= 0)
 
   private def aggregatePrices(adjustedPrices: Seq[LineItemPrice]): Long = {
-    val total = adjustedPrices.foldLeft(0L)({ (sum, lineItem) ⇒
-      require(lineItem.price >= 0)
-      sum + lineItem.price
-    })
-
-    total
+    adjustedPrices.map { lineItem ⇒
+      require(lineItem.price >= 0) // FIXME: woot? @michalrus
+      lineItem.price
+    }.sum
   } ensuring (_ >= 0)
 
   private val NO_REF = "no_ref"
@@ -265,8 +254,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
 
   }
 
-  private def adjustPrice(line: LineItemPrice,
-                          adjMap: Map[String, CartLineItemAdjustment]): LineItemPrice =
+  private def adjustPrice(line: LineItemPrice, adjMap: Map[String, CartLineItemAdjustment]): LineItemPrice =
     adjMap.get(line.referenceNumber) match {
       case Some(adj) ⇒ {
         require(line.price >= 0)
@@ -289,8 +277,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   private def getPrice(item: OrderLineItemProductData): DbResultT[LineItemPrice] =
     FormShadowGet.price(item.skuForm, item.skuShadow) match {
       case Some((price, currency)) ⇒
-        DbResultT.pure(
-            LineItemPrice(item.lineItem.referenceNumber, item.sku.code, price, currency))
+        DbResultT.pure(LineItemPrice(item.lineItem.referenceNumber, item.sku.code, price, currency))
       case None ⇒ DbResultT.failure(CaptureFailures.SkuMissingPrice(item.sku.code))
     }
 
@@ -309,14 +296,12 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       //Future validation goes here.
     } yield Unit
 
-  private def paymentStateMustBeInAuth(order: Order,
-                                       paymentState: CordPaymentState.State): DbResultT[Unit] =
+  private def paymentStateMustBeInAuth(order: Order, paymentState: CordPaymentState.State): DbResultT[Unit] =
     if (paymentState != CordPaymentState.Auth)
       DbResultT.failure(CaptureFailures.OrderMustBeInAuthState(order.refNum))
     else DbResultT.pure(Unit)
 
-  private def mustHavePositiveShippingCost(
-      shippingCost: CapturePayloads.ShippingCost): DbResultT[Unit] =
+  private def mustHavePositiveShippingCost(shippingCost: CapturePayloads.ShippingCost): DbResultT[Unit] =
     if (shippingCost.total < 0)
       DbResultT.failure(CaptureFailures.ShippingCostNegative(shippingCost.total))
     else DbResultT.pure(Unit)

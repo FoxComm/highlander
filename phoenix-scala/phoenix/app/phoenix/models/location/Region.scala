@@ -28,9 +28,7 @@ class Regions(tag: Tag) extends FoxTable[Region](tag, "regions") {
   def country = foreignKey(Countries.tableName, countryId, Countries)(_.id)
 }
 
-object Regions
-    extends FoxTableQuery[Region, Regions](new Regions(_))
-    with ReturningId[Region, Regions] {
+object Regions extends FoxTableQuery[Region, Regions](new Regions(_)) with ReturningId[Region, Regions] {
   val returningLens: Lens[Region, Int] = lens[Region].id
 
   def findOneByShortName(regionShortName: String) =

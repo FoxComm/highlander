@@ -33,21 +33,20 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
     }
 
     "must collect all errors" in {
-      Accounts.create(Account()).gimme
+      val account  = Accounts.create(Account()).gimme
       val numTries = 5
       val sux: List[DbResultT[User]] = (1 to numTries).toList.map { i ⇒
-        Users.create(User(accountId = 1))
+        Users.create(User(accountId = account.id))
       }
       val cool: DbResultT[List[User]] = DbResultT.seqCollectFailures(sux)
 
       val failures = cool.gimmeFailures
       val expectedFailure = DatabaseFailure(
-          "ERROR: duplicate key value violates unique constraint \"users_account_idx\"\n" +
-            "  Detail: Key (account_id)=(1) already exists.")
-      failures must === (
-          NonEmptyList.fromList(List.fill[Failure](numTries - 1)(expectedFailure)).value)
+        "ERROR: duplicate key value violates unique constraint \"users_account_idx\"\n" +
+          s"  Detail: Key (account_id)=(${account.id}) already exists.")
+      failures must === (NonEmptyList.fromList(List.fill[Failure](numTries - 1)(expectedFailure)).value)
 
-      Users.gimme.onlyElement.accountId must === (1)
+      Users.gimme.onlyElement.accountId must === (account.id)
     }
   }
 }

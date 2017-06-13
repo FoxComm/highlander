@@ -5,8 +5,10 @@
     "mem": 2048,
     "disk": 0,
     "instances": 1,
+    "constraints": [],
     "labels": {
-        "consul": "neo4j"
+        "consul": "neo4j",
+        "overrideTaskName": "neo4j"
     },
     "container": {
         "type": "DOCKER",
@@ -36,12 +38,12 @@
             }
         ],
         "docker": {
-            "image": "neo4j:3.0",
+            "image": "{{docker_registry}}:5000/neo4j:3.0",
             "network": "HOST",
             "portMappings": null,
             "privileged": false,
             "parameters": [],
-            "forcePullImage": false
+            "forcePullImage": true
         }
     },
     "portDefinitions": [{

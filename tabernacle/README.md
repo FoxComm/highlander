@@ -7,7 +7,6 @@ All of our DevOps tools for deploying the application to both development and pr
 ### Required
 
 - [Ansible](https://ansible.com) 2.2.x
-- [AWS CLI](https://aws.amazon.com/cli)
 - [Docker](https://docker.com) 1.13
 - [Go](https://golang.org) 1.6 or above
 - [Google Cloud SDK](https://cloud.google.com/sdk/gcloud)
@@ -19,7 +18,6 @@ All of our DevOps tools for deploying the application to both development and pr
 ### Optional
 
 - [easy](https://github.com/kpashka/easy)
-- [shellcheck](https://www.shellcheck.net)
 
 ## Ansible Roles Hierarchy
 
@@ -34,52 +32,65 @@ All of our DevOps tools for deploying the application to both development and pr
 
 ## Appliance Services Hierarchy
 
-* `consul_agent`
-    * `consul_template`
-    * `dashboard`
-    * `demo_consul_template`
-    * `zookeeper`
-        * `kafka`
-            * `schema_registry`
-        * `mesos_master`
-            * `marathon`
-               * `marathon_consul`
-        * `mesos_worker`
-* `elasticsearch`
-* `elasticseach_5`
-    * `kibana`
-* `postgresql`
-    * `bottledwater_phoenix`
-    * `bottledwater_middlewarehouse`
-    * `bottledwater_onboarding`
-    * `materialized_views`
-    * `pgweb`
+The order, in which `systemd` launches the services:
 
-## Marathon Hierarchy
+```
++------------+              +---------+          +------------+
+|consul_agent|--------------|zookeeper|----------|mesos_master|
++------------+              +---------+          |mesos_worker|
+      |                      |                   +------------+
+      |                      |                     |         | 
++--------------------+       |  +-----+            |         | 
+|consul_template     |       +--|kafka|--+       +--------+  | 
+|demo_consul_template|          +-----+  |       |marathon|  | 
+|dashboard           |                   |       +--------+  | 
++--------------------+                   |                   | 
+     |                                   |                   | 
+     |         +-----+     +---------------+  +------------+ | 
+     +---------|nginx|     |schema_registry|  |mesos_consul|-+ 
+               +-----+     +---------------+  +------------+   
+                                                               
++----------+                                  +---------------+
+|postgresql|------+                 +---------|elasticsearch  |
++----------+      |                 |         |elasticsearch_5|
+                  |                 |         +---------------+
+                  |                 |                          
++----------------------------+   +------+                      
+|bottledwater_phoenix        |   |kibana|                      
+|bottledwater_middlewarehouse|   +------+                      
+|bottledwater_onboarding     |                                 
+|materialized_views          |                                 
+|pgweb                       |                                 
++----------------------------+                                 
+```
 
-```                                                                                                 
- +------------------+      +-------------------+      +-------------------+    +--------------+       
- |   core-backend   |      |   core-frontend   |      | core-integrations |    |  ic-storage  |       
- |------------------|      |-------------------|      |-------------------|    |--------------|--+    
- |* phoenix         |------|* ashes            |------|* hyperion         |    |* henhouse    |  |    
- |* isaac           |      |* peacock          |      |* messaging        |    |* neo4j       |  |    
- |* solomon         |      |* perfect-gourmet  |      +-------------------+    +--------------+  |    
- |* middlewarehouse |      |* top-drawer       |                                                 |    
- +------------------+      +-------------------+                                                 |    
+## Marathon Groups Hierarchy
+
+The order, in which `highlander` subgroups are launched:
+
+```
+ +------------------+      +-------------------+      +-------------------+    +--------------+
+ |   core-backend   |      |   core-frontend   |      | core-integrations |    |  ic-storage  |
+ |------------------|      |-------------------|      |-------------------|    |--------------|--+
+ |* phoenix         |------|* ashes            |------|* hyperion         |    |* henhouse    |  |
+ |* isaac           |      |* peacock          |      |* messaging        |    |* neo4j       |  |
+ |* solomon         |      |* perfect-gourmet  |      +-------------------+    +--------------+  |
+ |* middlewarehouse |      |* top-drawer       |                                                 |
+ +------------------+      +-------------------+                                                 |
            |                         |              +---------------------+           +--------------+
            |                         |              |   core-onboarding   |           |   ic-hooks   |
            |                         |              |---------------------|       +---|--------------|
            |                         +--------------|* onboarding-service |       |   |* neo4j-reset |
            |                                        |* onboarding-ui      |       |   +--------------+
-           |                                        +---------------------+       |                   
-           |                                                                      |                   
-           |    +------------------------+     +--------------------+          +--------------+       
-           |    |     core-consumers     |     |    ic-consumers    |          |  ic-backend  |       
-           |    |------------------------|     |--------------------|          |--------------|       
-           +----|* green-river           |     |* digger-sphex      |          |* anthill     |       
-                |* capture-consumer      |     |* orders-anthill    |----------|* bernardo    |       
-                |* gift-card-consumer    |     |* orders-sphex      |          |* eggcrate    |       
-                |* shipments-consumer    |     |* product-activity  |          |* river-rock  |       
-                |* stock-items-consumer  |     +--------------------+          +--------------+       
-                +------------------------+                                                            
+           |                                        +---------------------+       |
+           |                                                                      |
+           |    +------------------------+     +--------------------+          +--------------+
+           |    |     core-consumers     |     |    ic-consumers    |          |  ic-backend  |
+           |    |------------------------|     |--------------------|          |--------------|
+           +----|* green-river           |     |* digger-sphex      |          |* anthill     |
+                |* capture-consumer      |     |* orders-anthill    |----------|* bernardo    |
+                |* gift-card-consumer    |     |* orders-reviews    |          |* eggcrate    |
+                |* shipments-consumer    |     |* orders-sphex      |          |* river-rock  |
+                |* stock-items-consumer  |     |* product-activity  |          +--------------+
+                +------------------------+     +--------------------+
 ```

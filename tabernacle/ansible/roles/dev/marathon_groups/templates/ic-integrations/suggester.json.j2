@@ -5,6 +5,7 @@
     "mem": 64,
     "disk": 0,
     "instances": 1,
+    "constraints": [],
     "container": {
         "type": "DOCKER",
         "volumes": [{
@@ -52,7 +53,8 @@
         "LAYER": "consumer",
         "LANG": "go",
         "TAG": "master",
-        "consul": "suggester"
+        "consul": "suggester",
+        "overrideTaskName": "suggester"
     },
     "portDefinitions": [{
         "port": 10030,

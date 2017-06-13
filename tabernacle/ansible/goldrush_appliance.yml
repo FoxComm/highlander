@@ -3,6 +3,7 @@
 - name: Launch Developer Appliance
   hosts: localhost
   vars:
+    first_run: "{{ FIRST_RUN | default(false) }}"
     gce_service_account_email: "{{ lookup('env', 'GOOGLE_SERVICE_ACCOUNT_EMAIL') }}"
     gce_credentials_file: "{{ lookup('env', 'GOOGLE_JSON_KEY_LOCATION') }}"
     gce_instance_name: "{{ lookup('env', 'GOOGLE_INSTANCE_NAME') }}"
@@ -29,12 +30,10 @@
         api_server: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
   roles:
     - { role: dev/dashboard, when: first_run }
-    - { role: dev/marathon_consul, when: first_run }
     - { role: dev/flyway }
     - { role: dev/seed_system, when: first_run }
     - { role: dev/marathon_groups }
     - { role: dev/nginx }
     - { role: demo/balancer }
     - { role: dev/seeder, when: with_appliance_seeding and first_run }
-    - { role: app/healthcheck }
     - { role: app/dnsimple, when: first_run }

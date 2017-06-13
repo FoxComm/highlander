@@ -50,10 +50,10 @@
 + context: `default` (optional, string) - Related context.
 + attributes: `<json>` (required, string) - Promotion form attributes.
 
-### CreatePromotionPayload
+### PromotionPayload
 + Include PromotionApplyType
-+ form (required, CreatePromotionForm) - Promotion form.
-+ shadow (required, CreatePromotionShadow) - Promotion shadow.
++ attributes: `<json>` (required, string) - Promotion form attributes.
++ discounts (required, array[CreateDiscountForm]) - Promotion form discounts.
 
 ### CreatePromotionForm
 + attributes: `<json>` (required, string) - Promotion form attributes.
@@ -68,11 +68,6 @@
 
 ### CreateDiscountShadow
 + attributes: `<json>` (required, string) - Discount shadow attributes.
-
-### UpdatePromotionPayload
-+ Include PromotionApplyType
-+ form (required, UpdatePromotionForm) - Promotion form.
-+ shadow (required, UpdatePromotionShadow) - Promotion shadow.
 
 ### UpdatePromotionForm
 + attributes: `<json>` (required, string) - Promotion form attributes.

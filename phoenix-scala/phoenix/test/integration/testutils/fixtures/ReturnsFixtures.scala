@@ -29,8 +29,7 @@ trait ReturnsFixtures
     with BakedFixtures
     with ApiFixtureHelpers
     with JwtTestAuth
-    with OptionValues {
-  self: FoxSuite ⇒
+    with OptionValues { self: FoxSuite ⇒
 
   trait OrderDefaults extends EmptyCartWithShipAddress_Baked with Reason_Baked {
     val shippingMethod: ShippingMethod =
@@ -38,26 +37,28 @@ trait ReturnsFixtures
 
     val creditCard = {
       val cc = Factories.creditCard
-      api_newCreditCard(customer.id,
-                        CreateCreditCardFromTokenPayload(
-                            token = "whatever",
-                            lastFour = cc.lastFour,
-                            expYear = cc.expYear,
-                            expMonth = cc.expMonth,
-                            brand = cc.brand,
-                            holderName = cc.holderName,
-                            billingAddress = CreateAddressPayload(
-                                name = cc.address.name,
-                                regionId = cc.address.regionId,
-                                address1 = cc.address.address1,
-                                address2 = cc.address.address2,
-                                city = cc.address.city,
-                                zip = cc.address.zip,
-                                isDefault = false,
-                                phoneNumber = cc.address.phoneNumber
-                            ),
-                            addressIsNew = true
-                        ))
+      api_newCreditCard(
+        customer.accountId,
+        CreateCreditCardFromTokenPayload(
+          token = "whatever",
+          lastFour = cc.lastFour,
+          expYear = cc.expYear,
+          expMonth = cc.expMonth,
+          brand = cc.brand,
+          holderName = cc.holderName,
+          billingAddress = CreateAddressPayload(
+            name = cc.address.name,
+            regionId = cc.address.regionId,
+            address1 = cc.address.address1,
+            address2 = cc.address.address2,
+            city = cc.address.city,
+            zip = cc.address.zip,
+            isDefault = false,
+            phoneNumber = cc.address.phoneNumber
+          ),
+          addressIsNew = true
+        )
+      )
     }
 
     val applePayPayment = CreateApplePayPayment(stripeToken = "tok_1A9YBQJVm1XvTUrO3V8caBvF")
@@ -65,15 +66,14 @@ trait ReturnsFixtures
     val giftCard = api_newGiftCard(GiftCardCreateByCsr(balance = 1000, reasonId = reason.id))
 
     val storeCredit =
-      api_newStoreCredit(customer.id, CreateManualStoreCredit(amount = 1000, reasonId = reason.id))
+      api_newStoreCredit(customer.accountId, CreateManualStoreCredit(amount = 1000, reasonId = reason.id))
 
     val product: SimpleProductData = Mvp.insertProduct(ctx.id, Factories.products.head).gimme
 
-    def createOrder(lineItems: Seq[UpdateLineItemsPayload],
-                    paymentMethods: Map[PaymentMethod.Type, Option[Long]])(
-        implicit sl: SL,
-        sf: SF): OrderResponse = {
-      val api = cartsApi(api_newCustomerCart(customer.id).referenceNumber)
+    def createOrder(
+        lineItems: Seq[UpdateLineItemsPayload],
+        paymentMethods: Map[PaymentMethod.Type, Option[Long]])(implicit sl: SL, sf: SF): OrderResponse = {
+      val api = cartsApi(api_newCustomerCart(customer.accountId).referenceNumber)
 
       api.lineItems.add(lineItems)(defaultAdminAuth).mustBeOk()
       api.shippingAddress.updateFromAddress(address.id)(defaultAdminAuth).mustBeOk()
@@ -99,23 +99,24 @@ trait ReturnsFixtures
       api.checkout()(defaultAdminAuth).as[OrderResponse]
     }
 
-    def createDefaultOrder(paymentMethods: Map[PaymentMethod.Type, Option[Long]] = Map(
-                               PaymentMethod.CreditCard → None),
-                           items: List[UpdateLineItemsPayload] = List(
-                               UpdateLineItemsPayload(product.code, 1)),
-                           transitionStates: List[Order.State] =
-                             List(Order.FulfillmentStarted, Order.Shipped)): OrderResponse = {
+    def createDefaultOrder(
+        paymentMethods: Map[PaymentMethod.Type, Option[Long]] = Map(PaymentMethod.CreditCard → None),
+        items: List[UpdateLineItemsPayload] = List(UpdateLineItemsPayload(product.code, 1)),
+        transitionStates: List[Order.State] = List(Order.FulfillmentStarted, Order.Shipped))
+      : OrderResponse = {
       val initial = createOrder(
-          lineItems = items,
-          paymentMethods = paymentMethods
+        lineItems = items,
+        paymentMethods = paymentMethods
       )
       val api = ordersApi(initial.referenceNumber)
       NonEmptyList
         .fromList(transitionStates)
-        .map(transitionEntity(_, none[OrderResponse])(_.orderState)(state ⇒
-                  api
-                    .update(UpdateOrderPayload(state = state))(defaultAdminAuth)
-                    .as[OrderResponse]))
+        .map(
+          transitionEntity(_, none[OrderResponse])(_.orderState)(
+            state ⇒
+              api
+                .update(UpdateOrderPayload(state = state))(defaultAdminAuth)
+                .as[OrderResponse]))
         .getOrElse(initial)
     }
 
@@ -138,13 +139,11 @@ trait ReturnsFixtures
         .as[ReturnResponse.Root]
 
     def completeReturn(refNum: String)(implicit sl: SL, sf: SF): ReturnResponse.Root = {
-      val happyPath = NonEmptyList.fromListUnsafe(
-          List(Return.Pending, Return.Processing, Return.Review, Return.Complete))
+      val happyPath =
+        NonEmptyList.fromListUnsafe(List(Return.Pending, Return.Processing, Return.Review, Return.Complete))
 
-      transitionEntity(
-          happyPath,
-          returnsApi(refNum).get()(defaultAdminAuth).as[ReturnResponse.Root].some)(_.state)(state ⇒
-            updateReturnState(refNum = refNum, returnState = state))
+      transitionEntity(happyPath, returnsApi(refNum).get()(defaultAdminAuth).as[ReturnResponse.Root].some)(
+        _.state)(state ⇒ updateReturnState(refNum = refNum, returnState = state))
     }
   }
 
@@ -164,8 +163,8 @@ trait ReturnsFixtures
   }
 
   trait ReturnLineItemFixture extends ReturnReasonFixture {
-    def createReturnLineItem(payload: ReturnLineItemPayload,
-                             refNum: String)(implicit sl: SL, sf: SF): ReturnResponse.Root =
+    def createReturnLineItem(payload: ReturnLineItemPayload, refNum: String)(implicit sl: SL,
+                                                                             sf: SF): ReturnResponse.Root =
       returnsApi(refNum).lineItems.add(payload)(defaultAdminAuth).as[ReturnResponse.Root]
 
     def createReturnSkuLineItems(payloads: List[ReturnSkuLineItemPayload],
@@ -173,13 +172,10 @@ trait ReturnsFixtures
       returnsApi(refNum).lineItems.addOrReplace(payloads)(defaultAdminAuth).as[ReturnResponse.Root]
   }
 
-  trait ReturnLineItemDefaults
-      extends ReturnLineItemFixture
-      with ReturnReasonDefaults
-      with ReturnDefaults {
+  trait ReturnLineItemDefaults extends ReturnLineItemFixture with ReturnReasonDefaults with ReturnDefaults {
 
     val shippingCostPayload =
-      ReturnShippingCostLineItemPayload(amount = order.totals.shipping, reasonId = reason.id)
+      ReturnShippingCostLineItemPayload(amount = order.totals.shipping, reasonId = returnReason.id)
 
     val skuPayload =
       ReturnSkuLineItemPayload(sku = product.code, quantity = 1, reasonId = returnReason.id)
@@ -203,10 +199,8 @@ trait ReturnsFixtures
         .add(payment, ReturnPaymentPayload(amount))(defaultAdminAuth)
         .as[ReturnResponse.Root]
 
-    val paymentMethodTable = Table("paymentMethod",
-                                   PaymentMethod.CreditCard,
-                                   PaymentMethod.GiftCard,
-                                   PaymentMethod.StoreCredit)
+    val paymentMethodTable =
+      Table("paymentMethod", PaymentMethod.CreditCard, PaymentMethod.GiftCard, PaymentMethod.StoreCredit)
 
     implicit class RichReturnPayments(payments: ReturnResponse.Payments) {
       def asMap: Map[PaymentMethod.Type, ReturnResponse.Payment] =
@@ -218,9 +212,6 @@ trait ReturnsFixtures
     }
   }
 
-  trait ReturnPaymentDefaults
-      extends ReturnPaymentFixture
-      with ReturnLineItemDefaults
-      with ReturnDefaults
+  trait ReturnPaymentDefaults extends ReturnPaymentFixture with ReturnLineItemDefaults with ReturnDefaults
 
 }

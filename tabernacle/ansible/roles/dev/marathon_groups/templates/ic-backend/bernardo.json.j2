@@ -5,10 +5,12 @@
     "mem": 64,
     "disk": 0,
     "instances": 1,
+    "constraints": [],
     "labels": {
         "LANG": "cpp",
         "TAG": "{{docker_tags.bernardo}}",
-        "consul": "bernardo"
+        "consul": "bernardo",
+        "overrideTaskName": "bernardo"
     },
     "container": {
         "type": "DOCKER",
@@ -31,9 +33,6 @@
         "DB_USER": "{{bernardo_db_user}}",
         "PORT1": "19090"
     },
-    "constraints": [
-        ["hostname", "UNIQUE"]
-    ],
     "healthChecks": [{
         "path": "/ping",
         "protocol": "HTTP",

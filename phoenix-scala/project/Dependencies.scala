@@ -1,16 +1,24 @@
 import sbt._
 
 object Versions {
-  val scala = "2.11.11-bin-typelevel-4"
-  val slick     = "3.2.0"
-  val json4s    = "3.4.0"
-  val akka      = "2.4.7"
-  val slickPg   = "0.15.0"
-  val gatling   = "2.2.1"
-  val dispatch  = "0.11.3"
-  val fasterxml = "2.8.2"
-  val elastic4s = "2.3.0"
-  val scalatest = "3.0.1"
+  val scala  = "2.11.11-bin-typelevel-4"
+  val slick  = "3.2.0"
+  val json4s = "3.4.0"
+  val akka   = "2.5.2"
+
+  object AkkaHttp {
+    // should be updated all together in sync
+    val http   = "10.0.7"
+    val sse    = "3.0.0"
+    val json4s = "1.15.0"
+  }
+
+  val slickPg    = "0.15.0"
+  val gatling    = "2.2.1"
+  val dispatch   = "0.11.3"
+  val fasterxml  = "2.8.2"
+  val elastic4s  = "2.3.0"
+  val scalatest  = "3.0.1"
   val scalacheck = "1.13.4"
 }
 
@@ -21,10 +29,9 @@ object Dependencies {
   val akka = Seq(
     "com.typesafe.akka" %% "akka-slf4j"     % Versions.akka,
     "com.typesafe.akka" %% "akka-actor"     % Versions.akka,
-    "com.typesafe.akka" %% "akka-agent"     % Versions.akka,
     "com.typesafe.akka" %% "akka-stream"    % Versions.akka,
-    "com.typesafe.akka" %% "akka-http-core" % Versions.akka,
-    "de.heikoseeberger" %% "akka-sse"       % "1.8.1"
+    "com.typesafe.akka" %% "akka-http-core" % Versions.AkkaHttp.http,
+    ("de.heikoseeberger" %% "akka-sse" % Versions.AkkaHttp.sse).exclude("com.typesafe.akka", "akka-http")
   )
 
   val slick = Seq(
@@ -37,10 +44,11 @@ object Dependencies {
   )
 
   val json4s = Seq(
-    "org.json4s"        %% "json4s-core"      % Versions.json4s,
-    "org.json4s"        %% "json4s-jackson"   % Versions.json4s,
-    "org.json4s"        %% "json4s-ext"       % Versions.json4s,
-    "de.heikoseeberger" %% "akka-http-json4s" % "1.7.0"
+    "org.json4s" %% "json4s-core"    % Versions.json4s,
+    "org.json4s" %% "json4s-jackson" % Versions.json4s,
+    "org.json4s" %% "json4s-ext"     % Versions.json4s,
+    ("de.heikoseeberger" %% "akka-http-json4s" % Versions.AkkaHttp.json4s)
+      .exclude("com.typesafe.akka", "akka-http")
   )
 
   val gatling = Seq(
@@ -49,14 +57,14 @@ object Dependencies {
   )
 
   val db = Seq(
-    "com.github.tminglei" %% "slick-pg"         % Versions.slickPg,
-    "com.github.tminglei" %% "slick-pg_json4s"  % Versions.slickPg,
-    "com.zaxxer"          % "HikariCP"          % "2.6.1",
-    "org.postgresql"      % "postgresql"        % "42.1.1",
-    "org.flywaydb"        % "flyway-core"       % "4.0.3",
-    "com.wix"               %% "accord-core"            % "0.5", // Validation
-    "io.backchat.inflector" %% "scala-inflector"        % "1.3.5", // used only for singularizing table names in error messages…
-    ("org.joda"             % "joda-money"              % "0.11").exclude("org.joda", "joda-time"),
+    "com.github.tminglei"   %% "slick-pg"        % Versions.slickPg,
+    "com.github.tminglei"   %% "slick-pg_json4s" % Versions.slickPg,
+    "com.zaxxer"            % "HikariCP"         % "2.6.1",
+    "org.postgresql"        % "postgresql"       % "42.1.1",
+    "org.flywaydb"          % "flyway-core"      % "4.2.0",
+    "com.wix"               %% "accord-core"     % "0.5", // Validation
+    "io.backchat.inflector" %% "scala-inflector" % "1.3.5", // used only for singularizing table names in error messages…
+    ("org.joda" % "joda-money" % "0.11").exclude("org.joda", "joda-time"),
     "com.github.mauricio" %% "postgresql-async" % "0.2.20"
   )
 
@@ -94,21 +102,21 @@ object Dependencies {
   )
 
   val misc = Seq(
-    "com.github.scopt"      %% "scopt"                  % "3.5.0", // CLI args
-    "com.pellucid"          %% "sealerate"              % "0.0.3",
-    "it.justwrote"          %% "scala-faker"            % "0.3",
-    "org.conbere"           % "markov_2.10"             % "0.2.0",
-    "com.github.tototoshi"  %% "scala-csv"              % "1.3.3",
-    "com.github.melrief"    %% "pureconfig"             % "0.5.1",
-    "com.sksamuel.elastic4s"%% "elastic4s-streams"      % Versions.elastic4s
+    "com.github.scopt"       %% "scopt"             % "3.5.0", // CLI args
+    "com.pellucid"           %% "sealerate"         % "0.0.3",
+    "it.justwrote"           %% "scala-faker"       % "0.3",
+    "org.conbere"            % "markov_2.10"        % "0.2.0",
+    "com.github.tototoshi"   %% "scala-csv"         % "1.3.3",
+    "com.github.melrief"     %% "pureconfig"        % "0.5.1",
+    "com.sksamuel.elastic4s" %% "elastic4s-streams" % Versions.elastic4s
   )
 
   val cats = Seq(
-    "org.typelevel"         %% "cats"                   % "0.9.0"
+    "org.typelevel" %% "cats" % "0.9.0"
   )
 
   val shapeless = Seq(
-    "com.chuusai"           %% "shapeless"              % "2.3.1"
+    "com.chuusai" %% "shapeless" % "2.3.1"
   )
 
   val kafka = Seq(

@@ -27,8 +27,7 @@ class GroupTemplateInstances(tag: Tag)
 }
 
 object GroupTemplateInstances
-    extends FoxTableQuery[GroupTemplateInstance, GroupTemplateInstances](
-        new GroupTemplateInstances(_))
+    extends FoxTableQuery[GroupTemplateInstance, GroupTemplateInstances](new GroupTemplateInstances(_))
     with ReturningId[GroupTemplateInstance, GroupTemplateInstances] {
 
   def findByScope(scope: LTree): QuerySeq = filter(_.scope === scope)

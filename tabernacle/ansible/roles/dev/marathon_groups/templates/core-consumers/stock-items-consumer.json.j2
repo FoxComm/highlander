@@ -5,10 +5,12 @@
     "mem": 64,
     "disk": 0,
     "instances": 1,
+    "constraints": [],
     "labels": {
         "LANG": "go",
         "TAG": "{{docker_tags.stock_items_consumer}}",
-        "consul": "stock-items-consumer"
+        "consul": "stock-items-consumer",
+        "overrideTaskName": "stock-items-consumer"
     },
     "container": {
         "type": "DOCKER",

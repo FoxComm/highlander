@@ -19,12 +19,12 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
       "uses store credit records in FIFO cart according to createdAt" in new StoreCreditFixture {
         // ensure 3 & 4 are oldest so 5th should not be used
         StoreCredits
-          .filter(_.id === 3)
+          .filter(_.id === storeCredits(3 - 1).id)
           .map(_.createdAt)
           .update(ZonedDateTime.now().minusMonths(2).toInstant)
           .gimme
         StoreCredits
-          .filter(_.id === 4)
+          .filter(_.id === storeCredits(4 - 1).id)
           .map(_.createdAt)
           .update(ZonedDateTime.now().minusMonths(1).toInstant)
           .gimme
@@ -34,20 +34,34 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
           .mustBeOk()
 
         val expected = storeCreditPayments(cart).map(p ⇒ (p.paymentMethodId, p.amount))
-        expected must contain theSameElementsAs Seq((3, Some(5000)), (4, Some(2500)))
+        expected must contain theSameElementsAs Seq((storeCredits(3 - 1).id, Some(5000)),
+                                                    (storeCredits(4 - 1).id, Some(2500)))
       }
 
       "only uses active store credit" in new StoreCreditFixture {
         // inactive 1 and 2
-        StoreCredits.filter(_.id === 1).map(_.state).update(StoreCredit.Canceled).run().futureValue
-        StoreCredits.filter(_.id === 2).map(_.availableBalance).update(0).run().futureValue
+        StoreCredits
+          .filter(_.id === storeCredits(1 - 1).id)
+          .map(_.state)
+          .update(StoreCredit.Canceled)
+          .run()
+          .futureValue
+        StoreCredits
+          .filter(_.id === storeCredits(2 - 1).id)
+          .map(_.availableBalance)
+          .update(0)
+          .run()
+          .futureValue
 
         cartsApi(cart.refNum).payments.storeCredit
           .add(StoreCreditPayment(amount = 7500))
           .mustBeOk()
 
         val payments = storeCreditPayments(cart)
-        payments.map(_.paymentMethodId) must contain noneOf (1, 2)
+        payments.map(_.paymentMethodId) must contain noneOf (
+          storeCredits(1 - 1).id,
+          storeCredits(2 - 1).id
+        )
         payments must have size 2
       }
 
@@ -113,13 +127,13 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
   trait StoreCreditFixture extends Fixture {
     val storeCredits = (for {
       reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
-      _ ← * <~ StoreCreditManuals.createAll((1 to 5).map { _ ⇒
-           StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id)
-         })
-      _ ← * <~ StoreCredits.createAll((1 to 5).map { i ⇒
+      storeCreditManuals ← * <~ StoreCreditManuals.createAllReturningIds((1 to 5).map { _ ⇒
+                            StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id)
+                          })
+      _ ← * <~ StoreCredits.createAll(storeCreditManuals.map { scmId ⇒
            Factories.storeCredit.copy(state = StoreCredit.Active,
                                       accountId = customer.accountId,
-                                      originId = i)
+                                      originId = scmId)
          })
       storeCredits ← * <~ StoreCredits.findAllByAccountId(customer.accountId).result
     } yield storeCredits).gimme

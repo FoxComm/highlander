@@ -5,10 +5,12 @@
     "mem": 512,
     "disk": 0,
     "instances": 1,
+    "constraints": [],
     "labels": {
         "LANG": "clojure",
         "TAG": "{{docker_tags.messaging}}",
-        "consul": "messaging"
+        "consul": "messaging",
+        "overrideTaskName": "messaging"
     },
     "container": {
         "type": "DOCKER",

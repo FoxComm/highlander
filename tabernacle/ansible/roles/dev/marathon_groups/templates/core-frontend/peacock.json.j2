@@ -5,10 +5,12 @@
     "mem": 1024,
     "disk": 0,
     "instances": 1,
+    "constraints": [],
     "labels": {
         "LANG": "js",
         "consul": "peacock",
-        "TAG": "{{docker_tags.peacock}}"
+        "TAG": "{{docker_tags.peacock}}",
+        "overrideTaskName": "peacock"
     },
     "env": {
         "API_URL": "https://{{storefront_server_name}}",

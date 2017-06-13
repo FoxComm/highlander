@@ -2,9 +2,9 @@ include ../makelib
 header = $(call baseheader, $(1), ashes)
 
 export PATH := $(CURDIR)/node_modules/.bin:$(PATH)
-SHELL := env PATH=$(PATH) /bin/bash
+SHELL := env PATH=$(PATH) /bin/sh
 
-GIT_REVISION = $(shell git describe --always)
+GIT_REVISION = $(shell git describe --tags --always)
 GIT_COMMIT = $(shell git rev-parse --short HEAD)
 WEBPACK_PORT = 4001
 

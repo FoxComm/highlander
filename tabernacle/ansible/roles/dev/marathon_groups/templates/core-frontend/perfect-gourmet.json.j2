@@ -5,10 +5,12 @@
     "mem": 1024,
     "disk": 0,
     "instances": 1,
+    "constraints": [],
     "labels": {
         "LANG": "js",
         "TAG": "{{docker_tags.storefront_tpg}}",
-        "consul": "storefront-perfect-gourmet"
+        "consul": "storefront-perfect-gourmet",
+        "overrideTaskName": "storefront-perfect-gourmet"
     },
     "env": {
         "API_URL": "https://{{storefront_server_name}}",

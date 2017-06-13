@@ -46,7 +46,7 @@ class JavaTimeMapperTest extends IntegrationTestBase with DbTestSupport {
         .futureValue
 
       timestampAfterRoundtrip must === (
-          ZonedDateTime.of(2015, 7, 1, 15, 17, 38, 0, ZoneId.of("UTC")).toInstant)
+        ZonedDateTime.of(2015, 7, 1, 15, 17, 38, 0, ZoneId.of("UTC")).toInstant)
     }
   }
 }

@@ -57,6 +57,15 @@ func (suite *skuControllerTestSuite) SetupTest() {
 		StockLocationID: suite.location.ID,
 	}
 	suite.Nil(suite.db.Create(suite.stockItem).Error)
+
+	sellable := fixtures.GetStockItemSummary(suite.stockItem, models.Sellable, 10)
+	nonSellable := fixtures.GetStockItemSummary(suite.stockItem, models.NonSellable, 0)
+	preorder := fixtures.GetStockItemSummary(suite.stockItem, models.Preorder, 10)
+	backorder := fixtures.GetStockItemSummary(suite.stockItem, models.Backorder, 0)
+	suite.Nil(suite.db.Create(sellable).Error)
+	suite.Nil(suite.db.Create(nonSellable).Error)
+	suite.Nil(suite.db.Create(preorder).Error)
+	suite.Nil(suite.db.Create(backorder).Error)
 }
 
 func (suite *skuControllerTestSuite) Test_GetSKU_Success() {
@@ -132,6 +141,31 @@ func (suite *skuControllerTestSuite) Test_UpdateSKUTitleAndRequest_Success() {
 	suite.Nil(err)
 	suite.Equal(suite.sku.ID, respBody.ID)
 	suite.Equal(title, respBody.Title)
+}
+
+func (suite *skuControllerTestSuite) Test_GetSkuAfs_InvalidSkuId() {
+	url := fmt.Sprintf("/skus/%d/afs", suite.sku.ID+1)
+	res := suite.Get(url)
+	suite.Equal(http.StatusBadRequest, res.Code)
+
+	respBody := new(responses.Error)
+	err := json.NewDecoder(res.Body).Decode(respBody)
+	suite.Nil(err)
+	suite.Equal("No AFS data for SKU", respBody.Errors[0])
+}
+
+func (suite *skuControllerTestSuite) Test_GetSkuAfs_Success() {
+	url := fmt.Sprintf("/skus/%d/afs", suite.sku.ID)
+	res := suite.Get(url)
+	suite.Equal(http.StatusOK, res.Code)
+
+	respBody := new(responses.SkuAfs)
+	err := json.NewDecoder(res.Body).Decode(respBody)
+	suite.Nil(err)
+	suite.Equal(10, respBody.Sellable)
+	suite.Equal(0, respBody.NonSellable)
+	suite.Equal(10, respBody.Preorder)
+	suite.Equal(0, respBody.Backorder)
 }
 
 func (suite *skuControllerTestSuite) Test_DeleteSKU_Success() {

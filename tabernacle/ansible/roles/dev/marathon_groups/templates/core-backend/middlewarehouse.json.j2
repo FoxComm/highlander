@@ -5,10 +5,12 @@
     "mem": 64,
     "disk": 0,
     "instances": 1,
+    "constraints": [],
     "labels": {
         "MARATHON_SINGLE_INSTANCE_APP": "true",
         "LANG": "go",
         "consul": "middlewarehouse",
+        "overrideTaskName": "middlewarehouse",
         "TAG": "{{docker_tags.middlewarehouse}}"
     },
     "upgradeStrategy": {
@@ -43,9 +45,6 @@
         "KAFKA_BROKER": "{{kafka_server}}",
         "DB_USER": "middlewarehouse"
     },
-    "constraints": [
-        ["hostname", "UNIQUE"]
-    ],
     "healthChecks": [{
         "path": "/v1/public/ping",
         "protocol": "HTTP",
