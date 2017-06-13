@@ -32,7 +32,7 @@
   &:disabled:hover {
     cursor: default;
     color: var(--color-additional-text);
-    background-color: var(--color-border);
+    background-color: var(--bg-grey-buttons-disabled);
   }
 
   &.onlyIcon {
