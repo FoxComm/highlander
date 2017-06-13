@@ -39,6 +39,7 @@ import phoenix.responses.cord.{CartResponse, OrderResponse}
 import phoenix.services.LineItemUpdater.foldQuantityPayload
 import phoenix.services.activity.AssignmentsTailored._
 import phoenix.services.activity.CartTailored._
+import phoenix.services.activity.CatalogTailored.{CatalogCreated, CatalogUpdated}
 import phoenix.services.activity.CategoryTailored._
 import phoenix.services.activity.CouponsTailored._
 import phoenix.services.activity.CustomerGroupsTailored._
@@ -465,6 +466,19 @@ case class LogActivity(implicit ac: AC) {
                           category: FullCategoryResponse.Root,
                           context: ObjectContextResponse.Root)(implicit ec: EC): DbResultT[Activity] =
     Activities.log(FullCategoryUpdated(admin.map(buildUser), category, context))
+
+  /* Catalogs */
+  def catalogCreated(
+      admin: User,
+      catalog: CatalogResponse.Root
+  )(implicit ec: EC): DbResultT[Activity] =
+    Activities.log(CatalogCreated(buildUser(admin), catalog))
+
+  def catalogUpdated(
+      admin: User,
+      catalog: CatalogResponse.Root
+  )(implicit ec: EC): DbResultT[Activity] =
+    Activities.log(CatalogUpdated(buildUser(admin), catalog))
 
   /* Products */
   def fullProductCreated(admin: Option[User],

@@ -1,0 +1,16 @@
+[Service]
+WorkingDirectory=/usr/local/share
+ExecStart=/usr/local/bin/run_mesos_consul.sh
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=mesos_consul
+TimeoutStartSec=5m
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+Requires=mesos_master.service
+After=mesos_master.service

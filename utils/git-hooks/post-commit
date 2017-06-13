@@ -8,7 +8,8 @@ source "${SCALAFMT_DIR}"/shared-functions.sh
 SCALA_FILES_IN_LAST_COMMIT=$(scala_files_in_last_commit)
 
 if [ "${SCALA_FILES_IN_LAST_COMMIT}" ]; then
-  if [ ! "$(eval ${SCALAFMT_DIR}/scalafmt.sh --test ${SCALA_FILES_IN_LAST_COMMIT} &> /dev/null)" ]; then
+  ${SCALAFMT_DIR}/scalafmt.sh --test ${SCALA_FILES_IN_LAST_COMMIT} &> /dev/null || NEED_FMT=1
+  if [ ${NEED_FMT} ]; then
     echo "******************************************************************"
     echo "     Some Scala files are not formatted properly! Please run"
     echo "          utils/scalafmt/scalafmt-last-commit.sh"

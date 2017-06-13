@@ -64,7 +64,7 @@ lazy val seeder = (project in file("seeder"))
     libraryDependencies ++= Dependencies.gatling,
     cleanFiles += baseDirectory.value / "results",
     // we cannot fork and set javaOptions simply, as it causes some weird issue with db schema creation
-    initialize ~= (_ => System.setProperty("phoenix.env", "test")),
+    initialize ~= (_ ⇒ System.setProperty("phoenix.env", "test")),
     fullClasspath in assembly := { // thanks sbt for that hacky way of excluding inter-project dependencies
       val phoenixClasses = (crossTarget in compile in phoenix).value.getAbsolutePath
       (fullClasspath in assembly).value.filterNot(_.data.getAbsolutePath.startsWith(phoenixClasses))

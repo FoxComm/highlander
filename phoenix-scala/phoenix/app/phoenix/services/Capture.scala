@@ -162,7 +162,9 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       _ ← * <~ failIf(externalCharges.forall(_.isEmpty), ExternalPaymentNotFound(order.refNum))
 
       // capture one of external charges
-      _ ← * <~ externalCharges.map(_ map capture)
+      // todo here we need to fold Set[Option[DbResultT]]
+      _ ← * <~ (apCharge map capture)
+      _ ← * <~ (ccCharge map capture)
     } yield ()
   }
 
