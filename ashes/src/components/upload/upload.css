@@ -16,7 +16,7 @@
   }
 
   &:global(._dragActive) {
-    border: 3px dashed var(--color-action-text);
+    border: 3px dashed var(--color-link);
     margin: -18px -8px;
   }
 

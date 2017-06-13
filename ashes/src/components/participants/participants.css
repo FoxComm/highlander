@@ -24,7 +24,7 @@
   font-weight: 600;
   line-height: 17px;
   text-decoration: underline;
-  color: var(--color-action-text);
+  color: var(--color-link);
   cursor: pointer;
 }
 

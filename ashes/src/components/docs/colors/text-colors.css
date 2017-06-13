@@ -71,10 +71,23 @@
 }
 
 .color-5 {
-  color: var(--color-action-text);
+  color: var(--color-light-text-hover);
+  background-color: var(--bg-nav-main);
 
   & > .value::before {
-    content: '--color-action-text';
+    content: '--color-light-text-hover';
+  }
+
+  & > .desc::before {
+    content: '';
+  }
+}
+
+.color-6 {
+  color: var(--color-link);
+
+  & > .value::before {
+    content: '--color-link';
   }
 
   & > .desc::before {
@@ -82,7 +95,7 @@
   }
 }
 
-.color-6 {
+.color-7 {
   color: var(--color-error-text);
 
   & > .value::before {
