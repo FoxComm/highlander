@@ -17,11 +17,11 @@ class SearchService(private val client: ElasticClient) extends AnyVal {
                 searchSize: Int,
                 searchFrom: Option[Int])(implicit ec: ExecutionContext): Future[SearchResult] = {
     val withQuery = searchQuery match {
-      case SearchQuery.ES(query, _) ⇒ (_: SearchDefinition) rawQuery Json.fromJsonObject(query).noSpaces
-      case SearchQuery.FC(query, _) ⇒
+      case SearchQuery.es(query, _) ⇒ (_: SearchDefinition) rawQuery Json.fromJsonObject(query).noSpaces
+      case SearchQuery.fc(query, _) ⇒
         (_: SearchDefinition) bool {
           query.query.foldLeft(new BoolQueryDefinition) {
-            case (bool, QueryFunction.Is(in, value)) ⇒
+            case (bool, QueryFunction.is(in, value)) ⇒
               bool.filter(in.toList.map(termsQuery(_, value.fold(QueryFunction.listOfAnyValueF): _*)))
             case (bool, _) ⇒ bool // TODO: implement rest of cases
           }

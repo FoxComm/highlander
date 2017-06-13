@@ -2,25 +2,37 @@ package foxcomm.search
 
 import cats.data.NonEmptyList
 import cats.syntax.either._
-import io.circe.Decoder.Result
-import io.circe.generic.extras.auto._
-import io.circe.{Decoder, DecodingFailure, HCursor}
-import scala.collection.immutable
+import io.circe.generic.extras.semiauto._
+import io.circe.{Decoder, JsonNumber, KeyDecoder}
 import shapeless._
 
-sealed trait QueryField extends Product with Serializable {
+sealed trait QueryField {
   def toList: List[String]
 }
 object QueryField {
   final case class Single(field: String) extends QueryField {
     def toList: List[String] = List(field)
   }
+  object Single {
+    implicit val decodeSingle: Decoder[Single] = Decoder.decodeString
+      .emap {
+        case s if s.startsWith("$") ⇒ Either.left(s"Defined unknown special query field $s")
+        case s                      ⇒ Either.right(s)
+      }
+      .map(Single(_))
+  }
+
   final case class Multiple(fields: NonEmptyList[String]) extends QueryField {
     def toList: List[String] = fields.toList
   }
-  final case class Compound(field: String) extends QueryField {
-    def toList: List[String] = ??? // TODO: implement compound fields like $text
+  object Multiple {
+    implicit val decodeMultiple: Decoder[Multiple] =
+      Decoder.decodeNonEmptyList[String].map(Multiple(_))
   }
+
+  implicit val decodeQueryField: Decoder[QueryField] =
+    Decoder[Single].map(s ⇒ s: QueryField) or
+      Decoder[Multiple].map(m ⇒ m: QueryField)
 }
 
 sealed trait RangeFunction
@@ -29,111 +41,64 @@ object RangeFunction {
   case object Lte extends RangeFunction
   case object Gt  extends RangeFunction
   case object Gte extends RangeFunction
-  case object Eq  extends RangeFunction
-  case object Neq extends RangeFunction
-}
 
-sealed trait QueryFunction extends Product with Serializable {
-  type Value <: Coproduct
-
-  def value: Value
-}
-@SuppressWarnings(
-  Array("org.wartremover.warts.AsInstanceOf",
-        "org.wartremover.warts.Equals",
-        "org.wartremover.warts.ExplicitImplicitTypes"))
-object QueryFunction {
-  type QueryValue[T] = T :+: NonEmptyList[T] :+: CNil
-  // TODO: what with precision loss? current elastic4s version operates on Double's in range query anyway
-  type SingleValue   = Double :+: String :+: CNil
-  type CompoundValue = QueryValue[SingleValue]
-  type RangeValue    = immutable.Map[RangeFunction, SingleValue] :+: CNil
-  type StateValue    = allW.T :+: activeW.T :+: inactiveW.T :+: CNil
-
-  val allW      = Witness("all")
-  val activeW   = Witness("active")
-  val inactiveW = Witness("inactive")
-
-  object queryFieldF extends Poly1 {
-    implicit def caseField  = at[String](QueryField.Single)
-    implicit def caseFields = at[NonEmptyList[String]](QueryField.Multiple)
+  implicit val decodeRangeFunction: KeyDecoder[RangeFunction] = KeyDecoder.instance {
+    case "lt" | "<"   ⇒ Some(Lt)
+    case "lte" | "<=" ⇒ Some(Lte)
+    case "gt" | ">"   ⇒ Some(Gt)
+    case "gte" | ">=" ⇒ Some(Gte)
   }
+}
 
-  // we autobox `Double` here via type cast
+sealed trait EntityState
+object EntityState {
+  case object all      extends EntityState
+  case object active   extends EntityState
+  case object inactive extends EntityState
+
+  implicit val decodeEntityState: Decoder[EntityState] = deriveEnumerationDecoder[EntityState]
+}
+
+sealed trait QueryFunction
+@SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf", "org.wartremover.warts.ExplicitImplicitTypes"))
+object QueryFunction {
+  type SingleValue    = JsonNumber :+: String :+: CNil
+  type MultipleValues = NonEmptyList[JsonNumber] :+: NonEmptyList[String] :+: CNil
+  type CompoundValue  = SingleValue :+: MultipleValues :+: CNil
+  type RangeValue     = Map[RangeFunction, JsonNumber] :+: Map[RangeFunction, String] :+: CNil
+
   object listOfAnyValueF extends Poly1 {
     implicit def caseValue  = at[SingleValue](v ⇒ List(v.unify.asInstanceOf[AnyRef]))
-    implicit def caseValues = at[NonEmptyList[SingleValue]](_.map(_.unify).toList.asInstanceOf[List[AnyRef]])
+    implicit def caseValues = at[MultipleValues](_.unify.toList.asInstanceOf[List[AnyRef]])
   }
-
-  implicit def decodeQueryValue[T: Decoder]: Decoder[QueryValue[T]] =
-    Decoder[T]
-      .map(Coproduct[QueryValue[T]](_))
-      .or(Decoder.decodeNonEmptyList[T].map(Coproduct[QueryValue[T]](_)))
 
   implicit val decodeSingleValue: Decoder[SingleValue] =
-    Decoder.decodeDouble.map(Inl(_)).or(Decoder.decodeString.map(s ⇒ Inr(Inl(s))))
+    Decoder.decodeJsonNumber.map(Inl(_)) or Decoder.decodeString.map(s ⇒ Inr(Inl(s)))
 
-  implicit val decodeState: Decoder[StateValue] =
-    Decoder.decodeString.emap {
-      case v if v == allW.value      ⇒ Either.right(Coproduct[StateValue](allW.value))
-      case v if v == activeW.value   ⇒ Either.right(Coproduct[StateValue](activeW.value))
-      case v if v == inactiveW.value ⇒ Either.right(Coproduct[StateValue](inactiveW.value))
-      case _                         ⇒ Either.left("unknown state defined")
-    }
+  implicit val decodeMultipleValue: Decoder[MultipleValues] =
+    Decoder.decodeNonEmptyList[JsonNumber].map(Inl(_)) or Decoder
+      .decodeNonEmptyList[String]
+      .map(s ⇒ Inr(Inl(s)))
 
-  implicit val decodeQueryField: Decoder[QueryField] = new Decoder[QueryField] {
-    def apply(c: HCursor): Result[QueryField] =
-      c.downField("in").as[QueryValue[String]].right.map(_.fold(queryFieldF))
-  }
+  implicit val decodeCompoundValue: Decoder[CompoundValue] =
+    Decoder[SingleValue].map(Coproduct[CompoundValue](_)) or
+      Decoder[MultipleValues].map(Coproduct[CompoundValue](_))
 
-  implicit val decodeCompoundValue: Decoder[CompoundValue] = decodeQueryValue[SingleValue]
+  implicit val decodeRange: Decoder[RangeValue] =
+    Decoder.decodeMapLike[Map, RangeFunction, JsonNumber].map(Inl(_)) or
+      Decoder.decodeMapLike[Map, RangeFunction, String].map(sm ⇒ Inr(Inl(sm)))
 
-  implicit val decodeRange: Decoder[RangeValue] = new Decoder[RangeValue] {
-    def apply(c: HCursor): Result[RangeValue] = ??? // TODO: implement decoder
-  }
+  final case class contains(in: QueryField, value: CompoundValue)  extends QueryFunction
+  final case class matches(in: QueryField, value: CompoundValue)   extends QueryFunction
+  final case class range(in: QueryField.Single, value: RangeValue) extends QueryFunction
+  final case class is(in: QueryField, value: CompoundValue)        extends QueryFunction
+  final case class state(value: EntityState)                       extends QueryFunction
 
-  private[this] val decoderMap = Map(
-    "contains" → Decoder[Contains],
-    "matches"  → Decoder[Matches],
-    "is"       → Decoder[Is],
-    "range"    → Decoder[Range],
-    "state"    → Decoder[State]
-  )
-
-  implicit val decodeQueryFunction: Decoder[QueryFunction] = new Decoder[QueryFunction] {
-    def apply(c: HCursor): Result[QueryFunction] =
-      for {
-        tpe ← c.downField("type").as[String]
-        decoder ← decoderMap
-                    .get(tpe)
-                    .map(Either.right(_))
-                    .getOrElse(Either.left(DecodingFailure("", c.history)))
-        value ← decoder(c)
-      } yield value
-  }
-
-  final case class Contains(in: QueryField, value: CompoundValue) extends QueryFunction {
-    type Value = CompoundValue
-  }
-  final case class Matches(in: QueryField, value: CompoundValue) extends QueryFunction {
-    type Value = CompoundValue
-  }
-  final case class Range(in: QueryField.Single, value: RangeValue) extends QueryFunction {
-    type Value = RangeValue
-  }
-  final case class Is(in: QueryField, value: CompoundValue) extends QueryFunction {
-    type Value = CompoundValue
-  }
-  final case class State(value: StateValue) extends QueryFunction {
-    type Value = StateValue
-  }
+  implicit val decodeQueryFunction: Decoder[QueryFunction] = deriveDecoder[QueryFunction]
 }
 
 final case class FCQuery(query: NonEmptyList[QueryFunction])
 object FCQuery {
-  // TODO: check performance (e.g. no doubled attempt for query function decoding) if query is malformed
-  // should be fast, as it'd either fail fast on lack of array
-  // or on first (or single) malformed query function
   implicit val decodeFCQuery: Decoder[FCQuery] =
     Decoder
       .decodeNonEmptyList[QueryFunction]
