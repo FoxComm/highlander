@@ -1,6 +1,7 @@
 package phoenix.utils.seeds.generators
 
 import core.db._
+import core.failures.NotFoundFailure404
 import faker.Faker
 import objectframework.models.ObjectContexts
 import phoenix.models.account._
@@ -81,11 +82,9 @@ object SeedsGenerator
          })
       _ ← * <~ Addresses.createAll(generateAddresses(customers))
       _ ← * <~ CreditCards.createAll(generateCreditCards(customers))
-      orderedGcs ← * <~ randomSubset(customerIds).map { id ⇒
-                    generateGiftCardPurchase(id, context)
-                  }
-      appeasements ← * <~ (1 to appeasementCount).map(i ⇒ generateGiftCardAppeasement)
-
+      admin ← * <~ Users.take(1).mustFindOneOr(NotFoundFailure404(User, "first"))
+      orderedGcs ← * <~ (1 to appeasementCount).map(_ => generateGiftCard(admin.accountId, context))
+      appeasements ← * <~ (1 to appeasementCount).map(_ ⇒ generateGiftCardAppeasement)
       giftCards ← * <~ orderedGcs ++ appeasements
       unsavedPromotions = makePromotions(1)
       promotions     ← * <~ generatePromotions(unsavedPromotions)
