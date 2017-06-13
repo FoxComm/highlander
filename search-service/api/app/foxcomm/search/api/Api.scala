@@ -17,7 +17,7 @@ object Api extends App {
     post(
       "search" :: string :: string :: param("size")
         .as[Int] :: paramOption("from").as[Int] :: jsonBody[SearchQuery]) {
-      (searchIndex: String, searchType: String, size: Int, from: Option[Int], searchQuery: SearchQuery) =>
+      (searchIndex: String, searchType: String, size: Int, from: Option[Int], searchQuery: SearchQuery) ⇒
         searchService
           .searchFor(searchIndex / searchType, searchQuery, searchSize = size, searchFrom = from)
           .toTwitterFuture
@@ -25,9 +25,9 @@ object Api extends App {
     }
 
   def errorHandler[A]: PartialFunction[Throwable, Output[A]] = {
-    case ex: ValidationException => Output.failure(ex, Status.BadRequest)
-    case ex: Exception           => Output.failure(ex, Status.InternalServerError)
-    case ex                      => Output.failure(new RuntimeException(ex), Status.InternalServerError)
+    case ex: ValidationException ⇒ Output.failure(ex, Status.BadRequest)
+    case ex: Exception           ⇒ Output.failure(ex, Status.InternalServerError)
+    case ex                      ⇒ Output.failure(new RuntimeException(ex), Status.InternalServerError)
   }
 
   implicit val ec: ExecutionContext = ExecutionContext.global

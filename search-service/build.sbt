@@ -29,7 +29,7 @@ lazy val api = (project in file("api"))
     assemblyMergeStrategy in assembly := {
       case PathList("BUILD")                                    ⇒ MergeStrategy.discard
       case PathList("META-INF", "io.netty.versions.properties") ⇒ MergeStrategy.discard
-      case x                                                    => (assemblyMergeStrategy in assembly).value.apply(x)
+      case x                                                    ⇒ (assemblyMergeStrategy in assembly).value.apply(x)
     }
   )
   .dependsOn(core, finch)
