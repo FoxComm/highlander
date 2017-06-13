@@ -1,6 +1,7 @@
 /* @flow */
 
 // libs
+import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -44,6 +45,7 @@ type AsyncStatus = {
 
 type Props = {
   children: ?any,
+  catalog: ?Catalog,
   fetchCatalog: Function,
   createCatalog: Function,
   updateCatalog: Function,
