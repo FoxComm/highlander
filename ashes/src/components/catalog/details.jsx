@@ -44,13 +44,13 @@ const CatalogDetails = (props: Props) => {
 
   return (
     <Content>
-      <ContentBox title="General">
-        <div styleName="form-content">
-          {err && (
-            <div>
-              <ErrorAlerts error={err} />
-            </div>
-          )}
+      <div styleName="form-content">
+        {err && (
+          <div>
+            <ErrorAlerts error={err} />
+          </div>
+        )}
+        <ContentBox title="General">
           <Form onSubmit={onSubmit}>
             <VerticalFormField
               controlId= "name"
@@ -96,8 +96,8 @@ const CatalogDetails = (props: Props) => {
               />
             </VerticalFormField>
           </Form>
-        </div>
-      </ContentBox>
+        </ContentBox>
+      </div>
     </Content>
   );
 };
