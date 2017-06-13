@@ -87,7 +87,7 @@ trait CouponGenerator {
                  )
 
                  CouponManager.create(payload, context.name, None).map { newCoupons ⇒
-                   newCoupons.map(newCoupon => source.copy(formId = newCoupon.id))
+                   newCoupons.map(newCoupon ⇒ source.copy(formId = newCoupon.id))
                  }
                })
     } yield coupons.flatten

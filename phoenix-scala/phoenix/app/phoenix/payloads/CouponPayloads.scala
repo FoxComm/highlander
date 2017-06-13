@@ -11,8 +11,6 @@ object CouponPayloads {
                           singleCode: Option[String],
                           generateCodes: Option[GenerateCouponCodes])
 
-  // FIXME: unused? @michalrus
-  //case class UpdateCoupon(attributes: Map[String, Json], promotion: Int)
-
   case class GenerateCouponCodes(prefix: String, quantity: Int, length: Int)
+
 }

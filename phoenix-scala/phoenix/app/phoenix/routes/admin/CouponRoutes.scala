@@ -40,12 +40,6 @@ object CouponRoutes {
                     CouponManager.getIlluminated(id, context)
                   }
                 } ~
-                  // FIXME: unused? @michalrus
-//            (patch & pathEnd & entity(as[UpdateCoupon])) { payload ⇒
-//              mutateOrFailures {
-//                CouponManager.update(id, payload, context, auth.model)
-//              }
-//            } ~
                   (delete & pathEnd) {
                     mutateOrFailures {
                       CouponManager.archiveByContextAndId(context, id)

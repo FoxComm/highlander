@@ -108,7 +108,7 @@ class CouponsSearchViewIntegrationTest
     coupons.size must === (quantity)
 
     // check if each coupon has a corresponding view row
-    coupons.foreach { coupon =>
+    coupons.foreach { coupon ⇒
       findOne(coupon.id) mustBe 'defined
     }
   }

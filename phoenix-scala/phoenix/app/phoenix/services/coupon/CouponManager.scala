@@ -34,7 +34,7 @@ object CouponManager {
       contextName: String,
       admin: Option[User])(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[Seq[CouponResponse.Root]] =
     for {
-      _     <- * <~ failIf(payload.generateCodes.isEmpty && payload.singleCode.isEmpty, CouponCreationNoCodes)
+      _     ← * <~ failIf(payload.generateCodes.isEmpty && payload.singleCode.isEmpty, CouponCreationNoCodes)
       scope ← * <~ Scope.resolveOverride(payload.scope)
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -42,27 +42,27 @@ object CouponManager {
       _ ← * <~ Promotions
            .filterByContextAndFormId(context.id, payload.promotion)
            .mustFindOneOr(PromotionNotFoundForContext(payload.promotion, context.name))
-      codes: Seq[String] = payload.singleCode.toSeq ++ payload.generateCodes.toSeq.flatMap(gcc =>
+      codes: Seq[String] = payload.singleCode.toSeq ++ payload.generateCodes.toSeq.flatMap(gcc ⇒
         CouponCodes.generateCodes(gcc.prefix, gcc.length, gcc.quantity))
       couponFormAndShadow = FormAndShadow.fromPayload(Coupon.kind, forceActivate(payload.attributes))
 
       // create a form & shadow for each future CouponCode
       // FIXME: how to *effectively* create N forms & shadows? @michalrus
-      formsAndShadows <- codes.toList.traverse(
-                          _ =>
+      formsAndShadows ← codes.toList.traverse(
+                          _ ⇒
                             ObjectUtils
                               .insert(couponFormAndShadow.form, couponFormAndShadow.shadow, payload.schema))
 
-      coupons = formsAndShadows.map(
-        fas =>
-          Coupon(scope = scope,
-                 contextId = context.id,
-                 formId = fas.form.id,
-                 shadowId = fas.shadow.id,
-                 commitId = fas.commit.id,
-                 promotionId = payload.promotion))
+      coupons = formsAndShadows.map { fas ⇒
+        Coupon(scope = scope,
+               contextId = context.id,
+               formId = fas.form.id,
+               shadowId = fas.shadow.id,
+               commitId = fas.commit.id,
+               promotionId = payload.promotion)
+      }
 
-      createdCoupons <- Coupons.createAllReturningModels(coupons)
+      createdCoupons ← Coupons.createAllReturningModels(coupons)
 
       couponCodes = (codes zip formsAndShadows).map {
         case (code, fas) ⇒
@@ -80,8 +80,8 @@ object CouponManager {
       _ ← * <~ (coupons zip response).toList.traverse {
            case (coupon, cr) ⇒
              for {
-               _ <- LogActivity().withScope(scope).couponCreated(cr, admin)
-               _ <- LogActivity().singleCouponCodeCreated(coupon, admin)
+               _ ← LogActivity().withScope(scope).couponCreated(cr, admin)
+               _ ← LogActivity().singleCouponCodeCreated(coupon, admin)
              } yield ()
          }
     } yield response
@@ -148,7 +148,7 @@ object CouponManager {
                 .filter(_.formId === id)
                 .mustFindOneOr(CouponNotFound(id))
       form ← * <~ ObjectForms.mustFindById404(coupon.formId)
-      code <- CouponCodes
+      code ← CouponCodes
                .filter(_.couponFormId === form.id)
                .mustFindOneOr(CouponCodeNotFoundForCoupon(form.id))
       shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
@@ -165,12 +165,13 @@ object CouponManager {
                .mustFindOneOr(NotFoundFailure404(Coupon, formId))
       archiveResult ← * <~ Coupons.update(model, model.copy(archivedAt = Some(Instant.now)))
       form          ← * <~ ObjectForms.mustFindById404(archiveResult.formId)
-      code <- CouponCodes
+      code ← CouponCodes
                .filter(_.couponFormId === form.id)
                .mustFindOneOr(CouponCodeNotFoundForCoupon(form.id))
       shadow ← * <~ ObjectShadows.mustFindById404(archiveResult.shadowId)
     } yield CouponResponse.build(context, code.code, archiveResult, form, shadow)
 
+  // FIXME: should be unused @michalrus @bagratinho
   def getCodes(id: Int)(implicit ec: EC, db: DB): DbResultT[Seq[CouponCodesResponse.Root]] =
     for {
       _     ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))
