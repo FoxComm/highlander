@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: column;
   margin: 10px;
-  color: var(--color-subtitle-text)
+  color: var(--color-subtitle-text);
 }
 
 .iconWrapper {
@@ -19,7 +19,7 @@
   justify-content: center;
   width: 120px;
   height: 120px;
-  background-color: var(--grey-buttons)
+  background-color: var(--bg-grey-buttons);
 }
 
 .text {
@@ -30,6 +30,6 @@
 }
 
 .svgStyle {
-  width: 20px;
-  height: 20px;
+  width: 35px;
+  height: 35px;
 }
