@@ -139,7 +139,7 @@ class Login extends Component {
               value={org}
               type="text"
               className="fc-input"
-              autoFocus={true}
+              autoFocus
             />
           </FormField>
           <FormField label="Email" required>
