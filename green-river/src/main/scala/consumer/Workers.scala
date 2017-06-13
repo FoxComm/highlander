@@ -173,6 +173,7 @@ object Workers {
   def topicTransformers(
       connectionInfo: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC) = Map(
     "carts_search_view"                     → CartsSearchView(),
+    "catalogs_search_view"                  → CatalogsSeachView(),
     "countries"                             → CountriesSearchView(),
     "customer_items_view"                   → CustomerItemsView(),
     "customers_search_view"                 → CustomersSearchView(),

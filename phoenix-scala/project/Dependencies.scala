@@ -53,7 +53,7 @@ object Dependencies {
     "com.github.tminglei"   %% "slick-pg_json4s" % Versions.slickPg,
     "com.zaxxer"            % "HikariCP"         % "2.6.1",
     "org.postgresql"        % "postgresql"       % "42.1.1",
-    "org.flywaydb"          % "flyway-core"      % "4.0.3",
+    "org.flywaydb"          % "flyway-core"      % "4.2.0",
     "com.wix"               %% "accord-core"     % "0.5", // Validation
     "io.backchat.inflector" %% "scala-inflector" % "1.3.5", // used only for singularizing table names in error messages…
     ("org.joda" % "joda-money" % "0.11").exclude("org.joda", "joda-time"),

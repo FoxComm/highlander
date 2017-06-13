@@ -14,7 +14,7 @@ trait ReturnSeeds {
     for {
       ids ← * <~ ReturnLineItems.createAllReturningIds(returnLineItems)
       _ ← * <~ ReturnLineItemSkus.createAll(returnLineItemSkus.zip(ids).map {
-           case (sku, id) => sku.copy(id = id)
+           case (sku, id) ⇒ sku.copy(id = id)
          })
       _ ← * <~ Notes.createAll(returnNotes)
     } yield {}

@@ -1,7 +1,8 @@
 ---
 
-- name: Take a nap for Consul Template
-  pause: seconds=15
-
-- name: Restart Nginx
-  service: name=nginx state=restarted enabled=yes
+- name: Restart Nginx Multiple Attempts
+  shell: service nginx restart
+  register: nginx_restart
+  until: nginx_restart.rc == 0
+  retries: 60
+  delay: 10

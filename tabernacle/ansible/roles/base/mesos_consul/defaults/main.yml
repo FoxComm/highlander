@@ -1,0 +1,4 @@
+mesos_consul_base_url: https://github.com/mantl/mesos-consul
+mesos_consul_version: 0.4.0
+mesos_consul_dirname: "mesos-consul_{{mesos_consul_version}}_linux_amd64"
+mesos_consul_url: "{{mesos_consul_base_url}}/releases/download/v{{mesos_consul_version}}/{{mesos_consul_dirname}}.tar.gz"
