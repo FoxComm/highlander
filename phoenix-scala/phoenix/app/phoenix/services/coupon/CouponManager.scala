@@ -91,35 +91,6 @@ object CouponManager {
       .updated("activeFrom", ("t" → "datetime") ~ ("v" → Instant.ofEpochMilli(1).toString))
       .updated("activeTo", ("t" → "datetime") ~ ("v" → JNull))
 
-  // FIXME: unused? @michalrus
-//  def update(id: Int, payload: UpdateCoupon, contextName: String, admin: User)(
-//      implicit ec: EC,
-//      db: DB,
-//      ac: AC): DbResultT[CouponResponse.Root] = {
-//
-//    val formAndShadow = FormAndShadow.fromPayload(Coupon.kind, forceActivate(payload.attributes))
-//
-//    for {
-//      context ← * <~ ObjectContexts
-//                 .filterByName(contextName)
-//                 .mustFindOneOr(ObjectContextNotFound(contextName))
-//      _ ← * <~ Promotions
-//           .filterByContextAndFormId(context.id, payload.promotion)
-//           .mustFindOneOr(PromotionNotFoundForContext(payload.promotion, context.name))
-//      coupon ← * <~ Coupons
-//                .filterByContextAndFormId(context.id, id)
-//                .mustFindOneOr(CouponNotFoundForContext(id, contextName))
-//      updated ← * <~ ObjectUtils.update(coupon.formId,
-//                                        coupon.shadowId,
-//                                        formAndShadow.form.attributes,
-//                                        formAndShadow.shadow.attributes)
-//      commit ← * <~ ObjectUtils.commit(updated)
-//      coupon ← * <~ updateHead(coupon, payload.promotion, updated.shadow, commit)
-//      response = CouponResponse.build(context, coupon, updated.form, updated.shadow)
-//      _ ← * <~ LogActivity().couponUpdated(response, Some(admin))
-//    } yield response
-//  }
-
   def getIlluminated(id: Int, contextName: String)(implicit ec: EC, db: DB): DbResultT[CouponResponse.Root] =
     for {
       context ← * <~ ObjectContexts
