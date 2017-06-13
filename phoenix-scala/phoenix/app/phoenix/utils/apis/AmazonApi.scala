@@ -11,6 +11,7 @@ import com.typesafe.scalalogging.LazyLogging
 import core.db._
 import core.failures._
 import phoenix.utils.FoxConfig.config
+import java.net.URLEncoder
 
 import scala.concurrent.Future
 
@@ -20,18 +21,26 @@ trait AmazonApi {
   def uploadFileF(fileName: String, file: File)(implicit ec: EC): Future[String]
 }
 
+object AmazonS3 {
+  final implicit class URLEncodedString(val s: String) extends AnyVal {
+    def urlEnc: String = URLEncoder.encode(s, "utf-8")
+  }
+}
+
 class AmazonS3 extends AmazonApi with LazyLogging {
   import config.apis.aws._
+  import AmazonS3._
 
   private[this] val credentials = new BasicAWSCredentials(accessKey, secretKey)
   private[this] val client      = new AmazonS3Client(credentials)
+
 
   def uploadFileF(fileName: String, file: File)(implicit ec: EC): Future[String] =
     Future {
       val putRequest = new PutObjectRequest(s3Bucket, fileName, file)
         .withCannedAcl(CannedAccessControlList.PublicRead)
       client.putObject(putRequest)
-      s"https://s3-$s3Region.amazonaws.com/$s3Bucket/$fileName"
+      s"https://s3-$s3Region.amazonaws.com/$s3Bucket/${fileName.urlEnc}"
     }
 
   def uploadFile(fileName: String, file: File)(implicit ec: EC): Result[String] = {

@@ -361,7 +361,7 @@ class ImageIntegrationTest
         val uploadedImages = responseAlbum.images.takeRight(3)
         resultFileNames.zip(uploadedImages).foreach {
           case (imgFileName, uploadedImage) ⇒
-            uploadedImage.src must === ("amazon-image-url")
+            uploadedImage.src must === ("http://amazon-image.url/1")
             uploadedImage.title must === (imgFileName.some)
             uploadedImage.alt must === (imgFileName.some)
         }

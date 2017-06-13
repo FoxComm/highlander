@@ -108,6 +108,17 @@ object ImageFacade extends ImageHelpers {
 
   }
 
+  def validateImageUrl(url: String): Either[Failures, Uri] =
+    Try {
+      val normalized = new URL(url).toURI.toASCIIString
+      val uri        = Uri(normalized)
+      if (uri.isRelative || uri.isEmpty || !allowedUrlSchemes.contains(uri.scheme))
+        Either.left(InvalidImageUrl(url).single)
+      else
+        Either.right(uri)
+    }.getOrElse(Either.left(InvalidImageUrl(url).single))
+
+
   object ImageUploader {
 
     sealed trait ContentTypeGuess[T] {
@@ -165,16 +176,6 @@ object ImageFacade extends ImageHelpers {
 
     implicit object ImagePayloadUploader extends ImageUploader[ImagePayload] {
 
-      def shouldBeValidUrl(url: String): Either[Failures, Uri] =
-        Try {
-          val normalized = new URL(url).toURI.toASCIIString
-          val uri        = Uri(normalized)
-          if (uri.isRelative || uri.isEmpty || !allowedUrlSchemes.contains(uri.scheme))
-            Either.left(InvalidImageUrl(url).single)
-          else
-            Either.right(uri)
-        }.getOrElse(Either.left(InvalidImageUrl(url).single))
-
       def uploadImagesR(payload: ImagePayload, context: OC, maybeAlbum: Option[Album])(
           implicit ec: EC,
           db: DB,
@@ -183,7 +184,7 @@ object ImageFacade extends ImageHelpers {
           sys: ActorSystem,
           apis: Apis): DbResultT[Seq[ImagePayload]] =
         for {
-          url       ← * <~ shouldBeValidUrl(payload.src)
+          url       ← * <~ validateImageUrl(payload.src)
           imageData ← * <~ fetchImageData(url)
           mediaType ← * <~ shouldBeValidImage(imageData)
           url ← * <~ saveBufferAndThen[String](imageData) { path ⇒
