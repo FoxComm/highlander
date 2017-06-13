@@ -122,10 +122,10 @@ export const checkApplePay = _checkApplePay.perform;
 
 const _beginApplePay = createAsyncActions(
   'beginApplePay',
-  function(paymentRequest, lineItems) {
+  function(paymentRequest) {
     const { dispatch } = this;
 
-    return foxApi.applePay.beginApplePay(paymentRequest, lineItems)
+    return foxApi.applePay.beginApplePay(paymentRequest)
       .then((res) => {
         tracking.purchase({
           ...res,

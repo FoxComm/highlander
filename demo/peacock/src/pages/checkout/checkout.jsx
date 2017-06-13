@@ -10,6 +10,7 @@ import { browserHistory } from 'lib/history';
 import * as tracking from 'lib/analytics';
 import { emailIsSet, isGuest } from 'paragons/auth';
 import classNames from 'classnames';
+import sanitizeLineItems from 'sanitizers/line-items';
 
 // actions
 import * as actions from 'modules/checkout';
@@ -117,26 +118,9 @@ class Checkout extends Component {
 
   @autobind
   sanitizeError(error) {
-    if (/Following SKUs are out/.test(error)) {
-      const skus = error.split('.')[0].split(':')[1].split(',');
-
-      const products = _.reduce(skus, (acc, outOfStock) => {
-        const sku = _.find(this.props.cart.skus, { sku: outOfStock.trim() });
-        if (sku) {
-          return [
-            ...acc,
-            sku.name,
-          ];
-        }
-
-        return acc;
-      }, []);
-
-      return (
-        <span>
-          Products <strong>{products.join(', ')}</strong> are out of stock. Please remove them to complete the checkout.
-        </span>
-      );
+    const sanitizedLineItems = sanitizeLineItems(error, this.props.cart.skus);
+    if (sanitizedLineItems) {
+      return sanitizedLineItems;
     } else if (/is blacklisted/.test(error)) {
       return 'Your account has been blocked from making purchases on this site';
     }

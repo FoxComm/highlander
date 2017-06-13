@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint --ext .js --ext .jsx .",
+    "fix-lint": "eslint --ext .js --ext .jsx . --fix",
     "flow": "flow check",
     "dev": "gulp dev --optimize_for_size --stack_size=4096",
     "test": "node_modules/mocha/bin/mocha",

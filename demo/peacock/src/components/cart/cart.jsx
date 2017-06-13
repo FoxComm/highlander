@@ -11,6 +11,7 @@ import * as tracking from 'lib/analytics';
 import localized from 'lib/i18n';
 import { emailIsSet } from 'paragons/auth';
 import sanitizeAll from 'sanitizers';
+import sanitizeLineItems from 'sanitizers/line-items';
 
 // actions
 import * as actions from 'modules/cart';
@@ -49,7 +50,7 @@ type Props = {
   applePayAvailable: boolean,
   checkApplePay: () => void,
   location: Object,
-  beginApplePay: (paymentRequest: Object, lineItems: Object) => Promise<*>,
+  beginApplePay: (paymentRequest: Object) => Promise<*>,
 };
 
 type State = {
@@ -146,29 +147,9 @@ class Cart extends Component {
 
   @autobind
   sanitize(err) {
-    if (/Following SKUs are out/.test(err)) {
-      const skus = err.split('.')[0].split(':')[1].split(',');
+    const sanitizedLineItems = sanitizeLineItems(err, this.props.skus);
 
-      const products = _.reduce(skus, (acc, outOfStock) => {
-        const sku = _.find(this.props.skus, { sku: outOfStock.trim() });
-        if (sku) {
-          return [
-            ...acc,
-            sku.name,
-          ];
-        }
-
-        return acc;
-      }, []);
-
-      return (
-        <span>
-          Products <strong>{products.join(', ')}</strong> are out of stock. Please remove them to complete the checkout.
-        </span>
-      );
-    }
-
-    return sanitizeAll(err);
+    return sanitizedLineItems ? sanitizedLineItems : sanitizeAll(err);
   }
 
   get errorsLine() {
@@ -196,7 +177,7 @@ class Cart extends Component {
 
   @autobind
   beginApplePay() {
-    const { total, taxes, adjustments } = this.props.totals;
+    const { total } = this.props.totals;
     const amount = (parseFloat(total) / 100).toFixed(2);
     const paymentRequest = {
       countryCode: 'US',
@@ -216,12 +197,7 @@ class Cart extends Component {
       ],
     };
 
-    const lineItems = {
-      taxes,
-      promotion: adjustments,
-    };
-
-    this.props.beginApplePay(paymentRequest, lineItems).then(() => {
+    this.props.beginApplePay(paymentRequest).then(() => {
       this.setState({ errors: null });
       browserHistory.push('/checkout/done');
     })
