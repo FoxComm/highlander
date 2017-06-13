@@ -41,20 +41,24 @@ object query {
   sealed trait RangeFunction
   object RangeFunction {
     sealed trait LowerBound extends RangeFunction {
-      override def hashCode(): Int = super.hashCode()
-
-      override def equals(obj: scala.Any): Boolean = super.equals(obj)
+      def withBound: Boolean
     }
-    case object Lt  extends RangeFunction with LowerBound
-    case object Lte extends RangeFunction with LowerBound
+    case object Gt extends RangeFunction with LowerBound {
+      def withBound: Boolean = false
+    }
+    case object Gte extends RangeFunction with LowerBound {
+      def withBound: Boolean = true
+    }
 
     sealed trait UpperBound extends RangeFunction {
-      override def hashCode(): Int = super.hashCode()
-
-      override def equals(obj: scala.Any): Boolean = super.equals(obj)
+      def withBound: Boolean
     }
-    case object Gt  extends RangeFunction with UpperBound
-    case object Gte extends RangeFunction with UpperBound
+    case object Lt extends RangeFunction with UpperBound {
+      def withBound: Boolean = false
+    }
+    case object Lte extends RangeFunction with UpperBound {
+      def withBound: Boolean = true
+    }
 
     implicit val decodeRangeFunction: KeyDecoder[RangeFunction] = KeyDecoder.instance {
       case "lt" | "<"   ⇒ Some(Lt)
@@ -73,9 +77,31 @@ object query {
     implicit val decodeEntityState: Decoder[EntityState] = deriveEnumerationDecoder[EntityState]
   }
 
+  final case class RangeBound[T](lower: Option[(RangeFunction.LowerBound, T)],
+                                 upper: Option[(RangeFunction.UpperBound, T)]) {
+    def toMap: Map[RangeFunction, T] = Map.empty ++ lower.toList ++ upper.toList
+  }
+  object RangeBound {
+    import RangeFunction._
+
+    implicit def decodeRangeBound[T: Decoder]: Decoder[RangeBound[T]] =
+      Decoder.decodeMapLike[Map, RangeFunction, T].emap { map ⇒
+        val lbs = map.view.collect {
+          case (lb: LowerBound, v) ⇒ lb → v
+        }.toList
+        val ubs = map.view.collect {
+          case (ub: UpperBound, v) ⇒ ub → v
+        }.toList
+
+        if (lbs.size > 1) Either.left("Only single lower bound can be specified")
+        else if (ubs.size > 1) Either.left("Only single upper bound can be specified")
+        else Either.right(RangeBound(lbs.headOption, ubs.headOption))
+      }
+  }
+
   type QueryValue[T] = T :+: NonEmptyList[T] :+: CNil
   type CompoundValue = QueryValue[JsonNumber] :+: QueryValue[String] :+: CNil
-  type RangeValue    = Map[RangeFunction, JsonNumber] :+: Map[RangeFunction, String] :+: CNil
+  type RangeValue    = RangeBound[JsonNumber] :+: RangeBound[String] :+: CNil
 
   object queryValueF extends Poly1 {
     implicit def singleValue[T] = at[T](List(_))
@@ -117,15 +143,17 @@ object query {
   }
 
   implicit def decodeQueryValue[T: Decoder]: Decoder[QueryValue[T]] =
-    Decoder[T].map(Inl(_)) or Decoder.decodeNonEmptyList[T].map(n ⇒ Inr(Inl(n)))
+    Decoder[T].map(Coproduct[QueryValue[T]](_)) or Decoder
+      .decodeNonEmptyList[T]
+      .map(Coproduct[QueryValue[T]](_))
 
   implicit val decodeCompoundValue: Decoder[CompoundValue] =
     Decoder[QueryValue[JsonNumber]].map(Coproduct[CompoundValue](_)) or
       Decoder[QueryValue[String]].map(Coproduct[CompoundValue](_))
 
   implicit val decodeRange: Decoder[RangeValue] =
-    Decoder.decodeMapLike[Map, RangeFunction, JsonNumber].map(Inl(_)) or
-      Decoder.decodeMapLike[Map, RangeFunction, String].map(sm ⇒ Inr(Inl(sm)))
+    Decoder[RangeBound[JsonNumber]].map(Coproduct[RangeValue](_)) or
+      Decoder[RangeBound[String]].map(Coproduct[RangeValue](_))
 
   sealed trait QueryFunction
   object QueryFunction {

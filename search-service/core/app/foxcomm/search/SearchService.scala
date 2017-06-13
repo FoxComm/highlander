@@ -20,6 +20,9 @@ class SearchService(private val client: ElasticClient) extends AnyVal {
     val withQuery = searchQuery match {
       case SearchPayload.es(query, _) ⇒ (_: SearchDefinition) rawQuery Json.fromJsonObject(query).noSpaces
       case SearchPayload.fc(query, _) ⇒
+        // TODO: this is really some basic and quite ugly interpreter
+        // consider more principled approach
+        // maybe free monad would be a good fit there?
         (_: SearchDefinition) bool {
           query.query.foldLeft(new BoolQueryDefinition) {
             case (bool, QueryFunction.eq(in, value)) ⇒
@@ -29,6 +32,16 @@ class SearchService(private val client: ElasticClient) extends AnyVal {
             case (bool, QueryFunction.matches(in, value)) ⇒
               val fields = in.toList
               bool.must(value.toList.map(q ⇒ multiMatchQuery(q).fields(fields)))
+            case (bool, QueryFunction.range(in, value)) ⇒
+              val query   = rangeQuery(in.field)
+              val unified = value.unify
+              val queryWithLowerBound = unified.lower.fold(query) {
+                case (b, v) ⇒ query.from(v).includeLower(b.withBound)
+              }
+              val boundedQuery = unified.upper.fold(queryWithLowerBound) {
+                case (b, v) ⇒ queryWithLowerBound.to(v).includeUpper(b.withBound)
+              }
+              bool.filter(boundedQuery)
             case (bool, _) ⇒ bool // TODO: implement rest of cases
           }
         }

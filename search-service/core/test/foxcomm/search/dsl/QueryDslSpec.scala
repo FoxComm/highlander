@@ -1,7 +1,6 @@
 package foxcomm.search.dsl
 
 import foxcomm.search.dsl.query._
-import io.circe.JsonNumber
 import io.circe.parser._
 import org.scalatest.EitherValues._
 import org.scalatest.OptionValues._
@@ -32,7 +31,7 @@ class QueryDslSpec extends FlatSpec with Matchers {
     }
     assertQueryFunction[QueryFunction.range](queries(3)) { range ⇒
       range.in.toList should === (List("price"))
-      range.value.unify.cast[Map[RangeFunction, JsonNumber]].value.mapValues(_.toString) should === (
+      range.value.unify.toMap.mapValues(_.toString) should === (
         Map(
           RangeFunction.Lt  → "5000",
           RangeFunction.Gte → "1000"
