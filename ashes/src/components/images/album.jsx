@@ -49,7 +49,7 @@ type State = {
 const INVALID_TYPE_RESPONSE = 'image format';
 
 function getErrorMessage(asyncState?: Object, failedCount: number = 1) {
-  const errMsg = get(asyncState, 'err.response.body.errors[0]', '');
+  const errMsg = get(asyncState, 'err.message', '');
   let message;
 
   if (isEmpty(errMsg)) {
@@ -62,9 +62,11 @@ function getErrorMessage(asyncState?: Object, failedCount: number = 1) {
         Oops! That’s not a valid file type. Valid file types are <b>jpg</b>, <b>jpeg</b>, <b>gif</b>, and <b>png</b>.
       </span>
     );
+  } else if (errMsg === 'Payload Too Large') {
+    message = 'Oops! Your file size is too big. Files can be no larger than 15 MB.';
   } else {
     const postfix = failedCount === 1 ? 'an image' : `${failedCount} images`;
-    message = `Oops! Looks like we were unable to upload ${postfix}`;
+    message = `Oops! Looks like we were unable to upload ${postfix}. Please try again.`;
   }
 
   return message;
