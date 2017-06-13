@@ -19,7 +19,7 @@ class DslTest extends FlatSpec with Matchers {
     val json =
       parse(Source.fromInputStream(getClass.getResourceAsStream("/happy_path.json")).mkString).right.value
     val queries = json.as[SearchQuery.fc].right.value.query.query.toList
-    assertQueryFunction[QueryFunction.is](queries.head) { is ⇒
+    assertQueryFunction[QueryFunction.eq](queries.head) { is ⇒
       is.in.toList should === (List("slug"))
       is.value.fold(QueryFunction.listOfAnyValueF) should === (List("awesome", "whatever"))
     }

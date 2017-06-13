@@ -3,7 +3,7 @@
   "fields": [ "id" ],
   "query": [
     {
-      "type": "is",
+      "type": "eq",
       "in": "slug",
       "value": [ "awesome", "whatever" ]
     },

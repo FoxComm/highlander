@@ -21,8 +21,10 @@ class SearchService(private val client: ElasticClient) extends AnyVal {
       case SearchQuery.fc(query, _) ⇒
         (_: SearchDefinition) bool {
           query.query.foldLeft(new BoolQueryDefinition) {
-            case (bool, QueryFunction.is(in, value)) ⇒
+            case (bool, QueryFunction.eq(in, value)) ⇒
               bool.filter(in.toList.map(termsQuery(_, value.fold(QueryFunction.listOfAnyValueF): _*)))
+            case (bool, QueryFunction.neq(in, value)) ⇒
+              bool.not(in.toList.map(termsQuery(_, value.fold(QueryFunction.listOfAnyValueF): _*)))
             case (bool, _) ⇒ bool // TODO: implement rest of cases
           }
         }

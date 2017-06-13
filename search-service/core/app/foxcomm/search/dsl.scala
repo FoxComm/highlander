@@ -91,7 +91,8 @@ object QueryFunction {
   final case class contains(in: QueryField, value: CompoundValue)  extends QueryFunction
   final case class matches(in: QueryField, value: CompoundValue)   extends QueryFunction
   final case class range(in: QueryField.Single, value: RangeValue) extends QueryFunction
-  final case class is(in: QueryField, value: CompoundValue)        extends QueryFunction
+  final case class eq(in: QueryField, value: CompoundValue)        extends QueryFunction
+  final case class neq(in: QueryField, value: CompoundValue)       extends QueryFunction
   final case class state(value: EntityState)                       extends QueryFunction
 
   implicit val decodeQueryFunction: Decoder[QueryFunction] = deriveDecoder[QueryFunction]
