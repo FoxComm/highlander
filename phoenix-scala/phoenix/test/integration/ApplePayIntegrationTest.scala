@@ -1,7 +1,12 @@
 import cats.implicits._
 import core.failures.GeneralFailure
+import faker.Lorem
+import phoenix.failures.CaptureFailures
 import phoenix.failures.OrderFailures.OnlyOneExternalPaymentIsAllowed
+import phoenix.models.cord.CordPaymentState.FullCapture
 import phoenix.models.location.Region
+import phoenix.models.payment.ExternalCharge.FailedAuth
+import phoenix.models.payment.creditcard.CreditCardCharges
 import phoenix.models.shipping._
 import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import phoenix.payloads.CapturePayloads.{Capture, CaptureLineItem, ShippingCost}
@@ -11,20 +16,15 @@ import phoenix.payloads.LineItemPayloads._
 import phoenix.payloads.PaymentPayloads.{CreateApplePayPayment, CreditCardPayment}
 import phoenix.payloads.UpdateShippingMethod
 import phoenix.responses.cord._
-import phoenix.responses.{CaptureResponse, CreditCardsResponse, CustomerResponse}
-import testutils.apis._
-import utils.MockedApis
+import phoenix.responses.users.CustomerResponse
+import phoenix.responses.{CaptureResponse, CreditCardsResponse}
 import phoenix.utils.seeds.{Factories, ShipmentSeeds}
-import testutils.{DefaultJwtAdminAuth, IntegrationTestBase, TestLoginData}
-import testutils.fixtures.api.{ApiFixtureHelpers, ApiFixtures}
-import faker.Lorem
-import phoenix.failures.CaptureFailures
-import phoenix.models.cord.CordPaymentState.FullCapture
-import phoenix.models.payment.ExternalCharge.FailedAuth
-import phoenix.models.payment.creditcard.CreditCardCharges
-import testutils._
-import testutils.fixtures.PaymentFixtures.CreditCardsFixture
 import slick.jdbc.PostgresProfile.api._
+import testutils.apis._
+import testutils.fixtures.PaymentFixtures.CreditCardsFixture
+import testutils.fixtures.api.{ApiFixtureHelpers, ApiFixtures}
+import testutils.{DefaultJwtAdminAuth, IntegrationTestBase, TestLoginData, _}
+import utils.MockedApis
 
 class ApplePayIntegrationTest
     extends IntegrationTestBase
@@ -145,7 +145,7 @@ class ApplePayIntegrationTest
       .create(
         CreateCustomerPayload(email = customerLoginData.email, // @aafa FIXME: provide customer name
                               password = customerLoginData.password.some))
-      .as[CustomerResponse.Root]
+      .as[CustomerResponse]
 
     val cart = cartsApi.create(CreateCart(customerId = customer.id.some)).as[CartResponse]
 
