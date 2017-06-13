@@ -26,7 +26,7 @@ const VerticalFormField = ({
 
   return (
     <div styleName="field">
-      <label styleName="label" for={controlId}>
+      <label styleName="label" htmlFor={controlId}>
         {label}
         {required && (
            <span styleName="required">&nbsp;*</span>
