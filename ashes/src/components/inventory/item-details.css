@@ -3,13 +3,12 @@
 .onHand {
 
   & > span {
-    color: var(--color-text);
-    background-color: var(--bg-message-success);
-    padding: 4px 5px;
+    color: var(--color-action-text);
   }
 }
 
 .diffChevron {
-  color: var(--color-subtitle-text);
+  color: var(--color-text);
+  opacity: 0.5;
   margin: 0 10px;
 }
