@@ -43,11 +43,14 @@ object CatalogManager extends LazyLogging {
 
   def addProductsToCatalog(
       catalogId: Int,
-      payload: AddProductsPayload)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[Unit] =
+      payload: AddProductsPayload)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[Root] =
     for {
-      catalog ← * <~ Catalogs.mustFindById404(catalogId)
+      catalog ← * <~ getCatalog(catalogId)
       _       ← * <~ CatalogProducts.createAll(CatalogProduct.buildSeq(catalog.id, payload.productIds))
-    } yield ()
+      _ ← * <~ LogActivity()
+           .withScope(ac.ctx.scope)
+           .productsAddedToCatalog(au.model, catalog, payload.productIds)
+    } yield catalog
 
   def removeProductFromCatalog(catalogId: Int,
                                productId: Int)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[Unit] =
@@ -56,5 +59,6 @@ object CatalogManager extends LazyLogging {
                         .filterProduct(catalogId, productId)
                         .mustFindOneOr(ProductNotFoundInCatalog(catalogId, productId))
       _ ← * <~ CatalogProducts.update(catalogProduct, catalogProduct.copy(archivedAt = Some(Instant.now)))
+      _ ← * <~ LogActivity().withScope(ac.ctx.scope).productRemovedFromCatalog(au.model, catalogId, productId)
     } yield ()
 }
