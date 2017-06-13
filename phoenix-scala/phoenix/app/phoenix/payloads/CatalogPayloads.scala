@@ -11,4 +11,6 @@ object CatalogPayloads {
                                   site: Option[String] = None,
                                   countryId: Option[Int] = None,
                                   defaultLanguage: Option[String] = None)
+
+  case class AddProductsPayload(productIds: Seq[Int])
 }
