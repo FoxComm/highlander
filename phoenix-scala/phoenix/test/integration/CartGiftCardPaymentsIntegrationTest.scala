@@ -1,4 +1,5 @@
 import cats.implicits._
+import core.db._
 import core.failures.{NotFoundFailure400, NotFoundFailure404}
 import phoenix.failures.CartFailures.OrderAlreadyPlaced
 import phoenix.failures.GiftCardFailures._
@@ -10,8 +11,6 @@ import phoenix.payloads.PaymentPayloads.GiftCardPayment
 import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
-import core.db._
-import core.utils.Money._
 
 class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBase {
 
@@ -75,7 +74,7 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
       val payload = GiftCardPayment(code = giftCard.code, amount = 1L.some)
       cartsApi(cart.refNum).payments.giftCard
         .add(payload)
-        .mustFailWith400(GiftCardIsInactive(giftCard))
+        .mustFailWith400(GiftCardIsInactive(giftCard.code))
 
       giftCardPayments(cart) mustBe 'empty
     }
