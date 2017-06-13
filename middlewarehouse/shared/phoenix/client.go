@@ -63,7 +63,8 @@ func (c *phoenixClient) Authenticate() error {
 		Org:      "tenant",
 	}
 
-	url := fmt.Sprintf("%s/v1/public/login", c.baseURL)
+	solomonURL := "https://solomon.service.consul:4002"
+	url := fmt.Sprintf("%s/sign_in", solomonURL)
 
 	loginResp := new(responses.LoginResponse)
 	resp, err := gohttp.Request("POST", url, nil, &payload, loginResp)
