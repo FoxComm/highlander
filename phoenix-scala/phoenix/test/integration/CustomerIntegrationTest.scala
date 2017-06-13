@@ -3,6 +3,7 @@ import java.time.temporal.ChronoUnit
 
 import cats.implicits._
 import com.stripe.exception.CardException
+import core.db._
 import core.failures.NotFoundFailure404
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -33,13 +34,14 @@ import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
 import testutils.fixtures.BakedFixtures
-import core.db._
+import testutils.fixtures.api.ApiFixtureHelpers
 
 class CustomerIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with PhoenixPublicApi
     with DefaultJwtAdminAuth
+    with ApiFixtureHelpers
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
@@ -53,7 +55,8 @@ class CustomerIntegrationTest
       created.accountId must === (root.id)
     }
 
-    "fails if email is already in use" in new Customer_Seed {
+    "fails if email is already in use" in {
+      val customer = api_newCustomer()
       customersApi
         .create(CreateCustomerPayload(email = customer.email.value, name = "test".some))
         .mustFailWith400(CustomerEmailNotUnique)
@@ -83,7 +86,8 @@ class CustomerIntegrationTest
   }
 
   "GET /v1/customers/email/:email" - {
-    "fetches customer info by email" in new Customer_Seed {
+    "fetches customer info by email" in {
+      val customer = api_newCustomer()
       customersApi.getByEmail(customer.email.value).as[Root].id must === (customer.id)
     }
 
