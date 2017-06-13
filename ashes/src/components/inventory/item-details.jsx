@@ -9,6 +9,7 @@ import { autobind } from 'core-decorators';
 import ExpandableTable from '../table/expandable-table';
 import InventoryWarehouseRow from './inventory-warehouse-row';
 import WarehouseDrawer from './inventory-warehouse-drawer';
+import Icon from 'components/core/icon';
 
 // style
 import s from './item-details.css';
@@ -112,7 +113,7 @@ class InventoryItemDetails extends Component {
     return this.state.diff !== 0
       ? <div className={s.onHand}>
           {onHandValue}
-          <i className="icon-chevron-right" />
+          <Icon name="chevron-right" className={s.diffChevron} />
           <span>{onHandValue + this.state.diff}</span>
         </div>
       : <div className={s.onHand}>{onHandValue}</div>;

@@ -3,10 +3,13 @@
 .onHand {
 
   & > span {
-    color: var(--color-action-text)
+    color: var(--color-text);
+    background-color: var(--bg-message-success);
+    padding: 4px 5px;
   }
+}
 
-  i {
-    color: var(--color-subtitle-text)
-  }
+.diffChevron {
+  color: var(--color-subtitle-text);
+  margin: 0 10px;
 }
