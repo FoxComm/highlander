@@ -1,0 +1,22 @@
+@import "colors.css";
+
+.change {
+
+  &.positive {
+    color: var(--color-action-text);
+  }
+
+  &.negative {
+    color: var(--color-error-text);
+
+    &:before {
+      content: "-";
+      padding-left: 4px;
+    }
+  }
+
+  &:before {
+    content: "+";
+    padding-right: 0.35em;
+  }
+}
