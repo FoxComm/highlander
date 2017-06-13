@@ -14,6 +14,8 @@ import { RoundedPill } from 'components/core/rounded-pill';
 import { Form, FormField } from '../forms';
 import { Button } from 'components/core/button';
 import AccountState from './account-state';
+import ErrorAlerts from 'components/alerts/error-alerts';
+import Alert from 'components/alerts/alert';
 
 // styles
 import s from './user-form.css';
@@ -23,10 +25,7 @@ type Props = {
   onChange: Function,
   isNew: boolean,
   requestPasswordReset: (email: string) => Promise<*>,
-  restoreState: {
-    err?: any,
-    inProgress?: boolean,
-  },
+  restoreState: AsyncState,
 };
 
 export default class UserForm extends Component {
@@ -40,7 +39,6 @@ export default class UserForm extends Component {
 
   get changePasswordButton() {
     if (this.props.isNew) return null;
-
 
     return (
       <Button
@@ -93,6 +91,24 @@ export default class UserForm extends Component {
     );
   }
 
+  renderNotification() {
+    const { err, inProgress, finished } = this.props.restoreState;
+
+    if (err != null) {
+      return <ErrorAlerts error={err} />
+    }
+
+    if (!inProgress && finished === true) {
+      return (
+        <Alert type={Alert.SUCCESS}>
+          Password reset email was successfully sent.
+        </Alert>
+      );
+    }
+
+    return null;
+  }
+
   renderGeneralForm() {
     const { options, schema } = this.props.user;
     const { attributes } = this.props.user.form;
@@ -100,6 +116,7 @@ export default class UserForm extends Component {
     return (
       <Form>
         <ContentBox title="General">
+          {this.renderNotification()}
           {this.renderUserImage()}
           <ObjectFormInner
             onChange={this.handleFormChange}
@@ -114,6 +131,7 @@ export default class UserForm extends Component {
   }
 
   render() {
+    console.log(this.props.restoreState);
     return (
       <div className={s.userForm}>
         <section className={s.main}>

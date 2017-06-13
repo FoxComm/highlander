@@ -49,7 +49,7 @@ class Login extends Component {
     org: '',
     email: '',
     password: '',
-    message: ''
+    message: '',
   };
 
   props: LoginProps;
