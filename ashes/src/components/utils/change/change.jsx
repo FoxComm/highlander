@@ -12,10 +12,11 @@ type Props = {
   value: number
 }
 
-/** Change component serves to render colored number changes
+/**
+ * Change component serves to render colored number changes
  *
  * @function Change
- * */
+ */
 const Change = (props: Props) => {
   const { value } = props;
 

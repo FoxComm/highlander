@@ -2,8 +2,18 @@
 
 .change {
 
+  &:before {
+    width: .7em;
+    text-align: center;
+    display: inline-block;
+  }
+
   &.positive {
     color: var(--color-action-text);
+
+    &:before {
+      content: "+";
+    }
   }
 
   &.negative {
@@ -11,12 +21,6 @@
 
     &:before {
       content: "-";
-      padding-left: 4px;
     }
-  }
-
-  &:before {
-    content: "+";
-    padding-right: 0.35em;
   }
 }
