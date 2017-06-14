@@ -5,17 +5,13 @@ import PropTypes from 'prop-types';
 import { transitionTo } from 'browserHistory';
 
 // components
-import { ListPageContainer, makeTotalCounter } from '../list-page';
-
-// redux
-import { actions } from '../../modules/content-types/list';
+import { ListPageContainer } from '../list-page';
 
 type ContentTypesListProps = {
   children: Element<*>,
 };
 
 const ContentTypesList = (props: ContentTypesListProps) => {
-  const TotalCounter = makeTotalCounter(state => state.contentTypes.list, actions);
   const addAction = () => transitionTo('content-type-details', {contentTypeId: 'new'});
 
   const navLinks = [
@@ -26,7 +22,6 @@ const ContentTypesList = (props: ContentTypesListProps) => {
   return (
     <ListPageContainer
       title="Content Types"
-      subtitle={<TotalCounter />}
       addTitle="Content Type"
       handleAddAction={addAction}
       navLinks={navLinks}>
