@@ -10,7 +10,7 @@ import columnPropType from './column-prop-type';
 import { Moment, Date, DateTime, Time } from '../common/datetime';
 import Currency from '../common/currency';
 import State from '../common/state';
-import Change from '../common/change';
+import Change from 'components/utils/change';
 import ProductImage from 'components/imgix/product-image';
 
 function getCurrency(column, row) {

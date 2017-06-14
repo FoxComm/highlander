@@ -133,6 +133,12 @@ module.exports = {
                 path.resolve(__dirname, '../src/components/activity-notifications/indicator.jsx'),
               ]),
             },
+            {
+              name: 'Other',
+              components: () => ([
+                path.resolve(__dirname, '../src/components/utils/change/change.jsx'),
+              ]),
+            },
           ]
         },
       ],
