@@ -1,50 +1,43 @@
 package phoenix.services.activity
 
-import phoenix.responses.{AddressResponse, CreditCardsResponse, CustomerResponse, UserResponse}
+import phoenix.responses.AddressResponse
+import phoenix.responses.users.{CustomerResponse, UserResponse}
 
 object CustomerTailored {
-  case class CustomerCreated(admin: UserResponse.Root, user: CustomerResponse.Root)
+  case class CustomerCreated(admin: UserResponse, user: CustomerResponse)
       extends ActivityBase[CustomerCreated]
 
-  case class CustomerRegistered(user: CustomerResponse.Root) extends ActivityBase[CustomerRegistered]
+  case class CustomerRegistered(user: CustomerResponse) extends ActivityBase[CustomerRegistered]
 
-  case class CustomerActivated(admin: UserResponse.Root, user: CustomerResponse.Root)
+  case class CustomerActivated(admin: UserResponse, user: CustomerResponse)
       extends ActivityBase[CustomerActivated]
 
-  case class CustomerBlacklisted(admin: UserResponse.Root, user: UserResponse.Root)
+  case class CustomerBlacklisted(admin: UserResponse, user: UserResponse)
       extends ActivityBase[CustomerBlacklisted]
 
-  case class CustomerRemovedFromBlacklist(admin: UserResponse.Root, user: UserResponse.Root)
+  case class CustomerRemovedFromBlacklist(admin: UserResponse, user: UserResponse)
       extends ActivityBase[CustomerRemovedFromBlacklist]
 
-  case class CustomerEnabled(admin: UserResponse.Root, user: UserResponse.Root)
-      extends ActivityBase[CustomerEnabled]
+  case class CustomerEnabled(admin: UserResponse, user: UserResponse) extends ActivityBase[CustomerEnabled]
 
-  case class CustomerDisabled(admin: UserResponse.Root, user: UserResponse.Root)
-      extends ActivityBase[CustomerDisabled]
+  case class CustomerDisabled(admin: UserResponse, user: UserResponse) extends ActivityBase[CustomerDisabled]
 
-  case class CustomerRemindPassword(user: UserResponse.Root, code: String)
+  case class CustomerRemindPassword(user: UserResponse, code: String)
       extends ActivityBase[CustomerRemindPassword]
 
-  case class CustomerUpdated(oldInfo: UserResponse.Root,
-                             newInfo: UserResponse.Root,
-                             admin: Option[UserResponse.Root] = None)
+  case class CustomerUpdated(oldInfo: UserResponse, newInfo: UserResponse, admin: Option[UserResponse] = None)
       extends ActivityBase[CustomerUpdated]
 
   /* Customer Addresses */
-  case class CustomerAddressCreated(user: UserResponse.Root,
-                                    address: AddressResponse,
-                                    admin: Option[UserResponse.Root])
+  case class CustomerAddressCreated(user: UserResponse, address: AddressResponse, admin: Option[UserResponse])
       extends ActivityBase[CustomerAddressCreated]
 
-  case class CustomerAddressUpdated(user: UserResponse.Root,
+  case class CustomerAddressUpdated(user: UserResponse,
                                     oldInfo: AddressResponse,
                                     newInfo: AddressResponse,
-                                    admin: Option[UserResponse.Root])
+                                    admin: Option[UserResponse])
       extends ActivityBase[CustomerAddressUpdated]
 
-  case class CustomerAddressDeleted(user: UserResponse.Root,
-                                    address: AddressResponse,
-                                    admin: Option[UserResponse.Root])
+  case class CustomerAddressDeleted(user: UserResponse, address: AddressResponse, admin: Option[UserResponse])
       extends ActivityBase[CustomerAddressDeleted]
 }

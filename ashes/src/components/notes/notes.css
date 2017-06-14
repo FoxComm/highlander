@@ -1,0 +1,15 @@
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
+
+.buttons {
+  margin-left: 40px;
+  white-space: nowrap;
+}
+
+.button {
+  margin-left: 5px;
+}

@@ -29,41 +29,41 @@ object AuthRoutes {
           }, identity)
         }
       } ~
-        activityContext(defaultScope) { implicit ac ⇒
-          (post & path("send-password-reset") & pathEnd & entity(as[ResetPasswordSend])) { payload ⇒
-            mutateOrFailures {
-              AccountManager.resetPasswordSend(payload.email)
-            }
-          } ~
-            (post & path("reset-password") & pathEnd & entity(as[ResetPassword])) { payload ⇒
-              mutateOrFailures {
-                AccountManager.resetPassword(code = payload.code, newPassword = payload.newPassword)
-              }
-            }
-        } ~
-        (post & path("logout")) {
-          deleteCookie("JWT", path = "/") {
-            redirect(Uri("/"), StatusCodes.Found)
+      activityContext(defaultScope) { implicit ac ⇒
+        (post & path("send-password-reset") & pathEnd & entity(as[ResetPasswordSend])) { payload ⇒
+          mutateOrFailures {
+            AccountManager.resetPasswordSend(payload.email)
           }
         } ~
-        activityContext(defaultScope) { implicit ac ⇒
-          lazy val customerGoogleOauth = oauthServiceFromConfig(config.users.customer)
-          lazy val adminGoogleOauth    = oauthServiceFromConfig(config.users.admin)
-
-          (path("oauth2callback" / "google" / "admin") & get & oauthResponse) {
-            adminGoogleOauth.adminCallback
-          } ~
-            (path("oauth2callback" / "google" / "customer") & get & oauthResponse) {
-              customerGoogleOauth.customerCallback
-            } ~
-            (path("signin" / "google" / "admin") & get) {
-              val url = adminGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
-              complete(Map("url" → url))
-            } ~
-            (path("signin" / "google" / "customer") & get) {
-              val url = customerGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
-              complete(Map("url" → url))
-            }
+        (post & path("reset-password") & pathEnd & entity(as[ResetPassword])) { payload ⇒
+          mutateOrFailures {
+            AccountManager.resetPassword(code = payload.code, newPassword = payload.newPassword)
+          }
         }
+      } ~
+      (post & path("logout")) {
+        deleteCookie("JWT", path = "/") {
+          redirect(Uri("/"), StatusCodes.Found)
+        }
+      } ~
+      activityContext(defaultScope) { implicit ac ⇒
+        lazy val customerGoogleOauth = oauthServiceFromConfig(config.users.customer)
+        lazy val adminGoogleOauth    = oauthServiceFromConfig(config.users.admin)
+
+        (path("oauth2callback" / "google" / "admin") & get & oauthResponse) {
+          adminGoogleOauth.adminCallback
+        } ~
+        (path("oauth2callback" / "google" / "customer") & get & oauthResponse) {
+          customerGoogleOauth.customerCallback
+        } ~
+        (path("signin" / "google" / "admin") & get) {
+          val url = adminGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
+          complete(Map("url" → url))
+        } ~
+        (path("signin" / "google" / "customer") & get) {
+          val url = customerGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
+          complete(Map("url" → url))
+        }
+      }
     }
 }

@@ -68,6 +68,7 @@ export default class CreditCardForm extends React.Component {
   state = {
     card: this.props.card,
     editingAddress: this.props.isNew,
+    inProgress: false,
   };
 
   componentDidMount() {
@@ -267,7 +268,16 @@ export default class CreditCardForm extends React.Component {
       <SaveCancel
         saveLabel={this.props.saveLabel}
         onCancel={this.props.onCancel}
+        isLoading={this.state.inProgress}
       />
+    );
+  }
+
+  @autobind
+  handleSubmit(e) {
+    // no need to set inProgress to false as cards are refetched/rerendered
+    this.setState({ inProgress: true }, () =>
+      this.props.onSubmit(e, this.state.card)
     );
   }
 
@@ -316,13 +326,15 @@ export default class CreditCardForm extends React.Component {
   }
 
   render() {
-    const { className, onSubmit } = this.props;
+    const { className } = this.props;
     const formClassName = classNames('fc-credit-card-form fc-form-vertical', className);
 
     return (
-      <Form className={formClassName}
-            onChange={this.onChange}
-            onSubmit={(event) => onSubmit(event, this.state.card)}>
+      <Form
+        className={formClassName}
+        onChange={this.onChange}
+        onSubmit={this.handleSubmit}
+      >
         <AutoScroll />
         {this.header}
         <div>

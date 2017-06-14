@@ -8,6 +8,7 @@ import { ReasonType } from '../../lib/reason-utils';
 
 // components
 import { IndexLink, Link } from 'components/link';
+import ErrorAlerts from '../alerts/error-alerts';
 import GiftCardCode from './gift-card-code';
 import { DateTime } from '../common/datetime';
 import Currency from '../common/currency';
@@ -66,6 +67,10 @@ export default class GiftCard extends React.Component {
     confirmationShown: false
   };
 
+  state = {
+    error: null,
+  };
+
   componentDidMount() {
     const { giftCard } = this.props.params;
 
@@ -107,6 +112,21 @@ export default class GiftCard extends React.Component {
         </div>
       </div>
     );
+  }
+
+  @autobind
+  handleConfirmChangeStatus() {
+    this.props.saveGiftCardStatus(this.props.params.giftCard)
+      .then(response => {
+        try {
+          const errors = JSON.parse(_.get(response, 'payload.[1].response.text'));
+          const error = _.get(errors, 'errors.[0]');
+
+          this.setState({ error });
+        } catch (e) {
+          this.setState({ error: null });
+        }
+      });
   }
 
   get reasonType() {
@@ -172,9 +192,10 @@ export default class GiftCard extends React.Component {
         title="Cancel Gift Card?"
         confirmLabel="Yes, Cancel"
         onCancel={() => this.props.cancelChangeGiftCardStatus(this.props.params.giftCard)}
-        onConfirm={() => this.props.saveGiftCardStatus(this.props.params.giftCard)}
+        onConfirm={this.handleConfirmChangeStatus}
       >
         <div>Are you sure you want to cancel this gift card?</div>
+        {this.state.error && <ErrorAlerts error={this.state.error} />}
         <div className="fc-gift-card-detail__cancel-reason">
           <div>
             <label>
