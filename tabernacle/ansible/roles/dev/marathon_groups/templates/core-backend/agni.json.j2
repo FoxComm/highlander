@@ -1,0 +1,56 @@
+{
+    "id": "agni",
+    "cmd": null,
+    "cpus": 0.5,
+    "mem": 256,
+    "disk": 0,
+    "instances": 1,
+    "constraints": [],
+    "labels": {
+        "MARATHON_SINGLE_INSTANCE_APP": "true",
+        "LANG": "scala",
+        "consul": "agni",
+        "overrideTaskName": "agni",
+        "TAG": "{{docker_tags.agni}}"
+    },
+   "upgradeStrategy": {
+        "minimumHealthCapacity": 0,
+        "maximumOverCapacity": 0
+    },
+    "env": {
+        "PORT": "{{agni_port}}",
+       	"SEARCH_SERVER": ""
+    },
+    "ports": [{{agni_port}}],
+    "healthChecks": [{
+        "path": "/ping",
+        "protocol": "HTTP",
+        "gracePeriodSeconds": 300,
+        "intervalSeconds": 30,
+        "timeoutSeconds": 20,
+        "maxConsecutiveFailures": 3,
+        "ignoreHttp1xx": false,
+        "port": {{agni_port}}
+    }],
+    "container": {
+        "type": "DOCKER",
+        "volumes": [{
+                "containerPath": "/keys",
+                "hostPath": "{{public_keys_dest_dir}}",
+                "mode": "RO"
+            },
+            {
+                "containerPath": "{{docker_logs_dir}}",
+                "hostPath": "{{docker_logs_host_dir}}",
+                "mode": "RW"
+            }
+        ],
+        "docker": {
+            "image": "{{docker_registry}}:5000/agni:{{docker_tags.agni}}",
+            "network": "HOST",
+            "privileged": false,
+            "parameters": [],
+            "forcePullImage": true
+        }
+    }
+}
