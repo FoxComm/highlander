@@ -30,6 +30,7 @@ class WarehouseDrawer extends Component {
   renderRow(row: StockItemFlat): Element<*> {
     const handleChangeQuantity = (count: number) => {
       this.props.updateSkuItemsCount(row.sku, row, count - row.onHand);
+      this.props.onValueChange(count - row.onHand);
     };
 
     const uniqId = `${row.type}-${row.id}`;
