@@ -34,7 +34,9 @@ object CouponManager {
       contextName: String,
       admin: Option[User])(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[Seq[CouponResponse.Root]] =
     for {
-      _     ← * <~ failIf(payload.generateCodes.isEmpty && payload.singleCode.isEmpty, CouponCreationNoCodes)
+      _ ← * <~ failIf(payload.singleCode.isEmpty && (payload.generateCodes.isEmpty || payload.generateCodes
+                        .exists(_.quantity < 1)),
+                      CouponCreationNoCodes)
       scope ← * <~ Scope.resolveOverride(payload.scope)
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -49,9 +51,9 @@ object CouponManager {
       // create a form & shadow for each future CouponCode
       // FIXME: how to *effectively* create N forms & shadows? @michalrus
       formsAndShadows ← codes.toList.traverse(
-                          _ ⇒
-                            ObjectUtils
-                              .insert(couponFormAndShadow.form, couponFormAndShadow.shadow, payload.schema))
+                         _ ⇒
+                           ObjectUtils
+                             .insert(couponFormAndShadow.form, couponFormAndShadow.shadow, payload.schema))
 
       coupons = formsAndShadows.map { fas ⇒
         Coupon(scope = scope,
@@ -76,14 +78,13 @@ object CouponManager {
           CouponResponse.build(context, code, coupon, fas.form, fas.shadow)
       }
 
-      // TODO: really? Two log events for each coupon code? @michalrus
-      _ ← * <~ (coupons zip response).toList.traverse {
-           case (coupon, cr) ⇒
-             for {
-               _ ← LogActivity().withScope(scope).couponCreated(cr, admin)
-               _ ← LogActivity().singleCouponCodeCreated(coupon, admin)
-             } yield ()
-         }
+      _ ← * <~ coupons.headOption.traverse { firstCoupon ⇒
+            // TODO: Should they override scope? (`LogActivity().withScope(scope)`) @michalrus
+            if (coupons.size > 1)
+              LogActivity().multipleCouponCodesCreated(firstCoupon, admin)
+            else
+              LogActivity().singleCouponCodeCreated(firstCoupon, admin)
+          }
     } yield response
 
   private def forceActivate(attributes: Map[String, Json]): Map[String, Json] =
@@ -120,8 +121,8 @@ object CouponManager {
                 .mustFindOneOr(CouponNotFound(id))
       form ← * <~ ObjectForms.mustFindById404(coupon.formId)
       code ← CouponCodes
-               .filter(_.couponFormId === form.id)
-               .mustFindOneOr(CouponCodeNotFoundForCoupon(form.id))
+              .filter(_.couponFormId === form.id)
+              .mustFindOneOr(CouponCodeNotFoundForCoupon(form.id))
       shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
     } yield CouponResponse.build(context, code.code, coupon, form, shadow)
 
@@ -137,8 +138,8 @@ object CouponManager {
       archiveResult ← * <~ Coupons.update(model, model.copy(archivedAt = Some(Instant.now)))
       form          ← * <~ ObjectForms.mustFindById404(archiveResult.formId)
       code ← CouponCodes
-               .filter(_.couponFormId === form.id)
-               .mustFindOneOr(CouponCodeNotFoundForCoupon(form.id))
+              .filter(_.couponFormId === form.id)
+              .mustFindOneOr(CouponCodeNotFoundForCoupon(form.id))
       shadow ← * <~ ObjectShadows.mustFindById404(archiveResult.shadowId)
     } yield CouponResponse.build(context, code.code, archiveResult, form, shadow)
 

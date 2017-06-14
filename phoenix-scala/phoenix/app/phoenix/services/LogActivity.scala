@@ -510,18 +510,10 @@ case class LogActivity(implicit ac: AC) {
     Activities.log(PromotionUpdated(promotionResponse, admin.map(buildUser(_))))
 
   /* Coupons */
-  def couponCreated(couponResponse: CouponResponse.Root, admin: Option[User])(
-      implicit ec: EC): DbResultT[Activity] =
-    Activities.log(CouponCreated(couponResponse, admin.map(buildUser(_))))
-
-  def couponUpdated(couponResponse: CouponResponse.Root, admin: Option[User])(
-      implicit ec: EC): DbResultT[Activity] =
-    Activities.log(CouponUpdated(couponResponse, admin.map(buildUser(_))))
-
   def singleCouponCodeCreated(coupon: Coupon, admin: Option[User])(implicit ec: EC): DbResultT[Activity] =
     Activities.log(SingleCouponCodeGenerated(coupon, admin.map(buildUser(_))))
 
-  def multipleCouponCodeCreated(coupon: Coupon, admin: Option[User])(implicit ec: EC): DbResultT[Activity] =
+  def multipleCouponCodesCreated(coupon: Coupon, admin: Option[User])(implicit ec: EC): DbResultT[Activity] =
     Activities.log(MultipleCouponCodesGenerated(coupon, admin.map(buildUser(_))))
 
   /* Store Admin */
