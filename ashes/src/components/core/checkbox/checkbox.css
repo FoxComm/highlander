@@ -18,7 +18,7 @@
     position: relative;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     width: 100%;
     height: 100%;
     font-size: 13px;
@@ -105,6 +105,10 @@
     display: flex;
     justify-content: center;
     align-items: center;
+
+    & .label {
+      justify-content: center;
+    }
 
     & .label::after {
       position: relative;
@@ -228,6 +232,7 @@
 
   & input:checked + .label {
     background: transparent;
+    overflow: hidden;
 
     &:before {
       text-indent: 0;
@@ -235,7 +240,6 @@
     }
 
     &:after {
-      opacity: 1;
       left: 51px;
     }
   }

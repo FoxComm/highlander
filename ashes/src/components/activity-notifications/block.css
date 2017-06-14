@@ -1,5 +1,9 @@
 @import 'colors.css';
 
+.block {
+  height: 100%;
+}
+
 .popup {
   position: absolute;
   right: 100px;

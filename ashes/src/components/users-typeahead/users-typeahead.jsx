@@ -46,6 +46,7 @@ export default class UsersTypeahead extends Component {
     term: '',
   };
 
+  @autobind
   setTerm(term: string) {
     this.setState({
       term,

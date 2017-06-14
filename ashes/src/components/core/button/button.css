@@ -18,7 +18,7 @@
   vertical-align: top;
   user-select: none;
   cursor: pointer;
-  transition: background .2s;
+  transition: all .2s;
 
   &:focus {
     outline: 0;

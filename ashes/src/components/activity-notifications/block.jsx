@@ -1,6 +1,7 @@
 // @flow
 
 // libs
+import classNames from 'classnames';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
@@ -48,7 +49,7 @@ class NotificationBlock extends Component {
 
   render() {
     return (
-      <div className={this.props.className} ref={c => this._block = c}>
+      <div className={classNames(s.block, this.props.className)} ref={c => this._block = c}>
         <NotificationIndicator
           count={this.props.count}
           displayed={this.props.displayed}
