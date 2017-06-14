@@ -19,6 +19,7 @@ marathon_deploy:
 
     messaging: "{{ lookup('env', 'MRT_MESSAGING') | default(false, true) | bool }}"
     hyperion: "{{ lookup('env', 'MRT_HYPERION') | default(false, true) | bool }}"
+    geronimo: "{{ lookup('env', 'MRT_GERONIMO') | default(false, true) | bool }}"
 
     onboarding_service: "{{ lookup('env', 'MRT_ONBOARDING_SERVICE') | default(false, true) | bool }}"
     onboarding_ui: "{{ lookup('env', 'MRT_ONBOARDING_UI') | default(false, true) | bool }}"

@@ -1,0 +1,27 @@
+---
+
+- include_vars: geronimo.yml
+
+- name: Copy Geronimo Marathon JSON
+  template: src=geronimo.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+
+- name: Kill Geronimo Tasks in Marathon
+  shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/apps/geronimo/tasks?scale=true'
+  when: is_redeploy
+
+- name: Pause for a bit...
+  pause: seconds=15
+  when: is_redeploy
+
+- name: Update Geronimo in Marathon
+  shell: 'curl -sS -XPUT -d@/marathon/applications/geronimo.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/geronimo'
+
+- name: Restart Geronimo in Marathon
+  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/geronimo/restart'
+
+- name: Get Geronimo Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/geronimo | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: "{{marathon_retries}}"
+  delay: "{{marathon_delay}}"

@@ -6,6 +6,7 @@
     - "{{phoenix_dir}}"
     - "{{middlewarehouse_dir}}"
     - "{{hyperion_dir}}"
+    - "{{geronimo_dir}}"
     - "{{bernardo_dir}}"
 
 - name: Synchronize SQL
@@ -14,6 +15,7 @@
     - { source: "{{phoenix_src}}/sql", destination: "{{phoenix_dir}}" }
     - { source: "{{middlewarehouse_src}}/sql", destination: "{{middlewarehouse_dir}}" }
     - { source: "{{hyperion_src}}/sql", destination: "{{hyperion_dir}}" }
+    - { source: "{{geronimo_src}}/sql", destination: "{{geronimo_dir}}" }
     - { source: "{{bernardo_src}}/sql", destination: "{{bernardo_dir}}" }
 
 - name: Run Migrations for Phoenix
@@ -24,6 +26,9 @@
 
 - name: Run Migrations for Hyperion
   include: hyperion.yml
+
+- name: Run Migrations for Geronimo
+  include: geronimo.yml
 
 - name: Run Migrations for Bernardo
   include: bernardo.yml

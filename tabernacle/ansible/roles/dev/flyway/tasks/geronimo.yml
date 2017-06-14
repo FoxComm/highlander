@@ -1,0 +1,14 @@
+---
+
+- name: Setup Flyway Config
+  template: src=flyway.geronimo.conf dest="{{geronimo_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
+
+- name: Repair Geronimo Database
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} repair
+  args:
+    chdir: "{{geronimo_dir}}"
+
+- name: Migrate Geronimo Database
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
+  args:
+    chdir: "{{geronimo_dir}}"
