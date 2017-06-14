@@ -1,5 +1,7 @@
 package testutils.fixtures
 
+import java.time.Instant
+
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import core.db._

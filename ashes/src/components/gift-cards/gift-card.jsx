@@ -25,6 +25,9 @@ import * as GiftCardActions from '../../modules/gift-cards/details';
 import * as ReasonsActions from '../../modules/reasons';
 import { stateTitles, stateActionTitles, getStateTransitions, typeTitles } from '../../paragons/gift-card';
 
+// styles
+import s from './gift-card.css';
+
 @connect((state, props) => ({
   ...state.giftCards.details[props.params.giftCard],
   ...state.reasons,
@@ -127,6 +130,7 @@ export default class GiftCard extends React.Component {
         value={dropdownValue}
         onChange={this.onChangeState}
         items={transitions.map(state => [state, stateActionTitles[state]])}
+        className={s.stateDropdown}
       />
     );
   }
@@ -222,7 +226,7 @@ export default class GiftCard extends React.Component {
             </Panel>
           </div>
         </div>
-        <PanelList className="fc-grid fc-grid-collapse fc-grid-md-1-5">
+        <PanelList className="fc-grid fc-grid-collapse">
           <PanelListItem title="Original Balance">
             <Currency id="fct-panel__original-balance" value={card.originalBalance} />
           </PanelListItem>
@@ -233,10 +237,10 @@ export default class GiftCard extends React.Component {
             <DateTime value={card.createdAt} />
           </PanelListItem>
           <PanelListItem title="Gift Card Type">
-            { typeTitles[card.originType] }
+            {typeTitles[card.originType]}
           </PanelListItem>
           <PanelListItem title="Current State">
-            { this.cardState }
+            {this.cardState}
           </PanelListItem>
         </PanelList>
         <div className="fc-grid fc-grid-md-1-1 fc-grid-collapse fc-panel fc-gift-card-detail-message">

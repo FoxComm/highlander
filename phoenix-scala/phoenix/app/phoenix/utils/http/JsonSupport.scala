@@ -4,6 +4,7 @@ import akka.http.scaladsl.unmarshalling._
 import cats.data.Validated.{Invalid, Valid}
 import core.utils.Validation
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
+import de.heikoseeberger.akkahttpjson4s.Json4sSupport.{unmarshaller ⇒ json4sUnmarshaller}
 import core.failures._
 import org.json4s.{Formats, Serialization}
 

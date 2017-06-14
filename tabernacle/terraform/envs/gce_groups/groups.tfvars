@@ -1,7 +1,0 @@
-account_file         = "foxcomm-staging.json"
-gce_project          = "foxcomm-staging"
-region               = "us-central1"
-amigo_image          = "base-amigo-170530-214025"
-backend_image        = "base-backend-170530-222223"
-frontend_image       = "base-frontend-170530-225854"
-consul_leader        = "10.240.0.10"

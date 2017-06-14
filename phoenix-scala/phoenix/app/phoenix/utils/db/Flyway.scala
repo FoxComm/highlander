@@ -17,6 +17,7 @@ object flyway {
     flyway.setDataSource(dataSource)
     flyway.setSchemas("public")
     flyway.setLocations(locations: _*)
+    flyway.setOutOfOrder(true)
     flyway
   }
 

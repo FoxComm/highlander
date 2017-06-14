@@ -3,6 +3,7 @@ package testutils
 import java.net.ServerSocket
 
 import akka.actor.ActorSystem
+import akka.NotUsed
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.client.RequestBuilding.Get
@@ -17,8 +18,8 @@ import akka.stream.testkit.TestSubscriber.Probe
 import akka.stream.testkit.scaladsl.TestSink
 import akka.util.ByteString
 import com.typesafe.config.ConfigFactory
-import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
-import de.heikoseeberger.akkasse.ServerSentEvent
+import de.heikoseeberger.akkasse.scaladsl.unmarshalling.EventStreamUnmarshalling._
+import de.heikoseeberger.akkasse.scaladsl.model.ServerSentEvent
 import org.json4s.Formats
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest._
@@ -194,22 +195,22 @@ trait HttpSupport
         if (skipHeartbeat) skipHeartbeatsAndAdminCreated(sseSource(path, jwtCookie))
         else sseSource(path, jwtCookie))
 
-    def sseSource(path: String, jwtCookie: Cookie): Source[String, Any] = {
+    def sseSource(path: String, jwtCookie: Cookie): Source[String, NotUsed] = {
       val localAddress = serverBinding.localAddress
 
       Source
         .single(Get(pathToAbsoluteUrl(path)).addHeader(jwtCookie))
         .via(Http().outgoingConnection(localAddress.getHostString, localAddress.getPort))
-        .mapAsync(1)(Unmarshal(_).to[Source[ServerSentEvent, Any]])
+        .mapAsync(1)(Unmarshal(_).to[Source[ServerSentEvent, NotUsed]])
         .runWith(Sink.head)
         .futureValue
         .map(_.data)
     }
 
-    def skipHeartbeatsAndAdminCreated(sse: Source[String, Any]): Source[String, Any] =
+    def skipHeartbeatsAndAdminCreated(sse: Source[String, NotUsed]): Source[String, NotUsed] =
       sse.via(Flow[String].filter(n ⇒ n.nonEmpty && !n.contains("store_admin_created")))
 
-    def probe(source: Source[String, Any]): Probe[String] =
+    def probe(source: Source[String, NotUsed]): Probe[String] =
       source.runWith(TestSink.probe[String])
   }
 }

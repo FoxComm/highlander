@@ -9,8 +9,11 @@
 - name: Make Flyway Executable
   file: path={{flyway_dir}}/flyway mode="u+x,g+x,o+x"
 
+- name: Clear old flyway home if present
+  lineinfile: dest=/etc/profile state=absent regexp="FLYWAY_HOME=.*"
+
 - name: Add Flyway Home
-  lineinfile: dest=/etc/profile line="FLYWAY_HOME={{flyway_dir}}"
+  lineinfile: dest=/etc/profile line="FLYWAY_HOME={{flyway_dir}}" insertbefore="^PATH=\$PATH:\$FLYWAY_HOME"
 
 - name: Add Flyway Path
-  lineinfile: dest=/etc/profile line="PATH=$PATH:$FLYWAY_HOME" insertafter="^FLYWAY"
+  lineinfile: dest=/etc/profile line="PATH=$PATH:$FLYWAY_HOME" insertafter="^FLYWAY_HOME"

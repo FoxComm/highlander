@@ -35,6 +35,7 @@ import originIntegrations from './origin-integrations';
 import taxonomies from './taxonomies';
 import taxons from './taxons';
 import bulkExport from './bulk-export/bulk-export';
+import catalogs from './catalog';
 
 const rootReducer = combineReducers({
   routing: routerReducer,
@@ -72,6 +73,7 @@ const rootReducer = combineReducers({
   originIntegrations,
   taxonomies,
   taxons,
+  catalogs,
 });
 
 export default rootReducer;

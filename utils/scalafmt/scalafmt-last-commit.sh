@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-SCALAFMT_DIR=$(dirname $0)
+SCALAFMT_DIR="$(cd -P -- "$(dirname "$0")" && pwd -P)"
 
+# shellcheck source=./shared-functions.sh
 source "${SCALAFMT_DIR}"/shared-functions.sh
 
 cd "${ROOT_DIR}"
