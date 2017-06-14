@@ -8,6 +8,9 @@ GIT_REVISION = $(shell git describe --tags --always)
 GIT_COMMIT = $(shell git rev-parse --short HEAD)
 WEBPACK_PORT = 4001
 
+notify:
+	$(call header, $(MSG))
+
 # Docker stuff ###
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
@@ -22,13 +25,13 @@ CFLAGS = -c -g -D $(NODE_ENV)
 version = $(shell iojs -e "console.log(JSON.parse(require('fs').readFileSync('package.json')).version)")
 
 .PHONY: docker
-docker:
-	$(call header, Dockerizing)
+docker: MSG=Dockerizing
+docker: notify
 	docker build -t $(DOCKER_IMAGE) .
 
 .PHONY: docker-push
-docker-push:
-	$(call header, Registering)
+docker-push: MSG=Registering
+docker-push: notify
 	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
@@ -45,8 +48,8 @@ clean:
 	rm -rf ./build/admin
 
 .PHONY: test
-test: flow lint
-	$(call header, Testing)
+test: MSG=Testing
+test: notify flow lint
 	rm -rf ./node_modules
 	make install
 	@NODE_ENV=$(NODE_ENV) gulp test
@@ -105,20 +108,16 @@ dev d:
 # Production ###
 
 .PHONY: build-prod
-build-prod: clean
-	GIT_REVISION=$(GIT_REVISION) NODE_ENV=production webpack --progress
+build-prod:
+	BEHIND_NGINX=${BEHIND_NGINX} GIT_REVISION=$(GIT_REVISION) NODE_ENV=production webpack --progress
 
 .PHONY: prod p
-prod p: build-prod
+prod p: clean build-prod
 	NODE_ENV=production node -r dotenv/config ./server/index.js
 
 # Buildkite ###
 
 .PHONY: build
-build:
-	$(call header, Building)
-	make install
-	BEHIND_NGINX=true make build-prod
-ifeq ($(ASHES_BUILD_STYLEGUIDE), true)
-	make build-styleguide
-endif
+build: BEHIND_NGINX=true
+build: MSG=Building
+build: notify clean install build-styleguide build-prod
