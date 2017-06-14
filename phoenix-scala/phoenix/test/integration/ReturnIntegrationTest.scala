@@ -570,6 +570,7 @@ class ReturnIntegrationTest
         }
       }
 
+      // FIXME @aafa
       "fails if total payment exceeds returns items subtotal" in new ReturnPaymentDefaults {
         val payload =
           ReturnPaymentsPayload(Map(PaymentMethod.CreditCard → 3000, PaymentMethod.StoreCredit → 1500))
@@ -579,6 +580,7 @@ class ReturnIntegrationTest
           .mustFailWith400(ReturnPaymentExceeded(rma.referenceNumber, amount = 4500, maxAmount = 3600))
       }
 
+      // FIXME @aafa
       "fails if cc payment exceeds order cc payment minus any previously returned cc payments" in new ReturnPaymentFixture
       with OrderDefaults with ReturnReasonDefaults {
         val maxCCAmount = shippingMethod.price.applyTaxes(0.5)
