@@ -26,35 +26,35 @@ object SkuRoutes {
                 SkuManager.createSku(auth.model, payload)
               }
             } ~
-              pathPrefix(Segment) { code ⇒
+            pathPrefix(Segment) { code ⇒
+              (get & pathEnd) {
+                getOrFailures {
+                  SkuManager.getSku(code)
+                }
+              } ~
+              (patch & pathEnd & entity(as[SkuPayload])) { payload ⇒
+                mutateOrFailures {
+                  SkuManager.updateSku(auth.model, code, payload)
+                }
+              } ~
+              (delete & pathEnd) {
+                mutateOrFailures {
+                  SkuManager.archiveByCode(code)
+                }
+              } ~
+              pathPrefix("albums") {
                 (get & pathEnd) {
                   getOrFailures {
-                    SkuManager.getSku(code)
+                    ImageManager.getAlbumsForSku(code)
                   }
                 } ~
-                  (patch & pathEnd & entity(as[SkuPayload])) { payload ⇒
-                    mutateOrFailures {
-                      SkuManager.updateSku(auth.model, code, payload)
-                    }
-                  } ~
-                  (delete & pathEnd) {
-                    mutateOrFailures {
-                      SkuManager.archiveByCode(code)
-                    }
-                  } ~
-                  pathPrefix("albums") {
-                    (get & pathEnd) {
-                      getOrFailures {
-                        ImageManager.getAlbumsForSku(code)
-                      }
-                    } ~
-                      (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
-                        mutateOrFailures {
-                          ImageManager.createAlbumForSku(auth.model, code, payload)
-                        }
-                      }
+                (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
+                  mutateOrFailures {
+                    ImageManager.createAlbumForSku(auth.model, code, payload)
                   }
+                }
               }
+            }
           }
         }
       }

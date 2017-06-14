@@ -2,23 +2,23 @@ package phoenix.services.activity
 
 import java.time.Instant
 
+import core.utils.Money.Currency
 import phoenix.models.Note
 import phoenix.models.cord.Order
-import phoenix.responses.UserResponse
 import phoenix.responses.cord.OrderResponse
-import core.utils.Money.Currency
+import phoenix.responses.users.UserResponse
 
 object OrderTailored {
 
-  case class OrderStateChanged(admin: UserResponse.Root, order: OrderResponse, oldState: Order.State)
+  case class OrderStateChanged(admin: UserResponse, order: OrderResponse, oldState: Order.State)
       extends ActivityBase[OrderStateChanged]
 
-  case class OrderRemorsePeriodIncreased(admin: UserResponse.Root,
+  case class OrderRemorsePeriodIncreased(admin: UserResponse,
                                          order: OrderResponse,
                                          oldPeriodEnd: Option[Instant])
       extends ActivityBase[OrderRemorsePeriodIncreased]
 
-  case class OrderBulkStateChanged(admin: Option[UserResponse.Root],
+  case class OrderBulkStateChanged(admin: Option[UserResponse],
                                    cordRefNums: Seq[String],
                                    newState: Order.State)
       extends ActivityBase[OrderBulkStateChanged]
@@ -57,13 +57,13 @@ object OrderTailored {
       extends ActivityBase[CreditCardChargeCompleted]
 
   /* Order Notes */
-  case class OrderNoteCreated(admin: UserResponse.Root, order: Order, note: Note)
+  case class OrderNoteCreated(admin: UserResponse, order: Order, note: Note)
       extends ActivityBase[OrderNoteCreated]
 
-  case class OrderNoteUpdated(admin: UserResponse.Root, order: Order, oldNote: Note, note: Note)
+  case class OrderNoteUpdated(admin: UserResponse, order: Order, oldNote: Note, note: Note)
       extends ActivityBase[OrderNoteUpdated]
 
-  case class OrderNoteDeleted(admin: UserResponse.Root, order: Order, note: Note)
+  case class OrderNoteDeleted(admin: UserResponse, order: Order, note: Note)
       extends ActivityBase[OrderNoteDeleted]
 
 }

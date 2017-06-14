@@ -62,18 +62,10 @@ class OrderPlaced extends Component {
     }
 
     return (
-      <OrderTotals totals={order.totals} />
-    );
-  }
-
-  get orderLineItems() {
-    const { orderPlaced, order } = this.props;
-    if (!orderPlaced || !order) {
-      return null;
-    }
-
-    return (
-      <Products skus={order.skus} />
+      <div>
+        <Products skus={order.lineItems.skus} confirmationPage />
+        <OrderTotals totals={order.totals} />
+      </div>
     );
   }
 
@@ -100,7 +92,6 @@ class OrderPlaced extends Component {
           </div>
 
           <div styleName="bordered-block">
-            {this.orderLineItems}
             {this.orderSummary}
           </div>
         </div>

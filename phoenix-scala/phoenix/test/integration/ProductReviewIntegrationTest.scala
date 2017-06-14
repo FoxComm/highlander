@@ -27,7 +27,8 @@ class ProductReviewIntegrationTest
   }
 
   "POST v1/review/:contextName" - {
-    "creates product review" in new ProductSku_ApiFixture {
+    "creates product review" in {
+      val skuCode = ProductSku_ApiFixture().skuCode
       val payload =
         CreateProductReviewByCustomerPayload(attributes = "title" → tv("title"), sku = skuCode, scope = None)
       val reviewResp    = productReviewApi.create(payload).as[ProductReviewResponse]
@@ -36,7 +37,8 @@ class ProductReviewIntegrationTest
       reviewResp.attributes must === (payload.attributes)
     }
 
-    "does not create duplicate reviews" in new ProductSku_ApiFixture {
+    "does not create duplicate reviews" in {
+      val skuCode = ProductSku_ApiFixture().skuCode
       val payload =
         CreateProductReviewByCustomerPayload(attributes = "title" → tv("title"), sku = skuCode, scope = None)
       val reviewResp1    = productReviewApi.create(payload).as[ProductReviewResponse]
@@ -97,15 +99,15 @@ class ProductReviewIntegrationTest
         .as[ProductReviewsSearchViewItem]
         .gimme
 
-    "inserts new record on review insert" in new ProductSku_ApiFixture {
-      private val title: String = "title"
+    "inserts new record on review insert" in {
+      val title   = "title"
+      val skuCode = ProductSku_ApiFixture().skuCode
       val payload =
         CreateProductReviewByCustomerPayload(attributes = "title" → tv(title), sku = skuCode, scope = None)
       val reviewResp = productReviewApi.create(payload).as[ProductReviewResponse]
-      val values     = selectById(reviewResp.id)
-      values.size must === (1)
-      values(0).id must === (reviewResp.id)
-      values(0).title must === (title)
+      val value      = selectById(reviewResp.id).onlyElement
+      value.id must === (reviewResp.id)
+      value.title must === (title)
     }
 
     "updates record on review update" in new ProductReviewApiFixture {

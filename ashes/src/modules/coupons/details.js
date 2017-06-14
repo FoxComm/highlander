@@ -25,6 +25,16 @@ const _fetchCoupon = createAsyncActions(
 const _createCoupon = createAsyncActions(
   'createCoupon',
   (coupon, context = defaultContext) => {
+    const unlimitedPerCode = _.get(coupon, 'attributes.usageRules.v.isUnlimitedPerCode', false);
+    const unlimitedPerCustomer = _.get(coupon, 'attributes.usageRules.v.isUnlimitedPerCustomer', false);
+
+    if (unlimitedPerCode) {
+      _.unset(coupon, 'attributes.usageRules.v.usesPerCode');
+    }
+    if (unlimitedPerCustomer) {
+      _.unset(coupon, 'attributes.usageRules.v.usesPerCustomer');
+    }
+
     return Api.post(`/coupons/${context}`, coupon);
   }
 );

@@ -22,8 +22,6 @@ const TaxonRow = (props: Props) => {
     switch (field) {
       case 'state':
         return <RoundedPill text={activeStatus(taxon)} />;
-      case 'productsCount':
-        return 0; // TODO: fix after ES mapping update
       default:
         return taxon[field];
     }

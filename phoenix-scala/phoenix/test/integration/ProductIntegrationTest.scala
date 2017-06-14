@@ -68,12 +68,15 @@ class ProductIntegrationTest
       product.taxons.flatMap(_.taxons.map(_.id)) must contain(taxons.head.formId)
     }
 
-    "queries product by slug (incl. ignoring case)" in new ProductSku_ApiFixture {
+    "queries product by slug (incl. ignoring case)" in {
       val slug = "simple-product"
+      val (product, productAttrs) = {
+        val fixture = ProductSku_ApiFixture()
+        (fixture.product, fixture.productPayload.attributes)
+      }
 
       productsApi(product.id)
-        .update(
-          UpdateProductPayload(productPayload.attributes, slug = Some(slug), skus = None, variants = None))
+        .update(UpdateProductPayload(productAttrs, slug = Some(slug), skus = None, variants = None))
         .mustBeOk()
 
       List(slug, "Simple-Product").foreach { slugToQuery ⇒

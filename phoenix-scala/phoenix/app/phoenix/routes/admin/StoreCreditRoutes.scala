@@ -31,10 +31,10 @@ object StoreCreditRoutes {
             StoreCreditService.getById(storeCreditId)
           }
         } ~
-          (patch & pathEnd & entity(as[StoreCreditUpdateStateByCsr])) { payload ⇒
-            mutateOrFailures {
-              StoreCreditService.updateStateByCsr(storeCreditId, payload, auth.model)
-            }
+        (patch & pathEnd & entity(as[StoreCreditUpdateStateByCsr])) { payload ⇒
+          mutateOrFailures {
+            StoreCreditService.updateStateByCsr(storeCreditId, payload, auth.model)
           }
+        }
       }
 }
