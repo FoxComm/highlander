@@ -3,7 +3,7 @@
 .controls {
   &:hover {
     & .downArrowBtn,
-    & :global .fc-dropdown__value {
+    & :global(.fc-dropdown__value) {
       background: var(--bg-grey-buttons-hover);
     }
   }
