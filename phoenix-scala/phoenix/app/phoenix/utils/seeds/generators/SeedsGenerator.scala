@@ -30,7 +30,7 @@ object SeedsGenerator
   def generateAddresses(customers: Seq[User]): Seq[Address] =
     customers.flatMap { c ⇒
       generateAddress(customer = c, isDefault = true) +:
-        ((0 to Random.nextInt(2)) map { i ⇒
+      ((0 to Random.nextInt(2)) map { i ⇒
         generateAddress(customer = c, isDefault = false)
       })
     }
