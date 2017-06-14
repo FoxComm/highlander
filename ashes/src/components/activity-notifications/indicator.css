@@ -51,6 +51,7 @@
 
   &:hover {
     background-color: var(--bg-grey-headers);
+    color: var(--color-text);
   }
 
   &.active {
