@@ -2,9 +2,19 @@
 # yarn lockfile v1
 
 
-"@foxcomm/api-js@^1.2.0", "@foxcomm/api-js@^1.2.1":
+"@foxcomm/api-js@^1.2.0":
   version "1.2.1"
   resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fapi-js/-/api-js-1.2.1.tgz#0a099a15a4dffb32ab61d3eefd1ecb78299b088d"
+  dependencies:
+    debug "^2.2.0"
+    jwt-decode "^2.0.1"
+    lodash "^4.17.4"
+    postinstall-build "^0.2.1"
+    superagent "^3.5.2"
+
+"@foxcomm/api-js@^1.2.3":
+  version "1.2.3"
+  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fapi-js/-/api-js-1.2.3.tgz#734ae943e71162be019f8ad7b3c2e580fa734278"
   dependencies:
     debug "^2.2.0"
     jwt-decode "^2.0.1"
