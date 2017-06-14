@@ -425,10 +425,11 @@ export default class GenericDropdown extends Component {
   render() {
     const { editable, id } = this.props;
 
-    // <Overlay shown={this.state.open} onClick={this.handleToggleClick} />
+    const cls = classNames(s.controls, 'fc-dropdown__controls');
+
     return (
       <div id={id} className={this.dropdownClassName} ref={c => this._block = c} tabIndex="0">
-        <div className="fc-dropdown__controls" onClick={editable ? this.handleToggleClick : null}>
+        <div className={cls} onClick={editable ? this.handleToggleClick : null}>
           {this.controls}
         </div>
         {this.menu}
