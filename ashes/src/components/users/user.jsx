@@ -9,7 +9,7 @@ import { transitionTo } from 'browserHistory';
 
 // actions
 import * as userActions from 'modules/users/details';
-import { requestPasswordReset } from 'modules/user';
+import { requestPasswordReset, clearResetPasswordState } from 'modules/user';
 
 // components
 import WaitAnimation from '../common/wait-animation';
@@ -36,6 +36,7 @@ type Props = {
   createUser: Function,
   updateUser: Function,
   requestPasswordReset: (email: string) => Promise<*>,
+  clearResetPasswordState: () => void,
   restoreState: {
     err?: any,
     inProgress?: boolean,
@@ -95,12 +96,14 @@ class User extends Component {
   }
 
   renderChildren() {
+    console.log(this.props);
     return React.cloneElement(this.props.children, {
       user: this.state.user,
       onChange: this.handleFormChange,
       isNew: this.isNew,
       entity: this.activityEntity,
       requestPasswordReset: this.props.requestPasswordReset,
+      clearResetState: this.props.clearResetPasswordState,
       restoreState: this.props.restoreState,
     });
   }
@@ -178,4 +181,4 @@ function mapState(state) {
   };
 }
 
-export default connect(mapState, { ...userActions, requestPasswordReset })(User);
+export default connect(mapState, { ...userActions, requestPasswordReset, clearResetPasswordState})(User);

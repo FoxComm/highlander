@@ -126,6 +126,7 @@ const _requestPasswordReset = createAsyncActions(
 );
 
 export const requestPasswordReset = _requestPasswordReset.perform;
+export const clearResetPasswordState = _requestPasswordReset.clearErrors;
 
 const _resetPassword = createAsyncActions(
   'resetPassword',
