@@ -9,7 +9,8 @@ import phoenix.failures.Util.diffToFailures
 import phoenix.models.account._
 import phoenix.models.sharedsearch._
 import phoenix.payloads.SharedSearchPayloads._
-import phoenix.responses.{TheResponse, UserResponse}
+import phoenix.responses.TheResponse
+import phoenix.responses.users.UserResponse
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 
@@ -26,7 +27,7 @@ object SharedSearchService {
   def get(code: String)(implicit ec: EC, db: DB): DbResultT[SharedSearch] =
     mustFindActiveByCode(code)
 
-  def getAssociates(code: String)(implicit ec: EC, db: DB): DbResultT[Seq[UserResponse.Root]] =
+  def getAssociates(code: String)(implicit ec: EC, db: DB): DbResultT[Seq[UserResponse]] =
     for {
       search     ← * <~ mustFindActiveByCode(code)
       associates ← * <~ SharedSearchAssociations.associatedAdmins(search).result

@@ -1,10 +1,12 @@
 import cats.implicits._
+import core.db._
 import core.failures.{NotFoundFailure400, NotFoundFailure404}
+import core.utils.Money._
 import faker.Lorem
 import org.json4s.jackson.JsonMethods._
 import phoenix.failures.CartFailures._
 import phoenix.failures.ShippingMethodFailures._
-import phoenix.models.cord.{CordPaymentState, _}
+import phoenix.models.cord._
 import phoenix.models.cord.lineitems._
 import phoenix.models.location._
 import phoenix.models.payment.ExternalCharge
@@ -22,6 +24,7 @@ import phoenix.payloads.UpdateShippingMethod
 import phoenix.responses._
 import phoenix.responses.cord.CartResponse
 import phoenix.responses.cord.base.CordResponseLineItem
+import phoenix.responses.users.CustomerResponse
 import phoenix.services.carts.CartTotaler
 import phoenix.utils.seeds.{Factories, ShipmentSeeds}
 import slick.jdbc.PostgresProfile.api._
@@ -29,9 +32,6 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtures
-import core.utils.Money._
-
-import core.db._
 
 class CartIntegrationTest
     extends IntegrationTestBase
@@ -82,7 +82,7 @@ class CartIntegrationTest
     "empty payment methods having a guest customer" in new Fixture {
       val guestCustomer = customersApi
         .create(CreateCustomerPayload(email = "foo@bar.com", isGuest = Some(true)))
-        .as[CustomerResponse.Root]
+        .as[CustomerResponse]
       val fullCart = customersApi(guestCustomer.id).cart().as[CartResponse]
       fullCart.paymentMethods.size must === (0)
     }

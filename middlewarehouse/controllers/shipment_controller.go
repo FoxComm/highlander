@@ -145,6 +145,7 @@ func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc 
 		shipment, err = controller.shipmentService.CreateShipment(shipment)
 		if err != nil {
 			handleServiceError(context, err)
+			return
 		}
 
 		//This means that it's only digital items (eg. gift cards)

@@ -11,6 +11,7 @@ import phoenix.models.customer.CustomersData
 import phoenix.responses.PromotionResponses.PromotionResponse
 import phoenix.responses._
 import phoenix.responses.cord.base._
+import phoenix.responses.users.CustomerResponse
 import phoenix.services.orders.OrderQueries
 
 case class OrderResponse(referenceNumber: String,
@@ -20,7 +21,7 @@ case class OrderResponse(referenceNumber: String,
                          promotion: Option[PromotionResponse.Root] = None,
                          coupon: Option[CordResponseCouponPair] = None,
                          totals: OrderResponseTotals,
-                         customer: Option[CustomerResponse.Root] = None,
+                         customer: Option[CustomerResponse] = None,
                          shippingMethod: ShippingMethodsResponse.Root,
                          shippingAddress: AddressResponse,
                          billingAddress: Option[AddressResponse] = None,

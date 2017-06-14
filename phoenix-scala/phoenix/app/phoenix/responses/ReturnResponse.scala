@@ -10,8 +10,7 @@ import phoenix.models.customer.CustomersData
 import phoenix.models.payment.giftcard.GiftCard
 import phoenix.models.returns.ReturnPayments.scope._
 import phoenix.models.returns._
-import phoenix.responses.CustomerResponse.{Root ⇒ Customer}
-import phoenix.responses.StoreAdminResponse.{Root ⇒ User}
+import phoenix.responses.users.{CustomerResponse, StoreAdminResponse}
 import phoenix.services.carts.CartTotaler
 import phoenix.services.returns.{ReturnLineItemManager, ReturnTotaler}
 
@@ -70,8 +69,8 @@ object ReturnResponse {
                   state: Return.State,
                   lineItems: LineItems,
                   payments: Payments,
-                  customer: Option[Customer],
-                  storeAdmin: Option[User],
+                  customer: Option[CustomerResponse],
+                  storeAdmin: Option[StoreAdminResponse],
                   messageToCustomer: Option[String],
                   canceledReasonId: Option[Int],
                   createdAt: Instant,
@@ -143,8 +142,8 @@ object ReturnResponse {
       )
 
   def build(rma: Return,
-            customer: Option[Customer] = None,
-            storeAdmin: Option[User] = None,
+            customer: Option[CustomerResponse] = None,
+            storeAdmin: Option[StoreAdminResponse] = None,
             lineItems: LineItems = LineItems(List.empty, Option.empty),
             payments: Payments = Payments(Option.empty, Option.empty, Option.empty, Option.empty),
             totals: ReturnTotals = ReturnTotals(0, 0, 0, 0, 0)): Root =
