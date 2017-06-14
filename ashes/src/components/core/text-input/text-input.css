@@ -18,4 +18,8 @@
   &:focus {
     border-color: var(--bg-green-buttons);
   }
+
+  &.error {
+    border-color: var(--bg-field-error);
+  }
 }

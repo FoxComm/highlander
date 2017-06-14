@@ -312,6 +312,7 @@ export default class FormField extends Component {
     );
     const children = React.cloneElement(this.props.children, {
       key: 'children',
+      error: this.hasError,
     });
 
     const content = this.props.labelAfterInput

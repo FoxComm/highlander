@@ -24,6 +24,8 @@ type Props = {
   autoFocus?: boolean,
   /** If true - disables input */
   disabled?: boolean,
+  /** If true - style with error */
+  error?: boolean,
 };
 
 type State = {
@@ -59,8 +61,8 @@ export default class TextInput extends Component {
   }
 
   render(): Element<any> {
-    const { className, placeholder, ...rest } = this.props;
-    const inputClass = classNames(s.input, className, '__cssmodules');
+    const { className, placeholder, error, ...rest } = this.props;
+    const inputClass = classNames(s.input, className, '__cssmodules', { [s.error]: error });
 
     const inputProps = omit(rest, ['value', 'onChange', 'defaultValue']);
 
