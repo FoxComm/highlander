@@ -181,9 +181,9 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
 
     protected def couponAttrs(activeFrom: Instant, activeTo: Option[Instant]): Map[String, Json] = {
       val usageRules = {
-        ("isExclusive"              → true) ~
-          ("isUnlimitedPerCode"     → true) ~
-          ("isUnlimitedPerCustomer" → true)
+        ("isExclusive"            → true) ~
+        ("isUnlimitedPerCode"     → true) ~
+        ("isUnlimitedPerCustomer" → true)
       }.asShadowVal(t = "usageRules")
 
       val commonAttrs = Map[String, Any](

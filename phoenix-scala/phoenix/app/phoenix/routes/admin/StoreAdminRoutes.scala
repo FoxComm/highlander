@@ -22,30 +22,30 @@ object StoreAdminRoutes {
             StoreAdminManager.create(payload, Some(auth.model))
           }
         } ~
-          pathPrefix(IntNumber) { saId ⇒
-            (get & pathEnd) {
-              getOrFailures {
-                StoreAdminManager.getById(saId)
+        pathPrefix(IntNumber) { saId ⇒
+          (get & pathEnd) {
+            getOrFailures {
+              StoreAdminManager.getById(saId)
+            }
+          } ~
+          (patch & pathEnd & entity(as[UpdateStoreAdminPayload])) { payload ⇒
+            mutateOrFailures {
+              StoreAdminManager.update(saId, payload, auth.model)
+            }
+          } ~
+          (delete & pathEnd) {
+            deleteOrFailures {
+              StoreAdminManager.delete(saId, auth.model)
+            }
+          } ~
+          pathPrefix("state") {
+            (patch & pathEnd & entity(as[StateChangeStoreAdminPayload])) { payload ⇒
+              mutateOrFailures {
+                StoreAdminManager.changeState(saId, payload, auth.model)
               }
-            } ~
-              (patch & pathEnd & entity(as[UpdateStoreAdminPayload])) { payload ⇒
-                mutateOrFailures {
-                  StoreAdminManager.update(saId, payload, auth.model)
-                }
-              } ~
-              (delete & pathEnd) {
-                deleteOrFailures {
-                  StoreAdminManager.delete(saId, auth.model)
-                }
-              } ~
-              pathPrefix("state") {
-                (patch & pathEnd & entity(as[StateChangeStoreAdminPayload])) { payload ⇒
-                  mutateOrFailures {
-                    StoreAdminManager.changeState(saId, payload, auth.model)
-                  }
-                }
-              }
+            }
           }
+        }
       }
     }
 }

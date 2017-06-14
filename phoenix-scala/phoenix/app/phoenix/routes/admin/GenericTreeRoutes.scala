@@ -22,33 +22,33 @@ object GenericTreeRoutes {
             TreeManager.getFullTree(name, context)
           }
         } ~
+        (post & pathEnd & entity(as[NodePayload])) { payload ⇒
+          mutateOrFailures {
+            TreeManager.updateTree(name, context, payload)
+          }
+        } ~
+        pathPrefix(Segment) { (path) ⇒
           (post & pathEnd & entity(as[NodePayload])) { payload ⇒
             mutateOrFailures {
-              TreeManager.updateTree(name, context, payload)
+              TreeManager.updateTree(name, context, payload, Some(path))
             }
           } ~
-          pathPrefix(Segment) { (path) ⇒
-            (post & pathEnd & entity(as[NodePayload])) { payload ⇒
-              mutateOrFailures {
-                TreeManager.updateTree(name, context, payload, Some(path))
-              }
-            } ~
-              (patch & pathEnd & entity(as[NodeValuesPayload])) { payload ⇒
-                mutateOrFailures {
-                  TreeManager.editNode(name, context, path, payload)
-                }
-              }
-          } ~
-          (patch & pathEnd & entity(as[MoveNodePayload])) { payload ⇒
+          (patch & pathEnd & entity(as[NodeValuesPayload])) { payload ⇒
             mutateOrFailures {
-              TreeManager.moveNode(name, context, payload)
-            }
-          } ~
-          (patch & pathEnd & entity(as[MoveNodePayload])) { payload ⇒
-            mutateOrFailures {
-              TreeManager.moveNode(name, context, payload)
+              TreeManager.editNode(name, context, path, payload)
             }
           }
+        } ~
+        (patch & pathEnd & entity(as[MoveNodePayload])) { payload ⇒
+          mutateOrFailures {
+            TreeManager.moveNode(name, context, payload)
+          }
+        } ~
+        (patch & pathEnd & entity(as[MoveNodePayload])) { payload ⇒
+          mutateOrFailures {
+            TreeManager.moveNode(name, context, payload)
+          }
+        }
       }
     }
 }

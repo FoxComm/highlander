@@ -48,7 +48,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       } yield copycat).gimmeTxnFailures
 
       result.toList.onlyElement.description contains
-        s"Key (account_id, is_default_shipping)=(${account.id}, t) already exists." must === (true)
+      s"Key (account_id, is_default_shipping)=(${account.id}, t) already exists." must === (true)
     }
 
     "fails if model already exists" in {

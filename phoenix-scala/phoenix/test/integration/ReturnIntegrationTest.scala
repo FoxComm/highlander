@@ -518,37 +518,37 @@ class ReturnIntegrationTest
       }
 
       "bulk insert should override any existing payments, whilst single addition endpoint should append payment to existing ones" in
-        new ReturnPaymentDefaults {
-          val api = returnsApi(rma.referenceNumber).paymentMethods
+      new ReturnPaymentDefaults {
+        val api = returnsApi(rma.referenceNumber).paymentMethods
 
-          api
-            .add(PaymentMethod.GiftCard, ReturnPaymentPayload(130))
-            .as[ReturnResponse.Root]
-            .payments
-            .asMap
-            .mapValues(_.amount) must === (Map[PaymentMethod.Type, Long](PaymentMethod.GiftCard → 130))
+        api
+          .add(PaymentMethod.GiftCard, ReturnPaymentPayload(130))
+          .as[ReturnResponse.Root]
+          .payments
+          .asMap
+          .mapValues(_.amount) must === (Map[PaymentMethod.Type, Long](PaymentMethod.GiftCard → 130))
 
-          val payload =
-            ReturnPaymentsPayload(Map(PaymentMethod.CreditCard → 100, PaymentMethod.StoreCredit → 120))
-          val response = api.addOrReplace(payload).as[ReturnResponse.Root]
-          response.payments.asMap.mapValues(_.amount) must === (payload.payments)
-          mustProduceActivity(ReturnPaymentsDeleted(response, List(PaymentMethod.GiftCard)))
+        val payload =
+          ReturnPaymentsPayload(Map(PaymentMethod.CreditCard → 100, PaymentMethod.StoreCredit → 120))
+        val response = api.addOrReplace(payload).as[ReturnResponse.Root]
+        response.payments.asMap.mapValues(_.amount) must === (payload.payments)
+        mustProduceActivity(ReturnPaymentsDeleted(response, List(PaymentMethod.GiftCard)))
 
-          api
-            .add(PaymentMethod.StoreCredit, ReturnPaymentPayload(50))
-            .as[ReturnResponse.Root]
-            .payments
-            .asMap
-            .mapValues(_.amount) must === (payload.payments + (PaymentMethod.StoreCredit → 50L))
+        api
+          .add(PaymentMethod.StoreCredit, ReturnPaymentPayload(50))
+          .as[ReturnResponse.Root]
+          .payments
+          .asMap
+          .mapValues(_.amount) must === (payload.payments + (PaymentMethod.StoreCredit → 50L))
 
-          api
-            .add(PaymentMethod.GiftCard, ReturnPaymentPayload(80))
-            .as[ReturnResponse.Root]
-            .payments
-            .asMap
-            .mapValues(_.amount) must === (
-            payload.payments + (PaymentMethod.StoreCredit → 50) + (PaymentMethod.GiftCard → 80))
-        }
+        api
+          .add(PaymentMethod.GiftCard, ReturnPaymentPayload(80))
+          .as[ReturnResponse.Root]
+          .payments
+          .asMap
+          .mapValues(_.amount) must === (
+          payload.payments + (PaymentMethod.StoreCredit → 50) + (PaymentMethod.GiftCard → 80))
+      }
 
       "fails if the amount is less than zero" in new ReturnPaymentFixture with OrderDefaults {
         forAll(paymentMethodTable) { paymentType ⇒
