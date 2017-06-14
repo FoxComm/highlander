@@ -110,13 +110,21 @@ class InventoryItemDetails extends Component {
 
   @autobind
   onHandRender(onHandValue) {
-    return this.state.diff !== 0
-      ? <div className={s.onHand}>
-          {onHandValue}
-          <Icon name="chevron-right" className={s.diffChevron} />
-          <span>{onHandValue + this.state.diff}</span>
-        </div>
-      : <div className={s.onHand}>{onHandValue}</div>;
+    let diff;
+
+    if (this.state.diff !== 0) {
+      diff = [
+        <Icon name="chevron-right" className={s.diffChevron} key="icon" />,
+        <span key="value">{onHandValue + this.state.diff}</span>,
+      ];
+    }
+
+    return (
+      <div className={s.onHand}>
+        {onHandValue}
+        {diff}
+      </div>
+    );
   }
 
   @autobind

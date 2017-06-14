@@ -1,7 +1,6 @@
 @import "colors.css";
 
 .onHand {
-
   & > span {
     color: var(--color-action-text);
   }
