@@ -63,7 +63,7 @@ class OptionEditDialog extends Component {
     }
   }
 
-  renderDialogContent(): Element<*> {
+  get content(): Element<*> {
     const name = _.get(this.state, 'option.attributes.name.v');
     const type = _.get(this.state, 'option.attributes.type.v');
 
@@ -105,11 +105,12 @@ class OptionEditDialog extends Component {
       <ConfirmationModal
         isVisible
         title={this.title}
-        children={this.renderDialogContent()}
         confirmLabel="Save option"
         onCancel={this.props.cancelAction}
         onConfirm={this.handleConfirm}
-      />
+      >
+        {this.content}
+      </ConfirmationModal>
     );
   }
 }

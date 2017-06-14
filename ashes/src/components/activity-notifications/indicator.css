@@ -3,11 +3,7 @@
 .block {
   width: 85px;
   text-align: center;
-  height: 59px;
-
-  & :global(.icon-bell) {
-    font-size: 20px;
-  }
+  height: 100%;
 
   & :global .fc-activity__customer-icon {
     line-height: 30px;
