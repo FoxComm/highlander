@@ -96,7 +96,6 @@ class User extends Component {
   }
 
   renderChildren() {
-    console.log(this.props);
     return React.cloneElement(this.props.children, {
       user: this.state.user,
       onChange: this.handleFormChange,
