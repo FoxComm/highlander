@@ -1,4 +1,4 @@
-@import 'colors.css';
+@import 'variables.css';
 
 .product-description {
   color: var(--color-additional-text);

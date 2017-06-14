@@ -1,5 +1,5 @@
 @import 'common.css';
-@import 'colors.css';
+@import 'variables.css';
 
 .main {
   display: inline-flex;

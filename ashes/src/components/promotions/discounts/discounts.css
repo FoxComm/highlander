@@ -1,4 +1,4 @@
-@import 'colors.css';
+@import 'variables.css';
 
 .discount_qualifier :global .autowidth_dd{
   width: auto;

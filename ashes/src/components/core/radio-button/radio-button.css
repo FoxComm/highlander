@@ -1,4 +1,4 @@
-@import 'colors.css';
+@import 'variables.css';
 
 .radio {
   input[type=radio]:not(old) {
