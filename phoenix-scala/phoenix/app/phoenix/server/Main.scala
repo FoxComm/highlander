@@ -28,6 +28,7 @@ import phoenix.utils.apis._
 import phoenix.utils.http.CustomHandlers
 import phoenix.utils.http.HttpLogger.logFailedRequests
 import phoenix.utils.{ElasticsearchApi, Environment, FoxConfig}
+
 import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
@@ -37,6 +38,8 @@ object Main extends App with LazyLogging {
   logger.info("Starting phoenix server")
 
   try {
+    FoxStripe.ping()
+
     val service = new Service()
     service.performSelfCheck()
     service.bind()
