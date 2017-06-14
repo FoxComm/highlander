@@ -77,17 +77,35 @@ class CouponPage extends ObjectPage {
     return _.get(this.props, 'details.selectedPromotions', []);
   }
 
+  @autobind
+  updateObjectWithCodes() {
+    const { bulk, singleCode, codesQuantity, codesPrefix, codesLength } = this.props.details.codeGeneration;
+    if (!bulk) {
+      return {
+        ..._.omit(this.state.object,'generateCodes'),
+        singleCode,
+      };
+    } else {
+      const generateCodes = {
+        prefix: codesPrefix,
+        quantity: codesQuantity,
+        length: codesLength,
+      };
+      return {
+        ..._.omit(this.state.object,'singleCode'),
+        generateCodes,
+      };
+    }
+  }
+
   save(): ?Promise<*> {
-    let willBeCoupon = super.save();
-
-    if (willBeCoupon) {
+    this.setState({
+      object: this.updateObjectWithCodes(),
+    }, () => {
       const { bulk, singleCode } = this.props.details.codeGeneration;
-
       if (bulk === false && singleCode != void 0) {
+        let willBeCoupon = super.save();
         willBeCoupon.then((data) => {
-          const newId = _.get(data, 'id');
-          return this.props.actions.generateCode(newId, singleCode);
-        }).then(() => {
           this.props.actions.couponsGenerationReset();
         }).then(() => {
           this.props.actions.refresh();
@@ -96,13 +114,18 @@ class CouponPage extends ObjectPage {
       }
 
       if (bulk === true && this.props.actions.codeIsOfValidLength()) {
-        willBeCoupon.then(() => {
-          return this.props.actions.couponsGenerationShowDialog();
-        });
+        this.props.actions.couponsGenerationShowDialog();
       }
-    }
+    })
+  }
 
-    return willBeCoupon;
+  @autobind
+  saveBulk(): ?Promise<*> {
+    const { bulk } = this.props.details.codeGeneration;
+    if (bulk === true && this.props.actions.codeIsOfValidLength()) {
+      let willBeCoupon = super.save();
+      return willBeCoupon;
+    }
   }
 
   @autobind
@@ -189,6 +212,7 @@ class CouponPage extends ObjectPage {
       createCoupon: this.createCoupon,
       selectedPromotions: this.selectedPromotions,
       refresh: this.props.actions.refresh,
+      save: this.saveBulk,
     };
   }
 

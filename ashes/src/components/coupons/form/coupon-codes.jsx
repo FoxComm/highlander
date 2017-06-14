@@ -108,9 +108,8 @@ class CouponCodes extends Component {
 
   @autobind
   handleConfirmOfCodeGeneration(): void {
-    const { codesPrefix, codesLength, codesQuantity } = this.props.codeGeneration;
-
-    this.props.generateCodes(codesPrefix, codesLength, codesQuantity).then(() => {
+    this.props.couponsGenerationHideDialog();
+    this.props.save().then(() => {
       this.props.couponsGenerationReset();
     }).then(() => {
       this.props.refresh();
