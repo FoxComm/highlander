@@ -6,7 +6,7 @@ import com.typesafe.scalalogging.LazyLogging
 import core.db._
 import core.failures.Failures
 import dispatch._
-import models.inventory.{Sku2MwhSku, Sku2MwhSkus}
+import models.inventory.{ProductVariantSku, ProductVariantSkus}
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.{compactJson, parseJsonOpt}
@@ -33,7 +33,7 @@ trait MiddlewarehouseApi {
 
   def cancelHold(orderRefNum: String)(implicit ec: EC, au: AU): Result[Unit]
 
-  def createSku(skuId: Int, sku: CreateSku)(implicit ec: EC, au: AU): DbResultT[Sku2MwhSku]
+  def createSku(skuId: Int, sku: CreateSku)(implicit ec: EC, au: AU): DbResultT[ProductVariantSku]
 }
 
 case class MiddlewarehouseErrorInfo(sku: String, debug: String)
@@ -53,7 +53,7 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
         Some(SkusOutOfStockFailure(errors.map(_.sku)).single)
       case _ ⇒
         logger.warn("No errors in failed Middlewarehouse response!")
-        Some(UnableToHoldLineItems.single)
+        Some(UnexpectedMwhResponseFailure.single)
     }
 
   //NOTE: This is public only for test purposes
@@ -78,15 +78,14 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     val body   = compact(Extraction.decompose(reservation))
     val jwt    = AuthPayload.jwt(au.token)
     val req    = reqUrl.setContentType("application/json", "UTF-8") <:< Map("JWT" → jwt) << body
-    logger.info(s"middlewarehouse hold: $body")
+    logger.info(s"Middlewarehouse hold: $body")
 
     val f = Http(req.POST > AsMwhResponse).either.map {
       case Right(MwhResponse(status, _)) if status / 100 == 2 ⇒ Either.right(())
       case Right(MwhResponse(_, message))                     ⇒ Either.left(parseMwhErrors(message))
-      case Left(error) ⇒ {
-        logger.error(error.getMessage)
-        Either.left(UnableToHoldLineItems.single)
-      }
+      case Left(error) ⇒
+        logger.error(s"Hold items failed with message '${error.getMessage}'")
+        Either.left(MwhConnectionFailure.single)
     }
     Result.fromFEither(f)
   }
@@ -97,51 +96,51 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     val reqUrl = dispatch.url(s"$url/v1/private/reservations/hold/$orderRefNum")
     val jwt    = AuthPayload.jwt(au.token)
     val req    = reqUrl.setContentType("application/json", "UTF-8") <:< Map("JWT" → jwt)
-    logger.info(s"middlewarehouse cancel hold: $orderRefNum")
+    logger.info(s"Middlewarehouse cancel hold: $orderRefNum")
     val f = Http(req.DELETE OK as.String).either.map {
       case Right(_)    ⇒ Either.right(())
-      case Left(error) ⇒ Either.left(UnableToCancelHoldLineItems.single)
+      case Left(error) ⇒
+        logger.error(s"Cancel hold items failed with message '${error.getMessage}")
+        Either.left(MwhConnectionFailure.single)
     }
     Result.fromFEither(f)
   }
 
   // Returns newly created SKU id
-  override def createSku(skuId: Int, sku: CreateSku)(implicit ec: EC, au: AU): DbResultT[Sku2MwhSku] = {
+  override def createSku(skuId: Int, sku: CreateSku)(implicit ec: EC, au: AU): DbResultT[ProductVariantSku] = {
     val reqUrl = dispatch.url(s"$url/v1/public/skus")
     val body   = compact(Extraction.decompose(sku))
     val jwt    = AuthPayload.jwt(au.token)
     val req    = reqUrl.setContentType("application/json", "UTF-8") <:< Map("JWT" → jwt) << body
-    logger.info(s"middlewarehouse create sku: $body")
+    logger.info(s"Middlewarehouse create sku: $body")
 
     DbResultT.fromResult(Result.fromF(Http(req.POST > AsMwhResponse).either)).flatMap {
       case Right(MwhResponse(status, body)) if status / 100 == 2 ⇒
         extractAndSaveSkuId(skuId, body)
-
       case Right(MwhResponse(status, message)) ⇒
         logger.error(s"SKU creation request failed with status code '$status' and message '$message'")
         DbResultT.failures(parseMwhErrors(message))
-
       case Left(error) ⇒
-        logger.error(s"SKU creation request failed with message '$error'")
-        DbResultT.failure(UnableToCreateSku)
+        logger.error(s"SKU creation request failed with message '${error.getMessage}'")
+        DbResultT.failure(MwhConnectionFailure)
     }
   }
 
-  private def extractAndSaveSkuId(skuId: Int, responseBody: String)(implicit ec: EC): DbResultT[Sku2MwhSku] =
+  private def extractAndSaveSkuId(skuId: Int, responseBody: String)(implicit ec: EC): DbResultT[ProductVariantSku] =
     parseJsonOpt(responseBody) match {
       case Some(json) ⇒
         (json \ "id").extractOpt[Int] match {
           case Some(mwhSkuId) ⇒
             logger.debug(s"Successfully created new SKU in MWH, ID=$mwhSkuId")
-            Sku2MwhSkus.create(Sku2MwhSku(skuId = skuId, mwhSkuId = mwhSkuId))
+            ProductVariantSkus.create(ProductVariantSku(skuId = skuId, mwhSkuId = mwhSkuId))
           case _ ⇒
             logger.error(
               s"Unable to find ID in MWH SKU creation response. JSON body was:\n${compactJson(json)}")
-            DbResultT.failure[Sku2MwhSku](NoSkuIdInResponse)
+            DbResultT.failure[ProductVariantSku](UnexpectedMwhResponseFailure)
         }
       case _ ⇒
         logger.error(s"Unable to parse MWH response as JSON. Response body was:\n$responseBody")
-        DbResultT.failure[Sku2MwhSku](UnableToParseResponse)
+        DbResultT.failure[ProductVariantSku](UnexpectedMwhResponseFailure)
     }
 }
 

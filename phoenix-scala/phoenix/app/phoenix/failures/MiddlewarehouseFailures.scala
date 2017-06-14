@@ -13,24 +13,11 @@ object MiddlewarehouseFailures {
       s"Following SKUs are out of stock: ${skus.mkString(", ")}. Please remove them from your cart to complete checkout."
   }
 
-  case object UnableToHoldLineItems extends Failure {
-    override def description = s"Unable to hold line items"
+  case object MwhConnectionFailure extends Failure {
+    override def description = s"We are experiencing internal infrastructure problems and doing our best to resolve the issue. Try again later."
   }
 
-  case object UnableToCancelHoldLineItems extends Failure {
-    override def description = s"Unable to cancel hold on line items"
+  case object UnexpectedMwhResponseFailure extends Failure {
+    override def description = "Unexpected error occurred while creating SKU. Please contact administrator."
   }
-
-  case object UnableToCreateSku extends Failure {
-    override def description = "Unable to create SKU"
-  }
-
-  object NoSkuIdInResponse extends Failure {
-    override def description = "No SKU ID found in Middlewarehouse response"
-  }
-
-  object UnableToParseResponse extends Failure {
-    override def description = "Unable to parse Middlewarehouse response as JSON"
-  }
-
 }

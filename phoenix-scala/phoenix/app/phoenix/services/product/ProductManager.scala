@@ -23,7 +23,7 @@ import phoenix.payloads.ImagePayloads.AlbumPayload
 import phoenix.payloads.ProductPayloads._
 import phoenix.payloads.SkuPayloads._
 import phoenix.payloads.VariantPayloads._
-import phoenix.responses.AlbumResponses.AlbumResponse.{Root => AlbumRoot}
+import phoenix.responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import phoenix.responses.AlbumResponses._
 import phoenix.responses.ProductResponses._
 import phoenix.responses.SkuResponses._
