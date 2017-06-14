@@ -14,6 +14,8 @@ import { RoundedPill } from 'components/core/rounded-pill';
 import { Form, FormField } from '../forms';
 import { Button } from 'components/core/button';
 import AccountState from './account-state';
+import ErrorAlerts from 'components/alerts/error-alerts';
+import Alert from 'components/alerts/alert';
 
 // styles
 import s from './user-form.css';
@@ -23,14 +25,19 @@ type Props = {
   onChange: Function,
   isNew: boolean,
   requestPasswordReset: (email: string) => Promise<*>,
-  restoreState: {
-    err?: any,
-    inProgress?: boolean,
-  },
+  clearResetState: () => void,
+  restoreState: AsyncState,
+};
+
+type State = {
+  isMessageDisplayed: boolean,
 };
 
 export default class UserForm extends Component {
   props: Props;
+  state: State = {
+    isMessageDisplayed: false,
+  };
 
   @autobind
   handleFormChange(attributes: Object) {
@@ -38,9 +45,8 @@ export default class UserForm extends Component {
     this.props.onChange(data);
   }
 
-  get changePasswordButton() {
+  get changePasswordButton(): ?Element<*> {
     if (this.props.isNew) return null;
-
 
     return (
       <Button
@@ -56,7 +62,7 @@ export default class UserForm extends Component {
   @autobind
   resetPassword() {
     const email = _.get(this.props, 'user.form.attributes.emailAddress.v', null);
-    this.props.requestPasswordReset(email);
+    this.setState({ isMessageDisplayed: true }, () => this.props.requestPasswordReset(email));
   }
 
   @autobind
@@ -65,7 +71,14 @@ export default class UserForm extends Component {
     this.props.onChange(data);
   }
 
-  renderAccountState() {
+  @autobind
+  removeAlert() {
+    this.setState({ isMessageDisplayed: false }, () => {
+      this.props.clearResetState();
+    });
+  }
+
+  renderAccountState(): Element<*> {
     const { state, disabled } = this.props.user.accountState;
 
     return (
@@ -79,7 +92,7 @@ export default class UserForm extends Component {
     );
   }
 
-  renderUserImage() {
+  renderUserImage(): Element<*> {
     const name = _.get(this.props.user, 'form.attributes.firstAndLastName.v') || 'New User';
 
     return (
@@ -93,13 +106,33 @@ export default class UserForm extends Component {
     );
   }
 
-  renderGeneralForm() {
+  renderNotification(): ?Element<*> {
+    const { err, inProgress, finished } = this.props.restoreState;
+    const { isMessageDisplayed } = this.state;
+
+    if (isMessageDisplayed && err != null) {
+      return <ErrorAlerts error={err} closeAction={this.removeAlert} />;
+    }
+
+    if (isMessageDisplayed && !inProgress && finished) {
+      return (
+        <Alert type={Alert.SUCCESS} closeAction={this.removeAlert} >
+          Password reset email was successfully sent.
+        </Alert>
+      );
+    }
+
+    return null;
+  }
+
+  renderGeneralForm(): Element<*> {
     const { options, schema } = this.props.user;
     const { attributes } = this.props.user.form;
 
     return (
       <Form>
         <ContentBox title="General">
+          {this.renderNotification()}
           {this.renderUserImage()}
           <ObjectFormInner
             onChange={this.handleFormChange}
@@ -113,7 +146,7 @@ export default class UserForm extends Component {
     );
   }
 
-  render() {
+  render(): Element<*> {
     return (
       <div className={s.userForm}>
         <section className={s.main}>
