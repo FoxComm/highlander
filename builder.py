@@ -45,7 +45,7 @@ PROJECTS = (
     'middlewarehouse/consumers/shipstation',
     'middlewarehouse/consumers/stock-items',
     'middlewarehouse/elasticmanager',
-    'onboarding',
+    'onboarding/service',
     'onboarding/ui',
     'phoenix-scala',
     'phoenix-scala/seeder',
