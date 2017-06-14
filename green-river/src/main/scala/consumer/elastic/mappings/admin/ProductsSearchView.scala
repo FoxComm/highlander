@@ -38,8 +38,11 @@ final case class ProductsSearchView()(implicit ec: EC) extends AvroTransformer {
         field("baseUrl", StringType).index("not_analyzed")
       )
     ),
-    field("catalogs", StringType).index("not_analyzed")
+    field("catalogs").nested(
+      field("id", IntegerType),
+      field("name", StringType).index("not_analyzed")
+    )
   )
 
-  override def nestedFields() = List("albums", "skus", "tags", "taxonomies", "taxons")
+  override def nestedFields() = List("albums", "skus", "tags", "taxonomies", "taxons", "catalogs")
 }

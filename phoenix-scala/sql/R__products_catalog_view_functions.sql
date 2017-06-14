@@ -171,17 +171,20 @@ create or replace function update_products_catalog_view_catalogs_fn() returns tr
 begin
   update products_catalog_view
   set
-    catalogs = catalogProducts.catalog_names
-  from (select
-          case when count(cp.id) = 0
-            then
-              '[]' :: jsonb
-            else
-              jsonb_agg(c.name)
-          end as catalog_names
-        from catalogs as c
-          left join catalog_products as cp on (cp.catalog_id = c.id and cp.archived_at is null)
-        where cp.product_id = new.product_id) as catalogProducts
+    catalogs = case when catalogProducts.catalogs is null then
+      '[]' :: jsonb
+    else
+      catalogProducts.catalogs
+    end
+  from (
+    select array_to_json(array_agg(row_to_json(cat))) :: jsonb as catalogs
+    from (
+      select c.id, c.name
+      from catalogs as c
+      inner join catalog_products as cp on (cp.catalog_id = c.id)
+      where cp.archived_at is null and cp.product_id = new.product_id
+    ) as cat
+  ) as catalogProducts
   where products_catalog_view.product_id = new.product_id;
 
   return null;
