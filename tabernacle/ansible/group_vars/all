@@ -306,7 +306,7 @@ geronimo_db_host: {{db_host}}
 geronimo_db_name: geronimo_development
 geronimo_db_user: geronimo
 geronimo_db_password: ""
-geronimo_dir: /hyperion
+geronimo_dir: /geronimo
 
 # FIXME: when geronimo gets moved to highlander
 geronimo_src: ../../../protos/geronimo
