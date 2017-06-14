@@ -114,7 +114,7 @@ export default class UserForm extends Component {
       return <ErrorAlerts error={err} closeAction={this.removeAlert} />;
     }
 
-    if (isMessageDisplayed && !inProgress && finished === true) {
+    if (isMessageDisplayed && !inProgress && finished) {
       return (
         <Alert type={Alert.SUCCESS} closeAction={this.removeAlert} >
           Password reset email was successfully sent.

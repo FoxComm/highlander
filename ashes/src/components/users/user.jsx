@@ -180,4 +180,7 @@ function mapState(state) {
   };
 }
 
-export default connect(mapState, { ...userActions, requestPasswordReset, clearResetPasswordState})(User);
+export default connect(
+  mapState,
+  { ...userActions, requestPasswordReset, clearResetPasswordState}
+)(User);
