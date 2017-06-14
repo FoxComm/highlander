@@ -182,5 +182,9 @@ function mapState(state) {
 
 export default connect(
   mapState,
-  { ...userActions, requestPasswordReset, clearResetPasswordState}
+  {
+    ...userActions,
+    requestPasswordReset,
+    clearResetPasswordState,
+  }
 )(User);
