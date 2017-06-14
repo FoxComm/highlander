@@ -19,7 +19,7 @@
     },
     "env": {
         "PORT": "{{agni_port}}",
-       	"SEARCH_SERVER": ""
+        "SEARCH_SERVER": "elasticsearch://{{search_server}}",
     },
     "ports": [{{agni_port}}],
     "healthChecks": [{
@@ -35,11 +35,6 @@
     "container": {
         "type": "DOCKER",
         "volumes": [{
-                "containerPath": "/keys",
-                "hostPath": "{{public_keys_dest_dir}}",
-                "mode": "RO"
-            },
-            {
                 "containerPath": "{{docker_logs_dir}}",
                 "hostPath": "{{docker_logs_host_dir}}",
                 "mode": "RW"
