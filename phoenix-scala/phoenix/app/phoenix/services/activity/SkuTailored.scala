@@ -2,15 +2,15 @@ package phoenix.services.activity
 
 import objectframework.ObjectResponses.ObjectContextResponse
 import phoenix.responses.SkuResponses.SkuResponse
-import phoenix.responses.UserResponse
+import phoenix.responses.users.UserResponse
 
 object SkuTailored {
-  case class FullSkuCreated(admin: Option[UserResponse.Root],
+  case class FullSkuCreated(admin: Option[UserResponse],
                             sku: SkuResponse.Root,
                             context: ObjectContextResponse.Root)
       extends ActivityBase[FullSkuCreated]
 
-  case class FullSkuUpdated(admin: Option[UserResponse.Root],
+  case class FullSkuUpdated(admin: Option[UserResponse],
                             sku: SkuResponse.Root,
                             context: ObjectContextResponse.Root)
       extends ActivityBase[FullSkuUpdated]

@@ -2,7 +2,7 @@ import cats.implicits._
 import org.json4s.JsonAST._
 import org.json4s.jackson.JsonMethods._
 import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito.{when, _}
+import org.mockito.Mockito._
 import org.scalactic.TolerantNumerics
 import phoenix.models.Reasons
 import phoenix.models.customer.CustomerGroup
@@ -20,7 +20,8 @@ import phoenix.payloads.UpdateShippingMethod
 import phoenix.responses.PromotionResponses.PromotionResponse
 import phoenix.responses.cord.base.CartResponseTotals
 import phoenix.responses.cord.{CartResponse, OrderResponse}
-import phoenix.responses.{CustomerResponse, GroupResponses, PromotionResponses, StoreCreditResponse}
+import phoenix.responses.users.CustomerResponse
+import phoenix.responses.{GroupResponses, PromotionResponses, StoreCreditResponse}
 import phoenix.utils.ElasticsearchApi
 import phoenix.utils.aliases._
 import phoenix.utils.seeds.Factories
@@ -106,7 +107,7 @@ class AutoPromotionsIntegrationTest
     // FIXME: use API
     val reason = Reasons.create(Factories.reason(storeAdmin.accountId)).gimme
 
-    def cartPreCheckout(customer: CustomerResponse.Root): CartResponse = {
+    def cartPreCheckout(customer: CustomerResponse): CartResponse = {
       val refNum =
         cartsApi.create(CreateCart(customerId = customer.id.some)).as[CartResponse].referenceNumber
       cartsApi(refNum).lineItems
@@ -290,6 +291,27 @@ class AutoPromotionsIntegrationTest
 
     "dynamic CGs with a match" in { dynamicCGCartPromo(1L) mustBe 'defined }
     "dynamic CGs w/o matches" in { dynamicCGCartPromo(0L) mustBe 'empty }
+
+    "dynamic CGs, when ES fails" in {
+      reset(elasticSearchMock)
+      when(elasticSearchMock.numResults(any[ElasticsearchApi.SearchView], any[Json]))
+        .thenReturn(Future.failed(new RuntimeException("ES failed!")))
+
+      groupAndPromo(CustomerGroup.Dynamic)
+
+      val customer = api_newCustomer()
+      val refNum   = api_newCustomerCart(customer.id).referenceNumber
+      val skuCode  = new ProductSku_ApiFixture {}.skuCode
+
+      val response = cartsApi(refNum).lineItems
+        .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+        .asThe[CartResponse]
+
+      // FIXME: make sure the warning bubbles up to the final response — monad stack order should be different, we don’t want to lose warnings when a Failure happens @michalrus
+      /* response.warnings should contain "ES failed!" */
+
+      response.result.promotion mustBe 'empty
+    }
 
     "and still the best promo is chosen among CG/non-CG ones" - {
       "lt" in bestIsApplied(DefaultPercentOff - 13)
