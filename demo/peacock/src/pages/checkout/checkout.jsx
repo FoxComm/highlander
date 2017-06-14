@@ -26,19 +26,17 @@ import Button from 'ui/buttons';
 import styles from './checkout.css';
 
 // types
-import type { CheckoutState, EditStage } from 'modules/checkout';
+import type { CheckoutState } from 'modules/checkout';
 import type { CheckoutActions } from './types';
 import type { AsyncStatus } from 'types/async-actions';
 
 // actions
 import * as actions from 'modules/checkout';
-import { EditStages } from 'modules/checkout';
 import { fetch as fetchCart, hideCart } from 'modules/cart';
 import { fetchUser } from 'modules/auth';
 
 
 type Props = CheckoutState & CheckoutActions & {
-  setEditStage: (stage: EditStage) => Object,
   hideCart: () => Promise<*>,
   fetchCart: () => Promise<*>,
   addresses: Array<any>,
@@ -170,7 +168,6 @@ class Checkout extends Component {
   checkout() {
     return this.props.checkout()
       .then(() => {
-        this.props.setEditStage(EditStages.FINISHED);
         browserHistory.push('/checkout/done');
       });
   }

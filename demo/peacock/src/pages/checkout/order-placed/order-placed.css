@@ -1,5 +1,6 @@
 @import 'variables.css';
 @import 'colors.css';
+@import 'media-queries.css';
 
 .order-placed {
   composes: inner-wrap from 'ui/css/layout.css';
@@ -40,7 +41,7 @@
 
 .bordered-block {
   margin-bottom: 40px;
-  padding: 10px;
+  padding: 12px 18px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
 }
@@ -79,6 +80,12 @@
 .to-home {
   width: 330px;
   height: 60px;
+}
+
+@media (--large-only), (--x-large) {
+  .bordered-block {
+    min-width: 360px;
+  }
 }
 
 @media (--small-only), (--medium-only) {
