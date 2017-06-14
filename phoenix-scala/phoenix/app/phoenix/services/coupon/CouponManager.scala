@@ -79,12 +79,12 @@ object CouponManager {
       }
 
       _ ← * <~ coupons.headOption.traverse { firstCoupon ⇒
-            // TODO: Should they override scope? (`LogActivity().withScope(scope)`) @michalrus
-            if (coupons.size > 1)
-              LogActivity().multipleCouponCodesCreated(firstCoupon, admin)
-            else
-              LogActivity().singleCouponCodeCreated(firstCoupon, admin)
-          }
+           // TODO: Should they override scope? (`LogActivity().withScope(scope)`) @michalrus
+           if (coupons.size > 1)
+             LogActivity().multipleCouponCodesCreated(firstCoupon, admin)
+           else
+             LogActivity().singleCouponCodeCreated(firstCoupon, admin)
+         }
     } yield response
 
   private def forceActivate(attributes: Map[String, Json]): Map[String, Json] =
