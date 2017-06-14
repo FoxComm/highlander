@@ -19,6 +19,7 @@ import (
 )
 
 const (
+	DefaultElasticIndex    = "admin_1"
 	DefaultElasticTopic    = "customers_search_view"
 	DefaultElasticSize     = 100
 	DefaultMailchimpListID = ""
@@ -28,6 +29,7 @@ type GroupsManager struct {
 	esClient      *elastic.Client
 	phoenixClient phoenix.PhoenixClient
 	chimpClient   *mailchimp.ChimpClient
+	esIndex       string
 	esTopic       string
 	esSize        int
 	chimpListID   string
@@ -53,11 +55,24 @@ func SetMailchimpDisabled(disabled bool) ManagerOptionFunc {
 	}
 }
 
+func SetElasticIndex(index string) ManagerOptionFunc {
+	return func(m *GroupsManager) {
+		m.esIndex = index
+	}
+}
+
+func SetElasticQuerySize(size int) ManagerOptionFunc {
+	return func(m *GroupsManager) {
+		m.esSize = size
+	}
+}
+
 func NewGroupsManager(esClient *elastic.Client, phoenixClient phoenix.PhoenixClient, chimpClient *mailchimp.ChimpClient, options ...ManagerOptionFunc) *GroupsManager {
 	manager := &GroupsManager{
 		esClient,
 		phoenixClient,
 		chimpClient,
+		DefaultElasticIndex,
 		DefaultElasticTopic,
 		DefaultElasticSize,
 		DefaultMailchimpListID,
@@ -73,25 +88,23 @@ func NewGroupsManager(esClient *elastic.Client, phoenixClient phoenix.PhoenixCli
 }
 
 func (m *GroupsManager) ProcessChangedGroup(group *responses.CustomerGroupResponse) error {
-	go func(group *responses.CustomerGroupResponse) {
-		// get customers associated with the group - map of [id]:email
-		customers, err := m.getCustomers(group)
-		if err != nil {
-			log.Panicf("An error occured getting customers: %s", err.Error())
-		}
+	// get customers associated with the group - map of [id]:email
+	customers, err := m.getCustomers(group)
+	if err != nil {
+		log.Panicf("An error occured getting customers: %s", err.Error())
+	}
 
-		// update group-customers mapping for dynamic groups
-		if group.GroupType != "manual" {
-			if err := m.updateGroupCustomersMapping(group, customers); err != nil {
-				log.Panicf("An error occured updating group-customers mapping: %s", err)
-			}
+	// update group-customers mapping for dynamic groups
+	if group.GroupType != "manual" {
+		if err := m.updateGroupCustomersMapping(group, customers); err != nil {
+			log.Panicf("An error occured updating group-customers mapping: %s", err)
 		}
+	}
 
-		// update segments(fc "groups" analogue) in mailchimp
-		if err := m.processMailchimp(group, customers); err != nil {
-			log.Printf("An error occured updating segments in mailchimp: %s", err.Error())
-		}
-	}(group)
+	// update segments(fc "groups" analogue) in mailchimp
+	if err := m.processMailchimp(group, customers); err != nil {
+		log.Printf("An error occured updating segments in mailchimp: %s", err.Error())
+	}
 
 	return nil
 }
@@ -193,15 +206,17 @@ func (m *GroupsManager) processMailchimp(group *responses.CustomerGroupResponse,
 
 func (m *GroupsManager) getCustomers(group *responses.CustomerGroupResponse) (map[int]string, error) {
 	query := elastic.RawStringQuery(group.ElasticRequest)
+	index := m.esIndex
 	topic := m.esTopic
 	size := m.esSize
 
 	result := map[int]string{}
 
-	log.Printf("Scrolling ES. Size: %d, Query: %s", size, query)
+	log.Printf("Scrolling ES. Index: %s, Name: %s, Size: %d, Query: %s", index, group.Name, size, query)
 
 	scroll := m.esClient.
 		Scroll().
+		Index(index).
 		Type(topic).
 		Query(query).
 		Size(size)
