@@ -18,10 +18,13 @@ import phoenix.utils.seeds.{Factories, ShipmentSeeds}
 import testutils.{DefaultJwtAdminAuth, IntegrationTestBase, TestLoginData}
 import testutils.fixtures.api.{ApiFixtureHelpers, ApiFixtures}
 import faker.Lorem
-import phoenix.models.payment.PaymentMethod.ApplePay
+import phoenix.failures.CaptureFailures
+import phoenix.models.cord.CordPaymentState.FullCapture
+import phoenix.models.payment.ExternalCharge.FailedAuth
+import phoenix.models.payment.creditcard.CreditCardCharges
 import testutils._
 import testutils.fixtures.PaymentFixtures.CreditCardsFixture
-import testutils.fixtures.api._
+import slick.jdbc.PostgresProfile.api._
 
 class ApplePayIntegrationTest
     extends IntegrationTestBase
@@ -80,6 +83,25 @@ class ApplePayIntegrationTest
                   ShippingCost(400, "USD"))
 
         captureApi.capture(capturePayload).mustBeOk()
+        ordersApi(refNum).get().asTheResult[OrderResponse].paymentState must === (FullCapture)
+      }
+    }
+
+    "Fail if order is not in Auth state" in new ApplePayFixture with CreditCardsFixture {
+      withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
+        val cc = storefrontPaymentsApi.creditCards.create(ccPayload).as[CreditCardsResponse.Root]
+        cartsApi(refNum).payments.creditCard.add(CreditCardPayment(cc.id)).mustBeOk()
+        val skuInCart = cartsApi(refNum).checkout().as[OrderResponse].lineItems.skus
+        CreditCardCharges.filter(_.creditCardId === cc.id).map(_.state).update(FailedAuth).gimme
+
+        val capturePayload =
+          Capture(refNum,
+                  skuInCart.map(sku ⇒ CaptureLineItem(sku.referenceNumbers.head, sku.sku)),
+                  ShippingCost(400, "USD"))
+
+        captureApi
+          .capture(capturePayload)
+          .mustFailWith400(CaptureFailures.OrderMustBeInAuthState(refNum))
       }
     }
 
@@ -121,8 +143,7 @@ class ApplePayIntegrationTest
     val customerLoginData = TestLoginData(email = "test@bar.com", password = "pwd")
     val customer = customersApi
       .create(
-        CreateCustomerPayload(email = customerLoginData.email,
-                              name = "Test customer".some,
+        CreateCustomerPayload(email = customerLoginData.email, // @aafa FIXME: provide customer name
                               password = customerLoginData.password.some))
       .as[CustomerResponse.Root]
 

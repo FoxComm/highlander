@@ -78,12 +78,7 @@ func (s *Selector) getMappedResourcesRaw(clusterId int, res string) (string, err
 
 	var mappedResources string
 
-	stmt, err := s.db.Prepare(sqlGetMappedResources)
-	if err != nil {
-		return mappedResources, err
-	}
-
-	row := stmt.QueryRow(clusterId, res)
+	row := s.db.QueryRow(sqlGetMappedResources, clusterId, res)
 	if err := row.Scan(&mappedResources); err != nil {
 		if err == sql.ErrNoRows {
 			return "", nil
@@ -95,14 +90,10 @@ func (s *Selector) getMappedResourcesRaw(clusterId int, res string) (string, err
 }
 
 func (s *Selector) getFallbackCluster(clusterId int) (int, error) {
-	stmt, err := s.db.Prepare(sqlGetFallbackClusterId)
-	if err != nil {
-		return clusterId, err
-	}
 
 	fallbackClusterId := clusterId
 
-	row := stmt.QueryRow(clusterId)
+	row := s.db.QueryRow(sqlGetFallbackClusterId, clusterId)
 	if err := row.Scan(&fallbackClusterId); err != nil {
 		if err == sql.ErrNoRows {
 			return clusterId, nil
