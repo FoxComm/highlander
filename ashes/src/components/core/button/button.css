@@ -25,14 +25,14 @@
   }
 
   &:hover {
-    background-color: var(--color-border);
+    background-color: var(--bg-grey-buttons-hover);
   }
 
   &:disabled,
   &:disabled:hover {
     cursor: default;
     color: var(--color-additional-text);
-    background-color: var(--bg-grey-buttons-disabled);
+    background-color: var(--bg-grey-buttons-hover);
   }
 
   &.onlyIcon {
