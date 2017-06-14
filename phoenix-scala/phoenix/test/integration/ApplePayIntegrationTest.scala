@@ -143,7 +143,8 @@ class ApplePayIntegrationTest
     val customerLoginData = TestLoginData(email = "test@bar.com", password = "pwd")
     val customer = customersApi
       .create(
-        CreateCustomerPayload(email = customerLoginData.email, // @aafa FIXME: provide customer name
+        CreateCustomerPayload(email = customerLoginData.email,
+                              name = faker.Name.name.some,
                               password = customerLoginData.password.some))
       .as[CustomerResponse.Root]
 
