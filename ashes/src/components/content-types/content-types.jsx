@@ -33,13 +33,11 @@ type Props = {
 };
 
 const tableColumns = [
-  {field: 'id', text: 'Promotion ID'},
-  {field: 'promotionName', text: 'Name'},
-  {field: 'applyType', text: 'Apply Type'},
-  {field: 'totalUsed', text: 'Total Uses'},
-  {field: 'currentCarts', text: 'Current Carts'},
+  {field: 'id', text: 'Name'},
+  {field: 'promotionName', text: 'Slug'},
+  {field: 'applyType', text: 'Description'},
   {field: 'createdAt', text: 'Date/Time Created', type: 'datetime'},
-  {field: 'state', text: 'State'},
+  {field: 'modifiedAt', text: 'Date/Time Last Modified', type: 'datetime'},
 ];
 
 class Promotions extends Component {
