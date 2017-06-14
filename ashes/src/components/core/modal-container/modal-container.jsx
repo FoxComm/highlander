@@ -55,11 +55,15 @@ export default class ModalContainer extends Component {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.isVisible) {
+    if (!this.props.isVisible && nextProps.isVisible) {
       window.addEventListener('keydown', this.handleKeyPress);
-    } else {
+    } else if (this.props.isVisible && !nextProps.isVisible) {
       window.removeEventListener('keydown', this.handleKeyPress);
     }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyPress);
   }
 
   @autobind
