@@ -5,17 +5,6 @@
         border: 1px solid @bg-message-success;
       }
     }
-
-    .fc-pilled-input__pill-value._clickable:hover {
-      cursor: pointer;
-      background-color: @bg-nav-main;
-    }
-
-    .fc-pilled-input__pill-close {
-      &:hover {
-        background-color: @bg-nav-main;
-      }
-    }
   }
 
   &._active,
@@ -30,13 +19,6 @@
   }
 
   &._disabled {
-    .fc-pilled-input__pill {
-      background: @bg-nav-disabled;
-      color: @color-light-text;
-      cursor: default;
-      transition: all .1s;
-    }
-
     .fc-pilled-input__icon-wrapper {
       color: @color-additional-text;
       cursor: default;

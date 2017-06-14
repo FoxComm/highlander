@@ -12,6 +12,10 @@ import { INPUT_ATTRS } from 'paragons/common';
 
 // components
 import TextInput from 'components/core/text-input';
+import { RoundedPill } from 'components/core/rounded-pill';
+
+// styles
+import s from './pilled-input.css';
 
 // These aren't actually multiple exported components, but ESLint mistakenly
 // thinks that they are.
@@ -19,19 +23,16 @@ import TextInput from 'components/core/text-input';
 /* eslint-disable react/no-multi-comp */
 
 const formatPill = (pill, idx, props) => {
-  const clsValue = classNames('fc-pilled-input__pill-value', {
-    '_clickable': props.onPillClick !== PilledInput.defaultProps.onPillClick,
-  });
-
   return (
-    <div className="fc-pilled-input__pill" key={`pill-${idx}`}>
-      <span className={clsValue} onClick={() => props.onPillClick(pill, idx)}>
-        {pill}
-      </span>
-      <a onClick={() => props.onPillClose(pill, idx)} className="fc-pilled-input__pill-close">
-        &times;
-      </a>
-    </div>
+    <RoundedPill
+      key={`pill-${idx}`}
+      value={idx}
+      onClick={() => props.onPillClick(pill, idx)}
+      onClose={() => props.onPillClose(pill, idx)}
+      className={s.pill}
+    >
+      {pill.display || pill}
+    </RoundedPill>
   );
 };
 

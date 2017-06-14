@@ -19,3 +19,11 @@
   font-size: 14px;
   font-weight: 600;
 }
+
+.icon {
+  margin-right: 8px;
+}
+
+.pill {
+  margin: 3px 0 0 5px;
+}

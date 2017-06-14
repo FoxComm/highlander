@@ -20,6 +20,7 @@ import ButtonWithMenu from 'components/core/button-with-menu';
 import Alert from 'components/core/alert';
 import TextInput from 'components/core/text-input';
 import Icon from 'components/core/icon';
+import { RoundedPill } from 'components/core/rounded-pill';
 
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
 
@@ -385,21 +386,18 @@ export default class LiveSearch extends React.Component {
 
   @autobind
   formatPill(pill, idx, props) {
-    const icon = pill.term === '_all' ? 'icon-search' : 'icon-filter';
+    const icon = pill.term === '_all' ? 'search' : 'filter';
 
     return (
-      <div
-        className="fc-pilled-input__pill"
+      <RoundedPill
         key={`pill-${this.currentSearch.title}-${idx}`}
-        onClick={() => props.onPillClick(pill, idx)}
-        title={pill.display}>
-        <Icon name={icon} />
-        <span className="fc-pilled-input__pill-value">{pill.display}</span>
-        <a onClick={() => props.onPillClose(pill, idx)}
-           className="fc-pilled-input__pill-close">
-          &times;
-        </a>
-      </div>
+        value={idx}
+        onClose={() => props.onPillClose(pill, idx)}
+        className={s.pill}
+      >
+        <Icon name={icon} className={s.icon} />
+        {pill.display}
+      </RoundedPill>
     );
   }
 
@@ -658,7 +656,7 @@ export default class LiveSearch extends React.Component {
                 controls={this.controls}
                 className={classNames({ '_active': this.state.isFocused, '_disabled': this.isDisabled })}
                 onPillClose={this.handlePillClose}
-                formatPill={this.formatPill}
+
                 icon={null}
                 pills={this.state.pills}>
                 {/* @todo get back MaskedInput prepend={this.state.searchPrepend} */}
