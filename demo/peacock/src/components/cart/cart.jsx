@@ -8,60 +8,75 @@ import { connect } from 'react-redux';
 import { browserHistory } from 'lib/history';
 import { autobind } from 'core-decorators';
 import * as tracking from 'lib/analytics';
-
-// localization
 import localized from 'lib/i18n';
+import { emailIsSet } from 'paragons/auth';
+import sanitizeAll from 'sanitizers';
+import sanitizeLineItems from 'sanitizers/line-items';
+
+// actions
+import * as actions from 'modules/cart';
+import { checkApplePay, beginApplePay } from 'modules/checkout';
 
 // components
 import Currency from 'ui/currency';
 import LineItem from './line-item';
 import Button from 'ui/buttons';
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from 'ui/alerts/error-alerts';
 import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
 import { parseError } from '@foxcomm/api-js';
 import Overlay from 'ui/overlay/overlay';
 import ActionLink from 'ui/action-link/action-link';
-
-// styles
-import styles from './cart.css';
+import GuestAuth from 'pages/checkout/guest-auth/guest-auth';
 
 // types
 import type { Totals } from 'modules/cart';
 
-// actions
-import * as actions from 'modules/cart';
+// styles
+import styles from './cart.css';
 
 type Props = {
-  fetch: Function,
-  deleteLineItem: Function,
-  updateLineItemQuantity: Function,
-  toggleCart: Function,
-  hideCart: Function,
-  skus: Array<any>,
+  fetch: Function, // signature
+  deleteLineItem: Function, // siganture
+  updateLineItemQuantity: Function, // signature
+  toggleCart: Function, // signature
+  hideCart: Function, // signature
+  skus: Array<mixed>,
   coupon: ?Object,
   promotion: ?Object,
   totals: Totals,
   user?: ?Object,
   isVisible: boolean,
   t: any,
+  applePayAvailable: boolean,
+  checkApplePay: () => void,
+  location: Object,
+  beginApplePay: (paymentRequest: Object) => Promise<*>,
 };
 
 type State = {
-  errors?: Array<any>,
+  errors?: ?Array<any>,
+  guestAuth: boolean,
 };
 
 class Cart extends Component {
   props: Props;
 
   state: State = {
-
+    guestAuth: false,
   };
 
   componentDidMount() {
+    this.props.checkApplePay();
     if (this.props.user) {
       this.props.fetch(this.props.user);
     } else {
       this.props.fetch();
+    }
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (this.props.applePayAvailable !== nextProps.applePayAvailable) {
+      this.props.checkApplePay();
     }
   }
 
@@ -88,6 +103,12 @@ class Cart extends Component {
         errors: parseError(ex),
       });
     });
+  }
+
+  @autobind
+  isEmailSetForCheckout() {
+    const user = _.get(this.props, 'user', null);
+    return emailIsSet(user);
   }
 
   get lineItems() {
@@ -124,14 +145,29 @@ class Cart extends Component {
     });
   }
 
+  @autobind
+  sanitize(err) {
+    const sanitizedLineItems = sanitizeLineItems(err, this.props.skus);
+
+    return sanitizedLineItems ? sanitizedLineItems : sanitizeAll(err);
+  }
+
   get errorsLine() {
-    if (this.state.errors && !_.isEmpty(this.state.errors)) {
-      return <ErrorAlerts errors={this.state.errors} closeAction={this.closeError} />;
-    }
+    const { errors } = this.state;
+
+    if (!errors && _.isEmpty(errors)) return null;
+
+    return (
+      <ErrorAlerts
+        errors={errors}
+        sanitizeError={this.sanitize}
+      />
+    );
   }
 
   @autobind
   onCheckout() {
+    this.setState({ errors: null });
     Promise.resolve(this.props.hideCart())
       .then(() => {
         browserHistory.push('/checkout');
@@ -139,6 +175,76 @@ class Cart extends Component {
     ;
   }
 
+  @autobind
+  beginApplePay() {
+    const { total } = this.props.totals;
+    const amount = (parseFloat(total) / 100).toFixed(2);
+    const paymentRequest = {
+      countryCode: 'US',
+      currencyCode: 'USD',
+      total: {
+        label: 'Pure',
+        amount,
+      },
+      requiredShippingContactFields: [
+        'postalAddress',
+        'name',
+        'phone',
+      ],
+      requiredBillingContactFields: [
+        'postalAddress',
+        'name',
+      ],
+    };
+
+    this.props.beginApplePay(paymentRequest).then(() => {
+      this.setState({ errors: null });
+      browserHistory.push('/checkout/done');
+    })
+    .catch((err) => {
+      this.setState({
+        errors: parseError(err),
+      });
+    });
+  }
+
+  @autobind
+  checkAuth() {
+    const emailSet = this.isEmailSetForCheckout();
+
+    if (emailSet) {
+      this.setState({ guestAuth: false });
+      this.beginApplePay();
+    } else {
+      this.setState({ guestAuth: true });
+    }
+  }
+
+  get applePayButton() {
+    if (!this.props.applePayAvailable) return null;
+
+    const disabled = _.size(this.props.skus) < 1;
+    return (
+      <Button
+        styleName="apple-pay checkout-button"
+        onClick={this.checkAuth}
+        disabled={disabled}
+      />
+    );
+  }
+
+  get guestAuth() {
+    const { guestAuth } = this.state;
+
+    if (!guestAuth) return null;
+
+    return (
+      <GuestAuth
+        isEditing={!this.isEmailSetForCheckout()}
+        location={this.props.location}
+      />
+    );
+  }
   render() {
     const {
       t,
@@ -146,6 +252,7 @@ class Cart extends Component {
       toggleCart,
       skus,
       isVisible,
+      applePayAvailable,
     } = this.props;
 
     const cartClass = classNames({
@@ -154,6 +261,13 @@ class Cart extends Component {
     });
 
     const checkoutDisabled = _.size(skus) < 1;
+    const footerClasses = classNames(styles['cart-footer'], {
+      [styles['with-apple-pay']]: applePayAvailable,
+    });
+
+    const contentClasses = classNames(styles['cart-content'], {
+      [styles['with-apple-pay']]: applePayAvailable,
+    });
 
     return (
       <div styleName={cartClass}>
@@ -168,29 +282,41 @@ class Cart extends Component {
             />
           </div>
 
-          <div styleName="cart-content">
+          <div className={contentClasses}>
+            {this.errorsLine}
             <div styleName="line-items">
               {this.lineItems}
             </div>
             {this.errorsLine}
           </div>
 
-          <div styleName="cart-footer">
+          <div className={footerClasses}>
             <Button onClick={this.onCheckout} disabled={checkoutDisabled} styleName="checkout-button">
               <span>{t('Checkout')}</span>
               <span styleName="subtotal-price">
                 <Currency value={totals.subTotal} />
               </span>
             </Button>
+            {this.applePayButton}
           </div>
         </div>
+        {this.guestAuth}
       </div>
     );
   }
 }
 
-const mapStateToProps = state => ({ ...state.cart, ...state.auth });
+const mapStateToProps = (state) => {
+  return {
+    ...state.cart,
+    ...state.auth,
+    applePayAvailable: _.get(state.checkout, 'applePayAvailable', false),
+    location: _.get(state.routing, 'location', {}),
+  };
+};
 
 export default connect(mapStateToProps, {
   ...actions,
+  checkApplePay,
+  beginApplePay,
 })(localized(Cart));

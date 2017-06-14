@@ -41,6 +41,7 @@ export const setBillingAddress = createAction('CHECKOUT_SET_BILLING_ADDRESS');
 export const toggleShippingModal = createAction('TOGGLE_SHIPPING_MODAL');
 export const toggleDeliveryModal = createAction('TOGGLE_DELIVERY_MODAL');
 export const togglePaymentModal = createAction('TOGGLE_PAYMENT_MODAL');
+const applePayAvailable = createAction('APPLE_PAY_AVAILABLE');
 const markAddressAsDeleted = createAction('CHECKOUT_MARK_ADDRESS_AS_DELETED');
 const markAddressAsRestored = createAction(
   'CHECKOUT_MARK_ADDRESS_AS_RESTORED',
@@ -104,6 +105,38 @@ function addressToPayload(address) {
 
   return payload;
 }
+
+const _checkApplePay = createAsyncActions(
+  'checkApplePay',
+  function() {
+    const { dispatch } = this;
+
+    return foxApi.applePay.available()
+      .then((resp) => {
+        dispatch(applePayAvailable(resp));
+      });
+  }
+);
+
+export const checkApplePay = _checkApplePay.perform;
+
+const _beginApplePay = createAsyncActions(
+  'beginApplePay',
+  function(paymentRequest) {
+    const { dispatch } = this;
+
+    return foxApi.applePay.beginApplePay(paymentRequest)
+      .then((res) => {
+        tracking.purchase({
+          ...res,
+        });
+        dispatch(orderPlaced(res));
+        dispatch(resetCart());
+      });
+  }
+);
+
+export const beginApplePay = _beginApplePay.perform;
 
 const _removeShippingMethod = createAsyncActions(
   'removeShippingMethod',
@@ -463,6 +496,7 @@ const initialState: CheckoutState = {
   shippingModalVisible: false,
   deliveryModalVisible: false,
   paymentModalVisible: false,
+  applePayAvailable: false,
 };
 
 function sortAddresses(addresses: Array<Address>): Array<Address> {
@@ -501,6 +535,12 @@ const reducer = createReducer({
     return {
       ...state,
       billingData,
+    };
+  },
+  [applePayAvailable]: (state, available) => {
+    return {
+      ...state,
+      applePayAvailable: available,
     };
   },
   [shippingMethodsActions.succeeded]: (state, list) => {

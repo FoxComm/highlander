@@ -81,6 +81,10 @@
   .place-order-button {
     border-radius: 0;
   }
+
+  .error-alerts {
+    margin-left: 15px;
+  }
 }
 
 @media (--large) {

@@ -10,6 +10,12 @@ import { browserHistory } from 'lib/history';
 import * as tracking from 'lib/analytics';
 import { emailIsSet, isGuest } from 'paragons/auth';
 import classNames from 'classnames';
+import sanitizeLineItems from 'sanitizers/line-items';
+
+// actions
+import * as actions from 'modules/checkout';
+import { fetch as fetchCart, hideCart } from 'modules/cart';
+import { fetchUser } from 'modules/auth';
 
 // components
 import Shipping from './shipping/shipping';
@@ -22,20 +28,13 @@ import Loader from 'ui/loader';
 import OrderTotals from 'components/order-summary/totals';
 import Button from 'ui/buttons';
 
-// styles
-import styles from './checkout.css';
-
 // types
 import type { CheckoutState, EditStage } from 'modules/checkout';
 import type { CheckoutActions } from './types';
 import type { AsyncStatus } from 'types/async-actions';
 
-// actions
-import * as actions from 'modules/checkout';
-import { EditStages } from 'modules/checkout';
-import { fetch as fetchCart, hideCart } from 'modules/cart';
-import { fetchUser } from 'modules/auth';
-
+// styles
+import styles from './checkout.css';
 
 type Props = CheckoutState & CheckoutActions & {
   setEditStage: (stage: EditStage) => Object,
@@ -119,8 +118,9 @@ class Checkout extends Component {
 
   @autobind
   sanitizeError(error) {
-    if (error && error.startsWith('Not enough onHand units')) {
-      return 'Unable to checkout — item is out of stock';
+    const sanitizedLineItems = sanitizeLineItems(error, this.props.cart.skus);
+    if (sanitizedLineItems) {
+      return sanitizedLineItems;
     } else if (/is blacklisted/.test(error)) {
       return 'Your account has been blocked from making purchases on this site';
     }
@@ -170,7 +170,6 @@ class Checkout extends Component {
   checkout() {
     return this.props.checkout()
       .then(() => {
-        this.props.setEditStage(EditStages.FINISHED);
         browserHistory.push('/checkout/done');
       });
   }
@@ -295,6 +294,7 @@ class Checkout extends Component {
           <ErrorAlerts
             sanitizeError={this.sanitizeError}
             error={props.checkoutState.err}
+            styleName="error-alerts"
           />
           {this.content}
         </div>

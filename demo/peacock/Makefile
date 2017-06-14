@@ -9,7 +9,7 @@ dev d:
 	export eval `cat .env` && yarn dev
 
 setup: clean
-	yarn --pure-lockfile		
+	yarn --pure-lockfile
 
 build:
 	$(call header, Building)
