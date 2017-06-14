@@ -3,7 +3,7 @@
 .block {
   width: 85px;
   text-align: center;
-  height: 60px;
+  height: 59px;
 
   & :global(.icon-bell) {
     font-size: 20px;
