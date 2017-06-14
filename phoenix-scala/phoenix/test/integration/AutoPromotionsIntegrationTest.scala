@@ -2,7 +2,7 @@ import cats.implicits._
 import org.json4s.JsonAST._
 import org.json4s.jackson.JsonMethods._
 import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito.{when, _}
+import org.mockito.Mockito._
 import org.scalactic.TolerantNumerics
 import phoenix.models.Reasons
 import phoenix.models.customer.CustomerGroup
@@ -20,7 +20,8 @@ import phoenix.payloads.UpdateShippingMethod
 import phoenix.responses.PromotionResponses.PromotionResponse
 import phoenix.responses.cord.base.CartResponseTotals
 import phoenix.responses.cord.{CartResponse, OrderResponse}
-import phoenix.responses.{CustomerResponse, GroupResponses, PromotionResponses, StoreCreditResponse}
+import phoenix.responses.users.CustomerResponse
+import phoenix.responses.{GroupResponses, PromotionResponses, StoreCreditResponse}
 import phoenix.utils.ElasticsearchApi
 import phoenix.utils.aliases._
 import phoenix.utils.seeds.Factories
@@ -106,7 +107,7 @@ class AutoPromotionsIntegrationTest
     // FIXME: use API
     val reason = Reasons.create(Factories.reason(storeAdmin.accountId)).gimme
 
-    def cartPreCheckout(customer: CustomerResponse.Root): CartResponse = {
+    def cartPreCheckout(customer: CustomerResponse): CartResponse = {
       val refNum =
         cartsApi.create(CreateCart(customerId = customer.id.some)).as[CartResponse].referenceNumber
       cartsApi(refNum).lineItems
