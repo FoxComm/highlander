@@ -26,7 +26,7 @@ class JwtAuthTest
     }
 
     "must allow to login as different user" in {
-      val skuCode = new ProductSku_ApiFixture {}.skuCode
+      val skuCode = ProductSku_ApiFixture().skuCode
 
       val adminLoginData   = TestLoginData.random
       val daisyLoginData   = TestLoginData.random

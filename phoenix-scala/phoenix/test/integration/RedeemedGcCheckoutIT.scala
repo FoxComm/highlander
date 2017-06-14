@@ -21,7 +21,7 @@ class RedeemedGcCheckoutIT
 
   "checkout with redeemed gc must fail nicely" in {
     val customer = api_newCustomer()
-    val sku      = new ProductSku_ApiFixture { override def skuPrice = 7000 }
+    val skuCode  = ProductSku_ApiFixture(skuPrice = 7000).skuCode
     val gc = {
       val reason = Reasons.create(Reason(body = "foo", storeAdminId = defaultAdmin.id)).gimme
       giftCardsApi
@@ -37,7 +37,7 @@ class RedeemedGcCheckoutIT
     }
 
     cartApi.lineItems
-      .add(Seq(UpdateLineItemsPayload(sku = sku.skuCode, quantity = 1)))
+      .add(Seq(UpdateLineItemsPayload(sku = skuCode, quantity = 1)))
       .mustBeOk()
 
     cartApi.shippingAddress.create(address).mustBeOk()

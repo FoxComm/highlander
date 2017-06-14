@@ -1,14 +1,11 @@
 import cats.implicits._
 import core.failures.GeneralFailure
-import faker.Lorem
 import phoenix.failures.CaptureFailures
 import phoenix.failures.OrderFailures.OnlyOneExternalPaymentIsAllowed
 import phoenix.models.cord.CordPaymentState.FullCapture
-import phoenix.models.location.Region
 import phoenix.models.payment.ExternalCharge.FailedAuth
 import phoenix.models.payment.creditcard.CreditCardCharges
 import phoenix.models.shipping._
-import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import phoenix.payloads.CapturePayloads.{Capture, CaptureLineItem, ShippingCost}
 import phoenix.payloads.CartPayloads.CreateCart
 import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
@@ -22,8 +19,8 @@ import phoenix.utils.seeds.{Factories, ShipmentSeeds}
 import slick.jdbc.PostgresProfile.api._
 import testutils.apis._
 import testutils.fixtures.PaymentFixtures.CreditCardsFixture
-import testutils.fixtures.api.{ApiFixtureHelpers, ApiFixtures}
-import testutils.{DefaultJwtAdminAuth, IntegrationTestBase, TestLoginData, _}
+import testutils.fixtures.api._
+import testutils._
 import utils.MockedApis
 
 class ApplePayIntegrationTest
@@ -140,7 +137,7 @@ class ApplePayIntegrationTest
     }
   }
 
-  trait ApplePayFixture extends ProductSku_ApiFixture with ShipmentSeeds {
+  trait ApplePayFixture extends ShipmentSeeds {
     val apToken           = "tok_1A9YBQJVm1XvTUrO3V8caBvF"
     val customerLoginData = TestLoginData(email = "test@bar.com", password = "pwd")
     val customer = customersApi
@@ -161,13 +158,9 @@ class ApplePayIntegrationTest
                                             adminDisplayName = ShippingMethod.expressShippingNameForAdmin))
       .gimme
 
-    val randomAddress = CreateAddressPayload(regionId = Region.californiaId,
-                                             name = Lorem.letterify("???"),
-                                             address1 = Lorem.letterify("???"),
-                                             city = Lorem.letterify("???"),
-                                             zip = Lorem.numerify("#####"))
+    cartsApi(refNum).shippingAddress.create(randomAddress()).mustBeOk()
 
-    cartsApi(refNum).shippingAddress.create(randomAddress).mustBeOk()
+    val skuCode = ProductSku_ApiFixture().skuCode
 
     val lineItemsPayloads = List(UpdateLineItemsPayload(skuCode, 1))
     cartsApi(refNum).lineItems.add(lineItemsPayloads).mustBeOk()
