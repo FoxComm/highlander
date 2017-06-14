@@ -19,12 +19,12 @@ class SearchService(private val client: ElasticClient) extends AnyVal {
     val baseQuery = search in searchIndex size searchSize rawQuery Json
       .fromJsonObject(searchQuery.query)
       .noSpaces
-    val query = searchQuery.fields.fold(baseQuery)(fields => baseQuery sourceInclude (fields.toList: _*))
+    val query = searchQuery.fields.fold(baseQuery)(fields ⇒ baseQuery sourceInclude (fields.toList: _*))
     client
       .execute(searchFrom.fold(query)(query from))
-      .map(response =>
+      .map(response ⇒
         SearchResult(result = response.hits.collect {
-          case ExtractJsonObject(obj) => obj
+          case ExtractJsonObject(obj) ⇒ obj
         }(collection.breakOut), pagination = SearchPagination(total = response.totalHits)))
   }
 }

@@ -7,7 +7,6 @@ All of our DevOps tools for deploying the application to both development and pr
 ### Required
 
 - [Ansible](https://ansible.com) 2.2.x
-- [AWS CLI](https://aws.amazon.com/cli)
 - [Docker](https://docker.com) 1.13
 - [Go](https://golang.org) 1.6 or above
 - [Google Cloud SDK](https://cloud.google.com/sdk/gcloud)

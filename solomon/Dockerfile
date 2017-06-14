@@ -12,6 +12,7 @@ COPY . /solomon
 RUN mix local.hex --force
 RUN mix local.rebar --force
 RUN mix deps.get
+RUN mix deps.compile
 RUN MIX_ENV=prod mix phoenix.gen.secret
 
 RUN npm install
