@@ -36,7 +36,7 @@ import phoenix.responses.SkuResponses.SkuResponse
 import phoenix.responses._
 import phoenix.responses.cord.{CartResponse, OrderResponse}
 import phoenix.responses.users.{CustomerResponse, UserResponse}
-import phoenix.services.LineItemUpdater.foldQuantityPayload
+import phoenix.services.carts.CartLineItemUpdater.foldQuantityPayload
 import phoenix.services.activity.AssignmentsTailored._
 import phoenix.services.activity.CartTailored._
 import phoenix.services.activity.CatalogTailored.{CatalogCreated, CatalogUpdated}

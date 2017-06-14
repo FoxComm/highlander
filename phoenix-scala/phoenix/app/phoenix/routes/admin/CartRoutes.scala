@@ -13,7 +13,8 @@ import phoenix.payloads.PaymentPayloads._
 import phoenix.payloads.UpdateShippingMethod
 import phoenix.services.Authenticator.AuthData
 import phoenix.services.carts._
-import phoenix.services.{Checkout, LineItemUpdater}
+import phoenix.services.orders.OrderLineItemUpdater
+import phoenix.services.Checkout
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
@@ -58,18 +59,18 @@ object CartRoutes {
             pathPrefix("line-items") {
               (post & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
                 mutateOrFailures {
-                  LineItemUpdater.updateQuantitiesOnCart(auth.model, refNum, reqItems)
+                  CartLineItemUpdater.updateQuantitiesOnCart(auth.model, refNum, reqItems)
                 }
               } ~
               (patch & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
                 mutateOrFailures {
-                  LineItemUpdater.addQuantitiesOnCart(auth.model, refNum, reqItems)
+                  CartLineItemUpdater.addQuantitiesOnCart(auth.model, refNum, reqItems)
                 }
               } ~
               (patch & path("attributes") & pathEnd & entity(as[Seq[UpdateOrderLineItemsPayload]])) {
                 reqItems ⇒
                   mutateOrFailures {
-                    LineItemUpdater.updateOrderLineItems(auth.model, reqItems, refNum)
+                    OrderLineItemUpdater.updateOrderLineItems(auth.model, reqItems, refNum)
                   }
               }
             } ~
