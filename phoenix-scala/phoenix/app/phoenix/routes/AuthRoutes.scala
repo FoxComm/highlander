@@ -35,6 +35,11 @@ object AuthRoutes {
           mutateOrFailures {
             AccountManager.resetPasswordSend(payload.email)
           }
+        } ~
+        (post & path("reset-password") & pathEnd & entity(as[ResetPassword])) { payload ⇒
+          mutateOrFailures {
+            AccountManager.resetPassword(code = payload.code, newPassword = payload.newPassword)
+          }
         }
       } ~
       (post & path("logout")) {
