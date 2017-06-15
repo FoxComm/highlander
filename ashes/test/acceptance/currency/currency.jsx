@@ -1,7 +1,7 @@
 import React from 'react';
 
 describe('Currency', function() {
-  const Currency = requireComponent('common/currency.jsx');
+  const Currency = requireComponent('utils/currency/currency.jsx');
 
   it('should render not empty tag by default', function() {
     expect(Currency({}), 'to equal', <span className="fc-currency">0.00</span>);
