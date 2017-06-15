@@ -8,6 +8,7 @@ import { createSelector } from 'reselect';
 import { transitionTo, transitionToLazy } from 'browserHistory';
 
 // components
+import Content from 'components/core/content/content';
 import PageNav from 'components/core/page-nav';
 import SaveCancel from 'components/core/save-cancel';
 import WaitAnimation from 'components/common/wait-animation';
@@ -185,7 +186,9 @@ class CatalogPage extends Component {
         />
         </PageTitle>
         {this.localNav}
-        {upChildren}
+        <Content>
+          {upChildren}
+        </Content>
       </div>
     );
   }

@@ -1,0 +1,7 @@
+.list-container {
+  margin-top: -10px;
+}
+
+.list-container :global(.fc-live-search) {
+  padding: 0;
+}

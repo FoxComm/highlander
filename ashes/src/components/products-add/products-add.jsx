@@ -91,6 +91,7 @@ class ProductsAdd extends Component {
             className={styles.search}
             value={this.props.search}
             onChange={this.handleInputChange}
+            placeholder="Filter products..."
             autoFocus
           />
         </LoadingInputWrapper>
