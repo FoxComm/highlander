@@ -8,7 +8,6 @@ import ContentBox from 'components/content-box/content-box';
 import { Dropdown } from 'components/dropdown';
 import ErrorAlerts from 'components/alerts/error-alerts';
 import Form from 'components/forms/form';
-import SaveCancel from 'components/core/save-cancel';
 import TextInput from 'components/forms/text-input';
 import VerticalFormField from 'components/forms/vertical-form-field';
 
@@ -29,9 +28,9 @@ type Props = {
 
 const CatalogDetails = (props: Props) => {
   const { defaultLanguage, name, site, countryId, countries } = props;
-  const { onCancel, onChange, onSubmit } = props;
-  const { err, isLoading } = props;
-  
+  const { onChange, onSubmit } = props;
+  const { err } = props;
+ 
   const country = _.find(countries, { 'id': countryId });
 
   let languages = _.get(country, 'languages', []);
