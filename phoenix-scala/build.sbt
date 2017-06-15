@@ -36,7 +36,6 @@ lazy val phoenix = (project in file("phoenix"))
       .sequential(compile in Test, compile in IT, compile in ET, test in Test, test in IT, test in ET)
       .value,
     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
-    javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC", "-Dphoenix.env=test"),
     testForkedParallel in Test := true,
     testForkedParallel in IT := true,
     testForkedParallel in ET := true,

@@ -21,7 +21,8 @@ clean:
 
 test:
 	$(call header, Testing)
-	../utils/scalafmt/scalafmt.sh --test && sbt -mem 3072 '; test; seedDemo'
+	../utils/scalafmt/scalafmt.sh --test
+	SBT_OPTS="-server -XX:+UseConcMarkSweepGC -Dphoenix.env=test -XX:NewRatio=8" sbt -mem 3072 '; test; seedDemo'
 
 docker:
 	$(call header, Dockerizing)
