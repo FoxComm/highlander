@@ -14,8 +14,10 @@ import { getStore } from 'lib/store-creator';
 
 import SelectAdminsModal from '../users/select-modal';
 
-const mapDispatchToProps = (dispatch, {module}) => {
-  const {actions} = getStore(`${module}.bulk`);
+const mapDispatchToProps = (dispatch, {bulkModule, module}) => {
+  const { actions } = bulkModule
+    ? getStore(bulkModule)
+    : getStore(`${module}.bulk`);
 
   return {
     bulkActions: bindActionCreators(actions, dispatch),
@@ -25,6 +27,7 @@ const mapDispatchToProps = (dispatch, {module}) => {
 @connect(void 0, mapDispatchToProps)
 export default class BulkActions extends Component {
   static propTypes = {
+    bulkModule: PropTypes.string,
     module: PropTypes.string.isRequired,
     entity: PropTypes.string.isRequired,
     actions: PropTypes.arrayOf(PropTypes.array).isRequired,

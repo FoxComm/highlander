@@ -15,6 +15,7 @@ import ErrorAlerts from '../alerts/error-alerts';
 
 type Props = {
   storePath: string,
+  bulkModule?: string,
   module: string,
   entity: string,
   renderDetail: () => ReactElement,
@@ -95,8 +96,11 @@ const mapState = (state, { storePath }) => ({
   bulk: get(state, storePath, {}),
 });
 
-const mapActions = (dispatch, { module }) => ({
-  bulkActions: bindActionCreators(getStore(`${module}.bulk`).actions, dispatch),
-});
+const mapActions = (dispatch, { bulkModule, module }) => {
+  const { actions } = bulkModule ? getStore(bulkModule) : getStore(`${module}.bulk`);
+  return {
+    bulkActions: bindActionCreators(actions, dispatch),
+  };
+};
 
 export default connect(mapState, mapActions)(BulkMessages);

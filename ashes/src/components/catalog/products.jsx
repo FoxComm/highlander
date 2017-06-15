@@ -25,7 +25,6 @@ import { Button } from 'components/core/button';
 import BulkActions from 'components/bulk-actions/bulk-actions';
 import BulkMessages from 'components/bulk-actions/bulk-messages';
 import { Link } from 'components/link';
-import Content from 'components/core/content/content';
 
 // styles
 import styles from './products.css';
@@ -41,7 +40,11 @@ type Props = {
     unlinkProduct: Function,
     setExtraFilters: Function,
   },
-  list: ?Object,
+  bulkActions: {
+    exportByIds: Function,
+  },
+  bulkExportAction: Function,
+  list: Object,
   linkState: Object,
   unlinkState: Object,
 }
@@ -61,14 +64,20 @@ class CatalogProducts extends Component {
 
   componentDidMount() {
     const { catalogId } = this.props.params;
-    
+
     this.props.actions.setExtraFilters([
       dsl.nestedTermFilter('catalogs.id', catalogId),
     ]);
-    
+
     this.props.actions.fetch();
   }
-  
+
+  get bulkActions(): Array<any> {
+    return [
+      bulkExportBulkAction(this.bulkExport, 'Products'),
+    ];
+  }
+
   get tableColumns(): Columns {
     return [
       { field: 'productId', text: 'ID' },
@@ -79,6 +88,27 @@ class CatalogProducts extends Component {
       { field: '', render: this.unlinkButton },
     ];
   }
+
+  bulkExport = (allChecked: boolean, toggledIds: Array<number>) => {
+    const { exportByIds } = this.props.bulkActions;
+    const modalTitle = 'Products';
+    const entity = 'products';
+
+    return renderExportModal(this.tableColumns, entity, modalTitle, exportByIds, toggledIds);
+  };
+
+  renderBulkDetails = (context: string, id: number) => {
+    const { list } = this.props;
+    const results = list.currentSearch().results.rows;
+    const filteredProduct = _.filter(results, (product) => product.id.toString() === id)[0];
+    const productId = filteredProduct.productId;
+
+    return (
+      <span key={id}>
+        Product <Link to="product-details" params={{ productId, context }}>{productId}</Link>
+      </span>
+    );
+  };
 
   unlinkButton = (children: any, row: Product) => {
     const inProgress = this.props.unlinkState.inProgress
@@ -130,7 +160,7 @@ class CatalogProducts extends Component {
   }
 
   addSearchFilters = (filters: Array<SearchFilter>, initial: boolean = false) => {
-    return this.props.actions.addSearchFilters(filterArchived(filters), initial)
+    return this.props.actions.addSearchFilters(filterArchived(filters), initial);
   };
 
   render() {
@@ -152,18 +182,34 @@ class CatalogProducts extends Component {
           addTitle="Product"
           onAddClick={this.openModal}
         />
-        <SelectableSearchList
-          exportEntity="products"
-          exportTitle="Products"
-          entity="catalogs.products"
-          emptyMessage="No products found."
-          list={list}
-          renderRow={this.renderRow}
-          tableColumns={this.tableColumns}
-          searchOptions={{ singleSearch: true }}
-          searchActions={searchActions}
-          predicate={({ id }) => id}
+        <BulkMessages
+          bulkModule="catalogs.bulk"
+          storePath="catalogs.bulk"
+          module="catalogs.details"
+          entity="product"
+          renderDetail={this.renderBulkDetails}
         />
+        <BulkActions
+          bulkModule="catalogs.bulk"
+          module="catalogs.details"
+          entity="product"
+          actions={this.bulkActions}
+        >
+          <SelectableSearchList
+            exportEntity="products"
+            exportTitle="Products"
+            bulkExport
+            bulkExportAction={this.props.bulkExportAction}
+            entity="catalogs.products"
+            emptyMessage="No products found."
+            list={list}
+            renderRow={this.renderRow}
+            tableColumns={this.tableColumns}
+            searchOptions={{ singleSearch: true }}
+            searchActions={searchActions}
+            predicate={({ id }) => id}
+        />
+        </BulkActions>
         <ProductsAddModal
           isVisible={this.state.modalVisible}
           onCancel={this.closeModal}
@@ -192,7 +238,7 @@ const mapDispatchToProps = (dispatch) => {
       linkProducts: bindActionCreators(linkProducts, dispatch),
       unlinkProduct: bindActionCreators(unlinkProduct, dispatch),
     },
-    bulkActionExport: bindActionCreators(bulkExport, dispatch),
+    bulkExportAction: bindActionCreators(bulkExport, dispatch),
     bulkActions: bindActionCreators(bulkActions, dispatch),
   };
 };
