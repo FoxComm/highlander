@@ -302,7 +302,7 @@ hyperion_push_check_interval: 5
 hyperion_create_plugin_in_ashes_on_start: true
 
 # Geronimo
-geronimo_db_host: {{db_host}}
+geronimo_db_host: "{{db_host}}"
 geronimo_db_name: geronimo_development
 geronimo_db_user: geronimo
 geronimo_db_password: ""
