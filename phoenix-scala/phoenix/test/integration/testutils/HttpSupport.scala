@@ -66,8 +66,17 @@ trait HttpSupport
   protected implicit def mat: ActorMaterializer   = HttpSupport.materializer
   protected implicit def actorSystem: ActorSystem = HttpSupport.system
 
-  private[this] var service: Service             = _
-  private[this] var serverBinding: ServerBinding = _
+  private[this] lazy val service: Service = makeService
+  private[this] lazy val serverBinding: ServerBinding = {
+    service
+      .bind(
+        FoxConfig.http.modify(config)(
+          _.copy(
+            interface = "127.0.0.1",
+            port = getFreePort
+          )))
+      .futureValue
+  }
 
   protected def additionalRoutes: immutable.Seq[Route] = immutable.Seq.empty
 
@@ -76,17 +85,7 @@ trait HttpSupport
     // init
     HttpSupport.system
     HttpSupport.materializer
-
-    service = makeService
-
-    serverBinding = service
-      .bind(
-        FoxConfig.http.modify(config)(
-          _.copy(
-            interface = "127.0.0.1",
-            port = getFreePort
-          )))
-      .futureValue
+    serverBinding
   }
 
   override protected def afterAll: Unit = {
