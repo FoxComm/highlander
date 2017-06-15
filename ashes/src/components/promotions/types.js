@@ -8,6 +8,7 @@ export type Context = {
 export type ItemDesc = {
   type?: string;
   name?: string;
+  value?: number,
   widget?: string;
   template?: (props: Object) => Element<*>;
 }

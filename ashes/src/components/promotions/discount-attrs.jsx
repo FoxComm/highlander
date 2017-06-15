@@ -66,10 +66,10 @@ const DiscountAttrs = (props: Props) => {
       },
     });
   };
-
   const setType = (type: any) => {
+    const newDiscountParams = attrs[type] || {};
     props.onChange({
-      [type]: discountParams,
+      [type]: newDiscountParams
     });
   };
 
