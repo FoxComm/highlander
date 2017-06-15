@@ -20,8 +20,4 @@ object AuthFailures {
   case object ResetPasswordsForbiddenForGuests extends ResetPasswordFailed {
     override def description: String = "Guest users can't reset passwords"
   }
-
-  case object InvalidEmailInOauthUserInfo extends Failure {
-    override def description: String = "Invalid email received from oauth provider"
-  }
 }

@@ -7,10 +7,10 @@ import akka.http.scaladsl.server._
 import cats.implicits._
 import com.pellucid.sealerate
 import core.db._
-import shapeless._
-import core.failures.GeneralFailure
+import core.failures.{Failures, GeneralFailure}
+import phoenix.failures.OauthFailures._
 import phoenix.failures.UserFailures.{OrganizationNotFound, OrganizationNotFoundWithDomain}
-import phoenix.libs.oauth.{FacebookProvider, GoogleOauthOptions, GoogleProvider, Oauth, OauthProvider, UserInfo}
+import phoenix.libs.oauth.{FacebookProvider, GoogleProvider, Oauth, OauthProvider, UserInfo}
 import phoenix.models.account._
 import phoenix.models.auth.{Token, UserToken}
 import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
@@ -18,18 +18,18 @@ import phoenix.payloads.StoreAdminPayloads.CreateStoreAdminPayload
 import phoenix.services.account.{AccountCreateContext, AccountManager}
 import phoenix.services.customers.CustomerManager
 import phoenix.services.{Authenticator, StoreAdminManager}
-import phoenix.utils.{ADT, FoxConfig}
 import phoenix.utils.FoxConfig.{config, OauthProviderName}
 import phoenix.utils.aliases._
 import phoenix.utils.http.Http._
+import phoenix.utils.{ADT, FoxConfig}
 
 case class OauthCallbackResponse(code: Option[String] = None, error: Option[String] = None) {
 
-  def getCode: Either[Throwable, String] =
-    if (this.error.isEmpty && this.code.nonEmpty) {
-      Either.right(this.code.getOrElse(""))
-    } else {
-      Either.left(new Throwable(this.error.getOrElse("Unexpected error")))
+  def getCode: Either[Failures, String] =
+    (error, code) match {
+      case (None, Some(providedCode)) ⇒ Either.right(providedCode)
+      case (Some(err), _)             ⇒ Either.left(CallbackResponseError(err).single)
+      case (_, None)                  ⇒ Either.left(CallbackResponseError("code is empty").single)
     }
 }
 
@@ -100,7 +100,7 @@ trait OauthService { this: Oauth ⇒
   def fetchUserInfoFromCode(oauthResponse: OauthCallbackResponse)(implicit ec: EC,
                                                                   db: DB): DbResultT[UserInfo] =
     for {
-      code ← DbResultT.fromEither(oauthResponse.getCode.leftMap(t ⇒ GeneralFailure(t.toString).single))
+      code ← * <~ oauthResponse.getCode
       accessTokenResp ← * <~ this
                          .accessToken(code)
                          .leftMap(t ⇒ GeneralFailure(t.toString).single)

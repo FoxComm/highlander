@@ -10,7 +10,7 @@ import phoenix.utils.aliases._
 import scala.concurrent.Future
 
 import core.failures.Failures
-import phoenix.failures.AuthFailures._
+import phoenix.failures.OauthFailures._
 
 case class UserInfo(name: String, email: String) {
   def emailDomain: Either[Failures, String] = {
@@ -18,7 +18,7 @@ case class UserInfo(name: String, email: String) {
     if (userAtDomain.size == 2)
       Either.right(userAtDomain(1))
     else
-      Either.left(InvalidEmailInOauthUserInfo.single)
+      Either.left(InvalidEmailInUserInfo.single)
   }
 }
 
