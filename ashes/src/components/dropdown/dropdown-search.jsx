@@ -3,7 +3,7 @@
 
 import _ from 'lodash';
 import React, { Component } from 'react';
-import { autobind } from 'core-decorators';
+import { autobind, debounce } from 'core-decorators';
 
 import GenericDropdown from './generic-dropdown';
 import DropdownItem from './dropdownItem';
@@ -16,6 +16,7 @@ type Props = GenericProps & {
   searchbarPlaceholder?: string,
   fetchOptions: Function,
   renderOption?: Function,
+  omitSearchIfEmpty: boolean,
 };
 
 type State = {
@@ -40,7 +41,9 @@ export default class DropdownSearch extends Component {
     this.fetchOptions(this.state.token);
   }
 
+  @debounce(400)
   fetchOptions(token: string) {
+    if (this.props.omitSearchIfEmpty && token == '') return null;
     this.props.fetchOptions(this.state.token).then(data => {
       this.setState({results: data});
     });
