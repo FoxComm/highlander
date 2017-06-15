@@ -89,9 +89,8 @@ trait HttpSupport
   }
 
   override protected def afterAll: Unit = {
-    super.afterAll
+    super.afterAll()
     for {
-      _ ← Http().shutdownAllConnectionPools()
       _ ← service.close()
     } yield ()
   }
