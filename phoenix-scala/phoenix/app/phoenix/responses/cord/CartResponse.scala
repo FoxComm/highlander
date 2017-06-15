@@ -2,7 +2,7 @@ package phoenix.responses.cord
 
 import cats.implicits._
 import core.db._
-import phoenix.models.account.{User, _}
+import phoenix.models.account._
 import phoenix.models.cord.OrderPayments.scope._
 import phoenix.models.cord._
 import phoenix.models.cord.lineitems.CartLineItems
@@ -10,10 +10,10 @@ import phoenix.models.customer.{CustomerData, CustomersData}
 import phoenix.responses.PromotionResponses.PromotionResponse
 import phoenix.responses._
 import phoenix.responses.cord.base._
+import phoenix.responses.users.CustomerResponse
 import phoenix.services.carts.CartQueries
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import core.utils.Money._
 
 case class CartResponse(referenceNumber: String,
                         paymentState: CordPaymentState.State,
@@ -22,7 +22,7 @@ case class CartResponse(referenceNumber: String,
                         promotion: Option[PromotionResponse.Root] = None,
                         coupon: Option[CordResponseCouponPair] = None,
                         totals: CartResponseTotals,
-                        customer: Option[CustomerResponse.Root] = None,
+                        customer: Option[CustomerResponse] = None,
                         shippingMethod: Option[ShippingMethodsResponse.Root] = None,
                         shippingAddress: Option[AddressResponse] = None,
                         paymentMethods: Seq[CordResponsePayments] = Seq.empty)
@@ -33,10 +33,9 @@ object CartResponse {
   def buildRefreshed(cart: Cart)(implicit db: DB, ec: EC, ctx: OC): DbResultT[CartResponse] =
     Carts.refresh(cart).dbresult.flatMap(c ⇒ fromCart(c, grouped = true))
 
-  def fromCart(cart: Cart, grouped: Boolean, isGuest: Boolean = false)(
-      implicit db: DB,
-      ec: EC,
-      ctx: OC): DbResultT[CartResponse] =
+  def fromCart(cart: Cart, grouped: Boolean, isGuest: Boolean = false)(implicit db: DB,
+                                                                       ec: EC,
+                                                                       ctx: OC): DbResultT[CartResponse] =
     for {
       lineItemAdj    ← * <~ CordResponseLineItemAdjustments.fetch(cart.refNum)
       lineItemsSku   ← * <~ CartLineItems.byCordRef(cart.refNum).result
@@ -60,36 +59,34 @@ object CartResponse {
                                  .result
     } yield
       CartResponse(
-          referenceNumber = cart.refNum,
-          lineItems = lineItems,
-          lineItemAdjustments = lineItemAdj,
-          promotion = promo.map { case (promotion, _) ⇒ promotion },
-          coupon = promo.flatMap { case (_, coupon)   ⇒ coupon },
-          totals =
-            CartResponseTotals.build(cart, coveredByInStoreMethods = coveredByInStoreMethods),
-          customer = for {
-            c  ← customer
-            cu ← customerData
-          } yield CustomerResponse.build(c, cu),
-          shippingMethod = shippingMethod,
-          shippingAddress = shippingAddress,
-          paymentMethods = paymentMethods,
-          paymentState = paymentState
-      )
-
-  def buildEmpty(cart: Cart,
-                 customer: Option[User] = None,
-                 customerData: Option[CustomerData] = None): CartResponse = {
-    CartResponse(
         referenceNumber = cart.refNum,
-        lineItems = CordResponseLineItems(),
+        lineItems = lineItems,
+        lineItemAdjustments = lineItemAdj,
+        promotion = promo.map { case (promotion, _) ⇒ promotion },
+        coupon = promo.flatMap { case (_, coupon)   ⇒ coupon },
+        totals = CartResponseTotals.build(cart, coveredByInStoreMethods = coveredByInStoreMethods),
         customer = for {
           c  ← customer
           cu ← customerData
         } yield CustomerResponse.build(c, cu),
-        totals = CartResponseTotals.empty,
-        paymentState = CordPaymentState.Cart
+        shippingMethod = shippingMethod,
+        shippingAddress = shippingAddress,
+        paymentMethods = paymentMethods,
+        paymentState = paymentState
+      )
+
+  def buildEmpty(cart: Cart,
+                 customer: Option[User] = None,
+                 customerData: Option[CustomerData] = None): CartResponse =
+    CartResponse(
+      referenceNumber = cart.refNum,
+      lineItems = CordResponseLineItems(),
+      customer = for {
+        c  ← customer
+        cu ← customerData
+      } yield CustomerResponse.build(c, cu),
+      totals = CartResponseTotals.empty,
+      paymentState = CordPaymentState.Cart
     )
-  }
 
 }

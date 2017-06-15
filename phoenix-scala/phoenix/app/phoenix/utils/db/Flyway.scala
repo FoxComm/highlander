@@ -17,6 +17,7 @@ object flyway {
     flyway.setDataSource(dataSource)
     flyway.setSchemas("public")
     flyway.setLocations(locations: _*)
+    flyway.setOutOfOrder(true)
     flyway
   }
 
@@ -28,7 +29,7 @@ object flyway {
     def debug(message: String) = {}
     def info(message: String)  = {}
     def warn(message: String)  = {}
-    def error(message: String) = { Console.err.println(message) }
+    def error(message: String) = Console.err.println(message)
     def error(message: String, e: Exception) = {
       Console.err.println(message)
       Console.err.println(e.getMessage)

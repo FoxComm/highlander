@@ -1,0 +1,54 @@
+{
+    "id": "anthill",
+    "cmd": null,
+    "cpus": 1,
+    "mem": 512,
+    "disk": 0,
+    "instances": 1,
+    "constraints": [],
+    "labels": {
+        "LANG": "python",
+        "TAG": "{{docker_tags.anthill}}",
+        "consul": "anthill",
+        "overrideTaskName": "anthill"
+    },
+    "container": {
+        "type": "DOCKER",
+        "volumes": [{
+            "containerPath": "{{docker_logs_dir}}",
+            "hostPath": "{{docker_logs_host_dir}}",
+            "mode": "RW"
+        }],
+        "docker": {
+            "image": "{{docker_registry}}:5000/anthill:{{docker_tags.anthill}}",
+            "network": "HOST",
+            "privileged": false,
+            "parameters": [],
+            "forcePullImage": true
+        }
+    },
+    "env": {
+        "ES_HOST": "{{search_host}}",
+        "ES_PORT": "9200",
+        "NEO4J_USER": "{{neo4j_user}}",
+        "NEO4J_PASS": "{{neo4j_pass}}",
+        "NEO4J_HOST": "{{neo4j_host}}",
+        "NEO4J_PORT": "{{neo4j_port}}"
+    },
+    "healthChecks": [{
+        "path": "/public/ping",
+        "protocol": "HTTP",
+        "portIndex": 0,
+        "gracePeriodSeconds": 300,
+        "intervalSeconds": 30,
+        "timeoutSeconds": 20,
+        "maxConsecutiveFailures": 3,
+        "ignoreHttp1xx": false
+    }],
+    "portDefinitions": [{
+        "port": 10005,
+        "protocol": "tcp",
+        "name": "http",
+        "labels": {}
+    }]
+}

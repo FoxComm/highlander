@@ -1,17 +1,16 @@
 package phoenix.services.actors
 
-import java.time.Instant
-
 import akka.actor.{Actor, ActorLogging}
 import cats.implicits._
 import core.db.ExPostgresDriver.api._
 import core.db._
 import faker.Lorem.letterify
-import phoenix.models.activity.ActivityContext
+import java.time.Instant
+import phoenix.models.activity.{ActivityContext, EnrichedActivityContext}
 import phoenix.models.cord.Order._
 import phoenix.models.cord.{Order, Orders}
 import phoenix.services.LogActivity
-
+import phoenix.utils.apis.Apis
 import scala.util.Success
 
 case object Tick
@@ -19,13 +18,13 @@ case object Tick
 // FIXME: what is this, Result has Future inside! @michalrus
 case class RemorseTimerResponse(updatedQuantity: Result[Int])
 
-class RemorseTimer(implicit db: DB, ec: EC) extends Actor {
+class RemorseTimer(implicit db: DB, ec: EC, apis: Apis) extends Actor {
 
   override def receive = {
     case Tick ⇒ sender() ! tick
   }
 
-  private def tick(implicit db: DB): RemorseTimerResponse = {
+  private def tick: RemorseTimerResponse = {
     val orders = Orders
       .filter(_.state === (RemorseHold: State))
       .filter(_.remorsePeriodEnd.map(_ < Instant.now))
@@ -41,24 +40,25 @@ class RemorseTimer(implicit db: DB, ec: EC) extends Actor {
     RemorseTimerResponse(query.runTxn)
   }
 
-  private def logAcitvity(newState: Order.State, orders: Seq[Order])(
-      implicit ec: EC): DbResultT[Unit] =
+  private def logAcitvity(newState: Order.State, orders: Seq[Order]): DbResultT[Unit] =
     DbResultT
       .seqCollectFailures(
-          orders
-            .groupBy(_.scope)
-            .map {
-          case (scope, scopeOrders) ⇒
-            val refNums = scopeOrders.map(_.referenceNumber)
+        orders
+          .groupBy(_.scope)
+          .map {
+            case (scope, scopeOrders) ⇒
+              val refNums = scopeOrders.map(_.referenceNumber)
 
-            implicit val ac = ActivityContext.build(userId = 1,
-                                                    userType = "admin",
-                                                    scope = scope,
-                                                    transactionId = letterify("?" * 5))
+              implicit val ac = EnrichedActivityContext(ctx = ActivityContext(userId = 1,
+                                                                              userType = "admin",
+                                                                              scope = scope,
+                                                                              transactionId =
+                                                                                letterify("?" * 5)),
+                                                        producer = apis.kafka)
 
-            LogActivity().withScope(scope).orderBulkStateChanged(newState, refNums)
-        }
-            .toList)
+              LogActivity().withScope(scope).orderBulkStateChanged(newState, refNums)
+          }
+          .toList)
       .meh
 }
 

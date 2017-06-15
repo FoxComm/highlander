@@ -10,6 +10,7 @@ import com.pellucid.sealerate
 import core.db.ExPostgresDriver.api._
 import core.db._
 import core.failures._
+import core.utils.Money._
 import core.utils.Validation
 import core.utils.Validation._
 import phoenix.failures.EmptyCancellationReasonFailure
@@ -25,7 +26,6 @@ import phoenix.utils.{ADT, FSM}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import core.utils.Money._
 
 case class GiftCard(id: Int = 0,
                     scope: LTree,
@@ -66,11 +66,10 @@ case class GiftCard(id: Int = 0,
       }
 
     (canceledWithReason
-        // |@| notEmpty(code, "code") // FIXME: this check does not allow to create models
-          |@| validExpr(originalBalance >= 0,
-                        "originalBalance should be greater or equal than zero") |@| validExpr(
-            currentBalance >= 0,
-            "currentBalance should be greater or equal than zero")).map {
+    // |@| notEmpty(code, "code") // FIXME: this check does not allow to create models
+      |@| validExpr(originalBalance >= 0, "originalBalance should be greater or equal than zero") |@| validExpr(
+      currentBalance >= 0,
+      "currentBalance should be greater or equal than zero")).map {
       case _ ⇒ this
     }
   }
@@ -81,15 +80,13 @@ case class GiftCard(id: Int = 0,
     super.transitionModel(newModel)
 
   val fsm: Map[State, Set[State]] = Map(
-      OnHold → Set(Active, Canceled),
-      Active → Set(OnHold, Canceled),
-      Cart   → Set(Canceled)
+    OnHold → Set(Active, Canceled),
+    Active → Set(OnHold, Canceled),
+    Cart   → Set(Canceled)
   )
 
   def isActive: Boolean = state == Active
   def isCart: Boolean   = state == Cart
-
-  def hasAvailable(amount: Long): Boolean = availableBalance >= amount
 
   def mustBeCart: Either[Failures, GiftCard] =
     if (isCart) Either.right(this) else Either.left(GiftCardMustBeCart(code).single)
@@ -98,10 +95,10 @@ case class GiftCard(id: Int = 0,
     if (!isCart) Either.right(this) else Either.left(GiftCardMustNotBeCart(code).single)
 
   def mustBeActive: Either[Failures, GiftCard] =
-    if (isActive) Either.right(this) else Either.left(GiftCardIsInactive(this).single)
+    if (isActive) Either.right(this) else Either.left(GiftCardIsInactive(this.code).single)
 
   def mustHaveEnoughBalance(amount: Long): Either[Failures, GiftCard] =
-    if (hasAvailable(amount)) Either.right(this)
+    if (availableBalance >= amount) Either.right(this)
     else Either.left(GiftCardNotEnoughBalance(this, amount).single)
 }
 
@@ -129,88 +126,81 @@ object GiftCard {
 
   val giftCardCodeRegex = """([a-zA-Z0-9-_]*)""".r
 
-  def build(balance: Long, originId: Int, currency: Currency)(implicit au: AU): GiftCard = {
+  def build(balance: Long, originId: Int, currency: Currency)(implicit au: AU): GiftCard =
     GiftCard(
-        scope = Scope.current,
-        originId = originId,
-        originType = GiftCard.CustomerPurchase,
-        state = GiftCard.Active,
-        currency = currency,
-        originalBalance = balance,
-        availableBalance = balance,
-        currentBalance = balance
+      scope = Scope.current,
+      originId = originId,
+      originType = GiftCard.CustomerPurchase,
+      state = GiftCard.Active,
+      currency = currency,
+      originalBalance = balance,
+      availableBalance = balance,
+      currentBalance = balance
     )
-  }
 
-  def buildAppeasement(payload: GiftCardCreateByCsr, originId: Int, scope: LTree): GiftCard = {
+  def buildAppeasement(payload: GiftCardCreateByCsr, originId: Int, scope: LTree): GiftCard =
     GiftCard(
-        scope = scope,
-        originId = originId,
-        originType = GiftCard.CsrAppeasement,
-        subTypeId = payload.subTypeId,
-        state = GiftCard.Active,
-        currency = payload.currency,
-        originalBalance = payload.balance,
-        availableBalance = payload.balance,
-        currentBalance = payload.balance
+      scope = scope,
+      originId = originId,
+      originType = GiftCard.CsrAppeasement,
+      subTypeId = payload.subTypeId,
+      state = GiftCard.Active,
+      currency = payload.currency,
+      originalBalance = payload.balance,
+      availableBalance = payload.balance,
+      currentBalance = payload.balance
     )
-  }
 
-  def buildByCustomerPurchase(payload: GiftCardCreatedByCustomer,
-                              originId: Int,
-                              scope: LTree): GiftCard = {
+  def buildByCustomerPurchase(payload: GiftCardCreatedByCustomer, originId: Int, scope: LTree): GiftCard = {
     val message: Option[String] =
       payload.message.flatMap(msg ⇒ if (msg.trim.isEmpty) None else Option(msg.trim))
     GiftCard(
-        scope = scope,
-        originId = originId,
-        originType = GiftCard.CustomerPurchase,
-        subTypeId = payload.subTypeId,
-        state = GiftCard.Active,
-        currency = payload.currency,
-        originalBalance = payload.balance,
-        availableBalance = payload.balance,
-        currentBalance = payload.balance,
-        senderName = payload.senderName.some,
-        recipientName = payload.recipientName.some,
-        recipientEmail = payload.recipientEmail.some,
-        message = message
+      scope = scope,
+      originId = originId,
+      originType = GiftCard.CustomerPurchase,
+      subTypeId = payload.subTypeId,
+      state = GiftCard.Active,
+      currency = payload.currency,
+      originalBalance = payload.balance,
+      availableBalance = payload.balance,
+      currentBalance = payload.balance,
+      senderName = payload.senderName.some,
+      recipientName = payload.recipientName.some,
+      recipientEmail = payload.recipientEmail.some,
+      message = message
     )
   }
 
-  def buildScTransfer(balance: Long, originId: Int, currency: Currency, scope: LTree): GiftCard = {
+  def buildScTransfer(balance: Long, originId: Int, currency: Currency, scope: LTree): GiftCard =
     GiftCard(
-        scope = scope,
-        originId = originId,
-        originType = GiftCard.FromStoreCredit,
-        state = GiftCard.Active,
-        currency = currency,
-        originalBalance = balance,
-        availableBalance = balance,
-        currentBalance = balance
+      scope = scope,
+      originId = originId,
+      originType = GiftCard.FromStoreCredit,
+      state = GiftCard.Active,
+      currency = currency,
+      originalBalance = balance,
+      availableBalance = balance,
+      currentBalance = balance
     )
-  }
 
-  def buildLineItem(balance: Long, originId: Int, currency: Currency)(implicit au: AU): GiftCard = {
+  def buildLineItem(balance: Long, originId: Int, currency: Currency)(implicit au: AU): GiftCard =
     GiftCard(
-        scope = Scope.current,
-        originId = originId,
-        originType = GiftCard.CustomerPurchase,
-        state = GiftCard.Cart,
-        currency = currency,
-        originalBalance = balance,
-        availableBalance = balance,
-        currentBalance = balance
+      scope = Scope.current,
+      originId = originId,
+      originType = GiftCard.CustomerPurchase,
+      state = GiftCard.Cart,
+      currency = currency,
+      originalBalance = balance,
+      availableBalance = balance,
+      currentBalance = balance
     )
-  }
 
-  def validateStateReason(state: State, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
+  def validateStateReason(state: State, reason: Option[Int]): ValidatedNel[Failure, Unit] =
     if (state == Canceled) {
       validExpr(reason.isDefined, EmptyCancellationReasonFailure.description)
     } else {
       valid({})
     }
-  }
 
   implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
   implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] =
@@ -272,10 +262,8 @@ object GiftCards
       implicit ec: EC): DbResultT[GiftCardAdjustment] =
     adjust(giftCard, orderPaymentId.some, debit = debit, state = InStorePaymentStates.Auth)
 
-  def authOrderPayment(
-      giftCard: GiftCard,
-      pmt: OrderPayment,
-      maxPaymentAmount: Option[Long] = None)(implicit ec: EC): DbResultT[GiftCardAdjustment] =
+  def authOrderPayment(giftCard: GiftCard, pmt: OrderPayment, maxPaymentAmount: Option[Long] = None)(
+      implicit ec: EC): DbResultT[GiftCardAdjustment] =
     auth(giftCard = giftCard, orderPaymentId = pmt.id, debit = pmt.getAmount(maxPaymentAmount))
 
   def captureOrderPayment(giftCard: GiftCard, pmt: OrderPayment, maxAmount: Option[Long] = None)(
@@ -293,27 +281,30 @@ object GiftCards
              .update(auth, auth.copy(debit = debit, state = InStorePaymentStates.Capture))
     } yield cap
 
-  def cancelByCsr(giftCard: GiftCard, storeAdmin: User)(
-      implicit ec: EC): DbResultT[GiftCardAdjustment] = {
-    val adjustment = Adj(giftCardId = giftCard.id,
-                         orderPaymentId = None,
-                         storeAdminId = storeAdmin.accountId.some,
-                         debit = giftCard.availableBalance,
-                         credit = 0,
-                         availableBalance = 0,
-                         state = InStorePaymentStates.CancellationCapture)
+  def cancelByCsr(giftCard: GiftCard, storeAdmin: User)(implicit ec: EC): DbResultT[GiftCardAdjustment] = {
+    val adjustment = Adj(
+      giftCardId = giftCard.id,
+      orderPaymentId = None,
+      storeAdminId = storeAdmin.accountId.some,
+      debit = giftCard.availableBalance,
+      credit = 0,
+      availableBalance = 0,
+      state = InStorePaymentStates.CancellationCapture
+    )
     Adjs.create(adjustment)
   }
 
   def redeemToStoreCredit(giftCard: GiftCard, storeAdmin: User)(
       implicit ec: EC): DbResultT[GiftCardAdjustment] = {
-    val adjustment = Adj(giftCardId = giftCard.id,
-                         orderPaymentId = None,
-                         storeAdminId = storeAdmin.accountId.some,
-                         debit = giftCard.availableBalance,
-                         credit = 0,
-                         availableBalance = 0,
-                         state = InStorePaymentStates.Capture)
+    val adjustment = Adj(
+      giftCardId = giftCard.id,
+      orderPaymentId = None,
+      storeAdminId = storeAdmin.accountId.some,
+      debit = giftCard.availableBalance,
+      credit = 0,
+      availableBalance = 0,
+      state = InStorePaymentStates.Capture
+    )
     Adjs.create(adjustment)
   }
 

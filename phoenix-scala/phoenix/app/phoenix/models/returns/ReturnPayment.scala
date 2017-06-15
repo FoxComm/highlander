@@ -26,7 +26,7 @@ class ReturnPayments(tag: Tag) extends FoxTable[ReturnPayment](tag, "return_paym
 
   def * =
     (id, returnId, amount, currency, paymentMethodId, paymentMethodType) <> ((ReturnPayment.apply _).tupled,
-        ReturnPayment.unapply)
+    ReturnPayment.unapply)
 
   def rma = foreignKey(Returns.tableName, returnId, Returns)(_.id)
 }
@@ -41,8 +41,7 @@ object ReturnPayments
   def findAllByReturnId(returnId: Int): QuerySeq =
     filter(_.returnId === returnId)
 
-  def findGiftCards(
-      returnId: Int): Query[(ReturnPayments, GiftCards), (ReturnPayment, GiftCard), Seq] =
+  def findGiftCards(returnId: Int): Query[(ReturnPayments, GiftCards), (ReturnPayment, GiftCard), Seq] =
     findAllByReturnId(returnId).giftCards.join(GiftCards).on(_.paymentMethodId === _.id)
 
   def findStoreCredits(
@@ -50,18 +49,24 @@ object ReturnPayments
     findAllByReturnId(returnId).storeCredits.join(StoreCredits).on(_.paymentMethodId === _.id)
 
   def findOnHoldGiftCards(returnId: Int): GiftCards.QuerySeq =
-    findGiftCards(returnId).map { case (_, gc) ⇒ gc }
+    findGiftCards(returnId)
+      .map { case (_, gc) ⇒ gc }
       .filter(_.state === (GiftCard.OnHold: GiftCard.State))
 
   def findOnHoldStoreCredits(returnId: Int): StoreCredits.QuerySeq =
-    findStoreCredits(returnId).map { case (_, sc) ⇒ sc }
+    findStoreCredits(returnId)
+      .map { case (_, sc) ⇒ sc }
       .filter(_.state === (StoreCredit.OnHold: StoreCredit.State))
 
   object scope {
     implicit class RmaPaymentsQuerySeqConversions(private val q: QuerySeq) extends AnyVal {
       def giftCards: QuerySeq    = q.byType(PaymentMethod.GiftCard)
-      def creditCards: QuerySeq  = q.byType(PaymentMethod.CreditCard)
       def storeCredits: QuerySeq = q.byType(PaymentMethod.StoreCredit)
+      def creditCards: QuerySeq  = q.byType(PaymentMethod.CreditCard)
+      def applePays: QuerySeq    = q.byType(PaymentMethod.ApplePay)
+
+      def externalPayments: QuerySeq =
+        q.filter(_.paymentMethodType.inSet(PaymentMethod.Type.externalPayments))
 
       def paymentMethodIds: Query[Rep[Int], Int, Set] = q.map(_.paymentMethodId).to[Set]
 

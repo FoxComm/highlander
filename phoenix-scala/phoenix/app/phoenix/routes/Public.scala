@@ -20,8 +20,7 @@ import phoenix.utils.http.JsonSupport._
 
 object Public {
   def routes(customerCreateContext: AccountCreateContext,
-             defaultScope: LTree)(implicit ec: EC, db: DB, apis: Apis): Route = {
-
+             defaultScope: LTree)(implicit ec: EC, db: DB, apis: Apis): Route =
     activityContext(defaultScope) { implicit ac ⇒
       pathPrefix("public") {
         pathPrefix("registrations") {
@@ -36,7 +35,7 @@ object Public {
             pathPrefix(ProductRef) { productId ⇒
               (get & pathEnd) {
                 getOrFailures {
-                  ProductManager.getProduct(productId)
+                  ProductManager.getProduct(productId, checkActive = true)
                 }
               }
             }
@@ -96,5 +95,4 @@ object Public {
         }
       }
     }
-  }
 }

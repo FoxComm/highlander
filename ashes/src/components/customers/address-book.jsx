@@ -32,6 +32,11 @@ export default class CustomerAddressBook extends React.Component {
     addresses: PropTypes.array.isRequired,
   };
 
+  componentWillUnmount() {
+    this.props.stopEditingAddress();
+    this.props.stopAddingAddress();
+  }
+
   @autobind
   injectNewAddressCard(addresses) {
     const props = this.props;

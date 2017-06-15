@@ -15,6 +15,22 @@ object OrderFailures {
       NotFoundFailure400(s"${friendlyClassName(m)} payment not found")
   }
 
+  case object OnlyOneExternalPaymentIsAllowed extends Failure {
+    def description: String = "Only one payment method is allowed (credit card or apple pay)!"
+  }
+
+  case object NoExternalPaymentsIsProvided extends Failure {
+    def description: String = "No external payments is provided!"
+  }
+
+  case object ApplePayIsNotProvided extends Failure {
+    def description: String = "No Apple Pay payment is provided!"
+  }
+
+  case object CreditCardIsNotProvided extends Failure {
+    def description: String = "No credit card is provided!"
+  }
+
   case class OrderUpdateFailure(referenceNumber: String, reason: String) extends Failure {
     override def description = reason
   }
@@ -28,6 +44,6 @@ object OrderFailures {
   }
 
   case class OrderLineItemNotFound(refNum: String) extends Failure {
-    override def description = s"Order line item with referenceNumber=${refNum} not found"
+    override def description = s"Order line item with referenceNumber=$refNum not found"
   }
 }

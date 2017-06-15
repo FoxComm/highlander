@@ -15,34 +15,30 @@ object FormShadowGet {
     if (price.isEmpty) None else price.headOption
   }
 
-  def price(f: ObjectForm, s: ObjectShadow): Option[Price] = {
+  def price(f: ObjectForm, s: ObjectShadow): Option[Price] =
     ObjectUtils.get("salePrice", f, s) match {
       case JNothing ⇒ None
       case v        ⇒ priceFromJson(v)
     }
-  }
 
   def priceAsLong(f: ObjectForm, s: ObjectShadow): Long =
     price(f, s).map { case (value, _) ⇒ value }.getOrElse(0)
 
-  def title(f: ObjectForm, s: ObjectShadow): Option[String] = {
+  def title(f: ObjectForm, s: ObjectShadow): Option[String] =
     ObjectUtils.get("title", f, s) match {
       case JString(title) ⇒ title.some
       case _              ⇒ None
     }
-  }
 
-  def externalId(f: ObjectForm, s: ObjectShadow): Option[String] = {
+  def externalId(f: ObjectForm, s: ObjectShadow): Option[String] =
     ObjectUtils.get("externalId", f, s) match {
       case JString(externalId) ⇒ externalId.some
       case _                   ⇒ None
     }
-  }
 
-  def trackInventory(f: ObjectForm, s: ObjectShadow): Boolean = {
+  def trackInventory(f: ObjectForm, s: ObjectShadow): Boolean =
     ObjectUtils.get("trackInventory", f, s) match {
       case JBool(trackInventory) ⇒ trackInventory
       case _                     ⇒ true
     }
-  }
 }

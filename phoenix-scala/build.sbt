@@ -17,7 +17,6 @@ lazy val phoenix = (project in file("phoenix"))
   .configs(IT, ET)
   .settings(itSettings, etSettings)
   .settings(commonSettings)
-  .settings(reformatOnCompileWithItSettings)
   .settings(
     libraryDependencies ++= {
       import Dependencies._
@@ -25,24 +24,25 @@ lazy val phoenix = (project in file("phoenix"))
     },
     (mainClass in Compile) := Some("phoenix.server.Main"),
     // TODO @anna move the rest of location settings to common when tests are moved into subprojects
-    scalaSource in Test    := baseDirectory.value / "test" / "unit",
-    scalaSource in IT      := baseDirectory.value / "test" / "integration",
-    scalaSource in ET      := baseDirectory.value / "test" / "integration",
-    resourceDirectory in Test    := baseDirectory.value / "test" / "resources",
-    resourceDirectory in IT      := (resourceDirectory in Test).value,
-    resourceDirectory in ET      := (resourceDirectory in Test).value,
+    scalaSource in Test := baseDirectory.value / "test" / "unit",
+    scalaSource in IT := baseDirectory.value / "test" / "integration",
+    scalaSource in ET := baseDirectory.value / "test" / "integration",
+    resourceDirectory in Test := baseDirectory.value / "test" / "resources",
+    resourceDirectory in IT := (resourceDirectory in Test).value,
+    resourceDirectory in ET := (resourceDirectory in Test).value,
     initialCommands in console := fromFile("project/console_init").getLines.mkString("\n"),
     initialCommands in (Compile, consoleQuick) := "",
-    test := Def.sequential(compile in Test, compile in IT, compile in ET,
-                           test    in Test, test    in IT, test    in ET).value,
+    test := Def
+      .sequential(compile in Test, compile in IT, compile in ET, test in Test, test in IT, test in ET)
+      .value,
     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
     javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC", "-Dphoenix.env=test"),
     testForkedParallel in Test := true,
     testForkedParallel in IT := true,
     testForkedParallel in ET := true,
     logBuffered in Test := false,
-    logBuffered in IT   := false,
-    logBuffered in ET   := false
+    logBuffered in IT := false,
+    logBuffered in ET := false
   )
 
 lazy val root = (project in file("."))
@@ -63,7 +63,7 @@ lazy val seeder = (project in file("seeder"))
     libraryDependencies ++= Dependencies.gatling,
     cleanFiles += baseDirectory.value / "results",
     // we cannot fork and set javaOptions simply, as it causes some weird issue with db schema creation
-    initialize ~= (_ => System.setProperty("phoenix.env", "test" )),
+    initialize ~= (_ ⇒ System.setProperty("phoenix.env", "test")),
     fullClasspath in assembly := { // thanks sbt for that hacky way of excluding inter-project dependencies
       val phoenixClasses = (crossTarget in compile in phoenix).value.getAbsolutePath
       (fullClasspath in assembly).value.filterNot(_.data.getAbsolutePath.startsWith(phoenixClasses))
@@ -89,26 +89,9 @@ fullAssembly := Def.task().dependsOn(writeVersion in root, assembly in phoenix, 
 
 // Injected seeds
 val seedCommand = " seeds.Seeds seed --seedAdmins"
-seed     := (runMain in Compile in seeder).partialInput(seedCommand).evaluated
+seed := (runMain in Compile in seeder).partialInput(seedCommand).evaluated
 seedDemo := (runMain in Compile in seeder).partialInput(s"$seedCommand --seedDemo 1").evaluated
 
 // Gatling seeds
-seedOneshot    := (runMain in Compile in seeder).partialInput(" gatling.seeds.OneshotSeeds").evaluated
+seedOneshot := (runMain in Compile in seeder).partialInput(" gatling.seeds.OneshotSeeds").evaluated
 seedContinuous := (runMain in Compile in seeder).partialInput(" gatling.seeds.ContinuousSeeds").evaluated
-
-// Scalafmt
-scalafmtAll := Def.task().dependsOn(scalafmt in Compile in phoenix,
-                                    scalafmt in Test    in phoenix,
-                                    scalafmt in IT      in phoenix,
-                                    scalafmt in ET      in phoenix,
-                                    scalafmt in Compile in objectframework,
-                                    scalafmt in Compile in core,
-                                    scalafmt in Compile in seeder).value
-
-scalafmtTestAll := Def.task().dependsOn(scalafmtTest in Compile in phoenix,
-                                        scalafmtTest in Test    in phoenix,
-                                        scalafmtTest in IT      in phoenix,
-                                        scalafmtTest in ET      in phoenix,
-                                        scalafmtTest in Compile in objectframework,
-                                        scalafmtTest in Compile in core,
-                                        scalafmtTest in Compile in seeder).value

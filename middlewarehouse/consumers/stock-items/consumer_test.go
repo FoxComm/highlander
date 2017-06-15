@@ -6,10 +6,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"time"
+
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
 	"github.com/stretchr/testify/suite"
-	"time"
 )
 
 const (
@@ -33,7 +34,7 @@ func TestConsumerSuite(t *testing.T) {
 	suite.Run(t, new(ConsumerTestSuite))
 }
 
-func (suite *ConsumerTestSuite) TestMessageHander() {
+func (suite *ConsumerTestSuite) TestMessageHandler() {
 	msg := testAvroMessage{
 		b: []byte(`{"id": 1, "sku_code": "SKU-HANDLER"}`),
 	}
@@ -46,12 +47,12 @@ func (suite *ConsumerTestSuite) TestMessageHander() {
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		uri := r.URL.Path
-		suite.Equal("/v1/public/stock-items", uri)
+		suite.Equal("/v1/public/skus", uri)
 
-		var stockItem models.StockItem
-		err := json.NewDecoder(r.Body).Decode(&stockItem)
+		var sku payloads.CreateSKU
+		err := json.NewDecoder(r.Body).Decode(&sku)
 		suite.Nil(err)
-		suite.Equal("SKU-HANDLER", stockItem.SKU)
+		suite.Equal("SKU-HANDLER", sku.Code)
 	}))
 	defer ts.Close()
 

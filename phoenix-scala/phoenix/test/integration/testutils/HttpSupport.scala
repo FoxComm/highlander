@@ -3,6 +3,7 @@ package testutils
 import java.net.ServerSocket
 
 import akka.actor.ActorSystem
+import akka.NotUsed
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.client.RequestBuilding.Get
@@ -17,8 +18,8 @@ import akka.stream.testkit.TestSubscriber.Probe
 import akka.stream.testkit.scaladsl.TestSink
 import akka.util.ByteString
 import com.typesafe.config.ConfigFactory
-import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
-import de.heikoseeberger.akkasse.ServerSentEvent
+import de.heikoseeberger.akkasse.scaladsl.unmarshalling.EventStreamUnmarshalling._
+import de.heikoseeberger.akkasse.scaladsl.model.ServerSentEvent
 import org.json4s.Formats
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest._
@@ -55,8 +56,7 @@ trait HttpSupport
     with ScalaFutures
     with MustMatchers
     with BeforeAndAfterAll
-    with TestObjectContext {
-  self: FoxSuite ⇒
+    with TestObjectContext { self: FoxSuite ⇒
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
@@ -81,10 +81,11 @@ trait HttpSupport
 
     serverBinding = service
       .bind(
-          FoxConfig.http.modify(config)(_.copy(
-                  interface = "127.0.0.1",
-                  port = getFreePort
-              )))
+        FoxConfig.http.modify(config)(
+          _.copy(
+            interface = "127.0.0.1",
+            port = getFreePort
+          )))
       .futureValue
   }
 
@@ -108,35 +109,32 @@ trait HttpSupport
     val request = HttpRequest(method = HttpMethods.POST,
                               uri = pathToAbsoluteUrl(path),
                               entity = HttpEntity.Strict(
-                                  ContentTypes.`application/json`,
-                                  ByteString(rawBody)
+                                ContentTypes.`application/json`,
+                                ByteString(rawBody)
                               ))
 
     dispatchRequest(request, jwtCookie)
   }
 
   def POST(path: String, jwtCookie: Option[Cookie]): HttpResponse =
-    dispatchRequest(HttpRequest(method = HttpMethods.POST, uri = pathToAbsoluteUrl(path)),
-                    jwtCookie)
+    dispatchRequest(HttpRequest(method = HttpMethods.POST, uri = pathToAbsoluteUrl(path)), jwtCookie)
 
   def PATCH(path: String, rawBody: String, jwtCookie: Option[Cookie]): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.PATCH,
                               uri = pathToAbsoluteUrl(path),
                               entity = HttpEntity.Strict(
-                                  ContentTypes.`application/json`,
-                                  ByteString(rawBody)
+                                ContentTypes.`application/json`,
+                                ByteString(rawBody)
                               ))
 
     dispatchRequest(request, jwtCookie)
   }
 
   def PATCH(path: String, jwtCookie: Option[Cookie]): HttpResponse =
-    dispatchRequest(HttpRequest(method = HttpMethods.PATCH, uri = pathToAbsoluteUrl(path)),
-                    jwtCookie)
+    dispatchRequest(HttpRequest(method = HttpMethods.PATCH, uri = pathToAbsoluteUrl(path)), jwtCookie)
 
   def GET(path: String, jwtCookie: Option[Cookie]): HttpResponse =
-    dispatchRequest(HttpRequest(method = HttpMethods.GET, uri = pathToAbsoluteUrl(path)),
-                    jwtCookie)
+    dispatchRequest(HttpRequest(method = HttpMethods.GET, uri = pathToAbsoluteUrl(path)), jwtCookie)
 
   def POST[T <: AnyRef](path: String, payload: T, jwtCookie: Option[Cookie]): HttpResponse =
     POST(path, writeJson(payload), jwtCookie)
@@ -192,25 +190,25 @@ trait HttpSupport
 
     def sseProbe(path: String, jwtCookie: Cookie, skipHeartbeat: Boolean = true): Probe[String] =
       probe(
-          if (skipHeartbeat) skipHeartbeatsAndAdminCreated(sseSource(path, jwtCookie))
-          else sseSource(path, jwtCookie))
+        if (skipHeartbeat) skipHeartbeatsAndAdminCreated(sseSource(path, jwtCookie))
+        else sseSource(path, jwtCookie))
 
-    def sseSource(path: String, jwtCookie: Cookie): Source[String, Any] = {
+    def sseSource(path: String, jwtCookie: Cookie): Source[String, NotUsed] = {
       val localAddress = serverBinding.localAddress
 
       Source
         .single(Get(pathToAbsoluteUrl(path)).addHeader(jwtCookie))
         .via(Http().outgoingConnection(localAddress.getHostString, localAddress.getPort))
-        .mapAsync(1)(Unmarshal(_).to[Source[ServerSentEvent, Any]])
+        .mapAsync(1)(Unmarshal(_).to[Source[ServerSentEvent, NotUsed]])
         .runWith(Sink.head)
         .futureValue
         .map(_.data)
     }
 
-    def skipHeartbeatsAndAdminCreated(sse: Source[String, Any]): Source[String, Any] =
+    def skipHeartbeatsAndAdminCreated(sse: Source[String, NotUsed]): Source[String, NotUsed] =
       sse.via(Flow[String].filter(n ⇒ n.nonEmpty && !n.contains("store_admin_created")))
 
-    def probe(source: Source[String, Any]): Probe[String] =
+    def probe(source: Source[String, NotUsed]): Probe[String] =
       source.runWith(TestSink.probe[String])
   }
 }

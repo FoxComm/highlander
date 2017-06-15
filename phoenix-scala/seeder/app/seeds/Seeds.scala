@@ -7,30 +7,28 @@ import com.typesafe.config.Config
 import phoenix.failures.UserFailures._
 import core.failures.{Failures, FailuresOps, NotFoundFailure404}
 import java.time.{Instant, ZoneId}
-
+import org.apache.avro.generic.GenericData
+import org.apache.kafka.clients.producer.MockProducer
+import org.postgresql.ds.PGSimpleDataSource
 import phoenix.models.Reasons
 import phoenix.models.account._
-import phoenix.models.activity.ActivityContext
+import phoenix.models.activity.{ActivityContext, EnrichedActivityContext}
 import phoenix.models.auth.UserToken
 import objectframework.models.ObjectContexts
 import phoenix.models.product.SimpleContext
-import org.postgresql.ds.PGSimpleDataSource
-import phoenix.models.activity.ActivityContext
-import phoenix.utils.ADT
-
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
 import phoenix.services.Authenticator.AuthData
 import phoenix.services.account.AccountManager
-import slick.jdbc.PostgresProfile.api._
-import slick.jdbc.PostgresProfile.backend.DatabaseDef
 import phoenix.utils.aliases._
 import core.db._
 import phoenix.utils.db.flyway.{newFlyway, rootProjectSqlLocation}
 import phoenix.utils.seeds.Factories
 import phoenix.utils.seeds.generators.SeedsGenerator
 import phoenix.utils.{ADT, FoxConfig}
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import slick.jdbc.PostgresProfile.api._
+import slick.jdbc.PostgresProfile.backend.DatabaseDef
 
 object Seeds {
 
@@ -70,58 +68,58 @@ object Seeds {
         .action((_, c) ⇒ c.copy(mode = Seed))
         .text("Insert seeds")
         .children(
-            opt[Unit]("skipMigrate")
-              .action((_, c) ⇒ c.copy(migrateDb = false))
-              .text("Skip migration step for database."),
-            opt[Unit]("skipBase")
-              .action((x, c) ⇒ c.copy(seedBase = false))
-              .text("Skip seed base seeds."),
-            opt[Unit]("seedShippingRules")
-              .action((_, c) ⇒ c.copy(seedShippingRules = true))
-              .text("Create predefined shipping rules"),
-            opt[Unit]("seedAdmins")
-              .action((_, c) ⇒ c.copy(seedAdmins = true))
-              .text("Create predefined admins"),
-            opt[Int]("seedRandom")
-              .action((x, c) ⇒ c.copy(seedRandom = x))
-              .text("Create random seeds"),
-            opt[Int]("customersScaleMultiplier")
-              .action((x, c) ⇒ c.copy(customersScaleMultiplier = x))
-              .text("Customers scale multiplier for random seeds"),
-            opt[Unit]("seedStage")
-              .action((x, c) ⇒ c.copy(seedStage = true))
-              .text("Create stage seeds"),
-            opt[Int]("seedDemo").action((x, c) ⇒ c.copy(seedDemo = x)).text("Create demo seeds"))
+          opt[Unit]("skipMigrate")
+            .action((_, c) ⇒ c.copy(migrateDb = false))
+            .text("Skip migration step for database."),
+          opt[Unit]("skipBase")
+            .action((x, c) ⇒ c.copy(seedBase = false))
+            .text("Skip seed base seeds."),
+          opt[Unit]("seedShippingRules")
+            .action((_, c) ⇒ c.copy(seedShippingRules = true))
+            .text("Create predefined shipping rules"),
+          opt[Unit]("seedAdmins")
+            .action((_, c) ⇒ c.copy(seedAdmins = true))
+            .text("Create predefined admins"),
+          opt[Int]("seedRandom")
+            .action((x, c) ⇒ c.copy(seedRandom = x))
+            .text("Create random seeds"),
+          opt[Int]("customersScaleMultiplier")
+            .action((x, c) ⇒ c.copy(customersScaleMultiplier = x))
+            .text("Customers scale multiplier for random seeds"),
+          opt[Unit]("seedStage")
+            .action((x, c) ⇒ c.copy(seedStage = true))
+            .text("Create stage seeds"),
+          opt[Int]("seedDemo").action((x, c) ⇒ c.copy(seedDemo = x)).text("Create demo seeds")
+        )
 
       cmd("createAdmin")
         .action((_, c) ⇒ c.copy(mode = CreateAdmin))
-        .text(
-            "Create Admin. Password prompts via stdin or can be set via admin_password env or prop")
+        .text("Create Admin. Password prompts via stdin or can be set via admin_password env or prop")
         .children(
-            opt[String]("name")
-              .required()
-              .action((x, c) ⇒ c.copy(adminName = x))
-              .text("Admin name"),
-            opt[String]("email")
-              .required()
-              .action((x, c) ⇒ c.copy(adminEmail = x))
-              .text("Admin email"),
-            opt[String]("org").required().action((x, c) ⇒ c.copy(adminOrg = x)).text("Admin Org"),
-            opt[String]("roles")
-              .required()
-              .action((x, c) ⇒ c.copy(adminRoles = x))
-              .text("Admin Roles")
+          opt[String]("name")
+            .required()
+            .action((x, c) ⇒ c.copy(adminName = x))
+            .text("Admin name"),
+          opt[String]("email")
+            .required()
+            .action((x, c) ⇒ c.copy(adminEmail = x))
+            .text("Admin email"),
+          opt[String]("org").required().action((x, c) ⇒ c.copy(adminOrg = x)).text("Admin Org"),
+          opt[String]("roles")
+            .required()
+            .action((x, c) ⇒ c.copy(adminRoles = x))
+            .text("Admin Roles")
         )
 
       cmd("updateObjectSchemas")
         .action((_, c) ⇒ c.copy(mode = UpdateObjectSchemas))
         .text("Update or create Object Schemas")
         .children(
-            arg[String]("schema")
-              .optional()
-              .unbounded()
-              .action((x, c) ⇒ c.copy(schemasToUpdate = c.schemasToUpdate :+ x))
-              .text("Schemas to update, if ommited update all schemas")
+          arg[String]("schema")
+            .optional()
+            .unbounded()
+            .action((x, c) ⇒ c.copy(schemasToUpdate = c.schemasToUpdate :+ x))
+            .text("Schemas to update, if ommited update all schemas")
         )
     }
 
@@ -136,8 +134,10 @@ object Seeds {
   def runMain(cfg: CliConfig, usage: String): Unit = {
     val config: Config           = FoxConfig.unsafe
     implicit val db: DatabaseDef = Database.forConfig("db", config)
-    implicit val ac: AC = ActivityContext
-      .build(userId = 1, userType = "user", scope = LTree("1"), transactionId = "seeds")
+    implicit val ac: AC = EnrichedActivityContext(
+      ctx = ActivityContext(userId = 1, userType = "user", scope = LTree("1"), transactionId = "seeds"),
+      producer = new MockProducer[GenericData.Record, GenericData.Record](true, null, null)
+    )
 
     cfg.mode match {
       case Seed ⇒
@@ -192,10 +192,9 @@ object Seeds {
     step("Create stage admins seeds", r)
   }
 
-  private[this] def step[T](name: String, f: DbResultT[T], waitFor: FiniteDuration = 4.minute)(
-      implicit db: DB,
-      ec: EC,
-      ac: AC): T = {
+  private[this] def step[T](name: String,
+                            f: DbResultT[T],
+                            waitFor: FiniteDuration = 4.minute)(implicit db: DB, ec: EC, ac: AC): T = {
     Console.out.println(name)
     // TODO: Should we really be discarding all warnings here (and git-grep 'runEmptyA')? Rethink! @michalrus
     val result: Either[Failures, T] = Await.result(f.runTxn().runEmptyA.value, waitFor)
@@ -205,8 +204,7 @@ object Seeds {
   val MERCHANT       = "merchant"
   val MERCHANT_EMAIL = "hackerman@yahoo.com"
 
-  def getMerchant(implicit db: DB,
-                  ac: AC): DbResultT[(Organization, User, Account, Account.ClaimSet)] =
+  def getMerchant(implicit db: DB, ac: AC): DbResultT[(Organization, User, Account, Account.ClaimSet)] =
     for {
       organization ← * <~ Organizations
                       .findByName(MERCHANT)
@@ -277,8 +275,7 @@ object Seeds {
       r ← * <~ getMerchant
       (organization, merchant, account, claims) = r
       _ ← * <~ {
-           implicit val au = AuthData[User](token =
-                                              UserToken.fromUserAccount(merchant, account, claims),
+           implicit val au = AuthData[User](token = UserToken.fromUserAccount(merchant, account, claims),
                                             model = merchant,
                                             account = account)
 
@@ -286,7 +283,7 @@ object Seeds {
              admin   ← * <~ Users.take(1).mustFindOneOr(NotFoundFailure404(User, "first"))
              context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
              ruContext ← * <~ ObjectContexts.create(
-                            SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
+                          SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
              customers  ← * <~ Factories.createCustomers(organization.scopeId)
              _          ← * <~ Factories.createAddresses(customers)
              _          ← * <~ Factories.createCreditCards(customers)
@@ -322,12 +319,14 @@ object Seeds {
     source
   }
 
-  private def validateResults[R](seed: String, result: Either[Failures, R])(implicit db: DB): R = {
-    result.fold(failures ⇒ {
-      Console.err.println(s"'$seed' has failed!")
-      failures.flatten.foreach(Console.err.println)
-      db.close()
-      sys.exit(1)
-    }, v ⇒ { Console.err.println(s"Successfully completed '$seed'!"); v })
-  }
+  private def validateResults[R](seed: String, result: Either[Failures, R])(implicit db: DB): R =
+    result.fold(
+      failures ⇒ {
+        Console.err.println(s"'$seed' has failed!")
+        failures.flatten.foreach(Console.err.println)
+        db.close()
+        sys.exit(1)
+      },
+      v ⇒ { Console.err.println(s"Successfully completed '$seed'!"); v }
+    )
 }

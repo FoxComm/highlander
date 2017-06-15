@@ -30,8 +30,6 @@ trait LineItemProductData[LI] {
   def lineItemState: OrderLineItem.State
   def withLineItemReferenceNumber(newLineItemRef: String): LineItemProductData[LI]
 
-  def isEligibleForDiscount: Boolean = !isGiftCard
-
   def isGiftCard: Boolean = attributes.flatMap(_.giftCard).isDefined
 
   def price: Long = FormShadowGet.priceAsLong(skuForm, skuShadow)
@@ -70,14 +68,14 @@ case class OrderLineItem(id: Int = 0,
     super.transitionModel(newModel)
 
   val fsm: Map[State, Set[State]] = Map(
-      OLI.Cart →
-        Set(Pending, PreOrdered, BackOrdered, Canceled),
-      Pending →
-        Set(Shipped, Canceled),
-      PreOrdered →
-        Set(Shipped, Canceled),
-      BackOrdered →
-        Set(Shipped, Canceled)
+    OLI.Cart →
+      Set(Pending, PreOrdered, BackOrdered, Canceled),
+    Pending →
+      Set(Shipped, Canceled),
+    PreOrdered →
+      Set(Shipped, Canceled),
+    BackOrdered →
+      Set(Shipped, Canceled)
   )
 }
 

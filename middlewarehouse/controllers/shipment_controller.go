@@ -56,7 +56,7 @@ func (controller *shipmentController) getShipmentsByOrder() gin.HandlerFunc {
 
 func (controller *shipmentController) createShipment() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		payload := &payloads.Shipment{}
+		payload := &payloads.CreateShipment{}
 		if parse(context, payload) != nil {
 			return
 		}
@@ -65,7 +65,7 @@ func (controller *shipmentController) createShipment() gin.HandlerFunc {
 			return
 		}
 
-		shipment, err := controller.shipmentService.CreateShipment(models.NewShipmentFromPayload(payload))
+		shipment, err := controller.shipmentService.CreateShipment(payload.Model())
 		if err != nil {
 			handleServiceError(context, err)
 			return
@@ -95,7 +95,7 @@ func (controller *shipmentController) updateShipmentForOrder() gin.HandlerFunc {
 			return
 		}
 
-		model := models.NewShipmentFromUpdatePayload(payload)
+		model := payload.Model()
 		model.OrderRefNum = orderRef
 
 		shipment, err := controller.shipmentService.UpdateShipmentForOrder(model)
@@ -125,7 +125,7 @@ func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc 
 			return
 		}
 
-		shipment, err := controller.shipmentService.CreateShipment(models.NewShipmentFromOrderPayload(payload))
+		shipment, err := payload.ShipmentModel()
 		if err != nil {
 			handleServiceError(context, err)
 			return
@@ -140,6 +140,12 @@ func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc 
 				hasTrackedInventory = true
 				break
 			}
+		}
+
+		shipment, err = controller.shipmentService.CreateShipment(shipment)
+		if err != nil {
+			handleServiceError(context, err)
+			return
 		}
 
 		//This means that it's only digital items (eg. gift cards)

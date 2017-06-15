@@ -2,7 +2,7 @@ env:
   ARTIFACT: gatling/target/scala-2.11/phoenix-scala-assembly-1.0.jar
 
 steps:
-  - command: sbt '; clean ; gatling/clean ; scalafmtTest ; gatling/scalafmtTest'
+  - command: ../utils/scalafmt/scalafmt.sh --test && sbt clean
     label: scalafmt
     agents:
       - queue=core
@@ -10,7 +10,7 @@ steps:
   - wait
 
   - command: 'bash -c "make -C docs/api all && sbt all && tar -zcvf gatling-classes.tar.gz gatling-classes"
-  
+
   '
     label: build, test, package
     agents:
@@ -22,13 +22,13 @@ steps:
 
   - command: |
       rm -rf gatling && mkdir gatling && cd gatling
-  
+
       buildkite-agent artifact download "$ARTIFACT" .
-  
+
       cd ../
-  
+
       buildkite-agent artifact download "gatling-classes.tar.gz" ./
-  
+
       rm -rf gatling-classes && tar -zxvf gatling-classes.tar.gz
     label: dump to stage master
     agents:

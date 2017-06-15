@@ -5,8 +5,6 @@ import java.time.Instant
 import phoenix.models.returns.Return.{ReturnType, Standard}
 import phoenix.models.returns.ReturnReason
 import phoenix.models.returns.ReturnReason.{BaseReason, ReasonType}
-import phoenix.responses.CustomerResponse.{Root ⇒ Customer}
-import phoenix.responses.StoreAdminResponse.{Root ⇒ User}
 
 object ReturnReasonsResponse {
 

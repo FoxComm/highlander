@@ -1,7 +1,11 @@
 package testutils.fixtures
 
+import java.time.Instant
+
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import core.db._
+import core.utils.Money.Currency
 import phoenix.models.Reason.Cancellation
 import phoenix.models._
 import phoenix.models.account._
@@ -16,8 +20,6 @@ import phoenix.services.carts._
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.raw._
-import core.utils.Money.Currency
-import core.db._
 
 /**
   * Raw fixtures are cake-pattern definitions.
@@ -55,8 +57,6 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
     def cart: Cart = _cart
 
     private val _cart = {
-      // @anna just kill this....
-      implicit val apis = utils.MockedApis.apis
       (for {
         response ← * <~ CartCreator.createCart(storeAdmin, CreateCart(customer.accountId.some))
         cart     ← * <~ Carts.mustFindByRefNum(response.referenceNumber)
@@ -135,9 +135,7 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
   trait Sku_Raw extends StoreAdmin_Seed {
 
     val simpleSku: Sku = Mvp
-      .insertSku(Scope.current,
-                 ctx.id,
-                 SimpleSku("BY-ITSELF", "A lonely item", 9999, active = true))
+      .insertSku(Scope.current, ctx.id, SimpleSku("BY-ITSELF", "A lonely item", 9999, active = true))
       .gimme
   }
 
@@ -150,10 +148,10 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
       val testSkus = Seq(SimpleSku("SKU-TST", "SKU test", 1000, Currency.USD, active = true),
                          SimpleSku("SKU-TS2", "SKU test 2", 1000, Currency.USD, active = true))
 
-      val simpleSizeVariant = SimpleCompleteVariant(
-          variant = SimpleVariant("Size"),
-          variantValues = Seq(SimpleVariantValue("Small", "", Seq("SKU-TST")),
-                              SimpleVariantValue("Large", "", Seq("SKU-TS2"))))
+      val simpleSizeVariant = SimpleCompleteVariant(variant = SimpleVariant("Size"),
+                                                    variantValues =
+                                                      Seq(SimpleVariantValue("Small", "", Seq("SKU-TST")),
+                                                          SimpleVariantValue("Large", "", Seq("SKU-TS2"))))
 
       for {
         skus    ← * <~ Mvp.insertSkus(scope, ctx.id, testSkus)

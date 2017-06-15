@@ -278,11 +278,10 @@ object AdminRoutes {
             SharedSearchService.getAll(auth.model, scope)
           }
         } ~
-        (post & pathEnd & entityOr(as[SharedSearchPayload], SharedSearchInvalidQueryFailure)) {
-          payload ⇒
-            mutateOrFailures {
-              SharedSearchService.create(auth.model, payload)
-            }
+        (post & pathEnd & entityOr(as[SharedSearchPayload], SharedSearchInvalidQueryFailure)) { payload ⇒
+          mutateOrFailures {
+            SharedSearchService.create(auth.model, payload)
+          }
         }
       } ~
       pathPrefix("shared-search" / SharedSearch.sharedSearchRegex) { code ⇒
@@ -291,11 +290,10 @@ object AdminRoutes {
             SharedSearchService.get(code)
           }
         } ~
-        (patch & pathEnd & entityOr(as[SharedSearchPayload], SharedSearchInvalidQueryFailure)) {
-          payload ⇒
-            mutateOrFailures {
-              SharedSearchService.update(auth.model, code, payload)
-            }
+        (patch & pathEnd & entityOr(as[SharedSearchPayload], SharedSearchInvalidQueryFailure)) { payload ⇒
+          mutateOrFailures {
+            SharedSearchService.update(auth.model, code, payload)
+          }
         } ~
         (delete & pathEnd) {
           deleteOrFailures {

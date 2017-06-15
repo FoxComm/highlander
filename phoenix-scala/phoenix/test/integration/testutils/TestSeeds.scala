@@ -28,11 +28,10 @@ trait TestSeeds extends TestFixtureBase {
     def storeAdmin: User                   = _storeAdmin
     def storeAdminUser: AdminData          = _storeAdminUser
     def storeAdminClaims: Account.ClaimSet = _storeAdminClaims
-    val password = "password"
+    val password                           = "password"
 
     def storeAdminAuthData: AuthData[User] =
-      AuthData[User](token =
-                       UserToken.fromUserAccount(storeAdmin, storeAdminAccount, storeAdminClaims),
+      AuthData[User](token = UserToken.fromUserAccount(storeAdmin, storeAdminAccount, storeAdminClaims),
                      model = storeAdmin,
                      account = storeAdminAccount)
     implicit lazy val au: AU = storeAdminAuthData
@@ -44,15 +43,15 @@ trait TestSeeds extends TestFixtureBase {
                     .headOption
 
       ad ← * <~ (maybeAdmin match {
-                case Some(admin) ⇒ DbResultT.pure(admin)
-                case None ⇒
-                  Factories.createStoreAdmin(user = Factories.storeAdmin,
-                                             password = password,
-                                             state = AdminData.Active,
-                                             org = TENANT,
-                                             roles = List("admin"),
-                                             author = None)
-              })
+            case Some(admin) ⇒ DbResultT.pure(admin)
+            case None ⇒
+              Factories.createStoreAdmin(user = Factories.storeAdmin,
+                                         password = password,
+                                         state = AdminData.Active,
+                                         org = TENANT,
+                                         roles = List("admin"),
+                                         author = None)
+          })
       adu ← * <~ AdminsData.mustFindByAccountId(ad.accountId)
       ac  ← * <~ Accounts.mustFindById404(ad.accountId)
       organization ← * <~ Organizations

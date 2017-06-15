@@ -91,18 +91,16 @@ object OrderRoutes {
             }
           } ~
           // deprecated in favor of /carts route
-          (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
-            reqItems ⇒
-              mutateOrFailures {
-                LineItemUpdater.updateQuantitiesOnCart(auth.model, refNum, reqItems)
-              }
+          (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
+            mutateOrFailures {
+              LineItemUpdater.updateQuantitiesOnCart(auth.model, refNum, reqItems)
+            }
           } ~
           // deprecated in favor of /carts route
-          (patch & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
-            reqItems ⇒
-              mutateOrFailures {
-                LineItemUpdater.addQuantitiesOnCart(auth.model, refNum, reqItems)
-              }
+          (patch & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
+            mutateOrFailures {
+              LineItemUpdater.addQuantitiesOnCart(auth.model, refNum, reqItems)
+            }
           } ~
           // deprecated in favor of /carts route
           pathPrefix("payment-methods" / "credit-cards") {
@@ -156,9 +154,7 @@ object OrderRoutes {
             // deprecated in favor of /carts route
             (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
               mutateOrFailures {
-                CartShippingAddressUpdater.createShippingAddressFromPayload(auth.model,
-                                                                            payload,
-                                                                            Some(refNum))
+                CartShippingAddressUpdater.createShippingAddressFromPayload(auth.model, payload, Some(refNum))
               }
             } ~
             // deprecated in favor of /carts route
@@ -172,9 +168,7 @@ object OrderRoutes {
             // deprecated in favor of /carts route
             (patch & pathEnd & entity(as[UpdateAddressPayload])) { payload ⇒
               mutateOrFailures {
-                CartShippingAddressUpdater.updateShippingAddressFromPayload(auth.model,
-                                                                            payload,
-                                                                            Some(refNum))
+                CartShippingAddressUpdater.updateShippingAddressFromPayload(auth.model, payload, Some(refNum))
               }
             } ~
             // deprecated in favor of /carts route

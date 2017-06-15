@@ -1,21 +1,17 @@
 package phoenix.services.activity
 
-import phoenix.models.Note
 import phoenix.models.account.User
-import phoenix.models.cord.OrderPayment
 import phoenix.models.payment.PaymentMethod
 import phoenix.models.payment.giftcard.GiftCard
 import phoenix.models.payment.storecredit.StoreCredit
 import phoenix.models.returns._
-import phoenix.payloads.ReturnPayloads.{ReturnLineItemPayload, ReturnShippingCostLineItemPayload, ReturnSkuLineItemPayload}
-import phoenix.responses.{GiftCardResponse, ReturnResponse}
+import phoenix.payloads.ReturnPayloads.{ReturnShippingCostLineItemPayload, ReturnSkuLineItemPayload}
 import phoenix.responses.ReturnResponse.{Root ⇒ ReturnResponse}
-import phoenix.responses.UserResponse.{Root ⇒ UserResponse}
+import phoenix.responses.users.UserResponse
 
 object ReturnTailored {
 
-  case class ReturnCreated(admin: UserResponse, rma: ReturnResponse)
-      extends ActivityBase[ReturnCreated]
+  case class ReturnCreated(admin: UserResponse, rma: ReturnResponse) extends ActivityBase[ReturnCreated]
 
   case class ReturnStateChanged(admin: UserResponse, rma: ReturnResponse, oldState: Return.State)
       extends ActivityBase[ReturnStateChanged]
@@ -25,16 +21,13 @@ object ReturnTailored {
                                          payload: ReturnShippingCostLineItemPayload)
       extends ActivityBase[ReturnShippingCostItemAdded]
 
-  case class ReturnSkuLineItemAdded(rma: Return,
-                                    reason: ReturnReason,
-                                    payload: ReturnSkuLineItemPayload)
+  case class ReturnSkuLineItemAdded(rma: Return, reason: ReturnReason, payload: ReturnSkuLineItemPayload)
       extends ActivityBase[ReturnSkuLineItemAdded]
 
   case class ReturnShippingCostItemDeleted(li: ReturnLineItem)
       extends ActivityBase[ReturnShippingCostItemDeleted]
 
-  case class ReturnSkuLineItemDeleted(li: ReturnLineItem)
-      extends ActivityBase[ReturnSkuLineItemDeleted]
+  case class ReturnSkuLineItemDeleted(li: ReturnLineItem) extends ActivityBase[ReturnSkuLineItemDeleted]
 
   case class ReturnSkuLineItemsDropped(skus: List[ReturnLineItemSku])
       extends ActivityBase[ReturnSkuLineItemsDropped]

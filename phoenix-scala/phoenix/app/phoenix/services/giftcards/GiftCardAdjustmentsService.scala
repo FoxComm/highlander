@@ -17,7 +17,7 @@ object GiftCardAdjustmentsService {
         order ← Carts.filter(_.referenceNumber === pay.cordRef)
       } yield (pay, order.referenceNumber)
 
-    def adjustmentQ(giftCardId: Int) = GiftCardAdjustments.filter(_.id === giftCardId)
+    def adjustmentQ(giftCardId: Int) = GiftCardAdjustments.filter(_.giftCardId === giftCardId)
 
     def joinedQ(giftCardId: Int) =
       adjustmentQ(giftCardId).joinLeft(maybePaymentQ).on {

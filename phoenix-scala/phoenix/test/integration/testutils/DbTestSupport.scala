@@ -3,6 +3,7 @@ package testutils
 import com.typesafe.config.{Config, ConfigFactory}
 import java.sql.{Connection, PreparedStatement}
 import javax.sql.DataSource
+import scala.util.Random
 
 import objectframework.models.ObjectContexts
 import org.scalatest._
@@ -27,10 +28,12 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
 
   def fullSuiteName: String = this.getClass.getName.replace('.', '_')
 
-  val dbName: String = fullSuiteName.flatMap {
-    case c if c.isUpper ⇒ s"_${c.toLower}"
-    case c              ⇒ s"$c"
-  }.stripPrefix("_")
+  val dbName: String = fullSuiteName
+    .flatMap {
+      case c if c.isUpper ⇒ s"_${c.toLower}"
+      case c              ⇒ s"$c"
+    }
+    .stripPrefix("_")
 
   lazy val dbForTest: DB = {
     DbTestSupport.createDB(dbName)
@@ -51,16 +54,17 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
     def iterate(in: Seq[String]): Seq[String] =
       if (allTables.next()) iterate(in :+ allTables.getString(3)) else in
 
-    val sqlTables = iterate(Seq()).filterNot { t ⇒
-      t.startsWith("pg_") || t.startsWith("sql_") || DbTestSupport.DoNotTruncate.contains(t)
-    }.mkString("{", ",", "}")
+    val sqlTables = iterate(Seq())
+      .filterNot { t ⇒
+        t.startsWith("pg_") || t.startsWith("sql_") || DbTestSupport.DoNotTruncate.contains(t)
+      }
+      .mkString("{", ",", "}")
 
     conn.prepareStatement(s"select truncate_nonempty_tables('$sqlTables'::text[])")
   }
 
-  override protected def beforeAll(): Unit = {
+  override protected def beforeAll(): Unit =
     truncateTables // init
-  }
 
   override protected def afterAll(): Unit = {
     truncateTables.close()
@@ -78,7 +82,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
     test()
   }
 
-  private def createBaseTestSeeds() = {
+  private def createBaseTestSeeds() =
     // Base test data
     (for {
       _ ← * <~ ObjectContexts.create(SimpleContext.create())
@@ -86,7 +90,6 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
       // FIXME @anna @michalrus
       _ ← * <~ Factories.FIXME_createAllButPromoSchemas
     } yield {}).gimme
-  }
 }
 
 object DbTestSupport extends GimmeSupport {
@@ -108,10 +111,12 @@ object DbTestSupport extends GimmeSupport {
                                               |db.url = "jdbc:postgresql://localhost/$tplName?user=phoenix&prepareThreshold=0"
        """.stripMargin).withFallback(TestBase.bareConfig)
     val tplDb  = Database.forConfig("db", tplCfg)
+
     DbTestSupport.setSearchPath(tplName, conn, List("\"$user\"", "public", "exts"))
 
     val originDs = DbTestSupport.jdbcDataSourceFromSlickDB(api)(tplDb)
     DbTestSupport.migrateDB(originDs)
+    DbTestSupport.randomizeSequences("public")(ec, tplDb)
     Factories.createSingleMerchantSystem
       .gimme(ec = ec, db = tplDb, line = implicitly[SL], file = implicitly[SF])
     tplDb.close()
@@ -125,18 +130,20 @@ object DbTestSupport extends GimmeSupport {
   private val DB_TEMPLATE: String = "phoenix_test_tpl"
 
   /* tables which should *not* be truncated b/c they're static and seeded by migration */
-  val DoNotTruncate: Set[String] = Set("states",
-                                       "countries",
-                                       "regions",
-                                       "schema_version",
-                                       "systems",
-                                       "resources",
-                                       "scopes",
-                                       "organizations",
-                                       "scope_domains",
-                                       "roles",
-                                       "permissions",
-                                       "role_permissions")
+  val DoNotTruncate: Set[String] = Set(
+    "states",
+    "countries",
+    "regions",
+    "schema_version",
+    "systems",
+    "resources",
+    "scopes",
+    "organizations",
+    "scope_domains",
+    "roles",
+    "permissions",
+    "role_permissions"
+  )
 
   private def createDB(name: String, conn: Connection): Unit = {
     val stmt = conn.createStatement()
@@ -166,9 +173,8 @@ object DbTestSupport extends GimmeSupport {
     setSearchPath(name, conn, List("\"$user\"", "public", "exts"))
   }
 
-  def dropDB(name: String)(implicit ec: EC): Unit = {
+  def dropDB(name: String)(implicit ec: EC): Unit =
     dropDB(name, conn)
-  }
 
   def migrateDB(dataSource: DataSource): Unit = {
     val flyway = newFlyway(dataSource, rootProjectSqlLocation)
@@ -188,4 +194,34 @@ object DbTestSupport extends GimmeSupport {
     db.source match {
       case source: HikariCPJdbcDataSource ⇒ source.ds
     }
+
+  /// new stuff
+
+  private def randomizeSequences(schema: String)(implicit ec: EC, db: DB): Unit = {
+    // When changing this, please, if anything, make them less predictable, not more. @michalrus
+    val allSequences =
+      sql"SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema = $schema"
+        .as[String]
+        .gimme
+
+    // TODO: Make it possible to not filter these out… @michalrus
+    val randomizedSequences = allSequences.filterNot(
+      Set(
+        "scopes_id_seq", // FIXME: What the hell. https://foxcommerce.slack.com/archives/C06696D1R/p1495796779988723
+        "object_contexts_id_seq" // FIXME: Sigh. https://foxcommerce.slack.com/archives/C06696D1R/p1495798791447479
+      ) contains _)
+
+    val gap = 1000000
+    val withValues = Random
+      .shuffle(randomizedSequences)
+      .zip(Stream.from(1).map(_ * gap + Random.nextInt(gap / 10)))
+    DBIO
+      .sequence(withValues.map {
+        case (name, value) ⇒
+          val increment     = (if (Random.nextBoolean()) 1 else -1) * Random.nextInt(100)
+          val incrementNon0 = if (increment == 0) -1 else increment
+          sql"ALTER SEQUENCE #$name START WITH #$value INCREMENT BY #$incrementNon0 RESTART".asUpdate
+      })
+      .gimme
+  }
 }

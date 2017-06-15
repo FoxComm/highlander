@@ -12,6 +12,7 @@
     - mesos_master
     - mesos_worker
     - marathon
+    - mesos_consul
     - elasticsearch
     - elasticsearch_5
     - kibana

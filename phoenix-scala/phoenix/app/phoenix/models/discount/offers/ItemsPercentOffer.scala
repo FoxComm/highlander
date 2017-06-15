@@ -18,10 +18,7 @@ case class ItemsPercentOffer(discount: Long, search: Seq[ProductSearch])
 
   val offerType: OfferType = ItemsPercentOff
 
-  def adjust(input: DiscountInput)(implicit db: DB,
-                                   ec: EC,
-                                   apis: Apis,
-                                   au: AU): Result[Seq[OfferResult]] =
+  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis): Result[Seq[OfferResult]] =
     if (discount > 0 && discount < 100) adjustInner(input)(search) else pureResult()
 
   def matchEither(input: DiscountInput)(
@@ -30,12 +27,11 @@ case class ItemsPercentOffer(discount: Long, search: Seq[ProductSearch])
       case Right(buckets) ⇒
         val matchedFormIds = buckets.filter(_.docCount > 0).map(_.key)
         val offerResults = input.lineItems
-          .filter(data ⇒ matchedFormIds.contains(data.productForm.id.toString))
+          .filter { data ⇒
+            matchedFormIds.contains(data.productId.toString)
+          }
           .map { data ⇒
-            OfferResult(input,
-                        subtract(data.price, discount),
-                        data.lineItemReferenceNumber.some,
-                        offerType)
+            OfferResult(input, subtract(data.price, discount), data.lineItemReferenceNumber.some, offerType)
           }
 
         Either.right(offerResults)

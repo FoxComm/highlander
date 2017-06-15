@@ -4,6 +4,7 @@ import com.pellucid.sealerate
 import com.sksamuel.elastic4s.SortDefinition
 import java.nio.charset.StandardCharsets
 import java.time.Instant
+
 import org.elasticsearch.common.bytes.BytesArray
 import org.elasticsearch.common.xcontent.{ToXContent, XContentBuilder}
 import org.elasticsearch.search.sort.{SortBuilder, SortOrder}
@@ -11,7 +12,7 @@ import org.json4s.{CustomSerializer, Formats}
 import org.json4s.JsonAST._
 import org.json4s.jackson.JsonMethods._
 import phoenix.models.cord.CordPaymentState
-import phoenix.models.payment.InStorePaymentStates
+import phoenix.models.payment.{ExternalCharge, InStorePaymentStates}
 import phoenix.models.payment.creditcard.CreditCardCharge
 import phoenix.services.CordQueries
 import phoenix.utils.{ADT, ADTTypeHints, JsonFormatters}
@@ -27,15 +28,14 @@ object EntityExportPayloads {
     * Order in list matters, as if there are more than one `FieldCalculation` that reacts to the same field name,
     * only the last one will be taken into account.
     */
-  sealed abstract class ExportableEntity(dynamicCalculations: List[FieldCalculation]) {
-    this: Product ⇒
+  sealed abstract class ExportableEntity(dynamicCalculations: List[FieldCalculation]) { this: Product ⇒
     def this(dynamicCalculations: FieldCalculation*) = this(dynamicCalculations.toList)
 
-    lazy val (extraFields, calculateFields) = dynamicCalculations.foldLeft(
-        List.empty[String] → PartialFunction.empty[(String, JObject), String]) {
-      case ((accFields, accCalc), fc) ⇒
-        (fc.extraFields ::: accFields, fc.calculate.orElse(accCalc))
-    }
+    lazy val (extraFields, calculateFields) =
+      dynamicCalculations.foldLeft(List.empty[String] → PartialFunction.empty[(String, JObject), String]) {
+        case ((accFields, accCalc), fc) ⇒
+          (fc.extraFields ::: accFields, fc.calculate.orElse(accCalc))
+      }
 
     def entity: String = productPrefix.underscore
 
@@ -78,12 +78,13 @@ object EntityExportPayloads {
     object PaymentState extends FieldCalculation {
       def extraFields: List[String] = List("payments")
 
+      // todo add apple pay here ?  (this piece was merge in on rebase to master) @aafa
       lazy val calculate: PartialFunction[(String, JObject), String] = {
         def getState(jv: JValue): Option[CordPaymentState.State] =
           (jv \ "creditCardState")
             .extractOpt[String]
-            .flatMap(CreditCardCharge.State.read)
-            .map(CordPaymentState.fromCCState) orElse
+            .flatMap(ExternalCharge.State.read)
+            .map(CordPaymentState.fromExternalState) orElse
             (jv \ "giftCardState")
               .extractOpt[String]
               .flatMap(InStorePaymentStates.State.read)
@@ -149,10 +150,10 @@ object EntityExportPayloads {
   object ExportEntity {
     def typeHints =
       ADTTypeHints(
-          Map(
-              Type.Ids   → classOf[ByIDs],
-              Type.Query → classOf[BySearchQuery]
-          ))
+        Map(
+          Type.Ids   → classOf[ByIDs],
+          Type.Query → classOf[BySearchQuery]
+        ))
 
     sealed trait Type extends Product with Serializable
     implicit object Type extends ADT[Type] {
@@ -173,8 +174,7 @@ object EntityExportPayloads {
 
   case class RawSortDefinition(field: String, json: JObject) extends SortDefinition {
     lazy val builder: SortBuilder = new SortBuilder {
-      private[this] lazy val bytes = new BytesArray(
-          compact(render(json)).getBytes(StandardCharsets.UTF_8))
+      private[this] lazy val bytes = new BytesArray(compact(render(json)).getBytes(StandardCharsets.UTF_8))
 
       def missing(missing: Any): SortBuilder = this // no need to support this operation
 
@@ -186,7 +186,7 @@ object EntityExportPayloads {
   }
   object RawSortDefinition {
     val jsonFormat = new CustomSerializer[RawSortDefinition](_ ⇒
-          ({
+      ({
         case JString(field) ⇒ RawSortDefinition(field, JObject())
         case JObject((field, order @ JString(_)) :: Nil) ⇒
           RawSortDefinition(field, JObject("order" → order))

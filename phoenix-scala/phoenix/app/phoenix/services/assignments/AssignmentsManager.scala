@@ -11,8 +11,8 @@ import phoenix.models.account._
 import phoenix.payloads.AssignmentPayloads._
 import phoenix.responses.AssignmentResponse.{Root, build ⇒ buildAssignment}
 import phoenix.responses.BatchMetadata._
-import phoenix.responses.UserResponse.{build ⇒ buildUser}
 import phoenix.responses._
+import phoenix.responses.users.UserResponse
 import phoenix.services._
 import phoenix.utils.FoxConfig.config
 import phoenix.utils.aliases._
@@ -52,23 +52,21 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       response = assignments.map((buildAssignment _).tupled)
     } yield response
 
-  def assign(key: K, payload: AssignmentPayload, originator: User)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[TheResponse[Seq[Root]]] =
+  def assign(key: K,
+             payload: AssignmentPayload,
+             originator: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[TheResponse[Seq[Root]]] =
     for {
       // Validation + assign
-      entity ← * <~ fetchEntity(key)
-      admins ← * <~ Users.filter(_.accountId.inSetBind(payload.assignees)).result
-      adminIds = admins.map(_.id)
+      entity    ← * <~ fetchEntity(key)
+      admins    ← * <~ Users.filter(_.accountId.inSetBind(payload.assignees)).result
       assignees ← * <~ Assignments.assigneesFor(assignmentType, entity, referenceType).result
-      newAssigneeIds = adminIds.diff(assignees.map(_.id))
+      newAssigneeIds = admins.map(_.accountId).diff(assignees.map(_.accountId))
       _ ← * <~ Assignments.createAll(build(entity, newAssigneeIds))
-      assignedAdmins = admins.filter(a ⇒ newAssigneeIds.contains(a.id)).map(buildUser)
+      assignedAdmins = admins.filter(a ⇒ newAssigneeIds.contains(a.accountId)).map(UserResponse.build)
       // Response builder
       assignments ← * <~ fetchAssignments(entity)
       response       = assignments.map((buildAssignment _).tupled)
-      notFoundAdmins = diffToFailures(payload.assignees, adminIds, User)
+      notFoundAdmins = diffToFailures(payload.assignees, admins.map(_.accountId), User)
       // Activity log + notifications subscription
       _ ← * <~ subscribe(this, assignedAdmins.map(_.id), Seq(key.toString))
       responseItem = buildResponse(entity)
@@ -143,18 +141,17 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
     val failureData   = getFailureData(entityTrio, payload.storeAdminId, actionType)
     val batchMetadata = BatchMetadata(BatchMetadataSource(referenceType, successData, failureData))
 
-    (successData,
-     TheResponse(result, errors = flattenErrors(failureData), batch = batchMetadata.some))
+    (successData, TheResponse(result, errors = flattenErrors(failureData), batch = batchMetadata.some))
   }
 
   // DbResultT builders
   private def build(entity: M, newAssigneeIds: Seq[Int]): Seq[Assignment] =
     newAssigneeIds.map(
-        adminId ⇒
-          Assignment(assignmentType = assignmentType,
-                     storeAdminId = adminId,
-                     referenceType = referenceType,
-                     referenceId = entity.id))
+      adminId ⇒
+        Assignment(assignmentType = assignmentType,
+                   storeAdminId = adminId,
+                   referenceType = referenceType,
+                   referenceId = entity.id))
 
   private def buildSeq(entities: Seq[M], storeAdminId: Int): Seq[Assignment] =
     for (e ← entities)
@@ -167,9 +164,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
   // Batch metadata builders
   private def getSuccessData(trio: EntityTrio): SuccessData = searchKeys(trio.succeed)
 
-  private def getFailureData(trio: EntityTrio,
-                             storeAdminId: Int,
-                             actionType: ActionType): FailureData = {
+  private def getFailureData(trio: EntityTrio, storeAdminId: Int, actionType: ActionType): FailureData = {
 
     val notFoundFailures = trio.notFound.map { key ⇒
       (key, NotFoundFailure404(referenceType, key).description)

@@ -40,15 +40,13 @@ object UserPasswordReset {
 
   implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 
-  def optionFromUser(user: User): Option[UserPasswordReset] = {
+  def optionFromUser(user: User): Option[UserPasswordReset] =
     user.email.map { email ⇒
       UserPasswordReset(accountId = user.accountId, code = generateUuid, email = email)
     }
-  }
 }
 
-class UserPasswordResets(tag: Tag)
-    extends FoxTable[UserPasswordReset](tag, "user_password_resets") {
+class UserPasswordResets(tag: Tag) extends FoxTable[UserPasswordReset](tag, "user_password_resets") {
 
   import UserPasswordReset._
 
@@ -62,7 +60,7 @@ class UserPasswordResets(tag: Tag)
 
   def * =
     (id, accountId, email, state, code, activatedAt, createdAt) <> ((UserPasswordReset.apply _).tupled,
-        UserPasswordReset.unapply)
+    UserPasswordReset.unapply)
 }
 
 object UserPasswordResets

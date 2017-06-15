@@ -16,6 +16,11 @@
   & :global(.fc-dropdown__items) {
     min-width: 300px;
     max-height: 304px;
+    transform: translateX(calc(-100% + 40px));
+
+    &:global(._dropup) {
+      transform: translateX(calc(-100% + 40px)) translateY(calc(-100% - 40px));
+    }
   }
 
   &:global(._open) {

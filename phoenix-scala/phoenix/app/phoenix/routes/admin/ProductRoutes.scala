@@ -13,6 +13,7 @@ import phoenix.services.image.ImageManager
 import phoenix.services.product.ProductManager
 import phoenix.services.taxonomy.TaxonomyManager
 import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
 import phoenix.utils.http.Http._
 import phoenix.utils.http.JsonSupport._
@@ -20,50 +21,48 @@ import phoenix.utils.http.JsonSupport._
 object ProductRoutes {
 
   private def productRoutes(
-      productRef: ProductReference)(implicit ec: EC, db: DB, oc: OC, ac: AC, auth: AU): Route = {
+      productRef: ProductReference)(implicit ec: EC, db: DB, oc: OC, ac: AC, apis: Apis, auth: AU): Route =
     (get & pathEnd) {
       getOrFailures {
-        ProductManager.getProduct(productRef)
+        ProductManager.getProduct(productRef, checkActive = false)
       }
     } ~
-    (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
-      mutateOrFailures {
-        ProductManager.updateProduct(productRef, payload)
-      }
-    } ~
-    (delete & pathEnd) {
-      mutateOrFailures {
-        ProductManager.archiveByContextAndId(productRef)
-      }
-    } ~
-    (pathPrefix("taxons") & get & pathEnd) {
-      getOrFailures {
-        TaxonomyManager.getAssignedTaxons(productRef)
-      }
-    } ~
-    pathPrefix("albums") {
-      (get & pathEnd) {
-        getOrFailures {
-          ImageManager.getAlbumsForProduct(productRef)
-        }
-      } ~
-      (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
+      (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
         mutateOrFailures {
-          ImageManager.createAlbumForProduct(auth.model, productRef, payload)
+          ProductManager.updateProduct(productRef, payload)
         }
       } ~
-      pathPrefix("position") {
-        (post & pathEnd & entity(as[UpdateAlbumPositionPayload])) { payload ⇒
+      (delete & pathEnd) {
+        mutateOrFailures {
+          ProductManager.archiveByContextAndId(productRef)
+        }
+      } ~
+      (pathPrefix("taxons") & get & pathEnd) {
+        getOrFailures {
+          TaxonomyManager.getAssignedTaxons(productRef)
+        }
+      } ~
+      pathPrefix("albums") {
+        (get & pathEnd) {
+          getOrFailures {
+            ImageManager.getAlbumsForProduct(productRef)
+          }
+        } ~
+        (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
           mutateOrFailures {
-            ImageManager.updateProductAlbumPosition(payload.albumId, productRef, payload.position)
+            ImageManager.createAlbumForProduct(auth.model, productRef, payload)
+          }
+        } ~
+        pathPrefix("position") {
+          (post & pathEnd & entity(as[UpdateAlbumPositionPayload])) { payload ⇒
+            mutateOrFailures {
+              ImageManager.updateProductAlbumPosition(payload.albumId, productRef, payload.position)
+            }
           }
         }
       }
-    }
-  }
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
-
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("products") {
         pathPrefix(Segment) { contextName ⇒
@@ -106,5 +105,4 @@ object ProductRoutes {
         }
       }
     }
-  }
 }
