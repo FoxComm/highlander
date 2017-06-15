@@ -95,14 +95,13 @@ class CatalogPage extends Component {
 
     let links = null;
     if (!this.isNew) {
-      console.log('set links');
       links = (
         <Link to="catalog-products" params={params}>
           Products
         </Link>
       );
     }
- 
+
     return (
       <PageNav>
         <IndexLink
@@ -174,7 +173,7 @@ class CatalogPage extends Component {
     if (isFetching) {
       return <WaitAnimation />;
     }
- 
+
     return (
       <div>
         <PageTitle title={this.pageTitle}>

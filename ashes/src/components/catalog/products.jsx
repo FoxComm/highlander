@@ -34,6 +34,16 @@ type Props = {
   params: {
     catalogId: number,
   },
+  actions: {
+    addSearchFilters: Function,
+    fetch: Function,
+    linkProducts: Function,
+    unlinkProduct: Function,
+    setExtraFilters: Function,
+  },
+  list: ?Object,
+  linkState: Object,
+  unlinkState: Object,
 }
 
 type State = {
