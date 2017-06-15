@@ -2,19 +2,19 @@ package phoenix.services.carts
 
 import cats.implicits._
 import core.db._
-import objectframework.services.ObjectManager
+import core.failures.GeneralFailure
+import objectframework.models._
 import org.json4s.Formats
-import phoenix.failures.CartFailures._
-import phoenix.failures.ProductFailures.SkuNotFoundForContext
+import phoenix.failures.CartFailures.SkuWithNoProductAdded
 import phoenix.models.account._
 import phoenix.models.activity.Activity
 import phoenix.models.cord._
 import phoenix.models.cord.lineitems.CartLineItems.scope._
 import phoenix.models.cord.lineitems._
-import phoenix.models.inventory.{IlluminatedSku, Sku, Skus}
-import phoenix.models.objects._
-import phoenix.models.product.VariantValueSkuLinks
+import phoenix.models.inventory._
+import phoenix.models.product._
 import phoenix.payloads.LineItemPayloads._
+import phoenix.queries.ProductSkuQueries.productSkuFormsQuery
 import phoenix.responses.TheResponse
 import phoenix.responses.cord.CartResponse
 import phoenix.services.{CartValidator, LogActivity}
@@ -132,76 +132,82 @@ object CartLineItemUpdater {
       acc.updated(item.sku, quantity + item.quantity)
     }
 
-  private def updateQuantities(
-      cart: Cart,
-      payload: Seq[UpdateLineItemsPayload])(implicit ec: EC, ctx: OC, db: DB): DbResultT[Seq[CartLineItem]] =
+  private def updateQuantities(cart: Cart,
+                               payload: Seq[UpdateLineItemsPayload])(implicit ec: EC, ctx: OC, db: DB) =
     for {
-      _ ← * <~ CartLineItems
-           .byCordRef(cart.referenceNumber)
-           .deleteAll(DbResultT.unit, DbResultT.unit)
-      updateResult ← * <~ payload.filter(_.quantity > 0).map(updateLineItems(cart, _))
-    } yield updateResult.flatten
+      _ ← * <~ CartLineItems.byCordRef(cart.referenceNumber).delete
+      // TODO filter by context
+      skusProducts ← * <~ productSkuFormsQuery.filter {
+                      case (_, (sku, _, _), _) ⇒ sku.code inSet payload.map(_.sku)
+                    }.result
+      skus ← * <~ skusProducts.map {
+              case (_, (sku, skuForm, skuShadow), maybeProductFiSH) ⇒
+                DbResultT.fromEither(for {
+                  _ ← IlluminatedSku.illuminate(ctx, FullObject(sku, skuForm, skuShadow)).mustBeActive
+                  _ ← maybeProductFiSH match {
+                       case Some((product, productForm, productShadow)) ⇒
+                         IlluminatedProduct.illuminate(ctx, product, productForm, productShadow).mustBeActive
+                       case _ ⇒
+                         Either.left(SkuWithNoProductAdded(cart.refNum, sku.code).single)
+                     }
+                } yield sku)
+            }
+      _ ← * <~ failIf(
+           skus.length != payload.length,
+           GeneralFailure(
+             "Something went terribly wrong, one of requested SKUs sucks like an industrial-grade vacuum cleaner"))
+      newLiMetas = for {
+        existingSku ← skus
+        requested   ← payload if requested.sku == existingSku.code
+      } yield {
+        NewLiMeta(skuId = existingSku.id,
+                  cordRef = cart.referenceNumber,
+                  requestedQuantity = requested.quantity,
+                  attributes = requested.attributes)
+      }
+      _ ← * <~ createLineItems(newLiMetas)
+    } yield {}
 
-  private def updateLineItems(cart: Cart,
-                              lineItem: UpdateLineItemsPayload)(implicit ec: EC, db: DB, ctx: OC) =
-    for {
-      sku ← * <~ Skus
-             .filterByContext(ctx.id)
-             .filter(_.code === lineItem.sku)
-             .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, ctx.id))
-      fullSku ← ObjectManager.getFullObject(DbResultT.pure(sku))
-      _       ← * <~ IlluminatedSku.illuminate(ctx, fullSku).mustBeActive
-      // TODO: check if that SKU’s Product is not archived/deactivated @michalrus
-      _            ← * <~ mustFindProductIdForSku(sku, cart.refNum)
-      updateResult ← * <~ createLineItems(sku.id, lineItem.quantity, cart.refNum, lineItem.attributes)
-    } yield updateResult
+  private case class NewLiMeta(skuId: Int,
+                               cordRef: String,
+                               requestedQuantity: Int,
+                               attributes: Option[LineItemAttributes])
 
-  private def createLineItems(skuId: Int,
-                              quantity: Int,
-                              cordRef: String,
-                              attributes: Option[LineItemAttributes])(implicit ec: EC) = {
-    require(quantity > 0)
-    val lineItem = CartLineItem(cordRef = cordRef, skuId = skuId, attributes = attributes)
-    CartLineItems.createAllReturningModels(List.fill(quantity)(lineItem))
+  private def createLineItems(newLiMetas: List[NewLiMeta])(implicit ec: EC) = {
+    val allNewLis = newLiMetas.flatMap { liMeta ⇒
+      import liMeta._
+      List.fill(requestedQuantity)(CartLineItem(cordRef = cordRef, skuId = skuId, attributes = attributes))
+    }
+    CartLineItems.createAll(allNewLis)
   }
 
   private def addQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload])(implicit ec: EC,
-                                                                              ctx: OC): DbResultT[Unit] = {
-    val lineItemUpdActions = payload.map { lineItem ⇒
-      for {
-        sku ← * <~ Skus
-               .filterByContext(ctx.id)
-               .filter(_.code === lineItem.sku)
-               .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, ctx.id))
-        _ ← * <~ mustFindProductIdForSku(sku, cart.refNum)
-        _ ← * <~ (if (lineItem.quantity > 0)
-                    createLineItems(sku.id, lineItem.quantity, cart.refNum, lineItem.attributes).meh
-                  else
-                    removeLineItems(sku.id, -lineItem.quantity, cart.refNum, lineItem.attributes))
-      } yield {}
-    }
-    DbResultT.seqCollectFailures(lineItemUpdActions.toList).meh
-  }
+                                                                              ctx: OC): DbResultT[Unit] = ???
+//  {
+//    val lineItemUpdActions = payload.map { lineItem ⇒
+//      for {
+//        sku ← * <~ Skus
+//               .filterByContext(ctx.id)
+//               .filter(_.code === lineItem.sku)
+//               .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, ctx.id))
+//        _ ← * <~ (if (lineItem.quantity > 0)
+//                    createLineItems(sku.id, lineItem.quantity, cart.refNum, lineItem.attributes).meh
+//                  else
+//                    removeLineItems(sku.id, -lineItem.quantity, cart.refNum, lineItem.attributes))
+//      } yield {}
+//    }
+//    DbResultT.seqCollectFailures(lineItemUpdActions.toList).meh
+//  }
 
-  private def mustFindProductIdForSku(sku: Sku, refNum: String)(implicit ec: EC, oc: OC) =
-    for {
-      link ← * <~ ProductSkuLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
-              case Some(productLink) ⇒
-                DbResultT.good(productLink.leftId)
-              case None ⇒
-                for {
-                  valueLink ← * <~ VariantValueSkuLinks
-                               .filter(_.rightId === sku.id)
-                               .mustFindOneOr(SkuWithNoProductAdded(refNum, sku.code))
-                  variantLink ← * <~ VariantValueLinks
-                                 .filter(_.rightId === valueLink.leftId)
-                                 .mustFindOneOr(SkuWithNoProductAdded(refNum, sku.code))
-                  productLink ← * <~ ProductVariantLinks
-                                 .filter(_.rightId === variantLink.leftId)
-                                 .mustFindOneOr(SkuWithNoProductAdded(refNum, sku.code))
-                } yield productLink.leftId
-            }
-    } yield link
+  def theQ(cartRef: String)(implicit ctx: OC) = {
+    // left joining here because line item can not yet exist for requested SKU
+    val q = (productSkuFormsQuery joinLeft CartLineItems)
+      .on { case ((skuId, _, _), lineItem) ⇒ skuId === lineItem.skuId }
+      .filter { case (_, lineItem) ⇒ lineItem.map(_.cordRef === cartRef).getOrElse(true) }
+      .map { case ((_, skuFiSH, productFiSH), lineItem) ⇒ (lineItem, skuFiSH, productFiSH) }
+
+    q.result
+  }
 
   private def removeLineItems(skuId: Int,
                               delta: Int,

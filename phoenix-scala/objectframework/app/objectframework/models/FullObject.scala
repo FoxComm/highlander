@@ -9,7 +9,8 @@ trait FormAndShadow {
   def form: ObjectForm
   def shadow: ObjectShadow
 
-  def tupled: (ObjectForm, ObjectShadow) = form → shadow
+  // renamed from `tupled` which is "reserved" for tupled function application
+  def tuple: (ObjectForm, ObjectShadow) = form → shadow
 
   def toPayload: Map[String, JValue] = {
     val attributes = IlluminateAlgorithm
@@ -67,4 +68,11 @@ object FormAndShadow {
 case class FullObject[A](model: A, form: ObjectForm, shadow: ObjectShadow) extends FormAndShadow {
   override def update(form: ObjectForm, shadow: ObjectShadow): FormAndShadow =
     copy(form = form, shadow = shadow)
+}
+
+object FullObject {
+
+  def tupled[A](tuple: (A, ObjectForm, ObjectShadow)): FullObject[A] =
+    // tupled wasn't working as expected here, probably because of type param
+    FullObject(tuple._1, tuple._2, tuple._3)
 }

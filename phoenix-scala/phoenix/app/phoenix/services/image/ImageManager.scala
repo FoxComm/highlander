@@ -129,7 +129,7 @@ object ImageManager {
                   case Some(id) ⇒
                     for {
                       image ← * <~ ObjectManager.getFullObject(Images.mustFindById404(id))
-                      (newForm, newShadow) = payload.formAndShadow.tupled
+                      (newForm, newShadow) = payload.formAndShadow.tuple
                       updated ← * <~ ObjectUtils.commitUpdate(image,
                                                               newForm.attributes,
                                                               newShadow.attributes,
@@ -158,7 +158,7 @@ object ImageManager {
           image ← * <~ ObjectManager.getFullObject(Images.mustFindById404(id))
           link  ← * <~ mustFindAlbumImageLink404(album.id, id)
           _     ← * <~ AlbumImageLinks.update(link, link.copy(position = position))
-          (newForm, newShadow) = payload.formAndShadow.tupled
+          (newForm, newShadow) = payload.formAndShadow.tuple
           updated ← * <~ ObjectUtils.commitUpdate(image,
                                                   newForm.attributes,
                                                   newShadow.attributes,
@@ -226,7 +226,7 @@ object ImageManager {
     for {
       album ← * <~ mustFindFullAlbumByFormIdAndContext404(id, context)
       oldShadow                    = album.shadow
-      (payloadForm, payloadShadow) = payload.formAndShadow.tupled
+      (payloadForm, payloadShadow) = payload.formAndShadow.tuple
       mergedAtts                   = oldShadow.attributes.merge(payloadShadow.attributes)
       album ← * <~ ObjectUtils
                .commitUpdate[Album](album, payloadForm.attributes, mergedAtts, updateAlbumHead, force = true)

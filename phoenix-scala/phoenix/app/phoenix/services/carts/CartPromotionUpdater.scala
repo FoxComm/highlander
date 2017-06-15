@@ -170,7 +170,7 @@ object CartPromotionUpdater {
       discounts ← * <~ PromotionDiscountLinks.queryRightByLeft(promotion)
       // Safe AST compilation
       discount ← * <~ tryDiscount(discounts)
-      (form, shadow) = discount.tupled
+      (form, shadow) = discount.tuple
       qualifier ← * <~ QualifierAstCompiler(qualifier(form, shadow)).compile()
       offer     ← * <~ OfferAstCompiler(offer(form, shadow)).compile()
       maybeFailedAdjustments = getAdjustments(promoShadow, cart, qualifier, offer)
