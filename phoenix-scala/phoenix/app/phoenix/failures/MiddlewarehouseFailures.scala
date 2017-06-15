@@ -14,7 +14,7 @@ object MiddlewarehouseFailures {
   }
 
   case object MwhConnectionFailure extends Failure {
-    override def description = s"We are experiencing internal infrastructure problems and doing our best to resolve the issue. Try again later."
+    override def description = s"We are experiencing problems and doing our best to resolve the issue. Please try again later."
   }
 
   case object UnexpectedMwhResponseFailure extends Failure {

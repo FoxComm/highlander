@@ -96,7 +96,6 @@ object SkuManager {
       scope ← * <~ Scope.resolveOverride(payload.scope)
       code  ← * <~ mustGetSkuCode(payload)
       ins   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
-      _     ← * <~ apis.middlewarehouse.createSku(ins.form.id, CreateSku(code))
       sku ← * <~ Skus.create(
              Sku(scope = scope,
                  contextId = context.id,
@@ -104,6 +103,7 @@ object SkuManager {
                  formId = ins.form.id,
                  shadowId = ins.shadow.id,
                  commitId = ins.commit.id))
+      _     ← * <~ apis.middlewarehouse.createSku(ins.form.id, CreateSku(code))
     } yield FullObject(sku, ins.form, ins.shadow)
   }
 
