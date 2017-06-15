@@ -48,18 +48,18 @@ object ProductRoutes {
             ImageManager.getAlbumsForProduct(productRef)
           }
         } ~
-          (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
+        (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
+          mutateOrFailures {
+            ImageManager.createAlbumForProduct(auth.model, productRef, payload)
+          }
+        } ~
+        pathPrefix("position") {
+          (post & pathEnd & entity(as[UpdateAlbumPositionPayload])) { payload ⇒
             mutateOrFailures {
-              ImageManager.createAlbumForProduct(auth.model, productRef, payload)
-            }
-          } ~
-          pathPrefix("position") {
-            (post & pathEnd & entity(as[UpdateAlbumPositionPayload])) { payload ⇒
-              mutateOrFailures {
-                ImageManager.updateProductAlbumPosition(payload.albumId, productRef, payload.position)
-              }
+              ImageManager.updateProductAlbumPosition(payload.albumId, productRef, payload.position)
             }
           }
+        }
       }
 
   def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route =
@@ -72,37 +72,37 @@ object ProductRoutes {
                 ProductManager.createProduct(auth.model, payload)
               }
             } ~
-              pathPrefix(ProductRef) { productId ⇒
-                productRoutes(productId)
-              }
+            pathPrefix(ProductRef) { productId ⇒
+              productRoutes(productId)
+            }
           }
         } ~
-          pathPrefix("contexts" / Segment) { name ⇒
-            (get & pathEnd) {
-              getOrFailures {
-                ObjectManager.getContextByName(name)
-              }
-            } ~
-              (patch & pathEnd & entity(as[UpdateObjectContext])) { payload ⇒
-                mutateOrFailures {
-                  ObjectManager.updateContextByName(name, payload)
-                }
-              }
-          } ~
-          pathPrefix("contexts") {
-            (post & pathEnd & entity(as[CreateObjectContext])) { payload ⇒
-              mutateOrFailures {
-                ObjectManager.createContext(payload)
-              }
+        pathPrefix("contexts" / Segment) { name ⇒
+          (get & pathEnd) {
+            getOrFailures {
+              ObjectManager.getContextByName(name)
             }
           } ~
-          pathPrefix(IntNumber / "contexts") { formId ⇒
-            (get & pathEnd) {
-              getOrFailures {
-                ProductManager.getContextsForProduct(formId)
-              }
+          (patch & pathEnd & entity(as[UpdateObjectContext])) { payload ⇒
+            mutateOrFailures {
+              ObjectManager.updateContextByName(name, payload)
             }
           }
+        } ~
+        pathPrefix("contexts") {
+          (post & pathEnd & entity(as[CreateObjectContext])) { payload ⇒
+            mutateOrFailures {
+              ObjectManager.createContext(payload)
+            }
+          }
+        } ~
+        pathPrefix(IntNumber / "contexts") { formId ⇒
+          (get & pathEnd) {
+            getOrFailures {
+              ProductManager.getContextsForProduct(formId)
+            }
+          }
+        }
       }
     }
 }

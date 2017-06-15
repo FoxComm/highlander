@@ -20,30 +20,30 @@ object PluginRoutes {
             listPlugins()
           }
         } ~
-          pathPrefix("register") {
-            (post & pathEnd & entity(as[RegisterPluginPayload])) { payload ⇒
-              mutateOrFailures {
-                registerPlugin(payload)
-              }
+        pathPrefix("register") {
+          (post & pathEnd & entity(as[RegisterPluginPayload])) { payload ⇒
+            mutateOrFailures {
+              registerPlugin(payload)
+            }
+          }
+        } ~
+        (pathPrefix("settings") & pathPrefix(Segment)) { pluginName ⇒
+          (get & pathEnd) {
+            getOrFailures {
+              listSettings(pluginName)
             }
           } ~
-          (pathPrefix("settings") & pathPrefix(Segment)) { pluginName ⇒
-            (get & pathEnd) {
-              getOrFailures {
-                listSettings(pluginName)
-              }
-            } ~
-              (get & path("detailed")) {
-                getOrFailures {
-                  getSettingsWithSchema(pluginName)
-                }
-              } ~
-              (post & pathEnd & entity(as[UpdateSettingsPayload])) { payload ⇒
-                mutateOrFailures {
-                  updateSettings(pluginName, payload)
-                }
-              }
+          (get & path("detailed")) {
+            getOrFailures {
+              getSettingsWithSchema(pluginName)
+            }
+          } ~
+          (post & pathEnd & entity(as[UpdateSettingsPayload])) { payload ⇒
+            mutateOrFailures {
+              updateSettings(pluginName, payload)
+            }
           }
+        }
       }
     }
 }

@@ -36,6 +36,9 @@ const setCellContents = (coupon: Object, field: string) => {
       return codes[0];
     case 'state':
       return <RoundedPill text={activeStatus(coupon)} />;
+    case 'maxUsesPerCode':
+    case 'maxUsesPerCustomer':
+      return _.get(coupon, field) || <span>Unlimited</span>;
     default:
       return _.get(coupon, field);
   }

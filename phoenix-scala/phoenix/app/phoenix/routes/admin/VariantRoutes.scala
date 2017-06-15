@@ -23,25 +23,25 @@ object VariantRoutes {
               VariantManager.createVariant(context, payload)
             }
           } ~
-            pathPrefix(IntNumber) { variantId ⇒
-              (get & pathEnd) {
-                getOrFailures {
-                  VariantManager.getVariant(context, variantId)
+          pathPrefix(IntNumber) { variantId ⇒
+            (get & pathEnd) {
+              getOrFailures {
+                VariantManager.getVariant(context, variantId)
+              }
+            } ~
+            (patch & pathEnd & entity(as[VariantPayload])) { payload ⇒
+              mutateOrFailures {
+                VariantManager.updateVariant(context, variantId, payload)
+              }
+            } ~
+            pathPrefix("values") {
+              (post & pathEnd & entity(as[VariantValuePayload])) { payload ⇒
+                mutateOrFailures {
+                  VariantManager.createVariantValue(context, variantId, payload)
                 }
-              } ~
-                (patch & pathEnd & entity(as[VariantPayload])) { payload ⇒
-                  mutateOrFailures {
-                    VariantManager.updateVariant(context, variantId, payload)
-                  }
-                } ~
-                pathPrefix("values") {
-                  (post & pathEnd & entity(as[VariantValuePayload])) { payload ⇒
-                    mutateOrFailures {
-                      VariantManager.createVariantValue(context, variantId, payload)
-                    }
-                  }
-                }
+              }
             }
+          }
         }
       }
     }

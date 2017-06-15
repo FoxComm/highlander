@@ -13,10 +13,19 @@ import styles from './product-table.css';
 
 type Props = {
   skus: Array<any>,
+  confirmationPage?: boolean,
 };
 
 const Products = (props: Props) => {
-  const rows = _.map(props.skus, item => <LineItemRow {...item} key={skuIdentity(item)} />);
+  const rows = _.map(props.skus, (item) => {
+    return (
+      <LineItemRow
+        {...item}
+        key={skuIdentity(item)}
+        confirmationPage={props.confirmationPage}
+      />
+    );
+  });
 
   return (
     <div styleName="products">

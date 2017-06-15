@@ -1,100 +1,112 @@
 package gohttp
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"log"
-	"net/http"
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io/ioutil"
+    "log"
+    "net/http"
 
-	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
+    "github.com/FoxComm/highlander/middlewarehouse/common/utils"
 )
 
 func Get(url string, headers map[string]string, retval interface{}) error {
-	_, err := Request("GET", url, headers, nil, retval)
+    _, err := Request("GET", url, headers, nil, retval)
 
-	return err
+    return err
 }
 
 func Post(url string, headers map[string]string, payload interface{}, retval interface{}) error {
-	_, err := Request("POST", url, headers, payload, retval)
+    _, err := Request("POST", url, headers, payload, retval)
 
-	return err
+    return err
 }
 
 func Patch(url string, headers map[string]string, payload interface{}, retval interface{}) error {
-	_, err := Request("PATCH", url, headers, payload, retval)
+    _, err := Request("PATCH", url, headers, payload, retval)
 
-	return err
+    return err
 }
 
 func Put(url string, headers map[string]string, payload interface{}, retval interface{}) error {
-	_, err := Request("PUT", url, headers, payload, retval)
+    _, err := Request("PUT", url, headers, payload, retval)
 
-	return err
+    return err
 }
 
 func Request(method string, url string, headers map[string]string, payload interface{}, retval interface{}) (*http.Response, error) {
-	if method != "POST" && method != "PATCH" && method != "GET" && method != "PUT" {
-		return nil, fmt.Errorf("Invalid method %s. Only GET, POST, PUT, and PATCH are currently supported", method)
-	}
+    debug := utils.IsDebug()
 
-	if headers == nil {
-		headers = map[string]string{}
-	}
+    if method != "POST" && method != "PATCH" && method != "GET" && method != "PUT" {
+        return nil, fmt.Errorf("Invalid method %s. Only GET, POST, PUT, and PATCH are currently supported", method)
+    }
 
-	var req *http.Request
-	var err error
-	payloadBytes := []byte{}
+    if headers == nil {
+        headers = map[string]string{}
+    }
 
-	if method == "GET" {
-		req, err = http.NewRequest(method, url, nil)
-	} else {
-		payloadBytes, err = json.Marshal(&payload)
-		if err != nil {
-			return nil, fmt.Errorf("Unable to marshal payload: %s", err.Error())
-		}
+    var req *http.Request
+    var err error
+    payloadBytes := []byte{}
 
-		log.Printf("HTTP --> %s %s %s", method, url, utils.SanitizePassword(payloadBytes))
+    if method == "GET" {
+        req, err = http.NewRequest(method, url, nil)
+    } else {
+        payloadBytes, err = json.Marshal(&payload)
+        if err != nil {
+            return nil, fmt.Errorf("Unable to marshal payload: %s", err.Error())
+        }
 
-		req, err = http.NewRequest(method, url, bytes.NewBuffer(payloadBytes))
-	}
+        req, err = http.NewRequest(method, url, bytes.NewBuffer(payloadBytes))
+    }
 
-	log.Printf("HTTP --> %s %s %s", method, url, payloadBytes)
+    log.Printf("HTTP --> %s %s %s", method, url, utils.SanitizePassword(payloadBytes))
 
-	if err != nil {
-		return nil, fmt.Errorf("Unable to create %s request: %s", method, err.Error())
-	}
+    if err != nil {
+        return nil, fmt.Errorf("Unable to create %s request: %s", method, err.Error())
+    }
 
-	req.Header.Set("Content-Type", "application/json")
-	for k, v := range headers {
-		req.Header.Set(k, v)
-	}
+    req.Header.Set("Content-Type", "application/json")
+    for k, v := range headers {
+        req.Header.Set(k, v)
+    }
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("Unable to make %s request: %s", method, err.Error())
-	}
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return nil, fmt.Errorf("Unable to make %s request: %s", method, err.Error())
+    }
 
-	log.Printf("HTTP <-- %s %s %s", method, url, resp.Status)
+    log.Printf("HTTP <-- %s %s %s", method, url, resp.Status)
 
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+    defer resp.Body.Close()
+    body, err := ioutil.ReadAll(resp.Body)
 
-	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		return nil, fmt.Errorf(
-			"Error in %s response - status: %s, body %s",
-			method,
-			resp.Status,
-			string(body),
-		)
-	}
+    if err != nil {
+        return nil, fmt.Errorf("Unable to read body of the response: %s", err.Error())
+    }
 
-	if retval != nil {
-		err = json.Unmarshal(body, retval)
-	}
+    if resp.StatusCode < 200 || resp.StatusCode > 299 {
+        return nil, fmt.Errorf(
+            "Error in %s response - status: %s, body %s",
+            method,
+            resp.Status,
+            string(body),
+        )
+    }
 
-	return resp, err
+    if retval != nil {
+        err = json.Unmarshal(body, retval)
+    }
+
+    if err != nil && debug {
+        err = fmt.Errorf(
+            "Failed to unmarshall body: %s \nOriginal message: %s",
+            string(body),
+            err.Error(),
+        )
+    }
+
+    return resp, err
 }

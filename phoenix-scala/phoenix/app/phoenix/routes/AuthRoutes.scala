@@ -55,32 +55,32 @@ object AuthRoutes {
                   ))
 
               doLogin(doPasswordReset)(_.runTxn())
-            }
-        } ~
+            } ~
         (post & path("logout")) {
           deleteCookie("JWT", path = "/") {
             redirect(Uri("/"), StatusCodes.Found)
           }
-        } ~
-        activityContext(defaultScope) { implicit ac ⇒
-          lazy val customerGoogleOauth = oauthServiceFromConfig(config.users.customer)
-          lazy val adminGoogleOauth    = oauthServiceFromConfig(config.users.admin)
-
-          (path("oauth2callback" / "google" / "admin") & get & oauthResponse) {
-            adminGoogleOauth.adminCallback
-          } ~
-            (path("oauth2callback" / "google" / "customer") & get & oauthResponse) {
-              customerGoogleOauth.customerCallback
-            } ~
-            (path("signin" / "google" / "admin") & get) {
-              val url = adminGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
-              complete(Map("url" → url))
-            } ~
-            (path("signin" / "google" / "customer") & get) {
-              val url = customerGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
-              complete(Map("url" → url))
-            }
         }
+      } ~
+      activityContext(defaultScope) { implicit ac ⇒
+        lazy val customerGoogleOauth = oauthServiceFromConfig(config.users.customer)
+        lazy val adminGoogleOauth    = oauthServiceFromConfig(config.users.admin)
+
+        (path("oauth2callback" / "google" / "admin") & get & oauthResponse) {
+          adminGoogleOauth.adminCallback
+        } ~
+        (path("oauth2callback" / "google" / "customer") & get & oauthResponse) {
+          customerGoogleOauth.customerCallback
+        } ~
+        (path("signin" / "google" / "admin") & get) {
+          val url = adminGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
+          complete(Map("url" → url))
+        } ~
+        (path("signin" / "google" / "customer") & get) {
+          val url = customerGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
+          complete(Map("url" → url))
+        }
+      }
     }
   }
 }

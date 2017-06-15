@@ -135,6 +135,11 @@ class FormField extends Component {
     return findDOMNode(this).querySelector(this.props.target);
   }
 
+  get isRequired() {
+    const node = this.findTargetNode();
+    return node.required;
+  }
+
   get errors() {
     let errors = this.state.fieldErrors;
 
@@ -194,18 +199,22 @@ class FormField extends Component {
 
   @autobind
   validate() {
+    const { t } = this.props;
+
     let errors = [];
+    const label = this.props.label || t('This field');
+    const value = this.getTargetValue();
+
+    const whitespaceError = validators.noWhiteSpace.call({ t }, value);
+    if (whitespaceError && this.isRequired) {
+      errors.push(formatString(whitespaceError, label));
+    }
 
     let validator = this.props.validator;
 
     if (_.isString(validator)) {
       validator = validators[validator];
     }
-
-    const { t } = this.props;
-
-    const value = this.getTargetValue();
-    const label = this.props.label || t('This field');
 
     if (value !== void 0 && (!_.isString(value) || value)) {
       if (this.props.maxLength && _.isString(value) && value.length > this.props.maxLength) {

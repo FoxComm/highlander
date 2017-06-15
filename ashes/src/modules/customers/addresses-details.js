@@ -34,6 +34,10 @@ const reducer = createReducer({
     });
   },
   [stopEditingAddress]: (state, addressId) => {
+    if (!addressId) {
+      return assoc(state, 'editingIds', []);
+    }
+
     return update(state, 'editingIds', _.without, addressId);
   },
   [startDeletingAddress]: (state, addressId) => {

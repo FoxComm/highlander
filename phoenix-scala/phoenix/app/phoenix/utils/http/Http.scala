@@ -91,7 +91,7 @@ object Http {
       List(`Content-Disposition`(ContentDispositionTypes.attachment, Map("filename" → fileName))))(source)
 
   def renderFailure(failures: Failures, statusCode: ClientError = BadRequest): HttpResponse = {
-    val failuresList = failures.toList
+    val failuresList = failures.toList.distinct
     val notFound     = failuresList.collectFirst { case f: NotFoundFailure404 ⇒ f }
     notFound.fold(HttpResponse(statusCode, entity = jsonEntity("errors" → failuresList.map(_.description)))) {
       nf ⇒

@@ -2,6 +2,10 @@ export function zipCode(value) {
   return /^\w{1,9}$/.test(value) ? null : this.t('Enter valid zip code');
 }
 
+export function noWhiteSpace(value) {
+  return value.trim() ? null : this.t('%0 cannot contain only whitespace');
+}
+
 export function ascii(value) {
   return /^[\x00-\x7F]+$/.test(value) ? null : this.t('%0 must contain only ASCII characters');
 }
