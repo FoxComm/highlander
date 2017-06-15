@@ -66,10 +66,16 @@ const DiscountAttrs = (props: Props) => {
       },
     });
   };
-
   const setType = (type: any) => {
+    const defaultDiscountParams = _.find(props.descriptions, (item) => {
+      if (item.type == type) return true;
+    });
+    const key = _.get(defaultDiscountParams, 'content[0].[1].name');
+    const value = _.get(defaultDiscountParams, 'content[0].[1].value', {});
     props.onChange({
-      [type]: discountParams,
+      [type]: {
+        [key]: value,
+      }
     });
   };
 
