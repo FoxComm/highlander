@@ -27,6 +27,9 @@ import BulkMessages from 'components/bulk-actions/bulk-messages';
 import { Link } from 'components/link';
 import Content from 'components/core/content/content';
 
+// styles
+import styles from './products.css';
+
 type Props = {
   params: {
     catalogId: number,
@@ -132,7 +135,7 @@ class CatalogProducts extends Component {
     const TotalCounter = makeTotalCounter(state => _.get(state, 'catalogs.products'), actions);
 
     return (
-      <div className="fc-products-list">
+      <div styleName="list-container" className="fc-products-list">
         <SectionTitle
           title="Products"
           subtitle={<TotalCounter />}
