@@ -11,7 +11,7 @@ import { transitionTo, transitionToLazy } from 'browserHistory';
 import PageNav from 'components/core/page-nav';
 import SaveCancel from 'components/core/save-cancel';
 import WaitAnimation from 'components/common/wait-animation';
-import { IndexLink } from 'components/link';
+import { IndexLink, Link } from 'components/link';
 import { PageTitle } from 'components/section-title';
 
 // data
@@ -92,6 +92,15 @@ class CatalogPage extends Component {
     const { catalogId } = this.props.params;
     const params = { catalogId };
 
+    let links = null;
+    if (!this.isNew) {
+      links = (
+        <Link to="catalog-products" params={params}>
+          Products
+        </Link>
+      );
+    }
+
     return (
       <PageNav>
         <IndexLink
@@ -100,6 +109,7 @@ class CatalogPage extends Component {
         >
           Details
         </IndexLink>
+        {links}
       </PageNav>
     );
   }
@@ -162,11 +172,7 @@ class CatalogPage extends Component {
     if (isFetching) {
       return <WaitAnimation />;
     }
-<<<<<<< f3c231339a67ac58bee3d986f212bc4f63c15010
 
-=======
-
->>>>>>> Fix linting errors
     return (
       <div>
         <PageTitle title={this.pageTitle}>

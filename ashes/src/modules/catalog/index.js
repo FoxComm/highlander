@@ -7,11 +7,13 @@ import { combineReducers } from 'redux';
 import details from './details';
 import list from './list';
 import bulk from './bulk';
+import products from './products-list';
 
 const catalogReducer = combineReducers({
   details,
   list,
   bulk,
+  products,
 });
 
 export default catalogReducer;
