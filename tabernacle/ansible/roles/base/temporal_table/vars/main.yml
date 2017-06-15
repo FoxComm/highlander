@@ -1,0 +1,3 @@
+temporal_tables_repo: https://github.com/arkhipov/temporal_tables.git
+temporal_tables_dir: "{{home}}/temporal_tables"
+temporal_tables_version: 81f1c43e05ca29b7cab54f5df3970257bf0b603e

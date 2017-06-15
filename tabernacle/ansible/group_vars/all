@@ -302,14 +302,15 @@ hyperion_push_check_interval: 5
 hyperion_create_plugin_in_ashes_on_start: true
 
 # Geronimo
-geronimo_db_host: "{{db_host}}"
-geronimo_db_name: geronimo_development
-geronimo_db_user: geronimo
-geronimo_db_password: ""
+geronimo_env: prod
+geronimo_src: ../../geronimo/
 geronimo_dir: /geronimo
-
-# FIXME: when geronimo gets moved to highlander
-geronimo_src: ../../../protos/geronimo
+geronimo_db_name: geronimo
+geronimo_db_test_name: geronimo_test
+geronimo_db_user: geronimo
+geronimo_db_connection_string: "postgresql://{{geronimo_db_user}}@{{db_host}}/{{geronimo_db_name}}"
+geronimo_db_password: ""
+geronimo_start_worker: true
 
 # Eggcreate
 eggcrate_host: "eggcrate.{{consul_suffix}}"

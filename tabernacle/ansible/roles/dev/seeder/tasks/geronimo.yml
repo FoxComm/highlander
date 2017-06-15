@@ -1,0 +1,13 @@
+---
+
+- name: Create Geronimo Seeder directory
+  file: path="{{geronimo_dir}}/priv/seeds" state=directory
+
+- name: Copy Geronimo Seeder .env
+  template: src=geronimo.env dest="{{geronimo_dir}}/priv/seeds/.env"
+
+- name: Get Latest Geronimo Seeder Image
+  shell: docker pull {{docker_registry}}:5000/geronimo-seeder:{{docker_tags.geronimo}}
+
+- name: Run Geronimo Seeder docker container
+  command: docker run -d={{detach}} --network host --env-file "{{geronimo_dir}}/priv/seeds/.env" {{docker_registry}}:5000/geronimo-seeder:{{docker_tags.geronimo}}
