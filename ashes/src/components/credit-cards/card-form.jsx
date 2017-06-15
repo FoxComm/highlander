@@ -68,6 +68,7 @@ export default class CreditCardForm extends React.Component {
   state = {
     card: this.props.card,
     editingAddress: this.props.isNew,
+    inProgress: false,
   };
 
   componentDidMount() {
@@ -116,12 +117,12 @@ export default class CreditCardForm extends React.Component {
         <FormField label="Name on Card"
                    validator="ascii"
                    labelClassName="fc-credit-card-form__label">
-        <TextInput id="nameCardFormField"
-                   className="fc-credit-card-form__input"
-                   name="holderName"
-                   maxLength="255"
-                   required
-                   value={holderName} />
+          <TextInput id="nameCardFormField"
+                     className="fc-credit-card-form__input"
+                     name="holderName"
+                     maxLength="255"
+                     required
+                     value={holderName} />
         </FormField>
       </li>
     );
@@ -191,11 +192,11 @@ export default class CreditCardForm extends React.Component {
                        labelClassName="fc-credit-card-form__label"
                        validator={this.validateCvvNumber}>
               <TextInput id="cvvCardFormField"
-                     className="fc-credit-card-form__input"
-                     name="cvv"
-                     maxLength={cvvLength(this.cardType)}
-                     required
-                     value={this.cardCVV} />
+                         className="fc-credit-card-form__input"
+                         name="cvv"
+                         maxLength={cvvLength(this.cardType)}
+                         required
+                         value={this.cardCVV} />
             </FormField>
           </div>
         </div>
@@ -271,15 +272,26 @@ export default class CreditCardForm extends React.Component {
 
   get submit() {
     return (
-      <SaveCancel saveText={this.props.saveText}
-                  onCancel={this.props.onCancel} />
+      <SaveCancel
+        saveText={this.props.saveText}
+        onCancel={this.props.onCancel}
+        isLoading={this.state.inProgress}
+      />
     );
   }
 
   @autobind
-  onChange({target}) {
+  handleSubmit(e) {
+    // no need to set inProgress to false as cards are refetched/rerendered
+    this.setState({ inProgress: true }, () =>
+      this.props.onSubmit(e, this.state.card)
+    );
+  }
+
+  @autobind
+  onChange({ target }) {
     const newState = assoc(this.state, ['card', target.name], target.value);
-    this.setState(newState, () => this.props.onChange({target}));
+    this.setState(newState, () => this.props.onChange({ target }));
   }
 
   @autobind
@@ -321,13 +333,15 @@ export default class CreditCardForm extends React.Component {
   }
 
   render() {
-    const { className, onSubmit } = this.props;
+    const { className } = this.props;
     const formClassName = classNames('fc-credit-card-form fc-form-vertical', className);
 
     return (
-      <Form className={formClassName}
-            onChange={this.onChange}
-            onSubmit={(event) => onSubmit(event, this.state.card)}>
+      <Form
+        className={formClassName}
+        onChange={this.onChange}
+        onSubmit={this.handleSubmit}
+      >
         <AutoScroll />
         {this.header}
         <div>

@@ -30,24 +30,13 @@ object AuthRoutes {
           }, identity)
         }
       } ~
-        activityContext(defaultScope) { implicit ac ⇒
-          (post & path("send-password-reset") & pathEnd & entity(as[ResetPasswordSend])) { payload ⇒
-            mutateOrFailures {
-              AccountManager.resetPasswordSend(payload.email)
-            }
-          } ~
-            (post & path("reset-password") & pathEnd & entity(as[ResetPassword])) { payload ⇒
-              mutateOrFailures {
-                AccountManager.resetPassword(code = payload.code, newPassword = payload.newPassword)
-              }
-            }
-        } ~
-        (post & path("logout")) {
-          deleteCookie("JWT", path = "/") {
-            redirect(Uri("/"), StatusCodes.Found)
+      activityContext(defaultScope) { implicit ac ⇒
+        (post & path("send-password-reset") & pathEnd & entity(as[ResetPasswordSend])) { payload ⇒
+          mutateOrFailures {
+            AccountManager.resetPasswordSend(payload.email)
           }
         }
-    } ~
+      } ~
       (post & path("logout")) {
         deleteCookie("JWT", path = "/") {
           redirect(Uri("/"), StatusCodes.Found)
@@ -59,9 +48,10 @@ object AuthRoutes {
             OauthServices(provider, userType).callback
           }
         } ~
-          (path("signin" / OauthProviderName / OauthUserType) & get) { (provider, userType) ⇒
-            val url = OauthServices(provider, userType).authorizationUri
-            complete(Map("url" → url.toString))
-          }
+        (path("signin" / OauthProviderName / OauthUserType) & get) { (provider, userType) ⇒
+          val url = OauthServices(provider, userType).authorizationUri
+          complete(Map("url" → url.toString))
+        }
       }
+    }
 }
