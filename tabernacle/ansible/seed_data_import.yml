@@ -8,6 +8,7 @@
     with_base_seeds: false
     with_mwh_seeder: false
     with_hyperion_seeder: false
+    with_geronimo_seeder: false
   vars_prompt:
     - name: "hostname"
       prompt: "Enter desired hostname"

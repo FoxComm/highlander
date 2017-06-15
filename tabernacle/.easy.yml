@@ -155,6 +155,10 @@ shortcuts:
     alias: seed_data_import.yml
     target: ansible/seed_data_import.yml
 
+  - name: Run Geronimo Seeder
+    alias: seed_geronimo.yml
+    target: ansible/seed_geronimo.yml
+
   # Tinystack
   - name: Deploy Atomic
     alias: deploy_atomic.yml

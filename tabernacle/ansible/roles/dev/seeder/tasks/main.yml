@@ -18,3 +18,7 @@
 - name: Data Import
   include: data_import.yml
   when: with_data_import is defined and with_data_import
+
+- name: Seed Geronimo
+  include: geronimo.yml
+  when: with_geronimo_seeder is defined and with_geronimo_seeder
