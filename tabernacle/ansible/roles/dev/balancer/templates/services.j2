@@ -63,9 +63,8 @@ upstream hyperion {
   << else >> server {{hyperion_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
-# We use port 8880 for geronimo
 upstream geronimo {
-  << range service "geronimo" >> server << .Address >>:8880 max_fails=10 fail_timeout=30s weight=1;
+  << range service "geronimo" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
   << else >> server {{geronimo_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
