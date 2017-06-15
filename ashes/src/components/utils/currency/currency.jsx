@@ -11,6 +11,8 @@ import formatCurrency from '../../../lib/format-currency';
 import s from './currency.css';
 
 type Props = {
+  /** element's id */
+  id: number,
   /** passing value */
   value: number | string,
   /** fraction base */
