@@ -2,8 +2,11 @@ const proxy = require('koa-proxy');
 const convert = require('koa-convert');
 
 module.exports = function(app) {
-  const config = app.config.api;
   const matchUriRegexp = new RegExp(`^/api/`);
+
+  if (!process.env.API_URL) {
+    return;
+  }
 
   app.use(async function apiHandler(ctx, next) {
     if (ctx.request.url.match(matchUriRegexp)) {
@@ -16,7 +19,7 @@ module.exports = function(app) {
   });
 
   app.use(convert(proxy({
-    host: config.host,
+    host: process.env.API_URL,
     match: matchUriRegexp,
   })));
 };

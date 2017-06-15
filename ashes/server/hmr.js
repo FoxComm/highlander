@@ -6,6 +6,6 @@ const convert = require('koa-convert');
 module.exports = function(app) {
   app.use(convert(proxy({
     host: `http://localhost:${process.env.WEBPACK_PORT}`,
-    match: /^\/admin/,
+    match: /^\/admin\/.*\.(js|css|woff|svg|ico|json)$/,
   })));
 };
