@@ -4,14 +4,14 @@ describe('Currency', function() {
   const Currency = requireComponent('utils/currency/currency.jsx');
 
   it('should render not empty tag by default', function() {
-    expect(Currency({}), 'to equal', <span className="fc-currency">0.00</span>);
+    expect(Currency({}), 'to equal', <span className="currency">0.00</span>);
   });
 
   it('should render empty tag with incorrect value', function() {
     expect(
       Currency({value: 'abc'}),
       'to equal',
-      <span className="fc-currency" />
+      <span className="currency" />
     );
   });
 
@@ -19,7 +19,7 @@ describe('Currency', function() {
     expect(
       Currency({value: 123, currency: 'USD'}),
       'to equal',
-      <span className="fc-currency">$1.23</span>
+      <span className="currency">$1.23</span>
     );
   });
 
@@ -27,7 +27,7 @@ describe('Currency', function() {
     expect(
       Currency({value: -123, currency: 'USD'}),
       'to equal',
-      <span className="fc-currency _negative">-$1.23</span>
+      <span className="currency negative">-$1.23</span>
     );
   });
 
@@ -35,7 +35,7 @@ describe('Currency', function() {
     expect(
       Currency({value: 1234567890, currency: 'USD'}),
       'to equal',
-      <span className="fc-currency">$12,345,678.90</span>
+      <span className="currency">$12,345,678.90</span>
     );
   });
 
@@ -43,7 +43,7 @@ describe('Currency', function() {
     expect(
       Currency({value: 123, fractionBase: 0, currency: 'USD'}),
       'to equal',
-      <span className="fc-currency">$123.00</span>
+      <span className="currency">$123.00</span>
     );
   });
 
@@ -51,7 +51,7 @@ describe('Currency', function() {
     expect(
       Currency({value: 123, currency: 'EUR'}),
       'to equal',
-      <span className="fc-currency">€1.23</span>
+      <span className="currency">€1.23</span>
     );
   });
 
@@ -59,7 +59,7 @@ describe('Currency', function() {
     expect(
       Currency({value: '15151542519515184515', currency: 'USD', bigNumber: true}),
       'to equal',
-      <span className="fc-currency">$151,515,425,195,151,845.15</span>
+      <span className="currency">$151,515,425,195,151,845.15</span>
     );
   });
 });
