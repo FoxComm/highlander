@@ -88,6 +88,7 @@ class SelectCustomerGroups extends Component {
         </div>);
   }
 
+  @autobind
   setTerm(term: string) {
     this.setState({
       term,
@@ -124,7 +125,7 @@ class SelectCustomerGroups extends Component {
         solid={true}
         value={state.term}
         disabled={props.groups == null}
-        onChange={ value => this.setTerm(value)}
+        onChange={this.setTerm}
         pills={pills}
         icon={null}
         onPillClose={(name, index) => this.deselectItem(index)}
