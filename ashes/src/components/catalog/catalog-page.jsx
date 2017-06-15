@@ -84,7 +84,6 @@ class CatalogPage extends Component {
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.params.catalogId !== 'new' && nextProps.catalog) {
       const { name, site, countryId, defaultLanguage } = nextProps.catalog;
-
       this.setState({ name, site, countryId, defaultLanguage });
     }
   }
@@ -163,7 +162,11 @@ class CatalogPage extends Component {
     if (isFetching) {
       return <WaitAnimation />;
     }
+<<<<<<< f3c231339a67ac58bee3d986f212bc4f63c15010
 
+=======
+
+>>>>>>> Fix linting errors
     return (
       <div>
         <PageTitle title={this.pageTitle}>
