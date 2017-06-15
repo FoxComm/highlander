@@ -1,0 +1,64 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic,700,700italic);
+@import 'fontello.css';
+@import 'variables.css';
+
+:global {
+  #app {
+    font: var(--font-body);
+    /*background: url('caramel.png');*/
+
+    .version {
+      font-size: 12px;
+      color: var(--color-subtitle-text) !important;
+      text-align: center;
+      margin-top: -10px;
+    }
+
+    .sidebar-0-4 {
+      width: 260px;
+      border-color: var(--color-border);
+
+      .root-0-65 {
+        .search-0-66 {
+          padding: 0 16px 8px;
+        }
+
+        *,
+        input::placeholder {
+          font-size: 10px;
+          line-height: 20px;
+        }
+
+        input {
+          padding: 2px 8px;
+        }
+
+        [class^=link-] {
+          color: #666;
+        }
+
+        [class*=heading-],
+        [class*=para-] {
+          font-weight: 600;
+        }
+
+        & > div > div > ul > li > a {
+          color: #aaa !important;
+        }
+      }
+
+      ul[class^=list-] {
+        padding-left: 16px;
+
+        ul[class^=list-] {
+          padding-left: 12px;
+        }
+      }
+    }
+
+    a:active {
+      color: red !important;
+    }
+  }
+};
+

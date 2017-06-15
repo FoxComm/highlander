@@ -2,7 +2,7 @@ const path = require('path');
 const { camelCase, upperFirst } = require('lodash');
 
 module.exports = {
-  title: `Version: <span class="hash">${process.env.GIT_COMMIT}</span>`,
+  title: `${process.env.GIT_COMMIT}`,
   template: path.join(__dirname, 'template.html'),
   showCode: false,
   ignore: [path.join(__dirname, '../src/components/core/**/*.spec.jsx')],
@@ -146,8 +146,8 @@ module.exports = {
     },
   ],
   require: [
-    path.join(__dirname, '../src/css/base.css'),
     path.join(__dirname, '../src/images/favicons/favicon.ico'),
     path.join(__dirname, 'styleguide.less'),
+    path.join(__dirname, 'styleguide.css'),
   ]
 };

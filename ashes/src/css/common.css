@@ -2,7 +2,7 @@
 
 :root {
   --loading-caramel: {
-    background-image: inline(caramel.png);
+    background-image: url('../images/caramel.png');
     animation: caramel .5s linear infinite;
   };
 }

@@ -296,22 +296,6 @@ assertion-error@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/assertion-error/-/assertion-error-1.0.2.tgz#13ca515d86206da0bac66e834dd397d87581094c"
 
-assets@^2.0.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/assets/-/assets-2.1.0.tgz#bfae98717974d66636eed26b18eb7120608816f5"
-  dependencies:
-    async "^1.5.0"
-    bluebird "^3.0.6"
-    calipers "^2.0.0"
-    calipers-gif "^2.0.0"
-    calipers-jpeg "^2.0.0"
-    calipers-png "^2.0.0"
-    calipers-svg "^2.0.0"
-    calipers-webp "^2.0.0"
-    glob "^6.0.4"
-    lodash "^3.10.1"
-    mime "^1.3.4"
-
 ast-types@0.9.0:
   version "0.9.0"
   resolved "https://registry.yarnpkg.com/ast-types/-/ast-types-0.9.0.tgz#c8721c8747ae4d5b29b929e99c5317b4e8745623"
@@ -328,7 +312,7 @@ async-each@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/async-each/-/async-each-1.0.1.tgz#19d386a1d9edc6e7c1c85d388aedbcc56d33602d"
 
-async@1.x, async@^1.4.0, async@^1.5.0, async@^1.5.2:
+async@1.x, async@^1.4.0, async@^1.5.2:
   version "1.5.2"
   resolved "https://registry.yarnpkg.com/async/-/async-1.5.2.tgz#ec6a61ae56480c0c3cb241c95618e20892f9672a"
 
@@ -1223,7 +1207,7 @@ block-stream@*:
   dependencies:
     inherits "~2.0.0"
 
-bluebird@3.x.x, bluebird@^3.0.6, bluebird@^3.4.7:
+bluebird@^3.4.7:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.0.tgz#791420d7f551eea2897453a8a77653f96606d67c"
 
@@ -1372,42 +1356,6 @@ bytes@2.3.0:
 bytes@2.4.0:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/bytes/-/bytes-2.4.0.tgz#7d97196f9d5baf7f6935e25985549edd2a6c2339"
-
-calipers-gif@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/calipers-gif/-/calipers-gif-2.0.0.tgz#b5eefec3064a77c6dcdbd5bdc51735a01bafdc37"
-  dependencies:
-    bluebird "3.x.x"
-
-calipers-jpeg@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/calipers-jpeg/-/calipers-jpeg-2.0.0.tgz#06d56a53f62717dd809cb956cf64423ce693465b"
-  dependencies:
-    bluebird "3.x.x"
-
-calipers-png@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/calipers-png/-/calipers-png-2.0.0.tgz#1d0d20e5c1ae5f79b74d5286a2e97f59bb70b658"
-  dependencies:
-    bluebird "3.x.x"
-
-calipers-svg@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/calipers-svg/-/calipers-svg-2.0.0.tgz#666254d5f1ea66d2052ed82d6d79b8bf10acbb71"
-  dependencies:
-    bluebird "3.x.x"
-
-calipers-webp@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/calipers-webp/-/calipers-webp-2.0.0.tgz#e126ece2f84cd71779612bfa2b2653cd95cea77a"
-  dependencies:
-    bluebird "3.x.x"
-
-calipers@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/calipers/-/calipers-2.0.0.tgz#bdf221c6a62f603b8ddd9340cacd9c79c1a03fce"
-  dependencies:
-    bluebird "3.x.x"
 
 caller-path@^0.1.0:
   version "0.1.0"
@@ -2178,6 +2126,10 @@ cssom@0.3.x, "cssom@>= 0.3.2 < 0.4.0":
   resolved "https://registry.yarnpkg.com/cssstyle/-/cssstyle-0.2.37.tgz#541097234cb2513c83ceed3acddc27ff27987d54"
   dependencies:
     cssom "0.3.x"
+
+cuint@latest:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/cuint/-/cuint-0.2.2.tgz#408086d409550c2631155619e9fa7bcadc3b991b"
 
 currency-symbol-map@^2.1.0:
   version "2.2.0"
@@ -3509,7 +3461,7 @@ glob@3.2.11:
     inherits "2"
     minimatch "0.3"
 
-glob@5.x, glob@^5.0.15:
+glob@5.x:
   version "5.0.15"
   resolved "https://registry.yarnpkg.com/glob/-/glob-5.0.15.tgz#1bc936b9e02f4a603fcc222ecf7633d30b8b93b1"
   dependencies:
@@ -3528,7 +3480,7 @@ glob@^4.3.1:
     minimatch "^2.0.1"
     once "^1.3.0"
 
-glob@^6.0.1, glob@^6.0.4:
+glob@^6.0.1:
   version "6.0.4"
   resolved "https://registry.yarnpkg.com/glob/-/glob-6.0.4.tgz#0f08860f6a155127b2fadd4f9ce24b1aab6e4d22"
   dependencies:
@@ -3940,6 +3892,10 @@ html-minifier@^3.2.3:
     param-case "2.1.x"
     relateurl "0.2.x"
     uglify-js "3.0.x"
+
+html-tags@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/html-tags/-/html-tags-1.1.1.tgz#869f43859f12d9bdc3892419e494a628aa1b204e"
 
 html-webpack-plugin@^2.28.0:
   version "2.28.0"
@@ -5303,7 +5259,7 @@ lodash@4.17.2:
   version "4.17.4"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.4.tgz#78203a4d1c328ae1d86dca6460e369b57f4055ae"
 
-lodash@^3.0.1, lodash@^3.10.1:
+lodash@^3.0.1:
   version "3.10.1"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-3.10.1.tgz#5bf45e8e49ba4189e17d482789dfd15bd140b7b6"
 
@@ -5496,6 +5452,18 @@ micromatch@^2.1.5, micromatch@^2.3.11, micromatch@^2.3.7, micromatch@^2.3.8:
     object.omit "^2.0.0"
     parse-glob "^3.0.4"
     regex-cache "^0.4.2"
+
+midas@^1.2.1:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/midas/-/midas-1.2.2.tgz#2e863e52023f619435f5395dac362beb16beece3"
+  dependencies:
+    html-tags "^1.1.1"
+    minimist "^1.2.0"
+    postcss "^5.0.4"
+    postcss-selector-parser "^2.0.0"
+    postcss-value-parser "^3.3.0"
+    read-file-stdin "^0.2.0"
+    write-file-stdout "0.0.2"
 
 miller-rabin@^4.0.0:
   version "4.0.0"
@@ -5937,7 +5905,7 @@ open@0.0.5:
   version "0.0.5"
   resolved "https://registry.yarnpkg.com/open/-/open-0.0.5.tgz#42c3e18ec95466b6bf0dc42f3a2945c3f0cad8fc"
 
-opener@^1.4.3:
+opener@^1.4.1, opener@^1.4.3:
   version "1.4.3"
   resolved "https://registry.yarnpkg.com/opener/-/opener-1.4.3.tgz#5c6da2c5d7e5831e8ffa3964950f8d6674ac90b8"
 
@@ -6246,14 +6214,6 @@ postcss-apply@^0.3.0:
     balanced-match "^0.4.1"
     postcss "^5.0.21"
 
-postcss-assets@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/postcss-assets/-/postcss-assets-4.1.0.tgz#341f30d6ac0fbb314d82a28cc1ea753a986ffed7"
-  dependencies:
-    assets "^2.0.0"
-    postcss "^5.0.12"
-    postcss-functions "^2.1.0"
-
 postcss-attribute-case-insensitive@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/postcss-attribute-case-insensitive/-/postcss-attribute-case-insensitive-1.0.1.tgz#ceb73777e106167eb233f1938c9bd9f2e697308d"
@@ -6428,6 +6388,15 @@ postcss-custom-selectors@^3.0.0:
     postcss "^5.0.0"
     postcss-selector-matches "^2.0.0"
 
+postcss-debug@^0.4.2:
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/postcss-debug/-/postcss-debug-0.4.2.tgz#8b161ba2f7f2c55f3549e4b2fa0e95197baa2e3d"
+  dependencies:
+    midas "^1.2.1"
+    opener "^1.4.1"
+    postcss "^5.0.19"
+    yargs "^4.7.1"
+
 postcss-discard-comments@^2.0.4:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/postcss-discard-comments/-/postcss-discard-comments-2.0.4.tgz#befe89fafd5b3dace5ccce51b76b81514be00e3d"
@@ -6479,15 +6448,6 @@ postcss-font-variant@^2.0.0:
   resolved "https://registry.yarnpkg.com/postcss-font-variant/-/postcss-font-variant-2.0.1.tgz#7ca29103f59fa02ca3ace2ca22b2f756853d4ef8"
   dependencies:
     postcss "^5.0.4"
-
-postcss-functions@^2.1.0:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/postcss-functions/-/postcss-functions-2.1.1.tgz#f9b64d3b5690f6795fe42a180496805375b7a840"
-  dependencies:
-    glob "^5.0.15"
-    object-assign "^4.0.1"
-    postcss "^5.0.10"
-    postcss-value-parser "^3.1.3"
 
 postcss-image-set-polyfill@^0.3.3:
   version "0.3.5"
@@ -6796,7 +6756,17 @@ postcss-unique-selectors@^2.0.2:
     postcss "^5.0.4"
     uniqs "^2.0.0"
 
-postcss-value-parser@^3.0.1, postcss-value-parser@^3.0.2, postcss-value-parser@^3.1.1, postcss-value-parser@^3.1.2, postcss-value-parser@^3.1.3, postcss-value-parser@^3.2.3, postcss-value-parser@^3.3.0:
+postcss-url@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/postcss-url/-/postcss-url-7.0.0.tgz#11c6a1103e527ae914c3bab48415273d027d9508"
+  dependencies:
+    mime "^1.2.11"
+    minimatch "^3.0.0"
+    mkdirp "^0.5.0"
+    postcss "^6.0.1"
+    xxhashjs "^0.2.1"
+
+postcss-value-parser@^3.0.1, postcss-value-parser@^3.0.2, postcss-value-parser@^3.1.1, postcss-value-parser@^3.1.2, postcss-value-parser@^3.2.3, postcss-value-parser@^3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/postcss-value-parser/-/postcss-value-parser-3.3.0.tgz#87f38f9f18f774a4ab4c8a232f5c5ce8872a9d15"
 
@@ -9199,6 +9169,10 @@ write-file-atomic@^1.1.2:
     imurmurhash "^0.1.4"
     slide "^1.1.5"
 
+write-file-stdout@0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/write-file-stdout/-/write-file-stdout-0.0.2.tgz#c252d7c7c5b1b402897630e3453c7bfe690d9ca1"
+
 write@^0.2.1:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/write/-/write-0.2.1.tgz#5fc03828e264cea3fe91455476f7a3c566cb0757"
@@ -9241,6 +9215,12 @@ xml-name-validator@^2.0.1:
 xtend@~3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/xtend/-/xtend-3.0.0.tgz#5cce7407baf642cba7becda568111c493f59665a"
+
+xxhashjs@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/xxhashjs/-/xxhashjs-0.2.1.tgz#9bbe9be896142976dfa34c061b2d068c43d30de0"
+  dependencies:
+    cuint latest
 
 y18n@^3.2.1:
   version "3.2.1"

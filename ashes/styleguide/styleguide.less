@@ -1,7 +1,11 @@
-@import url(https://fonts.googleapis.com/css?family=Raleway:300,400,700);
-@import '../src/less/base.less';
-
 #app {
+  * {
+    font-family: 'Open Sans' !important;
+  }
+
+  & > div > main {
+    background: #f7f7f7;
+  }
 
   .demo > * {
     margin-left: 10px;
@@ -12,12 +16,6 @@
     margin-bottom: 10px;
   }
 
-  .version {
-    font-size: 12px;
-    color: #777;
-    text-align: center;
-  }
-
   .hash {
     font-weight: bold;
   }
@@ -26,9 +24,7 @@
     border: none;
   }
 
-  .sidebar-0-4 {
-    width: 260px;
-  }
+
 
   .hasSidebar-0-2 {
     padding-left: 260px;
@@ -36,9 +32,6 @@
 
   [class^=item-] {
     margin: 0;
-    font-family: Raleway, Helvetica, sans-serif;
-    font-size: 12px;
-    line-height: 18px;
   }
 
   .link-0-54, .link-0-54:link, .link-0-54:visited {
@@ -52,18 +45,9 @@
     }
   }
 
-  [class*=heading-],
-  [class*=para-] {
-    font-family: Raleway, Helvetica, sans-serif;
-  }
-
   .CodeMirror .CodeMirror-lines pre.CodeMirror-line {
     font-size: 12px;
     line-height: 16px;
-  }
-
-  ul[class^=list-] {
-    padding-left: 12px;
   }
 
   .root-0-80 > ul.list-0-83 {
