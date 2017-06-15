@@ -22,6 +22,7 @@ type Props = GenericProps & {
 type State = {
   token: string,
   results: Array<any>,
+  mounted: ?boolean,
 };
 
 function doNothing(event: any) {
@@ -37,12 +38,20 @@ export default class DropdownSearch extends Component {
     results: [],
   };
 
+  mounted: false;
+
   componentDidMount() {
     this.fetchOptions(this.state.token);
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
   @debounce(400)
   fetchOptions(token: string) {
+    if (!this.mounted) return null;
     if (this.props.omitSearchIfEmpty && token == '') return null;
     this.props.fetchOptions(this.state.token).then(data => {
       this.setState({results: data});

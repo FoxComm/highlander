@@ -42,7 +42,10 @@ export default class SelectProduct extends Component {
   }
 
   handleProductSearch(token: string): Promise<*> {
-    return searchProducts(token, true, true).then((result) => {
+    return searchProducts(token, {
+        omitArchived: true,
+        omitInactive: true
+      }).then((result) => {
       return result.result;
     });
   }
@@ -76,7 +79,7 @@ export default class SelectProduct extends Component {
         fetchOptions={this.handleProductSearch}
         renderOption={this.renderProductOption}
         onChange={this.handleSelectProduct}
-        omitSearchIfEmpty={true}
+        omitSearchIfEmpty
       />
     );
   }

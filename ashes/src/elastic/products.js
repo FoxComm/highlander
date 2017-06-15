@@ -10,59 +10,52 @@ import rangeToFilter from './common';
 const MAX_RESULTS = 1000;
 const productsSearchUrl = `products_search_view/_search?size=${MAX_RESULTS}`;
 
-export function searchProducts(token: string,
-  omitArchived: boolean = false, omitInactive: boolean = false): Promise<*> {
+type QueryOpts = {
+  omitArchived: ?boolean,
+  omitInactive: ?boolean,
+};
+
+function filterArchived (must: Array) {
+  must.push(dsl.existsFilter('archivedAt', 'missing'));
+};
+
+function filterInactive (must: Array, should: Array, esDate: string) {
+  must.push(dsl.existsFilter('activeFrom', 'exists'));
+  must.push(dsl.rangeFilter('activeFrom', { 'lte': esDate }));
+  should.push(dsl.existsFilter('activeTo', 'missing'));
+  should.push(dsl.rangeFilter('activeTo', { 'gte': esDate }));
+};
+
+function addTokenQueries (token: string, must: Array) {
+  if (isNaN(Number(token))) {
+    must.push(dsl.termFilter('title', token.toLowerCase()));
+  } else {
+    const query = dsl.query({
+      bool: {
+        should: [
+          dsl.termFilter('id', token),
+          dsl.termFilter('title', token.toLowerCase()),
+        ],
+      },
+    });
+    must.push(query);
+  }
+};
+
+export function searchProducts(token: string, {
+                                                omitArchived = false,
+                                                omitInactive = false,
+                                              }: ?QueryOpts): Promise<*> {
   const formattedDate = moment(Date.now()).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
   const esDate = `${formattedDate}||/d`;
   const must = [];
   const should = omitInactive ? [] : null;
 
-  if (omitArchived) {
-    must.push(
-      dsl.existsFilter('archivedAt', 'missing')
-    );
-  }
+  if (omitArchived) filterArchived(must);
 
-  if (omitInactive) {
-    must.push(
-      dsl.existsFilter('activeFrom', 'exists')
-    );
-    must.push(
-      dsl.rangeFilter('activeFrom', {
-        'lte': esDate,
-      })
-    );
-    should.push(
-      dsl.existsFilter('activeTo', 'missing')
-    );
-    should.push(
-      dsl.rangeFilter('activeTo', {
-        'gte': esDate,
-      })
-    );
-  }
+  if (omitInactive) filterInactive(must, should, esDate);
 
-  if (token) {
-    if (isNaN(Number(token))) {
-      must.push(
-        dsl.termFilter('title', token.toLowerCase()),
-      );
-    } else {
-      const shouldForToken = [];
-      shouldForToken.push(
-        dsl.termFilter('id', token)
-      );
-      shouldForToken.push(
-        dsl.termFilter('title', token.toLowerCase())
-      );
-      const query =  dsl.query({
-        bool: {
-          should: shouldForToken,
-        },
-      });
-      must.push(query);
-    }
-  }
+  if (token) addTokenQueries(token, must);
 
   const matchRule = dsl.query({
     bool: {
