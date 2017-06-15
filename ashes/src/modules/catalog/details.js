@@ -27,9 +27,21 @@ const _updateCatalog = createAsyncActions(
   (id: number, payload: any) => Api.patch(`/catalogs/${id}`, payload)
 );
 
+const _linkProducts = createAsyncActions(
+  'catalogLinkProducts',
+  (catalogId: number, payload: any) => Api.post(`/catalogs/${catalogId}/products`, payload)
+);
+
+const _unlinkProduct = createAsyncActions(
+  'catalogUnlinkProduct',
+  (catalogId: number, productId: number) => Api.delete(`/catalogs/${catalogId}/products/${productId}`)
+);
+
 export const fetchCatalog = _fetchCatalog.perform;
 export const createCatalog = _createCatalog.perform;
 export const updateCatalog = _updateCatalog.perform;
+export const linkProducts = _linkProducts.perform;
+export const unlinkProduct = _unlinkProduct.perform;
 
 const handleResponse = (state, response) => ({ ...state, catalog: response });
 
