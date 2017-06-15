@@ -1,6 +1,6 @@
-# include ../makelib
+include ../makelib
 
-# header = $(call baseheader, $(1), geronimo)
+header = $(call baseheader, $(1), geronimo)
 
 FLYWAY=flyway -configFile=sql/flyway.conf -locations=filesystem:sql/
 FLYWAY_TEST=flyway -configFile=sql/flyway.test.conf -locations=filesystem:sql/

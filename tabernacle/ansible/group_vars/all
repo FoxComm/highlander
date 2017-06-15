@@ -229,7 +229,7 @@ hyperion_port: 8880
 hyperion_server: "{{hyperion_host}}:{{hyperion_port}}"
 
 geronimo_host: "geronimo.{{consul_suffix}}"
-geronimo_port: 8880
+geronimo_port: 8881
 geronimo_server: "{{geronimo_host}}:{{geronimo_port}}"
 
 # Database & bottledwater
@@ -311,6 +311,7 @@ geronimo_db_user: geronimo
 geronimo_db_connection_string: "postgresql://{{geronimo_db_user}}@{{db_host}}/{{geronimo_db_name}}"
 geronimo_db_password: ""
 geronimo_start_worker: true
+geronimo_kafka_consumer_group: geronimo
 
 # Eggcreate
 eggcrate_host: "eggcrate.{{consul_suffix}}"
