@@ -84,7 +84,6 @@ class CatalogPage extends Component {
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.params.catalogId !== 'new' && nextProps.catalog) {
       const { name, site, countryId, defaultLanguage } = nextProps.catalog;
-
       this.setState({ name, site, countryId, defaultLanguage });
     }
   }

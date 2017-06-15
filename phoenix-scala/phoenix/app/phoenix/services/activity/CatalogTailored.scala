@@ -11,12 +11,10 @@ object CatalogTailored {
   case class CatalogUpdated(admin: UserResponse, catalog: CatalogResponse.Root)
       extends ActivityBase[CatalogUpdated]
 
-  case class ProductsAddedToCatalog(admin: UserResponse.Root,
-                                    catalog: CatalogResponse.Root,
-                                    productIds: Seq[Int])
+  case class ProductsAddedToCatalog(admin: UserResponse, catalog: CatalogResponse.Root, productIds: Seq[Int])
       extends ActivityBase[ProductsAddedToCatalog]
 
-  case class ProductRemovedFromCatalog(admin: UserResponse.Root, catalogId: Int, productId: Int)
+  case class ProductRemovedFromCatalog(admin: UserResponse, catalogId: Int, productId: Int)
       extends ActivityBase[ProductRemovedFromCatalog]
 
 }

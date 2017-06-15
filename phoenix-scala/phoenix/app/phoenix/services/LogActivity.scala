@@ -498,14 +498,14 @@ case class LogActivity(implicit ac: AC) {
       catalog: CatalogResponse.Root,
       productIds: Seq[Int]
   )(implicit ec: EC): DbResultT[Activity] =
-    Activities.log(ProductsAddedToCatalog(buildUser(admin), catalog, productIds))
+    Activities.log(ProductsAddedToCatalog(UserResponse.build(admin), catalog, productIds))
 
   def productRemovedFromCatalog(
       admin: User,
       catalogId: Int,
       productId: Int
   )(implicit ec: EC): DbResultT[Activity] =
-    Activities.log(ProductRemovedFromCatalog(buildUser(admin), catalogId, productId))
+    Activities.log(ProductRemovedFromCatalog(UserResponse.build(admin), catalogId, productId))
 
   /* Products */
   def fullProductCreated(admin: Option[User],
