@@ -58,8 +58,7 @@ trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒
       def create(payload: CreateAddressPayload)(implicit ca: TestCustomerAuth): HttpResponse =
         POST(shippingAddress, payload, ca.jwtCookie.some)
 
-      def createOrUpdate(payload: CreateAddressPayload)(
-          implicit ca: TestCustomerAuth): HttpResponse =
+      def createOrUpdate(payload: CreateAddressPayload)(implicit ca: TestCustomerAuth): HttpResponse =
         PUT(shippingAddress, payload, ca.jwtCookie.some)
     }
   }

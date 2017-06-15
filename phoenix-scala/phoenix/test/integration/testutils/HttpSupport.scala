@@ -118,8 +118,8 @@ trait HttpSupport
     val request = HttpRequest(method = HttpMethods.PUT,
                               uri = pathToAbsoluteUrl(path),
                               entity = HttpEntity.Strict(
-                                  ContentTypes.`application/json`,
-                                  ByteString(rawBody)
+                                ContentTypes.`application/json`,
+                                ByteString(rawBody)
                               ))
 
     dispatchRequest(request, jwtCookie)
