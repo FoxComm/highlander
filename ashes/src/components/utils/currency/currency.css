@@ -1,0 +1,25 @@
+@import "colors.css";
+
+.currency {
+  display: inline-block;
+
+  &.transaction {
+    color: var(--color-link);
+
+    &.negative {
+      content: "+";
+      color: var(--color-error-text);
+
+      &:before {
+        content: "-";
+        color: var(--color-error-text);
+      }
+    }
+
+    &:before {
+      content: "+";
+      color: var(--color-link);
+      padding-right: 0.35em;
+    }
+  }
+}

@@ -1,28 +1,49 @@
+/* @flow */
+
+// libs
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+
+// components
 import formatCurrency from '../../../lib/format-currency';
 
-const Currency = (props) => {
-  const {isTransaction, id, ...rest} = props;
-  const className = classNames('fc-currency', {
-    '_transaction': isTransaction,
-    '_negative': parseInt(props.value, 10) < 0
+// styles
+import s from './currency.css';
+
+type Props = {
+  /** passing value */
+  value: number | string,
+  /** fraction base */
+  fractionBase: number,
+  /** currency name */
+  currency: string,
+  /** set true if value is big number */
+  bigNumber: boolean,
+  /** transaction mode renders colored positive/negative values */
+  isTransaction?: boolean,
+  /** additional className */
+  className?: string
+}
+
+/**
+ * Currency component serves to format passed value
+ * and render it with currency symbol
+ *
+ * @function Change
+ */
+
+const Currency = (props: Props) => {
+  const {isTransaction, id, className, ...rest} = props;
+  const currencyCls = classNames(s.currency, {
+    [s.transaction]: isTransaction,
+    [s.negative]: parseInt(props.value, 10) < 0
   });
 
   return (
-    <span id={id} className={ classNames(className, props.className) }>
+    <span id={id} className={classNames(currencyCls, className)}>
       {formatCurrency(props.value, {...rest})}
     </span>
   );
-};
-
-Currency.propTypes = {
-  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
-  fractionBase: PropTypes.number,
-  currency: PropTypes.string,
-  bigNumber: PropTypes.bool,
-  isTransaction: PropTypes.bool,
 };
 
 Currency.defaultProps = {
