@@ -68,7 +68,8 @@ const _createProduct = createAsyncActions(
 function cleanProductPayload(product) {
   // get rid of temp. skus
   const feCodes = {};
-  const skus = _.reduce(product.skus, (acc, sku) => {
+  const uniqSkus = _.uniqBy(product.skus, 'id');
+  const skus = _.reduce(uniqSkus, (acc, sku) => {
     const code = _.get(sku, 'attributes.code.v');
     if (sku.feCode) {
       feCodes[sku.feCode] = code || '';

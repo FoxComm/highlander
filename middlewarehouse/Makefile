@@ -59,9 +59,6 @@ build-shipments-consumer:
 build-shipstation-consumer:
 	$(GO) build -o consumers/shipstation/shipstation-consumer consumers/shipstation/*.go
 
-build-stock-items-consumer:
-	$(GO) build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
-
 build-customer-groups-consumer:
 	$(GO) build -o consumers/customer-groups/customer-groups-consumer consumers/customer-groups/*.go
 
@@ -89,9 +86,6 @@ docker-shipments-consumer:
 
 docker-shipstation-consumer:
 	$(DOCKER) build -t shipstation-consumer -f Dockerfile.shipstation .
-
-docker-stock-items-consumer:
-	$(DOCKER) build -t stock-items-consumer -f Dockerfile.stock-items .
 
 docker-customer-groups-consumer:
 	$(DOCKER) build -t customer-groups-consumer -f Dockerfile.customer-groups .
@@ -129,10 +123,6 @@ push-shipments-consumer:
 push-shipstation-consumer:
 	$(DOCKER) tag shipstation-consumer $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_TAG)
 	$(DOCKER) push $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_TAG)
-
-push-stock-items-consumer:
-	$(DOCKER) tag stock-items-consumer $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_TAG)
-	$(DOCKER) push $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_TAG)
 
 push-customer-groups-consumer:
 	$(DOCKER) tag customer-groups-consumer $(DOCKER_REPO)/customer-groups-consumer:$(DOCKER_TAG)

@@ -7,7 +7,6 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { autobind, debounce } from 'core-decorators';
-import moment from 'moment';
 import classNames from 'classnames';
 import operators from 'paragons/customer-groups/operators';
 import { transitionTo } from 'browserHistory';
@@ -39,6 +38,7 @@ import Criterion from './editor/criterion-view';
 import CustomerGroupStats from './stats';
 import SearchCustomersModal from './customers/search-modal';
 import Icon from 'components/core/icon';
+import { DateTime } from 'components/common/datetime';
 
 type State = {
   criteriaOpen: boolean,
@@ -289,7 +289,7 @@ class GroupDetails extends Component {
           </div>
           <div>
             <span className={prefixed('about__key')}>Created:&nbsp;</span>
-            <span className={prefixed('about__value')}>{moment(group.createdAt).format('DD/MM/YYYY HH:mm')}</span>
+            <span className={prefixed('about__value')}><DateTime value={group.createdAt} /></span>
           </div>
         </div>
       </header>

@@ -19,7 +19,6 @@ middlewarehouse.exe
 .DS_Store
 
 # consumers
-stock-items-consumer
 shipments-consumer
 capture-consumer
 gift-card-consumer

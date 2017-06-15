@@ -158,7 +158,7 @@ object Checkout {
         }.toStream)
 
     def unstashItems(items: Seq[UpdateLineItemsPayload]): DbResultT[Unit] =
-      LineItemUpdater.updateQuantitiesOnCustomersCart(customer, items).void
+      CartLineItemUpdater.updateQuantitiesOnCustomersCart(customer, items).void
 
     for {
       cart ← * <~ CartQueries.findOrCreateCartByAccount(customer, ctx, admin)
@@ -167,7 +167,7 @@ object Checkout {
       scope      = Scope.current
 
       stashedItems ← * <~ stashItems(cart.referenceNumber)
-      _            ← * <~ LineItemUpdater.updateQuantitiesOnCustomersCart(customer, payload.items)
+      _            ← * <~ CartLineItemUpdater.updateQuantitiesOnCustomersCart(customer, payload.items)
 
       ccId ← * <~ CreditCards
               .findDefaultByAccountId(customerId)

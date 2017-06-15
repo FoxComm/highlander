@@ -4,12 +4,12 @@ import objectframework.models.{ObjectContext, ObjectContexts}
 import phoenix.models.cord.lineitems._
 import phoenix.models.product.{Mvp, SimpleContext, SimpleProductData}
 import phoenix.payloads.LineItemPayloads.{UpdateLineItemsPayload ⇒ Payload}
-import phoenix.services.LineItemUpdater
 import phoenix.utils.aliases._
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
 import core.db._
+import phoenix.services.carts.CartLineItemUpdater
 
 class LineItemUpdaterTest
     extends IntegrationTestBase
@@ -36,7 +36,7 @@ class LineItemUpdaterTest
       )
 
       val root =
-        LineItemUpdater.updateQuantitiesOnCart(storeAdmin, cart.refNum, payload).gimme.result
+        CartLineItemUpdater.updateQuantitiesOnCart(storeAdmin, cart.refNum, payload).gimme.result
       root.lineItems.skus.count(_.sku == "1") must be(1)
       root.lineItems.skus.count(_.sku == "2") must be(0)
 
@@ -65,7 +65,7 @@ class LineItemUpdaterTest
       )
 
       val root =
-        LineItemUpdater.updateQuantitiesOnCart(storeAdmin, cart.refNum, payload).gimme.result
+        CartLineItemUpdater.updateQuantitiesOnCart(storeAdmin, cart.refNum, payload).gimme.result
       root.lineItems.skus.count(_.sku == "1") must be(1)
       root.lineItems.skus.count(_.sku == "2") must be(0)
       root.lineItems.skus.count(_.sku == "3") must be(1)
