@@ -8,10 +8,7 @@ import shapeless._
 import core.db.ExPostgresDriver.api._
 import core.db._
 
-case class Commit(id: Int = 0,
-                  formId: Form#Id,
-                  shadowId: Shadow#Id,
-                  createdAt: Instant = Instant.now)
+case class Commit(id: Int = 0, formId: Form#Id, shadowId: Shadow#Id, createdAt: Instant = Instant.now)
     extends FoxModel[Commit]
 
 class Commits(tag: Tag) extends FoxTable[Commit](tag, "object_commits") {
@@ -24,8 +21,6 @@ class Commits(tag: Tag) extends FoxTable[Commit](tag, "object_commits") {
     (id, formId, shadowId, createdAt) <> ((Commit.apply _).tupled, Commit.unapply)
 }
 
-object Commits
-    extends FoxTableQuery[Commit, Commits](new Commits(_))
-    with ReturningId[Commit, Commits] {
+object Commits extends FoxTableQuery[Commit, Commits](new Commits(_)) with ReturningId[Commit, Commits] {
   val returningLens: Lens[Commit, Int] = lens[Commit].id
 }

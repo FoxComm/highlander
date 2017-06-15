@@ -18,7 +18,7 @@ import objectframework.payloads.ContentPayloads._
 
 object ContentManager {
 
-  def findLatest(id: Form#Id, viewId: View#Id, kind: String)(implicit ec: EC): DbResultT[Content] = {
+  def findLatest(id: Form#Id, viewId: View#Id, kind: String)(implicit ec: EC): DbResultT[Content] =
     for {
       contentTuple ← * <~ ContentQueries
                       .filterLatestById(id, viewId, kind)
@@ -26,7 +26,6 @@ object ContentManager {
       (head, commit, form, shadow) = contentTuple
       content ← * <~ Content.build(head, commit, form, shadow)
     } yield content
-  }
 
   def findByCommit(commitId: Commit#Id, kind: String)(implicit ec: EC): DbResultT[Content] =
     for {
@@ -37,8 +36,7 @@ object ContentManager {
       content ← * <~ Content.build(commit, form, shadow)
     } yield content
 
-  def create(viewId: Int, payload: CreateContentPayload)(implicit ec: EC,
-                                                         fmt: Formats): DbResultT[Content] = {
+  def create(viewId: Int, payload: CreateContentPayload)(implicit ec: EC, fmt: Formats): DbResultT[Content] = {
     val (formJson, shadowJson) = ContentUtils.encodeContentAttributes(payload.attributes)
 
     for {
@@ -84,20 +82,18 @@ object ContentManager {
         relations + (kind → content)
     }
 
-  private def validateRelations(relations: Content.ContentRelations)(
-      implicit ec: EC): Seq[DbResultT[Unit]] =
+  private def validateRelations(relations: Content.ContentRelations)(implicit ec: EC): Seq[DbResultT[Unit]] =
     relations.foldLeft(Seq.empty[DbResultT[Unit]]) {
       case (acc, (kind, expectedIds)) ⇒
         acc :+ (for {
-              actualIds ← * <~ ContentQueries.filterCommitIds(kind, expectedIds).result
-              _         ← * <~ validateAllCommits(kind, expectedIds, actualIds)
-            } yield {})
+          actualIds ← * <~ ContentQueries.filterCommitIds(kind, expectedIds).result
+          _         ← * <~ validateAllCommits(kind, expectedIds, actualIds)
+        } yield {})
     }
 
-  private def validateAllCommits(
-      kind: String,
-      expectedCommits: Seq[Commit#Id],
-      actualCommits: Seq[Commit#Id])(implicit ec: EC): DbResultT[Unit] = {
+  private def validateAllCommits(kind: String,
+                                 expectedCommits: Seq[Commit#Id],
+                                 actualCommits: Seq[Commit#Id])(implicit ec: EC): DbResultT[Unit] = {
 
     val errors = expectedCommits.toSet.diff(actualCommits.toSet).foldLeft(Seq.empty[Failure]) {
       (acc, commitId) ⇒
@@ -107,10 +103,9 @@ object ContentManager {
     failIfErrors(errors)
   }
 
-  private def failIfErrors(errors: Seq[Failure])(implicit ec: EC): DbResultT[Unit] = {
+  private def failIfErrors(errors: Seq[Failure])(implicit ec: EC): DbResultT[Unit] =
     errors match {
       case head :: tail ⇒ DbResultT.failures(NonEmptyList(head, tail))
       case Nil          ⇒ DbResultT.pure(Unit)
     }
-  }
 }

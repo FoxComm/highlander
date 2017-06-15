@@ -29,23 +29,23 @@ object Content {
 
   def build(commit: Commit, form: Form, shadow: Shadow): Either[Failures, Content] =
     buildContentAttributes(form, shadow).map { attributes ⇒
-      Content(id = form.id,
-              kind = form.kind,
-              viewId = None,
-              commitId = commit.id,
-              attributes = attributes,
-              relations = buildContentRelations(shadow.relations),
-              createdAt = form.createdAt,
-              updatedAt = shadow.createdAt,
-              archivedAt = None)
+      Content(
+        id = form.id,
+        kind = form.kind,
+        viewId = None,
+        commitId = commit.id,
+        attributes = attributes,
+        relations = buildContentRelations(shadow.relations),
+        createdAt = form.createdAt,
+        updatedAt = shadow.createdAt,
+        archivedAt = None
+      )
     }
 
   def build(head: Head, commit: Commit, form: Form, shadow: Shadow): Either[Failures, Content] =
-    build(commit, form, shadow).map(
-        _.copy(viewId = Some(head.viewId), archivedAt = head.archivedAt))
+    build(commit, form, shadow).map(_.copy(viewId = Some(head.viewId), archivedAt = head.archivedAt))
 
-  private def buildContentAttributes(form: Form,
-                                     shadow: Shadow): Either[Failures, ContentAttributes] = {
+  private def buildContentAttributes(form: Form, shadow: Shadow): Either[Failures, ContentAttributes] = {
     val emptyAttrs: Either[Failures, ContentAttributes] = Either.right(Map.empty)
 
     shadow.attributes match {

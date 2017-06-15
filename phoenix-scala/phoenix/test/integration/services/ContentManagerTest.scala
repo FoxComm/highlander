@@ -69,9 +69,8 @@ class ContentManagerTest extends IntegrationTestBase with TestObjectContext with
 
     "successfully with a relation" in new SkuFixture {
       val productRelations = Map("sku" → Seq(sku.commitId))
-      val payload = CreateContentPayload(kind = "product",
-                                         attributes = attributes,
-                                         relations = productRelations)
+      val payload =
+        CreateContentPayload(kind = "product", attributes = attributes, relations = productRelations)
 
       val content = ContentManager.create(SimpleContext.id, payload).gimme
       content.attributes("title").v must === (JString("a test product"))
@@ -80,9 +79,8 @@ class ContentManagerTest extends IntegrationTestBase with TestObjectContext with
 
     "fails if the relation does not exist" in new Fixture {
       val productRelations = Map("sku" → Seq(1))
-      val payload = CreateContentPayload(kind = "product",
-                                         attributes = attributes,
-                                         relations = productRelations)
+      val payload =
+        CreateContentPayload(kind = "product", attributes = attributes, relations = productRelations)
 
       val failures = ContentManager.create(SimpleContext.id, payload).gimmeFailures
       failures.head must === (RelatedContentDoesNotExist("sku", 1))
@@ -90,9 +88,8 @@ class ContentManagerTest extends IntegrationTestBase with TestObjectContext with
 
     "fails if the relation has the wrong commit id" in new SkuFixture {
       val productRelations = Map("sku" → Seq(2))
-      val payload = CreateContentPayload(kind = "product",
-                                         attributes = attributes,
-                                         relations = productRelations)
+      val payload =
+        CreateContentPayload(kind = "product", attributes = attributes, relations = productRelations)
 
       val failures = ContentManager.create(SimpleContext.id, payload).gimmeFailures
       failures.head must === (RelatedContentDoesNotExist("sku", 2))
@@ -100,9 +97,8 @@ class ContentManagerTest extends IntegrationTestBase with TestObjectContext with
 
     "fails if the relation has the wrong kind" in new SkuFixture {
       val productRelations = Map("variant" → Seq(1))
-      val payload = CreateContentPayload(kind = "product",
-                                         attributes = attributes,
-                                         relations = productRelations)
+      val payload =
+        CreateContentPayload(kind = "product", attributes = attributes, relations = productRelations)
 
       val failures = ContentManager.create(SimpleContext.id, payload).gimmeFailures
       failures.head must === (RelatedContentDoesNotExist("variant", 1))
@@ -111,8 +107,8 @@ class ContentManagerTest extends IntegrationTestBase with TestObjectContext with
 
   trait Fixture {
     val attributes = Map(
-        "title"       → ContentAttribute(t = "string", v = JString("a test product")),
-        "description" → ContentAttribute(t = "richText", v = JString("<p>A test description</p>"))
+      "title"       → ContentAttribute(t = "string", v = JString("a test product")),
+      "description" → ContentAttribute(t = "richText", v = JString("<p>A test description</p>"))
     )
 
     val relations = Map.empty[String, Seq[Commit#Id]]
