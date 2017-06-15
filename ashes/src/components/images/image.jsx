@@ -132,7 +132,7 @@ export default class Image extends Component<void, Props, State> {
           id={image.id}
           src={image.src}
           title={image.title}
-          secondaryTitle={`Uploaded ${image.uploadedAt || moment().format('MM/DD/YYYY HH: mm')}`}
+          secondaryTitle={`Uploaded ${image.uploadedAt || moment().format('L LT')}`}
           actions={this.getImageActions()}
           loading={image.loading}
           key={`${imagePid}`}
