@@ -3,7 +3,6 @@
 import _ from 'lodash';
 import React from 'react';
 
-import Content from 'components/core/content/content';
 import ContentBox from 'components/content-box/content-box';
 import { Dropdown } from 'components/dropdown';
 import ErrorAlerts from 'components/alerts/error-alerts';
@@ -30,11 +29,7 @@ const CatalogDetails = (props: Props) => {
   const { defaultLanguage, name, site, countryId, countries } = props;
   const { onChange, onSubmit } = props;
   const { err } = props;
-<<<<<<< f3c231339a67ac58bee3d986f212bc4f63c15010
 
-=======
- 
->>>>>>> Fix linting errors
   const country = _.find(countries, { 'id': countryId });
 
   let languages = _.get(country, 'languages', []);
