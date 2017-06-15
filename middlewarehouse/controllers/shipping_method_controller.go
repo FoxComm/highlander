@@ -156,10 +156,10 @@ func (controller *shippingMethodController) deleteShippingMethod() gin.HandlerFu
 			return
 		}
 
-		if err := controller.service.DeleteShippingMethod(id); err == nil {
-			context.Status(http.StatusNoContent)
-		} else {
+		if err := controller.service.DeleteShippingMethod(id); err != nil {
 			handleServiceError(context, err)
+			return
 		}
+		context.Status(http.StatusNoContent)
 	}
 }

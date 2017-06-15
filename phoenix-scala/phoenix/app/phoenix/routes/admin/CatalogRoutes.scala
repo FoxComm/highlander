@@ -21,32 +21,32 @@ object CatalogRoutes {
             CatalogManager.createCatalog(payload)
           }
         } ~
-          pathPrefix(IntNumber) { catalogId ⇒
-            (get & pathEnd) {
-              getOrFailures {
-                CatalogManager.getCatalog(catalogId)
+        pathPrefix(IntNumber) { catalogId ⇒
+          (get & pathEnd) {
+            getOrFailures {
+              CatalogManager.getCatalog(catalogId)
+            }
+          } ~
+          (patch & pathEnd & entity(as[UpdateCatalogPayload])) { payload ⇒
+            mutateOrFailures {
+              CatalogManager.updateCatalog(catalogId, payload)
+            }
+          } ~
+          pathPrefix("products") {
+            (post & pathEnd & entity(as[AddProductsPayload])) { payload ⇒
+              mutateOrFailures {
+                CatalogManager.addProductsToCatalog(catalogId, payload)
               }
             } ~
-              (patch & pathEnd & entity(as[UpdateCatalogPayload])) { payload ⇒
-                mutateOrFailures {
-                  CatalogManager.updateCatalog(catalogId, payload)
-                }
-              } ~
-              pathPrefix("products") {
-                (post & pathEnd & entity(as[AddProductsPayload])) { payload ⇒
-                  mutateOrFailures {
-                    CatalogManager.addProductsToCatalog(catalogId, payload)
-                  }
-                } ~
-                pathPrefix(IntNumber) { productId ⇒
-                  (delete & pathEnd) {
-                    deleteOrFailures {
-                      CatalogManager.removeProductFromCatalog(catalogId, productId)
-                    }
-                  }
+            pathPrefix(IntNumber) { productId ⇒
+              (delete & pathEnd) {
+                deleteOrFailures {
+                  CatalogManager.removeProductFromCatalog(catalogId, productId)
                 }
               }
+            }
           }
+        }
       }
     }
 }

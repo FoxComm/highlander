@@ -16,7 +16,7 @@ object OrderFailures {
   }
 
   case object OnlyOneExternalPaymentIsAllowed extends Failure {
-    def description: String = "Only one external payment is allowed!"
+    def description: String = "Only one payment method is allowed (credit card or apple pay)!"
   }
 
   case object NoExternalPaymentsIsProvided extends Failure {
