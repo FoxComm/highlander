@@ -3,7 +3,7 @@ import React from 'react';
 import types from '../base/types';
 
 import CordTarget from '../base/cord-target';
-import Currency from '../../../common/currency';
+import Currency from 'components/utils/currency';
 import GiftCardLink from '../base/gift-card-link';
 import Title from '../base/title';
 

@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'components/link';
 import columnPropType from './column-prop-type';
 import { Moment, Date, DateTime, Time } from '../common/datetime';
-import Currency from '../common/currency';
+import Currency from 'components/utils/currency';
 import State from '../common/state';
 import Change from 'components/utils/change';
 import ProductImage from 'components/imgix/product-image';

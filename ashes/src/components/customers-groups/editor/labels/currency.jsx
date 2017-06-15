@@ -7,7 +7,7 @@ import React from 'react';
 import { prefix } from 'lib/text-utils';
 
 //components
-import Currency from 'components/common/currency';
+import Currency from 'components/utils/currency';
 import propTypes from '../widgets/propTypes';
 
 type LabelProps = {

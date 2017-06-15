@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import formatCurrency from '../../lib/format-currency';
+import formatCurrency from '../../../lib/format-currency';
 
 const Currency = (props) => {
   const {isTransaction, id, ...rest} = props;

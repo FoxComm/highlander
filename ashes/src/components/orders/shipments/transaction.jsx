@@ -7,7 +7,7 @@ import React, { Element } from 'react';
 import styles from './transaction.css';
 
 // components
-import Currency from 'components/common/currency';
+import Currency from 'components/utils/currency';
 import PaymentMethod from 'components/payment/payment-method';
 import { DateTime } from 'components/common/datetime';
 
