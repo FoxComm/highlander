@@ -3,6 +3,7 @@ marathon_deploy:
     isaac: "{{ lookup('env', 'MRT_ISAAC') | default(false, true) | bool }}"
     solomon: "{{ lookup('env', 'MRT_SOLOMON') | default(false, true) | bool }}"
     middlewarehouse: "{{ lookup('env', 'MRT_MIDDLEWAREHOUSE') | default(false, true) | bool }}"
+    agni: "{{ lookup('env', 'MRT_AGNI') | default(false, true) | bool }}"
 
     greenriver: "{{ lookup('env', 'MRT_GREENRIVER') | default(false, true) | bool }}"
     capture_consumer: "{{ lookup('env', 'MRT_CAPTURE_CONSUMER') | default(false, true) | bool }}"

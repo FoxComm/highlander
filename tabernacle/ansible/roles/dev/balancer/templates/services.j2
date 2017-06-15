@@ -58,6 +58,12 @@ upstream sol {
   << else >> server {{solomon_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
+# We use port 9000 for agni
+upstream agni {
+  << range service "agni" >> server << .Address >>:9000 max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{agni_server}} fail_timeout=30s max_fails=10; << end >>
+}
+
 upstream hyperion {
   << range service "hyperion" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
   << else >> server {{hyperion_server}} fail_timeout=30s max_fails=10; << end >>
