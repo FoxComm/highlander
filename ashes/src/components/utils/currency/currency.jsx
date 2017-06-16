@@ -6,7 +6,7 @@ import React from 'react';
 import classNames from 'classnames';
 
 // components
-import formatCurrency from '../../../lib/format-currency';
+import formatCurrency from 'lib/format-currency';
 import Change from 'components/utils/change';
 
 // styles
@@ -18,11 +18,11 @@ type Props = {
   /** passing value */
   value: number | string,
   /** fraction base */
-  fractionBase: number,
+  fractionBase?: number,
   /** currency abbreviation (e.g. 'EUR') */
-  currency: string,
+  currency?: string,
   /** set true if value is big number */
-  bigNumber: boolean,
+  bigNumber?: boolean,
   /** transaction mode renders colored positive/negative values */
   isTransaction?: boolean,
   /** additional className */
@@ -37,7 +37,7 @@ type Props = {
  */
 
 const Currency = (props: Props) => {
-  const {isTransaction, id, className, ...rest} = props;
+  const { isTransaction, id, className, ...rest } = props;
   let value;
 
   if (isTransaction) {

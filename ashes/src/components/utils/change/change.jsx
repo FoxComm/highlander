@@ -12,7 +12,7 @@ type Props = {
   /** value of change */
   value: number,
   /** value formatting function */
-  format?: ( value: number ) => string
+  format?: (value: number) => string
 }
 
 /**
@@ -20,7 +20,7 @@ type Props = {
  *
  * @function Change
  */
-const Change = ({value, format = identity}: Props) => {
+const Change = ({ value, format = identity }: Props) => {
 
   const cls = classNames(s.change, {
     [s.positive]: value > 0,
