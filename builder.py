@@ -48,6 +48,7 @@ PROJECTS = (
     'onboarding/ui',
     'phoenix-scala',
     'phoenix-scala/seeder',
+    'search-service',
     'solomon',
     'tabernacle/docker/neo4j',
     'tabernacle/docker/neo4j_reset',
