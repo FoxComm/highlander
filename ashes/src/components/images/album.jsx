@@ -49,7 +49,7 @@ type State = {
 const INVALID_TYPE_RESPONSE = 'image format';
 
 function getErrorMessage(asyncState?: Object, failedCount: number = 1) {
-  const errMsg = get(asyncState, 'err.message', '');
+  const errMsg = get(asyncState, 'err.response.body.errors[0]') || get(asyncState, 'err.message', '');
   let message;
 
   if (isEmpty(errMsg)) {
