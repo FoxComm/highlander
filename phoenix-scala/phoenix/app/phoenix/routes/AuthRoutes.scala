@@ -37,25 +37,25 @@ object AuthRoutes {
       (post & path("login") & entity(as[LoginPayload])) { payload ⇒
         doLogin(DbResultT.pure(payload))(_.runDBIO())
       } ~
-        activityContext(defaultScope) { implicit ac ⇒
-          (post & path("send-password-reset") & pathEnd & entity(as[ResetPasswordSend])) { payload ⇒
-            mutateOrFailures {
-              AccountManager.resetPasswordSend(payload.email)
-            }
-          } ~
-            (post & path("reset-password") & pathEnd & entity(as[ResetPassword])) { payload ⇒
-              val doPasswordReset = AccountManager
-                .resetPassword(code = payload.code, newPassword = payload.newPassword)
-                .map(
-                  answer ⇒
-                    LoginPayload(
-                      email = answer.email,
-                      password = payload.newPassword,
-                      org = answer.org
-                  ))
+      activityContext(defaultScope) { implicit ac ⇒
+        (post & path("send-password-reset") & pathEnd & entity(as[ResetPasswordSend])) { payload ⇒
+          mutateOrFailures {
+            AccountManager.resetPasswordSend(payload.email)
+          }
+        } ~
+        (post & path("reset-password") & pathEnd & entity(as[ResetPassword])) { payload ⇒
+          val doPasswordReset = AccountManager
+            .resetPassword(code = payload.code, newPassword = payload.newPassword)
+            .map(
+              answer ⇒
+                LoginPayload(
+                  email = answer.email,
+                  password = payload.newPassword,
+                  org = answer.org
+              ))
 
-              doLogin(doPasswordReset)(_.runTxn())
-            } ~
+          doLogin(doPasswordReset)(_.runTxn())
+        } ~
         (post & path("logout")) {
           deleteCookie("JWT", path = "/") {
             redirect(Uri("/"), StatusCodes.Found)

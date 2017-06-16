@@ -23,7 +23,7 @@ object StoreAdminResponse {
                        email = admin.email,
                        name = admin.name,
                        phoneNumber = admin.phoneNumber,
-      org = organization.name,
+                       org = organization.name,
                        state = adminData.state)
   }
 }
