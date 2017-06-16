@@ -83,14 +83,14 @@ flow:
 	flow check
 
 # run prettier against js(x) files in git diff that are not formatted in Prettier style
-.PHONY: prettier
-prettier:
+.PHONY: fmt
+fmt:
 ifneq ($(JS_FILES_TO_PRETTIFY),)
 	prettier $(PRETTIER_OPTIONS) --write $(JS_FILES_TO_PRETTIFY)
 endif
 
-# prettierify target directory. usage: make prettier-config
-prettier-%:
+# prettierify target directory. usage: make fmt-config
+fmt-%:
 	prettier $(PRETTIER_OPTIONS) --write "$*/**/*.{js,jsx}"
 
 .PHONY: build-styleguide
