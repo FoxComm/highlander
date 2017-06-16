@@ -26,6 +26,11 @@ echo "This is your current scalafmt version. Expected version: $(cat "$(dirname 
 echo "Please report if versions don't match!"
 echo
 
+git --version
+echo "This is your current git version. Your git should be at least 2.9.0"
+echo "Please update your git if versions don't match!"
+echo
+
 echo "Running scalafmt on all sources... (only needs to be done once!)"
 eval "${SCALAFMT} ${ROOT_DIR}"
 echo
