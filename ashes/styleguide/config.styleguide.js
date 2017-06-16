@@ -137,6 +137,7 @@ module.exports = {
               name: 'Other',
               components: () => ([
                 path.resolve(__dirname, '../src/components/utils/change/change.jsx'),
+                path.resolve(__dirname, '../src/components/utils/datetime/datetime.jsx'),
               ]),
             },
           ]

@@ -23,7 +23,7 @@ type Props = {
 
 /**
  * `DateTime`, `Date`, and `Time` - are simple components
- * build on the top of `Moment`
+ * build on the top of generic `Moment`
  * and serve to show time data
  *
  * @function Moment
