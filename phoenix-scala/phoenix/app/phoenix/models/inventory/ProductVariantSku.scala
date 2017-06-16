@@ -1,4 +1,4 @@
-package models.inventory
+package phoenix.models.inventory
 
 import java.time.Instant
 
@@ -6,7 +6,6 @@ import shapeless._
 import core.db.ExPostgresDriver.api._
 import core.db._
 import core.failures.NotFoundFailure400
-import phoenix.models.inventory.Skus
 
 /**
   * This entity is a relation of ProductVariant (currently called SKU in Phoenix but this is temporary)

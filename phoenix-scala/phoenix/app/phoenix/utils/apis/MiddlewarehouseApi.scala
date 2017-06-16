@@ -6,7 +6,7 @@ import com.typesafe.scalalogging.LazyLogging
 import core.db._
 import core.failures.Failures
 import dispatch._
-import models.inventory.{ProductVariantSku, ProductVariantSkus}
+import phoenix.models.inventory.{ProductVariantSku, ProductVariantSkus}
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.{compactJson, parseJsonOpt}
