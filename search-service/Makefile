@@ -8,7 +8,7 @@ SBT_CMD = sbt -DDOCKER_REPO=$(DOCKER_REPO) -DDOCKER_TAG=${DOCKER_TAG}
 
 clean:
 	$(call header, Cleaning)
-	${SBT_CMD} 'clean'
+	${SBT_CMD} '; clean'
 
 build:
 	$(call header, Building)
@@ -16,15 +16,15 @@ build:
 
 test:
 	$(call header, Testing)
-	${SBT_CMD} 'test'
+	${SBT_CMD} '; test'
 
 docker:
 	$(call header, Dockerizing)
-	${SBT_CMD} 'api/docker'
+	${SBT_CMD} '; api/docker'
 
 docker-push:
 	$(call header, Registering)
-	${SBT_CMD} 'api/dockerPush'
+	${SBT_CMD} '; api/dockerPush'
 
-docker-build:
-	${SBT_CMD} 'api/dockerBuildAndPush'
+docker-all:
+	${SBT_CMD} '; api/dockerBuildAndPush'
