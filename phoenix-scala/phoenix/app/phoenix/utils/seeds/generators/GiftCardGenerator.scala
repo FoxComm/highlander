@@ -30,10 +30,9 @@ trait GiftCardGenerator {
     } yield gc
 
   def generateGiftCard(adminAccountId: Int, context: ObjectContext)(implicit db: DB,
-                                                               au: AU): DbResultT[GiftCard] =
+                                                                    au: AU): DbResultT[GiftCard] =
     for {
-      origin ← * <~ GiftCardManuals.create(
-        GiftCardManual(adminId = adminAccountId, reasonId = 1))
+      origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = adminAccountId, reasonId = 1))
       gc ← * <~ GiftCards.create(
             GiftCard.build(balance = nextGcBalance, originId = origin.id, currency = Currency.USD))
     } yield gc
