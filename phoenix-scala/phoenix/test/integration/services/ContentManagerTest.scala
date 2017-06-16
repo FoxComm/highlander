@@ -21,7 +21,7 @@ import phoenix.utils.JsonFormatters
 class ContentManagerTest extends IntegrationTestBase with TestObjectContext with ApiFixtures {
 
   "ContentManager.findLatest" - {
-    "successfully with no relations" in new SkuFixture {
+    "successfully finds with no relations" in new SkuFixture {
       val content = ContentManager.findLatest(sku.id, SimpleContext.id, sku.kind).gimme
       content.kind must === ("sku")
       content.attributes("code").v must === (JString("TEST-SKU"))
@@ -52,7 +52,7 @@ class ContentManagerTest extends IntegrationTestBase with TestObjectContext with
 
     "fails with 404 when invalid kind" in new SkuFixture {
       val failures = ContentManager.findByCommit(sku.commitId, "variant").gimmeFailures
-      failures.head must === (ObjectNotFoundAtCommit("variant", sku.id))
+      failures.head must === (ObjectNotFoundAtCommit("variant", sku.commitId))
     }
   }
 
