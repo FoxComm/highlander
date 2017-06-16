@@ -15,20 +15,26 @@ type QueryOpts = {
   omitInactive: ?boolean,
 };
 
-function filterArchived (must: Array) {
-  must.push(dsl.existsFilter('archivedAt', 'missing'));
+function getArchivedFilter () {
+  return dsl.existsFilter('archivedAt', 'missing');
 };
 
-function filterInactive (must: Array, should: Array, esDate: string) {
-  must.push(dsl.existsFilter('activeFrom', 'exists'));
-  must.push(dsl.rangeFilter('activeFrom', { 'lte': esDate }));
-  should.push(dsl.existsFilter('activeTo', 'missing'));
-  should.push(dsl.rangeFilter('activeTo', { 'gte': esDate }));
+function getInactiveFilters (esDate: string) {
+  return {
+    mustFilters: [
+      dsl.existsFilter('activeFrom', 'exists'),
+      dsl.rangeFilter('activeFrom', { 'lte': esDate }),
+    ],
+    shouldFilters: [
+      dsl.existsFilter('activeTo', 'missing'),
+      dsl.rangeFilter('activeTo', { 'gte': esDate }),
+    ],
+  }
 };
 
-function addTokenQueries (token: string, must: Array) {
+function getTokenFilters (token: string) {
   if (isNaN(Number(token))) {
-    must.push(dsl.termFilter('title', token.toLowerCase()));
+    return dsl.termFilter('title', token.toLowerCase());
   } else {
     const query = dsl.query({
       bool: {
@@ -38,7 +44,7 @@ function addTokenQueries (token: string, must: Array) {
         ],
       },
     });
-    must.push(query);
+    return query;
   }
 };
 
@@ -48,14 +54,18 @@ export function searchProducts(token: string, {
                                               }: ?QueryOpts): Promise<*> {
   const formattedDate = moment(Date.now()).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
   const esDate = `${formattedDate}||/d`;
-  const must = [];
-  const should = omitInactive ? [] : null;
+  let must = [];
+  let should = omitInactive ? [] : null;
 
-  if (omitArchived) filterArchived(must);
+  if (omitArchived) must = [ ...must, getArchivedFilter()];
 
-  if (omitInactive) filterInactive(must, should, esDate);
+  if (omitInactive) {
+    const { mustFilters, shouldFilters } = getInactiveFilters(esDate);
+    must = [ ...must, ...mustFilters];
+    should = [ ...should, ...shouldFilters];
+  }
 
-  if (token) addTokenQueries(token, must);
+  if (token) must = [ ...must, getTokenFilters(token)];
 
   const matchRule = dsl.query({
     bool: {
