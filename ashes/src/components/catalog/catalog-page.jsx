@@ -8,10 +8,11 @@ import { createSelector } from 'reselect';
 import { transitionTo, transitionToLazy } from 'browserHistory';
 
 // components
+import Content from 'components/core/content/content';
 import PageNav from 'components/core/page-nav';
 import SaveCancel from 'components/core/save-cancel';
 import WaitAnimation from 'components/common/wait-animation';
-import { IndexLink } from 'components/link';
+import { IndexLink, Link } from 'components/link';
 import { PageTitle } from 'components/section-title';
 
 // data
@@ -84,7 +85,6 @@ class CatalogPage extends Component {
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.params.catalogId !== 'new' && nextProps.catalog) {
       const { name, site, countryId, defaultLanguage } = nextProps.catalog;
-
       this.setState({ name, site, countryId, defaultLanguage });
     }
   }
@@ -92,6 +92,15 @@ class CatalogPage extends Component {
   get localNav() {
     const { catalogId } = this.props.params;
     const params = { catalogId };
+
+    let links = null;
+    if (!this.isNew) {
+      links = (
+        <Link to="catalog-products" params={params}>
+          Products
+        </Link>
+      );
+    }
 
     return (
       <PageNav>
@@ -101,6 +110,7 @@ class CatalogPage extends Component {
         >
           Details
         </IndexLink>
+        {links}
       </PageNav>
     );
   }
@@ -175,7 +185,9 @@ class CatalogPage extends Component {
         />
         </PageTitle>
         {this.localNav}
-        {upChildren}
+        <Content>
+          {upChildren}
+        </Content>
       </div>
     );
   }

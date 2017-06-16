@@ -166,3 +166,33 @@ create trigger update_products_cat_from_product_sku_links_delete_trigger
   after delete on product_sku_links
   for each row
   execute procedure update_products_cat_from_product_sku_links_delete_fn();
+
+create or replace function update_products_catalog_view_catalogs_fn() returns trigger as $$
+begin
+  update products_catalog_view
+  set
+    catalogs = case when catalogProducts.catalogs is null then
+      '[]' :: jsonb
+    else
+      catalogProducts.catalogs
+    end
+  from (
+    select array_to_json(array_agg(row_to_json(cat))) :: jsonb as catalogs
+    from (
+      select c.id, c.name
+      from catalogs as c
+      inner join catalog_products as cp on (cp.catalog_id = c.id)
+      where cp.archived_at is null and cp.product_id = new.product_id
+    ) as cat
+  ) as catalogProducts
+  where products_catalog_view.product_id = new.product_id;
+
+  return null;
+end;
+$$ language plpgsql;
+
+drop trigger if exists update_products_catalog_view_catalogs on catalog_products;
+create trigger update_products_catalog_view_catalogs
+after insert or update on catalog_products
+  for each row
+  execute procedure update_products_catalog_view_catalogs_fn();

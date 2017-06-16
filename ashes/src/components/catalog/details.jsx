@@ -3,7 +3,6 @@
 import _ from 'lodash';
 import React from 'react';
 
-import Content from 'components/core/content/content';
 import ContentBox from 'components/content-box/content-box';
 import { Dropdown } from 'components/dropdown';
 import ErrorAlerts from 'components/alerts/error-alerts';
@@ -42,62 +41,60 @@ const CatalogDetails = (props: Props) => {
   const languageItems = languages.map((lang) => [lang, lang]);
 
   return (
-    <Content>
-      <div styleName="form-content">
-        {err && (
-          <div>
-            <ErrorAlerts error={err} />
-          </div>
-        )}
-        <ContentBox title="General">
-          <Form onSubmit={onSubmit}>
-            <VerticalFormField
-              controlId= "name"
-              label="Name"
-              required
-            >
-              <TextInput
-                onChange={(v) => onChange('name', v)}
-                value={name}
-              />
-            </VerticalFormField>
-            <VerticalFormField
-              controlId="site"
-              label="Site URL"
-            >
-              <TextInput
-                onChange={(v) => onChange('site', v)}
-                value={site}
-              />
-            </VerticalFormField>
-            <VerticalFormField
-              controlId="countryId"
-              label="Country"
-              required
-            >
-              <Dropdown
-                name="countryId"
-                value={countryId}
-                items={countryItems}
-                onChange={(c) => onChange('countryId', c)}
-              />
-            </VerticalFormField>
-            <VerticalFormField
-              controlId="defaultLanguage"
-              label="Default Language"
-              required
-            >
-              <Dropdown
-                name="defaultLanguage"
-                value={defaultLanguage}
-                items={languageItems}
-                onChange={(l) => onChange('defaultLanguage', l)}
-              />
-            </VerticalFormField>
-          </Form>
-        </ContentBox>
-      </div>
-    </Content>
+    <div styleName="form-content">
+      {err && (
+        <div>
+          <ErrorAlerts error={err} />
+        </div>
+      )}
+      <ContentBox title="General">
+        <Form onSubmit={onSubmit}>
+          <VerticalFormField
+            controlId= "name"
+            label="Name"
+            required
+          >
+            <TextInput
+              onChange={(v) => onChange('name', v)}
+              value={name}
+            />
+          </VerticalFormField>
+          <VerticalFormField
+            controlId="site"
+            label="Site URL"
+          >
+            <TextInput
+              onChange={(v) => onChange('site', v)}
+              value={site}
+            />
+          </VerticalFormField>
+          <VerticalFormField
+            controlId="countryId"
+            label="Country"
+            required
+          >
+            <Dropdown
+              name="countryId"
+              value={countryId}
+              items={countryItems}
+              onChange={(c) => onChange('countryId', c)}
+            />
+          </VerticalFormField>
+          <VerticalFormField
+            controlId="defaultLanguage"
+            label="Default Language"
+            required
+          >
+            <Dropdown
+              name="defaultLanguage"
+              value={defaultLanguage}
+              items={languageItems}
+              onChange={(l) => onChange('defaultLanguage', l)}
+            />
+          </VerticalFormField>
+        </Form>
+      </ContentBox>
+    </div>
   );
 };
 
