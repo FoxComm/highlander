@@ -111,12 +111,14 @@ export default class UserForm extends Component {
     const { isMessageDisplayed } = this.state;
 
     if (isMessageDisplayed && err != null) {
-      return <ErrorAlerts error={err} closeAction={this.removeAlert} />;
+      return (
+        <ErrorAlerts type={Alert.SUCCESS} error={err} closeAction={this.removeAlert} />
+      );
     }
 
     if (isMessageDisplayed && !inProgress && finished) {
       return (
-        <Alert type={Alert.SUCCESS} closeAction={this.removeAlert} >
+        <Alert type={Alert.SUCCESS} closeAction={this.removeAlert} error={err} >
           Password reset email was successfully sent.
         </Alert>
       );
