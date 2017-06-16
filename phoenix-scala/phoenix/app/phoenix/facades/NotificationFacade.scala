@@ -102,7 +102,7 @@ object NotificationFacade extends LazyLogging {
   }
 
   private def newNotifications(
-      adminId: Int)(implicit ec: EC, mat: Mat, system: ActorSystem): Source[SSE, NotUsed] =
+      adminId: Int)(implicit ec: EC, db: DB, mat: Mat, system: ActorSystem): Source[SSE, NotUsed] =
     dbListeners.getOrElseUpdate(
       adminId,
       _ ⇒ {

@@ -24,7 +24,7 @@ clean:
 
 test:
 	$(call header, Testing)
-	sbt '; test; seedDemo'
+	SBT_OPTS="-XX:+UseConcMarkSweepGC -Dphoenix.env=test" sbt -mem 3072 '; test; seedDemo'
 
 docker:
 	$(call header, Dockerizing)
