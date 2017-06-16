@@ -1,17 +1,16 @@
 package phoenix.services
 
-import cats.instances.map
+import core.db._
 import phoenix.failures.GiftCardFailures.GiftCardConvertFailure
 import phoenix.failures.OpenTransactionsFailure
 import phoenix.failures.StoreCreditFailures.StoreCreditConvertFailure
 import phoenix.models.account._
-import phoenix.models.admin.AdminsData
 import phoenix.models.payment.giftcard._
 import phoenix.models.payment.storecredit._
-import phoenix.responses.{GiftCardResponse, StoreCreditResponse, UserResponse}
-import slick.jdbc.PostgresProfile.api._
+import phoenix.responses.users.UserResponse
+import phoenix.responses.{GiftCardResponse, StoreCreditResponse}
 import phoenix.utils.aliases._
-import core.db._
+import slick.jdbc.PostgresProfile.api._
 
 object CustomerCreditConverter {
 

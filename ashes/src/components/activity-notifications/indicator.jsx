@@ -2,7 +2,6 @@
 import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import Transition from 'react-transition-group/CSSTransitionGroup';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
@@ -50,14 +49,12 @@ export default class NotificationIndicator extends React.Component {
     });
     return (
       <div className="fc-activity-notifications">
-        <Button icon="bell"
-                className={ classes }
-                onClick={ this.toggleNotifications }>
-          <Transition transitionName="fc-activity-notifications__indicator"
-                      transitionEnterTimeout={300}
-                      transitionLeaveTimeout={300}>
-            { this.indicator }
-          </Transition>
+        <Button
+          icon="bell"
+          className={ classes }
+          onClick={ this.toggleNotifications }
+        >
+          {this.indicator}
         </Button>
       </div>
     );

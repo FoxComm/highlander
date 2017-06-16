@@ -2,8 +2,9 @@ package phoenix.responses
 
 import java.time.Instant
 
-import phoenix.models.payment.giftcard._
 import core.utils.Money._
+import phoenix.models.payment.giftcard._
+import phoenix.responses.users.{CustomerResponse, UserResponse}
 
 object GiftCardResponse {
 
@@ -22,8 +23,8 @@ object GiftCardResponse {
                   currentBalance: Long,
                   canceledAmount: Option[Long],
                   canceledReason: Option[Int],
-                  customer: Option[CustomerResponse.Root],
-                  storeAdmin: Option[UserResponse.Root],
+                  customer: Option[CustomerResponse],
+                  storeAdmin: Option[UserResponse],
                   senderName: Option[String] = None,
                   recipientName: Option[String] = None,
                   recipientEmail: Option[String] = None,
@@ -31,8 +32,8 @@ object GiftCardResponse {
       extends ResponseItem
 
   def build(gc: GiftCard,
-            customer: Option[CustomerResponse.Root] = None,
-            admin: Option[UserResponse.Root] = None): Root =
+            customer: Option[CustomerResponse] = None,
+            admin: Option[UserResponse] = None): Root =
     Root(
       id = gc.id,
       createdAt = gc.createdAt,

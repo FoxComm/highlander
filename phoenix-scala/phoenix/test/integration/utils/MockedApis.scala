@@ -15,6 +15,7 @@ import org.mockito.stubbing.Answer
 import org.scalatest._
 import org.scalatest.mockito.MockitoSugar
 import phoenix.models.activity.OpaqueActivity
+import phoenix.models.inventory.ProductVariantSku
 import phoenix.server.Setup
 import phoenix.services.activity.ActivityBase
 import phoenix.utils.ElasticsearchApi
@@ -127,6 +128,8 @@ trait MockedApis extends MockitoSugar with MustMatchers with OptionValues with A
     val mocked = mock[MiddlewarehouseApi]
     when(mocked.hold(any[OrderInventoryHold])(any[EC], any[AU])).thenReturn(Result.unit)
     when(mocked.cancelHold(any[String])(any[EC], any[AU])).thenReturn(Result.unit)
+    when(mocked.createSku(any[Int], any[CreateSku])(any[EC], any[AU]))
+      .thenReturn(DbResultT.pure(ProductVariantSku(skuId = -1, mwhSkuId = -1)))
     mocked
   }
 

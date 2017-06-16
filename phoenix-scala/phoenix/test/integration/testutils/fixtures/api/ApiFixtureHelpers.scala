@@ -9,28 +9,29 @@ import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
 import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
 import phoenix.payloads.PaymentPayloads.{CreateCreditCardFromTokenPayload, CreateManualStoreCredit}
 import phoenix.responses.cord.CartResponse
-import phoenix.responses.{CreditCardsResponse, CustomerResponse, GiftCardResponse, StoreCreditResponse}
+import phoenix.responses.users.CustomerResponse
+import phoenix.responses.{CreditCardsResponse, GiftCardResponse, StoreCreditResponse}
 import phoenix.utils.aliases._
 import phoenix.utils.time.today
 import testutils._
 import testutils.apis.PhoenixAdminApi
 
 trait ApiFixtureHelpers extends PhoenixAdminApi with ApiFixtures { self: FoxSuite ⇒
-  def api_newCustomer()(implicit sl: SL, sf: SF): CustomerResponse.Root = {
+  def api_newCustomer()(implicit sl: SL, sf: SF): CustomerResponse = {
     val name = randomName
     customersApi
       .create(CreateCustomerPayload(name = name.some, email = randomEmail(name)))(defaultAdminAuth)
-      .as[CustomerResponse.Root]
+      .as[CustomerResponse]
   }
 
-  def api_newCustomerWithLogin()(implicit sl: SL, sf: SF): (CustomerResponse.Root, TestLoginData) = {
+  def api_newCustomerWithLogin()(implicit sl: SL, sf: SF): (CustomerResponse, TestLoginData) = {
     val name      = randomName
     val loginData = TestLoginData(randomEmail(name))
     val customer = customersApi
       .create(
         CreateCustomerPayload(name = name.some, email = loginData.email, password = loginData.password.some))(
         defaultAdminAuth)
-      .as[CustomerResponse.Root]
+      .as[CustomerResponse]
     (customer, loginData)
   }
 

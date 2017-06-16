@@ -29,16 +29,16 @@ object NotificationRoutes {
             NotificationFacade.streamForCurrentAdmin()
           }
         } ~
-          (post & pathEnd & entity(as[CreateNotification])) { payload ⇒
-            mutateOrFailures {
-              NotificationManager.createNotification(payload)
-            }
-          } ~
-          (post & path("last-seen" / IntNumber) & pathEnd) { notificationId ⇒
-            mutateOrFailures {
-              NotificationManager.updateLastSeen(auth.account.id, notificationId)
-            }
+        (post & pathEnd & entity(as[CreateNotification])) { payload ⇒
+          mutateOrFailures {
+            NotificationManager.createNotification(payload)
           }
+        } ~
+        (post & path("last-seen" / IntNumber) & pathEnd) { notificationId ⇒
+          mutateOrFailures {
+            NotificationManager.updateLastSeen(auth.account.id, notificationId)
+          }
+        }
       }
     }
 }

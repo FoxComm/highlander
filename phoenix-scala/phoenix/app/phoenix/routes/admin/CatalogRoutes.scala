@@ -21,18 +21,18 @@ object CatalogRoutes {
             CatalogManager.createCatalog(payload)
           }
         } ~
-          pathPrefix(IntNumber) { catalogId ⇒
-            (get & pathEnd) {
-              getOrFailures {
-                CatalogManager.getCatalog(catalogId)
-              }
-            } ~
-              (patch & pathEnd & entity(as[UpdateCatalogPayload])) { payload ⇒
-                mutateOrFailures {
-                  CatalogManager.updateCatalog(catalogId, payload)
-                }
-              }
+        pathPrefix(IntNumber) { catalogId ⇒
+          (get & pathEnd) {
+            getOrFailures {
+              CatalogManager.getCatalog(catalogId)
+            }
+          } ~
+          (patch & pathEnd & entity(as[UpdateCatalogPayload])) { payload ⇒
+            mutateOrFailures {
+              CatalogManager.updateCatalog(catalogId, payload)
+            }
           }
+        }
       }
     }
 }

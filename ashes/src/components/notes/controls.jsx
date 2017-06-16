@@ -1,24 +1,31 @@
+/* @flow */
+
+// libs
 import React from 'react';
-import PropTypes from 'prop-types';
+
+// components
 import DetailedInitials from '../user-initials/detailed-initials';
 import { EditButton, DeleteButton } from 'components/core/button';
 
-const NoteControls = props => {
-  return (
-    <div className="fc-notes-item-controls">
-      <DetailedInitials {...props.model.author} />
-      <DeleteButton onClick={() => props.onDeleteClick(props.model)} />
-      <EditButton onClick={() => props.onEditClick(props.model)} />
-    </div>
-  );
+// styles
+import s from './notes.css';
+
+type Props = {
+  model: {
+    author: Object,
+  },
+  onEditClick: Function,
+  onDeleteClick: Function,
 };
 
-NoteControls.propTypes = {
-  model: PropTypes.shape({
-    author: PropTypes.object.isRequired
-  }).isRequired,
-  onEditClick: PropTypes.func.isRequired,
-  onDeleteClick: PropTypes.func.isRequired
-};
+const NoteControls = (props: Props) => (
+  <div className={s.controls}>
+    <DetailedInitials {...props.model.author} />
+    <div className={s.buttons}>
+      <DeleteButton className={s.button} onClick={() => props.onDeleteClick(props.model)} />
+      <EditButton className={s.button} onClick={() => props.onEditClick(props.model)} />
+    </div>
+  </div>
+);
 
 export default NoteControls;

@@ -9,7 +9,7 @@ import phoenix.failures.CreditCardFailures.NoDefaultCreditCardForCustomer
 import phoenix.failures.ShippingMethodFailures._
 import phoenix.failures.UserFailures._
 import phoenix.models.Reasons
-import phoenix.models.cord.Order.RemorseHold
+import phoenix.models.cord.Order.{FulfillmentStarted, RemorseHold}
 import phoenix.models.cord._
 import phoenix.models.inventory._
 import phoenix.models.location.Region
@@ -70,7 +70,7 @@ class CheckoutIntegrationTest
       shippingMethodsApi(shipMethod.id).setDefault().mustBeOk()
 
       withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
-        storefrontAddressesApi(address.id).setDefault().mustBeOk()
+        storefrontAddressesApi(customerAddress.id).setDefault().mustBeOk()
         storefrontPaymentsApi.creditCard(creditCard.id).setDefault().mustBeOk()
 
         val order = storefrontCartsApi
@@ -95,7 +95,8 @@ class CheckoutIntegrationTest
         )
 
         // Compare all significant fields.
-        expectedAddressResponse must === (address.copy(id = expectedAddressResponse.id, isDefault = None))
+        expectedAddressResponse must === (
+          customerAddress.copy(id = expectedAddressResponse.id, isDefault = None))
         order.shippingAddress must === (expectedAddressResponse)
         order.shippingMethod.id must === (shipMethod.id)
       }
@@ -104,10 +105,10 @@ class CheckoutIntegrationTest
     "should stash existing cart line items on one-click checkout and then bring them back" in new OneClickCheckoutFixture {
       shippingMethodsApi(shipMethod.id).setDefault().mustBeOk()
 
-      val otherSkuCode = new ProductSku_ApiFixture {}.skuCode
+      val otherSkuCode = ProductSku_ApiFixture().skuCode
 
       withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
-        storefrontAddressesApi(address.id).setDefault().mustBeOk()
+        storefrontAddressesApi(customerAddress.id).setDefault().mustBeOk()
         storefrontPaymentsApi.creditCard(creditCard.id).setDefault().mustBeOk()
 
         cartsApi(storefrontCartsApi.get().as[CartResponse].referenceNumber).lineItems
@@ -154,11 +155,27 @@ class CheckoutIntegrationTest
       GiftCardAdjustments.map(_.state).gimme must contain only InStorePaymentStates.Auth
     }
 
+    "guest checkout (with a blank customer name) should be allowed" in new Fixture {
+      val cartResponse = api_newGuestCart()
+      cartResponse.customer.value.name must === (None) // make sure that we have a blank name for a guest
+
+      val address = customersApi(cartResponse.customer.value.id).addresses
+        .create(addressPayload)
+        .as[AddressResponse]
+
+      val order = prepareCheckout(cartResponse.referenceNumber, address).checkout().as[OrderResponse]
+      order.customer must === (cartResponse.customer)
+      order.shippingAddress.address1 must === (address.address1)
+      order.shippingAddress.name must === (address.name)
+      order.shippingAddress.region must === (address.region)
+      order.orderState must === (RemorseHold)
+    }
+
     "fails to do one-click checkout if no default credit card is selected for a customer" in new OneClickCheckoutFixture {
       shippingMethodsApi(shipMethod.id).setDefault().mustBeOk()
 
       withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
-        storefrontAddressesApi(address.id).setDefault().mustBeOk()
+        storefrontAddressesApi(customerAddress.id).setDefault().mustBeOk()
         storefrontPaymentsApi.creditCards.unsetDefault().mustBeEmpty()
 
         storefrontCartsApi
@@ -184,7 +201,7 @@ class CheckoutIntegrationTest
       shippingMethodsApi.unsetDefault().mustBeEmpty()
 
       withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
-        storefrontAddressesApi(address.id).setDefault().mustBeOk()
+        storefrontAddressesApi(customerAddress.id).setDefault().mustBeOk()
         storefrontPaymentsApi.creditCard(creditCard.id).setDefault().mustBeOk()
 
         storefrontCartsApi
@@ -247,16 +264,19 @@ class CheckoutIntegrationTest
     val (customer, customerLoginData) = api_newCustomerWithLogin()
 
     val addressPayload = randomAddress(regionId = Region.californiaId)
-    val address = customersApi(customer.id).addresses
+    val customerAddress = customersApi(customer.id).addresses
       .create(addressPayload)
       .as[AddressResponse]
 
-    private val apiFixture = new ProductSku_ApiFixture {}
+    private val apiFixture = ProductSku_ApiFixture()
     val skuCode            = apiFixture.skuCode
     val product            = apiFixture.product
 
-    def prepareCheckout(): cartsApi = {
-      val _cartApi = cartsApi(api_newCustomerCart(customer.id).referenceNumber)
+    private val customerReferenceNumber = api_newCustomerCart(customer.id).referenceNumber
+
+    def prepareCheckout(cartRefNumber: String = customerReferenceNumber,
+                        address: AddressResponse = customerAddress): cartsApi = {
+      val _cartApi = cartsApi(cartRefNumber)
 
       _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 2))).mustBeOk()
 

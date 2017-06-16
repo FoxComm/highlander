@@ -1,17 +1,19 @@
 package phoenix.services.account
 
-import cats.implicits._
-import phoenix.failures.AuthFailures._
-import core.failures.NotFoundFailure404
-import phoenix.failures.UserFailures._
 import java.time.Instant
+
+import cats.implicits._
+import core.db._
+import core.failures.NotFoundFailure404
+import phoenix.failures.AuthFailures._
+import phoenix.failures.UserFailures._
 import phoenix.models.account._
 import phoenix.models.customer.CustomersData
-import phoenix.responses.UserResponse._
+import phoenix.responses.users.UserResponse
+import phoenix.responses.users.UserResponse._
 import phoenix.services._
-import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
-import core.db._
+import slick.jdbc.PostgresProfile.api._
 
 case class AccountCreateContext(roles: List[String], org: String, scopeId: Int)
 
@@ -19,7 +21,7 @@ object AccountManager {
 
   def toggleDisabled(accountId: Int, disabled: Boolean, actor: User)(implicit ec: EC,
                                                                      db: DB,
-                                                                     ac: AC): DbResultT[Root] =
+                                                                     ac: AC): DbResultT[UserResponse] =
     for {
       user    ← * <~ Users.mustFindByAccountId(accountId)
       updated ← * <~ Users.update(user, user.copy(isDisabled = disabled, disabledBy = Some(actor.id)))
@@ -29,7 +31,7 @@ object AccountManager {
   // TODO: add blacklistedReason later
   def toggleBlacklisted(accountId: Int, blacklisted: Boolean, actor: User)(implicit ec: EC,
                                                                            db: DB,
-                                                                           ac: AC): DbResultT[Root] =
+                                                                           ac: AC): DbResultT[UserResponse] =
     for {
       user ← * <~ Users.mustFindByAccountId(accountId)
       updated ← * <~ Users.update(user,
@@ -83,7 +85,7 @@ object AccountManager {
       _             ← * <~ LogActivity().userPasswordReset(user)
     } yield ResetPasswordDoneAnswer(status = "ok")
 
-  def getById(accountId: Int)(implicit ec: EC, db: DB): DbResultT[Root] =
+  def getById(accountId: Int)(implicit ec: EC, db: DB): DbResultT[UserResponse] =
     for {
       user ← * <~ Users.mustFindByAccountId(accountId)
     } yield build(user)
