@@ -8,7 +8,7 @@ import styles from './title-block.css';
 
 //components
 import Currency from '../common/currency';
-import { Moment } from 'components/common/datetime';
+import { DateTime } from 'components/common/datetime';
 
 export default class Customer extends React.Component {
 
@@ -44,7 +44,7 @@ export default class Customer extends React.Component {
     let customer = this.props.customer;
     let joinedAt = '';
     if (customer.createdAt !== undefined) {
-      joinedAt = <Moment value={customer.createdAt} />;
+      joinedAt = <DateTime value={customer.createdAt} />;
     }
 
     return (
