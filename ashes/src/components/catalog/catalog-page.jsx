@@ -11,7 +11,7 @@ import { transitionTo, transitionToLazy } from 'browserHistory';
 import PageNav from 'components/core/page-nav';
 import SaveCancel from 'components/core/save-cancel';
 import WaitAnimation from 'components/common/wait-animation';
-import { IndexLink, Link } from 'components/link';
+import { IndexLink } from 'components/link';
 import { PageTitle } from 'components/section-title';
 
 // data
@@ -84,7 +84,7 @@ class CatalogPage extends Component {
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.params.catalogId !== 'new' && nextProps.catalog) {
       const { name, site, countryId, defaultLanguage } = nextProps.catalog;
-      
+
       this.setState({ name, site, countryId, defaultLanguage });
     }
   }
@@ -92,7 +92,7 @@ class CatalogPage extends Component {
   get localNav() {
     const { catalogId } = this.props.params;
     const params = { catalogId };
-    
+
     return (
       <PageNav>
         <IndexLink
@@ -143,7 +143,7 @@ class CatalogPage extends Component {
       transitionTo('catalog-details', { catalogId: resp.id });
     });
   };
-  
+
   render() {
     const { name, site, countryId, defaultLanguage } = this.state;
     const countries = this.props.countries || [];
@@ -163,7 +163,7 @@ class CatalogPage extends Component {
     if (isFetching) {
       return <WaitAnimation />;
     }
-    
+
     return (
       <div>
         <PageTitle title={this.pageTitle}>
