@@ -28,7 +28,7 @@ app.init = co.wrap(function *(env) {
   require(`./middleware`)(app);
 
   // Without nginx we use `api` middleware to proxy api requests to API_URL
-  if (!process.env.BEHIND_NGINX) {
+  if (process.env.API_URL) {
     require(`./api`)(app);
   }
 

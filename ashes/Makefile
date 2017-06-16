@@ -4,8 +4,9 @@ header = $(call baseheader, $(1), ashes)
 export PATH := $(CURDIR)/node_modules/.bin:$(PATH)
 SHELL := env PATH=$(PATH) /bin/sh
 
-GIT_REVISION = $(shell git describe --tags --always)
-GIT_COMMIT = $(shell git rev-parse --short HEAD)
+export GIT_REVISION = $(shell git describe --tags --always)
+export GIT_COMMIT = $(shell git rev-parse --short HEAD)
+export URL_PREFIX = /admin
 WEBPACK_PORT = 4001
 
 notify:
@@ -76,11 +77,11 @@ flow:
 
 .PHONY: build-styleguide
 build-styleguide:
-	GIT_COMMIT=$(GIT_COMMIT) styleguidist build --config styleguide/config.styleguide.js
+	styleguidist build --config styleguide/config.styleguide.js
 
 .PHONY: styleguide sg
 styleguide sg:
-	GIT_COMMIT=$(GIT_COMMIT) styleguidist server --config styleguide/config.styleguide.js
+	styleguidist server --config styleguide/config.styleguide.js
 
 # Base ###
 
@@ -98,7 +99,7 @@ nodemon:
 
 .PHONY: build-dev
 build-dev:
-	GIT_REVISION=$(GIT_REVISION) webpack-dev-server \
+	webpack-dev-server \
 	--inline --watch --hot --progress --content-base=build/ --port $(WEBPACK_PORT)
 
 .PHONY: dev d
@@ -109,7 +110,7 @@ dev d:
 
 .PHONY: build-prod
 build-prod:
-	BEHIND_NGINX=${BEHIND_NGINX} GIT_REVISION=$(GIT_REVISION) NODE_ENV=production webpack --progress
+	NODE_ENV=production webpack --progress
 
 .PHONY: prod p
 prod p: clean build-prod
@@ -118,6 +119,5 @@ prod p: clean build-prod
 # Buildkite ###
 
 .PHONY: build
-build: BEHIND_NGINX=true
 build: MSG=Building
 build: notify clean install build-styleguide build-prod

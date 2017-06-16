@@ -45,8 +45,10 @@ const baseConfig = {
     new webpack.NamedModulesPlugin(),
 
     new webpack.EnvironmentPlugin({
+      // These ↓↓↓ are just default values
       NODE_ENV: 'development',
-      BEHIND_NGINX: false,
+      API_URL: '',
+      URL_PREFIX: '',
       GIT_REVISION: 'unknown'
     }),
 
