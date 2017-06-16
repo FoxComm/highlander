@@ -91,6 +91,6 @@ The order, in which `highlander` subgroups are launched:
                 |* capture-consumer      |     |* orders-anthill    |----------|* bernardo    |
                 |* gift-card-consumer    |     |* orders-reviews    |          |* eggcrate    |
                 |* shipments-consumer    |     |* orders-sphex      |          |* river-rock  |
-                |* stock-items-consumer  |     |* product-activity  |          +--------------+
+                |                        |     |* product-activity  |          +--------------+
                 +------------------------+     +--------------------+
 ```

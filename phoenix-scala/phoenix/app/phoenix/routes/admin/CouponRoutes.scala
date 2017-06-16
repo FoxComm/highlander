@@ -28,32 +28,32 @@ object CouponRoutes {
             }
           }
         } ~
-          pathPrefix(Segment) { (context) ⇒
-            (post & pathEnd & entity(as[CreateCoupon])) { payload ⇒
-              mutateOrFailures {
-                CouponManager.create(payload, context, Some(auth.model))
+        pathPrefix(Segment) { (context) ⇒
+          (post & pathEnd & entity(as[CreateCoupon])) { payload ⇒
+            mutateOrFailures {
+              CouponManager.create(payload, context, Some(auth.model))
+            }
+          } ~
+          pathPrefix(IntNumber) { id ⇒
+            (get & pathEnd) {
+              getOrFailures {
+                CouponManager.getIlluminated(id, context)
               }
             } ~
-              pathPrefix(IntNumber) { id ⇒
-                (get & pathEnd) {
-                  getOrFailures {
-                    CouponManager.getIlluminated(id, context)
-                  }
-                } ~
-                  (delete & pathEnd) {
-                    mutateOrFailures {
-                      CouponManager.archiveByContextAndId(context, id)
-                    }
-                  }
-              } ~
-              pathPrefix(Segment) { code ⇒
-                (get & pathEnd) {
-                  getOrFailures {
-                    CouponManager.getIlluminatedByCode(code, context)
-                  }
-                }
+            (delete & pathEnd) {
+              mutateOrFailures {
+                CouponManager.archiveByContextAndId(context, id)
               }
+            }
+          } ~
+          pathPrefix(Segment) { code ⇒
+            (get & pathEnd) {
+              getOrFailures {
+                CouponManager.getIlluminatedByCode(code, context)
+              }
+            }
           }
+        }
       }
     }
 }

@@ -2,7 +2,6 @@ import cats.implicits._
 import core.db._
 import core.failures.{NotFoundFailure400, NotFoundFailure404}
 import core.utils.Money._
-import faker.Lorem
 import org.json4s.jackson.JsonMethods._
 import phoenix.failures.CartFailures._
 import phoenix.failures.ShippingMethodFailures._
@@ -14,8 +13,7 @@ import phoenix.models.payment.creditcard._
 import phoenix.models.product.Mvp
 import phoenix.models.rules.QueryStatement
 import phoenix.models.shipping._
-import phoenix.payloads.AddressPayloads.{CreateAddressPayload, UpdateAddressPayload}
-import phoenix.payloads.CartPayloads.CreateCart
+import phoenix.payloads.AddressPayloads.UpdateAddressPayload
 import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
 import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
 import phoenix.payloads.LineItemPayloads._
@@ -23,21 +21,22 @@ import phoenix.payloads.PaymentPayloads._
 import phoenix.payloads.UpdateShippingMethod
 import phoenix.responses._
 import phoenix.responses.cord.CartResponse
-import phoenix.responses.cord.base.CordResponseLineItem
+import phoenix.responses.cord.base.{CartResponseTotals, CordResponseLineItem}
 import phoenix.responses.users.CustomerResponse
 import phoenix.services.carts.CartTotaler
-import phoenix.utils.seeds.{Factories, ShipmentSeeds}
+import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import testutils.fixtures.api.ApiFixtures
+import testutils.fixtures.api._
 
 class CartIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with DefaultJwtAdminAuth
     with ApiFixtures
+    with ApiFixtureHelpers
     with BakedFixtures {
 
   "GET /v1/carts/:refNum" - {
@@ -74,9 +73,8 @@ class CartIntegrationTest
         _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
       } yield {}).gimme
 
-      val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
-      fullCart.lineItems.skus.size must === (1)
-      fullCart.lineItems.skus.head.imagePath must === (imgUrl)
+      cartsApi(cart.refNum).get().asTheResult[CartResponse].lineItems.skus.onlyElement.imagePath must === (
+        imgUrl)
     }
 
     "empty payment methods having a guest customer" in new Fixture {
@@ -87,12 +85,10 @@ class CartIntegrationTest
       fullCart.paymentMethods.size must === (0)
     }
 
-    "calculates customer’s expenses considering in-store payments" in new StoreAdmin_Seed with Customer_Seed
-    with ProductSku_ApiFixture with Reason_Baked {
-      val refNum = cartsApi
-        .create(CreateCart(customerId = customer.accountId.some))
-        .as[CartResponse]
-        .referenceNumber
+    "calculates customer’s expenses considering in-store payments" in new Reason_Baked {
+      val customer = api_newCustomer()
+      val skuCode  = ProductSku_ApiFixture().skuCode
+      val refNum   = api_newCustomerCart(customer.id).referenceNumber
 
       cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
 
@@ -107,7 +103,7 @@ class CartIntegrationTest
         .add(GiftCardPayment(giftCard.code, giftCardAmount.some))
         .asTheResult[CartResponse]
 
-      customersApi(customer.accountId).payments.storeCredit
+      customersApi(customer.id).payments.storeCredit
         .create(CreateManualStoreCredit(amount = storeCreditAmount, reasonId = reason.id))
         .as[StoreCreditResponse.Root]
 
@@ -200,9 +196,9 @@ class CartIntegrationTest
       updatedSku.quantity must === (6)
     }
 
-    "should successfully add a gift card line item" in new Customer_Seed with ProductSku_ApiFixture {
-      val refNum =
-        cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
+    "should successfully add a gift card line item" in {
+      val refNum  = api_newCustomerCart(api_newCustomer().id).referenceNumber
+      val skuCode = ProductSku_ApiFixture().skuCode
 
       cartsApi(refNum).lineItems
         .update(addGiftCardPayload(skuCode))
@@ -234,9 +230,9 @@ class CartIntegrationTest
       sku.quantity must === (1)
     }
 
-    "should successfully remove gift card line item" in new Customer_Seed with ProductSku_ApiFixture {
-      val refNum =
-        cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
+    "should successfully remove gift card line item" in {
+      val refNum  = api_newCustomerCart(api_newCustomer().id).referenceNumber
+      val skuCode = ProductSku_ApiFixture().skuCode
 
       val regSkus = cartsApi(refNum).lineItems.update(addGiftCardPayload(skuCode)).mustBeOk()
 
@@ -518,25 +514,16 @@ class CartIntegrationTest
     } yield (cc, op, ccc)).gimme
   }
 
-  class TaxesFixture(regionId: Int) extends ShipmentSeeds with ProductSku_ApiFixture {
-    // Shipping method
-    val shipMethodId = ShippingMethods.create(shippingMethods(2)).gimme.id
-
-    // Cart
-    val cartRef =
-      cartsApi.create(CreateCart(email = "foo@bar.com".some)).as[CartResponse].referenceNumber
+  class TaxesFixture(regionId: Int) {
+    private val shipMethodId = ShippingMethods.create(Factories.shippingMethods(2)).gimme.id
+    private val skuCode      = ProductSku_ApiFixture().skuCode
+    private val cartRef      = api_newCustomerCart(api_newCustomer().id).referenceNumber
 
     cartsApi(cartRef).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
 
-    private val randomAddress = CreateAddressPayload(regionId = regionId,
-                                                     name = Lorem.letterify("???"),
-                                                     address1 = Lorem.letterify("???"),
-                                                     city = Lorem.letterify("???"),
-                                                     zip = Lorem.numerify("#####"))
+    cartsApi(cartRef).shippingAddress.create(randomAddress(regionId)).mustBeOk()
 
-    cartsApi(cartRef).shippingAddress.create(randomAddress).mustBeOk()
-
-    val totals = cartsApi(cartRef).shippingMethod
+    val totals: CartResponseTotals = cartsApi(cartRef).shippingMethod
       .update(UpdateShippingMethod(shipMethodId))
       .asTheResult[CartResponse]
       .totals

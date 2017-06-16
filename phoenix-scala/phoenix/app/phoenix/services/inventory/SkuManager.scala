@@ -23,14 +23,19 @@ import phoenix.services.image.ImageManager
 import phoenix.services.image.ImageManager.FullAlbumWithImages
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
+import phoenix.utils.apis.CreateSku
 import slick.jdbc.PostgresProfile.api._
+import phoenix.utils.apis.Apis
 
 object SkuManager {
   implicit val formats = JsonFormatters.DefaultFormats
 
-  def createSku(
-      admin: User,
-      payload: SkuPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC, au: AU): DbResultT[SkuResponse.Root] = {
+  def createSku(admin: User, payload: SkuPayload)(implicit ec: EC,
+                                                  db: DB,
+                                                  ac: AC,
+                                                  oc: OC,
+                                                  au: AU,
+                                                  apis: Apis): DbResultT[SkuResponse.Root] = {
     val albumPayloads = payload.albums.getOrElse(Seq.empty)
 
     for {
@@ -80,8 +85,9 @@ object SkuManager {
                           FullObject(model = archivedSku, form = fullSku.form, shadow = fullSku.shadow)),
                         albums)
 
-  def createSkuInner(context: ObjectContext,
-                     payload: SkuPayload)(implicit ec: EC, db: DB, au: AU): DbResultT[FullObject[Sku]] = {
+  def createSkuInner(
+      context: ObjectContext,
+      payload: SkuPayload)(implicit ec: EC, db: DB, au: AU, apis: Apis): DbResultT[FullObject[Sku]] = {
 
     val form   = ObjectForm.fromPayload(Sku.kind, payload.attributes)
     val shadow = ObjectShadow.fromPayload(payload.attributes)
@@ -97,6 +103,7 @@ object SkuManager {
                  formId = ins.form.id,
                  shadowId = ins.shadow.id,
                  commitId = ins.commit.id))
+      _ ← * <~ apis.middlewarehouse.createSku(ins.form.id, CreateSku(code))
     } yield FullObject(sku, ins.form, ins.shadow)
   }
 
@@ -118,7 +125,7 @@ object SkuManager {
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
 
-  def findOrCreateSku(skuPayload: SkuPayload)(implicit ec: EC, db: DB, oc: OC, au: AU) =
+  def findOrCreateSku(skuPayload: SkuPayload)(implicit ec: EC, db: DB, oc: OC, au: AU, apis: Apis) =
     for {
       code ← * <~ mustGetSkuCode(skuPayload)
       sku ← * <~ Skus.filterByContextAndCode(oc.id, code).one.dbresult.flatMap {
