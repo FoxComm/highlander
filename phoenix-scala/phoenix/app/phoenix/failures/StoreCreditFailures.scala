@@ -1,6 +1,6 @@
 package phoenix.failures
 
-import failures.Failure
+import core.failures.Failure
 import phoenix.models.payment.storecredit.StoreCredit
 
 object StoreCreditFailures {
@@ -13,7 +13,7 @@ object StoreCreditFailures {
     override def description = s"storeCredit with id=${sc.id} is inactive"
   }
 
-  case class CustomerHasInsufficientStoreCredit(id: Int, has: Int, want: Int) extends Failure {
+  case class CustomerHasInsufficientStoreCredit(id: Int, has: Long, want: Long) extends Failure {
     override def description =
       s"customer with id=$id has storeCredit=$has less than requestedAmount=$want"
   }

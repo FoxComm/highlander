@@ -1,17 +1,16 @@
 package phoenix.models.discount.offers
 
-import phoenix.models.cord.lineitems.CartLineItemAdjustment._
+import core.db.Result
 import phoenix.models.discount._
 import phoenix.models.discount.offers.Offer.OfferResult
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 
-case class OrderPercentOffer(discount: Int) extends Offer with PercentOffer {
+case class OrderPercentOffer(discount: Long) extends Offer with PercentOffer {
 
-  val offerType: OfferType           = OrderPercentOff
-  val adjustmentType: AdjustmentType = OrderAdjustment
+  val offerType: OfferType = OrderPercentOff
 
-  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis, au: AU): OfferResult =
+  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis): Result[Seq[OfferResult]] =
     if (discount > 0 && discount < 100)
       buildResult(input, subtract(input.eligibleForDiscountSubtotal, discount))
     else

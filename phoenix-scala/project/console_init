@@ -1,19 +1,28 @@
+System.setProperty("phoenix.env", "development")
+
 import scala.concurrent.ExecutionContext.Implicits.global
+import cats.implicits._
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
-import slick.jdbc.PostgresProfile.api._
+import core.db.ExPostgresDriver.api._
 
-import phoenix.models._
 import phoenix.models.activity.ActivityContext
 import phoenix.models.account.{AccountAccessMethod, Scope, Scopes}
-import phoenix.services.account.AccountCreateContext
+import phoenix.services.account._
 import phoenix.services.Authenticator
 import phoenix.utils.FoxConfig
-import utils.db._
+import core.utils.generateUuid
+import core.db._
+
+
 
 final implicit class ConsoleEnrichedFuture[A](val future: Future[A]) extends AnyVal {
   def get(): A = Await.result(future, 1.minute)
+}
+
+final implicit class ConsoleEnrichedDbResultT[A](val d: DbResultT[A]) extends AnyVal {
+    def gimme: A = d.runEmptyA.value.run().get.toOption.get
 }
 
 
@@ -29,5 +38,5 @@ val scope: Scope = Scopes.findOneById(scopeId).run().get()
     .getOrElse(throw new RuntimeException(s"Unable to find a scope with id $scopeId"))
 
 implicit val ac = ActivityContext(userId = 1, userType = "admin",
-    transactionId = utils.generateUuid, scope = scope.ltree)
+    transactionId = generateUuid, scope = scope.ltree)
 

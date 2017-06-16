@@ -18,9 +18,8 @@ case class GoogleOauthOptions(
     hostedDomain: Option[String] = None
 ) extends OauthClientOptions {
 
-  override def buildExtraAuthParams: Map[String, String] = {
+  override def buildExtraAuthParams: Map[String, String] =
     Map.empty[String, String].+?("hd", hostedDomain).+("access_type" → accessType)
-  }
 }
 
 trait GoogleProvider extends OauthProvider {
@@ -31,7 +30,7 @@ trait GoogleProvider extends OauthProvider {
 
   def userInfo(accessToken: String)(implicit ec: EC): EitherT[Future, Throwable, UserInfo] =
     eitherTryFuture {
-      val req = request(oauthInfoUrl).GET.addHeader("Authorization", s"Bearer ${accessToken}")
+      val req = request(oauthInfoUrl).GET.addHeader("Authorization", s"Bearer $accessToken")
       Http(req OK as.json4s.Json).map(_.extract[UserInfo])
     }
 }

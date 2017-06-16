@@ -15,8 +15,7 @@ import phoenix.utils.http.JsonSupport._
 object PaymentRoutes {
 
   //TODO: Instead of store auth.model, add service accounts and require service JWT tokens.
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
-
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("capture") {
         (post & pathEnd & entity(as[CapturePayloads.Capture])) { payload ⇒
@@ -26,5 +25,4 @@ object PaymentRoutes {
         }
       }
     }
-  }
 }

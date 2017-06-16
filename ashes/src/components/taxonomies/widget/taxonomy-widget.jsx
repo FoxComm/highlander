@@ -10,7 +10,7 @@ import { bindActionCreators } from 'redux';
 // components
 import Transition from 'react-transition-group/CSSTransitionGroup';
 import WaitAnimation from 'components/common/wait-animation';
-import RoundedPill from 'components/rounded-pill/rounded-pill';
+import { RoundedPill } from 'components/core/rounded-pill';
 import { withTaxonomy } from '../hoc';
 import TaxonomyDropdown from '../taxonomy-dropdown';
 import NewTaxonModal from '../taxons/new-taxon-modal';
@@ -28,7 +28,7 @@ import { getTransitionProps } from 'lib/react-utils';
 import styles from './taxonomy-widget.css';
 
 // types
-import type { Value } from 'components/rounded-pill/rounded-pill';
+import type { Value } from 'components/core/rounded-pill';
 
 type Props = {
   title: string,

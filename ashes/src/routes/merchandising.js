@@ -14,8 +14,6 @@ import TaxonDetails from 'components/taxonomies/taxons/details';
 import TaxonProducts from 'components/taxonomies/taxons/products';
 import TaxonsListPage from 'components/taxonomies/taxons/taxons';
 
-import type { Claims } from 'lib/claims';
-
 const getRoutes = (jwt: Object) => {
   const router = new FoxRouter(jwt);
 

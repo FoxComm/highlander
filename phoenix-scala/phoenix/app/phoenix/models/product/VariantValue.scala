@@ -2,14 +2,14 @@ package phoenix.models.product
 
 import java.time.Instant
 
-import models.objects._
+import com.github.tminglei.slickpg._
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.utils.Validation
+import objectframework.models._
+import phoenix.utils.JsonFormatters
 import shapeless._
 import slick.lifted.Tag
-import utils.Validation
-import utils.db.ExPostgresDriver.api._
-import utils.db._
-import com.github.tminglei.slickpg._
-import phoenix.utils.JsonFormatters
 
 object VariantValue {
   val kind = "variant-value"
@@ -35,7 +35,7 @@ case class VariantValue(id: Int = 0,
 class VariantValues(tag: Tag) extends ObjectHeads[VariantValue](tag, "variant_values") {
   def * =
     (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((VariantValue.apply _).tupled,
-        VariantValue.unapply)
+    VariantValue.unapply)
 }
 
 object VariantValues

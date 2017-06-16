@@ -16,6 +16,15 @@ Place order from cart.
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
+### Apple pay checkout [POST /v1/my/cart/apple-pay-checkout]
+
+Place order and pay with Apple Pay
+
++ Request (application/json)
+    + Attributes (CreateApplePayPayment)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
 ## SKU Line Items [/v1/my/cart/line-items]
 
 ### Set SKU Line Items [POST]
@@ -35,6 +44,15 @@ Add to or remove from the number of line items that are currently stored in your
     + Attributes (array[UpdateLineItemsPayload])
 + Response 200 (application/json)
     + Attributes (FullOrder)
+
+## Apple Pay Payments [/v1/my/cart/payment-methods/apple-pay]
+
+### Add [POST]
+
++ Request (application/json)
+    + Attributes (CreateApplePayPayment)
++ Response 200 (application/json)
+    + Attributes (FullCart)
 
 ## Credit Card Payments [/v1/my/cart/payment-methods/credit-cards]
 
@@ -86,6 +104,13 @@ endpoints modify which shipping method is used by the cart.
 
 ### List Shipping Methods [GET /v1/my/cart/shipping-methods]
 
++ Response 200 (application/json)
+    + Attributes (array[ShippingMethod])
+
+### Search Shipping Methods by Country code [GET /v1/my/cart/shipping-methods/{countryCode}]
+
++ Parameters
+    + countryCode: `default` (required, string) - Short country code of 2 or 3 letters.
 + Response 200 (application/json)
     + Attributes (array[ShippingMethod])
 

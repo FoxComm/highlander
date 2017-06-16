@@ -2,14 +2,14 @@ package phoenix.models.category
 
 import java.time.Instant
 
-import models.objects.ObjectUtils.InsertResult
-import models.objects.{ObjectHead, ObjectHeads}
+import com.github.tminglei.slickpg._
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.utils.Validation
+import objectframework.ObjectUtils.InsertResult
+import objectframework.models.{ObjectHead, ObjectHeads}
 import shapeless._
 import slick.lifted.Tag
-import utils.Validation
-import utils.db.ExPostgresDriver.api._
-import utils.db._
-import com.github.tminglei.slickpg._
 
 object Category {
   def build(scope: LTree, contextId: Int, insertResult: InsertResult): Category =

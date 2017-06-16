@@ -1,8 +1,8 @@
 package phoenix.responses
 
+import core.db._
 import phoenix.models.location.{Region, Regions}
 import phoenix.models.payment.creditcard.CreditCard
-import utils.db._
 
 object CreditCardsResponse {
   case class Root(id: Int,
@@ -25,16 +25,18 @@ object CreditCardsResponse {
     } yield build(cc, region)
 
   def build(cc: CreditCard, region: Region): Root =
-    Root(id = cc.id,
-         customerId = cc.accountId,
-         holderName = cc.holderName,
-         lastFour = cc.lastFour,
-         expMonth = cc.expMonth,
-         expYear = cc.expYear,
-         isDefault = cc.isDefault,
-         inWallet = cc.inWallet,
-         brand = cc.brand,
-         address = AddressResponse.buildFromCreditCard(cc, region))
+    Root(
+      id = cc.id,
+      customerId = cc.accountId,
+      holderName = cc.holderName,
+      lastFour = cc.lastFour,
+      expMonth = cc.expMonth,
+      expYear = cc.expYear,
+      isDefault = cc.isDefault,
+      inWallet = cc.inWallet,
+      brand = cc.brand,
+      address = AddressResponse.buildFromCreditCard(cc, region)
+    )
 
   // Temporary simplified version w/o address
   case class RootSimple(id: Int,
@@ -51,13 +53,15 @@ object CreditCardsResponse {
       extends ResponseItem
 
   def buildSimple(cc: CreditCard): RootSimple =
-    RootSimple(id = cc.id,
-               customerId = cc.accountId,
-               holderName = cc.holderName,
-               lastFour = cc.lastFour,
-               expMonth = cc.expMonth,
-               expYear = cc.expYear,
-               isDefault = cc.isDefault,
-               inWallet = cc.inWallet,
-               brand = cc.brand)
+    RootSimple(
+      id = cc.id,
+      customerId = cc.accountId,
+      holderName = cc.holderName,
+      lastFour = cc.lastFour,
+      expMonth = cc.expMonth,
+      expYear = cc.expYear,
+      isDefault = cc.isDefault,
+      inWallet = cc.inWallet,
+      brand = cc.brand
+    )
 }

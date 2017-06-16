@@ -2,14 +2,14 @@ package phoenix.models.image
 
 import java.time.Instant
 
-import models.objects._
+import com.github.tminglei.slickpg._
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.utils.Validation
+import objectframework.models._
+import phoenix.utils.JsonFormatters
 import shapeless._
 import slick.lifted.Tag
-import utils.Validation
-import utils.db.ExPostgresDriver.api._
-import utils.db._
-import com.github.tminglei.slickpg._
-import phoenix.utils.JsonFormatters
 
 object Image {
   val kind = "image"

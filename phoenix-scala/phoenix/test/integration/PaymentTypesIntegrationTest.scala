@@ -6,12 +6,9 @@ import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixPublicApi
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
-class PaymentTypesIntegrationTest
-    extends IntegrationTestBase
-    with PhoenixPublicApi
-    with BakedFixtures {
+class PaymentTypesIntegrationTest extends IntegrationTestBase with PhoenixPublicApi with BakedFixtures {
 
   "GiftCard Types" - {
     "GET /v1/public/gift-cards/types" - {
@@ -20,8 +17,7 @@ class PaymentTypesIntegrationTest
 
         root.size must === (GiftCard.OriginType.types.size)
         root.map(_.originType) must === (GiftCard.OriginType.types.toSeq)
-        root.filter(_.originType == giftCardSubtype.originType).head.subTypes must === (
-            Seq(giftCardSubtype))
+        root.filter(_.originType == giftCardSubtype.originType).head.subTypes must === (Seq(giftCardSubtype))
       }
     }
   }
@@ -42,9 +38,8 @@ class PaymentTypesIntegrationTest
     val (giftCard) = (for {
       reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
-      giftCard ← * <~ GiftCards.create(
-                    Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
+                GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
+      giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
     } yield giftCard).gimme
   }
 
@@ -53,10 +48,9 @@ class PaymentTypesIntegrationTest
       scReason  ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       scSubType ← * <~ StoreCreditSubtypes.create(Factories.storeCreditSubTypes.head)
       scOrigin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = storeAdmin.accountId, reasonId = scReason.id))
+                  StoreCreditManual(adminId = storeAdmin.accountId, reasonId = scReason.id))
       storeCredit ← * <~ StoreCredits.create(
-                       Factories.storeCredit.copy(originId = scOrigin.id,
-                                                  accountId = customer.accountId))
+                     Factories.storeCredit.copy(originId = scOrigin.id, accountId = customer.accountId))
     } yield (storeCredit, scSubType)).gimme
   }
 }

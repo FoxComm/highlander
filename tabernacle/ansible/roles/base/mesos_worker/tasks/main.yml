@@ -5,7 +5,6 @@
 
 - name: Copy Mesos Resources Config
   template: src=resources.json dest=/var/lib/mesos/resources.json mode="u+r,g+r,o+r"
-  when: is_appliance
 
 - name: Setup Mesos Data Dir
   file: path=/var/lib/sandbox state=directory

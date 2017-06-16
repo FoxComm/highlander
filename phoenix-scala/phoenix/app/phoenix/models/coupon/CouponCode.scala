@@ -2,9 +2,9 @@ package phoenix.models.coupon
 
 import java.time.Instant
 
+import core.db.ExPostgresDriver.api._
+import core.db._
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 import scala.annotation.tailrec
 import scala.util.Random
@@ -13,10 +13,7 @@ import scala.util.Random
   * A coupon code is a way to reference a coupon from the outside world.
   * Multiple codes may point to the same coupon.
   */
-case class CouponCode(id: Int = 0,
-                      code: String,
-                      couponFormId: Int,
-                      createdAt: Instant = Instant.now)
+case class CouponCode(id: Int = 0, code: String, couponFormId: Int, createdAt: Instant = Instant.now)
     extends FoxModel[CouponCode]
 
 class CouponCodes(tag: Tag) extends FoxTable[CouponCode](tag, "coupon_codes") {
@@ -51,10 +48,7 @@ object CouponCodes
     requestedLimit >= prefixSize + minSuffixSize
   }
 
-  def generateCodes(prefix: String,
-                    codeCharacterLength: Int,
-                    quantity: Int,
-                    attempt: Int = 0): Seq[String] = {
+  def generateCodes(prefix: String, codeCharacterLength: Int, quantity: Int, attempt: Int = 0): Seq[String] = {
     require(quantity > 0)
 
     val minNumericLength = charactersGivenQuantity(quantity)
@@ -110,15 +104,12 @@ object CouponCodes
     collectCodes()
   }
 
-  private def generateCode(prefix: String,
-                           number: Int,
-                           largestNum: Int,
-                           numericLength: Int): String = {
+  private def generateCode(prefix: String, number: Int, largestNum: Int, numericLength: Int): String = {
     require(numericLength >= 0)
     require(largestNum >= 0)
     require(number <= largestNum)
     val num = s"%0${numericLength}d".format(number)
-    s"${prefix}${num}"
+    s"$prefix$num"
   }
 
   private val rootLens                               = lens[CouponCode]

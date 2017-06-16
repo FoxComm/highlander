@@ -1,0 +1,61 @@
+/* Some components independent styles */
+@import 'fontello.css';
+@import 'transitions.css';
+@import 'normalize.css';
+
+* {
+  outline: 0;
+  box-sizing: border-box;
+  &:before, &:after {
+    box-sizing: border-box;
+  }
+}
+
+html {
+  height: 100%;
+  font-size: 62.5%; /* @todo remove after getting rid of rems */
+}
+
+body {
+  height: 100%;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 15px;
+  color: #484848;
+  background-color: #f2f2f2;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a,
+a:visited {
+  text-decoration: none;
+  cursor: pointer;
+
+  &[disabled] {
+    cursor: default;
+  }
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+ul {
+  list-style-type: none;
+}
+
+.fc-float-list > li {
+  display: inline-block;
+  vertival-align: top;
+}
+
+table {
+  width: 100%;
+  text-align: left;
+}
+
+textarea {
+  resize: none;
+}

@@ -1,27 +1,26 @@
 package phoenix.routes.admin
 
-import cats.implicits._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import phoenix.utils.http.JsonSupport._
+import cats.implicits._
+import ch.qos.logback.classic.{Level, Logger ⇒ LogBackLogger}
+import org.slf4j.LoggerFactory
 import phoenix.models.account.User
 import phoenix.models.location.Address
 import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import phoenix.payloads.OrderPayloads.OrderTimeMachine
 import phoenix.services.Authenticator.AuthData
 import phoenix.services.orders.TimeMachine
-import utils._
+import phoenix.utils.TestStripeSupport
 import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
 import phoenix.utils.http.Http._
-import org.slf4j.LoggerFactory
-import ch.qos.logback.classic.Level
-import ch.qos.logback.classic.{Logger ⇒ LogBackLogger}
-import phoenix.utils.TestStripeSupport
+import phoenix.utils.http.JsonSupport._
 
 object DevRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("order-time-machine") {
         (post & pathEnd & entity(as[OrderTimeMachine])) { payload ⇒
@@ -47,11 +46,13 @@ object DevRoutes {
         (post & pathEnd & entity(as[CreditCardDetailsPayload])) { payload ⇒
           goodOrFailures {
             TestStripeSupport
-              .createToken(cardNumber = payload.cardNumber,
-                           expMonth = payload.expMonth,
-                           expYear = payload.expYear,
-                           cvv = payload.cvv,
-                           address = Address.fromPayload(payload.address, payload.customerId))
+              .createToken(
+                cardNumber = payload.cardNumber,
+                expMonth = payload.expMonth,
+                expYear = payload.expYear,
+                cvv = payload.cvv,
+                address = Address.fromPayload(payload.address, payload.customerId)
+              )
               .map { token ⇒
                 CreditCardTokenResponse(token = token.getId,
                                         brand = token.getCard.getBrand,
@@ -66,7 +67,6 @@ object DevRoutes {
         }
       }
     }
-  }
 
   lazy val version: String = {
     val stream      = getClass.getResourceAsStream("/version")

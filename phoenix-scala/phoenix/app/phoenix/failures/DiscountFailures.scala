@@ -1,6 +1,6 @@
 package phoenix.failures
 
-import failures.{Failure, NotFoundFailure404}
+import core.failures.{Failure, NotFoundFailure404}
 
 object DiscountFailures {
 
@@ -16,7 +16,7 @@ object DiscountFailures {
   object DiscountNotFoundForContext {
     def apply(discountId: Int, discountContextId: Int) =
       NotFoundFailure404(
-          s"Discount with id=$discountId with discount context $discountContextId cannot be found")
+        s"Discount with id=$discountId with discount context $discountContextId cannot be found")
   }
 
   case class DiscountShadowHasInvalidAttribute(key: String, value: String) extends Failure {

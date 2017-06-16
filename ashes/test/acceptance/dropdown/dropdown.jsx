@@ -1,6 +1,4 @@
-
 import React from 'react';
-import ReactTestUtils from 'react-addons-test-utils';
 
 describe('FormField', function() {
   const Dropdown = requireComponent('dropdown/dropdown.jsx');
@@ -22,6 +20,6 @@ describe('FormField', function() {
       true
     );
 
-    expect(dropdown.container.querySelector('.fc-dropdown__controls')).to.be.ok
+    expect(dropdown.container.querySelector('.fc-dropdown__controls')).to.be.ok;
   });
 });

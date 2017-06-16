@@ -1,15 +1,15 @@
 package phoenix.services
 
 import cats.implicits._
-import failures.NotFoundFailure404
-import models.objects.ObjectContext
+import core.db._
+import core.failures.NotFoundFailure404
+import objectframework.models.ObjectContext
 import phoenix.failures.AlreadySavedForLater
 import phoenix.models.account.{User, Users}
 import phoenix.models.{SaveForLater, SaveForLaters}
 import phoenix.responses.SaveForLaterResponse
 import phoenix.services.inventory.SkuManager
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 object SaveForLaterManager {
 
@@ -37,13 +37,12 @@ object SaveForLaterManager {
   def deleteSaveForLater(id: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
     SaveForLaters.deleteById(id, DbResultT.unit, i ⇒ NotFoundFailure404(SaveForLater, i))
 
-  private def findAllDbio(customer: User, contextId: Int)(implicit ec: EC,
-                                                          db: DB): DbResultT[SavedForLater] =
+  private def findAllDbio(customer: User, contextId: Int)(implicit ec: EC, db: DB): DbResultT[SavedForLater] =
     for {
       sfls ← * <~ SaveForLaters.filter(_.accountId === customer.accountId).result
       r ← * <~ DbResultT.seqFailuresToWarnings(
-             sfls.toList.map(sfl ⇒ SaveForLaterResponse.forSkuId(sfl.skuId, contextId)), {
-               case _ ⇒ true
-             })
+           sfls.toList.map(sfl ⇒ SaveForLaterResponse.forSkuId(sfl.skuId, contextId)), {
+             case _ ⇒ true
+           })
     } yield r
 }

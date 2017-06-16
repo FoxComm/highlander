@@ -12,6 +12,9 @@
 - name: Create Kafka dir
   file: path=/var/lib/kafka state=directory
 
+- name: Copy Kafka Run Script
+  template: src=run_kafka.sh dest=/usr/local/bin mode="u+x,g+x,o+x"
+
 - name: Copy Kafka Config File
   template: src=kafka.properties dest=/etc/kafka/server.properties
 
@@ -19,7 +22,7 @@
   template: src=schema-registry.properties dest=/etc/schema-registry/schema-registry.properties
 
 - name: Copy Service Files
-  copy: src={{item}} dest={{dest_services}}
+  template: src={{item}} dest={{dest_services}}
   with_items:
     - kafka.service
     - schema-registry.service

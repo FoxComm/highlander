@@ -4,9 +4,7 @@ import phoenix.models.cord.lineitems._
 
 object LineItemPayloads {
 
-  case class UpdateLineItemsPayload(sku: String,
-                                    quantity: Int,
-                                    attributes: Option[LineItemAttributes] = None)
+  case class UpdateLineItemsPayload(sku: String, quantity: Int, attributes: Option[LineItemAttributes] = None)
 
   case class UpdateOrderLineItemsPayload(
       state: OrderLineItem.State,

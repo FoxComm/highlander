@@ -2,12 +2,12 @@ package phoenix.models.taxonomy
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
-import models.objects._
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.utils.Validation
+import objectframework.models._
 import shapeless._
 import slick.lifted.Tag
-import utils.Validation
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 object Taxonomy {
   val kind = "taxonomy"
@@ -36,16 +36,7 @@ class Taxonomies(tag: Tag) extends ObjectHeads[Taxonomy](tag, "taxonomies") {
   def hierarchical = column[Boolean]("hierarchical")
 
   def * =
-    (id,
-     scope,
-     hierarchical,
-     contextId,
-     formId,
-     shadowId,
-     commitId,
-     updatedAt,
-     createdAt,
-     archivedAt) <> ((Taxonomy.apply _).tupled, Taxonomy.unapply)
+    (id, scope, hierarchical, contextId, formId, shadowId, commitId, updatedAt, createdAt, archivedAt) <> ((Taxonomy.apply _).tupled, Taxonomy.unapply)
 }
 
 object Taxonomies

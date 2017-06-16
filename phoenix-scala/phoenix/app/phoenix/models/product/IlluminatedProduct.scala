@@ -2,11 +2,11 @@ package phoenix.models.product
 
 import java.time.Instant
 
-import failures.{Failure, NotFoundFailure404}
-import models.objects._
+import core.failures.{Failure, NotFoundFailure404}
+import objectframework.IlluminateAlgorithm
+import objectframework.models._
 import phoenix.models.traits.IlluminatedModel
 import phoenix.utils.aliases._
-import utils.IlluminateAlgorithm
 
 /**
   * An IlluminatedProduct is what you get when you combine the product shadow and
@@ -28,13 +28,12 @@ object IlluminatedProduct {
   def illuminate(context: ObjectContext,
                  product: Product,
                  form: ObjectForm,
-                 shadow: ObjectShadow): IlluminatedProduct = {
-
-    IlluminatedProduct(id = form.id,
-                       slug = product.slug,
-                       context = IlluminatedContext(context.name, context.attributes),
-                       attributes =
-                         IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes),
-                       archivedAt = product.archivedAt)
-  }
+                 shadow: ObjectShadow): IlluminatedProduct =
+    IlluminatedProduct(
+      id = form.id,
+      slug = product.slug,
+      context = IlluminatedContext(context.name, context.attributes),
+      attributes = IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes),
+      archivedAt = product.archivedAt
+    )
 }

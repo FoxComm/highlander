@@ -1,5 +1,6 @@
 package phoenix.services.returns
 
+import core.db._
 import phoenix.failures.InvalidCancellationReasonFailure
 import phoenix.failures.ReturnFailures.OrderMustBeShippedForReturn
 import phoenix.models.Reason.Cancellation
@@ -10,13 +11,13 @@ import phoenix.models.customer.CustomersData
 import phoenix.models.returns._
 import phoenix.models.{Reason, Reasons}
 import phoenix.payloads.ReturnPayloads._
+import phoenix.responses.ReturnResponse
 import phoenix.responses.ReturnResponse._
-import phoenix.responses.{CustomerResponse, ReturnResponse, StoreAdminResponse}
+import phoenix.responses.users._
 import phoenix.services.LogActivity
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 object ReturnService {
 
@@ -31,18 +32,16 @@ object ReturnService {
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response
 
-  def updateStateByCsr(refNum: String, payload: ReturnUpdateStatePayload)(
-      implicit ec: EC,
-      db: DB,
-      au: AU,
-      ac: AC,
-      apis: Apis): DbResultT[Root] =
+  def updateStateByCsr(refNum: String, payload: ReturnUpdateStatePayload)(implicit ec: EC,
+                                                                          db: DB,
+                                                                          au: AU,
+                                                                          ac: AC,
+                                                                          apis: Apis): DbResultT[Root] =
     for {
-      rma    ← * <~ Returns.mustFindByRefNum(refNum)
-      _      ← * <~ rma.transitionState(payload.state)
-      reason ← * <~ payload.reasonId.map(Reasons.findOneById).getOrElse(lift(None))
-      _ ← * <~ reason.map(r ⇒
-               failIfNot(r.reasonType == Cancellation, InvalidCancellationReasonFailure))
+      rma      ← * <~ Returns.mustFindByRefNum(refNum)
+      _        ← * <~ rma.transitionState(payload.state)
+      reason   ← * <~ payload.reasonId.map(Reasons.findOneById).getOrElse(lift(None))
+      _        ← * <~ reason.map(r ⇒ failIfNot(r.reasonType == Cancellation, InvalidCancellationReasonFailure))
       _        ← * <~ update(rma, reason, payload)
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
@@ -51,12 +50,9 @@ object ReturnService {
                        LogActivity().returnStateChanged(customer, response, payload.state))
     } yield response
 
-  private def update(rma: Return, reason: Option[Reason], payload: ReturnUpdateStatePayload)(
-      implicit ec: EC,
-      db: DB,
-      au: AU,
-      ac: AC,
-      apis: Apis) =
+  private def update(rma: Return,
+                     reason: Option[Reason],
+                     payload: ReturnUpdateStatePayload)(implicit ec: EC, db: DB, au: AU, ac: AC, apis: Apis) =
     for {
       rma ← * <~ Returns
              .update(rma, rma.copy(state = payload.state, canceledReasonId = reason.map(_.id)))
@@ -65,13 +61,11 @@ object ReturnService {
     } yield rma
 
   // todo should be available for non-admin as well
-  def createByAdmin(admin: User, payload: ReturnCreatePayload)(implicit ec: EC,
-                                                               db: DB,
-                                                               ac: AC): DbResultT[Root] =
+  def createByAdmin(admin: User,
+                    payload: ReturnCreatePayload)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
-      order ← * <~ Orders.mustFindByRefNum(payload.cordRefNum)
-      _ ← * <~ failIf(order.state != Order.Shipped,
-                      OrderMustBeShippedForReturn(order.refNum, order.state))
+      order     ← * <~ Orders.mustFindByRefNum(payload.cordRefNum)
+      _         ← * <~ failIf(order.state != Order.Shipped, OrderMustBeShippedForReturn(order.refNum, order.state))
       rma       ← * <~ Returns.create(Return.build(order, admin, payload.returnType))
       customer  ← * <~ Users.mustFindByAccountId(order.accountId)
       custData  ← * <~ CustomersData.mustFindByAccountId(order.accountId)

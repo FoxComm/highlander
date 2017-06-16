@@ -1,11 +1,10 @@
 package phoenix.models.payment.storecredit
 
+import core.db._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
-case class StoreCreditFromGiftCard(id: Int = 0, giftCardId: Int)
-    extends FoxModel[StoreCreditFromGiftCard]
+case class StoreCreditFromGiftCard(id: Int = 0, giftCardId: Int) extends FoxModel[StoreCreditFromGiftCard]
 
 object StoreCreditFromGiftCard
 
@@ -19,8 +18,7 @@ class StoreCreditFromGiftCards(tag: Tag)
 }
 
 object StoreCreditFromGiftCards
-    extends FoxTableQuery[StoreCreditFromGiftCard, StoreCreditFromGiftCards](
-        new StoreCreditFromGiftCards(_))
+    extends FoxTableQuery[StoreCreditFromGiftCard, StoreCreditFromGiftCards](new StoreCreditFromGiftCards(_))
     with ReturningId[StoreCreditFromGiftCard, StoreCreditFromGiftCards] {
   val returningLens: Lens[StoreCreditFromGiftCard, Int] = lens[StoreCreditFromGiftCard].id
 }

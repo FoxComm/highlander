@@ -1,19 +1,14 @@
 package phoenix.models.tree
 
-import slick.lifted.Tag
-import utils.Validation
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 import com.github.tminglei.slickpg._
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.utils.Validation
 import phoenix.utils.JsonFormatters
 import shapeless._
+import slick.lifted.Tag
 
-case class GenericTreeNode(id: Int,
-                           treeId: Int,
-                           index: Int,
-                           path: LTree,
-                           kind: String,
-                           objectId: Int)
+case class GenericTreeNode(id: Int, treeId: Int, index: Int, path: LTree, kind: String, objectId: Int)
     extends FoxModel[GenericTreeNode]
     with Validation[GenericTreeNode]
 

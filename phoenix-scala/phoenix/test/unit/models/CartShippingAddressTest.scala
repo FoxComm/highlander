@@ -1,7 +1,7 @@
 package models
 
 import cats.data.NonEmptyList
-import failures.{Failure, GeneralFailure}
+import core.failures.{Failure, GeneralFailure}
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import phoenix.models.location.Address
 import phoenix.utils.seeds.Factories
@@ -19,9 +19,9 @@ class CartShippingAddressTest extends TestBase {
         val wrongLengthZip = Factories.shippingAddress.copy(regionId = 1, zip = "1")
 
         val addresses = Table(
-            ("address", "errors"),
-            (badZip, zipFailure(Address.zipPattern)),
-            (wrongLengthZip, zipFailure(Address.zipPattern))
+          ("address", "errors"),
+          (badZip, zipFailure(Address.zipPattern)),
+          (wrongLengthZip, zipFailure(Address.zipPattern))
         )
 
         forAll(addresses) { (address, errors) ⇒

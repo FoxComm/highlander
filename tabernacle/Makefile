@@ -8,49 +8,38 @@ GOPATH := $(CURDIR)/_vendor:$(GOPATH)
 all: build
 
 build:
-	$(call header, Building)
-	true
+	cd docker/neo4j && make build
+	cd docker/neo4j_reset && make build
 
 test:
-	$(call header, Testing)
 	true
-
-deploy-stage:
-	ansible-playbook -v -i inventory/gce/ ansible/test_stage.yml
-
-deploy-demo1:
-	ansible-playbook -v -i inventory/gce/ ansible/demo.yml --extra-vars='{ "first_run": true, "application_hostname": "demo1" }'
-
-deploy-pure-demo:
-	ansible-playbook -v -i inventory/static/dev ansible/deploy_storefront.yml
-
-deploy-td-stage:
-	ansible-playbook -v -i inventory/static/topdrawer ansible/deploy_storefront.yml
-
-deploy-tpg-stage:
-	ansible-playbook -v -i inventory/static/tpg ansible/deploy_storefront.yml
-
-deploy-feature-branch:
-	ansible-playbook -v -i inventory/gce/ ansible/deploy_feature_branch.yml
-
-update-demo1:
-	ansible-playbook -v -i inventory/gce/ ansible/demo.yml --extra-vars='{ "with_data_import": false, "application_hostname": "demo1" }'
-
-deploy-demo2:
-	ansible-playbook -v -i inventory/gce/ ansible/demo.yml --extra-vars='{ "first_run": true, "application_hostname": "demo2" }'
-
-update-demo2:
-	ansible-playbook -v -i inventory/gce/ ansible/demo.yml --extra-vars='{ "with_data_import": false, "application_hostname": "demo2" }'
 
 docker:
-	$(call header, Dockerizing)
-	true
+	cd docker/neo4j && make docker
+	cd docker/neo4j_reset && make docker
 
 docker-push:
-	$(call header, Registering)
-	true
+	cd docker/neo4j && make docker-push
+	cd docker/neo4j_reset && make docker-push
 
-clean:
-	true
+deploy-stage:
+	ansible-playbook -v -i inventory/static/dev ansible/deploy_stage.yml
 
-.PHONY: all build clean test docker docker-push
+deploy-test:
+	ansible-playbook -v -i inventory/static/dev ansible/deploy_test.yml
+
+# Instances with old base images / outdated playbooks etc.
+deploy-storefront:
+	ansible-playbook -v -i inventory/static/dev ansible/legacy_deploy_storefront.yml
+
+deploy-td-stage:
+	ansible-playbook -v -i inventory/static/topdrawer ansible/legacy_deploy_storefront.yml
+
+deploy-tpg-stage:
+	ansible-playbook -v -i inventory/static/tpg ansible/legacy_deploy_storefront.yml
+
+deploy-feature-branch-legacy:
+	ansible-playbook -v -i inventory/gce/ ansible/legacy_deploy_feature_branch.yml
+
+
+.PHONY: all build test docker docker-push

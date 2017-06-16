@@ -1,6 +1,7 @@
 package services
 
-import models.objects.ObjectContexts
+import objectframework.FormShadowGet
+import objectframework.models.ObjectContexts
 import phoenix.models.cord.lineitems._
 import phoenix.models.cord.{OrderShippingMethod, OrderShippingMethods}
 import phoenix.models.product.{Mvp, SimpleContext}
@@ -9,7 +10,8 @@ import phoenix.services.carts.CartTotaler
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.utils.Money._
+import core.db._
 
 class CartTotalerTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 
@@ -44,7 +46,7 @@ class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Ba
     "taxes" - {
       "are hardcoded to 5%" in new SkuLineItemsFixture {
         val totals = CartTotaler.totals(cart).gimme
-        val taxes  = (skuPrice * 0.05).toInt
+        val taxes  = skuPrice.applyTaxes(0.05)
 
         totals.subTotal === skuPrice
         totals.shipping === 0
@@ -75,9 +77,8 @@ class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Ba
       simpleProduct  ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
       tup            ← * <~ Mvp.getProductTuple(simpleProduct)
       _              ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = tup.sku.id))
-      skuPrice       ← * <~ Mvp.priceAsInt(tup.skuForm, tup.skuShadow)
-    } yield
-      (productContext, tup.product, tup.productShadow, tup.sku, tup.skuShadow, skuPrice)).gimme
+      skuPrice       ← * <~ FormShadowGet.priceAsLong(tup.skuForm, tup.skuShadow)
+    } yield (productContext, tup.product, tup.productShadow, tup.sku, tup.skuShadow, skuPrice)).gimme
   }
 
   trait ShippingMethodFixture extends Fixture {

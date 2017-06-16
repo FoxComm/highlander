@@ -2,9 +2,9 @@ package phoenix.models.coupon
 
 import java.time.Instant
 
+import core.db.ExPostgresDriver.api._
+import core.db._
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 /**
   * This keeps track of how many times a particular coupon was used by a account.
@@ -17,8 +17,7 @@ final case class CouponCustomerUsage(id: Int = 0,
                                      createdAt: Instant = Instant.now)
     extends FoxModel[CouponCustomerUsage]
 
-class CouponCustomerUsages(tag: Tag)
-    extends FoxTable[CouponCustomerUsage](tag, "coupon_customer_usages") {
+class CouponCustomerUsages(tag: Tag) extends FoxTable[CouponCustomerUsage](tag, "coupon_customer_usages") {
 
   def id           = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def couponFormId = column[Int]("coupon_form_id")

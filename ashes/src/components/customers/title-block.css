@@ -6,7 +6,7 @@
 }
 
 :root {
-  --avatar-margin-top: calc(- var(--circle-size) / 2);
+  --avatar-margin-top: calc(- var(--circle-size) / 3);
 }
 
 .block {
@@ -15,6 +15,8 @@
 }
 
 .header {
+  background: #263349;
+  height: 60px;
   text-align: center;
 }
 
@@ -44,25 +46,26 @@
 }
 
 .avatar {
+  display: inline-block;
   --image-size: 84px;
   width: var(--circle-size);
   height: var(--circle-size);
   background-color: var(--white);
   border-radius: 50%;
   text-align: center;
-  display: inline-block;
   vertical-align: top;
   margin-top: var(--avatar-margin-top);
   margin-bottom: 4px;
 
   & > i {
+    display: inline-block;
     width: var(--image-size);
     height: var(--image-size);
     background-color: var(--decor15);
     overflow: hidden;
     border-radius: 50%;
     margin-top: calc((var(--circle-size) - var(--image-size)) / 2);
-    font-size: 60px;
+    font-size: 50px;
     line-height: var(--image-size);
     color: var(--decor0);
   }

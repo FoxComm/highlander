@@ -1,5 +1,6 @@
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.db._
+import core.failures.NotFoundFailure404
 import org.json4s.jackson.JsonMethods._
 import phoenix.failures.SharedSearchFailures._
 import phoenix.models.account._
@@ -7,11 +8,10 @@ import phoenix.models.sharedsearch.SharedSearch._
 import phoenix.models.sharedsearch.SharedSearchAssociation.{build ⇒ buildAssociation}
 import phoenix.models.sharedsearch._
 import phoenix.payloads.SharedSearchPayloads._
-import phoenix.responses.UserResponse.{Root ⇒ UserRoot, build ⇒ buildUser}
+import phoenix.responses.users.UserResponse
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.db._
 
 class SharedSearchIntegrationTest
     extends IntegrationTestBase
@@ -71,8 +71,7 @@ class SharedSearchIntegrationTest
 
     "returns associated scopes created by different admins" in new SharedSearchAssociationFixture {
       SharedSearchAssociations
-        .create(
-            SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = defaultAdmin.id))
+        .create(SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = defaultAdmin.id))
         .gimme
 
       getByScope("customersScope") must === (Seq(search))
@@ -200,7 +199,7 @@ class SharedSearchIntegrationTest
 
     "warning if store admin is not found" in new AssociateBaseFixture {
       sharedSearchApi(search.code)
-        .associate(SharedSearchAssociationPayload(Seq(1, 999)))
+        .associate(SharedSearchAssociationPayload(Seq(defaultAdmin.id, 999)))
         .asThe[SharedSearch]
         .errors
         .value must === (Seq(NotFoundFailure404(User, 999).description))
@@ -217,8 +216,8 @@ class SharedSearchIntegrationTest
 
   "GET v1/shared-search/:code/associates" - {
     "returns associates by code" in new AssociateSecondaryFixture {
-      sharedSearchApi(search.code).associates().as[Seq[UserRoot]].onlyElement.id must === (
-          defaultAdmin.id)
+      sharedSearchApi(search.code).associates().as[Seq[UserResponse]].onlyElement.id must === (
+        defaultAdmin.id)
     }
 
     "returns multiple associates by code" in new AssociateSecondaryFixture {
@@ -233,7 +232,7 @@ class SharedSearchIntegrationTest
 
       sharedSearchApi(search.code)
         .associates()
-        .as[Seq[UserRoot]]
+        .as[Seq[UserResponse]]
         .map(_.id) must contain allOf (defaultAdmin.id, secondAdminId)
     }
 
@@ -339,12 +338,12 @@ class SharedSearchIntegrationTest
     }
     val search = (for {
       search ← * <~ SharedSearches.create(
-                  SharedSearch(title = "Test",
-                               query = dummyJVal,
-                               rawQuery = dummyJVal,
-                               scope = CustomersScope,
-                               storeAdminId = secondAdminId,
-                               accessScope = scope))
+                SharedSearch(title = "Test",
+                             query = dummyJVal,
+                             rawQuery = dummyJVal,
+                             scope = CustomersScope,
+                             storeAdminId = secondAdminId,
+                             accessScope = scope))
       secondAdmin ← * <~ Users.mustFindByAccountId(secondAdminId)
       _           ← * <~ SharedSearchAssociations.create(buildAssociation(search, secondAdmin))
     } yield search).gimme

@@ -6,7 +6,6 @@ import ContentBox from 'components/content-box/content-box';
 import PanelHeader from 'components/panel-header/panel-header';
 import PaymentsPanel from 'components/payments-panel/payments-panel';
 
-import type { Order, PaymentMethod } from 'paragons/order';
 import OrderParagon from 'paragons/order';
 
 type Props = {

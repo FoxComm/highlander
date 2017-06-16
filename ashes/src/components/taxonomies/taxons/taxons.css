@@ -60,6 +60,11 @@
   width: 780px;
 }
 
+
+.bulk-message {
+  margin: 0;
+}
+
 .subValue {
   margin: 0 10px;
 }

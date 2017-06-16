@@ -1,4 +1,4 @@
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import phoenix.failures.StateTransitionNotAllowed
 import phoenix.models.account._
 import phoenix.models.cord.Order._
@@ -11,7 +11,7 @@ import responses.BatchResponse
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class AllOrdersIntegrationTest
     extends IntegrationTestBase
@@ -27,8 +27,8 @@ class AllOrdersIntegrationTest
 
       val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
       allOrders must contain allOf (
-          ("foo", FulfillmentStarted),
-          ("bar", FulfillmentStarted)
+        ("foo", FulfillmentStarted),
+        ("bar", FulfillmentStarted)
       )
       all.errors.value must contain only NotFoundFailure404(Order, "nonExistent").description
     }
@@ -42,7 +42,7 @@ class AllOrdersIntegrationTest
       allOrders must === (Seq((order.refNum, order.state)))
 
       all.errors.value.head must === (
-          StateTransitionNotAllowed(order.state, Shipped, order.refNum).description)
+        StateTransitionNotAllowed(order.state, Shipped, order.refNum).description)
     }
   }
 
@@ -50,8 +50,7 @@ class AllOrdersIntegrationTest
     (for {
       acc  ← * <~ Accounts.create(Account())
       cust ← * <~ Users.create(Factories.customer.copy(accountId = acc.id))
-      _ ← * <~ CustomersData.create(
-             CustomerData(userId = cust.id, accountId = acc.id, scope = Scope.current))
+      _    ← * <~ CustomersData.create(CustomerData(userId = cust.id, accountId = acc.id, scope = Scope.current))
       c = Factories.cart(Scope.current).copy(accountId = acc.id)
       cart  ← * <~ Carts.create(c.copy(referenceNumber = "foo"))
       order ← * <~ Orders.createFromCart(cart, subScope = None)

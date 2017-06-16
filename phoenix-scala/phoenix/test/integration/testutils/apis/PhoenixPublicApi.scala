@@ -12,6 +12,9 @@ trait PhoenixPublicApi extends HttpSupport { self: FoxSuite ⇒
   object publicApi {
     val rootPrefix: String = "v1/public"
 
+    def getProducts(ref: String): HttpResponse =
+      GET(s"$rootPrefix/products/$ref", jwtCookie = None)
+
     def login(payload: LoginPayload, jwtCookie: Cookie): HttpResponse =
       POST(s"$rootPrefix/login", payload, jwtCookie.some)
 
@@ -36,5 +39,10 @@ trait PhoenixPublicApi extends HttpSupport { self: FoxSuite ⇒
     def getCountryById(cId: Int): HttpResponse =
       GET(s"$rootPrefix/countries/$cId", jwtCookie = None)
 
+    def getRegionByShortName(shortName: String): HttpResponse =
+      GET(s"$rootPrefix/regions/$shortName", jwtCookie = None)
+
+    def getProduct(reference: String): HttpResponse =
+      GET(s"$rootPrefix/products/$reference", jwtCookie = None)
   }
 }

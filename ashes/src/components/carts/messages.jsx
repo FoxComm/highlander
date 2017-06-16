@@ -45,7 +45,7 @@ const Messages = props => {
     '_empty': errorAlerts.length + warningAlerts.length == 0
   });
 
-  const scrollToMessages = errorAlerts.length || warningAlerts.length ? <AutoScroll/> : null;
+  const scrollToMessages = errorAlerts.length || warningAlerts.length ? <AutoScroll /> : null;
 
   return (
     <div className={className}>

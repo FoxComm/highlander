@@ -35,7 +35,7 @@ object Condition {
   }
 
   // TODO (Jeff): Return an actual error, rather than just a boolean.
-  def matches(comp: Int, statement: Condition): Boolean = {
+  def matches(comp: Int, statement: Condition): Boolean =
     statement.valInt.fold(false) { (v: Int) ⇒
       statement.operator match {
         case Equals              ⇒ comp == v
@@ -47,13 +47,12 @@ object Condition {
         case _                   ⇒ false
       }
     }
-  }
 
   // TODO (Jeff): Make this more robust and think about things like case-sensitivity.
   def matches(comp: String, statement: Condition): Boolean =
     matches(Some(comp), statement)
 
-  def matches(comp: Option[String], statement: Condition): Boolean = {
+  def matches(comp: Option[String], statement: Condition): Boolean =
     comp.fold(matchAgainstEmptyStringOption(statement)) { (comp: String) ⇒
       statement.valString.fold(false) { (v: String) ⇒
         statement.operator match {
@@ -68,9 +67,8 @@ object Condition {
         }
       }
     }
-  }
 
-  def matches(comp: Boolean, condition: Condition): Boolean = {
+  def matches(comp: Boolean, condition: Condition): Boolean =
     condition.valBoolean.fold(false) { (v: Boolean) ⇒
       condition.operator match {
         case Equals    ⇒ comp == v
@@ -78,14 +76,12 @@ object Condition {
         case _         ⇒ false
       }
     }
-  }
 
-  private def matchAgainstEmptyStringOption(statement: Condition): Boolean = {
+  private def matchAgainstEmptyStringOption(statement: Condition): Boolean =
     statement.operator match {
       case Equals      ⇒ statement.valString.isEmpty
       case NotEquals   ⇒ statement.valString.nonEmpty
       case NotContains ⇒ true
       case _           ⇒ false
     }
-  }
 }

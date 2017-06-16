@@ -1,7 +1,9 @@
 package phoenix.utils.seeds.generators
 
-import models.objects.ObjectUtils._
-import models.objects._
+import core.db._
+import objectframework.ObjectUtils
+import objectframework.ObjectUtils._
+import objectframework.models._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import phoenix.models.discount.Discount
@@ -11,7 +13,6 @@ import phoenix.responses.DiscountResponses.DiscountResponse
 import phoenix.services.discount.DiscountManager
 import phoenix.utils.aliases._
 import phoenix.utils.seeds.generators.SimpleDiscount._
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
@@ -49,7 +50,7 @@ case class SimpleDiscountForm(percentOff: Percent, totalAmount: Int) {
 case class SimpleDiscountShadow(f: SimpleDiscountForm) {
 
   val shadow = ObjectUtils.newShadow(
-      parse("""
+    parse("""
         {
           "title" : {"type": "string", "ref": "title"},
           "description" : {"type": "richText", "ref": "description"},
@@ -57,7 +58,8 @@ case class SimpleDiscountShadow(f: SimpleDiscountForm) {
           "qualifier" : {"type": "qualifier", "ref": "qualifier"},
           "offer" : {"type": "offer", "ref": "offer"}
         }"""),
-      f.keyMap)
+    f.keyMap
+  )
 }
 
 trait DiscountGenerator {
@@ -68,18 +70,16 @@ trait DiscountGenerator {
     SimpleDiscount(percentOff = percent, totalAmount = totalAmount)
   }
 
-  def generateDiscounts(sourceData: Seq[SimpleDiscount])(
-      implicit db: DB,
-      au: AU): DbResultT[Seq[DiscountResponse.Root]] =
+  def generateDiscounts(sourceData: Seq[SimpleDiscount])(implicit db: DB,
+                                                         au: AU): DbResultT[Seq[DiscountResponse.Root]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       discounts ← * <~ sourceData.map(source ⇒ {
                    val discountForm   = SimpleDiscountForm(source.percentOff, source.totalAmount)
                    val discountShadow = SimpleDiscountShadow(discountForm)
-                   def discountFS: FormAndShadow = {
+                   def discountFS: FormAndShadow =
                      (ObjectForm(kind = Discount.kind, attributes = discountForm.form),
                       ObjectShadow(attributes = discountShadow.shadow))
-                   }
                    val payload = CreateDiscount(attributes = discountFS.toPayload)
                    DiscountManager.create(payload, context.name)
                  })

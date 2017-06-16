@@ -1,10 +1,10 @@
 package phoenix.utils.seeds
 
+import core.db._
+import core.utils.Money.Currency
 import phoenix.models.account.Scope
 import phoenix.models.payment.storecredit._
 import phoenix.utils.aliases._
-import utils.Money.Currency
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -30,8 +30,8 @@ trait StoreCreditSeeds {
                 currency = Currency.USD)
 
   def storeCreditSubTypes: Seq[StoreCreditSubtype] = Seq(
-      StoreCreditSubtype(title = "Appeasement Subtype A", originType = StoreCredit.CsrAppeasement),
-      StoreCreditSubtype(title = "Appeasement Subtype B", originType = StoreCredit.CsrAppeasement),
-      StoreCreditSubtype(title = "Appeasement Subtype C", originType = StoreCredit.CsrAppeasement)
+    StoreCreditSubtype(title = "Appeasement Subtype A", originType = StoreCredit.CsrAppeasement),
+    StoreCreditSubtype(title = "Appeasement Subtype B", originType = StoreCredit.CsrAppeasement),
+    StoreCreditSubtype(title = "Appeasement Subtype C", originType = StoreCredit.CsrAppeasement)
   )
 }

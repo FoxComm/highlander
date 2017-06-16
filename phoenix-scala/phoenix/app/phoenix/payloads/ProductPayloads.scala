@@ -1,6 +1,6 @@
 package phoenix.payloads
 
-import payloads.ObjectSchemaValidation
+import objectframework.payloads.ObjectSchemaValidation
 import phoenix.payloads.ImagePayloads.AlbumPayload
 import phoenix.payloads.SkuPayloads._
 import phoenix.payloads.VariantPayloads.VariantPayload

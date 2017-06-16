@@ -1,7 +1,7 @@
 package utils
 
 import akka.http.scaladsl.model.StatusCodes
-import failures.{Failures, GeneralFailure, NotFoundFailure404}
+import core.failures.{Failures, GeneralFailure, NotFoundFailure404}
 import phoenix.failures.CreditCardFailures.CustomerHasDefaultCreditCard
 import phoenix.models.cord.Cart
 import phoenix.utils.http.Http._

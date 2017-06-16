@@ -6,7 +6,7 @@ import phoenix.utils.aliases._
 import phoenix.utils.{ADT, JsonFormatters}
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.db.ExPostgresDriver.api._
+import core.db.ExPostgresDriver.api._
 
 import scala.collection.immutable.Seq
 
@@ -34,12 +34,12 @@ object QueryStatement {
   implicit val QueryStatementColumn: JdbcType[QueryStatement] with BaseTypedType[QueryStatement] = {
     implicit val formats = JsonFormatters.phoenixFormats
     MappedColumnType.base[QueryStatement, Json](
-        q ⇒ Extraction.decompose(q),
-        j ⇒ j.extract[QueryStatement]
+      q ⇒ Extraction.decompose(q),
+      j ⇒ j.extract[QueryStatement]
     )
   }
 
-  def evaluate[A](stmt: Option[QueryStatement], data: A, f: (Condition, A) ⇒ Boolean): Boolean = {
+  def evaluate[A](stmt: Option[QueryStatement], data: A, f: (Condition, A) ⇒ Boolean): Boolean =
     stmt.fold(false) { statement ⇒
       val initial = statement.comparison == QueryStatement.And
 
@@ -51,5 +51,4 @@ object QueryStatement {
         statement.comparison.apply(result, evaluate(Some(nextStmt), data, f))
       }
     }
-  }
 }

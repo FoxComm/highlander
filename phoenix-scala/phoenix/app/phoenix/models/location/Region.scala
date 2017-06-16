@@ -1,8 +1,8 @@
 package phoenix.models.location
 
+import core.db._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class Region(id: Int = 0, countryId: Int, name: String, abbreviation: Option[String] = None)
     extends FoxModel[Region] {
@@ -14,6 +14,7 @@ object Region {
   val armedRegions     = Seq(4121, 4122, 4125)
   val regularUsRegions = usRegions.toSeq.diff(armedRegions)
   val californiaId     = 4129
+  val regionCodeRegex  = """([a-zA-Z]{2})""".r
 }
 
 class Regions(tag: Tag) extends FoxTable[Region](tag, "regions") {
@@ -27,8 +28,9 @@ class Regions(tag: Tag) extends FoxTable[Region](tag, "regions") {
   def country = foreignKey(Countries.tableName, countryId, Countries)(_.id)
 }
 
-object Regions
-    extends FoxTableQuery[Region, Regions](new Regions(_))
-    with ReturningId[Region, Regions] {
+object Regions extends FoxTableQuery[Region, Regions](new Regions(_)) with ReturningId[Region, Regions] {
   val returningLens: Lens[Region, Int] = lens[Region].id
+
+  def findOneByShortName(regionShortName: String) =
+    filter(_.abbreviation.toUpperCase === regionShortName.toUpperCase)
 }

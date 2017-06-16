@@ -4,7 +4,7 @@
 
 - name: Optionally run containers in detached mode
   set_fact:
-    seed_mode: "true"
+    detach: "true"
   when: detach_seeders
 
 - name: Seed Middlewarehouse

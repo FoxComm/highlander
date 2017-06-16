@@ -3,24 +3,21 @@ package phoenix.models.promotion
 import java.time.Instant
 
 import cats.implicits._
-import failures._
-import models.objects._
+import core.failures._
+import objectframework.IlluminateAlgorithm
+import objectframework.models._
 import org.json4s.JsonAST.JNothing
 import org.json4s.JsonDSL._
 import phoenix.failures.PromotionFailures._
 import phoenix.models.promotion.Promotion._
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-import utils.IlluminateAlgorithm
 
 /**
   * An IlluminatedPromotion is what you get when you combine the promotion shadow and
   * the form.
   */
-case class IlluminatedPromotion(id: Int,
-                                context: IlluminatedContext,
-                                applyType: ApplyType,
-                                attributes: Json) {
+case class IlluminatedPromotion(id: Int, context: IlluminatedContext, applyType: ApplyType, attributes: Json) {
 
   implicit val formats = JsonFormatters.phoenixFormats
 
@@ -46,21 +43,19 @@ object IlluminatedPromotion {
   def illuminate(context: ObjectContext,
                  promotion: Promotion,
                  form: ObjectForm,
-                 shadow: ObjectShadow): IlluminatedPromotion = {
-
+                 shadow: ObjectShadow): IlluminatedPromotion =
     IlluminatedPromotion(
-        id = form.id, //Id points to form since that is constant across contexts
-        applyType = promotion.applyType,
-        context = IlluminatedContext(context.name, context.attributes),
-        attributes = IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes))
-  }
+      id = form.id, //Id points to form since that is constant across contexts
+      applyType = promotion.applyType,
+      context = IlluminatedContext(context.name, context.attributes),
+      attributes = IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes)
+    )
 
-  def validatePromotion(applyType: ApplyType, promotion: FormAndShadow): FormAndShadow = {
+  def validatePromotion(applyType: ApplyType, promotion: FormAndShadow): FormAndShadow =
     (applyType, promotion.getAttribute("activeFrom")) match {
       case (Promotion.Coupon, JNothing) ⇒
         promotion.setAttribute("activeFrom", "date", Instant.now.toString)
       case _ ⇒
         promotion
     }
-  }
 }

@@ -2,12 +2,12 @@ package phoenix.responses
 
 import java.time.Instant
 
-import models.objects._
+import objectframework.ObjectResponses.ObjectContextResponse
+import objectframework.models._
 import phoenix.models.discount._
 import phoenix.models.promotion._
 import phoenix.responses.DiscountResponses._
 import phoenix.utils.aliases._
-import responses.ObjectResponses.ObjectContextResponse
 
 object PromotionResponses {
 
@@ -29,15 +29,15 @@ object PromotionResponses {
                     archivedAt: Option[Instant])
         extends ResponseItem
 
-    def build(promotion: IlluminatedPromotion,
-              discounts: Seq[IlluminatedDiscount],
-              promo: Promotion): Root =
-      Root(id = promotion.id,
-           context = ObjectContextResponse.build(promotion.context),
-           applyType = promotion.applyType,
-           attributes = promotion.attributes,
-           discounts = discounts.map(d ⇒ IlluminatedDiscountResponse.build(d)),
-           archivedAt = promo.archivedAt)
+    def build(promotion: IlluminatedPromotion, discounts: Seq[IlluminatedDiscount], promo: Promotion): Root =
+      Root(
+        id = promotion.id,
+        context = ObjectContextResponse.build(promotion.context),
+        applyType = promotion.applyType,
+        attributes = promotion.attributes,
+        discounts = discounts.map(d ⇒ IlluminatedDiscountResponse.build(d)),
+        archivedAt = promo.archivedAt
+      )
 
     def build(context: ObjectContext,
               promotion: Promotion,

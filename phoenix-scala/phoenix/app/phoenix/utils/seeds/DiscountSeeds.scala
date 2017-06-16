@@ -1,6 +1,8 @@
 package phoenix.utils.seeds
 
-import models.objects._
+import core.db._
+import objectframework.ObjectUtils
+import objectframework.models._
 import org.json4s.Formats
 import phoenix.models.account._
 import phoenix.models.discount._
@@ -10,7 +12,6 @@ import phoenix.models.product.SimpleContext
 import phoenix.models.sharedsearch.SharedSearch
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -34,8 +35,7 @@ trait DiscountSeeds {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
-  def createDiscounts(search: SharedSearch)(implicit db: DB,
-                                            au: AU): DbResultT[Seq[BaseDiscount]] =
+  def createDiscounts(search: SharedSearch)(implicit db: DB, au: AU): DbResultT[Seq[BaseDiscount]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       results ← * <~ discounts(search).map {
@@ -53,43 +53,43 @@ trait DiscountSeeds {
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       ins    ← * <~ ObjectUtils.insert(form, shadow, schema = None)
       discount ← * <~ Discounts.create(
-                    Discount(scope = scope,
-                             contextId = context.id,
-                             formId = ins.form.id,
-                             shadowId = ins.shadow.id,
-                             commitId = ins.commit.id))
+                  Discount(scope = scope,
+                           contextId = context.id,
+                           formId = ins.form.id,
+                           shadowId = ins.shadow.id,
+                           commitId = ins.commit.id))
     } yield
-      BaseDiscount(title = title,
-                   discountId = discount.id,
-                   formId = ins.form.id,
-                   shadowId = ins.shadow.id)
+      BaseDiscount(title = title, discountId = discount.id, formId = ins.form.id, shadowId = ins.shadow.id)
 
   def productSearch(search: SharedSearch): Seq[ProductSearch] =
     Seq(ProductSearch(productSearchId = search.id))
 
   def qualifiers(search: SharedSearch): Seq[Qualifier] = Seq(
-      OrderAnyQualifier,
-      OrderTotalAmountQualifier(1000),
-      OrderNumUnitsQualifier(2),
-      ItemsAnyQualifier(productSearch(search)),
-      ItemsTotalAmountQualifier(1500, productSearch(search)),
-      ItemsNumUnitsQualifier(2, productSearch(search))
+    OrderAnyQualifier,
+    OrderTotalAmountQualifier(1000),
+    OrderNumUnitsQualifier(2),
+    ItemsAnyQualifier(productSearch(search)),
+    ItemsTotalAmountQualifier(1500, productSearch(search)),
+    ItemsNumUnitsQualifier(2, productSearch(search))
   )
 
   def offers(search: SharedSearch): Seq[Offer] = Seq(
-      OrderAmountOffer(3000),
-      OrderPercentOffer(30),
-      ItemAmountOffer(1000, productSearch(search)),
-      ItemPercentOffer(50, productSearch(search)),
-      ItemsAmountOffer(3000, productSearch(search)),
-      ItemsPercentOffer(30, productSearch(search)),
-      FreeShippingOffer,
-      DiscountedShippingOffer(500),
-      SetPriceOffer(2500, 2, productSearch(search))
+    OrderAmountOffer(3000),
+    OrderPercentOffer(30),
+    ItemAmountOffer(1000, productSearch(search)),
+    ItemPercentOffer(50, productSearch(search)),
+    ItemsAmountOffer(3000, productSearch(search)),
+    ItemsPercentOffer(30, productSearch(search)),
+    FreeShippingOffer,
+    DiscountedShippingOffer(500),
+    SetPriceOffer(2500, 2, productSearch(search))
   )
 
   def discounts(search: SharedSearch): Seq[(String, CreateDiscount)] =
-    for (q ← qualifiers(search); o ← offers(search)) yield createDiscount(q, o)
+    for {
+      q ← qualifiers(search)
+      o ← offers(search)
+    } yield createDiscount(q, o)
 
   def createDiscount(qualifier: Qualifier, offer: Offer): (String, CreateDiscount) = {
     val discountTitle  = DiscountTitles.getDiscountTitle(qualifier, offer)
@@ -147,7 +147,7 @@ object DiscountTitles {
     case SetPriceOffer(value, units, _) ⇒ setPrice.format(dollars(value), units)
   }
 
-  private def dollars(cents: Int): String = "$%.2f".format(cents.toDouble / 100)
+  private def dollars(cents: Long): String = "$%.2f".format(cents.toDouble / 100)
 
-  private def percents(value: Int): String = value.toString + "%"
+  private def percents(value: Long): String = value.toString + "%"
 }

@@ -1,5 +1,5 @@
-import failures.NotFoundFailure404
-import models.objects.ObjectContexts
+import core.failures.NotFoundFailure404
+import objectframework.models.ObjectContexts
 import phoenix.failures.AlreadySavedForLater
 import phoenix.failures.ProductFailures.SkuNotFoundForContext
 import phoenix.models.account._
@@ -11,7 +11,7 @@ import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class SaveForLaterIntegrationTest
     extends IntegrationTestBase

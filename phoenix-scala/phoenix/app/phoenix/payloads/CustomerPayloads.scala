@@ -2,9 +2,9 @@ package phoenix.payloads
 
 import cats.data._
 import cats.implicits._
-import failures.Failure
-import utils.Validation
-import utils.Validation._
+import core.failures.Failure
+import core.utils.Validation
+import core.utils.Validation._
 
 object CustomerPayloads {
 
@@ -19,30 +19,28 @@ object CustomerPayloads {
                                    phoneNumber: Option[String] = None)
       extends Validation[UpdateCustomerPayload] {
 
-    def validate: ValidatedNel[Failure, UpdateCustomerPayload] = {
-      (nullOrNotEmpty(name, "name") |@| nullOrNotEmpty(email, "email") |@| nullOrNotEmpty(
-              phoneNumber,
-              "phoneNumber")).map { case _ ⇒ this }
-    }
+    def validate: ValidatedNel[Failure, UpdateCustomerPayload] =
+      (nullOrNotEmpty(name, "name") |@| nullOrNotEmpty(email, "email") |@| nullOrNotEmpty(phoneNumber,
+                                                                                          "phoneNumber"))
+        .map { case _ ⇒ this }
   }
 
   case class ChangeCustomerPasswordPayload(oldPassword: String, newPassword: String)
       extends Validation[ChangeCustomerPasswordPayload] {
     def validate: ValidatedNel[Failure, ChangeCustomerPasswordPayload] =
-      notEmpty(newPassword, "new password").map { case _ ⇒ this }
+      notEmpty(newPassword, "new password").map(_ ⇒ this)
   }
 
   case class ActivateCustomerPayload(name: String) extends Validation[ActivateCustomerPayload] {
 
     def validate: ValidatedNel[Failure, ActivateCustomerPayload] =
-      notEmpty(name, "name").map { case _ ⇒ this }
+      notEmpty(name, "name").map(_ ⇒ this)
   }
 
-  case class CustomerSearchForNewOrder(term: String)
-      extends Validation[CustomerSearchForNewOrder] {
+  case class CustomerSearchForNewOrder(term: String) extends Validation[CustomerSearchForNewOrder] {
 
     def validate: ValidatedNel[Failure, CustomerSearchForNewOrder] =
-      greaterThan(term.length, 1, "term size").map { case _ ⇒ this }
+      greaterThan(term.length, 1, "term size").map(_ ⇒ this)
   }
 
 }

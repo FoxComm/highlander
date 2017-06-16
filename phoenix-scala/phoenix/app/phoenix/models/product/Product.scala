@@ -3,8 +3,10 @@ package phoenix.models.product
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
-import failures._
-import models.objects._
+import core.utils.Validation
+import core.failures._
+import objectframework.models._
+import objectframework.services.ObjectManager
 import phoenix.failures.ArchiveFailures.ProductIsPresentInCarts
 import phoenix.failures.ProductFailures
 import phoenix.failures.ProductFailures._
@@ -12,11 +14,9 @@ import phoenix.models.cord.lineitems.CartLineItems
 import phoenix.models.objects.ProductSkuLinks
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-import services.objects.ObjectManager
 import shapeless._
-import utils.Validation
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.db.ExPostgresDriver.api._
+import core.db._
 
 import scala.util.matching.Regex
 
@@ -104,15 +104,13 @@ object Products
   def filterByFormId(formId: Int): QuerySeq =
     filter(_.formId === formId)
 
-  def mustFindProductByContextAndFormId404(contextId: Int, formId: Int)(
-      implicit ec: EC): DbResultT[Product] =
+  def mustFindProductByContextAndFormId404(contextId: Int, formId: Int)(implicit ec: EC): DbResultT[Product] =
     Products
       .filter(_.contextId === contextId)
       .filter(_.formId === formId)
       .mustFindOneOr(ProductFormNotFoundForContext(formId, contextId))
 
-  def mustFindByReference(reference: ProductReference)(implicit oc: OC,
-                                                       ec: EC): DbResultT[Product] = {
+  def mustFindByReference(reference: ProductReference)(implicit oc: OC, ec: EC): DbResultT[Product] =
     reference match {
       case ProductId(id) ⇒
         mustFindProductByContextAndFormId404(oc.id, id)
@@ -120,7 +118,6 @@ object Products
         filter(p ⇒ p.contextId === oc.id && p.slug.toLowerCase === slug.toLowerCase())
           .mustFindOneOr(ProductFailures.ProductNotFoundForContext(slug, oc.id))
     }
-  }
 
   def mustFindFullByReference(
       ref: ProductReference)(implicit oc: OC, ec: EC, db: DB): DbResultT[FullObject[Product]] =

@@ -2,12 +2,12 @@ package phoenix.utils.seeds
 
 import cats.implicits._
 import com.github.tototoshi.csv._
+import core.db._
 import phoenix.models.account._
 import phoenix.models.admin._
 import phoenix.payloads.StoreAdminPayloads.CreateStoreAdminPayload
 import phoenix.services.StoreAdminManager
 import phoenix.utils.aliases._
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.io.Source
@@ -37,8 +37,8 @@ trait StoreAdminSeeds {
   }
 
   def createStoreAdmins(implicit ec: EC, db: DB, ac: AC): DbResultT[Int] = {
-    val reader = CSVReader.open(
-        Source.fromInputStream(getClass.getResourceAsStream("/data/store_admins.csv")))
+    val reader =
+      CSVReader.open(Source.fromInputStream(getClass.getResourceAsStream("/data/store_admins.csv")))
     val admins = reader.all.drop(1).collect {
       case name :: email :: password :: org :: role :: Nil ⇒ {
         val user = User(accountId = 0, name = name.some, email = email.some)

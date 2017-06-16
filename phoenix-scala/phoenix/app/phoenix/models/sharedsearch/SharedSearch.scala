@@ -4,16 +4,16 @@ import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
+import core.db.ExPostgresDriver.api._
+import core.db._
 import phoenix.models.account._
 import phoenix.models.sharedsearch.SharedSearch._
 import phoenix.payloads.SharedSearchPayloads.SharedSearchPayload
+import phoenix.utils.aliases._
+import phoenix.utils.{ADT, JsonFormatters}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import phoenix.utils.aliases._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
-import phoenix.utils.{ADT, JsonFormatters}
 
 case class SharedSearch(id: Int = 0,
                         code: String = "",
@@ -53,12 +53,12 @@ object SharedSearch {
 
   def byAdmin(admin: User, payload: SharedSearchPayload, scope: LTree): SharedSearch =
     SharedSearch(
-        title = payload.title,
-        query = payload.query,
-        rawQuery = payload.rawQuery,
-        storeAdminId = admin.accountId,
-        scope = payload.scope,
-        accessScope = scope
+      title = payload.title,
+      query = payload.query,
+      rawQuery = payload.rawQuery,
+      storeAdminId = admin.accountId,
+      scope = payload.scope,
+      accessScope = scope
     )
 
   implicit val scopeColumnType: JdbcType[Scope] with BaseTypedType[Scope] = Scope.slickColumn
@@ -78,17 +78,7 @@ class SharedSearches(tag: Tag) extends FoxTable[SharedSearch](tag, "shared_searc
   def deletedAt    = column[Option[Instant]]("deleted_at")
 
   def * =
-    (id,
-     code,
-     accessScope,
-     title,
-     query,
-     rawQuery,
-     scope,
-     storeAdminId,
-     isSystem,
-     createdAt,
-     deletedAt) <> ((SharedSearch.apply _).tupled, SharedSearch.unapply)
+    (id, code, accessScope, title, query, rawQuery, scope, storeAdminId, isSystem, createdAt, deletedAt) <> ((SharedSearch.apply _).tupled, SharedSearch.unapply)
 }
 
 object SharedSearches

@@ -5,8 +5,8 @@ import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixPublicApi
 import testutils.fixtures.BakedFixtures
-import utils.Strings._
-import utils.db._
+import core.utils.Strings._
+import core.db._
 
 class ReasonsIntegrationTest
     extends IntegrationTestBase
@@ -34,8 +34,8 @@ class ReasonsIntegrationTest
   trait Fixture extends StoreAdmin_Seed {
     val (reason, returnReason) = (for {
       reason ← * <~ Reasons.create(
-                  Factories.reasons.head.copy(reasonType = Reason.GiftCardCreation,
-                                              storeAdminId = storeAdmin.accountId))
+                Factories.reasons.head.copy(reasonType = Reason.GiftCardCreation,
+                                            storeAdminId = storeAdmin.accountId))
       returnReason ← * <~ ReturnReasons.create(Factories.returnReasons.head)
     } yield (reason, returnReason)).gimme
   }

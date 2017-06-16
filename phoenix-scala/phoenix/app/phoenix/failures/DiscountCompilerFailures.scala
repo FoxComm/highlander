@@ -1,11 +1,11 @@
 package phoenix.failures
 
-import failures.Failure
+import core.failures.Failure
+import core.utils.friendlyClassName
 import phoenix.models.discount.DiscountInput
 import phoenix.models.discount.offers.{Offer, OfferType}
 import phoenix.models.discount.qualifiers.QualifierType.show
 import phoenix.models.discount.qualifiers.{Qualifier, QualifierType}
-import utils.friendlyClassName
 
 object DiscountCompilerFailures {
 
@@ -48,7 +48,7 @@ object DiscountCompilerFailures {
   case class QualifierAttributesExtractionFailure(qualifierType: QualifierType, cause: String)
       extends Failure {
     override def description =
-      s"failed to compile qualifier ${show(qualifierType)}, couldn't extract attributes: ${cause}"
+      s"failed to compile qualifier ${show(qualifierType)}, couldn't extract attributes: $cause"
   }
 
   case class QualifierNotImplementedFailure(qualifierType: QualifierType) extends Failure {
@@ -66,10 +66,9 @@ object DiscountCompilerFailures {
   }
 
   /* Offer Compiler */
-  case class OfferAttributesExtractionFailure(offerType: OfferType, cause: String)
-      extends Failure {
+  case class OfferAttributesExtractionFailure(offerType: OfferType, cause: String) extends Failure {
     override def description =
-      s"failed to compile offer ${OfferType.show(offerType)}, couldn't extract attributes: ${cause}"
+      s"failed to compile offer ${OfferType.show(offerType)}, couldn't extract attributes: $cause"
   }
 
   case class OfferNotImplementedFailure(offerType: OfferType) extends Failure {
@@ -82,19 +81,17 @@ object DiscountCompilerFailures {
   }
 
   /* Rejections */
-  case class QualifierRejectionFailure[T <: Qualifier](qualifier: T,
-                                                       input: DiscountInput,
-                                                       reason: String)
+  case class QualifierRejectionFailure[T <: Qualifier](qualifier: T, input: DiscountInput, reason: String)
       extends Failure {
     val qName = friendlyClassName(qualifier)
     override def description =
-      s"qualifier $qName rejected order with refNum=${input.cart.refNum}, reason: $reason"
+      s"qualifier $qName rejected order with refNum=${input.cartRefNum}, reason: $reason"
   }
 
   case class OfferRejectionFailure[T <: Offer](offer: T, input: DiscountInput, reason: String)
       extends Failure {
     val oName = friendlyClassName(offer)
     override def description =
-      s"offer $oName rejected order with refNum=${input.cart.refNum}, reason: $reason"
+      s"offer $oName rejected order with refNum=${input.cartRefNum}, reason: $reason"
   }
 }

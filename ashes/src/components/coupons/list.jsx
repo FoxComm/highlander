@@ -26,7 +26,7 @@ const CouponsList = (props: CouponsListProps) => {
   return (
     <ListPageContainer
       title="Coupons"
-      subtitle={<TotalCounter/>}
+      subtitle={<TotalCounter />}
       addTitle="Coupon"
       handleAddAction={addAction}
       navLinks={navLinks}>

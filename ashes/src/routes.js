@@ -23,10 +23,10 @@ export default function makeRoutes(jwtToken) {
 
   return (
     <Route path={rootPath}>
-      <IndexRedirect to={indexRedirect}/>
+      <IndexRedirect to={indexRedirect} />
       {authRoutes(claims)}
       <Route component={Site}>
-        <IndexRoute name="home" component={Home}/>
+        <IndexRoute name="home" component={Home} />
         {orderRoutes(claims)}
         {customerRoutes(claims)}
         {catalogRoutes(claims)}

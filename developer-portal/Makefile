@@ -9,11 +9,13 @@ clean:
 	rm content/**/*.html
 
 prep:
-	$(call header, Building)
 	npm install
 	cd node_modules/aglio-theme-fox && npm install
 
-build: prep $(BUILDDIRS)
+build:
+	$(call header, Building)
+	make prep
+	make $(BUILDDIRS)
 
 $(BUILDDIRS):
 	$(MAKE) -C $(@:build-%=%) build

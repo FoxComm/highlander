@@ -11,18 +11,16 @@ import phoenix.services.image.ImageManager
 import phoenix.services.inventory.SkuManager
 import phoenix.services.product.ProductManager
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.db._
 
 object LineItemManager {
-  def getCartLineItems(refNum: String)(implicit ec: EC,
-                                       db: DB): DbResultT[Seq[CartLineItemProductData]] =
+  def getCartLineItems(refNum: String)(implicit ec: EC, db: DB): DbResultT[Seq[CartLineItemProductData]] =
     for {
       lineItems    ← * <~ CartLineItems.filter(_.cordRef === refNum).result
       lineItemData ← * <~ lineItems.map(getCartLineItem)
     } yield lineItemData
 
-  def getOrderLineItems(refNum: String)(implicit ec: EC,
-                                        db: DB): DbResultT[Seq[OrderLineItemProductData]] =
+  def getOrderLineItems(refNum: String)(implicit ec: EC, db: DB): DbResultT[Seq[OrderLineItemProductData]] =
     for {
       lineItems    ← * <~ OrderLineItems.filter(_.cordRef === refNum).result
       lineItemData ← * <~ lineItems.map(getOrderLineItem)
@@ -40,30 +38,33 @@ object LineItemManager {
       product ← * <~ getProductForSku(sku.model)
       image   ← * <~ getLineItemImage(sku.model, product.model)
     } yield
-      CartLineItemProductData(sku = sku.model,
-                              skuForm = sku.form,
-                              skuShadow = sku.shadow,
-                              productForm = product.form,
-                              productShadow = product.shadow,
-                              image = image,
-                              lineItem = cartLineItem,
-                              attributes = cartLineItem.attributes)
+      CartLineItemProductData(
+        sku = sku.model,
+        skuForm = sku.form,
+        skuShadow = sku.shadow,
+        productForm = product.form,
+        productShadow = product.shadow,
+        image = image,
+        lineItem = cartLineItem,
+        attributes = cartLineItem.attributes
+      )
 
   private def getOrderLineItem(orderLineItem: OrderLineItem)(implicit ec: EC, db: DB) =
     for {
-      sku ← * <~ SkuManager.mustFindFullSkuByIdAndShadowId(orderLineItem.skuId,
-                                                           orderLineItem.skuShadowId)
+      sku     ← * <~ SkuManager.mustFindFullSkuByIdAndShadowId(orderLineItem.skuId, orderLineItem.skuShadowId)
       product ← * <~ getProductForSku(sku.model)
       image   ← * <~ getLineItemImage(sku.model, product.model)
     } yield
-      OrderLineItemProductData(sku = sku.model,
-                               skuForm = sku.form,
-                               skuShadow = sku.shadow,
-                               productForm = product.form,
-                               productShadow = product.shadow,
-                               image = image,
-                               lineItem = orderLineItem,
-                               attributes = orderLineItem.attributes)
+      OrderLineItemProductData(
+        sku = sku.model,
+        skuForm = sku.form,
+        skuShadow = sku.shadow,
+        productForm = product.form,
+        productShadow = product.shadow,
+        image = image,
+        lineItem = orderLineItem,
+        attributes = orderLineItem.attributes
+      )
 
   private def getProductForSku(sku: Sku)(implicit ec: EC, db: DB) =
     for {

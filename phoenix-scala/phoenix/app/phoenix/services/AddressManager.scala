@@ -3,19 +3,18 @@ package phoenix.services
 import java.time.Instant
 
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.db._
+import core.failures.NotFoundFailure404
 import phoenix.models.account._
 import phoenix.models.location.{Address, Addresses}
 import phoenix.payloads.AddressPayloads._
 import phoenix.responses.AddressResponse
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 object AddressManager {
 
-  def findAllByAccountId(accountId: Int)(implicit ec: EC,
-                                         db: DB): DbResultT[Seq[AddressResponse]] = {
+  def findAllByAccountId(accountId: Int)(implicit ec: EC, db: DB): DbResultT[Seq[AddressResponse]] = {
     val query = Addresses.findAllActiveByAccountIdWithRegions(accountId)
     for (records ← * <~ query.result) yield AddressResponse.buildMulti(records)
   }
@@ -67,9 +66,8 @@ object AddressManager {
       _          ← * <~ LogActivity().addressDeleted(originator, customer, response)
     } yield {}
 
-  def setDefaultShippingAddress(addressId: Int, accountId: Int)(
-      implicit ec: EC,
-      db: DB): DbResultT[AddressResponse] =
+  def setDefaultShippingAddress(addressId: Int, accountId: Int)(implicit ec: EC,
+                                                                db: DB): DbResultT[AddressResponse] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       _        ← * <~ removeDefaultShippingAddress(accountId)

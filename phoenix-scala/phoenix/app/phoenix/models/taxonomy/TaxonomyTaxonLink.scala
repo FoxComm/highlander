@@ -3,15 +3,15 @@ package phoenix.models.taxonomy
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
-import models.objects.ObjectForm
-import models.objects.ObjectHeadLinks._
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.utils.Validation
+import objectframework.models.ObjectForm
+import objectframework.models.ObjectHeadLinks._
 import phoenix.failures.TaxonomyFailures.NoTermInTaxonomy
 import phoenix.utils.aliases.{EC, OC}
 import shapeless._
 import slick.lifted.Tag
-import utils.Validation
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 trait TaxonLocation {
   def path: LTree
@@ -46,10 +46,8 @@ case class TaxonomyTaxonLink(id: Int = 0,
   def parentIndex: Option[Int] = path.value.lastOption.filter(!_.isEmpty).map(_.toInt)
 }
 
-class TaxonomyTaxonLinks(tag: Tag)
-    extends ObjectHeadLinks[TaxonomyTaxonLink](tag, "taxonomy_taxon_links") {
+class TaxonomyTaxonLinks(tag: Tag) extends ObjectHeadLinks[TaxonomyTaxonLink](tag, "taxonomy_taxon_links") {
 
-  def archivedAt = column[Option[Instant]]("archived_at")
   def index      = column[Int]("index")
   def position   = column[Int]("position")
   def path       = column[LTree]("path")
@@ -65,9 +63,9 @@ class TaxonomyTaxonLinks(tag: Tag)
 
 object TaxonomyTaxonLinks
     extends ObjectHeadLinkQueries[TaxonomyTaxonLink, TaxonomyTaxonLinks, Taxonomy, Taxon](
-        new TaxonomyTaxonLinks(_),
-        Taxonomies,
-        Taxons)
+      new TaxonomyTaxonLinks(_),
+      Taxonomies,
+      Taxons)
     with ReturningId[TaxonomyTaxonLink, TaxonomyTaxonLinks] {
 
   def hasChildren(link: TaxonomyTaxonLink): Rep[Boolean] = {
@@ -113,11 +111,10 @@ object TaxonomyTaxonLinks
 
     for {
       newPosition ← * <~ position
-                     .fold(getNextPosition(link.taxonomyId, link.path).result.dbresult) {
-                       newPosition ⇒
-                         for {
-                           _ ← * <~ shiftPositions(link.taxonomyId, link.path, newPosition)
-                         } yield newPosition
+                     .fold(getNextPosition(link.taxonomyId, link.path).result.dbresult) { newPosition ⇒
+                       for {
+                         _ ← * <~ shiftPositions(link.taxonomyId, link.path, newPosition)
+                       } yield newPosition
                      }
       newLink = link.copy(position = newPosition)
       _       = assert(newLink.id == link.id && newLink.position == newPosition)
@@ -161,11 +158,14 @@ object TaxonomyTaxonLinks
     filter(_.taxonomyId === taxonomyId).nonArchived.map(_.index).max.map(_ + 1).getOrElse(0)
 
   def filterByTaxonFormId(taxonFormId: ObjectForm#Id)(implicit oc: OC): QuerySeq =
-    join(Taxons).on { case (link, term) ⇒ link.taxonId === term.id }.filter {
-      case (_, term) ⇒
-        term.formId ===
-          taxonFormId && term.contextId === oc.id
-    }.map { case (link, _) ⇒ link }
+    join(Taxons)
+      .on { case (link, term) ⇒ link.taxonId === term.id }
+      .filter {
+        case (_, term) ⇒
+          term.formId ===
+            taxonFormId && term.contextId === oc.id
+      }
+      .map { case (link, _) ⇒ link }
 
   def build(left: Taxonomy, right: Taxon): TaxonomyTaxonLink =
     TaxonomyTaxonLink(0, 0, left.id, right.id, 0, LTree(""))
@@ -194,8 +194,8 @@ object TaxonomyTaxonLinks
           implicit oc: OC): QuerySeq =
         filterByTaxonFormId(taxonFormId).filter(_.taxonomyId === taxonomyId)
 
-      def mustFindByTaxonomyAndTaxonFormId(taxonomy: Taxonomy,
-                                           taxonFormId: ObjectForm#Id)(implicit oc: OC, ec: EC) =
+      def mustFindByTaxonomyAndTaxonFormId(taxonomy: Taxonomy, taxonFormId: ObjectForm#Id)(implicit oc: OC,
+                                                                                           ec: EC) =
         q.filterByTaxonomyAndTaxonFormId(taxonomy.id, taxonFormId)
           .mustFindOneOr(NoTermInTaxonomy(taxonomy.formId, taxonFormId))
 

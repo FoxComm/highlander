@@ -47,7 +47,7 @@
     "eslint-plugin-jsx-a11y": "^4.0.0",
     "eslint-plugin-react": "^6.10.3",
     "evil-icons": "^1.8.0",
-    "flow-bin": "0.42.0",
+    "flow-bin": "^0.46.0",
     "glob-watcher": "^3.1.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
@@ -87,8 +87,9 @@
     "watchify": "^3.9.0"
   },
   "dependencies": {
-    "@foxcomm/api-js": "^1.1.7",
+    "@foxcomm/api-js": "^1.2.0",
     "@foxcomm/babel-plugin-react-stylenames": "^3.1.0",
+    "@foxcomm/storefront-react": "^1.3.0",
     "@foxcomm/wings": "^1.9.12",
     "classnames": "^2.2.3",
     "core-decorators": "^0.11.0",

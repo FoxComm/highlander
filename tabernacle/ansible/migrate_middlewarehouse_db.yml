@@ -8,7 +8,7 @@
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a database to migrate"
-      default: "vanilla-db"
+      default: "hostname"
       private: no
     - name: "middlewarehouse_db_name"
       prompt: "Enter name of middlewarehouse db to migrate"
@@ -20,4 +20,4 @@
       private: no
 
   roles:
-      - { role: prod/migrate_middlewarehouse_db }
+    - { role: prod/migrate_middlewarehouse_db, become: true }

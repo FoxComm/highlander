@@ -1,24 +1,22 @@
 package phoenix.services
 
-import cats.instances.map
+import core.db._
 import phoenix.failures.GiftCardFailures.GiftCardConvertFailure
 import phoenix.failures.OpenTransactionsFailure
 import phoenix.failures.StoreCreditFailures.StoreCreditConvertFailure
 import phoenix.models.account._
-import phoenix.models.admin.AdminsData
 import phoenix.models.payment.giftcard._
 import phoenix.models.payment.storecredit._
-import phoenix.responses.{GiftCardResponse, StoreCreditResponse, UserResponse}
-import slick.jdbc.PostgresProfile.api._
+import phoenix.responses.users.UserResponse
+import phoenix.responses.{GiftCardResponse, StoreCreditResponse}
 import phoenix.utils.aliases._
-import utils.db._
+import slick.jdbc.PostgresProfile.api._
 
 object CustomerCreditConverter {
 
-  def toStoreCredit(giftCardCode: String, accountId: Int, admin: User)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[StoreCreditResponse.Root] =
+  def toStoreCredit(giftCardCode: String,
+                    accountId: Int,
+                    admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreCreditResponse.Root] =
     for {
       giftCard ← * <~ GiftCards.mustFindByCode(giftCardCode)
       _        ← * <~ failIf(!giftCard.isActive, GiftCardConvertFailure(giftCard))
@@ -34,25 +32,25 @@ object CustomerCreditConverter {
       _ ← * <~ GiftCards.redeemToStoreCredit(giftCard, admin)
 
       // Finally, convert to Store Credit
-      conversion ← * <~ StoreCreditFromGiftCards.create(
-                      StoreCreditFromGiftCard(giftCardId = giftCard.id))
+      conversion ← * <~ StoreCreditFromGiftCards.create(StoreCreditFromGiftCard(giftCardId = giftCard.id))
       storeCredit ← * <~ StoreCredits.create(
-                       StoreCredit(accountId = accountId,
-                                   originId = conversion.id,
-                                   scope = giftCard.scope,
-                                   originType = StoreCredit.GiftCardTransfer,
-                                   currency = giftCard.currency,
-                                   originalBalance = giftCard.currentBalance,
-                                   currentBalance = giftCard.currentBalance))
+                     StoreCredit(
+                       accountId = accountId,
+                       originId = conversion.id,
+                       scope = giftCard.scope,
+                       originType = StoreCredit.GiftCardTransfer,
+                       currency = giftCard.currency,
+                       originalBalance = giftCard.currentBalance,
+                       currentBalance = giftCard.currentBalance
+                     ))
 
       // Activity
       _ ← * <~ LogActivity().gcConvertedToSc(admin, giftCard, storeCredit)
     } yield StoreCreditResponse.build(storeCredit)
 
-  def toGiftCard(
-      storeCreditId: Int,
-      accountId: Int,
-      admin: User)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[GiftCardResponse.Root] =
+  def toGiftCard(storeCreditId: Int,
+                 accountId: Int,
+                 admin: User)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[GiftCardResponse.Root] =
     for {
       credit ← * <~ StoreCredits.mustFindById404(storeCreditId)
       _      ← * <~ failIf(!credit.isActive, StoreCreditConvertFailure(credit))
@@ -68,15 +66,16 @@ object CustomerCreditConverter {
                    .update(StoreCredit.FullyRedeemed)
       adjustment ← * <~ StoreCredits.redeemToGiftCard(credit, admin)
       // Convert to Gift Card
-      conversion ← * <~ GiftCardFromStoreCredits.create(
-                      GiftCardFromStoreCredit(storeCreditId = credit.id))
+      conversion ← * <~ GiftCardFromStoreCredits.create(GiftCardFromStoreCredit(storeCreditId = credit.id))
       giftCard ← * <~ GiftCards.create(
-                    GiftCard(scope = Scope.current,
-                             originId = conversion.id,
-                             originType = GiftCard.FromStoreCredit,
-                             currency = credit.currency,
-                             originalBalance = credit.currentBalance,
-                             currentBalance = credit.currentBalance))
+                  GiftCard(
+                    scope = Scope.current,
+                    originId = conversion.id,
+                    originType = GiftCard.FromStoreCredit,
+                    currency = credit.currency,
+                    originalBalance = credit.currentBalance,
+                    currentBalance = credit.currentBalance
+                  ))
 
       // Activity
       _ ← * <~ LogActivity().scConvertedToGc(admin, giftCard, credit)

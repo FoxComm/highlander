@@ -2,9 +2,9 @@ import cats.implicits._
 import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
 import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
 import phoenix.responses.cord.CartResponse
-import phoenix.responses.{CustomerResponse, StoreAdminResponse}
+import phoenix.responses.users.{CustomerResponse, StoreAdminResponse}
 import testutils._
-import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
+import testutils.apis._
 import testutils.fixtures.api.ApiFixtureHelpers
 
 class JwtAuthTest
@@ -16,19 +16,17 @@ class JwtAuthTest
   "Real test auth" - {
 
     "must create an admin" in withNewAdminAuth(TestLoginData("admin@admin.com")) { implicit auth ⇒
-      storeAdminsApi(auth.adminId).get().as[StoreAdminResponse.Root].email.value must === (
-          "admin@admin.com")
+      storeAdminsApi(auth.adminId).get().as[StoreAdminResponse].email.value must === ("admin@admin.com")
     }
 
     "must create an admin 2" in {
       withNewAdminAuth(TestLoginData("admin@admin.com")) { implicit auth ⇒
-        storeAdminsApi(auth.adminId).get().as[StoreAdminResponse.Root].email.value must === (
-            "admin@admin.com")
+        storeAdminsApi(auth.adminId).get().as[StoreAdminResponse].email.value must === ("admin@admin.com")
       }
     }
 
     "must allow to login as different user" in {
-      val skuCode = new ProductSku_ApiFixture {}.skuCode
+      val skuCode = ProductSku_ApiFixture().skuCode
 
       val adminLoginData   = TestLoginData.random
       val daisyLoginData   = TestLoginData.random
@@ -38,10 +36,11 @@ class JwtAuthTest
       // Let's assume she just got her nails done so she can only hit refresh on the cart page and talk to CSR
       val (adminId, daisyId, daisyCartRef) = withNewAdminAuth(adminLoginData) { implicit auth ⇒
         val customer = customersApi
-          .create(CreateCustomerPayload(email = daisyLoginData.email,
-                                        password = daisyLoginData.password.some,
-                                        name = "Daisy Bloom".some))
-          .as[CustomerResponse.Root]
+          .create(
+            CreateCustomerPayload(email = daisyLoginData.email,
+                                  password = daisyLoginData.password.some,
+                                  name = "Daisy Bloom".some))
+          .as[CustomerResponse]
 
         val cartRef = api_newCustomerCart(customer.id).referenceNumber
 

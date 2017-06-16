@@ -8,7 +8,7 @@ import phoenix.models.account._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.Tag
-import utils.db._
+import core.db._
 
 case class SharedSearchAssociation(id: Int = 0,
                                    sharedSearchId: Int,
@@ -17,9 +17,8 @@ case class SharedSearchAssociation(id: Int = 0,
     extends FoxModel[SharedSearchAssociation]
 
 object SharedSearchAssociation {
-  def build(search: SharedSearch, admin: User): SharedSearchAssociation = {
+  def build(search: SharedSearch, admin: User): SharedSearchAssociation =
     SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = admin.accountId)
-  }
 }
 
 class SharedSearchAssociations(tag: Tag)
@@ -31,14 +30,13 @@ class SharedSearchAssociations(tag: Tag)
 
   def * =
     (id, sharedSearchId, storeAdminId, createdAt) <> ((SharedSearchAssociation.apply _).tupled,
-        SharedSearchAssociation.unapply)
+    SharedSearchAssociation.unapply)
   def sharedSearch = foreignKey(SharedSearches.tableName, sharedSearchId, Carts)(_.id)
   def storeAdmin   = foreignKey(Users.tableName, storeAdminId, Users)(_.accountId)
 }
 
 object SharedSearchAssociations
-    extends FoxTableQuery[SharedSearchAssociation, SharedSearchAssociations](
-        new SharedSearchAssociations(_))
+    extends FoxTableQuery[SharedSearchAssociation, SharedSearchAssociations](new SharedSearchAssociations(_))
     with ReturningId[SharedSearchAssociation, SharedSearchAssociations] {
 
   val returningLens: Lens[SharedSearchAssociation, Int] = lens[SharedSearchAssociation].id
@@ -53,10 +51,9 @@ object SharedSearchAssociations
 
   def bySharedSearch(search: SharedSearch): QuerySeq = filter(_.sharedSearchId === search.id)
 
-  def associatedAdmins(search: SharedSearch): Users.QuerySeq = {
+  def associatedAdmins(search: SharedSearch): Users.QuerySeq =
     for {
       associations ← bySharedSearch(search).map(_.storeAdminId)
       admins       ← Users.filter(_.accountId === associations)
     } yield admins
-  }
 }

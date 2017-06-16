@@ -10,7 +10,7 @@ import AddressDetails from 'components/addresses/address-details';
 
 import * as PaymentMethodActions from 'modules/carts/payment-methods';
 
-import type { CreditCard, Order } from 'paragons/order';
+import type { CreditCard } from 'paragons/order';
 
 type Props = {
   customerId: number,

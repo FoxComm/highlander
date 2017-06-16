@@ -1,14 +1,19 @@
 /* @flow */
 
-import _ from 'lodash';
 import React, { Component } from 'react';
+
+// libs
+import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { autobind, debounce } from 'core-decorators';
-import moment from 'moment';
 import classNames from 'classnames';
-
 import operators from 'paragons/customer-groups/operators';
+import { transitionTo } from 'browserHistory';
+import { prefix, numberize } from 'lib/text-utils';
+import { bulkExportBulkAction, renderExportModal } from 'modules/bulk-export/helpers';
+
+// actions
 import {
   fetchGroupStats,
   GROUP_TYPE_MANUAL,
@@ -18,10 +23,9 @@ import {
 import { actions as customersListActions } from 'modules/customer-groups/details/customers-list';
 import { suggestCustomers } from 'modules/customers/suggest';
 import { actions as bulkActions } from 'modules/customer-groups/details/bulk';
+import { bulkExport } from 'modules/bulk-export/bulk-export';
 
-import { transitionTo } from 'browserHistory';
-import { prefix, numberize } from 'lib/text-utils';
-
+// components
 import { Link } from 'components/link';
 import BulkActions from 'components/bulk-actions/bulk-actions';
 import BulkMessages from 'components/bulk-actions/bulk-messages';
@@ -33,6 +37,7 @@ import ContentBox from 'components/content-box/content-box';
 import Criterion from './editor/criterion-view';
 import CustomerGroupStats from './stats';
 import SearchCustomersModal from './customers/search-modal';
+import { DateTime } from 'components/common/datetime';
 
 type State = {
   criteriaOpen: boolean,
@@ -53,7 +58,13 @@ type Props = {
   },
   bulkActions: {
     deleteCustomersFromGroup: (groupId: number, customersIds: Array<number>) => Promise<*>,
+    exportByIds: (
+      ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
+    ) => void,
   },
+  bulkExportAction: (
+    fields: Array<string>, entity: string, identifier: string, description: string
+  ) => Promise<*>,
   suggested: Array<TUser>,
   suggestState: AsyncState,
   suggestCustomers: (token: string) => Promise<*>,
@@ -121,16 +132,52 @@ class GroupDetails extends Component {
     this.setState({ addCustomersModalShown: false });
   }
 
+  @autobind
+  bulkExport(allChecked: boolean, toggledIds: Array<number>) {
+    const { exportByIds } = this.props.bulkActions;
+    const modalTitle = 'Customers';
+    const entity = 'customers';
+
+    return renderExportModal(tableColumns, entity, modalTitle, exportByIds, toggledIds);
+  }
+
+  @autobind
+  handleDeleteCustomers(allChecked: boolean, customersIds: Array<number> = []) {
+    const { deleteCustomersFromGroup } = this.props.bulkActions;
+
+    const count = customersIds.length;
+    const label = (
+      <span>
+        Are you sure you want to delete&nbsp;
+        <b>{count} {numberize('customer', count)}</b> from group <b>"{this.props.group.name}"</b>?
+      </span>
+    );
+
+    return (
+      <BulkModal
+        title="Delete from group?"
+        label={label}
+        onConfirm={() => {
+          deleteCustomersFromGroup(this.props.group.id, customersIds).then(this.refreshGroupData);
+        }}
+      />
+    );
+  }
+
+  get deleteAction() {
+    return [
+      'Delete From Group',
+      this.handleDeleteCustomers,
+      'successfully deleted from group',
+      'could not be deleted from group'
+    ];
+  }
   get bulkActions() {
     if (this.props.group.groupType != GROUP_TYPE_MANUAL) return [];
 
     return [
-      [
-        'Delete From Group',
-        this.handleDeleteCustomers,
-        'successfully deleted from group',
-        'could not be deleted from group'
-      ],
+      bulkExportBulkAction(this.bulkExport, 'Customers'),
+      this.deleteAction,
     ];
   }
 
@@ -156,29 +203,6 @@ class GroupDetails extends Component {
         suggestCustomers={this.props.suggestCustomers}
         suggested={this.props.suggested}
         suggestState={this.props.suggestState}
-      />
-    );
-  }
-
-  @autobind
-  handleDeleteCustomers(allChecked, customersIds = []) {
-    const { deleteCustomersFromGroup } = this.props.bulkActions;
-
-    const count = customersIds.length;
-    const label = (
-      <span>
-        Are you sure you want to delete&nbsp;
-        <b>{count} {numberize('customer', count)}</b> from group <b>"{this.props.group.name}"</b>?
-      </span>
-    );
-
-    return (
-      <BulkModal
-        title="Delete from group?"
-        label={label}
-        onConfirm={() => {
-          deleteCustomersFromGroup(this.props.group.id, customersIds).then(this.refreshGroupData);
-        }}
       />
     );
   }
@@ -276,7 +300,7 @@ class GroupDetails extends Component {
           </div>
           <div>
             <span className={prefixed('about__key')}>Created:&nbsp;</span>
-            <span className={prefixed('about__value')}>{moment(group.createdAt).format('DD/MM/YYYY HH:mm')}</span>
+            <span className={prefixed('about__value')}><DateTime value={group.createdAt} /></span>
           </div>
         </div>
       </header>
@@ -300,6 +324,10 @@ class GroupDetails extends Component {
           actions={this.bulkActions}
         >
           <SelectableSearchList
+            exportEntity="customers"
+            exportTitle="Customers"
+            bulkExport
+            bulkExportAction={this.props.bulkExportAction}
             entity="customerGroups.details.customers"
             emptyMessage="No customers found."
             list={customersList}
@@ -332,14 +360,16 @@ class GroupDetails extends Component {
   }
 }
 
-const mapState = state => ({
-  customersList: _.get(state, 'customerGroups.details.customers'),
-  statsLoading: _.get(state, 'asyncActions.fetchStatsCustomerGroup.inProgress', false),
-  suggested: state.customers.suggest.customers,
-  suggestState: _.get(state.asyncActions, 'suggestCustomers', {}),
-});
+const mapStateToProps = (state) => {
+  return {
+    customersList: _.get(state.customerGroups, 'details.customers', {}),
+    statsLoading: _.get(state.asyncActions, 'fetchStatsCustomerGroup.inProgress', false),
+    suggested: _.get(state.customers, 'suggest.customers',[]),
+    suggestState: _.get(state.asyncActions, 'suggestCustomers', {}),
+  };
+};
 
-const mapDispatch = (dispatch, props) => {
+const mapDispatchToProps = (dispatch, props) => {
   const customerEntries = _.get(props, 'customerGroups.details.customers', []);
   const customers = _.map(customerEntries, customer => customer.id);
 
@@ -351,7 +381,8 @@ const mapDispatch = (dispatch, props) => {
       addCustomersToGroup,
     }, dispatch)),
     bulkActions: bindActionCreators(bulkActions, dispatch),
+    bulkExportAction: bindActionCreators(bulkExport, dispatch),
   };
 };
 
-export default connect(mapState, mapDispatch)(GroupDetails);
+export default connect(mapStateToProps, mapDispatchToProps)(GroupDetails);

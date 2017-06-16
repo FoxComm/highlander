@@ -1,5 +1,7 @@
 .user-form {
-  lost-flex-container: row;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
 
   & :global(.initials) {
     font-size: 36px;
@@ -11,11 +13,14 @@
 }
 
 .main {
-  lost-column: 8/12;
+  width: calc(67% - 1.85%);
+  margin-right: 1.85%;
+  min-width: 400px;
 }
 
 .aside {
-  lost-column: 4/12;
+  width: 33%;
+  min-width: 200px;
 
   & :global(.fc-content-box:not(:last-child)) {
     margin-bottom: 20px;

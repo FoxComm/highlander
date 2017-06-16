@@ -1,14 +1,13 @@
-// @flow
+/* @flow */
 
-// libs
 import React from 'react';
 
-// helpers
+// libs
 import { activeStatus } from 'paragons/common';
 
 // components
 import MultiSelectRow from 'components/table/multi-select-row';
-import RoundedPill from 'components/rounded-pill/rounded-pill';
+import { RoundedPill } from 'components/core/rounded-pill';
 
 type Props = {
   taxon: TaxonResult,
@@ -16,18 +15,18 @@ type Props = {
   params: Object,
 };
 
-const setCellContents = (taxon: TaxonResult, field: string) => {
-  switch (field) {
-    case 'state':
-      return <RoundedPill text={activeStatus(taxon)} />;
-    case 'productsCount':
-      return 0; // TODO: fix after ES mapping update
-    default:
-      return taxon[field];
-  }
-};
+const TaxonRow = (props: Props) => {
+  const { taxon, ...rest } = props;
 
-const TaxonRow = ({ taxon, ...rest }: Props) => {
+  const setCellContents = (taxon: TaxonResult, field: string) => {
+    switch (field) {
+      case 'state':
+        return <RoundedPill text={activeStatus(taxon)} />;
+      default:
+        return taxon[field];
+    }
+  };
+
   return (
     <MultiSelectRow
       {...rest}

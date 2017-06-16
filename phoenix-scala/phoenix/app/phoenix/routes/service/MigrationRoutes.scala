@@ -14,8 +14,7 @@ import phoenix.utils.http.JsonSupport._
 
 object MigrationRoutes {
   def routes(customerCreateContext: AccountCreateContext,
-             defaultScope: LTree)(implicit ec: EC, db: DB, apis: Apis): Route = {
-
+             defaultScope: LTree)(implicit ec: EC, db: DB, apis: Apis): Route =
     activityContext(defaultScope) { implicit ac ⇒
       pathPrefix("migration") {
         pathPrefix("customers") {
@@ -27,5 +26,4 @@ object MigrationRoutes {
         }
       }
     }
-  }
 }

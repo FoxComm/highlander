@@ -3,7 +3,7 @@ package time
 import java.time.{Instant, ZoneId, ZonedDateTime}
 
 import testutils._
-import utils.db._
+import core.db._
 
 class JavaTimeMapperTest extends IntegrationTestBase with DbTestSupport {
 
@@ -46,7 +46,7 @@ class JavaTimeMapperTest extends IntegrationTestBase with DbTestSupport {
         .futureValue
 
       timestampAfterRoundtrip must === (
-          ZonedDateTime.of(2015, 7, 1, 15, 17, 38, 0, ZoneId.of("UTC")).toInstant)
+        ZonedDateTime.of(2015, 7, 1, 15, 17, 38, 0, ZoneId.of("UTC")).toInstant)
     }
   }
 }

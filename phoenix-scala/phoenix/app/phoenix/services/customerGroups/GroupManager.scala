@@ -2,19 +2,19 @@ package phoenix.services.customerGroups
 
 import java.time.Instant
 
-import failures.NotFoundFailure404
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.failures.NotFoundFailure404
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import phoenix.models.account.{Scope, User}
 import phoenix.models.customer.CustomerGroup.Manual
 import phoenix.models.customer._
 import phoenix.payloads.CustomerGroupPayloads.CustomerGroupPayload
-import phoenix.responses.GroupResponses.GroupResponse.{Root, build}
+import phoenix.responses.GroupResponses.GroupResponse.{build, Root}
 import phoenix.services.LogActivity
 import phoenix.utils.aliases._
 import phoenix.utils.time._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 object GroupManager {
 
@@ -44,10 +44,10 @@ object GroupManager {
       payloadWithCount = if (group.groupType == Manual) payload.copy(customersCount = memberCount)
       else payload
       groupEdited ← * <~ CustomerGroups.update(
-                       group,
-                       CustomerGroup
-                         .fromPayloadAndAdmin(payloadWithCount, group.createdBy, scope)
-                         .copy(id = groupId, createdAt = group.createdAt, updatedAt = Instant.now))
+                     group,
+                     CustomerGroup
+                       .fromPayloadAndAdmin(payloadWithCount, group.createdBy, scope)
+                       .copy(id = groupId, createdAt = group.createdAt, updatedAt = Instant.now))
       _ ← * <~ LogActivity().customerGroupUpdated(groupEdited, admin)
     } yield build(groupEdited)
 
@@ -68,28 +68,22 @@ object GroupManager {
                            admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[Root] =
     for {
       scope ← * <~ Scope.resolveOverride(payload.scope)
-      group ← * <~ CustomerGroups.create(
-                 CustomerGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
+      group ← * <~ CustomerGroups.create(CustomerGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
       updated ← * <~ doOrGood(group.elasticRequest == JObject() || group.elasticRequest == JNull,
                               CustomerGroups.update(group, withGroupQuery(group)),
                               group)
       _ ← * <~ LogActivity().customerGroupCreated(updated, admin)
     } yield build(updated)
 
-  private def createTemplateGroup(templateId: Int, payload: CustomerGroupPayload, admin: User)(
-      implicit ec: EC,
-      db: DB,
-      au: AU,
-      ac: AC): DbResultT[Root] =
+  private def createTemplateGroup(templateId: Int,
+                                  payload: CustomerGroupPayload,
+                                  admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[Root] =
     for {
       scope    ← * <~ Scope.resolveOverride(payload.scope)
       template ← * <~ CustomerGroupTemplates.mustFindById404(templateId)
-      group ← * <~ CustomerGroups.create(
-                 CustomerGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
+      group    ← * <~ CustomerGroups.create(CustomerGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
       _ ← * <~ GroupTemplateInstances.create(
-             GroupTemplateInstance(groupId = group.id,
-                                   groupTemplateId = template.id,
-                                   scope = scope))
+           GroupTemplateInstance(groupId = group.id, groupTemplateId = template.id, scope = scope))
       _ ← * <~ LogActivity().customerGroupCreated(group, admin)
     } yield build(group)
 

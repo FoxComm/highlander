@@ -3,8 +3,8 @@
 - name: Create Dashboard Server Directory
   file: path={{dashboard_assets_location}} state=directory
 
-- name: Install Dashboard Server
-  unarchive: src={{dashboard_url}} dest=/usr/local/bin/ remote_src=yes
+- name: Copy Dashboard Binary
+  unarchive: src=dashboard_linux_amd64.tar.gz dest=/usr/local/bin
 
 - name: Make Dashboard Executable
   file: path=/usr/local/bin/dashboard mode=750

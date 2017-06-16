@@ -1,4 +1,4 @@
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import phoenix.models._
 import phoenix.models.cord._
 import phoenix.payloads.NotePayloads._

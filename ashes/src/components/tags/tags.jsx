@@ -7,12 +7,12 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { trackEvent } from 'lib/analytics';
 
-import RoundedPill from '../rounded-pill/rounded-pill';
+import { RoundedPill } from 'components/core/rounded-pill';
 import TextInput from '../forms/text-input';
 
 import styles from './tags.css';
 
-import type { Value } from 'components/rounded-pill/rounded-pill';
+import type { Value } from 'components/core/rounded-pill';
 
 type Props = {
   attributes: Attributes,

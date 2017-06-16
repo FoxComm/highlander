@@ -233,7 +233,7 @@ class OptionList extends Component {
 
     const confirmation = (
       <div>
-        Are you sure you want to remove {removeTarget} from the product?<br/>
+        Are you sure you want to remove {removeTarget} from the product?<br />
         This action will remove following SKUs from product:
         <ul styleName="deleting-skus">
           {skuListForDeletion}

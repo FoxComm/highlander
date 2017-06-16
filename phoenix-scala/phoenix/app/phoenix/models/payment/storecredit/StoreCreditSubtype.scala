@@ -1,17 +1,16 @@
 package phoenix.models.payment.storecredit
 
+import core.db._
 import phoenix.models.payment.storecredit.StoreCredit.OriginType
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class StoreCreditSubtype(id: Int = 0, title: String, originType: OriginType)
     extends FoxModel[StoreCreditSubtype]
 
 object StoreCreditSubtype {}
 
-class StoreCreditSubtypes(tag: Tag)
-    extends FoxTable[StoreCreditSubtype](tag, "store_credit_subtypes") {
+class StoreCreditSubtypes(tag: Tag) extends FoxTable[StoreCreditSubtype](tag, "store_credit_subtypes") {
 
   def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def title      = column[String]("title")

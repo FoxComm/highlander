@@ -2,7 +2,7 @@
 
 .block {
   position: relative;
-  border-bottom: 2px solid var(--grey-buttons);
+  border-bottom: 2px solid var(--nav-item-underline);
   margin: 20px 1.85%; /* because of grid system :( */
 }
 
@@ -44,7 +44,7 @@
 
   & > a,
   & > a:visited {
-    border-bottom: 2px solid var(--nav-pink);
+    border-bottom: 2px solid var(--nav-item-underline-active);
   }
 }
 
@@ -83,7 +83,7 @@
 }
 
 .dropdown .item:hover {
-  background: var(--grey-background);
+  background: var(--dd-item-bg-active);
 }
 
 .dropdown .item a {
@@ -94,8 +94,4 @@
 
 .dropdown .item a:hover {
   color: #484848;
-}
-
-.activeLink {
-  border-bottom: 2px solid var(--nav-pink);
 }

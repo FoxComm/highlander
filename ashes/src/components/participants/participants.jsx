@@ -27,7 +27,7 @@ import type { EntityType } from 'types/entity';
 
 type AsyncActions = {
   fetchParticipants: AsyncState,
-}
+};
 
 type Props = {
   group: GroupType,

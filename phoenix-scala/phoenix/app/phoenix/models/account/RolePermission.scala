@@ -1,11 +1,10 @@
 package phoenix.models.account
 
+import core.db._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
-case class RolePermission(id: Int = 0, roleId: Int, permissionId: Int)
-    extends FoxModel[RolePermission]
+case class RolePermission(id: Int = 0, roleId: Int, permissionId: Int) extends FoxModel[RolePermission]
 
 class RolePermissions(tag: Tag) extends FoxTable[RolePermission](tag, "role_permissions") {
   def id           = column[Int]("id", O.PrimaryKey, O.AutoInc)

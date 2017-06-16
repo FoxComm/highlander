@@ -2,7 +2,6 @@
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom';
 import { EventEmitter } from 'events';
 import { autobind } from 'core-decorators';
 

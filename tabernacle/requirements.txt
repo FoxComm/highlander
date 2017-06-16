@@ -1,2 +1,1 @@
-dnsimple==0.3.6
 git+git://github.com/kpashka/libcloud.git@hotfix/remove-license-fetch#egg=apache-libcloud

@@ -2,13 +2,13 @@ package phoenix.utils.seeds
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import core.db._
 import phoenix.models.account._
 import phoenix.models.{Note, Notes}
 import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
 import phoenix.services.account._
 import phoenix.services.customers._
 import phoenix.utils.aliases._
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -37,15 +37,14 @@ trait CustomerSeeds {
   def createCustomers(scopeId: Int)(implicit db: DB, ac: AC): DbResultT[CustomerIds] =
     for {
       users ← * <~ customers.map(
-                 c ⇒
-                   createCustomer(user = c,
-                                  isGuest = c.accountId == 100,
-                                  scopeId = scopeId,
-                                  password = "password".some))
+               c ⇒
+                 createCustomer(user = c,
+                                isGuest = c.accountId == 100,
+                                scopeId = scopeId,
+                                password = "password".some))
       accountIds = users.map(_.accountId)
       scope ← * <~ Scopes.mustFindById400(scopeId)
-      _ ← * <~ Notes.createAll(
-             customerNotes(LTree(scope.path)).map(_.copy(referenceId = accountIds.head)))
+      _     ← * <~ Notes.createAll(customerNotes(LTree(scope.path)).map(_.copy(referenceId = accountIds.head)))
     } yield
       accountIds.toList match {
         case c1 :: c2 :: c3 :: c4 :: Nil ⇒ (c1, c2, c3, c4)
@@ -53,16 +52,10 @@ trait CustomerSeeds {
       }
 
   def usCustomer1 =
-    User(accountId = 0,
-         name = "Yax Man".some,
-         email = "yax@yax.com".some,
-         phoneNumber = Some("123-444-4388"))
+    User(accountId = 0, name = "Yax Man".some, email = "yax@yax.com".some, phoneNumber = Some("123-444-4388"))
 
   def usCustomer2 =
-    User(accountId = 0,
-         email = "adil@adil.com".some,
-         phoneNumber = "123-444-0909".some,
-         isDisabled = true) // FIXME: `disabledBy` is not required for `isDisabled`=true
+    User(accountId = 0, email = "adil@adil.com".some, phoneNumber = "123-444-0909".some, isDisabled = true) // FIXME: `disabledBy` is not required for `isDisabled`=true
 
   def canadaCustomer =
     User(accountId = 100, //hack to make one guest
@@ -82,16 +75,12 @@ trait CustomerSeeds {
 
   def customerNotes(scope: LTree): Seq[Note] = {
     def newNote(body: String) =
-      Note(referenceId = 1,
-           referenceType = Note.Customer,
-           storeAdminId = 1,
-           body = body,
-           scope = scope)
+      Note(referenceId = 1, referenceType = Note.Customer, storeAdminId = 1, body = body, scope = scope)
     Seq(
-        newNote("This customer is a donkey."),
-        newNote("No, seriously."),
-        newNote("Like, an actual donkey."),
-        newNote("How did a donkey even place an order on our website?")
+      newNote("This customer is a donkey."),
+      newNote("No, seriously."),
+      newNote("Like, an actual donkey."),
+      newNote("How did a donkey even place an order on our website?")
     )
   }
 }

@@ -1,41 +1,46 @@
 package utils
 
-import java.io.File
-
 import cats.implicits._
 import com.stripe.model.DeletedCard
+import core.db._
+import java.io.File
+import org.apache.avro.generic.GenericData
+import org.apache.kafka.clients.producer.MockProducer
+import org.json4s.jackson.JsonMethods._
 import org.mockito.ArgumentMatcher
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
+import org.scalatest._
 import org.scalatest.mockito.MockitoSugar
+import phoenix.models.activity.OpaqueActivity
+import phoenix.models.inventory.ProductVariantSku
+import phoenix.server.Setup
+import phoenix.services.activity.ActivityBase
 import phoenix.utils.ElasticsearchApi
+import phoenix.utils.JsonFormatters._
 import phoenix.utils.TestStripeSupport.randomStripeishId
 import phoenix.utils.aliases._
 import phoenix.utils.aliases.stripe._
 import phoenix.utils.apis._
-import utils.db._
-
+import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Random, Try}
+import shapeless.syntax.typeable._
 
 trait RealStripeApi extends MockedApis {
 
   override implicit def apisOverride: Option[Apis] =
-    Apis(phoenix.server.Setup.defaultApis.stripe,
-         amazonApiMock,
-         middlewarehouseApiMock,
-         elasticSearchMock).some
+    Apis(Setup.setupStripe(), amazonApiMock, middlewarehouseApiMock, elasticSearchMock, kafkaMock).some
 }
 
-object MockedApis extends MockedApis {
+trait MockedApis extends MockitoSugar with MustMatchers with OptionValues with AppendedClues {
+  private[this] implicit def formats = phoenixFormats
 
-  val apis: Apis = Apis(stripeApiMock, amazonApiMock, middlewarehouseApiMock, elasticSearchMock)
-}
-
-trait MockedApis extends MockitoSugar {
+  implicit def apis: Apis =
+    Apis(stripeApiMock, amazonApiMock, middlewarehouseApiMock, elasticSearchMock, kafkaMock)
 
   val stripeCustomer: StripeCustomer = newStripeCustomer
   def newStripeCustomer: StripeCustomer = {
@@ -123,12 +128,37 @@ trait MockedApis extends MockitoSugar {
     val mocked = mock[MiddlewarehouseApi]
     when(mocked.hold(any[OrderInventoryHold])(any[EC], any[AU])).thenReturn(Result.unit)
     when(mocked.cancelHold(any[String])(any[EC], any[AU])).thenReturn(Result.unit)
+    when(mocked.createSku(any[Int], any[CreateSku])(any[EC], any[AU]))
+      .thenReturn(DbResultT.pure(ProductVariantSku(skuId = -1, mwhSkuId = -1)))
     mocked
   }
 
   lazy val elasticSearchMock: ElasticsearchApi = mock[ElasticsearchApi] // TODO: fill me with some defaults?
 
-  implicit def apisOverride: Option[Apis] =
-    Apis(stripeApiMock, amazonApiMock, middlewarehouseApiMock, elasticSearchMock).some
+  lazy val kafkaMock: MockProducer[GenericData.Record, GenericData.Record] =
+    new MockProducer[GenericData.Record, GenericData.Record](true, null, null)
 
+  implicit def apisOverride: Option[Apis] = apis.some
+
+  def assertActivities(assertion: List[OpaqueActivity] ⇒ Assertion): Assertion =
+    assertion(
+      kafkaMock
+        .history()
+        .asScala
+        .map { record ⇒
+          val activityKind = Option(record.value().get("kind"))
+            .flatMap(_.cast[String])
+            .value
+            .withClue("Failed to find activity kind inside kafka record")
+          val data = Option(record.value().get("data"))
+            .flatMap(_.cast[String])
+            .flatMap(parseOpt(_))
+            .value
+            .withClue("Failed to find activity data inside kafka record")
+
+          OpaqueActivity(activityKind, data)
+        }(collection.breakOut))
+
+  def mustProduceActivity[A <: ActivityBase[A]: Manifest](entity: A): Assertion =
+    assertActivities(_ must contain(entity.toOpaque))
 }

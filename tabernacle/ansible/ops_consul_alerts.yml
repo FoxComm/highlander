@@ -9,7 +9,7 @@
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname where to install Consul Alerts"
-      default: "stage-amigo"
+      default: "hostname"
       private: no
     - name: "slack_channel"
       prompt: "Enter a Slack channel name where notifications will be posted"

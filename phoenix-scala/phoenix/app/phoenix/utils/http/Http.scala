@@ -1,13 +1,17 @@
 package phoenix.utils.http
 
+import akka.NotUsed
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model._
-import failures.{Failures, NotFoundFailure404}
+import akka.http.scaladsl.model.headers.{`Content-Disposition`, ContentDispositionTypes}
+import akka.stream.scaladsl.Source
+import core.db.MetaResponse
+import core.failures.{Failures, NotFoundFailure404}
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import org.json4s.{Formats, jackson}
+import org.json4s.{jackson, Formats}
 import phoenix.responses.{BatchMetadata, TheResponse}
-import utils.db.MetaResponse
+import phoenix.utils.Chunkable
 
 object Http {
   import phoenix.utils.JsonFormatters._
@@ -40,18 +44,21 @@ object Http {
         // FIXME: get rid of `TheResponse` and s/AnyRef/Any/ around here. @michalrus
         case TheResponse(res, alerts, errors, warnings, batch) ⇒
           SuccessfulResponse(
-              result = res,
-              warnings = emptyToNoneNonemptyToSome(
-                  uiInfoWarnings ::: alerts.toList.flatten ::: warnings.toList.flatten),
-              errors = emptyToNoneNonemptyToSome(uiInfoErrors ::: errors.toList.flatten),
-              // FIXME: uncomment this & pull BatchMetadata from phoenix into starfish, when getting rid of TheResponse @michalrus
-              batch = /* uiInfoBatches orElse */ batch)
+            result = res,
+            warnings =
+              emptyToNoneNonemptyToSome(uiInfoWarnings ::: alerts.toList.flatten ::: warnings.toList.flatten),
+            errors = emptyToNoneNonemptyToSome(uiInfoErrors ::: errors.toList.flatten),
+            // FIXME: uncomment this & pull BatchMetadata from phoenix into starfish, when getting rid of TheResponse @michalrus
+            batch = /* uiInfoBatches orElse */ batch
+          )
         case raw ⇒
-          SuccessfulResponse(result = raw,
-                             warnings = emptyToNoneNonemptyToSome(uiInfoWarnings),
-                             errors = emptyToNoneNonemptyToSome(uiInfoErrors),
-                             // FIXME: uncomment this & pull BatchMetadata from phoenix into starfish, when getting rid of TheResponse @michalrus
-                             batch = None /* uiInfoBatches */ )
+          SuccessfulResponse(
+            result = raw,
+            warnings = emptyToNoneNonemptyToSome(uiInfoWarnings),
+            errors = emptyToNoneNonemptyToSome(uiInfoErrors),
+            // FIXME: uncomment this & pull BatchMetadata from phoenix into starfish, when getting rid of TheResponse @michalrus
+            batch = None /* uiInfoBatches */
+          )
       }
     }
   }
@@ -74,11 +81,19 @@ object Http {
   def renderPlain(text: String): HttpResponse =
     HttpResponse(StatusCodes.OK, entity = HttpEntity(ContentTypes.`text/plain(UTF-8)`, text))
 
+  def renderChunked[T: Chunkable](headers: List[HttpHeader])(source: Source[T, NotUsed]): HttpResponse =
+    HttpResponse(StatusCodes.OK,
+                 headers = headers,
+                 entity = HttpEntity.Chunked.fromData(Chunkable().contentType, Chunkable().bytes(source)))
+
+  def renderAttachment[T: Chunkable](fileName: String)(source: Source[T, NotUsed]): HttpResponse =
+    renderChunked(
+      List(`Content-Disposition`(ContentDispositionTypes.attachment, Map("filename" → fileName))))(source)
+
   def renderFailure(failures: Failures, statusCode: ClientError = BadRequest): HttpResponse = {
-    val failuresList = failures.toList
+    val failuresList = failures.toList.distinct
     val notFound     = failuresList.collectFirst { case f: NotFoundFailure404 ⇒ f }
-    notFound.fold(HttpResponse(statusCode,
-                               entity = jsonEntity("errors" → failuresList.map(_.description)))) {
+    notFound.fold(HttpResponse(statusCode, entity = jsonEntity("errors" → failuresList.map(_.description)))) {
       nf ⇒
         renderNotFoundFailure(nf)
     }

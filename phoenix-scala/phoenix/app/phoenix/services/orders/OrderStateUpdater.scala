@@ -1,7 +1,8 @@
 package phoenix.services.orders
 
 import cats.implicits._
-import failures.NotFoundFailure400
+import core.db._
+import core.failures.NotFoundFailure400
 import phoenix.failures.StateTransitionNotAllowed
 import phoenix.models.account._
 import phoenix.models.cord.Order._
@@ -14,39 +15,34 @@ import phoenix.models.payment.storecredit.StoreCreditAdjustments.scope._
 import phoenix.responses.cord.{AllOrders, OrderResponse}
 import phoenix.responses.{BatchMetadata, BatchMetadataSource}
 import phoenix.services.LogActivity
-import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
 import responses.BatchResponse
-import utils.db._
+import slick.jdbc.PostgresProfile.api._
 
 object OrderStateUpdater {
 
-  def updateState(admin: User, refNum: String, newState: Order.State)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[OrderResponse] =
+  def updateState(admin: User, refNum: String, newState: Order.State)(implicit ec: EC,
+                                                                      db: DB,
+                                                                      ac: AC): DbResultT[OrderResponse] =
     for {
       order    ← * <~ Orders.mustFindByRefNum(refNum)
       _        ← * <~ order.transitionState(newState)
       _        ← * <~ updateQueries(admin, Seq(refNum), newState)
       updated  ← * <~ Orders.mustFindByRefNum(refNum)
       response ← * <~ OrderResponse.fromOrder(updated, grouped = true)
-      _ ← * <~ doOrMeh(order.state != newState,
-                       LogActivity().orderStateChanged(admin, response, order.state))
+      _        ← * <~ doOrMeh(order.state != newState, LogActivity().orderStateChanged(admin, response, order.state))
     } yield response
 
   def updateStates(admin: User,
                    refNumbers: Seq[String],
                    newState: Order.State,
-                   skipActivity: Boolean = false)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[BatchResponse[AllOrders.Root]] =
+                   skipActivity: Boolean = false)(implicit ec: EC,
+                                                  db: DB,
+                                                  ac: AC): DbResultT[BatchResponse[AllOrders.Root]] =
     for {
       // Turn failures into errors
       batchMetadata ← * <~ updateStatesDbio(admin, refNumbers, newState, skipActivity)
-      response ← * <~ OrderQueries.findAllByQuery(
-                    Orders.filter(_.referenceNumber.inSetBind(refNumbers)))
+      response      ← * <~ OrderQueries.findAllByQuery(Orders.filter(_.referenceNumber.inSetBind(refNumbers)))
     } yield response.copy(errors = batchMetadata.flatten, batch = Some(batchMetadata))
 
   private def updateStatesDbio(
@@ -66,7 +62,7 @@ object OrderStateUpdater {
       updateQueriesWrapper(admin, possibleRefNums, newState, skipActivityMod).flatMap { _ ⇒
         // Failure handling
         val invalid = invalidTransitions.map(o ⇒
-              (o.refNum, StateTransitionNotAllowed(o.state, newState, o.refNum).description))
+          (o.refNum, StateTransitionNotAllowed(o.state, newState, o.refNum).description))
         val notFound = refNumbers
           .filterNot(refNum ⇒ orders.map(_.referenceNumber).contains(refNum))
           .map(refNum ⇒ (refNum, NotFoundFailure400(Order, refNum).description))
@@ -81,8 +77,7 @@ object OrderStateUpdater {
       admin: User,
       cordRefs: Seq[String],
       newState: State,
-      skipActivity: Boolean = false)(implicit ec: EC, ac: AC, db: DB): DbResultT[Unit] = {
-
+      skipActivity: Boolean = false)(implicit ec: EC, ac: AC, db: DB): DbResultT[Unit] =
     if (skipActivity)
       updateQueries(admin, cordRefs, newState)
     else
@@ -90,11 +85,9 @@ object OrderStateUpdater {
         _ ← * <~ LogActivity().orderBulkStateChanged(newState, cordRefs, admin.some)
         _ ← * <~ updateQueries(admin, cordRefs, newState)
       } yield ()
-  }
 
-  private def updateQueries(admin: User, cordRefs: Seq[String], newState: State)(
-      implicit ec: EC,
-      db: DB): DbResultT[Unit] =
+  private def updateQueries(admin: User, cordRefs: Seq[String], newState: State)(implicit ec: EC,
+                                                                                 db: DB): DbResultT[Unit] =
     newState match {
       case Canceled ⇒
         cancelOrders(cordRefs)
@@ -116,14 +109,12 @@ object OrderStateUpdater {
       _             ← * <~ Orders.filter(_.referenceNumber.inSetBind(cordRefs)).map(_.state).update(Canceled)
     } yield ()
 
-  private def cancelGiftCards(orderPayments: Seq[OrderPayment])(implicit ec: EC,
-                                                                db: DB): DBIO[Int] = {
+  private def cancelGiftCards(orderPayments: Seq[OrderPayment])(implicit ec: EC, db: DB): DBIO[Int] = {
     val paymentIds = orderPayments.map(_.id)
     GiftCardAdjustments.filter(_.orderPaymentId.inSetBind(paymentIds)).cancel()
   }
 
-  private def cancelStoreCredits(orderPayments: Seq[OrderPayment])(implicit ec: EC,
-                                                                   db: DB): DBIO[Int] = {
+  private def cancelStoreCredits(orderPayments: Seq[OrderPayment])(implicit ec: EC, db: DB): DBIO[Int] = {
     val paymentIds = orderPayments.map(_.id)
     StoreCreditAdjustments.filter(_.orderPaymentId.inSetBind(paymentIds)).cancel()
   }

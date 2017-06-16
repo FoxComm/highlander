@@ -12,8 +12,8 @@ import phoenix.responses.VariantValueResponses.IlluminatedVariantValueResponse.{
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.Money.Currency
-import utils.db._
+import core.utils.Money.Currency
+import core.db._
 
 class VariantIntegrationTest
     extends IntegrationTestBase
@@ -44,7 +44,7 @@ class VariantIntegrationTest
     "Fails when trying to create variant with archived sku as value" in new ArchivedSkusFixture {
       variantsApi
         .create(archivedSkuVariantPayload)
-        .mustFailWith400(LinkInactiveSkuFailure(Variant, 10, archivedSkuCode))
+        .mustFailWith400(LinkInactiveSkuFailure(Variant, "%ANY%", archivedSkuCode))
     }
   }
 
@@ -68,9 +68,8 @@ class VariantIntegrationTest
 
   "PATCH v1/variants/:context/:id" - {
     "Updates the name of the variant successfully" in new VariantFixture {
-      val payload = VariantPayload(values = None,
-                                   attributes =
-                                     Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
+      val payload =
+        VariantPayload(values = None, attributes = Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
       val response = variantsApi(variant.variant.variantFormId).update(payload).as[VariantRoot]
       response.values.length must === (2)
 
@@ -81,13 +80,11 @@ class VariantIntegrationTest
 
     "Fails when trying to attach archived SKU to the variant" in new ArchivedSkusFixture {
       var payload = VariantPayload(values = Some(Seq(archivedSkuVariantValuePayload)),
-                                   attributes =
-                                     Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
+                                   attributes = Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
 
       variantsApi(variant.variant.variantFormId)
         .update(payload)
-        .mustFailWith400(
-            LinkInactiveSkuFailure(Variant, variant.variant.variantFormId, archivedSkuCode))
+        .mustFailWith400(LinkInactiveSkuFailure(Variant, variant.variant.variantFormId, archivedSkuCode))
     }
   }
 
@@ -114,9 +111,8 @@ class VariantIntegrationTest
   trait Fixture extends StoreAdmin_Seed {
     val scope = Scope.current
 
-    val createVariantPayload = VariantPayload(attributes =
-                                                Map("name" → (("t" → "string") ~ ("v" → "Color"))),
-                                              values = None)
+    val createVariantPayload =
+      VariantPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Color"))), values = None)
 
     val testSkus = Seq(SimpleSku("SKU-TST", "SKU test", 1000, Currency.USD, active = true),
                        SimpleSku("SKU-TS2", "SKU test 2", 1000, Currency.USD, active = true))
@@ -124,10 +120,10 @@ class VariantIntegrationTest
     val skus = Mvp.insertSkus(scope, ctx.id, testSkus).gimme
 
     val createVariantValuePayload = VariantValuePayload(
-        name = Some("Red"),
-        swatch = Some("ff0000"),
-        image = Some("http://t.fod4.com/t/2e6ea38d82/c640x360_1.jpg"),
-        skuCodes = Seq(skus.head.code))
+      name = Some("Red"),
+      swatch = Some("ff0000"),
+      image = Some("http://t.fod4.com/t/2e6ea38d82/c640x360_1.jpg"),
+      skuCodes = Seq(skus.head.code))
   }
 
   trait VariantFixture extends Fixture {
@@ -135,12 +131,13 @@ class VariantIntegrationTest
                                        code = "TEST",
                                        description = "Test product description",
                                        image = "image.png",
-                                       price = 5999)
+                                       price = 5999,
+                                       active = true)
 
-    val simpleSizeVariant = SimpleCompleteVariant(
-        variant = SimpleVariant("Size"),
-        variantValues = Seq(SimpleVariantValue("Small", "", Seq(skus.head.code)),
-                            SimpleVariantValue("Large", "", Seq(skus(1).code))))
+    val simpleSizeVariant = SimpleCompleteVariant(variant = SimpleVariant("Size"),
+                                                  variantValues =
+                                                    Seq(SimpleVariantValue("Small", "", Seq(skus.head.code)),
+                                                        SimpleVariantValue("Large", "", Seq(skus(1).code))))
 
     val (product, variant) = (for {
       productData ← * <~ Mvp.insertProduct(ctx.id, simpleProd)

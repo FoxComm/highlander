@@ -22,10 +22,6 @@
     app_name: "{{input_aliases[app_name]}}"
   when: input_aliases.has_key(app_name)
 
-- name: Fail Fast on unsupported app
-  fail: msg="{{app_name}} is not supported (yet)"
-  when: app_name not in supported_apps
-
 - name: Set Default Application Path
   set_fact:
     app_path: "{{highlander_path_out.stdout}}/{{app_name}}"

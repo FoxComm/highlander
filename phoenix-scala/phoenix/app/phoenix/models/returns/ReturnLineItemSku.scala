@@ -2,11 +2,11 @@ package phoenix.models.returns
 
 import java.time.Instant
 
-import models.objects._
+import core.db.ExPostgresDriver.api._
+import core.db._
+import objectframework.models._
 import phoenix.models.inventory.Skus
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class ReturnLineItemSku(id: Int,
                              returnId: Int,
@@ -16,8 +16,7 @@ case class ReturnLineItemSku(id: Int,
                              createdAt: Instant = Instant.now)
     extends FoxModel[ReturnLineItemSku]
 
-class ReturnLineItemSkus(tag: Tag)
-    extends FoxTable[ReturnLineItemSku](tag, "return_line_item_skus") {
+class ReturnLineItemSkus(tag: Tag) extends FoxTable[ReturnLineItemSku](tag, "return_line_item_skus") {
   def id          = column[Int]("id", O.PrimaryKey)
   def returnId    = column[Int]("return_id")
   def quantity    = column[Int]("quantity")
@@ -29,8 +28,7 @@ class ReturnLineItemSkus(tag: Tag)
     (id, returnId, quantity, skuId, skuShadowId, createdAt) <> ((ReturnLineItemSku.apply _).tupled, ReturnLineItemSku.unapply)
 
   def li =
-    foreignKey(ReturnLineItems.tableName, id, ReturnLineItems)(_.id,
-                                                               onDelete = ForeignKeyAction.Cascade)
+    foreignKey(ReturnLineItems.tableName, id, ReturnLineItems)(_.id, onDelete = ForeignKeyAction.Cascade)
   def sku    = foreignKey(Skus.tableName, skuId, Skus)(_.id)
   def shadow = foreignKey(ObjectShadows.tableName, skuShadowId, ObjectShadows)(_.id)
 }

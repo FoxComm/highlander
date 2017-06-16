@@ -1,19 +1,15 @@
 package phoenix.models.payment.storecredit
 
+import core.db._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
-case class StoreCreditManual(id: Int = 0,
-                             adminId: Int,
-                             reasonId: Int,
-                             subReasonId: Option[Int] = None)
+case class StoreCreditManual(id: Int = 0, adminId: Int, reasonId: Int, subReasonId: Option[Int] = None)
     extends FoxModel[StoreCreditManual]
 
 object StoreCreditManual {}
 
-class StoreCreditManuals(tag: Tag)
-    extends FoxTable[StoreCreditManual](tag, "store_credit_manuals") {
+class StoreCreditManuals(tag: Tag) extends FoxTable[StoreCreditManual](tag, "store_credit_manuals") {
   def id          = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def adminId     = column[Int]("admin_id")
   def reasonId    = column[Int]("reason_id")

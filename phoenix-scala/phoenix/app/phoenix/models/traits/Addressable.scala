@@ -3,10 +3,10 @@ package phoenix.models.traits
 import cats.data.Validated.valid
 import cats.data.ValidatedNel
 import cats.implicits._
-import failures.Failure
+import core.utils.Validation
+import core.failures.Failure
 import phoenix.models.location.{Address, Region}
 import shapeless._
-import utils.Validation
 
 trait Addressable[M] { self: M ⇒
   import Validation._
@@ -46,8 +46,9 @@ trait Addressable[M] { self: M ⇒
         matches(zipValue, Address.zipPattern, "zip")
     }
 
-    (notEmpty(name, "name") |@| notEmpty(address1, "address1") |@| notEmpty(city, "city") |@| zipValidation |@| phone).map {
-      case _ ⇒ this
-    }
+    (notEmpty(name, "name") |@| notEmpty(address1, "address1") |@| notEmpty(city, "city") |@| zipValidation |@| phone)
+      .map {
+        case _ ⇒ this
+      }
   }
 }

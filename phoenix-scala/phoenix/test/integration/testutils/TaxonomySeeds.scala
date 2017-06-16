@@ -4,14 +4,15 @@ import java.time.Instant
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import models.objects._
+import objectframework.ObjectUtils
+import objectframework.models._
 import org.json4s.JsonDSL._
 import phoenix.models.account.{Scope, User}
 import phoenix.models.taxonomy._
 import phoenix.services.Authenticator.AuthData
 import phoenix.utils.aliases.Json
 import testutils.fixtures.TestFixtureBase
-import utils.db._
+import core.db._
 
 trait TaxonomySeeds extends TestFixtureBase {
 
@@ -22,8 +23,8 @@ trait TaxonomySeeds extends TestFixtureBase {
 
   trait Taxonomy_Raw {
     implicit def au: AuthData[User]
-    val taxonomyAttributes: Map[String, Json] = Map("name" → (("t" → "string") ~ ("v" → "taxon")),
-                                                    "test" → (("t" → "string") ~ ("v" → "taxon")))
+    val taxonomyAttributes: Map[String, Json] =
+      Map("name" → (("t" → "string") ~ ("v" → "taxon")), "test" → (("t" → "string") ~ ("v" → "taxon")))
     def taxonomyHierarchical = false
 
     private def _taxonomy: Taxonomy = {
@@ -33,13 +34,13 @@ trait TaxonomySeeds extends TestFixtureBase {
       (for {
         ins ← * <~ ObjectUtils.insert(form, shadow)
         taxonomy ← * <~ Taxonomies.create(
-                      Taxonomy(id = 0,
-                               scope = Scope.current,
-                               hierarchical = taxonomyHierarchical,
-                               ctx.id,
-                               ins.form.id,
-                               ins.shadow.id,
-                               ins.commit.id))
+                    Taxonomy(id = 0,
+                             scope = Scope.current,
+                             hierarchical = taxonomyHierarchical,
+                             ctx.id,
+                             ins.form.id,
+                             ins.shadow.id,
+                             ins.commit.id))
       } yield taxonomy).gimme
     }
 
@@ -54,9 +55,8 @@ trait TaxonomySeeds extends TestFixtureBase {
       val shadow = ObjectShadow.fromPayload(attributes)
 
       (for {
-        ins ← * <~ ObjectUtils.insert(form, shadow)
-        term ← * <~ Taxons.create(
-                  Taxon(0, Scope.current, ctx.id, ins.shadow.id, ins.form.id, ins.commit.id))
+        ins  ← * <~ ObjectUtils.insert(form, shadow)
+        term ← * <~ Taxons.create(Taxon(0, Scope.current, ctx.id, ins.shadow.id, ins.form.id, ins.commit.id))
       } yield term).gimme
     }
 
@@ -103,28 +103,27 @@ trait TaxonomySeeds extends TestFixtureBase {
       val taxonsToArchive = createTaxons(attributes)
       DbResultT
         .seqCollectFailures(
-            taxonsToArchive
-              .map(taxon ⇒ Taxons.update(taxon, taxon.copy(archivedAt = Some(Instant.now))))
-              .toList)
+          taxonsToArchive
+            .map(taxon ⇒ Taxons.update(taxon, taxon.copy(archivedAt = Some(Instant.now))))
+            .toList)
         .gimme
       createTaxons(attributes)
     }
 
     val links: Seq[TaxonomyTaxonLink] = {
       require(taxonomy.hierarchical)
-      def createLinks: Seq[TaxonomyTaxonLink] = {
+      def createLinks: Seq[TaxonomyTaxonLink] =
         Seq(createLink(taxonomy, taxons.head, "", 1, 0), createLink(taxonomy, taxons(1), "", 2, 1)) ++
-        Seq(createLink(taxonomy, taxons(2), "1", 3, 0), createLink(taxonomy, taxons(3), "1", 4, 1)) ++
-        Seq(createLink(taxonomy, taxons(4), "2", 5, 0), createLink(taxonomy, taxons(5), "2", 6, 1)) ++
-        Seq(createLink(taxonomy, taxons(6), "1.3", 7, 1))
-      }
+          Seq(createLink(taxonomy, taxons(2), "1", 3, 0), createLink(taxonomy, taxons(3), "1", 4, 1)) ++
+          Seq(createLink(taxonomy, taxons(4), "2", 5, 0), createLink(taxonomy, taxons(5), "2", 6, 1)) ++
+          Seq(createLink(taxonomy, taxons(6), "1.3", 7, 1))
       val linksToArchive = createLinks
 
       DbResultT
         .seqCollectFailures(
-            linksToArchive
-              .map(l ⇒ TaxonomyTaxonLinks.update(l, l.copy(archivedAt = Some(Instant.now()))))
-              .toList)
+          linksToArchive
+            .map(l ⇒ TaxonomyTaxonLinks.update(l, l.copy(archivedAt = Some(Instant.now()))))
+            .toList)
         .gimme
       createLinks
     }

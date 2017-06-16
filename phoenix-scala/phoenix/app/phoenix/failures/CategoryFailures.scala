@@ -1,6 +1,6 @@
 package phoenix.failures
 
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 
 object CategoryFailures {
 
@@ -12,7 +12,7 @@ object CategoryFailures {
   object CategoryNotFoundForContext {
     def apply(categoryId: Int, categoryContextId: Int) =
       NotFoundFailure404(
-          s"Category with id=$categoryId with category context $categoryContextId cannot be found")
+        s"Category with id=$categoryId with category context $categoryContextId cannot be found")
   }
 
   object CategoryFormNotFound {

@@ -27,9 +27,11 @@
   }
 
   &-notice {
-    margin: 40px 0;
-    .font-spec(18px, 24px);
-    color: @color-decor8;
+    padding: 20px;
+    text-align: center;
+    background: @color-white;
+    color: #9BA3A7;
+    .font-spec(15px, 600, 60px);
   }
 
   /* Specifics for nested tables */
@@ -37,6 +39,15 @@
   .fc-table-wrap {
     border: none;
   }
+
+  .fc-table__header {
+    margin-bottom: 0;
+  }
+
+  .fc-table__footer {
+    margin-top: 0;
+  }
+
   /* End table specifics */
 
     // .messages for fc-error & fc-success & fc-warning blocks
@@ -46,6 +57,10 @@
 
   &-indent {
     margin: 20px;
+
+    .fc-content-box__empty-text {
+      padding: 0 20px;
+    }
   }
 
   .fc-content-box-footer {
@@ -61,7 +76,7 @@
   }
 
   &__empty-text {
-    padding: 0 20px;
+    padding: 20px;
     text-align: center;
     background: @color-white;
     color: #9BA3A7;

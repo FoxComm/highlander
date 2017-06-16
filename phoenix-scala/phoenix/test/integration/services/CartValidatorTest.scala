@@ -1,7 +1,8 @@
 package services
 
 import cats.implicits._
-import models.objects._
+import objectframework.FormShadowGet
+import objectframework.models._
 import phoenix.failures.CartFailures._
 import phoenix.models.Reasons
 import phoenix.models.cord._
@@ -16,7 +17,8 @@ import phoenix.services.carts.CartTotaler
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.utils.Money._
+import core.db._
 
 class CartValidatorTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 
@@ -53,21 +55,19 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
 
       "if the cart has no credit card and insufficient GC/SC available balances" in new LineItemsFixture
       with StoreAdmin_Seed {
-        val skuPrice       = Mvp.priceAsInt(skuForm, skuShadow)
-        val notEnoughFunds = skuPrice - 1
+        val skuPrice             = FormShadowGet.priceAsLong(skuForm, skuShadow)
+        val notEnoughFunds: Long = skuPrice - 1
 
         (for {
           reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
           origin ← * <~ GiftCardManuals.create(
-                      GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
-          giftCard ← * <~ GiftCards.create(
-                        Factories.giftCard.copy(originId = origin.id,
-                                                state = GiftCard.Active,
-                                                originalBalance = notEnoughFunds))
+                    GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
+          giftCard ← * <~ GiftCards.create(Factories.giftCard
+                      .copy(originId = origin.id, state = GiftCard.Active, originalBalance = notEnoughFunds))
           payment ← * <~ OrderPayments.create(
-                       Factories.giftCardPayment.copy(cordRef = cart.refNum,
-                                                      amount = notEnoughFunds.some,
-                                                      paymentMethodId = giftCard.id))
+                     Factories.giftCardPayment.copy(cordRef = cart.refNum,
+                                                    amount = notEnoughFunds.some,
+                                                    paymentMethodId = giftCard.id))
         } yield payment).gimme
 
         val result = CartValidator(refresh(cart)).validate().gimme
@@ -180,7 +180,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
     val cc = (for {
       cc ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId))
       _ ← * <~ OrderPayments.create(
-             Factories.orderPayment.copy(cordRef = cart.refNum, paymentMethodId = cc.id))
+           Factories.orderPayment.copy(cordRef = cart.refNum, paymentMethodId = cc.id))
     } yield cc).gimme
   }
 
@@ -188,13 +188,12 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
     val (giftCard, orderPayment) = (for {
       reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
-      giftCard ← * <~ GiftCards.create(
-                    Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
+                GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
+      giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
       payment ← * <~ OrderPayments.create(
-                   OrderPayment
-                     .build(giftCard)
-                     .copy(cordRef = cart.refNum, amount = grandTotal.some))
+                 OrderPayment
+                   .build(giftCard)
+                   .copy(cordRef = cart.refNum, amount = grandTotal.some))
     } yield (giftCard, payment)).gimme
   }
 
@@ -202,15 +201,13 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
     val (storeCredit, orderPayment) = (for {
       reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       origin ← * <~ StoreCreditManuals.create(
-                  StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
-      storeCredit ← * <~ StoreCredits.create(
-                       Factories.storeCredit.copy(originId = origin.id,
-                                                  state = StoreCredit.Active,
-                                                  accountId = customer.accountId))
+                StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
+      storeCredit ← * <~ StoreCredits.create(Factories.storeCredit
+                     .copy(originId = origin.id, state = StoreCredit.Active, accountId = customer.accountId))
       payment ← * <~ OrderPayments.create(
-                   OrderPayment
-                     .build(storeCredit)
-                     .copy(cordRef = cart.refNum, amount = grandTotal.some))
+                 OrderPayment
+                   .build(storeCredit)
+                   .copy(cordRef = cart.refNum, amount = grandTotal.some))
     } yield (storeCredit, payment)).gimme
   }
 

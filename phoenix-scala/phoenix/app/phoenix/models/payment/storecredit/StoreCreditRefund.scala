@@ -2,14 +2,13 @@ package phoenix.models.payment.storecredit
 
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.db._
 
 case class StoreCreditRefund(id: Int = 0, returnId: Int) extends FoxModel[StoreCreditRefund]
 
 object StoreCreditRefund {}
 
-class StoreCreditRefunds(tag: Tag)
-    extends FoxTable[StoreCreditRefund](tag, "store_credit_refunds") {
+class StoreCreditRefunds(tag: Tag) extends FoxTable[StoreCreditRefund](tag, "store_credit_refunds") {
   def id       = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def returnId = column[Int]("return_id")
 

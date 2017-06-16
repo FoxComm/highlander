@@ -1,14 +1,13 @@
 package phoenix.models.account
 
+import core.db._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class AccountOrganization(id: Int = 0, accountId: Int, organizationId: Int)
     extends FoxModel[AccountOrganization]
 
-class AccountOrganizations(tag: Tag)
-    extends FoxTable[AccountOrganization](tag, "account_organizations") {
+class AccountOrganizations(tag: Tag) extends FoxTable[AccountOrganization](tag, "account_organizations") {
   def id             = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def accountId      = column[Int]("account_id")
   def organizationId = column[Int]("organization_id")

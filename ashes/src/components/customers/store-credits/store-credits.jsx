@@ -1,77 +1,73 @@
+/* @flow */
+
+import React, { Component } from 'react';
+
 // libs
 import _ from 'lodash';
-import React from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import { ReasonType } from '../../../lib/reason-utils';
+import { ReasonType } from 'lib/reason-utils';
 import { bindActionCreators } from 'redux';
+import { bulkExportBulkAction, renderExportModal } from 'modules/bulk-export/helpers';
+
+// actions
+import { stateTitles } from 'paragons/store-credit';
+import { actions as StoreCreditsActions } from 'modules/customers/store-credits';
+import { actions as bulkActions } from 'modules/customers/store-credit-bulk';
+import * as ReasonsActions from 'modules/reasons';
+import * as StoreCreditTotalsActions from 'modules/customers/store-credit-totals';
+import * as StoreCreditStateActions from 'modules/customers/store-credit-states';
+import { bulkExport } from 'modules/bulk-export/bulk-export';
 
 // components
 import Summary from './summary';
-import BulkActions from '../../bulk-actions/bulk-actions';
-import BulkMessages from '../../bulk-actions/bulk-messages';
-import { ChangeStateModal, CancelModal } from '../../bulk-actions/modal';
-import Dropdown from '../../dropdown/dropdown';
-import ConfirmationDialog from '../../modal/confirmation-dialog';
-import SelectableSearchList from '../../list-page/selectable-search-list';
+import BulkActions from 'components/bulk-actions/bulk-actions';
+import BulkMessages from 'components/bulk-actions/bulk-messages';
+import { ChangeStateModal, CancelModal } from 'components/bulk-actions/modal';
+import Dropdown from 'components/dropdown/dropdown';
+import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import SelectableSearchList from 'components/list-page/selectable-search-list';
 import StoreCreditRow from './storecredit-row';
 
-// data
-import { stateTitles } from '../../../paragons/store-credit';
-import { actions as StoreCreditsActions } from '../../../modules/customers/store-credits';
-import { actions as bulkActions } from '../../../modules/customers/store-credit-bulk';
-import * as ReasonsActions from '../../../modules/reasons';
-import * as StoreCreditTotalsActions from '../../../modules/customers/store-credit-totals';
-import * as StoreCreditStateActions from '../../../modules/customers/store-credit-states';
-
-const mapStateToProps = (state, props) => ({
-  list: state.customers.storeCredits,
-  storeCreditTotals: state.customers.storeCreditTotals[props.params.customerId],
-  reasons: state.reasons,
-  states: state.customers.storeCreditStates[props.params.customerId],
-});
-
-const mapDispatchToProps = dispatch => {
-  return {
-    actions: bindActionCreators(StoreCreditsActions, dispatch),
-    totalsActions: bindActionCreators(StoreCreditTotalsActions, dispatch),
-    reasonsActions: bindActionCreators(ReasonsActions, dispatch),
-    stateActions: bindActionCreators(StoreCreditStateActions, dispatch),
-    bulkActions: bindActionCreators(bulkActions, dispatch),
-  };
+type Props = {
+  params: Object,
+  actions: Object,
+  list: Object,
+  tableColumns: Array<Object>,
+  states: {
+    storeCreditToChange: {
+      state: string,
+    }
+  },
+  reasons: Object,
+  storeCreditTotals: Object,
+  reasonsActions: {
+    fetchReasons: (reasonType: string) => Promise<*>,
+  },
+  totalsActions: {
+    fetchTotals: (customerId: number) => Promise<*>,
+  },
+  stateActions: {
+    cancelChange: (customerId: number) => void,
+    changeState: (customerId: number, rowId: number, targetState: string) => Array<any>,
+    saveStateChange: (customerId: number) => Promise<*>,
+    reasonChange: (customerId: number, reasonId: number) => Array<number>,
+  },
+  bulkActions: {
+    cancelStoreCredits: (ids: Array<number>, reasonId: number) => Promise<*>,
+    changeStoreCreditsState: (ids: Array<number>, state: string) => Promise<*>,
+    exportByIds: (
+      ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
+    ) => void,
+  },
+  bulkExportAction: (
+    fields: Array<string>, entity: string, identifier: string, description: string
+  ) => Promise<*>,
 };
 
-@connect(mapStateToProps, mapDispatchToProps)
-export default class StoreCredits extends React.Component {
-
-  static propTypes = {
-    params: PropTypes.object,
-    actions: PropTypes.object,
-    list: PropTypes.object,
-    tableColumns: PropTypes.array,
-    reasonsActions: PropTypes.shape({
-      fetchReasons: PropTypes.func,
-    }),
-    totalsActions: PropTypes.shape({
-      fetchTotals: PropTypes.func,
-    }),
-    storeCreditToChange: PropTypes.shape({
-      state: PropTypes.string,
-    }),
-    states: PropTypes.shape({
-      storeCreditToChange: PropTypes.object,
-    }),
-    stateActions: PropTypes.shape({
-      cancelChange: PropTypes.func,
-      changeState: PropTypes.func,
-      saveStateChange: PropTypes.func,
-    }),
-    bulkActions: PropTypes.shape({
-      cancelStoreCredits: PropTypes.func,
-      changeStoreCreditsState: PropTypes.func,
-    }),
-  };
+class StoreCredits extends Component {
+  props: Props;
 
   static defaultProps = {
     tableColumns: [
@@ -133,16 +129,18 @@ export default class StoreCredits extends React.Component {
 
 
   @autobind
-  renderRow(row, index, columns, params) {
+  renderRow(row: Object, index: number, columns: Columns, params: Object) {
     const customerId = this.customerId;
     const key = `sc-transaction-${row.id}`;
+
     return (
       <StoreCreditRow
         storeCredit={row}
         columns={columns}
         changeState={(rowId, value) => this.props.stateActions.changeState(customerId, rowId, value)}
         key={key}
-        params={params} />
+        params={params}
+      />
     );
   }
 
@@ -157,44 +155,54 @@ export default class StoreCredits extends React.Component {
     }
   }
 
-  get confirmStateChange() {
-    let state = '';
-    if (this.props.states && this.props.states.storeCreditToChange) {
-      state = this.formattedState(this.props.states.storeCreditToChange.state);
-    }
-    const message = (
+  get confirmationState() {
+    const { states } = this.props;
+
+    if (!states || !states.storeCreditToChange) return '';
+
+    return this.formattedState(states.storeCreditToChange.state);
+  }
+
+  get confirmationMessage() {
+    return (
       <span>
         Are you sure you want to change the store credit state to
-        <strong className="fc-store-credit-new-state">{ state }</strong>
+        <strong className="fc-store-credit-new-state">{ this.confirmationState }</strong>
         ?
       </span>
     );
-    const shouldDisplay = this.props.states && this.props.states.storeCreditToChange &&
-      this.props.states.storeCreditToChange.state !== 'canceled';
+  }
+
+  get confirmStateChange() {
+    const { states, stateActions } = this.props;
+
+    const shouldDisplay = states && states.storeCreditToChange && states.storeCreditToChange.state !== 'canceled';
+
     return (
       <ConfirmationDialog
         isVisible={shouldDisplay}
         header="Change Store Credit State?"
-        body={message}
+        body={this.confirmationMessage}
         cancel="Cancel"
         confirm="Yes, Change State"
-        onCancel={ () => this.props.stateActions.cancelChange(this.customerId) }
-        confirmAction={ () => this.props.stateActions.saveStateChange(this.customerId) } />
+        onCancel={ () => stateActions.cancelChange(this.customerId) }
+        confirmAction={ () => stateActions.saveStateChange(this.customerId) }
+      />
     );
   }
 
-  get confirmCancellation() {
-    const props = this.props;
+  get reasons() {
+    const rawReasons = _.get(this.props, ['reasons', 'reasons', this.reasonType]);
 
-    const rawReasons = _.get(props, ['reasons', 'reasons', this.reasonType]);
+    if (_.isEmpty(rawReasons)) return [];
 
-    let reasons = [];
-    if (!_.isEmpty(rawReasons)) {
-      reasons = _.map(rawReasons, reason => [reason.id, reason.body]);
-    }
-    const value = _.get(props, ['states', 'storeCreditToChange', 'reasonId']);
+    return _.map(rawReasons, reason => [reason.id, reason.body]);
+  }
 
-    const body = (
+  get confirmationBody() {
+    const value = _.get(this.props, ['states', 'storeCreditToChange', 'reasonId']);
+
+    return (
       <div>
         <div>Are you sure you want to cancel this store credit?</div>
         <div className="fc-store-credit-cancel-reason">
@@ -207,20 +215,25 @@ export default class StoreCredits extends React.Component {
           <div className="fc-store-credit-cancel-reason-selector">
             <Dropdown name="cancellationReason"
                       placeholder="- Select -"
-                      items={reasons}
+                      items={this.reasons}
                       value={value}
-                      onChange={(value) => props.stateActions.reasonChange(this.customerId, value)} />
+                      onChange={(value) => this.props.stateActions.reasonChange(this.customerId, value)} />
           </div>
         </div>
       </div>
     );
+  }
+
+  get confirmCancellation() {
+    const { props } = this;
+
     const shouldDisplay = _.isEqual(_.get(props, ['states', 'storeCreditToChange', 'state']), 'canceled');
 
     return (
       <ConfirmationDialog
-        isVisible={ shouldDisplay }
+        isVisible={shouldDisplay}
         header="Cancel Store Credit?"
-        body={ body }
+        body={this.confirmationBody}
         cancel="Cancel"
         confirm="Yes, Cancel"
         onCancel={ () => props.stateActions.cancelChange(this.customerId) }
@@ -237,7 +250,8 @@ export default class StoreCredits extends React.Component {
         count={toggledIds.length}
         onConfirm={(reasonId) => {
           cancelStoreCredits(toggledIds, reasonId);
-        }} />
+        }}
+      />
     );
   }
 
@@ -251,7 +265,8 @@ export default class StoreCredits extends React.Component {
         <ChangeStateModal
           count={toggledIds.length}
           stateTitle={stateTitle}
-          onConfirm={() => changeStoreCreditsState(toggledIds, state)} />
+          onConfirm={() => changeStoreCreditsState(toggledIds, state)}
+        />
       );
     };
   }
@@ -267,16 +282,36 @@ export default class StoreCredits extends React.Component {
     ];
   }
 
+  get cancelAction() {
+    return [
+      'Cancel Store Credits',
+      this.cancelStoreCredits,
+      'successfully canceled',
+      'could not be canceled',
+    ];
+  }
+
+  @autobind
+  bulkExport(allChecked: boolean, toggledIds: Array<number>) {
+    const { exportByIds } = this.props.bulkActions;
+    const { tableColumns } = this.props;
+    const modalTitle = 'Store Credits';
+    const entity = 'storeCredits';
+
+    return renderExportModal(tableColumns, entity, modalTitle, exportByIds, toggledIds);
+  }
+
   get bulkActions() {
     return [
-      ['Cancel Store Credits', this.cancelStoreCredits, 'successfully canceled', 'could not be canceled'],
+      bulkExportBulkAction(this.bulkExport, 'Store Credits'),
+      this.cancelAction,
       this.getChangeStoreCreditsStateAction('active'),
       this.getChangeStoreCreditsStateAction('onHold'),
     ];
   }
 
   renderDetail(messages, id) {
-    return <span key={id}>Store credit #{id}</span>;
+    return <span key={id}>Store Credit #{id}</span>;
   }
 
   render() {
@@ -301,8 +336,13 @@ export default class StoreCredits extends React.Component {
           <BulkActions
             module="customers.store-credits"
             entity="store credit"
-            actions={this.bulkActions}>
+            actions={this.bulkActions}
+          >
             <SelectableSearchList
+              exportEntity="storeCredits"
+              exportTitle="Store Credits"
+              bulkExport
+              bulkExportAction={this.props.bulkExportAction}
               entity="customers.storeCredits"
               title="Store Credits"
               emptyMessage="No store credits found."
@@ -320,3 +360,25 @@ export default class StoreCredits extends React.Component {
     );
   }
 }
+
+const mapStateToProps = (state, props) => {
+  return {
+    list: _.get(state.customers, 'storeCredits', {}),
+    storeCreditTotals: _.get(state.customers, `storeCreditTotals[${props.params.customerId}]`, {}),
+    reasons: _.get(state, 'reasons', {}),
+    states: _.get(state.customers, `storeCreditStates[${props.params.customerId}]`, {}),
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    actions: bindActionCreators(StoreCreditsActions, dispatch),
+    totalsActions: bindActionCreators(StoreCreditTotalsActions, dispatch),
+    reasonsActions: bindActionCreators(ReasonsActions, dispatch),
+    stateActions: bindActionCreators(StoreCreditStateActions, dispatch),
+    bulkActions: bindActionCreators(bulkActions, dispatch),
+    bulkExportAction: bindActionCreators(bulkExport, dispatch),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(StoreCredits);

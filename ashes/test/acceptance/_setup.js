@@ -3,9 +3,12 @@ require('./_testdom');
 const _ = require('lodash');
 const path = require('path');
 const ReactDOM = require('react-dom');
-const ReactTestUtils = require('react-addons-test-utils');
+const ReactTestUtils = require('react-dom/test-utils');
+const hook = require('css-modules-require-hook');
 
-require('../../src/postcss').installHook();
+hook({
+  generateScopedName: '[local]',
+});
 
 const unexpectedReactShallow = require('unexpected-react-shallow');
 
@@ -14,10 +17,8 @@ global.unexpected = global.unexpected.clone()
 
 
 global.requireComponent = function(componentPath, returnDefault = true) {
-  if (componentPath.endsWith('.jsx')) {
-    componentPath = componentPath.slice(0, componentPath.length - 1);
-  }
-  const result = require(path.resolve('lib/components/' + componentPath));
+  const result = require(path.resolve('src/components/' + componentPath));
+
   return returnDefault ? result.default : result;
 };
 

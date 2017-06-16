@@ -1,31 +1,30 @@
 package phoenix.routes.admin
 
-import cats.implicits._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import phoenix.utils.http.JsonSupport._
+import cats.implicits._
+import core.db._
 import phoenix.models.account.User
 import phoenix.models.payment.giftcard.GiftCard.giftCardCodeRegex
 import phoenix.payloads.GiftCardPayloads._
+import phoenix.services.Authenticator.AuthData
 import phoenix.services.CustomerCreditConverter
 import phoenix.services.giftcards._
-import phoenix.services.Authenticator.AuthData
-import phoenix.utils.aliases._
-import utils.db._
+import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
 import phoenix.utils.http.Http._
+import phoenix.utils.http.JsonSupport._
 
 object GiftCardRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
-
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("customer-gift-cards") {
         path("bulk") {
           (post & pathEnd & entity(as[Seq[GiftCardCreatedByCustomer]])) { payload ⇒
             mutateOrFailures {
               DbResultT.seqCollectFailures(
-                  payload.map(GiftCardService.createByCustomer(auth.model, _)).toList)
+                payload.map(GiftCardService.createByCustomer(auth.model, _)).toList)
             }
           }
         } ~
@@ -81,5 +80,4 @@ object GiftCardRoutes {
         }
       }
     }
-  }
 }

@@ -1,7 +1,7 @@
 package testutils
 
 import cats.implicits._
-import failures.GeneralFailure
+import core.failures.GeneralFailure
 import phoenix.failures.UserFailures._
 import phoenix.models.account._
 import phoenix.models.admin._
@@ -14,7 +14,7 @@ import phoenix.utils.aliases._
 import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils.fixtures.TestFixtureBase
-import utils.db._
+import core.db._
 
 /**
   * Seeds are simple values that can be created without any external dependencies.
@@ -28,11 +28,10 @@ trait TestSeeds extends TestFixtureBase {
     def storeAdmin: User                   = _storeAdmin
     def storeAdminUser: AdminData          = _storeAdminUser
     def storeAdminClaims: Account.ClaimSet = _storeAdminClaims
-    val password = "password"
+    val password                           = "password"
 
     def storeAdminAuthData: AuthData[User] =
-      AuthData[User](token =
-                       UserToken.fromUserAccount(storeAdmin, storeAdminAccount, storeAdminClaims),
+      AuthData[User](token = UserToken.fromUserAccount(storeAdmin, storeAdminAccount, storeAdminClaims),
                      model = storeAdmin,
                      account = storeAdminAccount)
     implicit lazy val au: AU = storeAdminAuthData
@@ -44,15 +43,15 @@ trait TestSeeds extends TestFixtureBase {
                     .headOption
 
       ad ← * <~ (maybeAdmin match {
-                case Some(admin) ⇒ DbResultT.pure(admin)
-                case None ⇒
-                  Factories.createStoreAdmin(user = Factories.storeAdmin,
-                                             password = password,
-                                             state = AdminData.Active,
-                                             org = TENANT,
-                                             roles = List("admin"),
-                                             author = None)
-              })
+            case Some(admin) ⇒ DbResultT.pure(admin)
+            case None ⇒
+              Factories.createStoreAdmin(user = Factories.storeAdmin,
+                                         password = password,
+                                         state = AdminData.Active,
+                                         org = TENANT,
+                                         roles = List("admin"),
+                                         author = None)
+          })
       adu ← * <~ AdminsData.mustFindByAccountId(ad.accountId)
       ac  ← * <~ Accounts.mustFindById404(ad.accountId)
       organization ← * <~ Organizations

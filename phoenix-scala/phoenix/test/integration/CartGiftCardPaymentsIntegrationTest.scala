@@ -1,5 +1,6 @@
 import cats.implicits._
-import failures.{NotFoundFailure400, NotFoundFailure404}
+import core.db._
+import core.failures.{NotFoundFailure400, NotFoundFailure404}
 import phoenix.failures.CartFailures.OrderAlreadyPlaced
 import phoenix.failures.GiftCardFailures._
 import phoenix.failures.OrderFailures.OrderPaymentNotFoundFailure
@@ -10,7 +11,6 @@ import phoenix.payloads.PaymentPayloads.GiftCardPayment
 import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
-import utils.db._
 
 class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBase {
 
@@ -36,7 +36,7 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
 
     "fails if the cart is not found" in new CartWithGcFixture {
       cartsApi("NOPE").payments.giftCard
-        .add(GiftCardPayment(code = "foo", amount = 1.some))
+        .add(GiftCardPayment(code = "foo", amount = 1L.some))
         .mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
 
       giftCardPayments(cart) mustBe 'empty
@@ -44,7 +44,7 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
 
     "fails if the giftCard is not found" in new CartWithGcFixture {
       cartsApi(cart.refNum).payments.giftCard
-        .add(GiftCardPayment(code = "NOPE", amount = 1.some))
+        .add(GiftCardPayment(code = "NOPE", amount = 1L.some))
         .mustFailWith400(NotFoundFailure404(GiftCard, "NOPE"))
 
       giftCardPayments(cart) mustBe 'empty
@@ -71,10 +71,10 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
 
     "fails if the giftCard is inactive" in new CartWithGcFixture {
       GiftCards.findByCode(giftCard.code).map(_.state).update(GiftCard.Canceled).gimme
-      val payload = GiftCardPayment(code = giftCard.code, amount = 1.some)
+      val payload = GiftCardPayment(code = giftCard.code, amount = 1L.some)
       cartsApi(cart.refNum).payments.giftCard
         .add(payload)
-        .mustFailWith400(GiftCardIsInactive(giftCard))
+        .mustFailWith400(GiftCardIsInactive(giftCard.code))
 
       giftCardPayments(cart) mustBe 'empty
     }
@@ -105,7 +105,7 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
     }
 
     "fails if the giftCard is not found" in new CartWithGcFixture {
-      val payload = GiftCardPayment(code = "NOPE", amount = 1.some)
+      val payload = GiftCardPayment(code = "NOPE", amount = 1L.some)
       cartsApi(cart.refNum).payments.giftCard
         .update(payload)
         .mustFailWith400(NotFoundFailure400(GiftCard, "NOPE"))
@@ -154,9 +154,8 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
     val giftCard = (for {
       reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
-      giftCard ← * <~ GiftCards.create(
-                    Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
+                GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
+      giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
     } yield giftCard).gimme
   }
 

@@ -2,7 +2,7 @@ package phoenix.services.discount.compilers
 
 import cats.implicits._
 import phoenix.failures.DiscountCompilerFailures._
-import failures._
+import core.failures._
 import phoenix.models.discount.NonEmptySearch
 import phoenix.models.discount.offers._
 import org.json4s._

@@ -186,6 +186,7 @@ export default class TaxonsDropdown extends Component {
   render() {
     return (
       <GenericDropdown
+        placeholder="- Select -"
         className={styles.dropdown}
         onChange={this.handleParentSelect}
         renderDropdownInput={this.renderInput}

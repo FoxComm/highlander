@@ -6,6 +6,8 @@
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     marathon_server: "{{instance_ip}}:8080"
+    custom_hostname: "{{ lookup('env', 'APPLIANCE_HOSTNAME') | default('none', true) }}"
+    storefront_server_name: "{{custom_hostname}}.{{foxcomm_domain}}"
   vars_prompt:
     - name: "app_name"
       prompt: "Enter Highlander sub-project to re-deploy"
@@ -26,7 +28,8 @@
   pre_tasks:
     - name: Set Storefront Server Name
       set_fact:
-        storefront_server_name: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
+        storefront_server_name: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.{{foxcomm_domain}}"
+      when: custom_hostname == 'none'
 
   roles:
     - { role: app/deploy_helper }

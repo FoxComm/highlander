@@ -4,7 +4,7 @@
 import _ from 'lodash';
 
 // helpers
-import createStore, { getStore } from './store-creator';
+import createStore from './store-creator';
 
 export type AsyncState = {
   isRunning: boolean;

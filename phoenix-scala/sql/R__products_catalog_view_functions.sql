@@ -35,13 +35,15 @@ begin
                 statement_timestamp() and
                 (((f.attributes ->> (s.attributes -> 'activeTo' ->> 'ref')) = '') is not false or
                  ((f.attributes ->> (s.attributes -> 'activeTo' ->> 'ref')) :: timestamp >=
-                  statement_timestamp())))
+                  statement_timestamp()))
+                and (sv.skus is not null and jsonb_array_length(sv.skus) > 0))
                  as alive,
                 pv.id as catalog_id
 
              from products as p
                inner join object_contexts as context on (p.context_id = context.id)
                left join products_catalog_view as pv on (pv.id = p.id and context.name = pv.context)
+               left join product_sku_links_view as sv on (sv.product_id = p.id)
                inner join object_forms as f on (f.id = p.form_id)
                inner join object_shadows as s on (s.id = p.shadow_id)
                 where p.id = any(product_ids)) as q

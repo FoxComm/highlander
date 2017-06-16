@@ -10,7 +10,7 @@
   template: src=zookeeper.properties dest=/etc/zookeeper/conf/zoo.cfg
 
 - name: Copy Zookeeper Service File
-  copy: src=zookeeper.service dest={{dest_services}}
+  template: src=zookeeper.service dest={{dest_services}}
 
 - name: Copy Zookeeper Consul Service File
   template: src=zookeeper.json dest=/etc/consul.d

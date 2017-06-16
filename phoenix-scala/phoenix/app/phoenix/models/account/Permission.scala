@@ -2,9 +2,9 @@ package phoenix.models.account
 
 import java.time.Instant
 
+import core.db.ExPostgresDriver.api._
+import core.db._
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class Permission(id: Int = 0,
                       scopeId: Int,

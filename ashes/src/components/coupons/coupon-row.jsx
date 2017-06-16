@@ -1,6 +1,4 @@
-/**
- * @flow
- */
+/* @flow */
 
 //libs
 import React, { Element } from 'react';
@@ -11,12 +9,12 @@ import styles from './form.css';
 import { activeStatus, isArchived } from 'paragons/common';
 
 // components
-import RoundedPill from '../rounded-pill/rounded-pill';
+import { RoundedPill } from 'components/core/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
 
 type CouponRowProps = {
   coupon: Object,
-  columns: Array<string>,
+  columns: Columns,
   params: Object,
   promotionId: Number
 };
@@ -38,6 +36,9 @@ const setCellContents = (coupon: Object, field: string) => {
       return codes[0];
     case 'state':
       return <RoundedPill text={activeStatus(coupon)} />;
+    case 'maxUsesPerCode':
+    case 'maxUsesPerCustomer':
+      return _.get(coupon, field) || <span>Unlimited</span>;
     default:
       return _.get(coupon, field);
   }
@@ -45,7 +46,6 @@ const setCellContents = (coupon: Object, field: string) => {
 
 const CouponRow = (props: CouponRowProps) => {
   const { coupon, columns, params, promotionId } = props;
-  const key = `coupon-${coupon.id}`;
   const commonParams = {
     columns,
     row: coupon,

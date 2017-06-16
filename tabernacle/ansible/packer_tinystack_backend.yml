@@ -1,13 +1,13 @@
 ---
 
-- name: Provision Packer Tinystack Backend
+- name: Packing Tinystack Backend
   hosts: all
   become: true
   vars:
     user: ubuntu
     packing: true
+    with_onboarding: true
   roles:
-    - { role: base/java }
     - { role: base/mesos_worker }
     - { role: base/rsyslog }
     - { role: base/confluent_platform }
@@ -16,6 +16,20 @@
     - { role: base/db }
     - { role: base/bottledwater }
     - { role: base/pgweb }
+  post_tasks:
+    - name: Enable Services
+      service: name={{item}} enabled=yes
+      with_items:
+        - consul_agent
+        - kafka
+        - schema-registry
+        - mesos_worker
+        - elasticsearch
+        - postgresql
+        - bottledwater_phoenix
+        - bottledwater_middlewarehouse
+        - bottledwater_onboarding
+        - pgweb
 
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
+    - name: Reload Systemd Daemon
+      command: systemctl daemon-reload

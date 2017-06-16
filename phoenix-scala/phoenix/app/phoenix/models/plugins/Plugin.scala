@@ -4,20 +4,23 @@ import java.time.Instant
 
 import cats.data._
 import cats.implicits._
-import failures.Failure
+import com.github.tminglei.slickpg._
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.failures.Failure
+import core.utils.Validation
 import org.json4s.Extraction
 import org.json4s.JsonAST._
+import phoenix.models.account.Scope
 import phoenix.models.plugins.PluginSettings._
 import phoenix.payloads.PluginPayloads.RegisterPluginPayload
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import shapeless._
 import slick.jdbc.PostgresProfile.api.MappedColumnType
-import utils.Validation
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class Plugin(id: Int = 0,
+                  scope: LTree,
                   name: String,
                   description: String,
                   isDisabled: Boolean = false,
@@ -33,17 +36,15 @@ case class Plugin(id: Int = 0,
     with Validation[Plugin] {
   import Validation._
 
-  override def validate: ValidatedNel[Failure, Plugin] = {
-
+  override def validate: ValidatedNel[Failure, Plugin] =
     (notEmpty(name, "name")
-          |@| notEmpty(version, "version")
-          |@| apiPort.fold(ok) { port ⇒
-            greaterThan(port, 1, "Api port must be greater than 1")
-          }
-          |@| nullOrNotEmpty(apiHost, "apiHost")).map {
+      |@| notEmpty(version, "version")
+      |@| apiPort.fold(ok) { port ⇒
+        greaterThan(port, 1, "Api port must be greater than 1")
+      }
+      |@| nullOrNotEmpty(apiHost, "apiHost")).map {
       case _ ⇒ this
     }
-  }
 
   // TODO: change me to field @narma
   def apiUrl(): Option[String] =
@@ -55,14 +56,16 @@ case class Plugin(id: Int = 0,
 
 object Plugin {
 
-  def fromPayload(payload: RegisterPluginPayload): Plugin = {
-    Plugin(name = payload.name,
-           version = payload.version,
-           description = payload.description,
-           apiHost = payload.apiHost,
-           apiPort = payload.apiPort,
-           schemaSettings = payload.schemaSettings.getOrElse(List.empty[SettingDef]))
-  }
+  def fromPayload(payload: RegisterPluginPayload)(implicit au: AU): Plugin =
+    Plugin(
+      name = payload.name,
+      version = payload.version,
+      scope = Scope.current,
+      description = payload.description,
+      apiHost = payload.apiHost,
+      apiPort = payload.apiPort,
+      schemaSettings = payload.schemaSettings.getOrElse(List.empty[SettingDef])
+    )
 }
 
 object PluginOrmTypeMapper {
@@ -80,6 +83,7 @@ import phoenix.models.plugins.PluginOrmTypeMapper._
 
 class Plugins(tag: Tag) extends FoxTable[Plugin](tag, "plugins") {
   def id             = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def scope          = column[LTree]("scope")
   def name           = column[String]("name")
   def description    = column[String]("description")
   def isDisabled     = column[Boolean]("is_disabled")
@@ -95,6 +99,7 @@ class Plugins(tag: Tag) extends FoxTable[Plugin](tag, "plugins") {
 
   def * =
     (id,
+     scope,
      name,
      description,
      isDisabled,
@@ -109,13 +114,18 @@ class Plugins(tag: Tag) extends FoxTable[Plugin](tag, "plugins") {
       ((Plugin.apply _).tupled, Plugin.unapply)
 }
 
-object Plugins
-    extends FoxTableQuery[Plugin, Plugins](new Plugins(_))
-    with ReturningId[Plugin, Plugins] {
+object Plugins extends FoxTableQuery[Plugin, Plugins](new Plugins(_)) with ReturningId[Plugin, Plugins] {
 
   val returningLens: Lens[Plugin, Int] = lens[Plugin].id
 
-  def findByName(name: String): DBIO[Option[Plugin]] = {
-    filter(_.name === name).one
+  object scope {
+    implicit class PluginsQuerySeqConversions(q: QuerySeq) {
+      def forCurrentUser()(implicit au: AU): QuerySeq =
+        q.filter(Scope.current.bind @> _.scope)
+    }
   }
+
+  def findByName(name: String): QuerySeq =
+    filter(_.name === name)
+
 }

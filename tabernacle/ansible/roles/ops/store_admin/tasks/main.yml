@@ -1,6 +1,7 @@
 ---
 
+- name: Get Latest Phoenix Seeder Image
+  shell: docker pull {{docker_registry}}:5000/phoenix-seeder:{{docker_tags.phoenix_seeder}}
+
 - name: Create super admin
-  shell: ADMIN_PASSWORD={{store_admin_password}} java -Ddb.host={{db_host}} -Ddb.url="jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}}" -Ddb.name={{db_name}} -cp {{phoenix_jar}} utils.seeds.Seeds createAdmin --name "{{store_admin_name}}" --email "{{store_admin_email}}" --org "{{store_admin_org}}" --roles "{{store_admin_roles}}"
-  args:
-    chdir: "{{phoenix_dir}}"
+  shell: docker run -e "ADMIN_PASSWORD={{store_admin_password}}" --network host -t {{docker_registry}}:5000/phoenix-seeder:{{docker_tags.phoenix_seeder}} java -Ddb.host={{db_host}} -Ddb.url="jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}}" -Ddb.name={{db_name}} -cp '{{phoenix_seeder_jar}}:{{phoenix_jar}}' {{seeds_class}} createAdmin --name "{{store_admin_name}}" --email "{{store_admin_email}}" --org "{{store_admin_org}}" --roles "{{store_admin_roles}}"

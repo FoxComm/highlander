@@ -46,6 +46,7 @@ export const frn = {
   },
   pim: {
     album: 'frn:pim:album',
+    catalog: 'frn:pim:catalog',
     product: 'frn:pim:product',
     sku: 'frn:pim:sku',
   },

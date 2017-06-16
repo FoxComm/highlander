@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
@@ -15,12 +16,23 @@ func main() {
 		log.Fatalf("Unable to connect to DB with error %s", err.Error())
 	}
 
+	log.Printf("Deleting previous entries in DB...")
+	truncateTable(db, "shipping_methods")
+	truncateTable(db, "carriers")
+
 	log.Printf("Started to seed database...")
 	if err := createShippingMethods(db); err != nil {
 		log.Fatalf("Unable to seed shipping methods with error %s", err.Error())
 	}
 
 	log.Printf("Seeding complete")
+}
+
+func truncateTable(db *gorm.DB, table string) {
+	query := fmt.Sprintf("TRUNCATE TABLE %s CASCADE;", table)
+	if err := db.Exec(query).Error; err != nil {
+		log.Fatalf("Unable to truncate %s entries with err %s", table, err.Error())
+	}
 }
 
 func createShippingMethods(db *gorm.DB) error {

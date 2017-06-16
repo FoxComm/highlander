@@ -1,4 +1,4 @@
-import React, { Component, Element } from 'react';
+import React from 'react';
 
 import AddressDetails from '../addresses/address-details';
 import ContentBox from '../content-box/content-box';

@@ -12,7 +12,7 @@ type Props = {
   value: string,
   className?: string,
   onChange?: (value: string) => void,
-  placeholder?: string,
+  placeholder?: string | Element<*>,
   autoFocus?: boolean,
   disabled?: boolean,
 };
@@ -58,7 +58,7 @@ export default class TextInput extends Component {
         onChange={({ target }) => this.handleChange(target.value)}
         placeholder={placeholder}
         {...rest}
-        value={this.state.value} />
+        value={onChange ? this.props.value : this.state.value} />
     );
   }
 }

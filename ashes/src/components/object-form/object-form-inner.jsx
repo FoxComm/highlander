@@ -64,18 +64,6 @@ export function renderFormField(name: string, content: any, options: AttrOptions
   );
 }
 
-function guessType(value: any): string {
-  const typeOf = typeof value;
-  switch (typeOf) {
-    case 'string':
-    case 'number':
-    case 'boolean':
-      return typeOf;
-    default:
-      return 'string';
-  }
-}
-
 export default class ObjectFormInner extends Component {
   props: Props;
   state: State = { isAddingProperty: false, errors: {} };

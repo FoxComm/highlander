@@ -2,19 +2,15 @@ package phoenix.models.payment.storecredit
 
 import java.time.Instant
 
-import shapeless._
+import core.db.ExPostgresDriver.api._
+import core.db._
 import phoenix.utils.aliases._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import shapeless._
 
-case class StoreCreditCustom(id: Int = 0,
-                             adminId: Int,
-                             metadata: Json,
-                             createdAt: Instant = Instant.now)
+case class StoreCreditCustom(id: Int = 0, adminId: Int, metadata: Json, createdAt: Instant = Instant.now)
     extends FoxModel[StoreCreditCustom]
 
-class StoreCreditCustoms(tag: Tag)
-    extends FoxTable[StoreCreditCustom](tag, "store_credit_customs") {
+class StoreCreditCustoms(tag: Tag) extends FoxTable[StoreCreditCustom](tag, "store_credit_customs") {
   def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def adminId   = column[Int]("admin_id")
   def metadata  = column[Json]("metadata")

@@ -2,7 +2,7 @@ package phoenix.utils
 
 import java.time.Instant
 
-import models.objects.ObjectUtils
+import objectframework.ObjectUtils
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization._
 import phoenix.models.discount.offers.{Offer, OfferType}
@@ -36,7 +36,7 @@ package object seeds {
   case class BaseDiscountShadow(f: BaseDiscountForm) {
 
     val shadow = ObjectUtils.newShadow(
-        parse("""
+      parse("""
         {
           "title" : {"type": "string", "ref": "title"},
           "description" : {"type": "richText", "ref": "description"},
@@ -44,7 +44,8 @@ package object seeds {
           "qualifier" : {"type": "qualifier", "ref": "qualifier"},
           "offer" : {"type": "offer", "ref": "offer"}
         }"""),
-        f.keyMap)
+      f.keyMap
+    )
   }
 
   case class BasePromotion(promotionId: Int = 0,
@@ -71,7 +72,7 @@ package object seeds {
   case class BasePromotionShadow(f: BasePromotionForm) {
 
     val shadow = ObjectUtils.newShadow(
-        parse("""
+      parse("""
         {
           "name" : {"type": "string", "ref": "name"},
           "storefrontName" : {"type": "richText", "ref": "storefrontName"},
@@ -81,7 +82,8 @@ package object seeds {
           "activeTo" : {"type": "date", "ref": "activeTo"},
           "tags" : {"type": "tags", "ref": "tags"}
         }"""),
-        f.keyMap)
+      f.keyMap
+    )
   }
 
   case class BaseCoupon(formId: Int = 0, shadowId: Int = 0, promotionId: Int)
@@ -107,7 +109,7 @@ package object seeds {
   case class BaseCouponShadow(f: BaseCouponForm) {
 
     val shadow = ObjectUtils.newShadow(
-        parse("""
+      parse("""
         {
           "name" : {"type": "string", "ref": "name"},
           "storefrontName" : {"type": "richText", "ref": "storefrontName"},
@@ -118,6 +120,7 @@ package object seeds {
           "tags" : {"type": "tags", "ref": "tags"},
           "usageRules" : {"type": "usageRules", "ref": "usageRules"}
         }"""),
-        f.keyMap)
+      f.keyMap
+    )
   }
 }

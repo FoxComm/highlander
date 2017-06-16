@@ -2,13 +2,13 @@ package phoenix.models.account
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures._
+import core.failures._
 import phoenix.failures.ScopeFailures._
 import phoenix.failures.UserFailures.OrganizationNotFoundByName
 import phoenix.utils.aliases._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.db._
 
 case class Scope(id: Int = 0, source: String, parentPath: Option[String]) extends FoxModel[Scope] {
   lazy val path: String = parentPath match {
@@ -22,15 +22,13 @@ object Scope {
 
   def current(implicit au: AU): LTree = LTree(au.token.scope)
 
-  def resolveOverride(maybeSubscope: Option[String] = None)(implicit ec: EC,
-                                                            au: AU): DbResultT[LTree] =
+  def resolveOverride(maybeSubscope: Option[String] = None)(implicit ec: EC, au: AU): DbResultT[LTree] =
     overwrite(au.token.scope, maybeSubscope)
 
   def overwrite(scope: String, maybeSubscope: Option[String])(implicit ec: EC): DbResultT[LTree] =
     DbResultT.fromEither(scopeOrSubscope(scope, maybeSubscope)).map(LTree(_))
 
-  private def scopeOrSubscope(scope: String,
-                              maybeSubscope: Option[String]): Either[Failures, String] =
+  private def scopeOrSubscope(scope: String, maybeSubscope: Option[String]): Either[Failures, String] =
     maybeSubscope match {
       case _ if scope.isEmpty ⇒ Either.left(EmptyScope.single)
       case Some(subscope)     ⇒ validateSubscope(scope, subscope)

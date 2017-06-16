@@ -3,10 +3,8 @@
 
   .fc-notes-form {
     overflow: hidden;
-    transition: max-height 500ms;
     .clearfix;
     margin: 20px 35px;
-    max-height: 250px;
     max-width: 850px;
 
     .empty {
@@ -49,11 +47,15 @@
   }
 
   .fc-notes-item-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
     .initials {
       display: inline-block;
     }
 
-    button {
+    &__buttons {
       float: right;
       margin-left: 5px;
     }

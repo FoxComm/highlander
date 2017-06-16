@@ -1,4 +1,4 @@
-import failures.{NotFoundFailure400, NotFoundFailure404}
+import core.failures.{NotFoundFailure400, NotFoundFailure404}
 import phoenix.failures.CartFailures.OrderAlreadyPlaced
 import phoenix.failures.CreditCardFailures.CannotUseInactiveCreditCard
 import phoenix.failures.OrderFailures.OrderPaymentNotFoundFailure
@@ -9,7 +9,7 @@ import phoenix.models.payment.creditcard._
 import phoenix.payloads.PaymentPayloads.CreditCardPayment
 import phoenix.utils.seeds.Factories
 import testutils._
-import utils.db._
+import core.db._
 
 class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBase {
 
@@ -98,12 +98,10 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
       cc           ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId))
       otherAccount ← * <~ Accounts.create(Account())
       otherCustomer ← * <~ Users.create(
-                         Factories.customer.copy(accountId = otherAccount.id,
-                                                 email = Some("other.customer@email.com")))
+                       Factories.customer.copy(accountId = otherAccount.id,
+                                               email = Some("other.customer@email.com")))
       _ ← * <~ CustomersData.create(
-             CustomerData(userId = otherCustomer.id,
-                          accountId = otherAccount.id,
-                          scope = Scope.current))
+           CustomerData(userId = otherCustomer.id, accountId = otherAccount.id, scope = Scope.current))
       otherCC ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = otherAccount.id))
     } yield (cc, otherCC)).gimme
   }

@@ -95,7 +95,7 @@ export default class SelectVertical extends Component {
 
   addMoreIcon(isLast: boolean) {
     if (isLast) {
-      return <Button onClick={this.onAddClick} className='fc-vmultiselect-add icon-add'/>;
+      return <Button onClick={this.onAddClick} className='fc-vmultiselect-add icon-add' />;
     } else {
       return <div className='fc-vmultiselect-or'>or</div>;
     }
@@ -128,7 +128,7 @@ export default class SelectVertical extends Component {
           className='fc-vmultiselect-item'
         />
         {this.addMoreIcon(isLast)}
-        <i onClick={_.partial(this.onClose, key)} className='fc-vmultiselect-close icon-close'/>
+        <i onClick={_.partial(this.onClose, key)} className='fc-vmultiselect-close icon-close' />
       </div>
     );
   }

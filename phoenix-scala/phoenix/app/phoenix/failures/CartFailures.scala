@@ -1,6 +1,6 @@
 package phoenix.failures
 
-import failures.Failure
+import core.failures.Failure
 
 object CartFailures {
 
@@ -13,11 +13,15 @@ object CartFailures {
   }
 
   case class CustomerHasNoCart(accountId: Int) extends Failure {
-    override def description = s"customer with id=$accountId has no active order"
+    override def description = s"customer with id=$accountId has no active cart"
   }
 
   case class EmptyCart(refNum: String) extends Failure {
     override def description = s"order with referenceNumber=$refNum is an empty cart"
+  }
+
+  case class NoCartFound(customerId: Int) extends Failure {
+    override def description = s"no cart was found for a customer with id=$customerId"
   }
 
   case class NoShipAddress(refNum: String) extends Failure {

@@ -9,10 +9,9 @@ DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
 DOCKER_IMAGE ?= hyperion
 DOCKER_TAG ?= master
 
-DB=hyperion_development
+DB=hyperion
 DB_TEST=hyperion_test
 DB_USER=hyperion
-ALIAS_IP=203.0.113.1
 
 ####################################################################
 # Build targets                                                    #
@@ -50,7 +49,7 @@ docker-hyperion:
 	docker build -t $(DOCKER_IMAGE) .
 
 docker-hyperion-seeder:
-	docker build -t hyperion-seeder -f Dockerfile.seed --build-arg db_host=$(ALIAS_IP) .
+	docker build -t hyperion-seeder -f Dockerfile.seed .
 
 ####################################################################
 # Docker build targets                                             #

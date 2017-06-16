@@ -2,7 +2,7 @@ package phoenix.models.payment.giftcard
 
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.db._
 
 case class GiftCardRefund(id: Int = 0, returnId: Int) extends FoxModel[GiftCardRefund]
 

@@ -2,6 +2,7 @@
 
 import _ from 'lodash';
 import React, { Component } from 'react';
+
 import { Link } from 'components/link';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';

@@ -58,18 +58,18 @@ which depend on how component declared and how component rendered.
 Accordingly, there are several npm packages for testing components
 rendered in DOM and rendering just in some internal tree representation of component markup.
 
-[ShallowTestUtils](https://github.com/sheepsteak/react-shallow-testutils#react-shallow-testutils),
-support library for testing shallow rendered components.
+[react-test-renderer](https://www.npmjs.com/package/react-test-renderer),
+React renderers that can be used for testing purposes.
 
 ```es6
-import ShallowTestUtils from 'react-shallow-testutils';
+import ShallowRenderer from 'react-test-renderer/shallow';
 ```
 
 [ReactTestUtils](https://facebook.github.io/react/docs/test-utils.html),
 support library for testing rendered components in DOM.
 
 ```es6
-import TestUtils from 'react-addons-test-utils';
+import ReactTestUtils from 'react-dom/test-utils';
 ```
 
 ### Shallow render components

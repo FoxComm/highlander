@@ -1,10 +1,10 @@
 package phoenix.responses
 
 import cats.{Functor, Monad}
-import failures._
+import core.failures._
+import core.utils.friendlyClassName
 import phoenix.responses.BatchMetadata._
 import phoenix.services.CartValidatorResponse
-import utils.friendlyClassName
 
 case class TheResponse[A](result: A,
                           alerts: Option[List[String]] = None,
@@ -44,16 +44,16 @@ object TheResponse {
       def combineBatch(a: BatchMetadata, b: BatchMetadata): BatchMetadata =
         BatchMetadata(success = a.success ++ b.success, failures = a.failures ++ b.failures)
       TheResponse(
-          result = fb.result,
-          alerts = combineOL(fa.alerts, fb.alerts),
-          errors = combineOL(fa.errors, fb.errors),
-          warnings = combineOL(fa.warnings, fb.warnings),
-          batch = (fa.batch, fb.batch) match {
-            case (Some(a), Some(b)) ⇒ Some(combineBatch(a, b))
-            case (oa, None)         ⇒ oa
-            case (None, ob)         ⇒ ob
-            case _                  ⇒ None
-          }
+        result = fb.result,
+        alerts = combineOL(fa.alerts, fb.alerts),
+        errors = combineOL(fa.errors, fb.errors),
+        warnings = combineOL(fa.warnings, fb.warnings),
+        batch = (fa.batch, fb.batch) match {
+          case (Some(a), Some(b)) ⇒ Some(combineBatch(a, b))
+          case (oa, None)         ⇒ oa
+          case (None, ob)         ⇒ ob
+          case _                  ⇒ None
+        }
       )
     }
 
@@ -107,7 +107,6 @@ object BatchMetadata {
 case class BatchMetadataSource(className: String, success: SuccessData, failures: FailureData)
 
 object BatchMetadataSource {
-  def apply[A](model: A, success: SuccessData, failures: FailureData): BatchMetadataSource = {
+  def apply[A](model: A, success: SuccessData, failures: FailureData): BatchMetadataSource =
     BatchMetadataSource(friendlyClassName(model), success, failures)
-  }
 }

@@ -4,7 +4,8 @@ import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import cats.implicits._
-import failures.GeneralFailure
+import core.db._
+import core.failures.GeneralFailure
 import phoenix.libs.oauth.{Oauth, UserInfo}
 import phoenix.models.account._
 import phoenix.models.auth.Token
@@ -12,7 +13,6 @@ import phoenix.services.Authenticator
 import phoenix.utils.aliases._
 import phoenix.utils.http.Http._
 import slick.jdbc.PostgresProfile.api.DBIO
-import utils.db._
 
 case class OauthCallbackResponse(code: Option[String] = None, error: Option[String] = None) {
 
@@ -32,8 +32,7 @@ object OauthDirectives {
     }
 }
 
-trait OauthService[M] {
-  this: Oauth ⇒
+trait OauthService[M] { this: Oauth ⇒
 
   def createCustomerByUserInfo(info: UserInfo): DbResultT[M]
   def createAdminByUserInfo(info: UserInfo): DbResultT[M]
@@ -45,11 +44,9 @@ trait OauthService[M] {
     1. Exchange code to access token
     2. Get base user info: email and name
    */
-  def fetchUserInfoFromCode(oauthResponse: OauthCallbackResponse)(
-      implicit ec: EC): DbResultT[UserInfo] = {
+  def fetchUserInfoFromCode(oauthResponse: OauthCallbackResponse)(implicit ec: EC): DbResultT[UserInfo] =
     for {
-      code ← DbResultT.fromEither(
-                oauthResponse.getCode.leftMap(t ⇒ GeneralFailure(t.toString).single))
+      code ← DbResultT.fromEither(oauthResponse.getCode.leftMap(t ⇒ GeneralFailure(t.toString).single))
       accessTokenResp ← * <~ this
                          .accessToken(code)
                          .leftMap(t ⇒ GeneralFailure(t.toString).single)
@@ -59,12 +56,10 @@ trait OauthService[M] {
               .leftMap(t ⇒ GeneralFailure(t.toString).single)
               .value
     } yield info
-  }
 
-  def findOrCreateUserFromInfo(userInfo: UserInfo, createByUserInfo: (UserInfo) ⇒ DbResultT[M])(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[(M, Account)] =
+  def findOrCreateUserFromInfo(
+      userInfo: UserInfo,
+      createByUserInfo: (UserInfo) ⇒ DbResultT[M])(implicit ec: EC, db: DB, ac: AC): DbResultT[(M, Account)] =
     for {
       user    ← * <~ findByEmail(userInfo.email).findOrCreate(createByUserInfo(userInfo))
       account ← * <~ findAccount(user)
@@ -76,10 +71,9 @@ trait OauthService[M] {
     3. FindOrCreate<UserModel>
     4. respondWithToken
    */
-  def oauthCallback(oauthResponse: OauthCallbackResponse,
-                    createByUserInfo: (UserInfo) ⇒ DbResultT[M])(implicit ec: EC,
-                                                                 db: DB,
-                                                                 ac: AC): DbResultT[Token] =
+  def oauthCallback(
+      oauthResponse: OauthCallbackResponse,
+      createByUserInfo: (UserInfo) ⇒ DbResultT[M])(implicit ec: EC, db: DB, ac: AC): DbResultT[Token] =
     for {
       info        ← * <~ fetchUserInfoFromCode(oauthResponse)
       userAccount ← * <~ findOrCreateUserFromInfo(info, createByUserInfo)
@@ -87,8 +81,7 @@ trait OauthService[M] {
       token ← * <~ createToken(user, account, info)
     } yield token
 
-  def customerCallback(
-      oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route =
+  def customerCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route =
     commonCallback(createCustomerByUserInfo, Uri./)(oauthResponse)
 
   def adminCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route =
@@ -97,12 +90,11 @@ trait OauthService[M] {
   private def commonCallback(createByUserInfo: UserInfo ⇒ DbResultT[M], redirectUri: Uri)(
       oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route =
     // TODO: rethink discarding warnings here @michalrus
-    onSuccess(oauthCallback(oauthResponse, createByUserInfo).runDBIO.runEmptyA.value) {
-      tokenOrFailure ⇒
-        tokenOrFailure
-          .flatMap(Authenticator.oauthTokenLoginResponse(redirectUri))
-          .fold({ f ⇒
-            complete(renderFailure(f))
-          }, identity)
+    onSuccess(oauthCallback(oauthResponse, createByUserInfo).runDBIO.runEmptyA.value) { tokenOrFailure ⇒
+      tokenOrFailure
+        .flatMap(Authenticator.oauthTokenLoginResponse(redirectUri))
+        .fold({ f ⇒
+          complete(renderFailure(f))
+        }, identity)
     }
 }

@@ -1,22 +1,22 @@
 const proxy = require('koa-proxy');
+const convert = require('koa-convert');
 
 module.exports = function(app) {
   const config = app.config.api;
   const matchUriRegexp = new RegExp(`^/api/`);
 
-  app.use(function *apiHandler(next) {
-    if (this.request.url.match(matchUriRegexp)) {
-      this.request.headers['Accept'] = 'application/json';
+  app.use(async function apiHandler(ctx, next) {
+    if (ctx.request.url.match(matchUriRegexp)) {
+      ctx.request.headers['Accept'] = 'application/json';
 
-      yield app.jsonError.call(this, next);
+      await app.jsonError.call(ctx, next);
     } else {
-      yield next;
+      next();
     }
   });
 
-  app.use(proxy({
-    host:  config.host,
+  app.use(convert(proxy({
+    host: config.host,
     match: matchUriRegexp,
-  }));
-
+  })));
 };

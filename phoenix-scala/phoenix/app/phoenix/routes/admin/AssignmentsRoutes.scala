@@ -2,22 +2,23 @@ package phoenix.routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import phoenix.utils.http.JsonSupport._
 import phoenix.models.account.User
 import phoenix.models.cord.Cord.cordRefNumRegex
 import phoenix.models.inventory.Sku.skuCodeRegex
 import phoenix.models.payment.giftcard.GiftCard.giftCardCodeRegex
 import phoenix.models.returns.Return.returnRefNumRegex
 import phoenix.payloads.AssignmentPayloads._
-import phoenix.services.assignments._
 import phoenix.services.Authenticator.AuthData
+import phoenix.services.assignments._
 import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
 import phoenix.utils.http.Http._
+import phoenix.utils.http.JsonSupport._
 
 object AssignmentsRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
 
     activityContext(auth) { implicit ac ⇒
       // Customers Bulk Assignments

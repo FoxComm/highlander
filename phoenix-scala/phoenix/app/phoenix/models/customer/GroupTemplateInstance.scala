@@ -3,9 +3,9 @@ package phoenix.models.customer
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
+import core.db.ExPostgresDriver.api._
+import core.db._
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class GroupTemplateInstance(id: Int = 0,
                                  groupTemplateId: Int,
@@ -27,8 +27,7 @@ class GroupTemplateInstances(tag: Tag)
 }
 
 object GroupTemplateInstances
-    extends FoxTableQuery[GroupTemplateInstance, GroupTemplateInstances](
-        new GroupTemplateInstances(_))
+    extends FoxTableQuery[GroupTemplateInstance, GroupTemplateInstances](new GroupTemplateInstances(_))
     with ReturningId[GroupTemplateInstance, GroupTemplateInstances] {
 
   def findByScope(scope: LTree): QuerySeq = filter(_.scope === scope)

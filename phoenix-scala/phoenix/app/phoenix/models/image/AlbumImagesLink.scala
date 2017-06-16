@@ -2,27 +2,27 @@ package phoenix.models.image
 
 import java.time.Instant
 
-import models.objects.{OrderedObjectHeadLink, OrderedObjectHeadLinkQueries, OrderedObjectHeadLinks}
+import objectframework.models._
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.db.ExPostgresDriver.api._
+import core.db._
 
 case class AlbumImageLink(id: Int = 0,
                           leftId: Int,
                           rightId: Int,
                           position: Int = 0,
                           createdAt: Instant = Instant.now,
-                          updatedAt: Instant = Instant.now)
+                          updatedAt: Instant = Instant.now,
+                          archivedAt: Option[Instant] = None)
     extends FoxModel[AlbumImageLink]
     with OrderedObjectHeadLink[AlbumImageLink] {
   override def withPosition(newPosition: Id): AlbumImageLink = copy(position = newPosition)
 }
 
-class AlbumImageLinks(tag: Tag)
-    extends OrderedObjectHeadLinks[AlbumImageLink](tag, "album_image_links") {
+class AlbumImageLinks(tag: Tag) extends OrderedObjectHeadLinks[AlbumImageLink](tag, "album_image_links") {
 
   def * =
-    (id, leftId, rightId, position, createdAt, updatedAt) <> ((AlbumImageLink.apply _).tupled, AlbumImageLink.unapply)
+    (id, leftId, rightId, position, createdAt, updatedAt, archivedAt) <> ((AlbumImageLink.apply _).tupled, AlbumImageLink.unapply)
 
   def left  = foreignKey(Albums.tableName, leftId, Albums)(_.id)
   def right = foreignKey(Images.tableName, rightId, Images)(_.id)
@@ -30,15 +30,15 @@ class AlbumImageLinks(tag: Tag)
 
 object AlbumImageLinks
     extends OrderedObjectHeadLinkQueries[AlbumImageLink, AlbumImageLinks, Album, Image](
-        new AlbumImageLinks(_),
-        Albums,
-        Images)
+      new AlbumImageLinks(_),
+      Albums,
+      Images)
     with ReturningId[AlbumImageLink, AlbumImageLinks] {
 
   val returningLens: Lens[AlbumImageLink, Int] = lens[AlbumImageLink].id
 
   def filterLeftAndRight(leftId: Int, rightId: Int): QuerySeq =
-    filter(link ⇒ link.leftId === leftId && link.rightId === rightId)
+    filter(link ⇒ link.leftId === leftId && link.rightId === rightId && link.archivedAt.isEmpty)
 
   def buildOrdered(left: Album, right: Image, position: Int) =
     AlbumImageLink(leftId = left.id, rightId = right.id, position = position)

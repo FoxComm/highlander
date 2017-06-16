@@ -1,12 +1,12 @@
 package phoenix.services.assignments
 
+import core.db._
 import phoenix.models.activity.Dimension
-import phoenix.models.{Assignment, NotificationSubscription}
 import phoenix.models.inventory.{Sku, Skus}
-import phoenix.responses.SkuResponses.SkuHeadResponse.{Root, build}
-import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import phoenix.models.{Assignment, NotificationSubscription}
+import phoenix.responses.SkuResponses.SkuHeadResponse.{build, Root}
 import phoenix.utils.aliases._
+import slick.jdbc.PostgresProfile.api._
 
 object SkuAssignmentsManager extends AssignmentsManager[String, Sku] {
 

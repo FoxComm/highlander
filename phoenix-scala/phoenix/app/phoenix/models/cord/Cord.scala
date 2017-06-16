@@ -1,11 +1,10 @@
 package phoenix.models.cord
 
+import core.db._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
-case class Cord(id: Int = 0, referenceNumber: String = "", isCart: Boolean = true)
-    extends FoxModel[Cord]
+case class Cord(id: Int = 0, referenceNumber: String = "", isCart: Boolean = true) extends FoxModel[Cord]
 
 object Cord {
   def cordRefNumRegex = """([a-zA-Z0-9-_]*)""".r

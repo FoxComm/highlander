@@ -1,8 +1,8 @@
 package phoenix.models.auth
 
 import akka.http.scaladsl.model.headers.{GenericHttpCredentials, HttpCredentials}
-import failures.Failures
-import utils.db._
+import core.db._
+import core.failures.Failures
 
 sealed trait Credentials {
   val secret: String
@@ -15,10 +15,12 @@ object Credentials {
 
   def mustVerifyJWTCredentials(cred: Option[HttpCredentials],
                                or: Failures): Either[Failures, JWTCredentials] =
-    cred.flatMap {
-      // assume it's JWT
-      // passing scheme as argument where we expect token is not a typo
-      case GenericHttpCredentials(scheme, token, params) ⇒ Some(JWTCredentials(scheme))
-      case _                                             ⇒ None
-    }.toEither(or)
+    cred
+      .flatMap {
+        // assume it's JWT
+        // passing scheme as argument where we expect token is not a typo
+        case GenericHttpCredentials(scheme, token, params) ⇒ Some(JWTCredentials(scheme))
+        case _                                             ⇒ None
+      }
+      .toEither(or)
 }

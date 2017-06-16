@@ -2,8 +2,8 @@ package phoenix.models.shipping
 
 import com.github.tminglei.slickpg.LTree
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.db.ExPostgresDriver.api._
+import core.db._
 
 case class DefaultShippingMethod(id: Int = 0, scope: LTree, shippingMethodId: ShippingMethod#Id)
     extends FoxModel[DefaultShippingMethod]
@@ -19,18 +19,18 @@ class DefaultShippingMethods(tag: Tag)
 }
 
 object DefaultShippingMethods
-    extends FoxTableQuery[DefaultShippingMethod, DefaultShippingMethods](
-        new DefaultShippingMethods(_))
+    extends FoxTableQuery[DefaultShippingMethod, DefaultShippingMethods](new DefaultShippingMethods(_))
     with ReturningId[DefaultShippingMethod, DefaultShippingMethods] {
 
   val returningLens: Lens[DefaultShippingMethod, Int] = lens[DefaultShippingMethod].id
 
   private def resolveFirst[T, M](scope: LTree)(resolver: LTree ⇒ Query[T, M, Seq])(
       implicit ec: EC): DBIO[Option[M]] =
-    resolver(scope).one.flatMap { // can blow up stack currently - please see https://github.com/slick/slick/pull/1703
-      case None if scope.value.nonEmpty ⇒ resolveFirst(LTree(scope.value.init))(resolver)
-      case other                        ⇒ DBIO.successful(other)
-    }
+    resolver(scope).one
+      .flatMap { // can blow up stack currently - please see https://github.com/slick/slick/pull/1703
+        case None if scope.value.nonEmpty ⇒ resolveFirst(LTree(scope.value.init))(resolver)
+        case other                        ⇒ DBIO.successful(other)
+      }
 
   def findDefaultByScope(scope: LTree): QuerySeq = filter(_.scope === scope)
 

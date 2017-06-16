@@ -4,7 +4,9 @@ import cats.implicits._
 import phoenix.models.payment.giftcard._
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import cats.implicits._
+import core.db._
+import core.utils.Money._
 
 class GiftCardAdjustmentIntegrationTest
     extends IntegrationTestBase
@@ -24,10 +26,7 @@ class GiftCardAdjustmentIntegrationTest
     "only one of credit or debit can be greater than zero" in new Fixture {
       override def gcPaymentAmount = giftCard.availableBalance
       val failure = GiftCards
-        .adjust(giftCard = giftCard,
-                orderPaymentId = orderPayments.head.id.some,
-                debit = 50,
-                credit = 50)
+        .adjust(giftCard = giftCard, orderPaymentId = orderPayments.head.id.some, debit = 50, credit = 50)
         .gimmeTxnFailures
       failure.getMessage must include("""violates check constraint "valid_entry"""")
     }
@@ -38,13 +37,13 @@ class GiftCardAdjustmentIntegrationTest
       val adjustment = (for {
         auth ← * <~ GiftCards.auth(giftCard = giftCard,
                                    orderPaymentId = orderPayments.head.id,
-                                   debit = 50)
+                                   debit = gcPaymentAmount)
         adjustment ← * <~ GiftCards.capture(giftCard = giftCard,
                                             orderPaymentId = orderPayments.head.id,
-                                            debit = 50)
+                                            debit = gcPaymentAmount)
       } yield adjustment).gimme
 
-      adjustment.id must === (1)
+      adjustment.debit must === (gcPaymentAmount)
     }
 
     "updates the GiftCard's currentBalance and availableBalance before insert" in new Fixture {
@@ -84,17 +83,16 @@ class GiftCardAdjustmentIntegrationTest
       override def gcPaymentAmount = giftCard.availableBalance
 
       val debits = List(50, 25, 15, 10)
-      def auth(amount: Int) =
+      def auth(amount: Long) =
         GiftCards.auth(giftCard = giftCard, orderPaymentId = orderPayments.head.id, debit = amount)
-      val adjustments = DbResultT.seqCollectFailures((1 to 4).toList.map(auth)).gimme
+      val adjustments = DbResultT.seqCollectFailures((1L to 4L).toList.map(auth)).gimme
 
       adjustments.map { adj ⇒
         GiftCardAdjustments.cancel(adj.id).gimme
       }
 
       val finalGc = GiftCards.refresh(giftCard).gimme
-      (finalGc.originalBalance, finalGc.availableBalance, finalGc.currentBalance) must === (
-          (500, 500, 500))
+      (finalGc.originalBalance, finalGc.availableBalance, finalGc.currentBalance) must === ((500, 500, 500))
     }
   }
 

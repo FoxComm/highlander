@@ -1,12 +1,12 @@
 package phoenix.services.assignments
 
+import core.db._
 import phoenix.models.activity.Dimension
 import phoenix.models.cord._
 import phoenix.models.{Assignment, NotificationSubscription}
 import phoenix.responses.cord.AllOrders._
-import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
-import utils.db._
+import slick.jdbc.PostgresProfile.api._
 
 object OrderWatchersManager extends AssignmentsManager[String, Order] {
 

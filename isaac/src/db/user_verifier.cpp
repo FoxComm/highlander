@@ -6,17 +6,16 @@
 
 #include <sstream>
 
+
+namespace
+{
+    const std::string FIND_USER_STATEMENT = "find_user";
+}
+
 namespace isaac
 {
     namespace db
     {
-        std::string query_str(const char* table, const std::size_t id)
-        {
-            std::stringstream q;
-            q << "select ratchet from " << table << " where id=" << id << " limit 1";
-            return q.str();
-        }
-
         boost::optional<int> get_db_ratchet(
                 pqxx::connection& c, 
                 const char* table, 
@@ -24,13 +23,21 @@ namespace isaac
         {
             pqxx::read_transaction w{c};
 
-            auto r = w.exec(query_str(table, id));
+            auto r = w.prepared(FIND_USER_STATEMENT)(id).exec();
             if(r.empty()) return boost::none;
+
+            CHECK_EQUAL(r.size(), 1);
+            CHECK_EQUAL(r[0].size(), 1);
 
             int db_ratchet = 0;
             r[0][0].to(db_ratchet);
 
             return db_ratchet;
+        }
+
+        user_verifier::user_verifier(pqxx::connection& c): _c{c}
+        {
+          _c.prepare(FIND_USER_STATEMENT, "SELECT ratchet FROM accounts WHERE id=$1 LIMIT 1");
         }
 
         bool user_verifier::same_ratchet(

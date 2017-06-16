@@ -6,11 +6,11 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.stream.scaladsl.Flow
 import akka.util.ByteString
+import core.db.FoxFailureException
+import core.utils._
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import phoenix.utils.Environment
 import phoenix.utils.http.Http._
-import utils._
-import utils.db.FoxFailureException
 
 import scala.collection.immutable
 import scala.concurrent.ExecutionException
@@ -40,12 +40,11 @@ object CustomHandlers {
               }
             }
           }(defaultRejectionHandler(immutable.Seq(rejection)).getOrError(
-                  "defaultRejectionHandler(immutable.Seq(rejection)) should be defined"))
+            "defaultRejectionHandler(immutable.Seq(rejection)) should be defined"))
       }
       .handleNotFound {
         complete(
-            HttpResponse(NotFound,
-                         entity = errorsJsonEntity("The requested resource could not be found.")))
+          HttpResponse(NotFound, entity = errorsJsonEntity("The requested resource could not be found.")))
       }
       .result()
 
@@ -62,17 +61,17 @@ object CustomHandlers {
             ctx.complete(HttpResponse(status, entity = errorsJsonEntity(info.format(env.isProd))))
           }
 
-        case e: IllegalArgumentException ⇒
+      case e: IllegalArgumentException ⇒
         ctx ⇒
           {
             ctx.log.warning("Bad request: {}", ctx.request)
             ctx.complete(HttpResponse(BadRequest, entity = errorsJsonEntity(e.getMessage)))
           }
-        // This is not a part of our control flow, but I'll leave it here just in case of unanticipated DBIO.failed
-        case FoxFailureException(failures) ⇒
+      // This is not a part of our control flow, but I'll leave it here just in case of unanticipated DBIO.failed
+      case FoxFailureException(failures) ⇒
         ctx ⇒
           ctx.complete(Http.renderFailure(failures))
-        case NonFatal(e) ⇒
+      case NonFatal(e) ⇒
         ctx ⇒
           {
             val errMsg = if (env.isProd) "There was an internal server error." else e.getMessage

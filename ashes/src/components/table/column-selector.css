@@ -1,10 +1,6 @@
 .column-selector {
   position: relative;
-  margin-right: 20px;
-
-  & :global(.icon-settings-col) {
-    font-size: 20px;
-  }
+  margin-right: 10px;
 }
 
 .control {
@@ -20,6 +16,11 @@
   & :global(.fc-dropdown__items) {
     min-width: 300px;
     max-height: 304px;
+    transform: translateX(calc(-100% + 40px));
+
+    &:global(._dropup) {
+      transform: translateX(calc(-100% + 40px)) translateY(calc(-100% - 40px));
+    }
   }
 
   &:global(._open) {
@@ -88,5 +89,14 @@
   & :global(.fc-checkbox),
   & :global(.icon-drag-drop) {
     opacity: 0;
+  }
+}
+
+/* @todo do not use button in generic dropdown */
+.button {
+  padding: 10px !important;
+
+  & > i {
+    font-size: 17px !important;
   }
 }

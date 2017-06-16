@@ -62,10 +62,10 @@ export default class Header extends React.Component {
     return (
       <header role='banner' styleName="header" className={className} name="">
         <div styleName="logo">
-          <Icon name="logo" className={styles['logo-icon']}/>
+          <Icon name="logo" className={styles['logo-icon']} />
         </div>
         <div styleName="top-nav-menu">
-          <Breadcrumb routes={routes} params={params}/>
+          <Breadcrumb routes={routes} params={params} />
           <div styleName="sub-nav">
             <div styleName="notifications">
               <NotificationBlock />
@@ -74,9 +74,9 @@ export default class Header extends React.Component {
               <div styleName="initials">{this.initials}</div>
               <div styleName="name">{name}</div>
               <div id="fct-user-menu-btn" styleName="arrow">
-                {isMenuVisible ? <i className="icon-chevron-up"/> : <i className="icon-chevron-down"/>}
+                {isMenuVisible ? <i className="icon-chevron-up" /> : <i className="icon-chevron-down" />}
               </div>
-              {isMenuVisible && <UserMenu user={user}/>}
+              {isMenuVisible && <UserMenu user={user} />}
             </div>
           </div>
         </div>

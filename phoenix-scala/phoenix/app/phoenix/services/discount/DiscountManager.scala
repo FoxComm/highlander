@@ -1,9 +1,11 @@
 package phoenix.services.discount
 
 import cats.implicits._
-import failures.NotFoundFailure404
-import failures.ObjectFailures._
-import models.objects._
+import core.db._
+import core.failures.NotFoundFailure404
+import objectframework.ObjectFailures._
+import objectframework.ObjectUtils
+import objectframework.models._
 import org.json4s.Formats
 import phoenix.failures.DiscountFailures._
 import phoenix.models.account._
@@ -13,7 +15,6 @@ import phoenix.responses.DiscountResponses._
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 object DiscountManager {
 
@@ -39,8 +40,7 @@ object DiscountManager {
       shadow ← * <~ ObjectShadows.mustFindById404(discount.shadowId)
     } yield DiscountShadowResponse.build(shadow)
 
-  def get(discountId: Int, contextName: String)(implicit ec: EC,
-                                                db: DB): DbResultT[DiscountResponse.Root] =
+  def get(discountId: Int, contextName: String)(implicit ec: EC, db: DB): DbResultT[DiscountResponse.Root] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -53,9 +53,8 @@ object DiscountManager {
       shadow ← * <~ ObjectShadows.mustFindById404(discount.shadowId)
     } yield DiscountResponse.build(form, shadow)
 
-  def create(
-      payload: CreateDiscount,
-      contextName: String)(implicit ec: EC, db: DB, au: AU): DbResultT[DiscountResponse.Root] =
+  def create(payload: CreateDiscount,
+             contextName: String)(implicit ec: EC, db: DB, au: AU): DbResultT[DiscountResponse.Root] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -72,20 +71,19 @@ object DiscountManager {
       copy(form = form, shadow = shadow)
   }
 
-  def createInternal(payload: CreateDiscount, context: ObjectContext)(
-      implicit ec: EC,
-      au: AU): DbResultT[CreateInternalResult] = {
+  def createInternal(payload: CreateDiscount,
+                     context: ObjectContext)(implicit ec: EC, au: AU): DbResultT[CreateInternalResult] = {
     val fs = FormAndShadow.fromPayload(Discount.kind, payload.attributes)
     for {
       scope ← * <~ Scope.resolveOverride(payload.scope)
       _     ← * <~ DiscountValidator.validate(fs)
       ins   ← * <~ ObjectUtils.insert(fs.form, fs.shadow, payload.schema)
       discount ← * <~ Discounts.create(
-                    Discount(scope = scope,
-                             contextId = context.id,
-                             formId = ins.form.id,
-                             shadowId = ins.shadow.id,
-                             commitId = ins.commit.id))
+                  Discount(scope = scope,
+                           contextId = context.id,
+                           formId = ins.form.id,
+                           shadowId = ins.shadow.id,
+                           commitId = ins.commit.id))
     } yield CreateInternalResult(discount, ins.commit, ins.form, ins.shadow)
   }
 
@@ -127,9 +125,8 @@ object DiscountManager {
     } yield UpdateInternalResult(discount, updated, update.form, update.shadow)
   }
 
-  def getIlluminated(id: Int, contextName: String)(
-      implicit ec: EC,
-      db: DB): DbResultT[IlluminatedDiscountResponse.Root] =
+  def getIlluminated(id: Int, contextName: String)(implicit ec: EC,
+                                                   db: DB): DbResultT[IlluminatedDiscountResponse.Root] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -141,12 +138,10 @@ object DiscountManager {
       form   ← * <~ ObjectForms.mustFindById404(discount.formId)
       shadow ← * <~ ObjectShadows.mustFindById404(discount.shadowId)
     } yield
-      IlluminatedDiscountResponse.build(
-          IlluminatedDiscount.illuminate(context = context.some, form, shadow))
+      IlluminatedDiscountResponse.build(IlluminatedDiscount.illuminate(context = context.some, form, shadow))
 
-  private def updateHead(discount: Discount,
-                         shadow: ObjectShadow,
-                         maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[Discount] =
+  private def updateHead(discount: Discount, shadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(
+      implicit ec: EC): DbResultT[Discount] =
     maybeCommit match {
       case Some(commit) ⇒
         Discounts.update(discount, discount.copy(shadowId = shadow.id, commitId = commit.id))

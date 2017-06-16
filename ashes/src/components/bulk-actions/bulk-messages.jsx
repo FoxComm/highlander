@@ -17,8 +17,9 @@ type Props = {
   storePath: string,
   module: string,
   entity: string,
-  renderDetails: () => ReactElement,
+  renderDetail: () => ReactElement,
   hideAlertDetails?: boolean,
+  className?: string,
   bulk: {
     successes: ?Object,
     errors: ?Object,
@@ -39,11 +40,17 @@ class BulkMessages extends Component {
     this.props.bulkActions.clearErrors();
   }
 
+  get className() {
+    const { className } = this.props;
+    if (className == null) return 'fc-bulk-messages';
+
+    return `fc-bulk-messages ${className}`;
+  }
+
   render() {
     const { bulk, bulkActions, entity, renderDetail, hideAlertDetails } = this.props;
     const { successes, errors, messages, error } = bulk;
     const { clearSuccesses, clearErrors, clearError } = bulkActions;
-
     const notifications = [];
 
     if (successes) {
@@ -77,7 +84,7 @@ class BulkMessages extends Component {
     }
 
     return (
-      <div className="fc-bulk-messages">
+      <div className={this.className}>
         {notifications}
       </div>
     );

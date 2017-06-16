@@ -30,6 +30,7 @@
   line-height: 17px;
   text-decoration: underline;
   color: #4fc2c9;
+  cursor: pointer;
 }
 
 .users-row {

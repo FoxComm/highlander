@@ -1,4 +1,5 @@
 @import "common.css";
+@import "colors.css";
 
 /*
  * General Button Styles
@@ -7,9 +8,9 @@
   display: inline-flex; /* not just `flex` because of legacy */
   align-items: center;
   justify-content: center;
-  padding: 10px 20px;
-  color: #484848;
-  background-color: #ced2d5;
+  padding: 11px 20px;
+  color: var(--button-color);
+  background-color: var(--button-bg);
   font-size: 14px;
   font-weight: 600;
   line-height: 18px;
@@ -24,20 +25,14 @@
   }
 
   &:hover {
-    color: #484848;
-    background-color: #bdc3c6;
+    background-color: var(--button-bg-hover);
   }
 
   &:disabled,
   &:disabled:hover {
     cursor: default;
-    color: #959698;
-    background-color: #ced2d5;
-  }
-
-  &.onlyIcon {
-    padding-left: 10px;
-    padding-right: 10px;
+    color: var(--button-color-disabled);
+    background-color: var(--button-bg-disabled);
   }
 
   &.fullWidth {
@@ -45,23 +40,38 @@
     width: 100%;
   }
 
+  &.onlyIcon {
+    width: 40px;
+    padding: 11px 0;
+  }
+
   &.small {
     padding: 4px 5px;
   }
+
+  &.small.onlyIcon {
+    width: 26px;
+  }
 }
 
-.button[class*="icon-"] {
-  padding: 0;
-  width: 40px;
+.button i[class*="icon-"],
+.button.small.onlyIcon i[class*="icon-"] {
+  font-size: 10px;
+  transition: all .2s;
 }
 
-.button i[class*="icon-"] {
-  vertical-align: top;
+.button:not(.onlyIcon) i[class*="icon-"] {
+  margin-bottom: -1px;
+}
+
+.button.onlyIcon i[class*="icon-"] {
+  font-size: 14px;
+  margin: 0 auto;
 }
 
 .button i[class*="icon-"] + span,
 span + i[class*="icon-"] {
-  margin-left: 5px;
+  margin-left: 8px;
 }
 
 .text {
@@ -76,20 +86,19 @@ span + i[class*="icon-"] {
  * Primary Button Styles
  */
 .primary {
-  color: #f2f2f2;
-  background-color: #4fc2c9;
+  color: var(--primary-button-color);
+  background-color: var(--primary-button-bg);
 }
 
 .primary:hover {
-  color: #f2f2f2;
-  background-color: #3aacb3;
+  background-color: var(--primary-button-bg-hover);
 }
 
 .primary:disabled,
 .primary:disabled:hover {
   cursor: default;
-  color: #a2dee1;
-  background-color: #4fc2c9;
+  color: var(--primary-button-color-disabled);
+  background-color: var(--primary-button-bg-disabled);
 }
 
 /*

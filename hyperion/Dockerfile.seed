@@ -7,7 +7,7 @@ WORKDIR /hyperion
 COPY . /hyperion
 
 ARG db_host="localhost"
-ARG db_name="hyperion_development"
+ARG db_name="hyperion"
 ARG db_user="hyperion"
 ARG db_password=""
 ARG push_check_interval=5

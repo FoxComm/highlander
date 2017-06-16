@@ -26,7 +26,7 @@
     - { role: base/mesos }
     - { role: base/mesos_master }
     - { role: base/mesos_worker }
-    - { role: base/marathon_consul }
+    - { role: base/mesos_consul }
     - { role: base/elasticsearch }
     - { role: base/elasticsearch-5 }
     - { role: base/kibana }
@@ -36,4 +36,5 @@
     - { role: base/pgweb }
     - { role: dev/db }
     - { role: dev/db_ic }
+    - { role: dev/flyway }
     - { role: app/systemd }

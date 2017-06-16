@@ -1,18 +1,18 @@
 package phoenix.routes.admin
 
+import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import phoenix.models.account.User
 import phoenix.models.cord.Cord.cordRefNumRegex
+import phoenix.models.location.Country
 import phoenix.services.Authenticator.AuthData
 import phoenix.services.ShippingManager
 import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
-import akka.http.scaladsl.server.Directives._
-import phoenix.models.location.Country
-import phoenix.utils.http.Http._
 
 object ShippingMethodRoutes {
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("shipping-methods") {
         (post & path(IntNumber / "default") & pathEnd) { shippingMethodId ⇒
@@ -37,11 +37,6 @@ object ShippingMethodRoutes {
             ShippingManager.getActive
           }
         } ~
-        (get & path(Country.countryCodeRegex) & pathEnd) { countryCode ⇒
-          getOrFailures {
-            ShippingManager.getShippingMethodsForRegion(countryCode)
-          }
-        } ~
         path(cordRefNumRegex) { refNum ⇒
           (get & pathEnd) {
             getOrFailures {
@@ -51,5 +46,4 @@ object ShippingMethodRoutes {
         }
       }
     }
-  }
 }

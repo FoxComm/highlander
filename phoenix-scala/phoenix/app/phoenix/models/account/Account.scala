@@ -2,9 +2,9 @@ package phoenix.models.account
 
 import java.time.Instant
 
+import core.db._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class Account(id: Int = 0,
                    ratchet: Int = 0,
@@ -36,7 +36,6 @@ object Accounts
 
   val returningLens: Lens[Account, Int] = lens[Account].id
 
-  def findByIdAndRatchet(id: Int, ratchet: Int): DBIO[Option[Account]] = {
+  def findByIdAndRatchet(id: Int, ratchet: Int): DBIO[Option[Account]] =
     filter(_.id === id).filter(_.ratchet === ratchet).one
-  }
 }

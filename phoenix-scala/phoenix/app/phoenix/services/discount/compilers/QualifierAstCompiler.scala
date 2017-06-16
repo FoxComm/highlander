@@ -3,7 +3,7 @@ package phoenix.services.discount.compilers
 import cats.data.NonEmptyList
 import cats.implicits._
 import phoenix.failures.DiscountCompilerFailures._
-import failures._
+import core.failures._
 import phoenix.models.discount.qualifiers._
 import org.json4s._
 import phoenix.utils.JsonFormatters

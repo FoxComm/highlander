@@ -3,18 +3,21 @@ package phoenix.models.cord.lineitems
 import java.time.Instant
 
 import com.pellucid.sealerate
+import core.db.ExPostgresDriver.api._
+import core.db._
+import phoenix.models.discount.offers.Offer.OfferResult
+import phoenix.models.discount.offers._
 import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.utils.Money._
 
 final case class CartLineItemAdjustment(id: Int = 0,
                                         cordRef: String,
                                         promotionShadowId: Int,
                                         adjustmentType: CartLineItemAdjustment.AdjustmentType,
-                                        subtract: Int,
+                                        subtract: Long,
                                         lineItemRefNum: Option[String] = None,
                                         createdAt: Instant = Instant.now)
     extends FoxModel[CartLineItemAdjustment]
@@ -26,7 +29,7 @@ class CartLineItemAdjustments(tag: Tag)
   def cordRef           = column[String]("cord_ref")
   def promotionShadowId = column[Int]("promotion_shadow_id")
   def adjustmentType    = column[CartLineItemAdjustment.AdjustmentType]("adjustment_type")
-  def subtract          = column[Int]("subtract")
+  def subtract          = column[Long]("subtract")
   def lineItemRefNum    = column[Option[String]]("line_item_ref_num")
   def createdAt         = column[Instant]("created_at")
 
@@ -41,17 +44,34 @@ object CartLineItemAdjustment {
   case object ShippingAdjustment extends AdjustmentType
   case object Combinator         extends AdjustmentType
 
+  def fromOfferResult(offerResult: OfferResult) =
+    CartLineItemAdjustment(
+      cordRef = offerResult.discountInput.cartRefNum,
+      promotionShadowId = offerResult.discountInput.promotionShadowId,
+      adjustmentType = adjustmentTypeByOffer(offerResult.offerType),
+      subtract = offerResult.subtract,
+      lineItemRefNum = offerResult.lineItemRefNum
+    )
+
+  def adjustmentTypeByOffer(offerType: OfferType): AdjustmentType = offerType match {
+    case ItemPercentOff | ItemAmountOff    ⇒ LineItemAdjustment
+    case ItemsPercentOff | ItemsAmountOff  ⇒ LineItemAdjustment
+    case SetPrice                          ⇒ LineItemAdjustment
+    case OrderPercentOff | OrderAmountOff  ⇒ OrderAdjustment
+    case FreeShipping | DiscountedShipping ⇒ ShippingAdjustment
+    case ListCombinator                    ⇒ Combinator
+  }
+
   object AdjustmentType extends ADT[AdjustmentType] {
     def types = sealerate.values[AdjustmentType]
   }
 
-  implicit val adjustmentTypeColumnType: JdbcType[AdjustmentType] with BaseTypedType[
-      AdjustmentType] = AdjustmentType.slickColumn
+  implicit val adjustmentTypeColumnType: JdbcType[AdjustmentType] with BaseTypedType[AdjustmentType] =
+    AdjustmentType.slickColumn
 }
 
 object CartLineItemAdjustments
-    extends FoxTableQuery[CartLineItemAdjustment, CartLineItemAdjustments](
-        new CartLineItemAdjustments(_))
+    extends FoxTableQuery[CartLineItemAdjustment, CartLineItemAdjustments](new CartLineItemAdjustments(_))
     with ReturningId[CartLineItemAdjustment, CartLineItemAdjustments] {
 
   val returningLens: Lens[CartLineItemAdjustment, Int] = lens[CartLineItemAdjustment].id

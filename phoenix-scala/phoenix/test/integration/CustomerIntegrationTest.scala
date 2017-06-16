@@ -3,7 +3,7 @@ import java.time.temporal.ChronoUnit
 
 import cats.implicits._
 import com.stripe.exception.CardException
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import phoenix.failures.CreditCardFailures.CannotUseInactiveCreditCard
@@ -14,6 +14,7 @@ import phoenix.models.cord.OrderPayments.scope._
 import phoenix.models.cord._
 import phoenix.models.customer._
 import phoenix.models.location.{Addresses, Regions}
+import phoenix.models.payment.ExternalCharge
 import phoenix.models.payment.creditcard._
 import phoenix.models.shipping.Shipment.Shipped
 import phoenix.models.shipping.{Shipment, Shipments}
@@ -22,9 +23,8 @@ import phoenix.payloads.CustomerPayloads._
 import phoenix.payloads.PaymentPayloads._
 import phoenix.payloads.UserPayloads._
 import phoenix.responses.CreditCardsResponse.{Root ⇒ CardResponse}
-import phoenix.responses.CustomerResponse.Root
 import phoenix.responses.cord.CartResponse
-import phoenix.responses.{CreditCardsResponse, CustomerResponse}
+import phoenix.responses.CreditCardsResponse
 import phoenix.services.carts.CartPaymentUpdater
 import phoenix.utils.aliases.stripe.StripeCard
 import phoenix.utils.seeds.Factories
@@ -32,7 +32,8 @@ import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
+import phoenix.responses.users.CustomerResponse
 
 class CustomerIntegrationTest
     extends IntegrationTestBase
@@ -46,10 +47,10 @@ class CustomerIntegrationTest
     "successfully creates customer from payload" in {
       val root = customersApi
         .create(CreateCustomerPayload(email = "test@example.com", name = "test".some))
-        .as[Root]
+        .as[CustomerResponse]
 
       val created = Users.findOneByAccountId(root.id).gimme.value
-      created.id must === (root.id)
+      created.accountId must === (root.id)
     }
 
     "fails if email is already in use" in new Customer_Seed {
@@ -59,16 +60,16 @@ class CustomerIntegrationTest
     }
 
     "guests may have email that was already registered" in new GuestAndCustomerFixture {
-      val customerCreated = customersApi.create(customer).as[Root]
-      val guestCreated    = customersApi.create(guest).as[Root]
+      val customerCreated = customersApi.create(customer).as[CustomerResponse]
+      val guestCreated    = customersApi.create(guest).as[CustomerResponse]
 
       guestCreated.name must === (guest.name)
       customerCreated.name must === (customer.name)
     }
 
     "customer may have email that was already registered for a guest before" in new GuestAndCustomerFixture {
-      val guestCreated    = customersApi.create(guest).as[Root]
-      val customerCreated = customersApi.create(customer).as[Root]
+      val guestCreated    = customersApi.create(guest).as[CustomerResponse]
+      val customerCreated = customersApi.create(customer).as[CustomerResponse]
 
       guestCreated.name must === (guest.name)
       customerCreated.name must === (customer.name)
@@ -85,14 +86,14 @@ class CustomerIntegrationTest
     "fetches customer info" in new Fixture {
       val customerRoot =
         CustomerResponse.build(customer, customerData, shippingRegion = region.some)
-      customersApi(customer.accountId).get().as[Root] must === (customerRoot)
+      customersApi(customer.accountId).get().as[CustomerResponse] must === (customerRoot)
     }
 
     "fetches customer info without default address" in new Fixture {
       Addresses.filter(_.id === address.id).map(_.isDefaultShipping).update(false).gimme
 
-      customersApi(customer.accountId).get().as[Root] must === (
-          CustomerResponse.build(customer, customerData))
+      customersApi(customer.accountId).get().as[CustomerResponse] must === (
+        CustomerResponse.build(customer, customerData))
     }
 
     "customer info shows valid billingRegion" in new CreditCardFixture {
@@ -100,7 +101,7 @@ class CustomerIntegrationTest
 
       val root = CustomerResponse
         .build(customer, customerData, shippingRegion = region.some, billingRegion = billRegion)
-      customersApi(customer.accountId).get().as[Root] must === (root)
+      customersApi(customer.accountId).get().as[CustomerResponse] must === (root)
     }
 
     "customer info shows valid billingRegion without default CreditCard" in new CreditCardFixture {
@@ -108,7 +109,7 @@ class CustomerIntegrationTest
 
       val customerRoot =
         CustomerResponse.build(customer, customerData, shippingRegion = region.some)
-      customersApi(customer.accountId).get().as[Root] must === (customerRoot)
+      customersApi(customer.accountId).get().as[CustomerResponse] must === (customerRoot)
     }
 
     "empty phone number is resolved from" - {
@@ -116,17 +117,14 @@ class CustomerIntegrationTest
         val defaultPhoneNumber: String = "1111111111"
 
         val (customer, customerData, region) = (for {
-          account ← * <~ Accounts.create(Account())
-          customer ← * <~ Users.create(
-                        Factories.customer.copy(accountId = account.id, phoneNumber = None))
+          account  ← * <~ Accounts.create(Account())
+          customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id, phoneNumber = None))
           customerData ← * <~ CustomersData.create(
-                            CustomerData(accountId = account.id,
-                                         userId = customer.id,
-                                         scope = Scope.current))
+                          CustomerData(accountId = account.id, userId = customer.id, scope = Scope.current))
           address ← * <~ Addresses.create(
-                       Factories.address.copy(accountId = customer.accountId,
-                                              isDefaultShipping = true,
-                                              phoneNumber = defaultPhoneNumber.some))
+                     Factories.address.copy(accountId = customer.accountId,
+                                            isDefaultShipping = true,
+                                            phoneNumber = defaultPhoneNumber.some))
           region ← * <~ Regions.findOneById(address.regionId)
         } yield (customer, customerData, region)).gimme
 
@@ -134,7 +132,7 @@ class CustomerIntegrationTest
           CustomerResponse.build(customer.copy(phoneNumber = defaultPhoneNumber.some),
                                  customerData,
                                  shippingRegion = region)
-        customersApi(customer.accountId).get().as[Root] must === (customerRoot)
+        customersApi(customer.accountId).get().as[CustomerResponse] must === (customerRoot)
       }
 
       "last shipping address" in new StoreAdmin_Seed {
@@ -151,46 +149,39 @@ class CustomerIntegrationTest
         }
 
         val (customer, region, shipments) = (for {
-          account ← * <~ Accounts.create(Account())
-          customer ← * <~ Users.create(
-                        Factories.customer.copy(accountId = account.id, phoneNumber = None))
+          account  ← * <~ Accounts.create(Account())
+          customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id, phoneNumber = None))
           custData ← * <~ CustomersData.create(
-                        CustomerData(userId = customer.id,
-                                     accountId = account.id,
-                                     scope = Scope.current))
+                      CustomerData(userId = customer.id, accountId = account.id, scope = Scope.current))
           address ← * <~ Addresses.create(defaultAddress.copy(accountId = customer.accountId))
           region  ← * <~ Regions.findOneById(address.regionId)
           cart1 ← * <~ Carts.create(
-                     Cart(referenceNumber = "ABC-1",
-                          scope = Scope.current,
-                          accountId = customer.accountId))
+                   Cart(referenceNumber = "ABC-1", scope = Scope.current, accountId = customer.accountId))
           order1 ← * <~ Orders.createFromCart(cart1, None)
           order1 ← * <~ Orders.update(order1, order1.copy(state = Order.FulfillmentStarted))
           order1 ← * <~ Orders.update(order1, order1.copy(state = Order.Shipped))
           cart2 ← * <~ Carts.create(
-                     Cart(referenceNumber = "ABC-2",
-                          scope = Scope.current,
-                          accountId = customer.accountId))
+                   Cart(referenceNumber = "ABC-2", scope = Scope.current, accountId = customer.accountId))
           order2 ← * <~ Orders.createFromCart(cart2, None)
           order2 ← Orders.update(order2, order2.copy(state = Order.FulfillmentStarted))
           order2 ← Orders.update(order2, order2.copy(state = Order.Shipped))
           orders = Seq(order1, order2)
           addresses ← * <~ shippingAddresses(orders.zip(phoneNumbers)).map(a ⇒
-                           OrderShippingAddresses.create(a))
+                       OrderShippingAddresses.create(a))
           shipments ← * <~ addresses.map(
-                         address ⇒
-                           Shipments.create(
-                               Factories.shipment.copy(cordRef = address.cordRef,
-                                                       shippingAddressId = address.id.some,
-                                                       orderShippingMethodId = None,
-                                                       state = Shipped)))
+                       address ⇒
+                         Shipments.create(
+                           Factories.shipment.copy(cordRef = address.cordRef,
+                                                   shippingAddressId = address.id.some,
+                                                   orderShippingMethodId = None,
+                                                   state = Shipped)))
         } yield (customer, region, shipments)).gimme
 
         def updateShipmentTime(s: Shipment, newTime: Instant ⇒ Instant): Unit =
           Shipments.update(s, s.copy(updatedAt = s.updatedAt.map(time ⇒ newTime(time)))).gimme
 
         def runTest(expectedPhone: String) = {
-          val customerResponse = customersApi(customer.accountId).get().as[Root]
+          val customerResponse = customersApi(customer.accountId).get().as[CustomerResponse]
           customerResponse.shippingRegion must === (region)
           customerResponse.phoneNumber must === (expectedPhone.some)
         }
@@ -210,11 +201,11 @@ class CustomerIntegrationTest
                                shippingRegion = region.some,
                                lastOrderDays = lastOrderDays.some)
 
-      customersApi(customer.accountId).get().as[Root] must === (expectedResponse(0))
+      customersApi(customer.accountId).get().as[CustomerResponse] must === (expectedResponse(0))
 
       Orders.update(order, order.copy(placedAt = Instant.now.minus(1, ChronoUnit.DAYS))).gimme
 
-      customersApi(customer.accountId).get().as[Root] must === (expectedResponse(1))
+      customersApi(customer.accountId).get().as[CustomerResponse] must === (expectedResponse(1))
     }
 
     "ranking" - {
@@ -223,7 +214,7 @@ class CustomerIntegrationTest
         // check that states used in sql still actual
         sqlu"UPDATE orders SET state = 'shipped' WHERE reference_number = ${order.refNum}".gimme
 
-        customersApi(customer.accountId).get().as[Root].rank must === (2.some)
+        customersApi(customer.accountId).get().as[CustomerResponse].rank must === (2.some)
         val rank  = CustomersRanks.findById(customer.accountId).extract.result.head.gimme
         val rank2 = CustomersRanks.findById(customer2.accountId).extract.result.head.gimme
 
@@ -259,33 +250,33 @@ class CustomerIntegrationTest
                                                   email = "newemail@example.org".some,
                                                   phoneNumber = "555 555 55".some)
       (payload.name, payload.email, payload.phoneNumber) must !==(
-          (customer.name, customer.email, customer.phoneNumber))
+        (customer.name, customer.email, customer.phoneNumber))
 
-      val updated: Root = customersApi(customer.accountId).update(payload).as[Root]
+      val updated: CustomerResponse = customersApi(customer.accountId).update(payload).as[CustomerResponse]
       (updated.name, updated.email, updated.phoneNumber) must === (
-          (payload.name, payload.email, payload.phoneNumber))
+        (payload.name, payload.email, payload.phoneNumber))
     }
 
     "fails if email is already in use" in new Fixture {
-      val newCustomer: Root = customersApi
+      val newCustomer: CustomerResponse = customersApi
         .create(CreateCustomerPayload(email = "test@example.com", name = "test".some))
-        .as[Root]
+        .as[CustomerResponse]
 
-      require(customersApi(newCustomer.id).get().as[Root].email != customer.email)
+      require(customersApi(newCustomer.id).get().as[CustomerResponse].email != customer.email)
 
       customersApi(newCustomer.id)
         .update(UpdateCustomerPayload(email = customer.email))
         .mustFailWith400(CustomerEmailNotUnique)
 
-      customersApi(newCustomer.id).get().as[Root].email must not equal customer.email
+      customersApi(newCustomer.id).get().as[CustomerResponse].email must not equal customer.email
     }
   }
 
   "POST /v1/customers/:accountId/activate" - {
     "fails if email is already in use by non-guest user" in new Fixture {
-      val newCustomer: Root = customersApi
+      val newCustomer: CustomerResponse = customersApi
         .create(CreateCustomerPayload(email = customer.email.value, isGuest = true.some))
-        .as[Root]
+        .as[CustomerResponse]
 
       customersApi(newCustomer.id)
         .activate(ActivateCustomerPayload(name = "test"))
@@ -293,16 +284,17 @@ class CustomerIntegrationTest
     }
 
     "successfully activates non-guest user" in new Fixture {
-      val newCustomer: Root = customersApi
+      val newCustomer: CustomerResponse = customersApi
         .create(CreateCustomerPayload(email = "guest@example.com", isGuest = true.some))
-        .as[Root]
+        .as[CustomerResponse]
 
       customersApi(newCustomer.id).activate(ActivateCustomerPayload(name = "test")).mustBeOk()
 
-      val created: User                 = Users.findOneById(newCustomer.id).gimme.value
-      val createdCustUser: CustomerData = CustomersData.findOneByAccountId(created.id).gimme.value
+      val created: User = Users.findOneByAccountId(newCustomer.id).gimme.value
+      val createdCustUser: CustomerData =
+        CustomersData.findOneByAccountId(created.accountId).gimme.value
 
-      val expectedResponse: Root = newCustomer.copy(name = "test".some, isGuest = false)
+      val expectedResponse: CustomerResponse = newCustomer.copy(name = "test".some, isGuest = false)
       CustomerResponse.build(created, createdCustUser) must === (expectedResponse)
       createdCustUser.isGuest must === (false)
     }
@@ -314,12 +306,12 @@ class CustomerIntegrationTest
 
       customersApi(customer.accountId)
         .disable(ToggleUserDisabled(true))
-        .as[Root]
+        .as[CustomerResponse]
         .disabled mustBe true
 
       customersApi(customer.accountId)
         .disable(ToggleUserDisabled(false))
-        .as[Root]
+        .as[CustomerResponse]
         .disabled mustBe false
     }
 
@@ -333,7 +325,7 @@ class CustomerIntegrationTest
       val updated = Users.update(customer, customer.copy(isDisabled = true)).gimme
       updated.isDisabled mustBe true
 
-      val disabled = customersApi(customer.accountId).disable(ToggleUserDisabled(true)).as[Root]
+      val disabled = customersApi(customer.accountId).disable(ToggleUserDisabled(true)).as[CustomerResponse]
       disabled.disabled mustBe true
     }
   }
@@ -344,12 +336,12 @@ class CustomerIntegrationTest
 
       customersApi(customer.accountId)
         .blacklist(ToggleUserBlacklisted(true))
-        .as[Root]
+        .as[CustomerResponse]
         .isBlacklisted mustBe true
 
       customersApi(customer.accountId)
         .blacklist(ToggleUserBlacklisted(false))
-        .as[Root]
+        .as[CustomerResponse]
         .isBlacklisted must === (false)
     }
 
@@ -362,12 +354,12 @@ class CustomerIntegrationTest
     "blacklist already blacklisted account is ok (overwrite behaviour)" in new Fixture {
       customersApi(customer.accountId)
         .blacklist(ToggleUserBlacklisted(true))
-        .as[Root]
+        .as[CustomerResponse]
         .isBlacklisted mustBe true
 
       customersApi(customer.accountId)
         .blacklist(ToggleUserBlacklisted(true))
-        .as[Root]
+        .as[CustomerResponse]
         .isBlacklisted mustBe true
     }
   }
@@ -492,8 +484,7 @@ class CustomerIntegrationTest
         val numAddresses = Addresses.length.result.gimme
 
         numAddresses must === (1)
-        (newVersion.address.zip, newVersion.address.regionId) must === (
-            (address.zip, address.regionId))
+        (newVersion.address.zip, newVersion.address.regionId) must === ((address.zip, address.regionId))
       }
 
       "creates a new address book entry if a full address was given" in new CreditCardFixture {
@@ -514,10 +505,8 @@ class CustomerIntegrationTest
         val newAddress = addresses.last
 
         addresses must have size 2
-        (newVersion.address.zip, newVersion.address.regionId) must === (
-            ("54321", address.regionId + 1))
-        (newVersion.address.zip, newVersion.address.regionId) must === (
-            (newAddress.zip, newAddress.regionId))
+        (newVersion.address.zip, newVersion.address.regionId) must === (("54321", address.regionId + 1))
+        (newVersion.address.zip, newVersion.address.regionId) must === ((newAddress.zip, newAddress.regionId))
       }
     }
 
@@ -627,43 +616,36 @@ class CustomerIntegrationTest
     val (order, orderPayment, customer2, charge1, charge2) = (for {
       account ← * <~ Accounts.create(Account())
       customer2 ← * <~ Users.create(
-                     Factories.customer.copy(accountId = account.id,
-                                             email = "second@example.org".some,
-                                             name = "second".some))
+                   Factories.customer
+                     .copy(accountId = account.id, email = "second@example.org".some, name = "second".some))
       custData2 ← * <~ CustomersData.create(
-                     CustomerData(userId = customer2.id,
-                                  accountId = account.id,
-                                  scope = Scope.current))
+                   CustomerData(userId = customer2.id, accountId = account.id, scope = Scope.current))
       cart2 ← * <~ Carts.create(
-                 Cart(accountId = customer2.accountId,
-                      scope = Scope.current,
-                      referenceNumber = "ABC-456"))
+               Cart(accountId = customer2.accountId, scope = Scope.current, referenceNumber = "ABC-456"))
       order  ← * <~ Orders.createFromCart(cart, None)
       order2 ← * <~ Orders.createFromCart(cart2, None)
       orderPayment ← * <~ OrderPayments.create(
-                        Factories.orderPayment.copy(cordRef = order.refNum,
-                                                    paymentMethodId = creditCard.id,
-                                                    amount = None))
+                      Factories.orderPayment
+                        .copy(cordRef = order.refNum, paymentMethodId = creditCard.id, amount = None))
       creditCardCharge1 ← * <~ CreditCardCharges.create(
-                             CreditCardCharge(
-                                 creditCardId = creditCard.id,
-                                 orderPaymentId = orderPayment.id,
-                                 chargeId = "asd1",
-                                 state = CreditCardCharge.FullCapture,
-                                 amount = 100
-                             ))
+                           CreditCardCharge(
+                             creditCardId = creditCard.id,
+                             orderPaymentId = orderPayment.id,
+                             stripeChargeId = "asd1",
+                             state = ExternalCharge.FullCapture,
+                             amount = 100
+                           ))
       orderPayment2 ← * <~ OrderPayments.create(
-                         Factories.orderPayment.copy(cordRef = order2.refNum,
-                                                     paymentMethodId = creditCard.id,
-                                                     amount = None))
+                       Factories.orderPayment
+                         .copy(cordRef = order2.refNum, paymentMethodId = creditCard.id, amount = None))
       creditCardCharge2 ← * <~ CreditCardCharges.create(
-                             CreditCardCharge(
-                                 creditCardId = creditCard.id,
-                                 orderPaymentId = orderPayment2.id,
-                                 chargeId = "asd2",
-                                 state = CreditCardCharge.FullCapture,
-                                 amount = 1000000
-                             ))
+                           CreditCardCharge(
+                             creditCardId = creditCard.id,
+                             orderPaymentId = orderPayment2.id,
+                             stripeChargeId = "asd2",
+                             state = ExternalCharge.FullCapture,
+                             amount = 1000000
+                           ))
       order  ← * <~ Orders.update(order, order.copy(state = Order.FulfillmentStarted))
       order  ← * <~ Orders.update(order, order.copy(state = Order.Shipped))
       order2 ← * <~ Orders.update(order2, order2.copy(state = Order.FulfillmentStarted))

@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	mustBeGreaterThan = "%s.%s must be greater than %d - actual is %d"
+	mustBeGreaterThan = "%s.%s must be greater than %f - actual is %f"
 	mustNotBeEmpty    = "%s.%s must not be empty"
 	when              = "%s when %s"
 )

@@ -52,6 +52,7 @@ export default class CheckboxDropdown extends Component {
   render() {
     return (
       <GenericDropdown
+        placeholder="- Select -"
         className="fc-checkbox-dropdown"
         renderDropdownInput={this.renderCheckbox}
         onChange={this.handleChange}

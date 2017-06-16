@@ -3,6 +3,7 @@ package phoenix.models
 import java.time.Instant
 
 import com.pellucid.sealerate
+import core.db._
 import phoenix.models.Assignment.{AssignmentType, ReferenceType}
 import phoenix.models.account._
 import phoenix.utils.ADT
@@ -10,7 +11,6 @@ import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class Assignment(id: Int = 0,
                       assignmentType: AssignmentType,
@@ -76,14 +76,10 @@ object Assignments
   def byType(assignType: AssignmentType, refType: ReferenceType): QuerySeq =
     filter(_.assignmentType === assignType).filter(_.referenceType === refType)
 
-  def byAdmin[T <: FoxModel[T]](assignType: AssignmentType,
-                                refType: ReferenceType,
-                                admin: User): QuerySeq =
+  def byAdmin[T <: FoxModel[T]](assignType: AssignmentType, refType: ReferenceType, admin: User): QuerySeq =
     byType(assignType, refType).filter(_.storeAdminId === admin.accountId)
 
-  def byEntity[T <: FoxModel[T]](assignType: AssignmentType,
-                                 model: T,
-                                 refType: ReferenceType): QuerySeq =
+  def byEntity[T <: FoxModel[T]](assignType: AssignmentType, model: T, refType: ReferenceType): QuerySeq =
     byType(assignType, refType).filter(_.referenceId === model.id)
 
   def byEntityAndAdmin[T <: FoxModel[T]](assignType: AssignmentType,

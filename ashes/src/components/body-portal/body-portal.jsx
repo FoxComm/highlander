@@ -1,5 +1,5 @@
 // libs
-import React, { Component, Children, Element } from 'react';
+import { Component, Children, Element } from 'react';
 import ReactDOM from 'react-dom';
 
 type Props = {

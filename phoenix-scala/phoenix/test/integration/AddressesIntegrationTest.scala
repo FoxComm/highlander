@@ -1,15 +1,16 @@
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
+import phoenix.failures.AddressFailures.NoRegionFound
 import phoenix.models.account._
 import phoenix.models.cord.OrderShippingAddresses
-import phoenix.models.location.{Address, Addresses, Country}
+import phoenix.models.location.{Address, Addresses, Country, Region}
 import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import phoenix.responses.AddressResponse
 import phoenix.responses.PublicResponses.CountryWithRegions
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
 import testutils.fixtures.BakedFixtures
-import testutils.fixtures.api.{ApiFixtureHelpers, randomAddress}
+import testutils.fixtures.api.{randomAddress, ApiFixtureHelpers}
 
 class AddressesIntegrationTest
     extends IntegrationTestBase
@@ -164,30 +165,41 @@ class AddressesIntegrationTest
       countryWithRegions.country.id must === (Country.unitedStatesId)
       countryWithRegions.country.alpha2 must === ("US")
 
-      countryWithRegions.regions.map { region ⇒
+      val states = countryWithRegions.regions.map { region ⇒
         (region.abbreviation, region.name)
-      } must contain
-      theSameElementsAs(
-          List(
-              ("CA".some, "California"),
-              ("CO".some, "Colorado"),
-              ("DE".some, "Delaware")
-          ))
+      }
+
+      states must contain("CA".some, "California")
+      states must contain("CO".some, "Colorado")
+      states must contain("DE".some, "Delaware")
     }
 
     "Should not contain absent or non-existent regions" in {
       val countryWithRegions =
         publicApi.getCountryById(Country.unitedStatesId).as[CountryWithRegions]
 
-      countryWithRegions.regions.map { region ⇒
+      val states = countryWithRegions.regions.map { region ⇒
         (region.abbreviation, region.name)
-      } mustNot contain
-      theSameElementsAs(
-          List(
-              ("MSK".some, "Moscow"),
-              ("MO".some, "Moscow Oblast")
-          ))
+      }
+
+      states mustNot contain("MSK".some, "Moscow")
+      states mustNot contain("MO".some, "Moscow Oblast")
     }
+  }
+
+  "GET region by short name" - {
+    "Must return existed region for a given short name" in {
+      publicApi.getRegionByShortName("CO").as[Region].name must === ("Colorado")
+    }
+
+    "Make sure that it works for lower case input" in {
+      publicApi.getRegionByShortName("mo").as[Region].name must === ("Missouri")
+    }
+
+    "Should not contain absent or non-existent regions" in {
+      publicApi.getRegionByShortName("xx").mustFailWith400(NoRegionFound("xx"))
+    }
+
   }
 
   trait ShippingAddressFixture extends EmptyCartWithShipAddress_Baked

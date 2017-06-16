@@ -8,7 +8,6 @@ import { transitionTo } from 'browserHistory';
 
 // components
 import { connectPage, ObjectPage } from '../object-page/object-page';
-import SubNav from './sub-nav';
 import SaveCancel from 'components/core/save-cancel';
 
 // actions

@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { connect } from 'react-redux';
 
 import AddressBox from './address-box';
 import EmptyText from '../content-box/empty-text';
@@ -37,7 +36,7 @@ const Addresses = props => {
 
 const renderContent = (props) => {
   return (
-    <ul id="fct-customer-addresses-list" className="fc-addresses-list fc-float-list">
+    <ul id="fct-customer-addresses-list" className="fc-float-list">
       {props.processContent(
         props.addresses.map((address, idx) => props.createAddressBox(address, idx, props))
       )}

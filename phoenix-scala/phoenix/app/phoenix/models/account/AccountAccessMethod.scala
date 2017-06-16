@@ -3,6 +3,7 @@ package phoenix.models.account
 import java.time.Instant
 
 import com.typesafe.scalalogging.LazyLogging
+import core.db._
 import phoenix.utils.FoxConfig.config
 import phoenix.utils.HashPasswords
 import phoenix.utils.HashPasswords.HashAlgorithm
@@ -10,7 +11,6 @@ import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class AccountAccessMethod(id: Int = 0,
                                accountId: Int,
@@ -22,13 +22,11 @@ case class AccountAccessMethod(id: Int = 0,
                                deletedAt: Option[Instant] = None)
     extends FoxModel[AccountAccessMethod] {
 
-  def updatePassword(newPassword: String): AccountAccessMethod = {
+  def updatePassword(newPassword: String): AccountAccessMethod =
     this.copy(hashedPassword = algorithm.hasher.generateHash(newPassword), updatedAt = Instant.now)
-  }
 
-  def checkPassword(password: String): Boolean = {
+  def checkPassword(password: String): Boolean =
     algorithm.hasher.checkHash(password, hashedPassword)
-  }
 }
 
 object AccountAccessMethod extends LazyLogging {
@@ -57,8 +55,7 @@ object AccountAccessMethod extends LazyLogging {
                         algorithm = algorithm)
 }
 
-class AccountAccessMethods(tag: Tag)
-    extends FoxTable[AccountAccessMethod](tag, "account_access_methods") {
+class AccountAccessMethods(tag: Tag) extends FoxTable[AccountAccessMethod](tag, "account_access_methods") {
 
   import AccountAccessMethods.PasswordAlgorithmColumn
 
@@ -80,13 +77,14 @@ object AccountAccessMethods
     with ReturningId[AccountAccessMethod, AccountAccessMethods]
     with SearchById[AccountAccessMethod, AccountAccessMethods] {
 
-  implicit lazy val PasswordAlgorithmColumn: JdbcType[HashAlgorithm] with BaseTypedType[
-      HashAlgorithm] = {
-    MappedColumnType.base[HashAlgorithm, Int](c ⇒ c.code, {
-      case HashPasswords.SCrypt.code    ⇒ HashPasswords.SCrypt
-      case HashPasswords.PlainText.code ⇒ HashPasswords.PlainText
-      case j                            ⇒ HashPasswords.UnknownAlgorithm(j)
-    })
+  implicit lazy val PasswordAlgorithmColumn: JdbcType[HashAlgorithm] with BaseTypedType[HashAlgorithm] = {
+    MappedColumnType.base[HashAlgorithm, Int](
+      c ⇒ c.code, {
+        case HashPasswords.SCrypt.code    ⇒ HashPasswords.SCrypt
+        case HashPasswords.PlainText.code ⇒ HashPasswords.PlainText
+        case j                            ⇒ HashPasswords.UnknownAlgorithm(j)
+      }
+    )
   }
 
   val returningLens: Lens[AccountAccessMethod, Int] = lens[AccountAccessMethod].id

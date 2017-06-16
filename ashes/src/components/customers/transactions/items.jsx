@@ -4,14 +4,14 @@
 import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as dsl from '../../../elastic/dsl';
+import * as dsl from 'elastic/dsl';
 
 /** Components */
-import ListPage from '../../list-page/list-page';
+import ListPage from 'components/list-page/list-page';
 import CustomerItemsRow from './items-row';
 
 /** Redux */
-import { actions } from '../../../modules/customers/items';
+import { actions } from 'modules/customers/items';
 
 type Customer = {
   id: number,
@@ -31,12 +31,11 @@ type Props = {
 };
 
 const tableColumns = [
-  { field: 'image', text: 'Image', type: 'image' },
   { field: 'skuTitle', text: 'Name' },
   { field: 'skuCode', text: 'SKU' },
   { field: 'skuPrice', text: 'Price', type: 'currency' },
   { field: 'savedForLaterAt', text: 'Favorite' },
-  { field: 'cordReferenceNumber', text: 'Order' },
+  { field: 'orderReferenceNumber', text: 'Order' },
   { field: 'orderPlacedAt', text: 'Date/Time Order Placed', type: 'datetime' },
 ];
 
@@ -56,10 +55,17 @@ class CustomerItems extends Component {
     this.props.actions.fetch();
   }
 
-  renderRow(row: Object, index: number, columns: Array<any>, params: Object): Element<*> {
-    const keyRow = `customer-items-${row.id}`;
+  renderRow(row: Object, index: number, columns: Columns, params: Object): Element<*> {
+    const key = `customer-items-${row.id}`;
 
-    return <CustomerItemsRow item={row} columns={columns} params={params} key={keyRow}/>;
+    return (
+      <CustomerItemsRow
+        item={row}
+        columns={columns}
+        params={params}
+        key={key}
+      />
+    );
   }
 
   render() {

@@ -15,7 +15,7 @@ import org.apache.avro.io._
 import org.apache.avro.specific.SpecificDatumWriter
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
 
-import consumer.{AvroJsonHelper, JsonProcessor, AvroProcessor}
+import consumer.{AvroJsonHelper, AvroProcessor, JsonProcessor}
 import consumer.aliases._
 import consumer.failures.{Failures, GeneralFailure}
 import consumer.utils.HttpSupport.HttpResult
@@ -27,34 +27,32 @@ import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization.{write ⇒ render}
 import cats.implicits._
 
-final case class ActivityContext(
-    userId: Int, userType: String, transactionId: String, scope: String)
+final case class ActivityContext(userId: Int, userType: String, transactionId: String, scope: String)
 
-final case class Activity(id: String,
-                          kind: String,
-                          data: JValue,
-                          context: ActivityContext,
-                          createdAt: String)
+final case class Activity(id: String, kind: String, data: JValue, context: ActivityContext, createdAt: String)
 
 final case class Connection(dimension: String, objectId: String, data: JValue, activityId: String)
 
-final case class AppendNotification(
-    sourceDimension: String, sourceObjectId: String, activity: Activity)
+final case class AppendNotification(sourceDimension: String, sourceObjectId: String, activity: Activity)
 
 trait ActivityConnector {
   def process(offset: Long, activity: Activity)(implicit ec: EC): Future[Seq[Connection]]
 }
 
-final case class FailedToConnectActivity(
-    activityId: String, dimension: String, objectId: String, failures: Failures)
+final case class FailedToConnectActivity(activityId: String,
+                                         dimension: String,
+                                         objectId: String,
+                                         failures: Failures)
     extends RuntimeException(
-        s"Failed to connect activity $activityId to dimension '$dimension' and object $objectId " +
+      s"Failed to connect activity $activityId to dimension '$dimension' and object $objectId " +
         s"failures: $failures")
 
-final case class FailedToConnectNotification(
-    activityId: String, dimension: String, objectId: String, response: HttpResponse)
+final case class FailedToConnectNotification(activityId: String,
+                                             dimension: String,
+                                             objectId: String,
+                                             response: HttpResponse)
     extends RuntimeException(
-        s"Failed to create notification for connection of activity $activityId to dimension " +
+      s"Failed to create notification for connection of activity $activityId to dimension " +
         s"'$dimension' and object $objectId response: $response")
 
 final case class KafkaConnectionInfo(broker: String, schemaRegistryURL: String)
@@ -64,9 +62,9 @@ final case class KafkaConnectionInfo(broker: String, schemaRegistryURL: String)
   * This is a JsonProcessor which listens to the activity stream and processes the activity
   * using a sequence of activity connectors
   */
-class ActivityProcessor(
-    kafka: KafkaConnectionInfo, conn: PhoenixConnectionInfo, connectors: Seq[ActivityConnector])(
-    implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC)
+class ActivityProcessor(kafka: KafkaConnectionInfo,
+                        conn: PhoenixConnectionInfo,
+                        connectors: Seq[ActivityConnector])(implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC)
     extends JsonProcessor {
 
   implicit val formats: DefaultFormats.type = DefaultFormats
@@ -95,10 +93,10 @@ class ActivityProcessor(
     val activity     = parse(activityJson).extract[Activity]
 
     Console.err.println(
-        s"Got Activity ${activity.kind} with ID ${activity.id} created at ${activity.createdAt}")
+      s"Got Activity ${activity.kind} with ID ${activity.id} created at ${activity.createdAt}")
     if (activity.context == null) {
       Console.err.println(
-          s"Warning, got Activity ${activity.kind} with ID ${activity.id} without a context, skipping...")
+        s"Warning, got Activity ${activity.kind} with ID ${activity.id} without a context, skipping...")
       Future { () }
     } else {
       val result = connectors.map { connector ⇒
@@ -119,10 +117,9 @@ class ActivityProcessor(
     }
   }
 
-  private def process(activity: Activity, cs: Seq[Connection]): Future[Seq[Unit]] = {
+  private def process(activity: Activity, cs: Seq[Connection]): Future[Seq[Unit]] =
     Future.sequence(cs.map(c ⇒ pushActivityConnectionToKafka(activity, c)) ++ cs.map(c ⇒
-              createPhoenixNotification(activity, c, phoenix)))
-  }
+      createPhoenixNotification(activity, c, phoenix)))
 
   private def pushActivityConnectionToKafka(activity: Activity, connection: Connection) = Future {
     val record = new GenericData.Record(AvroProcessor.activityTrailSchema)
@@ -140,13 +137,13 @@ class ActivityProcessor(
     val key = new GenericData.Record(AvroProcessor.keySchema)
     key.put("id", activity.id)
 
-    kafkaProducer.send(
-        new ProducerRecord[GenericData.Record, GenericData.Record](trailTopic, key, record))
+    kafkaProducer.send(new ProducerRecord[GenericData.Record, GenericData.Record](trailTopic, key, record))
     ()
   }
 
-  private def createPhoenixNotification(
-      activity: Activity, conn: Connection, phoenix: Phoenix): Future[Unit] = Future {
+  private def createPhoenixNotification(activity: Activity,
+                                        conn: Connection,
+                                        phoenix: Phoenix): Future[Unit] = Future {
     val body = AppendNotification(sourceDimension = conn.dimension,
                                   sourceObjectId = conn.objectId,
                                   activity = activity)
@@ -156,17 +153,18 @@ class ActivityProcessor(
 
     phoenix
       .post("notifications", notification)
-      .fold({ failures ⇒
-        Console.err.println(s"Failed Notification ${conn.dimension} ${conn.activityId}: $failures")
-        throw FailedToConnectActivity(conn.activityId, conn.dimension, conn.objectId, failures)
-      }, { resp ⇒
-        if (resp.status != StatusCodes.OK) {
-          Console.err.println(s"Failed Notification ${conn.dimension} ${conn.activityId}: $resp")
-          throw new FailedToConnectNotification(
-              conn.activityId, conn.dimension, conn.objectId, resp)
+      .fold(
+        { failures ⇒
+          Console.err.println(s"Failed Notification ${conn.dimension} ${conn.activityId}: $failures")
+          throw FailedToConnectActivity(conn.activityId, conn.dimension, conn.objectId, failures)
+        }, { resp ⇒
+          if (resp.status != StatusCodes.OK) {
+            Console.err.println(s"Failed Notification ${conn.dimension} ${conn.activityId}: $resp")
+            throw new FailedToConnectNotification(conn.activityId, conn.dimension, conn.objectId, resp)
+          }
+          resp
         }
-        resp
-      })
+      )
       .map(_ ⇒ ())
   }
 }

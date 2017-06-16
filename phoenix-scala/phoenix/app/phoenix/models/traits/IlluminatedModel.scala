@@ -3,7 +3,7 @@ package phoenix.models.traits
 import java.time.Instant
 
 import cats.implicits._
-import failures.{Failure, Failures}
+import core.failures.{Failure, Failures}
 import org.json4s.JsonAST.JValue
 import phoenix.utils.JsonFormatters
 

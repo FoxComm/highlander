@@ -1,8 +1,8 @@
 package phoenix.routes.admin
 
+import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
-import phoenix.utils.http.JsonSupport._
+import akka.http.scaladsl.server.{PathMatcher, Route}
 import phoenix.failures.SharedSearchFailures.SharedSearchInvalidQueryFailure
 import phoenix.models.account.User
 import phoenix.models.cord.Cord.cordRefNumRegex
@@ -10,21 +10,33 @@ import phoenix.models.inventory.Sku
 import phoenix.models.payment.giftcard.GiftCard
 import phoenix.models.returns.Return
 import phoenix.models.sharedsearch.SharedSearch
+import phoenix.payloads.EntityExportPayloads.{ExportEntity, ExportableEntity}
+import phoenix.payloads._
 import phoenix.payloads.NotePayloads._
 import phoenix.payloads.SharedSearchPayloads._
 import phoenix.services.notes._
-import phoenix.services.{SaveForLaterManager, SharedSearchService, ShippingManager}
+import phoenix.services.{EntityExporter, SaveForLaterManager, SharedSearchService, ShippingManager}
 import phoenix.services.Authenticator.AuthData
 import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
 import phoenix.utils.http.Http._
+import phoenix.utils.http.JsonSupport._
 
 object AdminRoutes {
+  val ExportableEntityMatcher = PathMatcher(ExportableEntity)
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AU, apis: Apis, system: ActorSystem): Route = {
 
     activityContext(auth) { implicit ac ⇒
       StoreCreditRoutes.storeCreditRoutes ~
+      pathPrefix("export") {
+        (post & path(ExportableEntityMatcher) & entity(as[ExportEntity])) { (entity, payload) ⇒
+          complete {
+            EntityExporter.export(payload, entity)
+          }
+        }
+      } ~
       pathPrefix("notes") {
         pathPrefix("order" / cordRefNumRegex) { refNum ⇒
           (get & pathEnd) {
@@ -266,11 +278,10 @@ object AdminRoutes {
             SharedSearchService.getAll(auth.model, scope)
           }
         } ~
-        (post & pathEnd & entityOr(as[SharedSearchPayload], SharedSearchInvalidQueryFailure)) {
-          payload ⇒
-            mutateOrFailures {
-              SharedSearchService.create(auth.model, payload)
-            }
+        (post & pathEnd & entityOr(as[SharedSearchPayload], SharedSearchInvalidQueryFailure)) { payload ⇒
+          mutateOrFailures {
+            SharedSearchService.create(auth.model, payload)
+          }
         }
       } ~
       pathPrefix("shared-search" / SharedSearch.sharedSearchRegex) { code ⇒
@@ -279,11 +290,10 @@ object AdminRoutes {
             SharedSearchService.get(code)
           }
         } ~
-        (patch & pathEnd & entityOr(as[SharedSearchPayload], SharedSearchInvalidQueryFailure)) {
-          payload ⇒
-            mutateOrFailures {
-              SharedSearchService.update(auth.model, code, payload)
-            }
+        (patch & pathEnd & entityOr(as[SharedSearchPayload], SharedSearchInvalidQueryFailure)) { payload ⇒
+          mutateOrFailures {
+            SharedSearchService.update(auth.model, code, payload)
+          }
         } ~
         (delete & pathEnd) {
           deleteOrFailures {

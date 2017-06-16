@@ -3,12 +3,12 @@ package phoenix.models.customer
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
+import core.db.ExPostgresDriver.api._
+import core.db._
 import phoenix.failures.UserFailures._
 import phoenix.models.location._
 import phoenix.models.payment.creditcard.CreditCards
 import shapeless._
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class CustomerData(id: Int = 0,
                         userId: Int,
@@ -32,7 +32,7 @@ class CustomersData(tag: Tag) extends FoxTable[CustomerData](tag, "customer_data
 
   def * =
     (id, userId, scope, accountId, isGuest, createdAt, updatedAt, deletedAt) <> ((CustomerData.apply _).tupled,
-        CustomerData.unapply)
+    CustomerData.unapply)
 }
 
 object CustomersData
@@ -50,15 +50,10 @@ object CustomersData
        * - billingRegion comes from default creditCard of customer
        * - rank is calculated as percentile from net revenue
        */
-      def withRegionsAndRank: Query[(CustomersData,
-                                     Rep[Option[Regions]],
-                                     Rep[Option[Regions]],
-                                     Rep[Option[CustomersRanks]]),
-                                    (CustomerData,
-                                     Option[Region],
-                                     Option[Region],
-                                     Option[CustomerRank]),
-                                    Seq] = {
+      def withRegionsAndRank
+        : Query[(CustomersData, Rep[Option[Regions]], Rep[Option[Regions]], Rep[Option[CustomersRanks]]),
+                (CustomerData, Option[Region], Option[Region], Option[CustomerRank]),
+                Seq] = {
 
         val customerWithShipRegion = for {
           ((c, a), r) ← query
@@ -91,9 +86,8 @@ object CustomersData
     }
   }
 
-  def findGuests(email: String): DBIO[Option[CustomerData]] = {
+  def findGuests(email: String): DBIO[Option[CustomerData]] =
     filter(_.isGuest === true).one
-  }
 
   def findOneByAccountId(accountId: Int): DBIO[Option[CustomerData]] =
     filter(_.accountId === accountId).result.headOption

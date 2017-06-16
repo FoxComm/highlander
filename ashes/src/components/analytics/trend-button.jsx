@@ -56,10 +56,7 @@ const TrendButton = (props: Props) => {
   return(
     <div styleName={`trend-button-container-${trendType.style}`}>
       <p styleName={`trend-button-content-${trendType.style}`}>
-        <img
-          styleName={`trend-button-arrow-${arrow.direction}`}
-          src={`/admin/images/arrow-${arrow.color}.svg`}
-        />
+        <i className={`icon-chevron-${arrow.direction}`} styleName={`trend-button-arrow-${arrow.direction}`} />
         {contentBody}
       </p>
     </div>

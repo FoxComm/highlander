@@ -113,6 +113,7 @@ export default class DropdownSearch extends Component {
 
     return (
       <GenericDropdown
+        placeholder="- Select -"
         {...restProps}
         listClassName="fc-searchable-dropdown__item-list"
         renderPrepend={this.searchBar}>

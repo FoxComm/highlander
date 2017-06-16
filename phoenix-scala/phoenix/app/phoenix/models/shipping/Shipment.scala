@@ -3,20 +3,20 @@ package phoenix.models.shipping
 import java.time.Instant
 
 import com.pellucid.sealerate
+import core.db._
 import phoenix.models.shipping.Shipment._
 import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class Shipment(id: Int = 0,
                     cordRef: String,
                     orderShippingMethodId: Option[Int] = None,
                     shippingAddressId: Option[Int] = None,
                     state: Shipment.State = Cart,
-                    shippingPrice: Option[Int] = None,
+                    shippingPrice: Option[Long] = None,
                     updatedAt: Option[Instant] = Some(Instant.now))
     extends FoxModel[Shipment]
 
@@ -45,7 +45,7 @@ class Shipments(tag: Tag) extends FoxTable[Shipment](tag, "shipments") {
   def orderShippingMethodId = column[Option[Int]]("order_shipping_method_id")
   def shippingAddressId     = column[Option[Int]]("shipping_address_id") //Addresses table
   def state                 = column[Shipment.State]("state")
-  def shippingPrice         = column[Option[Int]]("shipping_price") //gets filled in upon checkout
+  def shippingPrice         = column[Option[Long]]("shipping_price") //gets filled in upon checkout
   def updatedAt             = column[Option[Instant]]("updated_at")
 
   def * =

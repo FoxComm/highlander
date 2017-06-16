@@ -84,10 +84,9 @@ object Cart {
       .requireAdminAuth
       .body(StringBody { session ⇒
         json(
-            OrderTimeMachine(
-                referenceNumber = session.get("referenceNumber").as[String],
-                placedAt = Instant.now.minusSeconds(
-                    (Random.nextInt(15) * 60 * 60 * 24 * 30).toLong) // Minus ~15 months
-            ))
+          OrderTimeMachine(
+            referenceNumber = session.get("referenceNumber").as[String],
+            placedAt = Instant.now.minusSeconds((Random.nextInt(15) * 60 * 60 * 24 * 30).toLong) // Minus ~15 months
+          ))
       })
 }

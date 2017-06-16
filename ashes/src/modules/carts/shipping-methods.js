@@ -1,6 +1,6 @@
 /* @flow */
 
-import { createAction, createReducer } from 'redux-act';
+import { createReducer } from 'redux-act';
 import Api from 'lib/api';
 import { createAsyncActions } from '@foxcomm/wings';
 

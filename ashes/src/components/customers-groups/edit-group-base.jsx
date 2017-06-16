@@ -29,7 +29,7 @@ export default ({ group, title, onSave, cancelTo, cancelParams, saveInProgress, 
     <ErrorAlerts error={saveError} />
     <article>
       <Form onSubmit={onSave}>
-        <DynamicGroupEditor type={params.type}/>
+        <DynamicGroupEditor type={params.type} />
 
         <SaveCancel
           className="fc-customer-group-edit__form-submits"

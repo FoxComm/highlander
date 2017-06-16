@@ -39,9 +39,9 @@ export default class OrderDetails extends Component {
           <div className="fc-order-details-main">
             <OrderLineItems order={order} />
             <DiscountsPanel promotion={order.promotion} />
+            <OrderCoupons isCart={false} order={order} />
             <OrderShippingAddress isCart={false} order={order} />
             <OrderShippingMethod isCart={false} order={order} />
-            <OrderCoupons isCart={false} order={order} />
             <Payments {...this.props} />
           </div>
           <div className="fc-order-details-aside">

@@ -13,9 +13,8 @@ trait CartPaymentsIntegrationTestBase
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
-  def paymentsFor(cart: Cart, pmt: PaymentMethod.Type): Seq[OrderPayment] = {
+  def paymentsFor(cart: Cart, pmt: PaymentMethod.Type): Seq[OrderPayment] =
     OrderPayments.filter(_.cordRef === cart.refNum).byType(pmt).gimme
-  }
 
   def creditCardPayments(cart: Cart): Seq[OrderPayment] =
     paymentsFor(cart, PaymentMethod.CreditCard)

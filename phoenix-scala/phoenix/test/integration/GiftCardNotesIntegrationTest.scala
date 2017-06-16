@@ -1,6 +1,6 @@
 import java.time.Instant
 
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import phoenix.models._
 import phoenix.models.payment.giftcard._
 import phoenix.payloads.NotePayloads._
@@ -11,7 +11,7 @@ import phoenix.utils.time.RichInstant
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class GiftCardNotesIntegrationTest
     extends IntegrationTestBase
@@ -96,9 +96,8 @@ class GiftCardNotesIntegrationTest
   trait Fixture extends Reason_Baked {
     val giftCard = (for {
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
-      giftCard ← * <~ GiftCards.create(
-                    Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
+                GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
+      giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
     } yield giftCard).gimme
   }
 }

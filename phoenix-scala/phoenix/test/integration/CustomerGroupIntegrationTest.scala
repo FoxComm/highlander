@@ -1,18 +1,18 @@
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import org.json4s._
 import org.scalatest.mockito.MockitoSugar
 import phoenix.models.customer.CustomerGroup._
 import phoenix.models.customer._
 import phoenix.payloads.CustomerGroupPayloads.CustomerGroupPayload
-import phoenix.responses.GroupResponses.GroupResponse.{Root, build}
+import phoenix.responses.GroupResponses.GroupResponse.{build, Root}
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.db.ExPostgresDriver.api._
+import core.db._
 
 class CustomerGroupIntegrationTest
     extends IntegrationTestBase
@@ -38,13 +38,15 @@ class CustomerGroupIntegrationTest
     "successfully creates customer group and link to template" in new Fixture {
       val scopeN = "1"
 
-      val payload = CustomerGroupPayload(name = "Group number one",
-                                         clientState = JObject(),
-                                         elasticRequest = JObject(),
-                                         customersCount = 1,
-                                         templateId = groupTemplate.id.some,
-                                         scope = scopeN.some,
-                                         groupType = Dynamic)
+      val payload = CustomerGroupPayload(
+        name = "Group number one",
+        clientState = JObject(),
+        elasticRequest = JObject(),
+        customersCount = 1,
+        templateId = groupTemplate.id.some,
+        scope = scopeN.some,
+        groupType = Dynamic
+      )
 
       val root    = customerGroupsApi.create(payload).as[Root]
       val created = CustomerGroups.mustFindById400(root.id).gimme
@@ -70,7 +72,7 @@ class CustomerGroupIntegrationTest
       val root = customerGroupsApi.create(payload).as[Root]
       root.elasticRequest must !==(JObject())
       ((((root.elasticRequest \ "query" \ "bool" \ "filter")(0) \ "bool" \ "must")(0) \ "term" \ "groups")) must === (
-          JInt(root.id))
+        JInt(root.id))
     }
 
     "fail to create customer group with nonexistnet tempalte id" in new Fixture {

@@ -67,7 +67,7 @@ class WarehouseDrawer extends Component {
         <td className="hold">{row.onHold}</td>
         <td className="reserved">{row.reserved}</td>
         <td className="afs">{row.afs}</td>
-        <td><Currency className="afs-cost-value" value={row.afsCost}/></td>
+        <td><Currency className="afs-cost-value" value={row.afsCost} /></td>
       </TableRow>
     );
   }

@@ -1,7 +1,7 @@
 package phoenix.utils
 
 import cats.implicits._
-import failures.Failures
+import core.failures.Failures
 import phoenix.failures.StateTransitionNotAllowed
 import shapeless._
 
@@ -23,11 +23,10 @@ trait FSM[S, M <: FSM[S, M]] { self: M ⇒
         case Some(states) if states.contains(newState) ⇒
           Either.right(stateLens.set(this)(newState))
         case _ ⇒
-          Either.left(
-              StateTransitionNotAllowed(self,
-                                        currentState.toString,
-                                        newState.toString,
-                                        primarySearchKey).single)
+          Either.left(StateTransitionNotAllowed(self,
+                                                currentState.toString,
+                                                newState.toString,
+                                                primarySearchKey).single)
       }
 
   def transitionAllowed(newState: S): Boolean = transitionState(newState).isRight

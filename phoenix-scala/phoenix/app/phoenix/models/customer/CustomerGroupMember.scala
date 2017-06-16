@@ -2,10 +2,10 @@ package phoenix.models.customer
 
 import java.time.Instant
 
+import core.db.ExPostgresDriver.api._
+import core.db._
 import shapeless._
 import slick.lifted.Tag
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class CustomerGroupMember(id: Int = 0,
                                customerDataId: Int,
@@ -13,8 +13,7 @@ case class CustomerGroupMember(id: Int = 0,
                                createdAt: Instant = Instant.now)
     extends FoxModel[CustomerGroupMember]
 
-class CustomerGroupMembers(tag: Tag)
-    extends FoxTable[CustomerGroupMember](tag, "customer_group_members") {
+class CustomerGroupMembers(tag: Tag) extends FoxTable[CustomerGroupMember](tag, "customer_group_members") {
 
   def id             = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def groupId        = column[Int]("group_id")

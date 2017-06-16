@@ -1,7 +1,7 @@
 package models
 
 import cats.data.NonEmptyList
-import failures.GeneralFailure
+import core.failures.GeneralFailure
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
 import phoenix.models.Reason
@@ -15,8 +15,8 @@ class ReasonTest extends TestBase {
         val emptyBodyReason = Factories.reason(0).copy(body = "")
 
         val reasons = Table(
-            ("reason", "errors"),
-            (emptyBodyReason, NonEmptyList.of(GeneralFailure("body must not be empty")))
+          ("reason", "errors"),
+          (emptyBodyReason, NonEmptyList.of(GeneralFailure("body must not be empty")))
         )
 
         forAll(reasons) { (reason: Reason, errors: NonEmptyList[GeneralFailure]) ⇒

@@ -1,8 +1,8 @@
 package phoenix.models.shipping
 
+import core.db._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class ShippingCarrier(id: Int = 0,
                            name: String,

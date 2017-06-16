@@ -1,15 +1,15 @@
 package phoenix.services.carts
 
-import failures.NotFoundFailure404
+import core.db._
+import core.failures.NotFoundFailure404
+import objectframework.models.ObjectContext
 import phoenix.models.account._
 import phoenix.models.cord._
-import models.objects.ObjectContext
 import phoenix.responses.TheResponse
 import phoenix.responses.cord.CartResponse
-import phoenix.services.{CordQueries, LineItemUpdater, LogActivity}
+import phoenix.services.{CordQueries, LogActivity}
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
-import utils.db._
 
 object CartQueries extends CordQueries {
 
@@ -20,7 +20,7 @@ object CartQueries extends CordQueries {
                               au: AU): DbResultT[TheResponse[CartResponse]] =
     for {
       cart ← * <~ Carts.mustFindByRefNum(refNum)
-      resp ← * <~ LineItemUpdater.runUpdates(cart, None) // FIXME: so costly… @michalrus
+      resp ← * <~ CartLineItemUpdater.runUpdates(cart, None) // FIXME: so costly… @michalrus
     } yield resp
 
   def findOneByUser(refNum: String, customer: User, grouped: Boolean = true)(
@@ -33,27 +33,25 @@ object CartQueries extends CordQueries {
       cart ← * <~ Carts
               .findByRefNumAndAccountId(refNum, customer.accountId)
               .mustFindOneOr(NotFoundFailure404(Carts, refNum))
-      resp ← * <~ LineItemUpdater.runUpdates(cart, None) // FIXME: so costly… @michalrus
+      resp ← * <~ CartLineItemUpdater.runUpdates(cart, None) // FIXME: so costly… @michalrus
     } yield resp
 
-  def findOrCreateCartByAccount(customer: User,
-                                context: ObjectContext,
-                                admin: Option[User] = None)(implicit ec: EC,
-                                                            db: DB,
-                                                            ac: AC,
-                                                            ctx: OC,
-                                                            apis: Apis,
-                                                            au: AU): DbResultT[CartResponse] =
+  def findOrCreateCartByAccount(customer: User, context: ObjectContext, admin: Option[User] = None)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      ctx: OC,
+      apis: Apis,
+      au: AU): DbResultT[CartResponse] =
     findOrCreateCartByAccountInner(customer, admin)
 
-  def findOrCreateCartByAccountId(accountId: Int,
-                                  context: ObjectContext,
-                                  admin: Option[User] = None)(implicit ec: EC,
-                                                              db: DB,
-                                                              ac: AC,
-                                                              ctx: OC,
-                                                              apis: Apis,
-                                                              au: AU): DbResultT[CartResponse] =
+  def findOrCreateCartByAccountId(accountId: Int, context: ObjectContext, admin: Option[User] = None)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      ctx: OC,
+      apis: Apis,
+      au: AU): DbResultT[CartResponse] =
     for {
       customer  ← * <~ Users.mustFindByAccountId(accountId)
       fullOrder ← * <~ findOrCreateCartByAccountInner(customer, admin)
@@ -71,13 +69,12 @@ object CartQueries extends CordQueries {
                 .findByAccountId(customer.accountId)
                 .one
                 .findOrCreateExtended(
-                    Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)))
+                  Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)))
       (cart, foundOrCreated) = result
       resp ← if (foundOrCreated == Created) for {
               fullCart ← * <~ CartResponse.fromCart(cart, grouped, au.isGuest)
               _        ← * <~ LogActivity().cartCreated(admin, fullCart)
             } yield TheResponse(fullCart)
-            else LineItemUpdater.runUpdates(cart, None) // FIXME: so costly… @michalrus
-    } yield
-      resp.result // FIXME: discarding warnings until we get rid of TheResponse completely @michalrus
+            else CartLineItemUpdater.runUpdates(cart, None) // FIXME: so costly… @michalrus
+    } yield resp.result // FIXME: discarding warnings until we get rid of TheResponse completely @michalrus
 }

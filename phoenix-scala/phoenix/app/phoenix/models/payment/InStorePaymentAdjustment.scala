@@ -3,13 +3,14 @@ package phoenix.models.payment
 import java.time.Instant
 
 import com.pellucid.sealerate
+import core.db.ExPostgresDriver.api._
+import core.db._
 import phoenix.models.cord.OrderPayments
 import phoenix.models.payment.InStorePaymentStates._
 import phoenix.utils.ADT
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.utils.Money._
 
 /*
 Base trait for GiftCardAdjustment and CreditCardAdjustment.
@@ -19,8 +20,8 @@ trait InStorePaymentAdjustment[M <: InStorePaymentAdjustment[M]] extends FoxMode
   def id: Int
   def orderPaymentId: Option[Int]
   def storeAdminId: Option[Int]
-  def debit: Int
-  def availableBalance: Int
+  def debit: Long
+  def availableBalance: Long
   def state: InStorePaymentStates.State
   def createdAt: Instant
 }
@@ -39,15 +40,14 @@ object InStorePaymentStates {
   implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 }
 
-abstract class InStorePaymentAdjustmentTable[M <: InStorePaymentAdjustment[M]](tag: Tag,
-                                                                               table: String)
+abstract class InStorePaymentAdjustmentTable[M <: InStorePaymentAdjustment[M]](tag: Tag, table: String)
     extends FoxTable[M](tag, table) {
 
   def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def storeAdminId     = column[Option[Int]]("store_admin_id")
   def orderPaymentId   = column[Option[Int]]("order_payment_id")
-  def debit            = column[Int]("debit")
-  def availableBalance = column[Int]("available_balance")
+  def debit            = column[Long]("debit")
+  def availableBalance = column[Long]("available_balance")
   def state            = column[State]("state")
   def createdAt        = column[Instant]("created_at")
 
@@ -55,7 +55,7 @@ abstract class InStorePaymentAdjustmentTable[M <: InStorePaymentAdjustment[M]](t
 }
 
 abstract class InStorePaymentAdjustmentQueries[M <: InStorePaymentAdjustment[M],
-    T <: InStorePaymentAdjustmentTable[M]](construct: Tag ⇒ T)
+T <: InStorePaymentAdjustmentTable[M]](construct: Tag ⇒ T)
     extends FoxTableQuery[M, T](construct) {
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.state).update(Canceled)

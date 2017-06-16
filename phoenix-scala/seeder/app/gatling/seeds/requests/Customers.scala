@@ -12,9 +12,11 @@ object Customers {
   private val createCustomer = http("Create customer")
     .post("/v1/customers")
     .requireAdminAuth
-    .body(StringBody(json(CreateCustomerPayload(name = Option("${customerName}"),
-                                                email = "${customerEmail}",
-                                                password = Option("${customerPassword}")))))
+    .body(
+      StringBody(
+        json(CreateCustomerPayload(name = Option("${customerName}"),
+                                   email = "${customerEmail}",
+                                   password = Option("${customerPassword}")))))
     .check(jsonPath("$.id").ofType[Int].saveAs("customerId"))
 
   val createStaticCustomers = foreach(csv("data/customers.csv").records, "customerRecord") {

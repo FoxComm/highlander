@@ -1,6 +1,6 @@
 package phoenix.failures
 
-import failures.{Failure, NotFoundFailure404}
+import core.failures.{Failure, NotFoundFailure404}
 
 object PromotionFailures {
 
@@ -20,7 +20,7 @@ object PromotionFailures {
   object PromotionNotFoundForContext {
     def apply(promotionId: Int, contextName: String) =
       NotFoundFailure404(
-          s"Promotion with id=$promotionId with promotion context $contextName cannot be found")
+        s"Promotion with id=$promotionId with promotion context $contextName cannot be found")
   }
 
   case object PromotionIsNotActive extends Failure {

@@ -1,7 +1,5 @@
 /* @flow */
 
-import React, { Component, Element } from 'react';
-
 import FoxRouter from 'lib/fox-router';
 import { frn } from 'lib/frn';
 

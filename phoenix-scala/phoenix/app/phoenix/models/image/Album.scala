@@ -3,15 +3,15 @@ package phoenix.models.image
 import java.time.Instant
 
 import cats.implicits._
-import failures._
-import models.objects._
+import core.failures._
+import objectframework.models._
 import phoenix.failures.ArchiveFailures._
 import shapeless._
 import slick.lifted.Tag
-import utils.Validation
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.db.ExPostgresDriver.api._
+import core.db._
 import com.github.tminglei.slickpg._
+import core.utils.Validation
 import phoenix.utils.JsonFormatters
 
 object Album {
@@ -34,10 +34,9 @@ case class Album(id: Int = 0,
   def withNewShadowAndCommit(shadowId: Int, commitId: Int): Album =
     this.copy(shadowId = shadowId, commitId = commitId)
 
-  def mustNotBeArchived: Either[Failures, Album] = {
+  def mustNotBeArchived: Either[Failures, Album] =
     if (archivedAt.isEmpty) Either.right(this)
     else Either.left(AddImagesToArchivedAlbumFailure(id).single)
-  }
 }
 
 class Albums(tag: Tag) extends ObjectHeads[Album](tag, "albums") {

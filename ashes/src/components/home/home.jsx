@@ -1,14 +1,10 @@
 import React from 'react';
 
-import { IndexLink } from '../link';
+import { IndexLink } from 'components/link';
 
-const Home = props => {
-  return (
-    <div>
-      <div><IndexLink to='home' className="logo" /></div>
-      <div>This is home</div>
-    </div>
-  );
-};
-
-export default Home;
+export default () => (
+  <div>
+    <div><IndexLink to='home' className="logo" /></div>
+    <div>This is home</div>
+  </div>
+);

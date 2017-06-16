@@ -1,11 +1,11 @@
 package phoenix.models.tree
 
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.utils.Validation
 import phoenix.utils.JsonFormatters
 import shapeless._
 import slick.lifted.Tag
-import utils.Validation
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class GenericTree(id: Int, name: String, contextId: Int)
     extends FoxModel[GenericTree]

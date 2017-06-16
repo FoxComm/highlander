@@ -4,6 +4,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.github.tminglei.slickpg.LTree
 import phoenix.models.Reason.reasonTypeRegex
+import phoenix.models.location.Region
 import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
 import phoenix.services.PublicService._
 import phoenix.services.account.AccountCreateContext
@@ -19,8 +20,7 @@ import phoenix.utils.http.JsonSupport._
 
 object Public {
   def routes(customerCreateContext: AccountCreateContext,
-             defaultScope: LTree)(implicit ec: EC, db: DB, apis: Apis): Route = {
-
+             defaultScope: LTree)(implicit ec: EC, db: DB, apis: Apis): Route =
     activityContext(defaultScope) { implicit ac ⇒
       pathPrefix("public") {
         pathPrefix("registrations") {
@@ -68,6 +68,11 @@ object Public {
             good {
               listRegions
             }
+          } ~
+          (get & path(Region.regionCodeRegex) & pathEnd) { shortName ⇒
+            getOrFailures {
+              findRegionByShortName(shortName)
+            }
           }
         } ~
         // TODO move to ES
@@ -90,5 +95,4 @@ object Public {
         }
       }
     }
-  }
 }

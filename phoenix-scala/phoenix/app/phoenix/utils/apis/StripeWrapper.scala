@@ -1,15 +1,15 @@
 package phoenix.utils.apis
 
 import java.util.concurrent.Executors
-
 import cats.implicits._
 import com.stripe.exception.{CardException, StripeException}
-import com.stripe.model.{DeletedCard, ExternalAccount, Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
+import com.stripe.model.{DeletedCard, ExternalAccount, Token, Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
 import com.typesafe.scalalogging.LazyLogging
-import failures.{Failures, GeneralFailure}
+import core.db._
+import core.failures.{Failures, GeneralFailure}
 import phoenix.failures.StripeFailures.{CardNotFoundForNewCustomer, StripeFailure}
-import utils.db._
-import StripeMappings.cardExceptionMap
+import phoenix.utils.apis.StripeMappings.cardExceptionMap
+
 import scala.collection.JavaConversions._
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -19,6 +19,10 @@ import scala.concurrent.{ExecutionContext, Future}
   * If you add new methods, be sure to provide default mock in `MockedApis` trait for testing!
   */
 class StripeWrapper extends StripeApiWrapper with LazyLogging {
+  def retrieveToken(t: String) = {
+    logger.info(s"Retrieve token details: $t")
+    inBlockingPool(Token.retrieve(t))
+  }
 
   private[this] implicit val blockingIOPool: ExecutionContext =
     ExecutionContext.fromExecutor(Executors.newCachedThreadPool)
@@ -29,14 +33,12 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
   }
 
   def findCardByCustomerId(gatewayCustomerId: String, gatewayCardId: String): Result[StripeCard] = {
-    logger.info(
-        s"Find card for customer, customer id: $gatewayCustomerId, card id: $gatewayCardId")
+    logger.info(s"Find card for customer, customer id: $gatewayCustomerId, card id: $gatewayCardId")
     inBlockingPool(StripeCustomer.retrieve(gatewayCustomerId).getSources.retrieve(gatewayCardId))
       .flatMapEither(accountToCard)
   }
 
-  def findCardForCustomer(stripeCustomer: StripeCustomer,
-                          gatewayCardId: String): Result[StripeCard] = {
+  def findCardForCustomer(stripeCustomer: StripeCustomer, gatewayCardId: String): Result[StripeCard] = {
     logger.info(s"Find card for customer, customer: $stripeCustomer, card id: $gatewayCardId")
     inBlockingPool(stripeCustomer.getSources.retrieve(gatewayCardId)).flatMapEither(accountToCard)
   }

@@ -2,13 +2,13 @@ package phoenix.models.coupon
 
 import java.time.Instant
 
-import models.objects._
+import objectframework.models._
 import shapeless._
 import slick.lifted.Tag
-import utils.Validation
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.db.ExPostgresDriver.api._
+import core.db._
 import com.github.tminglei.slickpg._
+import core.utils.Validation
 
 object Coupon {
   val kind = "coupon"
@@ -40,21 +40,10 @@ class Coupons(tag: Tag) extends ObjectHeads[Coupon](tag, "coupons") {
   def promotionId = column[Int]("promotion_id")
 
   def * =
-    (id,
-     scope,
-     promotionId,
-     contextId,
-     shadowId,
-     formId,
-     commitId,
-     updatedAt,
-     createdAt,
-     archivedAt) <> ((Coupon.apply _).tupled, Coupon.unapply)
+    (id, scope, promotionId, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Coupon.apply _).tupled, Coupon.unapply)
 }
 
-object Coupons
-    extends ObjectHeadsQueries[Coupon, Coupons](new Coupons(_))
-    with ReturningId[Coupon, Coupons] {
+object Coupons extends ObjectHeadsQueries[Coupon, Coupons](new Coupons(_)) with ReturningId[Coupon, Coupons] {
 
   val returningLens: Lens[Coupon, Int] = lens[Coupon].id
 

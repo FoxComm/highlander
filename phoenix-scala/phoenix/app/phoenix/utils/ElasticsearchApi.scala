@@ -50,7 +50,7 @@ case class ElasticsearchApi(config: ESConfig)(implicit ec: EC) extends LazyLoggi
 
     val request =
       search in indexAndType rawQuery queryString aggregations (
-          aggregation filter aggregationName filter termsQuery(fieldName, references.toList: _*)
+        aggregation filter aggregationName filter termsQuery(fieldName, references.toList: _*)
       ) size 0
 
     logQuery(indexAndType, request.show)
@@ -82,26 +82,26 @@ case class ElasticsearchApi(config: ESConfig)(implicit ec: EC) extends LazyLoggi
     val indexAndType = getIndexAndType(searchView)
 
     val request = search in indexAndType rawQuery queryString aggregations (
-          aggregation terms aggregationName script s"doc['$fieldName'].value"
-      ) size 0
+      aggregation terms aggregationName script s"doc['$fieldName'].value"
+    ) size 0
 
     logQuery(indexAndType, request.show)
     client.execute(request).map(getBuckets)
   }
 
   def numResults(searchView: SearchView, esQuery: Json): Future[Long] =
-    client.execute {
-      search in getIndexAndType(searchView) rawQuery compact(render(esQuery)) size 0
-    }.map(_.totalHits)
+    client
+      .execute {
+        search in getIndexAndType(searchView) rawQuery compact(render(esQuery)) size 0
+      }
+      .map(_.totalHits)
 
   /**
     * Render compact query for logging
     */
-  private def logQuery(indexAndType: IndexAndType, query: String): Unit = {
-    logger.debug(
-        s"Preparing Elasticsearch query to ${indexAndType.index}/${indexAndType.`type`}: ${compact(
-        render(parse(query)))}")
-  }
+  private def logQuery(indexAndType: IndexAndType, query: String): Unit =
+    logger.debug(s"Preparing Elasticsearch query to ${indexAndType.index}/${indexAndType.`type`}: ${compact(
+      render(parse(query)))}")
 
 }
 
@@ -130,9 +130,7 @@ object ElasticsearchApi {
   def fromConfig(config: FoxConfig)(implicit ec: EC): ElasticsearchApi =
     ElasticsearchApi(config.apis.elasticsearch)
 
-  protected def injectFilterReferences(query: Json,
-                                       fieldName: String,
-                                       references: Seq[String]): Json = {
+  protected def injectFilterReferences(query: Json, fieldName: String, references: Seq[String]): Json = {
     val refFilter     = JObject("terms" → JObject(fieldName → JArray(references.map(JString).toList)))
     val currentFilter = query \ "bool" \ "filter"
     currentFilter match {

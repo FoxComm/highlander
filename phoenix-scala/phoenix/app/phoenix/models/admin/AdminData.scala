@@ -4,15 +4,15 @@ import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
+import core.utils.Validation
 import phoenix.failures.UserFailures._
 import phoenix.models.admin.AdminData._
 import phoenix.utils.{ADT, FSM}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.Validation
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.db.ExPostgresDriver.api._
+import core.db._
 
 case class AdminData(id: Int = 0,
                      userId: Int,
@@ -29,9 +29,9 @@ case class AdminData(id: Int = 0,
   def stateLens = lens[AdminData].state
 
   val fsm: Map[State, Set[State]] = Map(
-      Invited  → Set(Active, Inactive, Archived),
-      Active   → Set(Inactive, Archived),
-      Inactive → Set(Active, Archived)
+    Invited  → Set(Active, Inactive, Archived),
+    Active   → Set(Inactive, Archived),
+    Inactive → Set(Active, Archived)
   )
 
   private val canLoginWithStates = Set(Active, Invited)

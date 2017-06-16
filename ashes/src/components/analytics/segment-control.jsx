@@ -11,6 +11,7 @@ import styles from './segment-control.css';
 export type Props = {
   id?: number,
   isActive?: boolean,
+  isDisabled?: boolean,
   title: string,
   onClick: Function,
 };
@@ -21,14 +22,15 @@ class SegmentControl extends Component {
 
   static defaultProps = {
     isActive: false,
+    isDisabled: false,
     onClick: _.noop,
   };
 
   @autobind
   onClickHandler() {
-    const { onClick, isActive } = this.props;
+    const { onClick, isActive, isDisabled } = this.props;
 
-    if (!_.isNull(onClick) && !isActive) {
+    if (!_.isNull(onClick) && !isActive && !isDisabled) {
       return onClick(this.props);
     }
 
@@ -36,13 +38,14 @@ class SegmentControl extends Component {
   }
 
   render() {
-    const { title, isActive } = this.props;
+    const { title, isDisabled, isActive } = this.props;
 
-    const isActiveStyle = isActive ? 'active' : 'inactive';
+    const styleNameSuffix = isDisabled ? 'disabled' : isActive ? 'active' : 'inactive';
+    const styleName = styles[`segment-control-container-${styleNameSuffix}`];
 
     return (
       <div
-        styleName={`segment-control-container-${isActiveStyle}`} onClick={this.onClickHandler}>
+        className={styleName} onClick={this.onClickHandler}>
         <div styleName="segment-control-title">
           {title}
         </div>

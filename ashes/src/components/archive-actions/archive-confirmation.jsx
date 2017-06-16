@@ -1,7 +1,7 @@
 /* @flow */
 
 // libs
-import React, { Component } from 'react';
+import React from 'react';
 
 // components
 import ConfirmationDialog from '../modal/confirmation-dialog';

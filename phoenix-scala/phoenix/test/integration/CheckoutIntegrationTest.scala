@@ -1,40 +1,35 @@
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 import akka.http.scaladsl.model.HttpResponse
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.db._
+import core.failures.NotFoundFailure404
 import phoenix.failures.AddressFailures.NoDefaultAddressForCustomer
 import phoenix.failures.CreditCardFailures.NoDefaultCreditCardForCustomer
 import phoenix.failures.ShippingMethodFailures._
 import phoenix.failures.UserFailures._
 import phoenix.models.Reasons
-import phoenix.models.cord.Order.RemorseHold
+import phoenix.models.cord.Order.{FulfillmentStarted, RemorseHold}
 import phoenix.models.cord._
 import phoenix.models.inventory._
 import phoenix.models.location.Region
 import phoenix.models.payment.giftcard._
 import phoenix.models.payment.{InStorePaymentStates, PaymentMethod}
 import phoenix.models.shipping._
-import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import phoenix.payloads.CartPayloads.CheckoutCart
 import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
 import phoenix.payloads.LineItemPayloads._
 import phoenix.payloads.PaymentPayloads._
-import phoenix.payloads.SkuPayloads.SkuPayload
 import phoenix.payloads.UpdateShippingMethod
 import phoenix.payloads.UserPayloads.ToggleUserBlacklisted
-import phoenix.responses.SkuResponses.SkuResponse
 import phoenix.responses.cord._
 import phoenix.responses.{AddressResponse, GiftCardResponse}
-import phoenix.utils.aliases._
 import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis._
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
-import utils.db._
 
 class CheckoutIntegrationTest
     extends IntegrationTestBase
@@ -42,7 +37,8 @@ class CheckoutIntegrationTest
     with PhoenixStorefrontApi
     with ApiFixtureHelpers
     with DefaultJwtAdminAuth
-    with BakedFixtures {
+    with BakedFixtures
+    with SkuOps {
 
   "PATCH /v1/carts/:refNum/line-items/attributes" - {
     val attributes = randomGiftCardLineItemAttributes()
@@ -53,9 +49,10 @@ class CheckoutIntegrationTest
       val lineItemToUpdate = order.lineItems.skus.head
       val updatedOrder = cartsApi(order.referenceNumber)
         .updateCartLineItem(
-            Seq(UpdateOrderLineItemsPayload(lineItemToUpdate.state,
-                                            attributes,
-                                            lineItemToUpdate.referenceNumbers.head)))
+          Seq(
+            UpdateOrderLineItemsPayload(lineItemToUpdate.state,
+                                        attributes,
+                                        lineItemToUpdate.referenceNumbers.head)))
         .as[OrderResponse]
 
       updatedOrder.lineItems.skus
@@ -73,21 +70,34 @@ class CheckoutIntegrationTest
       shippingMethodsApi(shipMethod.id).setDefault().mustBeOk()
 
       withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
-        storefrontAddressesApi(address.id).setDefault().mustBeOk()
+        storefrontAddressesApi(customerAddress.id).setDefault().mustBeOk()
         storefrontPaymentsApi.creditCard(creditCard.id).setDefault().mustBeOk()
 
         val order = storefrontCartsApi
           .checkout(CheckoutCart(items = List(UpdateLineItemsPayload(skuCode, 1))))
           .as[OrderResponse]
         order.lineItems.skus.onlyElement must have(
-            'sku (skuCode),
-            'quantity (1)
+          'sku (skuCode),
+          'quantity (1)
         )
         order.billingCreditCardInfo.value must have(
-            'id (creditCard.id),
-            'type (PaymentMethod.CreditCard)
+          'id (creditCard.id),
+          'type (PaymentMethod.CreditCard)
         )
-        order.shippingAddress.id must === (address.id)
+
+        // FIXME: Add Address#id to OrderShippingAddress? @michalrus
+        // FIXME: And, afterwards, check just IDs. @michalrus
+        val orderShippingAddress =
+          OrderShippingAddresses.findOneById(order.shippingAddress.id).gimme.value
+        val expectedAddressResponse = AddressResponse.buildFromOrder(
+          orderShippingAddress,
+          order.shippingAddress.region
+        )
+
+        // Compare all significant fields.
+        expectedAddressResponse must === (
+          customerAddress.copy(id = expectedAddressResponse.id, isDefault = None))
+        order.shippingAddress must === (expectedAddressResponse)
         order.shippingMethod.id must === (shipMethod.id)
       }
     }
@@ -95,10 +105,10 @@ class CheckoutIntegrationTest
     "should stash existing cart line items on one-click checkout and then bring them back" in new OneClickCheckoutFixture {
       shippingMethodsApi(shipMethod.id).setDefault().mustBeOk()
 
-      val otherSkuCode = new ProductSku_ApiFixture {}.skuCode
+      val otherSkuCode = ProductSku_ApiFixture().skuCode
 
       withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
-        storefrontAddressesApi(address.id).setDefault().mustBeOk()
+        storefrontAddressesApi(customerAddress.id).setDefault().mustBeOk()
         storefrontPaymentsApi.creditCard(creditCard.id).setDefault().mustBeOk()
 
         cartsApi(storefrontCartsApi.get().as[CartResponse].referenceNumber).lineItems
@@ -108,8 +118,8 @@ class CheckoutIntegrationTest
           .lineItems
           .skus
           .onlyElement must have(
-            'sku (otherSkuCode),
-            'quantity (2)
+          'sku (otherSkuCode),
+          'quantity (2)
         )
 
         storefrontCartsApi
@@ -118,13 +128,13 @@ class CheckoutIntegrationTest
           .lineItems
           .skus
           .onlyElement must have(
-            'sku (skuCode),
-            'quantity (1)
+          'sku (skuCode),
+          'quantity (1)
         )
 
         storefrontCartsApi.get().as[CartResponse].lineItems.skus.onlyElement must have(
-            'sku (otherSkuCode),
-            'quantity (2)
+          'sku (otherSkuCode),
+          'quantity (2)
         )
       }
     }
@@ -145,11 +155,27 @@ class CheckoutIntegrationTest
       GiftCardAdjustments.map(_.state).gimme must contain only InStorePaymentStates.Auth
     }
 
+    "guest checkout (with a blank customer name) should be allowed" in new Fixture {
+      val cartResponse = api_newGuestCart()
+      cartResponse.customer.value.name must === (None) // make sure that we have a blank name for a guest
+
+      val address = customersApi(cartResponse.customer.value.id).addresses
+        .create(addressPayload)
+        .as[AddressResponse]
+
+      val order = prepareCheckout(cartResponse.referenceNumber, address).checkout().as[OrderResponse]
+      order.customer must === (cartResponse.customer)
+      order.shippingAddress.address1 must === (address.address1)
+      order.shippingAddress.name must === (address.name)
+      order.shippingAddress.region must === (address.region)
+      order.orderState must === (RemorseHold)
+    }
+
     "fails to do one-click checkout if no default credit card is selected for a customer" in new OneClickCheckoutFixture {
       shippingMethodsApi(shipMethod.id).setDefault().mustBeOk()
 
       withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
-        storefrontAddressesApi(address.id).setDefault().mustBeOk()
+        storefrontAddressesApi(customerAddress.id).setDefault().mustBeOk()
         storefrontPaymentsApi.creditCards.unsetDefault().mustBeEmpty()
 
         storefrontCartsApi
@@ -175,7 +201,7 @@ class CheckoutIntegrationTest
       shippingMethodsApi.unsetDefault().mustBeEmpty()
 
       withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
-        storefrontAddressesApi(address.id).setDefault().mustBeOk()
+        storefrontAddressesApi(customerAddress.id).setDefault().mustBeOk()
         storefrontPaymentsApi.creditCard(creditCard.id).setDefault().mustBeOk()
 
         storefrontCartsApi
@@ -207,52 +233,27 @@ class CheckoutIntegrationTest
       cartApi.checkout().mustFailWith404(expectedFailure)
     }
 
-    def deactivateSku(skuCode: String): Unit = {
-      import org.json4s.JsonDSL._
-      import org.json4s._
-      val skuResponse = skusApi(skuCode).get().as[SkuResponse.Root]
-      val activeFromJson: Json = ("t" → "date") ~ ("v" → (Instant.now
-              .minus(2, ChronoUnit.DAYS))
-              .toString)
-      val activeToJson: Json = ("t" → "date") ~ ("v" → (Instant.now
-              .minus(1, ChronoUnit.DAYS))
-              .toString)
-      skusApi(skuCode)
-        .update(SkuPayload(attributes = skuResponse.attributes.extract[Map[String, Json]] ++
-                    Map("activeFrom" → activeFromJson, "activeTo" → activeToJson)))
-        .mustBeOk()
+    "succeeds even if the product has been archived after checkout" in new Fixture {
+      val order = doCheckout().as[OrderResponse]
+      productsApi(product.id).archive().mustBeOk()
+      ordersApi(order.referenceNumber).get().mustBeOk()
     }
+
+    "succeeds even if the SKU has been archived after checkout" in new Fixture {
+      val order = doCheckout().as[OrderResponse]
+      skusApi(skuCode).archive().mustBeOk()
+      ordersApi(order.referenceNumber).get().mustBeOk()
+    }
+
   }
 
   trait OneClickCheckoutFixture extends Fixture {
-    val creditCard = {
-      val cc = Factories.creditCard
-      api_newCreditCard(customer.id,
-                        CreateCreditCardFromTokenPayload(
-                            token = "whatever",
-                            lastFour = cc.lastFour,
-                            expYear = cc.expYear,
-                            expMonth = cc.expMonth,
-                            brand = cc.brand,
-                            holderName = cc.holderName,
-                            billingAddress = CreateAddressPayload(
-                                name = cc.address.name,
-                                regionId = cc.address.regionId,
-                                address1 = cc.address.address1,
-                                address2 = cc.address.address2,
-                                city = cc.address.city,
-                                zip = cc.address.zip,
-                                isDefault = false,
-                                phoneNumber = cc.address.phoneNumber
-                            ),
-                            addressIsNew = true
-                        ))
-    }
+    val creditCard = api_newCreditCard(customer.id, customer.name.value, addressPayload)
   }
 
   trait Fixture {
     val (shipMethod, reason) = (for {
-      _ ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
+      _ ← * <~ ShippingMethods.createAll(Factories.shippingMethods)
       shipMethodName = ShippingMethod.expressShippingNameForAdmin
       shipMethod ← * <~ ShippingMethods
                     .filter(_.adminDisplayName === shipMethodName)
@@ -262,14 +263,20 @@ class CheckoutIntegrationTest
 
     val (customer, customerLoginData) = api_newCustomerWithLogin()
 
-    val address = customersApi(customer.id).addresses
-      .create(randomAddress(regionId = Region.californiaId))
+    val addressPayload = randomAddress(regionId = Region.californiaId)
+    val customerAddress = customersApi(customer.id).addresses
+      .create(addressPayload)
       .as[AddressResponse]
 
-    val skuCode = new ProductSku_ApiFixture {}.skuCode
+    private val apiFixture = ProductSku_ApiFixture()
+    val skuCode            = apiFixture.skuCode
+    val product            = apiFixture.product
 
-    def prepareCheckout(): cartsApi = {
-      val _cartApi = cartsApi(api_newCustomerCart(customer.id).referenceNumber)
+    private val customerReferenceNumber = api_newCustomerCart(customer.id).referenceNumber
+
+    def prepareCheckout(cartRefNumber: String = customerReferenceNumber,
+                        address: AddressResponse = customerAddress): cartsApi = {
+      val _cartApi = cartsApi(cartRefNumber)
 
       _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 2))).mustBeOk()
 

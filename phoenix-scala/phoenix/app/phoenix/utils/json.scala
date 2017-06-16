@@ -1,8 +1,9 @@
 package phoenix.utils
 
 import com.github.tminglei.slickpg.LTree
+import core.utils.Money
 import org.json4s.JsonAST.JString
-import org.json4s.{CustomSerializer, Formats, JNull, TypeHints, jackson}
+import org.json4s.{jackson, CustomSerializer, Formats, JNull, TypeHints}
 import phoenix.models.admin.AdminData
 import phoenix.models.auth.Identity.IdentityKind
 import phoenix.models.cord.lineitems._
@@ -14,7 +15,7 @@ import phoenix.models.inventory.SkuType
 import phoenix.models.payment.creditcard.CreditCardCharge
 import phoenix.models.payment.giftcard.GiftCard
 import phoenix.models.payment.storecredit.StoreCredit
-import phoenix.models.payment.{InStorePaymentStates, PaymentMethod}
+import phoenix.models.payment.{ExternalCharge, InStorePaymentStates, PaymentMethod}
 import phoenix.models.plugins.PluginSettings
 import phoenix.models.promotion.Promotion
 import phoenix.models.returns._
@@ -23,9 +24,9 @@ import phoenix.models.sharedsearch.SharedSearch
 import phoenix.models.shipping.Shipment
 import phoenix.models.{Assignment, Note, Reason}
 import phoenix.payloads.AuthPayload
+import phoenix.payloads.EntityExportPayloads._
 import phoenix.payloads.ReturnPayloads.ReturnLineItemPayload
 import phoenix.responses.PublicResponses.CountryWithRegions
-import utils.Money
 
 /**
   * [[TypeHints]] implementation for json4s that supports
@@ -80,17 +81,19 @@ object JsonFormatters {
       Reason.ReasonType.jsonFormat + ReturnReason.ReasonType.jsonFormat +
       Return.State.jsonFormat + Return.ReturnType.jsonFormat +
       ReturnLineItem.OriginType.jsonFormat +
-      CreditCardCharge.State.jsonFormat + CountryWithRegions.jsonFormat +
+      ExternalCharge.State.jsonFormat + CountryWithRegions.jsonFormat +
       QueryStatement.Comparison.jsonFormat + Condition.Operator.jsonFormat +
       PaymentMethod.Type.jsonFormat + SkuType.jsonFormat + SharedSearch.Scope.jsonFormat +
       IdentityKind.jsonFormat + AdminData.State.jsonFormat + PluginSettings.SettingType.jsonFormat +
       CustomerGroup.GroupType.jsonFormat +
       AuthPayload.JwtClaimsSerializer + LTreeFormat +
-      ReturnLineItemPayload.typeHints + PaymentMethod.Type.jsonKeyFormat
+      ReturnLineItemPayload.typeHints + PaymentMethod.Type.jsonKeyFormat +
+      ExportableEntity.jsonFormat + ExportEntity.Type.jsonFormat +
+      ExportEntity.typeHints + RawSortDefinition.jsonFormat
 
   object LTreeFormat
       extends CustomSerializer[LTree](format ⇒
-            ({
+        ({
           case JString(s)      ⇒ LTree(s)
           case JNull           ⇒ LTree("")
         }, { case value: LTree ⇒ JString(value.toString) }))

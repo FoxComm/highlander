@@ -2,8 +2,10 @@ package phoenix.utils.seeds.generators
 
 import java.time.Instant
 
-import models.objects.ObjectUtils._
-import models.objects._
+import core.db._
+import objectframework.ObjectUtils
+import objectframework.ObjectUtils._
+import objectframework.models._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import phoenix.models.product.SimpleContext
@@ -13,7 +15,6 @@ import phoenix.payloads.PromotionPayloads._
 import phoenix.services.promotion.PromotionManager
 import phoenix.utils.aliases._
 import phoenix.utils.seeds.generators.SimplePromotion._
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
@@ -47,7 +48,7 @@ case class SimplePromotionForm(percentOff: Percent, totalAmount: Int) {
 case class SimplePromotionShadow(f: SimplePromotionForm) {
 
   val shadow = ObjectUtils.newShadow(
-      parse("""
+    parse("""
       {
         "name" : {"type": "string", "ref": "name"},
         "storefrontName" : {"type": "richText", "ref": "storefrontName"},
@@ -57,7 +58,8 @@ case class SimplePromotionShadow(f: SimplePromotionForm) {
         "activeTo" : {"type": "date", "ref": "activeTo"},
         "tags" : {"type": "tags", "ref": "tags"}
       }"""),
-      f.keyMap)
+    f.keyMap
+  )
 }
 
 trait PromotionGenerator {
@@ -71,10 +73,8 @@ trait PromotionGenerator {
     SimplePromotion(applyType = applyType, percentOff = percent, totalAmount = totalAmount)
   }
 
-  def generatePromotions(sourceData: Seq[SimplePromotion])(
-      implicit db: DB,
-      ac: AC,
-      au: AU): DbResultT[Seq[SimplePromotion]] =
+  def generatePromotions(
+      sourceData: Seq[SimplePromotion])(implicit db: DB, ac: AC, au: AU): DbResultT[Seq[SimplePromotion]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       promotions ← * <~ sourceData.map(source ⇒ {
@@ -83,10 +83,9 @@ trait PromotionGenerator {
                     val discountForm    = SimpleDiscountForm(source.percentOff, source.totalAmount)
                     val discountShadow  = SimpleDiscountShadow(discountForm)
 
-                    def discountFS: FormAndShadow = {
+                    def discountFS: FormAndShadow =
                       (ObjectForm(kind = Promotion.kind, attributes = discountForm.form),
                        ObjectShadow(attributes = discountShadow.shadow))
-                    }
                     val promotionFS: FormAndShadow = {
                       (ObjectForm(kind = Promotion.kind, attributes = promotionForm.form),
                        ObjectShadow(attributes = promotionShadow.shadow))
@@ -95,8 +94,7 @@ trait PromotionGenerator {
                     val payload =
                       CreatePromotion(applyType = source.applyType,
                                       attributes = promotionFS.toPayload,
-                                      discounts =
-                                        Seq(CreateDiscount(attributes = discountFS.toPayload)))
+                                      discounts = Seq(CreateDiscount(attributes = discountFS.toPayload)))
 
                     PromotionManager.create(payload, context.name, None).map { newPromo ⇒
                       source.copy(promotionId = newPromo.id)

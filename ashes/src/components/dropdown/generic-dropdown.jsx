@@ -32,11 +32,11 @@ export type Props = {
   value: ValueType,
   className?: string,
   listClassName?: string,
-  placeholder?: string,
+  placeholder?: string | Element<*>,
   emptyMessage?: string | Element<*>,
   open?: bool,
   children?: Element<*>,
-  items?: Array<DropdownItemType>,
+  items?: Array<any>,
   primary?: bool,
   editable?: bool,
   changeable?: bool,
@@ -50,6 +50,8 @@ export type Props = {
   dropdownProps?: Object,
   detached?: boolean,
   noControls?: boolean,
+  toggleColumnsBtn?: boolean,
+  buttonClassName?: string,
 };
 
 type State = {
@@ -75,7 +77,7 @@ export default class GenericDropdown extends Component {
   props: Props;
 
   static defaultProps = {
-    placeholder: '- Select -',
+    placeholder: '',
     changeable: true,
     disabled: false,
     primary: false,
@@ -155,7 +157,7 @@ export default class GenericDropdown extends Component {
     });
   }
 
-  renderNullTitle(value: ?number | string, placeholder: ?string): ?string | Element<*> {
+  renderNullTitle(value: ?number | string, placeholder: ?string | Element<*>): ?string | Element<*> {
     if (this.props.renderNullTitle) {
       return this.props.renderNullTitle(value, placeholder);
     }
@@ -194,12 +196,16 @@ export default class GenericDropdown extends Component {
 
   get dropdownButton() {
     const icon = this.state.open ? 'chevron-up' : 'chevron-down';
+    const { toggleColumnsBtn } = this.props;
 
+    const className = classNames(s.downArrowBtn, this.props.buttonClassName, {
+      [s.toggleBtn]: toggleColumnsBtn != null,
+    });
     // @todo consider to not use <Button> component here, too specific styles
     return (
       <Button
         icon={icon}
-        className={s.downArrowBtn}
+        className={className}
         disabled={this.props.disabled}
         onClick={this.handleToggleClick}
         {...this.props.dropdownProps}
@@ -377,15 +383,16 @@ export default class GenericDropdown extends Component {
   }
 
   get controls(): Element<*> {
-    const { inputFirst, noControls } = this.props;
+    const { inputFirst, noControls, placeholder } = this.props;
 
     if (noControls) {
       return this.dropdownInput;
     }
+    const rightInput = inputFirst ? this.dropdownButton : this.dropdownInput;
 
     return createFragment({
       left: inputFirst ? this.dropdownInput : this.dropdownButton,
-      right: inputFirst ? this.dropdownButton : this.dropdownInput,
+      right: placeholder ? rightInput : null,
     });
   }
 

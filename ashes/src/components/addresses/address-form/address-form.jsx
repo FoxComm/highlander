@@ -17,6 +17,9 @@ import { Dropdown } from '../../dropdown';
 import TextInput from '../../forms/text-input';
 import AutoScroll from '../../common/auto-scroll';
 
+// style
+import s from './address-form.css';
+
 // data
 import * as validators from '../../../lib/validators';
 import * as AddressFormActions from '../../../modules/address-form';
@@ -135,7 +138,7 @@ export default class AddressForm extends React.Component {
       );
     } else {
       const onChange = value => this.handlePhoneChange(value);
-      input = <TextInput {...inputAttributes} onChange={onChange} maxLength="15"/>;
+      input = <TextInput {...inputAttributes} onChange={onChange} maxLength="15" />;
     }
 
     return input;
@@ -252,6 +255,7 @@ export default class AddressForm extends React.Component {
                 <FormField label="Country">
                   <Dropdown id="country-dd"
                             name="countryId"
+                            className={s.countryList}
                             value={this.state.countryId}
                             onChange={value => this.handleCountryChange(Number(value))}
                             items={this.countryItems}
@@ -297,7 +301,7 @@ export default class AddressForm extends React.Component {
               </li>
               <li className="fc-address-form-controls">
                 <SaveCancel onCancel={onCancel}
-                            saveText={saveTitle}/>
+                            saveText={saveTitle} />
               </li>
             </ul>
           </FoxyForm>

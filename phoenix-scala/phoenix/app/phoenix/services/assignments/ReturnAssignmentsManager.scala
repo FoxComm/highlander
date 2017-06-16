@@ -1,12 +1,12 @@
 package phoenix.services.assignments
 
+import core.db._
 import phoenix.models.activity.Dimension
 import phoenix.models.returns._
 import phoenix.models.{Assignment, NotificationSubscription}
 import phoenix.responses.ReturnResponse._
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 object ReturnAssignmentsManager extends AssignmentsManager[String, Return] {
 
@@ -20,7 +20,6 @@ object ReturnAssignmentsManager extends AssignmentsManager[String, Return] {
   def fetchEntity(refNum: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[Return] =
     Returns.mustFindByRefNum(refNum)
 
-  def fetchSequence(
-      refNums: Seq[String])(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Return]] =
+  def fetchSequence(refNums: Seq[String])(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Return]] =
     Returns.filter(_.referenceNumber.inSetBind(refNums)).result.dbresult
 }

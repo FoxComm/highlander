@@ -2,13 +2,13 @@ package phoenix.models.discount
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import core.db._
 import org.json4s.JsonAST.JObject
 import phoenix.models.discount.SearchReference._
 import phoenix.models.sharedsearch.SharedSearches
 import phoenix.utils.ElasticsearchApi.{Buckets, ScopedSearchView, SearchView}
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
-import utils.db._
 
 import scala.concurrent.Future
 
@@ -51,16 +51,14 @@ sealed trait SearchReference[T] {
 trait SearchBuckets extends SearchReference[Buckets] {
   def pureResult(implicit ec: EC): Result[Buckets] = pureBuckets
 
-  def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(
-      implicit apis: Apis): Future[Buckets] =
+  def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(implicit apis: Apis): Future[Buckets] =
     apis.elasticSearch.checkBuckets(searchView, query, fieldName, refs)
 }
 
 trait SearchMetrics extends SearchReference[Long] {
   def pureResult(implicit ec: EC): Result[Long] = pureMetrics
 
-  def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(
-      implicit apis: Apis): Future[Long] =
+  def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(implicit apis: Apis): Future[Long] =
     apis.elasticSearch.checkMetrics(searchView, query, fieldName, refs)
 }
 
@@ -69,7 +67,7 @@ case class CustomerSearch(customerSearchId: Int) extends SearchMetrics {
   val searchViewByScope = searchView(customersSearchView)
   val fieldName: String = customersSearchField
 
-  def references(input: DiscountInput): Seq[String] = Seq(input.cart.accountId).map(_.toString)
+  def references(input: DiscountInput): Seq[String] = Seq(input.customerAccountId).map(_.toString)
 }
 
 case class ProductSearch(productSearchId: Int) extends SearchBuckets {
@@ -78,7 +76,7 @@ case class ProductSearch(productSearchId: Int) extends SearchBuckets {
   val fieldName: String = productsSearchField
 
   def references(input: DiscountInput): Seq[String] =
-    input.lineItems.map(_.productForm.id.toString)
+    input.lineItems.map(_.productId.toString)
 }
 
 case class SkuSearch(skuSearchId: Int) extends SearchBuckets {
@@ -86,7 +84,7 @@ case class SkuSearch(skuSearchId: Int) extends SearchBuckets {
   val searchViewByScope = scopedSearchView(skuSearchView)
   val fieldName: String = skuSearchField
 
-  def references(input: DiscountInput): Seq[String] = input.lineItems.map(_.sku.code)
+  def references(input: DiscountInput): Seq[String] = input.lineItems.map(_.skuCode)
 }
 
 object SearchReference {

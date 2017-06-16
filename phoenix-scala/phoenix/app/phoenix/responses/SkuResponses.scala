@@ -3,11 +3,13 @@ package phoenix.responses
 import java.time.Instant
 
 import cats.implicits._
-import models.objects._
+import core.failures.{Failure, NotFoundFailure404}
+import objectframework.ObjectResponses.ObjectContextResponse
+import objectframework.models._
 import phoenix.models.inventory._
+import phoenix.models.traits.IlluminatedModel
 import phoenix.responses.AlbumResponses.AlbumResponse
 import phoenix.utils.aliases._
-import responses.ObjectResponses.ObjectContextResponse
 
 object SkuResponses {
 
@@ -21,8 +23,7 @@ object SkuResponses {
 
   object SkuFormResponse {
 
-    case class Root(id: Int, code: String, attributes: Json, createdAt: Instant)
-        extends ResponseItem
+    case class Root(id: Int, code: String, attributes: Json, createdAt: Instant) extends ResponseItem
 
     def build(sku: Sku, form: ObjectForm): Root =
       Root(id = form.id, code = sku.code, attributes = form.attributes, createdAt = form.createdAt)
@@ -61,9 +62,7 @@ object SkuResponses {
     def buildLite(s: IlluminatedSku): Root =
       Root(code = s.code, attributes = s.attributes, context = None, albums = Seq.empty)
 
-    def buildLite(ctx: ObjectContext,
-                  sku: FullObject[Sku],
-                  albums: Seq[AlbumResponse.Root]): Root = {
+    def buildLite(ctx: ObjectContext, sku: FullObject[Sku], albums: Seq[AlbumResponse.Root]): Root = {
       val illuminatedSku = IlluminatedSku.illuminate(ctx, sku)
       Root(code = illuminatedSku.code,
            attributes = illuminatedSku.attributes,
@@ -79,13 +78,8 @@ object SkuResponses {
                     form: SkuFormResponse.Root,
                     shadow: SkuShadowResponse.Root)
 
-    def build(form: SkuFormResponse.Root,
-              shadow: SkuShadowResponse.Root,
-              context: ObjectContext): Root =
-      Root(code = shadow.code,
-           form = form,
-           shadow = shadow,
-           context = ObjectContextResponse.build(context))
+    def build(form: SkuFormResponse.Root, shadow: SkuShadowResponse.Root, context: ObjectContext): Root =
+      Root(code = shadow.code, form = form, shadow = shadow, context = ObjectContextResponse.build(context))
   }
 
   object SkuResponse {
@@ -96,6 +90,10 @@ object SkuResponses {
                     albums: Seq[AlbumResponse.Root],
                     archivedAt: Option[Instant])
         extends ResponseItem
+        with IlluminatedModel[Root] {
+      override def inactiveError: Failure =
+        NotFoundFailure404(Sku, (attributes \ "code" \ "v").extract[String])
+    }
 
     def build(sku: IlluminatedSku, albums: Seq[AlbumResponse.Root]): Root =
       Root(id = sku.id,

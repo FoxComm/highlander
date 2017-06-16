@@ -1,13 +1,11 @@
 package phoenix.failures
 
-import failures.Failure
+import core.failures.Failure
 import phoenix.models.customer.CustomerGroup.GroupType
 
 object CustomerGroupFailures {
 
-  case class CustomerGroupTypeIsWrong(groupId: Int,
-                                      realGroupType: GroupType,
-                                      expected: Set[GroupType])
+  case class CustomerGroupTypeIsWrong(groupId: Int, realGroupType: GroupType, expected: Set[GroupType])
       extends Failure {
     override def description =
       s"Customer group with id $groupId has $realGroupType type but is expected to have ${expected.mkString(",")}"

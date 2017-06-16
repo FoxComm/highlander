@@ -36,7 +36,7 @@ describe('ContentBox', function() {
   it('should render container with action block when provided', function *() {
     const actionBlock = 'Actions!';
     contentBox = shallowRender(
-      <ContentBox title="" className="" actionBlock={ actionBlock }/>
+      <ContentBox title="" className="" actionBlock={ actionBlock } />
     );
 
     expect(contentBox, 'to contain',

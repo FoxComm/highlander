@@ -3,32 +3,30 @@ package phoenix.services.image
 import java.time.Instant
 
 import cats.implicits._
-import com.github.tminglei.slickpg.LTree
+import core.db._
+import objectframework.ObjectUtils
+import objectframework.ObjectUtils.InsertResult
+import objectframework.models._
+import objectframework.services.ObjectManager
+import org.json4s.JsonAST.JString
 import phoenix.failures.ImageFailures._
-import failures.{NotFoundFailure400, NotFoundFailure404}
 import phoenix.models.account._
 import phoenix.models.image._
 import phoenix.models.inventory.Sku
-import models.objects.ObjectUtils.InsertResult
-import models.objects._
 import phoenix.models.objects._
 import phoenix.models.product._
-import org.json4s.JsonAST.JString
 import phoenix.payloads.ImagePayloads._
 import phoenix.responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import phoenix.responses.AlbumResponses._
 import phoenix.services.inventory.SkuManager
-import services.objects.ObjectManager
-import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
-import utils.db._
+import slick.jdbc.PostgresProfile.api._
 
 object ImageManager {
   type FullAlbum           = FullObject[Album]
   type FullAlbumWithImages = (FullObject[Album], Seq[FullObject[Image]])
 
-  def getAlbum(formId: ObjectForm#Id, contextName: String)(implicit ec: EC,
-                                                           db: DB): DbResultT[AlbumRoot] =
+  def getAlbum(formId: ObjectForm#Id, contextName: String)(implicit ec: EC, db: DB): DbResultT[AlbumRoot] =
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       album   ← * <~ getAlbumInner(formId, context)
@@ -41,16 +39,14 @@ object ImageManager {
       images ← * <~ AlbumImageLinks.queryRightByLeft(album.model)
     } yield AlbumResponse.build(album, images)
 
-  def getAlbumsForProduct(productReference: ProductReference)(implicit ec: EC,
-                                                              db: DB,
-                                                              oc: OC): DbResultT[Seq[AlbumRoot]] =
+  def getAlbumsForProduct(
+      productReference: ProductReference)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
     for {
       product ← * <~ Products.mustFindByReference(productReference)
       result  ← * <~ getAlbumsForProductInner(product)
     } yield result
 
-  def getAlbumsForProductInner(
-      product: Product)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
+  def getAlbumsForProductInner(product: Product)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
     for {
       albums ← * <~ ProductAlbumLinks.queryRightByLeft(product)
       images ← * <~ albums.map(album ⇒ AlbumImageLinks.queryRightByLeft(album.model))
@@ -64,9 +60,8 @@ object ImageManager {
       albums ← * <~ getAlbumsForSkuInner(code, oc)
     } yield albums
 
-  def getAlbumsForSkuInner(code: String, context: ObjectContext)(
-      implicit ec: EC,
-      db: DB): DbResultT[Seq[AlbumResponse.Root]] =
+  def getAlbumsForSkuInner(code: String, context: ObjectContext)(implicit ec: EC,
+                                                                 db: DB): DbResultT[Seq[AlbumResponse.Root]] =
     for {
       sku    ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, code)
       result ← * <~ getAlbumsBySku(sku)
@@ -93,21 +88,20 @@ object ImageManager {
       payload: AlbumPayload,
       context: ObjectContext)(implicit ec: EC, db: DB, au: AU): DbResultT[FullAlbumWithImages] =
     for {
-      album ← * <~ ObjectUtils.insertFullObject(
-                 payload.formAndShadow,
-                 ins ⇒ createAlbumHeadFromInsert(context, ins, payload.scope))
+      album ← * <~ ObjectUtils.insertFullObject(payload.formAndShadow,
+                                                ins ⇒ createAlbumHeadFromInsert(context, ins, payload.scope))
       images ← * <~ (payload.images match {
-                    case Some(imagesPayload) ⇒
-                      createImagesForAlbum(album.model, imagesPayload, context)
-                    case None ⇒
-                      DbResultT.good(Seq.empty)
-                  })
+                case Some(imagesPayload) ⇒
+                  createImagesForAlbum(album.model, imagesPayload, context)
+                case None ⇒
+                  DbResultT.good(Seq.empty)
+              })
     } yield (album, images)
 
-  def createOrUpdateImagesForAlbum(
-      album: Album,
-      imagesPayload: Seq[ImagePayload],
-      context: ObjectContext)(implicit ec: EC, db: DB, au: AU): DbResultT[Seq[FullObject[Image]]] =
+  def createOrUpdateImagesForAlbum(album: Album, imagesPayload: Seq[ImagePayload], context: ObjectContext)(
+      implicit ec: EC,
+      db: DB,
+      au: AU): DbResultT[Seq[FullObject[Image]]] =
     for {
       updatedImages ← * <~ imagesPayload.zipWithIndex.map {
                        case (payload, index) ⇒
@@ -120,18 +114,17 @@ object ImageManager {
       _ ← * <~ Images.filterByIds(linksToDelete.map(_.rightId)).delete
     } yield updatedImages
 
-  def createOrUpdateImages(imagesPayload: Seq[ImagePayload], context: ObjectContext)(
-      implicit ec: EC,
-      db: DB,
-      au: AU): DbResultT[Seq[FullObject[Image]]] =
+  def createOrUpdateImages(
+      imagesPayload: Seq[ImagePayload],
+      context: ObjectContext)(implicit ec: EC, db: DB, au: AU): DbResultT[Seq[FullObject[Image]]] =
     for {
       images ← * <~ imagesPayload.map { payload ⇒
                 payload.id match {
                   case None ⇒
                     for {
                       inserted ← * <~ ObjectUtils.insertFullObject(
-                                    payload.formAndShadow,
-                                    ins ⇒ createImageHeadFromInsert(context, ins, payload.scope))
+                                  payload.formAndShadow,
+                                  ins ⇒ createImageHeadFromInsert(context, ins, payload.scope))
                     } yield inserted
                   case Some(id) ⇒
                     for {
@@ -147,21 +140,18 @@ object ImageManager {
 
     } yield images
 
-  def createOrUpdateImageForAlbum(
-      album: Album,
-      payload: ImagePayload,
-      position: Int,
-      context: ObjectContext)(implicit ec: EC, db: DB, au: AU): DbResultT[FullObject[Image]] =
+  def createOrUpdateImageForAlbum(album: Album, payload: ImagePayload, position: Int, context: ObjectContext)(
+      implicit ec: EC,
+      db: DB,
+      au: AU): DbResultT[FullObject[Image]] =
     payload.id match {
       case None ⇒
         for {
           inserted ← * <~ ObjectUtils.insertFullObject(
-                        payload.formAndShadow,
-                        ins ⇒ createImageHeadFromInsert(context, ins, payload.scope))
+                      payload.formAndShadow,
+                      ins ⇒ createImageHeadFromInsert(context, ins, payload.scope))
           _ ← * <~ AlbumImageLinks.create(
-                 AlbumImageLink(leftId = album.id,
-                                position = position,
-                                rightId = inserted.model.id))
+               AlbumImageLink(leftId = album.id, position = position, rightId = inserted.model.id))
         } yield inserted
       case Some(id) ⇒
         for {
@@ -189,23 +179,20 @@ object ImageManager {
       au: AU): DbResultT[Seq[FullObject[Image]]] =
     for {
       images ← * <~ imagesPayload.map(
-                  img ⇒
-                    ObjectUtils.insertFullObject(
-                        img.formAndShadow,
-                        ins ⇒ createImageHeadFromInsert(context, ins, img.scope)))
+                img ⇒
+                  ObjectUtils.insertFullObject(img.formAndShadow,
+                                               ins ⇒ createImageHeadFromInsert(context, ins, img.scope)))
       links ← * <~ images.zipWithIndex.map {
                case (image, index) ⇒
                  AlbumImageLinks.create(
-                     AlbumImageLink(leftId = album.id, position = index, rightId = image.model.id))
+                   AlbumImageLink(leftId = album.id, position = index, rightId = image.model.id))
              }
     } yield images
 
-  def createAlbumForProduct(admin: User, productId: ProductReference, payload: AlbumPayload)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      au: AU,
-      oc: OC): DbResultT[AlbumRoot] =
+  def createAlbumForProduct(
+      admin: User,
+      productId: ProductReference,
+      payload: AlbumPayload)(implicit ec: EC, db: DB, ac: AC, au: AU, oc: OC): DbResultT[AlbumRoot] =
     for {
       product ← * <~ Products.mustFindByReference(productId)
       created ← * <~ createAlbumInner(payload, oc)
@@ -213,12 +200,10 @@ object ImageManager {
       link ← * <~ ProductAlbumLinks.createLast(product, fullAlbum.model)
     } yield AlbumResponse.build(fullAlbum, images)
 
-  def createAlbumForSku(admin: User, code: String, payload: AlbumPayload)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      oc: OC,
-      au: AU): DbResultT[AlbumRoot] =
+  def createAlbumForSku(
+      admin: User,
+      code: String,
+      payload: AlbumPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC, au: AU): DbResultT[AlbumRoot] =
     for {
       sku     ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, code)
       created ← * <~ createAlbumInner(payload, oc)
@@ -243,21 +228,15 @@ object ImageManager {
       oldShadow                    = album.shadow
       (payloadForm, payloadShadow) = payload.formAndShadow.tupled
       mergedAtts                   = oldShadow.attributes.merge(payloadShadow.attributes)
-      album ← * <~ ObjectUtils.commitUpdate[Album](album,
-                                                   payloadForm.attributes,
-                                                   mergedAtts,
-                                                   updateAlbumHead,
-                                                   force = true)
-      _ ← * <~ createOrUpdateImagesForAlbum(album.model,
-                                            payload.images.getOrElse(Seq.empty),
-                                            context)
+      album ← * <~ ObjectUtils
+               .commitUpdate[Album](album, payloadForm.attributes, mergedAtts, updateAlbumHead, force = true)
+      _      ← * <~ createOrUpdateImagesForAlbum(album.model, payload.images.getOrElse(Seq.empty), context)
       images ← * <~ AlbumImageLinks.queryRightByLeft(album.model)
     } yield (album, images)
 
-  def updateProductAlbumPosition(
-      albumFormId: ObjectForm#Id,
-      productRef: ProductReference,
-      position: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
+  def updateProductAlbumPosition(albumFormId: ObjectForm#Id,
+                                 productRef: ProductReference,
+                                 position: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
     for {
       product     ← * <~ Products.mustFindByReference(productRef)
       album       ← * <~ ImageManager.mustFindAlbumByFormIdAndContext404(albumFormId, oc)
@@ -265,15 +244,12 @@ object ImageManager {
       albums      ← * <~ getAlbumsForProductInner(product)
     } yield albums
 
-  def updateOrCreateAlbum(payload: AlbumPayload)(implicit ec: EC,
-                                                 db: DB,
-                                                 oc: OC,
-                                                 au: AU): DbResultT[FullAlbumWithImages] = {
+  def updateOrCreateAlbum(
+      payload: AlbumPayload)(implicit ec: EC, db: DB, oc: OC, au: AU): DbResultT[FullAlbumWithImages] =
     payload.id match {
       case Some(id) ⇒ updateAlbumInner(id, payload, oc)
       case None     ⇒ createAlbumInner(payload, oc)
     }
-  }
 
   def archiveByContextAndId(id: Int, contextName: String)(implicit ec: EC, db: DB) =
     for {
@@ -286,15 +262,14 @@ object ImageManager {
       images ← * <~ getAlbumImages(albumObject.model)
     } yield
       AlbumResponse.build(
-          FullObject(model = archiveResult, form = albumObject.form, shadow = albumObject.shadow),
-          images)
+        FullObject(model = archiveResult, form = albumObject.form, shadow = albumObject.shadow),
+        images)
 
-  def mustFindFullAlbumByFormIdAndContext404(id: ObjectForm#Id,
-                                             context: ObjectContext)(implicit ec: EC, db: DB) =
+  def mustFindFullAlbumByFormIdAndContext404(id: ObjectForm#Id, context: ObjectContext)(implicit ec: EC,
+                                                                                        db: DB) =
     ObjectManager.getFullObject(mustFindAlbumByFormIdAndContext404(id, context))
 
-  def mustFindAlbumByFormIdAndContext404(id: Int, context: ObjectContext)(implicit ec: EC,
-                                                                          db: DB) =
+  def mustFindAlbumByFormIdAndContext404(id: Int, context: ObjectContext)(implicit ec: EC, db: DB) =
     Albums
       .filterByContextAndFormId(context.id, id)
       .mustFindOneOr(AlbumNotFoundForContext(id, context.id))
@@ -302,8 +277,7 @@ object ImageManager {
   def getAlbumImages(album: Album)(implicit ec: EC, db: DB): DbResultT[Seq[FullObject[Image]]] =
     for {
       imageIds ← * <~ AlbumImageLinks.filterLeft(album).sortBy(_.position).map(_.rightId).result
-      images ← * <~ imageIds.map(imgId ⇒
-                    ObjectManager.getFullObject(Images.mustFindById404(imgId)))
+      images   ← * <~ imageIds.map(imgId ⇒ ObjectManager.getFullObject(Images.mustFindById404(imgId)))
     } yield images
 
   def getFirstImageForAlbum(album: Album)(implicit ec: EC, db: DB): DbResultT[Option[String]] =
@@ -320,49 +294,47 @@ object ImageManager {
            }
     } yield src
 
-  private def createAlbumHeadFromInsert(
-      oc: ObjectContext,
-      insert: InsertResult,
-      maybeScope: Option[String])(implicit ec: EC, db: DB, au: AU): DbResultT[Album] =
+  private def createAlbumHeadFromInsert(oc: ObjectContext, insert: InsertResult, maybeScope: Option[String])(
+      implicit ec: EC,
+      db: DB,
+      au: AU): DbResultT[Album] =
     for {
       scope ← * <~ Scope.resolveOverride(maybeScope)
       album ← * <~ Albums.create(
-                 Album(scope = scope,
-                       contextId = oc.id,
-                       shadowId = insert.shadow.id,
-                       formId = insert.form.id,
-                       commitId = insert.commit.id))
+               Album(scope = scope,
+                     contextId = oc.id,
+                     shadowId = insert.shadow.id,
+                     formId = insert.form.id,
+                     commitId = insert.commit.id))
     } yield album
 
-  private def updateAlbumHead(fullObject: FullObject[Album], commitId: Int)(
-      implicit ec: EC,
-      db: DB): DbResultT[FullObject[Album]] =
+  private def updateAlbumHead(fullObject: FullObject[Album],
+                              commitId: Int)(implicit ec: EC, db: DB): DbResultT[FullObject[Album]] =
     for {
       newModel ← * <~ Albums.update(
-                    fullObject.model,
-                    fullObject.model.copy(shadowId = fullObject.shadow.id, commitId = commitId))
+                  fullObject.model,
+                  fullObject.model.copy(shadowId = fullObject.shadow.id, commitId = commitId))
     } yield fullObject.copy(model = newModel)
 
-  private def createImageHeadFromInsert(
-      oc: ObjectContext,
-      ins: InsertResult,
-      maybeScope: Option[String])(implicit ec: EC, db: DB, au: AU): DbResultT[Image] =
+  private def createImageHeadFromInsert(oc: ObjectContext, ins: InsertResult, maybeScope: Option[String])(
+      implicit ec: EC,
+      db: DB,
+      au: AU): DbResultT[Image] =
     for {
       scope ← * <~ Scope.resolveOverride(maybeScope)
       image ← * <~ Images.create(
-                 Image(scope = scope,
-                       contextId = oc.id,
-                       shadowId = ins.shadow.id,
-                       formId = ins.form.id,
-                       commitId = ins.commit.id))
+               Image(scope = scope,
+                     contextId = oc.id,
+                     shadowId = ins.shadow.id,
+                     formId = ins.form.id,
+                     commitId = ins.commit.id))
     } yield image
 
-  private def updateImageHead(fullObject: FullObject[Image], commitId: Int)(
-      implicit ec: EC,
-      db: DB): DbResultT[FullObject[Image]] =
+  private def updateImageHead(fullObject: FullObject[Image],
+                              commitId: Int)(implicit ec: EC, db: DB): DbResultT[FullObject[Image]] =
     for {
       newModel ← * <~ Images.update(
-                    fullObject.model,
-                    fullObject.model.copy(shadowId = fullObject.shadow.id, commitId = commitId))
+                  fullObject.model,
+                  fullObject.model.copy(shadowId = fullObject.shadow.id, commitId = commitId))
     } yield fullObject.copy(model = newModel)
 }

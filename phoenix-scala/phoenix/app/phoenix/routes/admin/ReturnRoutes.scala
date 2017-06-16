@@ -2,21 +2,21 @@ package phoenix.routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{PathMatcher, Route}
-import phoenix.utils.http.JsonSupport._
 import phoenix.models.account.User
 import phoenix.models.cord.Cord
 import phoenix.models.payment.PaymentMethod
 import phoenix.models.returns.Return
 import phoenix.payloads.ReturnPayloads._
-import phoenix.services.returns._
 import phoenix.services.Authenticator.AuthData
+import phoenix.services.returns._
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
 import phoenix.utils.http.Http._
+import phoenix.utils.http.JsonSupport._
 
 object ReturnRoutes {
-  val PaymentMethodMatcher = PathMatcher(PaymentMethod.Type.typeMap)
+  val PaymentMethodMatcher = PathMatcher(PaymentMethod.Type)
 
   def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
 
@@ -76,11 +76,10 @@ object ReturnRoutes {
               ReturnService.updateStateByCsr(refNum, payload)
             }
           } ~
-          (post & path("message") & pathEnd & entity(as[ReturnMessageToCustomerPayload])) {
-            payload ⇒
-              mutateOrFailures {
-                ReturnService.updateMessageToCustomer(refNum, payload)
-              }
+          (post & path("message") & pathEnd & entity(as[ReturnMessageToCustomerPayload])) { payload ⇒
+            mutateOrFailures {
+              ReturnService.updateMessageToCustomer(refNum, payload)
+            }
           } ~
           pathPrefix("line-items") {
             (post & path("skus") & entity(as[List[ReturnSkuLineItemPayload]])) { payload ⇒
@@ -109,9 +108,9 @@ object ReturnRoutes {
               case (paymentMethod, payload) ⇒
                 mutateOrFailures {
                   ReturnPaymentManager.updatePayments(
-                      refNum,
-                      Map(paymentMethod → payload.amount),
-                      overwrite = false
+                    refNum,
+                    Map(paymentMethod → payload.amount),
+                    overwrite = false
                   )
                 }
             } ~

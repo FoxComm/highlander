@@ -24,7 +24,6 @@ function mapStateToProps(state, props) {
 
 function mapDispatchToProps(dispatch, props) {
   const customerId = _.get(props, 'cart.customer.id');
-  const refNum = _.get(props, 'cart.referenceNumber');
 
   const addressActions = _.transform(AddressActions, (res, action, key) => {
     res[key] = (...args) => dispatch(action(customerId, ...args));
@@ -111,7 +110,6 @@ export default class ChooseShippingAddress extends Component {
   }
 
   get renderedAddressBoxes() {
-    const selectedAddressId = _.get(this.props, 'selectedAddress.id');
     return this.addresses.map(a => {
       return (
         <AddressBox
@@ -145,7 +143,7 @@ export default class ChooseShippingAddress extends Component {
           <h3 className="fc-shipping-address-sub-title">
             Chosen Address
           </h3>
-          <ul className="fc-addresses-list">
+          <ul className="fc-shipping-address__selected-list">
             <AddressBox
               address={this.props.selectedAddress}
               chosen={true}

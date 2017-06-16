@@ -87,7 +87,6 @@ class Cart extends Component {
   }
 
   render() {
-    const cart = this.cart;
     const className = 'fc-order fc-cart';
 
     if (this.props.isFetching !== false) {

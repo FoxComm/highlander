@@ -22,14 +22,16 @@ object GroupResponses {
     ) extends ResponseItem
 
     def build(group: CustomerGroup): Root =
-      Root(id = group.id,
-           name = group.name,
-           groupType = group.groupType,
-           clientState = group.clientState,
-           elasticRequest = group.elasticRequest,
-           customersCount = group.customersCount,
-           updatedAt = group.updatedAt,
-           createdAt = group.createdAt)
+      Root(
+        id = group.id,
+        name = group.name,
+        groupType = group.groupType,
+        clientState = group.clientState,
+        elasticRequest = group.elasticRequest,
+        customersCount = group.customersCount,
+        updatedAt = group.updatedAt,
+        createdAt = group.createdAt
+      )
   }
 
   object CustomerGroupResponse {
@@ -47,11 +49,13 @@ object GroupResponses {
                     elasticRequest: Json)
 
     def build(groupTemplate: CustomerGroupTemplate): Root =
-      Root(id = groupTemplate.id,
-           name = groupTemplate.name,
-           groupType = CustomerGroup.Template,
-           clientState = groupTemplate.clientState,
-           elasticRequest = groupTemplate.elasticRequest)
+      Root(
+        id = groupTemplate.id,
+        name = groupTemplate.name,
+        groupType = CustomerGroup.Template,
+        clientState = groupTemplate.clientState,
+        elasticRequest = groupTemplate.elasticRequest
+      )
   }
 
 }

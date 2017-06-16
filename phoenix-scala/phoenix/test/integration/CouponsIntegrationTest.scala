@@ -3,9 +3,9 @@ import java.time.Instant.now
 import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
-import failures.NotFoundFailure404
-import failures.ObjectFailures.ObjectContextNotFound
-import models.objects.ObjectContext
+import core.failures.NotFoundFailure404
+import objectframework.ObjectFailures.ObjectContextNotFound
+import objectframework.models.ObjectContext
 import org.json4s.JsonAST._
 import phoenix.failures.CartFailures.OrderAlreadyPlaced
 import phoenix.failures.CouponFailures.CouponIsNotActive
@@ -21,7 +21,8 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
-import utils.db._
+import core.utils.Money._
+import core.db._
 
 class CouponsIntegrationTest
     extends IntegrationTestBase
@@ -33,12 +34,11 @@ class CouponsIntegrationTest
     with BakedFixtures {
 
   "POST /v1/coupons/:context" - {
-    "create coupon" in new StoreAdmin_Seed with Coupon_TotalQualifier_PercentOff {
+    "create coupon" in new Coupon_TotalQualifier_PercentOff {
       coupon
     }
 
-    "created coupon should always be active" in new StoreAdmin_Seed
-    with Coupon_TotalQualifier_PercentOff {
+    "created coupon should always be active" in new Coupon_TotalQualifier_PercentOff {
       override def couponActiveFrom = Instant.now.plus(10, DAYS)
       override def couponActiveTo   = Some(Instant.now.plus(20, DAYS))
 
@@ -55,7 +55,7 @@ class CouponsIntegrationTest
   }
 
   "DELETE /v1/coupons/:context/:id" - {
-    "archive existing coupon" in new StoreAdmin_Seed with Coupon_TotalQualifier_PercentOff {
+    "archive existing coupon" in new Coupon_TotalQualifier_PercentOff {
       val archiveResp = couponsApi(coupon.id).archive().as[CouponResponse.Root]
 
       withClue(archiveResp.archivedAt.value → now) {
@@ -63,11 +63,11 @@ class CouponsIntegrationTest
       }
     }
 
-    "404 for not existing coupon" in new StoreAdmin_Seed with Coupon_TotalQualifier_PercentOff {
+    "404 for not existing coupon" in new Coupon_TotalQualifier_PercentOff {
       couponsApi(666).archive.mustFailWith404(NotFoundFailure404(Coupon, 666))
     }
 
-    "404 when context not found" in new StoreAdmin_Seed with Coupon_TotalQualifier_PercentOff {
+    "404 when context not found" in new Coupon_TotalQualifier_PercentOff {
       couponsApi(coupon.id)(ObjectContext(name = "donkeyContext", attributes = JNothing))
         .archive()
         .mustFailWith404(ObjectContextNotFound("donkeyContext"))
@@ -104,7 +104,7 @@ class CouponsIntegrationTest
 
         "for cart total qualifier" in new Coupon_TotalQualifier_PercentOff
         with RegularAndGiftCardLineItemFixture {
-          override def qualifiedSubtotal: Int = 2000
+          override def qualifiedSubtotal: Long = 2000
 
           cartsApi(cartRef).coupon
             .add(couponCode)
@@ -141,23 +141,23 @@ class CouponsIntegrationTest
       "because purchased gift card is excluded from qualifier judgement" - {
 
         "for `carts any` qualifier (cart only has gift card line items)" in new Coupon_AnyQualifier_PercentOff {
-          val skuCode = new ProductSku_ApiFixture {}.skuCode
+          val skuCode = ProductSku_ApiFixture().skuCode
           val cartRef = api_newGuestCart().referenceNumber
 
           cartsApi(cartRef).lineItems
             .add(Seq(UpdateLineItemsPayload(skuCode, 2, randomGiftCardLineItemAttributes)))
 
-          val message = "qualifier orderAnyQualifier rejected order with refNum=BR10001, " +
-              "reason: Items in cart are not eligible for discount"
+          val message = s"qualifier orderAnyQualifier rejected order with refNum=$cartRef, " +
+            "reason: Items in cart are not eligible for discount"
           cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
         }
 
         "for `cart total` qualifier" in new Coupon_TotalQualifier_PercentOff
         with RegularAndGiftCardLineItemFixture {
-          override def qualifiedSubtotal: Int = 4000
+          override def qualifiedSubtotal: Long = 4000
 
-          val message = "qualifier orderTotalAmountQualifier rejected order with refNum=BR10001, " +
-              "reason: Order subtotal is less than 4000"
+          val message = s"qualifier orderTotalAmountQualifier rejected order with refNum=$cartRef, " +
+            s"reason: Order subtotal is less than $qualifiedSubtotal"
           cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
         }
 
@@ -165,21 +165,19 @@ class CouponsIntegrationTest
         with RegularAndGiftCardLineItemFixture {
           override def qualifiedNumItems: Int = 2
 
-          val message = "qualifier orderNumUnitsQualifier rejected order with refNum=BR10001, " +
-              "reason: Order unit count is less than 2"
+          val message = s"qualifier orderNumUnitsQualifier rejected order with refNum=$cartRef, " +
+            s"reason: Order unit count is less than $qualifiedNumItems"
           cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
         }
       }
     }
   }
 
-  trait CartCouponFixture
-      extends StoreAdmin_Seed
-      with Coupon_TotalQualifier_PercentOff
-      with ProductSku_ApiFixture {
+  trait CartCouponFixture extends StoreAdmin_Seed with Coupon_TotalQualifier_PercentOff {
 
-    override def skuPrice: Int          = 3100
-    override def qualifiedSubtotal: Int = 3000
+    val skuCode = ProductSku_ApiFixture(skuPrice = 3100).skuCode
+
+    override def qualifiedSubtotal: Long = 3000
 
     val cartRef: String = {
       val cartRef = cartsApi
@@ -198,12 +196,12 @@ class CouponsIntegrationTest
   trait RegularAndGiftCardLineItemFixture extends StoreAdmin_Seed {
     val cartRef = api_newGuestCart().referenceNumber
 
-    private val skuCode   = new ProductSku_ApiFixture { override def skuPrice = 3000 }.skuCode
-    private val gcSkuCode = new ProductSku_ApiFixture { override def skuPrice = 2000 }.skuCode
+    private val skuCode   = ProductSku_ApiFixture(skuPrice = 3000).skuCode
+    private val gcSkuCode = ProductSku_ApiFixture(skuPrice = 2000).skuCode
 
     cartsApi(cartRef).lineItems
       .add(Seq(UpdateLineItemsPayload(skuCode, 1),
-               UpdateLineItemsPayload(gcSkuCode, 1, randomGiftCardLineItemAttributes)))
+               UpdateLineItemsPayload(gcSkuCode, 1, randomGiftCardLineItemAttributes())))
       .mustBeOk()
   }
 }

@@ -3,10 +3,10 @@ package phoenix.responses
 import java.time.Instant
 
 import cats.implicits._
-import models.objects._
+import objectframework.ObjectResponses.ObjectContextResponse
+import objectframework.models._
 import phoenix.models.category._
 import phoenix.utils.aliases._
-import responses.ObjectResponses.ObjectContextResponse
 
 object CategoryResponses {
 
@@ -26,8 +26,7 @@ object CategoryResponses {
 
   object CategoryShadowResponse {
 
-    case class Root(id: Int, formId: Int, attributes: Json, createdAt: Instant)
-        extends ResponseItem
+    case class Root(id: Int, formId: Int, attributes: Json, createdAt: Instant) extends ResponseItem
 
     def build(c: ObjectShadow): Root = Root(c.id, c.formId, c.attributes, c.createdAt)
   }
@@ -43,11 +42,9 @@ object CategoryResponses {
 
   object FullCategoryResponse {
 
-    case class Root(form: CategoryFormResponse.Root, shadow: CategoryShadowResponse.Root)
-        extends ResponseItem
+    case class Root(form: CategoryFormResponse.Root, shadow: CategoryShadowResponse.Root) extends ResponseItem
 
     def build(category: Category, categoryForm: ObjectForm, categoryShadow: ObjectShadow): Root =
-      Root(CategoryFormResponse.build(category, categoryForm),
-           CategoryShadowResponse.build(categoryShadow))
+      Root(CategoryFormResponse.build(category, categoryForm), CategoryShadowResponse.build(categoryShadow))
   }
 }

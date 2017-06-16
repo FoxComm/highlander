@@ -3,13 +3,10 @@ package phoenix.models.customer
 import phoenix.utils.aliases._
 import shapeless._
 import slick.lifted.Tag
-import utils.db.ExPostgresDriver.api._
-import utils.db._
+import core.db.ExPostgresDriver.api._
+import core.db._
 
-case class CustomerGroupTemplate(id: Int = 0,
-                                 name: String,
-                                 clientState: Json,
-                                 elasticRequest: Json)
+case class CustomerGroupTemplate(id: Int = 0, name: String, clientState: Json, elasticRequest: Json)
     extends FoxModel[CustomerGroupTemplate]
 
 class CustomerGroupTemplates(tag: Tag)
@@ -25,8 +22,7 @@ class CustomerGroupTemplates(tag: Tag)
 }
 
 object CustomerGroupTemplates
-    extends FoxTableQuery[CustomerGroupTemplate, CustomerGroupTemplates](
-        new CustomerGroupTemplates(_))
+    extends FoxTableQuery[CustomerGroupTemplate, CustomerGroupTemplates](new CustomerGroupTemplates(_))
     with ReturningId[CustomerGroupTemplate, CustomerGroupTemplates] {
 
   val returningLens: Lens[CustomerGroupTemplate, Int] = lens[CustomerGroupTemplate].id

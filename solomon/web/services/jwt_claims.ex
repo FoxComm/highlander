@@ -12,20 +12,24 @@ defmodule Solomon.JWTClaims do
   def token_claim(account_id, scope_id) do
     account = Repo.get!(Account, account_id)
     {claims, roles} = get_claims_roles(account_id, scope_id)
-    user = Repo.get_by!(User, account_id: account_id)
-    %{
-      "aud" => "user",
-      "email" => user.email,
-      "ratchet" => account.ratchet,
-      "id" => account_id,
-      "scope" => ScopeService.get_scope_path_by_id!(scope_id),
-      "roles" => roles,
-      "name" => user.name,
-      "claims" => claims,
-      "iss" => "FC",
-      # TODO : per access method TTL
-      "exp" => exp_from_ttl_days(tokenTTL)
-    }
+    cond do
+      Enum.empty?(roles) -> {:error, ["User has no roles in the organization"]}
+      true ->
+        user = Repo.get_by!(User, account_id: account_id)
+        {:ok, %{
+          "aud" => "user",
+          "email" => user.email,
+          "ratchet" => account.ratchet,
+          "id" => account_id,
+          "scope" => ScopeService.get_scope_path_by_id!(scope_id),
+          "roles" => roles,
+          "name" => user.name,
+          "claims" => claims,
+          "iss" => "FC",
+          # TODO : per access method TTL
+          "exp" => exp_from_ttl_days(tokenTTL)
+        }}
+    end
   end
 
   defp get_claims_roles(account_id, scope_id) do

@@ -1,10 +1,6 @@
 import _ from 'lodash';
 
-const { default: reducer, ...actions } = importSource('modules/reasons.js', [
-  'reasonsRequested',
-  'reasonsReceived',
-  'reasonsFailed'
-]);
+import reducer, { reasonsRequested, reasonsReceived, reasonsFailed } from 'modules/reasons';
 
 describe('reasons module', function() {
 
@@ -17,7 +13,7 @@ describe('reasons module', function() {
         isFetching: false,
         reasons: []
       };
-      const newState = reducer(initialState, actions.reasonsRequested());
+      const newState = reducer(initialState, reasonsRequested());
       expect(newState.isFetching).to.be.equal(true);
     });
 
@@ -29,7 +25,7 @@ describe('reasons module', function() {
       const payload = reasonsPayload;
       const reasonType = 'donkeyResons';
 
-      const newState = reducer(initialState, actions.reasonsReceived(payload, reasonType));
+      const newState = reducer(initialState, reasonsReceived(payload, reasonType));
       expect(newState.isFetching).to.be.equal(false);
       expect(newState.reasons[reasonType]).to.deep.equal(payload);
     });
@@ -41,7 +37,7 @@ describe('reasons module', function() {
       };
       const err = console.error;
       console.error = _.noop;
-      const newState = reducer(initialState, actions.reasonsFailed('error'));
+      const newState = reducer(initialState, reasonsFailed('error'));
       expect(newState.isFetching).to.be.equal(false);
       console.error = err;
     });

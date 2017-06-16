@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import { addResizeListener, removeResizeListener } from 'lib/resize';
 
 // components
-import { Link, IndexLink } from '../link';
+import { Link, IndexLink } from 'components/link';
 import NavDropdown from './nav-dropdown';
 
 // styles

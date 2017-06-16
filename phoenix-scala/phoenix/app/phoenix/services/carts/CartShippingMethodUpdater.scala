@@ -11,7 +11,7 @@ import phoenix.services.{CartValidator, LogActivity, ShippingManager}
 import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
-import utils.db._
+import core.db._
 
 object CartShippingMethodUpdater {
 
@@ -34,9 +34,9 @@ object CartShippingMethodUpdater {
            .update(None)
       _ ← * <~ OrderShippingMethods.findByOrderRef(cart.refNum).delete
       orderShipMethod ← * <~ OrderShippingMethods.create(
-                           OrderShippingMethod(cordRef = cart.refNum,
-                                               shippingMethodId = shippingMethod.id,
-                                               price = shippingMethod.price))
+                         OrderShippingMethod(cordRef = cart.refNum,
+                                             shippingMethodId = shippingMethod.id,
+                                             price = shippingMethod.price))
       _ ← * <~ Shipments
            .filter(_.cordRef === cart.refNum)
            .map(_.orderShippingMethodId)

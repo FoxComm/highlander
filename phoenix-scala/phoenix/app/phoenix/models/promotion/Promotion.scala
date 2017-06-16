@@ -2,16 +2,16 @@ package phoenix.models.promotion
 
 import java.time.Instant
 
+import com.github.tminglei.slickpg._
 import com.pellucid.sealerate
-import models.objects._
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.utils.Validation
+import objectframework.models._
+import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.Validation
-import utils.db.ExPostgresDriver.api._
-import utils.db._
-import com.github.tminglei.slickpg._
-import phoenix.utils.ADT
 
 object Promotion {
   val kind = "promotion"

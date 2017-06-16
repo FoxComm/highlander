@@ -5,7 +5,9 @@ import java.time.Instant
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
-import failures.Failures
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.failures.Failures
 import phoenix.failures.CustomerGroupFailures.CustomerGroupTypeIsWrong
 import phoenix.models.customer.CustomerGroup._
 import phoenix.payloads.CustomerGroupPayloads.CustomerGroupPayload
@@ -15,8 +17,6 @@ import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.lifted.Tag
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class CustomerGroup(id: Int = 0,
                          scope: LTree,
@@ -31,19 +31,15 @@ case class CustomerGroup(id: Int = 0,
                          deletedAt: Option[Instant] = None)
     extends FoxModel[CustomerGroup] {
 
-  def mustBeOfType(expected: GroupType): Either[Failures, CustomerGroup] = {
+  def mustBeOfType(expected: GroupType): Either[Failures, CustomerGroup] =
     if (groupType == expected) Either.right(this)
     else Either.left(CustomerGroupTypeIsWrong(id, groupType, Set(expected)).single)
-  }
 
-  def mustNotBeOfType(expectedNot: GroupType): Either[Failures, CustomerGroup] = {
+  def mustNotBeOfType(expectedNot: GroupType): Either[Failures, CustomerGroup] =
     if (groupType != expectedNot) Either.right(this)
     else
       Either.left(
-          CustomerGroupTypeIsWrong(id,
-                                   groupType,
-                                   CustomerGroup.types.filterNot(_ == expectedNot).toSet).single)
-  }
+        CustomerGroupTypeIsWrong(id, groupType, CustomerGroup.types.filterNot(_ == expectedNot).toSet).single)
 
 }
 
@@ -64,14 +60,16 @@ object CustomerGroup {
     GroupType.slickColumn
 
   def fromPayloadAndAdmin(p: CustomerGroupPayload, adminId: Int, scope: LTree): CustomerGroup =
-    CustomerGroup(id = 0,
-                  scope = scope,
-                  createdBy = adminId,
-                  name = p.name,
-                  customersCount = p.customersCount,
-                  clientState = p.clientState,
-                  elasticRequest = p.elasticRequest,
-                  groupType = p.groupType)
+    CustomerGroup(
+      id = 0,
+      scope = scope,
+      createdBy = adminId,
+      name = p.name,
+      customersCount = p.customersCount,
+      clientState = p.clientState,
+      elasticRequest = p.elasticRequest,
+      groupType = p.groupType
+    )
 }
 
 class CustomerGroups(tag: Tag) extends FoxTable[CustomerGroup](tag, "customer_groups") {

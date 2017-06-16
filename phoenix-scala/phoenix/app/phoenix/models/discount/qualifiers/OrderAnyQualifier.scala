@@ -1,9 +1,9 @@
 package phoenix.models.discount.qualifiers
 
+import core.db._
 import phoenix.models.discount.DiscountInput
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
-import utils.db._
 
 case object OrderAnyQualifier extends Qualifier {
 

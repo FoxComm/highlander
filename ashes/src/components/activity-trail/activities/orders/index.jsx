@@ -18,7 +18,7 @@ const representatives = {
       return (
         <Title activity={activity}>
           <strong>changed the order state</strong> to {cord.stateTitle}
-          &nbsp;on <CordTarget cord={cord}/>
+          &nbsp;on <CordTarget cord={cord} />
         </Title>
       );
     },
@@ -36,7 +36,7 @@ const representatives = {
       const cart = { ...data.cart, isCart: true};
       return (
         <Title activity={activity}>
-          <strong>created new</strong> <CordTarget cord={cart}/>
+          <strong>created new</strong> <CordTarget cord={cart} />
         </Title>
       );
     },
@@ -60,7 +60,7 @@ const representatives = {
 
       return (
         <Title activity={activity}>
-          <strong>increased remorse period</strong> for <CordTarget cord={cord}/>
+          <strong>increased remorse period</strong> for <CordTarget cord={cord} />
         </Title>
       );
     }

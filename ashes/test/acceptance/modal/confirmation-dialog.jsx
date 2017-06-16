@@ -14,7 +14,7 @@ describe('ConfirmationDialog', function() {
 
   it('should not render if isVisible is falsy', function *() {
     const { container } = yield renderIntoDocument(
-      <div><ConfirmationDialog {...defaultProps} isVisible={false}/></div>
+      <div><ConfirmationDialog {...defaultProps} isVisible={false} /></div>
     );
 
     expect(container.querySelector('.fc-modal')).to.be.null;
@@ -23,7 +23,7 @@ describe('ConfirmationDialog', function() {
 
   it('should render if isVisible is truly', function *() {
     const { container } = yield renderIntoDocument(
-      <div><ConfirmationDialog {...defaultProps} isVisible={true}/></div>
+      <div><ConfirmationDialog {...defaultProps} isVisible={true} /></div>
     );
 
     expect(container.querySelector('.fc-modal')).to.be.ok;

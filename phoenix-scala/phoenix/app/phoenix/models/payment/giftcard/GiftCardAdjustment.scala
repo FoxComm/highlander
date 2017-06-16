@@ -2,22 +2,23 @@ package phoenix.models.payment.giftcard
 
 import java.time.Instant
 
-import failures.Failures
+import core.db._
+import core.failures.Failures
 import phoenix.models.cord.OrderPayment
 import phoenix.models.payment.InStorePaymentStates._
 import phoenix.models.payment._
 import phoenix.utils.FSM
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.utils.Money._
 
 case class GiftCardAdjustment(id: Int = 0,
                               giftCardId: Int,
                               orderPaymentId: Option[Int],
                               storeAdminId: Option[Int] = None,
-                              credit: Int,
-                              debit: Int,
-                              availableBalance: Int,
+                              credit: Long,
+                              debit: Long,
+                              availableBalance: Long,
                               state: State = Auth,
                               createdAt: Instant = Instant.now())
     extends FoxModel[GiftCardAdjustment]
@@ -28,10 +29,10 @@ case class GiftCardAdjustment(id: Int = 0,
   override def updateTo(newModel: GiftCardAdjustment): Either[Failures, GiftCardAdjustment] =
     super.transitionModel(newModel)
 
-  def getAmount: Int = if (credit > 0) credit else -debit
+  def getAmount: Long = if (credit > 0) credit else -debit
 
   val fsm: Map[State, Set[State]] = Map(
-      Auth → Set(Canceled, Capture)
+    Auth → Set(Canceled, Capture)
   )
 }
 
@@ -49,23 +50,15 @@ class GiftCardAdjustments(tag: Tag)
     extends InStorePaymentAdjustmentTable[GiftCardAdjustment](tag, "gift_card_adjustments") {
 
   def giftCardId = column[Int]("gift_card_id")
-  def credit     = column[Int]("credit")
+  def credit     = column[Long]("credit")
 
   def * =
-    (id,
-     giftCardId,
-     orderPaymentId,
-     storeAdminId,
-     credit,
-     debit,
-     availableBalance,
-     state,
-     createdAt) <> ((GiftCardAdjustment.apply _).tupled, GiftCardAdjustment.unapply)
+    (id, giftCardId, orderPaymentId, storeAdminId, credit, debit, availableBalance, state, createdAt) <> ((GiftCardAdjustment.apply _).tupled, GiftCardAdjustment.unapply)
 }
 
 object GiftCardAdjustments
     extends InStorePaymentAdjustmentQueries[GiftCardAdjustment, GiftCardAdjustments](
-        new GiftCardAdjustments(_))
+      new GiftCardAdjustments(_))
     with ReturningId[GiftCardAdjustment, GiftCardAdjustments] {
 
   val returningLens: Lens[GiftCardAdjustment, Int] = lens[GiftCardAdjustment].id

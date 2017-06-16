@@ -12,6 +12,7 @@
     - mesos_master
     - mesos_worker
     - marathon
+    - mesos_consul
     - elasticsearch
     - elasticsearch_5
     - kibana
@@ -21,9 +22,9 @@
     - materialized_views
     - pgweb
 
-- name: Enable Marketplace Services
-  service: name=bottledwater_marketplace enabled=yes
-  when: with_marketplace
+- name: Enable Onboarding Services
+  service: name=bottledwater_onboarding enabled=yes
+  when: with_onboarding
 
 - name: Reload Systemd Daemon
   command: systemctl daemon-reload

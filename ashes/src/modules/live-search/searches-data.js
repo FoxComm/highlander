@@ -7,6 +7,7 @@ import { toQuery, addNativeFilters } from '../../elastic/common';
 
 import makePagination, { makeFetchAction, makeRefreshAction } from '../pagination/base';
 import { addPaginationParams } from '../pagination';
+import { saveRawQuery } from 'modules/bulk-export/bulk-export';
 
 // module is responsible for data in search tab
 
@@ -41,7 +42,7 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
   const { reducer, ...actions } = makePagination(namespace, null, null, initialState);
 
   function fetcher() {
-    const { searchState, getState } = this;
+    const { searchState, getState, dispatch } = this;
 
     const fetchingSearchIdx = _.get(getState(), [...ns, 'selectedSearch']);
     const selectedSearchState = getSelectedSearch(getState());
@@ -55,6 +56,8 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
     if (nativeFilters) {
       addNativeFilters(jsonQuery, nativeFilters);
     }
+
+    dispatch(saveRawQuery(jsonQuery));
 
     const promise = post(addPaginationParams(esUrl, searchState), processQuery(jsonQuery, { searchState, getState }))
       .then(response => {

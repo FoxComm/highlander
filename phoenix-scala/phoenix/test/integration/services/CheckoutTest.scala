@@ -3,9 +3,9 @@ package services
 import java.util.concurrent.atomic.AtomicBoolean
 
 import cats.implicits._
-import failures.GeneralFailure
+import core.failures.GeneralFailure
 import faker.Lorem
-import models.objects.ObjectContexts
+import objectframework.models.ObjectContexts
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalacheck.Prop.BooleanOperators
@@ -21,14 +21,16 @@ import phoenix.models.payment.storecredit._
 import phoenix.models.product.{Mvp, SimpleContext}
 import phoenix.models.shipping.ShippingMethods
 import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
-import phoenix.services.{CartValidation, CartValidatorResponse, Checkout, LineItemUpdater}
+import phoenix.services.{CartValidation, CartValidatorResponse, Checkout}
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
+import core.utils.Money._
+import phoenix.services.carts.CartLineItemUpdater
 
 import scala.concurrent.Future
 
@@ -38,9 +40,6 @@ class CheckoutTest
     with TestObjectContext
     with TestActivityContext.AdminAC
     with BakedFixtures {
-
-  // TODO remove this @anna
-  implicit val apis: Apis = apisOverride.value
 
   def cartValidator(resp: CartValidatorResponse = CartValidatorResponse()): CartValidation = {
     val m = mock[CartValidation]
@@ -98,15 +97,13 @@ class CheckoutTest
           Factories.giftCardPayment.copy(cordRef = cart.refNum, amount = gcAmount.some)
 
         val adjustments = (for {
-          ids ← * <~ generateGiftCards(List.fill(3)(gcAmount))
-          _ ← * <~ OrderPayments.createAllReturningIds(
-                 ids.map(id ⇒ gcPayment.copy(paymentMethodId = id)))
+          ids         ← * <~ generateGiftCards(List.fill(3)(gcAmount))
+          _           ← * <~ OrderPayments.createAllReturningIds(ids.map(id ⇒ gcPayment.copy(paymentMethodId = id)))
           _           ← * <~ Checkout(cart, cartValidator()).checkout
           adjustments ← * <~ GiftCardAdjustments.filter(_.giftCardId.inSet(ids)).result
         } yield adjustments).gimme
 
-        adjustments.map(_.state).toSet must === (
-            Set[InStorePaymentStates.State](InStorePaymentStates.Auth))
+        adjustments.map(_.state).toSet must === (Set[InStorePaymentStates.State](InStorePaymentStates.Auth))
         adjustments.map(_.debit) must === (List(gcAmount, cart.grandTotal - gcAmount))
       }
 
@@ -116,15 +113,13 @@ class CheckoutTest
           Factories.storeCreditPayment.copy(cordRef = cart.refNum, amount = scAmount.some)
 
         val adjustments = (for {
-          ids ← * <~ generateStoreCredits(List.fill(3)(scAmount))
-          _ ← * <~ OrderPayments.createAllReturningIds(
-                 ids.map(id ⇒ scPayment.copy(paymentMethodId = id)))
+          ids         ← * <~ generateStoreCredits(List.fill(3)(scAmount))
+          _           ← * <~ OrderPayments.createAllReturningIds(ids.map(id ⇒ scPayment.copy(paymentMethodId = id)))
           _           ← * <~ Checkout(cart, cartValidator()).checkout
           adjustments ← * <~ StoreCreditAdjustments.filter(_.storeCreditId.inSet(ids)).result
         } yield adjustments).gimme
 
-        adjustments.map(_.state).toSet must === (
-            Set[InStorePaymentStates.State](InStorePaymentStates.Auth))
+        adjustments.map(_.state).toSet must === (Set[InStorePaymentStates.State](InStorePaymentStates.Auth))
         adjustments.map(_.debit) must === (List(scAmount, cart.grandTotal - scAmount))
       }
     }
@@ -133,10 +128,10 @@ class CheckoutTest
     "GC/SC payments limited by grand total" in new PaymentFixture {
       pending
 
-      val paymentAmountGen = Gen.choose(1, 2000)
-      val cartTotalGen     = Gen.choose(500, 1000)
+      val paymentAmountGen = Gen.choose(1L, 2000L)
+      val cartTotalGen     = Gen.choose(500L, 1000L)
 
-      case class CardPayment(cardAmount: Int, payAmount: Int)
+      case class CardPayment(cardAmount: Long, payAmount: Long)
 
       val cardWithPaymentGen = for {
         payment ← paymentAmountGen
@@ -156,11 +151,11 @@ class CheckoutTest
         if (gc.map(_.payAmount).sum + sc.map(_.payAmount).sum) >= grandTotal
       } yield (gc, sc, grandTotal)
 
-      def genGCPayment(cordRef: String, id: Int, amount: Int) =
+      def genGCPayment(cordRef: String, id: Int, amount: Long) =
         Factories.giftCardPayment
           .copy(cordRef = cordRef, paymentMethodId = id, amount = amount.some)
 
-      def genSCPayment(cordRef: String, id: Int, amount: Int) =
+      def genSCPayment(cordRef: String, id: Int, amount: Long) =
         Factories.storeCreditPayment
           .copy(cordRef = cordRef, paymentMethodId = id, amount = amount.some)
 
@@ -174,16 +169,14 @@ class CheckoutTest
 
             cart ← * <~ Carts.create(Cart(accountId = customer.accountId, scope = Scope.current))
 
-            _ ← * <~ LineItemUpdater.updateQuantitiesOnCart(storeAdmin,
-                                                            cart.refNum,
-                                                            lineItemPayload(total))
+            _ ← * <~ CartLineItemUpdater.updateQuantitiesOnCart(storeAdmin,
+                                                                cart.refNum,
+                                                                lineItemPayload(total))
 
             c ← * <~ Carts.refresh(cart)
 
-            _ ← * <~ OrderShippingMethods.create(
-                   OrderShippingMethod.build(cart.refNum, shipMethod))
-            _ ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                            cordRef = cart.refNum)
+            _ ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(cart.refNum, shipMethod))
+            _ ← * <~ OrderShippingAddresses.copyFromAddress(address = address, cordRef = cart.refNum)
 
             gcIds ← * <~ generateGiftCards(gcData.map(_.cardAmount))
             scIds ← * <~ generateStoreCredits(scData.map(_.cardAmount))
@@ -222,34 +215,33 @@ class CheckoutTest
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
     } yield (reason, shipMethod)).gimme
 
-    def lineItemPayload(cost: Int) = {
+    def lineItemPayload(cost: Long) = {
       val sku = (for {
         productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
         product ← * <~ Mvp.insertProduct(
-                     productCtx.id,
-                     Factories.products.head.copy(price = cost, code = Lorem.letterify("?????")))
+                   productCtx.id,
+                   Factories.products.head.copy(price = cost, code = Lorem.letterify("?????")))
         sku ← * <~ Skus.mustFindById404(product.skuId)
       } yield sku).gimme
       Seq(UpdateLineItemsPayload(sku.code, 1))
     }
 
-    def generateGiftCards(amount: Seq[Int]) =
+    def generateGiftCards(amount: Seq[Long]) =
       for {
         origin ← * <~ GiftCardManuals.create(
-                    GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
+                  GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
         ids ← * <~ GiftCards.createAllReturningIds(amount.map(gcAmount ⇒
-                       Factories.giftCard.copy(originalBalance = gcAmount, originId = origin.id)))
+               Factories.giftCard.copy(originalBalance = gcAmount, originId = origin.id)))
       } yield ids
 
-    def generateStoreCredits(amount: Seq[Int]) =
+    def generateStoreCredits(amount: Seq[Long]) =
       for {
         origin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
+                  StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
         ids ← * <~ StoreCredits.createAllReturningIds(
-                 amount.map(scAmount ⇒
-                       Factories.storeCredit.copy(originalBalance = scAmount,
-                                                  originId = origin.id,
-                                                  accountId = customer.accountId)))
+               amount.map(scAmount ⇒
+                 Factories.storeCredit
+                   .copy(originalBalance = scAmount, originId = origin.id, accountId = customer.accountId)))
       } yield ids
   }
 

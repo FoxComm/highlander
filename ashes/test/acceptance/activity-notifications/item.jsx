@@ -2,7 +2,6 @@
 import _ from 'lodash';
 
 import React from 'react';
-import * as ShallowTestUtils from 'react-shallow-testutils';
 
 import activities from '../../fixtures/activity-notifications';
 

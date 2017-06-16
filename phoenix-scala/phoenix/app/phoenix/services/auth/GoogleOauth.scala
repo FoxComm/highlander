@@ -12,7 +12,7 @@ import phoenix.services.account._
 import phoenix.services.customers.CustomerManager
 import phoenix.utils.FoxConfig
 import phoenix.utils.aliases._
-import utils.db._
+import core.db._
 
 class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB, ac: AC)
     extends Oauth(options)
@@ -20,9 +20,8 @@ class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB, ac: 
     with GoogleProvider {
 
   def createCustomerByUserInfo(userInfo: UserInfo): DbResultT[User] = {
-    val context = AccountCreateContext(roles = List(options.roleName),
-                                       org = options.orgName,
-                                       scopeId = options.scopeId)
+    val context =
+      AccountCreateContext(roles = List(options.roleName), org = options.orgName, scopeId = options.scopeId)
 
     val payload = CreateCustomerPayload(email = userInfo.email, name = userInfo.name.some)
 
@@ -72,9 +71,8 @@ class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB, ac: 
       scope ← * <~ scopeDomainOpt.map { scopeDomain ⇒
                Scopes.mustFindById404(scopeDomain.scopeId)
              }
-      claims ← * <~ AccountManager.getClaims(account.id,
-                                             scope.map(_.id).getOrElse(options.scopeId))
-      token ← * <~ UserToken.fromUserAccount(user, account, claims)
+      claims ← * <~ AccountManager.getClaims(account.id, scope.map(_.id).getOrElse(options.scopeId))
+      token  ← * <~ UserToken.fromUserAccount(user, account, claims)
     } yield token
 
   def findAccount(user: User): DbResultT[Account] = Accounts.mustFindById404(user.accountId)
@@ -84,13 +82,15 @@ object GoogleOauth {
 
   def oauthServiceFromConfig(configUser: FoxConfig.User)(implicit ec: EC, db: DB, ac: AC) = {
 
-    val opts = GoogleOauthOptions(roleName = configUser.role,
-                                  orgName = configUser.org,
-                                  scopeId = configUser.scopeId,
-                                  clientId = configUser.oauth.google.clientId,
-                                  clientSecret = configUser.oauth.google.clientSecret,
-                                  redirectUri = configUser.oauth.google.redirectUri,
-                                  hostedDomain = configUser.oauth.google.hostedDomain)
+    val opts = GoogleOauthOptions(
+      roleName = configUser.role,
+      orgName = configUser.org,
+      scopeId = configUser.scopeId,
+      clientId = configUser.oauth.google.clientId,
+      clientSecret = configUser.oauth.google.clientSecret,
+      redirectUri = configUser.oauth.google.redirectUri,
+      hostedDomain = configUser.oauth.google.hostedDomain
+    )
 
     new GoogleOauthUser(opts)
   }

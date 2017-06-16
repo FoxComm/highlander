@@ -1,11 +1,10 @@
 package phoenix.models.payment.giftcard
 
+import core.db._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
-case class GiftCardManual(id: Int = 0, adminId: Int, reasonId: Int)
-    extends FoxModel[GiftCardManual]
+case class GiftCardManual(id: Int = 0, adminId: Int, reasonId: Int) extends FoxModel[GiftCardManual]
 
 object GiftCardManual {}
 

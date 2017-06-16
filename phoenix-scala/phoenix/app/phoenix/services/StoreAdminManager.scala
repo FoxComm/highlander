@@ -1,30 +1,28 @@
 package phoenix.services
 
 import cats.implicits._
-import failures.NotFoundFailure404
+import core.db._
+import core.failures.NotFoundFailure404
 import phoenix.failures.UserFailures._
 import phoenix.models.account._
 import phoenix.models.admin.{AdminData, AdminsData}
+import phoenix.models.customer._
 import phoenix.payloads.StoreAdminPayloads._
-import phoenix.responses.StoreAdminResponse
+import phoenix.responses.users.StoreAdminResponse
 import phoenix.services.account._
-import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
-import utils.db._
+import slick.jdbc.PostgresProfile.api._
 
 object StoreAdminManager {
 
-  def getById(accountId: Int)(implicit ec: EC, db: DB): DbResultT[StoreAdminResponse.Root] =
+  def getById(accountId: Int)(implicit ec: EC, db: DB): DbResultT[StoreAdminResponse] =
     for {
       admin     ← * <~ Users.mustFindByAccountId(accountId)
       adminData ← * <~ AdminsData.mustFindByAccountId(accountId)
     } yield StoreAdminResponse.build(admin, adminData)
 
-  def create(payload: CreateStoreAdminPayload, author: Option[User])(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[StoreAdminResponse.Root] = {
-
+  def create(payload: CreateStoreAdminPayload,
+             author: Option[User])(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreAdminResponse] =
     for {
       organization ← * <~ Organizations
                       .findByName(payload.org)
@@ -39,18 +37,19 @@ object StoreAdminManager {
       organizationScope ← * <~ Scopes.mustFindById400(organization.scopeId)
       scope             ← * <~ Scope.overwrite(organizationScope.path, payload.scope)
       adminUser ← * <~ AdminsData.create(
-                     AdminData(accountId = admin.accountId,
-                               userId = admin.id,
-                               state = AdminData.Invited,
-                               scope = scope))
+                   AdminData(accountId = admin.accountId,
+                             userId = admin.id,
+                             state = AdminData.Invited,
+                             scope = scope))
+      _ ← * <~ CustomersData.create(
+           CustomerData(accountId = admin.accountId, userId = admin.id, isGuest = false, scope = scope))
 
       _ ← * <~ LogActivity().storeAdminCreated(admin, author)
     } yield StoreAdminResponse.build(admin, adminUser)
-  }
 
   def update(accountId: Int,
              payload: UpdateStoreAdminPayload,
-             author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreAdminResponse.Root] =
+             author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreAdminResponse] =
     for {
       admin ← * <~ Users.mustFindByAccountId(accountId)
       _     ← * <~ Users.updateEmailMustBeUnique(payload.email.some, accountId)
@@ -67,6 +66,9 @@ object StoreAdminManager {
       adminUser ← * <~ AdminsData.mustFindByAccountId(accountId)
       _ ← * <~ AdminsData
            .deleteById(adminUser.id, DbResultT.unit, i ⇒ NotFoundFailure404(AdminData, i))
+      customersData ← * <~ CustomersData.mustFindByAccountId(accountId)
+      _ ← * <~ CustomersData
+           .deleteById(customersData.id, DbResultT.unit, NotFoundFailure404(CustomersData, _))
       admin  ← * <~ Users.mustFindByAccountId(accountId)
       result ← * <~ Users.deleteById(admin.id, DbResultT.unit, i ⇒ NotFoundFailure404(User, i))
       _      ← * <~ AccountAccessMethods.findByAccountId(accountId).delete
@@ -76,10 +78,9 @@ object StoreAdminManager {
       _      ← * <~ LogActivity().storeAdminDeleted(admin, author)
     } yield result
 
-  def changeState(id: Int, payload: StateChangeStoreAdminPayload, author: User)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[StoreAdminResponse.Root] =
+  def changeState(id: Int,
+                  payload: StateChangeStoreAdminPayload,
+                  author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreAdminResponse] =
     for {
       admin     ← * <~ Users.mustFindByAccountId(id)
       adminUser ← * <~ AdminsData.mustFindByAccountId(id)

@@ -1,6 +1,8 @@
 package phoenix.utils.seeds
 
-import models.objects._
+import core.db._
+import objectframework.ObjectUtils
+import objectframework.models._
 import org.json4s.Formats
 import phoenix.models.account._
 import phoenix.models.objects.{PromotionDiscountLink, PromotionDiscountLinks}
@@ -10,7 +12,6 @@ import phoenix.models.promotion.{Promotion, Promotions}
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import phoenix.utils.seeds.DiscountSeeds.{CreateDiscountForm, CreateDiscountShadow}
-import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -38,9 +39,8 @@ trait PromotionSeeds {
 
   import PromotionSeeds._
 
-  def createCouponPromotions(discounts: Seq[BaseDiscount])(implicit db: DB,
-                                                           ac: AC,
-                                                           au: AU): DbResultT[Seq[BasePromotion]] =
+  def createCouponPromotions(
+      discounts: Seq[BaseDiscount])(implicit db: DB, ac: AC, au: AU): DbResultT[Seq[BasePromotion]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       results ← * <~ discounts.map { discount ⇒
@@ -49,34 +49,33 @@ trait PromotionSeeds {
                }
     } yield results
 
-  def insertPromotion(payload: CreatePromotion, discount: BaseDiscount, context: ObjectContext)(
-      implicit db: DB,
-      ac: AC,
-      au: AU): DbResultT[BasePromotion] =
+  def insertPromotion(payload: CreatePromotion,
+                      discount: BaseDiscount,
+                      context: ObjectContext)(implicit db: DB, ac: AC, au: AU): DbResultT[BasePromotion] =
     for {
       scope  ← * <~ Scope.resolveOverride(payload.scope)
       form   ← * <~ ObjectForm(kind = Promotion.kind, attributes = payload.form.attributes)
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       ins    ← * <~ ObjectUtils.insert(form, shadow, None)
       promotion ← * <~ Promotions.create(
-                     Promotion(scope = scope,
-                               contextId = context.id,
-                               applyType = payload.applyType,
-                               formId = ins.form.id,
-                               shadowId = ins.shadow.id,
-                               commitId = ins.commit.id))
+                   Promotion(scope = scope,
+                             contextId = context.id,
+                             applyType = payload.applyType,
+                             formId = ins.form.id,
+                             shadowId = ins.shadow.id,
+                             commitId = ins.commit.id))
       link ← * <~ PromotionDiscountLinks.create(
-                PromotionDiscountLink(leftId = promotion.id, rightId = discount.discountId))
-    } yield
-      BasePromotion(promotion.id, ins.form.id, ins.shadow.id, payload.applyType, discount.title)
+              PromotionDiscountLink(leftId = promotion.id, rightId = discount.discountId))
+    } yield BasePromotion(promotion.id, ins.form.id, ins.shadow.id, payload.applyType, discount.title)
 
   def createPromotion(name: String, applyType: Promotion.ApplyType): CreatePromotion = {
     val promotionForm   = BasePromotionForm(name, applyType)
     val promotionShadow = BasePromotionShadow(promotionForm)
 
     CreatePromotion(
-        applyType = applyType,
-        form = CreatePromotionForm(attributes = promotionForm.form, discounts = Seq.empty),
-        shadow = CreatePromotionShadow(attributes = promotionShadow.shadow, discounts = Seq.empty))
+      applyType = applyType,
+      form = CreatePromotionForm(attributes = promotionForm.form, discounts = Seq.empty),
+      shadow = CreatePromotionShadow(attributes = promotionShadow.shadow, discounts = Seq.empty)
+    )
   }
 }

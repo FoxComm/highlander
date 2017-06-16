@@ -5,8 +5,11 @@ import java.time.Instant
 import cats.data._
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
-import failures._
-import models.objects._
+import core.failures._
+import objectframework.ObjectResponses.ObjectContextResponse
+import objectframework.ObjectUtils
+import objectframework.models._
+import objectframework.services.ObjectManager
 import org.json4s.JsonDSL._
 import org.json4s._
 import phoenix.failures.ArchiveFailures._
@@ -34,11 +37,10 @@ import phoenix.services.variant.VariantManager
 import phoenix.services.variant.VariantManager._
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-import responses.ObjectResponses.ObjectContextResponse
-import services.objects.ObjectManager
 import slick.jdbc.PostgresProfile.api._
-import utils.Validation._
-import utils.db._
+import core.utils.Validation._
+import core.db._
+import phoenix.utils.apis.Apis
 
 object ProductManager extends LazyLogging {
 
@@ -49,7 +51,8 @@ object ProductManager extends LazyLogging {
       db: DB,
       ac: AC,
       oc: OC,
-      au: AU): DbResultT[ProductResponse.Root] = {
+      au: AU,
+      apis: Apis): DbResultT[ProductResponse.Root] = {
 
     val form            = ObjectForm.fromPayload(Product.kind, payload.attributes)
     val shadow          = ObjectShadow.fromPayload(payload.attributes)
@@ -62,12 +65,12 @@ object ProductManager extends LazyLogging {
       _     ← * <~ validateCreate(payload)
       ins   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       product ← * <~ Products.create(
-                   Product(scope = scope,
-                           slug = payload.slug,
-                           contextId = oc.id,
-                           formId = ins.form.id,
-                           shadowId = ins.shadow.id,
-                           commitId = ins.commit.id))
+                 Product(scope = scope,
+                         slug = payload.slug,
+                         contextId = oc.id,
+                         formId = ins.form.id,
+                         shadowId = ins.shadow.id,
+                         commitId = ins.commit.id))
 
       albums         ← * <~ findOrCreateAlbumsForProduct(product, albumPayloads)
       productSkus    ← * <~ findOrCreateSkusForProduct(product, payload.skus, !hasVariants)
@@ -76,11 +79,12 @@ object ProductManager extends LazyLogging {
       (variantSkus, variantResponses) = variantAndSkus
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(product)
       response = ProductResponse.build(
-          IlluminatedProduct.illuminate(oc, product, ins.form, ins.shadow),
-          albums.map(AlbumResponse.build),
-          if (hasVariants) variantSkus else productSkus,
-          variantResponses,
-          taxons)
+        IlluminatedProduct.illuminate(oc, product, ins.form, ins.shadow),
+        albums.map(AlbumResponse.build),
+        if (hasVariants) variantSkus else productSkus,
+        variantResponses,
+        taxons
+      )
       _ ← * <~ LogActivity()
            .withScope(scope)
            .fullProductCreated(Some(admin), response, ObjectContextResponse.build(oc))
@@ -88,34 +92,26 @@ object ProductManager extends LazyLogging {
 
   }
 
-  def getProduct(productId: ProductReference, checkActive: Boolean = false)(
-      implicit ec: EC,
-      db: DB,
-      oc: OC): DbResultT[ProductResponse.Root] =
+  def getProduct(productId: ProductReference,
+                 checkActive: Boolean)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] =
     for {
       oldProduct ← * <~ Products.mustFindFullByReference(productId)
       illuminated = IlluminatedProduct
         .illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow)
-      _ ← * <~ doOrMeh(checkActive, {
-           illuminated.mustBeActive match {
-             case Left(err) ⇒ {
-               logger.warn(err.toString)
-               DbResultT.failure(NotFoundFailure404(Product, oldProduct.model.slug))
+      _ ← * <~ doOrMeh(
+           checkActive, {
+             illuminated.mustBeActive match {
+               case Left(err) ⇒ {
+                 logger.warn(err.toString)
+                 DbResultT.failure(NotFoundFailure404(Product, oldProduct.model.slug))
+               }
+               case Right(_) ⇒ DbResultT.unit
              }
-             case Right(_) ⇒ DbResultT.unit
            }
-         })
+         )
       albums ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
 
-      fullSkus ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
-      _ ← * <~ failIf(
-             checkActive && fullSkus
-               .filter(sku ⇒ IlluminatedSku.illuminate(oc, sku).mustBeActive.isRight)
-               .isEmpty, {
-               logger.warn(
-                   s"Product variants for product with id=${oldProduct.model.slug} is archived or inactive")
-               NotFoundFailure404(Product, oldProduct.model.slug)
-             })
+      fullSkus    ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
       productSkus ← * <~ fullSkus.map(SkuManager.illuminateSku)
 
       variants     ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
@@ -125,21 +121,24 @@ object ProductManager extends LazyLogging {
 
       variantAndSkus ← * <~ getVariantsWithRelatedSkus(fullVariants)
       (variantSkus, variantResponses) = variantAndSkus
-
+      skus                            = if (hasVariants) variantSkus else productSkus
+      _ ← * <~ failIf(
+           checkActive && !skus.exists(_.isActive), {
+             logger.warn(
+               s"Product variants for product with id=${oldProduct.model.slug} is archived or inactive")
+             NotFoundFailure404(Product, oldProduct.model.slug)
+           }
+         )
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(oldProduct.model)
-    } yield
-      ProductResponse.build(illuminated,
-                            albums,
-                            if (hasVariants) variantSkus else productSkus,
-                            variantResponses,
-                            taxons)
+    } yield ProductResponse.build(illuminated, albums, skus, variantResponses, taxons)
 
   def updateProduct(productId: ProductReference, payload: UpdateProductPayload)(
       implicit ec: EC,
       db: DB,
       ac: AC,
       oc: OC,
-      au: AU): DbResultT[ProductResponse.Root] = {
+      au: AU,
+      apis: Apis): DbResultT[ProductResponse.Root] = {
 
     val formAndShadow = FormAndShadow.fromPayload(Product.kind, payload.attributes)
 
@@ -175,21 +174,19 @@ object ProductManager extends LazyLogging {
       (variantSkus, variantResponses) = variantAndSkus
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(oldProduct.model)
       response = ProductResponse.build(
-          IlluminatedProduct.illuminate(oc, updatedHead, updated.form, updated.shadow),
-          albums,
-          if (hasVariants) variantSkus else updatedSkus,
-          variantResponses,
-          taxons)
+        IlluminatedProduct.illuminate(oc, updatedHead, updated.form, updated.shadow),
+        albums,
+        if (hasVariants) variantSkus else updatedSkus,
+        variantResponses,
+        taxons)
       _ ← * <~ LogActivity()
            .fullProductUpdated(Some(au.model), response, ObjectContextResponse.build(oc))
     } yield response
 
   }
 
-  def archiveByContextAndId(productId: ProductReference)(
-      implicit ec: EC,
-      db: DB,
-      oc: OC): DbResultT[ProductResponse.Root] = {
+  def archiveByContextAndId(
+      productId: ProductReference)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] = {
     val payload = Map("activeFrom" → (("v" → JNull) ~ ("t" → JString("datetime"))),
                       "activeTo" → (("v" → JNull) ~ ("t" → JString("datetime"))))
 
@@ -208,15 +205,17 @@ object ProductManager extends LazyLogging {
       commit      ← * <~ ObjectUtils.commit(inactive)
       updatedHead ← * <~ updateHead(productObject.model, inactive.shadow, commit, None)
 
-      archiveResult ← * <~ Products.update(updatedHead,
-                                           updatedHead.copy(archivedAt = Some(Instant.now)))
+      archiveResult ← * <~ Products.update(updatedHead, updatedHead.copy(archivedAt = Some(Instant.now)))
 
-      _               ← * <~ ProductAlbumLinks.filter(_.leftId === archiveResult.id).delete
+      albumLinks      ← * <~ ProductAlbumLinks.filterLeft(archiveResult).result
+      _               ← * <~ albumLinks.map(l ⇒ ProductAlbumLinks.update(l, l.copy(archivedAt = Some(Instant.now))))
       albums          ← * <~ ImageManager.getAlbumsForProduct(ProductReference(inactive.form.id))
-      _               ← * <~ ProductSkuLinks.filter(_.leftId === archiveResult.id).delete
+      skuLinks        ← * <~ ProductSkuLinks.filterLeft(archiveResult).result
+      _               ← * <~ skuLinks.map(l ⇒ ProductSkuLinks.update(l, l.copy(archivedAt = Some(Instant.now))))
       updatedSkus     ← * <~ ProductSkuLinks.queryRightByLeft(archiveResult)
       skus            ← * <~ updatedSkus.map(SkuManager.illuminateSku)
-      variantLinksNum ← * <~ ProductVariantLinks.filter(_.leftId === archiveResult.id).delete
+      variantLinks    ← * <~ ProductVariantLinks.filterLeft(archiveResult).result
+      _               ← * <~ variantLinks.map(l ⇒ ProductVariantLinks.update(l, l.copy(archivedAt = Some(Instant.now))))
       updatedVariants ← * <~ ProductVariantLinks.queryRightByLeft(archiveResult)
       variants        ← * <~ updatedVariants.map(VariantManager.zipVariantWithValues)
       variantAndSkus  ← * <~ getVariantsWithRelatedSkus(variants)
@@ -224,12 +223,11 @@ object ProductManager extends LazyLogging {
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(productObject.model)
     } yield
       ProductResponse.build(
-          product =
-            IlluminatedProduct.illuminate(oc, archiveResult, inactive.form, inactive.shadow),
-          albums = albums,
-          if (variantLinksNum > 0) variantSkus else skus,
-          variantResponses,
-          taxons
+        product = IlluminatedProduct.illuminate(oc, archiveResult, inactive.form, inactive.shadow),
+        albums = albums,
+        if (variantLinks.length > 0) variantSkus else skus,
+        variantResponses,
+        taxons
       )
   }
 
@@ -237,7 +235,8 @@ object ProductManager extends LazyLogging {
       implicit ec: EC,
       db: DB,
       oc: OC): DbResultT[(Seq[SkuResponse.Root], Seq[IlluminatedVariantResponse.Root])] = {
-    val variantValueIds = variants.flatMap { case (_, variantValue) ⇒ variantValue }
+    val variantValueIds = variants
+      .flatMap { case (_, variantValue) ⇒ variantValue }
       .map(_.model.id)
     for {
       variantValueSkuCodes ← * <~ VariantManager.getVariantValueSkuCodes(variantValueIds)
@@ -251,38 +250,31 @@ object ProductManager extends LazyLogging {
     } yield (variantSkus, illuminated)
   }
 
-  private def validateCreate(
-      payload: CreateProductPayload): ValidatedNel[Failure, CreateProductPayload] = {
+  private def validateCreate(payload: CreateProductPayload): ValidatedNel[Failure, CreateProductPayload] = {
     val maxSkus = payload.variants
       .getOrElse(Seq.empty)
       .map(_.values.getOrElse(Seq.empty).length.max(1))
       .product
 
-    (notEmpty(payload.skus, "SKUs") |@| lesserThanOrEqual(payload.skus.length,
-                                                          maxSkus,
-                                                          "number of SKUs") |@|
-          validateSlug(payload.slug, true)).map {
+    (notEmpty(payload.skus, "SKUs") |@| lesserThanOrEqual(payload.skus.length, maxSkus, "number of SKUs") |@|
+      validateSlug(payload.slug, true)).map {
       case _ ⇒ payload
     }
   }
 
-  private def validateUpdate(
-      payload: UpdateProductPayload): ValidatedNel[Failure, UpdateProductPayload] =
+  private def validateUpdate(payload: UpdateProductPayload): ValidatedNel[Failure, UpdateProductPayload] =
     payload.slug.fold(ok)(value ⇒ validateSlug(value)).map { case _ ⇒ payload }
 
-  private def validateSlug(slug: String,
-                           forProductCreate: Boolean = false): ValidatedNel[Failure, Unit] = {
+  private def validateSlug(slug: String, forProductCreate: Boolean = false): ValidatedNel[Failure, Unit] =
     if (slug.isEmpty && forProductCreate || slug.exists(_.isLetter)) {
       ok
     } else {
       Validated.invalidNel(ProductFailures.SlugShouldHaveLetters(slug))
     }
-  }
 
   private def validateSkuMatchesVariants(
       skus: Seq[SkuResponse.Root],
-      variants: Seq[(FullObject[Variant], Seq[FullObject[VariantValue]])])
-    : ValidatedNel[Failure, Unit] = {
+      variants: Seq[(FullObject[Variant], Seq[FullObject[VariantValue]])]): ValidatedNel[Failure, Unit] = {
     val maxSkus = variants.map { case (_, values) ⇒ values.length.max(1) }.product
 
     lesserThanOrEqual(skus.length, maxSkus, "number of SKUs for given variants").map {
@@ -290,8 +282,7 @@ object ProductManager extends LazyLogging {
     }
   }
 
-  private def updateAssociatedVariants(product: Product,
-                                       variantsPayload: Option[Seq[VariantPayload]])(
+  private def updateAssociatedVariants(product: Product, variantsPayload: Option[Seq[VariantPayload]])(
       implicit ec: EC,
       db: DB,
       oc: OC,
@@ -329,8 +320,7 @@ object ProductManager extends LazyLogging {
       (product: Product) ⇒ newSlug.fold(product)(value ⇒ product.copy(slug = value))
     def withCommit =
       (product: Product) ⇒
-        maybeCommit.fold(product)(commit ⇒
-              product.copy(shadowId = shadow.id, commitId = commit.id))
+        maybeCommit.fold(product)(commit ⇒ product.copy(shadowId = shadow.id, commitId = commit.id))
 
     val newProduct = withNewSlug.andThen(withCommit)(product)
 
@@ -341,43 +331,43 @@ object ProductManager extends LazyLogging {
   private def findOrCreateSkusForProduct(
       product: Product,
       skuPayloads: Seq[SkuPayload],
-      createLinks: Boolean = true)(implicit ec: EC, db: DB, oc: OC, au: AU) =
+      createLinks: Boolean = true)(implicit ec: EC, db: DB, oc: OC, au: AU, apis: Apis) =
     skuPayloads.map { payload ⇒
       val albumPayloads = payload.albums.getOrElse(Seq.empty)
 
       for {
         code ← * <~ SkuManager.mustGetSkuCode(payload)
         sku  ← * <~ Skus.filterByContextAndCode(oc.id, code).one.dbresult
-        up ← * <~ sku.map { foundSku ⇒
-              if (foundSku.archivedAt.isEmpty) {
-                for {
-                  existingSku ← * <~ SkuManager.updateSkuInner(foundSku, payload)
-                  _           ← * <~ SkuManager.findOrCreateAlbumsForSku(existingSku.model, albumPayloads)
-                  _ ← * <~ ProductSkuLinks.syncLinks(product,
-                                                     if (createLinks) Seq(existingSku.model)
-                                                     else Seq.empty)
-                } yield existingSku
-              } else {
-                DbResultT.failure(LinkInactiveSkuFailure(Product, product.id, code))
+        up ← * <~ sku
+              .map { foundSku ⇒
+                if (foundSku.archivedAt.isEmpty) {
+                  for {
+                    existingSku ← * <~ SkuManager.updateSkuInner(foundSku, payload)
+                    _           ← * <~ SkuManager.findOrCreateAlbumsForSku(existingSku.model, albumPayloads)
+                    _ ← * <~ ProductSkuLinks.syncLinks(product,
+                                                       if (createLinks) Seq(existingSku.model)
+                                                       else Seq.empty)
+                  } yield existingSku
+                } else {
+                  DbResultT.failure(LinkInactiveSkuFailure(Product, product.id, code))
+                }
               }
-            }.getOrElse {
-              for {
-                newSku ← * <~ SkuManager.createSkuInner(oc, payload)
-                _      ← * <~ SkuManager.findOrCreateAlbumsForSku(newSku.model, albumPayloads)
-                _ ← * <~ ProductSkuLinks.syncLinks(product,
-                                                   if (createLinks) Seq(newSku.model)
-                                                   else Seq.empty)
-              } yield newSku
-            }
+              .getOrElse {
+                for {
+                  newSku ← * <~ SkuManager.createSkuInner(oc, payload)
+                  _      ← * <~ SkuManager.findOrCreateAlbumsForSku(newSku.model, albumPayloads)
+                  _ ← * <~ ProductSkuLinks.syncLinks(product,
+                                                     if (createLinks) Seq(newSku.model)
+                                                     else Seq.empty)
+                } yield newSku
+              }
         albums ← * <~ ImageManager.getAlbumsForSkuInner(code, oc)
       } yield SkuResponse.buildLite(IlluminatedSku.illuminate(oc, up), albums)
     }
 
-  private def findOrCreateVariantsForProduct(product: Product, payload: Seq[VariantPayload])(
-      implicit ec: EC,
-      db: DB,
-      oc: OC,
-      au: AU): DbResultT[Seq[FullVariant]] =
+  private def findOrCreateVariantsForProduct(
+      product: Product,
+      payload: Seq[VariantPayload])(implicit ec: EC, db: DB, oc: OC, au: AU): DbResultT[Seq[FullVariant]] =
     for {
       variants ← * <~ payload.map(VariantManager.updateOrCreateVariant(oc, _))
       _ ← * <~ ProductVariantLinks.syncLinks(product, variants.map {
@@ -397,9 +387,8 @@ object ProductManager extends LazyLogging {
          })
     } yield albums
 
-  def mustFindProductByContextAndFormId404(contextId: Int, formId: Int)(
-      implicit ec: EC,
-      db: DB): DbResultT[Product] =
+  def mustFindProductByContextAndFormId404(contextId: Int, formId: Int)(implicit ec: EC,
+                                                                        db: DB): DbResultT[Product] =
     Products
       .filter(_.contextId === contextId)
       .filter(_.formId === formId)
@@ -417,14 +406,13 @@ object ProductManager extends LazyLogging {
       productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[FullObject[Product]] =
     ObjectManager.getFullObject(mustFindProductByContextAndFormId404(oc.id, productId))
 
-  def mustFindFullProductById(productId: Int)(implicit ec: EC,
-                                              db: DB): DbResultT[FullObject[Product]] =
+  def mustFindFullProductById(productId: Int)(implicit ec: EC, db: DB): DbResultT[FullObject[Product]] =
     ObjectManager.getFullObject(Products.mustFindById404(productId))
 
   // This is an inefficient intensely quering method that does the trick
-  private def skusToBeUnassociatedMustNotBePresentInCarts(
-      productId: Int,
-      payloadSkus: Seq[SkuPayload])(implicit ec: EC, db: DB): DbResultT[Unit] =
+  private def skusToBeUnassociatedMustNotBePresentInCarts(productId: Int, payloadSkus: Seq[SkuPayload])(
+      implicit ec: EC,
+      db: DB): DbResultT[Unit] =
     for {
       skuIdsForProduct ← * <~ ProductSkuLinks.filter(_.leftId === productId).result.flatMap {
                           case links @ Seq(_) ⇒
@@ -448,10 +436,10 @@ object ProductManager extends LazyLogging {
       skuCodesFromPayload = payloadSkus.map(ps ⇒ SkuManager.getSkuCode(ps.attributes)).flatten
       skuCodesToBeGone    = skuCodesForProduct.diff(skuCodesFromPayload)
       _ ← * <~ (skuCodesToBeGone.map { codeToUnassociate ⇒
-               for {
-                 skuToUnassociate ← * <~ Skus.mustFindByCode(codeToUnassociate)
-                 _                ← * <~ skuToUnassociate.mustNotBePresentInCarts
-               } yield {}
-             })
+           for {
+             skuToUnassociate ← * <~ Skus.mustFindByCode(codeToUnassociate)
+             _                ← * <~ skuToUnassociate.mustNotBePresentInCarts
+           } yield {}
+         })
     } yield {}
 }

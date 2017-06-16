@@ -85,19 +85,19 @@ class OptionEntry extends Component {
           className="option-add-btn"
           onClick={() => this.editValue('new')}
           styleName="action-icon">
-          <i className="icon-add"/>
+          <i className="icon-add" />
         </a>
         <a
           className="fct-edit-btn__option"
           onClick={() => this.props.editOption(this.props.id)}
           styleName="action-icon">
-          <i className="icon-edit"/>
+          <i className="icon-edit" />
         </a>
         <a
           className="option-delete-btn"
           onClick={() => this.props.deleteOption(this.props.id)}
           styleName="action-icon">
-          <i className="icon-trash"/>
+          <i className="icon-trash" />
         </a>
       </div>
     );

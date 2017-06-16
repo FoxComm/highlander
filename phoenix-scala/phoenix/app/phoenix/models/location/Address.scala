@@ -3,15 +3,15 @@ package phoenix.models.location
 import java.time.Instant
 
 import cats.implicits._
-import failures.{Failures, NotFoundFailure404}
+import core.db._
+import core.failures.{Failures, NotFoundFailure404}
+import core.utils.Validation
 import phoenix.models.cord.OrderShippingAddress
 import phoenix.models.payment.creditcard.CreditCard
 import phoenix.models.traits.Addressable
 import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.Validation
-import utils.db._
 
 case class Address(id: Int = 0,
                    accountId: Int,
@@ -63,14 +63,16 @@ object Address {
             phoneNumber = osa.phoneNumber)
 
   def fromCreditCard(cc: CreditCard): Address =
-    Address(accountId = 0,
-            regionId = cc.address.regionId,
-            name = cc.address.name,
-            address1 = cc.address.address1,
-            address2 = cc.address.address2,
-            city = cc.address.city,
-            zip = cc.address.zip,
-            phoneNumber = cc.address.phoneNumber)
+    Address(
+      accountId = 0,
+      regionId = cc.address.regionId,
+      name = cc.address.name,
+      address1 = cc.address.address1,
+      address2 = cc.address.address2,
+      city = cc.address.city,
+      zip = cc.address.zip,
+      phoneNumber = cc.address.phoneNumber
+    )
 }
 
 class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses") {
@@ -87,17 +89,7 @@ class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses") {
   def deletedAt         = column[Option[Instant]]("deleted_at")
 
   def * =
-    (id,
-     accountId,
-     regionId,
-     name,
-     address1,
-     address2,
-     city,
-     zip,
-     isDefaultShipping,
-     phoneNumber,
-     deletedAt) <> ((Address.apply _).tupled, Address.unapply)
+    (id, accountId, regionId, name, address1, address2, city, zip, isDefaultShipping, phoneNumber, deletedAt) <> ((Address.apply _).tupled, Address.unapply)
 
   def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }

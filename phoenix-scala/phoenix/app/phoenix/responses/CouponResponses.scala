@@ -2,10 +2,10 @@ package phoenix.responses
 
 import java.time.Instant
 
-import models.objects._
+import objectframework.ObjectResponses.ObjectContextResponse
+import objectframework.models._
 import phoenix.models.coupon._
 import phoenix.utils.aliases._
-import responses.ObjectResponses.ObjectContextResponse
 
 object CouponResponses {
 
@@ -36,16 +36,15 @@ object CouponResponses {
         extends ResponseItem
 
     def build(coupon: IlluminatedCoupon, originalCoupon: Coupon): Root =
-      Root(id = coupon.id,
-           context = ObjectContextResponse.build(coupon.context),
-           attributes = coupon.attributes,
-           promotion = coupon.promotion,
-           archivedAt = originalCoupon.archivedAt)
+      Root(
+        id = coupon.id,
+        context = ObjectContextResponse.build(coupon.context),
+        attributes = coupon.attributes,
+        promotion = coupon.promotion,
+        archivedAt = originalCoupon.archivedAt
+      )
 
-    def build(context: ObjectContext,
-              coupon: Coupon,
-              form: ObjectForm,
-              shadow: ObjectShadow): Root =
+    def build(context: ObjectContext, coupon: Coupon, form: ObjectForm, shadow: ObjectShadow): Root =
       build(IlluminatedCoupon.illuminate(context, coupon, form, shadow), coupon)
 
   }

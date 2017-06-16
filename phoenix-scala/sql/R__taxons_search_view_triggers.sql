@@ -14,16 +14,43 @@ begin
       illuminate_text(f, s, 'activeTo')                                   as active_to,
       to_char(t.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')             as archived_at,
       to_char(t.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')              as created_at,
-      to_char(t.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')              as updated_at
+      to_char(t.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')              as updated_at,
+      coalesce(products.count,0)                                          as products_count
     from taxons as t
       inner join object_contexts as context on (t.context_id = context.id)
       inner join object_forms as f on (f.id = t.form_id)
       inner join object_shadows as s on (s.id = t.shadow_id)
+      left join (select count(left_id) as count, right_id as taxon_id
+                 from product_taxon_links where archived_at is null group by right_id) as products
+        on products.taxon_id = t.id
     where t.id = new.id;
   return null;
 end;
 $$ language plpgsql;
 
+create or replace function update_taxons_search_view_products_count_fn()
+  returns trigger as $$
+    declare taxon_ids integer [];
+  begin
+      if tg_op = 'DELETE'
+      then
+        taxon_ids = array_agg(old.right_id);
+      else
+        taxon_ids = array_agg(new.right_id);
+      end if;
+
+      update taxons_search_view
+      set
+        products_count = coalesce(products.count, 0)
+      from taxons as t
+        left join (select count(left_id) as count, right_id as taxon_id
+                    from product_taxon_links where archived_at is null group by right_id)
+          as products on products.taxon_id = t.id
+      where t.id = any(taxon_ids) and taxons_search_view.id = t.id;
+
+      return null;
+  end;
+$$ language plpgsql;
 
 create or replace function update_taxons_search_view_from_taxons_fn()
   returns trigger as $$
@@ -71,6 +98,12 @@ begin
   return null;
 end;
 $$ language plpgsql;
+
+drop trigger if exists update_taxons_search_view_products_count on product_taxon_links;
+create trigger update_taxons_search_view_products_count
+after insert or update or delete on product_taxon_links
+for each row
+execute procedure update_taxons_search_view_products_count_fn();
 
 drop trigger if exists insert_taxons_search_view_from_taxons on taxons;
 create trigger insert_taxons_search_view_from_taxons

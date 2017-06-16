@@ -4,7 +4,7 @@ import java.time.Instant
 
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.db._
 
 case class Organization(id: Int = 0,
                         name: String,
@@ -36,17 +36,14 @@ object Organizations
 
   val returningLens: Lens[Organization, Int] = lens[Organization].id
 
-  def findByName(name: String): DBIO[Option[Organization]] = {
+  def findByName(name: String): DBIO[Option[Organization]] =
     filter(_.name === name).one
-  }
 
-  def findByScopeId(scopeId: Int): DBIO[Option[Organization]] = {
+  def findByScopeId(scopeId: Int): DBIO[Option[Organization]] =
     filter(_.scopeId === scopeId).one
-  }
 
-  def findByNameInScope(name: String, scopeId: Int): DBIO[Option[Organization]] = {
+  def findByNameInScope(name: String, scopeId: Int): DBIO[Option[Organization]] =
     filter(_.name === name).filter(_.scopeId === scopeId).one
-  }
 
   def filterByIdAndScope(id: Int, scopeId: Int): QuerySeq =
     filter(_.id === id).filter(_.scopeId === scopeId)

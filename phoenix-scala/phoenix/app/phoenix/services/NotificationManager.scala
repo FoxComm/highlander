@@ -1,24 +1,20 @@
 package phoenix.services
 
-import de.heikoseeberger.akkasse.{ServerSentEvent ⇒ SSE}
-import failures._
-import phoenix.models.{Notification, Notifications}
-import phoenix.models.{LastSeenNotification, LastSeenNotifications}
-import phoenix.models.Notification._
-import phoenix.models.activity._
-import phoenix.models.account._
-import phoenix.models.{NotificationSubscription ⇒ Sub, NotificationSubscriptions ⇒ Subs}
+import core.db._
+import core.failures._
+import de.heikoseeberger.akkasse.scaladsl.model.{ServerSentEvent ⇒ SSE}
 import org.json4s.Extraction.decompose
 import org.json4s.jackson.JsonMethods._
-import org.json4s.jackson.Serialization.write
 import org.postgresql.core.{Utils ⇒ PgjdbcUtils}
-import phoenix.payloads.ActivityTrailPayloads.AppendActivity
+import phoenix.models.Notification._
+import phoenix.models.account._
+import phoenix.models.activity._
+import phoenix.models.{LastSeenNotification, LastSeenNotifications, Notification, Notifications, NotificationSubscription ⇒ Sub, NotificationSubscriptions ⇒ Subs}
 import phoenix.payloads.CreateNotification
 import phoenix.responses.{ActivityResponse, LastSeenNotificationResponse, NotificationResponse, TheResponse}
-import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
-import utils.db._
+import slick.jdbc.PostgresProfile.api._
 
 object NotificationManager {
   implicit val formats = JsonFormatters.phoenixFormats
@@ -26,14 +22,16 @@ object NotificationManager {
   def createNotification(payload: CreateNotification)(implicit ac: AC,
                                                       au: AU,
                                                       ec: EC,
-                                                      db: DB): DbResultT[ActivityResponse.Root] = {
+                                                      db: DB): DbResultT[ActivityResponse.Root] =
     for {
       dimension ← * <~ Dimensions.findOrCreateByName(payload.sourceDimension)
-      activity = Activity(id = payload.activity.id,
-                          activityType = payload.activity.kind,
-                          data = payload.activity.data,
-                          context = payload.activity.context,
-                          createdAt = payload.activity.createdAt)
+      activity = Activity(
+        id = payload.activity.id,
+        activityType = payload.activity.kind,
+        data = payload.activity.data,
+        context = payload.activity.context,
+        createdAt = payload.activity.createdAt
+      )
 
       adminIds ← * <~ Subs
                   .findByDimensionAndObject(dimension.id, payload.sourceObjectId)
@@ -57,12 +55,10 @@ object NotificationManager {
            sqlu"NOTIFY #${notificationChannel(notification.accountId)}, '#$escapedPayload'"
          })
     } yield response
-  }
 
-  def updateLastSeen(accountId: Int, notificationId: Int)(
-      implicit au: AU,
-      ec: EC,
-      db: DB): DbResultT[LastSeenNotificationResponse] =
+  def updateLastSeen(accountId: Int, notificationId: Int)(implicit au: AU,
+                                                          ec: EC,
+                                                          db: DB): DbResultT[LastSeenNotificationResponse] =
     for {
       _ ← * <~ Accounts.mustFindById404(accountId)
       scope = Scope.current
@@ -70,12 +66,11 @@ object NotificationManager {
                   .findByScopeAndAccountId(scope, accountId)
                   .one
                   .findOrCreate(
-                      LastSeenNotifications.create(
-                          LastSeenNotification(scope = scope,
-                                               accountId = accountId,
-                                               notificationId = notificationId)))
-      _ ← * <~ LastSeenNotifications.update(lastSeen,
-                                            lastSeen.copy(notificationId = notificationId))
+                    LastSeenNotifications.create(
+                      LastSeenNotification(scope = scope,
+                                           accountId = accountId,
+                                           notificationId = notificationId)))
+      _ ← * <~ LastSeenNotifications.update(lastSeen, lastSeen.copy(notificationId = notificationId))
     } yield LastSeenNotificationResponse(lastSeenNotificationId = notificationId)
 
   def subscribe(adminIds: Seq[Int], objectIds: Seq[String], reason: Sub.Reason, dimension: String)(
@@ -83,7 +78,10 @@ object NotificationManager {
     for {
       dimension  ← * <~ Dimensions.findOrCreateByName(dimension)
       realAdmins ← * <~ Users.filter(_.accountId.inSet(adminIds)).map(_.accountId).result
-      requestedSubs = for (adminId ← realAdmins; objectId ← objectIds) yield (adminId, objectId)
+      requestedSubs = for {
+        adminId  ← realAdmins
+        objectId ← objectIds
+      } yield (adminId, objectId)
       partialFilter = Subs.filter(_.dimensionId === dimension.id).filter(_.reason === reason)
       existingSubs ← * <~ DBIO
                       .sequence(requestedSubs.map {
@@ -97,18 +95,13 @@ object NotificationManager {
                       .map(_.flatten)
       newSubsQty ← * <~ Subs.createAll(requestedSubs.diff(existingSubs).map {
                     case (adminId, objectId) ⇒
-                      Sub(adminId = adminId,
-                          objectId = objectId,
-                          dimensionId = dimension.id,
-                          reason = reason)
+                      Sub(adminId = adminId, objectId = objectId, dimensionId = dimension.id, reason = reason)
                   })
       warnings = Failures(adminIds.diff(realAdmins).map(NotFoundFailure404(User, _)): _*)
     } yield TheResponse.build(value = newSubsQty, warnings = warnings)
 
-  def unsubscribe(adminIds: Seq[Int],
-                  objectIds: Seq[String],
-                  reason: Sub.Reason,
-                  dimension: String)(implicit ec: EC): DbResultT[Unit] =
+  def unsubscribe(adminIds: Seq[Int], objectIds: Seq[String], reason: Sub.Reason, dimension: String)(
+      implicit ec: EC): DbResultT[Unit] =
     for {
       d ← * <~ Dimensions.findByName(dimension).one
       _ ← * <~ d.fold(DbResultT.unit) { dimension ⇒

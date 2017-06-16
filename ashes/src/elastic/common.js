@@ -106,11 +106,14 @@ function createFilter(filter) {
     case 'term':
       return rangeToFilter(term, operator, value);
     case 'string':
-      return dsl.matchQuery(term, {
-        query: value,
-        analyzer: 'standard',
-        operator: 'and'
-      });
+      return {
+        query_string: {
+          analyzer: 'standard',
+          analyze_wildcard: true,
+          query: `*${value}*`,
+          default_operator: 'AND',
+        },
+      };
     case 'phrase':
       return dsl.matchQuery(term, {
         query: value,

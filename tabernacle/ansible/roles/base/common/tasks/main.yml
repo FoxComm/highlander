@@ -17,6 +17,7 @@
     - debconf-utils
     - curl
     - htop
+    - iotop
     - make
     - nmap
     - python-httplib2
@@ -34,6 +35,10 @@
 
 - name: Setup Unprivileged User
   command: /usr/sbin/usermod -a -G systemd-journal {{user}}
+
+- name: Stop SSH Guard
+  service: name=sshguard state=stopped enabled=no
+  when: is_appliance or is_staging
 
 - name: Install Bootstrap Scripts
   copy: src={{item}} dest=/usr/local/bin mode=775

@@ -4,7 +4,7 @@ import cats.implicits._
 import phoenix.failures.GiftCardFailures._
 import phoenix.failures.OrderFailures._
 import phoenix.failures.StoreCreditFailures._
-import failures._
+import core.failures._
 import phoenix.failures.OpenTransactionsFailure
 import phoenix.models.cord.OrderPayments.scope._
 import phoenix.models.cord._
@@ -19,18 +19,20 @@ import phoenix.responses.TheResponse
 import phoenix.responses.cord.CartResponse
 import phoenix.services.{CartValidator, LogActivity}
 import slick.jdbc.PostgresProfile.api._
+import core.utils.Money._
 import phoenix.utils.aliases._
-import utils.db._
+import phoenix.utils.apis.Apis
+import core.db._
+import phoenix.models.payment.PaymentMethod.ApplePay
+import phoenix.models.payment.applepay._
 
 object CartPaymentUpdater {
 
   type TheFullCart = DbResultT[TheResponse[CartResponse]]
 
-  def addGiftCard(originator: User, payload: GiftCardPayment, refNum: Option[String] = None)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      ctx: OC): TheFullCart =
+  def addGiftCard(originator: User,
+                  payload: GiftCardPayment,
+                  refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     for {
       cart   ← * <~ getCartByOriginator(originator, refNum)
       result ← * <~ validGiftCardWithAmount(payload)
@@ -38,18 +40,15 @@ object CartPaymentUpdater {
       _ ← * <~ OrderPayments
            .byCartAndGiftCard(cart, gc)
            .mustNotFindOneOr(GiftCardPaymentAlreadyAdded(cart.refNum, payload.code))
-      _ ← * <~ OrderPayments.create(
-             OrderPayment.build(gc).copy(cordRef = cart.refNum, amount = amount.some))
+      _     ← * <~ OrderPayments.create(OrderPayment.build(gc).copy(cordRef = cart.refNum, amount = amount.some))
       resp  ← * <~ CartResponse.buildRefreshed(cart)
       valid ← * <~ CartValidator(cart).validate()
       _     ← * <~ LogActivity().orderPaymentMethodAddedGc(originator, resp, gc, amount)
     } yield TheResponse.validated(resp, valid)
 
-  def editGiftCard(originator: User, payload: GiftCardPayment, refNum: Option[String] = None)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      ctx: OC): TheFullCart =
+  def editGiftCard(originator: User,
+                   payload: GiftCardPayment,
+                   refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     for {
       cart   ← * <~ getCartByOriginator(originator, refNum)
       result ← * <~ validGiftCardWithAmount(payload)
@@ -76,21 +75,18 @@ object CartPaymentUpdater {
       _ ← * <~ gc.mustHaveEnoughBalance(amount)
     } yield (gc, amount)
 
-  private def selectGiftCardAmount(payload: GiftCardPayment, gc: GiftCard): Int =
+  private def selectGiftCardAmount(payload: GiftCardPayment, gc: GiftCard): Long =
     payload.amount match {
       case Some(amount) ⇒ amount
       case _            ⇒ gc.availableBalance
     }
 
-  def addStoreCredit(originator: User, payload: StoreCreditPayment, refNum: Option[String] = None)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      ctx: OC): TheFullCart = {
-    def updateSC(has: Int, want: Int, cart: Cart, storeCredits: List[StoreCredit]) =
+  def addStoreCredit(originator: User,
+                     payload: StoreCreditPayment,
+                     refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart = {
+    def updateSC(has: Long, want: Long, cart: Cart, storeCredits: List[StoreCredit]) =
       if (has < want) {
-        DbResultT.failure(
-            CustomerHasInsufficientStoreCredit(id = cart.accountId, has = has, want = want))
+        DbResultT.failure(CustomerHasInsufficientStoreCredit(id = cart.accountId, has = has, want = want))
       } else {
         def payments = StoreCredit.processFifo(storeCredits, want).map {
           case (sc, amount) ⇒
@@ -118,10 +114,9 @@ object CartPaymentUpdater {
     } yield TheResponse.validated(response, validation)
   }
 
-  def addCreditCard(
-      originator: User,
-      id: Int,
-      refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
+  def addCreditCard(originator: User,
+                    id: Int,
+                    refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     for {
       cart   ← * <~ getCartByOriginator(originator, refNum)
       cc     ← * <~ CreditCards.mustFindById400(id)
@@ -129,16 +124,14 @@ object CartPaymentUpdater {
       _      ← * <~ cc.mustBeInWallet
       region ← * <~ Regions.findOneById(cc.address.regionId).safeGet
       _      ← * <~ OrderPayments.filter(_.cordRef === cart.refNum).creditCards.delete
-      _ ← * <~ OrderPayments.create(
-             OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = None))
-      valid ← * <~ CartValidator(cart).validate()
-      resp  ← * <~ CartResponse.buildRefreshed(cart)
-      _     ← * <~ LogActivity().orderPaymentMethodAddedCc(originator, resp, cc, region)
+      _      ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = None))
+      valid  ← * <~ CartValidator(cart).validate()
+      resp   ← * <~ CartResponse.buildRefreshed(cart)
+      _      ← * <~ LogActivity().orderPaymentMethodAddedCc(originator, resp, cc, region)
     } yield TheResponse.validated(resp, valid)
 
-  def deleteCreditCard(
-      originator: User,
-      refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
+  def deleteCreditCard(originator: User,
+                       refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     deleteCreditCardOrStoreCredit(originator, refNum, PaymentMethod.CreditCard)
 
   def deleteStoreCredit(
@@ -162,11 +155,9 @@ object CartPaymentUpdater {
       _           ← * <~ LogActivity().orderPaymentMethodDeleted(originator, resp, pmt)
     } yield TheResponse.validated(resp, valid)
 
-  def deleteGiftCard(originator: User, code: String, refNum: Option[String] = None)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      ctx: OC): TheFullCart =
+  def deleteGiftCard(originator: User,
+                     code: String,
+                     refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     for {
       cart     ← * <~ getCartByOriginator(originator, refNum)
       giftCard ← * <~ GiftCards.mustFindByCode(code)
@@ -175,10 +166,34 @@ object CartPaymentUpdater {
                    .filter(_.cordRef === cart.refNum)
                    .giftCards
                    .deleteAll(onSuccess = CartResponse.buildRefreshed(cart),
-                              onFailure = DbResultT.failure(
-                                  OrderPaymentNotFoundFailure(PaymentMethod.GiftCard)))
+                              onFailure =
+                                DbResultT.failure(OrderPaymentNotFoundFailure(PaymentMethod.GiftCard)))
       updatedCart ← * <~ getCartByOriginator(originator, refNum)
       validated   ← * <~ CartValidator(updatedCart).validate()
       _           ← * <~ LogActivity().orderPaymentMethodDeletedGc(originator, deleteRes, giftCard)
     } yield TheResponse.validated(deleteRes, validated)
+
+  def addApplePayPayment(
+      originator: User,
+      payload: CreateApplePayPayment,
+      cartRefNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
+    for {
+      cart ← * <~ getCartByOriginator(originator, cartRefNum)
+      _    ← * <~ OrderPayments.filter(_.cordRef === cart.refNum).applePays.delete
+
+      //    create apple charge
+      applePayment ← * <~ ApplePayments.create(
+                      ApplePayment(accountId = originator.accountId, stripeTokenId = payload.stripeToken))
+
+      _ ← * <~ OrderPayments.create(
+           OrderPayment(cordRef = cart.refNum,
+                        amount = None,
+                        paymentMethodType = ApplePay,
+                        paymentMethodId = applePayment.id)
+         )
+
+      valid ← * <~ CartValidator(cart).validate()
+      resp  ← * <~ CartResponse.buildRefreshed(cart)
+    } yield TheResponse.validated(resp, valid)
+
 }

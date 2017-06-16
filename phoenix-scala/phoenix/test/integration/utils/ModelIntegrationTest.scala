@@ -1,6 +1,6 @@
 package utils
 
-import failures.{DatabaseFailure, GeneralFailure}
+import core.failures.{DatabaseFailure, Failures, GeneralFailure}
 import phoenix.failures.StateTransitionNotAllowed
 import phoenix.models.account._
 import phoenix.models.cord.Order.Shipped
@@ -10,7 +10,7 @@ import phoenix.models.location.Addresses
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.db._
+import core.db._
 
 class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 
@@ -19,7 +19,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       val failures =
         Addresses.create(Factories.address.copy(zip = "totallyNotAValidZip")).gimmeFailures
       failures must === (
-          GeneralFailure("zip must fully match regular expression '^\\d{5}(?:\\d{4})?$'").single)
+        GeneralFailure("zip must fully match regular expression '^\\d{5}(?:\\d{4})?$'").single)
     }
 
     "sanitizes model" in {
@@ -28,27 +28,27 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
         scope    ← * <~ Scopes.forOrganization(TENANT)
         customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
         _ ← * <~ CustomersData.create(
-               CustomerData(userId = customer.id, accountId = account.id, scope = scope))
+             CustomerData(userId = customer.id, accountId = account.id, scope = scope))
         address ← * <~ Addresses.create(
-                     Factories.address.copy(zip = "123-45", accountId = customer.accountId))
+                   Factories.address.copy(zip = "123-45", accountId = customer.accountId))
       } yield address).gimme
       result.zip must === ("12345")
     }
 
     "catches exceptions from DB" in {
-      val result = (for {
-        account  ← * <~ Accounts.create(Account())
+      val account = Accounts.create(Account()).gimme
+
+      val result: Failures = (for {
         customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
         scope    ← * <~ Scopes.forOrganization(TENANT)
         _ ← * <~ CustomersData.create(
-               CustomerData(userId = customer.id, accountId = account.id, scope = scope))
+             CustomerData(userId = customer.id, accountId = account.id, scope = scope))
         _       ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
         copycat ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
       } yield copycat).gimmeTxnFailures
-      result must === (
-          DatabaseFailure(
-              "ERROR: duplicate key value violates unique constraint \"address_shipping_default_idx\"\n" +
-                "  Detail: Key (account_id, is_default_shipping)=(1, t) already exists.").single)
+
+      result.toList.onlyElement.description contains
+      s"Key (account_id, is_default_shipping)=(${account.id}, t) already exists." must === (true)
     }
 
     "fails if model already exists" in {
@@ -65,7 +65,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       val customer = Users.create(Factories.customer.copy(accountId = account.id)).gimme
       val success  = "Success"
       val failure  = (_: User#Id) ⇒ GeneralFailure("Should not happen")
-      val delete   = Users.deleteById(customer.accountId, DbResultT.good(success), failure).gimme
+      val delete   = Users.deleteById(customer.id, DbResultT.good(success), failure).gimme
       delete must === (success)
     }
 
@@ -90,8 +90,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       val origin      = Factories.order(Scope.current)
       val destination = origin.copy(state = Shipped)
       val failure     = leftValue(origin.updateTo(destination))
-      failure must === (
-          StateTransitionNotAllowed(origin.state, destination.state, origin.refNum).single)
+      failure must === (StateTransitionNotAllowed(origin.state, destination.state, origin.refNum).single)
     }
 
     "must update model successfully" in {
@@ -99,7 +98,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       val customer = Users.create(Factories.customer.copy(accountId = account.id)).gimme
       customer.isNew must === (false)
       val updated = Users.update(customer, customer.copy(name = Some("Derp"))).gimme
-      Users.findOneById(customer.accountId).run().futureValue.value must === (updated)
+      Users.findOneById(customer.id).run().futureValue.value must === (updated)
     }
 
     "must run FSM check if applicable" in new Order_Baked {

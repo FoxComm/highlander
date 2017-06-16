@@ -84,7 +84,7 @@ export default class CustomerCart extends Component {
   }
 
   get waitAnimation() {
-    return <WaitAnimation/>;
+    return <WaitAnimation />;
   }
 
   get errorMessage() {

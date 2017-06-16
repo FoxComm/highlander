@@ -1,6 +1,6 @@
 package phoenix.failures
 
-import failures.Failure
+import core.failures.Failure
 import phoenix.models.payment.giftcard.GiftCard
 
 object GiftCardFailures {
@@ -32,13 +32,13 @@ object GiftCardFailures {
       s"Cannot capture a Gift Card using order payment $orderPaymentId because no adjustment in auth"
   }
 
-  case class GiftCardNotEnoughBalance(gc: GiftCard, requestedAmount: Int) extends Failure {
+  case class GiftCardNotEnoughBalance(gc: GiftCard, requestedAmount: Long) extends Failure {
     override def description =
       s"Gift Card with code=${gc.code} has availableBalance=${gc.availableBalance} less than requestedAmount=$requestedAmount"
   }
 
-  case class GiftCardIsInactive(gc: GiftCard) extends Failure {
-    override def description = s"Gift Card with id=${gc.id} is inactive"
+  case class GiftCardIsInactive(giftCardCode: String) extends Failure {
+    override def description = s"Gift Card with code=$giftCardCode is inactive"
   }
 
   case object CreditCardMustHaveAddress extends Failure {

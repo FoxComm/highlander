@@ -13,14 +13,14 @@ import phoenix.services.auth.GoogleOauth.oauthServiceFromConfig
 import phoenix.services.auth.OauthDirectives._
 import phoenix.utils.FoxConfig.config
 import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
 import phoenix.utils.http.Http._
 import phoenix.utils.http.JsonSupport._
 
 object AuthRoutes {
 
-  def routes(defaultScope: LTree)(implicit ec: EC, db: DB): Route = {
-
+  def routes(defaultScope: LTree)(implicit ec: EC, db: DB, apis: Apis): Route =
     pathPrefix("public") {
       (post & path("login") & entity(as[LoginPayload])) { payload ⇒
         onSuccess(Authenticator.authenticate(payload).runEmptyA.value) { result ⇒ // TODO: rethink discarding warnings here @michalrus
@@ -66,5 +66,4 @@ object AuthRoutes {
         }
       }
     }
-  }
 }

@@ -1,38 +1,35 @@
-/**
- * @flow
- */
+/* @flow */
+
+import React, { Element } from 'react';
 
 //libs
-import React, { Element } from 'react';
 import _ from 'lodash';
-import { activeStatus } from '../../paragons/common';
+import { activeStatus, isArchived } from 'paragons/common';
 
 // components
-import RoundedPill from '../rounded-pill/rounded-pill';
+import { RoundedPill } from 'components/core/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
-
-// helpers
-import { isArchived } from 'paragons/common';
 
 type Props = {
   promotion: Object,
-  columns: Array<string>,
+  columns: Columns,
   params: Object,
-};
-
-const setCellContents = (promotion: Object, field: string) => {
-  switch (field) {
-    case 'state':
-      return <RoundedPill text={activeStatus(promotion)} />;
-    case 'storefrontName':
-      return <div dangerouslySetInnerHTML={{__html: _.get(promotion, field)}} />;
-    default:
-      return _.get(promotion, field);
-  }
 };
 
 const PromotionRow = (props: Props) => {
   const { promotion, columns, params } = props;
+
+  const setCellContents = (promotion: Object, field: string) => {
+    switch (field) {
+      case 'state':
+        return <RoundedPill text={activeStatus(promotion)} />;
+      case 'storefrontName':
+        return <div dangerouslySetInnerHTML={{__html: _.get(promotion, field)}} />;
+      default:
+        return _.get(promotion, field);
+    }
+  };
+
   const commonParams = {
     columns,
     row: promotion,

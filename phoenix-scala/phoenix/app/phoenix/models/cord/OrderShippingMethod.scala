@@ -3,9 +3,9 @@ package phoenix.models.cord
 import phoenix.models.shipping.{ShippingMethod, ShippingMethods}
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
+import core.db._
 
-case class OrderShippingMethod(id: Int = 0, cordRef: String, shippingMethodId: Int, price: Int)
+case class OrderShippingMethod(id: Int = 0, cordRef: String, shippingMethodId: Int, price: Long)
     extends FoxModel[OrderShippingMethod]
 
 object OrderShippingMethod {
@@ -13,12 +13,11 @@ object OrderShippingMethod {
     OrderShippingMethod(cordRef = cordRef, shippingMethodId = method.id, price = method.price)
 }
 
-class OrderShippingMethods(tag: Tag)
-    extends FoxTable[OrderShippingMethod](tag, "order_shipping_methods") {
+class OrderShippingMethods(tag: Tag) extends FoxTable[OrderShippingMethod](tag, "order_shipping_methods") {
   def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def cordRef          = column[String]("cord_ref")
   def shippingMethodId = column[Int]("shipping_method_id")
-  def price            = column[Int]("price")
+  def price            = column[Long]("price")
 
   def * =
     (id, cordRef, shippingMethodId, price) <> ((OrderShippingMethod.apply _).tupled, OrderShippingMethod.unapply)

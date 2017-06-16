@@ -1,4 +1,3 @@
-// @flow
 /*eslint max-len: ["error", 1000]*/
 
 // libs
@@ -55,6 +54,7 @@ import * as AnalyticsActions from '../../modules/analytics';
 
 // types
 type State = {
+  dateSelectedIndex: number,
   dateRangeBegin: string, // Unix Timestamp
   dateRangeEnd: string, // Unix Timestamp
   dateDisplay: string,
@@ -67,7 +67,7 @@ type State = {
     dateRangeEnd: string,
     dataFetchTimeSize: number,
   },
-}
+};
 
 type Props = {
   entity: {
@@ -91,8 +91,8 @@ type Props = {
     },
   },
   questionBoxes: Array<QuestionBoxType>,
-  segments: Array<SegmentControlType>,
-}
+  segments: Array<SegmentControlType>
+};
 
 // consts
 const sourceDropdownColumns = [
@@ -156,7 +156,7 @@ percentDifferenceFromAvg(percentValue: number, avgPercentValue: number): number 
 }
 
 @connect((state, props) => ({analytics: state.analytics}), AnalyticsActions)
-export default class Analytics extends React.Component {
+export class Analytics extends React.Component {
 
   static defaultProps: {
     questionBoxes: Array<QuestionBoxType>,
@@ -221,6 +221,7 @@ export default class Analytics extends React.Component {
   };
 
   state: State = {
+    dateSelectedIndex: 0,
     dateRangeBegin: moment().startOf('day').unix(),
     dateRangeEnd: moment().unix(),
     dateDisplay: moment().format(datePickerFormat),
@@ -261,7 +262,7 @@ export default class Analytics extends React.Component {
       return;
     }
 
-    const { segments, entity } = this.props;
+    const { entity } = this.props;
 
     switch(question.title) {
       case questionTitles.TotalRevenue:
@@ -369,6 +370,7 @@ export default class Analytics extends React.Component {
       newDateRangeEnd, newDataFetchTimeSize } = this.onDateDropdownChange(selectionIndex);
 
     this.setState({
+      dateSelectedIndex: selectionIndex,
       dateDisplay: displayText,
       dateRangeBegin: newDateRangeBegin,
       dateRangeEnd: newDateRangeEnd,
@@ -536,8 +538,14 @@ export default class Analytics extends React.Component {
     }
   }
 
+  isDisabledSegment(segment: SegmentControlType, dateSelectedIndex: number): boolean {
+    const isDaySegment = segment.title === segmentTitles.day;
+    const isTodayOrYesterdayDateSelected = _.includes([datePickerType.Today, datePickerType.Yesterday], dateSelectedIndex);
+    return !isDaySegment && isTodayOrYesterdayDateSelected;
+  }
+
   get chartFromQuestion() {
-    const { question, dataFetchTimeSize, segment, comparisonPeriod } = this.state;
+    const { question, segment, comparisonPeriod, dateSelectedIndex } = this.state;
 
     if (_.isNil(question)) {
       return false;
@@ -546,11 +554,15 @@ export default class Analytics extends React.Component {
     const { analytics, segments } = this.props;
 
     if (!_.isNil(analytics.isFetching) && !analytics.isFetching) {
+      const disabledItems = _.filter(segments, segment => this.isDisabledSegment(segment, dateSelectedIndex));
+      const activeSegment = this.isDisabledSegment(segment, dateSelectedIndex) ? segments[0] : segment;
+
       const segmentCtrlList = (
         <SegmentControlList
           items={segments}
+          disabledItems={disabledItems}
           onSelect={this.onSegmentControlSelect}
-          activeSegment={segment}
+          activeSegment={activeSegment}
         />
       );
       const comparisonCancelButtonVisibility = comparisonPeriod.dataFetchTimeSize > 0

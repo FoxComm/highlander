@@ -3,13 +3,13 @@ package phoenix.models.returns
 import java.time.Instant
 
 import com.pellucid.sealerate
+import core.db._
 import phoenix.models.returns.ReturnLineItem._
 import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class ReturnLineItem(id: Int = 0,
                           returnId: Int,
@@ -19,7 +19,7 @@ case class ReturnLineItem(id: Int = 0,
     extends FoxModel[ReturnLineItem]
 
 object ReturnLineItem {
-  sealed trait OriginType extends Product with Serializable
+  sealed trait OriginType  extends Product with Serializable
   case object SkuItem      extends OriginType
   case object ShippingCost extends OriginType
 

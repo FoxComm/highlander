@@ -1,10 +1,10 @@
-import failures.NotFoundFailure404
+import core.failures.NotFoundFailure404
 import phoenix.failures.StateTransitionNotAllowed
 import phoenix.failures.UserFailures.UserEmailNotUnique
 import phoenix.models.account._
 import phoenix.models.admin.AdminData
 import phoenix.payloads.StoreAdminPayloads._
-import phoenix.responses.StoreAdminResponse.Root
+import phoenix.responses.users.StoreAdminResponse
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -23,7 +23,7 @@ class StoreAdminIntegrationTest
                                             phoneNumber = Some("1231231234"),
                                             roles = List("admin"),
                                             org = "tenant")
-      val admin = storeAdminsApi.create(payload).as[Root]
+      val admin = storeAdminsApi.create(payload).as[StoreAdminResponse]
 
       admin.name.value must === (payload.name)
       admin.email.value must === (payload.email)
@@ -42,7 +42,7 @@ class StoreAdminIntegrationTest
 
   "GET /v1/store-admins/:id" - {
     "display store admin when id points to valid admin" in new Fixture {
-      val admin = storeAdminsApi(storeAdmin.accountId).get().as[Root]
+      val admin = storeAdminsApi(storeAdmin.accountId).get().as[StoreAdminResponse]
 
       admin.id must === (storeAdmin.accountId)
       admin.name must === (storeAdmin.name)
@@ -65,7 +65,7 @@ class StoreAdminIntegrationTest
       val payload =
         UpdateStoreAdminPayload(email = newEmail, name = newName, phoneNumber = newPhone)
 
-      val updated = storeAdminsApi(storeAdmin.accountId).update(payload).as[Root]
+      val updated = storeAdminsApi(storeAdmin.accountId).update(payload).as[StoreAdminResponse]
 
       updated.id must === (storeAdmin.accountId)
       updated.state must === (storeAdminUser.state)
@@ -87,7 +87,7 @@ class StoreAdminIntegrationTest
                                                    phoneNumber = Some("1231231234"),
                                                    roles = List("admin"),
                                                    org = "tenant")
-      val admin = storeAdminsApi.create(create_payload).as[Root]
+      val admin = storeAdminsApi.create(create_payload).as[StoreAdminResponse]
       val payload =
         UpdateStoreAdminPayload(name = storeAdmin.name.value, email = storeAdmin.email.value)
 
@@ -99,17 +99,18 @@ class StoreAdminIntegrationTest
     "change state successfully" in new Fixture {
       storeAdminsApi(storeAdmin.accountId)
         .updateState(StateChangeStoreAdminPayload(state = AdminData.Inactive))
-        .as[Root]
+        .as[StoreAdminResponse]
         .state must === (AdminData.Inactive)
     }
 
     "respond with 400 when cannot apply new state" in new Fixture {
       storeAdminsApi(storeAdmin.accountId)
         .updateState(StateChangeStoreAdminPayload(state = AdminData.Invited))
-        .mustFailWith400(StateTransitionNotAllowed(AdminData,
-                                                   storeAdminUser.state.toString,
-                                                   AdminData.Invited.toString,
-                                                   storeAdmin.accountId))
+        .mustFailWith400(
+          StateTransitionNotAllowed(AdminData,
+                                    storeAdminUser.state.toString,
+                                    AdminData.Invited.toString,
+                                    storeAdminUser.id))
     }
 
     "respond with 404 when id does not point to valid admin" in new Fixture {

@@ -2,9 +2,9 @@ package phoenix.models.account
 
 import java.time.Instant
 
+import core.db._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
 
 case class Role(id: Int = 0,
                 name: String,

@@ -5,7 +5,7 @@ import phoenix.models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import phoenix.responses.GiftCardAdjustmentsResponse._
 import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
-import utils.db._
+import core.db._
 
 object GiftCardAdjustmentsService {
 
@@ -17,7 +17,7 @@ object GiftCardAdjustmentsService {
         order ← Carts.filter(_.referenceNumber === pay.cordRef)
       } yield (pay, order.referenceNumber)
 
-    def adjustmentQ(giftCardId: Int) = GiftCardAdjustments.filter(_.id === giftCardId)
+    def adjustmentQ(giftCardId: Int) = GiftCardAdjustments.filter(_.giftCardId === giftCardId)
 
     def joinedQ(giftCardId: Int) =
       adjustmentQ(giftCardId).joinLeft(maybePaymentQ).on {

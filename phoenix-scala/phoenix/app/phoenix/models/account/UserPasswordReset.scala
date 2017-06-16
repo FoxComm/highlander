@@ -3,14 +3,14 @@ package phoenix.models.account
 import java.time.Instant
 
 import com.pellucid.sealerate
+import core.db._
+import core.utils.generateUuid
 import phoenix.models.account.UserPasswordReset.{Initial, State}
 import phoenix.utils.ADT
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
-import utils.db._
-import utils.generateUuid
 
 case class UserPasswordReset(id: Int = 0,
                              accountId: Int,
@@ -40,15 +40,13 @@ object UserPasswordReset {
 
   implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 
-  def optionFromUser(user: User): Option[UserPasswordReset] = {
+  def optionFromUser(user: User): Option[UserPasswordReset] =
     user.email.map { email ⇒
       UserPasswordReset(accountId = user.accountId, code = generateUuid, email = email)
     }
-  }
 }
 
-class UserPasswordResets(tag: Tag)
-    extends FoxTable[UserPasswordReset](tag, "user_password_resets") {
+class UserPasswordResets(tag: Tag) extends FoxTable[UserPasswordReset](tag, "user_password_resets") {
 
   import UserPasswordReset._
 
@@ -62,7 +60,7 @@ class UserPasswordResets(tag: Tag)
 
   def * =
     (id, accountId, email, state, code, activatedAt, createdAt) <> ((UserPasswordReset.apply _).tupled,
-        UserPasswordReset.unapply)
+    UserPasswordReset.unapply)
 }
 
 object UserPasswordResets

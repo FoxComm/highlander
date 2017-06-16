@@ -1,4 +1,3 @@
-
 import _ from 'lodash';
 import { get } from 'sprout-data';
 import Api from '../../lib/api';
@@ -18,8 +17,6 @@ const { reducer, actions } = makeLiveSearch(
 export function createGiftCard() {
   return (dispatch, getState) => {
     const addingData = get(getState(), ['giftCards', 'adding', 'giftCard']);
-
-    const quantity = addingData.sendToCustomer ? addingData.customers.length : addingData.quantity;
 
     const postData = {
       balance: addingData.balance,

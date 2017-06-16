@@ -1,6 +1,6 @@
 package gatling.seeds
 
-import scala.reflect.{ClassTag, classTag}
+import scala.reflect.{classTag, ClassTag}
 
 import io.gatling.app.Gatling
 import io.gatling.core.scenario.Simulation

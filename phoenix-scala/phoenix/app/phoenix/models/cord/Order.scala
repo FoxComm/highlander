@@ -5,7 +5,10 @@ import java.time.Instant
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
-import failures.{Failures, GeneralFailure}
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.failures.{Failures, GeneralFailure}
+import core.utils.Money.Currency
 import phoenix.models.account._
 import phoenix.models.cord.lineitems._
 import phoenix.models.inventory.Skus
@@ -15,20 +18,17 @@ import phoenix.utils.{ADT, FSM}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.Money.Currency
-import utils.db.ExPostgresDriver.api._
-import utils.db._
 
 case class Order(id: Int = 0,
                  scope: LTree,
                  referenceNumber: String = "",
                  accountId: Int,
                  currency: Currency = Currency.USD,
-                 subTotal: Int = 0,
-                 shippingTotal: Int = 0,
-                 adjustmentsTotal: Int = 0,
-                 taxesTotal: Int = 0,
-                 grandTotal: Int = 0,
+                 subTotal: Long = 0,
+                 shippingTotal: Long = 0,
+                 adjustmentsTotal: Long = 0,
+                 taxesTotal: Long = 0,
+                 grandTotal: Long = 0,
                  // Order-specific
                  contextId: Int,
                  state: Order.State = Order.RemorseHold,
@@ -48,14 +48,14 @@ case class Order(id: Int = 0,
   import Order._
 
   val fsm: Map[State, Set[State]] = Map(
-      FraudHold →
-        Set(ManualHold, RemorseHold, FulfillmentStarted, Canceled),
-      RemorseHold →
-        Set(FraudHold, ManualHold, FulfillmentStarted, Canceled),
-      ManualHold →
-        Set(FraudHold, RemorseHold, FulfillmentStarted, Canceled),
-      FulfillmentStarted →
-        Set(Shipped, Canceled)
+    FraudHold →
+      Set(ManualHold, RemorseHold, FulfillmentStarted, Canceled),
+    RemorseHold →
+      Set(FraudHold, ManualHold, FulfillmentStarted, Canceled),
+    ManualHold →
+      Set(FraudHold, RemorseHold, FulfillmentStarted, Canceled),
+    FulfillmentStarted →
+      Set(Shipped, Canceled)
   )
 
   // If order is not in RemorseHold, remorsePeriodEnd should be None, but extra check wouldn't hurt
@@ -72,7 +72,7 @@ case class Order(id: Int = 0,
 }
 
 object Order {
-  sealed trait State extends Product with Serializable
+  sealed trait State             extends Product with Serializable
   case object FraudHold          extends State
   case object RemorseHold        extends State
   case object ManualHold         extends State
@@ -94,11 +94,11 @@ class Orders(tag: Tag) extends FoxTable[Order](tag, "orders") {
   def referenceNumber  = column[String]("reference_number")
   def accountId        = column[Int]("account_id")
   def currency         = column[Currency]("currency")
-  def subTotal         = column[Int]("sub_total")
-  def shippingTotal    = column[Int]("shipping_total")
-  def adjustmentsTotal = column[Int]("adjustments_total")
-  def taxesTotal       = column[Int]("taxes_total")
-  def grandTotal       = column[Int]("grand_total")
+  def subTotal         = column[Long]("sub_total")
+  def shippingTotal    = column[Long]("shipping_total")
+  def adjustmentsTotal = column[Long]("adjustments_total")
+  def taxesTotal       = column[Long]("taxes_total")
+  def grandTotal       = column[Long]("grand_total")
   def contextId        = column[Int]("context_id")
   def state            = column[Order.State]("state")
   def placedAt         = column[Instant]("placed_at")
@@ -128,14 +128,13 @@ object Orders
     with ReturningTableQuery[Order, Orders]
     with SearchByRefNum[Order, Orders] {
 
-  def createFromCart(
-      cart: Cart,
-      subScope: Option[String])(implicit ec: EC, db: DB, ctx: OC, au: AU): DbResultT[Order] =
+  def createFromCart(cart: Cart,
+                     subScope: Option[String])(implicit ec: EC, db: DB, ctx: OC, au: AU): DbResultT[Order] =
     createFromCart(cart, ctx.id, subScope)
 
-  def createFromCart(cart: Cart,
-                     contextId: Int,
-                     subScope: Option[String])(implicit ec: EC, db: DB, au: AU): DbResultT[Order] =
+  def createFromCart(cart: Cart, contextId: Int, subScope: Option[String])(implicit ec: EC,
+                                                                           db: DB,
+                                                                           au: AU): DbResultT[Order] =
     for {
       scope ← * <~ Scope.resolveOverride(subScope)
 
@@ -145,23 +144,24 @@ object Orders
       lineItems ← * <~ prepareOrderLineItemsFromCart(cart, contextId)
 
       order ← * <~ Orders.create(
-                 Order(referenceNumber = cart.referenceNumber,
-                       accountId = cart.accountId,
-                       scope = scope,
-                       currency = cart.currency,
-                       subTotal = cart.subTotal,
-                       shippingTotal = cart.shippingTotal,
-                       adjustmentsTotal = cart.adjustmentsTotal,
-                       taxesTotal = cart.taxesTotal,
-                       grandTotal = cart.grandTotal,
-                       contextId = contextId))
+               Order(
+                 referenceNumber = cart.referenceNumber,
+                 accountId = cart.accountId,
+                 scope = scope,
+                 currency = cart.currency,
+                 subTotal = cart.subTotal,
+                 shippingTotal = cart.shippingTotal,
+                 adjustmentsTotal = cart.adjustmentsTotal,
+                 taxesTotal = cart.taxesTotal,
+                 grandTotal = cart.grandTotal,
+                 contextId = contextId
+               ))
 
       _ ← * <~ OrderLineItems.createAll(lineItems)
     } yield order
 
-  def prepareOrderLineItemsFromCart(cart: Cart, contextId: Int)(
-      implicit ec: EC,
-      db: DB): DbResultT[Seq[OrderLineItem]] = {
+  def prepareOrderLineItemsFromCart(cart: Cart, contextId: Int)(implicit ec: EC,
+                                                                db: DB): DbResultT[Seq[OrderLineItem]] = {
     val uniqueSkuIdsInCart = CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.skuId).map {
       case (skuId, q) ⇒ skuId
     }
@@ -177,12 +177,14 @@ object Orders
       lineItems ← * <~ CartLineItems.byCordRef(cart.referenceNumber).result
       orderLineItems ← * <~ lineItems.map { cli ⇒
                         val sku = skuMaps.get(cli.skuId).get
-                        OrderLineItem(cordRef = cart.referenceNumber,
-                                      referenceNumber = cli.referenceNumber,
-                                      skuId = sku.id,
-                                      skuShadowId = sku.shadowId,
-                                      state = OrderLineItem.Pending,
-                                      attributes = cli.attributes)
+                        OrderLineItem(
+                          cordRef = cart.referenceNumber,
+                          referenceNumber = cli.referenceNumber,
+                          skuId = sku.id,
+                          skuShadowId = sku.shadowId,
+                          state = OrderLineItem.Pending,
+                          attributes = cli.attributes
+                        )
                       }
     } yield orderLineItems
   }
@@ -209,7 +211,8 @@ object Orders
   type PackedRet = (Rep[Int], Rep[String], Rep[Option[Instant]])
   private val rootLens = lens[Order]
 
-  val returningLens: Lens[Order, (Int, String, Option[Instant])] = rootLens.id ~ rootLens.referenceNumber ~ rootLens.remorsePeriodEnd
+  val returningLens
+    : Lens[Order, (Int, String, Option[Instant])] = rootLens.id ~ rootLens.referenceNumber ~ rootLens.remorsePeriodEnd
   override val returningQuery = map { o ⇒
     (o.id, o.referenceNumber, o.remorsePeriodEnd)
   }
