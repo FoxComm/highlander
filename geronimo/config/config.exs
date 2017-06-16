@@ -15,17 +15,6 @@ config :geronimo, Geronimo.Repo,
 config :geronimo,
   public_key: System.get_env("PUBLIC_KEY")
 
-config :geronimo,
-  kafka_host: System.get_env("BROKER_HOST"),
-  kafka_port: System.get_env("BROKER_PORT"),
-  consumer_group: System.get_env("CONSUMER_GROUP"),
-  start_kafka_worker: System.get_env("START_WORKER")
-
-config :kafka_ex,
-  disable_default_worker: true,
-  auto_commit: false,
-  use_ssl: false
-
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
 # file won't be loaded nor affect the parent project. For this reason,
