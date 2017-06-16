@@ -12,10 +12,9 @@ import styles from './entries.css';
 const catalogClaims = readAction(frn.pim.catalog);
 const productClaims = readAction(frn.pim.product);
 const skuClaims = readAction(frn.pim.sku);
-const inventoryClaims = readAction(frn.mdl.summary);
 
 const CatalogEntry = ({ claims, routes }: TMenuEntry) => {
-  const allClaims = { ...productClaims, ...skuClaims, ...inventoryClaims };
+  const allClaims = { ...productClaims, ...skuClaims };
 
   if (!anyPermitted(allClaims, claims)) {
     return <div></div>;
@@ -52,16 +51,6 @@ const CatalogEntry = ({ claims, routes }: TMenuEntry) => {
           routes={routes}
           actualClaims={claims}
           expectedClaims={skuClaims}
-        />
-      </li>
-      <li>
-        <NavigationItem
-          to="inventory"
-          icon="inventory"
-          title="Inventory"
-          routes={routes}
-          actualClaims={claims}
-          expectedClaims={inventoryClaims}
         />
       </li>
     </div>

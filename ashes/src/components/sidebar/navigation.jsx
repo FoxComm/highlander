@@ -7,6 +7,7 @@ import { getClaims } from 'lib/claims';
 
 import CatalogEntry from './entries/catalog';
 import CustomersEntry from './entries/customers';
+import InventoryEntry from './entries/inventory';
 import MarketingEntry from './entries/marketing';
 import MerchandisingEntry from './entries/merchandising';
 import OrdersEntry from './entries/orders';
@@ -37,6 +38,10 @@ const Navigation = ({ routes, token, params }: { routes: Array<Object>, token: J
           routes={routes}
         />
         <CatalogEntry
+          claims={claims}
+          routes={routes}
+        />
+        <InventoryEntry
           claims={claims}
           routes={routes}
         />
