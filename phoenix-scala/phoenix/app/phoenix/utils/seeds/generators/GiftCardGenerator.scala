@@ -2,11 +2,9 @@ package phoenix.utils.seeds.generators
 
 import core.db._
 import core.utils.Money.Currency
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.Random
+
 import objectframework.models.ObjectContext
 import phoenix.models.account.Scope
-import phoenix.models.cord.{Cart, Carts, Order, Orders}
 import phoenix.models.payment.giftcard._
 import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
 import phoenix.utils.aliases._
@@ -31,14 +29,12 @@ trait GiftCardGenerator {
                                       scope = scope))
     } yield gc
 
-  def generateGiftCardPurchase(accountId: Int, context: ObjectContext)(implicit db: DB,
-                                                                       au: AU): DbResultT[GiftCard] =
+  def generateGiftCard(adminAccountId: Int, context: ObjectContext)(implicit db: DB,
+                                                               au: AU): DbResultT[GiftCard] =
     for {
-      cart  ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
-      order ← * <~ Orders.createFromCart(cart, context.id, None)
-      order ← * <~ Orders.update(order, order.copy(state = Order.ManualHold))
-      orig  ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = order.refNum))
+      origin ← * <~ GiftCardManuals.create(
+        GiftCardManual(adminId = adminAccountId, reasonId = 1))
       gc ← * <~ GiftCards.create(
-            GiftCard.build(balance = nextGcBalance, originId = orig.id, currency = Currency.USD))
+            GiftCard.build(balance = nextGcBalance, originId = origin.id, currency = Currency.USD))
     } yield gc
 }
