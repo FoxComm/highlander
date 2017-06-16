@@ -69,7 +69,7 @@ class ProductsCatalogViewIntegrationTest
     "after deactivation" in go(sku ⇒ deactivateSku(skuCode(sku.attributes)))
 
     def go(deactivate: SkuResponse.Root ⇒ Unit): Unit = {
-      val product = new ProductSku_ApiFixture {}.product
+      val product = ProductSku_ApiFixture().product
       val psv     = new ProductsSearchViewIntegrationTest
       psv.viewOne(product.id).archivedAt mustBe 'empty
       findOne(product.id) mustBe 'defined

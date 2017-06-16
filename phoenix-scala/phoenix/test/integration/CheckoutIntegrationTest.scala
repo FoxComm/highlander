@@ -105,7 +105,7 @@ class CheckoutIntegrationTest
     "should stash existing cart line items on one-click checkout and then bring them back" in new OneClickCheckoutFixture {
       shippingMethodsApi(shipMethod.id).setDefault().mustBeOk()
 
-      val otherSkuCode = new ProductSku_ApiFixture {}.skuCode
+      val otherSkuCode = ProductSku_ApiFixture().skuCode
 
       withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
         storefrontAddressesApi(customerAddress.id).setDefault().mustBeOk()
@@ -268,7 +268,7 @@ class CheckoutIntegrationTest
       .create(addressPayload)
       .as[AddressResponse]
 
-    private val apiFixture = new ProductSku_ApiFixture {}
+    private val apiFixture = ProductSku_ApiFixture()
     val skuCode            = apiFixture.skuCode
     val product            = apiFixture.product
 

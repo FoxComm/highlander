@@ -12,10 +12,6 @@
   include: app_shipments_consumer.yml
   when: marathon_restart.shipments_consumer
 
-- name: Start Stock Items Consumer
-  include: app_stock_items_consumer.yml
-  when: marathon_restart.stock_items_consumer
-
 - name: Start Customer Groups Consumer
   include: app_customer_groups_consumer.yml
   when: marathon_restart.customer_groups_consumer

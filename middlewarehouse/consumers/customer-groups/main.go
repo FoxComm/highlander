@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/customer-groups/agent"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/customer-groups/consumer"
@@ -13,12 +14,17 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
 	"github.com/FoxComm/metamorphosis"
 
-	"gopkg.in/olivere/elastic.v3"
+	elastic "gopkg.in/olivere/elastic.v3"
 )
 
-const MESSAGING_PLUGIN_NAME = "messaging"
-const MESSAGING_SETTINGS_KEY_MAILCHIMP_API_KEY = "mailchimp_key"
-const MESSAGING_SETTINGS_KEY_MAILCHIMP_LIST_ID = "mailchimp_customers_list_id"
+const (
+	MESSAGING_PLUGIN_NAME                    = "messaging"
+	MESSAGING_SETTINGS_KEY_MAILCHIMP_API_KEY = "mailchimp_key"
+	MESSAGING_SETTINGS_KEY_MAILCHIMP_LIST_ID = "mailchimp_customers_list_id"
+
+	clientID = "customer-groups-01"
+	groupID  = "mwh-customer-groups-consumers"
+)
 
 func main() {
 	consumerConfig, err := consumers.MakeConsumerConfig()
@@ -37,9 +43,12 @@ func main() {
 	}
 
 	// new ES client
-	esClient, err := elastic.NewClient(elastic.SetURL(agentConfig.ElasticURL))
+	esClient, err := elastic.NewClient(
+		elastic.SetURL(agentConfig.ElasticURL),
+		elastic.SetSniff(!utils.IsDebug()),
+	)
 	if err != nil {
-		log.Panicf("Unable to create ES client with error %s", err.Error())
+		log.Panicf("Unable to create ES client with error: %s", err.Error())
 	}
 
 	// new Phoenix client
@@ -67,6 +76,7 @@ func main() {
 		chimpClient,
 		manager.SetMailchimpListID(mailchimpListID),
 		manager.SetMailchimpDisabled(mailchimpDisabled),
+		manager.SetElasticQuerySize(1000),
 	)
 
 	//Initialize and start polling agent
@@ -85,6 +95,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Unable to connect to Kafka with error %s", err.Error())
 	}
+
+	c.SetGroupID(groupID)
+	c.SetClientID(clientID)
 
 	c.RunTopic(consumerConfig.Topic, cgc.Handler)
 }

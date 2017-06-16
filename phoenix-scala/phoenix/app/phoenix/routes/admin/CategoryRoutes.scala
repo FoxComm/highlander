@@ -24,39 +24,39 @@ object CategoryRoutes {
             }
           }
         } ~
-          pathPrefix(Segment) { context ⇒
-            pathPrefix(IntNumber) { categoryId ⇒
+        pathPrefix(Segment) { context ⇒
+          pathPrefix(IntNumber) { categoryId ⇒
+            (get & pathEnd) {
+              getOrFailures {
+                CategoryManager.getCategory(categoryId, context)
+              }
+            } ~
+            (patch & pathEnd & entity(as[UpdateFullCategory])) { payload ⇒
+              mutateOrFailures {
+                CategoryManager.updateCategory(auth.model, categoryId, payload, context)
+              }
+            } ~
+            pathPrefix("baked") {
               (get & pathEnd) {
                 getOrFailures {
-                  CategoryManager.getCategory(categoryId, context)
-                }
-              } ~
-                (patch & pathEnd & entity(as[UpdateFullCategory])) { payload ⇒
-                  mutateOrFailures {
-                    CategoryManager.updateCategory(auth.model, categoryId, payload, context)
-                  }
-                } ~
-                pathPrefix("baked") {
-                  (get & pathEnd) {
-                    getOrFailures {
-                      CategoryManager.getIlluminatedCategory(categoryId, context)
-                    }
-                  }
-                } ~
-                pathPrefix("shadow") {
-                  (get & pathEnd) {
-                    getOrFailures {
-                      CategoryManager.getShadow(categoryId, context)
-                    }
-                  }
-                }
-            } ~
-              (post & pathEnd & entity(as[CreateFullCategory])) { payload ⇒
-                mutateOrFailures {
-                  CategoryManager.createCategory(auth.model, payload, context)
+                  CategoryManager.getIlluminatedCategory(categoryId, context)
                 }
               }
+            } ~
+            pathPrefix("shadow") {
+              (get & pathEnd) {
+                getOrFailures {
+                  CategoryManager.getShadow(categoryId, context)
+                }
+              }
+            }
+          } ~
+          (post & pathEnd & entity(as[CreateFullCategory])) { payload ⇒
+            mutateOrFailures {
+              CategoryManager.createCategory(auth.model, payload, context)
+            }
           }
+        }
       }
     }
 }
