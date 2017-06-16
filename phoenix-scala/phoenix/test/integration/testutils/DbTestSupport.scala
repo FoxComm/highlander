@@ -116,6 +116,7 @@ object DbTestSupport extends GimmeSupport {
 
     val originDs = DbTestSupport.jdbcDataSourceFromSlickDB(api)(tplDb)
     DbTestSupport.migrateDB(originDs)
+    // TODO: it would be best if data created in *.sql migrations above had randomized sequences as well… @michalrus
     DbTestSupport.randomizeSequences("public")(ec, tplDb)
     Factories.createSingleMerchantSystem
       .gimme(ec = ec, db = tplDb, line = implicitly[SL], file = implicitly[SF])
@@ -194,8 +195,6 @@ object DbTestSupport extends GimmeSupport {
     db.source match {
       case source: HikariCPJdbcDataSource ⇒ source.ds
     }
-
-  /// new stuff
 
   private def randomizeSequences(schema: String)(implicit ec: EC, db: DB): Unit = {
     // When changing this, please, if anything, make them less predictable, not more. @michalrus
