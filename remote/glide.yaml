@@ -1,3 +1,4 @@
 package: github.com/FoxComm/highlander/remote
 import:
-  - package: github.com/gin-gonic/gin
+  - package: github.com/labstack/echo
+  - package: github.com/lib/pq

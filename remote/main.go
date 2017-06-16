@@ -1,7 +1,7 @@
 package main
 
-import "fmt"
+import "github.com/FoxComm/highlander/remote/controllers"
 
 func main() {
-	fmt.Println("Hello, I'm remote")
+	controllers.Start()
 }
