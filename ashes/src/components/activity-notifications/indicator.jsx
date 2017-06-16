@@ -5,6 +5,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
+import Icon from 'components/core/icon';
 
 // styles
 import s from './indicator.css';
@@ -63,7 +64,7 @@ export default class NotificationIndicator extends Component {
           className={classes}
           onClick={this.toggleNotifications}
         >
-          <i className="icon icon-bell" />
+          <Icon name="bell" />
           {this.indicator}
         </div>
       </div>
