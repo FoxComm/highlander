@@ -11,7 +11,7 @@ import React, { Component, Element, PropTypes } from 'react';
 
 // components
 import BodyPortal from 'components/body-portal/body-portal';
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import ImageCard from 'components/image-card/image-card';
 import EditImage from './edit-image';
 
@@ -107,14 +107,13 @@ export default class Image extends Component<void, Props, State> {
 
     return (
       <BodyPortal className={styles.modal}>
-        <ConfirmationDialog
+        <ConfirmationModal
           isVisible={true}
-          header='Delete Media'
-          body='Are you sure you want to delete this asset?'
-          cancel='Cancel'
-          confirm='Yes, Delete'
+          title='Delete Media'
+          label='Are you sure you want to delete this asset?'
+          confirmLabel='Yes, Delete'
           onCancel={this.handleCancelDeleteImage}
-          confirmAction={this.handleConfirmDeleteImage}
+          onConfirm={this.handleConfirmDeleteImage}
           asyncState={editAlbumState}
           focus
         />

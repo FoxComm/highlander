@@ -9,6 +9,7 @@ import React, { Component, Element } from 'react';
 
 // components
 import Image from '../image/image';
+import Icon from 'components/core/icon';
 
 export type Action = {
   name: string,
@@ -49,10 +50,10 @@ export default class ImageCard extends Component {
     }
 
     return (
-      <div className={s.actions}>
-        {actions.map(({ name, handler }) => {
-          return <i className={`icon-${name}`} onClick={handler} onMouseDown={this.prevent} key={name} />;
-        })}
+      <div className={cls} onMouseOver={this.showActions} onMouseOut={this.hideActions}>
+        {actions.map(({ name, handler }) =>
+          <Icon name={name} onClick={handler} onClick={handler} onMouseDown={this.prevent} key={name} />
+        )}
       </div>
     );
   }

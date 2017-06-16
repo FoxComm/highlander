@@ -5,7 +5,9 @@ import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 
+// components
 import ButtonWithMenu from 'components/core/button-with-menu';
+import Icon from 'components/core/icon';
 
 // styles
 import s from './album-wrapper.css';
@@ -61,7 +63,7 @@ export default class AlbumWrapper extends Component {
           {this.props.actions.map(({ name, handler }) => {
             return (
               <span className={s.controlItem} key={name}>
-                <i className={`icon-${name}`} onClick={handler} />
+                <Icon name={name} onClick={handler} />
               </span>
             );
           })}

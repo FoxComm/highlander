@@ -6,9 +6,9 @@ import React from 'react';
 import Content from 'components/core/content/content';
 import ContentBox from 'components/content-box/content-box';
 import { Dropdown } from 'components/dropdown';
-import ErrorAlerts from 'components/alerts/error-alerts';
+import Alert from 'components/core/alert';
 import Form from 'components/forms/form';
-import TextInput from 'components/forms/text-input';
+import TextInput from 'components/core/text-input';
 import VerticalFormField from 'components/forms/vertical-form-field';
 
 import styles from './details.css';
@@ -45,9 +45,7 @@ const CatalogDetails = (props: Props) => {
     <Content>
       <div styleName="form-content">
         {err && (
-          <div>
-            <ErrorAlerts error={err} />
-          </div>
+          <Alert type="error">{err}</Alert>
         )}
         <ContentBox title="General">
           <Form onSubmit={onSubmit}>

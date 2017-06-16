@@ -11,6 +11,12 @@ import s from './upload.css';
 
 import type { FileInfo } from '../../modules/images';
 
+// components
+import Icon from 'components/core/icon';
+
+// styles
+import styles from './upload.css';
+
 type Props = {
   children?: Element<*>;
   onDrop: Function;
@@ -156,7 +162,7 @@ export default class Upload extends Component {
   get emptyContent() {
     return (
       <div className={s.empty}>
-        <i className="icon-upload" /> Drag & Drop to upload
+        <Icon name="upload" /> Drag & Drop to upload
       </div>
     );
   }

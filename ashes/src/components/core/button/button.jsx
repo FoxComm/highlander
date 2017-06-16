@@ -4,6 +4,9 @@
 import classNames from 'classnames';
 import React, { Element } from 'react';
 
+// components
+import Icon from 'components/core/icon';
+
 // styles
 import s from './button.css';
 
@@ -36,20 +39,26 @@ export const Button = ({ icon, children, isLoading, className, fullWidth, return
   const hasIcon = !!icon;
   const content = children ? <span className={s.text}>{children}</span> : null;
   const disabled = restProps.disabled || isLoading;
+  const onlyIcon = hasIcon && !content;
   const cls = classNames(
     s.button,
     {
       [s.loading]: isLoading,
       [s.fullWidth]: fullWidth,
       [s.small]: small,
-      [s.onlyIcon]: hasIcon && !content
+      [s.onlyIcon]: onlyIcon
     },
     className
   );
+  const postfix = icon || '';
+  const iconCls = classNames(s.icon, {
+    [`icon-${postfix}`]: hasIcon,
+    [s.only]: onlyIcon,
+  });
 
   return (
     <button {...restProps} className={cls} ref={returnRef} disabled={disabled}>
-      {icon && <i className={`icon-${icon}`} />}
+      {hasIcon && <Icon name={iconCls} />}
       {content}
     </button>
   );

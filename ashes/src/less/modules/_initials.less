@@ -5,7 +5,7 @@
   font-size: 13px;
   text-align: center;
   background-color: @color-decor24;
-  color: @color-white;
+  color: @bg-white;
   cursor: pointer;
 
   &.fc-with-tooltip:hover .fc-tooltip {
@@ -33,7 +33,7 @@
       margin-left: 20px;
 
       .fc-btn {
-        .colors(@color-white, @color-transparent);
+        .colors(@bg-white, transparent);
         width: 20px;
         padding: 0;
       }
@@ -46,7 +46,7 @@
       right: 0;
       position: fixed;
       display: none;
-      z-index: 100;
+      z-index: 20;
     }
 
     &__overlay._shown {

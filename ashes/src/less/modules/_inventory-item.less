@@ -1,6 +1,6 @@
 .fc-inventory-item {
   &__summary {
-    background: @color-decor0;
+    background: @bg-grey-headers;
     overflow: hidden;
   }
 
@@ -9,7 +9,7 @@
   }
 
   .fc-inventory-item-notes {
-    background-color: @color-decor0;
+    background-color: @bg-grey-headers;
   }
 
   .fc-notes-section-title {
@@ -18,10 +18,8 @@
 }
 
 .fc-inventory-item-details {
-  margin: 0 -1.85%;
-
   &__summary {
-    background: @color-decor0;
+    background: @bg-grey-headers;
   }
 
   &__tab-link {
@@ -29,19 +27,19 @@
     height: 100%;
     .padding-top(20px);
     font-size: 14px;
-    font-weight: @normal;
+    font-weight: 400;
     line-height: 14px;
-    color: @color-decor1;
+    color: @color-text;
   }
 
   .fc-tab._selected &__tab-link {
-    font-weight: @semibold;
+    font-weight: 600;
   }
 
   .fc-table__table > .fc-table-wrap {
     padding: 40px 20px 60px;
     border-top: none;
-    background: #fff;
+    background: @bg-white;
 
     .fc-table-wrap {
       padding: 0;
@@ -52,13 +50,13 @@
   &__warehouses-table {
     .fc-table-head {
       .fc-table-tr {
-        border-top: 1px solid #d9d9d9;
+        border-top: 1px solid @color-border;
 
         &:first-child {
-          border-left: 1px solid #d9d9d9;
+          border-left: 1px solid @color-border;
         }
         &:last-child {
-          border-right: 1px solid #d9d9d9;
+          border-right: 1px solid @color-border;
         }
       }
     }
@@ -67,7 +65,7 @@
     }
 
     .fc-table-body .fc-table-tr.fc-expandable-table__drawer {
-      background: #fff !important;
+      background: @bg-white !important;
     }
   }
 
@@ -75,15 +73,15 @@
     .fc-table-head .fc-table-tr,
     .fc-table-head .fc-table-tr th {
       border-top: none !important;
-      background: #e4e6ea;
+      background: @color-border;
     }
 
     .fc-table-body {
       .fc-table-tr:nth-child(odd) {
-        background: #f4f5f6;
+        background: @bg-grey-headers;
       }
       .fc-table-tr:nth-child(even) {
-        background: #e4e6ea;
+        background: @color-border;
       }
     }
   }

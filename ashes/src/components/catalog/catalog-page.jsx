@@ -10,7 +10,7 @@ import { transitionTo, transitionToLazy } from 'browserHistory';
 // components
 import PageNav from 'components/core/page-nav';
 import SaveCancel from 'components/core/save-cancel';
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 import { IndexLink } from 'components/link';
 import { PageTitle } from 'components/section-title';
 
@@ -161,7 +161,7 @@ class CatalogPage extends Component {
 
     const isFetching = _.get(this.props, 'fetchStatus.inProgress', false);
     if (isFetching) {
-      return <WaitAnimation />;
+      return <Spinner />;
     }
 
     return (

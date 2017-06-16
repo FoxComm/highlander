@@ -1,24 +1,24 @@
 .fc-datepicker {
   &__day {
     &:hover {
-      background: @color-decor14;
-      color: @color-white;
+      background: @bg-message-success;
+      color: @bg-white;
       cursor: pointer;
     }
 
     &:not(:hover)._current {
-      background: @color-decor7;
+      background: @bg-grey-buttons;
     }
 
     &._selected {
-      background: @color-decor15;
-      color: @color-white;
+      background: @bg-green-buttons;
+      color: @bg-white;
       cursor: pointer;
     }
 
     &._last-month, &._next-month {
-      background: @color-decor10;
-      color: @color-decor1;
+      background: @color-border;
+      color: @color-text;
 
       &:nth-child(7n + 1) {
         border-left: none;

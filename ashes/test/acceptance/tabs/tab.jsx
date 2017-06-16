@@ -1,5 +1,6 @@
 import React from 'react';
 import * as ShallowTestUtils from 'react-shallow-testutils';
+import Icon from 'components/core/icon';
 
 describe('TabView', function() {
   const TabView = requireComponent('tabs/tab.jsx');
@@ -25,7 +26,7 @@ describe('TabView', function() {
     tab = shallowRender(
       <TabView>{ titleText }</TabView>
     );
-    expect(tab, 'to contain', <i className="fc-tab__icon icon-drag-drop" />);
+    expect(tab, 'to contain', <Icon className="fc-tab__icon" name="drag-drop" />);
   });
 
   it('should be draggable when property is false', function *() {

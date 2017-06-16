@@ -1,11 +1,10 @@
-
 /* @flow */
 
 // libs
 import React, { Element } from 'react';
 
 // components
-import ConfirmationDialog from '../../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 
 type Props = {
   isVisible: bool,
@@ -17,29 +16,22 @@ type Props = {
 const CodeCreationModal = (props: Props): Element<*> => {
   const { isVisible, probability, confirmAction, cancelAction } = props;
 
-  const body = (
-    <div>
+  return (
+    <ConfirmationModal
+      isVisible={isVisible}
+      title='Generate Codes?'
+      confirmLabel='Generate Codes'
+      onConfirm={confirmAction}
+      onCancel={cancelAction}
+    >
       <p>
-        There is a&nbsp;
-        <strong>{probability}%</strong>
-        &nbsp;chance that a coupon code could be guessed based on the quantity and character length chosen.
+        There is a&nbsp;<strong>{probability}%</strong>&nbsp;
+        chance that a coupon code could be guessed based on the quantity and character length chosen.
       </p>
       <p>
         Do you want to generate codes?
       </p>
-    </div>
-  );
-
-  return (
-    <ConfirmationDialog
-      isVisible={isVisible}
-      header='Generate Codes?'
-      body={body}
-      cancel='Cancel'
-      confirm='Generate Codes'
-      confirmAction={confirmAction}
-      onCancel={cancelAction}
-    />
+    </ConfirmationModal>
   );
 };
 

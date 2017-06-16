@@ -2,19 +2,19 @@
 
 // parent: `products/images` which just extends `object-page/object-images`
 
-// styles
-import styles from './images.css';
-
 // libs
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 
 // components
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
 import { AddButton } from 'components/core/button';
-import EditAlbum from './edit-album';
+import EditAlbumModal from './edit-album';
 import Album from './album';
+
+// styles
+import s from './images.css';
 
 // types
 import type { Album as TAlbum, NewAlbum, ImageInfo, ImageFile } from '../../modules/images';
@@ -86,11 +86,11 @@ export default class Images extends Component {
     const { addAlbum = {} } = this.props.asyncActionsState;
 
     return (
-      <EditAlbum
-        className={styles.modal}
+      <EditAlbumModal
+        className={s.modal}
         isVisible={this.state.newAlbumMode}
         album={album}
-        inProgress={addAlbum.inProgress}
+        loading={addAlbum.inProgress}
         onCancel={this.handleCancelEditAlbum}
         onSave={this.addNewAlbum}
         isNew={true}
@@ -100,7 +100,7 @@ export default class Images extends Component {
 
   render() {
     if (this.props.isLoading) {
-      return <WaitAnimation />;
+      return <Spinner />;
     }
 
     const { albums, context, entityId, asyncActionsState } = this.props;
@@ -110,9 +110,9 @@ export default class Images extends Component {
       || _.get(asyncActionsState, 'uploadMediaByUrl.inProgress', false);
 
     return (
-      <div className={styles.images}>
+      <div className={s.images}>
         {this.newAlbumDialog}
-        <div className={styles.header}>
+        <div className={s.header}>
           <AddButton onClick={this.handleAddAlbum}>Album</AddButton>
         </div>
         {albums.map((album: TAlbum, i: number) => {

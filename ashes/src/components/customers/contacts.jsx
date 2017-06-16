@@ -12,9 +12,10 @@ import * as CustomerContactActions from '../../modules/customers/contacts';
 import ContentBox from '../content-box/content-box';
 import FormField from '../forms/formfield';
 import Form from '../forms/form';
-import ErrorAlerts from '../alerts/error-alerts';
+import { ApiErrors } from 'components/utils/errors';
 import { EditButton } from 'components/core/button';
 import SaveCancel from 'components/core/save-cancel';
+import TextInput from 'components/core/text-input';
 
 function mapDispatchToProps(dispatch, props) {
   return _.transform(CustomerContactActions, (result, action, key) => {
@@ -74,64 +75,67 @@ export default class CustomerContacts extends React.Component {
 
   get nameField() {
     if (!this.props.isContactsEditing) {
-      return <dd id="customer-contacts-name">{ this.props.details.name }</dd>;
+      return <dd id="customer-contacts-name">{this.props.details.name}</dd>;
     }
 
     return (
       <FormField validator={ CustomerContacts.validateName }>
-        <input id='nameField'
-               className='fc-customer-form-input'
-               name='Name'
-               maxLength='255'
-               type='text'
-               required
-               onChange={ ({target}) => this.setState({name: target.value}) }
-               value={ this.state.name } />
+        <TextInput
+         id='nameField'
+         className='fc-customer-form-input'
+         name='Name'
+         maxLength='255'
+         required
+         onChange={(value) => this.setState({name: value})}
+         value={ this.state.name }
+        />
       </FormField>
     );
   }
 
   get emailField() {
     if (!this.props.isContactsEditing) {
-      return <dd id="customer-contacts-email">{ this.props.details.email }</dd>;
+      return <dd id="customer-contacts-email">{this.props.details.email}</dd>;
     }
 
     return (
       <FormField validator={ CustomerContacts.validateEmail }>
-        <input id='emailField'
-               className='fc-customer-form-input'
-               name='Email'
-               maxLength='255'
-               type='text'
-               required
-               onChange={ ({target}) => this.setState({email: target.value}) }
-               value={ this.state.email } />
+        <TextInput
+         id='emailField'
+         className='fc-customer-form-input'
+         name='Email'
+         maxLength='255'
+         required
+         onChange={(value) => this.setState({email: value})}
+         value={this.state.email}
+        />
       </FormField>
     );
   }
 
   get phoneField() {
     if (!this.props.isContactsEditing) {
-      return <dd id="customer-contacts-phone">{ this.props.details.phoneNumber }</dd>;
+      return <dd id="customer-contacts-phone">{this.props.details.phoneNumber}</dd>;
     }
 
     return (
       <FormField validator='ascii'>
-        <input id='phoneField'
-               className='fc-customer-form-input'
-               name='Phone'
-               maxLength='255'
-               type='text'
-               required
-               onChange={ ({target}) => this.setState({phoneNumber: target.value}) }
-               value={ this.state.phoneNumber } />
+        <TextInput
+         id='phoneField'
+         className='fc-customer-form-input'
+         name='Phone'
+         maxLength='255'
+         required
+         onChange={(value) => this.setState({phoneNumber: value})}
+         value={this.state.phoneNumber}
+        />
       </FormField>
     );
   }
 
   get formActions() {
     if (this.props.isContactsEditing) {
-      return <SaveCancel onCancel={ this.props.toggleEditCustomer } />;
+      return <SaveCancel onCancel={this.props.toggleEditCustomer} />;
     }
   }
 
@@ -148,7 +152,7 @@ export default class CustomerContacts extends React.Component {
       <ContentBox title='Contact Information'
                   className='fc-customer-contacts'
                   actionBlock={ this.actionBlock }>
-        <ErrorAlerts error={this.props.err} closeAction={this.props.cleanErrors} />
+        <ApiErrors response={this.props.err} closeAction={this.props.cleanErrors} />
         <Form className='fc-customer-contacts-form fc-form-vertical'
               onChange={ this.onChange }
               onSubmit={ this.onSubmit }>

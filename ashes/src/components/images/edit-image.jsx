@@ -7,11 +7,10 @@ import React, { Component } from 'react';
 
 // components
 import { DateTime } from 'components/common/datetime';
-import { ModalContainer } from '../modal/base';
+import Modal from 'components/core/modal';
 import { FormField } from '../forms';
-import ContentBox from '../content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
-import Input from 'components/forms/text-input';
+import TextInput from 'components/core/text-input';
 import { DeleteButton } from 'components/core/button';
 import ErrorAlerts from 'components/alerts/error-alerts';
 
@@ -108,7 +107,7 @@ class EditImage extends Component {
     const style = { backgroundImage: `url('${src}')` };
 
     return (
-      <ModalContainer isVisible={this.props.isVisible} size="big">
+      <Modal isVisible={this.props.isVisible} size="big">
         <ContentBox title="Edit Image" actionBlock={this.closeAction} bodyClassName={s.body}>
           <div className={s.main}>
             <div className={s.image} style={style} />
@@ -120,10 +119,10 @@ class EditImage extends Component {
                 <div className={s.statItem}>{`Dimensions: ${width}×${height}`}</div>
               </div>
               <FormField label="URL" className={s.field} labelClassName={s.label}>
-                <Input value={src} disabled />
+                <TextInput value={src} disabled />
               </FormField>
               <FormField label="Alt Text" className={s.field} labelClassName={s.label}>
-                <Input onChange={this.handleUpdateAltText} value={alt} />
+                <TextInput onChange={this.handleUpdateAltText} value={alt} />
               </FormField>
             </div>
           </div>
@@ -139,7 +138,7 @@ class EditImage extends Component {
             />
           </footer>
         </ContentBox>
-      </ModalContainer>
+      </Modal>
     );
   }
 }

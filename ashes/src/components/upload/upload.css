@@ -1,25 +1,27 @@
+@import 'colors.css';
+
 .block {
   background-clip: padding-box;
   transition: border-color .3s;
 
   &.dragOverWindow {
-    border: 3px dashed #9bc1ca;
+    border: 3px dashed var(--color-additional-text);
     margin: -10px;
     padding: 7px;
 
     &.emptyMod {
       margin: 0;
       padding: 0;
-      border: dashed 2px #ced2d5;
+      border: dashed 2px var(--color-border);
     }
   }
 
   &.dragOverArea {
-    background-color: #e1f2ef;
+    background-color: var(--bg-grey-headers);
   }
 
   &.emptyMod {
-    border: dashed 2px #ced2d5;
+    border: dashed 2px var(--color-border);
   }
 }
 
@@ -48,13 +50,13 @@
   text-align: center;
   margin: 0 auto;
   font-weight: bold;
-  color: #dadddf;
+  color: var(--color-additional-text);
 
   & i {
     display: block;
     font-size: 96px;
     line-height: .8;
-    color: #e3e5e7;
+    color: var(--bg-grey-headers);
   }
 }
 

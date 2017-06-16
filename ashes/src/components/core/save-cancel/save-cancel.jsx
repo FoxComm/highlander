@@ -20,11 +20,11 @@ type Props = {
   /** Save button tabindex value */
   saveTabIndex: string;
   /** Cancel button label */
-  cancelText?: string;
+  cancelLabel?: string;
   /** If cancel button is disabled */
   cancelDisabled?: boolean;
   /** Save button label */
-  saveText?: string;
+  saveLabel?: string;
   /** If save button is disabled */
   saveDisabled?: boolean;
   /** If provided, save button acts as a ButtonWithMenu - it provides additional actions in a menu */
@@ -56,9 +56,9 @@ export default class SaveCancel extends Component {
     className: '',
     cancelTabIndex: '101',
     saveTabIndex: '102',
-    cancelText: 'Cancel',
+    cancelLabel: 'Cancel',
     cancelDisabled: false,
-    saveText: 'Save',
+    saveLabel: 'Save',
     saveDisabled: false,
     saveItems: [],
     onSaveSelect: noop,
@@ -81,7 +81,7 @@ export default class SaveCancel extends Component {
     const {
       cancelTabIndex,
       onCancel,
-      cancelText,
+      cancelLabel,
       cancelDisabled,
     } = this.props;
 
@@ -94,7 +94,7 @@ export default class SaveCancel extends Component {
         className={classNames(s.cancel, 'fc-save-cancel__cancel')}
         tabIndex={cancelTabIndex}
         disabled={cancelDisabled}
-        children={cancelText}
+        children={cancelLabel}
       />
     );
   }
@@ -102,7 +102,7 @@ export default class SaveCancel extends Component {
   get primary() {
     const {
       saveTabIndex,
-      saveText,
+      saveLabel,
       saveItems,
       saveDisabled,
       onSave,
@@ -115,7 +115,7 @@ export default class SaveCancel extends Component {
       return (
         <ButtonWithMenu
           isLoading={isLoading}
-          title={saveText}
+          title={saveLabel}
           items={saveItems}
           onPrimaryClick={onSave}
           onSelect={onSaveSelect}
@@ -130,12 +130,12 @@ export default class SaveCancel extends Component {
         id="fct-modal-confirm-btn"
         type={onSave ? 'button' : 'submit'}
         onClick={onSave}
-        className="fc-save-cancel__save"
+        className={classNames(s.save, 'fc-save-cancel__save')}
         tabIndex={saveTabIndex}
         isLoading={isLoading}
         disabled={saveDisabled}
-        children={saveText}
         returnRef={r => this._action = r}
+        children={saveLabel}
       />
     );
   }

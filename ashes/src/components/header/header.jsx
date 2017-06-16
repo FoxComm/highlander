@@ -7,13 +7,14 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
 // components
-import NotificationBlock from '../activity-notifications/notification-block';
-import DetailedInitials from '../user-initials/detailed-initials';
+import NotificationBlock from 'components/activity-notifications';
+import DetailedInitials from 'components/user-initials/detailed-initials';
 import Breadcrumb from './breadcrumb';
 import UserMenu from './usermenu';
 import * as userActions from 'modules/user';
 import { toggleUserMenu } from 'modules/usermenu';
-import Icon from '../icon/icon';
+import SvgIcon from 'components/core/svg-icon';
+import Icon from 'components/core/icon';
 
 import type { TUser } from 'modules/user';
 
@@ -62,19 +63,17 @@ export default class Header extends React.Component {
     return (
       <header role='banner' styleName="header" className={className} name="">
         <div styleName="logo">
-          <Icon name="logo" className={styles['logo-icon']} />
+          <SvgIcon name="logo" className={styles['logo-icon']} />
         </div>
         <div styleName="top-nav-menu">
           <Breadcrumb routes={routes} params={params} />
           <div styleName="sub-nav">
-            <div styleName="notifications">
-              <NotificationBlock />
-            </div>
+            <NotificationBlock />
             <div styleName="user" onClick={this.handleUserClick}>
               <div styleName="initials">{this.initials}</div>
               <div styleName="name">{name}</div>
               <div id="fct-user-menu-btn" styleName="arrow">
-                {isMenuVisible ? <i className="icon-chevron-up" /> : <i className="icon-chevron-down" />}
+                {isMenuVisible ? <Icon name="chevron-up" /> : <Icon name="chevron-down" />}
               </div>
               {isMenuVisible && <UserMenu user={user} />}
             </div>

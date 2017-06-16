@@ -135,9 +135,9 @@ class TableView extends Component {
   get topItemsLeft() {
     const actionsDropdown = this.actionsDropdown;
 
-    return [
+    return _.compact([
       actionsDropdown,
-    ];
+    ]);
   }
 
   get topItemsRight() {
@@ -146,12 +146,12 @@ class TableView extends Component {
     const columnSelector = this.columnSelector;
     const pagination = this.topPagination;
 
-    return [
+    return _.compact([
       bulkExport,
       columnSelector,
       pagination,
       ...headerControls,
-    ];
+    ]);
   }
 
   get topItems() {

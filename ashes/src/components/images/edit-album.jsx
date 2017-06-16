@@ -9,9 +9,8 @@ import React, { Component } from 'react';
 import { FormField } from 'components/forms';
 import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
-import wrapModal from 'components/modal/wrapper';
 import Form from 'components/forms/form';
-import TextInput from 'components/forms/text-input';
+import TextInput from 'components/core/text-input';
 import ErrorAlerts from 'components/alerts/error-alerts';
 
 // types
@@ -34,7 +33,7 @@ type State = {
   name: string;
 };
 
-class EditAlbum extends Component {
+export default class EditAlbum extends Component {
 
   props: Props;
 
@@ -46,11 +45,11 @@ class EditAlbum extends Component {
     isNew: false,
   };
 
-  input: TextInput;
+  _input: TextInput;
 
   componentDidMount() {
-    if (this.input) {
-      this.input.focus();
+    if (this._input) {
+      this._input.focus();
     }
   }
 
@@ -94,7 +93,7 @@ class EditAlbum extends Component {
               className="fc-product-details__field-value"
               value={this.state.name}
               onChange={this.handleUpdateName}
-              ref={r => this.input = r}
+              ref={r => this._input = r}
               autoComplete="off"
             />
           </FormField>
@@ -113,7 +112,3 @@ class EditAlbum extends Component {
     );
   }
 }
-
-const Wrapped: Class<Component<void, Props, State>> = wrapModal(EditAlbum);
-
-export default Wrapped;

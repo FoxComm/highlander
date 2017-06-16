@@ -1,4 +1,5 @@
-@import "common.css";
+@import 'common.css';
+@import 'colors.css';
 
 .loading {
   &::before {
@@ -13,7 +14,7 @@
 
   & :global(.fc-tab),
   & :global(.fc-tab._selected) {
-    color: #afafaf;
+    color: var(--color-additional-text);
     cursor: default;
   }
 }

@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .block {
   display: flex;
   justify-content: space-between;
@@ -7,8 +9,8 @@
   flex: 1 1 100%;
   margin-bottom: 20px;
   text-align: center;
-  color: #363636;
-  border: 1px solid #9ba3a7;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
 }
 
 .header {
@@ -24,7 +26,7 @@
 
 @media (min-resolution: 120dpi) {
   .item {
-    border: 0.5px solid #9ba3a7;
+    border-width: 0.5px;
   }
 }
 

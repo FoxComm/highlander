@@ -1,8 +1,21 @@
+// libs
 import _ from 'lodash';
 import classNames from 'classnames';
 import React from 'react';
 import PropTypes from 'prop-types';
+
+// components
+import Icon from 'components/core/icon';
+
+// paragons
 import { INPUT_ATTRS } from 'paragons/common';
+
+// components
+import TextInput from 'components/core/text-input';
+import { RoundedPill } from 'components/core/rounded-pill';
+
+// styles
+import s from './pilled-input.css';
 
 // These aren't actually multiple exported components, but ESLint mistakenly
 // thinks that they are.
@@ -10,19 +23,16 @@ import { INPUT_ATTRS } from 'paragons/common';
 /* eslint-disable react/no-multi-comp */
 
 const formatPill = (pill, idx, props) => {
-  const clsValue = classNames('fc-pilled-input__pill-value', {
-    '_clickable': props.onPillClick !== PilledInput.defaultProps.onPillClick,
-  });
-
   return (
-    <div className="fc-pilled-input__pill" key={`pill-${idx}`}>
-      <span className={clsValue} onClick={() => props.onPillClick(pill, idx)}>
-        {pill}
-      </span>
-      <a onClick={() => props.onPillClose(pill, idx)} className="fc-pilled-input__pill-close">
-        &times;
-      </a>
-    </div>
+    <RoundedPill
+      key={`pill-${idx}`}
+      value={idx}
+      onClick={() => props.onPillClick(pill, idx)}
+      onClose={() => props.onPillClose(pill, idx)}
+      className={s.pill}
+    >
+      {pill.display || pill}
+    </RoundedPill>
   );
 };
 
@@ -44,7 +54,7 @@ const iconWrapper = (icon, onIconClick) => {
 
     return (
       <div className={cls} onClick={onIconClick}>
-        <i className={`icon-${icon}`} />
+        <Icon name={icon} />
       </div>
     );
   }
@@ -65,9 +75,8 @@ const PilledInput = props => {
   const attrs = _.pick(rest, INPUT_ATTRS);
 
   const input = children || (
-      <input
+      <TextInput
         className={inputClass}
-        type="text"
         autoFocus={props.autoFocus}
         disabled={disabled}
         {...attrs} />

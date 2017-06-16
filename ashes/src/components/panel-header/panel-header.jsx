@@ -1,6 +1,12 @@
 /* @flow */
 
+// libs
 import React from 'react';
+
+// components
+import Icon from 'components/core/icon';
+
+// styles
 import styles from './panel-header.css';
 
 type Props = {
@@ -19,7 +25,7 @@ const PanelHeader = ({ isOptional = false, showStatus = false, status = '', text
     const iconStyleName = `icon-background-${status}`;
     icon = (
       <div styleName={styleName}>
-        <i styleName={iconStyleName} className={styleName} />
+        <Icon styleName={iconStyleName} name={status} />
       </div>
     );
   }

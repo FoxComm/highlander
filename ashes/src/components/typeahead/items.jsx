@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 // components
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 
 // styles
 import s from './typeahead.css';
@@ -26,7 +26,7 @@ const TypeaheadItems = props => {
       </ul>
     );
   } else if (props.updating) {
-    return <div className={classNames(s.items, s.preloader)}><WaitAnimation /></div>;
+    return <div className={classNames(s.items, s.preloader)}><Spinner /></div>;
   }
 
   return <div className={classNames(s.items, s['not-found'])}>No results found.</div>;

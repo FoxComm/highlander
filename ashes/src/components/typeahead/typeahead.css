@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .block {
   position: relative;
 }
@@ -5,7 +7,7 @@
 /* @todo remove globals from here somehow */
 .block.active :global(.fc-pilled-input__input-container),
 .block.active :global(.fc-pilled-input__input-container:hover) {
-  border-color: #a2dee1 !important;
+  border-color: var(--bg-message-success) !important;
 }
 
 .block :global(.fc-form-field-label) {
@@ -27,7 +29,7 @@
 
 .input-icon {
   display: none;
-  color: #bfbfbf;
+  color: var(--color-additional-text);
   position: absolute;
   left: 13px;
   bottom: 11px;
@@ -56,8 +58,8 @@
   max-height: 350px;
   overflow-y: scroll;
   overflow-x: hidden;
-  background-color: #fff;
-  border: 1px solid #bbbdbf;
+  background-color: var(--bg-white);
+  border: 1px solid var(--color-border);
   border-width: 0 1px 1px 1px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
 
@@ -65,15 +67,14 @@
 }
 
 .list.users .items {
-  width: 600px;
   overflow-y: auto;
 }
 
 .item {
   padding: 0;
   border-width: 0 1px 1px;
-  background-color: #fff;
-  box-shadow: 0px -0.5px 0px #bbbdbf inset;
+  background-color: var(--bg-white);
+  box-shadow: 0px -0.5px 0px var(--color-border) inset;
 }
 
 .item:last-child {
@@ -81,7 +82,7 @@
 }
 
 .item:hover {
-  background-color: #f7f7f7;
+  background-color: var(--bg-grey-headers);
   cursor: pointer;
 }
 

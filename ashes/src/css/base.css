@@ -2,6 +2,7 @@
 @import 'fontello.css';
 @import 'transitions.css';
 @import 'normalize.css';
+@import 'colors.css';
 
 * {
   outline: 0;
@@ -20,8 +21,8 @@ body {
   height: 100%;
   font-family: 'Open Sans', sans-serif;
   font-size: 15px;
-  color: #484848;
-  background-color: #f2f2f2;
+  color: var(--color-text);
+  background-color: var(--bg-grey-headers);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

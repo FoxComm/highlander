@@ -2,26 +2,29 @@
 
 // parent: `./images`
 
-// styles
-import s from './images.css';
-
 // libs
 import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 import { isEmpty, isEqual, get } from 'lodash';
 
 // components
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
-import Alert from 'components/alerts/alert';
+import ConfirmationModal from 'components/core/confirmation-modal';
+import Alert from 'components/core/alert';
 import AlbumWrapper from './album-wrapper/album-wrapper';
-import EditAlbum from './edit-album';
+import EditAlbumModal from './edit-album';
 import Upload from 'components/upload/upload';
 import SortableTiles from 'components/sortable/sortable-tiles';
 import Image from './image';
 import UploadByUrl from './upload-by-url';
 
+// styles
+import s from './images.css';
+
 // types
 import type { Album as TAlbum, ImageFile, ImageInfo } from '../../modules/images';
+
+// styles
+import s from './images.css';
 
 export type Props = {
   album: TAlbum;
@@ -229,31 +232,25 @@ export default class Album extends Component {
   get archiveAlbumDialog(): ?Element<*> {
     const { album, archiveAlbumState } = this.props;
 
-    const body = (
-      <div>
-        <Alert type="warning">
+    return (
+      <ConfirmationModal
+        className={s.modal}
+        isVisible={this.state.archiveMode}
+        title='Archive Album'
+        confirmLabel='Yes, Archive'
+        onCancel={this.handleCancelArchiveAlbum}
+        onConfirm={this.handleConfirmArchiveAlbum}
+        asyncState={archiveAlbumState}
+        focusCancel
+      >
+        <Alert type={Alert.WARNING}>
           Archiving this album will remove <strong>{album.images.length} images</strong> from the product.
           <strong> This action cannot be undone</strong>
         </Alert>
         <span>
           Are you sure you want to archive <strong>{album.name}</strong> album?
         </span>
-      </div>
-    );
-
-    return (
-      <ConfirmationDialog
-        className={s.modal}
-        isVisible={this.state.archiveMode}
-        header='Archive Album'
-        body={body}
-        cancel='Cancel'
-        confirm='Yes, Archive'
-        onCancel={this.handleCancelArchiveAlbum}
-        confirmAction={this.handleConfirmArchiveAlbum}
-        asyncState={archiveAlbumState}
-        focusCancel
-      />
+      </ConfirmationModal>
     );
   }
 

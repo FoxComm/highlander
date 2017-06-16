@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .header {
   display: flex;
   justify-content: flex-end;
@@ -12,7 +14,7 @@
 .albumTitleText {
   font-size: 14px;
   font-weight: 600;
-  color: #999;
+  color: var(--color-additional-text);
   text-transform: uppercase;
 }
 
