@@ -2,8 +2,8 @@ let
 
   nixpkgs = (import <nixpkgs> {}).pkgs.fetchFromGitHub {
     owner = "NixOS"; repo = "nixpkgs";
-    rev = "0ff8fc1d83f85dbde91a3ce65111141c9014114e"; # 16.09
-    sha256 = "0llha8bhvwvf2pij1vik693181gxgwhyzldfc1pa31jxqajxxjlz";
+    rev = "0011f9065a1ad1da4db67bec8d535d91b0a78fba"; # nixos-unstable
+    sha256 = "0m662mibyxqmp83zdhsi084p2h90268h3i8bfk3b2q8pbjz89yx2";
   };
 
 in with import nixpkgs {}; {
@@ -21,7 +21,7 @@ in with import nixpkgs {}; {
     };
   in (buildFHSUserEnv {
     name = "main";
-    targetPkgs = pkgs: (with pkgs; [ ansible2 curl dnsimple docker gnumake git google-cloud-sdk openssh python27Full python27Packages.libcloud python27Packages.pycrypto python27Packages.requests rsync ] ++ python27Packages.libcloud.propagatedBuildInputs ++ dnsimple.propagatedBuildInputs);
+    targetPkgs = pkgs: (with pkgs; [ ansible2 curl dnsimple docker gnumake git google-cloud-sdk openssh python27Full python27Packages.libcloud python27Packages.pycrypto python27Packages.requests rsync ] ++ python27Packages.libcloud.propagatedBuildInputs ++ python27Packages.pycrypto.propagatedBuildInputs ++ dnsimple.propagatedBuildInputs);
     profile = ''
       source .env.local;
       export PYTHONPATH="/usr/lib/python2.7/site-packages"
