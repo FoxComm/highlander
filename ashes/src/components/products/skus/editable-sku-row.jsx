@@ -9,7 +9,6 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
-import classNames from 'classnames';
 
 // components
 import { FormField } from 'components/forms';
@@ -18,6 +17,7 @@ import MultiSelectRow from 'components/table/multi-select-row';
 import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 import { DeleteButton } from 'components/core/button';
 import ProductImage from 'components/imgix/product-image';
+import TextInput from 'components/core/text-input';
 
 import reducer, { suggestSkus } from 'modules/skus/suggest';
 import type { SuggestOptions } from 'modules/skus/suggest';
@@ -156,11 +156,9 @@ class EditableSkuRow extends Component {
 
     return (
       <FormField>
-        <input
-          className="fc-text-input"
-          type="text"
+        <TextInput
           value={value}
-          onChange={({ target: { value } }) => {
+          onChange={(value) => {
             this.updateSku({ upc: value });
           }}
           placeholder="UPC"
@@ -251,9 +249,8 @@ class EditableSkuRow extends Component {
       <div styleName="sku-cell">
         <FormField error={error} scrollToErrors>
           <LoadingInputWrapper inProgress={this.props.isFetchingSkus}>
-            <input
-              className="fc-text-input"
-              type="text"
+            <TextInput
+              styleName="sku-code"
               value={this.skuCodeValue}
               onChange={this.handleUpdateCode}
               placeholder="SKU"
@@ -270,11 +267,10 @@ class EditableSkuRow extends Component {
 
     return (
       <FormField>
-        <input
-          className={classNames('fc-text-input', styles.inventory)}
-          type="text"
+        <TextInput
+          className={styles.inventory}
           value={value}
-          onChange={({ target: { value } }) => {
+          onChange={(value) => {
             this.updateSku({ inventory: value });
           }}
           placeholder="QTY"
@@ -288,11 +284,9 @@ class EditableSkuRow extends Component {
 
     return (
       <FormField>
-        <input
-          className="fc-text-input"
-          type="text"
+        <TextInput
           value={value}
-          onChange={({ target: { value } }) => {
+          onChange={(value) => {
             this.updateSku({ asin: value });
           }}
           placeholder="ASIN"
@@ -338,7 +332,7 @@ class EditableSkuRow extends Component {
     const variantValue = _.get(mapping, [skuCode, variantName]);
 
     return (
-      <div styleName="variant-value">{variantValue}</div>
+      <div styleName="variant-value" title={variantValue}>{variantValue}</div>
     );
   }
 
@@ -377,8 +371,7 @@ class EditableSkuRow extends Component {
   }
 
   @autobind
-  handleUpdateCode({ target }: Object) {
-    const { value } = target;
+  handleUpdateCode(value: string) {
     this.updateSku({
       code: value,
     });

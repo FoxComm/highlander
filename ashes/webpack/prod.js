@@ -16,7 +16,7 @@ module.exports = {
         include: [
           path.resolve(__dirname, '../src'),
         ],
-        use: [ 'babel-loader' ],
+        use: [ 'babel-loader?cacheDirectory=true' ],
       },
       {
         test: /\.css$/,

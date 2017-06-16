@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 
 import styles from './select-groups.css';
 
-import RadioButton from '../forms/radio-button';
+import RadioButton from 'components/core/radio-button';
 import Typeahead from '../typeahead/typeahead';
 import PilledInput from '../pilled-search/pilled-input';
 import CustomerGroupRow from './customer-group-row';
@@ -88,6 +88,7 @@ class SelectCustomerGroups extends Component {
         </div>);
   }
 
+  @autobind
   setTerm(term: string) {
     this.setState({
       term,
@@ -124,7 +125,7 @@ class SelectCustomerGroups extends Component {
         solid={true}
         value={state.term}
         disabled={props.groups == null}
-        onChange={({target}) => this.setTerm(target.value)}
+        onChange={ value => this.setTerm(value)}
         pills={pills}
         icon={null}
         onPillClose={(name, index) => this.deselectItem(index)}
@@ -138,19 +139,17 @@ class SelectCustomerGroups extends Component {
         <RadioButton
           id="qualifyAll"
           name="qualifyAll"
+          label="All customers qualify"
           checked={this.props.qualifyAll === true}
           onChange={this.handleChangeQualifier}
-        >
-          <label htmlFor="qualifyAll">All customers qualify</label>
-        </RadioButton>
+        />
         <RadioButton
           id="qualifyGroups"
           name="qualifyGroups"
+          label="Select customer groups qualify"
           checked={this.props.qualifyAll === false}
           onChange={this.handleChangeQualifier}
-        >
-          <label htmlFor="qualifyGroups">Select customer groups qualify</label>
-        </RadioButton>
+        />
         {this.customersGroups}
       </div>
     );

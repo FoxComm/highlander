@@ -8,7 +8,7 @@ import * as validators from 'lib/validators';
 import classNames from 'classnames';
 import { isDefined } from 'lib/utils';
 
-import AutoScroll from '../common/auto-scroll';
+import AutoScroll from 'components/utils/auto-scroll';
 
 type FormFieldErrorProps = {
   error: Element<*>|string,
@@ -312,6 +312,7 @@ export default class FormField extends Component {
     );
     const children = React.cloneElement(this.props.children, {
       key: 'children',
+      error: this.hasError,
     });
 
     const content = this.props.labelAfterInput

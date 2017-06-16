@@ -28,7 +28,7 @@ export default class BodyPortal extends Component {
 
     style.left = left + 'px';
     style.top = top + 'px';
-    style.zIndex = 201;
+    style.zIndex = 50;
   }
 
   componentDidMount(): void {

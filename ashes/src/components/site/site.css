@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .block {
   display: flex;
   height: 100vh;
@@ -32,6 +34,6 @@
 
 .sidebar {
   width: 206px;
-  background-color: #263349;
+  background-color: var(--bg-nav-main);
   overflow-y: auto;
 }

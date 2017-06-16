@@ -1,13 +1,17 @@
-.overlay_hidden {
-  display: none;
-}
+@import 'colors.css';
 
-.overlay_shown {
-  display: block;
+.overlay {
+  display: none;
   position: fixed;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
   z-index: 2;
+  opacity: 0.5;
+  background: var(--bg-nav-main);
+}
+
+.active {
+  display: block;
 }

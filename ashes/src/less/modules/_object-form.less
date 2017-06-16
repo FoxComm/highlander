@@ -2,7 +2,7 @@
   #label() {
     .font-spec(14px, 600, 24px);
     .margin-bottom(10px);
-    color: @color-decor1;
+    color: @color-text;
     text-transform: capitalize;
   }
 
@@ -39,23 +39,10 @@
     flex-direction: row;
     .padding-left(20px);
   }
-
-  &__custom-property {
-    min-width: 575px;
-
-    .fc-content-box {
-      .margin-bottom(0);
-    }
-
-    .fc-dropdown {
-      max-width: 100%;
-      .margin-bottom(10px);
-    }
-  }
 }
 
 .fc-object-form__field._has-error {
   .fc-rich-text-editor__content {
-    border-color: @color-decor22;
+    border-color: @color-error-text;
   }
 }

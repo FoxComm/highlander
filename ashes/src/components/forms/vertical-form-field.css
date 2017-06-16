@@ -1,0 +1,22 @@
+.field {
+  padding: 10px 0;
+}
+
+.label {
+  color: #363636;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.input-container {
+  padding-top: 10px;
+}
+
+.input-container input[type="text"] {
+  width: 100%;
+}
+
+.required {
+  color: #f65554;
+}
+

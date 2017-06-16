@@ -1,60 +1,65 @@
+@import 'colors.css';
 
-.promotion-coupons-new :global .fc-content-box-indent .fc-content-box .fc-content-box-header{
+.modal {
+  width: 800px;
+}
+
+.promotion-coupons-new :global .fc-content-box .fc-content-box-header{
   height: auto;
   margin: 0 0 10px 0;
   background: transparent;
   padding-bottom: 5px;
 }
 
-.promotion-coupons-new :global .fc-content-box-indent .fc-content-box .fc-content-box-indent{
-  margin: 0;	
+.promotion-coupons-new :global .fc-content-box .fc-content-box-indent{
+  margin: 0;
 }
 
-.promotion-coupons-new :global .fc-content-box-indent .fc-content-box .fc-content-box-indent .fc-content-box-indent{
-  margin: 20px;	
+.promotion-coupons-new :global .fc-content-box .fc-content-box-indent .fc-content-box-indent{
+  margin: 20px;
 }
 
-.promotion-coupons-new :global .fc-content-box-indent .fc-content-box .fc-content-box-indent .fc-content-box-header{
+.promotion-coupons-new :global .fc-content-box .fc-content-box-indent .fc-content-box-header{
   height: 60px;
   margin: 0;
-  background: #f7f7f7;
-  padding-bottom: 0;	
+  background: var(--bg-grey-headers);
+  padding-bottom: 0;
 }
 
-.promotion-coupons-new :global .fc-content-box-indent .fc-content-box .fc-content-box-header .fc-title{
+.promotion-coupons-new :global .fc-content-box .fc-content-box-header .fc-title{
   padding-left: 0;
 }
 
-.promotion-coupons-new :global .fc-content-box-indent .fc-content-box .fc-content-box-indent .fc-content-box-header .fc-title{
+.promotion-coupons-new :global .fc-content-box .fc-content-box-indent .fc-content-box-header .fc-title{
   padding-left: 20px;
 }
 
-.promotion-coupons-new :global .fc-content-box-indent ._lib_components_object_page_object_page__object-details{
+.promotion-coupons-new :global ._lib_components_object_page_object_page__object-details{
   margin: 0;
 }
 
-.promotion-coupons-new :global .fc-content-box-indent .fc-content-box{
+.promotion-coupons-new :global .fc-content-box{
   border: 0;
   margin-bottom: 30px;
 }
 
-.promotion-coupons-new :global .fc-content-box-indent .fc-content-box .fc-content-box-indent .fc-content-box{
-  border: solid 1px #d9d9d9;
+.promotion-coupons-new :global .fc-content-box .fc-content-box-indent .fc-content-box{
+  border: 1px solid var(--color-border);
   margin-bottom: 0;
 }
 
-.promotion-coupons-new :global .fc-content-box-indent ._lib_components_coupons_form_styles__form-subset{
+.promotion-coupons-new :global ._lib_components_coupons_form_styles__form-subset{
   margin: 0;
 }
 
-.promotion-coupons-new :global .fc-content-box-indent .fc-coupon-inline-row{
+.promotion-coupons-new :global .fc-coupon-inline-row{
 	display: inline-block;
 	margin-right: 20px;
 	vertical-align: top;
 	margin-bottom: 0;
 }
 
-.promotion-coupons-new :global .fc-content-box-indent .fc-coupon-inline-row label{
+.promotion-coupons-new :global .fc-coupon-inline-row label{
   display: block;
   line-height: 30px;
 }

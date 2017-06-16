@@ -1,0 +1,39 @@
+@import 'colors.css';
+
+.block {
+  height: 100%;
+}
+
+.popup {
+  position: absolute;
+  right: 100px;
+  top: 90%;
+  width: 370px;
+  max-height: 560px;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1);
+
+  :global .initials .fc-tooltip {
+    transform: translateX(-50%);
+  }
+
+  :global .initials .fc-tooltip:before {
+    left: 50%;
+  }
+
+  & :global .fc-content-box-header {
+    height: 44px;
+    color: var(--color-text);
+    background-color: var(--bg-grey-headers);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 19px;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 0;
+  }
+
+  & :global .fc-content-box-indent {
+    margin: 0;
+    max-height: 456px;
+    overflow-y: scroll;
+  }
+}

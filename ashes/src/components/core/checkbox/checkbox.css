@@ -1,0 +1,246 @@
+@import 'colors.css';
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+
+  & input {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    padding: 0;
+    font-size: 1rem;
+    opacity: 0;
+  }
+
+  & .label {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100%;
+    font-size: 13px;
+    color: var(--color-text);
+  }
+
+  & .label::before {
+    content: '';
+    width: 24px;
+    height: 24px;
+    border-radius: 3px;
+    border: 2px solid var(--color-border);
+    transition: all .2s;
+    cursor: pointer;
+  }
+
+  & .label:not(:empty)::before {
+    margin-right: 7px;
+  }
+
+  & .label::after {
+    content: '\E829';
+    position: absolute;
+    top: 50%;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 20px;
+    text-align: center;
+    font-family: "fontello";
+    background: var(--bg-nav-main);
+    color: var(--color-light-text);
+    opacity: 0;
+    transform-origin: center top;
+    transform: scale(0) translateY(-50%);
+    transition: all .12s;
+    cursor: pointer;
+  }
+
+  & input:hover + .label::before {
+    border-color: var(--bg-nav-main);
+  }
+
+  & input:checked + .label::before {
+    border-color: var(--bg-nav-main);
+  }
+
+  & input:checked + .label::after {
+    opacity: 1;
+    transform: scale(1) translateY(-50%);
+  }
+
+  & input:checked:hover + .label::after {
+    background-color: var(--bg-nav-disabled);
+  }
+
+  & input[disabled] + .label::before,
+  & input[disabled] + .label::after {
+    cursor: default;
+  }
+
+  & input[disabled] + .label::before {
+    border-color: var(--color-border);
+    background: var(--bg-grey-headers);
+  }
+
+  & input[disabled]:checked + .label::before {
+    color: var(--color-additional-text);
+  }
+
+  & input[disabled]:checked:hover + .label::before {
+    border-color: var(--color-border);
+    background: var(--bg-grey-headers);
+  }
+
+  &.inCell {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    & .label {
+      justify-content: center;
+    }
+
+    & .label::after {
+      position: relative;
+      margin-left: -22px;
+      left: 0;
+      top: 0;
+      transform-origin: center;
+      transform: scale(0);
+    }
+
+    & input:checked + .label::after {
+      transform: scale(1);
+    }
+  }
+}
+
+.halfCheckbox {
+  composes: checkbox;
+
+  &.halfChecked {
+    & .label::after {
+      content: '\e832';
+    }
+  }
+}
+
+.bigCheckbox {
+  composes: checkbox;
+
+  & .label::before {
+    width: 40px;
+    height: 40px;
+  }
+
+  & .label::after {
+    content: '\e827';
+    position: absolute;
+    left: 2px;
+    top: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 36px;
+    color: var(--color-light-text);
+    transform: scale(1) translateY(-50%);
+  }
+
+  & input:checked + .label::after {
+    background: var(--bg-nav-main);
+  }
+
+  & .label {
+    line-height: 40px;
+  }
+}
+
+.slideCheckbox {
+  width: 80px;
+  height: 34px;
+  transition: all .4s ease;
+  position: relative;
+
+  & .label {
+    position: absolute;
+    right: 0;
+    top: -2px;
+    width: 80px;
+    height: 34px;
+    background: var(--bg-field-error);
+    border-radius: 17px;
+    transition: all .4s ease;
+    padding: 0 10px;
+    text-align: right;
+    color: var(--color-light-text);
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 34px;
+    user-select: none;
+    cursor: pointer;
+  }
+
+  & .label::before {
+    content: 'YES';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80px;
+    height: 34px;
+    background: var(--bg-green-buttons);
+    opacity: 0;
+    border: none;
+    border-radius: 17px;
+    transition: all .4s ease;
+    padding: 0 10px;
+    text-indent: -42px;
+    text-align: left;
+    color: var(--color-light-text);
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 34px;
+  }
+
+  & .label::after {
+    content: 'NO';
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    width: 24px;
+    height: 24px;
+    background: var(--bg-white);
+    border-radius: 17px;
+    transition: all .4s ease;
+    text-indent: 42px;
+    line-height: 24px;
+  }
+
+  & input {
+    visibility: hidden;
+  }
+
+  & input:checked + .label {
+    background: transparent;
+    overflow: hidden;
+
+    &:before {
+      text-indent: 0;
+      opacity: 1;
+    }
+
+    &:after {
+      left: 51px;
+    }
+  }
+}

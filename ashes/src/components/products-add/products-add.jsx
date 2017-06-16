@@ -51,8 +51,8 @@ class ProductsAdd extends Component {
   }
 
   @autobind
-  handleInputChange({ target }: { target: HTMLInputElement }) {
-    this.props.setTerm(target.value);
+  handleInputChange(value: string) {
+    this.props.setTerm(value);
 
     this.search();
   }

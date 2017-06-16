@@ -1,9 +1,10 @@
-@import "common.css";
+@import 'common.css';
+@import 'colors.css';
 
 .card {
   position: relative;
-  border: 1px solid #d9d9d9;
-  background: #fff;
+  border: 1px solid var(--color-border);
+  background: var(--bg-white);
   margin: 0 5px;
 }
 
@@ -23,7 +24,7 @@
 .actions {
   position: absolute;
   width: 100%;
-  background: #333a44;
+  background: var(--bg-nav-main);
   opacity: .86;
   text-align: right;
   transition: transform .32s cubic-bezier(0.4, 0, 0.2, 1);
@@ -33,7 +34,7 @@
   }
 
   & i {
-    color: #fff;
+    color: var(--color-light-text);
     opacity: .76;
     font-size: 18px;
     margin: 23px 10px;
@@ -50,7 +51,7 @@
   position: relative;
   padding: 18px;
   max-width: 300px;
-  background-color: #fff;
+  background-color: var(--bg-white);
 }
 
 ._loading {
@@ -70,7 +71,7 @@
 .secondaryTitle {
   font-size: 14px;
   font-weight: 400;
-  color: #ABB2B6;
+  color: var(--color-additional-text);
 }
 
 @keyframes caramel {

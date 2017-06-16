@@ -1,0 +1,26 @@
+@import "colors.css";
+
+.change {
+
+  &:before {
+    width: .7em;
+    text-align: center;
+    display: inline-block;
+  }
+
+  &.positive {
+    color: var(--color-action-text);
+
+    &:before {
+      content: "+";
+    }
+  }
+
+  &.negative {
+    color: var(--color-error-text);
+
+    &:before {
+      content: "-";
+    }
+  }
+}

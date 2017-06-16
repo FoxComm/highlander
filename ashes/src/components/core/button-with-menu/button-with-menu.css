@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .button {
   display: inline-block;
   vertical-align: top;
@@ -10,12 +12,12 @@
 
 .menu {
   position: absolute;
-  z-index: 100;
+  z-index: 20;
   right: 0;
   min-width: 100%;
   margin: 0;
-  background-color: #ffffff;
-  border: 1px solid #d9d9d9;
+  background-color: var(--bg-white);
+  border: 1px solid var(--color-border);
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1);
   user-select: none;
   max-height: 50vh;
@@ -32,8 +34,8 @@
   position: relative;
 
   & > :global(.fc-button-with-menu__right-button) {
-    border-left: 1px solid #ffffff;
-    z-index: 100;
+    border-left: 1px solid var(--bg-white);
+    z-index: 20;
 
     & i {
       font-size: 12px;
@@ -49,6 +51,7 @@
 
 .dropdownButton {
   margin-left: 1px;
+  height: 40px; /* fix for IE as it renders 18.89(random number after dot) height button with 22 padding */
 }
 
 .overlay {

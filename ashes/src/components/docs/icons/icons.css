@@ -1,0 +1,30 @@
+@import 'colors.css';
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.box {
+  display: flex;
+  flex-direction: column;
+  margin: 10px;
+  color: var(--color-subtitle-text)
+}
+
+.iconWrapper {
+  width: 120px;
+  height: 120px;
+  border: 1px dashed var(--color-subtitle-text);
+  text-align: center;
+  line-height: 120px;
+  font-size: 28px;
+}
+
+.text {
+  margin-top: 5px;
+  font-size: 12px;
+  text-align: center;
+  line-height: 15px;
+}

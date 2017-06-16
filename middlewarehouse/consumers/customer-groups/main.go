@@ -21,6 +21,9 @@ const (
 	MESSAGING_PLUGIN_NAME                    = "messaging"
 	MESSAGING_SETTINGS_KEY_MAILCHIMP_API_KEY = "mailchimp_key"
 	MESSAGING_SETTINGS_KEY_MAILCHIMP_LIST_ID = "mailchimp_customers_list_id"
+
+	clientID = "customer-groups-01"
+	groupID  = "mwh-customer-groups-consumers"
 )
 
 func main() {
@@ -92,6 +95,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Unable to connect to Kafka with error %s", err.Error())
 	}
+
+	c.SetGroupID(groupID)
+	c.SetClientID(clientID)
 
 	c.RunTopic(consumerConfig.Topic, cgc.Handler)
 }

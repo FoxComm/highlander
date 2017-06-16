@@ -11,4 +11,12 @@
   & td:last-child {
     text-align: center;
   }
+
+  & td:first-child {
+    line-height: 32px !important;
+  }
+
+  & :global(.fc-table-td) {
+    vertical-align: top !important;
+  }
 }

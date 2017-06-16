@@ -8,17 +8,17 @@ import { ReasonType } from '../../lib/reason-utils';
 
 // components
 import { IndexLink, Link } from 'components/link';
-import ErrorAlerts from '../alerts/error-alerts';
+import { Errors } from 'components/utils/errors';
 import GiftCardCode from './gift-card-code';
 import { DateTime } from '../common/datetime';
 import Currency from '../common/currency';
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
 import { PageTitle } from '../section-title';
 import Panel from '../panel/panel';
 import { PanelList, PanelListItem } from '../panel/panel-list';
 import { Dropdown } from '../dropdown';
 import PageNav from 'components/core/page-nav';
-import ConfirmationDialog from '../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import State, { formattedStatus } from '../common/state';
 
 // data
@@ -68,7 +68,7 @@ export default class GiftCard extends React.Component {
   };
 
   state = {
-    error: null,
+    errors: [],
   };
 
   componentDidMount() {
@@ -120,11 +120,10 @@ export default class GiftCard extends React.Component {
       .then(response => {
         try {
           const errors = JSON.parse(_.get(response, 'payload.[1].response.text'));
-          const error = _.get(errors, 'errors.[0]');
 
-          this.setState({ error });
+          this.setState({ errors });
         } catch (e) {
-          this.setState({ error: null });
+          this.setState({ errors: [] });
         }
       });
   }
@@ -163,23 +162,17 @@ export default class GiftCard extends React.Component {
       status = formattedStatus(this.props.nextState);
     }
 
-    const message = (
-      <span>
-        Are you sure you want to change the gift card state to
-        <strong className="fc-gift-card-detail__new-status">{ status }</strong>
-        ?
-      </span>
-    );
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         isVisible={shouldDisplay}
-        header="Change Gift Card State?"
-        body={message}
-        cancel="Cancel"
-        confirm="Yes, Change State"
+        title="Change Gift Card State?"
+        confirmLabel="Yes, Change State"
         onCancel={() => this.props.cancelChangeGiftCardStatus(this.props.params.giftCard)}
-        confirmAction={() => this.props.saveGiftCardStatus(this.props.params.giftCard)}
-      />
+        onConfirm={() => this.props.saveGiftCardStatus(this.props.params.giftCard)}
+      >
+        Are you sure you want to change the gift card state to
+        <strong className="fc-gift-card-detail__new-status">{status}</strong>?
+      </ConfirmationModal>
     );
   }
 
@@ -191,12 +184,17 @@ export default class GiftCard extends React.Component {
     if (props.reasons && props.reasons[this.reasonType]) {
       reasons = _.map(props.reasons[this.reasonType], reason => [reason.id, reason.body]);
     }
-    const value = props.reasonId;
 
-    const body = (
-      <div>
+    return (
+      <ConfirmationModal
+        isVisible={shouldDisplay}
+        title="Cancel Gift Card?"
+        confirmLabel="Yes, Cancel"
+        onCancel={() => this.props.cancelChangeGiftCardStatus(this.props.params.giftCard)}
+        onConfirm={this.handleConfirmChangeStatus}
+      >
         <div>Are you sure you want to cancel this gift card?</div>
-        {this.state.error && <ErrorAlerts error={this.state.error} />}
+        {this.state.errors.length && <Errors errors={this.state.errors} />}
         <div className="fc-gift-card-detail__cancel-reason">
           <div>
             <label>
@@ -209,24 +207,12 @@ export default class GiftCard extends React.Component {
               name="cancellationReason"
               placeholder="- Select -"
               items={reasons}
-              value={value}
+              value={props.reasonId}
               onChange={(reasonId) => this.props.changeCancellationReason(this.props.params.giftCard, reasonId)}
             />
           </div>
         </div>
-      </div>
-    );
-
-    return (
-      <ConfirmationDialog
-        isVisible={shouldDisplay}
-        header="Cancel Gift Card?"
-        body={body}
-        cancel="Cancel"
-        confirm="Yes, Cancel"
-        onCancel={() => this.props.cancelChangeGiftCardStatus(this.props.params.giftCard)}
-        confirmAction={this.handleConfirmChangeStatus}
-      />
+      </ConfirmationModal>
     );
   }
 
@@ -234,7 +220,7 @@ export default class GiftCard extends React.Component {
     const card = this.props.card;
 
     if (!card) {
-      return <div className="fc-gift-card-detail"><WaitAnimation /></div>;
+      return <Spinner className={s.spinner} />;
     }
 
     return (
