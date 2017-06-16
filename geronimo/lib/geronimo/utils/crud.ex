@@ -33,7 +33,6 @@ defmodule Geronimo.Crud do
         Repo.transaction(fn ->
           case Repo.insert(changeset(apply(__MODULE__, :__struct__, []), payload)) do
             {:ok, record} ->
-              Geronimo.KafkaWorker.push_async(table(), record)
               record
             {_, changes} -> Repo.rollback(changes)
           end

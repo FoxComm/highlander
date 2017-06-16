@@ -39,7 +39,6 @@ defmodule Geronimo.Entity do
     Repo.transaction(fn ->
       case Repo.insert(changeset(%Geronimo.Entity{}, prms)) do
         {:ok, record} ->
-          Geronimo.KafkaWorker.push_async(table(), record)
           record
         {_, changes} ->
           Repo.rollback(changes)
