@@ -73,6 +73,10 @@ class CouponPage extends ObjectPage {
     };
   }
 
+  get unsaved(): boolean {
+    return false;
+  }
+
   get selectedPromotions(): Array<any> {
     return _.get(this.props, 'details.selectedPromotions', []);
   }
@@ -95,6 +99,25 @@ class CouponPage extends ObjectPage {
         ..._.omit(this.state.object,'singleCode'),
         generateCodes,
       };
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { isFetching, isSaving, fetchError, createError, updateError } = nextProps;
+
+    const nextSchema = nextProps.schema;
+    if (nextSchema && nextSchema != this.state.schema) {
+      this.setState({
+        schema: nextSchema,
+      });
+    }
+
+    if (!isFetching && !isSaving && !fetchError && !createError && !updateError) {
+      const nextObject = nextProps.originalObject;
+      if (nextObject && nextObject != this.props.originalObject) {
+        if (_.isArray(nextObject)) return;
+        this.receiveNewObject(nextObject);
+      }
     }
   }
 
