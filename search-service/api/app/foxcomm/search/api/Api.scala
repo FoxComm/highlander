@@ -1,6 +1,6 @@
 package foxcomm.search.api
 
-import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.ElasticImplicits._
 import com.twitter.finagle.Http
 import com.twitter.finagle.http.Status
 import com.twitter.util.Await
@@ -13,7 +13,7 @@ import org.elasticsearch.common.ValidationException
 import scala.concurrent.ExecutionContext
 
 object Api extends App {
-  def endpoint(searchService: SearchService)(implicit ec: ExecutionContext) =
+  def endpoints(searchService: SearchService)(implicit ec: ExecutionContext) =
     post(
       "search" :: string :: string :: param("size")
         .as[Int] :: paramOption("from").as[Int] :: jsonBody[SearchQuery]) {
@@ -22,6 +22,8 @@ object Api extends App {
           .searchFor(searchIndex / searchType, searchQuery, searchSize = size, searchFrom = from)
           .toTwitterFuture
           .map(Ok)
+    } :+: get("ping") {
+      Ok("pong")
     }
 
   def errorHandler[A]: PartialFunction[Throwable, Output[A]] = {
@@ -38,5 +40,5 @@ object Api extends App {
     Http.server
       .withStreaming(enabled = true)
       .serve(s"${config.http.interface}:${config.http.port}",
-             endpoint(svc).handle(errorHandler).toServiceAs[Application.Json]))
+             endpoints(svc).handle(errorHandler).toServiceAs[Application.Json]))
 }
