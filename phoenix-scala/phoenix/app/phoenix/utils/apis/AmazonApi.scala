@@ -34,7 +34,6 @@ class AmazonS3 extends AmazonApi with LazyLogging {
   private[this] val credentials = new BasicAWSCredentials(accessKey, secretKey)
   private[this] val client      = new AmazonS3Client(credentials)
 
-
   def uploadFileF(fileName: String, file: File)(implicit ec: EC): Future[String] =
     Future {
       val putRequest = new PutObjectRequest(s3Bucket, fileName, file)

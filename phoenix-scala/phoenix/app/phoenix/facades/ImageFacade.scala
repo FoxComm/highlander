@@ -118,7 +118,6 @@ object ImageFacade extends ImageHelpers {
         Either.right(uri)
     }.getOrElse(Either.left(InvalidImageUrl(url).single))
 
-
   object ImageUploader {
 
     sealed trait ContentTypeGuess[T] {

@@ -76,41 +76,40 @@ object ImageRoutes {
                     ImageFacade.uploadImagesFromMultipartToAlbum(albumId, context, formData)
                   }
                 } ~
-                  (patch & pathEnd & entity(as[AlbumPayload])) { payload ⇒
-                    mutateOrFailures {
-                      ImageManager.updateAlbum(albumId, payload, context)
-                    }
-                  } ~
-                  (delete & pathEnd) {
-                    mutateOrFailures {
-                      ImageManager.archiveByContextAndId(albumId, context)
-                    }
-                  } ~
-                  (delete & pathEnd) {
-                    mutateOrFailures {
-                      ImageManager.archiveByContextAndId(albumId, context)
-                    }
-                  } ~
-                  pathPrefix("images") {
-                    imageSettings {
-                      extractRequestContext { ctx ⇒
-                        implicit val materializer = ctx.materializer
-                        implicit val ec           = ctx.executionContext
+                (patch & pathEnd & entity(as[AlbumPayload])) { payload ⇒
+                  mutateOrFailures {
+                    ImageManager.updateAlbum(albumId, payload, context)
+                  }
+                } ~
+                (delete & pathEnd) {
+                  mutateOrFailures {
+                    ImageManager.archiveByContextAndId(albumId, context)
+                  }
+                } ~
+                (delete & pathEnd) {
+                  mutateOrFailures {
+                    ImageManager.archiveByContextAndId(albumId, context)
+                  }
+                } ~
+                pathPrefix("images") {
+                  imageSettings {
+                    extractRequestContext { ctx ⇒
+                      implicit val materializer = ctx.materializer
+                      implicit val ec           = ctx.executionContext
 
-                        (post & pathEnd & entityOr(as[Multipart.FormData], ImageNotFoundInPayload)) {
-                          formData ⇒
-                            mutateOrFailures {
-                              ImageFacade.uploadImagesFromMultipartToAlbum(albumId, context, formData)
-                            }
-                        } ~
-                          (path("by-url") & post & entity(as[ImagePayload])) { payload ⇒
-                            mutateOrFailures {
-                              ImageFacade.uploadImagesFromPayloadToAlbum(albumId, context, payload)
-                            }
-                          }
+                      (post & pathEnd & entityOr(as[Multipart.FormData], ImageNotFoundInPayload)) { formData ⇒
+                        mutateOrFailures {
+                          ImageFacade.uploadImagesFromMultipartToAlbum(albumId, context, formData)
+                        }
+                      } ~
+                      (path("by-url") & post & entity(as[ImagePayload])) { payload ⇒
+                        mutateOrFailures {
+                          ImageFacade.uploadImagesFromPayloadToAlbum(albumId, context, payload)
+                        }
                       }
                     }
                   }
+                }
               }
             }
           }
