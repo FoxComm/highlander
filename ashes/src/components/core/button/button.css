@@ -13,7 +13,7 @@
   background: var(--bg-grey-buttons);
   font-size: 14px;
   font-weight: 600;
-  line-height: 18px;
+  line-height: 17px;
   border: none;
   vertical-align: top;
   user-select: none;
@@ -64,7 +64,7 @@
 }
 
 .only {
-  font-size: 14px;
+  font-size: 13px;
   margin: 0 auto;
 }
 
