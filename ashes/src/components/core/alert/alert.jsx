@@ -37,8 +37,8 @@ const Alert = (props: Props) => {
 
   return (
     <div className={className}>
+      <Icon name={props.type} className={s.icon} />
       <div className={s.message}>
-        <Icon name={props.type} />
         {props.children}
       </div>
       {closeButton}

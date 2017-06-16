@@ -7,11 +7,11 @@ import React, { Component } from 'react';
 
 // components
 import { FormField } from 'components/forms';
-import ContentBox from 'components/content-box/content-box';
+import Modal from 'components/core/modal';
 import SaveCancel from 'components/core/save-cancel';
 import Form from 'components/forms/form';
 import TextInput from 'components/core/text-input';
-import ErrorAlerts from 'components/alerts/error-alerts';
+import Errors from 'components/utils/errors';
 
 // types
 import type { NewAlbum } from '../../modules/images';
@@ -78,11 +78,11 @@ export default class EditAlbum extends Component {
   }
 
   render() {
-    const { error, inProgress } = this.props;
+    const { error, inProgress, onCancel, isVisible } = this.props;
     const title = this.props.isNew ? 'Add New Album' : 'Edit Album';
 
     return (
-      <ContentBox title={title} actionBlock={this.closeAction}>
+      <Modal title={title} onClose={onCancel} isVisible={isVisible}>
         <Form onSubmit={this.handleSave}>
           <FormField
             label="Album Name"
@@ -97,10 +97,10 @@ export default class EditAlbum extends Component {
               autoComplete="off"
             />
           </FormField>
-          <ErrorAlerts error={error} />
+          <Errors error={error} />
           <SaveCancel
             className={s.editAlbumFooter}
-            onCancel={this.props.onCancel}
+            onCancel={onCancel}
             onSave={this.handleSave}
             saveDisabled={this.saveDisabled || inProgress}
             cancelDisabled={inProgress}
@@ -108,7 +108,7 @@ export default class EditAlbum extends Component {
             saveText="Save and Apply"
           />
         </Form>
-      </ContentBox>
+      </Modal>
     );
   }
 }

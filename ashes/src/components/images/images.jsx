@@ -90,7 +90,7 @@ export default class Images extends Component {
         className={s.modal}
         isVisible={this.state.newAlbumMode}
         album={album}
-        loading={addAlbum.inProgress}
+        inProgress={addAlbum.inProgress}
         onCancel={this.handleCancelEditAlbum}
         onSave={this.addNewAlbum}
         isNew={true}

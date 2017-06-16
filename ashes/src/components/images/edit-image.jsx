@@ -12,7 +12,7 @@ import { FormField } from '../forms';
 import SaveCancel from 'components/core/save-cancel';
 import TextInput from 'components/core/text-input';
 import { DeleteButton } from 'components/core/button';
-import ErrorAlerts from 'components/alerts/error-alerts';
+import Errors from 'components/utils/errors';
 
 // types
 import type { ImageInfo } from '../../modules/images';
@@ -46,10 +46,6 @@ class EditImage extends Component {
   };
 
   img: ?Image;
-
-  get closeAction() {
-    return <a onClick={this.props.onCancel}>&times;</a>;
-  }
 
   componentDidMount(): void {
     this.createImage();
@@ -99,7 +95,7 @@ class EditImage extends Component {
 
   render() {
     const { width, height, alt } = this.state;
-    const { image: { src, createdAt }, inProgress, error } = this.props;
+    const { image: { src, createdAt }, inProgress, error, onCancel } = this.props;
     const extMatch = src.match(/\.([0-9a-z]+)$/i);
     const nameMatch = src.match(/\/([^/]+)$/i);
     const ext = get(extMatch, '[1]', '–');
@@ -107,37 +103,35 @@ class EditImage extends Component {
     const style = { backgroundImage: `url('${src}')` };
 
     return (
-      <Modal isVisible={this.props.isVisible} size="big">
-        <ContentBox title="Edit Image" actionBlock={this.closeAction} bodyClassName={s.body}>
-          <div className={s.main}>
-            <div className={s.image} style={style} />
-            <div className={s.sidebar}>
-              <div className={s.stat}>
-                <div className={s.statItem}>{`File Name: ${name}`}</div>
-                <div className={s.statItem}>Uploaded: <DateTime value={createdAt} /></div>
-                <div className={s.statItem}>{`File Type: ${ext}`}</div>
-                <div className={s.statItem}>{`Dimensions: ${width}×${height}`}</div>
-              </div>
-              <FormField label="URL" className={s.field} labelClassName={s.label}>
-                <TextInput value={src} disabled />
-              </FormField>
-              <FormField label="Alt Text" className={s.field} labelClassName={s.label}>
-                <TextInput onChange={this.handleUpdateAltText} value={alt} />
-              </FormField>
+      <Modal title="Edit Image" isVisible={this.props.isVisible} onClose={onCancel} size="big">
+        <div className={s.main}>
+          <div className={s.image} style={style} />
+          <div className={s.sidebar}>
+            <div className={s.stat}>
+              <div className={s.statItem}>{`File Name: ${name}`}</div>
+              <div className={s.statItem}>Uploaded: <DateTime value={createdAt} /></div>
+              <div className={s.statItem}>{`File Type: ${ext}`}</div>
+              <div className={s.statItem}>{`Dimensions: ${width}×${height}`}</div>
             </div>
+            <FormField label="URL" className={s.field} labelClassName={s.label}>
+              <TextInput value={src} disabled />
+            </FormField>
+            <FormField label="Alt Text" className={s.field} labelClassName={s.label}>
+              <TextInput onChange={this.handleUpdateAltText} value={alt} />
+            </FormField>
           </div>
-          <ErrorAlerts error={error} />
-          <footer className={s.footer}>
-            <DeleteButton onClick={this.props.onRemove} disabled={inProgress}>Delete</DeleteButton>
-            <SaveCancel
-              onSave={this.handleSave}
-              onCancel={this.props.onCancel}
-              isLoading={inProgress}
-              saveDisabled={inProgress}
-              cancelDisabled={inProgress}
-            />
-          </footer>
-        </ContentBox>
+        </div>
+        <Errors error={error} />
+        <footer className={s.footer}>
+          <DeleteButton onClick={this.props.onRemove} disabled={inProgress}>Delete</DeleteButton>
+          <SaveCancel
+            onSave={this.handleSave}
+            onCancel={this.props.onCancel}
+            isLoading={inProgress}
+            saveDisabled={inProgress}
+            cancelDisabled={inProgress}
+          />
+        </footer>
       </Modal>
     );
   }

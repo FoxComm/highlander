@@ -99,8 +99,8 @@ export default class ConfirmationModal extends Component {
         onCancel={onCancel}
         isLoading={get(asyncState, 'inProgress', false)}
         saveDisabled={saveDisabled}
-        focusAction={props.focusAction}
-        focusCancel={props.focusCancel}
+        focusAction={focusAction}
+        focusCancel={focusCancel}
       />
     );
   }

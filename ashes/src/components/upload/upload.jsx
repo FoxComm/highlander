@@ -162,7 +162,7 @@ export default class Upload extends Component {
   get emptyContent() {
     return (
       <div className={s.empty}>
-        <Icon name="upload" /> Drag & Drop to upload
+        <Icon name="upload" className={s.icon} /> Drag & Drop to upload
       </div>
     );
   }

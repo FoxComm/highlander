@@ -50,7 +50,7 @@ export default class ImageCard extends Component {
     }
 
     return (
-      <div className={cls} onMouseOver={this.showActions} onMouseOut={this.hideActions}>
+      <div className={s.actions}>
         {actions.map(({ name, handler }) =>
           <Icon name={name} onClick={handler} onClick={handler} onMouseDown={this.prevent} key={name} />
         )}

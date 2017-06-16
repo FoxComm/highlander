@@ -23,10 +23,7 @@ import s from './images.css';
 // types
 import type { Album as TAlbum, ImageFile, ImageInfo } from '../../modules/images';
 
-// styles
-import s from './images.css';
-
-export type Props = {
+export type Props = {|
   album: TAlbum;
   loading: boolean;
   clearErrors: () => void;
@@ -41,13 +38,13 @@ export type Props = {
   uploadMediaState?: AsyncState;
   uploadMediaByUrlState?: AsyncState;
   archiveAlbumState?: AsyncState;
-};
+|};
 
-type State = {
+type State = {|
   editMode: boolean;
   archiveMode: boolean;
   uploadUrlMode: boolean;
-};
+|};
 
 const INVALID_TYPE_RESPONSE = 'image format';
 
@@ -202,7 +199,7 @@ export default class Album extends Component {
     const { album, editAlbumState = {} } = this.props;
 
     return (
-      <EditAlbum
+      <EditAlbumModal
         className={s.modal}
         isVisible={this.state.editMode}
         album={album}
@@ -219,7 +216,6 @@ export default class Album extends Component {
 
     return (
       <UploadByUrl
-        className={s.modal}
         isVisible={this.state.uploadUrlMode}
         inProgress={uploadMediaByUrlState.inProgress}
         error={getErrorMessage(uploadMediaByUrlState)}
@@ -245,11 +241,11 @@ export default class Album extends Component {
       >
         <Alert type={Alert.WARNING}>
           Archiving this album will remove <strong>{album.images.length} images</strong> from the product.
-          <strong> This action cannot be undone</strong>
+          <strong>This action cannot be undone</strong>.
         </Alert>
-        <span>
-          Are you sure you want to archive <strong>{album.name}</strong> album?
-        </span>
+        <div className={s.confirmRemoveText}>
+          Are you sure you want to archive <strong>{album.name} images</strong> album?
+        </div>
       </ConfirmationModal>
     );
   }
