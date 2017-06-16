@@ -9,6 +9,12 @@ build:
 	$(call header, Building)
 	sbt assembly
 
+fmt:
+	../utils/scalafmt/scalafmt.sh --diff
+
+autoformat-check:
+	../utils/scalafmt/scalafmt.sh --test
+
 clean:
 	sbt clean
 
@@ -25,4 +31,4 @@ docker-push:
 	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
-.PHONY: build test clean docker docker-push
+.PHONY: build test clean docker docker-push fmt autoformat-check

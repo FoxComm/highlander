@@ -14,6 +14,12 @@ build:
 	$(call header, Building)
 	${SBT_CMD} '; compile; test:compile'
 
+fmt:
+	../utils/scalafmt/scalafmt.sh --diff
+
+autoformat-check:
+	../utils/scalafmt/scalafmt.sh --test
+
 test:
 	$(call header, Testing)
 	${SBT_CMD} 'test'
@@ -28,3 +34,5 @@ docker-push:
 
 docker-build:
 	${SBT_CMD} 'api/dockerBuildAndPush'
+
+.PHONY: clean build fmt autoformat-check test docker docker-push docker-build

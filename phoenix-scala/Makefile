@@ -10,6 +10,9 @@ build:
 	$(call header, Building)
 	make build-phoenix
 
+fmt:
+	../utils/scalafmt/scalafmt.sh --diff
+
 autoformat-check:
 	../utils/scalafmt/scalafmt.sh --test
 
@@ -51,4 +54,4 @@ docker-push-seeder:
 update-app:
 	cd ../tabernacle && ansible-playbook -v -i inventory/static/dev ansible/goldrush_update_app.yml --extra-vars "app_name=phoenix branch_name='$(GIT_BRANCH)' auto_build=y instance_ip=$(INSTANCE)"
 
-.PHONY: build test clean docker docker-push update-app autoformat-check
+.PHONY: build test clean docker docker-push update-app autoformat-check fmt
