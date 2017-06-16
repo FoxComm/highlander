@@ -4,7 +4,7 @@ import moment from 'moment';
 
 import styles from './datetime.css';
 
-const Moment = ({utc, value, format, emptyValue}) => {
+export const Moment = ({utc, value, format, emptyValue}) => {
   if (!value) {
     return <span styleName="time">{emptyValue}</span>;
   }
@@ -32,7 +32,7 @@ Moment.defaultProps = {
 };
 
 
-const DateTime = props => <Moment {...props} format={'L LT'} />;
+export const DateTime = props => <Moment {...props} format={'L LT'} />;
 
 DateTime.propTypes = {
   utc: PropTypes.bool,
@@ -44,7 +44,7 @@ DateTime.defaultProps = {
 };
 
 
-const Date = props => <Moment {...props} format={'L'} />;
+export const Date = props => <Moment {...props} format={'L'} />;
 
 Date.propTypes = {
   utc: PropTypes.bool,
@@ -56,7 +56,7 @@ Date.defaultProps = {
 };
 
 
-const Time = props => <Moment {...props} format={'LT'} />;
+export const Time = props => <Moment {...props} format={'LT'} />;
 
 Time.propTypes = {
   utc: PropTypes.bool,
@@ -65,12 +65,4 @@ Time.propTypes = {
 
 Time.defaultProps = {
   utc: true,
-};
-
-
-export {
-  Moment,
-  DateTime,
-  Date,
-  Time,
 };

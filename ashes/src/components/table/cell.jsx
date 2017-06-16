@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 // components
 import { Link } from 'components/link';
 import columnPropType from './column-prop-type';
-import { Moment, Date, DateTime, Time } from '../common/datetime';
+import { Moment, Date, DateTime, Time } from 'components/utils/datetime';
 import Currency from '../common/currency';
 import State from '../common/state';
 import Change from 'components/utils/change';

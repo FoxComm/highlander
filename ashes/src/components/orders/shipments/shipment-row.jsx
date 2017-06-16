@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 // components
 import TableRow from 'components/table/row';
 import TableCell from 'components/table/cell';
-import { DateTime } from 'components/common/datetime';
+import { DateTime } from 'components/utils/datetime';
 import AddressDetails from 'components/addresses/address-details';
 import ShippedItem from './shipped-item';
 import Transaction from './transaction';
