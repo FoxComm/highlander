@@ -16,7 +16,7 @@ defmodule Geronimo.Mixfile do
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
     [extra_applications: (Mix.env == :dev && [:exsync] || []) ++ [:logger, :maru, :timex, :ecto, :postgrex,
-                                                                  :timex_ecto],
+                                                                  :timex_ecto, :kafka_ex, :avrolixr, :erlavro],
      mod: {Geronimo, []}]
 
   end
@@ -30,6 +30,9 @@ defmodule Geronimo.Mixfile do
     {:timex_ecto, "~> 3.0"},
     {:json_web_token, "~> 0.2"},
     {:cors_plug, "~> 1.1"},
+    {:kafka_ex, "~> 0.6.5"},
+    {:avrolixr, git: "https://github.com/retgoat/avrolixr"},
+    {:erlavro, git: "https://github.com/avvo/erlavro"},
     {:envy, "~> 1.1.1"},
     {:inflex, "~> 1.8.1" },
     {:exsync, "~> 0.1", only: :dev}]

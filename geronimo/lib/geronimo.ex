@@ -9,6 +9,14 @@ defmodule Geronimo do
       Envy.reload_config
     end
 
+    if Application.fetch_env!(:geronimo, :start_kafka_worker) == "true" do
+      kafka_url = [{Application.fetch_env!(:geronimo, :kafka_host),
+                    Application.fetch_env!(:geronimo, :kafka_port) |> String.to_integer }]
+
+      KafkaEx.create_worker(:geronimo_worker, [uris: kafka_url,
+                                               consumer_group: Application.fetch_env!(:geronimo, :consumer_group)])
+    end
+
     children = [
       worker(Geronimo.Repo, [])
     ]
