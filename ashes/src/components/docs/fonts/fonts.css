@@ -1,0 +1,34 @@
+@import 'variables.css';
+
+.block {
+  display: flex;
+  flex-direction: column;
+
+  & > div {
+    margin: 10px 0;
+  }
+}
+
+.title {
+  font: var(--font-page-title);
+
+  & span {
+    color: var(--color-subtitle-text);
+  }
+}
+
+.section {
+  font: var(--font-section-title);
+}
+
+.buttons {
+  font: var(--font-labels);
+}
+
+.nav {
+  font: var(--font-nav);
+}
+
+.body {
+  font: var(--font-body);
+}

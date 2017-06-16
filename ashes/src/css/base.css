@@ -2,7 +2,7 @@
 @import 'fontello.css';
 @import 'transitions.css';
 @import 'normalize.css';
-@import 'colors.css';
+@import 'variables.css';
 
 * {
   outline: 0;

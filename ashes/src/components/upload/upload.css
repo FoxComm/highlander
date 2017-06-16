@@ -1,4 +1,4 @@
-@import 'colors.css';
+@import 'variables.css';
 
 .upload {
   transition: border-color .3s;

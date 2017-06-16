@@ -32,7 +32,7 @@ const RadioButton = (props: Props) => {
 
   return (
     <div className={classNames(s.radio, className)}>
-      <input type="radio" id={id} {...rest} />
+      <input type="radio" id={id} className={s.input} {...rest} />
       <label htmlFor={id} className={s.label}>{label}</label>
     </div>
   );

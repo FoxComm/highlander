@@ -1,4 +1,4 @@
-@import 'colors.css';
+@import 'variables.css';
 
 .question-box-container-active {
   width: 225px;

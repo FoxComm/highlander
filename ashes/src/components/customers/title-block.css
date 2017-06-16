@@ -1,4 +1,4 @@
-@import 'colors.css';
+@import 'variables.css';
 
 :root {
   --header-height: 60px;

@@ -1,4 +1,4 @@
-@import 'colors.css';
+@import 'variables.css';
 
 .radio {
   input[type=radio]:not(old) {
@@ -29,12 +29,15 @@
   }
 }
 
+.input {
+  display: none;
+}
+
 .label {
   position: relative;
-  display: inline-block;
-  margin-left: -24px;
-  line-height: 24px;
-  font-size: 13px;
+  display: flex;
+  align-items: center;
+  font: var(--font-nav);
   color: var(--color-text);
 
   &:before {
@@ -42,11 +45,10 @@
     display: inline-block;
     height: 24px;
     width: 24px;
-    margin: 0.25em 0.5em 0.25em 0.25em;
+    margin: 4px 8px 4px 4px;
     border: 2px solid var(--color-border);
-    border-radius: 13px;
+    border-radius: 50%;
     background: var(--bg-grey-headers);
-    vertical-align: middle;
     transition: all .2s;
   }
 
@@ -57,10 +59,10 @@
     position: absolute;
     height: 16px;
     width: 16px;
-    margin: 0.25em;
+    margin: 4px;
     top: 4px;
     left: 4px;
-    border-radius: 9px;
+    border-radius: 50%;
     background: var(--bg-nav-main);
     z-index: 1;
     opacity: 0;

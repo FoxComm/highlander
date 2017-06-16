@@ -7,7 +7,7 @@ type Props = {
   name: string,
   /** additional className */
   className?: string
-}
+};
 
 /**
  * Icon is a simple component for representing icons.
@@ -18,9 +18,8 @@ type Props = {
 const Icon = (props: Props) => {
   const { name, className, ...rest } = props;
   const iconCls = classNames(className, `icon-${name}`);
-  return(
-    <i className={iconCls} {...rest} />
-  );
+
+  return <i className={iconCls} {...rest} />;
 };
 
 export default Icon;

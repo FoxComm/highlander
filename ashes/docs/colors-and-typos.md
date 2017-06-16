@@ -3,7 +3,7 @@ We are using limited set of text colors, background colors and fonts. There are 
 To use variables, just import them to your css file:
 
 ```css
-@import 'colors.css';
+@import 'variables.css';
 
 .block {
   color: #123456; /* prohibited! */

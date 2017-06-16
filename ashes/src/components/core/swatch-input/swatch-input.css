@@ -1,28 +1,26 @@
-@import 'colors.css';
+@import 'variables.css';
 
 .swatchInput {
   display: flex;
+  align-items: stretch;
+  font: var(--font-nav);
 
   &:before {
     content: "#";
     position: absolute;
-    padding: 0 10px;
-    line-height: 40px;
-    font-size: 20px;
+    padding: 10px 10px;
     color: var(--color-additional-text);
   }
 
   & .input {
     width: 130px;
-    height: 40px;
-    padding-left: 30px;
+    padding-left: 26px;
     text-transform: uppercase;
   }
 }
 
 .swatch {
   width: 40px;
-  height: 40px;
   border: 1px solid var(--color-border);
   border-left: none;
 }
