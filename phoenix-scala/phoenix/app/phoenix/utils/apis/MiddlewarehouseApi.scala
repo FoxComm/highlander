@@ -6,7 +6,7 @@ import com.typesafe.scalalogging.LazyLogging
 import core.db._
 import core.failures.Failures
 import dispatch._
-import models.inventory.{ProductVariantSku, ProductVariantSkus}
+import phoenix.models.inventory.{ProductVariantSku, ProductVariantSkus}
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.{compactJson, parseJsonOpt}
@@ -98,7 +98,7 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     val req    = reqUrl.setContentType("application/json", "UTF-8") <:< Map("JWT" → jwt)
     logger.info(s"Middlewarehouse cancel hold: $orderRefNum")
     val f = Http(req.DELETE OK as.String).either.map {
-      case Right(_)    ⇒ Either.right(())
+      case Right(_) ⇒ Either.right(())
       case Left(error) ⇒
         logger.error(s"Cancel hold items failed with message '${error.getMessage}")
         Either.left(MwhConnectionFailure.single)
@@ -126,7 +126,8 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     }
   }
 
-  private def extractAndSaveSkuId(skuId: Int, responseBody: String)(implicit ec: EC): DbResultT[ProductVariantSku] =
+  private def extractAndSaveSkuId(skuId: Int, responseBody: String)(
+      implicit ec: EC): DbResultT[ProductVariantSku] =
     parseJsonOpt(responseBody) match {
       case Some(json) ⇒
         (json \ "id").extractOpt[Int] match {

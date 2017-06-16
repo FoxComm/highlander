@@ -36,12 +36,19 @@ import scala.concurrent.duration._
 
 // TODO: Move away from root package when `Service' moverd
 object HttpSupport {
-  @volatile var akkaConfigured = false
 
-  protected var system: ActorSystem             = _
-  protected var materializer: ActorMaterializer = _
-  protected var service: Service                = _
-  var serverBinding: ServerBinding              = _
+  implicit lazy val system: ActorSystem =
+    ActorSystem("phoenix-integration-tests", actorSystemConfig)
+
+  private def actorSystemConfig =
+    ConfigFactory.parseString("""
+                                 |akka {
+                                 |  log-dead-letters = off
+                                 |}
+                               """.stripMargin).withFallback(ConfigFactory.load())
+
+  implicit lazy val materializer: ActorMaterializer = ActorMaterializer()
+
 }
 
 trait HttpSupport
@@ -51,30 +58,17 @@ trait HttpSupport
     with BeforeAndAfterAll
     with TestObjectContext { self: FoxSuite ⇒
 
-  import HttpSupport._
-
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   private val validResponseContentTypes =
     Set(ContentTypes.`application/json`, ContentTypes.NoContentType)
 
-  protected implicit lazy val mat: ActorMaterializer   = materializer
-  protected implicit lazy val actorSystem: ActorSystem = system
+  protected implicit def mat: ActorMaterializer   = HttpSupport.materializer
+  protected implicit def actorSystem: ActorSystem = HttpSupport.system
 
-  protected def additionalRoutes: immutable.Seq[Route] = immutable.Seq.empty
-
-  override protected def beforeAll(): Unit = {
-    super.beforeAll()
-    if (!akkaConfigured) {
-      system = ActorSystem("system", actorSystemConfig)
-      materializer = ActorMaterializer()
-
-      akkaConfigured = true
-    }
-
-    service = makeService
-
-    serverBinding = service
+  private[this] lazy val service: Service = makeService
+  private[this] lazy val serverBinding: ServerBinding = {
+    service
       .bind(
         FoxConfig.http.modify(config)(
           _.copy(
@@ -84,26 +78,28 @@ trait HttpSupport
       .futureValue
   }
 
-  override protected def afterAll: Unit = {
-    super.afterAll
-    Await.result(for {
-      _ ← Http().shutdownAllConnectionPools()
-      _ ← service.close()
-    } yield {}, 1.minute)
+  protected def additionalRoutes: immutable.Seq[Route] = immutable.Seq.empty
+
+  override protected def beforeAll(): Unit = {
+    super.beforeAll()
+    // init
+    HttpSupport.system
+    HttpSupport.materializer
+    serverBinding
   }
 
-  private def actorSystemConfig =
-    ConfigFactory.parseString("""
-        |akka {
-        |  log-dead-letters = off
-        |}
-      """.stripMargin).withFallback(ConfigFactory.load())
+  override protected def afterAll: Unit = {
+    super.afterAll()
+    for {
+      _ ← service.close()
+    } yield ()
+  }
 
   def apisOverride: Option[Apis]
 
   private def makeService: Service =
     new Service(dbOverride = Some(db),
-                systemOverride = Some(system),
+                systemOverride = Some(actorSystem),
                 apisOverride = apisOverride,
                 addRoutes = additionalRoutes) {}
 

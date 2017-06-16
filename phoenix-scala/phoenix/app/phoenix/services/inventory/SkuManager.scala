@@ -103,7 +103,7 @@ object SkuManager {
                  formId = ins.form.id,
                  shadowId = ins.shadow.id,
                  commitId = ins.commit.id))
-      _     ← * <~ apis.middlewarehouse.createSku(ins.form.id, CreateSku(code))
+      _ ← * <~ apis.middlewarehouse.createSku(ins.form.id, CreateSku(code))
     } yield FullObject(sku, ins.form, ins.shadow)
   }
 
