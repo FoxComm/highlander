@@ -1,0 +1,3 @@
+package: github.com/FoxComm/highlander/remote
+import:
+  - package: github.com/gin-gonic/gin
