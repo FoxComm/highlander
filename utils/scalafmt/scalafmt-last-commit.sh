@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -e
 
 SCALAFMT_DIR="$(cd -P -- "$(dirname "$0")" && pwd -P)"
 cd "$SCALAFMT_DIR"
