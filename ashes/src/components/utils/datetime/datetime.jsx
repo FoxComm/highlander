@@ -1,28 +1,54 @@
+/* @flow */
+
+// libs
 import React from 'react';
-import PropTypes from 'prop-types';
 import moment from 'moment';
+import classnames from 'classnames';
 
-import styles from './datetime.css';
+// styles
+import s from './datetime.css';
 
-export const Moment = ({utc, value, format, emptyValue}) => {
+type Props = {
+  /** time string */
+  value?: string,
+  /** set UTC  */
+  utc?: boolean,
+  /** set time format */
+  format?: string,
+  /** set empty value text */
+  emptyValue?: string,
+  /** additional className */
+  className?: string
+}
+
+/**
+ * `DateTime`, `Date`, and `Time` - are simple components
+ * build on the top of `Moment`
+ * and serve to show time data
+ *
+ * @function Moment
+ */
+export const Moment = ({
+  utc,
+  value,
+  format,
+  emptyValue,
+  className,
+  ...rest
+}: Props) => {
+  const cls = classnames(s.time, className);
+
   if (!value) {
-    return <span styleName="time">{emptyValue}</span>;
+    return <span className={cls}>{emptyValue}</span>;
   }
 
   const timeValue = utc ? moment.utc(value) : moment(value);
 
   return (
-    <time styleName="time" dateTime={timeValue.local().format()}>
+    <time className={cls} dateTime={timeValue.local().format()} {...rest}>
       {timeValue.local().format(format)}
     </time>
   );
-};
-
-Moment.propTypes = {
-  utc: PropTypes.bool,
-  value: PropTypes.string,
-  format: PropTypes.string,
-  emptyValue: PropTypes.string,
 };
 
 Moment.defaultProps = {
@@ -32,37 +58,6 @@ Moment.defaultProps = {
 };
 
 
-export const DateTime = props => <Moment {...props} format={'L LT'} />;
-
-DateTime.propTypes = {
-  utc: PropTypes.bool,
-  value: PropTypes.string
-};
-
-DateTime.defaultProps = {
-  utc: true,
-};
-
-
-export const Date = props => <Moment {...props} format={'L'} />;
-
-Date.propTypes = {
-  utc: PropTypes.bool,
-  value: PropTypes.string
-};
-
-Date.defaultProps = {
-  utc: true,
-};
-
-
-export const Time = props => <Moment {...props} format={'LT'} />;
-
-Time.propTypes = {
-  utc: PropTypes.bool,
-  value: PropTypes.string
-};
-
-Time.defaultProps = {
-  utc: true,
-};
+export const DateTime = (props: Props) => <Moment {...props} format={'L LT'} />;
+export const Date = (props: Props) => <Moment {...props} format={'L'} />;
+export const Time = (props: Props) => <Moment {...props} format={'LT'} />;
