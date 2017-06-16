@@ -81,12 +81,12 @@ object SeedsGenerator
       _ ← * <~ CustomersData.createAll(customers.map { c ⇒
            CustomerData(accountId = c.accountId, userId = c.id, scope = Scope.current)
          })
-      _ ← * <~ Addresses.createAll(generateAddresses(customers))
-      _ ← * <~ CreditCards.createAll(generateCreditCards(customers))
-      admin ← * <~ AdminsData.take(1).mustFindOneOr(NotFoundFailure404(AdminData, "first"))
-      orderedGcs ← * <~ (1 to appeasementCount).map(_ => generateGiftCard(admin.accountId, context))
+      _            ← * <~ Addresses.createAll(generateAddresses(customers))
+      _            ← * <~ CreditCards.createAll(generateCreditCards(customers))
+      admin        ← * <~ AdminsData.take(1).mustFindOneOr(NotFoundFailure404(AdminData, "first"))
+      orderedGcs   ← * <~ (1 to appeasementCount).map(_ ⇒ generateGiftCard(admin.accountId, context))
       appeasements ← * <~ (1 to appeasementCount).map(_ ⇒ generateGiftCardAppeasement)
-      giftCards ← * <~ orderedGcs ++ appeasements
+      giftCards    ← * <~ orderedGcs ++ appeasements
       unsavedPromotions = makePromotions(1)
       promotions     ← * <~ generatePromotions(unsavedPromotions)
       unsavedCoupons ← * <~ makeCoupons(promotions.filter(_.applyType == Promotion.Coupon))
