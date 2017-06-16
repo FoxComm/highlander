@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 ROOT_DIR="$(git rev-parse --show-toplevel)"
 export ROOT_DIR
