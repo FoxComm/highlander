@@ -11,7 +11,7 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader', 'postcss-loader']
+        use: ['style-loader', 'css-loader', 'postcss-loader'],
       },
       {
         test: /\.less$/,
@@ -19,18 +19,16 @@ module.exports = {
       },
       {
         test: /\.(eot|svg|ttf|woff|woff2|ico|jpg|jpeg|png|gif)$/,
-        use: 'file-loader?name=public/[name].[ext]'
+        use: 'file-loader?name=public/[name].[ext]',
       },
-    ]
+    ],
   },
 
   resolve: {
     alias: {
-      'rsg-components/Logo': path.join(__dirname, 'rsg-components/Logo')
-    }
+      'rsg-components/Logo': path.join(__dirname, 'rsg-components/Logo'),
+    },
   },
 
-  plugins: [
-    new SvgStore(),
-  ],
+  plugins: [new SvgStore()],
 };
