@@ -1,0 +1,20 @@
+@import 'colors.css';
+
+.container {
+  position: fixed;
+  display: flex;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  backface-visibility: hidden;
+  z-index: 30;
+}
+
+.modal {
+  position: relative;
+  margin: auto;
+  background-color: var(--bg-white);
+  z-index: 3;
+}

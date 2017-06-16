@@ -1,0 +1,13 @@
+@import "colors.css";
+
+.onHand {
+  & > span {
+    color: var(--color-action-text);
+  }
+}
+
+.diffChevron {
+  color: var(--color-text);
+  opacity: 0.5;
+  margin: 0 10px;
+}

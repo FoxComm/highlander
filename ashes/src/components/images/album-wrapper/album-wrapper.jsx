@@ -1,12 +1,15 @@
 /* @flow */
 
-// styles
-import styles from './album-wrapper.css';
-
 // libs
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import React, { Component, Element } from 'react';
+
+// components
+import Icon from 'components/core/icon';
+
+// styles
+import styles from './album-wrapper.css';
 
 type Action = {
   name: string;
@@ -84,10 +87,10 @@ export default class AlbumWrapper extends Component {
         <div className={styles.left}>
           <div className={styles.controlMove}>
             <span className={moveUpCsl}>
-              <i className="icon-up" onClick={this.handleMoveUp} />
+              <Icon name="up" onClick={this.handleMoveUp} />
             </span>
             <span className={moveDownCsl}>
-              <i className="icon-down" onClick={this.handleMoveDown} />
+              <Icon name="down" onClick={this.handleMoveDown} />
             </span>
           </div>
         </div>
@@ -95,7 +98,7 @@ export default class AlbumWrapper extends Component {
           {this.props.actions.map(({ name, handler }) => {
             return (
               <span className={styles.controlItem} key={name}>
-                <i className={`icon-${name}`} onClick={handler} />
+                <Icon name={name} onClick={handler} />
               </span>
             );
           })}

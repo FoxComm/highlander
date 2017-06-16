@@ -1,9 +1,4 @@
-
-.root {
-  & :global(.fc-wait-animation) {
-    margin: 0 auto;
-  }
-}
+@import 'colors.css';
 
 .title-row {
   display: flex;
@@ -14,7 +9,7 @@
 
 .title {
   display: inline-block;
-  color: #484848;
+  color: var(--color-text);
   font-size: 14px;
   font-weight: 600;
   line-height: 19px;
@@ -29,7 +24,7 @@
   font-weight: 600;
   line-height: 17px;
   text-decoration: underline;
-  color: #4fc2c9;
+  color: var(--color-link);
   cursor: pointer;
 }
 
@@ -44,7 +39,7 @@
     width: 28px;
     height: auto;
     vertical-align: top;
-    color: #fff;
+    color: var(--color-light-text);
     line-height: 28px;
   }
 }
@@ -53,7 +48,7 @@
   font-size: 14px;
   font-weight: 600;
   line-height: 28px;
-  color: #ced2d5;
+  color: var(--color-additional-text);
   margin-left: 5px;
 }
 
@@ -65,8 +60,8 @@
 .rest-block {
   display: none;
   position: absolute;
-  background: #fff;
-  border: 1px solid #d9d9d9;
+  background: var(--bg-white);
+  border: 1px solid var(--color-border);
   border-radius: 3px;
   box-shadow: 0 3px 4px 0 rgba(0,0,0,0.50);
 
@@ -98,10 +93,10 @@
   width: 28px;
   height: 32px;
   line-height: 32px;
-  color: #ced2d5;
-  background-color: #fff;
+  color: var(--color-additional-text);
+  background-color: var(--bg-white);
 
   &:hover, &._active {
-    color: #484848;
+    color: var(--color-text);
   }
 }

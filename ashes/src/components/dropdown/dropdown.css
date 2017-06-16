@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .needle {
-  color: #3fc1ab;
+  color: var(--color-link);
 }

@@ -1,7 +1,11 @@
+// libs
 import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import _ from 'lodash';
+
+// components
+import Icon from 'components/core/icon';
 
 const TabView = props => {
   const klass = classnames('fc-tab', props.className, {
@@ -10,7 +14,7 @@ const TabView = props => {
   });
 
   const icon = props.draggable
-    ? <i className='fc-tab__icon icon-drag-drop' />
+    ? <Icon className='fc-tab__icon' name="drag-drop" />
     : null;
 
   return (

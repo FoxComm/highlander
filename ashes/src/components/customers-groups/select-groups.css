@@ -1,3 +1,4 @@
+@import 'colors.css';
 
 .groups-table {
   margin-top: 20px;
@@ -9,7 +10,7 @@
 }
 
 :global(.fc-content-box) .groups-table {
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--color-border);
 
   & thead tr:first-child th {
     box-shadow: none;
@@ -30,7 +31,7 @@
   font-size: 15px;
 
   &:hover {
-    background-color: #e5e7e8;
+    background-color: var(--color-border);
   }
 }
 
@@ -44,7 +45,7 @@
 }
 
 .group-description {
-  color: #adadad;
+  color: var(--color-additional-text);
   padding-left: 10px;
   text-transform: capitalize;
 

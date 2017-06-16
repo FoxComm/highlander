@@ -1,5 +1,7 @@
 
 .modal {
+  min-width: 575px;
+
   & :global(.fc-product-state) {
     padding: 0;
     background: none;

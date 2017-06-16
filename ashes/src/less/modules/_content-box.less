@@ -1,13 +1,13 @@
 .fc-content-box {
-  .colors(@fg: @color-default-fg, @bg: @color-white);
+  .colors(@fg: @color-text, @bg: @bg-white);
   position: relative;
 
-  border: 1px solid @color-decor9;
+  border: 1px solid @color-border;
   margin-right: 1px;
 
   &-header {
-    background-color: @color-decor12;
-    border-bottom: 1px solid @color-decor9;
+    background-color: @bg-grey-headers;
+    border-bottom: 1px solid @color-border;
 
     .font-spec(16px, 600, 24px);
     height: 60px;
@@ -29,8 +29,8 @@
   &-notice {
     padding: 20px;
     text-align: center;
-    background: @color-white;
-    color: #9BA3A7;
+    background: @bg-white;
+    color: @color-additional-text;
     .font-spec(15px, 600, 60px);
   }
 
@@ -52,7 +52,7 @@
 
     // .messages for fc-error & fc-success & fc-warning blocks
   .messages {
-    box-shadow: inset 0 2px 3px 0 @color-white;
+    box-shadow: inset 0 2px 3px 0 @bg-white;
   }
 
   &-indent {
@@ -78,14 +78,14 @@
   &__empty-text {
     padding: 20px;
     text-align: center;
-    background: @color-white;
-    color: #9BA3A7;
+    background: @bg-white;
+    color: @color-additional-text;
     .font-spec(15px, 600, 60px);
   }
 
   &__empty-row {
     .font-spec(18px, 400, 52px);
-    color: @color-decor8;
+    color: @color-additional-text;
     text-align: center;
   }
 }

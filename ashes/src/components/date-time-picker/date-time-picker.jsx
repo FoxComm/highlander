@@ -2,14 +2,17 @@
  * @flow
  */
 
+// libs
 import React, { Component, Element } from 'react';
 import moment from 'moment';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
+// components
 import DatePicker from '../datepicker/datepicker';
 import DateTimeCounter from './counter';
-import TextInput from '../forms/text-input';
+import TextInput from 'components/core/text-input';
+import Icon from 'components/core/icon';
 
 type Props = {
   dateTime: ?string,
@@ -208,7 +211,7 @@ export default class DateTimePicker extends Component<void, Props, State> {
             id={this.props.pickerCloseBtnId}
             className="fc-date-time-picker__close"
             onClick={this.props.onCancel}>
-            <i className="icon-close" />
+            <Icon name="close" />
           </a>
         </div>
       </div>

@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .header,
 .sub-nav,
 .user,
@@ -8,11 +10,14 @@
 
 .sub-nav {
   position: relative;
+  height: 100%;
 }
 
 .header {
-  color: #9ba3a7;
-  background-color: #fcfcfc;
+  position: relative;
+  z-index: 1;
+  color: var(--color-additional-text);
+  background-color: var(--bg-white);
   font-weight: 400;
   line-height: 20px;
   font-size: 15px;
@@ -20,7 +25,7 @@
 
 .top-nav-menu {
   align-content: space-between;
-  border-bottom: 1px solid #d9d9d9;
+  border-bottom: 1px solid var(--color-border);
   padding-right: 0;
   height: 60px;
   flex-grow: 1;
@@ -30,7 +35,7 @@
   height: 60px;
   width: 206px;
   text-align: center;
-  border-right: 1px solid #d9d9d9;
+  border-right: 1px solid var(--color-border);
   flex: 0 0 auto;
 }
 
@@ -40,7 +45,7 @@
 }
 
 .arrow {
-  color: #888;
+  color: var(--color-additional-text);
 }
 
 .name,
@@ -63,11 +68,11 @@
 .initials {
   margin-right: 10px;
   width: 35px;
-  color: #ffffff;
+  color: var(--color-light-text);
 }
 
 .name {
   margin-right: 10px;
-  color: #363636;
+  color: var(--color-text);
   font-weight: 300;
 }
