@@ -15,7 +15,6 @@ import React, { Component } from 'react';
 // components
 import Modal from 'components/core/modal';
 import { FormField } from 'components/forms';
-import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/core/save-cancel';
 import Form from 'components/forms/form';
 import TextInput from 'components/core/text-input';

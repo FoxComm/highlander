@@ -7,7 +7,7 @@ import styles from './images.css';
 
 // libs
 import { autobind } from 'core-decorators';
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
 
 // components
 import BodyPortal from 'components/body-portal/body-portal';
