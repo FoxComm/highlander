@@ -19,7 +19,7 @@ type Props = {
   value: number | string,
   /** fraction base */
   fractionBase: number,
-  /** currency name */
+  /** currency abbreviation (e.g. 'EUR') */
   currency: string,
   /** set true if value is big number */
   bigNumber: boolean,
