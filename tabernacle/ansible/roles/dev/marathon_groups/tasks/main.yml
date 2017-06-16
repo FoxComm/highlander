@@ -20,6 +20,9 @@
 - name: Take a Nap
   pause: seconds=15
 
+- name: Ensure Marathon Group JSON does not exist
+  file: src=/marathon/highlander.json state=absent
+
 - name: Copy Marathon Group JSON
   template: src=highlander.json.j2 dest=/marathon/highlander.json mode="u+rw,g+rw,o+r"
 
