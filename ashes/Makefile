@@ -76,7 +76,7 @@ mocha-unit:
 
 .PHONY: lint
 lint:
-	 eslint --ext .js --ext .jsx ./
+	eslint --ext .js --ext .jsx ./
 
 .PHONY: flow
 flow:

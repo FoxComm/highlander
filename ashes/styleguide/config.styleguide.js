@@ -23,14 +23,17 @@ module.exports = {
       sections: [
         {
           name: 'Colors and Typo',
-          sections: [{
-            content: '../docs/colors-and-typos.md',
-          }, {
-            components: () => ([
-              path.resolve(__dirname, '../src/components/docs/colors/text-colors.jsx'),
-              path.resolve(__dirname, '../src/components/docs/colors/bg-colors.jsx'),
-            ]),
-          }]
+          sections: [
+            {
+              content: '../docs/colors-and-typos.md',
+            },
+            {
+              components: () => [
+                path.resolve(__dirname, '../src/components/docs/colors/text-colors.jsx'),
+                path.resolve(__dirname, '../src/components/docs/colors/bg-colors.jsx'),
+              ],
+            },
+          ],
         },
         {
           name: 'Iconography',
@@ -142,5 +145,5 @@ module.exports = {
     path.join(__dirname, '../src/css/base.css'),
     path.join(__dirname, '../src/images/favicons/favicon.ico'),
     path.join(__dirname, 'styleguide.less'),
-  ]
+  ],
 };
