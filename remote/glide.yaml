@@ -2,3 +2,5 @@ package: github.com/FoxComm/highlander/remote
 import:
   - package: github.com/labstack/echo
   - package: github.com/lib/pq
+  - package: github.com/jinzhu/gorm
+  - package: github.com/jinzhu/inflection

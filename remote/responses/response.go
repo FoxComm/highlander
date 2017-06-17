@@ -6,3 +6,11 @@ type Response struct {
 	Body       interface{}
 	Errs       []error
 }
+
+func NewErrorResponse(err error) *Response {
+	if err.Error() == "record not found" {
+		return nil
+	}
+
+	return nil
+}

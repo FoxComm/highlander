@@ -1,6 +1,10 @@
 package payloads
 
-import "github.com/FoxComm/highlander/remote/models/phoenix"
+import (
+	"time"
+
+	"github.com/FoxComm/highlander/remote/models/phoenix"
+)
 
 // CreateChannel is the structure of payload needed to create a channel.
 type CreateChannel struct {
@@ -11,7 +15,11 @@ type CreateChannel struct {
 
 // PhoenixModel returns the phoenix model for this payload.
 func (c CreateChannel) PhoenixModel() *phoenix.Channel {
-	model := &phoenix.Channel{Name: c.Name}
+	model := &phoenix.Channel{
+		Name:      c.Name,
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+	}
 
 	if c.PurchaseOnFox {
 		model.PurchaseLocation = phoenix.PurchaseOnFox
