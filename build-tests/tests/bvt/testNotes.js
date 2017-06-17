@@ -1,11 +1,11 @@
-import test from '../helpers/test';
-import { AdminApi } from '../helpers/Api';
-import $ from '../payloads';
-import isDate from '../helpers/isDate';
-import isArray from '../helpers/isArray';
+import test from '../../helpers/test';
+import { AdminApi } from '../../helpers/Api';
+import $ from '../../payloads';
+import isDate from '../../helpers/isDate';
+import isArray from '../../helpers/isArray';
 
 export default ({ objectType, createObject, selectId = obj => obj.id }) => {
-  test('Can list notes', async (t) => {
+  test('[bvt] Can list notes', async (t) => {
     const adminApi = await AdminApi.loggedIn(t);
     await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
     const newObject = await createObject(adminApi);
@@ -13,7 +13,7 @@ export default ({ objectType, createObject, selectId = obj => obj.id }) => {
     t.truthy(isArray(notes));
   });
 
-  test('Can create a new note', async (t) => {
+  test('[bvt] Can create a new note', async (t) => {
     const adminApi = await AdminApi.loggedIn(t);
     const newObject = await createObject(adminApi);
     const payload = $.randomCreateNotePayload();
@@ -25,7 +25,7 @@ export default ({ objectType, createObject, selectId = obj => obj.id }) => {
     t.truthy(isDate(newNote.createdAt));
   });
 
-  test('Can update note details', async (t) => {
+  test('[bvt] Can update note details', async (t) => {
     const adminApi = await AdminApi.loggedIn(t);
     const newObject = await createObject(adminApi);
     const newNote = await adminApi.notes.create(objectType, selectId(newObject), $.randomCreateNotePayload());

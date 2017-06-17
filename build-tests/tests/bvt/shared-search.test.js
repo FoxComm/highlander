@@ -1,22 +1,22 @@
 import ava from 'ava';
-import test from '../helpers/test';
-import { AdminApi } from '../helpers/Api';
-import $ from '../payloads';
-import isDate from '../helpers/isDate';
-import isArray from '../helpers/isArray';
-import isString from '../helpers/isString';
-import isNumber from '../helpers/isNumber';
+import test from '../../helpers/test';
+import { AdminApi } from '../../helpers/Api';
+import $ from '../../payloads';
+import isDate from '../../helpers/isDate';
+import isArray from '../../helpers/isArray';
+import isString from '../../helpers/isString';
+import isNumber from '../../helpers/isNumber';
 
 const newSharedSearchCodes = [];
 
-ava.always.after('Remove shared searches created in tests', async () => {
+ava.always.after('[bvt] Remove shared searches created in tests', async () => {
   const adminApi = await AdminApi.loggedIn();
   for (const code of newSharedSearchCodes) {
     await adminApi.sharedSearches.delete(code);
   }
 });
 
-test('Can list shared searches', async (t) => {
+test('[bvt] Can list shared searches', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const sharedSearches = await adminApi.sharedSearches.list('ordersScope');
   t.truthy(isArray(sharedSearches));
@@ -32,7 +32,7 @@ test('Can list shared searches', async (t) => {
   }
 });
 
-test('Can create shared search', async (t) => {
+test('[bvt] Can create shared search', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const payload = $.randomSharedSearchPayload();
   const newSharedSearch = await adminApi.sharedSearches.create(payload);
@@ -47,7 +47,7 @@ test('Can create shared search', async (t) => {
   t.truthy(newSharedSearch.rawQuery);
 });
 
-test('Can view shared search details', async (t) => {
+test('[bvt] Can view shared search details', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const payload = $.randomSharedSearchPayload();
   const newSharedSearch = await adminApi.sharedSearches.create(payload);
@@ -57,7 +57,7 @@ test('Can view shared search details', async (t) => {
   t.deepEqual(foundSharedSearch, newSharedSearch);
 });
 
-test('Can delete shared search', async (t) => {
+test('[bvt] Can delete shared search', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const payload = $.randomSharedSearchPayload();
   const newSharedSearch = await adminApi.sharedSearches.create(payload);
@@ -76,7 +76,7 @@ test('Can delete shared search', async (t) => {
   }
 });
 
-test('Can list associates', async (t) => {
+test('[bvt] Can list associates', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newSharedSearch = await adminApi.sharedSearches.create($.randomSharedSearchPayload());
   t.truthy(isString(newSharedSearch.code));
@@ -91,7 +91,7 @@ test('Can list associates', async (t) => {
   }
 });
 
-test('Can add associate', async (t) => {
+test('[bvt] Can add associate', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newSharedSearch = await adminApi.sharedSearches.create($.randomSharedSearchPayload());
   t.truthy(isString(newSharedSearch.code));
@@ -109,7 +109,7 @@ test('Can add associate', async (t) => {
   t.is(newAssociate.email, newStoreAdmin.email);
 });
 
-test('Can remove associate', async (t) => {
+test('[bvt] Can remove associate', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newSharedSearch = await adminApi.sharedSearches.create($.randomSharedSearchPayload());
   t.truthy(isString(newSharedSearch.code));

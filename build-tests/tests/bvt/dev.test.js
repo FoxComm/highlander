@@ -1,8 +1,8 @@
-import test from '../helpers/test';
-import { AdminApi } from '../helpers/Api';
-import $ from '../payloads';
+import test from '../../helpers/test';
+import { AdminApi } from '../../helpers/Api';
+import $ from '../../payloads';
 
-test('Can issue credit card token', async (t) => {
+test('[bvt] Can issue credit card token', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const credentials = $.randomUserCredentials();
   const newCustomer = await adminApi.customers.create(credentials);

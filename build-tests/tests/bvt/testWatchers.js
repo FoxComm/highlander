@@ -1,11 +1,11 @@
-import test from '../helpers/test';
-import { AdminApi } from '../helpers/Api';
-import $ from '../payloads';
-import isDate from '../helpers/isDate';
-import isArray from '../helpers/isArray';
+import test from '../../helpers/test';
+import { AdminApi } from '../../helpers/Api';
+import $ from '../../payloads';
+import isDate from '../../helpers/isDate';
+import isArray from '../../helpers/isArray';
 
 export default ({ objectApi, createObject, selectId }) => {
-  test('Can list watchers', async (t) => {
+  test('[bvt] Can list watchers', async (t) => {
     const adminApi = await AdminApi.loggedIn(t);
     const newObject = await createObject(adminApi);
     const id = selectId(newObject);
@@ -14,7 +14,7 @@ export default ({ objectApi, createObject, selectId }) => {
     t.is(watchers.length, 0);
   });
 
-  test('Can add watcher', async (t) => {
+  test('[bvt] Can add watcher', async (t) => {
     const adminApi = await AdminApi.loggedIn(t);
     const newObject = await createObject(adminApi);
     const storeAdmins = await adminApi.storeAdmins.list();
@@ -32,7 +32,7 @@ export default ({ objectApi, createObject, selectId }) => {
     t.is(watchers[0].assignmentType, 'watcher');
   });
 
-  test('Can remove watcher', async (t) => {
+  test('[bvt] Can remove watcher', async (t) => {
     const adminApi = await AdminApi.loggedIn(t);
     const newObject = await createObject(adminApi);
     const storeAdmins = await adminApi.storeAdmins.list();

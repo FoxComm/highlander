@@ -1,13 +1,13 @@
-import test from '../helpers/test';
+import test from '../../helpers/test';
 import testNotes from './testNotes';
-import { AdminApi } from '../helpers/Api';
-import isNumber from '../helpers/isNumber';
-import isString from '../helpers/isString';
-import isDate from '../helpers/isDate';
-import isArray from '../helpers/isArray';
-import $ from '../payloads';
+import { AdminApi } from '../../helpers/Api';
+import isNumber from '../../helpers/isNumber';
+import isString from '../../helpers/isString';
+import isDate from '../../helpers/isDate';
+import isArray from '../../helpers/isArray';
+import $ from '../../payloads';
 
-test('Can create a product', async (t) => {
+test('[bvt] Can create a product', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const payload = $.randomProductPayload();
   const newProduct = await adminApi.products.create('default', payload);
@@ -29,21 +29,21 @@ test('Can create a product', async (t) => {
   }
 });
 
-test('Can archive a product', async (t) => {
+test('[bvt] Can archive a product', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newProduct = await adminApi.products.create('default', $.randomProductPayload());
   const archivedProduct = await adminApi.products.archive('default', newProduct.id);
   t.truthy(isDate(archivedProduct.archivedAt));
 });
 
-test('Can view product details', async (t) => {
+test('[bvt] Can view product details', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newProduct = await adminApi.products.create('default', $.randomProductPayload());
   const foundProduct = await adminApi.products.one('default', newProduct.id);
   t.deepEqual(foundProduct, newProduct);
 });
 
-test('Can update product details', async (t) => {
+test('[bvt] Can update product details', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newProduct = await adminApi.products.create('default', $.randomProductPayload());
   const payload = $.randomProductPayload();
@@ -65,7 +65,7 @@ test('Can update product details', async (t) => {
   }
 });
 
-test('Can create an album', async (t) => {
+test('[bvt] Can create an album', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newProduct = await adminApi.products.create('default', $.randomProductPayload());
   const payload = $.randomAlbumPayload();
@@ -83,7 +83,7 @@ test('Can create an album', async (t) => {
   }
 });
 
-test('Can update album details', async (t) => {
+test('[bvt] Can update album details', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newProduct = await adminApi.products.create('default', $.randomProductPayload());
   const newAlbum = await adminApi.productAlbums.create('default', newProduct.id, $.randomAlbumPayload());
@@ -104,7 +104,7 @@ test('Can update album details', async (t) => {
   }
 });
 
-test('Can archive an album', async (t) => {
+test('[bvt] Can archive an album', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newProduct = await adminApi.products.create('default', $.randomProductPayload());
   const newAlbum = await adminApi.productAlbums.create('default', newProduct.id, $.randomAlbumPayload());
@@ -112,7 +112,7 @@ test('Can archive an album', async (t) => {
   t.truthy(isDate(archivedAlbum.archivedAt));
 });
 
-test('Can upload an image', async (t) => {
+test('[bvt] Can upload an image', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newProduct = await adminApi.products.create('default', $.randomProductPayload());
   const newAlbum = await adminApi.productAlbums.create('default', newProduct.id, $.randomAlbumPayload());
@@ -130,7 +130,7 @@ test('Can upload an image', async (t) => {
   t.truthy(isString(newImage.title));
 });
 
-test('Can update image details', async (t) => {
+test('[bvt] Can update image details', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newProduct = await adminApi.products.create('default', $.randomProductPayload());
   const newAlbum = await adminApi.productAlbums.create('default', newProduct.id, $.randomAlbumPayload({ minImages: 1 }));
@@ -143,7 +143,7 @@ test('Can update image details', async (t) => {
   t.is(updatedAlbum.images[0].title, payload.title);
 });
 
-test('Can delete an image', async (t) => {
+test('[bvt] Can delete an image', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newProduct = await adminApi.products.create('default', $.randomProductPayload());
   const newAlbum = await adminApi.productAlbums.create('default', newProduct.id, $.randomAlbumPayload({ minImages: 1 }));

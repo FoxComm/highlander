@@ -1,34 +1,34 @@
 import superagent from 'superagent';
-import test from '../helpers/test';
-import { AdminApi, CustomerApi } from '../helpers/Api';
-import $ from '../payloads';
-import config from '../config';
+import test from '../../helpers/test';
+import { AdminApi, CustomerApi } from '../../helpers/Api';
+import $ from '../../payloads';
+import config from '../../config';
 
 for (const storefront of config.storefronts) {
-  test(`Can access ${storefront.name} storefront`, async (t) => {
+  test(`[bvt] Can access ${storefront.name} storefront`, async (t) => {
     const response = await superagent.get(storefront.url);
     t.is(response.status, 200);
   });
 
-  test(`Can access ${storefront.name} login page`, async (t) => {
+  test(`[bvt] Can access ${storefront.name} login page`, async (t) => {
     const response = await superagent.get(`${storefront.url}/?auth=LOGIN`);
     t.is(response.status, 200);
   });
 
-  test(`Can access ${storefront.name} sign up page`, async (t) => {
+  test(`[bvt] Can access ${storefront.name} sign up page`, async (t) => {
     const response = await superagent.get(`${storefront.url}/?auth=SIGNUP`);
     t.is(response.status, 200);
   });
 
   if (storefront.aboutPagePath) {
-    test(`Can access ${storefront.name} "About Us" page`, async (t) => {
+    test(`[bvt] Can access ${storefront.name} "About Us" page`, async (t) => {
       const response = await superagent.get(`${storefront.url}/${storefront.aboutPagePath}`);
       t.is(response.status, 200);
     });
   }
 
   for (const category of storefront.categories) {
-    test(`Can access ${storefront.name} category "${category}"`, async (t) => {
+    test(`[bvt] Can access ${storefront.name} category "${category}"`, async (t) => {
       const response = await superagent.get(`${storefront.url}/${encodeURIComponent(category)}`);
       t.is(response.status, 200);
     });
