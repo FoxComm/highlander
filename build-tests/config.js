@@ -71,4 +71,24 @@ export default {
     testGiftCardFlow: false,
     fullApiSequenceLogging: false,
   },
-}[process.env['BVT_ENV'] || 'APPLIANCE-AEMXDP'];
+  'TEST': {
+    apiUrl: 'https://test.foxcommerce.com',
+    storefronts: [
+      {
+        name: 'TEST',
+        url: 'https://test.foxcommerce.com/perfect-gourmet',
+        categories: TPG_CATEGORIES,
+        aboutPagePath: 'about',
+      },
+      {
+        name: 'TD',
+        url: 'https://test.foxcommerce.com/top-drawer',
+        categories: TD_CATEGORIES,
+      },
+    ],
+    stripeKey: 'pk_test_JvTXpI3DrkV6QwdcmZarmlfk',
+    networkErrorRetries: 4,
+    testGiftCardFlow: false,
+    fullApiSequenceLogging: false,
+  },
+}[process.env['BVT_ENV'] || 'TEST'];
