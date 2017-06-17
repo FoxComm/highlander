@@ -1,3 +1,5 @@
+-- gift_card_transactions_payments_view
+
 drop materialized view gift_card_transactions_payments_view;
 
 create table gift_card_transactions_payments_view(id integer, order_payment jsonb);
@@ -23,3 +25,27 @@ insert into gift_card_transactions_payments_view
     left join order_payments as op on (op.id = gca.order_payment_id)
     left join orders as o on (op.cord_ref = o.reference_number)
     group by gca.id, op.id, o.id;
+
+-- gift_card_transactions_admins_view
+
+drop materialized view gift_card_transactions_admins_view;
+
+create table gift_card_transactions_admins_view(id integer unique, store_admin jsonb);
+
+insert into gift_card_transactions_admins_view
+    select
+        gca.id,
+        -- Store admins
+        case when count(sa) = 0
+        then
+            null
+        else
+            to_json((u.email, u.name)::export_store_admins)
+        end as store_admin
+    from gift_card_adjustments as gca
+    inner join gift_cards as gc on (gc.id = gca.gift_card_id)
+    left join users as u on (u.account_id = gca.store_admin_id)
+    left join admin_data as sa on (sa.account_id = gca.store_admin_id)
+    group by gca.id, sa.account_id, u.email, u.name;
+
+---
