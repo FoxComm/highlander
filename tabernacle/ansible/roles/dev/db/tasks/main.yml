@@ -8,9 +8,6 @@
     - onboarding
   when: item != 'onboarding' or with_onboarding
 
-- name: Kill Materialized Views
-  shell: systemctl stop materialized_views || true
-
 - name: Restart Postgres
   service: name=postgresql state=restarted
 
@@ -42,23 +39,8 @@
     - onboarding
   when: item != "onboarding_service" or with_onboarding
 
-- name: Setup Update Materialized Views SQL
-  copy: src=update_materialized_views.sql dest={{update_materialized_views_sql}}
-
-- name: Setup Materialized Views Command
-  template: src=update_materialized_views_forever.sh dest="{{usr_local}}/bin/update_materialized_views_forever.sh" mode="u+x,g+x,o+x"
-
-- name: Setup Materialized Views Service
-  copy: src=materialized_views.service dest="{{dest_services}}/materialized_views.service"
-
 - name: Setup Cron to Refresh Customers Ranking View
   cron: name="refresh customer ranking" minute="*/5" job="{{usr_local}}/bin/refresh_customer_ranks.sh > /dev/null"
-
-- name: Reload Systemd for Materialized Views
-  command: systemctl daemon-reload
-
-- name: Start Materialized Views Service
-  service: name=materialized_views state=started enabled=yes
 
 - name: Start Bottledwater Services
   service: name=bottledwater_{{item}} state=started enabled=yes
