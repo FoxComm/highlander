@@ -76,3 +76,28 @@ inner join store_credits as sc on (sca.store_credit_id = sc.id)
 left join order_payments as op on (op.id = sca.order_payment_id)
 left join orders as o on (op.cord_ref = o.reference_number)
 group by sca.id, op.id, o.id;
+
+-- store_credit_transactions_admins_view
+
+drop materialized view store_credit_transactions_admins_view;
+
+create table store_credit_transactions_admins_view(
+  id integer unique,
+  store_admin jsonb
+);
+
+insert into store_credit_transactions_admins_view
+  select
+    sca.id,
+    -- Store admins
+    case when count(sa) = 0
+    then
+      null
+    else
+      to_json((u.email, u.name)::export_store_admins)
+    end as store_admin
+  from store_credit_adjustments as sca
+  inner join store_credits as sc on (sc.id = sca.store_credit_id)
+  left join admin_data as sa on (sa.account_id = sca.store_admin_id)
+  left join users as u on (u.account_id = sa.account_id)
+  group by sca.id, sc.id, sa.id, u.email, u.name;
