@@ -48,4 +48,31 @@ insert into gift_card_transactions_admins_view
     left join admin_data as sa on (sa.account_id = gca.store_admin_id)
     group by gca.id, sa.account_id, u.email, u.name;
 
----
+--- store_credit_transactions_payments_view
+
+drop materialized view store_credit_transactions_payments_view;
+
+create table store_credit_transactions_payments_view(
+    id integer unique,
+    order_payment jsonb
+);
+
+insert into store_credit_transactions_payments_view
+  select
+    sca.id,
+    -- Order Payments
+    case when count(op) = 0
+    then
+      null
+    else
+      to_json((
+        o.reference_number,
+        to_json_timestamp(o.placed_at),
+        to_json_timestamp(op.created_at)
+      )::export_order_payments)
+    end as order_payment
+from store_credit_adjustments as sca
+inner join store_credits as sc on (sca.store_credit_id = sc.id)
+left join order_payments as op on (op.id = sca.order_payment_id)
+left join orders as o on (op.cord_ref = o.reference_number)
+group by sca.id, op.id, o.id;
