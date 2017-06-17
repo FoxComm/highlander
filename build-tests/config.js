@@ -2,7 +2,7 @@ const TPG_CATEGORIES = ['APPETIZERS', 'ENTRÉES', 'SIDES', 'BEST-SELLERS', 'GIFT
 const TD_CATEGORIES = ['classic', 'modern', 'custom'];
 
 export default {
-  'STAGE': {
+  'stage': {
     apiUrl: 'https://stage.foxcommerce.com',
     storefronts: [
       {
@@ -22,7 +22,7 @@ export default {
     testGiftCardFlow: false,
     fullApiSequenceLogging: false,
   },
-  'STAGE-TPG': {
+  'stage-tpg': {
     apiUrl: 'https://stage-tpg.foxcommerce.com',
     storefronts: [
       {
@@ -37,7 +37,7 @@ export default {
     testGiftCardFlow: true,
     fullApiSequenceLogging: false,
   },
-  'STAGE-TD': {
+  'stage-td': {
     apiUrl: 'https://td-prod.foxcommerce.com',
     storefronts: [
       {
@@ -51,7 +51,7 @@ export default {
     testGiftCardFlow: false,
     fullApiSequenceLogging: false,
   },
-  'APPLIANCE-AEMXDP': {
+  'appliance': {
     apiUrl: 'https://appliance-10-240-0-51.foxcommerce.com',
     storefronts: [
       {
@@ -71,11 +71,11 @@ export default {
     testGiftCardFlow: false,
     fullApiSequenceLogging: false,
   },
-  'TEST': {
+  'test': {
     apiUrl: 'https://test.foxcommerce.com',
     storefronts: [
       {
-        name: 'TEST',
+        name: 'TPG',
         url: 'https://test.foxcommerce.com/perfect-gourmet',
         categories: TPG_CATEGORIES,
         aboutPagePath: 'about',
@@ -91,4 +91,4 @@ export default {
     testGiftCardFlow: false,
     fullApiSequenceLogging: false,
   },
-}[process.env['BVT_ENV'] || 'TEST'];
+}[process.env['BVT_ENV'] || process.env.ENV];
