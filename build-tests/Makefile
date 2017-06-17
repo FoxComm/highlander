@@ -1,8 +1,8 @@
 build:
 	npm install
 
-test:
-	./node_modules/.bin/ava --verbose --concurrency=3 > results.txt 2>&1
+test-bvt:
+	./node_modules/.bin/ava -v --concurrency=3 --match='[bvt]*' > results.txt 2>&1
 
 report:
 	rm -rf allure-report allure-results
