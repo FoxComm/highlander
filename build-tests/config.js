@@ -38,11 +38,11 @@ export default {
     fullApiSequenceLogging: false,
   },
   'STAGE-TD': {
-    apiUrl: 'https://td-prod.foxcommerce.com',
+    apiUrl: 'https://td-stage.foxcommerce.com',
     storefronts: [
       {
         name: 'TD',
-        url: 'https://td-prod.foxcommerce.com/',
+        url: 'https://td-stage.foxcommerce.com/',
         categories: TD_CATEGORIES,
       },
     ],
@@ -91,7 +91,7 @@ export default {
     testGiftCardFlow: false,
     fullApiSequenceLogging: false,
   },
-  'APPLIANCE-7': {
+  'APPLIANCE-KANGAROOS': {
     apiUrl: 'https://appliance-10-240-0-7.foxcommerce.com',
     storefronts: [
       {
