@@ -1,7 +1,6 @@
 -- gift_card_transactions
 refresh materialized view concurrently gift_card_transactions_admins_view;
 refresh materialized view concurrently gift_card_transactions_payments_view;
-refresh materialized view concurrently gift_card_transactions_view;
 
 -- store_credit_transactions
 refresh materialized view concurrently store_credit_transactions_admins_view;
