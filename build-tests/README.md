@@ -1,4 +1,4 @@
-# Build Tests
+# build-tests
 
 API based tests automation framework, initially created for running build verification test suite.
 The goal of BVT as a test suite is to run sanity checks to make sure build is OK.
@@ -10,6 +10,7 @@ Install dependencies:
 	npm install
 
 Install Allure CLI.
+
 Ubuntu:
 
 	sudo apt-add-repository ppa:yandex-qatools/allure-framework
@@ -21,13 +22,13 @@ MacOS:
 	brew tap qatools/formulas
 	brew install allure-commandline
 
-Export env variable to point at environment against which tests should be run:
+Export env variable to point at environment against which tests should run:
 
 	export BVT_ENV={env_name}
 
-You can use either one of environments listed in `config.js`, or added your own using similar template.
-**Make sure to specify the variable value in upper case!**
-A list of existing environments:
+You can either use one of environments listed in `config.js`, or add there your own by the analogy of existing ones.
+
+A list of available environments:
 
 * STAGE
 * STAGE-TPG
@@ -36,13 +37,17 @@ A list of existing environments:
 * FEATURE-BRANCH-APPLE
 * APPLIANCE-KANGAROOS
 
+**Make sure to specify the variable value in upper case!**
+
+---
+
 #### Run Tests Manually
 
 To run build verification tests:
 
 	make test-bvt
 
-To run API tests:
+**[WIP]** To run API tests:
 
 	make test-api
 
@@ -59,7 +64,11 @@ You can have multiple `--match` parameters in your run command.
 * `--concurrency=3` is a number of concurrent threads in which test files are executed.
 I wouldn't recommend increasing this parameter, yet.
 
-#### Generate report
+---
+
+#### Reporting
+
+To generate report, run:
 
 	make report
 
