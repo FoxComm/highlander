@@ -21,15 +21,25 @@ read -rp "Press enter to continue!"
 echo
 echo
 
-"${SCALAFMT}" --version
-echo "This is your current scalafmt version. Expected version: $(cat "$(dirname "$SCALAFMT")"/scalafmt-version)"
-echo "Please report if versions don't match!"
-echo
+REQUIRED_VERSION=$(cat "$(dirname "$SCALAFMT")"/scalafmt-version)
+CURRENT_VERSION=$("${SCALAFMT}" --version | cut -d' ' -f2)
 
-git --version
-echo "This is your current git version. Your git should be at least 2.9.0"
-echo "Please update your git if versions don't match!"
-echo
+if [ "$CURRENT_VERSION" != "$REQUIRED_VERSION" ]; then
+  echo "Your current scalafmt version is $CURRENT_VERSION, but it should be $REQUIRED_VERSION"
+  echo "Please update your scalafmt"
+  exit 1
+fi
+
+REQUIRED_VERSION=2.9.0
+CURRENT_VERSION=$(git --version| cut -d' ' -f3)
+
+function version { echo "$@" | gawk -F. '{ printf("%03d%03d%03d\n", $1,$2,$3); }'; }
+
+if [ "$(version "$REQUIRED_VERSION")" -gt "$(version "$CURRENT_VERSION")" ]; then
+  echo "Your current git version is $CURRENT_VERSION, but it should be at least 2.9.0"
+  echo "Please update your git"
+  exit 1
+fi
 
 echo "Running scalafmt on all sources... (only needs to be done once!)"
 eval "${SCALAFMT} ${ROOT_DIR}"
