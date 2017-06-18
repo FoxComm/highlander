@@ -26,7 +26,9 @@ begin
       -- Order
       o.reference_number as cord_reference_number,
       -- Customer
-      o.account_id as account_id
+      o.account_id as account_id,
+      -- Scope
+      o.scope
     from credit_card_charges as ccc
       inner join credit_cards as cc on (ccc.credit_card_id = cc.id)
       inner join regions as r on (cc.region_id = r.id)
