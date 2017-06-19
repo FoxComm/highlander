@@ -17,3 +17,19 @@ func NewParamInvalidType(paramName string, expectedType string) Failure {
 		stack:       newCallStack(),
 	}
 }
+
+func NewBindFailure(err error) Failure {
+	return &generalFailure{
+		err:         fmt.Errorf("failed to parse then payload with error %s", err.Error()),
+		failureType: FailureBadRequest,
+		stack:       newCallStack(),
+	}
+}
+
+func NewFieldEmptyFailure(paramName string) Failure {
+	return &generalFailure{
+		err:         fmt.Errorf("%s must be non-empty", paramName),
+		failureType: FailureBadRequest,
+		stack:       newCallStack(),
+	}
+}

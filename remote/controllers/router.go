@@ -35,3 +35,10 @@ func (r *Router) GET(uri string, rf RouterFunc) {
 		return rf(fc)
 	})
 }
+
+func (r *Router) POST(uri string, rf RouterFunc) {
+	r.e.POST(uri, func(c echo.Context) error {
+		fc := c.(*FoxContext)
+		return rf(fc)
+	})
+}

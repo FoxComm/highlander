@@ -14,15 +14,19 @@ type Channel struct {
 	UpdatedAt     time.Time `json:"updatedAt"`
 }
 
-func (c *Channel) Build(phxChannel *phoenix.Channel) {
-	c.ID = phxChannel.ID
-	c.Name = phxChannel.Name
-	c.CreatedAt = phxChannel.CreatedAt
-	c.UpdatedAt = phxChannel.UpdatedAt
+func NewChannel(phxChannel *phoenix.Channel) *Channel {
+	c := Channel{
+		ID:        phxChannel.ID,
+		Name:      phxChannel.Name,
+		CreatedAt: phxChannel.CreatedAt,
+		UpdatedAt: phxChannel.UpdatedAt,
+	}
 
 	if phxChannel.PurchaseLocation == phoenix.PurchaseOnFox {
 		c.PurchaseOnFox = true
 	} else {
 		c.PurchaseOnFox = false
 	}
+
+	return &c
 }

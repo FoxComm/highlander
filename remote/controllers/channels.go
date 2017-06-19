@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/FoxComm/highlander/remote/models/phoenix"
+	"github.com/FoxComm/highlander/remote/payloads"
 	"github.com/FoxComm/highlander/remote/responses"
 	"github.com/FoxComm/highlander/remote/services"
 	"github.com/FoxComm/highlander/remote/utils/failures"
@@ -27,22 +28,21 @@ func (ctrl *Channels) GetChannel(id int) ControllerFunc {
 			return nil, err
 		}
 
-		chResp := &responses.Channel{}
-		chResp.Build(channel)
-
-		return &responses.Response{
-			StatusCode: http.StatusOK,
-			Body:       chResp,
-		}, nil
+		resp := responses.NewChannel(channel)
+		return responses.NewResponse(http.StatusOK, resp), nil
 	}
 }
 
 // CreateChannel creates a new channel.
-// func (ctrl *Channels) CreateChannel(payload *payloads.CreateChannel) ControllerFunc {
-// 	return func() *responses.Response {
-// 		return &responses.Response{
-// 			StatusCode: http.StatusCreated,
-// 			Body:       "I'm a channel",
-// 		}
-// 	}
-// }
+func (ctrl *Channels) CreateChannel(payload *payloads.CreateChannel) ControllerFunc {
+	return func() (*responses.Response, failures.Failure) {
+		phxChannel := payload.PhoenixModel()
+
+		if err := services.InsertChannel(ctrl.phxDB, phxChannel); err != nil {
+			return nil, err
+		}
+
+		resp := responses.NewChannel(phxChannel)
+		return responses.NewResponse(http.StatusCreated, resp), nil
+	}
+}

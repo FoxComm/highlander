@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/FoxComm/highlander/remote/payloads"
 	"github.com/FoxComm/highlander/remote/utils/failures"
 	"github.com/labstack/echo"
 )
@@ -21,6 +22,23 @@ type FoxContext struct {
 // NewFoxContext creates a new FoxContext from an existing echo.Context.
 func NewFoxContext(c echo.Context) *FoxContext {
 	return &FoxContext{c, nil}
+}
+
+// BindJSON grabs the JSON payload and unmarshals it into the interface provided.
+func (fc *FoxContext) BindJSON(payload payloads.Payload) {
+	if fc.failure != nil {
+		return
+	}
+
+	if err := fc.Bind(payload); err != nil {
+		fc.failure = failures.NewBindFailure(err)
+		return
+	}
+
+	if err := payload.Validate(); err != nil {
+		fc.failure = err
+		return
+	}
 }
 
 // ParamInt parses an integer from the parameters list (as defined by the URI).
