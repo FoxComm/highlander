@@ -1,6 +1,13 @@
 defmodule Geronimo.KafkaWorker do
   require Logger
 
+  def start do
+    kafka_url = [{Application.fetch_env!(:geronimo, :kafka_host),
+                  Application.fetch_env!(:geronimo, :kafka_port) |> String.to_integer }]
+    KafkaEx.create_worker(:geronimo_worker, [uris: kafka_url,
+                          consumer_group: Application.fetch_env!(:geronimo, :consumer_group)])
+  end
+
   def push(kind, obj) do
     KafkaEx.produce("geronimo_#{kind}", 0, Poison.encode!(obj),
                     key: "#{kind}_#{obj.id}", worker_name: :geronimo_worker)
@@ -15,5 +22,4 @@ defmodule Geronimo.KafkaWorker do
   def push_async_await(kind, obj) do
     push_async(kind, obj) |> Task.await
   end
-
 end

@@ -9,24 +9,17 @@ defmodule Geronimo do
       Envy.reload_config
     end
 
-
     children = [
       worker(Geronimo.Repo, [])
     ]
-    opts = [strategy: :one_for_one, name: Geronimo.Supervisor]
-    Supervisor.start_link(children, opts)
 
     case Application.fetch_env(:geronimo, :start_kafka_worker) do
-      {"ok", true} -> start_kafka_ex()
+      {:ok, "true"} ->
+        Geronimo.KafkaWorker.start()
       _ -> nil
     end
-  end
 
-  def start_kafka_ex do
-    kafka_url = [{Application.fetch_env!(:geronimo, :kafka_host),
-                  Application.fetch_env!(:geronimo, :kafka_port) |> String.to_integer }]
-
-    KafkaEx.create_worker(:geronimo_worker, [uris: kafka_url,
-                                             consumer_group: Application.fetch_env!(:geronimo, :consumer_group)])
+    opts = [strategy: :one_for_one, name: Geronimo.Supervisor]
+    Supervisor.start_link(children, opts)
   end
 end
