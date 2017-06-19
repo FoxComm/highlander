@@ -1,20 +1,20 @@
 package anthill.responses
 
 final case class ProductResponse(
-  id: Int,
-  taxonomies: List[Taxonomy],
-  productId: Int,
-  retailPrice: String,
-  salePrice: String,
-  context: String,
-  scope: String,
-  skus: List[String],
-  title: String,
-  slug: String,
-  tags: List[String],
-  currency: String,
-  albums: List[Album],
-  description: String
+    id: Int,
+    taxonomies: List[Taxonomy],
+    productId: Int,
+    retailPrice: String,
+    salePrice: String,
+    context: String,
+    scope: String,
+    skus: List[String],
+    title: String,
+    slug: String,
+    tags: List[String],
+    currency: String,
+    albums: List[Album],
+    description: String
 )
 
 final case class Taxonomy(taxonomy: String, taxons: List[List[String]])

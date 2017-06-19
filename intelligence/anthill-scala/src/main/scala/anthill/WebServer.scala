@@ -11,7 +11,7 @@ import scala.io.StdIn
 object WebServer extends Directives {
   def main(args: Array[String]) {
 
-    implicit val system = ActorSystem("my-system")
+    implicit val system       = ActorSystem("my-system")
     implicit val materializer = ActorMaterializer()
     // needed for the future flatMap/onComplete in the end
     implicit val executionContext = system.dispatcher
@@ -24,7 +24,7 @@ object WebServer extends Directives {
     StdIn.readLine() // let it run until user presses return
     bindingFuture
       .flatMap(_.unbind()) // trigger unbinding from the port
-      .onComplete(_ => system.terminate()) // and shutdown when done
+      .onComplete(_ ⇒ system.terminate()) // and shutdown when done
   }
 
   val routes: Route = PublicRoutes.routes ~ PrivateRoutes.routes

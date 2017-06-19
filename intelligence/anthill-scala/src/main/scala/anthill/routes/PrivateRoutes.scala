@@ -9,7 +9,7 @@ object PrivateRoutes extends Directives with JsonSupport {
   val routes: Route = {
     pathPrefix("private") {
       pathPrefix("prod-prod") {
-        (post & path("train") & pathEnd & entity(as[PurchaseEventPayload])) { payload =>
+        (post & path("train") & pathEnd & entity(as[PurchaseEventPayload])) { payload ⇒
           complete(payload)
         }
       }
