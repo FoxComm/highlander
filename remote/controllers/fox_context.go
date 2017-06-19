@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -79,9 +80,12 @@ func (fc *FoxContext) handleFailure(failure failures.Failure) error {
 		return errors.New("handleFailure must receive a failure with an error")
 	}
 
-	if err := failure.Log(); err != nil {
-		return fmt.Errorf("Error trying to log failure with error: %s", err.Error())
+	trace, err := failure.Trace()
+	if err != nil {
+		return fmt.Errorf("Error trying to log trace with error: %s", err.Error())
 	}
+
+	log.Printf("%s: %s\n\nError: %s\n", fc.Request().Method, fc.Request().URL.Path, trace)
 
 	errString := failure.Error()
 	failureType, err := failure.Type()
