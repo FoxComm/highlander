@@ -1,7 +1,7 @@
-package foxcomm.search
+package foxcomm.agni
 
 import cats.data.NonEmptyList
-import foxcomm.search.dsl.query._
+import foxcomm.agni.dsl.query._
 import io.circe.JsonObject
 
 sealed trait SearchPayload {

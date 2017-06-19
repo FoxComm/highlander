@@ -1,10 +1,10 @@
-package foxcomm.search.api
+package foxcomm.agni.api
 
 import com.sksamuel.elastic4s.ElasticImplicits._
 import com.twitter.finagle.Http
 import com.twitter.finagle.http.Status
 import com.twitter.util.Await
-import foxcomm.search._
+import foxcomm.agni._
 import foxcomm.utils.finch._
 import io.circe.generic.extras.auto._
 import io.finch._

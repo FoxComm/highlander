@@ -1,4 +1,4 @@
-package foxcomm.search.dsl
+package foxcomm.agni.dsl
 
 import cats.data.NonEmptyList
 import cats.syntax.either._

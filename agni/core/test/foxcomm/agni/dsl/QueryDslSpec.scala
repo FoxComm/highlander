@@ -1,6 +1,6 @@
-package foxcomm.search.dsl
+package foxcomm.agni.dsl
 
-import foxcomm.search.dsl.query._
+import foxcomm.agni.dsl.query._
 import io.circe.parser._
 import org.scalatest.EitherValues._
 import org.scalatest.OptionValues._

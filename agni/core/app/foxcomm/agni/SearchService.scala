@@ -1,10 +1,10 @@
-package foxcomm.search
+package foxcomm.agni
 
 import scala.language.postfixOps
 import cats.implicits._
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s._
-import foxcomm.search.dsl.query._
+import foxcomm.agni.dsl.query._
 import io.circe._
 import io.circe.jawn.parseByteBuffer
 import org.elasticsearch.common.settings.Settings
