@@ -171,8 +171,6 @@
     padding: 0 10px;
     text-align: right;
     color: var(--color-light-text);
-    /*font-size: 16px;
-    line-height: 34px;*/
     font: var(--font-section-title);
     user-select: none;
     cursor: pointer;
