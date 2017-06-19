@@ -13,12 +13,16 @@ import (
 // error in question.
 type callStack []uintptr
 
+const (
+	maxStackDepth = 32
+	skipFrames    = 3
+)
+
 func newCallStack() *callStack {
-	const depth = 32
-	var callStackPtrs [depth]uintptr
+	var callStackPtrs [maxStackDepth]uintptr
 
 	// Get the pointers, but skip the failure infrastructure.
-	actualCount := runtime.Callers(3, callStackPtrs[:])
+	actualCount := runtime.Callers(skipFrames, callStackPtrs[:])
 	var st callStack = callStackPtrs[0:actualCount]
 
 	return &st

@@ -9,6 +9,8 @@ const (
 	FailureBadRequest = iota
 	FailureNotFound
 	FailureServiceError
+
+	recordNotFound = "record not found"
 )
 
 // Failure is a wrapper around the standard Golang error type that gives us more
@@ -33,7 +35,7 @@ func New(err error, params map[string]interface{}) Failure {
 
 	stack := newCallStack()
 
-	if err.Error() == "record not found" {
+	if err.Error() == recordNotFound {
 		return newNotFoundFailure(stack, err, params)
 	}
 
@@ -69,11 +71,10 @@ func newServiceFailure(stack *callStack, err error) Failure {
 // NewGeneralFailure creates a Failure with all basic parameters coming from the
 // caller. No assumptions about message format are made by the system.
 func NewGeneralFailure(err error, failureType int) Failure {
-	stack := newCallStack()
 	return &generalFailure{
 		err:         err,
 		failureType: failureType,
-		stack:       stack,
+		stack:       newCallStack(),
 	}
 }
 
