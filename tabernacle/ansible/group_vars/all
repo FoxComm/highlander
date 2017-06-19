@@ -393,6 +393,15 @@ google_oauth_frontend_client_id: ""
 google_oauth_frontend_secret: ""
 google_oauth_frontend_redirect_uri: ""
 
+# FB OAuth
+fb_oauth_admin_client_id: ""
+fb_oauth_admin_secret: ""
+fb_oauth_admin_redirect_uri: ""
+
+fb_oauth_frontend_client_id: ""
+fb_oauth_frontend_secret: ""
+fb_oauth_frontend_redirect_uri: ""
+
 # VM swap size
 swap_file: /swap
 swap_size_mb: 2000
