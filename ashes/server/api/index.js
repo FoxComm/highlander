@@ -18,8 +18,12 @@ module.exports = function(app) {
     }
   });
 
-  app.use(convert(proxy({
-    host: process.env.API_URL,
-    match: matchUriRegexp,
-  })));
+  app.use(
+    convert(
+      proxy({
+        host: process.env.API_URL,
+        match: matchUriRegexp,
+      })
+    )
+  );
 };

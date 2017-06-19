@@ -21,7 +21,6 @@
   }
 }
 
-
 :global(.fc-table) {
   & .payment-row :global(.fc-table-td),
   & .details-row :global(.fc-table-td) {

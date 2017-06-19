@@ -37,7 +37,7 @@ type Props = {
  */
 export const Button = ({ icon, children, isLoading, className, fullWidth, returnRef, small, ...restProps }: Props) => {
   const hasIcon = !!icon;
-  const content = children ? <span className={s.text}>{children}</span> : null;
+  const content = children ? <span>{children}</span> : null;
   const disabled = restProps.disabled || isLoading;
   const onlyIcon = hasIcon && !content;
   const cls = classNames(

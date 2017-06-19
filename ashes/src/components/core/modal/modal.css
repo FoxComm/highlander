@@ -34,8 +34,7 @@
   font-weight: 600;
 }
 
-.title {
-}
+.title {} /* stylelint-disable-line */
 
 .close {
   font-size: 24px;

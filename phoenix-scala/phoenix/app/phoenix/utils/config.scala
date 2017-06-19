@@ -8,9 +8,10 @@ import com.typesafe.scalalogging.StrictLogging
 import core.utils.friendlyClassName
 import pureconfig._
 import shapeless._
-
 import scala.reflect._
 import scala.util.{Failure, Success, Try}
+
+import phoenix.libs.oauth.{FacebookOauthOptions, GoogleOauthOptions, OauthClientOptions}
 
 sealed trait Environment {
   def isProd: Boolean = false
@@ -114,12 +115,23 @@ object FoxConfig extends StrictLogging {
 
   // users
   case class Users(admin: User, customer: User)
-  case class User(role: String, org: String, scopeId: Int, oauth: Oauth)
-  case class Oauth(google: GoogleOauth)
-  case class GoogleOauth(clientId: String,
-                         clientSecret: String,
-                         redirectUri: String,
-                         hostedDomain: Option[String])
+  case class User(role: String, org: String, scopeId: Int, oauth: OauthProviders)
+
+  trait SupportedOauthProviders[T] {
+    val google: T
+    val facebook: T
+  }
+
+  sealed trait OauthProviderName
+  implicit object OauthProviderName extends ADT[OauthProviderName] {
+    case object Google   extends OauthProviderName
+    case object Facebook extends OauthProviderName
+
+    def types = sealerate.values[OauthProviderName]
+  }
+
+  case class OauthProviders(google: GoogleOauthOptions, facebook: FacebookOauthOptions)
+      extends SupportedOauthProviders[OauthClientOptions]
 
   private def loadBareConfigWithEnv()(implicit env: Environment): Config = {
     logger.info(s"Loading configuration using ${env.show} environment")
@@ -144,10 +156,10 @@ object FoxConfig extends StrictLogging {
 
   val taxRules: Lens[FoxConfig, TaxRules] = lens[FoxConfig].taxRules
 
-  val users: Lens[FoxConfig, Users]        = lens[FoxConfig].users
-  val customer: Lens[Users, User]          = lens[Users].customer
-  val admin: Lens[Users, User]             = lens[Users].admin
-  val googleOauth: Lens[User, GoogleOauth] = lens[User].oauth.google
+  val users: Lens[FoxConfig, Users]               = lens[FoxConfig].users
+  val customer: Lens[Users, User]                 = lens[Users].customer
+  val admin: Lens[Users, User]                    = lens[Users].admin
+  val googleOauth: Lens[User, GoogleOauthOptions] = lens[User].oauth.google
   /*_*/
 
   def loadConfigWithEnv()(implicit env: Environment): Try[(FoxConfig, Config)] =

@@ -9,7 +9,6 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-
   margin: 10px 0 0;
 }
 
@@ -85,9 +84,7 @@
   }
 }
 
-.content {
-
-}
+.content {} /* stylelint-disable-line */
 
 .menu {
   margin: 10px 0 30px;

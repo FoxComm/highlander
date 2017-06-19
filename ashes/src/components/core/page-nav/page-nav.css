@@ -36,7 +36,7 @@
     word-wrap: break-word;
     overflow-wrap: break-word;
 
-    &:after {
+    &::after {
       content: '';
       position: absolute;
       left: 0;
@@ -47,7 +47,7 @@
       transition: all .4s;
     }
 
-    &.activeLink:after {
+    &.activeLink::after {
       background-color: var(--bg-nav-pink);
     }
   }
@@ -64,19 +64,19 @@
     padding-left: 10px;
     transform: rotateX(0);
     transform-origin: 50% 45%;
-    transition: transform 0.3s ease-in;
+    transition: transform .3s ease-in;
 
-    &:before {
+    &::before {
       transform: rotateX(0);
       transform-origin: 50% 45%;
-      transition: transform 0.12s ease-in;
+      transition: transform .12s ease-in;
     }
   }
 
   &.opened {
-    & > a > i:before {
+    & > a > i::before {
       transform: rotateX(180deg);
-      transition: transform 0.2s ease-out;
+      transition: transform .2s ease-out;
     }
   }
 }

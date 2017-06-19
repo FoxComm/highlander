@@ -41,6 +41,7 @@
       min-width: 0;
     }
   }
+
   & :global(.fc-alert) {
     margin-bottom: 20px;
   }

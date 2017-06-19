@@ -16,7 +16,7 @@
     transform: translateX(-50%);
   }
 
-  :global .initials .fc-tooltip:before {
+  :global .initials .fc-tooltip::before {
     left: 50%;
   }
 

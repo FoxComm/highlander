@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { noop } from 'lodash';
 
@@ -13,13 +12,8 @@ describe('PageSize', function() {
     }
   });
 
-  it(`should render selected page size`, function *() {
-    pageSize = yield renderIntoDocument(
-      <PageSize
-        setState={noop}
-        value={25}
-      />
-    );
+  it(`should render selected page size`, function*() {
+    pageSize = yield renderIntoDocument(<PageSize setState={noop} value={25} />);
 
     expect(pageSize.container.querySelector('.fc-dropdown__value').textContent).to.equal('View 25');
   });

@@ -23,6 +23,7 @@
     left: 0;
     bottom: 0;
     right: 0;
+
     @apply --loading-caramel;
   }
 }
@@ -67,11 +68,6 @@
  * Transitions
  ********************************************************/
 
-/* required for transitionName to work as it's used as `transitionName={styles.dropdown}` */
-.dropdown {
-
-}
-
 .dropdownEnter,
 .dropdownLeave.dropdownLeaveActive {
   display: flex;
@@ -89,7 +85,7 @@
 .pillEnter,
 .pillAppear,
 .pillLeave.pillLeaveActive {
-  opacity: 0.1;
+  opacity: .1;
   transform: scale(.8);
 }
 

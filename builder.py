@@ -22,6 +22,7 @@ PROJECTS = (
     'demo/peacock',
     'developer-portal',
     'green-river',
+    'geronimo',
     'hyperion',
     'intelligence/anthill',
     'intelligence/bernardo',

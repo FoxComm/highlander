@@ -17,8 +17,10 @@
 
 .downArrowBtn {
   /* @todo!important something about priority for core components */
-  /* Fucks up the gear icon/button that toggles the columns for tables in Chrome 58.03 for linux*/
-  /*padding: 0 10px !important;*/
+
+  /* Fucks up the gear icon/button that toggles the columns for tables in Chrome 58.03 for linux */
+
+  /* padding: 0 10px !important; */
 
   padding-top: 11px !important;
 

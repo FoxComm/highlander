@@ -19,7 +19,7 @@
   }
 
   @media (min-resolution: 120dpi) {
-    border-width: 0.5px;
+    border-width: .5px;
   }
 
   &.loading::after,
@@ -30,6 +30,7 @@
     right: 0;
     bottom: 0;
     left: 0;
+
     @apply --loading-caramel;
   }
 
@@ -61,7 +62,7 @@
   }
 
   .card:hover & {
-    opacity: 0.8;
+    opacity: .8;
   }
 
   .card.disabled &,

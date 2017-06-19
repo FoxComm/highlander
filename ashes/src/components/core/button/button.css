@@ -73,10 +73,6 @@ span + i[class*="icon-"] {
   margin-left: 8px;
 }
 
-.text {
-
-}
-
 .loading {
   @apply --loading-caramel;
 }

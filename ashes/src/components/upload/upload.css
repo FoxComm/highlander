@@ -30,7 +30,7 @@
   min-height: 300px;
 
   .dragOverArea & {
-    opacity: 0.3;
+    opacity: .3;
     pointer-events: none;
   }
 
@@ -58,7 +58,7 @@
   display: block;
   font-size: 96px;
   line-height: .8;
-  opacity: 0.6;
+  opacity: .6;
 }
 
 .input {

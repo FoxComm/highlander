@@ -1,0 +1,57 @@
+{
+    "id": "geronimo",
+    "cmd": null,
+    "cpus": 0.5,
+    "mem": 256,
+    "disk": 0,
+    "instances": 1,
+    "constraints": [],
+    "labels": {
+        "LANG": "elixir",
+        "consul": "geronimo",
+        "TAG": "{{docker_tags.geronimo}}",
+        "overrideTaskName": "geronimo"
+    },
+    "env": {
+        "GERONIMO_DB_HOST": "{{docker_db_host}}",
+        "GERONIMO_DB_USER": "{{geronimo_db_user}}",
+        "GERONIMO_DB_NAME": "{{geronimo_db_name}}",
+        "GERONIMO_DB_PASSWORD": "{{geronimo_db_password}}",
+        "PUBLIC_KEY": "{{public_keys_dest_dir}}/public_key.pem",
+        "START_WORKER": "{{geronimo_start_worker}}",
+        "BROKER_HOST": "{{kafka_host}}",
+        "BROKER_PORT": "{{kafka_port}}",
+        "CONSUMER_GROUP": "{{geronimo_kafka_consumer_group}}"
+    },
+    "container": {
+        "type": "DOCKER",
+        "volumes": [{
+                "containerPath": "{{public_keys_dest_dir}}",
+                "hostPath": "{{public_keys_dest_dir}}",
+                "mode": "RO"
+            },
+            {
+                "containerPath": "{{docker_logs_dir}}",
+                "hostPath": "{{docker_logs_host_dir}}",
+                "mode": "RW"
+            }
+        ],
+        "docker": {
+            "image": "{{docker_registry}}:5000/geronimo:{{docker_tags.geronimo}}",
+            "network": "HOST",
+            "privileged": false,
+            "parameters": [],
+            "forcePullImage": true
+        }
+    },
+    "healthChecks": [{
+        "path": "/v1/public/health",
+        "protocol": "HTTP",
+        "gracePeriodSeconds": 300,
+        "intervalSeconds": 30,
+        "timeoutSeconds": 20,
+        "maxConsecutiveFailures": 3,
+        "ignoreHttp1xx": false,
+        "portIndex": 0
+    }]
+}
