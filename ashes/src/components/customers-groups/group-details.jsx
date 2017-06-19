@@ -38,7 +38,7 @@ import Criterion from './editor/criterion-view';
 import CustomerGroupStats from './stats';
 import SearchCustomersModal from './customers/search-modal';
 import Icon from 'components/core/icon';
-import { DateTime } from 'components/common/datetime';
+import { DateTime } from 'components/utils/datetime';
 
 type State = {
   criteriaOpen: boolean,
