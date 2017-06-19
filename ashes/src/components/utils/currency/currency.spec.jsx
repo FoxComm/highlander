@@ -14,16 +14,7 @@ describe('Currency', function () {
     expect(currency.text()).to.equal('$0.00');
   });
 
-  it('should render empty tag with incorrect value', function () {
-
-    const currency = mount(
-      <Currency value={'abc'} />
-    );
-
-    expect(currency.text()).to.equal('');
-  });
-
-  it('should render correct value', function () {
+  it('should render empty string when get incorrect value', function () {
 
     const currency = mount(
       <Currency value={'abc'} />
