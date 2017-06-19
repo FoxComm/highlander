@@ -175,9 +175,8 @@ class CheckoutTest
 
             c ← * <~ Carts.refresh(cart)
 
-            _ ← * <~ OrderShippingMethods.create(
-                   OrderShippingMethod.build(cart.refNum, shipMethod))
-            _ ← * <~ address .boundToCart( cart.refNum)
+            _ ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(cart.refNum, shipMethod))
+            _ ← * <~ address.boundToCart(cart.refNum)
 
             gcIds ← * <~ generateGiftCards(gcData.map(_.cardAmount))
             scIds ← * <~ generateStoreCredits(scData.map(_.cardAmount))

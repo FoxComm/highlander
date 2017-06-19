@@ -172,8 +172,8 @@ class ShippingMethodsIntegrationTest
     val address = (for {
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       address ← * <~ Addresses.create(
-                   Factories.address.copy(accountId = customer.accountId, regionId = californiaId))
-      address ← * <~ address .boundToCart( cart.refNum)
+                 Factories.address.copy(accountId = customer.accountId, regionId = californiaId))
+      address ← * <~ address.boundToCart(cart.refNum)
       product ← * <~ Mvp.insertProduct(productContext.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
       _ ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))

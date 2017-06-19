@@ -91,7 +91,7 @@ trait OrderGenerator extends ShipmentSeeds {
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
       shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
       shipM ← * <~ OrderShippingMethods.create(
-                 OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
+               OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
 
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
@@ -119,8 +119,8 @@ trait OrderGenerator extends ShipmentSeeds {
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
       shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
       shipM ← * <~ OrderShippingMethods.create(
-                 OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
-      _ ← * <~ addr.boundToCart( cart.refNum)
+               OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
+      _ ← * <~ addr.boundToCart(cart.refNum)
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
 
@@ -138,8 +138,8 @@ trait OrderGenerator extends ShipmentSeeds {
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
       shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
       shipM ← * <~ OrderShippingMethods.create(
-                 OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
-      _ ← * <~ addr.boundToCart( cart.refNum)
+               OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
+      _ ← * <~ addr.boundToCart(cart.refNum)
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
 
@@ -163,8 +163,8 @@ trait OrderGenerator extends ShipmentSeeds {
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
       shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
       shipM ← * <~ OrderShippingMethods.create(
-                 OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
-      _ ← * <~ addr.boundToCart( cart.refNum)
+               OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
+      _ ← * <~ addr.boundToCart(cart.refNum)
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
 
@@ -181,8 +181,8 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ generateCartPayments(cart, cc, gc, deductFromGc)
       // Authorize SC payments
       addr ← * <~ getDefaultAddress(accountId)
-      _ ← * <~ addr.boundToCart( cart.refNum)
-      _ ← * <~ CartTotaler.saveTotals(cart)
+      _    ← * <~ addr.boundToCart(cart.refNum)
+      _    ← * <~ CartTotaler.saveTotals(cart)
     } yield cart
 
   def cartOrderUsingCreditCard(accountId: Int, context: ObjectContext, skuIds: Seq[Int], giftCard: GiftCard)(
@@ -194,8 +194,8 @@ trait OrderGenerator extends ShipmentSeeds {
       cc   ← * <~ getCc(accountId)
       _    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = none))
       addr ← * <~ getDefaultAddress(accountId)
-      _ ← * <~ addr.boundToCart( cart.refNum)
-      _ ← * <~ CartTotaler.saveTotals(cart)
+      _    ← * <~ addr.boundToCart(cart.refNum)
+      _    ← * <~ CartTotaler.saveTotals(cart)
     } yield cart
 
   def shippedOrderUsingCreditCard(accountId: Int,
@@ -219,7 +219,7 @@ trait OrderGenerator extends ShipmentSeeds {
                               state = FullCapture,
                               amount = op.amount.getOrElse(0)))
       addr ← * <~ getDefaultAddress(accountId)
-      _ ← * <~ addr.boundToCart( cart.refNum)
+      _    ← * <~ addr.boundToCart(cart.refNum)
       shipM ← * <~ OrderShippingMethods.create(
                OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
@@ -250,7 +250,7 @@ trait OrderGenerator extends ShipmentSeeds {
       _          ← * <~ authGiftCard(gcPayments)
       _          ← * <~ generateCharges(Seq((cc, ccPayment)), gcPayment.toList.map(p ⇒ (gc, p)))
       addr       ← * <~ getDefaultAddress(accountId)
-      _ ← * <~ addr.boundToCart( cart.refNum)
+      _          ← * <~ addr.boundToCart(cart.refNum)
       shipM ← * <~ OrderShippingMethods.create(
                OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
       _ ← * <~ OrderTotaler.saveTotals(cart, order)

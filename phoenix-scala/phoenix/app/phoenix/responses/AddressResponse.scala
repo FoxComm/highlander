@@ -65,6 +65,6 @@ object AddressResponse {
   def forCordRef(cordRef: String)(implicit ec: EC): DbResultT[AddressResponse] =
     for {
       fullAddress ← * <~ Address.mustFindByCordRef(cordRef)
-      (address, region)= fullAddress
-                        } yield build(address, region)
+      (address, region) = fullAddress
+    } yield build(address, region)
 }
