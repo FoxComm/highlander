@@ -47,7 +47,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
           .gimme
 
         Addresses.filter(_.id === address.id).delete.run().futureValue
-        canada.boundToCart(cart.refNum).gimme
+        canada.bindToCart(cart.refNum).gimme
 
         val matchingMethods = getShippingMethodsForCart(cart.refNum).gimme
         matchingMethods.headOption.value.name must === (shippingMethod.adminDisplayName)

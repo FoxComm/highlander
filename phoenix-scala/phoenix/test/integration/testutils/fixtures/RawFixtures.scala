@@ -73,7 +73,7 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
       CartShippingAddressUpdater
         .createShippingAddressFromAddressId(storeAdmin, address.id, cart.refNum.some)
         .gimme
-      Addresses.findByOrderRef(cart.refNum).gimme.head
+      Addresses.findByCordRef(cart.refNum).gimme.head
     }
   }
 

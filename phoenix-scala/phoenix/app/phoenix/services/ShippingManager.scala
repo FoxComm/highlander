@@ -115,7 +115,7 @@ object ShippingManager {
   private def getShippingData(cart: Cart)(implicit ec: EC, db: DB): DbResultT[ShippingData] =
     for {
       orderShippingAddress ← * <~ Addresses
-                              .findByOrderRefWithRegions(cart.refNum)
+                              .findByCordRefWithRegions(cart.refNum)
                               .result
                               .headOption
 

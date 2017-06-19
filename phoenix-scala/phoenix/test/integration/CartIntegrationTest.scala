@@ -279,7 +279,7 @@ class CartIntegrationTest
       "succeeds if the address exists in their book" in new EmptyCustomerCart_Baked with CustomerAddress_Raw {
         cartsApi(cart.refNum).shippingAddress.updateFromAddress(address.id).mustBeOk()
 
-        val shippingAddressUpd = Addresses.findByOrderRef(cart.refNum).one.gimme.value
+        val shippingAddressUpd = Addresses.findByCordRef(cart.refNum).one.gimme.value
         shippingAddressUpd.cordRef.value must === (cart.refNum)
       }
 
@@ -291,7 +291,7 @@ class CartIntegrationTest
           cartsApi(cart.refNum).shippingAddress.updateFromAddress(id).mustBeOk()
         }
 
-        val shippingAddressUpd = Addresses.findByOrderRef(cart.refNum).one.gimme.value
+        val shippingAddressUpd = Addresses.findByCordRef(cart.refNum).one.gimme.value
         shippingAddressUpd.name must === ("Little Mary")
       }
 
@@ -317,7 +317,7 @@ class CartIntegrationTest
 
         cartsApi(cart.refNum).shippingAddress.updateFromAddress(newAddress.id).mustBeOk()
 
-        val shippingAddressUpd = Addresses.findByOrderRef(cart.refNum).one.gimme.value
+        val shippingAddressUpd = Addresses.findByCordRef(cart.refNum).one.gimme.value
         shippingAddressUpd.cordRef.value must === (cart.refNum)
       }
 
@@ -332,7 +332,7 @@ class CartIntegrationTest
           .updateFromAddress(101)
           .mustFailWith404(NotFoundFailure404(Address, 101))
 
-        Addresses.findByOrderRef(cart.refNum).one.gimme.value.cordRef.value must === (cart.refNum)
+        Addresses.findByCordRef(cart.refNum).one.gimme.value.cordRef.value must === (cart.refNum)
       }
     }
   }
@@ -344,7 +344,7 @@ class CartIntegrationTest
         .update(UpdateAddressPayload(name = "New name".some, city = "Queen Anne".some))
         .mustBeOk()
 
-      val updatedAddress: Address = Addresses.findByOrderRef(cart.refNum).one.gimme.value
+      val updatedAddress: Address = Addresses.findByCordRef(cart.refNum).one.gimme.value
       updatedAddress.name must === ("New name")
       updatedAddress.city must === ("Queen Anne")
       updatedAddress.address1 must === (address.address1)

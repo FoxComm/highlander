@@ -39,14 +39,14 @@ case class Address(id: Int = 0,
     if (this.isNew || this.accountId == accountId) Either.right(this)
     else Either.left(NotFoundFailure404(Address, this.id).single)
 
-  // we gonna have only one address bounded to an order for now
-  def boundToCart(cartRef: String)(implicit ec: EC): DbResultT[Address] =
+  // we gonna have only one address bound to an order for now
+  def bindToCart(cartRef: String)(implicit ec: EC): DbResultT[Address] =
     for {
-      _       ← * <~ Addresses.findByOrderRef(cartRef).map(_.cordRef).update(None)
+      _       ← * <~ Addresses.findByCordRef(cartRef).map(_.cordRef).update(None)
       address ← * <~ Addresses.update(this, this.copy(cordRef = cartRef.some))
     } yield address
 
-  def unboundFromCart()(implicit ec: EC): DbResultT[Address] =
+  def unbindFromCart()(implicit ec: EC): DbResultT[Address] =
     Addresses.update(this, this.copy(cordRef = None))
 }
 
@@ -67,18 +67,18 @@ object Address {
       cordRef = cordRef
     )
 
-  def fromPatchPayload(existedAddress: Address, incomingPayload: UpdateAddressPayload): Address =
+  def fromPatchPayload(existingAddress: Address, incomingPayload: UpdateAddressPayload): Address =
     Address(
-      id = existedAddress.id,
-      accountId = existedAddress.accountId,
-      regionId = incomingPayload.regionId.getOrElse(existedAddress.regionId),
-      name = incomingPayload.name.getOrElse(existedAddress.name),
-      address1 = incomingPayload.address1.getOrElse(existedAddress.address1),
-      address2 = incomingPayload.address2.fold(existedAddress.address2)(Some(_)),
-      city = incomingPayload.city.getOrElse(existedAddress.city),
-      zip = incomingPayload.zip.getOrElse(existedAddress.zip),
-      cordRef = existedAddress.cordRef,
-      phoneNumber = incomingPayload.phoneNumber.fold(existedAddress.phoneNumber)(Some(_))
+      id = existingAddress.id,
+      accountId = existingAddress.accountId,
+      regionId = incomingPayload.regionId.getOrElse(existingAddress.regionId),
+      name = incomingPayload.name.getOrElse(existingAddress.name),
+      address1 = incomingPayload.address1.getOrElse(existingAddress.address1),
+      address2 = incomingPayload.address2.fold(existingAddress.address2)(Some(_)),
+      city = incomingPayload.city.getOrElse(existingAddress.city),
+      zip = incomingPayload.zip.getOrElse(existingAddress.zip),
+      cordRef = existingAddress.cordRef,
+      phoneNumber = incomingPayload.phoneNumber.fold(existingAddress.phoneNumber)(Some(_))
     )
 
   def fromCreditCard(cc: CreditCard): Address =
@@ -158,11 +158,11 @@ object Addresses
   def findAllActiveByAccountIdWithRegions(accountId: Int): AddressesWithRegionsQuery =
     findAllActiveByAccountId(accountId).withRegions
 
-  def findByOrderRef(cordRef: String): QuerySeq =
+  def findByCordRef(cordRef: String): QuerySeq =
     filter(_.cordRef === cordRef)
 
-  def findByOrderRefWithRegions(cordRef: String): AddressesWithRegionsQuery =
-    findByOrderRef(cordRef).withRegions
+  def findByCordRefWithRegions(cordRef: String): AddressesWithRegionsQuery =
+    findByCordRef(cordRef).withRegions
 
   def findShippingDefaultByAccountId(accountId: Int): QuerySeq =
     filter(_.accountId === accountId).filter(_.isDefaultShipping === true)

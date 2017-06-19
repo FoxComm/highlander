@@ -24,7 +24,7 @@ object CartShippingAddressUpdater {
       addAndReg ← * <~ mustFindByAddressId(addressId)
       (address, region) = addAndReg
       _         ← * <~ address.mustBelongToAccount(cart.accountId)
-      _         ← * <~ address.boundToCart(cart.referenceNumber)
+      _         ← * <~ address.bindToCart(cart.referenceNumber)
       validated ← * <~ CartValidator(cart).validate()
       response  ← * <~ CartResponse.buildRefreshed(cart)
       _ ← * <~ LogActivity()
@@ -40,7 +40,7 @@ object CartShippingAddressUpdater {
       ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart       ← * <~ getCartByOriginator(originator, refNum)
-      _          ← * <~ Addresses.findByOrderRef(cart.refNum).deleteAll
+      _          ← * <~ Addresses.findByCordRef(cart.refNum).deleteAll
       newAddress ← * <~ Addresses.create(Address.fromPayload(payload, cart.accountId, cart.refNum.some))
       region     ← * <~ Regions.mustFindById404(payload.regionId)
       validated  ← * <~ CartValidator(cart).validate()
@@ -77,7 +77,7 @@ object CartShippingAddressUpdater {
       addAndReg ← * <~ mustFindByCordRef(cart.referenceNumber)
       (address, region) = addAndReg
       _         ← * <~ address.mustBelongToAccount(cart.accountId)
-      address   ← * <~ address.unboundFromCart()
+      address   ← * <~ address.unbindFromCart()
       validated ← * <~ CartValidator(cart).validate()
       fullOrder ← * <~ CartResponse.buildRefreshed(cart)
       _ ← * <~ LogActivity()

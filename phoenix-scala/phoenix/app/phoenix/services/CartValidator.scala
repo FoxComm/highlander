@@ -80,7 +80,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB, ctx: OC) extends C
     } yield response
 
   private def hasShipAddress(response: CartValidatorResponse): DBIO[CartValidatorResponse] =
-    Addresses.findByOrderRef(cart.refNum).one.map { shipAddress ⇒
+    Addresses.findByCordRef(cart.refNum).one.map { shipAddress ⇒
       shipAddress.fold(warning(response, NoShipAddress(cart.refNum))) { _ ⇒
         response
       }

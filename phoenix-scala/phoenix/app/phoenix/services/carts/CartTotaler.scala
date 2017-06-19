@@ -57,7 +57,7 @@ object CartTotaler {
   def taxesTotal(cordRef: String, subTotal: Long, shipping: Long, adjustments: Long)(
       implicit ec: EC): DbResultT[Long] =
     for {
-      maybeAddress ← * <~ Addresses.findByOrderRef(cordRef).one
+      maybeAddress ← * <~ Addresses.findByCordRef(cordRef).one
       optionalCustomRate = for {
         address     ← maybeAddress
         taxRegionId ← config.taxRules.regionId
