@@ -20,30 +20,30 @@ object ShippingMethodRoutes {
             ShippingManager.setDefault(shippingMethodId = shippingMethodId)
           }
         } ~
-          pathPrefix("default") {
-            (get & pathEnd) {
-              getOrFailures {
-                ShippingManager.getDefault
-              }
-            } ~
-              (delete & pathEnd) {
-                deleteOrFailures {
-                  ShippingManager.removeDefault()
-                }
-              }
-          } ~
+        pathPrefix("default") {
           (get & pathEnd) {
             getOrFailures {
-              ShippingManager.getActive
+              ShippingManager.getDefault
             }
           } ~
-          path(cordRefNumRegex) { refNum ⇒
-            (get & pathEnd) {
-              getOrFailures {
-                ShippingManager.getShippingMethodsForCart(refNum)
-              }
+          (delete & pathEnd) {
+            deleteOrFailures {
+              ShippingManager.removeDefault()
             }
           }
+        } ~
+        (get & pathEnd) {
+          getOrFailures {
+            ShippingManager.getActive
+          }
+        } ~
+        path(cordRefNumRegex) { refNum ⇒
+          (get & pathEnd) {
+            getOrFailures {
+              ShippingManager.getShippingMethodsForCart(refNum)
+            }
+          }
+        }
       }
     }
 }

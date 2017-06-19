@@ -1,27 +1,28 @@
 package phoenix.services.customerGroups
 
-import cats.implicits._
-import phoenix.failures.CustomerGroupFailures.CustomerGroupMemberPayloadContainsSameIdsInBothSections
-import core.failures.{NotFoundFailure400, NotFoundFailure404}
 import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
+
+import cats.implicits._
+import core.db.ExPostgresDriver.api._
+import core.db._
+import core.failures.{NotFoundFailure400, NotFoundFailure404}
+import org.json4s.JsonAST._
+import phoenix.failures.CustomerGroupFailures.CustomerGroupMemberPayloadContainsSameIdsInBothSections
 import phoenix.models.account.{User, Users}
 import phoenix.models.cord.Orders
 import phoenix.models.customer.CustomerGroup._
 import phoenix.models.customer.CustomersData.scope._
 import phoenix.models.customer._
 import phoenix.models.discount.SearchReference
-import org.json4s.JsonAST._
 import phoenix.payloads.CustomerGroupPayloads._
-import phoenix.responses.CustomerResponse.{build, Root}
 import phoenix.responses.GroupResponses.CustomerGroupResponse
+import phoenix.responses.users.CustomerResponse
 import phoenix.services.StoreCreditService
 import phoenix.services.customers.CustomerManager
 import phoenix.utils.ElasticsearchApi
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
-import core.db.ExPostgresDriver.api._
-import core.db._
 
 object GroupMemberManager {
 
@@ -68,7 +69,7 @@ object GroupMemberManager {
     } yield {}
 
   def addCustomerToGroups(accountId: Int,
-                          groupIds: Seq[Int])(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+                          groupIds: Seq[Int])(implicit ec: EC, db: DB, ac: AC): DbResultT[CustomerResponse] =
     for {
       customer  ← * <~ Users.mustFindByAccountId(accountId)
       newGroups ← * <~ CustomerGroups.findAllByIds(groupIds.toSet).result
@@ -100,7 +101,7 @@ object GroupMemberManager {
          }
       dynamicGroupsOfUser ← * <~ CustomerGroups.fildAllByIdsAndType(groupIds, Dynamic).result
     } yield
-      build(
+      CustomerResponse.build(
         customer.copy(phoneNumber = customer.phoneNumber.orElse(phoneOverride)),
         customerData,
         shipRegion,
@@ -151,11 +152,15 @@ object GroupMemberManager {
              .result
              .dbresult
     } yield (num > 0)
-    else if (group.groupType == Dynamic) for {
-      num ← * <~ apis.elasticSearch.numResults(
-             ElasticsearchApi.SearchView(SearchReference.customersSearchView),
-             narrowDownWithUserId(customer.id)(group.elasticRequest))
-    } yield (num > 0)
+    else if (group.groupType == Dynamic)
+      for {
+        num ← (* <~ apis.elasticSearch.numResults(
+               ElasticsearchApi.SearchView(SearchReference.customersSearchView),
+               narrowDownWithUserId(customer.id)(group.elasticRequest))).failuresToWarnings(0) {
+               case _ ⇒ true
+             }
+        // FIXME: make sure the warning bubbles up to the final response — monad stack order should be different, we don’t want to lose warnings when a Failure happens @michalrus
+      } yield (num > 0)
     else DbResultT.pure(false)
 
   private def narrowDownWithUserId(userId: Int)(elasticRequest: Json): Json = {

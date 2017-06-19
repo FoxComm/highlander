@@ -43,7 +43,7 @@ class ReturnIntegrationTest
         .create(ReturnCreatePayload(cordRefNum = order.referenceNumber, returnType = Standard))
         .as[ReturnResponse.Root]
       rmaCreated.referenceNumber must === (s"${order.referenceNumber}.1")
-      rmaCreated.customer.head.id must === (customer.accountId)
+      rmaCreated.customer.head.id must === (customer.id)
       rmaCreated.storeAdmin.head.id must === (defaultAdmin.id)
 
       val getRmaRoot = returnsApi(rmaCreated.referenceNumber).get().as[ReturnResponse.Root]
@@ -198,7 +198,7 @@ class ReturnIntegrationTest
     "GET /v1/returns/customer/:id" - {
       "should return list of Returns of existing customer" in new ReturnFixture with OrderDefaults {
         val expected = createReturn(order.referenceNumber)
-        val root     = returnsApi.getByCustomer(customer.accountId).as[Seq[ReturnResponse.Root]]
+        val root     = returnsApi.getByCustomer(customer.id).as[Seq[ReturnResponse.Root]]
         root.size must === (1)
         root.head.referenceNumber must === (expected.referenceNumber)
       }
@@ -518,37 +518,37 @@ class ReturnIntegrationTest
       }
 
       "bulk insert should override any existing payments, whilst single addition endpoint should append payment to existing ones" in
-        new ReturnPaymentDefaults {
-          val api = returnsApi(rma.referenceNumber).paymentMethods
+      new ReturnPaymentDefaults {
+        val api = returnsApi(rma.referenceNumber).paymentMethods
 
-          api
-            .add(PaymentMethod.GiftCard, ReturnPaymentPayload(130))
-            .as[ReturnResponse.Root]
-            .payments
-            .asMap
-            .mapValues(_.amount) must === (Map[PaymentMethod.Type, Long](PaymentMethod.GiftCard → 130))
+        api
+          .add(PaymentMethod.GiftCard, ReturnPaymentPayload(130))
+          .as[ReturnResponse.Root]
+          .payments
+          .asMap
+          .mapValues(_.amount) must === (Map[PaymentMethod.Type, Long](PaymentMethod.GiftCard → 130))
 
-          val payload =
-            ReturnPaymentsPayload(Map(PaymentMethod.CreditCard → 100, PaymentMethod.StoreCredit → 120))
-          val response = api.addOrReplace(payload).as[ReturnResponse.Root]
-          response.payments.asMap.mapValues(_.amount) must === (payload.payments)
-          mustProduceActivity(ReturnPaymentsDeleted(response, List(PaymentMethod.GiftCard)))
+        val payload =
+          ReturnPaymentsPayload(Map(PaymentMethod.CreditCard → 100, PaymentMethod.StoreCredit → 120))
+        val response = api.addOrReplace(payload).as[ReturnResponse.Root]
+        response.payments.asMap.mapValues(_.amount) must === (payload.payments)
+        mustProduceActivity(ReturnPaymentsDeleted(response, List(PaymentMethod.GiftCard)))
 
-          api
-            .add(PaymentMethod.StoreCredit, ReturnPaymentPayload(50))
-            .as[ReturnResponse.Root]
-            .payments
-            .asMap
-            .mapValues(_.amount) must === (payload.payments + (PaymentMethod.StoreCredit → 50L))
+        api
+          .add(PaymentMethod.StoreCredit, ReturnPaymentPayload(50))
+          .as[ReturnResponse.Root]
+          .payments
+          .asMap
+          .mapValues(_.amount) must === (payload.payments + (PaymentMethod.StoreCredit → 50L))
 
-          api
-            .add(PaymentMethod.GiftCard, ReturnPaymentPayload(80))
-            .as[ReturnResponse.Root]
-            .payments
-            .asMap
-            .mapValues(_.amount) must === (
-            payload.payments + (PaymentMethod.StoreCredit → 50) + (PaymentMethod.GiftCard → 80))
-        }
+        api
+          .add(PaymentMethod.GiftCard, ReturnPaymentPayload(80))
+          .as[ReturnResponse.Root]
+          .payments
+          .asMap
+          .mapValues(_.amount) must === (
+          payload.payments + (PaymentMethod.StoreCredit → 50) + (PaymentMethod.GiftCard → 80))
+      }
 
       "fails if the amount is less than zero" in new ReturnPaymentFixture with OrderDefaults {
         forAll(paymentMethodTable) { paymentType ⇒
@@ -574,18 +574,20 @@ class ReturnIntegrationTest
         val payload =
           ReturnPaymentsPayload(Map(PaymentMethod.CreditCard → 3000, PaymentMethod.StoreCredit → 1500))
 
+        // taxes wasn't taken into account @aafa
+        val total = returnsApi(rma.referenceNumber).get().as[Root].totals.total
+
         returnsApi(rma.referenceNumber).paymentMethods
           .addOrReplace(payload)
-          .mustFailWith400(ReturnPaymentExceeded(rma.referenceNumber, amount = 4500, maxAmount = 3600))
+          .mustFailWith400(ReturnPaymentExceeded(rma.referenceNumber, amount = 4500, maxAmount = total))
       }
 
       "fails if cc payment exceeds order cc payment minus any previously returned cc payments" in new ReturnPaymentFixture
       with OrderDefaults with ReturnReasonDefaults {
         val maxCCAmount = shippingMethod.price.applyTaxes(0.5)
-        val scAmount    = product.price + shippingMethod.price - maxCCAmount
+        val scAmount    = product.price + shippingMethod.price
         override val storeCredit =
-          api_newStoreCredit(customer.accountId,
-                             CreateManualStoreCredit(amount = scAmount, reasonId = reason.id))
+          api_newStoreCredit(customer.id, CreateManualStoreCredit(amount = scAmount, reasonId = reason.id))
         override val order =
           createDefaultOrder(Map(PaymentMethod.CreditCard → None, PaymentMethod.StoreCredit → Some(scAmount)))
 
@@ -602,20 +604,22 @@ class ReturnIntegrationTest
         completeReturn(refNum = otherRmaRef)
 
         // create some other return for the same order
-        val previousRmaRef = createReturn(order.referenceNumber).referenceNumber
-        createReturnLineItem(createPayload(amount = 25), refNum = previousRmaRef)
-        createReturnPayments(Map(PaymentMethod.CreditCard → 25), refNum = previousRmaRef)
+        val previousRmaRef  = createReturn(order.referenceNumber).referenceNumber
+        val previousPayment = 25L
+        createReturnLineItem(createPayload(amount = previousPayment), refNum = previousRmaRef)
+        createReturnPayments(Map(PaymentMethod.CreditCard → previousPayment), refNum = previousRmaRef)
         completeReturn(refNum = previousRmaRef)
+        // check if ReturnShippingCostLineItemPayload was taken into account
+        returnsApi(previousRmaRef).get().as[Root].totals.shipping must === (previousPayment)
 
         val rma = createReturn(order.referenceNumber)
         createReturnLineItem(payload, rma.referenceNumber)
 
+        val total = returnsApi(rma.referenceNumber).get().as[Root].totals.total
         returnsApi(rma.referenceNumber).paymentMethods
-          .add(PaymentMethod.CreditCard, ReturnPaymentPayload(maxCCAmount))
+          .add(PaymentMethod.CreditCard, ReturnPaymentPayload(shippingMethod.price))
           .mustFailWith400(
-            ReturnCcPaymentExceeded(rma.referenceNumber,
-                                    amount = payload.amount,
-                                    maxAmount = maxCCAmount - 25))
+            ReturnPaymentExceeded(rma.referenceNumber, amount = shippingMethod.price, maxAmount = total))
       }
     }
 

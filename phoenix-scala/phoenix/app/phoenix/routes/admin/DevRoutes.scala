@@ -29,43 +29,43 @@ object DevRoutes {
           }
         }
       } ~
-        pathPrefix("set-log-level") {
-          (post & pathEnd & entity(as[ChangeLogLevel])) { payload ⇒
-            complete {
-              val logger   = LoggerFactory.getLogger(payload.logger).asInstanceOf[LogBackLogger]
-              val oldLevel = logger.getLevel
-              val newLevel = Level.toLevel(payload.level, oldLevel)
-              logger.setLevel(newLevel)
-              ChangeLogLevelResponse(oldLevel = oldLevel.toString,
-                                     newLevel = newLevel.toString,
-                                     logger = logger.getName)
-            }
-          }
-        } ~
-        pathPrefix("credit-card-token") {
-          (post & pathEnd & entity(as[CreditCardDetailsPayload])) { payload ⇒
-            goodOrFailures {
-              TestStripeSupport
-                .createToken(
-                  cardNumber = payload.cardNumber,
-                  expMonth = payload.expMonth,
-                  expYear = payload.expYear,
-                  cvv = payload.cvv,
-                  address = Address.fromPayload(payload.address, payload.customerId, None)
-                )
-                .map { token ⇒
-                  CreditCardTokenResponse(token = token.getId,
-                                          brand = token.getCard.getBrand,
-                                          lastFour = token.getCard.getLast4)
-                }
-            }
-          }
-        } ~
-        pathPrefix("version") {
-          (get & pathEnd) {
-            complete(renderPlain(version))
+      pathPrefix("set-log-level") {
+        (post & pathEnd & entity(as[ChangeLogLevel])) { payload ⇒
+          complete {
+            val logger   = LoggerFactory.getLogger(payload.logger).asInstanceOf[LogBackLogger]
+            val oldLevel = logger.getLevel
+            val newLevel = Level.toLevel(payload.level, oldLevel)
+            logger.setLevel(newLevel)
+            ChangeLogLevelResponse(oldLevel = oldLevel.toString,
+                                   newLevel = newLevel.toString,
+                                   logger = logger.getName)
           }
         }
+      } ~
+      pathPrefix("credit-card-token") {
+        (post & pathEnd & entity(as[CreditCardDetailsPayload])) { payload ⇒
+          goodOrFailures {
+            TestStripeSupport
+              .createToken(
+                cardNumber = payload.cardNumber,
+                expMonth = payload.expMonth,
+                expYear = payload.expYear,
+                cvv = payload.cvv,
+                address = Address.fromPayload(payload.address, payload.customerId, None)
+              )
+              .map { token ⇒
+                CreditCardTokenResponse(token = token.getId,
+                                        brand = token.getCard.getBrand,
+                                        lastFour = token.getCard.getLast4)
+              }
+          }
+        }
+      } ~
+      pathPrefix("version") {
+        (get & pathEnd) {
+          complete(renderPlain(version))
+        }
+      }
     }
 
   lazy val version: String = {

@@ -29,7 +29,7 @@ const ChangeStateModal = (props: Props) => {
     : <span>Are you sure you want to <b>{stateTitle} {count} {entityForm}</b>?</span>;
 
   return (
-    <ContentBox title={`Delete ${_.capitalize(entityForm)}?`}
+    <ContentBox title={`Archive ${_.capitalize(entityForm)}?`}
                 className="fc-bulk-action-modal"
                 actionBlock={actionBlock}>
       <div className="fc-modal-body">
@@ -41,7 +41,7 @@ const ChangeStateModal = (props: Props) => {
                   onCancel={onCancel}
                   saveTabIndex="1"
                   onSave={onConfirm}
-                  saveText="Yes, Delete" />
+                  saveText="Yes, Archive" />
     </ContentBox>
   );
 };

@@ -2,10 +2,8 @@ package phoenix.services
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import core.failures.GeneralFailure
-import core.failures.GeneralFailure
-import phoenix.failures.PromotionFailures.PromotionNotFoundForContext
-import phoenix.failures.ShippingMethodFailures.NoDefaultShippingMethod
+import core.db._
+import core.utils.Money._
 import objectframework.ObjectUtils
 import objectframework.models._
 import org.json4s.JsonAST._
@@ -15,6 +13,7 @@ import phoenix.failures.CouponFailures.CouponWithCodeCannotBeFound
 import phoenix.failures.CreditCardFailures.NoDefaultCreditCardForCustomer
 import phoenix.failures.OrderFailures.{ApplePayIsNotProvided, CreditCardIsNotProvided, NoExternalPaymentsIsProvided, OnlyOneExternalPaymentIsAllowed}
 import phoenix.failures.PromotionFailures.PromotionNotFoundForContext
+import phoenix.failures.ShippingMethodFailures.NoDefaultShippingMethod
 import phoenix.models.account._
 import phoenix.models.cord._
 import phoenix.models.cord.lineitems.CartLineItems
@@ -22,7 +21,8 @@ import phoenix.models.cord.lineitems.CartLineItems.scope._
 import phoenix.models.coupon._
 import phoenix.models.inventory.Skus
 import phoenix.models.location.Addresses
-import phoenix.models.payment.applepay.{ApplePayCharge, ApplePayCharges, ApplePayments}
+import phoenix.models.payment.PaymentMethod
+import phoenix.models.payment.applepay.{ApplePayCharges, ApplePayments}
 import phoenix.models.payment.creditcard._
 import phoenix.models.payment.giftcard._
 import phoenix.models.payment.storecredit._
@@ -32,16 +32,12 @@ import phoenix.payloads.CartPayloads.CheckoutCart
 import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
 import phoenix.payloads.PaymentPayloads.CreateApplePayPayment
 import phoenix.responses.cord.OrderResponse
-
 import phoenix.services.carts._
 import phoenix.services.coupon.CouponUsageService
 import phoenix.services.inventory.SkuManager
 import phoenix.utils.aliases._
 import phoenix.utils.apis.{Apis, OrderInventoryHold, SkuInventoryHold}
 import slick.jdbc.PostgresProfile.api._
-import core.utils.Money._
-import core.db._
-import phoenix.models.payment.PaymentMethod
 
 import scala.util.Random
 
@@ -162,7 +158,7 @@ object Checkout {
         }.toStream)
 
     def unstashItems(items: Seq[UpdateLineItemsPayload]): DbResultT[Unit] =
-      LineItemUpdater.updateQuantitiesOnCustomersCart(customer, items).void
+      CartLineItemUpdater.updateQuantitiesOnCustomersCart(customer, items).void
 
     for {
       cart ← * <~ CartQueries.findOrCreateCartByAccount(customer, ctx, admin)
@@ -171,7 +167,7 @@ object Checkout {
       scope      = Scope.current
 
       stashedItems ← * <~ stashItems(cart.referenceNumber)
-      _            ← * <~ LineItemUpdater.updateQuantitiesOnCustomersCart(customer, payload.items)
+      _            ← * <~ CartLineItemUpdater.updateQuantitiesOnCustomersCart(customer, payload.items)
 
       ccId ← * <~ CreditCards
               .findDefaultByAccountId(customerId)
@@ -317,6 +313,7 @@ case class Checkout(
     for {
 
       scPayments ← * <~ OrderPayments.findAllStoreCreditsByCordRef(cart.refNum).result
+      _          ← * <~ scPayments.map { case (_, sc) ⇒ DbResultT.fromEither(sc.mustBeActive) }
       scTotal ← * <~ PaymentHelper.paymentTransaction(
                  scPayments,
                  cart.grandTotal,
@@ -325,6 +322,7 @@ case class Checkout(
                )
 
       gcPayments ← * <~ OrderPayments.findAllGiftCardsByCordRef(cart.refNum).result
+      _          ← * <~ gcPayments.map { case (_, gc) ⇒ DbResultT.fromEither(gc.mustBeActive) }
       gcTotal ← * <~ PaymentHelper.paymentTransaction(gcPayments,
                                                       cart.grandTotal - scTotal,
                                                       GiftCards.authOrderPayment,

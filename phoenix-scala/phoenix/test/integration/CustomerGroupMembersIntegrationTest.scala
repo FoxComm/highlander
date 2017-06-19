@@ -1,5 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 import com.github.tminglei.slickpg.LTree
+import core.db._
 import core.failures.NotFoundFailure404
 import org.scalatest.mockito.MockitoSugar
 import phoenix.failures.CustomerGroupFailures._
@@ -7,12 +8,11 @@ import phoenix.models.account._
 import phoenix.models.customer.CustomerGroup._
 import phoenix.models.customer._
 import phoenix.payloads.CustomerGroupPayloads._
-import phoenix.responses.CustomerResponse.Root
+import phoenix.responses.users.CustomerResponse
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import core.db._
 
 class CustomerGroupMembersIntegrationTest
     extends IntegrationTestBase
@@ -66,7 +66,7 @@ class CustomerGroupMembersIntegrationTest
     "adds user to manual groups" in new FixtureForCustomerGroups {
       val payload = AddCustomerToGroups(Seq(group2.id, group3.id))
 
-      val response = customersApi(account.id).groups.syncGroups(payload).as[Root]
+      val response = customersApi(account.id).groups.syncGroups(payload).as[CustomerResponse]
 
       response.groups.length must === (3)
 
