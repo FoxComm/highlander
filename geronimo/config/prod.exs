@@ -3,4 +3,4 @@ config :maru, Geronimo.Api,
   versioning: [
     using: :path
   ],
-  http: [port: System.get_env("PORT")]
+  http: [ip: {0, 0, 0, 0}, port: System.get_env("PORT")]

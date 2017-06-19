@@ -82,7 +82,6 @@ migrate:
 	$(FLYWAY) migrate
 
 reset:
-	@make create-user
 	@make drop-db
 	dropdb --if-exists $(DB_TEST) -U $(DB_USER)
 	@make drop-user
@@ -100,7 +99,7 @@ drop-user:
 	dropuser --if-exists $(DB_USER)
 
 create-user:
-	createuser $(DB_USER)
+	createuser -s $(DB_USER)
 
 reset-test:
 	dropdb --if-exists $(DB_TEST) -U $(DB_USER)

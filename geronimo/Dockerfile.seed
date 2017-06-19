@@ -1,4 +1,4 @@
-FROM elixir:1.4.4-slim
+FROM elixir:1.4.0-slim
 
 RUN apt-get update && apt-get install -y git build-essential
 

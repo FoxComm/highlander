@@ -22,9 +22,9 @@ defmodule Geronimo.Mixfile do
   end
 
   defp deps do
-    [{:ecto, "~> 2.1"},
+    [{:maru, "~> 0.11.2"},
+    {:ecto, "~> 2.1"},
     {:postgrex, "~> 0.13.0"},
-    {:maru, "~> 0.11"},
     {:vex, "~> 0.6.0"},
     {:timex, "~> 3.0"},
     {:timex_ecto, "~> 3.0"},
@@ -33,7 +33,7 @@ defmodule Geronimo.Mixfile do
     {:kafka_ex, "~> 0.6.5"},
     {:avrolixr, git: "https://github.com/retgoat/avrolixr"},
     {:erlavro, git: "https://github.com/avvo/erlavro"},
-    {:envy, "~> 1.1.1"},
+    {:envy, "~> 1.0.0"},
     {:inflex, "~> 1.8.1" },
     {:exsync, "~> 0.1", only: :dev}]
   end

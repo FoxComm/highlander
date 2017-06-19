@@ -3,6 +3,7 @@ defmodule Geronimo.Api do
   use Maru.Router
 
   plug CORSPlug
+  plug Plug.Logger
   plug Plug.Parsers,
     pass: ["*/*"],
     json_decoder: Poison,
@@ -14,11 +15,11 @@ defmodule Geronimo.Api do
     signing_salt: "Jk7pxAMf"
 
   version "v1" do
-    namespace "public" do
-      mount Geronimo.Router.V1.User
+    namespace :public do
+      mount Geronimo.Router.V1.Public
     end
 
-    namespace "admin" do
+    namespace :admin do
       mount Geronimo.Router.V1.Admin
     end
   end

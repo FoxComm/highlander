@@ -3,9 +3,11 @@ defmodule Geronimo.Router.V1.Admin do
   plug Geronimo.AuthPlug
   import Geronimo.Api.Utils
 
-  alias Geronimo.{ContentType, Entity, Validation, User}
+  alias Geronimo.{ContentType, Entity, Validation}
 
   require Logger
+
+  # /v1/admin
 
   helpers do
     params :version do
@@ -25,7 +27,6 @@ defmodule Geronimo.Router.V1.Admin do
 
     route_param :id do
       get do
-        # ContentType.get(params[:id], conn.assigns[:current_user].scope)
         case ContentType.get(params[:id], conn.assigns[:current_user].scope) do
           {:ok, resp} -> respond_with(conn, resp)
           {:error, err} -> respond_with(conn, %{error: err}, 404)

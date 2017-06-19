@@ -1,11 +1,13 @@
-defmodule Geronimo.Router.V1.User do
+defmodule Geronimo.Router.V1.Public do
   use Maru.Router
   import Geronimo.Api.Utils
 
   alias Geronimo.{Entity, Repo}
 
+  # /v1/public
   namespace :health do
-    desc "Check geronimo health"
+    desc "Check health"
+
     get do
       conn
       |> put_status(204)
@@ -16,6 +18,15 @@ defmodule Geronimo.Router.V1.User do
 
   namespace :entities do
     desc "Get all created entities"
+    namespace :health do
+      desc "Check geronimo health"
+      get do
+        conn
+        |> put_status(204)
+        |> json(nil)
+        |> halt
+      end
+    end
 
     get do
       entities = Repo.all(Entity)
