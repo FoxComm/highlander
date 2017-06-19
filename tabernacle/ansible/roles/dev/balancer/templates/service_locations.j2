@@ -144,33 +144,16 @@ location ~ /api/search/public/.*/\d+$ {
     break;
 }
 
-# Proxy the internal search location and sanitizes output from ES for external use
-location ~ /api/advanced-search/.*/\d+$ {
+# Proxy to agni
+location /api/advanced-search/.*/\d+$ {
     auth_request /internal-auth;
     default_type 'application/json';
-		proxy_pass http://agni/search/;
+    proxy_pass http://agni/search/;
     proxy_http_version 1.1;
     proxy_set_header Connection "";
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    content_by_lua '
-
-        --forward to internal es
-        local json = request_internal_search("admin") --what the hell to put here??
-
-        if json.found == true then
-            --only show _source
-            json = json._source
-
-            ngx.say(j.encode(json))
-        else
-            ngx.status = ngx.HTTP_NOT_FOUND
-            ngx.header["Content-type"] = "application/json"
-            json = { found = false}
-            ngx.say(j.encode(json))
-        end
-    ';
     break;
 }
 
