@@ -1,6 +1,9 @@
 package failures
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 func NewParamNotFound(paramName string) Failure {
 	return &generalFailure{
@@ -21,6 +24,14 @@ func NewParamInvalidType(paramName string, expectedType string) Failure {
 func NewBindFailure(err error) Failure {
 	return &generalFailure{
 		err:         fmt.Errorf("failed to parse then payload with error %s", err.Error()),
+		failureType: FailureBadRequest,
+		stack:       newCallStack(),
+	}
+}
+
+func NewEmptyPayloadFailure() Failure {
+	return &generalFailure{
+		err:         errors.New("payload must have contents"),
 		failureType: FailureBadRequest,
 		stack:       newCallStack(),
 	}

@@ -46,3 +46,21 @@ func (ctrl *Channels) CreateChannel(payload *payloads.CreateChannel) ControllerF
 		return responses.NewResponse(http.StatusCreated, resp), nil
 	}
 }
+
+// UpdateChannel updates an existing channel.
+func (ctrl *Channels) UpdateChannel(id int, payload *payloads.UpdateChannel) ControllerFunc {
+	return func() (*responses.Response, failures.Failure) {
+		existingPhxChannel := &phoenix.Channel{}
+		if err := services.FindChannelByID(ctrl.phxDB, id, existingPhxChannel); err != nil {
+			return nil, err
+		}
+
+		phxChannel := payload.PhoenixModel(existingPhxChannel)
+		if err := services.UpdateChannel(ctrl.phxDB, phxChannel); err != nil {
+			return nil, err
+		}
+
+		resp := responses.NewChannel(phxChannel)
+		return responses.NewResponse(http.StatusOK, resp), nil
+	}
+}
