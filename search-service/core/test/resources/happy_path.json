@@ -1,0 +1,24 @@
+[
+  {
+    "type": "eq",
+    "in": "slug",
+    "value": [ "awesome", "whatever" ]
+  },
+  {
+    "type": "state",
+    "value": "all"
+  },
+  {
+    "type": "matches",
+    "in": [ "title", "description" ],
+    "value": [ "food", "drink" ]
+  },
+  {
+    "type": "range",
+    "in": "price",
+    "value": {
+      "<": 5000,
+      "gte": 1000
+    }
+  }
+]

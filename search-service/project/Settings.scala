@@ -29,7 +29,9 @@ object Settings {
                                                              Wart.Nothing,
                                                              Wart.PublicInference),
     scalaSource in Compile := baseDirectory.value / "app",
-    resourceDirectory in Compile := baseDirectory.value / "resources"
+    resourceDirectory in Compile := baseDirectory.value / "resources",
+    scalaSource in Test := baseDirectory.value / "test",
+    resourceDirectory in Test := baseDirectory.value / "test" / "resources"
   )
 
   def deploy: Seq[Def.Setting[_]] = Seq(

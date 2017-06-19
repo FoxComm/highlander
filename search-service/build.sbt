@@ -8,7 +8,7 @@ version := "0.1-SNAPSHOT"
 lazy val core = (project in file("core"))
   .settings(Settings.common)
   .settings(
-    libraryDependencies ++= Dependencies.core ++ Dependencies.es ++ Dependencies.circe
+    libraryDependencies ++= Dependencies.core ++ Dependencies.es ++ Dependencies.circe ++ Dependencies.test.core
   )
 
 lazy val finch = (project in file("finch"))

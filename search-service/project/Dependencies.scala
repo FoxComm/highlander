@@ -20,9 +20,9 @@ object Dependencies {
   )
 
   val circe = Seq(
-    "io.circe" %% "circe-core"    % versions.circe,
-    "io.circe" %% "circe-generic" % versions.circe,
-    "io.circe" %% "circe-parser"  % versions.circe
+    "io.circe" %% "circe-core"           % versions.circe,
+    "io.circe" %% "circe-generic-extras" % versions.circe,
+    "io.circe" %% "circe-parser"         % versions.circe
   )
 
   val finch = Seq(
@@ -32,4 +32,11 @@ object Dependencies {
   )
 
   val jwt = "com.pauldijou" %% "jwt-core" % "0.12.1"
+
+  object test {
+    def core =
+      Seq(
+        "org.scalatest" %% "scalatest" % "3.0.3"
+      ).map(_ % "test")
+  }
 }
