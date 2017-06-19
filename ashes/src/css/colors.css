@@ -5,10 +5,10 @@
 
   /* colors blessed by @bree */
   --color-text: #363636;
-  --color-additional-text: rgba(54, 54, 54, 0.5);
+  --color-additional-text: rgba(54, 54, 54, .5);
   --color-subtitle-text: #abb2b6;
   --color-light-text: #fff;
-  --color-light-text-hover: rgba(255, 255, 255, 0.5);
+  --color-light-text-hover: rgba(255, 255, 255, .5);
   --color-link: #49cab9;
   --color-error-text: #f65554;
   --color-border: #d9d9d9;

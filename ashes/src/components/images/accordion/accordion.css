@@ -7,7 +7,7 @@
   & :global(.icon-down),
   & :global(.icon-up) {
     transform: translateY(0);
-    transition: transform 0.5s;
+    transition: transform .5s;
   }
 
   &._open {
@@ -109,22 +109,22 @@
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  transition: color 0.3s;
+  transition: color .3s;
 
   &:hover {
     color: var(--color-text);
   }
 
   & i {
-    line-height: 0.9;
-    transition: transform 0.2s ease-out;
+    line-height: .9;
+    transition: transform .2s ease-out;
   }
 }
 
 .content {
   max-height: 0;
-  opacity: 0.01;
-  transition: opacity 0.2s ease-in, height 0.3s ease-out, max-height 0.3s ease-out;
+  opacity: .01;
+  transition: opacity .2s ease-in, height .3s ease-out, max-height .3s ease-out;
 }
 
 @keyframes caramel {

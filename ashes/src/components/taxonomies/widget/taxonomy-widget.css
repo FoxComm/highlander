@@ -29,7 +29,7 @@
 }
 
 ._loading::before {
-  opacity: 0.2;
+  opacity: .2;
   z-index: -1;
 }
 
@@ -56,7 +56,7 @@
 }
 
 .button i {
-  transition: transform 0.1s;
+  transition: transform .1s;
   transform: translateY(1px);
 }
 
@@ -79,14 +79,14 @@
 .dropdownEnter.dropdownEnterActive,
 .dropdownLeave {
   height: 40px;
-  transition: height 0.1s;
+  transition: height .1s;
 }
 
 .pillEnter,
 .pillAppear,
 .pillLeave.pillLeaveActive {
-  opacity: 0.1;
-  transform: scale(0.8);
+  opacity: .1;
+  transform: scale(.8);
 }
 
 .pillEnter.pillEnterActive,
@@ -94,5 +94,5 @@
 .pillLeave {
   opacity: 1;
   transform: none;
-  transition: all 0.2s ease-in-out;
+  transition: all .2s ease-in-out;
 }

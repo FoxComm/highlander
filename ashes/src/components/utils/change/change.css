@@ -2,7 +2,7 @@
 
 .change {
   &::before {
-    width: 0.7em;
+    width: .7em;
     text-align: center;
     display: inline-block;
   }
