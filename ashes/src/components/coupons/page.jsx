@@ -93,7 +93,7 @@ class CouponPage extends ObjectPage {
       const generateCodes = {
         prefix: codesPrefix,
         quantity: codesQuantity,
-        length: codesLength,
+        length: Number(codesLength) + codesPrefix.length,
       };
       return {
         ..._.omit(this.state.object,'singleCode'),
