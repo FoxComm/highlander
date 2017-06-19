@@ -17,6 +17,7 @@ global_args = parser.parse_args()
 ROOT_DIR=os.path.abspath(os.path.dirname(os.path.basename(__file__)))
 
 PROJECTS = (
+    'agni',    
     'ashes',
     'data-import',
     'demo/peacock',
@@ -48,7 +49,6 @@ PROJECTS = (
     'onboarding/ui',
     'phoenix-scala',
     'phoenix-scala/seeder',
-    'search-service',
     'solomon',
     'tabernacle/docker/neo4j',
     'tabernacle/docker/neo4j_reset',

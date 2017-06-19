@@ -1,9 +1,6 @@
-import sbtassembly.AssemblyKeys.assemblyExcludedJars
 import sbtassembly.{MergeStrategy, PathList}
 
-name := "search-service"
-
-version := "0.1-SNAPSHOT"
+name := "agni"
 
 lazy val core = (project in file("core"))
   .settings(Settings.common)
@@ -24,8 +21,8 @@ lazy val api = (project in file("api"))
     libraryDependencies ++= Dependencies.finch
   )
   .settings(
-    mainClass in assembly := Some("foxcomm.search.api.Api"),
-    assemblyJarName in assembly := "search-service.jar",
+    mainClass in assembly := Some("foxcomm.agni.api.Api"),
+    assemblyJarName in assembly := s"${name.value}.jar",
     assemblyMergeStrategy in assembly := {
       case PathList("BUILD")                                    ⇒ MergeStrategy.discard
       case PathList("META-INF", "io.netty.versions.properties") ⇒ MergeStrategy.discard

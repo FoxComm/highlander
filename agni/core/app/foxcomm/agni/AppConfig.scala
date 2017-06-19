@@ -1,4 +1,4 @@
-package foxcomm.search
+package foxcomm.agni
 
 import com.typesafe.config.ConfigFactory
 import pureconfig._

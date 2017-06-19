@@ -1,4 +1,4 @@
-package foxcomm.search
+package foxcomm.agni
 
 import io.circe.JsonObject
 

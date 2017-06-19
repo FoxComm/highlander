@@ -1,8 +1,8 @@
 include ../makelib
-header = $(call baseheader, $(1), search-service)
+header = $(call baseheader, $(1), agni)
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
-DOCKER_IMAGE ?= search-service
+DOCKER_IMAGE ?= agni
 DOCKER_TAG ?= master
 SBT_CMD = sbt -DDOCKER_REPO=$(DOCKER_REPO) -DDOCKER_TAG=${DOCKER_TAG}
 
