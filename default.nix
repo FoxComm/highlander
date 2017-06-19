@@ -51,7 +51,7 @@ in with import nixpkgs {}; {
     });
   in stdenv.mkDerivation {
     name = "ashes";
-    buildInputs = [ gcc pkgconfig fontconfig cairo libpng pixman nodejs-6_x flow25 ];
+    buildInputs = [ gcc pkgconfig fontconfig yarn cairo libpng pixman nodejs-6_x flow25 ];
     shellHook = ''
       source .env.local
       cd ashes
