@@ -21,16 +21,12 @@ read -rp "Press enter to continue!"
 echo
 echo
 
-REQUIRED_SCALAFMT_VERSION=$(cat "$(dirname "$SCALAFMT")"/scalafmt-version)
-CURRENT_SCALAFMT_VERSION=$("${SCALAFMT}" --version | cut -d' ' -f2)
-
-if [ "$CURRENT_SCALAFMT_VERSION" != "$REQUIRED_SCALAFMT_VERSION" ]; then
-  echo "Your current scalafmt version is $CURRENT_SCALAFMT_VERSION, but it should be $REQUIRED_SCALAFMT_VERSION"
-fi
-
 REQUIRED_GIT_VERSION=2.9.0
 CURRENT_GIT_VERSION=$(git --version| cut -d' ' -f3)
 
+# This function allows to compare git app versions using pure alphabetical order
+# $> echo "$(version "2.9.0")"
+# $> 002009000
 function version { echo "$@" | gawk -F. '{ printf("%03d%03d%03d\n", $1,$2,$3); }'; }
 
 if [ "$(version "$REQUIRED_GIT_VERSION")" -gt "$(version "$CURRENT_GIT_VERSION")" ]; then
@@ -38,6 +34,10 @@ if [ "$(version "$REQUIRED_GIT_VERSION")" -gt "$(version "$CURRENT_GIT_VERSION")
   echo "Please update your git"
   exit 1
 fi
+
+echo "Setting utils/git-hooks dir as a default hooks dir..."
+git config core.hooksPath "${ROOT_DIR}/utils/git-hooks"
+echo
 
 echo "Running scalafmt on all sources... (only needs to be done once!)"
 eval "${SCALAFMT} ${ROOT_DIR}"
@@ -47,8 +47,5 @@ echo "Checking that sources are formatted correctly..."
 eval "${SCALAFMT} ${ROOT_DIR} --test"
 echo
 
-echo "Setting utils/git-hooks dir as a default hooks dir..."
-git config core.hooksPath "${ROOT_DIR}/utils/git-hooks"
-echo
 echo
 echo "All done! Happy hacking!"
