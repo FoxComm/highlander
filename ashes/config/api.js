@@ -6,6 +6,6 @@ module.exports = function(env) {
       header: 'JWT',
       cookieName: 'JWT',
       publicKey: env.public_key,
-    }
+    },
   };
 };

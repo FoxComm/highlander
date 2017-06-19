@@ -69,11 +69,20 @@ mocha-unit:
 
 .PHONY: lint
 lint:
-	 eslint --ext .js --ext .jsx ./
+	eslint --ext .js --ext .jsx ./
 
 .PHONY: flow
 flow:
 	flow check
+
+# run prettier against js(x)/css files in git diff that are not formatted in Prettier style
+.PHONY: fmt
+fmt:
+	../utils/prettier/fmt.sh
+
+# prettierify target directory. usage: make fmt-config
+fmt-%:
+	../utils/prettier/fmt.sh $*
 
 .PHONY: build-styleguide
 build-styleguide:
