@@ -3,7 +3,7 @@
 .swatchInput {
   display: flex;
 
-  &:before {
+  &::before {
     content: "#";
     position: absolute;
     padding: 0 10px;

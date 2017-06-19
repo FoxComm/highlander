@@ -11,10 +11,10 @@
 }
 
 :global(.image-enter) {
-  opacity: .01;
+  opacity: 0.01;
 }
 
 :global(.image-enter-active) {
   opacity: 1;
-  transition: opacity .5s;
+  transition: opacity 0.5s;
 }

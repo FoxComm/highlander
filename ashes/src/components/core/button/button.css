@@ -18,7 +18,7 @@
   vertical-align: top;
   user-select: none;
   cursor: pointer;
-  transition: all .2s;
+  transition: all 0.2s;
 
   &:focus {
     outline: 0;
@@ -56,7 +56,7 @@
 
 .icon {
   font-size: 10px;
-  transition: all .2s;
+  transition: all 0.2s;
 }
 
 .button:not(.onlyIcon) i[class*="icon-"] {
@@ -71,10 +71,6 @@
 .button i[class*="icon-"] + span,
 span + i[class*="icon-"] {
   margin-left: 8px;
-}
-
-.text {
-
 }
 
 .loading {

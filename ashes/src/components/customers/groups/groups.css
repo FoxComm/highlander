@@ -30,7 +30,7 @@
   font-size: 16px;
   font-weight: 600;
   color: var(--color-text);
-  transition: color .2s;
+  transition: color 0.2s;
 
   & i {
     vertical-align: initial;

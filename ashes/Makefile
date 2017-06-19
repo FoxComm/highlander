@@ -67,8 +67,12 @@ mocha-main:
 mocha-unit:
 	@NODE_ENV=$(NODE_ENV) gulp mocha.unit
 
+.PHONY: stylelint
+stylelint:
+	stylelint "./src/**/*.css"
+
 .PHONY: lint
-lint:
+lint: stylelint
 	eslint --ext .js --ext .jsx ./
 
 .PHONY: flow

@@ -49,11 +49,10 @@
   padding-left: 10px;
   text-transform: capitalize;
 
-  &:first-letter {
+  &::first-letter {
     padding-right: 10px;
   }
 }
-
 
 .root {
   & :global(.fc-typeahead__items) {
@@ -70,13 +69,12 @@
   }
 
   & :global(.fc-typeahead__menu) {
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.50);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
   }
 
   & :global(.fc-typeahead input[type=text]) {
     width: 100%;
   }
-
 
   & :global(.fc-pilled-input__input-container) {
     width: 600px;
@@ -87,7 +85,6 @@
     }
   }
 }
-
 
 .label {
   margin-bottom: 15px;

@@ -60,6 +60,7 @@
   margin-left: auto;
   font-size: 13px;
   line-height: 18px;
+
   &:hover {
     color: var(--color-text);
   }

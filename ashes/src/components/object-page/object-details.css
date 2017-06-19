@@ -29,8 +29,7 @@
   font-weight: 600;
   font-size: 14px;
   color: var(--color-text);
-
-  margin: 1em 0 0.5em 0;
+  margin: 1em 0 0.5em;
 
   &:first-child {
     margin-top: 0;

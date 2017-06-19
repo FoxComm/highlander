@@ -7,6 +7,7 @@
     &:nth-child(3) {
       width: calc(33% - 70px);
     }
+
     &:nth-child(4) {
       width: 70px;
     }
