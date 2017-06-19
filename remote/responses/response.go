@@ -4,5 +4,4 @@ package responses
 type Response struct {
 	StatusCode int
 	Body       interface{}
-	Errs       []error
 }

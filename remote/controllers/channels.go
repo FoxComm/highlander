@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/FoxComm/highlander/remote/models/phoenix"
-	"github.com/FoxComm/highlander/remote/payloads"
 	"github.com/FoxComm/highlander/remote/responses"
 	"github.com/FoxComm/highlander/remote/services"
+	"github.com/FoxComm/highlander/remote/utils/failures"
 	"github.com/jinzhu/gorm"
 )
 
@@ -20,22 +20,11 @@ func NewChannels(phxDB *gorm.DB) *Channels {
 
 // GetChannel finds a single channel by its ID.
 func (ctrl *Channels) GetChannel(id int) ControllerFunc {
-	return func() *responses.Response {
+	return func() (*responses.Response, failures.Failure) {
 		channel := &phoenix.Channel{}
 
-		err := services.FindChannelByID(ctrl.phxDB, id, channel)
-		if err != nil {
-			if err.Error() == "record not found" {
-				return &responses.Response{
-					StatusCode: http.StatusNotFound,
-					Errs:       []error{err},
-				}
-			}
-
-			return &responses.Response{
-				StatusCode: http.StatusInternalServerError,
-				Errs:       []error{err},
-			}
+		if err := services.FindChannelByID(ctrl.phxDB, id, channel); err != nil {
+			return nil, err
 		}
 
 		chResp := &responses.Channel{}
@@ -44,16 +33,16 @@ func (ctrl *Channels) GetChannel(id int) ControllerFunc {
 		return &responses.Response{
 			StatusCode: http.StatusOK,
 			Body:       chResp,
-		}
+		}, nil
 	}
 }
 
 // CreateChannel creates a new channel.
-func (ctrl *Channels) CreateChannel(payload *payloads.CreateChannel) ControllerFunc {
-	return func() *responses.Response {
-		return &responses.Response{
-			StatusCode: http.StatusCreated,
-			Body:       "I'm a channel",
-		}
-	}
-}
+// func (ctrl *Channels) CreateChannel(payload *payloads.CreateChannel) ControllerFunc {
+// 	return func() *responses.Response {
+// 		return &responses.Response{
+// 			StatusCode: http.StatusCreated,
+// 			Body:       "I'm a channel",
+// 		}
+// 	}
+// }

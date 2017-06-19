@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/FoxComm/highlander/remote/responses"
 	"github.com/FoxComm/highlander/remote/utils/failures"
 	"github.com/labstack/echo"
 )
@@ -25,7 +24,7 @@ func NewFoxContext(c echo.Context) *FoxContext {
 
 // ParamInt parses an integer from the parameters list (as defined by the URI).
 func (fc *FoxContext) ParamInt(name string) int {
-	if fc.failure == nil {
+	if fc.failure != nil {
 		return 0
 	}
 
@@ -65,7 +64,12 @@ func (fc *FoxContext) Run(ctrlFn ControllerFunc) error {
 		return fc.handleFailure(fc.failure)
 	}
 
-	return fc.handleResponse(ctrlFn())
+	resp, failure := ctrlFn()
+	if failure != nil {
+		return fc.handleFailure(failure)
+	}
+
+	return fc.JSON(resp.StatusCode, resp.Body)
 }
 
 func (fc *FoxContext) handleFailure(failure failures.Failure) error {
@@ -73,6 +77,10 @@ func (fc *FoxContext) handleFailure(failure failures.Failure) error {
 		return errors.New("handleFailure must receive a failure")
 	} else if !failure.HasError() {
 		return errors.New("handleFailure must receive a failure with an error")
+	}
+
+	if err := failure.Log(); err != nil {
+		return fmt.Errorf("Error trying to log failure with error: %s", err.Error())
 	}
 
 	errString := failure.Error()
@@ -99,21 +107,4 @@ func (fc *FoxContext) handleFailure(failure failures.Failure) error {
 	}
 
 	return fc.JSON(statusCode, errResp)
-}
-
-func (fc *FoxContext) handleResponse(resp *responses.Response) error {
-	if len(resp.Errs) == 0 {
-		return fc.JSON(resp.StatusCode, resp.Body)
-	}
-
-	errors := make([]string, len(resp.Errs))
-	for i, err := range resp.Errs {
-		errors[i] = err.Error()
-	}
-
-	errResp := map[string][]string{
-		"errors": errors,
-	}
-
-	return fc.JSON(resp.StatusCode, errResp)
 }

@@ -3,7 +3,6 @@ package failures
 import (
 	"errors"
 	"fmt"
-	"log"
 )
 
 const (
@@ -21,7 +20,7 @@ const (
 type Failure interface {
 	Error() string
 	HasError() bool
-	Log() error
+	Trace() (string, error)
 	Type() (int, error)
 }
 
@@ -96,13 +95,12 @@ func (f generalFailure) HasError() bool {
 	return f.err != nil
 }
 
-func (f generalFailure) Log() error {
+func (f generalFailure) Trace() (string, error) {
 	if f.err == nil {
-		return errors.New("Unable to log - no error occurred")
+		return "", errors.New("Unable to get trace - no error occurred")
 	}
 
-	log.Printf("Error: %s, trace:\n%s", f.err.Error(), f.stack.stackTrace())
-	return nil
+	return fmt.Sprintf("%s, trace:\n%s", f.err.Error(), f.stack.stackTrace()), nil
 }
 
 func (f generalFailure) Type() (int, error) {

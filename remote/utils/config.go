@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"os"
+	"strconv"
 )
 
 const (
@@ -24,7 +25,7 @@ type Config struct {
 	PhxDatabasePassword string
 	PhxDatabaseSSL      string
 
-	Port string
+	Port int
 }
 
 func NewConfig() (*Config, error) {
@@ -37,7 +38,8 @@ func NewConfig() (*Config, error) {
 	config.PhxDatabaseSSL, err = parseEnvVar(phoenixDatabaseSSL, err)
 	config.PhxDatabasePassword = os.Getenv(phoenixDatabasePassword)
 
-	config.Port, err = parseEnvVar(port, err)
+	port, err := parseEnvVar(port, err)
+	config.Port, err = strconv.Atoi(port)
 
 	return config, err
 }
