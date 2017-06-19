@@ -64,15 +64,7 @@ You can set Stripe key by exporting `STRIPE_PUBLISHABLE_KEY` variable, or settin
 
 1. Install [Docker CE for Mac](https://store.docker.com/editions/community/docker-ce-desktop-mac)
 2. Build your app with `make build`
-3. Create `ashes/.npmrc-docker` file and put there the result of `cat ~/.npmrc` plus `cat ./.npmrc`. Should be something like that:
+3. Build docker with `NPM_TOKEN=token make docker` where `token` is your private token from `~/.npmrc`
 
-```
-//npm.foxcommerce.com:4873/:_authToken="SECRET_TOKEN"
-@foxcomm:registry=https://npm.foxcommerce.com:4873/
-```
-
-Where `SECRET_TOKEN` – an auth token for private packages, like `@foxcomm/wings`, which was stored by npm when you did `npm add user` in `~/.npmrc` file.
-
-4. Build docker with `make docker`
-
-Thats it! You can run it locally: `docker run -it -p 4000:4000 ashes:latest` (or the same `make docker-run`) or push it with `make docker-push`. After having running it you can also explore it filesystem with `docker exec -t -i d138d762ff3d /bin/sh`.
+Thats it! You can run it locally: `docker run -it -p 4000:4000 -image_id-`
+Or push it with `make docker-push`.
