@@ -1,19 +1,22 @@
 @import 'colors.css';
 
-.discount_qualifier :global .autowidth_dd{
+.discount_qualifier :global .autowidth_dd {
   width: auto;
   margin-right: 10px;
 }
-.discount_qualifier :global .inline-container{
+
+.discount_qualifier :global .inline-container {
   display: inline-block;
   vertical-align: top;
 }
-.discount_qualifier :global .fc-input-group{
+
+.discount_qualifier :global .fc-input-group {
   width: 90px;
 }
-.sub-title{
+
+.sub-title {
   font-weight: 600;
   font-size: 14px;
   color: var(--color-text);
-  margin: 1em 0 0.5em 0;
+  margin: 1em 0 .5em;
 }

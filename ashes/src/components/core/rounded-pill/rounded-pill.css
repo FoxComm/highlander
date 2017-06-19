@@ -15,6 +15,7 @@
 
 .loading {
   @apply --loading-caramel;
+
   background-color: var(--bg-nav-disabled);
 }
 

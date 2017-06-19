@@ -26,7 +26,7 @@
   text-align: center;
   margin: 1px;
 
-  & input[type=radio]:not(old) {
+  & input[type=radio]:not(old) { /* stylelint-disable-line */
     & + label {
       position: absolute;
       left: 0;
@@ -56,7 +56,6 @@
     }
   }
 }
-
 
 .percent {
   display: block;

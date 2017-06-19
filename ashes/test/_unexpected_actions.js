@@ -1,4 +1,3 @@
-
 import _ from 'lodash';
 import { applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
@@ -11,21 +10,21 @@ export function installInto(expect) {
   expect.addAssertion(
     '<function|object> to dispatch actions <array> <function|object?>',
     (expect, subject, expectedActions, initialState) => {
-
-      expect.subjectOutput = function (output) {
+      expect.subjectOutput = function(output) {
         output.text('<defined action>');
       };
 
-      expect.argsOutput = function (output) {
+      expect.argsOutput = function(output) {
         output.text('[', 'white', 'bold').nl();
 
         expectedActions.forEach(action => {
           output
             .appendInspected({
               ...(action.type ? action : null),
-              type: (action || action.type).toString()
+              type: (action || action.type).toString(),
             })
-            .text(',').nl();
+            .text(',')
+            .nl();
         });
 
         output.text(']', 'white', 'bold');
@@ -34,7 +33,6 @@ export function installInto(expect) {
       let expectedActionsForConsume = [...expectedActions];
 
       return expect.promise((resolve, reject) => {
-
         let expectationsFullfilled = false;
 
         const doneOnce = err => {
@@ -52,9 +50,7 @@ export function installInto(expect) {
         const mockStoreWithoutMiddleware = () => {
           return {
             getState() {
-              return _.isFunction(initialState)?
-                initialState() :
-                initialState;
+              return _.isFunction(initialState) ? initialState() : initialState;
             },
 
             dispatch(action) {
@@ -74,7 +70,7 @@ export function installInto(expect) {
                 } else if (_.isPlainObject(expectedAction)) {
                   expect(action, 'to satisfy', {
                     ...expectedAction,
-                    type: expectedAction.type.toString()
+                    type: expectedAction.type.toString(),
                   });
                 } else {
                   throw new Error(`wrong expected action type: ${expectedAction}`);
@@ -86,17 +82,14 @@ export function installInto(expect) {
               } catch (e) {
                 doneOnce(e);
               }
-            }
+            },
           };
         };
 
-        const store = applyMiddleware(
-          ...middlewares
-        )(mockStoreWithoutMiddleware)();
+        const store = applyMiddleware(...middlewares)(mockStoreWithoutMiddleware)();
 
         store.dispatch(subject);
       });
-    });
+    }
+  );
 }
-
-

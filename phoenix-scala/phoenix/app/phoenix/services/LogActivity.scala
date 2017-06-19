@@ -35,8 +35,8 @@ import phoenix.responses.PromotionResponses.PromotionResponse
 import phoenix.responses.SkuResponses.SkuResponse
 import phoenix.responses._
 import phoenix.responses.cord.{CartResponse, OrderResponse}
+import phoenix.responses.giftcards.GiftCardResponse
 import phoenix.responses.users.{CustomerResponse, UserResponse}
-import phoenix.services.carts.CartLineItemUpdater.foldQuantityPayload
 import phoenix.services.activity.AssignmentsTailored._
 import phoenix.services.activity.CartTailored._
 import phoenix.services.activity.CatalogTailored.{CatalogCreated, CatalogUpdated}
@@ -56,6 +56,7 @@ import phoenix.services.activity.SkuTailored._
 import phoenix.services.activity.StoreAdminsTailored._
 import phoenix.services.activity.StoreCreditTailored._
 import phoenix.services.activity.UserTailored._
+import phoenix.services.carts.CartLineItemUpdater.foldQuantityPayload
 import phoenix.utils.aliases._
 
 case class LogActivity(implicit ac: AC) {

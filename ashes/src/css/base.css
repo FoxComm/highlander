@@ -7,7 +7,9 @@
 * {
   outline: 0;
   box-sizing: border-box;
-  &:before, &:after {
+
+  &::before,
+  &::after {
     box-sizing: border-box;
   }
 }
@@ -49,7 +51,7 @@ ul {
 
 .fc-float-list > li {
   display: inline-block;
-  vertival-align: top;
+  vertical-align: top;
 }
 
 table {

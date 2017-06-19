@@ -25,11 +25,11 @@
 }
 
 /* Generates muptiple css classes for React CSSTransitions component */
+
 /* You can find them in output css by `.dd-transition` substring */
 @mixin dd-transition left, 0 0;
 @mixin dd-transition right, 100% 0;
 @mixin dd-transition center, 50% 0;
-
 @mixin dd-transition up-left, 0 100%;
 @mixin dd-transition up-center, 50% 100%;
 @mixin dd-transition up-right, 100% 100%;

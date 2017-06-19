@@ -44,7 +44,6 @@
   &:hover {
     background: var(--color-border);
   }
-
 }
 
 .item-description {
@@ -52,7 +51,7 @@
   padding-left: 10px;
   text-transform: capitalize;
 
-  &:first-letter {
+  &::first-letter {
     padding-right: 10px;
   }
 }

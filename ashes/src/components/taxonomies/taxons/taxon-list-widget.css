@@ -30,7 +30,6 @@
     border-left: 3px solid var(--bg-green-buttons);
     background-color: var(--bg-grey-headers);
   }
-
 }
 
 .footer {
@@ -41,9 +40,8 @@
     background-color: var(--bg-white);
 
     &:hover {
-     color: var(--color-text);
-     background-color: var(--bg-white);
+      color: var(--color-text);
+      background-color: var(--bg-white);
     }
   }
-
 }

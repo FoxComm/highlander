@@ -8,7 +8,7 @@
   left: 0;
   right: 0;
   z-index: 2;
-  opacity: 0.5;
+  opacity: .5;
   background: var(--bg-nav-main);
 }
 
