@@ -137,7 +137,7 @@ func (service *inventoryService) HoldItems(payload *payloads.Reservation) error 
 			msg := fmt.Sprintf("Entry in table stock_item_units not found for sku=%s.", skuCode)
 			logging.Log.Warnf(msg)
 			logging.Log.Errorf(err.Error())
-			aggregateErr.Add(&responses.InvalidSKUItemError{Sku: skuCode, Debug: msg})
+			aggregateErr.Add(&responses.InvalidSKUItemError{Sku: skuCode, Afs: 0, Debug: msg})
 			continue
 		}
 
@@ -158,7 +158,7 @@ func (service *inventoryService) HoldItems(payload *payloads.Reservation) error 
 					payload.RefNum,
 					len(units),
 				)
-				aggregateErr.Add(&responses.InvalidSKUItemError{Sku: skuCode, Debug: debugMessage})
+				aggregateErr.Add(&responses.InvalidSKUItemError{Sku: skuCode, Afs: len(units), Debug: debugMessage})
 				continue
 			}
 

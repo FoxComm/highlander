@@ -78,7 +78,7 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems_AggregateError() 
 
 	res := reserveItemTest(suite, &aggregateErr)
 
-	reserveItemBadRequestExpected(suite, res, `"sku":"SKU","debug":"boom"`)
+	reserveItemBadRequestExpected(suite, res, `"sku":"SKU","afs":0,"debug":"boom"`)
 }
 
 func (suite *reservationControllerTestSuite) Test_ReserveItems_OutOfStock() {

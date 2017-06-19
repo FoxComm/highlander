@@ -36,7 +36,7 @@ trait MiddlewarehouseApi {
   def createSku(skuId: Int, sku: CreateSku)(implicit ec: EC, au: AU): DbResultT[ProductVariantSku]
 }
 
-case class MiddlewarehouseErrorInfo(sku: String, debug: String)
+case class MiddlewarehouseErrorInfo(sku: String, afs: Int, debug: String)
 
 class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
 
@@ -50,7 +50,7 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
         logger.info("Middlewarehouse errors:")
         logger.info(errors.map(_.debug).mkString("\n"))
         logger.info("Check Middlewarehouse logs for more details.")
-        Some(SkusOutOfStockFailure(errors.map(_.sku)).single)
+        Some(SkusOutOfStockFailure(errors).single)
       case _ ⇒
         logger.warn("No errors in failed Middlewarehouse response!")
         Some(UnexpectedMwhResponseFailure.single)
