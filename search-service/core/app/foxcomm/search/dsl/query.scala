@@ -104,15 +104,17 @@ object query {
   type RangeValue    = RangeBound[JsonNumber] :+: RangeBound[String] :+: CNil
 
   object queryValueF extends Poly1 {
-    implicit def singleValue[T] = at[T](List(_))
+    implicit def singleValue[T]: Case.Aux[T, List[T]] = at[T](List(_))
 
-    implicit def multipleValues[T] = at[NonEmptyList[T]](_.toList)
+    implicit def multipleValues[T]: Case.Aux[NonEmptyList[T], List[T]] = at[NonEmptyList[T]](_.toList)
   }
 
   object listOfAnyValueF extends Poly1 {
-    implicit def caseJsonNumber = at[QueryValue[JsonNumber]](_.fold(queryValueF).asInstanceOf[List[AnyRef]])
+    implicit val caseJsonNumber: Case.Aux[QueryValue[JsonNumber], List[AnyRef]] =
+      at[QueryValue[JsonNumber]](_.fold(queryValueF).asInstanceOf[List[AnyRef]])
 
-    implicit def caseString = at[QueryValue[String]](_.fold(queryValueF).asInstanceOf[List[AnyRef]])
+    implicit val caseString: Case.Aux[QueryValue[String], List[AnyRef]] =
+      at[QueryValue[String]](_.fold(queryValueF).asInstanceOf[List[AnyRef]])
   }
 
   // Ugly optimisation to avoid recreation of folder instance on each implicit call
