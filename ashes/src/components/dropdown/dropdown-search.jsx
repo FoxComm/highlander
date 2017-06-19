@@ -22,7 +22,6 @@ type Props = GenericProps & {
 type State = {
   token: string,
   results: Array<any>,
-  mounted: ?boolean,
 };
 
 function doNothing(event: any) {
