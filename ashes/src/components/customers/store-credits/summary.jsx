@@ -10,7 +10,7 @@ import { Link, IndexLink } from 'components/link';
 import { SectionTitle } from '../../section-title';
 import TabListView from '../../tabs/tabs';
 import TabView from '../../tabs/tab';
-import Currency from '../../common/currency';
+import Currency from 'components/utils/currency';
 import { PanelList, PanelListItem } from '../../panel/panel-list';
 
 type Props = {

@@ -13,7 +13,7 @@ import ContentBox from 'components/content-box/content-box';
 import TableView from 'components/table/tableview';
 import TableRow from 'components/table/row';
 import TableCell from 'components/table/cell';
-import Currency from 'components/common/currency';
+import Currency from 'components/utils/currency';
 import ProductImage from 'components/imgix/product-image';
 
 // styles

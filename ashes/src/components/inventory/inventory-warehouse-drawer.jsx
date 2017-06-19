@@ -9,7 +9,7 @@ import Table from '../table/table';
 import Drawer from '../table/drawer';
 import TableRow from '../table/row';
 import Counter from 'components/core/counter';
-import Currency from '../common/currency';
+import Currency from 'components/utils/currency';
 
 import * as WarehousesActions from 'modules/inventory/warehouses';
 

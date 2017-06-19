@@ -1,4 +1,4 @@
-import currency from './currency';
+import currency from 'components/utils/currency';
 import date from './date';
 import dropdown from './dropdown';
 import lookup from './lookup';
