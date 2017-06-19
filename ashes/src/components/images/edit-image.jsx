@@ -99,7 +99,8 @@ class EditImage extends Component {
     const extMatch = src.match(/\.([0-9a-z]+)$/i);
     const nameMatch = src.match(/\/([^/]+)$/i);
     const ext = get(extMatch, '[1]', '–');
-    const name = get(nameMatch, '[1]', '–');
+    const name = decodeURIComponent(get(nameMatch, '[1]', '–'));
+    const decodedSrc = decodeURIComponent(src);
     const style = { backgroundImage: `url('${src}')` };
 
     return (
@@ -114,7 +115,7 @@ class EditImage extends Component {
               <div className={s.statItem}>{`Dimensions: ${width}×${height}`}</div>
             </div>
             <FormField label="URL" className={s.field} labelClassName={s.label}>
-              <TextInput value={src} disabled />
+              <TextInput value={decodedSrc} disabled />
             </FormField>
             <FormField label="Alt Text" className={s.field} labelClassName={s.label}>
               <TextInput onChange={this.handleUpdateAltText} value={alt} />
