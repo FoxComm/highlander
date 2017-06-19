@@ -9,7 +9,7 @@
 - name: Clean Flyway Schema
   shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
   args:
-    chdir: "{{hyperion}}"
+    chdir: "{{geronimo_dir}}"
   when: clean_flyway_geronimo in prompt_yes
 
 - name: Repair Flyway Schema
