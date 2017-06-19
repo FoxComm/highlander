@@ -3,7 +3,7 @@ package controllers
 import (
 	"log"
 
-	"github.com/FoxComm/highlander/remote/db"
+	"github.com/FoxComm/highlander/remote/services"
 	"github.com/FoxComm/highlander/remote/utils"
 	"github.com/labstack/echo"
 )
@@ -15,7 +15,7 @@ func Start() {
 		log.Fatal(err)
 	}
 
-	phxDB, err := db.NewPhoenixConnection(config)
+	phxDB, err := services.NewPhoenixConnection(config)
 	if err != nil {
 		log.Fatal(err)
 	}

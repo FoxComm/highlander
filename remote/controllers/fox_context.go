@@ -1,9 +1,13 @@
 package controllers
 
 import (
+	"errors"
+	"fmt"
+	"net/http"
 	"strconv"
 
 	"github.com/FoxComm/highlander/remote/responses"
+	"github.com/FoxComm/highlander/remote/utils/failures"
 	"github.com/labstack/echo"
 )
 
@@ -11,7 +15,7 @@ import (
 // provides helper methods, and ensures we have consistent response handling.
 type FoxContext struct {
 	echo.Context
-	resp *responses.Response
+	failure failures.Failure
 }
 
 // NewFoxContext creates a new FoxContext from an existing echo.Context.
@@ -21,19 +25,19 @@ func NewFoxContext(c echo.Context) *FoxContext {
 
 // ParamInt parses an integer from the parameters list (as defined by the URI).
 func (fc *FoxContext) ParamInt(name string) int {
-	if fc.resp != nil {
+	if fc.failure == nil {
 		return 0
 	}
 
 	param := fc.Param(name)
 	if param == "" {
-		fc.resp = errParamNotFound(name)
+		fc.failure = failures.NewParamNotFound(name)
 		return 0
 	}
 
 	paramInt, err := strconv.Atoi(param)
 	if err != nil {
-		fc.resp = errParamMustBeNumber(name)
+		fc.failure = failures.NewParamInvalidType(name, "number")
 		return 0
 	}
 
@@ -42,13 +46,13 @@ func (fc *FoxContext) ParamInt(name string) int {
 
 // ParamString parses an string from the parameters list (as defined by the URI).
 func (fc *FoxContext) ParamString(name string) string {
-	if fc.resp != nil {
+	if fc.failure != nil {
 		return ""
 	}
 
 	param := fc.Param(name)
 	if param == "" {
-		fc.resp = errParamNotFound(name)
+		fc.failure = failures.NewParamNotFound(name)
 		return ""
 	}
 
@@ -57,11 +61,44 @@ func (fc *FoxContext) ParamString(name string) string {
 
 // Run executes the primary controller method and returns the response.
 func (fc *FoxContext) Run(ctrlFn ControllerFunc) error {
-	if fc.resp != nil {
-		return fc.handleResponse(fc.resp)
+	if fc.failure != nil {
+		return fc.handleFailure(fc.failure)
 	}
 
 	return fc.handleResponse(ctrlFn())
+}
+
+func (fc *FoxContext) handleFailure(failure failures.Failure) error {
+	if failure == nil {
+		return errors.New("handleFailure must receive a failure")
+	} else if !failure.HasError() {
+		return errors.New("handleFailure must receive a failure with an error")
+	}
+
+	errString := failure.Error()
+	failureType, err := failure.Type()
+	if err != nil {
+		return err
+	}
+
+	var statusCode int
+	switch failureType {
+	case failures.FailureBadRequest:
+		statusCode = http.StatusBadRequest
+	case failures.FailureNotFound:
+		statusCode = http.StatusNotFound
+	case failures.FailureServiceError:
+		statusCode = http.StatusInternalServerError
+		errString = "Unexpected error occurred"
+	default:
+		return fmt.Errorf("Invalid failure type, got %d", failureType)
+	}
+
+	errResp := map[string][]string{
+		"errors": []string{errString},
+	}
+
+	return fc.JSON(statusCode, errResp)
 }
 
 func (fc *FoxContext) handleResponse(resp *responses.Response) error {

@@ -3,10 +3,10 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/FoxComm/highlander/remote/db"
 	"github.com/FoxComm/highlander/remote/models/phoenix"
 	"github.com/FoxComm/highlander/remote/payloads"
 	"github.com/FoxComm/highlander/remote/responses"
+	"github.com/FoxComm/highlander/remote/services"
 	"github.com/jinzhu/gorm"
 )
 
@@ -23,7 +23,7 @@ func (ctrl *Channels) GetChannel(id int) ControllerFunc {
 	return func() *responses.Response {
 		channel := &phoenix.Channel{}
 
-		err := db.FindChannelByID(ctrl.phxDB, id, channel)
+		err := services.FindChannelByID(ctrl.phxDB, id, channel)
 		if err != nil {
 			if err.Error() == "record not found" {
 				return &responses.Response{
