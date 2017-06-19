@@ -32,7 +32,7 @@
 }
 
 .circle3 {
-  animation-delay: 0.6s;
+  animation-delay: .6s;
 }
 
 .circle4 {
@@ -66,8 +66,8 @@
 
 @keyframes rippleInitial {
   0% {
-    transform: scale(0.4);
-    opacity: 0.3;
+    transform: scale(.4);
+    opacity: .3;
   }
 
   50% {
@@ -82,12 +82,12 @@
 
 @keyframes ripple {
   0% {
-    transform: scale(0.01);
+    transform: scale(.01);
     opacity: 0;
   }
 
   10% {
-    opacity: 0.5;
+    opacity: .5;
   }
 
   70% {

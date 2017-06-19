@@ -12,7 +12,7 @@
   background-image: inline(logo/start.svg);
   background-repeat: no-repeat;
   background-size: cover;
-  opacity: 0.1;
+  opacity: .1;
 }
 
 .title {

@@ -31,7 +31,7 @@
     max-width: 200px;
     color: var(--color-text);
     padding: 0 20px 10px;
-    transition: color 0.2s;
+    transition: color .2s;
     white-space: normal;
     word-wrap: break-word;
     overflow-wrap: break-word;
@@ -44,7 +44,7 @@
       bottom: 0;
       height: 2px;
       background-color: transparent;
-      transition: all 0.4s;
+      transition: all .4s;
     }
 
     &.activeLink::after {
@@ -64,19 +64,19 @@
     padding-left: 10px;
     transform: rotateX(0);
     transform-origin: 50% 45%;
-    transition: transform 0.3s ease-in;
+    transition: transform .3s ease-in;
 
     &::before {
       transform: rotateX(0);
       transform-origin: 50% 45%;
-      transition: transform 0.12s ease-in;
+      transition: transform .12s ease-in;
     }
   }
 
   &.opened {
     & > a > i::before {
       transform: rotateX(180deg);
-      transition: transform 0.2s ease-out;
+      transition: transform .2s ease-out;
     }
   }
 }
@@ -95,7 +95,7 @@
   width: 100%;
   margin: 0;
   font-weight: 600;
-  transition: all 0.2s;
+  transition: all .2s;
 }
 
 .dropdown .item:hover {

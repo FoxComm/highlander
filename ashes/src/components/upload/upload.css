@@ -1,7 +1,7 @@
 @import 'colors.css';
 
 .upload {
-  transition: border-color 0.3s;
+  transition: border-color .3s;
   padding: 15px 5px;
   margin: -15px -5px;
 
@@ -41,12 +41,12 @@
   margin: 0 auto;
   font-weight: bold;
   color: var(--color-additional-text);
-  opacity: 0.5;
+  opacity: .5;
 
   & i {
     display: block;
     font-size: 96px;
-    line-height: 0.8;
+    line-height: .8;
   }
 }
 

@@ -50,7 +50,7 @@
 
 .name,
 .arrow {
-  transition: all 0.2s;
+  transition: all .2s;
 }
 
 .user {
@@ -61,7 +61,7 @@
 
   &:hover .name,
   &:hover .arrow {
-    opacity: 0.6;
+    opacity: .6;
   }
 }
 

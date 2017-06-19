@@ -9,7 +9,7 @@
   @apply --loading-caramel;
 
   & > * {
-    opacity: 0.8;
+    opacity: .8;
   }
 }
 
@@ -36,7 +36,7 @@
       margin: 0;
       line-height: 50px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all .2s;
 
       &::before,
       &::after {

@@ -31,7 +31,7 @@
     height: 24px;
     border-radius: 3px;
     border: 2px solid var(--color-border);
-    transition: all 0.2s;
+    transition: all .2s;
     cursor: pointer;
   }
 
@@ -56,7 +56,7 @@
     opacity: 0;
     transform-origin: center top;
     transform: scale(0) translateY(-50%);
-    transition: all 0.12s;
+    transition: all .12s;
     cursor: pointer;
   }
 
@@ -169,7 +169,7 @@
 .slideCheckbox {
   width: 80px;
   height: 34px;
-  transition: all 0.4s ease;
+  transition: all .4s ease;
   position: relative;
 
   & .label {
@@ -180,7 +180,7 @@
     height: 34px;
     background: var(--bg-field-error);
     border-radius: 17px;
-    transition: all 0.4s ease;
+    transition: all .4s ease;
     padding: 0 10px;
     text-align: right;
     color: var(--color-light-text);
@@ -202,7 +202,7 @@
     opacity: 0;
     border: none;
     border-radius: 17px;
-    transition: all 0.4s ease;
+    transition: all .4s ease;
     padding: 0 10px;
     text-indent: -42px;
     text-align: left;
@@ -221,7 +221,7 @@
     height: 24px;
     background: var(--bg-white);
     border-radius: 17px;
-    transition: all 0.4s ease;
+    transition: all .4s ease;
     text-indent: 42px;
     line-height: 24px;
   }

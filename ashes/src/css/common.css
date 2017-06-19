@@ -3,7 +3,7 @@
 :root {
   --loading-caramel: {
     background-image: inline(caramel.png);
-    animation: caramel 0.5s linear infinite;
+    animation: caramel .5s linear infinite;
   };
 }
 

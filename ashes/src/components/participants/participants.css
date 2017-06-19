@@ -63,7 +63,7 @@
   background: var(--bg-white);
   border: 1px solid var(--color-border);
   border-radius: 3px;
-  box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.5);
+  box-shadow: 0 3px 4px 0 rgba(0, 0, 0, .5);
 
   & .users-row {
     margin: 10px;
