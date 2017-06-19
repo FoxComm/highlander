@@ -9,7 +9,6 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-
   margin: 10px 0 0;
 }
 
@@ -77,10 +76,10 @@
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  transition: color .3s;
+  transition: color 0.3s;
 
   & i {
-    line-height: .9;
+    line-height: 0.9;
   }
 
   &:global(._disabled),

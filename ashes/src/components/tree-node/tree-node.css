@@ -24,7 +24,7 @@
 
 .item {
   padding-left: 20px;
-  transition: background .2s;
+  transition: background 0.2s;
 }
 
 .item:hover {

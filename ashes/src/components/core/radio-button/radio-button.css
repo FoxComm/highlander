@@ -1,7 +1,7 @@
 @import 'colors.css';
 
 .radio {
-  input[type=radio]:not(old) {
+  input[type=radio]:not(old) { /* stylelint-disable-line */
     width: 24px;
     height: 24px;
     margin: 0;
@@ -9,19 +9,19 @@
     opacity: 0;
 
     &:disabled {
-      & + .label:before,
-      &:hover + .label:before {
+      & + .label::before,
+      &:hover + .label::before {
         border-color: var(--color-border);
         background: var(--bg-grey-headers);
       }
     }
 
     &:checked + .label {
-      &:before {
+      &::before {
         border-color: var(--bg-nav-main);
       }
 
-      &:after {
+      &::after {
         opacity: 1;
         transform: scale(1);
       }
@@ -37,7 +37,7 @@
   font-size: 13px;
   color: var(--color-text);
 
-  &:before {
+  &::before {
     content: '';
     display: inline-block;
     height: 24px;
@@ -47,11 +47,10 @@
     border-radius: 13px;
     background: var(--bg-grey-headers);
     vertical-align: middle;
-    transition: all .2s;
+    transition: all 0.2s;
   }
 
-
-  &:after {
+  &::after {
     content: '';
     display: block;
     position: absolute;
@@ -65,20 +64,20 @@
     z-index: 1;
     opacity: 0;
     transform: scale(0);
-    transition: all .2s;
+    transition: all 0.2s;
   }
 
   &:hover {
-    &:before {
+    &::before {
       border-color: var(--bg-nav-disabled);
     }
 
-    &:after {
+    &::after {
       background: var(--bg-nav-disabled);
     }
   }
 
-  &:hover:before {
+  &:hover::before {
     border-color: var(--bg-nav-main);
   }
 }

@@ -10,13 +10,13 @@
   top: 90%;
   width: 370px;
   max-height: 560px;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1);
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
 
   :global .initials .fc-tooltip {
     transform: translateX(-50%);
   }
 
-  :global .initials .fc-tooltip:before {
+  :global .initials .fc-tooltip::before {
     left: 50%;
   }
 

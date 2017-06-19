@@ -2,7 +2,7 @@
 
 .counter {
   display: inline-flex;
-  border: solid 1px var(--bg-grey-buttons);;
+  border: solid 1px var(--bg-grey-buttons);
 }
 
 .input {
@@ -11,15 +11,14 @@
   text-align: center;
 
   &::-webkit-inner-spin-button,
-  -webkit-outer-spin-button {
+  &::-webkit-outer-spin-button {
     -webkit-appearance: none;
   }
-
 }
 
 .controls {
   background-color: var(--bg-white);
-  transition: all .2s;
+  transition: all 0.2s;
 
   &:hover,
   &:disabled,

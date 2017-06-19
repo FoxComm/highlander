@@ -12,8 +12,7 @@
   border: none;
   cursor: pointer;
   flex: 1;
-
-  transition: all .2s;
+  transition: all 0.2s;
 
   &:hover {
     background-color: var(--bg-green-buttons);

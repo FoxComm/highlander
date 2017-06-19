@@ -8,7 +8,7 @@
   background: var(--bg-white);
   white-space: nowrap;
   cursor: pointer;
-  transition: background .2s;
+  transition: background 0.2s;
 }
 
 .item._active,
