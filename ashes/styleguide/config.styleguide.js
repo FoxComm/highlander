@@ -2,7 +2,7 @@ const path = require('path');
 const { camelCase, upperFirst } = require('lodash');
 
 module.exports = {
-  title: `Version: <span class="hash">${process.env.GIT_COMMIT}</span>`,
+  title: `${process.env.GIT_COMMIT}`,
   template: path.join(__dirname, 'template.html'),
   showCode: false,
   ignore: [path.join(__dirname, '../src/components/core/**/*.spec.jsx')],
@@ -29,6 +29,7 @@ module.exports = {
             components: () => ([
               path.resolve(__dirname, '../src/components/docs/colors/text-colors.jsx'),
               path.resolve(__dirname, '../src/components/docs/colors/bg-colors.jsx'),
+              path.resolve(__dirname, '../src/components/docs/fonts/fonts.jsx'),
             ]),
           }]
         },
@@ -137,6 +138,7 @@ module.exports = {
               name: 'Other',
               components: () => ([
                 path.resolve(__dirname, '../src/components/utils/change/change.jsx'),
+                path.resolve(__dirname, '../src/components/utils/currency/currency.jsx'),
                 path.resolve(__dirname, '../src/components/utils/datetime/datetime.jsx'),
               ]),
             },
@@ -146,8 +148,7 @@ module.exports = {
     },
   ],
   require: [
-    path.join(__dirname, '../src/css/base.css'),
     path.join(__dirname, '../src/images/favicons/favicon.ico'),
-    path.join(__dirname, 'styleguide.less'),
+    path.join(__dirname, 'styleguide.css'),
   ]
 };

@@ -2,17 +2,14 @@
 import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 
 // components
 import Icon from 'components/core/icon';
+import { DateTime } from 'components/common/datetime';
+import Currency from 'components/utils/currency';
 
 //styles
 import styles from './title-block.css';
-
-//components
-import Currency from '../common/currency';
-
 
 export default class Customer extends React.Component {
 
@@ -48,7 +45,7 @@ export default class Customer extends React.Component {
     let customer = this.props.customer;
     let joinedAt = '';
     if (customer.createdAt !== undefined) {
-      joinedAt = moment.utc(customer.createdAt).format('MM/DD/YYYY HH:mm:ss');
+      joinedAt = <DateTime value={customer.createdAt} />;
     }
 
     return (

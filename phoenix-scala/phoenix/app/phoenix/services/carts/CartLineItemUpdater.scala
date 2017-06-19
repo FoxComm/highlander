@@ -1,9 +1,10 @@
-package phoenix.services
+package phoenix.services.carts
 
 import cats.implicits._
+import core.db._
 import objectframework.services.ObjectManager
+import org.json4s.Formats
 import phoenix.failures.CartFailures._
-import phoenix.failures.OrderFailures.OrderLineItemNotFound
 import phoenix.failures.ProductFailures.SkuNotFoundForContext
 import phoenix.models.account._
 import phoenix.models.activity.Activity
@@ -15,17 +16,16 @@ import phoenix.models.objects._
 import phoenix.models.product.VariantValueSkuLinks
 import phoenix.payloads.LineItemPayloads._
 import phoenix.responses.TheResponse
-import phoenix.responses.cord.{CartResponse, OrderResponse}
-import phoenix.services.carts.{CartPromotionUpdater, CartTotaler}
+import phoenix.responses.cord.CartResponse
+import phoenix.services.{CartValidator, LogActivity}
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import slick.jdbc.PostgresProfile.api._
-import core.db._
 
-object LineItemUpdater {
+object CartLineItemUpdater {
 
-  implicit val formats = JsonFormatters.phoenixFormats
+  implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   def updateQuantitiesOnCart(admin: User, refNum: String, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
@@ -44,30 +44,6 @@ object LineItemUpdater {
       response ← * <~ runUpdates(cart, logActivity.some)
     } yield response
   }
-
-  def updateOrderLineItems(
-      admin: User,
-      payload: Seq[UpdateOrderLineItemsPayload],
-      refNum: String)(implicit ec: EC, apis: Apis, db: DB, ac: AC, ctx: OC): DbResultT[OrderResponse] =
-    for {
-      _             ← * <~ runOrderLineItemUpdates(payload)
-      orderUpdated  ← * <~ Orders.mustFindByRefNum(refNum)
-      orderResponse ← * <~ OrderResponse.fromOrder(orderUpdated, grouped = true)
-    } yield orderResponse
-
-  private def runOrderLineItemUpdates(
-      payload: Seq[UpdateOrderLineItemsPayload])(implicit ec: EC, apis: Apis, db: DB, ac: AC, ctx: OC) =
-    DbResultT.seqCollectFailures(
-      payload
-        .map(updatePayload ⇒
-          for {
-            orderLineItem ← * <~ OrderLineItems
-                             .filter(_.referenceNumber === updatePayload.referenceNumber)
-                             .mustFindOneOr(OrderLineItemNotFound(updatePayload.referenceNumber))
-            patch = orderLineItem.copy(state = updatePayload.state, attributes = updatePayload.attributes)
-            updatedItem ← * <~ OrderLineItems.update(orderLineItem, patch)
-          } yield updatedItem)
-        .toList)
 
   def updateQuantitiesOnCustomersCart(customer: User, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,

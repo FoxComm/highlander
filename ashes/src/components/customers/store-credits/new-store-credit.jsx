@@ -16,7 +16,7 @@ import { PageTitle } from '../../section-title';
 import FormField from '../../forms/formfield';
 import Form from '../../forms/form';
 import Dropdown from '../../dropdown/dropdown';
-import Currency from '../../common/currency';
+import Currency from 'components/utils/currency';
 import SaveCancel from 'components/core/save-cancel';
 import TextInput from 'components/core/text-input';
 import Icon from 'components/core/icon';

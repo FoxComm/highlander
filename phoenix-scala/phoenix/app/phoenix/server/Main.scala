@@ -137,36 +137,38 @@ class Service(systemOverride: Option[ActorSystem] = None,
       phoenix.routes.AuthRoutes.routes(scope.ltree) ~
       phoenix.routes.Public.routes(customerCreateContext, scope.ltree) ~
       phoenix.routes.Customer.routes ~
-      requireAdminAuth(userAuth) { implicit auth ⇒
-        phoenix.routes.admin.AdminRoutes.routes ~
-        phoenix.routes.admin.NotificationRoutes.routes ~
-        phoenix.routes.admin.AssignmentsRoutes.routes ~
-        phoenix.routes.admin.OrderRoutes.routes ~
-        phoenix.routes.admin.CartRoutes.routes ~
-        phoenix.routes.admin.CustomerRoutes.routes ~
-        phoenix.routes.admin.CustomerGroupsRoutes.routes ~
-        phoenix.routes.admin.GiftCardRoutes.routes ~
-        phoenix.routes.admin.ReturnRoutes.routes ~
-        phoenix.routes.admin.ProductRoutes.routes ~
-        phoenix.routes.admin.SkuRoutes.routes ~
-        phoenix.routes.admin.VariantRoutes.routes ~
-        phoenix.routes.admin.DiscountRoutes.routes ~
-        phoenix.routes.admin.PromotionRoutes.routes ~
-        phoenix.routes.admin.ImageRoutes.routes ~
-        phoenix.routes.admin.CouponRoutes.routes ~
-        phoenix.routes.admin.CategoryRoutes.routes ~
-        phoenix.routes.admin.GenericTreeRoutes.routes ~
-        phoenix.routes.admin.StoreAdminRoutes.routes ~
-        phoenix.routes.admin.ObjectRoutes.routes ~
-        phoenix.routes.admin.PluginRoutes.routes ~
-        phoenix.routes.admin.TaxonomyRoutes.routes ~
-        phoenix.routes.admin.CatalogRoutes.routes ~
-        phoenix.routes.admin.ProductReviewRoutes.routes ~
-        phoenix.routes.admin.ShippingMethodRoutes.routes ~
-        phoenix.routes.service.MigrationRoutes.routes(customerCreateContext, scope.ltree) ~
-        pathPrefix("service") {
-          phoenix.routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
-          phoenix.routes.service.CustomerGroupRoutes.routes
+      pathPrefixTest(!"my") {
+        requireAdminAuth(userAuth) { implicit auth ⇒
+          phoenix.routes.admin.AdminRoutes.routes ~
+          phoenix.routes.admin.NotificationRoutes.routes ~
+          phoenix.routes.admin.AssignmentsRoutes.routes ~
+          phoenix.routes.admin.OrderRoutes.routes ~
+          phoenix.routes.admin.CartRoutes.routes ~
+          phoenix.routes.admin.CustomerRoutes.routes ~
+          phoenix.routes.admin.CustomerGroupsRoutes.routes ~
+          phoenix.routes.admin.GiftCardRoutes.routes ~
+          phoenix.routes.admin.ReturnRoutes.routes ~
+          phoenix.routes.admin.ProductRoutes.routes ~
+          phoenix.routes.admin.SkuRoutes.routes ~
+          phoenix.routes.admin.VariantRoutes.routes ~
+          phoenix.routes.admin.DiscountRoutes.routes ~
+          phoenix.routes.admin.PromotionRoutes.routes ~
+          phoenix.routes.admin.ImageRoutes.routes ~
+          phoenix.routes.admin.CouponRoutes.routes ~
+          phoenix.routes.admin.CategoryRoutes.routes ~
+          phoenix.routes.admin.GenericTreeRoutes.routes ~
+          phoenix.routes.admin.StoreAdminRoutes.routes ~
+          phoenix.routes.admin.ObjectRoutes.routes ~
+          phoenix.routes.admin.PluginRoutes.routes ~
+          phoenix.routes.admin.TaxonomyRoutes.routes ~
+          phoenix.routes.admin.CatalogRoutes.routes ~
+          phoenix.routes.admin.ProductReviewRoutes.routes ~
+          phoenix.routes.admin.ShippingMethodRoutes.routes ~
+          phoenix.routes.service.MigrationRoutes.routes(customerCreateContext, scope.ltree) ~
+          pathPrefix("service") {
+            phoenix.routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
+            phoenix.routes.service.CustomerGroupRoutes.routes
+          }
         }
       }
     }
@@ -174,8 +176,10 @@ class Service(systemOverride: Option[ActorSystem] = None,
 
   lazy val devRoutes: Route = {
     pathPrefix("v1") {
-      requireAdminAuth(userAuth) { implicit auth ⇒
-        phoenix.routes.admin.DevRoutes.routes
+      pathPrefixTest(!"my") {
+        requireAdminAuth(userAuth) { implicit auth ⇒
+          phoenix.routes.admin.DevRoutes.routes
+        }
       }
     }
   }

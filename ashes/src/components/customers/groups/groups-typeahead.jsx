@@ -44,6 +44,7 @@ export default class GroupsTypeahead extends Component {
     }
   }
 
+  @autobind
   setTerm(term: string) {
     this.setState({
       term,

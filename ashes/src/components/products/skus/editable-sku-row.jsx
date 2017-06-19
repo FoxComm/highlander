@@ -250,6 +250,7 @@ class EditableSkuRow extends Component {
         <FormField error={error} scrollToErrors>
           <LoadingInputWrapper inProgress={this.props.isFetchingSkus}>
             <TextInput
+              styleName="sku-code"
               value={this.skuCodeValue}
               onChange={this.handleUpdateCode}
               placeholder="SKU"
@@ -331,7 +332,7 @@ class EditableSkuRow extends Component {
     const variantValue = _.get(mapping, [skuCode, variantName]);
 
     return (
-      <div styleName="variant-value">{variantValue}</div>
+      <div styleName="variant-value" title={variantValue}>{variantValue}</div>
     );
   }
 

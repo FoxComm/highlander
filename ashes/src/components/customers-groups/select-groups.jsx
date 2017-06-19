@@ -88,6 +88,7 @@ class SelectCustomerGroups extends Component {
         </div>);
   }
 
+  @autobind
   setTerm(term: string) {
     this.setState({
       term,

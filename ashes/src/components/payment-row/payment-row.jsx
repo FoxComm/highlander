@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 
 // components
 import CreditCardDetails from './credit-card';
-import Currency from 'components/common/currency';
+import Currency from 'components/utils/currency';
 import GiftCardDetails from './gift-card';
 import StoreCreditDetails from './store-credit';
 import PaymentMethodDetails from 'components/payment/payment-method';

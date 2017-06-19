@@ -7,7 +7,7 @@ import React, { Element } from 'react';
 import styles from './shipped-item.css';
 
 // components
-import Currency from 'components/common/currency';
+import Currency from 'components/utils/currency';
 import ProductImage from 'components/imgix/product-image';
 
 //types

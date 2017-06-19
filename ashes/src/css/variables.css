@@ -24,7 +24,7 @@
   --bg-field-error: var(--color-error-text);
   --bg-grey: #f9f9f9;
   --bg-grey-buttons: #ced2d5;
-  --bg-grey-buttons-disabled: #bdc3c6;
+  --bg-grey-buttons-hover: #bdc3c6;
   --bg-grey-headers: #f7f7f7;
   --bg-green-buttons: #49cab9;
   --bg-green-buttons-hover: #1dbfaa;
@@ -33,7 +33,12 @@
   --bg-message-error: #ffb1b1;
   /* all other background colors are damned! */
 
-
+  /* allowed fonts */
+  --font-page-title: 300 30px/41px 'Open Sans';
+  --font-section-title: 600 16px/22px 'Open Sans';
+  --font-labels: 600 14px/20px 'Open Sans';
+  --font-nav: 400 14px/20px 'Open Sans';
+  --font-body: 400 13px/18px 'Open Sans';
 
 
 

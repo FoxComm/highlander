@@ -1,7 +1,7 @@
 // @flow
 
 import React, { Component } from 'react';
-import Currency from '../common/currency';
+import Currency from 'components/utils/currency';
 import ProductImage from 'components/imgix/product-image';
 
 type Props = {

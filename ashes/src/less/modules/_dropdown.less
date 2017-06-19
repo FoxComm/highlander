@@ -26,6 +26,7 @@
     user-select: none;
     white-space: nowrap;
     flex-grow: 1;
+    transition: all .2s;
   }
 
   &__items {
@@ -88,7 +89,7 @@
   // states
   &._disabled {
     .fc-dropdown__value {
-      background-color: @bg-grey-buttons-disabled;
+      background-color: @bg-grey-buttons-hover;
       color: @color-additional-text;
       cursor: default;
     }

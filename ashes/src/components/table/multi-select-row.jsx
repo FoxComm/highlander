@@ -54,8 +54,12 @@ const MultiSelectRow = (props, context) => {
 
     switch (col.field) {
       case 'selectColumn':
-        cellClickAction = (event: MouseEvent) => event.stopPropagation();
-        cellContents = <Checkbox id={`multi-select-${row.id}`} checked={checked} onChange={onChange} inCell />;
+        if (!row.id) {
+          cellContents = null;
+        } else {
+          cellClickAction = (event: MouseEvent) => event.stopPropagation();
+          cellContents = <Checkbox id={`multi-select-${row.id}`} checked={checked} onChange={onChange} inCell />;
+        }
         break;
       default:
         cellContents = setCellFn(row, col.field);

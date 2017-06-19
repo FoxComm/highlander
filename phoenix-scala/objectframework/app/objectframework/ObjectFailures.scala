@@ -38,6 +38,10 @@ object ObjectFailures {
     override def description = "Shadow attributes are empty"
   }
 
+  case object CorruptedContentObject extends Failure {
+    override def description = "Unable to parse corrupted content object"
+  }
+
   case class LinkAtPositionCannotBeFound(clazz: Class[_], left: Int, position: Int) extends Failure {
     override def description =
       s"No object link ${clazz.getSimpleName} with left id $left exists at position $position"
@@ -68,4 +72,15 @@ object ObjectFailures {
     def apply(tableName: String, contextId: Int, formId: Int): NotFoundFailure404 =
       NotFoundFailure404(s"Object '$tableName' with id $formId cannot be found for context $contextId")
   }
+
+  case object ObjectNotFound {
+    def apply(tableName: String, formId: Int, viewId: Int): NotFoundFailure404 =
+      NotFoundFailure404(s"$tableName with id $formId not found for view $viewId")
+  }
+
+  case object ObjectNotFoundAtCommit {
+    def apply(tableName: String, commitId: Int): NotFoundFailure404 =
+      NotFoundFailure404(s"$tableName with commit $commitId not found")
+  }
+
 }

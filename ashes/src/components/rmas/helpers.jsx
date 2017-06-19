@@ -5,7 +5,7 @@ import { Link } from 'components/link';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
 import { DateTime } from 'components/utils/datetime';
-import Currency from '../common/currency';
+import Currency from 'components/utils/currency';
 import PaymentMethod from '../../components/payment/payment-method';
 
 const CustomerInfo = props => {

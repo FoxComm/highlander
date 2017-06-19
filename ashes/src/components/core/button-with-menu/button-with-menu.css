@@ -1,4 +1,4 @@
-@import 'colors.css';
+@import 'variables.css';
 
 .button {
   display: inline-block;
@@ -51,6 +51,7 @@
 
 .dropdownButton {
   margin-left: 1px;
+  height: 40px; /* fix for IE as it renders 18.89(random number after dot) height button with 22 padding */
 }
 
 .overlay {

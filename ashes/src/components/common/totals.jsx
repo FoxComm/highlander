@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import ContentBox from '../content-box/content-box';
-import Currency from './currency';
+import Currency from 'components/utils/currency';
 
 const TotalsFooter = props => {
   const { entityType } = props.entity;

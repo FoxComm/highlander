@@ -1,4 +1,4 @@
-@import 'colors.css';
+@import 'variables.css';
 
 .block {
   display: flex;
@@ -138,11 +138,11 @@
 
 .color-9 {
   & > .sample {
-    background-color: var(--bg-grey-buttons-disabled);
+    background-color: var(--bg-grey-buttons-hover);
   }
 
   & > .value::before {
-    content: '--bg-grey-buttons-disabled';
+    content: '--bg-grey-buttons-hover';
   }
 
   & > .desc::before {

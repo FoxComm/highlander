@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import { Dropdown } from '../../dropdown';
 
-import Currency from './currency';
+import Currency from 'components/utils/currency';
 import Counter from './counter';
 import styles from './discounts.css';
 import { Checkbox } from 'components/core/checkbox';

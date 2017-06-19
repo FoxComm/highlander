@@ -11,7 +11,7 @@ import { IndexLink, Link } from 'components/link';
 import { Errors } from 'components/utils/errors';
 import GiftCardCode from './gift-card-code';
 import { DateTime } from 'components/utils/datetime';
-import Currency from '../common/currency';
+import Currency from 'components/utils/currency';
 import Spinner from 'components/core/spinner';
 import { PageTitle } from '../section-title';
 import Panel from '../panel/panel';
