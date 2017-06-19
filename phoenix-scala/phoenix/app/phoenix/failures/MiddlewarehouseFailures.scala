@@ -1,7 +1,7 @@
 package phoenix.failures
 
 import core.failures.Failure
-import phoenix.utils.apis.MiddlewarehouseErrorInfo
+import phoenix.utils.apis.MwhErrorInfo
 
 object MiddlewarehouseFailures {
 
@@ -9,10 +9,10 @@ object MiddlewarehouseFailures {
     override def description = message
   }
 
-  case class SkusOutOfStockFailure(skusErrors: List[MiddlewarehouseErrorInfo]) extends Failure {
+  case class SkusOutOfStockFailure(skusErrors: List[MwhErrorInfo]) extends Failure {
 
     override def description = {
-      def errorWhenListNotEmpty(error: String, skus: List[MiddlewarehouseErrorInfo]): String = {
+      def errorWhenListNotEmpty(error: String, skus: List[MwhErrorInfo]): String = {
         val skusMsg = skus.map(_.sku).mkString(", ")
         if (skusMsg.isEmpty()) "" else error + skusMsg + ". "
       }

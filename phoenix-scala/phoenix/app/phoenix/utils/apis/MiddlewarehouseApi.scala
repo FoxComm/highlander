@@ -36,15 +36,14 @@ trait MiddlewarehouseApi {
   def createSku(skuId: Int, sku: CreateSku)(implicit ec: EC, au: AU): DbResultT[ProductVariantSku]
 }
 
-case class MiddlewarehouseErrorInfo(sku: String, afs: Int, debug: String)
+case class MwhErrorInfo(sku: String, afs: Int, debug: String)
 
 class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
 
   private def parseListOfStringErrors(strings: Option[List[String]]): Option[Failures] =
     strings.flatMap(errors ⇒ Failures(errors.map(MiddlewarehouseError): _*))
 
-  private def parseListOfMwhInfoErrors(
-      maybeErrors: Option[List[MiddlewarehouseErrorInfo]]): Option[Failures] =
+  private def parseListOfMwhInfoErrors(maybeErrors: Option[List[MwhErrorInfo]]): Option[Failures] =
     maybeErrors match {
       case Some(errors) ⇒
         logger.info("Middlewarehouse errors:")
@@ -67,7 +66,7 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
       if (skuErrors.isEmpty)
         parseListOfStringErrors(json.extractOpt[List[String]])
       else
-        parseListOfMwhInfoErrors(json.extractOpt[List[MiddlewarehouseErrorInfo]])
+        parseListOfMwhInfoErrors(json.extractOpt[List[MwhErrorInfo]])
 
     possibleFailures.getOrElse(MiddlewarehouseError(message).single)
   }
