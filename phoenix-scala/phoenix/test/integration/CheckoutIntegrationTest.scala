@@ -9,7 +9,7 @@ import phoenix.failures.CreditCardFailures.NoDefaultCreditCardForCustomer
 import phoenix.failures.ShippingMethodFailures._
 import phoenix.failures.UserFailures._
 import phoenix.models.Reasons
-import phoenix.models.cord.Order.{FulfillmentStarted, RemorseHold}
+import phoenix.models.cord.Order.RemorseHold
 import phoenix.models.cord._
 import phoenix.models.inventory._
 import phoenix.models.location.Region
@@ -22,8 +22,9 @@ import phoenix.payloads.LineItemPayloads._
 import phoenix.payloads.PaymentPayloads._
 import phoenix.payloads.UpdateShippingMethod
 import phoenix.payloads.UserPayloads.ToggleUserBlacklisted
+import phoenix.responses.AddressResponse
 import phoenix.responses.cord._
-import phoenix.responses.{AddressResponse, GiftCardResponse}
+import phoenix.responses.giftcards.GiftCardResponse
 import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
@@ -290,7 +291,7 @@ class CheckoutIntegrationTest
 
       val gcCode = giftCardsApi
         .create(GiftCardCreateByCsr(grandTotal, reason.id))
-        .as[GiftCardResponse.Root]
+        .as[GiftCardResponse]
         .code
 
       _cartApi.payments.giftCard.add(GiftCardPayment(gcCode, grandTotal.some)).mustBeOk()

@@ -1,0 +1,16 @@
+---
+
+- name: Install Temporal tables Packages
+  apt: name={{item}} state=latest force=yes
+  with_items:
+    - debconf-utils
+    - build-essential
+    - pkg-config
+
+- name: Get Temporal tables
+  git: repo={{temporal_tables_repo}} dest={{temporal_tables_dir}} version={{temporal_tables_version}}
+
+- name: Make and Install temporal rables
+  shell: make && make install
+  args:
+    chdir: "{{temporal_tables_dir}}"

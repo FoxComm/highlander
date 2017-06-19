@@ -1,0 +1,25 @@
+---
+
+- name: Synchronize Geronimo SQL
+  synchronize: src="{{geronimo_src}}/sql" dest="{{geronimo_dir}}" delete=yes recursive=yes
+
+- name: Copy Flyway Config
+  template: src=flyway.conf.j2 dest="{{geronimo_dir}}/sql/flyway.conf"
+
+- name: Clean Flyway Schema
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
+  args:
+    chdir: "{{geronimo_dir}}"
+  when: clean_flyway_geronimo in prompt_yes
+
+- name: Repair Flyway Schema
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} repair
+  args:
+    chdir: "{{geronimo_dir}}"
+  when: clean_flyway_geronimo not in prompt_yes
+
+- name: Migrate Database
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
+  become: true
+  args:
+    chdir: "{{geronimo_dir}}"

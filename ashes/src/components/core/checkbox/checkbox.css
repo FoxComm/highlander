@@ -218,12 +218,12 @@
     background: transparent;
     overflow: hidden;
 
-    &:before {
+    &::before {
       text-indent: 0;
       opacity: 1;
     }
 
-    &:after {
+    &::after {
       left: 51px;
     }
   }

@@ -12,7 +12,8 @@
   margin-top: 40px;
 }
 
-.segment-control-container-inactive, .segment-control-container-disabled {
+.segment-control-container-inactive,
+.segment-control-container-disabled {
   width: 66px;
   max-width: 66px;
   height: 40px;

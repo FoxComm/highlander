@@ -2,8 +2,9 @@ package phoenix.services.activity
 
 import phoenix.models.cord.{Cart, Order}
 import phoenix.payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
+import phoenix.responses.StoreCreditResponse
+import phoenix.responses.giftcards.GiftCardResponse
 import phoenix.responses.users.UserResponse
-import phoenix.responses.{GiftCardResponse, StoreCreditResponse}
 
 object StoreCreditTailored {
   case class StoreCreditCreated(admin: UserResponse,
@@ -17,7 +18,7 @@ object StoreCreditTailored {
       extends ActivityBase[StoreCreditStateChanged]
 
   case class StoreCreditConvertedToGiftCard(admin: UserResponse,
-                                            giftCard: GiftCardResponse.Root,
+                                            giftCard: GiftCardResponse,
                                             storeCredit: StoreCreditResponse.Root)
       extends ActivityBase[StoreCreditConvertedToGiftCard]
 

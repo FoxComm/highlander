@@ -76,7 +76,7 @@
 }
 
 .isDragging {
-  box-shadow: inset -1px 1px 6px rgba(0, 0, 0, 0.24);
+  box-shadow: inset -1px 1px 6px rgba(0, 0, 0, .24);
 
   & :global(.icon-drag-drop) {
     opacity: 0;

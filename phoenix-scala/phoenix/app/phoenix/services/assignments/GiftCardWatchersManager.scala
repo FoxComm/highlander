@@ -1,12 +1,13 @@
 package phoenix.services.assignments
 
-import phoenix.models.activity.Dimension
-import phoenix.models.{Assignment, NotificationSubscription}
-import phoenix.models.payment.giftcard._
-import phoenix.responses.GiftCardResponse._
-import slick.jdbc.PostgresProfile.api._
 import core.db._
+import phoenix.models.activity.Dimension
+import phoenix.models.payment.giftcard._
+import phoenix.models.{Assignment, NotificationSubscription}
+import phoenix.responses.giftcards.GiftCardResponse
+import phoenix.responses.giftcards.GiftCardResponse._
 import phoenix.utils.aliases._
+import slick.jdbc.PostgresProfile.api._
 
 object GiftCardWatchersManager extends AssignmentsManager[String, GiftCard] {
 
@@ -15,7 +16,7 @@ object GiftCardWatchersManager extends AssignmentsManager[String, GiftCard] {
   val notifyDimension = Dimension.giftCard
   val notifyReason    = NotificationSubscription.Watching
 
-  def buildResponse(model: GiftCard): Root = build(model)
+  def buildResponse(model: GiftCard): GiftCardResponse = build(model)
 
   def fetchEntity(code: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[GiftCard] =
     GiftCards.mustFindByCode(code)

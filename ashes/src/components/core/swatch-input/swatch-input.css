@@ -5,7 +5,7 @@
   align-items: stretch;
   font: var(--font-nav);
 
-  &:before {
+  &::before {
     content: "#";
     position: absolute;
     padding: 10px 10px;
