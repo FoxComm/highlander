@@ -273,8 +273,8 @@ phoenix_tax_rule_region: 4129
 phoenix_tax_rule_rate: 7.5
 
 # Agni
-agni_src: ../../search-service
-agni_dir: /search-service
+agni_src: ../../agni
+agni_dir: /agni
 
 # Green River
 greenriver_env: localhost
