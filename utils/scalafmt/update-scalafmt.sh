@@ -21,22 +21,20 @@ read -rp "Press enter to continue!"
 echo
 echo
 
-REQUIRED_VERSION=$(cat "$(dirname "$SCALAFMT")"/scalafmt-version)
-CURRENT_VERSION=$("${SCALAFMT}" --version | cut -d' ' -f2)
+REQUIRED_SCALAFMT_VERSION=$(cat "$(dirname "$SCALAFMT")"/scalafmt-version)
+CURRENT_SCALAFMT_VERSION=$("${SCALAFMT}" --version | cut -d' ' -f2)
 
-if [ "$CURRENT_VERSION" != "$REQUIRED_VERSION" ]; then
-  echo "Your current scalafmt version is $CURRENT_VERSION, but it should be $REQUIRED_VERSION"
-  echo "Please update your scalafmt"
-  exit 1
+if [ "$CURRENT_SCALAFMT_VERSION" != "$REQUIRED_SCALAFMT_VERSION" ]; then
+  echo "Your current scalafmt version is $CURRENT_SCALAFMT_VERSION, but it should be $REQUIRED_SCALAFMT_VERSION"
 fi
 
-REQUIRED_VERSION=2.9.0
-CURRENT_VERSION=$(git --version| cut -d' ' -f3)
+REQUIRED_GIT_VERSION=2.9.0
+CURRENT_GIT_VERSION=$(git --version| cut -d' ' -f3)
 
 function version { echo "$@" | gawk -F. '{ printf("%03d%03d%03d\n", $1,$2,$3); }'; }
 
-if [ "$(version "$REQUIRED_VERSION")" -gt "$(version "$CURRENT_VERSION")" ]; then
-  echo "Your current git version is $CURRENT_VERSION, but it should be at least 2.9.0"
+if [ "$(version "$REQUIRED_GIT_VERSION")" -gt "$(version "$CURRENT_GIT_VERSION")" ]; then
+  echo "Your current git version is $CURRENT_GIT_VERSION, but it should be at least $REQUIRED_GIT_VERSION"
   echo "Please update your git"
   exit 1
 fi
