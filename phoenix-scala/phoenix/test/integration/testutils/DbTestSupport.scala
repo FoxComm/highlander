@@ -1,10 +1,10 @@
 package testutils
 
-import com.typesafe.config.{Config, ConfigFactory}
 import java.sql.{Connection, PreparedStatement}
 import javax.sql.DataSource
-import scala.util.Random
 
+import com.typesafe.config.{Config, ConfigFactory}
+import core.db._
 import objectframework.models.ObjectContexts
 import org.scalatest._
 import phoenix.models.product.SimpleContext
@@ -14,8 +14,9 @@ import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile
 import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
-import core.db._
+import testutils.flyway.FlywayMigrationsTest
 import scala.annotation.tailrec
+import scala.util.Random
 
 trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport { self: TestSuite ⇒
 
@@ -98,7 +99,8 @@ object DbTestSupport extends GimmeSupport {
 
   def api: PostgresProfile.API = slick.jdbc.PostgresProfile.api
 
-  lazy val migrated = {
+  def migrated = { // FIXME for debug only @aafa
+    println("RUN migration..")
     val tplName     = DB_TEMPLATE
     val stmt1       = conn.createStatement()
     implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
@@ -180,6 +182,7 @@ object DbTestSupport extends GimmeSupport {
   def migrateDB(dataSource: DataSource): Unit = {
     val flyway = newFlyway(dataSource, rootProjectSqlLocation)
 
+    flyway.setCallbacks(FlywayMigrationsTest.list: _*)
     flyway.clean()
     flyway.migrate()
   }
