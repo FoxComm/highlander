@@ -49,7 +49,7 @@ object Settings {
       Dockerfile.empty
         .from("openjdk:8-alpine")
         .add(artifact, artifactTargetPath)
-        .cmdRaw(s"java $$JAVA_OPTS -jar $artifactTargetPath 2>&1 | tee /logs/${appName.value}.log")
+        .cmdRaw(s"java $$JAVA_OPTS -jar $artifactTargetPath 2>&1 | tee -a /logs/${appName.value}.log")
     },
     imageNames in docker := Seq(
       ImageName(
