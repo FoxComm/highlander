@@ -23,7 +23,7 @@ const renderers = {
       />
     );
   },
-  widget(item:ItemDesc, context: Context) {
+  widget(item: ItemDesc, context: Context) {
     const widgetComponent = widgets[item.widget];
     const props = {...item, context};
     const element = React.createElement(widgetComponent, props);
@@ -67,7 +67,7 @@ const DiscountAttrs = (props: Props) => {
     });
   };
   const setType = (type: any) => {
-    const newDiscountParams = attrs[type] || {};
+    const newDiscountParams = attrs[type] || _.find(props.descriptions, {type}).default || {};
     props.onChange({
       [type]: newDiscountParams
     });

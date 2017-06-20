@@ -13,13 +13,13 @@ const qualifiers = [
   {
     type: 'orderTotalAmount',
     title: 'Order - Total amount of order',
+    default: {totalAmount: 0},
     content: [
       [
         {type: 'type'},
         {
           name: 'totalAmount',
           widget: 'currency',
-          value: 0,
           template: props => <WidgetContainer>Spend {props.children} or more.</WidgetContainer>
         }
       ]
@@ -28,6 +28,7 @@ const qualifiers = [
   {
     type: 'orderNumUnits',
     title: 'Order - Number of units in order',
+    default: {numUnits: 0},
     content: [
       [
         {type: 'type'},
@@ -57,12 +58,12 @@ const qualifiers = [
   {
     type: 'itemsTotalAmount',
     title: 'Items - Total amount of order',
+    default: {totalAmount: 0},
     content: [
       [
         {type: 'type'},
         {
           name: 'totalAmount',
-          value: 0,
           widget: 'currency',
           template: props => <WidgetContainer>Spend {props.children} or more.</WidgetContainer>
         }
@@ -79,12 +80,12 @@ const qualifiers = [
   {
     type: 'itemsNumUnits',
     title: 'Items - Number of units in order',
+    default: {numUnits: 0},
     content: [
       [
         {type: 'type'},
         {
           name: 'numUnits',
-          value: 0,
           widget: 'counter',
           template: props => <WidgetContainer>Order {props.children} items or more.</WidgetContainer>
         }
