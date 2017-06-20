@@ -22,7 +22,7 @@ lazy val api = (project in file("api"))
   )
   .settings(
     mainClass in assembly := Some("foxcomm.agni.api.Api"),
-    assemblyJarName in assembly := s"${name.value}.jar",
+    assemblyJarName in assembly := s"agni.jar",
     assemblyMergeStrategy in assembly := {
       case PathList("BUILD")                                    ⇒ MergeStrategy.discard
       case PathList("META-INF", "io.netty.versions.properties") ⇒ MergeStrategy.discard
