@@ -41,7 +41,7 @@ class ApiErrorsExample extends React.Component {
 
   render() {
     return (
-      <div className="demo-blocked">
+      <div className="demo">
         <ApiErrors
           response={errorResponse}
           sanitizeError={error => error + '!'}

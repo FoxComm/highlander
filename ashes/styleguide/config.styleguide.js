@@ -5,6 +5,7 @@ module.exports = {
   title: `${process.env.GIT_COMMIT}`,
   template: path.join(__dirname, 'template.html'),
   showCode: false,
+  showUsage: true,
   ignore: [path.join(__dirname, '../src/components/core/**/*.spec.jsx')],
   webpackConfig: require('./webpack.styleguide.js'),
   styleguideDir: path.resolve('build/admin/styleguide'),

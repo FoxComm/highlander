@@ -39,9 +39,16 @@ export function TabButtonRenderer({ classes, name, className, onClick, active, c
     [classes.isActive]: active,
   });
 
+  let label = children;
+
+  if (children === 'Code') {
+    // super dirty hack, as component that provides children here can't be customized with webpack aliases
+    label = active ? 'Hide code' : 'Show code';
+  }
+
   return (
     <button type="button" name={name} className={classNames} onClick={onClick}>
-      {children}
+      {label}
     </button>
   );
 }

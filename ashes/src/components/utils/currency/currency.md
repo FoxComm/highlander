@@ -8,13 +8,11 @@ import Currency from 'components/utils/currency';
 
 ### States
 ```
-<div className="demo" >
-  <div className="demo-inline">
-    <Currency value={100}  />
-    <Currency value={200} isTransaction />
-    <Currency value={-200} isTransaction />
-    <Currency value={0} isTransaction />
-  </div>
+<div className="demo-inline">
+  <Currency value={100}  />
+  <Currency value={200} isTransaction />
+  <Currency value={-200} isTransaction />
+  <Currency value={0} isTransaction />
 </div>
 
 ```

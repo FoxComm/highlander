@@ -28,6 +28,8 @@ module.exports = {
     alias: {
       'rsg-components/Logo': path.join(__dirname, 'rsg-components/Logo'),
       'rsg-components/TabButton': path.join(__dirname, 'rsg-components/TabButton'),
+      'rsg-components/Playground': path.join(__dirname, 'rsg-components/Playground'),
+      'rsg-components/PlaygroundRenderer': path.join(__dirname, 'rsg-components/PlaygroundRenderer'),
     },
   },
 
