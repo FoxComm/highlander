@@ -1,7 +1,5 @@
 import sbtassembly.{MergeStrategy, PathList}
 
-name := "agni"
-
 lazy val core = (project in file("core"))
   .settings(Settings.common)
   .settings(
@@ -21,8 +19,9 @@ lazy val api = (project in file("api"))
     libraryDependencies ++= Dependencies.finch
   )
   .settings(
+    Settings.appName := "agni",
     mainClass in assembly := Some("foxcomm.agni.api.Api"),
-    assemblyJarName in assembly := s"agni.jar",
+    assemblyJarName in assembly := s"${Settings.appName.value}.jar",
     assemblyMergeStrategy in assembly := {
       case PathList("BUILD")                                    ⇒ MergeStrategy.discard
       case PathList("META-INF", "io.netty.versions.properties") ⇒ MergeStrategy.discard

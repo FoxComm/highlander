@@ -9,6 +9,8 @@ import sbtdocker.immutable.Dockerfile
 import wartremover.{wartremoverErrors, Wart, Warts}
 
 object Settings {
+  lazy val appName: TaskKey[String] = taskKey[String]("Name for a application")
+
   def common: Seq[Def.Setting[_]] = Seq(
     scalaVersion := "2.11.11",
     scalacOptions in Compile ++= Seq(
@@ -47,11 +49,11 @@ object Settings {
       Dockerfile.empty
         .from("openjdk:8-alpine")
         .add(artifact, artifactTargetPath)
-        .cmdRaw(s"java -jar $artifactTargetPath")
+        .cmdRaw(s"java $$JAVA_OPTS -jar $artifactTargetPath 2>&1 | tee -a /logs/${appName.value}.log")
     },
     imageNames in docker := Seq(
       ImageName(
-        s"${sys.props("DOCKER_REPO")}/${(assemblyJarName in assembly).value.stripSuffix(".jar")}:${sys.props("DOCKER_TAG")}")
+        s"${sys.props("DOCKER_REPO")}/${appName.value}:${sys.props("DOCKER_TAG")}")
     )
   )
 }
