@@ -127,7 +127,7 @@ export default class PromotionForm extends ObjectDetails {
 
   renderDiscounts() {
     const discounts = _.get(this.props.object, 'discounts', []);
-    const discountChildren = discounts.reduce ((acc, disc, index) => {
+    const discountChildren = discounts.reduce((acc, disc, index) => {
       const makeKey = prefix => `${prefix}-${disc.id || index}`;
       return [
         ...acc,
