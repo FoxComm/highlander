@@ -101,3 +101,7 @@ func (r RemoteDB) FindByIDWithFailure(table string, id int, model interface{}, f
 func (r RemoteDB) Save(model interface{}) failures.Failure {
 	return failures.New(r.db.Save(model).Error)
 }
+
+func (r RemoteDB) Ping() error {
+	return r.db.DB().Ping()
+}
