@@ -2,7 +2,7 @@ package phoenix.utils.apis
 
 import cats.implicits._
 import com.stripe.exception.StripeException
-import phoenix.failures.StripeFailures.StripeFailure
+import phoenix.failures.StripeFailures.{StripeFailure, StripeProcessingFailure}
 import testutils.TestBase
 
 import scala.concurrent.Await
@@ -30,6 +30,13 @@ class StripeApiErrorHandlingTest extends TestBase { // for Monad[Future]
       an[ArithmeticException] must be thrownBy {
         Await.result(new StripeWrapper().inBlockingPool(oops).runEmptyA.value, Inf)
       }
+    }
+
+    "catches timeouts in stripe API" in {
+      def boom = { Thread.sleep(20000); throw someStripeException }
+      
+      val result = Await.result(new StripeWrapper().inBlockingPool(boom).runEmptyA.value, Inf)
+      leftValue(result).head must === (StripeProcessingFailure("Request to Stripe timed out: Futures timed out after [10 seconds]"))
     }
   }
 

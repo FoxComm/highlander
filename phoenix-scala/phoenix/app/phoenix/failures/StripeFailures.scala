@@ -17,4 +17,8 @@ object StripeFailures {
     override def description: String =
       s"Stripe customer $stripeCustomerId expected to have a card, found none"
   }
+
+  case class StripeProcessingFailure(message: String) extends Failure {
+    override def description = s"Failed to process stripe request with error: ${message}"
+  }
 }
