@@ -25,13 +25,13 @@ func InsertChannel(icDB *gorm.DB, phxDB *gorm.DB, icChannel *ic.Channel, phxChan
 		return fail
 	}
 
-	if fail := failures.New(phxTxn.Create(phxChannel).Error); fail != nil {
+	if fail := create(phxTxn, phxChannel); fail != nil {
 		phxTxn.Rollback()
 		icTxn.Rollback()
 		return fail
 	}
 
-	if fail := failures.New(icTxn.Create(icChannel).Error); fail != nil {
+	if fail := create(icTxn, icChannel); fail != nil {
 		phxTxn.Rollback()
 		icTxn.Rollback()
 		return fail
@@ -49,16 +49,24 @@ func InsertChannel(icDB *gorm.DB, phxDB *gorm.DB, icChannel *ic.Channel, phxChan
 		}
 	}
 
-	if fail := failures.New(icTxn.Commit().Error); fail != nil {
+	if fail := commit(icTxn); fail != nil {
 		phxTxn.Rollback()
 		return fail
 	}
 
-	return failures.New(phxTxn.Commit().Error)
+	return commit(phxTxn)
 }
 
 func UpdateChannel(phxDB *gorm.DB, phxChannel *phoenix.Channel) failures.Failure {
 	return failures.New(phxDB.Save(phxChannel).Error)
+}
+
+////////////////////////////////////////////////////////////
+// DB Convenience Methods
+////////////////////////////////////////////////////////////
+
+func create(db *gorm.DB, model interface{}) failures.Failure {
+	return failures.New(db.Create(model).Error)
 }
 
 func findByID(phxDB *gorm.DB, tableName string, id int, model interface{}) failures.Failure {
@@ -80,4 +88,8 @@ func internalFindByID(db *gorm.DB, table string, id, model interface{}) failures
 	}
 
 	return failures.New(res.Error)
+}
+
+func commit(db *gorm.DB) failures.Failure {
+	return failures.New(db.Commit().Error)
 }
