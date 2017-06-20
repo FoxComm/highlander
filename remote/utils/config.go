@@ -9,6 +9,12 @@ import (
 const (
 	errEnvVarNotFound = "%s not found in the environment"
 
+	icDatabaseName     = "IC_DATABASE_NAME"
+	icDatabaseHost     = "IC_DATABASE_HOST"
+	icDatabaseUser     = "IC_DATABASE_USER"
+	icDatabasePassword = "IC_DATABASE_PASSWORD"
+	icDatabaseSSL      = "IC_DATABASE_SSL"
+
 	phoenixDatabaseName     = "PHX_DATABASE_NAME"
 	phoenixDatabaseHost     = "PHX_DATABASE_HOST"
 	phoenixDatabaseUser     = "PHX_DATABASE_USER"
@@ -19,6 +25,12 @@ const (
 )
 
 type Config struct {
+	ICDatabaseName     string
+	ICDatabaseHost     string
+	ICDatabaseUser     string
+	ICDatabasePassword string
+	ICDatabaseSSL      string
+
 	PhxDatabaseName     string
 	PhxDatabaseHost     string
 	PhxDatabaseUser     string
@@ -31,6 +43,12 @@ type Config struct {
 func NewConfig() (*Config, error) {
 	config := &Config{}
 	var err error
+
+	config.ICDatabaseName, err = parseEnvVar(icDatabaseName, nil)
+	config.ICDatabaseHost, err = parseEnvVar(icDatabaseHost, err)
+	config.ICDatabaseUser, err = parseEnvVar(icDatabaseUser, err)
+	config.ICDatabaseSSL, err = parseEnvVar(icDatabaseSSL, err)
+	config.ICDatabasePassword = os.Getenv(icDatabasePassword)
 
 	config.PhxDatabaseName, err = parseEnvVar(phoenixDatabaseName, nil)
 	config.PhxDatabaseHost, err = parseEnvVar(phoenixDatabaseHost, err)

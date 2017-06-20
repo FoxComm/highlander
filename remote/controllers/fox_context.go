@@ -17,11 +17,29 @@ import (
 type FoxContext struct {
 	echo.Context
 	failure failures.Failure
+	// scope   string
 }
 
 // NewFoxContext creates a new FoxContext from an existing echo.Context.
 func NewFoxContext(c echo.Context) *FoxContext {
 	return &FoxContext{c, nil}
+}
+
+func getJWT(c echo.Context) (string, failures.Failure) {
+	// Try to get from the header first.
+	req := c.Request()
+	jwt, ok := req.Header["Jwt"]
+	if ok && len(jwt) > 0 {
+		return jwt[0], nil
+	}
+
+	// Try a cookie.
+	cookie, err := req.Cookie("JWT")
+	if err != nil {
+		return "", failures.New(err)
+	}
+
+	return cookie.Value, nil
 }
 
 // BindJSON grabs the JSON payload and unmarshals it into the interface provided.

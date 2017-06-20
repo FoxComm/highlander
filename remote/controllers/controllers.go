@@ -15,13 +15,12 @@ func Start() {
 		log.Fatal(err)
 	}
 
-	phxDB, err := services.NewPhoenixConnection(config)
+	dbs, err := services.NewRemoteDBs(config)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	defer phxDB.Close()
-	channelsCtrl := NewChannels(phxDB)
+	channelsCtrl := NewChannels(dbs)
 
 	r := NewRouter()
 
@@ -34,6 +33,14 @@ func Start() {
 		payload := payloads.CreateChannel{}
 		fc.BindJSON(&payload)
 		return fc.Run(channelsCtrl.CreateChannel(&payload))
+	})
+
+	r.PATCH("/v1/public/channels/:id", func(fc *FoxContext) error {
+		id := fc.ParamInt("id")
+		payload := payloads.UpdateChannel{}
+		fc.BindJSON(&payload)
+
+		return fc.Run(channelsCtrl.UpdateChannel(id, &payload))
 	})
 
 	r.Run(config.Port)

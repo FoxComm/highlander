@@ -42,3 +42,10 @@ func (r *Router) POST(uri string, rf RouterFunc) {
 		return rf(fc)
 	})
 }
+
+func (r *Router) PATCH(uri string, rf RouterFunc) {
+	r.e.PATCH(uri, func(c echo.Context) error {
+		fc := c.(*FoxContext)
+		return rf(fc)
+	})
+}
