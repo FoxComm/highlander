@@ -1,5 +1,3 @@
 ```
-<div className="demo">
-  <TextColors.TextColors />
-</div>
+<TextColors.TextColors />
 ```

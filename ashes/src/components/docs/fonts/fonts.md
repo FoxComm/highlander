@@ -1,5 +1,3 @@
 ```
-<div className="demo">
-  <Fonts.Fonts />
-</div>
+<Fonts.Fonts />
 ```
