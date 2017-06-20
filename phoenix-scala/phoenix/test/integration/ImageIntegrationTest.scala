@@ -395,7 +395,7 @@ class ImageIntegrationTest
       }
 
       def uploadImages(album: Album, images: List[String]): HttpResponse = {
-        val paths = images.map(img ⇒ Paths.get(s"test/resources/images_tests/$img"))
+        val paths = images.map(img ⇒ Paths.get(s"phoenix/test/resources/images_tests/$img"))
         paths.foreach(image ⇒ image.toFile.exists mustBe true)
 
         val entity = if (paths.isEmpty) {
