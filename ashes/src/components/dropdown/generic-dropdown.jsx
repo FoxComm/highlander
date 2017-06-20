@@ -28,41 +28,42 @@ export type RenderDropdownFunction = (
 ) => Element<*>;
 
 export type Props = {
-  id?: string,
-  dropdownValueId?: string,
-  name: string,
-  value: ValueType,
-  className?: string,
-  listClassName?: string,
+  id?: string, // id for root — why?
+  dropdownValueId?: string, // not used
+  name: string, // input name
+  value: ValueType, // input value? What is NullTitle?
+  className?: string, // additional root className
+  listClassName?: string, // aditional className for `ul`
   placeholder?: string | Element<*>,
-  emptyMessage?: string | Element<*>,
-  open?: boolean,
-  children?: Element<*>,
+  emptyMessage?: string | Element<*>, // shows when open and no children
+  open?: bool, // open/closed dropdown menu
+  children?: Element<*>, // what inside menu
   items?: Array<any>,
-  primary?: boolean,
-  editable?: boolean,
-  changeable?: boolean,
-  disabled?: boolean,
-  inputFirst?: boolean,
+  primary?: bool, // primary styling, looks like it is not used
+  editable?: bool,
+  changeable?: bool,
+  disabled?: bool,
+  inputFirst?: bool,
   renderDropdownInput?: RenderDropdownFunction,
-  renderNullTitle?: Function,
-  renderPrepend?: Function,
-  renderAppend?: Function,
+  renderNullTitle?: Function, // fallback when no title found in this.findTitleByValue
+  renderPrepend?: Function, // before
+  renderAppend?: Function, // and after the `ul`
   onChange?: Function,
-  dropdownProps?: Object,
-  detached?: boolean,
-  noControls?: boolean,
-  toggleColumnsBtn?: boolean,
-  buttonClassName?: string,
+  dropdownProps?: Object, // props for arrow button (e.g. icon)
+  detached?: boolean, // goes to `bodyPortal`, e.g. case with overflow `/customers/10/storecredit`
+  noControls?: boolean, // no arrow button (e.g. taxons)
+  toggleColumnsBtn?: boolean, // changes button size?
+  buttonClassName?: string, // another mod for button
 };
 
 type State = {
-  open: boolean,
-  dropup: boolean,
-  selectedValue: ValueType,
-  pointedValueIndex: number,
+  open: bool, // show or hide the menu
+  dropup: bool, // drop down or up (depends on screen position)
+  selectedValue: ValueType, // current selected value of menu
+  pointedValueIndex: number, // current hovered item, used for keyboard navigation
 };
 
+// looper for awwor keys navigation
 function getNewItemIndex(itemsCount, currentIndex, increment = 1) {
   const startIndex = increment > 0 ? -1 : 0;
   const index = Math.max(currentIndex, startIndex);
@@ -99,9 +100,9 @@ export default class GenericDropdown extends Component {
     pointedValueIndex: -1,
   };
 
-  _menu: HTMLElement;
-  _items: HTMLElement;
-  _block: HTMLElement;
+  _menu: HTMLElement; // ul parent (includes before and after, so consider it as a whole wrapper)
+  _items: HTMLElement; // ul
+  _block: HTMLElement; // root element, used for clickOutside and others
 
   componentDidMount() {
     window.addEventListener('keydown', this.handleKeyPress, true);
@@ -186,6 +187,7 @@ export default class GenericDropdown extends Component {
     }
   }
 
+  // root className
   get dropdownClassName(): string {
     const { primary, editable, disabled, className } = this.props;
 

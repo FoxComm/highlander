@@ -27,7 +27,7 @@ const BgColor = props => {
 export const BgColors = () => {
   return (
     <div className={s.block}>
-      {colors.map(cl => <BgColor {...cl} />)}
+      {colors.map(cl => <BgColor key={cl.value} {...cl} />)}
     </div>
   );
 };

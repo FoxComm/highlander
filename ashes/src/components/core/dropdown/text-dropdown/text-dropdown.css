@@ -1,0 +1,56 @@
+@import 'variables.css';
+
+.block {
+  position: relative;
+  font: var(--font-labels);
+
+  &.open {
+    z-index: 1;
+  }
+}
+
+.pivot {
+  display: flex;
+  padding: 10px;
+  background-color: var(--bg-grey-buttons);
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--bg-grey-buttons-hover);
+  }
+
+  .block.disabled & {
+    background-color: var(--bg-grey-buttons-hover);
+    color: var(--color-additional-text);
+    cursor: default;
+  }
+}
+
+.displayText {
+  flex: 1 1 auto;
+  margin-right: 10px;
+
+  .placeholder & {
+    color: var(--color-additional-text);
+  }
+}
+
+.menu {
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .5);
+}
+
+.item {
+  padding: 12px 20px;
+  background-color: white;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70vw;
+  font: var(--font-nav);
+}
+
+.toggleBtn {
+  width: 40px;
+  height: 40px;
+}

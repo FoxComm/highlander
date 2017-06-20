@@ -1,0 +1,26 @@
+@import 'variables.css';
+
+.block {
+  position: absolute;
+  max-height: 90vh;
+  min-width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  @media(max-height: 300px) {
+    max-height: 60vh;
+  }
+}
+
+.list {
+  overflow-y: auto;
+  flex: 1 1 auto;
+}
+
+.item {
+  &:hover,
+  &.active {
+    background-color: var(--bg-grey-headers);
+  }
+}
