@@ -10,6 +10,10 @@
 
     [class*=root-] {
       background: #f7f7f7;
+
+      & > [class*=toolbar-] {
+        display: none;
+      }
     }
 
     .version {
@@ -66,8 +70,15 @@
     }
 
     .demo > * {
-      margin-left: 10px;
       margin-bottom: 10px;
+    }
+
+    .demo-inline > * {
+      margin-left: 10px;
+
+      &:first-child {
+        margin-left: 0;
+      }
     }
 
     .demo-blocked > * {
@@ -157,6 +168,15 @@
 
     [class*=para-] {
       font-size: 14px;
+
+      a {
+        color: var(--color-link);
+        transition: all .2s;
+
+        &:hover {
+          opacity: .7;
+        }
+      }
     }
 
     h3[class*=para-],
@@ -172,7 +192,7 @@
       font-size: 12px;
 
       & * {
-        color: var(--color-additional-text);
+        color: #666;
       }
     }
 
@@ -206,6 +226,15 @@
           color: var(--bg-white);
         }
       }
+
+      a {
+        color: var(--bg-green-buttons);
+        transition: all .2s;
+
+        &:hover {
+          opacity: .7;
+        }
+      }
     }
 
     .ReactCodeMirror {
@@ -216,7 +245,7 @@
       font-size: 12px;
 
       & * {
-        color: var(--color-additional-text);
+        color: #666;
       }
     }
 

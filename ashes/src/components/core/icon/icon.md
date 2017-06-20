@@ -10,9 +10,11 @@ import Icon from 'components/core/icon';
 
 ```
 <div className="demo">
-  <Icon name="add" />
-  <Icon name="chevron-right" />
-  <Icon name="bell" />
-  <Icon name="trash" />
+  <div className="demo-inline">
+    <Icon name="add" />
+    <Icon name="chevron-right" />
+    <Icon name="bell" />
+    <Icon name="trash" />
+  </div>
 </div>
 ```
