@@ -15,13 +15,19 @@ func Start() {
 		log.Fatal(err)
 	}
 
+	icDB, err := services.NewIntelligenceConnection(config)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	phxDB, err := services.NewPhoenixConnection(config)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	defer icDB.Close()
 	defer phxDB.Close()
-	channelsCtrl := NewChannels(phxDB)
+	channelsCtrl := NewChannels(icDB, phxDB)
 
 	r := NewRouter()
 

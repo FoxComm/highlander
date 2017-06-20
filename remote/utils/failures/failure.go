@@ -10,7 +10,7 @@ const (
 	FailureNotFound
 	FailureServiceError
 
-	recordNotFound = "record not found"
+	RecordNotFound = "record not found"
 )
 
 // Failure is a wrapper around the standard Golang error type that gives us more
@@ -27,34 +27,24 @@ type Failure interface {
 }
 
 // New creates a new Failure. It determines the best failure based on the error
-// and arguments passed in. If no error occurred, the response will be nil.
-func New(err error, params map[string]interface{}) Failure {
+// passed in. If no error occurred, the response will be nil.
+func New(err error) Failure {
 	if err == nil {
 		return nil
 	}
 
 	stack := newCallStack()
 
-	if err.Error() == recordNotFound {
-		return newNotFoundFailure(stack, err, params)
+	if err.Error() == RecordNotFound {
+		return newNotFoundFailure(stack, err)
 	}
 
 	return newServiceFailure(stack, err)
 }
 
-func newNotFoundFailure(stack *callStack, originalErr error, params map[string]interface{}) Failure {
-	model, modelOk := params["model"]
-	id, idOk := params["id"]
-
-	var notFoundErr error
-	if !modelOk || !idOk {
-		notFoundErr = originalErr
-	} else {
-		notFoundErr = fmt.Errorf("%s with id %d was not found", model, id)
-	}
-
+func newNotFoundFailure(stack *callStack, originalErr error) Failure {
 	return &generalFailure{
-		err:         notFoundErr,
+		err:         originalErr,
 		failureType: FailureNotFound,
 		stack:       stack,
 	}

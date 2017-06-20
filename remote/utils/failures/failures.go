@@ -44,3 +44,19 @@ func NewFieldEmptyFailure(paramName string) Failure {
 		stack:       newCallStack(),
 	}
 }
+
+func NewFieldGreaterThanZero(paramName string, value int) Failure {
+	return &generalFailure{
+		err:         fmt.Errorf("Expected %s to be greater than 0, got %d", paramName, value),
+		failureType: FailureBadRequest,
+		stack:       newCallStack(),
+	}
+}
+
+func NewModelNotFoundFailure(modelName string, id int) Failure {
+	return &generalFailure{
+		err:         fmt.Errorf("%s with id %d was not found", modelName, id),
+		failureType: FailureNotFound,
+		stack:       newCallStack(),
+	}
+}

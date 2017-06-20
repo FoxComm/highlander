@@ -3,15 +3,19 @@ package payloads
 import (
 	"time"
 
+	"github.com/FoxComm/highlander/remote/models/ic"
 	"github.com/FoxComm/highlander/remote/models/phoenix"
 	"github.com/FoxComm/highlander/remote/utils/failures"
 )
 
 // CreateChannel is the structure of payload needed to create a channel.
 type CreateChannel struct {
-	Name          string `json:"name"`
-	PurchaseOnFox *bool  `json:"purchaseOnFox"`
-	CatalogID     *int64 `json:"catalogId"`
+	Name           string   `json:"name"`
+	Scope          string   `json:"scope"`
+	OrganizationID int      `json:"organizationId"`
+	Hosts          []string `json:"hosts"`
+	PurchaseOnFox  *bool    `json:"purchaseOnFox"`
+	CatalogID      *int64   `json:"catalogId"`
 }
 
 // Validate ensures that the has the correct format.
@@ -20,9 +24,20 @@ func (c CreateChannel) Validate() failures.Failure {
 		return failures.NewFieldEmptyFailure("name")
 	} else if c.PurchaseOnFox == nil {
 		return failures.NewFieldEmptyFailure("purchaseOnFox")
+	} else if c.Scope == "" {
+		return failures.NewFieldEmptyFailure("scope")
+	} else if c.OrganizationID < 1 {
+		return failures.NewFieldGreaterThanZero("organizationId", c.OrganizationID)
 	}
 
 	return nil
+}
+
+// IntelligenceModel returns the IC model for this payload.
+func (c CreateChannel) IntelligenceModel() *ic.Channel {
+	return &ic.Channel{
+		OrganizationID: c.OrganizationID,
+	}
 }
 
 // PhoenixModel returns the phoenix model for this payload.

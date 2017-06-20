@@ -12,11 +12,12 @@ import (
 )
 
 type Channels struct {
+	icDB  *gorm.DB
 	phxDB *gorm.DB
 }
 
-func NewChannels(phxDB *gorm.DB) *Channels {
-	return &Channels{phxDB: phxDB}
+func NewChannels(icDB, phxDB *gorm.DB) *Channels {
+	return &Channels{icDB: icDB, phxDB: phxDB}
 }
 
 // GetChannel finds a single channel by its ID.
@@ -36,9 +37,10 @@ func (ctrl *Channels) GetChannel(id int) ControllerFunc {
 // CreateChannel creates a new channel.
 func (ctrl *Channels) CreateChannel(payload *payloads.CreateChannel) ControllerFunc {
 	return func() (*responses.Response, failures.Failure) {
+		icChannel := payload.IntelligenceModel()
 		phxChannel := payload.PhoenixModel()
 
-		if err := services.InsertChannel(ctrl.phxDB, phxChannel); err != nil {
+		if err := services.InsertChannel(ctrl.icDB, ctrl.phxDB, icChannel, phxChannel, payload.Hosts); err != nil {
 			return nil, err
 		}
 
