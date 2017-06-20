@@ -4,7 +4,7 @@
 //
 // describe('Order line items', function() {
 //   const { OrderLineItems } = requireComponent('orders/order-line-items.jsx', false);
-//   const ConfirmationDialog = requireComponent('modal/confirmation-dialog.jsx');
+//   const ConfirmationModal = requireComponent('core/confirmation-modal.jsx');
 //
 //   const defaultProps = {
 //     lineItems: {
@@ -21,7 +21,7 @@
 //     isCart: true,
 //   };
 //
-//   it('should render ConfirmationDialog if isDeleting is truly', function *() {
+//   it('should render ConfirmationModal if isDeleting is truly', function *() {
 //     const { container } = yield renderIntoDocument(
 //       <div><OrderLineItems {...defaultProps} /></div>
 //     );

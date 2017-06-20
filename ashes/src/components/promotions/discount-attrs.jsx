@@ -23,7 +23,7 @@ const renderers = {
       />
     );
   },
-  widget(item:ItemDesc, context: Context) {
+  widget(item: ItemDesc, context: Context) {
     const widgetComponent = widgets[item.widget];
     const props = {...item, context};
     const element = React.createElement(widgetComponent, props);
@@ -67,15 +67,9 @@ const DiscountAttrs = (props: Props) => {
     });
   };
   const setType = (type: any) => {
-    const defaultDiscountParams = _.find(props.descriptions, (item) => {
-      if (item.type == type) return true;
-    });
-    const key = _.get(defaultDiscountParams, 'content[0].[1].name');
-    const value = _.get(defaultDiscountParams, 'content[0].[1].value', {});
+    const newDiscountParams = attrs[type] || _.find(props.descriptions, {type}).default || {};
     props.onChange({
-      [type]: {
-        [key]: value,
-      }
+      [type]: newDiscountParams
     });
   };
 

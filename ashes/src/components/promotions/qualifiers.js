@@ -13,6 +13,7 @@ const qualifiers = [
   {
     type: 'orderTotalAmount',
     title: 'Order - Total amount of order',
+    default: {totalAmount: 0},
     content: [
       [
         {type: 'type'},
@@ -28,6 +29,7 @@ const qualifiers = [
   {
     type: 'orderNumUnits',
     title: 'Order - Number of units in order',
+    default: {numUnits: 0},
     content: [
       [
         {type: 'type'},
@@ -57,6 +59,7 @@ const qualifiers = [
   {
     type: 'itemsTotalAmount',
     title: 'Items - Total amount of order',
+    default: {totalAmount: 0},
     content: [
       [
         {type: 'type'},
@@ -79,6 +82,7 @@ const qualifiers = [
   {
     type: 'itemsNumUnits',
     title: 'Items - Number of units in order',
+    default: {numUnits: 0},
     content: [
       [
         {type: 'type'},

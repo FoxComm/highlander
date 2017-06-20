@@ -40,16 +40,19 @@ import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 import core.utils.Validation._
 import core.db._
+import phoenix.utils.apis.Apis
 
 object ProductManager extends LazyLogging {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
-  def createProduct(admin: User, payload: CreateProductPayload)(implicit ec: EC,
-                                                                db: DB,
-                                                                ac: AC,
-                                                                oc: OC,
-                                                                au: AU): DbResultT[ProductResponse.Root] = {
+  def createProduct(admin: User, payload: CreateProductPayload)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      oc: OC,
+      au: AU,
+      apis: Apis): DbResultT[ProductResponse.Root] = {
 
     val form            = ObjectForm.fromPayload(Product.kind, payload.attributes)
     val shadow          = ObjectShadow.fromPayload(payload.attributes)
@@ -134,7 +137,8 @@ object ProductManager extends LazyLogging {
       db: DB,
       ac: AC,
       oc: OC,
-      au: AU): DbResultT[ProductResponse.Root] = {
+      au: AU,
+      apis: Apis): DbResultT[ProductResponse.Root] = {
 
     val formAndShadow = FormAndShadow.fromPayload(Product.kind, payload.attributes)
 
@@ -327,7 +331,7 @@ object ProductManager extends LazyLogging {
   private def findOrCreateSkusForProduct(
       product: Product,
       skuPayloads: Seq[SkuPayload],
-      createLinks: Boolean = true)(implicit ec: EC, db: DB, oc: OC, au: AU) =
+      createLinks: Boolean = true)(implicit ec: EC, db: DB, oc: OC, au: AU, apis: Apis) =
     skuPayloads.map { payload ⇒
       val albumPayloads = payload.albums.getOrElse(Seq.empty)
 

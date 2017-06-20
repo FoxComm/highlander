@@ -9,6 +9,9 @@ scalaVersion in ThisBuild := Versions.scala
 
 scalaOrganization in ThisBuild := "org.typelevel"
 
+// workaround for https://github.com/sbt/sbt/issues/2814
+scalaOrganization in updateSbtClassifiers := (scalaOrganization in Global).value
+
 lazy val phoenix = (project in file("phoenix"))
   .dependsOn(core, objectframework)
   .configs(IT, ET)
@@ -33,14 +36,9 @@ lazy val phoenix = (project in file("phoenix"))
       .sequential(compile in Test, compile in IT, compile in ET, test in Test, test in IT, test in ET)
       .value,
     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
-    javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC", "-Dphoenix.env=test"),
-    parallelExecution in Compile := true,
-    parallelExecution in Test := true,
-    parallelExecution in IT := false,
-    parallelExecution in ET := false,
-    fork in Test := false,
-    fork in IT := true, /** FIXME: We couldn’t run ITs in parallel if we fork */
-    fork in ET := true,
+    testForkedParallel in Test := true,
+    testForkedParallel in IT := true,
+    testForkedParallel in ET := true,
     logBuffered in Test := false,
     logBuffered in IT := false,
     logBuffered in ET := false

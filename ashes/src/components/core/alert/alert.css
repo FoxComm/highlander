@@ -1,0 +1,47 @@
+@import 'colors.css';
+
+.alert {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  padding: 9px 10px;
+  color: var(--color-text);
+  border-radius: 3px;
+}
+
+.message {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  line-height: 18px;
+
+  & > i {
+    display: inline-flex; /* fixes extra pixel in height */
+    margin-right: 5px;
+    font-size: 22px;
+  }
+}
+
+.close {
+  margin-left: 10px;
+  font-size: 30px;
+  line-height: 18px;
+  cursor: pointer;
+  transition: opacity .2s;
+
+  &:hover {
+    opacity: .7;
+  }
+}
+
+.success {
+  background: var(--bg-message-success);
+}
+
+.warning {
+  background: var(--bg-message-warning);
+}
+
+.error {
+  background: var(--bg-message-error);
+}

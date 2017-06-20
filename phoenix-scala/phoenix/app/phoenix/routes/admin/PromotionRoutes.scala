@@ -22,23 +22,23 @@ object PromotionRoutes {
               PromotionManager.create(payload, context, Some(auth.model))
             }
           } ~
-            pathPrefix(IntNumber) { id ⇒
-              (get & pathEnd) {
-                getOrFailures {
-                  PromotionManager.getIlluminated(id, context)
-                }
-              } ~
-                (patch & pathEnd & entity(as[UpdatePromotion])) { payload ⇒
-                  mutateOrFailures {
-                    PromotionManager.update(id, payload, context, Some(auth.model))
-                  }
-                } ~
-                (delete & pathEnd) {
-                  mutateOrFailures {
-                    PromotionManager.archiveByContextAndId(context, id)
-                  }
-                }
+          pathPrefix(IntNumber) { id ⇒
+            (get & pathEnd) {
+              getOrFailures {
+                PromotionManager.getIlluminated(id, context)
+              }
+            } ~
+            (patch & pathEnd & entity(as[UpdatePromotion])) { payload ⇒
+              mutateOrFailures {
+                PromotionManager.update(id, payload, context, Some(auth.model))
+              }
+            } ~
+            (delete & pathEnd) {
+              mutateOrFailures {
+                PromotionManager.archiveByContextAndId(context, id)
+              }
             }
+          }
         }
       }
     }

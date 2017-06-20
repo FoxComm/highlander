@@ -1,3 +1,4 @@
+@import 'colors.css';
 
 .row-toggle {
   vertical-align: top;
@@ -20,11 +21,10 @@
   }
 }
 
-
 :global(.fc-table) {
   & .payment-row :global(.fc-table-td),
   & .details-row :global(.fc-table-td) {
-    background: #fff;
+    background: var(--bg-white);
     border-bottom: none;
   }
 
@@ -68,7 +68,7 @@
 }
 
 :global .fc-order-payment .fc-table-body:nth-child(odd) .fc-table-tr {
-  background: #f7f7f7;
+  background: var(--bg-grey-headers);
 }
 
 :global .fc-order-payment .fc-credit-card-form {

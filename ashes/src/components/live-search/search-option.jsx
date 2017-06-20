@@ -1,33 +1,30 @@
+// @flow
+
+// libs
 import React from 'react';
-import PropTypes from 'prop-types';
-import MenuItem from '../menu/menu-item';
+import { MenuItem } from './menu';
 
-const SearchOption = props => {
-  const {option, clickAction, ...rest} = props;
+// styles
+import s from './live-search.css';
 
-  const click = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    clickAction(option.selectionValue);
+type Props = {
+  clickAction: Function;
+  option: {
+    selectionValue: any;
+    displayTerm: string;
+    displayAction: string;
   };
-
-  const preventClickSelection = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-  };
-
-  return (
-    <MenuItem onClick={click} onMouseDown={preventClickSelection} onMouseUp={preventClickSelection} {...rest}>
-      <span className='fc-search-option__term'>{option.displayTerm}</span>
-      <span className='fc-search-option__action'>{option.displayAction}</span>
-    </MenuItem>
-  );
 };
 
+const SearchOption = (props: Props) => {
+  const { option, clickAction, ...rest } = props;
 
-SearchOption.propTypes = {
-  clickAction: PropTypes.func,
-  option: PropTypes.object.isRequired
+  return (
+    <MenuItem clickAction={() => clickAction(option.selectionValue)} {...rest}>
+      <span className={s.term}>{option.displayTerm}</span>
+      <span className={s.action}>{option.displayAction}</span>
+    </MenuItem>
+  );
 };
 
 export default SearchOption;

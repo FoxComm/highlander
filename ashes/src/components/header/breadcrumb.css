@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .block {
   display: flex;
   flex-wrap: wrap;
@@ -11,14 +13,13 @@
   font-weight: 300;
   line-height: 20px;
   font-size: 15px;
-  color: #363636;
   transition: all .2s;
   margin: 0 10px 0 0;
   white-space: nowrap;
-  color: #363636;
+  color: var(--color-text);
 
   &::before {
-    color: #d4d4d4;
+    color: var(--color-additional-text);
     margin-right: 10px;
     pointer-events: none;
   }
@@ -30,5 +31,5 @@
 
 .delimiter {
   margin: 0 10px 0 0;
-  color: #d4d4d4;
+  color: var(--color-additional-text);
 }

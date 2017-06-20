@@ -29,11 +29,10 @@ var notifyAboutCompletedTasks = _.debounce(function() {
   let message = `Task${completedTasks.length > 1 ? 's' : ''} ${completedTasks.join(', ')} successfully completed.`;
   notify({
     title: 'Gulp tasks completed',
-    message
+    message,
   });
   completedTasks = [];
 }, 125);
-
 
 module.exports = function(gulp, opts, $) {
   gulp.task('notifier', function() {
@@ -50,7 +49,7 @@ module.exports = function(gulp, opts, $) {
 
       notify({
         title: 'Gulp emit error',
-        message: stripColors(e && e.toString() || '')
+        message: stripColors((e && e.toString()) || ''),
       });
     });
   });

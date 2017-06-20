@@ -2,10 +2,13 @@
 import React from 'react';
 import WidgetContainer from './widgets/widget-container';
 
+const defaultDiscount = { discount: 0 };
+
 const offers = [
   {
     type: 'orderPercentOff',
     title: 'Percent off order',
+    default: defaultDiscount,
     content: [
       [
         {type: 'type'},
@@ -21,6 +24,7 @@ const offers = [
   {
     type: 'orderAmountOff',
     title: 'Amount off order',
+    default: defaultDiscount,
     content: [
       [
         {type: 'type'},
@@ -36,6 +40,7 @@ const offers = [
   {
     type: 'itemPercentOff',
     title: 'Percent off single item',
+    default: defaultDiscount,
     content: [
       [
         {type: 'type'},
@@ -58,6 +63,7 @@ const offers = [
   {
     type: 'itemAmountOff',
     title: 'Amount off single item',
+    default: defaultDiscount,
     content: [
       [
         {type: 'type'},
@@ -80,6 +86,7 @@ const offers = [
   {
     type: 'itemsPercentOff',
     title: 'Percent off select items',
+    default: defaultDiscount,
     content: [
       [
         {type: 'type'},
@@ -102,6 +109,7 @@ const offers = [
   {
     type: 'itemsAmountOff',
     title: 'Amount off select items',
+    default: defaultDiscount,
     content: [
       [
         {type: 'type'},
@@ -131,6 +139,7 @@ const offers = [
   {
     type: 'discountedShipping',
     title: 'Discounted shipping',
+    default: {setPrice: 0},
     content: [
       [
         {type: 'type'},
@@ -146,6 +155,7 @@ const offers = [
   {
     type: 'setPrice',
     title: 'Set price',
+    default: {setPrice: 0},
     content: [
       [
         {type: 'type'},

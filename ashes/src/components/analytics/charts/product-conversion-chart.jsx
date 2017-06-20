@@ -18,8 +18,8 @@ import {
 import ProductConversionToolTip from './product-conversion-tooltip';
 
 // styles
-const axisTickColor = '#9BA3A7';
-const gridLineColor = '#ABB2B6';
+const axisTickColor = '#9ba3a7';
+const gridLineColor = '#abb2b6';
 
 const yAxisStyle = {
   axis: { stroke: axisTickColor },
@@ -32,18 +32,18 @@ const xAxisStyle = {
 };
 
 const singleBarStyle = {
-  data: { fill: '#4FC2C9', width: 28 },
+  data: { fill: '#49cab9', width: 28 },
   labels: { fontSize: 12 },
   parent: { border: '1px solid #ccc' },
 };
 const comparisonBarStyles = {
   dataBarStyle:  {
-    data: { fill: '#4FC2C9', width: 28 },
+    data: { fill: '#49cab9', width: 28 },
     labels: { fontSize: 12 },
     parent: { border: '1px solid #ccc' },
   },
   comparisonDataBarStyle: {
-    data: { fill: '#CED2D5', width: 28 },
+    data: { fill: '#ced3d5', width: 28 },
     labels: { fontSize: 12 },
     parent: { border: '1px solid #ccc' },
   },
@@ -232,7 +232,7 @@ class ProductConversionChart extends React.Component {
               deltaToolTipStyles={{
                 borderColor: '#363636',
                 fill: '#3A4350',
-                textColor: '#FFFFFF',
+                textColor: '#ffffff',
                 fontSize: 6,
               }}
               conversionToolTipOffsetCoordinates={{
@@ -240,7 +240,7 @@ class ProductConversionChart extends React.Component {
                 y: 26,
               }}
               conversionToolTipStyles={{
-                textColor: '#3A4350',
+                textColor: '#3a4350',
                 fontSize: 6,
               }}
               toolTipColor="#363636"
@@ -300,7 +300,7 @@ class ProductConversionChart extends React.Component {
                   y: 26,
                 }}
                 conversionToolTipStyles={{
-                  textColor: '#3A4350',
+                  textColor: '#3a4350',
                   fontSize: 6,
                 }}
                 toolTipColor="#363636"
@@ -325,8 +325,8 @@ class ProductConversionChart extends React.Component {
                   deltaTextDy: 3.25,
                 }}
                 deltaToolTipStyles={{
-                  borderColor: '#CED2D5',
-                  fill: '#CED2D5',
+                  borderColor: '#ced3d5',
+                  fill: '#ced3d5',
                   textColor: '3A4350',
                   fontSize: 6,
                 }}
@@ -335,7 +335,7 @@ class ProductConversionChart extends React.Component {
                   y: 26,
                 }}
                 conversionToolTipStyles={{
-                  textColor: '#3A4350',
+                  textColor: '#3a4350',
                   fontSize: 6,
                 }}
                 toolTipColor="#9B9B9B"

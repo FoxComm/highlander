@@ -11,7 +11,7 @@ import { connect } from 'react-redux';
 import { transitionTo, transitionToLazy } from 'browserHistory';
 
 // components
-import Counter from '../forms/counter';
+import Counter from 'components/core/counter';
 import { Dropdown } from '../dropdown';
 import { Form } from '../forms';
 import SaveCancel from 'components/core/save-cancel';
@@ -147,21 +147,15 @@ export default class NewGiftCard extends React.Component {
   }
 
   get quantitySection() {
-    const changeQuantity = (event, amount) => {
-      event.preventDefault();
-      this.props.changeQuantity(this.props.quantity + amount);
-    };
-
     return (
       <fieldset className="fc-new-gift-card__fieldset">
         <label className="fc-new-gift-card__label" htmlFor="quantity">Quantity</label>
         <Counter
           id="quantity"
           value={this.props.quantity}
-          increaseAction={event => changeQuantity(event, 1)}
-          decreaseAction={event => changeQuantity(event, -1)}
-          onChange={({target}) => this.props.changeQuantity(target.value)}
-          min={1} />
+          onChange={this.props.changeQuantity}
+          min={1}
+        />
       </fieldset>
     );
   }
@@ -227,7 +221,7 @@ export default class NewGiftCard extends React.Component {
           <SaveCancel
             onCancel={transitionToLazy('gift-cards')}
             saveDisabled={saveDisabled}
-            saveText="Issue Gift Card"
+            saveLabel="Issue Gift Card"
           />
         </Form>
       </div>

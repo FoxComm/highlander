@@ -20,5 +20,6 @@ export type DescriptionType = {
   type: string;
   title: string;
   content?: Array<DiscountRow>;
+  default?: mixed,
 }
 

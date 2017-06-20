@@ -33,16 +33,17 @@ const plugins = [
   require('postcss-assets')({
     loadPaths: ['src/images/']
   }),
-  require('postcss-css-variables'),
+
   require('postcss-cssnext')({
     features: {
-      // Instead of it we are using `postcss-css-variables` above
+      // Instead of it we are using `postcss-css-variables` below
       // https://github.com/MadLittleMods/postcss-css-variables#differences-from-postcss-custom-properties
       customProperties: false,
     },
   }),
   require('postcss-mixins'),
   require('postcss-nested'),
+  require('postcss-css-variables'),
   require('postcss-modules-local-by-default'),
   require('postcss-modules-scope')({
     generateScopedName,

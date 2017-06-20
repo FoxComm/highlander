@@ -1,9 +1,11 @@
 import cats.implicits._
 import core.failures.GeneralFailure
+import phoenix.failures.CaptureFailures
 import phoenix.failures.OrderFailures.OnlyOneExternalPaymentIsAllowed
-import phoenix.models.location.Region
+import phoenix.models.cord.CordPaymentState.FullCapture
+import phoenix.models.payment.ExternalCharge.FailedAuth
+import phoenix.models.payment.creditcard.CreditCardCharges
 import phoenix.models.shipping._
-import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import phoenix.payloads.CapturePayloads.{Capture, CaptureLineItem, ShippingCost}
 import phoenix.payloads.CartPayloads.CreateCart
 import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
@@ -11,20 +13,15 @@ import phoenix.payloads.LineItemPayloads._
 import phoenix.payloads.PaymentPayloads.{CreateApplePayPayment, CreditCardPayment}
 import phoenix.payloads.UpdateShippingMethod
 import phoenix.responses.cord._
-import phoenix.responses.{CaptureResponse, CreditCardsResponse, CustomerResponse}
-import testutils.apis._
-import utils.MockedApis
+import phoenix.responses.users.CustomerResponse
+import phoenix.responses.{CaptureResponse, CreditCardsResponse}
 import phoenix.utils.seeds.{Factories, ShipmentSeeds}
-import testutils.{DefaultJwtAdminAuth, IntegrationTestBase, TestLoginData}
-import testutils.fixtures.api.{ApiFixtureHelpers, ApiFixtures}
-import faker.Lorem
-import phoenix.failures.CaptureFailures
-import phoenix.models.cord.CordPaymentState.FullCapture
-import phoenix.models.payment.ExternalCharge.FailedAuth
-import phoenix.models.payment.creditcard.CreditCardCharges
-import testutils._
-import testutils.fixtures.PaymentFixtures.CreditCardsFixture
 import slick.jdbc.PostgresProfile.api._
+import testutils.apis._
+import testutils.fixtures.PaymentFixtures.CreditCardsFixture
+import testutils.fixtures.api._
+import testutils._
+import utils.MockedApis
 
 class ApplePayIntegrationTest
     extends IntegrationTestBase
@@ -114,6 +111,8 @@ class ApplePayIntegrationTest
         val cc = storefrontPaymentsApi.creditCards.create(ccPayload).as[CreditCardsResponse.Root]
         cartsApi(refNum).payments.creditCard.add(CreditCardPayment(cc.id)).mustBeOk()
 
+        // additional check to make sure only one failure has arrived
+        cartsApi(refNum).checkout().errors.onlyElement must === (OnlyOneExternalPaymentIsAllowed.description)
         cartsApi(refNum).checkout().mustFailWith400(OnlyOneExternalPaymentIsAllowed)
       }
     }
@@ -138,14 +137,15 @@ class ApplePayIntegrationTest
     }
   }
 
-  trait ApplePayFixture extends ProductSku_ApiFixture with ShipmentSeeds {
+  trait ApplePayFixture extends ShipmentSeeds {
     val apToken           = "tok_1A9YBQJVm1XvTUrO3V8caBvF"
     val customerLoginData = TestLoginData(email = "test@bar.com", password = "pwd")
     val customer = customersApi
       .create(
-        CreateCustomerPayload(email = customerLoginData.email, // @aafa FIXME: provide customer name
+        CreateCustomerPayload(email = customerLoginData.email,
+                              name = faker.Name.name.some,
                               password = customerLoginData.password.some))
-      .as[CustomerResponse.Root]
+      .as[CustomerResponse]
 
     val cart = cartsApi.create(CreateCart(customerId = customer.id.some)).as[CartResponse]
 
@@ -158,13 +158,9 @@ class ApplePayIntegrationTest
                                             adminDisplayName = ShippingMethod.expressShippingNameForAdmin))
       .gimme
 
-    val randomAddress = CreateAddressPayload(regionId = Region.californiaId,
-                                             name = Lorem.letterify("???"),
-                                             address1 = Lorem.letterify("???"),
-                                             city = Lorem.letterify("???"),
-                                             zip = Lorem.numerify("#####"))
+    cartsApi(refNum).shippingAddress.create(randomAddress()).mustBeOk()
 
-    cartsApi(refNum).shippingAddress.create(randomAddress).mustBeOk()
+    val skuCode = ProductSku_ApiFixture().skuCode
 
     val lineItemsPayloads = List(UpdateLineItemsPayload(skuCode, 1))
     cartsApi(refNum).lineItems.add(lineItemsPayloads).mustBeOk()
