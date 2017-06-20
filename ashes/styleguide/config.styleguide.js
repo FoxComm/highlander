@@ -45,22 +45,6 @@ module.exports = {
             path.resolve(__dirname, '../src/components/docs/logos/logos.jsx'),
           ],
         },
-        {
-          name: 'Components',
-          content: '../docs/components.md',
-        },
-        {
-          name: 'Styles',
-          content: '../docs/styles.md',
-        },
-        {
-          name: 'Flow',
-          content: '../docs/flow.md',
-        },
-        {
-          name: 'Tests',
-          content: '../docs/tests.md',
-        },
       ],
     },
     {
