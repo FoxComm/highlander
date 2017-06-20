@@ -18,9 +18,11 @@
     chdir: "{{checkout_path}}"
 
 - name: Build Application
-  shell: "make build"
-  args:
-    chdir: "{{checkout_path}}"
+  docker_image:
+    path: "{{checkout_path}}"
+    name: ashes
+    buildargs:
+      NPM_TOKEN: "{{npm_token}}"
 
 - name: Dockerize Application
   shell: "make docker"
