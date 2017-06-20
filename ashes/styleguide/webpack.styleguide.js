@@ -27,6 +27,7 @@ module.exports = {
   resolve: {
     alias: {
       'rsg-components/Logo': path.join(__dirname, 'rsg-components/Logo'),
+      'rsg-components/TabButton': path.join(__dirname, 'rsg-components/TabButton'),
     },
   },
 
