@@ -1,0 +1,35 @@
+@import 'colors.css';
+
+.block {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0 0 0 20px;
+  flex: 1 1 auto;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.item {
+  font-weight: 300;
+  line-height: 20px;
+  font-size: 15px;
+  transition: all .2s;
+  margin: 0 10px 0 0;
+  white-space: nowrap;
+  color: var(--color-text);
+
+  &::before {
+    color: var(--color-additional-text);
+    margin-right: 10px;
+    pointer-events: none;
+  }
+
+  &:first-child::before {
+    content: none;
+  }
+}
+
+.delimiter {
+  margin: 0 10px 0 0;
+  color: var(--color-additional-text);
+}

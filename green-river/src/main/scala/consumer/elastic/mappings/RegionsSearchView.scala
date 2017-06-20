@@ -10,9 +10,9 @@ import consumer.elastic.AvroTransformer
 final case class RegionsSearchView()(implicit ec: EC) extends AvroTransformer {
   def topic() = "regions_search_view"
   def mapping() = esMapping(topic()).fields(
-      field("id", LongType),
-      field("name", StringType).analyzer("autocomplete"),
-      field("abbreviation", StringType).index("not_analyzed"),
-      field("countryId", IntegerType)
+    field("id", LongType),
+    field("name", StringType).analyzer("autocomplete"),
+    field("abbreviation", StringType).index("not_analyzed"),
+    field("countryId", IntegerType)
   )
 }

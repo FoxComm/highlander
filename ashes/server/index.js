@@ -1,43 +1,32 @@
+'use strict';
+
+const fs = require('fs');
+const clc = require('cli-color');
 const path = require('path');
-const koa = require('koa');
-const co = require('co');
-const favicon = require('koa-favicon');
-const serve = require('koa-better-static');
-const Config  = require(path.resolve('config'));
+const app = require('./app');
 
-require('babel-polyfill');
-require('../src/postcss').installHook();
+let rev;
 
-const app = koa();
-
-app.init = co.wrap(function *(env) {
-  if (env) { app.env = env; }
-  app.config = new Config(app.env);
-  app.use(serve(app.config.server.publicDir));
-  app.use(favicon(app.config.layout.favicon));
-  if (app.env.environment !== 'production') {
-    app.use(require('koa-logger')());
-  }
-
-  require(`${__dirname}/middleware`)(app);
-  require(`${__dirname}/api`)(app);
-  require(`${__dirname}/cms`)(app);
-  app.server = app.listen(app.config.server.port);
-});
-
-if (!module.parent) {
-  app.init().catch(function (err) {
-    console.error(err.stack);
-    process.exit(1);
-  });
+try {
+  rev = fs.readFileSync(path.resolve(__dirname, '.git-rev'), 'utf8').trim();
+} catch (e) {
+  rev = 'unknown';
 }
 
-process.on('message', function(msg) {
-  if (msg === 'shutdown') {
-    app.server.close(function() {
-      process.exit(0);
-    });
-  }
-});
+// env Defaults
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+process.env.GIT_REVISION = rev;
+process.env.PORT = process.env.PORT || 4000;
 
-module.exports = app;
+const args = [
+  `${clc.blackBright('NODE_ENV:')} ${clc.blue('%s')}, ${clc.blackBright('API_URL:')}\
+  ${clc.green('%s')}, ${clc.red('url: http://localhost:%d')}`,
+  process.env.NODE_ENV,
+  process.env.API_URL || 'Not defined',
+  process.env.PORT,
+];
+console.log.apply(this, args); // eslint-disable-line no-console
+
+app.init().catch(function(err) {
+  console.error(err.stack);
+});

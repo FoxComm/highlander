@@ -8,8 +8,8 @@ import React, { Element } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
-import { Link, IndexLink } from '../link';
-import LocalNav from '../local-nav/local-nav';
+import { Link, IndexLink } from 'components/link';
+import PageNav from 'components/core/page-nav';
 import { connectPage, ObjectPage } from '../object-page/object-page';
 
 // actions
@@ -28,11 +28,17 @@ type Props = {
   children: Element<*>,
 };
 
+const getCode = object => _.get(object, 'attributes.code.v', '');
+
 class SkuPage extends ObjectPage {
   props: Props;
 
+  getObjectId(object) {
+    return getCode(object);
+  }
+
   get code(): string {
-    return _.get(this.props.originalObject, 'attributes.code.v', '');
+    return getCode(this.props.originalObject);
   }
 
   get pageTitle(): string {
@@ -65,7 +71,7 @@ class SkuPage extends ObjectPage {
   @autobind
   sanitizeError(error: string): string {
     if (error.indexOf('duplicate key value violates unique constraint "skus_code_context_id"') != -1) {
-      const code = _.get(this.state, 'entity.attributes.code.v');
+      const code = _.get(this.state, 'object.attributes.code.v');
       return `SKU with code ${code} already exists in the system`;
     }
 
@@ -76,10 +82,10 @@ class SkuPage extends ObjectPage {
     const { params } = this.props;
 
     return (
-      <LocalNav>
+      <PageNav>
         <IndexLink to="sku-details" params={params}>Details</IndexLink>
         {this.detailsLinks}
-      </LocalNav>
+      </PageNav>
     );
   }
 }

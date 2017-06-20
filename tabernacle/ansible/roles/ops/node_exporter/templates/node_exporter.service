@@ -1,0 +1,12 @@
+[Service]
+WorkingDirectory={{exporter_location}}
+ExecStart=/usr/local/bin/run_node_exporter.sh
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=node_exporter
+TimeoutStartSec=5m
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

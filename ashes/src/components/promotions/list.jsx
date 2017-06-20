@@ -1,6 +1,7 @@
 
 // libs
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { transitionTo } from 'browserHistory';
 
 // components
@@ -25,7 +26,7 @@ const PromotionsList = (props: PromotionsListProps) => {
   return (
     <ListPageContainer
       title="Promotions"
-      subtitle={<TotalCounter/>}
+      subtitle={<TotalCounter />}
       addTitle="Promotion"
       handleAddAction={addAction}
       navLinks={navLinks}>

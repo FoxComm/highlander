@@ -1,0 +1,57 @@
+@import 'colors.css';
+@import 'variables.css';
+
+.base-text {
+  color: var(--blackish);
+  font-family: var(--font-main);
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.base-title {
+  color: var(--blackish);
+  font-family: var(--font-main);
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.title-large {
+  composes: base-title;
+  font-size: 40px;
+}
+
+.title-medium {
+  composes: base-title;
+  font-size: 32px;
+}
+
+.title-small {
+  composes: base-title;
+  font-size: 16px;
+}
+
+.paragraph-large {
+  composes: base-text;
+  font-size: 24px;
+}
+
+.paragraph {
+  composes: base-text;
+  font-size: 20px;
+}
+
+.paragraph-strong {
+  composes: base-text;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.small-text {
+  composes: base-text;
+  font-size: 16px;
+}
+
+.smallest-text {
+  composes: base-text;
+  font-size: 14px;
+}

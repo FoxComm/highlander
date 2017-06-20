@@ -1,5 +1,6 @@
 
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 export default class ItemCardContainer extends React.Component {
 
@@ -28,10 +29,8 @@ export default class ItemCardContainer extends React.Component {
   render() {
     return (
       <li className={ this.cartClassName }>
-        <div className="fc-card-container__left-controls">
+        <div className="fc-card-container__controls">
           { this.props.leftControls }
-        </div>
-        <div className="fc-address-controls">
           { this.props.rightControls }
         </div>
         <div className="fc-card-container-content">

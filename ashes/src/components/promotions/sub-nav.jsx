@@ -3,11 +3,11 @@
  */
 
 // libs
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
 
 // components
-import { Link, IndexLink } from '../link';
-import LocalNav from '../local-nav/local-nav';
+import { Link, IndexLink } from 'components/link';
+import PageNav from 'components/core/page-nav';
 
 type SubNavProps = {
   promotionId: string|number,
@@ -23,12 +23,12 @@ const SubNav = (props: SubNavProps) => {
   const isAutoApply = props.applyType === 'auto';
 
   return (
-    <LocalNav>
+    <PageNav>
       <IndexLink to="promotion-details" params={params}>Details</IndexLink>
       {!isNew && <Link to="promotion-notes" params={params}>Notes</Link>}
       {!isNew && !isAutoApply && <Link to="promotion-coupons" params={params}>Coupons</Link>}
       {!isNew && <Link to="promotion-activity-trail" params={params}>Activity Trail</Link>}
-    </LocalNav>
+    </PageNav>
   );
 };
 

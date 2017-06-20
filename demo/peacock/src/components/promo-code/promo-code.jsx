@@ -56,26 +56,34 @@ class PromoCode extends Component {
     );
   }
 
-  get renderGiftCards(): Array<Element<*>> | null {
+  get renderGiftCards(): Element<*> | null {
     if (_.isEmpty(this.props.giftCards)) return null;
 
     const { className } = this.props;
-    const classes = classNames(styles['gift-card'], className);
+    const classes = classNames(styles['gift-card-code'], className);
 
-    return _.map(this.props.giftCards, (card) => {
+    const cardCodes = _.map(this.props.giftCards, (card) => {
       const { code } = card;
       const formattedCode = code.match(/.{1,4}/g).join(' ');
 
       return (
         <div className={classes} key={card.code}>
-          <div styleName="gift-card-info">
-            <div styleName="title">Gift Card</div>
-            <div>{formattedCode}</div>
+          <div>
+            {formattedCode}
           </div>
           {this.getRemoveLink(code)}
         </div>
       );
     });
+
+    return (
+      <div styleName="gift-card">
+        <div styleName="gift-card-info">
+          <div styleName="title">Gift Cards</div>
+          {cardCodes}
+        </div>
+      </div>
+    );
   }
 
   get renderCoupon(): Element<*> | null {

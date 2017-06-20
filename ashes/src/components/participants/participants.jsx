@@ -12,9 +12,9 @@ import { numberize } from 'lib/text-utils';
 import { groups } from 'paragons/participants';
 
 // components
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
 import SelectAdminsModal from '../users/select-modal';
-import { AddButton, Button } from '../common/buttons';
+import { AddButton, Button } from 'components/core/button';
 import DetailedInitials from '../user-initials/detailed-initials';
 
 // actions
@@ -27,7 +27,7 @@ import type { EntityType } from 'types/entity';
 
 type AsyncActions = {
   fetchParticipants: AsyncState,
-}
+};
 
 type Props = {
   group: GroupType,
@@ -43,12 +43,12 @@ type Props = {
   asyncActions: AsyncActions,
   maxDisplayed: number,
   currentUser: TUser,
-}
+};
 
 type State = {
   restUsersDisplayed: boolean,
   isUsersPopupShown: boolean,
-}
+};
 
 function mapGlobalStateToProps(state) {
   return {
@@ -176,14 +176,14 @@ class Participants extends Component {
 
   get usersBlock() {
     if (this.isParticipantsLoading) {
-      return <WaitAnimation size="s" />;
+      return <Spinner size="s" />;
     }
 
     return (
       <div styleName="users-row">
         <AddButton
-          styleName="add-button"
           onClick={this.handleAddClick}
+          small
         />
         {this.usersRow}
       </div>

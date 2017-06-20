@@ -3,68 +3,37 @@
 - name: Launch Developer Appliance
   hosts: localhost
   vars:
+    first_run: "{{ FIRST_RUN | default(false) }}"
     gce_service_account_email: "{{ lookup('env', 'GOOGLE_SERVICE_ACCOUNT_EMAIL') }}"
     gce_credentials_file: "{{ lookup('env', 'GOOGLE_JSON_KEY_LOCATION') }}"
     gce_instance_name: "{{ lookup('env', 'GOOGLE_INSTANCE_NAME') }}"
-    is_ci: "{{ lookup('env', 'CI') }}"
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
   roles:
-    - { role: dev/appliance_gce }
+    - { role: app/instance }
 
 - name: Provision Developer Appliance
   hosts: gce_instances_ips
   become: true
   vars:
-    cert_path: test/fox
     docker_db_host: 172.17.0.1
-    install_public_keys: true
-    install_private_keys: true
     first_run: "{{ FIRST_RUN | default(false) }}"
     is_appliance: true
     is_amigo: true
-    is_ci: "{{ lookup('env', 'CI') }}"
-    mesos_quorum: 1
-    with_base_seeds: true
+    messaging_env: staging
     url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
   pre_tasks:
-    - name: Set IP/DNS Facts
-      set_fact:
-        private_ip: "{{ansible_default_ipv4.address}}"
-        dns_record: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}"
     - name: Override hostnames
       set_fact:
-        appliance_hostname: "{{dns_record}}.{{foxcomm_domain}}"
-        ashes_server_name: "{{dns_record}}.{{foxcomm_domain}}"
-        storefront_server_name: "{{dns_record}}.{{foxcomm_domain}}"
-        api_server: "{{dns_record}}.{{foxcomm_domain}}"
+        storefront_server_name: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
+        api_server: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
   roles:
-    # Core
-    - { role: dev/appliance }
-    - { role: dev/dashboard }
-    # Services
-    - { role: dev/consul_agent }
-    - { role: dev/zookeeper }
-    - { role: dev/elasticsearch }
-    - { role: hotfix/elasticsearch }
-    - { role: hotfix/rsyslog }
-    - { role: hotfix/kibana }
-    - { role: dev/db }
-    - { role: dev/db_ic, when: with_ic }
-    # Marathon
-    - { role: dev/seed_system }
-    - { role: dev/marathon }
-    - { role: dev/marathon_consumers }
-    - { role: dev/ic }
-    - { role: ext/td/storefront }
-    - { role: ext/tpg/storefront }
-    # Nginx
-    - { role: dev/balancer }
-    - { role: hotfix/mesos_consul }
+    - { role: dev/dashboard, when: first_run }
+    - { role: dev/flyway }
+    - { role: dev/seed_system, when: first_run }
+    - { role: dev/marathon_groups }
+    - { role: dev/nginx }
     - { role: demo/balancer }
-    # Seed
-    - { role: dev/seeder }
-    # Finale
-    - { role: dev/healthcheck }
-    - { role: dev/appliance_dns }
+    - { role: dev/seeder, when: with_appliance_seeding and first_run }
+    - { role: app/dnsimple, when: first_run }

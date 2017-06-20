@@ -27,9 +27,11 @@ import styles from './delivery.css';
 
 type Props = CheckoutBlockProps & {
   cartState: AsyncStatus,
-  toggleDeliveryModal: Function,
+  toggleDeliveryModal: () => void,
   deliveryModalVisible: boolean,
   shippingMethod: Object,
+  shippingAddressEmpty: boolean,
+  loadingShippingMethods: boolean,
 };
 
 class Delivery extends Component {
@@ -46,6 +48,11 @@ class Delivery extends Component {
 
 
   get action() {
+    const { props } = this;
+    const methodsLoadedAndEmpty = _.isEmpty(props.shippingMethods) && !props.loadingShippingMethods;
+
+    if (props.shippingAddressEmpty || methodsLoadedAndEmpty) return null;
+
     return (
       <ActionLink
         action={this.props.toggleDeliveryModal}
@@ -60,10 +67,13 @@ class Delivery extends Component {
 
     if (props.cartState.finished) {
       return (
-        <div>
+        <div styleName="content">
           <ViewDelivery
             shippingMethodCost={this.shippingMethodCost}
             shippingMethod={props.shippingMethod}
+            shippingAddressEmpty={props.shippingAddressEmpty}
+            shippingMethodsEmpty={_.isEmpty(props.shippingMethods)}
+            loadingShippingMethods={props.loadingShippingMethods}
           />
           <Modal
             show={props.deliveryModalVisible}
@@ -84,7 +94,7 @@ class Delivery extends Component {
     return (
       <div>
         <div styleName="header">
-          <span styleName="title">Delivery</span>
+          <span styleName="title">Shipping methods</span>
           {this.action}
         </div>
         {this.content}
@@ -98,6 +108,7 @@ const mapStateToProps = (state) => {
     deliveryModalVisible: _.get(state.checkout, 'deliveryModalVisible', false),
     cartState: _.get(state.asyncActions, 'cart', false),
     shippingMethod: _.get(state.cart, 'shippingMethod', {}),
+    loadingShippingMethods: _.get(state.asyncActions, ['shippingMethods', 'inProgress'], false),
   };
 };
 

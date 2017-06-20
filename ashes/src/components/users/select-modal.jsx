@@ -5,17 +5,16 @@ import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
-import { ModalContainer } from '../modal/base';
-import ContentBox from '../content-box/content-box';
-import SaveCancel from '../common/save-cancel';
+import Modal from 'components/core/modal';
+import SaveCancel from 'components/core/save-cancel';
 import AdminsTypeahead from '../users-typeahead/admins-typeahead';
 
 type Props = {
   isVisible: boolean,
   onCancel: (event: SyntheticEvent) => void,
   onConfirm: (users: Array<TUser>) => void,
-  title: string|Element<*>,
-  bodyLabel: string|Element<*>,
+  title: string | Element<*>,
+  bodyLabel: string | Element<*>,
   saveLabel: string,
   maxUsers?: number,
 }
@@ -30,14 +29,6 @@ class SelectAdminsModal extends Component {
     selected: [],
   };
 
-  get actionBlock() {
-    return (
-      <a className='fc-modal-close' onClick={this.props.onCancel}>
-        <i className='icon-close'></i>
-      </a>
-    );
-  }
-
   get isSaveDisabled(): boolean {
     return !this.state.selected.length;
   }
@@ -49,13 +40,13 @@ class SelectAdminsModal extends Component {
 
   get footer() {
     const { props } = this;
+
     return (
       <SaveCancel
-        className="fc-modal-footer fc-add-watcher-modal__footer"
         onCancel={props.onCancel}
         onSave={this.handleSave}
         saveDisabled={this.isSaveDisabled}
-        saveText={props.saveLabel}
+        saveLabel={props.saveLabel}
       />
     );
   }
@@ -71,24 +62,19 @@ class SelectAdminsModal extends Component {
     const { props } = this;
 
     return (
-      <ModalContainer isVisible={props.isVisible}>
-        <ContentBox
-          title={props.title}
-          actionBlock={this.actionBlock}
-          footer={this.footer}
-          className="fc-add-watcher-modal"
-        >
-          <div className="fc-modal-body fc-add-watcher-modal__content">
-            <AdminsTypeahead
-              hideOnBlur
-              onSelect={this.handleAdminsSelected}
-              label={props.bodyLabel}
-              maxUsers={props.maxUsers}
-              view="modal"
-            />
-          </div>
-        </ContentBox>
-      </ModalContainer>
+      <Modal
+        isVisible={props.isVisible}
+        title={props.title}
+        footer={this.footer}
+      >
+        <AdminsTypeahead
+          hideOnBlur
+          onSelect={this.handleAdminsSelected}
+          label={props.bodyLabel}
+          maxUsers={props.maxUsers}
+          view="modal"
+        />
+      </Modal>
     );
   }
 }

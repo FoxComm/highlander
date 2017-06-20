@@ -38,6 +38,7 @@ export function getClaims(token: ?JWT = getJWT()): Claims {
     return {};
   }
 
+  //TODO Pull claims out of JWT instead of superAdmin functions.
   return token.scope == '1'
     ? superAdmin()
     : merchant();

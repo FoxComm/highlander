@@ -1,0 +1,8 @@
+---
+
+- name: Restart Nginx Multiple Attempts
+  shell: service nginx restart
+  register: nginx_restart
+  until: nginx_restart.rc == 0
+  retries: 60
+  delay: 10

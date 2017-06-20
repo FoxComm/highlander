@@ -1,0 +1,7 @@
+prometheus_base_url: https://github.com/prometheus/prometheus
+prometheus_version: 1.6.3
+prometheus_dirname: "prometheus-{{prometheus_version}}.linux-amd64"
+prometheus_url: "{{prometheus_base_url}}/releases/download/v{{prometheus_version}}/{{prometheus_dirname}}.tar.gz"
+
+prometheus_base_dir: /opt/prometheus
+prometheus_location: "{{prometheus_base_dir}}/{{prometheus_dirname}}"

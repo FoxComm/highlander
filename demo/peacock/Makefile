@@ -1,3 +1,6 @@
+include ../../makelib
+header = $(call baseheader, $(1), peacock)
+
 DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
 DOCKER_IMAGE ?= peacock
 DOCKER_TAG ?= master
@@ -8,13 +11,17 @@ dev d:
 setup: clean
 	yarn --pure-lockfile		
 
-build: setup
+build:
+	$(call header, Building)
+	make setup
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ./node_modules/.bin/gulp build
 
 docker:
+	$(call header, Dockerizing)
 	docker build -t $(DOCKER_IMAGE) .
 
 docker-push:
+	$(call header, Registering)
 	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
@@ -25,6 +32,7 @@ clean-build:
 	rm -rf ./build/* ./lib/* ./public/app-*.css ./public/app-*.js
 
 test:
+	$(call header, Testing)
 	yarn lint
 	yarn flow
 	yarn test

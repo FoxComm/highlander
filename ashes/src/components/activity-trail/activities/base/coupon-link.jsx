@@ -1,6 +1,8 @@
 
-import React, { PropTypes } from 'react';
-import { Link } from '../../../link';
+import React from 'react';
+import PropTypes from 'prop-types';
+
+import { Link } from 'components/link';
 
 const CouponLink = props => {
   return (

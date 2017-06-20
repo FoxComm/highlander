@@ -4,7 +4,7 @@ ignore:
 import:
   - package: github.com/FoxComm/metamorphosis
     vcs: git
-    version: f357818171523aa95aafb58ca8cf419cb4f0e291
+    version: 20936e0ceb33443962d90cdf24bc6892a73e438b
   - package: github.com/elodina/go-avro
     version: 0c8185d9a3ba82aeac98db3313a268a5b6df99b5
   - package: github.com/elodina/go-kafka-avro

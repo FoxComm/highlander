@@ -1,15 +1,17 @@
 //libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
-import classNames from 'classnames';
 
 //helpers
 import { prefix } from '../../lib/text-utils';
 
 // components
-import { LeftButton, RightButton } from '../common/buttons';
+import { LeftButton, RightButton } from 'components/core/button';
 import { Lookup } from '../lookup';
+
+import s from './paginator.css';
 
 const prefixed = prefix('fc-table-paginator');
 
@@ -86,23 +88,31 @@ export default class TablePaginator extends React.Component {
               data={_.range(1, pagesCount + 1).map(page => ({id: page, label: String(page)}))}
               value={currentPage}
               minQueryLength={0}
-              onSelect={this.onSelect}/>
+              onSelect={this.onSelect} />
     );
   }
 
   render() {
     const { currentPage, pagesCount } = this.state;
 
-    const leftButtonClass = classNames({'_hidden': currentPage <= 1});
-    const rightButtonClass = classNames({'_hidden': currentPage >= pagesCount});
+    const leftDisabled = currentPage <= 1;
+    const rightDisabled = currentPage >= pagesCount;
 
     return (
       <div className={prefixed()}>
-        <LeftButton className={leftButtonClass} onClick={this.onPrevPageClick}/>
+        <LeftButton
+          onClick={this.onPrevPageClick}
+          disabled={leftDisabled}
+          className={s.paginatorButton}
+        />
         {this.renderCurrentPage()}
         <div className={prefixed('separator')}>of</div>
         {this.renderPagesCount()}
-        <RightButton className={rightButtonClass} onClick={this.onNextPageClick}/>
+        <RightButton
+          onClick={this.onNextPageClick}
+          disabled={rightDisabled}
+          className={s.paginatorButton}
+        />
       </div>
     );
   }

@@ -1,18 +1,15 @@
-
-/**
- * @flow
- */
+/* @flow */
 
 // libs
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
 // components
 import { SelectableSearchList } from '../list-page';
 import CouponRow from './coupon-row';
-import { ChangeStateModal } from '../bulk-actions/modal';
 
 import BulkWrapper from '../discounts/bulk';
 
@@ -44,8 +41,8 @@ const tableColumns: Array<Object> = [
   {field: 'codes', text: 'Codes'},
   {field: 'createdAt', text: 'Date/Time Created', type: 'datetime'},
   {field: 'totalUsed', text: 'Total Uses'},
-  {field: 'usesPerCode', text: 'Max Uses'},
-  {field: 'usesPerCustomer', text: 'Max Uses per Customer'},
+  {field: 'maxUsesPerCode', text: 'Max Uses'},
+  {field: 'maxUsesPerCustomer', text: 'Max Uses per Customer'},
   {field: 'currentCarts', text: 'Current Carts'},
 ];
 
@@ -57,6 +54,9 @@ export default class Coupons extends Component {
 
   @autobind
   applyPromotionFilter(filters: Array<SearchFilter>) {
+    const promotionFilter = _.find(filters, { term: 'promotionId' });
+    const promotionIndex = _.findIndex(filters, { term: 'promotionId' });
+    const newFilters = promotionFilter ? _.remove(filters, (value, index) => {index == promotionIndex;}) : filters;
     return [
       {
         term: 'promotionId',
@@ -67,7 +67,7 @@ export default class Coupons extends Component {
           value: String(this.props.promotionId)
         }
       },
-      ...filters
+      ...newFilters
     ];
   }
 
@@ -80,7 +80,7 @@ export default class Coupons extends Component {
   }
 
   @autobind
-  renderRow(row: Object, index: number, columns: Array<any>, params: Object): Element<*> {
+  renderRow(row: Object, index: number, columns: Columns, params: Object): Element<*> {
     const key = `coupon-${row.id}`;
     return (
       <CouponRow
@@ -103,7 +103,7 @@ export default class Coupons extends Component {
 
     return (
       <div className="coupons">
-        <BulkWrapper hideAlertDetails entity="coupon">
+        <BulkWrapper hideAlertDetails onDelete={searchActions.refresh} entity="coupon">
           <SelectableSearchList
             entity="coupons.list"
             emptyMessage="No coupons found."
@@ -111,7 +111,6 @@ export default class Coupons extends Component {
             renderRow={this.renderRow}
             tableColumns={tableColumns}
             searchActions={searchActions}
-            autoRefresh={true}
           />
         </BulkWrapper>
       </div>

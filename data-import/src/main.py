@@ -1,14 +1,16 @@
 #!/usr/bin/python3
 #
-
+import argparse
+import itertools
 import json
 import os.path
-import sys
+import logging
 import urllib.request
+import ssl
 from collections import defaultdict
-from copy import deepcopy
 from urllib.error import HTTPError
-import itertools
+
+from adidas_convert import convert_taxonomies, convert_products
 
 
 class Taxon:
@@ -17,6 +19,7 @@ class Taxon:
         self.parentId = parent_id
         self.name = name
         self.taxon_id = taxon_id
+        self.path = [name] if parent_id is None else None
 
 
 class Taxonomy:
@@ -24,9 +27,55 @@ class Taxonomy:
         self.taxons = [] if taxons is None else taxons
         self.name = name
         self.taxonomy_id = taxonomy_id
+        self.build_paths()
 
-    def get_taxon_by_name(self, taxon_name):
-        return next(iter([taxon for taxon in self.taxons if taxon.name == taxon_name]), None)
+    def get_taxon_by_name(self, taxon_name, parent_id=None):
+        def matches(taxon: Taxon):
+            result = taxon.name == taxon_name
+            if parent_id is not None:
+                return result and parent_id == taxon.parentId
+            else:
+                return result
+
+        return next(iter([taxon for taxon in self.taxons if matches(taxon)]), None)
+
+    def get_taxon_by_path(self, path: list):
+        parent_id = None
+        taxon = None
+        for name in path:
+            taxon = self.get_taxon_by_name(name, parent_id)
+            parent_id = taxon.parentId
+
+        return taxon
+
+    def get_taxon_by_id(self, taxon_id):
+        for taxon in self.taxons:
+            if taxon.taxon_id == taxon_id:
+                return taxon
+
+        return None
+
+    def get_path(self, taxon: Taxon):
+        if taxon.path is None:
+            parent = self.get_taxon_by_id(taxon.parentId)
+            taxon.path = parent.path + [taxon.name]
+
+        return taxon.path
+
+    def build_paths(self):
+        for taxon in self.taxons:
+            self.get_path(taxon)
+
+    def merge(self, taxonomy, taxon: Taxon):
+        if taxonomy is not None:
+            assert type(taxonomy) == Taxonomy
+            self.taxons = list(set(self.taxons + taxonomy.taxons))
+
+        if taxon is not None:
+            self.taxons = list(set(self.taxons.append(taxon)))
+
+        self.build_paths()
+        return self
 
 
 class Elasticsearch:
@@ -40,22 +89,27 @@ class Elasticsearch:
         req = urllib.request.Request(endpoint, headers={"Content-Type": "application/json", "JWT": self.jwt})
 
         try:
-            response = urllib.request.urlopen(req)
+            context = ssl.create_default_context()
+            context.check_hostname = False
+            response = urllib.request.urlopen(req, context=context)
         except HTTPError as err:
-            print(repr(err))
+            logging.error(repr(err))
             raise
         return json.loads(response.read().decode('utf-8'))
 
     def get_taxonomies(self):
         response = self.do_query('taxonomies_search_view')
-        return [(item['name'], item['taxonomyId']) for item in response["result"] if item['context'] == 'default']
+        return [(item['name'], item['taxonomyId']) for item in response["result"] if
+                item['context'] == 'default' and item['archivedAt'] is None]
 
     def get_taxons(self):
         def read_item(item):
             return Taxon(item['taxonId'], item['parentId'], item['name'], item['taxonomyId'])
 
         response = self.do_query('taxons_search_view')
-        return [read_item(item) for item in response["result"] if item['context'] == 'default']
+        taxonomies = [read_item(item) for item in response["result"] if
+                      ('context' in item and item['context'] == 'default' and item['archivedAt'] is None)]
+        return taxonomies
 
     def get_products(self):
         response = self.do_query('products_search_view')
@@ -67,8 +121,7 @@ class Elasticsearch:
 
 
 class Phoenix:
-    def __init__(self, host='appliance-10-240-0-14.foxcommerce.com', user='admin@admin.com', password='password',
-                 org='tenant'):
+    def __init__(self, host, user, password, org):
         self.host = host
         self.user = user
         self.password = password
@@ -90,9 +143,11 @@ class Phoenix:
                                      method=method)
 
         try:
-            response = urllib.request.urlopen(req)
+            context = ssl.create_default_context()
+            context.check_hostname = False
+            response = urllib.request.urlopen(req, context=context)
         except HTTPError as err:
-            print("HTTP error. code: {}. message: {}".format(err.code, err.read()))
+            logging.error("HTTP error. code: {}. message: {}".format(err.code, err.read()))
             raise
 
         code = response.getcode()
@@ -102,223 +157,54 @@ class Phoenix:
         return code, json.loads(response.read().decode('utf-8'))
 
     def do_login(self):
+        logging.info("logging in: host:{}, user:{}, organization: {}".format(self.login_endpoint(), self.user, self.org))
         payload = json.dumps({'email': self.user, 'password': self.password, 'org': self.org}).encode()
-        req = urllib.request.Request(self.login_endpoint(), payload)
+        context = ssl.create_default_context()
+        context.check_hostname = False
+        req = urllib.request.Request(self.login_endpoint(), payload, method='POST')
         req.add_header('Content-Type', 'application/json')
 
-        response = urllib.request.urlopen(req)
+        try:
+            response = urllib.request.urlopen(req, context=context)
+        except urllib.error.URLError as err:
+            logging.error("Cannot connect to %s %s", self.login_endpoint(), err)
+            raise
 
         content = json.loads(response.read().decode('utf-8'))
         self.jwt = dict(response.info())['Jwt']
-        print("logged in: " + self.prefix + " name: " + content['name'] + " scope: " + content['scope'])
+        logging.info("logged in: " + self.prefix + " name: " + content['name'] + " scope: " + content['scope'])
         return True
 
-    def create_taxonomy(self, name, hierarchical):
+    def create_taxonomy(self, taxonomy_json):
         self.ensure_logged_in()
-        data = {'attributes': {'name': {'t': 'string', 'v': name}}, 'hierarchical': hierarchical}
+        data = {k: v for k, v in taxonomy_json.items() if k != "taxons"}
         code, response = self.do_query("/taxonomies/default", data, method="POST")
 
-        print("taxonomy created: id:%d, attributes: %r" % (response['id'], response['attributes']))
-        return Taxonomy(response['id'], name, [])
+        logging.info("taxonomy created: id:%d, attributes: %r" % (response['id'], response['attributes']))
+        return Taxonomy(response['id'], response["attributes"]["name"]["v"], [])
 
-    def create_taxon(self, name, taxonomy_id):
+    def create_taxon(self, taxon_json, taxonomy_id, parent_id):
         self.ensure_logged_in()
-        data = {'attributes': {'name': {'t': 'string', 'v': name}}}
-        code, response = self.do_query("/taxonomies/default/" + str(taxonomy_id) + "/taxons", data, method="POST")
-        print("taxon created: id:%d, attributes: %r" % (response['id'], response['attributes']))
-        return response
+        if parent_id is not None:
+            taxon_json = taxon_json.copy()
+            taxon_json['location'] = {'parent': parent_id}
+        code, response = self.do_query("/taxonomies/default/" + str(taxonomy_id) + "/taxons", taxon_json, method="POST")
+        logging.info("taxon created: id:%d, attributes: %r" % (response['id'], response['attributes']))
+        return Taxon(response['id'], parent_id, taxon_json["attributes"]["name"]["v"], taxonomy_id)
 
     def login_endpoint(self):
         return self.prefix + "/public/login"
 
-    def create_product(self, product_group):
-        first_images = []
-        skus = {}
-        color_variants = defaultdict(list)
-        color_images = {}
-        size_variants = defaultdict(list)
-        first_sku = None
-        product_images = []
-
-        for s in product_group:
-            images = []
-            for im in s['details']['images']:
-                if len(im['title']) > 0:
-                    images.append({
-                        'title': im['title'],
-                        'src': im['full'],
-                        'alt': im['alt'],
-                        'thumb': im['thumbnail']
-                    })
-
-            # each sku will have an album but the product album
-            # contains first images from each sku
-            if len(images) > 0:
-                product_images.append(images[0])
-
-            sku_name = s['sku']
-            title = s['title']
-            description = s['details']['description']
-            description_list = s['details'].get('description_list', '')
-            short_description = s['details'].get('short_description', '')
-            price = int(float(s['price']['price']) * 100)
-            taxonomies = s['taxonomies']
-            color = taxonomies['color']
-
-            tags = list(taxonomies.values())
-
-            base_sku = {
-                    'attributes' : {
-                        'title' : {
-                            't': 'string',
-                            'v': title
-                            },
-                        'description' : {
-                            't': 'richText',
-                            'v': description
-                            },
-                        'shortDescription': {
-                            't': 'string',
-                            'v': short_description
-                            },
-                        'description_list' : {
-                            't': 'richText',
-                            'v': description_list
-                            },
-                        'retailPrice' : {
-                            't': 'price',
-                            'v': {
-                                'currency': 'USD',
-                                'value': price
-                                }
-                            },
-                        'salePrice' : {
-                            't': 'price',
-                            'v': {
-                                'currency': 'USD',
-                                'value': price
-                                }
-                            },
-                        'taxonomies': {
-                            't': 'object',
-                            'v': taxonomies
-                            },
-                        'tags': {
-                            't': 'tags',
-                            'v': tags
-                            },
-                        'activeTo': {
-                            't': 'datetime',
-                            'v': None
-                            },
-                        'activeFrom': {
-                            't': 'datetime',
-                            'v': '2017-03-09T19:59:21.609Z'
-                            }
-                        },
-                    'albums' : [{ 'name': 'default', 'images' : images }]
-                    }
-            options = s['details']['options']
-            if options != None:
-                for o in options:
-                    sku_code = o['sku']
-                    size = o['size']
-                    osku = deepcopy(base_sku)
-                    osku['attributes']['size'] = {
-                        't': 'string',
-                        'v': size
-                    }
-                    osku['attributes']['code'] = {
-                        't': 'string',
-                        'v': sku_code
-                    }
-                    color_variants[color].append(sku_code)
-                    if len(images) > 0:
-                        color_images[color] = images[0]['thumb']
-                    size_variants[size].append(sku_code)
-
-                    skus[sku_code] = osku
-
-        variants = [
-            {
-                'attributes': {
-                    'name': {
-                        't': 'string',
-                        'v': 'color'
-                    },
-                    'type': {
-                        't': 'string',
-                        'v': 'color'
-                    }
-                },
-                'values': []
-            },
-            {
-                'attributes': {
-                    'name': {
-                        't': 'string',
-                        'v': 'size'
-                    },
-                    'type': {
-                        't': 'string',
-                        'v': 'size'
-                    }
-                },
-                'values': []
-            }]
-
-        color_values = variants[0]['values']
-        for k, v in color_variants.items():
-            v = {
-                'name': k,
-                'skuCodes': v,
-                'swatch': ''
-            }
-            if k in color_images:
-                img = color_images[k]
-                v['image'] = img
-
-            color_values.append(v)
-
-        size_values = variants[1]['values']
-        for k, v in size_variants.items():
-            size_values.append({
-                'name': k,
-                'skuCodes': v,
-                'swatch': ''
-            })
-
-        if len(skus) > 0:
-            sorted_skus = list(sorted(skus.values(), key=lambda s: s['attributes']['code']['v']))
-            first_sku = sorted_skus[0]
-
-            product = {
-                    'attributes' : {
-                        'title' : first_sku['attributes']['title'],
-                        'description' : first_sku['attributes']['description'],
-                        'description_list' : first_sku['attributes']['description_list'],
-                        'shortDescription' : first_sku['attributes']['shortDescription'],
-                        'tags' : first_sku['attributes']['tags'],
-                        'activeTo' : first_sku['attributes']['activeTo'],
-                        'activeFrom' : first_sku['attributes']['activeFrom'],
-                        },
-                    'skus' : sorted_skus,
-                    'albums' : [{ 'name': 'default', 'images' : product_images }],
-                    'variants': variants
-                    }
-            return product
-        return None
-
     def upload_product(self, code, product):
-        print("uploading: " + code)
+        logging.info("uploading: " + code)
         self.ensure_logged_in()
         try:
             code, response = self.do_query("/products/default", product, method="POST")
             if code != 200:
-                print("error uploading: " + response)
+                logging.error("error uploading: " + response)
                 return False, None
         except HTTPError as err:
-            print("error uploading: " + repr(err))
+            logging.error("error uploading: " + repr(err))
             return False, None
         return True, response
 
@@ -327,30 +213,18 @@ class Phoenix:
         try:
             self.do_query("/taxons/default/{}/product/{}".format(taxon_id, product_id), data=None, method="PATCH")
         except HTTPError:
-            print("cannot assign taxon {} to product {}".format(taxon_id, product_id))
+            logging.error("cannot assign taxon {} to product {}".format(taxon_id, product_id))
 
 
 def load_taxonomies(file_name):
-    json_data = json.load(open(file_name, 'r'))
-    json_taxonomies = [read_taxonomies_section(e) for e in json_data]
-    taxonomy_names = set([taxonomy_name for pair in json_taxonomies for taxonomy_name in pair])
-    return dict(
-        [(key, set().union(*[pairs[key] for pairs in json_taxonomies if pairs[key] is not None])) for key in
-         taxonomy_names])
+    return json.load(open(file_name, 'r'))
 
 
 def load_products(file_name):
-    json_data = json.load(open(file_name, 'r'))
-
-    products = defaultdict(list)
-    for p in json_data:
-        colors = p['colors']
-        products[colors].append(p)
-
-    return products
+    return json.load(open(file_name, 'r'))
 
 
-def query_es_taxonomies(jwt: str, host:str):
+def query_es_taxonomies(jwt: str, host: str):
     es = Elasticsearch(jwt, host=host)
     taxons = es.get_taxons()
     taxonomies = es.get_taxonomies()
@@ -362,123 +236,181 @@ def query_es_taxonomies(jwt: str, host:str):
     return result
 
 
-def load_file_taxonomies():
-    listing_taxonomies = load_taxonomies("./data/listings.json")
-    taxonomies = load_taxonomies("./data/products.json")
-
-    # merge taxonomies from listing.json and products.json
-    for k in listing_taxonomies:
-        if k in taxonomies:
-            taxonomies[k].union(listing_taxonomies[k])
+def assign_taxonomies(p: Phoenix, settings, taxonomies, data_product, product_id):
+    def get_sku_taxonomies(sku_record):
+        if 'taxonomies' in sku_record:
+            return sku_record['taxonomies']
+        elif 'taxonomies' in sku_record['attributes']:
+            return sku_record["attributes"]["taxonomies"]["v"]
         else:
-            taxonomies[k] = listing_taxonomies[k]
-    return taxonomies
+            return []
 
-
-def read_taxonomies_section(data_product):
-    data_taxonomies = data_product['taxonomies']
-
-    # filter taxonomies and split taxons like 'a/b/c' to multiple taxons [a,b,c]
-    result = {}
-    for taxonomy in data_taxonomies:
-        if taxonomy not in ['model_id', 'video']:
-            delimiter = '|' if taxonomy == 'sport' else '/'
-            result[taxonomy] = set([t.strip() for t in data_taxonomies[taxonomy].split(delimiter)])
-
-    return result
-
-
-def assign_taxonomies(p: Phoenix, taxonomies, data_product, product_id):
     data_taxonomies = defaultdict(set)
-    if type(data_product) is list:
-        for product in data_product:
-            for (taxonomy, taxons) in read_taxonomies_section(product).items():
-                data_taxonomies[taxonomy] = data_taxonomies[taxonomy].union(taxons)
-    else:
-        data_taxonomies = read_taxonomies_section(data_product)
+    for sku in data_product["skus"]:
+        product_taxonomies = get_sku_taxonomies(sku)
+        for (taxonomy, taxon) in product_taxonomies.items():
+            if type(taxon) is list:
+                data_taxonomies[taxonomy] = data_taxonomies[taxonomy].union(taxon)
+            else:
+                data_taxonomies[taxonomy].add(taxon)
 
     for (taxonomy, taxons) in data_taxonomies.items():
         for taxon in taxons:
-            es_taxonomy = taxonomies[taxonomy]
-            es_taxon = next(iter([t for t in es_taxonomy.taxons if t.name == taxon]), None)
-            p.assign_taxon(product_id, es_taxon.taxon_id)
-            print("taxon {} is assigned to product {}".format(es_taxon.taxon_id, product_id))
+            es_taxonomy, es_taxon = map_to_es_taxon(p, settings, data_product, taxon, taxonomies, taxonomy)
+
+            if es_taxonomy is None or es_taxon is None:
+                logging.info("Skipping taxon '{}' (Taxonomy: '{}')".format(taxon, taxonomy))
+            else:
+                p.assign_taxon(product_id, es_taxon.taxon_id)
+                logging.info("taxon {} is assigned to product {}".format(es_taxon.taxon_id, product_id))
 
 
-def import_taxonomies(p: Phoenix):
+def map_to_es_taxon(p: Phoenix, settings, data_product, taxon, taxonomies, taxonomy):
+    es_taxonomy = taxonomies[taxonomy]
+    if es_taxonomy is None:
+        if settings.unknown_taxonomies[0] == 'fail':
+            raise ValueError(
+                "product '{}' references to unknown taxonomy '{}'".format(product_code(data_product), taxonomy))
+        elif settings.unknown_taxonomies[0] == 'ignore':
+            return None, None
+        else:
+            assert settings.unknown_taxonomies[0] == 'create'
+            r = create_taxon_from_name(p, taxonomy, taxon)
+            es_taxonomy = r[0].merge(None, r[1])
+            taxonomies[taxonomy] = es_taxonomy
+
+    es_taxon = next(iter([t for t in es_taxonomy.taxons if t.name == taxon]), None)
+    if es_taxon is None:
+        if settings.unknown_taxonomies[0] == 'fail':
+            raise ValueError(
+                "product '{}' references to unknown taxon '{}' in taxonomy '{}'".format(product_code(data_product), taxon,
+                                                                                  taxonomy))
+        elif settings.unknown_taxonomies[0] == 'ignore':
+            return es_taxonomy, None
+        else:
+            assert settings.unknown_taxonomies[0] == 'create'
+            r = create_taxon_from_name(p, es_taxonomy, taxon)
+            taxonomies[taxonomy] = r[0].merge(es_taxonomy, r[1])
+            es_taxon = r[1]
+
+    return es_taxonomy, es_taxon
+
+
+def create_taxon_from_name(p: Phoenix, taxonomy, taxon):
+    if type(taxonomy) == Taxonomy:
+        es_taxonomy = taxonomy
+    else:
+        assert type(taxonomy) == str
+        es_taxonomy = p.create_taxonomy({"attributes": {"name": {"t": "string", "v": taxonomy}}, "hierarchical": False})
+
+    assert type(taxon) == str
+    es_taxon = p.create_taxon({"attributes": {"name": {"t": "string", "v": taxon}}}, es_taxonomy.taxonomy_id, None)
+    return es_taxonomy, es_taxon
+
+
+def import_taxons(p: Phoenix, taxons, existing_taxonomy, parent_id=None):
+    for taxon in taxons:
+        name = taxon["attributes"]["name"]["v"]
+        existing_taxon = existing_taxonomy.get_taxon_by_name(name)
+        if existing_taxon is None:
+            t = p.create_taxon(taxon, existing_taxonomy.taxonomy_id, parent_id)
+            taxon_id = t.taxon_id
+        else:
+            logging.info("skipping taxon '{}' as soon as it already exists. id: {}".format(taxon,
+                                                                                    existing_taxon.taxon_id))
+            taxon_id = existing_taxon.taxon_id
+
+        if 'children' in taxon and taxon['children'] is not None:
+            import_taxons(p, taxon['children'], existing_taxonomy, taxon_id)
+
+
+def import_taxonomies(p: Phoenix, input_dir, import_from_adidas):
     print("Importing taxonomies\n")
+
+    if import_from_adidas:
+        taxonomies = convert_taxonomies(input_dir)
+    else:
+        taxonomies_json = load_taxonomies(input_dir + "/taxonomies.json")
+        taxonomies = taxonomies_json["taxonomies"]
+
     if p.ensure_logged_in():
         imported = query_es_taxonomies(p.jwt, p.host)
-        taxonomies = load_file_taxonomies()
 
         print("about to add {} taxonomies with overall {} taxons".format(len(taxonomies),
-                                                                         sum([len(taxonomies[k]) for k in
+                                                                         sum([len(k["taxons"]) for k in
                                                                               taxonomies])))
         for taxonomy in taxonomies:
-            taxons = taxonomies[taxonomy]
+            name = taxonomy["attributes"]["name"]["v"]
+            taxons = taxonomy["taxons"]
 
-            existing_taxonomy = imported[taxonomy]
+            existing_taxonomy = imported[name]
             if existing_taxonomy is None:
-                existing_taxonomy = p.create_taxonomy(taxonomy, False)
+                existing_taxonomy = p.create_taxonomy(taxonomy)
             else:
-                print("skipping taxonomy '{}' as soon as it already exists. id: {}".format(taxonomy,
-                                                                                           existing_taxonomy.taxonomy_id))
+                msg = "skipping taxonomy '{}' as soon as it already exists. id: {}"
+                logging.info(msg.format(taxonomy, existing_taxonomy.taxonomy_id))
 
-            for taxon in taxons:
-                existing_taxon = existing_taxonomy.get_taxon_by_name(taxon)
-                if existing_taxon is None:
-                    p.create_taxon(taxon, existing_taxonomy.taxonomy_id)
-                else:
-                    print("skipping taxon '{}' as soon as it already exists. id: {}".format(taxon,
-                                                                                            existing_taxon.taxon_id))
+            import_taxons(p, taxons, existing_taxonomy, )
 
 
-def import_products(p:Phoenix, max_products):
+def import_products(p: Phoenix, settings, max_products, input_dir, import_from_adidas):
     print("Importing products\n")
-    products = load_products("./data/products.json")
+
+    if import_from_adidas:
+        products = convert_products(input_dir)
+    else:
+        products_json = load_products(input_dir + "/products.json")
+        products = products_json["products"]
+
     cache_dir = "cache"
+    if not os.path.exists(cache_dir):
+        os.makedirs(cache_dir)
+
     p.ensure_logged_in()
     taxonomies = query_es_taxonomies(p.jwt, p.host)
 
-    product_groups = products.values() if max_products == None else itertools.islice(products.values(),int(max_products))
+    products = products if max_products is None else itertools.islice(products, int(max_products))
 
-    for g in product_groups:
-        product = p.create_product(g)
-        if product is not None:
-            code = product['skus'][0]['attributes']['code']['v']
+    for product in products:
+        code = product_code(product)
 
-            cache_file = cache_dir + "/" + code + ".json"
-            skip = os.path.exists(cache_file)
+        cache_file = cache_dir + "/" + code + ".json"
+        skip = os.path.exists(cache_file)
 
-            if not skip:
-                uploaded, result = p.upload_product(code, product)
-                if uploaded:
-                    json.dump(product, open(cache_file, 'w'))
-                    assign_taxonomies(p, taxonomies, g, result['id'])
+        if not skip:
+            uploaded, result = p.upload_product(code, product)
+            if uploaded:
+                json.dump(product, open(cache_file, 'w'))
+                assign_taxonomies(p, settings, taxonomies, product, result['id'])
+
+
+def product_code(product):
+    return product['skus'][0]['attributes']['code']['v']
+
 
 def get_inventory(phoenix):
     es = Elasticsearch(phoenix.jwt, phoenix.host)
     return es.get_inventory()
 
-def add_inventory_to_stock_item(phoenix, stock_item, amount):
 
+def add_inventory_to_stock_item(phoenix, stock_item, amount):
     typ = stock_item['type']
     if typ != 'Sellable':
         return
 
     itm = stock_item['stockItem']
-    id = str(itm['id'])
+    item_id = str(itm['id'])
     sku = itm['sku']
     old_amount = str(stock_item['onHand'])
 
-    print(sku + ' (' + id + ') ' + old_amount + ' => ' +  str(amount))
-    increment = {"qty": amount ,"type":"Sellable","status":"onHand"}
+    logging.info(sku + ' (' + item_id + ') ' + old_amount + ' => ' + str(amount))
+    increment = {"qty": amount, "type": "Sellable", "status": "onHand"}
     try:
-        code, response = phoenix.do_query("/inventory/stock-items/"+ id + "/increment", increment, method="PATCH")
+        code, response = phoenix.do_query("/inventory/stock-items/" + item_id + "/increment", increment, method="PATCH")
         if code != 204:
-            print("error adding inventory: " + response)
+            logging.error("error adding inventory: " + response)
     except HTTPError as err:
-        print("error adding inventory: " + repr(err))
+        logging.error("error adding inventory: " + repr(err))
 
 
 def add_inventory(phoenix, amount):
@@ -487,30 +419,56 @@ def add_inventory(phoenix, amount):
     for itm in inventory:
         add_inventory_to_stock_item(phoenix, itm, amount)
 
+def config_logging():
+    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG)
+
 def main():
-    host = sys.argv[1]
-    command = sys.argv[2]
-    max_products = None if len(sys.argv) < 4 else sys.argv[3]
+    config_logging()
+    options = read_cmd_line()
 
-    print("HOST: ", host)
-    print("CMD: ", command)
-    if max_products != None:
-        print("MAX: ", max_products)
+    print("HOST: ", options.host)
+    print("CMD: ", options.command[0])
+    if options.max_products is not None:
+        print("MAX: ", options.max_products[0])
 
-    p = Phoenix(host=host)
+    max_products = None if options.max_products is None else options.max_products[0]
 
-    if command == 'taxonomies':
-        import_taxonomies(p)
-    elif command == 'products':
-        import_products(p, max_products)
-    elif command == 'both':
-        import_taxonomies(p)
-        import_products(p, max_products)
-    elif command == 'inventory':
-        amount = int(sys.argv[3])
-        add_inventory(p, amount)
+    p = Phoenix(host=options.host, user='admin@admin.com', password='password', org='tenant')
+
+    if options.command[0] == 'taxonomies':
+        import_taxonomies(p, options.input[0], options.adidas)
+    elif options.command[0] == 'products':
+        import_products(p, options, max_products, options.input[0], options.adidas)
+    elif options.command[0] == 'both':
+        import_taxonomies(p, options.input[0], options.adidas)
+        import_products(p, options, max_products, options.input[0], options.adidas)
+    elif options.command[0] == 'inventory':
+        add_inventory(p, options.inventory_amount[0])
     else:
-        print ("Valid commands are, 'taxonomies', 'products', 'both', or 'inventory'")
+        print("Valid commands are, 'taxonomies', 'products', 'both', or 'inventory'")
+
+
+def read_cmd_line():
+    pp = argparse.ArgumentParser(
+        description='Data import')
+    pp.add_argument("--host", type=str, required=True, help="host of the API to import into")
+    pp.add_argument("--max-products", "-m", nargs=1, type=int,
+                    help="Max products. Provides a way to restrict how many products are imported")
+    pp.add_argument("--input", "-i", nargs=1, type=str, default=['data'], help="input directory")
+    pp.add_argument("--inventory_amount", nargs=1, type=int, default=[100], help="inventory amount")
+    pp.add_argument("--adidas", action='store_true', default=False,
+                    help="treat input directory as container of listing.json and products.json with adidas data")
+    pp.add_argument("command", nargs=1, choices=['taxonomies', 'products', 'both', 'inventory'],
+                    type=str, help="Command")
+    pp.add_argument("--unknown-taxonomies", nargs=1, choices=['ignore', 'create', 'fail'], type=str,
+                    help="defines behavior in case if product references on taxonomy/taxon which wasn't created before."
+                         "  <ignore> - ignore the taxon and continue import."
+                         "  <fail> - stop import. Prints error message."
+                         "  <create> - creates the absent taxonomy and taxon. The created taxonomy is flat.",
+                    default='fail')
+
+    return pp.parse_args()
+
 
 if __name__ == "__main__":
     main()

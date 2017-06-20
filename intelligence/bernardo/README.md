@@ -1,6 +1,6 @@
 # Bernardo The Architect
 
-Bernardo is an architect who designed the wedding of Marie de Medici to King 
+Bernardo is an architect who designed the wedding of Marie de Medici to King
 Henry the IV of France in 1600.
 
 Bernardo is a service that maps an object with a set of attributes and find the best
@@ -18,7 +18,7 @@ Bernardo will have an endpoint that will take a json object as a payload
         "foo": "bar",
         "baz": 6
      }
-  } 
+  }
 
 And Map that to a feature vector
 
@@ -70,9 +70,8 @@ Eventually we may want to run this on a GPU machine given FLANN's support for CU
 situation where we have many clusters to match against.
 
 # Directories
- 
+
 | Directories                            | Description                                                                                                  |
 |:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|
 | [sql](sql)                             | flyway migration scripts|
 | [src](src)                             | Source Code |
-

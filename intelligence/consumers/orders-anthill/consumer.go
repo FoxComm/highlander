@@ -40,14 +40,10 @@ type OrderConsumer struct {
 	apiUrl urlGetter
 }
 
-type Point struct {
-	CustID int `json:"custID"`
-	ProdID int `json:"prodID"`
-	ChanID int `json:"chanID"`
-}
-
 type ProdProdPayload struct {
-	Points []Point `json:"points"`
+	CustID  int   `json:"cust_id"`
+	ProdIDs []int `json:"prod_ids"`
+	ChanID  int   `json:"channel_id"`
 }
 
 const (
@@ -72,12 +68,11 @@ func (o OrderConsumer) parseData(data string) error {
 	}
 
 	skus := act.Order.LineItems.Skus
-	payload := ProdProdPayload{}
+	payload := ProdProdPayload{
+		CustID: act.Order.Customer.Id,
+		ChanID: 1}
 	for i := 0; i < len(skus); i++ {
-		payload.Points = append(payload.Points, Point{
-			CustID: act.Order.Customer.Id,
-			ProdID: skus[i].ProductId,
-			ChanID: 1})
+		payload.ProdIDs = append(payload.ProdIDs, skus[i].ProductId)
 	}
 
 	err := o.track(payload)
@@ -130,7 +125,7 @@ func lookupSrv(host string) func() (string, error) {
 		srv := srvs[0]
 
 		port := strconv.Itoa(int(srv.Port))
-		anthillUrl := "http://" + host + ":" + port + "/prod-prod/train"
+		anthillUrl := "http://" + host + ":" + port + "/private/prod-prod/train"
 
 		return anthillUrl, nil
 	}

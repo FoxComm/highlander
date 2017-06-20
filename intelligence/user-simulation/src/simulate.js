@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const { faker}  = require('faker');
 const Nightmare = require('nightmare');
+const sleep = require('sleep');
 const personas  = require('./personas.json');
 const nightSimulator = require('./night_simulator.js');
 const dummySimulator = require('./dummy_simulator.js');
@@ -34,7 +35,7 @@ function transition(state, states) {
   while(_.isNil(trans)) {
     _.each(states, (val, s) => {
       const r = Math.random();
-      if(r <= val.p) {
+      if(trans == null && r <= val.p) {
         trans = {
           state: s,
           args: val
@@ -64,6 +65,8 @@ async function simulate(context, stateFunctions) {
         throw "State " + context.state + " is undefined";
       }
       await f(context);
+
+      sleep.sleep(Math.floor(Math.random() * 30.0) + 5);
 
       //transition
       let trans = transition(context.state, context.persona.states[context.state]);

@@ -1,9 +1,12 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import _ from 'lodash';
 
-import Alert from '../alerts/alert';
-import AutoScroll from '../common/auto-scroll';
+import Alert from 'components/core/alert';
+import AutoScroll from 'components/utils/auto-scroll';
+
+import s from './cart.css';
 
 const formatMessage = message => {
   if (message.indexOf('empty cart') != -1) {
@@ -31,20 +34,20 @@ const Messages = props => {
   const errorAlerts = _.map(errors, e => {
     const message = formatMessage(e);
 
-    return <Alert type={Alert.ERROR} key={_.kebabCase(message)}>{message}</Alert>;
+    return <Alert className={s.alert} type={Alert.ERROR} key={_.kebabCase(message)}>{message}</Alert>;
   });
 
   const warningAlerts = _.map(warnings, w => {
     const message = formatMessage(w);
 
-    return <Alert type={Alert.WARNING} key={_.kebabCase(message)}>{message}</Alert>;
+    return <Alert className={s.alert} type={Alert.WARNING} key={_.kebabCase(message)}>{message}</Alert>;
   });
 
   const className = classnames('fc-order-messages', {
-    '_empty': errorAlerts.length + warningAlerts.length == 0
+    '_empty': errorAlerts.length + warningAlerts.length === 0
   });
 
-  const scrollToMessages = errorAlerts.length || warningAlerts.length ? <AutoScroll/> : null;
+  const scrollToMessages = errorAlerts.length || warningAlerts.length ? <AutoScroll /> : null;
 
   return (
     <div className={className}>

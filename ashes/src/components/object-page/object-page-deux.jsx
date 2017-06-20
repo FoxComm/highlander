@@ -1,21 +1,25 @@
 // @flow
 
-import { get, capitalize, noop, pick } from 'lodash';
+import { get, capitalize } from 'lodash';
 import { autobind } from 'core-decorators';
+import EventEmitter from 'events';
+import jsen from 'jsen';
 import React, { Component, Element } from 'react';
+import PropTypes from 'prop-types';
 
 // components
 import { IndexLink, Link } from 'components/link';
 import { PageTitle } from 'components/section-title';
 import Error from 'components/errors/error';
-import LocalNav from 'components/local-nav/local-nav';
-import WaitAnimation from 'components/common/wait-animation';
+import PageNav from 'components/core/page-nav';
+import Spinner from 'components/core/spinner';
 import ArchiveActionsSection from 'components/archive-actions/archive-actions';
-import ButtonWithMenu from '../common/button-with-menu';
+import ButtonWithMenu from 'components/core/button-with-menu';
 
 
 // helpers
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
+import { supressTV } from 'paragons/object';
 
 import styles from './object-page.css';
 
@@ -26,6 +30,14 @@ class ObjectPageDeux extends Component {
   static defaultProps = {
     identifierFieldName: 'id',
     headerControls: [],
+  };
+
+  _context: {
+    validationDispatcher: EventEmitter,
+  };
+
+  static childContextTypes = {
+    validationDispatcher: PropTypes.object,
   };
 
   componentDidMount() {
@@ -40,6 +52,20 @@ class ObjectPageDeux extends Component {
     if (this.props.identifier !== identifier && nextProps.identifier !== 'new') {
       actions.fetch(identifier, context);
     }
+  }
+
+  getChildContext() {
+    if (!this._context) {
+      const emitter = new EventEmitter();
+
+      emitter.setMaxListeners(20);
+
+      this._context = {
+        validationDispatcher: emitter
+      };
+    }
+
+    return this._context;
   }
 
   get isNew(): boolean {
@@ -64,7 +90,7 @@ class ObjectPageDeux extends Component {
       );
     });
 
-    return <LocalNav>{links}</LocalNav>;
+    return <PageNav>{links}</PageNav>;
   }
 
   get pageTitle(): string {
@@ -92,8 +118,10 @@ class ObjectPageDeux extends Component {
   @autobind
   handleSelectSaving(value: string) {
     const { actions } = this.props;
+    const mayBeSaved = this.save();
+    if (!mayBeSaved) { return; }
 
-    this.save().then(() => {
+    mayBeSaved.then(() => {
       switch (value) {
         case SAVE_COMBO.NEW:
           this.createNewEntity();
@@ -110,7 +138,9 @@ class ObjectPageDeux extends Component {
 
   @autobind
   handleSaveButton() {
-    this.save().then(this.transitionToObject);
+    const mayBeSaved = this.save();
+    if (!mayBeSaved) { return; }
+    mayBeSaved.then(this.transitionToObject);
   }
 
   @autobind
@@ -120,9 +150,41 @@ class ObjectPageDeux extends Component {
     actions.transition(get(object, identifierFieldName));
   }
 
+  validateObject(object: Object): ?Array<Object> {
+    const validate = jsen(this.props.schema);
+    if (!validate(supressTV(object))) {
+      return validate.errors;
+    }
+  }
+
+  _emit(type: string, ...args: any) {
+    this.getChildContext().validationDispatcher.emit(type, ...args);
+  }
+
+  @autobind
+  validateChild() {
+    let isValid = true;
+    this._emit('validate', (isChildValid) => {
+      if (!isChildValid) isValid = false;
+    });
+
+    return isValid;
+  }
+
+  @autobind
+  validate(): boolean {
+    const object = get(this.props, 'object');
+    const errors = object ? this.validateObject(object) : [];
+
+    return !errors;
+  }
+
   @autobind
   save() {
     const { context, object, actions } = this.props;
+
+    if (!this.validateChild()) return;
+    if (!this.validate()) return;
 
     const saveFn = this.isNew ? actions.create : actions.update;
 
@@ -141,7 +203,6 @@ class ObjectPageDeux extends Component {
       ...this.props.headerControls,
       <ButtonWithMenu
         title="Save"
-        menuPosition="right"
         onPrimaryClick={this.handleSaveButton}
         onSelect={this.handleSelectSaving}
         isLoading={this.props.saveState.inProgress}
@@ -190,7 +251,7 @@ class ObjectPageDeux extends Component {
     }
 
     if (!object || fetchState.inProgress) {
-      return <WaitAnimation className={styles.waiting} />;
+      return <Spinner className={styles.spinner} />;
     }
 
     return (

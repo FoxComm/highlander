@@ -12,6 +12,7 @@ import { assoc } from 'sprout-data';
 import ContentBox from 'components/content-box/content-box';
 import ValueEntry from './value-entry';
 import ValueEditDialog from './value-edit-dialog';
+import Icon from 'components/core/icon';
 
 // styles
 import styles from './option-list.css';
@@ -85,19 +86,19 @@ class OptionEntry extends Component {
           className="option-add-btn"
           onClick={() => this.editValue('new')}
           styleName="action-icon">
-          <i className="icon-add"/>
+          <Icon name="add" />
         </a>
         <a
           className="fct-edit-btn__option"
           onClick={() => this.props.editOption(this.props.id)}
           styleName="action-icon">
-          <i className="icon-edit"/>
+          <Icon name="edit" />
         </a>
         <a
           className="option-delete-btn"
           onClick={() => this.props.deleteOption(this.props.id)}
           styleName="action-icon">
-          <i className="icon-trash"/>
+          <Icon name="trash" />
         </a>
       </div>
     );

@@ -1,7 +1,7 @@
 // @flow
 
 // libs
-import React, { PropTypes } from 'react';
+import React from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 

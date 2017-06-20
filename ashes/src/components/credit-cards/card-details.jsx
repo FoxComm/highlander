@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import AddressDetails from '../addresses/address-details';
 import PaymentMethod from '../payment/payment-method';
 

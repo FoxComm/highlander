@@ -4,10 +4,11 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
-	"github.com/jinzhu/gorm"
 	"log"
 	"reflect"
 	"strings"
+
+	"github.com/jinzhu/gorm"
 )
 
 type summaryService struct {
@@ -28,8 +29,12 @@ type ISummaryService interface {
 	GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error)
 }
 
-func NewSummaryService(summaryRepo repositories.ISummaryRepository, stockItemRepo repositories.IStockItemRepository) ISummaryService {
-	return &summaryService{summaryRepo, stockItemRepo, nil}
+func NewSummaryService(db *gorm.DB) ISummaryService {
+	return &summaryService{
+		summaryRepo:   repositories.NewSummaryRepository(db),
+		stockItemRepo: repositories.NewStockItemRepository(db),
+		txn:           nil,
+	}
 }
 
 func (service *summaryService) WithTransaction(txn *gorm.DB) ISummaryService {

@@ -3,11 +3,12 @@ defmodule Solomon.Validation do
   alias Solomon.Repo
 
   def email_is_taken(email) do
+    IO.inspect(email)
     results = Repo.all(
       from user in Solomon.User,
       select: user.email
     )
-    |> Enum.filter(fn x -> String.downcase(x) == String.downcase(email) end)
+    |> Enum.filter(fn x -> x != nil && String.downcase(x) == String.downcase(email) end)
     case results do
       [] -> false
       _ -> true
@@ -20,7 +21,7 @@ defmodule Solomon.Validation do
       where: user.id != ^id,
       select: user.email
     )
-    |> Enum.filter(fn x -> String.downcase(x) == String.downcase(email) end)
+    |> Enum.filter(fn x -> x != nil && String.downcase(x) == String.downcase(email) end)
     case result do
       [] -> false
       _ -> true

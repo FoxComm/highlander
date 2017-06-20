@@ -1,0 +1,54 @@
+# Data Structures
+
+### Coupon
++ id: 1 (required, number) - Coupon ID.
++ promotion: 1 (required, number) - Related promotion ID.
++ attributes: `<json>` (required, string) - Coupon attributes.
++ archivedAt: `2020-01-01T12:00:00Z` (optional, string) - Archiving date.
+
+### CouponCode
++ code: `ABC-123` (required, string) - Coupon code.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
+
+### CouponIlluminated
++ id: 1 (required, number) - Coupon ID.
++ context (required, ObjectContext) - Related context.
++ attributes: `<json>` (required, string) - Coupon attributes.
++ promotion: 1 (required, number) - Related promotion ID.
+
+### CouponForm
++ id: 1 (required, number) - Coupon form ID.
++ attributes: `<json>` (required, string) - Coupon form attributes.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
+
+### CouponShadow
++ id: 1 (required, number) - Coupon shadow ID.
++ formId: 1 (required, number) - Related promotion form ID.
++ attributes: `<json>` (required, string) - Coupon shadow attributes.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
+
+### CouponPayload
++ promotion: 1 (required, number) - Related promotion ID.
++ attributes: `<json>` (required, string) - Coupon attributes.
+
+### CreateCouponForm
++ attributes: `<json>` (required, string) - Coupon form attributes.
+
+### CreateCouponShadow
++ attributes: `<json>` (required, string) - Coupon shadow attributes.
+
+### UpdateCouponPayload
++ form (required, UpdateCouponForm) - Coupon form.
++ shadow (required, UpdateCouponShadow) - Coupon shadow.
++ promotion: 1 (required, number) - Related promotion ID.
+
+### UpdateCouponForm
++ attributes: `<json>` (required, string) - Coupon form attributes.
+
+### UpdateCouponShadow
++ attributes: `<json>` (required, string) - Coupon shadow attributes.
+
+### GenerateCodesPayload
++ prefix: `ABC` (required, string) - Coupon codes prefix.
++ quantity: 1 (required, number) - Number of coupon codes to generate.
++ length: 10 (required, number) - Resulting coupons code length.

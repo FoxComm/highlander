@@ -2,18 +2,23 @@
 
 - name: Migrate DB
   hosts: '{{hostname}}'
+  become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    clean_flyway_phoenix: "{{perform_cleanup}}"
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a database to migrate"
-      default: "vanilla-db"
+      default: "hostname"
       private: no
     - name: "phoenix_db_name"
       prompt: "Enter name of phoenix db to migrate"
       default: "phoenix"
       private: no
+    - name: "perform_cleanup"
+      prompt: "Perform flyway clean? (y/n)"
+      default: "n"
+      private: no
 
   roles:
-    - { role: base/flyway, become: true }
-    - { role: prod/migrate_phoenix_db, become: true }
+    - { role: prod/migrate_phoenix_db }

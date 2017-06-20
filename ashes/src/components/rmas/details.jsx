@@ -1,6 +1,7 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { CustomerInfo } from './helpers';
-import TotalsSummary from '../common/totals';
+// import TotalsSummary from '../common/totals';
 import Payment from '../payment/payment';
 
 export default class RmaDetails extends React.Component {
@@ -34,10 +35,10 @@ export default class RmaDetails extends React.Component {
     return (
       <div className="fc-rma-details fc-grid fc-grid-match">
         <div className="fc-col-md-3-10">
-          {/*<TotalsSummary entity={rma} title="Return"/>*/}
+          {/*<TotalsSummary entity={rma} title="Return" />*/}
         </div>
         <div className="fc-col-md-7-10">
-          <CustomerInfo rma={rma} isEditing={isEditing}/>
+          <CustomerInfo rma={rma} isEditing={isEditing} />
         </div>
         <div className="fc-col-md-1-1">
           {/*<LineItems
@@ -50,7 +51,7 @@ export default class RmaDetails extends React.Component {
         <div className="fc-col-md-1-1">
         </div>
         <div className="fc-col-md-1-1">
-          <Payment rma={rma} isEditing={isEditing}/>
+          <Payment rma={rma} isEditing={isEditing} />
         </div>
       </div>
     );

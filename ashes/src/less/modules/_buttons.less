@@ -5,90 +5,6 @@
 @button-font-size: 14px;
 
 .fc-btn {
-  .colors(@color-control-standard-fg, @color-control-standard-bg);
-  padding: 0 20px;
-  height: @button-height;
-  .font-spec(@button-font-size, 600, 40px);
-  border: none;
-  user-select: none;
-  cursor: pointer;
-  .inline-block();
-
-  &.fc-dock {
-    #dock-styles;
-  }
-
-  &._inline {
-    vertical-align: bottom;
-  }
-
-  &:hover {
-    .colors(@color-control-standard-hover-fg, @color-control-standard-hover-bg);
-  }
-
-  &:disabled, &:disabled:hover {
-    cursor: default;
-    .colors(@color-control-standard-disabled-fg, @color-control-standard-disabled-bg);
-  }
-
-  &.fc-btn-primary {
-    .colors(@color-control-primary-fg, @color-control-primary-bg);
-
-    &:hover {
-      .colors(@color-control-primary-hover-fg, @color-control-primary-hover-bg);
-    }
-
-    &:disabled, &:disabled:hover {
-      .colors(@color-control-primary-disabled-fg, @color-control-primary-disabled-bg);
-    }
-  }
-
-  &.fc-btn-secondary {
-    .colors(@color-control-secondary-fg, @color-control-secondary-bg);
-    text-decoration: underline;
-    font-weight: normal;
-
-    &:hover {
-      .colors(@color-control-secondary-hover-fg, @color-control-secondary-hover-bg);
-    }
-
-    &:disabled, &:disabled:hover {
-      .colors(@color-control-secondary-disabled-fg, @color-control-secondary-disabled-bg);
-    }
-  }
-
-  &.fc-btn-remove {
-    &:hover {
-      background-color: @color-decor23;
-    }
-  }
-
-  &.fc-btn-plain {
-    background-color: transparent;
-    border: none;
-  }
-
-  &._small {
-    padding: 0 12px;
-    height: @button-height-small;
-    line-height: @button-height-small;
-  }
-
-  &._docked-left {
-    border-right: none;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-
-  &._docked-right {
-    border-left: none;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-  }
-
-  &-close {
-    cursor: pointer;
-  }
 
   &[class*=" icon-"] {
     padding: 0;
@@ -107,15 +23,10 @@
   span + i[class*="icon-"] {
     margin-left: 5px;
   }
-
-  &._loading {
-    background-image: url(/admin/images/caramel.png);
-    animation: caramel .5s linear infinite;
-  }
 }
 
 .fc-btn-link,
 .fc-btn-link:visited {
-  color: @color-decor1;
+  color: @color-text;
   text-decoration: underline;
 }

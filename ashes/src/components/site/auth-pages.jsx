@@ -2,8 +2,9 @@
 // @flow
 
 import React, { Element, Component } from 'react';
+import SvgIcon from 'components/core/svg-icon';
 
-import styles from './auth-pages.css';
+import s from './auth-pages.css';
 
 type Props = {
   children: Element<*>,
@@ -11,7 +12,7 @@ type Props = {
 
 type State = {
   isMounted: boolean,
-}
+};
 
 export default class AuthPages extends Component {
   props: Props;
@@ -37,11 +38,11 @@ export default class AuthPages extends Component {
 
   render() {
     return (
-      <div styleName="body">
-        <img styleName="logo" src="/admin/images/fc-logo-v.svg" />
+      <div className={s.body}>
+        <SvgIcon name="start" className={s.logo} />
         {this.body}
-        <div styleName="copyright">
-          © 2016 FoxCommerce. All rights reserved. Privacy Policy. Terms of Use.
+        <div className={s.copyright}>
+          © 2017 FoxCommerce. All rights reserved. Privacy Policy. Terms of Use.
         </div>
       </div>
     );

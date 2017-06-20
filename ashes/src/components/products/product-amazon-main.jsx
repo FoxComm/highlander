@@ -8,17 +8,16 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import classNames from 'classnames';
 import _ from 'lodash';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 
 // components
-import Form from 'components/forms/form';
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 import ObjectFormInner from 'components/object-form/object-form-inner';
 import Typeahead from 'components/typeahead/typeahead';
 import { CategoryItem } from './category-item';
+import Icon from 'components/core/icon';
 
 // types
 import type { SuggestItem } from './selector';
@@ -97,7 +96,7 @@ class ProductAmazonMain extends Component {
 
     if (!schema || !schema.properties) {
       if (categoryId) {
-        return <WaitAnimation />;
+        return <Spinner />;
       }
 
       return null;
@@ -180,7 +179,7 @@ class ProductAmazonMain extends Component {
           />
           <div className={s.approve}>
             <span>
-              <i className="icon icon-warning" />
+              <Icon name="warning" />
               {' '}
               You must be approved from Amazon to sell in the Clothing & Accesories category.
               {' '}

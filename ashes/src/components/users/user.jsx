@@ -11,10 +11,10 @@ import { transitionTo } from 'browserHistory';
 import * as UserActions from 'modules/users/details';
 
 // components
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
 import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
-import { Button, PrimaryButton } from '../common/buttons';
+import { Button, PrimaryButton } from 'components/core/button';
 
 type Params = {
   userId: number,
@@ -132,7 +132,7 @@ class User extends Component {
     return (
       <div>
         {this.isNew ? this.renderNewUserTitle() : this.renderUserTitle()}
-        <SubNav userId={params.userId} user={details}/>
+        <SubNav userId={params.userId} user={details} />
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
             { this.renderChildren() }
@@ -148,7 +148,7 @@ class User extends Component {
     if (this.props.fetchError) {
       content = this.errorMessage;
     } else if (this.props.isFetching || !this.state.user) {
-      content = <WaitAnimation/>;
+      content = <Spinner />;
     } else {
       content = this.renderContent();
     }

@@ -17,7 +17,7 @@ function* getTranslation(language, defaultLanguage) {
 }
 
 function* loadI18n(next) {
-  const defaultLanguage = process.env.FIREBIRD_LANGUAGE;
+  const defaultLanguage = process.env.STOREFRONT_LANGUAGE;
   const preferredLanguage = this.request.header['accept-language'] || defaultLanguage;
 
   this.state.i18n = yield getTranslation(preferredLanguage, defaultLanguage);

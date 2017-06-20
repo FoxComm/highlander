@@ -1,11 +1,11 @@
 /* @flow */
-import React, { PropTypes, Component, Element } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 
 import Currency from 'components/common/currency';
 import CurrencyInput from 'components/forms/currency-input';
 import { Form, FormField } from 'components/forms';
-import SaveCancel from 'components/common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 
 type Props = {
   amountToUse: number,
@@ -14,7 +14,7 @@ type Props = {
   onSubmit: Function,
   title?: string|Element<*>,
   amountToUse?: number,
-  saveText: string,
+  saveLabel: string,
 }
 
 type State = {
@@ -29,7 +29,7 @@ export default class DebitCredit extends Component {
   };
 
   static defaultProps = {
-    saveText: 'Add Payment Method',
+    saveLabel: 'Add Payment Method',
   };
 
   componentWillReceiveProps(nextProps: Props) {
@@ -102,7 +102,7 @@ export default class DebitCredit extends Component {
         </div>
         <div className="fc-order-debit-credit__submit">
           <SaveCancel
-            saveText={props.saveText}
+            saveLabel={props.saveLabel}
             saveDisabled={this.state.amountToUse == 0}
             onCancel={props.onCancel}
           />

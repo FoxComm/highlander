@@ -1,9 +1,12 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 
-import { Button, PrimaryButton } from '../common/buttons';
+import { Button, PrimaryButton } from 'components/core/button';
 import ChooseCustomerRow from './choose-customer-row';
 import Table from '../table/table';
+
+import s from './new-order.css';
 
 const ChooseCustomer = (props) => {
   const renderRow = (row, index, columns) => {
@@ -30,9 +33,11 @@ const ChooseCustomer = (props) => {
 
   const footer = props.isGuest ? null : (
     <div className="fc-orders-choose-customer__footer">
-      <Button onClick={guestCheckoutAction}>Checkout As Guest</Button>
+      <Button className={s.newCustomerButton} onClick={guestCheckoutAction}>
+        Checkout As Guest
+      </Button>
       <div>or</div>
-      <PrimaryButton onClick={props.onNewClick}>
+      <PrimaryButton className={s.newCustomerButton} onClick={props.onNewClick}>
         Create New Customer
       </PrimaryButton>
     </div>

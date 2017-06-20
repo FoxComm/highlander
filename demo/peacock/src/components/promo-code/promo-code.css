@@ -3,14 +3,16 @@
 
 .promo-code {}
 
-.gift-card, .coupon {
+.gift-card-code, .coupon {
   color: var(--text-color);
   font-size: 12px;
   display: flex;
   justify-content: space-between;
 }
 
-.gift-card-info {}
+.gift-card-info {
+  font-size: 12px;
+}
 
 .coupon-info {}
 
@@ -18,6 +20,7 @@
 
 .title {
   font-weight: 900;
+  margin-bottom: 10px;
 }
 
 .error {}

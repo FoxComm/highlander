@@ -123,6 +123,7 @@ export default class ResetPassword extends Component {
           value={passwd1}
           name="passwd1"
           onChange={this.updateForm}
+          required
         />
       </FormField>,
       <FormField key="passwd2" styleName="form-field" error={!!error}>
@@ -135,6 +136,7 @@ export default class ResetPassword extends Component {
           value={passwd2}
           name="passwd2"
           onChange={this.updateForm}
+          required
         />
       </FormField>,
     ];

@@ -1,0 +1,7 @@
+exporter_base_url: https://github.com/prometheus/node_exporter
+exporter_version: 0.14.0
+exporter_dirname: node_exporter-{{exporter_version}}.linux-amd64
+exporter_url: "{{exporter_base_url}}/releases/download/v{{exporter_version}}/{{exporter_dirname}}.tar.gz"
+
+exporter_base_dir: /opt/exporter
+exporter_location: "{{exporter_base_dir}}/{{exporter_dirname}}"

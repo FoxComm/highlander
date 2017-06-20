@@ -8,7 +8,8 @@
   "labels": {
     "LAYER": "backend",
     "LANG": "python",
-    "TAG": "{{docker_tags.anthill}}"
+    "TAG": "{{docker_tags.anthill}}",
+    "consul": "anthill"
   },
   "container": {
     "type": "DOCKER",
@@ -28,6 +29,8 @@
     }
   },
   "env": {
+    "ES_HOST": "{{search_host}}",
+    "ES_PORT": "9200",
     "NEO4J_USER": "{{neo4j_user}}",
     "NEO4J_PASS": "{{neo4j_pass}}",
     "NEO4J_HOST": "{{neo4j_host}}",
@@ -36,7 +39,7 @@
   "constraints": [["hostname", "UNIQUE"]],
   "healthChecks": [
     {
-      "path": "/ping",
+      "path": "/public/ping",
       "protocol": "HTTP",
       "portIndex": 0,
       "gracePeriodSeconds": 300,

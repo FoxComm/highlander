@@ -10,7 +10,7 @@ import { autobind } from 'core-decorators';
 
 // components
 import ObjectPageDeux from 'components/object-page/object-page-deux';
-import { AddButton } from 'components/common/buttons';
+import { AddButton } from 'components/core/button';
 
 // actions
 import { fetch as fetchTaxonomy } from 'modules/taxonomies/details';
@@ -18,6 +18,8 @@ import * as taxonsActions from 'modules/taxons/details/taxon';
 
 // helpers
 import { transitionTo, transitionToLazy } from 'browserHistory';
+
+import s from './taxons.css';
 
 
 // page layout
@@ -165,12 +167,14 @@ class TaxonPage extends React.Component {
   }
 
   get headerControls() {
-    if (this.isNew) {
+    const hierarchical = get(this.props.taxonomy, 'hierarchical');
+    if (this.isNew || !hierarchical) {
       return;
     }
 
     return [
       <AddButton
+        className={s.subValue}
         onClick={this.handleAddSubvalue}
         children={'Subvalue'}
         key="subvalue-btn"

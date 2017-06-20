@@ -1,34 +1,16 @@
 ---
 
-- name: Download mesos-consul release
-  get_url: url={{mesos_consul_url}} dest={{home}}/{{mesos_consul_file}}
+- name: Download Mesos Consul Release
+  unarchive: src="{{mesos_consul_url}}" dest="{{home}}" remote_src=yes mode=0750
 
-- name: Unarchive mesos-consul release
-  unarchive: src="{{home}}/{{mesos_consul_file}}" dest="{{home}}" copy=no
-
-- name: Copy Mesos Consul build
-  command: mv {{home}}/{{mesos_consul_dir}}/mesos-consul /usr/local/bin/mesos-consul
-
-- name: Make Mesos Consul Executable
-  command: chmod +x /usr/local/bin/mesos-consul
-
-- name: Remove unarchive subdirectory
-  file: path={{home}}/{{mesos_consul_dir}} state=absent
-
-- name: Remove release archive
-  file: path={{home}}/{{mesos_consul_file}} state=absent
-
-- name: Copy Service File
-  template: src=mesos_consul.service dest="{{dest_services}}/mesos_consul.service"
+- name: Copy Mesos Consul Binary
+  shell: mv {{home}}/{{mesos_consul_dirname}}/mesos-consul /usr/local/bin
 
 - name: Copy Execution File
-  template: src=run_mesos_consul.sh dest=/usr/local/bin/run_mesos_consul.sh mode="u+x,g+x,o+x"
+  template: src=run_mesos_consul.sh dest=/usr/local/bin mode=0750
 
-- name: Reload Systemd for Mesos Consul
-  command: systemctl daemon-reload
-
-- name: Restart Mesos Consul
-  service: name=mesos_consul state=restarted enabled=yes
+- name: Copy Service
+  template: src=mesos_consul.service dest="{{dest_services}}/mesos_consul.service"
 
 - name: Copy Consul Service File
-  template: src=mesos_consul.json dest="/etc/consul.d/mesos_consul.json"
+  template: src=mesos_consul.json dest=/etc/consul.d/mesos_consul.json

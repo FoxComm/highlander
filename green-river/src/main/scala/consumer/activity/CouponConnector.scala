@@ -4,7 +4,7 @@ import scala.concurrent.Future
 
 import consumer.aliases._
 
-import org.json4s.JsonAST.{JInt, JString, JNothing}
+import org.json4s.JsonAST.{JInt, JNothing, JString}
 
 object CouponConnector extends ActivityConnector {
   val dimension = "coupon"

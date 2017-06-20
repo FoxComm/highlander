@@ -1,0 +1,36 @@
+---
+
+- name: Create Checkout Directory If Not Exists
+  file: path={{checkout_path}} state={{item}}
+  with_items:
+    - touch
+    - absent
+    - directory
+
+- name: Checkout Storefront Repository
+  shell: "git clone {{git_repo}} {{checkout_path}}"
+  args:
+    chdir: "{{checkout_path}}"
+
+- name: Checkout Specified Branch
+  shell: "git checkout {{git_tag}}"
+  args:
+    chdir: "{{checkout_path}}"
+
+- name: Build Application
+  shell: "make build"
+  args:
+    chdir: "{{checkout_path}}"
+
+- name: Dockerize Application
+  shell: "make docker"
+  args:
+    chdir: "{{checkout_path}}"
+
+- name: Push Application to Registry
+  shell: "make docker-push"
+  environment:
+    DOCKER_REPO: "{{docker_registry}}:5000"
+    DOCKER_TAG: "{{docker_tag}}"
+  args:
+    chdir: "{{checkout_path}}"

@@ -1,0 +1,39 @@
+---
+
+- name: Provision Demo Backend
+  hosts: "tpg-production2-backend"
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  roles:
+    - { role: base/flyway }
+    - { role: dev/db_ic, when: first_run }
+    - { role: prod/migrate_phoenix_db }
+    - { role: prod/migrate_middlewarehouse_db }
+
+  handlers:
+    - include: roles/base/consul_agent/handlers/main.yml
+
+- name: Provision Demo Frontend
+  hosts: "tpg-production2-frontend"
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    api_server: theperfectgourmet.com
+    self_host: theperfectgourmet.com
+    ashes_server_name: theperfectgourmet.com
+    storefront_server_name: theperfectgourmet.com
+    url_prefix_perfectgourmet: "/perfect-gourmet"
+    url_prefix_topdrawer: "/top-drawer"
+    docker_registry: "docker-tpg.foxcommerce.com"
+  roles:
+    - { role: dev/marathon }
+    - { role: dev/marathon_consumers }
+    - { role: dev/ic }
+    - { role: ext/td/storefront, when: marathon_restart.storefront_td }
+    - { role: ext/tpg/storefront, when: marathon_restart.storefront_td }
+    - { role: dev/balancer }
+    - { role: demo/balancer }
+
+  handlers:
+    - include: roles/base/consul_agent/handlers/main.yml

@@ -7,21 +7,22 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
-	"github.com/FoxComm/highlander/middlewarehouse/services/mocks"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
+	"github.com/FoxComm/highlander/middlewarehouse/services/mocks"
 
-	"github.com/stretchr/testify/suite"
-	"github.com/stretchr/testify/mock"
 	"errors"
+
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/suite"
 )
 
 type ShipmentServiceTestSuite struct {
 	GeneralServiceTestSuite
-	service IShipmentService
+	service          IShipmentService
 	inventoryService IInventoryService
-	summaryService ISummaryService
-	logger *mocks.ActivityLoggerMock
+	summaryService   ISummaryService
+	logger           *mocks.ActivityLoggerMock
 }
 
 func TestShipmentServiceSuite(t *testing.T) {
@@ -31,12 +32,11 @@ func TestShipmentServiceSuite(t *testing.T) {
 func (suite *ShipmentServiceTestSuite) SetupSuite() {
 	suite.db = config.TestConnection()
 
-	summaryRepository := repositories.NewSummaryRepository(suite.db)
 	stockItemRepository := repositories.NewStockItemRepository(suite.db)
 	unitRepository := repositories.NewStockItemUnitRepository(suite.db)
 	shipmentRepository := repositories.NewShipmentRepository(suite.db)
 
-	suite.summaryService = NewSummaryService(summaryRepository, stockItemRepository)
+	suite.summaryService = NewSummaryService(suite.db)
 	suite.inventoryService = &inventoryService{stockItemRepository, unitRepository, suite.summaryService, nil}
 	suite.logger = &mocks.ActivityLoggerMock{}
 
@@ -115,7 +115,8 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 	stockLocation := fixtures.GetStockLocation()
 	suite.Nil(suite.db.Create(stockLocation).Error)
 
-	stockItem := fixtures.GetStockItem(stockLocation.ID, shipment1.ShipmentLineItems[0].SKU)
+	sku := suite.createSKU(shipment1.ShipmentLineItems[0].SKU)
+	stockItem := fixtures.GetStockItem(stockLocation.ID, sku.Code)
 	stockItem, err := suite.inventoryService.CreateStockItem(stockItem)
 	suite.Nil(err)
 
@@ -167,7 +168,7 @@ func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Partial_ReturnsUpdate
 
 	//act
 	payload := payloads.UpdateShipment{State: "shipped"}
-	updateShipment := models.NewShipmentFromUpdatePayload(&payload)
+	updateShipment := payload.Model()
 	updateShipment.ID = shipment.ID
 
 	//act
@@ -237,4 +238,12 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Failed() {
 	suite.Equal(2, summary[0].OnHold)
 	suite.Equal(0, summary[0].Reserved)
 	suite.Equal(3, summary[0].AFS)
+}
+
+func (suite *ShipmentServiceTestSuite) createSKU(code string) *models.SKU {
+	sku := fixtures.GetSKU()
+	sku.Code = code
+	sku.RequiresInventoryTracking = true
+	suite.Nil(suite.db.Create(sku).Error)
+	return sku
 }

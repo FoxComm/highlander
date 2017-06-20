@@ -183,8 +183,8 @@ class ProductsList extends Component {
         <SortPill
           field="name"
           direction={sorting.direction}
-          isActive={sorting.field === 'title'}
-          onClick={() => changeSorting('title')}
+          isActive={sorting.field === 'title.raw'}
+          onClick={() => changeSorting('title.raw')}
         />
         <div styleName="mobile-filter-spacer" />
         {filterLabel}

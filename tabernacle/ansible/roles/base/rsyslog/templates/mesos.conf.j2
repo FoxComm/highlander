@@ -17,7 +17,17 @@ input(type="imfile"
       Facility="local6")
 
 input(type="imfile"
-      File="/var/log/docker/storefront.log"
+      File="/var/log/docker/td-storefront.log"
+      Tag="storefront"
+      Facility="local6")
+
+input(type="imfile"
+      File="/var/log/docker/tpg-storefront.log"
+      Tag="storefront"
+      Facility="local6")
+
+input(type="imfile"
+      File="/var/log/docker/firebrand.log"
       Tag="storefront"
       Facility="local6")
 
@@ -55,55 +65,3 @@ input(type="imfile"
       File="/var/log/docker/shipment-consumer.log"
       Tag="shipment-consumer"
       Facility="local6")
-
-input(type="imfile"
-      File="/var/log/docker/stock-items-consumer.log"
-      Tag="stock-items-consumer"
-      Facility="local6")
-
-input(type="imfile"
-      File="/var/log/docker/customer-groups-consumer.log"
-      Tag="customer-groups-consumer"
-      Facility="local6")
-
-input(type="imfile"
-      File="/var/log/docker/anthill.log"
-      Tag="anthill"
-      Facility="local6")
-
-input(type="imfile"
-      File="/var/log/docker/bernardo.log"
-      Tag="bernardo"
-      Facility="local6")
-
-input(type="imfile"
-      File="/var/log/docker/digger-sphex.log"
-      Tag="digger-sphex"
-      Facility="local6")
-
-input(type="imfile"
-      File="/var/log/docker/orders-anthill.log"
-      Tag="orders-anthill"
-      Facility="local6")
-
-input(type="imfile"
-      File="/var/log/docker/orders-sphex.log"
-      Tag="orders-sphex"
-      Facility="local6")
-
-input(type="imfile"
-      File="/var/log/docker/product-activity.log"
-      Tag="product-activity"
-      Facility="local6")
-
-input(type="imfile"
-      File="/var/log/docker/eggcrate.log"
-      Tag="eggcrate"
-      Facility="local6")
-
-input(type="imfile"
-      File="/var/log/docker/river-rock.log"
-      Tag="river-rock"
-      Facility="local6")
-
-

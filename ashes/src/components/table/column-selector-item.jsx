@@ -2,12 +2,14 @@
  * @flow weak
  */
 
-import React, { Component, PropTypes } from 'react';
+// libs
+import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import { DragSource, DropTarget } from 'react-dnd';
 
 // components
-import { Checkbox } from '../checkbox/checkbox';
+import Icon from 'components/core/icon';
+import { Checkbox } from 'components/core/checkbox';
 
 // styles
 import styles from './column-selector.css';
@@ -34,29 +36,33 @@ const itemTarget = {
     if (dragIndex === hoverIndex) return;
 
     // Determine rectangle on screen
-    const hoverBoundingRect = findDOMNode(component).getBoundingClientRect();
+    const node: any = findDOMNode(component);
 
-    // Get vertical middle
-    const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+    if (node && node.getBoundingClientRect) {
+      const hoverBoundingRect = node.getBoundingClientRect();
 
-    // Determine mouse position
-    const clientOffset = monitor.getClientOffset();
+      // Get vertical middle
+      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
 
-    // Get pixels to the top
-    const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+      // Determine mouse position
+      const clientOffset = monitor.getClientOffset();
 
-    // Only perform the move when the mouse has crossed half of the items height
-    // When dragging downwards, only move when the cursor is below 50%
-    // When dragging upwards, only move when the cursor is above 50%
+      // Get pixels to the top
+      const hoverClientY = clientOffset.y - hoverBoundingRect.top;
 
-    // Dragging downwards
-    if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
-      return;
-    }
+      // Only perform the move when the mouse has crossed half of the items height
+      // When dragging downwards, only move when the cursor is below 50%
+      // When dragging upwards, only move when the cursor is above 50%
 
-    // Dragging upwards
-    if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
-      return;
+      // Dragging downwards
+      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+        return;
+      }
+
+      // Dragging upwards
+      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+        return;
+      }
     }
 
     // Time to actually perform the action
@@ -94,14 +100,16 @@ class SelectorItem extends Component {
     return connectDragPreview(connectDropTarget(
       <li styleName={styleName}>
         {connectDragSource(
-          <i className='fc-tab__icon icon-drag-drop' />
+          <div className="icon-wrapper">
+            <Icon name='drag-drop' />
+          </div>
         )}
         <Checkbox
           id={`choose-column-${this.props.id}`}
+          label={text}
           onChange={this.props.onChange}
-          checked={this.props.checked}>
-          {text}
-        </Checkbox>
+          checked={this.props.checked}
+        />
       </li>
     ));
   }

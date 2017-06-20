@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Promotion",
+  "type": "object",
+  "properties": {
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "customerGroupIds": {
+          "type": ["array", "null"],
+          "items": {
+            "type": "number"
+          },
+          "uniqueItems": true
+        },
+        "activeFrom": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "activeTo": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        }
+      },
+      "required": ["name"]
+    },
+    "discounts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/discount"
+      }
+    }
+  }
+}

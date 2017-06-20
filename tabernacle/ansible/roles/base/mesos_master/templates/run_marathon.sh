@@ -6,3 +6,4 @@
     --mesos_authentication_principal=marathon \
     --mesos_authentication_secret={{mesos_pass}} \
     --mesos_role=marathon \
+    --event_subscriber http_callback

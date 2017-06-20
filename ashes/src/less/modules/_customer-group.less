@@ -2,7 +2,7 @@
   padding: 0 1.85%;
 
   &__details {
-    background-color: @color-decor0;
+    background-color: @bg-grey-headers;
   }
 
   &__header {
@@ -11,11 +11,12 @@
 
   &__title {
     display: flex;
+    align-items: baseline;
 
     .fc-title {
       .inline-block();
       font-size: 30px;
-      font-weight: @bold;
+      font-weight: 700;
       line-height: 33px;
       flex-grow: 1;
       margin: 30px 0 10px 0;
@@ -29,8 +30,8 @@
 
   &__count {
     .inline-block();
-    font-weight: @normal;
-    color: @color-decor8;
+    font-weight: 400;
+    color: @color-additional-text;
   }
 
   &__about {
@@ -41,13 +42,13 @@
 
     &__key {
       font-size: 14px;
-      font-weight: @semibold;
+      font-weight: 600;
       line-height: 20px;
     }
 
     &__value {
       font-size: 14px;
-      font-weight: @normal;
+      font-weight: 400;
       line-height: 20px;
     }
 
@@ -71,7 +72,7 @@
     display: inline-block;
     vertical-align: middle;
     font-size: 14px;
-    font-weight: @semibold;
+    font-weight: 600;
     line-height: 20px;
     margin-bottom: 40px;
   }
@@ -162,8 +163,8 @@
         &:after {
           content: "";
           height: @sep-line-height;
-          border-top: 2px solid @color-decor7;
-          border-right: 2px solid @color-decor7;
+          border-top: 2px solid @color-additional-text;
+          border-right: 2px solid @color-additional-text;
           width: @line-width;
           position: absolute;
           left: 100%;
@@ -179,13 +180,13 @@
         border-radius: 50%;
         width: @b-size;
         max-width: @b-size;
-        .font-spec(14px, @bold);
+        .font-spec(14px, 700);
         height: @b-size;
         line-height: @b-size;
         .left(@line-width - @b-size/2 - 1);
         .top(@line-height + @criterion-height/2 - 1);
         text-align: center;
-        background: @color-decor7;
+        background: @bg-grey-buttons;
       }
 
       .fc-customer-group__criterion__value {
@@ -211,7 +212,7 @@
         width: 30px;
         height: @criterion-height;
         line-height: @criterion-height;
-        color: @color-decor7;
+        color: @color-additional-text;
       }
 
     }
@@ -221,10 +222,10 @@
   .fc-live-search {
     padding: 0;
     margin-bottom: 0;
-    background-color: @color-decor0;
+    background-color: @bg-grey-headers;
 
     .fc-pilled-input__input-container {
-      background-color: @color-white;
+      background-color: @bg-white;
     }
 
   }

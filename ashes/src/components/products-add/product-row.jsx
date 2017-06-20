@@ -1,15 +1,12 @@
 /* @flow */
 
 //libs
-import { get, find, reduce, size } from 'lodash';
+import { get, reduce, size } from 'lodash';
 import React, { Element } from 'react';
-
-// helpers
-import { activeStatus, isArchived } from 'paragons/common';
 
 // components
 import { TableRow, TableCell } from 'components/table';
-import { Button } from 'components/common/buttons';
+import { Button } from 'components/core/button';
 
 // styles
 import styles from './products-add.css';

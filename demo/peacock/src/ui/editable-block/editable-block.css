@@ -1,6 +1,7 @@
 @import "colors.css";
 
 .editable-block {
+  line-height: 16px;
 }
 
 .header {

@@ -1,13 +1,15 @@
 // libs
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
-// helpers
-import { prefix } from '../../lib/text-utils';
-
 // components
 import Lookup from './lookup';
+import Icon from 'components/core/icon';
+
+// helpers
+import { prefix } from '../../lib/text-utils';
 
 const prefixed = prefix('fc-lookup');
 
@@ -37,7 +39,7 @@ export default class LookupDropdown extends Component {
       <div className="fc-btn fc-dock fc-dock-right"
            onClick={this.toggleMenu}
            onBlur={this.hideMenu}>
-        <i className={`icon-${icon}`} />
+        <Icon name={icon} />
       </div>
     );
   }

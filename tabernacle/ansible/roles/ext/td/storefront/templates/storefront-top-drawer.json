@@ -8,7 +8,8 @@
   "labels": {
     "LAYER": "frontend",
     "LANG": "js",
-    "TAG": "{{docker_tags.storefront_td}}"
+    "TAG": "{{docker_tags.storefront_td}}",
+    "consul": "{{app_name}}"
   },
   "env": {
     "API_URL": "https://{{storefront_server_name}}",

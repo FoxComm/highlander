@@ -1,6 +1,7 @@
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -16,7 +17,9 @@ import FormField from '../../forms/formfield';
 import Form from '../../forms/form';
 import Dropdown from '../../dropdown/dropdown';
 import Currency from '../../common/currency';
-import SaveCancel from '../../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
+import TextInput from 'components/core/text-input';
+import Icon from 'components/core/icon';
 
 // redux
 import * as CustomerActions from '../../../modules/customers/details';
@@ -194,7 +197,7 @@ export default class NewStoreCredit extends React.Component {
       '_hidden': _.isEmpty(this.scSubtypes)
     });
 
-    const { form, createStoreCredit, changeScFormData } = this.props;
+    const { form, changeScFormData } = this.props;
 
     return (
       <Form className="fc-store-credit-form fc-form-vertical"
@@ -209,7 +212,7 @@ export default class NewStoreCredit extends React.Component {
                            labelClassName="fc-store-credit-form__label">
                   <div className="fc-input-group fc-store-credit-form__input-group-amount-field">
                     <div className="fc-input-prepend fc-store-credit-form__amount-field-prepend">
-                      <i className="icon-usd"></i>
+                      <Icon name="usd" />
                     </div>
                     <input id="scAmountField"
                            type="hidden"
@@ -231,7 +234,7 @@ export default class NewStoreCredit extends React.Component {
               <li className="fc-store-credit-form__controls">
                 <SaveCancel
                   onCancel={transitionToLazy('customer-storecredits', {customerId: this.customerId})}
-                  saveText="Issue Store Credit"
+                  saveLabel="Issue Store Credit"
                 />
               </li>
             </ul>
@@ -298,9 +301,8 @@ export default class NewStoreCredit extends React.Component {
                 <FormField label="Gift Card Number"
                            labelClassName="fc-store-credit-form__label"
                            validator={validateCardCode}>
-                  <input id="gcNumberField"
+                  <TextInput id="gcNumberField"
                          name="code"
-                         type="text"
                          placeholder="1111 1111 1111 1111"
                          className="fc-customer-form-input"
                          value={form.code}
@@ -319,7 +321,7 @@ export default class NewStoreCredit extends React.Component {
               <li className="fc-store-credit-form__controls">
                 <SaveCancel
                   onCancel={transitionToLazy('customer-storecredits', {customerId: this.customerId})}
-                  saveText="Transfer Gift Card to Store Credit"
+                  saveLabel="Transfer Gift Card to Store Credit"
                 />
               </li>
             </ul>

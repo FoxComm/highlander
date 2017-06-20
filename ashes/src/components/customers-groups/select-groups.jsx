@@ -4,11 +4,10 @@ import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import { trackEvent } from 'lib/analytics';
 
 import styles from './select-groups.css';
 
-import RadioButton from '../forms/radio-button';
+import RadioButton from 'components/core/radio-button';
 import Typeahead from '../typeahead/typeahead';
 import PilledInput from '../pilled-search/pilled-input';
 import CustomerGroupRow from './customer-group-row';
@@ -89,6 +88,7 @@ class SelectCustomerGroups extends Component {
         </div>);
   }
 
+  @autobind
   setTerm(term: string) {
     this.setState({
       term,
@@ -116,16 +116,16 @@ class SelectCustomerGroups extends Component {
   get pilledInput() {
     const { state, props } = this;
     const pills = props.selectedGroupIds.map((cg) => {
-      return _.find(props.groups, { 'id': cg }).name;
+      if (_.find(props.groups, { 'id': cg })) return _.find(props.groups, { 'id': cg }, {}).name;
+      return 'loading...';
     });
 
     return (
       <PilledInput
         solid={true}
-        autoFocus={true}
         value={state.term}
-        disabled={false}
-        onChange={({target}) => this.setTerm(target.value)}
+        disabled={props.groups == null}
+        onChange={ value => this.setTerm(value)}
         pills={pills}
         icon={null}
         onPillClose={(name, index) => this.deselectItem(index)}
@@ -139,19 +139,17 @@ class SelectCustomerGroups extends Component {
         <RadioButton
           id="qualifyAll"
           name="qualifyAll"
+          label="All customers qualify"
           checked={this.props.qualifyAll === true}
           onChange={this.handleChangeQualifier}
-        >
-          <label htmlFor="qualifyAll">All customers qualify</label>
-        </RadioButton>
+        />
         <RadioButton
           id="qualifyGroups"
           name="qualifyGroups"
+          label="Select customer groups qualify"
           checked={this.props.qualifyAll === false}
           onChange={this.handleChangeQualifier}
-        >
-          <label htmlFor="qualifyGroups">Select customer groups qualify</label>
-        </RadioButton>
+        />
         {this.customersGroups}
       </div>
     );

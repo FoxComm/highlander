@@ -42,7 +42,7 @@ const { reducer, actions } = makeLiveSearch(
   'sku_search_view/_search',
   'skusScope',
   {
-    rawSorts: ['title']
+    rawSorts: ['title'],
   }
 );
 

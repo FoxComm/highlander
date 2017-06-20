@@ -1,26 +1,31 @@
 // libs
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
-
 import _ from 'lodash';
 import classNames from 'classnames';
 import { trackEvent } from 'lib/analytics';
 
 // components
-import MaskedInput from '../masked-input/masked-input';
-import Menu from '../menu/menu';
-import MenuItem from '../menu/menu-item';
+// import MaskedInput from '../masked-input/masked-input'; // @todo get back
+import { Menu, MenuItem } from './menu';
 import PilledInput from '../pilled-search/pilled-input';
 import SearchOption from './search-option';
 import TabListView from '../tabs/tabs';
 import EditableTabView from '../tabs/editable-tab';
 import DatePicker from '../datepicker/datepicker';
 import ShareSearch from '../share-search/share-search';
-import { Button } from '../common/buttons';
-import ButtonWithMenu from '../common/button-with-menu';
-import Alert from '../alerts/alert';
+import { Button } from 'components/core/button';
+import ButtonWithMenu from 'components/core/button-with-menu';
+import Alert from 'components/core/alert';
+import TextInput from 'components/core/text-input';
+import Icon from 'components/core/icon';
+import { RoundedPill } from 'components/core/rounded-pill';
 
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
+
+// styles
+import s from './live-search.css';
 
 const SEARCH_MENU_ACTION_SHARE = 'share';
 const SEARCH_MENU_ACTION_SAVE = 'save';
@@ -95,6 +100,8 @@ export default class LiveSearch extends React.Component {
     noGutter: false,
   };
 
+  _input: HTMLElement;
+
   componentDidMount() {
     this.props.submitFilters(this.currentSearch.query, true);
 
@@ -104,8 +111,8 @@ export default class LiveSearch extends React.Component {
   }
 
   componentDidUpdate() {
-    if (this.state.shouldSetFocus && !this.isDisabled) {
-      this.refs.input.focus();
+    if (this.state.shouldSetFocus && !this.isDisabled && this._input) {
+      this._input.focus();
     }
   }
 
@@ -116,7 +123,6 @@ export default class LiveSearch extends React.Component {
   componentWillReceiveProps(nextProps) {
     const search = currentSearch(nextProps);
     const searchOptions = _.get(nextProps, ['searches', 'searchOptions'], []);
-    const isVisible = this.state.isFocused && searchOptions.length > 0;
 
     const isRefreshed = _.get(search, ['results', 'refreshed'], false);
     if (!isRefreshed) {
@@ -126,7 +132,7 @@ export default class LiveSearch extends React.Component {
         inputMask: null,
         pills: this.queryToPills(search.query),
         searchDisplay: search.searchValue,
-        optionsVisible: isVisible,
+        optionsVisible: false,
         searchOptions: searchOptions,
       });
     }
@@ -189,10 +195,10 @@ export default class LiveSearch extends React.Component {
           return [
             ...result,
             <SearchOption
-              className={classNames({ '_active': selectedIdx == idx, '_first': idx == 0 })}
               key={`search-option-${option.displayTerm}`}
               option={option}
               clickAction={handleClick}
+              active={selectedIdx == idx}
             />
           ];
         }, []);
@@ -204,7 +210,7 @@ export default class LiveSearch extends React.Component {
 
       goBack = (
         <MenuItem className={menuClass} clickAction={this.goBack}>
-          <i className="icon-back" />
+          <Icon name="back" />
           Back
         </MenuItem>
       );
@@ -279,7 +285,14 @@ export default class LiveSearch extends React.Component {
     const buttonDisabled = searchDisplay.length == 0 || searches.isSavingSearch || this.isDisabled;
 
     if (singleSearch) {
-      return <Button icon="search" onClick={this.handleSearchClick} disabled={buttonDisabled} />;
+      return (
+        <Button
+          className="fc-button-with-menu__left-button"
+          icon="search"
+          onClick={this.handleSearchClick}
+          disabled={buttonDisabled}
+        />
+      );
     }
 
     let menuItems = [];
@@ -309,11 +322,12 @@ export default class LiveSearch extends React.Component {
       <ButtonWithMenu
         onPrimaryClick={this.handleSearchClick}
         icon="search"
-        menuPosition="right"
         onSelect={this.handleMenu}
         items={menuItems}
         buttonDisabled={buttonDisabled}
         menuDisabled={menuDisabled}
+        buttonClassName="fc-button-with-menu__left-button"
+        menuClassName="fc-button-with-menu__right-button"
       />
     );
   }
@@ -372,27 +386,24 @@ export default class LiveSearch extends React.Component {
 
   @autobind
   formatPill(pill, idx, props) {
-    const icon = pill.term === '_all' ? 'icon-search' : 'icon-filter';
+    const icon = pill.term === '_all' ? 'search' : 'filter';
 
     return (
-      <div
-        className="fc-pilled-input__pill"
+      <RoundedPill
         key={`pill-${this.currentSearch.title}-${idx}`}
-        onClick={() => props.onPillClick(pill, idx)}
-        title={pill.display}>
-        <i className={icon} />
-        <span className="fc-pilled-input__pill-value">{pill.display}</span>
-        <a onClick={() => props.onPillClose(pill, idx)}
-           className="fc-pilled-input__pill-close">
-          &times;
-        </a>
-      </div>
+        value={idx}
+        onClose={() => props.onPillClose(pill, idx)}
+        className={s.pill}
+      >
+        <Icon name={icon} className={s.icon} />
+        {pill.display}
+      </RoundedPill>
     );
   }
 
   @autobind
-  change({ target }) {
-    this.submitFilter(target.value);
+  change(value) {
+    this.submitFilter(value);
   }
 
   @autobind
@@ -623,9 +634,16 @@ export default class LiveSearch extends React.Component {
     const gridClass = classNames('fc-list-page-content', {
       '_no-gutter': this.props.noGutter
     });
+    const tableWrapClass = classNames(gridClass, s.table);
     const tableClass = classNames('fc-live-search__table', {
       '_no-gutter': this.props.noGutter
     });
+
+    const inputClass = classNames(
+      'fc-pilled-input__input-field',
+      '_no-fc-behaviour',
+      '_solid-input'
+    );
 
     return (
       <div className="fc-live-search">
@@ -636,32 +654,32 @@ export default class LiveSearch extends React.Component {
             <form>
               <PilledInput
                 controls={this.controls}
-                className={classNames({'_active': this.state.isFocused, '_disabled': this.isDisabled})}
+                className={classNames({ '_active': this.state.isFocused, '_disabled': this.isDisabled })}
                 onPillClose={this.handlePillClose}
-                formatPill={this.formatPill}
+
                 icon={null}
                 pills={this.state.pills}>
-                <MaskedInput
-                  className="fc-pilled-input__input-field _no-fc-behavior"
+                {/* @todo get back MaskedInput prepend={this.state.searchPrepend} */}
+                <TextInput
+                  className={inputClass}
                   mask={this.state.inputMask}
                   onChange={this.change}
                   onFocus={this.inputFocus}
                   onBlur={this.blur}
                   onKeyDown={this.keyDown}
                   placeholder={this.props.placeholder}
-                  prepend={this.state.searchPrepend}
                   value={this.state.searchDisplay}
                   disabled={this.isDisabled}
-                  ref="input" />
+                  ref={i => this._input = i} />
               </PilledInput>
             </form>
 
-            <div>
+            <div className={s.dropdown}>
               {this.dropdownContent}
             </div>
           </div>
         </div>
-        <div className={gridClass}>
+        <div className={tableWrapClass}>
           <div className={tableClass}>
             {this.props.children}
           </div>

@@ -1,4 +1,25 @@
+@import 'colors.css';
+
 .dropdown {
   max-width: none;
   margin-bottom: 10px;
+}
+
+.dropdown :global .fc-dropdown__items {
+  padding-bottom: 40px;
+  box-sizing: content-box;
+}
+
+.newValueButton {
+  position: absolute;
+  justify-content: flex-start;
+  bottom: 0;
+  width: 100%;
+  background: var(--bg-white);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.newValueButton:hover {
+  background: var(--bg-grey);
 }

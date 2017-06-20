@@ -8,7 +8,8 @@
   "labels": {
     "LAYER": "consumer",
     "LANG": "go",
-    "TAG": "{{docker_tags.product_activity}}"
+    "TAG": "{{docker_tags.product_activity}}",
+    "consul": "product-activity"
   },
   "container": {
     "type": "DOCKER",

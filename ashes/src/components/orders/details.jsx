@@ -14,11 +14,11 @@ import DiscountsPanel from 'components/discounts-panel/discounts-panel';
 import OrderCoupons from './order-coupons';
 import ParticipantsPanel from '../participants';
 
-import type { Order } from 'paragons/order';
+import OrderParagon from 'paragons/order';
 
 type Props = {
   details: {
-    order: Order,
+    order: OrderParagon,
   },
   entityType: string;
 };
@@ -39,9 +39,9 @@ export default class OrderDetails extends Component {
           <div className="fc-order-details-main">
             <OrderLineItems order={order} />
             <DiscountsPanel promotion={order.promotion} />
+            <OrderCoupons isCart={false} order={order} />
             <OrderShippingAddress isCart={false} order={order} />
             <OrderShippingMethod isCart={false} order={order} />
-            <OrderCoupons isCart={false} order={order} />
             <Payments {...this.props} />
           </div>
           <div className="fc-order-details-aside">

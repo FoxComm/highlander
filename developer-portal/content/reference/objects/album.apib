@@ -1,0 +1,24 @@
+# Data Structures
+
+## Image
++ src: `http://lorempixel.com/test.png` (required, string) - URL pointing to the image.
++ title: `test image` (optional, string) - Title that identifies the image.
++ alt: `some image text` (optional, string) - Alt text for the image.
+
+## AlbumPayload
++ name: `Desktop images` (required, string) - Name of the album.
++ images (optional, array[Image]) - Images that are part of the album.
+
+## AlbumResponse
++ id: 1 (required, number) - Unique identifier.
++ name: `Desktop images` (required, string) - Name of the album.
++ images (optional, array[Image]) - Images that are part of the album.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
++ updatedAt: `2020-01-01T12:00:00Z` (optional, string) - Last update date.
++ archivedAt: `2020-01-01T12:00:00Z` (optional, string) - Archiving date.
+
+## Album
++ Include AlbumResponse
+
+## CreateAlbumPayload
++ Include AlbumPayload

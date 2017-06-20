@@ -1,0 +1,55 @@
+@import "layout.css";
+@import "media-queries.css";
+@import "typography.css";
+
+.header-wrap {
+  composes: paragraph;
+
+  display: flex;
+  background: url('/images/categories/men-header.jpg') center no-repeat;
+  background-size: cover;
+  height: 600px;
+  position: relative;
+
+  width: 100vw;
+  left: calc(-50vw + 49%);
+}
+
+.header-content {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-top: 100px;
+  width: 100%;
+}
+
+.header-title {
+  composes: title-large;
+  line-height: 1;
+  padding: 0px 100px;
+  text-transform: uppercase;
+  width: 50%;
+}
+
+.header-body {
+  composes: paragraph;
+  line-height: 1.25;
+  padding-left: 100px;
+  width: 50%;
+}
+
+.cat-text-lists {
+  display: flex;
+  margin-top: 40px;
+  width: 100%;
+}
+
+.cat-text-list {
+  composes: quarter;
+}
+
+@media (--x-large) {
+  .header-wrap {
+    width: 1440px;
+    left: calc(50% - 720px);
+  }
+}

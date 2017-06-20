@@ -9,13 +9,24 @@
     join_type: join-wan
     mesos_quorum: 1
     consul_expect: 1
-
   roles:
-    - { role: base/java }
     - { role: base/consul_server }
-    - { role: base/docker_registry }
     - { role: base/zookeeper }
     - { role: base/mesos_master }
     - { role: base/mesos_consul }
     - { role: base/elasticsearch-5 }
     - { role: base/kibana }
+  post_tasks:
+    - name: Enable Services
+      service: name={{item}} enabled=yes
+      with_items:
+        - consul_server
+        - zookeeper
+        - mesos_master
+        - marathon
+        - mesos_consul
+        - elasticsearch_5
+        - kibana
+
+    - name: Reload Systemd Daemon
+      command: systemctl daemon-reload

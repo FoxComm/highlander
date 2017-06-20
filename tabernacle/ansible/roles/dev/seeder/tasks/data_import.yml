@@ -1,0 +1,46 @@
+---
+
+- name: Create Data Import Directory
+  file:
+    path: "{{data_import_dir}}"
+    owner: "{{user}}"
+    state: directory
+    mode: "u=rwx,g=rwx,o=r"
+
+- name: Copy Taxonomy Import .env
+  template: src=data_import_taxonomies.env dest="{{data_import_dir}}/.env.taxonomies"
+
+- name: Copy Product Import .env
+  template: src=data_import_products.env dest="{{data_import_dir}}/.env.products"
+
+- name: Get Latest Data Import Image
+  shell: docker pull {{data_import_docker_url}}
+
+- name: Pull listing.json
+  s3:
+    aws_access_key: "{{aws_access_key}}"
+    aws_secret_key: "{{aws_secret_key}}"
+    region: "{{data_import_s3_region}}"
+    bucket: "{{data_import_s3_bucket}}"
+    object: "{{data_import_listings_path}}"
+    dest: "{{data_import_dir}}/listings.json"
+    mode: get
+
+- name: Pull products.json
+  s3:
+    aws_access_key: "{{aws_access_key}}"
+    aws_secret_key: "{{aws_secret_key}}"
+    region: "{{data_import_s3_region}}"
+    bucket: "{{data_import_s3_bucket}}"
+    object: "{{data_import_products_path}}"
+    dest: "{{data_import_dir}}/products.json"
+    mode: get
+
+- name: Run Taxonomies Import Container
+  command: docker run -d={{detach}} --env-file "{{data_import_dir}}/.env.taxonomies" -v "{{data_import_dir}}:/data-import/data" --network host {{data_import_docker_url}}
+
+- name: Take a nap for indexing to catch up
+  pause: seconds=45
+
+- name: Run Products Import Container
+  command: docker run -d={{detach}} --env-file "{{data_import_dir}}/.env.products" -v "{{data_import_dir}}:/data-import/data" --network host {{data_import_docker_url}}

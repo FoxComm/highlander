@@ -12,6 +12,11 @@ import (
 	"github.com/FoxComm/metamorphosis"
 )
 
+const (
+	clientID = "shipstation-01"
+	groupID  = "mwh-shipstation-consumers"
+)
+
 func main() {
 	config, err := consumers.MakeConsumerConfig()
 	if err != nil {
@@ -58,6 +63,8 @@ func main() {
 	}()
 
 	oh := NewOrderConsumer(phoenixClient, shipStationClient)
+	consumer.SetGroupID(groupID)
+	consumer.SetClientID(clientID)
 
 	consumer.RunTopic(config.Topic, oh.Handler)
 }

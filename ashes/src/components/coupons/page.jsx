@@ -8,11 +8,17 @@ import { transitionTo } from 'browserHistory';
 
 // components
 import { connectPage, ObjectPage } from '../object-page/object-page';
-import SubNav from './sub-nav';
-import SaveCancel from '../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 
 // actions
 import * as CouponActions from 'modules/coupons/details';
+import { actions } from 'modules/coupons/list';
+
+const refresh = actions.refresh;
+const combinedActions = {
+  ...CouponActions,
+  refresh,
+};
 
 type State = {
   promotionError?: boolean,
@@ -38,6 +44,7 @@ type Actions = {
   couponsGenerationShowDialog: Function,
   couponsGenerationReset: Function,
   clearSubmitErrors: Function,
+  refresh: Function,
 };
 
 type Props = {
@@ -83,9 +90,8 @@ class CouponPage extends ObjectPage {
         }).then(() => {
           this.props.actions.couponsGenerationReset();
         }).then(() => {
+          this.props.actions.refresh();
           transitionTo('promotion-coupons',{promotionId: this.props.params.promotionId});
-        }).catch((err) => {
-          this.props.submitError(err.message);
         });
       }
 
@@ -128,7 +134,7 @@ class CouponPage extends ObjectPage {
         cancelDisabled={this.props.isSaving}
         saveDisabled={this.props.isSaving}
         onCancel={this.props.params.modalCancelAction}
-        saveText="Generate Coupon Code(s)"
+        saveLabel="Generate Coupon Code(s)"
       />
     );
   }
@@ -182,6 +188,7 @@ class CouponPage extends ObjectPage {
       promotionError: this.state.promotionError,
       createCoupon: this.createCoupon,
       selectedPromotions: this.selectedPromotions,
+      refresh: this.props.actions.refresh,
     };
   }
 
@@ -190,4 +197,4 @@ class CouponPage extends ObjectPage {
   }
 }
 
-export default connectPage('coupon', CouponActions)(CouponPage);
+export default connectPage('coupon', combinedActions)(CouponPage);

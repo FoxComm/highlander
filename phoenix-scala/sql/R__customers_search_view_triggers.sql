@@ -67,12 +67,12 @@ begin
     when 'addresses' then
       account_ids := array_agg(new.account_id);
     when 'regions' then
-      select array_agg(o.account_id) into strict account_ids
-      from addresses as a
-      inner join regions as r on (r.id = a.region_id)
-      where r.id = new.id;
+      select array_agg(a.account_id) into strict account_ids
+        from addresses as a
+        inner join regions as r on (r.id = a.region_id)
+        where r.id = new.id;
     when 'countries' then
-      select array_agg(o.account_id) into strict account_ids
+      select array_agg(a.account_id) into strict account_ids
       from addresses as a
       inner join regions as r1 on (r1.id = a.region_id)
       inner join countries as c1 on (r1.country_id = c1.id)
@@ -126,7 +126,7 @@ begin
       inner join regions as r on (cc.region_id = r.id)
       where r.id = new.id;
     when 'countries' then
-      select array_agg(o.account_id) into strict account_ids
+      select array_agg(cc.account_id) into strict account_ids
       from credit_cards as cc
       inner join regions as r on (cc.region_id = r.id)
       inner join countries as c on (c.id = r.country_id)
@@ -257,57 +257,6 @@ begin
 end;
 $$ language plpgsql;
 
--- Update customer's rank
-
-create or replace function update_customers_ranking() returns boolean as $$
-begin
-     -- Update customers ranks
-      update customers_search_view
-        set rank = q.rank from (
-            select
-              c.id,
-              c.revenue,
-              ntile(100) over (w) as rank
-            from
-              customers_search_view as c
-            where revenue > 0
-              window w as (order by c.revenue desc)
-              order by revenue desc) as q
-          where customers_search_view.id = q.id;
-
-      -- Update Carts
-      update carts_search_view set
-        customer = q.customer from (
-          select
-              cs.id,
-              c.rank,
-              jsonb_set(jsonb_set(cs.customer, '{rank}', jsonb (c.rank::varchar), true),
-                        '{revenue}', jsonb (c.revenue::varchar), true)
-                        as customer
-          from carts_search_view as cs
-          inner join customers_search_view as c on (c.id = (cs.customer->>'id')::bigint)
-          where c.rank > 0
-        ) as q
-        where carts_search_view.id = q.id;
-
-      -- Update Orders
-      update orders_search_view set
-        customer = q.customer from (
-          select
-              o.id,
-              c.rank,
-              jsonb_set(jsonb_set(o.customer, '{rank}', jsonb (c.rank::varchar), true),
-                        '{revenue}', jsonb (c.revenue::varchar), true)
-                      as customer
-          from orders_search_view as o
-          inner join customers_search_view as c on (c.id = (o.customer->>'id')::bigint)
-          where c.rank > 0
-        ) as q
-        where orders_search_view.id = q.id;
-
-    return true;
-end;
-$$ language plpgsql;
 
 -- Update customer's carts after cart inserted or updated
 

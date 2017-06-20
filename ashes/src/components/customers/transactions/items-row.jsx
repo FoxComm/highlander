@@ -1,23 +1,19 @@
-/** Libs */
-import { get } from 'lodash';
-import React, { PropTypes } from 'react';
+/* @flow */
 
-/** Components */
-import MultiSelectRow from '../../table/multi-select-row';
+import React from 'react';
 
+// libs
+import _ from 'lodash';
 
-function setCellContents(order, field) {
-  const value = get(order, field);
+// components
+import MultiSelectRow from 'components/table/multi-select-row';
+import Icon from 'components/core/icon';
 
-  switch (field) {
-    case 'savedForLaterAt':
-      return value ? <i className="icon-heart"/> : null;
-    case 'image':
-      return 'https://placeholdit.imgix.net/~text?txtsize=8&txt=IMAGE&w=50&h=50';
-    default:
-      return value;
-  }
-}
+type Props = {
+  item: Object,
+  columns: Columns,
+  params: Object,
+};
 
 /**
  * CustomerItemsRow Component
@@ -25,10 +21,21 @@ function setCellContents(order, field) {
  * TODO: Fix image url when it is added to ES result
  * TODO: Fix link to product-details page after productId would be added ES result
  */
-const CustomerItemsRow = props => {
+const CustomerItemsRow = (props: Props) => {
   const { item, columns, params } = props;
 
-  const key = `customer-items-${item.id}`;
+  const setCellContents = (order: Object, field: string) => {
+    const value = _.get(order, field);
+
+    switch (field) {
+      case 'savedForLaterAt':
+        return value ? <Icon name="heart" /> : null;
+      case 'image':
+        return 'https://placeholdit.imgix.net/~text?txtsize=8&txt=IMAGE&w=50&h=50';
+      default:
+        return value;
+    }
+  };
 
   return (
     <MultiSelectRow
@@ -37,15 +44,8 @@ const CustomerItemsRow = props => {
       linkParams={{skuCode: item.skuCode}}
       row={item}
       setCellContents={setCellContents}
-      params={params}/>
+      params={params} />
   );
-};
-
-/** CustomerItemsRow expected props types */
-CustomerItemsRow.propTypes = {
-  item: PropTypes.object.isRequired,
-  columns: PropTypes.array.isRequired,
-  params: PropTypes.object,
 };
 
 export default CustomerItemsRow;

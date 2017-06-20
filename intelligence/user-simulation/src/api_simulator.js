@@ -46,11 +46,9 @@ function setup(c) {
 }
 
 async function homepage(c) {
-  console.log("api homepage");
 }
 
 async function signup(c) {
-  console.log("api signup");
   const email = faker.internet.email();
   const name = faker.name.firstName();
   const password = faker.internet.password();
@@ -65,10 +63,42 @@ async function signup(c) {
 }
 
 async function category(c) {
-  let cat = _.sample(c.args['select']);
 
-  let query = {"query":{"bool":{"filter":[{"term":{"context":"default"}},{"term":{"tags": cat}}]}}};
-  let products = await c.api.get(`/search/public/products_catalog_view/_search?size=1000`);
+  if(_.isNil(c.category)) 
+    c.category = _.sample(c.args['select']);
+  else if(_.random(1.0, true) > 0.90)  //once in a while switch categories
+    c.category = _.sample(c.args['select']);
+
+  let query = {
+    "query":{ 
+      "function_score" : { 
+        "query": { 
+          "bool": { 
+            "filter":[{"term":{"context":"default"}}], 
+            "must": [{
+              "nested": {
+                "path": "taxonomies", 
+                "query":{
+                  "bool" : {
+                    "must": [{
+                      "query":{
+                        "bool": {
+                          "should": { "term": {"taxonomies.taxons": c.category} }
+                        }
+                      }
+                    }]
+                  }
+                }
+              }
+            }]
+          }
+        }, "random_score": {}
+      } 
+    }
+  };
+
+  let products = await c.api.get(`/search/public/products_catalog_view/_search?size=100`,
+  query);
 
   _.forEach(products.result, async (product) => {
     await c.api.analytics.trackEvent({
@@ -85,7 +115,6 @@ async function category(c) {
 }
 
 async function product(c) {
-  console.log("api product");
   await c.api.analytics.trackEvent({
       channel: 1,
       subject: 1,
@@ -95,9 +124,20 @@ async function product(c) {
   });
 }
 
+function addToLineItems(items, sku, quantity, attributes) {
+  return items.concat([{ sku, quantity, attributes }]);
+}
+
 async function cart(c) {
-  console.log("api cart");
-  await c.api.cart.addSku(c.product.skus[0], 1);
+  let cart = await c.api.cart.get();
+
+  const skus = cart.lineItems.skus;
+  const newSku = _.sample(c.product.skus);
+  console.log("\tCART: " + newSku);
+
+  const newLineItems = addToLineItems(skus, newSku, 1, {});
+  await c.api.post('/v1/my/cart/line-items', newLineItems);
+
   await c.api.analytics.trackEvent({
       channel: 1,
       subject: 1,
@@ -116,7 +156,6 @@ function getRegion(state) {
 }
 
 async function purchase(c) {
-  console.log("api purchase");
   let cart = await c.api.cart.get();
   c.cart = cart;
 
@@ -129,6 +168,7 @@ async function purchase(c) {
   });
   _.forEach(cart.lineItems.skus, async sku => {
       const productId = sku.productFormId;
+      console.log("\tSKU: " + sku.sku);
       await c.api.analytics.trackEvent({
           channel: 1,
           subject: 1,
@@ -188,7 +228,6 @@ async function purchase(c) {
 }
 
 async function clear_cart(c) {
-  console.log("api clear_cart");
 }
 
 const stateFunctions = {

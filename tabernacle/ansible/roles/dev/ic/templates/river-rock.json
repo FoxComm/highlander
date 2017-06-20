@@ -8,7 +8,8 @@
   "labels": {
     "LAYER": "backend",
     "LANG": "go",
-    "TAG": "{{docker_tags.river_rock}}"
+    "TAG": "{{docker_tags.river_rock}}",
+    "consul": "river-rock"
   },
   "container": {
     "type": "DOCKER",

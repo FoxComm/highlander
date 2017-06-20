@@ -1,6 +1,19 @@
 include ../makelib
 header = $(call baseheader, $(1), ashes)
 
+export PATH := $(CURDIR)/node_modules/.bin:$(PATH)
+SHELL := env PATH=$(PATH) /bin/sh
+
+export GIT_REVISION = $(shell git describe --tags --always)
+export GIT_COMMIT = $(shell git rev-parse --short HEAD)
+export URL_PREFIX = /admin
+WEBPACK_PORT = 4001
+
+notify:
+	$(call header, $(MSG))
+
+# Docker stuff ###
+
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
 DOCKER_IMAGE ?= ashes
 DOCKER_TAG ?= master
@@ -12,68 +25,112 @@ CFLAGS = -c -g -D $(NODE_ENV)
 # Get version number from package.json, need this for tagging.
 version = $(shell iojs -e "console.log(JSON.parse(require('fs').readFileSync('package.json')).version)")
 
-clean:
-	rm -rf ./node_modules
+.PHONY: docker
+docker: MSG=Dockerizing
+docker: notify
+	docker build -t $(DOCKER_IMAGE) .
 
-test:
-	$(call header, Testing)
-	make setup
-	@NODE_ENV=$(NODE_ENV) ./node_modules/.bin/gulp test
+.PHONY: docker-push
+docker-push: MSG=Registering
+docker-push: notify
+	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
-t:
-	make flow
-	@NODE_ENV=$(NODE_ENV) ./node_modules/.bin/gulp test
-
-lint:
-	@NODE_ENV=$(NODE_ENV) ./node_modules/.bin/gulp lint
-
+.PHONY: tag
 tag:
 	git push
 	git tag v$(version)
 	git push --tags origin master
 
-setup:
-	yarn cache clean
-	yarn --pure-lockfile
-	yarn build
+# Linters, utils and cleaners ###
 
-stop:
-	if [ `ps aux | awk '{print $2 " " $11}' | grep [m]-ashes | awk '{print $1}'` ]; then npm stop; fi
+.PHONY: clean
+clean:
+	rm -rf ./build/admin
 
-run-staging: setup stop
-	export NODE_ENV=staging; nohup npm run dev 2>&1 &
+.PHONY: test
+test: MSG=Testing
+test: notify flow lint
+	rm -rf ./node_modules
+	make install
+	@NODE_ENV=$(NODE_ENV) gulp test
 
-run-production: setup stop
-	export NODE_ENV=production; nohup ./node_modules/.bin/gulp server 2>&1 &
+.PHONY: t
+t: flow lint
+	@NODE_ENV=$(NODE_ENV) gulp test
 
-rev:
-	git describe --always | cat > .git-rev
+.PHONY: mocha-main
+mocha-main:
+	@NODE_ENV=$(NODE_ENV) gulp mocha.main
 
-dev d: rev
-	test -f .env && export eval `cat .env` || true && ./node_modules/.bin/gulp dev
+.PHONY: mocha-unit
+mocha-unit:
+	@NODE_ENV=$(NODE_ENV) gulp mocha.unit
 
-prod p:
-	test -f .env && export eval `cat .env` || true && NODE_ENV=production ./node_modules/.bin/gulp build
-	test -f .env && export eval `cat .env` || true && NODE_ENV=production node boot.js
+.PHONY: stylelint
+stylelint:
+	stylelint "./src/**/*.css"
+
+.PHONY: lint
+lint: stylelint
+	eslint --ext .js --ext .jsx ./
 
 .PHONY: flow
 flow:
-	./node_modules/.bin/flow check
+	flow check
 
-build-dev: setup flow
-	test -f .env && export eval `cat .env` || true && BEHIND_NGINX=true ./node_modules/.bin/gulp build
+# run prettier against js(x)/css files in git diff that are not formatted in Prettier style
+.PHONY: fmt
+fmt:
+	../utils/prettier/fmt.sh
 
-build: rev setup flow
-	$(call header, Building)
-	test -f .env && export eval `cat .env` || true && NODE_ENV=production BEHIND_NGINX=true ./node_modules/.bin/gulp build
+# prettierify target directory. usage: make fmt-config
+fmt-%:
+	../utils/prettier/fmt.sh $*
 
-docker:
-	$(call header, Dockerizing)
-	docker build -t $(DOCKER_IMAGE) .
+.PHONY: build-styleguide
+build-styleguide:
+	styleguidist build --config styleguide/config.styleguide.js
 
-docker-push:
-	$(call header, Registering)
-	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
-	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+.PHONY: styleguide sg
+styleguide sg:
+	styleguidist server --config styleguide/config.styleguide.js
 
-.PHONY: hooks rev dev d prod p build test test-cov tag docker docker-push
+# Base ###
+
+.PHONY: install i
+install i:
+	yarn cache clean
+	yarn --pure-lockfile
+
+# Development ###
+
+.PHONY: nodemon
+nodemon:
+	WEBPACK_PORT=$(WEBPACK_PORT)  nodemon --watch server --watch .env --watch config -e js,tmpl,env \
+	--exec "node -r dotenv/config" ./server/index.js
+
+.PHONY: build-dev
+build-dev:
+	webpack-dev-server \
+	--inline --watch --hot --progress --content-base=build/ --port $(WEBPACK_PORT)
+
+.PHONY: dev d
+dev d:
+	make --jobs build-dev nodemon
+
+# Production ###
+
+.PHONY: build-prod
+build-prod:
+	NODE_ENV=production webpack --progress
+
+.PHONY: prod p
+prod p: clean build-prod
+	NODE_ENV=production node -r dotenv/config ./server/index.js
+
+# Buildkite ###
+
+.PHONY: build
+build: MSG=Building
+build: notify clean install build-styleguide build-prod

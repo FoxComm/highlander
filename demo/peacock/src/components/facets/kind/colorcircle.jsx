@@ -30,6 +30,10 @@ class ColorCircle extends Component {
     checked: !!this.props.checked,
   };
 
+  static defaultProps = {
+    available: true,
+  };
+
   componentWillReceiveProps(nextProps: FacetElementProps) {
     if (nextProps.checked != this.props.checked) {
       this.setState({
@@ -53,6 +57,7 @@ class ColorCircle extends Component {
       reactKey,
       value,
       label,
+      available,
     } = this.props;
 
     const colorStyle = styles[value.color];
@@ -61,6 +66,9 @@ class ColorCircle extends Component {
       colorStyle,
       styles['color-checkbox'], {
         [styles.light]: isLight(value.color),
+      },
+      {
+        [styles.disabled]: !available,
       }
     );
 

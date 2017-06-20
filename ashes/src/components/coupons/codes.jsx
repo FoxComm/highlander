@@ -73,7 +73,7 @@ export default class CouponCodes extends Component {
   }
 
   @autobind
-  renderRow(row: Object, index: number, columns: Array<any>, params: Object): Element<*> {
+  renderRow(row: Object, index: number, columns: Columns, params: Object): Element<*> {
     const key = `coupon-code-${row.code}`;
     return (
       <CouponCodeRow
@@ -118,10 +118,10 @@ export default class CouponCodes extends Component {
             entity="coupons.couponCodes"
             title="Coupon Codes"
             emptyMessage="No coupon codes found."
-            list={this.props.list}
+            list={list}
             renderRow={this.renderRow}
             tableColumns={tableColumns}
-            searchActions={this.props.actions}
+            searchActions={actions}
             searchOptions={{
               singleSearch: true,
               placeholder: 'keyword search',
@@ -132,5 +132,3 @@ export default class CouponCodes extends Component {
     );
   }
 }
-
-

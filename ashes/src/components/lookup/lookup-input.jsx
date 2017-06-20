@@ -1,12 +1,13 @@
 //libs
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 // helpers
 import { prefix } from '../../lib/text-utils';
 
 //components
-import TextInput from '../../components/forms/text-input';
+import TextInput from 'components/core/text-input';
 
 const prefixed = prefix('fc-lookup');
 

@@ -4,7 +4,8 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import EventEmitter from 'events';
 import { bindActionCreators } from 'redux';
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
+import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import { push } from 'react-router-redux';
 import { autobind } from 'core-decorators';
@@ -15,10 +16,10 @@ import styles from './object-page.css';
 
 // components
 import { PageTitle } from '../section-title';
-import WaitAnimation from '../common/wait-animation';
-import ErrorAlerts from '../alerts/error-alerts';
-import ButtonWithMenu from '../common/button-with-menu';
-import { Button } from '../common/buttons';
+import Spinner from 'components/core/spinner';
+import { ApiErrors } from 'components/utils/errors';
+import ButtonWithMenu from 'components/core/button-with-menu';
+import { Button } from 'components/core/button';
 import Error from '../errors/error';
 import ArchiveActionsSection from '../archive-actions/archive-actions';
 import Prompt from '../common/prompt';
@@ -131,10 +132,6 @@ export function connectPage(namespace, actions, options = {}) {
   };
 }
 
-function getObjectId(object) {
-  return _.get(object, 'form.id', object.id);
-}
-
 export class ObjectPage extends Component {
   state = {
     object: this.props.originalObject,
@@ -222,7 +219,8 @@ export class ObjectPage extends Component {
         });
     }
 
-    this.props.actions.fetchAmazonStatus();
+    this.props.actions.fetchAmazonStatus()
+      .catch(() => {}); // pass
   }
 
   get unsaved(): boolean {
@@ -259,8 +257,12 @@ export class ObjectPage extends Component {
     }
   }
 
+  getObjectId(object) {
+    return _.get(object, 'form.id', object.id);
+  }
+
   receiveNewObject(nextObject) {
-    const nextObjectId = getObjectId(nextObject);
+    const nextObjectId = this.getObjectId(nextObject);
     const wasNew = this.isNew;
     this.setState({
       object: nextObject
@@ -444,23 +446,22 @@ export class ObjectPage extends Component {
   }
 
   @autobind
-  alterSave(){
+  alterSave() {
     return null;
   }
 
   @autobind
   titleBar() {
     return (<PageTitle title={this.pageTitle}>
-        {this.renderHead()}
-        <ButtonWithMenu
-          title="Save"
-          menuPosition="right"
-          onPrimaryClick={this.handleSubmit}
-          onSelect={this.handleSelectSaving}
-          isLoading={this.props.isSaving}
-          items={SAVE_COMBO_ITEMS}
-        />
-      </PageTitle>);
+      {this.renderHead()}
+      <ButtonWithMenu
+        title="Save"
+        onPrimaryClick={this.handleSubmit}
+        onSelect={this.handleSelectSaving}
+        isLoading={this.props.isSaving}
+        items={SAVE_COMBO_ITEMS}
+      />
+    </PageTitle>);
   }
 
   childrenProps() {
@@ -508,7 +509,7 @@ export class ObjectPage extends Component {
     const { actions, namespace } = props;
 
     if (this.isFetching) {
-      return <WaitAnimation className={styles.waiting} />;
+      return <Spinner className={styles.spinner} />;
     }
 
     if (!object) {
@@ -526,8 +527,8 @@ export class ObjectPage extends Component {
         {this.titleBar()}
         {this.subNav()}
         <div styleName="object-details">
-          <ErrorAlerts
-            error={this.props.submitError}
+          <ApiErrors
+            response={this.props.submitError}
             closeAction={actions.clearSubmitErrors}
             sanitizeError={this.sanitizeError}
           />

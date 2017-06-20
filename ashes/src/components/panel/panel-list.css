@@ -1,0 +1,59 @@
+@import 'colors.css';
+
+.block {
+  display: flex;
+  justify-content: space-between;
+}
+
+.item {
+  flex: 1 1 100%;
+  margin-bottom: 20px;
+  text-align: center;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.header {
+  padding: 30px 0 0;
+  font-size: 13px;
+}
+
+.content {
+  font-size: 22px;
+  margin: 22px 10px;
+  word-wrap: break-word;
+}
+
+@media (min-resolution: 120dpi) {
+  .item {
+    border-width: .5px;
+  }
+}
+
+@media (min-width: 768px) {
+  .item {
+    flex: 1;
+    margin-right: 10px;
+    margin-bottom: 0;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  .content {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 880px) {
+  .content {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .content {
+    font-size: 22px;
+  }
+}

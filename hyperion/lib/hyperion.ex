@@ -12,7 +12,8 @@ defmodule Hyperion do
     children = [
       worker(Hyperion.Repo, []),
       worker(Hyperion.Amazon.Workers.CustomersOrdersWorker, []),
-      worker(Hyperion.Amazon.Workers.PushCheckerWorker, [])
+      worker(Hyperion.Amazon.Workers.PushCheckerWorker, []),
+      worker(Hyperion.MWSAuth, [])
     ]
 
     # Create plugin on app start only if ENV var defined

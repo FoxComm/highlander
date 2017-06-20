@@ -1,0 +1,9 @@
+.wrapper {
+  position: relative;
+  display: flex;
+}
+
+.loader {
+  position: absolute;
+  right: 0;
+}

@@ -1,0 +1,113 @@
+@import 'colors.css';
+
+.block {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  border-bottom: 2px solid var(--color-border);
+  margin: 20px 1.85%; /* because of grid system :( */
+  white-space: nowrap;
+}
+
+.item {
+  font-size: 14px;
+  color: var(--color-text);
+  display: inline-block;
+  vertical-align: top;
+  margin: 0 5px -2px 0;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &:hover {
+    color: var(--color-text);
+  }
+
+  & a,
+  & a:visited {
+    position: relative;
+    display: block;
+    max-width: 200px;
+    color: var(--color-text);
+    padding: 0 20px 10px;
+    transition: color .2s;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2px;
+      background-color: transparent;
+      transition: all .4s;
+    }
+
+    &.activeLink::after {
+      background-color: var(--bg-nav-pink);
+    }
+  }
+
+  & a:hover {
+    cursor: pointer;
+  }
+}
+
+.parent {
+  position: relative;
+
+  & > a > i {
+    padding-left: 10px;
+    transform: rotateX(0);
+    transform-origin: 50% 45%;
+    transition: transform .3s ease-in;
+
+    &::before {
+      transform: rotateX(0);
+      transform-origin: 50% 45%;
+      transition: transform .12s ease-in;
+    }
+  }
+
+  &.opened {
+    & > a > i::before {
+      transform: rotateX(180deg);
+      transition: transform .2s ease-out;
+    }
+  }
+}
+
+.dropdown {
+  position: absolute;
+  min-width: 150px;
+  background: var(--bg-white);
+  border: 1px solid var(--color-border);
+  top: calc(100% - 2px);
+  z-index: 3;
+}
+
+.dropdown .item {
+  display: block;
+  width: 100%;
+  margin: 0;
+  font-weight: 600;
+  transition: all .2s;
+}
+
+.dropdown .item:hover {
+  background: var(--bg-grey-headers);
+}
+
+.dropdown .item a {
+  display: block;
+  padding: 11px 20px;
+  line-height: 18px;
+}
+
+.dropdown .item a:hover {
+  color: var(--color-text);
+}

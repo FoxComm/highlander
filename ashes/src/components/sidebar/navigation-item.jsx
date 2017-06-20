@@ -4,10 +4,10 @@ import _ from 'lodash';
 import React from 'react';
 import classNames from 'classnames';
 
-import { IndexLink, Link } from '../link';
+import { IndexLink } from 'components/link';
 import type { Claims } from 'lib/claims';
 
-import Icon from 'components/icon/icon';
+import SvgIcon from 'components/core/svg-icon';
 
 import styles from './navigation-item.css';
 
@@ -57,7 +57,7 @@ const NavigationItem = (props: Props) => {
           className='fc-navigation-item__link'
           actualClaims={props.actualClaims}
           expectedClaims={props.expectedClaims}>
-          <Icon name={props.icon} styleName="nav-item" />
+          <SvgIcon name={props.icon} styleName="nav-item" />
           <span>{props.title}</span>
         </IndexLink>
       </div>

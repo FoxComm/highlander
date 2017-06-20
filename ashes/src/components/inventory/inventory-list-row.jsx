@@ -1,17 +1,24 @@
+/* @flow */
 
 // libs
-import React, { PropTypes } from 'react';
+import React from 'react';
 import _ from 'lodash';
 
 // components
 import MultiSelectRow from '../table/multi-select-row';
 
-const setCellContents = (sku, field) => {
-  return _.get(sku, field);
+type Props = {
+  columns: Columns,
+  sku: Object,
+  params: Object,
 };
 
-const InventoryListRow = (props) => {
+const InventoryListRow = (props: Props) => {
   const { sku, columns, params } = props;
+
+  const setCellContents = (sku: Object, field: string) => {
+    return _.get(sku, field);
+  };
 
   return (
     <MultiSelectRow
@@ -20,14 +27,9 @@ const InventoryListRow = (props) => {
       linkParams={{skuCode: sku.sku}}
       row={sku}
       setCellContents={setCellContents}
-      params={params} />
+      params={params}
+    />
   );
-};
-
-InventoryListRow.propTypes = {
-  sku: PropTypes.object.isRequired,
-  columns: PropTypes.array,
-  params: PropTypes.object.isRequired,
 };
 
 export default InventoryListRow;

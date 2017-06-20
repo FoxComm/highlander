@@ -18,11 +18,11 @@ const INITIAL_STATE: Search = {
 };
 
 const MAX_RESULTS = 1000;
-const context = process.env.FIREBIRD_CONTEXT || 'default';
+const context = process.env.STOREFRONT_CONTEXT || 'default';
 
 const _search = createAsyncActions('search',
   function searchApiCall(term: string) {
-    const payload = addMatchQuery(defaultSearch(context), term);
+    const payload = addMatchQuery(defaultSearch(String(context)), term);
     return this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
   },
   (payload, term) => [payload, term]
@@ -30,8 +30,8 @@ const _search = createAsyncActions('search',
 
 export function searchProducts(searchTerm: string) {
   return (dispatch: Function, getState: Function) => {
-    const { term, force } = getState().search;
-    const { search = {} } = getState().asyncActions;
+    const { term, force, asyncActions } = getState();
+    const { search = {} } = asyncActions;
 
     if (force || term != searchTerm) {
       dispatch(_search.perform(searchTerm));

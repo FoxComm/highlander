@@ -16,8 +16,9 @@ target_link_libraries(
     isaac_service
     isaac_db
     isaac_util
-    ${Boost_LIBRARIES}
-    ${MISC_LIBRARIES})
+    ${MISC_LIBRARIES}
+    ${Boost_LIBRARIES})
+
 
 add_dependencies(
     isaac 

@@ -8,10 +8,10 @@ import { bindActionCreators } from 'redux';
 
 // components
 import { PageTitle } from 'components/section-title';
-import { PrimaryButton } from 'components/common/buttons';
+import { PrimaryButton } from 'components/core/button';
 import ContentBox from 'components/content-box/content-box';
 import FormField from 'components/forms/formfield';
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 
 // redux
 import * as amazonActions from 'modules/channels/amazon';
@@ -124,9 +124,7 @@ class AmazonCredentials extends Component {
               </PrimaryButton>
 
               {fetchState.inProgress &&
-                <div className={s.preloader}>
-                  <WaitAnimation className={s.waiting} size="m" />
-                </div>
+                <Spinner className={s.spinner} size="m" />
               }
 
               {updateState.err && <div>updateError</div>}

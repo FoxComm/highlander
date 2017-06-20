@@ -27,3 +27,8 @@ func GetSum(step string, pf HenhouseResponse) int {
 	}
 	return 0
 }
+
+type ValuePairs []struct {
+	X int64 `json:"x"`
+	Y int   `json:"y"`
+}

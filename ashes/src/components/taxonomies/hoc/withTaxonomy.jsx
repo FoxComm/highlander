@@ -13,10 +13,10 @@ import { fetchTaxonomyInternal as fetch } from 'modules/taxonomies/details';
 import { getDisplayName } from 'lib/react-utils';
 
 // components
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 
 // styles
-import styles from './taxonomies.css';
+import s from './taxonomies.css';
 
 const omitProps = [
   'taxonomy',
@@ -72,12 +72,13 @@ export default function withTaxonomy(options: Options = defaultOptions) {
         const { taxonomy, fetchState } = this.props;
 
         if (options.showLoader && (!taxonomy || fetchState.inProgress && !fetchState.err)) {
-          return <WaitAnimation className={styles.waiting} />;
+          return <Spinner className={s.spinner} />;
         }
 
         const props = {
           [get(options, 'taxonomyField', 'taxonomy')]: this.props.taxonomy,
           [get(options, 'fetchStateField', 'fetchState')]: this.props.fetchState,
+          [get(options, 'fetchField', 'fetchTaxonomy')]: this.props.fetch,
           ...omit(this.props, omitProps),
         };
 
@@ -94,15 +95,15 @@ export default function withTaxonomy(options: Options = defaultOptions) {
       [fetch.succeeded]: (state, response) => ({ ...state, taxonomy: response }),
     });
 
-    const mapState = state => ({
+    const mapState = (state, props) => ({
       taxonomy: state.taxonomy,
       fetchState: get(state.asyncActions, 'fetchTaxonomy', {}),
     });
 
     return flow(
+      connect(options.mapState, options.mapActions),
       connect(mapState, { fetch: fetch.perform }),
       makeLocalStore(addAsyncReducer(reducer), { taxonomy: null }),
-      connect(options.mapState, options.mapActions)
     )(Wrapper);
   };
 }

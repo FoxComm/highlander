@@ -2,9 +2,9 @@
 
 const runSequence = require('run-sequence');
 
-module.exports = function (gulp, opts, $) {
+module.exports = function(gulp, opts, $) {
   gulp.task('test', function(cb) {
-    runSequence('lint', 'mocha', cb);
+    runSequence('mocha', cb);
   });
 
   if (!process.env.ASHES_NO_WATCH_FOR_TEST) {

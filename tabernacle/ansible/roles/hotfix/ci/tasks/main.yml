@@ -1,8 +1,0 @@
----
-
-- name: Update Open Files Limit
-  pam_limits:
-    domain: "{{ ci_user }}"
-    limit_item: nofile
-    limit_type: soft
-    value: "{{ nofile_limit }}"

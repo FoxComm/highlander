@@ -18,33 +18,33 @@ const initialState = {
 
 const _getApplication = createAsyncActions(
   'getApplication',
-  (id: number) => Api.get(`/mkt/merchant_applications/${id}`)
+  (id: number) => Api.get(`/onboarding/merchant_applications/${id}`)
 );
 
 const _getBusinessProfile = createAsyncActions(
   'getBusinessProfile',
-  (id: number) => Api.get(`/mkt/merchant_applications/${id}/business_profile`)
+  (id: number) => Api.get(`/onboarding/merchant_applications/${id}/business_profile`)
 );
 
 const _getSocialProfile = createAsyncActions(
   'getSocialProfile',
-  (id: number) => Api.get(`/mkt/merchant_applications/${id}/social_profile`)
+  (id: number) => Api.get(`/onboarding/merchant_applications/${id}/social_profile`)
 );
 
 const _approveApplication = createAsyncActions(
   'approveApplication',
-  (id: number) => Api.post(`/mkt/merchants/activate_application/${id}`)
+  (id: number) => Api.post(`/onboarding/merchants/activate_application/${id}`)
 );
 
 
 const _getRealSocialProfile = createAsyncActions(
   'getRealSocialProfile',
-  (id: number) => Api.get(`/mkt/merchants/${id}/social_profile`)
+  (id: number) => Api.get(`/onboarding/merchants/${id}/social_profile`)
 );
 
 const _updateSocialProfile = createAsyncActions(
   'updateSocialProfile',
-  (id: number, data: Object) => Api.patch(`/mkt/merchants/${id}/social_profile`, data)
+  (id: number, data: Object) => Api.patch(`/onboarding/merchants/${id}/social_profile`, data)
 );
 
 export const fetchApplication = _getApplication.perform;

@@ -1,21 +1,32 @@
+/* @flow */
 
-import React, { PropTypes } from 'react';
+import React from 'react';
+
+// libs
 import _ from 'lodash';
 
-import MultiSelectRow from '../table/multi-select-row';
-import OriginType from '../common/origin-type';
+// components
+import MultiSelectRow from 'components/table/multi-select-row';
+import OriginType from 'components/common/origin-type';
 
-const setCellContents = (giftCard, field) => {
-  if (field === 'originType') {
-    return <OriginType value={giftCard} />;
-  }
-
-  return _.get(giftCard, field);
+type Props = {
+  giftCard: Object,
+  columns: Columns,
+  params: Object,
 };
 
-const GiftCardRow = (props) => {
+const GiftCardRow = (props: Props) => {
   const { giftCard, columns, params } = props;
-  const key = `gift-card-${giftCard.id}`;
+
+  const setCellContents = (giftCard: Object, field: string) => {
+    if (field === 'originType') {
+      return (
+        <OriginType value={giftCard} />
+      );
+    }
+
+    return _.get(giftCard, field);
+  };
 
   return (
     <MultiSelectRow
@@ -26,12 +37,6 @@ const GiftCardRow = (props) => {
       setCellContents={setCellContents}
       params={params} />
   );
-};
-
-GiftCardRow.propTypes = {
-  giftCard: PropTypes.object.isRequired,
-  columns: PropTypes.array,
-  params: PropTypes.object.isRequired,
 };
 
 export default GiftCardRow;

@@ -15,17 +15,23 @@ const Gallery = (props: Props) => {
     return {
       original: src,
       originalClass: s.image,
+      thumbnail: src,
+      thumbnailClass: s.thumbnail,
     };
   });
+
   return (
-    <ImageGallery
-      items={items}
-      slideInterval={2000}
-      showThumbnails={false}
-      showPlayButton={false}
-      showBullets={false}
-      showFullscreenButton={false}
-    />
+    <div className={s.gallery}>
+      <ImageGallery
+        items={items}
+        slideInterval={2000}
+        thumbnailPosition="left"
+        showPlayButton={false}
+        showBullets={false}
+        showFullscreenButton={false}
+        showThumbnails
+      />
+    </div>
   );
 };
 

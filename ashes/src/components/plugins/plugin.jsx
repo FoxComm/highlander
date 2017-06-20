@@ -9,8 +9,8 @@ import styles from './plugin.css';
 
 import { PageTitle } from 'components/section-title';
 import ObjectFormInner from 'components/object-form/object-form-inner';
-import SaveCancel from 'components/common/save-cancel';
-import WaitAnimation from 'components/common/wait-animation';
+import SaveCancel from 'components/core/save-cancel';
+import Spinner from 'components/core/spinner';
 
 import * as PluginsActions from 'modules/plugins';
 import type { UpdateSettingsPayload, SettingDef } from 'modules/plugins';
@@ -128,7 +128,7 @@ class Plugin extends Component {
 
   get content(): Element<*> {
     if (this.props.isFetching !== false) {
-      return <WaitAnimation/>;
+      return <Spinner />;
     } else {
       return (
         <div>

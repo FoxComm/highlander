@@ -7,11 +7,12 @@ WORKDIR /hyperion
 COPY . /hyperion
 
 ARG db_host="localhost"
-ARG db_name="hyperion_development"
+ARG db_name="hyperion"
 ARG db_user="hyperion"
 ARG db_password=""
 ARG push_check_interval=5
 ARG hyperion_env=prod
+ARG hyperion_port=55555
 
 ENV HYPERION_DB_NAME $db_name
 ENV HYPERION_DB_USER $db_user
@@ -19,6 +20,7 @@ ENV HYPERION_DB_PASSWORD $db_password
 ENV HYPERION_DB_HOST $db_host
 ENV PUSH_CHECK_INTERVAL $push_check_interval
 ENV MIX_ENV $hyperion_env
+ENV PORT $hyperion_port
 
 RUN mix local.hex --force
 RUN mix local.rebar --force

@@ -1,10 +1,10 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { connect } from 'react-redux';
 
 import AddressBox from './address-box';
 import EmptyText from '../content-box/empty-text';
-import ConfirmationDialog from '../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 
 /**
  * Address list. Requires actions which interface described in customers/address-details and address modules.
@@ -15,14 +15,12 @@ const Addresses = props => {
   return (
     <div>
       {content}
-      <ConfirmationDialog
+      <ConfirmationModal
         isVisible={ props.deletingId != null } /* null and undefined */
-        header='Confirm'
-        body='Are you sure you want to delete this address?'
-        cancel='Cancel'
-        confirm='Yes, Delete'
+        label="Are you sure you want to delete this address?"
+        confirmLabel="Yes, Delete"
         onCancel={() => props.stopDeletingAddress(props.customerId) }
-        confirmAction={() => {
+        onConfirm={() => {
           props.stopDeletingAddress();
           props.deleteAddress(props.customerId, props.deletingId)
             .then(() => {
@@ -36,7 +34,7 @@ const Addresses = props => {
 
 const renderContent = (props) => {
   return (
-    <ul id="fct-customer-addresses-list" className="fc-addresses-list fc-float-list">
+    <ul id="fct-customer-addresses-list" className="fc-float-list">
       {props.processContent(
         props.addresses.map((address, idx) => props.createAddressBox(address, idx, props))
       )}

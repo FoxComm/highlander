@@ -1,10 +1,12 @@
 package services
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
+	commonErrors "github.com/FoxComm/highlander/middlewarehouse/common/errors"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
@@ -162,6 +164,28 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_SingleSKU() {
 	suite.Equal(1, len(units))
 }
 
+func (suite *InventoryServiceTestSuite) Test_ReserveItems_SingleSKU_OutOfStock() {
+	sku := "TEST-RESERVATION"
+	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku))
+	suite.Nil(err)
+
+	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 1)))
+
+	refNum := "BR10001"
+	skus := map[string]int{sku: 10}
+
+	err = suite.service.HoldItems(refNum, skus)
+
+	suite.NotNil(err)
+	expectedErr := commonErrors.AggregateError{}
+	suite.IsType(&expectedErr, err)
+	suite.Contains(err.Error(), fmt.Sprintf("SKU %s is out of stock", sku))
+
+	var units []models.StockItemUnit
+	suite.db.Where("ref_num = ?", refNum).Find(&units)
+	suite.Equal(0, len(units))
+}
+
 func (suite *InventoryServiceTestSuite) Test_ReserveItems_MultipleSKUs() {
 	sku1 := "TEST-RESERVATION-A"
 	sku2 := "TEST-RESERVATION-B"
@@ -209,6 +233,9 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_NoSKU() {
 
 	err := suite.service.HoldItems(refNum, skus)
 	suite.NotNil(err)
+	expectedErr := commonErrors.AggregateError{}
+	suite.IsType(&expectedErr, err)
+	suite.Contains(err.Error(), "Entry in table stock_items not found for sku=NO-SKU.")
 }
 
 func (suite *InventoryServiceTestSuite) Test_ReleaseItems_NoReservedSKUs() {

@@ -1,7 +1,8 @@
 // libs
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 // components
 import UserInitials from './initials';
@@ -18,7 +19,8 @@ export default class DetailedUserInitials extends Component {
     name: PropTypes.string,
     email: PropTypes.string,
     actionBlock: PropTypes.node,
-    showTooltipOnClick: PropTypes.bool
+    showTooltipOnClick: PropTypes.bool,
+    className: PropTypes.string
   };
 
   static defaultProps = {
@@ -26,7 +28,7 @@ export default class DetailedUserInitials extends Component {
   };
 
   get initials() {
-    const initials = <UserInitials {...this.props}/>;
+    const initials = <UserInitials {...this.props} />;
 
     if (this.props.showTooltipOnClick) {
       return (
@@ -43,7 +45,7 @@ export default class DetailedUserInitials extends Component {
   }
 
   render() {
-    const rootClass = classNames('initials', 'fc-with-tooltip', {
+    const rootClass = classNames('initials', 'fc-with-tooltip', this.props.className, {
       '_clickable': this.props.showTooltipOnClick
     });
     const tooltipClass = classNames('fc-tooltip', 'fc-tooltip-left', {

@@ -52,7 +52,7 @@ const buildTaxonsDropDownItems = (taxons: TaxonsTree, prefix: string, sep: strin
     res = assoc(res, node.node.id, { id: node.node.id, name, path });
 
     if (!isEmpty(node.children)) {
-      res = merge(res, buildTaxonsDropDownItems(node.children, `${name}${sep}`, sep, res));
+      res = merge(res, buildTaxonsDropDownItems(node.children, `${path}${sep}`, sep, res));
     }
 
     return res;
@@ -90,7 +90,7 @@ export default class TaxonsDropdown extends Component {
   }
 
   componentWillUpdate(nextProps: Props, nextState: State) {
-    if (this.state.token !== nextState.token) {
+    if (nextState.token.length > 0) {
       this._d.openMenu();
     }
   }
@@ -160,7 +160,7 @@ export default class TaxonsDropdown extends Component {
         pills={compact([parentName])}
         onPillClick={this.handlePillClick}
         onPillClose={() => this.handleParentSelect(null)}
-        onClick={handleToggleClick}
+        onFocus={handleToggleClick}
       />
     );
   }
@@ -186,6 +186,7 @@ export default class TaxonsDropdown extends Component {
   render() {
     return (
       <GenericDropdown
+        placeholder="- Select -"
         className={styles.dropdown}
         onChange={this.handleParentSelect}
         renderDropdownInput={this.renderInput}

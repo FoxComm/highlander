@@ -1,0 +1,19 @@
+---
+
+- name: Run Hyperion Seeder
+  hosts: '{{hostname}}'
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    with_base_seeds: false
+    with_mwh_seeder: false
+    with_data_import: false
+    with_geronimo_seeder: false
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter desired hostname"
+      default: "appliance-pavel"
+      private: no
+
+  roles:
+    - { role: dev/seeder }

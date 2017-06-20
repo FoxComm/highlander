@@ -112,7 +112,13 @@ class RestorePasswordForm extends Component {
 
     return (
       <FormField name="email" key="email" styleName="form-field">
-        <TextInput placeholder={t('Email')} required type="email" value={email} onChange={this.changeEmail} />
+        <TextInput
+          placeholder={t('Email')}
+          required
+          type="email"
+          value={email}
+          onChange={this.changeEmail}
+        />
       </FormField>
     );
   }
@@ -133,7 +139,7 @@ class RestorePasswordForm extends Component {
       );
     }
 
-    return <Button styleName="primary-button" type="submit">{t('SUBMIT')}</Button>;
+    return <Button styleName="primary-button" type="submit">{t('Submit')}</Button>;
   }
 
   get switchStage(): ?Element<*> {

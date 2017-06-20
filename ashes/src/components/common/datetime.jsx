@@ -1,17 +1,16 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
-
-import styles from './datetime.css';
 
 const Moment = ({utc, value, format, emptyValue}) => {
   if (!value) {
-    return <span styleName="time">{emptyValue}</span>;
+    return <span>{emptyValue}</span>;
   }
 
   const timeValue = utc ? moment.utc(value) : moment(value);
 
   return (
-    <time styleName="time" dateTime={timeValue.local().format()}>
+    <time dateTime={timeValue.local().format()}>
       {timeValue.local().format(format)}
     </time>
   );

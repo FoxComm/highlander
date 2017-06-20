@@ -2,17 +2,22 @@
  * @flow
  */
 
-import React, { Component, Element, PropTypes } from 'react';
+// libs
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { trackEvent } from 'lib/analytics';
 
-import RoundedPill from '../rounded-pill/rounded-pill';
-import TextInput from '../forms/text-input';
+// components
+import { RoundedPill } from 'components/core/rounded-pill';
+import TextInput from 'components/core/text-input';
+import Icon from 'components/core/icon';
 
+// styles
 import styles from './tags.css';
 
-import type { Value } from 'components/rounded-pill/rounded-pill';
+// types
+import type { Value } from 'components/core/rounded-pill';
 
 type Props = {
   attributes: Attributes,
@@ -126,7 +131,7 @@ export default class Tags extends Component {
             Tags
           </div>
           <button id="fct-tag-toggle-btn" styleName="icon" onClick={this.handleTagToggle}>
-            <i className="icon-add" />
+            <Icon name="add" />
           </button>
         </div>
         {this.addInput}

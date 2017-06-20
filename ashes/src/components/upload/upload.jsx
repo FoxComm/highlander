@@ -1,16 +1,18 @@
 /* @flow */
 
-// styles
-import styles from './upload.css';
-
 // libs
 import _ from 'lodash';
 import { autobind, debounce } from 'core-decorators';
 import classNames from 'classnames';
 import React, { Component, Element } from 'react';
-import { findDOMNode } from 'react-dom';
 
 import type { FileInfo } from '../../modules/images';
+
+// components
+import Icon from 'components/core/icon';
+
+// styles
+import styles from './upload.css';
 
 type Props = {
   children?: Element<*>;
@@ -153,7 +155,7 @@ export default class Upload extends Component {
   get emptyContent() {
     return (
       <div className={styles.empty}>
-        <i className="icon-upload" /> Drag & Drop to upload
+        <Icon name="upload" /> Drag & Drop to upload
       </div>
     );
   }

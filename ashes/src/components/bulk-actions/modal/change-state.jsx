@@ -1,23 +1,25 @@
 /* @flow */
 
+// libs
 import capitalize from 'lodash/capitalize';
 import React, { Element } from 'react';
 
+// helpers
 import { numberize } from 'lib/text-utils';
 
-import modal from 'components/modal/wrapper';
-import ModalBase from './modal-base';
+// components
+import ConfirmationModal from 'components/core/confirmation-modal';
 
 type Props = {
   entity: string,
   stateTitle: string,
-  label?: Element<*>|string,
+  label?: Element<*> | string,
   count: number,
   onCancel: Function,
   onConfirm: Function,
 };
 
-const ChangeStateModal = (props: Props) => {
+export default (props: Props) => {
   const { entity, stateTitle, count, label: rawLabel, onCancel, onConfirm } = props;
   const entityForm = numberize(entity, count);
 
@@ -26,15 +28,14 @@ const ChangeStateModal = (props: Props) => {
     : <span>Are you sure you want to change the state to <b>{stateTitle}</b> for <b>{count} {entityForm}</b>?</span>;
 
   return (
-    <ModalBase
+    <ConfirmationModal
       title={`Change ${capitalize(entityForm)} state to ${stateTitle}?`}
-      label={label}
-      onCancel={onCancel}
+      confirmLabel="Yes, Change State"
       onConfirm={onConfirm}
-      saveText="Yes, Change State"
-      className="fc-bulk-action-modal"
-    />
+      onCancel={onCancel}
+      isVisible
+    >
+      {label}
+    </ConfirmationModal>
   );
 };
-
-export default modal(ChangeStateModal);

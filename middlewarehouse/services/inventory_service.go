@@ -1,11 +1,12 @@
 package services
 
 import (
-	"errors"
 	"fmt"
 
+	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 	"github.com/FoxComm/highlander/middlewarehouse/common/async"
 	commonErrors "github.com/FoxComm/highlander/middlewarehouse/common/errors"
+	"github.com/FoxComm/highlander/middlewarehouse/common/logging"
 	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
@@ -196,11 +197,12 @@ func (service *inventoryService) getStockItemsBySKUs(skusList []string) ([]*mode
 	diff := utils.DiffSlices(skusList, skusListRepo)
 	if len(diff) > 0 {
 		for _, sku := range diff {
-			msg := fmt.Sprintf("Can't hold items for %s - no stock items found", sku)
-			aggregateErr.Add(errors.New(msg))
+			msg := fmt.Sprintf("Entry in table stock_items not found for sku=%s.", sku)
+			logging.Log.Warnf(msg)
+			aggregateErr.Add(&responses.InvalidSKUItemError{Sku: sku, Debug: msg})
 		}
 
-		return nil, aggregateErr
+		return nil, &aggregateErr
 	}
 
 	return items, nil
@@ -212,14 +214,17 @@ func (service *inventoryService) getUnitsForOrder(items []*models.StockItem, sku
 	for _, si := range items {
 		ids, err := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SKU])
 		if err != nil {
-			aggregateErr.Add(err)
+			aggregateErr.Add(&responses.InvalidSKUItemError{
+				Sku:   si.SKU,
+				Debug: fmt.Sprintf("SKU %s is out of stock", si.SKU),
+			})
 		}
 
 		unitsIds = append(unitsIds, ids...)
 	}
 
 	if aggregateErr.Length() > 0 {
-		return nil, aggregateErr
+		return nil, &aggregateErr
 	}
 
 	return unitsIds, nil
@@ -228,7 +233,7 @@ func (service *inventoryService) getUnitsForOrder(items []*models.StockItem, sku
 func (service *inventoryService) checkItemsStatus(refNum string, statusShift models.StatusChange) error {
 	units, err := service.unitRepo.GetUnitsInOrder(refNum)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	for _, unit := range units {

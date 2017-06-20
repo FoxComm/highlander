@@ -1,6 +1,7 @@
 // libs
 import _ from 'lodash';
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
@@ -226,7 +227,7 @@ export default class Lookup extends Component {
                      items={this.items}
                      activeIndex={activeIndex}
                      onSelect={this.select}
-                     notFound={notFound}/>
+                     notFound={notFound} />
       </div>
     );
   }

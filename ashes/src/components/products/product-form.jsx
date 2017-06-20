@@ -3,7 +3,7 @@
  */
 
 // libs
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Element } from 'react';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
@@ -12,8 +12,8 @@ import _ from 'lodash';
 import ObjectDetails from '../object-page/object-details';
 import OptionList from './options/option-list';
 import SkuContentBox from './skus/sku-content-box';
-import InputMask from 'react-input-mask';
 import TaxonomiesListWidget from '../taxonomies/widget/taxonomies-list-widget';
+import TextInput from 'components/core/text-input';
 
 import { renderFormField } from 'components/object-form/object-form-inner';
 
@@ -128,12 +128,11 @@ export default class ProductForm extends ObjectDetails {
     const slugField = (
       <div styleName="slug-field-container">
         <span styleName="prefix">/products/</span>
-        <input
+        <TextInput
           className={fieldClass}
-          type="text"
           name="slug"
           value={value}
-          onChange={({ target }) => this.onSlugChange(target.value)}
+          onChange={this.onSlugChange}
         />
         <div styleName="field-comment">
           Slug can only contain letters, numbers, dashes, and underscores.

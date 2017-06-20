@@ -1,0 +1,15 @@
+---
+
+- name: Packer Ark Logstash
+  hosts: all
+  become: true
+  vars:
+    user: ubuntu
+    packing: true
+
+  roles:
+    - { role: base/elasticsearch-5 }
+    - { role: base/kibana }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

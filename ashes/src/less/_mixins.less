@@ -172,7 +172,7 @@
   vertical-align: @valign;
 }
 
-.colors(@fg: @color-default-fg, @bg: @color-default-bg) {
+.colors(@fg: @color-text, @bg: @bg-grey-headers) {
   color: @fg;
   background-color: @bg;
 }
@@ -192,21 +192,21 @@
 // ===== Styling =====
 
 .highlight-border-behaviour() {
-  border: 1px solid @color-decor7;
+  border: 1px solid @color-border;
   transition: border .20s ease-out;
 
   &:hover {
-    border-color: @color-decor3;
+    border-color: @bg-nav-main;
   }
 
   &:active,
   &:focus {
-    border-color: @color-control-primary-bg;
+    border-color: @bg-green-buttons;
   }
 
   &:invalid:not(:required),
   &.is-error {
-    border-color: @color-decor22;
+    border-color: @color-error-text;
   }
 }
 
@@ -224,32 +224,6 @@
 
 // ===== Animations =====
 
-.dd-transition(@dir, @origin) {
-  .dd-transition-@{dir}-enter {
-    transform: scale(0);
-    transform-origin: e(@origin);
-    transition: opacity .22s ease-in, transform .2s cubic-bezier(.5, 1.8, .9, .8);
-    opacity: .01;
-
-    &-active {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-
-  .dd-transition-@{dir}-leave {
-    transform: scale(1);
-    transform-origin: e(@origin);
-    transition: opacity .15s ease-out, transform .2s ease-out;
-    opacity: 1;
-
-    &-active {
-      transform: scale(0);
-      opacity: .01;
-    }
-  }
-}
-
 .chevron() {
   transform: rotateX(0);
   transition: transform .25s ease-out;
@@ -257,9 +231,4 @@
   &._up {
     transform: rotateX(180deg);
   }
-}
-
-.caramel {
-  background-image: url(/admin/images/caramel.png);
-  animation: caramel .5s linear infinite;
 }

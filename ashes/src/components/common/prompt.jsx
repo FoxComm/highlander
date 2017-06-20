@@ -2,7 +2,8 @@
 // inspired by https://github.com/ReactTraining/react-history/blob/master/modules/Prompt.js
 // but adapted to history v2.x package
 
-import React, { Component, PropTypes } from 'react';
+import { Component } from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 
 type TransitionResult = Function|string;

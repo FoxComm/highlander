@@ -8,6 +8,8 @@ import { pluralize } from 'fleck';
 import type { Store} from '../lib/store-creator';
 import createStore from '../lib/store-creator';
 
+import { bulkExportByIds } from 'modules/bulk-export/bulk-export';
+
 export const initialState = {
   isFetching: false,
   messages: {},
@@ -104,24 +106,24 @@ export function toggleWatch(isDirectAction: bool): Function {
   };
 }
 
-function deleteEntity(actions, ids, entityType): Function {
+function deleteEntity(actions, ids, entityType, onDelete): Function {
   const prefix = pluralize(entityType);
   return dispatch => {
     dispatch(actions.bulkRequest());
     for(let i=0; i<ids.length; i++){
       let id = ids[i];
       let url = `/${prefix}/default/${id}`;
-
       Api.delete(url)
-          .then(
-            ({batch}) => {
-              const errors = _.get(batch, `failures.${entityType}`);
-              dispatch(actions.bulkDone(getSuccesses(entityType, ids, batch), errors));
-            },
-            error => {
-              dispatch(actions.bulkError(error));
-            }
-          );
+        .then(
+          ({batch}) => {
+            onDelete();
+            const errors = _.get(batch, `failures.${entityType}`);
+            dispatch(actions.bulkDone(getSuccesses(entityType, ids, batch), errors));
+          },
+          error => {
+            dispatch(actions.bulkError(error));
+          }
+        );
     }
   };
 }
@@ -151,7 +153,24 @@ function updateAttributes(actions, ids, object) {
   };
 }
 
-export default function makeBulkActions(path: string): Store {
+export const createExportByIds = (getEntities: (getState: Function, ids: Array<number>) => any) => {
+  return (
+    actions: Object,
+    ids: Array<number>,
+    description: string,
+    fields: Array<string>,
+    entity: string,
+    identifier: string
+  ) => (dispatch: Function, getState: Function) => {
+    dispatch(actions.bulkRequest());
+
+    dispatch(bulkExportByIds(ids, description, fields, entity, identifier))
+      .then(() => dispatch(actions.bulkDone(getEntities(getState, ids), null)))
+      .catch(err => dispatch(actions.bulkError(err)));
+  };
+};
+
+export default function makeBulkActions(path: string, extraActions: Object): Store {
   return createStore({
     path,
     actions: {
@@ -159,9 +178,9 @@ export default function makeBulkActions(path: string): Store {
       updateAttributes,
       deleteEntity,
       ...bulkActions,
+      ...extraActions,
     },
     reducers,
     initialState,
   });
 }
-

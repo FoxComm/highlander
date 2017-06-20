@@ -18,6 +18,10 @@ export default (taxonomy: Taxonomy): ObjectPageLayout => ({
               'name',
               'description',
             ],
+            omit: [
+              'activeFrom',
+              'activeTo',
+            ]
           },
         }
       ])

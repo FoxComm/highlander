@@ -3,20 +3,21 @@
  */
 
 // libs
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
-import classNames from 'classnames';
 
 // components
 import { FormField } from 'components/forms';
 import CurrencyInput from 'components/forms/currency-input';
 import MultiSelectRow from 'components/table/multi-select-row';
 import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
-import { DeleteButton } from 'components/common/buttons';
+import { DeleteButton } from 'components/core/button';
 import ProductImage from 'components/imgix/product-image';
+import TextInput from 'components/core/text-input';
 
 import reducer, { suggestSkus } from 'modules/skus/suggest';
 import type { SuggestOptions } from 'modules/skus/suggest';
@@ -59,7 +60,7 @@ function stop(event: SyntheticEvent) {
 }
 
 function pickSkuAttrs(searchViewSku: SkuSearchItem) {
-  const sku = _.pick(searchViewSku, ['title', 'context']);
+  const sku = _.pick(searchViewSku, ['title']);
   sku.salePrice = {
     value: Number(searchViewSku.salePrice),
     currency: searchViewSku.salePriceCurrency,
@@ -155,11 +156,9 @@ class EditableSkuRow extends Component {
 
     return (
       <FormField>
-        <input
-          className="fc-text-input"
-          type="text"
+        <TextInput
           value={value}
-          onChange={({ target: { value } }) => {
+          onChange={(value) => {
             this.updateSku({ upc: value });
           }}
           placeholder="UPC"
@@ -245,14 +244,13 @@ class EditableSkuRow extends Component {
 
   skuCell(sku: Sku): Element<*> {
     const { codeError } = this.state;
-    const error = codeError ? `SKU Code violates constraint: ${codeError.keyword}` : void 0;
+    const error = codeError ? `SKU code can't be empty` : void 0;
     return (
       <div styleName="sku-cell">
         <FormField error={error} scrollToErrors>
           <LoadingInputWrapper inProgress={this.props.isFetchingSkus}>
-            <input
-              className="fc-text-input"
-              type="text"
+            <TextInput
+              styleName="sku-code"
               value={this.skuCodeValue}
               onChange={this.handleUpdateCode}
               placeholder="SKU"
@@ -269,11 +267,10 @@ class EditableSkuRow extends Component {
 
     return (
       <FormField>
-        <input
-          className={classNames('fc-text-input', styles.inventory)}
-          type="text"
+        <TextInput
+          className={styles.inventory}
           value={value}
-          onChange={({ target: { value } }) => {
+          onChange={(value) => {
             this.updateSku({ inventory: value });
           }}
           placeholder="QTY"
@@ -287,11 +284,9 @@ class EditableSkuRow extends Component {
 
     return (
       <FormField>
-        <input
-          className="fc-text-input"
-          type="text"
+        <TextInput
           value={value}
-          onChange={({ target: { value } }) => {
+          onChange={(value) => {
             this.updateSku({ asin: value });
           }}
           placeholder="ASIN"
@@ -337,7 +332,7 @@ class EditableSkuRow extends Component {
     const variantValue = _.get(mapping, [skuCode, variantName]);
 
     return (
-      <div styleName="variant-value">{variantValue}</div>
+      <div styleName="variant-value" title={variantValue}>{variantValue}</div>
     );
   }
 
@@ -347,7 +342,7 @@ class EditableSkuRow extends Component {
 
     if (!_.isEmpty(this.props.variants) || skuValue) {
       return (
-        <DeleteButton onClick={() => this.props.onDeleteClick(skuCode)}/>
+        <DeleteButton onClick={() => this.props.onDeleteClick(skuCode)} />
       );
     }
   }
@@ -376,8 +371,7 @@ class EditableSkuRow extends Component {
   }
 
   @autobind
-  handleUpdateCode({ target }: Object) {
-    const { value } = target;
+  handleUpdateCode(value: string) {
     this.updateSku({
       code: value,
     });

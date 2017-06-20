@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import localStorage from 'localStorage';
 
 import LiveSearchAdapter from '../live-search/live-search-adapter';

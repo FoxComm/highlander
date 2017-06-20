@@ -1,0 +1,2 @@
+alter table shipment_line_items alter column stock_item_unit_id drop not null;
+alter table shipment_line_items drop constraint shipment_line_items_stock_item_unit_id_fkey;

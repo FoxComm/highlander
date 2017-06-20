@@ -14,6 +14,12 @@
   margin-bottom: 10px;
 }
 
+.helpful-hints {
+  font-size: 12px;
+  text-align: right;
+  padding-bottom: 10px;
+}
+
 .action-link-delivery {
   composes: action-link from "ui/action-link/action-link.css";
   font-size: 14px;
@@ -23,8 +29,8 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  padding-bottom: 15px;
   font-size: 12px;
+  padding-bottom: 10px;
 
   & .method {
     line-height: 1.33;
@@ -67,7 +73,6 @@
 @media (--large) {
   .delivery {
     padding-right: 0;
-    padding-bottom: 0;
   }
 
   .action-link-delivery {

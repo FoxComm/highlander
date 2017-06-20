@@ -1,41 +1,51 @@
+/* @flow */
 
 // libs
 import _ from 'lodash';
-import { get } from 'sprout-data';
-import React, { PropTypes } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
 // components
 import ActivityTrail from './activity-trail';
-import ErrorAlerts from '../alerts/error-alerts';
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
+import { ApiErrors } from 'components/utils/errors';
 import { SectionTitle } from '../section-title';
 
 // redux
-import * as ActivityTrailActions from '../../modules/activity-trail';
+import { resetActivities, fetchActivityTrail } from 'modules/activity-trail';
 
-@connect(state => state.activityTrail, ActivityTrailActions)
-export default class ActivityTrailPage extends React.Component {
+type RequestParam = {
+  dimension: string,
+  objectId?: string | number,
+};
 
-  static propTypes = {
-    entity: PropTypes.shape({
-      entityId: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.number,
-      ]),
-      entityType: PropTypes.string,
-    }),
-    activities: PropTypes.array.isRequired,
-    hasMore: PropTypes.bool,
-    err: PropTypes.any,
-    isFetching: PropTypes.bool,
-    route: PropTypes.shape({
-      dimension: PropTypes.string,
-    }),
-    fetchActivityTrail: PropTypes.func.isRequired,
-    resetActivities: PropTypes.func.isRequired,
-  };
+type Activity = {
+  id: number,
+  kind: string,
+  createdAt: string,
+  data: Object,
+};
+
+type Props = {
+  entity: {
+    entityId: string | number,
+    entityType: string,
+  },
+  trail: {
+    activities: Array<Activity>,
+    hasMore: boolean,
+  },
+  route: {
+    dimension: string,
+  },
+  fetchState: AsyncState,
+  resetActivities: () => void;
+  fetchActivityTrail: (params: RequestParam, from: ?Activity) => Promise<*>,
+};
+
+class ActivityTrailPage extends Component {
+  props: Props;
 
   get trailParams() {
     const { route, entity } = this.props;
@@ -54,34 +64,39 @@ export default class ActivityTrailPage extends React.Component {
     }
   }
 
-  componentDidMount() {
+  componentWillMount() {
     this.props.resetActivities();
+  }
+
+  componentDidMount() {
     this.props.fetchActivityTrail(this.trailParams);
   }
 
   get content() {
-    const { activities, hasMore, err, isFetching = null } = this.props;
+    const { trail: { activities, hasMore }, fetchState } = this.props;
 
     const params = {
       activities,
       hasMore,
       fetchMore: this.fetchMore,
+      fetchState,
     };
 
-    if (isFetching === false) {
-      if (!err) {
-        return <ActivityTrail {...params} />;
-      } else {
-        return <ErrorAlerts error={err} />;
-      }
-    } else if (isFetching === true) {
-      return <WaitAnimation />;
+    if (fetchState.err) {
+      return <ApiErrors response={fetchState.err} />;
     }
+
+    if (!activities.length && fetchState.inProgress) {
+      return <Spinner />;
+    }
+
+    return <ActivityTrail {...params} />;
   }
 
   @autobind
   fetchMore() {
-    const { activities } = this.props;
+    const { trail: { activities } } = this.props;
+
     if (!activities.length) return;
 
     const fromActivity = activities[activities.length - 1];
@@ -98,3 +113,10 @@ export default class ActivityTrailPage extends React.Component {
     );
   }
 }
+
+const mapState = state => ({
+  trail: state.activityTrail,
+  fetchState: _.get(state, 'asyncActions.fetchActivityTrail', {}),
+});
+
+export default connect(mapState, { resetActivities, fetchActivityTrail })(ActivityTrailPage);

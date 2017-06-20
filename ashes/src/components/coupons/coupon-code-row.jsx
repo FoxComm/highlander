@@ -1,14 +1,14 @@
-
 /* @flow */
 
-import React, { PropTypes, Element } from 'react';
+import React, { Element } from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 
 import MultiSelectRow from '../table/multi-select-row';
 
 type CouponCodeRowProps = {
   couponCode: Object,
-  columns: Array<string>,
+  columns: Columns,
   params: Object,
 };
 

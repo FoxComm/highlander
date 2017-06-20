@@ -14,6 +14,8 @@
   margin-bottom: 10px;
 }
 
+.billing-summary {}
+
 .action-link-payment {
   composes: action-link from "ui/action-link/action-link.css";
   font-size: 14px;
@@ -67,7 +69,7 @@
 }
 
 .promo-line {
-  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .cvc-field {
@@ -86,7 +88,7 @@
 }
 
 .card-form {
-  margin: 15px 10px 15px 15px;
+  padding: 15px 10px 0 15px;
 }
 
 .billing-address {

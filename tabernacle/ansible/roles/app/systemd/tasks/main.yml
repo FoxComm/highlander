@@ -1,0 +1,30 @@
+---
+
+- name: Enable Appliance Services
+  service: name={{item}} enabled=yes
+  with_items:
+    - consul_agent
+    - consul_template
+    - dashboard
+    - zookeeper
+    - kafka
+    - schema-registry
+    - mesos_master
+    - mesos_worker
+    - marathon
+    - mesos_consul
+    - elasticsearch
+    - elasticsearch_5
+    - kibana
+    - postgresql
+    - bottledwater_phoenix
+    - bottledwater_middlewarehouse
+    - materialized_views
+    - pgweb
+
+- name: Enable Onboarding Services
+  service: name=bottledwater_onboarding enabled=yes
+  when: with_onboarding
+
+- name: Reload Systemd Daemon
+  command: systemctl daemon-reload

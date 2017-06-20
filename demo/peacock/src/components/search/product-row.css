@@ -1,0 +1,30 @@
+.box {
+  display: flex;
+  margin: 10px 20px;
+}
+
+.image {
+  margin-right: 8px;
+  width: 50px;
+}
+
+.container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  height: inherit;
+  justify-content: space-around;
+}
+
+.product-name {
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.price {
+  font-size: 12px;
+}
+
+.link {
+  text-decoration: none;
+}

@@ -1,5 +1,5 @@
 // libs
-import React, { Component, Children, Element } from 'react';
+import { Component, Children, Element } from 'react';
 import ReactDOM from 'react-dom';
 
 type Props = {
@@ -28,7 +28,7 @@ export default class BodyPortal extends Component {
 
     style.left = left + 'px';
     style.top = top + 'px';
-    style.zIndex = 201;
+    style.zIndex = 50;
   }
 
   componentDidMount(): void {

@@ -173,9 +173,8 @@ export default class EditAddress extends Component {
       const mask = createNumberMask(phoneMask());
 
       input = (
-        <TextInput styleName="text-input" pos="bottom">
+        <TextInput {...inputAttributes} styleName="text-input" pos="bottom">
           <MaskedInput
-            {...inputAttributes}
             onChange={onChange}
             mask={mask}
             placeholderChar={'\u2000'}

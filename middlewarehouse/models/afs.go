@@ -5,3 +5,8 @@ type AFS struct {
 	SKU         string
 	AFS         int
 }
+
+type AfsByType struct {
+	Afs  int
+	Type UnitType
+}

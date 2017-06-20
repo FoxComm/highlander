@@ -15,6 +15,7 @@
   "labels": {
     "LAYER": "frontend",
     "LANG": "javascript",
+    "consul": "ashes",
     "TAG": "{{docker_tags.ashes}}"
   },
   "healthChecks": [

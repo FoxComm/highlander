@@ -15,9 +15,9 @@ type CheckboxProps = {
 const Checkbox = (props: CheckboxProps) => {
   const { children, className, ...rest } = props;
   return (
-    <div className={className}>
+    <div styleName="wrap" className={className}>
       <input type="checkbox" styleName="checkbox" {...rest} />
-      <label htmlFor={props.id}>
+      <label htmlFor={props.id} styleName="label">
         <span styleName="box" />
         {children}
       </label>

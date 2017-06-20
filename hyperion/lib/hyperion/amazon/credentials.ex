@@ -2,7 +2,6 @@ defmodule Hyperion.Amazon.Credentials do
   alias Hyperion.PhoenixScala.Client, warn: true
 
   def mws_config(token) do
-
     Client.get_credentials(token)
     |> build_cfg
   end

@@ -1,0 +1,32 @@
+@import "media-queries.css";
+
+.main {
+  opacity: 0.98;
+  position: relative;
+  width: 750px;
+  padding: 20px 20px 50px;
+  margin: 0 auto 20px;
+  background: #fff;
+  border-radius: 10px;
+  color: #434343;
+  min-height: 500px;
+  box-shadow: 0 0 50px rgba(0, 0, 0, .2);
+
+  transition: width .4s, padding .4s;
+
+  & form {
+    padding: 0 100px;
+
+    @media (--small-viewport) {
+      padding: 0;
+    }
+  }
+
+  @media (--small-viewport) {
+    width: 100%;
+    padding: 10px;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}

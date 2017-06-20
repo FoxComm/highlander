@@ -1,7 +1,8 @@
 // libs
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
-import SaveCancel from '../common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 
 export default class NoteForm extends React.Component {
   static propTypes = {

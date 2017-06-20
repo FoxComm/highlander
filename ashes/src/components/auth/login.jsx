@@ -1,21 +1,25 @@
 /** @flow */
-import React, { PropTypes, Component } from 'react';
+
+// libs
+import React, { Component } from 'react';
 import _ from 'lodash';
 import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
-import Alert from '../alerts/alert';
-import ErrorAlerts from '../alerts/error-alerts';
+// components
+import Alert from 'components/core/alert';
+import { ApiErrors } from 'components/utils/errors';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
-import { PrimaryButton, Button } from '../common/buttons';
+import { PrimaryButton, SocialButton } from 'components/core/button';
 import WrapToLines from './wrap-to-lines';
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
+import TextInput from 'components/core/text-input';
 
 import * as userActions from 'modules/user';
 
-import styles from './css/auth.css';
+import s from './css/auth.css';
 
 // types
 import type {
@@ -28,6 +32,7 @@ type TState = {
   org: string;
   email: string;
   password: string;
+  message: string;
 };
 
 type LoginProps = {
@@ -43,7 +48,7 @@ type LoginProps = {
   err: any,
   googleSignin: Function,
   isMounted: boolean,
-}
+};
 
 /* ::`*/
 @connect((state) => ({
@@ -56,10 +61,18 @@ export default class Login extends Component {
     org: '',
     email: '',
     password: '',
+    message: ''
   };
 
   props: LoginProps;
 
+  componentWillReceiveProps(nextProps: LoginProps) {
+    const message = _.get(nextProps, 'user.message');
+
+    if (message) {
+      this.setState({ message: message });
+    }
+  }
 
   @autobind
   submitLogin() {
@@ -71,18 +84,18 @@ export default class Login extends Component {
   }
 
   @autobind
-  onOrgChange({ target }: Object) {
-    this.setState({ org: target.value });
+  onOrgChange(value: string) {
+    this.setState({ org: value });
   }
 
   @autobind
-  onEmailChange({ target }: Object) {
-    this.setState({ email: target.value });
+  onEmailChange(value: string) {
+    this.setState({ email: value });
   }
 
   @autobind
-  onPasswordChange({ target }: Object) {
-    this.setState({ password: target.value });
+  onPasswordChange(value: string) {
+    this.setState({ password: value });
   }
 
   @autobind
@@ -95,54 +108,62 @@ export default class Login extends Component {
     this.props.googleSignin();
   }
 
+  @autobind
+  clearMessage() {
+    this.setState({
+      message: ''
+    });
+  }
+
   get iForgot() {
-    return <a onClick={this.onForgotClick} styleName="forgot-link">i forgot</a>;
+    return <a onClick={this.onForgotClick} className={s['forgot-link']}>i forgot</a>;
   }
 
   get infoMessage() {
-    const { message } = this.props.user;
+    const { message } = this.state;
     if (!message) return null;
-    return <Alert type="success">{message}</Alert>;
+    return <Alert className={s.alert} type={Alert.SUCCESS}>{message}</Alert>;
   }
 
   get errorMessage() {
     const err = this.props.authenticationState.err;
     if (!err) return null;
-    return <ErrorAlerts error={err} />;
+    return <ApiErrors response={err} />;
   }
 
   get content() {
     if (!this.props.isMounted) {
-      return <WaitAnimation />;
+      return <Spinner />;
     }
 
     const { org, email, password } = this.state;
 
     return (
-      <div styleName="content">
+      <div className={s.content}>
         {this.infoMessage}
-        <Button
-          type="button"
-          styleName="google-button"
-          icon="google"
+        <SocialButton
+          type="google"
           onClick={this.onGoogleSignIn}
+          fullWidth
         >
           Sign In with Google
-        </Button>
-        <Form styleName="form" onSubmit={this.submitLogin}>
-          <WrapToLines styleName="or-line">or</WrapToLines>
+        </SocialButton>
+        <Form className={s.form} onSubmit={this.submitLogin}>
+          <WrapToLines className={s['or-line']}>or</WrapToLines>
           {this.errorMessage}
           <FormField label="Organization" required>
-            <input onChange={this.onOrgChange} value={org} type="text" className="fc-input" />
+            <TextInput onChange={this.onOrgChange} value={org} className="fc-input" />
           </FormField>
           <FormField label="Email" required>
-            <input onChange={this.onEmailChange} value={email} type="text" className="fc-input" />
+            <TextInput onChange={this.onEmailChange} value={email} className="fc-input" />
           </FormField>
           <FormField label="Password" labelAtRight={this.iForgot} required>
-            <input onChange={this.onPasswordChange} value={password} type="password" className="fc-input" />
+            <TextInput onChange={this.onPasswordChange} value={password} type="password" className="fc-input" />
           </FormField>
           <PrimaryButton
-            styleName="submit-button"
+            onClick={this.clearMessage}
+            className={s['submit-button']}
+            fullWidth
             type="submit"
             isLoading={this.props.authenticationState.inProgress}>
             Sign In
@@ -154,8 +175,8 @@ export default class Login extends Component {
 
   render() {
     return (
-      <div styleName="main">
-        <div className="fc-auth__title">Sign In</div>
+      <div className={s.main}>
+        <div className={s.title}>Sign In</div>
         {this.content}
       </div>
     );

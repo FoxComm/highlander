@@ -1,5 +1,6 @@
 //libs
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 
 //data
@@ -9,7 +10,7 @@ import { getCriterion, getWidget } from 'paragons/customer-groups/criterions';
 import { prefix } from 'lib/text-utils';
 
 //components
-import { AddButton } from 'components/common/buttons';
+import { AddButton } from 'components/core/button';
 import Criterion from './criterion-edit';
 
 
@@ -98,7 +99,7 @@ export default class QueryBuilder extends React.Component {
           {conditions.map(this.renderCriterion)}
         </div>
         <div className={prefixed('add-criterion')} onClick={this.addCondition}>
-          <AddButton type="button" onClick={this.addCondition} />
+          <AddButton type="button" onClick={this.addCondition} small />
           <span>Add criteria</span>
         </div>
       </div>

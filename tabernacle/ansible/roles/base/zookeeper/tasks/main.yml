@@ -9,16 +9,8 @@
 - name: Setup Zookeeper Config
   template: src=zookeeper.properties dest=/etc/zookeeper/conf/zoo.cfg
 
-- name: Copy Zookeeper Service File 
-  copy: src=zookeeper.service dest={{dest_services}}
+- name: Copy Zookeeper Service File
+  template: src=zookeeper.service dest={{dest_services}}
 
 - name: Copy Zookeeper Consul Service File
   template: src=zookeeper.json dest=/etc/consul.d
-
-- name: Reload Systemd for Zookeeper
-  command: systemctl daemon-reload
-
-# Adding the use parameter until a fix is provided for:
-# https://github.com/ansible/ansible-modules-core/issues/3764
-- name: Start Zookeeper
-  service: name=zookeeper state=restarted enabled=yes use=service

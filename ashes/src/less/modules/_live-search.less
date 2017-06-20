@@ -5,7 +5,7 @@
   margin-bottom: 40px;
 
   .fc-list-page-content:first-child {
-    border-top: 1px solid @color-decor9;
+    border-top: 1px solid @color-border;
   }
 
   .fc-pilled-input {
@@ -16,8 +16,9 @@
     }
 
     &__controls-container {
-      .fc-btn {
-        color: @color-decor32;
+      .fc-button-with-menu__left-button,
+      .fc-button-with-menu__right-button {
+         color: @color-text;
         border: none;
         background-color: transparent;
         font-size: 20px;
@@ -25,16 +26,12 @@
     }
   }
 
-  .icon-chevron-down {
-    font-size: 12px;
-  }
-
   &__header {
-    background-color: @color-default-bg;
+    background-color: @bg-grey-headers;
   }
 
   &__go-back {
-    border-top: 1px solid @color-decor9;
+    border-top: 1px solid @color-border;
 
     > span {
       font-weight: 600;

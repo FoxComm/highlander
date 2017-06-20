@@ -30,15 +30,6 @@
 - name: Remove default config
   file: path=/etc/nginx/sites-available/default state=absent
 
-- name: Make Certs Directory
-  file: path=/certs state=directory mode="600"
-
-- name: Copy Cert and Key
-  copy: src="{{role_path}}/../../base/secret_keys/files/certs/{{cert_path}}/frontend/{{item}}" dest="/certs/{{item}}" mode="600"
-  with_items:
-    - domain.crt
-    - domain.key
-
 - name: Make Sure Nginx Restarts After Failure
   lineinfile: dest=/etc/systemd/system/multi-user.target.wants/nginx.service line="Restart=always" insertafter="^KillMode" state=present
 

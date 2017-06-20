@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import ContentBox from '../content-box/content-box';
 import Currency from './currency';
@@ -23,10 +24,10 @@ const discounts = totals => {
   return (
     <div>
       <dt>Discounts</dt>
-      <dd><Currency id="fct-totals__discounts-total" value={totals.adjustments}/></dd>
+      <dd><Currency id="fct-totals__discounts-total" value={totals.adjustments} /></dd>
       <dt className="fc-totals-summary-new-subtotal">New Subtotal</dt>
       <dd className="fc-totals-summary-new-subtotal">
-        <Currency id="fct-totals__new-subtotal" value={subTotalWithDiscounts}/>
+        <Currency id="fct-totals__new-subtotal" value={subTotalWithDiscounts} />
       </dd>
     </div>
   );
@@ -36,7 +37,7 @@ const shipping = totals => {
   return (
     <div>
       <dt>Shipping</dt>
-      <dd><Currency id="fct-totals__shipping-total" value={totals.shipping}/></dd>
+      <dd><Currency id="fct-totals__shipping-total" value={totals.shipping} /></dd>
     </div>
   );
 };
@@ -51,11 +52,11 @@ const TotalsSummary = props => {
       <article className="fc-totals-summary-content">
         <dl className="rma-totals">
           <dt>Subtotal</dt>
-          <dd><Currency id="fct-totals__subtotal" value={totals.subTotal}/></dd>
+          <dd><Currency id="fct-totals__subtotal" value={totals.subTotal} /></dd>
           {discounts(entity.totals)}
           {shipping(entity.totals)}
           <dt>Tax</dt>
-          <dd><Currency id="fct-totals__tax-total" value={totals.taxes}/></dd>
+          <dd><Currency id="fct-totals__tax-total" value={totals.taxes} /></dd>
         </dl>
       </article>
     </ContentBox>

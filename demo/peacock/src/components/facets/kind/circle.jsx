@@ -1,6 +1,7 @@
 /* @flow */
 
 import React, { Component, Element } from 'react';
+import classNames from 'classnames';
 import styles from './circle.css';
 import { autobind } from 'core-decorators';
 
@@ -14,6 +15,10 @@ class Circle extends Component {
   props: FacetElementProps;
   state: State = {
     checked: !!this.props.checked,
+  };
+
+  static defaultProps = {
+    available: true,
   };
 
   componentWillReceiveProps(nextProps: FacetElementProps) {
@@ -40,10 +45,18 @@ class Circle extends Component {
     const {
       reactKey,
       label,
+      available,
     } = this.props;
 
+    const className = classNames(
+      styles['circle-checkbox'],
+      {
+        [styles.disabled]: !available,
+      }
+    );
+
     return (
-      <div styleName="circle-checkbox">
+      <div className={className}>
         <input
           id={reactKey}
           type="checkbox"

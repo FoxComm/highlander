@@ -1,5 +1,6 @@
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
@@ -8,9 +9,9 @@ import * as CustomerCreditCardActions from '../../modules/customers/credit-cards
 import ContentBox from '../content-box/content-box';
 import EmptyText from '../content-box/empty-text';
 import CreditCardBox from '../credit-cards/card-box';
-import ConfirmationDialog from '../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import CustomerCreditCardForm from './credit-card-form';
-import { AddButton } from '../common/buttons';
+import { AddButton } from 'components/core/button';
 
 function mapDispatchToProps(dispatch, props) {
   return _.transform(CustomerCreditCardActions, (result, action, key) => {
@@ -50,7 +51,7 @@ export default class CustomerCreditCards extends React.Component {
   }
 
   @autobind
-  onChangeNewFormValue({target}) {
+  onChangeNewFormValue({ target }) {
     this.props.changeNewCustomerCreditCardFormData(target.name, target.value || target.checked);
   }
 
@@ -90,7 +91,7 @@ export default class CustomerCreditCards extends React.Component {
   }
 
   @autobind
-  onEditFormChange({target}) {
+  onEditFormChange({ target }) {
     this.props.changeEditCustomerCreditCardFormData(target.name, target.value || target.checked);
   }
 
@@ -145,8 +146,8 @@ export default class CustomerCreditCards extends React.Component {
   ////
   // Rendering
   render() {
-    const {props} = this;
-    const {cards} = props;
+    const { props } = this;
+    const { cards } = props;
 
     return (
       <ContentBox title="Credit Cards"
@@ -165,14 +166,14 @@ export default class CustomerCreditCards extends React.Component {
               onChange={ this.onChangeNewFormValue }
               isNew={ true } /> : null}
         </ul>
-        <ConfirmationDialog
+
+        <ConfirmationModal
           isVisible={ this.showConfirm }
-          header='Confirm'
-          body='Are you sure you want to delete this credit card?'
-          cancel='Cancel'
-          confirm='Yes, Delete'
+          label="Are you sure you want to delete this credit card?"
+          confirmLabel="Yes, Delete"
+          onConfirm={ this.onDeleteConfirm }
           onCancel={ this.onDeleteCancel }
-          confirmAction={ this.onDeleteConfirm } />
+        />
       </ContentBox>
     );
   }

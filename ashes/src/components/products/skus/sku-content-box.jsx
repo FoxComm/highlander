@@ -3,7 +3,7 @@
  */
 
 // libs
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { assoc, dissoc } from 'sprout-data';
@@ -11,8 +11,9 @@ import { assoc, dissoc } from 'sprout-data';
 // components
 import ContentBox from 'components/content-box/content-box';
 import SkuList from './sku-list';
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
-import { Checkbox } from 'components/checkbox/checkbox';
+import ConfirmationModal from 'components/core/confirmation-modal';
+import { Checkbox } from 'components/core/checkbox';
+import Icon from 'components/core/icon';
 
 // helpers
 import { availableVariantsValues, variantsWithMultipleOptions } from 'paragons/variants';
@@ -33,7 +34,7 @@ type Props = {
 
 type State = {
   addDialogIsShown: boolean,
-  selectedOptions: {[key: string]: Array<OptionValue>},
+  selectedOptions: { [key: string]: Array<OptionValue> },
 };
 
 class SkuContentBox extends Component {
@@ -54,7 +55,7 @@ class SkuContentBox extends Component {
 
     return (
       <a id="fct-add-sku-btn__skus-block" styleName="add-icon" onClick={this.addAction}>
-        <i className="icon-add" />
+        <Icon name="add" />
       </a>
     );
   }
@@ -82,34 +83,30 @@ class SkuContentBox extends Component {
           <Checkbox
             id={`sku-option-${i}`}
             name={`${name}-option-chbox`}
+            label={content}
             onChange={() => this.toggleAddedOption(values)}
             checked={checked}
-          >
-            {content}
-          </Checkbox>
+          />
         </li>
       );
     });
 
-    const body = (
-      <div styleName="add-dialog">
-        <div styleName="dialog-subtitle">Available options:</div>
-        <ul styleName="dialog-items">
-          {list}
-        </ul>
-      </div>
-    );
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         key="add-skus"
         isVisible={this.state.addDialogIsShown}
-        header="Add SKUs"
-        body={body}
-        cancel="Cancel"
-        confirm="Add"
+        title="Add SKUs"
+        confirmLabel="Add"
         onCancel={() => this.closeAction()}
-        confirmAction={() => this.addNewSkus()}
-      />
+        onConfirm={() => this.addNewSkus()}
+      >
+        <div styleName="add-dialog">
+          <div styleName="dialog-subtitle">Available options:</div>
+          <ul styleName="dialog-items">
+            {list}
+          </ul>
+        </div>
+      </ConfirmationModal>
     );
   }
 

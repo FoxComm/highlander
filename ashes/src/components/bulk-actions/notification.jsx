@@ -1,7 +1,11 @@
 // libs
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
+
+// components
+import Icon from 'components/core/icon';
 
 // helpers
 import { numberize } from '../../lib/text-utils';
@@ -60,13 +64,13 @@ export default class Notification extends React.Component {
       <div className={classNames('fc-bulk-notification', `_${resultType}`)}>
         <div>
           <div className="fc-bulk-notification__preview">
-            <i className={`fc-bulk-notification__icon icon-${resultType}`} />
+            <Icon className={'fc-bulk-notification__icon'} name={resultType} />
             <span className="fc-bulk-notification__message">
               {message}
             </span>
             {this.renderViewLink(expanded, this.toggleExpanded)}
             <span className="fc-bulk-notification__flex-separator"></span>
-            <i onClick={onHide} className="fc-bulk-notification__close fc-btn-close icon-close" title="Close" />
+            <Icon onClick={onHide} className="fc-bulk-notification__close fc-btn-close" name="close" title="Close" />
           </div>
           {this.renderDetailsContainer(expanded, children)}
         </div>

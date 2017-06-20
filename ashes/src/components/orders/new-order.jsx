@@ -1,5 +1,6 @@
 // libs
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { transitionTo } from 'browserHistory';
@@ -9,16 +10,18 @@ import classNames from 'classnames';
 import * as newOrderActions from '../../modules/orders/new-order';
 import { email } from '../../lib/validators';
 
-import { PrimaryButton } from '../common/buttons';
-import BigCheckbox from '../checkbox/big-checkbox';
+// components
+import { PrimaryButton } from 'components/core/button';
+import { BigCheckbox } from 'components/core/checkbox';
 import ChooseCustomer from './choose-customer';
 import ChooseCustomerRow from './choose-customer-row';
-import ErrorAlerts from '../alerts/error-alerts';
+import Errors from 'components/utils/errors';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import PilledInput from '../pilled-search/pilled-input';
 import PageTitle from '../section-title/page-title';
 import Typeahead from '../typeahead/typeahead';
+import Icon from 'components/core/icon';
 
 // styles
 import s from './new-order.css';
@@ -88,7 +91,7 @@ export default class NewOrder extends Component {
       <PilledInput
         solid={true}
         value={this.state.query}
-        onChange={e => this.setState({query: e.target.value})}
+        onChange={value => this.setState({query: value})}
         pills={this.customers}
         onPillClose={this.clearCustomer} />
     );
@@ -100,7 +103,7 @@ export default class NewOrder extends Component {
                      onClick={this.submitAction}
                      className="fc-order-create__submit fc-btn fc-btn-primary fc-right" >
         <span>Next</span>
-        <i className="icon-chevron-right" />
+        <Icon name="chevron-right" />
       </PrimaryButton>
     );
   }
@@ -185,8 +188,8 @@ export default class NewOrder extends Component {
   }
 
   @autobind
-  toggleGuest(value) {
-    this.setState({ checkoutAsGuest: value });
+  toggleGuest() {
+    this.setState({ checkoutAsGuest: !this.state.checkoutAsGuest });
   }
 
   render() {
@@ -200,7 +203,7 @@ export default class NewOrder extends Component {
                 <h2>Customer</h2>
               </div>
               <div className="fc-order-create__errors fc-col-md-1-1">
-                <ErrorAlerts errors={this.state.errors} />
+                <Errors errors={this.state.errors} />
               </div>
               <div className="fc-order-create__customer-form fc-col-md-1-1">
                 <Form
@@ -214,8 +217,8 @@ export default class NewOrder extends Component {
                     <BigCheckbox
                       id="guestCheckout"
                       name="guestCheckout"
-                      value={this.state.checkoutAsGuest}
-                      onToggle={this.toggleGuest} />
+                      onChange={this.toggleGuest}
+                    />
                   </FormField>
                   <div className={s.button}>
                     {this.nextButton}

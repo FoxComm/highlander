@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 import { autobind } from 'core-decorators';
@@ -7,7 +8,7 @@ import { startAddingAddress } from '../../modules/customers/addresses-details';
 
 // components
 import AddressDetails from './address-details';
-import { Button, AddButton } from '../common/buttons';
+import { Button, AddButton } from 'components/core/button';
 
 @connect(null, { startAddingAddress })
 export default class AddressSelect extends React.Component {
@@ -53,7 +54,7 @@ export default class AddressSelect extends React.Component {
            key={ key }>
         <div className="fc-address-select-item-info">
           <AddressDetails address={ address }
-                          customerId={ this.props.customerId }/>
+                          customerId={ this.props.customerId } />
         </div>
         <div className="fc-address-select-item-controlls">
           <Button type="button" onClick={ () => this.onItemSelect(address.id) } >Choose</Button>
@@ -76,11 +77,11 @@ export default class AddressSelect extends React.Component {
             Address Book
           </div>
           <div className="fc-right">
-            <AddButton id="address-book-add-address-btn" onClick={this.handleAddButtonClick}/>
+            <AddButton id="address-book-add-address-btn" onClick={this.handleAddButtonClick} />
           </div>
         </div>
         <div className="fc-address-select-body">
-          <input type="hidden" name={ this.props.name } value={ this.state.value } readOnly/>
+          <input type="hidden" name={ this.props.name } value={ this.state.value } readOnly />
           <div id="fct-address-select-list" className="fc-address-select-list">
             {(this.props.items && this.props.items.map( this.renderSelectItem ))}
           </div>

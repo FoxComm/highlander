@@ -1,22 +1,22 @@
 
 /* @flow */
 
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
 
-import { PrimaryButton } from 'components/common/buttons';
+import { PrimaryButton } from 'components/core/button';
 import OrderDetails from 'components/orders/details';
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 
 import * as cartActions from 'modules/carts/details';
 
-import type { Order } from 'paragons/order';
+import OrderParagon from 'paragons/order';
 
 type Details = {
-  cart: Order,
+  cart: OrderParagon,
 };
 
 type Params = {
@@ -49,7 +49,7 @@ export default class CustomerCart extends Component {
     this.props.fetchCustomerCart(this.props.params.customerId);
   }
 
-  get cart(): Order {
+  get cart(): OrderParagon {
     return this.props.details.cart;
   }
 
@@ -84,7 +84,7 @@ export default class CustomerCart extends Component {
   }
 
   get waitAnimation() {
-    return <WaitAnimation/>;
+    return <Spinner />;
   }
 
   get errorMessage() {

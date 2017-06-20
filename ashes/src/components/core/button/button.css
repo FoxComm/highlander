@@ -1,0 +1,129 @@
+@import 'common.css';
+@import 'colors.css';
+
+/*
+ * General Button Styles
+ */
+.button {
+  display: inline-flex; /* not just `flex` because of legacy */
+  align-items: center;
+  justify-content: center;
+  padding: 11px 20px;
+  color: var(--color-text);
+  background: var(--bg-grey-buttons);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  border: none;
+  vertical-align: top;
+  user-select: none;
+  cursor: pointer;
+  transition: all .2s;
+
+  &:focus {
+    outline: 0;
+  }
+
+  &:hover {
+    background-color: var(--bg-grey-buttons-hover);
+  }
+
+  &:disabled,
+  &:disabled:hover {
+    cursor: default;
+    color: var(--color-additional-text);
+    background-color: var(--bg-grey-buttons-hover);
+  }
+
+  &.onlyIcon {
+    width: 40px;
+    padding: 11px 0;
+  }
+
+  &.fullWidth {
+    display: block;
+    width: 100%;
+  }
+
+  &.small {
+    padding: 4px 5px;
+  }
+
+  &.small.onlyIcon {
+    width: 26px;
+  }
+}
+
+.icon {
+  font-size: 10px;
+  transition: all .2s;
+}
+
+.button:not(.onlyIcon) i[class*="icon-"] {
+  margin-bottom: -1px;
+}
+
+.only {
+  font-size: 14px;
+  margin: 0 auto;
+}
+
+.button i[class*="icon-"] + span,
+span + i[class*="icon-"] {
+  margin-left: 8px;
+}
+
+.loading {
+  @apply --loading-caramel;
+}
+
+/*
+ * Primary Button Styles
+ */
+.primary {
+  color: var(--color-light-text);
+  background-color: var(--bg-green-buttons);
+}
+
+.primary:hover {
+  background-color: var(--bg-green-buttons-hover);
+}
+
+.primary:disabled,
+.primary:disabled:hover {
+  cursor: default;
+  color: var(--color-light-text-hover);
+  background-color: var(--bg-green-buttons);
+}
+
+/*
+ * Delete Button Styles
+ */
+.delete:hover {
+  background-color: var(--bg-message-error);
+}
+
+/*
+ * Close Button Styles
+ */
+.close {
+  cursor: pointer;
+}
+
+/*
+ * Social Buttons Styles
+ */
+.socialButton {
+  &.google {
+    background-color: #f65554; /* exception color */
+    color: var(--color-light-text);
+
+    &:hover {
+      background-color: var(--bg-field-error);
+    }
+
+    &:disabled {
+      color: var(--color-additional-text);
+    }
+  }
+}

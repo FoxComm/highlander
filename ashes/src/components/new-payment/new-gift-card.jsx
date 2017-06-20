@@ -1,4 +1,6 @@
-import React, { Component, PropTypes } from 'react';
+// libs
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -7,9 +9,11 @@ import _ from 'lodash';
 import * as CartActions from 'modules/carts/details';
 import * as PaymentMethodActions from 'modules/carts/payment-methods';
 
+// components
 import DebitCredit from 'components/payment-row/debit-credit';
 import { Form, FormField } from 'components/forms';
-import Alert from '../alerts/alert';
+import Alert from 'components/core/alert';
+import TextInput from 'components/core/text-input';
 
 function mapStateToProps(state) {
   return {
@@ -53,9 +57,11 @@ export default class NewGiftCard extends Component {
     const { isSearchingGiftCards } = nextProps;
     const gcResults = _.get(nextProps, 'paymentMethods.giftCards', []);
     const gcCode = _.get(gcResults, [0, 'code'], '');
+    const gcState = _.get(gcResults, [0, 'state'], '');
 
     if (!isSearchingGiftCards &&
       gcResults.length == 1 &&
+      gcState !== 'onHold' &&
       _.startsWith(gcCode.toLowerCase(), this.codeValue.toLowerCase())) {
 
       this.setState({
@@ -109,16 +115,24 @@ export default class NewGiftCard extends Component {
     const { giftCardCode } = this.state;
 
     if (!isSearchingGiftCards && this.codeIsValid && !giftCard) {
-      return <Alert type="warning">{`Gift Card ${giftCardCode} not found`}</Alert>;
+      return <Alert type={Alert.WARNING}>{`Gift Card ${giftCardCode} not found`}</Alert>;
+    }
+
+    if (this.codeIsValid && giftCard && giftCard.state === 'onHold') {
+      return (
+        <Alert type={Alert.WARNING}>
+          {`Gift Card ${giftCardCode} is on hold`}
+        </Alert>
+      );
     }
 
     return null;
   }
 
   @autobind
-  handleGiftCardChange({target}) {
+  handleGiftCardChange(value) {
     this.setState({
-      giftCardCode: target.value,
+      giftCardCode: value,
     }, () => this.props.actions.giftCardSearch(this.codeValue));
   }
 
@@ -137,7 +151,7 @@ export default class NewGiftCard extends Component {
         <Form className="fc-form-vertical">
           <FormField className="fc-order-apply-gift-card__card-number"
                      label="Gift Card Number">
-            <input type="text"
+            <TextInput
                    name="giftCardCode"
                    onChange={this.handleGiftCardChange}
                    value={this.state.giftCardCode} />

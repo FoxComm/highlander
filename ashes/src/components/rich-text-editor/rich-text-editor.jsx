@@ -3,8 +3,7 @@
  */
 
 // libs
-import _ from 'lodash';
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 import { stateFromHTML } from 'draft-js-import-html';
@@ -17,6 +16,7 @@ import { ContentBlock, ContentState, Editor, EditorState, RichUtils } from 'draf
 import { Dropdown } from '../dropdown';
 import ToggleButton from './toggle-button';
 import s from './rich-text-editor.css';
+import Icon from 'components/core/icon';
 
 type Props = {
   label?: string,
@@ -43,19 +43,19 @@ const headerStyles = [
 ];
 
 const listStyles = [
-  { label: 'icon-bullets', value: 'unordered-list-item', title: 'Unordered list' },
-  { label: 'icon-numbers', value: 'ordered-list-item', title: 'Ordered list' },
+  { label: 'bullets', value: 'unordered-list-item', title: 'Unordered list' },
+  { label: 'numbers', value: 'ordered-list-item', title: 'Ordered list' },
 ];
 
 const inlineStyles = [
-  { label: 'icon-bold', value: 'BOLD', title: 'Bold' },
-  { label: 'icon-italic', value: 'ITALIC', title: 'Italic' },
-  { label: 'icon-underline', value: 'UNDERLINE', title: 'Underline' },
+  { label: 'bold', value: 'BOLD', title: 'Bold' },
+  { label: 'italic', value: 'ITALIC', title: 'Italic' },
+  { label: 'underline', value: 'UNDERLINE', title: 'Underline' },
 ];
 
 const controlButtons = [
-  { label: 'icon-markdown', value: 'markdown', title: 'Markdown' },
-  { label: 'icon-html', value: 'html', title: 'HTML' },
+  { label: 'markdown', value: 'markdown', title: 'Markdown' },
+  { label: 'html', value: 'html', title: 'HTML' },
 ];
 
 function stateFromPlainText(text: string, type: ?string): ContentState {
@@ -114,9 +114,22 @@ export default class RichTextEditor extends Component {
 
   componentWillReceiveProps(nextProps: Props) {
     if (this.props.value != nextProps.value) {
-      this.setState({
-        editorState: this.valueToEditorState(nextProps.value),
-      });
+
+      if (!this.state.richMode) {
+        const textValue = (this.state.contentType === 'html')
+          ? this.htmlContent
+          : stateToMarkdown(stateFromHTML(this.htmlContent));
+
+        this.setState({
+          editorState: EditorState.createWithContent(ContentState.createFromText(textValue))
+        });
+      }
+
+      if (this.state.richMode) {
+        this.setState({
+          editorState: this.valueToEditorState(nextProps.value),
+        });
+      }
     }
   }
 
@@ -134,7 +147,7 @@ export default class RichTextEditor extends Component {
         key="header-buttons">
         <Dropdown
           className="fc-rich-text-editor__command-headers"
-          placeholder={<i className="icon-size" />}
+          placeholder={<Icon name="size" />}
           onChange={this.handleBlockTypeChange}
           value={blockType}
           items={headerStyles.map(t => [t.value, t.label])}

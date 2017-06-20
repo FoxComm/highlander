@@ -5,10 +5,8 @@ import Api from 'lib/api';
 import OrderParagon from 'paragons/order';
 import { createAsyncActions } from '@foxcomm/wings';
 
-import type { Order } from 'paragons/order';
-
-type State = {
-  order: ?Order,
+export type State = {
+  order: ?OrderParagon,
 };
 
 const initialState: State = {
@@ -36,8 +34,9 @@ export const updateShipments = _updateShipments.perform;
 export const clearFetchErrors =_getOrder.clearErrors;
 
 function orderSucceeded(state: State, payload: Object): State {
-  const order = payload.result || payload;
-  return { ...state, order: new OrderParagon(order) };
+  const order: OrderParagon = new OrderParagon(payload.result || payload);
+
+  return { ...state, order };
 }
 
 export function increaseRemorsePeriod(refNum: string) {

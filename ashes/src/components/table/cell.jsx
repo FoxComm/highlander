@@ -1,15 +1,16 @@
 // libs
 import _ from 'lodash';
 import classNames from 'classnames';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 // components
+import { Link } from 'components/link';
 import columnPropType from './column-prop-type';
 import { Moment, Date, DateTime, Time } from '../common/datetime';
 import Currency from '../common/currency';
 import State from '../common/state';
-import Change from '../common/change';
-import Link from '../link/link';
+import Change from 'components/utils/change';
 import ProductImage from 'components/imgix/product-image';
 
 function getCurrency(column, row) {

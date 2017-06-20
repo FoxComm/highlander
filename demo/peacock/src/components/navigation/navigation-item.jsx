@@ -22,7 +22,8 @@ type Category = {
 type Props = {
   item: Category,
   path: string,
-  onClick: ?Function,
+  onClick: ?() => void,
+  onShow?: () => void,
 };
 
 type State = {
@@ -54,8 +55,18 @@ export default class NavigationItem extends Component {
   }
 
   @autobind
+  handleStateChange(to: boolean, call: Function = _.noop) {
+    this.setState({ expanded: to }, () => {
+      if (this.props.onShow) {
+        this.props.onShow(to);
+      }
+      call();
+    });
+  }
+
+  @autobind
   handleClick() {
-    this.setState({ expanded: false }, () => {
+    this.handleStateChange(false, () => {
       if (this.props.onClick) {
         this.props.onClick();
       }
@@ -64,12 +75,12 @@ export default class NavigationItem extends Component {
 
   @autobind
   handleHoverOn() {
-    this.setState({ expanded: true });
+    this.handleStateChange(true);
   }
 
   @autobind
   handleHoverOff() {
-    this.setState({ expanded: false });
+    this.handleStateChange(false);
   }
 
   renderSubcategoryItems(subcategory: Category, baseUrl: string): ?Element<*> {
@@ -98,7 +109,7 @@ export default class NavigationItem extends Component {
   }
 
   get baseUrl(): string {
-    return this.getNavUrl(this.props.item);
+    return `/s${this.getNavUrl(this.props.item)}`;
   }
 
   get drawer(): ?Element<*> {
@@ -112,15 +123,22 @@ export default class NavigationItem extends Component {
 
     const children = _.map(item.children, (child) => {
       const url = `${this.baseUrl}${this.getNavUrl(child)}`;
+      const childName = child.ignoreCategoryFilter ? (
+        <span styleName="drawer-item-link">
+          {humanize(child.name)}
+        </span>
+      ) : (
+        <Link
+          styleName="drawer-item-link"
+          to={url}
+          onClick={this.handleClick}
+        >
+          {humanize(child.name)}
+        </Link>
+      );
       return (
         <div key={`${child.name}-sub-category`}>
-          <Link
-            styleName="drawer-item-link"
-            to={url}
-            onClick={this.handleClick}
-          >
-            {humanize(child.name)}
-          </Link>
+          {childName}
           { this.renderSubcategoryItems(child, url) }
         </div>
       );
@@ -145,9 +163,9 @@ export default class NavigationItem extends Component {
 
     const dashedName = _.toLower(item.name.replace(/\s/g, '-'));
     const key = `category-${dashedName}`;
-    const url = this.getNavUrl(item);
+    const url = item.url || this.getNavUrl(item);
     const basePath = router.createPath({name: 'category', params: {categoryName: item.name}}, true);
-    const isActive = `${path}/`.startsWith(basePath);
+    const isActive = `${path}/`.startsWith(basePath) || path.startsWith(url);
     const linkClasses = classNames(styles.item, {
       [styles.active]: isActive,
       [styles['with-drawer-open']]: this.state.expanded,

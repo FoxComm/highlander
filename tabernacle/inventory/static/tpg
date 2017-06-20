@@ -18,3 +18,12 @@
 
 [tpg-vpn]
 104.198.210.70
+
+[tpg-production2-amigo]
+10.0.0.10
+
+[tpg-production2-backend]
+10.0.0.11
+
+[tpg-production2-frontend]
+10.0.0.12

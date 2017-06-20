@@ -36,7 +36,6 @@ type Product = {
   retailPrice: string,
   currency: string,
   albums: ?Array<Album> | Object,
-  skus: Array<string>,
   tags?: Array<string>,
   addLineItem?: ?Function,
   toggleCart?: ?Function,
@@ -49,10 +48,6 @@ type State = {
 class RelatedListItem extends React.Component {
   props: Product;
   state: State;
-
-  static defaultProps = {
-    skus: [],
-  };
 
   get image(): Element<any> {
     const previewImageUrl = _.get(this.props.albums, [0, 'images', 0, 'src']);

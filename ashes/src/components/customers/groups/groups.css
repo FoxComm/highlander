@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .empty {
   font-size: 16px;
 }
@@ -19,7 +21,7 @@
 
   &:hover {
     & .name {
-      color: #1a1a1a;
+      color: var(--color-text);
     }
   }
 }
@@ -27,7 +29,7 @@
 .name {
   font-size: 16px;
   font-weight: 600;
-  color: #484848;
+  color: var(--color-text);
   transition: color .2s;
 
   & i {
@@ -36,7 +38,7 @@
 }
 
 .type {
-  color: #999;
+  color: var(--color-additional-text);
 }
 
 .label {

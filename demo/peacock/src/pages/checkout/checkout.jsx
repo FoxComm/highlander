@@ -9,6 +9,7 @@ import { autobind } from 'core-decorators';
 import { browserHistory } from 'lib/history';
 import * as tracking from 'lib/analytics';
 import { emailIsSet, isGuest } from 'paragons/auth';
+import classNames from 'classnames';
 
 // components
 import Shipping from './shipping/shipping';
@@ -16,7 +17,6 @@ import Delivery from './delivery/delivery';
 import Billing from './billing/billing';
 import GuestAuth from './guest-auth/guest-auth';
 import Products from 'components/order-summary/product-table';
-import Header from 'components/header/header';
 import ErrorAlerts from 'ui/alerts/error-alerts';
 import Loader from 'ui/loader';
 import OrderTotals from 'components/order-summary/totals';
@@ -26,19 +26,17 @@ import Button from 'ui/buttons';
 import styles from './checkout.css';
 
 // types
-import type { CheckoutState, EditStage } from 'modules/checkout';
+import type { CheckoutState } from 'modules/checkout';
 import type { CheckoutActions } from './types';
 import type { AsyncStatus } from 'types/async-actions';
 
 // actions
 import * as actions from 'modules/checkout';
-import { EditStages } from 'modules/checkout';
 import { fetch as fetchCart, hideCart } from 'modules/cart';
 import { fetchUser } from 'modules/auth';
 
 
 type Props = CheckoutState & CheckoutActions & {
-  setEditStage: (stage: EditStage) => Object,
   hideCart: () => Promise<*>,
   fetchCart: () => Promise<*>,
   addresses: Array<any>,
@@ -49,6 +47,7 @@ type Props = CheckoutState & CheckoutActions & {
   fetchCartState: AsyncStatus,
   checkoutState: AsyncStatus,
   clearCheckoutErrors: () => void,
+  isContentOverlayVisible: boolean,
 };
 
 type State = {
@@ -169,7 +168,6 @@ class Checkout extends Component {
   checkout() {
     return this.props.checkout()
       .then(() => {
-        this.props.setEditStage(EditStages.FINISHED);
         browserHistory.push('/checkout/done');
       });
   }
@@ -222,6 +220,8 @@ class Checkout extends Component {
     const cartFetched = props.fetchCartState.finished;
 
     if (cartFetched) {
+      const shippingAddress = _.get(this.props.cart, 'shippingAddress', {});
+
       return (
         <div styleName="wrapper">
           <div styleName="main-container">
@@ -233,7 +233,7 @@ class Checkout extends Component {
                     onComplete={this.setShipping}
                     addresses={this.props.addresses}
                     fetchAddresses={this.props.fetchAddresses}
-                    shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
+                    shippingAddress={shippingAddress}
                     auth={this.props.auth}
                     isGuestMode={isGuestMode}
                   />
@@ -245,6 +245,7 @@ class Checkout extends Component {
                     shippingMethods={props.shippingMethods}
                     cart={this.props.cart}
                     fetchShippingMethods={props.fetchShippingMethods}
+                    shippingAddressEmpty={_.isEmpty(shippingAddress)}
                   />
                 </div>
               </div>
@@ -281,13 +282,12 @@ class Checkout extends Component {
   render() {
     const props = this.props;
 
+    const overlayClass = classNames(styles['content-container-overlay'], {
+      [styles['_with-overlay']]: props.isContentOverlayVisible,
+    });
+
     return (
       <section styleName="checkout">
-        <Header
-          path={props.location.pathname}
-          query={props.location.query}
-        />
-
         <div styleName="content">
           <ErrorAlerts
             sanitizeError={this.sanitizeError}
@@ -295,6 +295,8 @@ class Checkout extends Component {
           />
           {this.content}
         </div>
+
+        <div className={overlayClass} />
       </section>
     );
   }

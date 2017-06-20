@@ -2,7 +2,12 @@
  * @flow
  */
 
-import React, { Element, PropTypes } from 'react';
+// libs
+import React, { Element } from 'react';
+import PropTypes from 'prop-types';
+
+// components
+import Icon from 'components/core/icon';
 
 type Props = {
   children?: Element<*>,
@@ -15,11 +20,11 @@ const DateTimeCounter = (props: Props) => {
   return (
     <div className="fc-date-time-picker__counter">
       <button className="fc-date-time-picker__counter-button" onClick={onClickUp}>
-        <i className="icon-up" />
+        <Icon name="up" />
       </button>
       {children}
       <button className="fc-date-time-picker__counter-button" onClick={onClickDown}>
-        <i className="icon-down" />
+        <Icon name="down" />
       </button>
     </div>
   );

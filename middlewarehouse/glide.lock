@@ -42,6 +42,8 @@ imports:
   - proto
 - name: github.com/golang/snappy
   version: 723cc1e459b8eea2dea4583200fd60757d40097a
+- name: github.com/icrowley/fake
+  version: 84bff6d01560fb0b5a396ba29534e93fd00d09c6
 - name: github.com/jinzhu/gorm
   version: caa792644ce60fd7b429e0616afbdbccdf011be2
 - name: github.com/jinzhu/inflection

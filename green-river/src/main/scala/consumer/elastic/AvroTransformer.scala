@@ -1,6 +1,6 @@
 package consumer.elastic
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
 import consumer.AvroJsonHelper
 

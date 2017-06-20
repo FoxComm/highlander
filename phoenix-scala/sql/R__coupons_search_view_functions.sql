@@ -13,7 +13,9 @@ create or replace function update_coupons_view_insert_fn() returns trigger as $$
       to_char(f.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
       to_char(cp.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at,
       cp.scope as scope,
-      jsonb_agg(c.code) filter (where c.code is not null) over (partition by f.id)  as codes
+      jsonb_agg(c.code) filter (where c.code is not null) over (partition by f.id)  as codes,
+      (illuminate_obj(f, s, 'usageRules')->>'usesPerCode') :: integer as max_uses_per_code,
+      (illuminate_obj(f, s, 'usageRules')->>'usesPerCustomer') :: integer as max_uses_per_customer
       from coupons as cp
       left join coupon_codes as c on (cp.form_id = c.coupon_form_id)
       inner join object_contexts as context on (cp.context_id = context.id)
@@ -36,6 +38,8 @@ begin
       description = q.description,
       active_from = q.active_from,
       active_to = q.active_to,
+      max_uses_per_code = q.max_uses_per_code,
+      max_uses_per_customer = q.max_uses_per_customer,
       created_at = q.created_at,
       archived_at = q.archived_at,
       codes = q.codes
@@ -49,6 +53,8 @@ begin
               illuminate_text(f, s, 'description') as description,
               illuminate_text(f, s, 'activeFrom') as active_from,
               illuminate_text(f, s, 'activeTo') as active_to,
+              (illuminate_obj(f, s, 'usageRules')->>'usesPerCode') :: integer as max_uses_per_code,
+              (illuminate_obj(f, s, 'usageRules')->>'usesPerCustomer') :: integer as max_uses_per_customer,
               to_char(f.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
               to_char(cp.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at,
               cp.scope as scope,

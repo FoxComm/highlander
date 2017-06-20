@@ -1,0 +1,21 @@
+@import 'common.css';
+@import 'colors.css';
+
+.loading {
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+
+    @apply --loading-caramel;
+  }
+
+  & :global(.fc-tab),
+  & :global(.fc-tab._selected) {
+    color: var(--color-additional-text);
+    cursor: default;
+  }
+}

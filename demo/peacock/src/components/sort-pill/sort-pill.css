@@ -7,6 +7,7 @@
   height: 22px;
   color: var(--text-color);
   border-radius: 22px;
+  cursor: pointer;
 }
 
 .pill-chevron {

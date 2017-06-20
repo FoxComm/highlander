@@ -1,31 +1,30 @@
 /* @flow */
 
-import React, { PropTypes, Element } from 'react';
+// libs
+import noop from 'lodash/noop';
 import classNames from 'classnames';
+import React, { Element } from 'react';
+
+// styles
+import s from './dropdown-item.css';
 
 type ItemProps = {
   onSelect?: Function,
-  value: number|string|bool,
-  children?: Element<*>,
+  value: number|string|boolean,
+  children?: Element<any>,
   className?: string,
-  isHidden?: bool,
+  isHidden?: boolean,
 };
 
-const DropdownItem = ({
-  children,
-  className,
-  isHidden = false,
-  value,
-  onSelect = () => {},
-}: ItemProps) => {
+const DropdownItem = ({ children, className = '', isHidden = false, value, onSelect = noop }: ItemProps) => {
   const handleClick = event => {
     event.preventDefault();
     onSelect(value, children);
   };
 
   const classnames = classNames(className, {
-    'fc-dropdown__item': true,
-    'fc-dropdown__item-hidden': isHidden,
+    [s.item]: true,
+    [s.hidden]: isHidden,
   });
 
   return (

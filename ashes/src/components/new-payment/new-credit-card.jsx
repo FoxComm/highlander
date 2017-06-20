@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -7,7 +8,7 @@ import _ from 'lodash';
 import CreditCardBox from 'components/credit-cards/card-box';
 import CreditCardDetails from 'components/credit-cards/card-details';
 import CreditCardForm from 'components/credit-cards/card-form';
-import SaveCancel from 'components/common/save-cancel';
+import SaveCancel from 'components/core/save-cancel';
 import TileSelector from 'components/tile-selector/tile-selector';
 
 import * as CreditCardActions from 'modules/customers/credit-cards';
@@ -87,7 +88,7 @@ export default class NewCreditCard extends Component {
             isNew={true}
             onCancel={() => this.setState({ showForm: false })}
             onSubmit={this.handleCreditCardSubmit}
-            saveText="Add Payment Method"
+            saveLabel="Add Payment Method"
           />
         </div>
       );
@@ -119,7 +120,7 @@ export default class NewCreditCard extends Component {
 
       return (
         <SaveCancel className="fc-new-order-payment__form-controls"
-                    saveText="Add Payment Method"
+                    saveLabel="Add Payment Method"
                     saveDisabled={saveDisabled}
                     onSave={onSave}
                     onCancel={this.props.cancelAction} />

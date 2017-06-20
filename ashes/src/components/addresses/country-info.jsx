@@ -1,7 +1,7 @@
 
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
-import PhoneNumber from '../phone-number/phone-number';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 @connect(state => state)

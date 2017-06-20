@@ -1,0 +1,22 @@
+---
+
+- name: Create Dashboard Server Directory
+  file: path={{dashboard_assets_location}} state=directory
+
+- name: Copy Dashboard Binary
+  unarchive: src=dashboard_linux_amd64.tar.gz dest=/usr/local/bin
+
+- name: Make Dashboard Executable
+  file: path=/usr/local/bin/dashboard mode=750
+
+- name: Copy Dashboard Assets
+  unarchive: src=assets.tar.gz dest="{{dashboard_assets_location}}"
+
+- name: Install Dashboard run script
+  template: src=run_dashboard.sh.j2 dest="{{dashboard_assets_location}}/run_dashboard.sh" mode="u=rwx,g=rwx,o=r"
+
+- name: Install Dashboard service entry
+  template: src=dashboard.service.j2 dest="{{dest_services}}/dashboard.service"
+
+- name: Copy Consul Service File
+  template: src=dashboard.json dest=/etc/consul.d

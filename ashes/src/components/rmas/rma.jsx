@@ -1,11 +1,12 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { IndexLink, Link } from '../link';
+import { IndexLink, Link } from 'components/link';
 import Notes from '../notes/notes';
 import { PageTitle } from '../section-title';
-import { PrimaryButton } from '../common/buttons';
-import LocalNav from '../local-nav/local-nav';
+import { PrimaryButton } from 'components/core/button';
+import PageNav from 'components/core/page-nav';
 import { PanelList, PanelListItem } from '../panel/panel-list';
 import ContentBox from '../content-box/content-box';
 import State from '../common/state';
@@ -32,7 +33,7 @@ export default class Rma extends React.Component {
   }
 
   componentDidMount() {
-    let { rma }  = this.props.params;
+    let { rma } = this.props.params;
 
     this.props.fetchRma(rma);
   }
@@ -52,16 +53,16 @@ export default class Rma extends React.Component {
   get subNav() {
     const rma = this.rma;
     if (rma.id) {
-      const params = {rma: rma && rma.referenceNumber || ''};
-      const content = React.cloneElement(this.props.children, {...this.props, entity: rma});
+      const params = { rma: rma && rma.referenceNumber || '' };
+      const content = React.cloneElement(this.props.children, { ...this.props, entity: rma });
 
       return (
         <div>
-          <LocalNav gutter={true}>
+          <PageNav gutter={true}>
             <IndexLink to="rma-details" params={params}>Details</IndexLink>
             <Link to="rma-notifications" params={params}>Transaction Notifications</Link>
             <Link to="rma-activity-trail" params={params}>Activity Trail</Link>
-          </LocalNav>
+          </PageNav>
           {content}
         </div>
       );
@@ -92,7 +93,7 @@ export default class Rma extends React.Component {
           <div className="fc-col-md-3-4">
             <PanelList>
               <PanelListItem title="Return State">
-                <State value={this.rma.state} model="rma"/>
+                <State value={this.rma.state} model="rma" />
               </PanelListItem>
               <PanelListItem title="Return Type">
                 {rma.rmaType}

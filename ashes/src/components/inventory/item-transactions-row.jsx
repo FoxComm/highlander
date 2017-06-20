@@ -1,28 +1,33 @@
-/** Libs */
-import { get, isString, capitalize } from 'lodash';
-import React, { PropTypes } from 'react';
+/* @flow */
 
-/** Components */
-import Row from '../table/row';
-import Cell from '../table/cell';
+// libs
+import _ from 'lodash';
+import React from 'react';
 
-/** InventoryItemTransactionsRow Component */
-const InventoryItemTransactionsRow = props => {
-  const { transaction, columns } = props;
+// components
+import MultiSelectRow from 'components/table/multi-select-row';
 
-  return (
-    <Row>
-      {columns.map(column => {
-        return <Cell column={column} key={column.field}>{get(transaction, column.field)}</Cell>;
-      })}
-    </Row>
-  );
+type Props = {
+  transaction: Object,
+  columns: Columns,
+  params: Object,
 };
 
-/** InventoryItemTransactionsRow expected props types */
-InventoryItemTransactionsRow.propTypes = {
-  transaction: PropTypes.object.isRequired,
-  columns: PropTypes.array.isRequired,
+const InventoryItemTransactionsRow = (props: Props) => {
+  const { transaction, columns, params } = props;
+
+  const setCellContents = (transaction: Object, field: string) => {
+    return _.get(transaction, field);
+  };
+
+  return (
+    <MultiSelectRow
+      columns={columns}
+      row={transaction}
+      setCellContents={setCellContents}
+      params={params}
+    />
+  );
 };
 
 export default InventoryItemTransactionsRow;

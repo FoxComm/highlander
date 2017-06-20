@@ -1,5 +1,5 @@
 // @flow
-import React, { PropTypes } from 'react';
+import React from 'react';
 import styles from './customer-group-row.css';
 
 type Group = {

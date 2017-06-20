@@ -6,8 +6,8 @@ import styles from './promotion-coupons.css';
 
 // components
 import Coupons from '../coupons/coupons';
+import { PrimaryButton } from 'components/core/button';
 import { SectionTitle } from '../section-title';
-import { PrimaryButton } from '../../components/common/buttons';
 
 export default class PromoCouponsPage extends Component {
   @autobind

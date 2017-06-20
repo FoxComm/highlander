@@ -12,6 +12,9 @@
     "watch-precompile": "babel src -d lib -w --skip-initial-build",
     "storybook": "start-storybook -p 9001 -s ./public -c .storybook"
   },
+  "engines": {
+    "yarn": "0.23.2"
+  },
   "author": "FoxCommerce",
   "license": "ISC",
   "devDependencies": {
@@ -44,7 +47,7 @@
     "eslint-plugin-jsx-a11y": "^4.0.0",
     "eslint-plugin-react": "^6.10.3",
     "evil-icons": "^1.8.0",
-    "flow-bin": "0.42.0",
+    "flow-bin": "^0.46.0",
     "glob-watcher": "^3.1.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
@@ -84,9 +87,10 @@
     "watchify": "^3.9.0"
   },
   "dependencies": {
-    "@foxcomm/api-js": "^1.1.6",
+    "@foxcomm/api-js": "^1.2.0",
     "@foxcomm/babel-plugin-react-stylenames": "^3.1.0",
-    "@foxcomm/wings": "^1.9.11",
+    "@foxcomm/storefront-react": "^1.3.0",
+    "@foxcomm/wings": "^1.9.12",
     "classnames": "^2.2.3",
     "core-decorators": "^0.11.0",
     "currency-symbol-map": "^2.2.0",
@@ -114,7 +118,7 @@
     "react-redux": "^5.0.3",
     "react-router": "^2.7.0",
     "react-router-redux": "^3.0.0",
-    "react-router-scroll": "^0.2.0",
+    "react-router-scroll": "^0.4.2",
     "react-text-mask": "^0.19.0",
     "recast": "^0.11.4",
     "reduce-reducers": "^0.1.2",

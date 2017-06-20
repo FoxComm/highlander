@@ -1,6 +1,7 @@
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
@@ -11,7 +12,7 @@ import { ReasonType } from '../../lib/reason-utils';
 import { fetchReasons } from '../../modules/reasons';
 
 // components
-import { Dropdown, DropdownItem } from '../dropdown';
+import { Dropdown } from '../dropdown';
 
 
 const mapStateToProps = ({reasons}, {reasonType}) => {

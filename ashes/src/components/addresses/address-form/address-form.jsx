@@ -1,8 +1,8 @@
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
-import InputMask from 'react-input-mask';
-import { assoc } from 'sprout-data';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { TextMask } from 'components/core/text-mask';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -11,17 +11,20 @@ import { createSelector } from 'reselect';
 // components
 import FormField from '../../forms/formfield';
 import FoxyForm from '../../forms/foxy-form';
-import ErrorAlerts from '../../alerts/error-alerts';
-import SaveCancel from '../../common/save-cancel';
-import { Dropdown, DropdownItem } from '../../dropdown';
-import TextInput from '../../forms/text-input';
-import AutoScroll from '../../common/auto-scroll';
+import { ApiErrors } from 'components/utils/errors';
+import SaveCancel from 'components/core/save-cancel';
+import { Dropdown } from '../../dropdown';
+import AutoScroll from 'components/utils/auto-scroll';
+import TextInput from 'components/core/text-input';
+
+// style
+import s from './address-form.css';
 
 // data
 import * as validators from '../../../lib/validators';
 import * as AddressFormActions from '../../../modules/address-form';
 import * as CountryActions from '../../../modules/countries';
-import {regionName, zipName, zipExample, phoneExample, phoneMask} from '../../../i18n';
+import { regionName, zipName, zipExample, phoneExample, phoneMask } from '../../../i18n';
 
 const formNamespace = props => _.get(props, 'address.id', 'new');
 
@@ -91,11 +94,6 @@ export default class AddressForm extends React.Component {
   }
 
   componentDidMount() {
-    const initialFieldInput = this.refs.name;
-    if (initialFieldInput) {
-      initialFieldInput.focus();
-    }
-
     this.props.fetchCountry(this.state.countryId);
   }
 
@@ -125,11 +123,17 @@ export default class AddressForm extends React.Component {
     let input;
 
     if (this.countryCode === 'US') {
-      const onChange = ({ target: { value }}) => this.handlePhoneChange(value);
-      input = <InputMask {...inputAttributes} onChange={onChange} mask={phoneMask(this.countryCode)}/>;
+      const onChange = ({ target: { value } }) => this.handlePhoneChange(value);
+      input = (
+        <TextMask
+          {...inputAttributes}
+          onChange={onChange}
+          mask={phoneMask(this.countryCode)}
+        />
+      );
     } else {
       const onChange = value => this.handlePhoneChange(value);
-      input = <TextInput {...inputAttributes} onChange={onChange} maxLength="15"/>;
+      input = <TextInput {...inputAttributes} onChange={onChange} maxLength="15" />;
     }
 
     return input;
@@ -148,7 +152,7 @@ export default class AddressForm extends React.Component {
   }
 
   get errorMessages() {
-    return <ErrorAlerts error={this.props.err} />;
+    return <ApiErrors error={this.props.err} />;
   }
 
   get formTitle() {
@@ -196,7 +200,7 @@ export default class AddressForm extends React.Component {
 
   @autobind
   handlePhoneChange(phone) {
-    this.setState({phone});
+    this.setState({ phone });
   }
 
   @autobind
@@ -228,7 +232,6 @@ export default class AddressForm extends React.Component {
   render() {
     const { address, onCancel, saveTitle } = this.props;
     const countryCode = this.countryCode;
-    const regionId = _.get(address, 'region.id');
 
     return (
       <div className="fc-address-form">
@@ -239,14 +242,15 @@ export default class AddressForm extends React.Component {
             <ul className="fc-address-form-fields">
               {this.formTitle}
               <li>
-                <FormField label="Name" validator="ascii" maxLength={255}>
-                  <input name="name" ref="name" type="text" defaultValue={address.name} required />
+                <FormField label="First & Last Name" validator="ascii" maxLength={255}>
+                  <TextInput name="name" defaultValue={address.name} required />
                 </FormField>
               </li>
               <li>
                 <FormField label="Country">
                   <Dropdown id="country-dd"
                             name="countryId"
+                            className={s.countryList}
                             value={this.state.countryId}
                             onChange={value => this.handleCountryChange(Number(value))}
                             items={this.countryItems}
@@ -255,17 +259,17 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label="Street Address" validator="ascii" maxLength={255}>
-                  <input name="address1" type="text" defaultValue={address.address1} required />
+                  <TextInput name="address1" defaultValue={address.address1} required />
                 </FormField>
               </li>
               <li>
                 <FormField label="Street Address 2" validator="ascii" maxLength={255} optional>
-                  <input name="address2" type="text" defaultValue={address.address2} />
+                  <TextInput name="address2" defaultValue={address.address2} />
                 </FormField>
               </li>
               <li>
                 <FormField label="City" validator="ascii" maxLength={255}>
-                  <input name="city" type="text" defaultValue={address.city} required />
+                  <TextInput name="city" defaultValue={address.city} required />
                 </FormField>
               </li>
               <li>
@@ -280,7 +284,8 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label={zipName(countryCode)} validator={this.validateZipCode}>
-                  <input type="text" name="zip"
+                  <TextInput
+                         name="zip"
                          placeholder={zipExample(countryCode)}
                          defaultValue={address.zip} className='control' required />
                 </FormField>
@@ -291,8 +296,10 @@ export default class AddressForm extends React.Component {
                 </FormField>
               </li>
               <li className="fc-address-form-controls">
-                <SaveCancel onCancel={onCancel}
-                            saveText={saveTitle}/>
+                <SaveCancel
+                  onCancel={onCancel}
+                  saveLabel={saveTitle}
+                />
               </li>
             </ul>
           </FoxyForm>

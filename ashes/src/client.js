@@ -1,8 +1,9 @@
+// LESS styles must be first in output css file
+import './less/base.less'; // @todo get rid of
+
 import get from 'lodash/get';
 import React from 'react';
 import { render } from 'react-dom';
-import { Router } from 'react-router';
-import { Provider } from 'react-redux';
 import { syncHistoryWithStore, push } from 'react-router-redux';
 
 import { createHistory } from 'history';
@@ -15,6 +16,26 @@ import { setHistory } from 'browserHistory';
 import { trackPageView, initTracker } from './lib/analytics';
 import { getJWT } from 'lib/claims';
 import { isPathRequiredAuth } from './route-rules';
+import Root from './root';
+
+// global styles
+import './css/base.css';
+
+// images
+import './favicons';
+
+if (module.hot) {
+  module.hot.accept(['./root', './routes', './store'], () => {
+    try {
+      require('./root');
+      require('./routes');
+    } catch (e) {
+      // pass
+    }
+    // do nothing, only css reload works
+    // because of, for example, https://github.com/pauldijou/redux-act/issues/42
+  });
+}
 
 const createBrowserHistory = useNamedRoutes(useRouterHistory(createHistory));
 
@@ -29,36 +50,35 @@ export function syncJWTFromServer() {
 
 syncJWTFromServer();
 
-export function start() {
-  const routes = makeRoutes();
-  let history = createBrowserHistory({ routes });
+const routes = makeRoutes();
+let history = createBrowserHistory({ routes });
 
-  const initialState = {
-    user: {
-      current: getJWT(),
-    },
-  };
-  const store = configureStore(history, initialState);
-  history = syncHistoryWithStore(history, store);
-  setHistory(history);
+const initialState = {
+  user: {
+    current: getJWT(),
+  },
+};
 
-  initTracker();
-  history.listen(location => {
-    // reset title in order to have default title if page will not set own one
-    document.title = 'FoxCommerce';
-    trackPageView(location.pathname);
+const store = configureStore(history, initialState);
+history = syncHistoryWithStore(history, store);
+setHistory(history);
 
-    if (!get(store.getState(), 'user.current') && isPathRequiredAuth(location.pathname)) {
-      store.dispatch(push('/login'));
-    }
-  });
+initTracker();
 
-  render(
-    <Provider store={store} routes={routes} key="provider">
-      <Router history={history}>
-        {routes}
-      </Router>
-    </Provider>,
-    document.getElementById('foxcom')
-  );
+const currentUser = get(store.getState(), 'user.current');
+const needLogin = (!currentUser || !window.tokenOk) && isPathRequiredAuth(location.pathname);
+
+if (needLogin) {
+  const loginUri = `${process.env.URL_PREFIX}/login`;
+
+  store.dispatch(push(loginUri));
 }
+
+history.listen(location => {
+  trackPageView(location.pathname);
+});
+
+render(
+  <Root store={store} routes={routes} history={history} />,
+  document.getElementById('foxcom')
+);

@@ -3,14 +3,11 @@
 
 // libs
 import _ from 'lodash';
-import React, { Component, Element } from 'react';
+import React from 'react';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
-import { searchCouponPromotions } from 'elastic/promotions';
 
 // components
-import DropdownSearch from '../dropdown/dropdown-search';
-import DropdownItem from '../dropdown/dropdownItem';
 import CouponCodes from './form/coupon-codes';
 import UsageRules from './form/usage-rules';
 import ObjectDetails from '../object-page/object-details';
@@ -28,6 +25,7 @@ type CouponFormProps = {
   onUpdateCouponCode: Function,
   fetchPromotions: Function,
   createCoupon: Function,
+  refresh: Function,
 };
 
 const layout = require('./layout.json');
@@ -54,6 +52,7 @@ export default class CouponForm extends ObjectDetails {
         createCoupon={this.props.createCoupon}
         promotionId={id}
         codeGeneration={this.props.codeGeneration}
+        refresh={this.props.refresh}
         isNew={this.props.isNew}
       />
     );

@@ -2,37 +2,7 @@
 
 import { createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
-
-const featured = [
-  {
-    id: 100,
-    name: 'new arrivals',
-  },
-  {
-    id: 101,
-    name: 'best sellers',
-  },
-  {
-    id: 102,
-    name: 'sale',
-  },
-  {
-    id: 103,
-    name: 'EQT',
-  },
-  {
-    id: 104,
-    name: 'superstar',
-  },
-  {
-    id: 105,
-    name: 'workout essentials',
-  },
-  {
-    id: 106,
-    name: 'blue blast',
-  },
-];
+import _ from 'lodash';
 
 const shoes = [
   {
@@ -228,11 +198,6 @@ const sports = [
 
 const groups = [
   {
-    id: 10,
-    name: 'featured',
-    children: featured,
-  },
-  {
     id: 11,
     name: 'shoes',
     children: shoes,
@@ -251,8 +216,18 @@ const groups = [
     id: 14,
     name: 'sports',
     children: sports,
+    ignoreCategoryFilter: true,
   },
 ];
+
+const rejectGroupChildren = (items: Array<Object>, ids: Array<number> = []) => {
+  return _.map(items, (item: Object) => {
+    return {
+      ...item,
+      children: _.reject(item.children, (child: Object) => ids.includes(child.id)),
+    };
+  });
+};
 
 const categories = [
   {
@@ -260,21 +235,37 @@ const categories = [
     name: 'women',
     description: '',
     showNameCatPage: true,
-    children: groups,
+    children: rejectGroupChildren(groups, [
+      202, 204, 207, 208, 210, 211,
+      302, 303, 304, 305, 306, 307, 308, 309,
+      402, 403, 404, 405, 408, 409,
+      505, 506, 510, 511, 512,
+    ]),
   },
   {
     id: 1,
     name: 'men',
     description: '',
     showNameCatPage: true,
-    children: groups,
+    children: rejectGroupChildren(groups, [
+      210, 211,
+      302, 303, 304, 305, 306, 307, 308, 310,
+      401, 402, 403, 404, 405, 406, 407, 408, 409,
+      512, 514,
+    ]),
   },
   {
     id: 2,
     name: 'kids',
+    url: '/s/kids',
     description: '',
     showNameCatPage: true,
-    children: groups,
+    children: rejectGroupChildren(groups, [
+      206, 208, 209, 210, 211,
+      301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311,
+      401, 402, 403, 404, 405, 406, 407, 408, 409,
+      507, 508, 509, 510, 511, 512, 513, 514,
+    ]),
   },
 ];
 

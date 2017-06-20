@@ -1,8 +1,6 @@
-
 // data source module
-
 import _ from 'lodash';
-import { assoc, update, merge, dissoc } from 'sprout-data';
+import { assoc, update, merge } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 
 import Api from '../../lib/api';

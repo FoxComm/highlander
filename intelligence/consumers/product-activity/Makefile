@@ -11,7 +11,7 @@ DOCKER_TAG ?= master
 
 prepare:
 	$(call header, Prepare)
-	rm $(BUILD_ROOT_PATH) || true
+	rm -rf $(BUILD_ROOT_PATH) || true
 	mkdir -p $(GOPATH)/src/github.com/FoxComm
 	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH) || true
 	go get gopkg.in/olivere/elastic.v3

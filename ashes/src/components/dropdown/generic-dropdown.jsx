@@ -1,15 +1,18 @@
 /* @flow */
 
+// libs
 import _ from 'lodash';
-import React, { PropTypes, Element, Component, Children } from 'react';
+import React, { Element, Component } from 'react';
 import createFragment from 'react-addons-create-fragment';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 
 import DropdownItem from './dropdownItem';
-import Overlay from '../overlay/overlay';
-import { Button } from '../common/buttons';
+import { Button } from 'components/core/button';
 import BodyPortal from '../body-portal/body-portal';
+
+// styles
+import s from './generic-dropdown.css';
 
 export type ValueType = ?string | number;
 
@@ -17,10 +20,9 @@ export type DropdownItemType = [ValueType, string | Element<*>, ?boolean];
 
 export type MouseHandler = (e: MouseEvent) => void;
 
-export type RenderDropdownFunction = (value: any,
-                                      title: ?string | Element<*>,
-                                      props: Props,
-                                      handleToggleClick: MouseHandler) => Element<*>
+export type RenderDropdownFunction = (
+  value: any, title: ?string | Element<*>, props: Props, handleToggleClick: MouseHandler
+) => Element<*>;
 
 export type Props = {
   id?: string,
@@ -29,11 +31,11 @@ export type Props = {
   value: ValueType,
   className?: string,
   listClassName?: string,
-  placeholder?: string,
+  placeholder?: string | Element<*>,
   emptyMessage?: string | Element<*>,
   open?: bool,
   children?: Element<*>,
-  items?: Array<DropdownItemType>,
+  items?: Array<any>,
   primary?: bool,
   editable?: bool,
   changeable?: bool,
@@ -47,6 +49,8 @@ export type Props = {
   dropdownProps?: Object,
   detached?: boolean,
   noControls?: boolean,
+  toggleColumnsBtn?: boolean,
+  buttonClassName?: string,
 };
 
 type State = {
@@ -72,7 +76,7 @@ export default class GenericDropdown extends Component {
   props: Props;
 
   static defaultProps = {
-    placeholder: '- Select -',
+    placeholder: '',
     changeable: true,
     disabled: false,
     primary: false,
@@ -94,14 +98,16 @@ export default class GenericDropdown extends Component {
 
   _menu: HTMLElement;
   _items: HTMLElement;
-  _container: HTMLElement;
+  _block: HTMLElement;
 
   componentDidMount() {
     window.addEventListener('keydown', this.handleKeyPress, true);
+    window.addEventListener('click', this.handleClickOutside, true);
   }
 
   componentWillUnmount() {
     window.removeEventListener('keydown', this.handleKeyPress, true);
+    window.removeEventListener('click', this.handleClickOutside, true);
   }
 
   componentWillReceiveProps(newProps: Props) {
@@ -117,14 +123,21 @@ export default class GenericDropdown extends Component {
     }
   }
 
+  @autobind
+  handleClickOutside({ target }: { target: HTMLElement }) {
+    if (this._block && !this._block.contains(target) && this.state.open) {
+      this.closeMenu();
+    }
+  }
+
   setMenuPosition() {
     if (!this.props.detached) {
       return;
     }
 
-    const parentDim = this._container.getBoundingClientRect();
+    const parentDim = this._block.getBoundingClientRect();
 
-    this._menu.style.minWidth = `${this._container.offsetWidth}px`;
+    this._menu.style.minWidth = `${this._block.offsetWidth}px`;
     this._menu.style.top = `${parentDim.top + parentDim.height + window.scrollY}px`;
     this._menu.style.left = `${parentDim.left}px`;
   }
@@ -132,7 +145,7 @@ export default class GenericDropdown extends Component {
   setMenuOrientation() {
     const viewportHeight = window.innerHeight;
 
-    const containerPos = this._container.getBoundingClientRect();
+    const containerPos = this._block.getBoundingClientRect();
     const spaceAtTop = containerPos.top;
     const spaceAtBottom = viewportHeight - containerPos.bottom;
 
@@ -152,7 +165,7 @@ export default class GenericDropdown extends Component {
     });
   }
 
-  renderNullTitle(value: ?number | string, placeholder: ?string): ?string | Element<*> {
+  renderNullTitle(value: ?number | string, placeholder: ?string | Element<*>): ?string | Element<*> {
     if (this.props.renderNullTitle) {
       return this.props.renderNullTitle(value, placeholder);
     }
@@ -191,12 +204,16 @@ export default class GenericDropdown extends Component {
 
   get dropdownButton() {
     const icon = this.state.open ? 'chevron-up' : 'chevron-down';
+    const { toggleColumnsBtn } = this.props;
 
+    const className = classNames(s.downArrowBtn, this.props.buttonClassName, {
+      [s.toggleBtn]: toggleColumnsBtn != null,
+    });
+    // @todo consider to not use <Button> component here, too specific styles
     return (
       <Button
         icon={icon}
-        docked={this.props.inputFirst ? 'right' : 'left'}
-        className="_dropdown-size"
+        className={className}
         disabled={this.props.disabled}
         onClick={this.handleToggleClick}
         {...this.props.dropdownProps}
@@ -231,7 +248,7 @@ export default class GenericDropdown extends Component {
     if (!this.props.renderAppend) {
       return null;
     }
-    return this.props.renderAppend();
+    return this.props.renderAppend(this.handleToggleClick);
   }
 
   get optionsContainerClass(): string {
@@ -272,6 +289,9 @@ export default class GenericDropdown extends Component {
       switch (e.keyCode) {
         // enter
         case 13:
+          e.stopPropagation();
+          e.preventDefault();
+
           if (currentIndex > -1) {
             this._items.children[currentIndex].click();
           }
@@ -371,15 +391,16 @@ export default class GenericDropdown extends Component {
   }
 
   get controls(): Element<*> {
-    const { inputFirst, noControls } = this.props;
+    const { inputFirst, noControls, placeholder } = this.props;
 
     if (noControls) {
       return this.dropdownInput;
     }
+    const rightInput = inputFirst ? this.dropdownButton : this.dropdownInput;
 
     return createFragment({
       left: inputFirst ? this.dropdownInput : this.dropdownButton,
-      right: inputFirst ? this.dropdownButton : this.dropdownInput,
+      right: placeholder ? rightInput : null,
     });
   }
 
@@ -404,10 +425,11 @@ export default class GenericDropdown extends Component {
   render() {
     const { editable, id } = this.props;
 
+    const cls = classNames(s.controls, 'fc-dropdown__controls');
+
     return (
-      <div id={id} className={this.dropdownClassName} ref={c => this._container = c} tabIndex="0">
-        <Overlay shown={this.state.open} onClick={this.handleToggleClick} />
-        <div className="fc-dropdown__controls" onClick={editable ? this.handleToggleClick : null}>
+      <div id={id} className={this.dropdownClassName} ref={c => this._block = c} tabIndex="0">
+        <div className={cls} onClick={editable ? this.handleToggleClick : null}>
           {this.controls}
         </div>
         {this.menu}

@@ -35,13 +35,15 @@ begin
                 statement_timestamp() and
                 (((f.attributes ->> (s.attributes -> 'activeTo' ->> 'ref')) = '') is not false or
                  ((f.attributes ->> (s.attributes -> 'activeTo' ->> 'ref')) :: timestamp >=
-                  statement_timestamp())))
+                  statement_timestamp()))
+                and (sv.skus is not null and jsonb_array_length(sv.skus) > 0))
                  as alive,
                 pv.id as catalog_id
 
              from products as p
                inner join object_contexts as context on (p.context_id = context.id)
                left join products_catalog_view as pv on (pv.id = p.id and context.name = pv.context)
+               left join product_sku_links_view as sv on (sv.product_id = p.id)
                inner join object_forms as f on (f.id = p.form_id)
                inner join object_shadows as s on (s.id = p.shadow_id)
                 where p.id = any(product_ids)) as q
@@ -148,3 +150,19 @@ create trigger update_products_cat_view_taxonomies_from_search
 after update on products_search_view
 for each row
 execute procedure refresh_products_cat_taxonomies_from_search_view_fn();
+
+create or replace function update_products_cat_from_product_sku_links_delete_fn() returns trigger as $$
+begin
+  if not exists (select 1 from product_sku_links where left_id = old.left_id) then
+     -- if this was the last such left_id
+     delete from products_catalog_view where id = old.left_id;
+  end if;
+  return null;
+end;
+$$ language plpgsql;
+
+drop trigger if exists update_products_cat_from_product_sku_links_delete_trigger on product_sku_links;
+create trigger update_products_cat_from_product_sku_links_delete_trigger
+  after delete on product_sku_links
+  for each row
+  execute procedure update_products_cat_from_product_sku_links_delete_fn();

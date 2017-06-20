@@ -13,5 +13,3 @@ puts the value to Henhouse.
 | ELASTIC_INDEX          |               | Name of elasticsearch index. Typically "admin_1" |
 | INTERVAL               | 60            | Polling interval in seconds|
 | ELASTIC_URL            |               | Elasticsearch url  |
-
-

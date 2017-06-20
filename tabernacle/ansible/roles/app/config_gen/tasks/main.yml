@@ -1,0 +1,22 @@
+---
+
+- name: Find out Highlander path
+  shell: "dirname $(dirname $(pwd))"
+  register: highlander_path_out
+
+- name: Set Seeding Default Fact
+  set_fact:
+    with_seeding_value: false
+
+- name: Set Seeding Fact
+  set_fact:
+    with_seeding_value: true
+  when: with_seeding_input
+
+- name: Set Default Appliance Name
+  set_fact:
+    google_instance_name: "{{appliance_prefix}}-{{user}}-{{999999|random}}"
+  when: google_instance_name == ""
+
+- name: Save Goldrush Configuration
+  template: src=goldrush.cfg.j2 dest="{{highlander_path_out.stdout}}/goldrush.cfg"

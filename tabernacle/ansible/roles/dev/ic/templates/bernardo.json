@@ -8,7 +8,8 @@
   "labels": {
     "LAYER": "backend",
     "LANG": "cpp",
-    "TAG": "{{docker_tags.bernardo}}"
+    "TAG": "{{docker_tags.bernardo}}",
+    "consul": "bernardo"
   },
   "container": {
     "type": "DOCKER",

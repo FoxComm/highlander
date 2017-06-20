@@ -1,5 +1,6 @@
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import EditableContentBox from '../content-box/editable-content-box';
 import ContentBox from '../content-box/content-box';
 import TableView from '../table/tableview';
@@ -21,7 +22,7 @@ const renderRowFn = (order, updateAction, isEditingPrice, editPriceAction, cance
         editPriceAction={editPriceAction}
         cancelPriceAction={cancelPriceAction}
         submitPriceAction={submitPriceAction}
-        key={row.id}/>
+        key={row.id} />
     );
   };
 };

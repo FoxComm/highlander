@@ -4,7 +4,7 @@
 import _ from 'lodash';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
-import React, { Component, Children, Element } from 'react';
+import React, { Component, Element, Children } from 'react';
 import { Motion, spring } from 'react-motion';
 
 // styles
@@ -278,7 +278,7 @@ class SortableTiles extends Component {
     const { translateX, translateY, scale } = transform;
     const transformStyles = {
       transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
-      zIndex: index === activeIndex ? 99 : 1,
+      zIndex: index === activeIndex ? 4 : 1,
     };
     const itemStyles = {
       ...transformStyles,
@@ -297,7 +297,7 @@ class SortableTiles extends Component {
     );
   }
 
-  render() {
+  render(): Element<*> {
     const { order, activeIndex, isPressed } = this.state;
 
     return (

@@ -20,9 +20,9 @@ const colors = {
   tealGreenish: '#78CFD4',
   gray: '#808080',
   teal: '#008080',
-  white: '#FFFFFF',
-  darkBlue: '#3A434F',
-  lightGray: '#ABB2B6'
+  white: '#ffffff',
+  darkBlue: '#25334a',
+  lightGray: '#abb2b6'
 };
 
 const areaStyle = {
@@ -125,7 +125,7 @@ class TotalRevenueChart extends React.Component {
 
   @autobind
   generateDataTickValues(jsonData: any) {
-    const { debugMode, queryKey, segmentType } = this.props;
+    const { debugMode, segmentType } = this.props;
 
     const jsonDisplay = (debugMode) ? debugJsonData[debugQueryKey] : jsonData;
 

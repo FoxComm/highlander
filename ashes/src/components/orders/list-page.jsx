@@ -1,5 +1,6 @@
 // libs
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { transitionTo } from 'browserHistory';
 
 // components
@@ -20,7 +21,7 @@ const OrderListPage = (props) => {
   return (
     <ListPageContainer
       title="Orders"
-      subtitle={<TotalCounter/>}
+      subtitle={<TotalCounter />}
       addTitle="Order"
       handleAddAction={addAction}
       navLinks={navLinks}>

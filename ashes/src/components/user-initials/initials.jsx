@@ -1,10 +1,11 @@
 /** Libs */
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * User initials(avatar) box component
  */
-const UserInitials = props => {
+const UserInitials = (props) => {
   return (
     <div className="initials" style={getColor(props)}>{getInitials(props)}</div>
   );
@@ -14,12 +15,12 @@ function getColor(props) {
   const initials = getInitials(props) || '';
   const code = initials.charCodeAt(1);
 
-  let color = '#FFBB3C';
-  if (code <= 70) color = '#B989DE';
-  else if (code <= 75) color = '#7DA0F3';
-  else if (code <= 80) color = '#F45758';
-  else if (code <= 85) color = '#DD63B9';
-  else if (code <= 90) color = '#47628D';
+  let color = '#ffbb3c';
+  if (code <= 70) color = '#b989de';
+  else if (code <= 75) color = '#7da0f3';
+  else if (code <= 80) color = '#f45758';
+  else if (code <= 85) color = '#dd63b9';
+  else if (code <= 90) color = '#47628d';
 
   return {
     background: color

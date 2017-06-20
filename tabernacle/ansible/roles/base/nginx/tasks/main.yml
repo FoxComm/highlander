@@ -1,0 +1,36 @@
+---
+
+- name: Add Nginx APT key
+  apt_key: url=http://nginx.org/packages/keys/nginx_signing.key
+
+- name: Add Nginx APT repository
+  apt_repository: repo='{{item}}' state=present update_cache=yes
+  with_items:
+    - deb http://nginx.org/packages/mainline/ubuntu/ vivid nginx
+    - deb-src http://nginx.org/packages/mainline/ubuntu/ vivid nginx
+
+- name: Install Nginx dependencies
+  apt: name={{item}} force=yes state=latest
+  with_items:
+    - luajit
+    - lua-cjson
+    - lua-cjson-dev
+    - nginx-extras
+
+- name: Install UUID4 Lua Library
+  copy: src=uuid4.lua dest=/etc/nginx/uuid4.lua
+
+- name: Install BaseXX Lua Library
+  copy: src=basexx.lua dest=/etc/nginx/basexx.lua
+
+- name: Install Base Config
+  template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
+
+- name: Remove Default Config
+  file: path=/etc/nginx/sites-available/default state=absent
+
+- name: Make Sure Nginx Restarts After Failure
+  lineinfile: dest=/etc/systemd/system/multi-user.target.wants/nginx.service line="Restart=always" insertafter="^KillMode" state=present
+
+- name: Copy Consul Service File
+  template: src=balancer.json dest="/etc/consul.d/balancer.json"

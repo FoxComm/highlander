@@ -1,5 +1,6 @@
 // libs
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { debounce, autobind } from 'core-decorators';
 import { cloneElement } from '../../lib/react-utils';
@@ -144,8 +145,7 @@ export default class Typeahead extends React.Component {
   }
 
   @autobind
-  textChange({ target }) {
-    let value = target.value;
+  textChange(value: string) {
 
     this.setState({
       query: value,
@@ -179,8 +179,8 @@ export default class Typeahead extends React.Component {
   }
 
   get listContent() {
-    const { items, isFetching, itemsElement, minQueryLength } = this.props;
-    const { searchedOnce } = this.state;
+    const { isFetching, itemsElement, minQueryLength } = this.props;
+    // const { searchedOnce } = this.state;
     // const noResults = !items.length && searchedOnce && !isFetching;
 
     const ourProps = {
@@ -242,13 +242,13 @@ export default class Typeahead extends React.Component {
   }
 
   render() {
-    const className = classNames(s.block, { [s._active]: this.state.active }, this.props.className);
+    const className = classNames(s.block, { [s.active]: this.state.active }, this.props.className);
 
     const listClass = classNames(s.list, {
-      [s._visible]: this.state.showMenu,
-      [s._modal]: this.props.view == 'modal',
-      [s._search]: this.props.view != 'no-search' && this.props.view != 'users',
-      [s._users]: this.props.view == 'users',
+      [s.visible]: this.state.showMenu,
+      [s.modal]: this.props.view == 'modal',
+      [s.search]: this.props.view != 'no-search' && this.props.view != 'users',
+      [s.users]: this.props.view == 'users',
     });
 
     return (

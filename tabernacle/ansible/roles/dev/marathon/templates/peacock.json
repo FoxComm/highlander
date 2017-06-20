@@ -8,6 +8,7 @@
   "labels": {
     "LAYER": "frontend",
     "LANG": "js",
+    "consul": "peacock",
     "TAG": "{{docker_tags.peacock}}"
   },
   "env": {

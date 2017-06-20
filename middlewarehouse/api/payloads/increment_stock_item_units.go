@@ -1,6 +1,10 @@
 package payloads
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/FoxComm/highlander/middlewarehouse/models"
+)
 
 type IncrementStockItemUnits struct {
 	Qty      int    `json:"qty" binding:"required"`
@@ -16,4 +20,20 @@ func (r IncrementStockItemUnits) Validate() error {
 	}
 
 	return nil
+}
+
+func (r IncrementStockItemUnits) Models(stockItemID uint) []*models.StockItemUnit {
+	units := []*models.StockItemUnit{}
+
+	for i := 0; i < r.Qty; i++ {
+		item := &models.StockItemUnit{
+			StockItemID: stockItemID,
+			UnitCost:    r.UnitCost,
+			Status:      models.UnitStatus(r.Status),
+			Type:        models.UnitType(r.Type),
+		}
+		units = append(units, item)
+	}
+
+	return units
 }

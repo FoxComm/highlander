@@ -1,0 +1,47 @@
+---
+
+- name: Set URLs
+  set_fact:
+    buildkite_post_url: "{{buildkite_url}}/pipelines?access_token={{buildkite_api_token}}"
+    buildkite_get_url: "{{buildkite_url}}/pipelines/feature-branch-{{feature_branch_title | lower}}?access_token={{buildkite_api_token}}"
+    github_post_url: "{{github_url}}/hooks?access_token={{github_api_token}}"
+
+- name: Create Pipeline Template Instance
+  template: src="pipeline.json.j2" dest="/tmp/pipeline.json"
+
+- name: Create New Pipeline
+  uri:
+    url: "{{buildkite_post_url}}"
+    method: POST
+    body: "{{ lookup('file', '/tmp/pipeline.json') }}"
+    status_code: 201
+    body_format: json
+    headers:
+      Content-Type: "application/json"
+
+- name: Get Pipeline Webhook
+  shell: "curl -sS -XGET {{buildkite_get_url}} | jq '.provider.webhook_url' -r"
+  register: curl_get_output
+
+- name: Set Webhook URL
+  set_fact:
+    webhook_url: "{{curl_get_output.stdout}}"
+
+- name: Fail When Having Troubles with Buildkite
+  fail: msg="Wrong response from Buildkite API"
+  when: webhook_url == "" or webhook_url == "null"
+
+- name: Debug Webhook URL
+  debug: msg="{{webhook_url}}"
+
+- name: Create Webhook Template Instance
+  template: src="webhook.json.j2" dest="/tmp/webhook.json"
+
+- name: Create New Webhook
+  shell: "curl -sS -XPOST --header \"Content-Type: application/json\" {{github_post_url}} -d @/tmp/webhook.json"
+
+- name: Cleanup
+  file: path={{item}} state=absent
+  with_items:
+    - "/tmp/pipeline.json"
+    - "/tmp/webhook.json"

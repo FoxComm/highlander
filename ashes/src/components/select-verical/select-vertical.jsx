@@ -1,5 +1,6 @@
 /* @flow */
 
+// libs
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
@@ -8,7 +9,8 @@ import { assoc, dissoc } from 'sprout-data';
 
 // components
 import Dropdown from '../dropdown/dropdown';
-import { Button } from '../common/buttons';
+import { Button } from 'components/core/button';
+import Icon from 'components/core/icon';
 
 type Props = {
   options: Object; // {value -> title}
@@ -95,7 +97,7 @@ export default class SelectVertical extends Component {
 
   addMoreIcon(isLast: boolean) {
     if (isLast) {
-      return <Button onClick={this.onAddClick} className='fc-vmultiselect-add icon-add'/>;
+      return <Button onClick={this.onAddClick} className='fc-vmultiselect-add icon-add' />;
     } else {
       return <div className='fc-vmultiselect-or'>or</div>;
     }
@@ -128,7 +130,7 @@ export default class SelectVertical extends Component {
           className='fc-vmultiselect-item'
         />
         {this.addMoreIcon(isLast)}
-        <i onClick={_.partial(this.onClose, key)} className='fc-vmultiselect-close icon-close'/>
+        <Icon onClick={_.partial(this.onClose, key)} className='fc-vmultiselect-close' name="close" />
       </div>
     );
   }

@@ -5,7 +5,7 @@
 }
 
 .facet {
-  margin-bottom: 22px;
+  margin-bottom: 25px;
 }
 
 @keyframes flash-animation {
@@ -30,7 +30,7 @@
 }
 
 .facet-header {
-  margin-bottom: 17px;
+  margin-bottom: 10px;
   display: flex;
   align-items: baseline;
 }
@@ -61,4 +61,6 @@
 
 .color-facet {
   max-width: 200px;
+  display: flex;
+  flex-wrap: wrap;
 }

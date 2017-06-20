@@ -2,14 +2,14 @@
 It brings you the delicious statistic eggs from the henhouse.
 
 ## usage
-Add this directory to your `GOPATH`. 
+Add this directory to your `GOPATH`:
 
-```export GOPATH=$GOPATH:`pwd` ```
+    export GOPATH=$GOPATH:`pwd`
 
 Copy the contents of `.env.sample` into another file with the correct url and port of the `henhouse` service, and source this new file.
-Run the server.
+Run the server:
 
-```go run src/server.go```
+    $ go run src/server.go
 
 ### productFunnel
 Use `GET /api/v1/stats/productFunnel/:id` to get a representation of the conversion funnel for product with id `:id`.
@@ -23,6 +23,14 @@ Current choices for `<step>` are
 - cart
 - checkout
 
+### productStats
+Use `GET /api/v1/stats/productStats/:channel/:id` to get product statistics for specified product and average for all products.
+additional params:
+ - from - start of time range (unix time)
+ - to - end of time range (unix time)
+ - frequency - if specified then multiple values are returned corresponding to `frequency` size (minute, hour, day, week, month, quarter, year)
+
+
 ### date ranges
 To restrict the date range use query params `to` and `from` with dates in unix time format.
 
@@ -30,4 +38,4 @@ To restrict the date range use query params `to` and `from` with dates in unix t
 
 | Directory                              | Description                                                                                                  |
 |:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|
-| [src](src)                             | All source for eggcrate | 
+| [src](src)                             | All source for eggcrate |

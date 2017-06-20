@@ -16,11 +16,12 @@
     height: 100%;
     .inline-block();
     text-align: center;
-    background: @color-decor7;
+    background: @bg-grey-buttons;
 
     > button {
-      background: @color-decor7;
+      background: @bg-grey-buttons;
       height: 100%;
+      max-width: 100%;
       width: 36px;
       border: none;
       padding: 0;
@@ -36,20 +37,20 @@
   .base() {
     &.disabled,
     &:disabled {
-      background-color: @color-decor9;
+      background-color: @color-border;
     }
     padding: 0 10px;
     height: 40px;
-    border: 1px solid @color-decor7;
+    border: 1px solid @color-border;
     &:not(:disabled) {
-      background-color: @color-white;
+      background-color: @bg-white;
       .highlight-border-behaviour();
     }
   }
 
   .error() {
     &:not(:disabled) {
-      border-color: @color-decor22;
+      border-color: @color-error-text;
     }
   }
 
@@ -60,10 +61,10 @@
 }
 
 .input-rules(@base-styles: {#input-styles.base}, @textarea-styles: {#input-styles.textarea}) {
-  input[type=text],
+  input[type=text]:not(.__cssmodules),
   input[type=email],
   input[type=tel],
-  input[type=number],
+  input[type=number]:not(.__cssmodules),
   input[type=date],
   input[type=datetime],
   input[type=password],
@@ -100,7 +101,7 @@
     label:after {
       content: "*";
       margin-left: .3em;
-      color: #FA6C66;
+      color: @color-error-text;
     }
   }
 }
@@ -114,79 +115,6 @@
     #input-styles.textarea();
   }
 });
-
-.fc-radio {
-  input[type=radio]:not(old) {
-    width: 24px;
-    margin: 0;
-    padding: 0;
-    opacity: 0;
-
-    + label {
-      display: inline-block;
-      margin-left: -24px;
-      line-height: 24px;
-      position: relative;
-
-      &:before {
-        content: "";
-        display: inline-block;
-        .size(24px);
-        margin: 0.25em 0.5em 0.25em 0.25em;
-        .border(2px, solid, @color-decor9);
-        .border-radius(13px);
-        background: @color-decor0;
-        vertical-align: middle;
-      }
-    }
-
-    // states
-
-    &:hover {
-      + label:before {
-        border-color: @color-decor3;
-      }
-    }
-
-    &:disabled {
-      + label:before {
-        border-color: @color-decor9;
-        background: @color-decor12;
-      }
-    }
-
-    &:checked {
-      + label {
-        &:before {
-          border-color: @color-decor3;
-        }
-
-        &:after {
-          content: "";
-          display: block;
-          position: absolute;
-          .size(16px);
-          margin: 0.25em;
-          .top(4px);
-          .left(4px);
-          .border-radius(9px);
-          background: @color-decor3;
-          z-index: 1;
-        }
-      }
-
-      &:hover + label {
-        &:before {
-          border-color: @color-decor4;
-        }
-
-        &:after {
-          background: @color-decor4;
-        }
-      }
-    }
-  }
-}
 
 ._no-counters {
   input[type=number]&::-webkit-outer-spin-button,
@@ -212,14 +140,14 @@
 
 .fc-form-field {
   &-optional {
-    color: @color-decor6;
+    color: @color-additional-text;
     font-size: 14px;
     line-height: 20px;
     padding-left: 0.5em;
   }
 
   &-error {
-    color: @color-decor22;
+    color: @color-error-text;
     font-size: 13px;
     line-height: 15px;
     padding-top: 8px;

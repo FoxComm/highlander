@@ -1,10 +1,12 @@
 /* @flow */
 
+// libs
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 
+// components
 import CreditCardDetails from './credit-card';
 import Currency from 'components/common/currency';
 import GiftCardDetails from './gift-card';
@@ -13,9 +15,13 @@ import PaymentMethodDetails from 'components/payment/payment-method';
 import TableCell from 'components/table/cell';
 import TableRow from 'components/table/row';
 import { DateTime } from 'components/common/datetime';
-import { EditButton, DeleteButton } from 'components/common/buttons';
+import { EditButton, DeleteButton } from 'components/core/button';
+import Icon from 'components/core/icon';
 
+// styles
 import styles from './payment-row.css';
+
+// redux
 import {deleteCreditCardPayment, deleteGiftCardPayment, deleteStoreCreditPayment} from 'modules/carts/details';
 
 import type { PaymentMethod } from 'paragons/order';
@@ -50,7 +56,10 @@ class PaymentRow extends Component {
       case 'creditCard':
         return this.props.deleteCreditCardPayment(orderReferenceNumber);
       case 'giftCard':
-        return this.props.deleteGiftCardPayment(orderReferenceNumber, paymentMethod.code);
+        if (paymentMethod.code) {
+          return this.props.deleteGiftCardPayment(orderReferenceNumber, paymentMethod.code);
+        }
+        break;
       case 'storeCredit':
         return this.props.deleteStoreCreditPayment(orderReferenceNumber);
     }
@@ -117,12 +126,12 @@ class PaymentRow extends Component {
   get summary(): Element<*> {
     const { paymentMethod } = this.props;
     const dir = this.state.showDetails ? 'up' : 'down';
-    const iconClass = `icon-chevron-${dir}`;
+    const iconClass = `chevron-${dir}`;
 
     return (
       <TableRow key="summary" styleName="payment-row">
         <TableCell styleName="toggle-column">
-          <i styleName="row-toggle" className={iconClass} onClick={this.toggleDetails} />
+          <Icon styleName="row-toggle" name={iconClass} onClick={this.toggleDetails} />
           <PaymentMethodDetails paymentMethod={paymentMethod} />
         </TableCell>
         <TableCell>

@@ -9,6 +9,8 @@ import { createAsyncActions } from '@foxcomm/wings';
 
 import { selectCreditCard } from './details';
 
+/**
+ After adding flow, it should be useful
 type CreditCard = {
   isDefault: boolean,
   cardNumber: string,
@@ -18,6 +20,7 @@ type CreditCard = {
   expYear: number,
   addressId: number,
 };
+*/
 
 const _createAction = (description, ...args) => {
   return createAction('CART_PAYMENT_METHOD_' + description, ...args);

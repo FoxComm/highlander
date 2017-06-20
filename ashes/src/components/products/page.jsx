@@ -3,7 +3,7 @@
  */
 
 // libs
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { setSkuAttribute, skuId } from 'paragons/product';
@@ -18,7 +18,7 @@ import { transitionTo } from 'browserHistory';
 import SubNav from './sub-nav';
 import { connectPage, ObjectPage } from '../object-page/object-page';
 import { Dropdown } from '../dropdown';
-import { Button } from '../common/buttons';
+import { Button } from 'components/core/button';
 import s from './page.css';
 
 type Props = {

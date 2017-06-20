@@ -8,7 +8,7 @@ import { assoc } from 'sprout-data';
 
 // components
 import ObjectDetailsDeux from 'components/object-page/object-details-deux';
-import { SliderCheckbox } from '../checkbox/checkbox';
+import { SliderCheckbox } from 'components/core/checkbox';
 
 //styles
 import styles from './taxonomy.css';

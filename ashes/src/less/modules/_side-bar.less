@@ -2,76 +2,25 @@
 @sideber-open-width: 206px;
 
 .fc-sidebar {
-  margin-top: 60px;
-  z-index: 3;
-
-  &__control {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    position: absolute;
-    .top(25px);
-    left: @sidebar-width - @sidebar-control-size/2;
-    .circle(@sidebar-control-size);
-    .colors(@color-decor5, @color-decor13);
-    box-shadow: 0 0 0 1px @color-decor9;
-    font-size: 12px;
-    font-weight: @normal;
-    line-height: 12px;
-    transition: all 250ms ease-in-out;
-
-    > i {
-      margin: 0 2px 0 3px;
-    }
-
-    &._open {
-      .left(@sideber-open-width - @sidebar-control-size/2);
-
-      > i {
-        margin: 0 3px 0 2px;
-      }
-    }
-
-    &:hover {
-      .colors(@color-white, @color-sidebar-bg);
-    }
-  }
-
-  &._open {
-    flex: 0 0 @sideber-open-width;
-    width: @sideber-open-width;
-    overflow-y: auto;
-    overflow-x: hidden;
-    height: 100%;
-    position: fixed;
-    z-index: 2;
-
-
-    ~ header,
-    ~ main {
-      margin-left: @sideber-open-width;
-    }
-  }
 
   &__navigation-list {
-    border-top: 1px solid @color-decor2;
+    border-top: 1px solid @color-text;
     margin-bottom: 70px;
   }
 
   .fc-navigation-item-container {
-    border-left: 4px solid @color-transparent;
+    border-left: 4px solid transparent;
 
     &._active {
-      background-color: rgba(0, 0, 0, 0.27);
-      border-left-color: #49cab9;
+      background-color: @bg-nav-active;
+      border-left-color: @color-link;
       & svg {
         opacity: 1;
       }
     }
 
     &:hover {
-      background-color: rgba(0, 0, 0, 0.27);
+      background-color: @bg-nav-active;
     }
   }
 
@@ -89,7 +38,7 @@
       overflow: hidden;
 
       > span {
-        color: #fff;
+        color: @color-light-text;
         overflow: hidden;
         text-overflow: ellipsis;
       }
@@ -121,7 +70,7 @@
 
     &__sublink {
       font-size: 13px;
-      font-weight: @normal;
+      font-weight: 400;
       line-height: 18px;
       margin-bottom: 20px;
       .padding-left(70px);

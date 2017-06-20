@@ -185,10 +185,12 @@ class Signup extends Component {
               <ShowHidePassword
                 pos="bottom"
                 className={styles['form-field-input']}
-                placeholder={t('Create password')}
+                placeholder={t('Password')}
                 name="password"
                 value={password}
                 onChange={this.onChangePassword}
+                minLength={8}
+                required
               />
             </FormField>
           </div>

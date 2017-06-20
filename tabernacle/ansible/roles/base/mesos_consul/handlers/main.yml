@@ -1,4 +1,0 @@
----
-
-- name: Restart Mesos Consul
-  service: name=mesos_consul state=restarted enabled=yes

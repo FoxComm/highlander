@@ -1,8 +1,7 @@
 /* @flow weak */
 
 // libs
-import _ from 'lodash';
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
@@ -33,7 +32,7 @@ class ChooseCustomers extends Component {
   renderCustomer(item: ItemType) {
     // Cast the ItemType to a customer row.
     const customer = ((item: any): Customer);
-    return <CustomerRow customer={customer} key={customer.id}/>;
+    return <CustomerRow customer={customer} key={customer.id} />;
   }
 
   render() {

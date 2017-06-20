@@ -1,12 +1,13 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
-import AutoScroll from 'components/common/auto-scroll';
+import AutoScroll from 'components/utils/auto-scroll';
 import { Dropdown } from 'components/dropdown';
-import ErrorAlerts from 'components/alerts/error-alerts';
+import { ApiErrors } from 'components/utils/errors';
 import { Form, FormField } from 'components/forms';
 import NewGiftCard from './new-gift-card';
 import NewStoreCredit from './new-store-credit';
@@ -55,7 +56,7 @@ class NewPayment extends Component {
   };
 
   get errorMessages() {
-    return <ErrorAlerts error={this.props.paymentMethods.err} />;
+    return <ApiErrors response={this.props.paymentMethods.err} />;
   }
 
   get newPaymentMethod() {

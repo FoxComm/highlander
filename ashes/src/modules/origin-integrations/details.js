@@ -16,17 +16,17 @@ const initialState = {
 
 const _getOriginIntegration = createAsyncActions(
   'getOriginIntegration',
-  (id: number) => Api.get(`/mkt/users/${id}/origin_integrations`)
+  (id: number) => Api.get(`/onboarding/users/${id}/origin_integrations`)
 );
 
 const _createOriginIntegration = createAsyncActions(
   'createOriginIntegrtion',
-  (id: number, data: OriginIntegration) => Api.post(`/mkt/users/${id}/origin_integrations`, data)
+  (id: number, data: OriginIntegration) => Api.post(`/onboarding/users/${id}/origin_integrations`, data)
 );
 
 const _updateOriginIntegration = createAsyncActions(
   'updateOriginIntegration',
-  (id: number, data: OriginIntegration) => Api.patch(`/mkt/users/${id}/origin_integrations`, data)
+  (id: number, data: OriginIntegration) => Api.patch(`/onboarding/users/${id}/origin_integrations`, data)
 );
 
 export const fetchOriginIntegration = _getOriginIntegration.perform;

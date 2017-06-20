@@ -5,10 +5,8 @@
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-
   roles:
-    - { role: base/mesos_master}
-
+    - { role: base/mesos_master }
 
 - name: Migrate Backend
   hosts: 'tpg-stage-backend'
@@ -16,20 +14,15 @@
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
   roles:
-    - { role: dev/db_ic}
-    - { role: dev/ic}
-
+    - { role: dev/db_ic }
+    - { role: dev/ic }
 
 - name: Migrate Frontend
   hosts: 'tpg-stage-frontend'
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-    appliance_hostname: "stage-tpg.foxcommerce.com"
-    ashes_server_name: "stage-tpg.foxcommerce.com"
     storefront_server_name: "stage-tpg.foxcommerce.com"
-
-
   roles:
-    - { role: base/rsyslog}
-    - { role: dev/balancer}
+    - { role: base/rsyslog }
+    - { role: dev/balancer }

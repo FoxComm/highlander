@@ -1,9 +1,10 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { transitionTo } from 'browserHistory';
 import classNames from 'classnames';
 import _ from 'lodash';
 
-import { Button } from '../common/buttons';
+import { Button } from 'components/core/button';
 import TableCell from '../table/cell';
 import TableRow from '../table/row';
 

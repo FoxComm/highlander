@@ -35,14 +35,13 @@ func (suite *InventoryServiceIntegrationTestSuite) SetupSuite() {
 		"stock_locations",
 	})
 
-	summaryRepository := repositories.NewSummaryRepository(suite.db)
 	stockItemRepository := repositories.NewStockItemRepository(suite.db)
 	unitRepository := repositories.NewStockItemUnitRepository(suite.db)
 	stockLocationRepository := repositories.NewStockLocationRepository(suite.db)
 
 	stockLocationService := NewStockLocationService(stockLocationRepository)
 
-	suite.summaryService = NewSummaryService(summaryRepository, stockItemRepository)
+	suite.summaryService = NewSummaryService(suite.db)
 	suite.service = &inventoryService{stockItemRepository, unitRepository, suite.summaryService, nil}
 
 	suite.sl, _ = stockLocationService.CreateLocation(fixtures.GetStockLocation())
@@ -87,6 +86,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_IncrementStockItemUnits_
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_IncrementStockItemUnits_SummaryUpdate_WithTransaction() {
+	suite.createSKU(suite.sku)
 	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
 	suite.Nil(err)
 	txn := suite.db.Begin()
@@ -255,4 +255,12 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSBySKU_NotFound() {
 
 	suite.Equal(gorm.ErrRecordNotFound, err)
 	suite.Nil(afs)
+}
+
+func (suite *InventoryServiceIntegrationTestSuite) createSKU(code string) *models.SKU {
+	sku := fixtures.GetSKU()
+	sku.Code = code
+	sku.RequiresInventoryTracking = true
+	suite.Nil(suite.db.Create(sku).Error)
+	return sku
 }

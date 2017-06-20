@@ -1,7 +1,11 @@
 /* @flow */
 
-import React, { PropTypes } from 'react';
+// libs
+import React from 'react';
 import classNames from 'classnames';
+
+// components
+import Icon from 'components/core/icon';
 
 type Props = {
   icon: string,
@@ -40,7 +44,7 @@ const PlatedInput = (props: Props) => {
     : null;
 
   const inputs = [hiddenInput, visibleInput];
-  const plateInner = plate !== void 0 ? <span>{plate}</span> : <i className={`icon-${icon}`} />;
+  const plateInner = plate !== void 0 ? <span>{plate}</span> : <Icon name={icon} />;
   const plateWrapper = (
     <div className={`${baseClass}__icon`} key="wrapper">
       {plateInner}

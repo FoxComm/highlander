@@ -1,4 +1,100 @@
 {
+    "Tilbury" : {
+        "start" : "signup",
+        "states" : {
+            "homepage" : {
+                "signup" : {"p": 1.0}
+            },
+            "signup" : {
+                "category" : {"p": 1.0, "select": ["makeup", "skincare"]}
+            },
+            "category" : {
+                "product" : {"p": 0.9},
+                "category" : {"p": 0.1, "select": ["makeup", "skincare"]},
+                "done" : {"p": 0.001}
+            },
+            "product" : {
+                "cart" : {"p": 0.7 },
+                "category" : {"p": 0.3 , "select": ["makeup", "skincare"]}
+            },
+            "cart" : {
+                "purchase" : {"p": 0.5},
+                "category" : {"p": 0.4, "select": ["makeup", "skincare"]},
+                "clear_cart" : {"p": 0.1}
+            },
+            "purchase": {
+                "done" : {"p": 0.5},
+                "category": {"p": 0.5, "select": ["makeup", "skincare"]}
+            },
+            "clear_cart" : {
+                "category" : {"p": 1.0, "select": ["makeup", "skincare"]}
+            }
+        }
+    },
+    "Tumi" : {
+        "start" : "signup",
+        "states" : {
+            "homepage" : {
+                "signup" : {"p": 1.0}
+            },
+            "signup" : {
+                "category" : {"p": 1.0, "select": ["LUGGAGE", "BACKPACKS"]}
+            },
+            "category" : {
+                "product" : {"p": 0.9},
+                "category" : {"p": 0.1, "select": ["LUGGAGE", "BACKPACKS"]},
+                "done" : {"p": 0.001}
+            },
+            "product" : {
+                "cart" : {"p": 0.7 },
+                "category" : {"p": 0.3 , "select": ["LUGGAGE", "BACKPACKS"]}
+            },
+            "cart" : {
+                "purchase" : {"p": 0.5},
+                "category" : {"p": 0.4, "select": ["LUGGAGE", "BACKPACKS"]},
+                "clear_cart" : {"p": 0.1}
+            },
+            "purchase": {
+                "done" : {"p": 0.5},
+                "category": {"p": 0.5, "select": ["LUGGAGE", "BACKPACKS"]}
+            },
+            "clear_cart" : {
+                "category" : {"p": 1.0, "select": ["LUGGAGE", "BACKPACKS"]}
+            }
+        }
+    },
+    "Demo" : {
+        "start" : "signup",
+        "states" : {
+            "homepage" : {
+                "signup" : {"p": 1.0}
+            },
+            "signup" : {
+                "category" : {"p": 1.0, "select": ["men", "women", "kids", "shoes", "apparel", "accessories"]}
+            },
+            "category" : {
+                "product" : {"p": 0.9},
+                "category" : {"p": 0.1, "select": ["men", "women", "kids", "shoes", "apparel", "accessories"]},
+                "done" : {"p": 0.001}
+            },
+            "product" : {
+                "cart" : {"p": 0.7 },
+                "category" : {"p": 0.3 , "select": ["men", "women", "kids", "shoes", "apparel", "accessories"]}
+            },
+            "cart" : {
+                "purchase" : {"p": 0.5},
+                "category" : {"p": 0.4, "select": ["men", "women", "kids", "shoes", "apparel", "accessories"]},
+                "clear_cart" : {"p": 0.1}
+            },
+            "purchase": {
+                "done" : {"p": 0.5},
+                "category": {"p": 0.5, "select": ["men", "women", "kids", "shoes", "apparel", "accessories"]}
+            },
+            "clear_cart" : {
+                "category" : {"p": 1.0, "select": ["men", "women", "kids", "shoes", "apparel", "accessories"]}
+            }
+        }
+    },
     "McShopFace" : {
         "start" : "signup",
         "states" : {

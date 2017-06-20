@@ -1,12 +1,13 @@
 
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import ContentBox from '../content-box/content-box';
 import Addresses, { createAddressBox } from '../addresses/addresses';
 import AddressBox from '../addresses/address-box';
 import AddressForm from '../addresses/address-form';
 import ItemCardContainer from '../item-card-container/item-card-container';
-import { AddButton } from '../common/buttons';
+import { AddButton } from 'components/core/button';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import * as AddressesDetailsActions from '../../modules/customers/addresses-details';
@@ -30,6 +31,11 @@ export default class CustomerAddressBook extends React.Component {
     stopEditingAddress: PropTypes.func,
     addresses: PropTypes.array.isRequired,
   };
+
+  componentWillUnmount() {
+    this.props.stopEditingAddress();
+    this.props.stopAddingAddress();
+  }
 
   @autobind
   injectNewAddressCard(addresses) {

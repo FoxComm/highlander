@@ -8,7 +8,8 @@
   "labels": {
     "LAYER": "consumer",
     "LANG": "clojure",
-    "TAG": "{{docker_tags.messaging}}"
+    "TAG": "{{docker_tags.messaging}}",
+    "consul": "messaging"
   },
   "container": {
     "type": "DOCKER",
@@ -28,6 +29,7 @@
     }
   },
   "env": {
+    "ENVIRONMENT": "{{messaging_env}}",
     "PHOENIX_USER": "{{phoenix_api_user}}",
     "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
     "PHOENIX_URL": "http://{{phoenix_server}}",

@@ -1,5 +1,6 @@
 //libs
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -21,6 +22,7 @@ import { prefix } from 'lib/text-utils';
 import FormField from 'components/forms/formfield';
 import { Dropdown } from 'components/dropdown';
 import QueryBuilder from './query-builder';
+import TextInput from 'components/core/text-input';
 
 const SELECT_CRITERIA = [
   [operators.and, 'all'],
@@ -72,14 +74,15 @@ class GroupEditor extends React.Component {
     return (
       <FormField label="Group Name"
                  labelClassName={classNames(prefixed('title'), prefixed('name'))}>
-        <input id="nameField"
-               className={prefixed('form-name')}
-               name="Name"
-               maxLength="255"
-               type="text"
-               required
-               onChange={({target}) => setName(target.value)}
-               value={name} />
+        <TextInput
+         id="nameField"
+         className={prefixed('form-name')}
+         name="Name"
+         maxLength="255"
+         required
+         onChange={(value) => setName(value)}
+         value={name}
+        />
       </FormField>
     );
   }
@@ -87,7 +90,7 @@ class GroupEditor extends React.Component {
   get typeField() {
     return (
       <FormField>
-        <input
+        <TextInput
           type="hidden"
           name="type"
           value={this.type}

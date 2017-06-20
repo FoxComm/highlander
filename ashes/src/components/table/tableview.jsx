@@ -1,5 +1,9 @@
 // libs
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import _ from 'lodash';
+import { renderExportModal } from 'modules/bulk-export/helpers';
+import { autobind } from 'core-decorators';
 
 // components
 import Table from './table';
@@ -8,93 +12,219 @@ import ActionsDropdown from '../bulk-actions/actions-dropdown';
 import TablePaginator from './paginator';
 import TablePageSize from './pagesize';
 import ColumnSelector from './column-selector';
+import { Button } from 'components/core/button';
 
-function getLine(position, items) {
-  if (!items.length) {
-    return;
+import s from './tableview.css';
+
+class TableView extends Component {
+  state = {
+    showExportModal: false,
+  };
+
+  get stateFromProps() {
+    const { setState } = this.props;
+    if (!setState) return null;
+
+    const { data } = this.props;
+
+    return (params) => setState({ ...data, ...params });
   }
 
-  return (
-    <div className={`fc-table__${position}`}>
-      {items.map((item, index) => React.cloneElement(item, { key: `${position}-${index}` }))}
-    </div>
-  );
-}
+  @autobind
+  getRow(position, items) {
+    if (_.isEmpty(items)) return null;
 
-const TableView = props => {
-  let setState = null;
-  if (props.setState) {
-    setState = params => {
-      props.setState({ ...props.data, ...params });
-    };
-  }
+    const filteredItems = _.flatMap(items, (item, index) => {
+      return item ? React.cloneElement(item, { key: `${position}-${index}` }) : [];
+    });
 
-  const topItemsLeft = [];
-  const topItemsRight = [];
-  const bottomItems = [];
-
-  if (props.selectableColumns.length) {
-    const toggler = (
-      <ColumnSelector setColumns={props.setColumnSelected}
-                      columns={props.selectableColumns}
-                      identifier={props.tableIdentifier} />
+    return (
+      <div className={`fc-table__${position}`}>
+        {filteredItems}
+      </div>
     );
-
-    topItemsLeft.push(toggler);
   }
 
-  const flexSeparator = <div className="fc-table__flex-separator" />;
+  @autobind
+  handleExport() {
+    this.setState({ showExportModal: true});
+  }
 
-  // hold actions menu
-  const showBulkActions = Boolean(props.bulkActions.length);
-  if (showBulkActions) {
-    const { bulkActions, toggledIds, allChecked, data: { total } } = props;
+  get flexSeparator() {
+    return (
+      <div className="fc-table__flex-separator" />
+    );
+  }
+
+  get bulkExportButton() {
+    if (!this.props.bulkExport) return null;
+
+    return (
+      <Button
+         className={s.bulkExport}
+         icon="export"
+         onClick={this.handleExport}
+       />
+    );
+  }
+
+  get columnSelector() {
+    if (_.isEmpty(this.props.selectableColumns)) return null;
+
+    return (
+      <ColumnSelector
+        setColumns={this.props.setColumnSelected}
+        columns={this.props.selectableColumns}
+        identifier={this.props.tableIdentifier}
+        toggleColumnsBtn
+      />
+    );
+  }
+
+  get actionsDropdown() {
+    const { bulkActions } = this.props;
+    if (_.isEmpty(this.props.bulkActions)) return null;
+
+    const { toggledIds, allChecked, data: { total } } = this.props;
 
     //disabled if no data or nothing selected
-    const totalSelected = allChecked ? total - toggledIds.length : toggledIds.length;
+    const totalSelected = allChecked ? (total - toggledIds.length) : toggledIds.length;
     const disabled = total === 0 || totalSelected === 0;
 
-    topItemsLeft.push(
-      <ActionsDropdown actions={bulkActions}
-                       disabled={disabled}
-                       allChecked={allChecked}
-                       toggledIds={toggledIds}
-                       total={total} />
+    return (
+      <ActionsDropdown
+        actions={bulkActions}
+        disabled={disabled}
+        allChecked={allChecked}
+        toggledIds={toggledIds}
+        total={total}
+      />
     );
   }
 
-  const showPagination = props.paginator && props.setState;
-  if (showPagination) {
-    const { from, total, size } = props.data;
-    const tablePaginator = <TablePaginator total={total} from={from} size={size} setState={setState} />;
+  get topPagination() {
+    const { paginator, setState } = this.props;
+    if (!paginator || !setState) return null;
 
-    topItemsRight.push(tablePaginator);
-
-    bottomItems.push(<TablePageSize setState={setState} value={size} />, flexSeparator, tablePaginator);
+    const { data } = this.props;
+    const { from, total, size } = data;
+    return (
+      <TablePaginator
+        total={total}
+        from={from}
+        size={size}
+        setState={this.stateFromProps}
+      />
+    );
   }
 
-  const { headerControls = [], footerControls = [] } = props;
+  get bottomPagination() {
+    const { paginator, setState } = this.props;
+    if (!paginator || !setState) return null;
 
-  topItemsRight.push(...headerControls);
-  bottomItems.push(...footerControls);
+    const { size } = this.props.data;
 
-  let topItems = [];
-  if (topItemsLeft.length || topItemsRight.length) {
-    topItems = [...topItemsLeft, flexSeparator, ...topItemsRight];
+    return (
+      <TablePageSize
+        setState={this.stateFromProps}
+        value={size}
+      />
+    );
   }
 
-  const TableComponent = props.dataTable ? DataTable : Table;
+  get topItemsLeft() {
+    const actionsDropdown = this.actionsDropdown;
 
-  return (
-    <div className="fc-tableview">
-      {getLine('header', topItems)}
-      <div className="fc-table__table">
-        <TableComponent {...props} setState={setState} />
+    return _.compact([
+      actionsDropdown,
+    ]);
+  }
+
+  get topItemsRight() {
+    const { headerControls = [] } = this.props;
+    const bulkExport = this.bulkExportButton;
+    const columnSelector = this.columnSelector;
+    const pagination = this.topPagination;
+
+    return _.compact([
+      bulkExport,
+      columnSelector,
+      pagination,
+      ...headerControls,
+    ]);
+  }
+
+  get topItems() {
+    const topItemsLeft = this.topItemsLeft;
+    const topItemsRight = this.topItemsRight;
+
+    if (_.isEmpty(topItemsLeft) && _.isEmpty(topItemsRight)) return null;
+
+    return [
+      ...topItemsLeft,
+      this.flexSeparator,
+      ...topItemsRight
+    ];
+
+  }
+
+  get bottomItems() {
+    const pagination = this.bottomPagination;
+    const { footerControls = [] } = this.props;
+
+    return [
+      pagination,
+      this.flexSeparator,
+      this.topPagination,
+      ...footerControls,
+    ];
+  }
+
+  @autobind
+  closeModal() {
+    this.setState({ showExportModal: false });
+  }
+
+  @autobind
+  onExportConfirm(fields, entity, identifier, description) {
+    const { bulkExportAction } = this.props;
+    this.closeModal();
+    bulkExportAction(fields, entity, identifier, description);
+  }
+
+  get bulkExportModal() {
+    if (!this.state.showExportModal) return null;
+
+    const { exportFields, exportEntity, exportTitle } = this.props;
+
+    const modal = renderExportModal(exportFields, exportEntity, exportTitle, this.onExportConfirm, null);
+
+    return React.cloneElement(modal, {
+      onCancel: this.closeModal,
+      isVisible: true,
+      entity: exportEntity === 'skus' ? exportTitle : exportTitle.toLowerCase(),
+      inBulk: true,
+    });
+  }
+
+  render() {
+    const TableComponent = this.props.dataTable ? DataTable : Table;
+
+    return (
+      <div className="fc-tableview">
+        {this.bulkExportModal}
+        {this.getRow('header', this.topItems)}
+        <div className="fc-table__table">
+          <TableComponent
+            {...this.props}
+            setState={this.stateFromProps}
+          />
+        </div>
+        {this.getRow('footer', this.bottomItems)}
       </div>
-      {getLine('footer', bottomItems)}
-    </div>
-  );
-};
+    );
+  }
+}
 
 TableView.propTypes = {
   columns: PropTypes.array.isRequired,

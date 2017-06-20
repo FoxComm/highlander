@@ -1,0 +1,7 @@
+---
+
+- name: Get Latest Phoenix Seeder Image
+  shell: docker pull {{docker_registry}}:5000/phoenix-seeder:{{docker_tags.phoenix_seeder}}
+
+- name: Update object schemas using phoenix jar in docker
+  shell: docker run --network host -t {{docker_registry}}:5000/phoenix-seeder:{{docker_tags.phoenix_seeder}} java -Dphoenix.env={{phoenix_env}} -Dapp.baseUrl=http://{{phoenix_server}} -Dhttp.interface={{phoenix_host}} -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -cp '{{phoenix_seeder_jar}}:{{phoenix_jar}}' {{seeds_class}} updateObjectSchemas {{object_schema_names}}

@@ -1,0 +1,32 @@
+---
+
+- name: Setup Consul Alerts
+  hosts: '{{hostname}}'
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    change_threshold: "60"
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname where to install Consul Alerts"
+      default: "hostname"
+      private: no
+    - name: "slack_channel"
+      prompt: "Enter a Slack channel name where notifications will be posted"
+      default: "service-alerts"
+      private: no
+    - name: "slack_hook_url"
+      prompt: "Enter Slack hook URL"
+      default: "https://hooks.slack.com/services/XXX/YYY/ZZZ"
+      private: no
+    - name: "cluster_name"
+      prompt: "Enter cluster name"
+      default: "Vanilla"
+      private: no
+  environment:
+    GOPATH: "/home/{{user}}/go"
+  roles:
+      - { role: ops/consul_alerts }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

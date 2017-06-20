@@ -8,6 +8,7 @@
   "labels": {
     "LAYER": "backend",
     "LANG": "go",
+    "consul": "middlewarehouse",
     "TAG": "{{docker_tags.middlewarehouse}}"
   },
   "container": {

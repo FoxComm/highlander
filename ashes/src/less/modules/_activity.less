@@ -1,13 +1,13 @@
 
 .fc-activity {
-  background: @color-white;
-  border: 1px solid @color-decor9;
+  background: @bg-white;
+  border: 1px solid @color-border;
   padding: 20px;
   font-size: 14px;
 
   &._first {
-    background: @color-decor38;
-    border: 1px solid @color-decor39;
+    background: #eafeff;
+    border: 1px solid @color-link;
   }
 
   @author-width: 40px;
@@ -33,15 +33,6 @@
     }
   }
 
-  &__system-icon {
-    .inline-block();
-    width: 40px;
-    height: 40px;
-    background-image: url("/admin/images/logo-fox.svg");
-    background-size: 40px 40px;
-    margin-right: @author-indent;
-  }
-
   &__customer-icon {
     .inline-block();
     margin-right: @author-indent;
@@ -50,8 +41,8 @@
     height: 40px;
 
     > .icon-customer {
-      background-color: @color-decor15;
-      color: @color-decor34;
+      background-color: @bg-green-buttons;
+      color: @color-light-text;
       width: 40px;
       height: 40px;
       text-align: center;
@@ -60,7 +51,7 @@
 
   &__timestamp {
     font-size: 13px;
-    color: @color-decor53;
+    color: @color-additional-text;
     line-height: 16px;
     margin-bottom: 12px;
   }
@@ -75,11 +66,10 @@
   }
 
   &__link {
-    color: @color-decor1;
-    text-decoration: underline;
+    color: @color-link;
 
     &:hover {
-      color: @color-decor15;
+      text-decoration: underline;
     }
   }
 
@@ -90,9 +80,9 @@
 
   &__details {
     font-size: 13px;
-    color: @color-decor1;
+    color: @color-text;
     line-height: 18px;
-    border-top: 1px solid @color-decor9;
+    border-top: 1px solid @color-border;
     margin-top: 20px;
     padding-left: @author-indent + @author-width;
   }

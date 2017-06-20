@@ -16,7 +16,7 @@ const defaultContext = 'default';
 const _fetchTaxonomy = createAsyncActions(
   'fetchTaxonomy',
   (id: number, context: string = defaultContext) => {
-    return Api.get(`/taxonomies/${defaultContext}/${id}`);
+    return Api.get(`/taxonomies/${context}/${id}`);
   }
 );
 
@@ -69,18 +69,18 @@ export const fetch = (id: string, context: string = defaultContext): ActionDispa
 // Reducer.
 ////////////////////////////////////////////////////////////////////////////////
 
-const initialState = { taxonomy: createEmptyTaxonomy(defaultContext, false) };
+const initialState = () => ({ taxonomy: createEmptyTaxonomy(defaultContext, false) });
 
 const reducer = createReducer({
-  [reset]: () => initialState,
+  [reset]: () => initialState(),
   [duplicate]: (state) => ({
-    ...initialState,
+    ...initialState(),
     taxonomy: duplicateTaxonomy(_.get(state, 'taxonomy', {}))
   }),
   [_fetchTaxonomy.succeeded]: (state, taxonomy) => ({ ...state, taxonomy }),
   [_createTaxonomy.succeeded]: (state, taxonomy) => ({ ...state, taxonomy }),
   [_updateTaxonomy.succeeded]: (state, taxonomy) => ({ ...state, taxonomy }),
   [_archiveTaxonomy.succeeded]: (state, taxonomy) => ({ ...state, taxonomy }),
-}, initialState);
+}, initialState());
 
 export default reducer;

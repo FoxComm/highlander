@@ -10,6 +10,7 @@ shortcuts:
   - name: Inventory Files
     flag: "--inventory-file"
     aliases:
+      ark: inventory/static/ark
       dev: inventory/static/dev
       stage_vpn: inventory/static/stage_vpn
       staging: inventory/gce/
@@ -32,92 +33,144 @@ shortcuts:
       pavel: pavel
       ubuntu: ubuntu
 
+  - name: First Run
+    flag: "-e first_run"
+    aliases:
+        first_run: "true"
+
   targets:
-  # Bootstrappers
-  - name: Bootstrap Consul Alerts
-    alias: consul_alerts.yml
-    target: ansible/bootstrap_consul_alerts.yml
+  # Interactive playbooks
+  - name: Setup Annabelle
+    alias: annabelle.yml
+    target: ansible/ops_annabelle.yml
 
-  - name: Bootstrap Marathon Alerts
-    alias: marathon_alerts.yml
-    target: ansible/bootstrap_marathon_alerts.yml
-
-  - name: Bootstrap DB Backup Script
+  - name: Setup Database Backup
     alias: backup_db.yml
-    target: ansible/bootstrap_backup_db.yml
+    target: ansible/ops_backup_db.yml
 
-  - name: Bootstrap ZK Backup Script
+  - name: Setup Zookeeper Backup
     alias: backup_zk.yml
-    target: ansible/bootstrap_backup_zk.yml
+    target: ansible/ops_backup_zk.yml
 
-  - name: Bootstrap OpenVPN Key
+  - name: Create Feature Branch Pipeline
+    alias: buildkite_pipeline.yml
+    target: ansible/ops_buildkite_pipeline.yml
+
+  - name: Setup Consul Alerts
+    alias: consul_alerts.yml
+    target: ansible/ops_consul_alerts.yml
+
+  - name: Setup Marathon Alerts
+    alias: marathon_alerts.yml
+    target: ansible/ops_marathon_alerts.yml
+
+  - name: Generate OpenVPN Key
     alias: openvpn_key.yml
-    target: ansible/bootstrap_openvpn_key.yml
+    target: ansible/ops_openvpn_key.yml
 
-  - name: Bootstrap Store Admin User
+  - name: Revoke OpenVPN Key
+    alias: openvpn_revoke_key.yml
+    target: ansible/ops_openvpn_revoke_key.yml
+
+  - name: Setup OpenVPN Server
+    alias: openvpn_server.yml
+    target: ansible/ops_openvpn_server.yml
+
+  - name: Setup Prometheus
+    alias: prometheus.yml
+    target: ansible/ops_prometheus.yml
+
+  - name: Setup Node Exporter
+    alias: node_exporter.yml
+    target: ansible/ops_node_exporter.yml
+
+  - name: Restore Database
+    alias: restore_db.yml
+    target: ansible/ops_restore_db.yml
+
+  - name: Setup Sinopia Server
+    alias: sinopia_server.yml
+    target: ansible/ops_sinopia_server.yml
+
+  - name: Register Sinopia User
+    alias: sinopia_user.yml
+    target: ansible/ops_sinopia_user.yml
+
+  - name: Create Store Admin User
     alias: store_admin.yml
-    target: ansible/bootstrap_store_admin.yml
+    target: ansible/ops_store_admin.yml
 
   - name: Update UI Testing Software
     alias: selenium.yml
-    target: ansible/bootstrap_selenium.yml
+    target: ansible/ops_selenium.yml
 
-  # Custom
-  - name: Bootstrap Annabelle
-    alias: annabelle.yml
-    target: ansible/bootstrap_annabelle.yml
-
-  - name: Bootstrap Sinopia
-    alias: sinopia.yml
-    target: ansible/bootstrap_sinopia.yml
+  - name: Setup Webhook Server
+    alias: webhook.yml
+    target: ansible/ops_webhook.yml
 
   # Goldrush
   - name: Generate Goldrush Configuration
     alias: goldrush_cfg.yml
     target: ansible/goldrush_config_gen.yml
 
-  - name: Debug Goldrush Configuration
-    alias: goldrush_debug.yml
-    target: ansible/goldrush_debug.yml
-
-  - name: Create Feature Branch Pipeline
-    alias: feature_branch.yml
-    target: ansible/goldrush_feature_branch.yml
-
-  - name: Update Application Docker Tag
+  - name: Goldrush Deploy Helper
     alias: update_app.yml
     target: ansible/goldrush_update_app.yml
 
-  # Test Machines
-  - name: Provision FoxComm Test
-    alias: test_stage.yml
-    target: ansible/test_stage.yml
-
-  - name: Provision FoxComm Demo
-    alias: demo.yml
-    target: ansible/demo.yml
-
-  - name: Provision Appliance
-    alias: provision_appliance.yml
-    target: ansible/provision_appliance.yml
-
-  # Cloud
-  - name: Provision Cloud Central
-    alias: cloud_central.yml
-    target: ansible/provision_cloud_central.yml
-
-  - name: Provision Cloud Demo
-    alias: cloud_demo.yml
-    target: ansible/provision_cloud_demo.yml
-
-  # Migration
+  # Migrations
   - name: Migrate Phoenix DB
     alias: migrate_phoenix_db.yml
     target: ansible/migrate_phoenix_db.yml
 
-  - name: Migrate MWH DB
+  - name: Migrate Middlewarehouse DB
     alias: migrate_middlewarehouse_db.yml
     target: ansible/migrate_middlewarehouse_db.yml
+
+  - name: Migrate Hyperion DB
+    alias: migrate_hyperion_db.yml
+    target: ansible/migrate_hyperion_db.yml
+
+  - name: Migrate Bernardo DB
+    alias: migrate_bernardo_db.yml
+    target: ansible/migrate_bernardo_db.yml
+
+  - name: Migrate Object Schemas
+    alias: migrate_object_schemas.yml
+    target: ansible/migrate_object_schemas.yml
+
+  # Seeders
+  - name: Run Phoenix Seeder
+    alias: seed_phoenix.yml
+    target: ansible/seed_phoenix.yml
+
+  - name: Run Middlewarehouse Seeder
+    alias: seed_middlewarehouse.yml
+    target: ansible/seed_middlewarehouse.yml
+
+  - name: Run Hyperion Seeder
+    alias: seed_hyperion.yml
+    target: ansible/seed_hyperion.yml
+
+  - name: Run Data Import Seeder
+    alias: seed_data_import.yml
+    target: ansible/seed_data_import.yml
+
+  - name: Run Geronimo Seeder
+    alias: seed_geronimo.yml
+    target: ansible/seed_geronimo.yml
+
+  # Tinystack
+  - name: Deploy Atomic
+    alias: deploy_atomic.yml
+    target: ansible/deploy_atomic.yml
+
+  - name: Deploy Staging
+    alias: deploy_stage.yml
+    target: ansible/deploy_stage.yml
+
+  - name: Deploy Test
+    alias: deploy_test.yml
+    target: ansible/deploy_test.yml
 
 # Packer shortcuts
 - type: snowflake
@@ -133,6 +186,7 @@ shortcuts:
   - name: Variable Files
     flag: "-var-file"
     aliases:
+      ark: packer/envs/ark/config.json
       target: packer/envs/aws_target/config.json
       staging: packer/envs/staging/config.json
       topdrawer: packer/envs/topdrawer/config.json
@@ -151,6 +205,31 @@ shortcuts:
   - name: Base Buildkite Agent Image
     alias: agent.json
     target: packer/buildkite/agent.json
+
+  # Ark
+  - name: Ark Base Image
+    alias: ark_base.json
+    target: packer/ark/base.json
+
+  - name: Ark Amigo Image
+    alias: ark_amigo.json
+    target: packer/ark/amigo.json
+
+  - name: Ark Logstash Image
+    alias: ark_logstash.json
+    target: packer/ark/logstash.json
+
+  - name: Ark Database Image
+    alias: ark_database.json
+    target: packer/ark/database.json
+
+  - name: Ark Search Image
+    alias: ark_search.json
+    target: packer/ark/search.json
+
+  - name: Ark Frontend Image
+    alias: ark_frontend.json
+    target: packer/ark/frontend.json
 
   # Tinystack
   - name: Tinystack Amigo
@@ -177,31 +256,31 @@ shortcuts:
   - name: State Files
     flag: "-state"
     aliases:
+      ark: terraform/envs/gce_ark/terraform.tfstate
       branches: terraform/envs/gce_branches/terraform.tfstate
-      cloud: terraform/envs/gce_cloud/terraform.tfstate
       dev: terraform/envs/gce_dev/terraform.tfstate
       demo: terraform/envs/gce_demo/terraform.tfstate
-      staging: terraform/envs/gce_staging/terraform.tfstate
-      target: terraform/envs/aws_target/terraform.tfstate
+      stage: terraform/envs/gce_stage/terraform.tfstate
+      test: terraform/envs/gce_test/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
 
   - name: Variable Files
     flag: "-var-file"
     aliases:
+      ark: terraform/envs/gce_ark/ark.tfvars
       branches: terraform/envs/gce_branches/branches.tfvars
-      cloud: terraform/envs/gce_cloud/cloud.tfvars
       dev: terraform/envs/gce_dev/dev.tfvars
       demo: terraform/envs/gce_demo/demo.tfvars
-      staging: terraform/envs/gce_staging/staging.tfvars
-      target: terraform/envs/aws_target/target.tfvars
+      stage: terraform/envs/gce_stage/stage.tfvars
+      test: terraform/envs/gce_test/test.tfvars
       topdrawer: terraform/envs/gce_td/td.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
 
   targets:
-  - name: FoxCommerce Cloud
-    alias: cloud
-    target: terraform/base/gce_cloud
+  - name: Ark Production
+    alias: ark
+    target: terraform/base/gce_ark
 
   - name: Feature Branch Instances
     alias: branches
@@ -211,13 +290,13 @@ shortcuts:
     alias: dev
     target: terraform/base/gce_dev
 
-  - name: FoxCommerce Test
-    alias: staging
-    target: terraform/base/gce_staging
+  - name: FoxCommerce Stage
+    alias: stage
+    target: terraform/base/gce_stage
 
-  - name: Target AWS Networking
-    alias: target
-    target: terraform/base/aws_target
+  - name: FoxCommerce Test
+    alias: test
+    target: terraform/base/gce_test
 
   - name: TopDrawer Production
     alias: topdrawer

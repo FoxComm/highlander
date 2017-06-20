@@ -14,6 +14,10 @@ import EditEmail from './components/profile/blocks/edit-email';
 import ChangePassword from './components/profile/blocks/change-password';
 import Order from './components/profile/blocks/order';
 import AddressForm from './components/profile/blocks/address-form';
+import ReviewForm from './components/profile/blocks/review-form';
+
+import MensCatPage from './pages/category/men';
+import WomensCatPage from './pages/category/women';
 
 import HomePage from './pages/home/home-page';
 
@@ -46,13 +50,16 @@ export default function makeRoutes(getStore) {
             <Route path="password" component={ChangePassword} />
             <Route path="orders/:referenceNumber" component={Order} />
             <Route path="addresses/:addressId" component={AddressForm} />
+            <Route path="reviews/:reviewId" component={ReviewForm} />
           </Route>
         </Route>
+        <Route path="men" component={MensCatPage} />
+        <Route path="women" component={WomensCatPage} />
         <Route path="/checkout/done" component={OrderPlaced} />
         <Route name="product" path="/products/:productSlug" component={Pdp} />
         <Route name="gift-cards" path="/gift-cards" component={Pdp} />
         <Route name="search" path="/search/:term" component={Search} />
-        <Route name="category" path=":categoryName(/:subCategory(/:leafCategory))" component={Products} />
+        <Route name="category" path="/s/:categoryName(/:subCategory(/:leafCategory))" component={Products} />
       </Route>
     </Route>
   );

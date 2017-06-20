@@ -17,7 +17,7 @@ const initialState = {
 
 const _getApplications = createAsyncActions(
   'getApplications',
-  () => Api.get(`/mkt/merchant_applications`)
+  () => Api.get(`/onboarding/merchant_applications`)
 );
 
 export const fetchApplications = _getApplications.perform;

@@ -2,7 +2,7 @@ FROM openjdk:8-alpine
 
 RUN mkdir -p /phoenix/sql
 
-COPY target/scala-2.11/phoenix-scala-assembly-1.0.jar /phoenix/phoenix.jar
+COPY phoenix/target/scala-2.11/phoenix-assembly-1.0.jar /phoenix/phoenix.jar
 
 COPY sql/ /phoenix/sql
 

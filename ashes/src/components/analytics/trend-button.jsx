@@ -1,8 +1,12 @@
 // @flow
 
 // libs
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
+
+// components
+import Icon from 'components/core/icon';
 
 // styles
 import styles from './trend-button.css';
@@ -55,10 +59,7 @@ const TrendButton = (props: Props) => {
   return(
     <div styleName={`trend-button-container-${trendType.style}`}>
       <p styleName={`trend-button-content-${trendType.style}`}>
-        <img
-          styleName={`trend-button-arrow-${arrow.direction}`}
-          src={`/admin/images/arrow-${arrow.color}.svg`}
-        />
+        <Icon name={`chevron-${arrow.direction}`} styleName={`trend-button-arrow-${arrow.direction}`} />
         {contentBody}
       </p>
     </div>

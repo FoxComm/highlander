@@ -10,7 +10,7 @@ type Props = {
   onChange: Function
 };
 
-const Currency = (props: Props) => {
+const Currency = (props: Props): Element<*> => {
   return (
     <CurrencyInput
       styleName="inline-edit-input"

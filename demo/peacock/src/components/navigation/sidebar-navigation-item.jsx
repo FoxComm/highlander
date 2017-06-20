@@ -99,7 +99,7 @@ export default class NavigationItem extends Component {
           <div key={`${child.name}-leaf-category`}>
             <Link
               styleName="submenu-link-item"
-              to={url}
+              to={`/s${url}`}
             >
               {name}
             </Link>
@@ -127,7 +127,7 @@ export default class NavigationItem extends Component {
         <div styleName="drawer-columns">
           <Link
             styleName="item-link"
-            to={parentUrl}
+            to={`/s${parentUrl}`}
           >
             {parentName}
           </Link>

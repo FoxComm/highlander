@@ -8,13 +8,6 @@ import _ from 'lodash';
 // components
 import { VictoryTooltip, VictoryLabel } from 'victory';
 
-type Props = {
-  barWidth: number,
-  getDelta: Function,
-  getConversion: Function,
-  datum?: any,
-};
-
 const DeltaFlyout = ({x, y, offsetX, offsetY, strokeColor, fillColor}) => {
 
   const badgeStyle = (x, y, offsetX, offsetY, strokeColor, fillColor) => {
@@ -63,7 +56,6 @@ const ConversionLabelComponent = (props) => {
 };
 
 export default class ProductConversionToolTip extends React.Component {
-
   static defaultEvents = VictoryTooltip.defaultEvents;
 
   static defaultProps = {

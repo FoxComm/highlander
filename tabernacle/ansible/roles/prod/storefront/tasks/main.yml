@@ -1,0 +1,17 @@
+---
+
+- name: Find out Highlander path
+  shell: "dirname $(dirname $(pwd))"
+  register: highlander_path_out
+
+- name: Set Default Marathon Template Path
+  set_fact:
+    app_template_path: "{{highlander_path_out.stdout}}/tabernacle/ansible/roles/{{marathon_template_path}}/{{marathon_template_file}}"
+
+- include: validate.yml
+
+- include: build.yml
+  when: step_build
+
+- include: deploy.yml
+  when: step_deploy

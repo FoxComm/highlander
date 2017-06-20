@@ -1,10 +1,11 @@
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 
 // components
-import { HalfCheckbox } from '../checkbox/checkbox';
+import { PartialCheckbox } from 'components/core/checkbox';
 
 export const selectionState = {
   None: 0,
@@ -34,8 +35,7 @@ export default class MultiSelectHead extends React.Component {
     const { pageChecked, disabled } = this.props;
 
     return (
-      <HalfCheckbox
-        inline={true}
+      <PartialCheckbox
         id="multi-select"
         disabled={disabled}
         checked={pageChecked !== selectionState.None}

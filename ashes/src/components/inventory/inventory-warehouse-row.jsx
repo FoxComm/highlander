@@ -1,26 +1,28 @@
+/* @flow */
+
+import React from 'react';
 
 // libs
-import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
 // components
-import ExpandableRow from '../table/expandable-row';
+import ExpandableRow from 'components/table/expandable-row';
 
 import type { WarehouseInventorySummary } from 'modules/inventory/warehouses';
 
-const setCellContents = (warehouse, field, params) => {
-  return _.get(warehouse, field);
-};
-
 type Props = {
   warehouse: WarehouseInventorySummary,
-  columns: Array<any>,
+  columns: Columns,
   params: Object,
 }
 
 const InventoryWarehouseRow = (props: Props) => {
   const { warehouse, columns, params } = props;
   const key = `inventory-list-${warehouse.stockLocation.id}`;
+
+  const setCellContents = (warehouse: WarehouseInventorySummary, field: string, params: Object) => {
+    return _.get(warehouse, field);
+  };
 
   return (
     <ExpandableRow

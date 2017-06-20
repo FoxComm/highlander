@@ -1,7 +1,7 @@
 /* @flow */
 
 // libs
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Element } from 'react';
 import _ from 'lodash';
 
 // helpers

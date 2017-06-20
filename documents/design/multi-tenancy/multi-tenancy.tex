@@ -1,0 +1,537 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\usepackage{listings}
+%for dotex
+\usepackage[pdftex]{graphicx}
+\usepackage[pdf]{graphviz}
+\usepackage[boxed]{algorithm2e} %end for dote
+\usepackage{color}
+\usepackage{morewrites}
+
+\title{Multi Tenancy to Completion}
+\begin{document}
+\maketitle
+\section{The Problem}
+
+FoxCommerce platform has been moving towards multi-tenancy and is almost there. 
+There are a couple of remaining issues that need to be addressed for the system 
+to be completely multi tenant. 
+
+\section{What We Have}
+
+\subsection{Organizations}
+
+We have a model of organizations which have roles and permissions and users.
+Organizations are associated with a specific scope. Scopes provide a way to
+organize data hierarchically and limit access.
+
+\subsubsection{Capabilities and Constraints}
+
+\paragraph{Organizations can...}
+
+\begin{enumerate}
+    \item Control roles and permissions.
+    \item Control how a scope is accessed.
+    \item Have sub organizations that belong to subscopes.
+    \item Control subscopes.
+\end{enumerate}
+
+\paragraph{Organizations cannot...}
+
+\begin{enumerate}
+    \item Cross sibling scopes.
+    \item Have unscoped data.
+    \item Users cannot log into multiple scopes at same time.
+\end{enumerate}
+
+\subsection{Scopes}
+
+Almost all tables in the system have a scope column. Scopes are hierarchical 
+organization of data like a filesystem tree. Users with access to a scope do not
+have access to the parent scope.
+
+\digraph[scale=0.80]{Scopes}{
+    splines="ortho";
+    rankdir=LR;
+    node [shape=box,style=filled,fillcolor="lightblue"];
+
+    subgraph zero{
+        tenant [shape=record, label="Tenant (1)"]
+    };
+    subgraph first{
+        merchant1 [shape=record,label="{Merchant A(1.2)}"];
+        merchant2 [shape=record,label="{Merchant B(1.3)}"];
+    };
+
+    tenant -> merchant1
+    tenant -> merchant2
+}
+
+Each merchant may have one or more storefronts. The question of whether the
+data of those storefronts is scoped depends on the use cases we want to enable.
+Is a different organization managing the other store fronts? Then we probably want this
+
+\digraph[scale=0.80]{Storefronts}{
+    splines="ortho";
+    rankdir=LR;
+    node [shape=box,style=filled,fillcolor="lightblue"];
+
+    subgraph zero{
+        tenant [shape=record, label="Tenant (1)"]
+    };
+    subgraph first{
+        merchant1 [shape=record,label="{Merchant A(1.2)}"];
+        merchant2 [shape=record,label="{Merchant B(1.3)}"];
+    };
+    subgraph third {
+        storefront1 [shape=record,label="{Storefront A1(1.2.4?)}"];
+        storefront2 [shape=record,label="{Storefront A2(1.2.5?)}"];
+        storefront3 [shape=record,label="{Storefront B(1.3.6?)}"];
+    };
+
+    tenant -> merchant1
+    tenant -> merchant2
+    merchant1 -> storefront1
+    merchant1 -> storefront2
+    merchant2 -> storefront3
+}
+
+Is the same organization managing various storefronts? Then we want this.
+
+\digraph[scale=0.80]{Storefronts}{
+    splines="ortho";
+    rankdir=LR;
+    node [shape=box,style=filled,fillcolor="lightblue"];
+
+    subgraph zero{
+        tenant [shape=record, label="Tenant (1)"]
+    };
+    subgraph first{
+        merchant1 [shape=record,label="{Merchant A(1.2)}"];
+        merchant2 [shape=record,label="{Merchant B(1.3)}"];
+    };
+    subgraph third {
+        storefront1 [shape=record,label="{Storefront A1(1.2)}"];
+        storefront2 [shape=record,label="{Storefront A2(1.2)}"];
+        storefront3 [shape=record,label="{Storefront B(1.3)}"];
+    };
+
+    tenant -> merchant1
+    tenant -> merchant2
+    merchant1 -> storefront1
+    merchant1 -> storefront2
+    merchant2 -> storefront3
+}
+
+Notice that the scope of the storefronts is the same. Regardless if we have one
+organization or another we need a different organizing structure for storefront
+data that is separate from scopes. We want a model of channels.
+
+\subsubsection{Capabilities and Constraints}
+
+\paragraph{Scopes can...}
+
+\begin{enumerate}
+    \item Group data like a directory in a filesystem.
+    \item Control access to data via roles/permissions that are in that scope.
+\end{enumerate}
+
+\paragraph{Scopes cannot...}
+
+\begin{enumerate}
+    \item Share data with sibling scopes.
+    \item Provide semantic relationships between data in a scope.
+    \item Provide semantic relationships between data in different scopes.
+\end{enumerate}
+
+\subsection{Views (formally Context)}
+
+All merchandising information can have several views. Views provide a way to change the 
+information of a product, sku, discount, or other merchandising data for a specific
+purpose. For example, each storefront could possibly have a different view of a product.
+A review/approval flow may have it's own view.
+
+\digraph[scale=0.80]{Views}{
+    splines="ortho";
+    rankdir=LR;
+    node [shape=record,style=filled,fillcolor="lightblue"];
+
+    subgraph zero{
+        product [label="Product"]
+    };
+    subgraph first{
+        view1 [label="{View for Storefront A}"];
+        view2 [label="{View for Storefront B}"];
+        view3 [label="{View for Review/Approval}"];
+    };
+
+    product -> view1
+    product -> view2
+    product -> view3
+}
+
+\subsubsection{Capabilities and Constraints}
+
+\paragraph{Views can...}
+
+\begin{itemize}
+    \item Control which versions of data in the object store are displayed.
+    \item Act as a git branch on the merchandising data.
+    \item Commits provide branching history between views.
+\end{itemize}
+
+
+\paragraph{Views cannot...}
+
+\begin{itemize}
+    \item Control access to data.
+    \item Shared between sibling scopes.
+    \item Cannot control versions of parts of objects.
+    \item Cannot describe semantic relationships between views.
+\end{itemize}
+
+\section{What We Need}
+
+\subsection{Catalogs}
+Catalogs are collections of products you want to sell.
+
+\digraph[scale=0.80]{Catalogs}{
+    splines="ortho";
+    rankdir=LR;
+    node [shape=box,style=filled,fillcolor="tan"];
+
+    subgraph zero{
+        catalog [label="Catalog"]
+    };
+    subgraph first{
+        scope [label="Scope"];
+        products [label="Products"];
+        discounts [label="Discounts"];
+        name [label="Name"];
+        country [label="Country"];
+        language [label="Language"];
+        live [label="Live View"];
+        stage [label="Stage View"];
+    };
+
+    catalog -> scope [label="belongs to"]
+    catalog -> name [label="has a"]
+    catalog -> products [label="has"]
+    catalog -> discounts [label="has"]
+    catalog -> payment [label="has"]
+    catalog -> country [label="for a"]
+    catalog -> language [label="has default"]
+    catalog -> live [label="points to"]
+    catalog -> stage [label="points to"]
+}
+
+\subsection{Channels}
+
+Channels should be comprised of three key components
+
+\digraph[scale=0.80]{Channels}{
+    splines="ortho";
+    rankdir=LR;
+    node [shape=box,style=filled,fillcolor="tan"];
+
+    subgraph zero{
+        channel [label="Channel"]
+    };
+    subgraph first{
+        scope [label="Scope"];
+        catalog [label="Catalog"];
+        payment [label="Payment Methods"];
+        stock [label="Stock"];
+        aux [label="Auxiliary Data..."];
+    };
+
+    channel -> scope [label="belongs to"]
+    channel -> catalog [label="has a"]
+    channel -> payment [label="uses"]
+    channel -> stock [label="has"]
+    channel -> aux [label="has"]
+}
+
+\subsection{Storefronts}
+
+A storefront is a website that can sell products from a catalog. A storefront
+uses a channel in addition to data from the CMS.
+
+\digraph[scale=0.80]{StorefrontModel}{
+    splines="ortho";
+    rankdir=LR;
+    node [shape=box,style=filled,fillcolor="tan"];
+
+    subgraph zero{
+        store [label="Storefront(Channel)"]
+    };
+    subgraph first{
+        scope [label="Scope"];
+        channel [label="Channel"];
+        live [label="Live CMS View"];
+        stage [label="Stage CMS View"];
+        host [label="Host"];
+    };
+
+    store -> scope [label="belongs to"]
+    store -> channel [label="uses"]
+    store -> live [label="shows"]
+    store -> stage [label="points to"]
+    store -> host [label="serves from"]
+}
+
+\newpage
+\subsection{Back to Organizations}
+
+Once we have these new models we can assign them to organizations
+
+\digraph[scale=0.80]{OrgModel}{
+    splines="ortho";
+    rankdir=TD;
+    node [shape=box,style=filled,fillcolor="tan"];
+
+    subgraph zero{
+        rank=source;
+        org [label="Organization"]
+    };
+
+    subgraph first{
+        scope [label="Scope 1.2"]
+    };
+
+    subgraph second{
+        rank=same;
+        catalog [label="Master Catalog"];
+        view [label="Master View"];
+    };
+    subgraph third{
+        view1 [label="View A"];
+        view2 [label="View B"];
+    };
+
+    subgraph fourth{
+        catalog1 [label="Catalog A"];
+        catalog2 [label="Catalog B"];
+    };
+
+    subgraph fifth{
+        channel1 [label="Channel A"];
+        channel2 [label="Channel B"];
+    };
+
+    subgraph sixth {
+        rank=sink;
+        store1 [label="Storefront A"];
+        store2 [label="Storefront B"];
+    };
+
+    org -> scope [label="belongs to"]
+    scope -> catalog;
+    scope -> view;
+    catalog -> catalog1
+    catalog -> catalog2
+    view -> view1 [label="branch"];
+    view -> view2 [label="branch"];
+    view1 -> catalog1
+    view2 -> catalog2
+    catalog1 -> channel1 [label="uses"];
+    catalog2 -> channel2 [label="uses"];
+    store1 -> channel1 [label="used by"];
+    store2 -> channel2 [label="used by"];
+}
+
+\subsection {Public Access}
+
+Our current public endpoints for searching the catalog, registering users, and
+viewing/purchasing products are not multi-tenant aware at the moment. We need to 
+modify them to understand which channel they are serving.
+
+
+\digraph[scale=0.80]{Proxy}{
+    splines="ortho";
+    rankdir=TD;
+    node [shape=record,style=filled,fillcolor="lightblue"];
+
+    client [label="Client"];
+    riverrock [label="River Rock Proxy"];
+    db [shape=note,label="DB"];
+    channel [label="Channel for host.com"];
+    catalog [label="Catalog"];
+    view [label="View"];
+
+    client -> riverrock [label="request host.com"]
+    riverrock -> db [label="find channel"]
+    db -> channel [label="found"];
+    channel -> view;
+    channel -> catalog;
+    view -> riverrock [label="serve"];
+    catalog -> riverrock [label="serve"];
+
+}
+
+\section{Example Story}
+
+We acquired a customer which sells shoes called ShoeMe that wants to operate two
+global sites and sell products on amazon. They want to sell on two domains,
+shoeme.co.uk and shoeme.co.jp and amazon.com.
+
+\digraph[scale=0.80]{ShoeMe}{
+    splines="ortho";
+    rankdir=LR;
+    node [shape=record,style=filled,fillcolor="pink"];
+
+    subgraph zero{
+        shoeme [label="ShoeMe"]
+    };
+    subgraph first{
+        amazon [label="{amazon.com}"];
+        uk [label="{shoeme.co.jp}"];
+        jp [label="{shoeme.co.uk}"];
+    };
+
+    shoeme -> amazon;
+    shoeme -> uk;
+    shoeme -> jp;
+}
+
+We create a new \emph{Organization} called ShoeMe and \emph{Scope} with id ``1.2'' .
+Within that \emph{Organization} we create a \emph{role} called ``admin'' and a new
+\emph{user} assigned to that role. 
+
+\digraph[scale=0.80]{ShoeMeOrg}{
+    splines="ortho";
+    rankdir=TD;
+    node [shape=record,style=filled,fillcolor="pink"];
+
+    org [label="ShoeMe Org"]
+    scope [label="Scope 1.2"];
+    admin [label="{Admin Role|Admin Users}"];
+
+    scope -> org;
+    org -> admin;
+}
+
+The ShoeMe representative follows the password creation flow for their new account and
+gets access to ashes.
+
+We create for the customer four catalogs called ``master'', ``uk'', ``jp'', and ``amazon''.
+Behind the scenes with creates four views ``master'', ``uk'', ``jp'', and ``amazon''.
+They then import there products into the master catalog. They then use ashes to selectively
+assign products into the other three catalogs. This forks the products into the three other
+views. 
+
+\digraph[scale=0.80]{ShoeMeCatalogs}{
+    splines="ortho";
+    rankdir=TD;
+    node [shape=record,style=filled,fillcolor="pink"];
+
+    scope [label="{Scope 1.2}"];
+
+    master [fillcolor="green",label="{Master|{Catalog|View}}"];
+
+    subgraph catalogs { 
+        rank=same;
+        uk [fillcolor="green",label="{UK|{Catalog|View}}"];
+        jp [fillcolor="green",label="{JP|{Catalog|View}}"];
+        amazon [fillcolor="green",label="{Amazon|{Catalog|View}}"];
+    };
+
+    scope -> master;
+    master -> uk;
+    master -> jp;
+    master -> amazon;
+}
+
+We create three channels for the customer called ``uk''. ``jp''. and ``amazon'' and assign
+each appropriate catalog to the channels.
+
+\digraph[scale=0.80]{ShoeMeChannels}{
+    splines="ortho";
+    rankdir=TD;
+    node [shape=record,style=filled,fillcolor="pink"];
+
+    scope [label="{Scope 1.2}"];
+    master [fillcolor="green",label="{Master|{Catalog|View}}"];
+
+    subgraph catalogs { 
+        rank=same;
+        uk [fillcolor="green",label="{UK|{Catalog|View}}"];
+        jp [fillcolor="green",label="{JP|{Catalog|View}}"];
+        amazon [fillcolor="green",label="{Amazon|{Catalog|View}}"];
+    };
+
+    subgraph channels { 
+        rank=same;
+        ukc [fillcolor="lightblue",label="{UK|{Channel|Stock}}"];
+        jpc [fillcolor="lightblue",label="{JP|{Channel|Stock}}"];
+        amazonc [fillcolor="lightblue",label="{Amazon|{Channel|Stock}}"];
+    };
+
+    scope -> master;
+    master -> uk;
+    master -> jp;
+    master -> amazon;
+    uk -> ukc;
+    jp -> jpc;
+    amazon -> amazonc;
+}
+
+
+We then create two storefronts, ``shoeme.co.uk'' and ``shoeme.co.jp''.
+Behind the scenes these two storefronts will create two views which will be used
+by the CMS to show various content. Just like with catalogs they can first build one storefront
+and then copy over the data into the other.
+
+\digraph[scale=0.80]{ShoeMeStores}{
+    splines="ortho";
+    rankdir=TD;
+    node [shape=record,style=filled,fillcolor="pink"];
+
+    scope [label="{Scope 1.2}"];
+    master [fillcolor="green",label="{Master|{Catalog|View}}"];
+
+    subgraph catalogs { 
+        rank=same;
+        uk [fillcolor="green",label="{UK|{Catalog|View}}"];
+        jp [fillcolor="green",label="{JP|{Catalog|View}}"];
+        amazon [fillcolor="green",label="{Amazon|{Catalog|View}}"];
+    };
+
+    subgraph channels { 
+        rank=same;
+        ukc [fillcolor="lightblue",label="{UK|{Channel|Stock}}"];
+        jpc [fillcolor="lightblue",label="{JP|{Channel|Stock}}"];
+        amazonc [fillcolor="lightblue",label="{Amazon|{Channel|Stock}}"];
+    };
+
+    subgraph storefronts { 
+        rank=same;
+        uks [fillcolor="yellow",label="{shoeme.co.uk|{Storefront|CMS View}}"];
+        jps [fillcolor="yellow",label="{shoeme.co.jp|{Storefront|CMS View}}"];
+    };
+
+    scope -> master;
+    master -> uk;
+    master -> jp;
+    master -> amazon;
+    uk -> ukc;
+    jp -> jpc;
+    amazon -> amazonc;
+    ukc -> uks;
+    jpc -> jps;
+}
+
+Our API will understand how to serve traffic depending on the host of each storefront 
+by selecting the appropriate CMS views and catalog assigned to the storefront.
+
+Behind the scenes will can also provide sister views to each view for staging changing
+which await approval.
+
+Each catalog may also be assigned the same or different stock item location and
+pricing information. Each catalog can therefore share or maintain separate stock
+for the products in the catalog.
+
+
+\end{document}

@@ -1,6 +1,6 @@
 /* @flow */
 
-import { createReducer } from 'redux-act';
+import { createAction, createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 import {
   addTaxonomyFilter,
@@ -9,6 +9,10 @@ import {
 } from 'lib/elastic';
 import _ from 'lodash';
 import { api } from 'lib/api';
+import { browserHistory } from 'lib/history';
+
+// modules
+import { categories } from './categories';
 
 import type { Facet } from 'types/facets';
 
@@ -29,18 +33,26 @@ export type Product = {
 
 export const MAX_RESULTS = 1000;
 export const PAGE_SIZE = 20;
-const context = process.env.FIREBIRD_CONTEXT || 'default';
+const context = process.env.STOREFRONT_CONTEXT || 'default';
 export const GIFT_CARD_TAG = 'GIFT-CARD';
+
+const ignoreCategoryFilterNames = (function getIgnoreCategoryFilterNames(cats, acc = []) {
+  return _.reduce(cats, (memo, cat) => {
+    const found = cat.ignoreCategoryFilter ? [cat.name] : [];
+    if (!cat.children) return [...memo, ...found];
+    return getIgnoreCategoryFilterNames(cat.children, [...memo, ...found]);
+  }, acc);
+}(categories));
 
 function apiCall(
   categoryNames: ?Array<string>,
   sorting: ?{ direction: number, field: string },
   selectedFacets: Object,
-  loaded: number,
-  { ignoreGiftCards = true } = {}): Promise<*> {
-  let payload = defaultSearch(context);
+  toLoad: number,
+  { ignoreGiftCards = true, pushHistory = false } = {}): Promise<*> {
+  let payload = defaultSearch(String(context));
 
-  _.forEach(_.compact(categoryNames), (cat) => {
+  _.forEach(_.compact(_.difference(categoryNames, ignoreCategoryFilterNames)), (cat) => {
     if (cat !== 'ALL' && cat !== GIFT_CARD_TAG) {
       payload = addCategoryFilter(payload, cat.toUpperCase());
     } else if (cat === GIFT_CARD_TAG) {
@@ -67,20 +79,37 @@ function apiCall(
     }
   });
 
-  const promise = this.api.post(`/search/public/products_catalog_view/_search?size=${loaded}`, payload);
+  if (browserHistory && pushHistory) {
+    browserHistory.push({
+      pathname: document.location.pathname,
+      query: selectedFacets,
+    });
+  }
+
+  const promise = this.api.post(`/search/public/products_catalog_view/_search?size=${toLoad}`, payload);
 
   const chained = promise.then((response) => {
     return {
       payload: response,
-      selectedFacets,
     };
   });
   chained.abort = promise.abort;
   return chained;
 }
 
+export const saveProductsFilters = createAction('SAVE_PRODUCTS_FILTERS');
+
 export function searchGiftCards() {
-  return apiCall.call({ api }, [GIFT_CARD_TAG], null, {}, MAX_RESULTS, { ignoreGiftCards: false });
+  const [sorting, selectedFacets, toLoad] = [null, {}, MAX_RESULTS];
+  saveProductsFilters({
+    sorting,
+    selectedFacets,
+    toLoad,
+  });
+  return apiCall.call({ api }, [GIFT_CARD_TAG], sorting, selectedFacets, toLoad, {
+    ignoreGiftCards: false,
+    pushHistory: false,
+  });
 }
 
 const _fetchProducts = createAsyncActions('products', apiCall);
@@ -90,6 +119,14 @@ const initialState = {
   list: [],
   facets: [],
   total: 0,
+  filters: {
+    sorting: {
+      direction: 1,
+      field: 'salePrice',
+    },
+    toLoad: PAGE_SIZE,
+    selectedFacets: {},
+  },
 };
 
 function determineFacetKind(f: string): string {
@@ -440,9 +477,53 @@ function mapAggregationsToFacets(aggregations): Array<Facet> {
   });
 }
 
+type ColorValue = {
+  color: string,
+  value: string,
+};
+
+function isFacetValueSelected(facets: ?Array<string>, value: string | ColorValue) {
+  if (typeof value !== 'string') return _.includes(facets, value.value);
+  return _.includes(facets, value);
+}
+
+function markFacetValuesAsSelected(facets: Array<Facet>, selectedFacets: Object): Array<Facet> {
+  return _.map(facets, facetItem => ({
+    ...facetItem,
+    values: _.map(facetItem.values, facetValueItem => ({
+      ...facetValueItem,
+      selected: isFacetValueSelected(selectedFacets[facetItem.key], facetValueItem.value),
+    })),
+  }));
+}
+
 const reducer = createReducer({
+  '@@router/UPDATE_LOCATION': (state, action) => {
+    const selectedFacets = _.reduce(action.query, (acc, cur, key) => {
+      return {
+        ...acc,
+        [key]: _.isString(cur) ? [cur] : cur,
+      };
+    }, {});
+
+    return {
+      ...state,
+      filters: {
+        ...state.filters,
+        selectedFacets,
+      },
+    };
+  },
+  [saveProductsFilters]: (state, action) => {
+    return {
+      ...state,
+      filters: action,
+      facets: markFacetValuesAsSelected(state.facets, action.selectedFacets),
+    };
+  },
   [_fetchProducts.succeeded]: (state, action) => {
-    const {payload, selectedFacets} = action;
+    const {payload} = action;
+    const {selectedFacets} = state.filters;
     const payloadResult = payload.result;
     const aggregations = _.isNil(payload.aggregations)
       ? []
@@ -450,7 +531,7 @@ const reducer = createReducer({
     const list = _.isEmpty(payloadResult) ? [] : payloadResult;
     const total = _.get(payload, 'pagination.total', 0);
 
-    const queryFacets = mapAggregationsToFacets(aggregations);
+    const queryFacets = markFacetValuesAsSelected(mapAggregationsToFacets(aggregations), selectedFacets);
 
     let facets = [];
 
@@ -458,18 +539,18 @@ const reducer = createReducer({
     if (_.isEmpty(state.facets)) {
       facets = queryFacets;
     } else {
-      // Merge aggregations from quiries into existing state.
-      // Keep existinged selected facets and only change unselected ones..
-      // This avoids quiries that would return empty results.
+      // Merge aggregations from queries into existing state.
+      // Keep existing selected facets and only change unselected ones..
+      // This avoids queries that would return empty results.
       // While also keeping the interface from changing too much.
-      const groupedQueyFacets = _.groupBy(queryFacets, 'key');
+      const groupedQueryFacets = _.groupBy(queryFacets, 'key');
 
       facets = _.compact(_.map(state.facets, (v) => {
-        if (!_.isEmpty(selectedFacets[v.key])) {
+        if (_.isEmpty(groupedQueryFacets) || !_.isEmpty(selectedFacets[v.key])) {
           return v;
         }
 
-        return _.isArray(groupedQueyFacets[v.key]) ? groupedQueyFacets[v.key][0] : null;
+        return _.isArray(groupedQueryFacets[v.key]) ? groupedQueryFacets[v.key][0] : null;
       }));
     }
 

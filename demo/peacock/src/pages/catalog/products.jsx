@@ -40,21 +40,21 @@ type Props = {
   list: Array<Object>,
   categories: ?Array<Category>,
   fetchState: AsyncState,
+  saveProductsFilters: Function,
   fetch: Function,
   location: any,
   routes: Array<Route>,
   routerParams: Object,
   facets: Array<Facet>,
   total: number,
-};
-
-type State = {
-  sorting: {
-    direction: number,
-    field: string,
+  filters: {
+    sorting: {
+      direction: number,
+      field: string,
+    },
+    toLoad: number,
+    selectedFacets: {},
   },
-  toLoad: number,
-  selectedFacets: {},
 };
 
 // redux
@@ -72,14 +72,6 @@ const facetWhitelist = [
 
 class Products extends Component {
   props: Props;
-  state: State = {
-    sorting: {
-      direction: 1,
-      field: 'salePrice',
-    },
-    toLoad: PAGE_SIZE,
-    selectedFacets: {},
-  };
   lastFetch: ?AbortablePromise<*>;
 
   fetch(...args): void {
@@ -93,8 +85,10 @@ class Products extends Component {
 
   componentWillMount() {
     const { categoryName, subCategory, leafCategory } = this.props.params;
-    const { sorting, selectedFacets, toLoad } = this.state;
-    this.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets, toLoad);
+    const categoryNames = [categoryName, subCategory, leafCategory];
+    const { sorting, selectedFacets, toLoad } = this.props.filters;
+
+    this.fetch(categoryNames, sorting, selectedFacets, toLoad);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -110,19 +104,33 @@ class Products extends Component {
       (leafCategory !== nextLeafCategory);
 
     if (mustInvalidate) {
-      this.fetch(
-        [nextCategoryName, nextSubCategory, nextLeafCategory],
-        this.state.sorting,
-        this.state.selectedFacets,
-        this.state.toLoad
-      );
+      const categoryNames = [nextCategoryName, nextSubCategory, nextLeafCategory];
+      const initialFilters = {
+        sorting: {
+          direction: 1,
+          field: 'salePrice',
+        },
+        selectedFacets: {},
+        toLoad: PAGE_SIZE,
+      };
+      const { sorting, selectedFacets, toLoad } = initialFilters;
+
+      this.props.saveProductsFilters({
+        sorting,
+        selectedFacets,
+        toLoad,
+      });
+
+      this.fetch(categoryNames, sorting, selectedFacets, toLoad, {
+        pushHistory: true,
+      });
     }
   }
 
 
   @autobind
   changeSorting(field: string) {
-    const { sorting, selectedFacets } = this.state;
+    const { sorting, selectedFacets } = this.props.filters;
     const direction = sorting.field === field
       ? sorting.direction * (-1)
       : sorting.direction;
@@ -132,20 +140,36 @@ class Products extends Component {
       direction,
     };
 
-    this.setState({selectedFacets, sorting: newState, toLoad: PAGE_SIZE}, () => {
-      const { categoryName, subCategory, leafCategory } = this.props.params;
-      this.props.fetch([categoryName, subCategory, leafCategory], newState, selectedFacets, PAGE_SIZE);
+    const { categoryName, subCategory, leafCategory } = this.props.params;
+    const categoryNames = [categoryName, subCategory, leafCategory];
+
+    this.props.saveProductsFilters({
+      sorting: newState,
+      selectedFacets,
+      toLoad: PAGE_SIZE,
+    });
+
+    this.fetch(categoryNames, newState, selectedFacets, PAGE_SIZE, {
+      pushHistory: true,
     });
   }
 
   @autobind
   fetchMoreProducts() {
     const { categoryName, subCategory, leafCategory } = this.props.params;
-    const { sorting, selectedFacets, toLoad } = this.state;
+    const { sorting, selectedFacets, toLoad } = this.props.filters;
 
     const nextToLoad = toLoad + PAGE_SIZE;
-    this.setState({ toLoad: nextToLoad }, () => {
-      this.props.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets, nextToLoad);
+    const categoryNames = [categoryName, subCategory, leafCategory];
+
+    this.props.saveProductsFilters({
+      sorting,
+      selectedFacets,
+      toLoad: nextToLoad,
+    });
+
+    this.fetch(categoryNames, sorting, selectedFacets, nextToLoad, {
+      pushHistory: true,
     });
   }
 
@@ -156,7 +180,7 @@ class Products extends Component {
 
   @autobind
   newFacetSelectState(facet: string, value: string, selected: boolean) {
-    const newSelection = this.state.selectedFacets;
+    const newSelection = this.props.filters.selectedFacets;
     if (selected) {
       if (facet in newSelection) {
         newSelection[facet].push(value);
@@ -174,18 +198,32 @@ class Products extends Component {
 
   @autobind
   onSelectFacet(facet: string, value: string, selected: boolean) {
-    const newSelection = this.newFacetSelectState(facet, value, selected);
+    const selectedFacets = this.newFacetSelectState(facet, value, selected);
+    const { categoryName, subCategory, leafCategory } = this.props.params;
+    const categoryNames = [categoryName, subCategory, leafCategory];
+    const { sorting, toLoad } = this.props.filters;
 
-    this.setState({selectedFacets: newSelection, sorting: this.state.sorting, toLoad: PAGE_SIZE}, () => {
-      const { categoryName, subCategory, leafCategory } = this.props.params;
-      this.fetch([categoryName, subCategory, leafCategory], this.state.sorting, newSelection, PAGE_SIZE);
+    this.props.saveProductsFilters({
+      sorting,
+      selectedFacets,
+      toLoad,
+    });
+
+    this.fetch(categoryNames, sorting, selectedFacets, toLoad, {
+      pushHistory: true,
     });
   }
 
   @autobind
   onSelectMobileFacet(facet, value, selected) {
-    const newSelection = this.newFacetSelectState(facet, value, selected);
-    this.setState({selectedFacets: newSelection, sorting: this.state.sorting});
+    const selectedFacets = this.newFacetSelectState(facet, value, selected);
+    const { sorting, toLoad } = this.props.filters;
+
+    this.props.saveProductsFilters({
+      sorting,
+      selectedFacets,
+      toLoad,
+    });
   }
 
   @autobind
@@ -197,15 +235,19 @@ class Products extends Component {
   @autobind
   showMenuBar() {
     const header = document.getElementById('header');
-    if (header) header.style.display = 'inline';
+    if (header) header.style.display = 'block';
   }
 
   @autobind
   applyMobileFilters() {
     this.showMenuBar();
     const { categoryName, subCategory, leafCategory } = this.props.params;
-    const { sorting, selectedFacets} = this.state;
-    this.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets, PAGE_SIZE);
+    const categoryNames = [categoryName, subCategory, leafCategory];
+    const { sorting, selectedFacets, toLoad } = this.props.filters;
+
+    this.fetch(categoryNames, sorting, selectedFacets, toLoad, {
+      pushHistory: true,
+    });
   }
 
   get navBar(): ?Element<*> {
@@ -266,6 +308,7 @@ class Products extends Component {
           </label>
         </div>
         <Facets
+          styleName="sidebar-mobile-facets"
           prefix={'mobile'}
           facets={this.props.facets}
           whitelist={facetWhitelist}
@@ -291,7 +334,7 @@ class Products extends Component {
     return (
       <div styleName="content">
         <ProductsList
-          sorting={this.state.sorting}
+          sorting={this.props.filters.sorting}
           changeSorting={this.changeSorting}
           list={this.props.list}
           isLoading={!finished}
@@ -319,7 +362,7 @@ class Products extends Component {
           {realCategoryName}
         </div>
         <ProductsList
-          sorting={this.state.sorting}
+          sorting={this.props.filters.sorting}
           changeSorting={this.changeSorting}
           list={this.props.list}
           isLoading={!finished}

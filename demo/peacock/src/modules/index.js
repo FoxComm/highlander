@@ -9,12 +9,13 @@ import sidebar from './sidebar';
 import products from './products';
 import productDetails from './product-details';
 import countries from './countries';
-import search from './search';
 import auth from './auth';
 import usermenu from './usermenu';
 import profile from './profile';
 import orders from './orders';
+import reviews from './reviews';
 import crossSell from './cross-sell';
+import contentOverlay from './content-overlay';
 
 import { reducer as asyncReducer } from '@foxcomm/wings/lib/redux/async-utils';
 
@@ -28,12 +29,13 @@ const reducer = combineReducers({
   products,
   productDetails,
   countries,
-  search,
   auth,
   usermenu,
   profile,
   orders,
+  reviews,
   crossSell,
+  contentOverlay,
 });
 
 export default reducer;
