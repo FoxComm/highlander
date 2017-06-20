@@ -186,6 +186,16 @@ export default class ObjectDetails extends Component {
     return addKeys(name, section.map(desc => this.renderNode(desc, section)));
   }
 
+  get main() {
+    if (this.layout.main != null) {
+      return (
+        <div styleName="section">
+          {this.renderSection('main')}
+        </div>
+      );
+    }
+  }
+
   get aside() {
     if (this.layout.aside != null) {
       return (
@@ -202,7 +212,7 @@ export default class ObjectDetails extends Component {
     return (
       <Form ref="form" styleName="object-details">
         <div styleName={mainStyleName}>
-          {this.renderSection('main')}
+          {this.main}
         </div>
         {this.aside}
       </Form>
