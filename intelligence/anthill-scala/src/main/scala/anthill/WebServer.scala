@@ -1,32 +1,14 @@
 package anthill
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.server.{Directives, Route}
-import akka.stream.ActorMaterializer
-import anthill.routes.{PrivateRoutes, PublicRoutes}
+import anthill.routes.Router
+import com.twitter.finagle.Http
+import com.twitter.util.Await
+import io.circe.generic.auto._
+import io.finch.circe._
 
-import scala.io.StdIn
-
-object WebServer extends Directives {
-  def main(args: Array[String]) {
-
-    implicit val system       = ActorSystem("my-system")
-    implicit val materializer = ActorMaterializer()
-    // needed for the future flatMap/onComplete in the end
-    implicit val executionContext = system.dispatcher
-
-    val bindingFuture = Http().bindAndHandle(routes, "localhost", 8080)
-
-    println(
-      s"Server online at http://localhost:8080/\nPress RETURN to stop..."
-    )
-    StdIn.readLine() // let it run until user presses return
-    bindingFuture
-      .flatMap(_.unbind()) // trigger unbinding from the port
-      .onComplete(_ ⇒ system.terminate()) // and shutdown when done
+object WebServer {
+  def main(args: Array[String]): Unit = {
+    println("listening on localhost:8880")
+    Await.ready(Http.server.serve(":8880", Router.routes.toService))
   }
-
-  val routes: Route = PublicRoutes.routes ~ PrivateRoutes.routes
-
 }
