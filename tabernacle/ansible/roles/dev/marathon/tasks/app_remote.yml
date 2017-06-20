@@ -1,0 +1,25 @@
+---
+
+- name: Copy Remote Marathon JSON
+  template: src=remote.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+
+- name: Kill Remote Tasks in Marathon
+  shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/apps/remote/tasks?scale=true'
+  when: is_redeploy
+
+- name: Pause for a bit...
+  pause: seconds=15
+  when: is_redeploy
+
+- name: Update Remote in Marathon
+  shell: 'curl -sS -XPUT -d@/marathon/applications/remote.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/remote'
+
+- name: Restart Remote in Marathon
+  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/remote/restart'
+
+- name: Get Remote Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/remote | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: "{{marathon_retries}}"
+  delay: "{{marathon_delay}}"

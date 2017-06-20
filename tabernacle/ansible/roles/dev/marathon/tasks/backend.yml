@@ -20,6 +20,10 @@
   include: app_hyperion.yml
   when: marathon_restart.hyperion
 
+- name: Start Remote
+  include: app_remote.yml
+  when: marathon_restart.remote
+
 - name: Start Onboarding Service
   include: app_onboarding_service.yml
   when: with_onboarding and marathon_restart.onboarding_service

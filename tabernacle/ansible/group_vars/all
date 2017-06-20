@@ -84,6 +84,7 @@ docker_tags:
     data_import: "{{ lookup('env', 'DOCKER_TAG_DATA_IMPORT') | default('master', true) }}"
     onboarding_service: "{{ lookup('env', 'DOCKER_TAG_ONBOARING_SERVICE') | default('master', true) }}"
     onboarding_ui: "{{ lookup('env', 'DOCKER_TAG_ONBOARING_UI') | default('master', true) }}"
+    remote: "{{ lookup('env', 'DOCKER_TAG_REMOTE') | default('master', true) }}"
 
 # Configurable Marathon re-deploys
 marathon_restart:
@@ -119,6 +120,7 @@ marathon_restart:
     neo4j: "{{ lookup('env', 'MARATHON_NEO4J') | default(true, true) | bool }}"
     neo4j_reset: "{{ lookup('env', 'MARATHON_NEO4J_RESET') | default(true, true) | bool }}"
     suggester: "{{ lookup('env', 'MARATHON_SUGGESTER') | default(true, true) | bool }}"
+    remote: "{{ lookup('env', 'MARATHON_REMOTE') | default('master', true) | bool }}"
 
 # Should we do seeding for appliance
 detach_seeders: "{{ lookup('env', 'DETACH_SEEDERS') | default(false, true) | bool }}"
