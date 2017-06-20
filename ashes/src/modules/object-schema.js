@@ -6,7 +6,12 @@ import Api from 'lib/api';
 
 const _fetchSchema = createAsyncActions(
   'fetchSchema',
-  (kind, id = void 0) => Api.get(`/object/schemas/byKind/${kind}`)
+  (kind, id = void 0) => {
+    if (kind === 'json') {
+      return Promise.resolve(id);
+    }
+    return Api.get(`/object/schemas/byKind/${kind}`);
+  }
 );
 export const saveSchema = createAction('SCHEMA_SAVE', (kind, schema) => [kind, schema]);
 
