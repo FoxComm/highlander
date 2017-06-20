@@ -16,7 +16,8 @@ object Dependencies {
   )
 
   val es = Seq(
-    "org.elasticsearch" % "elasticsearch" % versions.elasticsearch
+    "com.fasterxml.jackson.dataformat" % "jackson-dataformat-smile" % "2.8.2",
+    "org.elasticsearch"                % "elasticsearch"            % versions.elasticsearch
   )
 
   val circe = Seq(
