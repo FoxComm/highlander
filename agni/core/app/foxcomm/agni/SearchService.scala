@@ -41,7 +41,7 @@ class SearchService private (client: Client)(implicit qi: QueryInterpreter[Coeva
         query.fold {
           Coeval.eval(builder.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchAllQuery())))
         } { q ⇒
-          q.query.foldM(QueryBuilders.boolQuery())(qi.eval).map(builder.setQuery)
+          qi(QueryBuilders.boolQuery(), q.query).map(builder.setQuery)
         }
     }
 
