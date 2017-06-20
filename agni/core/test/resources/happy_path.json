@@ -5,10 +5,6 @@
     "value": [ "awesome", "whatever" ]
   },
   {
-    "type": "state",
-    "value": "all"
-  },
-  {
     "type": "matches",
     "in": [ "title", "description" ],
     "value": [ "food", "drink" ]

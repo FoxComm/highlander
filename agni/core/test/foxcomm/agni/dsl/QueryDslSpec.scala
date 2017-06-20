@@ -22,14 +22,11 @@ class QueryDslSpec extends FlatSpec with Matchers {
       is.in.toList should === (List("slug"))
       is.value.toList should === (List("awesome", "whatever"))
     }
-    assertQueryFunction[QueryFunction.state](queries(1)) { state ⇒
-      state.value should === (EntityState.all)
-    }
-    assertQueryFunction[QueryFunction.matches](queries(2)) { matches ⇒
+    assertQueryFunction[QueryFunction.matches](queries(1)) { matches ⇒
       matches.in.toList should === (List("title", "description"))
       matches.value.toList should === (List("food", "drink"))
     }
-    assertQueryFunction[QueryFunction.range](queries(3)) { range ⇒
+    assertQueryFunction[QueryFunction.range](queries(2)) { range ⇒
       range.in.toList should === (List("price"))
       range.value.unify.toMap.mapValues(_.toString) should === (
         Map(

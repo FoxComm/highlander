@@ -2,10 +2,11 @@ import sbt._
 
 object Dependencies {
   object versions {
-    val cats      = "0.9.0"
-    val circe     = "0.8.0"
-    val elastic4s = "2.1.2"
-    val finch     = "0.14.0"
+    val cats          = "0.9.0"
+    val circe         = "0.8.0"
+    val elasticsearch = "2.1.2"
+    val finch         = "0.14.0"
+    val monix         = "2.3.0"
   }
 
   val core = Seq(
@@ -15,8 +16,7 @@ object Dependencies {
   )
 
   val es = Seq(
-    "com.fasterxml.jackson.dataformat" % "jackson-dataformat-smile" % "2.8.2",
-    "com.sksamuel.elastic4s"           %% "elastic4s-core"          % versions.elastic4s
+    "org.elasticsearch" % "elasticsearch" % versions.elasticsearch
   )
 
   val circe = Seq(
@@ -31,7 +31,14 @@ object Dependencies {
     "com.github.finagle" %% "finch-generic" % versions.finch
   )
 
-  val jwt = "com.pauldijou" %% "jwt-core" % "0.12.1"
+  val jwt = Seq(
+    "com.pauldijou" %% "jwt-core" % "0.12.1"
+  )
+
+  val monix = Seq(
+    "io.monix" %% "monix-cats" % versions.monix,
+    "io.monix" %% "monix-eval" % versions.monix
+  )
 
   object test {
     def core =

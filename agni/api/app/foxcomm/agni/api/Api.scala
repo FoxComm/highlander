@@ -1,6 +1,5 @@
 package foxcomm.agni.api
 
-import com.sksamuel.elastic4s.ElasticImplicits._
 import com.twitter.finagle.Http
 import com.twitter.finagle.http.Status
 import com.twitter.util.Await
@@ -9,19 +8,23 @@ import foxcomm.utils.finch._
 import io.circe.generic.extras.auto._
 import io.finch._
 import io.finch.circe._
+import monix.execution.Scheduler
 import org.elasticsearch.common.ValidationException
-import scala.concurrent.ExecutionContext
 
 object Api extends App {
-  def endpoints(searchService: SearchService)(implicit ec: ExecutionContext) =
+  def endpoints(searchService: SearchService)(implicit s: Scheduler) =
     post(
       "search" :: string :: string :: param("size")
         .as[Int] :: paramOption("from").as[Int] :: jsonBody[SearchPayload]) {
       (searchIndex: String, searchType: String, size: Int, from: Option[Int], searchQuery: SearchPayload) ⇒
         searchService
-          .searchFor(searchIndex / searchType, searchQuery, searchSize = size, searchFrom = from)
-          .toTwitterFuture
+          .searchFor(searchIndex = searchIndex,
+                     searchType = searchType,
+                     searchQuery = searchQuery,
+                     searchSize = size,
+                     searchFrom = from)
           .map(Ok)
+          .toTwitterFuture
     } :+: get("ping") {
       Ok("pong")
     }
@@ -32,9 +35,9 @@ object Api extends App {
     case ex                      ⇒ Output.failure(new RuntimeException(ex), Status.InternalServerError)
   }
 
-  implicit val ec: ExecutionContext = ExecutionContext.global
-  val config                        = AppConfig.load()
-  val svc                           = SearchService.fromConfig(config)
+  implicit val s: Scheduler = Scheduler.global
+  val config                = AppConfig.load()
+  val svc                   = SearchService.fromConfig(config)
 
   Await.result(
     Http.server
