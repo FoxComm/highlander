@@ -21,7 +21,7 @@ import { setObjectAttr, omitObjectAttr } from 'paragons/object';
 import { customerGroups } from 'paragons/object-types';
 const layout = require('./layout.json');
 
-export default class PromotionForm extends ObjectDetails {
+export default class ContentTypeForm extends ObjectDetails {
 
   layout = layout;
 
