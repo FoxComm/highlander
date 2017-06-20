@@ -34,9 +34,10 @@ class StripeApiErrorHandlingTest extends TestBase { // for Monad[Future]
 
     "catches timeouts in stripe API" in {
       def boom = { Thread.sleep(20000); throw someStripeException }
-      
+
       val result = Await.result(new StripeWrapper().inBlockingPool(boom).runEmptyA.value, Inf)
-      leftValue(result).head must === (StripeProcessingFailure("Request to Stripe timed out: Futures timed out after [10 seconds]"))
+      leftValue(result).head must === (
+        StripeProcessingFailure("Request to Stripe timed out: Futures timed out after [10 seconds]"))
     }
   }
 

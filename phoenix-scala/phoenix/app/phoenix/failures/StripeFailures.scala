@@ -19,6 +19,6 @@ object StripeFailures {
   }
 
   case class StripeProcessingFailure(message: String) extends Failure {
-    override def description = s"Failed to process stripe request with error: ${message}"
+    override def description = s"Failed to process stripe request with error: $message"
   }
 }
