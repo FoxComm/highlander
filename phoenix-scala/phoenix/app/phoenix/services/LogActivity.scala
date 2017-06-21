@@ -39,7 +39,7 @@ import phoenix.responses.giftcards.GiftCardResponse
 import phoenix.responses.users.{CustomerResponse, UserResponse}
 import phoenix.services.activity.AssignmentsTailored._
 import phoenix.services.activity.CartTailored._
-import phoenix.services.activity.CatalogTailored.{CatalogCreated, CatalogUpdated}
+import phoenix.services.activity.CatalogTailored._
 import phoenix.services.activity.CategoryTailored._
 import phoenix.services.activity.CouponsTailored._
 import phoenix.services.activity.CustomerGroupsTailored._
@@ -493,6 +493,20 @@ case class LogActivity(implicit ac: AC) {
       catalog: CatalogResponse.Root
   )(implicit ec: EC): DbResultT[Activity] =
     Activities.log(CatalogUpdated(UserResponse.build(admin), catalog))
+
+  def productsAddedToCatalog(
+      admin: User,
+      catalog: CatalogResponse.Root,
+      productIds: Seq[Int]
+  )(implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ProductsAddedToCatalog(UserResponse.build(admin), catalog, productIds))
+
+  def productRemovedFromCatalog(
+      admin: User,
+      catalogId: Int,
+      productId: Int
+  )(implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ProductRemovedFromCatalog(UserResponse.build(admin), catalogId, productId))
 
   /* Products */
   def fullProductCreated(admin: Option[User],
