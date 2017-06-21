@@ -88,7 +88,7 @@ class CustomerIntegrationTest
   "GET /v1/customers/email/:email" - {
     "fetches customer info by email" in {
       val customer = api_newCustomer()
-      customersApi.getByEmail(customer.email.value).as[Root].id must === (customer.id)
+      customersApi.getByEmail(customer.email.value).as[CustomerResponse].id must === (customer.id)
     }
 
     "fails if customer not found" in {
