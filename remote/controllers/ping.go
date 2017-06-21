@@ -13,6 +13,11 @@ type Ping struct {
 	dbs *services.RemoteDBs
 }
 
+// NewPing creates a new ping controller.
+func NewPing(dbs *services.RemoteDBs) *Ping {
+	return &Ping{dbs: dbs}
+}
+
 type health struct {
 	Intelligence string `json:"intelligence"`
 	Phoenix      string `json:"phoenix"`

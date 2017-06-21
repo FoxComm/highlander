@@ -226,6 +226,10 @@ hyperion_host: "hyperion.{{consul_suffix}}"
 hyperion_port: 8880
 hyperion_server: "{{hyperion_host}}:{{hyperion_port}}"
 
+remote_host: "remote.{{consul_suffix}}"
+remote_port: 9898
+remote_server: "{{remote_host}}:{{remote_port}}"
+
 # Database & bottledwater
 db_user: phoenix
 db_name: phoenix

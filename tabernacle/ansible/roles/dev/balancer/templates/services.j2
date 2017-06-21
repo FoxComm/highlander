@@ -20,6 +20,7 @@ upstream eggcrate {
   << else >> server {{eggcrate_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
+
 upstream anthill {
   << range service "anthill" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
   << else >> server {{anthill_server}} fail_timeout=30s max_fails=10; << end >>
@@ -61,6 +62,11 @@ upstream sol {
 upstream hyperion {
   << range service "hyperion" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
   << else >> server {{hyperion_server}} fail_timeout=30s max_fails=10; << end >>
+}
+
+upstream remote {
+  << range service "remote" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{remote_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
 upstream ashes {

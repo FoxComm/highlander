@@ -21,8 +21,13 @@ func Start() {
 	}
 
 	channelsCtrl := NewChannels(dbs)
+	pingCtrl := NewPing(dbs)
 
 	r := NewRouter()
+
+	r.GET("/v1/public/health", func(fc *FoxContext) error {
+		return fc.Run(pingCtrl.GetHealth())
+	})
 
 	r.GET("/v1/public/channels/:id", func(fc *FoxContext) error {
 		id := fc.ParamInt("id")
