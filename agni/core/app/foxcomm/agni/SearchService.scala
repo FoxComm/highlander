@@ -10,7 +10,6 @@ import org.elasticsearch.client.Client
 import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.common.transport.InetSocketTransportAddress
-import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.SearchHit
 
 @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
@@ -37,11 +36,7 @@ class SearchService private (client: Client, qi: ESQueryInterpreter) {
       case SearchPayload.es(query, _) ⇒
         Coeval.eval(builder.setQuery(Printer.noSpaces.prettyByteBuffer(Json.fromJsonObject(query)).array()))
       case SearchPayload.fc(query, _) ⇒
-        query.fold {
-          Coeval.eval(builder.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchAllQuery())))
-        } { q ⇒
-          qi(q.query).map(builder.setQuery)
-        }
+        qi(query).map(builder.setQuery)
     }
 
     def setupBuilder: Task[SearchRequestBuilder] = (prepareBuilder flatMap evalQuery).task

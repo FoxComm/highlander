@@ -198,12 +198,14 @@ object query {
     implicit val decodeQueryFunction: Decoder[QueryFunction] = deriveDecoder[QueryFunction]
   }
 
-  final case class FCQuery(query: NonEmptyList[QueryFunction])
+  final case class FCQuery(query: Option[NonEmptyList[QueryFunction]])
   object FCQuery {
     implicit val decodeFCQuery: Decoder[FCQuery] =
       Decoder
-        .decodeNonEmptyList[QueryFunction]
-        .or(Decoder[QueryFunction].map(NonEmptyList.of(_)))
+        .decodeOption(
+          Decoder
+            .decodeNonEmptyList[QueryFunction]
+            .or(Decoder[QueryFunction].map(NonEmptyList.of(_))))
         .map(FCQuery(_))
   }
 }
