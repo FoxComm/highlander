@@ -47,12 +47,11 @@ function getTokenFilters (token: string) {
   }
 }
 
-export function searchProducts(token: string, {
-                                                omitArchived = false,
-                                                omitInactive = false,
-                                              }: ?QueryOpts): Promise<*> {
+export function searchProducts(token: string, queryOpts: ?QueryOpts): Promise<*> {
   const formattedDate = moment(Date.now()).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
   const esDate = `${formattedDate}||/d`;
+  const omitArchived = queryOpts ? queryOpts.omitArchived : false;
+  const omitInactive = queryOpts ? queryOpts.omitInactive : false;
   let must = [];
   let should = omitInactive ? [] : null;
 
@@ -61,7 +60,7 @@ export function searchProducts(token: string, {
   if (omitInactive) {
     const { mustFilters, shouldFilters } = getInactiveFilters(esDate);
     must = [ ...must, ...mustFilters];
-    should = [ ...should, ...shouldFilters];
+    should = [ ...shouldFilters];
   }
 
   if (token) must = [ ...must, getTokenFilters(token)];

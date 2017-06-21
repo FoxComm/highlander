@@ -41,7 +41,7 @@ export default class DropdownSearch extends Component {
     results: [],
   };
 
-  mounted: false;
+  mounted: boolean = false;
 
   componentDidMount() {
     this.fetchOptions(this.state.token);
