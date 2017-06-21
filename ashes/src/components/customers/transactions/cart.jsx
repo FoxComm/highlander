@@ -1,4 +1,3 @@
-
 /* @flow */
 
 import React, { Component } from 'react';
@@ -39,10 +38,7 @@ const mapStateToProps = (state) => {
   };
 };
 
-/* ::`*/
-@connect(mapStateToProps, cartActions)
-/* ::`*/
-export default class CustomerCart extends Component {
+class CustomerCart extends Component {
   props: Props;
 
   componentWillMount() {
@@ -113,3 +109,5 @@ export default class CustomerCart extends Component {
     );
   }
 }
+
+export default connect(mapStateToProps, cartActions)(CustomerCart);
