@@ -3,14 +3,12 @@
 - name: Stop and delete service
   service: name=materialized_views state=stopped enabled=no
 
-- name: Delete mat. bash file 
-  file: path={{usr_local}}/bin/update_materialized_views_forever.sh state=absent
-
-- name: Delete mat. sql file
-  file: path=/usr/local/share/update_materialized_views.sql state=absent
-
-- name: Delete mat. service file
-  file: path={{dest_services}}/materialized_views.service state=absent
+- name: Delete files which belongs to obsoleted materialized services
+  file: path={{item}} state=absent
+  with_items:
+    - "{{usr_local}}/bin/update_materialized_views_forever.sh"
+    - "/usr/local/share/update_materialized_views.sql"
+    - "{{dest_services}}/materialized_views.service"
 
 - name: Reload services
   systemd: daemon_reload=yes

@@ -8,7 +8,7 @@ begin
       ccc.amount,
       ccc.currency,
       ccc.state,
-      to_char(ccc.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
+      to_json_timestamp(ccc.created_at) as created_at,
       -- Credit Card
       cc.holder_name,
       cc.last_four,

@@ -9,6 +9,7 @@ alter table gift_card_transactions_view
 drop materialized view store_credit_transactions_payments_view;
 drop materialized view store_credit_transactions_admins_view;
 drop trigger if exists update_store_credit_transactions_view_from_orders on orders;
+drop function if exists update_store_credit_transactions_view_from_orders_update_fn();
 
 -- gift_card_transaction_view was empty
 truncate gift_card_transactions_view;
