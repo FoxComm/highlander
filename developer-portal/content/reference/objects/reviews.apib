@@ -1,0 +1,23 @@
+# Data structures
+
+### CreateProductReviewByAdminPayload
++ userId (optional, number) - Id of customer for which review should belong
++ attributes (required, object) - Custom attributes
++ sku (required, string) - Code of SKU to which the comment is related
++ scope (optional, string) - override for scope override
+
+### CreateProductReviewByCustomerPayload
++ attributes (required, object) - Custom attributes.
++ sku (required, string) - Code of SKU to which the comment is related
++ scope (optional, string) - override for scope override
+
+### UpdateProductReviewPayload
++ attributes (required, object) - Custom attributes.
+
+### ProductReviewResponse
++ id (required, number) - Review id
++ sku (required, string) - Code of SKU to which the comment is related
++ userId (required, number) - Id of customer to which the comment belongs
++ attributes (required, object) - Review attributes. Should contain 'title' attribute.
+
+
