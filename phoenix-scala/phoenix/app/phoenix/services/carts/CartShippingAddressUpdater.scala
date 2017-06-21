@@ -10,7 +10,7 @@ import phoenix.payloads.AddressPayloads._
 import phoenix.responses.AddressResponse.buildFromOrder
 import phoenix.responses.TheResponse
 import phoenix.responses.cord.CartResponse
-import phoenix.services.{CartValidator, LineItemUpdater, LogActivity}
+import phoenix.services.{CartValidator, LogActivity}
 import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
 import core.db._
@@ -89,6 +89,7 @@ object CartShippingAddressUpdater {
            .orderShippingAddressUpdated(originator, response, buildFromOrder(shipAddress, region))
     } yield TheResponse.validated(response, validated)
 
+  // FIXME !!! @aafa
   def createOrUpdateShippingAddress(originator: User,
                                     payload: CreateAddressPayload,
                                     refNum: Option[String] = None)(
@@ -111,9 +112,6 @@ object CartShippingAddressUpdater {
            foundOrCreated == Found,
            for {
              _ ← * <~ Addresses.update(address, Address.fromPayload(payload, cart.accountId))
-             _ ← * <~ OrderShippingAddresses.update(
-                  shippingAddress,
-                  OrderShippingAddress.fromCreatePatchPayload(shippingAddress, payload))
            } yield DbResultT.unit
          )
 
@@ -122,7 +120,7 @@ object CartShippingAddressUpdater {
       response  ← * <~ CartResponse.buildRefreshed(cart)
       _ ← * <~ LogActivity().orderShippingAddressUpdated(originator,
                                                          response,
-                                                         buildOneShipping(shippingAddress, region))
+                                                         buildFromOrder(shippingAddress, region))
     } yield TheResponse.validated(response, validated)
 
   def removeShippingAddress(originator: User, refNum: Option[String] = None)(
