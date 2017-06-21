@@ -369,7 +369,8 @@ class ImageIntegrationTest
       }
 
       def uploadImage(album: Album, count: Int = 1): HttpResponse = {
-        val image = Paths.get("test/resources/foxy.jpg")
+        val url   = getClass.getResource("foxy.jpg")
+        val image = Paths.get(url.toURI)
         image.toFile.exists mustBe true
 
         val entity = if (count == 0) {

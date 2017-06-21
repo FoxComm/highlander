@@ -11,8 +11,8 @@ import phoenix.models.account._
 import phoenix.payloads.AssignmentPayloads._
 import phoenix.responses.AssignmentResponse.{Root, build ⇒ buildAssignment}
 import phoenix.responses.BatchMetadata._
-import phoenix.responses.UserResponse.{build ⇒ buildUser}
 import phoenix.responses._
+import phoenix.responses.users.UserResponse
 import phoenix.services._
 import phoenix.utils.FoxConfig.config
 import phoenix.utils.aliases._
@@ -62,7 +62,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       assignees ← * <~ Assignments.assigneesFor(assignmentType, entity, referenceType).result
       newAssigneeIds = admins.map(_.accountId).diff(assignees.map(_.accountId))
       _ ← * <~ Assignments.createAll(build(entity, newAssigneeIds))
-      assignedAdmins = admins.filter(a ⇒ newAssigneeIds.contains(a.accountId)).map(buildUser)
+      assignedAdmins = admins.filter(a ⇒ newAssigneeIds.contains(a.accountId)).map(UserResponse.build)
       // Response builder
       assignments ← * <~ fetchAssignments(entity)
       response       = assignments.map((buildAssignment _).tupled)

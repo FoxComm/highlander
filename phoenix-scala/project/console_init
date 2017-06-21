@@ -21,6 +21,10 @@ final implicit class ConsoleEnrichedFuture[A](val future: Future[A]) extends Any
   def get(): A = Await.result(future, 1.minute)
 }
 
+final implicit class ConsoleEnrichedDbResultT[A](val d: DbResultT[A]) extends AnyVal {
+    def gimme: A = d.runEmptyA.value.run().get.toOption.get
+}
+
 
 val (_, config: com.typesafe.config.Config) = FoxConfig.loadConfigWithEnv().get
 implicit val db = Database.forConfig("db", config)

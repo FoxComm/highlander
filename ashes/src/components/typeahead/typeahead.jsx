@@ -145,8 +145,7 @@ export default class Typeahead extends React.Component {
   }
 
   @autobind
-  textChange({ target }) {
-    let value = target.value;
+  textChange(value: string) {
 
     this.setState({
       query: value,

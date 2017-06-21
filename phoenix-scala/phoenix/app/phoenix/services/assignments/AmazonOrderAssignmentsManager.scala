@@ -10,7 +10,6 @@ import slick.jdbc.PostgresProfile.api._
 import core.db._
 
 object AmazonOrderAssignmentsManager extends AssignmentsManager[String, AmazonOrder] {
-
   val assignmentType  = Assignment.Assignee
   val referenceType   = Assignment.AmazonOrder
   val notifyDimension = Dimension.amazonOrder

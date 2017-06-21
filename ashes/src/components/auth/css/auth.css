@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .title {
   font-size: 20px;
   line-height: 27px;
@@ -10,13 +12,9 @@
   line-height: 22px;
 }
 
-.or-line + :global(.fc-alert) {
-  margin-top: 10px;
-}
-
 .message {
   margin-top: 40px;
-  color: #484848;
+  color: var(--color-text);
 }
 
 .main {
@@ -25,8 +23,7 @@
   align-items: center;
   width: 388px;
 
-  & :global(.fc-input),
-  & :global(.fc-alert) {
+  & :global(.fc-input) {
     width: 100%;
   }
 }
@@ -34,10 +31,6 @@
 .content {
   width: 100%;
   margin-top: 30px;
-
-  & :global(.fc-alert) {
-    margin: 20px 0;
-  }
 }
 
 .form {
@@ -67,11 +60,16 @@
   margin-left: auto;
   font-size: 13px;
   line-height: 18px;
+
   &:hover {
-    color: #484848;
+    color: var(--color-text);
   }
 }
 
+.alert {
+  margin: 20px 0;
+}
+
 .signup-email input[type=email]:disabled {
-  background-color: #F2F2F2 !important;
+  background-color: var(--bg-grey-headers) !important;
 }

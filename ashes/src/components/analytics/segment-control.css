@@ -1,22 +1,25 @@
+@import 'colors.css';
+
 .segment-control-container-active {
   width: 66px;
   max-width: 66px;
   height: 40px;
   max-height: 40px;
-  background-color: #CED3D6;
-  border: 1px solid #CED2D5;
+  background-color: var(--bg-grey-buttons);
+  border: 1px solid var(--color-border);
   text-align: center;
   cursor: pointer;
   margin-top: 40px;
 }
 
-.segment-control-container-inactive, .segment-control-container-disabled {
+.segment-control-container-inactive,
+.segment-control-container-disabled {
   width: 66px;
   max-width: 66px;
   height: 40px;
   max-height: 40px;
-  background-color: #FFFFFF;
-  border: 1px solid #CED2D5;
+  background-color: var(--bg-white);
+  border: 1px solid var(--color-border);
   text-align: center;
   cursor: pointer;
   margin-top: 40px;
@@ -35,5 +38,5 @@
 }
 
 .segment-control-container-disabled .segment-control-title {
-  color: #CED2D5;
+  color: var(--color-additional-text);
 }

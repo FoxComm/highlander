@@ -1,6 +1,10 @@
+// libs
 import React from 'react';
 import PropTypes from 'prop-types';
+
+// components
 import ContentBox from '../content-box/content-box';
+import Icon from 'components/core/icon';
 
 export default class CustomerRoles extends React.Component {
 
@@ -11,7 +15,7 @@ export default class CustomerRoles extends React.Component {
   render() {
     let actionBlock = (
       <button className="fc-btn">
-        <i className="icon-edit"></i>
+        <Icon name="edit" />
       </button>
     );
     return (

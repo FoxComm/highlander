@@ -24,9 +24,9 @@ import phoenix.payloads.CustomerPayloads._
 import phoenix.payloads.PaymentPayloads._
 import phoenix.payloads.UserPayloads._
 import phoenix.responses.CreditCardsResponse.{Root ⇒ CardResponse}
-import phoenix.responses.CustomerResponse.Root
 import phoenix.responses.cord.CartResponse
-import phoenix.responses.{CreditCardsResponse, CustomerResponse}
+import phoenix.responses.CreditCardsResponse
+import phoenix.responses.users.CustomerResponse
 import phoenix.services.carts.CartPaymentUpdater
 import phoenix.utils.aliases.stripe.StripeCard
 import phoenix.utils.seeds.Factories
@@ -49,7 +49,7 @@ class CustomerIntegrationTest
     "successfully creates customer from payload" in {
       val root = customersApi
         .create(CreateCustomerPayload(email = "test@example.com", name = "test".some))
-        .as[Root]
+        .as[CustomerResponse]
 
       val created = Users.findOneByAccountId(root.id).gimme.value
       created.accountId must === (root.id)
@@ -63,16 +63,16 @@ class CustomerIntegrationTest
     }
 
     "guests may have email that was already registered" in new GuestAndCustomerFixture {
-      val customerCreated = customersApi.create(customer).as[Root]
-      val guestCreated    = customersApi.create(guest).as[Root]
+      val customerCreated = customersApi.create(customer).as[CustomerResponse]
+      val guestCreated    = customersApi.create(guest).as[CustomerResponse]
 
       guestCreated.name must === (guest.name)
       customerCreated.name must === (customer.name)
     }
 
     "customer may have email that was already registered for a guest before" in new GuestAndCustomerFixture {
-      val guestCreated    = customersApi.create(guest).as[Root]
-      val customerCreated = customersApi.create(customer).as[Root]
+      val guestCreated    = customersApi.create(guest).as[CustomerResponse]
+      val customerCreated = customersApi.create(customer).as[CustomerResponse]
 
       guestCreated.name must === (guest.name)
       customerCreated.name must === (customer.name)
@@ -102,13 +102,13 @@ class CustomerIntegrationTest
     "fetches customer info" in new Fixture {
       val customerRoot =
         CustomerResponse.build(customer, customerData, shippingRegion = region.some)
-      customersApi(customer.accountId).get().as[Root] must === (customerRoot)
+      customersApi(customer.accountId).get().as[CustomerResponse] must === (customerRoot)
     }
 
     "fetches customer info without default address" in new Fixture {
       Addresses.filter(_.id === address.id).map(_.isDefaultShipping).update(false).gimme
 
-      customersApi(customer.accountId).get().as[Root] must === (
+      customersApi(customer.accountId).get().as[CustomerResponse] must === (
         CustomerResponse.build(customer, customerData))
     }
 
@@ -117,7 +117,7 @@ class CustomerIntegrationTest
 
       val root = CustomerResponse
         .build(customer, customerData, shippingRegion = region.some, billingRegion = billRegion)
-      customersApi(customer.accountId).get().as[Root] must === (root)
+      customersApi(customer.accountId).get().as[CustomerResponse] must === (root)
     }
 
     "customer info shows valid billingRegion without default CreditCard" in new CreditCardFixture {
@@ -125,7 +125,7 @@ class CustomerIntegrationTest
 
       val customerRoot =
         CustomerResponse.build(customer, customerData, shippingRegion = region.some)
-      customersApi(customer.accountId).get().as[Root] must === (customerRoot)
+      customersApi(customer.accountId).get().as[CustomerResponse] must === (customerRoot)
     }
 
     "empty phone number is resolved from" - {
@@ -148,7 +148,7 @@ class CustomerIntegrationTest
           CustomerResponse.build(customer.copy(phoneNumber = defaultPhoneNumber.some),
                                  customerData,
                                  shippingRegion = region)
-        customersApi(customer.accountId).get().as[Root] must === (customerRoot)
+        customersApi(customer.accountId).get().as[CustomerResponse] must === (customerRoot)
       }
 
       "last shipping address" in new StoreAdmin_Seed {
@@ -197,7 +197,7 @@ class CustomerIntegrationTest
           Shipments.update(s, s.copy(updatedAt = s.updatedAt.map(time ⇒ newTime(time)))).gimme
 
         def runTest(expectedPhone: String) = {
-          val customerResponse = customersApi(customer.accountId).get().as[Root]
+          val customerResponse = customersApi(customer.accountId).get().as[CustomerResponse]
           customerResponse.shippingRegion must === (region)
           customerResponse.phoneNumber must === (expectedPhone.some)
         }
@@ -217,11 +217,11 @@ class CustomerIntegrationTest
                                shippingRegion = region.some,
                                lastOrderDays = lastOrderDays.some)
 
-      customersApi(customer.accountId).get().as[Root] must === (expectedResponse(0))
+      customersApi(customer.accountId).get().as[CustomerResponse] must === (expectedResponse(0))
 
       Orders.update(order, order.copy(placedAt = Instant.now.minus(1, ChronoUnit.DAYS))).gimme
 
-      customersApi(customer.accountId).get().as[Root] must === (expectedResponse(1))
+      customersApi(customer.accountId).get().as[CustomerResponse] must === (expectedResponse(1))
     }
 
     "ranking" - {
@@ -230,7 +230,7 @@ class CustomerIntegrationTest
         // check that states used in sql still actual
         sqlu"UPDATE orders SET state = 'shipped' WHERE reference_number = ${order.refNum}".gimme
 
-        customersApi(customer.accountId).get().as[Root].rank must === (2.some)
+        customersApi(customer.accountId).get().as[CustomerResponse].rank must === (2.some)
         val rank  = CustomersRanks.findById(customer.accountId).extract.result.head.gimme
         val rank2 = CustomersRanks.findById(customer2.accountId).extract.result.head.gimme
 
@@ -268,31 +268,31 @@ class CustomerIntegrationTest
       (payload.name, payload.email, payload.phoneNumber) must !==(
         (customer.name, customer.email, customer.phoneNumber))
 
-      val updated: Root = customersApi(customer.accountId).update(payload).as[Root]
+      val updated: CustomerResponse = customersApi(customer.accountId).update(payload).as[CustomerResponse]
       (updated.name, updated.email, updated.phoneNumber) must === (
         (payload.name, payload.email, payload.phoneNumber))
     }
 
     "fails if email is already in use" in new Fixture {
-      val newCustomer: Root = customersApi
+      val newCustomer: CustomerResponse = customersApi
         .create(CreateCustomerPayload(email = "test@example.com", name = "test".some))
-        .as[Root]
+        .as[CustomerResponse]
 
-      require(customersApi(newCustomer.id).get().as[Root].email != customer.email)
+      require(customersApi(newCustomer.id).get().as[CustomerResponse].email != customer.email)
 
       customersApi(newCustomer.id)
         .update(UpdateCustomerPayload(email = customer.email))
         .mustFailWith400(CustomerEmailNotUnique)
 
-      customersApi(newCustomer.id).get().as[Root].email must not equal customer.email
+      customersApi(newCustomer.id).get().as[CustomerResponse].email must not equal customer.email
     }
   }
 
   "POST /v1/customers/:accountId/activate" - {
     "fails if email is already in use by non-guest user" in new Fixture {
-      val newCustomer: Root = customersApi
+      val newCustomer: CustomerResponse = customersApi
         .create(CreateCustomerPayload(email = customer.email.value, isGuest = true.some))
-        .as[Root]
+        .as[CustomerResponse]
 
       customersApi(newCustomer.id)
         .activate(ActivateCustomerPayload(name = "test"))
@@ -300,9 +300,9 @@ class CustomerIntegrationTest
     }
 
     "successfully activates non-guest user" in new Fixture {
-      val newCustomer: Root = customersApi
+      val newCustomer: CustomerResponse = customersApi
         .create(CreateCustomerPayload(email = "guest@example.com", isGuest = true.some))
-        .as[Root]
+        .as[CustomerResponse]
 
       customersApi(newCustomer.id).activate(ActivateCustomerPayload(name = "test")).mustBeOk()
 
@@ -310,7 +310,7 @@ class CustomerIntegrationTest
       val createdCustUser: CustomerData =
         CustomersData.findOneByAccountId(created.accountId).gimme.value
 
-      val expectedResponse: Root = newCustomer.copy(name = "test".some, isGuest = false)
+      val expectedResponse: CustomerResponse = newCustomer.copy(name = "test".some, isGuest = false)
       CustomerResponse.build(created, createdCustUser) must === (expectedResponse)
       createdCustUser.isGuest must === (false)
     }
@@ -322,12 +322,12 @@ class CustomerIntegrationTest
 
       customersApi(customer.accountId)
         .disable(ToggleUserDisabled(true))
-        .as[Root]
+        .as[CustomerResponse]
         .disabled mustBe true
 
       customersApi(customer.accountId)
         .disable(ToggleUserDisabled(false))
-        .as[Root]
+        .as[CustomerResponse]
         .disabled mustBe false
     }
 
@@ -341,7 +341,7 @@ class CustomerIntegrationTest
       val updated = Users.update(customer, customer.copy(isDisabled = true)).gimme
       updated.isDisabled mustBe true
 
-      val disabled = customersApi(customer.accountId).disable(ToggleUserDisabled(true)).as[Root]
+      val disabled = customersApi(customer.accountId).disable(ToggleUserDisabled(true)).as[CustomerResponse]
       disabled.disabled mustBe true
     }
   }
@@ -352,12 +352,12 @@ class CustomerIntegrationTest
 
       customersApi(customer.accountId)
         .blacklist(ToggleUserBlacklisted(true))
-        .as[Root]
+        .as[CustomerResponse]
         .isBlacklisted mustBe true
 
       customersApi(customer.accountId)
         .blacklist(ToggleUserBlacklisted(false))
-        .as[Root]
+        .as[CustomerResponse]
         .isBlacklisted must === (false)
     }
 
@@ -370,12 +370,12 @@ class CustomerIntegrationTest
     "blacklist already blacklisted account is ok (overwrite behaviour)" in new Fixture {
       customersApi(customer.accountId)
         .blacklist(ToggleUserBlacklisted(true))
-        .as[Root]
+        .as[CustomerResponse]
         .isBlacklisted mustBe true
 
       customersApi(customer.accountId)
         .blacklist(ToggleUserBlacklisted(true))
-        .as[Root]
+        .as[CustomerResponse]
         .isBlacklisted mustBe true
     }
   }

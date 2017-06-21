@@ -9,7 +9,7 @@ import { bindActionCreators } from 'redux';
 import { getStore } from 'lib/store-creator';
 
 // components
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 import { PrimaryButton } from 'components/core/button';
 import SectionTitle from 'components/section-title/section-title';
 import Shipment from './shipment';
@@ -56,7 +56,7 @@ class Shipments extends Component {
     const { fetchShipments, unshippedItems } = this.props;
 
     if (fetchShipments.isRunning) {
-      return <WaitAnimation />;
+      return <Spinner />;
     }
 
     return (

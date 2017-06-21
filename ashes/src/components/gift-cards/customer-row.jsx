@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { Checkbox } from '../checkbox/checkbox';
+import { Checkbox } from 'components/core/checkbox';
 
 type Props = {
   customer: Customer,
@@ -15,10 +15,10 @@ const CustomerRow = ({customer, checked = false, onToggle = (id) => {}}: Props) 
     <li className="fc-choose-customers__entry" key={customer.id}>
       <Checkbox
         id={`choose-customers-${customer.id}`}
+        label={customer.name}
         checked={checked}
-        onChange={() => onToggle(customer.id)}>
-        {customer.name}
-      </Checkbox>
+        onChange={() => onToggle(customer.id)}
+      />
       <div className="fc-choose-customers__info">
         <div className="fc-choose-customers__customer-email">
           {customer.email}

@@ -28,6 +28,7 @@ import phoenix.utils.apis._
 import phoenix.utils.http.CustomHandlers
 import phoenix.utils.http.HttpLogger.logFailedRequests
 import phoenix.utils.{ElasticsearchApi, Environment, FoxConfig}
+
 import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
@@ -37,6 +38,8 @@ object Main extends App with LazyLogging {
   logger.info("Starting phoenix server")
 
   try {
+    FoxStripe.ping()
+
     val service = new Service()
     service.performSelfCheck()
     service.bind()
@@ -132,48 +135,52 @@ class Service(systemOverride: Option[ActorSystem] = None,
   val defaultRoutes: Route = {
     pathPrefix("v1") {
       phoenix.routes.AuthRoutes.routes(scope.ltree) ~
-        phoenix.routes.Public.routes(customerCreateContext, scope.ltree) ~
-        phoenix.routes.Customer.routes ~
+      phoenix.routes.Public.routes(customerCreateContext, scope.ltree) ~
+      phoenix.routes.Customer.routes ~
+      pathPrefixTest(!"my") {
         requireAdminAuth(userAuth) { implicit auth ⇒
           phoenix.routes.admin.AdminRoutes.routes ~
-            phoenix.routes.admin.NotificationRoutes.routes ~
-            phoenix.routes.admin.AssignmentsRoutes.routes ~
-            phoenix.routes.admin.OrderRoutes.routes ~
-            phoenix.routes.admin.AmazonOrderRoutes.routes ~
-            phoenix.routes.admin.CartRoutes.routes ~
-            phoenix.routes.admin.CustomerRoutes.routes ~
-            phoenix.routes.admin.CustomerGroupsRoutes.routes ~
-            phoenix.routes.admin.GiftCardRoutes.routes ~
-            phoenix.routes.admin.ReturnRoutes.routes ~
-            phoenix.routes.admin.ProductRoutes.routes ~
-            phoenix.routes.admin.SkuRoutes.routes ~
-            phoenix.routes.admin.VariantRoutes.routes ~
-            phoenix.routes.admin.DiscountRoutes.routes ~
-            phoenix.routes.admin.PromotionRoutes.routes ~
-            phoenix.routes.admin.ImageRoutes.routes ~
-            phoenix.routes.admin.CouponRoutes.routes ~
-            phoenix.routes.admin.CategoryRoutes.routes ~
-            phoenix.routes.admin.GenericTreeRoutes.routes ~
-            phoenix.routes.admin.StoreAdminRoutes.routes ~
-            phoenix.routes.admin.ObjectRoutes.routes ~
-            phoenix.routes.admin.PluginRoutes.routes ~
-            phoenix.routes.admin.TaxonomyRoutes.routes ~
-            phoenix.routes.admin.CatalogRoutes.routes ~
-            phoenix.routes.admin.ProductReviewRoutes.routes ~
-            phoenix.routes.admin.ShippingMethodRoutes.routes ~
-            phoenix.routes.service.MigrationRoutes.routes(customerCreateContext, scope.ltree) ~
-            pathPrefix("service") {
-              phoenix.routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
-                phoenix.routes.service.CustomerGroupRoutes.routes
-            }
+          phoenix.routes.admin.NotificationRoutes.routes ~
+          phoenix.routes.admin.AssignmentsRoutes.routes ~
+          phoenix.routes.admin.OrderRoutes.routes ~
+          phoenix.routes.admin.AmazonOrderRoutes.routes ~
+          phoenix.routes.admin.CartRoutes.routes ~
+          phoenix.routes.admin.CustomerRoutes.routes ~
+          phoenix.routes.admin.CustomerGroupsRoutes.routes ~
+          phoenix.routes.admin.GiftCardRoutes.routes ~
+          phoenix.routes.admin.ReturnRoutes.routes ~
+          phoenix.routes.admin.ProductRoutes.routes ~
+          phoenix.routes.admin.SkuRoutes.routes ~
+          phoenix.routes.admin.VariantRoutes.routes ~
+          phoenix.routes.admin.DiscountRoutes.routes ~
+          phoenix.routes.admin.PromotionRoutes.routes ~
+          phoenix.routes.admin.ImageRoutes.routes ~
+          phoenix.routes.admin.CouponRoutes.routes ~
+          phoenix.routes.admin.CategoryRoutes.routes ~
+          phoenix.routes.admin.GenericTreeRoutes.routes ~
+          phoenix.routes.admin.StoreAdminRoutes.routes ~
+          phoenix.routes.admin.ObjectRoutes.routes ~
+          phoenix.routes.admin.PluginRoutes.routes ~
+          phoenix.routes.admin.TaxonomyRoutes.routes ~
+          phoenix.routes.admin.CatalogRoutes.routes ~
+          phoenix.routes.admin.ProductReviewRoutes.routes ~
+          phoenix.routes.admin.ShippingMethodRoutes.routes ~
+          phoenix.routes.service.MigrationRoutes.routes(customerCreateContext, scope.ltree) ~
+          pathPrefix("service") {
+            phoenix.routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
+            phoenix.routes.service.CustomerGroupRoutes.routes
+          }
         }
+      }
     }
   }
 
   lazy val devRoutes: Route = {
     pathPrefix("v1") {
-      requireAdminAuth(userAuth) { implicit auth ⇒
-        phoenix.routes.admin.DevRoutes.routes
+      pathPrefixTest(!"my") {
+        requireAdminAuth(userAuth) { implicit auth ⇒
+          phoenix.routes.admin.DevRoutes.routes
+        }
       }
     }
   }

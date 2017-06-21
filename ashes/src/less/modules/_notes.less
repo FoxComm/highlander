@@ -8,7 +8,7 @@
     max-width: 850px;
 
     .empty {
-      .colors(@color-decor8, @color-btn-bg);
+      .colors(@color-additional-text, @bg-grey-headers);
       line-height: 50px;
       .padding-left(35px);
     }
@@ -30,7 +30,7 @@
         position: absolute;
         .top(-20px);
         .right(0);
-        color: @color-decor6;
+        color: @color-additional-text;
         font-weight: 600;
       }
 
@@ -47,11 +47,15 @@
   }
 
   .fc-notes-item-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
     .initials {
       display: inline-block;
     }
 
-    button {
+    &__buttons {
       float: right;
       margin-left: 5px;
     }

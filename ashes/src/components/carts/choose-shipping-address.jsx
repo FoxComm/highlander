@@ -8,8 +8,8 @@ import * as AddressActions from 'modules/customers/addresses';
 import * as CartActions from 'modules/carts/details';
 
 import AddressBox from 'components/addresses/address-box';
-import AddressForm from 'components/addresses/address-form/modal';
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import AddressFormModal from 'components/addresses/address-form/modal';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import TileSelector from 'components/tile-selector/tile-selector';
 
 function mapStateToProps(state, props) {
@@ -126,7 +126,7 @@ export default class ChooseShippingAddress extends Component {
     const saveTitle = _.isNull(this.state.address) ? 'Save and Choose' : 'Save';
 
     return (
-      <AddressForm
+      <AddressFormModal
         isVisible={this.state.isFormVisible}
         address={this.state.address}
         submitAction={this.handleFormSubmit}
@@ -143,7 +143,7 @@ export default class ChooseShippingAddress extends Component {
           <h3 className="fc-shipping-address-sub-title">
             Chosen Address
           </h3>
-          <ul className="fc-float-list">
+          <ul className="fc-shipping-address__selected-list">
             <AddressBox
               address={this.props.selectedAddress}
               chosen={true}
@@ -169,14 +169,12 @@ export default class ChooseShippingAddress extends Component {
       : () => this.props.actions.deleteAddress(this.state.address.id);
 
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         isVisible={this.state.isDeleteDialogVisible}
-        header='Confirm'
-        body={text}
-        cancel='Cancel'
-        confirm='Yes, Delete'
-        onCancel={this.handleStopDeletingAddress}
-        confirmAction={deleteAction} />
+        label={text}
+        confirmLabel="Yes, Delete"
+        onConfirm={deleteAction}
+        onCancel={this.handleStopDeletingAddress} />
     );
   }
 

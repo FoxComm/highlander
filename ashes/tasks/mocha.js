@@ -11,15 +11,13 @@ module.exports = function(gulp, opts) {
   gulp.task('mocha.main', function() {
     const setup = path.join(opts.testDir, '/acceptance/_setup.js');
 
-    return gulp.src([setup, specs, acceptance], {read: false})
-      .pipe(mocha());
+    return gulp.src([setup, specs, acceptance], { read: false }).pipe(mocha());
   });
 
   gulp.task('mocha.unit', function() {
     const unitTests = path.join(opts.testDir, '/unit/**/*.js');
 
-    return gulp.src([unitTests], {read: false})
-      .pipe(mocha());
+    return gulp.src([unitTests], { read: false }).pipe(mocha());
   });
 
   gulp.task('mocha', function(cb) {

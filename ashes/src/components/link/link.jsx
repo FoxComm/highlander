@@ -4,6 +4,11 @@
 import React, { Component, Element } from 'react';
 import { Link as ReactRouterLink } from 'react-router';
 import { isPermitted } from 'lib/claims';
+
+// styles
+import s from './link.css';
+
+// types
 import type { Claims } from 'lib/claims';
 
 export type Props = {
@@ -40,7 +45,7 @@ export class Link extends Component {
     }
 
     return (
-      <ReactRouterLink {...otherProps} to={location}>
+      <ReactRouterLink className={s.link} {...otherProps} to={location}>
         {children}
       </ReactRouterLink>
     );

@@ -28,6 +28,10 @@ object failures {
     override def description = a
   }
 
+  case class RsaKeyLoadFailure(kind: String, cause: String) extends Failure {
+    override def description: String = s"Server error: can't load $kind key: $cause"
+  }
+
   case class DatabaseFailure(message: String) extends Failure {
     override def description = message
   }

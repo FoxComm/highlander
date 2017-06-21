@@ -3,8 +3,8 @@ package manager
 import (
 	"errors"
 	"fmt"
+	"io"
 	"log"
-	"reflect"
 	"strconv"
 	"strings"
 
@@ -15,9 +15,11 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/responses"
 
 	elastic "gopkg.in/olivere/elastic.v3"
+	"encoding/json"
 )
 
 const (
+	DefaultElasticIndex    = "admin_1"
 	DefaultElasticTopic    = "customers_search_view"
 	DefaultElasticSize     = 100
 	DefaultMailchimpListID = ""
@@ -27,6 +29,7 @@ type GroupsManager struct {
 	esClient      *elastic.Client
 	phoenixClient phoenix.PhoenixClient
 	chimpClient   *mailchimp.ChimpClient
+	esIndex       string
 	esTopic       string
 	esSize        int
 	chimpListID   string
@@ -34,6 +37,11 @@ type GroupsManager struct {
 }
 
 type ManagerOptionFunc func(*GroupsManager)
+
+type Customer struct {
+	Id  int `json:"id"`
+	Email string `json:"email"`
+}
 
 func SetMailchimpListID(id string) ManagerOptionFunc {
 	return func(m *GroupsManager) {
@@ -47,11 +55,24 @@ func SetMailchimpDisabled(disabled bool) ManagerOptionFunc {
 	}
 }
 
+func SetElasticIndex(index string) ManagerOptionFunc {
+	return func(m *GroupsManager) {
+		m.esIndex = index
+	}
+}
+
+func SetElasticQuerySize(size int) ManagerOptionFunc {
+	return func(m *GroupsManager) {
+		m.esSize = size
+	}
+}
+
 func NewGroupsManager(esClient *elastic.Client, phoenixClient phoenix.PhoenixClient, chimpClient *mailchimp.ChimpClient, options ...ManagerOptionFunc) *GroupsManager {
 	manager := &GroupsManager{
 		esClient,
 		phoenixClient,
 		chimpClient,
+		DefaultElasticIndex,
 		DefaultElasticTopic,
 		DefaultElasticSize,
 		DefaultMailchimpListID,
@@ -67,25 +88,23 @@ func NewGroupsManager(esClient *elastic.Client, phoenixClient phoenix.PhoenixCli
 }
 
 func (m *GroupsManager) ProcessChangedGroup(group *responses.CustomerGroupResponse) error {
-	go func(group *responses.CustomerGroupResponse) {
-		// get customers associated with the group - map of [id]:email
-		customers, err := m.getCustomers(group)
-		if err != nil {
-			log.Panicf("An error occured getting customers: %s", err.Error())
-		}
+	// get customers associated with the group - map of [id]:email
+	customers, err := m.getCustomers(group)
+	if err != nil {
+		log.Panicf("An error occured getting customers: %s", err.Error())
+	}
 
-		// update group-customers mapping for dynamic groups
-		if group.GroupType != "manual" {
-			if err := m.updateGroupCustomersMapping(group, customers); err != nil {
-				log.Panicf("An error occured updating group-customers mapping: %s", err)
-			}
+	// update group-customers mapping for dynamic groups
+	if group.GroupType != "manual" {
+		if err := m.updateGroupCustomersMapping(group, customers); err != nil {
+			log.Panicf("An error occured updating group-customers mapping: %s", err)
 		}
+	}
 
-		// update segments(fc "groups" analogue) in mailchimp
-		if err := m.processMailchimp(group, customers); err != nil {
-			log.Printf("An error occured updating segments in mailchimp: %s", err.Error())
-		}
-	}(group)
+	// update segments(fc "groups" analogue) in mailchimp
+	if err := m.processMailchimp(group, customers); err != nil {
+		log.Printf("An error occured updating segments in mailchimp: %s", err.Error())
+	}
 
 	return nil
 }
@@ -187,46 +206,44 @@ func (m *GroupsManager) processMailchimp(group *responses.CustomerGroupResponse,
 
 func (m *GroupsManager) getCustomers(group *responses.CustomerGroupResponse) (map[int]string, error) {
 	query := elastic.RawStringQuery(group.ElasticRequest)
+	index := m.esIndex
 	topic := m.esTopic
 	size := m.esSize
-	from := 0
-	done := false
 
 	result := map[int]string{}
 
-	for !done {
-		log.Printf("Quering ES. From: %d, Size: %d, Query: %s", from, size, query)
+	log.Printf("Scrolling ES. Index: %s, Name: %s, Size: %d, Query: %s", index, group.Name, size, query)
 
-		res, err := m.esClient.
-			Search().
-			Type(topic).
-			Query(query).
-			Fields("id", "email").
-			From(from).
-			Size(size).
-			Do()
+	scroll := m.esClient.
+		Scroll().
+		Index(index).
+		Type(topic).
+		Query(query).
+		Size(size)
+
+	for {
+		res, err := scroll.Do()
+		if err == io.EOF {
+			break
+		}
 
 		if err != nil {
 			return nil, err
 		}
 
 		for _, hit := range res.Hits.Hits {
-			id, err := getEsField(hit.Fields, "id")
+			var c Customer
+			err := json.Unmarshal(*hit.Source, &c)
+
 			if err != nil {
 				return nil, err
 			}
 
-			email, err := getEsField(hit.Fields, "email")
-			if err != nil {
-				email = ""
-			}
-
-			result[int(id.(float64))] = email.(string)
+			result[c.Id] = c.Email
 		}
-
-		from += size
-		done = res.Hits.TotalHits <= int64(from)
 	}
+
+	scroll.Clear(nil)
 
 	return result, nil
 }
@@ -251,22 +268,6 @@ func findSegmentByGroup(group *responses.CustomerGroupResponse, segments *mailch
 	}
 
 	return nil, nil
-}
-
-func getEsField(esFields map[string]interface{}, fieldName string) (interface{}, error) {
-	field, found := esFields[fieldName]
-	if !found {
-		return nil, fmt.Errorf("expected SearchResult.Hits.Hit.Fields[%s] to be found", fieldName)
-	}
-	fields, ok := field.([]interface{})
-	if !ok {
-		return nil, fmt.Errorf("expected []interface{}; got: %v", reflect.TypeOf(fields))
-	}
-	if len(fields) != 1 {
-		return nil, fmt.Errorf("expected a field with 1 entry; got: %d", len(fields))
-	}
-
-	return fields[0], nil
 }
 
 func getKeys(mmap map[int]string) []int {

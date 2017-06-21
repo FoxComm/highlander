@@ -2,6 +2,7 @@
  * @flow
  */
 
+// libs
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
@@ -9,14 +10,17 @@ import classNames from 'classnames';
 import { stripTags } from 'lib/text-utils';
 import { isDefined } from 'lib/utils';
 
+// components
 import { FormField, FormFieldError } from '../forms';
-import { SliderCheckbox } from '../checkbox/checkbox';
+import { SliderCheckbox } from 'components/core/checkbox';
 import CurrencyInput from '../forms/currency-input';
 import CustomProperty from '../products/custom-property';
 import DatePicker from '../datepicker/datepicker';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
 import { Dropdown } from '../dropdown';
 import SwatchInput from 'components/core/swatch-input';
+import TextInput from 'components/core/text-input';
+import Icon from 'components/core/icon';
 
 import type { AttrSchema } from 'paragons/object';
 
@@ -75,7 +79,7 @@ export default class ObjectFormInner extends Component {
           Custom Property
           <a id="fct-add-btn__custom-property" className="fc-object-form__add-custom-property-icon"
              onClick={this.handleAddProperty}>
-            <i className="icon-add" />
+            <Icon name="add" />
           </a>
         </div>
       );
@@ -83,15 +87,13 @@ export default class ObjectFormInner extends Component {
   }
 
   get customPropertyForm() {
-    if (this.state.isAddingProperty) {
-      return (
-        <CustomProperty
-          isVisible={true}
-          onSave={this.handleCreateProperty}
-          onCancel={() => this.setState({ isAddingProperty: false })}
-        />
-      );
-    }
+    return (
+      <CustomProperty
+        isVisible={this.state.isAddingProperty}
+        onSave={this.handleCreateProperty}
+        onCancel={() => this.setState({ isAddingProperty: false })}
+      />
+    );
   }
 
   @autobind
@@ -206,13 +208,12 @@ export default class ObjectFormInner extends Component {
   }
 
   renderString(name: string, value: string = '', options: AttrOptions) {
-    const onChange = ({target}) => {
-      return this.handleChange(name, 'string', target.value);
+    const onChange = (value) => {
+      return this.handleChange(name, 'string', value);
     };
     const stringInput = (
-      <input
+      <TextInput
         className={inputClass}
-        type="text"
         name={name}
         value={value || ''}
         onChange={onChange}

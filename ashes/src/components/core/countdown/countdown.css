@@ -1,0 +1,20 @@
+@import 'colors.css';
+
+.countdown {
+  display: inline-block;
+  color: var(--color-light-text);
+  background-color: var(--bg-nav-main);
+  font-size: 24px;
+  line-height: 1;
+  padding: 13px 8px;
+  border-radius: 3px;
+  box-shadow: inset 0 -3px 1px 0 rgba(0, 0, 0, .2);
+
+  &.frozen {
+    background-color: var(--bg-grey-buttons);
+  }
+
+  &.ending {
+    background-color: var(--bg-field-error);
+  }
+}

@@ -22,6 +22,7 @@ PROJECTS = (
     'demo/peacock',
     'developer-portal',
     'green-river',
+    'geronimo',
     'hyperion',
     'intelligence/anthill',
     'intelligence/bernardo',
@@ -43,9 +44,8 @@ PROJECTS = (
     'middlewarehouse/consumers/gift-cards',
     'middlewarehouse/consumers/shipments',
     'middlewarehouse/consumers/shipstation',
-    'middlewarehouse/consumers/stock-items',
     'middlewarehouse/elasticmanager',
-    'onboarding',
+    'onboarding/service',
     'onboarding/ui',
     'phoenix-scala',
     'phoenix-scala/seeder',
@@ -95,6 +95,12 @@ def changed_projects(changed_dirs):
             projects.add(detected)
     return projects
 
+def run_process(args, working_dir):
+    child = sp.Popen(args, cwd=working_dir)
+    child.wait()
+    if child.returncode != 0:
+        sys.exit(child.returncode)
+
 def main():
     base_branch = get_base_branch()
     changed_dirs = all_changed_dirs(base_branch)
@@ -121,9 +127,9 @@ def main():
     log("Building subprojects...")
     for project_dir in affected_projects:
         absdir = os.path.join(ROOT_DIR, project_dir)
-        sp.Popen(["make", "build", "test"], cwd=absdir).wait()
+        run_process(["make", "build", "test"], absdir)
         if global_args.docker:
-            sp.Popen(["make", "docker", "docker-push"], cwd=absdir).wait()
+            run_process(["make", "docker", "docker-push"], absdir)
 
 if __name__ == "__main__":
     main()

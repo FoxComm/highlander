@@ -172,7 +172,7 @@
   vertical-align: @valign;
 }
 
-.colors(@fg: @color-default-fg, @bg: @color-default-bg) {
+.colors(@fg: @color-text, @bg: @bg-grey-headers) {
   color: @fg;
   background-color: @bg;
 }
@@ -192,21 +192,21 @@
 // ===== Styling =====
 
 .highlight-border-behaviour() {
-  border: 1px solid @color-decor7;
+  border: 1px solid @color-border;
   transition: border .20s ease-out;
 
   &:hover {
-    border-color: @color-decor3;
+    border-color: @bg-nav-main;
   }
 
   &:active,
   &:focus {
-    border-color: @color-control-primary-bg;
+    border-color: @bg-green-buttons;
   }
 
   &:invalid:not(:required),
   &.is-error {
-    border-color: @color-decor22;
+    border-color: @color-error-text;
   }
 }
 

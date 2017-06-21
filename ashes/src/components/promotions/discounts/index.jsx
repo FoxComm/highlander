@@ -1,12 +1,12 @@
 import _ from 'lodash';
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import { Dropdown } from '../../dropdown';
 
 import Currency from './currency';
 import Counter from './counter';
 import styles from './discounts.css';
-import { Checkbox } from '../../checkbox/checkbox';
+import { Checkbox } from 'components/core/checkbox';
 import { FormField } from '../../forms';
 
 const QUALIFIERS = [
@@ -61,7 +61,7 @@ const QUALIFIERS = [
               Order <Counter onChange={comp.setValue}
                              value={comp.qualifier.widgetValue} />
               or more of the following items
-              </div>
+            </div>
           );
         }
       },
@@ -84,25 +84,25 @@ const QUALIFIERS = [
   }
 ];
 
-const DISCOUNT_TYPES = QUALIFIERS.map(item => [item.discountType,item.text]);
+const DISCOUNT_TYPES = QUALIFIERS.map(item => [item.discountType, item.text]);
 
-const QUALIFIER_TYPES = QUALIFIERS.map( item => {
+const QUALIFIER_TYPES = QUALIFIERS.map(item => {
   let cell = {
     scope: item.discountType,
-    list: item.qualifierTypes.map(i => [i.type,i.text])
+    list: item.qualifierTypes.map(i => [i.type, i.text])
   };
   return cell;
 });
 
 const OFFER_TYPES = [
-  ['orderPercentOff','Percent off order'],
-  ['orderAmountOff','Amount off order'],
-  ['itemsPercentOff','Percent off items'],
-  ['itemsAmountOff','Amount off items'],
-  ['freeShipping','Free shiping'],
-  ['discountedShipping','Discounted shiping'],
-  ['giftWithPurchase','Gift with purchase'],
-  ['chooseGiftWithPurchase','Your choice of with purchase'],
+  ['orderPercentOff', 'Percent off order'],
+  ['orderAmountOff', 'Amount off order'],
+  ['itemsPercentOff', 'Percent off items'],
+  ['itemsAmountOff', 'Amount off items'],
+  ['freeShipping', 'Free shiping'],
+  ['discountedShipping', 'Discounted shiping'],
+  ['giftWithPurchase', 'Gift with purchase'],
+  ['chooseGiftWithPurchase', 'Your choice of with purchase'],
 ];
 
 export default class Discounts extends Component {
@@ -141,7 +141,7 @@ export default class Discounts extends Component {
 
   @autobind
   renderDiscount() {
-    return(<Dropdown
+    return (<Dropdown
       className="autowidth_dd"
       items={DISCOUNT_TYPES}
       value={this.qualifier.discountType}
@@ -152,7 +152,7 @@ export default class Discounts extends Component {
   renderQualifier() {
     let discountType = this.qualifier.discountType;
     let items = _.find(QUALIFIER_TYPES, i => i.scope == discountType).list;
-    return(<Dropdown
+    return (<Dropdown
       className="autowidth_dd"
       items={items}
       value={this.qualifier.qualifierType}
@@ -196,7 +196,8 @@ export default class Discounts extends Component {
     let discountType = this.qualifier.discountType;
     let qualifierType = this.qualifier.qualifierType;
     let qualifierTypes = _.find(QUALIFIERS, i => i.discountType == discountType).qualifierTypes;
-    let renderWidget = _.find(qualifierTypes, i => i.type == qualifierType).template || function(){return null;};
+    let renderWidget = _.find(qualifierTypes, i => i.type == qualifierType).template || (() => null);
+
     return renderWidget(comp);
   }
 
@@ -227,18 +228,18 @@ export default class Discounts extends Component {
     this.props.onChangeQualifier(this.qualifier);
   }
 
-  render(){
-    return(
+  render() {
+    return (
       <div styleName="discount_qualifier">
         <div styleName="sub-title">Qualifier</div>
         <FormField
           className="fc-object-form__field">
-          <Checkbox id="isExGiftCardQual"
-            inline
+          <Checkbox
+            id="isExGiftCardQual"
+            label="Exclude gift cards from quaifying criteria"
             checked={this.qualifier.exGiftCardQual}
-            onChange={this.toggleExGiftCardQual}>
-            <label htmlFor="isExGiftCardQual">Exclude gift cards from quaifying criteria</label>
-          </Checkbox>
+            onChange={this.toggleExGiftCardQual}
+          />
         </FormField>
         {this.renderDiscount()}
         {this.renderQualifier()}
@@ -246,12 +247,12 @@ export default class Discounts extends Component {
         <div styleName="sub-title">Offer</div>
         <FormField
           className="fc-object-form__field">
-          <Checkbox id="isExGiftCardOffer"
-            inline
+          <Checkbox
+            id="isExGiftCardOffer"
+            label="Exclude gift cards from discounted items"
             checked={this.offer.exGiftCardOffer}
-            onChange={this.toggleExGiftCardOffer}>
-            <label htmlFor="isExGiftCardOffer">Exclude gift cards from discounted items</label>
-          </Checkbox>
+            onChange={this.toggleExGiftCardOffer}
+          />
         </FormField>
         <Dropdown
           className="autowidth_dd"

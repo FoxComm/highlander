@@ -2,13 +2,13 @@
   display: flex;
 
   &__input-container {
-    background-color: @color-decor11;
+    background-color: @bg-grey-headers;
     display: flex;
     flex-grow: 1;
-    border: 1px solid @color-decor9;
+    border: 1px solid @color-border;
 
     &._solid {
-      background-color: @color-white;
+      background-color: @bg-white;
     }
   }
 
@@ -16,12 +16,13 @@
     display: flex;
     flex-grow: 1;
     flex-wrap: wrap;
+    align-items: baseline;
   }
 
   &__icon-wrapper {
     .font-spec(22px, 300, 38px);
     margin: 0 10px;
-    color: @color-decor3;
+    color: @color-text;
     display: flex;
     align-items: center;
   }
@@ -35,7 +36,7 @@
   }
 
   input.fc-pilled-input__input-field._solid-input {
-    background-color: @color-transparent;
+    background-color: transparent;
     border: none;
   }
 
@@ -48,41 +49,5 @@
 
   &__controls-container {
     white-space: nowrap;
-  }
-
-  &__pill {
-    .font-spec(12px, 400, 34px);
-    border-radius: 17px;
-    height: 34px;
-    margin: 3px 0 0 5px;
-    background: @color-decor3;
-    color: @color-white;
-    display: flex;
-    transition: all .2s;
-
-    &:last-child {
-      margin-right: 10px;
-    }
-
-    &-value {
-      padding: 0 8px 0 10px;
-      border-top-left-radius: 17px;
-      border-bottom-left-radius: 17px;
-    }
-
-    &-icon {
-      margin-right: 10px;
-      .font-spec(10px);
-    }
-
-    &-close {
-      .font-spec(16px, 700, 34px);
-      display: inline-block;
-      padding: 0 12px 0 8px;
-      border-left: 1px solid #7D848E;
-      cursor: pointer;
-      border-radius: 0 17px 17px 0;
-      transition: all .1s;
-    }
   }
 }

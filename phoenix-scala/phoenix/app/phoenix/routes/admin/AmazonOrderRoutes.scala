@@ -22,13 +22,13 @@ object AmazonOrderRoutes {
             createAmazonOrder(payload)
           }
         } ~
-          pathPrefix(Segment) { amazonOrderId ⇒
-            (patch & pathEnd & entity(as[UpdateAmazonOrderPayload])) { payload ⇒
-              mutateOrFailures {
-                updateAmazonOrder(amazonOrderId, payload)
-              }
+        pathPrefix(Segment) { amazonOrderId ⇒
+          (patch & pathEnd & entity(as[UpdateAmazonOrderPayload])) { payload ⇒
+            mutateOrFailures {
+              updateAmazonOrder(amazonOrderId, payload)
             }
           }
+        }
       }
     }
 }

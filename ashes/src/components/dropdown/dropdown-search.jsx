@@ -1,13 +1,17 @@
-
 /* @flow */
 
+// libs
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 
+// components
 import GenericDropdown from './generic-dropdown';
 import DropdownItem from './dropdownItem';
+import TextInput from 'components/core/text-input';
+import Icon from 'components/core/icon';
 
+// styles
 import styles from './dropdown-search.css';
 
 import type { Props as GenericProps } from './generic-dropdown';
@@ -47,8 +51,7 @@ export default class DropdownSearch extends Component {
   }
 
   @autobind
-  onTokenChange(event: any) {
-    const token = _.get(event, 'target.value', '');
+  onTokenChange(token: string) {
     this.setState({ token }, () => {
       this.fetchOptions(token);
     });
@@ -60,8 +63,7 @@ export default class DropdownSearch extends Component {
       <div styleName="searchbar" onClick={doNothing} >
         <div styleName="searchbar-wrapper" >
           <div className="fc-form-field" styleName="searchbar-input-wrapper" >
-            <input
-              type="text"
+            <TextInput
               placeholder={this.props.searchbarPlaceholder}
               styleName="searchbar-input"
               value={this.state.token}
@@ -69,7 +71,7 @@ export default class DropdownSearch extends Component {
             />
           </div>
           <div styleName="searchbar-icon-wrapper">
-            <i className="icon-search"></i>
+            <Icon name="search" />
           </div>
         </div>
       </div>

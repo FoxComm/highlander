@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ItemCardContainer from './item-card-container';
 import { Button, EditButton, DeleteButton } from 'components/core/button';
-import { Checkbox } from '../checkbox/checkbox';
+import { Checkbox } from 'components/core/checkbox';
 
 export default class EditableItemCardContainer extends React.Component {
 
@@ -27,12 +27,12 @@ export default class EditableItemCardContainer extends React.Component {
 
     if (props.checkboxLabel) {
       return (
-        <label className="fc-card-default-control">
-          <Checkbox id={`${props.id}-is-default`}
-                    checked={ props.isDefault }
-                    onChange={ props.checkboxChangeHandler } />
-          <span className="fc-card-default-control-label">{ props.checkboxLabel }</span>
-        </label>
+        <Checkbox
+          id={`${props.id}-is-default`}
+          label={props.checkboxLabel}
+          checked={ props.isDefault }
+          onChange={ props.checkboxChangeHandler }
+        />
       );
     }
   }

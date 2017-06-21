@@ -7,11 +7,10 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { autobind, debounce } from 'core-decorators';
-import moment from 'moment';
 import classNames from 'classnames';
 import operators from 'paragons/customer-groups/operators';
 import { transitionTo } from 'browserHistory';
-import { prefix, numberize } from 'lib/text-utils';
+import { prefix } from 'lib/text-utils';
 import { bulkExportBulkAction, renderExportModal } from 'modules/bulk-export/helpers';
 
 // actions
@@ -28,9 +27,9 @@ import { bulkExport } from 'modules/bulk-export/bulk-export';
 
 // components
 import { Link } from 'components/link';
+import { DeleteModal } from 'components/bulk-actions/modal';
 import BulkActions from 'components/bulk-actions/bulk-actions';
 import BulkMessages from 'components/bulk-actions/bulk-messages';
-import { GenericModal as BulkModal } from 'components/bulk-actions/modal';
 import { SelectableSearchList, makeTotalCounter } from 'components/list-page';
 import { PrimaryButton, Button } from 'components/core/button';
 import MultiSelectRow from 'components/table/multi-select-row';
@@ -38,6 +37,8 @@ import ContentBox from 'components/content-box/content-box';
 import Criterion from './editor/criterion-view';
 import CustomerGroupStats from './stats';
 import SearchCustomersModal from './customers/search-modal';
+import Icon from 'components/core/icon';
+import { DateTime } from 'components/common/datetime';
 
 type State = {
   criteriaOpen: boolean,
@@ -58,13 +59,10 @@ type Props = {
   },
   bulkActions: {
     deleteCustomersFromGroup: (groupId: number, customersIds: Array<number>) => Promise<*>,
-    exportByIds: (
-      ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
-    ) => void,
+    exportByIds: (ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string)
+      => void,
   },
-  bulkExportAction: (
-    fields: Array<string>, entity: string, identifier: string, description: string
-  ) => Promise<*>,
+  bulkExportAction: (fields: Array<string>, entity: string, identifier: string, description: string) => Promise<*>,
   suggested: Array<TUser>,
   suggestState: AsyncState,
   suggestCustomers: (token: string) => Promise<*>,
@@ -75,7 +73,7 @@ const prefixed = prefix('fc-customer-group');
 
 const tableColumns = [
   { field: 'name', text: 'Name' },
-  { field: 'email', text: 'Email' },
+  { field: 'email', text: 'deleteCustomersFromGroupEmail' },
   { field: 'joinedAt', text: 'Date/Time Joined', type: 'datetime' }
 ];
 
@@ -110,7 +108,7 @@ class GroupDetails extends Component {
 
     customersListActions.resetSearch();
 
-    customersListActions.setExtraFilters([ group.elasticRequest ]);
+    customersListActions.setExtraFilters([group.elasticRequest]);
 
     customersListActions.fetch();
 
@@ -145,21 +143,11 @@ class GroupDetails extends Component {
   handleDeleteCustomers(allChecked: boolean, customersIds: Array<number> = []) {
     const { deleteCustomersFromGroup } = this.props.bulkActions;
 
-    const count = customersIds.length;
-    const label = (
-      <span>
-        Are you sure you want to delete&nbsp;
-        <b>{count} {numberize('customer', count)}</b> from group <b>"{this.props.group.name}"</b>?
-      </span>
-    );
-
     return (
-      <BulkModal
-        title="Delete from group?"
-        label={label}
-        onConfirm={() => {
-          deleteCustomersFromGroup(this.props.group.id, customersIds).then(this.refreshGroupData);
-        }}
+      <DeleteModal
+        count={customersIds.length}
+        stateTitle={'Delete'}
+        onConfirm={() => deleteCustomersFromGroup(this.props.group.id, customersIds)}
       />
     );
   }
@@ -172,6 +160,7 @@ class GroupDetails extends Component {
       'could not be deleted from group'
     ];
   }
+
   get bulkActions() {
     if (this.props.group.groupType != GROUP_TYPE_MANUAL) return [];
 
@@ -218,7 +207,7 @@ class GroupDetails extends Component {
     return (
       <ContentBox title="Criteria"
                   className={prefixed('criteria')}
-                  bodyClassName={classNames({'_closed': !this.state.criteriaOpen})}
+                  bodyClassName={classNames({ '_closed': !this.state.criteriaOpen })}
                   actionBlock={this.criteriaToggle}>
         <span className={prefixed('main')}>
           Customers match
@@ -235,7 +224,7 @@ class GroupDetails extends Component {
     const icon = criteriaOpen ? 'icon-chevron-up' : 'icon-chevron-down';
 
     return (
-      <i className={icon} onClick={() => this.setState({criteriaOpen: !criteriaOpen})} />
+      <Icon name={icon} onClick={() => this.setState({ criteriaOpen: !criteriaOpen })} />
     );
   }
 
@@ -262,7 +251,7 @@ class GroupDetails extends Component {
         key={index}
         columns={columns}
         linkTo="customer"
-        linkParams={{customerId: row.id}}
+        linkParams={{ customerId: row.id }}
         row={row}
         setCellContents={(customer, field) => _.get(customer, field)}
         params={params}
@@ -300,7 +289,7 @@ class GroupDetails extends Component {
           </div>
           <div>
             <span className={prefixed('about__key')}>Created:&nbsp;</span>
-            <span className={prefixed('about__value')}>{moment(group.createdAt).format('DD/MM/YYYY HH:mm')}</span>
+            <span className={prefixed('about__value')}><DateTime value={group.createdAt} /></span>
           </div>
         </div>
       </header>
@@ -334,7 +323,7 @@ class GroupDetails extends Component {
             renderRow={this.renderRow}
             tableColumns={tableColumns}
             searchActions={customersListActions}
-            searchOptions={{singleSearch: true}}
+            searchOptions={{ singleSearch: true }}
           />
         </BulkActions>
       </div>
@@ -360,16 +349,16 @@ class GroupDetails extends Component {
   }
 }
 
-const mapStateToProps = (state) => {
+const mapState = (state) => {
   return {
     customersList: _.get(state.customerGroups, 'details.customers', {}),
     statsLoading: _.get(state.asyncActions, 'fetchStatsCustomerGroup.inProgress', false),
-    suggested: _.get(state.customers, 'suggest.customers',[]),
+    suggested: _.get(state.customers, 'suggest.customers', []),
     suggestState: _.get(state.asyncActions, 'suggestCustomers', {}),
   };
 };
 
-const mapDispatchToProps = (dispatch, props) => {
+const mapDispatch = (dispatch, props) => {
   const customerEntries = _.get(props, 'customerGroups.details.customers', []);
   const customers = _.map(customerEntries, customer => customer.id);
 
@@ -385,4 +374,4 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(GroupDetails);
+export default connect(mapState, mapDispatch)(GroupDetails);
