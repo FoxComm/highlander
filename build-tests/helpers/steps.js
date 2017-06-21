@@ -1,8 +1,8 @@
-export const signup = allure.createStep('customer sign up', async (api, email, name, password) => (
-	await api.auth.signup(email, name, password)
+export const signup = allure.createStep('sign up', async (api, email, name, password) => (
+  await api.auth.signup(email, name, password)
 ));
 
-export const login = allure.createStep('admin login', async (api, email, password, org) => (
+export const login = allure.createStep('login', async (api, email, password, org) => (
 	await api.auth.login(email, password, org)
 ));
 
