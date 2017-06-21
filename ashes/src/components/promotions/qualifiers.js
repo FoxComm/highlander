@@ -20,7 +20,6 @@ const qualifiers = [
         {
           name: 'totalAmount',
           widget: 'currency',
-          value: 0,
           template: props => <WidgetContainer>Spend {props.children} or more.</WidgetContainer>
         }
       ]
@@ -36,7 +35,6 @@ const qualifiers = [
         {
           name: 'numUnits',
           widget: 'counter',
-          value: 0,
           template: props => <WidgetContainer>Order {props.children} items or more.</WidgetContainer>
         }
       ]
@@ -65,7 +63,6 @@ const qualifiers = [
         {type: 'type'},
         {
           name: 'totalAmount',
-          value: 0,
           widget: 'currency',
           template: props => <WidgetContainer>Spend {props.children} or more.</WidgetContainer>
         }
@@ -88,7 +85,6 @@ const qualifiers = [
         {type: 'type'},
         {
           name: 'numUnits',
-          value: 0,
           widget: 'counter',
           template: props => <WidgetContainer>Order {props.children} items or more.</WidgetContainer>
         }
