@@ -34,9 +34,12 @@ type State = {
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators({
-      ...amazonActions,
-    }, dispatch),
+    actions: bindActionCreators(
+      {
+        ...amazonActions,
+      },
+      dispatch
+    ),
   };
 }
 
@@ -45,9 +48,9 @@ function mapStateToProps(state) {
 
   return {
     credentials,
-    fetchState:  _.get(state.asyncActions, 'fetchAmazonCredentials', {}),
-    updateState:  _.get(state.asyncActions, 'updateAmazonCredentials', {}),
-    removeState:  _.get(state.asyncActions, 'removeAmazonCredentials', {}),
+    fetchState: _.get(state.asyncActions, 'fetchAmazonCredentials', {}),
+    updateState: _.get(state.asyncActions, 'updateAmazonCredentials', {}),
+    removeState: _.get(state.asyncActions, 'removeAmazonCredentials', {}),
   };
 }
 
@@ -88,20 +91,14 @@ class AmazonCredentials extends Component {
                 <li className={s.entry}>
                   <FormField label="Seller ID" validator="ascii" maxLength={255}>
                     <div>
-                      <input
-                        type="text"
-                        value={this.state.seller_id}
-                        onChange={(e) => this._handleSellerId(e)} />
+                      <input type="text" value={this.state.seller_id} onChange={e => this._handleSellerId(e)} />
                     </div>
                   </FormField>
                 </li>
                 <li className={s.entry}>
                   <FormField label="Auth token" validator="ascii" maxLength={255}>
                     <div>
-                      <input
-                        type="text"
-                        value={this.state.mws_auth_token}
-                        onChange={(e) => this._handleAuthToken(e)} />
+                      <input type="text" value={this.state.mws_auth_token} onChange={e => this._handleAuthToken(e)} />
                     </div>
                   </FormField>
                 </li>
@@ -110,7 +107,8 @@ class AmazonCredentials extends Component {
                 type="button"
                 disabled={inProgress}
                 isLoading={updateState.inProgress}
-                onClick={() => this._handleSubmit()}>
+                onClick={() => this._handleSubmit()}
+              >
                 Save
               </PrimaryButton>
 
@@ -119,13 +117,12 @@ class AmazonCredentials extends Component {
                 type="button"
                 disabled={inProgress}
                 isLoading={removeState.inProgress}
-                onClick={() => this._handleRemove()}>
+                onClick={() => this._handleRemove()}
+              >
                 Remove
               </PrimaryButton>
 
-              {fetchState.inProgress &&
-                <Spinner className={s.spinner} size="m" />
-              }
+              {fetchState.inProgress && <Spinner className={s.spinner} size="m" />}
 
               {updateState.err && <div>updateError</div>}
               {removeState.err && <div>removeError</div>}

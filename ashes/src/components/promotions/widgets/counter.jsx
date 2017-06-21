@@ -6,28 +6,22 @@ import React from 'react';
 // components
 import Counter from 'components/core/counter';
 
-
 // types
 import type { Context, ItemDesc } from '../types';
 
 type Props = ItemDesc & {
-  context: Context;
+  context: Context,
 };
 
 const CounterWidget = (props: Props) => {
   const value = props.context.params[props.name];
   const setValue = value => {
     props.context.setParams({
-      [props.name]: value
+      [props.name]: value,
     });
   };
 
-  return (
-    <Counter
-      value={value}
-      onChange={setValue}
-    />
-  );
+  return <Counter value={value} onChange={setValue} />;
 };
 
 export default CounterWidget;

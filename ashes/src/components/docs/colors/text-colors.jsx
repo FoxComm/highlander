@@ -10,11 +10,11 @@ const colors = [];
 let i = 1;
 while (s[`color-${i}`]) {
   colors.push({
-    value: i++
+    value: i++,
   });
 }
 
-const TextColor = (props) => {
+const TextColor = props => {
   return (
     <div className={classNames(s.color, s[`color-${props.value}`])}>
       <div className={s.sample}>Aa</div>

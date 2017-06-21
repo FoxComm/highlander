@@ -15,7 +15,7 @@ import Icon from 'components/core/icon';
 import styles from './option-list.css';
 
 type Props = {
-  id: string|number,
+  id: string | number,
   editValue: Function,
   deleteValue: Function,
   value: OptionValue,
@@ -53,13 +53,15 @@ class ValueEntry extends Component {
           <a
             id={`fct-value-edit-btn__${valueName}`}
             onClick={() => this.props.editValue(id, value)}
-            styleName="action-icon">
+            styleName="action-icon"
+          >
             <Icon name="edit" />
           </a>
           <a
             id={`fct-value-delete-btn__${valueName}`}
             onClick={() => this.props.deleteValue(id)}
-            styleName="action-icon">
+            styleName="action-icon"
+          >
             <Icon name="trash" />
           </a>
         </TableCell>

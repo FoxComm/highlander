@@ -50,8 +50,7 @@ type State = {
   newState: string,
 };
 
-const mapStateToProps = (state) => {
-
+const mapStateToProps = state => {
   return {
     details: state.applications.details,
     isFetching: false,
@@ -94,7 +93,6 @@ class MerchantApplicationDetails extends Component {
     return this.state.newState != application.state;
   }
 
-
   get isStateEditable(): boolean {
     const state = _.get(this.props, 'details.application.state', '');
     return state == 'new';
@@ -105,10 +103,7 @@ class MerchantApplicationDetails extends Component {
       const title = this.props.details.application.business_name;
       return (
         <PageTitle title={title}>
-          <PrimaryButton
-            type="button"
-            disabled={!this.isDirty}
-            onClick={this.handleSubmit}>
+          <PrimaryButton type="button" disabled={!this.isDirty} onClick={this.handleSubmit}>
             Save
           </PrimaryButton>
         </PageTitle>
@@ -125,7 +120,8 @@ class MerchantApplicationDetails extends Component {
             onChange={this.handleStateChange}
             disabled={!this.isStateEditable}
             items={SELECT_STATE}
-            changeable={false} />
+            changeable={false}
+          />
         </ContentBox>
       </div>
     );
@@ -154,7 +150,6 @@ class MerchantApplicationDetails extends Component {
         </div>
       );
     }
-
 
     return (
       <div>

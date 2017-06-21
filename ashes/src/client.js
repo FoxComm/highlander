@@ -78,7 +78,4 @@ history.listen(location => {
   trackPageView(location.pathname);
 });
 
-render(
-  <Root store={store} routes={routes} history={history} />,
-  document.getElementById('foxcom')
-);
+render(<Root store={store} routes={routes} history={history} />, document.getElementById('foxcom'));

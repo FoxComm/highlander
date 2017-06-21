@@ -58,10 +58,10 @@ export default class Header extends React.Component {
 
   render(): Element<*> {
     const { routes, params, isMenuVisible, user, className } = this.props;
-    const name = (user == null || _.isEmpty(user) || user.name == null) ? '' : user.name.split(' ')[0];
+    const name = user == null || _.isEmpty(user) || user.name == null ? '' : user.name.split(' ')[0];
 
     return (
-      <header role='banner' styleName="header" className={className} name="">
+      <header role="banner" styleName="header" className={className} name="">
         <div styleName="logo">
           <SvgIcon name="logo" className={styles['logo-icon']} />
         </div>

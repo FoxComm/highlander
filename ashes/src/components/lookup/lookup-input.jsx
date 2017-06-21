@@ -14,10 +14,8 @@ const prefixed = prefix('fc-lookup');
 /**
  * Lookup item default component
  */
-const LookupInput = ({className, ...rest}) => {
-  return (
-    <TextInput className={classNames(prefixed('input'), className)} {...rest} />
-  );
+const LookupInput = ({ className, ...rest }) => {
+  return <TextInput className={classNames(prefixed('input'), className)} {...rest} />;
 };
 
 /**

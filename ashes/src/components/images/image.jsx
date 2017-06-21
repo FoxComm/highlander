@@ -19,15 +19,15 @@ import type { ImageFile, ImageInfo } from '../../modules/images';
 import type { Action } from '../image-card/image-card';
 
 export type Props = {
-  image: ImageFile;
-  editImage: (info: ImageInfo) => Promise<*>;
-  deleteImage: () => Promise<*>;
-  imagePid: string|number;
+  image: ImageFile,
+  editImage: (info: ImageInfo) => Promise<*>,
+  deleteImage: () => Promise<*>,
+  imagePid: string | number,
 };
 
 type State = {
-  editMode: boolean;
-  deleteMode: boolean;
+  editMode: boolean,
+  deleteMode: boolean,
 };
 
 export default class Image extends Component<void, Props, State> {

@@ -1,4 +1,3 @@
-
 // @flow
 
 import React, { Element, Component } from 'react';
@@ -29,11 +28,9 @@ export default class AuthPages extends Component {
   }
 
   get body(): Element<*> {
-    return React.cloneElement(
-      this.props.children, {
-        isMounted: this.state.isMounted,
-      }
-    );
+    return React.cloneElement(this.props.children, {
+      isMounted: this.state.isMounted,
+    });
   }
 
   render() {

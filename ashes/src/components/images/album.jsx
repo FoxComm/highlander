@@ -20,22 +20,22 @@ import type { Album as TAlbum, ImageFile, ImageInfo } from '../../modules/images
 import s from './images.css';
 
 export type Props = {
-  album: TAlbum;
-  loading: boolean;
-  position: number;
-  albumsCount: number;
-  upload: (files: Array<ImageFile>) => Promise<*>;
-  editImage: (idx: number, info: ImageInfo) => Promise<*>;
-  deleteImage: (idx: number) => Promise<*>;
-  editAlbum: (album: TAlbum) => Promise<*>;
-  moveAlbum: (position: number) => Promise<*>;
-  archiveAlbum: (id: number) => Promise<*>;
-  fetchAlbums: () => Promise<*>;
+  album: TAlbum,
+  loading: boolean,
+  position: number,
+  albumsCount: number,
+  upload: (files: Array<ImageFile>) => Promise<*>,
+  editImage: (idx: number, info: ImageInfo) => Promise<*>,
+  deleteImage: (idx: number) => Promise<*>,
+  editAlbum: (album: TAlbum) => Promise<*>,
+  moveAlbum: (position: number) => Promise<*>,
+  archiveAlbum: (id: number) => Promise<*>,
+  fetchAlbums: () => Promise<*>,
 };
 
 type State = {
-  editMode: boolean;
-  archiveMode: boolean;
+  editMode: boolean,
+  archiveMode: boolean,
 };
 
 export default class Album extends Component {
@@ -89,8 +89,7 @@ export default class Album extends Component {
 
   @autobind
   handleConfirmEditAlbum(name: string): void {
-    this.props.editAlbum({ ...this.props.album, name })
-      .then(this.handleCancelEditAlbum);
+    this.props.editAlbum({ ...this.props.album, name }).then(this.handleCancelEditAlbum);
   }
 
   @autobind
@@ -105,8 +104,7 @@ export default class Album extends Component {
 
   @autobind
   handleConfirmArchiveAlbum(): void {
-    this.props.archiveAlbum(this.props.album.id)
-      .then(this.props.fetchAlbums);
+    this.props.archiveAlbum(this.props.album.id).then(this.props.fetchAlbums);
 
     this.setState({ archiveMode: false });
   }
@@ -155,8 +153,8 @@ export default class Album extends Component {
       <ConfirmationModal
         className={s.modal}
         isVisible={this.state.archiveMode}
-        title='Archive Album'
-        confirmLabel='Yes, Archive'
+        title="Archive Album"
+        confirmLabel="Yes, Archive"
         onCancel={this.handleCancelArchiveAlbum}
         onConfirm={this.handleConfirmArchiveAlbum}
       >
@@ -183,7 +181,7 @@ export default class Album extends Component {
 
     const albumContent = (
       <Upload
-        ref={c => this._uploadRef = c}
+        ref={c => (this._uploadRef = c)}
         className={s.upload}
         onDrop={this.handleNewFiles}
         empty={album.images.length == 0}

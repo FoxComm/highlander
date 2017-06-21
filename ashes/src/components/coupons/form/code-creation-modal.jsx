@@ -7,7 +7,7 @@ import React, { Element } from 'react';
 import ConfirmationModal from 'components/core/confirmation-modal';
 
 type Props = {
-  isVisible: bool,
+  isVisible: boolean,
   probability: number,
   confirmAction: Function,
   cancelAction: Function,
@@ -19,8 +19,8 @@ const CodeCreationModal = (props: Props): Element<*> => {
   return (
     <ConfirmationModal
       isVisible={isVisible}
-      title='Generate Codes?'
-      confirmLabel='Generate Codes'
+      title="Generate Codes?"
+      confirmLabel="Generate Codes"
       onConfirm={confirmAction}
       onCancel={cancelAction}
     >

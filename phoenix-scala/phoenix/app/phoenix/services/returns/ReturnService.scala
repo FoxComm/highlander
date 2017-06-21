@@ -27,7 +27,7 @@ object ReturnService {
     for {
       rma ← * <~ Returns.mustFindActiveByRefNum404(refNum)
       newMessage = if (payload.message.length > 0) Some(payload.message) else None
-      update   ← * <~ Returns.update(rma, rma.copy(messageToAccount = newMessage))
+      _        ← * <~ Returns.update(rma, rma.copy(messageToAccount = newMessage))
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response
@@ -64,13 +64,14 @@ object ReturnService {
   def createByAdmin(admin: User,
                     payload: ReturnCreatePayload)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
-      order     ← * <~ Orders.mustFindByRefNum(payload.cordRefNum)
-      _         ← * <~ failIf(order.state != Order.Shipped, OrderMustBeShippedForReturn(order.refNum, order.state))
-      rma       ← * <~ Returns.create(Return.build(order, admin, payload.returnType))
-      customer  ← * <~ Users.mustFindByAccountId(order.accountId)
-      custData  ← * <~ CustomersData.mustFindByAccountId(order.accountId)
-      adminData ← * <~ AdminsData.mustFindByAccountId(admin.accountId)
-      adminResponse    = Some(StoreAdminResponse.build(admin, adminData))
+      order        ← * <~ Orders.mustFindByRefNum(payload.cordRefNum)
+      _            ← * <~ failIf(order.state != Order.Shipped, OrderMustBeShippedForReturn(order.refNum, order.state))
+      rma          ← * <~ Returns.create(Return.build(order, admin, payload.returnType))
+      customer     ← * <~ Users.mustFindByAccountId(order.accountId)
+      custData     ← * <~ CustomersData.mustFindByAccountId(order.accountId)
+      adminData    ← * <~ AdminsData.mustFindByAccountId(admin.accountId)
+      organization ← * <~ Organizations.mustFindByAccountId(admin.accountId)
+      adminResponse    = Some(StoreAdminResponse.build(admin, adminData, organization))
       customerResponse = CustomerResponse.build(customer, custData)
       response         = build(rma, Some(customerResponse), adminResponse)
       _ ← * <~ LogActivity().returnCreated(admin, response)

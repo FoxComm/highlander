@@ -59,11 +59,12 @@ export default class NewGiftCard extends Component {
     const gcCode = _.get(gcResults, [0, 'code'], '');
     const gcState = _.get(gcResults, [0, 'state'], '');
 
-    if (!isSearchingGiftCards &&
+    if (
+      !isSearchingGiftCards &&
       gcResults.length == 1 &&
       gcState !== 'onHold' &&
-      _.startsWith(gcCode.toLowerCase(), this.codeValue.toLowerCase())) {
-
+      _.startsWith(gcCode.toLowerCase(), this.codeValue.toLowerCase())
+    ) {
       this.setState({
         giftCard: gcResults[0],
         giftCardCode: gcCode,
@@ -131,30 +132,25 @@ export default class NewGiftCard extends Component {
 
   @autobind
   handleGiftCardChange(value) {
-    this.setState({
-      giftCardCode: value,
-    }, () => this.props.actions.giftCardSearch(this.codeValue));
+    this.setState(
+      {
+        giftCardCode: value,
+      },
+      () => this.props.actions.giftCardSearch(this.codeValue)
+    );
   }
 
   @autobind
   handleGiftCardSubmit(amountToUse) {
-    this.props.actions.addGiftCardPayment(
-      this.props.order.referenceNumber,
-      this.codeValue,
-      amountToUse
-    );
+    this.props.actions.addGiftCardPayment(this.props.order.referenceNumber, this.codeValue, amountToUse);
   }
 
   render() {
     return (
       <div className="fc-order-apply-gift-card">
         <Form className="fc-form-vertical">
-          <FormField className="fc-order-apply-gift-card__card-number"
-                     label="Gift Card Number">
-            <TextInput
-                   name="giftCardCode"
-                   onChange={this.handleGiftCardChange}
-                   value={this.state.giftCardCode} />
+          <FormField className="fc-order-apply-gift-card__card-number" label="Gift Card Number">
+            <TextInput name="giftCardCode" onChange={this.handleGiftCardChange} value={this.state.giftCardCode} />
           </FormField>
         </Form>
         {this.error}

@@ -130,5 +130,5 @@ const mapState = state => ({
 
 export default flow(
   connect(mapState, { fetch: fetch.perform, setTerm, setAddedProduct }),
-  makeLocalStore(addAsyncReducer(reducer), { term: '', products: [] }),
+  makeLocalStore(addAsyncReducer(reducer), { term: '', products: [] })
 )(ProductsAdd);

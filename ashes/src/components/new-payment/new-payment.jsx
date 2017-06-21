@@ -18,11 +18,7 @@ import TableRow from 'components/table/row';
 import * as CreditCardActions from 'modules/customers/credit-cards';
 import * as PaymentMethodActions from 'modules/carts/payment-methods';
 
-const SELECT_PAYMENT_FORM = [
-  ['creditCard', 'Credit Card'],
-  ['storeCredit', 'Store Credit'],
-  ['giftCard', 'Gift Card'],
-];
+const SELECT_PAYMENT_FORM = [['creditCard', 'Credit Card'], ['storeCredit', 'Store Credit'], ['giftCard', 'Gift Card']];
 
 function mapStateToProps(state, props) {
   return {
@@ -89,7 +85,8 @@ class NewPayment extends Component {
           <FormField
             className="fc-new-order-payment__payment-type"
             labelClassName="fc-new-order-payment__payment-type-label"
-            label="Payment Type">
+            label="Payment Type"
+          >
             <Dropdown
               id="fct-payment-type-dd"
               name="paymentType"
@@ -108,7 +105,6 @@ class NewPayment extends Component {
   changePaymentType(value) {
     this.setState({ paymentType: value });
   }
-
 
   render() {
     return (

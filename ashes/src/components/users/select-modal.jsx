@@ -17,11 +17,11 @@ type Props = {
   bodyLabel: string | Element<*>,
   saveLabel: string,
   maxUsers?: number,
-}
+};
 
 type State = {
   selected: Array<TUser>,
-}
+};
 
 class SelectAdminsModal extends Component {
   props: Props;
@@ -62,11 +62,7 @@ class SelectAdminsModal extends Component {
     const { props } = this;
 
     return (
-      <Modal
-        isVisible={props.isVisible}
-        title={props.title}
-        footer={this.footer}
-      >
+      <Modal isVisible={props.isVisible} title={props.title} footer={this.footer}>
         <AdminsTypeahead
           hideOnBlur
           onSelect={this.handleAdminsSelected}

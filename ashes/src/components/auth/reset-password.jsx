@@ -4,21 +4,21 @@ import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import { transitionToLazy } from 'browserHistory';
+import { transitionTo, transitionToLazy } from 'browserHistory';
 
-// components
 import Form from 'components/forms/form';
 import FormField from 'components/forms/formfield';
+import { ApiErrors } from 'components/utils/errors';
 import { PrimaryButton } from 'components/core/button';
 import PasswordInput from 'components/forms/password-input';
 import { Link } from 'components/link';
 import TextInput from 'components/core/text-input';
-import { ApiErrors } from 'components/utils/errors';
 
-import type { TResetPayload } from 'modules/user';
 import * as userActions from 'modules/user';
 
 import s from './css/auth.css';
+
+import type { TResetPayload } from 'modules/user';
 
 type State = {
   email: string,
@@ -27,7 +27,7 @@ type State = {
 };
 
 type Props = {
-  signUpState: AsyncState,
+  resetState: AsyncState,
   requestPasswordReset: (email: string) => Promise<*>,
   resetPassword: (payload: TResetPayload) => Promise<*>,
   isMounted: boolean,
@@ -36,7 +36,7 @@ type Props = {
 
 function mapStateToProps(state) {
   return {
-    signUpState: _.get(state.asyncActions, 'resetPassword', {}),
+    resetState: _.get(state.asyncActions, 'resetPassword', {}),
   };
 }
 
@@ -44,7 +44,7 @@ function sanitize(): string {
   return 'Passwords do not match or security code is invalid.';
 }
 
-class SetPassword extends Component {
+class ResetPassword extends Component {
   props: Props;
 
   state: State = {
@@ -67,10 +67,7 @@ class SetPassword extends Component {
 
   @autobind
   handleSubmit() {
-    const payload = {
-      newPassword: this.state.password2,
-      code: this.token,
-    };
+    const payload = { newPassword: this.state.password1, code: this.token };
     this.props.resetPassword(payload).then(transitionToLazy('home'));
   }
 
@@ -88,28 +85,28 @@ class SetPassword extends Component {
     }
   }
 
+  @autobind
+  goBack() {
+    transitionTo('login');
+  }
+
   get errorMessage(): ?Element<*> {
-    const err = this.props.signUpState.err;
+    const err = this.props.resetState.err;
 
     if (!err) return null;
 
     return <ApiErrors error={err} sanitizeError={sanitize} />;
   }
 
-  get content(): ?Element<*> {
+  get content(): Element<*> {
     return (
-      <div>
-        <div className={s.message}>
-          Hey, {this.username}! You’ve been invited to create an account with
-          FoxCommerce. All you need to do is choose your method
-          to sign up.
-        </div>
+      <div className={s.main}>
         <Form className={s.form} onSubmit={this.handleSubmit}>
           {this.errorMessage}
           <FormField className={s.signupEmail} label="Email">
             <TextInput name="email" value={this.email} type="email" disabled className="fc-input" />
           </FormField>
-          <FormField className={s.password} label="Create Password">
+          <FormField className={s.password} label="New Password">
             <PasswordInput
               name="password1"
               onChange={this.handleInputChange}
@@ -130,8 +127,8 @@ class SetPassword extends Component {
             />
           </FormField>
           <div className={s.buttonBlock}>
-            <PrimaryButton className={s.submitButton} type="submit" isLoading={this.props.signUpState.inProgress}>
-              Sign Up
+            <PrimaryButton className={s.submitButton} type="submit" isLoading={this.props.resetState.inProgress}>
+              Reset Password
             </PrimaryButton>
             <Link to="login" className={s.backButton}>
               Back to Login
@@ -145,11 +142,11 @@ class SetPassword extends Component {
   render() {
     return (
       <div className={s.main}>
-        <div className="fc-auth__title">Create Account</div>
+        <div className="fc-auth__title">Reset Password</div>
         {this.content}
       </div>
     );
   }
 }
 
-export default connect(mapStateToProps, userActions)(SetPassword);
+export default connect(mapStateToProps, userActions)(ResetPassword);

@@ -1,15 +1,20 @@
+import _ from 'lodash';
+
 export function configureUserData(user) {
+  const phoneNumber = _.get(user, 'form.attributes.phoneNumber.v', null);
+  const phone = _.isEmpty(phoneNumber) ? null : phoneNumber;
   return {
     id: user.id,
-    name: user.form.attributes.firstAndLastName.v,
-    email: user.form.attributes.emailAddress.v,
-    phoneNumber: user.form.attributes.phoneNumber.v,
+    name: _.get(user, 'form.attributes.firstAndLastName.v', ''),
+    email: _.get(user, 'form.attributes.emailAddress.v', ''),
+    phoneNumber: phone,
+    org: _.get(user, 'form.attributes.org.v', ''),
     state: user.accountState.state,
   };
 }
 
 export function configureUserState(user) {
-  const { name, email, phoneNumber, state, ...rest } = user;
+  const { name, email, phoneNumber, state, org, ...rest } = user;
 
   const attributes = {
     'firstAndLastName': {
@@ -23,22 +28,27 @@ export function configureUserState(user) {
     'phoneNumber': {
       v: phoneNumber,
       t: 'string'
-    }
-  };
-
-  const options = {
-    'firstAndLastName': {
-      required: true,
-      label: 'First & Last Name',
     },
-    'emailAddress': {
-      required: true,
-    }
+    'org': {
+      v: org,
+      t: 'string',
+    },
   };
 
   const accountState = {
     state,
     disabled: state === 'invited' || state === 'archived',
+  };
+
+  const schema = {
+    type: 'object',
+    description: 'User attributes',
+    properties: {
+      firstAndLastName: { title: 'First & Last Name', type: 'string' },
+      org: { title: 'Organization', type: 'string' },
+      emailAddress: { title: 'Email Address', type: 'string' },
+    },
+    required: ['firstAndLastName', 'emailAddress' , 'org'],
   };
 
   const form = {attributes, };
@@ -47,7 +57,7 @@ export function configureUserState(user) {
     name,
     form,
     accountState,
-    options,
+    schema,
     ...rest
   };
 }
@@ -59,6 +69,7 @@ export function createEmptyUser() {
     email: '',
     phoneNumber: '',
     state: 'invited',
+    org: 'tenant',
   };
 
   return configureUserState(user);
@@ -69,4 +80,3 @@ export function configureStateData(state) {
     state
   };
 }
-
