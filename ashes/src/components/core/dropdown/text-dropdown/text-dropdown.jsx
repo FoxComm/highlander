@@ -3,14 +3,11 @@
 // libs
 import _ from 'lodash';
 import React, { Element, Component } from 'react';
-import createFragment from 'react-addons-create-fragment';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 
 import Icon from 'components/core/icon';
 import { SmartList } from 'components/core/dropdown';
-import { Button } from 'components/core/button';
-import BodyPortal from 'components/body-portal/body-portal';
 
 // styles
 import s from './text-dropdown.css';
@@ -69,26 +66,9 @@ export default class TextDropdown extends Component {
     selectedValue: this.props.value,
   };
 
-  _block: HTMLElement; // root element, used for clickOutside and others
-
-  componentDidMount() {
-    window.addEventListener('click', this.handleClickOutside, true);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('click', this.handleClickOutside, true);
-  }
-
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.value !== this.props.value) {
       this.setState({ selectedValue: nextProps.value });
-    }
-  }
-
-  @autobind
-  handleClickOutside({ target }: { target: HTMLElement }) {
-    if (this._block && !this._block.contains(target) && this.state.open) {
-      this.closeMenu();
     }
   }
 
@@ -134,10 +114,10 @@ export default class TextDropdown extends Component {
   }
 
   renderItems() {
-    const { items } = this.props;
+    const { items, detached } = this.props;
 
     return (
-      <SmartList className={s.menu}>
+      <SmartList className={s.menu} onEsc={() => this.closeMenu()} detached={detached}>
         {items.map(item => (
           <div key={item.value} className={s.item} onClick={() => this.handleItemClick(item)}>
             {item.displayText || item.value}
@@ -152,11 +132,7 @@ export default class TextDropdown extends Component {
       return;
     }
 
-    return (
-      <BodyPortal active={this.props.detached}>
-        {this.renderItems()}
-      </BodyPortal>
-    );
+    return this.renderItems();
   }
 
   render() {
@@ -169,7 +145,7 @@ export default class TextDropdown extends Component {
     const arrow = this.state.open ? 'chevron-up' : 'chevron-down';
 
     return (
-      <div className={cls} ref={c => this._block = c} tabIndex="0">
+      <div className={cls} tabIndex="0">
         <div className={s.pivot} onClick={this.handleToggleClick}>
           <div className={s.displayText}>{this.displayText}</div>
           <Icon name={arrow} />

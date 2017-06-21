@@ -48,6 +48,7 @@ export default class SmartList extends Component {
 
   static defaultProps = {
     align: 'right',
+    onEsc: () => {},
   };
 
   state: State = {
@@ -56,15 +57,27 @@ export default class SmartList extends Component {
 
   componentDidMount() {
     window.addEventListener('keydown', this.handleKeyPress, true);
+    window.addEventListener('click', this.handleClickOutside, true);
     this.setPosition();
   }
 
   componentWillUnmount() {
     window.removeEventListener('keydown', this.handleKeyPress, true);
+    window.removeEventListener('click', this.handleClickOutside, true);
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     this.setPosition();
+  }
+
+  @autobind
+  handleClickOutside({ target }: { target: HTMLElement }) {
+    const { onEsc } = this.props;
+    const pivot = this.pivot;
+
+    if (this._block && !this._block.contains(target) && pivot && !pivot.contains(target)) {
+      onEsc();
+    }
   }
 
   get pivot() {
@@ -142,6 +155,11 @@ export default class SmartList extends Component {
         }
 
         break;
+      // esc
+      case 27:
+        this.props.onEsc();
+
+        break;
       // up
       case 38:
         e.preventDefault();
@@ -177,17 +195,17 @@ export default class SmartList extends Component {
   }
 
   render() {
-    const { before, after, className } = this.props;
+    const { before, after, className, detached } = this.props;
     const cls = classNames(s.block, className);
 
     return (
-      <div className={cls} ref={m => this._block = m}>
+      <BodyPortal active={detached} className={cls} getRef={m => this._block = m}>
         {before}
         <div className={s.list} ref={i => this._items = i}>
           {this.renderItems()}
         </div>
         {after}
-      </div>
+      </BodyPortal>
     );
   }
 }

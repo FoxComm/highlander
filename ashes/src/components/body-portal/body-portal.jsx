@@ -1,12 +1,14 @@
 // libs
-import { Component, Children, Element } from 'react';
+import React, { Component, Children, Element } from 'react';
 import ReactDOM from 'react-dom';
+import classNames from 'classnames';
 
 type Props = {
   active?: boolean,
   left: ?number,
   top: ?number,
   className: ?string,
+  getRef?: Function,
 };
 
 export default class BodyPortal extends Component {
@@ -17,6 +19,7 @@ export default class BodyPortal extends Component {
     left: 0,
     top: 0,
     className: '',
+    getRef: () => {},
   };
 
   _target: HTMLElement; // HTMLElement, a div that is appended to the body
@@ -60,6 +63,8 @@ export default class BodyPortal extends Component {
     const { className } = this.props;
 
     const container = document.createElement('div');
+
+    // @todo looks like this not working at all, because it is just a wrapper
     container.className = className;
 
     this._target = document.body.appendChild(container);
@@ -69,15 +74,32 @@ export default class BodyPortal extends Component {
 
   renderContent() {
     if (!this.props.children) {
-      return;
+      return null;
     }
 
     this.updateStyle();
 
-    ReactDOM.unstable_renderSubtreeIntoContainer(this, Children.only(this.props.children), this._target);
+    const componentNode = ReactDOM.unstable_renderSubtreeIntoContainer(
+      this,
+      Children.only(this.props.children),
+      this._target
+    );
+    const domNode = ReactDOM.findDOMNode(componentNode);
+
+    this.props.getRef(domNode);
   }
 
   render() {
-    return this.props.active ? null : this.props.children;
+    const { active, className, children, getRef } = this.props;
+
+    if (this.props.active) {
+      return null; // see renderContent()
+    }
+
+    return (
+      <div className={classNames(className)} ref={getRef}>
+        {children}
+      </div>
+    );
   }
 }

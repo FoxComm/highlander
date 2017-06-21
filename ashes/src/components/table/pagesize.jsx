@@ -1,8 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
-import Dropdown from '../dropdown/dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZES } from '../../modules/pagination/base';
+
+// styles
+import s from './pagesize.css';
 
 class TablePaginator extends React.Component {
   static propTypes = {
@@ -15,18 +18,20 @@ class TablePaginator extends React.Component {
   };
 
   @autobind
-  onPageSizeChange(value) {
+  onPageSizeChange({ value }) {
     this.props.setState({
       size: +value
     });
   }
 
   render() {
+    const items = DEFAULT_PAGE_SIZES.map(([ value, title ]) => ({ value, title }));
+
     return (
-      <Dropdown
-        className="fc-table-pagesize"
+      <TextDropdown
+        className={s.dropdown}
         onChange={this.onPageSizeChange}
-        items={DEFAULT_PAGE_SIZES}
+        items={items}
         value={String(this.props.value)}
       />
     );
