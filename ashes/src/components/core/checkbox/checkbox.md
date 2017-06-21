@@ -21,7 +21,7 @@ import { Checkbox } from 'components/core/checkbox'
   <Checkbox.Checkbox id="checked" label="checked" defaultChecked /><br />
   <Checkbox.Checkbox id="not-checked" label="not checked" /><br />
   <Checkbox.Checkbox id="disabled" label="disabled" disabled /><br />
-  
+
   <h6>Checkbox in table cell</h6>
   <table style={{ width: '60px' }}>
     <tr>
@@ -71,7 +71,7 @@ import { SliderCheckbox } from 'components/core/checkbox'
 
 ```
 <div className='demo'>
-  <Checkbox.SliderCheckbox id="sc-checked" checked/><br />
-  <Checkbox.SliderCheckbox id="sc-not-checked"/><br />
+  <Checkbox.SliderCheckbox id="sc-checked" defaultChecked />
+  <Checkbox.SliderCheckbox id="sc-not-checked" />
 </div>
 ```

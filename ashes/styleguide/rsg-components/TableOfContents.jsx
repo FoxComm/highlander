@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { filterSectionsByName } from 'react-styleguidist/lib/utils/utils';
-import ComponentsList from 'react-styleguidist/lib/rsg-components/ComponentsList';
-import TableOfContentsRenderer from 'react-styleguidist/lib/rsg-components/TableOfContents/TableOfContentsRenderer';
+import ComponentsList from 'rsg-components/ComponentsList';
+import TableOfContentsRenderer from 'rsg-components/TableOfContents/TableOfContentsRenderer';
 
 export default class TableOfContents extends Component {
   static propTypes = {
@@ -14,15 +14,13 @@ export default class TableOfContents extends Component {
 
   renderLevel(sections) {
     const items = sections.map(section => {
-      const children = [...section.sections || [], ...section.components || []];
+      const children = [...(section.sections || []), ...(section.components || [])];
       return Object.assign({}, section, {
         heading: !!section.name && children.length > 0,
         content: children.length > 0 && this.renderLevel(children),
       });
     });
-    return (
-      <ComponentsList items={items} />
-    );
+    return <ComponentsList items={items} />;
   }
 
   renderSections() {
@@ -40,10 +38,7 @@ export default class TableOfContents extends Component {
   render() {
     const { searchTerm } = this.state;
     return (
-      <TableOfContentsRenderer
-        searchTerm={searchTerm}
-        onSearchTermChange={searchTerm => this.setState({ searchTerm })}
-      >
+      <TableOfContentsRenderer searchTerm={searchTerm} onSearchTermChange={searchTerm => this.setState({ searchTerm })}>
         {this.renderSections()}
       </TableOfContentsRenderer>
     );

@@ -1,4 +1,6 @@
-We are using limited set of text colors, background colors and fonts. There are very few exceptions (socials, charts), but it is hightly recommended to use only existing variables for `color`, `background-color` and `font` css properties. If mockups didnt match them, discuss that with designer.
+We are using limited set of text colors, background colors and fonts. There are very few exceptions (socials, charts),
+but it is highly recommended to use only existing variables for `color`, `background-color` and `font` css properties.
+If mockups didn't match them, discuss that with designer.
 
 To use variables, just import them to your css file:
 

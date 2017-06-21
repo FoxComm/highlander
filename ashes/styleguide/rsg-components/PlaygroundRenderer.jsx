@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import Styled from 'react-styleguidist/lib/rsg-components/Styled';
+import Styled from 'rsg-components/Styled';
 
 const styles = ({ space, color, borderRadius }) => ({
   root: {
@@ -25,8 +25,6 @@ const styles = ({ space, color, borderRadius }) => ({
 });
 
 export function PlaygroundRenderer({ classes, name, preview, codeActive, tabButtons, tabBody, toolbar }) {
-  console.log(cx(classes.root, { [classes.codeActive]: codeActive }));
-
   return (
     <div className={cx(classes.root, { [classes.codeActive]: codeActive })}>
       <div className={classes.preview} data-preview={name}>{preview}</div>

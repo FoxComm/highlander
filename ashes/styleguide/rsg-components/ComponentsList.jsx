@@ -24,6 +24,9 @@ const styles = ({ font, small }) => ({
       margin: [[0, 7, 0, 0]],
     },
   },
+  isActive: {
+    color: '#f00',
+  },
   heading: {
     marginTop: 7,
     fontFamily: font,
@@ -37,8 +40,10 @@ export class ComponentsListRenderer extends React.Component {
   };
 
   expand(slug) {
-    return (e) => {
-      e.preventDefault();
+    return e => {
+      if (this.state.expanded[slug]) {
+        e.preventDefault();
+      }
 
       const newExpanded = {
         ...this.state.expanded,
@@ -57,14 +62,25 @@ export class ComponentsListRenderer extends React.Component {
       return null;
     }
 
+    console.log(items);
+
+    const activeItem = window.location.hash.substr(2);
+    console.log(activeItem);
+
     return (
       <ul className={classes.list}>
-        {items.map(({ heading, name, slug, content }) => (
+        {items.map(({ heading, name, slug, content }) =>
           <li className={cx(classes.item, (!content || !content.props.items.length) && classes.isChild)} key={name}>
-            <Link className={cx(heading && classes.heading)} href={`/#${slug}`} onClick={!!content && this.expand(slug)}>{name}</Link>
+            <Link
+              className={cx(heading && classes.heading, activeItem === slug && classes.isActive)}
+              href={`/#${slug}`}
+              onClick={!!content && this.expand(slug)}
+            >
+              {name}
+            </Link>
             {this.state.expanded[slug] && content}
           </li>
-        ))}
+        )}
       </ul>
     );
   }

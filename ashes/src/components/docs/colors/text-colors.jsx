@@ -27,7 +27,7 @@ const TextColor = props => {
 export const TextColors = () => {
   return (
     <div className={s.block}>
-      {colors.map(cl => <TextColor {...cl} />)}
+      {colors.map(cl => <TextColor {...cl} key={cl.value} />)}
     </div>
   );
 };
