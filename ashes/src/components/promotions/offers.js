@@ -9,6 +9,12 @@ const offers = [
     type: 'orderPercentOff',
     title: 'Percent off order',
     default: defaultDiscount,
+    validate: {
+      discount: {
+        validate: (v) => v > 0,
+        error: 'Percent off order shall be greater than 0.',
+      },
+    },
     content: [
       [
         {type: 'type'},
@@ -24,6 +30,12 @@ const offers = [
     type: 'orderAmountOff',
     title: 'Amount off order',
     default: defaultDiscount,
+    validate: {
+      discount: {
+        validate: (v) => v > 0,
+        error: 'Amount off order shall be greater than 0.',
+      },
+    },
     content: [
       [
         {type: 'type'},
@@ -39,6 +51,16 @@ const offers = [
     type: 'itemPercentOff',
     title: 'Percent off single item',
     default: defaultDiscount,
+    validate: {
+      discount: {
+        validate: (v) => v > 0,
+        error: 'Percent off single item shall be greater than 0.',
+      },
+      search: {
+        validate: (v) => v.length > 0,
+        error: 'Percent off single item search is not specified.',
+      },
+    },
     content: [
       [
         {type: 'type'},
@@ -61,6 +83,16 @@ const offers = [
     type: 'itemAmountOff',
     title: 'Amount off single item',
     default: defaultDiscount,
+    validate: {
+      discount: {
+        validate: (v) => v > 0,
+        error: 'Amount off single item shall be greater than 0.',
+      },
+      search: {
+        validate: (v) => v.length > 0,
+        error: 'Amount off single item search is not specified.',
+      },
+    },
     content: [
       [
         {type: 'type'},
@@ -83,6 +115,16 @@ const offers = [
     type: 'itemsPercentOff',
     title: 'Percent off select items',
     default: defaultDiscount,
+    validate: {
+      discount: {
+        validate: (v) => v > 0,
+        error: 'Percent off select items shall be greater than 0.',
+      },
+      search: {
+        validate: (v) => v.length > 0,
+        error: 'Percent off select items search is not specified.',
+      },
+    },
     content: [
       [
         {type: 'type'},
@@ -105,6 +147,16 @@ const offers = [
     type: 'itemsAmountOff',
     title: 'Amount off select items',
     default: defaultDiscount,
+    validate: {
+      discount: {
+        validate: (v) => v > 0,
+        error: 'Amount off select items shall be greater than 0.',
+      },
+      search: {
+        validate: (v) => v.length > 0,
+        error: 'Amount off select items search is not specified.',
+      },
+    },
     content: [
       [
         {type: 'type'},
@@ -134,6 +186,12 @@ const offers = [
     type: 'discountedShipping',
     title: 'Discounted shipping',
     default: {discount: 0},
+    validate: {
+      discount: {
+        validate: (v) => v > 0,
+        error: 'Discounted shipping value shall be greater than 0.',
+      },
+    },
     content: [
       [
         {type: 'type'},
@@ -149,6 +207,12 @@ const offers = [
     type: 'setPrice',
     title: 'Set price',
     default: {setPrice: 0},
+    validate: {
+      setPrice: {
+        validate: (v) => v > 0,
+        error: 'Set price value shall be greater than 0.',
+      },
+    },
     content: [
       [
         {type: 'type'},
