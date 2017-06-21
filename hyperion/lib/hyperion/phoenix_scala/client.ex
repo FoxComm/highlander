@@ -121,7 +121,7 @@ defmodule Hyperion.PhoenixScala.Client do
                               scope: Hyperion.JwtAuth.get_scope(token),
                               customerName: payload["BuyerName"],
                               customerEmail: payload["BuyerEmail"]})
-    {st, resp} = post("/v1/amazon_orders", params, make_request_headers(token))
+    {st, resp} = post("/v1/amazon-orders", params, make_request_headers(token))
     case resp.status_code do
       code when code in [200, 201] -> parse_response({st, resp}, token)
       _ ->
