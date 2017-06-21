@@ -27,7 +27,7 @@ type Props = {
 };
 
 type EditOption = {
-  id: string | number,
+  id: string|number,
   option: Option,
 };
 
@@ -36,9 +36,9 @@ type DeletingContext = {
   affectedSkus: Array<Sku>,
   deletingValueContext?: {
     option: Option,
-    value: OptionValue,
+    value: OptionValue
   },
-};
+}
 
 type State = {
   editOption: ?EditOption,
@@ -71,26 +71,24 @@ class OptionList extends Component {
 
   @autobind
   startEditOption(id: any): void {
-    const option = id !== 'new'
-      ? this.props.variants[id]
-      : {
-          attributes: {
-            name: {
-              t: 'string',
-              v: '',
-            },
-            type: {
-              t: 'string',
-              v: '',
-            },
-          },
-          values: [],
-        };
+    const option = (id !== 'new') ? this.props.variants[id] : {
+      attributes: {
+        name: {
+          t: 'string',
+          v: ''
+        },
+        type: {
+          t: 'string',
+          v: '',
+        }
+      },
+      values: [],
+    };
 
     const editOption = { id, option };
 
     this.setState({
-      editOption,
+      editOption
     });
   }
 
@@ -126,7 +124,7 @@ class OptionList extends Component {
           deletingValueContext: {
             option,
             value: deletingValue,
-          },
+          }
         },
       });
     } else {
@@ -143,25 +141,23 @@ class OptionList extends Component {
         deletingContext: {
           affectedSkus,
           id,
-        },
+        }
       });
     } else {
       this.deleteOption(id);
     }
   }
 
+
   @autobind
-  updateOption(id: string | number, option: Option): void {
+  updateOption(id: string|number, option: Option): void {
     const { variants } = this.props;
 
     const newVariants = id.toString() == 'new' ? [...variants, option] : assoc(variants, id, option);
 
-    this.setState(
-      {
-        editOption: null,
-      },
-      () => this.props.updateVariants(newVariants)
-    );
+    this.setState({
+      editOption: null,
+    }, () => this.props.updateVariants(newVariants));
   }
 
   @autobind
@@ -220,7 +216,9 @@ class OptionList extends Component {
 
     const { id, affectedSkus, deletingValueContext } = this.state.deletingContext;
     const skuListForDeletion = affectedSkus.map(sku => {
-      return <li key={sku.attributes.code.v}><tt>{sku.attributes.code.v}</tt></li>;
+      return (
+        <li key={sku.attributes.code.v}><tt>{sku.attributes.code.v}</tt></li>
+      );
     });
     let removeTarget;
     let removeTargetTitle;
@@ -262,13 +260,13 @@ class OptionList extends Component {
     const variants = this.renderOptions(this.props.variants);
     const content = _.isEmpty(variants) ? this.emptyContent : variants;
 
-    const optionDialog =
-      this.state.editOption &&
+    const optionDialog = this.state.editOption && (
       <OptionEditDialog
         option={this.state.editOption}
         cancelAction={this.cancelEditOption}
         confirmAction={this.updateOption}
-      />;
+      />
+    );
 
     return (
       <ContentBox title="Options" actionBlock={this.actions}>

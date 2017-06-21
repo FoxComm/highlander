@@ -21,16 +21,15 @@ const SELECT_STATE = [
 ];
 
 type Props = {
-  disabled: boolean,
+  disabled: bool,
   onChange: Function,
   currentValue: string,
   updateAccountState: Function,
-  className?: string,
   userId: number | string,
 };
 
 type State = {
-  newState: any,
+  newState: any
 };
 
 class AccountState extends Component {
@@ -55,13 +54,13 @@ class AccountState extends Component {
   @autobind
   restoreState() {
     this.setState({
-      newState: null,
+      newState: null
     });
   }
 
   render() {
     const text = `Are you sure you want to change account state to ${this.state.newState} ?`;
-    const strongText = "You won't be able to change it back!";
+    const strongText = 'You won\'t be able to change it back!';
     let confirmation;
     if (this.state.newState === 'archived') {
       confirmation = (
@@ -75,14 +74,13 @@ class AccountState extends Component {
     }
 
     return (
-      <div className={this.props.className}>
+      <div>
         <ContentBox title="Account State">
-          <Dropdown
-            value={this.props.currentValue}
-            onChange={value => this.handleDropdownChange(value)}
-            disabled={this.props.disabled}
-            items={SELECT_STATE}
-            changeable={false}
+          <Dropdown value={this.props.currentValue}
+                    onChange={(value) => this.handleDropdownChange(value)}
+                    disabled={this.props.disabled}
+                    items={SELECT_STATE}
+                    changeable={false}
           />
         </ContentBox>
         <ConfirmationModal
@@ -99,4 +97,7 @@ class AccountState extends Component {
   }
 }
 
-export default connect(null, UserActions)(AccountState);
+export default connect(
+  null,
+  UserActions
+)(AccountState);

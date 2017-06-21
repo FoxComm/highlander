@@ -7,7 +7,10 @@
   margin: 0 auto;
 }
 
-.circle1, .circle2, .circle3, .circle4 {
+.circle1,
+.circle2,
+.circle3,
+.circle4 {
   position: absolute;
   top: 0;
   left: 0;
@@ -40,7 +43,10 @@
   width: 54px;
   height: 54px;
 
-  .circle1, .circle2, .circle3, .circle4 {
+  .circle1,
+  .circle2,
+  .circle3,
+  .circle4 {
     border-width: 6px;
   }
 }
@@ -49,7 +55,10 @@
   width: 32px;
   height: 32px;
 
-  .circle1, .circle2, .circle3, .circle4 {
+  .circle1,
+  .circle2,
+  .circle3,
+  .circle4 {
     border-width: 3px;
     animation-duration: 2s;
   }

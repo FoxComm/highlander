@@ -1,6 +1,9 @@
 @import 'colors.css';
 
-.header, .sub-nav, .user, .top-nav-menu {
+.header,
+.sub-nav,
+.user,
+.top-nav-menu {
   display: flex;
   align-items: center;
 }
@@ -45,7 +48,8 @@
   color: var(--color-additional-text);
 }
 
-.name, .arrow {
+.name,
+.arrow {
   transition: all .2s;
 }
 
@@ -55,7 +59,8 @@
   padding-right: 20px;
   cursor: pointer;
 
-  &:hover .name, &:hover .arrow {
+  &:hover .name,
+  &:hover .arrow {
     opacity: .6;
   }
 }

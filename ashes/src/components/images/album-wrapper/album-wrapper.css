@@ -50,7 +50,8 @@
   right: 0;
   pointer-events: none;
 
-  & .left, & .right {
+  & .left,
+  & .right {
     display: flex;
     background: var(--bg-grey-headers);
     pointer-events: auto;
@@ -81,7 +82,8 @@
     line-height: .9;
   }
 
-  &:global(._disabled), &:global(._disabled):hover {
+  &:global(._disabled),
+  &:global(._disabled):hover {
     cursor: default;
     color: var(--color-additional-text);
   }

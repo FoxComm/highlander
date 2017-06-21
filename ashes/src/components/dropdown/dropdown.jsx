@@ -21,7 +21,14 @@ type State = {
   token: string,
 };
 
-const omitProps = ['items', 'emptyMessage', 'renderDropdownInput', 'renderNullTitle', 'renderPrepend', 'onChange'];
+const omitProps = [
+  'items',
+  'emptyMessage',
+  'renderDropdownInput',
+  'renderNullTitle',
+  'renderPrepend',
+  'onChange'
+];
 
 const mapValues = (items: Array<DropdownItemType>): Array<ValueType> => items.map(([value]) => value);
 
@@ -35,7 +42,10 @@ const highlightOccurrence = (needle: string) => (title: string) => {
   const reg = new RegExp(`(${needle})`, 'gi');
   const wrapper = wrap(reg);
 
-  return title.split(reg).filter(_.identity).map(wrapper);
+  return title
+    .split(reg)
+    .filter(_.identity)
+    .map(wrapper);
 };
 
 export default class Dropdown extends Component {
@@ -82,6 +92,7 @@ export default class Dropdown extends Component {
     );
   }
 
+
   renderItems() {
     const { name, editable } = this.props;
     const { token } = this.state;
@@ -90,11 +101,11 @@ export default class Dropdown extends Component {
     const filtered = editable && token.length ? filterValues(items, token) : items;
     const processItem = editable && token.length ? highlightOccurrence(token) : _.identity;
 
-    return _.map(filtered, ([value, title, isHidden]) =>
+    return _.map(filtered, ([value, title, isHidden]) => (
       <DropdownItem value={value} key={`${name}-${value}`} isHidden={isHidden}>
         {processItem(title)}
       </DropdownItem>
-    );
+    ));
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
@@ -107,7 +118,7 @@ export default class Dropdown extends Component {
     }
 
     // Items became available/unavailable
-    if ((!oldItems && newItems) || (oldItems && !newItems)) {
+    if (!oldItems && newItems || oldItems && !newItems) {
       return true;
     }
 
@@ -125,8 +136,12 @@ export default class Dropdown extends Component {
     const restProps = _.omit(this.props, 'children');
 
     return (
-      <GenericDropdown placeholder="- Select -" {...restProps} renderDropdownInput={this.buildInput}>
-        {this.renderItems()}
+      <GenericDropdown
+        placeholder="- Select -"
+        {...restProps}
+        renderDropdownInput={this.buildInput}
+      >
+        { this.renderItems() }
       </GenericDropdown>
     );
   }

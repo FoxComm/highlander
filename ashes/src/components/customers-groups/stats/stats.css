@@ -26,8 +26,7 @@
   text-align: center;
   margin: 1px;
 
-  & input[type=radio]:not(old) {
-    /* stylelint-disable-line */
+  & input[type=radio]:not(old) { /* stylelint-disable-line */
     & + label {
       position: absolute;
       left: 0;
@@ -39,7 +38,8 @@
       cursor: pointer;
       transition: all .2s;
 
-      &::before, &::after {
+      &::before,
+      &::after {
         content: none !important; /* @todo refactor radio and remove less */
       }
     }

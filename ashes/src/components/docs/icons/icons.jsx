@@ -99,14 +99,14 @@ const iconSet = [
 ];
 
 const Icons = () => {
-  const icons = iconSet.map(iconType =>
+  const icons = iconSet.map((iconType) => (
     <div key={iconType} className={s.box}>
       <div className={s.iconWrapper}>
         <Icon name={iconType} />
       </div>
       <span className={s.text}>{iconType}</span>
     </div>
-  );
+  ));
 
   return (
     <div className={s.container}>

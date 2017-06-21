@@ -4,7 +4,8 @@
 .accordion {
   margin-bottom: 40px;
 
-  & :global(.icon-down), & :global(.icon-up) {
+  & :global(.icon-down),
+  & :global(.icon-up) {
     transform: translateY(0);
     transition: transform .5s;
   }
@@ -82,7 +83,8 @@
   right: 0;
   pointer-events: none;
 
-  & .left, & .right {
+  & .left,
+  & .right {
     display: flex;
     background: var(--bg-grey-headers);
     pointer-events: auto;

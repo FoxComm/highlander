@@ -77,7 +77,8 @@
     background-color: var(--bg-nav-disabled);
   }
 
-  & input[disabled] + .label::before, & input[disabled] + .label::after {
+  & input[disabled] + .label::before,
+  & input[disabled] + .label::after {
     cursor: default;
   }
 

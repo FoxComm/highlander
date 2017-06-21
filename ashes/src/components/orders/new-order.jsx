@@ -78,8 +78,7 @@ export default class NewOrder extends Component {
         onItemClick={this.selectCustomer}
         onGuestClick={this.submitGuest}
         onNewClick={this.createNewCustomer}
-        isGuest={this.state.checkoutAsGuest}
-      />
+        isGuest={this.state.checkoutAsGuest} />
     );
   }
 
@@ -92,20 +91,17 @@ export default class NewOrder extends Component {
       <PilledInput
         solid={true}
         value={this.state.query}
-        onChange={value => this.setState({ query: value })}
+        onChange={value => this.setState({query: value})}
         pills={this.customers}
-        onPillClose={this.clearCustomer}
-      />
+        onPillClose={this.clearCustomer} />
     );
   }
 
   get nextButton() {
     return (
-      <PrimaryButton
-        type="submit"
-        onClick={this.submitAction}
-        className="fc-order-create__submit fc-btn fc-btn-primary fc-right"
-      >
+      <PrimaryButton type="submit"
+                     onClick={this.submitAction}
+                     className="fc-order-create__submit fc-btn fc-btn-primary fc-right" >
         <span>Next</span>
         <Icon name="chevron-right" />
       </PrimaryButton>
@@ -113,23 +109,26 @@ export default class NewOrder extends Component {
   }
 
   get search() {
-    const label = this.state.checkoutAsGuest ? "Guest Customer's Email" : 'Search All Customers';
+    const label = this.state.checkoutAsGuest
+      ? 'Guest Customer\'s Email'
+      : 'Search All Customers';
 
-    const placeholder = this.state.checkoutAsGuest ? "Enter guest customer's email" : 'Customer name or email...';
+    const placeholder = this.state.checkoutAsGuest
+      ? 'Enter guest customer\'s email'
+      : 'Customer name or email...';
 
     return (
       <Typeahead
         className={classNames('fc-order-create__customer-search', s.typeahead)}
         component={ChooseCustomerRow}
-        fetchItems={item => this.props.suggestCustomers(item, this.state.checkoutAsGuest)}
+        fetchItems={(item) => this.props.suggestCustomers(item, this.state.checkoutAsGuest)}
         hideOnBlur={this.state.checkoutAsGuest}
         isFetching={this.isFetching}
         itemsElement={this.customersList}
         inputElement={this.chooseCustomerInput}
         label={label}
         onBlur={this.blur}
-        placeholder={placeholder}
-      />
+        placeholder={placeholder} />
     );
   }
 
@@ -144,12 +143,9 @@ export default class NewOrder extends Component {
   submitGuest() {
     const guest = this.state.query;
     if (email(guest)) {
-      this.setState(
-        {
-          checkoutAsGuest: true,
-        },
-        () => this.selectCustomer({ email: guest })
-      );
+      this.setState({
+        checkoutAsGuest: true
+      }, () => this.selectCustomer({ email: guest }));
     } else if (!_.isEmpty(this.state.query) && _.isEmpty(this.state.customers)) {
       this.setState({
         checkoutAsGuest: true,
@@ -210,14 +206,19 @@ export default class NewOrder extends Component {
                 <Errors errors={this.state.errors} />
               </div>
               <div className="fc-order-create__customer-form fc-col-md-1-1">
-                <Form autoComplete="off" className="fc-grid fc-grid-no-gutter">
+                <Form
+                  autoComplete="off"
+                  className="fc-grid fc-grid-no-gutter">
                   {this.search}
                   <FormField
                     className={classNames('fc-order-create__guest-checkout', s.checkbox)}
                     label="Checkout as guest"
-                    labelAfterInput={true}
-                  >
-                    <BigCheckbox id="guestCheckout" name="guestCheckout" onChange={this.toggleGuest} />
+                    labelAfterInput={true}>
+                    <BigCheckbox
+                      id="guestCheckout"
+                      name="guestCheckout"
+                      onChange={this.toggleGuest}
+                    />
                   </FormField>
                   <div className={s.button}>
                     {this.nextButton}

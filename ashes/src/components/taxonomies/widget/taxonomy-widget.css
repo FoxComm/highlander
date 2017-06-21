@@ -68,24 +68,30 @@
  * Transitions
  ********************************************************/
 
-.dropdownEnter, .dropdownLeave.dropdownLeaveActive {
+.dropdownEnter,
+.dropdownLeave.dropdownLeaveActive {
   display: flex;
   align-items: flex-start;
   height: 0;
   overflow: hidden;
 }
 
-.dropdownEnter.dropdownEnterActive, .dropdownLeave {
+.dropdownEnter.dropdownEnterActive,
+.dropdownLeave {
   height: 40px;
   transition: height .1s;
 }
 
-.pillEnter, .pillAppear, .pillLeave.pillLeaveActive {
+.pillEnter,
+.pillAppear,
+.pillLeave.pillLeaveActive {
   opacity: .1;
   transform: scale(.8);
 }
 
-.pillEnter.pillEnterActive, .pillAppear.pillAppearActive, .pillLeave {
+.pillEnter.pillEnterActive,
+.pillAppear.pillAppearActive,
+.pillLeave {
   opacity: 1;
   transform: none;
   transition: all .2s ease-in-out;

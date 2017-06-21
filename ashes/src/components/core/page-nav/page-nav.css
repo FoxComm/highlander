@@ -24,7 +24,8 @@
     color: var(--color-text);
   }
 
-  & a, & a:visited {
+  & a,
+  & a:visited {
     position: relative;
     display: block;
     max-width: 200px;

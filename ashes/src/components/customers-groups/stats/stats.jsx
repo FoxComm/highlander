@@ -20,7 +20,7 @@ type Props = {
 
 type State = {
   period: string,
-};
+}
 
 function getPercent(stats, period, fieldName) {
   const groupValue = get(stats, [period, 'group', fieldName]);
@@ -42,17 +42,24 @@ const StatsValue = ({ value, currency, preprocess = identity, className = '' }) 
   return <span className={className}>{currency ? <Currency value={v} /> : v}</span>;
 };
 
-const StatsUnit = ({ title, stats, period, fieldName, currency = false, preprocess = identity }) =>
+const StatsUnit = ({ title, stats, period, fieldName, currency = false, preprocess = identity }) => (
   <PanelListItem title={title}>
-    <StatsValue value={get(stats, [period, 'group', fieldName])} preprocess={preprocess} currency={currency} />
+    <StatsValue
+      value={get(stats, [period, 'group', fieldName])}
+      preprocess={preprocess}
+      currency={currency}
+    />
     <StatsValue
       className={s.percent}
       value={getPercent(stats, period, fieldName)}
       preprocess={(v: number) => `${(v * 100).toFixed(2)}%`}
     />
-  </PanelListItem>;
+  </PanelListItem>
+);
 
-const getStatsUnitElement = (stats, period) => rest => <StatsUnit stats={stats} period={period} {...rest} />;
+const getStatsUnitElement = (stats, period) => rest => (
+  <StatsUnit stats={stats} period={period} {...rest} />
+);
 
 class CustomerGroupStats extends Component {
   props: Props;
@@ -62,7 +69,7 @@ class CustomerGroupStats extends Component {
   };
 
   get timeframes(): Array<Element<*>> {
-    return Object.keys(this.props.stats).map((period: string) =>
+    return Object.keys(this.props.stats).map((period: string) => (
       <RadioButton
         id={period}
         label={capitalize(period)}
@@ -72,7 +79,7 @@ class CustomerGroupStats extends Component {
         disabled={this.props.isLoading}
         key={period}
       />
-    );
+    ));
   }
 
   render() {

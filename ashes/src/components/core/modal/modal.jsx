@@ -34,8 +34,12 @@ type Props = {
  *
  * @function Modal
  */
-export default ({ isVisible, title, footer, children, className, onClose = noop }: Props) =>
-  <ModalContainer className={classNames(s.modal, className)} isVisible={isVisible} onClose={onClose}>
+export default ({ isVisible, title, footer, children, className, onClose = noop }: Props) => (
+  <ModalContainer
+    className={classNames(s.modal, className)}
+    isVisible={isVisible}
+    onClose={onClose}
+  >
     <header className={s.header}>
       <div className={s.title}>{title}</div>
       <a className={s.close} onClick={onClose} title="Close">&times;</a>
@@ -44,4 +48,5 @@ export default ({ isVisible, title, footer, children, className, onClose = noop 
       {children}
     </div>
     {footer && <footer className={s.footer}>{footer}</footer>}
-  </ModalContainer>;
+  </ModalContainer>
+);

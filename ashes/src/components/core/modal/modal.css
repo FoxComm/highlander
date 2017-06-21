@@ -17,8 +17,7 @@
   font-weight: 600;
 }
 
-.title {
-} /* stylelint-disable-line */
+.title {} /* stylelint-disable-line */
 
 .close {
   font-size: 24px;

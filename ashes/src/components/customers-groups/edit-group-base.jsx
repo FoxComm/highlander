@@ -21,7 +21,7 @@ type Props = {
   },
 };
 
-export default ({ group, title, onSave, cancelTo, cancelParams, saveInProgress, saveError, params }: Props) =>
+export default ({ group, title, onSave, cancelTo, cancelParams, saveInProgress, saveError, params }: Props) => (
   <div>
     <header>
       <h1 className="fc-title">{title}</h1>
@@ -40,4 +40,5 @@ export default ({ group, title, onSave, cancelTo, cancelParams, saveInProgress, 
         />
       </Form>
     </article>
-  </div>;
+  </div>
+);

@@ -19,7 +19,8 @@
   border-radius: 50%;
 }
 
-.icon-background-success, .icon-background-error {
+.icon-background-success,
+.icon-background-error {
   margin-left: -3px;
   margin-top: -6px;
 }

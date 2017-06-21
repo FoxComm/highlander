@@ -1,8 +1,7 @@
 @import 'colors.css';
 
 .radio {
-  input[type=radio]:not(old) {
-    /* stylelint-disable-line */
+  input[type=radio]:not(old) { /* stylelint-disable-line */
     width: 24px;
     height: 24px;
     margin: 0;
@@ -10,7 +9,8 @@
     opacity: 0;
 
     &:disabled {
-      & + .label::before, &:hover + .label::before {
+      & + .label::before,
+      &:hover + .label::before {
         border-color: var(--color-border);
         background: var(--bg-grey-headers);
       }

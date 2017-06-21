@@ -16,8 +16,9 @@ type Props = {
   onClick: (id?: number) => any,
 };
 
-export default ({ id, name, onClick, icon = '' }: Props) =>
+export default ({ id, name, onClick, icon = '' }: Props) => (
   <button className={styles.template} onClick={() => onClick(id)}>
     {icon && <Icon className={styles.icon} name={icon} />}
     {name}
-  </button>;
+  </button>
+);

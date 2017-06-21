@@ -14,11 +14,15 @@ const TypeaheadItems = props => {
   if (props.items.length) {
     return (
       <ul className={s.items}>
-        {props.items.map(item =>
-          <li className={s.item} onMouseDown={() => props.onItemSelected(item)} key={`item-${item.key || item.id}`}>
+        {props.items.map(item => (
+          <li
+            className={s.item}
+            onMouseDown={() => props.onItemSelected(item)}
+            key={`item-${item.key || item.id}`}
+          >
             {React.createElement(props.component, { model: item, query: props.query })}
           </li>
-        )}
+        ))}
       </ul>
     );
   } else if (props.updating) {

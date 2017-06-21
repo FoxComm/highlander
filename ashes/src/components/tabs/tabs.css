@@ -13,7 +13,8 @@
     @apply --loading-caramel;
   }
 
-  & :global(.fc-tab), & :global(.fc-tab._selected) {
+  & :global(.fc-tab),
+  & :global(.fc-tab._selected) {
     color: var(--color-additional-text);
     cursor: default;
   }

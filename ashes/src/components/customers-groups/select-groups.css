@@ -3,7 +3,8 @@
 .groups-table {
   margin-top: 20px;
 
-  & th:nth-child(3), & td:nth-child(3) {
+  & th:nth-child(3),
+  & td:nth-child(3) {
     width: 40px;
   }
 }

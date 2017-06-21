@@ -18,7 +18,7 @@ export type Node<T> = {
     id: number,
     [key: string]: any,
   },
-};
+}
 
 type Props<T> = {
   visible: boolean,
@@ -27,7 +27,7 @@ type Props<T> = {
   onClick: (id: number) => void,
   currentObjectId?: string,
   getTitle: (node: T) => string,
-};
+}
 
 export default class TreeNode extends Component {
   props: Props<*>;
@@ -53,7 +53,7 @@ export default class TreeNode extends Component {
     const { children } = this.props.node;
 
     const cls = classNames({
-      category: !children,
+      'category': !children,
       'category-expand': children && !this.state.expanded,
       'category-collapse': children && this.state.expanded,
     });
@@ -74,15 +74,16 @@ export default class TreeNode extends Component {
       return null;
     }
 
-    return node.children.map((child: Node<any>) =>
-      <TreeNode
-        visible={this.state.expanded && visible}
-        node={child}
-        depth={depth + 20}
-        currentObjectId={currentObjectId}
-        key={child.node.id}
-        {...rest}
-      />
+    return node.children.map((child: Node<any>) => (
+        <TreeNode
+          visible={this.state.expanded && visible}
+          node={child}
+          depth={depth + 20}
+          currentObjectId={currentObjectId}
+          key={child.node.id}
+          {...rest}
+        />
+      )
     );
   }
 

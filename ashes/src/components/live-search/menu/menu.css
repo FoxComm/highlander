@@ -12,7 +12,8 @@
   line-height: 18px;
   cursor: pointer;
 
-  &.active, &:hover {
+  &.active,
+  &:hover {
     background-color: var(--bg-grey-headers);
   }
 }

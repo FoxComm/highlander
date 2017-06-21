@@ -26,7 +26,7 @@ type Props = {
 };
 
 type State = {
-  isAdding: boolean,
+  isAdding: boolean;
   addingValue: string,
 };
 
@@ -44,8 +44,7 @@ export default class Tags extends Component {
           onKeyDown={this.handleKeyDown}
           onChange={this.handleChange}
           value={this.state.addingValue}
-          autoFocus
-        />
+          autoFocus />
       );
     }
   }
@@ -60,13 +59,10 @@ export default class Tags extends Component {
     const tags = _.compact(this.state.addingValue.trim().split(',').map(s => s.trim()));
     const nTags = _.uniq([...this.tags, ...tags]);
 
-    this.setState(
-      {
-        isAdding: false,
-        addingValue: '',
-      },
-      () => this.updateTags(nTags)
-    );
+    this.setState({
+      isAdding: false,
+      addingValue: '',
+    }, () => this.updateTags(nTags));
   }
 
   trackEvent(...args: any[]) {
@@ -75,7 +71,7 @@ export default class Tags extends Component {
 
   @autobind
   handleKeyDown(event: Object) {
-    const { key } = event;
+    const {key} = event;
     if (key === 'Enter') {
       this.trackEvent('hit_enter');
       this.submitTags();
@@ -115,18 +111,18 @@ export default class Tags extends Component {
     const mainContent = _.isEmpty(tags)
       ? <div styleName="empty-text">Add a tag</div>
       : tags.map(tag => {
-          const tagVal = _.kebabCase(tag);
-          return (
-            <RoundedPill
-              pillId={`fct-tag__${tagVal}`}
-              styleName="tag"
-              text={tag}
-              value={tag}
-              onClose={this.handleRemoveTag}
-              key={tag}
-            />
-          );
-        });
+        const tagVal = _.kebabCase(tag);
+        return (
+          <RoundedPill
+            pillId={`fct-tag__${tagVal}`}
+            styleName="tag"
+            text={tag}
+            value={tag}
+            onClose={this.handleRemoveTag}
+            key={tag}
+          />
+        );
+      });
 
     return (
       <div styleName="main">

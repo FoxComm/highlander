@@ -19,11 +19,13 @@
   & table {
     table-layout: fixed;
 
-    & th:nth-child(1), & th:nth-child(5) {
+    & th:nth-child(1),
+    & th:nth-child(5) {
       width: 120px;
     }
 
-    & th:nth-child(2), & th:nth-child(4) {
+    & th:nth-child(2),
+    & th:nth-child(4) {
       width: 100px;
     }
   }

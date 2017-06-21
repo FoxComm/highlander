@@ -28,7 +28,8 @@
     background-color: var(--bg-grey-buttons-hover);
   }
 
-  &:disabled, &:disabled:hover {
+  &:disabled,
+  &:disabled:hover {
     cursor: default;
     color: var(--color-additional-text);
     background-color: var(--bg-grey-buttons-hover);
@@ -67,7 +68,8 @@
   margin: 0 auto;
 }
 
-.button i[class*="icon-"] + span, span + i[class*="icon-"] {
+.button i[class*="icon-"] + span,
+span + i[class*="icon-"] {
   margin-left: 8px;
 }
 
@@ -87,7 +89,8 @@
   background-color: var(--bg-green-buttons-hover);
 }
 
-.primary:disabled, .primary:disabled:hover {
+.primary:disabled,
+.primary:disabled:hover {
   cursor: default;
   color: var(--color-light-text-hover);
   background-color: var(--bg-green-buttons);

@@ -18,7 +18,7 @@ import {
   fetchGroupStats,
   GROUP_TYPE_MANUAL,
   GROUP_TYPE_DYNAMIC,
-  addCustomersToGroup,
+  addCustomersToGroup
 } from 'modules/customer-groups/details/group';
 import { actions as customersListActions } from 'modules/customer-groups/details/customers-list';
 import { suggestCustomers } from 'modules/customers/suggest';
@@ -59,13 +59,8 @@ type Props = {
   },
   bulkActions: {
     deleteCustomersFromGroup: (groupId: number, customersIds: Array<number>) => Promise<*>,
-    exportByIds: (
-      ids: Array<number>,
-      description: string,
-      fields: Array<Object>,
-      entity: string,
-      identifier: string
-    ) => void,
+    exportByIds: (ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string)
+      => void,
   },
   bulkExportAction: (fields: Array<string>, entity: string, identifier: string, description: string) => Promise<*>,
   suggested: Array<TUser>,
@@ -79,12 +74,13 @@ const prefixed = prefix('fc-customer-group');
 const tableColumns = [
   { field: 'name', text: 'Name' },
   { field: 'email', text: 'deleteCustomersFromGroupEmail' },
-  { field: 'joinedAt', text: 'Date/Time Joined', type: 'datetime' },
+  { field: 'joinedAt', text: 'Date/Time Joined', type: 'datetime' }
 ];
 
 const TotalCounter = makeTotalCounter(state => state.customerGroups.details.customers, customersListActions);
 
 class GroupDetails extends Component {
+
   props: Props;
 
   static defaultProps = {
@@ -161,14 +157,17 @@ class GroupDetails extends Component {
       'Delete From Group',
       this.handleDeleteCustomers,
       'successfully deleted from group',
-      'could not be deleted from group',
+      'could not be deleted from group'
     ];
   }
 
   get bulkActions() {
     if (this.props.group.groupType != GROUP_TYPE_MANUAL) return [];
 
-    return [bulkExportBulkAction(this.bulkExport, 'Customers'), this.deleteAction];
+    return [
+      bulkExportBulkAction(this.bulkExport, 'Customers'),
+      this.deleteAction,
+    ];
   }
 
   @autobind
@@ -206,12 +205,10 @@ class GroupDetails extends Component {
     const conditionBlock = _.map(conditions, this.renderCriterion);
 
     return (
-      <ContentBox
-        title="Criteria"
-        className={prefixed('criteria')}
-        bodyClassName={classNames({ _closed: !this.state.criteriaOpen })}
-        actionBlock={this.criteriaToggle}
-      >
+      <ContentBox title="Criteria"
+                  className={prefixed('criteria')}
+                  bodyClassName={classNames({ '_closed': !this.state.criteriaOpen })}
+                  actionBlock={this.criteriaToggle}>
         <span className={prefixed('main')}>
           Customers match
           &nbsp;<span className={prefixed('inline-label')}>{main}</span>&nbsp;
@@ -226,7 +223,9 @@ class GroupDetails extends Component {
     const { criteriaOpen } = this.state;
     const icon = criteriaOpen ? 'icon-chevron-up' : 'icon-chevron-down';
 
-    return <Icon name={icon} onClick={() => this.setState({ criteriaOpen: !criteriaOpen })} />;
+    return (
+      <Icon name={icon} onClick={() => this.setState({ criteriaOpen: !criteriaOpen })} />
+    );
   }
 
   @debounce(200)
@@ -236,11 +235,18 @@ class GroupDetails extends Component {
 
   @autobind
   renderCriterion([field, operator, value]: Array<Object>, index?: number) {
-    return <Criterion key={index} field={field} operator={operator} value={value} />;
+    return (
+      <Criterion
+        key={index}
+        field={field}
+        operator={operator}
+        value={value}
+      />
+    );
   }
 
   get renderRow(): Function {
-    return (row, index, columns, params) =>
+    return (row, index, columns, params) => (
       <MultiSelectRow
         key={index}
         columns={columns}
@@ -249,7 +255,8 @@ class GroupDetails extends Component {
         row={row}
         setCellContents={(customer, field) => _.get(customer, field)}
         params={params}
-      />;
+      />
+    );
   }
 
   renderBulkDetails(customerName, customerId) {
@@ -300,7 +307,11 @@ class GroupDetails extends Component {
           entity="customer"
           renderDetail={this.renderBulkDetails}
         />
-        <BulkActions module="customerGroups.details" entity="customer" actions={this.bulkActions}>
+        <BulkActions
+          module="customerGroups.details"
+          entity="customer"
+          actions={this.bulkActions}
+        >
           <SelectableSearchList
             exportEntity="customers"
             exportTitle="Customers"
@@ -338,7 +349,7 @@ class GroupDetails extends Component {
   }
 }
 
-const mapState = state => {
+const mapState = (state) => {
   return {
     customersList: _.get(state.customerGroups, 'details.customers', {}),
     statsLoading: _.get(state.asyncActions, 'fetchStatsCustomerGroup.inProgress', false),
@@ -354,13 +365,10 @@ const mapDispatch = (dispatch, props) => {
   return {
     groupActions: bindActionCreators({ fetchGroupStats }, dispatch),
     customersListActions: bindActionCreators(customersListActions, dispatch),
-    ...bindActionCreators(
-      {
-        suggestCustomers: suggestCustomers(customers),
-        addCustomersToGroup,
-      },
-      dispatch
-    ),
+    ...(bindActionCreators({
+      suggestCustomers: suggestCustomers(customers),
+      addCustomersToGroup,
+    }, dispatch)),
     bulkActions: bindActionCreators(bulkActions, dispatch),
     bulkExportAction: bindActionCreators(bulkExport, dispatch),
   };

@@ -53,7 +53,7 @@ type State = {
   showNewValueModal: boolean,
   linkingId: ?number,
   unlinkingId: ?number,
-};
+}
 
 const getName = (obj: any) => get(obj, 'attributes.name.v');
 
@@ -73,7 +73,10 @@ class TaxonomyWidget extends Component {
   @autobind
   handleDeleteClick(taxonId: Value) {
     this.setState({ unlinkingId: parseInt(taxonId) }, () => {
-      this.props.unlinkProduct(taxonId).then(this.props.onChange).then(() => this.setState({ unlinkingId: null }));
+      this.props.unlinkProduct(taxonId)
+
+        .then(this.props.onChange)
+        .then(() => this.setState({ unlinkingId: null }));
     });
   }
 
@@ -85,7 +88,9 @@ class TaxonomyWidget extends Component {
   @autobind
   handleLinkClick(taxonId: Value) {
     this.setState({ linkingId: parseInt(taxonId) }, () => {
-      this.props.linkProduct(taxonId).then(this.props.onChange).then(() => this.setState({ linkingId: null }));
+      this.props.linkProduct(taxonId)
+        .then(this.props.onChange)
+        .then(() => this.setState({ linkingId: null }));
     });
   }
 
@@ -115,7 +120,7 @@ class TaxonomyWidget extends Component {
 
     return (
       <Transition {...transitionProps} key="pills">
-        {taxons.map((taxon: Taxon) =>
+        {taxons.map((taxon: Taxon) => (
           <RoundedPill
             text={getName(taxon)}
             onClick={transitionToLazy('taxon-details', { context, taxonomyId: taxonomy.id, taxonId: taxon.id })}
@@ -125,7 +130,7 @@ class TaxonomyWidget extends Component {
             inProgress={this.state.unlinkingId === taxon.id}
             key={taxon.id}
           />
-        )}
+        ))}
       </Transition>
     );
   }
@@ -136,12 +141,12 @@ class TaxonomyWidget extends Component {
     return (
       <Transition {...transitionProps} key="dropdown">
         {this.state.showInput &&
-          <TaxonomyDropdown
-            onTaxonClick={this.handleLinkClick}
-            taxonomy={this.props.taxonomy}
-            linkedTaxonomy={this.props.linkedTaxonomy}
-            onNewValueClick={this.toggleShowModal}
-          />}
+        <TaxonomyDropdown
+          onTaxonClick={this.handleLinkClick}
+          taxonomy={this.props.taxonomy}
+          linkedTaxonomy={this.props.linkedTaxonomy}
+          onNewValueClick={this.toggleShowModal}
+        />}
       </Transition>
     );
   }
@@ -168,7 +173,11 @@ class TaxonomyWidget extends Component {
       return <Spinner className={s.spinner} />;
     }
 
-    return [this.dropdown, this.linkedTaxons, this.newValueModal];
+    return [
+      this.dropdown,
+      this.linkedTaxons,
+      this.newValueModal,
+    ];
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
@@ -209,7 +218,7 @@ const mapState = (state, props: Props) => {
   const createTaxonState = {
     err: createState.err || linkState.err || props.fetchState.err,
     inProgress: createState.inProgress || linkState.inProgress || props.fetchState.inProgress,
-    finished: (createState.finished && linkState.finished) || props.fetchState.finished,
+    finished: createState.finished && linkState.finished || props.fetchState.finished,
   };
 
   return {

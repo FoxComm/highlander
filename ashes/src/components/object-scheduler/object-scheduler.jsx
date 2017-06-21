@@ -15,6 +15,7 @@ import { Dropdown } from '../dropdown';
 import DateTimePicker from '../date-time-picker/date-time-picker';
 import Icon from 'components/core/icon';
 
+
 type Props = {
   attributes: Attributes,
   onChange: (attributes: Attributes) => void,
@@ -27,7 +28,10 @@ type State = {
   showActiveToPicker: boolean,
 };
 
-const SELECT_STATE = [['active', 'Active'], ['inactive', 'Inactive']];
+const SELECT_STATE = [
+  ['active', 'Active'],
+  ['inactive', 'Inactive'],
+];
 
 export default class ObjectScheduler extends Component {
   props: Props;
@@ -39,7 +43,7 @@ export default class ObjectScheduler extends Component {
 
     return {
       showActiveFromPicker: !!activeFrom,
-      showActiveToPicker: !!activeTo,
+      showActiveToPicker: !!activeTo
     };
   }
 
@@ -72,8 +76,7 @@ export default class ObjectScheduler extends Component {
             pickerCloseBtnId="fct-remove-start-date-btn"
             dateTime={this.activeFrom}
             onChange={this.updateActiveFrom}
-            onCancel={this.handleCancelFrom}
-          />
+            onCancel={this.handleCancelFrom} />
         </div>
       );
     }
@@ -82,12 +85,13 @@ export default class ObjectScheduler extends Component {
   get activeToPicker(): ?Element<*> {
     if (this.state.showActiveFromPicker) {
       const picker = this.state.showActiveToPicker
-        ? <DateTimePicker
+        ? (
+          <DateTimePicker
             pickerCloseBtnId="fct-remove-end-date-btn"
             dateTime={this.activeTo}
             onChange={this.updateActiveTo}
-            onCancel={this.handleCancelTo}
-          />
+            onCancel={this.handleCancelTo} />
+        )
         : <a id="add-end-date-btn" onClick={this.handleShowActiveTo}><Icon name="add" /></a>;
 
       return (
@@ -101,7 +105,7 @@ export default class ObjectScheduler extends Component {
     }
   }
 
-  get isActive(): boolean {
+  get isActive(): bool {
     return isActive(this.activeFrom, this.activeTo);
   }
 
@@ -147,11 +151,11 @@ export default class ObjectScheduler extends Component {
       ...attributes,
       activeFrom: {
         v: activeFrom,
-        t: 'datetime',
+        t: 'datetime'
       },
       activeTo: {
         v: activeTo,
-        t: 'datetime',
+        t: 'datetime'
       },
     };
   }
@@ -174,24 +178,18 @@ export default class ObjectScheduler extends Component {
     this.trackEvent('click_cancel_from_picker');
     const attributes = this.setFromTo(null, null);
 
-    this.setState(
-      {
-        showActiveFromPicker: false,
-        showActiveToPicker: false,
-      },
-      () => this.props.onChange(attributes)
-    );
+    this.setState({
+      showActiveFromPicker: false,
+      showActiveToPicker: false,
+    }, () => this.props.onChange(attributes));
   }
 
   @autobind
   handleCancelTo() {
     this.trackEvent('click_cancel_to_picker');
-    this.setState(
-      {
-        showActiveToPicker: false,
-      },
-      () => this.updateActiveTo(null)
-    );
+    this.setState({
+      showActiveToPicker: false,
+    }, () => this.updateActiveTo(null));
   }
 
   @autobind
@@ -202,6 +200,7 @@ export default class ObjectScheduler extends Component {
       showActiveToPicker: true,
     });
   }
+
 
   get activeDropdown() {
     const activeState = this.isActive ? 'active' : 'inactive';

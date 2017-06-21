@@ -96,7 +96,8 @@
   color: var(--color-additional-text);
   background-color: var(--bg-white);
 
-  &:hover, &._active {
+  &:hover,
+  &._active {
     color: var(--color-text);
   }
 }

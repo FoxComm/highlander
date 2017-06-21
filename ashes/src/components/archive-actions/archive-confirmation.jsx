@@ -16,7 +16,7 @@ type Props = {
   archiveState: AsyncState,
 };
 
-export default (props: Props) =>
+export default (props: Props) => (
   <ConfirmationModal
     isVisible={props.isVisible}
     title={`Archive ${props.type}?`}
@@ -31,4 +31,5 @@ export default (props: Props) =>
     <p>
       Are you sure you want to archive <strong>{props.title}</strong>?
     </p>
-  </ConfirmationModal>;
+  </ConfirmationModal>
+);
