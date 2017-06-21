@@ -29,14 +29,14 @@ class PromotionPage extends ObjectPage {
 
       if (!validator(v)) errors.push(validate[k].error);
 
-    })
+    });
     return errors;
   }
 
   setClientSideErrors(errors) {
     this.setState({
       clientSideErrors: errors,
-    })
+    });
   }
 
   save(): ?Promise<*> {
