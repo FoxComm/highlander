@@ -27,7 +27,7 @@ defmodule Geronimo.Kafka.SchemaRegistryClient do
   end
 
   def schema_registry_url do
-    url = Application.fetch_env!(:geronimo, :schema_registry_url)
+    url = Application.fetch_env!(:geronimo, :schema_registry_ip)
     port = Application.fetch_env!(:geronimo, :schema_registry_port)
     "http://#{url}:#{port}"
   end
