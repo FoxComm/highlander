@@ -99,8 +99,7 @@ object DbTestSupport extends GimmeSupport {
 
   def api: PostgresProfile.API = slick.jdbc.PostgresProfile.api
 
-  def migrated = { // FIXME for debug only @aafa
-    println("RUN migration..")
+  lazy val migrated = {
     val tplName     = DB_TEMPLATE
     val stmt1       = conn.createStatement()
     implicit val ec = scala.concurrent.ExecutionContext.Implicits.global

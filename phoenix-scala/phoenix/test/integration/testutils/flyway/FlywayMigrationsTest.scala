@@ -12,7 +12,7 @@ import slick.util.AsyncExecutor
 
 import scala.concurrent.ExecutionContextExecutor
 
-abstract class FlywayMigrationsTest
+abstract class FlywayMigrationsTest(migrationVersion: String)
     extends BaseFlywayCallback
     with GimmeSupport
     with TestBase
@@ -23,33 +23,31 @@ abstract class FlywayMigrationsTest
   /*
     Defines target version that needs to be tested
    */
-  val versionToTest: MigrationVersion
+  val versionToTest: MigrationVersion = MigrationVersion.fromVersion(migrationVersion)
 
   override def beforeEachMigrate(connection: Connection, info: MigrationInfo) =
     if (info.getVersion == versionToTest) {
-      implicit val conn: Database = new UnmanagedConnection(connection)
       logger.info(s"beforeEachMigrate ${info.getVersion}")
-      testBeforeMigration()
+      testBeforeMigration(new UnmanagedConnection(connection))
     }
 
   override def afterEachMigrate(connection: Connection, info: MigrationInfo) =
     if (info.getVersion == versionToTest) {
-      implicit val conn: Database = new UnmanagedConnection(connection)
       logger.info(s"afterEachMigrate ${info.getVersion}")
-      testAfterMigration()
+      testAfterMigration(new UnmanagedConnection(connection))
     }
 
   /*
-    Do not throw any exception inside, it will cause transaction to rollback and any following sql will be ignored
+    Do not throw any exception inside, it will cause transaction to rollback and any following sql will crash
    */
-  def testBeforeMigration()(implicit db: Database): Unit
-  def testAfterMigration()(implicit db: Database): Unit
+  def testBeforeMigration(implicit db: Database): Unit
+  def testAfterMigration(implicit db: Database): Unit
 
 }
 
 object FlywayMigrationsTest {
   def list: Seq[FlywayMigrationsTest] = Seq(
-    new AddressesFlywayCallback
+    PluginsMigrationTest
   )
 }
 
@@ -66,7 +64,6 @@ class UnmanagedSession(database: DatabaseDef) extends BaseSession(database) {
 }
 
 class UnmanagedConnection(conn: Connection)
-    extends JdbcBackend.DatabaseDef(new UnmanagedJdbcDataSource(conn),
-                                    AsyncExecutor("UmanagedDatabase-AsyncExecutor", 1, -1)) {
+    extends JdbcBackend.DatabaseDef(new UnmanagedJdbcDataSource(conn), AsyncExecutor("AsyncExecutor", 1, -1)) {
   override def createSession() = new UnmanagedSession(this)
 }
