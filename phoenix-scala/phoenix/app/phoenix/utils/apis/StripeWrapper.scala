@@ -1,21 +1,18 @@
 package phoenix.utils.apis
 
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeoutException
-
 import cats.implicits._
 import com.stripe.exception.{CardException, StripeException}
 import com.stripe.model.{DeletedCard, ExternalAccount, Token, Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
 import com.typesafe.scalalogging.LazyLogging
 import core.db._
-import core.failures.{Failures, GeneralFailure}
+import core.failures._
+import java.util.concurrent.{Executors, ScheduledExecutorService}
 import phoenix.failures.StripeFailures._
+import phoenix.utils._
 import phoenix.utils.apis.StripeMappings.cardExceptionMap
-
-import scala.concurrent.duration._
 import scala.collection.JavaConversions._
-import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.util.Try
+import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Low-level Stripe API wrapper implementation.
@@ -23,10 +20,13 @@ import scala.util.Try
   * If you add new methods, be sure to provide default mock in `MockedApis` trait for testing!
   */
 class StripeWrapper extends StripeApiWrapper with LazyLogging {
-  def retrieveToken(t: String) = {
+  def retrieveToken(t: String): Result[Token] = {
     logger.info(s"Retrieve token details: $t")
     inBlockingPool(Token.retrieve(t))
   }
+
+  private[this] implicit val scheduler: ScheduledExecutorService =
+    Executors.newSingleThreadScheduledExecutor()
 
   private[this] implicit val blockingIOPool: ExecutionContext =
     ExecutionContext.fromExecutor(Executors.newCachedThreadPool)
@@ -119,25 +119,15 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
   // param: ⇒ A makes method param "lazy". Do not remove!
   @inline protected[utils] final def inBlockingPool[A <: AnyRef](action: ⇒ A): Result[A] = {
     // TODO: don’t we need to catch Future (and DBIO) failures like that in general? Also handling ExecutionException. See dispatch.EnrichedFuture#either @michalrus
-    val timeout = 10.seconds
-    val f = try {
-      Await.result(
-        Future(Either.right(action)).recover {
-          case t: CardException if cardExceptionMap.contains(t.getCode) ⇒
-            Either.left(cardExceptionMap(t.getCode).single)
-          case t: StripeException ⇒
-            Either.left(StripeFailure(t).single)
-        },
-        timeout
-      )
-    } catch {
-      case te: TimeoutException ⇒ {
-        val message = s"Request to Stripe timed out: ${te.getMessage}"
-        logger.error(message)
-        Either.left(StripeProcessingFailure(message).single)
+    val apiCall = Future(Either.right(action))
+      .recover {
+        case t: CardException if cardExceptionMap.contains(t.getCode) ⇒
+          Either.left(cardExceptionMap(t.getCode).single)
+        case t: StripeException ⇒
+          Either.left(StripeFailure(t).single)
       }
-    }
-
-    Result.fromEither(f)
+      .timeoutAfter(10.seconds, logger)(
+        Either.left(StripeProcessingFailure("Request to Stripe timed out").single))
+    Result.fromFEither(apiCall)
   }
 }
