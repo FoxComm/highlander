@@ -302,11 +302,13 @@ object Seeds {
          }
     } yield {}
 
-  private def flyWayMigrate(config: Config): Unit = {
+  private def flyWayMigrate(config: Config)(implicit db: DB): Unit = {
     val flyway = newFlyway(jdbcDataSourceFromConfig("db", config), rootProjectSqlLocation)
 
     flyway.clean()
     flyway.migrate()
+
+    Await.result(db.run(SequenceRandomizer.randomizeSchema("public")), 1.minute /* 10 ms really */ )
   }
 
   private def jdbcDataSourceFromConfig(section: String, config: Config) = {
