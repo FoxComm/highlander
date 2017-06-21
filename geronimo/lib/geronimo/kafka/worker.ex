@@ -1,4 +1,4 @@
-defmodule Geronimo.KafkaWorker do
+defmodule Geronimo.Kafka.Worker do
   require Logger
 
   def start do
