@@ -126,31 +126,37 @@ export default class PromotionForm extends ObjectDetails {
   }
 
   renderDiscounts() {
-    let discountChilds = [];
     const discounts = _.get(this.props.object, 'discounts', []);
-    discounts.map((disc, index) => {
-      discountChilds.push(<div styleName="sub-title">Qualifier</div>),
-        discountChilds.push(<DiscountAttrs
-          blockId={'promo-qualifier-block-' + index}
-          dropdownId={'promo-qualifier-dd-' + index}
+    const discountChildren = discounts.reduce((acc, disc, index) => {
+      const makeKey = prefix => `${prefix}-${disc.id || index}`;
+      return [
+        ...acc,
+        <div key={makeKey('qualifier')} styleName="sub-title">Qualifier</div>,
+        <DiscountAttrs
+          key={makeKey('qualifier-attrs')}
+          blockId={'promo-qualifier-block-'+index}
+          dropdownId={'promo-qualifier-dd-'+index}
           discount={disc}
           attr="qualifier"
           descriptions={qualifiers}
           onChange={this.handleQualifierChange}
-        />);
-      discountChilds.push(<div styleName="sub-title">Offer</div>),
-        discountChilds.push(<DiscountAttrs
-          blockId={'promo-offer-block-' + index}
-          dropdownId={'promo-offer-dd-' + index}
+        />,
+        <div key={makeKey('offer')} styleName="sub-title">Offer</div>,
+        <DiscountAttrs
+          key={makeKey('offer-attrs')}
+          blockId={'promo-offer-block-'+index}
+          dropdownId={'promo-offer-dd-'+index}
           discount={disc}
           attr="offer"
           descriptions={offers}
           onChange={this.handleOfferChange}
-        />);
-    });
+        />
+      ];
+    }, []);
+
     return (
       <div>
-        {discountChilds}
+        {discountChildren}
       </div>
     );
   }
