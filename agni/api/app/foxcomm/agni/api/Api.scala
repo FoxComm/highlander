@@ -37,7 +37,7 @@ object Api extends App {
 
   implicit val s: Scheduler = Scheduler.global
   val config                = AppConfig.load()
-  val svc                   = SearchService.fromConfig(config)
+  val svc                   = SearchService.fromConfig(config, interpreter.es.default)
 
   Await.result(
     Http.server

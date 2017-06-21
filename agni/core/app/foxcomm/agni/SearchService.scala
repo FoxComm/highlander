@@ -1,7 +1,7 @@
 package foxcomm.agni
 
 import cats.implicits._
-import foxcomm.agni.interpreter._
+import foxcomm.agni.interpreter.es._
 import io.circe._
 import io.circe.jawn.parseByteBuffer
 import monix.eval.{Coeval, Task}
@@ -10,20 +10,19 @@ import org.elasticsearch.client.Client
 import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.common.transport.InetSocketTransportAddress
-import org.elasticsearch.index.query.{BoolQueryBuilder, QueryBuilders}
+import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.SearchHit
-import scala.concurrent.ExecutionContext
 
 @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
-class SearchService private (client: Client)(implicit qi: QueryInterpreter[Coeval, BoolQueryBuilder]) {
+class SearchService private (client: Client, qi: ESQueryInterpreter) {
   import SearchService.ExtractJsonObject
 
   def searchFor(searchIndex: String,
                 searchType: String,
                 searchQuery: SearchPayload,
                 searchSize: Int,
-                searchFrom: Option[Int])(implicit ec: ExecutionContext): Task[SearchResult] = {
-    def setupBuilder: Coeval[SearchRequestBuilder] = Coeval.eval {
+                searchFrom: Option[Int]): Task[SearchResult] = {
+    def prepareBuilder: Coeval[SearchRequestBuilder] = Coeval.eval {
       val builder = new SearchRequestBuilder(client, SearchAction.INSTANCE)
       builder
         .setIndices(searchIndex)
@@ -41,12 +40,14 @@ class SearchService private (client: Client)(implicit qi: QueryInterpreter[Coeva
         query.fold {
           Coeval.eval(builder.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchAllQuery())))
         } { q ⇒
-          qi(QueryBuilders.boolQuery(), q.query).map(builder.setQuery)
+          qi(q.query).map(builder.setQuery)
         }
     }
 
+    def setupBuilder: Task[SearchRequestBuilder] = (prepareBuilder flatMap evalQuery).task
+
     for {
-      builder ← setupBuilder.flatMap(evalQuery).task
+      builder ← setupBuilder
       request = builder.request()
       response ← async[SearchResponse, SearchResult](client.search(request, _))
     } yield {
@@ -73,10 +74,10 @@ object SearchService {
         .flatMap(_.asObject)
   }
 
-  def apply(client: Client)(implicit qi: QueryInterpreter[Coeval, BoolQueryBuilder]): SearchService =
-    new SearchService(client)
+  def apply(client: Client, qi: ESQueryInterpreter): SearchService =
+    new SearchService(client, qi)
 
-  def fromConfig(config: AppConfig)(implicit qi: QueryInterpreter[Coeval, BoolQueryBuilder]): SearchService = {
+  def fromConfig(config: AppConfig, qi: ESQueryInterpreter): SearchService = {
     val esConfig = config.elasticsearch
     val settings =
       Settings.settingsBuilder().put("cluster.name", esConfig.cluster).build()
@@ -86,6 +87,6 @@ object SearchService {
       .build()
       .addTransportAddresses(esConfig.host.toList.map(new InetSocketTransportAddress(_)): _*)
 
-    new SearchService(client)
+    apply(client, qi)
   }
 }

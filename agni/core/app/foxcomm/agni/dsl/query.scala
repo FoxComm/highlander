@@ -7,7 +7,10 @@ import io.circe.{Decoder, JsonNumber, KeyDecoder}
 import shapeless._
 import shapeless.ops.coproduct.Folder
 
-@SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf", "org.wartremover.warts.ExplicitImplicitTypes"))
+@SuppressWarnings(
+  Array("org.wartremover.warts.AsInstanceOf",
+        "org.wartremover.warts.ExplicitImplicitTypes",
+        "org.wartremover.warts.DefaultArguments"))
 object query {
   sealed trait QueryField {
     def toList: List[String]
@@ -38,6 +41,16 @@ object query {
         Decoder[Multiple].map(m ⇒ m: QueryField)
   }
 
+  sealed trait QueryContext
+  object QueryContext {
+    case object filter extends QueryContext
+    case object must   extends QueryContext
+    case object should extends QueryContext
+    case object not    extends QueryContext
+
+    implicit val decodeQueryContext: Decoder[QueryContext] = deriveEnumerationDecoder[QueryContext]
+  }
+
   sealed trait RangeFunction
   object RangeFunction {
     sealed trait LowerBound extends RangeFunction {
@@ -66,15 +79,6 @@ object query {
       case "gt" | ">"   ⇒ Some(Gt)
       case "gte" | ">=" ⇒ Some(Gte)
     }
-  }
-
-  sealed trait EntityState
-  object EntityState {
-    case object all      extends EntityState
-    case object active   extends EntityState
-    case object inactive extends EntityState
-
-    implicit val decodeEntityState: Decoder[EntityState] = deriveEnumerationDecoder[EntityState]
   }
 
   final case class RangeBound[T](lower: Option[(RangeFunction.LowerBound, T)],
@@ -159,10 +163,37 @@ object query {
 
   sealed trait QueryFunction
   object QueryFunction {
-    final case class matches(in: QueryField, value: QueryValue[String]) extends QueryFunction
-    final case class range(in: QueryField.Single, value: RangeValue)    extends QueryFunction
-    final case class eq(in: QueryField, value: CompoundValue)           extends QueryFunction
-    final case class neq(in: QueryField, value: CompoundValue)          extends QueryFunction
+    sealed trait WithField { this: QueryFunction ⇒
+      def in: QueryField
+    }
+    sealed trait WithContext { this: QueryFunction ⇒
+      def context: QueryContext
+    }
+
+    final case class matches private (in: QueryField,
+                                      value: QueryValue[String],
+                                      context: QueryContext = QueryContext.must)
+        extends QueryFunction
+        with WithContext
+        with WithField
+    final case class range private (in: QueryField.Single,
+                                    value: RangeValue,
+                                    context: QueryContext = QueryContext.filter)
+        extends QueryFunction
+        with WithContext
+        with WithField
+    final case class eq private (in: QueryField,
+                                 value: CompoundValue,
+                                 context: QueryContext = QueryContext.filter)
+        extends QueryFunction
+        with WithContext
+        with WithField
+    final case class neq private (in: QueryField,
+                                  value: CompoundValue,
+                                  context: QueryContext = QueryContext.not)
+        extends QueryFunction
+        with WithContext
+        with WithField
 
     implicit val decodeQueryFunction: Decoder[QueryFunction] = deriveDecoder[QueryFunction]
   }
