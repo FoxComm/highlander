@@ -14,7 +14,6 @@ const offers = [
         {type: 'type'},
         {
           name: 'discount',
-          value: 0,
           widget: 'percent',
           template: props => <WidgetContainer>Get {props.children} off your order.</WidgetContainer>
         }
@@ -30,7 +29,6 @@ const offers = [
         {type: 'type'},
         {
           name: 'discount',
-          value: 0,
           widget: 'currency',
           template: props => <WidgetContainer>Get {props.children} off your order.</WidgetContainer>
         }
@@ -46,7 +44,6 @@ const offers = [
         {type: 'type'},
         {
           name: 'discount',
-          value: 0,
           widget: 'percent',
           template: props => <WidgetContainer>Get {props.children} off discounted item.</WidgetContainer>
         }
@@ -69,7 +66,6 @@ const offers = [
         {type: 'type'},
         {
           name: 'discount',
-          value: 0,
           widget: 'currency',
           template: props => <WidgetContainer>Get {props.children} off discounted item.</WidgetContainer>
         }
@@ -92,7 +88,6 @@ const offers = [
         {type: 'type'},
         {
           name: 'discount',
-          value: 0,
           widget: 'percent',
           template: props => <WidgetContainer>Get {props.children} off discounted items.</WidgetContainer>
         }
@@ -115,7 +110,6 @@ const offers = [
         {type: 'type'},
         {
           name: 'discount',
-          value: 0,
           widget: 'currency',
           template: props => <WidgetContainer>Get {props.children} off discounted items.</WidgetContainer>
         }
@@ -139,13 +133,12 @@ const offers = [
   {
     type: 'discountedShipping',
     title: 'Discounted shipping',
-    default: {setPrice: 0},
+    default: {discount: 0},
     content: [
       [
         {type: 'type'},
         {
-          name: 'setPrice',
-          value: 0,
+          name: 'discount',
           widget: 'currency',
           template: props => <WidgetContainer>Get {props.children} off shipping.</WidgetContainer>
         }
@@ -161,7 +154,6 @@ const offers = [
         {type: 'type'},
         {
           name: 'setPrice',
-          value: 0,
           widget: 'currency',
           template: props => <WidgetContainer>Set price to {props.children}</WidgetContainer>
         }
