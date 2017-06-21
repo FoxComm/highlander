@@ -6,8 +6,8 @@ type Country = {
   code: string,
   continent: string,
   currency: string,
-  isBillable: bool,
-  isShippable: bool,
+  isBillable: boolean,
+  isShippable: boolean,
   languages: Array<string>,
-  usesPostalCode: bool,
+  usesPostalCode: boolean,
 };

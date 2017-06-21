@@ -25,7 +25,7 @@ type CheckboxProps = BaseProps & {
 type PartialProps = CheckboxProps & {
   /** If true - sets ("-") in checkbox  */
   halfChecked?: boolean,
-}
+};
 
 const BaseCheckbox = (props: BaseProps) => {
   const { className, label, id, ...rest } = props;
@@ -50,37 +50,37 @@ const BaseCheckbox = (props: BaseProps) => {
  * @function Checkbox
  */
 export const Checkbox = ({ className, inCell = false, ...rest }: CheckboxProps) => {
-  const cls = classNames(s.checkbox, {
-    [s.inCell]: inCell,
-  }, className);
-
-  return (
-    <BaseCheckbox className={cls} {...rest} />
+  const cls = classNames(
+    s.checkbox,
+    {
+      [s.inCell]: inCell,
+    },
+    className
   );
+
+  return <BaseCheckbox className={cls} {...rest} />;
 };
 
 export const PartialCheckbox = ({ halfChecked, className = '', ...rest }: PartialProps) => {
-  const cls = classNames(s.halfCheckbox, {
-    [s.halfChecked]: (rest.checked || rest.defaultChecked) && halfChecked,
-  }, className);
-
-  return (
-    <BaseCheckbox className={cls} {...rest} />
+  const cls = classNames(
+    s.halfCheckbox,
+    {
+      [s.halfChecked]: (rest.checked || rest.defaultChecked) && halfChecked,
+    },
+    className
   );
+
+  return <BaseCheckbox className={cls} {...rest} />;
 };
 
 export const BigCheckbox = ({ className = '', ...rest }: BaseProps) => {
   const cls = classNames(s.bigCheckbox, className);
 
-  return (
-    <BaseCheckbox className={cls} {...rest} />
-  );
+  return <BaseCheckbox className={cls} {...rest} />;
 };
 
 export const SliderCheckbox = ({ className = '', ...rest }: BaseProps) => {
   const cls = classNames(s.slideCheckbox, className);
 
-  return (
-    <BaseCheckbox className={cls} {...rest} />
-  );
+  return <BaseCheckbox className={cls} {...rest} />;
 };

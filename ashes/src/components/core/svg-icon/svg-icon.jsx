@@ -15,8 +15,8 @@ type Props = {
   /** icon type */
   name: string,
   /** svg optional className */
-  className?: string
-}
+  className?: string,
+};
 
 /**
  * SvgIcon is a simple component for representing SVG icons.
@@ -26,8 +26,8 @@ type Props = {
 
 const SvgIcon = (props: Props) => {
   const { name, className, ...rest } = props;
-  return(
-    <svg className={className} {...rest} >
+  return (
+    <svg className={className} {...rest}>
       <use xlinkHref={`#icon-${name}`} />
     </svg>
   );

@@ -15,7 +15,7 @@ type Props = {
   label: string,
   /** Additional className */
   className?: string,
-}
+};
 
 /**
  * RadioButton component is a simple radio-button with optional content

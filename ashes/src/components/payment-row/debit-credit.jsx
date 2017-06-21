@@ -12,14 +12,14 @@ type Props = {
   availableBalance: number,
   onCancel: Function,
   onSubmit: Function,
-  title?: string|Element<*>,
+  title?: string | Element<*>,
   amountToUse?: number,
   saveLabel: string,
-}
+};
 
 type State = {
   amountToUse: number,
-}
+};
 
 export default class DebitCredit extends Component {
   props: Props;
@@ -90,13 +90,12 @@ export default class DebitCredit extends Component {
         {this.title}
         <div className="fc-order-debit-credit__form">
           {this.valueBlock('Available Balance', props.availableBalance)}
-          <FormField className="fc-order-debit-credit__amount-form"
-                     label="Amount to Use"
-                     labelClassName="fc-order-debit-credit__amount-form-value">
-            <CurrencyInput
-              onChange={this.handleAmountToUseChange}
-              value={this.state.amountToUse}
-            />
+          <FormField
+            className="fc-order-debit-credit__amount-form"
+            label="Amount to Use"
+            labelClassName="fc-order-debit-credit__amount-form-value"
+          >
+            <CurrencyInput onChange={this.handleAmountToUseChange} value={this.state.amountToUse} />
           </FormField>
           {this.valueBlock('New Available Balance', this.newAvailable)}
         </div>

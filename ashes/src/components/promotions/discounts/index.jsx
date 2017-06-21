@@ -16,31 +16,27 @@ const QUALIFIERS = [
     qualifierTypes: [
       {
         type: 'noQualifier',
-        text: 'No qualifier'
+        text: 'No qualifier',
       },
       {
         type: 'numUnits',
         text: 'Total units in order',
         value: 0,
         widget: 'counter',
-        template: (comp) => {
-          return (
-            <div>Order <Counter onChange={comp.setValue} value={comp.qualifier.widgetValue} /> or more</div>
-          );
-        }
+        template: comp => {
+          return <div>Order <Counter onChange={comp.setValue} value={comp.qualifier.widgetValue} /> or more</div>;
+        },
       },
       {
         type: 'subTotal',
         text: 'Subtotal of order',
         value: 0,
         widget: 'currency',
-        template: (comp) => {
-          return (
-            <div>Spend <Currency onChange={comp.setValue} value={comp.qualifier.widgetValue} /> or more</div>
-          );
-        }
-      }
-    ]
+        template: comp => {
+          return <div>Spend <Currency onChange={comp.setValue} value={comp.qualifier.widgetValue} /> or more</div>;
+        },
+      },
+    ],
   },
   {
     discountType: 'item',
@@ -48,40 +44,38 @@ const QUALIFIERS = [
     qualifierTypes: [
       {
         type: 'noQualifier',
-        text: 'No qualifier'
+        text: 'No qualifier',
       },
       {
         type: 'numUnits',
         text: 'Total units in order',
         value: 0,
         widget: 'counter',
-        template: (comp) => {
+        template: comp => {
           return (
             <div>
-              Order <Counter onChange={comp.setValue}
-                             value={comp.qualifier.widgetValue} />
+              Order <Counter onChange={comp.setValue} value={comp.qualifier.widgetValue} />
               or more of the following items
             </div>
           );
-        }
+        },
       },
       {
         type: 'subTotal',
         text: 'Subtotal of order',
         value: 0,
         widget: 'currency',
-        template: (comp) => {
+        template: comp => {
           return (
             <div>
-              Spend <Currency onChange={comp.setValue}
-                              value={comp.qualifier.widgetValue} />
+              Spend <Currency onChange={comp.setValue} value={comp.qualifier.widgetValue} />
               or more on following items
             </div>
           );
-        }
-      }
-    ]
-  }
+        },
+      },
+    ],
+  },
 ];
 
 const DISCOUNT_TYPES = QUALIFIERS.map(item => [item.discountType, item.text]);
@@ -89,7 +83,7 @@ const DISCOUNT_TYPES = QUALIFIERS.map(item => [item.discountType, item.text]);
 const QUALIFIER_TYPES = QUALIFIERS.map(item => {
   let cell = {
     scope: item.discountType,
-    list: item.qualifierTypes.map(i => [i.type, i.text])
+    list: item.qualifierTypes.map(i => [i.type, i.text]),
   };
   return cell;
 });
@@ -116,7 +110,7 @@ export default class Discounts extends Component {
       ...discounts.qualifier,
     };
     this.offer = {
-      ...discounts.offer
+      ...discounts.offer,
     };
   }
 
@@ -126,7 +120,7 @@ export default class Discounts extends Component {
       ...discounts.qualifier,
     };
     this.offer = {
-      ...discounts.offer
+      ...discounts.offer,
     };
   }
 
@@ -141,22 +135,28 @@ export default class Discounts extends Component {
 
   @autobind
   renderDiscount() {
-    return (<Dropdown
-      className="autowidth_dd"
-      items={DISCOUNT_TYPES}
-      value={this.qualifier.discountType}
-      onChange={this.discountTypeChange} />);
+    return (
+      <Dropdown
+        className="autowidth_dd"
+        items={DISCOUNT_TYPES}
+        value={this.qualifier.discountType}
+        onChange={this.discountTypeChange}
+      />
+    );
   }
 
   @autobind
   renderQualifier() {
     let discountType = this.qualifier.discountType;
     let items = _.find(QUALIFIER_TYPES, i => i.scope == discountType).list;
-    return (<Dropdown
-      className="autowidth_dd"
-      items={items}
-      value={this.qualifier.qualifierType}
-      onChange={this.qualifierTypeChange} />);
+    return (
+      <Dropdown
+        className="autowidth_dd"
+        items={items}
+        value={this.qualifier.qualifierType}
+        onChange={this.qualifierTypeChange}
+      />
+    );
   }
 
   @autobind
@@ -170,7 +170,7 @@ export default class Discounts extends Component {
       ...this.qualifier,
       discountType: value,
       qualifierType: qualifierType,
-      widgetValue: widgetValue
+      widgetValue: widgetValue,
     };
     this.props.onChangeQualifier(this.qualifier);
   }
@@ -185,7 +185,7 @@ export default class Discounts extends Component {
     this.qualifier = {
       ...this.qualifier,
       qualifierType: value,
-      widgetValue: widgetValue
+      widgetValue: widgetValue,
     };
     this.props.onChangeQualifier(this.qualifier);
   }
@@ -205,7 +205,7 @@ export default class Discounts extends Component {
   toggleExGiftCardQual() {
     this.qualifier = {
       ...this.qualifier,
-      exGiftCardQual: !this.qualifier.exGiftCardQual
+      exGiftCardQual: !this.qualifier.exGiftCardQual,
     };
     this.props.onChangeQualifier(this.qualifier);
   }
@@ -214,7 +214,7 @@ export default class Discounts extends Component {
   toggleExGiftCardOffer() {
     this.offer = {
       ...this.offer,
-      exGiftCardOffer: !this.offer.exGiftCardOffer
+      exGiftCardOffer: !this.offer.exGiftCardOffer,
     };
     this.props.onChangeOffer(this.offer);
   }
@@ -223,7 +223,7 @@ export default class Discounts extends Component {
   setValue(value) {
     this.qualifier = {
       ...this.qualifier,
-      widgetValue: value
+      widgetValue: value,
     };
     this.props.onChangeQualifier(this.qualifier);
   }
@@ -232,8 +232,7 @@ export default class Discounts extends Component {
     return (
       <div styleName="discount_qualifier">
         <div styleName="sub-title">Qualifier</div>
-        <FormField
-          className="fc-object-form__field">
+        <FormField className="fc-object-form__field">
           <Checkbox
             id="isExGiftCardQual"
             label="Exclude gift cards from quaifying criteria"
@@ -245,8 +244,7 @@ export default class Discounts extends Component {
         {this.renderQualifier()}
         <div className="inline-container">{this.renderQualWidget()}</div>
         <div styleName="sub-title">Offer</div>
-        <FormField
-          className="fc-object-form__field">
+        <FormField className="fc-object-form__field">
           <Checkbox
             id="isExGiftCardOffer"
             label="Exclude gift cards from discounted items"
@@ -258,7 +256,8 @@ export default class Discounts extends Component {
           className="autowidth_dd"
           items={OFFER_TYPES}
           value={this.offer.offerType}
-          onChange={this.offerTypeChange} />
+          onChange={this.offerTypeChange}
+        />
       </div>
     );
   }

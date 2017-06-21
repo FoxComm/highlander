@@ -19,7 +19,8 @@ object UserTailored {
 
   case class UserDisabled(admin: UserResponse, user: UserResponse) extends ActivityBase[UserDisabled]
 
-  case class UserRemindPassword(user: UserResponse, code: String) extends ActivityBase[UserRemindPassword]
+  case class UserRemindPassword(user: UserResponse, code: String, isAdmin: Boolean)
+      extends ActivityBase[UserRemindPassword]
 
   case class UserPasswordReset(user: UserResponse) extends ActivityBase[UserPasswordReset]
 

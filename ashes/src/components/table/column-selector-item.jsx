@@ -18,13 +18,13 @@ const itemSource = {
   beginDrag(props) {
     return {
       id: props.id,
-      index: props.index
+      index: props.index,
     };
   },
 
   endDrag(props) {
     props.dropItem();
-  }
+  },
 };
 
 const itemTarget = {
@@ -73,7 +73,7 @@ const itemTarget = {
     // but it's good here for the sake of performance
     // to avoid expensive index searches.
     monitor.getItem().index = hoverIndex;
-  }
+  },
 };
 
 type Props = {
@@ -88,7 +88,7 @@ type Props = {
   text: string,
   moveItem: Function,
   dropItem: Function,
-}
+};
 
 class SelectorItem extends Component {
   props: Props;
@@ -97,30 +97,32 @@ class SelectorItem extends Component {
     const { text, isDragging, connectDragSource, connectDropTarget, connectDragPreview } = this.props;
     const styleName = isDragging ? 'isDragging' : '';
 
-    return connectDragPreview(connectDropTarget(
-      <li styleName={styleName}>
-        {connectDragSource(
-          <div className="icon-wrapper">
-            <Icon name='drag-drop' />
-          </div>
-        )}
-        <Checkbox
-          id={`choose-column-${this.props.id}`}
-          label={text}
-          onChange={this.props.onChange}
-          checked={this.props.checked}
-        />
-      </li>
-    ));
+    return connectDragPreview(
+      connectDropTarget(
+        <li styleName={styleName}>
+          {connectDragSource(
+            <div className="icon-wrapper">
+              <Icon name="drag-drop" />
+            </div>
+          )}
+          <Checkbox
+            id={`choose-column-${this.props.id}`}
+            label={text}
+            onChange={this.props.onChange}
+            checked={this.props.checked}
+          />
+        </li>
+      )
+    );
   }
 }
 
-export default
-DropTarget('item', itemTarget, connect => ({
-  connectDropTarget: connect.dropTarget()
+export default DropTarget('item', itemTarget, connect => ({
+  connectDropTarget: connect.dropTarget(),
 }))(
   DragSource('item', itemSource, (connect, monitor) => ({
     connectDragSource: connect.dragSource(),
     connectDragPreview: connect.dragPreview(),
-    isDragging: monitor.isDragging()
-  }))(SelectorItem));
+    isDragging: monitor.isDragging(),
+  }))(SelectorItem)
+);

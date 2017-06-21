@@ -15,19 +15,18 @@ import Icon from 'components/core/icon';
 import styles from './upload.css';
 
 type Props = {
-  children?: Element<*>;
-  onDrop: Function;
-  className: ?string;
-  empty: boolean;
-}
+  children?: Element<*>,
+  onDrop: Function,
+  className: ?string,
+  empty: boolean,
+};
 
 type State = {
-  dragActive: boolean;
-  dragPossible: boolean;
-}
+  dragActive: boolean,
+  dragPossible: boolean,
+};
 
 export default class Upload extends Component {
-
   props: Props;
 
   static defaultProps = {
@@ -59,7 +58,7 @@ export default class Upload extends Component {
   resetDragging() {
     this.setState({
       dragPossible: false,
-      dragActive: false
+      dragActive: false,
     });
   }
 
@@ -77,7 +76,7 @@ export default class Upload extends Component {
 
   updateDragPossibility() {
     this.setState({
-      dragPossible: this.dragCounter > 0
+      dragPossible: this.dragCounter > 0,
     });
   }
 
@@ -166,11 +165,13 @@ export default class Upload extends Component {
     const content = empty ? this.emptyContent : children;
 
     return (
-      <div styleName="container"
-           onDragOver={this.handleDragOver}
-           onDragEnter={this.handleDragEnter}
-           onDragLeave={this.handleDragLeave}
-           onDrop={this.onDrop}>
+      <div
+        styleName="container"
+        onDragOver={this.handleDragOver}
+        onDragEnter={this.handleDragEnter}
+        onDragLeave={this.handleDragLeave}
+        onDrop={this.onDrop}
+      >
         {content}
       </div>
     );
@@ -179,10 +180,10 @@ export default class Upload extends Component {
   render() {
     const { onDrop, empty } = this.props;
     const className = classNames(this.props.className, {
-      '_disabled': !onDrop,
-      '_dragActive': this.state.dragActive,
-      '_dragPossible': this.state.dragPossible,
-      '_empty': empty,
+      _disabled: !onDrop,
+      _dragActive: this.state.dragActive,
+      _dragPossible: this.state.dragPossible,
+      _empty: empty,
     });
 
     return (

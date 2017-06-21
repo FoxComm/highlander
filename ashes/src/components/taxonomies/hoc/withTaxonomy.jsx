@@ -18,10 +18,7 @@ import Spinner from 'components/core/spinner';
 // styles
 import s from './taxonomies.css';
 
-const omitProps = [
-  'taxonomy',
-  'fetch',
-];
+const omitProps = ['taxonomy', 'fetch'];
 
 type Props = {
   context: string,
@@ -56,7 +53,7 @@ const defaultOptions: Options = {
  */
 export default function withTaxonomy(options: Options = defaultOptions) {
   // TODO: proper type for component argument
-  return function (WrappedComponent: any) {
+  return function(WrappedComponent: any) {
     class Wrapper extends Component {
       props: Props;
 
@@ -71,7 +68,7 @@ export default function withTaxonomy(options: Options = defaultOptions) {
       render() {
         const { taxonomy, fetchState } = this.props;
 
-        if (options.showLoader && (!taxonomy || fetchState.inProgress && !fetchState.err)) {
+        if (options.showLoader && (!taxonomy || (fetchState.inProgress && !fetchState.err))) {
           return <Spinner className={s.spinner} />;
         }
 
@@ -103,7 +100,7 @@ export default function withTaxonomy(options: Options = defaultOptions) {
     return flow(
       connect(options.mapState, options.mapActions),
       connect(mapState, { fetch: fetch.perform }),
-      makeLocalStore(addAsyncReducer(reducer), { taxonomy: null }),
+      makeLocalStore(addAsyncReducer(reducer), { taxonomy: null })
     )(Wrapper);
   };
 }

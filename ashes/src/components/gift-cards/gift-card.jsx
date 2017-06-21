@@ -29,15 +29,17 @@ import { stateTitles, stateActionTitles, getStateTransitions, typeTitles } from 
 // styles
 import s from './gift-card.css';
 
-@connect((state, props) => ({
-  ...state.giftCards.details[props.params.giftCard],
-  ...state.reasons,
-}), {
-  ...GiftCardActions,
-  ...ReasonsActions,
-})
+@connect(
+  (state, props) => ({
+    ...state.giftCards.details[props.params.giftCard],
+    ...state.reasons,
+  }),
+  {
+    ...GiftCardActions,
+    ...ReasonsActions,
+  }
+)
 export default class GiftCard extends React.Component {
-
   static propTypes = {
     card: PropTypes.shape({
       code: PropTypes.string,
@@ -59,12 +61,12 @@ export default class GiftCard extends React.Component {
     isFetching: PropTypes.bool,
     changeCancellationReason: PropTypes.func.isRequired,
     params: PropTypes.shape({
-      giftCard: PropTypes.string.isRequired
-    }).isRequired
+      giftCard: PropTypes.string.isRequired,
+    }).isRequired,
   };
 
   static defaultProps = {
-    confirmationShown: false
+    confirmationShown: false,
   };
 
   state = {
@@ -97,7 +99,7 @@ export default class GiftCard extends React.Component {
         ...this.props.card,
         entityType: 'gift-card',
         entityId: params.giftCard,
-      }
+      },
     });
 
     return (
@@ -116,16 +118,15 @@ export default class GiftCard extends React.Component {
 
   @autobind
   handleConfirmChangeStatus() {
-    this.props.saveGiftCardStatus(this.props.params.giftCard)
-      .then(response => {
-        try {
-          const errors = JSON.parse(_.get(response, 'payload.[1].response.text'));
+    this.props.saveGiftCardStatus(this.props.params.giftCard).then(response => {
+      try {
+        const errors = JSON.parse(_.get(response, 'payload.[1].response.text'));
 
-          this.setState({ errors });
-        } catch (e) {
-          this.setState({ errors: [] });
-        }
-      });
+        this.setState({ errors });
+      } catch (e) {
+        this.setState({ errors: [] });
+      }
+    });
   }
 
   get reasonType() {
@@ -208,7 +209,7 @@ export default class GiftCard extends React.Component {
               placeholder="- Select -"
               items={reasons}
               value={props.reasonId}
-              onChange={(reasonId) => this.props.changeCancellationReason(this.props.params.giftCard, reasonId)}
+              onChange={reasonId => this.props.changeCancellationReason(this.props.params.giftCard, reasonId)}
             />
           </div>
         </div>

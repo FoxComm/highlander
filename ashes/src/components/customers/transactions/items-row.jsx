@@ -41,10 +41,11 @@ const CustomerItemsRow = (props: Props) => {
     <MultiSelectRow
       columns={columns}
       linkTo="sku-inventory-details"
-      linkParams={{skuCode: item.skuCode}}
+      linkParams={{ skuCode: item.skuCode }}
       row={item}
       setCellContents={setCellContents}
-      params={params} />
+      params={params}
+    />
   );
 };
 

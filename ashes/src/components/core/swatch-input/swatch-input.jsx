@@ -46,13 +46,7 @@ class SwatchInput extends Component {
 
     return (
       <div className={s.swatchInput}>
-        <TextInput
-          id="swatch-fld"
-          maxLength="6"
-          className={s.input}
-          onChange={this.handleChange}
-          value={hexCode}
-        />
+        <TextInput id="swatch-fld" maxLength="6" className={s.input} onChange={this.handleChange} value={hexCode} />
         <span className={s.swatch} style={colorStyle} key={hexCode} />
       </div>
     );

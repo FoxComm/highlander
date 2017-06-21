@@ -3,40 +3,45 @@
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
-import styles from './css/auth.css';
 import { autobind } from 'core-decorators';
-import { transitionTo } from 'browserHistory';
+import { transitionToLazy } from 'browserHistory';
 
-import Form from '../forms/form';
-import FormField from '../forms/formfield';
-import { ApiErrors } from 'components/utils/errors';
+// components
+import Form from 'components/forms/form';
+import FormField from 'components/forms/formfield';
 import { PrimaryButton } from 'components/core/button';
-import PasswordInput from '../forms/password-input';
-import Spinner from 'components/core/spinner';
+import PasswordInput from 'components/forms/password-input';
+import { Link } from 'components/link';
+import TextInput from 'components/core/text-input';
+import { ApiErrors } from 'components/utils/errors';
 
-import type { SignupPayload } from 'modules/user';
+import type { TResetPayload } from 'modules/user';
 import * as userActions from 'modules/user';
+
+import s from './css/auth.css';
 
 type State = {
   email: string,
   password1: string,
   password2: string,
-}
+};
 
 type Props = {
-  signUpState: {
-    err?: any,
-    inProgress?: boolean,
-  },
-  signUp: (payload: SignupPayload) => Promise<*>,
+  signUpState: AsyncState,
+  requestPasswordReset: (email: string) => Promise<*>,
+  resetPassword: (payload: TResetPayload) => Promise<*>,
   isMounted: boolean,
   location: Location,
-}
+};
 
 function mapStateToProps(state) {
   return {
-    signUpState: _.get(state.asyncActions, 'signup', {})
+    signUpState: _.get(state.asyncActions, 'resetPassword', {}),
   };
+}
+
+function sanitize(): string {
+  return 'Passwords do not match or security code is invalid.';
 }
 
 class SetPassword extends Component {
@@ -63,59 +68,48 @@ class SetPassword extends Component {
   @autobind
   handleSubmit() {
     const payload = {
-      password: this.state.password2,
-      token: this.token,
+      newPassword: this.state.password2,
+      code: this.token,
     };
-    this.props.signUp(payload).then(() => {
-      transitionTo('home');
-    });
+    this.props.resetPassword(payload).then(transitionToLazy('home'));
   }
 
   @autobind
-  handleInputChange(event: Object) {
-    const { target } = event;
+  handleInputChange({ target }: SyntheticInputEvent) {
     this.setState({
       [target.name]: target.value,
     });
   }
 
   @autobind
-  validatePassword2(value) {
+  validatePassword2(value: string) {
     if (this.state.password1 != value) {
       return 'Passwords does not match';
     }
   }
 
-  get errorMessage() {
+  get errorMessage(): ?Element<*> {
     const err = this.props.signUpState.err;
+
     if (!err) return null;
-    return <ApiErrors response={err} />;
+
+    return <ApiErrors error={err} sanitizeError={sanitize} />;
   }
 
-  get content() {
-    if (!this.props.isMounted) {
-      return <Spinner />;
-    }
-
+  get content(): ?Element<*> {
     return (
       <div>
-        <div styleName="message">
+        <div className={s.message}>
           Hey, {this.username}! You’ve been invited to create an account with
           FoxCommerce. All you need to do is choose your method
           to sign up.
         </div>
-        <Form styleName="form" onSubmit={this.handleSubmit}>
+        <Form className={s.form} onSubmit={this.handleSubmit}>
           {this.errorMessage}
-          <FormField styleName="signup-email" label="Email">
-            <input
-              name="email"
-              value={this.email}
-              type="email"
-              disabled
-              className="fc-input"
-            />
+          <FormField className={s.signupEmail} label="Email">
+            <TextInput name="email" value={this.email} type="email" disabled className="fc-input" />
           </FormField>
-          <FormField styleName="password" label="Create Password">
+          <FormField className={s.password} label="Create Password">
             <PasswordInput
               name="password1"
               onChange={this.handleInputChange}
@@ -125,7 +119,7 @@ class SetPassword extends Component {
               className="fc-input"
             />
           </FormField>
-          <FormField styleName="password" label="Confirm Password" validator={this.validatePassword2}>
+          <FormField className={s.password} label="Confirm Password" validator={this.validatePassword2}>
             <PasswordInput
               name="password2"
               onChange={this.handleInputChange}
@@ -135,13 +129,14 @@ class SetPassword extends Component {
               className="fc-input"
             />
           </FormField>
-          <PrimaryButton
-            styleName="submit-button"
-            type="submit"
-            isLoading={this.props.signUpState.inProgress}
-          >
-            Sign Up
-          </PrimaryButton>
+          <div className={s.buttonBlock}>
+            <PrimaryButton className={s.submitButton} type="submit" isLoading={this.props.signUpState.inProgress}>
+              Sign Up
+            </PrimaryButton>
+            <Link to="login" className={s.backButton}>
+              Back to Login
+            </Link>
+          </div>
         </Form>
       </div>
     );
@@ -149,7 +144,7 @@ class SetPassword extends Component {
 
   render() {
     return (
-      <div styleName="main">
+      <div className={s.main}>
         <div className="fc-auth__title">Create Account</div>
         {this.content}
       </div>

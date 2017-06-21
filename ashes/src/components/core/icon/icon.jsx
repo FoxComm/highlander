@@ -6,7 +6,11 @@ type Props = {
   /** icon type */
   name: string,
   /** additional className */
+<<<<<<< HEAD
   className?: string
+=======
+  className?: string,
+>>>>>>> origin/master
 };
 
 /**
