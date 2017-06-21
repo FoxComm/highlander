@@ -2,9 +2,8 @@ build:
 	npm install
 
 test-bvt:
-	./node_modules/.bin/ava -v --concurrency=3 --match='[bvt]*' > results.txt 2>&1
+	rm -rf allure-report allure-results
+	./node_modules/mocha/bin/mocha --compilers js:babel-core/register 'test/*' --reporter mocha-allure-reporter
 
 report:
-	rm -rf allure-report allure-results
-	node make-allure-report.js results.txt
 	allure generate allure-results
