@@ -3,7 +3,6 @@
 import { post } from '../lib/search';
 import * as dsl from './dsl';
 import moment from 'moment';
-import rangeToFilter from './common';
 
 // 1000 should be big enough to request all promotions with applyType = coupon
 // without size parameter ES responds with 10 items max
@@ -17,7 +16,7 @@ type QueryOpts = {
 
 function getArchivedFilter () {
   return dsl.existsFilter('archivedAt', 'missing');
-};
+}
 
 function getInactiveFilters (esDate: string) {
   return {
@@ -29,8 +28,8 @@ function getInactiveFilters (esDate: string) {
       dsl.existsFilter('activeTo', 'missing'),
       dsl.rangeFilter('activeTo', { 'gte': esDate }),
     ],
-  }
-};
+  };
+}
 
 function getTokenFilters (token: string) {
   if (isNaN(Number(token))) {
@@ -46,14 +45,13 @@ function getTokenFilters (token: string) {
     });
     return query;
   }
-};
+}
 
-export function searchProducts(token: string, {
-                                                omitArchived = false,
-                                                omitInactive = false,
-                                              }: ?QueryOpts): Promise<*> {
+export function searchProducts(token: string, queryOpts: ?QueryOpts): Promise<*> {
   const formattedDate = moment(Date.now()).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
   const esDate = `${formattedDate}||/d`;
+  const omitArchived = queryOpts ? queryOpts.omitArchived : false;
+  const omitInactive = queryOpts ? queryOpts.omitInactive : false;
   let must = [];
   let should = omitInactive ? [] : null;
 
@@ -62,7 +60,7 @@ export function searchProducts(token: string, {
   if (omitInactive) {
     const { mustFilters, shouldFilters } = getInactiveFilters(esDate);
     must = [ ...must, ...mustFilters];
-    should = [ ...should, ...shouldFilters];
+    should = [ ...shouldFilters];
   }
 
   if (token) must = [ ...must, getTokenFilters(token)];

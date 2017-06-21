@@ -51,7 +51,9 @@ export default class Customer extends React.Component {
 
     return (
       <div styleName="block" className="fc-content-box">
-        <div styleName="header" />
+        <div styleName="header">
+          <div styleName="head" />
+        </div>
         <article styleName="body">
           <div className="fc-grid">
             <div className="fc-col-md-1-12">

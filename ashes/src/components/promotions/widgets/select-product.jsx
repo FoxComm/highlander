@@ -43,9 +43,9 @@ export default class SelectProduct extends Component {
 
   handleProductSearch(token: string): Promise<*> {
     return searchProducts(token, {
-        omitArchived: true,
-        omitInactive: true
-      }).then((result) => {
+      omitArchived: true,
+      omitInactive: true
+    }).then((result) => {
       return result.result;
     });
   }
