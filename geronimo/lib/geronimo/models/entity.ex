@@ -7,6 +7,7 @@ defmodule Geronimo.Entity do
 
   use Geronimo.Crud
   use Timex.Ecto.Timestamps
+  use Geronimo.Kafka.Avro
 
   @derive {Poison.Encoder, only: [:id, :kind, :content, :schema_version,
                                   :content_type_id, :created_by, :inserted_at, :updated_at, :versions, :scope]}
@@ -39,7 +40,7 @@ defmodule Geronimo.Entity do
     Repo.transaction(fn ->
       case Repo.insert(changeset(%Geronimo.Entity{}, prms)) do
         {:ok, record} ->
-          Geronimo.KafkaWorker.push_async(table(), record)
+          Geronimo.Kafka.Worker.push_async(table(), record)
           record
         {_, changes} ->
           Repo.rollback(changes)
@@ -72,6 +73,27 @@ defmodule Geronimo.Entity do
   end
 
   def content_field, do: :content
+
+  def to_avro(entity_id) when is_integer(entity_id) do
+    case get(entity_id) do
+      {:ok, record} -> to_avro(record)
+      {:error, err} -> raise %AvroEncodingError{message: "Avro encoding error #{inspect(err)}"}
+    end
+  end
+
+  def to_avro(entity = %Geronimo.Entity{}) do
+    %{
+      "content" =>         Poison.encode!(entity.content),
+      "content_type_id" => entity.content_type_id,
+      "kind" =>            entity.kind,
+      "created_by" =>      entity.created_by,
+      "id" =>              entity.id,
+      "inserted_at" =>     Timex.format!(entity.inserted_at, "%FT%T.%fZ", :strftime),
+      "updated_at" =>      Timex.format!(entity.updated_at, "%FT%T.%fZ", :strftime),
+      "schema_version" =>  Timex.format!(entity.schema_version, "%FT%T.%fZ", :strftime),
+      "scope" =>           entity.scope
+    }
+  end
 
   def wrap_errors(errors) do
     Enum.map(errors, fn {:error, fld, _val, msg} ->

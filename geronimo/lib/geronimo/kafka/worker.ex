@@ -1,4 +1,4 @@
-defmodule Geronimo.KafkaWorker do
+defmodule Geronimo.Kafka.Worker do
   require Logger
 
   def start do
@@ -14,9 +14,11 @@ defmodule Geronimo.KafkaWorker do
   end
 
   def push_async(kind, obj) do
-    Task.async(fn ->
-      push(kind, obj)
-    end)
+    unless Mix.env == :test do
+      Task.async(fn ->
+        push(kind, obj)
+      end)
+    end
   end
 
   def push_async_await(kind, obj) do

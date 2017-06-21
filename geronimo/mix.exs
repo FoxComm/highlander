@@ -7,6 +7,8 @@ defmodule Geronimo.Mixfile do
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     preferred_cli_env: [espec: :test],
+     elixirc_paths: elixirc_paths(Mix.env),
      deps: deps()]
   end
 
@@ -16,10 +18,14 @@ defmodule Geronimo.Mixfile do
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
     [extra_applications: (Mix.env == :dev && [:exsync] || []) ++ [:logger, :maru, :timex, :ecto, :postgrex,
-                                                                  :timex_ecto, :kafka_ex, :avrolixr, :erlavro],
+                                                                  :timex_ecto, :kafka_ex, :avrolixr, :erlavro,
+                                                                  :httpoison],
      mod: {Geronimo, []}]
 
   end
+
+  defp elixirc_paths(:test), do: ["lib", "spec/support", "spec/factories"]
+  defp elixirc_paths(_), do: ["lib"]
 
   defp deps do
     [{:maru, "~> 0.11.2"},
@@ -33,8 +39,11 @@ defmodule Geronimo.Mixfile do
     {:kafka_ex, "~> 0.6.5"},
     {:avrolixr, git: "https://github.com/retgoat/avrolixr"},
     {:erlavro, git: "https://github.com/avvo/erlavro"},
+    {:httpoison, "~> 0.11.1"},
     {:envy, "~> 1.0.0"},
     {:inflex, "~> 1.8.1" },
-    {:exsync, "~> 0.1", only: :dev}]
+    {:exsync, "~> 0.1", only: :dev},
+    {:espec, "~> 1.3.2", only: :test},
+    {:ex_machina, "~> 2.0", only: :test}]
   end
 end
