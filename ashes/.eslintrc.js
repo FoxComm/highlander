@@ -61,7 +61,7 @@ module.exports = {
     "no-constant-condition": 2,
     "no-alert": 2,
     "no-debugger": 2,
-    "no-unused-vars": ["error", { "vars": "local", "args": "none", varsIgnorePattern: "styles|Element|PropTypes|_|key", ignoreRestSiblings: true }],
+    "no-unused-vars": ["error", { "vars": "local", "args": "none", varsIgnorePattern: "styles|Element|_|key", ignoreRestSiblings: true }],
 
     "no-dupe-args": 2,
     "no-dupe-keys": 2,

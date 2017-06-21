@@ -22,8 +22,8 @@ trait TestBase
     with CatsHelpers {
 
   override implicit def patienceConfig: PatienceConfig = PatienceConfig(
-      timeout = Span(10, Seconds),
-      interval = Span(15, Milliseconds)
+    timeout = Span(10, Seconds),
+    interval = Span(15, Milliseconds)
   )
 
   implicit val timeout: Timeout = Timeout(10, TimeUnit.SECONDS)
@@ -57,6 +57,7 @@ trait TestBase
 }
 
 object TestBase {
+  System.setProperty("phoenix.env", "test")
   val bareConfig: Config = FoxConfig.unsafe
   val config: FoxConfig  = FoxConfig.config
 }

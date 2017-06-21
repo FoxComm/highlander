@@ -24,9 +24,9 @@ object VariantPayloads {
 
     def formAndShadow: FormAndShadow = {
       val jsonBuilder: AttributesBuilder = ObjectPayloads.optionalAttributes(
-          name.map(StringField("name", _)),
-          swatch.map(StringField("swatch", _)),
-          swatch.map(StringField("image", _)))
+        name.map(StringField("name", _)),
+        swatch.map(StringField("swatch", _)),
+        swatch.map(StringField("image", _)))
 
       (ObjectForm(kind = VariantValue.kind, attributes = jsonBuilder.objectForm),
        ObjectShadow(attributes = jsonBuilder.objectShadow))

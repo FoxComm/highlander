@@ -8,7 +8,7 @@ object Payments {
 
   // Add payment sequences here
   val pay = uniformRandomSwitch(
-      exec(payWithGc).exec(payWithCc),
-      exec(payWithCc)
+    exec(payWithGc).exec(payWithCc),
+    exec(payWithCc)
   )
 }

@@ -36,17 +36,14 @@ object CategoryManager {
       shadow ← * <~ ObjectShadows.mustFindById404(category.shadowId)
     } yield CategoryShadowResponse.build(shadow)
 
-  def getCategory(categoryId: Int, contextName: String)(
-      implicit ec: EC,
-      db: DB): DbResultT[FullCategoryResponse.Root] =
-    getCategoryFull(categoryId, contextName).map(c ⇒
-          FullCategoryResponse.build(c.category, c.form, c.shadow))
+  def getCategory(categoryId: Int, contextName: String)(implicit ec: EC,
+                                                        db: DB): DbResultT[FullCategoryResponse.Root] =
+    getCategoryFull(categoryId, contextName).map(c ⇒ FullCategoryResponse.build(c.category, c.form, c.shadow))
 
-  def createCategory(admin: User, payload: CreateFullCategory, contextName: String)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      au: AU): DbResultT[FullCategoryResponse.Root] =
+  def createCategory(
+      admin: User,
+      payload: CreateFullCategory,
+      contextName: String)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[FullCategoryResponse.Root] =
     for {
       scope    ← * <~ Scope.resolveOverride(payload.scope)
       context  ← * <~ contextByName(contextName)
@@ -60,11 +57,10 @@ object CategoryManager {
            .fullCategoryCreated(Some(admin), response, ObjectContextResponse.build(context))
     } yield response
 
-  def updateCategory(
-      admin: User,
-      categoryId: Int,
-      payload: UpdateFullCategory,
-      contextName: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[FullCategoryResponse.Root] =
+  def updateCategory(admin: User, categoryId: Int, payload: UpdateFullCategory, contextName: String)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC): DbResultT[FullCategoryResponse.Root] =
     for {
       context  ← * <~ contextByName(contextName)
       category ← * <~ categoryById(categoryId, context)
@@ -100,12 +96,11 @@ object CategoryManager {
       categoryShadow ← * <~ ObjectShadows.mustFindById404(commit.shadowId)
     } yield
       IlluminatedCategoryResponse.build(
-          IlluminatedCategory.illuminate(context, category, categoryForm, categoryShadow))
+        IlluminatedCategory.illuminate(context, category, categoryForm, categoryShadow))
 
-  private def updateCategoryHead(
-      category: Category,
-      categoryShadow: ObjectShadow,
-      maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[Category] =
+  private def updateCategoryHead(category: Category,
+                                 categoryShadow: ObjectShadow,
+                                 maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[Category] =
     maybeCommit match {
       case Some(commit) ⇒
         Categories
@@ -117,23 +112,20 @@ object CategoryManager {
   private def contextByName(contextName: String)(implicit ec: EC): DbResultT[ObjectContext] =
     ObjectContexts.filterByName(contextName).mustFindOneOr(ObjectContextNotFound(contextName))
 
-  private def categoryById(categoryId: Int, context: ObjectContext)(
-      implicit ec: EC): DbResultT[Category] =
+  private def categoryById(categoryId: Int, context: ObjectContext)(implicit ec: EC): DbResultT[Category] =
     Categories
       .withContextAndCategory(context.id, categoryId)
       .mustFindOneOr(CategoryNotFoundForContext(categoryId, context.id))
 
-  private def getCategoryFull(categoryId: Int, contextName: String)(
-      implicit ec: EC,
-      db: DB): DbResultT[CategoryFull] =
+  private def getCategoryFull(categoryId: Int, contextName: String)(implicit ec: EC,
+                                                                    db: DB): DbResultT[CategoryFull] =
     for {
       context ← * <~ contextByName(contextName)
       result  ← * <~ getCategoryFull(categoryId, context)
     } yield result
 
-  private def getCategoryFull(categoryId: Int, context: ObjectContext)(
-      implicit ec: EC,
-      db: DB): DbResultT[CategoryFull] =
+  private def getCategoryFull(categoryId: Int, context: ObjectContext)(implicit ec: EC,
+                                                                       db: DB): DbResultT[CategoryFull] =
     for {
       category ← * <~ categoryById(categoryId, context)
       form     ← * <~ ObjectForms.mustFindById404(category.formId)

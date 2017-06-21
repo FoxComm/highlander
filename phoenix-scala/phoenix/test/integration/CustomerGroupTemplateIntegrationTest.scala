@@ -24,13 +24,15 @@ class CustomerGroupTemplateIntegrationTest
   "sends unused templates only when templates are not used" in new Fixture {
     val scopeN = "1"
 
-    val payload = CustomerGroupPayload(name = "Group number one",
-                                       clientState = JObject(),
-                                       elasticRequest = JObject(),
-                                       customersCount = 1,
-                                       templateId = groupTemplates.head.id.some,
-                                       scope = scopeN.some,
-                                       groupType = Template)
+    val payload = CustomerGroupPayload(
+      name = "Group number one",
+      clientState = JObject(),
+      elasticRequest = JObject(),
+      customersCount = 1,
+      templateId = groupTemplates.head.id.some,
+      scope = scopeN.some,
+      groupType = Template
+    )
 
     val root = customerGroupsApi.create(payload).as[Root]
 

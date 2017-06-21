@@ -19,20 +19,17 @@ class JsonFormattersTest extends TestBase {
 
   implicit val formats: Formats = phoenixFormats
 
-  case class Test(order: Order.State,
-                  gc: GiftCard.State,
-                  cc: ExternalCharge.State,
-                  sas: AdminData.State)
+  case class Test(order: Order.State, gc: GiftCard.State, cc: ExternalCharge.State, sas: AdminData.State)
   case class Product(price: Long, currency: Currency)
 
   "Adt serialization" - {
     "can (de-)serialize JSON" in {
       val ast = parse(
-          write(
-              Test(order = Order.ManualHold,
-                   cc = ExternalCharge.Auth,
-                   gc = GiftCard.OnHold,
-                   sas = AdminData.Invited)))
+        write(
+          Test(order = Order.ManualHold,
+               cc = ExternalCharge.Auth,
+               gc = GiftCard.OnHold,
+               sas = AdminData.Invited)))
       (ast \ "order").extract[Order.State] mustBe Order.ManualHold
       (ast \ "gc").extract[GiftCard.State] mustBe GiftCard.OnHold
       (ast \ "cc").extract[ExternalCharge.State] mustBe ExternalCharge.Auth

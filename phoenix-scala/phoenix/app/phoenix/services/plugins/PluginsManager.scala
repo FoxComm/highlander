@@ -20,73 +20,66 @@ import scala.concurrent.Future
 
 object PluginsManager extends LazyLogging {
 
-  private def getSchemaSettings(
-      plugin: Plugin,
-      payload: RegisterPluginPayload,
-      foundOrCreated: FoundOrCreated)(implicit ec: EC): DbResultT[SettingsSchema] =
+  private def getSchemaSettings(plugin: Plugin,
+                                payload: RegisterPluginPayload,
+                                foundOrCreated: FoundOrCreated)(implicit ec: EC): DbResultT[SettingsSchema] =
     payload.schemaSettings.fold {
       plugin
         .apiUrl()
-        .fold(DbResultT.failure[SettingsSchema](
-                GeneralFailure("settingsSchema or apiUrl should be " +
-                      "present"))) { apiUrl ⇒
+        .fold(DbResultT.failure[SettingsSchema](GeneralFailure("settingsSchema or apiUrl should be " +
+          "present"))) { apiUrl ⇒
           val req = host(apiUrl) / "_settings" / "schema"
           DbResultT.fromF(DBIO.from(Http(req OK as.json4s.Json).map(_.extract[SettingsSchema])))
         }
     }(DbResultT.good(_))
 
-  def uploadNewSettingsToPlugin(plugin: Plugin)(implicit ec: EC,
-                                                formats: Formats): Future[String] = {
+  def uploadNewSettingsToPlugin(plugin: Plugin)(implicit ec: EC, formats: Formats): Future[String] =
     plugin.apiUrl().fold(Future.successful("")) { apiUrl ⇒
       val rawReq = host(apiUrl) / "_settings" / "upload"
       val body   = compact(render(plugin.settings.toJson))
       val req    = rawReq.setContentType("application/json", "UTF-8") << body
-      logger.info(
-          s"Updating plugin ${plugin.name} at ${plugin.apiHost}:${plugin.apiPort}: ${body}")
+      logger.info(s"Updating plugin ${plugin.name} at ${plugin.apiHost}:${plugin.apiPort}: $body")
       val resp = Http(req.POST OK as.String)
       resp.map { respBody ⇒
         logger.info(s"Plugin Response: $respBody")
         respBody
       }
     }
+
+  private def updatePluginInfo(plugin: Plugin, schema: SettingsSchema, payload: RegisterPluginPayload)(
+      implicit ec: EC): DbResultT[Plugin] = {
+    val newSettings = schema
+      .filterNot { s ⇒
+        plugin.settings.contains(s.name)
+      }
+      .foldLeft(plugin.settings) { (settings, schemaSetting) ⇒
+        settings + (schemaSetting.name → schemaSetting.default)
+      }
+    Plugins.update(
+      plugin,
+      plugin.copy(settings = newSettings,
+                  schemaSettings = schema,
+                  apiHost = payload.apiHost,
+                  apiPort = payload.apiPort,
+                  version = payload.version,
+                  description = payload.description)
+    )
   }
 
-  private def updatePluginInfo(
-      plugin: Plugin,
-      schema: SettingsSchema,
-      payload: RegisterPluginPayload)(implicit ec: EC): DbResultT[Plugin] = {
-    val newSettings = schema.filterNot { s ⇒
-      plugin.settings.contains(s.name)
-    }.foldLeft(plugin.settings) { (settings, schemaSetting) ⇒
-      settings + (schemaSetting.name → schemaSetting.default)
-    }
-    Plugins.update(plugin,
-                   plugin.copy(settings = newSettings,
-                               schemaSettings = schema,
-                               apiHost = payload.apiHost,
-                               apiPort = payload.apiPort,
-                               version = payload.version,
-                               description = payload.description))
-  }
-
-  private def updatePlugin(plugin: Plugin,
-                           payload: RegisterPluginPayload,
-                           foundOrCreated: FoundOrCreated)(implicit ec: EC): DbResultT[Plugin] =
+  private def updatePlugin(plugin: Plugin, payload: RegisterPluginPayload, foundOrCreated: FoundOrCreated)(
+      implicit ec: EC): DbResultT[Plugin] =
     for {
       schema ← * <~ getSchemaSettings(plugin, payload, foundOrCreated)
       plugin ← * <~ updatePluginInfo(plugin, schema, payload)
     } yield plugin
 
-  def listPlugins()(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[ListPluginsAnswer] = {
+  def listPlugins()(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[ListPluginsAnswer] =
     for {
       plugins ← * <~ Plugins.forCurrentUser.result
     } yield plugins.map(PluginInfo.fromPlugin)
-  }
 
-  def registerPlugin(payload: RegisterPluginPayload)(implicit ec: EC,
-                                                     db: DB,
-                                                     au: AU,
-                                                     ac: AC): DbResultT[RegisterAnswer] = {
+  def registerPlugin(
+      payload: RegisterPluginPayload)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[RegisterAnswer] = {
     val pluginT = for {
       result ← * <~ Plugins
                 .findByName(payload.name)
@@ -105,11 +98,9 @@ object PluginsManager extends LazyLogging {
     }
   }
 
-  def updateSettings(name: String, payload: UpdateSettingsPayload)(
-      implicit ec: EC,
-      db: DB,
-      au: AU,
-      ac: AC): DbResultT[SettingsUpdated] = {
+  def updateSettings(
+      name: String,
+      payload: UpdateSettingsPayload)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[SettingsUpdated] = {
     val updated = for {
       plugin ← * <~ Plugins
                 .findByName(name)
@@ -128,24 +119,21 @@ object PluginsManager extends LazyLogging {
     }
   }
 
-  def listSettings(
-      name: String)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[SettingsValues] = {
+  def listSettings(name: String)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[SettingsValues] =
     for {
       plugin ← * <~ Plugins
                 .findByName(name)
                 .forCurrentUser
                 .mustFindOneOr(NotFoundFailure404(Plugin, name))
     } yield plugin.settings
-  }
 
   def getSettingsWithSchema(
-      name: String)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[PluginSettingsResponse] = {
+      name: String)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[PluginSettingsResponse] =
     for {
       plugin ← * <~ Plugins
                 .findByName(name)
                 .forCurrentUser
                 .mustFindOneOr(NotFoundFailure404(Plugin, name))
     } yield PluginSettingsResponse.fromPlugin(plugin)
-  }
 
 }

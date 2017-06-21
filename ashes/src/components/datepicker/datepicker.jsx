@@ -1,12 +1,15 @@
 /* @flow weak */
 
+// libs
 import React from 'react';
 import { autobind } from 'core-decorators';
 import moment from 'moment';
 import _ from 'lodash';
 import classNames from 'classnames';
 
+// components
 import AppendInput from '../forms/append-input';
+import Icon from 'components/core/icon';
 
 const weeks = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
@@ -169,7 +172,7 @@ export default class DatePicker extends React.Component {
         onClick={this.goBackMonth}
         onMouseDown={suppressClick}
         onMouseUp={suppressClick}>
-        <i className="icon-chevron-left" />
+        <Icon name="chevron-left" />
       </a>
     );
 
@@ -178,7 +181,7 @@ export default class DatePicker extends React.Component {
         onClick={this.goForwardMonth}
         onMouseDown={suppressClick}
         onMouseUp={suppressClick}>
-        <i className="icon-chevron-right" />
+        <Icon className="chevron-right" />
       </a>
     );
 

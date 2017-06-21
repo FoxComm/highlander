@@ -35,7 +35,7 @@ object ShippingManager {
     for {
       shippingMethod ← * <~ ShippingMethods.mustFindById404(shippingMethodId)
       _ ← * <~ DefaultShippingMethods.create(
-             DefaultShippingMethod(scope = Scope.current, shippingMethodId = shippingMethodId))
+           DefaultShippingMethod(scope = Scope.current, shippingMethodId = shippingMethodId))
     } yield ShippingMethodsResponse.build(shippingMethod)
 
   def removeDefault()(implicit ec: EC, au: AU): DbResultT[Option[Root]] = {
@@ -63,22 +63,19 @@ object ShippingManager {
       shipData    ← * <~ getShippingData(cart)
     } yield filterMethods(shipMethods, shipData)
 
-  def getShippingMethodsForRegion(countryCode: String, originator: User)(
-      implicit ec: EC,
-      db: DB): DbResultT[Seq[Root]] =
+  def getShippingMethodsForRegion(countryCode: String, originator: User)(implicit ec: EC,
+                                                                         db: DB): DbResultT[Seq[Root]] =
     for {
       cart     ← * <~ getCartByOriginator(originator, None)
       shipData ← * <~ getShippingData(cart)
       country  ← * <~ Countries.findByCode(countryCode).mustFindOneOr(NoCountryFound(countryCode))
 
       shipMethods ← * <~ ShippingMethods.findActive.result
-      shipToRegion = shipData.copy(
-          shippingRegion = Region(countryId = country.id, name = country.name).some)
+      shipToRegion = shipData.copy(shippingRegion = Region(countryId = country.id, name = country.name).some)
     } yield filterMethods(shipMethods, shipToRegion)
 
-  def getShippingMethodsForCart(refNum: String, customer: Option[User] = None)(
-      implicit ec: EC,
-      db: DB): DbResultT[Seq[Root]] =
+  def getShippingMethodsForCart(refNum: String, customer: Option[User] = None)(implicit ec: EC,
+                                                                               db: DB): DbResultT[Seq[Root]] =
     for {
       cart        ← * <~ findByRefNumAndOptionalCustomer(refNum, customer)
       shipMethods ← * <~ ShippingMethods.findActive.result
@@ -95,8 +92,8 @@ object ShippingManager {
     case _ ⇒ Carts.mustFindByRefNum(refNum)
   }
 
-  def evaluateShippingMethodForCart(shippingMethod: ShippingMethod,
-                                    cart: Cart)(implicit ec: EC, db: DB): DbResultT[Unit] = {
+  def evaluateShippingMethodForCart(shippingMethod: ShippingMethod, cart: Cart)(implicit ec: EC,
+                                                                                db: DB): DbResultT[Unit] =
     getShippingData(cart).flatMap { shippingData ⇒
       val failure = ShippingMethodNotApplicableToCart(shippingMethod.id, cart.refNum)
       if (QueryStatement.evaluate(shippingMethod.conditions, shippingData, evaluateCondition)) {
@@ -107,7 +104,6 @@ object ShippingManager {
         DbResultT.failure(failure)
       }
     }
-  }
 
   def filterMethods(shipMethods: Seq[ShippingMethod], shipData: ShippingData): Seq[Root] =
     shipMethods.collect {
@@ -125,23 +121,24 @@ object ShippingManager {
 
       lineItems ← * <~ LineItemManager.getCartLineItems(cart.refNum)
     } yield
-      ShippingData(cart = cart,
-                   cartTotal = cart.grandTotal,
-                   cartSubTotal = cart.subTotal,
-                   shippingAddress = orderShippingAddress.map(_._1),
-                   shippingRegion = orderShippingAddress.map(_._2),
-                   lineItems = lineItems)
+      ShippingData(
+        cart = cart,
+        cartTotal = cart.grandTotal,
+        cartSubTotal = cart.subTotal,
+        shippingAddress = orderShippingAddress.map(_._1),
+        shippingRegion = orderShippingAddress.map(_._2),
+        lineItems = lineItems
+      )
 
-  private def evaluateCondition(cond: Condition, shippingData: ShippingData): Boolean = {
+  private def evaluateCondition(cond: Condition, shippingData: ShippingData): Boolean =
     cond.rootObject match {
       case "Order"           ⇒ evaluateOrderCondition(shippingData, cond)
       case "ShippingAddress" ⇒ evaluateShippingAddressCondition(shippingData, cond)
       case "LineItems"       ⇒ evaluateLineItemsCondition(shippingData, cond)
       case _                 ⇒ false
     }
-  }
 
-  private def evaluateOrderCondition(shippingData: ShippingData, condition: Condition): Boolean = {
+  private def evaluateOrderCondition(shippingData: ShippingData, condition: Condition): Boolean =
     condition.field match {
       case "subtotal" ⇒
         Condition.matches(shippingData.cartSubTotal.toInt, condition) // FIXME @aafa .toInt
@@ -149,10 +146,8 @@ object ShippingManager {
         Condition.matches(shippingData.cartTotal.toInt, condition) // FIXME @aafa .toInt
       case _ ⇒ false
     }
-  }
 
-  private def evaluateShippingAddressCondition(shippingData: ShippingData,
-                                               condition: Condition): Boolean = {
+  private def evaluateShippingAddressCondition(shippingData: ShippingData, condition: Condition): Boolean =
     shippingData.shippingAddress.fold(false) { shippingAddress ⇒
       condition.field match {
         case "address1" ⇒
@@ -171,7 +166,7 @@ object ShippingManager {
     // @aafa Here I extracted shippingRegion matching against incoming queries
     // since we can have address and region provided separately within shippingData
     } || shippingData.shippingRegion.fold(false)(shippingRegion ⇒
-          condition.field match {
+      condition.field match {
         case "countryId" ⇒
           Condition.matches(shippingRegion.countryId, condition)
         case "regionName" ⇒
@@ -180,13 +175,11 @@ object ShippingManager {
           Condition.matches(shippingRegion.abbreviation, condition)
         case _ ⇒ false
     })
-  }
 
   private val COUNT_TAG         = "countTag-"
   private val COUNT_WITHOUT_TAG = "countWithoutTag-"
 
-  private def evaluateLineItemsCondition(shippingData: ShippingData,
-                                         condition: Condition): Boolean =
+  private def evaluateLineItemsCondition(shippingData: ShippingData, condition: Condition): Boolean =
     condition.field match {
       case "count" ⇒ Condition.matches(shippingData.lineItems.size, condition)
       case t if t startsWith COUNT_TAG ⇒ {
@@ -209,11 +202,9 @@ object ShippingManager {
   private def hasTag(lineItem: CartLineItemProductData, tag: String): Boolean =
     ObjectUtils.get("tags", lineItem.productForm, lineItem.productShadow) match {
       case JArray(tags) ⇒
-        tags.foldLeft(false) { (res, jtag) ⇒
-          jtag match {
-            case JString(t) ⇒ res || t.contains(tag)
-            case _          ⇒ res
-          }
+        tags.exists {
+          case JString(t) ⇒ t.contains(tag)
+          case _          ⇒ false
         }
       case _ ⇒ false
     }

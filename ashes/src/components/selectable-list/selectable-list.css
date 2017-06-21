@@ -1,7 +1,8 @@
+@import 'colors.css';
 
 .selectable-list {
-  background-color: #ffffff;
-  border: 1px solid #d9d9d9;
+  background-color: var(--bg-white);
+  border: 1px solid var(--color-border);
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1);
   user-select: none;
   font-style: normal;
@@ -9,7 +10,7 @@
 
 .popup {
   position: absolute;
-  z-index: 100;
+  z-index: 20;
   width: 396px;
   right: 0;
   top: 100%;
@@ -24,7 +25,7 @@
 }
 
 .items-list {
-  border-bottom: 1px solid #adadad;
+  border-bottom: 1px solid var(--color-border);
   max-height: 256px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -32,7 +33,7 @@
 
 .blank-state {
   font-size: 1.2em;
-  color: #7f7f7f;
+  color: var(--color-additional-text);
   text-align: center;
   padding: 20px 10px;
 }
@@ -41,20 +42,16 @@
   padding: 7px 5px;
 
   &:hover {
-    background: #ebebeb;
-  }
-
-  & :global(.fc-checkbox__label) {
-    cursor: pointer;
+    background: var(--color-border);
   }
 }
 
 .item-description {
-  color: #adadad;
+  color: var(--color-additional-text);
   padding-left: 10px;
   text-transform: capitalize;
 
-  &:first-letter {
+  &::first-letter {
     padding-right: 10px;
   }
 }

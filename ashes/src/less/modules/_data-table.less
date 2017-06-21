@@ -1,14 +1,14 @@
 .fc-data-table {
-  @dropdown-height: 34px;
+  @dropdown-height: 40px;
 
   .inner {
     overflow-x: auto;
     overflow-y: hidden;
 
-    .scroll-shadow(#e3e3e3, #fff, 12px);
+    .scroll-shadow(@bg-grey-headers, @bg-white, 12px);
 
     &.inner-head {
-      .scroll-shadow(#e3e3e3, #f7f7f7, 12px);
+      .scroll-shadow(@color-border, @bg-grey-headers, 12px);
     }
   }
 
@@ -21,10 +21,8 @@
 
     thead, .fc-table-head {
       th, .fc-table-th {
-        background: initial;
-
         &.row-head-left {
-          background: @color-decor12;
+          background: @bg-grey-headers;
         }
 
         &:nth-child(2),
@@ -44,22 +42,8 @@
       }
 
       .row-head-left {
-        .fc-checkbox {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          display: flex;
-
-          input[type="checkbox"] + label {
-            position: relative;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-          }
-        }
+        display: flex;
+        align-items: center;
       }
     }
   }
@@ -67,32 +51,22 @@
   .fc-table-head .row-head-left,
   .fc-table-body .row-head-left {
     position: absolute;
-    background: #fff;
+    display: inline-flex;
+    background: @bg-white;
     left: 0;
     min-width: 55px !important;
     max-width: 55px !important;
-    border-right: 1px solid @color-decor9;
+    border-right: 1px solid @color-border;
     transform: translateZ(0);
   }
 
   .fc-table-head .row-head-left {
     z-index: 1;
-    background-color: #f7f7f7;
-  }
-
-  .fc-btn {
-    width: @dropdown-height;
-    height: @dropdown-height;
-    line-height: @dropdown-height;
+    background-color: @bg-grey-headers;
   }
 
   .initials {
     margin-top: -1px;
-  }
-
-  .fc-dropdown__value {
-    height: @dropdown-height;
-    line-height: @dropdown-height;
   }
 
   .fc-dropdown__items {

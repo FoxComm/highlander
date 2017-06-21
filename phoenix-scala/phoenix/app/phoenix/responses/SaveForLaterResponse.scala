@@ -28,8 +28,7 @@ object SaveForLaterResponse {
     for {
       sfl ← * <~ SaveForLaters
              .filter(_.skuId === skuId)
-             .mustFindOneOr(
-                 NotFoundFailure404(s"Save for later entry for sku with id=$skuId not found"))
+             .mustFindOneOr(NotFoundFailure404(s"Save for later entry for sku with id=$skuId not found"))
       sku    ← * <~ Skus.mustFindById404(skuId)
       form   ← * <~ ObjectForms.mustFindById404(sku.formId)
       shadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
@@ -37,10 +36,10 @@ object SaveForLaterResponse {
 
   def build(sfl: SaveForLater, sku: Sku, form: ObjectForm, shadow: ObjectShadow): Root =
     Root(
-        id = sfl.id,
-        name = FormShadowGet.title(form, shadow),
-        sku = sku.code,
-        price = FormShadowGet.priceAsLong(form, shadow),
-        createdAt = sfl.createdAt
+      id = sfl.id,
+      name = FormShadowGet.title(form, shadow),
+      sku = sku.code,
+      price = FormShadowGet.priceAsLong(form, shadow),
+      createdAt = sfl.createdAt
     )
 }

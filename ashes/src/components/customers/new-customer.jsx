@@ -12,7 +12,8 @@ import * as CustomersActions from 'modules/customers/new';
 import FormField from '../forms/formfield';
 import Form from '../forms/form';
 import SaveCancel from 'components/core/save-cancel';
-import ErrorAlerts from '../alerts/error-alerts';
+import { ApiErrors } from 'components/utils/errors';
+import TextInput from 'components/core/text-input';
 
 import type { NewCustomerPayload } from 'modules/customers/new';
 
@@ -68,7 +69,7 @@ class NewCustomer extends Component {
     if (submitStatus.err) {
       return (
         <li>
-          <ErrorAlerts error={submitStatus.err} />
+          <ApiErrors response={submitStatus.err} />
         </li>
       );
     }
@@ -94,22 +95,20 @@ class NewCustomer extends Component {
                 <ul className="fc-customer-form-fields">
                   <li>
                     <FormField label="Name" validator="ascii">
-                      <input id="nameCustomerFormField"
+                      <TextInput id="nameCustomerFormField"
                              className="fc-customer-form-input"
                              name="name"
                              maxLength="255"
-                             type="text"
                              value={name}
                              required />
                     </FormField>
                   </li>
                   <li>
                     <FormField label="Email Address" validator="ascii">
-                      <input id="emailCustomerFormField"
+                      <TextInput id="emailCustomerFormField"
                              className="fc-customer-form-input"
                              name="email"
                              maxLength="255"
-                             type="text"
                              value={email}
                              required />
                     </FormField>
@@ -118,7 +117,7 @@ class NewCustomer extends Component {
                   <li className="fc-customer-form-controls">
                     <SaveCancel
                       onCancel={transitionToLazy('customers')}
-                      saveText="Save Customer"
+                      saveLabel="Save Customer"
                       isLoading={submitStatus.inProgress}
                     />
                   </li>

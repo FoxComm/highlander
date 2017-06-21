@@ -34,16 +34,15 @@ object CordResponseLineItems {
     if (grouped) fetchLineItems(cordRef, adjustments, cordLineItemsFromOrderGrouped)
     else fetchLineItems(cordRef, adjustments, cordLineItemsFromOrder)
 
-  def fetchCart(cordRef: String,
-                adjustments: Seq[CordResponseLineItemAdjustment],
-                grouped: Boolean)(implicit ec: EC, db: DB): DbResultT[CordResponseLineItems] =
+  def fetchCart(cordRef: String, adjustments: Seq[CordResponseLineItemAdjustment], grouped: Boolean)(
+      implicit ec: EC,
+      db: DB): DbResultT[CordResponseLineItems] =
     if (grouped) fetchLineItems(cordRef, adjustments, cordLineItemsFromCartGrouped)
     else fetchLineItems(cordRef, adjustments, cordLineItemsFromCart)
 
   def fetchLineItems(cordRef: String,
                      adjustments: Seq[CordResponseLineItemAdjustment],
-                     readLineItems: (String,
-                                     AdjustmentMap) ⇒ DbResultT[Seq[CordResponseLineItem]])(
+                     readLineItems: (String, AdjustmentMap) ⇒ DbResultT[Seq[CordResponseLineItem]])(
       implicit ec: EC,
       db: DB): DbResultT[CordResponseLineItems] = {
     val adjustmentMap = mapAdjustments(adjustments)
@@ -58,11 +57,10 @@ object CordResponseLineItems {
       result ← * <~ li.map(data ⇒ createResponse(data, Seq(data.lineItemReferenceNumber), 1))
     } yield result
 
-  def cordLineItemsGrouped(lineItems: Seq[LineItemProductData[_]],
-                           cordRef: String,
-                           adjustmentMap: AdjustmentMap)(
-      implicit ec: EC,
-      db: DB): DbResultT[Seq[CordResponseLineItem]] =
+  def cordLineItemsGrouped(
+      lineItems: Seq[LineItemProductData[_]],
+      cordRef: String,
+      adjustmentMap: AdjustmentMap)(implicit ec: EC, db: DB): DbResultT[Seq[CordResponseLineItem]] =
     for {
       _ ← * <~ lineItems.map(data ⇒ createResponse(data, Seq(data.lineItemReferenceNumber), 1))
       result ← * <~ lineItems
@@ -94,16 +92,14 @@ object CordResponseLineItems {
       db: DB): DbResultT[Seq[CordResponseLineItem]] =
     for {
       lineItems ← * <~ LineItemManager.getCartLineItems(cordRef)
-      result ← * <~ lineItems.map(data ⇒
-                    createResponse(data, Seq(data.lineItemReferenceNumber), 1))
+      result    ← * <~ lineItems.map(data ⇒ createResponse(data, Seq(data.lineItemReferenceNumber), 1))
     } yield result
 
   private val NOT_A_REF = "not_a_ref"
 
-  private def mapAdjustments(adjustments: Seq[CordResponseLineItemAdjustment])
-    : Map[String, CordResponseLineItemAdjustment] = {
+  private def mapAdjustments(
+      adjustments: Seq[CordResponseLineItemAdjustment]): Map[String, CordResponseLineItemAdjustment] =
     adjustments.map(a ⇒ a.lineItemRefNum.getOrElse(NOT_A_REF) → a).toMap
-  }
 
   val NOT_ADJUSTED = "na"
 
@@ -123,10 +119,9 @@ object CordResponseLineItems {
   val NO_IMAGE =
     "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/no_image.jpg"
 
-  private def createResponseGrouped(lineItemData: Seq[LineItemProductData[_]],
-                                    adjMap: Map[String, CordResponseLineItemAdjustment])(
-      implicit ec: EC,
-      db: DB): CordResponseLineItem = {
+  private def createResponseGrouped(
+      lineItemData: Seq[LineItemProductData[_]],
+      adjMap: Map[String, CordResponseLineItemAdjustment])(implicit ec: EC, db: DB): CordResponseLineItem = {
 
     val data             = lineItemData.head
     val referenceNumbers = lineItemData.map(_.lineItemReferenceNumber)
@@ -134,9 +129,9 @@ object CordResponseLineItems {
     createResponse(data, referenceNumbers, lineItemData.length)
   }
 
-  private def createResponse(data: LineItemProductData[_],
-                             referenceNumbers: Seq[String],
-                             quantity: Int)(implicit ec: EC, db: DB): CordResponseLineItem = {
+  private def createResponse(data: LineItemProductData[_], referenceNumbers: Seq[String], quantity: Int)(
+      implicit ec: EC,
+      db: DB): CordResponseLineItem = {
     require(quantity > 0)
 
     val title = FormShadowGet.title(data.productForm, data.productShadow)
@@ -146,18 +141,20 @@ object CordResponseLineItems {
     val externalId     = FormShadowGet.externalId(data.skuForm, data.skuShadow)
     val trackInventory = FormShadowGet.trackInventory(data.skuForm, data.skuShadow)
 
-    CordResponseLineItem(imagePath = image,
-                         sku = data.sku.code,
-                         referenceNumbers = Seq(data.lineItemReferenceNumber),
-                         state = data.lineItemState,
-                         name = title,
-                         price = price,
-                         externalId = externalId,
-                         trackInventory = trackInventory,
-                         productFormId = data.productForm.id,
-                         totalPrice = price,
-                         quantity = quantity,
-                         attributes = data.attributes)
+    CordResponseLineItem(
+      imagePath = image,
+      sku = data.sku.code,
+      referenceNumbers = Seq(data.lineItemReferenceNumber),
+      state = data.lineItemState,
+      name = title,
+      price = price,
+      externalId = externalId,
+      trackInventory = trackInventory,
+      productFormId = data.productForm.id,
+      totalPrice = price,
+      quantity = quantity,
+      attributes = data.attributes
+    )
   }
 }
 

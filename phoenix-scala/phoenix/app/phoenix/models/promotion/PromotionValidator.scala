@@ -13,8 +13,6 @@ object PromotionValidator {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
-  def validate(promotion: Promotion, form: ObjectForm, shadow: ObjectShadow): Seq[Failure] = {
-
+  def validate(promotion: Promotion, form: ObjectForm, shadow: ObjectShadow): Seq[Failure] =
     IlluminateAlgorithm.validateAttributes(form.attributes, shadow.attributes)
-  }
 }

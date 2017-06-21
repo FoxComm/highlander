@@ -15,10 +15,12 @@ object Credentials {
 
   def mustVerifyJWTCredentials(cred: Option[HttpCredentials],
                                or: Failures): Either[Failures, JWTCredentials] =
-    cred.flatMap {
-      // assume it's JWT
-      // passing scheme as argument where we expect token is not a typo
-      case GenericHttpCredentials(scheme, token, params) ⇒ Some(JWTCredentials(scheme))
-      case _                                             ⇒ None
-    }.toEither(or)
+    cred
+      .flatMap {
+        // assume it's JWT
+        // passing scheme as argument where we expect token is not a typo
+        case GenericHttpCredentials(scheme, token, params) ⇒ Some(JWTCredentials(scheme))
+        case _                                             ⇒ None
+      }
+      .toEither(or)
 }

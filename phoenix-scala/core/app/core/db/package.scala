@@ -77,8 +77,7 @@ package object db {
     def flatMapEither[B](f: Either[Failures, A] ⇒ FoxyT[F, B])(implicit F: Monad[F]): FoxyT[F, B] = // TODO: remove me @michalrus
       fa.flatMap(a ⇒ f(Either.right(a))).handleErrorWith(failures ⇒ f(Either.left(failures)))
 
-    def mapEither[B](f: Either[Failures, A] ⇒ Either[Failures, B])(
-        implicit F: Monad[F]): FoxyT[F, B] = // TODO: remove me @michalrus
+    def mapEither[B](f: Either[Failures, A] ⇒ Either[Failures, B])(implicit F: Monad[F]): FoxyT[F, B] = // TODO: remove me @michalrus
       flatMapEither(xa ⇒ FoxyT[F].fromEither(f(xa)))
 
     def mapEitherRight[B](f: Either[Failures, A] ⇒ B)(implicit F: Monad[F]): FoxyT[F, B] =
@@ -145,21 +144,22 @@ package object db {
     def fromId[A](fa: Foxy[A])(implicit F: Monad[F]): FoxyT[F, A] =
       fa.transformF(ga ⇒ EitherT(F.pure(ga.value)))
 
-    def failWithMatchedWarning(pf: PartialFunction[Failure, Boolean])(
-        implicit F: Monad[F]): FoxyT[F, Unit] =
-      StateT(s ⇒
-            s.collect {
-          case MetaResponse.Warning(f) ⇒ f
-        }.find(pf.lift(_) == Some(true)) match {
-          case Some(f) ⇒ EitherT.left(F.pure(NonEmptyList(f, Nil)))
-          case _       ⇒ EitherT.right(F.pure((s, ())))
-      })
+    def failWithMatchedWarning(pf: PartialFunction[Failure, Boolean])(implicit F: Monad[F]): FoxyT[F, Unit] =
+      StateT(
+        s ⇒
+          s.collect {
+              case MetaResponse.Warning(f) ⇒ f
+            }
+            .find(pf.lift(_) == Some(true)) match {
+            case Some(f) ⇒ EitherT.left(F.pure(NonEmptyList(f, Nil)))
+            case _       ⇒ EitherT.right(F.pure((s, ())))
+        })
 
     /** Just like ``sequence`` but—in case of a failure—unlawful, as it will join failures from all Foxies. */
     def seqCollectFailures[L[_], A](lfa: L[FoxyT[F, A]])(implicit L: TraverseFilter[L],
                                                          F: Monad[F]): FoxyT[F, L[A]] =
       L.map(lfa)(_.fold(Either.left(_), Either.right(_))).sequence.flatMap { xa ⇒
-        val failures = L.collect(xa) { case Left(f)  ⇒ f.toList }.toList.flatten
+        val failures = L.collect(xa) { case Left(f) ⇒ f.toList }.toList.flatten
         val values   = L.collect(xa) { case Right(a) ⇒ a }
         NonEmptyList.fromList(failures).fold(FoxyT[F].pure(values))(FoxyT[F].failures(_))
       }
@@ -195,12 +195,9 @@ package object db {
 
   type FoxyTDBIO[A] = FoxyT[DBIO, A] /* replaces the old DbResultT */
   object FoxyTDBIO extends FoxyTFunctions[DBIO] {
-    def fromResult[A](ga: FoxyT[Future, A])(
-        implicit F: Monad[Future],
-        G: Monad[DBIO]): FoxyT[DBIO, A] = // TODO: better name? @michalrus
+    def fromResult[A](ga: FoxyT[Future, A])(implicit F: Monad[Future], G: Monad[DBIO]): FoxyT[DBIO, A] = // TODO: better name? @michalrus
       // Don’t remove type annotation below, or the compiler will crash. 🙄
-      ga.transformF(gga ⇒
-            EitherT(DBIO.from(gga.value): DBIO[Either[Failures, (List[MetaResponse], A)]])) // TODO: use FunctionK for functor changes? Future[_] → DBIO[_] here
+      ga.transformF(gga ⇒ EitherT(DBIO.from(gga.value): DBIO[Either[Failures, (List[MetaResponse], A)]])) // TODO: use FunctionK for functor changes? Future[_] → DBIO[_] here
   }
 
   type DbResultT[A] = FoxyTDBIO[A]
@@ -234,19 +231,18 @@ package object db {
   implicit class EnrichedDbResultT[A](dbResultT: DbResultT[A]) {
     def runTxn()(implicit ec: EC, db: DB): Result[A] = // FIXME: this should be doable without all this ceremony, supplying .transactionally.run to some standard function @michalrus
       dbResultT.transformF(
-          fsa ⇒
-            EitherT(
-                fsa
-                // turn `left` into `DBIO.failed` to force transaction rollback
-                  .fold(failures ⇒ DBIO.failed(FoxFailureException(failures)),
-                        good ⇒ DBIO.successful(good))
-                  .flatMap(a ⇒ a) // flatten...
-                  .transactionally
-                  .run() // throws a FoxFailureException :/
-                  .map(Either.right)
-                  .recover { // don't actually want an exception thrown, so wrap it back
-            case e: FoxFailureException ⇒ Either.left(e.failures)
-          }))
+        fsa ⇒
+          EitherT(
+            fsa
+            // turn `left` into `DBIO.failed` to force transaction rollback
+              .fold(failures ⇒ DBIO.failed(FoxFailureException(failures)), good ⇒ DBIO.successful(good))
+              .flatMap(a ⇒ a) // flatten...
+              .transactionally
+              .run() // throws a FoxFailureException :/
+              .map(Either.right)
+              .recover { // don't actually want an exception thrown, so wrap it back
+                case e: FoxFailureException ⇒ Either.left(e.failures)
+              }))
 
     def runDBIO()(implicit ec: EC, db: DB): Result[A] =
       dbResultT.transformF(fa ⇒ EitherT(fa.value.run))
@@ -277,9 +273,8 @@ package object db {
     def id: Rep[M#Id]
   }
 
-  def appendForUpdate[A, B <: slick.dbio.NoStream](sql: SqlAction[A, B, Effect.Read]): DBIO[A] = {
+  def appendForUpdate[A, B <: slick.dbio.NoStream](sql: SqlAction[A, B, Effect.Read]): DBIO[A] =
     sql.overrideStatements(sql.statements.map(_ + " for update"))
-  }
 
   def lift[A](value: A): DBIO[A] = DBIO.successful(value)
 
@@ -291,8 +286,7 @@ package object db {
   def doOrMeh(condition: Boolean, action: ⇒ DbResultT[_])(implicit ec: EC): DbResultT[Unit] =
     if (condition) action.meh else DbResultT.unit
 
-  def doOrGood[A](condition: Boolean, action: ⇒ DbResultT[A], good: ⇒ A)(
-      implicit ec: EC): DbResultT[A] =
+  def doOrGood[A](condition: Boolean, action: ⇒ DbResultT[A], good: ⇒ A)(implicit ec: EC): DbResultT[A] =
     if (condition) action else DbResultT.good(good)
 
   def doOrFail[A](condition: Boolean, action: ⇒ DbResultT[A], failure: ⇒ Failure)(
@@ -342,21 +336,18 @@ package object db {
 
   implicit class EnrichedDBIOpt[R](val dbio: DBIO[Option[R]]) extends AnyVal {
 
-    def findOrCreate(createAction: ⇒ DbResultT[R])(implicit ec: EC): DbResultT[R] = {
+    def findOrCreate(createAction: ⇒ DbResultT[R])(implicit ec: EC): DbResultT[R] =
       dbio.dbresult.flatMap {
         case Some(model) ⇒ DbResultT.good(model)
         case None        ⇒ createAction
       }
-    }
 
     // Last item in tuple determines if cart was created or not
-    def findOrCreateExtended(createAction: ⇒ DbResultT[R])(
-        implicit ec: EC): DbResultT[(R, FoundOrCreated)] = {
+    def findOrCreateExtended(createAction: ⇒ DbResultT[R])(implicit ec: EC): DbResultT[(R, FoundOrCreated)] =
       dbio.dbresult.flatMap {
         case Some(model) ⇒ DbResultT.good((model, Found))
         case _           ⇒ createAction.map(result ⇒ (result, Created))
       }
-    }
 
     def mustFindOr(notFoundFailure: Failure)(implicit ec: EC): DbResultT[R] =
       dbio.dbresult.flatMap {

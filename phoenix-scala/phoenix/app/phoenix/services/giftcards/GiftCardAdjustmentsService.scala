@@ -1,15 +1,14 @@
 package phoenix.services.giftcards
 
+import core.db._
 import phoenix.models.cord.{Carts, OrderPayments}
 import phoenix.models.payment.giftcard.{GiftCardAdjustments, GiftCards}
-import phoenix.responses.GiftCardAdjustmentsResponse._
+import phoenix.responses.giftcards.GiftCardAdjustmentsResponse
 import slick.jdbc.PostgresProfile.api._
-import phoenix.utils.aliases._
-import core.db._
 
 object GiftCardAdjustmentsService {
 
-  def forGiftCard(code: String)(implicit ec: EC, db: DB): DbResultT[Seq[Root]] = {
+  def forGiftCard(code: String)(implicit ec: EC, db: DB): DbResultT[Seq[GiftCardAdjustmentsResponse]] = {
 
     def maybePaymentQ =
       for {
@@ -17,7 +16,7 @@ object GiftCardAdjustmentsService {
         order ← Carts.filter(_.referenceNumber === pay.cordRef)
       } yield (pay, order.referenceNumber)
 
-    def adjustmentQ(giftCardId: Int) = GiftCardAdjustments.filter(_.id === giftCardId)
+    def adjustmentQ(giftCardId: Int) = GiftCardAdjustments.filter(_.giftCardId === giftCardId)
 
     def joinedQ(giftCardId: Int) =
       adjustmentQ(giftCardId).joinLeft(maybePaymentQ).on {
@@ -30,9 +29,9 @@ object GiftCardAdjustmentsService {
     } yield
       records.map {
         case (adj, Some((_, cordRef))) ⇒
-          build(adj, Some(cordRef))
+          GiftCardAdjustmentsResponse.build(adj, Some(cordRef))
         case (adj, _) ⇒
-          build(adj)
+          GiftCardAdjustmentsResponse.build(adj)
       }
   }
 }

@@ -10,14 +10,13 @@ class ByteBufferInputStream(buf: ByteBuffer) extends InputStream {
     buf.get & 0xFF
   }
 
-  override def read(bytes: Array[Byte], off: Int, len: Int): Int = {
+  override def read(bytes: Array[Byte], off: Int, len: Int): Int =
     if (!buf.hasRemaining) -1
     else {
       val readLen = Math.min(len, buf.remaining)
       buf.get(bytes, off, readLen)
       readLen
     }
-  }
 
   override def markSupported(): Boolean = true
 

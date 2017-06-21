@@ -13,8 +13,7 @@ object OrderShippingMethod {
     OrderShippingMethod(cordRef = cordRef, shippingMethodId = method.id, price = method.price)
 }
 
-class OrderShippingMethods(tag: Tag)
-    extends FoxTable[OrderShippingMethod](tag, "order_shipping_methods") {
+class OrderShippingMethods(tag: Tag) extends FoxTable[OrderShippingMethod](tag, "order_shipping_methods") {
   def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def cordRef          = column[String]("cord_ref")
   def shippingMethodId = column[Int]("shipping_method_id")

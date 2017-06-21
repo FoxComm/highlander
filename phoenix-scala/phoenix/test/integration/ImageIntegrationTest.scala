@@ -62,8 +62,8 @@ class ImageIntegrationTest
         val imageSources = Seq("1", "2")
 
         albumsApi(album.formId)
-          .update(AlbumPayload(name = "Name 2.0".some,
-                               images = imageSources.map(u ⇒ ImagePayload(src = u)).some))
+          .update(
+            AlbumPayload(name = "Name 2.0".some, images = imageSources.map(u ⇒ ImagePayload(src = u)).some))
           .mustBeOk()
 
         albumsApi(album.formId).get().as[AlbumRoot].images.map(_.src) must === (imageSources)
@@ -81,8 +81,8 @@ class ImageIntegrationTest
 
         "one image" in new Fixture {
           albumsApi
-            .create(AlbumPayload(name = Some("Non-empty album"),
-                                 images = Seq(ImagePayload(src = "url")).some))
+            .create(
+              AlbumPayload(name = Some("Non-empty album"), images = Seq(ImagePayload(src = "url")).some))
             .as[AlbumRoot]
             .images
             .onlyElement
@@ -91,8 +91,8 @@ class ImageIntegrationTest
 
         "multiple images" in new Fixture {
           val sources = Seq("url", "url2")
-          val payload = AlbumPayload(name = Some("Non-empty album"),
-                                     images = sources.map(s ⇒ ImagePayload(src = s)).some)
+          val payload =
+            AlbumPayload(name = Some("Non-empty album"), images = sources.map(s ⇒ ImagePayload(src = s)).some)
 
           val ordered = albumsApi.create(payload).as[AlbumRoot]
           ordered.images.map(_.src) must === (sources)
@@ -365,12 +365,12 @@ class ImageIntegrationTest
       }
 
       "fail when uploading to archived album" in new ArchivedAlbumFixture {
-        uploadImage(archivedAlbum).mustFailWith400(
-            AddImagesToArchivedAlbumFailure(archivedAlbum.id))
+        uploadImage(archivedAlbum).mustFailWith400(AddImagesToArchivedAlbumFailure(archivedAlbum.id))
       }
 
       def uploadImage(album: Album, count: Int = 1): HttpResponse = {
-        val image = Paths.get("test/resources/foxy.jpg")
+        val url   = getClass.getResource("foxy.jpg")
+        val image = Paths.get(url.toURI)
         image.toFile.exists mustBe true
 
         val entity = if (count == 0) {
@@ -380,15 +380,14 @@ class ImageIntegrationTest
         } else {
           val bodyParts = 1 to count map { _ ⇒
             Multipart.FormData.BodyPart.fromPath(name = "upload-file",
-                                                 contentType =
-                                                   MediaTypes.`application/octet-stream`,
+                                                 contentType = MediaTypes.`application/octet-stream`,
                                                  file = image)
           }
           val formData = Multipart.FormData(bodyParts.toList: _*)
           Marshal(formData).to[RequestEntity].futureValue
         }
 
-        val uri     = pathToAbsoluteUrl(s"v1/albums/${ctx.name}/${album.id}/images")
+        val uri     = pathToAbsoluteUrl(s"v1/albums/${ctx.name}/${album.formId}/images")
         val request = HttpRequest(method = HttpMethods.POST, uri = uri, entity = entity)
         dispatchRequest(request, defaultAdminAuth.jwtCookie.some)
       }
@@ -413,45 +412,44 @@ class ImageIntegrationTest
     val (album, albumImages) = (for {
       ins ← * <~ ObjectUtils.insert(form, shadow)
       album ← * <~ Albums.create(
-                 Album(scope = Scope.current,
-                       contextId = ctx.id,
-                       shadowId = ins.shadow.id,
-                       formId = ins.form.id,
-                       commitId = ins.commit.id))
+               Album(scope = Scope.current,
+                     contextId = ctx.id,
+                     shadowId = ins.shadow.id,
+                     formId = ins.form.id,
+                     commitId = ins.commit.id))
       albumImages ← * <~ ImageManager.createImagesForAlbum(album, Seq(testPayload), ctx)
     } yield (album, albumImages)).gimme
   }
 
   trait ProductFixture extends Fixture {
     val (product, prodForm, prodShadow, sku, skuForm, skuShadow) = (for {
-      simpleSku  ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD)
+      simpleSku  ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD, active = true)
       skuForm    ← * <~ ObjectForms.create(simpleSku.create)
       sSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
       skuShadow  ← * <~ ObjectShadows.create(sSkuShadow.create.copy(formId = skuForm.id))
-      skuCommit ← * <~ ObjectCommits.create(
-                     ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
+      skuCommit  ← * <~ ObjectCommits.create(ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
       sku ← * <~ Skus.create(
-               Sku(scope = Scope.current,
-                   contextId = ctx.id,
-                   formId = skuForm.id,
-                   shadowId = skuShadow.id,
-                   commitId = skuCommit.id,
-                   code = "SKU-TEST"))
+             Sku(scope = Scope.current,
+                 contextId = ctx.id,
+                 formId = skuForm.id,
+                 shadowId = skuShadow.id,
+                 commitId = skuCommit.id,
+                 code = "SKU-TEST"))
       _ ← * <~ SkuAlbumLinks.create(SkuAlbumLink(leftId = sku.id, rightId = album.id))
 
       simpleProd ← * <~ SimpleProduct(title = "Test Product",
-                                      description = "Test product description")
+                                      description = "Test product description",
+                                      active = true)
       prodForm    ← * <~ ObjectForms.create(simpleProd.create)
       sProdShadow ← * <~ SimpleProductShadow(simpleProd)
       prodShadow  ← * <~ ObjectShadows.create(sProdShadow.create.copy(formId = prodForm.id))
-      prodCommit ← * <~ ObjectCommits.create(
-                      ObjectCommit(formId = prodForm.id, shadowId = prodShadow.id))
+      prodCommit  ← * <~ ObjectCommits.create(ObjectCommit(formId = prodForm.id, shadowId = prodShadow.id))
       product ← * <~ Products.create(
-                   Product(scope = Scope.current,
-                           contextId = ctx.id,
-                           formId = prodForm.id,
-                           shadowId = prodShadow.id,
-                           commitId = prodCommit.id))
+                 Product(scope = Scope.current,
+                         contextId = ctx.id,
+                         formId = prodForm.id,
+                         shadowId = prodShadow.id,
+                         commitId = prodCommit.id))
 
       _ ← * <~ ProductAlbumLinks.create(ProductAlbumLink(leftId = product.id, rightId = album.id))
       _ ← * <~ ProductSkuLinks.create(ProductSkuLink(leftId = product.id, rightId = sku.id))

@@ -11,7 +11,7 @@ import { Link, IndexLink } from 'components/link';
 // styles
 import s from './breadcrumb.css';
 
-const rootPath = process.env.BEHIND_NGINX ? '/admin' : '/';
+const rootPath = process.env.URL_PREFIX;
 
 type Props = {
   routes: Array<any>;

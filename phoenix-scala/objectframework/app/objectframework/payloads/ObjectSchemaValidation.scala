@@ -13,13 +13,11 @@ import scala.collection.JavaConverters._
 
 object ObjectSchemaValidation {
 
-  trait SchemaValidation[M] {
-    this: M ⇒
+  trait SchemaValidation[M] { this: M ⇒
     def defaultSchemaName: String
     val schema: Option[String] = None
 
-    private def validatePayload(payload: M, jsonSchema: JValue)(implicit ec: EC,
-                                                                fmt: Formats): DbResultT[M] = {
+    private def validatePayload(payload: M, jsonSchema: JValue)(implicit ec: EC, fmt: Formats): DbResultT[M] = {
       val jsonSchemaFactory = new JsonSchemaFactory
       val validator         = jsonSchemaFactory.getSchema(asJsonNode(jsonSchema))
 

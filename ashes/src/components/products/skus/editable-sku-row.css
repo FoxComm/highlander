@@ -1,3 +1,4 @@
+@import 'colors.css';
 
 .sku-cell {
   position: relative;
@@ -11,16 +12,15 @@
   max-height: 350px;
   overflow-y: auto;
   overflow-x: hidden;
-  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
-  background: #fff;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .5);
+  background: var(--bg-white);
   font-size: 14px;
   line-height: 18px;
-
   display: none;
   position: absolute;
   top: 100%;
   width: 100%;
-  z-index: 999;
+  z-index: 29;
 
   &:global(._visible) {
     display: block;
@@ -30,15 +30,16 @@
 .sku-item {
   padding: 12px;
   cursor: pointer;
+
   &:hover {
-    background: #f7f7f7;
+    background: var(--bg-grey-headers);
   }
 
   &:global(._new) {
     &:first-child {
       font-size: 12px;
       font-weight: 400;
-      color: #484848;
+      color: var(--color-text);
       padding-bottom: 10px;
     }
   }
@@ -46,7 +47,7 @@
 
 .no-image-text {
   font-weight: 600;
-  color: #9BA3A7;
+  color: var(--color-additional-text);
 }
 
 .image-cell {
@@ -57,11 +58,17 @@
   height: 100%;
 }
 
+.sku-code {
+  width: 100%;
+}
+
 .variant-value {
-  background-color: #d9d9d9;
-  border: 1px solid #ced2d5;
+  background-color: var(--color-border);
+  border: 1px solid var(--color-border);
   padding: 10px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .inventory {

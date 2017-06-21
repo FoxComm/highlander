@@ -4,7 +4,7 @@ import _ from 'lodash';
 
 import AddressBox from './address-box';
 import EmptyText from '../content-box/empty-text';
-import ConfirmationDialog from '../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 
 /**
  * Address list. Requires actions which interface described in customers/address-details and address modules.
@@ -15,14 +15,12 @@ const Addresses = props => {
   return (
     <div>
       {content}
-      <ConfirmationDialog
+      <ConfirmationModal
         isVisible={ props.deletingId != null } /* null and undefined */
-        header='Confirm'
-        body='Are you sure you want to delete this address?'
-        cancel='Cancel'
-        confirm='Yes, Delete'
+        label="Are you sure you want to delete this address?"
+        confirmLabel="Yes, Delete"
         onCancel={() => props.stopDeletingAddress(props.customerId) }
-        confirmAction={() => {
+        onConfirm={() => {
           props.stopDeletingAddress();
           props.deleteAddress(props.customerId, props.deletingId)
             .then(() => {

@@ -34,8 +34,7 @@ class CategoryIntegrationTest
         val updatedShadow: JObject = (newAttribute → ("type" → "string"))
 
         val content = categoriesApi(category.form.id)
-          .update(UpdateFullCategory(UpdateCategoryForm(updatedForm),
-                                     UpdateCategoryShadow(updatedShadow)))
+          .update(UpdateFullCategory(UpdateCategoryForm(updatedForm), UpdateCategoryShadow(updatedShadow)))
           .as[FullCategoryResponse.Root]
 
         val formValues: List[Json] = content.form.attributes.asInstanceOf[JObject].children
@@ -55,8 +54,7 @@ class CategoryIntegrationTest
         val updatedShadow: JObject = (newAttribute → ("type" → "string"))
 
         val content = categoriesApi
-          .create(CreateFullCategory(CreateCategoryForm(updatedForm),
-                                     CreateCategoryShadow(updatedShadow)))
+          .create(CreateFullCategory(CreateCategoryForm(updatedForm), CreateCategoryShadow(updatedShadow)))
           .as[FullCategoryResponse.Root]
 
         val formValues: List[Json] = content.form.attributes.asInstanceOf[JObject].children
@@ -110,10 +108,10 @@ class CategoryIntegrationTest
       val testShadowAttributes: JObject = ("attr1" → ("type" → "string"))
 
       val category = CategoryManager
-        .createCategory(storeAdmin,
-                        CreateFullCategory(CreateCategoryForm(testAttributes),
-                                           CreateCategoryShadow(testShadowAttributes)),
-                        ctx.name)
+        .createCategory(
+          storeAdmin,
+          CreateFullCategory(CreateCategoryForm(testAttributes), CreateCategoryShadow(testShadowAttributes)),
+          ctx.name)
         .gimme
     }
   }

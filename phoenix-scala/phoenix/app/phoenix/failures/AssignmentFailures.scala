@@ -13,7 +13,7 @@ object AssignmentFailures {
     def apply[A](a: A, searchKey: Any, storeAdminId: Int): AlreadyAssignedFailure = {
       val model = friendlyClassName(a)
       AlreadyAssignedFailure(
-          s"storeAdmin with id=$storeAdminId is already assigned to $model with key=$searchKey")
+        s"storeAdmin with id=$storeAdminId is already assigned to $model with key=$searchKey")
     }
   }
 
@@ -24,8 +24,7 @@ object AssignmentFailures {
   object NotAssignedFailure {
     def apply[A](a: A, searchKey: Any, storeAdminId: Int): NotAssignedFailure = {
       val model = friendlyClassName(a)
-      NotAssignedFailure(
-          s"storeAdmin with id=$storeAdminId is not assigned to $model with key=$searchKey")
+      NotAssignedFailure(s"storeAdmin with id=$storeAdminId is not assigned to $model with key=$searchKey")
     }
   }
 
@@ -36,8 +35,7 @@ object AssignmentFailures {
   object AssigneeNotFoundFailure {
     def apply[A](a: A, searchKey: Any, assigneeId: Int): AssigneeNotFoundFailure = {
       val model = friendlyClassName(a)
-      AssigneeNotFoundFailure(
-          s"storeAdmin with id=$assigneeId is not assigned to $model with key=$searchKey")
+      AssigneeNotFoundFailure(s"storeAdmin with id=$assigneeId is not assigned to $model with key=$searchKey")
     }
   }
 }

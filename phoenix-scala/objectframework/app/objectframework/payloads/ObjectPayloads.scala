@@ -17,9 +17,8 @@ object ObjectPayloads {
       attributeName → (("type" → attributeType) ~ ("ref" → attributeName))
   }
 
-  case class StringField(name: String, value: String)
-      extends TypedFieldBuilder(name, "string", value)
-  case class IntField(name: String, value: Int) extends TypedFieldBuilder(name, "int", value)
+  case class StringField(name: String, value: String) extends TypedFieldBuilder(name, "string", value)
+  case class IntField(name: String, value: Int)       extends TypedFieldBuilder(name, "int", value)
 
   case class AttributesBuilder(attributes: FormShadowFieldBuilder*) {
 

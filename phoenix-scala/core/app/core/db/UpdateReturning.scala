@@ -23,20 +23,16 @@ import scala.util.matching.Regex
 object UpdateReturning {
   val columnRegex: Regex = "(\".*\")".r
 
-  implicit class UpdateReturningInvoker[E, U, C[_]](val updateQuery: Query[E, U, C])
-      extends AnyVal {
+  implicit class UpdateReturningInvoker[E, U, C[_]](val updateQuery: Query[E, U, C]) extends AnyVal {
 
-    def updateReturningHead[A, F](returningQuery: Query[A, F, C], v: U)(
-        implicit ec: EC): DbResultT[F] =
+    def updateReturningHead[A, F](returningQuery: Query[A, F, C], v: U)(implicit ec: EC): DbResultT[F] =
       ExceptionWrapper.wrapDbio(updateReturning(returningQuery, v).head)
 
-    def updateReturningHeadOption[A, F](
-        returningQuery: Query[A, F, C],
-        v: U,
-        notFoundFailure: Failure)(implicit ec: EC): DbResultT[F] = {
+    def updateReturningHeadOption[A, F](returningQuery: Query[A, F, C], v: U, notFoundFailure: Failure)(
+        implicit ec: EC): DbResultT[F] = {
       val returningResult = updateReturning(returningQuery, v)
       val withFailure = returningResult.headOption.dbresult.flatMap(res ⇒
-            DbResultT.fromEither(Either.fromOption(res, notFoundFailure.single)))
+        DbResultT.fromEither(Either.fromOption(res, notFoundFailure.single)))
       ExceptionWrapper.wrapDbResultT(withFailure)
     }
 

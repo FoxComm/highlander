@@ -17,18 +17,20 @@ class CordsIntegrationTest extends IntegrationTestBase with TestObjectContext wi
     cord.isCart mustBe true
   }
 
-  "should generate and increment reference_number if empty" in new Customer_Seed {
+  "should generate new & unique reference numbers if empty" in new Customer_Seed {
 
     implicit val au = customerAuthData
 
-    (1 to 3).map { i ⇒
+    val refNums = (1 to 3).map { i ⇒
       val cart = Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)).gimme
       val cord = Cords.findOneByRefNum(cart.refNum).gimme.value
-      cord.referenceNumber must === (s"BR1000$i")
       cart.referenceNumber must === (cord.referenceNumber)
       cord.isCart mustBe true
       Orders.createFromCart(cart, None).gimme
+      cord.referenceNumber
     }
+
+    refNums.size must === (refNums.distinct.size)
   }
 
   "cord should be updated and cart should be deleted on order creation" in new Customer_Seed {

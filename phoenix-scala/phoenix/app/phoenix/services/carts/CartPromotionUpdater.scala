@@ -47,8 +47,7 @@ object CartPromotionUpdater {
         clearStalePromotions(cart) >> DbResultT.failures(es)
     }
 
-  private def tryReadjust(cart: Cart,
-                          failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
+  private def tryReadjust(cart: Cart, failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
       implicit ec: EC,
       apis: Apis,
       db: DB,
@@ -68,13 +67,10 @@ object CartPromotionUpdater {
       CartLineItemAdjustments.findByCordRef(cart.referenceNumber).delete.dbresult.void
 
   private def filterPromotionsUsingCustomerGroups[L[_]: TraverseFilter](user: User)(
-      promos: L[Promotion])(implicit ec: EC,
-                            apis: Apis,
-                            ctx: OC,
-                            db: DB): DbResultT[L[Promotion]] = {
+      promos: L[Promotion])(implicit ec: EC, apis: Apis, ctx: OC, db: DB): DbResultT[L[Promotion]] = {
     implicit val formats = JsonFormatters.phoenixFormats
 
-    def isApplicable(promotion: Promotion): DbResultT[Boolean] = {
+    def isApplicable(promotion: Promotion): DbResultT[Boolean] =
       for {
         promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
         promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
@@ -83,26 +79,23 @@ object CartPromotionUpdater {
           case JNothing | JNull ⇒ None
           case cgis             ⇒ cgis.extractOpt[Set[Int]]
         }
-        result ← * <~ customerGroupIdsO.fold(DbResultT.pure(true))(
-                    GroupMemberManager.isMemberOfAny(_, user))
+        result ← * <~ customerGroupIdsO.fold(DbResultT.pure(true))(GroupMemberManager.isMemberOfAny(_, user))
       } yield result
-    }
 
     promos.filterA(isApplicable)
   }
 
-  private def findApplicablePromotion(
-      cart: Cart,
-      failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
+  private def findApplicablePromotion(cart: Cart,
+                                      failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
       implicit ec: EC,
       apis: Apis,
       au: AU,
       db: DB,
       ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[CartLineItemAdjustment])] =
     findAppliedCouponPromotion(cart, failFatally).handleErrorWith(
-        couponErr ⇒
-          findApplicableAutoAppliedPromotion(cart).handleErrorWith(_ ⇒ // Any error? @michalrus
-                DbResultT.failures(couponErr)))
+      couponErr ⇒
+        findApplicableAutoAppliedPromotion(cart).handleErrorWith(_ ⇒ // Any error? @michalrus
+          DbResultT.failures(couponErr)))
 
   private def findAppliedCouponPromotion(
       cart: Cart,
@@ -111,7 +104,7 @@ object CartPromotionUpdater {
       au: AU,
       apis: Apis,
       db: DB,
-      ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[CartLineItemAdjustment])] = {
+      ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[CartLineItemAdjustment])] =
     for {
       orderPromo ← * <~ OrderPromotions
                     .filterByCordRef(cart.refNum)
@@ -131,7 +124,6 @@ object CartPromotionUpdater {
                    .getOrElse(DbResultT.failure(OrderHasNoPromotions)) // TODO: no function for that? Seems useful? @michalrus
       adjustments ← * <~ getAdjustmentsForPromotion(cart, promotion, failFatally)
     } yield (orderPromo, promotion, adjustments)
-  }
 
   private def findApplicableAutoAppliedPromotion(cart: Cart)(
       implicit ec: EC,
@@ -148,8 +140,7 @@ object CartPromotionUpdater {
              .map(_.toStream) >>= filterPromotionsUsingCustomerGroups(user)
       allWithAdjustments ← * <~ all.toList
                             .map(promo ⇒
-                                  getAdjustmentsForPromotion(cart, promo, failFatally = true).map(
-                                      (promo, _)))
+                              getAdjustmentsForPromotion(cart, promo, failFatally = true).map((promo, _)))
                             .ignoreFailures
                             .ensure(OrderHasNoPromotions.single)(_.nonEmpty)
       (bestPromo, bestAdjustments) = allWithAdjustments.maxBy {
@@ -285,17 +276,21 @@ object CartPromotionUpdater {
       shipTotal      ← * <~ CartTotaler.shippingTotal(cart)
       cartWithTotalsUpdated = cart.copy(subTotal = subTotal, shippingTotal = shipTotal)
       dqLineItems = lineItems.map { li ⇒
-        DqLineItem(skuCode = li.sku.code,
-                   productId = li.productForm.id,
-                   price = li.price,
-                   lineItemType = if (li.isGiftCard) DqGiftCardLineItem else DqRegularLineItem,
-                   lineItemReferenceNumber = li.lineItemReferenceNumber)
+        DqLineItem(
+          skuCode = li.sku.code,
+          productId = li.productForm.id,
+          price = li.price,
+          lineItemType = if (li.isGiftCard) DqGiftCardLineItem else DqRegularLineItem,
+          lineItemReferenceNumber = li.lineItemReferenceNumber
+        )
       }
-      input = DiscountInput(promotionShadowId = promo.id,
-                            cartRefNum = cart.referenceNumber,
-                            customerAccountId = cart.accountId,
-                            lineItems = dqLineItems,
-                            shippingCost = shippingMethod.map(_.price))
+      input = DiscountInput(
+        promotionShadowId = promo.id,
+        cartRefNum = cart.referenceNumber,
+        customerAccountId = cart.accountId,
+        lineItems = dqLineItems,
+        shippingCost = shippingMethod.map(_.price)
+      )
       _            ← * <~ qualifier.check(input)
       offerResults ← * <~ offer.adjust(input)
     } yield offerResults.map(CartLineItemAdjustment.fromOfferResult)

@@ -5,7 +5,7 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import core.failures.{Failure, Failures, GeneralFailure}
 import core.utils.Strings._
-import core.utils.{Validation, friendlyClassName}
+import core.utils.{friendlyClassName, Validation}
 
 trait Identity[A] { self: A ⇒
   type Id = Int
@@ -30,7 +30,6 @@ trait FoxModel[M <: FoxModel[M]] extends Validation[M] with Identity[M] { self: 
 
   def mustBeCreated: Either[Failures, M] =
     if (id == 0)
-      Either.left(
-          GeneralFailure(s"Refusing to update unsaved ${friendlyClassName(this)} model").single)
+      Either.left(GeneralFailure(s"Refusing to update unsaved ${friendlyClassName(this)} model").single)
     else Either.right(this)
 }

@@ -7,10 +7,7 @@ import phoenix.models.account._
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 
-case class SaveForLater(id: Int = 0,
-                        accountId: Int = 0,
-                        skuId: Int,
-                        createdAt: Instant = Instant.now)
+case class SaveForLater(id: Int = 0, accountId: Int = 0, skuId: Int, createdAt: Instant = Instant.now)
     extends FoxModel[SaveForLater] {}
 
 object SaveForLater {}

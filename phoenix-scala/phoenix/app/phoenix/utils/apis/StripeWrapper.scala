@@ -1,17 +1,21 @@
 package phoenix.utils.apis
 
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeoutException
+
 import cats.implicits._
 import com.stripe.exception.{CardException, StripeException}
 import com.stripe.model.{DeletedCard, ExternalAccount, Token, Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
 import com.typesafe.scalalogging.LazyLogging
 import core.db._
 import core.failures.{Failures, GeneralFailure}
-import phoenix.failures.StripeFailures.{CardNotFoundForNewCustomer, StripeFailure}
+import phoenix.failures.StripeFailures._
 import phoenix.utils.apis.StripeMappings.cardExceptionMap
 
+import scala.concurrent.duration._
 import scala.collection.JavaConversions._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.util.Try
 
 /**
   * Low-level Stripe API wrapper implementation.
@@ -33,14 +37,12 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
   }
 
   def findCardByCustomerId(gatewayCustomerId: String, gatewayCardId: String): Result[StripeCard] = {
-    logger.info(
-        s"Find card for customer, customer id: $gatewayCustomerId, card id: $gatewayCardId")
+    logger.info(s"Find card for customer, customer id: $gatewayCustomerId, card id: $gatewayCardId")
     inBlockingPool(StripeCustomer.retrieve(gatewayCustomerId).getSources.retrieve(gatewayCardId))
       .flatMapEither(accountToCard)
   }
 
-  def findCardForCustomer(stripeCustomer: StripeCustomer,
-                          gatewayCardId: String): Result[StripeCard] = {
+  def findCardForCustomer(stripeCustomer: StripeCustomer, gatewayCardId: String): Result[StripeCard] = {
     logger.info(s"Find card for customer, customer: $stripeCustomer, card id: $gatewayCardId")
     inBlockingPool(stripeCustomer.getSources.retrieve(gatewayCardId)).flatMapEither(accountToCard)
   }
@@ -117,13 +119,25 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
   // param: ⇒ A makes method param "lazy". Do not remove!
   @inline protected[utils] final def inBlockingPool[A <: AnyRef](action: ⇒ A): Result[A] = {
     // TODO: don’t we need to catch Future (and DBIO) failures like that in general? Also handling ExecutionException. See dispatch.EnrichedFuture#either @michalrus
-    val f = Future(Either.right(action)).recover {
-      case t: CardException if cardExceptionMap.contains(t.getCode) ⇒
-        Either.left(cardExceptionMap(t.getCode).single)
-      case t: StripeException ⇒
-        Either.left(StripeFailure(t).single)
+    val timeout = 10.seconds
+    val f = try {
+      Await.result(
+        Future(Either.right(action)).recover {
+          case t: CardException if cardExceptionMap.contains(t.getCode) ⇒
+            Either.left(cardExceptionMap(t.getCode).single)
+          case t: StripeException ⇒
+            Either.left(StripeFailure(t).single)
+        },
+        timeout
+      )
+    } catch {
+      case te: TimeoutException ⇒ {
+        val message = s"Request to Stripe timed out: ${te.getMessage}"
+        logger.error(message)
+        Either.left(StripeProcessingFailure(message).single)
+      }
     }
 
-    Result.fromFEither(f)
+    Result.fromEither(f)
   }
 }

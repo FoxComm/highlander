@@ -32,10 +32,9 @@ trait CouponSeeds {
 
   import CouponSeeds._
 
-  def createCoupons(promotions: Seq[BasePromotion])(
-      implicit db: DB,
-      ac: AC,
-      au: AU): DbResultT[Seq[(BaseCoupon, Seq[CouponCode])]] =
+  def createCoupons(promotions: Seq[BasePromotion])(implicit db: DB,
+                                                    ac: AC,
+                                                    au: AU): DbResultT[Seq[(BaseCoupon, Seq[CouponCode])]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       results ← * <~ promotions.map { promotion ⇒
@@ -55,12 +54,12 @@ trait CouponSeeds {
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       ins    ← * <~ ObjectUtils.insert(form, shadow, None)
       coupon ← * <~ Coupons.create(
-                  Coupon(scope = scope,
-                         contextId = context.id,
-                         formId = ins.form.id,
-                         shadowId = ins.shadow.id,
-                         commitId = ins.commit.id,
-                         promotionId = payload.promotion))
+                Coupon(scope = scope,
+                       contextId = context.id,
+                       formId = ins.form.id,
+                       shadowId = ins.shadow.id,
+                       commitId = ins.commit.id,
+                       promotionId = payload.promotion))
       // Generate codes for it
       codes ← * <~ CouponCodes.generateCodes(codePrefix, codeLength, codesQty)
       unsaved = codes.map { c ⇒

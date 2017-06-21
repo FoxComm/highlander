@@ -36,52 +36,49 @@ object AddressResponse {
     Regions.mustFindById400(address.regionId).map(region ⇒ build(address, region))
 
   def build(address: Address, region: Region): AddressResponse =
-    AddressResponse(id = address.id,
-                    region = region,
-                    name = address.name,
-                    address1 = address.address1,
-                    address2 = address.address2,
-                    city = address.city,
-                    zip = address.zip,
-                    isDefault = address.isDefaultShipping.some,
-                    phoneNumber = address.phoneNumber,
-                    deletedAt = address.deletedAt)
+    AddressResponse(
+      id = address.id,
+      region = region,
+      name = address.name,
+      address1 = address.address1,
+      address2 = address.address2,
+      city = address.city,
+      zip = address.zip,
+      isDefault = address.isDefaultShipping.some,
+      phoneNumber = address.phoneNumber,
+      deletedAt = address.deletedAt
+    )
 
   def buildFromCreditCard(cc: CreditCard, region: Region): AddressResponse =
-    AddressResponse(id = 0,
-                    region = region,
-                    name = cc.address.name,
-                    address1 = cc.address.address1,
-                    address2 = cc.address.address2,
-                    city = cc.address.city,
-                    zip = cc.address.zip,
-                    isDefault = None,
-                    phoneNumber = cc.address.phoneNumber)
+    AddressResponse(
+      id = 0,
+      region = region,
+      name = cc.address.name,
+      address1 = cc.address.address1,
+      address2 = cc.address.address2,
+      city = cc.address.city,
+      zip = cc.address.zip,
+      isDefault = None,
+      phoneNumber = cc.address.phoneNumber
+    )
 
   def buildMulti(records: Seq[(Address, Region)]): Seq[AddressResponse] =
     records.map((build _).tupled)
 
-  def buildShipping(records: Seq[(Address, OrderShippingAddress, Region)]): Seq[AddressResponse] = {
-    records.map {
-      case (address, shippingAddress, region) ⇒
-        build(address, region)
-    }
-  }
-
-  def buildOneShipping(address: OrderShippingAddress,
-                       region: Region,
-                       isDefault: Boolean = false): AddressResponse = {
-    AddressResponse(id = address.id,
-                    region = region,
-                    name = address.name,
-                    address1 = address.address1,
-                    address2 = address.address2,
-                    city = address.city,
-                    zip = address.zip,
-                    isDefault = Some(isDefault),
-                    phoneNumber = address.phoneNumber,
-                    deletedAt = None)
-  }
+  def buildFromOrder(address: OrderShippingAddress, region: Region): AddressResponse =
+    // FIXME: so AddressResponse#id is OrderShippingAddress#id, but *sometimes* also Address#id? o_O’ @michalrus
+    AddressResponse(
+      id = address.id,
+      region = region,
+      name = address.name,
+      address1 = address.address1,
+      address2 = address.address2,
+      city = address.city,
+      zip = address.zip,
+      isDefault = None,
+      phoneNumber = address.phoneNumber,
+      deletedAt = None
+    )
 
   def forCordRef(cordRef: String)(implicit ec: EC): DbResultT[AddressResponse] = {
     val fullAddressDetails = for {
@@ -93,14 +90,14 @@ object AddressResponse {
       fullAddress ← * <~ fullAddressDetails.result
       (addresses, regions) = fullAddress.unzip
       response ← * <~ ((addresses.headOption, regions.headOption) match {
-                      case (Some(address), Some(region)) ⇒
-                        DbResultT.good(buildOneShipping(address, region))
-                      case (None, _) ⇒
-                        DbResultT.failure(NotFoundFailure404(
-                                s"No addresses found for order with refNum=$cordRef"))
-                      case (Some(address), None) ⇒
-                        DbResultT.failure(NotFoundFailure404(Region, address.regionId))
-                    })
+                  case (Some(address), Some(region)) ⇒
+                    DbResultT.good(buildFromOrder(address, region))
+                  case (None, _) ⇒
+                    DbResultT.failure(
+                      NotFoundFailure404(s"No addresses found for order with refNum=$cordRef"))
+                  case (Some(address), None) ⇒
+                    DbResultT.failure(NotFoundFailure404(Region, address.regionId))
+                })
     } yield response
   }
 }

@@ -15,7 +15,7 @@ import phoenix.payloads.UpdateShippingMethod
 import phoenix.services.Authenticator.AuthData
 import phoenix.services.carts._
 import phoenix.services.orders._
-import phoenix.services.{Checkout, LineItemUpdater}
+import phoenix.services.Checkout
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
@@ -50,7 +50,7 @@ object OrderRoutes {
           pathPrefix("line-items") {
             (patch & pathEnd & entity(as[Seq[UpdateOrderLineItemsPayload]])) { reqItems ⇒
               mutateOrFailures {
-                LineItemUpdater.updateOrderLineItems(auth.model, reqItems, refNum)
+                OrderLineItemUpdater.updateOrderLineItems(auth.model, reqItems, refNum)
               }
             }
           } ~
@@ -58,7 +58,7 @@ object OrderRoutes {
           pathPrefix("order-line-items") {
             (patch & pathEnd & entity(as[Seq[UpdateOrderLineItemsPayload]])) { reqItems ⇒
               mutateOrFailures {
-                LineItemUpdater.updateOrderLineItems(auth.model, reqItems, refNum)
+                OrderLineItemUpdater.updateOrderLineItems(auth.model, reqItems, refNum)
               }
             }
           } ~
@@ -91,18 +91,16 @@ object OrderRoutes {
             }
           } ~
           // deprecated in favor of /carts route
-          (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
-            reqItems ⇒
-              mutateOrFailures {
-                LineItemUpdater.updateQuantitiesOnCart(auth.model, refNum, reqItems)
-              }
+          (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
+            mutateOrFailures {
+              CartLineItemUpdater.updateQuantitiesOnCart(auth.model, refNum, reqItems)
+            }
           } ~
           // deprecated in favor of /carts route
-          (patch & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
-            reqItems ⇒
-              mutateOrFailures {
-                LineItemUpdater.addQuantitiesOnCart(auth.model, refNum, reqItems)
-              }
+          (patch & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
+            mutateOrFailures {
+              CartLineItemUpdater.addQuantitiesOnCart(auth.model, refNum, reqItems)
+            }
           } ~
           // deprecated in favor of /carts route
           pathPrefix("payment-methods" / "credit-cards") {
@@ -156,9 +154,7 @@ object OrderRoutes {
             // deprecated in favor of /carts route
             (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
               mutateOrFailures {
-                CartShippingAddressUpdater.createShippingAddressFromPayload(auth.model,
-                                                                            payload,
-                                                                            Some(refNum))
+                CartShippingAddressUpdater.createShippingAddressFromPayload(auth.model, payload, Some(refNum))
               }
             } ~
             // deprecated in favor of /carts route
@@ -172,9 +168,7 @@ object OrderRoutes {
             // deprecated in favor of /carts route
             (patch & pathEnd & entity(as[UpdateAddressPayload])) { payload ⇒
               mutateOrFailures {
-                CartShippingAddressUpdater.updateShippingAddressFromPayload(auth.model,
-                                                                            payload,
-                                                                            Some(refNum))
+                CartShippingAddressUpdater.updateShippingAddressFromPayload(auth.model, payload, Some(refNum))
               }
             } ~
             // deprecated in favor of /carts route

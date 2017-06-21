@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import Currency from '../common/currency';
 import { EditButton } from 'components/core/button';
 import CurrencyInput from '../forms/currency-input';
-import RadioButton from '../forms/radio-button';
+import RadioButton from 'components/core/radio-button';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
 import SaveCancel from 'components/core/save-cancel';
@@ -53,12 +53,13 @@ const ShippingMethodRow = props => {
   return (
     <TableRow {...rest} >
       <TableCell>
-        <RadioButton className="fc-shipping-method-row-name-control"
-                     checked={shippingMethod.isSelected}
-                     id={inputId}
-                     onChange={updateAction}>
-          <label htmlFor={inputId} className='fc-shipping-method-row-name-field'>{shippingMethod.name}</label>
-        </RadioButton>
+        <RadioButton
+          id={inputId}
+          label={shippingMethod.name}
+          className="fc-shipping-method-row-name-control"
+          checked={shippingMethod.isSelected}
+          onChange={updateAction}
+        />
       </TableCell>
       <TableCell>
         {editBlock(shippingMethod, isEditingPrice, editPriceAction, cancelPriceAction, submitPriceAction)}

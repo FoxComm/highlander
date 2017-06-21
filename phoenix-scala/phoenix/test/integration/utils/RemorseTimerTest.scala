@@ -1,11 +1,10 @@
 package utils
 
-import java.time.Instant
-
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.testkit.{TestActorRef, TestKit}
 import cats.implicits._
+import java.time.Instant
 import org.scalatest.BeforeAndAfterAll
 import phoenix.models.cord._
 import phoenix.services.actors._
@@ -37,7 +36,7 @@ class RemorseTimerTest(_system: ActorSystem)
     }
   }
 
-  def tick(): Unit = {
+  def tick(): Unit =
     // Response received
     (timer ? Tick).futureValue match {
       case r: RemorseTimerResponse ⇒
@@ -46,5 +45,4 @@ class RemorseTimerTest(_system: ActorSystem)
       case _ ⇒
         fail("Remorse timer had to reply with Future but something went wrong")
     }
-  }
 }

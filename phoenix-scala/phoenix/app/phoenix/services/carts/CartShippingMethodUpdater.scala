@@ -34,9 +34,9 @@ object CartShippingMethodUpdater {
            .update(None)
       _ ← * <~ OrderShippingMethods.findByOrderRef(cart.refNum).delete
       orderShipMethod ← * <~ OrderShippingMethods.create(
-                           OrderShippingMethod(cordRef = cart.refNum,
-                                               shippingMethodId = shippingMethod.id,
-                                               price = shippingMethod.price))
+                         OrderShippingMethod(cordRef = cart.refNum,
+                                             shippingMethodId = shippingMethod.id,
+                                             price = shippingMethod.price))
       _ ← * <~ Shipments
            .filter(_.cordRef === cart.refNum)
            .map(_.orderShippingMethodId)

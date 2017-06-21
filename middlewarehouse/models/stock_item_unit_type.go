@@ -11,6 +11,8 @@ const (
 	Preorder    UnitType = "Preorder"
 )
 
+const NumberOfUnitTypes = 4
+
 // implement Scanner and Valuer interfaces to provide read/write for alias type
 func (u *UnitType) Scan(value interface{}) error {
 	*u = UnitType(string(value.([]byte)))

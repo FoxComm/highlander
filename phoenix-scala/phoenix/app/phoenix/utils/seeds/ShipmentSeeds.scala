@@ -39,35 +39,42 @@ trait ShipmentSeeds {
 
   def shippingMethods =
     Seq(
-        ShippingMethod(adminDisplayName = standardShippingNameForAdmin,
-                       storefrontDisplayName = standardShippingName,
-                       code = standardShippingCode,
-                       price = 300,
-                       isActive = true,
-                       conditions = Some(under50Bucks)),
-        ShippingMethod(adminDisplayName = standardShippingNameForAdmin,
-                       storefrontDisplayName = standardShippingName,
-                       code = standardShippingFreeCode,
-                       price = 0,
-                       isActive = true,
-                       conditions = Some(over50Bucks)),
-        ShippingMethod(adminDisplayName = expressShippingNameForAdmin,
-                       storefrontDisplayName = expressShippingName,
-                       code = expressShippingCode,
-                       price = 1500,
-                       isActive = true,
-                       conditions = Some(usOnly)),
-        ShippingMethod(adminDisplayName = overnightShippingNameForAdmin,
-                       storefrontDisplayName = overnightShippingName,
-                       code = overnightShippingCode,
-                       price = 3000,
-                       isActive = true,
-                       conditions = Some(usOnly))
+      ShippingMethod(
+        adminDisplayName = standardShippingNameForAdmin,
+        storefrontDisplayName = standardShippingName,
+        code = standardShippingCode,
+        price = 300,
+        isActive = true,
+        conditions = Some(under50Bucks)
+      ),
+      ShippingMethod(
+        adminDisplayName = standardShippingNameForAdmin,
+        storefrontDisplayName = standardShippingName,
+        code = standardShippingFreeCode,
+        price = 0,
+        isActive = true,
+        conditions = Some(over50Bucks)
+      ),
+      ShippingMethod(
+        adminDisplayName = expressShippingNameForAdmin,
+        storefrontDisplayName = expressShippingName,
+        code = expressShippingCode,
+        price = 1500,
+        isActive = true,
+        conditions = Some(usOnly)
+      ),
+      ShippingMethod(
+        adminDisplayName = overnightShippingNameForAdmin,
+        storefrontDisplayName = overnightShippingName,
+        code = overnightShippingCode,
+        price = 3000,
+        isActive = true,
+        conditions = Some(usOnly)
+      )
     )
 
   def lowConditions: QueryStatement =
-    parse(
-        """
+    parse("""
       | {
       |   "comparison": "and",
       |   "conditions": [{
@@ -122,8 +129,5 @@ trait ShipmentSeeds {
   def shipment = Shipment(1, "boo", Some(1), Some(1))
 
   def condition =
-    Condition(rootObject = "Order",
-              field = "subtotal",
-              operator = Condition.Equals,
-              valInt = Some(50))
+    Condition(rootObject = "Order", field = "subtotal", operator = Condition.Equals, valInt = Some(50))
 }

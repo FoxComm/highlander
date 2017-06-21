@@ -35,12 +35,10 @@ class Taxons(tag: Tag) extends ObjectHeads[Taxon](tag, "taxons") {
 
   def * =
     (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Taxon.apply _).tupled,
-        Taxon.unapply)
+    Taxon.unapply)
 }
 
-object Taxons
-    extends ObjectHeadsQueries[Taxon, Taxons](new Taxons(_))
-    with ReturningId[Taxon, Taxons] {
+object Taxons extends ObjectHeadsQueries[Taxon, Taxons](new Taxons(_)) with ReturningId[Taxon, Taxons] {
 
   val returningLens: Lens[Taxon, Int] = lens[Taxon].id
 }

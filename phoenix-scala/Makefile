@@ -8,9 +8,12 @@ INSTANCE ?= $(shell cat ../goldrush.state)
 
 build:
 	$(call header, Building)
-	sbt 'fullAssembly'
+	make build-phoenix
 
-build-phoenix:
+autoformat-check:
+	../utils/scalafmt/scalafmt.sh --test
+
+build-phoenix: autoformat-check
 	sbt 'phoenix/assembly'
 
 build-seeder:
@@ -21,12 +24,11 @@ clean:
 
 test:
 	$(call header, Testing)
-	sbt '; scalafmtTestAll ; test; seedDemo'
+	SBT_OPTS="-XX:+UseConcMarkSweepGC -Dphoenix.env=test" sbt -mem 3072 '; test; seedDemo'
 
 docker:
 	$(call header, Dockerizing)
 	make docker-phoenix
-	make docker-seeder
 
 docker-phoenix:
 	docker build -t phoenix .
@@ -37,7 +39,6 @@ docker-seeder:
 docker-push:
 	$(call header, Registering)
 	make docker-push-phoenix
-	make docker-push-seeder
 
 docker-push-phoenix:
 	docker tag phoenix $(DOCKER_REPO)/phoenix:$(DOCKER_TAG)
@@ -50,4 +51,4 @@ docker-push-seeder:
 update-app:
 	cd ../tabernacle && ansible-playbook -v -i inventory/static/dev ansible/goldrush_update_app.yml --extra-vars "app_name=phoenix branch_name='$(GIT_BRANCH)' auto_build=y instance_ip=$(INSTANCE)"
 
-.PHONY: build test clean docker docker-push update-app
+.PHONY: build test clean docker docker-push update-app autoformat-check

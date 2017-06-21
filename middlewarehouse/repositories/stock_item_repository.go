@@ -22,8 +22,8 @@ type IStockItemRepository interface {
 	GetStockItemsBySKUs(skus []string) ([]*models.StockItem, error)
 	GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, error)
 	GetAFSBySKU(sku string, unitType models.UnitType) (*models.AFS, error)
+	GetAFSBySkuId(skuId uint) (*[]models.AfsByType, error)
 
-	CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error)
 	UpsertStockItem(item *models.StockItem) error
 	DeleteStockItem(stockItemId uint) error
 }
@@ -85,12 +85,22 @@ func (repository *stockItemRepository) GetAFSBySKU(sku string, unitType models.U
 	return afs, nil
 }
 
-func (repository *stockItemRepository) CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error) {
-	if err := repository.db.Create(stockItem).Error; err != nil {
+func (repository *stockItemRepository) GetAFSBySkuId(skuId uint) (*[]models.AfsByType, error) {
+	var afs []models.AfsByType
+
+	if err := repository.getAfsWithSkuQuery().Where("sku.id = ?", skuId).Find(&afs).Error; err != nil {
 		return nil, err
 	}
 
-	return repository.GetStockItemById(stockItem.ID)
+	if len(afs) == 0 {
+		return nil, fmt.Errorf("No AFS data for SKU")
+	}
+
+	if len(afs) != models.NumberOfUnitTypes {
+		return nil, fmt.Errorf("Invalid number of unit types results. Expected %d, actual %d", models.NumberOfUnitTypes, len(afs))
+	}
+
+	return &afs, nil
 }
 
 func (repository *stockItemRepository) DeleteStockItem(stockItemId uint) error {
@@ -126,4 +136,12 @@ func (repository *stockItemRepository) getAFSQuery(unitType models.UnitType) *go
 		Select("si.id as stock_item_id, si.sku, s.afs").
 		Joins("left join stock_item_summaries s ON s.stock_item_id=si.id").
 		Where("s.type = ?", unitType)
+}
+
+func (repository *stockItemRepository) getAfsWithSkuQuery() *gorm.DB {
+	return repository.db.
+		Table("stock_items si").
+		Select("s.afs, s.type").
+		Joins("LEFT JOIN stock_item_summaries s ON s.stock_item_id=si.id").
+		Joins("JOIN skus sku ON sku.code=si.sku")
 }

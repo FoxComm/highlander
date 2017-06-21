@@ -47,16 +47,17 @@ object CordResponseCreditCardPayment {
       region     ← creditCard.region
     } yield (creditCard, region)).result.map(_.map {
       case (creditCard, region) ⇒
-        CordResponseCreditCardPayment(id = creditCard.id,
-                                      customerId = creditCard.accountId,
-                                      holderName = creditCard.holderName,
-                                      lastFour = creditCard.lastFour,
-                                      expMonth = creditCard.expMonth,
-                                      expYear = creditCard.expYear,
-                                      brand = creditCard.brand,
-                                      createdAt = creditCard.createdAt,
-                                      address =
-                                        AddressResponse.buildFromCreditCard(creditCard, region))
+        CordResponseCreditCardPayment(
+          id = creditCard.id,
+          customerId = creditCard.accountId,
+          holderName = creditCard.holderName,
+          lastFour = creditCard.lastFour,
+          expMonth = creditCard.expMonth,
+          expYear = creditCard.expYear,
+          brand = creditCard.brand,
+          createdAt = creditCard.createdAt,
+          address = AddressResponse.buildFromCreditCard(creditCard, region)
+        )
     })
 }
 
@@ -108,7 +109,8 @@ object CordResponseStoreCreditPayment {
       })
 
   case class CordResponseApplePayPayment(id: Int,
-                                         amount: Long,
+                                         accountId: Int,
+                                         cordRef: String,
                                          createdAt: Instant,
                                          `type`: Type = ApplePay)
       extends CordResponsePayments
@@ -117,11 +119,12 @@ object CordResponseStoreCreditPayment {
 
     def fetch(cordRef: String)(implicit ec: EC): DBIO[Seq[CordResponseApplePayPayment]] =
       for {
-        pmt ← OrderPayments.findAllApplePaysByCordRef(cordRef).result
-        response = pmt.map {
+        orderPayment ← OrderPayments.findAllApplePaysByCordRef(cordRef).result
+        response = orderPayment.map {
           case (pmt, ap) ⇒
             CordResponseApplePayPayment(id = ap.id,
-                                        amount = pmt.amount.getOrElse(0),
+                                        accountId = ap.accountId,
+                                        cordRef = pmt.cordRef,
                                         createdAt = ap.createdAt)
         }
       } yield response

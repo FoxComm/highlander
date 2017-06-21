@@ -38,16 +38,14 @@ object EntityExporter {
       catching(classOf[NumberFormatException]).opt(field.stripPrefix("[").stripSuffix("]").toInt)
   }
 
-  def export(payload: ExportEntity, entity: ExportableEntity)(
-      implicit apis: Apis,
-      au: AU,
-      ec: EC,
-      system: ActorSystem): HttpResponse = {
+  def export(
+      payload: ExportEntity,
+      entity: ExportableEntity)(implicit apis: Apis, au: AU, ec: EC, system: ActorSystem): HttpResponse = {
     implicit val chunkable = Chunkable.csvChunkable(payload.fields.map(_.displayName))
 
     val index = s"admin_${au.token.scope}" / entity.searchView
     val fields = entity.extraFields
-        .map(getPath(_, removeArrayIndices = true).mkString(".")) ::: payload.fields.map {
+      .map(getPath(_, removeArrayIndices = true).mkString(".")) ::: payload.fields.map {
       case ExportField(name, _) ⇒
         getPath(name, removeArrayIndices = true)
           .mkString(".") // we don't care about array index if it exists
@@ -64,8 +62,7 @@ object EntityExporter {
           case ExportField(name, displayName) if entity.calculateFields.isDefinedAt((name, obj)) ⇒
             (displayName, entity.calculateFields((name, obj)))
           case ExportField(name, displayName) ⇒
-            (displayName,
-             extractValue(getPath(name, removeArrayIndices = false), Some(obj)).getOrElse(""))
+            (displayName, extractValue(getPath(name, removeArrayIndices = false), Some(obj)).getOrElse(""))
         }
 
     }
@@ -73,7 +70,7 @@ object EntityExporter {
     Http.renderAttachment(fileName = setName(payload, entity))(csvSource)
   }
 
-  private def getPath(field: String, removeArrayIndices: Boolean): List[String] = {
+  private def getPath(field: String, removeArrayIndices: Boolean): List[String] =
     if (field.nonEmpty) {
       val path = field.split("\\.")
 
@@ -85,14 +82,13 @@ object EntityExporter {
         case _ ⇒ Nil
       }(collection.breakOut)
     } else Nil
-  }
 
   /** Extracts value from (possibly nested) field path.
     *
     * When there is something left in `path` and `acc` is not a json object,
     * we simply omit outputting the value.
     */
-  @tailrec private def extractValue(path: List[String], acc: Option[JValue]): Option[String] = {
+  @tailrec private def extractValue(path: List[String], acc: Option[JValue]): Option[String] =
     (path, acc) match {
       case (h :: t, Some(jobj: JObject)) ⇒ extractValue(t, jobj.obj.toMap.get(h))
       case (ArrayElement(i) :: t, Some(jarr: JArray)) ⇒
@@ -106,7 +102,6 @@ object EntityExporter {
         }
       case (_, _) ⇒ None
     }
-  }
 
   private def setName(payload: ExportEntity, entity: ExportableEntity): String = {
     val date        = formatter.format(Instant.now)
@@ -115,10 +110,9 @@ object EntityExporter {
     (List(entity.entity) ++ description ++ List(date)).mkString("", "-", ".csv")
   }
 
-  private def export(
-      searchIndex: IndexAndTypes,
-      searchFields: List[String],
-      searchIds: List[Long])(implicit apis: Apis, au: AU, ec: EC): Source[Json, NotUsed] = {
+  private def export(searchIndex: IndexAndTypes,
+                     searchFields: List[String],
+                     searchIds: List[Long])(implicit apis: Apis, au: AU, ec: EC): Source[Json, NotUsed] = {
     // As of 2.3.x elastic4s's fetchSourceContext on single get item is ignored in multi get request,
     // so we need to set it manually.
     // This time we dank mutability.
@@ -130,9 +124,10 @@ object EntityExporter {
     // It's not true, as multiget fetches all documents eagerly.
     Source
       .fromFuture(apis.elasticSearch.client.execute(query))
-      .map(_.responses
-            .flatMap(_.response.map(_.getSourceAsString).map(parseOpt(_).getOrElse(JObject())))
-            .toStream)
+      .map(
+        _.responses
+          .flatMap(_.response.map(_.getSourceAsString).map(parseOpt(_).getOrElse(JObject())))
+          .toStream)
       .map(Source.apply)
       .flatMapConcat(identity)
   }
@@ -150,8 +145,7 @@ object EntityExporter {
       case _                      ⇒ rawQuery
     }
     Source
-      .fromPublisher(
-          apis.elasticSearch.client.publisher(query sourceInclude (searchFields: _*) scroll "1m"))
+      .fromPublisher(apis.elasticSearch.client.publisher(query sourceInclude (searchFields: _*) scroll "1m"))
       .map(_.getSourceAsString)
       .map(parseOpt(_).getOrElse(JObject()))
   }

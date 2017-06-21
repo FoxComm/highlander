@@ -10,11 +10,11 @@ import phoenix.payloads.CustomerPayloads._
 import phoenix.payloads.PaymentPayloads._
 import phoenix.payloads.UserPayloads._
 import phoenix.services.Authenticator.AuthData
+import phoenix.services._
 import phoenix.services.account._
 import phoenix.services.carts.CartQueries
 import phoenix.services.customerGroups.GroupMemberManager
 import phoenix.services.customers._
-import phoenix.services._
 import phoenix.utils.FoxConfig.config
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
@@ -47,10 +47,8 @@ object CustomerRoutes {
             }
           } ~
           (get & path("cart")) {
-            determineObjectContext(db, ec) { implicit ctx ⇒
-              getOrFailures {
-                CartQueries.findOrCreateCartByAccountId(accountId, ctx, Some(auth.model))
-              }
+            getOrFailures {
+              CartQueries.findOrCreateCartByAccountId(accountId, ctx, Some(auth.model))
             }
           } ~
           (post & path("checkout") & pathEnd & entity(as[CheckoutCart])) { payload ⇒
@@ -109,13 +107,10 @@ object CustomerRoutes {
                 AddressManager.removeDefaultShippingAddress(accountId)
               }
             } ~
-            (patch & path(IntNumber) & pathEnd & entity(as[CreateAddressPayload])) {
-              (addressId, payload) ⇒
-                activityContext(auth) { implicit ac ⇒
-                  mutateOrFailures {
-                    AddressManager.edit(auth.model, addressId, accountId, payload)
-                  }
-                }
+            (patch & path(IntNumber) & pathEnd & entity(as[CreateAddressPayload])) { (addressId, payload) ⇒
+              mutateOrFailures {
+                AddressManager.edit(auth.model, addressId, accountId, payload)
+              }
             }
           } ~
           pathPrefix("payment-methods" / "credit-cards") {

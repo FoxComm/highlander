@@ -15,8 +15,7 @@ case class ReturnStripePayment(id: Int = 0,
                                currency: Currency)
     extends FoxModel[ReturnStripePayment]
 
-class ReturnStripePayments(tag: Tag)
-    extends FoxTable[ReturnStripePayment](tag, "return_stripe_payments") {
+class ReturnStripePayments(tag: Tag) extends FoxTable[ReturnStripePayment](tag, "return_stripe_payments") {
   def id              = column[Int]("id", O.AutoInc)
   def returnPaymentId = column[Int]("return_payment_id")
   def chargeId        = column[String]("charge_id")
@@ -26,7 +25,7 @@ class ReturnStripePayments(tag: Tag)
 
   def * =
     (id, returnPaymentId, chargeId, returnId, amount, currency) <> ((ReturnStripePayment.apply _).tupled,
-        ReturnStripePayment.unapply)
+    ReturnStripePayment.unapply)
 
   def pk = primaryKey(tableName, (returnPaymentId, chargeId))
   def creditCardCharge =

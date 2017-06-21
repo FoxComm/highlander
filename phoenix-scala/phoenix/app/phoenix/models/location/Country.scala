@@ -37,17 +37,7 @@ class Countries(tag: Tag) extends FoxTable[Country](tag, "countries") {
   def isBillable     = column[Boolean]("is_billable")
 
   def * =
-    (id,
-     name,
-     alpha2,
-     alpha3,
-     code,
-     continent,
-     currency,
-     languages,
-     usesPostalCode,
-     isShippable,
-     isBillable) <> ((Country.apply _).tupled, Country.unapply)
+    (id, name, alpha2, alpha3, code, continent, currency, languages, usesPostalCode, isShippable, isBillable) <> ((Country.apply _).tupled, Country.unapply)
 }
 
 object Countries
@@ -57,6 +47,5 @@ object Countries
 
   // Query for both 2- and 3-lettered code for convenience @aafa
   def findByCode(code: String): QuerySeq =
-    filter(
-        c ⇒ c.alpha2.toUpperCase === code.toUpperCase || c.alpha3.toUpperCase === code.toUpperCase)
+    filter(c ⇒ c.alpha2.toUpperCase === code.toUpperCase || c.alpha3.toUpperCase === code.toUpperCase)
 }

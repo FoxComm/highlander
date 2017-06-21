@@ -20,10 +20,10 @@ class CatsHelpersTest extends TestBase with CatsHelpers {
           }
 
         exception.getMessage must (include("Expected Right") and
-            include("got Left") and
-            include("Invalid number") and
-            include("Option[Long]") and
-            include("String"))
+        include("got Left") and
+        include("Invalid number") and
+        include("Option[Long]") and
+        include("String"))
       }
     }
   }
@@ -37,10 +37,10 @@ class CatsHelpersTest extends TestBase with CatsHelpers {
           }
 
         exception.getMessage must (include("Expected Left") and
-            include("got Right") and
-            include("Some(42)") and
-            include("Option[Long]") and
-            include("String"))
+        include("got Right") and
+        include("Some(42)") and
+        include("Option[Long]") and
+        include("String"))
       }
     }
 
@@ -70,9 +70,9 @@ class CatsHelpersTest extends TestBase with CatsHelpers {
           }
 
         exception.getMessage must (include("Expected Valid") and
-            include("got Invalid") and
-            include("That is not a number!") and
-            include("String"))
+        include("got Invalid") and
+        include("That is not a number!") and
+        include("String"))
       }
     }
   }
@@ -88,9 +88,9 @@ class CatsHelpersTest extends TestBase with CatsHelpers {
           }
 
         exception.getMessage must (include("Expected Invalid") and
-            include("got Valid") and
-            include("Some(42)") and
-            include("String"))
+        include("got Valid") and
+        include("Some(42)") and
+        include("String"))
       }
     }
 

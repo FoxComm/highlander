@@ -12,13 +12,15 @@ import phoenix.payloads.CartPayloads.CheckoutCart
 import phoenix.payloads.CustomerPayloads._
 import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
 import phoenix.payloads.PaymentPayloads._
+import phoenix.payloads.ProductReviewPayloads._
 import phoenix.payloads.UpdateShippingMethod
-import phoenix.services.Authenticator.{UserAuthenticator, requireCustomerAuth}
+import phoenix.services.Authenticator.{requireCustomerAuth, UserAuthenticator}
 import phoenix.services._
 import phoenix.services.carts._
 import phoenix.services.customers.CustomerManager
 import phoenix.services.orders.OrderQueries
 import phoenix.services.product.ProductManager
+import phoenix.services.review.ProductReviewManager
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
@@ -45,17 +47,15 @@ object Customer {
                   CartQueries.findOrCreateCartByAccountId(auth.account.id, ctx)
                 }
               } ~
-              (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
-                reqItems ⇒
-                  mutateOrFailures {
-                    LineItemUpdater.updateQuantitiesOnCustomersCart(auth.model, reqItems)
-                  }
+              (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
+                mutateOrFailures {
+                  CartLineItemUpdater.updateQuantitiesOnCustomersCart(auth.model, reqItems)
+                }
               } ~
-              (patch & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
-                reqItems ⇒
-                  mutateOrFailures {
-                    LineItemUpdater.addQuantitiesOnCustomersCart(auth.model, reqItems)
-                  }
+              (patch & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
+                mutateOrFailures {
+                  CartLineItemUpdater.addQuantitiesOnCustomersCart(auth.model, reqItems)
+                }
               } ~
               (post & path("coupon" / Segment) & pathEnd) { code ⇒
                 mutateOrFailures {
@@ -77,11 +77,10 @@ object Customer {
                   Checkout.forCustomer(auth.model)
                 }
               } ~
-              (post & path("apple-pay-checkout") & pathEnd & entity(as[CreateApplePayPayment])) {
-                payload ⇒
-                  mutateOrFailures {
-                    Checkout.applePayCheckout(auth.model, payload)
-                  }
+              (post & path("apple-pay-checkout") & pathEnd & entity(as[CreateApplePayPayment])) { payload ⇒
+                mutateOrFailures {
+                  Checkout.applePayCheckout(auth.model, payload)
+                }
               } ~
               pathPrefix("payment-methods" / "credit-cards") {
                 (post & pathEnd & entity(as[CreditCardPayment])) { payload ⇒
@@ -127,20 +126,22 @@ object Customer {
               pathPrefix("shipping-address") {
                 (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
                   mutateOrFailures {
-                    CartShippingAddressUpdater.createShippingAddressFromPayload(auth.model,
-                                                                                payload)
+                    CartShippingAddressUpdater.createShippingAddressFromPayload(auth.model, payload)
                   }
                 } ~
                 (patch & path(IntNumber) & pathEnd) { addressId ⇒
                   mutateOrFailures {
-                    CartShippingAddressUpdater.createShippingAddressFromAddressId(auth.model,
-                                                                                  addressId)
+                    CartShippingAddressUpdater.createShippingAddressFromAddressId(auth.model, addressId)
                   }
                 } ~
                 (patch & pathEnd & entity(as[UpdateAddressPayload])) { payload ⇒
                   mutateOrFailures {
-                    CartShippingAddressUpdater.updateShippingAddressFromPayload(auth.model,
-                                                                                payload)
+                    CartShippingAddressUpdater.updateShippingAddressFromPayload(auth.model, payload)
+                  }
+                } ~
+                (put & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
+                  mutateOrFailures {
+                    CartShippingAddressUpdater.createShippingAddressFromPayload(auth.model, payload)
                   }
                 } ~
                 (put & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
@@ -169,8 +170,7 @@ object Customer {
               pathPrefix("shipping-method") {
                 (patch & pathEnd & entity(as[UpdateShippingMethod])) { payload ⇒
                   mutateOrFailures {
-                    CartShippingMethodUpdater.updateShippingMethod(auth.model,
-                                                                   payload.shippingMethodId)
+                    CartShippingMethodUpdater.updateShippingMethod(auth.model, payload.shippingMethodId)
                   }
                 } ~
                 (delete & pathEnd) {
@@ -186,11 +186,11 @@ object Customer {
                   CustomerManager.getByAccountId(auth.account.id)
                 }
               } ~
-              (pathPrefix("change-password") & pathEnd & post & entity(
-                      as[ChangeCustomerPasswordPayload])) { payload ⇒
-                doOrFailures {
-                  CustomerManager.changePassword(auth.account.id, payload)
-                }
+              (pathPrefix("change-password") & pathEnd & post & entity(as[ChangeCustomerPasswordPayload])) {
+                payload ⇒
+                  doOrFailures {
+                    CustomerManager.changePassword(auth.account.id, payload)
+                  }
               } ~
               (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒
                 mutateWithNewTokenOrFailures {
@@ -279,11 +279,10 @@ object Customer {
                   CreditCardManager.createCardFromToken(auth.account.id, payload)
                 }
               } ~
-              (patch & path(IntNumber) & pathEnd & entity(as[EditCreditCard])) {
-                (cardId, payload) ⇒
-                  mutateOrFailures {
-                    CreditCardManager.editCreditCard(auth.account.id, cardId, payload)
-                  }
+              (patch & path(IntNumber) & pathEnd & entity(as[EditCreditCard])) { (cardId, payload) ⇒
+                mutateOrFailures {
+                  CreditCardManager.editCreditCard(auth.account.id, cardId, payload)
+                }
               } ~
               (delete & path(IntNumber) & pathEnd) { cardId ⇒
                 deleteOrFailures {
@@ -323,6 +322,26 @@ object Customer {
                 (delete & path(IntNumber) & pathEnd) { id ⇒
                   deleteOrFailures {
                     SaveForLaterManager.deleteSaveForLater(id)
+                  }
+                }
+              }
+            } ~
+            pathPrefix("review") {
+              determineObjectContext(db, ec) { implicit ctx ⇒
+                (post & entity(as[CreateProductReviewByCustomerPayload]) & pathEnd) { payload ⇒
+                  mutateOrFailures {
+                    ProductReviewManager.createProductReview(auth.account.id, payload)
+                  }
+                } ~
+                (path(IntNumber) & patch & entity(as[UpdateProductReviewPayload]) & pathEnd) {
+                  (reviewId, payload) ⇒
+                    mutateOrFailures {
+                      ProductReviewManager.updateProductReview(reviewId, payload)
+                    }
+                } ~
+                (delete & path(IntNumber) & pathEnd) { id ⇒
+                  deleteOrFailures {
+                    ProductReviewManager.archiveByContextAndId(id)
                   }
                 }
               }

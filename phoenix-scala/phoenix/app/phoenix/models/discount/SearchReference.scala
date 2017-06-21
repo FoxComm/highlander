@@ -51,16 +51,14 @@ sealed trait SearchReference[T] {
 trait SearchBuckets extends SearchReference[Buckets] {
   def pureResult(implicit ec: EC): Result[Buckets] = pureBuckets
 
-  def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(
-      implicit apis: Apis): Future[Buckets] =
+  def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(implicit apis: Apis): Future[Buckets] =
     apis.elasticSearch.checkBuckets(searchView, query, fieldName, refs)
 }
 
 trait SearchMetrics extends SearchReference[Long] {
   def pureResult(implicit ec: EC): Result[Long] = pureMetrics
 
-  def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(
-      implicit apis: Apis): Future[Long] =
+  def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(implicit apis: Apis): Future[Long] =
     apis.elasticSearch.checkMetrics(searchView, query, fieldName, refs)
 }
 

@@ -31,12 +31,11 @@ type Props = {
 };
 
 const tableColumns = [
-  { field: 'image', text: 'Image', type: 'image' },
   { field: 'skuTitle', text: 'Name' },
   { field: 'skuCode', text: 'SKU' },
   { field: 'skuPrice', text: 'Price', type: 'currency' },
   { field: 'savedForLaterAt', text: 'Favorite' },
-  { field: 'cordReferenceNumber', text: 'Order' },
+  { field: 'orderReferenceNumber', text: 'Order' },
   { field: 'orderPlacedAt', text: 'Date/Time Order Placed', type: 'datetime' },
 ];
 

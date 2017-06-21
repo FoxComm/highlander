@@ -45,7 +45,7 @@ const tableColumns = [
   {field: 'currentBalance', text: 'Current Balance', type: 'currency'},
   {field: 'availableBalance', text: 'Available Balance', type: 'currency'},
   {field: 'state', text: 'State', type: 'state', model: 'giftCard'},
-  {field: 'createdAt', text: 'Date/Time Issued', type: 'date'}
+  {field: 'createdAt', text: 'Date/Time Issued', type: 'datetime'}
 ];
 
 class GiftCards extends Component {

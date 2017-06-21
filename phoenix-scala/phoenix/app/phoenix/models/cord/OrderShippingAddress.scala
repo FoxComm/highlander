@@ -5,13 +5,14 @@ import java.time.Instant
 import core.db._
 import phoenix.models.location.{Address, Addresses, Region, Regions}
 import phoenix.models.traits.Addressable
-import phoenix.payloads.AddressPayloads.{CreateAddressPayload, UpdateAddressPayload}
+import phoenix.payloads.AddressPayloads.UpdateAddressPayload
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 
 case class OrderShippingAddress(id: Int = 0,
                                 // FIXME @anna This default is just wrong
                                 cordRef: String = "",
+                                // FIXME: Add Address#id to OrderShippingAddress? @michalrus
                                 regionId: Int,
                                 name: String,
                                 address1: String,
@@ -32,42 +33,29 @@ case class OrderShippingAddress(id: Int = 0,
 
 object OrderShippingAddress {
   def buildFromAddress(address: Address): OrderShippingAddress =
-    OrderShippingAddress(regionId = address.regionId,
-                         name = address.name,
-                         address1 = address.address1,
-                         address2 = address.address2,
-                         city = address.city,
-                         zip = address.zip,
-                         phoneNumber = address.phoneNumber)
-
-  def fromPatchPayload(a: OrderShippingAddress, p: UpdateAddressPayload) = {
+    // FIXME: Add Address#id to OrderShippingAddress? @michalrus
     OrderShippingAddress(
-        id = a.id,
-        cordRef = a.cordRef,
-        regionId = p.regionId.getOrElse(a.regionId),
-        name = p.name.getOrElse(a.name),
-        address1 = p.address1.getOrElse(a.address1),
-        address2 = p.address2.fold(a.address2)(Some(_)),
-        city = p.city.getOrElse(a.city),
-        zip = p.zip.getOrElse(a.zip),
-        phoneNumber = p.phoneNumber.fold(a.phoneNumber)(Some(_))
+      regionId = address.regionId,
+      name = address.name,
+      address1 = address.address1,
+      address2 = address.address2,
+      city = address.city,
+      zip = address.zip,
+      phoneNumber = address.phoneNumber
     )
-  }
 
-  def fromCreatePatchPayload(existingAddress: OrderShippingAddress,
-                             incomingPayload: CreateAddressPayload) = {
+  def fromPatchPayload(a: OrderShippingAddress, p: UpdateAddressPayload) =
     OrderShippingAddress(
-        id = existingAddress.id,
-        cordRef = existingAddress.cordRef,
-        regionId = incomingPayload.regionId,
-        name = incomingPayload.name,
-        address1 = incomingPayload.address1,
-        address2 = incomingPayload.address2.fold(existingAddress.address2)(Some(_)),
-        city = incomingPayload.city,
-        zip = incomingPayload.zip,
-        phoneNumber = incomingPayload.phoneNumber.fold(existingAddress.phoneNumber)(Some(_))
+      id = a.id,
+      cordRef = a.cordRef,
+      regionId = p.regionId.getOrElse(a.regionId),
+      name = p.name.getOrElse(a.name),
+      address1 = p.address1.getOrElse(a.address1),
+      address2 = p.address2.fold(a.address2)(Some(_)),
+      city = p.city.getOrElse(a.city),
+      zip = p.zip.getOrElse(a.zip),
+      phoneNumber = p.phoneNumber.fold(a.phoneNumber)(Some(_))
     )
-  }
 }
 
 class OrderShippingAddresses(tag: Tag)
@@ -87,23 +75,19 @@ class OrderShippingAddresses(tag: Tag)
   def * =
     (id, cordRef, regionId, name, address1, address2, city, zip, phoneNumber, createdAt, updatedAt) <> ((OrderShippingAddress.apply _).tupled, OrderShippingAddress.unapply)
 
-  // FIXME this fk is not reflected in db schema @aafa
-  def address = foreignKey(Addresses.tableName, id, Addresses)(_.id)
-  def order   = foreignKey(Carts.tableName, cordRef, Carts)(_.referenceNumber)
-  def region  = foreignKey(Regions.tableName, regionId, Regions)(_.id)
+  def order  = foreignKey(Carts.tableName, cordRef, Carts)(_.referenceNumber)
+  def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }
 
 object OrderShippingAddresses
-    extends FoxTableQuery[OrderShippingAddress, OrderShippingAddresses](
-        new OrderShippingAddresses(_))
+    extends FoxTableQuery[OrderShippingAddress, OrderShippingAddresses](new OrderShippingAddresses(_))
     with ReturningId[OrderShippingAddress, OrderShippingAddresses] {
 
   val returningLens: Lens[OrderShippingAddress, Int] = lens[OrderShippingAddress].id
 
   import scope._
 
-  def createFromAddress(address: Address, cordRef: String)(
-      implicit ec: EC): DbResultT[OrderShippingAddress] =
+  def copyFromAddress(address: Address, cordRef: String)(implicit ec: EC): DbResultT[OrderShippingAddress] =
     create(OrderShippingAddress.buildFromAddress(address).copy(cordRef = cordRef))
 
   def findByOrderRef(cordRef: String): QuerySeq =
@@ -122,14 +106,6 @@ object OrderShippingAddresses
           shippingAddresses ← q
           regions           ← Regions if regions.id === shippingAddresses.regionId
         } yield (shippingAddresses, regions)
-
-      def withCustomerAddress(accountId: Int)
-        : Query[(OrderShippingAddresses, Addresses), (OrderShippingAddress, Address), Seq] =
-        for {
-          shippingAddresses ← q
-          adr               ← Addresses
-          if adr.accountId === accountId && adr.address1 === shippingAddresses.address1 && adr.name === shippingAddresses.name
-        } yield (shippingAddresses, adr) // FIXME when we have fk to Address @aafa
     }
   }
 }

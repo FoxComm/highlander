@@ -70,11 +70,7 @@ object CartLineItems
         (for {
           skuLineItems ← q
           sku          ← skuLineItems.sku
-        } yield sku.code).result.map(_.foldLeft(Map[String, Int]()) {
-          case (acc, skuCode) ⇒
-            val quantity = acc.getOrElse(skuCode, 0)
-            acc.updated(skuCode, quantity + 1)
-        })
+        } yield sku.code).result.map(_.groupBy(identity).mapValues(_.size))
     }
   }
 }

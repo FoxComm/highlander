@@ -13,13 +13,14 @@ import phoenix.services.Authenticator.AuthData
 import phoenix.services.orders.TimeMachine
 import phoenix.utils.TestStripeSupport
 import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
 import phoenix.utils.http.Http._
 import phoenix.utils.http.JsonSupport._
 
 object DevRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route =
     activityContext(auth) { implicit ac ⇒
       pathPrefix("order-time-machine") {
         (post & pathEnd & entity(as[OrderTimeMachine])) { payload ⇒
@@ -45,11 +46,13 @@ object DevRoutes {
         (post & pathEnd & entity(as[CreditCardDetailsPayload])) { payload ⇒
           goodOrFailures {
             TestStripeSupport
-              .createToken(cardNumber = payload.cardNumber,
-                           expMonth = payload.expMonth,
-                           expYear = payload.expYear,
-                           cvv = payload.cvv,
-                           address = Address.fromPayload(payload.address, payload.customerId))
+              .createToken(
+                cardNumber = payload.cardNumber,
+                expMonth = payload.expMonth,
+                expYear = payload.expYear,
+                cvv = payload.cvv,
+                address = Address.fromPayload(payload.address, payload.customerId)
+              )
               .map { token ⇒
                 CreditCardTokenResponse(token = token.getId,
                                         brand = token.getCard.getBrand,
@@ -64,7 +67,6 @@ object DevRoutes {
         }
       }
     }
-  }
 
   lazy val version: String = {
     val stream      = getClass.getResourceAsStream("/version")

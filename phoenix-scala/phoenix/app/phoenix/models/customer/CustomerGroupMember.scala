@@ -13,8 +13,7 @@ case class CustomerGroupMember(id: Int = 0,
                                createdAt: Instant = Instant.now)
     extends FoxModel[CustomerGroupMember]
 
-class CustomerGroupMembers(tag: Tag)
-    extends FoxTable[CustomerGroupMember](tag, "customer_group_members") {
+class CustomerGroupMembers(tag: Tag) extends FoxTable[CustomerGroupMember](tag, "customer_group_members") {
 
   def id             = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def groupId        = column[Int]("group_id")

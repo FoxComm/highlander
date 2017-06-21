@@ -8,12 +8,7 @@ import phoenix.utils.JsonFormatters
 import shapeless._
 import slick.lifted.Tag
 
-case class GenericTreeNode(id: Int,
-                           treeId: Int,
-                           index: Int,
-                           path: LTree,
-                           kind: String,
-                           objectId: Int)
+case class GenericTreeNode(id: Int, treeId: Int, index: Int, path: LTree, kind: String, objectId: Int)
     extends FoxModel[GenericTreeNode]
     with Validation[GenericTreeNode]
 

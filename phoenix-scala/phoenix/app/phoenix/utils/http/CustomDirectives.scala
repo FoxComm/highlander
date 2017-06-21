@@ -29,14 +29,13 @@ object CustomDirectives {
   val DefaultContextName = SimpleContext.default
 
   object ProductRef extends PathMatcher1[ProductReference] {
-    def apply(path: Path) = {
+    def apply(path: Path) =
       path match {
         case Path.Segment(segment, tail) if segment.exists(_.isLetter) ⇒
           Matched(tail, Tuple1(ProductReference(segment)))
-        case _                                        ⇒
+        case _ ⇒
           IntNumber.apply(path).map { case Tuple1(id) ⇒ Tuple1(ProductReference(id)) }
       }
-    }
   }
 
   def activityContext(au: AU): Directive1[ActivityContext] = {
@@ -45,10 +44,7 @@ object CustomDirectives {
 
     optionalHeaderValueByName("x-request-id").map {
       case (Some(uuid)) ⇒
-        ActivityContext(userId = user.accountId,
-                        userType = "user",
-                        transactionId = uuid,
-                        scope = scope)
+        ActivityContext(userId = user.accountId, userType = "user", transactionId = uuid, scope = scope)
       case (None) ⇒
         ActivityContext(userId = user.accountId,
                         userType = "user",
@@ -57,32 +53,26 @@ object CustomDirectives {
     }
   }
 
-  def activityContext(scope: LTree): Directive1[ActivityContext] = {
+  def activityContext(scope: LTree): Directive1[ActivityContext] =
     optionalHeaderValueByName("x-request-id").map {
       case (Some(uuid)) ⇒
         ActivityContext(userId = 0, userType = "guest", transactionId = uuid, scope = scope)
       case (None) ⇒
-        ActivityContext(userId = 0,
-                        userType = "guest",
-                        transactionId = generateUuid,
-                        scope = scope)
+        ActivityContext(userId = 0, userType = "guest", transactionId = generateUuid, scope = scope)
     }
-  }
 
   /**
     * At the moment we support one context. The input to this function will
     * and it will become a combination of of things which will then search
     * for the correct context.
     */
-  def determineObjectContext(implicit db: DB, ec: EC): Directive1[ObjectContext] = {
+  def determineObjectContext(implicit db: DB, ec: EC): Directive1[ObjectContext] =
     optionalHeaderValueByName("Accept-Language").flatMap {
       case Some(lang) ⇒ onSuccess(getContextByLanguage(lang))
       case None       ⇒ onSuccess(getContextByName(DefaultContextName))
     }
-  }
 
-  def adminObjectContext(contextName: String)(route: ObjectContext ⇒ Route)(implicit db: DB,
-                                                                            ec: EC): Route = {
+  def adminObjectContext(contextName: String)(route: ObjectContext ⇒ Route)(implicit db: DB, ec: EC): Route = {
     import scala.util.{Failure, Success}
     onComplete(tryGetContextByName(contextName)) {
       case Success(Right(ctx)) ⇒
@@ -110,11 +100,8 @@ object CustomDirectives {
   //and multiple options.
   private def getContextByLanguage(lang: String)(implicit db: DB, ec: EC) =
     db.run(ObjectContexts.filterByLanguage(lang).result.headOption).flatMap {
-      case Some(c) ⇒
-        Future {
-          c
-        }
-      case None ⇒ getContextByName(DefaultContextName)
+      case Some(c) ⇒ Future.successful(c)
+      case None    ⇒ getContextByName(DefaultContextName)
     }
 
   def good[A <: AnyRef](a: Future[A])(implicit ec: EC): StandardRoute = // TODO: is this needed anymore? @michalrus
@@ -124,8 +111,7 @@ object CustomDirectives {
     complete(renderRaw(a))
 
   def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: EC): StandardRoute =
-    complete(
-        a.runEmpty.value.map(_.fold(renderFailure(_), { case (uiInfo, a) ⇒ render(a, uiInfo) })))
+    complete(a.runEmpty.value.map(_.fold(renderFailure(_), { case (uiInfo, a) ⇒ render(a, uiInfo) })))
 
   def getOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
     goodOrFailures(a.runDBIO())
@@ -134,16 +120,17 @@ object CustomDirectives {
     goodOrFailures(a.runTxn())
 
   def mutateWithNewTokenOrFailures[A <: AnyRef](a: DbResultT[(A, AuthPayload)])(implicit ec: EC,
-                                                                                db: DB): Route = {
+                                                                                db: DB): Route =
     onSuccess(a.runTxn().runEmpty.value) { result ⇒
-      result.fold(f ⇒ complete(renderFailure(f)), { resp ⇒
-        val (uiInfo, (body, auth)) = resp
-        respondWithHeader(RawHeader("JWT", auth.jwt)).&(setCookie(JwtCookie(auth))) {
-          complete(render(body, uiInfo))
+      result.fold(
+        f ⇒ complete(renderFailure(f)), { resp ⇒
+          val (uiInfo, (body, auth)) = resp
+          respondWithHeader(RawHeader("JWT", auth.jwt)).&(setCookie(JwtCookie(auth))) {
+            complete(render(body, uiInfo))
+          }
         }
-      })
+      )
     }
-  }
 
   def deleteOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute =
     doOrFailures(a)
@@ -165,9 +152,7 @@ object CustomDirectives {
         case Failure(Unmarshaller.UnsupportedContentTypeException(x)) ⇒
           reject(UnsupportedRequestContentTypeRejection(x))
         case Failure(x: Throwable) ⇒
-          ctx.log.error("Error unmarshalling request {} body: {}",
-                        ctx.request,
-                        failure.description)
+          ctx.log.error("Error unmarshalling request {} body: {}", ctx.request, failure.description)
           reject(MalformedRequestContentRejection(s"${failure.description}", x))
       }
     } & cancelRejections(RequestEntityExpectedRejection.getClass,

@@ -1,0 +1,32 @@
+---
+
+- name: Setup Database
+  hosts: foxcomm-stage-backend
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    is_staging: true
+    with_onboarding: true
+  roles:
+    - { role: dev/db, when: first_run }
+    - { role: dev/db_ic, when: first_run }
+    - { role: dev/flyway }
+    - { role: dev/seed_system, when: first_run }
+
+- name: Restart Highlander Group
+  hosts: foxcomm-stage-frontend
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    api_server: stage.foxcommerce.com
+    storefront_server_name: stage.foxcommerce.com
+    messaging_env: staging
+    is_staging: true
+    url_prefix_perfectgourmet: "/perfect-gourmet"
+    url_prefix_topdrawer: "/top-drawer"
+    with_onboarding: true
+  roles:
+    - { role: dev/marathon_groups }
+    - { role: dev/nginx }
+    - { role: demo/balancer }
+    - { role: hotfix/nginx }

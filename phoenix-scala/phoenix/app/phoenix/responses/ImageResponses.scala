@@ -9,11 +9,7 @@ object ImageResponses {
   implicit val formats = JsonFormatters.phoenixFormats
 
   object ImageResponse {
-    case class Root(id: Int,
-                    src: String,
-                    baseUrl: Option[String],
-                    title: Option[String],
-                    alt: Option[String])
+    case class Root(id: Int, src: String, baseUrl: Option[String], title: Option[String], alt: Option[String])
         extends ResponseItem
 
     def build(id: Int,

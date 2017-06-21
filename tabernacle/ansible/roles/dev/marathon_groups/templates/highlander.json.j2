@@ -1,0 +1,101 @@
+{
+    "id": "/highlander",
+    "groups": [
+        {
+            "id": "core-backend",
+            "dependencies": [],
+            "apps": [
+                {% include "core-backend/phoenix.json.j2" %},
+                {% include "core-backend/isaac.json.j2" %},
+                {% include "core-backend/solomon.json.j2" %},
+                {% include "core-backend/middlewarehouse.json.j2" %}
+            ]
+        },
+        {
+            "id": "core-frontend",
+            "dependencies": ["/highlander/core-backend"],
+            "apps": [
+                {% include "core-frontend/ashes.json.j2" %},
+                {% include "core-frontend/peacock.json.j2" %},
+                {% include "core-frontend/perfect-gourmet.json.j2" %},
+                {% include "core-frontend/top-drawer.json.j2" %}
+            ]
+        },
+        {% if with_onboarding %}
+        {
+            "id": "core-onboarding",
+            "dependencies": ["/highlander/core-frontend"],
+            "apps": [
+                {% include "core-onboarding/onboarding_service.json.j2" %},
+                {% include "core-onboarding/onboarding_ui.json.j2" %}
+            ]
+        },
+        {% endif %}
+        {
+            "id": "core-consumers",
+            "dependencies": ["/highlander/core-backend"],
+            "apps": [
+                {% include "core-consumers/green-river.json.j2" %},
+                {% include "core-consumers/capture-consumer.json.j2" %},
+                {% include "core-consumers/customer-groups-consumer.json.j2" %},
+                {% include "core-consumers/gift-card-consumer.json.j2" %},
+                {% include "core-consumers/shipments-consumer.json.j2" %}
+            ]
+        },
+        {
+            "id": "core-integrations",
+            "dependencies": ["/highlander/core-frontend"],
+            "apps": [
+                {% if with_shipstation %}
+                    {% include "core-integrations/shipstation.json.j2" %},
+                {% endif %}
+                {% include "core-integrations/messaging.json.j2" %},
+                {% include "core-integrations/hyperion.json.j2" %},
+                {% include "core-integrations/geronimo.json.j2" %}
+            ]
+        },
+        {
+            "id": "ic-storage",
+            "dependencies": [],
+            "apps": [
+                {% include "ic-storage/neo4j.json.j2" %},
+                {% include "ic-storage/henhouse.json.j2" %}
+            ]
+        },
+        {
+            "id": "ic-hooks",
+            "dependencies": ["/highlander/ic-storage"],
+            "apps": [
+                {% include "ic-hooks/neo4j-reset.json.j2" %}
+            ]
+        },
+        {
+            "id": "ic-backend",
+            "dependencies": ["/highlander/ic-hooks"],
+            "apps": [
+                {% include "ic-backend/anthill.json.j2" %},
+                {% include "ic-backend/bernardo.json.j2" %},
+                {% include "ic-backend/eggcrate.json.j2" %},
+                {% include "ic-backend/river-rock.json.j2" %}
+            ]
+        },
+        {
+            "id": "ic-consumers",
+            "dependencies": ["/highlander/ic-backend"],
+            "apps": [
+                {% include "ic-consumers/digger-sphex.json.j2" %},
+                {% include "ic-consumers/orders-anthill.json.j2" %},
+                {% include "ic-consumers/orders-reviews.json.j2" %},
+                {% include "ic-consumers/orders-sphex.json.j2" %},
+                {% include "ic-consumers/product-activity.json.j2" %}
+            ]
+        },
+        {
+            "id": "ic-integrations",
+            "dependencies": ["/highlander/ic-backend"],
+            "apps": [
+                {% include "ic-integrations/suggester.json.j2" %}
+            ]
+        }
+    ]
+}

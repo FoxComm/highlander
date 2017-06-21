@@ -61,15 +61,13 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
         (for {
           reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
           origin ← * <~ GiftCardManuals.create(
-                      GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
-          giftCard ← * <~ GiftCards.create(
-                        Factories.giftCard.copy(originId = origin.id,
-                                                state = GiftCard.Active,
-                                                originalBalance = notEnoughFunds))
+                    GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
+          giftCard ← * <~ GiftCards.create(Factories.giftCard
+                      .copy(originId = origin.id, state = GiftCard.Active, originalBalance = notEnoughFunds))
           payment ← * <~ OrderPayments.create(
-                       Factories.giftCardPayment.copy(cordRef = cart.refNum,
-                                                      amount = notEnoughFunds.some,
-                                                      paymentMethodId = giftCard.id))
+                     Factories.giftCardPayment.copy(cordRef = cart.refNum,
+                                                    amount = notEnoughFunds.some,
+                                                    paymentMethodId = giftCard.id))
         } yield payment).gimme
 
         val result = CartValidator(refresh(cart)).validate().gimme
@@ -182,7 +180,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
     val cc = (for {
       cc ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId))
       _ ← * <~ OrderPayments.create(
-             Factories.orderPayment.copy(cordRef = cart.refNum, paymentMethodId = cc.id))
+           Factories.orderPayment.copy(cordRef = cart.refNum, paymentMethodId = cc.id))
     } yield cc).gimme
   }
 
@@ -190,13 +188,12 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
     val (giftCard, orderPayment) = (for {
       reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
-      giftCard ← * <~ GiftCards.create(
-                    Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
+                GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
+      giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
       payment ← * <~ OrderPayments.create(
-                   OrderPayment
-                     .build(giftCard)
-                     .copy(cordRef = cart.refNum, amount = grandTotal.some))
+                 OrderPayment
+                   .build(giftCard)
+                   .copy(cordRef = cart.refNum, amount = grandTotal.some))
     } yield (giftCard, payment)).gimme
   }
 
@@ -204,15 +201,13 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
     val (storeCredit, orderPayment) = (for {
       reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       origin ← * <~ StoreCreditManuals.create(
-                  StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
-      storeCredit ← * <~ StoreCredits.create(
-                       Factories.storeCredit.copy(originId = origin.id,
-                                                  state = StoreCredit.Active,
-                                                  accountId = customer.accountId))
+                StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
+      storeCredit ← * <~ StoreCredits.create(Factories.storeCredit
+                     .copy(originId = origin.id, state = StoreCredit.Active, accountId = customer.accountId))
       payment ← * <~ OrderPayments.create(
-                   OrderPayment
-                     .build(storeCredit)
-                     .copy(cordRef = cart.refNum, amount = grandTotal.some))
+                 OrderPayment
+                   .build(storeCredit)
+                   .copy(cordRef = cart.refNum, amount = grandTotal.some))
     } yield (storeCredit, payment)).gimme
   }
 

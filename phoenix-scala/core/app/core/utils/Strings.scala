@@ -10,9 +10,10 @@ object Strings {
     def tableNameToCamel: String  = s.underscoreToCamel.singularize
     def underscore: String =
       s.flatMap {
-        case c if c.isUpper ⇒ s"_${c.toLower}"
-        case c              ⇒ s"$c"
-      }.stripPrefix("_")
+          case c if c.isUpper ⇒ s"_${c.toLower}"
+          case c              ⇒ s"$c"
+        }
+        .stripPrefix("_")
     def prettify: String = s.split("(?=\\p{Upper})").mkString(" ")
     def quote(escapeChar: Char = '\\'): String = {
       val escaped =

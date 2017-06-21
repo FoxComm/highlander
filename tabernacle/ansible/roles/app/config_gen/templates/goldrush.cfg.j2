@@ -7,9 +7,6 @@ export GOOGLE_SERVICE_ACCOUNT_EMAIL={{google_service_account_email}}
 export GOOGLE_JSON_KEY_LOCATION={{google_json_key_location}}
 export GOOGLE_INSTANCE_NAME={{google_instance_name}}
 
-# Should we include IC?
-export WITH_INTELLIGENT_COMMERCE={{with_ic_value | bool | lower}}
-
 # Should we seed?
 export WITH_APPLIANCE_SEEDING={{with_seeding_value | bool | lower}}
 
@@ -27,13 +24,13 @@ export DOCKER_TAG_MESSAGING:=master
 export DOCKER_TAG_ISAAC:=master
 export DOCKER_TAG_SOLOMON:=master
 export DOCKER_TAG_HYPERION:=master
+export DOCKER_TAG_GERONIMO:=master
 
 # Consumers
 export DOCKER_TAG_CAPTURE_CONSUMER:=master
 export DOCKER_TAG_GIFT_CARD_CONSUMER:=master
 export DOCKER_TAG_SHIPMENTS_CONSUMER:=master
 export DOCKER_TAG_SHIPSTATION_CONSUMER:=master
-export DOCKER_TAG_STOCK_ITEMS_CONSUMER:=master
 export DOCKER_TAG_CUSTOMER_GROUPS_CONSUMER:=master
 
 # Storefronts
@@ -48,56 +45,64 @@ export DOCKER_TAG_RIVER_ROCK:=master
 export DOCKER_TAG_DIGGER_SPHEX:=master
 export DOCKER_TAG_ORDERS_SPHEX:=master
 export DOCKER_TAG_ORDERS_ANTHILL:=master
+export DOCKER_TAG_ORDERS_REVIEWS:=master
 export DOCKER_TAG_ANTHILL:=master
 export DOCKER_TAG_NEO4J:=3.0
+export DOCKER_TAG_NEO4J_RESET:=master
 export DOCKER_TAG_SUGGESTER:=master
 
 # Onboarding
 export DOCKER_TAG_ONBOARING_SERVICE:=master
 export DOCKER_TAG_ONBOARING_UI:=master
 
+# Seeder
+export DOCKER_TAG_PHOENIX_SEEDER:=master
+
 # Data Import
 export DOCKER_TAG_DATA_IMPORT=master
 
 ####################################################################
-# Marathon Flags                                                   #
+# Marathon Restart Hooks                                           #
 ####################################################################
 
 # Core
-export MARATHON_ASHES:=true
-export MARATHON_PEACOCK:=true
-export MARATHON_PHOENIX:=true
-export MARATHON_GREENRIVER:=true
-export MARATHON_MIDDLEWAREHOUSE:=true
-export MARATHON_MESSAGING:=true
-export MARATHON_ISAAC:=true
-export MARATHON_SOLOMON:=true
-export MARATHON_HYPERION:=true
+export MARATHON_ASHES:=false
+export MARATHON_PEACOCK:=false
+export MARATHON_PHOENIX:=false
+export MARATHON_GREENRIVER:=false
+export MARATHON_MIDDLEWAREHOUSE:=false
+export MARATHON_MESSAGING:=false
+export MARATHON_ISAAC:=false
+export MARATHON_SOLOMON:=false
+export MARATHON_HYPERION:=false
+export MARATHON_GERONIMO:=false
 
 # Consumers
-export MARATHON_CAPTURE_CONSUMER:=true
-export MARATHON_GIFT_CARD_CONSUMER:=true
-export MARATHON_SHIPMENTS_CONSUMER:=true
-export MARATHON_SHIPSTATION_CONSUMER:=true
-export MARATHON_STOCK_ITEMS_CONSUMER:=true
-export MARATHON_CUSTOMER_GROUPS_CONSUMER:=true
+export MARATHON_CAPTURE_CONSUMER:=false
+export MARATHON_GIFT_CARD_CONSUMER:=false
+export MARATHON_SHIPMENTS_CONSUMER:=false
+export MARATHON_SHIPSTATION_CONSUMER:=false
+export MARATHON_CUSTOMER_GROUPS_CONSUMER:=false
 
 # Storefronts
-export MARATHON_STOREFRONT_TOPDRAWER:=true
-export MARATHON_STOREFRONT_TPG:=true
-
-# Onboarding
-export MARATHON_ONBOARING_SERVICE:=true
-export MARATHON_ONBOARING_UI:=true
+export MARATHON_STOREFRONT_TOPDRAWER:=false
+export MARATHON_STOREFRONT_TPG:=false
 
 # Intelligent Commerce
-export MARATHON_BERNARDO:=true
-export MARATHON_HENHOUSE:=true
-export MARATHON_EGGCRATE:=true
-export MARATHON_RIVER_ROCK:=true
-export MARATHON_DIGGER_SPHEX:=true
-export MARATHON_ORDERS_SPHEX:=true
-export MARATHON_ORDERS_ANTHILL:=true
-export MARATHON_ANTHILL:=true
-export MARATHON_NEO4J:=true
-export MARATHON_SUGGESTER:=true
+export MARATHON_BERNARDO:=false
+export MARATHON_HENHOUSE:=false
+export MARATHON_EGGCRATE:=false
+export MARATHON_RIVER_ROCK:=false
+export MARATHON_DIGGER_SPHEX:=false
+export MARATHON_ORDERS_SPHEX:=false
+export MARATHON_ORDERS_ANTHILL:=false
+export MARATHON_ORDERS_REVIEWS:=false
+export MARATHON_ANTHILL:=false
+export MARATHON_NEO4J:=false
+export MARATHON_NEO4J_RESET:=false
+export MARATHON_PRODUCT_ACTIVITY:=false
+export MARATHON_SUGGESTER:=false
+
+# Onboarding
+export MARATHON_ONBOARDING_SERVICE:=false
+export MARATHON_ONBOARDING_UI:=false

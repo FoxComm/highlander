@@ -10,15 +10,14 @@ import core.db._
 
 object OrderUpdater {
 
-  def increaseRemorsePeriod(refNum: String, admin: User)(implicit ec: EC,
-                                                         db: DB,
-                                                         ac: AC): DbResultT[OrderResponse] =
+  def increaseRemorsePeriod(refNum: String,
+                            admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[OrderResponse] =
     for {
       order     ← * <~ Orders.mustFindByRefNum(refNum)
       isRemorse ← * <~ order.mustBeRemorseHold
       updated ← * <~ Orders.update(
-                   order,
-                   order.copy(remorsePeriodEnd = order.remorsePeriodEnd.map(_.plusMinutes(15))))
+                 order,
+                 order.copy(remorsePeriodEnd = order.remorsePeriodEnd.map(_.plusMinutes(15))))
       response ← * <~ OrderResponse.fromOrder(updated, grouped = true)
       _        ← * <~ LogActivity().orderRemorsePeriodIncreased(admin, response, order.remorsePeriodEnd)
     } yield response

@@ -2,10 +2,8 @@ package phoenix.services
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import core.failures.GeneralFailure
-import core.failures.GeneralFailure
-import phoenix.failures.PromotionFailures.PromotionNotFoundForContext
-import phoenix.failures.ShippingMethodFailures.NoDefaultShippingMethod
+import core.db._
+import core.utils.Money._
 import objectframework.ObjectUtils
 import objectframework.models._
 import org.json4s.JsonAST._
@@ -15,6 +13,7 @@ import phoenix.failures.CouponFailures.CouponWithCodeCannotBeFound
 import phoenix.failures.CreditCardFailures.NoDefaultCreditCardForCustomer
 import phoenix.failures.OrderFailures.{ApplePayIsNotProvided, CreditCardIsNotProvided, NoExternalPaymentsIsProvided, OnlyOneExternalPaymentIsAllowed}
 import phoenix.failures.PromotionFailures.PromotionNotFoundForContext
+import phoenix.failures.ShippingMethodFailures.NoDefaultShippingMethod
 import phoenix.models.account._
 import phoenix.models.cord._
 import phoenix.models.cord.lineitems.CartLineItems
@@ -22,7 +21,8 @@ import phoenix.models.cord.lineitems.CartLineItems.scope._
 import phoenix.models.coupon._
 import phoenix.models.inventory.Skus
 import phoenix.models.location.Addresses
-import phoenix.models.payment.applepay.{ApplePayCharge, ApplePayCharges, ApplePayments}
+import phoenix.models.payment.PaymentMethod
+import phoenix.models.payment.applepay.{ApplePayCharges, ApplePayments}
 import phoenix.models.payment.creditcard._
 import phoenix.models.payment.giftcard._
 import phoenix.models.payment.storecredit._
@@ -32,16 +32,12 @@ import phoenix.payloads.CartPayloads.CheckoutCart
 import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
 import phoenix.payloads.PaymentPayloads.CreateApplePayPayment
 import phoenix.responses.cord.OrderResponse
-
 import phoenix.services.carts._
 import phoenix.services.coupon.CouponUsageService
 import phoenix.services.inventory.SkuManager
 import phoenix.utils.aliases._
 import phoenix.utils.apis.{Apis, OrderInventoryHold, SkuInventoryHold}
 import slick.jdbc.PostgresProfile.api._
-import core.utils.Money._
-import core.db._
-import phoenix.models.payment.PaymentMethod
 
 import scala.util.Random
 
@@ -54,8 +50,7 @@ object PaymentHelper {
       getAdjustmentAmount: (Adjustment) ⇒ Long)(implicit ec: EC,
                                                 db: DB,
                                                 apis: Apis,
-                                                ac: AC): DbResultT[Long] = {
-
+                                                ac: AC): DbResultT[Long] =
     if (payments.isEmpty) {
       DbResultT.pure(0L)
     } else {
@@ -77,7 +72,6 @@ object PaymentHelper {
         total = adjustments.map(getAdjustmentAmount).sum.ensuring(_ <= maxPaymentAmount)
       } yield total
     }
-  }
 }
 
 object Checkout {
@@ -103,8 +97,8 @@ object Checkout {
       result ← * <~ Carts
                 .findByAccountId(customer.accountId)
                 .one
-                .findOrCreateExtended(Carts.create(
-                        Cart(accountId = customer.accountId, scope = LTree(au.token.scope))))
+                .findOrCreateExtended(
+                  Carts.create(Cart(accountId = customer.accountId, scope = LTree(au.token.scope))))
       (cart, _) = result
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
     } yield order
@@ -120,13 +114,12 @@ object Checkout {
       order    ← * <~ oneClickCheckout(customer, au.model.some, payload)
     } yield order
 
-  def applePayCheckout(customer: User, stripeToken: CreateApplePayPayment)(
-      implicit ec: EC,
-      db: DB,
-      apis: Apis,
-      ac: AC,
-      ctx: OC,
-      au: AU): DbResultT[OrderResponse] =
+  def applePayCheckout(customer: User, stripeToken: CreateApplePayPayment)(implicit ec: EC,
+                                                                           db: DB,
+                                                                           apis: Apis,
+                                                                           ac: AC,
+                                                                           ctx: OC,
+                                                                           au: AU): DbResultT[OrderResponse] =
     for {
       _ ← * <~ CartPaymentUpdater.addApplePayPayment(customer, stripeToken)
       cart ← * <~ Carts
@@ -165,7 +158,7 @@ object Checkout {
         }.toStream)
 
     def unstashItems(items: Seq[UpdateLineItemsPayload]): DbResultT[Unit] =
-      LineItemUpdater.updateQuantitiesOnCustomersCart(customer, items).void
+      CartLineItemUpdater.updateQuantitiesOnCustomersCart(customer, items).void
 
     for {
       cart ← * <~ CartQueries.findOrCreateCartByAccount(customer, ctx, admin)
@@ -174,7 +167,7 @@ object Checkout {
       scope      = Scope.current
 
       stashedItems ← * <~ stashItems(cart.referenceNumber)
-      _            ← * <~ LineItemUpdater.updateQuantitiesOnCustomersCart(customer, payload.items)
+      _            ← * <~ CartLineItemUpdater.updateQuantitiesOnCustomersCart(customer, payload.items)
 
       ccId ← * <~ CreditCards
               .findDefaultByAccountId(customerId)
@@ -247,10 +240,9 @@ case class Checkout(
       liSkus               ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
       inventoryTrackedSkus ← * <~ filterInventoryTrackingSkus(liSkus)
       skusToHold           ← * <~ inventoryTrackedSkus.map(sku ⇒ SkuInventoryHold(sku.code, sku.qty))
-      _ ← * <~ doOrMeh(
-             skusToHold.nonEmpty,
-             DbResultT.fromResult(
-                 apis.middlewarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold))))
+      _ ← * <~ doOrMeh(skusToHold.nonEmpty,
+                       DbResultT.fromResult(
+                         apis.middlewarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold))))
       mutating = externalCalls.middleWarehouseSuccess = skusToHold.nonEmpty
     } yield {}
 
@@ -285,13 +277,11 @@ case class Checkout(
       _ ← * <~ maybeCodeId.fold(DbResultT.unit)(couponMustBeApplicable)
     } yield {}
 
-  private def promotionMustBeActive(orderPromotion: OrderPromotion)(
-      implicit ctx: OC): DbResultT[Unit] =
+  private def promotionMustBeActive(orderPromotion: OrderPromotion)(implicit ctx: OC): DbResultT[Unit] =
     for {
       promotion ← * <~ Promotions
                    .filterByContextAndShadowId(ctx.id, orderPromotion.promotionShadowId)
-                   .mustFindOneOr(
-                       PromotionNotFoundForContext(orderPromotion.promotionShadowId, ctx.name))
+                   .mustFindOneOr(PromotionNotFoundForContext(orderPromotion.promotionShadowId, ctx.name))
       promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
       promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
       promoObject = IlluminatedPromotion.illuminate(ctx, promotion, promoForm, promoShadow)
@@ -323,14 +313,16 @@ case class Checkout(
     for {
 
       scPayments ← * <~ OrderPayments.findAllStoreCreditsByCordRef(cart.refNum).result
+      _          ← * <~ scPayments.map { case (_, sc) ⇒ DbResultT.fromEither(sc.mustBeActive) }
       scTotal ← * <~ PaymentHelper.paymentTransaction(
-                   scPayments,
-                   cart.grandTotal,
-                   StoreCredits.authOrderPayment,
-                   (a: StoreCreditAdjustment) ⇒ a.getAmount.abs
+                 scPayments,
+                 cart.grandTotal,
+                 StoreCredits.authOrderPayment,
+                 (a: StoreCreditAdjustment) ⇒ a.getAmount.abs
                )
 
       gcPayments ← * <~ OrderPayments.findAllGiftCardsByCordRef(cart.refNum).result
+      _          ← * <~ gcPayments.map { case (_, gc) ⇒ DbResultT.fromEither(gc.mustBeActive) }
       gcTotal ← * <~ PaymentHelper.paymentTransaction(gcPayments,
                                                       cart.grandTotal - scTotal,
                                                       GiftCards.authOrderPayment,
@@ -339,16 +331,13 @@ case class Checkout(
       scIds   = scPayments.map { case (_, sc) ⇒ sc.id }.distinct
       gcCodes = gcPayments.map { case (_, gc) ⇒ gc.code }.distinct
 
-      _ ← * <~ doOrMeh(scTotal > 0,
-                       LogActivity().scFundsAuthorized(customer, cart, scIds, scTotal))
-      _ ← * <~ doOrMeh(gcTotal > 0,
-                       LogActivity().gcFundsAuthorized(customer, cart, gcCodes, gcTotal))
+      _ ← * <~ doOrMeh(scTotal > 0, LogActivity().scFundsAuthorized(customer, cart, scIds, scTotal))
+      _ ← * <~ doOrMeh(gcTotal > 0, LogActivity().gcFundsAuthorized(customer, cart, gcCodes, gcTotal))
 
       grandTotal       = cart.grandTotal
       internalPayments = gcTotal + scTotal
-      _ ← * <~ doOrMeh(
-             grandTotal > internalPayments, // run external payments only if we have to pay more
-             doExternalPayment(grandTotal - internalPayments))
+      _ ← * <~ doOrMeh(grandTotal > internalPayments, // run external payments only if we have to pay more
+                       doExternalPayment(grandTotal - internalPayments))
 
       mutatingResult = externalCalls.authPaymentsSuccess = true // fixme is this flag used anywhere? @aafa
     } yield {}
@@ -360,25 +349,21 @@ case class Checkout(
       orderPayments ← * <~ OrderPayments.findAllExternalPayments(cart.refNum).result
 
       _ ← * <~ failIf(orderPayments.isEmpty, NoExternalPaymentsIsProvided)
-      _ ← * <~ failIf(orderPayments.groupBy(_.paymentMethodType).size > 1,
-                      OnlyOneExternalPaymentIsAllowed)
+      _ ← * <~ failIf(orderPayments.groupBy(_.paymentMethodType).size > 1, OnlyOneExternalPaymentIsAllowed)
 
       // authorize first payment we've got
       _ ← * <~ authOneExternalPayment(authAmount, orderPayments.head)
     } yield ()
   }
 
-  private def authOneExternalPayment(authAmount: Long,
-                                     orderPayment: OrderPayment): DbResultT[Unit] = {
+  private def authOneExternalPayment(authAmount: Long, orderPayment: OrderPayment): DbResultT[Unit] =
     orderPayment.paymentMethodType match {
       case PaymentMethod.ApplePay   ⇒ authApplePay(authAmount, orderPayment)
       case PaymentMethod.CreditCard ⇒ authCreditCard(authAmount, orderPayment)
       case _                        ⇒ DbResultT.unit
     }
-  }
 
-  private def authCreditCard(authAmount: Long, orderPayment: OrderPayment): DbResultT[Unit] = {
-
+  private def authCreditCard(authAmount: Long, orderPayment: OrderPayment): DbResultT[Unit] =
     for {
       card ← * <~ CreditCards
               .filter(_.id === orderPayment.paymentMethodId)
@@ -393,10 +378,8 @@ case class Checkout(
       _ ← * <~ CreditCardCharges.create(ourCharge)
       _ ← * <~ LogActivity().creditCardAuth(cart, ourCharge)
     } yield ()
-  }
 
-  private def authApplePay(authAmount: Long, orderPayment: OrderPayment): DbResultT[Unit] = {
-
+  private def authApplePay(authAmount: Long, orderPayment: OrderPayment): DbResultT[Unit] =
     for {
       applePay ← * <~ ApplePayments
                   .filter(_.id === orderPayment.paymentMethodId)
@@ -409,8 +392,6 @@ case class Checkout(
       _ ← * <~ ApplePayCharges.create(ourCharge)
       _ ← * <~ LogActivity().applePayAuth(applePay, ourCharge)
     } yield ()
-
-  }
 
   //TODO: Replace with the real deal once we figure out how to do it.
   private def fraudScore(order: Order): DbResultT[Order] =

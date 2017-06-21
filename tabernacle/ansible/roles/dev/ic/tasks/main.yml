@@ -5,39 +5,43 @@
 
 - name: Start Neo4j
   include: app_neo4j.yml
-  when: with_ic and marathon_restart.neo4j
+  when: marathon_restart.neo4j
 
 - name: Start Henhouse
   include: app_henhouse.yml
-  when: with_ic and marathon_restart.henhouse
+  when: marathon_restart.henhouse
 
 - name: Start Bernardo
   include: app_bernardo.yml
-  when: with_ic and marathon_restart.bernardo
+  when: marathon_restart.bernardo
 
 - name: Start Anthill
   include: app_anthill.yml
-  when: with_ic and marathon_restart.anthill
+  when: marathon_restart.anthill
 
 - name: Start Digger Sphex
   include: app_digger_sphex.yml
-  when: with_ic and marathon_restart.digger_sphex
+  when: marathon_restart.digger_sphex
 
 - name: Start Orders Sphex
   include: app_orders_sphex.yml
-  when: with_ic and marathon_restart.orders_sphex
+  when: marathon_restart.orders_sphex
 
 - name: Start Orders anthill
   include: app_orders_anthill.yml
-  when: with_ic and marathon_restart.orders_anthill
+  when: marathon_restart.orders_anthill
+
+- name: Start Orders Reviews
+  include: app_orders_reviews.yml
+  when: with_ic and marathon_restart.orders_reviews
 
 - name: Start Product Activity
   include: app_product_activity.yml
-  when: with_ic and marathon_restart.product_activity
+  when: marathon_restart.product_activity
 
 - name: Start Eggcrate
   include: app_eggcrate.yml
-  when: with_ic and marathon_restart.eggcrate
+  when: marathon_restart.eggcrate
 
 - name: Start River Rock
   include: app_river_rock.yml
@@ -45,4 +49,4 @@
 
 - name: Start Suggester
   include: app_suggester.yml
-  when: with_ic and marathon_restart.suggester
+  when: marathon_restart.suggester

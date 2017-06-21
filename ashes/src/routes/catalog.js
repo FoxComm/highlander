@@ -26,6 +26,11 @@ import SkuPage from 'components/skus/page';
 import SkuDetails from 'components/skus/details';
 import SkuImages from 'components/skus/images';
 
+import CatalogListWrapper from 'components/catalog/list-wrapper';
+import CatalogList from 'components/catalog/list';
+import CatalogDetails from 'components/catalog/details';
+import CatalogPage from 'components/catalog/catalog-page';
+
 const getRoutes = (jwt: Object) => {
   const router = new FoxRouter(jwt);
 
@@ -78,6 +83,20 @@ const getRoutes = (jwt: Object) => {
           },
           frn: frn.activity.product,
         }),
+      ]),
+    ]);
+
+  const catalogRoutes =
+    router.read('catalog-base', { title: 'Catalogs', path: 'catalogs', frn: frn.pim.catalog }, [
+      router.read('catalogs-list-pages', { component: CatalogListWrapper }, [
+        router.read('catalogs', { component: CatalogList, isIndex: true }),
+      ]),
+      router.read('catalog', {
+        path: ':catalogId',
+        titleParam: ':catalogId',
+        component: CatalogPage,
+      }, [
+        router.read('catalog-details', { isIndex: true, component: CatalogDetails }),
       ]),
     ]);
 
@@ -145,6 +164,7 @@ const getRoutes = (jwt: Object) => {
 
   return (
     <div>
+      {catalogRoutes}
       {productRoutes}
       {skuRoutes}
       {inventoryRoutes}

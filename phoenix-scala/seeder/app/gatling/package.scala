@@ -4,7 +4,7 @@ import io.gatling.core.scenario.Simulation
 import io.gatling.core.structure.StructureBuilder
 import io.gatling.http.request.builder.HttpRequestBuilder
 
-import scala.reflect.{ClassTag, classTag}
+import scala.reflect.{classTag, ClassTag}
 
 package object gatling {
 

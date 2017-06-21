@@ -25,8 +25,7 @@ case class QualifierCompiler(qualifierType: QualifierType, attributes: Json) {
     case _                    ⇒ Either.left(QualifierNotImplementedFailure(qualifierType).single)
   }
 
-  private def extract[T <: Qualifier](json: Json)(
-      implicit m: Manifest[T]): Either[Failures, Qualifier] =
+  private def extract[T <: Qualifier](json: Json)(implicit m: Manifest[T]): Either[Failures, Qualifier] =
     try {
       json.extract[T] match {
         case q: NonEmptySearch if q.search.isEmpty ⇒

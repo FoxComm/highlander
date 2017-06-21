@@ -1,14 +1,7 @@
 ---
 
-- include_vars: "{{role_path}}/../../base/secret_keys/files/aws/aws.yml"
-- include_vars: stripe.yml
-- include_vars: hyperion.yml
-- include_vars: solomon.yml
-- include_vars: suggester.yml
-
 - name: Creates Marathon JSON directory
-  file: path=/marathon/applications state=directory
-  when: first_run
+  file: path=/marathon state=directory
 
 - name: Copy Mapping Command
   template: src=create_es_mappings.sh dest=/usr/local/bin/create_es_mappings.sh mode="u+x,g+x,o+x"
@@ -18,17 +11,23 @@
   shell: /usr/local/bin/create_es_mappings.sh
   when: first_run
 
+- name: Include Secrets
+  include_vars: secrets.yml
+
 - name: Kill Marathon Group Tasks in Marathon
   shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/groups/highlander?force=true'
 
 - name: Take a Nap
   pause: seconds=15
 
+- name: Ensure Marathon Group JSON does not exist
+  file: path=/marathon/highlander.json state=absent
+
 - name: Copy Marathon Group JSON
-  template: src=highlander_group.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+  template: src=highlander.json.j2 dest=/marathon/highlander.json mode="u+rw,g+rw,o+r"
 
 - name: Update Marathon Group
-  shell: 'curl -sS -XPUT -d@/marathon/applications/highlander_group.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/groups'
+  shell: 'curl -sS -XPUT -d@/marathon/highlander.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/groups?force=true'
 
 - name: Wait for tasks all tasks to be healthy
   shell: curl -sS -XGET http://{{marathon_server}}/v2/apps | jq '[.apps[] | select(.tasksHealthy == 0)] | length'

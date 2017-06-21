@@ -4,7 +4,7 @@ import scala.concurrent.Future
 
 import consumer.aliases._
 
-import org.json4s.JsonAST.{JInt, JString, JNothing}
+import org.json4s.JsonAST.{JInt, JNothing, JString}
 
 object ProductConnector extends ActivityConnector {
   val dimension = "product"
@@ -16,17 +16,12 @@ object ProductConnector extends ActivityConnector {
       productIds.distinct.map(createConnection(_, activity.id))
     }
 
-  def createConnection(formId: String, activityId: String): Connection = {
-    Connection(dimension = dimension,
-               objectId = formId,
-               data = JNothing,
-               activityId = activityId)
-  }
+  def createConnection(formId: String, activityId: String): Connection =
+    Connection(dimension = dimension, objectId = formId, data = JNothing, activityId = activityId)
 
-  private def byProductData(activity: Activity): Seq[String] = {
+  private def byProductData(activity: Activity): Seq[String] =
     activity.data \ "product" \ "id" match {
       case JInt(formId) ⇒ Seq(formId.toString)
       case _            ⇒ Seq.empty
     }
-  }
 }

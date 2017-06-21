@@ -40,8 +40,7 @@ object InStorePaymentStates {
   implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 }
 
-abstract class InStorePaymentAdjustmentTable[M <: InStorePaymentAdjustment[M]](tag: Tag,
-                                                                               table: String)
+abstract class InStorePaymentAdjustmentTable[M <: InStorePaymentAdjustment[M]](tag: Tag, table: String)
     extends FoxTable[M](tag, table) {
 
   def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -56,7 +55,7 @@ abstract class InStorePaymentAdjustmentTable[M <: InStorePaymentAdjustment[M]](t
 }
 
 abstract class InStorePaymentAdjustmentQueries[M <: InStorePaymentAdjustment[M],
-    T <: InStorePaymentAdjustmentTable[M]](construct: Tag ⇒ T)
+T <: InStorePaymentAdjustmentTable[M]](construct: Tag ⇒ T)
     extends FoxTableQuery[M, T](construct) {
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.state).update(Canceled)

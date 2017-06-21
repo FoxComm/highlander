@@ -22,3 +22,7 @@ goldrush.cfg
 goldrush.state
 
 *.sublime*
+
+# Installed via script
+utils/scalafmt/coursier
+

@@ -3,6 +3,7 @@
 - name: Launch Developer Appliance
   hosts: localhost
   vars:
+    first_run: "{{ FIRST_RUN | default(false) }}"
     gce_service_account_email: "{{ lookup('env', 'GOOGLE_SERVICE_ACCOUNT_EMAIL') }}"
     gce_credentials_file: "{{ lookup('env', 'GOOGLE_JSON_KEY_LOCATION') }}"
     gce_instance_name: "{{ lookup('env', 'GOOGLE_INSTANCE_NAME') }}"
@@ -18,27 +19,21 @@
     first_run: "{{ FIRST_RUN | default(false) }}"
     is_appliance: true
     is_amigo: true
+    messaging_env: staging
     url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-    with_storefront_td: true
-    with_storefront_tpg: true
   pre_tasks:
     - name: Override hostnames
       set_fact:
         storefront_server_name: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
         api_server: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.foxcommerce.com"
   roles:
-    - { role: dev/dashboard }
-    - { role: dev/marathon_consul }
-    - { role: dev/seed_system, when: not first_run }
-    - { role: dev/marathon }
-    - { role: dev/marathon_consumers }
-    - { role: dev/ic }
-    - { role: ext/td/storefront }
-    - { role: ext/tpg/storefront }
+    - { role: dev/dashboard, when: first_run }
+    - { role: dev/flyway }
+    - { role: dev/seed_system, when: first_run }
+    - { role: dev/marathon_groups }
     - { role: dev/nginx }
     - { role: demo/balancer }
-    - { role: dev/seeder, when: with_appliance_seeding and not first_run }
-    - { role: app/healthcheck }
-    - { role: app/dnsimple, when: not first_run }
+    - { role: dev/seeder, when: with_appliance_seeding and first_run }
+    - { role: app/dnsimple, when: first_run }

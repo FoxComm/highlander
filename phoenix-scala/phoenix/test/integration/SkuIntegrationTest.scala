@@ -34,14 +34,15 @@ trait SkuOps { self: PhoenixAdminApi with DefaultJwtAdminAuth ⇒
     import org.json4s._
     val skuResponse = skusApi(skuCode).get().as[SkuResponse.Root]
     val activeFromJson: Json = ("t" → "date") ~ ("v" → (Instant.now
-            .minus(2, ChronoUnit.DAYS))
-            .toString)
+      .minus(2, ChronoUnit.DAYS))
+      .toString)
     val activeToJson: Json = ("t" → "date") ~ ("v" → (Instant.now
-            .minus(1, ChronoUnit.DAYS))
-            .toString)
+      .minus(1, ChronoUnit.DAYS))
+      .toString)
     skusApi(skuCode)
-      .update(SkuPayload(attributes = skuResponse.attributes.extract[Map[String, Json]] ++
-                  Map("activeFrom" → activeFromJson, "activeTo" → activeToJson)))
+      .update(
+        SkuPayload(attributes = skuResponse.attributes.extract[Map[String, Json]] ++
+          Map("activeFrom" → activeFromJson, "activeTo" → activeToJson)))
       .mustBeOk()
   }
 
@@ -56,7 +57,7 @@ class SkuIntegrationTest
   "POST v1/skus/:context" - {
     "Creates a SKU successfully" in new Fixture {
       val priceValue = ("currency" → "USD") ~ ("value" → 9999)
-      val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
+      val priceJson  = ("t" → "price") ~ ("v" → priceValue)
       val attrMap    = Map("price" → priceJson)
 
       skusApi.create(makeSkuPayload("SKU-NEW-TEST", attrMap, None)).mustBeOk()
@@ -64,7 +65,7 @@ class SkuIntegrationTest
 
     "Tries to create a SKU with no code" in new Fixture {
       val priceValue = ("currency" → "USD") ~ ("value" → 9999)
-      val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
+      val priceJson  = ("t" → "price") ~ ("v" → priceValue)
       val attrMap    = Map("price" → priceJson)
 
       skusApi
@@ -175,9 +176,7 @@ class SkuIntegrationTest
   }
 
   trait Fixture extends StoreAdmin_Seed {
-    def makeSkuPayload(code: String,
-                       attrMap: Map[String, Json],
-                       albums: Option[Seq[AlbumPayload]] = None) = {
+    def makeSkuPayload(code: String, attrMap: Map[String, Json], albums: Option[Seq[AlbumPayload]] = None) = {
       val codeJson   = ("t"              → "string") ~ ("v" → code)
       val attributes = attrMap + ("code" → codeJson)
       SkuPayload(attributes = attributes, albums = albums)
@@ -188,15 +187,14 @@ class SkuIntegrationTest
       skuForm         ← * <~ ObjectForms.create(simpleSku.create)
       simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
       skuShadow       ← * <~ ObjectShadows.create(simpleSkuShadow.create.copy(formId = skuForm.id))
-      skuCommit ← * <~ ObjectCommits.create(
-                     ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
+      skuCommit       ← * <~ ObjectCommits.create(ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
       sku ← * <~ Skus.create(
-               Sku(scope = Scope.current,
-                   contextId = ctx.id,
-                   code = simpleSku.code,
-                   formId = skuForm.id,
-                   shadowId = skuShadow.id,
-                   commitId = skuCommit.id))
+             Sku(scope = Scope.current,
+                 contextId = ctx.id,
+                 code = simpleSku.code,
+                 formId = skuForm.id,
+                 shadowId = skuShadow.id,
+                 commitId = skuCommit.id))
     } yield (sku, skuForm, skuShadow)).gimme
   }
 
@@ -205,7 +203,8 @@ class SkuIntegrationTest
                                                code = "TEST",
                                                description = "Test product description",
                                                image = "image.png",
-                                               price = 5999)
+                                               price = 5999,
+                                               active = true)
 
     val product =
       Mvp.insertProductWithExistingSkus(LTree(au.token.scope), ctx.id, simpleProd, Seq(sku)).gimme

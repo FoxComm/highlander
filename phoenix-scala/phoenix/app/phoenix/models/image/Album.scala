@@ -34,10 +34,9 @@ case class Album(id: Int = 0,
   def withNewShadowAndCommit(shadowId: Int, commitId: Int): Album =
     this.copy(shadowId = shadowId, commitId = commitId)
 
-  def mustNotBeArchived: Either[Failures, Album] = {
+  def mustNotBeArchived: Either[Failures, Album] =
     if (archivedAt.isEmpty) Either.right(this)
     else Either.left(AddImagesToArchivedAlbumFailure(id).single)
-  }
 }
 
 class Albums(tag: Tag) extends ObjectHeads[Album](tag, "albums") {

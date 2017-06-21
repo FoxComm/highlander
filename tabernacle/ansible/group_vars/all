@@ -43,13 +43,10 @@ docker_logs_host_dir: /var/log/docker
 
 # Google Cloud defaults
 gce_disk_size: 40
-gce_image: appliance-base-170527-002600
+gce_image: appliance-base-170619-082441
 gce_machine_type: n1-standard-4
 gce_project_id: "foxcomm-staging"
 gce_zone: "us-central1-a"
-
-with_storefront_td: false
-with_storefront_tpg: false
 
 # Default docker tags for containers
 docker_tags:
@@ -67,11 +64,11 @@ docker_tags:
     gift_card_consumer: "{{ lookup('env', 'DOCKER_TAG_GIFT_CARD_CONSUMER') | default('master', true) }}"
     shipments_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPMENTS_CONSUMER') | default('master', true) }}"
     shipstation_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPSTATION_CONSUMER') | default('master', true) }}"
-    stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') | default('master', true) }}"
     customer_groups_consumer: "{{ lookup('env', 'DOCKER_TAG_CUSTOMER_GROUPS_CONSUMER') | default('master', true) }}"
     storefront_td: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TOPDRAWER') | default('master', true) }}"
     storefront_tpg: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TPG') | default('master', true) }}"
     hyperion: "{{ lookup('env', 'DOCKER_TAG_HYPERION') | default('master', true) }}"
+    geronimo: "{{ lookup('env', 'DOCKER_TAG_GERONIMO') | default('master', true) }}"
     bernardo: "{{ lookup('env', 'DOCKER_TAG_BERNARDO') | default('master', true) }}"
     henhouse: "{{ lookup('env', 'DOCKER_TAG_HENHOUSE') | default('master', true) }}"
     eggcrate: "{{ lookup('env', 'DOCKER_TAG_EGGCRATE') | default('master', true) }}"
@@ -79,9 +76,11 @@ docker_tags:
     digger_sphex: "{{ lookup('env', 'DOCKER_TAG_DIGGER_SPHEX') | default('master', true) }}"
     orders_sphex: "{{ lookup('env', 'DOCKER_TAG_ORDERS_SPHEX') | default('master', true) }}"
     orders_anthill: "{{ lookup('env', 'DOCKER_TAG_ORDERS_ANTHILL') | default('master', true) }}"
+    orders_reviews: "{{ lookup('env', 'DOCKER_TAG_ORDERS_REVIEWS') | default('master', true) }}"
     product_activity: "{{ lookup('env', 'DOCKER_TAG_PRODUCT_ACTIVITY') | default('master', true) }}"
     anthill: "{{ lookup('env', 'DOCKER_TAG_ANTHILL') | default('master', true) }}"
     neo4j: "{{ lookup('env', 'DOCKER_TAG_NEO4J') | default('master', true) }}"
+    neo4j_reset: "{{ lookup('env', 'DOCKER_TAG_NEO4J_RESET') | default('master', true) }}"
     suggester: "{{ lookup('env', 'DOCKER_TAG_SUGGESTER') | default('master', true) }}"
     data_import: "{{ lookup('env', 'DOCKER_TAG_DATA_IMPORT') | default('master', true) }}"
     onboarding_service: "{{ lookup('env', 'DOCKER_TAG_ONBOARING_SERVICE') | default('master', true) }}"
@@ -102,13 +101,13 @@ marathon_restart:
     gift_card_consumer: "{{ lookup('env', 'MARATHON_GIFT_CARD_CONSUMER') | default(true, true) | bool }}"
     shipments_consumer: "{{ lookup('env', 'MARATHON_SHIPMENTS_CONSUMER') | default(true, true) | bool }}"
     shipstation_consumer: "{{ lookup('env', 'MARATHON_SHIPSTATION_CONSUMER') | default(true, true) | bool }}"
-    stock_items_consumer: "{{ lookup('env', 'MARATHON_STOCK_ITEMS_CONSUMER') | default(true, true) | bool }}"
     customer_groups_consumer: "{{ lookup('env', 'MARATHON_CUSTOMER_GROUPS_CONSUMER') | default(true, true) | bool }}"
     onboarding_service: "{{ lookup('env', 'MARATHON_ONBOARDING_SERVICE') | default(true, true) | bool }}"
     onboarding_ui: "{{ lookup('env', 'MARATHON_ONBOARDING_UI') | default(true, true) | bool }}"
-    storefront_td: "{{ lookup('env', 'MARATHON_STOREFRONT_TD') | default(true, true) | bool }}"
+    storefront_td: "{{ lookup('env', 'MARATHON_STOREFRONT_TOPDRAWER') | default(true, true) | bool }}"
     storefront_tpg: "{{ lookup('env', 'MARATHON_STOREFRONT_TPG') | default(true, true) | bool }}"
     hyperion: "{{ lookup('env', 'MARATHON_HYPERION') | default(true, true) | bool }}"
+    geronimo: "{{ lookup('env', 'MARATHON_GERONIMO') | default(true, true) | bool }}"
     bernardo: "{{ lookup('env', 'MARATHON_BERNARDO') | default(true, true) | bool }}"
     henhouse: "{{ lookup('env', 'MARATHON_HENHOUSE') | default(true, true) | bool }}"
     eggcrate: "{{ lookup('env', 'MARATHON_EGGCRATE') | default(true, true) | bool }}"
@@ -116,13 +115,12 @@ marathon_restart:
     digger_sphex: "{{ lookup('env', 'MARATHON_DIGGER_SPHEX') | default(true, true) | bool }}"
     orders_sphex: "{{ lookup('env', 'MARATHON_ORDERS_SPHEX') | default(true, true) | bool }}"
     orders_anthill: "{{ lookup('env', 'MARATHON_ORDERS_ANTHILL') | default(true, true) | bool }}"
+    orders_reviews: "{{ lookup('env', 'MARATHON_ORDERS_REVIEWS') | default(true, true) | bool }}"
     product_activity: "{{ lookup('env', 'MARATHON_PRODUCT_ACTIVITY') | default(true, true) | bool }}"
     anthill: "{{ lookup('env', 'MARATHON_ANTHILL') | default(true, true) | bool }}"
     neo4j: "{{ lookup('env', 'MARATHON_NEO4J') | default(true, true) | bool }}"
+    neo4j_reset: "{{ lookup('env', 'MARATHON_NEO4J_RESET') | default(true, true) | bool }}"
     suggester: "{{ lookup('env', 'MARATHON_SUGGESTER') | default(true, true) | bool }}"
-
-# Should we use Intelligent Commerce
-with_ic: "{{ lookup('env', 'WITH_INTELLIGENT_COMMERCE') | default(true, true) | bool }}"
 
 # Should we do seeding for appliance
 detach_seeders: "{{ lookup('env', 'DETACH_SEEDERS') | default(false, true) | bool }}"
@@ -198,7 +196,7 @@ marathon_host: "marathon.{{consul_suffix}}"
 marathon_port: 8080
 marathon_server: "{{marathon_host}}:{{marathon_port}}"
 
-onboarding_service_host: "onboarding_service.{{consul_suffix}}"
+onboarding_service_host: "onboarding-service.{{consul_suffix}}"
 onboarding_service_port: 4003
 onboarding_service_server: "{{onboarding_service_host}}:{{onboarding_service_port}}"
 
@@ -227,6 +225,10 @@ pgweb_server: "{{pgweb_host}}:{{pgweb_port}}"
 hyperion_host: "hyperion.{{consul_suffix}}"
 hyperion_port: 8880
 hyperion_server: "{{hyperion_host}}:{{hyperion_port}}"
+
+geronimo_host: "geronimo.{{consul_suffix}}"
+geronimo_port: 8881
+geronimo_server: "{{geronimo_host}}:{{geronimo_port}}"
 
 # Database & bottledwater
 db_user: phoenix
@@ -272,6 +274,7 @@ greenriver_restart: "false"
 # This is a ttl of 1 year
 phoenix_token_ttl: 525600
 solomon_token_ttl: 365
+solomon_jwt: ""
 
 # Middlewarehouse
 middlewarehouse_env: staging
@@ -295,6 +298,18 @@ hyperion_db_connection_string: "postgresql://{{hyperion_db_user}}@{{db_host}}/{{
 hyperion_test_db_name: hyperion_test
 hyperion_push_check_interval: 5
 hyperion_create_plugin_in_ashes_on_start: true
+
+# Geronimo
+geronimo_env: prod
+geronimo_src: ../../geronimo/
+geronimo_dir: /geronimo
+geronimo_db_name: geronimo
+geronimo_db_test_name: geronimo_test
+geronimo_db_user: geronimo
+geronimo_db_connection_string: "postgresql://{{geronimo_db_user}}@{{db_host}}/{{geronimo_db_name}}"
+geronimo_db_password: ""
+geronimo_start_worker: true
+geronimo_kafka_consumer_group: geronimo
 
 # Eggcreate
 eggcrate_host: "eggcrate.{{consul_suffix}}"
@@ -365,10 +380,6 @@ shipstation_interval: "10s"
 # Product activity daemon
 product_activity_interval: 60
 
-# Firebrand variables
-firebrand_env: production
-firebrand_default_language: en
-
 # Storefront variables
 storefront_default_language: en
 storefront_fixed_language: false
@@ -400,6 +411,15 @@ google_oauth_frontend_client_id: ""
 google_oauth_frontend_secret: ""
 google_oauth_frontend_redirect_uri: ""
 
+# FB OAuth
+fb_oauth_admin_client_id: ""
+fb_oauth_admin_secret: ""
+fb_oauth_admin_redirect_uri: ""
+
+fb_oauth_frontend_client_id: ""
+fb_oauth_frontend_secret: ""
+fb_oauth_frontend_redirect_uri: ""
+
 # VM swap size
 swap_file: /swap
 swap_size_mb: 2000
@@ -424,6 +444,7 @@ onboarding_service_db_connection_string: "postgresql://{{onboarding_service_db_u
 retailer_name: "FoxCommerce"
 contact_email: "pavel@foxcommerce.com"
 mailchimp_api_key: ""
+messaging_env: "production"
 
 # Materialized views
 update_materialized_views_sql: "/usr/local/share/update_materialized_views.sql"
@@ -458,6 +479,7 @@ is_aws: false
 is_ci: "{{ lookup('env', 'CI') }}"
 is_amigo: false
 is_appliance: false
+is_staging: false
 is_redeploy: false
 jmx_enabled: false
 packing: false

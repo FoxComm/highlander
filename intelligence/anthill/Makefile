@@ -12,7 +12,7 @@ build:
 test:
 	$(call header, Testing)
 	true
-	
+
 docker:
 	$(call header, Dockerizing)
 	docker build -t $(DOCKER_IMAGE) .

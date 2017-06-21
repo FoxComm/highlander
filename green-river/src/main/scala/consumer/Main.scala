@@ -81,15 +81,16 @@ object Main {
     conf.indexTopics.foreach {
       case (index, topics) ⇒
         val esProcessor =
-          new ElasticSearchProcessor(uri = conf.elasticSearchUrl,
-                                     cluster = conf.elasticSearchCluster,
-                                     indexName = index,
-                                     topics = topics,
-                                     jsonTransformers =
-                                       Workers.topicTransformers(conf.connectionInfo()))
+          new ElasticSearchProcessor(
+            uri = conf.elasticSearchUrl,
+            cluster = conf.elasticSearchCluster,
+            indexName = index,
+            topics = topics,
+            jsonTransformers = Workers.topicTransformers(conf.connectionInfo())
+          )
 
-        Console.err.println(s"index: ${index}")
-        Console.err.println(s"topics: ${topics}")
+        Console.err.println(s"index: $index")
+        Console.err.println(s"topics: $topics")
         // Create ES mappings
         esProcessor.createMappings()
         Console.out.println(s"Done")

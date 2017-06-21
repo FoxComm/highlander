@@ -36,7 +36,6 @@ object Accounts
 
   val returningLens: Lens[Account, Int] = lens[Account].id
 
-  def findByIdAndRatchet(id: Int, ratchet: Int): DBIO[Option[Account]] = {
+  def findByIdAndRatchet(id: Int, ratchet: Int): DBIO[Option[Account]] =
     filter(_.id === id).filter(_.ratchet === ratchet).one
-  }
 }

@@ -182,7 +182,7 @@ class StripeTest extends IntegrationTestBase with RealStripeApi {
         val result =
           stripe.authorizeRefund(auth.getId, 91, RefundReason.RequestedByCustomer).gimmeFailures
         result.getMessage must === (
-            "Refund amount ($0.91) is greater than unrefunded amount on charge ($0.90)")
+          "Refund amount ($0.91) is greater than unrefunded amount on charge ($0.90)")
       }
 
       "successfully partially refunds a charge" taggedAs External in {

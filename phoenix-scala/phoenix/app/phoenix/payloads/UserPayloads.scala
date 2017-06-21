@@ -15,11 +15,10 @@ object UserPayloads {
 
   // Reset password payloads
   case class ResetPasswordSend(email: String) extends Validation[ResetPasswordSend] {
-    def validate: ValidatedNel[Failure, ResetPasswordSend] = {
+    def validate: ValidatedNel[Failure, ResetPasswordSend] =
       notEmpty(email, "email").map { _ ⇒
         this
       }
-    }
   }
 
   case class ResetPassword(code: String, newPassword: String) extends Validation[ResetPassword] {

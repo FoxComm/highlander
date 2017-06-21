@@ -18,6 +18,7 @@
     "DB_PASSWORD": "",
     "SOLOMON_SERVICE": "{{solomon_service_name}}",
     "SOLOMON_HOST": "{{consul_suffix}}",
+    "SOLOMON_JWT": "{{solomon_jwt}}",
     "PUBLIC_KEY": "{{public_keys_dest_dir}}/public_key.pem",
     "STRIPE_API_KEY": "{{stripe_api_key}}"
   },

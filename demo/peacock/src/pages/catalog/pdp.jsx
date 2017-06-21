@@ -15,12 +15,14 @@ import type { Localized } from 'lib/i18n';
 import { searchGiftCards } from 'modules/products';
 import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-details';
 import { addLineItem, toggleCart } from 'modules/cart';
-import { fetchRelatedProducts, clearRelatedProducts } from 'modules/cross-sell';
+import { fetchRelatedProducts, clearRelatedProducts, MAX_CROSS_SELLS_RESULTS } from 'modules/cross-sell';
+import { fetchReviewsForSku, clearReviews } from 'modules/reviews';
 
 // styles
 import styles from './pdp.css';
 
 // components
+import ProductReviewsList from '@foxcomm/storefront-react/lib/components/product-reviews-list/product-reviews-list';
 import { Pdp, RelatedProductList } from '@foxcomm/storefront-react';
 
 // types
@@ -41,6 +43,8 @@ type Actions = {
   toggleCart: Function,
   fetchRelatedProducts: Function,
   clearRelatedProducts: Function,
+  fetchReviewsForSku: Function,
+  clearReviews: Function,
 };
 
 type Props = Localized & RoutesParams & {
@@ -54,14 +58,17 @@ type Props = Localized & RoutesParams & {
 
 const mapStateToProps = (state) => {
   const product = state.productDetails.product;
+  const productReviews = state.reviews;
   const relatedProducts = state.crossSell.relatedProducts;
 
   return {
     product,
     relatedProducts,
+    productReviews,
     fetchError: _.get(state.asyncActions, 'pdp.err', null),
     notFound: !product && _.get(state.asyncActions, 'pdp.err.response.status') == 404,
     isLoading: _.get(state.asyncActions, ['pdp', 'inProgress'], true),
+    isProductReviewsLoading: _.get(state.asyncActions, ['fetchReviewsForSku', 'inProgress'], false),
     isRelatedProductsLoading: _.get(state.asyncActions, ['relatedProducts', 'inProgress'], false),
   };
 };
@@ -76,8 +83,12 @@ const mapDispatchToProps = dispatch => ({
     toggleCart,
     fetchRelatedProducts,
     clearRelatedProducts,
+    fetchReviewsForSku,
+    clearReviews,
   }, dispatch),
 });
+
+const REVIEWS_PAGE_SIZE = 2;
 
 class PdpConnect extends Component {
   props: Props;
@@ -93,8 +104,18 @@ class PdpConnect extends Component {
 
   componentDidMount() {
     this.productPromise.then(() => {
-      const { product, isRelatedProductsLoading, actions } = this.props;
-      if (!isRelatedProductsLoading) {
+      const {
+        isProductReviewsLoading,
+        isRelatedProductsLoading,
+        product,
+        actions,
+        isLoading,
+      } = this.props;
+
+      if (!isLoading && !isProductReviewsLoading) {
+        actions.fetchReviewsForSku(this.productSkuCodes, REVIEWS_PAGE_SIZE, 0).catch(_.noop);
+      }
+      if (!isLoading && !isRelatedProductsLoading) {
         actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
       }
     });
@@ -103,6 +124,7 @@ class PdpConnect extends Component {
   componentWillUnmount() {
     this.props.actions.resetProduct();
     this.props.actions.clearRelatedProducts();
+    this.props.actions.clearReviews();
   }
 
   componentWillUpdate(nextProps) {
@@ -111,6 +133,7 @@ class PdpConnect extends Component {
     if (this.productId !== nextId) {
       this.props.actions.resetProduct();
       this.props.actions.clearRelatedProducts();
+      this.props.actions.clearReviews();
       this.fetchProduct(nextProps, nextId);
     }
   }
@@ -123,9 +146,9 @@ class PdpConnect extends Component {
       .catch(() => {
         const { params } = this.props;
         this.props.actions.fetch(params.productSlug)
-        .then((product) => {
-          this.props.actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
-        });
+          .then((product) => {
+            this.props.actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
+          });
       });
   }
 
@@ -170,6 +193,29 @@ class PdpConnect extends Component {
     });
   }
 
+  @autobind
+  fetchMoreReviews = (from: number): ?Element<*> => {
+    const { actions } = this.props;
+    actions.fetchReviewsForSku(this.productSkuCodes, REVIEWS_PAGE_SIZE, from).catch(_.noop);
+  }
+
+  get productReviewsList(): ?Element<*> {
+    const { productReviews, isProductReviewsLoading } = this.props;
+
+    return (
+      <ProductReviewsList
+        title="Reviews"
+        emptyContentTitle="There are no reviews for this product"
+        listItems={productReviews.list}
+        isLoading={isProductReviewsLoading}
+        loadingBehavior={_.isEmpty(productReviews.list)}
+        paginationSize={REVIEWS_PAGE_SIZE}
+        onLoadMoreReviews={this.fetchMoreReviews}
+        showLoadMore={_.size(productReviews.list) < productReviews.paginationTotal}
+      />
+    );
+  }
+
   get relatedProductsList(): ?Element<*> {
     const { relatedProducts, isRelatedProductsLoading } = this.props;
 
@@ -180,8 +226,19 @@ class PdpConnect extends Component {
         title="You Might Also Like"
         list={relatedProducts.products}
         isLoading={isRelatedProductsLoading}
+        limit={MAX_CROSS_SELLS_RESULTS}
       />
     );
+  }
+
+  get productSkuCodes(): Array<any> {
+    const { product } = this.props;
+
+    const skuCodes = _.map(product.skus, (sku) => {
+      return _.get(sku, ['attributes', 'code', 'v'], '');
+    }, []);
+
+    return skuCodes;
   }
 
   render(): Element<any> {
@@ -199,6 +256,7 @@ class PdpConnect extends Component {
       <Pdp
         {...pdpProps}
         relatedProductsList={this.relatedProductsList}
+        reviewsList={this.productReviewsList}
         shareImage={<img styleName="share-image" src="/images/pdp/style.jpg" />}
         onAddLineItem={this.handleAddToCard}
       />

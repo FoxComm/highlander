@@ -20,13 +20,11 @@ trait SharedSearchSeeds {
       storeAdmins   ← * <~ AdminsData.sortBy(_.accountId).result
       _ ← * <~ storeAdmins.map { admin ⇒
            SharedSearchAssociations.create(
-               new SharedSearchAssociation(sharedSearchId = productSearch.id,
-                                           storeAdminId = admin.accountId))
+             new SharedSearchAssociation(sharedSearchId = productSearch.id, storeAdminId = admin.accountId))
          }
       _ ← * <~ storeAdmins.map { admin ⇒
            SharedSearchAssociations.create(
-               new SharedSearchAssociation(sharedSearchId = skusSearch.id,
-                                           storeAdminId = admin.accountId))
+             new SharedSearchAssociation(sharedSearchId = skusSearch.id, storeAdminId = admin.accountId))
          }
     } yield search
 
@@ -39,8 +37,9 @@ trait SharedSearchSeeds {
                  accessScope = Scope.current)
 
   def archivedProductsSearch(adminId: Int)(implicit au: AU) =
-    SharedSearch(title = "Archived",
-                 query = parse("""[
+    SharedSearch(
+      title = "Archived",
+      query = parse("""[
                                  |    {
                                  |      "display": "Product : Is Archived : Yes",
                                  |      "term": "archivedAt",
@@ -50,7 +49,7 @@ trait SharedSearchSeeds {
                                  |      }
                                  |    }
                                  |  ]""".stripMargin),
-                 rawQuery = parse("""{
+      rawQuery = parse("""{
                                   |   "query": {
                                   |      "bool": {
                                   |        "filter": [
@@ -63,14 +62,16 @@ trait SharedSearchSeeds {
                                   |      }
                                   |    }
                                   |   }""".stripMargin),
-                 storeAdminId = adminId,
-                 scope = SharedSearch.ProductsScope,
-                 accessScope = Scope.current,
-                 isSystem = true)
+      storeAdminId = adminId,
+      scope = SharedSearch.ProductsScope,
+      accessScope = Scope.current,
+      isSystem = true
+    )
 
   def archivedSkusSearch(adminId: Int)(implicit au: AU) =
-    SharedSearch(title = "Archived",
-                 query = parse("""[
+    SharedSearch(
+      title = "Archived",
+      query = parse("""[
                       |    {
                       |      "display": "Product : Is Archived : Yes",
                       |      "term": "archivedAt",
@@ -80,7 +81,7 @@ trait SharedSearchSeeds {
                       |      }
                       |    }
                       |  ]""".stripMargin),
-                 rawQuery = parse("""{
+      rawQuery = parse("""{
                          | "query": {
                          |      "bool": {
                          |        "filter": [
@@ -93,8 +94,9 @@ trait SharedSearchSeeds {
                          |      }
                          |    }
                          | }""".stripMargin),
-                 storeAdminId = adminId,
-                 scope = SharedSearch.SkusScope,
-                 accessScope = Scope.current,
-                 isSystem = true)
+      storeAdminId = adminId,
+      scope = SharedSearch.SkusScope,
+      accessScope = Scope.current,
+      isSystem = true
+    )
 }

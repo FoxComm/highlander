@@ -7,8 +7,7 @@ import slick.dbio.DBIO
 
 object CordResponseShipping {
 
-  def shippingMethod(cordRef: String)(
-      implicit ec: EC): DBIO[Option[ShippingMethodsResponse.Root]] =
+  def shippingMethod(cordRef: String)(implicit ec: EC): DBIO[Option[ShippingMethodsResponse.Root]] =
     ShippingMethods.forCordRef(cordRef).one.map(_.map(ShippingMethodsResponse.build(_)))
 
   def shippingAddress(cordRef: String)(implicit ec: EC): DbResultT[AddressResponse] =

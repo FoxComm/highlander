@@ -28,13 +28,12 @@ object IlluminatedProduct {
   def illuminate(context: ObjectContext,
                  product: Product,
                  form: ObjectForm,
-                 shadow: ObjectShadow): IlluminatedProduct = {
-
-    IlluminatedProduct(id = form.id,
-                       slug = product.slug,
-                       context = IlluminatedContext(context.name, context.attributes),
-                       attributes =
-                         IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes),
-                       archivedAt = product.archivedAt)
-  }
+                 shadow: ObjectShadow): IlluminatedProduct =
+    IlluminatedProduct(
+      id = form.id,
+      slug = product.slug,
+      context = IlluminatedContext(context.name, context.attributes),
+      attributes = IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes),
+      archivedAt = product.archivedAt
+    )
 }

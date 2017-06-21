@@ -48,14 +48,14 @@ case class Order(id: Int = 0,
   import Order._
 
   val fsm: Map[State, Set[State]] = Map(
-      FraudHold →
-        Set(ManualHold, RemorseHold, FulfillmentStarted, Canceled),
-      RemorseHold →
-        Set(FraudHold, ManualHold, FulfillmentStarted, Canceled),
-      ManualHold →
-        Set(FraudHold, RemorseHold, FulfillmentStarted, Canceled),
-      FulfillmentStarted →
-        Set(Shipped, Canceled)
+    FraudHold →
+      Set(ManualHold, RemorseHold, FulfillmentStarted, Canceled),
+    RemorseHold →
+      Set(FraudHold, ManualHold, FulfillmentStarted, Canceled),
+    ManualHold →
+      Set(FraudHold, RemorseHold, FulfillmentStarted, Canceled),
+    FulfillmentStarted →
+      Set(Shipped, Canceled)
   )
 
   // If order is not in RemorseHold, remorsePeriodEnd should be None, but extra check wouldn't hurt
@@ -72,7 +72,7 @@ case class Order(id: Int = 0,
 }
 
 object Order {
-  sealed trait State extends Product with Serializable
+  sealed trait State             extends Product with Serializable
   case object FraudHold          extends State
   case object RemorseHold        extends State
   case object ManualHold         extends State
@@ -128,14 +128,13 @@ object Orders
     with ReturningTableQuery[Order, Orders]
     with SearchByRefNum[Order, Orders] {
 
-  def createFromCart(
-      cart: Cart,
-      subScope: Option[String])(implicit ec: EC, db: DB, ctx: OC, au: AU): DbResultT[Order] =
+  def createFromCart(cart: Cart,
+                     subScope: Option[String])(implicit ec: EC, db: DB, ctx: OC, au: AU): DbResultT[Order] =
     createFromCart(cart, ctx.id, subScope)
 
-  def createFromCart(cart: Cart,
-                     contextId: Int,
-                     subScope: Option[String])(implicit ec: EC, db: DB, au: AU): DbResultT[Order] =
+  def createFromCart(cart: Cart, contextId: Int, subScope: Option[String])(implicit ec: EC,
+                                                                           db: DB,
+                                                                           au: AU): DbResultT[Order] =
     for {
       scope ← * <~ Scope.resolveOverride(subScope)
 
@@ -145,23 +144,24 @@ object Orders
       lineItems ← * <~ prepareOrderLineItemsFromCart(cart, contextId)
 
       order ← * <~ Orders.create(
-                 Order(referenceNumber = cart.referenceNumber,
-                       accountId = cart.accountId,
-                       scope = scope,
-                       currency = cart.currency,
-                       subTotal = cart.subTotal,
-                       shippingTotal = cart.shippingTotal,
-                       adjustmentsTotal = cart.adjustmentsTotal,
-                       taxesTotal = cart.taxesTotal,
-                       grandTotal = cart.grandTotal,
-                       contextId = contextId))
+               Order(
+                 referenceNumber = cart.referenceNumber,
+                 accountId = cart.accountId,
+                 scope = scope,
+                 currency = cart.currency,
+                 subTotal = cart.subTotal,
+                 shippingTotal = cart.shippingTotal,
+                 adjustmentsTotal = cart.adjustmentsTotal,
+                 taxesTotal = cart.taxesTotal,
+                 grandTotal = cart.grandTotal,
+                 contextId = contextId
+               ))
 
       _ ← * <~ OrderLineItems.createAll(lineItems)
     } yield order
 
-  def prepareOrderLineItemsFromCart(cart: Cart, contextId: Int)(
-      implicit ec: EC,
-      db: DB): DbResultT[Seq[OrderLineItem]] = {
+  def prepareOrderLineItemsFromCart(cart: Cart, contextId: Int)(implicit ec: EC,
+                                                                db: DB): DbResultT[Seq[OrderLineItem]] = {
     val uniqueSkuIdsInCart = CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.skuId).map {
       case (skuId, q) ⇒ skuId
     }
@@ -177,12 +177,14 @@ object Orders
       lineItems ← * <~ CartLineItems.byCordRef(cart.referenceNumber).result
       orderLineItems ← * <~ lineItems.map { cli ⇒
                         val sku = skuMaps.get(cli.skuId).get
-                        OrderLineItem(cordRef = cart.referenceNumber,
-                                      referenceNumber = cli.referenceNumber,
-                                      skuId = sku.id,
-                                      skuShadowId = sku.shadowId,
-                                      state = OrderLineItem.Pending,
-                                      attributes = cli.attributes)
+                        OrderLineItem(
+                          cordRef = cart.referenceNumber,
+                          referenceNumber = cli.referenceNumber,
+                          skuId = sku.id,
+                          skuShadowId = sku.shadowId,
+                          state = OrderLineItem.Pending,
+                          attributes = cli.attributes
+                        )
                       }
     } yield orderLineItems
   }
@@ -209,7 +211,8 @@ object Orders
   type PackedRet = (Rep[Int], Rep[String], Rep[Option[Instant]])
   private val rootLens = lens[Order]
 
-  val returningLens: Lens[Order, (Int, String, Option[Instant])] = rootLens.id ~ rootLens.referenceNumber ~ rootLens.remorsePeriodEnd
+  val returningLens
+    : Lens[Order, (Int, String, Option[Instant])] = rootLens.id ~ rootLens.referenceNumber ~ rootLens.remorsePeriodEnd
   override val returningQuery = map { o ⇒
     (o.id, o.referenceNumber, o.remorsePeriodEnd)
   }

@@ -8,8 +8,7 @@ case class StoreCreditRefund(id: Int = 0, returnId: Int) extends FoxModel[StoreC
 
 object StoreCreditRefund {}
 
-class StoreCreditRefunds(tag: Tag)
-    extends FoxTable[StoreCreditRefund](tag, "store_credit_refunds") {
+class StoreCreditRefunds(tag: Tag) extends FoxTable[StoreCreditRefund](tag, "store_credit_refunds") {
   def id       = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def returnId = column[Int]("return_id")
 

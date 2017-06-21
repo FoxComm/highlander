@@ -32,25 +32,22 @@ object ObjectSchemasManager {
       .mustFindOneOr(NotFoundFailure404(ObjectFullSchema, "empty"))
 
   def getSchemaByOptNameOrKind(schema: Option[String], kind: String)(
-      implicit ec: EC): DbResultT[Option[ObjectFullSchema]] = {
+      implicit ec: EC): DbResultT[Option[ObjectFullSchema]] =
     schema.fold {
       ObjectFullSchemas.filterByKind(kind).one
     } { schemaName ⇒
       ObjectFullSchemas.findOneByName(schemaName)
     }.dbresult
-  }
 
-  def update(name: String, payload: UpdateObjectSchema)(implicit ec: EC,
-                                                        db: DB): DbResultT[ObjectSchema] =
+  def update(name: String, payload: UpdateObjectSchema)(implicit ec: EC, db: DB): DbResultT[ObjectSchema] =
     for {
       objectSchema ← * <~ ObjectSchemas
                       .findOneByName(name)
                       .mustFindOr(NotFoundFailure404(ObjectSchema, name))
       updated ← * <~ ObjectSchemas.update(
-                   objectSchema,
-                   objectSchema.copy(schema = payload.schema,
-                                     dependencies =
-                                       payload.dependencies.getOrElse(objectSchema.dependencies)))
+                 objectSchema,
+                 objectSchema.copy(schema = payload.schema,
+                                   dependencies = payload.dependencies.getOrElse(objectSchema.dependencies)))
     } yield updated
 
 }

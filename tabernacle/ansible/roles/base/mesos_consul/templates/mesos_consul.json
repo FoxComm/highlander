@@ -1,0 +1,15 @@
+{
+    "service" : {
+        "name": "mesos-consul",
+        "tags": ["mesos-consul"],
+        "port": 24476,
+        "checks": [
+            {
+                "name": "HTTP API on port 24476",
+                "http": "http://localhost:24476/health",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}

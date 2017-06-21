@@ -11,7 +11,7 @@ import slick.lifted.Tag
 
 /**
   * An activity dimension has a set of activity trails. It is used as a logical grouping
-  * of trails by some 'kind' of activity. A particular activity can be in multiple dimensions 
+  * of trails by some 'kind' of activity. A particular activity can be in multiple dimensions
   * at a time.
   */
 case class Dimension(id: Int = 0, name: String, description: String)
@@ -20,9 +20,8 @@ case class Dimension(id: Int = 0, name: String, description: String)
 
   val nameRegex = """([a-zA-Z0-9-_]*)""".r
 
-  override def validate: ValidatedNel[Failure, Dimension] = {
+  override def validate: ValidatedNel[Failure, Dimension] =
     matches(name, nameRegex, "name").map { case _ ⇒ this }
-  }
 }
 
 object Dimension {

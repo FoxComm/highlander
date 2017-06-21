@@ -22,12 +22,12 @@ object TaxonomyResponses {
       extends ResponseItem
 
   object FullTaxonomyResponse {
-    def build(taxonomy: FullObject[Taxonomy], taxons: Seq[LinkedTaxon]): FullTaxonomyResponse = {
-      FullTaxonomyResponse(taxonomy.model.formId,
-                           taxonomy.model.hierarchical,
-                           IlluminateAlgorithm.projectAttributes(taxonomy.form.attributes,
-                                                                 taxonomy.shadow.attributes),
-                           TaxonTreeResponse.buildTree(taxons, taxonomy.model.formId))
-    }
+    def build(taxonomy: FullObject[Taxonomy], taxons: Seq[LinkedTaxon]): FullTaxonomyResponse =
+      FullTaxonomyResponse(
+        taxonomy.model.formId,
+        taxonomy.model.hierarchical,
+        IlluminateAlgorithm.projectAttributes(taxonomy.form.attributes, taxonomy.shadow.attributes),
+        TaxonTreeResponse.buildTree(taxons, taxonomy.model.formId)
+      )
   }
 }

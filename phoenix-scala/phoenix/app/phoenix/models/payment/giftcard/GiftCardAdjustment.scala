@@ -32,7 +32,7 @@ case class GiftCardAdjustment(id: Int = 0,
   def getAmount: Long = if (credit > 0) credit else -debit
 
   val fsm: Map[State, Set[State]] = Map(
-      Auth → Set(Canceled, Capture)
+    Auth → Set(Canceled, Capture)
   )
 }
 
@@ -53,20 +53,12 @@ class GiftCardAdjustments(tag: Tag)
   def credit     = column[Long]("credit")
 
   def * =
-    (id,
-     giftCardId,
-     orderPaymentId,
-     storeAdminId,
-     credit,
-     debit,
-     availableBalance,
-     state,
-     createdAt) <> ((GiftCardAdjustment.apply _).tupled, GiftCardAdjustment.unapply)
+    (id, giftCardId, orderPaymentId, storeAdminId, credit, debit, availableBalance, state, createdAt) <> ((GiftCardAdjustment.apply _).tupled, GiftCardAdjustment.unapply)
 }
 
 object GiftCardAdjustments
     extends InStorePaymentAdjustmentQueries[GiftCardAdjustment, GiftCardAdjustments](
-        new GiftCardAdjustments(_))
+      new GiftCardAdjustments(_))
     with ReturningId[GiftCardAdjustment, GiftCardAdjustments] {
 
   val returningLens: Lens[GiftCardAdjustment, Int] = lens[GiftCardAdjustment].id

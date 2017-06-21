@@ -92,7 +92,7 @@ func getLatestMapping(fileDir, mapping string) (string, error) {
 
 func extractBaseName(filename string) (string, error) {
 	if !strings.HasSuffix(filename, ".json") {
-		return "", fmt.Errorf("Invalid mapping file %s -- must be JSON file")
+		return "", fmt.Errorf("Invalid mapping file %s -- must be JSON file", filename)
 	}
 
 	sansExtension := filename[:len(filename)-5]

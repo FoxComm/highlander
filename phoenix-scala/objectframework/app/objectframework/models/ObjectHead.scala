@@ -25,8 +25,7 @@ trait ObjectHead[M <: ObjectHead[M]] extends FoxModel[M] { self: M ⇒
   * Abstract class to help define an object head object which points to the latest
   * version of some object in the context specified.
   */
-abstract class ObjectHeads[M <: ObjectHead[M]](tag: Tag, table: String)
-    extends FoxTable[M](tag, table) {
+abstract class ObjectHeads[M <: ObjectHead[M]](tag: Tag, table: String) extends FoxTable[M](tag, table) {
 
   def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def scope      = column[LTree]("scope")
@@ -47,14 +46,13 @@ abstract class ObjectHeads[M <: ObjectHead[M]](tag: Tag, table: String)
 abstract class ObjectHeadsQueries[M <: ObjectHead[M], T <: ObjectHeads[M]](construct: Tag ⇒ T)
     extends FoxTableQuery[M, T](construct) {
 
-  def mustFindByFormId404(formId: ObjectForm#Id)(implicit oc: ObjectContext,
-                                                 ec: EC): DbResultT[M] =
+  def mustFindByFormId404(formId: ObjectForm#Id)(implicit oc: ObjectContext, ec: EC): DbResultT[M] =
     findOneByFormId(formId).mustFindOneOr(
-        ObjectHeadCannotBeFoundByFormId(baseTableRow.tableName, formId, oc.name))
+      ObjectHeadCannotBeFoundByFormId(baseTableRow.tableName, formId, oc.name))
 
   def mustFindByContextAndFormId404(contextId: Int, formId: Int)(implicit ec: EC): DbResultT[M] =
     findOneByContextAndFormId(contextId, formId).mustFindOneOr(
-        ObjectHeadCannotBeFoundForContext(baseTableRow.tableName, formId, contextId))
+      ObjectHeadCannotBeFoundForContext(baseTableRow.tableName, formId, contextId))
 
   def findOneByFormId(formId: Int)(implicit oc: ObjectContext): QuerySeq =
     filter(_.contextId === oc.id).filter(_.formId === formId)
@@ -65,9 +63,7 @@ abstract class ObjectHeadsQueries[M <: ObjectHead[M], T <: ObjectHeads[M]](const
   def findOneByContextAndShadowId(contextId: Int, shadowId: Int): QuerySeq =
     filter(_.contextId === contextId).filter(_.shadowId === shadowId)
 
-  def updateHead(fullObject: FullObject[M], commitId: Int)(
-      implicit ec: EC): DbResultT[FullObject[M]] =
-    update(fullObject.model,
-           fullObject.model.withNewShadowAndCommit(fullObject.shadow.id, commitId)).map(updated ⇒
-          fullObject.copy(model = updated))
+  def updateHead(fullObject: FullObject[M], commitId: Int)(implicit ec: EC): DbResultT[FullObject[M]] =
+    update(fullObject.model, fullObject.model.withNewShadowAndCommit(fullObject.shadow.id, commitId))
+      .map(updated ⇒ fullObject.copy(model = updated))
 }

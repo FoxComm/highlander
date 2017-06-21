@@ -50,7 +50,7 @@ case class SimpleDiscountForm(percentOff: Percent, totalAmount: Int) {
 case class SimpleDiscountShadow(f: SimpleDiscountForm) {
 
   val shadow = ObjectUtils.newShadow(
-      parse("""
+    parse("""
         {
           "title" : {"type": "string", "ref": "title"},
           "description" : {"type": "richText", "ref": "description"},
@@ -58,7 +58,8 @@ case class SimpleDiscountShadow(f: SimpleDiscountForm) {
           "qualifier" : {"type": "qualifier", "ref": "qualifier"},
           "offer" : {"type": "offer", "ref": "offer"}
         }"""),
-      f.keyMap)
+    f.keyMap
+  )
 }
 
 trait DiscountGenerator {
@@ -69,18 +70,16 @@ trait DiscountGenerator {
     SimpleDiscount(percentOff = percent, totalAmount = totalAmount)
   }
 
-  def generateDiscounts(sourceData: Seq[SimpleDiscount])(
-      implicit db: DB,
-      au: AU): DbResultT[Seq[DiscountResponse.Root]] =
+  def generateDiscounts(sourceData: Seq[SimpleDiscount])(implicit db: DB,
+                                                         au: AU): DbResultT[Seq[DiscountResponse.Root]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       discounts ← * <~ sourceData.map(source ⇒ {
                    val discountForm   = SimpleDiscountForm(source.percentOff, source.totalAmount)
                    val discountShadow = SimpleDiscountShadow(discountForm)
-                   def discountFS: FormAndShadow = {
+                   def discountFS: FormAndShadow =
                      (ObjectForm(kind = Discount.kind, attributes = discountForm.form),
                       ObjectShadow(attributes = discountShadow.shadow))
-                   }
                    val payload = CreateDiscount(attributes = discountFS.toPayload)
                    DiscountManager.create(payload, context.name)
                  })

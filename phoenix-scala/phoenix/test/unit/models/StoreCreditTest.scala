@@ -18,16 +18,14 @@ class StoreCreditTest extends TestBase {
   "StoreCredit" - {
     ".validateNew" - {
       "fails when originalBalance is less than zero" in {
-        val sc = Factories.storeCredit.copy(originalBalance = -1,
-                                            availableBalance = 0,
-                                            currentBalance = 0)
+        val sc     = Factories.storeCredit.copy(originalBalance = -1, availableBalance = 0, currentBalance = 0)
         val result = sc.validate
 
         result mustBe 'invalid
         result.fold(identity, m ⇒ NEL.of(m.modelName)) mustBe NEL.of(
-            GeneralFailure("originalBalance cannot be less than currentBalance"),
-            GeneralFailure("originalBalance cannot be less than availableBalance"),
-            GeneralFailure("originalBalance must be greater than zero")
+          GeneralFailure("originalBalance cannot be less than currentBalance"),
+          GeneralFailure("originalBalance cannot be less than availableBalance"),
+          GeneralFailure("originalBalance must be greater than zero")
         )
       }
 
@@ -37,7 +35,7 @@ class StoreCreditTest extends TestBase {
 
         result mustBe 'invalid
         result.fold(identity, m ⇒ NEL.of(m.modelName)) mustBe NEL.of(
-            GeneralFailure("canceledAmount must be present when canceled")
+          GeneralFailure("canceledAmount must be present when canceled")
         )
       }
 

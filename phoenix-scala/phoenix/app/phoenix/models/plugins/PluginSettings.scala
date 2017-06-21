@@ -34,9 +34,8 @@ object PluginSettings {
         merged.extract[SettingsValues]
       }
 
-      def toJson: JValue = {
+      def toJson: JValue =
         Extraction.decompose(values)
-      }
 
     }
 

@@ -47,6 +47,9 @@ trait FormAndShadow {
            shadow.copy(attributes = newShadowAttributes))
   }
 
+  def projectAttributes(): JValue =
+    IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes)
+
   def update(form: ObjectForm, shadow: ObjectShadow): FormAndShadow
 }
 
@@ -56,10 +59,9 @@ object FormAndShadow {
       copy(form = form, shadow = shadow)
   }
 
-  def fromPayload(kind: String, attributes: Map[String, JValue]): FormAndShadow = {
+  def fromPayload(kind: String, attributes: Map[String, JValue]): FormAndShadow =
     FormAndShadowSimple(form = ObjectForm.fromPayload(kind, attributes),
                         shadow = ObjectShadow.fromPayload(attributes))
-  }
 }
 
 case class FullObject[A](model: A, form: ObjectForm, shadow: ObjectShadow) extends FormAndShadow {

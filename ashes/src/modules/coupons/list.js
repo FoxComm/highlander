@@ -3,16 +3,6 @@ import makeLiveSearch from '../live-search';
 
 const searchTerms = [
   {
-    title: 'Coupon : Name',
-    type: 'string',
-    term: 'name',
-  },
-  {
-    title: 'Coupon : Storefront Name',
-    type: 'string',
-    term: 'storefrontName',
-  },
-  {
     title: 'Coupon : Code',
     type: 'string',
     term: 'codes',

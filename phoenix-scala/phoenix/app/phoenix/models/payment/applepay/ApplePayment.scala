@@ -8,7 +8,7 @@ import core.db._
 import core.failures.Failure
 import core.utils.Validation
 import phoenix.models.payment.PaymentMethod
-import shapeless.{Lens, lens}
+import shapeless.{lens, Lens}
 import slick.jdbc.PostgresProfile.api._
 
 case class ApplePayment(
@@ -24,11 +24,11 @@ case class ApplePayment(
 
   import Validation._
 
-  override def validate: ValidatedNel[Failure, ApplePayment] = {
-    (validExpr(stripeTokenId.startsWith("tok_"), "Stripe token should start with 'tok_'") |@| super.validate).map {
-      case _ ⇒ this
-    }
-  }
+  override def validate: ValidatedNel[Failure, ApplePayment] =
+    (validExpr(stripeTokenId.startsWith("tok_"), "Stripe token should start with 'tok_'") |@| super.validate)
+      .map {
+        case _ ⇒ this
+      }
 }
 
 class ApplePayments(tag: Tag) extends FoxTable[ApplePayment](tag, "apple_payments") {

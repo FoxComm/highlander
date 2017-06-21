@@ -15,10 +15,7 @@ import shapeless._
   * The context will be matched against a user context so that the storefront displays
   * the appropriate object information.
   */
-case class ObjectContext(id: Int = 0,
-                         name: String,
-                         attributes: JValue,
-                         createdAt: Instant = Instant.now)
+case class ObjectContext(id: Int = 0, name: String, attributes: JValue, createdAt: Instant = Instant.now)
     extends FoxModel[ObjectContext]
     with Validation[ObjectContext]
 

@@ -2,10 +2,9 @@
 
 ### Coupon
 + id: 1 (required, number) - Coupon ID.
-+ form (required, CouponForm) - Coupon form.
-+ shadow (required, CouponShadow) - Coupon shadow.
 + promotion: 1 (required, number) - Related promotion ID.
-+ archivedAt: `2020-01-01T12:00:00Z` (string) - Archiving date.
++ attributes: `<json>` (required, string) - Coupon attributes.
++ archivedAt: `2020-01-01T12:00:00Z` (optional, string) - Archiving date.
 
 ### CouponCode
 + code: `ABC-123` (required, string) - Coupon code.
@@ -28,10 +27,9 @@
 + attributes: `<json>` (required, string) - Coupon shadow attributes.
 + createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
 
-### CreateCouponPayload
-+ form (required, CreateCouponForm) - Coupon form.
-+ shadow (required, CreateCouponShadow) - Coupon shadow.
+### CouponPayload
 + promotion: 1 (required, number) - Related promotion ID.
++ attributes: `<json>` (required, string) - Coupon attributes.
 
 ### CreateCouponForm
 + attributes: `<json>` (required, string) - Coupon form attributes.

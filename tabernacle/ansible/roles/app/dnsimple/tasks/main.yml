@@ -1,17 +1,16 @@
 ---
 
 - name: Register DNS Record for Appliance
-  dnsimple:
-    account_email: "{{dnsimple_email}}"
-    account_api_token: "{{dnsimple_token}}"
-    domain: "{{foxcomm_domain}}"
-    record: "appliance-{{ansible_default_ipv4.address}}"
-    value: "{{ansible_default_ipv4.address}}"
-    type: A
-    ttl: 3600
-    state: present
-  delegate_to: localhost
-  become: false
+  uri:
+    url: "{{dnsimple_url}}"
+    method: POST
+    body: "{{ lookup('template', 'payload.json.j2') }}"
+    body_format: json
+    status_code: 200, 201, 400
+    headers:
+      Accept: "application/json"
+      Content-Type: "application/json"
+      X-DNSimple-Token: "{{dnsimple_email}}:{{dnsimple_token}}"
 
 - name: Copy Goldrush Data
   template: src="{{item}}.j2" dest="{{home}}/{{item}}"

@@ -6,109 +6,101 @@ import phoenix.models.coupon.CouponCode
 import phoenix.models.payment.PaymentMethod
 import phoenix.models.shipping.ShippingMethod
 import phoenix.responses.cord.CartResponse
-import phoenix.responses.{AddressResponse, CreditCardsResponse, GiftCardResponse, UserResponse}
+import phoenix.responses.giftcards.GiftCardResponse
+import phoenix.responses.users.UserResponse
+import phoenix.responses.{AddressResponse, CreditCardsResponse}
 
 object CartTailored {
 
-  case class CartCreated(admin: Option[UserResponse.Root], cart: CartResponse)
-      extends ActivityBase[CartCreated]
+  case class CartCreated(admin: Option[UserResponse], cart: CartResponse) extends ActivityBase[CartCreated]
 
   /* Cart Line Items */
-  case class CartLineItemsAddedGiftCard(admin: UserResponse.Root,
-                                        cart: CartResponse,
-                                        giftCard: GiftCardResponse.Root)
+  case class CartLineItemsAddedGiftCard(admin: UserResponse, cart: CartResponse, giftCard: GiftCardResponse)
       extends ActivityBase[CartLineItemsAddedGiftCard]
 
-  case class CartLineItemsUpdatedGiftCard(admin: UserResponse.Root,
-                                          cart: CartResponse,
-                                          giftCard: GiftCardResponse.Root)
+  case class CartLineItemsUpdatedGiftCard(admin: UserResponse, cart: CartResponse, giftCard: GiftCardResponse)
       extends ActivityBase[CartLineItemsUpdatedGiftCard]
 
-  case class CartLineItemsDeletedGiftCard(admin: UserResponse.Root,
-                                          cart: CartResponse,
-                                          giftCard: GiftCardResponse.Root)
+  case class CartLineItemsDeletedGiftCard(admin: UserResponse, cart: CartResponse, giftCard: GiftCardResponse)
       extends ActivityBase[CartLineItemsDeletedGiftCard]
 
   case class CartLineItemsUpdatedQuantities(cart: CartResponse,
                                             oldQuantities: Map[String, Int],
                                             newQuantities: Map[String, Int],
-                                            admin: Option[UserResponse.Root])
+                                            admin: Option[UserResponse])
       extends ActivityBase[CartLineItemsUpdatedQuantities]
 
   /* Cart Shipping Methods */
   case class CartShippingMethodUpdated(cart: CartResponse,
                                        shippingMethod: Option[ShippingMethod],
-                                       admin: Option[UserResponse.Root])
+                                       admin: Option[UserResponse])
       extends ActivityBase[CartShippingMethodUpdated]
 
   case class CartShippingMethodRemoved(cart: CartResponse,
                                        shippingMethod: ShippingMethod,
-                                       admin: Option[UserResponse.Root])
+                                       admin: Option[UserResponse])
       extends ActivityBase[CartShippingMethodRemoved]
 
   /* Cart Shipping Addresses */
   case class CartShippingAddressAdded(cart: CartResponse,
                                       shippingAddress: AddressResponse,
-                                      admin: Option[UserResponse.Root])
+                                      admin: Option[UserResponse])
       extends ActivityBase[CartShippingAddressAdded]
 
   case class CartShippingAddressUpdated(cart: CartResponse,
                                         shippingAddress: AddressResponse,
-                                        admin: Option[UserResponse.Root])
+                                        admin: Option[UserResponse])
       extends ActivityBase[CartShippingAddressUpdated]
 
   case class CartShippingAddressRemoved(cart: CartResponse,
                                         shippingAddress: AddressResponse,
-                                        admin: Option[UserResponse.Root])
+                                        admin: Option[UserResponse])
       extends ActivityBase[CartShippingAddressRemoved]
 
   /* Cart Payment Methods */
   case class CartPaymentMethodAddedCreditCard(cart: CartResponse,
                                               creditCard: CreditCardsResponse.Root,
-                                              admin: Option[UserResponse.Root])
+                                              admin: Option[UserResponse])
       extends ActivityBase[CartPaymentMethodAddedCreditCard]
 
   case class CartPaymentMethodAddedGiftCard(cart: CartResponse,
-                                            giftCard: GiftCardResponse.Root,
+                                            giftCard: GiftCardResponse,
                                             amount: Long,
-                                            admin: Option[UserResponse.Root])
+                                            admin: Option[UserResponse])
       extends ActivityBase[CartPaymentMethodAddedGiftCard]
 
   case class CartPaymentMethodUpdatedGiftCard(cart: CartResponse,
-                                              giftCard: GiftCardResponse.Root,
+                                              giftCard: GiftCardResponse,
                                               oldAmount: Option[Long],
                                               amount: Long,
-                                              admin: Option[UserResponse.Root])
+                                              admin: Option[UserResponse])
       extends ActivityBase[CartPaymentMethodUpdatedGiftCard]
 
-  case class CartPaymentMethodAddedStoreCredit(cart: CartResponse,
-                                               amount: Long,
-                                               admin: Option[UserResponse.Root])
+  case class CartPaymentMethodAddedStoreCredit(cart: CartResponse, amount: Long, admin: Option[UserResponse])
       extends ActivityBase[CartPaymentMethodAddedStoreCredit]
 
   case class CartPaymentMethodDeleted(cart: CartResponse,
                                       pmt: PaymentMethod.Type,
-                                      admin: Option[UserResponse.Root])
+                                      admin: Option[UserResponse])
       extends ActivityBase[CartPaymentMethodDeleted]
 
   case class CartPaymentMethodDeletedGiftCard(cart: CartResponse,
-                                              giftCard: GiftCardResponse.Root,
-                                              admin: Option[UserResponse.Root])
+                                              giftCard: GiftCardResponse,
+                                              admin: Option[UserResponse])
       extends ActivityBase[CartPaymentMethodDeletedGiftCard]
 
   /* Cart Coupons */
-  case class CartCouponAttached(cart: Cart, couponCode: CouponCode)
-      extends ActivityBase[CartCouponAttached]
+  case class CartCouponAttached(cart: Cart, couponCode: CouponCode) extends ActivityBase[CartCouponAttached]
 
   case class CartCouponDetached(cart: Cart) extends ActivityBase[CartCouponDetached]
 
   /* Cart Notes */
-  case class CartNoteCreated(admin: UserResponse.Root, cart: Cart, note: Note)
+  case class CartNoteCreated(admin: UserResponse, cart: Cart, note: Note)
       extends ActivityBase[CartNoteCreated]
 
-  case class CartNoteUpdated(admin: UserResponse.Root, cart: Cart, oldNote: Note, note: Note)
+  case class CartNoteUpdated(admin: UserResponse, cart: Cart, oldNote: Note, note: Note)
       extends ActivityBase[CartNoteUpdated]
 
-  case class CartNoteDeleted(admin: UserResponse.Root, cart: Cart, note: Note)
+  case class CartNoteDeleted(admin: UserResponse, cart: Cart, note: Note)
       extends ActivityBase[CartNoteDeleted]
 }

@@ -1,11 +1,10 @@
 package phoenix.services.activity
 
+import scala.language.implicitConversions
+import core.utils.snakeCaseName
 import org.json4s.Extraction
 import phoenix.models.activity.OpaqueActivity
 import phoenix.utils.JsonFormatters
-import core.utils.snakeCaseName
-
-import scala.language.implicitConversions
 
 trait ActivityBase[A] { self: A ⇒
 
@@ -13,7 +12,7 @@ trait ActivityBase[A] { self: A ⇒
 
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def toOpaque[AB <: ActivityBase[AB]]: OpaqueActivity =
+  def toOpaque: OpaqueActivity =
     OpaqueActivity(typeName, Extraction.decompose(this))
 }
 

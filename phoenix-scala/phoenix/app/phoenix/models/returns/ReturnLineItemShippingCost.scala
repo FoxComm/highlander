@@ -7,10 +7,7 @@ import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import core.utils.Money._
 
-case class ReturnLineItemShippingCost(id: Int,
-                                      returnId: Int,
-                                      amount: Long,
-                                      createdAt: Instant = Instant.now)
+case class ReturnLineItemShippingCost(id: Int, returnId: Int, amount: Long, createdAt: Instant = Instant.now)
     extends FoxModel[ReturnLineItemShippingCost]
 
 class ReturnLineItemShippingCosts(tag: Tag)
@@ -24,14 +21,13 @@ class ReturnLineItemShippingCosts(tag: Tag)
     (id, returnId, amount, createdAt) <> ((ReturnLineItemShippingCost.apply _).tupled, ReturnLineItemShippingCost.unapply)
 
   def li =
-    foreignKey(ReturnLineItems.tableName, id, ReturnLineItems)(_.id,
-                                                               onDelete = ForeignKeyAction.Cascade)
+    foreignKey(ReturnLineItems.tableName, id, ReturnLineItems)(_.id, onDelete = ForeignKeyAction.Cascade)
   def returns = foreignKey(Returns.tableName, returnId, Returns)(_.id)
 }
 
 object ReturnLineItemShippingCosts
     extends FoxTableQuery[ReturnLineItemShippingCost, ReturnLineItemShippingCosts](
-        new ReturnLineItemShippingCosts(_))
+      new ReturnLineItemShippingCosts(_))
     with ReturningId[ReturnLineItemShippingCost, ReturnLineItemShippingCosts] {
 
   val returningLens: Lens[ReturnLineItemShippingCost, Int] = lens[ReturnLineItemShippingCost].id

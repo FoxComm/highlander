@@ -2,7 +2,7 @@
 
 const runSequence = require('run-sequence');
 
-module.exports = function (gulp, opts, $) {
+module.exports = function(gulp, opts, $) {
   gulp.task('test', function(cb) {
     runSequence('mocha', cb);
   });

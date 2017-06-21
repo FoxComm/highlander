@@ -7,7 +7,7 @@ import phoenix.models.cord._
 import phoenix.models.location.Addresses.scope._
 import phoenix.models.location._
 import phoenix.payloads.AddressPayloads._
-import phoenix.responses.AddressResponse.buildOneShipping
+import phoenix.responses.AddressResponse.buildFromOrder
 import phoenix.responses.TheResponse
 import phoenix.responses.cord.CartResponse
 import phoenix.services.{CartValidator, LineItemUpdater, LogActivity}
@@ -32,9 +32,7 @@ object CartShippingAddressUpdater {
       shippingAddress ← * <~ OrderShippingAddresses.createFromAddress(newAddress, cart.refNum)
     } yield (shippingAddress, newAddress)
 
-  def createShippingAddressFromAddressId(originator: User,
-                                         addressId: Int,
-                                         refNum: Option[String] = None)(
+  def createShippingAddressFromAddressId(originator: User, addressId: Int, refNum: Option[String] = None)(
       implicit ec: EC,
       db: DB,
       ac: AC,
@@ -50,7 +48,7 @@ object CartShippingAddressUpdater {
       validated   ← * <~ CartValidator(cart).validate()
       response    ← * <~ CartResponse.buildRefreshed(cart)
       _ ← * <~ LogActivity()
-           .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
+           .orderShippingAddressAdded(originator, response, buildFromOrder(shipAddress, region))
     } yield TheResponse.validated(response, validated)
 
   def createShippingAddressFromPayload(originator: User,
@@ -69,7 +67,7 @@ object CartShippingAddressUpdater {
       validated   ← * <~ CartValidator(cart).validate()
       response    ← * <~ CartResponse.buildRefreshed(cart)
       _ ← * <~ LogActivity()
-           .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
+           .orderShippingAddressAdded(originator, response, buildFromOrder(shipAddress, region))
     } yield TheResponse.validated(response, validated)
 
   def updateShippingAddressFromPayload(originator: User,
@@ -87,9 +85,8 @@ object CartShippingAddressUpdater {
       _         ← * <~ OrderShippingAddresses.update(shipAddress, patch)
       validated ← * <~ CartValidator(cart).validate()
       response  ← * <~ CartResponse.buildRefreshed(cart)
-      _ ← * <~ LogActivity().orderShippingAddressUpdated(originator,
-                                                         response,
-                                                         buildOneShipping(shipAddress, region))
+      _ ← * <~ LogActivity()
+           .orderShippingAddressUpdated(originator, response, buildFromOrder(shipAddress, region))
     } yield TheResponse.validated(response, validated)
 
   def createOrUpdateShippingAddress(originator: User,
@@ -110,12 +107,15 @@ object CartShippingAddressUpdater {
 
       ((shippingAddress, address), foundOrCreated) = shippingTuple
 
-      _ ← * <~ doOrMeh(foundOrCreated == Found, for {
-           _ ← * <~ Addresses.update(address, Address.fromPayload(payload, cart.accountId))
-           _ ← * <~ OrderShippingAddresses.update(
+      _ ← * <~ doOrMeh(
+           foundOrCreated == Found,
+           for {
+             _ ← * <~ Addresses.update(address, Address.fromPayload(payload, cart.accountId))
+             _ ← * <~ OrderShippingAddresses.update(
                   shippingAddress,
                   OrderShippingAddress.fromCreatePatchPayload(shippingAddress, payload))
-         } yield DbResultT.unit)
+           } yield DbResultT.unit
+         )
 
       region    ← * <~ Regions.mustFindById404(shippingAddress.regionId)
       validated ← * <~ CartValidator(cart).validate()
@@ -137,8 +137,7 @@ object CartShippingAddressUpdater {
       _           ← * <~ OrderShippingAddresses.findById(shipAddress.id).delete
       validated   ← * <~ CartValidator(cart).validate()
       fullOrder   ← * <~ CartResponse.buildRefreshed(cart)
-      _ ← * <~ LogActivity().orderShippingAddressDeleted(originator,
-                                                         fullOrder,
-                                                         buildOneShipping(shipAddress, region))
+      _ ← * <~ LogActivity()
+           .orderShippingAddressDeleted(originator, fullOrder, buildFromOrder(shipAddress, region))
     } yield TheResponse.validated(fullOrder, validated)
 }

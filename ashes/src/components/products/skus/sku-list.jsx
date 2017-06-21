@@ -11,7 +11,7 @@ import styles from './sku-list.css';
 // components
 import EditableSkuRow from './editable-sku-row';
 import MultiSelectTable from 'components/table/multi-select-table';
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 
 import { mapSkusToVariants } from 'paragons/variants';
 
@@ -43,7 +43,7 @@ export default class SkuList extends Component {
   componentWillReceiveProps(nextProps: Props) {
     if (this.props.variants != nextProps.variants || this.props.fullProduct.skus !== nextProps.fullProduct.skus) {
       const variantsSkusIndex = mapSkusToVariants(nextProps.variants);
-      this.setState({variantsSkusIndex});
+      this.setState({ variantsSkusIndex });
     }
   }
 
@@ -106,22 +106,17 @@ export default class SkuList extends Component {
   }
 
   get deleteDialog(): Element<*> {
-    const confirmation = (
-      <span>
+    return (
+      <ConfirmationModal
+        isVisible={this.state.isDeleteConfirmationVisible}
+        title="Remove SKU from product?"
+        confirmLabel="Yes, Remove"
+        onCancel={() => this.closeDeleteConfirmation()}
+        onConfirm={() => this.deleteSku()}
+      >
         Are you sure you want to remove this SKU from the product?
         This action will <i>not</i> archive the SKU.
-      </span>
-    );
-    return (
-      <ConfirmationDialog
-        isVisible={this.state.isDeleteConfirmationVisible}
-        header="Remove SKU from product?"
-        body={confirmation}
-        cancel="Cancel"
-        confirm="Yes, Remove"
-        onCancel={() => this.closeDeleteConfirmation()}
-        confirmAction={() => this.deleteSku()}
-      />
+      </ConfirmationModal>
     );
   }
 

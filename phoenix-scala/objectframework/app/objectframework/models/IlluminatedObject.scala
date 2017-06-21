@@ -8,7 +8,7 @@ case class IlluminatedContext(name: String, attributes: JValue)
 
 /**
   * An IlluminatedObject is what you get when you combine the product shadow and
-  * the product. 
+  * the product.
   */
 case class IlluminatedObject(id: Int = 0, attributes: JValue) extends Identity[IlluminatedObject]
 

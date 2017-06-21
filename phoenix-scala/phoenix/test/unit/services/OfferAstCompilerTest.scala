@@ -21,8 +21,7 @@ class OfferAstCompilerTest extends TestBase {
     "fails when typo in configuration found" in new OrderPercentOfferTypoFixture {
       val cause =
         "No usable value for discount\nDid not find value which can be converted into long"
-      leftValue(compiler.compile()) must === (
-          OfferAttributesExtractionFailure(OrderPercentOff, cause).single)
+      leftValue(compiler.compile()) must === (OfferAttributesExtractionFailure(OrderPercentOff, cause).single)
     }
   }
 

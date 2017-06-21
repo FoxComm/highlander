@@ -53,15 +53,11 @@ case class OrderPayment(id: Int = 0,
   }
 }
 
-case class StripeOrderPayment(stripeChargeId: String,
-                              amount: Long,
-                              currency: Currency = Currency.USD)
+case class StripeOrderPayment(stripeChargeId: String, amount: Long, currency: Currency = Currency.USD)
 
 object OrderPayment {
   def fromStripeCustomer(stripeCustomer: StripeCustomer, cart: Cart): OrderPayment =
-    OrderPayment(cordRef = cart.refNum,
-                 paymentMethodId = 1,
-                 paymentMethodType = PaymentMethod.CreditCard)
+    OrderPayment(cordRef = cart.refNum, paymentMethodId = 1, paymentMethodType = PaymentMethod.CreditCard)
 
   def build(method: PaymentMethod): OrderPayment = method match {
     case gc: GiftCard ⇒
@@ -86,7 +82,7 @@ class OrderPayments(tag: Tag) extends FoxTable[OrderPayment](tag, "order_payment
 
   def * =
     (id, cordRef, amount, currency, paymentMethodId, paymentMethodType) <> ((OrderPayment.apply _).tupled,
-        OrderPayment.unapply)
+    OrderPayment.unapply)
 
   def order        = foreignKey(Carts.tableName, cordRef, Carts)(_.referenceNumber)
   def creditCard   = foreignKey(CreditCards.tableName, paymentMethodId, CreditCards)(_.id)
@@ -133,8 +129,7 @@ object OrderPayments
   def findAllExternalPayments(cordRef: String): QuerySeq =
     findAllByCordRef(cordRef).externalPayments
 
-  def findAllStripeCharges(
-      cordRef: Rep[String]): Query[Rep[StripeOrderPayment], StripeOrderPayment, Seq] = {
+  def findAllStripeCharges(cordRef: Rep[String]): Query[Rep[StripeOrderPayment], StripeOrderPayment, Seq] = {
     def ccCharges =
       filter(_.cordRef === cordRef).join(CreditCardCharges).on(_.paymentMethodId === _.id).map {
         case (_, charge) ⇒

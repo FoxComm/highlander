@@ -3,7 +3,7 @@ package phoenix.utils
 import com.github.tminglei.slickpg.LTree
 import core.utils.Money
 import org.json4s.JsonAST.JString
-import org.json4s.{CustomSerializer, Formats, JNull, TypeHints, jackson}
+import org.json4s.{jackson, CustomSerializer, Formats, JNull, TypeHints}
 import phoenix.models.admin.AdminData
 import phoenix.models.auth.Identity.IdentityKind
 import phoenix.models.cord.lineitems._
@@ -93,7 +93,7 @@ object JsonFormatters {
 
   object LTreeFormat
       extends CustomSerializer[LTree](format ⇒
-            ({
+        ({
           case JString(s)      ⇒ LTree(s)
           case JNull           ⇒ LTree("")
         }, { case value: LTree ⇒ JString(value.toString) }))

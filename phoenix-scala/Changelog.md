@@ -1,5 +1,16 @@
 -----
 
+# 07 June 2017: scalafmt update
+Scalafmt has been updated to work as a standalone binary rather than SBT plugin.
+Run `utils/scalafmt/update-scalafmt.sh` to read more about new process and have everything set up!
+From now on, `git config core.hooksPath` must be set to `$HIGHLANDER/utils/git-hooks` (this configuration is covered by the above script).
+If you hit any issues, please report immediately!
+
+_Happy hacking!
+-- Anna_
+
+-----
+
 # 27 May 2017: new project structure, changes in imports, style guide
 Hey, we now have a changelog! W00t!
 

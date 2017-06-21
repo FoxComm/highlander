@@ -1,3 +1,4 @@
+import core.db._
 import core.failures._
 import phoenix.failures.StoreCreditFailures.StoreCreditConvertFailure
 import phoenix.failures.{EmptyCancellationReasonFailure, OpenTransactionsFailure}
@@ -7,18 +8,17 @@ import phoenix.models.cord.OrderPayments
 import phoenix.models.payment.giftcard.GiftCard
 import phoenix.models.payment.storecredit.StoreCredit._
 import phoenix.models.payment.storecredit._
-import phoenix.models.payment.{InStorePaymentStates, PaymentMethod, giftcard}
+import phoenix.models.payment.{giftcard, InStorePaymentStates, PaymentMethod}
 import phoenix.payloads.PaymentPayloads.CreateManualStoreCredit
 import phoenix.payloads.StoreCreditPayloads._
+import phoenix.responses.StoreCreditResponse
 import phoenix.responses.StoreCreditResponse.Root
-import phoenix.responses.{GiftCardResponse, StoreCreditResponse}
+import phoenix.responses.giftcards.GiftCardResponse
 import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import core.db._
-import core.utils.Money._
 
 class StoreCreditIntegrationTest
     extends IntegrationTestBase
@@ -44,15 +44,14 @@ class StoreCreditIntegrationTest
 
       "succeeds with valid subTypeId" in new Fixture {
         customersApi(customer.accountId).payments.storeCredit
-          .create(CreateManualStoreCredit(amount = 25, reasonId = reason.id, subTypeId = Some(1)))
+          .create(CreateManualStoreCredit(amount = 25, reasonId = reason.id, subTypeId = Some(scSubType.id)))
           .as[Root]
-          .subTypeId must === (Some(1))
+          .subTypeId must === (Some(scSubType.id))
       }
 
       "fails if subtypeId is not found" in new Fixture {
         customersApi(customer.accountId).payments.storeCredit
-          .create(
-              CreateManualStoreCredit(amount = 25, reasonId = reason.id, subTypeId = Some(255)))
+          .create(CreateManualStoreCredit(amount = 25, reasonId = reason.id, subTypeId = Some(255)))
           .mustFailWith400(NotFoundFailure404(StoreCreditSubtype, 255))
       }
 
@@ -116,7 +115,7 @@ class StoreCreditIntegrationTest
         StoreCreditAdjustments.cancel(adjustment.id).gimme
 
         val root = storeCreditsApi(storeCredit.id)
-          .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = Some(1)))
+          .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = Some(reason.id)))
           .as[Root]
         root.canceledAmount must === (Some(storeCredit.originalBalance))
 
@@ -133,7 +132,7 @@ class StoreCreditIntegrationTest
         StoreCredits.update(storeCredit, storeCredit.copy(availableBalance = 0)).gimme
 
         val root = storeCreditsApi(storeCredit.id)
-          .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = Some(1)))
+          .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = Some(reason.id)))
           .as[Root]
         root.canceledAmount must === (Some(0))
 
@@ -155,8 +154,8 @@ class StoreCreditIntegrationTest
     "PATCH /v1/store-credits" - {
       "successfully changes statuses of multiple store credits" in new Fixture {
         val payload = StoreCreditBulkUpdateStateByCsr(
-            ids = Seq(storeCredit.id, scSecond.id),
-            state = StoreCredit.OnHold
+          ids = Seq(storeCredit.id, scSecond.id),
+          state = StoreCredit.OnHold
         )
 
         storeCreditsApi.update(payload).mustBeOk()
@@ -170,8 +169,8 @@ class StoreCreditIntegrationTest
 
       "returns multiple errors if no cancellation reason provided" in new Fixture {
         val payload = StoreCreditBulkUpdateStateByCsr(
-            ids = Seq(storeCredit.id, scSecond.id),
-            state = StoreCredit.Canceled
+          ids = Seq(storeCredit.id, scSecond.id),
+          state = StoreCredit.Canceled
         )
 
         storeCreditsApi.update(payload).mustFailWith400(EmptyCancellationReasonFailure)
@@ -183,7 +182,7 @@ class StoreCreditIntegrationTest
         val root = customersApi(customer.accountId).payments
           .storeCredit(scSecond.id)
           .convert()
-          .as[GiftCardResponse.Root]
+          .as[GiftCardResponse]
 
         root.originType must === (GiftCard.FromStoreCredit)
         root.state must === (giftcard.GiftCard.Active)
@@ -232,18 +231,16 @@ class StoreCreditIntegrationTest
     val (storeCredit, adjustment, scSecond, payment, scSubType) = (for {
       scSubType ← * <~ StoreCreditSubtypes.create(Factories.storeCreditSubTypes.head)
       scOrigin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
+                  StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       storeCredit ← * <~ StoreCredits.create(
-                       Factories.storeCredit.copy(originId = scOrigin.id,
-                                                  accountId = customer.accountId))
+                     Factories.storeCredit.copy(originId = scOrigin.id, accountId = customer.accountId))
       scSecond ← * <~ StoreCredits.create(
-                    Factories.storeCredit.copy(originId = scOrigin.id,
-                                               accountId = customer.accountId))
+                  Factories.storeCredit.copy(originId = scOrigin.id, accountId = customer.accountId))
       payment ← * <~ OrderPayments.create(
-                   Factories.storeCreditPayment.copy(cordRef = cart.refNum,
-                                                     paymentMethodId = storeCredit.id,
-                                                     paymentMethodType = PaymentMethod.StoreCredit,
-                                                     amount = Some(storeCredit.availableBalance)))
+                 Factories.storeCreditPayment.copy(cordRef = cart.refNum,
+                                                   paymentMethodId = storeCredit.id,
+                                                   paymentMethodType = PaymentMethod.StoreCredit,
+                                                   amount = Some(storeCredit.availableBalance)))
       adjustment ← * <~ StoreCredits.auth(storeCredit, payment.id, 10)
     } yield (storeCredit, adjustment, scSecond, payment, scSubType)).gimme
   }

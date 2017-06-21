@@ -11,6 +11,7 @@ import phoenix.models.customer.CustomersData
 import phoenix.responses.PromotionResponses.PromotionResponse
 import phoenix.responses._
 import phoenix.responses.cord.base._
+import phoenix.responses.users.CustomerResponse
 import phoenix.services.orders.OrderQueries
 
 case class OrderResponse(referenceNumber: String,
@@ -20,7 +21,7 @@ case class OrderResponse(referenceNumber: String,
                          promotion: Option[PromotionResponse.Root] = None,
                          coupon: Option[CordResponseCouponPair] = None,
                          totals: OrderResponseTotals,
-                         customer: Option[CustomerResponse.Root] = None,
+                         customer: Option[CustomerResponse] = None,
                          shippingMethod: ShippingMethodsResponse.Root,
                          shippingAddress: AddressResponse,
                          billingAddress: Option[AddressResponse] = None,
@@ -37,14 +38,12 @@ case class OrderResponse(referenceNumber: String,
 object OrderResponse {
 
   private def getCreditCardResponse(
-      paymentMethods: Seq[_ <: CordResponsePayments]): Option[CordResponseCreditCardPayment] = {
+      paymentMethods: Seq[_ <: CordResponsePayments]): Option[CordResponseCreditCardPayment] =
     paymentMethods.collectFirst {
       case ccPayment: CordResponseCreditCardPayment ⇒ ccPayment
     }
-  }
 
-  def fromOrder(order: Order, grouped: Boolean)(implicit db: DB,
-                                                ec: EC): DbResultT[OrderResponse] =
+  def fromOrder(order: Order, grouped: Boolean)(implicit db: DB, ec: EC): DbResultT[OrderResponse] =
     for {
       context      ← * <~ ObjectContexts.mustFindById400(order.contextId)
       payState     ← * <~ OrderQueries.getCordPaymentState(order.refNum)
@@ -61,27 +60,27 @@ object OrderResponse {
       ccResponse = getCreditCardResponse(paymentMethods)
     } yield
       OrderResponse(
-          referenceNumber = order.refNum,
-          paymentState = payState,
-          lineItems = lineItems,
-          lineItemAdjustments = lineItemAdj,
-          promotion = promo.map { case (promotion, _) ⇒ promotion },
-          coupon = promo.flatMap { case (_, coupon)   ⇒ coupon },
-          totals = OrderResponseTotals.build(order),
-          customer = for {
-            c  ← customer
-            cu ← customerData
-          } yield CustomerResponse.build(c, cu),
-          shippingMethod = shippingMethod,
-          shippingAddress = shippingAddress,
-          billingCreditCardInfo = ccResponse,
-          billingAddress = ccResponse.map(_.address),
-          paymentMethods = paymentMethods,
-          orderState = order.state,
-          shippingState = order.getShippingState,
-          fraudScore = order.fraudScore,
-          remorsePeriodEnd = order.remorsePeriodEnd,
-          placedAt = order.placedAt
+        referenceNumber = order.refNum,
+        paymentState = payState,
+        lineItems = lineItems,
+        lineItemAdjustments = lineItemAdj,
+        promotion = promo.map { case (promotion, _) ⇒ promotion },
+        coupon = promo.flatMap { case (_, coupon)   ⇒ coupon },
+        totals = OrderResponseTotals.build(order),
+        customer = for {
+          c  ← customer
+          cu ← customerData
+        } yield CustomerResponse.build(c, cu),
+        shippingMethod = shippingMethod,
+        shippingAddress = shippingAddress,
+        billingCreditCardInfo = ccResponse,
+        billingAddress = ccResponse.map(_.address),
+        paymentMethods = paymentMethods,
+        orderState = order.state,
+        shippingState = order.getShippingState,
+        fraudScore = order.fraudScore,
+        remorsePeriodEnd = order.remorsePeriodEnd,
+        placedAt = order.placedAt
       )
 
 }

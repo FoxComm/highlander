@@ -6,7 +6,7 @@ import java.security.{KeyFactory, PrivateKey, PublicKey}
 
 import cats.implicits._
 import core.db._
-import core.failures.{Failures, GeneralFailure}
+import core.failures.{Failures, RsaKeyLoadFailure}
 import org.jose4j.jwa.AlgorithmConstraints
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims
@@ -24,31 +24,36 @@ import scala.util.{Failure, Success, Try}
 object Keys {
 
   case class KeyLoadException(cause: Throwable) extends Exception
+  case class KeyNotFound(fileName: String) extends Exception {
+    override def getMessage: String = s"$fileName"
+  }
 
-  private def loadKeyAsStream(fileName: String): InputStream = {
+  private def loadKeyAsStream(fileName: String): Option[InputStream] =
     config.auth.keysLocation match {
       case FoxConfig.KeysLocation.Jar ⇒
-        getClass.getResourceAsStream(fileName)
+        Option(getClass.getResourceAsStream(fileName))
       case FoxConfig.KeysLocation.File ⇒
-        new FileInputStream(fileName)
+        Some(new FileInputStream(fileName))
     }
-  }
 
-  def loadPrivateKey: Try[PrivateKey] = Try {
-    val fileName = config.auth.privateKey
-    val is       = loadKeyAsStream(fileName)
-    val keyBytes = Array.ofDim[Byte](is.available)
-    is.read(keyBytes)
-    is.close()
+  def loadPrivateKey: Try[PrivateKey] =
+    Try {
+      val fileName = config.auth.privateKey
+      val is       = loadKeyAsStream(fileName).getOrElse(throw KeyNotFound(fileName))
+      val keyBytes = Array.ofDim[Byte](is.available)
+      is.read(keyBytes)
+      is.close()
 
-    val spec = new PKCS8EncodedKeySpec(keyBytes)
-    KeyFactory.getInstance("RSA").generatePrivate(spec)
-  }
+      val spec = new PKCS8EncodedKeySpec(keyBytes)
+      KeyFactory.getInstance("RSA").generatePrivate(spec)
+    }.recover {
+      case e ⇒ throw KeyLoadException(e)
+    }
 
   def loadPublicKey: Try[PublicKey] =
     Try {
       val fileName = config.auth.publicKey
-      val is       = loadKeyAsStream(fileName)
+      val is       = loadKeyAsStream(fileName).getOrElse(throw KeyNotFound(fileName))
       val keyBytes = Array.ofDim[Byte](is.available)
       is.read(keyBytes)
       is.close()
@@ -60,9 +65,13 @@ object Keys {
     }
 
   private[auth] lazy val authPrivateKey: Either[Failures, PrivateKey] =
-    loadPrivateKey.toOption.toEither(GeneralFailure("Server error: can't load private key").single)
+    Either.fromTry(loadPrivateKey).leftMap { e ⇒
+      RsaKeyLoadFailure("private", e.toString).single
+    }
   private[auth] lazy val authPublicKey: Either[Failures, PublicKey] =
-    loadPublicKey.toOption.toEither(GeneralFailure("Server error: can't load public key").single)
+    Either.fromTry(loadPublicKey).leftMap { e ⇒
+      RsaKeyLoadFailure("public", e.toString).single
+    }
 }
 
 sealed trait Token extends Product {
@@ -75,9 +84,8 @@ sealed trait Token extends Product {
   val ratchet: Int
   def encode: Either[Failures, String] = Token.encode(this)
 
-  def hasRole(test: String): Boolean = {
+  def hasRole(test: String): Boolean =
     roles.contains(test)
-  }
 
   def hasClaim(test: String, actions: List[String]): Boolean = {
     var matches = false;
@@ -91,9 +99,8 @@ sealed trait Token extends Product {
 
 object Token {
   implicit val formats = DefaultFormats
-  val algorithmConstraints = new AlgorithmConstraints(
-      AlgorithmConstraints.ConstraintType.WHITELIST,
-      config.auth.keyAlgorithm)
+  val algorithmConstraints =
+    new AlgorithmConstraints(AlgorithmConstraints.ConstraintType.WHITELIST, config.auth.keyAlgorithm)
 
   import collection.JavaConversions.seqAsJavaList
 
@@ -134,7 +141,7 @@ object Token {
     encodeJWTClaims(claims)
   }
 
-  def encodeJWTClaims(claims: JwtClaims): Either[Failures, String] = {
+  def encodeJWTClaims(claims: JwtClaims): Either[Failures, String] =
     Keys.authPrivateKey.map { privateKey ⇒
       val jws = new JsonWebSignature
       jws.setPayload(claims.toJson)
@@ -142,9 +149,8 @@ object Token {
       jws.setAlgorithmHeaderValue(config.auth.keyAlgorithm)
       jws.getCompactSerialization
     }
-  }
 
-  def fromString(rawToken: String, kind: Identity.IdentityKind): Either[Failures, Token] = {
+  def fromString(rawToken: String, kind: Identity.IdentityKind): Either[Failures, Token] =
     Keys.authPublicKey.flatMap { publicKey ⇒
       val builder = new JwtConsumerBuilder()
         .setRequireExpirationTime()
@@ -166,7 +172,6 @@ object Token {
           Either.left(AuthFailed(e.getMessage).single)
       }
     }
-  }
 }
 
 case class UserToken(id: Int,

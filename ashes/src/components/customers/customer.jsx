@@ -1,3 +1,4 @@
+// libs
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
@@ -6,7 +7,10 @@ import TitleBlock from './title-block';
 import { connect } from 'react-redux';
 import * as CustomersActions from '../../modules/customers/details';
 import PageNav from 'components/core/page-nav';
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
+
+// styles
+import s from './customer.css';
 
 @connect((state, props) => ({
   ...state.customers.details[props.params.customerId]
@@ -56,7 +60,7 @@ export default class Customer extends Component {
   }
 
   get waitAnimation() {
-    return <WaitAnimation />;
+    return <Spinner className={s.spinner} />;
   }
 
   get errorMessage() {

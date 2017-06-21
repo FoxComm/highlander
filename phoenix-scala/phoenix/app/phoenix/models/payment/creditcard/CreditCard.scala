@@ -51,18 +51,17 @@ case class CreditCard(id: Int = 0,
 
   import Validation._
 
-  override def validate: ValidatedNel[Failure, CreditCard] = {
+  override def validate: ValidatedNel[Failure, CreditCard] =
     (address.validate |@| matches(lastFour, "[0-9]{4}", "lastFour") |@| notExpired(
-            expYear,
-            expMonth,
-            "credit card is expired") |@| withinNumberOfYears(
-            expYear,
-            expMonth,
-            20,
-            "credit card expiration is too far in the future") |@| super.validate).map {
+      expYear,
+      expMonth,
+      "credit card is expired") |@| withinNumberOfYears(
+      expYear,
+      expMonth,
+      20,
+      "credit card expiration is too far in the future") |@| super.validate).map {
       case _ ⇒ this
     }
-  }
 
   def mustBeInWallet: Either[Failures, CreditCard] =
     if (inWallet) Either.right(this) else Either.left(CannotUseInactiveCreditCard(this).single)
@@ -73,12 +72,12 @@ case class CreditCard(id: Int = 0,
 
   def copyFromAddress(address: Address): CreditCard =
     this.copy(
-        address = this.address.copy(regionId = address.regionId,
-                                    name = address.name,
-                                    address1 = address.address1,
-                                    address2 = address.address2,
-                                    city = address.city,
-                                    zip = address.zip))
+      address = this.address.copy(regionId = address.regionId,
+                                  name = address.name,
+                                  address1 = address.address1,
+                                  address2 = address.address2,
+                                  city = address.city,
+                                  zip = address.zip))
 }
 
 object CreditCard {
@@ -87,45 +86,52 @@ object CreditCard {
                      cardToken: String,
                      payload: CreateCreditCardFromTokenPayload,
                      address: Address): CreditCard =
-    CreditCard(accountId = accountId,
-               gatewayCustomerId = customerToken,
-               gatewayCardId = cardToken,
-               brand = payload.brand,
-               lastFour = payload.lastFour,
-               expMonth = payload.expMonth,
-               expYear = payload.expYear,
-               holderName = payload.holderName,
-               address = BillingAddress(name = address.name,
-                                        regionId = address.regionId,
-                                        address1 = address.address1,
-                                        address2 = address.address2,
-                                        zip = address.zip,
-                                        city = address.city,
-                                        phoneNumber = address.phoneNumber))
+    CreditCard(
+      accountId = accountId,
+      gatewayCustomerId = customerToken,
+      gatewayCardId = cardToken,
+      brand = payload.brand,
+      lastFour = payload.lastFour,
+      expMonth = payload.expMonth,
+      expYear = payload.expYear,
+      holderName = payload.holderName,
+      address = BillingAddress(
+        name = address.name,
+        regionId = address.regionId,
+        address1 = address.address1,
+        address2 = address.address2,
+        zip = address.zip,
+        city = address.city,
+        phoneNumber = address.phoneNumber
+      )
+    )
 
   @deprecated(message = "Use `buildFromToken` instead", "Until we are PCI compliant")
   def buildFromSource(accountId: Int,
                       sCust: StripeCustomer,
                       card: StripeCard,
                       cardPayload: CreateCreditCardFromSourcePayload,
-                      address: Address): CreditCard = {
-    CreditCard(accountId = accountId,
-               gatewayCustomerId = sCust.getId,
-               gatewayCardId = card.getId,
-               holderName = cardPayload.holderName,
-               lastFour = cardPayload.lastFour,
-               expMonth = cardPayload.expMonth,
-               expYear = cardPayload.expYear,
-               isDefault = cardPayload.isDefault,
-               brand = card.getBrand,
-               address = BillingAddress(regionId = address.regionId,
-                                        name = address.name,
-                                        address1 = address.address1,
-                                        address2 = address.address2,
-                                        city = address.city,
-                                        zip = address.zip,
-                                        phoneNumber = address.phoneNumber))
-  }
+                      address: Address): CreditCard =
+    CreditCard(
+      accountId = accountId,
+      gatewayCustomerId = sCust.getId,
+      gatewayCardId = card.getId,
+      holderName = cardPayload.holderName,
+      lastFour = cardPayload.lastFour,
+      expMonth = cardPayload.expMonth,
+      expYear = cardPayload.expYear,
+      isDefault = cardPayload.isDefault,
+      brand = card.getBrand,
+      address = BillingAddress(
+        regionId = address.regionId,
+        name = address.name,
+        address1 = address.address1,
+        address2 = address.address2,
+        city = address.city,
+        zip = address.zip,
+        phoneNumber = address.phoneNumber
+      )
+    )
 }
 
 class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
@@ -184,40 +190,42 @@ class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
             brand,
             address,
             createdAt) ⇒
-        CreditCard(id,
-                   parentId,
-                   accountId,
-                   gatewayCustomerId,
-                   gatewayCardId,
-                   holderName,
-                   lastFour,
-                   expMonth,
-                   expYear,
-                   isDefault,
-                   inWallet,
-                   deletedAt,
-                   brand,
-                   BillingAddress.tupled.apply(address),
-                   createdAt)
+        CreditCard(
+          id,
+          parentId,
+          accountId,
+          gatewayCustomerId,
+          gatewayCardId,
+          holderName,
+          lastFour,
+          expMonth,
+          expYear,
+          isDefault,
+          inWallet,
+          deletedAt,
+          brand,
+          BillingAddress.tupled.apply(address),
+          createdAt
+        )
     }, { c: CreditCard ⇒
       {
         def address(a: BillingAddress) = BillingAddress.unapply(a).get
         Some(
-            (c.id,
-             c.parentId,
-             c.accountId,
-             c.gatewayCustomerId,
-             c.gatewayCardId,
-             c.holderName,
-             c.lastFour,
-             c.expMonth,
-             c.expYear,
-             c.isDefault,
-             c.inWallet,
-             c.deletedAt,
-             c.brand,
-             address(c.address),
-             c.createdAt))
+          (c.id,
+           c.parentId,
+           c.accountId,
+           c.gatewayCustomerId,
+           c.gatewayCardId,
+           c.holderName,
+           c.lastFour,
+           c.expMonth,
+           c.expYear,
+           c.isDefault,
+           c.inWallet,
+           c.deletedAt,
+           c.brand,
+           address(c.address),
+           c.createdAt))
       }
     })
 
@@ -240,10 +248,9 @@ object CreditCards
   def findByIdAndAccountId(id: Int, accountId: Int): QuerySeq =
     filter(_.accountId === accountId).filter(_.id === id)
 
-  def mustFindByIdAndAccountId(id: Int, accountId: Int)(implicit ec: EC): DbResultT[CreditCard] = {
+  def mustFindByIdAndAccountId(id: Int, accountId: Int)(implicit ec: EC): DbResultT[CreditCard] =
     filter(cc ⇒ cc.id === id && cc.accountId === accountId).one.dbresult.flatMap {
       case Some(cc) ⇒ DbResultT.good(cc)
       case None     ⇒ DbResultT.failure(NotFoundFailure404(CreditCard, id))
     }
-  }
 }

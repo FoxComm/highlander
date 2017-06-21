@@ -39,7 +39,7 @@ const DebitCreditDetails = (props: Props) => {
         availableBalance={availableBalance}
         onCancel={props.handleCancel}
         onSubmit={handleSave}
-        saveText="Save"
+        saveLabel="Save"
       />
     );
   }

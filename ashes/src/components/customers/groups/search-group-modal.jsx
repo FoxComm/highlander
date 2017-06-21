@@ -6,8 +6,7 @@ import { autobind } from 'core-decorators';
 import { isEmpty } from 'lodash';
 
 // components
-import { ModalContainer } from 'components/modal/base';
-import ContentBox from 'components/content-box/content-box';
+import Modal from 'components/core/modal';
 import SaveCancel from 'components/core/save-cancel';
 import GroupsTypeahead from './groups-typeahead';
 
@@ -31,29 +30,6 @@ export default class SearchGroupModal extends Component {
     groups: [],
   };
 
-  get actionBlock() {
-    return (
-      <a className='fc-modal-close' onClick={this.props.onCancel}>
-        <i className='icon-close'></i>
-      </a>
-    );
-  }
-
-  get footer() {
-    return (
-      <SaveCancel
-        className="fc-modal-footer fc-add-watcher-modal__footer"
-        onCancel={this.props.onCancel}
-        onSave={this.handleSave}
-        saveDisabled={this.isSaveDisabled}
-      />
-    );
-  }
-
-  get isSaveDisabled(): boolean {
-    return isEmpty(this.state.groups);
-  }
-
   @autobind
   handleSave() {
     this.props.handleSave(this.state.groups);
@@ -64,27 +40,36 @@ export default class SearchGroupModal extends Component {
     this.setState({ groups });
   }
 
+  get footer() {
+    const saveDisabled = isEmpty(this.state.groups);
+
+    return (
+      <SaveCancel
+        onCancel={this.props.onCancel}
+        onSave={this.handleSave}
+        saveDisabled={saveDisabled}
+      />
+    );
+  }
+
   render() {
     const props = this.props;
+
     return (
-      <ModalContainer isVisible={props.isVisible}>
-        <ContentBox
-          title="Select Groups"
-          actionBlock={this.actionBlock}
-          footer={this.footer}
-          className="fc-add-watcher-modal"
-        >
-          <div className="fc-modal-body fc-add-watcher-modal__content">
-            <GroupsTypeahead
-              suggestGroups={props.suggestGroups}
-              suggested={props.suggested}
-              suggestState={props.suggestState}
-              onSelect={this.handleSelect}
-              view="modal"
-            />
-          </div>
-        </ContentBox>
-      </ModalContainer>
+      <Modal
+        title="Select Groups"
+        footer={this.footer}
+        isVisible={props.isVisible}
+        onClose={props.onCancel}
+      >
+        <GroupsTypeahead
+          suggestGroups={props.suggestGroups}
+          suggested={props.suggested}
+          suggestState={props.suggestState}
+          onSelect={this.handleSelect}
+          view="modal"
+        />
+      </Modal>
     );
   }
 }

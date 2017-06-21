@@ -54,13 +54,11 @@ defmodule Solomon.UserController do
     end
   end
 
-  def sign_in(conn, %{"user" => user_params}) do
-    org = Map.fetch!(user_params, "org")
+  def sign_in(conn, %{"org" => org, "email" => raw_email, "password" => pass}) do
     scope_id = Repo.get_by(Solomon.Organization, name: org)
                |> Map.fetch!(:scope_id)
-    email = Map.fetch!(user_params, "email")
+    email = raw_email
             |> String.downcase
-    pass = Map.fetch!(user_params, "password")
     user = Repo.all(User)
            |> Enum.find(fn u -> u.email != nil && String.downcase(u.email) == email end)
     account_id = user.account_id
@@ -73,9 +71,18 @@ defmodule Solomon.UserController do
 
     case Scrypt.check(pass, hash) do
       {:ok, true} ->
-        conn
-        |> put_resp_cookie("JWT", sign(token_claim(account_id, scope_id)))
-        |> send_resp(:ok, "")
+        case token_claim(account_id, scope_id) do
+          {:ok, claims} ->
+            signed_token = sign(claims)
+            conn
+            |> put_resp_cookie("JWT", signed_token)
+            |> put_resp_header("JWT", signed_token)
+            |> render(Solomon.TokenView, "show.json", token: claims)
+          {:error, errors} ->
+            conn
+            |> put_status(:bad_request)
+            |> render(Solomon.ErrorView, "error.json", %{errors: errors})
+        end
       {:ok, false} ->
         conn
         |> put_status(:unauthorized)
@@ -83,7 +90,7 @@ defmodule Solomon.UserController do
       {:error, errors} ->
         conn
         |> put_status(:bad_request)
-        |> render(Solomon.ErrorView, "errors.json", errors)
+        |> render(Solomon.ErrorView, "error.json", errors)
     end
   end
 

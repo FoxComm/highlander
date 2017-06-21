@@ -17,9 +17,8 @@ object TaxonResponses {
       case list     ⇒ list.size
     }
 
-    def parentOf(other: LTree): Boolean = {
+    def parentOf(other: LTree): Boolean =
       if (level == 0) other.level == 1 else other.value.startsWith(ltree.value)
-    }
   }
 
   case class AssignedTaxonsResponse(taxonomyId: Int,
@@ -29,8 +28,7 @@ object TaxonResponses {
       extends ResponseItem
 
   object AssignedTaxonsResponse {
-    def build(taxonomy: FullObject[Taxonomy],
-              taxons: Seq[FullObject[Taxon]]): AssignedTaxonsResponse = {
+    def build(taxonomy: FullObject[Taxonomy], taxons: Seq[FullObject[Taxon]]): AssignedTaxonsResponse = {
       val taxonAttributes =
         IlluminateAlgorithm.projectAttributes(taxonomy.form.attributes, taxonomy.shadow.attributes)
 
@@ -50,22 +48,15 @@ object TaxonResponses {
 
   case class TaxonLocationResponse(parent: Option[Int] = None) extends ResponseItem
 
-  case class FullTaxonResponse(id: Int,
-                               taxonomyId: Int,
-                               location: TaxonLocationResponse,
-                               attributes: JValue)
+  case class FullTaxonResponse(id: Int, taxonomyId: Int, location: TaxonLocationResponse, attributes: JValue)
       extends ResponseItem
 
   object FullTaxonResponse {
-    def build(taxon: FullObject[Taxon],
-              taxonomyId: Int,
-              parentId: Option[Int] = None): FullTaxonResponse = {
-      FullTaxonResponse(
-          taxon.model.formId,
-          taxonomyId,
-          TaxonLocationResponse(parentId),
-          IlluminateAlgorithm.projectAttributes(taxon.form.attributes, taxon.shadow.attributes))
-    }
+    def build(taxon: FullObject[Taxon], taxonomyId: Int, parentId: Option[Int] = None): FullTaxonResponse =
+      FullTaxonResponse(taxon.model.formId,
+                        taxonomyId,
+                        TaxonLocationResponse(parentId),
+                        IlluminateAlgorithm.projectAttributes(taxon.form.attributes, taxon.shadow.attributes))
   }
 
   case class TaxonTreeResponse(node: FullTaxonResponse, children: Option[Seq[TaxonTreeResponse]])
@@ -74,9 +65,8 @@ object TaxonResponses {
   }
 
   object TaxonTreeResponse {
-    def build(taxon: FullTaxonResponse, children: Seq[TaxonTreeResponse]): TaxonTreeResponse = {
+    def build(taxon: FullTaxonResponse, children: Seq[TaxonTreeResponse]): TaxonTreeResponse =
       TaxonTreeResponse(taxon, children.some.filterNot(_.isEmpty))
-    }
 
     def buildTree(nodes: Seq[LinkedTaxon], taxonomyId: Int): Seq[TaxonTreeResponse] =
       buildTree(0, nodes.sortBy { case (_, link) ⇒ link.path.level }, taxonomyId)

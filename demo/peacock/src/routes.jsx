@@ -14,6 +14,7 @@ import EditEmail from './components/profile/blocks/edit-email';
 import ChangePassword from './components/profile/blocks/change-password';
 import Order from './components/profile/blocks/order';
 import AddressForm from './components/profile/blocks/address-form';
+import ReviewForm from './components/profile/blocks/review-form';
 
 import MensCatPage from './pages/category/men';
 import WomensCatPage from './pages/category/women';
@@ -49,6 +50,7 @@ export default function makeRoutes(getStore) {
             <Route path="password" component={ChangePassword} />
             <Route path="orders/:referenceNumber" component={Order} />
             <Route path="addresses/:addressId" component={AddressForm} />
+            <Route path="reviews/:reviewId" component={ReviewForm} />
           </Route>
         </Route>
         <Route path="men" component={MensCatPage} />

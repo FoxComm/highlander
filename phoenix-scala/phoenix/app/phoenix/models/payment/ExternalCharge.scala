@@ -16,8 +16,7 @@ trait ExternalChargeVals {
 trait ExternalCharge[Model <: FoxModel[Model] with FSM[ExternalCharge.State, Model]]
     extends FoxModel[Model]
     with ExternalChargeVals
-    with FSM[ExternalCharge.State, Model] {
-  self: Model ⇒
+    with FSM[ExternalCharge.State, Model] { self: Model ⇒
   import ExternalCharge._
 
   override def updateTo(newModel: Model): Either[Failures, Model] =
@@ -26,12 +25,12 @@ trait ExternalCharge[Model <: FoxModel[Model] with FSM[ExternalCharge.State, Mod
   def updateModelState(s: State)(implicit ec: EC): DbResultT[Unit]
 
   val fsm: Map[State, Set[State]] = Map(
-      Cart →
-        Set(Auth),
-      Auth →
-        Set(FullCapture, FailedCapture, CanceledAuth, ExpiredAuth),
-      ExpiredAuth →
-        Set(Auth)
+    Cart →
+      Set(Auth),
+    Auth →
+      Set(FullCapture, FailedCapture, CanceledAuth, ExpiredAuth),
+    ExpiredAuth →
+      Set(Auth)
   )
 }
 

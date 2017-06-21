@@ -19,9 +19,9 @@ class CartShippingAddressTest extends TestBase {
         val wrongLengthZip = Factories.shippingAddress.copy(regionId = 1, zip = "1")
 
         val addresses = Table(
-            ("address", "errors"),
-            (badZip, zipFailure(Address.zipPattern)),
-            (wrongLengthZip, zipFailure(Address.zipPattern))
+          ("address", "errors"),
+          (badZip, zipFailure(Address.zipPattern)),
+          (wrongLengthZip, zipFailure(Address.zipPattern))
         )
 
         forAll(addresses) { (address, errors) ⇒
