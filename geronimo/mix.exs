@@ -43,6 +43,7 @@ defmodule Geronimo.Mixfile do
     {:envy, "~> 1.0.0"},
     {:inflex, "~> 1.8.1" },
     {:exsync, "~> 0.1", only: :dev},
-    {:espec, "~> 1.3.2", only: :test},]
+    {:espec, "~> 1.3.2", only: :test},
+    {:ex_machina, "~> 2.0", only: :test}]
   end
 end
