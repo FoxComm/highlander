@@ -52,8 +52,7 @@ object Settings {
         .cmdRaw(s"java $$JAVA_OPTS -jar $artifactTargetPath 2>&1 | tee -a /logs/${appName.value}.log")
     },
     imageNames in docker := Seq(
-      ImageName(
-        s"${sys.props("DOCKER_REPO")}/${appName.value}:${sys.props("DOCKER_TAG")}")
+      ImageName(s"${sys.props("DOCKER_REPO")}/${appName.value}:${sys.props("DOCKER_TAG")}")
     )
   )
 }
