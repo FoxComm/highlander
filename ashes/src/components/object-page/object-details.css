@@ -83,6 +83,13 @@
   width: 100%;
 }
 
+.column-body-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
 .column-footer {
   padding: 10px;
   border-top: 1px solid #d9d9d9;

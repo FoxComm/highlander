@@ -5,6 +5,7 @@ import _ from 'lodash';
 import React, { Element } from 'react';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
+import classNames from 'classnames';
 
 import styles from '../object-page/object-details.css';
 
@@ -185,16 +186,30 @@ export default class ContentTypeForm extends ObjectDetails {
       </div>
     );
 
+    const isEmpty = !children;
+
+    const emptyBody = !isEmpty ? null : (
+      <span>
+        {`Add a ${title.toLowerCase()}`}
+      </span>
+    );
+
+    const bodyClassName = classNames(
+      styles['column-body'],
+      {[styles['column-body-empty']]: isEmpty}
+    );
+
     return (
       <ContentBox
         className={styles['column']}
-        bodyClassName={styles['column-body']}
+        bodyClassName={bodyClassName}
         title={title}
         actionBlock={this.actions}
         footer={footer}
         indentContent={false}
       >
         {children}
+        {emptyBody}
       </ContentBox>
     );
   }
