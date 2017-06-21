@@ -20,7 +20,7 @@ config :geronimo,
   kafka_port: System.get_env("BROKER_PORT"),
   consumer_group: System.get_env("CONSUMER_GROUP"),
   start_kafka_worker: System.get_env("START_WORKER"),
-  schema_registry_url: System.get_env("SCHEMA_REGISTRY_URL"),
+  schema_registry_ip: System.get_env("SCHEMA_REGISTRY_IP"),
   schema_registry_port: System.get_env("SCHEMA_REGISTRY_PORT")
 
 config :kafka_ex,
