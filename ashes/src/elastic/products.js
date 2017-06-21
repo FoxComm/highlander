@@ -3,7 +3,6 @@
 import { post } from '../lib/search';
 import * as dsl from './dsl';
 import moment from 'moment';
-import rangeToFilter from './common';
 
 // 1000 should be big enough to request all promotions with applyType = coupon
 // without size parameter ES responds with 10 items max
@@ -17,7 +16,7 @@ type QueryOpts = {
 
 function getArchivedFilter () {
   return dsl.existsFilter('archivedAt', 'missing');
-};
+}
 
 function getInactiveFilters (esDate: string) {
   return {
@@ -29,8 +28,8 @@ function getInactiveFilters (esDate: string) {
       dsl.existsFilter('activeTo', 'missing'),
       dsl.rangeFilter('activeTo', { 'gte': esDate }),
     ],
-  }
-};
+  };
+}
 
 function getTokenFilters (token: string) {
   if (isNaN(Number(token))) {
@@ -46,7 +45,7 @@ function getTokenFilters (token: string) {
     });
     return query;
   }
-};
+}
 
 export function searchProducts(token: string, {
                                                 omitArchived = false,
