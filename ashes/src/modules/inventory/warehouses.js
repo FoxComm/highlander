@@ -6,10 +6,11 @@ import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 
-export const updateSkuItemsCount = createAction(
-  'SKU_UPDATE_ITEMS_COUNT',
-  (sku, stockItem, qty) => [sku, stockItem, qty]
-);
+export const updateSkuItemsCount = createAction('SKU_UPDATE_ITEMS_COUNT', (sku, stockItem, qty) => [
+  sku,
+  stockItem,
+  qty,
+]);
 
 const clearSkuItemsChanges = createAction('SKU_CLEAR_ITEMS_CHANGES');
 
@@ -20,59 +21,57 @@ export type StockCounts = {
   shipped: number,
   afs: number,
   afsCost: number,
-}
+};
 
 export type StockLocation = {
   id: number,
   name: string,
-}
+};
 
 export type StockItem = {
   id: number,
   sku: string,
   defaultUnitCost: number,
-}
+};
 
 export type StockItemSummary = StockCounts & {
   stockLocation: StockLocation,
   stockItem: StockItem,
   type: string,
-}
-
-export type StockItemFlat = StockCounts & StockItem & {
-  type: string,
 };
+
+export type StockItemFlat = StockCounts &
+  StockItem & {
+    type: string,
+  };
 
 export type WarehouseInventorySummary = StockCounts & {
   stockLocation: StockLocation,
   stockItems: Array<StockItemFlat>,
-}
+};
 
 export type WarehouseInventoryMap = {
-  [stockLocationId: number]: WarehouseInventorySummary
-}
+  [stockLocationId: number]: WarehouseInventorySummary,
+};
 
 const _fetchSummary = createAsyncActions(
   'inventory-summary',
-  (skuCode) => Api.get(`/inventory/summary/${skuCode}`),
+  skuCode => Api.get(`/inventory/summary/${skuCode}`),
   (...args) => [...args]
 );
 export const fetchSummary = _fetchSummary.perform;
 
-const _changeItemUnits = createAsyncActions(
-  'inventory-increment',
-  (stockItemId: number, qty: number, type: string) => {
-    let payload, action;
-    if (qty >= 0) {
-      payload = {qty: qty, type, status: 'onHand'};
-      action = 'increment';
-    } else {
-      payload = {qty: -qty, type, status: 'onHand'};
-      action = 'decrement';
-    }
-    return Api.patch(`/inventory/stock-items/${stockItemId}/${action}`, payload);
+const _changeItemUnits = createAsyncActions('inventory-increment', (stockItemId: number, qty: number, type: string) => {
+  let payload, action;
+  if (qty >= 0) {
+    payload = { qty: qty, type, status: 'onHand' };
+    action = 'increment';
+  } else {
+    payload = { qty: -qty, type, status: 'onHand' };
+    action = 'decrement';
   }
-);
+  return Api.patch(`/inventory/stock-items/${stockItemId}/${action}`, payload);
+});
 
 export const changeItemUnits = _changeItemUnits.perform;
 
@@ -94,54 +93,73 @@ export function pushStockItemChanges(sku) {
 
 const initialState = {};
 
-const reducer = createReducer({
-  [_fetchSummary.succeeded]: (state, [payload, sku]) => {
-    const stockItems: Array<StockItemSummary> = payload.summary;
+const reducer = createReducer(
+  {
+    [_fetchSummary.succeeded]: (state, [payload, sku]) => {
+      const stockItems: Array<StockItemSummary> = payload.summary;
 
-    const inventoryDetailsByLocations = _.reduce(stockItems, (acc, itemSummary: StockItemSummary) => {
-      const warehouseDetails =
-        acc[itemSummary.stockLocation.id] = acc[itemSummary.stockLocation.id] || {
-          stockItems: [],
-          stockLocation: itemSummary.stockLocation,
-          onHand: 0,
-          onHold: 0,
-          reserved: 0,
-          shipped: 0,
-          afs: 0,
-          afsCost: 0,
-        };
+      const inventoryDetailsByLocations = _.reduce(
+        stockItems,
+        (acc, itemSummary: StockItemSummary) => {
+          const warehouseDetails = (acc[itemSummary.stockLocation.id] = acc[itemSummary.stockLocation.id] || {
+            stockItems: [],
+            stockLocation: itemSummary.stockLocation,
+            onHand: 0,
+            onHold: 0,
+            reserved: 0,
+            shipped: 0,
+            afs: 0,
+            afsCost: 0,
+          });
 
-      warehouseDetails.onHand += itemSummary.onHand;
-      warehouseDetails.onHold += itemSummary.onHold;
-      warehouseDetails.reserved += itemSummary.reserved;
-      warehouseDetails.shipped += itemSummary.shipped;
-      warehouseDetails.afs += itemSummary.afs;
-      warehouseDetails.afsCost += itemSummary.afsCost;
+          warehouseDetails.onHand += itemSummary.onHand;
+          warehouseDetails.onHold += itemSummary.onHold;
+          warehouseDetails.reserved += itemSummary.reserved;
+          warehouseDetails.shipped += itemSummary.shipped;
+          warehouseDetails.afs += itemSummary.afs;
+          warehouseDetails.afsCost += itemSummary.afsCost;
 
-      const stockItemsCounts = _.omit(itemSummary, ['stockLocation', 'stockItem']);
+          const stockItemsCounts = _.omit(itemSummary, ['stockLocation', 'stockItem']);
 
-      warehouseDetails.stockItems.push({
-        ...stockItemsCounts,
-        ...itemSummary.stockItem,
+          warehouseDetails.stockItems.push({
+            ...stockItemsCounts,
+            ...itemSummary.stockItem,
+          });
+
+          return acc;
+        },
+        {}
+      );
+
+      return assoc(state, ['details', sku], inventoryDetailsByLocations);
+    },
+    [updateSkuItemsCount]: (state, [sku, stockItem, diff]) => {
+      // get item onHand count value
+      const itemPath = ['details', sku, stockItem.stockLocationId, 'stockItems'];
+      const itemIndex = _.findIndex(_.get(state, itemPath), { type: stockItem.type }, []);
+      const itemOnHandPath = [...itemPath, itemIndex, 'onHand'];
+      const itemOnHandCount = _.get(state, itemOnHandPath, 0);
+
+      // get item onHand diff
+      const itemChangesPath = ['stockItemChanges', sku, `${stockItem.type}-${stockItem.id}`];
+      const itemChangesDiff = _.get(state, [...itemChangesPath, 'diff'], 0);
+
+      if (itemIndex === -1) {
+        return state;
+      }
+
+      // update item onHand absolute value and its diff from origin value
+      return assoc(state, itemOnHandPath, itemOnHandCount + diff, itemChangesPath, {
+        diff: itemChangesDiff + diff,
+        type: stockItem.type,
+        id: stockItem.id,
       });
-
-      return acc;
-    }, {});
-
-    return assoc(state,
-      ['details', sku], inventoryDetailsByLocations
-    );
+    },
+    [clearSkuItemsChanges]: (state, sku) => {
+      return assoc(state, ['stockItemChanges', sku], {});
+    },
   },
-  [updateSkuItemsCount]: (state, [sku, stockItem, diff]) => {
-    return assoc(state,
-      ['stockItemChanges', sku, `${stockItem.type}-${stockItem.id}`], {diff, type: stockItem.type, id: stockItem.id}
-    );
-  },
-  [clearSkuItemsChanges]: (state, sku) => {
-    return assoc(state,
-      ['stockItemChanges', sku], {}
-    );
-  }
-}, initialState);
+  initialState
+);
 
 export default reducer;

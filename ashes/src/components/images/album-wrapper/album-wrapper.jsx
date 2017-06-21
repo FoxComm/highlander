@@ -1,35 +1,37 @@
 /* @flow */
 
-// styles
-import styles from './album-wrapper.css';
-
 // libs
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 
+// components
+import Icon from 'components/core/icon';
+
+// styles
+import styles from './album-wrapper.css';
+
 type Action = {
-  name: string;
-  handler: Function;
-}
+  name: string,
+  handler: Function,
+};
 
 type Props = {
-  actions: Array<Action>;
-  title: string;
-  position: number;
-  albumsCount: number;
-  onSort: (direction: number) => void;
-  titleWrapper?: (title: string) => Element<*>;
-  className?: string;
-  contentClassName: ?string;
-  children?: Array<Element<*>>|Element<*>;
-}
+  actions: Array<Action>,
+  title: string,
+  position: number,
+  albumsCount: number,
+  onSort: (direction: number) => void,
+  titleWrapper?: (title: string) => Element<*>,
+  className?: string,
+  contentClassName: ?string,
+  children?: Array<Element<*>> | Element<*>,
+};
 
 const MOVE_DIRECTION_UP = -1;
 const MOVE_DIRECTION_DOWN = 1;
 
 export default class AlbumWrapper extends Component {
-
   props: Props;
 
   static defaultProps = {
@@ -76,18 +78,18 @@ export default class AlbumWrapper extends Component {
   }
 
   get controls() {
-    const moveUpCsl = classNames(styles.controlItem, { '_disabled': this.isFirstAlbum });
-    const moveDownCsl = classNames(styles.controlItem, { '_disabled': this.isLastAlbum });
+    const moveUpCsl = classNames(styles.controlItem, { _disabled: this.isFirstAlbum });
+    const moveDownCsl = classNames(styles.controlItem, { _disabled: this.isLastAlbum });
 
     return (
       <div className={styles.controls}>
         <div className={styles.left}>
           <div className={styles.controlMove}>
             <span className={moveUpCsl}>
-              <i className="icon-up" onClick={this.handleMoveUp} />
+              <Icon name="up" onClick={this.handleMoveUp} />
             </span>
             <span className={moveDownCsl}>
-              <i className="icon-down" onClick={this.handleMoveDown} />
+              <Icon name="down" onClick={this.handleMoveDown} />
             </span>
           </div>
         </div>
@@ -95,7 +97,7 @@ export default class AlbumWrapper extends Component {
           {this.props.actions.map(({ name, handler }) => {
             return (
               <span className={styles.controlItem} key={name}>
-                <i className={`icon-${name}`} onClick={handler} />
+                <Icon name={name} onClick={handler} />
               </span>
             );
           })}

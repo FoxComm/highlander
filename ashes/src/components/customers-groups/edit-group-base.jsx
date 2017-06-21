@@ -4,7 +4,7 @@ import React from 'react';
 import { transitionToLazy } from 'browserHistory';
 
 import Form from 'components/forms/form';
-import ErrorAlerts from 'components/alerts/error-alerts';
+import { ApiErrors } from 'components/utils/errors';
 import SaveCancel from 'components/core/save-cancel';
 import DynamicGroupEditor from './editor/group-editor';
 
@@ -21,12 +21,12 @@ type Props = {
   },
 };
 
-export default ({ group, title, onSave, cancelTo, cancelParams, saveInProgress, saveError, params }: Props) => (
+export default ({ group, title, onSave, cancelTo, cancelParams, saveInProgress, saveError, params }: Props) =>
   <div>
     <header>
       <h1 className="fc-title">{title}</h1>
     </header>
-    <ErrorAlerts error={saveError} />
+    <ApiErrors response={saveError} />
     <article>
       <Form onSubmit={onSave}>
         <DynamicGroupEditor type={params.type} />
@@ -34,11 +34,10 @@ export default ({ group, title, onSave, cancelTo, cancelParams, saveInProgress, 
         <SaveCancel
           className="fc-customer-group-edit__form-submits"
           onCancel={transitionToLazy(cancelTo, cancelParams)}
-          saveText="Save Group"
+          saveLabel="Save Group"
           saveDisabled={!group.isValid}
           isLoading={saveInProgress}
         />
       </Form>
     </article>
-  </div>
-);
+  </div>;

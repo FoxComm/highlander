@@ -4,7 +4,7 @@ const makeLiveSearch = require('modules/live-search/index.js').default;
 const { reducer, actions } = makeLiveSearch('TEST', ordersSearchTerms, ordersSavedSearches);
 const { selectSavedSearch, submitFilters } = actions;
 
-const selectedSearch = (state) => state.savedSearches[state.selectedSearch];
+const selectedSearch = state => state.savedSearches[state.selectedSearch];
 
 xdescribe('modules.orders.list', function() {
   const sampleFilter = {
@@ -13,17 +13,15 @@ xdescribe('modules.orders.list', function() {
     operator: 'eq',
     value: {
       type: 'number',
-      value: 7
-    }
+      value: 7,
+    },
   };
 
   describe('submitFilters()', function() {
     let newState = null;
     let searchState = null;
 
-    context.skip('when submitting a search', function() {
-
-    });
+    context.skip('when submitting a search', function() {});
 
     context('when submitting a valid filter', function() {
       beforeEach(function() {

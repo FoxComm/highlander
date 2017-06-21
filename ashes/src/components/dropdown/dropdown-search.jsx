@@ -1,13 +1,17 @@
-
 /* @flow */
 
+// libs
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 
+// components
 import GenericDropdown from './generic-dropdown';
 import DropdownItem from './dropdownItem';
+import TextInput from 'components/core/text-input';
+import Icon from 'components/core/icon';
 
+// styles
 import styles from './dropdown-search.css';
 
 import type { Props as GenericProps } from './generic-dropdown';
@@ -42,13 +46,12 @@ export default class DropdownSearch extends Component {
 
   fetchOptions(token: string) {
     this.props.fetchOptions(this.state.token).then(data => {
-      this.setState({results: data});
+      this.setState({ results: data });
     });
   }
 
   @autobind
-  onTokenChange(event: any) {
-    const token = _.get(event, 'target.value', '');
+  onTokenChange(token: string) {
     this.setState({ token }, () => {
       this.fetchOptions(token);
     });
@@ -57,11 +60,10 @@ export default class DropdownSearch extends Component {
   @autobind
   searchBar() {
     return (
-      <div styleName="searchbar" onClick={doNothing} >
-        <div styleName="searchbar-wrapper" >
-          <div className="fc-form-field" styleName="searchbar-input-wrapper" >
-            <input
-              type="text"
+      <div styleName="searchbar" onClick={doNothing}>
+        <div styleName="searchbar-wrapper">
+          <div className="fc-form-field" styleName="searchbar-input-wrapper">
+            <TextInput
               placeholder={this.props.searchbarPlaceholder}
               styleName="searchbar-input"
               value={this.state.token}
@@ -69,7 +71,7 @@ export default class DropdownSearch extends Component {
             />
           </div>
           <div styleName="searchbar-icon-wrapper">
-            <i className="icon-search"></i>
+            <Icon name="search" />
           </div>
         </div>
       </div>
@@ -88,7 +90,7 @@ export default class DropdownSearch extends Component {
 
   get searchResults(): any {
     const { renderOption } = this.props;
-    return _.map(this.results, (result) => {
+    return _.map(this.results, result => {
       if (renderOption) {
         return renderOption(result);
       }
@@ -116,10 +118,10 @@ export default class DropdownSearch extends Component {
         placeholder="- Select -"
         {...restProps}
         listClassName="fc-searchable-dropdown__item-list"
-        renderPrepend={this.searchBar}>
-        { this.searchResults }
+        renderPrepend={this.searchBar}
+      >
+        {this.searchResults}
       </GenericDropdown>
     );
   }
-
 }

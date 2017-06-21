@@ -6,30 +6,27 @@ import { transitionTo, transitionToLazy } from 'browserHistory';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
-import Alert from 'components/alerts/alert';
-import ErrorAlerts from 'components/alerts/error-alerts';
+// components
+import Alert from 'components/core/alert';
 import Form from 'components/forms/form';
 import FormField from 'components/forms/formfield';
 import { PrimaryButton, SocialButton } from 'components/core/button';
 import WrapToLines from './wrap-to-lines';
-import TextInput from 'components/forms/text-input';
+import TextInput from 'components/core/text-input';
+import { ApiErrors } from 'components/utils/errors';
 
 import * as userActions from 'modules/user';
 
 import s from './css/auth.css';
 
 // types
-import type {
-  LoginPayload,
-  TUser,
-} from 'modules/user';
-
+import type { LoginPayload, TUser } from 'modules/user';
 
 type TState = {
-  org: string;
-  email: string;
-  password: string;
-  message: string;
+  org: string,
+  email: string,
+  password: string,
+  message: string,
 };
 
 type LoginProps = {
@@ -97,24 +94,24 @@ class Login extends Component {
   @autobind
   clearMessage() {
     this.setState({
-      message: ''
+      message: '',
     });
   }
 
   get iForgot(): Element<*> {
-    return <a onClick={this.onForgotClick} className={s.forgotLink} >i forgot</a>;
+    return <a onClick={this.onForgotClick} className={s.forgotLink}>i forgot</a>;
   }
 
   get infoMessage(): ?Element<*> {
     const { message } = this.state;
     if (!message) return null;
-    return <Alert type="success">{message}</Alert>;
+    return <Alert className={s.alert} type={Alert.SUCCESS}>{message}</Alert>;
   }
 
   get errorMessage(): ?Element<*> {
     const err = this.props.authenticationState.err;
     if (!err) return null;
-    return <ErrorAlerts error={err} />;
+    return <ApiErrors response={err} />;
   }
 
   get content(): Element<*> {
@@ -123,40 +120,20 @@ class Login extends Component {
     return (
       <div className={s.content}>
         {this.infoMessage}
-        <SocialButton
-          type="google"
-          onClick={this.onGoogleSignIn}
-          fullWidth
-        >
+        <SocialButton type="google" onClick={this.onGoogleSignIn} fullWidth>
           Sign In with Google
         </SocialButton>
         <Form className={s.form} onSubmit={this.submitLogin}>
           <WrapToLines className={s.orLine}>or</WrapToLines>
           {this.errorMessage}
           <FormField label="Organization" required>
-            <TextInput
-              onChange={this.onOrgChange}
-              value={org}
-              type="text"
-              className="fc-input"
-              autoFocus
-            />
+            <TextInput onChange={this.onOrgChange} value={org} type="text" className="fc-input" autoFocus />
           </FormField>
           <FormField label="Email" required>
-            <TextInput
-              onChange={this.onEmailChange}
-              value={email}
-              type="text"
-              className="fc-input"
-            />
+            <TextInput onChange={this.onEmailChange} value={email} type="text" className="fc-input" />
           </FormField>
           <FormField label="Password" labelAtRight={this.iForgot} required>
-            <TextInput
-              onChange={this.onPasswordChange}
-              value={password}
-              type="password"
-              className="fc-input"
-            />
+            <TextInput onChange={this.onPasswordChange} value={password} type="password" className="fc-input" />
           </FormField>
           <div className={s.buttonBlock}>
             <PrimaryButton

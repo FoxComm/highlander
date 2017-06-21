@@ -1,35 +1,26 @@
 .taxonsTable {
-  & th:nth-child(2),
-  & td:nth-child(2) {
+  & th:nth-child(2), & td:nth-child(2) {
     width: 100% !important;
   }
 
-  & th:nth-child(3),
-  & td:nth-child(3),
-  & th:nth-child(4),
-  & td:nth-child(4) {
+  & th:nth-child(3), & td:nth-child(3), & th:nth-child(4), & td:nth-child(4) {
     width: 100px !important;
     min-width: 100px !important;
   }
 
-  & th:nth-child(5),
-  & td:nth-child(5),
-  & th:nth-child(6),
-  & td:nth-child(6) {
+  & th:nth-child(5), & td:nth-child(5), & th:nth-child(6), & td:nth-child(6) {
     width: 180px !important;
     min-width: 180px !important;
   }
 
-  & th:nth-child(7),
-  & td:nth-child(7) {
+  & th:nth-child(7), & td:nth-child(7) {
     width: 120px !important;
     min-width: 120px !important;
   }
 }
 
 .productsTable {
-  & th:nth-child(4),
-  & td:nth-child(4) {
+  & th:nth-child(4), & td:nth-child(4) {
     width: 100% !important;
   }
 
@@ -45,8 +36,7 @@
     min-width: 120px !important;
   }
 
-  & th:nth-child(3),
-  & td:nth-child(3) {
+  & th:nth-child(3), & td:nth-child(3) {
     width: 80px !important;
     min-width: 80px !important;
   }
@@ -59,7 +49,6 @@
 .modal {
   width: 780px;
 }
-
 
 .bulk-message {
   margin: 0;

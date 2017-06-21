@@ -8,11 +8,11 @@ import { transitionTo, transitionToLazy } from 'browserHistory';
 
 import Form from 'components/forms/form';
 import FormField from 'components/forms/formfield';
-import ErrorAlerts from 'components/alerts/error-alerts';
+import { ApiErrors } from 'components/utils/errors';
 import { PrimaryButton } from 'components/core/button';
 import PasswordInput from 'components/forms/password-input';
 import { Link } from 'components/link';
-import TextInput from 'components/forms/text-input';
+import TextInput from 'components/core/text-input';
 
 import * as userActions from 'modules/user';
 
@@ -95,7 +95,7 @@ class ResetPassword extends Component {
 
     if (!err) return null;
 
-    return <ErrorAlerts error={err} sanitizeError={sanitize} />;
+    return <ApiErrors error={err} sanitizeError={sanitize} />;
   }
 
   get content(): Element<*> {
@@ -104,13 +104,7 @@ class ResetPassword extends Component {
         <Form className={s.form} onSubmit={this.handleSubmit}>
           {this.errorMessage}
           <FormField className={s.signupEmail} label="Email">
-            <TextInput
-              name="email"
-              value={this.email}
-              type="email"
-              disabled
-              className="fc-input"
-            />
+            <TextInput name="email" value={this.email} type="email" disabled className="fc-input" />
           </FormField>
           <FormField className={s.password} label="New Password">
             <PasswordInput
@@ -133,17 +127,10 @@ class ResetPassword extends Component {
             />
           </FormField>
           <div className={s.buttonBlock}>
-            <PrimaryButton
-              className={s.submitButton}
-              type="submit"
-              isLoading={this.props.resetState.inProgress}
-            >
+            <PrimaryButton className={s.submitButton} type="submit" isLoading={this.props.resetState.inProgress}>
               Reset Password
             </PrimaryButton>
-            <Link
-              to='login'
-              className={s.backButton}
-            >
+            <Link to="login" className={s.backButton}>
               Back to Login
             </Link>
           </div>

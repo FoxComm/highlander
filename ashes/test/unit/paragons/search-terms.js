@@ -8,29 +8,35 @@ describe('paragons.searchTerm', function() {
     {
       title: 'String Term',
       type: 'string',
-      term: 'string'
-    }, {
+      term: 'string',
+    },
+    {
       title: 'Number Term',
       type: 'number',
       term: 'number',
-    }, {
+    },
+    {
       title: 'Date Term',
       type: 'date',
-      term: 'date'
-    }, {
+      term: 'date',
+    },
+    {
       title: 'Nested Term',
       type: 'object',
-      options: [{
-        title: 'Child Term',
-        type: 'string',
-        term: 'child'
-      }]
-    }, {
+      options: [
+        {
+          title: 'Child Term',
+          type: 'string',
+          term: 'child',
+        },
+      ],
+    },
+    {
       title: 'Enum Term',
       type: 'enum',
       term: 'enum',
-      suggestions: ['One', 'Two', 'Three']
-    }
+      suggestions: ['One', 'Two', 'Three'],
+    },
   ];
 
   let terms = null;
@@ -82,19 +88,20 @@ describe('paragons.searchTerm', function() {
         {
           title: 'Child String',
           type: 'string',
-          term: 'childString'
-        }, {
+          term: 'childString',
+        },
+        {
           title: 'Child Number',
           type: 'number',
-          term: 'childNumber'
-        }
-      ]
+          term: 'childNumber',
+        },
+      ],
     });
 
     const enumTerm = new SearchTerm({
       title: 'An enumeration',
       type: 'enum',
-      suggestions: ['One', 'Two', 'Three']
+      suggestions: ['One', 'Two', 'Three'],
     });
 
     it('should return all top level term with an empty search', function() {
@@ -193,22 +200,19 @@ describe('paragons.searchTerm', function() {
       options: [
         {
           title: 'Child String',
-          type: 'string'
-        }, {
+          type: 'string',
+        },
+        {
           title: 'Child Number',
-          type: 'number'
-        }
-      ]
+          type: 'number',
+        },
+      ],
     });
 
     const enumTerm = new SearchTerm({
       title: 'An enumeration',
       type: 'enum',
-      suggestions: [
-        { display: 'One', value: 1 },
-        { display: 'Two', value: 2 },
-        { display: 'Three', value: 3 }
-      ]
+      suggestions: [{ display: 'One', value: 1 }, { display: 'Two', value: 2 }, { display: 'Three', value: 3 }],
     });
 
     it('should not select a parent', function() {

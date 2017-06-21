@@ -12,7 +12,7 @@ import * as userActions from 'modules/users/details';
 import { requestPasswordReset, clearResetPasswordState } from 'modules/user';
 
 // components
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
 import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
 import { Button, PrimaryButton } from 'components/core/button';
@@ -30,7 +30,7 @@ type Props = {
   details: Details,
   children: Element<*>,
   fetchError: any,
-  isFetching: bool,
+  isFetching: boolean,
   fetchUser: Function,
   userNew: Function,
   createUser: Function,
@@ -120,7 +120,7 @@ class User extends Component {
 
   @autobind
   handleNewUserSubmit() {
-    this.props.createUser(this.state.user).then((payload) => {
+    this.props.createUser(this.state.user).then(payload => {
       transitionTo('user', { userId: payload.id });
     });
   }
@@ -145,7 +145,7 @@ class User extends Component {
         <SubNav userId={params.userId} user={details} />
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
-            { this.renderChildren() }
+            {this.renderChildren()}
           </div>
         </div>
       </div>
@@ -158,7 +158,7 @@ class User extends Component {
     if (this.props.fetchError) {
       content = this.errorMessage;
     } else if (this.props.isFetching || !this.state.user) {
-      content = <WaitAnimation />;
+      content = <Spinner />;
     } else {
       content = this.renderContent();
     }
@@ -180,11 +180,8 @@ function mapState(state) {
   };
 }
 
-export default connect(
-  mapState,
-  {
-    ...userActions,
-    requestPasswordReset,
-    clearResetPasswordState,
-  }
-)(User);
+export default connect(mapState, {
+  ...userActions,
+  requestPasswordReset,
+  clearResetPasswordState,
+})(User);

@@ -1,4 +1,5 @@
-@import "common.css";
+@import 'common.css';
+@import 'colors.css';
 
 .stats {
   margin-bottom: 40px;
@@ -12,45 +13,45 @@
   }
 }
 
-.periods {
+.periodsContainer {
   display: flex;
+  margin-bottom: 20px;
+}
 
-  & :global(.fc-radio) {
-    position: relative;
-    flex: 1;
-    line-height: 50px;
-    background: #ced2d5;
-    text-align: center;
-    margin: 1px;
-    margin-bottom: 20px;
+.period {
+  position: relative;
+  flex: 1;
+  line-height: 50px;
+  background: var(--bg-grey-buttons);
+  text-align: center;
+  margin: 1px;
 
-    & input[type=radio]:not(old) {
-      & + label {
-        position: absolute;
-        left: 0;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        margin: 0;
-        line-height: 50px;
-        cursor: pointer;
-        transition: all .2s;
+  & input[type=radio]:not(old) {
+    /* stylelint-disable-line */
+    & + label {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      margin: 0;
+      line-height: 50px;
+      cursor: pointer;
+      transition: all .2s;
 
-        &:hover {
-          background: #bdc3c6;
-        }
-
-        &::before,
-        &::after {
-          content: none !important; /* @todo refactor radio and remove less */
-        }
+      &::before, &::after {
+        content: none !important; /* @todo refactor radio and remove less */
       }
+    }
 
-      &:checked {
-        & + label {
-          background: #49cab9;
-          color: #fff
-        }
+    & + label:hover {
+      background: var(--bg-grey-buttons);
+    }
+
+    &:checked {
+      & + label {
+        background: var(--bg-green-buttons);
+        color: var(--color-light-text);
       }
     }
   }

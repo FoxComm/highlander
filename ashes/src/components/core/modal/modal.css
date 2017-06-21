@@ -1,0 +1,48 @@
+@import 'colors.css';
+
+.modal {
+  min-width: 640px;
+  color: var(--color-text);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--bg-grey-headers);
+  border-bottom: 1px solid var(--color-border);
+  padding: 18px 20px 17px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.title {
+} /* stylelint-disable-line */
+
+.close {
+  font-size: 24px;
+  transition: opacity .2s;
+
+  &:hover {
+    opacity: .6;
+  }
+}
+
+.body {
+  width: 100%;
+  padding: 20px;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  text-align: left;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+
+  &:not(:empty) {
+    padding: 30px 20px 20px;
+  }
+}

@@ -9,11 +9,12 @@ import { bindActionCreators } from 'redux';
 
 // components
 import Transition from 'react-transition-group/CSSTransitionGroup';
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 import { RoundedPill } from 'components/core/rounded-pill';
 import { withTaxonomy } from '../hoc';
 import TaxonomyDropdown from '../taxonomy-dropdown';
 import NewTaxonModal from '../taxons/new-taxon-modal';
+import Icon from 'components/core/icon';
 
 // actions
 import { deleteProductCurried as unlinkProduct } from 'modules/taxons/details/taxon';
@@ -25,7 +26,7 @@ import { transitionToLazy } from 'browserHistory';
 import { getTransitionProps } from 'lib/react-utils';
 
 // style
-import styles from './taxonomy-widget.css';
+import s from './taxonomy-widget.css';
 
 // types
 import type { Value } from 'components/core/rounded-pill';
@@ -52,11 +53,11 @@ type State = {
   showNewValueModal: boolean,
   linkingId: ?number,
   unlinkingId: ?number,
-}
+};
 
 const getName = (obj: any) => get(obj, 'attributes.name.v');
 
-const getTransitions = getTransitionProps(styles);
+const getTransitions = getTransitionProps(s);
 
 class TaxonomyWidget extends Component {
   props: Props;
@@ -72,10 +73,7 @@ class TaxonomyWidget extends Component {
   @autobind
   handleDeleteClick(taxonId: Value) {
     this.setState({ unlinkingId: parseInt(taxonId) }, () => {
-      this.props.unlinkProduct(taxonId)
-
-        .then(this.props.onChange)
-        .then(() => this.setState({ unlinkingId: null }));
+      this.props.unlinkProduct(taxonId).then(this.props.onChange).then(() => this.setState({ unlinkingId: null }));
     });
   }
 
@@ -87,9 +85,7 @@ class TaxonomyWidget extends Component {
   @autobind
   handleLinkClick(taxonId: Value) {
     this.setState({ linkingId: parseInt(taxonId) }, () => {
-      this.props.linkProduct(taxonId)
-        .then(this.props.onChange)
-        .then(() => this.setState({ linkingId: null }));
+      this.props.linkProduct(taxonId).then(this.props.onChange).then(() => this.setState({ linkingId: null }));
     });
   }
 
@@ -119,17 +115,17 @@ class TaxonomyWidget extends Component {
 
     return (
       <Transition {...transitionProps} key="pills">
-        {taxons.map((taxon: Taxon) => (
+        {taxons.map((taxon: Taxon) =>
           <RoundedPill
             text={getName(taxon)}
             onClick={transitionToLazy('taxon-details', { context, taxonomyId: taxonomy.id, taxonId: taxon.id })}
             onClose={this.handleDeleteClick}
             value={taxon.id}
-            className={styles.pill}
+            className={s.pill}
             inProgress={this.state.unlinkingId === taxon.id}
             key={taxon.id}
           />
-        ))}
+        )}
       </Transition>
     );
   }
@@ -140,12 +136,12 @@ class TaxonomyWidget extends Component {
     return (
       <Transition {...transitionProps} key="dropdown">
         {this.state.showInput &&
-        <TaxonomyDropdown
-          onTaxonClick={this.handleLinkClick}
-          taxonomy={this.props.taxonomy}
-          linkedTaxonomy={this.props.linkedTaxonomy}
-          onNewValueClick={this.toggleShowModal}
-        />}
+          <TaxonomyDropdown
+            onTaxonClick={this.handleLinkClick}
+            taxonomy={this.props.taxonomy}
+            linkedTaxonomy={this.props.linkedTaxonomy}
+            onNewValueClick={this.toggleShowModal}
+          />}
       </Transition>
     );
   }
@@ -169,14 +165,10 @@ class TaxonomyWidget extends Component {
   get content() {
     // show loading only when we have no taxonomy. do not show when taxonomy is fetched in bg
     if (!this.props.taxonomy) {
-      return <WaitAnimation className={styles.waiting} />;
+      return <Spinner className={s.spinner} />;
     }
 
-    return [
-      this.dropdown,
-      this.linkedTaxons,
-      this.newValueModal,
-    ];
+    return [this.dropdown, this.linkedTaxons, this.newValueModal];
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
@@ -191,17 +183,17 @@ class TaxonomyWidget extends Component {
   }
 
   render() {
-    const cls = classNames(styles.taxonomies, {
-      [styles._open]: this.state.showInput,
-      [styles._loading]: this.state.linkingId,
+    const cls = classNames(s.taxonomies, {
+      [s._open]: this.state.showInput,
+      [s._loading]: this.state.linkingId,
     });
 
     return (
       <div className={cls}>
-        <div className={styles.header}>
+        <div className={s.header}>
           {this.props.title}
-          <button className={styles.button} onClick={this.handleShowDropdownClick}>
-            <i className="icon-add" />
+          <button className={s.button} onClick={this.handleShowDropdownClick}>
+            <Icon name="add" />
           </button>
         </div>
         {this.content}
@@ -217,7 +209,7 @@ const mapState = (state, props: Props) => {
   const createTaxonState = {
     err: createState.err || linkState.err || props.fetchState.err,
     inProgress: createState.inProgress || linkState.inProgress || props.fetchState.inProgress,
-    finished: createState.finished && linkState.finished || props.fetchState.finished,
+    finished: (createState.finished && linkState.finished) || props.fetchState.finished,
   };
 
   return {

@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 // components
 import { Dropdown } from '../dropdown';
 import ContentBox from '../content-box/content-box';
-import ConfirmationDialog from '../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 
 // actions
 import * as UserActions from '../../modules/users/details';
@@ -21,16 +21,16 @@ const SELECT_STATE = [
 ];
 
 type Props = {
-  disabled: bool,
+  disabled: boolean,
   onChange: Function,
   currentValue: string,
   updateAccountState: Function,
-  userId: number|string,
   className?: string,
+  userId: number | string,
 };
 
 type State = {
-  newState: any
+  newState: any,
 };
 
 class AccountState extends Component {
@@ -55,13 +55,13 @@ class AccountState extends Component {
   @autobind
   restoreState() {
     this.setState({
-      newState: null
+      newState: null,
     });
   }
 
   render() {
     const text = `Are you sure you want to change account state to ${this.state.newState} ?`;
-    const strongText = 'You won\'t be able to change it back!';
+    const strongText = "You won't be able to change it back!";
     let confirmation;
     if (this.state.newState === 'archived') {
       confirmation = (
@@ -77,28 +77,26 @@ class AccountState extends Component {
     return (
       <div className={this.props.className}>
         <ContentBox title="Account State">
-          <Dropdown value={this.props.currentValue}
-                    onChange={(value) => this.handleDropdownChange(value)}
-                    disabled={this.props.disabled}
-                    items={SELECT_STATE}
-                    changeable={false}
+          <Dropdown
+            value={this.props.currentValue}
+            onChange={value => this.handleDropdownChange(value)}
+            disabled={this.props.disabled}
+            items={SELECT_STATE}
+            changeable={false}
           />
         </ContentBox>
-        <ConfirmationDialog
-          isVisible={this.state.newState != null}
-          header="Change Account State ?"
-          body={confirmation}
-          cancel="Cancel"
-          confirm="Yes, Change"
+        <ConfirmationModal
+          isVisible={this.state.newState !== null}
+          title="Change Account State ?"
+          confirmLabel="Yes, Change"
           onCancel={this.restoreState}
-          confirmAction={this.confirmStateChange}
-        />
+          onConfirm={this.confirmStateChange}
+        >
+          {confirmation}
+        </ConfirmationModal>
       </div>
     );
   }
 }
 
-export default connect(
-  null,
-  UserActions
-)(AccountState);
+export default connect(null, UserActions)(AccountState);

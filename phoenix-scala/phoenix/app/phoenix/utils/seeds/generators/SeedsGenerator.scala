@@ -1,9 +1,11 @@
 package phoenix.utils.seeds.generators
 
 import core.db._
+import core.failures.NotFoundFailure404
 import faker.Faker
 import objectframework.models.ObjectContexts
 import phoenix.models.account._
+import phoenix.models.admin.{AdminData, AdminsData}
 import phoenix.models.coupon._
 import phoenix.models.customer._
 import phoenix.models.inventory._
@@ -79,14 +81,12 @@ object SeedsGenerator
       _ ← * <~ CustomersData.createAll(customers.map { c ⇒
            CustomerData(accountId = c.accountId, userId = c.id, scope = Scope.current)
          })
-      _ ← * <~ Addresses.createAll(generateAddresses(customers))
-      _ ← * <~ CreditCards.createAll(generateCreditCards(customers))
-      orderedGcs ← * <~ randomSubset(customerIds).map { id ⇒
-                    generateGiftCardPurchase(id, context)
-                  }
-      appeasements ← * <~ (1 to appeasementCount).map(i ⇒ generateGiftCardAppeasement)
-
-      giftCards ← * <~ orderedGcs ++ appeasements
+      _            ← * <~ Addresses.createAll(generateAddresses(customers))
+      _            ← * <~ CreditCards.createAll(generateCreditCards(customers))
+      admin        ← * <~ AdminsData.take(1).mustFindOneOr(NotFoundFailure404(AdminData, "first"))
+      orderedGcs   ← * <~ (1 to appeasementCount).map(_ ⇒ generateGiftCard(admin.accountId, context))
+      appeasements ← * <~ (1 to appeasementCount).map(_ ⇒ generateGiftCardAppeasement)
+      giftCards    ← * <~ orderedGcs ++ appeasements
       unsavedPromotions = makePromotions(1)
       promotions     ← * <~ generatePromotions(unsavedPromotions)
       unsavedCoupons ← * <~ makeCoupons(promotions.filter(_.applyType == Promotion.Coupon))

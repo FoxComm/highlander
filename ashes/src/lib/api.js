@@ -40,7 +40,6 @@ function serialize(data) {
   return params.join('&');
 }
 
-
 export function request(method, uri, data, options = {}) {
   const isFormData = !isServer && data instanceof FormData;
 
@@ -56,8 +55,7 @@ export function request(method, uri, data, options = {}) {
   }
 
   // api: http://visionmedia.github.io/superagent/
-  const result = superagent[method.toLowerCase()](uri)
-    .set(headers);
+  const result = superagent[method.toLowerCase()](uri).set(headers);
 
   if (data) {
     if (method.toUpperCase() === 'GET') {
@@ -72,35 +70,37 @@ export function request(method, uri, data, options = {}) {
 
   let error = null;
 
-  const unauthorizedHandler = options.unauthorizedHandler ? options.unauthorizedHandler : () => {
-    window.location.href = process.env.BEHIND_NGINX ? '/admin/login' : '/login';
-  };
+  const unauthorizedHandler = options.unauthorizedHandler
+    ? options.unauthorizedHandler
+    : () => {
+        window.location.href = `${process.env.URL_PREFIX}/login`;
+      };
 
   const abort = _.bind(result.abort, result);
 
-  const promise = result
-    .then(
-      (response) => {
-        const disposition = response.header['content-disposition'];
-        if (disposition && disposition.startsWith('attachment')) {
-          const name = disposition.split(';')[1].split('=')[1];
-          return {
-            fileName: name,
-            data: response.text,
-          };
-        }
-        return response.body;
-      },
-      (err) => {
-        if (err.status == 401) {
-          unauthorizedHandler(err.response);
-        }
+  const promise = result.then(
+    response => {
+      const disposition = response.header['content-disposition'];
+      if (disposition && disposition.startsWith('attachment')) {
+        const name = disposition.split(';')[1].split('=')[1];
+        return {
+          fileName: name,
+          data: response.text,
+        };
+      }
+      return response.body;
+    },
+    err => {
+      if (err.status == 401) {
+        unauthorizedHandler(err.response);
+      }
 
-        error = new Error(_.get(err, 'message', String(err)));
-        error.response = err.response;
+      error = new Error(_.get(err, 'message', String(err)));
+      error.response = err.response;
 
-        throw error;
-      });
+      throw error;
+    }
+  );
 
   // pass through abort method
   promise.abort = abort;

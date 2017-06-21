@@ -1,9 +1,8 @@
-
 .container {
   display: inline-block;
 
   & > * {
     vertical-align: baseline;
-    padding-right: 6px;
+    margin-right: 6px;
   }
 }

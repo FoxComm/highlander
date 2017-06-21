@@ -1,9 +1,11 @@
 /* @flow */
 
+// libs
 import React, { Component } from 'react';
 
+//components
 import { Link } from 'components/link';
-import TextFit from 'components/text-fit/text-fit';
+import Icon from 'components/core/icon';
 
 import styles from 'components/customers/title-block.css';
 
@@ -24,7 +26,7 @@ type Props = {
 export default class CustomerInfo extends Component {
   props: Props;
 
-  ensureNotEmpty(val: number|string) {
+  ensureNotEmpty(val: number | string) {
     return val ? <span>{val}</span> : <span>&nbsp;</span>;
   }
 
@@ -42,7 +44,7 @@ export default class CustomerInfo extends Component {
     } else if (customer.groups) {
       return (
         <div>
-          {customer.groups.map((customer) => {
+          {customer.groups.map(customer => {
             return <div styleName="group">{customer}</div>;
           })}
         </div>
@@ -61,7 +63,7 @@ export default class CustomerInfo extends Component {
     if (customer.avatarUrl) {
       avatar = <img src={customer.avatarUrl} />;
     } else {
-      avatar = <i className="icon-customer"></i>;
+      avatar = <Icon name="customer" />;
     }
 
     return (
@@ -76,32 +78,28 @@ export default class CustomerInfo extends Component {
             {avatar}
           </div>
           <div styleName="name">
-            <TextFit fontSize={3} maxFontSize={3}>
-              {this.customerLink(customer.name)}
-            </TextFit>
+            {this.customerLink(customer.name)}
           </div>
           <div styleName="email">
-            <TextFit fontSize={1.7}>
-              {this.customerLink(customer.email)}
-            </TextFit>
+            {this.customerLink(customer.email)}
           </div>
         </div>
         <article styleName="body">
           <ul styleName="fields">
             <li>
-              <i className="icon-customer"></i>
+              <Icon name="customer" />
               <div>{this.ensureNotEmpty(customer.id)}</div>
             </li>
             <li>
-              <i className="icon-phone"></i>
+              <Icon name="phone" />
               <div>{this.ensureNotEmpty(customer.phoneNumber)}</div>
             </li>
             <li>
-              <i className="icon-location"></i>
+              <Icon name="location" />
               <div>{this.ensureNotEmpty(customer.location)}</div>
             </li>
             <li styleName="groups">
-              <i className="icon-customers"></i>
+              <Icon name="customers" />
               {this.customerGroups}
             </li>
           </ul>

@@ -2,18 +2,7 @@
   &:not(._disabled) {
     .fc-pilled-input__input-container {
       &:hover {
-        border: 1px solid @color-decor29;
-      }
-    }
-
-    .fc-pilled-input__pill-value._clickable:hover {
-      cursor: pointer;
-      background-color: @color-decor62;
-    }
-
-    .fc-pilled-input__pill-close {
-      &:hover {
-        background-color: @color-decor62;
+        border: 1px solid @bg-message-success;
       }
     }
   }
@@ -21,7 +10,7 @@
   &._active,
   &._active:hover {
     .fc-pilled-input__input-container {
-      border: 1px solid @color-decor29;
+      border: 1px solid @bg-message-success;
     }
   }
 
@@ -30,27 +19,20 @@
   }
 
   &._disabled {
-    .fc-pilled-input__pill {
-      background: @color-decor4;
-      color: @color-decor0;
-      cursor: default;
-      transition: all .1s;
-    }
-
     .fc-pilled-input__icon-wrapper {
-      color: @color-decor7;
+      color: @color-additional-text;
       cursor: default;
     }
 
     .fc-pilled-input__input-field {
-      .placeholder({ color: @color-decor7 });
+      .placeholder({ color: @color-additional-text });
     }
   }
 
   &__controls-container {
     ._disabled,
     :disabled {
-      color: @color-decor7;
+      color: @color-additional-text;
       cursor: default;
     }
   }

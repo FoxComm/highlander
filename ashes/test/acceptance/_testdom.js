@@ -1,4 +1,3 @@
-
 const jsdom = require('jsdom').jsdom;
 const markup = '<html><body></body></html>';
 const fs = require('fs');
@@ -8,7 +7,7 @@ function init() {
   if (typeof document !== 'undefined') return;
   global.document = jsdom(markup, {
     features: {
-      FetchExternalResources: ['script', 'link', 'img']
+      FetchExternalResources: ['script', 'link', 'img'],
     },
     resourceLoader: function(resource, callback) {
       const pathname = resource.url.pathname;
@@ -26,7 +25,7 @@ function init() {
       } else {
         return resource.defaultFetch(callback);
       }
-    }
+    },
   });
   global.window = document.defaultView;
   global.Image = global.window.Image;
@@ -36,5 +35,3 @@ function init() {
 }
 
 init();
-
-

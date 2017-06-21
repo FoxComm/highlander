@@ -13,7 +13,7 @@
     left: 50%;
     top: 100%;
     transform: translateX(-50%);
-    .colors(@color-white, @color-tooltip-bg);
+    .colors(@bg-white, @bg-nav-main);
     margin-top: 20px;
     padding: 10px;
     .font-spec(14px, 18px);
@@ -21,7 +21,7 @@
     box-shadow: 2px 2px 2px rgba(0, 0, 0, .4);
     white-space: pre;
     text-align: left;
-    z-index: 999;
+    z-index: 29;
 
     &:before {
       position: absolute;
@@ -32,7 +32,7 @@
       margin-top: -5px;
       margin-left: -7.5px;
       transform: rotateZ(45deg);
-      background: @color-tooltip-bg;
+      background: @bg-nav-main;
       content: '';
     }
 

@@ -1,17 +1,17 @@
-@import "colors.css";
+@import 'colors.css';
 
 .block {
   position: relative;
   display: flex;
   align-items: flex-end;
-  border-bottom: 2px solid var(--nav-item-underline);
+  border-bottom: 2px solid var(--color-border);
   margin: 20px 1.85%; /* because of grid system :( */
   white-space: nowrap;
 }
 
 .item {
   font-size: 14px;
-  color: #484848;
+  color: var(--color-text);
   display: inline-block;
   vertical-align: top;
   margin: 0 5px -2px 0;
@@ -21,22 +21,21 @@
   }
 
   &:hover {
-    color: #121212;
+    color: var(--color-text);
   }
 
-  & a,
-  & a:visited {
+  & a, & a:visited {
     position: relative;
     display: block;
     max-width: 200px;
-    color: inherit;
+    color: var(--color-text);
     padding: 0 20px 10px;
     transition: color .2s;
     white-space: normal;
     word-wrap: break-word;
     overflow-wrap: break-word;
 
-    &:after {
+    &::after {
       content: '';
       position: absolute;
       left: 0;
@@ -44,11 +43,11 @@
       bottom: 0;
       height: 2px;
       background-color: transparent;
-      transition: all .2s;
+      transition: all .4s;
     }
 
-    &.activeLink:after {
-      background-color: var(--nav-item-underline-active);
+    &.activeLink::after {
+      background-color: var(--bg-nav-pink);
     }
   }
 
@@ -64,19 +63,19 @@
     padding-left: 10px;
     transform: rotateX(0);
     transform-origin: 50% 45%;
-    transition: transform 0.3s ease-in;
+    transition: transform .3s ease-in;
 
-    &:before {
+    &::before {
       transform: rotateX(0);
       transform-origin: 50% 45%;
-      transition: transform 0.12s ease-in;
+      transition: transform .12s ease-in;
     }
   }
 
   &.opened {
-    & > a > i:before {
+    & > a > i::before {
       transform: rotateX(180deg);
-      transition: transform 0.2s ease-out;
+      transition: transform .2s ease-out;
     }
   }
 }
@@ -84,8 +83,8 @@
 .dropdown {
   position: absolute;
   min-width: 150px;
-  background: #fff;
-  border: 1px solid #d9d9d9;
+  background: var(--bg-white);
+  border: 1px solid var(--color-border);
   top: calc(100% - 2px);
   z-index: 3;
 }
@@ -99,7 +98,7 @@
 }
 
 .dropdown .item:hover {
-  background: var(--dd-item-bg-active);
+  background: var(--bg-grey-headers);
 }
 
 .dropdown .item a {
@@ -109,5 +108,5 @@
 }
 
 .dropdown .item a:hover {
-  color: #484848;
+  color: var(--color-text);
 }

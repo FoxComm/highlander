@@ -2,6 +2,7 @@
  * @flow
  */
 
+// libs
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
@@ -11,9 +12,10 @@ import { skuId } from 'paragons/product';
 
 // components
 import ContentBox from 'components/content-box/content-box';
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import OptionEntry from './option-entry';
 import OptionEditDialog from './option-edit-dialog';
+import Icon from 'components/core/icon';
 
 // styles
 import styles from './option-list.css';
@@ -25,7 +27,7 @@ type Props = {
 };
 
 type EditOption = {
-  id: string|number,
+  id: string | number,
   option: Option,
 };
 
@@ -34,9 +36,9 @@ type DeletingContext = {
   affectedSkus: Array<Sku>,
   deletingValueContext?: {
     option: Option,
-    value: OptionValue
+    value: OptionValue,
   },
-}
+};
 
 type State = {
   editOption: ?EditOption,
@@ -54,7 +56,7 @@ class OptionList extends Component {
   get actions(): Element<*> {
     return (
       <a id="fct-add-btn__new-option" styleName="action-icon" onClick={() => this.startEditOption('new')}>
-        <i className="icon-add" />
+        <Icon name="add" />
       </a>
     );
   }
@@ -69,24 +71,26 @@ class OptionList extends Component {
 
   @autobind
   startEditOption(id: any): void {
-    const option = (id !== 'new') ? this.props.variants[id] : {
-      attributes: {
-        name: {
-          t: 'string',
-          v: ''
-        },
-        type: {
-          t: 'string',
-          v: '',
-        }
-      },
-      values: [],
-    };
+    const option = id !== 'new'
+      ? this.props.variants[id]
+      : {
+          attributes: {
+            name: {
+              t: 'string',
+              v: '',
+            },
+            type: {
+              t: 'string',
+              v: '',
+            },
+          },
+          values: [],
+        };
 
     const editOption = { id, option };
 
     this.setState({
-      editOption
+      editOption,
     });
   }
 
@@ -122,7 +126,7 @@ class OptionList extends Component {
           deletingValueContext: {
             option,
             value: deletingValue,
-          }
+          },
         },
       });
     } else {
@@ -139,23 +143,25 @@ class OptionList extends Component {
         deletingContext: {
           affectedSkus,
           id,
-        }
+        },
       });
     } else {
       this.deleteOption(id);
     }
   }
 
-
   @autobind
-  updateOption(id: string|number, option: Option): void {
+  updateOption(id: string | number, option: Option): void {
     const { variants } = this.props;
 
     const newVariants = id.toString() == 'new' ? [...variants, option] : assoc(variants, id, option);
 
-    this.setState({
-      editOption: null,
-    }, () => this.props.updateVariants(newVariants));
+    this.setState(
+      {
+        editOption: null,
+      },
+      () => this.props.updateVariants(newVariants)
+    );
   }
 
   @autobind
@@ -214,9 +220,7 @@ class OptionList extends Component {
 
     const { id, affectedSkus, deletingValueContext } = this.state.deletingContext;
     const skuListForDeletion = affectedSkus.map(sku => {
-      return (
-        <li key={sku.attributes.code.v}><tt>{sku.attributes.code.v}</tt></li>
-      );
+      return <li key={sku.attributes.code.v}><tt>{sku.attributes.code.v}</tt></li>;
     });
     let removeTarget;
     let removeTargetTitle;
@@ -242,15 +246,15 @@ class OptionList extends Component {
       </div>
     );
     return (
-      <ConfirmationDialog
-        isVisible={true}
-        header={`Remove ${removeTargetTitle} from product?`}
-        body={confirmation}
-        cancel="Cancel"
-        confirm="Yes, Remove"
+      <ConfirmationModal
+        isVisible
+        title={`Remove ${removeTargetTitle} from product?`}
+        confirmLabel="Yes, Remove"
         onCancel={() => this.closeDeleteDialog()}
         confirmAction={() => this.confirmDeletion()}
-      />
+      >
+        {confirmation}
+      </ConfirmationModal>
     );
   }
 
@@ -258,13 +262,13 @@ class OptionList extends Component {
     const variants = this.renderOptions(this.props.variants);
     const content = _.isEmpty(variants) ? this.emptyContent : variants;
 
-    const optionDialog = this.state.editOption && (
+    const optionDialog =
+      this.state.editOption &&
       <OptionEditDialog
         option={this.state.editOption}
         cancelAction={this.cancelEditOption}
         confirmAction={this.updateOption}
-      />
-    );
+      />;
 
     return (
       <ContentBox title="Options" actionBlock={this.actions}>

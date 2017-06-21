@@ -1,7 +1,5 @@
-
 .root {
-  & :global(.fc-panel-header),
-  & :global(.fc-panel-content) {
+  & :global(.fc-panel-header), & :global(.fc-panel-content) {
     margin: 0;
     padding: 0;
   }

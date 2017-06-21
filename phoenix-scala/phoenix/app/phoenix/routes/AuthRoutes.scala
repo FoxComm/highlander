@@ -10,9 +10,10 @@ import phoenix.payloads.LoginPayload
 import phoenix.payloads.UserPayloads._
 import phoenix.services.Authenticator
 import phoenix.services.account.AccountManager
-import phoenix.services.auth.GoogleOauth.oauthServiceFromConfig
+import phoenix.services.auth.OauthServices
+import phoenix.services.auth.OauthService.OauthUserType
 import phoenix.services.auth.OauthDirectives._
-import phoenix.utils.FoxConfig.config
+import phoenix.utils.FoxConfig.{config, OauthProviderName}
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import phoenix.utils.http.CustomDirectives._
@@ -63,22 +64,14 @@ object AuthRoutes {
         }
       } ~
       activityContext(defaultScope) { implicit ac ⇒
-        lazy val customerGoogleOauth = oauthServiceFromConfig(config.users.customer)
-        lazy val adminGoogleOauth    = oauthServiceFromConfig(config.users.admin)
-
-        (path("oauth2callback" / "google" / "admin") & get & oauthResponse) {
-          adminGoogleOauth.adminCallback
+        (path("oauth2callback" / OauthProviderName / OauthUserType) & get) { (provider, userType) ⇒
+          oauthResponse {
+            OauthServices(provider, userType).callback
+          }
         } ~
-        (path("oauth2callback" / "google" / "customer") & get & oauthResponse) {
-          customerGoogleOauth.customerCallback
-        } ~
-        (path("signin" / "google" / "admin") & get) {
-          val url = adminGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
-          complete(Map("url" → url))
-        } ~
-        (path("signin" / "google" / "customer") & get) {
-          val url = customerGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
-          complete(Map("url" → url))
+        (path("signin" / OauthProviderName / OauthUserType) & get) { (provider, userType) ⇒
+          val url = OauthServices(provider, userType).authorizationUri
+          complete(Map("url" → url.toString))
         }
       }
     }

@@ -14,8 +14,8 @@ import { RoundedPill } from 'components/core/rounded-pill';
 import { Form, FormField } from '../forms';
 import { Button } from 'components/core/button';
 import AccountState from './account-state';
-import ErrorAlerts from 'components/alerts/error-alerts';
-import Alert from 'components/alerts/alert';
+import { ApiErrors } from 'components/utils/errors';
+import Alert from 'components/core/alert';
 
 // styles
 import s from './user-form.css';
@@ -49,11 +49,7 @@ export default class UserForm extends Component {
     if (this.props.isNew) return null;
 
     return (
-      <Button
-        type="button"
-        onClick={this.resetPassword}
-        isLoading={this.props.restoreState.inProgress}
-      >
+      <Button type="button" onClick={this.resetPassword} isLoading={this.props.restoreState.inProgress}>
         Change Password
       </Button>
     );
@@ -86,7 +82,7 @@ export default class UserForm extends Component {
         userId={this.props.user.id}
         currentValue={state}
         disabled={disabled}
-        onChange={(value) => this.handleAccountStateChange(value)}
+        onChange={value => this.handleAccountStateChange(value)}
         className={s.accountState}
       />
     );
@@ -98,9 +94,10 @@ export default class UserForm extends Component {
     return (
       <FormField
         className="fc-object-form__field"
-        label='Image'
+        label="Image"
         getTargetValue={_.noop}
-        key={`object-form-attribute-firstAndLastName`} >
+        key={`object-form-attribute-firstAndLastName`}
+      >
         <UserInitials name={name} />
       </FormField>
     );
@@ -111,14 +108,12 @@ export default class UserForm extends Component {
     const { isMessageDisplayed } = this.state;
 
     if (isMessageDisplayed && err != null) {
-      return (
-        <ErrorAlerts type={Alert.SUCCESS} error={err} closeAction={this.removeAlert} />
-      );
+      return <ApiErrors type={Alert.SUCCESS} error={err} closeAction={this.removeAlert} />;
     }
 
     if (isMessageDisplayed && !inProgress && finished) {
       return (
-        <Alert type={Alert.SUCCESS} closeAction={this.removeAlert} error={err} >
+        <Alert type={Alert.SUCCESS} closeAction={this.removeAlert} error={err}>
           Password reset email was successfully sent.
         </Alert>
       );
@@ -136,12 +131,7 @@ export default class UserForm extends Component {
         <ContentBox title="General">
           {this.renderNotification()}
           {this.renderUserImage()}
-          <ObjectFormInner
-            onChange={this.handleFormChange}
-            attributes={attributes}
-            options={options}
-            schema={schema}
-          />
+          <ObjectFormInner onChange={this.handleFormChange} attributes={attributes} options={options} schema={schema} />
           {this.changePasswordButton}
         </ContentBox>
       </Form>
@@ -158,7 +148,7 @@ export default class UserForm extends Component {
         <aside className={s.aside}>
           {!this.props.isNew && this.renderAccountState()}
 
-          <ContentBox title="Roles" className={s.roles} >
+          <ContentBox title="Roles" className={s.roles}>
             <RoundedPill text="Super Admin" />
           </ContentBox>
         </aside>

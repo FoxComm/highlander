@@ -49,12 +49,12 @@ object Customer {
               } ~
               (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
                 mutateOrFailures {
-                  LineItemUpdater.updateQuantitiesOnCustomersCart(auth.model, reqItems)
+                  CartLineItemUpdater.updateQuantitiesOnCustomersCart(auth.model, reqItems)
                 }
               } ~
               (patch & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
                 mutateOrFailures {
-                  LineItemUpdater.addQuantitiesOnCustomersCart(auth.model, reqItems)
+                  CartLineItemUpdater.addQuantitiesOnCustomersCart(auth.model, reqItems)
                 }
               } ~
               (post & path("coupon" / Segment) & pathEnd) { code ⇒
@@ -137,6 +137,11 @@ object Customer {
                 (patch & pathEnd & entity(as[UpdateAddressPayload])) { payload ⇒
                   mutateOrFailures {
                     CartShippingAddressUpdater.updateShippingAddressFromPayload(auth.model, payload)
+                  }
+                } ~
+                (put & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
+                  mutateOrFailures {
+                    CartShippingAddressUpdater.createShippingAddressFromPayload(auth.model, payload)
                   }
                 } ~
                 (delete & pathEnd) {

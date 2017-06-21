@@ -7,10 +7,10 @@ import { autobind } from 'core-decorators';
 
 import Form from 'components/forms/form';
 import FormField from 'components/forms/formfield';
-import ErrorAlerts from 'components/alerts/error-alerts';
+import { ApiErrors } from 'components/utils/errors';
 import { PrimaryButton } from 'components/core/button';
 import { Link } from 'components/link';
-import TextInput from 'components/forms/text-input';
+import TextInput from 'components/core/text-input';
 
 import * as userActions from 'modules/user';
 
@@ -71,7 +71,7 @@ class RestorePassword extends Component {
 
     if (!err) return null;
 
-    return <ErrorAlerts error={err} sanitizeError={sanitize} />;
+    return <ApiErrors error={err} sanitizeError={sanitize} />;
   }
 
   get email(): string {
@@ -87,10 +87,7 @@ class RestorePassword extends Component {
           .
         </div>
         <div className={s.buttonBlock}>
-          <Link
-            to='login'
-            className={s.backButton}
-          >
+          <Link to="login" className={s.backButton}>
             Back to Login
           </Link>
         </div>
@@ -116,17 +113,10 @@ class RestorePassword extends Component {
             />
           </FormField>
           <div className={s.buttonBlock}>
-            <PrimaryButton
-              className={s.submitButton}
-              type="submit"
-              isLoading={this.props.restoreState.inProgress}
-            >
+            <PrimaryButton className={s.submitButton} type="submit" isLoading={this.props.restoreState.inProgress}>
               Restore Password
             </PrimaryButton>
-            <Link
-              to='login'
-              className={s.backButton}
-            >
+            <Link to="login" className={s.backButton}>
               Back to Login
             </Link>
           </div>

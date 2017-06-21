@@ -6,6 +6,9 @@ import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 import classNames from 'classnames';
 
+// components
+import Icon from 'components/core/icon';
+
 // style
 import styles from './tree-node.css';
 
@@ -15,7 +18,7 @@ export type Node<T> = {
     id: number,
     [key: string]: any,
   },
-}
+};
 
 type Props<T> = {
   visible: boolean,
@@ -24,7 +27,7 @@ type Props<T> = {
   onClick: (id: number) => void,
   currentObjectId?: string,
   getTitle: (node: T) => string,
-}
+};
 
 export default class TreeNode extends Component {
   props: Props<*>;
@@ -50,12 +53,12 @@ export default class TreeNode extends Component {
     const { children } = this.props.node;
 
     const cls = classNames({
-      'icon-category': !children,
-      'icon-category-expand': children && !this.state.expanded,
-      'icon-category-collapse': children && this.state.expanded,
+      category: !children,
+      'category-expand': children && !this.state.expanded,
+      'category-collapse': children && this.state.expanded,
     });
 
-    return <i className={cls} onClick={this.toggleExpanded} />;
+    return <Icon className={cls} onClick={this.toggleExpanded} />;
   }
 
   get label() {
@@ -71,16 +74,15 @@ export default class TreeNode extends Component {
       return null;
     }
 
-    return node.children.map((child: Node<any>) => (
-        <TreeNode
-          visible={this.state.expanded && visible}
-          node={child}
-          depth={depth + 20}
-          currentObjectId={currentObjectId}
-          key={child.node.id}
-          {...rest}
-        />
-      )
+    return node.children.map((child: Node<any>) =>
+      <TreeNode
+        visible={this.state.expanded && visible}
+        node={child}
+        depth={depth + 20}
+        currentObjectId={currentObjectId}
+        key={child.node.id}
+        {...rest}
+      />
     );
   }
 
