@@ -49,6 +49,10 @@ object ImageFacade extends ImageHelpers {
     }
 
     object S3Path {
+
+      /** change extension to standard one
+        * if provided extension from fileName doesn't match with mediaType
+        * */
       private def fixExtension(fileName: String, mediaType: MediaType): String = {
         val extFromMedia = mediaType.fileExtensions.last
         fileName.lastIndexOf('.') match {
@@ -189,7 +193,7 @@ object ImageFacade extends ImageHelpers {
           url ← * <~ saveBufferAndThen[String](imageData) { path ⇒
                  val fileName = extractFileNameFromUri(url)
                  val s3Path   = S3Path.get(maybeAlbum, fileName = fileName, mediaType = mediaType)
-                 DbResultT.fromResult(apis.amazon.uploadFile(s3Path.absPath, path.toFile))
+                 DbResultT.fromResult(apis.amazon.uploadFile(s3Path.absPath, path.toFile, overwrite = false))
                }
           newPayload = payload.copy(src = url)
 
@@ -213,7 +217,7 @@ object ImageFacade extends ImageHelpers {
       private def uploadPathToS3(filePath: java.nio.file.Path,
                                  s3Path: S3Path)(implicit ec: EC, am: Mat, apis: Apis) =
         for {
-          url ← apis.amazon.uploadFileF(s3Path.absPath, filePath.toFile)
+          url ← apis.amazon.uploadFileF(s3Path.absPath, filePath.toFile, overwrite = false)
           _ = Files.deleteIfExists(filePath)
         } yield ImageUploaded(url = url, fileName = s3Path.fileName)
 
@@ -325,7 +329,7 @@ object ImageFacade extends ImageHelpers {
 
   // - endpoints
 
-  def attachImageToAlbum(
+  private def attachImageToAlbum(
       album: Album,
       payload: ImagePayload)(implicit ec: EC, db: DB, au: AU, oc: OC): DbResultT[Seq[FullObject[Image]]] =
     for {
