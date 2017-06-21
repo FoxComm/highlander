@@ -88,7 +88,7 @@ export default class Order extends React.Component {
     if (this.props.route.amazon) {
       this.props.fetchAmazonOrder(orderNum);
     } else {
-      this.props.fetchOrderå(orderNum);
+      this.props.fetchOrder(orderNum);
     }
   }
 
