@@ -35,36 +35,22 @@ class ContentTypePage extends ObjectPage {
               "attributes": {
                 "type": "object",
                 "required": [
-                  "name"
+                  "title"
                 ],
                 "properties": {
-                  "name": {
+                  "title": {
                     "type": "string",
                     "minLength": 1
                   },
-                  "activeTo": {
+                  "description": {
                     "type": [
                       "string",
                       "null"
                     ],
-                    "format": "date-time"
                   },
-                  "activeFrom": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
-                    "format": "date-time"
-                  },
-                  "customerGroupIds": {
-                    "type": [
-                      "array",
-                      "null"
-                    ],
-                    "items": {
-                      "type": "number"
-                    },
-                    "uniqueItems": true
+                  "slug": {
+                    "type": "string",
+                    "minLength": 1
                   }
                 }
               }

@@ -11,10 +11,12 @@ import styles from '../object-page/object-details.css';
 import ObjectDetails from '../object-page/object-details';
 import { FormField } from '../forms';
 import RadioButton from '../forms/radio-button';
-import SelectCustomerGroups from '../customers-groups/select-groups';
 import DiscountAttrs from './discount-attrs';
 import offers from './offers';
 import qualifiers from './qualifiers';
+
+import ContentBox from 'components/content-box/content-box';
+import { Button } from 'components/core/button';
 
 import { setDiscountAttr } from 'paragons/promotion';
 import { setObjectAttr, omitObjectAttr } from 'paragons/object';
@@ -171,18 +173,47 @@ export default class ContentTypeForm extends ObjectDetails {
     this.props.onUpdateObject(newPromotion);
   }
 
-  renderCustomers(): Element<*> {
-    const promotion = this.props.object;
+  column(title: string, children): Element<*> {
+    const footer = (
+      <div styleName="column-footer">
+        <Button
+          icon="add"
+          onClick={(e)=>{e.preventDefault();alert('ypa');}}
+        >
+          {title}
+        </Button>
+      </div>
+    );
+
     return (
-      <div styleName="customer-groups">
-        <div styleName="sub-title" >Customers</div>
-        <SelectCustomerGroups
-          parent="Promotions"
-          selectedGroupIds={_.get(promotion, 'attributes.customerGroupIds.v', null)}
-          qualifyAll={_.get(promotion, 'attributes.customerGroupIds.v', null) == null}
-          qualifyAllChange={this.handleQualifyAllChange}
-          updateSelectedIds={this.handleQualifierGroupChange}
-        />
+      <ContentBox
+        className={styles['column']}
+        bodyClassName={styles['column-body']}
+        title={title}
+        actionBlock={this.actions}
+        footer={footer}
+        indentContent={false}
+      >
+        {children}
+      </ContentBox>
+    );
+  }
+
+  renderColumns(): Element<*> {
+    const details = (
+      <Button
+        onClick={(e)=>{e.preventDefault();alert('ypa');}}
+      >
+        Details
+      </Button>
+    );
+
+    return (
+      <div styleName="columns">
+        {this.column('Tab', details)}
+        {this.column('Section')}
+        {this.column('Properties')}
+        {this.column('Property Settings')}
       </div>
     );
   }
