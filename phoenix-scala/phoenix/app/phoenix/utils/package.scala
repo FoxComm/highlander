@@ -18,8 +18,8 @@ package object utils {
       Future.firstCompletedOf(List(future, timeoutFuture.future)).andThen {
         case _ ⇒
           val cancelled = scheduledTimeout.cancel(true)
-          future.andThen {
-            case Success(v) if cancelled && !timeoutFuture.isCompleted ⇒
+          if (cancelled && timeoutFuture.isCompleted) future.onComplete {
+            case Success(v) ⇒
               logger.info(s"Call to Stripe has timeouted and then succeeded: $v")
             case Failure(th) ⇒
               logger.error("Call to Stripe has timeouted and then failed", th)

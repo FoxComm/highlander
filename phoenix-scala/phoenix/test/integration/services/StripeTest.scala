@@ -1,7 +1,6 @@
 package services
 
 import java.time.{Instant, ZoneId}
-
 import cats.implicits._
 import com.stripe.Stripe
 import java.time.{Instant, ZoneId}
@@ -15,12 +14,10 @@ import testutils._
 import core.utils.Money.Currency.USD
 import utils.RealStripeApi
 import core.db._
+import phoenix.server.Setup
 
 class StripeTest extends IntegrationTestBase with RealStripeApi {
-  // Mutate Stripe state, set real key
-  Stripe.apiKey = TestBase.config.apis.stripe.key
-
-  val stripe = new FoxStripe(new StripeWrapper())
+  val stripe = Setup.setupStripe()
 
   import Tags._
 

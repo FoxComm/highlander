@@ -14,7 +14,7 @@ import scala.collection.JavaConversions._
 
 object TestStripeSupport {
 
-  val stripe = new StripeWrapper()
+  val stripe = new StripeWrapper(FoxConfig.config.apis.stripe.timeout)
 
   // "fox" suffix is to indicate its ours
   def randomStripeishId: String = Lorem.bothify("?#?#?#?####?#?#???_fox")
