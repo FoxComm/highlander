@@ -38,9 +38,6 @@ const mapStateToProps = state => {
   };
 };
 
-/* ::`*/
-@connect(mapStateToProps, cartActions)
-export default /* ::`*/
 class CustomerCart extends Component {
   props: Props;
 
@@ -112,3 +109,5 @@ class CustomerCart extends Component {
     );
   }
 }
+
+export default connect(mapStateToProps, cartActions)(CustomerCart);
