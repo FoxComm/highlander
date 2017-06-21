@@ -100,6 +100,7 @@ create-user:
 	createuser -s $(DB_USER)
 
 reset-test:
+	@make create-user
 	dropdb --if-exists $(DB_TEST) -U $(DB_USER)
 	createdb $(DB_TEST) -U $(DB_USER)
 	@make migrate-test
