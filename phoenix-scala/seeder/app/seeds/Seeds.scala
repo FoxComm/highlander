@@ -280,7 +280,9 @@ object Seeds {
                                             account = account)
 
            for {
-             admin   ← * <~ Users.take(1).mustFindOneOr(NotFoundFailure404(User, "first"))
+             admin ← * <~ Users
+                      .take(1)
+                      .mustFindOneOr(NotFoundFailure404(User, "first")) // FIXME: get this ID from an `INSERT`? @michalrus
              context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
              ruContext ← * <~ ObjectContexts.create(
                           SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
