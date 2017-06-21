@@ -6,7 +6,7 @@
 }
 
 :root {
-  --avatar-margin-top: calc(- var(--circle-size) / 3); /* stylelint-disable-line */
+  --avatar-margin-top: calc( -var(--circle-size) / 2); /* stylelint-disable-line */
 }
 
 .block {
@@ -15,8 +15,6 @@
 }
 
 .header {
-  background: #263349;
-  height: 60px;
   text-align: center;
 }
 
