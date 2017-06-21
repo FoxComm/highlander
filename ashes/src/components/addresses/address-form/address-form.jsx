@@ -13,7 +13,7 @@ import FormField from '../../forms/formfield';
 import FoxyForm from '../../forms/foxy-form';
 import { ApiErrors } from 'components/utils/errors';
 import SaveCancel from 'components/core/save-cancel';
-import { Dropdown } from '../../dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import AutoScroll from 'components/utils/auto-scroll';
 import TextInput from 'components/core/text-input';
 
@@ -135,13 +135,13 @@ export default class AddressForm extends React.Component {
   get regionItems() {
     const regions = _.get(this.country, 'regions', []);
 
-    return _.map(regions, region => [region.id, region.name]);
+    return _.map(regions, region => ({ value: region.id, displayText: region.name }));
   }
 
   get countryItems() {
     const countries = _.get(this.props, 'countries', []);
 
-    return _.map(countries, country => [country.id, country.name]);
+    return _.map(countries, country => ({ value: country.id, displayText: country.name }));
   }
 
   get errorMessages() {
@@ -248,12 +248,11 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label="Country">
-                  <Dropdown
-                    id="country-dd"
+                  <TextDropdown
                     name="countryId"
                     className={s.countryList}
                     value={this.state.countryId}
-                    onChange={value => this.handleCountryChange(Number(value))}
+                    onChange={(value) => this.handleCountryChange(Number(value))}
                     items={this.countryItems}
                   />
                 </FormField>
@@ -275,11 +274,10 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label={regionName(countryCode)} required>
-                  <Dropdown
-                    id="region-dd"
+                  <TextDropdown
                     name="regionId"
                     value={this.state.stateId}
-                    onChange={value => this.handleStateChange(Number(value))}
+                    onChange={(value) => this.handleStateChange(Number(value))}
                     items={this.regionItems}
                   />
                 </FormField>

@@ -18,20 +18,18 @@ class TablePaginator extends React.Component {
   };
 
   @autobind
-  onPageSizeChange({ value }) {
+  onPageSizeChange(value) {
     this.props.setState({
       size: +value
     });
   }
 
   render() {
-    const items = DEFAULT_PAGE_SIZES.map(([ value, title ]) => ({ value, title }));
-
     return (
       <TextDropdown
         className={s.dropdown}
         onChange={this.onPageSizeChange}
-        items={items}
+        items={DEFAULT_PAGE_SIZES}
         value={String(this.props.value)}
       />
     );

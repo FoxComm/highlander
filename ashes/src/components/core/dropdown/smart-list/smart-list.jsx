@@ -19,11 +19,18 @@ type Props = {
   before?: Element<any> | string;
   /** Element which goes after the list */
   after?: Element<any> | string;
+  /** Element which is rendered instead of the list, when no items */
+  emptyMessage?: Element<any>;
   align?: 'left' | 'right'; // @todo
   /** Base element: list will try to stick around it. E.g. dropdown current value box.
    * Default value: previous sibling or parent. */
   pivot?: HTMLElement;
+  /** If true, BodyPortal is used */
+  detached?: boolean;
+  /** Additional className for block */
   className?: string;
+  /** Callback on user actions which intends to close menu */
+  onEsc: Function;
 };
 
 type State = {
@@ -55,6 +62,9 @@ export default class SmartList extends Component {
     pointedValueIndex: -1,
   };
 
+  _items: HTMLElement;
+  _block: HTMLElement;
+
   componentDidMount() {
     window.addEventListener('keydown', this.handleKeyPress, true);
     window.addEventListener('click', this.handleClickOutside, true);
@@ -80,31 +90,43 @@ export default class SmartList extends Component {
     }
   }
 
-  get pivot() {
-    return this.props.pivot || this._block.previousElementSibling || this._block.parentElement;
+  get pivot(): any {
+    return this.props.pivot ||
+      (this._block && (this._block.previousElementSibling || this._block.parentElement));
   }
 
   setDetachedCoords() {
     const { detached } = this.props;
+    const pivot = this.pivot;
 
     if (!detached) {
       return;
     }
     // `detached=true` – rare case, but we need to handle it
 
-    const pivotDim = this.pivot.getBoundingClientRect();
+    if (!pivot || !this._block) {
+      return;
+    }
 
-    this._block.style.minWidth = `${this.pivot.offsetWidth}px`;
+    const pivotDim = pivot.getBoundingClientRect();
+
+    this._block.style.minWidth = `${pivot.offsetWidth}px`;
     this._block.style.top = `${pivotDim.top + pivotDim.height + window.scrollY}px`;
     this._block.style.left = `${pivotDim.left}px`;
   }
 
   setPosition() {
+    const pivot = this.pivot;
+
     this.setDetachedCoords();
+
+    if (!pivot || !this._block) {
+      return;
+    }
 
     const viewportHeight = window.innerHeight;
 
-    const pivotDim = this.pivot.getBoundingClientRect();
+    const pivotDim = pivot.getBoundingClientRect();
     const spaceAtTop = pivotDim.top;
     const spaceAtBottom = viewportHeight - pivotDim.bottom;
     const listRect = this._block.getBoundingClientRect();

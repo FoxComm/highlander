@@ -36,7 +36,9 @@
 }
 
 .menu {
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1);
+  top: 40px;
+  max-height: 264px;
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, .2);
 }
 
 .item {
@@ -46,7 +48,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 70vw;
   font: var(--font-nav);
 }
 

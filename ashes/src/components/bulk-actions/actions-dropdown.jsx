@@ -11,7 +11,7 @@ import { TextDropdown } from 'components/core/dropdown';
 import s from './actions-dropdown.css';
 
 function getActionsHandler(actions, allChecked, toggledIds) {
-  return ({ value }) => {
+  return (value) => {
     const handler = _.find(actions, ([label, handler]) => label === value)[1];
     handler(allChecked, toggledIds);
   };

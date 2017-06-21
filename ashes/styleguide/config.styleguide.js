@@ -85,7 +85,7 @@ module.exports = {
             {
               name: 'Dropdowns',
               components: () => [
-                path.resolve(__dirname, '../src/components/core/dropdown/smart-list/smart-list.jsx'),
+                // path.resolve(__dirname, '../src/components/core/dropdown/smart-list/smart-list.jsx'),
                 path.resolve(__dirname, '../src/components/core/dropdown/text-dropdown/text-dropdown.jsx'),
               ],
             },

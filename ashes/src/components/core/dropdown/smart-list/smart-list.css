@@ -2,7 +2,6 @@
 
 .block {
   position: absolute;
-  max-height: 90vh;
   min-width: 100%;
   overflow: hidden;
   display: flex;
@@ -16,6 +15,9 @@
 .list {
   overflow-y: auto;
   flex: 1 1 auto;
+  left: 0;
+
+  /* define `top` in the hoist component */
 }
 
 .item {

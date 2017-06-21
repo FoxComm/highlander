@@ -15,6 +15,8 @@ type Props = {
   keepCharPositions?: boolean;
   /** [react-text-mask#showmask](https://github.com/text-mask/text-mask/blob/master/componentDocumentation.md#showmask) */
   showMask?: boolean;
+  /** Injected prop from FormField */
+  error?: boolean;
 };
 
 // Create masks related to react-text-mask component
@@ -34,7 +36,7 @@ export function strMaskToRegExp(stringPattern: string) {
 }
 
 export const TextMask = (props: Props) => {
-  const innerProps = {...props};
+  const { error, ...innerProps } = props; // omit error from FormField
 
   if (isEmpty(props.mask)) {
     innerProps.mask = false;

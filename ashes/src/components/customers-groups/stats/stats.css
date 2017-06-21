@@ -51,7 +51,7 @@
     &:checked {
       & + label {
         background: var(--bg-green-buttons);
-        color: var(--color-light-text);
+        color: var(--color-nav);
       }
     }
   }

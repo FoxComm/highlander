@@ -12,30 +12,33 @@ import { SmartList } from 'components/core/dropdown';
 // styles
 import s from './text-dropdown.css';
 
-type Item = {
+type InternalItem = {
   value: string;
   displayText?: string;
 };
 
+type Item = [string, string];
+
 type Props = {
+  /** An array of all possible values which will be in a list */
+  // $FlowFixMe
+  items: Array<Item | InternalItem | string>,
   /** Input name which will be used by form */
-  name?: string, // input name
+  name: string, // input name
   /** Input value */
-  value?: string, // input value
+  value: string, // input value
   /** Text which is visible when no value */
-  placeholder?: string,
+  placeholder: string,
   /** Additional root className */
   className?: string,
-  /** An array of all possible values which will be in a list */
-  items?: Array<Item>,
   /** If true, you cant open dropdown or change its value from UI */
-  disabled?: bool,
-  /** Callback which fires when the value has been changes */
-  onChange?: Function,
+  disabled: bool,
   /** Goes to `bodyPortal`, e.g. case with overflow `/customers/10/storecredit` */
-  detached?: boolean,
+  detached: boolean,
   /** If true, the component can change its value only via props */
-  stateless?: boolean,
+  stateless: boolean,
+  /** Callback which fires when the value has been changes */
+  onChange: Function,
 };
 
 type State = {
@@ -44,7 +47,8 @@ type State = {
 };
 
 /**
- * Simple Dropdown component
+ * Text Dropdown component.
+ * It knows how to render a list through SmartList and how to store and change (or not change) the `value`.
  *
  * WARNING: It's important to implement shouldComponentUpdate hook in host components
  */
@@ -54,11 +58,12 @@ export default class TextDropdown extends Component {
   static defaultProps = {
     name: '',
     value: '',
-    placeholder: 'Select value',
+    placeholder: '- Select -',
     disabled: false,
     detached: false,
     onChange: () => {},
     stateless: false,
+    items: [],
   };
 
   state: State = {
@@ -83,16 +88,16 @@ export default class TextDropdown extends Component {
     this.toggleMenu();
   }
 
-  handleItemClick(item) {
+  handleItemClick(item: InternalItem) {
     const { stateless } = this.props;
-    let nextState = { open: false };
+    let nextState = { open: false, selectedValue: this.state.selectedValue };
 
     if (item.value !== this.state.selectedValue) {
       if (!stateless) {
         nextState.selectedValue = item.value;
       }
 
-      this.props.onChange(item);
+      this.props.onChange(item.value);
     }
 
     this.setState(nextState);
@@ -106,19 +111,31 @@ export default class TextDropdown extends Component {
     this.setState({ open: false });
   }
 
-  get displayText() {
-    const { items, placeholder } = this.props;
-    const item = _.find(items, item => item.value === this.state.selectedValue);
+  get displayText(): string {
+    const { placeholder } = this.props;
+    const item = _.find(this.items, item => item.value == this.state.selectedValue); // could be number == string
 
     return (item && item.displayText) || this.state.selectedValue || placeholder;
   }
 
+  get items(): Array<InternalItem> {
+    const { items } = this.props;
+
+    if (Array.isArray(items[0])) {
+      return items.map(([value, displayText]) => ({ value, displayText }));
+    } else if (typeof items[0] === 'string') {
+      return items.map((value: string) => ({ value, displayText: value }));
+    }
+
+    return items;
+  }
+
   renderItems() {
-    const { items, detached } = this.props;
+    const { detached } = this.props;
 
     return (
       <SmartList className={s.menu} onEsc={() => this.closeMenu()} detached={detached}>
-        {items.map(item => (
+        {this.items.map(item => (
           <div key={item.value} className={s.item} onClick={() => this.handleItemClick(item)}>
             {item.displayText || item.value}
           </div>

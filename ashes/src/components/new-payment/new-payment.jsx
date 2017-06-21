@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 
 import AutoScroll from 'components/utils/auto-scroll';
-import { Dropdown } from 'components/dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import { ApiErrors } from 'components/utils/errors';
 import { Form, FormField } from 'components/forms';
 import NewGiftCard from './new-gift-card';
@@ -87,8 +87,7 @@ class NewPayment extends Component {
             labelClassName="fc-new-order-payment__payment-type-label"
             label="Payment Type"
           >
-            <Dropdown
-              id="fct-payment-type-dd"
+            <TextDropdown
               name="paymentType"
               value={this.state.paymentType}
               onChange={this.changePaymentType}

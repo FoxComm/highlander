@@ -1,16 +1,18 @@
-//libs
+// libs
 import _ from 'lodash';
 import React from 'react';
 
-//components
-import Dropdown from 'components/dropdown/dropdown';
+// components
+import { TextDropdown } from 'components/core/dropdown';
 import propTypes from '../widgets/propTypes';
 
 export const Input = ({criterion, value, changeValue}) => {
   return (
-    <Dropdown value={value}
-              items={criterion.widget.config.choices}
-              onChange={changeValue} />
+    <TextDropdown
+      value={value}
+      items={criterion.widget.config.choices}
+      onChange={changeValue}
+    />
   );
 };
 Input.propTypes = propTypes;
