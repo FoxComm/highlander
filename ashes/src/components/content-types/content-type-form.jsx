@@ -16,7 +16,9 @@ import DiscountAttrs from './discount-attrs';
 import offers from './offers';
 import qualifiers from './qualifiers';
 
+import { ModalContainer } from 'components/modal/base';
 import ContentBox from 'components/content-box/content-box';
+import SaveCancel from 'components/core/save-cancel';
 import { Button } from 'components/core/button';
 
 import { setDiscountAttr } from 'paragons/promotion';
@@ -27,6 +29,13 @@ const layout = require('./layout.json');
 export default class ContentTypeForm extends ObjectDetails {
 
   layout = layout;
+
+  state = {
+    tab: {},
+    section: {},
+    properties: {},
+    'property settings': {}
+  }
 
   renderApplyType() {
     const promotion = this.props.object;
@@ -174,12 +183,64 @@ export default class ContentTypeForm extends ObjectDetails {
     this.props.onUpdateObject(newPromotion);
   }
 
+  @autobind
+  setIsVisible(title, value) {
+    return e => {
+      e.preventDefault();
+
+      const key = title.toLowerCase();
+
+      this.setState({
+        [key]: {
+          ...this.state[key],
+          showModal: value
+        }
+      });
+    };
+  }
+
+  modal(title: string): Element<*> {
+    const onCancel = this.setIsVisible(title, false);
+
+    const modalActionBlock = (
+      <a className='fc-modal-close' onClick={onCancel}>
+        <i className='icon-close'></i>
+      </a>
+    );
+
+    const modalFooter =  (
+      <SaveCancel
+        className="fc-modal-footer fc-add-watcher-modal__footer"
+        onCancel={onCancel}
+        onSave={this.handleSave}
+        saveDisabled={this.isSaveDisabled}
+      />
+    );
+
+    return (
+      <ModalContainer isVisible={this.state[title.toLowerCase()].showModal}>
+        <ContentBox
+          title={`New ${title}`}
+          actionBlock={modalActionBlock}
+          footer={modalFooter}
+          className="fc-add-watcher-modal"
+        >
+          <div className="fc-modal-body fc-add-watcher-modal__content">
+            test
+          </div>
+        </ContentBox>
+      </ModalContainer>
+    );
+  }
+
   column(title: string, children): Element<*> {
+    const onAdd = this.setIsVisible(title, true);
+
     const footer = (
       <div styleName="column-footer">
         <Button
           icon="add"
-          onClick={(e)=>{e.preventDefault();alert('ypa');}}
+          onClick={onAdd}
         >
           {title}
         </Button>
@@ -210,15 +271,14 @@ export default class ContentTypeForm extends ObjectDetails {
       >
         {children}
         {emptyBody}
+        {this.modal(title)}
       </ContentBox>
     );
   }
 
   renderColumns(): Element<*> {
     const details = (
-      <Button
-        onClick={(e)=>{e.preventDefault();alert('ypa');}}
-      >
+      <Button>
         Details
       </Button>
     );
