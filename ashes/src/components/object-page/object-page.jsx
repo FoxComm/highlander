@@ -507,17 +507,17 @@ export class ObjectPage extends Component {
   clearClientSideErrors() {
     this.setState({
       clientSideErrors: [],
-    })
+    });
   }
 
   renderClientSideErrors() {
-    const errors = _.reduce(this.state.clientSideErrors, (errors, error) => {return errors+' '+error});
+    const errors = _.reduce(this.state.clientSideErrors, (errors, error) => errors+' '+error);
     return (
       <Errors
         errors={errors ? [errors] : errors}
         closeAction={this.clearClientSideErrors}
       />
-    )
+    );
   }
 
   render() {
