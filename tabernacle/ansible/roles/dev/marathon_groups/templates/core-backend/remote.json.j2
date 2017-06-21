@@ -1,0 +1,59 @@
+{
+  "id": "remote",
+  "cmd": null,
+  "cpus": 0.25,
+  "mem": 64,
+  "disk": 0,
+  "instances": 1,
+  "constraints": [],
+  "labels": {
+    "MARATHON_SINGLE_INSTANCE_APP": "false",
+    "LANG": "go",
+    "consul": "remote",
+    "overrideTaskName": "remote",
+    "TAG": "{{docker_tags.remote}}"
+  },
+  "upgradeStrategy": {
+    "minimumHealthCapacity": 0,
+    "maximumOverCapacity": 0
+  },
+  "container": {
+    "type": "DOCKER",
+    "volumes": [
+      {
+        "containerPath": "{{docker_logs_dir}}",
+        "hostPath": "{{docker_logs_host_dir}}",
+        "mode": "RW"
+      }
+    ],
+    "docker": {
+      "image": "{{docker_registry}}:5000/remote:{{docker_tags.remote}}",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  },
+  "env": {
+    "IC_DATABASE_HOST": "{{docker_db_host}}",
+    "IC_DATABASE_NAME": "{{bernardo_db_name}}",
+    "IC_DATABASE_USER": "{{bernardo_db_user}}",
+    "IC_DATABASE_SSL": "disable",
+    "PHX_DATABASE_HOST": "{{docker_db_host}}",
+    "PHX_DATABASE_NAME": "{{phoenix_db_name}}",
+    "PHX_DATABASE_USER": "{{phoenix_db_user}}",
+    "PHX_DATABASE_SSL": "disable"
+  },
+  "healthChecks": [
+    {
+      "path": "/v1/public/health",
+      "protocol": "HTTP",
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 30,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false,
+      "portIndex": 0
+    }
+  ]
+}

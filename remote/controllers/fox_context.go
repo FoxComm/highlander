@@ -17,15 +17,27 @@ import (
 type FoxContext struct {
 	echo.Context
 	failure failures.Failure
-	// scope   string
+	scope   string
 }
 
 // NewFoxContext creates a new FoxContext from an existing echo.Context.
 func NewFoxContext(c echo.Context) *FoxContext {
-	return &FoxContext{c, nil}
+	var scope string
+
+	jwtStr, fail := getJWTToken(c)
+	if fail == nil {
+		jwt, err := NewJWT(jwtStr)
+		if err != nil {
+			fail = failures.New(err)
+		} else {
+			scope = jwt.Scope()
+		}
+	}
+
+	return &FoxContext{c, fail, scope}
 }
 
-func getJWT(c echo.Context) (string, failures.Failure) {
+func getJWTToken(c echo.Context) (string, failures.Failure) {
 	// Try to get from the header first.
 	req := c.Request()
 	jwt, ok := req.Header["Jwt"]
@@ -40,6 +52,28 @@ func getJWT(c echo.Context) (string, failures.Failure) {
 	}
 
 	return cookie.Value, nil
+}
+
+func getJWT(c echo.Context) (string, failures.Failure) {
+	// Try to get from the header first.
+	req := c.Request()
+	jwt, ok := req.Header["Jwt"]
+	if ok && len(jwt) > 0 {
+		return jwt[0], nil
+	}
+
+	// Try a cookie.
+	cookie, err := req.Cookie("JWT")
+	if err != nil {
+		return nil, failures.New(err)
+	}
+
+	jwt, err := NewJWT(cookie.Value)
+	if err != nil {
+		return nil, failures.New(err)
+	}
+
+	return jwt, nil
 }
 
 // BindJSON grabs the JSON payload and unmarshals it into the interface provided.
