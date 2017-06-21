@@ -82,7 +82,6 @@ migrate:
 
 reset:
 	@make drop-db
-	dropdb --if-exists $(DB_TEST) -U $(DB_USER)
 	@make drop-user
 	@make create-user
 	@make create-db
