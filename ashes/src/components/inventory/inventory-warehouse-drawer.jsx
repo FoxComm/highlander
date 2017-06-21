@@ -8,16 +8,12 @@ import { connect } from 'react-redux';
 import Table from '../table/table';
 import Drawer from '../table/drawer';
 import TableRow from '../table/row';
-import AdjustQuantity from '../forms/adjust-quantity';
+import Counter from 'components/core/counter';
 import Currency from '../common/currency';
 
 import * as WarehousesActions from 'modules/inventory/warehouses';
 
 import type { StockItemFlat } from 'modules/inventory/warehouses';
-
-type State = {
-  popupOpenedFor: string|null,
-}
 
 type Props = {
   updateSkuItemsCount: (sku: string, stockItem: StockItemFlat, diff: number) => void,
@@ -30,22 +26,11 @@ type Props = {
 class WarehouseDrawer extends Component {
   props: Props;
 
-  state: State = {
-    popupOpenedFor: null,
-  };
-
-  togglePopupFor(id: string, show: boolean): void {
-    this.setState({
-      popupOpenedFor: show ? id : null,
-    });
-  }
-
   @autobind
   renderRow(row: StockItemFlat): Element<*> {
-    const { state } = this;
-
-    const handleChangeQuantity = (diff: number) => {
-      this.props.updateSkuItemsCount(row.sku, row, diff);
+    const handleChangeQuantity = (count: number) => {
+      this.props.updateSkuItemsCount(row.sku, row, count - row.onHand);
+      this.props.onValueChange(count - row.onHand);
     };
 
     const uniqId = `${row.type}-${row.id}`;
@@ -56,12 +41,10 @@ class WarehouseDrawer extends Component {
       <TableRow id={rowId} key={uniqId}>
         <td>{row.type}</td>
         <td>
-          <AdjustQuantity
+          <Counter
             counterId={counterId}
             value={row.onHand}
             onChange={handleChangeQuantity}
-            isPopupShown={state.popupOpenedFor === uniqId}
-            togglePopup={(show) => this.togglePopupFor(uniqId, show)}
           />
         </td>
         <td className="hold">{row.onHold}</td>

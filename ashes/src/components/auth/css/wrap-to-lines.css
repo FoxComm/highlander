@@ -1,3 +1,4 @@
+@import 'colors.css';
 
 .block {
   display: flex;
@@ -8,7 +9,7 @@
 .line {
   flex-grow: 1;
   height: 1px;
-  background: #9ba3a7;
+  background: var(--color-border);
   margin-top: 2px;
 }
 

@@ -2,15 +2,19 @@
 import React, { Component, Element } from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
 
 // components
 import { PageTitle } from 'components/section-title';
 import SubNav from './sub-nav';
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 import Error from 'components/errors/error';
 
 // redux
 import * as cartActions from 'modules/carts/details';
+
+// styles
+import s from './cart.css';
 
 // types
 import type { Cart as TCart } from 'paragons/order';
@@ -21,7 +25,7 @@ type RouteParams = {
 
 type CartDetails = {
   cart?: TCart,
-}
+};
 
 type Props = {
   fetchCart: (refNum: string) => Promise<*>,
@@ -31,7 +35,7 @@ type Props = {
   children: Element<*>,
   isFetching: boolean|null,
   fetchError: ?Object,
-}
+};
 
 const refNum = (props: Props): string => {
   return props.params.cart;
@@ -87,10 +91,10 @@ class Cart extends Component {
   }
 
   render() {
-    const className = 'fc-order fc-cart';
+    const className = classNames('fc-order', 'fc-cart');
 
     if (this.props.isFetching !== false) {
-      return <div className={className}><WaitAnimation /></div>;
+      return <Spinner className={s.spinner} />;
     }
 
     if (_.isEmpty(this.cart)) {

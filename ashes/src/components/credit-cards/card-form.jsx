@@ -12,15 +12,15 @@ import { bindActionCreators } from 'redux';
 import { detectCardType, cardMask, cvvLength, isCardNumberValid, isCvvValid } from '@foxcomm/wings/lib/payment-cards';
 
 // components
-import { Checkbox } from '../checkbox/checkbox';
+import { Checkbox } from 'components/core/checkbox';
 import FormField from '../forms/formfield';
 import Form from '../forms/form';
 import AddressDetails from '../addresses/address-details';
 import AddressSelect from '../addresses/address-select';
 import SaveCancel from 'components/core/save-cancel';
 import { TextMask } from 'components/core/text-mask';
-import TextInput from '../forms/text-input';
-import AutoScroll from '../common/auto-scroll';
+import AutoScroll from 'components/utils/auto-scroll';
+import TextInput from 'components/core/text-input';
 import ExpirationBlock from './card-expiration-block';
 
 import * as AddressActions from '../../modules/customers/addresses';
@@ -56,13 +56,13 @@ export default class CreditCardForm extends React.Component {
     }),
     customerId: PropTypes.number,
     className: PropTypes.string,
-    saveText: PropTypes.string,
+    saveLabel: PropTypes.string,
   };
 
   static defaultProps = {
     isDefaultEnabled: true,
     onChange: _.noop,
-    saveText: 'Save',
+    saveLabel: 'Save',
   };
 
   state = {
@@ -88,24 +88,17 @@ export default class CreditCardForm extends React.Component {
   get defaultCheckboxBlock() {
     const { isDefaultEnabled } = this.props;
 
-    const className = classNames('fc-credit-card-form__default', {
-      '_disabled': !isDefaultEnabled,
-    });
-
     const isDefault = _.get(this.state, 'card.isDefault', false);
 
     return (
       <li className="fc-credit-card-form__line">
-        <label className={className}>
-          <Checkbox disabled={!isDefaultEnabled}
-                    defaultChecked={isDefault}
-                    className="fc-credit-card-form__default-checkbox"
-                    name="isDefault"
-                    id="isDefault" />
-          <span className="fc-credit-card-form__default-label">
-            Default Card
-          </span>
-        </label>
+          <Checkbox
+            id="isDefault"
+            name="isDefault"
+            label="Default Card"
+            disabled={!isDefaultEnabled}
+            defaultChecked={isDefault}
+          />
       </li>
     );
   }
@@ -273,7 +266,7 @@ export default class CreditCardForm extends React.Component {
   get submit() {
     return (
       <SaveCancel
-        saveText={this.props.saveText}
+        saveLabel={this.props.saveLabel}
         onCancel={this.props.onCancel}
         isLoading={this.state.inProgress}
       />

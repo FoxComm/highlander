@@ -3,6 +3,9 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 
+// components
+import Icon from 'components/core/icon';
+
 //styles
 import styles from './title-block.css';
 
@@ -55,7 +58,7 @@ export default class Customer extends React.Component {
           <div className="fc-grid">
             <div className="fc-col-md-1-12">
               <div styleName="avatar">
-                <i className="icon-customer"></i>
+                <Icon name="customer" />
               </div>
             </div>
             <div className="fc-col-md-11-12">
@@ -68,31 +71,31 @@ export default class Customer extends React.Component {
               <div className="fc-col-md-1-1 fc-customer-details-block">
                 <ul styleName="fields">
                   <li>
-                    <i className="icon-customer"></i>
+                    <Icon name="customer" />
                     <span>{ customer.id }</span>
                   </li>
                   <li>
-                    <i className="icon-phone"></i>
+                    <Icon name="phone" />
                     <span>{ customer.phoneNumber }</span>
                   </li>
                   <li>
-                    <i className="icon-location"></i>
+                    <Icon name="location" />
                     <span>{ customer.location }</span>
                   </li>
                 </ul>
                 <ul styleName="fields">
                   <li>
-                    <i className="icon-calendar"></i>
+                    <Icon name="calendar" />
                     <span>{ joinedAt }</span>
                     <span styleName="comment">&nbsp;Date joined</span>
                   </li>
                   <li>
-                    <i className="icon-usd"></i>
+                    <Icon name="usd" />
                     <Currency value={customer.totalSales || 0} />
                     <span styleName="comment">&nbsp;Total Sales</span>
                   </li>
                   <li styleName="days">
-                    <i>0</i>
+                    <Icon>0</Icon>
                     <span>Days since last order</span>
                   </li>
                 </ul>

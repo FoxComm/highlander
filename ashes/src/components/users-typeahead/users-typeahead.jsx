@@ -46,6 +46,7 @@ export default class UsersTypeahead extends Component {
     term: '',
   };
 
+  @autobind
   setTerm(term: string) {
     this.setState({
       term,
@@ -91,7 +92,7 @@ export default class UsersTypeahead extends Component {
         autoFocus={true}
         value={state.term}
         disabled={state.selected.length >= props.maxUsers}
-        onChange={({target}) => this.setTerm(target.value)}
+        onChange={this.setTerm}
         pills={pills}
         icon={null}
         onPillClose={(name, index) => this.deselectItem(index)}

@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .accordion {
   margin-bottom: 40px;
 }
@@ -7,7 +9,6 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-
   margin: 10px 0 0;
 }
 
@@ -20,7 +21,7 @@
 
   &::before {
     content: "";
-    border-top: 1px solid #ced2d5;
+    border-top: 1px solid var(--color-border);
     margin: 0 auto;
     position: absolute;
     top: 20px;
@@ -32,7 +33,7 @@
 
   & .titleWrapper {
     display: inline-block;
-    background: #f2f2f2;
+    background: var(--bg-grey-headers);
     padding: 0 15px;
     cursor: default;
   }
@@ -52,7 +53,7 @@
   & .left,
   & .right {
     display: flex;
-    background: #f2f2f2;
+    background: var(--bg-grey-headers);
     pointer-events: auto;
   }
 
@@ -84,7 +85,7 @@
   &:global(._disabled),
   &:global(._disabled):hover {
     cursor: default;
-    color: #999;
+    color: var(--color-additional-text);
   }
 }
 

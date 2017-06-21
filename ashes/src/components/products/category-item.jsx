@@ -6,7 +6,7 @@ import s from './category-item.css';
 
 function wrapper(str: string, key: string, rex: RegExp): string|Element<*> {
   if (str && rex && str.search(rex) != -1) {
-    return <span style={{color: '#3fc1ab'}} key={key}>{str}</span>;
+    return <span className={s.wrapper} key={key}>{str}</span>;
   }
 
   return str;

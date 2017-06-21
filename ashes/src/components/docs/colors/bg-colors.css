@@ -1,0 +1,235 @@
+@import 'colors.css';
+
+.block {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.color {
+  padding: 4px 12px;
+  flex-basis: 200px;
+}
+
+.sample {
+  width: 160px;
+  height: 120px;
+  box-shadow: 1px 1px 3px var(--color-border);
+}
+
+.value {
+  color: red;
+  margin: 4px 0 0;
+}
+
+.color-1 {
+  & > .sample {
+    background-color: var(--bg-white);
+  }
+
+  & > .value::before {
+    content: '--bg-white';
+  }
+
+  & > .desc::before {
+    content: 'Just white';
+  }
+}
+
+.color-2 {
+  & > .sample {
+    background-color: var(--bg-nav-main);
+  }
+
+  & > .value::before {
+    content: '--bg-nav-main';
+  }
+
+  & > .desc::before {
+    content: 'Sidebar, pills.';
+  }
+}
+
+.color-3 {
+  & > .sample {
+    background-color: var(--bg-nav-active);
+  }
+
+  & > .value::before {
+    content: '--bg-nav-active';
+  }
+
+  & > .desc::before {
+    content: 'Current nav item.';
+  }
+}
+
+.color-4 {
+  & > .sample {
+    background-color: var(--bg-nav-disabled);
+  }
+
+  & > .value::before {
+    content: '--bg-nav-disabled';
+  }
+
+  & > .desc::before {
+    content: 'Disabled nav, loading pills.';
+  }
+}
+
+.color-5 {
+  & > .sample {
+    background-color: var(--bg-nav-pink);
+  }
+
+  & > .value::before {
+    content: '--bg-nav-pink';
+  }
+
+  & > .desc::before {
+    content: 'Current subnav item border.';
+  }
+}
+
+.color-6 {
+  & > .sample {
+    background-color: var(--bg-field-error);
+  }
+
+  & > .value::before {
+    content: '--bg-field-error';
+  }
+
+  & > .desc::before {
+    content: 'Checkbox `No` and validation stuff.';
+  }
+}
+
+.color-7 {
+  & > .sample {
+    background-color: var(--bg-grey);
+  }
+
+  & > .value::before {
+    content: '--bg-grey';
+  }
+
+  & > .desc::before {
+    content: 'Ordinary background color.';
+  }
+}
+
+.color-8 {
+  & > .sample {
+    background-color: var(--bg-grey-buttons);
+  }
+
+  & > .value::before {
+    content: '--bg-grey-buttons';
+  }
+
+  & > .desc::before {
+    content: 'Buttons.';
+  }
+}
+
+.color-9 {
+  & > .sample {
+    background-color: var(--bg-grey-buttons-hover);
+  }
+
+  & > .value::before {
+    content: '--bg-grey-buttons-hover';
+  }
+
+  & > .desc::before {
+    content: 'Buttons.';
+  }
+}
+
+.color-10 {
+  & > .sample {
+    background-color: var(--bg-grey-headers);
+  }
+
+  & > .value::before {
+    content: '--bg-grey-headers';
+  }
+
+  & > .desc::before {
+    content: 'Headers and button:hover state.';
+  }
+}
+
+.color-11 {
+  & > .sample {
+    background-color: var(--bg-green-buttons);
+  }
+
+  & > .value::before {
+    content: '--bg-green-buttons';
+  }
+
+  & > .desc::before {
+    content: '';
+  }
+}
+
+.color-12 {
+  & > .sample {
+    background-color: var(--bg-green-buttons-hover);
+  }
+
+  & > .value::before {
+    content: '--bg-green-buttons-hover';
+  }
+
+  & > .desc::before {
+    content: '';
+  }
+}
+
+.color-13 {
+  & > .sample {
+    background-color: var(--bg-message-success);
+  }
+
+  & > .value::before {
+    content: '--bg-message-success';
+  }
+
+  & > .desc::before {
+    content: '';
+  }
+}
+
+.color-14 {
+  & > .sample {
+    background-color: var(--bg-message-warning);
+  }
+
+  & > .value::before {
+    content: '--bg-message-warning';
+  }
+
+  & > .desc::before {
+    content: '';
+  }
+}
+
+.color-15 {
+  & > .sample {
+    background-color: var(--bg-message-error);
+  }
+
+  & > .value::before {
+    content: '--bg-message-error';
+  }
+
+  & > .desc::before {
+    content: '';
+  }
+}

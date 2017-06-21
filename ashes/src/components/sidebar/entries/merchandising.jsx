@@ -8,7 +8,7 @@ import { frn, readAction } from 'lib/frn';
 
 // components
 import NavigationItem from '../navigation-item';
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 import { withTaxonomies } from 'components/taxonomies/hoc';
 
 // styles
@@ -31,7 +31,7 @@ class MerchandisingEntry extends Component {
     const { claims, routes, taxonomies, currentParams, fetchState } = this.props;
 
     if (!taxonomies || fetchState.inProgress) {
-      return <WaitAnimation />;
+      return <Spinner />;
     }
 
     return taxonomies.map((taxonomy: TaxonomyResult) => {

@@ -1,4 +1,3 @@
-
 /* @flow weak */
 
 import _ from 'lodash';
@@ -10,7 +9,7 @@ import styles from '../object-page/object-details.css';
 
 import ObjectDetails from '../object-page/object-details';
 import { FormField } from '../forms';
-import RadioButton from '../forms/radio-button';
+import RadioButton from 'components/core/radio-button';
 import SelectCustomerGroups from '../customers-groups/select-groups';
 import DiscountAttrs from './discount-attrs';
 import offers from './offers';
@@ -33,18 +32,20 @@ export default class PromotionForm extends ObjectDetails {
         className="fc-object-form__field"
       >
         <div>
-          <RadioButton id="autoApplyRadio"
-            onChange={this.handleApplyTypeChange}
+          <RadioButton
+            id="autoApplyRadio"
             name="auto"
-            checked={promotion.applyType === 'auto'}>
-            <label htmlFor="autoApplyRadio" styleName="field-label">Promotion is automatically applied</label>
-          </RadioButton>
-          <RadioButton id="couponCodeRadio"
+            label="Promotion is automatically applied"
             onChange={this.handleApplyTypeChange}
+            checked={promotion.applyType === 'auto'}
+          />
+          <RadioButton
+            id="couponCodeRadio"
             name="coupon"
-            checked={promotion.applyType === 'coupon'}>
-            <label htmlFor="couponCodeRadio" styleName="field-label">Promotion requires a coupon code</label>
-          </RadioButton>
+            label="Promotion requires a coupon code"
+            onChange={this.handleApplyTypeChange}
+            checked={promotion.applyType === 'coupon'}
+          />
         </div>
       </FormField>
     );
@@ -62,18 +63,20 @@ export default class PromotionForm extends ObjectDetails {
         className="fc-object-form__field"
       >
         <div>
-          <RadioButton id="isExlusiveRadio"
-            onChange={this.handleUsageRulesChange}
+          <RadioButton
+            id="isExlusiveRadio"
             name="true"
-            checked={isExclusive === true}>
-            <label htmlFor="isExlusiveRadio">Promotion is exclusive</label>
-          </RadioButton>
-          <RadioButton id="notExclusiveRadio"
+            label="Promotion is exclusive"
             onChange={this.handleUsageRulesChange}
+            checked={isExclusive === true}
+          />
+          <RadioButton
+            id="notExclusiveRadio"
             name="false"
-            checked={isExclusive === false}>
-            <label htmlFor="notExclusiveRadio">Promotion can be used with other promotions</label>
-          </RadioButton>
+            label="Promotion can be used with other promotions"
+            onChange={this.handleUsageRulesChange}
+            checked={isExclusive === false}
+          />
         </div>
       </FormField>
     );
@@ -98,7 +101,7 @@ export default class PromotionForm extends ObjectDetails {
   }
 
   @autobind
-  handleApplyTypeChange({target}: Object) {
+  handleApplyTypeChange({ target }: Object) {
     const value = target.getAttribute('name');
     const newPromotion = assoc(this.props.object, 'applyType', value);
 
@@ -106,7 +109,7 @@ export default class PromotionForm extends ObjectDetails {
   }
 
   @autobind
-  handleUsageRulesChange({target}: Object) {
+  handleUsageRulesChange({ target }: Object) {
     const value = (target.getAttribute('name') === 'true');
     const newPromotion = setObjectAttr(this.props.object, 'usageRules', {
       t: 'PromoUsageRules',
@@ -125,25 +128,25 @@ export default class PromotionForm extends ObjectDetails {
   renderDiscounts() {
     let discountChilds = [];
     const discounts = _.get(this.props.object, 'discounts', []);
-    discounts.map((disc,index) => {
+    discounts.map((disc, index) => {
       discountChilds.push(<div styleName="sub-title">Qualifier</div>),
-      discountChilds.push(<DiscountAttrs
-        blockId={'promo-qualifier-block-'+index}
-        dropdownId={'promo-qualifier-dd-'+index}
-        discount={disc}
-        attr="qualifier"
-        descriptions={qualifiers}
-        onChange={this.handleQualifierChange}
-      />);
+        discountChilds.push(<DiscountAttrs
+          blockId={'promo-qualifier-block-' + index}
+          dropdownId={'promo-qualifier-dd-' + index}
+          discount={disc}
+          attr="qualifier"
+          descriptions={qualifiers}
+          onChange={this.handleQualifierChange}
+        />);
       discountChilds.push(<div styleName="sub-title">Offer</div>),
-      discountChilds.push(<DiscountAttrs
-        blockId={'promo-offer-block-'+index}
-        dropdownId={'promo-offer-dd-'+index}
-        discount={disc}
-        attr="offer"
-        descriptions={offers}
-        onChange={this.handleOfferChange}
-      />);
+        discountChilds.push(<DiscountAttrs
+          blockId={'promo-offer-block-' + index}
+          dropdownId={'promo-offer-dd-' + index}
+          discount={disc}
+          attr="offer"
+          descriptions={offers}
+          onChange={this.handleOfferChange}
+        />);
     });
     return (
       <div>
@@ -165,7 +168,7 @@ export default class PromotionForm extends ObjectDetails {
   }
 
   @autobind
-  handleQualifierGroupChange(ids){
+  handleQualifierGroupChange(ids) {
     const promotion = this.props.object;
     const newPromotion = setObjectAttr(promotion, 'customerGroupIds', customerGroups(ids));
     this.props.onUpdateObject(newPromotion);
@@ -175,7 +178,7 @@ export default class PromotionForm extends ObjectDetails {
     const promotion = this.props.object;
     return (
       <div styleName="customer-groups">
-        <div styleName="sub-title" >Customers</div>
+        <div styleName="sub-title">Customers</div>
         <SelectCustomerGroups
           parent="Promotions"
           selectedGroupIds={_.get(promotion, 'attributes.customerGroupIds.v', null)}
