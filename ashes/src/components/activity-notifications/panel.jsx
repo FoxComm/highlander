@@ -15,19 +15,18 @@ import s from './panel.css';
 // types
 type Props = {
   /** An array of objects, each object is a notification */
-  notifications: Array<any>;
+  notifications: Array<any>,
   /** If true, shows popup with a notifications list */
-  displayed: boolean;
+  displayed: boolean,
   /** A callback, which is supposed to mark all notifications as read outside the component */
-  markAsRead: Function;
+  markAsRead: Function,
   /** A callback, which is supposed to mark all notifications as read + switch off `displayed` outside the component */
-  markAsReadAndClose: Function;
+  markAsReadAndClose: Function,
   /** Custom css className for root html element of Panel component */
-  className?: string;
+  className?: string,
 };
 
 export default class NotificationPanel extends React.Component {
-
   props: Props;
 
   get items() {
@@ -66,11 +65,7 @@ export default class NotificationPanel extends React.Component {
     }
 
     return (
-      <ContentBox
-        className={this.props.className}
-        title="Notifications"
-        footer={this.footer}
-      >
+      <ContentBox className={this.props.className} title="Notifications" footer={this.footer}>
         {this.items}
       </ContentBox>
     );

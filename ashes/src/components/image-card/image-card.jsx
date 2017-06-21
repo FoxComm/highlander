@@ -33,7 +33,6 @@ type State = {
 };
 
 export default class ImageCard extends Component {
-
   props: Props;
 
   state: State = {

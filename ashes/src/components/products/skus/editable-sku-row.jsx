@@ -43,7 +43,7 @@ type Props = {
 };
 
 type State = {
-  sku: { [key:string]: string },
+  sku: { [key: string]: string },
   isMenuVisible: boolean,
   codeError?: Object,
 };
@@ -132,7 +132,7 @@ class EditableSkuRow extends Component {
     const { props } = this;
 
     if (!_.isEmpty(props.suggestedSkus)) {
-      const matchedSku = _.find(props.suggestedSkus, {code: this.skuCodeValue.toUpperCase()});
+      const matchedSku = _.find(props.suggestedSkus, { code: this.skuCodeValue.toUpperCase() });
       if (matchedSku) {
         this.updateAttrsBySearchViewSku(matchedSku);
       }
@@ -143,7 +143,7 @@ class EditableSkuRow extends Component {
   priceCell(sku: Sku, field: string): Element<*> {
     const value = _.get(this.state.sku, [field, 'value']) || _.get(sku, ['attributes', field, 'v', 'value']);
     const currency = _.get(sku, ['attributes', field, 'v', 'currency'], 'USD');
-    const onChange = (value) => this.handleUpdatePrice(field, value, currency);
+    const onChange = value => this.handleUpdatePrice(field, value, currency);
     return (
       <div className="fc-editable-sku-row__price">
         <CurrencyInput value={value} currency={currency} onChange={onChange} />
@@ -158,7 +158,7 @@ class EditableSkuRow extends Component {
       <FormField>
         <TextInput
           value={value}
-          onChange={(value) => {
+          onChange={value => {
             this.updateSku({ upc: value });
           }}
           placeholder="UPC"
@@ -171,9 +171,9 @@ class EditableSkuRow extends Component {
     return skuId(this.props.sku);
   }
 
-  suggestSkus(text: string): Promise<*>|void {
+  suggestSkus(text: string): Promise<*> | void {
     return this.props.suggestSkus(text, {
-      context: this.props.skuContext
+      context: this.props.skuContext,
     });
   }
 
@@ -183,24 +183,21 @@ class EditableSkuRow extends Component {
 
   @autobind
   handleSelectSku(searchViewSku: SkuSearchItem) {
-    this.closeSkusMenu(
-      () => this.updateAttrsBySearchViewSku(searchViewSku)
-    );
+    this.closeSkusMenu(() => this.updateAttrsBySearchViewSku(searchViewSku));
   }
 
   closeSkusMenu(callback: Function = _.noop) {
-    this.setState({
-      isMenuVisible: false
-    }, callback);
+    this.setState(
+      {
+        isMenuVisible: false,
+      },
+      callback
+    );
   }
 
   get menuEmptyContent(): Element<*> {
     return (
-      <li
-        id="create-new-sku-item"
-        styleName="sku-item"
-        className="_new"
-        onMouseDown={() => this.closeSkusMenu() }>
+      <li id="create-new-sku-item" styleName="sku-item" className="_new" onMouseDown={() => this.closeSkusMenu()}>
         <div>New SKU</div>
         <strong>{this.state.sku.code}</strong>
       </li>
@@ -215,8 +212,11 @@ class EditableSkuRow extends Component {
         <li
           id={`fct-search-view-line__${sku.skuCode}`}
           styleName="sku-item"
-          onMouseDown={() => { this.handleSelectSku(sku); }}
-          key={`item-${sku.id}`}>
+          onMouseDown={() => {
+            this.handleSelectSku(sku);
+          }}
+          key={`item-${sku.id}`}
+        >
           <strong>{sku.skuCode}</strong>
         </li>
       );
@@ -225,8 +225,7 @@ class EditableSkuRow extends Component {
 
   get skusMenu(): Element<*> {
     const content = _.isEmpty(this.props.suggestedSkus) ? this.menuEmptyContent : this.menuItemsContent;
-    const openMenu =
-      this.state.isMenuVisible && this.skuCodeValue.length > 0 && !this.props.isFetchingSkus;
+    const openMenu = this.state.isMenuVisible && this.skuCodeValue.length > 0 && !this.props.isFetchingSkus;
 
     const className = openMenu ? '_visible' : void 0;
 
@@ -270,7 +269,7 @@ class EditableSkuRow extends Component {
         <TextInput
           className={styles.inventory}
           value={value}
-          onChange={(value) => {
+          onChange={value => {
             this.updateSku({ inventory: value });
           }}
           placeholder="QTY"
@@ -286,7 +285,7 @@ class EditableSkuRow extends Component {
       <FormField>
         <TextInput
           value={value}
-          onChange={(value) => {
+          onChange={value => {
             this.updateSku({ asin: value });
           }}
           placeholder="ASIN"
@@ -301,19 +300,12 @@ class EditableSkuRow extends Component {
     if (!_.isEmpty(imageObject)) {
       return (
         <div styleName="image-cell">
-          <ProductImage
-            {...imageObject}
-            styleName="cell-thumbnail"
-            width={60}
-            height={60}
-          />
+          <ProductImage {...imageObject} styleName="cell-thumbnail" width={60} height={60} />
         </div>
       );
     }
 
-    return (
-      <span styleName="no-image-text">No image.</span>
-    );
+    return <span styleName="no-image-text">No image.</span>;
   }
 
   variantCell(field: any, sku: Sku): ?Element<*> {
@@ -331,9 +323,7 @@ class EditableSkuRow extends Component {
 
     const variantValue = _.get(mapping, [skuCode, variantName]);
 
-    return (
-      <div styleName="variant-value" title={variantValue}>{variantValue}</div>
-    );
+    return <div styleName="variant-value" title={variantValue}>{variantValue}</div>;
   }
 
   actionsCell(sku: Sku): ?Element<*> {
@@ -341,15 +331,13 @@ class EditableSkuRow extends Component {
     const skuValue = this.skuCodeValue;
 
     if (!_.isEmpty(this.props.variants) || skuValue) {
-      return (
-        <DeleteButton onClick={() => this.props.onDeleteClick(skuCode)} />
-      );
+      return <DeleteButton onClick={() => this.props.onDeleteClick(skuCode)} />;
     }
   }
 
   @autobind
   setCellContents(sku: Sku, field: string): any {
-    switch(field) {
+    switch (field) {
       case 'sku':
         return this.skuCell(sku);
       case 'retailPrice':
@@ -383,15 +371,18 @@ class EditableSkuRow extends Component {
     }
   }
 
-  updateSku(values: {[key: string]: any}) {
-    this.setState({
-      sku: Object.assign({}, this.state.sku, values),
-    }, () => {
-      const toUpdate = _.map(values, (value: any, field: string) => {
-        return [field, value];
-      });
-      this.props.updateFields(this.code, toUpdate);
-    });
+  updateSku(values: { [key: string]: any }) {
+    this.setState(
+      {
+        sku: Object.assign({}, this.state.sku, values),
+      },
+      () => {
+        const toUpdate = _.map(values, (value: any, field: string) => {
+          return [field, value];
+        });
+        this.props.updateFields(this.code, toUpdate);
+      }
+    );
   }
 
   @autobind
@@ -407,17 +398,10 @@ class EditableSkuRow extends Component {
   render() {
     const { columns, sku, params } = this.props;
 
-    return (
-      <MultiSelectRow
-        columns={columns}
-        row={sku}
-        params={params}
-        setCellContents={this.setCellContents} />
-    );
+    return <MultiSelectRow columns={columns} row={sku} params={params} setCellContents={this.setCellContents} />;
   }
 }
 
-export default _.flowRight(
-  makeLocalStore(addAsyncReducer(reducer)),
-  connect(mapLocalStateToProps, { suggestSkus })
-)(EditableSkuRow);
+export default _.flowRight(makeLocalStore(addAsyncReducer(reducer)), connect(mapLocalStateToProps, { suggestSkus }))(
+  EditableSkuRow
+);

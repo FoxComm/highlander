@@ -19,16 +19,12 @@ const InventoryItemDetailsBase = (props, context) => {
         <SectionTitle title="Inventory" />
         <TabListView>
           <TabView draggable={false} selected={!transactionsTabActive}>
-            <IndexLink to="sku-inventory-details"
-                       params={props.params}
-                       className="fc-inventory-item-details__tab-link">
+            <IndexLink to="sku-inventory-details" params={props.params} className="fc-inventory-item-details__tab-link">
               Inventory
             </IndexLink>
           </TabView>
           <TabView draggable={false} selected={transactionsTabActive}>
-            <Link to="sku-inventory-transactions"
-                  params={props.params}
-                  className="fc-inventory-item-details__tab-link">
+            <Link to="sku-inventory-transactions" params={props.params} className="fc-inventory-item-details__tab-link">
               Transactions
             </Link>
           </TabView>

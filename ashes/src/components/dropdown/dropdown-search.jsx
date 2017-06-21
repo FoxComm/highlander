@@ -57,7 +57,7 @@ export default class DropdownSearch extends Component {
     if (!this.mounted) return null;
     if (this.props.omitSearchIfEmpty && token == '') return null;
     this.props.fetchOptions(this.state.token).then(data => {
-      this.setState({results: data});
+      this.setState({ results: data });
     });
   }
 
@@ -71,9 +71,9 @@ export default class DropdownSearch extends Component {
   @autobind
   searchBar() {
     return (
-      <div styleName="searchbar" onClick={doNothing} >
-        <div styleName="searchbar-wrapper" >
-          <div className="fc-form-field" styleName="searchbar-input-wrapper" >
+      <div styleName="searchbar" onClick={doNothing}>
+        <div styleName="searchbar-wrapper">
+          <div className="fc-form-field" styleName="searchbar-input-wrapper">
             <TextInput
               placeholder={this.props.searchbarPlaceholder}
               styleName="searchbar-input"
@@ -101,7 +101,7 @@ export default class DropdownSearch extends Component {
 
   get searchResults(): any {
     const { renderOption } = this.props;
-    return _.map(this.results, (result) => {
+    return _.map(this.results, result => {
       if (renderOption) {
         return renderOption(result);
       }
@@ -129,10 +129,10 @@ export default class DropdownSearch extends Component {
         placeholder="- Select -"
         {...restProps}
         listClassName="fc-searchable-dropdown__item-list"
-        renderPrepend={this.searchBar}>
-        { this.searchResults }
+        renderPrepend={this.searchBar}
+      >
+        {this.searchResults}
       </GenericDropdown>
     );
   }
-
 }

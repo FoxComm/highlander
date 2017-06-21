@@ -16,14 +16,14 @@ import ProductImage from 'components/imgix/product-image';
 type Props = {
   id: number,
   src: string,
-  loader?: string|Element<*>;
-}
+  loader?: string | Element<*>,
+};
 
 type State = {
-  ready: boolean;
-  error: boolean;
-  src?: string;
-}
+  ready: boolean,
+  error: boolean,
+  src?: string,
+};
 
 export default class ImageLoader extends Component {
   props: Props;
@@ -82,11 +82,14 @@ export default class ImageLoader extends Component {
 
     this.showTransition = !this.state.ready;
 
-    this.setState({
-      ready: true,
-      src: this.img.src,
-      error: !this.img.width && !this.img.height,
-    }, this.destroyImage);
+    this.setState(
+      {
+        ready: true,
+        src: this.img.src,
+        error: !this.img.width && !this.img.height,
+      },
+      this.destroyImage
+    );
   }
 
   get loader(): ?Element<*> {
@@ -94,14 +97,7 @@ export default class ImageLoader extends Component {
   }
 
   get image(): ?Element<*> {
-    return this.state.ready ? (
-      <ProductImage
-        src={this.state.src}
-        width={286}
-        height={286}
-        key={this.props.id}
-      />
-    ) : null;
+    return this.state.ready ? <ProductImage src={this.state.src} width={286} height={286} key={this.props.id} /> : null;
   }
 
   wrapToTransition(img: ?Element<*>) {
@@ -120,9 +116,7 @@ export default class ImageLoader extends Component {
         </Transition>
       );
     }
-    return (
-      <div key="image">{img}</div>
-    );
+    return <div key="image">{img}</div>;
   }
 
   render() {
@@ -132,10 +126,7 @@ export default class ImageLoader extends Component {
 
     return (
       <div className={className}>
-        {[
-          this.loader,
-          this.wrapToTransition(this.image)
-        ]}
+        {[this.loader, this.wrapToTransition(this.image)]}
       </div>
     );
   }

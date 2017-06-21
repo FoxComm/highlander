@@ -14,8 +14,6 @@ export default class AutoScroll extends Component {
   }
 
   render() {
-    return (
-      <div ref={n => this._node = n} />
-    );
+    return <div ref={n => (this._node = n)} />;
   }
 }

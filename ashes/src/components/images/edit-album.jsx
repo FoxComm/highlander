@@ -15,21 +15,20 @@ import TextInput from 'components/core/text-input';
 import type { NewAlbum } from '../../modules/images';
 
 type Props = {
-  isVisible: boolean;
-  isNew?: boolean;
-  loading: boolean;
-  album: NewAlbum;
-  onSave: (name: string) => void;
-  onCancel: () => void;
+  isVisible: boolean,
+  isNew?: boolean,
+  loading: boolean,
+  album: NewAlbum,
+  onSave: (name: string) => void,
+  onCancel: () => void,
   className?: string,
 };
 
 type State = {
-  name: string;
+  name: string,
 };
 
 export default class EditAlbum extends Component {
-
   props: Props;
 
   state: State = {
@@ -83,12 +82,7 @@ export default class EditAlbum extends Component {
           className="fc-product-details__field"
           labelClassName="fc-product-details__field-label"
         >
-          <TextInput
-            name="name"
-            value={this.state.name}
-            onChange={this.handleUpdateField}
-            autoFocus
-          />
+          <TextInput name="name" value={this.state.name} onChange={this.handleUpdateField} autoFocus />
         </FormField>
       </Modal>
     );

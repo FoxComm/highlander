@@ -44,25 +44,14 @@ export default class SearchCustomersModal extends Component {
   get footer() {
     const saveDisabled = isEmpty(this.state.customers);
 
-    return (
-      <SaveCancel
-        onCancel={this.props.onCancel}
-        onSave={this.handleSave}
-        saveDisabled={saveDisabled}
-      />
-    );
+    return <SaveCancel onCancel={this.props.onCancel} onSave={this.handleSave} saveDisabled={saveDisabled} />;
   }
 
   render() {
     const props = this.props;
 
     return (
-      <Modal
-        title="Select Customers"
-        footer={this.footer}
-        isVisible={props.isVisible}
-        onClose={this.props.onCancel}
-      >
+      <Modal title="Select Customers" footer={this.footer} isVisible={props.isVisible} onClose={this.props.onCancel}>
         <CustomersTypeahead
           suggestCustomers={props.suggestCustomers}
           suggested={props.suggested}

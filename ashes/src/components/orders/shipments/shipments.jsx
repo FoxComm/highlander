@@ -19,17 +19,16 @@ import UnshippedItems from './unshipped-items';
 import type AsyncState from 'lib/async-action-creator';
 import type { TShipment, TUnshippedLineItem } from 'paragons/shipment';
 
-
 type Props = {
-  shipments: Array<TShipment>;
-  unshippedItems: Array<TUnshippedLineItem>;
-  fetchShipments: AsyncState;
+  shipments: Array<TShipment>,
+  unshippedItems: Array<TUnshippedLineItem>,
+  fetchShipments: AsyncState,
   actions: {
-    fetchShipments: Function;
-  };
+    fetchShipments: Function,
+  },
   entity: {
-    referenceNumber: string;
-  };
+    referenceNumber: string,
+  },
 };
 
 const mapStateToProps = state => state.orders.shipments;
@@ -75,13 +74,9 @@ class Shipments extends Component {
 
     return (
       <div>
-        {shipments.map((shipment, index) => (
-          <Shipment
-            key={index}
-            index={index + 1}
-            total={shipments.length}
-            details={shipment} />
-        ))}
+        {shipments.map((shipment, index) =>
+          <Shipment key={index} index={index + 1} total={shipments.length} details={shipment} />
+        )}
       </div>
     );
   }

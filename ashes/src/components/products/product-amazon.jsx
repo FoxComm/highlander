@@ -36,16 +36,19 @@ import s from './product-amazon.css';
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators({
-      fetchSchema: schemaActions.fetchSchema,
-      updateProduct: productActions.updateProduct,
-      fetchProduct: productActions.fetchProduct,
-      clearAmazonErrors: amazonActions.clearErrors,
-      resetAmazonState: amazonActions.resetState,
-      fetchAmazonSchema: amazonActions.fetchAmazonSchema,
-      pushProduct: amazonActions.pushToAmazon,
-      fetchProductStatus: amazonActions.fetchAmazonProductStatus,
-    }, dispatch),
+    actions: bindActionCreators(
+      {
+        fetchSchema: schemaActions.fetchSchema,
+        updateProduct: productActions.updateProduct,
+        fetchProduct: productActions.fetchProduct,
+        clearAmazonErrors: amazonActions.clearErrors,
+        resetAmazonState: amazonActions.resetState,
+        fetchAmazonSchema: amazonActions.fetchAmazonSchema,
+        pushProduct: amazonActions.pushToAmazon,
+        fetchProductStatus: amazonActions.fetchAmazonProductStatus,
+      },
+      dispatch
+    ),
   };
 }
 
@@ -108,13 +111,7 @@ class ProductAmazon extends Component {
     const { productId } = this.props.params;
     const { originalProduct } = this.props;
     const categoryId = this.nodeId();
-    const {
-      clearAmazonErrors,
-      fetchProduct,
-      fetchSchema,
-      resetAmazonState,
-      fetchAmazonSchema,
-    } = this.props.actions;
+    const { clearAmazonErrors, fetchProduct, fetchSchema, resetAmazonState, fetchAmazonSchema } = this.props.actions;
 
     if (!originalProduct) {
       clearAmazonErrors();
@@ -179,10 +176,7 @@ class ProductAmazon extends Component {
 
     return (
       <ContentBox title="Variants Information">
-        <ProductAmazonVariants
-          product={product}
-          onChange={this.handleProductChange}
-        />
+        <ProductAmazonVariants product={product} onChange={this.handleProductChange} />
       </ContentBox>
     );
   }
@@ -201,7 +195,7 @@ class ProductAmazon extends Component {
     updateProduct(product)
       .then(() => pushProduct(product.id))
       .then(() => this.setState({ saveBtnIsLoading: false }))
-      .catch((error) => this.setState({ error, saveBtnIsLoading: false }));
+      .catch(error => this.setState({ error, saveBtnIsLoading: false }));
   }
 
   validate() {
@@ -213,9 +207,7 @@ class ProductAmazon extends Component {
 
     const hasCategory = !!this.nodeId(product);
     const checkedVariants = product.skus.filter(sku => _.get(sku, 'attributes.amazon.v', false));
-    const checkedVariantsHasInventory = checkedVariants.every(
-      sku => _.get(sku, 'attributes.inventory.v', 0) > 0
-    );
+    const checkedVariantsHasInventory = checkedVariants.every(sku => _.get(sku, 'attributes.inventory.v', 0) > 0);
     const checkedVariantsHasUpc = checkedVariants.every(sku => !!_.get(sku, 'attributes.upc.v', ''));
     // @todo validate all other fields
 
@@ -263,11 +255,7 @@ class ProductAmazon extends Component {
           {this.renderButtons()}
         </header>
         <ContentBox title="Amazon Listing Information" className={s.box}>
-          <ProductAmazonMain
-            product={product}
-            schema={schema}
-            onChange={this.handleProductChange}
-          />
+          <ProductAmazonMain product={product} schema={schema} onChange={this.handleProductChange} />
         </ContentBox>
         {this.renderVariants()}
         <footer className={s.footer}>

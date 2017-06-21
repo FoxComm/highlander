@@ -129,16 +129,11 @@ class Participants extends Component {
     const { id } = user;
     const key = hidden ? `cell-hidden-${id}` : `cell-${id}`;
 
-    const actionBlock = (
-      <Button icon="close" onClick={() => this.props.removeParticipant(id)} />
-    );
+    const actionBlock = <Button icon="close" onClick={() => this.props.removeParticipant(id)} />;
 
     return (
       <div styleName="cell" key={key}>
-        <DetailedInitials {...user}
-          actionBlock={actionBlock}
-          showTooltipOnClick={true}
-        />
+        <DetailedInitials {...user} actionBlock={actionBlock} showTooltipOnClick={true} />
       </div>
     );
   }
@@ -151,19 +146,16 @@ class Participants extends Component {
     }
 
     if (users.length <= props.maxDisplayed) {
-      return users.map((user) => this.renderCell(user));
+      return users.map(user => this.renderCell(user));
     }
 
     const displayedUsers = users.slice(0, props.maxDisplayed - 1);
     const hiddenUsers = users.slice(props.maxDisplayed - 1);
 
-    const displayedCells = displayedUsers.map((user) => this.renderCell(user));
-    const hiddenCells = hiddenUsers.map((user) => this.renderCell(user, true));
+    const displayedCells = displayedUsers.map(user => this.renderCell(user));
+    const hiddenCells = hiddenUsers.map(user => this.renderCell(user, true));
 
-    return [
-      displayedCells,
-      this.renderHiddenRow(hiddenCells),
-    ];
+    return [displayedCells, this.renderHiddenRow(hiddenCells)];
   }
 
   @autobind
@@ -181,10 +173,7 @@ class Participants extends Component {
 
     return (
       <div styleName="users-row">
-        <AddButton
-          onClick={this.handleAddClick}
-          small
-        />
+        <AddButton onClick={this.handleAddClick} small />
         {this.usersRow}
       </div>
     );

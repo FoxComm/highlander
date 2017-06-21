@@ -34,9 +34,12 @@ import s from './product-amazon.css';
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators({
-      fetchSuggest,
-    }, dispatch),
+    actions: bindActionCreators(
+      {
+        fetchSuggest,
+      },
+      dispatch
+    ),
   };
 }
 
@@ -51,7 +54,7 @@ function mapStateToProps(state) {
 
 const AMAZON_APPROVE_LINK = [
   `https://sellercentral.amazon.com/gp/case-dashboard/workflow-details.html/`,
-  `?extraArguments={%22caseCategory%22%3A%22apparel%22,%22workflowId%22:%2276%22}`
+  `?extraArguments={%22caseCategory%22%3A%22apparel%22,%22workflowId%22:%2276%22}`,
 ].join('');
 
 type Actions = {
@@ -128,10 +131,12 @@ class ProductAmazonMain extends Component {
   handleChange(nextAttributes) {
     const { product, onChange } = this.props;
 
-    onChange(assoc(product, 'attributes', {
-      ...product.attributes,
-      ...nextAttributes,
-    }));
+    onChange(
+      assoc(product, 'attributes', {
+        ...product.attributes,
+        ...nextAttributes,
+      })
+    );
   }
 
   @autobind
@@ -143,8 +148,8 @@ class ProductAmazonMain extends Component {
     this.setState({ categoryId: id, categoryPath: path });
 
     const nextAttributes = {
-      nodeId: { t: 'string', v: id, },
-      nodePath: { t: 'string', v: path, },
+      nodeId: { t: 'string', v: id },
+      nodePath: { t: 'string', v: path },
     };
 
     this.handleChange(nextAttributes);

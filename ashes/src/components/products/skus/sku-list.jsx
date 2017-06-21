@@ -153,14 +153,12 @@ export default class SkuList extends Component {
           emptyMessage="This product does not have any SKUs."
           hasActionsColumn={false}
         />
-        { this.deleteDialog }
+        {this.deleteDialog}
       </div>
     );
   }
 
   render() {
-    return _.isEmpty(this.props.skus)
-      ? this.emptyContent
-      : this.skuContent(this.props.skus);
+    return _.isEmpty(this.props.skus) ? this.emptyContent : this.skuContent(this.props.skus);
   }
 }

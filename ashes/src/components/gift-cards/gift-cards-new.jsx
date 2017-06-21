@@ -25,7 +25,7 @@ import { createGiftCard } from 'modules/gift-cards/list';
 import { fetchReasons } from 'modules/reasons';
 
 const typeTitles = {
-  'csrAppeasement': 'Appeasement'
+  csrAppeasement: 'Appeasement',
 };
 
 const reasonType = ReasonType.GIFT_CARD_CREATION;
@@ -36,17 +36,19 @@ const subTypes = createSelector(
   (originType, types = []) => _.get(_.find(types, { originType }), 'subTypes', [])
 );
 
-@connect(state => ({
-  ...state.giftCards.adding.giftCard,
-  subTypes: subTypes(state),
-  creationReasons: _.get(state, ['reasons', 'reasons', reasonType], []),
-}), {
-  ...GiftCardNewActions,
-  createGiftCard,
-  fetchReasons,
-})
+@connect(
+  state => ({
+    ...state.giftCards.adding.giftCard,
+    subTypes: subTypes(state),
+    creationReasons: _.get(state, ['reasons', 'reasons', reasonType], []),
+  }),
+  {
+    ...GiftCardNewActions,
+    createGiftCard,
+    fetchReasons,
+  }
+)
 export default class NewGiftCard extends React.Component {
-
   static propTypes = {
     fetchTypes: PropTypes.func,
     balance: PropTypes.number,
@@ -100,16 +102,15 @@ export default class NewGiftCard extends React.Component {
   submitForm(event) {
     event.preventDefault();
 
-    this.props.createGiftCard()
-      .then(resp => {
-        if (!_.isArray(resp) || resp.length === 1) {
-          const giftCard = _.get(resp, '[0].giftCard', resp);
-          transitionTo('giftcard', { giftCard: giftCard.code });
-        } else {
-          // TODO: show only created items
-          transitionTo('gift-cards');
-        }
-      });
+    this.props.createGiftCard().then(resp => {
+      if (!_.isArray(resp) || resp.length === 1) {
+        const giftCard = _.get(resp, '[0].giftCard', resp);
+        transitionTo('giftcard', { giftCard: giftCard.code });
+      } else {
+        // TODO: show only created items
+        transitionTo('gift-cards');
+      }
+    });
   }
 
   @autobind
@@ -136,10 +137,11 @@ export default class NewGiftCard extends React.Component {
       return (
         <div className="fc-new-gift-card__subtypes fc-col-md-1-2">
           <label className="fc-new-gift-card__label" htmlFor="subTypeId">Subtype</label>
-          <Dropdown id="gift-card-subtype-dd"
-                    value={`${props.subTypeId}`}
-                    onChange={ value => props.changeFormData('subTypeId', Number(value)) }
-                    items={props.subTypes.map(subType =>[subType.id, subType.title])}
+          <Dropdown
+            id="gift-card-subtype-dd"
+            value={`${props.subTypeId}`}
+            onChange={value => props.changeFormData('subTypeId', Number(value))}
+            items={props.subTypes.map(subType => [subType.id, subType.title])}
           />
         </div>
       );
@@ -150,24 +152,13 @@ export default class NewGiftCard extends React.Component {
     return (
       <fieldset className="fc-new-gift-card__fieldset">
         <label className="fc-new-gift-card__label" htmlFor="quantity">Quantity</label>
-        <Counter
-          id="quantity"
-          value={this.props.quantity}
-          onChange={this.props.changeQuantity}
-          min={1}
-        />
+        <Counter id="quantity" value={this.props.quantity} onChange={this.props.changeQuantity} min={1} />
       </fieldset>
     );
   }
 
   render() {
-    const {
-      originType,
-      changeFormData,
-      types,
-      balance,
-      balances
-    } = this.props;
+    const { originType, changeFormData, types, balance, balances } = this.props;
 
     const saveDisabled = balance === 0;
 
@@ -176,44 +167,42 @@ export default class NewGiftCard extends React.Component {
         <header className="fc-col-md-1-1">
           <h1>Issue New Gift Card</h1>
         </header>
-        <Form className="fc-form-vertical fc-col-md-1-1"
-              onSubmit={this.submitForm}
-              onChange={this.onChangeValue}>
+        <Form className="fc-form-vertical fc-col-md-1-1" onSubmit={this.submitForm} onChange={this.onChangeValue}>
           <div className="fc-grid fc-grid-no-gutter fc-new-gift-card__fieldset">
             <div className="fc-new-gift-card__types fc-col-md-1-2">
               <label className="fc-new-gift-card__label" htmlFor="originType">Gift Card Type</label>
-              <Dropdown id="fct-gift-card-type-dd"
-                        value={originType}
-                        onChange={value => changeFormData('originType', value) }
-                        items={types.map((entry, idx) => [entry.originType, typeTitles[entry.originType]])}
+              <Dropdown
+                id="fct-gift-card-type-dd"
+                value={originType}
+                onChange={value => changeFormData('originType', value)}
+                items={types.map((entry, idx) => [entry.originType, typeTitles[entry.originType]])}
               />
             </div>
             {this.subTypes}
           </div>
           <fieldset className="fc-new-gift-card__fieldset fc-new-gift-card__amount">
             <label className="fc-new-gift-card__label" htmlFor="value">Value</label>
-            <CurrencyInput inputClass="_no-counters"
-                           inputName="balance"
-                           value={balance}
-                           onChange={this.onChangeAmount}
-                           step={0.01}
+            <CurrencyInput
+              inputClass="_no-counters"
+              inputName="balance"
+              value={balance}
+              onChange={this.onChangeAmount}
+              step={0.01}
             />
             <div className="fc-new-gift-card__balances">
-              {
-                balances.map((balance, idx) => {
-                  return (
-                    <div className={
-                          classNames('fc-new-gift-card__balance-value', {
-                            '_selected': this.props.balance == balance
-                          })
-                        }
-                         key={`balance-${idx}`}
-                         onClick={() => changeFormData('balance', balance)}>
-                      ${balance/100}
-                    </div>
-                  );
-                })
-              }
+              {balances.map((balance, idx) => {
+                return (
+                  <div
+                    className={classNames('fc-new-gift-card__balance-value', {
+                      _selected: this.props.balance == balance,
+                    })}
+                    key={`balance-${idx}`}
+                    onClick={() => changeFormData('balance', balance)}
+                  >
+                    ${balance / 100}
+                  </div>
+                );
+              })}
             </div>
           </fieldset>
           {this.quantitySection}

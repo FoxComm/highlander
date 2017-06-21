@@ -72,17 +72,13 @@ export default class ProductForm extends ObjectDetails {
       const syncFields = ['activeTo', 'activeFrom'];
       const updateArgs = _.flatMap(syncFields, field => {
         const originalValue = _.get(this.props.object, ['attributes', field]);
-        return [
-          ['attributes', field], _.get(attributes, field, originalValue)
-        ];
+        return [['attributes', field], _.get(attributes, field, originalValue)];
       });
 
       skus = _.map(skus, sku => assoc(sku, ...updateArgs));
     }
 
-    return assoc(newObject,
-      ['skus'], skus
-    );
+    return assoc(newObject, ['skus'], skus);
   }
 
   renderOptionList() {
@@ -98,16 +94,12 @@ export default class ProductForm extends ObjectDetails {
 
   @autobind
   handleDeleteSku(skuCode: string) {
-    this.props.onUpdateObject(
-      deleteVariantCombination(this.props.object, skuCode)
-    );
+    this.props.onUpdateObject(deleteVariantCombination(this.props.object, skuCode));
   }
 
   @autobind
   handleAddVariants(variantValues: Array<Array<OptionValue>>) {
-    this.props.onUpdateObject(
-      addSkusForVariants(this.props.object, variantValues)
-    );
+    this.props.onUpdateObject(addSkusForVariants(this.props.object, variantValues));
   }
 
   @autobind
@@ -128,12 +120,7 @@ export default class ProductForm extends ObjectDetails {
     const slugField = (
       <div styleName="slug-field-container">
         <span styleName="prefix">/products/</span>
-        <TextInput
-          className={fieldClass}
-          name="slug"
-          value={value}
-          onChange={this.onSlugChange}
-        />
+        <TextInput className={fieldClass} name="slug" value={value} onChange={this.onSlugChange} />
         <div styleName="field-comment">
           Slug can only contain letters, numbers, dashes, and underscores.
         </div>
@@ -142,7 +129,7 @@ export default class ProductForm extends ObjectDetails {
     const opts = {
       label: 'Slug',
       required: false,
-      isDefined: (value) => _.isEmpty(value),
+      isDefined: value => _.isEmpty(value),
     };
 
     return renderFormField('SLUG', slugField, opts);
@@ -167,5 +154,4 @@ export default class ProductForm extends ObjectDetails {
 
     this.props.onUpdateObject(newObject);
   }
-
 }

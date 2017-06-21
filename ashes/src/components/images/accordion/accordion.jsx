@@ -12,33 +12,32 @@ import Icon from 'components/core/icon';
 import styles from './accordion.css';
 
 type Action = {
-  name: string;
-  handler: Function;
-}
+  name: string,
+  handler: Function,
+};
 
 type Props = {
-  actions: Array<Action>;
-  title: string;
-  placeholder: string;
-  open: boolean;
-  loading: boolean;
-  editMode: boolean;
-  onEditComplete: Function;
-  onEditCancel: Function;
-  titleWrapper?: (title: string) => Element<*>;
-  resetOverflowTimeout: number;
-  className?: string;
-  contentClassName?: string;
-  children?: Array<Element<*>>|Element<*>;
-}
+  actions: Array<Action>,
+  title: string,
+  placeholder: string,
+  open: boolean,
+  loading: boolean,
+  editMode: boolean,
+  onEditComplete: Function,
+  onEditCancel: Function,
+  titleWrapper?: (title: string) => Element<*>,
+  resetOverflowTimeout: number,
+  className?: string,
+  contentClassName?: string,
+  children?: Array<Element<*>> | Element<*>,
+};
 
 type State = {
-  title: string;
-  open: boolean;
-}
+  title: string,
+  open: boolean,
+};
 
 export default class Accordion extends Component {
-
   props: Props;
 
   static defaultProps = {
@@ -56,7 +55,7 @@ export default class Accordion extends Component {
     open: this.props.open,
   };
 
-  mounted: bool;
+  mounted: boolean;
 
   componentDidMount(): void {
     window.addEventListener('resize', this.handleResize);
@@ -172,7 +171,7 @@ export default class Accordion extends Component {
       titleElement = (
         <div className="fc-form-field">
           <input
-            className={classNames(styles.input, {[styles.loading]: this.props.loading})}
+            className={classNames(styles.input, { [styles.loading]: this.props.loading })}
             autoFocus
             type="text"
             onClick={this.onClick}
@@ -223,9 +222,13 @@ export default class Accordion extends Component {
   render() {
     const { className, contentClassName } = this.props;
 
-    const cls = classNames(styles.accordion, {
-      [styles._open]: this.state.open,
-    }, className);
+    const cls = classNames(
+      styles.accordion,
+      {
+        [styles._open]: this.state.open,
+      },
+      className
+    );
 
     return (
       <div className={cls}>

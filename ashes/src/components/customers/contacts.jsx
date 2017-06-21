@@ -25,11 +25,13 @@ function mapDispatchToProps(dispatch, props) {
   });
 }
 
-@connect((state, props) => ({
-  ...state.customers.details[props.customerId]
-}), mapDispatchToProps)
+@connect(
+  (state, props) => ({
+    ...state.customers.details[props.customerId],
+  }),
+  mapDispatchToProps
+)
 export default class CustomerContacts extends React.Component {
-
   static propTypes = {
     customerId: PropTypes.number.isRequired,
     toggleEditCustomer: PropTypes.func.isRequired,
@@ -45,7 +47,7 @@ export default class CustomerContacts extends React.Component {
     this.state = {
       name: props.details.name,
       email: props.details.email,
-      phoneNumber: props.details.phoneNumber
+      phoneNumber: props.details.phoneNumber,
     };
   }
 
@@ -79,15 +81,15 @@ export default class CustomerContacts extends React.Component {
     }
 
     return (
-      <FormField validator={ CustomerContacts.validateName }>
+      <FormField validator={CustomerContacts.validateName}>
         <TextInput
-         id='nameField'
-         className='fc-customer-form-input'
-         name='Name'
-         maxLength='255'
-         required
-         onChange={(value) => this.setState({name: value})}
-         value={ this.state.name }
+          id="nameField"
+          className="fc-customer-form-input"
+          name="Name"
+          maxLength="255"
+          required
+          onChange={value => this.setState({ name: value })}
+          value={this.state.name}
         />
       </FormField>
     );
@@ -99,15 +101,15 @@ export default class CustomerContacts extends React.Component {
     }
 
     return (
-      <FormField validator={ CustomerContacts.validateEmail }>
+      <FormField validator={CustomerContacts.validateEmail}>
         <TextInput
-         id='emailField'
-         className='fc-customer-form-input'
-         name='Email'
-         maxLength='255'
-         required
-         onChange={(value) => this.setState({email: value})}
-         value={this.state.email}
+          id="emailField"
+          className="fc-customer-form-input"
+          name="Email"
+          maxLength="255"
+          required
+          onChange={value => this.setState({ email: value })}
+          value={this.state.email}
         />
       </FormField>
     );
@@ -119,15 +121,15 @@ export default class CustomerContacts extends React.Component {
     }
 
     return (
-      <FormField validator='ascii'>
+      <FormField validator="ascii">
         <TextInput
-         id='phoneField'
-         className='fc-customer-form-input'
-         name='Phone'
-         maxLength='255'
-         required
-         onChange={(value) => this.setState({phoneNumber: value})}
-         value={this.state.phoneNumber}
+          id="phoneField"
+          className="fc-customer-form-input"
+          name="Phone"
+          maxLength="255"
+          required
+          onChange={value => this.setState({ phoneNumber: value })}
+          value={this.state.phoneNumber}
         />
       </FormField>
     );
@@ -141,34 +143,28 @@ export default class CustomerContacts extends React.Component {
 
   get actionBlock() {
     if (!this.props.isContactsEditing) {
-      return (
-        <EditButton id="fct-edit-btn__customer-contacts" onClick={ this.onEditClick } />
-      );
+      return <EditButton id="fct-edit-btn__customer-contacts" onClick={this.onEditClick} />;
     }
   }
 
   render() {
     return (
-      <ContentBox title='Contact Information'
-                  className='fc-customer-contacts'
-                  actionBlock={ this.actionBlock }>
+      <ContentBox title="Contact Information" className="fc-customer-contacts" actionBlock={this.actionBlock}>
         <ApiErrors response={this.props.err} closeAction={this.props.cleanErrors} />
-        <Form className='fc-customer-contacts-form fc-form-vertical'
-              onChange={ this.onChange }
-              onSubmit={ this.onSubmit }>
+        <Form className="fc-customer-contacts-form fc-form-vertical" onChange={this.onChange} onSubmit={this.onSubmit}>
           <dl>
             <dt>First & Last Name</dt>
-            { this.nameField }
+            {this.nameField}
           </dl>
           <dl>
             <dt>Email Address</dt>
-            { this.emailField }
+            {this.emailField}
           </dl>
           <dl>
             <dt>Phone Number</dt>
-            { this.phoneField }
+            {this.phoneField}
           </dl>
-          { this.formActions }
+          {this.formActions}
         </Form>
       </ContentBox>
     );

@@ -16,7 +16,7 @@ import TextInput from 'components/core/text-input';
 import styles from './option-list.css';
 
 type OptionEntry = {
-  id: number|string,
+  id: number | string,
   option: Option,
 };
 
@@ -43,11 +43,9 @@ class OptionEditDialog extends Component {
 
   @autobind
   handleChange(value: string, field: string): void {
-    const option = assoc(this.state.option,
-      ['attributes', field, 'v'], value
-    );
+    const option = assoc(this.state.option, ['attributes', field, 'v'], value);
 
-    this.setState({option});
+    this.setState({ option });
   }
 
   updateOption(): void {
@@ -69,12 +67,7 @@ class OptionEditDialog extends Component {
 
     return (
       <Form ref="form" styleName="option-edit-dialog">
-        <FormField
-          className="fc-object-form__field"
-          label="Name"
-          key={`object-form-attribute-name`}
-          required
-        >
+        <FormField className="fc-object-form__field" label="Name" key={`object-form-attribute-name`} required>
           <TextInput
             id="fct-option-name-fld"
             ref="nameInput"
@@ -84,17 +77,8 @@ class OptionEditDialog extends Component {
             autoFocus
           />
         </FormField>
-        <FormField
-          className="fc-object-form__field"
-          label="Display Type"
-          key={`object-form-attribute-type`}
-        >
-          <TextInput
-            id="option-display-type-fld"
-            value={type}
-            name="type"
-            onChange={this.handleChange}
-          />
+        <FormField className="fc-object-form__field" label="Display Type" key={`object-form-attribute-type`}>
+          <TextInput id="option-display-type-fld" value={type} name="type" onChange={this.handleChange} />
         </FormField>
       </Form>
     );

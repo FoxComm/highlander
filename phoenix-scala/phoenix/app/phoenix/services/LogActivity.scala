@@ -59,9 +59,12 @@ import phoenix.services.activity.UserTailored._
 import phoenix.services.carts.CartLineItemUpdater.foldQuantityPayload
 import phoenix.utils.aliases._
 
-case class LogActivity(implicit ac: AC) {
+class LogActivity(val ac: AC) extends AnyVal {
 
-  def withScope(scope: LTree): LogActivity = copy()(ac = ac.copy(ctx = ac.ctx.copy(scope = scope)))
+  @inline implicit private def ctx: AC = ac
+
+  def withScope(scope: LTree): LogActivity =
+    new LogActivity(ac = ac.copy(ctx = ac.ctx.copy(scope = scope)))
 
   /* Assignments */
   def assigned[T](admin: User,
@@ -175,9 +178,9 @@ case class LogActivity(implicit ac: AC) {
     }
   }
 
-  def userRemindPassword(user: User, code: String)(implicit ec: EC): DbResultT[Activity] = {
+  def userRemindPassword(user: User, code: String, isAdmin: Boolean)(implicit ec: EC): DbResultT[Activity] = {
     val userResponse = UserResponse.build(user)
-    Activities.log(UserRemindPassword(user = userResponse, code = code))
+    Activities.log(UserRemindPassword(user = userResponse, code = code, isAdmin = isAdmin))
   }
 
   def userPasswordReset(user: User)(implicit ec: EC): DbResultT[Activity] =
@@ -553,8 +556,9 @@ case class LogActivity(implicit ac: AC) {
     Activities.log(MultipleCouponCodesGenerated(coupon, admin.map(UserResponse.build(_))))
 
   /* Store Admin */
-  def storeAdminCreated(entity: User, admin: Option[User])(implicit ec: EC): DbResultT[Activity] =
-    Activities.log(StoreAdminCreated(entity, admin))
+  def storeAdminCreated(entity: User, admin: Option[User], code: Option[String])(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(StoreAdminCreated(entity, admin, code))
 
   def storeAdminUpdated(entity: User, admin: User)(implicit ec: EC): DbResultT[Activity] =
     Activities.log(StoreAdminUpdated(entity, admin))
@@ -567,16 +571,13 @@ case class LogActivity(implicit ac: AC) {
     Activities.log(StoreAdminStateChanged(entity, oldState, newState, admin))
 
   /* Customer Groups */
-  def customerGroupCreated(customerGroup: CustomerGroup, admin: User)(implicit ec: EC,
-                                                                      ac: AC): DbResultT[Activity] =
+  def customerGroupCreated(customerGroup: CustomerGroup, admin: User)(implicit ec: EC): DbResultT[Activity] =
     Activities.log(CustomerGroupCreated(CustomerGroupActivity(customerGroup), admin))
 
-  def customerGroupUpdated(customerGroup: CustomerGroup, admin: User)(implicit ec: EC,
-                                                                      ac: AC): DbResultT[Activity] =
+  def customerGroupUpdated(customerGroup: CustomerGroup, admin: User)(implicit ec: EC): DbResultT[Activity] =
     Activities.log(CustomerGroupUpdated(CustomerGroupActivity(customerGroup), admin))
 
-  def customerGroupArchived(customerGroup: CustomerGroup, admin: User)(implicit ec: EC,
-                                                                       ac: AC): DbResultT[Activity] =
+  def customerGroupArchived(customerGroup: CustomerGroup, admin: User)(implicit ec: EC): DbResultT[Activity] =
     Activities.log(CustomerGroupArchived(CustomerGroupActivity(customerGroup), admin))
 
   /* Mail stuff */
@@ -588,4 +589,8 @@ case class LogActivity(implicit ac: AC) {
   /* Helpers */
   private def buildOriginator(originator: User): Option[UserResponse] =
     Some(UserResponse.build(originator))
+}
+
+object LogActivity {
+  def apply()(implicit ac: AC): LogActivity = new LogActivity(ac)
 }

@@ -15,7 +15,7 @@ type Props = {
   addState: AsyncState,
   addedProducts: Array<Product>,
   title: string | Element<*>,
-}
+};
 
 class ProductsAddModal extends Component {
   props: Props;
@@ -28,16 +28,8 @@ class ProductsAddModal extends Component {
     const { isVisible, title, addedProducts, addState, onAddProduct, onCancel } = this.props;
 
     return (
-      <Modal
-        title={title}
-        isVisible={isVisible}
-        onClose={onCancel}
-      >
-        <ProductsAdd
-          addedProducts={addedProducts}
-          addState={addState}
-          onAddProduct={onAddProduct}
-        />
+      <Modal title={title} isVisible={isVisible} onClose={onCancel}>
+        <ProductsAdd addedProducts={addedProducts} addState={addState} onAddProduct={onAddProduct} />
       </Modal>
     );
   }

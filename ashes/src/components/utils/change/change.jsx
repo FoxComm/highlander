@@ -9,8 +9,8 @@ import s from './change.css';
 
 type Props = {
   /** value of change */
-  value: number
-}
+  value: number,
+};
 
 /**
  * Change component serves to render colored number changes
@@ -22,7 +22,7 @@ const Change = (props: Props) => {
 
   const cls = classNames(s.change, {
     [s.positive]: value > 0,
-    [s.negative]: value < 0
+    [s.negative]: value < 0,
   });
 
   return <span className={cls}>{Math.abs(value)}</span>;

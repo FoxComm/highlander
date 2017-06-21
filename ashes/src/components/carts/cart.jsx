@@ -21,7 +21,7 @@ import type { Cart as TCart } from 'paragons/order';
 
 type RouteParams = {
   cart: string,
-}
+};
 
 type CartDetails = {
   cart?: TCart,
@@ -33,7 +33,7 @@ type Props = {
   params: RouteParams,
   details: CartDetails,
   children: Element<*>,
-  isFetching: boolean|null,
+  isFetching: boolean | null,
   fetchError: ?Object,
 };
 
@@ -41,7 +41,7 @@ const refNum = (props: Props): string => {
   return props.params.cart;
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   return {
     details: state.carts.details,
     isFetching: _.get(state.asyncActions, 'fetchCart.inProgress', null),

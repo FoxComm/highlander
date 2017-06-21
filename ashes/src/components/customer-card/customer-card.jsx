@@ -27,7 +27,7 @@ type Props = {
 export default class CustomerInfo extends Component {
   props: Props;
 
-  ensureNotEmpty(val: number|string) {
+  ensureNotEmpty(val: number | string) {
     return val ? <span>{val}</span> : <span>&nbsp;</span>;
   }
 
@@ -45,7 +45,7 @@ export default class CustomerInfo extends Component {
     } else if (customer.groups) {
       return (
         <div>
-          {customer.groups.map((customer) => {
+          {customer.groups.map(customer => {
             return <div styleName="group">{customer}</div>;
           })}
         </div>

@@ -28,12 +28,7 @@ const renderError = (closeAction: CloseAction) => (error: string, index: number)
   const handleClose = closeAction ? () => closeAction(error) : null;
 
   return (
-    <Alert
-      className={s.alert}
-      type={Alert.ERROR}
-      closeAction={handleClose}
-      key={`${error}-${index}`}
-    >
+    <Alert className={s.alert} type={Alert.ERROR} closeAction={handleClose} key={`${error}-${index}`}>
       {error}
     </Alert>
   );

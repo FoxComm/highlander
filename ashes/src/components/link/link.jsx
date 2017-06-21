@@ -20,6 +20,9 @@ export type Props = {
   actualClaims: Claims,
   /** Claims required to render link */
   expectedClaims: Claims,
+  params?: Object,
+  to: string,
+  activeClassName?: string,
   /** Children */
   children?: Element<any> | Array<Element<any>>,
 };

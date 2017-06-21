@@ -31,65 +31,42 @@ const CatalogDetails = (props: Props) => {
   const { onChange, onSubmit } = props;
   const { err } = props;
 
-  const country = _.find(countries, { 'id': countryId });
+  const country = _.find(countries, { id: countryId });
 
   let languages = _.get(country, 'languages', []);
   if (_.indexOf('en') == -1) {
     languages = ['en', ...languages];
   }
 
-  const countryItems = countries.map((country) => [country.id, country.name]);
-  const languageItems = languages.map((lang) => [lang, lang]);
+  const countryItems = countries.map(country => [country.id, country.name]);
+  const languageItems = languages.map(lang => [lang, lang]);
 
   return (
     <Content>
       <div styleName="form-content">
-        {err && (
-          <Alert type="error">{err}</Alert>
-        )}
+        {err && <Alert type="error">{err}</Alert>}
         <ContentBox title="General">
           <Form onSubmit={onSubmit}>
-            <VerticalFormField
-              controlId= "name"
-              label="Name"
-              required
-            >
-              <TextInput
-                onChange={(v) => onChange('name', v)}
-                value={name}
-              />
+            <VerticalFormField controlId="name" label="Name" required>
+              <TextInput onChange={v => onChange('name', v)} value={name} />
             </VerticalFormField>
-            <VerticalFormField
-              controlId="site"
-              label="Site URL"
-            >
-              <TextInput
-                onChange={(v) => onChange('site', v)}
-                value={site}
-              />
+            <VerticalFormField controlId="site" label="Site URL">
+              <TextInput onChange={v => onChange('site', v)} value={site} />
             </VerticalFormField>
-            <VerticalFormField
-              controlId="countryId"
-              label="Country"
-              required
-            >
+            <VerticalFormField controlId="countryId" label="Country" required>
               <Dropdown
                 name="countryId"
                 value={countryId}
                 items={countryItems}
-                onChange={(c) => onChange('countryId', c)}
+                onChange={c => onChange('countryId', c)}
               />
             </VerticalFormField>
-            <VerticalFormField
-              controlId="defaultLanguage"
-              label="Default Language"
-              required
-            >
+            <VerticalFormField controlId="defaultLanguage" label="Default Language" required>
               <Dropdown
                 name="defaultLanguage"
                 value={defaultLanguage}
                 items={languageItems}
-                onChange={(l) => onChange('defaultLanguage', l)}
+                onChange={l => onChange('defaultLanguage', l)}
               />
             </VerticalFormField>
           </Form>

@@ -8,7 +8,8 @@ import { connect } from 'react-redux';
 import { transitionTo } from 'browserHistory';
 
 // actions
-import * as UserActions from 'modules/users/details';
+import * as userActions from 'modules/users/details';
+import { requestPasswordReset, clearResetPasswordState } from 'modules/user';
 
 // components
 import Spinner from 'components/core/spinner';
@@ -29,11 +30,17 @@ type Props = {
   details: Details,
   children: Element<*>,
   fetchError: any,
-  isFetching: bool,
+  isFetching: boolean,
   fetchUser: Function,
   userNew: Function,
   createUser: Function,
   updateUser: Function,
+  requestPasswordReset: (email: string) => Promise<*>,
+  clearResetPasswordState: () => void,
+  restoreState: {
+    err?: any,
+    inProgress?: boolean,
+  },
 };
 
 type State = {
@@ -94,6 +101,9 @@ class User extends Component {
       onChange: this.handleFormChange,
       isNew: this.isNew,
       entity: this.activityEntity,
+      requestPasswordReset: this.props.requestPasswordReset,
+      clearResetState: this.props.clearResetPasswordState,
+      restoreState: this.props.restoreState,
     });
   }
 
@@ -110,8 +120,8 @@ class User extends Component {
 
   @autobind
   handleNewUserSubmit() {
-    this.props.createUser(this.state.user).then(({ payload }) => {
-      transitionTo('user', {userId: payload.id});
+    this.props.createUser(this.state.user).then(payload => {
+      transitionTo('user', { userId: payload.id });
     });
   }
 
@@ -135,7 +145,7 @@ class User extends Component {
         <SubNav userId={params.userId} user={details} />
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
-            { this.renderChildren() }
+            {this.renderChildren()}
           </div>
         </div>
       </div>
@@ -161,11 +171,17 @@ class User extends Component {
   }
 }
 
-export default connect(
-  state => ({
+function mapState(state) {
+  return {
     details: state.users.details,
     isFetching: _.get(state.asyncActions, 'getUser.inProgress', null),
     fetchError: _.get(state.asyncActions, 'getUser.err', null),
-  }),
-  UserActions
-)(User);
+    restoreState: _.get(state.asyncActions, 'requestPasswordReset', {}),
+  };
+}
+
+export default connect(mapState, {
+  ...userActions,
+  requestPasswordReset,
+  clearResetPasswordState,
+})(User);
