@@ -6,7 +6,7 @@
 }
 
 :root {
-  --avatar-margin-top: calc( -var(--circle-size) / 2); /* stylelint-disable-line */
+  --avatar-margin-top: calc( -var(--circle-size) / 3); /* stylelint-disable-line */
 }
 
 .block {
@@ -19,7 +19,7 @@
 }
 
 .head {
-  height: 91px;
+  height: 60px;
   color: var(--color-light-text);
   background-color: var(--bg-nav-main);
   border-radius: 3px 3px 0 0;
