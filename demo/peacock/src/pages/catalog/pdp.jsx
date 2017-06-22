@@ -11,9 +11,9 @@ import { autobind } from 'core-decorators';
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
-// modules
+// actions
 import { searchGiftCards } from 'modules/products';
-import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-details';
+import { fetch, getNextId, getPreviousId, resetProduct, resetReadyFlag } from 'modules/product-details';
 import { addLineItem, toggleCart } from 'modules/cart';
 import { fetchRelatedProducts, clearRelatedProducts, MAX_CROSS_SELLS_RESULTS } from 'modules/cross-sell';
 import { fetchReviewsForSku, clearReviews } from 'modules/reviews';
@@ -77,6 +77,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators({
     fetch,
+    resetReadyFlag,
     getNextId,
     getPreviousId,
     resetProduct,
@@ -97,6 +98,9 @@ class PdpConnect extends Component {
 
   componentWillMount() {
     if (_.isEmpty(this.props.product)) {
+      if (this.props.isReady !== null) {
+        this.props.actions.resetReadyFlag();
+      }
       this.productPromise = this.fetchProduct();
     } else {
       this.productPromise = Promise.resolve();
