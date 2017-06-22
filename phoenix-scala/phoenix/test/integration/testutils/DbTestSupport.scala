@@ -108,20 +108,26 @@ object DbTestSupport extends GimmeSupport {
       stmt1.execute(s"create database $tplName owner phoenix")
     } finally stmt1.close()
 
+    DbTestSupport.setSearchPath(tplName, conn, List("\"$user\"", "public", "exts"))
+
     val tplCfg = ConfigFactory.parseString(s"""db.name = "$tplName"
                                               |db.url = "jdbc:postgresql://localhost/$tplName?user=phoenix&prepareThreshold=0"
        """.stripMargin).withFallback(TestBase.bareConfig)
-    val tplDb  = Database.forConfig("db", tplCfg)
 
-    DbTestSupport.setSearchPath(tplName, conn, List("\"$user\"", "public", "exts"))
-
+    val tplDb    = Database.forConfig("db", tplCfg)
     val originDs = DbTestSupport.jdbcDataSourceFromSlickDB(api)(tplDb)
-    DbTestSupport.migrateDB(originDs)
-    // TODO: it would be best if data created in *.sql migrations above had randomized sequences as well… @michalrus
-    DbTestSupport.randomizeSequences("public")(ec, tplDb)
-    Factories.createSingleMerchantSystem
-      .gimme(ec = ec, db = tplDb, line = implicitly[SL], file = implicitly[SF])
-    tplDb.close()
+
+    try {
+      DbTestSupport.migrateDB(originDs)
+      // TODO: it would be best if data created in *.sql migrations above had randomized sequences as well… @michalrus
+      DbTestSupport.randomizeSequences("public")(ec, tplDb)
+      Factories.createSingleMerchantSystem
+        .gimme(ec = ec, db = tplDb, line = implicitly[SL], file = implicitly[SF])
+    } finally {
+      tplDb.close()
+    }
+
+    // kill all connections to db template database
     val stmt = conn.createStatement()
     try stmt.execute(s"""select pg_terminate_backend(pid)
                         |from pg_stat_activity
