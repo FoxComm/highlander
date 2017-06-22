@@ -1,3 +1,4 @@
+@import 'colors.css';
 
 .field-label {
   font-weight: 600;
@@ -5,14 +6,14 @@
   font-size: 16px;
   margin-bottom: 10px;
   margin-top: 20px;
-  color: #484848;
+  color: var(--color-text);
   text-transform: capitalize;
 }
 
 .field-comment {
   margin-top: 8px;
   font-size: 13px;
-  color: #909090;
+  color: var(--color-additional-text);
 }
 
 .full-width {
@@ -24,7 +25,7 @@
 }
 
 .text-gray {
-  color: #909090;
+  color: var(--color-additional-text);
 }
 
 :global(.fc-coupon-codes .fc-live-search) {

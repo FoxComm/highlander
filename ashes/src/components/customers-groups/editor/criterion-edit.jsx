@@ -12,9 +12,10 @@ import { prefix } from 'lib/text-utils';
 
 //components
 import { Dropdown } from 'components/dropdown';
+import Icon from 'components/core/icon';
 
 const prefixed = prefix('fc-customer-group-builder');
-const fields = criterions.map(({ field,label }) => [ field, label ]);
+const fields = criterions.map(({ field, label }) => [field, label]);
 
 class Criterion extends Component {
   shouldComponentUpdate(nextProps, nextState) {
@@ -32,13 +33,13 @@ class Criterion extends Component {
         <Dropdown
           items={fields}
           className={prefixed('field')}
-          placeholder='- Select criteria -'
+          placeholder="- Select criteria -"
           value={field}
           onChange={changeField}
         />
         {renderOperator(criterion, operator, changeOperator)}
         {renderValue(criterion, operator, value, changeValue)}
-        <i onClick={remove} className={classNames(prefixed('remove-criterion'), 'icon-close')} />
+        <Icon onClick={remove} className={prefixed('remove-criterion')} name="close" />
       </div>
     );
   }
@@ -55,7 +56,7 @@ const renderOperator = (criterion, operator, changeOperator) => {
     <Dropdown
       items={operators}
       className={prefixed('operator')}
-      placeholder='- Select operator -'
+      placeholder="- Select operator -"
       value={operator}
       onChange={changeOperator}
     />

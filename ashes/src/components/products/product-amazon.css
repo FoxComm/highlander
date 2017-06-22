@@ -1,35 +1,44 @@
+@import 'colors.css';
+
 .root {
   padding: 0 30px;
 }
+
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin: 20px 0;
 }
+
 .title {
   margin: 0;
   flex-grow: 1;
 }
+
 .suggesterWrapper {
   margin-bottom: 20px;
 }
+
 .suggester {
   flex: 1 1 auto;
 }
+
 .approve {
   font-size: 12px;
   padding: 2px 0;
-  color: #363636;
+  color: var(--color-text);
 }
+
 .approveLink {
-  color: #3fc1ab;
+  color: var(--color-link);
   text-decoration: none;
 
   &:hover {
     text-decoration: underline;
   }
 }
+
 .fieldLabel {
   font-weight: 600;
   margin-bottom: 10px;
@@ -37,12 +46,13 @@
 
 .set {
   border: none;
-  background-color: #ccc;
-  color: #333;
+  background-color: var(--bg-grey-buttons);
+  color: var(--color-text);
   cursor: pointer;
 }
+
 .set._disabled {
-  color: #999;
+  color: var(--color-additional-text);
   cursor: default;
 }
 
@@ -53,13 +63,14 @@
 .form {
   margin: 30px 0;
 }
+
 .mainForm {
   overflow: hidden;
   animation: appear .4s ease-in 1;
 }
 
 .table {
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border);
 }
 
 .box {
@@ -77,6 +88,7 @@
     max-height: 0;
     opacity: 0;
   }
+
   to {
     max-height: 4000px;
     opacity: 1;

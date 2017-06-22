@@ -10,7 +10,7 @@ import { transitionTo, transitionToLazy } from 'browserHistory';
 // components
 import PageNav from 'components/core/page-nav';
 import SaveCancel from 'components/core/save-cancel';
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 import { IndexLink } from 'components/link';
 import { PageTitle } from 'components/section-title';
 
@@ -20,7 +20,7 @@ import * as CountryActions from 'modules/countries';
 
 const sortCountries = createSelector(
   state => state.countries,
-  (countries = {}) => _.values(countries).sort((a, b) => a.name < b.name ? -1 : 1)
+  (countries = {}) => _.values(countries).sort((a, b) => (a.name < b.name ? -1 : 1))
 );
 
 function mapStateToProps(state, props) {
@@ -40,7 +40,7 @@ const mapDispatchToProps = {
 
 type AsyncStatus = {
   err: any,
-  inProgress: bool,
+  inProgress: boolean,
 };
 
 type Props = {
@@ -53,7 +53,7 @@ type Props = {
   updateStatus: ?AsyncStatus,
   countries: Array<Country>,
   params: {
-    catalogId: number|string,
+    catalogId: number | string,
   },
 };
 
@@ -84,7 +84,6 @@ class CatalogPage extends Component {
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.params.catalogId !== 'new' && nextProps.catalog) {
       const { name, site, countryId, defaultLanguage } = nextProps.catalog;
-
       this.setState({ name, site, countryId, defaultLanguage });
     }
   }
@@ -95,10 +94,7 @@ class CatalogPage extends Component {
 
     return (
       <PageNav>
-        <IndexLink
-          to="catalog-details"
-          params={params}
-        >
+        <IndexLink to="catalog-details" params={params}>
           Details
         </IndexLink>
       </PageNav>
@@ -136,10 +132,10 @@ class CatalogPage extends Component {
 
   handleSubmit = () => {
     const submitAction = this.isNew
-      ? (state) => this.props.createCatalog(state)
-      : (state) => this.props.updateCatalog(this.props.params.catalogId, state);
+      ? state => this.props.createCatalog(state)
+      : state => this.props.updateCatalog(this.props.params.catalogId, state);
 
-    submitAction(this.state).then((resp) => {
+    submitAction(this.state).then(resp => {
       transitionTo('catalog-details', { catalogId: resp.id });
     });
   };
@@ -161,18 +157,18 @@ class CatalogPage extends Component {
 
     const isFetching = _.get(this.props, 'fetchStatus.inProgress', false);
     if (isFetching) {
-      return <WaitAnimation />;
+      return <Spinner />;
     }
 
     return (
       <div>
         <PageTitle title={this.pageTitle}>
-        <SaveCancel
-          saveText="Save"
-          onSave={this.handleSubmit}
-          onCancel={transitionToLazy('catalogs')}
-          isLoading={this.inProgress}
-        />
+          <SaveCancel
+            saveText="Save"
+            onSave={this.handleSubmit}
+            onCancel={transitionToLazy('catalogs')}
+            isLoading={this.inProgress}
+          />
         </PageTitle>
         {this.localNav}
         {upChildren}

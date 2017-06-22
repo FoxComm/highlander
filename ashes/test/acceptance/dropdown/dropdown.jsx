@@ -11,14 +11,8 @@ describe('FormField', function() {
     }
   });
 
-  it(`should don't fail for empty items`, function *() {
-    dropdown = yield renderIntoDocument(
-      <Dropdown
-        value="someValue"
-        items={[]}
-      />,
-      true
-    );
+  it(`should don't fail for empty items`, function*() {
+    dropdown = yield renderIntoDocument(<Dropdown value="someValue" items={[]} />, true);
 
     expect(dropdown.container.querySelector('.fc-dropdown__controls')).to.be.ok;
   });

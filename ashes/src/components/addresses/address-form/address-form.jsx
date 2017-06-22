@@ -11,11 +11,11 @@ import { createSelector } from 'reselect';
 // components
 import FormField from '../../forms/formfield';
 import FoxyForm from '../../forms/foxy-form';
-import ErrorAlerts from '../../alerts/error-alerts';
+import { ApiErrors } from 'components/utils/errors';
 import SaveCancel from 'components/core/save-cancel';
 import { Dropdown } from '../../dropdown';
-import TextInput from '../../forms/text-input';
-import AutoScroll from '../../common/auto-scroll';
+import AutoScroll from 'components/utils/auto-scroll';
+import TextInput from 'components/core/text-input';
 
 // style
 import s from './address-form.css';
@@ -30,10 +30,10 @@ const formNamespace = props => _.get(props, 'address.id', 'new');
 
 const sortCountries = createSelector(
   state => state.countries,
-  (countries = {}) => _.values(countries).sort((a, b) => a.name < b.name ? -1 : 1)
+  (countries = {}) => _.values(countries).sort((a, b) => (a.name < b.name ? -1 : 1))
 );
 
-const countryIdFromProps = (props) => {
+const countryIdFromProps = props => {
   const defaultCountryId = _.get(_.find(props.countries, { alpha2: 'US' }), 'id');
   const countryId = _.get(props, 'address.region.countryId', defaultCountryId);
   return countryId;
@@ -42,7 +42,7 @@ const countryIdFromProps = (props) => {
 function mapStateToProps(state, props) {
   return {
     countries: sortCountries(state),
-    ...state.addressForm[formNamespace(props)]
+    ...state.addressForm[formNamespace(props)],
   };
 }
 
@@ -60,7 +60,6 @@ function mapDispatchToProps(dispatch, props) {
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class AddressForm extends React.Component {
-
   static propTypes = {
     address: PropTypes.object,
     countries: PropTypes.array,
@@ -94,11 +93,6 @@ export default class AddressForm extends React.Component {
   }
 
   componentDidMount() {
-    const initialFieldInput = this.refs.name;
-    if (initialFieldInput) {
-      initialFieldInput.focus();
-    }
-
     this.props.fetchCountry(this.state.countryId);
   }
 
@@ -128,14 +122,8 @@ export default class AddressForm extends React.Component {
     let input;
 
     if (this.countryCode === 'US') {
-      const onChange = ({ target: { value }}) => this.handlePhoneChange(value);
-      input = (
-        <TextMask
-          {...inputAttributes}
-          onChange={onChange}
-          mask={phoneMask(this.countryCode)}
-        />
-      );
+      const onChange = ({ target: { value } }) => this.handlePhoneChange(value);
+      input = <TextMask {...inputAttributes} onChange={onChange} mask={phoneMask(this.countryCode)} />;
     } else {
       const onChange = value => this.handlePhoneChange(value);
       input = <TextInput {...inputAttributes} onChange={onChange} maxLength="15" />;
@@ -157,7 +145,7 @@ export default class AddressForm extends React.Component {
   }
 
   get errorMessages() {
-    return <ErrorAlerts error={this.props.err} />;
+    return <ApiErrors error={this.props.err} />;
   }
 
   get formTitle() {
@@ -191,9 +179,12 @@ export default class AddressForm extends React.Component {
 
   @autobind
   handleCountryChange(countryId) {
-    this.setState({
-      countryId: countryId,
-    }, () => this.props.fetchCountry(countryId));
+    this.setState(
+      {
+        countryId: countryId,
+      },
+      () => this.props.fetchCountry(countryId)
+    );
   }
 
   @autobind
@@ -205,20 +196,24 @@ export default class AddressForm extends React.Component {
 
   @autobind
   handlePhoneChange(phone) {
-    this.setState({phone});
+    this.setState({ phone });
   }
 
   @autobind
   handleFormSubmit(data) {
     const { submitAction } = this.props;
 
-    const formData = _.reduce(data, (res, val, key) => {
-      if (val !== '') {
-        res[key] = this.prepareValue(key, val);
-      }
+    const formData = _.reduce(
+      data,
+      (res, val, key) => {
+        if (val !== '') {
+          res[key] = this.prepareValue(key, val);
+        }
 
-      return res;
-    }, this.props.address);
+        return res;
+      },
+      this.props.address
+    );
 
     submitAction(formData);
   }
@@ -248,50 +243,56 @@ export default class AddressForm extends React.Component {
               {this.formTitle}
               <li>
                 <FormField label="First & Last Name" validator="ascii" maxLength={255}>
-                  <input name="name" ref="name" type="text" defaultValue={address.name} required />
+                  <TextInput name="name" defaultValue={address.name} required />
                 </FormField>
               </li>
               <li>
                 <FormField label="Country">
-                  <Dropdown id="country-dd"
-                            name="countryId"
-                            className={s.countryList}
-                            value={this.state.countryId}
-                            onChange={value => this.handleCountryChange(Number(value))}
-                            items={this.countryItems}
+                  <Dropdown
+                    id="country-dd"
+                    name="countryId"
+                    className={s.countryList}
+                    value={this.state.countryId}
+                    onChange={value => this.handleCountryChange(Number(value))}
+                    items={this.countryItems}
                   />
                 </FormField>
               </li>
               <li>
                 <FormField label="Street Address" validator="ascii" maxLength={255}>
-                  <input name="address1" type="text" defaultValue={address.address1} required />
+                  <TextInput name="address1" defaultValue={address.address1} required />
                 </FormField>
               </li>
               <li>
                 <FormField label="Street Address 2" validator="ascii" maxLength={255} optional>
-                  <input name="address2" type="text" defaultValue={address.address2} />
+                  <TextInput name="address2" defaultValue={address.address2} />
                 </FormField>
               </li>
               <li>
                 <FormField label="City" validator="ascii" maxLength={255}>
-                  <input name="city" type="text" defaultValue={address.city} required />
+                  <TextInput name="city" defaultValue={address.city} required />
                 </FormField>
               </li>
               <li>
                 <FormField label={regionName(countryCode)} required>
-                  <Dropdown id="region-dd"
-                            name="regionId"
-                            value={this.state.stateId}
-                            onChange={value => this.handleStateChange(Number(value))}
-                            items={this.regionItems}
+                  <Dropdown
+                    id="region-dd"
+                    name="regionId"
+                    value={this.state.stateId}
+                    onChange={value => this.handleStateChange(Number(value))}
+                    items={this.regionItems}
                   />
                 </FormField>
               </li>
               <li>
                 <FormField label={zipName(countryCode)} validator={this.validateZipCode}>
-                  <input type="text" name="zip"
-                         placeholder={zipExample(countryCode)}
-                         defaultValue={address.zip} className='control' required />
+                  <TextInput
+                    name="zip"
+                    placeholder={zipExample(countryCode)}
+                    defaultValue={address.zip}
+                    className="control"
+                    required
+                  />
                 </FormField>
               </li>
               <li>
@@ -300,8 +301,7 @@ export default class AddressForm extends React.Component {
                 </FormField>
               </li>
               <li className="fc-address-form-controls">
-                <SaveCancel onCancel={onCancel}
-                            saveText={saveTitle} />
+                <SaveCancel onCancel={onCancel} saveLabel={saveTitle} />
               </li>
             </ul>
           </FoxyForm>

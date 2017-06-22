@@ -7,27 +7,29 @@ import { ReasonType } from '../../../lib/reason-utils';
 import { numberize } from '../../../lib/text-utils';
 
 // components
-import ModalBase from './modal-base';
-import wrapModal from 'components/modal/wrapper';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import { CancelReason } from '../../fields';
 
+// styles
+import s from './modal.css';
+
 type Props = {
-  entity: string;
-  label?: string;
-  count: number;
-  onCancel: Function;
-  onConfirm: Function;
+  entity: string,
+  label?: string,
+  count: number,
+  onCancel: Function,
+  onConfirm: Function,
 };
 
 type State = {
-  reason: any;
+  reason: any,
 };
 
-class CancelModal extends Component {
+export default class CancelModal extends Component {
   props: Props;
 
   state: State = {
-    reason: null
+    reason: null,
   };
 
   render() {
@@ -37,32 +39,30 @@ class CancelModal extends Component {
 
     const label = rawLabel
       ? rawLabel
-      : <span>Are you sure you want to cancel <b>{count} {numberize(entity, count)}</b>?</span>;
+      : <span key="label">Are you sure you want to cancel <b>{count} {numberize(entity, count)}</b>?</span>;
 
     const body = [
       label,
       <CancelReason
         reasonType={ReasonType.CANCELLATION}
-        className="fc-modal-cancel-reason"
+        className={s.cancelReason}
         value={this.state.reason}
-        onChange={(reason) => this.setState({reason})}
-      />
+        onChange={reason => this.setState({ reason })}
+        key="reason"
+      />,
     ];
 
     return (
-      <ModalBase
+      <ConfirmationModal
+        isVisible
         title={`Cancel ${_.capitalize(entityForm)}?`}
-        label={body}
+        confirmLabel="Yes, Cancel"
         onCancel={onCancel}
         onConfirm={() => onConfirm(this.state.reason)}
-        saveText="Yes, Cancel"
-        className="fc-bulk-action-modal"
         saveDisabled={this.state.reason === null}
-      />
+      >
+        {body}
+      </ConfirmationModal>
     );
   }
 }
-
-const Wrapped: Class<Component<void, Props, State>> = wrapModal(CancelModal);
-
-export default Wrapped;

@@ -3,10 +3,10 @@ import { Component, Children, Element } from 'react';
 import ReactDOM from 'react-dom';
 
 type Props = {
-  active?: boolean;
-  left: ?number;
-  top: ?number;
-  className: ?string;
+  active?: boolean,
+  left: ?number,
+  top: ?number,
+  className: ?string,
 };
 
 export default class BodyPortal extends Component {
@@ -28,7 +28,7 @@ export default class BodyPortal extends Component {
 
     style.left = left + 'px';
     style.top = top + 'px';
-    style.zIndex = 201;
+    style.zIndex = 50;
   }
 
   componentDidMount(): void {
@@ -74,9 +74,7 @@ export default class BodyPortal extends Component {
 
     this.updateStyle();
 
-    ReactDOM.unstable_renderSubtreeIntoContainer(
-      this, Children.only(this.props.children), this._target
-    );
+    ReactDOM.unstable_renderSubtreeIntoContainer(this, Children.only(this.props.children), this._target);
   }
 
   render() {

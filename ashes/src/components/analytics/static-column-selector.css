@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .column-selector {
   position: relative;
   width: 200px;
@@ -35,12 +37,12 @@
 
   & li {
     display: flex;
-    line-height: 30px;
     font-size: 14px;
-    background: #fff;
+    line-height: 30px;
+    background: var(--bg-white);
 
     &:hover {
-      background: #f5f5f5;
+      background: var(--bg-grey-headers);
     }
   }
 
@@ -48,23 +50,18 @@
     padding: 7px 2px 7px 4px;
     font-size: 18px;
     cursor: move;
-    color: #c0c0c0;
-  }
-
-  & :global(.fc-checkbox) {
-    width: 100%;
-  }
-
-  & :global(.fc-checkbox label) {
-    padding: 7px 10px 7px 5px;
-    width: 100%;
-    cursor: pointer;
+    color: var(--color-additional-text);
   }
 
   &:global(._hasDraggingItem) {
     & li:hover {
-      background: #FFFFFF;
+      background: var(--bg-white);
     }
+  }
+
+  & .checkbox {
+    width: 100%;
+    padding: 7px 10px;
   }
 }
 
@@ -74,7 +71,7 @@
   justify-content: center;
   align-items: center;
   height: 60px;
-  border-top: 1px solid #D9D9D9;
+  border-top: 1px solid var(--color-border);
   padding-left: 10px;
   padding-right: 10px;
 
@@ -84,9 +81,9 @@
 }
 
 .isDragging {
-  box-shadow: inset -1px 1px 6px rgba(0, 0, 0, 0.24);
+  box-shadow: inset -1px 1px 6px rgba(0, 0, 0, .24);
 
-  & :global(.fc-checkbox), & :global(.icon-drag-drop) {
+  & :global(.icon-drag-drop) {
     opacity: 0;
   }
 }

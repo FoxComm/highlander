@@ -14,15 +14,14 @@ if (process.env.NODE_ENV === 'production') {
   startImage = fs.readFileSync(path.resolve(__dirname, '../src/images/logo/start.svg'), 'utf8');
   // development hardcoded manifest: no css or vendor.js, only main chunk
   webpackManifest = {
-    'app.js': 'app.js'
+    'app.js': 'app.js',
   };
 }
 
 function loadPublicKey(config) {
   try {
     return fs.readFileSync(config.api.auth.publicKey);
-  }
-  catch (err) {
+  } catch (err) {
     console.error(err);
     throw `Can't load public key ${config.api.auth.publicKey}, exit`;
   }
@@ -52,17 +51,17 @@ module.exports = function(app) {
         token = jwt.verify(jwtToken, loadPublicKey(config), {
           issuer: 'FC',
           audience: 'user',
-          algorithms: ['RS256', 'RS384', 'RS512']
+          algorithms: ['RS256', 'RS384', 'RS512'],
         });
       }
 
       if (!_.includes(token.roles, 'admin')) {
-        console.info('token.roles doesn\'t contain admin role', token.roles);
+        console.info(`token.roles doesn't contain admin role`, token.roles);
         return null; // only admins allowed to proceed
       }
 
       return token;
-    } catch(err) {
+    } catch (err) {
       console.warn(`Can't decode token: ${err}`);
     }
   }
@@ -76,15 +75,15 @@ module.exports = function(app) {
   app.jsonError = function(next) {
     try {
       return next();
-    } catch(err) {
+    } catch (err) {
       this.status = err.status || 500;
 
       let body;
 
       if (err.stack && this.env !== 'production') {
-        body = {error: err.stack};
+        body = { error: err.stack };
       } else {
-        body = {error: err.message ? err.message : String(err)};
+        body = { error: err.message ? err.message : String(err) };
       }
       this.body = body;
     }

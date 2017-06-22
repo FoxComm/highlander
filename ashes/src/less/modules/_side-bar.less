@@ -4,23 +4,23 @@
 .fc-sidebar {
 
   &__navigation-list {
-    border-top: 1px solid @color-decor2;
+    border-top: 1px solid @color-text;
     margin-bottom: 70px;
   }
 
   .fc-navigation-item-container {
-    border-left: 4px solid @color-transparent;
+    border-left: 4px solid transparent;
 
     &._active {
-      background-color: rgba(0, 0, 0, 0.27);
-      border-left-color: #49cab9;
+      background-color: @bg-nav-active;
+      border-left-color: @color-link;
       & svg {
         opacity: 1;
       }
     }
 
     &:hover {
-      background-color: rgba(0, 0, 0, 0.27);
+      background-color: @bg-nav-active;
     }
   }
 
@@ -38,7 +38,7 @@
       overflow: hidden;
 
       > span {
-        color: #fff;
+        color: @color-light-text;
         overflow: hidden;
         text-overflow: ellipsis;
       }
@@ -70,7 +70,7 @@
 
     &__sublink {
       font-size: 13px;
-      font-weight: @normal;
+      font-weight: 400;
       line-height: 18px;
       margin-bottom: 20px;
       .padding-left(70px);

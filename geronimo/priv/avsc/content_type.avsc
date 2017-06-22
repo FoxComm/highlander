@@ -1,0 +1,9 @@
+{
+  "type": "record", "name":"ContentType", "namespace": "org.apache.avro",
+  "fields": [
+    {"name": "name", "type": "string"},
+    {"name": "scope", "type": "string"},
+    {"name": "created_by", "type": "int"},
+    {"name": "versions", "type": {"type": "array", "items": "string"}}
+  ]
+}

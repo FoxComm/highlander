@@ -1,5 +1,5 @@
 .fc-orders-choose-customer {
-  background: @color-white;
+  background: @bg-white;
   display: table;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1);
   width: 100%;
@@ -8,12 +8,12 @@
   &__footer {
     .border-radius(0 0 3px 3px);
     align-items: center;
-    background: @color-white;
+    background: @bg-white;
     display: flex;
     justify-content: center;
-    border-left: 1px solid @color-decor9;
-    border-right: 1px solid @color-decor9;
-    border-bottom: 1px solid @color-decor9;
+    border-left: 1px solid @color-border;
+    border-right: 1px solid @color-border;
+    border-bottom: 1px solid @color-border;
 
     .fc-btn {
       margin: 20px;
@@ -23,19 +23,19 @@
 
   &__footer-divider {
     .font-spec(15px, 600, 20px);
-    color: @color-decor1;
+    color: @color-text;
   }
 
   &__no-results {
     .font-spec(18px, 600, 24px);
     padding: 15px;
-    color: @color-decor8;
-    border-left: 1px solid @color-decor9;
-    border-right: 1px solid @color-decor9;
+    color: @color-additional-text;
+    border-left: 1px solid @color-border;
+    border-right: 1px solid @color-border;
   }
 
   .fc-table tbody tr.even, .fc-table tbody tr:nth-child(even) {
-    background: @color-white;
+    background: @bg-white;
   }
 
   .fc-table tbody td {

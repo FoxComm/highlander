@@ -1,19 +1,20 @@
+import core.db._
 import phoenix.models.Reasons
 import phoenix.models.payment.giftcard._
 import phoenix.models.payment.storecredit._
-import phoenix.responses.{GiftCardSubTypesResponse, StoreCreditSubTypesResponse}
+import phoenix.responses.StoreCreditSubTypesResponse
+import phoenix.responses.giftcards.GiftCardSubTypesResponse
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixPublicApi
 import testutils.fixtures.BakedFixtures
-import core.db._
 
 class PaymentTypesIntegrationTest extends IntegrationTestBase with PhoenixPublicApi with BakedFixtures {
 
   "GiftCard Types" - {
     "GET /v1/public/gift-cards/types" - {
       "should return all GC types and related sub-types" in new GiftCardFixture {
-        val root = publicApi.giftCardTypes().as[Seq[GiftCardSubTypesResponse.Root]]
+        val root = publicApi.giftCardTypes().as[Seq[GiftCardSubTypesResponse]]
 
         root.size must === (GiftCard.OriginType.types.size)
         root.map(_.originType) must === (GiftCard.OriginType.types.toSeq)

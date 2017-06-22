@@ -9,7 +9,7 @@ import phoenix.payloads.ActivityTrailPayloads._
 import phoenix.payloads.AddressPayloads._
 import phoenix.payloads.AssignmentPayloads._
 import phoenix.payloads.CartPayloads._
-import phoenix.payloads.CatalogPayloads.{CreateCatalogPayload, UpdateCatalogPayload}
+import phoenix.payloads.CatalogPayloads._
 import phoenix.payloads.CategoryPayloads._
 import phoenix.payloads.CouponPayloads._
 import phoenix.payloads.CustomerGroupPayloads._
@@ -889,6 +889,12 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def update(payload: UpdateCatalogPayload)(implicit aa: TestAdminAuth): HttpResponse =
       PATCH(catalogPath, payload, aa.jwtCookie.some)
+
+    def addProducts(payload: AddProductsPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$catalogPath/products", payload, aa.jwtCookie.some)
+
+    def deleteProduct(productId: Int)(implicit aa: TestAdminAuth): HttpResponse =
+      DELETE(s"$catalogPath/products/$productId", aa.jwtCookie.some)
   }
 
   object captureApi {

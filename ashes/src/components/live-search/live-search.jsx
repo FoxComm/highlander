@@ -2,15 +2,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
-
 import _ from 'lodash';
 import classNames from 'classnames';
 import { trackEvent } from 'lib/analytics';
 
 // components
 // import MaskedInput from '../masked-input/masked-input'; // @todo get back
-import Menu from '../menu/menu';
-import MenuItem from '../menu/menu-item';
+import { Menu, MenuItem } from './menu';
 import PilledInput from '../pilled-search/pilled-input';
 import SearchOption from './search-option';
 import TabListView from '../tabs/tabs';
@@ -19,9 +17,15 @@ import DatePicker from '../datepicker/datepicker';
 import ShareSearch from '../share-search/share-search';
 import { Button } from 'components/core/button';
 import ButtonWithMenu from 'components/core/button-with-menu';
-import Alert from '../alerts/alert';
+import Alert from 'components/core/alert';
+import TextInput from 'components/core/text-input';
+import Icon from 'components/core/icon';
+import { RoundedPill } from 'components/core/rounded-pill';
 
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
+
+// styles
+import s from './live-search.css';
 
 const SEARCH_MENU_ACTION_SHARE = 'share';
 const SEARCH_MENU_ACTION_SAVE = 'save';
@@ -161,7 +165,7 @@ export default class LiveSearch extends React.Component {
           const dateVal = date.toLocaleString('en-us', {
             month: '2-digit',
             day: '2-digit',
-            year: 'numeric'
+            year: 'numeric',
           });
 
           trackEvent('LiveSearch', 'click_datePicker', 'Click date picker');
@@ -174,39 +178,44 @@ export default class LiveSearch extends React.Component {
             key="live-search-orders-datepicker"
             onClick={clickAction}
             showInput={false}
-            showPicker={true} />
+            showPicker={true}
+          />
         );
       } else {
         const selectedIdx = this.state.selectionIndex;
-        options = _.reduce(this.state.searchOptions, (result, option, idx) => {
-          if (!option.matchesSearchTerm(this.state.searchValue)) {
-            return result;
-          }
+        options = _.reduce(
+          this.state.searchOptions,
+          (result, option, idx) => {
+            if (!option.matchesSearchTerm(this.state.searchValue)) {
+              return result;
+            }
 
-          const handleClick = filter => {
-            trackEvent('LiveSearch', `click_option [${option.displayTerm}]`);
-            this.submitFilter(filter, true);
-          };
+            const handleClick = filter => {
+              trackEvent('LiveSearch', `click_option [${option.displayTerm}]`);
+              this.submitFilter(filter, true);
+            };
 
-          return [
-            ...result,
-            <SearchOption
-              className={classNames({ '_active': selectedIdx == idx, '_first': idx == 0 })}
-              key={`search-option-${option.displayTerm}`}
-              option={option}
-              clickAction={handleClick}
-            />
-          ];
-        }, []);
+            return [
+              ...result,
+              <SearchOption
+                key={`search-option-${option.displayTerm}`}
+                option={option}
+                clickAction={handleClick}
+                active={selectedIdx == idx}
+              />,
+            ];
+          },
+          []
+        );
       }
 
       const menuClass = classNames('fc-live-search__go-back _last', {
-        '_active': this.state.selectionIndex == this.state.searchOptions.length
+        _active: this.state.selectionIndex == this.state.searchOptions.length,
       });
 
       goBack = (
         <MenuItem className={menuClass} clickAction={this.goBack}>
-          <i className="icon-back" />
+          <Icon name="back" />
           Back
         </MenuItem>
       );
@@ -267,7 +276,8 @@ export default class LiveSearch extends React.Component {
           onClick={() => !selected && !isLoading && this.props.selectSavedSearch(idx)}
           editMode={this.state.editingTab === idx}
           onEditNameComplete={title => this.handleEditName(search, title, idx)}
-          onEditNameCancel={this.handleEditNameCancel} />
+          onEditNameCancel={this.handleEditNameCancel}
+        />
       );
     });
 
@@ -306,10 +316,7 @@ export default class LiveSearch extends React.Component {
         [SEARCH_MENU_ACTION_DELETE, 'Delete Search'],
       ];
     } else {
-      menuItems = [
-        [SEARCH_MENU_ACTION_SAVE, 'Save New Search'],
-        ...clearAction,
-      ];
+      menuItems = [[SEARCH_MENU_ACTION_SAVE, 'Save New Search'], ...clearAction];
     }
 
     const menuDisabled = searches.isSavingSearch || this.isDisabled;
@@ -330,9 +337,12 @@ export default class LiveSearch extends React.Component {
 
   @autobind
   handleEditName(search, title, searchIndex) {
-    this.setState({
-      editingTab: null,
-    }, () => this.props.updateSearch(searchIndex, { ...search, title }));
+    this.setState(
+      {
+        editingTab: null,
+      },
+      () => this.props.updateSearch(searchIndex, { ...search, title })
+    );
   }
 
   @autobind
@@ -382,27 +392,24 @@ export default class LiveSearch extends React.Component {
 
   @autobind
   formatPill(pill, idx, props) {
-    const icon = pill.term === '_all' ? 'icon-search' : 'icon-filter';
+    const icon = pill.term === '_all' ? 'search' : 'filter';
 
     return (
-      <div
-        className="fc-pilled-input__pill"
+      <RoundedPill
         key={`pill-${this.currentSearch.title}-${idx}`}
-        onClick={() => props.onPillClick(pill, idx)}
-        title={pill.display}>
-        <i className={icon} />
-        <span className="fc-pilled-input__pill-value">{pill.display}</span>
-        <a onClick={() => props.onPillClose(pill, idx)}
-           className="fc-pilled-input__pill-close">
-          &times;
-        </a>
-      </div>
+        value={idx}
+        onClose={() => props.onPillClose(pill, idx)}
+        className={s.pill}
+      >
+        <Icon name={icon} className={s.icon} />
+        {pill.display}
+      </RoundedPill>
     );
   }
 
   @autobind
-  change({ target }) {
-    this.submitFilter(target.value);
+  change(value) {
+    this.submitFilter(value);
   }
 
   @autobind
@@ -440,9 +447,7 @@ export default class LiveSearch extends React.Component {
             ? this.state.searchOptions.length - 1
             : this.state.searchOptions.length;
 
-          const newIdx = (this.state.selectionIndex + 1) > maxLength
-            ? 0
-            : this.state.selectionIndex + 1;
+          const newIdx = this.state.selectionIndex + 1 > maxLength ? 0 : this.state.selectionIndex + 1;
 
           let newSearchDisplay;
           if (newIdx < this.state.searchOptions.length) {
@@ -454,7 +459,7 @@ export default class LiveSearch extends React.Component {
           this.setState({
             optionsVisible: true,
             searchDisplay: newSearchDisplay,
-            selectionIndex: newIdx
+            selectionIndex: newIdx,
           });
         }
         break;
@@ -467,13 +472,11 @@ export default class LiveSearch extends React.Component {
             this.setState({ optionsVisible: false });
           } else {
             const newIdx = this.state.selectionIndex - 1;
-            const display = newIdx == -1
-              ? this.state.searchValue
-              : this.state.searchOptions[newIdx].selectionValue;
+            const display = newIdx == -1 ? this.state.searchValue : this.state.searchOptions[newIdx].selectionValue;
 
             this.setState({
               searchDisplay: display,
-              selectionIndex: newIdx
+              selectionIndex: newIdx,
             });
           }
         }
@@ -502,10 +505,7 @@ export default class LiveSearch extends React.Component {
 
   @autobind
   deleteFilter(idx) {
-    const filters = [
-      ...this.state.pills.slice(0, idx),
-      ...this.state.pills.slice(idx + 1)
-    ];
+    const filters = [...this.state.pills.slice(0, idx), ...this.state.pills.slice(idx + 1)];
     this.props.submitFilters(filters);
   }
 
@@ -539,15 +539,12 @@ export default class LiveSearch extends React.Component {
 
         if (filter.value.type === 'string' && filter.value.value.length < 3) {
           this.setState({
-            errorMessage: 'Please enter at least 3 characters.'
+            errorMessage: 'Please enter at least 3 characters.',
           });
           return;
         }
 
-        this.props.submitFilters([
-          ...this.state.pills,
-          filter
-        ]);
+        this.props.submitFilters([...this.state.pills, filter]);
       } else if (option.children.length > 1) {
         options = option.children;
         inputMask = '';
@@ -573,7 +570,7 @@ export default class LiveSearch extends React.Component {
       searchDisplay: searchDisplay,
       searchPrepend: searchPrepend,
       searchValue: newSearchTerm,
-      selectionIndex: -1
+      selectionIndex: -1,
     });
   }
 
@@ -631,11 +628,14 @@ export default class LiveSearch extends React.Component {
 
   render() {
     const gridClass = classNames('fc-list-page-content', {
-      '_no-gutter': this.props.noGutter
+      '_no-gutter': this.props.noGutter,
     });
+    const tableWrapClass = classNames(gridClass, s.table);
     const tableClass = classNames('fc-live-search__table', {
-      '_no-gutter': this.props.noGutter
+      '_no-gutter': this.props.noGutter,
     });
+
+    const inputClass = classNames('fc-pilled-input__input-field', '_no-fc-behaviour', '_solid-input');
 
     return (
       <div className="fc-live-search">
@@ -646,33 +646,33 @@ export default class LiveSearch extends React.Component {
             <form>
               <PilledInput
                 controls={this.controls}
-                className={classNames({ '_active': this.state.isFocused, '_disabled': this.isDisabled })}
+                className={classNames({ _active: this.state.isFocused, _disabled: this.isDisabled })}
                 onPillClose={this.handlePillClose}
-                formatPill={this.formatPill}
                 icon={null}
-                pills={this.state.pills}>
+                pills={this.state.pills}
+              >
                 {/* @todo get back MaskedInput prepend={this.state.searchPrepend} */}
-                <input
-                  className="fc-pilled-input__input-field _no-fc-behavior"
+                <TextInput
+                  className={inputClass}
                   mask={this.state.inputMask}
                   onChange={this.change}
                   onFocus={this.inputFocus}
                   onBlur={this.blur}
                   onKeyDown={this.keyDown}
                   placeholder={this.props.placeholder}
-
                   value={this.state.searchDisplay}
                   disabled={this.isDisabled}
-                  ref={i => this._input = i} />
+                  ref={i => (this._input = i)}
+                />
               </PilledInput>
             </form>
 
-            <div>
+            <div className={s.dropdown}>
               {this.dropdownContent}
             </div>
           </div>
         </div>
-        <div className={gridClass}>
+        <div className={tableWrapClass}>
           <div className={tableClass}>
             {this.props.children}
           </div>
