@@ -84,41 +84,19 @@ class CouponPage extends ObjectPage {
   @autobind
   updateObjectWithCodes() {
     const { bulk, singleCode, codesQuantity, codesPrefix, codesLength } = this.props.details.codeGeneration;
-    if (!bulk) {
-      return {
-        ..._.omit(this.state.object,'generateCodes'),
-        singleCode,
-      };
-    } else {
-      const generateCodes = {
-        prefix: codesPrefix,
-        quantity: codesQuantity,
-        length: Number(codesLength) + codesPrefix.length,
-      };
-      return {
-        ..._.omit(this.state.object,'singleCode'),
-        generateCodes,
-      };
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { isFetching, isSaving, fetchError, createError, updateError } = nextProps;
-
-    const nextSchema = nextProps.schema;
-    if (nextSchema && nextSchema != this.state.schema) {
-      this.setState({
-        schema: nextSchema,
-      });
-    }
-
-    if (!isFetching && !isSaving && !fetchError && !createError && !updateError) {
-      const nextObject = nextProps.originalObject;
-      if (nextObject && nextObject != this.props.originalObject) {
-        if (_.isArray(nextObject)) return;
-        this.receiveNewObject(nextObject);
-      }
-    }
+    const generateCodes = {
+      prefix: codesPrefix,
+      quantity: codesQuantity,
+      length: Number(codesLength) + codesPrefix.length,
+    };
+    if(!bulk) return {
+      ..._.omit(this.state.object,'generateCodes'),
+      singleCode,
+    };
+    return {
+      ..._.omit(this.state.object,'singleCode'),
+      generateCodes,
+    };
   }
 
   save(): ?Promise<*> {
@@ -127,7 +105,7 @@ class CouponPage extends ObjectPage {
     }, () => {
       const { bulk, singleCode } = this.props.details.codeGeneration;
       if (bulk === false && singleCode != void 0) {
-        let willBeCoupon = super.save();
+        const willBeCoupon = super.save();
         willBeCoupon.then((data) => {
           this.props.actions.couponsGenerationReset();
         }).then(() => {
@@ -143,16 +121,15 @@ class CouponPage extends ObjectPage {
   }
 
   @autobind
-  saveBulk(): ?Promise<*> {
+  saveBulk(): Promise<*> {
     const { bulk } = this.props.details.codeGeneration;
-    if (bulk === true && this.props.actions.codeIsOfValidLength()) {
-      let willBeCoupon = super.save();
-      return willBeCoupon;
-    }
+    const willBeCoupon = super.save();
+    return willBeCoupon;
   }
 
   @autobind
   receiveNewObject(nextObject) {
+    if (_.isArray(nextObject)) return;
     nextObject.promotion = Number(this.props.params.promotionId);
     nextObject.attributes.name = {
       // TO BE REMOVED WHEN COUPON NAME WILL BE REMOVED FROM COUPONS SCHEMA
@@ -237,7 +214,7 @@ class CouponPage extends ObjectPage {
       createCoupon: this.createCoupon,
       selectedPromotions: this.selectedPromotions,
       refresh: this.props.actions.refresh,
-      save: this.saveBulk,
+      saveBulk: this.saveBulk,
     };
   }
 

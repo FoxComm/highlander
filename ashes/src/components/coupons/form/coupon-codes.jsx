@@ -37,6 +37,7 @@ type Props = {
   couponsGenerationChange: Function,
   couponsGenerationReset: Function,
   codeIsOfValidLength: Function,
+  save: () => Promise<*>,
 };
 
 class CouponCodes extends Component {
