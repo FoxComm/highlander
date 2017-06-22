@@ -3,11 +3,14 @@
 // libs
 import _ from 'lodash';
 import React, { Element, Component } from 'react';
-import { autobind } from 'core-decorators';
+import ReactDOM from 'react-dom';
+import { autobind, debounce } from 'core-decorators';
 import classNames from 'classnames';
 
 import Icon from 'components/core/icon';
 import { SmartList } from 'components/core/dropdown';
+import TextInput from 'components/core/text-input';
+import Spinner from 'components/core/spinner';
 
 // styles
 import s from './search-dropdown.css';
@@ -20,7 +23,7 @@ type InternalItem = {
 type Item = [string, string];
 
 type Props = {
-  /** An array of all possible values which will be in a list */
+  /** An array of initial values which will be in a list */
   // $FlowFixMe
   items: Array<Item | InternalItem | string>,
   /** Input name which will be used by form */
@@ -29,6 +32,8 @@ type Props = {
   value: string | number | null, // input value
   /** Text which is visible when no value */
   placeholder: string,
+  /** Placeholder for search input */
+  searchbarPlaceholder: string,
   /** Additional root className */
   className?: string,
   /** If true, you cant open dropdown or change its value from UI */
@@ -37,11 +42,15 @@ type Props = {
   stateless: boolean,
   /** Callback which fires when the value has been changes */
   onChange: Function,
+  /** Callback for token change (fetching new results for the list) */
+  fetch: (token: string) => Promise<any>,
 };
 
 type State = {
   open: boolean, // show or hide the menu
   selectedValue: string, // current selected value of menu
+  items: Array<InternalItem>,
+  isLoading: boolean,
 };
 
 /**
@@ -57,6 +66,7 @@ export default class SearchDropdown extends Component {
     name: '',
     value: '',
     placeholder: '- Select -',
+    searchbarPlaceholder: 'Start to type...',
     disabled: false,
     onChange: () => {},
     stateless: false,
@@ -66,13 +76,24 @@ export default class SearchDropdown extends Component {
   state: State = {
     open: false,
     selectedValue: this.getValue(this.props.value),
+    items: this.unifyItems(this.props.items),
+    isLoading: false,
   };
 
   _pivot: HTMLElement;
+  _input: Element;
 
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.value !== this.props.value) {
       this.setState({ selectedValue: this.getValue(nextProps.value) });
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const input = ReactDOM.findDOMNode(this._input);
+
+    if (this.state.open && !prevState.open && input) {
+      input.focus();
     }
   }
 
@@ -114,33 +135,80 @@ export default class SearchDropdown extends Component {
 
   get displayText(): string {
     const { placeholder } = this.props;
-    const item = _.find(this.items, item => item.value == this.state.selectedValue); // could be number == string
+    const item = _.find(this.state.items, item => item.value == this.state.selectedValue); // could be number == string
 
     return (item && item.displayText) || this.state.selectedValue || placeholder;
   }
 
-  get items(): Array<InternalItem> {
-    const { items } = this.props;
-
-    if (Array.isArray(items[0])) {
-      return items.map(([value, displayText]) => ({ value, displayText }));
-    } else if (typeof items[0] === 'string') {
-      return items.map((value: string) => ({ value, displayText: value }));
+  unifyItems(dirtyItems): Array<InternalItem> {
+    if (Array.isArray(dirtyItems[0])) {
+      return dirtyItems.map(([value, displayText]) => ({ value, displayText }));
+    } else if (typeof dirtyItems[0] === 'string') {
+      return dirtyItems.map((value: string) => ({ value, displayText: value }));
+    } else if (!dirtyItems) {
+      return [];
     }
 
-    return items;
+    return dirtyItems;
+  }
+
+  @debounce(400)
+  fetch(token: string) {
+    this.props
+      .fetch(token)
+      .then(data => {
+        if (data.token === token) {
+          this.setState({ items: this.unifyItems(data.items), isLoading: false });
+        }
+      })
+      .catch(() => this.setState({ isLoading: false }));
+  }
+
+  onTokenChange(token: string) {
+    this.setState({ token });
+
+    if (!token) {
+      this.setState({ items: [], isLoading: false });
+    } else {
+      this.setState({ isLoading: true });
+      this.fetch(token);
+    }
+  }
+
+  renderSearchBar() {
+    return (
+      <div className={s.searchBar}>
+        <Icon name="search" className={s.loupeIcon} />
+        <TextInput
+          ref={i => (this._input = i)}
+          placeholder={this.props.searchbarPlaceholder}
+          className={s.searchBarInput}
+          value={this.state.token}
+          onChange={value => this.onTokenChange(value)}
+        />
+      </div>
+    );
   }
 
   renderItems() {
-    let list = this.items.map(item =>
+    let content = this.state.items.map(item =>
       <div key={item.value} className={s.item} onClick={() => this.handleItemClick(item)}>
         {item.displayText || item.value}
       </div>
     );
 
+    if (!content.length && this.state.isLoading) {
+      content = <Spinner className={s.spinner} />;
+    }
+
     return (
-      <SmartList className={s.menu} onEsc={() => this.toggleMenu(false)} pivot={this._pivot}>
-        {list}
+      <SmartList
+        className={s.menu}
+        onEsc={() => this.toggleMenu(false)}
+        pivot={this._pivot}
+        before={this.renderSearchBar()}
+      >
+        {content}
       </SmartList>
     );
   }
@@ -155,11 +223,11 @@ export default class SearchDropdown extends Component {
 
   render() {
     const { disabled, name, placeholder, className } = this.props;
-    const { selectedValue, open } = this.state;
+    const { items, selectedValue, open } = this.state;
     const cls = classNames(s.block, className, {
       [s.disabled]: disabled,
       [s.open]: open,
-      [s.empty]: !this.items.length,
+      [s.empty]: !items.length,
     });
     const arrow = this.state.open ? 'chevron-up' : 'chevron-down';
 

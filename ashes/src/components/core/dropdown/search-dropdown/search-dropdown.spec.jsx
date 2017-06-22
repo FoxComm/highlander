@@ -4,23 +4,97 @@ import { mount } from 'enzyme';
 
 import SearchDropdown from './search-dropdown';
 
-describe.only('SearchDropdown', function() {
-  it('should set phaceholder if no value', function() {
-    const phaceholderText = 'ahuilerhg';
-    const textDropdown = mount(<SearchDropdown value={null} placeholder={phaceholderText} />);
+describe('SearchDropdown', function() {
+  // @todo sinon and promises
+  it.skip('should set list only for corresponding token', function() {
+    const clock = sinon.useFakeTimers();
+    const stub = sinon.stub();
+    const items = ['one', 'two'];
+    const resolver = sinon.spy((resolve, value) => resolve(value));
 
-    expect(textDropdown.find('.displayText')).text().to.equal(phaceholderText);
+    function fetch(token) {
+      console.log('fetch');
+      return {};
+
+      new Promise(function(resolve, reject) {
+        setTimeout(() => {
+          resolve({ items, token });
+          console.log('resolve');
+        }, 10);
+      });
+    }
+
+    for (let i = 0; i < 25; i++) {
+      setTimeout(() => console.log(i), i);
+    }
+
+    const searchDropdown = mount(<SearchDropdown fetch={fetch} />);
+
+    const spySetState = sinon.spy(searchDropdown, 'setState');
+
+    searchDropdown.find('.pivot').simulate('click');
+
+    searchDropdown.find('.searchBarInput').simulate('change', { target: { value: 'foo' } });
+    clock.tick(5);
+    searchDropdown.find('.searchBarInput').simulate('change', { target: { value: 'bar' } });
+    clock.tick(6); // foo response ended
+    console.log('∑∑∑ foo response ended', searchDropdown.state('items').length);
+    expect(searchDropdown.state('items').length).to.equal(0); // foo response must be cancelled
+    clock.tick(15); // bar response ended
+    console.log('∑∑∑ bar response ended');
+    console.log(searchDropdown.state('items'));
+    expect(searchDropdown.state('items').length).to.equal(2);
+
+    clock.restore();
   });
 
-  it('should convert null to empty string value', function() {
-    const textDropdown = mount(<SearchDropdown value={null} />);
+  it('should open TextInput', function() {
+    const searchDropdown = mount(<SearchDropdown />);
 
-    expect(textDropdown.state().selectedValue).to.equal('');
+    searchDropdown.find('.pivot').simulate('click'); // open dropdown
+
+    expect(searchDropdown.find('.searchBarInput').exists()).to.be.true;
+    expect(searchDropdown.find('.searchBarInput').type()).to.equal('input');
   });
 
-  it('should convert number to string value', function() {
-    const textDropdown = mount(<SearchDropdown value={4} />);
+  it('should not call fetch method very often', function() {
+    const clock = sinon.useFakeTimers();
+    const fetch = sinon.spy(() => Promise.resolve([]));
+    const searchDropdown = mount(<SearchDropdown fetch={fetch} />);
 
-    expect(textDropdown.state().selectedValue).to.equal('4');
+    searchDropdown.find('.pivot').simulate('click'); // open dropdown
+    searchDropdown.find('.searchBarInput').simulate('change', { target: { value: 'foo' } }); // type `foo`
+    clock.tick(399);
+    searchDropdown.find('.searchBarInput').simulate('change', { target: { value: 'baz' } }); // type `baz`
+    clock.tick(399);
+    searchDropdown.find('.searchBarInput').simulate('change', { target: { value: 'foo' } }); // type `bar`
+    clock.tick(400);
+
+    expect(fetch.calledOnce).to.be.true;
+    expect(searchDropdown.state('token')).to.equal('foo');
+
+    clock.restore();
+  });
+
+  it('should be spinner if loading', function() {
+    const fetch = sinon.spy(() => Promise.resolve([]));
+    const searchDropdown = mount(<SearchDropdown fetch={fetch} />);
+
+    searchDropdown.find('.pivot').simulate('click'); // open dropdown
+    searchDropdown.find('.searchBarInput').simulate('change', { target: { value: 'foo' } }); // type `foo`
+
+    expect(searchDropdown.state('isLoading')).to.be.true;
+    expect(searchDropdown.find('.spinner').exists()).to.be.true;
+  });
+
+  it('should not be spinner if loading and there is non-empty result', function() {
+    const fetch = sinon.spy(() => Promise.resolve([]));
+    const searchDropdown = mount(<SearchDropdown fetch={fetch} items={['one']} />);
+
+    searchDropdown.find('.pivot').simulate('click'); // open dropdown
+    searchDropdown.find('.searchBarInput').simulate('change', { target: { value: 'foo' } }); // type `foo`
+
+    expect(searchDropdown.state('isLoading')).to.be.true;
+    expect(searchDropdown.find('.spinner').exists()).to.be.false;
   });
 });

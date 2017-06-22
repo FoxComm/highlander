@@ -15,16 +15,15 @@ const items = [
 ```
 const items = [{ value: 'One' }, { value: 'Two' }, { value: 'Three', displayText: 'Three!' }];
 
+function fetch(token) {
+  return new Promise(function(resolve, reject) {
+    setTimeout(() => resolve({ items, token }), 1000);
+  });
+};
+
 <div style={{ display: 'flex' }}>
   <div style={{ width: '200px', marginRight: '10px' }}>
-    <SearchDropdown items={items} onChange={e => console.log(e)} value="One" />
+    <SearchDropdown fetch={fetch} />
   </div>
-  <div style={{ width: '200px', marginRight: '10px' }}>
-    <SearchDropdown items={[]} disabled placeholder="disabled" />
-  </div>
-  <div style={{ width: '200px', marginRight: '10px' }}>
-    <SearchDropdown items={['One', 'Two', 'Three!']} stateless placeholder="Action" />
-  </div>
-  <SearchDropdown placeholder="Empty" />
 </div>
 ```

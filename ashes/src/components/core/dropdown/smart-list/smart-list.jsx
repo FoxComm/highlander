@@ -24,7 +24,7 @@ type Props = {
    * Default value: previous sibling or parent. */
   pivot?: HTMLElement,
   /** If true, BodyPortal is used */
-  detached?: boolean,
+  detached: boolean,
   /** Additional className for block */
   className?: string,
   /** Callback on user actions which intends to close menu */
@@ -54,6 +54,7 @@ export default class SmartList extends Component {
   static defaultProps = {
     align: 'right',
     onEsc: () => {},
+    detached: false,
   };
 
   state: State = {

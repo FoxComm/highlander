@@ -43,6 +43,7 @@
   top: 40px;
   max-height: 264px;
   box-shadow: 0 2px 6px 0 rgba(0, 0, 0, .2);
+  background-color: var(--bg-white);
 }
 
 .searchBar {
@@ -50,16 +51,15 @@
 }
 
 .loupeIcon {
-  position: relative;
+  position: absolute;
   left: 15px;
-  top: -50px;
+  top: 20px;
   font-size: 20px;
-  width: 20px;
   color: var(--color-additional-text);
-  line-height: 35px;
 }
 
 .searchBarInput {
+  width: 100%;
   padding-left: 30px;
 }
 
@@ -78,7 +78,6 @@
   }
 }
 
-.toggleBtn {
-  width: 40px;
-  height: 40px;
+.spinner {
+  margin: 0 auto 14px;
 }
