@@ -1,4 +1,7 @@
 defmodule Geronimo.Kafka.SchemaRegistryClient do
+  @moduledoc """
+  Provides a easy and conveniens functions to get/store schemas in schema registry
+  """
   use HTTPoison.Base
 
   def get_schema(object, id) do
@@ -15,7 +18,7 @@ defmodule Geronimo.Kafka.SchemaRegistryClient do
     case response do
       {:ok, %HTTPoison.Response{body: body, headers: _, status_code: 200}} -> {:ok, body}
       {:ok, %HTTPoison.Response{body: body, headers: _, status_code: _}} -> {:error, body}
-      {:error, err} -> {:fail, err}
+      {:error, err} -> {:fail, inspect(err)}
     end
   end
 
