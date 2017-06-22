@@ -6,8 +6,16 @@ import (
 	"github.com/FoxComm/highlander/remote/utils/failures"
 )
 
-func FindChannelByID(dbs *RemoteDBs, id int, phxChannel *phoenix.Channel) failures.Failure {
-	return dbs.Phx().FindByID("channel", id, phxChannel)
+func FindChannelByID(dbs *RemoteDBs, id int, icChannel *ic.Channel, phxChannel *phoenix.Channel) failures.Failure {
+	if fail := dbs.Phx().FindByID("channel", id, phxChannel); fail != nil {
+		return fail
+	}
+
+	if fail := dbs.IC().FindByIDWithFailure("channel", phxChannel.RiverRockChannelID, icChannel, failures.FailureBadRequest); fail != nil {
+		return fail
+	}
+
+	return nil
 }
 
 func InsertChannel(dbs *RemoteDBs, icChannel *ic.Channel, phxChannel *phoenix.Channel, hosts []string) failures.Failure {

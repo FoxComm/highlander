@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/FoxComm/highlander/remote/models/ic"
 	"github.com/FoxComm/highlander/remote/models/phoenix"
 	"github.com/FoxComm/highlander/remote/payloads"
 	"github.com/FoxComm/highlander/remote/responses"
@@ -21,13 +22,14 @@ func NewChannels(dbs *services.RemoteDBs) *Channels {
 // GetChannel finds a single channel by its ID.
 func (ctrl *Channels) GetChannel(id int) ControllerFunc {
 	return func() (*responses.Response, failures.Failure) {
-		channel := &phoenix.Channel{}
+		icChannel := &ic.Channel{}
+		phxChannel := &phoenix.Channel{}
 
-		if err := services.FindChannelByID(ctrl.dbs, id, channel); err != nil {
+		if err := services.FindChannelByID(ctrl.dbs, id, icChannel, phxChannel); err != nil {
 			return nil, err
 		}
 
-		resp := responses.NewChannel(channel)
+		resp := responses.NewChannel(icChannel, phxChannel, []string{})
 		return responses.NewResponse(http.StatusOK, resp), nil
 	}
 }
@@ -42,7 +44,7 @@ func (ctrl *Channels) CreateChannel(payload *payloads.CreateChannel) ControllerF
 			return nil, err
 		}
 
-		resp := responses.NewChannel(phxChannel)
+		resp := responses.NewChannel(icChannel, phxChannel, payload.Hosts)
 		return responses.NewResponse(http.StatusCreated, resp), nil
 	}
 }
@@ -50,17 +52,18 @@ func (ctrl *Channels) CreateChannel(payload *payloads.CreateChannel) ControllerF
 // UpdateChannel updates an existing channel.
 func (ctrl *Channels) UpdateChannel(id int, payload *payloads.UpdateChannel) ControllerFunc {
 	return func() (*responses.Response, failures.Failure) {
-		existingPhxChannel := &phoenix.Channel{}
-		if err := services.FindChannelByID(ctrl.dbs, id, existingPhxChannel); err != nil {
-			return nil, err
-		}
+		// existingPhxChannel := &phoenix.Channel{}
+		// if err := services.FindChannelByID(ctrl.dbs, id, existingPhxChannel); err != nil {
+		// 	return nil, err
+		// }
 
-		phxChannel := payload.PhoenixModel(existingPhxChannel)
-		if err := services.UpdateChannel(ctrl.dbs, phxChannel); err != nil {
-			return nil, err
-		}
+		// phxChannel := payload.PhoenixModel(existingPhxChannel)
+		// if err := services.UpdateChannel(ctrl.dbs, phxChannel); err != nil {
+		// 	return nil, err
+		// }
 
-		resp := responses.NewChannel(phxChannel)
-		return responses.NewResponse(http.StatusOK, resp), nil
+		// resp := responses.NewChannel(phxChannel)
+		// return responses.NewResponse(http.StatusOK, resp), nil
+		return nil, nil
 	}
 }
