@@ -47,7 +47,8 @@ abstract class FlywayMigrationsTest(migrationVersion: String)
 
 object FlywayMigrationsTest {
   def list: Seq[FlywayMigrationsTest] = Seq(
-    PluginsMigrationTest
+    PluginsMigrationTest,
+    AddressesMigrationTest
   )
 }
 
